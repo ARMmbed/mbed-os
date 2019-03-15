@@ -46,7 +46,7 @@ static USBPhyHw *instance = 0;
 static volatile bool virtual_status_xfer_event;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
-static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
+static void power_usb_event_handler(nrfx_power_usb_evt_t event);
 
 USBPhy *get_usb_phy() {
 	static USBPhyHw usbphy;
@@ -56,7 +56,7 @@ USBPhy *get_usb_phy() {
 USBPhyHw::USBPhyHw() :
 		events(NULL), sof_enabled(false), connect_enabled(false),
 		usb_event_type(USB_HW_EVENT_NONE),
-		usb_power_event(NRF_DRV_POWER_USB_EVT_REMOVED) {
+		usb_power_event(NRFX_POWER_USB_EVT_REMOVED) {
 
 }
 
@@ -73,15 +73,14 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	ret_code_t ret;
 
 	// Initialize power module to track USB Power events
-	ret = nrf_drv_power_init(NULL);
+	ret = nrfx_power_init(NULL);
 	MBED_ASSERT(ret == NRF_SUCCESS);
 
 
 	// Register callback for USB Power events
-	static const nrf_drv_power_usbevt_config_t config = { .handler =
+	static const nrfx_power_usbevt_config_t config = { .handler =
 			power_usb_event_handler };
-	ret = nrf_drv_power_usbevt_init(&config);
-	MBED_ASSERT(ret == NRF_SUCCESS);
+	nrfx_power_usbevt_init(&config);
 
 	// Initialize USB Device driver
 	ret = nrf_drv_usbd_init(usbd_event_handler);
@@ -115,15 +114,15 @@ void USBPhyHw::deinit() {
 	//NVIC_DisableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 
 	// Disable the power peripheral driver
-	nrf_drv_power_uninit();
+	nrfx_power_uninit();
 
 	// Clear the instance pointer
 	instance = 0;
 }
 
 bool USBPhyHw::powered() {
-	if (nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_CONNECTED
-			|| nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_READY)
+	if (nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_CONNECTED
+			|| nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_READY)
 		return true;
 	else
 		return false;
@@ -138,7 +137,7 @@ void USBPhyHw::connect() {
 	this->connect_enabled = true;
 
 	// If VBUS is already available, enable immediately
-	if(nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_CONNECTED)
+	if(nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_CONNECTED)
 	{
 		// Enabling USB will cause NRF_DRV_POWER_USB_EVT_READY
 		// to occur, which will start the USBD peripheral
@@ -146,7 +145,7 @@ void USBPhyHw::connect() {
 		if(!nrf_drv_usbd_is_enabled())
 			nrf_drv_usbd_enable();
 
-		if(nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_READY
+		if(nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_READY
 		   && !nrf_drv_usbd_is_started())
 				nrf_drv_usbd_start(true);
 	}
@@ -267,7 +266,7 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 			virtual_status_xfer_event = true;
 
 			// Trigger an interrupt to process the virtual status event
-			NVIC_SetPendingIRQ(USBD_IRQn);
+			NRFX_IRQ_PENDING_SET(USBD_IRQn);
 
 			return;
 		}
@@ -310,7 +309,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 			virtual_status_xfer_event = true;
 
 			// Trigger an interrupt to process the virtual status event
-			NVIC_SetPendingIRQ(USBD_IRQn);
+			NRFX_IRQ_PENDING_SET(USBD_IRQn);
 
 			return;
 		}
@@ -457,17 +456,17 @@ void USBPhyHw::process() {
 	{
 		// Process USB power-related events
 		switch (usb_power_event) {
-		case NRF_DRV_POWER_USB_EVT_DETECTED:
+		case NRFX_POWER_USB_EVT_DETECTED:
 			if(this->connect_enabled) {
 				if(!nrf_drv_usbd_is_enabled())
 					nrf_drv_usbd_enable();
 				events->power(true);
 			}
 			break;
-		case NRF_DRV_POWER_USB_EVT_REMOVED:
+		case NRFX_POWER_USB_EVT_REMOVED:
 			events->power(false);
 			break;
-		case NRF_DRV_POWER_USB_EVT_READY:
+		case NRFX_POWER_USB_EVT_READY:
 				if(!nrf_drv_usbd_is_started())
 					nrf_drv_usbd_start(true);
 			break;
@@ -501,7 +500,7 @@ void USBPhyHw::_usb_event_handler(
 	instance->events->start_process();
 }
 
-void USBPhyHw::_usb_power_event_handler(nrf_drv_power_usb_evt_t event) {
+void USBPhyHw::_usb_power_event_handler(nrfx_power_usb_evt_t event) {
 	disable_usb_interrupts();
 	// Copy the event data into internal memory
 	instance->usb_power_event = event;
@@ -525,7 +524,6 @@ nrf_drv_usbd_transfer_t* USBPhyHw::get_transfer_buffer(usb_ep_t endpoint) {
 
 nrf_drv_usbd_ep_t USBPhyHw::get_nordic_endpoint(usb_ep_t endpoint) {
 	// Clear the most-significant-bit (input endpoint flag)
-	uint8_t endpoint_num = (endpoint & ~(0x80));
 	return (nrf_drv_usbd_ep_t) endpoint;
 }
 
@@ -539,13 +537,13 @@ void USBPhyHw::_reset(void)
 	usb_event_type = USB_HW_EVENT_NONE;
 
 	// Clear all endpoint interrupts
-	NVIC_ClearPendingIRQ(USBD_IRQn);
+	NRFX_IRQ_PENDING_CLEAR(USBD_IRQn);
 	nrf_usbd_event_clear((nrf_usbd_event_t)0x01FFFFFF);
 }
 
 void USBPhyHw::enable_usb_interrupts(void) {
 	// Enable USB and USB-related power interrupts
-	NVIC_EnableIRQ(USBD_IRQn);
+	NRFX_IRQ_ENABLE(USBD_IRQn);
 	nrf_power_int_enable(NRF_POWER_INT_USBDETECTED_MASK |
 						 NRF_POWER_INT_USBREMOVED_MASK |
 						 NRF_POWER_INT_USBPWRRDY_MASK);
@@ -553,13 +551,13 @@ void USBPhyHw::enable_usb_interrupts(void) {
 
 void USBPhyHw::disable_usb_interrupts(void) {
 	// Disable USB and USB-related power interrupts
-	NVIC_DisableIRQ(USBD_IRQn);
+	NRFX_IRQ_ENABLE(USBD_IRQn);
 	nrf_power_int_disable(NRF_POWER_INT_USBDETECTED_MASK |
 						 NRF_POWER_INT_USBREMOVED_MASK |
 						 NRF_POWER_INT_USBPWRRDY_MASK);
 }
 
-static void power_usb_event_handler(nrf_drv_power_usb_evt_t event) {
+static void power_usb_event_handler(nrfx_power_usb_evt_t event) {
 	if(instance) {
 		// Pass the event on to the USBPhyHW instance
 		instance->_usb_power_event_handler(event);
