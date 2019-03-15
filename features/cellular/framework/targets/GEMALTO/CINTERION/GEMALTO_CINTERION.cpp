@@ -153,9 +153,10 @@ void GEMALTO_CINTERION::init_module_ehs5e()
 {
     // EHS5-E
     static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
-        AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
-        AT_CellularNetwork::RegistrationModeDisable,    // C_REG
-        1,  // AT_CGSN_WITH_TYPE
+        AT_CellularNetwork::RegistrationModeDisable, // C_EREG
+        AT_CellularNetwork::RegistrationModeLAC, // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC, // C_REG
+        0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
         1,  // PROPERTY_IPV4_STACK
