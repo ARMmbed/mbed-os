@@ -43,7 +43,6 @@
 #include "nrf_drv_usbd.h"
 #include "nrf.h"
 #include "nordic_common.h"
-#include "nrf_drv_common.h"
 #include "nrf_atomic.h"
 #include "nrf_delay.h"
 #include "app_util_platform.h"
@@ -235,7 +234,7 @@ STATIC_ASSERT(USBD_EP_BITPOS(NRF_DRV_USBD_EPOUT7) == USBD_EPDATASTATUS_EPOUT7_Po
 /**
  * @brief Current driver state
  */
-static nrf_drv_state_t m_drv_state = NRF_DRV_STATE_UNINITIALIZED;
+static nrfx_drv_state_t m_drv_state = NRFX_DRV_STATE_UNINITIALIZED;
 
 /**
  * @brief Event handler for the library
@@ -496,7 +495,7 @@ bool nrf_drv_usbd_consumer(
     nrf_drv_usbd_transfer_t * p_transfer = p_context;
     ASSERT(ep_size >= data_size);
     ASSERT((p_transfer->p_data.rx == NULL) ||
-        nrf_drv_is_in_RAM((const void*)(p_transfer->p_data.ptr)));
+        nrfx_is_in_ram((const void*)(p_transfer->p_data.ptr)));
 
     size_t size = p_transfer->size;
     if (size < data_size)
@@ -533,7 +532,7 @@ bool nrf_drv_usbd_feeder_ram(
     size_t ep_size)
 {
     nrf_drv_usbd_transfer_t * p_transfer = p_context;
-    ASSERT(nrf_drv_is_in_RAM((const void*)(p_transfer->p_data.ptr)));
+    ASSERT(nrfx_is_in_ram((const void*)(p_transfer->p_data.ptr)));
 
     size_t tx_size = p_transfer->size;
     if (tx_size > ep_size)
@@ -566,7 +565,7 @@ bool nrf_drv_usbd_feeder_ram_zlp(
     size_t ep_size)
 {
     nrf_drv_usbd_transfer_t * p_transfer = p_context;
-    ASSERT(nrf_drv_is_in_RAM((const void*)(p_transfer->p_data.ptr)));
+    ASSERT(nrfx_is_in_ram((const void*)(p_transfer->p_data.ptr)));
 
     size_t tx_size = p_transfer->size;
     if (tx_size > ep_size)
@@ -599,7 +598,7 @@ bool nrf_drv_usbd_feeder_flash(
     size_t ep_size)
 {
     nrf_drv_usbd_transfer_t * p_transfer = p_context;
-    ASSERT(!nrf_drv_is_in_RAM((const void*)(p_transfer->p_data.ptr)));
+    ASSERT(!nrfx_is_in_ram((const void*)(p_transfer->p_data.ptr)));
 
     size_t tx_size  = p_transfer->size;
     void * p_buffer = nrf_drv_usbd_feeder_buffer_get();
@@ -637,7 +636,7 @@ bool nrf_drv_usbd_feeder_flash_zlp(
     size_t ep_size)
 {
     nrf_drv_usbd_transfer_t * p_transfer = p_context;
-    ASSERT(!nrf_drv_is_in_RAM((const void*)(p_transfer->p_data.ptr)));
+    ASSERT(!nrfx_is_in_ram((const void*)(p_transfer->p_data.ptr)));
 
     size_t tx_size  = p_transfer->size;
     void * p_buffer = nrf_drv_usbd_feeder_buffer_get();
@@ -1583,7 +1582,7 @@ void USBD_IRQHandler(void)
     while (to_process)
     {
         uint8_t event_nr = __CLZ(__RBIT(to_process));
-        if (nrf_usbd_event_get_and_clear((nrf_usbd_event_t)nrf_drv_bitpos_to_event(event_nr)))
+        if (nrf_usbd_event_get_and_clear((nrf_usbd_event_t)nrfx_bitpos_to_event(event_nr)))
         {
             active |= 1UL << event_nr;
         }
@@ -1709,13 +1708,13 @@ ret_code_t nrf_drv_usbd_init(nrf_drv_usbd_event_handler_t const event_handler)
     {
         return NRF_ERROR_INVALID_PARAM;
     }
-    if ( m_drv_state != NRF_DRV_STATE_UNINITIALIZED)
+    if ( m_drv_state != NRFX_DRV_STATE_UNINITIALIZED)
     {
         return NRF_ERROR_INVALID_STATE;
     }
 
     m_event_handler = event_handler;
-    m_drv_state = NRF_DRV_STATE_INITIALIZED;
+    m_drv_state = NRFX_DRV_STATE_INITIALIZED;
 
     uint8_t n;
     for (n = 0; n < NRF_USBD_EPIN_CNT; ++n)
@@ -1744,19 +1743,19 @@ ret_code_t nrf_drv_usbd_init(nrf_drv_usbd_event_handler_t const event_handler)
 
 ret_code_t nrf_drv_usbd_uninit(void)
 {
-    if (m_drv_state != NRF_DRV_STATE_INITIALIZED)
+    if (m_drv_state != NRFX_DRV_STATE_INITIALIZED)
     {
         return NRF_ERROR_INVALID_STATE;
     }
 
     m_event_handler = NULL;
-    m_drv_state = NRF_DRV_STATE_UNINITIALIZED;
+    m_drv_state = NRFX_DRV_STATE_UNINITIALIZED;
     return NRF_SUCCESS;
 }
 
 void nrf_drv_usbd_enable(void)
 {
-    ASSERT(m_drv_state == NRF_DRV_STATE_INITIALIZED);
+    ASSERT(m_drv_state == NRFX_DRV_STATE_INITIALIZED);
 
     /* Prepare for READY event receiving */
     nrf_usbd_eventcause_clear(NRF_USBD_EVENTCAUSE_READY_MASK);
@@ -1834,7 +1833,7 @@ void nrf_drv_usbd_enable(void)
     usbd_dma_pending_clear();
     m_last_setup_dir = NRF_DRV_USBD_EPOUT0;
 
-    m_drv_state = NRF_DRV_STATE_POWERED_ON;
+    m_drv_state = NRFX_DRV_STATE_POWERED_ON;
 
     if (nrf_drv_usbd_errata_187())
     {
@@ -1855,7 +1854,7 @@ void nrf_drv_usbd_enable(void)
 
 void nrf_drv_usbd_disable(void)
 {
-    ASSERT(m_drv_state != NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(m_drv_state != NRFX_DRV_STATE_UNINITIALIZED);
 
     /* Stop just in case */
     nrf_drv_usbd_stop();
@@ -1864,12 +1863,12 @@ void nrf_drv_usbd_disable(void)
     nrf_usbd_int_disable(nrf_usbd_int_enable_get());
     nrf_usbd_disable();
     usbd_dma_pending_clear();
-    m_drv_state = NRF_DRV_STATE_INITIALIZED;
+    m_drv_state = NRFX_DRV_STATE_INITIALIZED;
 }
 
 void nrf_drv_usbd_start(bool enable_sof)
 {
-    ASSERT(m_drv_state == NRF_DRV_STATE_POWERED_ON);
+    ASSERT(m_drv_state == NRFX_DRV_STATE_POWERED_ON);
     m_bus_suspend = false;
 
     uint32_t ints_to_enable =
@@ -1900,7 +1899,7 @@ void nrf_drv_usbd_start(bool enable_sof)
 
 void nrf_drv_usbd_stop(void)
 {
-    ASSERT(m_drv_state == NRF_DRV_STATE_POWERED_ON);
+    ASSERT(m_drv_state == NRFX_DRV_STATE_POWERED_ON);
 
     /* Clear interrupt */
     NRFX_IRQ_PENDING_CLEAR(USBD_IRQn);
@@ -1923,12 +1922,12 @@ void nrf_drv_usbd_stop(void)
 
 bool nrf_drv_usbd_is_initialized(void)
 {
-    return (m_drv_state >= NRF_DRV_STATE_INITIALIZED);
+    return (m_drv_state >= NRFX_DRV_STATE_INITIALIZED);
 }
 
 bool nrf_drv_usbd_is_enabled(void)
 {
-    return (m_drv_state >= NRF_DRV_STATE_POWERED_ON);
+    return (m_drv_state >= NRFX_DRV_STATE_POWERED_ON);
 }
 
 bool nrf_drv_usbd_is_started(void)
@@ -2127,7 +2126,7 @@ ret_code_t nrf_drv_usbd_ep_transfer(
         if (NRF_USBD_EPIN_CHECK(ep))
         {
             p_context = m_ep_feeder_state + NRF_USBD_EP_NR_GET(ep);
-            if (nrf_drv_is_in_RAM(p_transfer->p_data.tx))
+            if (nrfx_is_in_ram(p_transfer->p_data.tx))
             {
                 /* RAM */
                 if (0 == (p_transfer->flags & NRF_DRV_USBD_TRANSFER_ZLP_FLAG))
@@ -2187,7 +2186,7 @@ ret_code_t nrf_drv_usbd_ep_transfer(
         else
         {
             p_context = m_ep_consumer_state + NRF_USBD_EP_NR_GET(ep);
-            ASSERT((p_transfer->p_data.rx == NULL) || (nrf_drv_is_in_RAM(p_transfer->p_data.rx)));
+            ASSERT((p_transfer->p_data.rx == NULL) || (nrfx_is_in_ram(p_transfer->p_data.rx)));
             p_state->handler.consumer = nrf_drv_usbd_consumer;
         }
         *p_context = *p_transfer;

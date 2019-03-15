@@ -41,7 +41,6 @@
 #ifndef NRF_DRV_USBD_H__
 #define NRF_DRV_USBD_H__
 
-#include "nrf_drv_common.h"
 #include "sdk_errors.h"
 #include "nrf_usbd.h"
 #include <stdint.h>

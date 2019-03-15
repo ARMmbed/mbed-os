@@ -22,7 +22,7 @@
 
 extern "C" {
 	#include "nrf_drv_usbd.h"
-	#include "nrf_drv_power.h"
+	#include "nrfx_power.h"
 }
 
 class USBPhyHw : public USBPhy {
@@ -63,7 +63,7 @@ public:
     virtual void process();
 
     static void _usb_event_handler(nrf_drv_usbd_evt_t const * const p_event);
-    static void _usb_power_event_handler(nrf_drv_power_usb_evt_t event);
+    static void _usb_power_event_handler(nrfx_power_usb_evt_t event);
     static void _usb_virtual_status_event_handler(void);
 
 private:
@@ -86,7 +86,7 @@ private:
     nrf_drv_usbd_evt_t usb_event;
 
     // USB power event buffer
-    nrf_drv_power_usb_evt_t usb_power_event;
+    nrfx_power_usb_evt_t usb_power_event;
 
     // Buffer to hold setup packet
     nrf_drv_usbd_setup_t setup_buf;
