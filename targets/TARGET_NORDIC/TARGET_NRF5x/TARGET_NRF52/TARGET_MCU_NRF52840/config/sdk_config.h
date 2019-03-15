@@ -50,7 +50,7 @@
 
 // SYSTICK_ENABLED
 #ifndef SYSTICK_ENABLED
-#define SYSTICK_ENABLED 1
+#define SYSTICK_ENABLED 0
 #endif
 
 //==========================================================
@@ -4547,7 +4547,7 @@
 // <e> POWER_ENABLED - nrf_drv_power - POWER peripheral driver - legacy layer
 //==========================================================
 #ifndef POWER_ENABLED
-#define POWER_ENABLED 1
+#define POWER_ENABLED 0
 #endif
 // <o> POWER_CONFIG_IRQ_PRIORITY  - Interrupt priority
  
