@@ -7228,6 +7228,7 @@
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_add": ["NRFX_RNG_ENABLED=1", "RNG_ENABLED=1", "NRF_QUEUE_ENABLED=1"],
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC"
         }
