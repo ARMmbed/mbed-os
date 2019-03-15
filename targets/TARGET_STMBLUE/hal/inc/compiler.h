@@ -130,7 +130,7 @@
 
 #define VARIABLE_SIZE 0
 #pragma segment = "CSTACK"
-#define _INITIAL_SP                    { .__ptr = __sfe( "CSTACK" ) }  /* Stack address */
+#define _INITIAL_SP                    __sfe( "CSTACK" )  /* Stack address */
 extern void __iar_program_start(void);
 #define RESET_HANDLER                  __iar_program_start
 

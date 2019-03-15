@@ -1,0 +1,190 @@
+/* mbed Microcontroller Library
+ *******************************************************************************
+ * Copyright (c) 2019, STMicroelectronics
+ * SPDX-License-Identifier: Apache-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ *
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ *
+ * either express or implied.
+ *
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
+/*******************************************************************************
+* Memory Definitions
+*******************************************************************************/
+/*
+BlueNRG-2 memory map
++-----------------------+ 0x20005FFF
+|  RAM (24K)            |
++-----------------------+ 0x20000000
+|                       |
+|                       |
++-----------------------+ 0x1007FFFF
+|                       |
+|  FLASH (256K)         |
++-----------------------+ 0x10040000
+|                       |
++-----------------------| 0x100007FF
+|   ROM (2K)            |
++-----------------------+ 0x10000000
+*/
+
+define symbol _RAM_START       = 0x20000000;
+define symbol _RAM_SIZE        = 0x6000;      /* 24KB  */
+//define symbol _RAM_END_         = 0x20005FFF;
+
+define symbol _FLASH_START    = 0x10040000;
+define symbol _FLASH_SIZE     = 0x40000;      /* 256KB */
+//define symbol _FLASH_END_      = 0x1007FFFF; 
+
+define symbol _ROM_START    = 0x10000000;
+define symbol _ROM_SIZE     = 0x800;          /* 2KB */ 
+//define symbol _ROM_END_      = 0x100007FF; 
+
+/* Reserved for BTLE stack non volatile memory */
+define symbol _FLASH_NVM_DATASIZE       = 4*1024;
+
+if( !isdefinedsymbol( _RAM_APP_OFFSET) ) {
+  define symbol _RAM_APP_OFFSET = 0x00;
+}
+
+if( !isdefinedsymbol( _FLASH_APP_OFFSET) ) {
+	define symbol _FLASH_APP_OFFSET = 0;
+}
+
+if( !isdefinedsymbol( _FLASH_APP_SIZE) ) {
+	define symbol _FLASH_APP_SIZE   = _FLASH_SIZE - _FLASH_NVM_DATASIZE - _FLASH_APP_OFFSET;
+}
+
+/* Device specific values */
+
+/* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
+
+define symbol VECTORS     = 48; /* This value must match NVIC_NUM_VECTORS */
+define symbol HEAP_SIZE   = 0x00;
+
+/* Common - Do not change */
+
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = _FLASH_START + _FLASH_APP_OFFSET;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = _FLASH_SIZE - _FLASH_NVM_DATASIZE - _FLASH_APP_OFFSET;
+}
+
+/* Round up VECTORS_SIZE to 8 bytes */
+//define symbol VECTORS_SIZE = ((VECTORS * 4) + 7) & ~7;
+define symbol VECTORS_SIZE = (VECTORS * 4);
+
+define symbol RAM_REGION_START = _RAM_START + _RAM_APP_OFFSET + VECTORS_SIZE;
+define symbol RAM_REGION_SIZE = _RAM_SIZE - VECTORS_SIZE;
+
+define memory mem with size = 4G;
+define region FLASH_region = mem:[from MBED_APP_START size MBED_APP_SIZE];
+define region RAM_region = mem:[from RAM_REGION_START size RAM_REGION_SIZE];
+define region REGION_FLASH_BOOTLOADER = mem:[from _FLASH_START  to  _FLASH_START + _FLASH_APP_OFFSET];
+define region REGION_FLASH_NVM = mem:[from _FLASH_START + _FLASH_SIZE - _FLASH_NVM_DATASIZE  to   _FLASH_START + _FLASH_SIZE -1];
+define region REGION_ROM = mem:[from _ROM_START to  _ROM_START + _ROM_SIZE -1];
+
+/*******************************************************************************
+* ROM Sections
+*******************************************************************************/
+define block ROM_INFO with alignment = 8, size = 0x800 { section .rom_info};
+keep {section .rom_info};
+place in REGION_ROM { block ROM_INFO, };
+
+/*******************************************************************************
+* BlueNRG-1 STACK Sections
+*******************************************************************************/
+/**
+* The last 2KB sector of FLASH is reserved for firmware to use. The BLE Host
+* stores its security database in this area. The linker needs to make sure this
+* 2KB sector is left empty.
+*/
+define block BLOCK_STACKLIB_FLASH_DATA with alignment = 2048, fixed order
+{
+    section .noinit.stacklib_flash_data,
+    section .noinit.stacklib_stored_device_id_data
+};                  
+place at start of REGION_FLASH_NVM {block BLOCK_STACKLIB_FLASH_DATA};
+do not initialize { section .noinit.stacklib_flash_data, 
+                    section .noinit.stacklib_stored_device_id_data};
+
+
+define block BLUE with alignment = 8, size = 0x20C  { section .bss.__blue_RAM}; // Radio Global configuration data
+keep {section .bss.__blue_RAM};
+place at address mem: 0x200000C0 { block BLUE, };
+
+/*******************************************************************************
+* FLASH Sections
+*******************************************************************************/
+
+place at start of REGION_FLASH_BOOTLOADER { readonly section .bootloader};
+place at start of FLASH_region { readonly section .intvec };
+keep {section .intvec};
+
+/*******************************************************************************
+* RAM Sections
+*******************************************************************************/
+define block CSTACK    with alignment = 8, size = 0xC00   { };
+do not initialize { section CSTACK };
+
+initialize by copy { readwrite };
+do not initialize  {section .noinit};
+
+/* OTA SW activation Block */             
+define block ota_sw_activation_block with alignment = 4, size = 4 { section .ota_sw_activation};
+keep {section .ota_sw_activation};
+do not initialize  {section .ota_sw_activation};
+place at address mem: 0x20000004 { block ota_sw_activation_block, };
+
+/* savedMSP Block */             
+define block savedMSP_block with alignment = 4, size = 4 { section .savedMSP};
+keep {section .savedMSP};
+place at address mem: 0x20000008 { block savedMSP_block, };
+
+/* wakeupFromSleepFlag Block */             
+define block wakeupFromSleepFlag_block with alignment = 4, size = 4 { section .wakeupFromSleepFlag};
+keep {section .wakeupFromSleepFlag};
+place at address mem: 0x2000000C { block wakeupFromSleepFlag_block, };
+
+/* app_base Block - Software activation */             
+define block app_base_block with alignment = 4, size = 4 { section .app_base};
+keep {section .app_base};
+place at address mem: 0x20000010 { block app_base_block, };
+
+/* flash_sw_lock Block */             
+define block flash_sw_lock_block with alignment = 4, size = 4 { section .flash_sw_lock};
+keep {section .flash_sw_lock};
+place at address mem: 0x20000014 { block flash_sw_lock_block, };
+
+/* BLUE flag Ram Block - Software activation */             
+define block Blue_Flag_Ram_block with alignment = 4, size = 4 { section .__blueflag_RAM};
+keep {section .__blueflag_RAM};
+place at address mem: 0x20000030 { block Blue_Flag_Ram_block, };
+
+
+/* Crash Handler Storage Information Block */
+define symbol CRASH_RAM_SIZE             = 40;                  
+define block Crash_Info_block with alignment = 4, size = CRASH_RAM_SIZE { section .__crash_RAM};
+keep {section .__crash_RAM};
+do not initialize  {section .__crash_RAM};
+place at address mem: 0x20000034 { block Crash_Info_block, };
+
+
+
+
+
+define block HEAP      with alignment = 8, size = HEAP_SIZE     { };
+
+place in FLASH_region   { readonly };
+place in RAM_region   { readwrite,
+                        block CSTACK, block HEAP };

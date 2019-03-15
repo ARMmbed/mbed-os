@@ -263,7 +263,7 @@ volatile uint8_t hot_table_radio_config[HOT_TABLE_RADIO_SIZE]={0x00};
 volatile uint8_t BOR_config[7];
 
 
-int __low_level_init(void) 
+int __low_level_init_CS(void) 
 {
   /* Lock the flash */
   flash_sw_lock = FLASH_LOCK_WORD;
@@ -284,11 +284,23 @@ int __low_level_init(void)
   return 1;
 }
 
+#if defined(__ICCARM__) 
+
+void RESET_HANDLER(void)
+{
+  if(__low_level_init_CS()==1)
+    __cmain();
+  else {
+    while(1){;}  //code should never reach this point
+  }
+}
+
+#else //ARMc5 or ARMc6
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION)
 
 void RESET_HANDLER(void)
 {
-  if(__low_level_init()==1)
+  if(__low_level_init_CS()==1)
     __main();
   else {
     __set_MSP((uint32_t)_INITIAL_SP);
@@ -317,7 +329,7 @@ extern int main(void);
 
 void RESET_HANDLER(void)
 {
-  if(__low_level_init()==1)	{
+  if(__low_level_init_CS()==1)	{
     unsigned long *pulSrc, *pulDest;
     
     // Copy the data segment initializers from flash to SRAM.
@@ -352,7 +364,7 @@ void RESET_HANDLER(void)
 
 #endif /* __GNUC__ */
 #endif /* __CC_ARM */
-
+#endif /* __ICCARM__ */
 
 SECTION(".intvec")
 REQUIRED(const intvec_elem __vector_table[]) = {
@@ -417,6 +429,7 @@ REQUIRED(const intvec_elem __vector_table[]) = {
 //------------------------------------------------------------------------------
 SECTION(".app_base")
 REQUIRED(uint32_t *app_base) = (uint32_t *) __vector_table;
+
 
 
 SECTION(".bss.__blue_RAM")

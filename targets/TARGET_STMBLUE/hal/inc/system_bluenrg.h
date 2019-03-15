@@ -273,12 +273,12 @@ extern volatile uint32_t flash_sw_lock;
   * @{
   */
   
-/* Important note: The __low_level_init() function is critical for waking up from 
+/* Important note: The __low_level_init_CS() function is critical for waking up from 
    deep sleep and it should not use more that 10 stack positions
    otherwise a stack corruption will occur when waking up from deep sleep.
    For this reason we are saving and restoring the first 10 words of the stack that 
    will be corrupted during the wake-up procedure from deep sleep.
-   If the __low_level_init() will be modified, this define shall be modifed according
+   If the __low_level_init_CS() will be modified, this define shall be modifed according
    the new function implementation
 */
 #define CSTACK_PREAMBLE_NUMBER 10
