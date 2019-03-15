@@ -8,13 +8,12 @@
 #include "device.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
-#include "rtos_idle.h"
-#elif defined(MBED_STACK_STATS_ENABLED) || defined(MBED_THREAD_STATS_ENABLED) || defined(MBED_CPU_STATS_ENABLED)
+#elif defined(MBED_STACK_STATS_ENABLED) || defined(MBED_THREAD_STATS_ENABLED)
 #warning Statistics are currently not supported without the rtos.
 #endif
 
-#if defined(MBED_CPU_STATS_ENABLED) && (!DEVICE_LPTICKER || !DEVICE_SLEEP)
-#warning CPU statistics are not supported without low power timer support.
+#if defined(MBED_CPU_STATS_ENABLED) && (!DEVICE_SLEEP)
+#warning CPU statistics are not supported without sleep support.
 #endif
 
 void mbed_stats_cpu_get(mbed_stats_cpu_t *stats)
