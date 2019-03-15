@@ -112,7 +112,7 @@
         },
         "wisun-network-name": {
             "help": "default network name for wisun network",
-            "value": "\"NETWORK_NAME\""
+            "value": "\"Wi-SUN Network\""
         },
         "wisun-regulatory-domain": {
             "help": "Regulator domain.",

@@ -92,9 +92,7 @@ void run_entropy_inject_with_crypto_init()
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-#ifndef NO_GREENTEA
     GREENTEA_SETUP(60, "default_auto");
-#endif
 
     /* fill seed in some data */
     for (size_t i = 0; i < sizeof(seed); ++i) {

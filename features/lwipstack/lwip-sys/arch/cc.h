@@ -34,6 +34,7 @@
 
 #include <stdint.h>
 #include <stddef.h> /* for size_t */
+#include "mbed_toolchain.h"
 
 #if LWIP_USE_EXTERNAL_MBEDTLS
 #include "mbedtls/md5.h"
