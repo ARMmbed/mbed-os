@@ -94,7 +94,7 @@ private:
     // Nordic transfer structures for each in/out endpoint
     nrf_drv_usbd_transfer_t transfer_buf[18];
 
-    // Returns the appropraite transfer structure buffer for the given endpoint
+    // Returns the appropriate transfer structure buffer for the given endpoint
     nrf_drv_usbd_transfer_t* get_transfer_buffer(usb_ep_t endpoint);
 
     // Returns the corresponding enumeration given an mbed endpoint number
