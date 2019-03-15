@@ -65,8 +65,6 @@ USBPhyHw::~USBPhyHw() {
 }
 
 void USBPhyHw::init(USBPhyEvents *events) {
-	// Disable IRQ
-	//NVIC_DisableIRQ(USBD_IRQn);
 
 	this->events = events;
 
@@ -101,8 +99,12 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	 */
 	NRF_USBD->ISOINCONFIG |= 0x01; // set RESPONSE to 1 (respond with ZLP)
 
-	// Enable IRQ
+	// Set up the IRQ handler
 	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_HAL_IRQHandler);
+
+	// Enable the power events
+	nrfx_power_usbevt_enable();
+
 }
 
 void USBPhyHw::deinit() {
@@ -544,17 +546,13 @@ void USBPhyHw::_reset(void)
 void USBPhyHw::enable_usb_interrupts(void) {
 	// Enable USB and USB-related power interrupts
 	NRFX_IRQ_ENABLE(USBD_IRQn);
-	nrf_power_int_enable(NRF_POWER_INT_USBDETECTED_MASK |
-						 NRF_POWER_INT_USBREMOVED_MASK |
-						 NRF_POWER_INT_USBPWRRDY_MASK);
+	nrfx_power_usbevt_enable();
 }
 
 void USBPhyHw::disable_usb_interrupts(void) {
 	// Disable USB and USB-related power interrupts
-	NRFX_IRQ_ENABLE(USBD_IRQn);
-	nrf_power_int_disable(NRF_POWER_INT_USBDETECTED_MASK |
-						 NRF_POWER_INT_USBREMOVED_MASK |
-						 NRF_POWER_INT_USBPWRRDY_MASK);
+	NRFX_IRQ_DISABLE(USBD_IRQn);
+	nrfx_power_usbevt_disable();
 }
 
 static void power_usb_event_handler(nrfx_power_usb_evt_t event) {
