@@ -488,6 +488,10 @@ ble_error_t GattServer::insert_descriptor(
 #endif // BLE_FEATURE_SECURE_CONNECTIONS
 #endif // BLE_FEATURE_SECURITY
         }
+
+        if (properties & READ_PROPERTY) {
+            attribute_it->settings |= ATTS_SET_READ_CBACK;
+        }
     }
 
     // configure write permission
@@ -516,6 +520,10 @@ ble_error_t GattServer::insert_descriptor(
                 break;
 #endif // BLE_FEATURE_SECURE_CONNECTIONS
 #endif // BLE_FEATURE_SECURITY
+        }
+
+        if (properties & WRITABLE_PROPERTIES) {
+            attribute_it->settings |= ATTS_SET_WRITE_CBACK;
         }
     }
 
