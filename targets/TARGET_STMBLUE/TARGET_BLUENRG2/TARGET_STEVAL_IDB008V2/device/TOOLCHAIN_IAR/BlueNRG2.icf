@@ -68,7 +68,7 @@ if( !isdefinedsymbol( _FLASH_APP_SIZE) ) {
 /* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
 
 define symbol VECTORS     = 48; /* This value must match NVIC_NUM_VECTORS */
-define symbol HEAP_SIZE   = 0x00;
+define symbol HEAP_SIZE   = 0xC00 ;
 
 /* Common - Do not change */
 
@@ -134,8 +134,9 @@ keep {section .intvec};
 /*******************************************************************************
 * RAM Sections
 *******************************************************************************/
-define block CSTACK    with alignment = 8, size = 0xC00   { };
-do not initialize { section CSTACK };
+define block HEAP      with alignment = 8, size = HEAP_SIZE     { };
+define block CSTACK    with alignment = 8, size = 0x400   { };
+//do not initialize { section CSTACK };
 
 initialize by copy { readwrite };
 do not initialize  {section .noinit};
@@ -178,12 +179,6 @@ define block Crash_Info_block with alignment = 4, size = CRASH_RAM_SIZE { sectio
 keep {section .__crash_RAM};
 do not initialize  {section .__crash_RAM};
 place at address mem: 0x20000034 { block Crash_Info_block, };
-
-
-
-
-
-define block HEAP      with alignment = 8, size = HEAP_SIZE     { };
 
 place in FLASH_region   { readonly };
 place in RAM_region   { readwrite,
