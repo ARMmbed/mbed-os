@@ -357,6 +357,13 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint) {
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint) {
 	nrf_drv_usbd_ep_t ep = get_nordic_endpoint(endpoint);
 	nrf_drv_usbd_ep_stall_clear(ep);
+
+	/*
+	 * This is a somewhat hacky fix to fully "unload"
+	 * an IN endpoint after a buffer has been
+	 * transferred via EasyDMA...
+	 */
+
 	nrf_drv_usbd_ep_disable(ep);
 	nrf_drv_usbd_ep_enable(ep);
 }
