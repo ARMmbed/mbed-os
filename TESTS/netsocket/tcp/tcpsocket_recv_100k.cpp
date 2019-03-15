@@ -145,6 +145,9 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
         int rd = sock.recv(buff, buff_size);
         TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
         if (rd > 0) {
+            if (rd > buff_size) {
+                TEST_FAIL_MESSAGE("sock.recv returned more than requested.");
+            }
             check_RFC_864_pattern(buff, rd, recvd_size);
             recvd_size += rd;
         } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {

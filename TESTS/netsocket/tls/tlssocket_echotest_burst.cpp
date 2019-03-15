@@ -75,6 +75,8 @@ void TLSSOCKET_ECHOTEST_BURST()
             if (recvd < 0) {
                 printf("[%02d] network error %d\n", i, recvd);
                 break;
+            } else if (recvd > bt_left) {
+                TEST_FAIL_MESSAGE("sock.recv returned more bytes than requested");
             }
             bt_left -= recvd;
         }
