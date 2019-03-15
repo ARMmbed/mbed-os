@@ -161,7 +161,7 @@ void GEMALTO_CINTERION::init_module_ehs5e()
         1,  // AT_CGAUTH
         1,  // PROPERTY_IPV4_STACK
         1,  // PROPERTY_IPV6_STACK
-        1,  // PROPERTY_IPV4V6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleEHS5E;
