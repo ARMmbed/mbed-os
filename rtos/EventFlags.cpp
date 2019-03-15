@@ -30,7 +30,7 @@ namespace rtos {
 
 EventFlags::EventFlags()
 {
-    constructor();
+    constructor("application_unnamed_event_flags");
 }
 
 EventFlags::EventFlags(const char *name)
@@ -42,7 +42,7 @@ void EventFlags::constructor(const char *name)
 {
 #if MBED_CONF_RTOS_PRESENT
     osEventFlagsAttr_t attr = { 0 };
-    attr.name = name ? name : "application_unnamed_event_flags";
+    attr.name = name;
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
     _id = osEventFlagsNew(&attr);

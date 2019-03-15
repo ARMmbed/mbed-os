@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // Currently supported platforms
 //
@@ -114,13 +115,19 @@ typedef struct equeue_sema {
     pthread_cond_t cond;
     bool signal;
 } equeue_sema_t;
-#elif defined(EQUEUE_PLATFORM_MBED) && defined(MBED_CONF_RTOS_PRESENT)
+#elif defined(EQUEUE_PLATFORM_MBED) && MBED_CONF_RTOS_API_PRESENT
 typedef struct equeue_sema {
-    osEventFlagsId_t id;
-    mbed_rtos_storage_event_flags_t mem;
+    // We will actually store a C++ rtos:EventQueue in here;
+    // attempt to match layout for storage, and assert size in equeue_mbed.cpp
+#if MBED_CONF_RTOS_PRESENT
+    osEventFlagsId_t                _id;
+    mbed_rtos_storage_event_flags_t _obj_mem;
+#else
+    uint32_t _flags;
+#endif
 } equeue_sema_t;
 #elif defined(EQUEUE_PLATFORM_MBED)
-typedef volatile int equeue_sema_t;
+typedef int equeue_sema_t;
 #endif
 
 // Platform semaphore operations
