@@ -70,6 +70,14 @@ USBPhyHw::~USBPhyHw()
 void USBPhyHw::init(USBPhyEvents *events)
 {
 
+    // Disable the USBD interrupts
+    // Interrupts will be reenabled by the Nordic driver
+    NRFX_IRQ_DISABLE(USBD_IRQn);
+
+    if(this->events == NULL) {
+	sleep_manager_lock_deep_sleep();
+    }
+    
     this->events = events;
 
     ret_code_t ret;
@@ -124,6 +132,10 @@ void USBPhyHw::deinit()
 
     // Disable the power peripheral driver
     nrfx_power_uninit();
+
+    if(this->events != NULL) {
+	sleep_manager_unlock_deep_sleep();
+    }
 
     // Clear the instance pointer
     instance = 0;
