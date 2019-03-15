@@ -21,8 +21,8 @@
 #include "USBPhy.h"
 
 extern "C" {
-	#include "nrf_drv_usbd.h"
-	#include "nrfx_power.h"
+#include "nrf_drv_usbd.h"
+#include "nrfx_power.h"
 }
 
 class USBPhyHw : public USBPhy {
@@ -41,7 +41,7 @@ public:
     virtual void sof_disable();
     virtual void set_address(uint8_t address);
     virtual void remote_wakeup();
-    virtual const usb_ep_table_t* endpoint_table();
+    virtual const usb_ep_table_t *endpoint_table();
 
     virtual uint32_t ep0_set_max_packet(uint32_t max_packet);
     virtual void ep0_setup_read_result(uint8_t *buffer, uint32_t size);
@@ -62,7 +62,7 @@ public:
 
     virtual void process();
 
-    static void _usb_event_handler(nrf_drv_usbd_evt_t const * const p_event);
+    static void _usb_event_handler(nrf_drv_usbd_evt_t const *const p_event);
     static void _usb_power_event_handler(nrfx_power_usb_evt_t event);
     static void _usb_virtual_status_event_handler(void);
 
@@ -73,10 +73,10 @@ private:
     bool connect_enabled;
 
     typedef enum usb_hw_event_type_t {
-    	USB_HW_EVENT_NONE  = 0,
-		USB_HW_EVENT_USBD  = 1,
-		USB_HW_EVENT_POWER = 2,
-		USB_HW_EVENT_VIRTUAL_STATUS = 3
+        USB_HW_EVENT_NONE  = 0,
+        USB_HW_EVENT_USBD  = 1,
+        USB_HW_EVENT_POWER = 2,
+        USB_HW_EVENT_VIRTUAL_STATUS = 3
     } usb_hw_event_type_t;
 
     // Event type to process
@@ -95,7 +95,7 @@ private:
     nrf_drv_usbd_transfer_t transfer_buf[18];
 
     // Returns the appropriate transfer structure buffer for the given endpoint
-    nrf_drv_usbd_transfer_t* get_transfer_buffer(usb_ep_t endpoint);
+    nrf_drv_usbd_transfer_t *get_transfer_buffer(usb_ep_t endpoint);
 
     // Returns the corresponding enumeration given an mbed endpoint number
     static nrf_drv_usbd_ep_t get_nordic_endpoint(usb_ep_t endpoint);
