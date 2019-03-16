@@ -56,7 +56,7 @@ nsapi_error_t GEMALTO_CINTERION::init()
     if (!information) {
         return NSAPI_ERROR_NO_MEMORY;
     }
-    char model[sizeof("ELS61") + 1]; // sizeof need to be long enough to hold just the model text
+    char model[sizeof("EHS5-E") + 1]; // sizeof need to be long enough to hold just the model text
     nsapi_error_t ret = information->get_model(model, sizeof(model));
     close_information();
     if (ret != NSAPI_ERROR_OK) {
@@ -70,6 +70,8 @@ nsapi_error_t GEMALTO_CINTERION::init()
         init_module_bgs2();
     } else if (memcmp(model, "EMS31", sizeof("EMS31") - 1) == 0) {
         init_module_ems31();
+    } else if (memcmp(model, "EHS5-E", sizeof("EHS5-E") - 1) == 0) {
+        init_module_ehs5e();
     } else {
         tr_error("Cinterion model unsupported %s", model);
         return NSAPI_ERROR_UNSUPPORTED;
@@ -145,6 +147,24 @@ void GEMALTO_CINTERION::init_module_ems31()
     };
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;
+}
+
+void GEMALTO_CINTERION::init_module_ehs5e()
+{
+    // EHS5-E
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeDisable, // C_EREG
+        AT_CellularNetwork::RegistrationModeLAC, // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC, // C_REG
+        0,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        1,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
+    };
+    AT_CellularBase::set_cellular_properties(cellular_properties);
+    _module = ModuleEHS5E;
 }
 
 #if MBED_CONF_GEMALTO_CINTERION_PROVIDE_DEFAULT
