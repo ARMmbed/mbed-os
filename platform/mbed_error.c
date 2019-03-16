@@ -432,7 +432,7 @@ mbed_error_status_t mbed_clear_all_errors(void)
     return status;
 }
 
-static const char *name_or_unnamed(const char *name)
+static inline const char *name_or_unnamed(const char *name)
 {
     return name ? name : "<unnamed>";
 }
@@ -547,7 +547,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
 #else
     mbed_stats_sys_t sys_stats;
     mbed_stats_sys_get(&sys_stats);
-    mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%d&core=0x%08X&comp=%d&ver=%d&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
+    mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%" PRId32 "&core=0x%08" PRIX32 "&comp=%d&ver=%" PRIu32 "&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
 #endif
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
