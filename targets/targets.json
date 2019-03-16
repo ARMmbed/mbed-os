@@ -2102,7 +2102,8 @@
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         },
-        "OUTPUT_EXT": "hex"
+        "OUTPUT_EXT": "hex",
+        "bootloader_supported": true
     },
     "LPC55S69_S": {
         "inherits": ["SPE_Target", "LPC55S69"],
