@@ -90,8 +90,6 @@ static int32_t  period_ch2 = 1;
 #endif
 
 #ifdef FUMC_MTU2_PWM
-#define MTU2_PWM_SIGNAL         2
-
 typedef enum {
     TIOC0A  = 0,
     TIOC0B,
@@ -111,88 +109,30 @@ typedef enum {
     TIOC4D,
 } MTU2_PWMType;
 
-static const MTU2_PWMType MTU2_PORT[] = {
-     TIOC0A,         // PWM_TIOC0A
-     TIOC0C,         // PWM_TIOC0C
-     TIOC1A,         // PWM_TIOC1A
-     TIOC2A,         // PWM_TIOC2A
-     TIOC3A,         // PWM_TIOC3A
-     TIOC3C,         // PWM_TIOC3C
-     TIOC4A,         // PWM_TIOC4A
-     TIOC4C,         // PWM_TIOC4C
-};
+typedef struct {
+    MTU2_PWMType    port;
+    __IO uint16_t * pulse1;
+    __IO uint16_t * pulse2;
+    __IO uint16_t * period1;
+    __IO uint16_t * period2;
+    __IO uint8_t *  tior;
+    __IO uint8_t *  tcr;
+    __IO uint8_t *  tmdr;
+    int             max_period;
+} st_mtu2_ctrl_t;
 
-static __IO uint16_t *MTU2_PWM_MATCH[][MTU2_PWM_SIGNAL] = {
-    { &MTU2TGRA_0, &MTU2TGRB_0 },       // PWM_TIOC0A
-    { &MTU2TGRC_0, &MTU2TGRD_0 },       // PWM_TIOC0C
-    { &MTU2TGRA_1, &MTU2TGRB_1 },       // PWM_TIOC1A
-    { &MTU2TGRA_2, &MTU2TGRB_2 },       // PWM_TIOC2A
-    { &MTU2TGRA_3, &MTU2TGRB_3 },       // PWM_TIOC3A
-    { &MTU2TGRC_3, &MTU2TGRD_3 },       // PWM_TIOC3C
-    { &MTU2TGRA_4, &MTU2TGRB_4 },       // PWM_TIOC4A
-    { &MTU2TGRC_4, &MTU2TGRD_4 },       // PWM_TIOC4C
+static st_mtu2_ctrl_t mtu2_ctl[] = {
+    { TIOC0A, &MTU2TGRA_0, &MTU2TGRC_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORH_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0A
+    { TIOC0C, &MTU2TGRC_0, &MTU2TGRA_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORL_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0C
+    { TIOC1A, &MTU2TGRA_1, NULL       , &MTU2TGRB_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1A
+    { TIOC1B, &MTU2TGRB_1, NULL       , &MTU2TGRA_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1B
+    { TIOC2A, &MTU2TGRA_2, NULL       , &MTU2TGRB_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2A
+    { TIOC2B, &MTU2TGRB_2, NULL       , &MTU2TGRA_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2B
+    { TIOC3A, &MTU2TGRA_3, &MTU2TGRC_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORH_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3A
+    { TIOC3C, &MTU2TGRC_3, &MTU2TGRA_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORL_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3C
+    { TIOC4A, &MTU2TGRA_4, &MTU2TGRC_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORH_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4A
+    { TIOC4C, &MTU2TGRC_4, &MTU2TGRA_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORL_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4C
 };
-
-static __IO uint8_t *TCR_MATCH[] = {
-    &MTU2TCR_0,
-    &MTU2TCR_1,
-    &MTU2TCR_2,
-    &MTU2TCR_3,
-    &MTU2TCR_4,
-};
-
-static __IO uint8_t *TIORH_MATCH[] = {
-    &MTU2TIORH_0,
-    &MTU2TIOR_1,
-    &MTU2TIOR_2,
-    &MTU2TIORH_3,
-    &MTU2TIORH_4,
-};
-
-static __IO uint8_t *TIORL_MATCH[] = {
-    &MTU2TIORL_0,
-    NULL,
-    NULL,
-    &MTU2TIORL_3,
-    &MTU2TIORL_4,
-};
-
-static __IO uint16_t *TGRA_MATCH[] = {
-    &MTU2TGRA_0,
-    &MTU2TGRA_1,
-    &MTU2TGRA_2,
-    &MTU2TGRA_3,
-    &MTU2TGRA_4,
-};
-
-static __IO uint16_t *TGRC_MATCH[] = {
-    &MTU2TGRC_0,
-    NULL,
-    NULL,
-    &MTU2TGRC_3,
-    &MTU2TGRC_4,
-};
-
-static __IO uint8_t *TMDR_MATCH[] = {
-    &MTU2TMDR_0,
-    &MTU2TMDR_1,
-    &MTU2TMDR_2,
-    &MTU2TMDR_3,
-    &MTU2TMDR_4,
-};
-
-static int MAX_PERIOD[] = {
-    125000,
-    503000,
-    2000000,
-    2000000,
-    2000000,
-};
-
-typedef enum {
-    MTU2_PULSE = 0,
-    MTU2_PERIOD
-} MTU2Signal;
 
 static uint16_t init_mtu2_period_ch[5] = {0};
 static int32_t  mtu2_period_ch[5] = {1, 1, 1, 1, 1};
@@ -206,26 +146,21 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     if (pwm >= MTU2_PWM_OFFSET) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
-        int tmp_pwm;
-        
         // power on
         mtu2_init();
-        
+
         obj->pwm = pwm;
-        tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
-        if (((uint32_t)MTU2_PORT[tmp_pwm] & 0x00000040) == 0x00000040) {
-            obj->ch  = 4;
+        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+
+        obj->ch  = (uint8_t)(((uint32_t)p_mtu2_ctl->port & 0x000000F0) >> 4);
+        if (obj->ch == 4) {
             MTU2TOER |= 0x36;
-        } else if (((uint32_t)MTU2_PORT[tmp_pwm] & 0x00000030) == 0x00000030) {
-            obj->ch  = 3;
+        } else if (obj->ch == 3) {
             MTU2TOER |= 0x09;
-        } else if (((uint32_t)MTU2_PORT[tmp_pwm] & 0x00000020) == 0x00000020) {
-            obj->ch  = 2;
-        } else if (((uint32_t)MTU2_PORT[tmp_pwm] & 0x00000010) == 0x00000010) {
-            obj->ch  = 1;
         } else {
-            obj->ch  = 0;
+            // do nothing
         }
+
         // Wire pinout
         pinmap_pinout(pin, PinMap_PWM);
 
@@ -284,7 +219,8 @@ void pwmout_write(pwmout_t* obj, float value) {
     if (obj->pwm >= MTU2_PWM_OFFSET) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
-        int tmp_pwm;
+        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+        uint8_t tmp_tstr_st;
 
         if (value < 0.0f) {
             value = 0.0f;
@@ -293,13 +229,40 @@ void pwmout_write(pwmout_t* obj, float value) {
         } else {
             // Do Nothing
         }
-        tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
-        wk_cycle = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] & 0xffff;
+        wk_cycle = (uint32_t)*p_mtu2_ctl->period1;
+        if ((obj->ch == 4) || (obj->ch == 3)) {
+            tmp_tstr_st = (1 << (obj->ch + 3));
+        } else {
+            tmp_tstr_st = (1 << obj->ch);
+        }
+
         // set channel match to percentage
         if (value == 1.0f) {
-            *MTU2_PWM_MATCH[tmp_pwm][MTU2_PULSE] = (uint16_t)(wk_cycle - 1);
+            if (*p_mtu2_ctl->tior != 0x66) {
+                MTU2TSTR &= ~tmp_tstr_st;
+                *p_mtu2_ctl->tior = 0x66;
+            }
+        } else if (value == 0.0f) {
+            if (*p_mtu2_ctl->tior != 0x11) {
+                MTU2TSTR &= ~tmp_tstr_st;
+                *p_mtu2_ctl->tior = 0x11;
+            }
+        } else if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            if (*p_mtu2_ctl->tior != 0x56) {
+                MTU2TSTR &= ~tmp_tstr_st;
+                *p_mtu2_ctl->tior = 0x56;
+            }
         } else {
-            *MTU2_PWM_MATCH[tmp_pwm][MTU2_PULSE] = (uint16_t)((float)wk_cycle * value);
+            if (*p_mtu2_ctl->tior != 0x65) {
+                MTU2TSTR &= ~tmp_tstr_st;
+                *p_mtu2_ctl->tior = 0x65;
+            }
+        }
+        *p_mtu2_ctl->pulse1 = (uint16_t)((float)wk_cycle * value);
+
+        // Counter Restart
+        if ((MTU2TSTR & tmp_tstr_st) == 0) {
+            MTU2TSTR |= tmp_tstr_st;
         }
 #endif
     } else {
@@ -336,11 +299,10 @@ float pwmout_read(pwmout_t* obj) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
         uint32_t wk_pulse;
-        int tmp_pwm;
-        
-        tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
-        wk_cycle = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] & 0xffff;
-        wk_pulse = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PULSE] & 0xffff;
+        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
+
+        wk_cycle = (uint32_t)*p_mtu2_ctl->period1;
+        wk_pulse = (uint32_t)*p_mtu2_ctl->pulse1;
         value = ((float)wk_pulse / (float)wk_cycle);
 #endif
     } else {
@@ -403,12 +365,11 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         int      max_us = 0;
 
         /* PWM by MTU2 */
-        int tmp_pwm;
+        st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
         uint8_t tmp_tcr_up;
-        uint8_t tmp_tstr_sp;
         uint8_t tmp_tstr_st;
-        
-        max_us = MAX_PERIOD[obj->ch];
+
+        max_us = p_mtu2_ctl->max_period;
         if (us > max_us) {
             us = max_us;
         } else if (us < 1) {
@@ -436,37 +397,37 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         }
         wk_cycle = (uint32_t)(wk_cycle_mtu2 / 1000000);
 
-        tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
-        if (((uint8_t)MTU2_PORT[tmp_pwm] & 0x02) == 0x02) {
-            tmp_tcr_up = 0xC0;
+        if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            tmp_tcr_up = 0x20;
         } else {
             tmp_tcr_up = 0x40;
         }
         if ((obj->ch == 4) || (obj->ch == 3)) {
-            tmp_tstr_sp = ~(0x38 | (1 << (obj->ch + 3)));
             tmp_tstr_st = (1 << (obj->ch + 3));
         } else {
-            tmp_tstr_sp = ~(0x38 | (1 << obj->ch));
             tmp_tstr_st = (1 << obj->ch);
         }
+
         // Counter Stop
-        MTU2TSTR &= tmp_tstr_sp;
-        wk_last_cycle = *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] & 0xffff;
-        *TCR_MATCH[obj->ch] = tmp_tcr_up | wk_cks;
-        *TIORH_MATCH[obj->ch] = 0x21;
-        if ((obj->ch == 0) || (obj->ch == 3) || (obj->ch == 4)) {
-            *TIORL_MATCH[obj->ch] = 0x21;
+        MTU2TSTR &= ~tmp_tstr_st;
+        wk_last_cycle = *p_mtu2_ctl->period1;
+        *p_mtu2_ctl->tcr = tmp_tcr_up | wk_cks;
+        // Set period
+        *p_mtu2_ctl->period1 = (uint16_t)wk_cycle;
+        if (p_mtu2_ctl->period2 != NULL) {
+            *p_mtu2_ctl->period2 = (uint16_t)wk_cycle;
         }
-        *MTU2_PWM_MATCH[tmp_pwm][MTU2_PERIOD] = (uint16_t)wk_cycle;     // Set period
-
-        // Set duty again(TGRA)
-        set_mtu2_duty_again(TGRA_MATCH[obj->ch], wk_last_cycle, wk_cycle);
-        if ((obj->ch == 0) || (obj->ch == 3) || (obj->ch == 4)) {
-            // Set duty again(TGRC)
-            set_mtu2_duty_again(TGRC_MATCH[obj->ch], wk_last_cycle, wk_cycle);
+        // Set duty again
+        set_mtu2_duty_again(p_mtu2_ctl->pulse1, wk_last_cycle, wk_cycle);
+        if (p_mtu2_ctl->pulse2 != NULL) {
+            set_mtu2_duty_again(p_mtu2_ctl->pulse2, wk_last_cycle, wk_cycle);
         }
-        *TMDR_MATCH[obj->ch] = 0x02;                                    // PWM mode 1
-
+        // Set mode
+        if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            *p_mtu2_ctl->tmdr = 0x03;  // PWM mode 2
+        } else {
+            *p_mtu2_ctl->tmdr = 0x02;  // PWM mode 1
+        }
         // Counter Start
         MTU2TSTR |= tmp_tstr_st;
         // Save for future use
