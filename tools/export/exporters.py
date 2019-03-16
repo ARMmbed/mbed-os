@@ -206,15 +206,17 @@ class Exporter(object):
         self.generated_files += [target_path]
 
     def gen_file_nonoverwrite(self, template_file, data, target_file, **kwargs):
-        """Generates a project file from a template using jinja"""
+        """Generates or selectively appends a project file from a template"""
         target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
         target_path = self.gen_file_dest(target_file)
         if exists(target_path):
             with open(target_path) as fdin:
-                old_text = fdin.read()
-            if target_text not in old_text:
+                old_lines_set = set(fdin.read().splitlines())
+            target_set = set(target_text.splitlines())
+            to_append = target_set - old_lines_set
+            if len(to_append) > 0:
                 with open(target_path, "a") as fdout:
-                    fdout.write(target_text)
+                    fdout.write("\n".join(to_append))
         else:
             logging.debug("Generating: %s", target_path)
             open(target_path, "w").write(target_text)
