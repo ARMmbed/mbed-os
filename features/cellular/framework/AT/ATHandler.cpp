@@ -839,7 +839,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
             return;
         }
 
-        if (prefix && match(prefix, strlen(prefix))) {
+        if (prefix && strlen(prefix) && match(prefix, strlen(prefix))) {
             _prefix_matched = true;
             return;
         }
@@ -853,14 +853,14 @@ void ATHandler::resp(const char *prefix, bool check_urc)
         // If no match found, look for CRLF and consume everything up to and including CRLF
         if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
             // If no prefix, return on CRLF - means data to read
-            if (!prefix) {
+            if (!prefix || (prefix && !strlen(prefix))) {
                 return;
             }
             consume_to_tag(CRLF, true);
         } else {
             // If no prefix, no CRLF and no more chance to match for OK, ERROR or URC(since max resp length is already in buffer)
             // return so data could be read
-            if (!prefix && ((_recv_len - _recv_pos) >= _max_resp_length)) {
+            if ((!prefix || (prefix && !strlen(prefix))) && ((_recv_len - _recv_pos) >= _max_resp_length)) {
                 return;
             }
             if (!fill_buffer()) {
