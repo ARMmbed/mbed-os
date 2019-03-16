@@ -18,7 +18,7 @@
 #define BLE_PAL_SIMPLE_EVENT_QUEUE_H_
 
 #include <new>
-#include "EventQueue.h"
+#include "ble/pal/EventQueue.h"
 #include "ble/BLEInstanceBase.h"
 #include "ble/BLE.h"
 

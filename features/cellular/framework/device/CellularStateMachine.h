@@ -17,7 +17,7 @@
 #ifndef _CELLULAR_STATEMACHINE_H_
 #define _CELLULAR_STATEMACHINE_H_
 
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "CellularNetwork.h"
 #include "CellularCommon.h"
 #include "PlatformMutex.h"

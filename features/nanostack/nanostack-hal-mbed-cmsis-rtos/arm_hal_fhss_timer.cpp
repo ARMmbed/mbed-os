@@ -22,7 +22,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include <Timer.h>
 #include "equeue.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "mbed_shared_queues.h"
 #include "Timeout.h"
 
