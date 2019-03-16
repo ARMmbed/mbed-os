@@ -30,7 +30,8 @@
 #include "ble/pal/ConnectionEventMonitor.h"
 #include "ble/pal/Deprecated.h"
 
-#include "drivers/Timeout.h"
+#include "drivers/LowPowerTimeout.h"
+#include "drivers/LowPowerTicker.h"
 #include "platform/mbed_error.h"
 
 namespace ble {
@@ -802,9 +803,9 @@ private:
     bool _random_address_rotating;
 
     bool _scan_enabled;
-    mbed::Timeout _advertising_timeout;
-    mbed::Timeout _scan_timeout;
-    mbed::Ticker _address_rotation_ticker;
+    mbed::LowPowerTimeout _advertising_timeout;
+    mbed::LowPowerTimeout _scan_timeout;
+    mbed::LowPowerTicker _address_rotation_ticker;
 
     template<size_t bit_size>
     struct BitArray {
