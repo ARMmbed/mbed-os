@@ -137,6 +137,8 @@ void USBPhyHw::deinit()
 	sleep_manager_unlock_deep_sleep();
     }
 
+    this->events = NULL;
+
     // Clear the instance pointer
     instance = 0;
 }
