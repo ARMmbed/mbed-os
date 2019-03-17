@@ -22,9 +22,8 @@ import struct
 import shutil
 import inspect
 import sys
+from collections import namedtuple
 from copy import copy
-from inspect import getmro
-from collections import namedtuple, Mapping
 from future.utils import raise_from
 from tools.resources import FileType
 from tools.targets.LPC import patch
@@ -45,16 +44,21 @@ CORE_LABELS = {
     "Cortex-M4F": ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4", "CORTEX"],
     "Cortex-M7": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
     "Cortex-M7F": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
-    "Cortex-M7FD": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
+    "Cortex-M7FD": ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7",
+                    "CORTEX"],
     "Cortex-A9": ["A9", "CORTEX_A", "LIKE_CORTEX_A9", "CORTEX"],
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
-    "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
+    "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23",
+                      "CORTEX"],
     "Cortex-M33": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33",
+                      "CORTEX"],
     "Cortex-M33F": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33",
+                       "CORTEX"],
     "Cortex-M33FE": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33FE-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
+    "Cortex-M33FE-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33",
+                        "CORTEX"]
 }
 
 CORE_ARCH = {
@@ -78,8 +82,9 @@ CORE_ARCH = {
     "Cortex-M33FE-NS": 8,
 }
 
-################################################################################
+###############################################################################
 # Generic Target class that reads and interprets the data in targets.json
+
 
 class HookError(Exception):
     """ A simple class that represents all the exceptions associated with
@@ -87,7 +92,10 @@ class HookError(Exception):
     """
     pass
 
+
 CACHES = {}
+
+
 def cached(func):
     """A simple decorator used for automatically caching data returned by a
     function
@@ -102,9 +110,15 @@ def cached(func):
 
 # Cumulative attributes can have values appended to them, so they
 # need to be computed differently than regular attributes
-CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features', 'components']
 
-default_build_tools_metadata = {u'version':0, u'public':False}
+
+CUMULATIVE_ATTRIBUTES = [
+    'extra_labels', 'macros', 'device_has', 'features', 'components'
+]
+
+
+default_build_tools_metadata = {u'version': 0, u'public': False}
+
 
 def get_resolution_order(json_data, target_name, order, level=0):
     """ Return the order in which target descriptions are searched for
@@ -128,8 +142,10 @@ def get_resolution_order(json_data, target_name, order, level=0):
 def target(name, json_data):
     """Construct a target object"""
     if name.startswith("_"):
-        raise Exception("Invalid target name '%s' specified, target name should not start with '_'" % name)
-    
+        raise Exception(
+            "Invalid target name '%s' specified,"
+            " target name should not start with '_'" % name
+        )
     try:
         resolution_order = get_resolution_order(json_data, name, [])
     except KeyError as exc:
@@ -137,13 +153,18 @@ def target(name, json_data):
             "target {} has an incomplete target definition".format(name)
         ), exc)
     resolution_order_names = [tgt for tgt, _ in resolution_order]
-    
-    return Target(name=name,
-                  json_data={key: value for key, value in json_data.items()
-                             if key in resolution_order_names},
-                  resolution_order=resolution_order,
-                  resolution_order_names=resolution_order_names,
-                  build_tools_metadata=json_data.get("__build_tools_metadata__", default_build_tools_metadata))
+    return Target(
+        name=name,
+        json_data={key: value for key, value in json_data.items()
+                   if key in resolution_order_names},
+        resolution_order=resolution_order,
+        resolution_order_names=resolution_order_names,
+        build_tools_metadata=json_data.get(
+            "__build_tools_metadata__",
+            default_build_tools_metadata
+        )
+    )
+
 
 def generate_py_target(new_targets, name):
     """Add one or more new target(s) represented as a Python dictionary
@@ -158,15 +179,21 @@ def generate_py_target(new_targets, name):
     total_data = {}
     total_data.update(new_targets)
     total_data.update(base_targets)
-    
     return target(name, total_data)
 
-class Target(namedtuple("Target", "name json_data resolution_order resolution_order_names build_tools_metadata")):
+
+class Target(namedtuple(
+        "Target",
+        "name json_data resolution_order "
+        "resolution_order_names build_tools_metadata"
+)):
     """An object to represent a Target (MCU/Board)"""
 
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'targets', 'targets.json')
+        os.path.dirname(os.path.abspath(__file__)),
+        '..', '..', 'targets', 'targets.json'
+    )
 
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
@@ -188,8 +215,10 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         for extra_target in Target.__extra_target_json_files:
             for k, v in json_file_to_dict(extra_target).items():
                 if k in targets:
-                    print('WARNING: Custom target "%s" cannot replace existing '
-                          'target.' % k)
+                    print(
+                        'WARNING: Custom target "%s" cannot replace existing '
+                        'target.' % k
+                    )
                 else:
                     targets[k] = v
                     targets[k]["_from_file"] = extra_target
@@ -206,8 +235,10 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     @staticmethod
     def set_targets_json_location(location=None):
         """Set the location of the targets.json file"""
-        Target.__targets_json_location = (location or
-                                          Target.__targets_json_location_default)
+        Target.__targets_json_location = (
+            location or
+            Target.__targets_json_location_default
+        )
         Target.__extra_target_json_files = []
         # Invalidate caches, since the location of the JSON file changed
         CACHES.clear()
@@ -229,8 +260,10 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             if isinstance(val, dict):
                 out[key] = Target.__add_paths_to_progen(val)
             elif key == "template":
-                out[key] = [os.path.join(os.path.dirname(__file__), 'export', v)
-                            for v in val]
+                out[key] = [
+                    os.path.join(os.path.dirname(__file__), 'export', v)
+                    for v in val
+                ]
             else:
                 out[key] = val
         return out
@@ -301,14 +334,13 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             return self.__getattr_cumulative(attrname)
         else:
             tdata = self.json_data
-            starting_value = None
             for tgt in self.resolution_order:
                 data = tdata[tgt[0]]
                 try:
                     return data[attrname]
                 except KeyError:
                     pass
-            else: # Attribute not found
+            else:  # Attribute not found
                 raise AttributeError(
                     "Attribute '%s' not found in target '%s'"
                     % (attrname, self.name))
@@ -327,7 +359,6 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     def get_target(target_name):
         """ Return the target instance starting from the target name """
         return target(target_name, Target.get_json_target_data())
-
 
     @property
     def program_cycle_s(self):
@@ -356,7 +387,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     def is_PSA_non_secure_target(self):
         return 'NSPE_Target' in self.labels
 
-    def get_post_build_hook(self, toolchain):
+    def get_post_build_hook(self, toolchain_labels):
         """Initialize the post-build hooks for a toolchain. For now, this
         function only allows "post binary" hooks (hooks that are executed
         after the binary image is extracted from the executable file)
@@ -364,13 +395,15 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         Positional Arguments:
         hook - the hook object to add post-binary-hooks to
         toolchain - the toolchain object for inspection
+
+        Return Value:
+        A callable if any post-build hook is applicable or None
         """
 
-        # If there's no hook, simply return
         try:
             hook_data = self.post_binary_hook
         except AttributeError:
-            return
+            return None
         # A hook was found. The hook's name is in the format
         # "classname.functionname"
         temp = hook_data["function"].split(".")
@@ -383,8 +416,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # "class_name" must refer to a class in this file, so check if the
         # class exists
         mdata = self.get_module_data()
-        if class_name not in mdata or \
-           not inspect.isclass(mdata[class_name]):
+        if not inspect.isclass(mdata.get(class_name, None)):
             raise HookError(
                 ("Class '%s' required by '%s' in target '%s'"
                  % (class_name, hook_data["function"], self.name)) +
@@ -392,25 +424,24 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # "function_name" must refer to a static function inside class
         # "class_name"
         cls = mdata[class_name]
-        if (not hasattr(cls, function_name)) or \
-           (not inspect.isfunction(getattr(cls, function_name))):
+        if not inspect.isfunction(getattr(cls, function_name, None)):
             raise HookError(
                 ("Static function '%s' " % function_name) +
                 ("required by '%s' " % hook_data["function"]) +
                 ("in target '%s' " % self.name) +
-                ("not found in class '%s'" %  class_name))
+                ("not found in class '%s'" % class_name))
         # Check if the hook specification also has toolchain restrictions
         toolchain_restrictions = set(hook_data.get("toolchains", []))
-        toolchain_labels = set(c.__name__ for c in getmro(toolchain.__class__))
         if toolchain_restrictions and \
-           not toolchain_labels.intersection(toolchain_restrictions):
-            return
+           not set(toolchain_labels).intersection(toolchain_restrictions):
+            return None
         return getattr(cls, function_name)
 
-################################################################################
+###############################################################################
 # Target specific code goes in this section
 # This code can be invoked from the target description using the
 # "post_binary_hook" key
+
 
 class LPCTargetCode(object):
     """General LPC Target patching code"""
@@ -419,6 +450,7 @@ class LPCTargetCode(object):
         """Patch an elf file"""
         t_self.notify.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
+
 
 class LPC4088Code(object):
     """Code specific to the LPC4088"""
@@ -451,17 +483,21 @@ class LPC4088Code(object):
         # file to 'binf'
         shutil.rmtree(binf, True)
         os.rename(binf + '.temp', binf)
-        t_self.notify.debug("Generated custom binary file (internal flash + SPIFI)")
+        t_self.notify.debug(
+            "Generated custom binary file (internal flash + SPIFI)"
+        )
         LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
+
 
 class TEENSY3_1Code(object):
     """Hooks for the TEENSY3.1"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         """Hook that is run after elf is generated"""
-        # This function is referenced by old versions of targets.json and should
-        # be kept for backwards compatibility.
+        # This function is referenced by old versions of targets.json and
+        # should be kept for backwards compatibility.
         pass
+
 
 class MTSCode(object):
     """Generic MTS code"""
@@ -507,6 +543,7 @@ class MTSCode(object):
         """A hook for the MTB MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
 
+
 class MCU_NRF51Code(object):
     """NRF51 Hooks"""
     @staticmethod
@@ -514,8 +551,8 @@ class MCU_NRF51Code(object):
         """Hook that merges the soft device with the bin file"""
         # Scan to find the actual paths of soft device
         sdf = None
-        for softdevice_and_offset_entry\
-            in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
+        sd_with_offsets = t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS
+        for softdevice_and_offset_entry in sd_with_offsets:
             for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(softdevice_and_offset_entry['name']) != -1:
                     t_self.notify.debug("SoftDevice file found %s."
@@ -537,8 +574,10 @@ class MCU_NRF51Code(object):
         if t_self.target.MERGE_BOOTLOADER is True:
             for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
-                    t_self.notify.debug("Bootloader file found %s."
-                                        % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
+                    t_self.notify.debug(
+                        "Bootloader file found %s."
+                        % t_self.target.OVERRIDE_BOOTLOADER_FILENAME
+                    )
                     blf = hexf
                     break
                 elif hexf.find(softdevice_and_offset_entry['boot']) != -1:
@@ -572,6 +611,7 @@ class MCU_NRF51Code(object):
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
             binh.write_hex_file(fileout, write_start_addr=False)
 
+
 class NCS36510TargetCode:
     @staticmethod
     def ncs36510_addfib(t_self, resources, elf, binf):
@@ -579,12 +619,14 @@ class NCS36510TargetCode:
         print("binf ", binf)
         add_fib_at_start(binf[:-4])
 
+
 class RTL8195ACode:
     """RTL8195A Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
+
 
 class PSOC6Code:
     @staticmethod
@@ -599,19 +641,27 @@ class PSOC6Code:
         else:
             psoc6_complete(t_self, elf, binf)
 
+
 class LPC55S69Code:
     """LPC55S69 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.LPC55S69 import lpc55s69_complete
         configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(t_self.notify, resources, binf, configured_secure_image_filename, FileType.BIN)
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
         lpc55s69_complete(t_self, binf, secure_bin)
 
-################################################################################
 
-# Instantiate all public targets
+# End Target specific section
+###############################################################################
 def update_target_data():
+    """Instantiate all public targets"""
     TARGETS[:] = [Target.get_target(tgt) for tgt, obj
                   in Target.get_json_target_data().items()
                   if obj.get("public", True)]
@@ -619,6 +669,7 @@ def update_target_data():
     TARGET_MAP.clear()
     TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
     TARGET_NAMES[:] = TARGET_MAP.keys()
+
 
 TARGETS = []
 TARGET_MAP = dict()
@@ -628,6 +679,7 @@ update_target_data()
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = {}
+
 
 # Detection APIs
 def get_target_detect_codes():
@@ -639,6 +691,7 @@ def get_target_detect_codes():
             result[detect_code] = tgt.name
     return result
 
+
 def set_targets_json_location(location=None):
     """Sets the location of the JSON file that contains the targets"""
     # First instruct Target about the new location
@@ -648,4 +701,3 @@ def set_targets_json_location(location=None):
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
     update_target_data()
-
