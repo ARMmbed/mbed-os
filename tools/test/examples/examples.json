@@ -16,6 +16,21 @@
       "auto-update" : true
     },
     {
+      "name": "mbed-os-example-blinky-baremetal",
+      "github": "https://github.com/ARMmbed/mbed-os-example-blinky-baremetal",
+      "mbed": [
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky-baremetal"
+      ],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["K66F", "NUCLEO_F429ZI", "ARCH_PRO", "LPC1768"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
+    },
+    {
       "name": "mbed-os-example-tls",
       "github": "https://github.com/ARMmbed/mbed-os-example-tls",
       "mbed": [
