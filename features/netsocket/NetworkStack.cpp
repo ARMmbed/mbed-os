@@ -18,7 +18,7 @@
 #include "nsapi_dns.h"
 #include "stddef.h"
 #include <new>
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "mbed_shared_queues.h"
 #include "platform/mbed_error.h"
 

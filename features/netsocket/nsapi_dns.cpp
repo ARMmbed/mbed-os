@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mbed_shared_queues.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "OnboardNetworkStack.h"
 #include "Kernel.h"
 #include "PlatformMutex.h"
