@@ -2926,28 +2926,77 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     const uint8_t *data
 )
 {
-    if (!_eventHandler) {
+#if BLE_FEATURE_PRIVACY
+    // Check if the address hasn't been resolved
+    if (_privacy_enabled &&
+        _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER &&
+        address_type != NULL &&
+        *address_type == pal::connection_peer_address_type_t::RANDOM_ADDRESS &&
+        is_random_private_resolvable_address(address.data())
+    ) {
         return;
     }
+#endif // BLE_FEATURE_PRIVACY
 
-    _eventHandler->onAdvertisingReport(
-        AdvertisingReportEvent(
-            event_type,
-            address_type ?
-                (peer_address_type_t::type) address_type->value() :
-                peer_address_type_t::ANONYMOUS,
-            (BLEProtocol::AddressBytes_t &) address,
-            primary_phy,
-            secondary_phy ? *secondary_phy : phy_t::NONE,
-            advertising_sid,
-            tx_power,
+    if (_deprecated_scan_api_used == false) {
+        // report in new event handler
+        if (!_eventHandler) {
+            return;
+        }
+        _eventHandler->onAdvertisingReport(
+            AdvertisingReportEvent(
+                event_type,
+                address_type ?
+                    (peer_address_type_t::type) address_type->value() :
+                    peer_address_type_t::ANONYMOUS,
+                (BLEProtocol::AddressBytes_t &) address,
+                primary_phy,
+                secondary_phy ? *secondary_phy : phy_t::NONE,
+                advertising_sid,
+                tx_power,
+                rssi,
+                periodic_advertising_interval,
+                (ble::peer_address_type_t::type) direct_address_type.value(),
+                (BLEProtocol::AddressBytes_t &) direct_address,
+                mbed::make_Span(data, data_length)
+            )
+        );
+    } else {
+        if (event_type.legacy_advertising() == false) {
+            return;
+        }
+
+        GapAdvertisingParams::AdvertisingType_t advertising_type;
+
+        if (event_type.connectable() == false) {
+            if (event_type.scannable_advertising()) {
+                advertising_type = GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED;
+            } else {
+                advertising_type = GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED;
+            }
+        } else {
+            if (event_type.directed_advertising()) {
+                advertising_type = GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED;
+            } else {
+                advertising_type = GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED;
+            }
+        }
+
+        // This handler is not supposed to be called with V1 API as the extended
+        // scan is not called. However the Cordio LL stack doesn't act that way
+        // and use extended scan with V1 API.
+        BLE_DEPRECATED_API_USE_BEGIN()
+        LegacyGap::processAdvertisementReport(
+            address.data(),
             rssi,
-            periodic_advertising_interval,
-            (ble::peer_address_type_t::type) direct_address_type.value(),
-            (BLEProtocol::AddressBytes_t &) direct_address,
-            mbed::make_Span(data, data_length)
-        )
-    );
+            event_type.scan_response(),
+            advertising_type,
+            data_length,
+            data,
+            (peer_address_type_t::type) address_type->value()
+        );
+        BLE_DEPRECATED_API_USE_END()
+    }
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
