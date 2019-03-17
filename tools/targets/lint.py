@@ -29,6 +29,7 @@ if __name__ == "__main__":
 from copy import copy
 from yaml import dump_all
 import argparse
+from past.builtins import basestring
 
 from tools.targets import Target, set_targets_json_location, TARGET_MAP
 
@@ -274,4 +275,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
