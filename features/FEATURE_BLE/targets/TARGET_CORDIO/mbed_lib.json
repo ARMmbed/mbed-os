@@ -1,5 +1,6 @@
 {
     "name": "cordio",
+    "macros": [ "WSF_MS_PER_TICK=1" ],
     "config": {
         "max-connections": {
             "help": "Maximum number of connections",
