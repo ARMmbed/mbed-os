@@ -5450,6 +5450,7 @@
         ],
         "extra_labels_add": ["MUSCA_A1_NS", "PSA", "TFM"],
         "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
+        "secure_image_filename": "tfm.bin",
         "overrides": {
             "non-secure-rom-start": "0x000a0400",
             "non-secure-rom-size": "0x5f800",
@@ -5473,7 +5474,7 @@
         "components_add": ["FLASHIAP"],
         "extra_labels_add": ["MUSCA_A1_S", "PSA", "TFM"],
         "deliver_to_target": "ARM_MUSCA_A1_NS",
-        "delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_A1/TARGET_MUSCA_A1_NS/device",
+        "delivery_dir": "TARGET_ARM_SSG/TARGET_MUSCA_A1/TARGET_MUSCA_A1_NS/prebuilt",
         "overrides": {
             "secure-rom-start": "0x10020400",
             "secure-rom-size": "0x7f800",

@@ -25,6 +25,11 @@
 #include "../../../partition/region_defs.h"
 #include "../cmsis_nvic.h"
 
+/* Stack size is 1K for Mbed-OS */
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
 MEMORY
 {
   CODE_RAM (rx)  : ORIGIN = NS_CODE_START, LENGTH = ((TOTAL_CODE_SRAM_SIZE / 2) - BL2_HEADER_SIZE)
@@ -32,8 +37,7 @@ MEMORY
   RAM   (rwx) : ORIGIN = NVIC_RAM_VECTOR_LIMIT, LENGTH = (NS_DATA_SIZE - NVIC_RAM_VECTOR_SIZE)
 }
 
-__heap_size__  = 0x00003000;
-__stack_size__ = 0x00003000;
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
@@ -68,9 +72,9 @@ SECTIONS
     __exidx_end = .;
 
     /* The text section is loaded into Flash but runs from SRAM
-     * The load address is aligned to 4 bytes
+     * The load address is aligned to 8 bytes
      */
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         *(.text*)
 
@@ -92,7 +96,7 @@ SECTIONS
 
         KEEP(*(.eh_frame*))
     } >CODE_RAM
-    . = ALIGN(4); /* This alignment is needed to make the section size 4 bytes aligned */
+    . = ALIGN(8); /* This alignment is needed to make the section size 8 bytes aligned */
 
     /* Create same symbols that armclang does so that in the c files
      * we do not have to deal with the compiler type
@@ -109,7 +113,7 @@ SECTIONS
      * define __STARTUP_COPY_MULTIPLE in startup_cmsdk_musca_ns.S */
     .copy.table :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __copy_table_start__ = .;
         LONG (__etext)
         LONG (__data_start__)
@@ -124,7 +128,7 @@ SECTIONS
      * define __STARTUP_CLEAR_BSS_MULTIPLE in startup_cmsdk_musca_ns.S */
     .zero.table :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __zero_table_start__ = .;
         LONG (__bss_start__)
         LONG (__bss_end__ - __bss_start__)
@@ -135,19 +139,19 @@ SECTIONS
 
     __etext = .;
 
-    .data : ALIGN(4)
+    .data : ALIGN(8)
     {
         __data_start__ = .;
         *(vtable)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -155,7 +159,7 @@ SECTIONS
         PROVIDE_HIDDEN (__init_array_end = .);
 
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -163,7 +167,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
 
@@ -171,24 +175,15 @@ SECTIONS
 
     .bss :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_start__ = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_end__ = .;
     } > RAM
 
     bss_size = __bss_end__ - __bss_start__;
-
-    .heap (COPY):
-    {
-        __HeapBase = .;
-        __end__ = .;
-        end = __end__;
-        KEEP(*(.heap*))
-        __HeapLimit = .;
-    } > RAM
 
     .stack :
     {
@@ -198,19 +193,19 @@ SECTIONS
         . += __stack_size__;
         __StackTop = .;
     } > RAM
+    PROVIDE(__stack = __StackTop);
 
-    .heap :
+    .heap (COPY):
     {
         . = ALIGN(8);
-        __end__ = .;
-        PROVIDE(end = .);
         __HeapBase = .;
-        . += __heap_size__;
+        __end__ = .;
+        end = __end__;
+        KEEP(*(.heap*))
+        . += (ORIGIN(RAM) + LENGTH(RAM) - .);
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
     } > RAM
-
-    PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackTop <= (NS_DATA_START + NS_DATA_SIZE), "RAM region overflowed")

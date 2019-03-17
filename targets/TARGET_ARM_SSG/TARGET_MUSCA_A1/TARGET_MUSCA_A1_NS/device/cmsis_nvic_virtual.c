@@ -21,5 +21,5 @@
 
 void NVIC_SystemReset(void)
 {
-    psa_system_reset();
+    mbed_psa_system_reset();
 }

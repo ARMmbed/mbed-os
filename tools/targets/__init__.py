@@ -31,6 +31,7 @@ from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
 from tools.psa import find_secure_image
 
+
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CORE_ARCH", "HookError", "generate_py_target", "Target",
            "CUMULATIVE_ATTRIBUTES", "get_resolution_order"]
@@ -674,12 +675,21 @@ class PSOC6Code:
         else:
             psoc6_complete(t_self, elf, binf)
 
+
 class ArmMuscaA1Code:
     """Musca-A1 Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        musca_tfm_bin(t_self, binf)
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(
+            t_self.notify,
+            resources,
+            binf,
+            configured_secure_image_filename,
+            FileType.BIN
+        )
+        musca_tfm_bin(t_self, binf, secure_bin)
 
 
 class LPC55S69Code:
