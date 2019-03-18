@@ -30,6 +30,10 @@ extern "C" {
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
 
+/** GPIO initialization
+ *
+ * Properly initialize available and unavailable GPIOs.
+ */
 void uhuru_raven_init(void);
 
 #ifdef __cplusplus
