@@ -32,8 +32,9 @@
 
 using namespace mbed;
 
-GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn,
-                                                                 int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type), _apn(apn)
+GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *user, const char* password,
+                                                                 int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type), _apn(apn),
+                                                                 _user(user), _password(password)
 {
 }
 
@@ -548,6 +549,22 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_connection_profile(int con
             _at.write_int(connection_profile_id);
             _at.write_string("apn");
             _at.write_string(_apn);
+            _at.cmd_stop_read_resp();
+        }
+
+        if (_user && strlen(_user) > 0) {
+            _at.cmd_start("AT^SICS=");
+            _at.write_int(connection_profile_id);
+            _at.write_string("user");
+            _at.write_string(_user);
+            _at.cmd_stop_read_resp();
+        }
+
+        if (_password && strlen(_password) > 0) {
+            _at.cmd_start("AT^SICS=");
+            _at.write_int(connection_profile_id);
+            _at.write_string("passwd");
+            _at.write_string(_password);
             _at.cmd_stop_read_resp();
         }
 

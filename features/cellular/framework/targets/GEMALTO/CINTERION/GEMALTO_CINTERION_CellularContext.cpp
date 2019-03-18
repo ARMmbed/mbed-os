@@ -38,7 +38,7 @@ NetworkStack *GEMALTO_CINTERION_CellularContext::get_stack()
     }
 
     if (!_stack) {
-        _stack = new GEMALTO_CINTERION_CellularStack(_at, _apn, _cid, (nsapi_ip_stack_t)_pdp_type);
+        _stack = new GEMALTO_CINTERION_CellularStack(_at, _apn, _uname, _pwd, _cid, (nsapi_ip_stack_t)_pdp_type);
     }
     return _stack;
 }
