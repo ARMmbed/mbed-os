@@ -161,9 +161,9 @@ uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, ui
 {
     uint32_t deviation = 0;
     if (modulation_index == MODULATION_INDEX_0_5) {
-        deviation = datarate/4;
+        deviation = datarate / 4;
     } else if (modulation_index == MODULATION_INDEX_1_0) {
-        deviation = datarate/2;
+        deviation = datarate / 2;
     }
     return deviation;
 }
