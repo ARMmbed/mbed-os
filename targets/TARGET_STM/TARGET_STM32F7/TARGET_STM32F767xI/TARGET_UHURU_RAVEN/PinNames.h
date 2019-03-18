@@ -2,6 +2,8 @@
  *******************************************************************************
  * Copyright (c) 2016-2019, STMicroelectronics
  * All rights reserved.
+ * 
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
