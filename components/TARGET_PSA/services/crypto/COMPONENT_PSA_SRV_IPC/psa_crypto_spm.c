@@ -91,7 +91,6 @@ psa_status_t psa_crypto_init(void)
 
 void mbedtls_psa_crypto_free(void)
 {
-    //TODO: add retry mechanism to make sure resources were deallocated.
     ipc_oneshot(PSA_CRYPTO_FREE_ID, NULL, 0, NULL, 0);
 }
 
