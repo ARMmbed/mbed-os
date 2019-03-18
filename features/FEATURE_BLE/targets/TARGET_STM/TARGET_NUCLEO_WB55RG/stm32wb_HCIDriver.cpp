@@ -129,8 +129,7 @@ public:
         static uint8_t randCnt;
 
         /* if event is a command complete event */
-        if (*pMsg == HCI_CMD_CMPL_EVT)
-        {
+        if (*pMsg == HCI_CMD_CMPL_EVT) {
 #if (PRINT_HCI_DATA == 1)
             tr_debug("Command complete event\r\n");
             tr_debug("Command >> ");
@@ -279,12 +278,9 @@ public:
               break;
 
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
-                if (hciCoreCb.extResetSeq)
-                {
+                if (hciCoreCb.extResetSeq) {
                     HciReadLocalVerInfoCmd();
-                }
-                else
-                {
+                } else {
                     /* initialize extended parameters */
                     hciCoreCb.maxAdvDataLen = 0;
                     hciCoreCb.numSupAdvSets = 0;
@@ -299,8 +295,7 @@ public:
             case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
             case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
                 // handle extended command
-                if (hciCoreCb.extResetSeq)
-                {
+                if (hciCoreCb.extResetSeq) {
                     /* send next extended command in sequence */
                     (*hciCoreCb.extResetSeq)(pMsg, opcode);
                 }
@@ -392,17 +387,13 @@ private:
         hciCmdSend(pBuf);
     }
 
-    void hciCoreReadResolvingListSize(void)
-    {
+    void hciCoreReadResolvingListSize(void) {
         /* if LL Privacy is supported by Controller and included */
         if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
-            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY))
-        {
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY)) {
             /* send next command in sequence */
             HciLeReadResolvingListSize();
-        }
-        else
-        {
+        } else {
             hciCoreCb.resListSize = 0;
 
             /* send next command in sequence */
@@ -410,33 +401,27 @@ private:
         }
     }
 
-    void hciCoreReadMaxDataLen(void)
-    {
+    void hciCoreReadMaxDataLen(void) {
     /* if LE Data Packet Length Extensions is supported by Controller and included */
         if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
-            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
-        {
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT)) {
             /* send next command in sequence */
             HciLeReadMaxDataLen();
-        }
-        else
-        {
+        } else {
             /* send next command in sequence */
             HciLeRandCmd();
         }
     }
 };
 
-ble::vendor::cordio::buf_pool_desc_t ble::vendor::stm32wb::HCIDriver::get_buffer_pool_description()
-{
+ble::vendor::cordio::buf_pool_desc_t ble::vendor::stm32wb::HCIDriver::get_buffer_pool_description() {
     // Use default buffer pool
     return ble::vendor::cordio::CordioHCIDriver::get_default_buffer_pool_description();
 }
 
 
 
-class TransportDriver : public cordio::CordioHCITransportDriver
-{
+class TransportDriver : public cordio::CordioHCITransportDriver {
 public:
     TransportDriver(TL_CmdPacket_t *BleCmdBuffer, TL_CmdPacket_t *SystemCmdBuffer, uint8_t *EvtPool, uint8_t *SystemSpareEvtBuffer, uint8_t	*BleSpareEvtBuffer, uint8_t *HciAclDataBuffer) {
 
@@ -453,8 +438,7 @@ public:
     /**
      * @see CordioHCITransportDriver::initialize
      */
-    virtual void initialize()
-    {
+    virtual void initialize() {
         init_debug();
         stm32wb_reset();
         transport_init();
@@ -468,8 +452,7 @@ public:
     /**
      * @see CordioHCITransportDriver::write
      */
-    virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData)
-    {
+    virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData) {
         return mbox_write(type, len, pData);
     }
 
@@ -523,12 +506,11 @@ private:
     }
 
      uint16_t mbox_write(uint8_t type, uint16_t len, uint8_t *pData) {
-        // Note:
-        // 01 command
-        // type 02 ACL DATA not yet supported
-        // type 03 SCO Voice
-        // type 04 event - sens remontant
-        // BleCmdBuffer.cmdserial.cmd.cmdcode = opcode;
+        // Note: Until enum is avalable
+        // type 01 Command
+        // type 02 ACL DATA
+        // type 03 SCO Voice (not supported)
+        // type 04 event - uplink (not suported)
 #if (PRINT_HCI_DATA == 1)
         tr_debug("mbox_write type:%d, len:%d\r\n", type, len);
 #endif
@@ -578,8 +560,7 @@ private:
         return len;
     }
 
-    void stm32wb_reset(void)
-    {
+    void stm32wb_reset(void) {
         // Reset IPCC
         LL_AHB3_GRP1_EnableClock(LL_AHB3_GRP1_PERIPH_IPCC);
 
@@ -689,7 +670,7 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
             HciAclDataBuffer
     );
 
-    static ble::vendor::stm32wb::HCIDriver hci_driver(
+    static ble::vendor::stm32wb::HCIDriver hci_driver (
         transport_driver /* other hci driver parameters */
     );
 
@@ -775,35 +756,30 @@ static bool sysevt_wait( void) {
     }
 }
 
-static void syscmd_status_not( SHCI_TL_CmdStatus_t status )
-{
+static void syscmd_status_not( SHCI_TL_CmdStatus_t status ) {
   tr_debug("syscmd_status_not, status:%d\r\n", status);
   return;
 }
 
-void shci_notify_asynch_evt(void* pdata)
-{
+void shci_notify_asynch_evt(void* pdata) {
   /* Need to parse data in future version */
   shci_user_evt_proc();
   return;
 }
 
-void shci_cmd_resp_release(uint32_t flag)
-{
+void shci_cmd_resp_release(uint32_t flag) {
   sys_resp_sem.release();
   return;
 }
 
-void shci_cmd_resp_wait(uint32_t timeout)
-{
+void shci_cmd_resp_wait(uint32_t timeout) {
   /* TO DO: manage timeouts if we can return an error */
   if(sys_resp_sem.wait(timeout) < 1) {
         tr_error("shci_cmd_resp_wait timed out\r\n");
   }
 }
 
-void shci_register_io_bus(tSHciIO* fops)
-{
+void shci_register_io_bus(tSHciIO* fops) {
   /* Register IO bus services */
   fops->Init    = TL_SYS_Init;
   fops->Send    = TL_SYS_SendCmd;
@@ -812,8 +788,7 @@ void shci_register_io_bus(tSHciIO* fops)
 /**
  * Few utilities functions
  */
-static void init_debug( void )
-{
+static void init_debug( void ) {
     tr_debug("WB init_debug: ");
 #if (CFG_DEBUGGER_SUPPORTED == 1)
     tr_debug("ENABLED\r\n");
@@ -856,8 +831,7 @@ static void init_debug( void )
 }
 
 /* This function fills in a BD address table */
-bool get_bd_address( uint8_t* bd_addr )
-{
+bool get_bd_address( uint8_t* bd_addr ) {
     uint8_t *otp_addr;
     uint32_t udn;
     uint32_t company_id;
@@ -866,8 +840,7 @@ bool get_bd_address( uint8_t* bd_addr )
 
     udn = LL_FLASH_GetUDN();
 
-    if(udn != 0xFFFFFFFF)
-    {
+    if(udn != 0xFFFFFFFF) {
         tr_debug("Found UDN: 0x%8lX\r\n", udn);
 
         company_id = LL_FLASH_GetSTCompanyID();
@@ -881,17 +854,12 @@ bool get_bd_address( uint8_t* bd_addr )
         bd_addr[5] = (uint8_t)( (company_id & 0x0000FF00) >> 8 );
 
         bd_found = true;
-    }
-    else
-    {
+    } else {
         otp_addr = OTP_Read(0);
-        if(otp_addr)
-        {
+        if(otp_addr) {
             memcpy(bd_addr, ((OTP_ID0_t*)otp_addr)->bd_address, CONFIG_DATA_PUBADDR_LEN);
             bd_found = false;
-        }
-        else
-        {
+        } else {
             tr_debug("Cannot find BD ADDRESS to program - will leave hw default\r\n");
             bd_found = true;
         }
