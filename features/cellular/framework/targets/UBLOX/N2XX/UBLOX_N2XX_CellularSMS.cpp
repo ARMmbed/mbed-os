@@ -38,7 +38,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularSMS::set_cscs(const char *chr_set)
 }
 
 nsapi_size_or_error_t UBLOX_N2XX_CellularSMS::get_sms(char *buf, uint16_t len, char *phone_num, uint16_t phone_len,
-        char *time_stamp, uint16_t time_len, int *buf_size)
+                                                      char *time_stamp, uint16_t time_len, int *buf_size)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
