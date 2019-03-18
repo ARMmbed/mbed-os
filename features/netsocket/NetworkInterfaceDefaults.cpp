@@ -18,7 +18,7 @@
 
 #include "EthInterface.h"
 #include "WiFiInterface.h"
-#include "CellularBase.h"
+#include "CellularInterface.h"
 #include "MeshInterface.h"
 
 /* Weak default instance static classes for the various abstract classes.
@@ -40,7 +40,7 @@ MBED_WEAK MeshInterface *MeshInterface::get_default_instance()
     return get_target_default_instance();
 }
 
-MBED_WEAK CellularBase *CellularBase::get_default_instance()
+MBED_WEAK CellularInterface *CellularInterface::get_default_instance()
 {
     return get_target_default_instance();
 }
@@ -87,9 +87,9 @@ void WiFiInterface::set_default_parameters()
 #endif
 }
 
-void CellularBase::set_default_parameters()
+void CellularInterface::set_default_parameters()
 {
-    /* CellularBase is expected to attempt to work without any parameters - we
+    /* CellularInterface is expected to attempt to work without any parameters - we
      * will try, at least.
      */
 #ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
@@ -148,7 +148,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 #elif MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == CELLULAR
 MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 {
-    CellularBase *cellular = CellularBase::get_default_instance();
+    CellularInterface *cellular = CellularInterface::get_default_instance();
     if (!cellular) {
         return NULL;
     }

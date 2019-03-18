@@ -22,12 +22,13 @@
 #ifndef CELLULAR_BASE_H
 #define CELLULAR_BASE_H
 
+#include "CellularInterface.h"
+
 /**
  * This class is deprecated and will be removed altogether after expiration of
  * deprecation notice.
+ * @deprecated Migrated to CellularInterface
  */
-#include "CellularInterface.h"
-
 MBED_DEPRECATED_SINCE("mbed-os-5.12", "Migrated to CellularInterface")
 typedef CellularInterface CellularBase;
 

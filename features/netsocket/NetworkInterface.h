@@ -51,7 +51,7 @@ public:
      * target.network-default-interface-type or other overrides.
      *
      * The type of the interface returned can be tested by calling ethInterface(),
-     * wifiInterface(), meshInterface(), cellularBase(), emacInterface() and checking
+     * wifiInterface(), meshInterface(), cellularInterface(), emacInterface() and checking
      * for NULL pointers.
      *
      * The default behavior is to return the default interface for the
@@ -340,9 +340,10 @@ public:
 
     /** Return pointer to a CellularInterface.
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     * @deprecated CellularBase migrated to CellularInterface - use cellularInterface()
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.12", "Migrated to CellularInterface")
-    virtual CellularInterface *cellularBase()
+    MBED_DEPRECATED_SINCE("mbed-os-5.12", "CellularBase migrated to CellularInterface - use cellularInterface()")
+    virtual CellularInterface *cellularBase() // virtual retained for binary compatibility
     {
         return 0;
     }
