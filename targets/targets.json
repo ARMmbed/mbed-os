@@ -3694,7 +3694,7 @@
         "device_name": "STM32F469NI",
         "bootloader_supported": true
     },
-    "SDP-K1": {
+    "SDP_K1": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4",
         "supported_form_factors": ["ARDUINO"],
