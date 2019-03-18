@@ -190,16 +190,33 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_17;
+
+            if ((ADCName)obj->handle.Instance == ADC_3) {
+                sConfig.Channel = ADC_CHANNEL_VBAT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;
+            }
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_18;
+
+            if ((ADCName)obj->handle.Instance == ADC_3) {
+                sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+                sConfig.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;
+            }
             break;
         case 19:
             sConfig.Channel = ADC_CHANNEL_19;
+
+            if ((ADCName)obj->handle.Instance == ADC_3) {
+                sConfig.Channel = ADC_CHANNEL_VREFINT;
+                sConfig.SamplingTime = ADC_SAMPLETIME_810CYCLES_5;
+            }
             break;
         default:
             return 0;
     }
+
+    LL_ADC_Disable((&obj->handle)->Instance);
 
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
