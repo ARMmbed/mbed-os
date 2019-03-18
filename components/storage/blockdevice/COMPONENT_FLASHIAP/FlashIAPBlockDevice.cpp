@@ -258,6 +258,7 @@ const char *FlashIAPBlockDevice::get_type() const
 
 bool FlashIAPBlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size) const
 {
+    /* Calculate address alignment for the full flash */
     bd_addr_t base_addr = addr + (_base - _flash.get_flash_start());
 
     return (
