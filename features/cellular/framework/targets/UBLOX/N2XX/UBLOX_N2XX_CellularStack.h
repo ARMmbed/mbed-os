@@ -63,10 +63,10 @@ protected:
     virtual nsapi_error_t create_socket_impl(CellularSocket *socket);
 
     virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-            const void *data, nsapi_size_t size);
+                                                     const void *data, nsapi_size_t size);
 
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-            void *buffer, nsapi_size_t size);
+                                                       void *buffer, nsapi_size_t size);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

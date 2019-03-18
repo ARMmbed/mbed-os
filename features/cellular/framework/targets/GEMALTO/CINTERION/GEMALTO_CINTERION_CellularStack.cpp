@@ -32,9 +32,9 @@
 
 using namespace mbed;
 
-GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *user, const char* password,
+GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *user, const char *password,
                                                                  int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type), _apn(apn),
-                                                                 _user(user), _password(password)
+    _user(user), _password(password)
 {
 }
 
