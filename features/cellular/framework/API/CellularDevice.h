@@ -22,7 +22,9 @@
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
+#endif // #if DEVICE_SERIAL
 
 /** @file CellularDevice.h
  * @brief Class CellularDevice
@@ -180,6 +182,7 @@ public:
      */
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false) = 0;
 
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
     /** Creates a new CellularContext interface. This API should be used if serial is UART and PPP mode used.
      *  CellularContext created will use data carrier detect to be able to detect disconnection much faster in PPP mode.
      *  UARTSerial usually is the same which was given for the CellularDevice.
@@ -196,6 +199,7 @@ public:
      */
     virtual CellularContext *create_context(UARTSerial *serial, const char *apn, PinName dcd_pin = NC,
                                             bool active_high = false, bool cp_req = false, bool nonip_req = false) = 0;
+#endif // #if DEVICE_SERIAL
 
     /** Deletes the given CellularContext instance
      *
