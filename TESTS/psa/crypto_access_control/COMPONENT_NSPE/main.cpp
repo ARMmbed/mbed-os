@@ -442,6 +442,48 @@ void test_use_other_partition_key_asymmetric_encrypt_decrypt(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
 }
 
+void test_use_other_partition_key_derivation_setup(void)
+{
+    static const psa_key_id_t key_id = 999;
+    static const psa_algorithm_t key_alg = PSA_ALG_HKDF(PSA_ALG_SHA_256);
+    static const psa_key_usage_t key_usage = PSA_KEY_USAGE_DERIVE;
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_DERIVE;
+    static const unsigned char key_data[] = {
+        0x30, 0x82, 0x01, 0x3b, 0x02, 0x01, 0x00, 0x02, 0x41, 0x00, 0xee, 0x2b,
+        0x13, 0x1d, 0x6b, 0x18, 0x18, 0xa9, 0x4c, 0xa8, 0xe9, 0x1c, 0x42, 0x38
+    };
+    static const unsigned char salt[] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+        0x0c
+    };
+    static const unsigned char label[] = {
+        0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9
+    };
+
+    psa_key_handle_t key_handle = 0;
+    psa_crypto_generator_t generator = psa_crypto_generator_init();
+    size_t bits = 128;
+
+    /* via test partition - create a key without generating any key material */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* via test partition - set key policy */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle, key_usage, key_alg));
+
+    /* via test partition - import key data for the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_import_key(key_handle, key_type, key_data, sizeof(key_data)));
+
+    /* try to setup key derivation using the key that was created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_key_derivation(&generator, key_handle, key_alg,
+                                                                   (unsigned char *)salt, sizeof(salt),
+                                                                   (unsigned char *)label, sizeof(label),
+                                                                   PSA_BITS_TO_BYTES(bits)));
+
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
@@ -489,6 +531,8 @@ Case cases[] = {
          case_setup_handler, test_use_other_partition_key_asymmetric_sign_verify, case_teardown_handler),
     Case("use other partitions' key - asymmetric encrypt decrypt",
          case_setup_handler, test_use_other_partition_key_asymmetric_encrypt_decrypt, case_teardown_handler),
+    Case("use other partitions' key - key derivation setup",
+         case_setup_handler, test_use_other_partition_key_derivation_setup, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
