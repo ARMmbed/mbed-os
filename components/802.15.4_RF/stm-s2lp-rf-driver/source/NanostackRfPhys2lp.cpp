@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && defined(MBED_CONF_RTOS_PRESENT)
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"
@@ -140,11 +140,9 @@ public:
     Timeout cca_timer;
     Timeout backup_timer;
     Timer tx_timer;
-#ifdef MBED_CONF_RTOS_PRESENT
     Thread irq_thread;
     Mutex mutex;
     void rf_irq_task();
-#endif //MBED_CONF_RTOS_PRESENT
 };
 
 RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
@@ -167,14 +165,10 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
         RF_S2LP_GPIO0(spi_gpio0),
         RF_S2LP_GPIO1(spi_gpio1),
         RF_S2LP_GPIO2(spi_gpio2),
-        RF_S2LP_GPIO3(spi_gpio3)
-#ifdef MBED_CONF_RTOS_PRESENT
-    , irq_thread(osPriorityRealtime, 1024)
-#endif //MBED_CONF_RTOS_PRESENT
+        RF_S2LP_GPIO3(spi_gpio3),
+        irq_thread(osPriorityRealtime, 1024)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.start(mbed::callback(this, &RFPins::rf_irq_task));
-#endif //MBED_CONF_RTOS_PRESENT
 }
 
 static uint8_t rf_read_register(uint8_t addr);
@@ -215,6 +209,7 @@ static uint8_t s2lp_short_address[2];
 static uint8_t s2lp_MAC[8];
 static rf_mode_e rf_mode = RF_MODE_NORMAL;
 static bool rf_update_config = false;
+static uint16_t cur_packet_len = 0xffff;
 
 /* Channel configurations for sub-GHz */
 static phy_rf_channel_configuration_s phy_subghz = {
@@ -232,7 +227,6 @@ static const phy_device_channel_page_s phy_channel_pages[] = {
     { CHANNEL_PAGE_0, NULL}
 };
 
-#ifdef MBED_CONF_RTOS_PRESENT
 
 #include "rtos.h"
 
@@ -243,7 +237,6 @@ static void rf_irq_task_process_irq();
 #define SIG_TIMER_CCA       2
 #define SIG_TIMER_BACKUP    4
 
-#endif //MBED_CONF_RTOS_PRESENT
 
 #define ACK_FRAME_LENGTH    3
 // Give some additional time for processing, PHY headers, CRC etc.
@@ -292,7 +285,6 @@ static void rf_unlock(void)
     platform_exit_critical();
 }
 
-#ifdef MBED_CONF_RTOS_PRESENT
 static void rf_cca_timer_signal(void)
 {
     rf->irq_thread.flags_set(SIG_TIMER_CCA);
@@ -302,7 +294,6 @@ static void rf_backup_timer_signal(void)
 {
     rf->irq_thread.flags_set(SIG_TIMER_BACKUP);
 }
-#endif //MBED_CONF_RTOS_PRESENT
 
 /*
  * \brief Function writes/read data in SPI interface
@@ -365,22 +356,36 @@ static void rf_enable_gpio_signal(uint8_t gpio_pin, uint8_t interrupt_signal, ui
 
 static void rf_enable_interrupt(uint8_t event)
 {
+    if (enabled_interrupts & (1 << event)) {
+        return;
+    }
     rf_write_register_field(IRQ_MASK0 - (event / 8), 1 << (event % 8), 1 << (event % 8));
     enabled_interrupts |= (1 << event);
 }
 
 static void rf_disable_interrupt(uint8_t event)
 {
+    if (!(enabled_interrupts & (1 << event))) {
+        return;
+    }
     rf_write_register_field(IRQ_MASK0 - (event / 8), 1 << (event % 8), 0 << (event % 8));
     enabled_interrupts &= ~(1 << event);
 }
 
 static void rf_disable_all_interrupts(void)
 {
-    rf_write_register(IRQ_MASK0, 0);
-    rf_write_register(IRQ_MASK1, 0);
-    rf_write_register(IRQ_MASK2, 0);
-    rf_write_register(IRQ_MASK3, 0);
+    if ((uint8_t)enabled_interrupts & 0xff) {
+        rf_write_register(IRQ_MASK0, 0);
+    }
+    if ((uint8_t)(enabled_interrupts >> 8) & 0xff) {
+        rf_write_register(IRQ_MASK1, 0);
+    }
+    if ((uint8_t)(enabled_interrupts >> 16) & 0xff) {
+        rf_write_register(IRQ_MASK2, 0);
+    }
+    if ((uint8_t)(enabled_interrupts >> 24) & 0xff) {
+        rf_write_register(IRQ_MASK3, 0);
+    }
     enabled_interrupts = 0;
     read_irq_status();
 }
@@ -459,10 +464,29 @@ static int rf_read_rx_fifo(uint16_t rx_index, uint16_t length)
     return length;
 }
 
+static void rf_flush_tx_fifo(void)
+{
+    if (rf_read_register(TX_FIFO_STATUS)) {
+        rf_send_command(S2LP_CMD_FLUSHTXFIFO);
+    }
+}
+
+static void rf_flush_rx_fifo(void)
+{
+    if (rf_read_register(RX_FIFO_STATUS)) {
+        rf_send_command(S2LP_CMD_FLUSHRXFIFO);
+    }
+}
+
 static void rf_write_packet_length(uint16_t packet_length)
 {
-    rf_write_register(PCKTLEN1, packet_length / 256);
-    rf_write_register(PCKTLEN0, packet_length % 256);
+    if ((uint8_t)(cur_packet_len >> 8) != (packet_length / 256)) {
+        rf_write_register(PCKTLEN1, packet_length / 256);
+    }
+    if ((uint8_t)cur_packet_len != (packet_length % 256)) {
+        rf_write_register(PCKTLEN0, packet_length % 256);
+    }
+    cur_packet_len = packet_length;
 }
 
 static uint32_t read_irq_status(void)
@@ -514,12 +538,6 @@ static void rf_set_channel_configuration_registers(void)
         rf_channel_multiplier++;
     }
     rf_write_register(CHSPACE, ch_space);
-    tr_info("RF config update:");
-    tr_info("Frequency(ch0): %luHz", phy_subghz.channel_0_center_frequency);
-    tr_info("Channel spacing: %luHz", phy_subghz.channel_spacing);
-    tr_info("Datarate: %lubps", phy_subghz.datarate);
-    tr_info("Deviation: %luHz", deviation);
-    tr_info("RX BW M: %u, E: %u", chflt_m, chflt_e);
 }
 
 static void rf_init_registers(void)
@@ -733,19 +751,17 @@ static void rf_start_tx(void)
 static void rf_cca_timer_interrupt(void)
 {
     if (device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_PREPARE, 0, 0) != 0) {
-        if (rf_read_register(TX_FIFO_STATUS)) {
-            rf_send_command(S2LP_CMD_FLUSHTXFIFO);
+        rf_flush_tx_fifo();
+        if (rf_state == RF_CSMA_STARTED) {
+            rf_state = RF_IDLE;
         }
-        rf_state = RF_IDLE;
         return;
     }
     if ((cca_enabled == true) && ((rf_state != RF_CSMA_STARTED && rf_state != RF_IDLE) || (read_irq_status() & (1 << SYNC_WORD)) || (rf_read_register(LINK_QUALIF1) & CARRIER_SENSE))) {
         if (rf_state == RF_CSMA_STARTED) {
             rf_state = RF_IDLE;
         }
-        if (rf_read_register(TX_FIFO_STATUS)) {
-            rf_send_command(S2LP_CMD_FLUSHTXFIFO);
-        }
+        rf_flush_tx_fifo();
         tx_finnish_time = rf_get_timestamp();
         if (device_driver.phy_tx_done_cb) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 0, 0);
@@ -764,11 +780,7 @@ static void rf_cca_timer_stop(void)
 
 static void rf_cca_timer_start(uint32_t slots)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
     rf->cca_timer.attach_us(rf_cca_timer_signal, slots);
-#else //MBED_CONF_RTOS_PRESENT
-    rf->cca_timer.attach_us(rf_cca_timer_interrupt, slots);
-#endif //MBED_CONF_RTOS_PRESENT
 }
 
 static void rf_backup_timer_interrupt(void)
@@ -779,9 +791,7 @@ static void rf_backup_timer_interrupt(void)
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
         }
     }
-    if (rf_read_register(TX_FIFO_STATUS)) {
-        rf_send_command(S2LP_CMD_FLUSHTXFIFO);
-    }
+    rf_flush_tx_fifo();
     TEST_TX_DONE
     TEST_RX_DONE
     rf_state = RF_IDLE;
@@ -795,11 +805,7 @@ static void rf_backup_timer_stop(void)
 
 static void rf_backup_timer_start(uint32_t slots)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
     rf->backup_timer.attach_us(rf_backup_timer_signal, slots);
-#else //MBED_CONF_RTOS_PRESENT
-    rf->backup_timer.attach_us(rf_backup_timer_interrupt, slots);
-#endif //MBED_CONF_RTOS_PRESENT
 }
 
 static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol)
@@ -842,13 +848,6 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
 
 static void rf_send_ack(uint8_t seq)
 {
-    // If the reception started during CCA process, the TX FIFO may already contain a data packet
-    if (rf_read_register(TX_FIFO_STATUS)) {
-        rf_send_command(S2LP_CMD_SABORT);
-        rf_poll_state_change(S2LP_STATE_READY);
-        rf_send_command(S2LP_CMD_FLUSHTXFIFO);
-        rf_poll_state_change(S2LP_STATE_READY);
-    }
     rf_state = RF_TX_ACK;
     uint8_t ack_frame[3] = {MAC_TYPE_ACK, 0, seq};
     rf_write_tx_fifo(ack_frame, sizeof(ack_frame));
@@ -880,6 +879,7 @@ static void rf_rx_ready_handler(void)
 {
     rf_backup_timer_stop();
     TEST_RX_DONE
+    rf_flush_tx_fifo();
     int rx_read_length = rf_read_rx_fifo(rx_data_length, rf_read_register(RX_FIFO_STATUS));
     if (rx_read_length < 0) {
         rf_receive(rf_rx_channel);
@@ -931,6 +931,8 @@ static void rf_sync_detected_handler(void)
     rf_state = RF_RX_STARTED;
     TEST_RX_STARTED
     rf_disable_interrupt(SYNC_WORD);
+    rf_enable_interrupt(RX_FIFO_ALMOST_FULL);
+    rf_enable_interrupt(RX_DATA_READY);
     rf_backup_timer_start(MAX_PACKET_SENDING_TIME);
 }
 
@@ -940,10 +942,10 @@ static void rf_receive(uint8_t rx_channel)
         return;
     }
     rf_lock();
+    rf_send_command(S2LP_CMD_SABORT);
     rf_disable_all_interrupts();
-    rf_state_change(S2LP_STATE_READY, false);
-    rf_send_command(S2LP_CMD_FLUSHRXFIFO);
     rf_poll_state_change(S2LP_STATE_READY);
+    rf_flush_rx_fifo();
     if (rf_update_config == true) {
         rf_update_config = false;
         rf_set_channel_configuration_registers();
@@ -952,18 +954,17 @@ static void rf_receive(uint8_t rx_channel)
         rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
         rf_rx_channel = rf_new_channel = rx_channel;
     }
-    rf_state_change(S2LP_STATE_LOCK, false);
-    rf_state_change(S2LP_STATE_RX, false);
+    rf_send_command(S2LP_CMD_RX);
     rf_enable_interrupt(SYNC_WORD);
-    rf_enable_interrupt(RX_FIFO_ALMOST_FULL);
-    rf_enable_interrupt(RX_DATA_READY);
     rf_enable_interrupt(RX_FIFO_UNF_OVF);
     rx_data_length = 0;
-    rf_state = RF_IDLE;
+    if (rf_state != RF_CSMA_STARTED) {
+        rf_state = RF_IDLE;
+    }
+    rf_poll_state_change(S2LP_STATE_RX);
     rf_unlock();
 }
 
-#ifdef MBED_CONF_RTOS_PRESENT
 static void rf_interrupt_handler(void)
 {
     rf->irq_thread.flags_set(SIG_RADIO);
@@ -988,9 +989,6 @@ void RFPins::rf_irq_task(void)
 }
 
 static void rf_irq_task_process_irq(void)
-#else //MBED_CONF_RTOS_PRESENT
-static void rf_interrupt_handler(void)
-#endif //MBED_CONF_RTOS_PRESENT
 {
     rf_lock();
     uint32_t irq_status = read_irq_status();
@@ -1027,6 +1025,7 @@ static void rf_interrupt_handler(void)
             } else {
                 TEST_RX_DONE
                 rf_backup_timer_stop();
+                rf_flush_tx_fifo();
                 rf_state = RF_IDLE;
                 // In case the channel change was called during reception, driver is responsible to change the channel if CRC failed.
                 rf_receive(rf_new_channel);
@@ -1044,10 +1043,12 @@ static void rf_interrupt_handler(void)
     }
     if ((irq_status & (1 << RX_FIFO_UNF_OVF)) && (enabled_interrupts & (1 << RX_FIFO_UNF_OVF))) {
         TEST_RX_DONE
+        rf_backup_timer_stop();
         rf_send_command(S2LP_CMD_SABORT);
         rf_poll_state_change(S2LP_STATE_READY);
         rf_send_command(S2LP_CMD_FLUSHRXFIFO);
         rf_poll_state_change(S2LP_STATE_READY);
+        rf_flush_tx_fifo();
         rf_state = RF_IDLE;
         rf_receive(rf_rx_channel);
     }
@@ -1126,7 +1127,7 @@ void NanostackRfPhys2lp::get_mac_address(uint8_t *mac)
         rf_unlock();
         return;
     }
-    memcpy((void*)mac, (void*)_mac_addr, sizeof(_mac_addr));
+    memcpy((void *)mac, (void *)_mac_addr, sizeof(_mac_addr));
 
     rf_unlock();
 }
@@ -1140,7 +1141,7 @@ void NanostackRfPhys2lp::set_mac_address(uint8_t *mac)
         rf_unlock();
         return;
     }
-    memcpy((void*)_mac_addr, (void*)mac, sizeof(_mac_addr));
+    memcpy((void *)_mac_addr, (void *)mac, sizeof(_mac_addr));
     _mac_set = true;
 
     rf_unlock();
@@ -1162,7 +1163,7 @@ int8_t NanostackRfPhys2lp::rf_register()
         randLIB_get_n_bytes_random(s2lp_MAC, 8);
         s2lp_MAC[0] |= 2; //Set Local Bit
         s2lp_MAC[0] &= ~1; //Clear multicast bit
-        tr_info("Generated random MAC %s", trace_array(s2lp_MAC,8));
+        tr_info("Generated random MAC %s", trace_array(s2lp_MAC, 8));
         set_mac_address(s2lp_MAC);
     }
     rf = _rf;
