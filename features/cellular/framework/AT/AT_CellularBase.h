@@ -57,6 +57,7 @@ public:
         PROPERTY_IPV6_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV6?
         PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?
         PROPERTY_NON_IP_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support Non-IP?
+        PROPERTY_AT_CGEREP,         // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
         PROPERTY_MAX
     };
 

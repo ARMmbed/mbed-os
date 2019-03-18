@@ -94,6 +94,8 @@ public: // CellularNetwork
 
     virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
 
+    virtual nsapi_error_t set_packet_domain_event_reporting(bool on);
+
 protected:
 
     /** Sets access technology to be scanned. Modem specific implementation.
