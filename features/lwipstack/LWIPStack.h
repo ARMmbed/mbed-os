@@ -590,7 +590,6 @@ private:
     static void tcpip_thread_callback(void *ptr);
 
     char ip_address[40];
-    rtos::Semaphore tcpip_inited;
     Interface *default_interface;
     LWIPMemoryManager memory_manager;
     osThreadId tcpip_thread_id;

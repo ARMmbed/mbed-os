@@ -16,6 +16,7 @@
 #include "nsapi.h"
 #include "mbed_interface.h"
 #include "mbed_assert.h"
+#include "Semaphore.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -152,8 +153,7 @@ static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 
 void LWIP::tcpip_init_irq(void *eh)
 {
-    LWIP *lwip = static_cast<LWIP *>(eh);
-    lwip->tcpip_inited.release();
+    static_cast<rtos::Semaphore *>(eh)->release();
     sys_tcpip_thread_set();
 }
 
@@ -172,8 +172,10 @@ LWIP::LWIP()
     }
     lwip_init_tcp_isn(0, (u8_t *) &tcp_isn_secret);
 
-    tcpip_init(&LWIP::tcpip_init_irq, this);
-    tcpip_inited.wait(0);
+    rtos::Semaphore tcpip_inited;
+
+    tcpip_init(&LWIP::tcpip_init_irq, &tcpip_inited);
+    tcpip_inited.acquire();
 
     // Zero out socket set
     arena_init();

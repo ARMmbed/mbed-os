@@ -66,7 +66,7 @@ void send_thread_sync(EventFlags *ef)
     for (uint32_t i = 0; i <= MAX_FLAG_POS; i++) {
         const uint32_t flag = flags & (1 << i);
         if (flag) {
-            sync_sem.wait();
+            sync_sem.acquire();
             ef->set(flag);
             ThisThread::sleep_for(wait_ms);
         }

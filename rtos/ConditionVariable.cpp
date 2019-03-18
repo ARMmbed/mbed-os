@@ -52,8 +52,7 @@ bool ConditionVariable::wait_for(uint32_t millisec)
 
     _mutex.unlock();
 
-    int32_t sem_count = current_thread.sem.wait(millisec);
-    bool timeout = (sem_count > 0) ? false : true;
+    bool timeout = !current_thread.sem.try_acquire_for(millisec);
 
     _mutex.lock();
 

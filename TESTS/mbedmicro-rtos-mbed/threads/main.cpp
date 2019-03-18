@@ -647,7 +647,7 @@ void test_mutex()
 
 void test_semaphore_thread(Semaphore *sem)
 {
-    sem->wait();
+    sem->acquire();
 }
 
 /** Testing thread states: wait semaphore

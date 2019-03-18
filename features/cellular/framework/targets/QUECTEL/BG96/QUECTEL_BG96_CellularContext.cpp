@@ -103,7 +103,7 @@ nsapi_error_t QUECTEL_BG96_CellularContext::activate_non_ip_context()
     _at.unlock();
 
     if (ret == NSAPI_ERROR_OK) {
-        _semaphore.wait(NIDD_OPEN_URC_TIMEOUT);
+        _semaphore.try_acquire_for(NIDD_OPEN_URC_TIMEOUT);
         if (_cid == -1) {
             return NSAPI_ERROR_NO_CONNECTION;
         }

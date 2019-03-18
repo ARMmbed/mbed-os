@@ -141,22 +141,20 @@ void test_multi_call_time(void)
 void test_detach(void)
 {
     LowPowerTicker ticker;
-    int32_t ret;
+    bool ret;
     const float ticker_time_s = 0.1f;
     const uint32_t wait_time_ms = 500;
     Semaphore sem(0, 1);
 
     ticker.attach(callback(sem_release, &sem), ticker_time_s);
 
-    ret = sem.wait();
-    TEST_ASSERT_TRUE(ret > 0);
+    sem.acquire();
 
-    ret = sem.wait();
+    sem.acquire();
     ticker.detach(); /* cancel */
-    TEST_ASSERT_TRUE(ret > 0);
 
-    ret = sem.wait(wait_time_ms);
-    TEST_ASSERT_EQUAL(0, ret);
+    ret = sem.try_acquire_for(wait_time_ms);
+    TEST_ASSERT_FALSE(ret);
 }
 
 /** Test single callback time via attach

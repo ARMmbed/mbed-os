@@ -170,8 +170,8 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
     _current_op = op;
     if (err == NSAPI_ERROR_IN_PROGRESS || err == NSAPI_ERROR_OK) {
         if (_is_blocking) {
-            int sema_err = _semaphore.wait(get_timeout_for_operation(op)); // cellular network searching may take several minutes
-            if (sema_err != 1) {
+            int sema_acq = _semaphore.try_acquire_for(get_timeout_for_operation(op)); // cellular network searching may take several minutes
+            if (!sema_acq) {
                 tr_warning("No cellular connection");
                 return NSAPI_ERROR_TIMEOUT;
             }
@@ -1043,7 +1043,7 @@ nsapi_error_t AT_CellularContext::setup_control_plane_opt()
     }
 
     //wait for control plane opt call back to release semaphore
-    _cp_opt_semaphore.wait(CP_OPT_NW_REPLY_TIMEOUT);
+    _cp_opt_semaphore.try_acquire_for(CP_OPT_NW_REPLY_TIMEOUT);
 
     if (_cp_in_use) {
         return NSAPI_ERROR_OK;

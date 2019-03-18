@@ -58,7 +58,7 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     // Wait for callback(s) to complete
     for (int i = 0; i < count; i++) {
-        semaphore.wait();
+        semaphore.acquire();
     }
 
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {

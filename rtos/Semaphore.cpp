@@ -22,6 +22,7 @@
 #include "rtos/Semaphore.h"
 #include "rtos/Kernel.h"
 #include "platform/mbed_assert.h"
+#include "platform/mbed_error.h"
 
 #include <string.h>
 
@@ -46,7 +47,17 @@ void Semaphore::constructor(int32_t count, uint16_t max_count)
     MBED_ASSERT(_id != NULL);
 }
 
-int32_t Semaphore::wait(uint32_t millisec)
+bool Semaphore::try_acquire()
+{
+    osStatus_t status = osSemaphoreAcquire(_id, 0);
+    if (status != osOK && status != osErrorResource) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_SEMAPHORE_LOCK_FAILED), "Semaphore acquire failed", status);
+    }
+    return status == osOK;
+}
+
+/* To sidestep deprecation warnings */
+int32_t Semaphore::_wait(uint32_t millisec)
 {
     osStatus_t stat = osSemaphoreAcquire(_id, millisec);
     switch (stat) {
@@ -61,17 +72,60 @@ int32_t Semaphore::wait(uint32_t millisec)
     }
 }
 
+int32_t Semaphore::wait(uint32_t millisec)
+{
+    return _wait(millisec);
+}
+
 int32_t Semaphore::wait_until(uint64_t millisec)
 {
     uint64_t now = Kernel::get_ms_count();
 
     if (now >= millisec) {
-        return wait(0);
+        return _wait(0);
     } else if (millisec - now >= osWaitForever) {
         // API permits early return
-        return wait(osWaitForever - 1);
+        return _wait(osWaitForever - 1);
     } else {
-        return wait(millisec - now);
+        return _wait(millisec - now);
+    }
+}
+
+void Semaphore::acquire()
+{
+    osStatus_t status = osSemaphoreAcquire(_id, osWaitForever);
+    if (status != osOK) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_SEMAPHORE_LOCK_FAILED), "Semaphore acquire failed", status);
+    }
+}
+
+bool Semaphore::try_acquire_for(uint32_t millisec)
+{
+    osStatus_t status = osSemaphoreAcquire(_id, millisec);
+    if (status == osOK) {
+        return true;
+    }
+
+    bool success = (status == osErrorResource && millisec == 0) ||
+                   (status == osErrorTimeout && millisec != osWaitForever);
+
+    if (!success) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_SEMAPHORE_LOCK_FAILED), "Semaphore acquire failed", status);
+    }
+    return false;
+}
+
+bool Semaphore::try_acquire_until(uint64_t millisec)
+{
+    uint64_t now = Kernel::get_ms_count();
+
+    if (now >= millisec) {
+        return try_acquire();
+    } else if (millisec - now >= osWaitForever) {
+        // API permits early return
+        return try_acquire_for(osWaitForever - 1);
+    } else {
+        return try_acquire_for(millisec - now);
     }
 }
 

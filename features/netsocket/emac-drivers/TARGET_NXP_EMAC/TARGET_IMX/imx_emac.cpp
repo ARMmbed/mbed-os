@@ -411,7 +411,7 @@ bool Kinetis_EMAC::link_out(emac_mem_buf_t *buf)
     SCB_CleanDCache_by_Addr(static_cast<uint32_t *>(memory_manager->get_ptr(buf)), memory_manager->get_len(buf));
 
     /* Check if a descriptor is available for the transfer (wait 10ms before dropping the buffer) */
-    if (xTXDCountSem.wait(10) == 0) {
+    if (!xTXDCountSem.try_acquire_for(10)) {
         memory_manager->free(buf);
         return false;
     }

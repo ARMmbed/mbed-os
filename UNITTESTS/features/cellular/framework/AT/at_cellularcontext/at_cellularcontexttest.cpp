@@ -474,7 +474,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
 
     my_AT_CTX ctx1(at, &dev);
     ctx1.attach(&network_cb);
-    Semaphore_stub::wait_return_value = 1;
+    Semaphore_stub::acquire_return_value = true;
 
     // call callback so that network is opened which is needed in disconnect
     cell_callback_data_t data;

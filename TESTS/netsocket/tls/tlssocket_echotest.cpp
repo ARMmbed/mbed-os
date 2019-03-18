@@ -192,7 +192,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
         }
         TEST_ASSERT_EQUAL(bytes2send, tls_stats[j].sent_bytes);
 #endif
-        tx_sem.wait();
+        tx_sem.acquire();
         if (receive_error) {
             break;
         }

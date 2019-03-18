@@ -148,10 +148,7 @@ osStatus Thread::terminate()
 
 osStatus Thread::join()
 {
-    int32_t ret = _join_sem.wait();
-    if (ret < 0) {
-        return osError;
-    }
+    _join_sem.acquire();
 
     // The semaphore has been released so this thread is being
     // terminated or has been terminated. Once the mutex has

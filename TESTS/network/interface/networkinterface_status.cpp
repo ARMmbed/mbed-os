@@ -54,7 +54,7 @@ nsapi_connection_status_t wait_status_callback()
     nsapi_connection_status_t status;
 
     while (true) {
-        status_semaphore.wait();
+        status_semaphore.acquire();
 
         status = statuses[status_read_counter];
         status_read_counter++;
