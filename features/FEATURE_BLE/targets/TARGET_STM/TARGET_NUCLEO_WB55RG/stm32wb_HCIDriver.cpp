@@ -281,8 +281,7 @@ public:
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
                 if (hciCoreCb.extResetSeq)
                 {
-                    /* send first extended command */
-                    (*hciCoreCb.extResetSeq)(pMsg, opcode);
+                    HciReadLocalVerInfoCmd();
                 }
                 else
                 {
@@ -295,6 +294,7 @@ public:
                 }
                 break;
 
+            case HCI_OPCODE_READ_LOCAL_VER_INFO:
             case HCI_OPCODE_LE_READ_MAX_ADV_DATA_LEN:
             case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
             case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
