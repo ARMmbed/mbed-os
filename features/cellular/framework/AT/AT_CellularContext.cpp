@@ -24,7 +24,7 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
 #endif // #if DEVICE_SERIAL
-#include "mbed_wait_api.h"
+#include "ThisThread.h"
 
 #define NETWORK_TIMEOUT 30 * 60 * 1000 // 30 minutes
 #define DEVICE_TIMEOUT 5 * 60 * 1000 // 5 minutes
@@ -45,6 +45,7 @@
 
 using namespace mbed_cellular_util;
 using namespace mbed;
+using namespace rtos;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
     AT_CellularBase(at), _is_connected(false), _current_op(OP_INVALID), _fh(0), _cp_req(cp_req),
@@ -891,7 +892,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _cb_data.error == NSAPI_ERROR_OK) {
             if (!_apn) {
                 char imsi[MAX_IMSI_LENGTH + 1];
-                wait(1); // need to wait to access SIM in some modems
+                ThisThread::sleep_for(1000); // need to wait to access SIM in some modems
                 _cb_data.error = _device->open_information()->get_imsi(imsi, sizeof(imsi));
                 if (_cb_data.error == NSAPI_ERROR_OK) {
                     const char *apn_config = apnconfig(imsi);

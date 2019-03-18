@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "SPIFReducedBlockDevice.h"
-#include "mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 
 using namespace mbed;
 
@@ -224,7 +224,7 @@ int SPIFReducedBlockDevice::_sync()
             return 0;
         }
 
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
     }
 
     return BD_ERROR_DEVICE_ERROR;
@@ -244,7 +244,7 @@ int SPIFReducedBlockDevice::_wren()
             return 0;
         }
 
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
     }
 
     return BD_ERROR_DEVICE_ERROR;
@@ -278,7 +278,7 @@ int SPIFReducedBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
         addr += chunk;
         size -= chunk;
 
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
 
         err = _sync();
         if (err) {

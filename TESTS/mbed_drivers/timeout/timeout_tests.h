@@ -313,9 +313,9 @@ void test_deepsleep(void)
 
      * This should be replaced with a better function that checks if the
      * hardware buffers are empty. However, such an API does not exist now,
-     * so we'll use the wait_ms() function for now.
+     * so we'll use the ThisThread::sleep_for() function for now.
      */
-    wait_ms(20);
+    ThisThread::sleep_for(20);
 
     timer.start();
     timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);

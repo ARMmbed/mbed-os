@@ -18,7 +18,7 @@
 #include "stdint.h"
 #include "USBMouseKeyboard.h"
 #include "usb_phy_api.h"
-#include "mbed_wait_api.h"
+#include "ThisThread.h"
 
 typedef struct {
     unsigned char usage;
@@ -709,7 +709,7 @@ bool USBMouseKeyboard::doubleClick()
         _mutex.unlock();
         return false;
     }
-    wait(0.1);
+    rtos::ThisThread::sleep_for(100);
     bool ret = click(MOUSE_LEFT);
 
     _mutex.unlock();
@@ -724,7 +724,7 @@ bool USBMouseKeyboard::click(uint8_t button)
         _mutex.unlock();
         return false;
     }
-    wait(0.01);
+    rtos::ThisThread::sleep_for(10);
     bool ret = update(0, 0, 0, 0);
 
     _mutex.unlock();

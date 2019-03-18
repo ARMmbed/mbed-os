@@ -25,7 +25,7 @@
 #include "mbed_atomic.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
-#include "mbed_wait_api.h"
+#include "ThisThread.h"
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
@@ -836,7 +836,7 @@ int NVStore::init()
     init_attempts_val = core_util_atomic_incr_u32(&_init_attempts, 1);
     if (init_attempts_val != 1) {
         while (!_init_done) {
-            wait_ms(1);
+            rtos::ThisThread::sleep_for(1);
         }
         return NVSTORE_SUCCESS;
     }

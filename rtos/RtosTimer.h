@@ -62,7 +62,7 @@ namespace rtos {
  RtosTimer timer(&blink);
  int main() {
      timer.start(1000); // call blink every 1s
-     wait_ms(5000);
+     ThisThread::sleep_for(5000);
      timer.stop(); // stop after 5s
  }
  @endcode

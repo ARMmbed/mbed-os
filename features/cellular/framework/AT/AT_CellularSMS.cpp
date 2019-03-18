@@ -18,7 +18,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "mbed_wait_api.h"
+#include "ThisThread.h"
 #include "AT_CellularSMS.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
@@ -26,6 +26,7 @@
 using namespace mbed_cellular_util;
 using namespace mbed;
 using namespace std;
+using namespace rtos;
 
 #define CTRL_Z  "\x1a"
 #define ESC     "\x1b"
@@ -406,12 +407,12 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
     int write_size = 0;
     int remove_plus_sign = (phone_number[0] == '+') ? 1 : 0;
 
-    wait_ms(_sim_wait_time);
+    ThisThread::sleep_for(_sim_wait_time);
 
     if (_mode == CellularSMSMmodeText) {
         _at.cmd_start_stop("+CMGS", "=", "%s", phone_number + remove_plus_sign);
 
-        wait_ms(_sim_wait_time);
+        ThisThread::sleep_for(_sim_wait_time);
         _at.resp_start("> ", true);
 
         if (_at.get_last_error() == NSAPI_ERROR_OK) {
@@ -474,7 +475,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
 
             _at.cmd_start_stop("+CMGS", "=", "%d", (pdu_len - 2) / 2);
 
-            wait_ms(_sim_wait_time);
+            ThisThread::sleep_for(_sim_wait_time);
             _at.resp_start("> ", true);
 
             if (_at.get_last_error() == NSAPI_ERROR_OK) {
@@ -564,7 +565,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char *b
     /*
      * +CMGR: <stat>,<oa>,<alpha>,<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data><CR><LF>OK<CR><LF>
      */
-    wait_ms(_sim_wait_time);
+    ThisThread::sleep_for(_sim_wait_time);
     _at.cmd_start_stop("+CMGR", "=", "%d", msg_index);
 
     // TODO: NOTE:    If the selected <mem1> can contain different types of SMs (e.g. SMS-DELIVERs, SMS-SUBMITs, SMS-STATUS-REPORTs and SMS-COMMANDs),
@@ -621,7 +622,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t *sms, char *buf, char 
         int pduSize;
 
         for (int i = 0; i < sms->parts; i++) {
-            wait_ms(_sim_wait_time);
+            ThisThread::sleep_for(_sim_wait_time);
             _at.cmd_start_stop("+CMGR", "=", "%d", sms->msg_index[i]);
             _at.resp_start("+CMGR:");
 
@@ -744,7 +745,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_inf
     // read first the lower part of first octet as there is message type
     index++;
     tmp = hex_str_to_int(pdu + index, 1);
-    //wait_ms(200);
+    //ThisThread::sleep_for(200);
     if ((tmp & 0x03) == 0) {// SMS-DELIVER type, last two bits should be zero
         // UDH present? Check from first octets higher part
         tmp = hex_str_to_int(pdu + (--index), 1);
@@ -1071,7 +1072,7 @@ AT_CellularSMS::sms_info_t *AT_CellularSMS::get_oldest_sms_index()
     nsapi_size_or_error_t err = 0;
     while (current) {
         if (_mode == CellularSMSMmodeText) {
-            wait_ms(_sim_wait_time);
+            ThisThread::sleep_for(_sim_wait_time);
             err = read_sms_from_index(current->msg_index[0], NULL, 0, NULL, current->date);
             if (err != 0) {
                 return NULL;

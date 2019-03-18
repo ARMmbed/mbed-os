@@ -944,7 +944,7 @@ static void bg_traffic_thread(SInfo *info)
             tr_err("Background sent: \"%s\"", sbuffer);
             tr_err("Background received: \"%s\"", rbuffer);
         }
-        wait_ms(10);
+        ThisThread::sleep_for(10);
     }
 }
 

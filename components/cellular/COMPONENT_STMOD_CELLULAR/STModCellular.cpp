@@ -16,7 +16,7 @@
  */
 
 #include "STModCellular.h"
-#include "mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 #include "mbed_trace.h"
 
 #define TRACE_GROUP "CELL"
@@ -38,14 +38,14 @@ STModCellular::STModCellular(FileHandle *fh) : STMOD_CELLULAR_MODEM(fh),
     // start with modem disabled
     m_powerkey.write(0);
     m_reset.write(1);
-    wait_ms(200);
+    rtos::ThisThread::sleep_for(200);
     m_reset.write(0);
-    wait_ms(150);
+    rtos::ThisThread::sleep_for(150);
 
-    wait_ms(50);
+    rtos::ThisThread::sleep_for(50);
     m_simsel0.write(MBED_CONF_STMOD_CELLULAR_SIM_SELECTION & 0x01);
     m_simsel1.write(MBED_CONF_STMOD_CELLULAR_SIM_SELECTION & 0x02);
-    wait_ms(50);
+    rtos::ThisThread::sleep_for(50);
 }
 
 STModCellular::~STModCellular()
@@ -59,28 +59,28 @@ nsapi_error_t STModCellular::soft_power_on()
 #if (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_UG96)
     tr_debug("Booting UG96\r\n");
     m_reset.write(1);
-    wait_ms(200);
+    rtos::ThisThread::sleep_for(200);
     m_reset.write(0);
-    wait_ms(150);
+    rtos::ThisThread::sleep_for(150);
     m_powerkey.write(1);
-    wait_ms(150);
+    rtos::ThisThread::sleep_for(150);
     m_powerkey.write(0);
     /* Because modem status is not available on STMOD+ connector,
      * let's wait for Modem complete boot */
-    wait_ms(2300);
+    rtos::ThisThread::sleep_for(2300);
 #endif
 #if (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_BG96)
     tr_debug("Booting BG96\r\n");
     m_powerkey.write(1);
     m_reset.write(1);
-    wait_ms(150);
+    rtos::ThisThread::sleep_for(150);
     m_powerkey.write(0);
     m_reset.write(0);
-    wait_ms(100);
+    rtos::ThisThread::sleep_for(100);
     m_powerkey.write(1);
-    wait_ms(200);
+    rtos::ThisThread::sleep_for(200);
     m_powerkey.write(0);
-    wait_ms(5000);
+    rtos::ThisThread::sleep_for(5000);
 #endif
 
     nsapi_error_t err = STMOD_CELLULAR_MODEM::soft_power_on();
@@ -133,7 +133,7 @@ nsapi_error_t STModCellular::soft_power_on()
     }
 #endif
 
-    wait_ms(500);
+    rtos::ThisThread::sleep_for(500);
 
 #if MBED_CONF_CELLULAR_DEBUG_AT
     _at->lock();
@@ -150,7 +150,7 @@ nsapi_error_t STModCellular::soft_power_off()
 {
     _at->cmd_start("AT+QPOWD");
     _at->cmd_stop();
-    wait_ms(1000);
+    rtos::ThisThread::sleep_for(1000);
     // should wait for POWERED DOWN with a time out up to 65 second according to the manual.
     // we cannot afford such a long wait though.
     return STMOD_CELLULAR_MODEM::soft_power_off();

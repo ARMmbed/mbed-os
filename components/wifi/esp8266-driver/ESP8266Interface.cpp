@@ -28,7 +28,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_debug.h"
-#include "platform/mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
@@ -49,6 +49,7 @@
 #define TRACE_GROUP  "ESPI" // ESP8266 Interface
 
 using namespace mbed;
+using namespace rtos;
 
 #if defined MBED_CONF_ESP8266_TX && defined MBED_CONF_ESP8266_RX
 ESP8266Interface::ESP8266Interface()
@@ -459,7 +460,7 @@ nsapi_error_t ESP8266Interface::_reset()
         _rst_pin.rst_assert();
         // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
         // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
-        wait_ms(2); // Documentation says 200 us should have been enough, but experimentation shows that 1ms was not enough
+        ThisThread::sleep_for(2); // Documentation says 200 us; need 2 ticks to get minimum 1 ms.
         _esp.flush();
         _rst_pin.rst_deassert();
     } else {

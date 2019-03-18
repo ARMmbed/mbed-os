@@ -79,7 +79,7 @@ void ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE()
     TEST_ASSERT_EQUAL(0, result_exp_timeout);
 
     // Give event queue time to finalise before destructors
-    wait(2.0);
+    ThisThread::sleep_for(2000);
 
     nsapi_dns_call_in_set(0);
 }

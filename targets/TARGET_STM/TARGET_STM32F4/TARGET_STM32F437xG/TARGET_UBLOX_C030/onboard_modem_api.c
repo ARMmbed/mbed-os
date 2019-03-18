@@ -19,6 +19,7 @@
 #include "onboard_modem_api.h"
 #include "gpio_api.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_thread.h"
 #include "PinNames.h"
 
 #if MODEM_ON_BOARD
@@ -71,7 +72,7 @@ void onboard_modem_power_up()
 #endif
 
     /* give modem a little time to respond */
-    wait_ms(100);
+    thread_sleep_for(100);
 }
 
 void onboard_modem_power_down()
