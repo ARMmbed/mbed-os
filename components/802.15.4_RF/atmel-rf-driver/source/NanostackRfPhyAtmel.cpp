@@ -321,75 +321,10 @@ static void rf_if_ack_timer_signal(void)
 }
 #endif
 
-// *INDENT-OFF*
-/* Delay functions for RF Chip SPI access */
-#ifdef __CC_ARM
-__asm static void delay_loop(uint32_t count)
-{
-1
-  SUBS a1, a1, #1
-  BCS  %BT1
-  BX   lr
-}
-#elif defined (__ARMCC_VERSION) /* ARMC6 */
-void delay_loop(uint32_t count)
-{
-    // TODO: This needs implementation
-    while(count--)
-        ;;
-}
-#elif defined (__ICCARM__)
-static void delay_loop(uint32_t count)
-{
-  __asm volatile(
-    "loop: \n"
-    " SUBS %0, %0, #1 \n"
-    " BCS.n  loop\n"
-    : "+r" (count)
-    :
-    : "cc"
-  );
-}
-#else // GCC
-static void delay_loop(uint32_t count)
-{
-  __asm__ volatile (
-    "%=:\n\t"
-#if defined(__thumb__) && !defined(__thumb2__)
-    "SUB  %0, #1\n\t"
-#else
-    "SUBS %0, %0, #1\n\t"
-#endif
-    "BCS  %=b\n\t"
-    : "+l" (count)
-    :
-    : "cc"
-  );
-}
-#endif
-// *INDENT-ON*
-
-static void delay_ns(uint32_t ns)
-{
-    uint32_t cycles_per_us = SystemCoreClock / 1000000;
-    // Cortex-M0 takes 4 cycles per loop (SUB=1, BCS=3)
-    // Cortex-M3 and M4 takes 3 cycles per loop (SUB=1, BCS=2)
-    // Cortex-M7 - who knows?
-    // Cortex M3-M7 have "CYCCNT" - would be better than a software loop, but M0 doesn't
-    // Assume 3 cycles per loop for now - will be 33% slow on M0. No biggie,
-    // as original version of code was 300% slow on M4.
-    // [Note that this very calculation, plus call overhead, will take multiple
-    // cycles. Could well be 100ns on its own... So round down here, startup is
-    // worth at least one loop iteration.]
-    uint32_t count = (cycles_per_us * ns) / 3000;
-
-    delay_loop(count);
-}
-
 // t1 = 180ns, SEL falling edge to MISO active [SPI setup assumed slow enough to not need manual delay]
 #define CS_SELECT()  {rf->CS = 0; /* delay_ns(180); */}
 // t9 = 250ns, last clock to SEL rising edge, t8 = 250ns, SPI idle time between consecutive access
-#define CS_RELEASE() {delay_ns(250); rf->CS = 1; delay_ns(250);}
+#define CS_RELEASE() {wait_ns(250); rf->CS = 1; wait_ns(250);}
 
 /*
  * \brief Read connected radio part.
