@@ -13,7 +13,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations 
+limitations
 """
 
 import sys
@@ -84,14 +84,13 @@ def test_armc5_version_check(_run_cmd):
 def test_armc6_version_check(_run_cmd):
     set_targets_json_location()
     notifier = MockNotifier()
-    print(TARGET_MAP["K64F"])
     toolchain = TOOLCHAIN_CLASSES["ARMC6"](TARGET_MAP["K64F"], notify=notifier)
-    print(toolchain)
     _run_cmd.return_value = ("""
     Product: ARM Compiler 6.11 Professional
     Component: ARM Compiler 6.11
     Tool: armclang [5d3b4200]
     """, "", 0)
+
     toolchain.version_check()
     assert notifier.messages == []   
 
