@@ -37,7 +37,7 @@ public:
     virtual void sof_disable();
     virtual void set_address(uint8_t address);
     virtual void remote_wakeup();
-    virtual const usb_ep_table_t* endpoint_table();
+    virtual const usb_ep_table_t *endpoint_table();
 
     virtual uint32_t ep0_set_max_packet(uint32_t max_packet);
     virtual void ep0_setup_read_result(uint8_t *buffer, uint32_t size);
@@ -59,7 +59,7 @@ public:
     virtual void process();
 
 private:
-    #define PIPE_NUM      (16)
+#define PIPE_NUM      (16)
 
     typedef struct {
         bool        enable;
@@ -76,18 +76,18 @@ private:
     static void _usbisr(void);
     void chg_curpipe(uint16_t pipe, uint16_t isel);
     uint16_t is_set_frdy(uint16_t pipe, uint16_t isel);
-    uint8_t * read_fifo(uint16_t pipe, uint16_t count, uint8_t *read_p);
+    uint8_t *read_fifo(uint16_t pipe, uint16_t count, uint8_t *read_p);
     uint16_t read_data(uint16_t pipe);
     void fifo_to_buf(uint16_t pipe);
-    uint8_t * write_fifo(uint16_t pipe, uint16_t count, uint8_t *write_p);
+    uint8_t *write_fifo(uint16_t pipe, uint16_t count, uint8_t *write_p);
     uint16_t write_data(uint16_t pipe);
     void buf_to_fifo(uint16_t pipe);
-    uint16_t * get_pipectr_reg(uint16_t pipe);
-    uint16_t * get_pipetre_reg(uint16_t pipe);
-    uint16_t * get_pipetrn_reg(uint16_t pipe);
-    uint16_t * get_fifoctr_reg(uint16_t pipe);
-    uint16_t * get_fifosel_reg(uint16_t pipe);
-    uint32_t * get_fifo_reg(uint16_t pipe);
+    uint16_t *get_pipectr_reg(uint16_t pipe);
+    uint16_t *get_pipetre_reg(uint16_t pipe);
+    uint16_t *get_pipetrn_reg(uint16_t pipe);
+    uint16_t *get_fifoctr_reg(uint16_t pipe);
+    uint16_t *get_fifosel_reg(uint16_t pipe);
+    uint32_t *get_fifo_reg(uint16_t pipe);
     uint16_t get_pid(uint16_t pipe);
     void set_mbw(uint16_t pipe, uint16_t data);
     void set_pid(uint16_t pipe, uint16_t new_pid);
