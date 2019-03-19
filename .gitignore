@@ -97,3 +97,6 @@ test_suite.json
 
 # default delivery dir
 DELIVERY/
+
+#antonio
+spi_api.c
