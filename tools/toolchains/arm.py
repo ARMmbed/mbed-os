@@ -337,7 +337,6 @@ class ARM(mbedToolchain):
         write(handle, "RESOLVE %s AS %s\n" % (source, sync))
         return "--edit=%s" % filename
 
-
 class ARM_STD(ARM):
 
     OFFICIALLY_SUPPORTED = True
@@ -359,7 +358,7 @@ class ARM_STD(ARM):
             build_profile=build_profile
         )
         if int(target.build_tools_metadata["version"]) > 0:
-            #check only for ARMC5 because ARM_STD means using ARMC5, and thus 
+            #check only for ARMC5 because ARM_STD means using ARMC5, and thus
             # supported_toolchains must include ARMC5
             if "ARMC5" not in target.supported_toolchains:
                 raise NotSupportedException(
@@ -565,13 +564,14 @@ class ARMC6(ARM_STD):
         return ["-include", config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
-        
+
         opts = ['-D%s' % d for d in defines]
+
         if self.RESPONSE_FILES:
             opts += ['@{}'.format(self.get_inc_file(includes))]
         else:
             opts += ["-I%s" % i for i in includes if i]
-        
+
         config_header = self.get_config_header()
         if config_header:
             opts.extend(self.get_config_option(config_header))
