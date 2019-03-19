@@ -564,6 +564,9 @@ void BLE::callDispatcher()
         timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
         if (pTimerRunning) {
             nextTimeout.attach_us(timeoutCallback, nextTimestamp);
+        } else {
+            critical_section.disable();
+            _hci_driver->on_host_stack_inactivity();
         }
     }
 }
