@@ -555,7 +555,7 @@ void BLE::callDispatcher()
 
     wsfOsDispatcher();
 
-    static Timeout nextTimeout;
+    static LowPowerTimeout nextTimeout;
     CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
