@@ -502,11 +502,17 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
         /* Set Transaction counter */
         p_reg = get_pipetre_reg(pipe);
-        if (p_reg != NULL) *p_reg |= USB_TRCLR;
+        if (p_reg != NULL) {
+            *p_reg |= USB_TRCLR;
+        }
         p_reg = get_pipetrn_reg(pipe);
-        if (p_reg != NULL) *p_reg = trncnt;
+        if (p_reg != NULL) {
+            *p_reg = trncnt;
+        }
         p_reg = get_pipetre_reg(pipe);
-        if (p_reg != NULL) *p_reg |= USB_TRENB;
+        if (p_reg != NULL) {
+            *p_reg |= USB_TRENB;
+        }
 
         p_reg = get_pipectr_reg(pipe);
         /* Buffer Clear */
@@ -701,14 +707,12 @@ void USBPhyHw::process()
             }
             events->ep0_out();
         }
-    }
-    else if (((ists0 & USB_BEMP) == USB_BEMP) && ((ests & USB_BEMP0) == USB_BEMP0)) {
+    } else if (((ists0 & USB_BEMP) == USB_BEMP) && ((ests & USB_BEMP0) == USB_BEMP0)) {
         /* ==== BEMP PIPE0 ==== */
         USB_MX.BEMPSTS = (uint16_t)((~USB_BEMP0) & BEMPSTS_MASK);
 
         events->ep0_in();
-    }
-    else if (((ists0 & USB_NRDY) == USB_NRDY) && ((nsts & USB_NRDY0) == USB_NRDY0)) {
+    } else if (((ists0 & USB_NRDY) == USB_NRDY) && ((nsts & USB_NRDY0) == USB_NRDY0)) {
         /* ==== NRDY PIPE0 ==== */
         USB_MX.NRDYSTS = (uint16_t)((~USB_NRDY0) & NRDYSTS_MASK);
         /* Non processing. */
@@ -783,8 +787,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else if ((ists0 & USB_BEMP) == USB_BEMP) {
+    } else if ((ists0 & USB_BEMP) == USB_BEMP) {
         /* ==== BEMP PIPEx ==== */
         USB_MX.BEMPSTS = (uint16_t)((~ests) & BEMPSTS_MASK);
 
@@ -806,8 +809,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else if ((ists0 & USB_NRDY) == USB_NRDY) {
+    } else if ((ists0 & USB_NRDY) == USB_NRDY) {
         /* ==== NRDY PIPEx ==== */
         USB_MX.NRDYSTS = (uint16_t)((~nsts) & NRDYSTS_MASK);
 
@@ -821,8 +823,7 @@ void USBPhyHw::process()
                 }
             }
         }
-    }
-    else {
+    } else {
         /* Non processing. */
     }
 }
@@ -892,7 +893,7 @@ uint16_t USBPhyHw::is_set_frdy(uint16_t pipe, uint16_t isel)
     return (USB_FIFOERROR);
 }
 
-uint8_t * USBPhyHw::read_fifo(uint16_t pipe, uint16_t count, uint8_t *read_p)
+uint8_t *USBPhyHw::read_fifo(uint16_t pipe, uint16_t count, uint8_t *read_p)
 {
     iodefine_reg32_t *p_reg;
     uint16_t even;
@@ -1018,7 +1019,7 @@ void USBPhyHw::fifo_to_buf(uint16_t pipe)
     }
 }
 
-uint8_t * USBPhyHw::write_fifo(uint16_t pipe, uint16_t count, uint8_t *write_p)
+uint8_t *USBPhyHw::write_fifo(uint16_t pipe, uint16_t count, uint8_t *write_p)
 {
     iodefine_reg32_t *p_reg;
     uint16_t even;
@@ -1147,77 +1148,77 @@ void USBPhyHw::buf_to_fifo(uint16_t pipe)
     }
 }
 
-uint16_t * USBPhyHw::get_pipectr_reg(uint16_t pipe)
+uint16_t *USBPhyHw::get_pipectr_reg(uint16_t pipe)
 {
     if (pipe == USB_PIPE0) {
-        return (uint16_t *)&(USB_MX.DCPCTR);
+        return (uint16_t *) & (USB_MX.DCPCTR);
     } else {
-        return (uint16_t *)&(USB_MX.PIPE1CTR) + (pipe - USB_PIPE1);
+        return (uint16_t *) & (USB_MX.PIPE1CTR) + (pipe - USB_PIPE1);
     }
 }
 
-uint16_t * USBPhyHw::get_pipetre_reg(uint16_t pipe)
+uint16_t *USBPhyHw::get_pipetre_reg(uint16_t pipe)
 {
     if ((pipe >= USB_PIPE1) && (pipe <= USB_PIPE5)) {
-        return (uint16_t *)&(USB_MX.PIPE1TRE) + ((pipe - USB_PIPE1) * 2);
+        return (uint16_t *) & (USB_MX.PIPE1TRE) + ((pipe - USB_PIPE1) * 2);
     } else if ((pipe >= USB_PIPE9) && (pipe <= USB_PIPE10)) {
-        return (uint16_t *)&(USB_MX.PIPE9TRE) + ((pipe - USB_PIPE9) * 2);
+        return (uint16_t *) & (USB_MX.PIPE9TRE) + ((pipe - USB_PIPE9) * 2);
     } else if ((pipe >= USB_PIPE11) && (pipe <= USB_PIPE15)) {
-        return (uint16_t *)&(USB_MX.PIPEBTRE) + ((pipe - USB_PIPE11) * 2);
+        return (uint16_t *) & (USB_MX.PIPEBTRE) + ((pipe - USB_PIPE11) * 2);
     } else {
         return NULL;
     }
 }
 
-uint16_t * USBPhyHw::get_pipetrn_reg(uint16_t pipe)
+uint16_t *USBPhyHw::get_pipetrn_reg(uint16_t pipe)
 {
     if ((pipe >= USB_PIPE1) && (pipe <= USB_PIPE5)) {
-        return (uint16_t *)&(USB_MX.PIPE1TRN) + ((pipe - USB_PIPE1) * 2);
+        return (uint16_t *) & (USB_MX.PIPE1TRN) + ((pipe - USB_PIPE1) * 2);
     } else if ((pipe >= USB_PIPE9) && (pipe <= USB_PIPE10)) {
-        return (uint16_t *)&(USB_MX.PIPE9TRN) + ((pipe - USB_PIPE9) * 2);
+        return (uint16_t *) & (USB_MX.PIPE9TRN) + ((pipe - USB_PIPE9) * 2);
     } else if ((pipe >= USB_PIPE11) && (pipe <= USB_PIPE15)) {
-        return (uint16_t *)&(USB_MX.PIPEBTRN) + ((pipe - USB_PIPE11) * 2);
+        return (uint16_t *) & (USB_MX.PIPEBTRN) + ((pipe - USB_PIPE11) * 2);
     } else {
         return NULL;
     }
 }
 
-uint16_t * USBPhyHw::get_fifoctr_reg(uint16_t pipe)
+uint16_t *USBPhyHw::get_fifoctr_reg(uint16_t pipe)
 {
     uint16_t fifo_use = PIPE2FIFO(pipe);
 
     if ((fifo_use & USB_FUNCTION_D0FIFO_USE) == USB_FUNCTION_D0FIFO_USE) {
-        return (uint16_t *)&(USB_MX.D0FIFOCTR);
+        return (uint16_t *) & (USB_MX.D0FIFOCTR);
     } else if ((fifo_use & USB_FUNCTION_D1FIFO_USE) == USB_FUNCTION_D1FIFO_USE) {
-        return (uint16_t *)&(USB_MX.D1FIFOCTR);
+        return (uint16_t *) & (USB_MX.D1FIFOCTR);
     } else {
-        return (uint16_t *)&(USB_MX.CFIFOCTR);
+        return (uint16_t *) & (USB_MX.CFIFOCTR);
     }
 }
 
-uint16_t * USBPhyHw::get_fifosel_reg(uint16_t pipe)
+uint16_t *USBPhyHw::get_fifosel_reg(uint16_t pipe)
 {
     uint16_t fifo_use = PIPE2FIFO(pipe);
 
     if ((fifo_use & USB_FUNCTION_D0FIFO_USE) == USB_FUNCTION_D0FIFO_USE) {
-        return (uint16_t *)&(USB_MX.D0FIFOSEL);
+        return (uint16_t *) & (USB_MX.D0FIFOSEL);
     } else if ((fifo_use & USB_FUNCTION_D1FIFO_USE) == USB_FUNCTION_D1FIFO_USE) {
-        return (uint16_t *)&(USB_MX.D1FIFOSEL);
+        return (uint16_t *) & (USB_MX.D1FIFOSEL);
     } else {
-        return (uint16_t *)&(USB_MX.CFIFOSEL);
+        return (uint16_t *) & (USB_MX.CFIFOSEL);
     }
 }
 
-uint32_t * USBPhyHw::get_fifo_reg(uint16_t pipe)
+uint32_t *USBPhyHw::get_fifo_reg(uint16_t pipe)
 {
     uint16_t fifo_use = PIPE2FIFO(pipe);
 
     if ((fifo_use & USB_FUNCTION_D0FIFO_USE) == USB_FUNCTION_D0FIFO_USE) {
-        return (uint32_t *)&(USB_MX.D0FIFO);
+        return (uint32_t *) & (USB_MX.D0FIFO);
     } else if ((fifo_use & USB_FUNCTION_D1FIFO_USE) == USB_FUNCTION_D1FIFO_USE) {
-        return (uint32_t *)&(USB_MX.D1FIFO);
+        return (uint32_t *) & (USB_MX.D1FIFO);
     } else {
-        return (uint32_t *)&(USB_MX.CFIFO);
+        return (uint32_t *) & (USB_MX.CFIFO);
     }
 }
 
@@ -1259,8 +1260,8 @@ void USBPhyHw::set_pid(uint16_t pipe, uint16_t new_pid)
             }
             break;
         case USB_PID_BUF:
-            if (((old_pid & USB_PID_STALL) == USB_PID_STALL) || 
-                ((old_pid & USB_PID_STALL2) == USB_PID_STALL2)) {
+            if (((old_pid & USB_PID_STALL) == USB_PID_STALL) ||
+                    ((old_pid & USB_PID_STALL2) == USB_PID_STALL2)) {
                 *p_reg &= (~USB_PID);
                 *p_reg |= USB_PID_NAK;
             }

@@ -63,7 +63,7 @@ public:
     virtual void sof_disable();
     virtual void set_address(uint8_t address);
     virtual void remote_wakeup();
-    virtual const usb_ep_table_t* endpoint_table();
+    virtual const usb_ep_table_t *endpoint_table();
 
     virtual uint32_t ep0_set_max_packet(uint32_t max_packet);
     virtual void ep0_setup_read_result(uint8_t *buffer, uint32_t size);

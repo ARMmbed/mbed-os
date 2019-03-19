@@ -680,7 +680,7 @@
 #define USB_CF_RWUPON           (0x20u)     /* Remote Wake up ON */
 #define USB_CF_RWUPOFF          (0x00u)     /* Remote Wake up OFF */
 
- /* Descriptor length Define */
+/* Descriptor length Define */
 #define USB_DD_BLENGTH          (18u)       /* Device Descriptor Length */
 #define USB_CD_BLENGTH          (9u)        /* Configuration Descriptor Length */
 #define USB_ID_BLENGTH          (9u)        /* Interface Descriptor Length */
