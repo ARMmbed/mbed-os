@@ -25,8 +25,6 @@
 #include "timer_cmsdk_drv.h"
 #include "us_ticker_api.h"
 
-#if TARGET_MUSCA_A1_NS
-
 static uint64_t total_ticks = 0;
 static uint32_t previous_ticks = 0;
 
@@ -111,33 +109,3 @@ void usec_interval_irq_handler(void)
     us_ticker_read();
     us_ticker_irq_handler();
 }
-
-#else // TARGET_MUSCA_A1_NS
-
-void us_ticker_init(void)
-{
-}
-void us_ticker_free(void)
-{
-}
-uint32_t us_ticker_read(void)
-{
-    return 0;
-}
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
-}
-void us_ticker_disable_interrupt(void)
-{
-}
-void us_ticker_clear_interrupt(void)
-{
-}
-void us_ticker_fire_interrupt(void)
-{
-}
-const ticker_info_t *us_ticker_get_info(void)
-{
-}
-
-#endif // TARGET_MUSCA_A1_NS
