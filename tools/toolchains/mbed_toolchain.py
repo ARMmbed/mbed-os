@@ -929,15 +929,11 @@ class mbedToolchain:
         flags2params = {}
         if self.target.is_PSA_non_secure_target:
             flags2params = {
-                "MBED_ROM_START": "target.non-secure-rom-start",
-                "MBED_ROM_SIZE": "target.non-secure-rom-size",
                 "MBED_RAM_START": "target.non-secure-ram-start",
                 "MBED_RAM_SIZE": "target.non-secure-ram-size"
             }
         if self.target.is_PSA_secure_target:
             flags2params = {
-                "MBED_ROM_START": "target.secure-rom-start",
-                "MBED_ROM_SIZE": "target.secure-rom-size",
                 "MBED_RAM_START": "target.secure-ram-start",
                 "MBED_RAM_SIZE": "target.secure-ram-size",
                 "MBED_PUBLIC_RAM_START": "target.public-ram-start",
