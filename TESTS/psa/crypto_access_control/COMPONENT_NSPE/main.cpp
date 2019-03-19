@@ -89,6 +89,14 @@ void test_open_other_partition_key(void)
 
     /* try to open the key created by the test partition */
     TEST_ASSERT_EQUAL(PSA_ERROR_DOES_NOT_EXIST, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle));
+
+    /* via test partition - reopen the key created by the test partition and keep it open */
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_open_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_create_key_same_id_different_partitions(void)
@@ -158,11 +166,11 @@ void test_create_key_same_id_different_partitions(void)
     TEST_ASSERT_EQUAL(key_usage_local, policy.usage);
     TEST_ASSERT_EQUAL(key_alg, policy.alg);
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle_remote));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle_remote));
 
-    /* close the key created by the current partition (NSPE) */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle_local));
+    /* destroy the key created by the current partition (NSPE) */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle_local));
 }
 
 void test_use_other_partition_key_manage_key(void)
@@ -235,8 +243,8 @@ void test_use_other_partition_key_manage_key(void)
     /* via test partition - import key data for the key created by the test partition */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_import_key(key_handle, key_type, key_data, sizeof(key_data)));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_mac(void)
@@ -266,8 +274,8 @@ void test_use_other_partition_key_mac(void)
     operation = psa_mac_operation_init();
     TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_mac_verify_setup(&operation, key_handle, key_alg));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_cipher(void)
@@ -297,8 +305,8 @@ void test_use_other_partition_key_cipher(void)
     operation = psa_cipher_operation_init();
     TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_cipher_decrypt_setup(&operation, key_handle, key_alg));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_aead(void)
@@ -333,8 +341,8 @@ void test_use_other_partition_key_aead(void)
                                                                  cipher_text, sizeof(cipher_text),
                                                                  plain_text, sizeof(plain_text), &len));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_asymmetric_sign_verify(void)
@@ -366,8 +374,8 @@ void test_use_other_partition_key_asymmetric_sign_verify(void)
     TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_verify(key_handle, key_alg, input, sizeof(input),
                                                                       signature, sizeof(signature)));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_asymmetric_encrypt_decrypt(void)
@@ -438,8 +446,8 @@ void test_use_other_partition_key_asymmetric_encrypt_decrypt(void)
                                                                        encrypted, sizeof(encrypted), NULL, 0,
                                                                        decrypted, sizeof(decrypted), &len));
 
-    /* via test partition - close the key created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
 }
 
 void test_use_other_partition_key_derivation_setup(void)
