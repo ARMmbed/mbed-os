@@ -17,7 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "features/netsocket/cellular/CellularNonIPSocket.h"
-#include "CellularContext_stub.h"
+#include "myCellularContext.h"
 
 using namespace mbed;
 
@@ -34,7 +34,7 @@ class TestCellularNonIPSocket : public testing::Test {
 protected:
     CellularNonIPSocket *socket;
     ControlPlane_netif_stub *cp_netif;
-    CellularContext_stub cellular_context;
+    myCellularContext cellular_context;
     nsapi_size_t dataSize;
     char dataBuf[10];
 

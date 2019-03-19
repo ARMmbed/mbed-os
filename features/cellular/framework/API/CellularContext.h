@@ -172,6 +172,11 @@ public: // from NetworkInterface
      */
     static CellularContext *get_default_nonip_instance();
 
+    /** Get pointer to CellularDevice instance. May be null if not AT-layer.
+     *
+     *  @return pointer to CellularDevice instance
+     */
+    CellularDevice *get_device() const;
 
 // Operations, can be sync/async. Also Connect() is this kind of operation, inherited from NetworkInterface above.
 
@@ -327,6 +332,7 @@ protected: // Device specific implementations might need these so protected
     bool _active_high;
 
     ControlPlane_netif *_cp_netif;
+    CellularDevice *_device;
 };
 
 /**

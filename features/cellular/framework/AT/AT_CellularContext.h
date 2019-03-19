@@ -25,6 +25,8 @@ const int MAX_APN_LENGTH = 63 + 1;
 
 namespace mbed {
 
+class AT_CellularDevice;
+
 class AT_CellularContext : public CellularContext, public AT_CellularBase {
 public:
     AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = 0, bool cp_req = false, bool nonip_req = false);
@@ -65,6 +67,7 @@ public:
 
     virtual ControlPlane_netif *get_cp_netif();
 
+    AT_CellularDevice *get_device() const;
 protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 
@@ -126,7 +129,6 @@ private:
     bool _is_blocking;
     ContextOperation  _current_op;
     char _found_apn[MAX_APN_LENGTH];
-    CellularDevice *_device;
     CellularNetwork *_nw;
     FileHandle *_fh;
     rtos::Semaphore _semaphore;
