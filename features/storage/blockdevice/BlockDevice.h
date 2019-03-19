@@ -198,7 +198,7 @@ public:
      *  @param size     Size to read in bytes
      *  @return         True if read is valid for underlying block device
      */
-    bool is_valid_read(bd_addr_t addr, bd_size_t size) const
+    virtual bool is_valid_read(bd_addr_t addr, bd_size_t size) const
     {
         return (
                    addr % get_read_size() == 0 &&
@@ -212,7 +212,7 @@ public:
      *  @param size     Size to write in bytes
      *  @return         True if program is valid for underlying block device
      */
-    bool is_valid_program(bd_addr_t addr, bd_size_t size) const
+    virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const
     {
         return (
                    addr % get_program_size() == 0 &&
@@ -226,7 +226,7 @@ public:
      *  @param size     Size to erase in bytes
      *  @return         True if erase is valid for underlying block device
      */
-    bool is_valid_erase(bd_addr_t addr, bd_size_t size) const
+    virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const
     {
         return (
                    addr % get_erase_size(addr) == 0 &&

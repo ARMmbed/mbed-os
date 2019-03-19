@@ -151,6 +151,31 @@ public:
      */
     virtual const char *get_type() const;
 
+    /** Convenience function for checking block program validity
+     *
+     *  @param addr     Address of block to begin writing to
+     *  @param size     Size to write in bytes
+     *  @return         True if program is valid for underlying block device
+     */
+    virtual bool is_valid_program(bd_addr_t addr, bd_size_t size) const;
+
+    /** Convenience function for checking block read validity
+     *
+     *  @param addr     Address of block to begin reading from
+     *  @param size     Size to read in bytes
+     *  @return         True if read is valid for underlying block device
+     */
+    virtual bool is_valid_read(bd_addr_t addr, bd_size_t size) const;
+
+    /** Convenience function for checking block erase validity
+     *
+     *  @param addr     Address of block to begin erasing
+     *  @param size     Size to erase in bytes
+     *  @return         True if erase is valid for underlying block device
+     */
+    virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const;
+
+
 protected:
     BlockDevice *_bd;
     bool _start_from_end;
