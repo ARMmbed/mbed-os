@@ -18,8 +18,9 @@ from __future__ import print_function, absolute_import
 from builtins import str  # noqa: F401
 
 import re
+import os
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, isfile
+from os.path import join, dirname, splitext, basename, exists, isfile, split
 from os import makedirs, write, remove
 from tempfile import mkstemp
 from shutil import rmtree
@@ -27,7 +28,7 @@ from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
-from tools.utils import mkdir, NotSupportedException, run_cmd
+from tools.utils import mkdir, NotSupportedException, ToolException, run_cmd
 
 
 class ARM(mbedToolchain):
@@ -44,6 +45,7 @@ class ARM(mbedToolchain):
         "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"
     ]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
+    ARMCC_PRODUCT_RE = re.compile(b"Product: (.*)")
     ARMCC_VERSION_RE = re.compile(b"Component: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
@@ -103,11 +105,19 @@ class ARM(mbedToolchain):
 
         self.SHEBANG += " --cpu=%s" % cpu
 
+        self.product_name = None
+
     def version_check(self):
-        stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
+        # The --ide=mbed removes an instability with checking the version of
+        # the ARMC6 binary that comes with Mbed Studio
+        stdout, _, retcode = run_cmd(
+            [self.cc[0], "--vsn", "--ide=mbed"],
+            redirect=True
+        )
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
-        match = self.ARMCC_VERSION_RE.search(stdout.encode("utf-8"))
+        output = stdout.encode("utf-8")
+        match = self.ARMCC_VERSION_RE.search(output)
         if match:
             found_version = LooseVersion(match.group(1).decode("utf-8"))
         else:
@@ -131,6 +141,19 @@ class ARM(mbedToolchain):
                 "col": "",
                 "severity": "WARNING",
             })
+
+        msg = None
+        match = self.ARMCC_PRODUCT_RE.search(output)
+        if match:
+            self.product_name = match.group(1).decode("utf-8")
+        else:
+            self.product_name = None
+
+        if not match or len(match.groups()) != 1:
+            msg = (
+                "Could not detect product name: defaulting to professional "
+                "version of ARMC6"
+            )
 
     def _get_toolchain_labels(self):
         if getattr(self.target, "default_toolchain", "ARM") == "uARM":
@@ -275,7 +298,7 @@ class ARM(mbedToolchain):
 
                 return new_scatter
 
-    def link(self, output, objects, libraries, lib_dirs, scatter_file):
+    def get_link_command(self, output, objects, libraries, lib_dirs, scatter_file):
         base, _ = splitext(output)
         map_file = base + ".map"
         args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
@@ -294,6 +317,13 @@ class ARM(mbedToolchain):
             link_files = self.get_link_file(cmd[1:])
             cmd = [cmd_linker, '--via', link_files]
 
+        return cmd
+
+    def link(self, output, objects, libraries, lib_dirs, scatter_file):
+        cmd = self.get_link_command(
+            output, objects, libraries, lib_dirs, scatter_file
+        )
+
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
@@ -304,12 +334,15 @@ class ARM(mbedToolchain):
             param = objects
         self.default_cmd([self.ar, '-r', lib_path] + param)
 
+    def get_binary_commands(self, bin_arg, bin, elf):
+        return [self.elf2bin, bin_arg, '-o', bin, elf]
+
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         # On .hex format, combine multiple .hex files (for multiple load
         # regions) into one
         bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
-        cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
+        cmd = self.get_binary_commands(bin_arg, bin, elf)
 
         # remove target binary file/path
         if exists(bin):
@@ -545,11 +578,20 @@ class ARMC6(ARM_STD):
         self.ar = join(TOOLCHAIN_PATHS["ARMC6"], "armar")
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
+        # Adding this for safety since this inherits the `version_check` function
+        # but does not call the constructor of ARM_STD, so the `product_name` variable
+        # is not initialized.
+        self.product_name = None
+
     def _get_toolchain_labels(self):
         if getattr(self.target, "default_toolchain", "ARM") == "uARM":
             return ["ARM", "ARM_MICRO", "ARMC6"]
         else:
             return ["ARM", "ARM_STD", "ARMC6"]
+
+    @property
+    def is_mbed_studio_armc6(self):
+        return self.product_name and "Mbed Studio" in self.product_name
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
@@ -576,10 +618,14 @@ class ARMC6(ARM_STD):
         if config_header:
             opts.extend(self.get_config_option(config_header))
         if for_asm:
-            return [
+            opts = [
                 "--cpreproc",
                 "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)
             ]
+
+        if self.is_mbed_studio_armc6:
+            opts.insert(0, "--ide=mbed")
+
         return opts
 
     def assemble(self, source, object, includes):
@@ -594,3 +640,21 @@ class ARMC6(ARM_STD):
         cmd.extend(self.get_compile_options(self.get_symbols(), includes))
         cmd.extend(["-o", object, source])
         return [cmd]
+
+    def get_link_command(self, output, objects, libraries, lib_dirs, scatter_file):
+        cmd = ARM.get_link_command(
+            self, output, objects, libraries, lib_dirs, scatter_file
+        )
+
+        if self.is_mbed_studio_armc6:
+            cmd.insert(1, "--ide=mbed")
+
+        return cmd
+
+    def get_binary_commands(self, bin_arg, bin, elf):
+        cmd = ARM.get_binary_commands(self, bin_arg, bin, elf)
+
+        if self.is_mbed_studio_armc6:
+            cmd.insert(1, "--ide=mbed")
+
+        return cmd
