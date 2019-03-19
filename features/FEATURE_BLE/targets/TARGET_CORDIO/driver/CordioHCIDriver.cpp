@@ -283,6 +283,10 @@ uint16_t CordioHCIDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
     return _transport_driver.write(type, len, pData);
 }
 
+void CordioHCIDriver::on_host_stack_inactivity()
+{
+}
+
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
