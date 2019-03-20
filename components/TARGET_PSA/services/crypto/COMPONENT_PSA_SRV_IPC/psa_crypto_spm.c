@@ -240,6 +240,10 @@ psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
 psa_status_t psa_hash_setup(psa_hash_operation_t *operation,
                             psa_algorithm_t alg)
 {
+    if (operation->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
     psa_crypto_ipc_t psa_crypto_ipc = {
         .func   = PSA_HASH_SETUP,
         .handle = 0,
@@ -253,6 +257,9 @@ psa_status_t psa_hash_setup(psa_hash_operation_t *operation,
         return (status);
     }
     status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
@@ -272,6 +279,9 @@ psa_status_t psa_hash_update(psa_hash_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 2, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
