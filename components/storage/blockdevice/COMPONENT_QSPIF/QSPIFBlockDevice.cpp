@@ -854,7 +854,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
         case 1:
         case 4:
             status_reg_setup[1] = 0x02;  //Bit 1 of Status Reg 2
-	    sr_write_size = 2;
+            sr_write_size = 2;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
 
@@ -875,7 +875,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             status_reg_setup[1] = 0x2; // Bit 1 of status Reg 2
             _read_register_inst = 0x35;
             sr_read_size = 1;
-	    sr_write_size = 2;
+            sr_write_size = 2;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2 -special read command");
             break;
         default:
