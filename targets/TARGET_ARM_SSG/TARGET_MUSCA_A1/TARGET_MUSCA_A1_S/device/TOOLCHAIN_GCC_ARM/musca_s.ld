@@ -323,8 +323,8 @@ SECTIONS
         . = ALIGN(4);
 
     } > RAM AT> FLASH
-    Image$$TFM_DATA$$RW$$Base = ADDR(.TFM_DATA);
-    Image$$TFM_DATA$$RW$$Limit = ADDR(.TFM_DATA) + SIZEOF(.TFM_DATA);
+    Image$$ER_TFM_DATA$$RW$$Base = ADDR(.TFM_DATA);
+    Image$$ER_TFM_DATA$$RW$$Limit = ADDR(.TFM_DATA) + SIZEOF(.TFM_DATA);
 
     .TFM_BSS :
     {
