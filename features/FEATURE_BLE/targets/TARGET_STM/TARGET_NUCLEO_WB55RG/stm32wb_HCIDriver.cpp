@@ -64,7 +64,6 @@
 /* activate to add debug traces */
 #define PRINT_HCI_DATA 1
 
-
 /******************************************************************************
  * BLE config parameters
  ******************************************************************************/
@@ -76,6 +75,7 @@ static bool acl_data_wait(void);
 static void init_debug( void );
 static bool get_bd_address( uint8_t* bd_addr );
 static bool sysevt_wait( void);
+static bool sysevt_check( void);
 
 
 namespace ble {
@@ -439,9 +439,14 @@ public:
      * @see CordioHCITransportDriver::initialize
      */
     virtual void initialize() {
-        init_debug();
-        stm32wb_reset();
-        transport_init();
+        /*  Check whether M0 sub-system was started already by
+         *  checking if the system event was already received
+         *  before. If it was not, then go thru all init. */
+        if(!sysevt_check()) {
+            init_debug();
+            stm32wb_reset();
+            transport_init();
+        }
     }
 
     /**
@@ -750,9 +755,24 @@ static void sysevt_received( void* pdata) {
 static bool sysevt_wait( void) {
     /*  Wait for 10sec max - if not return an error */
     if(sys_event_sem.wait(10000) < 1) {
-       return false;
+        return false;
     } else {
-       return true;
+        /*  release immmediately, now that M0 runs */
+        sys_event_sem.release();
+        return true;
+    }
+}
+
+/*  returns true if ssyevt was already received, which means M0 core is
+ *  already up and running */
+static bool sysevt_check( void) {
+    /*  Check if system is UP and runing already */
+    if(sys_event_sem.wait(10) < 1) {
+        return false;
+    } else {
+        /*  release immmediately as M0 already runs */
+        sys_event_sem.release();
+        return true;
     }
 }
 
