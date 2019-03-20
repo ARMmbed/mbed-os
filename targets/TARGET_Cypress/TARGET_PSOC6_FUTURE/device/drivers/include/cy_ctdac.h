@@ -922,10 +922,12 @@ __STATIC_INLINE  uint32_t Cy_CTDAC_GetInterruptStatus(const CTDAC_Type *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_ClearInterrupt(CTDAC_Type *base)
 {
+    uint32_t unused;
+
     base->INTR = CTDAC_INTR_VDAC_EMPTY_Msk;
 
     /* Dummy read for buffered writes. */
-    (void) base->INTR;
+    unused = base->INTR;
 }
 
 /*******************************************************************************

@@ -47,7 +47,7 @@
     CY_NOINIT cy_stc_fault_frame_t cy_faultFrame;
 #endif /* (CY_ARM_FAULT_DEBUG == CY_ARM_FAULT_DEBUG_ENABLED) */
 
-#if defined(__ARMCC_VERSION)
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
     static __ASM void Cy_SysLib_AsmInfiniteLoop(void) { b . };
 #endif  /* (__ARMCC_VERSION) */
 
@@ -500,7 +500,7 @@ void Cy_SysLib_FaultHandler(uint32_t const *faultStackAddr)
 *******************************************************************************/
 __WEAK void Cy_SysLib_ProcessingFault(void)
 {
-    #if defined(__ARMCC_VERSION)
+    #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
         /* Assembly implementation of an infinite loop
          * is used for the armcc compiler to preserve the call stack.
          * Otherwise, the compiler destroys the call stack,

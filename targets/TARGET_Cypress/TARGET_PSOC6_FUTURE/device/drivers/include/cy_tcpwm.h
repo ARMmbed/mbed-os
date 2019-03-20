@@ -535,8 +535,10 @@ __STATIC_INLINE uint32_t Cy_TCPWM_GetInterruptStatus(TCPWM_Type const *base, uin
 *******************************************************************************/
 __STATIC_INLINE void Cy_TCPWM_ClearInterrupt(TCPWM_Type *base, uint32_t cntNum,  uint32_t source)
 {
+    uint32_t unused;
+
     base->CNT[cntNum].INTR = source;
-    (void)base->CNT[cntNum].INTR;
+    unused = base->CNT[cntNum].INTR;
 }
 
 

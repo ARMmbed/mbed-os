@@ -660,10 +660,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxSrValid(CySCB_Type const *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearRxFifo(CySCB_Type* base)
 {
+    uint32_t unused;
+
     base->RX_FIFO_CTRL |= (uint32_t)  SCB_RX_FIFO_CTRL_CLEAR_Msk;
     base->RX_FIFO_CTRL &= (uint32_t) ~SCB_RX_FIFO_CTRL_CLEAR_Msk;
 
-    (void) base->RX_FIFO_CTRL;
+    unused = base->RX_FIFO_CTRL;
 }
 
 
@@ -785,10 +787,12 @@ __STATIC_INLINE bool Cy_SCB_IsTxComplete(CySCB_Type const *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearTxFifo(CySCB_Type *base)
 {
+    uint32_t unused;
+
     base->TX_FIFO_CTRL |= (uint32_t)  SCB_TX_FIFO_CTRL_CLEAR_Msk;
     base->TX_FIFO_CTRL &= (uint32_t) ~SCB_TX_FIFO_CTRL_CLEAR_Msk;
 
-    (void) base->TX_FIFO_CTRL;
+    unused = base->TX_FIFO_CTRL;
 }
 
 
@@ -958,10 +962,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxInterruptStatusMasked(CySCB_Type const *bas
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearRxInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_RX_INTR_MASK));
 
     base->INTR_RX = interruptMask;
-    (void) base->INTR_RX;
+    unused = base->INTR_RX;
 }
 
 
@@ -1104,10 +1110,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetTxInterruptStatusMasked(CySCB_Type const *bas
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearTxInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_TX_INTR_MASK));
 
     base->INTR_TX = interruptMask;
-    (void) base->INTR_TX;
+    unused = base->INTR_TX;
 }
 
 
@@ -1241,10 +1249,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetMasterInterruptStatusMasked(CySCB_Type const 
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearMasterInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_MASTER_INTR_MASK));
 
     base->INTR_M = interruptMask;
-    (void) base->INTR_M;
+    unused = base->INTR_M;
 }
 
 
@@ -1380,10 +1390,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetSlaveInterruptStatusMasked(CySCB_Type const *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearSlaveInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_SLAVE_INTR_MASK));
 
     base->INTR_S = interruptMask;
-    (void) base->INTR_S;
+    unused = base->INTR_S;
 }
 
 
@@ -1516,10 +1528,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetI2CInterruptStatusMasked(CySCB_Type const *ba
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearI2CInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_I2C_INTR_MASK));
 
     base->INTR_I2C_EC = interruptMask;
-    (void) base->INTR_I2C_EC;
+    unused = base->INTR_I2C_EC;
 }
 
 
@@ -1629,10 +1643,12 @@ __STATIC_INLINE uint32_t Cy_SCB_GetSpiInterruptStatusMasked(CySCB_Type const *ba
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_ClearSpiInterrupt(CySCB_Type *base, uint32_t interruptMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SCB_IS_INTR_VALID(interruptMask, CY_SCB_SPI_INTR_MASK));
 
     base->INTR_SPI_EC = interruptMask;
-    (void) base->INTR_SPI_EC;
+    unused = base->INTR_SPI_EC;
 }
 
 /** \cond INTERNAL */
@@ -1707,6 +1723,8 @@ __STATIC_INLINE bool Cy_SCB_IsTxDataWidthByte(CySCB_Type const *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SCB_FwBlockReset(CySCB_Type *base)
 {
+    uint32_t unused;
+
     base->CTRL &= (uint32_t) ~SCB_CTRL_ENABLED_Msk;
 
     /* Clean-up command registers */
@@ -1715,7 +1733,7 @@ __STATIC_INLINE void Cy_SCB_FwBlockReset(CySCB_Type *base)
 
     base->CTRL |= (uint32_t)  SCB_CTRL_ENABLED_Msk;
 
-    (void) base->CTRL;
+    unused = base->CTRL;
 }
 
 

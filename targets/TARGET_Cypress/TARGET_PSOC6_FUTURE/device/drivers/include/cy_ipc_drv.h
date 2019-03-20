@@ -615,11 +615,13 @@ __STATIC_INLINE void  Cy_IPC_Drv_SetInterrupt(IPC_INTR_STRUCT_Type* base, uint32
 *******************************************************************************/
 __STATIC_INLINE void  Cy_IPC_Drv_ClearInterrupt(IPC_INTR_STRUCT_Type* base, uint32_t ipcReleaseMask, uint32_t ipcNotifyMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L1(0ul == (ipcNotifyMask  & ~(uint32_t)(IPC_STRUCT_NOTIFY_INTR_NOTIFY_Msk)));
     CY_ASSERT_L1(0ul == (ipcReleaseMask & ~(uint32_t)(IPC_STRUCT_RELEASE_INTR_RELEASE_Msk)));
     base->INTR =  _VAL2FLD(IPC_INTR_STRUCT_INTR_NOTIFY,  ipcNotifyMask) |
                   _VAL2FLD(IPC_INTR_STRUCT_INTR_RELEASE, ipcReleaseMask);
-    (void)base->INTR;  /* Read the register to flush the cache */
+    unused = base->INTR;  /* Read the register to flush the cache */
 }
 
 /** \} group_ipc_functions */
