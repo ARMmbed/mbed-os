@@ -310,3 +310,13 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow,
 {
     error("serial_set_flow_control: Flow control is not supported in MUSCA");
 }
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
