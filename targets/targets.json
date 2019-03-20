@@ -5454,8 +5454,8 @@
         "overrides": {
             "non-secure-rom-start": "0x000a0400",
             "non-secure-rom-size": "0x5f800",
-            "non-secure-ram-start": "0x20010170",
-            "non-secure-ram-size": "0xfe90"
+            "non-secure-ram-start": "0x20011170",
+            "non-secure-ram-size": "0xee90"
         }
     },
     "ARM_MUSCA_A1_S": {
@@ -5479,7 +5479,7 @@
             "secure-rom-start": "0x10020400",
             "secure-rom-size": "0x7f800",
             "secure-ram-start": "0x30000000",
-            "secure-ram-size": "0x10000"
+            "secure-ram-size": "0x11000"
         }
     },
     "RZ_A1XX": {

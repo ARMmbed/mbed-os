@@ -37,7 +37,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     S_DATA_SIZE     // 0x10000
+  #define MBED_RAM_SIZE     S_DATA_SIZE     // 0x11000
 #endif
 
 LR_CODE MBED_ROM_START MBED_ROM_SIZE {

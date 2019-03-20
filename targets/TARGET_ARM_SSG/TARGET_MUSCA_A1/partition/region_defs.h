@@ -99,7 +99,7 @@
 /* Increase secure DATA area to run the regression tests on Musca A1 */
 #define S_DATA_SIZE     ((TOTAL_RAM_SIZE / 4) * 3)
 #else
-#define S_DATA_SIZE     (TOTAL_RAM_SIZE / 2)
+#define S_DATA_SIZE     ((TOTAL_RAM_SIZE / 2) + 0x1000)
 #endif
 
 #define S_DATA_LIMIT    (S_DATA_START + S_DATA_SIZE - 1)
