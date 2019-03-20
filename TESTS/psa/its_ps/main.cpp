@@ -178,8 +178,10 @@ utest::v1::status_t case_its_setup_handler(const Case *const source, const size_
 Case cases[] = {
     Case("PSA prot internal storage - Basic", case_its_setup_handler<its>, pits_ps_test<its>, case_its_teardown_handler),
     Case("PSA prot internal storage - Write-once", case_its_setup_handler<its>, pits_ps_write_once_test<its>, case_its_teardown_handler),
+#if COMPONENT_FLASHIAP
     Case("PSA protected storage - Basic", case_its_setup_handler<ps>, pits_ps_test<ps>),
     Case("PSA protected storage - Write-once", case_its_setup_handler<ps>, pits_ps_write_once_test<ps>)
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
