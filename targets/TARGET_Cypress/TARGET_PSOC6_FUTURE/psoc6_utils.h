@@ -22,8 +22,8 @@
 
 #include <stdint.h>
 #include <device.h>
-#include "drivers/peripheral/gpio/cy_gpio.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
+#include "cy_gpio.h"
+#include "cy_sysclk.h"
 
 #else
 

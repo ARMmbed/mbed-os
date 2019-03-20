@@ -20,8 +20,8 @@
 #include "psoc6_utils.h"
 
 #if defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_IPC_DEFAULT_CFG_DISABLE)
-    #include "ipc/cy_ipc_drv.h"
-    #include "flash/cy_flash.h"
+    #include "cy_ipc_drv.h"
+    #include "cy_flash.h"
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 
 

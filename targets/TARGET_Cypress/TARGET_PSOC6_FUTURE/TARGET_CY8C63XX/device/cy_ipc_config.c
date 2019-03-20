@@ -12,9 +12,9 @@
 * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
-#include "ipc/cy_ipc_drv.h"
-#include "ipc/cy_ipc_pipe.h"
-#include "ipc/cy_ipc_sema.h"
+#include "cy_ipc_drv.h"
+#include "cy_ipc_pipe.h"
+#include "cy_ipc_sema.h"
 
 #include "cy_ipc_config.h"
 

@@ -21,11 +21,11 @@
 
 #if defined(CY_DEVICE_PSOC6ABLE2)
     #if !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE)
-        #include "syslib/cy_syslib.h"
+        #include "cy_syslib.h"
     #endif /* !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE) */
     #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
-        #include "ipc/cy_ipc_drv.h"
-        #include "flash/cy_flash.h"
+        #include "cy_ipc_drv.h"
+        #include "cy_flash.h"
     #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
@@ -583,7 +583,7 @@ void Cy_SysResetCM4(void)
 * linker configuration files. The following symbols used by the cymcuelftool.
 *
 *******************************************************************************/
-#if defined (__ARMCC_VERSION)
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
 __asm void Cy_MemorySymbols(void)
 {
     /* Flash */
