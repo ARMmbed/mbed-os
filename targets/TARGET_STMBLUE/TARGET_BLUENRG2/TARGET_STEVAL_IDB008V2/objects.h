@@ -45,15 +45,6 @@ struct serial_s{
     PinName pin_rx;
 };
 
-/*
-struct gpio_irq_s {
-    IRQn_Type irq_n;
-    uint32_t irq_index;
-    uint32_t event;
-    PinName pin;
-};
-*/
-
 struct spi_s{
 	SPI_InitType init;
     PinName pin_miso;
@@ -66,10 +57,5 @@ struct spi_s{
 #ifdef __cplusplus
 }
 #endif
-
-///* STM32F0 HAL doesn't provide this API called in rtc_api.c */
-//#define __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__)
-//#define RTC_WKUP_IRQn RTC_IRQn
-
 
 #endif
