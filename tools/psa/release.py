@@ -79,6 +79,15 @@ def _get_target_info(target):
                   delivery_dir])
 
 
+def _get_psa_secure_targets_list():
+    """
+    Creates a list of PSA secure targets.
+
+    :return: List of PSA secure targets.
+    """
+    return [str(t) for t in TARGET_NAMES if
+            Target.get_target(t).is_PSA_secure_target]
+
 def get_mbed_official_psa_release(target=None):
     """
     Creates a list of PSA targets with default toolchain and
@@ -87,20 +96,13 @@ def get_mbed_official_psa_release(target=None):
     :param target: Ask for specific target, None for all targets.
     :return: List of tuples (target, toolchain, delivery directory).
     """
-    psa_targets_release_list = []
-    psa_secure_targets = [t for t in TARGET_NAMES if
-                          Target.get_target(t).is_PSA_secure_target]
+    psa_secure_targets = _get_psa_secure_targets_list()
     logger.debug("Found the following PSA targets: {}".format(
         ', '.join(psa_secure_targets)))
     if target is not None:
-        if target not in psa_secure_targets:
-            raise Exception("{} is not a PSA secure target".format(target))
-        psa_targets_release_list.append(_get_target_info(target))
-    else:
-        for t in psa_secure_targets:
-            psa_targets_release_list.append(_get_target_info(t))
+        return [_get_target_info(target)]
 
-    return psa_targets_release_list
+    return [_get_target_info(t) for t in psa_secure_targets]
 
 
 def create_mbed_ignore(build_dir):
@@ -272,6 +274,7 @@ def get_parser():
     parser.add_argument("-m", "--mcu",
                         help="build for the given MCU",
                         default=None,
+                        choices=_get_psa_secure_targets_list(),
                         metavar="MCU")
 
     parser.add_argument("-d", "--debug",
