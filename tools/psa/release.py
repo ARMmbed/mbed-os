@@ -197,9 +197,9 @@ def build_tests_tfm_platform(target, toolchain, profile):
           '--profile', profile,
           '--source', ROOT,
           '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-          '-n', MBED_PSA_TESTS,
-          '--app-config', TFM_MBED_APP, '-n', test] + _tfm_test_defines(
-            test), stdout=subprocess_output, stderr=subprocess_err)
+          '-n', test,
+          '--app-config', TFM_MBED_APP] + _tfm_test_defines(test),
+                              stdout=subprocess_output, stderr=subprocess_err)
 
         logger.info(
             "Finished Building tests image({}) for {}".format(test, target))
