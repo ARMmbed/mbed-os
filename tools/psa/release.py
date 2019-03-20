@@ -19,8 +19,10 @@ import os
 import subprocess
 import sys
 import shutil
+import logging
 from argparse import ArgumentParser
 
+FNULL = open(os.devnull, 'w')
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                     os.pardir, os.pardir))
 sys.path.insert(0, ROOT)
@@ -28,6 +30,14 @@ from tools.targets import Target, TARGET_MAP, TARGET_NAMES
 
 MAKE_PY_LOCATTION = os.path.join(ROOT, 'tools', 'make.py')
 TEST_PY_LOCATTION = os.path.join(ROOT, 'tools', 'test.py')
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(name)s] %(asctime)s: %(message)s.',
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger('PSA release tool')
+subprocess_output = None
+subprocess_err = None
+
 TFM_MBED_APP = os.path.join(ROOT, 'tools', 'psa', 'tfm', 'mbed_app.json')
 MBED_PSA_TESTS = '*psa-spm*,*psa-crypto_access_control'
 TFM_TESTS = {
@@ -80,6 +90,8 @@ def get_mbed_official_psa_release(target=None):
     psa_targets_release_list = []
     psa_secure_targets = [t for t in TARGET_NAMES if
                           Target.get_target(t).is_PSA_secure_target]
+    logger.debug("Found the following PSA targets: {}".format(
+        ', '.join(psa_secure_targets)))
     if target is not None:
         if target not in psa_secure_targets:
             raise Exception("{} is not a PSA secure target".format(target))
@@ -97,6 +109,7 @@ def create_mbed_ignore(build_dir):
 
     :param build_dir: Directory to create .mbedignore file.
     """
+    logger.debug('Created .mbedignore in {}'.format(build_dir))
     with open(os.path.join(build_dir, '.mbedignore'), 'w') as f:
         f.write('*\n')
 
@@ -123,6 +136,9 @@ def build_mbed_spm_platform(target, toolchain, profile='release'):
                                      target, 'build_data.json'),
         '-n', MBED_PSA_TESTS
     ])
+    logger.info(
+        "Building tests images({}) for {} using {} with {} profile".format(
+            MBED_PSA_TESTS, target, toolchain, profile))
 
     subprocess.check_call([
         sys.executable, MAKE_PY_LOCATTION,
@@ -133,6 +149,9 @@ def build_mbed_spm_platform(target, toolchain, profile='release'):
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--artifact-name', 'psa_release_1.0'
     ])
+    logger.info(
+        "Finished building tests images({}) for {} successfully".format(
+            MBED_PSA_TESTS, target))
 
 
 def _tfm_test_defines(test):
@@ -154,6 +173,9 @@ def build_tfm_platform(target, toolchain, profile='release'):
     :param profile: build profile.
     """
     for test in TFM_TESTS.keys():
+        logger.info(
+            "Building tests image({}) for {} using {} with {} profile".format(
+                test, target, toolchain, profile))
         subprocess.check_call([
             sys.executable, TEST_PY_LOCATTION,
             '--greentea',
@@ -178,6 +200,8 @@ def build_tfm_platform(target, toolchain, profile='release'):
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--app-config', TFM_MBED_APP
     ])
+        logger.info(
+            "Finished Building tests image({}) for {}".format(test, target))
 
 
 def commit_binaries(target, delivery_dir):
@@ -193,22 +217,28 @@ def commit_binaries(target, delivery_dir):
         '-C', ROOT,
         'diff', '--exit-code', '--quiet',
         delivery_dir
-    ])
+    ], stdout=subprocess_output, stderr=subprocess_err)
 
     if changes_made:
+        logger.info("Change in images for {} has been detected".format(target))
         subprocess.check_call([
             'git',
             '-C', ROOT,
             'add', os.path.relpath(delivery_dir, ROOT)
-        ])
+        ], stdout=subprocess_output, stderr=subprocess_err)
 
         commit_message = '-m\"Update secure binaries for {}\"'.format(target)
+        logger.info("Committing images for {}".format(target))
+        commit_message = '--message="Update secure binaries for {}"'.format(
+            target)
         subprocess.check_call([
             'git',
             '-C', ROOT,
             'commit',
             commit_message
-        ])
+        ], stdout=subprocess_output, stderr=subprocess_err)
+    else:
+        logger.info("No changes detected for {}, Skipping commit".format(target))
 
 
 def build_psa_platform(target, toolchain, delivery_dir, debug=False,
@@ -227,6 +257,11 @@ def build_psa_platform(target, toolchain, delivery_dir, debug=False,
         build_tfm_platform(target, toolchain, profile)
     else:
         build_mbed_spm_platform(target, toolchain, profile)
+    logger.info("Building default image for {} using {} with {} profile".format(
+        target, toolchain, profile))
+
+    logger.info(
+        "Finished building default image for {} successfully".format(target))
 
     if git_commit:
         commit_binaries(target, delivery_dir)
@@ -244,6 +279,11 @@ def get_parser():
                         action="store_true",
                         default=False)
 
+    parser.add_argument('-q', '--quiet',
+                        action="store_true",
+                        default=False,
+                        help="No Build log will be printed")
+
     parser.add_argument("--commit",
                         help="create a git commit for each platform",
                         action="store_true",
@@ -258,20 +298,31 @@ def prep_build_dir():
     """
     build_dir = os.path.join(ROOT, 'BUILD')
     if os.path.exists(build_dir):
+        logger.debug("BUILD directory already exists... Deleting")
         shutil.rmtree(build_dir)
 
     os.makedirs(build_dir)
+    logger.info("BUILD directory created in {}".format(build_dir))
     create_mbed_ignore(build_dir)
 
 
 def main():
     parser = get_parser()
     options = parser.parse_args()
+    if options.quiet:
+        logger.setLevel(logging.INFO)
+        global subprocess_output, subprocess_err
+        subprocess_output = FNULL
+        subprocess_err = subprocess.STDOUT
+
     prep_build_dir()
     psa_platforms_list = get_mbed_official_psa_release(options.mcu)
+    logger.info("Building the following platforms: {}".format(
+        ', '.join([t[0] for t in psa_platforms_list])))
 
     for target, tc, directory in psa_platforms_list:
         build_psa_platform(target, tc, directory, options.debug, options.commit)
+    logger.info("Finished Updating PSA images")
 
 
 if __name__ == '__main__':
