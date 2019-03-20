@@ -292,11 +292,16 @@ def get_parser():
                         default=False,
                         help="No Build log will be printed")
 
+    parser.add_argument('-l', '--list',
+                        action="store_true",
+                        default=False,
+                        help="Print supported PSA secure targets")
+
     parser.add_argument("--commit",
                         help="create a git commit for each platform",
                         action="store_true",
                         default=False)
-    
+
     parser.add_argument('--skip-tests',
                         action="store_true",
                         default=False,
@@ -327,6 +332,11 @@ def main():
         global subprocess_output, subprocess_err
         subprocess_output = FNULL
         subprocess_err = subprocess.STDOUT
+
+    if options.list:
+        logger.info("Avialable platforms are: {}".format(
+            ', '.join([t for t in _get_psa_secure_targets_list()])))
+        return
 
     prep_build_dir()
     psa_platforms_list = get_mbed_official_psa_release(options.mcu)
