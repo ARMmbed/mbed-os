@@ -28,8 +28,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
 sys.path.insert(0, ROOT)
 from tools.targets import Target, TARGET_MAP, TARGET_NAMES
 
-MAKE_PY_LOCATTION = os.path.join(ROOT, 'tools', 'make.py')
-TEST_PY_LOCATTION = os.path.join(ROOT, 'tools', 'test.py')
 
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(name)s] %(asctime)s: %(message)s.',
@@ -88,6 +86,33 @@ def _get_psa_secure_targets_list():
     return [str(t) for t in TARGET_NAMES if
             Target.get_target(t).is_PSA_secure_target]
 
+
+def _get_default_image_build_command(target, toolchain, profile):
+    """
+    Creates a build command for a default image.
+
+    :param target: target to be built.
+    :param toolchain: toolchain to be used.
+    :param profile: build profile.
+    :return: Build command in a list form.
+    """
+    cmd = [
+        'mbed', 'compile',
+        '-t', toolchain,
+        '-m', target,
+        '--profile', profile,
+        '--source', ROOT,
+        '--build', os.path.join(ROOT, 'BUILD', target)
+    ]
+
+    if _psa_backend(target) is 'TFM':
+        cmd += ['--app-config', TFM_MBED_APP]
+    else:
+        cmd += ['--artifact-name', 'psa_release_1.0']
+
+    return cmd
+
+
 def get_mbed_official_psa_release(target=None):
     """
     Creates a list of PSA targets with default toolchain and
@@ -116,7 +141,7 @@ def create_mbed_ignore(build_dir):
         f.write('*\n')
 
 
-def build_mbed_spm_platform(target, toolchain, profile='release'):
+def build_tests_mbed_spm_platform(target, toolchain, profile):
     """
     Builds Secure images for MBED-SPM target.
 
@@ -124,33 +149,20 @@ def build_mbed_spm_platform(target, toolchain, profile='release'):
     :param toolchain: toolchain to be used.
     :param profile: build profile.
     """
-    subprocess.check_call([
-        sys.executable, TEST_PY_LOCATTION,
-        '--greentea',
-        '--profile', profile,
-        '-t', toolchain,
-        '-m', target,
-        '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-        '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
-                                    target, 'test_spec.json'),
-        '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
-                                     target, 'build_data.json'),
-        '-n', MBED_PSA_TESTS
-    ])
     logger.info(
         "Building tests images({}) for {} using {} with {} profile".format(
             MBED_PSA_TESTS, target, toolchain, profile))
 
     subprocess.check_call([
-        sys.executable, MAKE_PY_LOCATTION,
+        'mbed', 'test', '--compile',
         '-t', toolchain,
         '-m', target,
         '--profile', profile,
         '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', target),
-        '--artifact-name', 'psa_release_1.0'
-    ])
+        '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
+        '-n', MBED_PSA_TESTS],
+        stdout=subprocess_output, stderr=subprocess_err)
+
     logger.info(
         "Finished building tests images({}) for {} successfully".format(
             MBED_PSA_TESTS, target))
@@ -166,7 +178,7 @@ def _tfm_test_defines(test):
     return ['-D{}'.format(define) for define in TFM_TESTS[test]]
 
 
-def build_tfm_platform(target, toolchain, profile='release'):
+def build_tests_tfm_platform(target, toolchain, profile):
     """
     Builds Secure images for TF-M target.
 
@@ -179,29 +191,16 @@ def build_tfm_platform(target, toolchain, profile='release'):
             "Building tests image({}) for {} using {} with {} profile".format(
                 test, target, toolchain, profile))
         subprocess.check_call([
-            sys.executable, TEST_PY_LOCATTION,
-            '--greentea',
-            '--profile', profile,
-            '-t', toolchain,
-            '-m', target,
-            '--source', ROOT,
-            '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-            '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
-                                        target, 'test_spec.json'),
-            '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
-                                         target, 'build_data.json'),
-            '--app-config', TFM_MBED_APP, '-n', test] + _tfm_test_defines(test),
-                              stdout=subprocess.PIPE)
+          'mbed', 'test', '--compile',
+          '-t', toolchain,
+          '-m', target,
+          '--profile', profile,
+          '--source', ROOT,
+          '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
+          '-n', MBED_PSA_TESTS,
+          '--app-config', TFM_MBED_APP, '-n', test] + _tfm_test_defines(
+            test), stdout=subprocess_output, stderr=subprocess_err)
 
-    subprocess.check_call([
-        sys.executable, MAKE_PY_LOCATTION,
-        '-t', toolchain,
-        '-m', target,
-        '--profile', profile,
-        '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', target),
-        '--app-config', TFM_MBED_APP
-    ])
         logger.info(
             "Finished Building tests image({}) for {}".format(test, target))
 
@@ -229,7 +228,6 @@ def commit_binaries(target, delivery_dir):
             'add', os.path.relpath(delivery_dir, ROOT)
         ], stdout=subprocess_output, stderr=subprocess_err)
 
-        commit_message = '-m\"Update secure binaries for {}\"'.format(target)
         logger.info("Committing images for {}".format(target))
         commit_message = '--message="Update secure binaries for {}"'.format(
             target)
@@ -244,7 +242,7 @@ def commit_binaries(target, delivery_dir):
 
 
 def build_psa_platform(target, toolchain, delivery_dir, debug=False,
-                       git_commit=False):
+                       git_commit=False, skip_tests=False):
     """
     Calls the correct build function and commits if requested.
 
@@ -253,14 +251,21 @@ def build_psa_platform(target, toolchain, delivery_dir, debug=False,
     :param delivery_dir: Artifact directory, where images should be placed.
     :param debug: Build with debug profile.
     :param git_commit: Commit the changes.
+    :param skip_tests: skip the test images build phase.
     """
     profile = 'debug' if debug else 'release'
-    if _psa_backend(target) is 'TFM':
-        build_tfm_platform(target, toolchain, profile)
-    else:
-        build_mbed_spm_platform(target, toolchain, profile)
+    if not skip_tests:
+        if _psa_backend(target) is 'TFM':
+            build_tests_tfm_platform(target, toolchain, profile)
+        else:
+            build_tests_mbed_spm_platform(target, toolchain, profile)
+
     logger.info("Building default image for {} using {} with {} profile".format(
         target, toolchain, profile))
+
+    subprocess.check_call(
+        _get_default_image_build_command(target, toolchain, profile),
+        stdout=subprocess_output, stderr=subprocess_err)
 
     logger.info(
         "Finished building default image for {} successfully".format(target))
@@ -291,6 +296,11 @@ def get_parser():
                         help="create a git commit for each platform",
                         action="store_true",
                         default=False)
+    
+    parser.add_argument('--skip-tests',
+                        action="store_true",
+                        default=False,
+                        help="skip the test build phase")
 
     return parser
 
@@ -324,7 +334,9 @@ def main():
         ', '.join([t[0] for t in psa_platforms_list])))
 
     for target, tc, directory in psa_platforms_list:
-        build_psa_platform(target, tc, directory, options.debug, options.commit)
+        build_psa_platform(target, tc, directory, options.debug,
+                           options.commit, options.skip_tests)
+
     logger.info("Finished Updating PSA images")
 
 
