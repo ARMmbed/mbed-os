@@ -227,28 +227,30 @@ static void psa_mac_operation(void)
 
             switch (psa_crypto.func) {
                 case PSA_MAC_SIGN_SETUP: {
-                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                                       msg.client_id)) {
+                    if (psa_crypto_access_control_is_handle_permitted(psa_crypto.handle, msg.client_id)) {
+                        status = psa_mac_sign_setup(msg.rhandle, psa_crypto.handle, psa_crypto.alg);
+                    } else {
                         status = PSA_ERROR_INVALID_HANDLE;
-                        break;
                     }
 
-                    status = psa_mac_sign_setup(msg.rhandle,
-                                                psa_crypto.handle,
-                                                psa_crypto.alg);
+                    if (status != PSA_SUCCESS) {
+                        mbedtls_free(msg.rhandle);
+                        psa_set_rhandle(msg.handle, NULL);
+                    }
                     break;
                 }
 
                 case PSA_MAC_VERIFY_SETUP: {
-                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                                       msg.client_id)) {
+                    if (psa_crypto_access_control_is_handle_permitted(psa_crypto.handle, msg.client_id)) {
+                        status = psa_mac_verify_setup(msg.rhandle, psa_crypto.handle, psa_crypto.alg);
+                    } else {
                         status = PSA_ERROR_INVALID_HANDLE;
-                        break;
                     }
 
-                    status = psa_mac_verify_setup(msg.rhandle,
-                                                  psa_crypto.handle,
-                                                  psa_crypto.alg);
+                    if (status != PSA_SUCCESS) {
+                        mbedtls_free(msg.rhandle);
+                        psa_set_rhandle(msg.handle, NULL);
+                    }
                     break;
                 }
 
@@ -261,32 +263,32 @@ static void psa_mac_operation(void)
 
                     input_buffer = mbedtls_calloc(1, allocation_size);
                     if (input_buffer == NULL) {
+                        psa_mac_abort(msg.rhandle);
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
-                    }
+                    } else {
+                        while (data_remaining > 0) {
+                            size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
+                            bytes_read = psa_read(msg.handle, 1, input_buffer, size_to_read);
 
-                    while (data_remaining > 0) {
-                        size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
-                        bytes_read = psa_read(msg.handle, 1, input_buffer,
-                                              size_to_read);
+                            if (bytes_read != size_to_read) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
 
-                        if (bytes_read != size_to_read) {
-                            SPM_PANIC("SPM read length mismatch");
+                            status = psa_mac_update(msg.rhandle, input_buffer, bytes_read);
+                            // stop on error
+                            if (status != PSA_SUCCESS) {
+                                break;
+                            }
+                            data_remaining = data_remaining - bytes_read;
                         }
 
-                        status = psa_mac_update(msg.rhandle,
-                                                input_buffer,
-                                                bytes_read);
-
-                        // stop on error
-                        if (status != PSA_SUCCESS) {
-                            break;
-                        }
-                        data_remaining = data_remaining - bytes_read;
+                        mbedtls_free(input_buffer);
                     }
 
-                    mbedtls_free(input_buffer);
-
+                    if (status != PSA_SUCCESS) {
+                        mbedtls_free(msg.rhandle);
+                        psa_set_rhandle(msg.handle, NULL);
+                    }
                     break;
                 }
 
@@ -301,19 +303,19 @@ static void psa_mac_operation(void)
                     size_t mac_length = 0;
                     uint8_t *mac = mbedtls_calloc(1, mac_size);
                     if (mac == NULL) {
+                        psa_mac_abort(msg.rhandle);
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    } else {
+                        status = psa_mac_sign_finish(msg.rhandle, mac, mac_size, &mac_length);
+                        if (status == PSA_SUCCESS) {
+                            psa_write(msg.handle, 0, mac, mac_length);
+                            psa_write(msg.handle, 1, &mac_length, sizeof(mac_length));
+                        }
+                        mbedtls_free(mac);
                     }
 
-                    status = psa_mac_sign_finish(msg.rhandle, mac, mac_size,
-                                                 &mac_length);
-                    if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, mac, mac_length);
-                        psa_write(msg.handle, 1, &mac_length,
-                                  sizeof(mac_length));
-                    }
-
-                    mbedtls_free(mac);
+                    mbedtls_free(msg.rhandle);
+                    psa_set_rhandle(msg.handle, NULL);
                     break;
                 }
 
@@ -328,22 +330,27 @@ static void psa_mac_operation(void)
 
                     uint8_t *mac = mbedtls_calloc(1, mac_length);
                     if (mac == NULL) {
+                        psa_mac_abort(msg.rhandle);
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    } else {
+                        bytes_read = psa_read(msg.handle, 2, mac, msg.in_size[2]);
+                        if (bytes_read != msg.in_size[2]) {
+                            SPM_PANIC("SPM read length mismatch");
+                        }
+
+                        status = psa_mac_verify_finish(msg.rhandle, mac, mac_length);
+                        mbedtls_free(mac);
                     }
 
-                    bytes_read = psa_read(msg.handle, 2, mac, msg.in_size[2]);
-                    if (bytes_read != msg.in_size[2]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    status = psa_mac_verify_finish(msg.rhandle, mac, mac_length);
-                    mbedtls_free(mac);
+                    mbedtls_free(msg.rhandle);
+                    psa_set_rhandle(msg.handle, NULL);
                     break;
                 }
 
                 case PSA_MAC_ABORT: {
                     status = psa_mac_abort(msg.rhandle);
+                    mbedtls_free(msg.rhandle);
+                    psa_set_rhandle(msg.handle, NULL);
                     break;
                 }
 
@@ -359,8 +366,8 @@ static void psa_mac_operation(void)
         }
 
         case PSA_IPC_DISCONNECT: {
-            psa_mac_abort(msg.rhandle);
             if (msg.rhandle != NULL) {
+                psa_mac_abort(msg.rhandle);
                 mbedtls_free(msg.rhandle);
             }
 
