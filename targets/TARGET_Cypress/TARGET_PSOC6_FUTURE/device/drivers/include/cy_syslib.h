@@ -407,7 +407,7 @@ typedef enum
 /*******************************************************************************
 *   Memory model definitions
 *******************************************************************************/
-#if defined(__ARMCC_VERSION)
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
     /** To create cross compiler compatible code, use the CY_NOINIT, CY_SECTION, CY_UNUSED, CY_ALIGN
      * attributes at the first place of declaration/definition.
      * For example: CY_NOINIT uint32_t noinitVar;

@@ -1556,12 +1556,14 @@ __STATIC_INLINE uint32_t Cy_SAR_GetInterruptStatus(const SAR_Type *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SAR_ClearInterrupt(SAR_Type *base, uint32_t intrMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SAR_INTRMASK(intrMask));
 
     base->INTR = intrMask;
 
     /* Dummy read for buffered writes. */
-    (void) base->INTR;
+    unused = base->INTR;
 }
 
 /*******************************************************************************
@@ -1710,12 +1712,14 @@ __STATIC_INLINE uint32_t Cy_SAR_GetRangeInterruptStatus(const SAR_Type *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SAR_ClearRangeInterrupt(SAR_Type *base, uint32_t chanMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SAR_CHANMASK(chanMask));
 
     base->RANGE_INTR = chanMask;
 
     /* Dummy read for buffered writes. */
-    (void) base->RANGE_INTR;
+    unused = base->RANGE_INTR;
 }
 
 /*******************************************************************************
@@ -1851,12 +1855,14 @@ __STATIC_INLINE uint32_t Cy_SAR_GetSatInterruptStatus(const SAR_Type *base)
 *******************************************************************************/
 __STATIC_INLINE void Cy_SAR_ClearSatInterrupt(SAR_Type *base, uint32_t chanMask)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_SAR_CHANMASK(chanMask));
 
     base->SATURATE_INTR = chanMask;
 
     /* Dummy read for buffered writes. */
-    (void) base->SATURATE_INTR;
+    unused = base->SATURATE_INTR;
 }
 
 /*******************************************************************************

@@ -1566,15 +1566,17 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum)
 {
+    uint32_t unused;
+
     CY_ASSERT_L2(CY_GPIO_IS_FILTER_PIN_VALID(pinNum));
 
     /* Any INTR MMIO registers AHB clearing must be preceded with an AHB read access */
-    (void)base->INTR;
+    unused = base->INTR;
 
     base->INTR = CY_GPIO_INTR_STATUS_MASK << pinNum;
 
     /* This read ensures that the initial write has been flushed out to the hardware */
-    (void)base->INTR;
+    unused = base->INTR;
 }
 
 
