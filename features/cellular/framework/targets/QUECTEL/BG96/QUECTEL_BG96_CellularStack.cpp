@@ -313,9 +313,9 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
     _at.cmd_start("AT+QIRD=");
     _at.write_int(socket->id);
     if (socket->proto == NSAPI_TCP) {
-         // do not read more than max size
+        // do not read more than max size
         size = size > BG96_MAX_RECV_SIZE ? BG96_MAX_RECV_SIZE : size;
-         _at.write_int(size);
+        _at.write_int(size);
     }
     _at.cmd_stop();
 

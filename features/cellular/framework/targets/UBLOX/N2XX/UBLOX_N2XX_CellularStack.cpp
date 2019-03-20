@@ -78,7 +78,7 @@ nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socke
     int sock_id = 0;
     int localport = socket->localAddress.get_port();
 
-    if(localport == 5683 || localport < 0 || localport > 65535) {
+    if (localport == 5683 || localport < 0 || localport > 65535) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
@@ -113,7 +113,7 @@ nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socke
 }
 
 nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-        const void *data, nsapi_size_t size)
+                                                                   const void *data, nsapi_size_t size)
 {
     if (size > N2XX_MAX_PACKET_SIZE) {
         return NSAPI_ERROR_PARAMETER;
@@ -121,9 +121,10 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocke
 
     int sent_len = 0;
     char *dataStr = new char [(size * 2) + 1]();
-    if (!dataStr)
+    if (!dataStr) {
         return NSAPI_ERROR_NO_MEMORY;
-    char_str_to_hex_str((const char*)data, size, dataStr);
+    }
+    char_str_to_hex_str((const char *)data, size, dataStr);
 
     _at.cmd_start("AT+NSOST=");
     _at.write_int(socket->id);
@@ -147,7 +148,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocke
 }
 
 nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-        void *buffer, nsapi_size_t size)
+                                                                     void *buffer, nsapi_size_t size)
 {
     nsapi_size_or_error_t nsapi_error_size = NSAPI_ERROR_DEVICE_ERROR;
     nsapi_size_t read_blk, usorf_sz, count = 0, length = size;
