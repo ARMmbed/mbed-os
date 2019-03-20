@@ -19,8 +19,8 @@
 #include "device.h"
 #include "mbed_error.h"
 #include "lp_ticker_api.h"
-#include "device/drivers/peripheral/mcwdt/cy_mcwdt.h"
-#include "device/drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_mcwdt.h"
+#include "cy_sysint.h"
 #include "psoc6_utils.h"
 
 #if DEVICE_LPTICKER

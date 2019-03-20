@@ -25,8 +25,8 @@
 
 #include "gpio_irq_api.h"
 #include "gpio_object.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/syspm/cy_syspm.h"
+#include "cy_sysclk.h"
+#include "cy_syspm.h"
 
 #ifdef __cplusplus
 extern "C" {

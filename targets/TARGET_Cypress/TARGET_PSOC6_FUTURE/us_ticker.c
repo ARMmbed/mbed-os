@@ -23,10 +23,10 @@
 #include "mbed_error.h"
 #include "psoc6_utils.h"
 
-#include "drivers/peripheral/sysint/cy_sysint.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/tcpwm/cy_tcpwm_counter.h"
-#include "drivers/peripheral/syspm/cy_syspm.h"
+#include "cy_sysint.h"
+#include "cy_sysclk.h"
+#include "cy_tcpwm_counter.h"
+#include "cy_syspm.h"
 
 /** Each CPU core in PSoC6 needs its own usec timer.
  ** Although each of TCPWM timers have two compare registers,

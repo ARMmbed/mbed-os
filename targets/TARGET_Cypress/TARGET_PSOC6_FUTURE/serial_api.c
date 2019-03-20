@@ -27,10 +27,10 @@
 #include "serial_api.h"
 #include "psoc6_utils.h"
 
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/gpio/cy_gpio.h"
-#include "drivers/peripheral/scb/cy_scb_uart.h"
-#include "drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_sysclk.h"
+#include "cy_gpio.h"
+#include "cy_scb_uart.h"
+#include "cy_sysint.h"
 
 #define UART_OVERSAMPLE                 12
 #define UART_DEFAULT_BAUDRATE           115200
