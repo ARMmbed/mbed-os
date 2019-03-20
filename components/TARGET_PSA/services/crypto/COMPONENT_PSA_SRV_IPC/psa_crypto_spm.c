@@ -120,6 +120,10 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
                                   psa_algorithm_t alg,
                                   psa_sec_function_t func)
 {
+    if (operation->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
     psa_crypto_ipc_t psa_crypto_ipc = {
         .func   = func,
         .handle = key_handle,
@@ -133,6 +137,9 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
         return (status);
     }
     status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
@@ -168,6 +175,9 @@ psa_status_t psa_mac_update(psa_mac_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 2, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
