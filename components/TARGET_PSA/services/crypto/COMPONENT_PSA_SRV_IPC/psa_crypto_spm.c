@@ -1055,12 +1055,17 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
 /****************************************************************/
 /* SYMMETRIC */
 /****************************************************************/
-psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
-                                      psa_key_handle_t key_handle,
-                                      psa_algorithm_t alg)
+static psa_status_t psa_cipher_setup(psa_cipher_operation_t *operation,
+                                     psa_key_handle_t key_handle,
+                                     psa_algorithm_t alg,
+                                     psa_sec_function_t func)
 {
+    if (operation->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
     psa_crypto_ipc_t psa_crypto_ipc = {
-        .func = PSA_CIPHER_ENCRYPT_SETUP,
+        .func = func,
         .handle = key_handle,
         .alg = alg
     };
@@ -1072,6 +1077,17 @@ psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
         return (status);
     }
     status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
+    return (status);
+}
+
+psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
+                                      psa_key_handle_t key_handle,
+                                      psa_algorithm_t alg)
+{
+    psa_status_t status = psa_cipher_setup(operation, key_handle, alg, PSA_CIPHER_ENCRYPT_SETUP);
     return (status);
 }
 
@@ -1079,19 +1095,7 @@ psa_status_t psa_cipher_decrypt_setup(psa_cipher_operation_t *operation,
                                       psa_key_handle_t key_handle,
                                       psa_algorithm_t alg)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = {
-        .func = PSA_CIPHER_DECRYPT_SETUP,
-        .handle = key_handle,
-        .alg = alg
-    };
-
-    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
-
-    psa_status_t status = ipc_connect(PSA_SYMMETRIC_ID, &operation->handle);
-    if (status != PSA_SUCCESS) {
-        return (status);
-    }
-    status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
+    psa_status_t status = psa_cipher_setup(operation, key_handle, alg, PSA_CIPHER_DECRYPT_SETUP);
     return (status);
 }
 
@@ -1114,6 +1118,9 @@ psa_status_t psa_cipher_generate_iv(psa_cipher_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, out_vec, 2, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
@@ -1133,6 +1140,9 @@ psa_status_t psa_cipher_set_iv(psa_cipher_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 2, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
@@ -1160,6 +1170,9 @@ psa_status_t psa_cipher_update(psa_cipher_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 2, out_vec, 2, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&operation->handle);
+    }
     return (status);
 }
 
