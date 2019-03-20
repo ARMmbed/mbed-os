@@ -724,7 +724,7 @@ const PinMap *serial_rts_pinmap()
     return PinMap_UART_RTS;
 }
 
-#if DEVICE_SERIAL_ASYNCH
+
 
 void serial_irq_handler(serial_t *obj_in, uart_irq_handler handler, uint32_t id)
 {
@@ -760,6 +760,7 @@ void serial_irq_set(serial_t *obj_in, SerialIrq irq, uint32_t enable)
     }
 }
 
+#if DEVICE_SERIAL_ASYNCH
 
 int serial_tx_asynch(serial_t *obj_in, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {

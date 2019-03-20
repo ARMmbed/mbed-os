@@ -58,7 +58,7 @@ int SlicingBlockDevice::init()
     }
 
     // Check that block addresses are valid
-    MBED_ASSERT(_bd->is_valid_erase(_start, _stop - _start));
+    MBED_ASSERT(is_valid_erase(_start, _stop - _start));
 
     return 0;
 }
@@ -75,20 +75,44 @@ int SlicingBlockDevice::sync()
 
 int SlicingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_read(addr, size));
+    MBED_ASSERT(is_valid_read(addr + _start, size));
     return _bd->read(b, addr + _start, size);
 }
 
 int SlicingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_program(addr, size));
+    MBED_ASSERT(is_valid_program(addr + _start, size));
     return _bd->program(b, addr + _start, size);
 }
 
 int SlicingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(is_valid_erase(addr, size));
+    MBED_ASSERT(is_valid_erase(addr + _start, size));
     return _bd->erase(addr + _start, size);
+}
+
+bool SlicingBlockDevice::is_valid_read(bd_addr_t addr, bd_size_t size) const
+{
+    return (
+               addr % get_read_size() == 0 &&
+               size % get_read_size() == 0 &&
+               addr + size <= (this->size() + _start));
+}
+
+bool SlicingBlockDevice::is_valid_program(bd_addr_t addr, bd_size_t size) const
+{
+    return (
+               addr % get_program_size() == 0 &&
+               size % get_program_size() == 0 &&
+               addr + size <= (this->size() + _start));
+}
+
+bool SlicingBlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size) const
+{
+    return (
+               addr % get_erase_size(addr) == 0 &&
+               (addr + size) % get_erase_size(addr + size - 1) == 0 &&
+               addr + size <= (this->size() + _start));
 }
 
 bd_size_t SlicingBlockDevice::get_read_size() const

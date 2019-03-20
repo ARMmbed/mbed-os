@@ -2052,6 +2052,7 @@
             "LPC"
         ],
         "detect_code": ["0236"],
+        "device_name": "LPC55S69JBD100",
         "release_versions": ["5"]
     },
     "LPC55S69_NS": {
@@ -2092,16 +2093,17 @@
         "post_binary_hook": {"function": "LPC55S69Code.binary_hook"},
         "secure_image_filename": "tfm.bin",
         "overrides": {
-            "non-secure-rom-start": "0x00040000",
-            "non-secure-rom-size": "0x58000",
+            "non-secure-rom-start": "0x00030000",
+            "non-secure-rom-size": "0x68000",
             "non-secure-ram-start": "0x20022000",
             "non-secure-ram-size": "0x22000",
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x30000",
+            "secure-rom-size": "0x28000",
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         },
-        "OUTPUT_EXT": "hex"
+        "OUTPUT_EXT": "hex",
+        "bootloader_supported": true
     },
     "LPC55S69_S": {
         "inherits": ["SPE_Target", "LPC55S69"],
@@ -2128,12 +2130,12 @@
         "deliver_to_target": "LPC55S69_NS",
         "delivery_dir": "TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_LPC55S69/TARGET_M33_NS/prebuilt",
         "overrides": {
-            "non-secure-rom-start": "0x00040000",
-            "non-secure-rom-size": "0x58000",
+            "non-secure-rom-start": "0x00030000",
+            "non-secure-rom-size": "0x68000",
             "non-secure-ram-start": "0x20022000",
             "non-secure-ram-size": "0x22000",
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x30000",
+            "secure-rom-size": "0x28000",
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
@@ -8049,9 +8051,9 @@
         "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_062_WIFI_BT_PSA/prebuilt",
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
-            "non-secure-rom-start": "0x10080000",
-            "non-secure-rom-size": "0x78000",
+            "secure-rom-size": "0x40000",
+            "non-secure-rom-start": "0x10040000",
+            "non-secure-rom-size": "0xB8000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
             "non-secure-ram-start": "0x08010000",
@@ -8071,9 +8073,9 @@
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
-            "non-secure-rom-start": "0x10080000",
-            "non-secure-rom-size": "0x78000",
+            "secure-rom-size": "0x40000",
+            "non-secure-rom-start": "0x10040000",
+            "non-secure-rom-size": "0xB8000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
             "non-secure-ram-start": "0x08010000",
@@ -8082,7 +8084,9 @@
             "shared-ram-size": "0x100",
             "public-ram-start": "0x08047600",
             "public-ram-size": "0x200"
-        }
+        },
+        "device_name": "CY8C6247BZI-D54",
+        "bootloader_supported": true
     },
     "CY8CMOD_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
@@ -8112,7 +8116,9 @@
         "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
-        }
+        },
+        "device_name": "CY8C6347BZI-BLD53",
+        "bootloader_supported": true
     },
     "CY8CKIT_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],

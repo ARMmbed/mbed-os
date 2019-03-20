@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_LPC55S69",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0x8400",
+            "target.header_offset": "0x8000",
+            "target.bootloader_img": "mbed-bootloader-lpc55s69-v1_0_0.hex"
+        }
+    }
+}

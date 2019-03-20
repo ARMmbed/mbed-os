@@ -26,8 +26,8 @@
 /* Flash layout on LPC55S69 without BL2:
  *
  * 0x0000_0000 Secure     image primary
- * 0x0003_0000 SST / ITS
- * 0x0004_0000 Non-secure
+ * 0x0002_8000 SST / ITS
+ * 0x0003_0000 Non-secure
  */
 
 /* This header file is included from linker scatter file as well, where only a
@@ -59,16 +59,16 @@
 /* Secure image */
 #define FLASH_AREA_IMAGE_0_OFFSET       (FLASH_AREA_BL2_OFFSET + \
                                          FLASH_AREA_BL2_SIZE) // 0
-#define FLASH_AREA_IMAGE_0_SIZE         (0x00030000 - FLASH_AREA_BL2_SIZE) // 0x00030000
+#define FLASH_AREA_IMAGE_0_SIZE         (0x00028000 - FLASH_AREA_BL2_SIZE) // 0x00028000
 
 #define FLASH_SST_AREA_OFFSET           (FLASH_AREA_IMAGE_0_OFFSET + \
-                                         FLASH_AREA_IMAGE_0_SIZE)  // 0x00030000
-#define FLASH_SST_AREA_SIZE             (0x00010000)   /* 64 KB */
+                                         FLASH_AREA_IMAGE_0_SIZE)  // 0x00028000
+#define FLASH_SST_AREA_SIZE             (0x00008000)   /* 32 KB */
 
 /* Non-secure image */
 #define FLASH_AREA_IMAGE_1_OFFSET       (FLASH_SST_AREA_OFFSET +\
-                                         FLASH_SST_AREA_SIZE) // 0x00040000
-#define FLASH_AREA_IMAGE_1_SIZE         (0x00058000)
+                                         FLASH_SST_AREA_SIZE) // 0x00030000
+#define FLASH_AREA_IMAGE_1_SIZE         (0x00068000)
 
 #define FLASH_AREA_IMAGE_SCRATCH_OFFSET (FLASH_AREA_IMAGE_1_OFFSET +\
                                          FLASH_AREA_IMAGE_1_SIZE)
@@ -76,10 +76,10 @@
 
 /* Offset and size definition in flash area, used by assemble.py */
 #define SECURE_IMAGE_OFFSET             0x0
-#define SECURE_IMAGE_MAX_SIZE           0x00030000
+#define SECURE_IMAGE_MAX_SIZE           0x00028000
 
-#define NON_SECURE_IMAGE_OFFSET         0x00040000
-#define NON_SECURE_IMAGE_MAX_SIZE       0x00058000
+#define NON_SECURE_IMAGE_OFFSET         0x00030000
+#define NON_SECURE_IMAGE_MAX_SIZE       0x00068000
 
 /* Flash device name used by BL2 and SST
  * Name is defined in flash driver file: Driver_Flash.c

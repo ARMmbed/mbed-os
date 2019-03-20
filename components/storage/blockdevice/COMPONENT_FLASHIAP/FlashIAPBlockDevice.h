@@ -127,6 +127,15 @@ public:
      */
     virtual const char *get_type() const;
 
+    /** Convenience function for checking block erase validity
+    *
+    *  @param addr     Address of block to begin erasing
+    *  @param size     Size to erase in bytes
+    *  @return         True if erase is valid for underlying block device
+    */
+    virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const;
+
+
 private:
     // Device configuration
     mbed::FlashIAP _flash;

@@ -19,7 +19,12 @@ limitations under the License.
 from os.path import join, dirname
 from json import load, dump
 import warnings
-from cmsis_pack_manager import Cache as _Cache
+
+try:
+    from cmsis_pack_manager import Cache as _Cache
+    _CPM_PRESENT = True
+except ImportError:
+    _CPM_PRESENT = False
 
 from tools.flash_algo import PackFlashAlgo
 
@@ -60,10 +65,14 @@ class Cache(object):
     :type no_timeouts: bool
     """
     def __init__(self, silent, no_timeouts):
-        self._cache = _Cache(
-            silent, no_timeouts,
-            json_path=LocalPackDir, data_path=LocalPackDir
-        )
+        if _CPM_PRESENT:
+            self._cache = _Cache(
+                silent, no_timeouts,
+                json_path=LocalPackDir, data_path=LocalPackDir
+            )
+        else:
+            self._cache = None
+
         try:
             self._legacy_names = load(open(LocalPackLegacyNames))
         except IOError:
@@ -101,17 +110,36 @@ class Cache(object):
 
     @property
     def index(self):
-        return _CacheLookup(self._cache.index, self._legacy_names)
+        if _CPM_PRESENT:
+            return _CacheLookup(self._cache.index, self._legacy_names)
+        else:
+            local_index = load(open(LocalPackIndex))
+            return _CacheLookup(local_index, self._legacy_names)
 
     def cache_descriptors(self):
-        self._cache.cache_descriptors
+        if _CPM_PRESENT:
+            return self._cache.cache_descriptors()
+        else:
+            print(
+                'The Python package "cmsis-pack-manager" is not installed. '
+                'To cache CMSIS Pack descriptors, please install this '
+                'package with "pip install cmsis-pack-manager".'
+            )
+            return []
 
     def cache_everything(self):
-        self._cache.cache_everything()
-        for name, device in self._cache.index.items():
-            if name != "version":
-                device["sectors"] = self._get_sectors(device)
-        self.generate_index()
+        if _CPM_PRESENT:
+            self._cache.cache_everything()
+            for name, device in self._cache.index.items():
+                if name != "version":
+                    device["sectors"] = self._get_sectors(device)
+            self.generate_index()
+        else:
+            print(
+                'The Python package "cmsis-pack-manager" is not installed. '
+                'To update the cache, please install this package with '
+                '"pip install cmsis-pack-manager".'
+            )
 
     def get_svd_file(self, device_name):
         """Retrieve the flash algorithm file for a particular part.
@@ -125,11 +153,26 @@ class Cache(object):
                  describes the flashing algorithm
         :rtype: ZipExtFile
         """
-        device = self.index[device_name]
-        pack = self.pack_from_cache(device)
-        return pack.open(device['debug'])
+        if _CPM_PRESENT:
+            device = self.index[device_name]
+            pack = self._cache.pack_from_cache(device)
+            return pack.open(device['debug'])
+        else:
+            print(
+                'The Python package "cmsis-pack-manager" is not installed. '
+                'To use SVD files, please install this package with '
+                '"pip install cmsis-pack-manager".'
+            )
+            return None
 
     def generate_index(self):
-        with open(LocalPackIndex, "w+") as out:
-            self._cache.index["version"] = "0.2.0"
-            dump(self._cache.index, out, indent=4, sort_keys=True)
+        if _CPM_PRESENT:
+            with open(LocalPackIndex, "w+") as out:
+                self._cache.index["version"] = "0.2.0"
+                dump(self._cache.index, out, indent=4, sort_keys=True)
+        else:
+            print(
+                'The Python package "cmsis-pack-manager" is not installed. '
+                'To generate a CMSIS Pack index, please install this package with '
+                '"pip install cmsis-pack-manager".'
+            )
