@@ -15,8 +15,8 @@
 # limitations under the License.
 
 import unittest
-from os.path import dirname, join
-from tools.resources import Resources, FileType
+from os.path import dirname, join, basename
+from tools.resources import Resources, FileType, MBED_LIB_FILENAME
 from tools.notifier.mock import MockNotifier
 
 SRC_PATHS = {
@@ -105,20 +105,29 @@ class ResourcesTest(unittest.TestCase):
         """
         Assert something
         """
-        res = Resources(MockNotifier())
+        res = Resources(MockNotifier(), collect_ignores=True)
         res._add_labels('TARGET', ['K64F', 'FRDM'])
         for name, loc in SRC_PATHS.items():
             res.add_directory(loc, into_path=name)
         res.filter_by_libraries(res.get_file_refs(FileType.JSON))
         assert("main.cpp" in res.get_file_names(FileType.CPP_SRC))
+        lib_dirs = (
+            dirname(name) or "." for name in
+            res.get_file_names(FileType.JSON)
+        )
+        assert(not any(dir in res.ignored_dirs for dir in lib_dirs))
 
     def test_filter_by_bm_lib(self):
-        res = Resources(MockNotifier())
+        res = Resources(MockNotifier(), collect_ignores=True)
         res._add_labels('TARGET', ['K64F', 'FRDM'])
         for name, loc in SRC_PATHS.items():
             res.add_directory(loc, into_path=name)
-        filter_by = [
+        libs = [
             ref for ref in res.get_file_refs(FileType.JSON)
+            if basename(ref.name) == MBED_LIB_FILENAME
+        ]
+        filter_by = [
+            ref for ref in libs
             if join("platform", "bm", "mbed_lib.json") in ref.name
         ]
         res.filter_by_libraries(filter_by)
@@ -131,6 +140,11 @@ class ResourcesTest(unittest.TestCase):
             join("mbed-os", "TARGET_FRDM", "not-main.cpp")
             in res.get_file_names(FileType.CPP_SRC)
         )
+        inc_names = [dirname(name) or "." for name, _ in filter_by]
+        assert(not any(d in res.ignored_dirs for d in inc_names))
+        excluded_libs = set(libs) - set(filter_by)
+        exc_names = [dirname(name) or "." for name, _ in excluded_libs]
+        assert(all(e in res.ignored_dirs for e in exc_names))
 
 
 if __name__ == '__main__':
