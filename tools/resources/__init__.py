@@ -312,6 +312,10 @@ class Resources(object):
             if ref.name.endswith(MBED_LIB_FILENAME)
         )
         self._excluded_libs = all_library_refs - self._libs_filtered
+        if self._collect_ignores:
+            self.ignored_dirs += [
+                dirname(n) or "." for n, _ in self._excluded_libs
+            ]
 
     def _get_from_refs(self, file_type, key):
         return sorted([key(f) for f in self.get_file_refs(file_type)])
