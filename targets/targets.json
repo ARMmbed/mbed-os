@@ -8121,6 +8121,7 @@
             "public-ram-start": "0x08047600",
             "public-ram-size": "0x200"
         },
+        "sectors": [[268435456, 512]],
         "bootloader_supported": true
     },
     "CY8CMOD_062_4343W": {
@@ -8152,6 +8153,7 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
+        "sectors": [[268443648, 512]],
         "bootloader_supported": true
     },
     "CY8CKIT_062_4343W": {
