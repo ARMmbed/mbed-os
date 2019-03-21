@@ -649,16 +649,21 @@ class Config(object):
     @property
     def sectors(self):
         """Return a list of tuples of sector start,size"""
-        cache = Cache(False, False)
-        if self.target.device_name not in cache.index:
-            raise ConfigException("Bootloader not supported on this target: "
-                                  "targets.json `device_name` not found in "
-                                  "arm_pack_manager index.")
-        cmsis_part = cache.index[self.target.device_name]
-        sectors = cmsis_part['sectors']
-        if sectors:
-            return sectors
-        raise ConfigException("No sector info available")
+        try:
+            return self.target.sectors
+        except AttributeError:
+            cache = Cache(False, False)
+            if self.target.device_name not in cache.index:
+                raise ConfigException(
+                    "Bootloader not supported on this target: "
+                    "targets.json `device_name` not found in "
+                    "arm_pack_manager index."
+                )
+            cmsis_part = cache.index[self.target.device_name]
+            sectors = cmsis_part['sectors']
+            if sectors:
+                return sectors
+            raise ConfigException("No sector info available")
 
     def _get_cmsis_part(self):
         if not hasattr(self.target, "device_name"):
