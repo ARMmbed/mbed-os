@@ -149,3 +149,17 @@ nsapi_error_t UBLOX_N2XX::set_pin(const char *sim_pin)
     _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }
+
+#if MBED_CONF_UBLOX_N2XX_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_UBLOX_N2XX_TX, MBED_CONF_UBLOX_N2XX_RX, MBED_CONF_UBLOX_N2XX_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_N2XX_RTS) && defined(MBED_CONF_UBLOX_N2XX_CTS)
+    tr_debug("UBLOX_N2XX flow control: RTS %d CTS %d", MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);
+#endif
+    static UBLOX_N2XX device(&serial);
+    return &device;
+}
+#endif
