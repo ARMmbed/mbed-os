@@ -149,6 +149,38 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
     return greentea_test_teardown_handler(passed, failed, failure);
 }
 
+utest::v1::status_t greentea_case_setup_handler_tcp(const Case *const source, const size_t index_of_case)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
+    }
+#endif
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t greentea_case_teardown_handler_tcp(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
+    }
+#endif
+    return greentea_case_teardown_handler(source, passed, failed, failure);
+}
+
+static void test_failure_handler(const failure_t failure)
+{
+    UTEST_LOG_FUNCTION();
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
+        verbose_test_failure_handler(failure);
+        GREENTEA_TESTSUITE_RESULT(false);
+        while (1) ;
+    }
+}
+
 
 Case cases[] = {
     Case("TCPSOCKET_ECHOTEST", TCPSOCKET_ECHOTEST),
@@ -178,7 +210,16 @@ Case cases[] = {
     Case("TCPSOCKET_ENDPOINT_CLOSE", TCPSOCKET_ENDPOINT_CLOSE),
 };
 
-Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
+handlers_t tcp_test_case_handlers = {
+    default_greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    test_failure_handler,
+    greentea_case_setup_handler_tcp,
+    greentea_case_teardown_handler_tcp,
+    greentea_case_failure_continue_handler
+};
+
+Specification specification(greentea_setup, cases, greentea_teardown, tcp_test_case_handlers);
 
 int main()
 {
