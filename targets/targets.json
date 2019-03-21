@@ -873,7 +873,8 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "device_name": "LPC4088FBD144",
         "overrides": {
@@ -5414,7 +5415,8 @@
             "SERIAL_FC",
             "SLEEP",
             "SPI",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6486,7 +6488,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6511,7 +6514,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6535,7 +6539,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -7244,7 +7249,8 @@
             "TRNG",
             "SPISLAVE",
             "802_15_4_PHY",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
