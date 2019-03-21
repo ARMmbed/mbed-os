@@ -8121,7 +8121,6 @@
             "public-ram-start": "0x08047600",
             "public-ram-size": "0x200"
         },
-        "device_name": "CY8C6247BZI-D54",
         "bootloader_supported": true
     },
     "CY8CMOD_062_4343W": {
@@ -8153,7 +8152,6 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
-        "device_name": "CY8C6347BZI-BLD53",
         "bootloader_supported": true
     },
     "CY8CKIT_062_4343W": {
