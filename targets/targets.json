@@ -7121,7 +7121,7 @@
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "default_toolchain": "ARM",
         "extra_labels": [
             "NUVOTON",
@@ -7705,7 +7705,7 @@
     },
     "NUMAKER_PFM_M487": {
         "inherits": ["MCU_M480"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "device_name": "M487JIDAE"
     },
     "NUMAKER_IOT_M487": {
