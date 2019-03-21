@@ -259,7 +259,7 @@ nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
 
 void AT_CellularContext::set_plmn(const char *plmn)
 {
-    tr_info("CellularContext plmn %s", plmn);
+    tr_info("CellularContext plmn %s", (plmn ? plmn : "NULL"));
     _device->set_plmn(plmn);
 }
 
