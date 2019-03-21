@@ -54,7 +54,8 @@
              "SPI_MOSI": "PA_7",
              "SPI_MISO": "PA_6",
              "SPI_CLK":  "PA_5",
-             "SPI_CS":   "PB_12"
+             "SPI_CS":   "PB_12",
+             "SPI_FREQ": "20000000"
        }
     }
 }
