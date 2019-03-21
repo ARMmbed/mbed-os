@@ -638,11 +638,21 @@ class ARMC6(ARM_STD):
         return opts
 
     def assemble(self, source, object, includes):
-        cmd_pre = copy(self.asm)
+        # Preprocess first, then assemble
+        root, _ = splitext(object)
+        tempfile = root + '.E'
+
+        # Build preprocess assemble command
+        cmd_pre = copy(self.cc)
         cmd_pre.extend(self.get_compile_options(
-            self.get_symbols(True), includes, for_asm=True))
-        cmd_pre.extend(["-o", object, source])
-        return [cmd_pre]
+            self.get_symbols(True), includes, for_asm=False))
+        cmd_pre.extend(["-E", "-MT", object, "-o", tempfile, source])
+
+        # Build main assemble command
+        cmd = self.asm + ["-o", object, tempfile]
+
+        # Return command array, don't execute
+        return [cmd_pre, cmd]
 
     def compile(self, cc, source, object, includes):
         cmd = copy(cc)
