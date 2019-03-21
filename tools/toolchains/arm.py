@@ -109,7 +109,8 @@ class ARM(mbedToolchain):
 
     def version_check(self):
         # The --ide=mbed removes an instability with checking the version of
-        # the ARMC6 binary that comes with Mbed Studio
+        # the ARMC6 binary that comes with Mbed Studio.
+        # NOTE: the --ide=mbed argument is only for use with Mbed OS
         stdout, _, retcode = run_cmd(
             [self.cc[0], "--vsn", "--ide=mbed"],
             redirect=True
@@ -624,6 +625,7 @@ class ARMC6(ARM_STD):
             ]
 
         if self.is_mbed_studio_armc6:
+            # NOTE: the --ide=mbed argument is only for use with Mbed OS
             opts.insert(0, "--ide=mbed")
 
         return opts
@@ -647,6 +649,7 @@ class ARMC6(ARM_STD):
         )
 
         if self.is_mbed_studio_armc6:
+            # NOTE: the --ide=mbed argument is only for use with Mbed OS
             cmd.insert(1, "--ide=mbed")
 
         return cmd
@@ -655,6 +658,7 @@ class ARMC6(ARM_STD):
         cmd = ARM.get_binary_commands(self, bin_arg, bin, elf)
 
         if self.is_mbed_studio_armc6:
+            # NOTE: the --ide=mbed argument is only for use with Mbed OS
             cmd.insert(1, "--ide=mbed")
 
         return cmd
