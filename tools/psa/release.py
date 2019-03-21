@@ -36,6 +36,8 @@ logger = logging.getLogger('PSA release tool')
 subprocess_output = None
 subprocess_err = None
 
+MAKE_PY_LOCATTION = os.path.join(ROOT, 'tools', 'make.py')
+TEST_PY_LOCATTION = os.path.join(ROOT, 'tools', 'test.py')
 TFM_MBED_APP = os.path.join(ROOT, 'tools', 'psa', 'tfm', 'mbed_app.json')
 MBED_PSA_TESTS = '*psa-spm*,*psa-crypto_access_control'
 TFM_TESTS = {
@@ -97,7 +99,7 @@ def _get_default_image_build_command(target, toolchain, profile):
     :return: Build command in a list form.
     """
     cmd = [
-        'mbed', 'compile',
+        sys.executable, MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
         '--profile', profile,
@@ -154,28 +156,24 @@ def build_tests_mbed_spm_platform(target, toolchain, profile):
             MBED_PSA_TESTS, target, toolchain, profile))
 
     subprocess.check_call([
-        'mbed', 'test', '--compile',
+        sys.executable, TEST_PY_LOCATTION,
+        '--greentea',
+        '--profile', profile,
         '-t', toolchain,
         '-m', target,
-        '--profile', profile,
         '--source', ROOT,
         '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-        '-n', MBED_PSA_TESTS],
-        stdout=subprocess_output, stderr=subprocess_err)
+        '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
+                                    target, 'test_spec.json'),
+        '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
+                                     target, 'build_data.json'),
+        '-n', MBED_PSA_TESTS
+    ], stdout=subprocess_output, stderr=subprocess_err)
+
 
     logger.info(
         "Finished building tests images({}) for {} successfully".format(
             MBED_PSA_TESTS, target))
-
-
-def _tfm_test_defines(test):
-    """
-    Creates a define list to enable test partitions on TF-M.
-
-    :param test: Test name.
-    :return: List of defines with a leading -D.
-    """
-    return ['-D{}'.format(define) for define in TFM_TESTS[test]]
 
 
 def build_tests_tfm_platform(target, toolchain, profile):
@@ -190,15 +188,22 @@ def build_tests_tfm_platform(target, toolchain, profile):
         logger.info(
             "Building tests image({}) for {} using {} with {} profile".format(
                 test, target, toolchain, profile))
+
+        test_defines = ['-D{}'.format(define) for define in TFM_TESTS[test]]
         subprocess.check_call([
-          'mbed', 'test', '--compile',
-          '-t', toolchain,
-          '-m', target,
-          '--profile', profile,
-          '--source', ROOT,
-          '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-          '-n', test,
-          '--app-config', TFM_MBED_APP] + _tfm_test_defines(test),
+            sys.executable, TEST_PY_LOCATTION,
+            '--greentea',
+            '--profile', profile,
+            '-t', toolchain,
+            '-m', target,
+            '--source', ROOT,
+            '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
+            '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
+                                        target, 'test_spec.json'),
+            '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
+                                         target, 'build_data.json'),
+            '-n', test,
+            '--app-config', TFM_MBED_APP] + test_defines,
                               stdout=subprocess_output, stderr=subprocess_err)
 
         logger.info(
