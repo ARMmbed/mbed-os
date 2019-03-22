@@ -47,11 +47,12 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
 from tools.build_api import merge_build_data
-from tools.build_api import get_toolchain_name
-from utils import argparse_filestring_type
-from utils import argparse_many
-from utils import argparse_dir_not_parent
-from tools.toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from tools.build_api import find_valid_toolchain
+from tools.utils import argparse_filestring_type
+from tools.utils import argparse_many
+from tools.utils import argparse_dir_not_parent
+from tools.utils import NoValidToolchainException
+from tools.utils import print_end_warnings
 from tools.settings import ROOT
 from tools.targets import Target
 
@@ -68,8 +69,8 @@ def default_args_dict(options):
         ignore=options.ignore
     )
 
-
-def wrapped_build_project(src_dir, build_dir, mcu, *args, **kwargs):
+def wrapped_build_project(src_dir, build_dir, mcu, end_warnings, options, *args, **kwargs):
+    error = False
     try:
         bin_file, update_file = build_project(
             src_dir, build_dir, mcu, *args, **kwargs
@@ -80,17 +81,22 @@ def wrapped_build_project(src_dir, build_dir, mcu, *args, **kwargs):
     except KeyboardInterrupt as e:
         print("\n[CTRL+c] exit")
     except NotSupportedException as e:
-        print("\nCould not compile for %s: %s" % (mcu, str(e)))
+        print("\nCould not compile for {}: {}".format(mcu, str(e)))
+        error = True
     except Exception as e:
         if options.verbose:
             import traceback
             traceback.print_exc(file=sys.stdout)
         else:
-            print("[ERROR] %s" % str(e))
+            print("[ERROR] {}".format(str(e)))
+
+        error = True
+
+    print_end_warnings(end_warnings)
+    if error:
         sys.exit(1)
 
-
-if __name__ == '__main__':
+def main():
     # Parse Options
     parser = get_default_options_parser(add_app_config=True)
 
@@ -282,6 +288,8 @@ if __name__ == '__main__':
     )
     options = parser.parse_args()
 
+    end_warnings = []
+
     if options.supported_toolchains:
         if options.supported_toolchains == "matrix":
             print(mcu_toolchain_matrix(
@@ -323,21 +331,24 @@ if __name__ == '__main__':
 
         notify = TerminalNotifier(options.verbose, options.silent, options.color)
 
-        toolchain_name = get_toolchain_name(target, toolchain)
-        if not TOOLCHAIN_CLASSES[toolchain_name].check_executable():
-            search_path = TOOLCHAIN_PATHS[toolchain_name] or "No path set"
-            args_error(parser, "Could not find executable for %s.\n"
-                               "Currently set search path: %s"
-                               %(toolchain_name, search_path))
+        try:
+            toolchain_name, internal_tc_name, end_warnings = find_valid_toolchain(
+                target, toolchain
+            )
+        except NoValidToolchainException as e:
+            print_end_warnings(e.end_warnings)
+            args_error(parser, str(e))
 
         if options.source_dir is not None:
             wrapped_build_project(
                 options.source_dir,
                 options.build_dir,
                 mcu,
-                toolchain,
+                end_warnings,
+                options,
+                toolchain_name,
                 notify=notify,
-                build_profile=extract_profile(parser, options, toolchain),
+                build_profile=extract_profile(parser, options, internal_tc_name),
                 **default_args_dict(options)
             )
         else:
@@ -389,13 +400,18 @@ if __name__ == '__main__':
                     test.source_dir,
                     build_dir,
                     mcu,
-                    toolchain,
+                    end_warnings,
+                    options,
+                    toolchain_name,
                     set(test.dependencies),
                     notify=notify,
                     report=build_data_blob,
                     inc_dirs=[dirname(MBED_LIBRARIES)],
-                    build_profile=extract_profile(parser, options, toolchain),
+                    build_profile=extract_profile(parser, options, internal_tc_name),
                     **default_args_dict(options)
                 )
             if options.build_data:
                 merge_build_data(options.build_data, build_data_blob, "application")
+
+if __name__ == '__main__':
+    main()
