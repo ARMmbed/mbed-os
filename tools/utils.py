@@ -339,8 +339,7 @@ def args_error(parser, message):
     parser - the ArgumentParser object that parsed the command line
     message - what went wrong
     """
-    parser.error(message)
-    sys.exit(2)
+    parser.exit(status=2, message=message+'\n')
 
 
 def construct_enum(**enums):
