@@ -127,7 +127,7 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
         profiles.append(contents)
 
     return profiles
-    
+
 def extract_mcus(parser, options):
     try:
         if options.custom_targets_directory:
