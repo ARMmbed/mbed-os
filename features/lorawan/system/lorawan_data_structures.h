@@ -1007,9 +1007,13 @@ typedef struct {
      */
     uint32_t frequency;
     /*!
-     * The RX window timeout
+     * The RX window timeout - Symbols
      */
     uint32_t window_timeout;
+    /*!
+     * The RX window timeout - Milliseconds
+     */
+    uint32_t window_timeout_ms;
     /*!
      * The RX window offset
      */
