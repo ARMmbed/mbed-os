@@ -32,6 +32,12 @@ FLAGS_DEPRECATION_MESSAGE = "Please use the --profile argument instead.\n"\
                             "Documentation may be found in "\
                             "docs/Toolchain_Profiles.md"
 
+def get_toolchain_list():
+    toolchainlist = list(TOOLCHAINS)
+    toolchainlist.extend(EXTRA_TOOLCHAIN_NAMES)
+    toolchainlist.sort()
+    return toolchainlist
+
 def get_default_options_parser(add_clean=True, add_options=True,
                                add_app_config=False):
     """Create a new options parser with the default compiler options added
@@ -44,9 +50,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = list(TOOLCHAINS)
-    toolchainlist.extend(EXTRA_TOOLCHAIN_NAMES)
-    toolchainlist.sort()
+    toolchainlist = get_toolchain_list()
 
     parser.add_argument("-m", "--mcu",
                         help=("build for the given MCU (%s)" %

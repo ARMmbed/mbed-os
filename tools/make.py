@@ -41,10 +41,10 @@ from tools.tests import test_known, test_name_known
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
+from tools.options import get_toolchain_list
 from tools.notifier.term import TerminalNotifier
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
-from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
 from tools.build_api import merge_build_data
 from tools.build_api import find_valid_toolchain
@@ -297,11 +297,7 @@ def main():
                 release_version=None
             ))
         elif options.supported_toolchains == "toolchains":
-            toolchain_list = mcu_toolchain_list()
-            # Only print the lines that matter
-            for line in toolchain_list.split("\n"):
-                if "mbed" not in line:
-                    print(line)
+            print('\n'.join(get_toolchain_list()))
         elif options.supported_toolchains == "targets":
             print(mcu_target_list())
     elif options.list_tests is True:

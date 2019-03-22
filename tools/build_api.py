@@ -1142,30 +1142,6 @@ def _lowercase_release_version(release_version):
     except AttributeError:
         return 'all'
 
-def mcu_toolchain_list(release_version='5'):
-    """  Shows list of toolchains
-
-    """
-    release_version = _lowercase_release_version(release_version)
-    version_release_targets = {}
-    version_release_target_names = {}
-
-    for version in RELEASE_VERSIONS:
-        version_release_targets[version] = get_mbed_official_release(version)
-        version_release_target_names[version] = [x[0] for x in
-                                                 version_release_targets[
-                                                     version]]
-
-    if release_version in RELEASE_VERSIONS:
-        release_targets = version_release_targets[release_version]
-    else:
-        release_targets = None
-
-    unique_supported_toolchains = get_unique_supported_toolchains(
-        release_targets)
-    columns = ["mbed OS %s" % x for x in RELEASE_VERSIONS] + unique_supported_toolchains
-    return "\n".join(columns)
-
 
 def mcu_target_list(release_version='5'):
     """  Shows target list
