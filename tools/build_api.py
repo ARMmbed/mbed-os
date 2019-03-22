@@ -419,8 +419,8 @@ def target_supports_toolchain(target, toolchain_name):
             if(toolchain_name == "ARM"):
                 #we cant find ARM, see if one ARMC5, ARMC6 or uARM listed
                 return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
-            if(toolchain_name == "ARMC6"):
-                #we did not find ARMC6, but check for ARM is listed
+            if(toolchain_name == "ARMC6" or toolchain_name == "ARMC5"):
+                #we did not find ARMC6 or ARMC5, but check if ARM is listed
                 return "ARM" in target.supported_toolchains
         #return False in other cases
         return False
