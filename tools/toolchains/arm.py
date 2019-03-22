@@ -30,6 +30,12 @@ from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import mkdir, NotSupportedException, ToolException, run_cmd
 
+ARMC5_MIGRATION_WARNING = (
+    "Warning: We noticed that you are using Arm Compiler 5. "
+    "We are deprecating the use of Arm Compiler 5 soon. "
+    "Please upgrade your environment to Arm Compiler 6 "
+    "which is free to use with Mbed OS."
+)
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'

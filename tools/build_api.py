@@ -34,7 +34,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    copy_when_different)
+                    copy_when_different, NoValidToolchainException)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -44,7 +44,8 @@ from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
-from .toolchains import TOOLCHAIN_CLASSES
+from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
@@ -120,18 +121,76 @@ def add_result_to_report(report, result):
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
 
-def get_toolchain_name(target, toolchain_name):
+def get_valid_toolchain_names(target, toolchain_name):
+    """Return the list of toolchains with which a build should be attempted. This
+    list usually contains one element, however there may be multiple entries if
+    a toolchain is expected to fallback to different versions depending on the
+    environment configuration. If an invalid supported_toolchain configuration
+    is detected, an Exception will be raised.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
     if int(target.build_tools_metadata["version"]) > 0:
-        if toolchain_name == "ARM" or toolchain_name == "ARMC6" :
-            if("ARM" in target.supported_toolchains or "ARMC6" in target.supported_toolchains):
+        all_arm_toolchain_names = ["ARMC6", "ARMC5", "ARM"]
+        arm_st = set(target.supported_toolchains).intersection(
+            set(all_arm_toolchain_names)
+        )
+        if len(arm_st) > 1:
+            raise Exception(
+                "Targets may only specify one of the following in "
+                "supported_toolchains: {}\n"
+                "The following toolchains were present: {}".format(
+                    ", ".join(all_arm_toolchain_names),
+                    ", ".join(arm_st),
+                )
+            )
+        if toolchain_name == "ARM":
+            # The order matters here
+            all_arm_toolchain_names = ["ARMC6", "ARMC5"]
+            if "ARM" in target.supported_toolchains:
+                return all_arm_toolchain_names
+
+            result_list = []
+            for tc_name in all_arm_toolchain_names:
+                if tc_name in target.supported_toolchains:
+                    result_list.append(tc_name)
+            return result_list
+
+    return [toolchain_name]
+
+def get_toolchain_name(target, toolchain_name):
+    """Get the internal toolchain name given the toolchain_name provided by
+    the front-end scripts (usually by the -t/--toolchain argument) and the target
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+
+    Overview of what the current return values should be for the "ARM" family of
+    toolchains (since the behavior is fairly complex). Top row header represents
+    the argument "toolchain_name", Left column header represents the attribute
+    "supported_toolchains" of the "target" argument.
+
+    | supported_toolchains/toolchain_name |+| ARMC5 | ARMC6 | ARM    |
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    | ARMC5                               |+| ARM*  | ARMC6 | ARM    |
+    | ARMC6                               |+| ARM*  | ARMC6 | ARMC6* |
+    | ARM                                 |+| ARM*  | ARMC6 | ARMC6* |
+
+    * Denotes that the input "toolchain_name" changes in the return value
+    """
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name == "ARMC5":
+            return "ARM"
+        elif toolchain_name == "ARM":
+            if set(target.supported_toolchains).intersection(set(["ARMC6", "ARM"])):
                 return "ARMC6"
-            elif ("ARMC5" in target.supported_toolchains):
-                if toolchain_name == "ARM":
-                    return "ARM" #note that returning ARM here means, use ARMC5 toolchain
-                else:
-                    return "ARMC6" #ARMC6 explicitly specified by user, try ARMC6 anyway although the target doesnt explicitly specify ARMC6, as ARMC6 is our default ARM toolchain
         elif toolchain_name == "uARM":
-            if ("ARMC5" in target.supported_toolchains):
+            if "ARMC5" in target.supported_toolchains:
                 return "uARM" #use ARM_MICRO to use AC5+microlib
             else:
                 return "ARMC6" #use AC6+microlib
@@ -143,6 +202,51 @@ def get_toolchain_name(target, toolchain_name):
                 return "uARM"
 
     return toolchain_name
+
+def find_valid_toolchain(target, toolchain):
+    """Given a target and toolchain, get the names for the appropriate
+    toolchain to use. The environment is also checked to see if the corresponding
+    compiler is configured correctl. For the ARM compilers, there is an automatic
+    fallback behavior if "ARM" is the specified toolchain, if the latest compiler
+    (ARMC6) is not available, and the target supports building with both ARMC5
+    and ARMC6. In the case where the environment configuration triggers the fallback
+    to ARMC5, add a warning to the list that is returned in the results.
+
+    Returns:
+    toolchain_name - The name of the toolchain. When "ARM" is supplied as the
+    "toolchain", this be changed to either "ARMC5" or "ARMC6".
+    internal_tc_name - This corresponds to that name of the class that will be
+    used to actually complete the build. This is mostly used for accessing build
+    profiles and just general legacy sections within the code.
+    end_warnings - This is a list of warnings (strings) that were raised during
+    the process of finding toolchain. This is used to warn the user of the ARM
+    fallback mechanism mentioned above.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
+    end_warnings = []
+    toolchain_names = get_valid_toolchain_names(target, toolchain)
+    last_error = None
+    for index, toolchain_name in enumerate(toolchain_names):
+        internal_tc_name = get_toolchain_name(target, toolchain_name)
+        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
+            end_warnings.append(ARMC5_MIGRATION_WARNING)
+        if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
+            search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
+            last_error = (
+                "Could not find executable for {}.\n"
+                "Currently set search path: {}"
+            ).format(toolchain_name, search_path)
+        else:
+            return toolchain_name, internal_tc_name, end_warnings
+    else:
+        if last_error:
+            e = NoValidToolchainException(last_error)
+            e.end_warnings = end_warnings
+            raise e
 
 def get_config(src_paths, target, toolchain_name=None, app_config=None):
     """Get the configuration object for a target-toolchain combination
