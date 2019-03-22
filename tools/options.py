@@ -21,7 +21,7 @@ from os.path import join, dirname
 from os import listdir
 from argparse import ArgumentParser, ArgumentTypeError
 
-from .toolchains import TOOLCHAINS
+from .toolchains import TOOLCHAINS, EXTRA_TOOLCHAIN_NAMES
 from .targets import TARGET_NAMES, Target, update_target_data
 from .utils import (argparse_force_uppercase_type, argparse_deprecate,
                     argparse_lowercase_hyphen_type, argparse_many,
@@ -45,6 +45,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
     targetnames = TARGET_NAMES
     targetnames.sort()
     toolchainlist = list(TOOLCHAINS)
+    toolchainlist.extend(EXTRA_TOOLCHAIN_NAMES)
     toolchainlist.sort()
 
     parser.add_argument("-m", "--mcu",
