@@ -34,7 +34,8 @@ ARMC5_MIGRATION_WARNING = (
     "Warning: We noticed that you are using Arm Compiler 5. "
     "We are deprecating the use of Arm Compiler 5 soon. "
     "Please upgrade your environment to Arm Compiler 6 "
-    "which is free to use with Mbed OS."
+    "which is free to use with Mbed OS. For more information, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
 )
 
 class ARM(mbedToolchain):
