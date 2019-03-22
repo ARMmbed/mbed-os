@@ -400,7 +400,7 @@ class ARM_STD(ARM):
         if int(target.build_tools_metadata["version"]) > 0:
             #check only for ARMC5 because ARM_STD means using ARMC5, and thus
             # supported_toolchains must include ARMC5
-            if "ARMC5" not in target.supported_toolchains:
+            if not set(target.supported_toolchains).intersection(set(("ARMC5", "ARM"))):
                 raise NotSupportedException(
                     "ARM compiler 5 support is required for ARM build"
                 )
