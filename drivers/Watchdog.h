@@ -92,7 +92,7 @@ public:
      *
      * Otherwise, the system is reset.
      */
-    void process(uint32_t elapsed_ms);
+    static void process(uint32_t elapsed_ms);
 protected :
 
     /** add_to_list is used to store the registered user into List.

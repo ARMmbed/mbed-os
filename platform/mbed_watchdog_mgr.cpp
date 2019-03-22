@@ -24,18 +24,12 @@ static bool is_watchdog_started = false; //boolean to control watchdog start and
 static uint32_t elapsed_ms = (HW_WATCHDOG_TIMEOUT / 2);
 MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT > 0), "Timeout must be greater than zero");
 
-/** mbed watchdog manager creates watchdog class instance with zero timeout
- *  as mbed watchdog manager is not going to register(not going to call "start" method of Watchdog class)
- *  its only going to call process to verify all registered users/threads in alive state
- *
- */
-mbed::Watchdog watchdog(0, "Platform Watchdog");
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
-static mbed::LowPowerTicker *get_ticker()
+static SingletonPtr<mbed::LowPowerTicker> get_ticker()
 {
-    static mbed::LowPowerTicker ticker;
-    return &ticker;
+    static SingletonPtr<mbed::LowPowerTicker> ticker;
+    return ticker;
 }
 
 /** Refreshes the watchdog timer.
@@ -49,7 +43,9 @@ static void mbed_wdog_manager_kick()
 {
     core_util_critical_section_enter();
     hal_watchdog_kick();
-    watchdog.process(((elapsed_ms <= 0) ? 1 : elapsed_ms));
+    // mbed watchdog manager will access the watchdog process method to verify
+    // all registered users/threads in alive state */
+    mbed::Watchdog::process(((elapsed_ms <= 0) ? 1 : elapsed_ms));
     core_util_critical_section_exit();
 }
 
