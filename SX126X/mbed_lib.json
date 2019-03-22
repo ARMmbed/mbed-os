@@ -1,0 +1,29 @@
+{
+    "name": "SX126X-lora-driver",
+    "config": {
+        "spi-frequency": {
+        	"help": "SPI frequency, Default: 16 MHz",
+        	"value": 16000000
+        },
+        "buffer-size": {
+        	"help": "Max. buffer size the radio can handle, Default: 255 B",
+        	"value": 255
+        },
+        "boost-rx": {
+        	"help": "Increases sensitivity at the cost of power ~2mA for around ~3dB in sensitivity 0 = disabled, 1 = enabled",
+        	"value": 0
+        },
+        "regulator-mode": {
+        	"help": "Default: DCDC (low power, high BOM). Alternatively, LDO = 0. Check datasheet section 5.1 for more details",
+        	"value": 1
+        },
+        "sleep-mode": {
+        	"help": "Default: Cold start = 1, Warm start = 0. Check SleepMode.txt",
+        	"value": 1
+        },
+        "standby-mode": {
+        	"help": "Default: STDBY_RC = 0, STDBY_XOSC = 1",
+        	"value": 0
+        }
+    }
+}

@@ -1,0 +1,22 @@
+Sleep Modes:
+
+The SX126X series LoRa radios define two different sleep modes, namely:
+
+i) Sleep mode with Cold Start (default mode in Mbed LoRaWAN stack)
+ii) Sleep mode with Warm Start
+
+
+Sleep mode with Warm Start:
+This is the default sleep mode for this driver. Radio configurations are retained in this mode. 
+Typical power consumption in this mode is '600 nA'.
+
+
+Sleep mode with Cold Start:
+The driver can be configured to sleep with cold startup. This mode is the lowest power consuming state 
+for the SX126X series radios. No configurations are retained in this mode, that's why our driver takes 
+extra measures to keep backups of the configuration in the RAM. Typical power consumption in this mode
+is '160 nA'. The radio takes about 3.5 milliseconds to wakeup properly because upon going to sleep all
+components gets turned off. The radio thread blocks for that period of time. However, to reduce the impact 
+of this wakeup time on the time critical operations, the stack shouldn't put the radio to standby rather than 
+sleep before performing time critical operations. Mbed OS LoRaWAN stack handles this automatically which means
+that the user can safely use sleep mode with cold start.    
