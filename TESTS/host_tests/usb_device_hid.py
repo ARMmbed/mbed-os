@@ -69,7 +69,8 @@ HID_PROTOCOL_KEYBOARD = 1
 HID_PROTOCOL_MOUSE = 2
 
 # Greentea message keys used for callbacks
-MSG_KEY_DEVICE_READY = 'ready'
+MSG_KEY_DEVICE_READY = 'dev_ready'
+MSG_KEY_HOST_READY = 'host_ready'
 MSG_KEY_SERIAL_NUMBER = 'usb_dev_sn'
 MSG_KEY_TEST_GET_DESCRIPTOR_HID = 'test_get_desc_hid'
 MSG_KEY_TEST_GET_DESCRIPTOR_CFG = 'test_get_desc_cfg'
@@ -495,6 +496,8 @@ class USBHIDTest(mbed_host_tests.BaseHostTest):
         except RetryError as exc:
             self.notify_error(exc)
             return
+        # Notify the device it can send reports now.
+        self.send_kv(MSG_KEY_HOST_READY, MSG_VALUE_DUMMY)
         try:
             for _ in range(RAW_IO_REPS):
                 # There are no Report ID tags in the Report descriptor.
