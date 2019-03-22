@@ -24,6 +24,7 @@
 #include "mbed_error.h"
 #include "platform/Callback.h"
 #include "platform/mbed_critical.h"
+#include "platform/SingletonPtr.h"
 #include "LowPowerTicker.h"
 #include "Watchdog.h"
 
