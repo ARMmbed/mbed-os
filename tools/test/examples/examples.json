@@ -25,7 +25,7 @@
       "features" : [],
       "targets" : ["K66F", "NUCLEO_F429ZI", "ARCH_PRO", "LPC1768"],
       "toolchains" : [],
-      "exporters": [],
+      "exporters": ["iar", "make_armc5", "make_armc6", "make_gcc_arm", "make_iar"],
       "compile" : true,
       "export": true,
       "auto-update" : true
@@ -389,10 +389,10 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["CY8CKIT_062_WIFI_BT_PSA", 
-                     "K64F", 
-                     "K66F", 
-                     "NUCLEO_F429ZI", 
+        "targets" : ["CY8CKIT_062_WIFI_BT_PSA",
+                     "K64F",
+                     "K66F",
+                     "NUCLEO_F429ZI",
                      "UBLOX_ODIN_EVK_W2",
                      "LPC55S69_NS"
                     ],
