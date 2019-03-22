@@ -25,7 +25,14 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdio.h>
 #include <math.h> //rint
 #include <string.h>
-#include "mbed.h"
+#include "PinNames.h"
+#include "Callback.h"
+#include "mbed_wait_api.h"
+#include "Timer.h"
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "ThisThread.h"
+using namespace rtos;
+#endif
 #include "SX1276_LoRaRadio.h"
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
@@ -153,6 +160,7 @@ enum RadioVariant {
 #define SPI_FREQUENCY    8000000
 #endif
 
+using namespace mbed;
 /**
  * Constructor
  */

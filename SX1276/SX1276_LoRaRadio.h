@@ -382,7 +382,7 @@ private:
 
     // Data buffer used for both TX and RX
     // Size of this buffer is configurable via Mbed config system
-    // Default is 256 bytes
+    // Default is 255 bytes
     uint8_t _data_buffer[MAX_DATA_BUFFER_SIZE_SX1276];
 
     // TX timer in ms. This timer is used as a fail safe for TX.

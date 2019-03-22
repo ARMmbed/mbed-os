@@ -332,7 +332,7 @@ void SX1272_LoRaRadio::set_operation_mode(uint8_t mode)
  * At initialization FSK is chosen. Later stack or application
  * can choose to change.
  */
-void SX1272_LoRaRadio::set_modem(uint8_t modem )
+void SX1272_LoRaRadio::set_modem(uint8_t modem)
 {
     if ((read_register(REG_OPMODE) & RFLR_OPMODE_LONGRANGEMODE_ON) != 0 ) {
         _rf_settings.modem = MODEM_LORA;
