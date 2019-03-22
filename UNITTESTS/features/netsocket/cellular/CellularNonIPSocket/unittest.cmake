@@ -20,4 +20,5 @@ set(unittest-test-sources
   stubs/EventFlags_stub.cpp
   stubs/Mutex_stub.cpp
   stubs/CellularContext_stub.cpp
+  stubs/mbed_assert_stub.c
 )
