@@ -349,6 +349,42 @@ typedef enum {
     QSPI_FLASH1_SCK = PA_3,
     QSPI_FLASH1_CSN = PB_11,
 
+    /**** STMOD+ pins ****/
+    STMOD_1  = PG_11, // UART1_CTS // SPI3_MOSI // PWM_15
+    STMOD_2  = PB_6,  // UART1_TX // CAN2_TD // I2C1_SCL // PWM_4
+    STMOD_3  = PG_10, // UART1_RX // PWM_15 // SPI3_MISO
+    STMOD_4  = PG_12, // UART1_RTS
+//  STMOD_5 is connected to GND
+//  STMOD_6 is connected to +5V
+    STMOD_7  = PB_8,  // I2C1_SCL // CAN1_RD // PWM_4
+    STMOD_8  = PI_3,  // SPI2_MOSI
+    STMOD_9  = PD_3,  // SPI2_MISO // SPI2_SCLK // UART2_CTS
+    STMOD_10 = PB_7,  // I2C1_SDA // UART1_RX // UART4_CTS
+    STMOD_11 = PH_2,
+    STMOD_12 = PB_2,
+    STMOD_13 = PA_4,  // ADC1_IN9 // DAC1_OUT1
+    STMOD_14 = PA_0,  // ADC1_IN5 // PWM_2 // UART4_TX // UART2_CTS
+//  STMOD_15 is connected to +5V
+//  STMOD_16 is connected to GND
+    STMOD_17 = PC_7,  // PWM_3
+    STMOD_18 = PC_2,  // SPI2_MISO // ADC1_IN3
+    STMOD_19 = PB_12, // LPUART1_RTS // CAN2_RD
+    STMOD_20 = PC_2,  // ADC1_IN3 // SPI2_MISO
+
+    /**** PMOD pins ****/
+    PMOD_1  = STMOD_1,
+    PMOD_2  = STMOD_2,
+    PMOD_3  = STMOD_3,
+    PMOD_4  = STMOD_4,
+//  PMOD_5 is connected to GND
+//  PMOD_6 is connected to +3V3
+    PMOD_7  = STMOD_11,
+    PMOD_8  = STMOD_12,
+//  PMOD_9 is not connected
+//  PMOD_10 is not connected
+//  PMOD_11 is connected to GND
+//  PMOD_12 is connected to +3V3
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
