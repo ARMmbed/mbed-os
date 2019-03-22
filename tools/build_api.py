@@ -365,12 +365,18 @@ def transform_release_toolchains(target, version):
     """
     if int(target.build_tools_metadata["version"]) > 0:
         if version == '5':
+            non_arm_toolchains = set(["IAR", "GCC_ARM"])
             if 'ARMC5' in target.supported_toolchains:
-                return ['ARMC5', 'GCC_ARM', 'IAR']
+                result = ["ARMC5"]
             else:
-                return ['ARM', 'ARMC6', 'GCC_ARM', 'IAR']
-        else:
-            return target.supported_toolchains
+                result = ["ARM", "ARMC6"]
+            result.extend(
+                set(target.supported_toolchains).intersection(
+                    non_arm_toolchains
+                )
+            )
+            return result
+        return target.supported_toolchains
     else:
         if version == '5':
             return ['ARM', 'GCC_ARM', 'IAR']
