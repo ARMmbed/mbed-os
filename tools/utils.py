@@ -296,6 +296,11 @@ class NotSupportedException(Exception):
 class InvalidReleaseTargetException(Exception):
     pass
 
+class NoValidToolchainException(Exception):
+    """A class representing no valid toolchain configurations found on
+    the system"""
+    pass
+
 def split_path(path):
     """spilt a file name into it's directory name, base name, and extension
 
@@ -597,3 +602,16 @@ def generate_update_filename(name, target):
                     name,
                     getattr(target, "OUTPUT_EXT_UPDATE", "bin")
                 )
+
+def print_end_warnings(end_warnings):
+    """ Print a formatted list of warnings
+
+    Positional arguments:
+    end_warnings - A list of warnings (strings) to print
+    """
+    if end_warnings:
+        warning_separator = "-" * 60
+        print(warning_separator)
+        for end_warning in end_warnings:
+            print(end_warning)
+        print(warning_separator)
