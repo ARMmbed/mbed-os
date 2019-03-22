@@ -19,4 +19,5 @@ set(unittest-test-sources
   stubs/NetworkStack_stub.cpp
   stubs/EventFlags_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/mbed_assert_stub.c
 )
