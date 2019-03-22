@@ -15,7 +15,7 @@
 #include "hal_types.h"
 
 //assertations
-#define IS_SPI_PIN(pin) MBED_ASSERT(pin==GPIO_Pin_0 || pin==GPIO_Pin_1 || pin==GPIO_Pin_2 ||pin==GPIO_Pin_3) //SPI Serial_mode_0
+#define IS_SPI_PIN(pin) MBED_ASSERT(pin==GPIO_Pin_0 || pin== GPIO_Pin_1 || pin==GPIO_Pin_2 ||pin==GPIO_Pin_3) //SPI Serial_mode_0
 
 /* Consider 10ms as the default timeout for sending/receving 1 byte */
 #define TIMEOUT_1_BYTE 10
@@ -29,7 +29,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 	IS_SPI_PIN(mosi);
 	IS_SPI_PIN(miso);
 	IS_SPI_PIN(sclk);
-	IS_SPI_PIN(ssel);
 
 	GPIO_InitType GPIO_InitStructure;
 
@@ -49,11 +48,14 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 	GPIO_InitStructure.GPIO_Pin = sclk; //SDK_EVAL_SPI_PERIPH_SCLK_PIN = GPIO_Pin_0 = ck;
 	GPIO_InitStructure.GPIO_Mode = Serial0_Mode;//SDK_EVAL_SPI_PERIPH_SCLK_MODE;
 	GPIO_Init(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = ssel; //SPI_CS_MS_DEMO_PIN;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Output;
-	GPIO_InitStructure.GPIO_HighPwr = ENABLE;
-	GPIO_Init(&GPIO_InitStructure);
-	GPIO_WriteBit(getGpioPin(obj->pin_ssel), 1);
+	if(ssel != NC){
+		//IS_SPI_PIN(ssel);
+		GPIO_InitStructure.GPIO_Pin = ssel; //SPI_CS_MS_DEMO_PIN;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Output;
+		GPIO_InitStructure.GPIO_HighPwr = ENABLE;
+		GPIO_Init(&GPIO_InitStructure);
+		GPIO_WriteBit(ssel, 1);
+	}
 	obj->pin_miso = miso;
 	obj->pin_mosi = mosi;
 	obj->pin_sclk = sclk;
@@ -82,16 +84,16 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 }
 
 void spi_free(spi_t *obj){
-	obj->dummy_char = NULL;
+	obj->dummy_char = 0;
 	obj->pin_miso = NC;
 	obj->pin_mosi = NC;
 	obj->pin_sclk = NC;
 	obj->pin_ssel = NC;
-	obj->init.SPI_BaudRate = NULL;
-	obj->init.SPI_CPHA = NULL;
-	obj->init.SPI_CPOL = NULL;
-	obj->init.SPI_DataSize = NULL;
-	obj->init.SPI_Mode = NULL;
+	obj->init.SPI_BaudRate = 0;
+	obj->init.SPI_CPHA = 0;
+	obj->init.SPI_CPOL = 0;
+	obj->init.SPI_DataSize = 0;
+	obj->init.SPI_Mode = 0;
 	SPI_DeInit();
 }
 
@@ -112,27 +114,17 @@ void spi_format(spi_t *obj, int bits, int mode, int slave){
 	            break;
 	        case 2:
 	        	obj->init.SPI_CPOL = SPI_CPOL_High;
-
 	        	obj->init.SPI_CPHA = SPI_CPHA_1Edge;
-
 	            break;
-
 	        case 3:
-
 	        	obj->init.SPI_CPOL = SPI_CPOL_High;
-
 	        	obj->init.SPI_CPHA = SPI_CPHA_2Edge;
-
 	            break;
-
 	        default :
-
 	        	break;
 
 	    }
-
-	obj->init.SPI_CPOL ? GPIO_SetBits(getGpioPin(obj->pin_sclk)) : GPIO_ResetBits(getGpioPin(obj->pin_sclk));
-
+	obj->init.SPI_CPOL ? GPIO_SetBits(obj->pin_sclk) : GPIO_ResetBits(obj->pin_sclk);
 	SPI_Init(&(obj->init));
 
 }
@@ -140,11 +132,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave){
 
 
 void spi_frequency(spi_t *obj, int hz) {
-
 	obj->init.SPI_BaudRate = hz;
-
 	SPI_Init(&(obj->init));
-
 }
 
 int spi_master_write(spi_t *obj, int value){
@@ -155,7 +144,7 @@ int spi_master_write(spi_t *obj, int value){
 	SPI_SetMasterCommunicationMode(SPI_FULL_DUPLEX_MODE);
 
 	// start write: CS=0
-	GPIO_WriteBit(getGpioPin(obj->pin_ssel), 0);
+	//GPIO_WriteBit(obj->pin_ssel, 0);
 
 	// Write data to send to TX FIFO //
 	while(RESET == SPI_GetFlagStatus(SPI_FLAG_TFE));
@@ -170,7 +159,7 @@ int spi_master_write(spi_t *obj, int value){
 	while (SET == SPI_GetFlagStatus(SPI_FLAG_BSY));
 
 	// stop write: CS=1
-	GPIO_WriteBit(getGpioPin(obj->pin_ssel), 1);
+	//GPIO_WriteBit(obj->pin_ssel, 1);
 	return received_data;
 }
 
@@ -182,10 +171,10 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
 	SPI_SetDummyCharacter(write_fill);
 
 	// Set communication mode //
-	SPI_SetMasterCommunicationMode(SPI_FULL_DUPLEX_MODE);
+	//SPI_SetMasterCommunicationMode(SPI_FULL_DUPLEX_MODE);
 
 	// start write: CS=0
-	GPIO_WriteBit(getGpioPin(obj->pin_ssel), 0);
+	//GPIO_WriteBit(obj->pin_ssel, 0);
 	// TX BUFFER //
 
 	for (int i=0; i<tx_length; i++) {
@@ -219,8 +208,82 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
 	while (SET == SPI_GetFlagStatus(SPI_FLAG_BSY));
 
 	// stop write: CS=1
-	GPIO_WriteBit(getGpioPin(obj->pin_ssel), 1);
+	//GPIO_WriteBit(obj->pin_ssel, 1);
 
-	return SUCCESS;
+	return tx_length > rx_length ? tx_length : rx_length;
 }
+
+int spi_slave_receive(spi_t *obj){
+	return SPI_GetFlagStatus(SPI_FLAG_RNE); // != 0) ? 1: 0;
+}
+
+int spi_slave_read(spi_t *obj){
+	  while(RESET == SPI_GetFlagStatus(SPI_FLAG_RNE));
+	  return SPI_ReceiveData();
+}
+
+void spi_slave_write(spi_t *obj, int value){
+	while(RESET == SPI_GetFlagStatus(SPI_FLAG_TFE));
+	SPI_SendData(value);
+}
+
+int  spi_busy(spi_t *obj){
+	return SPI_GetFlagStatus(SPI_FLAG_BSY);
+}
+
+#ifdef ANTONIO_iar
+uint8_t spi_get_module(spi_t *obj){
+	return 1;
+}
+
+const PinMap *spi_master_mosi_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_master_miso_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_master_clk_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_master_cs_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_slave_mosi_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_slave_miso_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_slave_clk_pinmap(void){
+	return 0;
+}
+
+const PinMap *spi_slave_cs_pinmap(void){
+	return 0;
+}
+#endif //antonio_iar
+
+
+#ifdef DEVICE_SPI_ASYNCH
+
+/// @returns the number of bytes transferred, or `0` if nothing transferred
+static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer_type, const void *tx, void *rx, size_t length){}
+
+// asynchronous API
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint){}
+
+inline uint32_t spi_irq_handler_asynch(spi_t *obj){}
+
+uint8_t spi_active(spi_t *obj){}
+
+void spi_abort_asynch(spi_t *obj){}
+
+#endif //DEVICE_SPI_ASYNCH
+
 #endif  //DEVICE_SPI

@@ -18,11 +18,12 @@
 
 #include "mbed_assert.h"	// arm
 #include "gpio_api.h"		// arm
-#include "pinmap.h"			// arm
+//#include "pinmap.h"			// arm
 #include "mbed_error.h"		// arm
 #include "device.h"
 #include "BlueNRG1_gpio.h"
 #include "BlueNRG1_sysCtrl.h"
+//#include "objects.h"
 
 #define GPIOA_BASE GPIO_BASE
 
@@ -32,39 +33,49 @@ uint32_t gpio_set(PinName pin) {
 }
 
 int gpio_is_connected(const gpio_t *obj){
-	return !(obj->GPIO_Pin);
+
+	if(obj->pin == NC)
+		return 0;
+	else
+		return 1;
 }
 
 void gpio_init(gpio_t *obj, PinName pin) {
-	obj->GPIO_Pin = (uint32_t)pin;
+
+	if(pin==NC){
+		obj->pin = NC;
+		return;
+	}
+
+	obj->gpio.GPIO_Pin = (uint32_t)pin;
 	// preset
-	obj->GPIO_Mode = GPIO_Output;
-	obj->GPIO_Pull = ENABLE;
-	obj->GPIO_HighPwr = ENABLE;
+	obj->gpio.GPIO_Mode = GPIO_Output;
+	obj->gpio.GPIO_Pull = ENABLE;
+	obj->gpio.GPIO_HighPwr = ENABLE;
 	/* Enable the GPIO Clock */
 	SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_GPIO, ENABLE);
 
-	GPIO_Init(obj);
-	obj->GPIO_Mode = GPIO_Output;
+	GPIO_Init(&(obj->gpio));
+	obj->gpio.GPIO_Mode = GPIO_Output;
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode) {
-	uint8_t current_mode = obj->GPIO_Mode;
-	obj->GPIO_Pull = (FunctionalState)mode;
-	GPIO_Init(obj);
-	obj->GPIO_Mode = current_mode;
+	uint8_t current_mode = obj->gpio.GPIO_Mode;
+	obj->gpio.GPIO_Pull = (FunctionalState)mode;
+	GPIO_Init(&(obj->gpio));
+	obj->gpio.GPIO_Mode = current_mode;
 }
 
 inline void gpio_dir(gpio_t *obj, PinDirection direction) {
-	obj->GPIO_Mode = (uint8_t)direction;
-	GPIO_Init(obj);
-	obj->GPIO_Mode = direction;
+	obj->gpio.GPIO_Mode = (uint8_t)direction;
+	GPIO_Init(&(obj->gpio));
+	obj->gpio.GPIO_Mode = direction;
 }
 
 inline void gpio_write(gpio_t *obj, int value){
-	value ? GPIO_WriteBit(obj->GPIO_Pin, Bit_SET) : GPIO_WriteBit(obj->GPIO_Pin, Bit_RESET);
+	value ? GPIO_WriteBit(obj->gpio.GPIO_Pin, Bit_SET) : GPIO_WriteBit(obj->gpio.GPIO_Pin, Bit_RESET);
 }
 
 int gpio_read(gpio_t *obj){
-	return GPIO_ReadBit(obj->GPIO_Pin) ? 1 : 0;
+	return GPIO_ReadBit(obj->gpio.GPIO_Pin) ? 1 : 0;
 }

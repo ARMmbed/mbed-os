@@ -30,7 +30,10 @@
 extern "C" {
 #endif
 
-#define gpio_t GPIO_InitType
+typedef struct{
+	GPIO_InitType gpio;
+	PinName pin;
+} gpio_t;
 
 struct gpio_irq_s{
 	GPIO_EXTIConfigType exti;
