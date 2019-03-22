@@ -628,8 +628,7 @@ uint16_t LoRaPHY::get_maximum_frame_counter_gap()
 uint32_t LoRaPHY::get_ack_timeout()
 {
     uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
-    return (phy_params.ack_timeout
-            + get_random(-ack_timeout_rnd, ack_timeout_rnd));
+    return (phy_params.ack_timeout + get_random(0, ack_timeout_rnd));
 }
 
 uint32_t LoRaPHY::get_default_rx2_frequency()
