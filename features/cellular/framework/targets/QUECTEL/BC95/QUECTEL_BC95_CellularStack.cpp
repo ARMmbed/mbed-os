@@ -19,6 +19,8 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 
+#define PACKET_SIZE_MAX 1358
+
 using namespace mbed;
 using namespace mbed_cellular_util;
 
@@ -174,6 +176,10 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 {
     int sent_len = 0;
 
+    if (size > PACKET_SIZE_MAX) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     char *hexstr = new char[size * 2 + 1];
     int hexlen = char_str_to_hex_str((const char *)data, size, hexstr);
     // NULL terminated for write_string
@@ -220,7 +226,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
-    _at.write_int(size);
+    _at.write_int(size <= PACKET_SIZE_MAX ? size : PACKET_SIZE_MAX);
     _at.cmd_stop();
     _at.resp_start();
     // receiving socket id
