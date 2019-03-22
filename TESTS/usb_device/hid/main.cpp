@@ -38,6 +38,8 @@
 #define MSG_VALUE_LEN 24
 #define MSG_KEY_LEN 24
 #define MSG_KEY_DEVICE_READY "ready"
+#define MSG_KEY_DEVICE_READY "dev_ready"
+#define MSG_KEY_HOST_READY "host_ready"
 #define MSG_KEY_SERIAL_NUMBER "usb_dev_sn"
 #define MSG_KEY_TEST_GET_DESCRIPTOR_HID "test_get_desc_hid"
 #define MSG_KEY_TEST_GET_DESCRIPTOR_CFG "test_get_desc_cfg"
@@ -306,6 +308,12 @@ void test_generic_raw_io()
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_RAW_IO, REPORT_SIZE);
     usb_hid.wait_ready();
+
+    // Wait for the host HID driver to complete setup.
+    char key[MSG_KEY_LEN + 1] = { };
+    char value[MSG_VALUE_LEN + 1] = { };
+    greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
+    TEST_ASSERT_EQUAL_STRING(MSG_KEY_HOST_READY, key);
 
     // Report ID omitted here. There are no Report ID tags in the Report descriptor.
     HID_REPORT input_report = {};
