@@ -304,7 +304,8 @@ void USBPhyHw::process()
     NVIC_EnableIRQ(USB_IRQn);
 }
 
-void USBPhyHw::_usbisr(void) {
+void USBPhyHw::_usbisr(void)
+{
     NVIC_DisableIRQ(USB_IRQn);
     instance->events->start_process();
 }
