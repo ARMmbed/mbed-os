@@ -15,7 +15,6 @@
 #include "hal_types.h"
 
 //assertations
-#define IS_SPI_PIN(pin) MBED_ASSERT(pin==GPIO_Pin_0 || pin== GPIO_Pin_1 || pin==GPIO_Pin_2 ||pin==GPIO_Pin_3) //SPI Serial_mode_0
 
 /* Consider 10ms as the default timeout for sending/receving 1 byte */
 #define TIMEOUT_1_BYTE 10
@@ -25,10 +24,6 @@
 #define SPI_DUMMY_CHAR 0xFF
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel){
-
-	IS_SPI_PIN(mosi);
-	IS_SPI_PIN(miso);
-	IS_SPI_PIN(sclk);
 
 	GPIO_InitType GPIO_InitStructure;
 
@@ -49,7 +44,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 	GPIO_InitStructure.GPIO_Mode = Serial0_Mode;//SDK_EVAL_SPI_PERIPH_SCLK_MODE;
 	GPIO_Init(&GPIO_InitStructure);
 	if(ssel != NC){
-		//IS_SPI_PIN(ssel);
 		GPIO_InitStructure.GPIO_Pin = ssel; //SPI_CS_MS_DEMO_PIN;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Output;
 		GPIO_InitStructure.GPIO_HighPwr = ENABLE;
@@ -231,7 +225,7 @@ int  spi_busy(spi_t *obj){
 	return SPI_GetFlagStatus(SPI_FLAG_BSY);
 }
 
-#ifdef ANTONIO_iar
+#ifdef ANTONIO_armclang
 uint8_t spi_get_module(spi_t *obj){
 	return 1;
 }
@@ -267,13 +261,15 @@ const PinMap *spi_slave_clk_pinmap(void){
 const PinMap *spi_slave_cs_pinmap(void){
 	return 0;
 }
-#endif //antonio_iar
+#endif //antonio_armclang
 
 
 #ifdef DEVICE_SPI_ASYNCH
 
 /// @returns the number of bytes transferred, or `0` if nothing transferred
-static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer_type, const void *tx, void *rx, size_t length){}
+static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer_type, const void *tx, void *rx, size_t length){
+
+}
 
 // asynchronous API
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint){}

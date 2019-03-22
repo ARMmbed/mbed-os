@@ -22,6 +22,7 @@
 #include "BlueNRG1_spi.h"
 #include "BlueNRG1_uart.h"
 #include "BlueNRG1_gpio.h"
+#include "BlueNRG1_i2c.h"
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
@@ -55,6 +56,29 @@ struct spi_s{
     PinName pin_sclk;
     PinName pin_ssel;
     char dummy_char;
+};
+
+struct i2c_s {
+    I2CName  i2c;
+    I2C_InitType init;
+//    I2C_TransactionType t;
+    PinName sda;
+    PinName scl;
+//    IRQn_Type event_i2cIRQ;
+//    IRQn_Type error_i2cIRQ;
+//    uint32_t XferOperation;
+//    volatile uint8_t event;
+//    volatile int pending_start;
+#if DEVICE_I2CSLAVE
+    uint8_t slave;
+    volatile uint8_t pending_slave_tx_master_rx;
+    volatile uint8_t pending_slave_rx_maxter_tx;
+#endif
+#if DEVICE_I2C_ASYNCH
+    uint32_t address;
+    uint8_t stop;
+    uint8_t available_events;
+#endif
 };
 
 #ifdef __cplusplus
