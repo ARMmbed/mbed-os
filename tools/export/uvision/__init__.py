@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 import re
 
 from tools.resources import FileType
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, CORE_ARCH
 from tools.export.exporters import Exporter
 from tools.export.cmsis import DeviceCMSIS
 
@@ -217,9 +217,12 @@ class Uvision(Exporter):
     @staticmethod
     def format_fpu(core):
         """Generate a core's FPU string"""
-        if core.endswith("FD"):
+        fpu_core_name = core.replace("-NS", "").rstrip("E")
+        if fpu_core_name.endswith("FD"):
             return "FPU3(DFPU)"
-        elif core.endswith("F"):
+        elif fpu_core_name.endswith("F"):
+            if CORE_ARCH[core] == 8:
+                return "FPU3(SFPU)"
             return "FPU2"
         else:
             return ""
@@ -247,10 +250,11 @@ class Uvision(Exporter):
             sct_path, dirname(sct_name))
         if ctx['linker_script'] != sct_path:
             self.generated_files.append(ctx['linker_script'])
-        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
-        if ctx['device'].core.endswith("FD"):
+        fpu_included_core_name = ctx['device'].core.replace("-NS", "")
+        ctx['cputype'] = fpu_included_core_name.rstrip("FDE")
+        if fpu_included_core_name.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif ctx['device'].core.endswith("F"):
+        elif fpu_included_core_name.rstrip("E").endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
