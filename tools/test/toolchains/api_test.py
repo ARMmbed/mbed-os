@@ -13,7 +13,7 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations 
+limitations
 """
 
 import sys
@@ -84,16 +84,41 @@ def test_armc5_version_check(_run_cmd):
 def test_armc6_version_check(_run_cmd):
     set_targets_json_location()
     notifier = MockNotifier()
-    print(TARGET_MAP["K64F"])
     toolchain = TOOLCHAIN_CLASSES["ARMC6"](TARGET_MAP["K64F"], notify=notifier)
-    print(toolchain)
     _run_cmd.return_value = ("""
     Product: ARM Compiler 6.11 Professional
     Component: ARM Compiler 6.11
     Tool: armclang [5d3b4200]
     """, "", 0)
+
     toolchain.version_check()
-    assert notifier.messages == []   
+    assert notifier.messages == []
+    assert not toolchain.is_mbed_studio_armc6
+
+    _run_cmd.return_value = ("""
+    armclang: error: Failed to check out a license.
+    The provided license does not enable these tools.
+    Information about this error is available at: http://ds.arm.com/support/lic56/m5
+     General licensing information is available at: http://ds.arm.com/support/licensing/
+     If you need further help, provide this complete error report to your supplier or license.support@arm.com.
+     - ARMLMD_LICENSE_FILE: unset
+     - LM_LICENSE_FILE: unset
+     - ARM_TOOL_VARIANT: unset
+     - ARM_PRODUCT_PATH: unset
+     - Product location: C:\MbedStudio\tools\ac6\sw\mappings
+     - Toolchain location: C:\MbedStudio\tools\ac6\bin
+     - Selected tool variant: product
+     - Checkout feature: mbed_armcompiler
+     - Feature version: 5.0201810
+     - Flex error code: -5
+    Product: ARM Compiler 6.11 for Mbed Studio
+    Component: ARM Compiler 6.11
+    Tool: armclang [5d3b3c00]
+    """, "", 0)
+
+    toolchain.version_check()
+    assert notifier.messages == []
+    assert toolchain.is_mbed_studio_armc6
 
 @patch('tools.toolchains.iar.run_cmd')
 def test_iar_version_check(_run_cmd):

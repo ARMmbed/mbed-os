@@ -263,7 +263,7 @@ def transform_release_toolchains(target, version):
         if version == '5':
             if 'ARMC5' in target.supported_toolchains:
                 return ['ARMC5', 'GCC_ARM', 'IAR']
-            else:    
+            else:
                 return ['ARM', 'ARMC6', 'GCC_ARM', 'IAR']
         else:
             return target.supported_toolchains
@@ -356,7 +356,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
-    
+
     if not target_supports_toolchain(target, toolchain_name):
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
@@ -364,11 +364,11 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     selected_toolchain_name = get_toolchain_name(target, toolchain_name)
 
-    #If a target supports ARMC6 and we want to build UARM with it, 
+    #If a target supports ARMC6 and we want to build UARM with it,
     #then set the default_toolchain to uARM to link AC6 microlib.
     if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
         target.default_toolchain = "uARM"
-    toolchain_name = selected_toolchain_name     
+    toolchain_name = selected_toolchain_name
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -607,6 +607,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
         build_profile=build_profile, ignore=ignore)
+    toolchain.version_check()
 
     # The first path will give the name to the library
     if name is None:
@@ -781,6 +782,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             src_paths, tmp_path, target, toolchain_name, macros=macros,
             notify=notify, build_profile=build_profile, jobs=jobs, clean=clean,
             ignore=ignore)
+        toolchain.version_check()
 
         notify.info("Building library %s (%s, %s)" %
                     (name.upper(), target.name, toolchain_name))
@@ -871,7 +873,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     selected_toolchain_name = get_toolchain_name(target, toolchain_name)
 
-    #If a target supports ARMC6 and we want to build UARM with it, 
+    #If a target supports ARMC6 and we want to build UARM with it,
     #then set the default_toolchain to uARM to link AC6 microlib.
     if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
         target.default_toolchain = "uARM"
@@ -925,6 +927,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         toolchain = prepare_toolchain(
             [""], tmp_path, target, toolchain_name, macros=macros, notify=notify,
             build_profile=build_profile, jobs=jobs, clean=clean, ignore=ignore)
+        toolchain.version_check()
 
         config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
@@ -1118,10 +1121,10 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
     #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
-    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json 
+    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json
     #capture that info in a separate column
     unique_supported_toolchains.append('ARMC5')
-    
+
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
     # All tests status table print
