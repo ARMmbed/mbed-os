@@ -868,6 +868,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
         if (phy_params.channels.channel_list[rx_conf->channel].rx1_frequency != 0) {
             frequency = phy_params.channels.channel_list[rx_conf->channel].rx1_frequency;
         }
+        rx_conf->frequency = frequency;
     }
 
     // Read the physical datarate from the datarates table
