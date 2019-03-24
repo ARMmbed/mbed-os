@@ -1006,6 +1006,10 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
                                 size_t label_length,
                                 size_t capacity)
 {
+    if (generator->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
     psa_crypto_derivation_ipc_t psa_crypto_ipc = {
         .func       = PSA_KEY_DERIVATION,
         .handle     = key_handle,
@@ -1024,6 +1028,9 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
         return (status);
     }
     status = ipc_call(&generator->handle, in_vec, 3, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&generator->handle);
+    }
     return (status);
 }
 
@@ -1033,6 +1040,10 @@ psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
                                size_t peer_key_length,
                                psa_algorithm_t alg)
 {
+    if (generator->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
     psa_crypto_derivation_ipc_t psa_crypto_ipc = {
         .func       = PSA_KEY_AGREEMENT,
         .handle     = private_key_handle,
@@ -1050,6 +1061,9 @@ psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
         return (status);
     }
     status = ipc_call(&generator->handle, in_vec, 2, NULL, 0, false);
+    if (status != PSA_SUCCESS) {
+        ipc_close(&generator->handle);
+    }
     return (status);
 }
 
