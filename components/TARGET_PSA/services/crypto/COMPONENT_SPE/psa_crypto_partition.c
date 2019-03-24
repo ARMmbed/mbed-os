@@ -1622,11 +1622,14 @@ void psa_crypto_generator_operations(void)
 
                 case PSA_GENERATOR_ABORT: {
                     status = psa_generator_abort(msg.rhandle);
+                    mbedtls_free(msg.rhandle);
+                    psa_set_rhandle(msg.handle, NULL);
                     break;
                 }
 
                 case PSA_KEY_DERIVATION: {
                     uint8_t *salt = NULL;
+                    uint8_t *label = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
                                                                        msg.client_id)) {
@@ -1635,39 +1638,36 @@ void psa_crypto_generator_operations(void)
                     }
 
                     salt = mbedtls_calloc(1, msg.in_size[1]);
-                    if (salt == NULL) {
+                    label = mbedtls_calloc(1, msg.in_size[2]);
+                    if (salt == NULL || label == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    } else {
+                        bytes_read = psa_read(msg.handle, 1, salt, msg.in_size[1]);
+                        if (bytes_read != msg.in_size[1]) {
+                            SPM_PANIC("SPM read length mismatch");
+                        }
+
+                        bytes_read = psa_read(msg.handle, 2, label, msg.in_size[2]);
+                        if (bytes_read != msg.in_size[2]) {
+                            SPM_PANIC("SPM read length mismatch");
+                        }
+
+                        status = psa_key_derivation(msg.rhandle, psa_crypto_ipc.handle,
+                                                    psa_crypto_ipc.alg,
+                                                    salt,
+                                                    msg.in_size[1],//salt length
+                                                    label,
+                                                    msg.in_size[2],//label length
+                                                    psa_crypto_ipc.capacity);
+
                     }
 
-                    bytes_read = psa_read(msg.handle, 1, salt,
-                                          msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    uint8_t *label = mbedtls_calloc(1, msg.in_size[2]);
-                    if (label == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        mbedtls_free(salt);
-                        break;
-                    }
-
-                    bytes_read = psa_read(msg.handle, 2, label,
-                                          msg.in_size[2]);
-                    if (bytes_read != msg.in_size[2]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    status = psa_key_derivation(msg.rhandle, psa_crypto_ipc.handle,
-                                                psa_crypto_ipc.alg,
-                                                salt,
-                                                msg.in_size[1],//salt length
-                                                label,
-                                                msg.in_size[2],//label length
-                                                psa_crypto_ipc.capacity);
-                    mbedtls_free(label);
                     mbedtls_free(salt);
+                    mbedtls_free(label);
+                    if (status != PSA_SUCCESS) {
+                        mbedtls_free(msg.rhandle);
+                        psa_set_rhandle(msg.handle, NULL);
+                    }
 
                     break;
                 }
@@ -1684,20 +1684,24 @@ void psa_crypto_generator_operations(void)
                     private_key = mbedtls_calloc(1, msg.in_size[1]);
                     if (private_key == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    } else {
+                        bytes_read = psa_read(msg.handle, 1, private_key, msg.in_size[1]);
+                        if (bytes_read != msg.in_size[1]) {
+                            SPM_PANIC("SPM read length mismatch");
+                        }
+
+                        status = psa_key_agreement(msg.rhandle, psa_crypto_ipc.handle,
+                                                   private_key,
+                                                   msg.in_size[1],//private_key length
+                                                   psa_crypto_ipc.alg);
+                        mbedtls_free(private_key);
                     }
 
-                    bytes_read = psa_read(msg.handle, 1, private_key,
-                                          msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
+                    if (status != PSA_SUCCESS) {
+                        mbedtls_free(msg.rhandle);
+                        psa_set_rhandle(msg.handle, NULL);
                     }
 
-                    status = psa_key_agreement(msg.rhandle, psa_crypto_ipc.handle,
-                                               private_key,
-                                               msg.in_size[1],//private_key length
-                                               psa_crypto_ipc.alg);
-                    mbedtls_free(private_key);
                     break;
                 }
 
@@ -1710,8 +1714,8 @@ void psa_crypto_generator_operations(void)
             break;
         }
         case PSA_IPC_DISCONNECT: {
-            psa_generator_abort(msg.rhandle);
             if (msg.rhandle != NULL) {
+                psa_generator_abort(msg.rhandle);
                 mbedtls_free(msg.rhandle);
             }
 
