@@ -15,6 +15,9 @@
  */
 #include "SystemStorage.h"
 #include "BlockDevice.h"
+#ifdef VERIFY_READ_DEF_BD
+#include "VerifyReadBlockDevice.h"
+#endif
 #include "FileSystem.h"
 #include "FATFileSystem.h"
 #include "LittleFileSystem.h"
@@ -94,8 +97,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SPIF_DRIVER_SPI_FREQ
     );
 
-    return &default_bd;
-
 #elif COMPONENT_RSPIF
 
     static SPIFReducedBlockDevice default_bd(
@@ -105,8 +106,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_RSPIF_DRIVER_SPI_CS,
         MBED_CONF_RSPIF_DRIVER_SPI_FREQ
     );
-
-    return &default_bd;
 
 #elif COMPONENT_QSPIF
 
@@ -121,8 +120,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_QSPIF_QSPI_FREQ
     );
 
-    return &default_bd;
-
 #elif COMPONENT_DATAFLASH
 
     static DataFlashBlockDevice default_bd(
@@ -132,8 +129,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_DATAFLASH_SPI_CS
     );
 
-    return &default_bd;
-
 #elif COMPONENT_SD
 
     static SDBlockDevice default_bd(
@@ -142,8 +137,6 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SD_SPI_CLK,
         MBED_CONF_SD_SPI_CS
     );
-
-    return &default_bd;
 
 #elif COMPONENT_FLASHIAP
 
@@ -174,14 +167,20 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 #endif
 
-    return &default_bd;
-
 #else
-
+#define NO_BD 1
     return NULL;
 
 #endif
 
+#ifdef VERIFY_READ_DEF_BD
+    static VerifyReadBlockDevice verify_read_bd(&default_bd);
+    return &verify_read_bd;
+#else
+#ifndef NO_BD
+    return &default_bd;
+#endif
+#endif
 }
 
 MBED_WEAK FileSystem *FileSystem::get_default_instance()

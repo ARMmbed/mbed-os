@@ -8121,7 +8121,7 @@
         "inherits": ["MCU_PSOC6_M0"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["CY8C62XX", "CY8CKIT_062_WIFI_BT"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1", "VERIFY_READ_DEF_BD=1"],
         "detect_code": ["1900"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8132,7 +8132,7 @@
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW4343X", "CORDIO", "CY8C62XX"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1", "VERIFY_READ_DEF_BD=1"],
         "detect_code": ["1900"],
         "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
@@ -8152,7 +8152,8 @@
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",
             "CY_IPC_DEFAULT_CFG_DISABLE",
-            "PU_ENABLE"
+            "PU_ENABLE",
+            "VERIFY_READ_DEF_BD=1"
         ],
         "deliver_to_target": "CY8CKIT_062_WIFI_BT_PSA",
         "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_062_WIFI_BT_PSA/prebuilt",
@@ -8176,7 +8177,7 @@
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "device_has_remove": ["CRC"],
-        "macros_add": ["MBEDTLS_PSA_CRYPTO_C"],
+        "macros_add": ["MBEDTLS_PSA_CRYPTO_C", "VERIFY_READ_DEF_BD=1"],
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",
@@ -8218,7 +8219,7 @@
         "inherits": ["MCU_PSOC6_M4"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_01"],
-        "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1", "VERIFY_READ_DEF_BD=1"],
         "detect_code": ["1902"],
         "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
@@ -8233,7 +8234,7 @@
         "supported_form_factors": ["ARDUINO"],
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
-        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1", "VERIFY_READ_DEF_BD=1"],
         "detect_code": ["1905"],
         "hex_filename": "psoc6_02_cm0p_sleep.hex",
         "post_binary_hook": {
