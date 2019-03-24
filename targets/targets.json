@@ -8071,7 +8071,8 @@
         },
         "overrides": {
             "network-default-interface-type": "WIFI"
-        }
+        },
+        "program_cycle_s": 10
     },
     "CY8CKIT_062_WIFI_BT_M0_PSA": {
         "inherits": ["SPE_Target", "CY8CKIT_062_WIFI_BT_M0"],
