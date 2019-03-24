@@ -1,0 +1,112 @@
+/*
+ * Copyright (c) 2019 ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License) you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define symbol NS_CODE_START = 0x000a0400;
+define symbol NS_CODE_SIZE  = 0x0005f800;
+define symbol NS_DATA_START = 0x20011000;
+define symbol NS_DATA_SIZE  = 0x0000f000;
+
+define symbol __ram_vector_table__ = 1;
+
+if (!isdefinedsymbol(MBED_ROM_START)) {
+  define symbol MBED_ROM_START         = NS_CODE_START;
+}
+
+if (!isdefinedsymbol(MBED_APP_START)) {
+  define symbol MBED_APP_START         = MBED_ROM_START;
+}
+
+if (!isdefinedsymbol(MBED_ROM_SIZE)) {
+  define symbol MBED_ROM_SIZE          = NS_CODE_SIZE;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+  define symbol MBED_APP_SIZE          = MBED_ROM_SIZE;
+}
+
+if (!isdefinedsymbol(MBED_RAM_START)) {
+  define symbol MBED_RAM_START         = NS_DATA_START;
+}
+
+if (!isdefinedsymbol(MBED_RAM_SIZE)) {
+  define symbol MBED_RAM_SIZE          = NS_DATA_SIZE;
+}
+
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+  define symbol MBED_BOOT_STACK_SIZE   = 0x400;
+}
+
+define symbol __stack_size__ = MBED_BOOT_STACK_SIZE;
+define symbol __heap_size__  = 0x4000;
+
+define symbol __ram_vector_table_size__   =  isdefinedsymbol(__ram_vector_table__) ? 0x00000200 : 0;
+define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000001FF : 0;
+
+/* Stack and Heap Sizes */
+if (isdefinedsymbol(__stack_size__)) {
+  define symbol __size_cstack__        = __stack_size__;
+} else {
+  define symbol __size_cstack__        = 0x0400;
+}
+
+if (isdefinedsymbol(__heap_size__)) {
+  define symbol __size_heap__          = __heap_size__;
+} else {
+  define symbol __size_heap__          = 0x0400;
+}
+
+define symbol m_interrupts_start     = MBED_APP_START;
+define symbol m_interrupts_end       = (MBED_APP_START + 0x16F);
+
+define symbol m_text_start           = (MBED_APP_START + 0x170);
+define symbol m_text_end             = (MBED_APP_START + MBED_APP_SIZE - 1);
+
+define symbol m_interrupts_ram_start = MBED_RAM_START;
+define symbol m_interrupts_ram_end   = (MBED_RAM_START + __ram_vector_table_size__ - 1);
+
+define symbol m_data_start           = (m_interrupts_ram_start + __ram_vector_table_size__);
+define symbol m_data_end             = (MBED_RAM_START + MBED_RAM_SIZE - 1);
+
+define exported symbol __VECTOR_TABLE  = m_interrupts_start;
+define exported symbol __VECTOR_RAM    = isdefinedsymbol(__ram_vector_table__) ? m_interrupts_ram_start : m_interrupts_start;
+define exported symbol __RAM_VECTOR_TABLE_SIZE = __ram_vector_table_size__;
+
+define memory mem with size = 4G;
+
+define region TEXT_region             = mem:[from m_interrupts_start to m_interrupts_end]
+                                      | mem:[from m_text_start to m_text_end];
+define region DATA_region = mem:[from m_data_start to m_data_end-__size_cstack__];
+define region CSTACK_region = mem:[from m_data_end-__size_cstack__+1 to m_data_end];
+
+define region m_interrupts_ram_region = mem:[from m_interrupts_ram_start to m_interrupts_ram_end];
+
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block RW        { readwrite };
+define block ZI        { zi };
+
+initialize by copy { readwrite, section .textrw };
+do not initialize  { section .noinit };
+
+place at address mem: m_interrupts_start    { readonly section .intvec };
+place in TEXT_region                        { readonly };
+place in DATA_region                        { block RW };
+place in DATA_region                        { block ZI };
+place in DATA_region                        { last block HEAP };
+place in CSTACK_region                      { block CSTACK };
+place in m_interrupts_ram_region            { section m_interrupts_ram };

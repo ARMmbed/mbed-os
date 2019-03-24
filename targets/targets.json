@@ -5430,7 +5430,6 @@
     "ARM_MUSCA_A1": {
         "public": false,
         "inherits": ["Target"],
-        "supported_toolchains": ["ARMC6", "GCC_ARM"],
         "default_toolchain": "ARMC6",
         "extra_labels": ["ARM_SSG", "MUSCA_A1"],
         "forced_reset_timeout": 7,
@@ -5439,6 +5438,7 @@
     "ARM_MUSCA_A1_NS": {
         "inherits": ["NSPE_Target", "ARM_MUSCA_A1"],
         "core": "Cortex-M33-NS",
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
         "device_has_add": ["INTERRUPTIN", "LPTICKER", "SERIAL", "SLEEP", "USTICKER"],
         "macros": [
             "__STARTUP_CLEAR_BSS",
@@ -5454,13 +5454,14 @@
         "overrides": {
             "non-secure-rom-start": "0x000a0400",
             "non-secure-rom-size": "0x5f800",
-            "non-secure-ram-start": "0x20011170",
-            "non-secure-ram-size": "0xee90"
+            "non-secure-ram-start": "0x20011000",
+            "non-secure-ram-size": "0xf000"
         }
     },
     "ARM_MUSCA_A1_S": {
         "inherits": ["SPE_Target", "ARM_MUSCA_A1"],
         "core": "Cortex-M33",
+        "supported_toolchains": ["ARMC6", "GCC_ARM"],
         "device_has_add": ["FLASH"],
         "macros": [
             "__STARTUP_CLEAR_BSS_MULTIPLE",
