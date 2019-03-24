@@ -26,12 +26,14 @@
 
 const PinMap PinMap_UART_TX[] = {
     {UART0_TX, UART_0, ALTERNATE_FUNC_1},
-    {UART1_TX, UART_1, PRIMARY_FUNC}
+    {UART1_TX, UART_1, PRIMARY_FUNC},
+    {NC,  NC, 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {UART0_RX, UART_0, ALTERNATE_FUNC_1},
-    {UART1_RX, UART_1, PRIMARY_FUNC}
+    {UART1_RX, UART_1, PRIMARY_FUNC},
+    {NC,  NC, 0}
 };
 
 /**

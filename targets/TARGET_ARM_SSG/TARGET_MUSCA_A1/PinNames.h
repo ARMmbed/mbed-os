@@ -87,7 +87,7 @@ typedef enum {
     LED3 = PA4,
 
     /* Not connected */
-    NC = -1u,
+    NC = (int)0xFFFFFFFF
 } PinName;
 
 typedef enum {
