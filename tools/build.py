@@ -29,24 +29,24 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 
-from tools.toolchains import TOOLCHAINS, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
-from tools.toolchains import mbedToolchain
-from tools.targets import TARGET_NAMES, TARGET_MAP, Target
+from tools.toolchains import TOOLCHAINS
+from tools.targets import TARGET_NAMES, Target
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
-from tools.build_api import get_toolchain_name
-from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
-from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
+from tools.build_api import target_supports_toolchain
+from tools.build_api import find_valid_toolchain
 from tools.notifier.term import TerminalNotifier
 from tools.utils import argparse_filestring_type, args_error, argparse_many
-from tools.utils import argparse_filestring_type, argparse_dir_not_parent
+from tools.utils import argparse_dir_not_parent
+from tools.utils import NoValidToolchainException
+from tools.utils import print_end_warnings
 from tools.paths import is_relative_to_root
 
-if __name__ == '__main__':
+def main():
     start = time()
 
     # Parse Options
@@ -169,40 +169,37 @@ if __name__ == '__main__':
     failures = []
     successes = []
     skipped = []
+    end_warnings = []
 
-    toolchain_names = set()
     for toolchain in toolchains:
         for target_name in targets:
             target = Target.get_target(target_name)
-            toolchain_names.add(get_toolchain_name(target, toolchain))
 
-    for toolchain_name in toolchain_names:
-        if not TOOLCHAIN_CLASSES[toolchain_name].check_executable():
-            search_path = TOOLCHAIN_PATHS[toolchain_name] or "No path set"
-            args_error(parser, "Could not find executable for %s.\n"
-                               "Currently set search path: %s"
-                       % (toolchain_name, search_path))
+            try:
+                toolchain_name, internal_tc_name, end_warnings = find_valid_toolchain(
+                    target, toolchain
+                )
+            except NoValidToolchainException as e:
+                print_end_warnings(e.end_warnings)
+                args_error(parser, str(e))
 
-    for toolchain in toolchains:
-        for target in targets:
-            tt_id = "%s::%s" % (toolchain, target)
-            if toolchain not in TARGET_MAP[target].supported_toolchains:
+            tt_id = "%s::%s" % (internal_tc_name, target_name)
+            if not target_supports_toolchain(target, toolchain):
                 # Log this later
                 print("%s skipped: toolchain not supported" % tt_id)
                 skipped.append(tt_id)
             else:
                 try:
                     notifier = TerminalNotifier(options.verbose, options.silent)
-                    mcu = TARGET_MAP[target]
-                    profile = extract_profile(parser, options, toolchain)
+                    profile = extract_profile(parser, options, internal_tc_name)
 
-                    if mcu.is_PSA_secure_target and \
+                    if target.is_PSA_secure_target and \
                             not is_relative_to_root(options.source_dir):
                         options.source_dir = ROOT
 
                     if options.source_dir:
                         lib_build_res = build_library(
-                            options.source_dir, options.build_dir, mcu, toolchain,
+                            options.source_dir, options.build_dir, target, toolchain_name,
                             jobs=options.jobs,
                             clean=options.clean,
                             archive=(not options.no_archive),
@@ -214,7 +211,7 @@ if __name__ == '__main__':
                         )
                     else:
                         lib_build_res = build_mbed_libs(
-                            mcu, toolchain,
+                            target, toolchain_name,
                             jobs=options.jobs,
                             clean=options.clean,
                             macros=options.macros,
@@ -225,7 +222,7 @@ if __name__ == '__main__':
 
                     for lib_id in libraries:
                         build_lib(
-                            lib_id, mcu, toolchain,
+                            lib_id, target, toolchain_name,
                             clean=options.clean,
                             macros=options.macros,
                             jobs=options.jobs,
@@ -236,10 +233,15 @@ if __name__ == '__main__':
                         successes.append(tt_id)
                     else:
                         skipped.append(tt_id)
+                except KeyboardInterrupt as e:
+                    print("\n[CTRL+c] exit")
+                    print_end_warnings(end_warnings)
+                    sys.exit(0)
                 except Exception as e:
                     if options.verbose:
                         import traceback
                         traceback.print_exc(file=sys.stdout)
+                        print_end_warnings(end_warnings)
                         sys.exit(1)
                     failures.append(tt_id)
                     print(e)
@@ -254,5 +256,10 @@ if __name__ == '__main__':
         if report:
             print(print_build_results(report, report_name))
 
+    print_end_warnings(end_warnings)
     if failures:
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

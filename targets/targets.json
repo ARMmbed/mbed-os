@@ -2594,7 +2594,7 @@
     },
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -2627,7 +2627,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -5309,7 +5309,7 @@
     "RZ_A1XX": {
         "inherits": ["Target"],
         "core": "Cortex-A9",
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
         "extra_labels": ["RENESAS", "RZ_A1XX"],
         "device_has": [
             "SLEEP",

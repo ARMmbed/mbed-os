@@ -30,6 +30,13 @@ from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import mkdir, NotSupportedException, ToolException, run_cmd
 
+ARMC5_MIGRATION_WARNING = (
+    "Warning: We noticed that you are using Arm Compiler 5. "
+    "We are deprecating the use of Arm Compiler 5 soon. "
+    "Please upgrade your environment to Arm Compiler 6 "
+    "which is free to use with Mbed OS. For more information, "
+    "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
+)
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -394,7 +401,7 @@ class ARM_STD(ARM):
         if int(target.build_tools_metadata["version"]) > 0:
             #check only for ARMC5 because ARM_STD means using ARMC5, and thus
             # supported_toolchains must include ARMC5
-            if "ARMC5" not in target.supported_toolchains:
+            if not set(target.supported_toolchains).intersection(set(("ARMC5", "ARM"))):
                 raise NotSupportedException(
                     "ARM compiler 5 support is required for ARM build"
                 )

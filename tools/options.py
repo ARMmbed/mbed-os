@@ -21,7 +21,7 @@ from os.path import join, dirname
 from os import listdir
 from argparse import ArgumentParser, ArgumentTypeError
 
-from .toolchains import TOOLCHAINS
+from .toolchains import TOOLCHAINS, EXTRA_TOOLCHAIN_NAMES
 from .targets import TARGET_NAMES, Target, update_target_data
 from .utils import (argparse_force_uppercase_type, argparse_deprecate,
                     argparse_lowercase_hyphen_type, argparse_many,
@@ -31,6 +31,12 @@ from .utils import (argparse_force_uppercase_type, argparse_deprecate,
 FLAGS_DEPRECATION_MESSAGE = "Please use the --profile argument instead.\n"\
                             "Documentation may be found in "\
                             "docs/Toolchain_Profiles.md"
+
+def get_toolchain_list():
+    toolchainlist = list(TOOLCHAINS)
+    toolchainlist.extend(EXTRA_TOOLCHAIN_NAMES)
+    toolchainlist.sort()
+    return toolchainlist
 
 def get_default_options_parser(add_clean=True, add_options=True,
                                add_app_config=False):
@@ -44,8 +50,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = list(TOOLCHAINS)
-    toolchainlist.sort()
+    toolchainlist = get_toolchain_list()
 
     parser.add_argument("-m", "--mcu",
                         help=("build for the given MCU (%s)" %
@@ -127,7 +132,7 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
         profiles.append(contents)
 
     return profiles
-    
+
 def extract_mcus(parser, options):
     try:
         if options.custom_targets_directory:
