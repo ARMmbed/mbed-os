@@ -520,6 +520,12 @@ public:
      */
     bool is_custom_channel_plan_supported();
 
+    /**
+     * @brief get_rx_time_on_air(...) calculates the time the received spent on air
+     * @return time spent on air in milliseconds
+     */
+    uint32_t get_rx_time_on_air(uint8_t modem, uint16_t pkt_len);
+
 public: //Verifiers
 
     /**

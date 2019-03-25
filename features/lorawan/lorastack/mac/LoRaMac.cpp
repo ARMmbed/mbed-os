@@ -626,6 +626,17 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     if (_mcps_confirmation.ack_received) {
         _lora_time.stop(_params.timers.ack_timeout_timer);
     }
+
+    channel_params_t *list = _lora_phy->get_phy_channels();
+    _mcps_indication.channel = list[_params.channel].frequency;
+
+    if (get_current_slot() == RX_SLOT_WIN_1) {
+        _mcps_indication.rx_toa = _lora_phy->get_rx_time_on_air(_params.rx_window1_config.modem_type,
+                                                                _mcps_indication.buffer_size);
+    } else {
+        _mcps_indication.rx_toa = _lora_phy->get_rx_time_on_air(_params.rx_window2_config.modem_type,
+                                                                _mcps_indication.buffer_size);
+    }
 }
 
 void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -889,7 +900,13 @@ void LoRaMac::open_rx1_window(void)
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
+    channel_params_t *active_channel_list = _lora_phy->get_phy_channels();
     _params.rx_window1_config.channel = _params.channel;
+    _params.rx_window1_config.frequency = active_channel_list[_params.channel].frequency;
+    // Apply the alternative RX 1 window frequency, if it is available
+    if (active_channel_list[_params.channel].rx1_frequency != 0) {
+        _params.rx_window1_config.frequency = active_channel_list[_params.channel].rx1_frequency;
+    }
     _params.rx_window1_config.dr_offset = _params.sys_params.rx1_dr_offset;
     _params.rx_window1_config.dl_dwell_time = _params.sys_params.downlink_dwell_time;
     _params.rx_window1_config.is_repeater_supported = _params.is_repeater_supported;
