@@ -1613,11 +1613,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         _event_queue.post(
             mbed::callback(
                 this,
-                &GenericGap<
-                    PalGapImpl,
-                    PalSecurityManager,
-                    ConnectionEventMonitorEventHandler
-                >::process_legacy_scan_timeout
+                &GenericGap::process_legacy_scan_timeout
             )
         );
     } else {
