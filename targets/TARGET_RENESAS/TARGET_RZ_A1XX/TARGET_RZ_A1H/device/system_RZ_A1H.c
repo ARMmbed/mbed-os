@@ -54,22 +54,9 @@ uint32_t SystemCoreClock = RENESAS_RZ_A1_SYS_CLK;
 void SystemCoreClockUpdate (void)
 {
   uint32_t freq;
-  uint16_t mode;
   uint16_t ifc;
 
-  mode = (GPIO.PPR0 >> 2U) & 0x01U;
-
-  if (mode == 0) {
-    /* Clock Mode 0 */
-    /* CLKIN is between 10MHz and 13.33MHz */
-    /* Divider 1 uses 1/1 ratio, PLL x30 is ON */
-    freq = CM0_RENESAS_RZ_A1_CLKIN * 30U;
-  } else {
-    /* Clock Mode 1 */
-    /* CLKIN is 48MHz */
-    /* Divider 1 uses 1/4 ratio, PLL x32 is ON */
-    freq = (CM1_RENESAS_RZ_A1_CLKIN * 32U) / 4U;
-  }
+  freq = RENESAS_RZ_A1_SYS_CLK;
 
   /* Get CPG.FRQCR[IFC] bits */
   ifc = (CPG.FRQCR >> 8U) & 0x03U;
