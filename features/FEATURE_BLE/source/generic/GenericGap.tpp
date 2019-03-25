@@ -1605,21 +1605,38 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         return;
     }
 
-    /* if timeout happened on a 4.2 chip we need to stop the scan manually */
-    if (!is_extended_advertising_available()) {
-        _pal_gap.scan_enable(false, false);
-#if BLE_FEATURE_PRIVACY
-        set_random_address_rotation(false);
-#endif
-    }
-
     _scan_enabled = false;
 
-    if (!_eventHandler) {
-        return;
+    /* if timeout happened on a 4.2 chip we need to stop the scan manually */
+    if (!is_extended_advertising_available()) {
+        _event_queue.post(
+            mbed::callback(
+                this,
+                &GenericGap<
+                    PalGapImpl,
+                    PalSecurityManager,
+                    ConnectionEventMonitorEventHandler
+                >::process_legacy_scan_timeout
+            )
+        );
+    } else {
+        if (_eventHandler) {
+            _eventHandler->onScanTimeout(ScanTimeoutEvent());
+        }
     }
+}
 
-    _eventHandler->onScanTimeout(ScanTimeoutEvent());
+template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
+void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::process_legacy_scan_timeout()
+{
+    _pal_gap.scan_enable(false, false);
+#if BLE_FEATURE_PRIVACY
+    set_random_address_rotation(false);
+#endif
+
+    if (_eventHandler) {
+        _eventHandler->onScanTimeout(ScanTimeoutEvent());
+    }
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -3263,6 +3280,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         _scan_timeout.detach();
         if (duration.value()) {
+            /**/
             _scan_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_scan_timeout_),
                 microsecond_t(duration).value()
