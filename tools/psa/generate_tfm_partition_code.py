@@ -26,18 +26,11 @@ ROOT = os.path.abspath(path_join(os.path.dirname(__file__), os.pardir, os.pardir
 sys.path.insert(0, ROOT)
 
 from tools.psa.mbed_spm_tfm_common import \
-    Manifest, validate_partition_manifests, manifests_discovery, MBED_OS_ROOT, SERVICES_DIR, TESTS_DIR
+    Manifest, validate_partition_manifests, manifests_discovery, MBED_OS_ROOT
 
 __version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_LIST_FILE = path_join(SCRIPT_DIR, 'tfm', 'tfm_generated_file_list.json')
-
-SERVICES_MANIFESTS = [
-    path_join(SERVICES_DIR, 'storage', 'its', 'pits_psa.json'),
-    path_join(SERVICES_DIR, 'platform', 'platform_psa.json'),
-    path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json'),
-    path_join(SERVICES_DIR, 'attestation', 'attestation_partition_psa.json')
-]
 
 
 def parse_manifests(manifests_files):
@@ -104,8 +97,8 @@ def generate_partition_source_files(service_manifest_files, test_manifest_files,
 
 
 def generate_tfm_code():
-    _, tests_manifests = manifests_discovery(TESTS_DIR)
-    generate_partition_source_files(SERVICES_MANIFESTS, tests_manifests)
+    service_manifests, tests_manifests = manifests_discovery(MBED_OS_ROOT)
+    generate_partition_source_files(service_manifests, tests_manifests)
 
 
 if __name__ == '__main__':
