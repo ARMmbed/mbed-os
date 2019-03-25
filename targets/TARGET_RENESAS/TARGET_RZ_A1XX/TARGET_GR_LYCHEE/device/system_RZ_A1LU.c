@@ -26,15 +26,10 @@
  * limitations under the License.
  */
 
-#include <RZ_A1LU.h>
+#include "RZ_A1LU.h"
 #include "RZ_A1_Init.h"
 #include "irq_ctrl.h"
 #include "mbed_drv_cfg.h"
-
-
-#define CS2_SDRAM_MODE_16BIT_CAS2_BR_BW (*(volatile uint16_t*)0x3FFFD040)
-#define CS3_SDRAM_MODE_16BIT_CAS2_BR_BW (*(volatile uint16_t*)0x3FFFE040)
-#define GPIO_PORT0_BOOTMODE_BITMASK (0x000fu)
 
 /*
  Port 0 (P0) MD pin assignment
@@ -66,12 +61,11 @@ void SystemCoreClockUpdate (void)
   if (ifc == 0x03U) {
     /* Division ratio is 1/3 */
     freq = (freq / 3U);
-  }
-  else {
-    if (ifc == 0x01U) {
-      /* Division ratio is 2/3 */
-      freq = (freq * 2U) / 3U;
-    }
+  } else if (ifc == 0x01U) {
+    /* Division ratio is 2/3 */
+    freq = (freq * 2U) / 3U;
+  } else {
+    /* do nothing */
   }
 
   SystemCoreClock = freq;
