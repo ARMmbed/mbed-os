@@ -1607,8 +1607,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 
     _scan_enabled = false;
 
-    /* if timeout happened on a 4.2 chip we need to stop the scan manually */
     if (!is_extended_advertising_available()) {
+        /* if timeout happened on a 4.2 chip this means legacy scanning and a timer timeout
+         * but we need to handle the event from user context - use the event queue to handle it */
         _event_queue.post(
             mbed::callback(
                 this,
@@ -1629,6 +1630,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::process_legacy_scan_timeout()
 {
+    /* legacy scanning timed out is based on timer so we need to stop the scan manually */
     _pal_gap.scan_enable(false, false);
 #if BLE_FEATURE_PRIVACY
     set_random_address_rotation(false);
@@ -3280,7 +3282,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         _scan_timeout.detach();
         if (duration.value()) {
-            /**/
             _scan_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_scan_timeout_),
                 microsecond_t(duration).value()
