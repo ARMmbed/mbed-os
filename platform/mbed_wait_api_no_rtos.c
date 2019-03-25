@@ -75,9 +75,8 @@ void wait_us(int us)
 #endif
 #elif defined __CORTEX_A
 #if __CORTEX_A == 9
-// Cortex-A9 is dual-issue, so let's assume same performance as Cortex-M7.
-// TODO - test.
-#define LOOP_SCALER 2000
+// Cortex-A9 can dual issue for 3 cycles per iteration (SUB,NOP) = 1, (NOP,BCS) = 2
+#define LOOP_SCALER 3000
 #endif
 #endif
 
