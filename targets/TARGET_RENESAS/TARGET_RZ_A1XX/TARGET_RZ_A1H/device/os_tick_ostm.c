@@ -26,10 +26,7 @@
 
 #include "os_tick.h"
 #include "irq_ctrl.h"
-
-#include <MBRZA1H.h>
-
-#include <cmsis.h>
+#include "cmsis.h"
 #include "mbed_drv_cfg.h"
 
 

@@ -26,10 +26,7 @@
 
 #include "os_tick.h"
 #include "irq_ctrl.h"
-
-#include <MBRZA1LU.h>
-
-#include <cmsis.h>
+#include "cmsis.h"
 #include "mbed_drv_cfg.h"
 
 
@@ -145,7 +142,8 @@ void  OS_Tick_Enable (void)
 }
 
 /// Disable OS Tick.
-void  OS_Tick_Disable (void) {
+void  OS_Tick_Disable (void)
+{
 
   // Stop the OSTM counter
   OSTM.OSTMnTT = 0x01U;
@@ -157,7 +155,7 @@ void  OS_Tick_Disable (void) {
 }
 
 // Acknowledge OS Tick IRQ.
-void OS_Tick_AcknowledgeIRQ (void)
+void  OS_Tick_AcknowledgeIRQ (void)
 {
   IRQ_ClearPending (OSTM_IRQn);
 }
