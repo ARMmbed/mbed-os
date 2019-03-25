@@ -20,7 +20,7 @@ import subprocess
 import sys
 import shutil
 import logging
-from argparse import ArgumentParser
+import argparse
 
 FNULL = open(os.devnull, 'w')
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -89,13 +89,14 @@ def _get_psa_secure_targets_list():
             Target.get_target(t).is_PSA_secure_target]
 
 
-def _get_default_image_build_command(target, toolchain, profile):
+def _get_default_image_build_command(target, toolchain, profile, args):
     """
     Creates a build command for a default image.
 
     :param target: target to be built.
     :param toolchain: toolchain to be used.
     :param profile: build profile.
+    :param args: list of extra arguments.
     :return: Build command in a list form.
     """
     cmd = [
@@ -112,7 +113,22 @@ def _get_default_image_build_command(target, toolchain, profile):
     else:
         cmd += ['--artifact-name', 'psa_release_1.0']
 
-    return cmd
+    return cmd + args
+
+
+def verbose_check_call(cmd, check_call=True):
+    """
+
+    :param cmd: command to run as a list
+    :param check_call: choose subprocess method (call/check_call)
+    :return: return code of the executed command
+    """
+    logger.info('Running: {}'.format(' '.join(cmd)))
+    if check_call:
+        return subprocess.check_call(cmd, stdout=subprocess_output,
+                                     stderr=subprocess_err)
+
+    return subprocess.call(cmd, stdout=subprocess_output, stderr=subprocess_err)
 
 
 def get_mbed_official_psa_release(target=None):
@@ -143,19 +159,19 @@ def create_mbed_ignore(build_dir):
         f.write('*\n')
 
 
-def build_tests_mbed_spm_platform(target, toolchain, profile):
+def build_tests_mbed_spm_platform(target, toolchain, profile, args):
     """
     Builds Secure images for MBED-SPM target.
 
     :param target: target to be built.
     :param toolchain: toolchain to be used.
     :param profile: build profile.
+    :param args: list of extra arguments.
     """
     logger.info(
         "Building tests images({}) for {} using {} with {} profile".format(
             MBED_PSA_TESTS, target, toolchain, profile))
-
-    subprocess.check_call([
+    cmd = [
         sys.executable, TEST_PY_LOCATTION,
         '--greentea',
         '--profile', profile,
@@ -167,22 +183,22 @@ def build_tests_mbed_spm_platform(target, toolchain, profile):
                                     target, 'test_spec.json'),
         '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
                                      target, 'build_data.json'),
-        '-n', MBED_PSA_TESTS
-    ], stdout=subprocess_output, stderr=subprocess_err)
+        '-n', MBED_PSA_TESTS] + args
 
-
+    verbose_check_call(cmd)
     logger.info(
         "Finished building tests images({}) for {} successfully".format(
             MBED_PSA_TESTS, target))
 
 
-def build_tests_tfm_platform(target, toolchain, profile):
+def build_tests_tfm_platform(target, toolchain, profile, args):
     """
     Builds Secure images for TF-M target.
 
     :param target: target to be built.
     :param toolchain: toolchain to be used.
     :param profile: build profile.
+    :param args: list of extra arguments.
     """
     for test in TFM_TESTS.keys():
         logger.info(
@@ -190,7 +206,7 @@ def build_tests_tfm_platform(target, toolchain, profile):
                 test, target, toolchain, profile))
 
         test_defines = ['-D{}'.format(define) for define in TFM_TESTS[test]]
-        subprocess.check_call([
+        cmd = [
             sys.executable, TEST_PY_LOCATTION,
             '--greentea',
             '--profile', profile,
@@ -203,9 +219,9 @@ def build_tests_tfm_platform(target, toolchain, profile):
             '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
                                          target, 'build_data.json'),
             '-n', test,
-            '--app-config', TFM_MBED_APP] + test_defines,
-                              stdout=subprocess_output, stderr=subprocess_err)
+            '--app-config', TFM_MBED_APP] + test_defines + args
 
+        verbose_check_call(cmd)
         logger.info(
             "Finished Building tests image({}) for {}".format(test, target))
 
@@ -218,36 +234,33 @@ def commit_binaries(target, delivery_dir):
     :param delivery_dir: Secure images should be moved to this folder
     by the build system.
     """
-    changes_made = subprocess.call([
+    changes_made = verbose_check_call([
         'git',
         '-C', ROOT,
         'diff', '--exit-code', '--quiet',
-        delivery_dir
-    ], stdout=subprocess_output, stderr=subprocess_err)
+        delivery_dir], check_call=False)
 
     if changes_made:
         logger.info("Change in images for {} has been detected".format(target))
-        subprocess.check_call([
+        verbose_check_call([
             'git',
             '-C', ROOT,
-            'add', os.path.relpath(delivery_dir, ROOT)
-        ], stdout=subprocess_output, stderr=subprocess_err)
+            'add', os.path.relpath(delivery_dir, ROOT)])
 
         logger.info("Committing images for {}".format(target))
         commit_message = '--message="Update secure binaries for {}"'.format(
             target)
-        subprocess.check_call([
+        verbose_check_call([
             'git',
             '-C', ROOT,
             'commit',
-            commit_message
-        ], stdout=subprocess_output, stderr=subprocess_err)
+            commit_message])
     else:
         logger.info("No changes detected for {}, Skipping commit".format(target))
 
 
-def build_psa_platform(target, toolchain, delivery_dir, debug=False,
-                       git_commit=False, skip_tests=False):
+def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
+                       skip_tests, args):
     """
     Calls the correct build function and commits if requested.
 
@@ -257,21 +270,20 @@ def build_psa_platform(target, toolchain, delivery_dir, debug=False,
     :param debug: Build with debug profile.
     :param git_commit: Commit the changes.
     :param skip_tests: skip the test images build phase.
+    :param args: list of extra arguments.
     """
     profile = 'debug' if debug else 'release'
     if not skip_tests:
         if _psa_backend(target) is 'TFM':
-            build_tests_tfm_platform(target, toolchain, profile)
+            build_tests_tfm_platform(target, toolchain, profile, args)
         else:
-            build_tests_mbed_spm_platform(target, toolchain, profile)
+            build_tests_mbed_spm_platform(target, toolchain, profile, args)
 
     logger.info("Building default image for {} using {} with {} profile".format(
         target, toolchain, profile))
 
-    subprocess.check_call(
-        _get_default_image_build_command(target, toolchain, profile),
-        stdout=subprocess_output, stderr=subprocess_err)
-
+    cmd = _get_default_image_build_command(target, toolchain, profile, args)
+    verbose_check_call(cmd)
     logger.info(
         "Finished building default image for {} successfully".format(target))
 
@@ -280,7 +292,7 @@ def build_psa_platform(target, toolchain, delivery_dir, debug=False,
 
 
 def get_parser():
-    parser = ArgumentParser()
+    parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--mcu",
                         help="build for the given MCU",
                         default=None,
@@ -312,6 +324,11 @@ def get_parser():
                         default=False,
                         help="skip the test build phase")
 
+    parser.add_argument('-x', '--extra',
+                        dest='extra_args',
+                        nargs=argparse.REMAINDER,
+                        help="additional build parameters")
+
     return parser
 
 
@@ -339,7 +356,7 @@ def main():
         subprocess_err = subprocess.STDOUT
 
     if options.list:
-        logger.info("Avialable platforms are: {}".format(
+        logger.info("Available platforms are: {}".format(
             ', '.join([t for t in _get_psa_secure_targets_list()])))
         return
 
@@ -350,7 +367,8 @@ def main():
 
     for target, tc, directory in psa_platforms_list:
         build_psa_platform(target, tc, directory, options.debug,
-                           options.commit, options.skip_tests)
+                           options.commit, options.skip_tests,
+                           options.extra_args)
 
     logger.info("Finished Updating PSA images")
 
