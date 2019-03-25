@@ -236,7 +236,6 @@ void test_get_hid_class_desc()
     T usb_hid(USB_HID_VID, PID, usb_dev_sn);
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_GET_DESCRIPTOR_HID, MSG_VALUE_DUMMY);
-    usb_hid.wait_ready();
 
     char key[MSG_KEY_LEN + 1] = { };
     char value[MSG_VALUE_LEN + 1] = { };
@@ -263,7 +262,6 @@ void test_get_configuration_desc()
     T usb_hid(USB_HID_VID, PID, usb_dev_sn);
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_GET_DESCRIPTOR_CFG, MSG_VALUE_DUMMY);
-    usb_hid.wait_ready();
 
     char key[MSG_KEY_LEN + 1] = { };
     char value[MSG_VALUE_LEN + 1] = { };
@@ -286,7 +284,6 @@ void test_class_requests()
     T usb_hid(USB_HID_VID, PID, usb_dev_sn);
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_REQUESTS, MSG_VALUE_DUMMY);
-    usb_hid.wait_ready();
 
     char key[MSG_KEY_LEN + 1] = { };
     char value[MSG_VALUE_LEN + 1] = { };
@@ -307,7 +304,6 @@ void test_generic_raw_io()
     TestUSBHID usb_hid(USB_HID_VID, USB_HID_PID_GENERIC2, usb_dev_sn, REPORT_SIZE, REPORT_SIZE);
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_RAW_IO, REPORT_SIZE);
-    usb_hid.wait_ready();
 
     // Wait for the host HID driver to complete setup.
     char key[MSG_KEY_LEN + 1] = { };
