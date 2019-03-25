@@ -855,22 +855,22 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                          rx_conf_params->datarate);
 }
 
+uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
+{
+    uint32_t toa = 0;
+
+    _radio->lock();
+    toa = _radio->time_on_air((radio_modems_t) modem, pkt_len);
+    _radio->unlock();
+
+    return toa;
+}
+
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 {
-    radio_modems_t modem;
     uint8_t dr = rx_conf->datarate;
     uint8_t max_payload = 0;
     uint8_t phy_dr = 0;
-    uint32_t frequency = rx_conf->frequency;
-
-    if (rx_conf->rx_slot == RX_SLOT_WIN_1) {
-        // Apply window 1 frequency
-        frequency = phy_params.channels.channel_list[rx_conf->channel].frequency;
-        // Apply the alternative RX 1 window frequency, if it is available
-        if (phy_params.channels.channel_list[rx_conf->channel].rx1_frequency != 0) {
-            frequency = phy_params.channels.channel_list[rx_conf->channel].rx1_frequency;
-        }
-    }
 
     // Read the physical datarate from the datarates table
     uint8_t *datarate_table = (uint8_t *) phy_params.datarates.table;
@@ -881,17 +881,17 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 
     _radio->lock();
 
-    _radio->set_channel(frequency);
+    _radio->set_channel(rx_conf->frequency);
 
     // Radio configuration
     if (dr == DR_7 && phy_params.fsk_supported) {
-        modem = MODEM_FSK;
-        _radio->set_rx_config(modem, 50000, phy_dr * 1000, 0, 83333, MAX_PREAMBLE_LENGTH,
+        rx_conf->modem_type = MODEM_FSK;
+        _radio->set_rx_config((radio_modems_t) rx_conf->modem_type, 50000, phy_dr * 1000, 0, 83333, MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, true, 0, 0,
                               false, rx_conf->is_rx_continuous);
     } else {
-        modem = MODEM_LORA;
-        _radio->set_rx_config(modem, rx_conf->bandwidth, phy_dr, 1, 0,
+        rx_conf->modem_type = MODEM_LORA;
+        _radio->set_rx_config((radio_modems_t) rx_conf->modem_type, rx_conf->bandwidth, phy_dr, 1, 0,
                               MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, false, 0, 0,
                               true, rx_conf->is_rx_continuous);
@@ -903,7 +903,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
         max_payload = payload_table[dr];
     }
 
-    _radio->set_max_payload_length(modem, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
+    _radio->set_max_payload_length((radio_modems_t) rx_conf->modem_type, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
 
     _radio->unlock();
 
