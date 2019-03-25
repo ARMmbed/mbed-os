@@ -49,6 +49,7 @@
 #define MSG_KEY_TEST_CASE_FAILED "fail"
 #define MSG_KEY_TEST_CASE_PASSED "pass"
 #define MSG_VALUE_DUMMY "0"
+#define MSG_VALUE_NOT_SUPPORTED "not_supported"
 
 #define RAW_IO_REPS 16
 
@@ -310,6 +311,10 @@ void test_generic_raw_io()
     char value[MSG_VALUE_LEN + 1] = { };
     greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
     TEST_ASSERT_EQUAL_STRING(MSG_KEY_HOST_READY, key);
+    if (strcmp(value, MSG_VALUE_NOT_SUPPORTED) == 0) {
+        TEST_IGNORE_MESSAGE("Test case not supported by host plarform.");
+        return;
+    }
 
     // Report ID omitted here. There are no Report ID tags in the Report descriptor.
     HID_REPORT input_report = {};

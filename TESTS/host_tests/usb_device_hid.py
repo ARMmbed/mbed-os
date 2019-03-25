@@ -20,7 +20,6 @@ import time
 import threading
 import uuid
 import mbed_host_tests
-import hid
 import usb.core
 from usb.util import (
     CTRL_IN,
@@ -32,6 +31,12 @@ from usb.util import (
     DESC_TYPE_CONFIG,
     build_request_type)
 
+try:
+    import hid
+except ImportError:
+    CYTHON_HIDAPI_PRESENT = False
+else:
+    CYTHON_HIDAPI_PRESENT = True
 
 # USB device -- device classes
 USB_CLASS_HID = 0x03
@@ -81,6 +86,7 @@ MSG_KEY_TEST_RAW_IO = 'test_raw_io'
 MSG_KEY_TEST_CASE_FAILED = 'fail'
 MSG_KEY_TEST_CASE_PASSED = 'pass'
 MSG_VALUE_DUMMY = '0'
+MSG_VALUE_NOT_SUPPORTED = 'not_supported'
 
 # Constants for the tests.
 KEYBOARD_IDLE_RATE_TO_SET = 0x00  # Duration = 0 (indefinite)
@@ -95,6 +101,8 @@ def build_get_desc_value(desc_type, desc_index):
 
 def usb_hid_path(serial_number):
     """Get a USB HID device system path based on the serial number."""
+    if not CYTHON_HIDAPI_PRESENT:
+        return None
     for device_info in hid.enumerate():  # pylint: disable=no-member
         if device_info.get('serial_number') == serial_number:  # pylint: disable=not-callable
             return device_info['path']
@@ -544,6 +552,9 @@ class USBHIDTest(mbed_host_tests.BaseHostTest):
 
     def cb_test_raw_io(self, key, value, timestamp):
         """Receive HID reports and send them back to the device."""
+        if not CYTHON_HIDAPI_PRESENT:
+            self.send_kv(MSG_KEY_HOST_READY, MSG_VALUE_NOT_SUPPORTED)
+            return
         try:
             # The size of input and output reports used in test.
             report_size = int(value)
