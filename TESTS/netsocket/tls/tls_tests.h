@@ -27,6 +27,12 @@ void drop_bad_packets(TLSSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 nsapi_error_t tlssocket_connect_to_echo_srv(TLSSocket &sock);
 nsapi_error_t tlssocket_connect_to_discard_srv(TLSSocket &sock);
+bool is_tcp_supported();
+
+#define SKIP_IF_TCP_UNSUPPORTED() \
+    if (!is_tcp_supported()) { \
+        TEST_SKIP_MESSAGE("TCP not supported"); \
+    }
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 extern mbed_stats_socket_t tls_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];

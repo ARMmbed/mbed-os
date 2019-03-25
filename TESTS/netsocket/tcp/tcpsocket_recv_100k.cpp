@@ -118,6 +118,7 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
 
 void TCPSOCKET_RECV_100K()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
@@ -172,6 +173,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_RECV_100K_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket     sock;
     nsapi_error_t err = _tcpsocket_connect_to_chargen_srv(sock);
 

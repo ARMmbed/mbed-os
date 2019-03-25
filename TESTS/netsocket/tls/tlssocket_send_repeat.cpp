@@ -28,6 +28,7 @@ using namespace utest::v1;
 
 void TLSSOCKET_SEND_REPEAT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket sock;
     tlssocket_connect_to_discard_srv(sock);
 

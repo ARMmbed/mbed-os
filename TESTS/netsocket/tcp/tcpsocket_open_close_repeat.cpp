@@ -26,6 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_OPEN_CLOSE_REPEAT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();

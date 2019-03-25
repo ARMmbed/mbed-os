@@ -159,6 +159,7 @@ END:
 
 void TCPSOCKET_THREAD_PER_SOCKET_SAFETY()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     thread.start(callback(check_const_len_rand_sequence));
 
     check_var_len_rand_sequence();

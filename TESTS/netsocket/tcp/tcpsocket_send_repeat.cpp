@@ -26,6 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_SEND_REPEAT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     tcpsocket_connect_to_discard_srv(sock);
 
