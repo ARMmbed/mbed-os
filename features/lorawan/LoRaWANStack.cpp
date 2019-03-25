@@ -471,8 +471,9 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
     return LORAWAN_STATUS_OK;
 }
 
-void LoRaWANStack::send_device_time_sync_event()
+void LoRaWANStack::handle_device_time_sync_event(lorawan_time_t gps_time)
 {
+    _lora_time.set_gps_time(gps_time);
     send_event_to_application(DEVICE_TIME_SYNCHED);
 }
 
@@ -486,7 +487,7 @@ lorawan_status_t LoRaWANStack::set_device_time_request()
         return LORAWAN_STATUS_NO_NETWORK_JOINED;
     }
 
-    return _loramac.setup_device_time_request(callback(this, &LoRaWANStack::send_device_time_sync_event));
+    return _loramac.setup_device_time_request(callback(this, &LoRaWANStack::handle_device_time_sync_event));
 }
 
 void LoRaWANStack::set_reset_indication()
