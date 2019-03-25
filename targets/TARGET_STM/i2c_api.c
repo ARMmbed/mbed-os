@@ -956,6 +956,9 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool
 #else
         i2c_init(obj, obj_s->sda, obj_s->scl, false);
 #endif // DEVICE_I2CSLAVE
+
+
+        return I2C_ERROR_TIMEOUT;
     }
 
     return (length - handle->XferCount);
@@ -1033,6 +1036,8 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
 #else
         i2c_init(obj, obj_s->sda, obj_s->scl, false);
 #endif // DEVICE_I2CSLAVE
+
+        return I2C_ERROR_TIMEOUT;
     }
 
     return (length - handle->XferCount);
