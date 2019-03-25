@@ -28,6 +28,7 @@ using namespace utest::v1;
 
 void TLSSOCKET_SIMULTANEOUS()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket sock1;
     TLSSocket sock2;
     tlssocket_connect_to_echo_srv(sock1);

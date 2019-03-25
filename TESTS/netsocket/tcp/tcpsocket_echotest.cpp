@@ -59,6 +59,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_ECHOTEST()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     if (tcpsocket_connect_to_echo_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
         return;
@@ -127,6 +128,7 @@ void tcpsocket_echotest_nonblock_receive()
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     tc_exec_time.start();
     time_allotted = split2half_rmng_tcp_test_time(); // [s]
 

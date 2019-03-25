@@ -41,6 +41,7 @@ static void _sigio_handler(osThreadId id)
 
 void TLSSOCKET_ECHOTEST_BURST()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket *sock = new TLSSocket;
     tlssocket_connect_to_echo_srv(*sock);
     sock->sigio(callback(_sigio_handler, ThisThread::get_id()));
@@ -95,6 +96,7 @@ END:
 
 void TLSSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket *sock = new TLSSocket;
     tlssocket_connect_to_echo_srv(*sock);
     sock->set_blocking(false);

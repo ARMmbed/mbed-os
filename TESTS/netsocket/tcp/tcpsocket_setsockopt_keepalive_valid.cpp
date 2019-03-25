@@ -26,6 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     int32_t seconds = 7200;

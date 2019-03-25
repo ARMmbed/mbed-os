@@ -59,6 +59,7 @@ static void _sigio_handler(osThreadId id)
 
 void TLSSOCKET_ECHOTEST()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     sock = new TLSSocket;
     if (tlssocket_connect_to_echo_srv(*sock) != NSAPI_ERROR_OK) {
         printf("Error from tlssocket_connect_to_echo_srv\n");
@@ -133,6 +134,7 @@ void tlssocket_echotest_nonblock_receive()
 
 void TLSSOCKET_ECHOTEST_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     sock = new TLSSocket;
     tc_exec_time.start();
     time_allotted = split2half_rmng_tls_test_time(); // [s]

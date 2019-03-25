@@ -28,6 +28,7 @@ using namespace utest::v1;
 
 void TLSSOCKET_OPEN_DESTRUCT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     for (int i = 0; i < 100; i++) {
         TLSSocket *sock = new TLSSocket;
         if (!sock) {

@@ -28,6 +28,7 @@ using namespace utest::v1;
 
 void TLSSOCKET_OPEN_TWICE()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket *sock = new TLSSocket;
     if (!sock) {
         TEST_FAIL();
