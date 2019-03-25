@@ -573,7 +573,7 @@ private:
     void forced_timer_expiry();
     void process_rejoin_type0();
 
-    void send_device_time_sync_event();
+    void handle_device_time_sync_event(lorawan_time_t gps_time);
 
 private:
     LoRaMac _loramac;

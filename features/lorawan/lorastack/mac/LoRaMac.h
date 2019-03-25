@@ -330,7 +330,7 @@ public:
      * @brief setup_device_time_request Adds device time request command
      * to be put on next outgoing message (when it fits)
      */
-    lorawan_status_t setup_device_time_request(mbed::Callback<void(void)> notify);
+    lorawan_status_t setup_device_time_request(mbed::Callback<void(lorawan_time_t)> notify);
 
     /**
      * @brief setup_reset_indication Adds reset indication command

@@ -1618,7 +1618,7 @@ void LoRaMac::setup_link_check_request()
     _mac_commands.add_link_check_req();
 }
 
-lorawan_status_t LoRaMac::setup_device_time_request(mbed::Callback<void(void)> notify)
+lorawan_status_t LoRaMac::setup_device_time_request(mbed::Callback<void(lorawan_time_t)> notify)
 {
     return _mac_commands.add_device_time_req(notify);
 }

@@ -322,22 +322,15 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 secs |= (uint32_t) payload[mac_index++] << 8;
                 secs |= (uint32_t) payload[mac_index++] << 16;
                 secs |= (uint32_t) payload[mac_index++] << 24;
-                uint32_t millis = ((uint32_t) payload[mac_index++] * 1000) >> 8;
 
                 // round milliseconds to closest second
-                if (millis > 499) {
+                if (payload[mac_index++] >= 0x80) {
                     secs++;
                 }
 
-                // adjust for Unix to GPS epoch diff
-                secs += UNIX_GPS_EPOCH_DIFF;
-                // adjust for leap seconds since GPS epoch origin
-                secs += (MBED_CONF_LORA_CURRENT_TAI_MINUS_UTC - MBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC);
-                set_time(secs);
-
                 //  notify the stack controller
                 if (_time_sync_cb) {
-                    _time_sync_cb();
+                    _time_sync_cb(secs);
                 }
             }
             break;
@@ -447,7 +440,7 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
     return ret;
 }
 
-lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(void)> notify)
+lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(lorawan_time_t)> notify)
 {
     //App developer must know if the server version is 1.0.3 (or greater)
     //1.0.2 does not support this MAC command and our stack does not support pre 1.0.2 versions
