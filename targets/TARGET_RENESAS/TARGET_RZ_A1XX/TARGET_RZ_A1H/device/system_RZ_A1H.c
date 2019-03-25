@@ -29,6 +29,7 @@
 #include <RZ_A1H.h>
 #include "RZ_A1_Init.h"
 #include "irq_ctrl.h"
+#include "mbed_drv_cfg.h"
 
 #define CS2_SDRAM_MODE_16BIT_CAS2_BR_BW (*(volatile uint16_t*)0x3FFFD040)
 #define CS3_SDRAM_MODE_16BIT_CAS2_BR_BW (*(volatile uint16_t*)0x3FFFE040)
@@ -45,7 +46,7 @@
 /*----------------------------------------------------------------------------
   System Core Clock Variable
  *----------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = CM0_RENESAS_RZ_A1_P0_CLK;
+uint32_t SystemCoreClock = RENESAS_RZ_A1_SYS_CLK;
 
 /*----------------------------------------------------------------------------
   System Core Clock update function
