@@ -76,7 +76,8 @@ typedef struct i2c_s i2c_t;
 
 enum {
     I2C_ERROR_NO_SLAVE = -1,
-    I2C_ERROR_BUS_BUSY = -2
+    I2C_ERROR_BUS_BUSY = -2,
+    I2C_ERROR_TIMEOUT  = -3
 };
 
 #ifdef __cplusplus
