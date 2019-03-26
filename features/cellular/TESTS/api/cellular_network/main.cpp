@@ -188,7 +188,7 @@ static void test_other()
     err = nw->get_operator_params(format, operator_params);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
 
-    nsapi_connection_status_t st =  nw->get_connection_status();
+    nsapi_connection_status_t st =  ctx->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 
     // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
@@ -207,13 +207,13 @@ static void test_detach()
     rtos::ThisThread::sleep_for(6 * 1000);
     ((AT_CellularNetwork *)nw)->get_at_handler().flush();
 
-    nsapi_connection_status_t st =  nw->get_connection_status();
+    nsapi_connection_status_t st =  ctx->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 
     TEST_ASSERT(nw->detach() == NSAPI_ERROR_OK);
     // wait to process URC's, received after detach
     rtos::ThisThread::sleep_for(500);
-    st =  nw->get_connection_status();
+    st =  ctx->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 }
 
