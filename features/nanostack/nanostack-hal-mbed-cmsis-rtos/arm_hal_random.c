@@ -19,6 +19,12 @@
 
 #include "mbedtls/entropy_poll.h"
 
+#ifdef MBEDTLS_ENTROPY_HARDWARE_ALT
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#endif
+#endif
+
 void arm_random_module_init(void)
 {
 }
