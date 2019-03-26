@@ -34,6 +34,8 @@
 #include "stm32wbxx.h"
 #include "mbed_error.h"
 #include "stm32wbxx_ll_hsem.h"
+#include "stm32wbxx_ll_hsem.h"
+#include "otp.h"
 #include "hw_conf.h" /* Common BLE file where BLE shared resources are defined */
 
 // Clock source is selected with CLOCK_SOURCE in json config
@@ -56,7 +58,59 @@ uint8_t SetSysClock_PLL_HSI(void);
 uint8_t SetSysClock_PLL_MSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_MSI) */
 
-void Configure_RF_Clock_Sources(void);
+static void Configure_RF_Clock_Sources(void)
+{
+    static uint8_t RF_ON = 0;
+
+    if ( !RF_ON ) {
+        // Reset backup domain
+        if ((LL_RCC_IsActiveFlag_PINRST()) && (!LL_RCC_IsActiveFlag_SFTRST())) {
+            // Write twice the value to flush the APB-AHB bridge
+            // This bit shall be written in the register before writing the next one
+            HAL_PWR_EnableBkUpAccess();
+            HAL_PWR_EnableBkUpAccess();
+            __HAL_RCC_BACKUPRESET_FORCE();
+            __HAL_RCC_BACKUPRESET_RELEASE();
+        }
+
+        /**
+         * Select LSE clock
+         */
+        LL_RCC_LSE_Enable();
+        while (!LL_RCC_LSE_IsReady());
+
+        /**
+         * Select wakeup source of BLE RF
+         */
+        LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
+
+        /**
+         * Switch OFF LSI
+         */
+        LL_RCC_LSI1_Disable();
+
+        RF_ON = 1;
+    }
+
+    return;
+}
+
+static void Config_HSE(void)
+{
+    OTP_ID0_t * p_otp;
+
+  /**
+   * Read HSE_Tuning from OTP
+   */
+  p_otp = (OTP_ID0_t *) OTP_Read(0);
+  if (p_otp)
+  {
+    LL_RCC_HSE_SetCapacitorTuning(p_otp->hse_tuning);
+  }
+
+  return;
+}
+
 
 /**
   * @brief  Configures the System clock source, PLL Multiplier and Divider factors, AHB/APBx prescalers
@@ -112,43 +166,69 @@ void SetSysClock(void)
 /******************************************************************************/
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
-	LL_RCC_HSE_Enable();
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-    /**
-	 * Switch to HSE as Sys clok source
-     * All Peripehrals (HCLK, HCLK2, HCLK4, PCLK1, PCLK2) will be clocked
-     * @ 32MHZ. This is not optimal but a stable setting for enter and exit
-     * deep sleep mode (STOP mode).
-	 *
-	 */
-	while(!LL_RCC_HSE_IsReady());
-	LL_RCC_SetSysClkSource( LL_RCC_SYS_CLKSOURCE_HSE );
-	while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
+  Config_HSE();
 
-    /**
-     * Set RNG on HSI48
-     */
-    LL_RCC_HSI48_Enable();
-    while (!LL_RCC_HSI48_IsReady());
-    LL_RCC_SetCLK48ClockSource(LL_RCC_CLK48_CLKSOURCE_HSI48);
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  /** Initializes the CPU, AHB and APB busses clocks
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI1
+                              |RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    return 0; // FAIL
+  }
+  /** Configure the SYSCLKSource, HCLK, PCLK1 and PCLK2 clocks dividers
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK4|RCC_CLOCKTYPE_HCLK2
+                              |RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLK2Divider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLK4Divider = RCC_SYSCLK_DIV1;
 
-	/**
-	 * Switch OFF MSI and HSI
-	 */
-	LL_RCC_MSI_Disable();
-	LL_RCC_HSI_Disable();
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    return 0; // FAIL
+  }
+  /** Initializes the peripherals clocks
+  */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SMPS|RCC_PERIPHCLK_RFWAKEUP
+                              |RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_LPUART1;
+  PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInitStruct.RFWakeUpClockSelection = RCC_RFWKPCLKSOURCE_LSI;
+  PeriphClkInitStruct.SmpsClockSelection = RCC_SMPSCLKSOURCE_HSE;
+  PeriphClkInitStruct.SmpsDivSelection = RCC_SMPSCLKDIV_RANGE0;
 
-    // Output clock on MCO1 pin(PA8) for debugging purpose
-#if DEBUG_MCO == 2
-    if (bypass == 0) {
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_4);    // 8 MHz
-    } else {
-        HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2);    // 4 MHz
-    }
-#endif
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
+    return 0; // FAIL
+  }
 
-    return 1;
+  /**
+   * Select HSI as system clock source after Wake Up from Stop mode
+   */
+  LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_HSI);
+
+  return 1;
 }
+
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
 
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
@@ -271,33 +351,3 @@ uint8_t SetSysClock_PLL_MSI(void)
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_MSI) */
 
-void Configure_RF_Clock_Sources(void)
-{
-    // Reset backup domain
-    if ((LL_RCC_IsActiveFlag_PINRST()) && (!LL_RCC_IsActiveFlag_SFTRST())) {
-        // Write twice the value to flush the APB-AHB bridge
-        // This bit shall be written in the register before writing the next one
-        HAL_PWR_EnableBkUpAccess();
-        HAL_PWR_EnableBkUpAccess();
-        __HAL_RCC_BACKUPRESET_FORCE();
-        __HAL_RCC_BACKUPRESET_RELEASE();
-    }
-
-    /**
-     * Select LSE clock
-     */
-    LL_RCC_LSE_Enable();
-    while (!LL_RCC_LSE_IsReady());
-
-    /**
-     * Select wakeup source of BLE RF
-     */
-    LL_RCC_SetRFWKPClockSource(LL_RCC_RFWKP_CLKSOURCE_LSE);
-
-    /**
-     * Switch OFF LSI
-     */
-    LL_RCC_LSI1_Disable();
-
-    return;
-}
