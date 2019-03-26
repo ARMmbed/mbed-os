@@ -118,6 +118,7 @@ def _get_default_image_build_command(target, toolchain, profile, args):
 
 def verbose_check_call(cmd, check_call=True):
     """
+    Calls a shell command and logs the call.
 
     :param cmd: command to run as a list
     :param check_call: choose subprocess method (call/check_call)
@@ -256,7 +257,7 @@ def commit_binaries(target, delivery_dir):
             'commit',
             commit_message])
     else:
-        logger.info("No changes detected for {}, Skipping commit".format(target))
+        logger.info("No changes detected in {}, Skipping commit".format(target))
 
 
 def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
