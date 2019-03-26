@@ -327,6 +327,7 @@ def get_parser():
 
     parser.add_argument('-x', '--extra',
                         dest='extra_args',
+                        default=[],
                         nargs=argparse.REMAINDER,
                         help="additional build parameters")
 
