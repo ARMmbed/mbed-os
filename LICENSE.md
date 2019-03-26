@@ -50,3 +50,4 @@ The Python modules used by Mbed tools are used under the following licenses:
 - [pycryptodome](https://pypi.org/project/pycryptodome) - BSD-2-Clause
 - [pyusb](https://pypi.org/project/pyusb/) - Apache-2.0
 - [cmsis-pack-manager](https://pypi.org/project/cmsis-pack-manager) - Apache-2.0
+- [hidapi](https://pypi.org/project/hidapi/) - BSD-style
