@@ -310,6 +310,7 @@ if __name__ == '__main__':
     except ConfigException as e:
         # Catching ConfigException here to prevent a traceback
         print("[ERROR] %s" % str(e))
+        sys.exit(1)
     except Exception as e:
         import traceback
         traceback.print_exc(file=sys.stdout)
