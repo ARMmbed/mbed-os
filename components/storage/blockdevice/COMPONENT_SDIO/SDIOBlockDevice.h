@@ -26,7 +26,7 @@
 #include "sdio_api.h"
 
 class SDIOBlockDevice : public mbed::BlockDevice {
-  public:
+public:
     SDIOBlockDevice(PinName cardDetect = NC);
     virtual ~SDIOBlockDevice();
     /** Initialize a block device
@@ -104,7 +104,10 @@ class SDIOBlockDevice : public mbed::BlockDevice {
      *  @param freq     Transfer frequency
      *  @note Max frequency supported is 25MHZ
      */
-    virtual int frequency(uint64_t freq) { return BD_ERROR_OK; };
+    virtual int frequency(uint64_t freq)
+    {
+        return BD_ERROR_OK;
+    };
 
     /** check if SD is present
      *
@@ -118,7 +121,7 @@ class SDIOBlockDevice : public mbed::BlockDevice {
      */
     virtual const char *get_type() const;
 
-  private:
+private:
     DigitalIn _cardDetect;
     bool _is_initialized;
     bd_size_t _block_size;

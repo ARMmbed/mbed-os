@@ -35,8 +35,7 @@ extern "C"
  * @{
  */
 
-typedef struct
-{
+typedef struct {
     uint32_t CardType;     /* Specifies the card Type                         */
     uint32_t CardVersion;  /* Specifies the card version                      */
     uint32_t Class;        /* Specifies the class of the card class           */

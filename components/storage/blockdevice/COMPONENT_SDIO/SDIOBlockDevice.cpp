@@ -57,9 +57,9 @@ using namespace mbed;
 #define CARD_UNKNOWN 4 /**< Unknown or unsupported card */
 
 SDIOBlockDevice::SDIOBlockDevice(PinName cardDetect) : _cardDetect(cardDetect),
-                                                       _is_initialized(0),
-                                                       _sectors(0),
-                                                       _init_ref_count(0)
+    _is_initialized(0),
+    _sectors(0),
+    _init_ref_count(0)
 {
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
@@ -110,8 +110,7 @@ int SDIOBlockDevice::init()
 
     // get sectors count from cardinfo
     _sectors = _cardInfo.LogBlockNbr;
-    if (BLOCK_SIZE_HC != _cardInfo.BlockSize)
-    {
+    if (BLOCK_SIZE_HC != _cardInfo.BlockSize) {
         unlock();
         return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED_BLOCKSIZE;
     }
@@ -270,8 +269,7 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
     status = sdio_writeblocks_async(_buffer, addr, blockCnt);
     debug_if(SD_DBG, "WriteBlocks dbgtest addr: %lld  blockCnt: %lld \n", addr, blockCnt);
 
-    if (status == MSD_OK)
-    {
+    if (status == MSD_OK) {
         // wait until DMA finished
         uint32_t tickstart = HAL_GetTick();
         while (sdio_write_pending() != SD_TRANSFER_OK) {
@@ -373,9 +371,9 @@ void SDIOBlockDevice::debug(bool dbg)
 bool SDIOBlockDevice::_is_valid_trim(bd_addr_t addr, bd_size_t size)
 {
     return (
-        addr % _erase_size == 0 &&
-        size % _erase_size == 0 &&
-        addr + size <= this->size());
+               addr % _erase_size == 0 &&
+               size % _erase_size == 0 &&
+               addr + size <= this->size());
 }
 
 bool SDIOBlockDevice::isPresent(void)
