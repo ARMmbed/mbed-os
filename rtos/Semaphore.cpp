@@ -51,8 +51,11 @@ int32_t Semaphore::wait(uint32_t millisec)
 {
     osStatus_t stat = osSemaphoreAcquire(_id, millisec);
     switch (stat) {
-        case osOK:
-            return osSemaphoreGetCount(_id) + 1;
+        case osOK: {
+            // Need to ensure return remains positive if count is huge.
+            uint32_t count = osSemaphoreGetCount(_id);
+            return count < 0x7FFFFFFFu ? (int32_t)count + 1 : 0x7FFFFFFF;
+        }
         case osErrorTimeout:
         case osErrorResource:
             return 0;
