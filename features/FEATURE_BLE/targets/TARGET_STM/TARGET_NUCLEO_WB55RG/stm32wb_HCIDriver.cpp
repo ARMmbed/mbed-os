@@ -810,8 +810,8 @@ void shci_register_io_bus(tSHciIO* fops) {
  */
 static void init_debug( void ) {
     tr_debug("WB init_debug: ");
-#if (CFG_DEBUGGER_SUPPORTED == 1)
-    tr_debug("ENABLED\r\n");
+/* In case of MBED debug profile, configure debugger support */
+#if (defined(MBED_DEBUG) || (CFG_DEBUGGER_SUPPORTED == 1))
     /**
 	 * Keep debugger enabled while in any low power mode
 	 */
@@ -834,12 +834,10 @@ static void init_debug( void ) {
 	gpio_config.Pin = GPIO_PIN_15 | GPIO_PIN_14 | GPIO_PIN_13;
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	HAL_GPIO_Init(GPIOA, &gpio_config);
-	__HAL_RCC_GPIOA_CLK_DISABLE();
 
 	gpio_config.Pin = GPIO_PIN_4 | GPIO_PIN_3;
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	HAL_GPIO_Init(GPIOB, &gpio_config);
-	__HAL_RCC_GPIOB_CLK_DISABLE();
 
 	HAL_DBGMCU_DisableDBGSleepMode();
 	HAL_DBGMCU_DisableDBGStopMode();
