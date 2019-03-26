@@ -65,6 +65,24 @@ public:
         memcpy(data, _data, _len);
     }
 
+
+    /** Creates CAN message with specific content.
+     *
+     *  @param _id      Message ID
+     *  @param _data    Mesaage Data
+     *  @param _len     Message Data length
+     *  @param _type    Type of Data: Use enum CANType for valid parameter values
+     *  @param _format  Data Format: Use enum CANFormat for valid parameter values
+     */
+    CANMessage(unsigned int _id, const char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
+    {
+        len    = _len & 0xF;
+        type   = _type;
+        format = _format;
+        id     = _id;
+        memcpy(data, _data, _len);
+    }
+
     /** Creates CAN remote message.
      *
      *  @param _id      Message ID
