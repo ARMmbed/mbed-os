@@ -191,55 +191,53 @@ void SystemInit(void)
 {
 	OTP_ID0_t * p_otp;
 
-	/* FPU settings ------------------------------------------------------------*/
+    /* FPU settings ------------------------------------------------------------*/
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+    SCB->CPACR |= ((3UL << (10UL*2UL))|(3UL << (11UL*2UL)));  /* set CP10 and CP11 Full Access */
 #endif
 
-	/**
-	 * Read HSE_Tuning from OTP
-	 */
-	p_otp = (OTP_ID0_t *) OTP_Read(0);
-	if (p_otp)
-	{
-		LL_RCC_HSE_SetCapacitorTuning(p_otp->hse_tuning);
-	}
+    /* Reset the RCC clock configuration to the default reset state ------------*/
 
-	LL_RCC_HSE_Enable();
+    /* Set MSION bit */
+    RCC->CR |= RCC_CR_MSION;
 
-	/**
-	 * Set FLASH latency to 1WS
-	 */
-	LL_FLASH_SetLatency( LL_FLASH_LATENCY_1 );
-	while( LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1 );
+    /* Reset CFGR register */
+    RCC->CFGR = 0x00070000U;
 
-	/**
-	 * Switch to HSE
-	 *
-	 */
-	while(!LL_RCC_HSE_IsReady());
-	LL_RCC_SetSysClkSource( LL_RCC_SYS_CLKSOURCE_HSE );
-	while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE);
+    /* Reset PLLSAI1ON, PLLON, HSECSSON, HSEON, HSION, and MSIPLLON bits */
+    RCC->CR &= (uint32_t)0xFAF6FEFBU;
 
-	/**
-	 * Switch OFF MSI
-	 */
-	LL_RCC_MSI_Disable();
+    /*!< Reset LSI1 and LSI2 bits */
+    RCC->CSR &= (uint32_t)0xFFFFFFFAU;
 
+    /*!< Reset HSI48ON  bit */
+    RCC->CRRCR &= (uint32_t)0xFFFFFFFEU;
+
+    /* Reset PLLCFGR register */
+    RCC->PLLCFGR = 0x22041000U;
+
+    /* Reset PLLSAI1CFGR register */
+    RCC->PLLSAI1CFGR = 0x22041000U;
+
+    /* Reset HSEBYP bit */
+    RCC->CR &= 0xFFFBFFFFU;
+
+    /* Disable all interrupts */
+    RCC->CIER = 0x00000000;
 
 	/* Configure the Vector Table location add offset address ------------------*/
 #ifdef CORE_CM0PLUS
 	/* program in SRAM2A */
 #if defined(VECT_TAB_SRAM)
 	SCB->VTOR = RAM2A_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM2A for CPU2 */
-#elif defined(VECT_TAB_SRAM2B)  
+#elif defined(VECT_TAB_SRAM2B)
 	/* program in SRAM2B */
 	SCB->VTOR = RAM2B_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM2B for CPU2 */
-#else    
+#else
 	/*  program in FLASH */
 	SCB->VTOR = VECT_TAB_OFFSET;              /* Vector Table Relocation in Internal FLASH */
-#endif  /* Program memory type */ 
-#else   
+#endif  /* Program memory type */
+#else
 #if defined(VECT_TAB_SRAM)
 	/* program in SRAM1 */
 	SCB->VTOR = RAM1_BASE | VECT_TAB_OFFSET;  /* Vector Table Relocation in Internal SRAM1 for CPU1 */
@@ -294,77 +292,67 @@ void SystemInit(void)
  */
 void SystemCoreClockUpdate(void)
 {
-	uint32_t tmp = 0, msirange = 0, pllvco = 0, pllr = 2, pllsource = 0, pllm = 2;
+  uint32_t tmp, msirange, pllvco, pllr, pllsource , pllm;
 
-	/* Get MSI Range frequency--------------------------------------------------*/
+  /* Get MSI Range frequency--------------------------------------------------*/
 
-	/*MSI frequency range in Hz*/
-	msirange = MSIRangeTable[(RCC->CR & RCC_CR_MSIRANGE) >> RCC_CR_MSIRANGE_Pos];
+  /*MSI frequency range in Hz*/
+  msirange = MSIRangeTable[(RCC->CR & RCC_CR_MSIRANGE) >> RCC_CR_MSIRANGE_Pos];
 
-	/*SystemCoreClock=HAL_RCC_GetSysClockFreq();*/
-	/* Get SYSCLK source -------------------------------------------------------*/
-	switch (RCC->CFGR & RCC_CFGR_SWS)
-	{
-	case 0x00:   /* MSI used as system clock source */
-		SystemCoreClock = msirange;
-		break;
+  /* Get SYSCLK source -------------------------------------------------------*/
+  switch (RCC->CFGR & RCC_CFGR_SWS)
+  {
+    case 0x00:   /* MSI used as system clock source */
+      SystemCoreClock = msirange;
+      break;
 
-	case 0x04:  /* HSI used as system clock source */
-		/* HSI used as system clock source */
-		SystemCoreClock = HSI_VALUE;
-		break;
+    case 0x04:  /* HSI used as system clock source */
+      /* HSI used as system clock source */
+        SystemCoreClock = HSI_VALUE;
+      break;
 
-	case 0x08:  /* HSE used as system clock source */
-		SystemCoreClock = HSE_VALUE;
-		break;
+    case 0x08:  /* HSE used as system clock source */
+      SystemCoreClock = HSE_VALUE;
+      break;
 
-	case 0x0C: /* PLL used as system clock  source */
-		/* PLL_VCO = (HSE_VALUE or HSI_VALUE or MSI_VALUE/ PLLM) * PLLN
+    case 0x0C: /* PLL used as system clock  source */
+      /* PLL_VCO = (HSE_VALUE or HSI_VALUE or MSI_VALUE/ PLLM) * PLLN
          SYSCLK = PLL_VCO / PLLR
-		 */
-		pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
-		pllm = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> RCC_PLLCFGR_PLLM_Pos) + 1 ;
+         */
+      pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
+      pllm = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> RCC_PLLCFGR_PLLM_Pos) + 1UL ;
 
-		switch (pllsource)
-		{
-		case 0x02:  /* HSI used as PLL clock source */
-			pllvco = (HSI_VALUE / pllm);
-			break;
+      if(pllsource == 0x02UL) /* HSI used as PLL clock source */
+      {
+        pllvco = (HSI_VALUE / pllm);
+      }
+      else if(pllsource == 0x03UL) /* HSE used as PLL clock source */
+      {
+        pllvco = (HSE_VALUE / pllm);
+      }
+      else /* MSI used as PLL clock source */
+      {
+        pllvco = (msirange / pllm);
+      }
+      
+      pllvco = pllvco * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos);
+      pllr = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >> RCC_PLLCFGR_PLLR_Pos) + 1UL);
+      
+      SystemCoreClock = pllvco/pllr;
+      break;
 
-		case 0x03:  /* HSE used as PLL clock source */
-			pllvco = (HSE_VALUE / pllm);
-			break;
-
-		default:    /* MSI used as PLL clock source */
-			pllvco = (msirange / pllm);
-			break;
-		}
-
-		pllvco = pllvco * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos);
-		pllr = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >> RCC_PLLCFGR_PLLR_Pos) + 1);
-
-		SystemCoreClock = pllvco/pllr;
-		break;
-
-		default:
-			SystemCoreClock = msirange;
-			break;
-	}
-
-	/* Compute HCLK clock frequency --------------------------------------------*/
-#ifdef CORE_CM0PLUS
-	/* Get HCLK2 prescaler */
-	tmp = AHBPrescTable[((RCC->EXTCFGR & RCC_EXTCFGR_C2HPRE) >> RCC_EXTCFGR_C2HPRE_Pos)];
-
-#else
-	/* Get HCLK1 prescaler */
-	tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos)];
-#endif
-	/* HCLK clock frequency */
-	SystemCoreClock = SystemCoreClock / tmp;
+    default:
+      SystemCoreClock = msirange;
+      break;
+  }
+  
+  /* Compute HCLK clock frequency --------------------------------------------*/
+  /* Get HCLK1 prescaler */
+  tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos)];
+  /* HCLK clock frequency */
+  SystemCoreClock = SystemCoreClock / tmp;
 
 }
-
 
 /**
  * @}

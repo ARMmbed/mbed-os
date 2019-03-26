@@ -43,7 +43,6 @@ extern void save_timer_ctx(void);
 extern void restore_timer_ctx(void);
 extern int serial_is_tx_ongoing(void);
 extern int mbed_sdk_inited;
-extern void SetSysClock(void);
 
 static void Switch_On_HSI( void )
 {
@@ -62,6 +61,11 @@ static void LPM_EnterStopMode(void)
    */
 
   while( LL_HSEM_1StepLock( HSEM, CFG_HW_RCC_SEMID ) );
+
+  /**
+   * Select HSI as system clock source after Wake Up from Stop mode
+   */
+  LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_HSI);
 
   if ( ! LL_HSEM_1StepLock( HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID ) )
   {
@@ -172,9 +176,6 @@ void hal_deepsleep(void)
     LPM_EnterStopMode();
     HW_LPM_StopMode();
     LPM_ExitStopMode();
-
-    /* After wake-up from STOP reconfigure the whole clock tree */
-    SetSysClock();
 
     restore_timer_ctx();
 
