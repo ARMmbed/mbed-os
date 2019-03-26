@@ -49,7 +49,7 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    Semaphore(int32_t count = 0);
+    Semaphore(uint32_t count = 0);
 
     /** Create and Initialize a Semaphore object used for managing resources.
       @param  count     number of available resources
@@ -57,7 +57,7 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    Semaphore(int32_t count, uint16_t max_count);
+    Semaphore(uint32_t count, uint32_t max_count);
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  timeout value. (default: osWaitForever).
@@ -96,7 +96,7 @@ public:
     ~Semaphore();
 
 private:
-    void constructor(int32_t count, uint16_t max_count);
+    void constructor(uint32_t count, uint32_t max_count);
 
     osSemaphoreId_t               _id;
     mbed_rtos_storage_semaphore_t _obj_mem;
