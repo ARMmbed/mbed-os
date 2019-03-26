@@ -8275,7 +8275,7 @@
         "default_lib": ["std"],
         "public": false,
         "extra_labels": ["STMBLUE","CORDIO","BlueNRG-2"],
-        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","SLEEP","STDIO_MESSAGES","USTICKER","SPI","SPISLAVE","I2C","I2CSLAVE"],
+        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","SLEEP","STDIO_MESSAGES","USTICKER","SPI","SPISLAVE"],
         "macros": ["BLUENRG2_DEVICE","LS_SOURCE=LS_SOURCE_EXTERNAL_32KHZ","SMPS_INDUCTOR=SMPS_INDUCTOR_10uH","BLE_STACK_CONFIGURATION=BLE_STACK_BASIC_CONFIGURATION","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "features": ["BLE"],
 		"device_name": "BlueNRG-2"
