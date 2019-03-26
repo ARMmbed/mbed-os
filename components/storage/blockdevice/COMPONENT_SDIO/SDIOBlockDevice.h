@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +15,17 @@
  * limitations under the License.
  */
 
-#ifndef MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_
+#ifndef MBED_OS_SDIO_BLOCK_DEVICE_H_
+#define MBED_OS_SDIO_BLOCK_DEVICE_H_
 
-#define MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_
+#if DEVICE_SDIO
 
-#include "features/storage/blockdevice/BlockDevice.h"
-#include "drivers/DigitalIn.h"
-#include "platform/PlatformMutex.h"
-#include "sdio_device.h"
+#include "BlockDevice.h"
+#include "DigitalIn.h"
+#include "PlatformMutex.h"
+#include "sdio_api.h"
 
-namespace mbed
-{
-
-class SDIOBlockDevice : public BlockDevice
-{
+class SDIOBlockDevice : public mbed::BlockDevice {
   public:
     SDIOBlockDevice(PinName cardDetect = NC);
     virtual ~SDIOBlockDevice();
@@ -114,6 +112,12 @@ class SDIOBlockDevice : public BlockDevice
      */
     virtual bool isPresent(void);
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string representation of the BlockDevice class type.
+     */
+    virtual const char *get_type() const;
+
   private:
     DigitalIn _cardDetect;
     bool _is_initialized;
@@ -121,8 +125,7 @@ class SDIOBlockDevice : public BlockDevice
     bd_size_t _erase_size;
     bd_size_t _sectors;
     uint32_t _init_ref_count;
-    SD_Cardinfo_t _cardInfo;
-    uint32_t _card_type;
+    SDIO_Cardinfo_t _cardInfo;
 
     PlatformMutex _mutex;
     virtual void lock()
@@ -138,6 +141,5 @@ class SDIOBlockDevice : public BlockDevice
     bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
 };
 
-} // namespace mbed
-
-#endif /* MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_ */
+#endif // DEVICE_SDIO
+#endif // MBED_OS_SDIO_BLOCK_DEVICE_H_

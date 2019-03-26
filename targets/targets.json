@@ -3840,7 +3840,9 @@
             "FLASH",
             "QSPI",
             "MPU",
-            "USBDEVICE"
+            "USBDEVICE",
+            "SDIO",
+            "SDIO_ASYNC"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI",
@@ -4010,7 +4012,9 @@
             "FLASH",
             "QSPI",
             "USBDEVICE",
-            "MPU"
+            "MPU",
+            "SDIO",
+            "SDIO_ASYNC"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG",

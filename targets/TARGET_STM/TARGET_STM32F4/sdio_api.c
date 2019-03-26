@@ -15,9 +15,11 @@
  */
 
 
-#include "sdio_device.h"
+#include "sdio_api.h"
 #include "platform/mbed_error.h"
 
+
+#if DEVICE_SDIO
 /* Extern variables ---------------------------------------------------------*/
 
 SD_HandleTypeDef hsd;
@@ -204,7 +206,7 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
  * @param  hsd: SD handle
  * @param  Params : pointer on additional configuration parameters, can be NULL.
  */
-__weak void SD_MspDeInit(SD_HandleTypeDef *hsd, void *Params)
+void SD_MspDeInit(SD_HandleTypeDef *hsd, void *Params)
 {
     static DMA_HandleTypeDef dma_rx_handle;
     static DMA_HandleTypeDef dma_tx_handle;
@@ -266,7 +268,7 @@ static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
  * @brief  Initializes the SD card device.
  * @retval SD status
  */
-uint8_t SD_Init(void)
+uint8_t sdio_init(void)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -297,7 +299,7 @@ uint8_t SD_Init(void)
  * @brief  DeInitializes the SD card device.
  * @retval SD status
  */
-uint8_t SD_DeInit(void)
+uint8_t sdio_deinit(void)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -324,7 +326,7 @@ uint8_t SD_DeInit(void)
  * @param  Timeout: Timeout for read operation
  * @retval SD status
  */
-uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+uint8_t sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -344,7 +346,7 @@ uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, 
  * @param  Timeout: Timeout for write operation
  * @retval SD status
  */
-uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+uint8_t sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -356,6 +358,8 @@ uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks
     return sd_state;
 }
 
+#if DEVICE_SDIO_ASYNC
+
 /**
  * @brief  Reads block(s) from a specified address in an SD card, in DMA mode.
  * @param  pData: Pointer to the buffer that will contain the data to transmit
@@ -363,7 +367,7 @@ uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks
  * @param  NumOfBlocks: Number of SD blocks to read
  * @retval SD status
  */
-uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+uint8_t sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
     uint8_t sd_state = MSD_OK;
     SD_DMA_ReadPendingState = SD_TRANSFER_BUSY;
@@ -385,7 +389,7 @@ uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBloc
  * @param  NumOfBlocks: Number of SD blocks to write
  * @retval SD status
  */
-uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
+uint8_t sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
     uint8_t sd_state = MSD_OK;
     SD_DMA_WritePendingState = SD_TRANSFER_BUSY;
@@ -400,13 +404,15 @@ uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBl
     return sd_state;
 }
 
+#endif // DEVICE_SDIO_ASYNC
+
 /**
  * @brief  Erases the specified memory area of the given SD card.
  * @param  StartAddr: Start byte address
  * @param  EndAddr: End byte address
  * @retval SD status
  */
-uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr)
+uint8_t sdio_erase(uint32_t StartAddr, uint32_t EndAddr)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -426,7 +432,7 @@ uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr)
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_GetCardState(void)
+uint8_t sdio_get_card_state(void)
 {
     return ((HAL_SD_GetCardState(&hsd) == HAL_SD_CARD_TRANSFER) ? SD_TRANSFER_OK : SD_TRANSFER_BUSY);
 }
@@ -436,7 +442,7 @@ uint8_t SD_GetCardState(void)
  * @param  CardInfo: Pointer to HAL_SD_CardInfoTypedef structure
  * @retval None
  */
-void SD_GetCardInfo(SD_Cardinfo_t *CardInfo)
+void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo)
 {
     /* Get SD card Information, copy structure for portability */
     HAL_SD_CardInfoTypeDef HAL_CardInfo;
@@ -463,7 +469,7 @@ void SD_GetCardInfo(SD_Cardinfo_t *CardInfo)
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_DMA_ReadPending(void)
+uint8_t sdio_read_pending(void)
 {
     return SD_DMA_ReadPendingState;
 }
@@ -475,7 +481,7 @@ uint8_t SD_DMA_ReadPending(void)
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_DMA_WritePending(void)
+uint8_t sdio_write_pending(void)
 {
     return SD_DMA_WritePendingState;
 }
@@ -499,3 +505,5 @@ void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
     SD_DMA_WritePendingState = SD_TRANSFER_OK;
 }
+
+#endif // DEVICE_SDIO

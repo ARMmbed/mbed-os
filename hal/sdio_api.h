@@ -1,5 +1,9 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +17,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_SDIO_API_H
+#define MBED_SDIO_API_H
 
+#include "device.h"
+#include "pinmap.h"
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SDIO_DEVICE_H
-#define __SDIO_DEVICE_H
+#if DEVICE_SDIO
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "stm32f7xx_hal.h"
+/**
+ * \defgroup SDIO Configuration Functions
+ * @{
+ */
 
-  /* Typedefs */
-
-  typedef struct
-  {
+typedef struct
+{
     uint32_t CardType;     /* Specifies the card Type                         */
     uint32_t CardVersion;  /* Specifies the card version                      */
     uint32_t Class;        /* Specifies the class of the card class           */
@@ -38,51 +45,65 @@ extern "C"
     uint32_t BlockSize;    /* Specifies one block size in bytes               */
     uint32_t LogBlockNbr;  /* Specifies the Card logical Capacity in blocks   */
     uint32_t LogBlockSize; /* Specifies logical block size in bytes           */
-  } SD_Cardinfo_t;
+} SDIO_Cardinfo_t;
 
-  /* External Global var  */
-
-  extern SD_HandleTypeDef hsd;
-
-/* Exported types */
-/** 
-  * @brief SD Card information structure 
-  */
-#define BSP_SD_CardInfo HAL_SD_CardInfoTypeDef
-
-/* Exported constants */
 /**
-  * @brief  SD status structure definition  
+  * @brief  SD status structure definition
   */
 #define MSD_OK ((uint8_t)0x00)
 #define MSD_ERROR ((uint8_t)0x01)
 
-/** 
-  * @brief  SD transfer state definition  
+/**
+  * @brief  SD transfer state definition
   */
 #define SD_TRANSFER_OK ((uint8_t)0x00)
 #define SD_TRANSFER_BUSY ((uint8_t)0x01)
 
-  /* Exported functions */
-  uint8_t SD_Init(void);
-  uint8_t SD_DeInit(void);
-  uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-  uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-  uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
-  uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
-  uint8_t SD_DMA_ReadPending(void);
-  uint8_t SD_DMA_WritePending(void);
-  uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr);
 
-  uint8_t SD_GetCardState(void);
-  void SD_GetCardInfo(SD_Cardinfo_t *CardInfo);
+uint8_t sdio_init(void);
+uint8_t sdio_deinit(void);
+uint8_t sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+uint8_t sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 
-  /* callback function for DMA Rx/Tx completete, called by HAL SDIO interrupt handler */
-  void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd);
-  void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd);
+#if DEVICE_SDIO_ASYNC
+
+uint8_t sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
+uint8_t sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
+uint8_t sdio_read_pending(void);
+uint8_t sdio_write_pending(void);
+
+#endif // DEVICE_SDIO_ASYNC
+
+uint8_t sdio_erase(uint32_t StartAddr, uint32_t EndAddr);
+uint8_t sdio_get_card_state(void);
+void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo);
+
+/**@}*/
 
 #ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
 
-#endif /* __SDIO_DEVICE_H */
+#endif // DEVICE_SDIO
+
+#endif // MBED_SDIO_API_H
+
+
+// TODO: check if this could be usefull
+/** @}*/
+
+// #if DEVICE_SDIO_ASYNCH
+// /** Asynch SPI HAL structure
+//  */
+// typedef struct {
+//     struct spi_s spi;        /**< Target specific SPI structure */
+//     struct buffer_s tx_buff; /**< Tx buffer */
+//     struct buffer_s rx_buff; /**< Rx buffer */
+// } spi_t;
+
+// #else
+// /** Non-asynch SPI HAL structure
+//  */
+// typedef struct spi_s spi_t;
+
+// #endif
