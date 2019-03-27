@@ -264,10 +264,6 @@ static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
     return HAL_SD_ERROR_NONE;
 }
 
-/**
- * @brief  Initializes the SD card device.
- * @retval SD status
- */
 int sdio_init(void)
 {
     int sd_state = MSD_OK;
@@ -295,10 +291,6 @@ int sdio_init(void)
     return sd_state;
 }
 
-/**
- * @brief  DeInitializes the SD card device.
- * @retval SD status
- */
 int sdio_deinit(void)
 {
     int sd_state = MSD_OK;
@@ -318,13 +310,6 @@ int sdio_deinit(void)
     return sd_state;
 }
 
-/**
- * @brief  Reads block(s) from a specified address in an SD card, in polling mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  ReadAddr: Address from where data is to be read
- * @param  NumOfBlocks: Number of SD blocks to read
- * @retval SD status
- */
 int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
     int sd_state = MSD_OK;
@@ -337,13 +322,6 @@ int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
     return sd_state;
 }
 
-/**
- * @brief  Writes block(s) to a specified address in an SD card, in polling mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  WriteAddr: Address from where data is to be written
- * @param  NumOfBlocks: Number of SD blocks to write
- * @retval SD status
- */
 int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
     int sd_state = MSD_OK;
@@ -356,13 +334,6 @@ int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
     return sd_state;
 }
 
-/**
- * @brief  Reads block(s) from a specified address in an SD card, in DMA mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  ReadAddr: Address from where data is to be read
- * @param  NumOfBlocks: Number of SD blocks to read
- * @retval SD status
- */
 int sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
     int sd_state = MSD_OK;
@@ -378,13 +349,6 @@ int sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBloc
     return sd_state;
 }
 
-/**
- * @brief  Writes block(s) to a specified address in an SD card, in DMA mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  WriteAddr: Address from where data is to be written
- * @param  NumOfBlocks: Number of SD blocks to write
- * @retval SD status
- */
 int sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
     int sd_state = MSD_OK;
@@ -400,12 +364,6 @@ int sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBl
     return sd_state;
 }
 
-/**
- * @brief  Erases the specified memory area of the given SD card.
- * @param  StartAddr: Start byte address
- * @param  EndAddr: End byte address
- * @retval SD status
- */
 int sdio_erase(uint32_t StartAddr, uint32_t EndAddr)
 {
     int sd_state = MSD_OK;
@@ -418,24 +376,11 @@ int sdio_erase(uint32_t StartAddr, uint32_t EndAddr)
     return sd_state;
 }
 
-/**
- * @brief  Gets the current SD card data status.
- * @param  None
- * @retval Data transfer state.
- *          This value can be one of the following values:
- *            @arg  SD_TRANSFER_OK: No data transfer is acting
- *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
- */
 int sdio_get_card_state(void)
 {
     return ((HAL_SD_GetCardState(&hsd) == HAL_SD_CARD_TRANSFER) ? SD_TRANSFER_OK : SD_TRANSFER_BUSY);
 }
 
-/**
- * @brief  Get SD information about specific SD card.
- * @param  CardInfo: Pointer to HAL_SD_CardInfoTypedef structure
- * @retval None
- */
 void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo)
 {
     /* Get SD card Information, copy structure for portability */
@@ -456,25 +401,11 @@ void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo)
     }
 }
 
-/**
- * @brief  Check if a DMA operation is pending
- * @retval DMA operation is pending
- *          This value can be one of the following values:
- *            @arg  SD_TRANSFER_OK: No data transfer is acting
- *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
- */
 int sdio_read_pending(void)
 {
     return SD_DMA_ReadPendingState;
 }
 
-/**
- * @brief  Check if a DMA operation is pending
- * @retval DMA operation is pending
- *          This value can be one of the following values:
- *            @arg  SD_TRANSFER_OK: No data transfer is acting
- *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
- */
 int sdio_write_pending(void)
 {
     return SD_DMA_WritePendingState;
