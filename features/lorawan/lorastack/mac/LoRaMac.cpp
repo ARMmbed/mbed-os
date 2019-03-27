@@ -319,8 +319,11 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
     sequence_counter_prev = (uint16_t) * downlink_counter;
     sequence_counter_diff = sequence_counter - sequence_counter_prev;
     *downlink_counter += sequence_counter_diff;
-    if (sequence_counter < sequence_counter_prev) {
-        *downlink_counter += 0x10000;
+
+    if (sequence_counter_diff >= _lora_phy->get_maximum_frame_counter_gap()) {
+        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOST;
+        _mcps_indication.dl_frame_counter = *downlink_counter;
+        return false;
     }
 
     // sizeof nws_skey must be the same as _params.keys.nwk_skey,
@@ -331,12 +334,6 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
 
     if (mic_rx != mic) {
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
-        return false;
-    }
-
-    if (sequence_counter_diff >= _lora_phy->get_maximum_frame_counter_gap()) {
-        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOST;
-        _mcps_indication.dl_frame_counter = *downlink_counter;
         return false;
     }
 
