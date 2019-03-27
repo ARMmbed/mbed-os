@@ -2055,7 +2055,8 @@
         ],
         "detect_code": ["0236"],
         "device_name": "LPC55S69JBD100",
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "program_cycle_s": 10
     },
     "LPC55S69_NS": {
         "inherits": ["NSPE_Target", "LPC55S69"],
@@ -8113,7 +8114,8 @@
         },
         "overrides": {
             "network-default-interface-type": "WIFI"
-        }
+        },
+        "program_cycle_s": 10
     },
     "CY8CKIT_062_WIFI_BT_M0_PSA": {
         "inherits": ["SPE_Target", "CY8CKIT_062_WIFI_BT_M0"],
