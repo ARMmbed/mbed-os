@@ -664,13 +664,14 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
         if (get_device_class() == CLASS_C) {
             _lora_time.start(_rx2_closure_timer_for_class_c,
                              (_params.rx_window2_delay - time_diff) +
-                             _params.rx_window2_config.window_timeout);
+                             _params.rx_window2_config.window_timeout_ms);
         }
 
         // start timer after which ack wait will timeout (for Confirmed messages)
         if (_params.is_node_ack_requested) {
             _lora_time.start(_params.timers.ack_timeout_timer,
                              (_params.rx_window2_delay - time_diff) +
+                             _params.rx_window2_config.window_timeout_ms +
                              _lora_phy->get_ack_timeout());
         }
     } else {
@@ -1094,6 +1095,8 @@ lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;
     lorawan_time_t backoff_time = 0;
+    lorawan_time_t aggregated_timeoff = 0;
+    uint8_t channel = 0;
     uint8_t fopts_len = 0;
 
     if (_params.sys_params.max_duty_cycle == 255) {
@@ -1119,9 +1122,12 @@ lorawan_status_t LoRaMac::schedule_tx()
     next_channel.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
     lorawan_status_t status = _lora_phy->set_next_channel(&next_channel,
-                                                          &_params.channel,
+                                                          &channel,
                                                           &backoff_time,
-                                                          &_params.timers.aggregated_timeoff);
+                                                          &aggregated_timeoff);
+
+    _params.channel = channel;
+    _params.timers.aggregated_timeoff = aggregated_timeoff;
 
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:

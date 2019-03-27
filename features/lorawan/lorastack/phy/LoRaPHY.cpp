@@ -406,7 +406,8 @@ float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 
 void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
                                    float error_fudge, float wakeup_time,
-                                   uint32_t *window_length, int32_t *window_offset,
+                                   uint32_t *window_length, uint32_t *window_length_ms,
+                                   int32_t *window_offset,
                                    uint8_t phy_dr)
 {
     float target_rx_window_offset;
@@ -442,6 +443,7 @@ void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
     // Setting the window_length in terms of 'symbols' for LoRa modulation or
     // in terms of 'bytes' for FSK
     *window_length = (uint32_t) ceil(window_len_in_ms / t_symb);
+    *window_length_ms = window_len_in_ms;
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -628,8 +630,7 @@ uint16_t LoRaPHY::get_maximum_frame_counter_gap()
 uint32_t LoRaPHY::get_ack_timeout()
 {
     uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
-    return (phy_params.ack_timeout
-            + get_random(-ack_timeout_rnd, ack_timeout_rnd));
+    return (phy_params.ack_timeout + get_random(0, ack_timeout_rnd));
 }
 
 uint32_t LoRaPHY::get_default_rx2_frequency()
@@ -849,7 +850,8 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
     }
 
     get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
-                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
+                         &rx_conf_params->window_timeout, &rx_conf_params->window_timeout_ms,
+                         &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
 }
 

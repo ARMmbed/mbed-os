@@ -626,7 +626,8 @@ protected:
      */
     void get_rx_window_params(float t_symbol, uint8_t min_rx_symbols,
                               float rx_error, float wakeup_time,
-                              uint32_t *window_length, int32_t *window_offset,
+                              uint32_t *window_length, uint32_t *window_length_ms,
+                              int32_t *window_offset,
                               uint8_t phy_dr);
 
     /**
