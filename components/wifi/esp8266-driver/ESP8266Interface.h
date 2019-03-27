@@ -157,17 +157,37 @@ public:
      */
     virtual int8_t get_rssi();
 
+    /** Scan mode
+     */
+    enum scan_mode {
+        SCANMODE_ACTIVE, /*!< active mode */
+        SCANMODE_PASSIVE /*!< passive mode */
+    };
+
     /** Scan for available networks
      *
      * This function will block.
      *
-     * @param  ap       Pointer to allocated array to store discovered AP
-     * @param  count    Size of allocated @a res array, or 0 to only count available AP
-     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
-     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
-     *                  see @a nsapi_error
+     * @param  ap    Pointer to allocated array to store discovered AP
+     * @param  count Size of allocated @a res array, or 0 to only count available AP
+     * @return       Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *               see @a nsapi_error
      */
     virtual int scan(WiFiAccessPoint *res, unsigned count);
+
+    /** Scan for available networks
+     *
+     * This function will block.
+     *
+     * @param  ap    Pointer to allocated array to store discovered AP
+     * @param  count Size of allocated @a res array, or 0 to only count available AP
+     * @param  t_max Scan time for each channel - 0-1500ms. If 0 - uses default value
+     * @param  t_min Minimum for each channel in active mode - 0-1500ms. If 0 - uses default value. Omit in passive mode
+     * @return       Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *               see @a nsapi_error
+     */
+    virtual int scan(WiFiAccessPoint *res, unsigned count, scan_mode mode = SCANMODE_PASSIVE,
+                     unsigned t_max = 0, unsigned t_min = 0);
 
     /** Translates a hostname to an IP address with specific version
      *

@@ -371,14 +371,25 @@ int8_t ESP8266Interface::get_rssi()
 
 int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count)
 {
-    nsapi_error_t status;
+    return scan(res, count, SCANMODE_ACTIVE, 0, 0);
+}
 
-    status = _init();
+int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode, unsigned t_max, unsigned t_min)
+{
+    if (t_max > ESP8266_SCAN_TIME_MAX) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    if (mode == SCANMODE_ACTIVE && t_min > t_max) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    nsapi_error_t status = _init();
     if (status != NSAPI_ERROR_OK) {
         return status;
     }
 
-    return _esp.scan(res, count);
+    return _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
+                     t_min, t_max);
 }
 
 bool ESP8266Interface::_get_firmware_ok()
