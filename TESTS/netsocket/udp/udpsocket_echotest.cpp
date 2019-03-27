@@ -29,7 +29,7 @@ namespace {
 static const int SIGNAL_SIGIO_RX = 0x1;
 static const int SIGNAL_SIGIO_TX = 0x2;
 static const int SIGIO_TIMEOUT = 5000; //[ms]
-static const int WAIT2RECV_TIMEOUT = 1000; //[ms]
+static const int WAIT2RECV_TIMEOUT = 2000; //[ms]
 static const int RETRIES = 2;
 
 static const double EXPECTED_LOSS_RATIO = 0.0;
