@@ -89,7 +89,7 @@ static inline void release_hash_clone(psa_spm_hash_clone_t *hash_clone)
     }
 }
 
-static void destroy_hash_clone(void *source_operation)
+static void clear_hash_clone(void *source_operation)
 {
     for (size_t i = 0; i < MAX_CONCURRENT_HASH_CLONES; i++) {
         if (psa_spm_hash_clones[i].source_operation == source_operation) {
@@ -476,7 +476,7 @@ static void psa_hash_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        destroy_hash_clone(msg.rhandle);
+                        clear_hash_clone(msg.rhandle);
                         mbedtls_free(msg.rhandle);
                         psa_set_rhandle(msg.handle, NULL);
                     }
@@ -510,7 +510,7 @@ static void psa_hash_operation(void)
                         psa_hash_abort(msg.rhandle);
                     }
 
-                    destroy_hash_clone(msg.rhandle);
+                    clear_hash_clone(msg.rhandle);
                     mbedtls_free(msg.rhandle);
                     psa_set_rhandle(msg.handle, NULL);
                     break;
@@ -544,7 +544,7 @@ static void psa_hash_operation(void)
                         psa_hash_abort(msg.rhandle);
                     }
 
-                    destroy_hash_clone(msg.rhandle);
+                    clear_hash_clone(msg.rhandle);
                     mbedtls_free(msg.rhandle);
                     psa_set_rhandle(msg.handle, NULL);
                     break;
@@ -552,7 +552,7 @@ static void psa_hash_operation(void)
 
                 case PSA_HASH_ABORT: {
                     status = psa_hash_abort(msg.rhandle);
-                    destroy_hash_clone(msg.rhandle);
+                    clear_hash_clone(msg.rhandle);
                     mbedtls_free(msg.rhandle);
                     psa_set_rhandle(msg.handle, NULL);
                     break;
@@ -600,7 +600,7 @@ static void psa_hash_operation(void)
         case PSA_IPC_DISCONNECT: {
             if (msg.rhandle != NULL) {
                 psa_hash_abort(msg.rhandle);
-                destroy_hash_clone(msg.rhandle);
+                clear_hash_clone(msg.rhandle);
                 mbedtls_free(msg.rhandle);
             }
 
