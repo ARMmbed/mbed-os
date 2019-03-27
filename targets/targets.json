@@ -2070,7 +2070,7 @@
             "MBEDTLS_PSA_CRYPTO_C",
             "NXP_LPADC"
         ],
-        "components_add": ["FLASHIAP"],
+        "components_add": ["FLASHIAP", "SDIO"],
         "extra_labels_add": [
             "M33_NS",
             "PSA",
@@ -2091,7 +2091,8 @@
             "SPI",
             "SPISLAVE",
             "FLASH",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "SDIO"
         ],
         "post_binary_hook": {"function": "LPC55S69Code.binary_hook"},
         "secure_image_filename": "tfm.bin",

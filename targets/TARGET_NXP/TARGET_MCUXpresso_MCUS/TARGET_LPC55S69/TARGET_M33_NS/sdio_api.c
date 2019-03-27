@@ -15,7 +15,9 @@
  */
 #include "fsl_sd.h"
 #include "pinmap.h"
-#include "sdio_device.h"
+#include "sdio_api.h"
+
+#if DEVICE_SDIO
 
 /* Array of SD peripheral base address. */
 static SDIF_Type *const sd_addrs[] = SDIF_BASE_PTRS;
@@ -23,11 +25,7 @@ static sd_card_t g_sd;
 
 extern void sdio_clock_setup(void);
 
-/**
- * @brief  Initializes the SD card device.
- * @retval SD status
- */
-uint8_t SDIO_Init(void)
+int sdio_init(void)
 {
     uint32_t reg;
 
@@ -101,28 +99,16 @@ uint8_t SDIO_Init(void)
     return MSD_OK;
 }
 
-/**
- * @brief  DeInitializes the SD card device.
- * @retval SD status
- */
-uint8_t SDIO_DeInit(void)
+int sdio_deinit(void)
 {
     SD_Deinit(&g_sd);
 
     return MSD_OK;
 }
 
-/**
- * @brief  Reads block(s) from a specified address in an SD card, in polling mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  ReadAddr: Address from where data is to be read
- * @param  NumOfBlocks: Number of SD blocks to read
- * @param  Timeout: Timeout for read operation
- * @retval SD status
- */
-uint8_t SDIO_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
     if (SD_ReadBlocks(&g_sd, (uint8_t *)pData, ReadAddr, NumOfBlocks) != kStatus_Success) {
         sd_state = MSD_ERROR;
@@ -131,17 +117,9 @@ uint8_t SDIO_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks
     return sd_state;
 }
 
-/**
- * @brief  Writes block(s) to a specified address in an SD card, in polling mode.
- * @param  pData: Pointer to the buffer that will contain the data to transmit
- * @param  WriteAddr: Address from where data is to be written
- * @param  NumOfBlocks: Number of SD blocks to write
- * @param  Timeout: Timeout for write operation
- * @retval SD status
- */
-uint8_t SDIO_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
+int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
     if (SD_WriteBlocks(&g_sd, (uint8_t *)pData, WriteAddr, NumOfBlocks) != kStatus_Success) {
         sd_state = MSD_ERROR;
@@ -150,17 +128,12 @@ uint8_t SDIO_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBloc
     return sd_state;
 }
 
-/**
- * @brief  Erases the specified memory area of the given SD card.
- * @param  StartAddr: Start byte address
- * @param  NumOfBlocks: Number of SD blocks to erase
- * @retval SD status
- */
-uint8_t SDIO_Erase(uint32_t StartAddr, uint32_t NumOfBlocks)
+int sdio_erase(uint32_t StartAddr, uint32_t EndAddr)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
-    if (SD_EraseBlocks(&g_sd, StartAddr, NumOfBlocks) != kStatus_Success)
+    uint32_t blocks = (EndAddr - StartAddr) / g_sd.blockSize;
+    if (SD_EraseBlocks(&g_sd, StartAddr, blocks) != kStatus_Success)
     {
         sd_state = MSD_ERROR;
     }
@@ -168,13 +141,28 @@ uint8_t SDIO_Erase(uint32_t StartAddr, uint32_t NumOfBlocks)
     return sd_state;
 }
 
-uint32_t SDIO_GetBlockSize(void)
+int sdio_get_card_state(void)
 {
-    return g_sd.blockSize;
+    int sd_state = MSD_OK;
+
+    if (!SD_CheckReadOnly(&g_sd)) {
+        sd_state = MSD_ERROR;
+    }
+
+    return sd_state;
 }
 
-uint32_t SDIO_GetBlockCount(void)
+void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo)
 {
-    return g_sd.blockCount;
+    CardInfo->CardType = 4;
+    CardInfo->CardVersion = g_sd.version;
+    CardInfo->Class = 0;
+    CardInfo->RelCardAdd = g_sd.relativeAddress;
+    CardInfo->BlockNbr = g_sd.blockCount;
+    CardInfo->BlockSize = g_sd.blockSize;
+    CardInfo->LogBlockNbr = g_sd.blockCount;
+    CardInfo->LogBlockSize = g_sd.blockSize;
 }
 
+
+#endif // DEVICE_SDIO
