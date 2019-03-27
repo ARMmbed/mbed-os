@@ -17,6 +17,7 @@
  ****************************************************************************/
 
 #include "cmsis.h"
+#include "s5js100_pmip.h"
 
 extern void s5js100_modem_start(void);
 extern void sflash_os_env_parser(void);
@@ -39,9 +40,6 @@ void mbed_sdk_init(void)
 //    EFlash_ClockConfig();
 
 	sflash_os_env_parser();
-}
 
-void mbed_main(void)
-{
 	s5js100_modem_start();
 }
