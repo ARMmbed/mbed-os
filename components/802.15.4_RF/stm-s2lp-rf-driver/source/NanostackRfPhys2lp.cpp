@@ -931,8 +931,6 @@ static void rf_sync_detected_handler(void)
     rf_state = RF_RX_STARTED;
     TEST_RX_STARTED
     rf_disable_interrupt(SYNC_WORD);
-    rf_enable_interrupt(RX_FIFO_ALMOST_FULL);
-    rf_enable_interrupt(RX_DATA_READY);
     rf_backup_timer_start(MAX_PACKET_SENDING_TIME);
 }
 
@@ -955,13 +953,15 @@ static void rf_receive(uint8_t rx_channel)
         rf_rx_channel = rf_new_channel = rx_channel;
     }
     rf_send_command(S2LP_CMD_RX);
+    rf_poll_state_change(S2LP_STATE_RX);
     rf_enable_interrupt(SYNC_WORD);
+    rf_enable_interrupt(RX_FIFO_ALMOST_FULL);
+    rf_enable_interrupt(RX_DATA_READY);
     rf_enable_interrupt(RX_FIFO_UNF_OVF);
     rx_data_length = 0;
     if (rf_state != RF_CSMA_STARTED) {
         rf_state = RF_IDLE;
     }
-    rf_poll_state_change(S2LP_STATE_RX);
     rf_unlock();
 }
 
