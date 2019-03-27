@@ -3813,7 +3813,7 @@
         "bootloader_supported": true
     },
     "DISCO_F469NI": {
-        "components_add": ["QSPIF"],
+        "components_add": ["QSPIF", "SDIO"],
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -3980,7 +3980,7 @@
             "STM32F746NG",
             "STM_EMAC"
         ],
-        "components_add": ["QSPIF", "FLASHIAP"],
+        "components_add": ["QSPIF", "FLASHIAP", "SDIO"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
