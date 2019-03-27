@@ -1009,30 +1009,39 @@ static void psa_symmetric_operation(void)
                 }
 
                 case PSA_CIPHER_UPDATE: {
-                    size_t input_length = msg.in_size[1];
-                    size_t output_size = msg.out_size[0];
-                    size_t output_length = 0;
+                    size_t input_length = msg.in_size[1],
+                           output_size = msg.out_size[0],
+                           output_length = 0;
                     uint8_t *input = NULL;
                     unsigned char *output = NULL;
 
-                    input = mbedtls_calloc(1, input_length);
-                    output = mbedtls_calloc(1, output_size);
-                    if (input == NULL || output == NULL) {
-                        psa_cipher_abort(msg.rhandle);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                    } else {
-                        bytes_read = psa_read(msg.handle, 1, input, input_length);
-                        if (bytes_read != input_length) {
-                            SPM_PANIC("SPM read length mismatch");
+                    if (input_length > 0) {
+                        input = mbedtls_calloc(1, input_length);
+                        if (input == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 1, input, input_length);
+                            if (bytes_read != input_length) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
                         }
+                    }
+                    if (status == PSA_SUCCESS && output_size > 0) {
+                        output = mbedtls_calloc(1, output_size);
+                        if (output == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
+                    }
 
+                    if (status == PSA_SUCCESS) {
                         status = psa_cipher_update(msg.rhandle, input, input_length, output, output_size,
                                                    &output_length);
                         if (status == PSA_SUCCESS) {
                             psa_write(msg.handle, 0, output, output_length);
                             psa_write(msg.handle, 1, &output_length, sizeof(output_length));
                         }
-
+                    } else {
+                        psa_cipher_abort(msg.rhandle);
                     }
 
                     mbedtls_free(input);
@@ -1045,21 +1054,26 @@ static void psa_symmetric_operation(void)
                 }
 
                 case PSA_CIPHER_FINISH: {
-                    uint8_t *output;
-                    size_t output_size = msg.out_size[0];
-                    size_t output_length = 0;
+                    uint8_t *output = NULL;
+                    size_t output_size = msg.out_size[0],
+                           output_length = 0;
 
-                    output = mbedtls_calloc(1, output_size);
-                    if (output == NULL) {
-                        psa_cipher_abort(msg.rhandle);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                    } else {
+                    if (output_size > 0) {
+                        output = mbedtls_calloc(1, output_size);
+                        if (output == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
+                    }
+
+                    if (status == PSA_SUCCESS) {
                         status = psa_cipher_finish(msg.rhandle, output, output_size, &output_length);
                         if (status == PSA_SUCCESS) {
                             psa_write(msg.handle, 0, output, output_length);
                             psa_write(msg.handle, 1, &output_length, sizeof(output_length));
                         }
                         mbedtls_free(output);
+                    } else {
+                        psa_cipher_abort(msg.rhandle);
                     }
 
                     mbedtls_free(msg.rhandle);
