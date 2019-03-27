@@ -65,6 +65,9 @@ static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t
 
 MBED_NONSECURE_ENTRY int32_t flash_init(flash_t *obj)
 {
+    /* Set the clock frequency to prevent from ROM changing the Flash access time */
+    flash_config.modeConfig.sysFreqInMHz = SystemCoreClock / 1000000; 
+
     if (FLASH_Init(&flash_config) != kStatus_Success) {
         return -1;
     } else {
