@@ -402,6 +402,9 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
     nrf_drv_usbd_ep_t ep = get_nordic_endpoint(endpoint);
     nrf_drv_usbd_ep_stall_clear(ep);
+	
+	// Clear data toggle
+	nrf_drv_usbd_ep_dtoggle_clear(ep);
 
     /*
      * This is a somewhat hacky fix to fully "unload"
