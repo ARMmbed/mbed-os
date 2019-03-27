@@ -59,22 +59,22 @@ typedef struct {
 #define SD_TRANSFER_BUSY ((uint8_t)0x01)
 
 
-uint8_t sdio_init(void);
-uint8_t sdio_deinit(void);
-uint8_t sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-uint8_t sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+int sdio_init(void);
+int sdio_deinit(void);
+int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 
 #if DEVICE_SDIO_ASYNC
 
-uint8_t sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
-uint8_t sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
-uint8_t sdio_read_pending(void);
-uint8_t sdio_write_pending(void);
+int sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
+int sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
+int sdio_read_pending(void);
+int sdio_write_pending(void);
 
 #endif // DEVICE_SDIO_ASYNC
 
-uint8_t sdio_erase(uint32_t StartAddr, uint32_t EndAddr);
-uint8_t sdio_get_card_state(void);
+int sdio_erase(uint32_t StartAddr, uint32_t EndAddr);
+int sdio_get_card_state(void);
 void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo);
 
 /**@}*/
@@ -86,23 +86,3 @@ void sdio_get_card_info(SDIO_Cardinfo_t *CardInfo);
 #endif // DEVICE_SDIO
 
 #endif // MBED_SDIO_API_H
-
-
-// TODO: check if this could be usefull
-/** @}*/
-
-// #if DEVICE_SDIO_ASYNCH
-// /** Asynch SPI HAL structure
-//  */
-// typedef struct {
-//     struct spi_s spi;        /**< Target specific SPI structure */
-//     struct buffer_s tx_buff; /**< Tx buffer */
-//     struct buffer_s rx_buff; /**< Rx buffer */
-// } spi_t;
-
-// #else
-// /** Non-asynch SPI HAL structure
-//  */
-// typedef struct spi_s spi_t;
-
-// #endif

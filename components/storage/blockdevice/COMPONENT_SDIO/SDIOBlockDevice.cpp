@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
+
 #include "sdio_api.h"
+#include "us_ticker_api.h"
 #include "SDIOBlockDevice.h"
 #include "platform/mbed_debug.h"
-#include "sdio_device.h"
 
 using namespace mbed;
 
@@ -175,10 +176,10 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 #if DEVICE_SDIO_ASYNC
     // make sure card is ready
     {
-        uint32_t tickstart = HAL_GetTick();
+        uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
@@ -191,18 +192,18 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     if (status == MSD_OK) {
         // wait until DMA finished
-        uint32_t tickstart = HAL_GetTick();
+        uint32_t tickstart = us_ticker_read();
         while (sdio_read_pending() != SD_TRANSFER_OK) {
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
         }
         // make sure card is ready
-        tickstart = HAL_GetTick();
+        tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
@@ -256,10 +257,10 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 #if DEVICE_SDIO_ASYNC
     // make sure card is ready
     {
-        uint32_t tickstart = HAL_GetTick();
+        uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
@@ -271,18 +272,18 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 
     if (status == MSD_OK) {
         // wait until DMA finished
-        uint32_t tickstart = HAL_GetTick();
+        uint32_t tickstart = us_ticker_read();
         while (sdio_write_pending() != SD_TRANSFER_OK) {
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
         }
         // make sure card is ready
-        tickstart = HAL_GetTick();
+        tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
@@ -335,10 +336,10 @@ int SDIOBlockDevice::trim(bd_addr_t addr, bd_size_t size)
         unlock();
         return SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
     } else {
-        uint32_t tickstart = HAL_GetTick();
+        uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
             }
