@@ -122,7 +122,7 @@ public:
     virtual const char *get_type() const;
 
 private:
-    DigitalIn _cardDetect;
+    mbed::DigitalIn _cardDetect;
     bool _is_initialized;
     bd_size_t _block_size;
     bd_size_t _erase_size;

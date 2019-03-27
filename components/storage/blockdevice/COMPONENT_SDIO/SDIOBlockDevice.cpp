@@ -179,7 +179,7 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
@@ -194,7 +194,7 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         // wait until DMA finished
         uint32_t tickstart = us_ticker_read();
         while (sdio_read_pending() != SD_TRANSFER_OK) {
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
@@ -203,7 +203,7 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
@@ -260,7 +260,7 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
@@ -274,7 +274,7 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         // wait until DMA finished
         uint32_t tickstart = us_ticker_read();
         while (sdio_write_pending() != SD_TRANSFER_OK) {
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
@@ -283,7 +283,7 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
@@ -339,7 +339,7 @@ int SDIOBlockDevice::trim(bd_addr_t addr, bd_size_t size)
         uint32_t tickstart = us_ticker_read();
         while (sdio_get_card_state() != SD_TRANSFER_OK) {
             // wait until SD ready
-            if ((us_ticker_read() - tickstart) >= MBED_CONF_SD_TIMEOUT) {
+            if ((us_ticker_read() - tickstart) >= MBED_CONF_SDIO_CMD_TIMEOUT) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
             }
