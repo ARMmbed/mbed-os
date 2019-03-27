@@ -40,6 +40,10 @@
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
 
+#ifdef I2C_IP_VERSION_V2
+#include <stdlib.h>
+#endif // I2C_IP_VERSION_V2
+
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
 #endif
@@ -79,8 +83,8 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
 */
 #define FLAG_TIMEOUT ((int)0x1000)
 
-/* Declare i2c_init_internal to be used in this file */
-void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl);
+#define MINIMUM_FREQUENCY 100000
+#define MAXIMUM_FREQUENCY 1000000
 
 /* GENERIC INIT and HELPERS FUNCTIONS */
 
@@ -319,8 +323,8 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
         return;
     }
 
-    capabilities->minimum_frequency = 100000;
-    capabilities->maximum_frequency = 1000000;
+    capabilities->minimum_frequency = MINIMUM_FREQUENCY;
+    capabilities->maximum_frequency = MAXIMUM_FREQUENCY;
     capabilities->supports_slave_mode = true;
     capabilities->supports_10bit_addressing = false;
     capabilities->supports_multi_master = true;
@@ -328,12 +332,7 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 {
-    memset(obj, 0, sizeof(*obj));
-    i2c_init_internal(obj, sda, scl);
-}
 
-void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl)
-{
     struct i2c_s *obj_s = I2C_S(obj);
 
     // Determine the I2C to use
@@ -448,6 +447,7 @@ void i2c_free(i2c_t *obj)
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 {
     int timeout;
+    uint32_t selected_frequency = frequency;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
@@ -456,14 +456,26 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 
 #ifdef I2C_IP_VERSION_V1
-    handle->Init.ClockSpeed      = frequency;
+    handle->Init.ClockSpeed = selected_frequency;
     handle->Init.DutyCycle       = I2C_DUTYCYCLE_2;
 #endif
 #ifdef I2C_IP_VERSION_V2
-    /*  Only predefined timing for below frequencies are supported */
-    MBED_ASSERT((frequency == 100000) || (frequency == 400000) ||
-                (frequency == 1000000));
-    handle->Init.Timing = get_i2c_timing(frequency);
+    // Find the closest supported frequency
+    static const int supported_hz[] = {100000, 400000, 1000000};
+    uint32_t minimum_delta = -1;
+
+    for (size_t i = 0; i < (sizeof(supported_hz) / sizeof(int)); ++i)
+    {
+        const uint32_t current_delta = abs(supported_hz[i] - frequency);
+
+        if (current_delta < minimum_delta)
+            continue;
+
+        selected_frequency = supported_hz[i];
+        minimum_delta = current_delta;
+    }
+
+    handle->Init.Timing = get_i2c_timing(selected_frequency);
 
     // Enable the Fast Mode Plus capability
     if (selected_frequency == 1000000) {
@@ -527,7 +539,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     HAL_I2C_Init(handle);
 
     /*  store frequency for timeout computation */
-    obj_s->hz = frequency;
+    obj_s->hz = selected_frequency;
 
     return obj_s->hz;
 }
