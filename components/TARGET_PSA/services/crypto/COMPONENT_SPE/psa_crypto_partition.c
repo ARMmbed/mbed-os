@@ -447,27 +447,32 @@ static void psa_hash_operation(void)
                     size_t size_to_read = 0;
                     size_t allocation_size = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
 
-                    input_buffer = mbedtls_calloc(1, allocation_size);
-                    if (input_buffer == NULL) {
-                        psa_hash_abort(msg.rhandle);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                    } else {
-                        while (data_remaining > 0) {
-                            size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
-                            bytes_read = psa_read(msg.handle, 1, input_buffer, size_to_read);
+                    if (allocation_size > 0) {
+                        input_buffer = mbedtls_calloc(1, allocation_size);
+                        if (input_buffer == NULL) {
+                            psa_hash_abort(msg.rhandle);
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            while (data_remaining > 0) {
+                                size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
 
-                            if (bytes_read != size_to_read) {
-                                SPM_PANIC("SPM read length mismatch");
+                                bytes_read = psa_read(msg.handle, 1, input_buffer, size_to_read);
+                                if (bytes_read != size_to_read) {
+                                    SPM_PANIC("SPM read length mismatch");
+                                }
+
+                                status = psa_hash_update(msg.rhandle, input_buffer, bytes_read);
+                                // stop on error
+                                if (status != PSA_SUCCESS) {
+                                    break;
+                                }
+                                data_remaining = data_remaining - bytes_read;
                             }
 
-                            status = psa_hash_update(msg.rhandle, input_buffer, bytes_read);
-                            // stop on error
-                            if (status != PSA_SUCCESS) {
-                                break;
-                            }
-                            data_remaining = data_remaining - bytes_read;
+                            mbedtls_free(input_buffer);
                         }
-                        mbedtls_free(input_buffer);
+                    } else {
+                        status = psa_hash_update(msg.rhandle, input_buffer, allocation_size);
                     }
 
                     if (status != PSA_SUCCESS) {
@@ -479,25 +484,30 @@ static void psa_hash_operation(void)
                 }
 
                 case PSA_HASH_FINISH: {
-                    size_t hash_size = 0;
-                    bytes_read = psa_read(msg.handle, 1, &hash_size,
-                                          msg.in_size[1]);
+                    uint8_t *hash = NULL;
+                    size_t hash_size = 0, hash_length = 0;
+
+                    bytes_read = psa_read(msg.handle, 1, &hash_size, msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
                         SPM_PANIC("SPM read length mismatch");
                     }
 
-                    size_t hash_length = 0;
-                    uint8_t *hash = mbedtls_calloc(1, hash_size);
-                    if (hash == NULL) {
-                        psa_hash_abort(msg.rhandle);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                    } else {
+                    if (hash_size > 0) {
+                        hash = mbedtls_calloc(1, hash_size);
+                        if (hash == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
+                    }
+
+                    if (status == PSA_SUCCESS) {
                         status = psa_hash_finish(msg.rhandle, hash, hash_size, &hash_length);
                         if (status == PSA_SUCCESS) {
                             psa_write(msg.handle, 0, hash, hash_length);
                             psa_write(msg.handle, 1, &hash_length, sizeof(hash_length));
                         }
                         mbedtls_free(hash);
+                    } else {
+                        psa_hash_abort(msg.rhandle);
                     }
 
                     destroy_hash_clone(msg.rhandle);
@@ -507,26 +517,31 @@ static void psa_hash_operation(void)
                 }
 
                 case PSA_HASH_VERIFY: {
+                    uint8_t *hash = NULL;
                     size_t hash_length = 0;
-                    bytes_read = psa_read(msg.handle, 1, &hash_length,
-                                          msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1] ||
-                            hash_length != msg.in_size[2]) {
+
+                    bytes_read = psa_read(msg.handle, 1, &hash_length, msg.in_size[1]);
+                    if (bytes_read != msg.in_size[1] || hash_length != msg.in_size[2]) {
                         SPM_PANIC("SPM read length mismatch");
                     }
 
-                    uint8_t *hash = mbedtls_calloc(1, hash_length);
-                    if (hash == NULL) {
-                        psa_hash_abort(msg.rhandle);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                    } else {
-                        bytes_read = psa_read(msg.handle, 2, hash, msg.in_size[2]);
-                        if (bytes_read != msg.in_size[2]) {
-                            SPM_PANIC("SPM read length mismatch");
+                    if (hash_length > 0) {
+                        hash = mbedtls_calloc(1, hash_length);
+                        if (hash == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 2, hash, hash_length);
+                            if (bytes_read != hash_length) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
                         }
+                    }
 
+                    if (status == PSA_SUCCESS) {
                         status = psa_hash_verify(msg.rhandle, hash, hash_length);
                         mbedtls_free(hash);
+                    } else {
+                        psa_hash_abort(msg.rhandle);
                     }
 
                     destroy_hash_clone(msg.rhandle);
