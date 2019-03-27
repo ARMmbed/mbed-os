@@ -77,6 +77,9 @@ TEST_F(Test_LoRaMac, initialize)
     conn.connection_u.otaa.nb_trials = 2;
     object->prepare_join(&conn, true);
 
+    channel_params_t params[] = {868300000, 0, { ((DR_5 << 4) | DR_0) }, 1};
+    LoRaPHY_stub::channel_params_ptr = params;
+
     LoRaWANTimer_stub::call_cb_immediately = true;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize(NULL, my_cb));
 }
