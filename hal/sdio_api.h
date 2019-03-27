@@ -49,20 +49,20 @@ typedef struct {
 /**
   * @brief  SD status structure definition
   */
-#define MSD_OK ((uint8_t)0x00)
-#define MSD_ERROR ((uint8_t)0x01)
+#define MSD_OK ((int)0x00)
+#define MSD_ERROR ((int)0x01)
 
 /**
   * @brief  SD transfer state definition
   */
-#define SD_TRANSFER_OK ((uint8_t)0x00)
-#define SD_TRANSFER_BUSY ((uint8_t)0x01)
+#define SD_TRANSFER_OK ((int)0x00)
+#define SD_TRANSFER_BUSY ((int)0x01)
 
 
 int sdio_init(void);
 int sdio_deinit(void);
-int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
+int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
 
 #if DEVICE_SDIO_ASYNC
 

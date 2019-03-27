@@ -20,6 +20,7 @@
 
 
 #if DEVICE_SDIO
+#define CMD_TIMEOUT 30000
 /* Extern variables ---------------------------------------------------------*/
 
 SD_HandleTypeDef hsd;
@@ -27,8 +28,8 @@ DMA_HandleTypeDef hdma_sdio_rx;
 DMA_HandleTypeDef hdma_sdio_tx;
 
 // simple flags for DMA pending signaling
-volatile uint8_t SD_DMA_ReadPendingState = SD_TRANSFER_OK;
-volatile uint8_t SD_DMA_WritePendingState = SD_TRANSFER_OK;
+volatile int SD_DMA_ReadPendingState = SD_TRANSFER_OK;
+volatile int SD_DMA_WritePendingState = SD_TRANSFER_OK;
 
 /* DMA Handlers are global, there is only one SDIO interface */
 
@@ -270,7 +271,7 @@ static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
  */
 int sdio_init(void)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
     hsd.Instance = SDIO;
     hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
@@ -301,7 +302,7 @@ int sdio_init(void)
  */
 int sdio_deinit(void)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
     hsd.Instance = SDIO;
 
@@ -323,14 +324,13 @@ int sdio_deinit(void)
  * @param  pData: Pointer to the buffer that will contain the data to transmit
  * @param  ReadAddr: Address from where data is to be read
  * @param  NumOfBlocks: Number of SD blocks to read
- * @param  Timeout: Timeout for read operation
  * @retval SD status
  */
-int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
-    if (HAL_SD_ReadBlocks(&hsd, (uint8_t *)pData, ReadAddr, NumOfBlocks, Timeout) != HAL_OK)
+    if (HAL_SD_ReadBlocks(&hsd, (uint8_t *)pData, ReadAddr, NumOfBlocks, CMD_TIMEOUT) != HAL_OK)
     {
         sd_state = MSD_ERROR;
     }
@@ -343,14 +343,13 @@ int sdio_readblocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, ui
  * @param  pData: Pointer to the buffer that will contain the data to transmit
  * @param  WriteAddr: Address from where data is to be written
  * @param  NumOfBlocks: Number of SD blocks to write
- * @param  Timeout: Timeout for write operation
  * @retval SD status
  */
-int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
-    if (HAL_SD_WriteBlocks(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK)
+    if (HAL_SD_WriteBlocks(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks, CMD_TIMEOUT) != HAL_OK)
     {
         sd_state = MSD_ERROR;
     }
@@ -369,7 +368,7 @@ int sdio_writeblocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, 
  */
 int sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
     SD_DMA_ReadPendingState = SD_TRANSFER_BUSY;
 
     /* Read block(s) in DMA transfer mode */
@@ -391,7 +390,7 @@ int sdio_readblocks_async(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBloc
  */
 int sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
     SD_DMA_WritePendingState = SD_TRANSFER_BUSY;
 
     /* Write block(s) in DMA transfer mode */
@@ -414,7 +413,7 @@ int sdio_writeblocks_async(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBl
  */
 int sdio_erase(uint32_t StartAddr, uint32_t EndAddr)
 {
-    uint8_t sd_state = MSD_OK;
+    int sd_state = MSD_OK;
 
     if (HAL_SD_Erase(&hsd, StartAddr, EndAddr) != HAL_OK)
     {
