@@ -719,10 +719,10 @@ void test_get_type_functionality()
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
 #elif COMPONENT_SD
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
-#elif COMPONENT_FLASHIAP
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #elif COMPONENT_SDIO
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SDIO"));
+#elif COMPONENT_FLASHIAP
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #endif
 }
 

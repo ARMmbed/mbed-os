@@ -214,7 +214,7 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
     }
 #else
-    status = sdio_readblocks(buffer, addr, blockCnt);
+    status = sdio_readblocks(_buffer, addr, blockCnt);
     debug_if(SD_DBG, "ReadBlocks dbgtest addr: %lld  blockCnt: %lld \n", addr, blockCnt);
 
     if (status != MSD_OK) {
@@ -294,7 +294,7 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
     }
 #else
-    status = SDIO_WriteBlocks(buffer, addr, blockCnt);
+    status = sdio_writeblocks(_buffer, addr, blockCnt);
 
     debug_if(SD_DBG, "WriteBlocks dbgtest addr: %lld  blockCnt: %lld \n", addr, blockCnt);
 
