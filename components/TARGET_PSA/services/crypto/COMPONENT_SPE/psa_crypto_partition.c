@@ -1467,6 +1467,7 @@ static void psa_entropy_operation(void)
 
         case PSA_IPC_CALL: {
 #if (defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO))
+            unsigned char *seed = NULL;
             uint32_t bytes_read;
             size_t seed_size = msg.in_size[0];
             if (MBEDTLS_ENTROPY_MAX_SEED_SIZE < seed_size) {
@@ -1474,10 +1475,12 @@ static void psa_entropy_operation(void)
                 break;
             }
 
-            unsigned char *seed = mbedtls_calloc(1, seed_size);
-            if (seed == NULL) {
-                status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                break;
+            if (seed_size > 0) {
+                seed = mbedtls_calloc(1, seed_size);
+                if (seed == NULL) {
+                    status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                    break;
+                }
             }
 
             bytes_read = psa_read(msg.handle, 0, seed, seed_size);
