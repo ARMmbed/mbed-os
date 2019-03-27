@@ -156,14 +156,14 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    if (!is_valid_read(addr, size)) {
-        unlock();
-        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
-    }
-
     if (!_is_initialized) {
         unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
+    }
+
+    if (!is_valid_read(addr, size)) {
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     uint32_t *_buffer = static_cast<uint32_t *>(buffer);
@@ -237,14 +237,14 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    if (!is_valid_program(addr, size)) {
-        unlock();
-        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
-    }
-
     if (!_is_initialized) {
         unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
+    }
+
+    if (!is_valid_program(addr, size)) {
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     // HAL layer uses uint32_t for addr/size
@@ -317,14 +317,14 @@ int SDIOBlockDevice::trim(bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    if (!_is_valid_trim(addr, size)) {
-        unlock();
-        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
-    }
-
     if (!_is_initialized) {
         unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
+    }
+
+    if (!_is_valid_trim(addr, size)) {
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     bd_size_t blockCnt = size / _block_size;
