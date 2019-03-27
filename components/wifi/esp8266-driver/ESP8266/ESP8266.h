@@ -335,6 +335,15 @@ public:
      */
     bool set_default_wifi_mode(const int8_t mode);
 
+    /**
+     * @param track_ap      if TRUE, sets the county code to be the same as the AP's that ESP is connected to,
+     *                      if FALSE the code will not change
+     * @param country_code  ISO 3166-1 Alpha-2 coded country code
+     * @param channel_start the channel number to start at
+     * @param channels      number of channels
+     */
+    bool set_country_code_policy(bool track_ap, const char *country_code, int channel_start, int channels);
+
     /** Get the connection status
      *
      *  @return         The connection status according to ConnectionStatusType

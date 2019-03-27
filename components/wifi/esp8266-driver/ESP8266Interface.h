@@ -44,6 +44,18 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
+#ifndef MBED_CONF_ESP8266_COUNTRY_CODE
+#define MBED_CONF_ESP8266_COUNTRY_CODE "CN"
+#endif
+
+#ifndef MBED_CONF_ESP8266_CHANNEL_START
+#define MBED_CONF_ESP8266_CHANNEL_START 1
+#endif
+
+#ifndef MBED_CONF_ESP8266_CHANNELS
+#define MBED_CONF_ESP8266_CHANNELS 13
+#endif
+
 /** ESP8266Interface class
  *  Implementation of the NetworkStack for the ESP8266
  */
@@ -325,6 +337,18 @@ protected:
      */
     virtual nsapi_error_t set_blocking(bool blocking);
 
+    /** Set country code
+     *
+     *  @param track_ap      if TRUE, use country code used by the AP ESP is connected to,
+     *                       otherwise uses country_code always
+     *  @param country_code  ISO 3166-1 coded, 2 character alphanumeric country code assumed
+     *  @param len           Length of the country code
+     *  @param channel_start The channel number to start at
+     *  @param channel       Number of channels
+     *  @return              NSAPI_ERROR_OK on success, negative error code on failure.
+     */
+    nsapi_error_t set_country_code(bool track_ap, const char *country_code, int len, int channel_start, int channels);
+
 private:
     // AT layer
     ESP8266 _esp;
@@ -349,6 +373,15 @@ private:
     static const int ESP8266_PASSPHRASE_MIN_LENGTH = 8; /* The shortest allowed passphrase */
     char ap_pass[ESP8266_PASSPHRASE_MAX_LENGTH + 1]; /* The longest possible passphrase; +1 for the \0 */
     nsapi_security_t _ap_sec;
+
+    // Country code
+    struct _channel_info {
+        bool track_ap; // Set country code based on the AP ESP is connected to
+        char country_code[4]; // ISO 3166-1 coded, 2-3 character alphanumeric country code - +1 for the '\0' - assumed. Documentation doesn't tell.
+        int channel_start;
+        int channels;
+    };
+    struct _channel_info _ch_info;
 
     bool _if_blocking; // NetworkInterface, blocking or not
     rtos::ConditionVariable _if_connected;
