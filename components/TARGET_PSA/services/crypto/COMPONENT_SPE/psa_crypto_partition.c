@@ -652,82 +652,81 @@ static void psa_asymmetric_operation(void)
 
             switch (psa_crypto.func) {
                 case PSA_ASYMMETRIC_SIGN: {
-                    uint8_t *signature;
-                    uint8_t *hash;
-                    size_t signature_length = 0;
+                    uint8_t *signature = NULL;
+                    uint8_t *hash = NULL;
+                    size_t signature_length = 0,
+                           signature_size = msg.out_size[0],
+                           hash_size = msg.in_size[1];
 
-                    signature = mbedtls_calloc(1, msg.out_size[0]);
-                    if (signature == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    if (signature_size > 0) {
+                        signature = mbedtls_calloc(1, signature_size);
+                        if (signature == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
                     }
-
-                    hash = mbedtls_calloc(1, msg.in_size[1]);
-                    if (hash == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        mbedtls_free(signature);
-                        break;
+                    if (status == PSA_SUCCESS && hash_size > 0) {
+                        hash = mbedtls_calloc(1, hash_size);
+                        if (hash == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 1, hash, hash_size);
+                            if (bytes_read != hash_size) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
+                        }
                     }
-
-                    bytes_read = psa_read(msg.handle, 1,
-                                          hash, msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    status = psa_asymmetric_sign(psa_crypto.handle,
-                                                 psa_crypto.alg,
-                                                 hash,
-                                                 msg.in_size[1],
-                                                 signature,
-                                                 msg.out_size[0],
-                                                 &signature_length);
 
                     if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, signature, signature_length);
+                        status = psa_asymmetric_sign(psa_crypto.handle, psa_crypto.alg,
+                                                     hash, hash_size,
+                                                     signature, signature_size, &signature_length);
+
+                        if (status == PSA_SUCCESS) {
+                            psa_write(msg.handle, 0, signature, signature_length);
+                        }
+                        psa_write(msg.handle, 1, &signature_length, sizeof(signature_length));
                     }
 
-                    psa_write(msg.handle, 1,
-                              &signature_length, sizeof(signature_length));
                     mbedtls_free(hash);
                     mbedtls_free(signature);
                     break;
                 }
 
                 case PSA_ASYMMETRIC_VERIFY: {
-                    uint8_t *signature;
-                    uint8_t *hash;
-                    signature = mbedtls_calloc(1, msg.in_size[1]);
-                    if (signature == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    uint8_t *signature = NULL;
+                    uint8_t *hash = NULL;
+                    size_t signature_size = msg.in_size[1],
+                           hash_size = msg.in_size[2];
+
+                    if (signature_size > 0) {
+                        signature = mbedtls_calloc(1, signature_size);
+                        if (signature == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 1, signature, signature_size);
+                            if (bytes_read != signature_size) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
+                        }
+                    }
+                    if (status == PSA_SUCCESS && hash_size > 0) {
+                        hash = mbedtls_calloc(1, hash_size);
+                        if (hash == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 2, hash, hash_size);
+                            if (bytes_read != hash_size) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
+                        }
                     }
 
-                    bytes_read = psa_read(msg.handle, 1,
-                                          signature, msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
+                    if (status == PSA_SUCCESS) {
+                        status = psa_asymmetric_verify(psa_crypto.handle, psa_crypto.alg,
+                                                       hash, hash_size,
+                                                       signature, signature_size);
                     }
 
-                    hash = mbedtls_calloc(1, msg.in_size[2]);
-                    if (hash == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        mbedtls_free(signature);
-                        break;
-                    }
-
-                    bytes_read = psa_read(msg.handle, 2,
-                                          hash, msg.in_size[2]);
-                    if (bytes_read != msg.in_size[2]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    status = psa_asymmetric_verify(psa_crypto.handle,
-                                                   psa_crypto.alg,
-                                                   hash,
-                                                   msg.in_size[2],
-                                                   signature,
-                                                   msg.in_size[1]);
                     mbedtls_free(signature);
                     mbedtls_free(hash);
                     break;
@@ -735,59 +734,50 @@ static void psa_asymmetric_operation(void)
 
                 case PSA_ASYMMETRIC_ENCRYPT:
                 case PSA_ASYMMETRIC_DECRYPT: {
-                    uint8_t *input;
-                    uint8_t *salt;
-                    uint8_t *output;
-                    size_t output_length = 0;
+                    uint8_t *input = NULL, *salt = NULL, *output = NULL, *buffer = NULL;
+                    size_t output_length = 0,
+                           buffer_size = msg.in_size[1],
+                           output_size = msg.out_size[0];
 
-                    uint8_t *buffer = mbedtls_calloc(1, msg.in_size[1]);
-                    if (buffer == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    if (buffer_size > 0) {
+                        buffer = mbedtls_calloc(1, buffer_size);
+                        if (buffer == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 1, buffer, buffer_size);
+                            if (bytes_read != buffer_size) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
+
+                            input = buffer;
+                            salt = buffer + psa_crypto.input_length;
+                        }
                     }
-
-                    bytes_read = psa_read(msg.handle, 1, buffer,
-                                          msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
+                    if (status == PSA_SUCCESS && output_size > 0) {
+                        output = mbedtls_calloc(1, output_size);
+                        if (output == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
                     }
-
-                    input = buffer;
-                    salt = buffer + psa_crypto.input_length;
-                    output = mbedtls_calloc(1, msg.out_size[0]);
-                    if (output == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        mbedtls_free(buffer);
-                        break;
-                    }
-
-                    if (psa_crypto.func == PSA_ASYMMETRIC_ENCRYPT)
-                        status = psa_asymmetric_encrypt(psa_crypto.handle,
-                                                        psa_crypto.alg,
-                                                        input,
-                                                        psa_crypto.input_length,
-                                                        salt,
-                                                        psa_crypto.salt_length,
-                                                        output,
-                                                        msg.out_size[0],
-                                                        &output_length);
-                    else
-                        status = psa_asymmetric_decrypt(psa_crypto.handle,
-                                                        psa_crypto.alg,
-                                                        input,
-                                                        psa_crypto.input_length,
-                                                        salt,
-                                                        psa_crypto.salt_length,
-                                                        output,
-                                                        msg.out_size[0],
-                                                        &output_length);
 
                     if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, output, output_length);
-                    }
+                        if (psa_crypto.func == PSA_ASYMMETRIC_ENCRYPT) {
+                            status = psa_asymmetric_encrypt(psa_crypto.handle, psa_crypto.alg,
+                                                            input, psa_crypto.input_length,
+                                                            salt, psa_crypto.salt_length,
+                                                            output, output_size, &output_length);
+                        } else {
+                            status = psa_asymmetric_decrypt(psa_crypto.handle, psa_crypto.alg,
+                                                            input, psa_crypto.input_length,
+                                                            salt, psa_crypto.salt_length,
+                                                            output, output_size, &output_length);
+                        }
 
-                    psa_write(msg.handle, 1,
-                              &output_length, sizeof(output_length));
+                        if (status == PSA_SUCCESS) {
+                            psa_write(msg.handle, 0, output, output_length);
+                        }
+                        psa_write(msg.handle, 1, &output_length, sizeof(output_length));
+                    }
 
                     mbedtls_free(output);
                     mbedtls_free(buffer);
