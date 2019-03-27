@@ -131,18 +131,23 @@ static void init_serial()
 #endif
 
 /**
+ * Precision defines
+ */
+#define PRECISION_DEFAULT (INT_MAX)
+
+/**
  * Enum for storing width modifier.
  */
 typedef enum {
-    LENGTH_NONE,
-    LENGTH_HH,
-    LENGTH_H,
-    LENGTH_L,
-    LENGTH_LL,
-    LENGTH_J,
-    LENGTH_Z,
-    LENGTH_T,
-    LENGTH_CAPITAL_L
+    LENGTH_NONE         = 0x00,
+    LENGTH_H            = 0x11,
+    LENGTH_L            = 0x21,
+    LENGTH_J            = 0x31,
+    LENGTH_Z            = 0x41,
+    LENGTH_T            = 0x51,
+    LENGTH_CAPITAL_L    = 0x61,
+    LENGTH_HH           = 0x72,
+    LENGTH_LL           = 0x82
 } length_t;
 
 /**
@@ -153,7 +158,7 @@ static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, 
 static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, const void* value);
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character);
-static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string);
+static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string, size_t precision);
 
 /**
  * @brief      Print a single character, checking for buffer and size overflows.
@@ -399,19 +404,21 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
 }
 
 /**
- * @brief      Print string.
+ * @brief      Print string with precision.
  *
- * @param      buffer  The buffer to store output (NULL for stdout).
- * @param[in]  length  The length of the buffer.
- * @param      result  The current output location.
- * @param[in]  value   The string to be printed.
+ * @param      buffer     The buffer to store output (NULL for stdout).
+ * @param[in]  length     The length of the buffer.
+ * @param      result     The current output location.
+ * @param[in]  value      The string to be printed.
+ * @param[in]  precision  The maximum number of characters to be printed.
  */
-static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string)
+static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string, size_t precision)
 {
-    while (*string != '\0')
+    while ((*string != '\0') && (precision))
     {
         mbed_minimal_putchar(buffer, length, result, *string);
-        string ++;
+        string++;
+        precision--;
     }
 }
 
@@ -456,77 +463,121 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
             {
                 size_t next_index = index + 1;
 
-                /* while format string is not empty */
-                while ((format[next_index] != '\0') &&
-                        /* skip all flags and precision modifiers */
-                        (((format[next_index] >= '0') && (format[next_index] <= '9')) ||
-                         (format[next_index] == '-') ||
-                         (format[next_index] == '+') ||
-                         (format[next_index] == '#') ||
-                         (format[next_index] == '.')))
+                /**************************************************************
+                 * skip and ignore flags [-+(space)#0]
+                 *************************************************************/
+                if ((format[next_index] == '-') ||
+                    (format[next_index] == '+') ||
+                    (format[next_index] == ' ') ||
+                    (format[next_index] == '#') ||
+                    (format[next_index] == '0'))
                 {
                     /* skip to next character */
                     next_index++;
                 }
 
-                /* look for length modifier, default to NONE */
-                length_t length_modifier = LENGTH_NONE;
-
-                /* look for two character length modifier */
-                if (format[next_index + 1] != '\0')
+                /**************************************************************
+                 * skip and ignore width [(number)*]
+                 *************************************************************/
+                if (format[next_index] == '*')
                 {
-                    if ((format[next_index] == 'h') && (format[next_index + 1] == 'h'))
-                    {
-                        length_modifier = LENGTH_HH;
-                    }
-                    else if ((format[next_index] == 'l') && (format[next_index + 1] == 'l'))
-                    {
-                        length_modifier = LENGTH_LL;
-                    }
+                    /* skip to next character */
+                    next_index++;
 
-                    /* increment next_index if length modifier was found */
-                    if (length_modifier != LENGTH_NONE)
-                    {
-                        next_index += 2;
-                    }
+                    /* discard argument */
+                    va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
                 }
-
-                /* look for one character length modifier if two character search failed */
-                if ((length_modifier == LENGTH_NONE) && (format[next_index] != '\0'))
+                else
                 {
-                    if (format[next_index] == 'h')
+                    while ((format[next_index] >= '0') &&
+                           (format[next_index] <= '9'))
                     {
-                        length_modifier = LENGTH_H;
-                    }
-                    else if (format[next_index] == 'l')
-                    {
-                        length_modifier = LENGTH_L;
-                    }
-                    else if (format[next_index] == 'j')
-                    {
-                        length_modifier = LENGTH_J;
-                    }
-                    else if (format[next_index] == 'z')
-                    {
-                        length_modifier = LENGTH_Z;
-                    }
-                    else if (format[next_index] == 't')
-                    {
-                        length_modifier = LENGTH_T;
-                    }
-                    else if (format[next_index] == 'L')
-                    {
-                        length_modifier = LENGTH_CAPITAL_L;
-                    }
-
-                    /* increment next_index if length modifier was found */
-                    if (length_modifier != LENGTH_NONE)
-                    {
+                        /* skip to next character */
                         next_index++;
                     }
                 }
 
-                /* read out character - this is a supported format character, '\0', or a not suported character */
+                /**************************************************************
+                 * look for precision modifier
+                 *************************************************************/
+                int precision = PRECISION_DEFAULT;
+
+                if ((format[next_index] == '.') &&
+                    (format[next_index + 1] == '*'))
+                {
+                    next_index += 2;
+
+                    /* read precision from argument list */
+                    precision = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
+                }
+                else if (format[next_index] == '.')
+                {
+                    /* precision modifier found, reset default to 0 and increment index */
+                    next_index++;
+                    precision = 0;
+
+                    /* parse precision until not a decimal */
+                    size_t inner_index = 0;
+
+                    while ((format[next_index + inner_index] >= '0') &&
+                           (format[next_index + inner_index] <= '9'))
+                    {
+                        precision = precision * 10 + (format[next_index + inner_index] - '0');
+
+                        inner_index++;
+                    }
+
+                    /* move index forward to point at next character */
+                    next_index += inner_index;
+                }
+
+                /**************************************************************
+                 * look for length modifier, default to NONE
+                 *************************************************************/
+                length_t length_modifier = LENGTH_NONE;
+
+                /* look for two character length modifier */
+                if ((format[next_index] == 'h') && (format[next_index + 1] == 'h'))
+                {
+                    length_modifier = LENGTH_HH;
+                }
+                else if ((format[next_index] == 'l') && (format[next_index + 1] == 'l'))
+                {
+                    length_modifier = LENGTH_LL;
+                }
+                /* look for one character length modifier if two character search failed */
+                else if (format[next_index] == 'h')
+                {
+                    length_modifier = LENGTH_H;
+                }
+                else if (format[next_index] == 'l')
+                {
+                    length_modifier = LENGTH_L;
+                }
+                else if (format[next_index] == 'j')
+                {
+                    length_modifier = LENGTH_J;
+                }
+                else if (format[next_index] == 'z')
+                {
+                    length_modifier = LENGTH_Z;
+                }
+                else if (format[next_index] == 't')
+                {
+                    length_modifier = LENGTH_T;
+                }
+                else if (format[next_index] == 'L')
+                {
+                    length_modifier = LENGTH_CAPITAL_L;
+                }
+
+                /* increment index, length is encoded in modifier enum */
+                next_index += (length_modifier & 0x0F);
+
+                /**************************************************************
+                 * read out character - this is a supported format character,
+                 * '\0', or a not suported character
+                 *************************************************************/
                 char next = format[next_index];
 
                 /* signed integer */
@@ -534,7 +585,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 {
                     MBED_SIGNED_STORAGE value = 0;
 
-    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
                     /* if 64 bit is enabled and the integer types are larger than the native type */
                     if (((length_modifier == LENGTH_LL)   && (sizeof(long long int) > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
                         ((length_modifier == LENGTH_L)    && (sizeof(long int)      > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
@@ -544,7 +595,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                         value = va_arg(arguments, MBED_SIGNED_STORAGE);
                     }
                     else
-    #endif
+#endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
                         value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
@@ -587,7 +638,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 {
                     MBED_UNSIGNED_STORAGE value = 0;
 
-    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
                     /* if 64 bit is enabled and the integer types are larger than the native type */
                     if (((length_modifier == LENGTH_LL)   && (sizeof(unsigned long long int) > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
                         ((length_modifier == LENGTH_L)    && (sizeof(unsigned long int)      > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
@@ -597,7 +648,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                         value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
                     }
                     else
-    #endif
+#endif
                     {
                         /* use native storage type (which can be 32 or 64 bit) */
                         value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
@@ -646,7 +697,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                         mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value);
                     }
                 }
-    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
                 /* treat all floating points the same */
                 else if ((next == 'f') || (next == 'F') || (next == 'g') || (next == 'G'))
                 {
@@ -655,7 +706,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
 
                     mbed_minimal_formatted_string_double(buffer, length, &result, value);
                 }
-    #endif
+#endif
                 /* character */
                 else if (next == 'c')
                 {
@@ -670,7 +721,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                     char* value = va_arg(arguments, char*);
                     index = next_index;
 
-                    mbed_minimal_formatted_string_string(buffer, length, &result, value);
+                    mbed_minimal_formatted_string_string(buffer, length, &result, value, precision);
                 }
                 /* pointer */
                 else if (next == 'p')
