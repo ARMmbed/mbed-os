@@ -160,7 +160,7 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("u: %u\r\n", UINT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_printf("lu: %lu\r\n", 0);
+    result_minimal = mbed_printf("lu: %lu\r\n", 0UL);
     result_baseline = printf("lu: %lu\r\n", 0UL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
@@ -168,7 +168,7 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("lu: %lu\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_printf("llu: %llu\r\n", 0);
+    result_minimal = mbed_printf("llu: %llu\r\n", 0ULL);
     result_baseline = printf("llu: %llu\r\n", 0ULL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
@@ -179,8 +179,8 @@ static control_t test_printf_u(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%ju not supported by mbed\r\n");
 #else
-    result_minimal = mbed_printf("ju: %ju\r\n", 0);
-    result_baseline = printf("ju: %ju\r\n",(uintmax_t) 0);
+    result_minimal = mbed_printf("ju: %ju\r\n", (uintmax_t) 0);
+    result_baseline = printf("ju: %ju\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_printf("ju: %ju\r\n", UINTMAX_MAX);
@@ -246,7 +246,7 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("X: %X\r\n", UINT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_printf("lX: %lX\r\n", 0);
+    result_minimal = mbed_printf("lX: %lX\r\n", 0UL);
     result_baseline = printf("lX: %lX\r\n", 0UL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
@@ -254,7 +254,7 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("lX: %lX\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_printf("llX: %llX\r\n", 0);
+    result_minimal = mbed_printf("llX: %llX\r\n", 0ULL);
     result_baseline = printf("llX: %llX\r\n", 0ULL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
@@ -265,7 +265,7 @@ static control_t test_printf_x(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%jX not supported by mbed\r\n");
 #else
-    result_minimal = mbed_printf("jX: %jX\r\n", 0);
+    result_minimal = mbed_printf("jX: %jX\r\n", (uintmax_t) 0);
     result_baseline = printf("jX: %jX\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
@@ -369,12 +369,12 @@ static control_t test_snprintf_d(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
 #else
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jd: %jd\r\n", INT32_MIN);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jd: %jd\r\n", (intmax_t) INT32_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jd: %jd\r\n", (intmax_t) INT32_MIN);
     TEST_ASSERT_EQUAL_STRING("jd: -2147483648\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jd: %jd\r\n", INT32_MAX);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jd: %jd\r\n", (intmax_t) INT32_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jd: %jd\r\n", (intmax_t) INT32_MAX);
     TEST_ASSERT_EQUAL_STRING("jd: 2147483647\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -383,12 +383,12 @@ static control_t test_snprintf_d(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%zd not supported by mbed\r\n");
 #else
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zd: %zd\r\n", INT32_MIN);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zd: %zd\r\n", (ssize_t) INT32_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zd: %zd\r\n", (ssize_t) INT32_MIN);
     TEST_ASSERT_EQUAL_STRING("zd: -2147483648\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zd: %zd\r\n", INT32_MAX);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zd: %zd\r\n", (ssize_t) INT32_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zd: %zd\r\n", (ssize_t) INT32_MAX);
     TEST_ASSERT_EQUAL_STRING("zd: 2147483647\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -450,7 +450,7 @@ static control_t test_snprintf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lu: %lu\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lu: %lu\r\n", 0UL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lu: %lu\r\n", 0UL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -460,7 +460,7 @@ static control_t test_snprintf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llu: %llu\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llu: %llu\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llu: %llu\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -473,7 +473,7 @@ static control_t test_snprintf_u(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%ju not supported by mbed\r\n");
 #else
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "ju: %ju\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "ju: %ju\r\n", (uintmax_t) 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "ju: %ju\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -553,7 +553,7 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lX: %lX\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lX: %lX\r\n", 0UL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lX: %lX\r\n", 0UL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -563,7 +563,7 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llX: %llX\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
@@ -576,7 +576,7 @@ static control_t test_snprintf_x(const size_t call_count)
 #ifdef TARGET_LIKE_MBED
     printf("%%jX not supported by mbed\r\n");
 #else
-    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jX: %jX\r\n", 0);
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jX: %jX\r\n", (uintmax_t) 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jX: %jX\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
