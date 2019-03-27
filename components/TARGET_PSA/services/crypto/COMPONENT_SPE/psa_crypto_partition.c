@@ -839,63 +839,53 @@ static void psa_aead_operation()
             switch (psa_crypto.func) {
                 case PSA_AEAD_ENCRYPT:
                 case PSA_AEAD_DECRYPT: {
-                    uint8_t *input;
-                    uint8_t *additional_data;
-                    uint8_t *output;
-                    size_t output_length = 0;
+                    uint8_t *input = NULL, *additional_data = NULL, *output = NULL, *buffer = NULL;
+                    size_t output_length = 0,
+                           buffer_size = msg.in_size[1],
+                           output_size = msg.out_size[0];
 
-                    uint8_t *buffer = mbedtls_calloc(1, msg.in_size[1]);
-                    if (buffer == NULL) {
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
+                    if (buffer_size > 0) {
+                        buffer = mbedtls_calloc(1, buffer_size);
+                        if (buffer == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        } else {
+                            bytes_read = psa_read(msg.handle, 1, buffer, buffer_size);
+                            if (bytes_read != buffer_size) {
+                                SPM_PANIC("SPM read length mismatch");
+                            }
+
+                            additional_data = buffer;
+                            input = buffer + psa_crypto.additional_data_length;
+                        }
                     }
-
-                    bytes_read = psa_read(msg.handle, 1, buffer,
-                                          msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
+                    if (status == PSA_SUCCESS && output_size > 0) {
+                        output = mbedtls_calloc(1, output_size);
+                        if (output == NULL) {
+                            status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        }
                     }
-
-                    additional_data = buffer;
-                    input = buffer + psa_crypto.additional_data_length;
-
-                    output = mbedtls_calloc(1, msg.out_size[0]);
-                    if (output == NULL) {
-                        mbedtls_free(buffer);
-                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                        break;
-                    }
-
-                    if (psa_crypto.func == PSA_AEAD_ENCRYPT)
-                        status = psa_aead_encrypt(psa_crypto.handle,
-                                                  psa_crypto.alg,
-                                                  psa_crypto.nonce,
-                                                  (size_t)psa_crypto.nonce_size,
-                                                  additional_data,
-                                                  psa_crypto.additional_data_length,
-                                                  input,
-                                                  psa_crypto.input_length,
-                                                  output,
-                                                  msg.out_size[0],
-                                                  &output_length);
-                    else
-                        status = psa_aead_decrypt(psa_crypto.handle,
-                                                  psa_crypto.alg,
-                                                  psa_crypto.nonce,
-                                                  (size_t)psa_crypto.nonce_size,
-                                                  additional_data,
-                                                  psa_crypto.additional_data_length,
-                                                  input,
-                                                  psa_crypto.input_length,
-                                                  output,
-                                                  msg.out_size[0],
-                                                  &output_length);
 
                     if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, output, output_length);
-                        psa_write(msg.handle, 1,
-                                  &output_length, sizeof(output_length));
+                        if (psa_crypto.func == PSA_AEAD_ENCRYPT) {
+                            status = psa_aead_encrypt(psa_crypto.handle, psa_crypto.alg,
+                                                      psa_crypto.nonce, (size_t)psa_crypto.nonce_size,
+                                                      additional_data, psa_crypto.additional_data_length,
+                                                      input, psa_crypto.input_length,
+                                                      output, output_size, &output_length);
+                        } else {
+                            status = psa_aead_decrypt(psa_crypto.handle, psa_crypto.alg,
+                                                      psa_crypto.nonce, (size_t)psa_crypto.nonce_size,
+                                                      additional_data, psa_crypto.additional_data_length,
+                                                      input, psa_crypto.input_length,
+                                                      output, output_size, &output_length);
+                        }
+
+                        if (status == PSA_SUCCESS) {
+                            psa_write(msg.handle, 0, output, output_length);
+                            psa_write(msg.handle, 1, &output_length, sizeof(output_length));
+                        }
                     }
+
                     mbedtls_free(buffer);
                     mbedtls_free(output);
                     break;
