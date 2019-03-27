@@ -1522,10 +1522,14 @@ static void psa_rng_operation(void)
 
         case PSA_IPC_CALL: {
             size_t random_size = msg.out_size[0];
-            unsigned char *random = mbedtls_calloc(1, random_size);
-            if (random == NULL) {
-                status = PSA_ERROR_INSUFFICIENT_MEMORY;
-                break;
+            unsigned char *random = NULL;
+
+            if (random_size > 0) {
+                random = mbedtls_calloc(1, random_size);
+                if (random == NULL) {
+                    status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                    break;
+                }
             }
 
             status = psa_generate_random(random, random_size);
