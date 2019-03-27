@@ -768,8 +768,6 @@ class Config(object):
                         mem_size = size
                     memory = 'ROM'
                 elif memory in ['IRAM1', 'SRAM_OC', 'SRAM_UPPER', 'SRAM']:
-                    if (self.has_ram_regions):
-                        continue
                     start, size = self._get_primary_memory_override("ram")
                     if start:
                         mem_start = start
