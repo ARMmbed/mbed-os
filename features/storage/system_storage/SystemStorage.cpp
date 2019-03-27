@@ -41,6 +41,10 @@
 #include "SDBlockDevice.h"
 #endif
 
+#if COMPONENT_SDIO
+#include "SDIOBlockDevice.h"
+#endif
+
 #if COMPONENT_FLASHIAP
 #include "FlashIAPBlockDevice.h"
 #endif
@@ -145,6 +149,12 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
     return &default_bd;
 
+#elif COMPONENT_SDIO
+
+    static SDIOBlockDevice default_bd(MBED_CONF_SDIO_CD);
+
+    return &default_bd;
+
 #elif COMPONENT_FLASHIAP
 
 #if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
@@ -193,7 +203,7 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
 
     return &flash;
 
-#elif COMPONENT_SD
+#elif COMPONENT_SD || COMPONENT_SDIO
 
     static FATFileSystem sdcard("sd", BlockDevice::get_default_instance());
     sdcard.set_as_default();

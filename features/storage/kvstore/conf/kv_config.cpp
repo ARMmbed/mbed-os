@@ -51,6 +51,10 @@
 #include "SDBlockDevice.h"
 #endif
 
+#if COMPONENT_SDIO
+#include "SDIOBlockDevice.h"
+#endif
+
 /**
  * @brief This function initializes internal memory secure storage
  *        This includes a TDBStore instance with a FlashIAPBlockdevice
@@ -242,7 +246,7 @@ FileSystem *_get_filesystem_default(const char *mount)
 {
 #if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
     return _get_filesystem_LITTLE(mount);
-#elif COMPONENT_SD
+#elif COMPONENT_SD || COMPONENT_SDIO
     return _get_filesystem_FAT(mount);
 #else
     return NULL;
@@ -601,6 +605,59 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
 #endif
 }
 
+BlockDevice *_get_blockdevice_SDIO(bd_addr_t start_address, bd_size_t size)
+{
+#if COMPONENT_SDIO
+
+    bd_addr_t aligned_end_address;
+    bd_addr_t aligned_start_address;
+
+    static SDIOBlockDevice bd(MBED_CONF_SDIO_CD);
+
+    if (bd.init() != MBED_SUCCESS) {
+        tr_error("KV Config: SDIOBlockDevice init fail");
+        return NULL;
+    }
+
+    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL_NO_RBP") == 0 ||
+            strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
+        //In TDBStore profile, we have a constraint of 4GByte
+        if (start_address == 0 && size == 0  && bd.size() < (uint32_t)(-1)) {
+            return &bd;
+        }
+
+        //If the size of external storage is bigger than 4G we need to slice it.
+        size = size != 0 ? size : align_down(bd.size(), bd.get_erase_size(bd.size() - 1));
+
+        if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+            tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
+            return NULL;
+        }
+
+        if (aligned_end_address - aligned_start_address != (uint32_t)(aligned_end_address - aligned_start_address)) {
+            aligned_end_address = aligned_start_address + (uint32_t)(-1);//Support up to 4G only
+        }
+    } else {
+        //For all other KVStore profiles beside TDBStore we take the entire external memory space.
+        if (start_address == 0 && size == 0) {
+            return &bd;
+        }
+
+        if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+            tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
+            return NULL;
+        }
+    }
+
+    aligned_end_address = align_down(aligned_end_address, bd.get_erase_size(aligned_end_address));
+    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
+    return &sbd;
+
+#else
+    return NULL;
+#endif
+}
+
 BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
 {
 #if COMPONENT_QSPIF
@@ -611,6 +668,8 @@ BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
     return _get_blockdevice_DATAFLASH(start_address, size);
 #elif COMPONENT_SD
     return _get_blockdevice_SD(start_address, size);
+#elif COMPONENT_SDIO
+    return _get_blockdevice_SDIO(start_address, size);
 #else
     tr_error("KV Config: No default component define in target.json for this target.");
     return NULL;
@@ -752,14 +811,8 @@ int _storage_config_TDB_EXTERNAL()
 
     //TDBStore needs a block device base on flash. so if this is SD block device or the default block device is SD
     //add FlashSimBlockDevice on top of the SDBlockDevice
-#if defined(COMPONENT_SD)
-    if (strcmp(STR(MBED_CONF_STORAGE_TDB_EXTERNAL_BLOCKDEVICE), "SD") == 0
-#if defined(COMPONENT_SD) &&  !defined(COMPONENT_SPIF) && !defined(COMPONENT_QSPIF) && !defined(COMPONENT_DATAFLASH)
-            ||  strcmp(STR(MBED_CONF_STORAGE_TDB_EXTERNAL_BLOCKDEVICE), "default") == 0) {
-#else
-       ) {
 
-#endif
+    if ((strcmp(bd->get_type(), "SD") == 0) || (strcmp(bd->get_type(), "SDIO") == 0)) {
         //TDBStore need FlashSimBlockDevice when working with SD block device
         if (bd->init() != MBED_SUCCESS) {
             tr_error("KV Config: Fail to init external BlockDevice.");
@@ -771,9 +824,6 @@ int _storage_config_TDB_EXTERNAL()
     } else {
         kvstore_config.external_bd = bd;
     }
-#else
-    kvstore_config.external_bd = bd;
-#endif
 
     kvstore_config.flags_mask = ~(0);
 
@@ -797,14 +847,7 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
 
     //TDBStore needs a block device base on flash. so if this is SD block device or the default block device is SD
     //add FlashSimBlockDevice on top of the SDBlockDevice
-#if defined(COMPONENT_SD)
-    if (strcmp(STR(MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_BLOCKDEVICE), "SD") == 0
-#if defined(COMPONENT_SD) &&  !defined(COMPONENT_SPIF) && !defined(COMPONENT_QSPIF) && !defined(COMPONENT_DATAFLASH)
-            ||  strcmp(STR(MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_BLOCKDEVICE), "default") == 0) {
-#else
-       ) {
-
-#endif
+    if ((strcmp(bd->get_type(), "SD") == 0) || (strcmp(bd->get_type(), "SDIO") == 0)) {
         //TDBStore need FlashSimBlockDevice when working with SD block device
         if (bd->init() != MBED_SUCCESS) {
             tr_error("KV Config: Fail to init external BlockDevice.");
@@ -816,9 +859,6 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
     } else {
         kvstore_config.external_bd = bd;
     }
-#else
-    kvstore_config.external_bd = bd;
-#endif
 
     //Masking flag - Actually used to remove any KVStore flag which is not supported
     //in the chosen KVStore profile.
@@ -1064,7 +1104,7 @@ int _storage_config_default()
 {
 #if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
     return _storage_config_TDB_EXTERNAL();
-#elif COMPONENT_SD
+#elif COMPONENT_SD || COMPONENT_SDIO
     return _storage_config_FILESYSTEM();
 #elif COMPONENT_FLASHIAP
     return _storage_config_TDB_INTERNAL();

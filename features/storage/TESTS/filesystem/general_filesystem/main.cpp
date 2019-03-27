@@ -29,6 +29,9 @@
 #elif COMPONENT_FLASHIAP
 #include "FlashIAPBlockDevice.h"
 #include "LittleFileSystem.h"
+#elif COMPONENT_SDIO
+#include "SDIOBlockDevice.h"
+#include "FATFileSystem.h"
 #else
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
