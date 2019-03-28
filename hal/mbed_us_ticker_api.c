@@ -33,6 +33,7 @@ static const ticker_interface_t us_interface = {
     .fire_interrupt = us_ticker_fire_interrupt,
     .get_info = us_ticker_get_info,
     .free = us_ticker_free,
+    .runs_in_deep_sleep = false,
 };
 
 static const ticker_data_t us_data = {
