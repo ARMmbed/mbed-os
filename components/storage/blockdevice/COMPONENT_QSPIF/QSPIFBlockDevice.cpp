@@ -879,8 +879,8 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2 -special read command");
             break;
         default:
-            tr_warning("_setQuadEnable - Unsuported QER configuration");
-            break;
+            tr_warning("Unsuported QER configuration");
+            return;
     }
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
