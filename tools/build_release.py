@@ -130,7 +130,7 @@ if __name__ == '__main__':
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             toolchains = None
             if platforms is not None and target_name not in platforms:
-                print(("Excluding %s from release" % target_name))
+                print("Excluding {} from release".format(target_name))
                 continue
 
             if target_name not in TARGET_NAMES:
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     else:
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             if platforms is not None and target_name not in platforms:
-                print(("Excluding %s from release" % target_name))
+                print("Excluding {} from release".format(target_name))
                 continue
 
             if target_name not in TARGET_NAMES:
