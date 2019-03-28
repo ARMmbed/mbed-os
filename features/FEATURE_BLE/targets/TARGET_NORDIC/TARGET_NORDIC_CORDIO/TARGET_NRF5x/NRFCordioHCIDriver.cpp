@@ -96,42 +96,54 @@ static const uint16_t maxRptBufSize = 12 + 2 + 255;
 static const uint16_t aclBufSize = 12 + connDataLen + 4 + BB_DATA_PDU_TAILROOM;
 
 const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
-    /* Device */
-    /*compId*/         			LL_COMP_ID_ARM,
-    /*implRev*/					LL_IMPL_REV,
-    /*btVer*/         			LL_VER_BT_CORE_SPEC_5_0,
-    0, // padding 
-    /* Advertiser */
-    /*maxAdvSets*/         		4, // 4 Extended Advertising Sets
-    /*maxAdvReports*/         	8,
-    /*maxExtAdvDataLen*/         advDataLen,
-    /*defExtAdvDataFrag*/        64,
-    0, // Aux delay
-    /* Scanner */
-    /*maxScanReqRcvdEvt*/         4,
-    /*maxExtScanDataLen*/         advDataLen,
-    /* Connection */
-    #if defined(NRF52840_XXAA)
-    /*maxConn*/          4,
-    #else
-    /*maxConn*/          2,
-    #endif
-    /*numTxBufs*/          numTxBufs,
-    /*numRxBufs*/          numRxBufs,
-    /*maxAclLen*/          connDataLen,
-    /*defTxPwrLvl*/          0,
-    /*ceJitterUsec*/          0,
-    /* DTM */
-    /*dtmRxSyncMs*/          10000,
-    /* PHY */
-    /*phy2mSup*/          TRUE,
-    #if defined(NRF52840_XXAA)
-    /*phyCodedSup*/          TRUE,
-    #else
-    /*phyCodedSup*/          FALSE,
-    #endif
-    /*stableModIdxTxSup*/         TRUE,
-    /*stableModIdxRxSup*/          TRUE
+/* Device */
+/*uint16_t*/  .compId = LL_COMP_ID_ARM,    /*!< Company ID (default to ARM Ltd. ID). */
+/*uint16_t*/  .implRev = LL_IMPL_REV,      /*!< Implementation revision number. */
+/*uint8_t*/   .btVer = LL_VER_BT_CORE_SPEC_5_0, /*!< Core specification implementation level (LL_VER_BT_CORE_SPEC_4_2). */
+/*uint32_t*/  ._align32 = 0,               /*!< Unused. Align next field to word boundary. */
+/* Advertiser */
+/*uint8_t*/   .maxAdvSets = 4,             /*!< Maximum number of advertising sets. */
+/*uint8_t*/   .maxAdvReports = 8,          /*!< Maximum number of pending legacy or extended advertising reports. */
+/*uint16_t*/  .maxExtAdvDataLen = advDataLen, /*!< Maximum extended advertising data size. */
+/*uint8_t*/   .defExtAdvDataFrag = 64,     /*!< Default extended advertising data fragmentation size. */
+/*uint16_t*/  .auxDelayUsec = 0,           /*!< Auxiliary Offset delay above T_MAFS in microseconds. */
+/*uint16_t*/  .auxPtrOffsetUsec = 0,       /*!< Delay of auxiliary packet in microseconds from the time specified by auxPtr. */
+/* Scanner */
+/*uint8_t*/   .maxScanReqRcvdEvt = 4,      /*!< Maximum scan request received events. */
+/*uint16_t*/  .maxExtScanDataLen = advDataLen, /*!< Maximum extended scan data size. */
+/* Connection */
+#if defined(NRF52840_XXAA)
+/*uint8_t*/   .maxConn = 4,                /*!< Maximum number of connections. */
+#else
+/*uint8_t*/   .maxConn = 2,
+#endif
+/*uint8_t*/   .numTxBufs = numTxBufs,      /*!< Default number of transmit buffers. */
+/*uint8_t*/   .numRxBufs = numRxBufs,      /*!< Default number of receive buffers. */
+/*uint16_t*/  .maxAclLen = connDataLen,    /*!< Maximum ACL buffer size. */
+/*int8_t*/    .defTxPwrLvl = 0,            /*!< Default Tx power level for connections. */
+/*uint8_t*/   .ceJitterUsec = 0,           /*!< Allowable CE jitter on a slave (account for master's sleep clock resolution). */
+/* ISO */
+/*uint8_t*/   .numIsoTxBuf = 0,            /*!< Default number of ISO transmit buffers. */
+/*uint8_t*/   .numIsoRxBuf = 0,            /*!< Default number of ISO receive buffers. */
+/*uint16_t*/  .maxIsoBufLen = 0,           /*!< Maximum ISO buffer size between host and controller. */
+/*uint16_t*/  .maxIsoPduLen = 0,           /*!< Maximum ISO PDU buffer size. */
+
+/* CIS */
+/*uint8_t*/   .maxCig = 0,                 /*!< Maximum number of CIG. */
+/*uint8_t*/   .maxCis = 0,                 /*!< Maximum number of CIS. */
+/*uint16_t*/  .subEvtSpaceDelay = 0,       /*!< Subevent spacing above T_MSS. */
+/* DTM */
+/*uint16_t*/  .dtmRxSyncMs = 10000,        /*!< DTM Rx synchronization window in milliseconds. */
+/* PHY */
+/*bool_t*/    .phy2mSup = TRUE,            /*!< 2M PHY supported. */
+
+#if defined(NRF52840_XXAA)
+/*bool_t*/    .phyCodedSup = TRUE,         /*!< Coded PHY supported. */
+#else
+/*bool_t*/    .phyCodedSup = FALSE,
+#endif
+/*bool_t*/    .stableModIdxTxSup = TRUE,   /*!< Tx stable modulation index supported. */
+/*bool_t*/    .stableModIdxRxSup = TRUE,   /*!< Rx stable modulation index supported. */
 };
 
 extern "C" void TIMER0_IRQHandler(void);
