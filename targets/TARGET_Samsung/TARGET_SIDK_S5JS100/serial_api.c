@@ -16,6 +16,8 @@
  *
  ****************************************************************************/
 
+#if DEVICE_SERIAL
+
 // math.h required for floating point operations for baud rate calculation
 #include <math.h>
 #include <stdio.h>
@@ -555,4 +557,14 @@ void serial_low_putc(char c)
 	S5JS100_USI0_UART->UTXH = c; // revise me
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
 
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+#endif // DEVICE_SERIAL

@@ -5315,8 +5315,6 @@
         "extra_labels": ["Samsung", "SIDK_S5JS100"],
         "macros": ["CMSDK_CM7", "MBED_MPU_CUSTOM"],
         "device_has": [
-            "ANALOGIN",
-            "I2C",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",

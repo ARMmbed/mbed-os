@@ -16,6 +16,8 @@
  *
  ****************************************************************************/
 
+#if DEVICE_I2C
+
 #include "i2c_api.h"
 #include "i2c_def.h"
 #include "cmsis.h"
@@ -867,3 +869,5 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 {
 }
+
+#endif // DEVICE_I2C
