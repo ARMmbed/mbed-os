@@ -45,6 +45,5 @@ Quick navigation:
 | `test_webapi.py`      | part of pre-greentea greentea                  |
 | `tests.py`            | implementation of `mbed test --greentea`       |
 | `toolchains`          | API for calling the selected compiler          |
-| `upload_results.py`   | part of pre-greentea greentea                  |
 | `utils.py`            | General purpose utilities like file moving     |
 
