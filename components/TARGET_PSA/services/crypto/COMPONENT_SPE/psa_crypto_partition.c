@@ -114,6 +114,12 @@ static inline psa_status_t get_hash_clone(size_t index, int32_t partition_id,
     return PSA_SUCCESS;
 }
 
+static void free_message_context(psa_msg_t *msg)
+{
+    mbedtls_free(msg->rhandle);
+    psa_set_rhandle(msg->handle, NULL);
+}
+
 // ------------------------- Partition's Main Thread ---------------------------
 static void psa_crypto_init_operation(void)
 {
@@ -234,8 +240,7 @@ static void psa_mac_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -248,8 +253,7 @@ static void psa_mac_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -289,8 +293,7 @@ static void psa_mac_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -322,8 +325,7 @@ static void psa_mac_operation(void)
                         psa_mac_abort(msg.rhandle);
                     }
 
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -355,15 +357,13 @@ static void psa_mac_operation(void)
                         psa_mac_abort(msg.rhandle);
                     }
 
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
                 case PSA_MAC_ABORT: {
                     status = psa_mac_abort(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -381,7 +381,7 @@ static void psa_mac_operation(void)
         case PSA_IPC_DISCONNECT: {
             if (msg.rhandle != NULL) {
                 psa_mac_abort(msg.rhandle);
-                mbedtls_free(msg.rhandle);
+                free_message_context(&msg);
             }
 
             break;
@@ -435,8 +435,7 @@ static void psa_hash_operation(void)
                     status = psa_hash_setup(msg.rhandle,
                                             psa_crypto.alg);
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -477,8 +476,7 @@ static void psa_hash_operation(void)
 
                     if (status != PSA_SUCCESS) {
                         clear_hash_clone(msg.rhandle);
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -511,8 +509,7 @@ static void psa_hash_operation(void)
                     }
 
                     clear_hash_clone(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -545,16 +542,14 @@ static void psa_hash_operation(void)
                     }
 
                     clear_hash_clone(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
                 case PSA_HASH_ABORT: {
                     status = psa_hash_abort(msg.rhandle);
                     clear_hash_clone(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -582,8 +577,7 @@ static void psa_hash_operation(void)
                         release_hash_clone(hash_clone);
                     }
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -601,7 +595,7 @@ static void psa_hash_operation(void)
             if (msg.rhandle != NULL) {
                 psa_hash_abort(msg.rhandle);
                 clear_hash_clone(msg.rhandle);
-                mbedtls_free(msg.rhandle);
+                free_message_context(&msg);
             }
 
             break;
@@ -954,8 +948,7 @@ static void psa_symmetric_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -968,8 +961,7 @@ static void psa_symmetric_operation(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -986,8 +978,7 @@ static void psa_symmetric_operation(void)
                         psa_write(msg.handle, 1, &iv_length,
                                   sizeof(iv_length));
                     } else {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -1002,8 +993,7 @@ static void psa_symmetric_operation(void)
                     }
                     status = psa_cipher_set_iv(msg.rhandle, iv, iv_length);
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -1047,8 +1037,7 @@ static void psa_symmetric_operation(void)
                     mbedtls_free(input);
                     mbedtls_free(output);
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -1076,15 +1065,13 @@ static void psa_symmetric_operation(void)
                         psa_cipher_abort(msg.rhandle);
                     }
 
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
                 case PSA_CIPHER_ABORT: {
                     status = psa_cipher_abort(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -1100,7 +1087,7 @@ static void psa_symmetric_operation(void)
         case PSA_IPC_DISCONNECT: {
             if (msg.rhandle != NULL) {
                 psa_cipher_abort(msg.rhandle);
-                mbedtls_free(msg.rhandle);
+                free_message_context(&msg);
             }
 
             break;
@@ -1649,8 +1636,7 @@ void psa_crypto_generator_operations(void)
 
                 case PSA_GENERATOR_ABORT: {
                     status = psa_generator_abort(msg.rhandle);
-                    mbedtls_free(msg.rhandle);
-                    psa_set_rhandle(msg.handle, NULL);
+                    free_message_context(&msg);
                     break;
                 }
 
@@ -1695,8 +1681,7 @@ void psa_crypto_generator_operations(void)
                     mbedtls_free(salt);
                     mbedtls_free(label);
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -1729,8 +1714,7 @@ void psa_crypto_generator_operations(void)
                     }
 
                     if (status != PSA_SUCCESS) {
-                        mbedtls_free(msg.rhandle);
-                        psa_set_rhandle(msg.handle, NULL);
+                        free_message_context(&msg);
                     }
                     break;
                 }
@@ -1746,7 +1730,7 @@ void psa_crypto_generator_operations(void)
         case PSA_IPC_DISCONNECT: {
             if (msg.rhandle != NULL) {
                 psa_generator_abort(msg.rhandle);
-                mbedtls_free(msg.rhandle);
+                free_message_context(&msg);
             }
 
             break;
