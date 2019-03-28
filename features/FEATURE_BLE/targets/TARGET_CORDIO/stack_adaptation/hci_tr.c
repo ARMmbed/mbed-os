@@ -66,11 +66,12 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
   HCI_PDUMP_TX_ACL(len, pData);
 
   /* transmit ACL header and data */
-  if (hciDrvWrite(HCI_ACL_TYPE, len, pData) == len)
+  if (hciDrvWrite(HCI_ACL_TYPE, len, pData) != len)
   {
-    /* free buffer */
-    hciCoreTxAclComplete(pContext, pData);
+    /* transport failure */
+    WSF_ASSERT(0);
   }
+  /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
 }
 
 
