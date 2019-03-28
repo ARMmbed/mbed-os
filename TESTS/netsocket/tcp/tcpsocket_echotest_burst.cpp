@@ -47,46 +47,33 @@ void TCPSOCKET_ECHOTEST_BURST()
     fill_tx_buffer_ascii(tcp_global::tx_buffer, BURST_SIZE);
 
     int recvd;
-    int bt_left;
     int sent;
     for (int i = 0; i < BURST_CNT; i++) {
-        bt_left = BURST_SIZE;
-        while (bt_left > 0) {
-            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE - bt_left]), bt_left);
-            if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    TEST_FAIL();
-                    goto END;
-                }
-                continue;
-            } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
-                TEST_FAIL();
-                goto END;
-            }
-            bt_left -= sent;
+        sent = sock.send(tcp_global::tx_buffer, BURST_SIZE);
+        if (sent < 0) {
+            printf("[%02d] network error %d\n", i, sent);
+            TEST_FAIL();
+            break;
+        } else if (sent != BURST_SIZE) {
+            printf("[%02d] sock.send return size %d does not match the expectation %d\n", i, sent, BURST_SIZE);
+            TEST_FAIL();
+            break;
         }
 
-        bt_left = BURST_SIZE;
-        while (bt_left > 0) {
-            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
+        int bytes2recv = sent;
+        while (bytes2recv) {
+            recvd = sock.recv(&(tcp_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
-                break;
-            } else if (recvd > bt_left) {
-                TEST_FAIL_MESSAGE("sock.recv returned more bytes than requested");
+                printf("[Round#%02d] network error %d\n", i, recvd);
+                TEST_FAIL();
+                TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+                return;
             }
-            bt_left -= recvd;
-        }
-
-        if (bt_left != 0) {
-            TEST_FAIL_MESSAGE("bt_left != 0");
-            goto END;
+            bytes2recv -= recvd;
         }
 
         TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, BURST_SIZE));
     }
-END:
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 

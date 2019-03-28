@@ -69,13 +69,15 @@ void TCPSOCKET_ECHOTEST()
     int x = 0;
     for (int pkt_s = pkt_sizes[x]; x < PKTS; pkt_s = pkt_sizes[x++]) {
         fill_tx_buffer_ascii(tcp_global::tx_buffer, BUFF_SIZE);
-
         sent = sock.send(tcp_global::tx_buffer, pkt_s);
         if (sent < 0) {
             printf("[Round#%02d] network error %d\n", x, sent);
             TEST_FAIL();
-            TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
-            return;
+            break;
+        } else if (sent != pkt_s) {
+            printf("[%02d] sock.send return size %d does not match the expectation %d\n", x, sent, pkt_s);
+            TEST_FAIL();
+            break;
         }
 
         int bytes2recv = sent;
