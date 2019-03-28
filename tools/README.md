@@ -42,7 +42,6 @@ Quick navigation:
 | `test_db.py`          | part of pre-greentea greentea                  |
 | `test_exporters.py`   | part of pre-greentea greentea                  |
 | `test_mysql.py`       | part of pre-greentea greentea                  |
-| `test_webapi.py`      | part of pre-greentea greentea                  |
 | `tests.py`            | implementation of `mbed test --greentea`       |
 | `toolchains`          | API for calling the selected compiler          |
 | `utils.py`            | General purpose utilities like file moving     |
