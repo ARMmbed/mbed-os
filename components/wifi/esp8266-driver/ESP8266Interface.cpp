@@ -893,7 +893,7 @@ nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *coun
 
     // Firmware takes only first three characters
     strncpy(_ch_info.country_code, country_code, sizeof(_ch_info.country_code));
-    _ch_info.country_code[sizeof(_ch_info.country_code)-1] = '\0';
+    _ch_info.country_code[sizeof(_ch_info.country_code) - 1] = '\0';
 
     _ch_info.channel_start = channel_start;
     _ch_info.channels = channels;

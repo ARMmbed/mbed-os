@@ -1232,7 +1232,7 @@ bool ESP8266::set_country_code_policy(bool track_ap, const char *country_code, i
     }
 
     done &= _parser.send("AT+CWCOUNTRY_CUR=%d,\"%s\",%d,%d", t_ap, country_code, channel_start, channels)
-                    && _parser.recv("OK\n");
+            && _parser.recv("OK\n");
 
     if (!done) {
         tr_error("\"AT+CWCOUNTRY_CUR=%d,\"%s\",%d,%d\" - FAIL", t_ap, country_code, channel_start, channels);
