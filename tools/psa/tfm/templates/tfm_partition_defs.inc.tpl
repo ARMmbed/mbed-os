@@ -47,3 +47,4 @@
 #endif
 
 #endif // __TFM_PARTITION_DEFS_INC__
+{# End of file #}
