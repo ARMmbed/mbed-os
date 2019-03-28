@@ -147,9 +147,6 @@ nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
     // -end devices will get connectivity once attached to existing network
     // -devices without network settings gets connectivity once commissioned and attached to network
     _connect_status = NSAPI_STATUS_CONNECTING;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
-    }
     if (_blocking) {
         int32_t count = connect_semaphore.wait(osWaitForever);
 

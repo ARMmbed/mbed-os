@@ -245,10 +245,7 @@ void thread_tasklet_poll_network_status(void *param)
             }
         }
     } else {
-        if (thread_tasklet_data_ptr->connection_status != MESH_DISCONNECTED &&
-                thread_tasklet_data_ptr->connection_status != MESH_BOOTSTRAP_STARTED) {
-            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
-        }
+        thread_tasklet_data_ptr->connection_status = MESH_DISCONNECTED;
     }
 }
 
