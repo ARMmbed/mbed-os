@@ -3,7 +3,6 @@
 [![Build status release][mbed-travis-release-svg]][mbed-travis-release] 
 [![Build status master][mbed-travis-master-svg]][mbed-travis-master] 
 [![Tools coverage status][mbed-coveralls-tools-svg]][mbed-coveralls-tools] 
-[![PR progress][mbed-waffle-svg]][mbed-waffle] 
 
 [mbed-os-logo]: logo.png
 [mbed-os-link]: https://www.mbed.com/en/platform/mbed-os/
