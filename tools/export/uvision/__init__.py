@@ -93,7 +93,7 @@ class DeviceUvision(DeviceCMSIS):
             if not info["default"]:
                 continue
             name = info['file_name']
-            name_reg = "\w*/([\w_]+)\.flm"
+            name_reg = "\w*[/\\\\]([\w_]+)\.flm"
             m = re.search(name_reg, name.lower())
             fl_name = m.group(1) if m else None
             name_flag = "-FF" + str(fl_count) + fl_name
