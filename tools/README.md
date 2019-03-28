@@ -38,9 +38,7 @@ Quick navigation:
 | `test`                | unit tests for tools                           |
 | `test_api.py`         | part of pre-greentea greentea                  |
 | `test_configs`        | configuration files used by `mbed test`        |
-| `test_db.py`          | part of pre-greentea greentea                  |
 | `test_exporters.py`   | part of pre-greentea greentea                  |
-| `test_mysql.py`       | part of pre-greentea greentea                  |
 | `tests.py`            | implementation of `mbed test --greentea`       |
 | `toolchains`          | API for calling the selected compiler          |
 | `utils.py`            | General purpose utilities like file moving     |

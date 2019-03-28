@@ -65,7 +65,6 @@ from tools.build_api import mcu_toolchain_matrix
 # Imports from TEST API
 from tools.test_api import SingleTestRunner
 from tools.test_api import singletest_in_cli_mode
-from tools.test_api import detect_database_verbose
 from tools.test_api import get_json_data_from_file
 from tools.test_api import get_avail_tests_summary_table
 from tools.test_api import get_default_test_options_parser
@@ -107,10 +106,6 @@ if __name__ == '__main__':
         print parser.description
         print parser.epilog
         print "Version %d.%d"% get_version()
-        exit(0)
-
-    if opts.db_url and opts.verbose_test_configuration_only:
-        detect_database_verbose(opts.db_url)
         exit(0)
 
     # Print summary / information about automation test status
@@ -227,7 +222,6 @@ if __name__ == '__main__':
                                    _clean=opts.clean,
                                    _parser=parser,
                                    _opts=opts,
-                                   _opts_db_url=opts.db_url,
                                    _opts_log_file_name=opts.log_file_name,
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,
