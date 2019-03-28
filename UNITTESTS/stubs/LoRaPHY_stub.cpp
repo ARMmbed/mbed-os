@@ -416,4 +416,8 @@ uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
     return LoRaPHY_stub::uint8_value;
 }
 
+uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
+{
+    return LoRaPHY_stub::uint32_value;
+}
 

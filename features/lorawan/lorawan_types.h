@@ -666,6 +666,14 @@ typedef struct {
      * A boolean to mark if the meta data is stale
      */
     bool stale;
+    /**
+     * Frequency for the downlink channel
+     */
+    uint32_t channel;
+    /**
+     * Time spent on air by the RX frame
+     */
+    uint32_t rx_toa;
 } lorawan_rx_metadata;
 
 #endif /* MBED_LORAWAN_TYPES_H_ */
