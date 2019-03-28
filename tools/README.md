@@ -5,7 +5,7 @@ Mbed 2.
 
 Quick navigation:
 
-| file/directory        | What it do                                     |
+| file/directory        | Purpose/function                               |
 |-----------------------|------------------------------------------------|
 | `build.py`            | implementation of `mbed compile --library`     |
 | `build_api.py`        | full-project build operations                  |
