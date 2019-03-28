@@ -10,7 +10,6 @@ Quick navigation:
 | `build.py`            | implementation of `mbed compile --library`     |
 | `build_api.py`        | full-project build operations                  |
 | `build_release.py`    | CLI for making an mbed 2 release               |
-| `build_travis.py`     | travis testing script                          |
 | `config`              | implementation of Config System                |
 | `debug_tools`         | Crash log parsing                              |
 | `default_settings.py` | Default version of project local `settings.py` |
