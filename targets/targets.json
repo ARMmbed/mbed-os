@@ -1506,12 +1506,10 @@
             "SPI_ASYNCH",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "STORAGE",
             "TRNG",
             "FLASH",
             "USBDEVICE"
         ],
-        "features": ["STORAGE"],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true,
@@ -2641,7 +2639,7 @@
             "CYW4343X",
             "CORDIO"
         ],
-        "features": ["BLE", "STORAGE"],
+        "features": ["BLE"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "SERIAL_ASYNCH",
