@@ -25,11 +25,9 @@ env:
     - deps_dir="${HOME}/.cache/deps"
 
 cache:
-
-cache:
   pip: true
   directories:
-    - $HOME/.cache/deps
+    - ${HOME}/.cache/deps
 
 
 before_install:
@@ -83,7 +81,7 @@ matrix:
           mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
           cd BUILD/astyle/build/gcc;
           make;
-          export PATH=$PWD/bin:$PATH;
+          export PATH="${PWD}/bin:${PATH}";
           cd -
         - astyle --version
         # Fetch remaining information needed for branch comparison
@@ -221,31 +219,33 @@ matrix:
       env: NAME=events EVENTS=events
       script:
         # Check that example compiles
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
+        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
         # Check that example compiles without rtos
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
-        - rm -r rtos usb features/cellular features/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client features/frameworks/utest features/frameworks/unity components BUILD
+        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
+        - |
+          rm -r rtos usb features/cellular features/netsocket features/nanostack \
+            features/lwipstack features/frameworks/greentea-client \
+            features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
-        - make -C $EVENTS/equeue test
+        - make -C ${EVENTS}/equeue test
         # Run profiling tests
-        - make -C $EVENTS/equeue prof | tee prof
+        - make -C ${EVENTS}/equeue prof | tee prof
       after_success:
-        # update status if we succeeded, compare with master if possible
+        # Update status, comparing with master if possible.
         - |
           CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
-              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
-                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
+              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
+                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
               || echo 0)
 
-          #STATUSM="Passed, runtime is ${CURR} cycles"
-          #if [ "$PREV" -ne 0 ]
-          #then
-          #    STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
-          #fi
+          delta=""
+          [ "${PREV}" -ne 0 ] && delta="($(printf "%+d" "$(( ${CURR} - ${PREV} ))" cycles)"
+
+          set_status "success" "Success! Runtime is ${CURR} cycles. ${delta}"
 
     - <<: *extended-vm
       name: "littlefs"
@@ -269,7 +269,7 @@ matrix:
         - git -C littlefs_fuse checkout 3f1ed6e37799e49e3710830dc6abb926d5503cf2
         - echo '*' > littlefs_fuse/.mbedignore
         - rm -rf littlefs_fuse/littlefs/*
-        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) littlefs_fuse/littlefs
+        - cp -r $(git ls-tree --name-only HEAD ${LITTLEFS}/littlefs/) littlefs_fuse/littlefs
         # Create file-backed disk
         - mkdir MOUNT
         - sudo chmod a+rw /dev/loop0
@@ -279,44 +279,43 @@ matrix:
       script:
         # Check that example compiles
         - export CFLAGS="-Werror -Wno-format"
-        - sed -n '/``` c++/,/```/{/```/d;p;}' $LITTLEFS/README.md > main.cpp
+        - sed -n '/``` c++/,/```/{/```/d;p;}' ${LITTLEFS}/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
         # Run local littlefs tests
-        - make -C$LITTLEFS/littlefs test QUIET=1
+        - make -C${LITTLEFS}/littlefs test QUIET=1
         # Run local littlefs tests with set of variations
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048"
-        - make -C$LITTLEFS/littlefs clean test QUIET=1 CFLAGS+="-DLFS_NO_INTRINSICS"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048"
+        - make -C${LITTLEFS}/littlefs clean test QUIET=1 CFLAGS+="-DLFS_NO_INTRINSICS"
         # Self-hosting littlefs fuzz test with littlefs-fuse
         - make -Clittlefs_fuse
         - littlefs_fuse/lfs --format /dev/loop0
         - littlefs_fuse/lfs /dev/loop0 MOUNT
         - ls MOUNT
         - mkdir MOUNT/littlefs
-        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) MOUNT/littlefs
+        - cp -r $(git ls-tree --name-only HEAD ${LITTLEFS}/littlefs/) MOUNT/littlefs
         - ls MOUNT/littlefs
         - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs test_files QUIET=1
         # Compile and find the code size with smallest configuration
-        - cd $TRAVIS_BUILD_DIR/$LITTLEFS/littlefs
+        - cd ${TRAVIS_BUILD_DIR}/${LITTLEFS}/littlefs
         - make clean size
             CC='arm-none-eabi-gcc -mthumb'
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
       after_success:
-        # update status if we succeeded, compare with master if possible
+        # Update status, comparing with master if possible.
         - |
           CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
-              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
-                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
+              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
+                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
                   | capture(\"code size is (?<size>[0-9]+)\").size" \
               || echo 0)
 
-          #STATUSM="Passed, code size is ${CURR}B"
-          #if [ "$PREV" -ne 0 ]
-          #then
-          #    STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
-          #fi
+          delta=""
+          [ "${PREV}" -ne 0 ] && delta="($(printf "%+0.2f%%" "$(<<< "100 * ((${CURR} - ${PREV})/${PREV})" bc -l)"))"
+
+          set_status "success" "Success! Code size is ${CURR}B. ${delta}"
