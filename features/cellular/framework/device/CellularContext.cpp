@@ -61,4 +61,9 @@ void CellularContext::cp_data_received()
     _cp_netif->data_received();
 }
 
+CellularDevice *CellularContext::get_device() const
+{
+    return _device;
+}
+
 } // namespace mbed

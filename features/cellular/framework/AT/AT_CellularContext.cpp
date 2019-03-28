@@ -18,6 +18,7 @@
 #include "AT_CellularContext.h"
 #include "AT_CellularNetwork.h"
 #include "AT_CellularStack.h"
+#include "AT_CellularDevice.h"
 #include "CellularLog.h"
 #include "CellularUtil.h"
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
@@ -48,7 +49,7 @@ using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
     AT_CellularBase(at), _is_connected(false), _is_blocking(true),
-    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
+    _current_op(OP_INVALID), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _stack = NULL;
@@ -67,6 +68,7 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _dcd_pin = NC;
     _active_high = false;
     _cp_netif = NULL;
+    _device = device;
 }
 
 AT_CellularContext::~AT_CellularContext()
@@ -110,6 +112,11 @@ void AT_CellularContext::enable_hup(bool enable)
         static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
 #endif // #if DEVICE_SERIAL
     }
+}
+
+AT_CellularDevice *AT_CellularContext::get_device() const
+{
+    return static_cast<AT_CellularDevice *>(CellularContext::get_device());
 }
 
 nsapi_error_t AT_CellularContext::connect()

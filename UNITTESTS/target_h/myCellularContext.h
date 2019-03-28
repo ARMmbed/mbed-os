@@ -20,18 +20,18 @@
 
 namespace mbed {
 
-class CellularContext_stub : public CellularContext {
+class myCellularContext : public CellularContext {
 public:
     std::list<nsapi_error_t> return_values;
     nsapi_error_t return_value;
     ControlPlane_netif_stub *my_cp_netif;
 
-    CellularContext_stub()
+    myCellularContext()
     {
         return_value = 0;
         my_cp_netif = NULL;
     }
-    ~CellularContext_stub()
+    ~myCellularContext()
     {
         if (my_cp_netif) {
             delete my_cp_netif;
