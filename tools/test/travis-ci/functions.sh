@@ -18,13 +18,24 @@
 
 set -o pipefail
 
-info() { echo -e "I: ${1}"; }
-die() { echo -e "E: ${1}" 1>&2; exit ${2:-1}; }
 
+#
+# Helper functions for printing status information.
+#  Uses 'echo' instead of 'printf' due to Travis CI stdout sync issues.
+#
+info() { echo -e "I: ${1}"; }
+die() { echo -e "E: ${1}" 1>&2; exit "${2:-1}"; }
+
+
+#
+# Sets the GitHub job status for a given commit.
+#
 set_status()
 {
   local job_name=${NAME}
-  local payload=$(<<< "
+  local payload=""
+
+  payload=$(<<< "
   {
     'state': '${1}',
     'description': '${2}',
@@ -38,10 +49,21 @@ set_status()
 }
 
 
+#
+# Sources a pre-compiled GCC installation from AWS, installing the archive by
+#  extracting and prepending the executable directory to PATH.
+# 
+# Note: Expects 'deps_url' and 'deps_dir' to already be defined.
+# 
 _install_gcc()
 {
+  # Ignore shellcheck warnings: Variables defined in .travis.yml
+  # shellcheck disable=SC2154
   local url="${deps_url}/gcc6-linux.tar.bz2"
+
+  # shellcheck disable=SC2154
   local gcc_path="${deps_dir}/gcc/gcc-arm-none-eabi-6-2017-q2-update/"
+
   local archive="gcc.tar.bz2"
   
   info "URL: ${url}"
@@ -64,6 +86,9 @@ _install_gcc()
 } 
 
 
+#
+# Downloads a list of packages from AWS, really fast.
+#
 _fetch_deps()
 {
   local pkg="${1}"
@@ -71,7 +96,7 @@ _fetch_deps()
 
   info "Fetching '${pkg}' archives"
 
-  while read dep; do
+  while read -r dep; do
     
     curl --location "${deps_url}/${dep}.deb" \
       --output "${deps_dir}/${dep}.deb" \
@@ -83,25 +108,37 @@ _fetch_deps()
   wait
 }
 
+
+#
+# Installs a list of Debian packages, fetching them if not locally found.
+#
 _install_deps()
 {
   local pkg="${1}"
   local dep_list="${2}"
+  local first_dep=""
 
   # Assume that if the first package isn't cached, none are.
-  local first_dep=$(<<< "${dep_list}" head -n1)
+  first_dep=$(<<< "${dep_list}" head -n1)
   [ ! -f "${deps_dir}/${first_dep}.deb" ] && _fetch_deps "${pkg}" "${dep_list}"
 
   # Install dependencies
   info "Installing '${pkg}' packages"
+  
+  # Ignore shellcheck warnings: Word splitting is specifically used to build
+  #                             command in one go, and expression non-expansion
+  #                             is intentional.
+  # shellcheck disable=SC2046 disable=SC2016
   sudo dpkg -i $(<<< "${dep_list}" sed -e 's_^ *__' -e 's_^\(.*\)$_'"${deps_dir}"'/\1.deb_' | tr $'\n' ' ')
 }
 
 
+#
+# Wrapper for installing a given package.
+#
 source_pkg()
 {
-  local pkg="${1}"
-
+  # Debian dependencies needed for a single package.
   local aspell_deps="aspell
     aspell-en
     dictionaries-common
@@ -115,10 +152,13 @@ source_pkg()
     libsepol1-dev
     libc-bin"
 
+  local pkg="${1}"
 
   case "${pkg}" in
 
     "fuse" )
+      # 'fuse' does not require an 'apt-get update' to install in Travis CI, so
+      #  there's no reason to upload it or its dependencies into AWS.
       sudo apt-get -o=dir::cache="${deps_dir}/apt-get" install fuse \
         || die "Installation failed"
       ;;
