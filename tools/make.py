@@ -53,6 +53,7 @@ from tools.utils import argparse_many
 from tools.utils import argparse_dir_not_parent
 from tools.utils import NoValidToolchainException
 from tools.utils import print_end_warnings
+from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
 
@@ -292,14 +293,14 @@ def main():
 
     if options.supported_toolchains:
         if options.supported_toolchains == "matrix":
-            print(mcu_toolchain_matrix(
+            print_large_string(mcu_toolchain_matrix(
                 platform_filter=options.general_filter_regex,
                 release_version=None
             ))
         elif options.supported_toolchains == "toolchains":
             print('\n'.join(get_toolchain_list()))
         elif options.supported_toolchains == "targets":
-            print(mcu_target_list())
+            print_large_string(mcu_target_list())
     elif options.list_tests is True:
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
     else:
