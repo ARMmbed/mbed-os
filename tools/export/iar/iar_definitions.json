@@ -345,5 +345,8 @@
     "M2351KIAAEES": {
         "OGChipSelectEditMenu": "M2351 series\tNuvoton M2351 series",
         "TrustZone": 1
+    },
+    "S5JS100": {
+        "OGChipSelectEditMenu": "S5JS100\tSamsung S5JS100"
     }
-}
+} 

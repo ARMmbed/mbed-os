@@ -130,6 +130,9 @@
         }
     },
     "target_overrides": {
+        "S5JS100": {
+            "stdio-baud-rate": 115200
+        },
         "EFM32": {
             "stdio-baud-rate": 115200
         },

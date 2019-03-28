@@ -1,0 +1,40 @@
+#! armcc -E
+#define S5JS100_BOOTMEM_BASE    (0x00000000)
+#define S5JS100_BOOTMEM_END     (S5JS100_BOOTMEM_BASE + 0x2000)
+#define S5JS100_IRAM_BASE       (0x00100000)
+#define S5JS100_IRAM_SIZE       (0x00080000)
+#define S5JS100_IRAM_END        (S5JS100_IRAM_BASE + S5JS100_IRAM_SIZE)
+#define S5JS100_CODE_BASE       (0x406F4000)
+#define S5JS100_CODE_SIZE       (0x00175000)
+#define S5JS100_CODE_END        (S5JS100_CODE_BASE + S5JS100_CODE_SIZE)
+#define S5JS100_FLASH_BASE      (0x40000000)
+#define S5JS100_VECTOR_SIZE     (0x00000200)
+
+
+#define MBED_BOOT_STACK_SIZE 0x4000
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+LR_IROM1 S5JS100_CODE_BASE S5JS100_CODE_SIZE  {    ; XIP region size_region
+
+  ER_IROM1 S5JS100_CODE_BASE S5JS100_CODE_SIZE  {  ; XIP address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  ; 512KB SRAM (0x80000)
+ RW_IRAM_VTABLE S5JS100_IRAM_BASE EMPTY 128  {
+ }
+
+  RW_IRAM1 +0 S5JS100_IRAM_SIZE - Stack_Size {  ; RW data
+   .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (S5JS100_IRAM_END-Stack_Size-AlignExpr(ImageLimit(RW_IRAM1), 16)) { ; Heap region growing up
+  }
+
+  ARM_LIB_STACK (S5JS100_IRAM_END) EMPTY -Stack_Size { ; stack
+  }
+}
+

@@ -1,0 +1,37 @@
+/* Linker file for the IAR Compiler for ARM */
+/* Specials */
+/* Meory Regions */
+define symbol S5JS100_BOOTMEM_BASE     = 0x00000000;
+define symbol S5JS100_BOOTMEM_END     = S5JS100_BOOTMEM_BASE + 8K;
+define symbol S5JS100_IRAM_BASE     = 0x00100000;
+define symbol S5JS100_IRAM_END      = S5JS100_IRAM_BASE + 512K;
+define symbol S5JS100_CODE_BASE     = 0x406F4000;
+define symbol S5JS100_CODE_END      = S5JS100_CODE_BASE + 1492K;
+define symbol S5JS100_FLASH_BASE    = 0x40000000;
+
+/* Stack Size & Heap Size*/
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+define symbol CSTACK_SIZE   = MBED_BOOT_STACK_SIZE;
+define symbol HEAP_SIZE     = 0x50000;
+
+/*Meory regions*/
+define memory mem with size = 4G;
+define region VECTOR_REGION = mem:[from S5JS100_BOOTMEM_BASE to S5JS100_BOOTMEM_END];
+define region ROM_REGION    = mem:[from S5JS100_CODE_BASE to S5JS100_CODE_END];
+define region IRAM_REGION   = mem:[from S5JS100_IRAM_BASE to S5JS100_IRAM_END];
+
+define block CSTACK with alignment = 8, size = CSTACK_SIZE { };
+define block HEAP   with alignment = 8, size = HEAP_SIZE   { };
+define block RW     { readwrite };
+define block ZI     { zi };
+
+initialize by copy  { readwrite };
+do not initialize   { section .noinit };
+
+place at address mem:S5JS100_CODE_BASE { readonly section .intvec}; 
+/* place at address mem:S5JS100_BOOTMEM_BASE { readwrite section .isr_vector }; */
+place in ROM_REGION     { readonly };
+place in IRAM_REGION    { block RW, block ZI, block HEAP, block CSTACK};
