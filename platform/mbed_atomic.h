@@ -896,8 +896,12 @@ MBED_FORCEINLINE uint64_t core_util_atomic_fetch_xor_explicit_u64(volatile uint6
 
 /** \copydoc core_util_atomic_load_u8 */
 template<typename T> T core_util_atomic_load(const volatile T *valuePtr);
+/** \copydoc core_util_atomic_load_u8 */
+template<typename T> T core_util_atomic_load(const T *valuePtr);
 /** \copydoc core_util_atomic_store_u8 */
 template<typename T> void core_util_atomic_store(volatile T *valuePtr, T desiredValue);
+/** \copydoc core_util_atomic_store_u8 */
+template<typename T> void core_util_atomic_store(T *valuePtr, T desiredValue);
 /** \copydoc core_util_atomic_exchange_u8 */
 template<typename T> T core_util_atomic_exchange(volatile T *ptr, T desiredValue);
 /** \copydoc core_util_atomic_cas_u8 */
@@ -917,8 +921,12 @@ template<typename T> T core_util_atomic_fetch_xor(volatile T *valuePtr, T arg);
 
 /** \copydoc core_util_atomic_load_explicit_u8 */
 template<typename T> T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order);
+/** \copydoc core_util_atomic_load_explicit_u8 */
+template<typename T> T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order);
 /** \copydoc core_util_atomic_store_explicit_u8 */
 template<typename T> void core_util_atomic_store_explicit(volatile T *valuePtr, T desiredValue, mbed_memory_order order);
+/** \copydoc core_util_atomic_store_explicit_u8 */
+template<typename T> void core_util_atomic_store_explicit(T *valuePtr, T desiredValue, mbed_memory_order order);
 /** \copydoc core_util_atomic_exchange_explicit_u8 */
 template<typename T> T core_util_atomic_exchange_explicit(volatile T *ptr, T desiredValue, mbed_memory_order order);
 /** \copydoc core_util_atomic_cas_explicit_u8 */
@@ -938,8 +946,12 @@ template<typename T> T core_util_atomic_fetch_xor_explicit(volatile T *valuePtr,
 
 /** \copydoc core_util_atomic_load_ptr */
 template<typename T> inline T *core_util_atomic_load(T *const volatile *valuePtr);
+/** \copydoc core_util_atomic_load_ptr */
+template<typename T> inline T *core_util_atomic_load(T *const *valuePtr);
 /** \copydoc core_util_atomic_store_ptr */
 template<typename T> inline void core_util_atomic_store(T *volatile *valuePtr, T *desiredValue);
+/** \copydoc core_util_atomic_store_ptr */
+template<typename T> inline void core_util_atomic_store(T **valuePtr, T *desiredValue);
 /** \copydoc core_util_atomic_exchange_ptr */
 template<typename T> inline T *core_util_atomic_exchange(T *volatile *valuePtr, T *desiredValue);
 /** \copydoc core_util_atomic_cas_ptr */
@@ -953,8 +965,12 @@ template<typename T> inline T *core_util_atomic_fetch_sub(T *volatile *valuePtr,
 
 /** \copydoc core_util_atomic_load_explicit_ptr */
 template<typename T> inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order);
+/** \copydoc core_util_atomic_load_explicit_ptr */
+template<typename T> inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order);
 /** \copydoc core_util_atomic_store_explicit_ptr */
 template<typename T> inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *desiredValue, mbed_memory_order order);
+/** \copydoc core_util_atomic_store_explicit_ptr */
+template<typename T> inline void core_util_atomic_store_explicit(T **valuePtr, T *desiredValue, mbed_memory_order order);
 /** \copydoc core_util_atomic_exchange_explicit_ptr */
 template<typename T> inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, T *desiredValue, mbed_memory_order order);
 /** \copydoc core_util_atomic_cas_explicit_ptr */

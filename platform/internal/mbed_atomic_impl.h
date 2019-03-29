@@ -613,15 +613,15 @@ MBED_FORCEINLINE bool core_util_atomic_flag_test_and_set_explicit(volatile core_
 
 /* Lock-free loads and stores don't need assembler - just aligned accesses */
 /* Silly ordering of `T volatile` is because T can be `void *` */
-#define DO_MBED_LOCKFREE_LOADSTORE(T, fn_suffix)                                \
-MBED_FORCEINLINE T core_util_atomic_load_##fn_suffix(T const volatile *valuePtr) \
+#define DO_MBED_LOCKFREE_LOADSTORE(T, V, fn_suffix)                             \
+MBED_FORCEINLINE T core_util_atomic_load_##fn_suffix(T const V *valuePtr)       \
 {                                                                               \
     T value = *valuePtr;                                                        \
     MBED_BARRIER();                                                             \
     return value;                                                               \
 }                                                                               \
                                                                                 \
-MBED_FORCEINLINE T core_util_atomic_load_explicit_##fn_suffix(T const volatile *valuePtr, mbed_memory_order order) \
+MBED_FORCEINLINE T core_util_atomic_load_explicit_##fn_suffix(T const V *valuePtr, mbed_memory_order order) \
 {                                                                               \
     MBED_CHECK_LOAD_ORDER(order);                                               \
     T value = *valuePtr;                                                        \
@@ -629,14 +629,14 @@ MBED_FORCEINLINE T core_util_atomic_load_explicit_##fn_suffix(T const volatile *
     return value;                                                               \
 }                                                                               \
                                                                                 \
-MBED_FORCEINLINE void core_util_atomic_store_##fn_suffix(T volatile *valuePtr, T value) \
+MBED_FORCEINLINE void core_util_atomic_store_##fn_suffix(T V *valuePtr, T value) \
 {                                                                               \
     MBED_BARRIER();                                                             \
     *valuePtr = value;                                                          \
     MBED_BARRIER();                                                             \
 }                                                                               \
                                                                                 \
-MBED_FORCEINLINE void core_util_atomic_store_explicit_##fn_suffix(T volatile *valuePtr, T value, mbed_memory_order order) \
+MBED_FORCEINLINE void core_util_atomic_store_explicit_##fn_suffix(T V *valuePtr, T value, mbed_memory_order order) \
 {                                                                               \
     MBED_CHECK_STORE_ORDER(order);                                              \
     MBED_RELEASE_BARRIER(order);                                                \
@@ -658,15 +658,51 @@ MBED_FORCEINLINE void core_util_atomic_flag_clear_explicit(volatile core_util_at
     flagPtr->_flag = false;
     MBED_SEQ_CST_BARRIER(order);
 }
-DO_MBED_LOCKFREE_LOADSTORE(uint8_t, u8)
-DO_MBED_LOCKFREE_LOADSTORE(uint16_t, u16)
-DO_MBED_LOCKFREE_LOADSTORE(uint32_t, u32)
-DO_MBED_LOCKFREE_LOADSTORE(int8_t, s8)
-DO_MBED_LOCKFREE_LOADSTORE(int16_t, s16)
-DO_MBED_LOCKFREE_LOADSTORE(int32_t, s32)
-DO_MBED_LOCKFREE_LOADSTORE(bool, bool)
-DO_MBED_LOCKFREE_LOADSTORE(void *, ptr)
 
+#ifdef __cplusplus
+// Temporarily turn off extern "C", so we can provide non-volatile load/store
+// overloads for efficiency. All these functions are static inline, so this has
+// no linkage effect exactly, it just permits the overloads.
+} // extern "C"
+
+// For efficiency it's worth having non-volatile overloads
+MBED_FORCEINLINE void core_util_atomic_flag_clear(core_util_atomic_flag *flagPtr)
+{
+    MBED_BARRIER();
+    flagPtr->_flag = false;
+    MBED_BARRIER();
+}
+
+MBED_FORCEINLINE void core_util_atomic_flag_clear_explicit(core_util_atomic_flag *flagPtr, mbed_memory_order order)
+{
+    MBED_RELEASE_BARRIER(order);
+    flagPtr->_flag = false;
+    MBED_SEQ_CST_BARRIER(order);
+}
+
+DO_MBED_LOCKFREE_LOADSTORE(uint8_t,, u8)
+DO_MBED_LOCKFREE_LOADSTORE(uint16_t,, u16)
+DO_MBED_LOCKFREE_LOADSTORE(uint32_t,, u32)
+DO_MBED_LOCKFREE_LOADSTORE(int8_t,, s8)
+DO_MBED_LOCKFREE_LOADSTORE(int16_t,, s16)
+DO_MBED_LOCKFREE_LOADSTORE(int32_t,, s32)
+DO_MBED_LOCKFREE_LOADSTORE(bool,, bool)
+DO_MBED_LOCKFREE_LOADSTORE(void *,, ptr)
+
+#endif
+
+DO_MBED_LOCKFREE_LOADSTORE(uint8_t, volatile, u8)
+DO_MBED_LOCKFREE_LOADSTORE(uint16_t, volatile, u16)
+DO_MBED_LOCKFREE_LOADSTORE(uint32_t, volatile, u32)
+DO_MBED_LOCKFREE_LOADSTORE(int8_t, volatile, s8)
+DO_MBED_LOCKFREE_LOADSTORE(int16_t, volatile, s16)
+DO_MBED_LOCKFREE_LOADSTORE(int32_t, volatile, s32)
+DO_MBED_LOCKFREE_LOADSTORE(bool, volatile, bool)
+DO_MBED_LOCKFREE_LOADSTORE(void *, volatile, ptr)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /********************* GENERIC VARIANTS - SIGNED, BOOL, POINTERS  ****************/
 
@@ -975,7 +1011,19 @@ inline T core_util_atomic_load(const volatile T *valuePtr)                      
 }                                                                               \
                                                                                 \
 template<>                                                                      \
+inline T core_util_atomic_load(const T *valuePtr)                               \
+{                                                                               \
+    return core_util_atomic_load_##fn_suffix(valuePtr);                         \
+}                                                                               \
+                                                                                \
+template<>                                                                      \
 inline T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order) \
+{                                                                               \
+    return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
+}                                                                               \
+                                                                                \
+template<>                                                                      \
+inline T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) \
 {                                                                               \
     return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
 }
@@ -987,9 +1035,21 @@ inline T *core_util_atomic_load(T *const volatile *valuePtr)
 }
 
 template<typename T>
+inline T *core_util_atomic_load(T *const *valuePtr)
+{
+    return (T *) core_util_atomic_load_ptr((void *const *) valuePtr);
+}
+
+template<typename T>
 inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order)
 {
     return (T *) core_util_atomic_load_explicit_ptr((void *const volatile *) valuePtr, order);
+}
+
+template<typename T>
+inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order)
+{
+    return (T *) core_util_atomic_load_explicit_ptr((void *const *) valuePtr, order);
 }
 
 DO_MBED_ATOMIC_LOAD_TEMPLATE(uint8_t,  u8)
@@ -1010,7 +1070,19 @@ inline void core_util_atomic_store(volatile T *valuePtr, T val)                 
 }                                                                               \
                                                                                 \
 template<>                                                                      \
+inline void core_util_atomic_store(T *valuePtr, T val)                          \
+{                                                                               \
+    core_util_atomic_store_##fn_suffix(valuePtr, val);                          \
+}                                                                               \
+                                                                                \
+template<>                                                                      \
 inline void core_util_atomic_store_explicit(volatile T *valuePtr, T val, mbed_memory_order order) \
+{                                                                               \
+    core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
+}                                                                               \
+                                                                                \
+template<>                                                                      \
+inline void core_util_atomic_store_explicit(T *valuePtr, T val, mbed_memory_order order) \
 {                                                                               \
     core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
 }
@@ -1022,9 +1094,21 @@ inline void core_util_atomic_store(T *volatile *valuePtr, T *val)
 }
 
 template<typename T>
+inline void core_util_atomic_store(T **valuePtr, T *val)
+{
+    core_util_atomic_store_ptr((void **) valuePtr, val);
+}
+
+template<typename T>
 inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *val, mbed_memory_order order)
 {
     core_util_atomic_store_ptr((void *volatile *) valuePtr, val, order);
+}
+
+template<typename T>
+inline void core_util_atomic_store_explicit(T **valuePtr, T *val, mbed_memory_order order)
+{
+    core_util_atomic_store_ptr((void **) valuePtr, val, order);
 }
 
 DO_MBED_ATOMIC_STORE_TEMPLATE(uint8_t,  u8)
