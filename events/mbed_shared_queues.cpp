@@ -57,7 +57,7 @@ EventQueue *mbed_event_queue()
 {
 #if MBED_CONF_EVENTS_SHARED_DISPATCH_FROM_APPLICATION || !defined MBED_CONF_RTOS_PRESENT
     /* Only create the EventQueue, but no dispatching thread */
-    static uint64_t queue_buffer[MBED_CONF_EVENTS_SHARED_EVENTSIZE];
+    static uint64_t queue_buffer[MBED_CONF_EVENTS_SHARED_EVENTSIZE / sizeof(uint64_t)];
     static EventQueue queue(sizeof queue_buffer, (unsigned char *) queue_buffer);
 
     return &queue;
