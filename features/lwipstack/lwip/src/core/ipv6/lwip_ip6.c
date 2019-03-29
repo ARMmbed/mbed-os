@@ -96,8 +96,8 @@ ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
 
   /* If single netif configuration, fast return. */
   if ((netif_list != NULL) && (netif_list->next == NULL)) {
-    if (!netif_is_up(netif_list) || !netif_is_link_up(netif_list)){//||
-     //   (ip6_addr_has_zone(dest) && !ip6_addr_test_zone(dest, netif_list))) {
+    if (!netif_is_up(netif_list) || !netif_is_link_up(netif_list) ||
+        (ip6_addr_has_zone(dest) && !ip6_addr_test_zone(dest, netif_list))) {
       return NULL;
     }
     return netif_list;

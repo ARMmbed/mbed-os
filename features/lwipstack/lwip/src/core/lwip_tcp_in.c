@@ -703,7 +703,12 @@ tcp_listen_input(struct tcp_pcb_listen *pcb)
     npcb->snd_wnd_max = npcb->snd_wnd;
 
 #if TCP_CALCULATE_EFF_SEND_MSS
-    npcb->mss = tcp_eff_send_mss(npcb->mss, &npcb->local_ip, &npcb->remote_ip);
+    struct netif *netif;
+    netif = netif_get_by_index(npcb->netif_idx);
+    if(netif == NULL) {
+      netif = ip_route(&npcb->local_ip, &npcb->remote_ip);
+    }
+    npcb->mss = tcp_eff_send_mss_netif(npcb->mss, netif, &npcb->remote_ip);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 
     MIB2_STATS_INC(mib2.tcppassiveopens);
@@ -866,7 +871,12 @@ tcp_process(struct tcp_pcb *pcb)
         pcb->state = ESTABLISHED;
 
 #if TCP_CALCULATE_EFF_SEND_MSS
-        pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip);
+        struct netif *netif;
+        netif = netif_get_by_index(pcb->netif_idx);
+        if(netif == NULL) {
+          netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
+        }
+        pcb->mss = tcp_eff_send_mss_netif(pcb->mss, netif, &pcb->remote_ip);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 
         pcb->cwnd = LWIP_TCP_CALC_INITIAL_CWND(pcb->mss);

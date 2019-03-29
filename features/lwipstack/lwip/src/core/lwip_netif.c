@@ -113,6 +113,7 @@ struct netif *netif_default;
 
 #define netif_index_to_num(index)   ((index) - 1)
 static u8_t netif_num;
+static char netif_name [INTERFACE_NAME_MAX_SIZE];
 
 #if LWIP_NUM_NETIF_CLIENT_DATA > 0
 static u8_t netif_client_id;
@@ -833,6 +834,26 @@ netif_set_default(struct netif *netif)
   netif_default = netif;
   LWIP_DEBUGF(NETIF_DEBUG, ("netif: setting default interface %c%c\n",
                             netif ? netif->name[0] : '\'', netif ? netif->name[1] : '\''));
+}
+
+/**
+ * @ingroup netif
+ * Checks if  network interface is the default network interface
+ * @param netif the default network interface
+ * @return true if netif is  set to default one
+ * otherwise return false
+ */
+bool
+netif_check_default(struct netif *netif)
+{
+  if (netif == NULL) {
+    return false;
+  }
+  if (netif_default == netif) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -1721,6 +1742,23 @@ netif_find(const char *name)
   }
   LWIP_DEBUGF(NETIF_DEBUG, ("netif_find: didn't find %c%c\n", name[0], name[1]));
   return NULL;
+}
+ 
+/**
+ * @ingroup netif
+ * Get a network interface name
+ * @param  netif
+ * @return name the name of the netif (like netif->name) plus concatenated number
+ * in ascii representation (e.g. 'en0')
+ */
+const char *
+netif_get_name(struct netif *netif)
+{
+  if (netif == NULL) {
+    return NULL;
+  }
+  sprintf(netif_name, "%c%c%d", netif->name[0], netif->name[1], netif->num);
+  return netif_name;
 }
 
 #if LWIP_NETIF_EXT_STATUS_CALLBACK

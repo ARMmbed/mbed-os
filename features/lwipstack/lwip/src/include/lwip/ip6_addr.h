@@ -177,10 +177,8 @@ typedef struct ip6_addr ip6_addr_t;
  * @param addr2 IPv6 address 2
  * @return 1 if the addresses are considered equal, 0 if not
  */
-//#define ip6_addr_cmp(addr1, addr2) (ip6_addr_cmp_zoneless((addr1), (addr2)) && \
- //                                  ip6_addr_cmp_zone((addr1), (addr2)))
-#define ip6_addr_cmp(addr1, addr2) (ip6_addr_cmp_zoneless((addr1), (addr2)))
-
+#define ip6_addr_cmp(addr1, addr2) (ip6_addr_cmp_zoneless((addr1), (addr2)) && \
+                                   ip6_addr_cmp_zone((addr1), (addr2)))
 
 /** Compare IPv6 address to packed address and zone */
 #define ip6_addr_cmp_packed(ip6addr, paddr, zone_idx) (((ip6addr)->addr[0] == (paddr)->addr[0]) && \

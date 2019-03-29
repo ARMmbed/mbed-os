@@ -514,19 +514,9 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
             if (optlen > NSAPI_INTERFACE_NAME_MAX_SIZE) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
-#if LWIP_TCP
-            if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP) {
-                s->conn->pcb.tcp->interface_name = (const char *)optval;
-            }
-#endif
-            if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_UDP) {
-                s->conn->pcb.udp->interface_name = (const char *)optval;
-            }
-#if LWIP_RAW
-            if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_RAW) {
-                s->conn->pcb.raw->interface_name = (const char *)optval;
-            }
-#endif
+
+            netconn_bind_if(s->conn,  netif_name_to_index((const char *)optval));
+
             return 0;
 #if LWIP_TCP
         case NSAPI_KEEPALIVE:

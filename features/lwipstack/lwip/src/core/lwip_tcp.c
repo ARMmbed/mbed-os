@@ -1723,7 +1723,7 @@ tcp_kill_prio(u8_t prio)
    * We want to find the connections with the lowest possible prio, and among
    * these the one with the longest inactivity time.
    */
-  //mprio--; temporary commented
+   mprio--;
 
   inactivity = 0;
   inactive = NULL;
