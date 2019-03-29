@@ -95,10 +95,8 @@ enum spif_default_instructions {
 // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
 SingletonPtr<PlatformMutex> SPIFBlockDevice::_mutex;
 
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
 // Local Function
 static unsigned int local_math_power(int base, int exp);
-#endif
 
 //***********************
 // SPIF Block Device APIs
@@ -130,14 +128,11 @@ int SPIFBlockDevice::init()
     uint8_t vendor_device_ids[4];
     size_t data_length = 3;
     int status = SPIF_BD_ERROR_OK;
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
     uint32_t basic_table_addr = 0;
     size_t basic_table_size = 0;
     uint32_t sector_map_table_addr = 0;
     size_t sector_map_table_size = 0;
-#endif
     spif_bd_error spi_status = SPIF_BD_ERROR_OK;
-    uint32_t density_bits = 0;
 
     _mutex->lock();
 
@@ -159,6 +154,7 @@ int SPIFBlockDevice::init()
     } else {
         tr_info("INFO: Initialize flash memory OK\n");
     }
+
 
     /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
     spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)vendor_device_ids,
@@ -184,7 +180,7 @@ int SPIFBlockDevice::init()
         status = SPIF_BD_ERROR_READY_FAILED;
         goto exit_point;
     }
-    #ifdef MBED_CONF_SPIF_SFDP_ENABLE
+
     /**************************** Parse SFDP Header ***********************************/
     if (0 != _sfdp_parse_sfdp_headers(basic_table_addr, basic_table_size, sector_map_table_addr, sector_map_table_size)) {
         tr_error("ERROR: init - Parse SFDP Headers Failed");
@@ -214,22 +210,11 @@ int SPIFBlockDevice::init()
             goto exit_point;
         }
     }
-    #else
-    density_bits = MBED_CONF_SPIF_DRIVER_DENSITY_BITS;
-    _device_size_bytes = (density_bits + 1) / 8;
-    _read_instruction = SPIF_READ;
-    _prog_instruction = SPIF_PP;
-    _erase_instruction = MBED_CONF_SPIF_DRIVER_SECTOR_ERASE_INST;
-    // Set Page Size (SPI write must be done on Page limits)
-    _page_size_bytes = MBED_CONF_SPIF_DRIVER_PAGE_SIZE_BYTES;
-    //_sector_size_pages = MBED_CONF_SPIF_DRIVER_SECTOR_SIZE_PAGES;
-    _min_common_erase_size = MBED_CONF_SPIF_DRIVER_SECTOR_SIZE_PAGES * MBED_CONF_SPIF_DRIVER_PAGE_SIZE_BYTES;
+
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     // Dummy And Mode Cycles Back default 0
-    _read_dummy_and_mode_cycles = MBED_CONF_SPIF_DRIVER_READ_DUMMY_CYCLES;
-    _write_dummy_and_mode_cycles = MBED_CONF_SPIF_DRIVER_MODE_WRITE_DUMMY_CYCLES;
+    _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
-    #endif
 
 exit_point:
     _mutex->unlock();
@@ -348,19 +333,17 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
+    int type = 0;
+    uint32_t offset = 0;
+    uint32_t chunk = 4096;
     int cur_erase_inst = _erase_instruction;
     int size = (int)in_size;
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
-    int type = 0;
-    uint32_t offset = 0;
-    uint32_t chunk = 4096;
     // Find region of erased address
     int region = _utils_find_addr_region(addr);
     // Erase Types of selected region
     uint8_t bitfield = _region_erase_types_bitfield[region];
-#endif
 
     tr_info("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
 
@@ -376,7 +359,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
     // For each iteration erase the largest section supported by current region
     while (size > 0) {
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
+
         // iterate to find next Largest erase type ( a. supported by region, b. smaller than size)
         // find the matching instruction and erase size chunk for that type.
         type = _utils_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, _region_high_boundary[region]);
@@ -388,7 +371,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
                  addr, size, cur_erase_inst, chunk);
         tr_debug("DEBUG: erase - Region: %d, Type:%d",
                  region, type);
-#endif
+
         _mutex->lock();
 
         if (_set_write_enable() != 0) {
@@ -399,7 +382,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         }
 
         _spi_send_erase_command(cur_erase_inst, addr, size);
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
+
         addr += chunk;
         size -= chunk;
 
@@ -408,10 +391,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
             region++;
             bitfield = _region_erase_types_bitfield[region];
         }
-#else
-        addr += _min_common_erase_size;
-        size -= _min_common_erase_size;
-#endif
+
         if (false == _is_mem_ready()) {
             tr_error("ERROR: SPI After Erase Device not ready - failed\n");
             erase_failed = true;
@@ -451,7 +431,6 @@ bd_size_t SPIFBlockDevice::get_erase_size() const
 // Find minimal erase size supported by the region to which the address belongs to
 bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr)
 {
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
     // Find region of current address
     int region = _utils_find_addr_region(addr);
 
@@ -478,9 +457,6 @@ bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr)
     }
 
     return (bd_size_t)min_region_erase_size;
-#else
-    return _min_common_erase_size;
-#endif
 }
 
 bd_size_t SPIFBlockDevice::size() const
@@ -620,7 +596,6 @@ spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_add
     return SPIF_BD_ERROR_OK;
 }
 
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
 /*********************************************************/
 /********** SFDP Parsing and Detection Functions *********/
 /*********************************************************/
@@ -912,7 +887,6 @@ int SPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_
 
     return 0;
 }
-#endif
 
 int SPIFBlockDevice::_reset_flash_mem()
 {
@@ -1066,7 +1040,6 @@ int SPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield, i
 /*********************************************/
 /************** Local Functions **************/
 /*********************************************/
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
 static unsigned int local_math_power(int base, int exp)
 {
     // Integer X^Y function, used to calculate size fields given in 2^N format
@@ -1077,4 +1050,5 @@ static unsigned int local_math_power(int base, int exp)
     }
     return result;
 }
-#endif
+
+

@@ -1,17 +1,24 @@
 /* Linker script for STM32F411 */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 512K
+#endif
+
 #if !defined(MBED_BOOT_STACK_SIZE)
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+
 /* Linker script to configure memory regions. */
 MEMORY
-{ 
-  /* First 64kB of flash reserved for bootloader */
-  /* Other 448kB for application */
-  FLASH (rx) : ORIGIN = 0x08010000, LENGTH = 448K
+{
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
 /*  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K */
   RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
 }
