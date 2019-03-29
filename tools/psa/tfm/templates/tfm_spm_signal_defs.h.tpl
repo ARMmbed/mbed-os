@@ -33,3 +33,4 @@
 #endif // USE_PSA_TEST_PARTITIONS
 
 #endif // __TFM_SPM_SIGNAL_DEFS_H__
+{# End of file #}

@@ -22,10 +22,10 @@
 
 /*************************** Service Partitions ******************************/
 
-#define ITS_ID (TFM_SP_BASE + 0)
-#define PLATFORM_ID (TFM_SP_BASE + 1)
-#define CRYPTO_SRV_ID (TFM_SP_BASE + 2)
-#define ATTEST_SRV_ID (TFM_SP_BASE + 3)
+#define ATTEST_SRV_ID (TFM_SP_BASE + 0)
+#define CRYPTO_SRV_ID (TFM_SP_BASE + 1)
+#define PLATFORM_ID (TFM_SP_BASE + 2)
+#define ITS_ID (TFM_SP_BASE + 3)
 
 /*************************** Test Partitions *********************************/
 
