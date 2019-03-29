@@ -163,6 +163,10 @@ void spi_free(spi_t *obj);
     - if `ssel` is `NC` the hal implementation ignores this pin.
     - if `ssel` is not `NC` then the hal implementation owns the pin and its management.
 - When managed by the hal implementation, `ssel` is always considered active low.
+- When managed by the hal implementation, `ssel` must be asserted for the whole duration of the spi transmission.
+- When managed by the hal implementation, the delay from the chip select assert to the first clock edge must be at least half spi clock period.
+- When managed by the hal implementation, the delay from the last clock edge to the chip select de-assert to must be at least half spi clock period.
+- If hardware can not handle all `ssel` related requirements, then device capabilities should indicate that `ssel` cannot be managed by hardware.
 - When the hardware supports the half-duplex (3-wire) mode, if `miso` (exclusive) or `mosi` is missing in any function that expects pins, the bus is assumed to be half-duplex.
 - `spi_free()` resets the pins to their default state.
 - `spi_free()` disables the peripheral clock.
@@ -178,7 +182,6 @@ void spi_free(spi_t *obj);
 - `spi_frequency()` sets the frequency to use during the transfer.
 - `spi_frequency()` returns the actual frequency that will be used.
 - `spi_frequency()` updates the baud rate generator leaving other configurations unchanged.
-- `spi_init()`, `spi_frequency()` and `spi_format()` must be called at least once each before initiating any transfer.
 - `spi_transfer()` :
   - writes `tx_len` symbols to the bus.
   - reads `rx_len` symbols from the bus.
@@ -227,6 +230,7 @@ void spi_free(spi_t *obj);
 - Passing an invalid pointer as `handler` to `spi_transfer_async`.
 - Calling `spi_transfer_async_abort()` while no async transfer is being processed (no transfer or a synchronous transfer).
 - In half-duplex mode, any mechanism (if any is present) to detect or prevent collision is implementation defined.
+- Initiating any transfer after `spi_init()` but before both the frequency and format have been set with `spi_frequency()` and `spi_format()`
 
 ### Updated flow
 The IRQ flow has slightly changed. In the new API the flow is as follow :
