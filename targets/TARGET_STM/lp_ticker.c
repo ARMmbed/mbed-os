@@ -226,8 +226,15 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* Any successive write before the CMPOK flag be set, will lead to unpredictable results */
     /* LPTICKER_DELAY_TICKS value prevents OS to call this set interrupt function before CMPOK */
     MBED_ASSERT(__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == SET);
-    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
-    __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
+
+    if(timestamp < lp_ticker_read()) {
+        /*  Workaround, because limitation */
+        __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+        __HAL_LPTIM_COMPARE_SET(&LptimHandle, ~0);
+    } else {
+        __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+        __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
+    }
 
     lp_ticker_clear_interrupt();
 
