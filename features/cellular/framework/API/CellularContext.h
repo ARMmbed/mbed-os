@@ -282,6 +282,12 @@ public: // from NetworkInterface
      */
     virtual ControlPlane_netif *get_cp_netif() = 0;
 
+    /** Get the pdp context id associated with this context.
+     *
+     *  @return cid
+     */
+    int get_cid() const;
+
 protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,

@@ -31,7 +31,6 @@
 // Timeout to wait for URC indicating ciot optimization support from network
 #define CP_OPT_NW_REPLY_TIMEOUT 3000 // 3 seconds
 
-
 #if NSAPI_PPP_AVAILABLE
 #define AT_SYNC_TIMEOUT 1000 // 1 second timeout
 #include "nsapi_ppp.h"
@@ -591,8 +590,6 @@ void AT_CellularContext::do_connect()
         _at.unlock();
         if (_cb_data.error != NSAPI_ERROR_OK) {
             _is_connected = false;
-        } else {
-            _is_context_activated = true;
         }
     }
 #else
@@ -646,21 +643,20 @@ nsapi_error_t AT_CellularContext::open_data_channel()
 void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 {
     tr_debug("ppp_status_cb: event %d, ptr %d", ev, ptr);
+
     if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
         _is_connected = true;
     } else {
-        _is_connected = false;
-    }
-
-    _connect_status = (nsapi_connection_status_t)ptr;
-
-    // catch all NSAPI_STATUS_DISCONNECTED events but send to device only when we did not ask for disconnect.
-    if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
-        if (_is_connected) {
-            ppp_disconnected();
-            _device->cellular_callback(ev, ptr, this);
+        // catch all NSAPI_STATUS_DISCONNECTED events but send to device only when we did not ask for disconnect.
+        if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+            if (_is_connected) { // set to false in disconnect() before calling nsapi_ppp_disconnect()
+                _is_connected = false;
+                ppp_disconnected();
+                _device->cellular_callback(ev, ptr, this);
+            }
+            return; // return here so if we were not in connected state we don't send NSAPI_STATUS_DISCONNECTED event
         }
-        return;
+        _is_connected = false;
     }
 
     // call device's callback, it will broadcast this to here (cellular_callback)
@@ -714,11 +710,14 @@ nsapi_error_t AT_CellularContext::disconnect()
             deactivate_ip_context();
         }
     }
+
+    // don't call multiple times disconnect if we already got that event from network urc or ppp
+    if (_connect_status != NSAPI_STATUS_DISCONNECTED) {
+        _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
+    }
     _is_context_active = false;
     _connect_status = NSAPI_STATUS_DISCONNECTED;
 
-    // call device's callback, it will broadcast this to here (cellular_callback)
-    _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
 
     if (_new_context_set) {
         delete_current_context();
@@ -770,6 +769,8 @@ void AT_CellularContext::check_and_deactivate_context()
         _at.write_int(_cid);
         _at.cmd_stop_read_resp();
     }
+
+    _at.restore_at_timeout();
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
@@ -993,7 +994,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             if (st == CellularAttachNetwork && _current_op == OP_CONNECT && _cb_data.error == NSAPI_ERROR_OK &&
                     data->status_data == CellularNetwork::Attached) {
                 _current_op = OP_INVALID;
-                // forward to application
+                // forward all Cellular specific events to application
                 if (_status_cb) {
                     _status_cb(ev, ptr);
                 }
@@ -1002,6 +1003,11 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 return;
             }
         }
+
+        // forward all Cellular specific events to application
+        if (_status_cb) {
+            _status_cb(ev, ptr);
+        }
     } else {
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
@@ -1009,7 +1015,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 tr_info("CellularContext IP %s", get_ip_address());
                 _cb_data.error = NSAPI_ERROR_OK;
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
-                tr_info("PPP disconnected");
+                tr_info("cellular_callback: PPP mode and NSAPI_STATUS_DISCONNECTED");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
             }
         }
@@ -1020,11 +1026,8 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         }
 #endif // MBED_CONF_MBED_TRACE_ENABLE
 #endif // NSAPI_PPP_AVAILABLE
-    }
-
-    // forward to application
-    if (_status_cb) {
-        _status_cb(ev, ptr);
+        // forward status change events to application, call_network_cb will make sure that only changed event are forwarded
+        call_network_cb((nsapi_connection_status_t)ptr);
     }
 }
 
