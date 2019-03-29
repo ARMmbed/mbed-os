@@ -212,6 +212,12 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     return ERR_OK;
 }
 
+err_t
+sys_mbox_trypost_fromisr(sys_mbox_t *q, void *msg)
+{
+  return sys_mbox_trypost(q, msg);
+}
+
 /*---------------------------------------------------------------------------*
  * Routine:  sys_arch_mbox_fetch
  *---------------------------------------------------------------------------*

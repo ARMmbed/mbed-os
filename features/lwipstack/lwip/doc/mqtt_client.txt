@@ -40,7 +40,7 @@ void example_do_connect(mqtt_client_t *client)
   
   err = mqtt_client_connect(client, ip_addr, MQTT_PORT, mqtt_connection_cb, 0, &ci);
   
-  /* For now just print the result code if something goes wrong
+  /* For now just print the result code if something goes wrong */
   if(err != ERR_OK) {
     printf("mqtt_connect return %d\n", err);
   }

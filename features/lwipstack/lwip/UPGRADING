@@ -8,6 +8,49 @@ with newer versions.
 
   * [Enter new changes just after this line - do not remove this line]
 
+(2.1.0)
+
+  ++ Application changes:
+
+  * Use the new altcp API for seamless TLS integration into existing TCP applications (see changelog)
+  * TCP only kills existing connections with a LOWER priority than the one currently being opened.
+    Previous implementations also kill existing connections of the SAME priority.
+  * ip4_route_src: parameter order is reversed: ip4_route_src(dest, src) -> ip4_route_src(src, dest)
+    to make parameter order consistent with other ip*_route*() functions.
+    Same also applies to LWIP_HOOK_IP4_ROUTE_SRC() parameter order.
+  * pbuf API: pbuf->type (an u8_t holding the enum 'pbuf_type') has changed to only hold a
+    description of the pbuf (e.g. data following pbuf struct, data volatile, allocation
+    source heap/pool/etc.). As a consequence, applications can't test pbuf->type any more.
+    Use pbuf_match_type(pbuf, type) instead.
+  * socket API: according to the standard, SO_ERROR now only returns asynchronous errors.
+    All other/normal/synchronous errors are (and always were) available via 'errno'.
+    LWIP_SOCKET_SET_ERRNO has been removed - 'errno' is always set - and required!
+  * httpd LWIP_HTTPD_CGI_SSI: httpd_cgi_handler() has an additional parameter "struct fs_file *"
+
+  ++ Port changes:
+
+  * tcpip_trycallback() was renamed to tcpip_callbackmsg_trycallback() to avoid confusion
+    with tcpip_try_callback()
+  * compatibility headers: moved from 'src/include/posix' to 'src/include/compat/posix',
+    'src/include/compat/stdc' etc.
+  * The IPv6 implementation now supports address scopes. (See LWIP_IPV6_SCOPES documentation
+    and ip6_zone.h for more documentation)
+  * LWIP_HOOK_DHCP_APPEND_OPTIONS() has changed, see description in opt.h (options_out_len is not
+    available in struct dhcp any more)
+  * Added debug helper asserts to ensure threading/locking requirements are met (define
+    LWIP_MARK_TCPIP_THREAD() and LWIP_ASSERT_CORE_LOCKED()).
+  * Added sys_mbox_trypost_fromisr() and tcpip_callbackmsg_trycallback_fromisr()
+    These can be used to post preallocated messages from an ISR to the tcpip thread
+    (e.g. when using FreeRTOS)
+
+(2.0.2)
+
+  ++ Application changes:
+
+  * slipif: The way to pass serial port number has changed. netif->num is not
+    supported any more, netif->state is interpreted as an u8_t port number now
+    (it's not a POINTER to an u8_t any more!)
+
 (2.0.1)
 
   ++ Application changes:
