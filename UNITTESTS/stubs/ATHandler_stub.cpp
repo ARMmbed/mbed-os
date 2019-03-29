@@ -45,6 +45,8 @@ FileHandle_stub *ATHandler_stub::fh_value = NULL;
 device_err_t ATHandler_stub::device_err_value;
 bool ATHandler_stub::call_immediately = false;
 uint8_t ATHandler_stub::resp_info_true_counter = false;
+uint8_t ATHandler_stub::resp_info_true_counter2 = false;
+uint8_t ATHandler_stub::resp_info_false_counter = false;
 uint8_t ATHandler_stub::info_elem_true_counter = false;
 int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
@@ -55,7 +57,7 @@ const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
-char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {'\0'};
+char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {NULL};
 
 bool ATHandler_stub::get_debug_flag = false;
 uint8_t ATHandler_stub::set_debug_call_count = 0;
@@ -156,8 +158,9 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     if (ATHandler_stub::urc_amount < kATHandler_urc_table_max_size) {
         ATHandler_stub::callback[ATHandler_stub::urc_amount] = cb;
-        ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount] = new char[kATHandler_urc_string_max_size];
         if (urc) {
+            ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount] = new char[kATHandler_urc_string_max_size];
+            memset(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount], 0, sizeof(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount]));
             int bytes_to_copy = strlen(urc) < kATHandler_urc_string_max_size ? strlen(urc) : kATHandler_urc_string_max_size;
             memcpy(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount], urc, bytes_to_copy);
         }
@@ -213,9 +216,13 @@ void ATHandler::process_oob()
         int i = 0;
         while (i < ATHandler_stub::urc_amount) {
             if (ATHandler_stub::read_string_index >= 0) {
+                int len = 0;
+                if (ATHandler_stub::urc_string_table[i]) {
+                    len = strlen(ATHandler_stub::urc_string_table[i]);
+                }
                 if (!memcmp(ATHandler_stub::urc_string_table[i],
                             ATHandler_stub::read_string_table[ATHandler_stub::read_string_index],
-                            strlen(ATHandler_stub::urc_string_table[i]))) {
+                            len)) {
                     ATHandler_stub::callback[i]();
                     break;
                 }
@@ -311,8 +318,30 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 
 bool ATHandler::info_resp()
 {
+    //3 counter variables available here now so that in a test
+    //case it is possible to have at least two while loops checking
+    //specified amount of info_resps.
+    //
+    //For example:
+    //while(athandler.info_resp())
+    //{
+    //   resp_info_true_counter responses handled in this loop
+    //}
+    //   resp_info_false_counter set to 1 to break out from the 1st loop
+    //while(athandler.info_resp())
+    //{
+    //   resp_info_true_counter2 responses handled in this loop
+    //}
     if (ATHandler_stub::resp_info_true_counter) {
         ATHandler_stub::resp_info_true_counter--;
+        return true;
+    }
+    if (ATHandler_stub::resp_info_false_counter) {
+        ATHandler_stub::resp_info_false_counter--;
+        return false;
+    }
+    if (ATHandler_stub::resp_info_true_counter2) {
+        ATHandler_stub::resp_info_true_counter2--;
         return true;
     }
     return ATHandler_stub::bool_value;
