@@ -198,7 +198,7 @@ public:
 private:
 
     // Internal functions
-#ifdef MBED_CONF_SPIF_SFDP_ENABLE
+
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
@@ -222,7 +222,7 @@ private:
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
                                                int &erase4k_inst,
                                                int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
-#endif
+
     /***********************/
     /* Utilities Functions */
     /***********************/
@@ -299,8 +299,8 @@ private:
     unsigned int _read_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Read Bus Mode
     unsigned int _write_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Write Bus Mode
     unsigned int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
-    bool _is_initialized;
     uint32_t _init_ref_count;
+    bool _is_initialized;
 };
 
 #endif  /* MBED_SPIF_BLOCK_DEVICE_H */

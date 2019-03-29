@@ -4301,6 +4301,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
+        "components_add": ["FLASHIAP"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -4314,17 +4315,14 @@
             }
         },
         "overrides": { "lse_available": 0 },
-        "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
-        "post_binary_hook": {
-            "function": "MTSCode.combine_bins_mts_dragonfly",
-            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
-        },
-        "device_has_add": ["MPU"],
+        "macros_add": ["HSE_VALUE=26000000"],
+        "device_has_add": ["MPU", "FLASH"],
         "device_has_remove": [
             "SERIAL_FC"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RE",
+        "bootloader_supported": true
     },
     "MTS_DRAGONFLY_L471QG": {
         "inherits": ["FAMILY_STM32"],
