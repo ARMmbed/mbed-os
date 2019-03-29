@@ -50,6 +50,8 @@ extern size_t size_value;
 extern size_t return_given_size;
 extern bool bool_value;
 extern uint8_t resp_info_true_counter;
+extern uint8_t resp_info_true_counter2;
+extern uint8_t resp_info_false_counter;
 extern uint8_t info_elem_true_counter;
 extern uint8_t uint8_value;
 extern mbed::FileHandle_stub *fh_value;

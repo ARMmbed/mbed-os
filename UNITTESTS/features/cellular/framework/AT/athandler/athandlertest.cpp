@@ -493,11 +493,10 @@ TEST_F(TestATHandler, test_ATHandler_skip_param)
     at.resp_start();
     at.skip_param();
 
-    char table2[] = "sssOK\r\n\0";
-    filehandle_stub_table = table2;
-
     at.flush();
     at.clear_error();
+    char table2[] = "sssOK\r\n\0";
+    filehandle_stub_table = table2;
     filehandle_stub_short_value_counter = 1;
     filehandle_stub_table_pos = 0;
     at.resp_start();
@@ -914,13 +913,12 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start("ssssaaaassssaaaassss"); //too long prefix
 
-    char table3[] = "+CME ERROR: 108\0";
+    at.flush();
+    at.clear_error();
+    char table3[] = "+CME ERROR: 108\r\n";
     filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
 
-    at.flush();
-    at.clear_error();
-    filehandle_stub_table_pos = 0;
     at.resp_start();
 
 
@@ -929,7 +927,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table4[] = "+CMS ERROR: 6\0";
+    char table4[] = "+CMS ERROR: 6\r\n";
     filehandle_stub_table = table4;
 
     filehandle_stub_table_pos = 0;
@@ -1055,12 +1053,11 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
     at.set_stop_tag("OK\r\n");
     at.resp_stop();
 
-    char table3[] = "+CME ERROR: 108\0";
-    filehandle_stub_table = table3;
-    filehandle_stub_table_pos = 0;
-
     at.flush();
     at.clear_error();
+
+    char table3[] = "+CME ERROR: 108\r\n";
+    filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
