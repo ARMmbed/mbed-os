@@ -18,9 +18,8 @@ from __future__ import print_function, absolute_import
 from builtins import str  # noqa: F401
 
 import re
-import os
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, isfile, split
+from os.path import join, dirname, splitext, basename, exists, isfile
 from os import makedirs, write, remove
 from tempfile import mkstemp
 from shutil import rmtree
@@ -28,7 +27,7 @@ from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
-from tools.utils import mkdir, NotSupportedException, ToolException, run_cmd
+from tools.utils import mkdir, NotSupportedException, run_cmd
 
 ARMC5_MIGRATION_WARNING = (
     "Warning: We noticed that you are using Arm Compiler 5. "
@@ -37,6 +36,7 @@ ARMC5_MIGRATION_WARNING = (
     "which is free to use with Mbed OS. For more information, "
     "please visit https://os.mbed.com/docs/mbed-os/latest/tools/index.html"
 )
+
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -184,7 +184,7 @@ class ARM(mbedToolchain):
     def parse_output(self, output):
         msg = None
         for line in output.splitlines():
-            match = ARM.DIAGNOSTIC_PATTERN.match(line)
+            match = self.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
                 if msg is not None:
                     self.notify.cc_info(msg)
@@ -306,7 +306,14 @@ class ARM(mbedToolchain):
 
                 return new_scatter
 
-    def get_link_command(self, output, objects, libraries, lib_dirs, scatter_file):
+    def get_link_command(
+            self,
+            output,
+            objects,
+            libraries,
+            lib_dirs,
+            scatter_file
+    ):
         base, _ = splitext(output)
         map_file = base + ".map"
         args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
@@ -378,6 +385,7 @@ class ARM(mbedToolchain):
         write(handle, "RESOLVE %s AS %s\n" % (source, sync))
         return "--edit=%s" % filename
 
+
 class ARM_STD(ARM):
 
     OFFICIALLY_SUPPORTED = True
@@ -399,9 +407,11 @@ class ARM_STD(ARM):
             build_profile=build_profile
         )
         if int(target.build_tools_metadata["version"]) > 0:
-            #check only for ARMC5 because ARM_STD means using ARMC5, and thus
+            # check only for ARMC5 because ARM_STD means using ARMC5, and thus
             # supported_toolchains must include ARMC5
-            if not set(target.supported_toolchains).intersection(set(("ARMC5", "ARM"))):
+            if not set(target.supported_toolchains).intersection(
+                    set(("ARMC5", "ARM"))
+            ):
                 raise NotSupportedException(
                     "ARM compiler 5 support is required for ARM build"
                 )
@@ -412,6 +422,7 @@ class ARM_STD(ARM):
                 raise NotSupportedException(
                     "ARM/uARM compiler support is required for ARM build"
                 )
+
 
 class ARM_MICRO(ARM):
 
@@ -434,7 +445,7 @@ class ARM_MICRO(ARM):
             # At this point we already know that we want to use ARMC5+Microlib
             # so check for if they are supported For, AC6+Microlib we still
             # use ARMC6 class
-            if not set(("ARMC5","uARM")).issubset(set(
+            if not set(("ARMC5", "uARM")).issubset(set(
                     target.supported_toolchains
             )):
                 raise NotSupportedException(
@@ -469,6 +480,10 @@ class ARMC6(ARM_STD):
         "Cortex-A9"
     ]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
+    LD_DIAGNOSTIC_PATTERN = re.compile(
+        '(?P<severity>Warning|Error): (?P<message>.+)'
+    )
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
     @staticmethod
     def check_executable():
@@ -586,9 +601,9 @@ class ARMC6(ARM_STD):
         self.ar = join(TOOLCHAIN_PATHS["ARMC6"], "armar")
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
-        # Adding this for safety since this inherits the `version_check` function
-        # but does not call the constructor of ARM_STD, so the `product_name` variable
-        # is not initialized.
+        # Adding this for safety since this inherits the `version_check`
+        # function but does not call the constructor of ARM_STD, so the
+        # `product_name` variable is not initialized.
         self.product_name = None
 
     def _get_toolchain_labels(self):
@@ -608,7 +623,31 @@ class ARMC6(ARM_STD):
         return "#error [NOT_SUPPORTED]" in output
 
     def parse_output(self, output):
-        pass
+        for line in output.splitlines():
+            match = self.LD_DIAGNOSTIC_PATTERN.match(line)
+            if match is not None:
+                self.notify.cc_info({
+                    'severity': match.group('severity').lower(),
+                    'message': match.group('message'),
+                    'text': '',
+                    'target_name': self.target.name,
+                    'toolchain_name': self.name,
+                    'col': 0,
+                    'file': "",
+                    'line': 0
+                })
+            match = self.DIAGNOSTIC_PATTERN.search(line)
+            if match is not None:
+                self.notify.cc_info({
+                    'severity': match.group('severity').lower(),
+                    'file': match.group('file'),
+                    'line': match.group('line'),
+                    'col': match.group('col'),
+                    'message': match.group('message'),
+                    'text': '',
+                    'target_name': self.target.name,
+                    'toolchain_name': self.name
+                })
 
     def get_config_option(self, config_header):
         return ["-include", config_header]
@@ -660,7 +699,14 @@ class ARMC6(ARM_STD):
         cmd.extend(["-o", object, source])
         return [cmd]
 
-    def get_link_command(self, output, objects, libraries, lib_dirs, scatter_file):
+    def get_link_command(
+            self,
+            output,
+            objects,
+            libraries,
+            lib_dirs,
+            scatter_file
+    ):
         cmd = ARM.get_link_command(
             self, output, objects, libraries, lib_dirs, scatter_file
         )
