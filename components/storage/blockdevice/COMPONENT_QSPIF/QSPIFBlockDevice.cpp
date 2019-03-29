@@ -880,7 +880,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             break;
         default:
             tr_warning("Unsuported QER configuration");
-            return;
+            return 0;
     }
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
