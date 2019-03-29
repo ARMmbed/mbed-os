@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 
 #include <string.h>
 #include <stdint.h>
@@ -893,7 +893,7 @@ nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *coun
 
     // Firmware takes only first three characters
     strncpy(_ch_info.country_code, country_code, sizeof(_ch_info.country_code));
-    _ch_info.country_code[sizeof(_ch_info.country_code)-1] = '\0';
+    _ch_info.country_code[sizeof(_ch_info.country_code) - 1] = '\0';
 
     _ch_info.channel_start = channel_start;
     _ch_info.channels = channels;
