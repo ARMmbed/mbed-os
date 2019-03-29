@@ -39,6 +39,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_ECHOTEST_BURST()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
     sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
@@ -79,6 +80,7 @@ void TCPSOCKET_ECHOTEST_BURST()
 
 void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);

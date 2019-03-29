@@ -114,6 +114,17 @@ nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock)
     return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT);
 }
 
+bool is_tcp_supported()
+{
+    static bool supported;
+    static bool tested = false;
+    if (!tested) {
+        TCPSocket socket;
+        supported = socket.open(NetworkInterface::get_default_instance()) == NSAPI_ERROR_OK;
+    }
+    return supported;
+}
+
 void fill_tx_buffer_ascii(char *buff, size_t len)
 {
     for (size_t i = 0; i < len; ++i) {
