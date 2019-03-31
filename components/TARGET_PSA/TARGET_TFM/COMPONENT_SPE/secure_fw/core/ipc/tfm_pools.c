@@ -17,7 +17,7 @@
 #include "tfm_utils.h"
 #include "tfm_list.h"
 #include "tfm_pools.h"
-#include "secure_utilities.h"
+#include "tfm_memory_utils.h"
 
 int32_t tfm_pool_init(struct tfm_pool_instance_t *pool, size_t poolsz,
                       size_t chunksz, size_t num)

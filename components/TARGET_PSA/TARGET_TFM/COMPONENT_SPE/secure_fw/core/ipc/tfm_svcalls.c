@@ -18,9 +18,9 @@
 #include "tfm_internal_defines.h"
 #include "tfm_message_queue.h"
 #include "tfm_spm.h"
-#include "secure_utilities.h"
 #include "tfm_api.h"
 #include "tfm_secure_api.h"
+#include "tfm_memory_utils.h"
 
 #define PSA_TIMEOUT_MASK        PSA_BLOCK
 
@@ -124,17 +124,25 @@ psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller, uint32_t lr)
         in_num = (size_t)args[2];
         outptr = (psa_outvec *)args[3];
         /*
-         * 5th parameter is pushed at stack top before SVC; plus exception stacked contents,
-         * 5th parameter is now at 8th position in SVC handler.
-         * However, if thread mode applies FloatPoint, then FloatPoint context is pushed into
-         * stack and then 5th parameter will be args[26].
+         * 5th parameter is pushed at stack top before SVC, then PE hardware
+         * stacks the execution context. The size of the context depends on
+         * various settings:
+         * - if FP is not used, 5th parameter is at 8th position counting
+         *   from SP;
+         * - if FP is used and FPCCR_S.TS is 0, 5th parameter is at 26th
+         *   position counting from SP;
+         * - if FP is used and FPCCR_S.TS is 1, 5th parameter is at 42th
+         *   position counting from SP.
          */
-        if (lr & EXC_RETURN_FPU_FRAME_BASIC) {
+         if (lr & EXC_RETURN_FPU_FRAME_BASIC) {
             out_num = (size_t)args[8];
-        }
-        else {
+#if defined (__FPU_USED) && (__FPU_USED == 1U)
+         } else if (FPU->FPCCR & FPU_FPCCR_TS_Msk) {
+            out_num = (size_t)args[42];
+#endif
+         } else {
             out_num = (size_t)args[26];
-        }
+         }
     } else {
         /*
          * FixMe: From non-secure caller, vec and len are composed into a new
@@ -307,8 +315,8 @@ static psa_signal_t tfm_svcall_psa_wait(uint32_t *args)
      * runtime context. After new signal(s) are available, the return value
      * is updated with the available signal(s) and blocked thread gets to run.
      */
-    if ((timeout == PSA_BLOCK) && ((partition->signals & signal_mask) == 0)) {
-            tfm_event_wait(&partition->signal_event);
+    if (timeout == PSA_BLOCK && (partition->signals & signal_mask) == 0) {
+        tfm_event_wait(&partition->signal_evnt);
     }
 
     return partition->signals & signal_mask;
@@ -683,7 +691,7 @@ static void update_caller_outvec_len(struct tfm_msg_body_t *msg)
      * FixeMe: abstract these part into dedicated functions to avoid
      * accessing thread context in psa layer
      */
-    TFM_ASSERT(msg->ack_mtx.owner->status == THRD_STAT_BLOCK);
+    TFM_ASSERT(msg->ack_evnt.owner->status == THRD_STAT_BLOCK);
 
     while (msg->msg.out_size[i] != 0) {
         TFM_ASSERT(msg->caller_outvec[i].base == msg->outvec[i].base);
@@ -800,11 +808,7 @@ static void tfm_svcall_psa_reply(uint32_t *args)
         tfm_panic();
     }
 
-    /* Save return value for blocked threads */
-    tfm_event_owner_retval(&msg->ack_mtx, ret);
-
-    /* Wake waiting thread up */
-    tfm_event_signal(&msg->ack_mtx);
+    tfm_event_wake(&msg->ack_evnt, ret);
 
     /* Message should not be unsed anymore */
     tfm_spm_free_msg(msg);
@@ -852,11 +856,8 @@ static void tfm_svcall_psa_notify(uint32_t *args)
      * called psa_wait(). Set the return value with the available signals
      * before wake it up with tfm_event_signal().
      */
-    tfm_event_owner_retval(&partition->signal_event,
-                           partition->signals & partition->signal_mask);
-
-    /* Wake waiting thread up */
-    tfm_event_signal(&partition->signal_event);
+    tfm_event_wake(&partition->signal_evnt,
+                   partition->signals & partition->signal_mask);
 }
 
 /**

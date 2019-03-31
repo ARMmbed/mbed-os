@@ -10,15 +10,11 @@
 #include <stdbool.h>
 #include "tfm_list.h"
 
-#ifndef TFM_SPM_MAX_ROT_SERV_NUM
 #define TFM_SPM_MAX_ROT_SERV_NUM        28
-#endif
 #define TFM_VERSION_POLICY_RELAXED      0
 #define TFM_VERSION_POLICY_STRICT       1
 
-#ifndef TFM_CONN_HANDLE_MAX_NUM
 #define TFM_CONN_HANDLE_MAX_NUM         32
-#endif
 
 /* RoT connection handle list */
 struct tfm_conn_handle_t {
@@ -59,7 +55,7 @@ struct tfm_spm_service_t {
 struct tfm_spm_ipc_partition_t {
     int32_t index;                      /* Partition index                   */
     int32_t id;                         /* Secure partition ID               */
-    struct tfm_event_ctx signal_event;  /* Event signal                      */
+    struct tfm_event_t signal_evnt;     /* Event signal                      */
     uint32_t signals;                   /* Service signals had been triggered*/
     uint32_t signal_mask;        /* Service signal mask passed by psa_wait() */
     struct tfm_list_node_t service_list;/* Service list                      */
