@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>
+#include "../ext/mcuboot/bootutil/include/bootutil/image.h"
+#include "../ext/mcuboot/include/flash_map/flash_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +33,16 @@ enum shared_memory_err_t {
 };
 
 /*!
+ * \enum boot_status_err_t
+ *
+ * \brief Return values for saving boot status information to shared memory are
+ */
+enum boot_status_err_t {
+    BOOT_STATUS_OK,
+    BOOT_STATUS_ERROR,
+};
+
+/*!
  * \brief Add a data item to the shared data area between bootloader and
  *        runtime SW
  *
@@ -43,9 +55,24 @@ enum shared_memory_err_t {
  */
 enum shared_memory_err_t
 boot_add_data_to_shared_area(uint8_t        major_type,
-                             uint8_t        minor_type,
+                             uint16_t       minor_type,
                              size_t         size,
                              const uint8_t *data);
+
+/*!
+ * \brief Add an image's all boot status information to the shared data area
+ *        between bootloader and runtime SW
+ *
+ * \param[in]  sw_module  Identifier of the SW component
+ * \param[in]  hdr        Pointer to the image header stored in RAM
+ * \param[in]  fap        Pointer to the flash area where image is stored
+ *
+ * \return Returns error code as specified in \ref boot_status_err_t
+ */
+enum boot_status_err_t
+boot_save_boot_status(uint8_t sw_module,
+                      const struct image_header *hdr,
+                      const struct flash_area *fap);
 
 #ifdef __cplusplus
 }

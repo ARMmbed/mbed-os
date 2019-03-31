@@ -100,8 +100,9 @@ __attribute__((naked)) int32_t tfm_core_sfn_request(
 #endif
 
 __attribute__((naked))
-int32_t tfm_core_memory_permission_check(
-            void *ptr, uint32_t len, int32_t access)
+int32_t tfm_core_memory_permission_check(const void *ptr,
+                                         uint32_t len,
+                                         int32_t access)
 {
     __ASM(
         "SVC    %0\n"
