@@ -8,10 +8,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "cmsis.h"
+#include <arm_cmse.h>
 #include "tfm_secure_api.h"
 #include "tfm_nspm.h"
 #include "secure_utilities.h"
+#include "uart_stdout.h"
 #include "secure_fw/spm/spm_api.h"
 #include "region_defs.h"
 #include "tfm_api.h"
@@ -22,12 +23,15 @@
 #error TFM_LVL is not defined!
 #endif
 
-#if TFM_LVL == 1
 /* Macros to pick linker symbols and allow references to sections */
 #define REGION(a, b, c) a##b##c
 #define REGION_NAME(a, b, c) REGION(a, b, c)
 #define REGION_DECLARE(a, b, c) extern uint32_t REGION_NAME(a, b, c)
 
+REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
+REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit);
+
+#if TFM_LVL == 1
 REGION_DECLARE(Image$$, TFM_SECURE_STACK, $$ZI$$Base);
 REGION_DECLARE(Image$$, TFM_SECURE_STACK, $$ZI$$Limit);
 #endif
@@ -37,6 +41,15 @@ REGION_DECLARE(Image$$, TFM_SECURE_STACK, $$ZI$$Limit);
  */
 int32_t tfm_secure_lock;
 static int32_t tfm_secure_api_initializing = 1;
+
+static int32_t is_iovec_api_call(void)
+{
+    uint32_t current_partition_idx =
+            tfm_spm_partition_get_running_partition_idx();
+    const struct spm_partition_runtime_data_t *curr_part_data =
+            tfm_spm_partition_get_runtime_data(current_partition_idx);
+    return curr_part_data->iovec_api;
+}
 
 static int32_t *prepare_partition_ctx(
             struct tfm_exc_stack_t *svc_ctx,
@@ -62,6 +75,30 @@ static int32_t *prepare_partition_ctx(
     return dst;
 }
 
+static int32_t *prepare_partition_iovec_ctx(
+                             struct tfm_exc_stack_t *svc_ctx,
+                             struct tfm_sfn_req_s *desc_ptr,
+                             struct iovec_args_t *iovec_args,
+                             int32_t *dst)
+{
+    /* XPSR  = as was when called, but make sure it's thread mode */
+    *(--dst) = svc_ctx->XPSR & 0xFFFFFE00;
+    /* ReturnAddress = resume veneer in new context */
+    *(--dst) = svc_ctx->RetAddr;
+    /* LR = sfn address */
+    *(--dst) = (int32_t)desc_ptr->sfn;
+    /* R12 = don't care */
+    *(--dst) = 0;
+
+    /* R0-R3 = sfn arguments */
+    *(--dst) = iovec_args->out_len;
+    *(--dst) = (uint32_t)iovec_args->out_vec;
+    *(--dst) = iovec_args->in_len;
+    *(--dst) = (uint32_t)iovec_args->in_vec;
+
+    return dst;
+}
+
 static void restore_caller_ctx(
             struct tfm_exc_stack_t *svc_ctx,
             struct tfm_exc_stack_t *target_ctx)
@@ -73,6 +110,241 @@ static void restore_caller_ctx(
     target_ctx->R0 = svc_ctx->R0;
 
     return;
+}
+
+/**
+ * \brief Check whether a memory range is inside a memory region.
+ *
+ * \param[in] p             The start address of the range to check
+ * \param[in] s             The size of the range to check
+ * \param[in] region_start  The start address of the region, which should
+ *                          contain the range
+ * \param[in] region_len    The size of the region, which should contain the
+ *                          range
+ *
+ * \return 1 if the region contains the range, 0 otherwise.
+ */
+static int32_t check_address_range(const void *p, size_t s,
+                                   uintptr_t region_start, uint32_t region_len)
+{
+    int32_t range_in_region = 0;
+
+    /* Check for overflow in the range parameters */
+    if ((uintptr_t)p > UINTPTR_MAX-s) {
+        return 0;
+    }
+
+    /* We trust the region parameters, and don't check for overflow */
+
+    /* Calculate the result */
+    range_in_region = ((uintptr_t)p >= region_start) &&
+                      ((uintptr_t)p+s <= region_start+region_len);
+
+    return range_in_region;
+}
+
+/**
+ * \brief Check whether the current partition has access to a memory range
+ *
+ * This function assumes, that the current MPU configuration is set for the
+ * partition to be checked. The flags should contain information of the
+ * execution mode of the partition code (priv/unpriv), and access type
+ * (read/write) as specified in "ARMv8-M Security Extensions: Requirements on
+ * Development Tools" chapter "Address range check intrinsic"
+ *
+ * \param[in] p      The start address of the range to check
+ * \param[in] s      The size of the range to check
+ * \param[in] flags  The flags to pass to the cmse_check_address_range func
+ *
+ * \return 1 if the partition has access to the memory range, 0 otherwise.
+ */
+static int32_t has_access_to_region(const void *p, size_t s, uint32_t flags)
+{
+    int32_t range_access_allowed_by_mpu;
+
+    uint32_t scratch_base =
+        (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
+    uint32_t scratch_limit =
+        (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit);
+
+    /* Use the TT instruction to check access to the partition's regions*/
+    range_access_allowed_by_mpu =
+                          cmse_check_address_range((void *)p, s, flags) != NULL;
+
+    if (range_access_allowed_by_mpu) {
+        return 1;
+    }
+
+    /* If the check for the current MPU settings fails, check for the share
+     * region, only if the partition is secure
+     */
+    if ((flags & CMSE_NONSECURE) == 0) {
+        if (check_address_range(p, s, scratch_base,
+                                scratch_limit+1-scratch_base)) {
+            return 1;
+        }
+    }
+
+    /* If all else fails, check whether the region is in the non-secure
+     * memory
+     */
+    return
+      check_address_range(p, s, NS_CODE_START, NS_CODE_LIMIT+1-NS_CODE_START) ||
+      check_address_range(p, s, NS_DATA_START, NS_DATA_LIMIT+1-NS_DATA_START);
+}
+
+/**
+ * \brief Check whether the current partition has read access to a memory range
+ *
+ * This function assumes, that the current MPU configuration is set for the
+ * partition to be checked.
+ *
+ * \param[in] p          The start address of the range to check
+ * \param[in] s          The size of the range to check
+ * \param[in] ns_caller  Whether the current partition is a non-secure one
+ *
+ * \return 1 if the partition has access to the memory range, 0 otherwise.
+ */
+static int32_t has_read_access_to_region(const void *p, size_t s,
+                                         int32_t ns_caller)
+{
+    uint32_t flags = CMSE_MPU_UNPRIV|CMSE_MPU_READ;
+
+    if (ns_caller) {
+        flags |= CMSE_NONSECURE;
+    }
+
+    return has_access_to_region(p, s, flags);
+}
+
+/**
+ * \brief Check whether the current partition has write access to a memory range
+ *
+ * This function assumes, that the current MPU configuration is set for the
+ * partition to be checked.
+ *
+ * \param[in] p          The start address of the range to check
+ * \param[in] s          The size of the range to check
+ * \param[in] ns_caller  Whether the current partition is a non-secure one
+ *
+ * \return 1 if the partition has access to the memory range, 0 otherwise.
+ */
+static int32_t has_write_access_to_region(void *p, size_t s, int32_t ns_caller)
+{
+    uint32_t flags = CMSE_MPU_UNPRIV|CMSE_MPU_READWRITE;
+
+    if (ns_caller) {
+        flags |= CMSE_NONSECURE;
+    }
+
+    return has_access_to_region(p, s, flags);
+}
+
+/** \brief Check whether the iovec parameters are valid, and the memory ranges
+ *         are in the posession of the calling partition
+ *
+ * \param[in] desc_ptr  The secure function request descriptor
+ *
+ * \return Return /ref TFM_SUCCESS if the iovec parameters are valid, error code
+ *         otherwise as in /ref tfm_status_e
+ */
+static int32_t tfm_core_check_sfn_parameters(struct tfm_sfn_req_s *desc_ptr)
+{
+    struct psa_invec *in_vec = (psa_invec *)desc_ptr->args[0];
+    size_t in_len = desc_ptr->args[1];
+    struct psa_outvec *out_vec = (psa_outvec *)desc_ptr->args[2];
+    size_t out_len = desc_ptr->args[3];
+
+    uint32_t i;
+
+    /* The number of vectors are within range. Extra checks to avoid overflow */
+    if ((in_len > PSA_MAX_IOVEC) || (out_len > PSA_MAX_IOVEC) ||
+        (in_len + out_len > PSA_MAX_IOVEC)) {
+        return TFM_ERROR_INVALID_PARAMETER;
+    }
+
+    /* Check whether the caller partition has at write access to the iovec
+     * structures themselves. Use the TT instruction for this.
+     */
+    if (in_len > 0) {
+        if ((in_vec == NULL) ||
+            (has_write_access_to_region(in_vec, sizeof(psa_invec)*in_len,
+                                      desc_ptr->ns_caller) != 1)) {
+            return TFM_ERROR_INVALID_PARAMETER;
+        }
+    } else {
+        if (in_vec != NULL) {
+            return TFM_ERROR_INVALID_PARAMETER;
+        }
+    }
+    if (out_len > 0) {
+        if ((out_vec == NULL) ||
+            (has_write_access_to_region(out_vec, sizeof(psa_outvec)*out_len,
+                                      desc_ptr->ns_caller) != 1)) {
+            return TFM_ERROR_INVALID_PARAMETER;
+        }
+    } else {
+        if (out_vec != NULL) {
+            return TFM_ERROR_INVALID_PARAMETER;
+        }
+    }
+
+    /* Check whether the caller partition has access to the data inside the
+     * iovecs
+     */
+    for (i = 0; i < in_len; ++i) {
+        if (in_vec[i].len > 0) {
+            if ((in_vec[i].base == NULL) ||
+                (has_read_access_to_region(in_vec[i].base, in_vec[i].len,
+                                          desc_ptr->ns_caller) != 1)) {
+                return TFM_ERROR_INVALID_PARAMETER;
+            }
+        }
+    }
+    for (i = 0; i < out_len; ++i) {
+        if (out_vec[i].len > 0) {
+            if ((out_vec[i].base == NULL) ||
+                (has_write_access_to_region(out_vec[i].base, out_vec[i].len,
+                                           desc_ptr->ns_caller) != 1)) {
+                return TFM_ERROR_INVALID_PARAMETER;
+            }
+        }
+    }
+
+    return TFM_SUCCESS;
+}
+
+static void tfm_copy_iovec_parameters(struct iovec_args_t *target,
+                               const struct iovec_args_t *source)
+{
+    int i;
+
+    target->in_len = source->in_len;
+    for (i = 0; i < source->in_len; ++i) {
+        target->in_vec[i].base = source->in_vec[i].base;
+        target->in_vec[i].len = source->in_vec[i].len;
+    }
+    target->out_len = source->out_len;
+    for (i = 0; i < source->out_len; ++i) {
+        target->out_vec[i].base = source->out_vec[i].base;
+        target->out_vec[i].len = source->out_vec[i].len;
+    }
+}
+
+static void tfm_clear_iovec_parameters(struct iovec_args_t *args)
+{
+    int i;
+
+    args->in_len = 0;
+    for (i = 0; i < PSA_MAX_IOVEC; ++i) {
+        args->in_vec[i].base = NULL;
+        args->in_vec[i].len = 0;
+    }
+    args->out_len = 0;
+    for (i = 0; i < PSA_MAX_IOVEC; ++i) {
+        args->out_vec[i].base = NULL;
+        args->out_vec[i].len = 0;
+    }
 }
 
 static int32_t tfm_start_partition(struct tfm_sfn_req_s *desc_ptr,
@@ -89,6 +361,7 @@ static int32_t tfm_start_partition(struct tfm_sfn_req_s *desc_ptr,
     struct tfm_exc_stack_t *svc_ctx = (struct tfm_exc_stack_t *)psp;
     uint32_t caller_partition_id;
     int32_t client_id;
+    struct iovec_args_t *iovec_args;
 
     caller_flags = tfm_spm_partition_get_flags(caller_partition_idx);
 
@@ -145,8 +418,13 @@ static int32_t tfm_start_partition(struct tfm_sfn_req_s *desc_ptr,
 
 #if TFM_LVL == 1
     /* Prepare switch to shared secure partition stack */
+    /* In case the call is coming from the non-secure world, we save the iovecs
+     * on the stop of the stack. So the memory area, that can actually be used
+     * as stack by the partitions starts at a lower address
+     */
     partition_psp =
-        (uint32_t)&REGION_NAME(Image$$, TFM_SECURE_STACK, $$ZI$$Limit);
+        (uint32_t)&REGION_NAME(Image$$, TFM_SECURE_STACK, $$ZI$$Limit)-
+        sizeof(struct iovec_args_t);
     partition_psplim =
         (uint32_t)&REGION_NAME(Image$$, TFM_SECURE_STACK, $$ZI$$Base);
 #else
@@ -193,16 +471,53 @@ static int32_t tfm_start_partition(struct tfm_sfn_req_s *desc_ptr,
      * handler mode
      */
     if ((desc_ptr->ns_caller) || (tfm_secure_api_initializing)) {
-        /* Prepare the partition context, update stack ptr */
-        psp = (uint32_t)prepare_partition_ctx(
-                    svc_ctx, desc_ptr, (int32_t *)partition_psp);
+        if (desc_ptr->iovec_api == TFM_SFN_API_IOVEC) {
+            /* Save the iovecs on the common stack. The vectors had been sanity
+             * checked already, and since then the interrupts have been kept
+             * disabled. So we can be sure that the vectors haven't been
+             * tampered with since the check.
+             */
+            iovec_args = (struct iovec_args_t *)
+                    ((uint32_t)&REGION_NAME(Image$$, TFM_SECURE_STACK, $$ZI$$Limit)-
+                     sizeof(struct iovec_args_t));
+            tfm_spm_partition_set_iovec(partition_idx, desc_ptr->args);
+            tfm_copy_iovec_parameters(iovec_args,
+                                      &(curr_part_data->iovec_args));
+
+            /* Prepare the partition context, update stack ptr */
+            psp = (uint32_t)prepare_partition_iovec_ctx(svc_ctx, desc_ptr,
+                                                        iovec_args,
+                                                     (int32_t *)partition_psp);
+        } else {
+            /* Prepare the partition context, update stack ptr */
+            psp = (uint32_t)prepare_partition_ctx(svc_ctx, desc_ptr,
+                                                  (int32_t *)partition_psp);
+        }
         __set_PSP(psp);
         __set_PSPLIM(partition_psplim);
     }
 #else
-    /* Prepare the partition context, update stack ptr */
-    psp = (uint32_t)prepare_partition_ctx(svc_ctx, desc_ptr,
-                                          (int32_t *)partition_psp);
+    if (desc_ptr->iovec_api == TFM_SFN_API_IOVEC) {
+        /* Save the iovecs on the stack of the partition. The vectors had been
+         * sanity checked already, and since then the interrupts have been kept
+         * disabled. So we can be sure that the vectors haven't been tampered
+         * with since the check.
+         */
+        iovec_args =
+        (struct iovec_args_t *)(tfm_spm_partition_get_stack_top(partition_idx) -
+        sizeof(struct iovec_args_t));
+        tfm_spm_partition_set_iovec(partition_idx, desc_ptr->args);
+        tfm_copy_iovec_parameters(iovec_args, &(curr_part_data->iovec_args));
+
+        /* Prepare the partition context, update stack ptr */
+        psp = (uint32_t)prepare_partition_iovec_ctx(svc_ctx, desc_ptr,
+                                                    iovec_args,
+                                                    (int32_t *)partition_psp);
+    } else {
+        /* Prepare the partition context, update stack ptr */
+        psp = (uint32_t)prepare_partition_ctx(svc_ctx, desc_ptr,
+                                              (int32_t *)partition_psp);
+    }
     __set_PSP(psp);
     __set_PSPLIM(partition_psplim);
 #endif
@@ -224,7 +539,9 @@ static int32_t tfm_return_from_partition(uint32_t *excReturn)
     uint32_t return_partition_idx;
     uint32_t return_partition_flags;
     uint32_t psp = __get_PSP();
+    int i;
     struct tfm_exc_stack_t *svc_ctx = (struct tfm_exc_stack_t *)psp;
+    struct iovec_args_t *iovec_args;
 
     if (current_partition_idx == SPM_INVALID_PARTITION_IDX) {
         return TFM_SECURE_UNLOCK_FAILED;
@@ -304,6 +621,18 @@ static int32_t tfm_return_from_partition(uint32_t *excReturn)
         uint32_t psp_stack_bottom = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
        __set_PSPLIM(psp_stack_bottom);
 
+        /* FIXME: The condition should be removed once all the secure service
+         *        calls are done via the iovec veneers */
+        if (curr_part_data->iovec_api) {
+            iovec_args = (struct iovec_args_t *)
+                         ((uint32_t)&REGION_NAME(Image$$, TFM_SECURE_STACK, $$ZI$$Limit)-
+                         sizeof(struct iovec_args_t));
+
+            for (i = 0; i < curr_part_data->iovec_args.out_len; ++i) {
+                curr_part_data->orig_outvec[i].len = iovec_args->out_vec[i].len;
+            }
+            tfm_clear_iovec_parameters(iovec_args);
+        }
     }
 #else
     /* Restore caller context */
@@ -314,7 +643,20 @@ static int32_t tfm_return_from_partition(uint32_t *excReturn)
     __set_PSPLIM(tfm_spm_partition_get_stack_bottom(return_partition_idx));
     /* Clear the context entry before returning */
     tfm_spm_partition_set_stack(
-                current_partition_idx, psp - sizeof(struct tfm_exc_stack_t));
+                current_partition_idx, psp + sizeof(struct tfm_exc_stack_t));
+
+    /* FIXME: The condition should be removed once all the secure service
+     *        calls are done via the iovec veneers */
+    if (curr_part_data->iovec_api) {
+        iovec_args = (struct iovec_args_t *)
+                     (tfm_spm_partition_get_stack_top(current_partition_idx) -
+                     sizeof(struct iovec_args_t));
+
+        for (i = 0; i < curr_part_data->iovec_args.out_len; ++i) {
+            curr_part_data->orig_outvec[i].len = iovec_args->out_vec[i].len;
+        }
+        tfm_clear_iovec_parameters(iovec_args);
+    }
 #endif
 
     tfm_spm_partition_cleanup_context(current_partition_idx);
@@ -396,11 +738,21 @@ int32_t tfm_core_sfn_request_handler(
     res = tfm_check_sfn_req_integrity(desc_ptr);
     if (res != TFM_SUCCESS) {
         ERROR_MSG("Invalid service request!");
-        return TFM_ERROR_STATUS(res);
+        tfm_secure_api_error_handler();
     }
 
     __disable_irq();
+
     desc_ptr->caller_part_idx = tfm_spm_partition_get_running_partition_idx();
+
+    if (desc_ptr->iovec_api == TFM_SFN_API_IOVEC) {
+        res = tfm_core_check_sfn_parameters(desc_ptr);
+        if (res != TFM_SUCCESS) {
+            /* The sanity check of iovecs failed. */
+            __enable_irq();
+            tfm_secure_api_error_handler();
+        }
+    }
 
     res = tfm_core_check_sfn_req_rules(desc_ptr);
     if (res != TFM_SUCCESS) {
@@ -409,7 +761,7 @@ int32_t tfm_core_sfn_request_handler(
             desc_ptr->caller_part_idx, SPM_PARTITION_STATE_CLOSED);
         __enable_irq();
         ERROR_MSG("Unauthorized service request!");
-        return TFM_ERROR_STATUS(res);
+        tfm_secure_api_error_handler();
     }
 
     res = tfm_start_partition(desc_ptr, excReturn);
@@ -417,7 +769,7 @@ int32_t tfm_core_sfn_request_handler(
         /* FixMe: consider possible fault scenarios */
         __enable_irq();
         ERROR_MSG("Failed to process service request!");
-        return TFM_ERROR_STATUS(res);
+        tfm_secure_api_error_handler();
     }
 
     __enable_irq();
@@ -431,6 +783,14 @@ int32_t tfm_core_sfn_request_thread_mode(struct tfm_sfn_req_s *desc_ptr)
     int32_t res;
     int32_t *args;
     int32_t retVal;
+
+    if (desc_ptr->iovec_api == TFM_SFN_API_IOVEC) {
+        res = tfm_core_check_sfn_parameters(desc_ptr);
+        if (res != TFM_SUCCESS) {
+            /* The sanity check of iovecs failed. */
+            return res;
+        }
+    }
 
     /* No excReturn value is needed as no exception handling is used */
     res = tfm_core_sfn_request_handler(desc_ptr, 0);
@@ -689,6 +1049,8 @@ void tfm_core_memory_permission_check_handler(uint32_t *svc_args)
 uint32_t tfm_core_partition_request_svc_handler(
         struct tfm_exc_stack_t *svc_ctx, uint32_t excReturn)
 {
+    struct tfm_sfn_req_s *desc_ptr;
+
     if (!(excReturn & EXC_RETURN_STACK_PROCESS)) {
         /* Service request SVC called with MSP active.
          * Either invalid configuration for Thread mode or SVC called
@@ -699,7 +1061,7 @@ uint32_t tfm_core_partition_request_svc_handler(
         tfm_secure_api_error_handler();
     }
 
-    struct tfm_sfn_req_s *desc_ptr = (struct tfm_sfn_req_s *)svc_ctx->R0;
+    desc_ptr = (struct tfm_sfn_req_s *)svc_ctx->R0;
 
     if (tfm_core_sfn_request_handler(desc_ptr, excReturn) != TFM_SUCCESS) {
         tfm_secure_api_error_handler();
@@ -724,17 +1086,19 @@ uint32_t tfm_core_partition_return_handler(uint32_t lr)
     /* Store return value from secure partition */
     int32_t retVal = *(int32_t *)__get_PSP();
 
-    if ((retVal > TFM_SUCCESS) &&
-        (retVal < TFM_PARTITION_SPECIFIC_ERROR_MIN)) {
-        /* Secure function returned a reserved value */
+    if (!is_iovec_api_call()) {
+        if ((retVal > TFM_SUCCESS) &&
+            (retVal < TFM_PARTITION_SPECIFIC_ERROR_MIN)) {
+            /* Secure function returned a reserved value */
 #ifdef TFM_CORE_DEBUG
-        LOG_MSG("Invalid return value from secure partition!");
+            LOG_MSG("Invalid return value from secure partition!");
 #endif
-        /* FixMe: error can be traced to specific secure partition
-         * and Core is not compromised. Error handling flow can be
-         * refined
-         */
-        tfm_secure_api_error_handler();
+            /* FixMe: error can be traced to specific secure partition
+             * and Core is not compromised. Error handling flow can be
+             * refined
+             */
+            tfm_secure_api_error_handler();
+        }
     }
 
     res = tfm_return_from_partition(&lr);

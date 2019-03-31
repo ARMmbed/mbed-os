@@ -8,6 +8,7 @@
 #ifndef __SPM_DB_H__
 #define __SPM_DB_H__
 
+
 #ifdef TFM_PSA_API
 #include "tfm_thread.h"
 #endif
@@ -15,9 +16,7 @@
 struct spm_partition_desc_t;
 struct spm_partition_db_t;
 
-uint32_t get_partition_idx(uint32_t partition_id);
-
-typedef int32_t(*sp_init_function)(void);
+typedef psa_status_t(*sp_init_function)(void);
 
 #define TFM_PARTITION_TYPE_APP   "APPLICATION-ROT"
 #define TFM_PARTITION_TYPE_PSA   "PSA-ROT"
@@ -66,10 +65,11 @@ struct spm_partition_desc_t {
 #ifdef TFM_PSA_API
     struct tfm_thrd_ctx sp_thrd;
     /*
-     * stack_limit points to starting address of the partitions' stack plus the partitions' stack size.
+     * FixMe: Hard code stack is not aligned with the definition in the
+     * manifest. It will use the partition stacks in the linker scripts/sct
+     * files include Level 1 to 3.
      */
-    uint32_t stack_limit;
-    uint32_t stack_size;
+    uint8_t stack[TFM_STACK_SIZE] __attribute__((aligned(8)));
 #endif
 };
 

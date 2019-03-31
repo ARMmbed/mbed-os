@@ -7,16 +7,14 @@
 #ifndef __TFM_MESSAGE_QUEUE_H__
 #define __TFM_MESSAGE_QUEUE_H__
 
-#ifndef TFM_MSG_QUEUE_MAX_MSG_NUM
 #define TFM_MSG_QUEUE_MAX_MSG_NUM   128
-#endif
 #define TFM_MSG_MAGIC               0x15154343
 /* Message struct to collect parameter from client */
 struct tfm_msg_body_t {
     int32_t magic;
     struct tfm_spm_service_t *service; /* RoT service pointer           */
     psa_handle_t handle;            /* Connected Service handle         */
-    struct tfm_event_ctx ack_mtx;   /* Event for ack reponse            */
+    struct tfm_event_t ack_evnt;    /* Event for ack reponse            */
     psa_msg_t msg;                  /* PSA message body                 */
     psa_invec invec[PSA_MAX_IOVEC]; /* Put in/out vectors in msg body   */
     psa_outvec outvec[PSA_MAX_IOVEC];
