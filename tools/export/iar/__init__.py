@@ -88,6 +88,8 @@ class IAR(Exporter):
             "CMSISDAPJtagSpeedList": 0,
             "DSPExtension": 0,
             "TrustZone": 0,
+            "IlinkOverrideProgramEntryLabel": 0,
+            "IlinkProgramEntryLabel": "__iar_program_start",
         }
         iar_defaults.update(device_info)
         IARdevice = namedtuple('IARdevice', iar_defaults.keys())
