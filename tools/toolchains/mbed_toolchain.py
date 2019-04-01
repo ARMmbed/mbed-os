@@ -775,6 +775,7 @@ class mbedToolchain:
         )
         self.notify.debug("Return: %s" % rc)
 
+        self.parse_output(stderr)
         for output_line in stdout.splitlines():
             self.notify.debug("Output: %s" % output_line)
         for error_line in stderr.splitlines():
