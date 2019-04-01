@@ -99,14 +99,10 @@ enum qspif_default_instructions {
 // Local Function
 static int local_math_power(int base, int exp);
 
-///* Init function to initialize Different Devices CS static list */
-//static PinName *generate_initialized_active_qspif_csel_arr();
-
 // Static Members for different devices csel
 // _devices_mutex is used to lock csel list - only one QSPIFBlockDevice instance per csel is allowed
 SingletonPtr<PlatformMutex> QSPIFBlockDevice::_devices_mutex;
 int QSPIFBlockDevice::_number_of_active_qspif_flash_csel = 0;
-//PinName *QSPIFBlockDevice::_active_qspif_flash_csel_arr = generate_initialized_active_qspif_csel_arr();
 PinName QSPIFBlockDevice::_active_qspif_flash_csel_arr[QSPIF_MAX_ACTIVE_FLASH_DEVICES];
 
 
@@ -539,8 +535,8 @@ void QSPIFBlockDevice::initialize_active_qspif_csel_arr()
 int QSPIFBlockDevice::add_new_csel_instance(PinName csel)
 {
     int status = 0;
-    _devices_mutex->lock();
 
+    _devices_mutex->lock();
 
     if (_number_of_active_qspif_flash_csel >= QSPIF_MAX_ACTIVE_FLASH_DEVICES) {
         status = -2;
