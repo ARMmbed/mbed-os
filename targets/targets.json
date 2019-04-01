@@ -2831,8 +2831,8 @@
         "core": "Cortex-M4F",
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI|USE_PLL_HSE_XTAL",
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
                 "macro_name": "CLOCK_SOURCE"
             },
             "clock_source_usb": {
@@ -2843,10 +2843,10 @@
         },
         "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
         "macros_add": ["USB_STM_HAL"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
         "detect_code": ["0467"],
         "release_versions": ["5"],
-        "device_name": "STM32F429VI",
+        "device_name": "STM32F429ZI",
         "bootloader_supported": true
     },
     "NUCLEO_F439ZI": {
