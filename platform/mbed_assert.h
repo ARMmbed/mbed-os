@@ -24,6 +24,7 @@
 #ifndef MBED_ASSERT_H
 #define MBED_ASSERT_H
 
+#include <stdbool.h>
 #include "mbed_preprocessor.h"
 #include "mbed_toolchain.h"
 
@@ -124,7 +125,7 @@ do {                                                     \
  *  };
  *  @endcode
  */
-#define MBED_STRUCT_STATIC_ASSERT(expr, msg) int : (expr) ? 0 : -1
+#define MBED_STRUCT_STATIC_ASSERT(expr, msg) bool : (expr) ? 0 : -1
 
 
 #endif
