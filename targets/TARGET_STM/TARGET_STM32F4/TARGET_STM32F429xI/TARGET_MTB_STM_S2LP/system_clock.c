@@ -60,6 +60,7 @@ void SystemInit(void)
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
 #endif
+
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
     RCC->CR |= (uint32_t)0x00000001;
@@ -89,7 +90,6 @@ void SystemInit(void)
 #else
     SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
-
 }
 
 /**
@@ -238,3 +238,4 @@ uint8_t SetSysClock_PLL_HSI(void)
     return 1;
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
+
