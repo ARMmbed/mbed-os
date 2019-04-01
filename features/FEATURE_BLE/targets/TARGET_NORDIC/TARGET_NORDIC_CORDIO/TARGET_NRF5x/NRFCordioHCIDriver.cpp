@@ -227,8 +227,6 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
-void PlatformLoadBdAddress(uint8_t *pDevAddr);
-
 void NRFCordioHCIDriver::do_initialize()
 {
 	if(_is_init) {
