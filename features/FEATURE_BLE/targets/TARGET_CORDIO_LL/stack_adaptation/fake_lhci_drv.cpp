@@ -69,7 +69,7 @@ uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, ui
         break;
     }
 
-    return controllerToHostWrite(prot, hci_type, len, pData);
+    return ControllerToHostWrite(prot, hci_type, len, pData);
 }
 
 #ifdef __cplusplus
