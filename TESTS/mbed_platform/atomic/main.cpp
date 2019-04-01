@@ -26,69 +26,90 @@
 
 using utest::v1::Case;
 
-
 namespace {
 
 /* Lock-free operations will be much faster - keep runtime down */
-#if MBED_ATOMIC_INT_LOCK_FREE
-#define ADD_ITERATIONS (SystemCoreClock / 1000)
-#else
-#define ADD_ITERATIONS (SystemCoreClock / 8000)
-#endif
+#define ADD_UNLOCKED_ITERATIONS (SystemCoreClock / 1000)
+#define ADD_LOCKED_ITERATIONS   (SystemCoreClock / 8000)
 
-template <typename T>
-void add_incrementer(T *ptr)
+template <typename A>
+static inline long add_iterations(A &a)
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        core_util_atomic_fetch_add(ptr, T(1));
-    }
+    return a.is_lock_free() ? ADD_UNLOCKED_ITERATIONS : ADD_LOCKED_ITERATIONS;
 }
 
-template <typename T>
-void add_release_incrementer(T *ptr)
+template <typename A>
+struct add_incrementer
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        core_util_atomic_fetch_add_explicit(ptr, T(1), mbed_memory_order_release);
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            ++(*ptr);
+        }
     }
-}
+};
 
-template <typename T>
-void sub_incrementer(T *ptr)
+template <typename A>
+struct add_release_incrementer
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        core_util_atomic_fetch_sub(ptr, T(-1));
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            ptr->fetch_add(1, mbed::memory_order_release);
+        }
     }
-}
+};
 
-template <typename T>
-void bitops_incrementer(T *ptr)
+template <typename A>
+struct sub_incrementer
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        core_util_atomic_fetch_add(ptr, T(1));
-        core_util_atomic_fetch_and(ptr, T(-1));
-        core_util_atomic_fetch_or(ptr, T(0));
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            ptr->fetch_sub(-1);
+        }
     }
-}
+};
 
-template <typename T>
-void weak_incrementer(T *ptr)
+template <typename A>
+struct bitops_incrementer
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        T val = core_util_atomic_load(ptr);
-        do {
-        } while (!core_util_atomic_compare_exchange_weak(ptr, &val, T(val + 1)));
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            (*ptr) += 1;
+            (*ptr) &= -1;
+            (*ptr) |= 0;
+        }
     }
-}
+};
 
-template <typename T>
-void strong_incrementer(T *ptr)
+template <typename A>
+struct weak_incrementer
 {
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
-        T val = core_util_atomic_load(ptr);
-        do {
-        } while (!core_util_atomic_compare_exchange_strong(ptr, &val, T(val + 1)));
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            typename A::value_type val = ptr->load();
+            do {
+            } while (!ptr->compare_exchange_weak(val, val + 1));
+        }
     }
-}
+};
+
+template <typename A>
+struct strong_incrementer
+{
+    static void op(A *ptr)
+    {
+        for (long i = add_iterations(*ptr); i > 0; i--) {
+            typename A::value_type val = ptr->load();
+            do {
+            } while (!ptr->compare_exchange_strong(val, val + 1));
+        }
+    }
+};
+
 
 
 /*
@@ -100,32 +121,34 @@ void strong_incrementer(T *ptr)
  * Using core_util_atomic_ templates, and exercising
  * load and store briefly.
  */
-template<typename T, void (*Fn)(T *)>
+template<typename T, template<typename A> class Fn>
 void test_atomic_add()
 {
     struct  {
         volatile T nonatomic1;
-        T atomic1;
-        T atomic2;
+        Atomic<T> atomic1;
+        volatile Atomic<T> atomic2; // use volatile just to exercise the templates' volatile methods
         volatile T nonatomic2;
-    } data;
+    } data = { 0, { 0 }, { 1 }, 0 }; // test initialisation
 
-    data.nonatomic1 = 0;
-    core_util_atomic_store(&data.atomic1, T(0));
-    core_util_atomic_store(&data.atomic2, T(0));
-    data.nonatomic2 = 0;
+    TEST_ASSERT_EQUAL(sizeof(T), sizeof data.nonatomic1);
+    TEST_ASSERT_EQUAL(sizeof(T), sizeof data.atomic1);
+    TEST_ASSERT_EQUAL(4 * sizeof(T), sizeof data);
+
+    // test store
+    data.atomic2 = 0;
 
     Thread t1(osPriorityNormal, THREAD_STACK);
     Thread t2(osPriorityNormal, THREAD_STACK);
     Thread t3(osPriorityNormal, THREAD_STACK);
     Thread t4(osPriorityNormal, THREAD_STACK);
 
-    TEST_ASSERT_EQUAL(osOK, t1.start(callback(Fn, &data.atomic1)));
-    TEST_ASSERT_EQUAL(osOK, t2.start(callback(Fn, &data.atomic1)));
-    TEST_ASSERT_EQUAL(osOK, t3.start(callback(Fn, &data.atomic2)));
-    TEST_ASSERT_EQUAL(osOK, t4.start(callback(Fn, &data.atomic2)));
+    TEST_ASSERT_EQUAL(osOK, t1.start(callback(Fn<decltype(data.atomic1)>::op, &data.atomic1)));
+    TEST_ASSERT_EQUAL(osOK, t2.start(callback(Fn<decltype(data.atomic1)>::op, &data.atomic1)));
+    TEST_ASSERT_EQUAL(osOK, t3.start(callback(Fn<decltype(data.atomic2)>::op, &data.atomic2)));
+    TEST_ASSERT_EQUAL(osOK, t4.start(callback(Fn<decltype(data.atomic2)>::op, &data.atomic2)));
 
-    for (long i = ADD_ITERATIONS; i > 0; i--) {
+    for (long i = ADD_UNLOCKED_ITERATIONS; i > 0; i--) {
         data.nonatomic1++;
         data.nonatomic2++;
     }
@@ -135,10 +158,10 @@ void test_atomic_add()
     t3.join();
     t4.join();
 
-    TEST_ASSERT_EQUAL(T(ADD_ITERATIONS), data.nonatomic1);
-    TEST_ASSERT_EQUAL(T(2 * ADD_ITERATIONS), core_util_atomic_load(&data.atomic1));
-    TEST_ASSERT_EQUAL(T(2 * ADD_ITERATIONS), core_util_atomic_load(&data.atomic2));
-    TEST_ASSERT_EQUAL(T(ADD_ITERATIONS), data.nonatomic2);
+    TEST_ASSERT_EQUAL(T(ADD_UNLOCKED_ITERATIONS), data.nonatomic1);
+    TEST_ASSERT_EQUAL(T(2 * add_iterations(data.atomic1)), data.atomic1);
+    TEST_ASSERT_EQUAL(T(2 * add_iterations(data.atomic2)), data.atomic2);
+    TEST_ASSERT_EQUAL(T(ADD_UNLOCKED_ITERATIONS), data.nonatomic2);
 }
 
 } // namespace
