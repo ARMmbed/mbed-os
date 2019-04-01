@@ -224,6 +224,9 @@ private:
     /********************************/
     /*   Different Device Csel Mgmt */
     /********************************/
+    // Initialize the active QSPI device CS array
+    void initialize_active_qspif_csel_arr();
+
     // Add a new QSPI device CS to existing devices list.
     // Only one QSPIFBlockDevice instance per CS is allowed
     int add_new_csel_instance(PinName csel);
@@ -321,7 +324,7 @@ private:
     // _devices_mutex is used to lock csel list - only one QSPIFBlockDevice instance per csel is allowed
     static SingletonPtr<PlatformMutex> _devices_mutex;
     static int _number_of_active_qspif_flash_csel;
-    static PinName *_active_qspif_flash_csel_arr;
+    static PinName _active_qspif_flash_csel_arr[QSPIF_MAX_ACTIVE_FLASH_DEVICES];
 
     int _unique_device_status;
     PinName _csel;
