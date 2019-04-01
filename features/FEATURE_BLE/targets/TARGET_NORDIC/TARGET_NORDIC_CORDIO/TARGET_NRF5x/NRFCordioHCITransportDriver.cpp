@@ -56,7 +56,7 @@ extern "C" void chciDrvInit(void)
 }
 
 // Callback from Cordio stack
-extern "C" uint16_t controllerToHostWrite(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
+extern "C" uint16_t ControllerToHostWrite(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
     WSF_ASSERT(prot == CHCI_TR_PROT_BLE);
 

@@ -1,12 +1,5 @@
 {
     "name": "cordio-nordic-ll",
-    "config": {
-        "uart-hci": {
-            "help": "Does the board have a UART HCI. Valid values are 0 and 1 (must provide UART through PAL).",
-            "value": 0,
-            "macro_name": "CHCI_TR_UART"
-        }
-    },
     "macros": [
         "INIT_BROADCASTER",
         "INIT_OBSERVER",
