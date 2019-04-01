@@ -1,5 +1,5 @@
 /*
- * Copyright (c) , Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 
 #include "CellularContext.h"
 
-using namespace mbed;
+namespace mbed {
 
 void CellularContext::cp_data_received()
 {
@@ -27,4 +27,26 @@ void CellularContext::cp_data_received()
 CellularDevice *CellularContext::get_device() const
 {
     return _device;
+}
+
+void CellularContext::do_connect_with_retry()
+{
+    do_connect();
+}
+
+void CellularContext::do_connect()
+{
+    _cb_data.error = NSAPI_ERROR_OK;
+}
+
+void CellularContext::call_network_cb(nsapi_connection_status_t status)
+{
+    if (_connect_status != status) {
+        _connect_status = status;
+        if (_status_cb) {
+            _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
+        }
+    }
+}
+
 }

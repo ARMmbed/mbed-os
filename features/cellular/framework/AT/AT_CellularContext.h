@@ -93,12 +93,6 @@ protected:
      */
     virtual uint32_t get_timeout_for_operation(ContextOperation op) const;
 
-    /** Helper method to call callback function if it is provided
-     *
-     *  @param status connection status which is parameter in callback function
-     */
-    void call_network_cb(nsapi_connection_status_t status);
-
     virtual nsapi_error_t activate_non_ip_context();
     virtual nsapi_error_t setup_control_plane_opt();
     virtual void deactivate_non_ip_context();
@@ -123,13 +117,11 @@ private:
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
     AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
-
+    virtual void do_connect_with_retry();
 private:
     bool _is_connected;
-    bool _is_blocking;
     ContextOperation  _current_op;
     char _found_apn[MAX_APN_LENGTH];
-    CellularNetwork *_nw;
     FileHandle *_fh;
     rtos::Semaphore _semaphore;
     rtos::Semaphore _cp_opt_semaphore;

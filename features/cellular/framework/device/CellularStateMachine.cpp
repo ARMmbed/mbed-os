@@ -67,7 +67,7 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
     _retry_timeout_array[7] = 128; // if around two minutes was not enough then let's wait much longer
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
-    _retry_array_length = RETRY_ARRAY_SIZE;
+    _retry_array_length = CELLULAR_RETRY_ARRAY_SIZE;
 }
 
 CellularStateMachine::~CellularStateMachine()
@@ -153,7 +153,7 @@ bool CellularStateMachine::open_sim()
         } else {
             // No sim pin provided even it's needed, stop state machine
             tr_error("PIN required but no SIM pin provided.");
-            _retry_count = RETRY_ARRAY_SIZE;
+            _retry_count = CELLULAR_RETRY_ARRAY_SIZE;
             return false;
         }
     }
@@ -285,8 +285,8 @@ void CellularStateMachine::enter_to_state(CellularState state)
 
 void CellularStateMachine::retry_state_or_fail()
 {
-    if (++_retry_count < RETRY_ARRAY_SIZE) {
-        tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, RETRY_ARRAY_SIZE);
+    if (++_retry_count < CELLULAR_RETRY_ARRAY_SIZE) {
+        tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, CELLULAR_RETRY_ARRAY_SIZE);
         _event_timeout = _retry_timeout_array[_retry_count];
         _is_retry = true;
         _cb_data.error = NSAPI_ERROR_OK;
@@ -686,11 +686,19 @@ void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int
         tr_warn("set_retry_timeout_array, timeout array null or invalid length");
         return;
     }
-    _retry_array_length = array_len > RETRY_ARRAY_SIZE ? RETRY_ARRAY_SIZE : array_len;
+    _retry_array_length = array_len > CELLULAR_RETRY_ARRAY_SIZE ? CELLULAR_RETRY_ARRAY_SIZE : array_len;
 
     for (int i = 0; i < _retry_array_length; i++) {
         _retry_timeout_array[i] = timeout[i];
     }
+}
+
+void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+    for (int i = 0; i < _retry_array_length; i++) {
+        timeout[i] = _retry_timeout_array[i];
+    }
+    array_len = _retry_array_length;
 }
 
 } // namespace

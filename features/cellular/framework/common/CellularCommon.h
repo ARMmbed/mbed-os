@@ -21,6 +21,8 @@
 #include <stdint.h>
 #include "nsapi_types.h"
 
+const int CELLULAR_RETRY_ARRAY_SIZE = 10;
+
 struct cell_callback_data_t {
     nsapi_error_t error; /* possible error code */
     int status_data;     /* cellular_event_status related enum or other info in int format. Check cellular_event_status comments.*/

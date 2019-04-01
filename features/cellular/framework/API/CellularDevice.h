@@ -418,6 +418,16 @@ public:
 protected:
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;
+    friend class CellularContext;
+
+    /** Get the retry array from the CellularStateMachine. Array is used in retry logic.
+     *  Array contains seconds and retry logic uses those second to wait before trying again.
+     *
+     *  @param timeout      timeout array containing seconds for retry logic. Must have space for
+     *                      CELLULAR_RETRY_ARRAY_SIZE (defined in CellularCommon.h)
+     *  @param array_len    length of the timeout array on return
+     */
+    void get_retry_timeout_array(uint16_t *timeout, int &array_len) const;
 
     /** Cellular callback to be attached to Network and CellularStateMachine classes.
      *  CellularContext calls this when in PPP mode to provide network changes.

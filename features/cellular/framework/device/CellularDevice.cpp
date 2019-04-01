@@ -34,7 +34,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
 }
 
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
-    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
+    _info_ref_count(0), _fh(fh), _queue(8 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
     MBED_ASSERT(fh);
     set_sim_pin(NULL);
@@ -65,6 +65,13 @@ events::EventQueue *CellularDevice::get_queue()
 CellularContext *CellularDevice::get_context_list() const
 {
     return NULL;
+}
+
+void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+    if (_state_machine && timeout) {
+        _state_machine->get_retry_timeout_array(timeout, array_len);
+    }
 }
 
 void CellularDevice::set_sim_pin(const char *sim_pin)
