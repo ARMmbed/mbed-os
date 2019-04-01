@@ -66,12 +66,15 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
   HCI_PDUMP_TX_ACL(len, pData);
 
   /* transmit ACL header and data */
-  if (hciDrvWrite(HCI_ACL_TYPE, len, pData) != len)
+  if (hciDrvWrite(HCI_ACL_TYPE, len, pData) == len)
   {
-    /* transport failure */
-    WSF_ASSERT(0);
+#if CORDIO_ZERO_COPY_HCI
+      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+#else
+      /* free buffer */
+      WsfMsgFree(pData);
+#endif // CORDIO_ZERO_COPY_HCI
   }
-  /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
 }
 
 
@@ -96,13 +99,16 @@ void hciTrSendCmd(uint8_t *pData)
   /* dump event for protocol analysis */
   HCI_PDUMP_CMD(len, pData);
 
-  /* transmit ACL header and data (releases the ownership of the WSF buffer containing pData) */
-  if (hciDrvWrite(HCI_CMD_TYPE, len, pData) != len)
+  /* transmit ACL header and data */
+  if (hciDrvWrite(HCI_CMD_TYPE, len, pData) == len)
   {
-    /* transport failure */
-    WSF_ASSERT(0);
+#if CORDIO_ZERO_COPY_HCI
+      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+#else
+      /* free buffer */
+      WsfMsgFree(pData);
+#endif // CORDIO_ZERO_COPY_HCI
   }
-  /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
 }
 
 
