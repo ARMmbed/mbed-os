@@ -141,6 +141,7 @@ typedef struct {
     uint32_t    word_length;
     bool        support_slave_mode; /**< If true, the device can handle SPI slave mode using hardware management on the specified ssel pin. */
     bool        half_duplex; /**< If true, the device also supports SPI transmissions using only 3 wires. */
+    bool        hw_cs_handle; /**< If true, in SPI master mode Chip Select can be handled by hardware. */
 } spi_capabilities_t;
 
 /**
