@@ -854,6 +854,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
         case 1:
         case 4:
             status_reg_setup[1] = 0x02;  //Bit 1 of Status Reg 2
+            sr_write_size = 2;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
 
@@ -874,11 +875,12 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             status_reg_setup[1] = 0x2; // Bit 1 of status Reg 2
             _read_register_inst = 0x35;
             sr_read_size = 1;
+            sr_write_size = 2;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2 -special read command");
             break;
         default:
-            tr_warning("_setQuadEnable - Unsuported QER configuration");
-            break;
+            tr_warning("Unsuported QER configuration");
+            return 0;
     }
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
@@ -1032,7 +1034,7 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
         }
         is_qpi_mode = false;
         examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
-        if (examined_byte & 0x40) {
+        if (examined_byte & 0x20) {
             //  Fast Read 1-4-4 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE];
             set_quad_enable = true;
@@ -1045,7 +1047,7 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
             break;
         }
 
-        if (examined_byte & 0x80) {
+        if (examined_byte & 0x40) {
             //  Fast Read 1-1-4 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE];
             set_quad_enable = true;
@@ -1068,7 +1070,7 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
         }
 
         examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
-        if (examined_byte & 0x20) {
+        if (examined_byte & 0x10) {
             //  Fast Read 1-2-2 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE];
             _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] >> 5)
