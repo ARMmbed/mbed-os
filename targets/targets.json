@@ -2169,7 +2169,7 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "device_has_add": ["CRC"],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F030R8"
@@ -2193,7 +2193,7 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "device_has_add": ["CRC"],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F031K6"
@@ -2220,7 +2220,7 @@
             "CAN",
             "CRC"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F042K6"
@@ -2322,7 +2322,7 @@
             "SERIAL_ASYNCH",
             "FLASH"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
     },
@@ -2356,7 +2356,7 @@
             "MPU",
             "USBDEVICE"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F207ZG",
         "bootloader_supported": true,
@@ -3419,7 +3419,7 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_name": "STM32L443RC",
         "detect_code": ["0458"],
@@ -3552,7 +3552,7 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "release_versions": ["5"],
         "device_name": "STM32L486RG",
         "bootloader_supported": true,
@@ -3574,7 +3574,7 @@
         "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "EMAC", "MPU"],
         "device_has_remove": [
             "LPTICKER",
-            "SERIAL_FC", "WATCHDOG"
+            "SERIAL_FC"
         ],
         "macros_add": ["USB_STM_HAL"],
         "config": {
@@ -3706,7 +3706,7 @@
             "CRC",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F051R8"
     },
     "DISCO_F100RB": {
@@ -3715,7 +3715,7 @@
         "extra_labels_add": ["STM32F1", "STM32F100RB"],
         "supported_toolchains": ["GCC_ARM"],
         "device_has_add": [],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F100RB"
     },
     "DISCO_F303VC": {
@@ -3937,7 +3937,7 @@
             "FLASH",
             "MPU"
         ],
-        "device_has_remove": ["LPTICKER", "WATCHDOG"],
+        "device_has_remove": ["LPTICKER"],
         "release_versions": ["5"],
         "device_name": "STM32L082CZ"
     },
@@ -7151,7 +7151,7 @@
             "SERIAL_ASYNCH",
             "FLASH"
         ],
-        "device_has_remove": ["STDIO_MESSAGES", "LPTICKER", "WATCHDOG"]
+        "device_has_remove": ["STDIO_MESSAGES", "LPTICKER"]
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
