@@ -314,7 +314,8 @@ void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
 {
     cap->word_length = 0x00008080;
     cap->support_slave_mode = false;
-    cap->half_duplex = true;
+    cap->half_duplex = false;
+    cap->hw_cs_handle = true;
 
     cap->minimum_frequency = 200000;
     cap->maximum_frequency = 4000000;
