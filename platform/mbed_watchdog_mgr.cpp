@@ -24,6 +24,7 @@ static bool is_watchdog_started = false; //boolean to control watchdog start and
 static uint32_t elapsed_ms = (HW_WATCHDOG_TIMEOUT / 2);
 MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT > 0), "Timeout must be greater than zero");
 
+#if DEVICE_LPTICKER
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
 static SingletonPtr<mbed::LowPowerTicker> get_ticker()
@@ -31,6 +32,15 @@ static SingletonPtr<mbed::LowPowerTicker> get_ticker()
     static SingletonPtr<mbed::LowPowerTicker> ticker;
     return ticker;
 }
+#else
+/** Create singleton instance of Ticker for watchdog periodic call back of kick.
+ */
+static SingletonPtr<mbed::Ticker> get_ticker()
+{
+    static SingletonPtr<mbed::Ticker> ticker;
+    return ticker;
+}
+#endif
 
 /** Refreshes the watchdog timer.
  *
