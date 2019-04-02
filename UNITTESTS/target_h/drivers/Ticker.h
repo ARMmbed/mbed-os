@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+/* mbed Microcontroller Library
+ * Copyright (c) 2006-2013 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_TICKER_H
+#define MBED_TICKER_H
+#include "drivers/TimerEvent.h"
+#include "platform/Callback.h"
 
-/** Resets the processor and most of the sub-system
+namespace mbed {
+/** \addtogroup drivers */
+
+/** mock Ticker
  *
- * @note Does not affect the debug sub-system
  */
-#ifndef MBED_POWER_MGMT_H
-#define MBED_POWER_MGMT_H
-extern void mock_system_reset();
+class Ticker {
 
-MBED_NORETURN static inline void system_reset(void)
-{
-    mock_system_reset();
-}
+public:
+    Ticker()
+    {
+    }
+
+    void attach_us(Callback<void()> func, us_timestamp_t t)
+    {
+
+    }
+
+    void detach()
+    {
+
+    }
+
+    ~Ticker()
+    {
+    }
+};
+
+} // namespace mbed
 
 #endif
-
