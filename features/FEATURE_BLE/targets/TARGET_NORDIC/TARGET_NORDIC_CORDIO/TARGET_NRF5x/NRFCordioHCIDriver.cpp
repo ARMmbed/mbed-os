@@ -57,9 +57,22 @@ using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
 #if defined(NRF52840_XXAA)
+
+#undef MBED_CONF_CORDIO_LL_EXTENDED_ADVERTISING_SIZE
+#undef MBED_CONF_CORDIO_LL_MAX_ACL_SIZE
+#undef MBED_CONF_CORDIO_LL_TX_BUFFERS
+#undef MBED_CONF_CORDIO_LL_PHY_CODED_SUPPORT
+#define MBED_CONF_CORDIO_LL_EXTENDED_ADVERTISING_SIZE MBED_CONF_CORDIO_LL_NRF52840_EXTENDED_ADVERTISING_SIZE
+#define MBED_CONF_CORDIO_LL_MAX_ACL_SIZE              MBED_CONF_CORDIO_LL_NRF52840_MAX_ACL_SIZE
+#define MBED_CONF_CORDIO_LL_TX_BUFFERS                MBED_CONF_CORDIO_LL_NRF52840_TX_BUFFERS
+#define MBED_CONF_CORDIO_LL_PHY_CODED_SUPPORT         MBED_CONF_CORDIO_LL_NRF52840_PHY_CODED_SUPPORT
+
 #define CORDIO_LL_MEMORY_FOOTPRINT  41906UL
+
 #else
+
 #define CORDIO_LL_MEMORY_FOOTPRINT  12768UL
+
 #endif
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
@@ -76,74 +89,87 @@ const BbRtCfg_t NRFCordioHCIDriver::_bb_cfg = {
     /*schSetupDelayUsec*/ BB_SCH_SETUP_DELAY_US
 };
 
-static const uint16_t maxAdvReports = 16;
-static const uint16_t numRxBufs      = 8;
-#if !defined(NRF52840_XXAA)
-static const uint16_t advDataLen     = 128;
-static const uint16_t connDataLen    = 256;
-static const uint16_t numTxBufs      = 8;
-#else
-static const uint16_t advDataLen     = LL_MAX_ADV_DATA_LEN;
-static const uint16_t connDataLen    = 512;
-static const uint16_t numTxBufs      = 16;
-#endif
-
-
 /* +12 for message headroom, + 2 event header, +255 maximum parameter length. */
 static const uint16_t maxRptBufSize = 12 + 2 + 255;
 
 /* +12 for message headroom, +4 for header. */
-static const uint16_t aclBufSize = 12 + connDataLen + 4 + BB_DATA_PDU_TAILROOM;
+static const uint16_t aclBufSize = 12 + MBED_CONF_CORDIO_LL_MAX_ACL_SIZE + 4 + BB_DATA_PDU_TAILROOM;
 
 const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /* Device */
-/*uint16_t*/  .compId = LL_COMP_ID_ARM,    /*!< Company ID (default to ARM Ltd. ID). */
-/*uint16_t*/  .implRev = LL_IMPL_REV,      /*!< Implementation revision number. */
-/*uint8_t*/   .btVer = LL_VER_BT_CORE_SPEC_5_0, /*!< Core specification implementation level (LL_VER_BT_CORE_SPEC_4_2). */
-/*uint32_t*/  ._align32 = 0,               /*!< Unused. Align next field to word boundary. */
+/** Company ID (default to ARM Ltd. ID). */
+/*uint16_t*/  .compId = LL_COMP_ID_ARM,
+/** Implementation revision number. */
+/*uint16_t*/  .implRev = LL_IMPL_REV,
+/** Core specification implementation level (LL_VER_BT_CORE_SPEC_4_2). */
+/*uint8_t*/   .btVer = LL_VER_BT_CORE_SPEC_5_0,
+/** Unused. Align next field to word boundary. */
+/*uint32_t*/  ._align32 = 0,
+
 /* Advertiser */
-/*uint8_t*/   .maxAdvSets = 4,             /*!< Maximum number of advertising sets. */
-/*uint8_t*/   .maxAdvReports = 8,          /*!< Maximum number of pending legacy or extended advertising reports. */
-/*uint16_t*/  .maxExtAdvDataLen = advDataLen, /*!< Maximum extended advertising data size. */
-/*uint8_t*/   .defExtAdvDataFrag = 64,     /*!< Default extended advertising data fragmentation size. */
-/*uint16_t*/  .auxDelayUsec = 0,           /*!< Auxiliary Offset delay above T_MAFS in microseconds. */
-/*uint16_t*/  .auxPtrOffsetUsec = 0,       /*!< Delay of auxiliary packet in microseconds from the time specified by auxPtr. */
-/* Scanner */
-/*uint8_t*/   .maxScanReqRcvdEvt = 4,      /*!< Maximum scan request received events. */
-/*uint16_t*/  .maxExtScanDataLen = advDataLen, /*!< Maximum extended scan data size. */
+/** Maximum number of advertising sets. */
+/*uint8_t*/   .maxAdvSets = MBED_CONF_CORDIO_LL_MAX_ADVERTISING_SETS,
+/** Maximum number of pending legacy or extended advertising reports. */
+/*uint8_t*/   .maxAdvReports = MBED_CONF_CORDIO_LL_MAX_ADVERTISING_REPORTS,
+/** Maximum extended advertising data size. */
+/*uint16_t*/  .maxExtAdvDataLen = MBED_CONF_CORDIO_LL_EXTENDED_ADVERTISING_SIZE,
+/** Default extended advertising data fragmentation size. */
+/*uint8_t*/   .defExtAdvDataFrag = MBED_CONF_CORDIO_LL_DEFAULT_EXTENDED_ADVERTISING_FRAMENTATION_SIZE,
+/** Auxiliary Offset delay above T_MAFS in microseconds. */
+/*uint16_t*/  .auxDelayUsec = 0,
+/** Delay of auxiliary packet in microseconds from the time specified by auxPtr. */
+/*uint16_t*/  .auxPtrOffsetUsec = 0,
+
+/* Scanner */,
+/** Maximum scan request received events. */
+/*uint8_t*/   .maxScanReqRcvdEvt = MBED_CONF_CORDIO_LL_MAX_SCAN_REQUEST_EVENTS,
+/** Maximum extended scan data size. */
+/*uint16_t*/  .maxExtScanDataLen = MBED_CONF_CORDIO_LL_EXTENDED_ADVERTISING_SIZE,
+
 /* Connection */
-#if defined(NRF52840_XXAA)
-/*uint8_t*/   .maxConn = 4,                /*!< Maximum number of connections. */
-#else
-/*uint8_t*/   .maxConn = 2,
-#endif
-/*uint8_t*/   .numTxBufs = numTxBufs,      /*!< Default number of transmit buffers. */
-/*uint8_t*/   .numRxBufs = numRxBufs,      /*!< Default number of receive buffers. */
-/*uint16_t*/  .maxAclLen = connDataLen,    /*!< Maximum ACL buffer size. */
-/*int8_t*/    .defTxPwrLvl = 0,            /*!< Default Tx power level for connections. */
-/*uint8_t*/   .ceJitterUsec = 0,           /*!< Allowable CE jitter on a slave (account for master's sleep clock resolution). */
+/** Maximum number of connections. */
+/*uint8_t*/   .maxConn = DM_CONN_MAX,
+/** Default number of transmit buffers. */
+/*uint8_t*/   .numTxBufs = MBED_CONF_CORDIO_LL_TX_BUFFERS,
+/** Default number of receive buffers. */
+/*uint8_t*/   .numRxBufs = MBED_CONF_CORDIO_LL_RX_BUFFERS,
+/** Maximum ACL buffer size. */
+/*uint16_t*/  .maxAclLen = MBED_CONF_CORDIO_LL_MAX_ACL_SIZE,
+/** Default Tx power level for connections. */
+/*int8_t*/    .defTxPwrLvl = 0,
+/** Allowable CE jitter on a slave (account for master's sleep clock resolution). */
+/*uint8_t*/   .ceJitterUsec = 0,
+
 /* ISO */
-/*uint8_t*/   .numIsoTxBuf = 0,            /*!< Default number of ISO transmit buffers. */
-/*uint8_t*/   .numIsoRxBuf = 0,            /*!< Default number of ISO receive buffers. */
-/*uint16_t*/  .maxIsoBufLen = 0,           /*!< Maximum ISO buffer size between host and controller. */
-/*uint16_t*/  .maxIsoPduLen = 0,           /*!< Maximum ISO PDU buffer size. */
+/** Default number of ISO transmit buffers. */
+/*uint8_t*/   .numIsoTxBuf = 0,
+/** Default number of ISO receive buffers. */
+/*uint8_t*/   .numIsoRxBuf = 0,
+/** Maximum ISO buffer size between host and controller. */
+/*uint16_t*/  .maxIsoBufLen = 0,
+/** Maximum ISO PDU buffer size. */
+/*uint16_t*/  .maxIsoPduLen = 0,
 
 /* CIS */
-/*uint8_t*/   .maxCig = 0,                 /*!< Maximum number of CIG. */
-/*uint8_t*/   .maxCis = 0,                 /*!< Maximum number of CIS. */
-/*uint16_t*/  .subEvtSpaceDelay = 0,       /*!< Subevent spacing above T_MSS. */
+/** Maximum number of CIG. */
+/*uint8_t*/   .maxCig = 0,
+/** Maximum number of CIS. */
+/*uint8_t*/   .maxCis = 0,
+/** Subevent spacing above T_MSS. */
+/*uint16_t*/  .subEvtSpaceDelay = 0,
 /* DTM */
-/*uint16_t*/  .dtmRxSyncMs = 10000,        /*!< DTM Rx synchronization window in milliseconds. */
-/* PHY */
-/*bool_t*/    .phy2mSup = TRUE,            /*!< 2M PHY supported. */
+/** DTM Rx synchronization window in milliseconds. */
+/*uint16_t*/  .dtmRxSyncMs = 10000,
 
-#if defined(NRF52840_XXAA)
-/*bool_t*/    .phyCodedSup = TRUE,         /*!< Coded PHY supported. */
-#else
-/*bool_t*/    .phyCodedSup = FALSE,
-#endif
-/*bool_t*/    .stableModIdxTxSup = TRUE,   /*!< Tx stable modulation index supported. */
-/*bool_t*/    .stableModIdxRxSup = TRUE,   /*!< Rx stable modulation index supported. */
+/* PHY */
+/** 2M PHY supported. */
+/*bool_t*/    .phy2mSup = MBED_CONF_CORDIO_LL_PHY_2M_SUPPORT,
+/** Coded PHY supported. */
+/*bool_t*/    .phyCodedSup = MBED_CONF_CORDIO_LL_PHY_CODED_SUPPORT,
+/** Tx stable modulation index supported. */
+/*bool_t*/    .stableModIdxTxSup = TRUE,
+/** Rx stable modulation index supported. */
+/*bool_t*/    .stableModIdxRxSup = TRUE,
 };
 
 extern "C" void TIMER0_IRQHandler(void);
@@ -219,8 +245,8 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
             {  16, 16  + 8},
             {  32, 16 + 4 },
             {  64, 8 },
-            { 128, 4 + maxAdvReports },
-		    { aclBufSize, numTxBufs + numRxBufs },
+            { 128, 4 + MBED_CONF_CORDIO_LL_MAX_ADVERTISING_REPORTS },
+		    { aclBufSize, MBED_CONF_CORDIO_LL_TX_BUFFERS + MBED_CONF_CORDIO_LL_RX_BUFFERS },
             { 272, 1 }
     };
 
