@@ -25,7 +25,11 @@
 #include "platform/Callback.h"
 #include "platform/mbed_critical.h"
 #include "platform/SingletonPtr.h"
+#if DEVICE_LPTICKER
 #include "LowPowerTicker.h"
+#else
+#include "Ticker.h"
+#endif
 #include "Watchdog.h"
 
 #ifdef __cplusplus
