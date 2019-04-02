@@ -192,18 +192,12 @@ uint16_t adc_read(analogin_t *obj)
     HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
+    uint16_t adcValue = 0;
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
-
-        /* Ref Manual: To prevent any unwanted consumption on the battery,
-        it is recommended to enable the bridge divider only when needed for ADC conversion */
-        if (sConfig.Channel == ADC_CHANNEL_VBAT) {
-            CLEAR_BIT(__LL_ADC_COMMON_INSTANCE(obj->handle.Instance)->CCR, LL_ADC_PATH_INTERNAL_VBAT);
-        }
-
-        return (uint16_t)HAL_ADC_GetValue(&obj->handle);
-    } else {
-        return 0;
+        adcValue = (uint16_t)HAL_ADC_GetValue(&obj->handle);
     }
+    LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
+    return adcValue;
 }
 
 const PinMap *analogin_pinmap()
