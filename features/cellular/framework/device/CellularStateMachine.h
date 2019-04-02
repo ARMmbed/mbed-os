@@ -89,6 +89,8 @@ private:
      */
     void set_sim_pin(const char *sim_pin);
 
+    void set_sim_puk(const char *sim_puk);
+
     /** Sets the timeout array for network rejects. After reject next item is tried and after all items are waited and
      *  still fails then current network event will fail.
      *
@@ -166,6 +168,7 @@ private:
     rtos::Thread *_queue_thread;
 
     const char *_sim_pin;
+    const char *_sim_puk;
     int _retry_count;
     int _start_time;
     int _event_timeout;

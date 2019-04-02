@@ -121,6 +121,11 @@ void CellularStateMachine::set_sim_pin(const char *sim_pin)
     _sim_pin = sim_pin;
 }
 
+void CellularStateMachine::set_sim_puk(const char *sim_puk)
+{
+    _sim_puk = sim_puk;
+}
+
 void CellularStateMachine::set_plmn(const char *plmn)
 {
     _plmn = plmn;
@@ -141,6 +146,22 @@ bool CellularStateMachine::open_sim()
     if (_event_status_cb) {
         _cb_data.status_data = state;
         _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&_cb_data);
+    }
+
+    if (state == CellularDevice::SimStatePukNeeded) {
+        if (_sim_puk && _sim_pin) {
+            tr_info("Entering PUK to open SIM");
+            _cb_data.error = _cellularDevice.set_puk(_sim_puk, _sim_pin);
+            if (_cb_data.error) {
+                tr_error("Failed to set PIN: error %d", _cb_data.error);
+            }
+        } else {
+            // No sim puk/pin provided even it's needed, stop state machine
+            tr_error("PUK1 and PIN required but none provided.");
+            _retry_count = RETRY_ARRAY_SIZE;
+            return false;
+        }
+
     }
 
     if (state == CellularDevice::SimStatePinNeeded) {
@@ -378,7 +399,7 @@ void CellularStateMachine::state_device_ready()
 void CellularStateMachine::state_sim_pin()
 {
     _cellularDevice.set_timeout(TIMEOUT_SIM_PIN);
-    tr_info("Setup SIM (timeout %d s)", TIMEOUT_SIM_PIN / 1000);
+    tr_info("Setup SIM (timeout %d s)", (TIMEOUT_SIM_PIN) / 1000);
     if (open_sim()) {
         bool success = false;
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {

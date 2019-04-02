@@ -163,6 +163,22 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     return error;
 }
 
+nsapi_error_t AT_CellularDevice::set_puk(const char *puk, const char *sim_pin)
+{
+    if (sim_pin == NULL || puk == NULL) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    _at->lock();
+    _at->set_at_timeout(5000);
+    _at->cmd_start("AT+CPIN=");
+    _at->write_string(puk);
+    _at->write_string(sim_pin);
+
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
+}
+
 nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
 {
     // if SIM is already in ready state then settings the PIN

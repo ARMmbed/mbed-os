@@ -49,6 +49,8 @@ public:
 
     virtual nsapi_error_t set_pin(const char *sim_pin);
 
+    virtual nsapi_error_t set_puk(const char *puk,const char *sim_pin);
+
     virtual nsapi_error_t get_sim_state(SimState &state);
 
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false);

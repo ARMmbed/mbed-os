@@ -84,6 +84,18 @@ void CellularDevice::set_sim_pin(const char *sim_pin)
     }
 }
 
+void CellularDevice::set_sim_puk(const char *sim_puk, const char *sim_pin)
+{
+    if (sim_puk) {
+        strncpy(_sim_puk, sim_puk, sizeof(_sim_puk));
+        _sim_puk[sizeof(_sim_puk) - 1] = '\0';
+    } else {
+        memset(_sim_puk, 0, sizeof(_sim_puk));
+    }
+
+    set_sim_pin(sim_pin);
+}
+
 void CellularDevice::set_plmn(const char *plmn)
 {
     if (plmn) {
@@ -132,6 +144,9 @@ nsapi_error_t CellularDevice::create_state_machine()
         }
         if (strlen(_sim_pin)) {
             _state_machine->set_sim_pin(_sim_pin);
+        }
+        if (strlen(_sim_puk)) {
+            _state_machine->set_sim_puk(_sim_puk);
         }
     }
     return err;

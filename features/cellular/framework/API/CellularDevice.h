@@ -161,6 +161,18 @@ public:
      */
     virtual nsapi_error_t set_pin(const char *sim_pin) = 0;
 
+    /** Opens the SIM card if SIM PUK is required
+     *
+     *  @param sim_puk  PUK code for the SIM card
+     *  @param sim_pin  New pin code for the SIM card
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if sim_pin is null and sim is not ready
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     *
+     */
+    virtual nsapi_error_t set_puk(const char *sim_puk, const char *sim_pin) = 0;
+
     /** Get SIM card's state
      *
      *  @param state    current state of SIM
@@ -228,6 +240,8 @@ public:
      *  @param sim_pin      PIN for the SIM card
      */
     void set_sim_pin(const char *sim_pin);
+
+    void set_sim_puk(const char *sim_puk, const char *sim_pin);
 
     /** Plmn to use when registering to cellular network.
      *  If plmn is set, then registering is forced to this plmn. If plmn is not set, then automatic
@@ -448,6 +462,7 @@ private:
 
     CellularNetwork *_nw;
     char _sim_pin[MAX_PIN_SIZE + 1];
+    char _sim_puk[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;

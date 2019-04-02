@@ -62,6 +62,14 @@ public:
      */
     virtual void set_sim_pin(const char *sim_pin) = 0;
 
+    /** Set the SIM PUK code
+     *
+     *  @param sim_puk  PUK code for the SIM card
+     *  @param sim_pin  New pin code for the SIM card
+     *
+     */
+    virtual void set_sim_puk(const char *sim_puk, const char *sim_pin) = 0;
+
     /** Attempt to connect to a cellular network with a PIN and credentials.
      *
      *  @param sim_pin     PIN for the SIM card.

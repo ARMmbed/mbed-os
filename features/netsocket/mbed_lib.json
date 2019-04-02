@@ -26,6 +26,10 @@
             "help" : "PIN for the default SIM card.",
             "value": null
         },
+        "default-cellular-sim-puk" : {
+            "help" : "PUK1 for the default SIM card.",
+            "value": null
+        },
         "default-cellular-apn" : {
             "help" : "Default cellular Access Point Name.",
             "value": null

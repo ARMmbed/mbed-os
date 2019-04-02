@@ -285,6 +285,11 @@ void AT_CellularContext::set_sim_pin(const char *sim_pin)
     _device->set_sim_pin(sim_pin);
 }
 
+void AT_CellularContext::set_sim_puk(const char *sim_puk, const char *sim_pin)
+{
+    _device->set_sim_puk(sim_puk, sim_pin);
+}
+
 nsapi_error_t AT_CellularContext::connect(const char *sim_pin, const char *apn, const char *uname,
                                           const char *pwd)
 {
