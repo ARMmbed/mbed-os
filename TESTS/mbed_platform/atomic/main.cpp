@@ -39,8 +39,7 @@ static inline long add_iterations(A &a)
 }
 
 template <typename A>
-struct add_incrementer
-{
+struct add_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -50,8 +49,7 @@ struct add_incrementer
 };
 
 template <typename A>
-struct add_release_incrementer
-{
+struct add_release_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -61,8 +59,7 @@ struct add_release_incrementer
 };
 
 template <typename A>
-struct sub_incrementer
-{
+struct sub_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -72,8 +69,7 @@ struct sub_incrementer
 };
 
 template <typename A>
-struct bitops_incrementer
-{
+struct bitops_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -85,8 +81,7 @@ struct bitops_incrementer
 };
 
 template <typename A>
-struct weak_incrementer
-{
+struct weak_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -98,8 +93,7 @@ struct weak_incrementer
 };
 
 template <typename A>
-struct strong_incrementer
-{
+struct strong_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
@@ -164,6 +158,79 @@ void test_atomic_add()
     TEST_ASSERT_EQUAL(T(ADD_UNLOCKED_ITERATIONS), data.nonatomic2);
 }
 
+// This should fit into a uint32_t container, and there
+// will be 1 byte of padding to ignore.
+struct small {
+    uint8_t a;
+    uint8_t b;
+    uint8_t c;
+};
+
+// An 11-byte weird structure. Should work with critical sections.
+struct large {
+    uint8_t a;
+    uint8_t b;
+    uint8_t c;
+    uint8_t dummy[8];
+};
+
+template<typename A>
+void struct_incrementer_a(A *data)
+{
+    for (long i = add_iterations(*data); i > 0; i--) {
+        typename A::value_type curval = *data, newval;
+        do {
+            newval = curval;
+            newval.a++;
+        } while (!data->compare_exchange_weak(curval, newval));
+    }
+}
+
+template<typename A>
+void struct_incrementer_b(A *data)
+{
+    for (long i = add_iterations(*data); i > 0; i--) {
+        typename A::value_type curval = *data, newval;
+        do {
+            newval = curval;
+            newval.b++;
+        } while (!data->compare_exchange_weak(curval, newval));
+    }
+}
+
+template<typename T, size_t N>
+void test_atomic_struct()
+{
+    TEST_ASSERT_EQUAL(N, sizeof(Atomic<T>));
+
+    // Small structures don't have value constructor implemented;
+    Atomic<T> data;
+    atomic_init(&data, T{0, 0, 0});
+
+    Thread t1(osPriorityNormal, THREAD_STACK);
+    Thread t2(osPriorityNormal, THREAD_STACK);
+
+    TEST_ASSERT_EQUAL(osOK, t1.start(callback(struct_incrementer_a<Atomic<T> >, &data)));
+    TEST_ASSERT_EQUAL(osOK, t2.start(callback(struct_incrementer_b<Atomic<T> >, &data)));
+
+    for (long i = add_iterations(data); i > 0; i--) {
+        T curval = data, newval;
+        do {
+            newval = curval;
+            newval.c++;
+        } while (!data.compare_exchange_weak(curval, newval));
+    }
+
+    t1.join();
+    t2.join();
+
+    T final_val = data;
+
+    TEST_ASSERT_EQUAL(uint8_t(add_iterations(data)), final_val.a);
+    TEST_ASSERT_EQUAL(uint8_t(add_iterations(data)), final_val.b);
+    TEST_ASSERT_EQUAL(uint8_t(add_iterations(data)), final_val.c);
+}
+
 } // namespace
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -197,7 +264,9 @@ Case cases[] = {
     Case("Test atomic compare exchange strong 8-bit", test_atomic_add<uint8_t, strong_incrementer>),
     Case("Test atomic compare exchange strong 16-bit", test_atomic_add<uint16_t, strong_incrementer>),
     Case("Test atomic compare exchange strong 32-bit", test_atomic_add<uint32_t, strong_incrementer>),
-    Case("Test atomic compare exchange strong 64-bit", test_atomic_add<uint64_t, strong_incrementer>)
+    Case("Test atomic compare exchange strong 64-bit", test_atomic_add<uint64_t, strong_incrementer>),
+    Case("Test small atomic custom structure", test_atomic_struct<small, 4>),
+    Case("Test large atomic custom structure", test_atomic_struct<large, 11>)
 };
 
 utest::v1::Specification specification(test_setup, cases);
