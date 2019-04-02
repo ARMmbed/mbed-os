@@ -269,6 +269,10 @@ class Resources(object):
         if file_type:
             if sep != self._sep:
                 file_name = file_name.replace(sep, self._sep)
+            # Mbed OS projects only use one linker script at a time, so remove
+            # any existing linker script when adding a new one
+            if file_type == FileType.LD_SCRIPT:
+                self._file_refs[file_type].clear()
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def _include_file(self, ref):
