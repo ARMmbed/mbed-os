@@ -5225,7 +5225,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "TSC"
+            "TSC",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
@@ -5250,7 +5251,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "TSC"
+            "TSC",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
@@ -5276,7 +5278,8 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
@@ -5302,7 +5305,8 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
@@ -5328,7 +5332,8 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
