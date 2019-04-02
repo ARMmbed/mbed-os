@@ -347,7 +347,7 @@ def export_repos(config, ides, targets, examples):
     return results
 
 
-def compile_repos(config, toolchains, targets, profile, examples):
+def compile_repos(config, toolchains, targets, profile, verbose, examples):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -391,7 +391,7 @@ def compile_repos(config, toolchains, targets, profile, examples):
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
                     print("Compiling %s for %s, %s" % (name, target, toolchain))
-                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-v"]
+                    build_command = ["python", "-m", "mbed", "compile", "-t", toolchain, "-m", target] + (['-v'] if verbose else [])
 
                     if profile:
                         build_command.append("--profile")
