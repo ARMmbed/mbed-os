@@ -18,8 +18,8 @@
 #include "equeue/equeue.h"
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-
 
 // calculate the relative-difference between absolute times while
 // correctly handling overflow conditions
@@ -63,7 +63,11 @@ int equeue_create(equeue_t *q, size_t size)
 int equeue_create_inplace(equeue_t *q, size_t size, void *buffer)
 {
     // setup queue around provided buffer
-    q->buffer = buffer;
+    // ensure buffer and size are aligned
+    q->buffer = (void *)(((uintptr_t) buffer + sizeof(void *) -1) & ~(sizeof(void *) -1));
+    size -= (char *) q->buffer - (char *) buffer;
+    size &= ~(sizeof(void *) -1);
+
     q->allocated = 0;
 
     q->npw2 = 0;
@@ -73,7 +77,7 @@ int equeue_create_inplace(equeue_t *q, size_t size, void *buffer)
 
     q->chunks = 0;
     q->slab.size = size;
-    q->slab.data = buffer;
+    q->slab.data = q->buffer;
 
     q->queue = 0;
     q->tick = equeue_tick();
