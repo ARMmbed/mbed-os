@@ -60,7 +60,6 @@ CellularDevice *CellularDevice::get_default_instance()
                              MBED_CONF_QUECTEL_EC2X_RX,
                              MBED_CONF_QUECTEL_EC2X_BAUDRATE);
 #if defined(MBED_CONF_QUECTEL_EC2X_RTS) && defined(MBED_CONF_QUECTEL_EC2X_CTS)
-    tr_debug("QUECTEL_EC2X_PPP flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_EC2X_RTS, MBED_CONF_QUECTEL_EC2X_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_EC2X_RTS, MBED_CONF_QUECTEL_EC2X_CTS);
 #endif
     static QUECTEL_EC2X device(&serial, MBED_CONF_QUECTEL_EC2X_PWR, MBED_CONF_QUECTEL_EC2X_RST);
