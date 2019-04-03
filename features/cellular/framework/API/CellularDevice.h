@@ -332,9 +332,25 @@ public:
 
     /** Set the default response timeout.
      *
+     *  @remark CellularStateMachine timeouts for all states are also changed to `timeout`.
+     *
      *  @param timeout    milliseconds to wait response from modem
      */
     virtual void set_timeout(int timeout) = 0;
+
+    /** Set an array of timeouts to wait before CellularStateMachine retries after failure.
+     *  To disable retry behavior completely use `set_retry_timeout_array(NULL, 0)`.
+     *  CellularContext callback event `cell_callback_data_t.final_try` indicates true when all retries have failed.
+     *
+     *  @remark Use `set_retry_timeout_array` for CellularStateMachine to wait before it retries again after failure,
+     *          this is useful to send repetitive requests when don't know exactly when modem is ready to accept requests.
+     *          Use `set_timeout` for timeout how long to wait for a response from modem for each request,
+     *          this is useful if modem can accept requests but processing takes long time before sending response.
+     *
+     *  @param timeout      timeout array using seconds
+     *  @param array_len    length of the array
+     */
+    void set_retry_timeout_array(const uint16_t timeout[], int array_len);
 
     /** Turn modem debug traces on
      *

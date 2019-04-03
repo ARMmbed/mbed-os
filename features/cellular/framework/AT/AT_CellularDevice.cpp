@@ -344,6 +344,10 @@ void AT_CellularDevice::set_timeout(int timeout)
     _default_timeout = timeout;
 
     ATHandler::set_at_timeout_list(_default_timeout, true);
+
+    if (_state_machine) {
+        _state_machine->set_timeout(_default_timeout);
+    }
 }
 
 uint16_t AT_CellularDevice::get_send_delay() const

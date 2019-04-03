@@ -70,6 +70,12 @@ CellularDevice *CellularContext::get_device() const
 
 void CellularContext::do_connect_with_retry()
 {
+    if (_cb_data.final_try) {
+        _cb_data.final_try = false;
+        _cb_data.error == NSAPI_ERROR_NO_CONNECTION;
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
+        return;
+    }
     do_connect();
     if (_cb_data.error == NSAPI_ERROR_OK) {
         return;

@@ -79,3 +79,11 @@ void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array
 {
 
 }
+
+void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int array_len)
+{
+}
+
+void CellularStateMachine::set_timeout(int timeout)
+{
+}

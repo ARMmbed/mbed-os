@@ -184,6 +184,15 @@ private:
     cellular_connection_status_t _current_event;
     int _status;
     PlatformMutex _mutex;
+
+    // Cellular state timeouts
+    int _state_timeout_power_on;
+    int _state_timeout_sim_pin;
+    int _state_timeout_registration;
+    int _state_timeout_network;
+    int _state_timeout_connect; // timeout for PS attach, PDN connect and socket operations
+    // Change all cellular state timeouts to `timeout`
+    void set_timeout(int timeout);
     cell_signal_quality_t _signal_quality;
 };
 
