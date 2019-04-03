@@ -48,12 +48,12 @@ class Eclipse(Makefile):
         # Get target-specific options. Use labels to find alias
         # for target. This allows to define options within inheritance path
         target_specific = _CONFIGS_OPTIONS['targets']
-        aliases = self.toolchain.target.labels
-        for target_alias in aliases:
+        for target_alias in self.toolchain.target.labels:
             if target_alias in target_specific:
                 eclipse_config.update(target_specific[target_alias]['generic'])
                 if configuration in target_specific[target_alias]:
                     eclipse_config.update(target_specific[target_alias][configuration])
+                break
 
         return eclipse_config
 
