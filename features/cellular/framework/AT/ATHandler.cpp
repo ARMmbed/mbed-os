@@ -368,7 +368,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         tr_error("AT overflow");
-        debug_print(_recv_buff, _recv_len);
+        debug_print(_recv_buff, _recv_len, AT_ERR);
         reset_buffer();
     }
 
@@ -379,7 +379,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     if (count > 0 && (fhs.revents & POLLIN)) {
         ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
         if (len > 0) {
-            debug_print(_recv_buff + _recv_len, len);
+            debug_print(_recv_buff + _recv_len, len, AT_RX);
             _recv_len += len;
             return true;
         }
@@ -481,7 +481,6 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         }
         buf[read_len] = c;
         if (_debug_on && read_len >= DEBUG_MAXLEN) {
-            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
             _debug_on = false;
         }
     }
@@ -586,7 +585,6 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
         int c = get_char();
 
         if (_debug_on && read_idx >= DEBUG_MAXLEN) {
-            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
             _debug_on = false;
         }
 
@@ -1231,9 +1229,8 @@ size_t ATHandler::write(const void *data, size_t len)
         }
         if (_debug_on && write_len < DEBUG_MAXLEN) {
             if (write_len + ret < DEBUG_MAXLEN) {
-                debug_print((char *)data + write_len, ret);
+                debug_print((char *)data + write_len, ret, AT_TX);
             } else {
-                debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
                 _debug_on = false;
             }
         }
@@ -1287,30 +1284,45 @@ void ATHandler::flush()
     }
 }
 
-void ATHandler::debug_print(const char *p, int len)
+void ATHandler::debug_print(const char *p, int len, ATType type)
 {
 #if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
-#if MBED_CONF_MBED_TRACE_ENABLE
-        mbed_cellular_trace::mutex_wait();
-#endif
-        char c;
-        for (ssize_t i = 0; i < len; i++) {
-            c = *p++;
-            if (!isprint(c)) {
-                if (c == '\r') {
-                    debug("\n");
+        const int buf_size = len * 4 + 1; // x4 -> reserve space for extra characters, +1 -> terminating null
+        char *buffer = (char *)malloc(buf_size);
+        if (buffer) {
+            memset(buffer, 0, buf_size);
+
+            char *pbuf = buffer;
+            for (ssize_t i = 0; i < len; i++) {
+                const char c = *p++;
+                if (isprint(c)) {
+                    *pbuf++ = c;
+                } else if (c == '\r') {
+                    sprintf(pbuf, "<cr>");
+                    pbuf += 4;
                 } else if (c == '\n') {
+                    sprintf(pbuf, "<ln>");
+                    pbuf += 4;
                 } else {
-                    debug("#%02x", c);
+                    sprintf(pbuf, "<%02X>", c);
+                    pbuf += 4;
                 }
-            } else {
-                debug("%c", c);
             }
+            MBED_ASSERT((int)(pbuf - buffer) <= buf_size); // Check for buffer overflow
+
+            if (type == AT_RX) {
+                tr_info("AT RX (%2d): %s", len, buffer);
+            } else if (type == AT_TX) {
+                tr_info("AT TX (%2d): %s", len, buffer);
+            } else {
+                tr_info("AT ERR (%2d): %s", len, buffer);
+            }
+
+            free(buffer);
+        } else {
+            tr_error("AT trace unable to allocate buffer!");
         }
-#if MBED_CONF_MBED_TRACE_ENABLE
-        mbed_cellular_trace::mutex_release();
-#endif
     }
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
 }

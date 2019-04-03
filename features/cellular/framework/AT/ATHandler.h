@@ -571,7 +571,12 @@ private:
     bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
-    void debug_print(const char *p, int len);
+    enum ATType {
+        AT_ERR,
+        AT_RX,
+        AT_TX
+    };
+    void debug_print(const char *p, int len, ATType type);
 };
 
 } // namespace mbed
