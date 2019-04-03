@@ -45,16 +45,15 @@ class Eclipse(Makefile):
         if configuration in defaults:
             eclipse_config.update(defaults[configuration])
 
-        # Get target-specific options. Use resolution order and extra labels
-        # to find alias for target. This allows to define options within inheritance path
+        # Get target-specific options. Use labels to find alias
+        # for target. This allows to define options within inheritance path
         target_specific = _CONFIGS_OPTIONS['targets']
-        aliases = self.toolchain.target.resolution_order_names \
-            + self.toolchain.target.extra_labels
-        target_alias = next((t for t in aliases if t in target_specific), None)
-        if target_alias:
-            eclipse_config.update(target_specific[target_alias]['generic'])
-            if configuration in target_specific[target_alias]:
-                eclipse_config.update(target_specific[target_alias][configuration])
+        aliases = self.toolchain.target.labels
+        for target_alias in aliases:
+            if target_alias in target_specific:
+                eclipse_config.update(target_specific[target_alias]['generic'])
+                if configuration in target_specific[target_alias]:
+                    eclipse_config.update(target_specific[target_alias][configuration])
 
         return eclipse_config
 
