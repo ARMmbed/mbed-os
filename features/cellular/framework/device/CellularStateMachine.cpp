@@ -158,7 +158,7 @@ bool CellularStateMachine::open_sim()
         } else {
             // No sim puk/pin provided even it's needed, stop state machine
             tr_error("PUK1 and PIN required but none provided.");
-            _retry_count = RETRY_ARRAY_SIZE;
+            _retry_count = CELLULAR_RETRY_ARRAY_SIZE;
             return false;
         }
 

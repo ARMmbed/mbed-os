@@ -176,6 +176,7 @@ nsapi_error_t AT_CellularDevice::set_puk(const char *puk, const char *sim_pin)
     _at->write_string(sim_pin);
 
     _at->cmd_stop_read_resp();
+    _at->restore_at_timeout();
     return _at->unlock_return_error();
 }
 
