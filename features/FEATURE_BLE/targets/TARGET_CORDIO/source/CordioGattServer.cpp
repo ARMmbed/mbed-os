@@ -71,12 +71,21 @@ void GattServer::initialize()
 #if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
 #endif
-    add_generic_access_service();
-    add_generic_attribute_service();
+    add_default_services();
+}
+
+void GattServer::add_default_services()
+{
+    if (!default_services_added) {
+        default_services_added = true;
+        add_generic_access_service();
+        add_generic_attribute_service();
+    }
 }
 
 ble_error_t GattServer::addService_(GattService &service)
 {
+    add_default_services();
     // create and fill the service structure
     internal_service_t *att_service = new internal_service_t;
     att_service->attGroup.pNext = NULL;
@@ -1344,7 +1353,8 @@ GattServer::GattServer() :
     generic_attribute_service(),
     registered_service(NULL),
     allocated_blocks(NULL),
-    currentHandle(0)
+    currentHandle(0),
+    default_services_added(false)
 {
 }
 
