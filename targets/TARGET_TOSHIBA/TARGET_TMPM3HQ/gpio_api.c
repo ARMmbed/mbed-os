@@ -24,6 +24,9 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     // Store above pin mask, pin name into GPIO object
     obj->pin  = pin;
+    if (pin == (PinName)NC) {
+        return;
+    }
     obj->mask = gpio_set(pin);
     obj->port = (PortName)(pin >> 3);
     TSB_CG->FSYSENA |= (1 << (obj->port));
