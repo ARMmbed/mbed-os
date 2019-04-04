@@ -68,6 +68,7 @@ build_list = [
         { "target": "NUCLEO_F746ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F767ZI",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L496ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "NUCLEO_WB55RG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
         { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
 

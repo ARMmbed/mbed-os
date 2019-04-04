@@ -25,6 +25,11 @@
 #include "trng_api.h"
 #include "mbed_error.h"
 #include "mbed_critical.h"
+#if defined (TARGET_STM32WB)
+/*  Family specific include for WB with HW semaphores */
+#include "hw.h"
+#include "hw_conf.h"
+#endif
 
 static uint8_t users = 0;
 
@@ -37,6 +42,8 @@ void trng_init(trng_t *obj)
         error("Only 1 RNG instance supported\r\n");
     }
 
+#if !defined(TARGET_STM32WB)
+/*  Because M0 core of WB also needs RG RNG is already clocked by default */
 #if defined(RCC_PERIPHCLK_RNG)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
@@ -51,6 +58,7 @@ void trng_init(trng_t *obj)
         error("RNG clock configuration error\n");
     }
 #endif
+#endif //!defined(TARGET_STM32WB)
 
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();
@@ -60,18 +68,36 @@ void trng_init(trng_t *obj)
     obj->handle.State = HAL_RNG_STATE_RESET;
     obj->handle.Lock = HAL_UNLOCKED;
 
+#if defined(CFG_HW_RNG_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    while( LL_HSEM_1StepLock( HSEM, CFG_HW_RNG_SEMID ) );
+#endif
     HAL_RNG_Init(&obj->handle);
 
     /* first random number generated after setting the RNGEN bit should not be used */
     HAL_RNG_GenerateRandomNumber(&obj->handle, &dummy);
+
+#if defined(CFG_HW_RNG_SEMID)
+    LL_HSEM_ReleaseLock( HSEM, CFG_HW_RNG_SEMID, 0 );
+#endif
 }
 
 void trng_free(trng_t *obj)
 {
+#if defined(CFG_HW_RNG_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    while( LL_HSEM_1StepLock( HSEM, CFG_HW_RNG_SEMID ) );
+#endif
     /*Disable the RNG peripheral */
     HAL_RNG_DeInit(&obj->handle);
+
+#if defined(CFG_HW_RNG_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    LL_HSEM_ReleaseLock( HSEM, CFG_HW_RNG_SEMID, 0 );
+#else
     /* RNG Peripheral clock disable - assume we're the only users of RNG  */
     __HAL_RCC_RNG_CLK_DISABLE();
+#endif
 
     users = 0;
 }
@@ -81,6 +107,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     int ret = 0;
     volatile uint8_t random[4];
     *output_length = 0;
+
+#if defined(CFG_HW_RNG_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    while( LL_HSEM_1StepLock( HSEM, CFG_HW_RNG_SEMID ) );
+#endif
 
     /* Get Random byte */
     while ((*output_length < length) && (ret == 0)) {
@@ -99,6 +130,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     if ((__HAL_RNG_GET_FLAG(&obj->handle, (RNG_FLAG_CECS | RNG_FLAG_SECS))) != 0) {
         ret = -1;
     }
+
+#if defined(CFG_HW_RNG_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    LL_HSEM_ReleaseLock( HSEM, CFG_HW_RNG_SEMID, 0 );
+#endif
 
     return (ret);
 }
