@@ -39,13 +39,7 @@
 ; 
 ;*******************************************************************************
 
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-__initial_sp    EQU     0x20080000 ; Top of RAM
+__initial_sp    EQU     (MBED_RAM_START+MBED_RAM_SIZE) ; Top of RAM
 
                 PRESERVE8
                 THUMB
