@@ -189,7 +189,8 @@ bool Kinetis_EMAC::low_level_init_successful()
 
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
-        rx_buff[i] = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        rx_buff[i] = memory_manager->alloc_heap(ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT),
+                                                ENET_BUFF_ALIGNMENT);
         if (NULL == rx_buff[i])
             return false;
 
@@ -279,7 +280,8 @@ emac_mem_buf_t *Kinetis_EMAC::low_level_input(int idx)
         memory_manager->set_len(p, length);
 
         /* Attempt to queue new buffer */
-        temp_rxbuf = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        temp_rxbuf = memory_manager->alloc_heap(ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT),
+                                                ENET_BUFF_ALIGNMENT);
         if (NULL == temp_rxbuf) {
             /* Re-queue the same buffer */
             update_read_buffer(NULL);
