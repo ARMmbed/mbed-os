@@ -66,11 +66,11 @@ CellularDevice *CellularDevice::get_default_instance()
     return &device;
 }
 
-nsapi_error_t QUECTEL_EC2X::hard_power_on()
+nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
 {
     if (_pwr_key.is_connected()) {
         _pwr_key = 1;
-        ThisThread::sleep_for(600);
+        ThisThread::sleep_for(timeout);
         _pwr_key = 0;
         ThisThread::sleep_for(100);
     }
@@ -78,17 +78,15 @@ nsapi_error_t QUECTEL_EC2X::hard_power_on()
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t QUECTEL_EC2X::hard_power_on()
+{
+    return press_power_button(600);
+}
+
 nsapi_error_t QUECTEL_EC2X::hard_power_off()
 
 {
-    if (_pwr_key.is_connected()) {
-        _pwr_key = 1;
-        ThisThread::sleep_for(750);
-        _pwr_key = 0;
-        ThisThread::sleep_for(100);
-    }
-
-    return NSAPI_ERROR_OK;
+    return press_power_button(750);
 }
 
 nsapi_error_t QUECTEL_EC2X::soft_power_on()
@@ -119,14 +117,7 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
 
 nsapi_error_t QUECTEL_EC2X::soft_power_off()
 {
-    if (_pwr_key.is_connected()) {
-        _pwr_key = 1;
-        ThisThread::sleep_for(750);
-        _pwr_key = 0;
-        ThisThread::sleep_for(100);
-    }
-
-    return NSAPI_ERROR_OK;
+    return hard_power_off();
 }
 
 #endif
