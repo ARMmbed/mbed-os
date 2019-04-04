@@ -41,7 +41,7 @@
   },
 
   "targets": {
-    "CY8CPROTO_062_4343W": {
+    "PSOC6_01": {
       "generic": {
         "gdbServerGdbPortNumber": 3334,
         "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
@@ -49,39 +49,7 @@
       }
     },
 
-    "CY8CMOD_062_4343W": {
-      "generic": {
-        "gdbServerGdbPortNumber": 3334,
-        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
-        "corePortNumber": 3334
-      }
-    },
-
-    "CYW943012P6EVB_01": {
-      "generic": {
-        "gdbServerGdbPortNumber": 3334,
-        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
-        "corePortNumber": 3334
-      }
-    },
-
-    "CY8CKIT_062_WIFI_BT": {
-      "generic": {
-        "gdbServerGdbPortNumber": 3334,
-        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
-        "corePortNumber": 3334
-      }
-    },
-
-    "CY8CKIT_062_BLE": {
-      "generic": {
-        "gdbServerGdbPortNumber": 3334,
-        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
-        "corePortNumber": 3334
-      }
-    },
-
-    "CY8CKIT_062_4343W": {
+    "PSOC6_02": {
       "generic": {
         "gdbServerGdbPortNumber": 3334,
         "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
