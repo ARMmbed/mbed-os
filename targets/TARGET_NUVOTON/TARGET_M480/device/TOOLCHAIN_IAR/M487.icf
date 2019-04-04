@@ -27,11 +27,9 @@ define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
 define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 /* NOTE: Vector table base requires to be aligned to the power of vector table size. Give a safe value here. */
 define block IRAMVEC   with alignment = 1024, size = __ICFEDIT_size_intvec__          { };
-define block CRASH_DATA_RAM   with alignment = 8, size = __ICFEDIT_size_crash_data__          { };
 
-/* Define Crash Data Symbols */
-define exported symbol __CRASH_DATA_RAM_START__ = __ICFEDIT_region_IRAM_start__ + __ICFEDIT_size_cstack__ + __ICFEDIT_size_intvec__;
-define exported symbol __CRASH_DATA_RAM_END__ = __ICFEDIT_region_IRAM_start__ + __ICFEDIT_size_cstack__ + __ICFEDIT_size_intvec__ + __ICFEDIT_size_crash_data__;
+/* Block to store crash data */
+define block CRASH_DATA_RAM   with alignment = 8, size = __ICFEDIT_size_crash_data__          { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };

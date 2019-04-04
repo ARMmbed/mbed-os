@@ -30,8 +30,10 @@ extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
 #define __CRASH_DATA_RAM_START__    Image$$RW_m_crash_data$$ZI$$Base
 #define __CRASH_DATA_RAM_SIZE__     Image$$RW_m_crash_data$$ZI$$Size
 #elif defined(__ICCARM__)
-extern uint32_t __CRASH_DATA_RAM_START__[];
-extern uint32_t __CRASH_DATA_RAM_END__[];
+extern uint32_t CRASH_DATA_RAM$$Base[];
+extern uint32_t CRASH_DATA_RAM$$Limit[];
+#define __CRASH_DATA_RAM_START__    CRASH_DATA_RAM$$Base
+#define __CRASH_DATA_RAM_END__      CRASH_DATA_RAM$$Limit
 #define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
 #elif defined(__GNUC__)
 extern uint32_t __CRASH_DATA_RAM_START__[];
