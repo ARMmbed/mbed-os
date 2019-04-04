@@ -41,6 +41,7 @@ public:
     virtual nsapi_error_t soft_power_off();
 
 private:
+    nsapi_error_t press_power_button(uint32_t timeout);
     DigitalOut _pwr_key;
     DigitalOut _rst;
 };
