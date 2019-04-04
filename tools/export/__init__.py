@@ -272,6 +272,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     toolchain.set_config_data(toolchain.config.get_config_data())
     config_header = toolchain.get_config_header()
     resources.add_file_ref(FileType.HEADER, basename(config_header), config_header)
+    resources.win_to_unix()
 
     # Change linker script if specified
     if linker_script is not None:
