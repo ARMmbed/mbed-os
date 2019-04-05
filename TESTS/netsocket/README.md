@@ -859,9 +859,6 @@ Within each loop, one `recvfrom()` may return the received packet size
 When `NSAPI_ERROR_WOULD_BLOCK` is received, check that time consumed is
 more that 100 milliseconds but less than 200 milliseconds.
 
-After repeating for 10 times, at least 5 packets must have been
-received.
-
 
 ### UDPSOCKET_SENDTO_TIMEOUT
 
