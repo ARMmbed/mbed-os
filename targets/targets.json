@@ -5319,7 +5319,6 @@
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
         "device_has": [
-            "ANALOGIN",
             "EMAC",
             "FLASH",
             "I2C",
