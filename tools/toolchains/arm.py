@@ -284,7 +284,7 @@ class ARM(mbedToolchain):
                         scatter file
 
         Return:
-        The location of the correct scatter file
+        The FileRef of the correct scatter file
 
         Side Effects:
         This method MAY write a new scatter file to disk
