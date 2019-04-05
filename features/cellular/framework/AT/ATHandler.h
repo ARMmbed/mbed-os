@@ -381,6 +381,10 @@ public:
     /**  Ends all scopes starting from current scope.
      *   Consumes everything until the scope's stop tag is found, then
      *   goes to next scope until response scope is ending.
+     *   URC match is checked during response scope ending,
+     *   for every new line / CRLF.
+     *
+     *
      *   Possible sequence:
      *   element scope -> information response scope -> response scope
      */
