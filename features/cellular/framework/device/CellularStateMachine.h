@@ -56,6 +56,7 @@ private:
         STATE_POWER_ON,
         STATE_DEVICE_READY,
         STATE_SIM_PIN,
+        STATE_SIGNAL_QUALITY,
         STATE_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
         STATE_MAX_FSM_STATE
@@ -144,6 +145,7 @@ private:
     void state_power_on();
     void state_device_ready();
     void state_sim_pin();
+    void state_signal_quality();
     void state_registering();
     void state_attaching();
     void enter_to_state(CellularState state);
@@ -154,6 +156,7 @@ private:
     void device_ready_cb();
     void pre_event(CellularState state);
     bool check_is_target_reached();
+    void send_event_cb(cellular_connection_status_t status);
 
     CellularDevice &_cellularDevice;
     CellularState _state;
@@ -178,9 +181,10 @@ private:
     bool _command_success;
     bool _is_retry;
     cell_callback_data_t _cb_data;
-    nsapi_event_t _current_event;
+    cellular_connection_status_t _current_event;
     int _status;
     PlatformMutex _mutex;
+    cell_signal_quality_t _signal_quality;
 };
 
 } // namespace

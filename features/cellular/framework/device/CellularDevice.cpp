@@ -117,6 +117,10 @@ nsapi_error_t CellularDevice::attach_to_network()
 
 nsapi_error_t CellularDevice::create_state_machine()
 {
+    _nw = open_network(_fh);
+    // Attach to network so we can get update status from the network
+    _nw->attach(callback(this, &CellularDevice::stm_callback));
+
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
         _nw = open_network(_fh);
@@ -182,8 +186,13 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularC
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
-        tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
+        if (cell_ev == CellularStateRetryEvent) {
+            tr_debug("callback: CellularStateRetryEvent, err: %d, data: %d, retrycount: %d", ptr_data->error, ptr_data->status_data, *(const int *)ptr_data->data);
+        } else {
+            tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
+        }
+
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
             // broadcast only network registration changes to state machine
             _state_machine->cellular_event_changed(ev, ptr);

@@ -196,7 +196,7 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
                 tr_warning("No cellular connection");
                 return NSAPI_ERROR_TIMEOUT;
             }
-            return NSAPI_ERROR_OK;
+            return _cb_data.error;// callback might have been completed with an error, must return that error here
         }
     }
 
@@ -932,11 +932,11 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         }
 #endif // USE_APN_LOOKUP
 
-        if (!_nw && st == CellularDeviceReady && data->error == NSAPI_ERROR_OK) {
+        if (!_nw && st == CellularDeviceReady && _cb_data.error == NSAPI_ERROR_OK) {
             _nw = _device->open_network(_fh);
         }
 
-        if (_cp_req && !_cp_in_use && (data->error == NSAPI_ERROR_OK) &&
+        if (_cp_req && !_cp_in_use && (_cb_data.error == NSAPI_ERROR_OK) &&
                 (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady)) {
             if (setup_control_plane_opt() != NSAPI_ERROR_OK) {
                 tr_error("Control plane SETUP failed!");
@@ -946,7 +946,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         }
 
         if (_is_blocking) {
-            if (data->error != NSAPI_ERROR_OK) {
+            if (_cb_data.error != NSAPI_ERROR_OK) {
                 // operation failed, release semaphore
                 _current_op = OP_INVALID;
                 _semaphore.release();
@@ -971,7 +971,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         } else {
             // non blocking
-            if (st == CellularAttachNetwork && _current_op == OP_CONNECT && data->error == NSAPI_ERROR_OK &&
+            if (st == CellularAttachNetwork && _current_op == OP_CONNECT && _cb_data.error == NSAPI_ERROR_OK &&
                     data->status_data == CellularNetwork::Attached) {
                 _current_op = OP_INVALID;
                 // forward to application

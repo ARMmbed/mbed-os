@@ -47,7 +47,7 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
     _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
     _event_status_cb(0), _network(nw), _queue(queue), _queue_thread(0), _sim_pin(0),
     _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
-    _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE), _status(0)
+    _is_retry(false), _cb_data(), _current_event(CellularDeviceReady), _status(0)
 {
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
     _start_time = 0;
@@ -133,10 +133,8 @@ bool CellularStateMachine::open_sim()
     }
 
     // report current state so callback can set sim pin if needed
-    if (_event_status_cb) {
-        _cb_data.status_data = state;
-        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&_cb_data);
-    }
+    _cb_data.status_data = state;
+    send_event_cb(CellularSIMStatusChanged);
 
     if (state == CellularDevice::SimStatePinNeeded) {
         if (_sim_pin) {
@@ -156,13 +154,10 @@ bool CellularStateMachine::open_sim()
     bool sim_ready = state == CellularDevice::SimStateReady;
 
     if (sim_ready) {
-        // If plmn is set, we should it right after sim is opened so that registration is forced to correct network.
-        if (_plmn && strlen(_plmn)) {
-            _cb_data.error = _network.set_registration(_plmn);
-            tr_debug("STM: manual set_registration: %d, plmn: %s", _cb_data.error, _plmn);
-            if (_cb_data.error) {
-                return false;
-            }
+        _cb_data.error = _network.set_registration(_plmn);
+        tr_debug("STM: set_registration: %d, plmn: %s", _cb_data.error, _plmn);
+        if (_cb_data.error) {
+            return false;
         }
     }
 
@@ -250,10 +245,8 @@ void CellularStateMachine::report_failure(const char *msg)
     tr_error("CellularStateMachine failure: %s", msg);
 
     _event_id = -1;
-    if (_event_status_cb) {
-        _cb_data.final_try = true;
-        _event_status_cb(_current_event, (intptr_t)&_cb_data);
-    }
+    _cb_data.final_try = true;
+    send_event_cb(_current_event);
 
     tr_error("CellularStateMachine target state %s, current state %s", get_state_string(_target_state), get_state_string(_state));
 }
@@ -261,7 +254,7 @@ void CellularStateMachine::report_failure(const char *msg)
 const char *CellularStateMachine::get_state_string(CellularState state) const
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
-    static const char *strings[STATE_MAX_FSM_STATE] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network"};
+    static const char *strings[STATE_MAX_FSM_STATE] = { "Init", "Power", "Device ready", "SIM pin", "Signal quality", "Registering network", "Attaching network"};
     return strings[state];
 #else
     return NULL;
@@ -282,12 +275,17 @@ void CellularStateMachine::retry_state_or_fail()
 {
     if (++_retry_count < CELLULAR_RETRY_ARRAY_SIZE) {
         tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, CELLULAR_RETRY_ARRAY_SIZE);
+        // send info to application/driver about error logic so it can implement proper error logic
+        _cb_data.status_data = _current_event;
+        _cb_data.data = &_retry_count;
+        _cb_data.error = NSAPI_ERROR_OK;
+        send_event_cb(CellularStateRetryEvent);
+
         _event_timeout = _retry_timeout_array[_retry_count];
         _is_retry = true;
         _cb_data.error = NSAPI_ERROR_OK;
     } else {
         report_failure(get_state_string(_state));
-        return;
     }
 }
 
@@ -334,9 +332,7 @@ bool CellularStateMachine::device_ready()
     }
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
 
-    if (_event_status_cb) {
-        _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
-    }
+    send_event_cb(CellularDeviceReady);
     _cellularDevice.set_ready_cb(0);
 
     return true;
@@ -402,9 +398,22 @@ void CellularStateMachine::state_sim_pin()
         } else if (_cb_data.error) {
             tr_warning("Packet domain event reporting set failed!");
         }
-        enter_to_state(STATE_REGISTERING_NETWORK);
+        enter_to_state(STATE_SIGNAL_QUALITY);
     } else {
         retry_state_or_fail();
+    }
+}
+
+void CellularStateMachine::state_signal_quality()
+{
+    _cb_data.error = _network->get_signal_quality(_signal_quality.rssi, &_signal_quality.ber);
+
+    if (_cb_data.error != NSAPI_ERROR_OK) {
+        retry_state_or_fail();
+    } else {
+        _cb_data.data = &_signal_quality;
+        send_event_cb(_current_event);
+        enter_to_state(STATE_REGISTERING_NETWORK);
     }
 }
 
@@ -419,7 +428,7 @@ void CellularStateMachine::state_registering()
             _cb_data.status_data = CellularNetwork::AlreadyRegistered;
         }
         _cb_data.error = NSAPI_ERROR_OK;
-        _event_status_cb(_current_event, (intptr_t)&_cb_data);
+        send_event_cb(_current_event);
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
@@ -440,10 +449,8 @@ void CellularStateMachine::state_attaching()
         _cb_data.error = _network.set_attach();
     }
     if (_cb_data.error == NSAPI_ERROR_OK) {
-        if (_event_status_cb) {
-            _cb_data.status_data = CellularNetwork::Attached;
-            _event_status_cb(_current_event, (intptr_t)&_cb_data);
-        }
+        _cb_data.status_data = CellularNetwork::Attached;
+        send_event_cb(_current_event);
     } else {
         retry_state_or_fail();
     }
@@ -524,43 +531,51 @@ bool CellularStateMachine::get_current_status(CellularStateMachine::CellularStat
 
 void CellularStateMachine::event()
 {
-#if MBED_CONF_MBED_TRACE_ENABLE
-    int rssi;
-    if (_network.get_signal_quality(rssi) == NSAPI_ERROR_OK) {
-        if (rssi == CellularNetwork::SignalQualityUnknown) {
-            tr_info("RSSI unknown");
-        } else {
-            tr_info("RSSI %d dBm", rssi);
+    // Don't send Signal quality when in signal quality state or it can confuse callback functions when running retry logic
+    if (_state != STATE_SIGNAL_QUALITY) {
+        _cb_data.error = _network.get_signal_quality(_signal_quality.rssi, &_signal_quality.ber);
+        _cb_data.data = &_signal_quality;
+
+        if (_cb_data.error == NSAPI_ERROR_OK) {
+            send_event_cb(CellularSignalQuality);
+            if (_signal_quality.rssi == CellularNetwork::SignalQualityUnknown) {
+                tr_info("RSSI unknown");
+            } else {
+                tr_info("RSSI %d dBm", _signal_quality.rssi);
+            }
         }
     }
-#endif
 
     _event_timeout = -1;
     _is_retry = false;
 
     switch (_state) {
         case STATE_INIT:
-            _current_event = (nsapi_event_t)CellularDeviceReady;
+            _current_event = CellularDeviceReady;
             state_init();
             break;
         case STATE_POWER_ON:
-            _current_event = (nsapi_event_t)CellularDeviceReady;
+            _current_event = CellularDeviceReady;
             state_power_on();
             break;
         case STATE_DEVICE_READY:
-            _current_event = (nsapi_event_t)CellularDeviceReady;
+            _current_event = CellularDeviceReady;
             state_device_ready();
             break;
         case STATE_SIM_PIN:
-            _current_event = (nsapi_event_t)CellularSIMStatusChanged;
+            _current_event = CellularSIMStatusChanged;
             state_sim_pin();
             break;
+        case STATE_SIGNAL_QUALITY:
+            _current_event = CellularSignalQuality;
+            state_signal_quality();
+            break;
         case STATE_REGISTERING_NETWORK:
-            _current_event = (nsapi_event_t)CellularRegistrationStatusChanged;
+            _current_event = CellularRegistrationStatusChanged;
             state_registering();
             break;
         case STATE_ATTACHING_NETWORK:
-            _current_event = (nsapi_event_t)CellularAttachNetwork;
+            _current_event = CellularAttachNetwork;
             state_attaching();
             break;
         default:
@@ -612,6 +627,13 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
     _event_status_cb = status_cb;
 }
 
+void CellularStateMachine::send_event_cb(cellular_connection_status_t status)
+{
+    if (_event_status_cb) {
+        _event_status_cb((nsapi_event_t)status, (intptr_t)&_cb_data);
+    }
+}
+
 bool CellularStateMachine::check_is_target_reached()
 {
     if (((_target_state == _state || _target_state < _next_state) && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) ||
@@ -629,7 +651,8 @@ bool CellularStateMachine::check_is_target_reached()
 void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
 {
     cell_callback_data_t *data = (cell_callback_data_t *)ptr;
-    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
+    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && (
+                _state == STATE_REGISTERING_NETWORK || _state == STATE_SIGNAL_QUALITY)) {
         // expect packet data so only these states are valid
         CellularNetwork::registration_params_t reg_params;
         nsapi_error_t err = _network.get_registration_params(reg_params);
