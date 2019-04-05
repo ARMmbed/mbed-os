@@ -261,7 +261,7 @@ MBED_WEAK FileHandle *mbed::mbed_override_console(int fd)
 
 static FileHandle *default_console()
 {
-#if DEVICE_SERIAL
+#if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
@@ -274,7 +274,7 @@ static FileHandle *default_console()
 #  else
     static DirectSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
-#else // DEVICE_SERIAL
+#else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
     static Sink console;
 #endif
     return &console;

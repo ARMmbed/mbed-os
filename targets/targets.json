@@ -15,6 +15,10 @@
         "bootloader_supported": false,
         "static_memory_defines": true,
         "config": {
+            "console-uart": {
+                "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
+                "value": true
+            },
             "console-uart-flow-control": {
                 "help": "Console hardware flow control. Options: null, RTS, CTS, RTSCTS.",
                 "value": null

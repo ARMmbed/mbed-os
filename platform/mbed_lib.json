@@ -12,12 +12,12 @@
         },
 
         "stdio-buffered-serial": {
-            "help": "Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
+            "help": "(Applies if target.console-uart is true.) Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
             "value": false
         },
 
         "stdio-baud-rate": {
-            "help": "Baud rate for stdio",
+            "help": "(Applies if target.console-uart is true.) Baud rate for stdio",
             "value": 9600
         },
 
