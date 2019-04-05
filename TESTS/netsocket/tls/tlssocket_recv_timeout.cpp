@@ -28,7 +28,7 @@ using namespace utest::v1;
 
 namespace {
 static const int SIGNAL_SIGIO = 0x1;
-static const int SIGIO_TIMEOUT = 20000; //[ms]
+static const int SIGIO_TIMEOUT = 50000; //[ms]
 }
 
 static void _sigio_handler(osThreadId id)
