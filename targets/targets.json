@@ -8328,6 +8328,7 @@
     },
     "FUTURE_SEQUANA_M0": {
         "inherits": ["MCU_PSOC6_M0"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "FUTURE_SEQUANA"],
         "extra_labels_remove": ["PSOC6"],
@@ -8357,6 +8358,7 @@
     },
     "FUTURE_SEQUANA": {
         "inherits": ["MCU_PSOC6_M4"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "CORDIO"],
         "extra_labels_remove": ["PSOC6"],
