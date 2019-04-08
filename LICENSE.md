@@ -22,3 +22,31 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause
 - [tools/data/rpc](./tools/data/rpc) - MIT
 - [targets](./targets) - PBL, BSD-style, MIT-style, Zlib-style, Public-domain
+
+The Python modules used by Mbed tools are used under the following licenses:
+
+- [colorama](https://pypi.org/project/colorama) - BSD-3-Clause
+- [urllib3](https://pypi.org/project/urllib3) - MIT
+   - [secure](https://pypi.org/project/secure) - MIT
+- [prettytable](https://pypi.org/project/prettytable) - BSD-3-Clause
+- [junit-xml](https://pypi.org/project/junit-xml) - MIT
+- [pyyaml](https://pypi.org/project/pyyaml) - MIT
+- [jsonschema](https://pypi.org/project/jsonschema) - MIT
+- [future](https://pypi.org/project/future) - MIT
+- [six](https://pypi.org/project/six) - MIT
+- [mbed-cloud-sdk](https://pypi.org/project/mbed-cloud-sdk) - Apache 2.0
+- [requests](https://pypi.org/project/requests) - Apache-2.0
+- [idna](https://pypi.org/project/idna) - BSD-3-Clause
+- [pyserial](https://pypi.org/project/pyserial) - BSD-3-Clause
+- [Jinja2](https://pypi.org/project/Jinja2) - BSD-3-Clause
+- [intelhex](https://pypi.org/project/intelhex) - BSD
+- [mbed-ls](https://pypi.org/project/mbed-ls) - Apache-2.0
+- [mbed-host-tests](https://pypi.org/project/mbed-host-tests) - Apache-2.0
+- [mbed-greentea](https://pypi.org/project/mbed-greentea) - Apache-2.0
+- [beautifulsoup4](https://pypi.org/project/beautifulsoup4) - MIT
+- [pyelftools](https://pypi.org/project/pyelftools) - Public Domain
+- [manifest-tool](https://pypi.org/project/manifest-tool) - Apache-2.0
+- [icetea](https://pypi.org/project/icetea) - Apache-2.0
+- [pycryptodome](https://pypi.org/project/pycryptodome) - BSD-2-Clause
+- [pyusb](https://pypi.org/project/pyusb/) - Apache-2.0
+- [cmsis-pack-manager](https://pypi.org/project/cmsis-pack-manager) - Apache-2.0

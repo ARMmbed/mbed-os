@@ -40,7 +40,6 @@ Mutex::Mutex(const char *name)
 
 void Mutex::constructor(const char *name)
 {
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
     osMutexAttr_t attr =
     { 0 };
     attr.name = name ? name : "aplication_unnamed_mutex";

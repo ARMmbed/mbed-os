@@ -31,9 +31,15 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     0,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
     0,  // AT_CGAUTH
+    1,  // AT_CNMI
+    1,  // AT_CSMP
+    1,  // AT_CMGF
+    1,  // AT_CSDH
     1,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
+    0,  // PROPERTY_NON_IP_PDP_TYPE
+    1,  // PROPERTY_AT_CGEREP
 };
 
 QUECTEL_M26::QUECTEL_M26(FileHandle *fh) : AT_CellularDevice(fh)

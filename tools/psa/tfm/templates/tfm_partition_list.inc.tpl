@@ -33,3 +33,4 @@ PARTITION_ADD_INIT_FUNC({{partition.name|upper}}, {{partition.entry_point}});
 #endif // USE_PSA_TEST_PARTITIONS
 
 #endif // __TFM_PARTITION_LIST_INC__
+{# End of file #}

@@ -31,3 +31,4 @@
 #endif // USE_PSA_TEST_PARTITIONS
 
 #endif // __TFM_SERVICE_LIST_INC__
+{# End of file #}

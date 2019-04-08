@@ -170,7 +170,9 @@ typedef enum {
     // Button naming
     SW2 = PB_0,
     SW3 = PB_1,
-    
+    BUTTON1 = SW2,
+    BUTTON2 = SW3,
+
 } PinName;
 
 #ifdef __cplusplus

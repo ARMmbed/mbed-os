@@ -305,7 +305,7 @@ void can_free(can_t *obj)
  */
 int can_frequency(can_t *obj, int hz)
 {
-    int reval;
+    int reval = 0;
 
     /* The maximum baud rate support to 1M */
     if (hz <= 1000000) {

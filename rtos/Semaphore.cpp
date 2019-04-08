@@ -39,7 +39,6 @@ Semaphore::Semaphore(int32_t count, uint16_t max_count)
 
 void Semaphore::constructor(int32_t count, uint16_t max_count)
 {
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
     osSemaphoreAttr_t attr = { 0 };
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);

@@ -21,6 +21,8 @@
 #include "PeripheralPins.h"
 #include "dac.h"
 
+#if DEVICE_ANALOGOUT
+
 extern uint8_t g_sys_init;
 
 #define MAX_VAL_12BIT 0x0FFF  /*12 Bit DAC for SAML21*/
@@ -119,4 +121,5 @@ const PinMap *analogout_pinmap()
 {
     return PinMap_DAC;
 }
-#endif
+
+#endif // DEVICE_ANALOGOUT

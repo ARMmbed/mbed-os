@@ -52,7 +52,6 @@ void Thread::constructor(uint32_t tz_module, osPriority priority,
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
     _finished = false;
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
     memset(&_attr, 0, sizeof(_attr));
     _attr.priority = priority;
     _attr.stack_size = aligned_size;

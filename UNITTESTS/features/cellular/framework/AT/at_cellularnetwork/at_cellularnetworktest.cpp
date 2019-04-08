@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include <string.h>
 #include "AT_CellularNetwork.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "ATHandler.h"
 #include "AT_CellularDevice.h"
 #include "FileHandle_stub.h"
@@ -122,6 +122,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     EXPECT_TRUE(reg_params._status == CellularNetwork::RegistrationDenied);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_EGPRS);
     EXPECT_TRUE(reg_params._cell_id == -1);
+    EXPECT_TRUE(reg_params._lac == -1);
 
     ATHandler_stub::read_string_index = 4;
     ATHandler_stub::read_string_table[3] = "00C3";
@@ -129,6 +130,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     ATHandler_stub::read_string_table[1] = "00100100";
     ATHandler_stub::read_string_table[0] = "01000111";
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_registration_params(CellularNetwork::C_EREG, reg_params));
+    EXPECT_TRUE(reg_params._lac == 0xc3);
     EXPECT_TRUE(reg_params._cell_id == 305463233);
     EXPECT_TRUE(reg_params._active_time == 240);
     EXPECT_TRUE(reg_params._periodic_tau == 70 * 60 * 60);
@@ -665,4 +667,20 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_receive_period)
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_receive_period(1, CellularNetwork::EDRXUTRAN_Iu_mode, 3));
+}
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_packet_domain_event_reporting)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(true));
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(false));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(true));
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(false));
 }

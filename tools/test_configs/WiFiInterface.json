@@ -1,0 +1,68 @@
+{
+    "config": {
+        "wifi-secure-ssid": {
+            "help": "Wi-Fi SSID for WPA2 secured network",
+            "value": "\"WIFI_SSID_SECURED\""
+        },
+        "wifi-unsecure-ssid": {
+            "help": "Wi-Fi SSID for unsecure netwrok",
+            "value": "\"WIFI_SSID_UNSECURE\""
+        },
+        "wifi-password": {
+            "help": "Wi-Fi Password",
+            "value": "\"WIFI_PASSWORD\""
+        },
+        "wifi-secure-protocol": {
+            "help": "Wi-Fi security protocol, valid values are WEP, WPA, WPA2, WPA_WPA2",
+            "value": "\"WPA2\""
+        },
+        "wifi-ch-secure": {
+            "help": "Channel number of secure SSID",
+            "value": null
+        },
+        "wifi-ch-unsecure": {
+            "help": "Channel number of unsecure SSID",
+            "value": null
+        },
+        "ap-mac-secure": {
+            "help": "BSSID of secure AP in form of AA:BB:CC:DD:EE:FF",
+            "value": "\"AA:AA:AA:AA:AA:AA\""
+        },
+        "ap-mac-unsecure": {
+            "help": "BSSID of unsecure AP in form of \"AA:BB:CC:DD:EE:FF\"",
+            "value": "\"BB:BB:BB:BB:BB:BB\""
+        },
+        "max-scan-size": {
+            "help": "How many networks may appear in Wifi scan result",
+            "value": 10
+        },
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WPA2"
+        }
+    }
+}

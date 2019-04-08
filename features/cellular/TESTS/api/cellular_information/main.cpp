@@ -21,7 +21,6 @@
 #endif
 
 #include "CellularUtil.h" // for CELLULAR_ helper macros
-#include "CellularTargets.h"
 
 #ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.

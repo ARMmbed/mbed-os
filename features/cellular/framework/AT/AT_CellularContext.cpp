@@ -20,7 +20,9 @@
 #include "AT_CellularStack.h"
 #include "CellularLog.h"
 #include "CellularUtil.h"
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
+#endif // #if DEVICE_SERIAL
 #include "mbed_wait_api.h"
 
 #define NETWORK_TIMEOUT 30 * 60 * 1000 // 30 minutes
@@ -89,6 +91,7 @@ void AT_CellularContext::set_file_handle(FileHandle *fh)
     _at.set_file_handle(_fh);
 }
 
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
 {
     tr_info("CellularContext serial %p", serial);
@@ -98,11 +101,14 @@ void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bo
     _at.set_file_handle(static_cast<FileHandle *>(serial));
     enable_hup(false);
 }
+#endif // #if DEVICE_SERIAL
 
 void AT_CellularContext::enable_hup(bool enable)
 {
     if (_dcd_pin != NC) {
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
         static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+#endif // #if DEVICE_SERIAL
     }
 }
 
@@ -467,15 +473,26 @@ nsapi_error_t AT_CellularContext::do_activate_context()
 
 nsapi_error_t AT_CellularContext::activate_ip_context()
 {
-    return activate_context();
+    return find_and_activate_context();
 }
 
 nsapi_error_t AT_CellularContext::activate_non_ip_context()
 {
-    return activate_context();
+    return find_and_activate_context();
 }
 
-nsapi_error_t AT_CellularContext::activate_context()
+void AT_CellularContext::activate_context()
+{
+    tr_info("Activate PDP context %d", _cid);
+    _at.cmd_start("AT+CGACT=1,");
+    _at.write_int(_cid);
+    _at.cmd_stop_read_resp();
+    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        _is_context_activated = true;
+    }
+}
+
+nsapi_error_t AT_CellularContext::find_and_activate_context()
 {
     _at.lock();
 
@@ -510,26 +527,11 @@ nsapi_error_t AT_CellularContext::activate_context()
 
     _is_context_active = false;
     _is_context_activated = false;
-    _at.cmd_start("AT+CGACT?");
-    _at.cmd_stop();
-    _at.resp_start("+CGACT:");
-    while (_at.info_resp()) {
-        int context_id = _at.read_int();
-        int context_activation_state = _at.read_int();
-        if (context_id == _cid && context_activation_state == 1) {
-            _is_context_active = true;
-        }
-    }
-    _at.resp_stop();
+
+    _is_context_active = _nw->is_active_context(NULL, _cid);
 
     if (!_is_context_active) {
-        tr_info("Activate PDP context %d", _cid);
-        _at.cmd_start("AT+CGACT=1,");
-        _at.write_int(_cid);
-        _at.cmd_stop_read_resp();
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
-            _is_context_activated = true;
-        }
+        activate_context();
     }
 
     err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
@@ -704,34 +706,27 @@ nsapi_error_t AT_CellularContext::disconnect()
 
 void AT_CellularContext::deactivate_ip_context()
 {
-    deactivate_context();
+    check_and_deactivate_context();
 }
 
 void AT_CellularContext::deactivate_non_ip_context()
 {
-    deactivate_context();
+    check_and_deactivate_context();
 }
 
 void AT_CellularContext::deactivate_context()
 {
+    _at.cmd_start("AT+CGACT=0,");
+    _at.write_int(_cid);
+    _at.cmd_stop_read_resp();
+}
+
+void AT_CellularContext::check_and_deactivate_context()
+{
     // CGACT and CGATT commands might take up to 3 minutes to respond.
     _at.set_at_timeout(180 * 1000);
-    _is_context_active = false;
-    size_t active_contexts_count = 0;
-    _at.cmd_start("AT+CGACT?");
-    _at.cmd_stop();
-    _at.resp_start("+CGACT:");
-    while (_at.info_resp()) {
-        int context_id = _at.read_int();
-        int context_activation_state = _at.read_int();
-        if (context_activation_state == 1) {
-            active_contexts_count++;
-            if (context_id == _cid) {
-                _is_context_active = true;
-            }
-        }
-    }
-    _at.resp_stop();
+    int active_contexts_count = 0;
+    _is_context_active = _nw->is_active_context(&active_contexts_count, _cid);
 
     CellularNetwork::RadioAccessTechnology rat = CellularNetwork::RAT_GSM;
     // always return NSAPI_ERROR_OK
@@ -742,9 +737,7 @@ void AT_CellularContext::deactivate_context()
     // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
     if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
         _at.clear_error();
-        _at.cmd_start("AT+CGACT=0,");
-        _at.write_int(_cid);
-        _at.cmd_stop_read_resp();
+        deactivate_context();
     }
 
     if (_new_context_set) {

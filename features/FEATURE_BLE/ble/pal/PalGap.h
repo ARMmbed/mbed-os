@@ -64,7 +64,7 @@ public:
         ble::phy_t tx_phy,
         ble::phy_t rx_phy
     ) {
-        impl()->on_phy_update_complete(status, connection_handle, tx_phy, rx_phy);
+        impl()->on_phy_update_complete_(status, connection_handle, tx_phy, rx_phy);
     }
 
     /**

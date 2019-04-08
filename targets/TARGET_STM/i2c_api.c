@@ -79,6 +79,9 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
 */
 #define FLAG_TIMEOUT ((int)0x1000)
 
+/* Declare i2c_init_internal to be used in this file */
+void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl);
+
 /* GENERIC INIT and HELPERS FUNCTIONS */
 
 #if defined(I2C1_BASE)
@@ -260,7 +263,12 @@ void i2c_sw_reset(i2c_t *obj)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    memset(obj, 0, sizeof(*obj));
+    i2c_init_internal(obj, sda, scl);
+}
 
+void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl)
+{
     struct i2c_s *obj_s = I2C_S(obj);
 
     // Determine the I2C to use
@@ -454,7 +462,7 @@ void i2c_reset(i2c_t *obj)
     /*  As recommended in i2c_api.h, mainly send stop */
     i2c_stop(obj);
     /* then re-init */
-    i2c_init(obj, obj_s->sda, obj_s->scl);
+    i2c_init_internal(obj, obj_s->sda, obj_s->scl);
 }
 
 /*
@@ -508,7 +516,7 @@ int i2c_stop(i2c_t *obj)
      *  re-init HAL state
      */
     if (obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME) {
-        i2c_init(obj, obj_s->sda, obj_s->scl);
+        i2c_init_internal(obj, obj_s->sda, obj_s->scl);
     }
 
     return 0;
@@ -584,7 +592,7 @@ int i2c_stop(i2c_t *obj)
 #if DEVICE_I2CSLAVE
     if (obj_s->slave) {
         /*  re-init slave when stop is requested */
-        i2c_init(obj, obj_s->sda, obj_s->scl);
+        i2c_init_internal(obj, obj_s->sda, obj_s->scl);
         return 0;
     }
 #endif
@@ -627,7 +635,7 @@ int i2c_stop(i2c_t *obj)
     /*  In case of mixed usage of the APIs (unitary + SYNC)
      *  re-init HAL state */
     if (obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME) {
-        i2c_init(obj, obj_s->sda, obj_s->scl);
+        i2c_init_internal(obj, obj_s->sda, obj_s->scl);
     }
 
     return 0;
@@ -791,7 +799,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
             DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
             /* re-init IP to try and get back in a working state */
-            i2c_init(obj, obj_s->sda, obj_s->scl);
+            i2c_init_internal(obj, obj_s->sda, obj_s->scl);
         } else {
             count = length;
         }
@@ -845,7 +853,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
             DEBUG_PRINTF(" TIMEOUT or error in i2c_write\r\n");
             /* re-init IP to try and get back in a working state */
-            i2c_init(obj, obj_s->sda, obj_s->scl);
+            i2c_init_internal(obj, obj_s->sda, obj_s->scl);
         } else {
             count = length;
         }
@@ -907,7 +915,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     DEBUG_PRINTF("HAL_I2C_ErrorCallback:%d, index=%d\r\n", (int) hi2c->ErrorCode, obj_s->index);
 
     /* re-init IP to try and get back in a working state */
-    i2c_init(obj, obj_s->sda, obj_s->scl);
+    i2c_init_internal(obj, obj_s->sda, obj_s->scl);
 
 #if DEVICE_I2CSLAVE
     /*  restore slave address */

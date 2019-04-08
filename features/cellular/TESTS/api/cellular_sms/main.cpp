@@ -110,21 +110,21 @@ static void test_sms_initialize_text_mode()
 static void test_sms_initialize_pdu_mode()
 {
     nsapi_error_t err = sms->initialize(CellularSMS::CellularSMSMmodePDU);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_cscs()
 {
     nsapi_error_t err = sms->set_cscs("IRA");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_cscs("UCS2");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_cscs("GSM");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_csca()
@@ -143,8 +143,8 @@ static void test_set_csca()
 static void test_set_cpms_me()
 {
     nsapi_error_t err = sms->set_cpms("ME", "ME", "ME");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 #ifdef MBED_CONF_APP_CELLULAR_PHONE_NUMBER

@@ -879,7 +879,7 @@ void OdinWiFiInterface::handle_user_connect(user_connect_s *user_connect)
 
     if(error_code == NSAPI_ERROR_OK) {
         memset(&_wlan_status_connected_info, 0, sizeof(cbWLAN_StatusConnectedInfo));
-        memcpy(&_wlan_status_disconnected_info, 0, sizeof(cbWLAN_StatusDisconnectedInfo));
+        memset(&_wlan_status_disconnected_info, 0, sizeof(cbWLAN_StatusDisconnectedInfo));
 
         _state_sta = entry_wait_connect();
     }

@@ -6,7 +6,7 @@
     },
     "target_overrides": {
         "NUCLEO_F207ZG": {
-            "eth-rxbufnb": 1,
+            "eth-rxbufnb": 2,
             "eth-txbufnb": 4
         }
     }

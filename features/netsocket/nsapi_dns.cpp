@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mbed_shared_queues.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "OnboardNetworkStack.h"
 #include "Kernel.h"
 #include "PlatformMutex.h"
@@ -1021,7 +1021,14 @@ static void nsapi_dns_query_async_send(void *ptr)
         err = query->socket->sendto(dns_addr, packet, len);
 
         if (err < 0) {
-            query->dns_server++;
+            if (err == NSAPI_ERROR_WOULD_BLOCK) {
+                nsapi_dns_call_in(query->call_in_cb, DNS_TIMER_TIMEOUT, mbed::callback(nsapi_dns_query_async_send, ptr));
+                free(packet);
+                dns_mutex->unlock();
+                return; // Timeout handler will retry the connection if possible
+            } else {
+                query->dns_server++;
+            }
         } else {
             break;
         }

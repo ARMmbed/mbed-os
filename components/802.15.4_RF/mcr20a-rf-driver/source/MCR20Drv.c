@@ -42,7 +42,7 @@
 #include "MCR20Reg.h"
 #include "XcvrSpi.h"
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "platform/mbed_critical.h"
 

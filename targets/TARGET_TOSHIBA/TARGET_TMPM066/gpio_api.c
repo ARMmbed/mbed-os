@@ -40,6 +40,9 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     // Store above pin mask, pin name into GPIO object
     obj->pin      = pin;
+    if (pin == (PinName)NC) {
+        return;
+    }
     obj->mask     = gpio_set(pin);
     obj->port     = (GPIO_Port) (pin >> 3);
     if ((PortName)obj->port == PortH) {

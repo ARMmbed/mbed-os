@@ -40,29 +40,38 @@
 #define LPT_INTERRUPT_PRIORITY  6
 #define LPT_INTERRUPT_SOURCE    srss_interrupt_mcwdt_1_IRQn
 #endif
-#define LPT_MCWDT_DELAY_WAIT    0                // Recommended value is 93, but then we fail function execution time test.
-
+#define LPT_MCWDT_DELAY_WAIT    93                // Recommended value is 93, but then we fail function execution time test.
+#define LPT_MCWDT_DELAY_NO_WAIT 0
 #if !defined (CY_CFG_SYSCLK_CLKLF_FREQ_HZ)
 #define CY_CFG_SYSCLK_CLKLF_FREQ_HZ    32768UL  /* Default to 32K ILO */
 #endif /* CY_CFG_SYSCLK_CLKLF_FREQ_HZ */
 
+#define MCWDT_COUNTER0_MAX_COUNT        (0xffffUL)
+#define MCWDT_COUNTER1_MAX_COUNT        (0xffffUL)
+#define MCWDT_COUNTER2_MAX_COUNT        (0xffffffffUL)
+#define MAX_MCWDT_DURATION_SEC          (35UL*60UL*60UL*1000UL)
+#define PLATFORM_MAX_DEEP_SLEEP_TICKS   (MAX_MCWDT_DURATION_SEC*CY_CFG_SYSCLK_CLKLF_FREQ_HZ)
+#define MAX_MCWDT_COUNTER0_DURATION_SEC ((MCWDT_COUNTER0_MAX_COUNT + 1)/(CY_CFG_SYSCLK_CLKLF_FREQ_HZ))
+#define LPT_MCWDT_CTRL                  (CY_MCWDT_CTR0 | CY_MCWDT_CTR1 | CY_MCWDT_CTR2)
+
 static const ticker_info_t lp_ticker_info = {
     .frequency = CY_CFG_SYSCLK_CLKLF_FREQ_HZ,
-    .bits = 16UL,
+    .bits = 32UL,
 };
 
 static bool lpt_init_done = false;
+
 // Timer h/w configuration.
 static cy_stc_mcwdt_config_t config = {
-    .c0Match = 0,
-    .c1Match = 0,
+    .c0Match = MCWDT_COUNTER0_MAX_COUNT,
+    .c1Match = MCWDT_COUNTER1_MAX_COUNT,
     .c0Mode = CY_MCWDT_MODE_INT,
-    .c1Mode = CY_MCWDT_MODE_NONE,
-    .c2ToggleBit = 0,
+    .c1Mode = CY_MCWDT_MODE_INT,
     .c2Mode = CY_MCWDT_MODE_NONE,
+    .c2ToggleBit = 0,
     .c0ClearOnMatch = false,
     .c1ClearOnMatch = false,
-    .c0c1Cascade = false,
+    .c0c1Cascade = true,
     .c1c2Cascade = false
 };
 
@@ -76,7 +85,6 @@ static cy_stc_sysint_t lpt_sysint_config = {
 #endif
     .intrPriority = LPT_INTERRUPT_PRIORITY
 };
-
 
 void lp_ticker_init(void)
 {
@@ -100,14 +108,14 @@ void lp_ticker_init(void)
     Cy_MCWDT_Init(LPT_MCWDT_UNIT, &config);
     Cy_SysInt_Init(&lpt_sysint_config, lp_ticker_irq_handler);
     NVIC_EnableIRQ(lpt_sysint_config.intrSrc);
-    Cy_MCWDT_Enable(LPT_MCWDT_UNIT, CY_MCWDT_CTR0, LPT_MCWDT_DELAY_WAIT);
+    Cy_MCWDT_Enable(LPT_MCWDT_UNIT, LPT_MCWDT_CTRL, LPT_MCWDT_DELAY_WAIT);
     lpt_init_done = true;
 }
 
 void lp_ticker_free(void)
 {
     NVIC_DisableIRQ(lpt_sysint_config.intrSrc);
-    Cy_MCWDT_Disable(LPT_MCWDT_UNIT, CY_MCWDT_CTR0, LPT_MCWDT_DELAY_WAIT);
+    Cy_MCWDT_Disable(LPT_MCWDT_UNIT, LPT_MCWDT_CTRL, LPT_MCWDT_DELAY_WAIT);
 #ifdef TARGET_MCU_PSOC6_M0
     cy_m0_nvic_release_channel(CY_LP_TICKER_IRQN_ID, lpt_sysint_config.intrSrc);
     lpt_sysint_config.intrSrc = (IRQn_Type)(-1);
@@ -117,32 +125,55 @@ void lp_ticker_free(void)
 
 uint32_t lp_ticker_read(void)
 {
-    return Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0);
+    return Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER2);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint16_t delay;
-    uint16_t current = Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0);
-    uint16_t new_ts = (uint16_t)timestamp;
-    delay = new_ts - current;
-    // Make sure the event is set for the future. Mbed internally will not schedule
-    // delays longer than 0x7000, so too large delay means it should occur already.
-    // MCWDT has internal delay of about 1.5 LF clock ticks, so this is the minimum
-    // that we can schedule.
-    if ((delay < 3) || (delay > (uint16_t)(-3))) {
-        // Cheating a bit here.
-        new_ts = current + 3;
-    }
+    uint32_t delay;
+    uint16_t c0_count = Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0);
+    uint16_t c1_count = Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER1);
+    uint32_t c2_count = Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER2);
 
-    // Cypress PDL manual says that valid match range is 1..65535.
-    if (new_ts == 0) {
-        new_ts = 1;
-    }
+    uint32_t new_ts = (uint32_t)timestamp;
 
-    // Set up and enable match interrupt.
-    Cy_MCWDT_SetMatch(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0, new_ts, LPT_MCWDT_DELAY_WAIT);
-    Cy_MCWDT_SetInterruptMask(LPT_MCWDT_UNIT, CY_MCWDT_CTR0);
+    delay = new_ts - c2_count;
+    lp_ticker_clear_interrupt();
+
+    if (delay > MCWDT_COUNTER0_MAX_COUNT) {
+        uint32_t c0_increment = delay % (MCWDT_COUNTER0_MAX_COUNT + 1);
+        uint32_t counter0_count = (c0_count + delay) % (MCWDT_COUNTER0_MAX_COUNT + 1);
+        uint32_t counter1_count =  (delay - c0_increment) / (MCWDT_COUNTER1_MAX_COUNT + 1) ;
+        counter1_count = (c1_count + counter1_count) % (MCWDT_COUNTER1_MAX_COUNT + 1);
+
+        if(counter1_count == 0) {
+            counter1_count = 1;
+        }
+        if(counter0_count == 0) {
+            counter0_count = 1;
+        }
+        Cy_MCWDT_SetMatch(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER1, counter1_count, LPT_MCWDT_DELAY_NO_WAIT);
+        Cy_MCWDT_SetMatch(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0, counter0_count, LPT_MCWDT_DELAY_NO_WAIT);
+        Cy_MCWDT_SetInterruptMask(LPT_MCWDT_UNIT, CY_MCWDT_CTR1);
+
+    }
+    else {
+        uint16_t counter0_count = c0_count + (uint16_t)delay;
+
+        // MCWDT has internal delay of about 1.5 LF clock ticks, so this is the minimum
+        // that we can schedule.
+        if (delay < 3) {
+            // Cheating a bit here.
+            counter0_count = c0_count + 3;
+        }
+
+        if(counter0_count == 0) {
+            counter0_count = 1;
+        }
+        Cy_MCWDT_SetMatch(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER1, MCWDT_COUNTER1_MAX_COUNT, LPT_MCWDT_DELAY_NO_WAIT);
+        Cy_MCWDT_SetMatch(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0, counter0_count, LPT_MCWDT_DELAY_NO_WAIT);
+        Cy_MCWDT_SetInterruptMask(LPT_MCWDT_UNIT, CY_MCWDT_CTR0);
+    }
 }
 
 void lp_ticker_disable_interrupt(void)
@@ -152,7 +183,7 @@ void lp_ticker_disable_interrupt(void)
 
 void lp_ticker_clear_interrupt(void)
 {
-    Cy_MCWDT_ClearInterrupt(LPT_MCWDT_UNIT, CY_MCWDT_CTR0);
+    Cy_MCWDT_ClearInterrupt(LPT_MCWDT_UNIT, (CY_MCWDT_CTR0 | CY_MCWDT_CTR1));
 }
 
 void lp_ticker_fire_interrupt(void)

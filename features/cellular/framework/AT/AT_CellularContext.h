@@ -58,7 +58,9 @@ public:
     virtual nsapi_error_t register_to_network();
     virtual nsapi_error_t attach_to_network();
     virtual void set_file_handle(FileHandle *fh);
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
     virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false);
+#endif // #if DEVICE_SERIAL
     virtual void enable_hup(bool enable);
 
     virtual ControlPlane_netif *get_cp_netif();
@@ -97,8 +99,9 @@ protected:
     virtual nsapi_error_t activate_non_ip_context();
     virtual nsapi_error_t setup_control_plane_opt();
     virtual void deactivate_non_ip_context();
+    virtual void deactivate_ip_context();
     virtual void set_disconnect();
-
+    virtual void deactivate_context();
 private:
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t open_data_channel();
@@ -106,10 +109,10 @@ private:
     void ppp_disconnected();
 #endif // #if NSAPI_PPP_AVAILABLE
     nsapi_error_t do_activate_context();
-    nsapi_error_t activate_context();
+    virtual void activate_context();
+    nsapi_error_t find_and_activate_context();
     nsapi_error_t activate_ip_context();
-    void deactivate_context();
-    void deactivate_ip_context();
+    void check_and_deactivate_context();
     bool set_new_context(int cid);
     bool get_context();
     nsapi_error_t delete_current_context();

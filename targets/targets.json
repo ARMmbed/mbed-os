@@ -663,7 +663,8 @@
             "STDIO_MESSAGES",
             "FLASH",
             "MPU",
-            "USBDEVICE"
+            "USBDEVICE",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
@@ -872,7 +873,8 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "device_name": "LPC4088FBD144",
         "overrides": {
@@ -2053,7 +2055,8 @@
         ],
         "detect_code": ["0236"],
         "device_name": "LPC55S69JBD100",
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "program_cycle_s": 10
     },
     "LPC55S69_NS": {
         "inherits": ["NSPE_Target", "LPC55S69"],
@@ -2594,7 +2597,7 @@
     },
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -2627,7 +2630,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -2826,6 +2829,32 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "MTB_STM_S2LP": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "clock_source_usb": {
+                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
+                "value": "1",
+                "macro_name": "CLOCK_SOURCE_USB"
+            }
+        },
+        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
+        "macros_add": ["USB_STM_HAL"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
+        "detect_code": ["0467"],
+        "release_versions": ["5"],
+        "device_name": "STM32F429ZI",
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "MESH"
+        }
+    },
     "NUCLEO_F439ZI": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
@@ -2871,6 +2900,42 @@
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "MTB_STM32_F439" : {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "extra_labels_add": [
+            "STM32F4",
+            "STM32F439",
+            "STM32F439ZI",
+            "STM32F439xx",
+            "STM32F439xI"
+        ],
+        "macros_add": [
+            "MBEDTLS_CONFIG_HW_SUPPORT",
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "detect_code": ["0469"],
+        "release_versions": ["5"],
+        "device_name": "STM32F439VI",
+        "bootloader_supported": true
     },
     "NUCLEO_F446RE": {
         "inherits": ["FAMILY_STM32"],
@@ -3142,6 +3207,34 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
+        "bootloader_supported": true
+    },
+    "UHURU_RAVEN": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M7FD",
+        "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767VI"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": {
+            "lpticker_delay_ticks": 4,
+            "network-default-interface-type": "WIFI"
+        },
+        "components_add": ["SPIF"],
+        "detect_code": ["9020"],
+        "device_has_add": ["ANALOGOUT", "CAN", "TRNG", "FLASH", "MPU"],
+        "device_has_remove": ["SERIAL_FC"],
+        "features": ["LWIP"],
+        "release_versions": ["5"],
+        "device_name": "STM32F767VI",
         "bootloader_supported": true
     },
     "NUCLEO_L011K4": {
@@ -3806,6 +3899,42 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI",
         "bootloader_supported": true
+    },
+    "SDP_K1": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4",
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": [
+            "STM32F4",
+            "STM32F469",
+            "STM32F469NI",
+            "STM32F469xI",
+            "STM32F469xx"
+        ],
+        "config": {
+            "clock_source": {
+                "help": "Clock source to use, can be XTAL or RC",
+                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "clock_freq": {
+                "help": "Clock frequency in Mhz",
+                "value": "8",
+                "macro_name": "CLOCK_FREQUENCY_MHZ"
+            }
+        },
+        "overrides": {
+            "lse_available": 0
+        },
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "device_has_add": [
+            "ANALOGOUT",
+            "MPU"
+        ],
+        "device_has_remove": ["LPTICKER"],
+        "device_name": "STM32F469NI",
+        "release_versions": ["5"],
+        "detect_code": ["0604"]
     },
     "DISCO_L053C8": {
         "inherits": ["FAMILY_STM32"],
@@ -5273,7 +5402,7 @@
     "RZ_A1XX": {
         "inherits": ["Target"],
         "core": "Cortex-A9",
-        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["RENESAS", "RZ_A1XX"],
         "device_has": [
             "SLEEP",
@@ -5377,7 +5506,8 @@
             "SERIAL_FC",
             "SLEEP",
             "SPI",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6449,7 +6579,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6474,7 +6605,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -6498,7 +6630,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -7085,7 +7218,7 @@
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "default_toolchain": "ARM",
         "extra_labels": [
             "NUVOTON",
@@ -7207,7 +7340,8 @@
             "TRNG",
             "SPISLAVE",
             "802_15_4_PHY",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"]
     },
@@ -7478,7 +7612,7 @@
     },
     "DISCO_L496AG": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
+        "supported_form_factors": ["ARDUINO", "STMOD", "PMOD"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L496AG", "STM32L496xG"],
         "components_add": ["QSPIF"],
@@ -7591,6 +7725,39 @@
         "inherits": ["NUCLEO_L4R5ZI"],
         "detect_code": ["0781"]
     },
+    "NUCLEO_WB55RG": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32WB", "STM32WB55xx", "STM32WB55xG", "STM32WB55RG", "CORDIO"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (HSE recommended for BLE usage) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSE_EXTC",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
+        "detect_code": ["0839"],
+        "device_has_add": [
+			"CRC",
+			"SERIAL_ASYNCH",
+			"SERIAL_FC",
+			"TRNG",
+			"FLASH",
+			"MPU"
+		],
+        "features": ["BLE"],
+        "release_versions": ["2", "5"],
+        "bootloader_supported": true
+    },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
@@ -7669,7 +7836,7 @@
     },
     "NUMAKER_PFM_M487": {
         "inherits": ["MCU_M480"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "device_name": "M487JIDAE"
     },
     "NUMAKER_IOT_M487": {
@@ -8034,7 +8201,8 @@
         },
         "overrides": {
             "network-default-interface-type": "WIFI"
-        }
+        },
+        "program_cycle_s": 10
     },
     "CY8CKIT_062_WIFI_BT_M0_PSA": {
         "inherits": ["SPE_Target", "CY8CKIT_062_WIFI_BT_M0"],

@@ -34,6 +34,11 @@
 
 #define RENESAS_RZ_A1_P0_CLK   CM1_RENESAS_RZ_A1_P0_CLK
 
+/* Clock Mode 1 */
+/* CLKIN is 48MHz */
+/* Divider 1 uses 1/4 ratio, PLL x32 is ON */
+#define RENESAS_RZ_A1_SYS_CLK  ((CM1_RENESAS_RZ_A1_CLKIN * 32U) / 4U)
+
 #define LP_TICKER_MTU2_CH      2
 
 /* flash (W25Q64JV) */

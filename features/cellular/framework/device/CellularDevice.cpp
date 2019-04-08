@@ -19,8 +19,7 @@
 #include "CellularContext.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
-#include "CellularTargets.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 
 namespace mbed {
 

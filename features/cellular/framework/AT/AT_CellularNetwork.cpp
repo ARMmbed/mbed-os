@@ -89,19 +89,11 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     // additional urc to get better disconnect info for application. Not critical.
     _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     _at.set_urc_handler("+CCIOTOPTI:", callback(this, &AT_CellularNetwork::urc_cciotopti));
-    _at.lock();
-    _at.cmd_start("AT+CGEREP=1");// discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
-    _at.cmd_stop_read_resp();
-    _at.unlock();
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
 {
-    _at.lock();
-    _at.cmd_start("AT+CGEREP=0");// buffer unsolicited result codes in the MT; if MT result code buffer is full, the oldest ones can be discarded. No codes are forwarded to the TE
-    _at.cmd_stop_read_resp();
-    _at.unlock();
-
+    (void)set_packet_domain_event_reporting(false);
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (get_property((AT_CellularBase::CellularProperty)type) != RegistrationModeDisable) {
             _at.set_urc_handler(at_reg[type].urc_prefix, 0);
@@ -171,12 +163,15 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
                     reg_params._status == RegisteredRoaming)) {
                 if (previous_registration_status == RegisteredHomeNetwork ||
                         previous_registration_status == RegisteredRoaming) {
-                    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+                    if (type != C_REG) {// we are interested only if we drop from packet network
+                        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+                    }
                 }
             }
         }
         if (reg_params._cell_id != -1 && reg_params._cell_id != _reg_params._cell_id) {
             _reg_params._cell_id = reg_params._cell_id;
+            _reg_params._lac = reg_params._lac;
             data.status_data = reg_params._cell_id;
             _connection_status_cb((nsapi_event_t)CellularCellIDChanged, (intptr_t)&data);
         }
@@ -267,6 +262,9 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         tr_debug("Manual network registration to %s", plmn);
         _at.cmd_start("AT+COPS=1,2,");
         _at.write_string(plmn);
+        if (_op_act != RAT_UNKNOWN) {
+            _at.write_int(_op_act);
+        }
         _at.cmd_stop_read_resp();
     }
 
@@ -565,21 +563,40 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
     return _at.unlock_return_error();
 }
 
-bool AT_CellularNetwork::is_active_context()
+void AT_CellularNetwork::get_context_state_command()
 {
-    _at.lock();
-
-    bool active_found = false;
-    // read active contexts
     _at.cmd_start("AT+CGACT?");
     _at.cmd_stop();
     _at.resp_start("+CGACT:");
+}
+
+bool AT_CellularNetwork::is_active_context(int *number_of_active_contexts, int cid)
+{
+    _at.lock();
+
+    if (number_of_active_contexts) {
+        *number_of_active_contexts = 0;
+    }
+    bool active_found = false;
+    int context_id;
+    // read active contexts
+    get_context_state_command();
+
     while (_at.info_resp()) {
-        (void)_at.read_int(); // discard context id
+        context_id = _at.read_int(); // discard context id
         if (_at.read_int() == 1) { // check state
             tr_debug("Found active context");
-            active_found = true;
-            break;
+            if (number_of_active_contexts) {
+                (*number_of_active_contexts)++;
+            }
+            if (cid == -1) {
+                active_found = true;
+            } else if (context_id == cid) {
+                active_found = true;
+            }
+            if (!number_of_active_contexts && active_found) {
+                break;
+            }
         }
     }
     _at.resp_stop();
@@ -684,6 +701,20 @@ nsapi_error_t AT_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnol
     _at.write_int(mode);
     _at.write_int(act_type);
     _at.write_string(edrx);
+    _at.cmd_stop_read_resp();
+
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::set_packet_domain_event_reporting(bool on)
+{
+    if (!get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    _at.lock();
+    _at.cmd_start("AT+CGEREP=");// discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
+    _at.write_int(on ? 1 : 0);
     _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();

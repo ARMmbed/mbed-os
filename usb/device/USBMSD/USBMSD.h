@@ -123,6 +123,13 @@ public:
      */
     void attach(mbed::Callback<void()> cb);
 
+    /**
+    * Check if MSD device was removed/unmounted on the host side.
+    *
+    * @returns true if device was removed/unmounted on the host side
+    */
+    bool media_removed();
+
 protected:
 
     /*
@@ -204,6 +211,9 @@ private:
 
     // If this class has been initialized
     bool _initialized;
+
+    // If msd device has been unmounted by host
+    volatile bool _media_removed;
 
     //state of the bulk-only state machine
     Stage _stage;

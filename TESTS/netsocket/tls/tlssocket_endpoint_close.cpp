@@ -54,6 +54,7 @@ static nsapi_error_t _tlssocket_connect_to_daytime_srv(TLSSocket &sock)
 
 void TLSSOCKET_ENDPOINT_CLOSE()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];
     int time_allotted = split2half_rmng_tls_test_time(); // [s]

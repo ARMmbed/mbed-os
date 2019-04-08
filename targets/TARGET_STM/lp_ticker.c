@@ -139,6 +139,13 @@ void lp_ticker_init(void)
 #endif /* MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK */
 
     LptimHandle.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
+#if defined (LPTIM_ACTIVEEDGE_FALLING)
+    LptimHandle.Init.Trigger.ActiveEdge = LPTIM_ACTIVEEDGE_FALLING;
+#endif
+#if defined (LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION)
+    LptimHandle.Init.Trigger.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION;
+#endif
+
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;

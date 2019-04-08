@@ -21,3 +21,4 @@ This table summarizes the STM32Cube versions currently used :
 | L0          |    1.10.0    |
 | L1          |    1.8.1     |
 | L4          |    1.11.0    |
+| WB          |    1.0.0     |

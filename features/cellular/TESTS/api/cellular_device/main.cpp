@@ -93,7 +93,7 @@ static void other_methods()
     TEST_ASSERT(device->get_queue() != NULL);
     TEST_ASSERT(device->hard_power_on() == NSAPI_ERROR_OK);
     TEST_ASSERT(device->soft_power_on() == NSAPI_ERROR_OK);
-    wait(5);
+    wait(10);
     TEST_ASSERT_EQUAL_INT(device->init(), NSAPI_ERROR_OK);
 }
 

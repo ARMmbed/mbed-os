@@ -57,7 +57,6 @@ public:
     MemoryPool()
     {
         memset(_pool_mem, 0, sizeof(_pool_mem));
-        memset(&_obj_mem, 0, sizeof(_obj_mem));
         osMemoryPoolAttr_t attr = { 0 };
         attr.mp_mem = _pool_mem;
         attr.mp_size = sizeof(_pool_mem);
