@@ -2,7 +2,7 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import normpath, exists, dirname, join, abspath
+from os.path import normpath, exists, dirname, join, abspath, relpath
 import ntpath
 import copy
 from collections import namedtuple
@@ -247,7 +247,7 @@ class Uvision(Exporter):
             'postbuild_step_active': 0,
         }
 
-        if self.toolchain.config.has_regions:
+        if self.toolchain.config.has_regions and not self.zip:
             # Serialize region information
             export_info = {}
             restrict_size = getattr(self.toolchain.config.target, "restrict_size")
@@ -262,8 +262,9 @@ class Uvision(Exporter):
                 r._replace(filename=binary_path) if r.active else r for r in region_list
             ]
             # Enable the post build step
+            postbuild_script_path = join(relpath(dirname(__file__)), "postbuild.py")
             ctx['postbuild_step'] = (
-                'python mbed-os/tools/export/uvision/postbuild.py "$K\\" "#L"'
+                'python {} "$K\\" "#L"'.format(postbuild_script_path)
             )
             ctx['postbuild_step_active'] = 1
             ctx['export_info'] = json.dumps(export_info, indent=4)

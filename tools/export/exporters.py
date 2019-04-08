@@ -73,7 +73,7 @@ class Exporter(object):
     CLEAN_FILES = ("GettingStarted.html",)
 
 
-    def __init__(self, target, export_dir, project_name, toolchain,
+    def __init__(self, target, export_dir, project_name, toolchain, zip,
                  extra_symbols=None, resources=None):
         """Initialize an instance of class exporter
         Positional arguments:
@@ -81,6 +81,7 @@ class Exporter(object):
         export_dir    - the directory of the exported project files
         project_name  - the name of the project
         toolchain     - an instance of class toolchain
+        zip           - True if the exported project will be zipped
 
         Keyword arguments:
         extra_symbols - a list of extra macros for the toolchain
@@ -94,6 +95,7 @@ class Exporter(object):
         self.jinja_environment = Environment(loader=jinja_loader)
         resources.win_to_unix()
         self.resources = resources
+        self.zip = zip
         self.generated_files = []
         getting_started_name = "GettingStarted.html"
         dot_mbed_name = ".mbed"
