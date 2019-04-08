@@ -187,6 +187,13 @@ void GattClient<Impl>::terminateServiceDiscovery_(void)
 }
 
 template<class Impl>
+ble_error_t GattClient<Impl>::negotiateAttMtu_(
+    ble::connection_handle_t connHandle
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+template<class Impl>
 ble_error_t GattClient<Impl>::read_(
     ble::connection_handle_t connHandle,
     GattAttribute::Handle_t attributeHandle,
