@@ -988,7 +988,6 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
     #then set the default_toolchain to uARM to link AC6 microlib.
     if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
         target.default_toolchain = "uARM"
-    toolchain_name = selected_toolchain_name
 
     if report is not None:
         start = time()
@@ -1003,7 +1002,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
             prep_properties(
                 properties, target.name, toolchain_name, vendor_label)
 
-    if toolchain_name not in target.supported_toolchains:
+    if not target_supports_toolchain(target, toolchain_name):
         supported_toolchains_text = ", ".join(target.supported_toolchains)
         notify.info('The target {} does not support the toolchain {}'.format(
             target.name,
@@ -1023,14 +1022,16 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     try:
         # Source and Build Paths
+
         build_toolchain = join(
-            MBED_LIBRARIES, mbed2_obj_path(target.name, toolchain_name))
+            MBED_LIBRARIES, mbed2_obj_path(target.name, selected_toolchain_name)
+        )
         mkdir(build_toolchain)
 
         tmp_path = join(
             MBED_LIBRARIES,
             '.temp',
-            mbed2_obj_path(target.name, toolchain_name)
+            mbed2_obj_path(target.name, selected_toolchain_name)
         )
         mkdir(tmp_path)
 
