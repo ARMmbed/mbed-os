@@ -120,7 +120,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Delay of auxiliary packet in microseconds from the time specified by auxPtr. */
 /*uint16_t*/  .auxPtrOffsetUsec = 0,
 
-/* Scanner */,
+/* Scanner */
 /** Maximum scan request received events. */
 /*uint8_t*/   .maxScanReqRcvdEvt = MBED_CONF_CORDIO_LL_MAX_SCAN_REQUEST_EVENTS,
 /** Maximum extended scan data size. */
