@@ -125,6 +125,13 @@ void GattClient<Impl>::terminateCharacteristicDescriptorDiscovery(
 }
 
 template<class Impl>
+ble_error_t GattClient<Impl>::negotiateAttMtu(
+    ble::connection_handle_t connHandle
+) {
+    return impl()->negotiateAttMtu_(connHandle);
+}
+
+template<class Impl>
 ble_error_t GattClient<Impl>::reset(void)
 {
     return impl()->reset_();
