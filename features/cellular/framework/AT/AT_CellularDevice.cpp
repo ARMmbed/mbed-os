@@ -47,8 +47,6 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 
 AT_CellularDevice::~AT_CellularDevice()
 {
-    delete _state_machine;
-
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
     _network_ref_count = 1;
     _sms_ref_count = 1;

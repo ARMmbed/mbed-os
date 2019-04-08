@@ -46,8 +46,9 @@ private:
      *
      * @param device    reference to CellularDevice
      * @param queue     reference to queue used in state transitions
+     * @param nw        reference to CellularNetwork
      */
-    CellularStateMachine(CellularDevice &device, events::EventQueue &queue);
+    CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw);
     ~CellularStateMachine();
 
     /** Cellular connection states
@@ -162,7 +163,7 @@ private:
 
     Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
-    CellularNetwork *_network;
+    CellularNetwork &_network;
     events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
 
