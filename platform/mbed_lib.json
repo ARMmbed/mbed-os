@@ -183,6 +183,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NUMAKER_PFM_NUC472": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
