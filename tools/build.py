@@ -182,9 +182,8 @@ def main():
             except NoValidToolchainException as e:
                 print_end_warnings(e.end_warnings)
                 args_error(parser, str(e))
-
             tt_id = "%s::%s" % (internal_tc_name, target_name)
-            if not target_supports_toolchain(target, toolchain):
+            if not target_supports_toolchain(target, toolchain_name):
                 # Log this later
                 print("%s skipped: toolchain not supported" % tt_id)
                 skipped.append(tt_id)
@@ -196,7 +195,6 @@ def main():
                     if target.is_PSA_secure_target and \
                             not is_relative_to_root(options.source_dir):
                         options.source_dir = ROOT
-
                     if options.source_dir:
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, target, toolchain_name,
