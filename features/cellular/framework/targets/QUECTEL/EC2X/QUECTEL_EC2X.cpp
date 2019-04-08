@@ -25,6 +25,18 @@ using namespace mbed;
 using namespace rtos;
 using namespace events;
 
+#if !defined(MBED_CONF_QUECTEL_EC2X_PWR)
+#define MBED_CONF_QUECTEL_EC2X_PWR    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_EC2X_RST)
+#define MBED_CONF_QUECTEL_EC2X_RST    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_EC2X_POLARITY)
+#define MBED_CONF_QUECTEL_EC2X_POLARITY    1 // active high
+#endif
+
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
@@ -43,16 +55,15 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 
-QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, PinName rst)
+QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst)
     : AT_CellularDevice(fh),
-      _pwr_key(pwr, 0),
-      _rst(rst, 0)
-
+      _active_high(active_high),
+      _pwr_key(pwr, !_active_high),
+      _rst(rst, !_active_high)
 {
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-#if MBED_CONF_QUECTEL_EC2X_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
@@ -62,18 +73,19 @@ CellularDevice *CellularDevice::get_default_instance()
 #if defined(MBED_CONF_QUECTEL_EC2X_RTS) && defined(MBED_CONF_QUECTEL_EC2X_CTS)
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_EC2X_RTS, MBED_CONF_QUECTEL_EC2X_CTS);
 #endif
-    static QUECTEL_EC2X device(&serial, MBED_CONF_QUECTEL_EC2X_PWR, MBED_CONF_QUECTEL_EC2X_RST);
+    static QUECTEL_EC2X device(&serial,
+                               MBED_CONF_QUECTEL_EC2X_PWR,
+                               MBED_CONF_QUECTEL_EC2X_POLARITY,
+                               MBED_CONF_QUECTEL_EC2X_RST);
     return &device;
 }
 
 nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
 {
-    if (_pwr_key.is_connected()) {
-        _pwr_key = 1;
-        ThisThread::sleep_for(timeout);
-        _pwr_key = 0;
-        ThisThread::sleep_for(100);
-    }
+    _pwr_key = _active_high;
+    ThisThread::sleep_for(timeout);
+    _pwr_key = !_active_high;
+    ThisThread::sleep_for(100);
 
     return NSAPI_ERROR_OK;
 }
@@ -92,24 +104,24 @@ nsapi_error_t QUECTEL_EC2X::hard_power_off()
 nsapi_error_t QUECTEL_EC2X::soft_power_on()
 {
     if (_rst.is_connected()) {
-        _rst = 1;
+        _rst = _active_high;
         ThisThread::sleep_for(460);
-        _rst = 0;
+        _rst = !_active_high;
         ThisThread::sleep_for(100);
-    }
 
-    _at->lock();
+        _at->lock();
 
-    _at->set_at_timeout(5000);
-    _at->resp_start();
-    _at->set_stop_tag("RDY");
-    bool rdy = _at->consume_to_stop_tag();
-    _at->set_stop_tag(OK);
+        _at->set_at_timeout(5000);
+        _at->resp_start();
+        _at->set_stop_tag("RDY");
+        bool rdy = _at->consume_to_stop_tag();
+        _at->set_stop_tag(OK);
 
-    _at->unlock();
+        _at->unlock();
 
-    if (!rdy) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        if (!rdy) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
 
     return NSAPI_ERROR_OK;
@@ -119,5 +131,3 @@ nsapi_error_t QUECTEL_EC2X::soft_power_off()
 {
     return hard_power_off();
 }
-
-#endif

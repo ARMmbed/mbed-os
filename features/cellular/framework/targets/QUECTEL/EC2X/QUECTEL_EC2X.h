@@ -18,15 +18,6 @@
 #ifndef QUECTEL_EC2X_H
 #define QUECTEL_EC2X_H
 
-#ifdef TARGET_FF_ARDUINO
-#ifndef MBED_CONF_QUECTEL_EC2X_TX
-#define MBED_CONF_QUECTEL_EC2X_TX D1
-#endif
-#ifndef MBED_CONF_QUECTEL_EC2X_RX
-#define MBED_CONF_QUECTEL_EC2X_RX D0
-#endif
-#endif /* TARGET_FF_ARDUINO */
-
 #include "DigitalOut.h"
 #include "AT_CellularDevice.h"
 
@@ -34,7 +25,14 @@ namespace mbed {
 
 class QUECTEL_EC2X : public AT_CellularDevice {
 public:
-    QUECTEL_EC2X(FileHandle *fh, PinName pwr = NC, PinName rst = NC);
+
+    /**
+     * Constructs the Quectel EC2X series driver. It is mandatory to provide
+     * a FileHandle object, the power pin and the polarity of the pin.
+     * Providing reset pin is optional.
+     */
+    QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst = NC);
+
     virtual nsapi_error_t hard_power_on();
     virtual nsapi_error_t hard_power_off();
     virtual nsapi_error_t soft_power_on();
@@ -42,6 +40,7 @@ public:
 
 private:
     nsapi_error_t press_power_button(uint32_t timeout);
+    bool _active_high;
     DigitalOut _pwr_key;
     DigitalOut _rst;
 };
