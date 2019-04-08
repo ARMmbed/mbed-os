@@ -131,6 +131,7 @@ class _GccParser(_Parser):
         return value - A section name, if a new section was found, None
                        otherwise
         """
+        line = line.strip()
         for i in self.ALL_SECTIONS:
             if line.startswith(i):
                 return i
