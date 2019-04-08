@@ -43,9 +43,9 @@ const int DEVICE_READY = 0x04;
 
 namespace mbed {
 
-CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
+CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
     _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
-    _event_status_cb(0), _network(0), _queue(queue), _queue_thread(0), _sim_pin(0),
+    _event_status_cb(0), _network(nw), _queue(queue), _queue_thread(0), _sim_pin(0),
     _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
     _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE), _status(0)
 {
@@ -99,11 +99,6 @@ void CellularStateMachine::stop()
 
     reset();
     _event_id = STM_STOPPED;
-
-    if (_network) {
-        _cellularDevice.close_network();
-        _network = NULL;
-    }
 }
 
 bool CellularStateMachine::power_on()
@@ -163,7 +158,7 @@ bool CellularStateMachine::open_sim()
     if (sim_ready) {
         // If plmn is set, we should it right after sim is opened so that registration is forced to correct network.
         if (_plmn && strlen(_plmn)) {
-            _cb_data.error = _network->set_registration(_plmn);
+            _cb_data.error = _network.set_registration(_plmn);
             tr_debug("STM: manual set_registration: %d, plmn: %s", _cb_data.error, _plmn);
             if (_cb_data.error) {
                 return false;
@@ -204,7 +199,7 @@ bool CellularStateMachine::get_network_registration(CellularNetwork::Registratio
     is_registered = false;
     bool is_roaming = false;
     CellularNetwork::registration_params_t reg_params;
-    _cb_data.error = _network->get_registration_params(type, reg_params);
+    _cb_data.error = _network.get_registration_params(type, reg_params);
 
     if (_cb_data.error != NSAPI_ERROR_OK) {
         if (_cb_data.error != NSAPI_ERROR_UNSUPPORTED) {
@@ -329,14 +324,10 @@ bool CellularStateMachine::device_ready()
 {
     tr_info("Modem ready");
 
-    if (!_network) {
-        _network = _cellularDevice.open_network();
-    }
-
 #ifdef MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY
     MBED_ASSERT(MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY >= CellularNetwork::RAT_GSM &&
                 MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY < CellularNetwork::RAT_UNKNOWN);
-    nsapi_error_t err = _network->set_access_technology((CellularNetwork::RadioAccessTechnology)MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY);
+    nsapi_error_t err = _network.set_access_technology((CellularNetwork::RadioAccessTechnology)MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY);
     if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
         tr_warning("Failed to set access technology to %d", MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY);
         return false;
@@ -382,7 +373,7 @@ void CellularStateMachine::state_sim_pin()
     if (open_sim()) {
         bool success = false;
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-            _cb_data.error = _network->set_registration_urc((CellularNetwork::RegistrationType)type, true);
+            _cb_data.error = _network.set_registration_urc((CellularNetwork::RegistrationType)type, true);
             if (!_cb_data.error && (type == CellularNetwork::C_EREG || type == CellularNetwork::C_GREG)) {
                 success = true;
             }
@@ -393,19 +384,19 @@ void CellularStateMachine::state_sim_pin()
             return;
         }
 
-        if (_network->is_active_context()) { // check if context was already activated
+        if (_network.is_active_context()) { // check if context was already activated
             tr_debug("Active context found.");
             _status |= ACTIVE_PDP_CONTEXT;
         }
         CellularNetwork::AttachStatus status = CellularNetwork::Detached; // check if modem is already attached to a network
-        if (_network->get_attach(status) == NSAPI_ERROR_OK && status == CellularNetwork::Attached) {
+        if (_network.get_attach(status) == NSAPI_ERROR_OK && status == CellularNetwork::Attached) {
             _status |= ATTACHED_TO_NETWORK;
             tr_debug("Cellular already attached.");
         }
 
         // if packet domain event reporting is not set it's not a stopper. We might lack some events when we are
         // dropped from the network.
-        _cb_data.error = _network->set_packet_domain_event_reporting(true);
+        _cb_data.error = _network.set_packet_domain_event_reporting(true);
         if (_cb_data.error == NSAPI_STATUS_ERROR_UNSUPPORTED) {
             tr_warning("Packet domain event reporting not supported!");
         } else if (_cb_data.error) {
@@ -434,7 +425,7 @@ void CellularStateMachine::state_registering()
     } else {
         _cellularDevice.set_timeout(TIMEOUT_REGISTRATION);
         if (!_command_success && !_plmn) { // don't call set_registration twice for manual registration
-            _cb_data.error = _network->set_registration(_plmn);
+            _cb_data.error = _network.set_registration(_plmn);
             _command_success = (_cb_data.error == NSAPI_ERROR_OK);
         }
         retry_state_or_fail();
@@ -446,7 +437,7 @@ void CellularStateMachine::state_attaching()
     _cellularDevice.set_timeout(TIMEOUT_CONNECT);
     tr_info("Attaching network (timeout %d s)", TIMEOUT_CONNECT / 1000);
     if (_status != ATTACHED_TO_NETWORK) {
-        _cb_data.error = _network->set_attach();
+        _cb_data.error = _network.set_attach();
     }
     if (_cb_data.error == NSAPI_ERROR_OK) {
         if (_event_status_cb) {
@@ -534,14 +525,12 @@ bool CellularStateMachine::get_current_status(CellularStateMachine::CellularStat
 void CellularStateMachine::event()
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
-    if (_network) {
-        int rssi;
-        if (_network->get_signal_quality(rssi) == NSAPI_ERROR_OK) {
-            if (rssi == CellularNetwork::SignalQualityUnknown) {
-                tr_info("RSSI unknown");
-            } else {
-                tr_info("RSSI %d dBm", rssi);
-            }
+    int rssi;
+    if (_network.get_signal_quality(rssi) == NSAPI_ERROR_OK) {
+        if (rssi == CellularNetwork::SignalQualityUnknown) {
+            tr_info("RSSI unknown");
+        } else {
+            tr_info("RSSI %d dBm", rssi);
         }
     }
 #endif
@@ -643,7 +632,7 @@ void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr
     if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
         // expect packet data so only these states are valid
         CellularNetwork::registration_params_t reg_params;
-        nsapi_error_t err = _network->get_registration_params(reg_params);
+        nsapi_error_t err = _network.get_registration_params(reg_params);
 
         if (err == NSAPI_ERROR_OK && (reg_params._type == CellularNetwork::C_EREG || reg_params._type == CellularNetwork::C_GREG)) {
             if ((data->status_data == CellularNetwork::RegisteredHomeNetwork ||
