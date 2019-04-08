@@ -14,7 +14,7 @@
             "value": "default"
         },
         "blockdevice": {
-            "help": "Options are default, SPIF, DATAFASH, QSPIF or SD. If default, the block device will be chosen according to the component defined in targets.json",
+            "help": "Options are default, SPIF, DATAFASH, QSPIF, SD or other. If default, the block device will be chosen according to the component defined in targets.json. If other, override get_other_blockdevice() to support block device out of Mbed OS tree.",
             "value": "default"
         },
         "external_size": {
