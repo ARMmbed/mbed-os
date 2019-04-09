@@ -23,6 +23,7 @@
 #ifndef MBED_ERROR_H
 #define MBED_ERROR_H
 
+#include <stdbool.h>
 #include "platform/mbed_retarget.h"
 #include "platform/mbed_toolchain.h"
 
@@ -1035,6 +1036,13 @@ mbed_error_status_t mbed_get_last_error(void);
  *
  */
 int mbed_get_error_count(void);
+
+/**
+ * Returns whether we are processing a fatal mbed error.
+ * @return                  bool Whether a fatal error has occurred.
+ *
+ */
+bool mbed_get_error_in_progress(void);
 
 /**
  * Call this function to set a fatal system error and halt the system. This function will log the fatal error with the context info and prints the error report and halts the system.

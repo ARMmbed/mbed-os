@@ -107,29 +107,40 @@ static const char *error_msg(int32_t status)
     }
 }
 
+static void trap_rtx_error(unsigned int error_value, int32_t rtx_status, mbed_error_status_t error_status)
+{
+    // Attempts to get the console for the first time while printing an error
+    // may well cause a mutex error; in general let RTX calls fail during
+    // an error condition.
+    if (mbed_get_error_in_progress()) {
+        return;
+    }
+    MBED_ERROR1(error_status, error_msg(rtx_status), error_value);
+}
+
 void EvrRtxKernelError(int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT), error_msg(status), status);
+    trap_rtx_error(status, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT));
 }
 
 void EvrRtxThreadError(osThreadId_t thread_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_THREAD_EVENT), error_msg(status), thread_id);
+    trap_rtx_error((unsigned int) thread_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_THREAD_EVENT));
 }
 
 void EvrRtxTimerError(osTimerId_t timer_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_TIMER_EVENT), error_msg(status), timer_id);
+    trap_rtx_error((unsigned int) timer_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_TIMER_EVENT));
 }
 
 void EvrRtxEventFlagsError(osEventFlagsId_t ef_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT_FLAGS_EVENT), error_msg(status), ef_id);
+    trap_rtx_error((unsigned int) ef_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT_FLAGS_EVENT));
 }
 
 void EvrRtxMutexError(osMutexId_t mutex_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MUTEX_EVENT), error_msg(status), mutex_id);
+    trap_rtx_error((unsigned int) mutex_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MUTEX_EVENT));
 }
 
 void EvrRtxSemaphoreError(osSemaphoreId_t semaphore_id, int32_t status)
@@ -139,17 +150,17 @@ void EvrRtxSemaphoreError(osSemaphoreId_t semaphore_id, int32_t status)
         return;
     }
 
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_SEMAPHORE_EVENT), error_msg(status), semaphore_id);
+    trap_rtx_error((unsigned int) semaphore_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_SEMAPHORE_EVENT));
 }
 
 void EvrRtxMemoryPoolError(osMemoryPoolId_t mp_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MEMORY_POOL_EVENT), error_msg(status), mp_id);
+    trap_rtx_error((unsigned int) mp_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MEMORY_POOL_EVENT));
 }
 
 void EvrRtxMessageQueueError(osMessageQueueId_t mq_id, int32_t status)
 {
-    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT), error_msg(status), mq_id);
+    trap_rtx_error((unsigned int) mq_id, status, MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT));
 }
 
 #endif
