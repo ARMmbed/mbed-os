@@ -74,6 +74,28 @@ void mbed_error_vprintf(const char *format, va_list arg)
 
 void mbed_error_puts(const char *str)
 {
+    // Writing the string to the console in a critical section is
+    // potentially beneficial - for example in UARTSerial it
+    // forces the "unbuffered" mode that makes sure all characters
+    // go out now. If we made the call not in a critical section,
+    // it would go to the software buffer and we would be reliant
+    // on platform.stdio-flush-at-exit forcing a fsync before
+    // entering mbed_die().
+    //
+    // But this may be the very first write to the console, and hence
+    // require it to be initialized - doing this in a critical
+    // section could be problematic. So we prime it outside the
+    // critical section with a zero-length write - this forces
+    // the initialization.
+    //
+    // It's still possible that we were in a critical section
+    // or interrupt on entry anyway (eg if this is an error coming
+    // from inside RTX), so in other areas of the system we suppress
+    // things like mutex creation asserts and RTX traps while
+    // an error is in progress, so that console initialization
+    // may work.
+    write(STDERR_FILENO, str, 0);
+
     core_util_critical_section_enter();
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES || MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
     char stdio_out_prev = '\0';
