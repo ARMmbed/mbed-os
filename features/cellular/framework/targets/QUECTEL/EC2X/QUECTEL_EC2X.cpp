@@ -20,6 +20,7 @@
 #include "PinNames.h"
 #include "AT_CellularNetwork.h"
 #include "rtos/ThisThread.h"
+#include "UARTSerial.h"
 
 using namespace mbed;
 using namespace rtos;
@@ -31,6 +32,14 @@ using namespace events;
 
 #if !defined(MBED_CONF_QUECTEL_EC2X_RST)
 #define MBED_CONF_QUECTEL_EC2X_RST    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_EC2X_TX)
+#define MBED_CONF_QUECTEL_EC2X_TX    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_EC2X_RX)
+#define MBED_CONF_QUECTEL_EC2X_RX    NC
 #endif
 
 #if !defined(MBED_CONF_QUECTEL_EC2X_POLARITY)
@@ -64,7 +73,6 @@ QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinNam
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-#include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_QUECTEL_EC2X_TX,
