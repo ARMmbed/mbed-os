@@ -22,7 +22,7 @@
 #include "PinNamesTypes.h"
 #include "PinNames.h"
 
-#include "drivers/peripheral/gpio/cy_gpio.h"
+#include "cy_gpio.h"
 
 #ifdef __cplusplus
 extern "C" {

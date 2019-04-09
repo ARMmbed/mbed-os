@@ -16,7 +16,8 @@
 
 #include "device.h"
 #include "flash_api.h"
-#include "drivers/peripheral/flash/cy_flash.h"
+#include "cy_flash.h"
+#include <string.h>
 
 #if DEVICE_FLASH
 

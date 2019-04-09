@@ -30,7 +30,7 @@
  * a global static variable for interrupt status saving.
  */
 
-#include "syslib/cy_syslib.h"
+#include "cy_syslib.h"
 
 #define error(arg)  CY_ASSERT(0)
 #define MBED_ASSERT CY_ASSERT

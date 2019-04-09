@@ -23,10 +23,10 @@
 #include "i2c_api.h"
 #include "psoc6_utils.h"
 
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/gpio/cy_gpio.h"
-#include "drivers/peripheral/scb/cy_scb_i2c.h"
-#include "drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_sysclk.h"
+#include "cy_gpio.h"
+#include "cy_scb_i2c.h"
+#include "cy_sysint.h"
 
 #define I2C_DEFAULT_SPEED               100000
 #define NUM_I2C_PORTS                   8
