@@ -44,6 +44,7 @@ CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref
 CellularDevice::~CellularDevice()
 {
     tr_debug("CellularDevice destruct");
+    delete _state_machine;
 }
 
 void CellularDevice::stop()
@@ -118,7 +119,10 @@ nsapi_error_t CellularDevice::create_state_machine()
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
-        _state_machine = new CellularStateMachine(*this, *get_queue());
+        _nw = open_network(_fh);
+        // Attach to network so we can get update status from the network
+        _nw->attach(callback(this, &CellularDevice::stm_callback));
+        _state_machine = new CellularStateMachine(*this, *get_queue(), *_nw);
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::stm_callback));
         err = _state_machine->start_dispatch();
         if (err) {
@@ -183,13 +187,6 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularC
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
             // broadcast only network registration changes to state machine
             _state_machine->cellular_event_changed(ev, ptr);
-        }
-        if (cell_ev == CellularDeviceReady && ptr_data->error == NSAPI_ERROR_OK) {
-            // Here we can create mux and give new filehandles as mux reserves the one what was in use.
-            // if mux we would need to set new filehandle:_state_machine->set_filehandle( get fh from mux);
-            _nw = open_network(_fh);
-            // Attach to network so we can get update status from the network
-            _nw->attach(callback(this, &CellularDevice::stm_callback));
         }
     } else {
         tr_debug("callback: %d, ptr: %d", ev, ptr);
