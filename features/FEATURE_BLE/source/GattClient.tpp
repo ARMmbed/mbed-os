@@ -125,6 +125,13 @@ void GattClient<Impl>::terminateCharacteristicDescriptorDiscovery(
 }
 
 template<class Impl>
+ble_error_t GattClient<Impl>::negotiateAttMtu(
+    ble::connection_handle_t connHandle
+) {
+    return impl()->negotiateAttMtu_(connHandle);
+}
+
+template<class Impl>
 ble_error_t GattClient<Impl>::reset(void)
 {
     return impl()->reset_();
@@ -177,6 +184,13 @@ bool GattClient<Impl>::isServiceDiscoveryActive_(void) const
 template<class Impl>
 void GattClient<Impl>::terminateServiceDiscovery_(void)
 {
+}
+
+template<class Impl>
+ble_error_t GattClient<Impl>::negotiateAttMtu_(
+    ble::connection_handle_t connHandle
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 template<class Impl>
