@@ -9,10 +9,10 @@ define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__ = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
-define symbol __region_CRASH_DATA_RAM_start__  = 0x20000000;
-define symbol __region_CRASH_DATA_RAM_end__  = 0x200000FF;
-define symbol __ICFEDIT_region_IRAM_start__ = 0x20000100;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x20028000 - 1;
+define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
+define symbol __ICFEDIT_region_IRAM_end__   = 0x20027F00 - 1;
+define symbol __region_CRASH_DATA_RAM_start__  = 0x20027F00;
+define symbol __region_CRASH_DATA_RAM_end__  = 0x20028000 - 1;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __ICFEDIT_size_intvec__ = (4 * (16 + 96));
