@@ -103,10 +103,7 @@ class Makefile(Exporter):
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
             'hex_files': self.hex_files,
-            'vpath': (["../../.."]
-                      if (basename(dirname(dirname(self.export_dir)))
-                          == "projectfiles")
-                      else [".."]),
+            'vpath': ([".."]),
             'cc_cmd': basename(self.toolchain.cc[0]),
             'cppc_cmd': basename(self.toolchain.cppc[0]),
             'asm_cmd': basename(self.toolchain.asm[0]),

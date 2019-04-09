@@ -164,13 +164,13 @@ def _inner_zip_export(resources, prj_files, inc_repos):
     to_zip = sum((resources.get_file_refs(ftype) for ftype
                   in Resources.ALL_FILE_TYPES),
                  [])
-    to_zip.extend(FileRef(basename(pfile), pfile) for pfile in prj_files)
+    to_zip.extend(prj_files)
     for dest, source in resources.get_file_refs(FileType.BLD_REF):
         target_dir, _ = splitext(dest)
         dest = join(target_dir, ".bld", "bldrc")
         to_zip.append(FileRef(dest, source))
     if inc_repos:
-        for dest, source in resources.get_file_refs(FileType.REPO_DIRS):
+        for dest, source in resources.get_file_refs(FileType.REPO_DIR):
             for root, _, files in walk(source):
                 for repo_file in files:
                     file_source = join(root, repo_file)
@@ -242,10 +242,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     # Extend src_paths wit libraries_paths
     if libraries_paths is not None:
         paths.extend(libraries_paths)
-
     if not isinstance(src_paths, dict):
         src_paths = {"": paths}
-
     # Export Directory
     if not exists(export_path):
         makedirs(export_path)
@@ -293,7 +291,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                        files + list(exporter.static_files), inc_repos, notify)
     else:
         for static_file in exporter.static_files:
-            if not exists(join(export_path, basename(static_file))):
-                copyfile(static_file, join(export_path, basename(static_file)))
+            if not exists(join(export_path, basename(static_file.name))):
+                copyfile(static_file.path, join(export_path, static_file.name))
 
     return exporter
