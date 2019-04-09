@@ -1289,7 +1289,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
 #if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
         const int buf_size = len * 4 + 1; // x4 -> reserve space for extra characters, +1 -> terminating null
-        char *buffer = (char *)malloc(buf_size);
+        char *buffer = new char [buf_size];
         if (buffer) {
             memset(buffer, 0, buf_size);
 
@@ -1319,7 +1319,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
                 tr_info("AT ERR (%2d): %s", len, buffer);
             }
 
-            free(buffer);
+            delete [] buffer;
         } else {
             tr_error("AT trace unable to allocate buffer!");
         }
