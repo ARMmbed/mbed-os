@@ -27,12 +27,23 @@ struct cell_callback_data_t {
     nsapi_error_t error; /* possible error code */
     int status_data;     /* cellular_event_status related enum or other info in int format. Check cellular_event_status comments.*/
     bool final_try;      /* This flag is true if state machine is used and this was the last try. State machine does goes to idle. */
-
+    const void *data;    /* possible extra data in any form. Format specified in cellular_connection_status_t per event if any. */
     cell_callback_data_t()
     {
         error = NSAPI_ERROR_OK;
         status_data = -1;
         final_try = false;
+        data = NULL;
+    }
+};
+
+struct cell_signal_quality_t {
+    int rssi;           /* received signal strength */
+    int ber;            /* channel bit error rate */
+    cell_signal_quality_t()
+    {
+        rssi = -1;
+        ber = -1;
     }
 };
 
@@ -51,6 +62,9 @@ typedef enum cellular_event_status {
     CellularRadioAccessTechnologyChanged    = NSAPI_EVENT_CELLULAR_STATUS_BASE + 5, /* Network roaming status have changed. cell_callback_data_t.status_data will be enum RadioAccessTechnology See enum RadioAccessTechnology in ../API/CellularNetwork.h*/
     CellularAttachNetwork                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 6, /* cell_callback_data_t.status_data will be enum AttachStatus. See enum AttachStatus in ../API/CellularNetwork.h */
     CellularActivatePDPContext              = NSAPI_EVENT_CELLULAR_STATUS_BASE + 7, /* NSAPI_ERROR_OK in cell_callback_data_t.error on successfully PDP Context activated or negative error */
+    CellularSignalQuality                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 8, /* cell_callback_data_t.error will contains return value when signal quality was queried. data will hold the pointer to cell_signal_quality struct. See possible values from ../API/CellularNetwork.h*/
+    CellularStateRetryEvent                 = NSAPI_EVENT_CELLULAR_STATUS_BASE + 9, /* cell_callback_data_t.error contain an error if any. cell_callback_data_t.status_data contains cellular_event_status and it specifies the operation which is retried.
+                                                                                       cellular_event_status.data contains current retrycount */
 } cellular_connection_status_t;
 
 #endif // CELLULAR_COMMON_

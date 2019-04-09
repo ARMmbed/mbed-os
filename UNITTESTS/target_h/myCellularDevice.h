@@ -72,6 +72,9 @@ public:
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL)
     {
+        if (_network) {
+            return _network;
+        }
         EventQueue que;
         FileHandle_stub fh1;
         ATHandler at(&fh1, que, 0, ",");

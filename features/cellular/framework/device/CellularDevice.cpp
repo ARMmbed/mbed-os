@@ -182,8 +182,13 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularC
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
-        tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
+        if (cell_ev == CellularStateRetryEvent) {
+            tr_debug("callback: CellularStateRetryEvent, err: %d, data: %d, retrycount: %d", ptr_data->error, ptr_data->status_data, *(const int *)ptr_data->data);
+        } else {
+            tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
+        }
+
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
             // broadcast only network registration changes to state machine
             _state_machine->cellular_event_changed(ev, ptr);
