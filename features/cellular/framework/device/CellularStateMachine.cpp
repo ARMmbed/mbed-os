@@ -406,7 +406,7 @@ void CellularStateMachine::state_sim_pin()
 
 void CellularStateMachine::state_signal_quality()
 {
-    _cb_data.error = _network->get_signal_quality(_signal_quality.rssi, &_signal_quality.ber);
+    _cb_data.error = _network.get_signal_quality(_signal_quality.rssi, &_signal_quality.ber);
 
     if (_cb_data.error != NSAPI_ERROR_OK) {
         retry_state_or_fail();

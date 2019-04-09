@@ -117,10 +117,6 @@ nsapi_error_t CellularDevice::attach_to_network()
 
 nsapi_error_t CellularDevice::create_state_machine()
 {
-    _nw = open_network(_fh);
-    // Attach to network so we can get update status from the network
-    _nw->attach(callback(this, &CellularDevice::stm_callback));
-
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
         _nw = open_network(_fh);
