@@ -146,6 +146,20 @@ class ResourcesTest(unittest.TestCase):
         exc_names = [dirname(name) or "." for name, _ in excluded_libs]
         assert(all(e in res.ignored_dirs for e in exc_names))
 
+    def test_only_one_linker_script(self):
+        """
+        Verify that when multiple linker scripts are added to a resource object,
+        only the last one added is used.
+        """
+        resources = Resources(MockNotifier())
+        linker_scripts = ["first_linker_script.sct", "second_linker_script.sct"]
+        for linker_script in linker_scripts:
+            resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
+
+        assert(len(resources.get_file_refs(FileType.LD_SCRIPT)) == 1)
+        assert(resources.get_file_refs(FileType.LD_SCRIPT)[-1].name == linker_scripts[-1])
+        assert(resources.get_file_refs(FileType.LD_SCRIPT)[-1].path == linker_scripts[-1])
+
 
 if __name__ == '__main__':
     unittest.main()
