@@ -97,6 +97,10 @@
       "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_RTOS_M4_M7/irq_cm4f.S"
     },
     {
+      "src_file" : "CMSIS/RTOS2/Source/os_systick.c",
+      "dest_file" : "rtos/TARGET_CORTEX/rtx5/Source/os_systick.c"
+    },
+    {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_ca.s",
       "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_CORTEX_A/irq_ca.S"
     },
@@ -113,10 +117,6 @@
     {
       "src_folder" : "CMSIS/RTOS2/Include/",
       "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Include/"
-    },
-    {
-      "src_folder" : "CMSIS/RTOS2/Source/",
-      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Source/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Include1/",
