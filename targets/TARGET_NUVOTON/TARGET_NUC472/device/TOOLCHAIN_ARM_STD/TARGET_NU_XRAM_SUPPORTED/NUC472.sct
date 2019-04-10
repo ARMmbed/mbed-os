@@ -31,6 +31,13 @@ LR_IROM1 MBED_APP_START {
   ER_IRAMVEC AlignExpr(+0, 1024) EMPTY (4*(16 + 142)) {  ; Reserve for vectors
   }
   
+  RW_m_crash_data AlignExpr(+0, 0x100) EMPTY 0x100 { ; Reserve for crash data storage
+  }
+
+  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
+   .ANY (+RW +ZI)
+  }
+
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
    .ANY (+RW +ZI)
   }
