@@ -6650,7 +6650,7 @@
             "TC_ASYNC=true"
         ],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMR21"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "uARM"],
         "device_has": [
             "ANALOGIN",
             "I2C",
@@ -6683,7 +6683,7 @@
             "TC_ASYNC=true"
         ],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMD21"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "uARM"],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
@@ -6717,7 +6717,7 @@
             "TC_ASYNC=true"
         ],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMD21"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "uARM"],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
@@ -6751,7 +6751,7 @@
             "TC_ASYNC=true"
         ],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAML21"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "uARM"],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
