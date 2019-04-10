@@ -27,19 +27,11 @@ MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT > 0), "Timeout must be greater than zero
 #if DEVICE_LPTICKER
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
-static SingletonPtr<mbed::LowPowerTicker> get_ticker()
-{
-    static SingletonPtr<mbed::LowPowerTicker> ticker;
-    return ticker;
-}
+static SingletonPtr<mbed::LowPowerTicker> _ticker;
 #else
 /** Create singleton instance of Ticker for watchdog periodic call back of kick.
  */
-static SingletonPtr<mbed::Ticker> get_ticker()
-{
-    static SingletonPtr<mbed::Ticker> ticker;
-    return ticker;
-}
+static SingletonPtr<mbed::Ticker> _ticker;
 #endif
 
 /** Refreshes the watchdog timer.
@@ -83,7 +75,7 @@ bool mbed_wdog_manager_start()
     core_util_critical_section_exit();
     if (is_watchdog_started) {
         us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
-        get_ticker()->attach_us(mbed::callback(&mbed_wdog_manager_kick), timeout);
+        _ticker->attach_us(mbed::callback(&mbed_wdog_manager_kick), timeout);
     }
     return is_watchdog_started;
 }
@@ -98,7 +90,7 @@ bool mbed_wdog_manager_stop()
         if (sts != WATCHDOG_STATUS_OK) {
             msts = false;
         } else {
-            get_ticker()->detach();
+            _ticker->detach();
             is_watchdog_started = false;
         }
 
