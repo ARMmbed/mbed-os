@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -33,8 +33,10 @@
 static osStatus_t svcRtxDelay (uint32_t ticks) {
 
   if (ticks != 0U) {
-    if (!osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
-      EvrRtxThreadDelayCompleted();
+    if (osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
+      EvrRtxDelayStarted(ticks);
+    } else {
+      EvrRtxDelayCompleted(osRtxThreadGetRunning());
     }
   }
 
@@ -47,13 +49,15 @@ static osStatus_t svcRtxDelayUntil (uint32_t ticks) {
 
   ticks -= osRtxInfo.kernel.tick;
   if ((ticks == 0U) || (ticks > 0x7FFFFFFFU)) {
-    EvrRtxThreadError(NULL, (int32_t)osErrorParameter);
+    EvrRtxDelayError((int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return osErrorParameter;
   }
 
-  if (!osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
-    EvrRtxThreadDelayCompleted();
+  if (osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
+    EvrRtxDelayUntilStarted(ticks);
+  } else {
+    EvrRtxDelayCompleted(osRtxThreadGetRunning());
   }
 
   return osOK;
@@ -72,9 +76,9 @@ SVC0_1(DelayUntil, osStatus_t, uint32_t)
 osStatus_t osDelay (uint32_t ticks) {
   osStatus_t status;
 
-  EvrRtxThreadDelay(ticks);
+  EvrRtxDelay(ticks);
   if (IsIrqMode() || IsIrqMasked()) {
-    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    EvrRtxDelayError((int32_t)osErrorISR);
     status = osErrorISR;
   } else {
     status = __svcDelay(ticks);
@@ -86,9 +90,9 @@ osStatus_t osDelay (uint32_t ticks) {
 osStatus_t osDelayUntil (uint32_t ticks) {
   osStatus_t status;
 
-  EvrRtxThreadDelayUntil(ticks);
+  EvrRtxDelayUntil(ticks);
   if (IsIrqMode() || IsIrqMasked()) {
-    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    EvrRtxDelayError((int32_t)osErrorISR);
     status = osErrorISR;
   } else {
     status = __svcDelayUntil(ticks);

@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_sc000.h
  * @brief    CMSIS SC000 Core Peripheral Access Layer Header File
- * @version  V5.0.5
- * @date     28. May 2018
+ * @version  V5.0.6
+ * @date     12. November 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
