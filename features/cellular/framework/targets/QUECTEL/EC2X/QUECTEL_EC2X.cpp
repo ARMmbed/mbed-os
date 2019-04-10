@@ -73,6 +73,7 @@ QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinNam
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
+#if MBED_CONF_QUECTEL_EC2X_PROVIDE_DEFAULT
 CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_QUECTEL_EC2X_TX,
@@ -87,6 +88,7 @@ CellularDevice *CellularDevice::get_default_instance()
                                MBED_CONF_QUECTEL_EC2X_RST);
     return &device;
 }
+#endif
 
 nsapi_error_t QUECTEL_EC2X::press_power_button(uint32_t timeout)
 {
