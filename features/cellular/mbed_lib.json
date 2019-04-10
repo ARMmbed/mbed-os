@@ -20,6 +20,10 @@
         "control-plane-opt": {
             "help": "Enables control plane CIoT EPS optimization",
             "value": false
+        },
+        "at-handler-recv-buf-size": {
+            "help": "Receive buffer size for the AT handler",
+            "value": 32
         }
     }
 }

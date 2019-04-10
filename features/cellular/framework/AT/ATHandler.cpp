@@ -644,7 +644,7 @@ int32_t ATHandler::read_int()
         return -1;
     }
 
-    char buff[BUFF_SIZE];
+    char buff[MBED_CONF_CELLULAR_AT_HANDLER_RECV_BUF_SIZE];
     if (read_string(buff, sizeof(buff)) == 0) {
         return -1;
     }
@@ -913,7 +913,7 @@ void ATHandler::resp_start(const char *prefix, bool stop)
     (void)fill_buffer(false);
 
     if (prefix) {
-        MBED_ASSERT(strlen(prefix) < BUFF_SIZE);
+        MBED_ASSERT(strlen(prefix) < MBED_CONF_CELLULAR_AT_HANDLER_RECV_BUF_SIZE);
         strcpy(_info_resp_prefix, prefix); // copy prefix so we can later use it without having to provide again for info_resp
     }
 

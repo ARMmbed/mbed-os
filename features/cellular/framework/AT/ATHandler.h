@@ -42,8 +42,6 @@ class FileHandle;
 extern const char *OK;
 extern const char *CRLF;
 
-#define BUFF_SIZE 16
-
 /* AT Error types enumeration */
 enum DeviceErrorType {
     DeviceErrorTypeNoError = 0,
@@ -447,7 +445,7 @@ public: // just for debugging
 private:
 
     // should fit any prefix and int
-    char _recv_buff[BUFF_SIZE];
+    char _recv_buff[MBED_CONF_CELLULAR_AT_HANDLER_RECV_BUF_SIZE];
     // reading position
     size_t _recv_len;
     // reading length
@@ -489,7 +487,7 @@ private:
     size_t _max_resp_length;
 
     // prefix set during resp_start and used to try matching possible information responses
-    char _info_resp_prefix[BUFF_SIZE];
+    char _info_resp_prefix[MBED_CONF_CELLULAR_AT_HANDLER_RECV_BUF_SIZE];
     bool _debug_on;
     bool _cmd_start;
     bool _use_delimiter;
