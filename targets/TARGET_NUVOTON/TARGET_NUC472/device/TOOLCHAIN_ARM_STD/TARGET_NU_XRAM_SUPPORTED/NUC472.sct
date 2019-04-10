@@ -38,10 +38,6 @@ LR_IROM1 MBED_APP_START {
    .ANY (+RW +ZI)
   }
 
-  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
-   .ANY (+RW +ZI)
-  }
-  
   ; Too large to place into internal SRAM. So place into external SRAM instead.
   ER_XRAM1 0x60000000 {
     *lwip_* (+ZI)
