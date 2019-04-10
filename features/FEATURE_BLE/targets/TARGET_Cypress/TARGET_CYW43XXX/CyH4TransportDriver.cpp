@@ -19,6 +19,7 @@
 
 #include "CyH4TransportDriver.h"
 #include "cycfg_pins.h"
+extern "C" void hci_cy_TrSerialRxIncoming(uint8_t *pBuf, uint8_t len);
 
 namespace ble {
 namespace vendor {
@@ -96,7 +97,7 @@ void CyH4TransportDriver::on_controller_irq()
 
 	while (uart.readable()) {
         uint8_t char_received = uart.getc();
-        on_data_received(&char_received, 1);
+        hci_cy_TrSerialRxIncoming(&char_received, 1);
     }
 
 	deassert_bt_dev_wake();
