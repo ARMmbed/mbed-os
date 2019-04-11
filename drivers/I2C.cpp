@@ -32,7 +32,8 @@ SingletonPtr<PlatformMutex> I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
-    _irq(this), _deep_sleep_locked(false),
+    _deep_sleep_locked(false),
+    _async_transfer_ongoing(false),
 #endif
     _i2c(), _hz(100000)
 {
@@ -42,11 +43,16 @@ I2C::I2C(PinName sda, PinName scl) :
     _scl = scl;
     recover(sda, scl);
     i2c_init(&_i2c, sda, scl, false);
-    i2c_frequency(&_i2c, _hz);
+    frequency(_hz);
 
     // Used to avoid unnecessary frequency updates
     _owner = this;
     unlock();
+}
+
+I2C::~I2C()
+{
+    i2c_free(&_i2c);
 }
 
 void I2C::frequency(int hz)
@@ -189,17 +195,39 @@ int I2C::recover(PinName sda, PinName scl)
 
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event, bool repeated)
 {
+    lock();
+    if (_async_transfer_ongoing) {
+        unlock();
+        return -1;
+    }
+    lock_deep_sleep();
+    aquire();
+
+    _callback = callback;
+    bool stop = (repeated) ? false : true;
+    _async_transfer_ongoing = true;
+    i2c_transfer_async(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void*)this);
+    unlock();
     return 0;
 }
 
 void I2C::abort_transfer(void)
 {
     lock();
+    i2c_abort_async(&_i2c);
+    _async_transfer_ongoing = false;
+    unlock_deep_sleep();
     unlock();
 }
 
-void I2C::irq_handler_asynch(void)
+void I2C::irq_handler_asynch(i2c_t *obj, i2c_async_event_t *event, void *ctx)
 {
+    I2C *self = (I2C *)ctx;
+    if (self->_callback) {
+        self->_callback.call(event->error ? I2C_EVENT_ERROR : I2C_EVENT_TRANSFER_COMPLETE);
+    }
+    self->_async_transfer_ongoing = false;
+    self->unlock_deep_sleep();
 }
 
 void I2C::lock_deep_sleep()

@@ -94,6 +94,8 @@ public:
      */
     I2C(PinName sda, PinName scl);
 
+    virtual ~I2C();
+
     /** Set the frequency of the I2C interface
      *
      *  @param hz The bus frequency in hertz
@@ -170,11 +172,6 @@ public:
      */
     virtual void unlock(void);
 
-    virtual ~I2C()
-    {
-        // Do nothing
-    }
-
 #if DEVICE_I2C_ASYNCH
 
     /** Start nonblocking I2C transfer.
@@ -207,10 +204,10 @@ protected:
     /** Unlock deep sleep only if it has been locked */
     void unlock_deep_sleep();
 
-    void irq_handler_asynch(void);
+    static void irq_handler_asynch(i2c_t *obj, i2c_async_event_t *event, void *ctx);
     event_callback_t _callback;
-    CThunk<I2C> _irq;
     bool _deep_sleep_locked;
+    bool _async_transfer_ongoing;
 #endif
 #endif
 
