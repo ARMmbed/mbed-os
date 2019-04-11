@@ -79,7 +79,6 @@ __vector_table_0x1c
         DCD     PendSV_Handler
         DCD     SysTick_Handler
 
-
         ; External interrupts                           Description
         DCD     ioss_interrupts_gpio_0_IRQHandler     ; GPIO Port Interrupt #0
         DCD     ioss_interrupts_gpio_1_IRQHandler     ; GPIO Port Interrupt #1

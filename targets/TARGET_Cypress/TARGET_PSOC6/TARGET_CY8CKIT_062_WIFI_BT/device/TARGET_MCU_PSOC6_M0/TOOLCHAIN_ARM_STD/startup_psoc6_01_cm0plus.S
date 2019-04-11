@@ -1,5 +1,5 @@
 ;/**************************************************************************//**
-; * @file     startup_psoc6_01_cm0plus.s
+; * @file     startup_psoc6_01_cm0plus.S
 ; * @brief    CMSIS Core Device Startup File for
 ; *           ARMCM0plus Device Series
 ; * @version  V5.00
@@ -33,12 +33,11 @@
                 IF :DEF:__STACK_SIZE
 Stack_Size      EQU     __STACK_SIZE
                 ELSE
-Stack_Size      EQU     0x00001000
+Stack_Size      EQU     0x00000400
                 ENDIF
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
 __initial_sp
-
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -81,7 +80,6 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     0                         ; Reserved
                 DCD     PendSV_Handler            ; PendSV Handler
                 DCD     SysTick_Handler           ; SysTick Handler
-
 
                 ; External interrupts                           Description
                 DCD     NvicMux0_IRQHandler                   ; CM0+ NVIC Mux input 0 
@@ -130,26 +128,23 @@ __ramVectors    SPACE   __Vectors_Size
 
 ; Weak function for startup customization
 ;
-; Note. The global resources are not yet initialized (for example global variables, peripherals, clocks) 
+; Note. The global resources are not yet initialized (for example global variables, peripherals, clocks)
 ; because this function is executed as the first instruction in the ResetHandler.
 ; The PDL is also not initialized to use the proper register offsets.
 ; The user of this function is responsible for initializing the PDL and resources before using them.
 ;
-Cy_OnResetUser PROC
-                EXPORT  Cy_OnResetUser             [WEAK]
+Cy_OnResetUser  PROC
+                EXPORT  Cy_OnResetUser            [WEAK]
                 BX      LR
                 ENDP
 
 ; Reset Handler
 Reset_Handler   PROC
-                EXPORT  Reset_Handler               [WEAK]
+                EXPORT  Reset_Handler             [WEAK]
                 IMPORT  __main
 
                 ; Define strong function for startup customization
                 BL      Cy_OnResetUser
-
-                ; Disable global interrupts
-                ;CPSID I
 
                 ; Copy vectors from ROM to RAM
                 LDR r1, =__Vectors
@@ -216,8 +211,8 @@ SysTick_Handler     PROC
                     B       .
                     ENDP
 
-Default_Handler PROC
-                    EXPORT      Default_Handler                        [WEAK]
+Default_Handler     PROC
+                    EXPORT  Default_Handler                       [WEAK]
                     EXPORT  NvicMux0_IRQHandler                   [WEAK]
                     EXPORT  NvicMux1_IRQHandler                   [WEAK]
                     EXPORT  NvicMux2_IRQHandler                   [WEAK]
@@ -300,14 +295,13 @@ NvicMux31_IRQHandler
 
                 ELSE
 
-                IMPORT  __use_two_region_memory
                 EXPORT  __user_initial_stackheap
 
 __user_initial_stackheap PROC
-                LDR     R0, =  Heap_Mem
+                LDR     R0, =Heap_Mem
                 LDR     R1, =(Stack_Mem + Stack_Size)
-                LDR     R2, = (Heap_Mem +  Heap_Size)
-                LDR     R3, = Stack_Mem
+                LDR     R2, =(Heap_Mem +  Heap_Size)
+                LDR     R3, =Stack_Mem
                 BX      LR
                 ENDP
 

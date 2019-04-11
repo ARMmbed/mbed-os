@@ -1,5 +1,5 @@
 ;/**************************************************************************//**
-; * @file     startup_psoc6_01_cm4.s
+; * @file     startup_psoc6_01_cm4.S
 ; * @brief    CMSIS Core Device Startup File for
 ; *           ARMCM4 Device Series
 ; * @version  V5.00
@@ -38,7 +38,6 @@ Stack_Size      EQU     0x00000400
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
 __initial_sp
-
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -82,7 +81,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     PendSV_Handler                        ; PendSV Handler
                 DCD     SysTick_Handler                       ; SysTick Handler
 
-                ; External interrupts                         Power Mode  Description
+                ; External interrupts                           Description
                 DCD     ioss_interrupts_gpio_0_IRQHandler     ; GPIO Port Interrupt #0 
                 DCD     ioss_interrupts_gpio_1_IRQHandler     ; GPIO Port Interrupt #1 
                 DCD     ioss_interrupts_gpio_2_IRQHandler     ; GPIO Port Interrupt #2 
@@ -234,7 +233,6 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
 __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors
-
                 EXPORT __ramVectors
                 AREA    RESET_RAM, READWRITE, NOINIT
 __ramVectors    SPACE   __Vectors_Size
@@ -251,10 +249,9 @@ __ramVectors    SPACE   __Vectors_Size
 ; The user of this function is responsible for initializing the PDL and resources before using them.
 ;
 Cy_OnResetUser  PROC
-                EXPORT  Cy_OnResetUser        [WEAK]
+                EXPORT  Cy_OnResetUser            [WEAK]
                 BX      LR
                 ENDP
-
 
 ; Reset Handler
 Reset_Handler   PROC
@@ -362,7 +359,7 @@ SysTick_Handler     PROC
                     ENDP
 
 Default_Handler     PROC
-                    EXPORT      Default_Handler                        [WEAK]
+                    EXPORT  Default_Handler                       [WEAK]
                     EXPORT  ioss_interrupts_gpio_0_IRQHandler     [WEAK]
                     EXPORT  ioss_interrupts_gpio_1_IRQHandler     [WEAK]
                     EXPORT  ioss_interrupts_gpio_2_IRQHandler     [WEAK]
@@ -675,14 +672,13 @@ pass_interrupt_dacs_IRQHandler
 
                 ELSE
 
-                IMPORT  __use_two_region_memory
                 EXPORT  __user_initial_stackheap
 
 __user_initial_stackheap PROC
-                LDR     R0, =  Heap_Mem
+                LDR     R0, =Heap_Mem
                 LDR     R1, =(Stack_Mem + Stack_Size)
-                LDR     R2, = (Heap_Mem +  Heap_Size)
-                LDR     R3, = Stack_Mem
+                LDR     R2, =(Heap_Mem +  Heap_Size)
+                LDR     R3, =Stack_Mem
                 BX      LR
                 ENDP
 
