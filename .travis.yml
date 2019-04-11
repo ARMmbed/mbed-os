@@ -54,7 +54,7 @@ matrix:
 
     - <<: *basic-vm
       name: "license check"
-      env: NAME=license_check
+      env: NAME=licence_check
       script:
         - |
           ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
