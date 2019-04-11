@@ -1421,6 +1421,7 @@
             "EMAC",
             "I2C",
             "I2CSLAVE",
+            "I2C_ASYNCH",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
