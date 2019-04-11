@@ -22,6 +22,10 @@
 
 #if DEVICE_FLASH
 
+/** Flash effective page size */
+#define CY_FLASH_EFFECTIVE_PAGE_SIZE       32
+
+
 int32_t flash_init(flash_t *obj)
 {
     (void)(obj);
