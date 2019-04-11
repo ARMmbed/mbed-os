@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m4
 ; The first line specifies a preprocessor command that the linker invokes
 ; to pass a scatter file through a C preprocessor.
 
@@ -267,6 +267,32 @@ CYMETA 0x90500000
 {
     .cymeta +0 { * (.cymeta) }
 }
+
+/* The following symbols used by the cymcuelftool. */
+/* Flash */
+#define __cy_memory_0_start 0x10000000
+#define __cy_memory_0_length  0x00200000
+#define __cy_memory_0_row_size 0x200
+
+/* Emulated EEPROM Flash area */
+#define __cy_memory_1_start    0x14000000
+#define __cy_memory_1_length   0x8000
+#define __cy_memory_1_row_size 0x200
+
+/* Supervisory Flash */
+#define __cy_memory_2_start    0x16000000
+#define __cy_memory_2_length   0x8000
+#define __cy_memory_2_row_size 0x200
+
+/* XIP */
+#define __cy_memory_3_start    0x18000000
+#define __cy_memory_3_length   0x08000000
+#define __cy_memory_3_row_size 0x200
+
+/* eFuse */
+#define __cy_memory_4_start    0x90700000
+#define __cy_memory_4_length   0x100000
+#define __cy_memory_4_row_size 1
 
 
 /* [] END OF FILE */
