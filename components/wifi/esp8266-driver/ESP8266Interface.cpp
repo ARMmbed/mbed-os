@@ -315,7 +315,7 @@ int ESP8266Interface::disconnect()
     _initialized = false;
 
     nsapi_error_t status = _conn_status_to_error();
-    if (status == NSAPI_ERROR_NO_CONNECTION || !get_ip_address()) {
+    if (status == NSAPI_ERROR_NO_CONNECTION) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
