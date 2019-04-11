@@ -59,7 +59,7 @@ struct tfm_spm_service_t {
 struct tfm_spm_ipc_partition_t {
     int32_t index;                      /* Partition index                   */
     int32_t id;                         /* Secure partition ID               */
-    struct tfm_event_ctx signal_event;  /* Event signal                      */
+    struct tfm_event_t signal_evnt;     /* Event signal                      */
     uint32_t signals;                   /* Service signals had been triggered*/
     uint32_t signal_mask;        /* Service signal mask passed by psa_wait() */
     struct tfm_list_node_t service_list;/* Service list                      */

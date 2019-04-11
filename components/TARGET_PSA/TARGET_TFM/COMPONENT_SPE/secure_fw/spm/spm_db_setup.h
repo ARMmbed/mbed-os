@@ -17,10 +17,10 @@
  * Gets the index of a partition in the partition db based on the partition ID
  * provided as a parameter.
  *
- * \param[in] partition_id    The ID of the partition
+ * \param[in] partition_idx    The index of the partition
  *
- * \return \ref INVALID_PARTITION_IDX if the provided ID is invalid. The index
- *         of the partition otherwise.
+ * \return \ref INVALID_PARTITION_IDX if the provided index is invalid. The
+ *         index of the partition otherwise.
  */
 uint32_t get_partition_idx(uint32_t partition_id);
 
@@ -66,8 +66,13 @@ struct spm_partition_db_t {
 #define PARTITION_INIT_RUNTIME_DATA(data, partition)                \
     do {                                                            \
         data.partition_state      = SPM_PARTITION_STATE_UNINIT;     \
+        /* The top of the stack is reserved for the iovec        */ \
+        /* parameters of the service called. That's why in       */ \
+        /* data.stack_ptr we extract sizeof(struct iovec_args_t) */ \
+        /* from the limit.                                       */ \
         data.stack_ptr            =                                 \
-                PART_REGION_ADDR(partition, _STACK$$ZI$$Limit);     \
+                PART_REGION_ADDR(partition, _STACK$$ZI$$Limit -     \
+                                  sizeof(struct iovec_args_t));     \
     } while (0)
 #endif
 

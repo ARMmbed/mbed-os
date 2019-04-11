@@ -25,6 +25,7 @@
 #include "tfm_thread.h"
 #include "region_defs.h"
 #include "tfm_nspm.h"
+#include "tfm_memory_utils.h"
 
 /*
  * IPC partitions.
@@ -348,7 +349,7 @@ struct tfm_msg_body_t *tfm_spm_create_msg(struct tfm_spm_service_t *service,
     /* Clear message buffer before using it */
     tfm_memset(msg, 0, sizeof(struct tfm_msg_body_t));
 
-    tfm_event_init(&msg->ack_mtx, EVENT_STAT_WAITED);
+    tfm_event_init(&msg->ack_evnt);
     msg->magic = TFM_MSG_MAGIC;
     msg->service = service;
     msg->handle = handle;
@@ -405,15 +406,11 @@ int32_t tfm_spm_send_event(struct tfm_spm_service_t *service,
     /* Messages put. Update signals */
     service->partition->signals |= service->service_db->signal;
 
-    /* Save return value for blocked threads */
-    tfm_event_owner_retval(&service->partition->signal_event,
-                           service->partition->signals &
-                           service->partition->signal_mask);
+    tfm_event_wake(&service->partition->signal_evnt,
+                   (service->partition->signals &
+                    service->partition->signal_mask));
 
-    /* Wake waiting thread up */
-    tfm_event_signal(&service->partition->signal_event);
-
-    tfm_event_wait(&msg->ack_mtx);
+    tfm_event_wait(&msg->ack_evnt);
 
     return IPC_SUCCESS;
 }
@@ -598,7 +595,8 @@ void tfm_spm_init(void)
         }
         g_spm_ipc_partition[i].index = i;
         g_spm_ipc_partition[i].id = tfm_spm_partition_get_partition_id(i);
-        tfm_event_init(&g_spm_ipc_partition[i].signal_event, EVENT_STAT_WAITED);
+
+        tfm_event_init(&g_spm_ipc_partition[i].signal_evnt);
         tfm_list_init(&g_spm_ipc_partition[i].service_list);
 
         pth = tfm_spm_partition_get_thread_info_ext(i);

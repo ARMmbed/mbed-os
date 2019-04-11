@@ -1,16 +1,14 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "cmsis.h"
 #include "rtx_os.h"
 #include "cmsis_os2.h"
-
 #include "tfm_api.h"
 #include "tfm_ns_lock.h"
 
