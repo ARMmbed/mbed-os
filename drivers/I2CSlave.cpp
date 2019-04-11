@@ -26,6 +26,11 @@ I2CSlave::I2CSlave(PinName sda, PinName scl) : _i2c()
     i2c_frequency(&_i2c, 100000);
 }
 
+I2CSlave::~I2CSlave()
+{
+    i2c_free(&_i2c);
+}
+
 void I2CSlave::frequency(int hz)
 {
     i2c_frequency(&_i2c, hz);

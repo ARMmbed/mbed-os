@@ -22,6 +22,7 @@
 #if DEVICE_I2CSLAVE || defined(DOXYGEN_ONLY)
 
 #include "hal/i2c_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -66,7 +67,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class I2CSlave {
+class I2CSlave : private NonCopyable<I2CSlave> {
 
 public:
     enum RxStatus {
@@ -82,6 +83,8 @@ public:
      *  @param scl I2C clock line pin.
      */
     I2CSlave(PinName sda, PinName scl);
+
+    virtual ~I2CSlave();
 
     /** Set the frequency of the I2C interface.
      *
