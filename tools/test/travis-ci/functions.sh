@@ -32,7 +32,7 @@ die() { echo -e "E: ${1}" 1>&2; exit "${2:-1}"; }
 #
 set_status()
 {
-  local job_name=${NAME}
+  local job_name="${NAME}"
   local payload=""
 
   payload=$(<<< "
@@ -41,10 +41,10 @@ set_status()
     'description': '${2}',
     'context': 'travis-ci/${job_name}',
     'target_url': 'https://travis-ci.org/${TRAVIS_REPO_SLUG}/jobs/${TRAVIS_JOB_ID}'
-  }" tr '"' '"')
+  }" tr "'" '"')
 
   curl --silent --output /dev/null --user "${MBED_BOT}" --request POST \
-    "https://api.github.com/repos/${TRAVIS_REPO_SLUG}/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}" \
+    "https://api.github.com/repos/${TRAVIS_REPO_SLUG}/statuses/${TRAVIS_PULL_REQUEST_SHA:-${TRAVIS_COMMIT}}" \
     --data @- <<< "${payload}"
 }
 
