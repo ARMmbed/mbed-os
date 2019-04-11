@@ -206,7 +206,7 @@ int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_bu
     _callback = callback;
     bool stop = (repeated) ? false : true;
     _async_transfer_ongoing = true;
-    i2c_transfer_async(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void*)this);
+    i2c_transfer_async(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void *)this);
     unlock();
     return 0;
 }
