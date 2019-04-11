@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_USTICKER
+
 #include "hal/us_ticker_api.h"
 #include "us_ticker_data.h"
 
@@ -75,3 +78,5 @@ void HAL_ResumeTick(void)
 {
     // Do nothing
 }
+
+#endif /* DEVICE_USTICKER */
