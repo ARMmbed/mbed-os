@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname, normpath
 from optparse import OptionParser
 import json
 from shutil import copy
-from past.builtins import str
+from past.builtins import basestring
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         test_names = []
         for test_id in list(TEST_MAP.keys()):
             # Prevents tests with multiple source dirs from being checked
-            if isinstance(TEST_MAP[test_id].source_dir, str):
+            if isinstance(TEST_MAP[test_id].source_dir, basestring):
                 test_path = normpath(TEST_MAP[test_id].source_dir)
                 for directory in directories:
                     if directory in test_path:
