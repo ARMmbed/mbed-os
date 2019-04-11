@@ -1,5 +1,5 @@
 ;/**************************************************************************//**
-; * @file     startup_psoc6_01_cm0plus.s
+; * @file     startup_psoc6_01_cm0plus.S
 ; * @brief    CMSIS Core Device Startup File for
 ; *           ARMCM0plus Device Series
 ; * @version  V5.00
@@ -78,7 +78,7 @@ __vector_table_0x1c
         DCD     PendSV_Handler
         DCD     SysTick_Handler
 
-        ; External interrupts                         Power Mode  Description
+        ; External interrupts                           Description
         DCD     NvicMux0_IRQHandler                   ; CM0+ NVIC Mux input 0
         DCD     NvicMux1_IRQHandler                   ; CM0+ NVIC Mux input 1
         DCD     NvicMux2_IRQHandler                   ; CM0+ NVIC Mux input 2
@@ -173,9 +173,6 @@ Reset_Handler
         LDR     R0, =Cy_OnResetUser
         BLX     R0
 
-        ; Disable global interrupts
-        ;CPSID I
-
         ; Copy vectors from ROM to RAM
         LDR r1, =__vector_table
         LDR r0, =__ramVectors
@@ -194,13 +191,6 @@ intvec_copy
         LDR r1, =0xE000ED08
         STR r0, [r1]
         dsb
-
-        ; Initialize data sections
-        ;LDR     R0, =__iar_data_init3
-        ;BLX     R0
-
-        ;LDR     R0, =SystemInit
-        ;BLX     R0
 
         LDR     R0, =__iar_program_start
         BLX     R0

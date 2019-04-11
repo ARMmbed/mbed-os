@@ -320,8 +320,12 @@
 *       <th>Reason for Change</th>
 *   </tr>
 *   <tr>
+*       <td>2.40</td>
+*       <td>Updated assembler files, C files, linker scripts.</td>
+*   </tr>
+*   <tr>
 *       <td rowspan="2">2.30</td>
-*       <td>Added assembler files, linker skripts for Mbed OS.</td>
+*       <td>Added assembler files, linker scripts for Mbed OS.</td>
 *       <td>Added Arm Mbed OS embedded operating system support.</td>
 *   </tr>
 *   <tr>

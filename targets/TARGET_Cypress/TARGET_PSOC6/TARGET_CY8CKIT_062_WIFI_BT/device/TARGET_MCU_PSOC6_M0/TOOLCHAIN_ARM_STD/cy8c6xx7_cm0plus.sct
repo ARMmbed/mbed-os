@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm0plus.scat
-;* \version 2.30
+;* \version 2.40
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -55,7 +55,7 @@
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x10000
+  #define MBED_RAM_SIZE     0x00010000
 #endif
 
 #if !defined(MBED_PUBLIC_RAM_START)
@@ -77,16 +77,16 @@
 
 ; The following defines control RAM and flash memory allocation for the CM0+ core.
 ; You can change the memory allocation by editing the RAM and Flash defines.
+; Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
+; Using this memory region for other purposes will lead to unexpected behavior.
 ; Your changes must be aligned with the corresponding defines for the CM4 core in 'xx_cm4_dual.scat',
 ; where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.scat'.
-; RAM
 ; RAM
 #define RAM_START               MBED_RAM_START
 #define RAM_SIZE                MBED_RAM_SIZE
 ; Public RAM
-#define PUBLIC_RAM_START               MBED_PUBLIC_RAM_START
-#define PUBLIC_RAM_SIZE                MBED_PUBLIC_RAM_SIZE
-; Flash
+#define PUBLIC_RAM_START        MBED_PUBLIC_RAM_START
+#define PUBLIC_RAM_SIZE         MBED_PUBLIC_RAM_SIZE
 ; Flash
 #define FLASH_START             MBED_ROM_START
 #define FLASH_SIZE              MBED_ROM_SIZE
@@ -165,13 +165,21 @@ LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
         * (.noinit)
     }
     
-    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -Stack_Size 
-    { ; Stack region growing down
-    }
-
     RW_IRAM2 PUBLIC_RAM_START UNINIT
     {
-        * (.cy_pub_ram)
+        * (.cy_sharedmem)
+    }
+
+    ; Application heap area (HEAP)
+    ARM_LIB_HEAP  +0
+    { 
+        * (HEAP) 
+    }
+    
+    ; Stack region growing down
+    ARM_LIB_STACK RAM_START+RAM_SIZE -Stack_Size 
+    {
+        * (STACK)
     }
 }
 
