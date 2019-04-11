@@ -677,6 +677,16 @@ void I2C_MasterTransferCreateHandle(I2C_Type *base,
                                     void *userData);
 
 /*!
+ * @brief Destroys the I2C handle.
+ *
+ * @note disables I2C peripheral interrupts enabled by I2C_MasterTransferCreateHandle
+ *
+ * @param base I2C base pointer.
+ * @param handle pointer to i2c_master_handle_t structure to destroy.
+ */
+void I2C_MasterTransferDestroyHandle(I2C_Type *base, i2c_master_handle_t *handle);
+
+/*!
  * @brief Performs a master interrupt non-blocking transfer on the I2C bus.
  *
  * @note Calling the API returns immediately after transfer initiates. The user needs

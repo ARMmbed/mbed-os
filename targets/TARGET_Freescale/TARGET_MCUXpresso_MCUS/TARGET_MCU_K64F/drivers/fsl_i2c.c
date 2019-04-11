@@ -1081,6 +1081,17 @@ void I2C_MasterTransferCreateHandle(I2C_Type *base,
     EnableIRQ(s_i2cIrqs[instance]);
 }
 
+void I2C_MasterTransferDestroyHandle(I2C_Type *base, i2c_master_handle_t *handle)
+{
+    uint32_t instance = I2C_GetInstance(base);
+    if (handle && handle->completionCallback) {
+        memset(handle, 0, sizeof(*handle));
+        s_i2cHandle[instance] = NULL;
+        s_i2cMasterIsr = NULL;
+        DisableIRQ(s_i2cIrqs[instance]);
+    }
+}
+
 status_t I2C_MasterTransferNonBlocking(I2C_Type *base, i2c_master_handle_t *handle, i2c_master_transfer_t *xfer)
 {
     assert(handle);
