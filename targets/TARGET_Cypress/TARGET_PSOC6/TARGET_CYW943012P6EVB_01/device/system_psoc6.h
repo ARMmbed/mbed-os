@@ -322,6 +322,7 @@
 *   <tr>
 *       <td>2.40</td>
 *       <td>Updated assembler files, C files, linker scripts.</td>
+*       <td>Added Arm Compiler 6 support.</td>
 *   </tr>
 *   <tr>
 *       <td rowspan="2">2.30</td>
@@ -543,7 +544,11 @@ extern "C" {
 * \addtogroup group_system_config_system_functions
 * \{
 */
-extern void SystemInit(void);
+#if defined(__ARMCC_VERSION)
+    extern void SystemInit(void) __attribute__((constructor));
+#else
+    extern void SystemInit(void);
+#endif /* (__ARMCC_VERSION) */
 
 extern void SystemCoreClockUpdate(void);
 /** \} group_system_config_system_functions */

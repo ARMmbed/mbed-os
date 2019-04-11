@@ -1,9 +1,9 @@
-#! armcc -E
+#! armclang -E --target=arm-arm-none-eabi -x c -mcpu=cortex-m0
 ; The first line specifies a preprocessor command that the linker invokes
 ; to pass a scatter file through a C preprocessor.
 
 ;*******************************************************************************
-;* \file cy8c6xx7_cm4_dual.scat
+;* \file cy8c6xx7_cm0plus.scat
 ;* \version 2.40
 ;*
 ;* Linker file for the ARMCC.
@@ -43,7 +43,7 @@
 ;******************************************************************************/
 
 #if !defined(MBED_ROM_START)
-  #define MBED_ROM_START    0x10002000
+  #define MBED_ROM_START    0x10000000
 #endif
 
 ;* MBED_APP_START is being  used by the bootloader build script and
@@ -55,7 +55,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x000FE000
+  #define MBED_ROM_SIZE     0x80000
 #endif
 
 ;* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -67,11 +67,19 @@
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08002000
+  #define MBED_RAM_START    0x08000000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x00045800
+  #define MBED_RAM_SIZE     0x00010000
+#endif
+
+#if !defined(MBED_PUBLIC_RAM_START)
+  #define MBED_PUBLIC_RAM_START    0x08047600
+#endif
+
+#if !defined(MBED_PUBLIC_RAM_SIZE)
+  #define MBED_PUBLIC_RAM_SIZE     0x200
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -83,20 +91,23 @@
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
 
-; The following defines control RAM and flash memory allocation for the CM4 core.
-; You can change the memory allocation by editing RAM and Flash defines.
+; The following defines control RAM and flash memory allocation for the CM0+ core.
+; You can change the memory allocation by editing the RAM and Flash defines.
 ; Note that 2 KB of RAM (at the end of the SRAM) are reserved for system use.
 ; Using this memory region for other purposes will lead to unexpected behavior.
-; Your changes must be aligned with the corresponding defines for CM0+ core in 'xx_cm0plus.scat',
-; where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.scat'.
+; Your changes must be aligned with the corresponding defines for the CM4 core in 'xx_cm4_dual.scat',
+; where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.scat'.
 ; RAM
 #define RAM_START               MBED_RAM_START
 #define RAM_SIZE                MBED_RAM_SIZE
+; Public RAM
+#define PUBLIC_RAM_START        MBED_PUBLIC_RAM_START
+#define PUBLIC_RAM_SIZE         MBED_PUBLIC_RAM_SIZE
 ; Flash
 #define FLASH_START             MBED_APP_START
 #define FLASH_SIZE              MBED_APP_SIZE
 
-; The following defines describe a 32K flash region used for EEPROM emulation.
+; The following defines describe a 32K flash region used for EEPROM emulation. 
 ; This region can also be used as the general purpose flash.
 ; You can assign sections to this memory region for only one of the cores.
 ; Note some middleware (e.g. BLE, Emulated EEPROM) can place their data into this memory region.
@@ -134,8 +145,13 @@
 #define EFUSE_SIZE              0x100000
 
 
-LR_IROM1 FLASH_START FLASH_SIZE
+LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
 {
+    .cy_app_header +0
+    {
+        * (.cy_app_header)
+    }
+
     ER_FLASH_VECTORS +0
     {
         * (RESET, +FIRST)
@@ -165,6 +181,11 @@ LR_IROM1 FLASH_START FLASH_SIZE
         * (.noinit)
     }
 
+    RW_IRAM2 PUBLIC_RAM_START UNINIT
+    {
+        * (.cy_sharedmem)
+    }
+
     ; Application heap area (HEAP)
     ARM_LIB_HEAP  +0
     { 
@@ -172,20 +193,11 @@ LR_IROM1 FLASH_START FLASH_SIZE
     }
     
     ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE -Stack_Size 
+    ARM_LIB_STACK RAM_START+RAM_SIZE -Stack_Size
     {
         * (STACK)
     }
-
-    ; Used for the digital signature of the secure application and the
-    ; Bootloader SDK application. The size of the section depends on the required
-    ; data size.
-    .cy_app_signature (FLASH_START + FLASH_SIZE - 256) 256
-    {
-        * (.cy_app_signature)
-    }
 }
-
 
 ; Emulated EEPROM Flash area
 LR_EM_EEPROM EM_EEPROM_START EM_EEPROM_SIZE
@@ -267,6 +279,32 @@ CYMETA 0x90500000
 {
     .cymeta +0 { * (.cymeta) }
 }
+
+/* The following symbols used by the cymcuelftool. */
+/* Flash */
+#define __cy_memory_0_start 0x10000000
+#define __cy_memory_0_length  0x00100000
+#define __cy_memory_0_row_size 0x200
+
+/* Emulated EEPROM Flash area */
+#define __cy_memory_1_start    0x14000000
+#define __cy_memory_1_length   0x8000
+#define __cy_memory_1_row_size 0x200
+
+/* Supervisory Flash */
+#define __cy_memory_2_start    0x16000000
+#define __cy_memory_2_length   0x8000
+#define __cy_memory_2_row_size 0x200
+
+/* XIP */
+#define __cy_memory_3_start    0x18000000
+#define __cy_memory_3_length   0x08000000
+#define __cy_memory_3_row_size 0x200
+
+/* eFuse */
+#define __cy_memory_4_start    0x90700000
+#define __cy_memory_4_length   0x100000
+#define __cy_memory_4_row_size 1
 
 
 /* [] END OF FILE */
