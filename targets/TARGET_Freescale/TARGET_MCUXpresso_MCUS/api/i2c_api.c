@@ -36,9 +36,9 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
     return;
   }
 
-  capabilities->minimum_frequency         = 1;
+  capabilities->minimum_frequency         = 100000;
   capabilities->maximum_frequency         = 1000000;
-  capabilities->supports_slave_mode       = false;
+  capabilities->supports_slave_mode       = true;
   capabilities->supports_10bit_addressing = false;
   capabilities->supports_multi_master     = true;
   capabilities->supports_clock_stretching = false;
@@ -185,13 +185,6 @@ static int i2c_slave_read(i2c_t *obj, void *data, uint32_t length)
 {
   I2C_Type *base = i2c_addrs[obj->instance];
 
-  if (base->S & kI2C_AddressMatchFlag) {
-    /* Slave receive, master writing to slave. */
-    base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
-    /* Read dummy to release the bus. */
-    base->D;
-  }
-
   I2C_SlaveReadBlocking(base, (uint8_t *)data, length);
 
   return length;
@@ -214,11 +207,6 @@ static int i2c_slave_write(i2c_t *obj, const void *data, uint32_t length)
   I2C_Type *base = i2c_addrs[obj->instance];
 
   I2C_SlaveWriteBlocking(base, (uint8_t *)data, length);
-
-  /* Switch to receive mode. */
-  base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
-  /* Read dummy to release bus. */
-  base->D;
 
   return length;
 }
