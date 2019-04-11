@@ -1,10 +1,5 @@
-/**
- * @file
- * @brief      NVIC utility function and type declarations.
- */
-
-/* ****************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -33,17 +28,14 @@
  * trademarks, maskwork rights, or any other form of intellectual
  * property whatsoever. Maxim Integrated Products, Inc. retains all
  * ownership rights.
- *
- * $Date: 2016-09-09 12:24:40 -0500 (Fri, 09 Sep 2016) $
- * $Revision: 24344 $
- *
- *************************************************************************** */
+ *******************************************************************************
+ */
 
-/* Define to prevent redundant inclusion */
-#ifndef _NVIC_TABLE_H
-#define _NVIC_TABLE_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
 #define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
 #define NVIC_RAM_VECTOR_ADDRESS 0x20000000          // Vectors positioned at start of RAM
 
-#endif /* _NVIC_TABLE_H */
+#endif /* MBED_CMSIS_NVIC_H */
+

@@ -1,7 +1,7 @@
 #! armcc -E
 ; MAX32625
 ; 512KB FLASH (0x70000) @ 0x000010000
-; 160KB RAM (0x24F00) @ 0x20003100
+; 160KB RAM (0x28000) @ 0x20000000, first 0x3100 reserved - vectors have to be 0x200 aligned, so we start at 0x3200
 
 #if !defined(MBED_BOOT_STACK_SIZE)
   #define MBED_BOOT_STACK_SIZE 0x800
@@ -16,10 +16,10 @@ LR_IROM1 0x000010000 0x70000  {    ; load region size_region
         .ANY (+RO)
     }
 
-    ; [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110)
-    RW_IRAM1 (0x20003100+0x110) (0x24F00-0x110-Stack_Size)  {  ; RW data
+    ; [RAM] Vector table dynamic copy: 81 vectors * 4 bytes = 324 (0x144) + 4
+    RW_IRAM1 (0x20003200+0x148) (0x28000-0x3200-0x148-Stack_Size)  {  ; RW data
         .ANY (+RW +ZI)
     }
-    ARM_LIB_STACK (0x20003100+0x24F00) EMPTY -Stack_Size { ; stack
+    ARM_LIB_STACK (0x20000000+0x28000) EMPTY -Stack_Size { ; stack
     }
 }

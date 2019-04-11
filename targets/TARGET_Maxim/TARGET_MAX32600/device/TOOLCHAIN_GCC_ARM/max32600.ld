@@ -46,7 +46,7 @@ STACK_SIZE = MBED_BOOT_STACK_SIZE;
 MEMORY
 {
     FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00040000 /* start from 0x0, fullsize flash, 256k */
-    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000 /* full-size SRAM, 32k */
+    RAM (rwx) : ORIGIN = 0x20000140, LENGTH = 0x00008000 - 0x140 /* full-size SRAM, 32k */
 }
 
 /* Linker script to place sections and symbol values. Should be used together

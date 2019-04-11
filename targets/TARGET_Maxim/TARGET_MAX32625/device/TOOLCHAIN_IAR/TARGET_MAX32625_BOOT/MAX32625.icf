@@ -10,10 +10,10 @@ define symbol __intvec_start__        = MBED_APP_START;
 define symbol __region_ROM_start__    = MBED_APP_START;
 define symbol __region_ROM_end__      = MBED_APP_START + MBED_APP_SIZE - 1;
 
-/* [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110) bytes */
-define symbol __NVIC_start__          = 0x00010000;
-define symbol __NVIC_end__            = 0x00010110; /* to be aligned on 8 bytes */
-define symbol __region_RAM_start__    = 0x20000000;
+/* [RAM] Vector table dynamic copy: 81 vectors * 4 bytes = 324 (0x144) bytes */
+define symbol __NVIC_start__          = 0x20000000;
+define symbol __NVIC_end__            = 0x20000148; /* to be aligned on 8 bytes */
+define symbol __region_RAM_start__    = 0x20000148;
 define symbol __region_RAM_end__      = 0x20027FFF;
 
 /* Memory regions */

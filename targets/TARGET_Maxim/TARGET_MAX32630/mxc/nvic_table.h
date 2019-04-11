@@ -43,9 +43,7 @@
 #ifndef _NVIC_TABLE_H
 #define _NVIC_TABLE_H
 
-extern void (*ramVectorTable[MXC_IRQ_COUNT])(void);
-
 #define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
-#define NVIC_RAM_VECTOR_ADDRESS (ramVectorTable)    // Vectors positioned at start of RAM
+#define NVIC_RAM_VECTOR_ADDRESS 0x20000000          // Vectors positioned at start of RAM
 
 #endif /* _NVIC_TABLE_H */
