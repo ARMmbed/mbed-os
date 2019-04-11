@@ -69,6 +69,11 @@ struct i2c_s {
     uint32_t instance;
     uint8_t next_repeated_start;
     bool is_slave;
+#if DEVICE_I2C_ASYNCH
+    uint16_t address;
+    bool stop;
+    bool tx_complete;
+#endif
 };
 
 struct spi_s {
