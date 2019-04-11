@@ -52,7 +52,7 @@ LR_IROM2 ZBT_SSRAM1_START ZBT_SSRAM1_SIZE {
   }
   ; At execution, RAM is set to be in ZBT SSRAM2 and 3, just after the vector
   ; table previously moved from Flash.
-  RW_IRAM1 (ZBT_SSRAM23_START + NVIC_VECTORS_SIZE) (ZBT_SSRAM23_SIZE - NVIC_VECTORS_SIZE)  {
+  RW_IRAM1 (ZBT_SSRAM23_START + AlignExpr(NVIC_VECTORS_SIZE,8)) (ZBT_SSRAM23_SIZE - AlignExpr(NVIC_VECTORS_SIZE,8))  {
    .ANY (+RW +ZI)
   }
 }
