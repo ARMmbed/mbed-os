@@ -184,13 +184,20 @@ void ESP8266Interface::_connect_async()
         return;
     }
     _connect_retval = _esp.connect(ap_ssid, ap_pass);
+    int timeleft_ms = ESP8266_INTERFACE_CONNECT_TIMEOUT_MS - _conn_timer.read_ms();
     if (_connect_retval == NSAPI_ERROR_OK || _connect_retval == NSAPI_ERROR_AUTH_FAILURE
-            || _connect_retval == NSAPI_ERROR_NO_SSID) {
+            || _connect_retval == NSAPI_ERROR_NO_SSID
+            || ((_if_blocking == true) && (timeleft_ms <= 0))) {
         _connect_event_id = 0;
+        _conn_timer.stop();
+        if (timeleft_ms <= 0) {
+            _connect_retval = NSAPI_ERROR_CONNECTION_TIMEOUT;
+        }
         _if_connected.notify_all();
     } else {
         // Postpone to give other stuff time to run
-        _connect_event_id = _global_event_queue->call_in(ESP8266_CONNECT_TIMEOUT, callback(this, &ESP8266Interface::_connect_async));
+        _connect_event_id = _global_event_queue->call_in(ESP8266_INTERFACE_CONNECT_INTERVAL_MS,
+                                                         callback(this, &ESP8266Interface::_connect_async));
         if (!_connect_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                        "ESP8266Interface::_connect_async(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
@@ -233,6 +240,9 @@ int ESP8266Interface::connect()
 
     _connect_retval = NSAPI_ERROR_NO_CONNECTION;
     MBED_ASSERT(!_connect_event_id);
+    _conn_timer.stop();
+    _conn_timer.reset();
+    _conn_timer.start();
     _connect_event_id = _global_event_queue->call(callback(this, &ESP8266Interface::_connect_async));
 
     if (!_connect_event_id) {
