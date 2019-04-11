@@ -116,7 +116,7 @@ MBED_NONSECURE_ENTRY int32_t flash_program_page(flash_t *obj, uint32_t address, 
     uint32_t status;
     uint32_t failedAddress, failedData;
 
-    status = FLASH_Program(&flash_config, address, data, size);
+    status = FLASH_Program(&flash_config, address, (uint8_t *)data, size);
     if (status == kStatus_Success) {
         status = FLASH_VerifyProgram(&flash_config, address, size, data, &failedAddress, &failedData);
     }
