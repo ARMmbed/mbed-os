@@ -75,7 +75,7 @@ public:
         osMemoryPoolDelete(_id);
     }
 
-    /** Allocate a memory block of type T from a memory pool.
+    /** Allocate a memory block from a memory pool, without blocking.
       @return  address of the allocated memory block or NULL in case of no memory available.
 
       @note You may call this function from ISR context.
@@ -85,14 +85,83 @@ public:
         return (T *)osMemoryPoolAlloc(_id, 0);
     }
 
-    /** Allocate a memory block of type T from a memory pool and set memory block to zero.
+    /** Allocate a memory block from a memory pool, optionally blocking.
+      @param   millisec  timeout value (osWaitForever to wait forever)
+      @return  address of the allocated memory block or NULL in case of no memory available.
+
+      @note You may call this function from ISR context if the millisec parameter is set to 0.
+    */
+    T *alloc_for(uint32_t millisec)
+    {
+        return (T *)osMemoryPoolAlloc(_id, millisec);
+    }
+
+    /** Allocate a memory block from a memory pool, blocking.
+      @param   millisec absolute timeout time, referenced to Kernel::get_ms_count().
+      @return  address of the allocated memory block or NULL in case of no memory available.
+
+      @note You cannot call this function from ISR context.
+      @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+        wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+        the wait will time out earlier than specified.
+    */
+    T *alloc_until(uint64_t millisec)
+    {
+        uint64_t now = Kernel::get_ms_count();
+        uint32_t delay;
+        if (now >= millisec) {
+            delay = 0;
+        } else if (millisec - now >= osWaitForever) {
+            delay = osWaitForever - 1;
+        } else {
+            delay = millisec - now;
+        }
+        return alloc_for(delay);
+    }
+
+    /** Allocate a memory block from a memory pool, without blocking, and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
 
       @note You may call this function from ISR context.
     */
     T *calloc(void)
     {
-        T *item = (T *)osMemoryPoolAlloc(_id, 0);
+        T *item = alloc();
+        if (item != NULL) {
+            memset(item, 0, sizeof(T));
+        }
+        return item;
+    }
+
+    /** Allocate a memory block from a memory pool, optionally blocking, and set memory block to zero.
+      @param   millisec  timeout value (osWaitForever to wait forever)
+      @return  address of the allocated memory block or NULL in case of no memory available.
+
+      @note You may call this function from ISR context if the millisec parameter is set to 0.
+    */
+    T *calloc_for(uint32_t millisec)
+    {
+        T *item = alloc_for(millisec);
+        if (item != NULL) {
+            memset(item, 0, sizeof(T));
+        }
+        return item;
+    }
+
+    /** Allocate a memory block from a memory pool, blocking, and set memory block to zero.
+      @param   millisec absolute timeout time, referenced to Kernel::get_ms_count().
+      @return  address of the allocated memory block or NULL in case of no memory available.
+
+      @note You cannot call this function from ISR context.
+      @note the underlying RTOS may have a limit to the maximum wait time
+        due to internal 32-bit computations, but this is guaranteed to work if the
+        wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+        the wait will time out earlier than specified.
+    */
+    T *calloc_until(uint64_t millisec)
+    {
+        T *item = alloc_until(millisec);
         if (item != NULL) {
             memset(item, 0, sizeof(T));
         }
@@ -109,7 +178,7 @@ public:
     */
     osStatus free(T *block)
     {
-        return osMemoryPoolFree(_id, (void *)block);
+        return osMemoryPoolFree(_id, block);
     }
 
 private:
