@@ -106,8 +106,8 @@ def merge_region_list(
         region_list,
         destination,
         notify,
-        config,
-        padding=b'\xFF'
+        padding=b'\xFF',
+        restrict_size=None
 ):
     """Merge the region_list into a single image
 
@@ -115,6 +115,7 @@ def merge_region_list(
     region_list - list of regions, which should contain filenames
     destination - file name to write all regions to
     padding - bytes to fill gaps with
+    restrict_size - check to ensure a region fits within the given size
     """
     merged = IntelHex()
     _, format = splitext(destination)
@@ -145,7 +146,7 @@ def merge_region_list(
             # Normally, we assume that part.maxddr() can be beyond
             # end of rom. If the size is restricted with config, don't
             # allow this.
-            if config.target.restrict_size is not None:
+            if restrict_size is not None:
                 part_size = (part.maxaddr() - part.minaddr()) + 1
                 if part_size > region.size:
                     raise ToolException(

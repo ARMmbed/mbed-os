@@ -663,7 +663,10 @@ class mbedToolchain:
         region_list = [r._replace(filename=binary) if r.active else r
                        for r in region_list]
         res = "{}.{}".format(join(self.build_dir, name), ext)
-        merge_region_list(region_list, res, self.notify, self.config)
+        merge_region_list(
+            region_list, res, self.notify,
+            restrict_size=self.config.target.restrict_size
+        )
         update_regions = [
             r for r in region_list if r.name in UPDATE_WHITELIST
         ]
@@ -676,7 +679,7 @@ class mbedToolchain:
                 update_regions,
                 update_res,
                 self.notify,
-                self.config
+                restrict_size=self.config.target.restrict_size
             )
             return res, update_res
         else:

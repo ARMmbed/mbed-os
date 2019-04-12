@@ -136,7 +136,7 @@ def get_exporter_toolchain(ide):
 
 
 def generate_project_files(resources, export_path, target, name, toolchain, ide,
-                           macros=None):
+                           zip, macros=None):
     """Generate the project files for a project
 
     Positional arguments:
@@ -147,13 +147,14 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     toolchain - a toolchain class that corresponds to the toolchain used by the
       IDE or makefile
     ide - IDE name to export to
+    zip - True if the exported project will be zipped
 
     Optional arguments:
     macros - additional macros that should be defined within the exported
       project
     """
     exporter_cls, _ = get_exporter_toolchain(ide)
-    exporter = exporter_cls(target, export_path, name, toolchain,
+    exporter = exporter_cls(target, export_path, name, toolchain, zip,
                             extra_symbols=macros, resources=resources)
     exporter.generate()
     files = exporter.generated_files
@@ -278,9 +279,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if toolchain.config.name:
         name = toolchain.config.name
 
-    files, exporter = generate_project_files(resources, export_path,
-                                             target, name, toolchain, ide,
-                                             macros=macros)
+    files, exporter = generate_project_files(
+        resources, export_path, target, name, toolchain, ide, zip_proj, macros=macros
+    )
     if zip_proj:
         resources.add_features(ALLOWED_FEATURES)
         if isinstance(zip_proj, basestring):
