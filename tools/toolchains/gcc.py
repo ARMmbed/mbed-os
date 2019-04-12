@@ -78,11 +78,14 @@ class GCC(mbedToolchain):
             "Cortex-M4F": "cortex-m4",
             "Cortex-M7F": "cortex-m7",
             "Cortex-M7FD": "cortex-m7",
+            "Cortex-M33": "cortex-m33+nodsp",
             "Cortex-M33F": "cortex-m33+nodsp",
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
-        if core == "Cortex-M33":
+        if cpu == "cortex-m33+nodsp":
             self.cpu.append("-march=armv8-m.main")
+        elif cpu == "cortex-m33":
+            self.cpu.append("-march=armv8-m.main+dsp")
         else:
             self.cpu.append("-mcpu={}".format(cpu.lower()))
 
@@ -93,14 +96,11 @@ class GCC(mbedToolchain):
         if core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
-        elif core == "Cortex-M7F":
+        elif core == "Cortex-M7F" or core.startswith("Cortex-M33F"):
             self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
         elif core == "Cortex-M7FD":
             self.cpu.append("-mfpu=fpv5-d16")
-            self.cpu.append("-mfloat-abi=softfp")
-        elif core.startswith("Cortex-M33F"):
-            self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
         if target.core == "Cortex-A9":
