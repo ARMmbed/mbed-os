@@ -126,7 +126,7 @@ public:
         virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
     private:
-        friend LWIP;
+        friend class LWIP;
 
         Interface();
 

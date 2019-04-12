@@ -30,7 +30,7 @@ public:
                                   nsapi_ip_stack_t stack = IPV6_STACK,
                                   bool blocking = true);
     virtual nsapi_error_t bringdown();
-    friend Nanostack;
+    friend class Nanostack;
     friend class ::ThreadInterface;
 private:
     ThreadInterface(NanostackRfPhy &phy) : MeshInterface(phy), eui64_set(false) { }
