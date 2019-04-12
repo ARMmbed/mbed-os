@@ -3351,7 +3351,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,

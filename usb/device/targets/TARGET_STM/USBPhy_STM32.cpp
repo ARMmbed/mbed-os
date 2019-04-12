@@ -50,6 +50,7 @@ static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
 
 uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
 {
+#ifndef TARGET_NUCLEO_L073RZ
     uint32_t len;
     if (fifo == 0) {
         len = hpcd->Instance->DIEPTXF0_HNPTXFSIZ >> 16;
@@ -57,15 +58,25 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
         len =  hpcd->Instance->DIEPTXF[fifo - 1] >> 16;
     }
     return len * 4;
+#else
+    return 1024;
+#endif
 }
 
 void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
+#ifndef TARGET_NUCLEO_L073RZ
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
     if (priv->sof_enabled) {
         priv->events->sof((USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8);
     }
+#else
+    uint32_t sofnum = (hpcd->Instance->FNR) & USB_FNR_FN;
+    if (priv->sof_enabled) {
+            priv->events->sof(sofnum);
+        }
+#endif
 }
 
 /*  this call at device reception completion on a Out Enpoint  */
@@ -186,6 +197,11 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.Sof_enable = 1;
     hpcd.Init.speed = PCD_SPEED_HIGH;
+#elif defined(TARGET_NUCLEO_L073RZ)
+    hpcd.Instance = USB;
+    hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
+    hpcd.Init.Sof_enable = 1;
+    hpcd.Init.speed = PCD_SPEED_FULL;
 #else
     hpcd.Instance = USB_OTG_FS;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
@@ -290,7 +306,11 @@ void USBPhyHw::init(USBPhyEvents *events)
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
+#elif defined(TARGET_NUCLEO_L073RZ)
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF0_USB)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF0_USB)); // DP
+    __HAL_RCC_USB_CLK_ENABLE();
 #else
 #error "USB pins are not configured !"
 #endif
@@ -302,7 +322,34 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_PCD_Init(&hpcd);
 
+#if defined(TARGET_NUCLEO_L073RZ)
+    // EP0
+    HAL_PCDEx_PMAConfig(&hpcd, 0x00, PCD_SNG_BUF, 0x30);
+    HAL_PCDEx_PMAConfig(&hpcd, 0x80, PCD_SNG_BUF, 0x70);
+    // EP1
+    HAL_PCDEx_PMAConfig(&hpcd, 0x01, PCD_SNG_BUF, 0xB0);
+    HAL_PCDEx_PMAConfig(&hpcd, 0x81, PCD_SNG_BUF, 0xF0);
+    // EP2
+    HAL_PCDEx_PMAConfig(&hpcd, 0x02, PCD_SNG_BUF, 0x130);
+    HAL_PCDEx_PMAConfig(&hpcd, 0x82, PCD_SNG_BUF, 0x170);
+    // EP3
+    HAL_PCDEx_PMAConfig(&hpcd, 0x03, PCD_DBL_BUF, 0x01F001B0);
+    HAL_PCDEx_PMAConfig(&hpcd, 0x83, PCD_SNG_BUF, 0x230);
 
+
+//    // EP0
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x00, PCD_SNG_BUF, 0x30);
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x80, PCD_SNG_BUF, 0x70);
+//    // EP1
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x01, PCD_SNG_BUF, 0x90);
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x81, PCD_SNG_BUF, 0xb0);
+//    // EP2
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x02, PCD_SNG_BUF, 0x100);
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x82, PCD_SNG_BUF, 0x120);
+//    // EP3
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x03, PCD_DBL_BUF, 0x018000b0);
+//    HAL_PCDEx_PMAConfig(&hpcd, 0x83, PCD_SNG_BUF, 0xb0);
+#else
     uint32_t total_bytes = 0;
 
     /* Reserve space in the RX buffer for:
@@ -324,6 +371,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
+#endif
 
     // Configure interrupt vector
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)&_usbisr);
@@ -349,12 +397,25 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect()
 {
+#if defined(TARGET_NUCLEO_L073RZ)
+    /*set wInterrupt_Mask global variable*/
+    uint32_t wInterrupt_Mask = wInterrupt_Mask = USB_CNTR_CTRM  | USB_CNTR_WKUPM | USB_CNTR_SUSPM | USB_CNTR_ERRM \
+	                                             | USB_CNTR_SOFM | USB_CNTR_ESOFM | USB_CNTR_RESETM;
+    /*Set interrupt mask*/
+    hpcd.Instance->CNTR = wInterrupt_Mask;
+    HAL_PCD_DevConnect(&hpcd);
+#else
     HAL_PCD_Start(&hpcd);
+#endif
 }
 
 void USBPhyHw::disconnect()
 {
     HAL_PCD_Stop(&hpcd);
+#if defined(TARGET_NUCLEO_L073RZ)
+    HAL_PCD_DevDisconnect(&hpcd);
+    HAL_Delay(4U);
+#endif
 }
 
 void USBPhyHw::configure()
@@ -530,8 +591,10 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
+#ifndef TARGET_NUCLEO_L073RZ
     HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
     MBED_ASSERT(ret == HAL_OK);
+#endif
 }
 
 void USBPhyHw::process()
