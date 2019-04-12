@@ -3902,7 +3902,7 @@
     },
     "SDP_K1": {
         "inherits": ["FAMILY_STM32"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "STM32F4",
