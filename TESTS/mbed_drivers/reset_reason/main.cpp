@@ -25,7 +25,7 @@
 #include "mbed.h"
 
 #if DEVICE_WATCHDOG
-#include "drivers/Watchdog.h"
+#include "hal/watchdog_api.h"
 
 #define MSG_VALUE_WATCHDOG_STATUS "wdg_present"
 #define WDG_TIMEOUT_MS 50UL
@@ -101,9 +101,9 @@ static cmd_status_t handle_command(const char *key, const char *value)
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_WATCHDOG) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
         wait_ms(10); // Wait for the serial buffers to flush.
-        Watchdog watchdog;
-        if (watchdog.start(WDG_TIMEOUT_MS) != WATCHDOG_STATUS_OK) {
-            TEST_ASSERT_MESSAGE(0, "watchdog.start() error.");
+        watchdog_config_t config = { .timeout_ms = WDG_TIMEOUT_MS };
+        if (hal_watchdog_init(&config) != WATCHDOG_STATUS_OK) {
+            TEST_ASSERT_MESSAGE(0, "hal_watchdog_init() error.");
             return CMD_STATUS_ERROR;
         }
         wait_ms(WDG_TIMEOUT_MS + WDG_TIMEOUT_DELTA_MS);
