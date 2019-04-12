@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -119,7 +119,7 @@ static void osRtxTimerTick (void) {
 }
 
 /// Timer Thread
-__WEAK void osRtxTimerThread (void *argument) {
+__WEAK __NO_RETURN void osRtxTimerThread (void *argument) {
   os_timer_finfo_t finfo;
   osStatus_t       status;
   (void)           argument;
@@ -127,11 +127,8 @@ __WEAK void osRtxTimerThread (void *argument) {
   osRtxInfo.timer.mq = osRtxMessageQueueId(
     osMessageQueueNew(osRtxConfig.timer_mq_mcnt, sizeof(os_timer_finfo_t), osRtxConfig.timer_mq_attr)
   );
-  if (osRtxInfo.timer.mq == NULL) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return;
-  }
   osRtxInfo.timer.tick = osRtxTimerTick;
+
   for (;;) {
     //lint -e{934} "Taking address of near auto variable"
     status = osMessageQueueGet(osRtxInfo.timer.mq, &finfo, NULL, osWaitForever);

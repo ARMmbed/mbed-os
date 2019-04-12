@@ -32,82 +32,82 @@
 void print_context_info(void);
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-    //Global for populating the context in exception handler
-    mbed_fault_context_t *const mbed_fault_context=(mbed_fault_context_t *)(FAULT_CONTEXT_LOCATION);
+//Global for populating the context in exception handler
+mbed_fault_context_t *const mbed_fault_context = (mbed_fault_context_t *)(FAULT_CONTEXT_LOCATION);
 #else
-    mbed_fault_context_t fault_context;
-    mbed_fault_context_t *const mbed_fault_context=(mbed_fault_context_t *)&fault_context;
-#endif    
+mbed_fault_context_t fault_context;
+mbed_fault_context_t *const mbed_fault_context = (mbed_fault_context_t *) &fault_context;
+#endif
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in)
+void mbed_fault_handler(uint32_t fault_type, void *mbed_fault_context_in)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
-    
+
     mbed_error_printf("\n++ MbedOS Fault Handler ++\n\nFaultType: ");
-        
-    switch( fault_type ) {
-      case MEMMANAGE_FAULT_EXCEPTION: 
-        mbed_error_printf("MemManageFault"); 
-        faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
-        break;
-      
-      case BUS_FAULT_EXCEPTION: 
-        mbed_error_printf("BusFault"); 
-        faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
-        break;
-      
-      case USAGE_FAULT_EXCEPTION: 
-        mbed_error_printf("UsageFault"); 
-        faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
-        break;
-      
-      //There is no way we can hit this code without getting an exception, so we have the default treated like hardfault
-      case HARD_FAULT_EXCEPTION: 
-      default:    
-        mbed_error_printf("HardFault");
-        faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;      
-        break;
+
+    switch (fault_type) {
+        case MEMMANAGE_FAULT_EXCEPTION:
+            mbed_error_printf("MemManageFault");
+            faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
+            break;
+
+        case BUS_FAULT_EXCEPTION:
+            mbed_error_printf("BusFault");
+            faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
+            break;
+
+        case USAGE_FAULT_EXCEPTION:
+            mbed_error_printf("UsageFault");
+            faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
+            break;
+
+        //There is no way we can hit this code without getting an exception, so we have the default treated like hardfault
+        case HARD_FAULT_EXCEPTION:
+        default:
+            mbed_error_printf("HardFault");
+            faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;
+            break;
     }
     mbed_error_printf("\n\nContext:");
     print_context_info();
-    
+
     mbed_error_printf("\n\n-- MbedOS Fault Handler --\n\n");
-    
+
     //Now call mbed_error, to log the error and halt the system
-    mbed_error( faultStatus, "Fault exception", mbed_fault_context->PC_reg, NULL, 0 );
-    
+    mbed_error(faultStatus, "Fault exception", mbed_fault_context->PC_reg, NULL, 0);
+
 }
 
 MBED_NOINLINE void print_context_info(void)
 {
     //Context Regs
-    for(int i=0;i<13;i++) {
-        mbed_error_printf("\nR%-4d: %08" PRIX32, i, ((uint32_t *)(mbed_fault_context))[i]);  
+    for (int i = 0; i < 13; i++) {
+        mbed_error_printf("\nR%-4d: %08" PRIX32, i, ((uint32_t *)(mbed_fault_context))[i]);
     }
-        
+
     mbed_error_printf("\nSP   : %08" PRIX32
                       "\nLR   : %08" PRIX32
                       "\nPC   : %08" PRIX32
                       "\nxPSR : %08" PRIX32
                       "\nPSP  : %08" PRIX32
-                      "\nMSP  : %08" PRIX32, mbed_fault_context->SP_reg, mbed_fault_context->LR_reg, mbed_fault_context->PC_reg, 
-                                     mbed_fault_context->xPSR, mbed_fault_context->PSP, mbed_fault_context->MSP );
-                       
+                      "\nMSP  : %08" PRIX32, mbed_fault_context->SP_reg, mbed_fault_context->LR_reg, mbed_fault_context->PC_reg,
+                      mbed_fault_context->xPSR, mbed_fault_context->PSP, mbed_fault_context->MSP);
+
     //Capture CPUID to get core/cpu info
     mbed_error_printf("\nCPUID: %08" PRIX32, SCB->CPUID);
-    
+
 #if !defined(TARGET_M0) && !defined(TARGET_M0P)
     //Capture fault information registers to infer the cause of exception
     mbed_error_printf("\nHFSR : %08" PRIX32
-                    "\nMMFSR: %08" PRIX32
-                    "\nBFSR : %08" PRIX32
-                    "\nUFSR : %08" PRIX32
-                    "\nDFSR : %08" PRIX32
-                    "\nAFSR : %08" PRIX32  ////Split/Capture CFSR into MMFSR, BFSR, UFSR
-                    ,SCB->HFSR, (0xFF & SCB->CFSR), ((0xFF00 & SCB->CFSR) >> 8), ((0xFFFF0000 & SCB->CFSR) >> 16), SCB->DFSR, SCB->AFSR ); 
-    
+                      "\nMMFSR: %08" PRIX32
+                      "\nBFSR : %08" PRIX32
+                      "\nUFSR : %08" PRIX32
+                      "\nDFSR : %08" PRIX32
+                      "\nAFSR : %08" PRIX32  ////Split/Capture CFSR into MMFSR, BFSR, UFSR
+                      , SCB->HFSR, (0xFF & SCB->CFSR), ((0xFF00 & SCB->CFSR) >> 8), ((0xFFFF0000 & SCB->CFSR) >> 16), SCB->DFSR, SCB->AFSR);
+
     //Print MMFAR only if its valid as indicated by MMFSR
     if ((0xFF & SCB->CFSR) & 0x80) {
         mbed_error_printf("\nMMFAR: %08" PRIX32, SCB->MMFAR);
@@ -117,39 +117,40 @@ MBED_NOINLINE void print_context_info(void)
         mbed_error_printf("\nBFAR : %08" PRIX32, SCB->BFAR);
     }
 #endif
-    
+
     //Print Mode
     if (mbed_fault_context->EXC_RETURN & 0x8) {
         mbed_error_printf("\nMode : Thread");
         //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
-        //Note that the CONTROL register captured still reflects the privilege status of the 
+        //Note that the CONTROL register captured still reflects the privilege status of the
         //thread mode eventhough we are in Handler mode by the time we capture it.
-        if(mbed_fault_context->CONTROL & 0x1) {
-            mbed_error_printf("\nPriv : User"); 
+        if (mbed_fault_context->CONTROL & 0x1) {
+            mbed_error_printf("\nPriv : User");
         } else {
-            mbed_error_printf("\nPriv : Privileged"); 
-        }        
+            mbed_error_printf("\nPriv : Privileged");
+        }
     } else {
-        mbed_error_printf("\nMode : Handler"); 
-        mbed_error_printf("\nPriv : Privileged"); 
+        mbed_error_printf("\nMode : Handler");
+        mbed_error_printf("\nPriv : Privileged");
     }
     //Print Return Stack
     if (mbed_fault_context->EXC_RETURN & 0x4) {
-        mbed_error_printf("\nStack: PSP"); 
+        mbed_error_printf("\nStack: PSP");
     } else {
-        mbed_error_printf("\nStack: MSP"); 
+        mbed_error_printf("\nStack: MSP");
     }
 }
 
-mbed_error_status_t mbed_get_reboot_fault_context (mbed_fault_context_t *fault_context)
+mbed_error_status_t mbed_get_reboot_fault_context(mbed_fault_context_t *fault_context)
 {
     mbed_error_status_t status = MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_ITEM_NOT_FOUND);
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-    if(fault_context == NULL)
+    if (fault_context == NULL) {
         return MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INVALID_ARGUMENT);
+    }
     memcpy(fault_context, mbed_fault_context, sizeof(mbed_fault_context_t));
     status = MBED_SUCCESS;
-#endif 
+#endif
     return status;
 }
 
