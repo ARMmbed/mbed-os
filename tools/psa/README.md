@@ -5,8 +5,6 @@ This document describes the following scripts:
 * \_\_init\_\_.py
 * generate_partition_code.py
 * mbed_spm_tfm_common.py
-* generate_mbed_spm_partition_code.py
-* generate_tfm_partition_code.py
 * release.py
 
 ## \_\_init\_\_.py
@@ -25,8 +23,6 @@ Mbed OS holds two implementations of PSA:
 Each implementation requires a set of auto-generated files describing the secure partitions:
 
 * `generate_partition_code.py` - Generate files for both implementations.
-* `generate_mbed_spm_partition_code.py` - Generate files for MBED_SPM.
-* `generate_tfm_partition_code.py` - Generate files for TF-M.
 * `mbed_spm_tfm_common.py` - Holds common functions for both.
 
 ## Secure image generation

@@ -1,0 +1,26 @@
+{
+    "common": [
+        {
+            "name": "mbed-SPM database",
+            "template": "tools/psa/mbed_spm/templates/TARGET_MBED_SPM/COMPONENT_SPE/psa_setup.c.tpl",
+            "target": "TARGET_MBED_SPM/COMPONENT_SPE/psa_setup.c"
+        }
+    ],
+    "partition": [
+        {
+            "name": "Details partition defines and structures",
+            "template": "tools/psa/mbed_spm/templates/COMPONENT_SPE/psa_NAME_partition.h.tpl",
+            "target": "COMPONENT_SPE/psa_NAME_partition.h"
+        },
+        {
+            "name": "Details partition structures and init functions",
+            "template": "tools/psa/mbed_spm/templates/TARGET_MBED_SPM/COMPONENT_SPE/psa_NAME_partition.c.tpl",
+            "target": "TARGET_MBED_SPM/COMPONENT_SPE/psa_NAME_partition.c"
+        },
+        {
+            "name": "Secure Service signals list",
+            "template": "tools/psa/mbed_spm/templates/psa_NAME_ifs.h.tpl",
+            "target": "psa_NAME_ifs.h"
+        }
+    ]
+}
