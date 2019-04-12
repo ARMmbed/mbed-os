@@ -14,59 +14,103 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: python
-python: 2.7
+language: sh
+os: linux
+dist: xenial
+
 
 env:
   global:
-    - >
-      STATUS=$'curl -so/dev/null --user "$MBED_BOT" --request POST
-      https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
-      --data @- << DATA\n{
-      "state": "$0",
-      "description": "$1",
-      "context": "travis-ci/$NAME",
-      "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-      }\nDATA'
+    - deps_url="https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps"
+    - deps_dir="${HOME}/.cache/deps"
 
 cache:
   pip: true
   directories:
-    - $HOME/.cache/apt
-    - $HOME/gcc-arm-none-eabi-6-2017-q2-update
+    - ${HOME}/.cache/deps
+
 
 before_install:
-  - bash -c "$STATUS" pending "Local $NAME testing is in progress"
-  # Make sure pipefail
-  - set -o pipefail
-  # Setup apt to cache
-  - mkdir -p $HOME/.cache/apt/partial
-  - sudo rm -rf /var/cache/apt/archives
-  - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
-  # Setup ppa to make sure arm-none-eabi-gcc is correct version
-  - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  - sudo add-apt-repository -y ppa:deadsnakes/ppa
-  # workaround for https://travis-ci.community/t/then-sudo-apt-get-update-failed-public-key-is-not-available-no-pubkey-6b05f25d762e3157-in-ubuntu-xenial/1728
-  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
-  # Loop until update succeeds (timeouts can occur)
-  - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
+  - source tools/test/travis-ci/functions.sh
+  - set_status "pending" "Test started."
 
 after_success:
-  - bash -c "$STATUS" success "Local $NAME testing has passed"
+  - set_status "success" "Success!"
 
 after_failure:
-  - bash -c "$STATUS" failure "Local $NAME testing has failed"
+  - set_status "failure" "Test failed."
+
 
 matrix:
   include:
-    - env:
-        - NAME=docs
+    
+    ### Basic Tests ###
+    - &basic-vm
+      stage: "Basic"
+      name: "file attributes"
+      env: NAME=gitattributestest
+      script:
+        - git diff --exit-code
+
+    - <<: *basic-vm
+      name: "license check"
+      env: NAME=licence_check
+      script:
+        - |
+          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
+          "gnu general\|gnu lesser\|lesser general\|public license"
+
+    - <<: *basic-vm
+      name: "include check"
+      env: NAME=include_check
+      script:
+        - |
+          ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
+              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+
+
+    ### Docs Tests ###
+    - &docs-vm
+      stage: "Docs"
+      name: "astyle"
+      env: NAME=astyle
       install:
-        # Install dependencies
-        - sudo apt-get install doxygen
-        # Print versions we use
-        - doxygen --version
-      before_script:
+        - >-
+          curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+          mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
+          cd BUILD/astyle/build/gcc;
+          make;
+          export PATH="${PWD}/bin:${PATH}";
+          cd -
+        - astyle --version
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
+      script:
+        - >-
+          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | ( grep -v -f .astyleignore || true ) \
+            | while read file; do astyle -n --options=.astylerc "${file}"; done
+        - git diff --exit-code --diff-filter=d --color
+      
+    - <<: *docs-vm
+      name: "spellcheck"
+      env: NAME=doxy-spellcheck
+      install:
+        - source_pkg aspell
+      script:
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
+
+    - <<: *docs-vm
+      name: "doxygen"
+      env: NAME=docs
+      install:
         # Build doxygen
         - >
           (git clone --depth=1 --single-branch --branch Release_1_8_14 https://github.com/doxygen/doxygen;
@@ -99,14 +143,19 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - &tools-pytest
+
+    ### Python Tests ###
+    - &pytools-vm
+      stage: "Pytest"
+      name: "tools-py27"
       env: NAME=tools-py2.7
+      language: python
       python: 2.7
       install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded
+        # Install gcc
+        - source_pkg gcc
         - arm-none-eabi-gcc --version
-        # Add additional dependencies specific for testing
+        # Install additional python modules
         - python --version
         - |-
           tr -d ' ' >> requirements.txt <<< "
@@ -117,7 +166,8 @@ matrix:
           coverage>=4.5,<5
           coveralls>=1.5,<2
           "
-        # ... and install.
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
         - pip install -r requirements.txt
         - pip list --verbose
       script:
@@ -126,118 +176,92 @@ matrix:
         - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
-      after_success:
-        # Coverage for tools
         - coveralls
-        # Report success since we have overridden default behavior
-        - bash -c "$STATUS" success "Local $NAME testing has passed"
 
-    - env:
-        - NAME=doxy-spellcheck
-
-      install:
-        - sudo apt-get install aspell
-
-      script:
-        # Run local testing on header file doxy
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
-
-      after_success:
-        # Coverage for tools
-        - coveralls
-        # Report success since we have overridden default behavior
-        - bash -c "$STATUS" success "Local $NAME testing has passed"
-
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py35"
       env: NAME=tools-py3.5
       python: 3.5
 
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py36"
       env: NAME=tools-py3.6
       python: 3.6
 
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py37"
       env: NAME=tools-py3.7
       python: 3.7
-      dist: xenial
 
-    - env:
-        - NAME=astyle
+    
+    ### Extended Tests ###
+    - &extended-vm
+      stage: "Extended"
+      name: "psa autogen"
+      env: NAME=psa-autogen
+      language: python
+      python: 3.7
       install:
-        - >-
-          curl -L0 https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
-          mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
-          cd BUILD/astyle/build/gcc;
-          make;
-          export PATH=$PWD/bin:$PATH;
-          cd -
-        - astyle --version
-        # Fetch remaining information needed for branch comparison
-        - git fetch --all --unshallow --tags
-        - git fetch origin "${TRAVIS_BRANCH}"
-      script:
-        - >-
-          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
-            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
-            | while read file; do astyle -n --options=.astylerc "${file}"; done
-        - git diff --exit-code --diff-filter=d --color
-
-    - env:
-        - NAME=events
-        - EVENTS=events
-      install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded
-        - pip install -r requirements.txt
-        # Print versions we use
+        # Install gcc
+        - source_pkg gcc
         - arm-none-eabi-gcc --version
-        - gcc --version
-        - python --version
+        # Install python modules
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install -r requirements.txt
+        - pip list --verbose
+      script:
+        - python tools/psa/generate_partition_code.py
+        - git diff --exit-code
+    
+    - <<: *extended-vm
+      name: "events"
+      env: NAME=events EVENTS=events
       script:
         # Check that example compiles
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
+        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
         # Check that example compiles without rtos
-        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
-        - rm -r rtos usb features/cellular features/netsocket features/nanostack features/lwipstack features/frameworks/greentea-client features/frameworks/utest features/frameworks/unity components BUILD
+        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
+        - |
+          rm -r rtos usb features/cellular features/netsocket features/nanostack \
+            features/lwipstack features/frameworks/greentea-client \
+            features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
-        - make -C $EVENTS/equeue test
+        - make -C ${EVENTS}/equeue test
         # Run profiling tests
-        - make -C $EVENTS/equeue prof | tee prof
+        - make -C ${EVENTS}/equeue prof | tee prof
       after_success:
-        # update status if we succeeded, compare with master if possible
+        # Update status, comparing with master if possible.
         - |
           CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
-              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
-                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
+              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
+                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
               || echo 0)
 
-          STATUSM="Passed, runtime is ${CURR} cycles"
-          if [ "$PREV" -ne 0 ]
-          then
-              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
-          fi
-        - bash -c "$STATUS" success "$STATUSM"
+          delta=""
+          [ "${PREV}" -ne 0 ] && delta="($(printf "%+d" "$(( ${CURR} - ${PREV} ))" cycles)"
 
-    - env:
-        - NAME=littlefs
-        - LITTLEFS=features/storage/filesystem/littlefs
+          set_status "success" "Success! Runtime is ${CURR} cycles. ${delta}"
+
+    - <<: *extended-vm
+      name: "littlefs"
+      env: NAME=littlefs LITTLEFS=features/storage/filesystem/littlefs
       install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
-        - pip install -r requirements.txt
-        # Print versions
+        # Install gcc
+        - source_pkg gcc
         - arm-none-eabi-gcc --version
-        - gcc --version
-        - python --version
+        # Install python modules
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install -r requirements.txt
+        - pip list --verbose
+        # Install test-specific packages
+        - source_pkg fuse
+        - source_pkg libfuse-dev
         - fusermount --version
       before_script:
         # Setup and patch littlefs-fuse
@@ -245,7 +269,7 @@ matrix:
         - git -C littlefs_fuse checkout 3f1ed6e37799e49e3710830dc6abb926d5503cf2
         - echo '*' > littlefs_fuse/.mbedignore
         - rm -rf littlefs_fuse/littlefs/*
-        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) littlefs_fuse/littlefs
+        - cp -r $(git ls-tree --name-only HEAD ${LITTLEFS}/littlefs/) littlefs_fuse/littlefs
         # Create file-backed disk
         - mkdir MOUNT
         - sudo chmod a+rw /dev/loop0
@@ -255,74 +279,43 @@ matrix:
       script:
         # Check that example compiles
         - export CFLAGS="-Werror -Wno-format"
-        - sed -n '/``` c++/,/```/{/```/d;p;}' $LITTLEFS/README.md > main.cpp
+        - sed -n '/``` c++/,/```/{/```/d;p;}' ${LITTLEFS}/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
         # Run local littlefs tests
-        - make -C$LITTLEFS/littlefs test QUIET=1
+        - make -C${LITTLEFS}/littlefs test QUIET=1
         # Run local littlefs tests with set of variations
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
-        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048"
-        - make -C$LITTLEFS/littlefs clean test QUIET=1 CFLAGS+="-DLFS_NO_INTRINSICS"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
+        - make -C${LITTLEFS}/littlefs test QUIET=1 CFLAGS+="-DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048"
+        - make -C${LITTLEFS}/littlefs clean test QUIET=1 CFLAGS+="-DLFS_NO_INTRINSICS"
         # Self-hosting littlefs fuzz test with littlefs-fuse
         - make -Clittlefs_fuse
         - littlefs_fuse/lfs --format /dev/loop0
         - littlefs_fuse/lfs /dev/loop0 MOUNT
         - ls MOUNT
         - mkdir MOUNT/littlefs
-        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) MOUNT/littlefs
+        - cp -r $(git ls-tree --name-only HEAD ${LITTLEFS}/littlefs/) MOUNT/littlefs
         - ls MOUNT/littlefs
         - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs test_files QUIET=1
         # Compile and find the code size with smallest configuration
-        - cd $TRAVIS_BUILD_DIR/$LITTLEFS/littlefs
+        - cd ${TRAVIS_BUILD_DIR}/${LITTLEFS}/littlefs
         - make clean size
             CC='arm-none-eabi-gcc -mthumb'
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
             CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
       after_success:
-        # update status if we succeeded, compare with master if possible
+        # Update status, comparing with master if possible.
         - |
           CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
-              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
-                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+          PREV=$(curl -u "${MBED_BOT}" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/status/master \
+              | jq -re "select(.sha != \"${TRAVIS_COMMIT}\")
+                  | .statuses[] | select(.context == \"travis-ci/${NAME}\").description
                   | capture(\"code size is (?<size>[0-9]+)\").size" \
               || echo 0)
 
-          STATUSM="Passed, code size is ${CURR}B"
-          if [ "$PREV" -ne 0 ]
-          then
-              STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
-          fi
-        - bash -c "$STATUS" success "$STATUSM"
+          delta=""
+          [ "${PREV}" -ne 0 ] && delta="($(printf "%+0.2f%%" "$(<<< "100 * ((${CURR} - ${PREV})/${PREV})" bc -l)"))"
 
-    - env:
-        - NAME=gitattributestest
-      script:
-        # Check that no changes after clone. This check that .gitattributes is used right way.
-        - git diff --exit-code
-
-    - env:
-        - NAME=licence_check
-      script:
-        - >-
-          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
-          "gnu general\|gnu lesser\|lesser general\|public license"
-
-    - env:
-        - NAME=include_check
-      script:
-        - echo 'Checking that there are no '#include "mbed.h"' in code where it should not be'
-        - |
-         ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
-             ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
-             ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
-
-    - env:
-        - NAME=psa-autogen
-      script:
-        # Run SPM code generators and check that changes are not needed
-        - python tools/psa/generate_partition_code.py
-        - git diff --exit-code
+          set_status "success" "Success! Code size is ${CURR}B. ${delta}"
