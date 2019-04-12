@@ -6771,7 +6771,7 @@
     },
     "SAMG55J19": {
         "inherits": ["Target"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "extra_labels": ["Atmel", "SAM_CortexM4", "SAMG55"],
         "macros": [
             "__SAMG55J19__",
