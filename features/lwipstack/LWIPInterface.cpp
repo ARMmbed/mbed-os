@@ -467,7 +467,7 @@ nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetwo
 #if LWIP_IPV4
                    0, 0, 0,
 #endif
-                   interface, &LWIP::Interface::l3ip_if_init, ip_input)) {
+                   interface, &LWIP::Interface::l3ip_if_init, tcpip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
