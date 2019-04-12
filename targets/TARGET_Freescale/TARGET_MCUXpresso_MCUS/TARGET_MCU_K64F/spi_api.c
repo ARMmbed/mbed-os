@@ -25,458 +25,593 @@
 #include "mbed_error.h"
 #include "fsl_dspi.h"
 #include "peripheral_clock_defines.h"
-#include "dma_reqs.h"
 #include "PeripheralPins.h"
+#include "device.h"
 
 /* Array of SPI peripheral base address. */
 static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 /* Array of SPI bus clock frequencies */
 static clock_name_t const spi_clocks[] = SPI_CLOCK_FREQS;
 
-SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
+void wait_cycles(volatile int cycles)
 {
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-
-    SPIName spi_per;
-
-    // If 3 wire SPI is used, the miso is not connected.
-    if (miso == NC) {
-        spi_per = (SPIName)pinmap_merge(spi_mosi, spi_sclk);
-    } else {
-        SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-        spi_per = (SPIName)pinmap_merge(spi_data, spi_sclk);
-    }
-
-    return spi_per;
+    while(cycles--);
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+status_t DSPI_TransferBlockingLimit(SPI_Type *base, dspi_transfer_t *transfer, uint32_t tx_limit, uint32_t rx_limit, uint32_t dummy)
+{
+    assert(transfer);
+
+    uint16_t wordToSend = 0;
+    uint16_t wordReceived = 0;
+    uint8_t dummyData = (uint8_t)dummy;
+    uint8_t bitsPerFrame;
+
+    uint32_t command;
+    uint32_t lastCommand;
+
+    uint8_t *txData;
+    uint8_t *rxData;
+    uint32_t remainingSendByteCount;
+    uint32_t remainingReceiveByteCount;
+
+    uint32_t fifoSize;
+    dspi_command_data_config_t commandStruct;
+
+    /* If the transfer count is zero, then return immediately.*/
+    if (transfer->dataSize == 0)
+    {
+        return kStatus_InvalidArgument;
+    }
+
+    DSPI_StopTransfer(base);
+    DSPI_DisableInterrupts(base, kDSPI_AllInterruptEnable);
+    DSPI_FlushFifo(base, true, true);
+    DSPI_ClearStatusFlags(base, kDSPI_AllStatusFlag);
+
+    /*Calculate the command and lastCommand*/
+    commandStruct.whichPcs =
+        (dspi_which_pcs_t)(1U << ((transfer->configFlags & DSPI_MASTER_PCS_MASK) >> DSPI_MASTER_PCS_SHIFT));
+    commandStruct.isEndOfQueue = false;
+    commandStruct.clearTransferCount = false;
+    commandStruct.whichCtar =
+        (dspi_ctar_selection_t)((transfer->configFlags & DSPI_MASTER_CTAR_MASK) >> DSPI_MASTER_CTAR_SHIFT);
+    commandStruct.isPcsContinuous = (bool)(transfer->configFlags & kDSPI_MasterPcsContinuous);
+
+    command = DSPI_MasterGetFormattedCommand(&(commandStruct));
+
+    commandStruct.isEndOfQueue = true;
+    commandStruct.isPcsContinuous = (bool)(transfer->configFlags & kDSPI_MasterActiveAfterTransfer);
+    lastCommand = DSPI_MasterGetFormattedCommand(&(commandStruct));
+
+    /*Calculate the bitsPerFrame*/
+    bitsPerFrame = ((base->CTAR[commandStruct.whichCtar] & SPI_CTAR_FMSZ_MASK) >> SPI_CTAR_FMSZ_SHIFT) + 1;
+
+    txData = transfer->txData;
+    rxData = transfer->rxData;
+    remainingSendByteCount = transfer->dataSize;
+    remainingReceiveByteCount = transfer->dataSize;
+
+    if ((base->MCR & SPI_MCR_DIS_RXF_MASK) || (base->MCR & SPI_MCR_DIS_TXF_MASK))
+    {
+        fifoSize = 1;
+    }
+    else
+    {
+        fifoSize = FSL_FEATURE_DSPI_FIFO_SIZEn(base);
+    }
+
+    DSPI_StartTransfer(base);
+
+    if (bitsPerFrame <= 8)
+    {
+        while (remainingSendByteCount > 0)
+        {
+            if (remainingSendByteCount == 1)
+            {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
+                {
+                    DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                }
+
+                if (txData != NULL && tx_limit)
+                {
+                    base->PUSHR = (*txData) | (lastCommand);
+                    txData++;
+                    tx_limit--;
+                }
+                else
+                {
+                    base->PUSHR = (lastCommand) | (dummyData);
+                }
+                DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                remainingSendByteCount--;
+
+                while (remainingReceiveByteCount > 0)
+                {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
+                    {
+                        if (rxData != NULL && rx_limit)
+                        {
+                            /* Read data from POPR*/
+                            if (remainingReceiveByteCount == 1) wait_cycles(100); // workaround for last sym issue on slave
+                            *(rxData) = DSPI_ReadData(base);
+                            rxData++;
+                            rx_limit--;
+                        }
+                        else
+                        {
+                            DSPI_ReadData(base);
+                        }
+                        remainingReceiveByteCount--;
+
+                        DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
+                    }
+                }
+            }
+            else
+            {
+                /*Wait until Tx Fifo is not full*/
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
+                {
+                    DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                }
+                if (txData != NULL && tx_limit)
+                {
+                    base->PUSHR = command | (uint16_t)(*txData);
+                    txData++;
+                    tx_limit--;
+                }
+                else
+                {
+                    base->PUSHR = command | dummyData;
+                }
+                remainingSendByteCount--;
+
+                DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+
+                while ((remainingReceiveByteCount - remainingSendByteCount) >= fifoSize)
+                {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
+                    {
+                        if (rxData != NULL && rx_limit)
+                        {
+                            *(rxData) = DSPI_ReadData(base);
+                            rxData++;
+                            rx_limit--;
+                        }
+                        else
+                        {
+                            DSPI_ReadData(base);
+                        }
+                        remainingReceiveByteCount--;
+
+                        DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        while (remainingSendByteCount > 0)
+        {
+            if (remainingSendByteCount <= 2)
+            {
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
+                {
+                    DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                }
+
+                if (txData != NULL && tx_limit)
+                {
+                    wordToSend = *(txData);
+                    ++txData;
+
+                    if (remainingSendByteCount > 1)
+                    {
+                        wordToSend |= (unsigned)(*(txData)) << 8U;
+                        ++txData;
+                        tx_limit--;
+                    }
+                }
+                else
+                {
+                    wordToSend = dummyData;
+                }
+
+                base->PUSHR = lastCommand | wordToSend;
+
+                DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                remainingSendByteCount = 0;
+
+                while (remainingReceiveByteCount > 0)
+                {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
+                    {
+                        if (remainingReceiveByteCount == 2) wait_cycles(100); // workaround for last sym issue on slave
+                        wordReceived = DSPI_ReadData(base);
+
+                        if (remainingReceiveByteCount != 1)
+                        {
+                            if (rxData != NULL && rx_limit)
+                            {
+                                *(rxData) = wordReceived;
+                                ++rxData;
+                                *(rxData) = wordReceived >> 8;
+                                ++rxData;
+                                rx_limit--;
+                            }
+                            remainingReceiveByteCount -= 2;
+                        }
+                        else
+                        {
+                            if (rxData != NULL && rx_limit)
+                            {
+                                *(rxData) = wordReceived;
+                                ++rxData;
+                                rx_limit--;
+                            }
+                            remainingReceiveByteCount--;
+                        }
+                        DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
+                    }
+                }
+            }
+            else
+            {
+                /*Wait until Tx Fifo is not full*/
+                while (!(DSPI_GetStatusFlags(base) & kDSPI_TxFifoFillRequestFlag))
+                {
+                    DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+                }
+
+                if (txData != NULL && tx_limit)
+                {
+                    wordToSend = *(txData);
+                    ++txData;
+                    wordToSend |= (unsigned)(*(txData)) << 8U;
+                    ++txData;
+                    tx_limit--;
+                }
+                else
+                {
+                    wordToSend = dummyData;
+                }
+                base->PUSHR = command | wordToSend;
+                remainingSendByteCount -= 2;
+
+                DSPI_ClearStatusFlags(base, kDSPI_TxFifoFillRequestFlag);
+
+                while (((remainingReceiveByteCount - remainingSendByteCount) / 2) >= fifoSize)
+                {
+                    if (DSPI_GetStatusFlags(base) & kDSPI_RxFifoDrainRequestFlag)
+                    {
+                        wordReceived = DSPI_ReadData(base);
+
+                        if (rxData != NULL && rx_limit)
+                        {
+                            *rxData = wordReceived;
+                            ++rxData;
+                            *rxData = wordReceived >> 8;
+                            ++rxData;
+                            rx_limit--;
+                        }
+                        remainingReceiveByteCount -= 2;
+
+                        DSPI_ClearStatusFlags(base, kDSPI_RxFifoDrainRequestFlag);
+                    }
+                }
+            }
+        }
+    }
+
+    return kStatus_Success;
+}
+
+void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
+{
+    cap->word_length = 0x00008080;
+    cap->support_slave_mode = true;
+    cap->half_duplex = true;
+
+    cap->minimum_frequency = 200000;
+    cap->maximum_frequency = 4000000;
+}
+
+SPIName spi_get_module(PinName mosi, PinName miso, PinName sclk) {
+    int32_t spi_mosi = pinmap_find_peripheral(mosi, PinMap_SPI_SOUT);
+    int32_t spi_miso = pinmap_find_peripheral(miso, PinMap_SPI_SIN);
+    if ((spi_mosi == NC) && (spi_miso == NC)) {
+        // we're probably in slave mode.
+        spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_SIN);
+        spi_miso = pinmap_peripheral(miso, PinMap_SPI_SOUT);
+    }
+    int32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    int32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    return pinmap_merge(spi_data, spi_sclk);
+}
+
+void spi_init(spi_t *obj, bool is_slave, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     // determine the SPI to use
-    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
-    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
-    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+    int32_t spi_module = (uint32_t)spi_get_module(mosi, miso, sclk);
+    int32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    MBED_ASSERT(spi_module != NC);
 
-    obj->spi.instance = pinmap_merge(spi_data, spi_cntl);
-    MBED_ASSERT((int)obj->spi.instance != NC);
+    obj->instance = pinmap_merge(spi_module, spi_ssel);
+    MBED_ASSERT((int)obj->instance != NC);
 
     // pin out the spi pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
+    if (!is_slave) {
+        pinmap_pinout(mosi, PinMap_SPI_SOUT);
+    } else {
+        pinmap_pinout(mosi, PinMap_SPI_SIN);
+    }
+    if (!is_slave) {
+        pinmap_pinout(miso, PinMap_SPI_SIN);
+    } else {
+        pinmap_pinout(miso, PinMap_SPI_SOUT);
+    }
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
     }
-
-    /* Set the transfer status to idle */
-    obj->spi.status = kDSPI_Idle;
-
-    obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
+    obj->is_slave = is_slave;
+    obj->initialised = false;
 }
 
 void spi_free(spi_t *obj)
 {
-    DSPI_Deinit(spi_address[obj->spi.instance]);
-}
-
-void spi_format(spi_t *obj, int bits, int mode, int slave)
-{
-    dspi_master_config_t master_config;
-    dspi_slave_config_t slave_config;
-
-    /* Bits: values between 4 and 16 are valid */
-    MBED_ASSERT(bits >= 4 && bits <= 16);
-    obj->spi.bits = bits;
-
-    if (slave) {
-        /* Slave config */
-        DSPI_SlaveGetDefaultConfig(&slave_config);
-        slave_config.whichCtar = kDSPI_Ctar0;
-        slave_config.ctarConfig.bitsPerFrame = (uint32_t)bits;;
-        slave_config.ctarConfig.cpol = (mode & 0x2) ? kDSPI_ClockPolarityActiveLow : kDSPI_ClockPolarityActiveHigh;
-        slave_config.ctarConfig.cpha = (mode & 0x1) ? kDSPI_ClockPhaseSecondEdge : kDSPI_ClockPhaseFirstEdge;
-
-        DSPI_SlaveInit(spi_address[obj->spi.instance], &slave_config);
-    } else {
-        /* Master config */
-        DSPI_MasterGetDefaultConfig(&master_config);
-        master_config.ctarConfig.bitsPerFrame = (uint32_t)bits;;
-        master_config.ctarConfig.cpol = (mode & 0x2) ? kDSPI_ClockPolarityActiveLow : kDSPI_ClockPolarityActiveHigh;
-        master_config.ctarConfig.cpha = (mode & 0x1) ? kDSPI_ClockPhaseSecondEdge : kDSPI_ClockPhaseFirstEdge;
-        master_config.ctarConfig.direction = kDSPI_MsbFirst;
-        master_config.ctarConfig.pcsToSckDelayInNanoSec = 0;
-
-        DSPI_MasterInit(spi_address[obj->spi.instance], &master_config, CLOCK_GetFreq(spi_clocks[obj->spi.instance]));
+    if (obj->initialised) {
+        DSPI_Deinit(spi_address[obj->instance]);
+        obj->initialised = false;
     }
 }
 
-void spi_frequency(spi_t *obj, int hz)
+void spi_format(spi_t *obj, uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bit_ordering)
 {
-    uint32_t busClock = CLOCK_GetFreq(spi_clocks[obj->spi.instance]);
-    DSPI_MasterSetBaudRate(spi_address[obj->spi.instance], kDSPI_Ctar0, (uint32_t)hz, busClock);
+
+    dspi_master_config_t master_config;
+    dspi_slave_config_t slave_config;
+    dspi_clock_polarity_t cpol;
+    dspi_clock_phase_t cpha;
+
+    if ((mode == SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) ||
+        (mode == SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE)) {
+            cpol = kDSPI_ClockPolarityActiveLow;
+    } else {
+            cpol = kDSPI_ClockPolarityActiveHigh;
+    }
+    if ((mode == SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) ||
+        (mode == SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE)) {
+            cpha = kDSPI_ClockPhaseFirstEdge;
+    } else {
+            cpha = kDSPI_ClockPhaseSecondEdge;
+    }
+
+    /* Bits: values between 4 and 16 are valid */
+    MBED_ASSERT(bits >= 4 && bits <= 16);
+    obj->bits = bits;
+    obj->order = bit_ordering;
+
+    if (obj->is_slave) {
+        /* Slave config */
+        DSPI_SlaveGetDefaultConfig(&slave_config);
+        slave_config.whichCtar = kDSPI_Ctar0;
+        slave_config.ctarConfig.bitsPerFrame = (uint32_t)bits;
+        slave_config.ctarConfig.cpol = cpol;
+        slave_config.ctarConfig.cpha = cpha;
+
+        DSPI_SlaveInit(spi_address[obj->instance], &slave_config);
+    } else {
+        /* Master config */
+        DSPI_MasterGetDefaultConfig(&master_config);
+        master_config.ctarConfig.bitsPerFrame = (uint32_t)bits;
+        master_config.ctarConfig.cpol = cpol;
+        master_config.ctarConfig.cpha = cpha;
+        master_config.ctarConfig.direction = (bit_ordering == SPI_BIT_ORDERING_MSB_FIRST)? kDSPI_MsbFirst : kDSPI_LsbFirst;
+        master_config.ctarConfig.pcsToSckDelayInNanoSec = 0;
+
+        DSPI_MasterInit(spi_address[obj->instance], &master_config, CLOCK_GetFreq(spi_clocks[obj->instance]));
+    }
+
+    obj->initialised = true;
+}
+
+uint32_t spi_frequency(spi_t *obj, uint32_t hz)
+{
+    uint32_t busClock = CLOCK_GetFreq(spi_clocks[obj->instance]);
+    uint32_t actual_br = DSPI_MasterSetBaudRate(spi_address[obj->instance], kDSPI_Ctar0, (uint32_t)hz, busClock);
     //Half clock period delay after SPI transfer
-    DSPI_MasterSetDelayTimes(spi_address[obj->spi.instance], kDSPI_Ctar0, kDSPI_LastSckToPcs, busClock, 500000000 / hz);
+    DSPI_MasterSetDelayTimes(spi_address[obj->instance], kDSPI_Ctar0, kDSPI_LastSckToPcs, busClock, 2 * (1000000000 / hz));
+    DSPI_MasterSetDelayTimes(spi_address[obj->instance], kDSPI_Ctar0, kDSPI_PcsToSck, busClock, 2 * (1000000000 / hz));
+    DSPI_MasterSetDelayTimes(spi_address[obj->instance], kDSPI_Ctar0, kDSPI_BetweenTransfer, busClock, 0);
+    return actual_br;
 }
 
-static inline int spi_readable(spi_t *obj)
+static int spi_write(spi_t *obj, uint32_t value)
 {
-    return (DSPI_GetStatusFlags(spi_address[obj->spi.instance]) & kDSPI_RxFifoDrainRequestFlag);
-}
-
-int spi_master_write(spi_t *obj, int value)
-{
-    dspi_command_data_config_t command;
     uint32_t rx_data;
-    DSPI_GetDefaultDataCommandConfig(&command);
-    command.isEndOfQueue = true;
+    if (obj->is_slave) {
+        DSPI_SlaveWriteDataBlocking(spi_address[obj->instance], value);
+    } else {
+        dspi_command_data_config_t command;
+        DSPI_GetDefaultDataCommandConfig(&command);
+        command.isEndOfQueue = true;
 
-    DSPI_MasterWriteDataBlocking(spi_address[obj->spi.instance], &command, (uint16_t)value);
-
-    DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_TxFifoFillRequestFlag);
+        DSPI_MasterWriteDataBlocking(spi_address[obj->instance], &command, (uint16_t)value);
+        // trigger the send ?
+        DSPI_ClearStatusFlags(spi_address[obj->instance], kDSPI_TxFifoFillRequestFlag);
+    }
 
     // wait rx buffer full
-    while (!spi_readable(obj));
-    rx_data = DSPI_ReadData(spi_address[obj->spi.instance]);
-    DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
+    while (!(DSPI_GetStatusFlags(spi_address[obj->instance]) & kDSPI_RxFifoDrainRequestFlag));
+    rx_data = DSPI_ReadData(spi_address[obj->instance]);
+    DSPI_ClearStatusFlags(spi_address[obj->instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
     return rx_data & 0xffff;
 }
 
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill)
-{
-    int total = (tx_length > rx_length) ? tx_length : rx_length;
+static void spi_irq_handler(spi_t *obj, status_t status) {
+    if (obj->handler != NULL) {
+        spi_async_handler_f handler = obj->handler;
+        void *ctx = obj->ctx;
+        obj->handler = NULL;
+        obj->ctx = NULL;
 
-    // Default write is done in each and every call, in future can create HAL API instead
-    DSPI_SetDummyData(spi_address[obj->spi.instance], write_fill);
+        spi_async_event_t event = {
+            .transfered = obj->transfer_len,
+            .error = false
+        };
 
-    DSPI_MasterTransferBlocking(spi_address[obj->spi.instance], &(dspi_transfer_t) {
-        .txData = (uint8_t *)tx_buffer,
-        .rxData = (uint8_t *)rx_buffer,
-        .dataSize = total,
-        .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
-    });
+        handler(obj, ctx, &event);
+    }
+}
+static void spi_master_irq_handler(SPI_Type *base, dspi_master_handle_t *handle, status_t status, void *userData) {
+    spi_irq_handler(userData, status);
+}
+static void spi_slave_irq_callback(SPI_Type *base, dspi_slave_handle_t *handle, status_t status, void *userData) {
+    spi_irq_handler(userData, status);
+}
 
-    DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
+static void spi_sync_transfer_handler(spi_t *obj, void *ctx, spi_async_event_t *event) {
+    obj->transfered = event->transfered;
+}
+
+static uint32_t spi_symbol_size(spi_t *obj) {
+    if (obj->bits > 16) { return 4; }
+    else if (obj->bits > 8) { return 2; }
+    return 1;
+}
+
+static uint32_t spi_get_symbol(spi_t *obj, const void *from, uint32_t i) {
+    uint32_t val = 0;
+    switch (spi_symbol_size(obj)) {
+        case 1:
+            val = ((uint8_t *)from)[i];
+        break;
+        case 2:
+            val = ((uint16_t *)from)[i];
+        break;
+        case 4:
+            val = ((uint32_t *)from)[i];
+        break;
+        default:
+            // TODO: TRAP ?
+            break;
+    }
+    return val;
+}
+
+static void spi_set_symbol(spi_t *obj, void *to, uint32_t i, uint32_t val) {
+    switch (spi_symbol_size(obj)) {
+        case 1:
+            ((uint8_t *)to)[i] = val;
+            break;
+        case 2:
+            ((uint16_t *)to)[i] = val;
+            break;
+        case 4:
+            ((uint32_t *)to)[i] = val;
+            break;
+        default:
+            // TODO: TRAP ?
+            break;
+    }
+}
+
+uint32_t spi_transfer(spi_t *obj, const void *tx_buffer, uint32_t tx_length,
+                      void *rx_buffer, uint32_t rx_length, const void *fill) {
+    uint32_t total = 0;
+    if ((tx_length == 0) && (rx_length == 0)) { return 0; }
+    else if ((tx_length <= 1) && (rx_length <= 1)) {
+        uint32_t val_o = 0;
+        if (tx_length != 0) {
+            val_o = spi_get_symbol(obj, tx_buffer, 0);
+        } else {
+            val_o = spi_get_symbol(obj, fill, 0);
+        }
+        uint32_t val_i = spi_write(obj, val_o);
+
+        if (rx_length != 0) {
+            spi_set_symbol(obj, rx_buffer, 0, val_i);
+        }
+        total = 1;
+    } else {
+        SPI_Type *spi = spi_address[obj->instance];
+
+        total = (tx_length > rx_length) ? tx_length : rx_length;
+
+        DSPI_TransferBlockingLimit(spi, &(dspi_transfer_t){
+              .txData = (uint8_t *)tx_buffer,
+              .rxData = (uint8_t *)rx_buffer,
+              .dataSize = total * spi_symbol_size(obj),
+              .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
+        }, tx_length, rx_length, *(uint32_t *)fill);
+
+        DSPI_ClearStatusFlags(spi, kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
+    }
 
     return total;
 }
 
-int spi_slave_receive(spi_t *obj)
+bool spi_transfer_async(spi_t *obj, const void *tx, uint32_t tx_len, void *rx, uint32_t rx_len,
+        const void *fill, spi_async_handler_f handler, void *ctx, DMAUsage hint)
 {
-    return spi_readable(obj);
-}
+    SPI_Type *spi = spi_address[obj->instance];
 
-int spi_slave_read(spi_t *obj)
-{
-    uint32_t rx_data;
+    obj->handler = handler;
+    obj->ctx = ctx;
 
-    while (!spi_readable(obj));
-    rx_data = DSPI_ReadData(spi_address[obj->spi.instance]);
-    DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_RxFifoDrainRequestFlag);
-    return rx_data & 0xffff;
-}
+    DSPI_SetDummyData(spi, *(uint32_t *)fill);
+    uint32_t len = (rx_len>tx_len)?rx_len:tx_len;
+    obj->transfer_len = len;
 
-void spi_slave_write(spi_t *obj, int value)
-{
-    DSPI_SlaveWriteDataBlocking(spi_address[obj->spi.instance], (uint32_t)value);
-}
-
-static int32_t spi_master_transfer_asynch(spi_t *obj)
-{
-    dspi_transfer_t masterXfer;
-    int32_t status;
-    uint32_t transferSize;
-
-    /*Start master transfer*/
-    masterXfer.txData = obj->tx_buff.buffer;
-    masterXfer.rxData = obj->rx_buff.buffer;
-    masterXfer.dataSize = obj->tx_buff.length;
-    masterXfer.configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous;
-    /* Busy transferring */
-    obj->spi.status = kDSPI_Busy;
-
-    if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-            obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
-        status = DSPI_MasterTransferEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle, &masterXfer);
-        if (status ==  kStatus_DSPI_OutOfRange) {
-            if (obj->spi.bits > 8) {
-                transferSize = 1022;
-            } else {
-                transferSize = 511;
-            }
-            masterXfer.dataSize = transferSize;
-            /* Save amount of TX done by DMA */
-            obj->tx_buff.pos += transferSize;
-            obj->rx_buff.pos += transferSize;
-            /* Try again */
-            status = DSPI_MasterTransferEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle, &masterXfer);
+    if (!obj->is_slave) {
+        dspi_master_handle_t *handle = &obj->u.master.handle;
+        DSPI_MasterTransferCreateHandle(spi, handle, spi_master_irq_handler, obj);
+        if (DSPI_MasterTransferNonBlocking(spi, handle, &(dspi_transfer_t){
+            .txData = (uint8_t *)tx,
+            .rxData = (uint8_t *)rx,
+            .dataSize = len * spi_symbol_size(obj),
+            .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
+        }) != kStatus_Success) {
+            return false;
         }
+        DSPI_ClearStatusFlags(spi, kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
     } else {
-        status = DSPI_MasterTransferNonBlocking(spi_address[obj->spi.instance], &obj->spi.spi_master_handle, &masterXfer);
+        dspi_slave_handle_t *handle = &obj->u.slave.handle;
+        DSPI_SlaveTransferCreateHandle(spi, handle, spi_slave_irq_callback, obj);
+        if (DSPI_SlaveTransferNonBlocking(spi, handle, &(dspi_transfer_t){
+            .txData = (uint8_t *)tx,
+            .rxData = (uint8_t *)rx,
+            .dataSize = len * spi_symbol_size(obj),
+            .configFlags = kDSPI_SlaveCtar0,
+        }) != kStatus_Success) {
+            return false;
+        }
     }
-
-    return status;
-}
-
-static bool spi_allocate_dma(spi_t *obj, uint32_t handler)
-{
-    dma_request_source_t dma_rx_requests[] = SPI_DMA_RX_REQUEST_NUMBERS;
-    dma_request_source_t dma_tx_requests[] = SPI_DMA_TX_REQUEST_NUMBERS;
-    edma_config_t userConfig;
-
-    /* Allocate the DMA channels */
-    /* Allocate the RX channel */
-    obj->spi.spiDmaMasterRx.dmaChannel = dma_channel_allocate(dma_rx_requests[obj->spi.instance]);
-    if (obj->spi.spiDmaMasterRx.dmaChannel == DMA_ERROR_OUT_OF_CHANNELS) {
-        return false;
-    }
-
-    /* Check if we have separate DMA requests for TX & RX */
-    if (dma_tx_requests[obj->spi.instance] != dma_rx_requests[obj->spi.instance]) {
-        /* Allocate the TX channel with the DMA TX request number set as source */
-        obj->spi.spiDmaMasterTx.dmaChannel = dma_channel_allocate(dma_tx_requests[obj->spi.instance]);
-    } else {
-        /* Allocate the TX channel without setting source */
-        obj->spi.spiDmaMasterTx.dmaChannel = dma_channel_allocate(kDmaRequestMux0Disable);
-    }
-    if (obj->spi.spiDmaMasterTx.dmaChannel == DMA_ERROR_OUT_OF_CHANNELS) {
-        dma_channel_free(obj->spi.spiDmaMasterRx.dmaChannel);
-        return false;
-    }
-
-    /* Allocate an intermediary DMA channel */
-    obj->spi.spiDmaMasterIntermediary.dmaChannel = dma_channel_allocate(kDmaRequestMux0Disable);
-    if (obj->spi.spiDmaMasterIntermediary.dmaChannel == DMA_ERROR_OUT_OF_CHANNELS) {
-        dma_channel_free(obj->spi.spiDmaMasterRx.dmaChannel);
-        dma_channel_free(obj->spi.spiDmaMasterTx.dmaChannel);
-        return false;
-    }
-
-    /* EDMA init*/
-    /*
-     * userConfig.enableRoundRobinArbitration = false;
-     * userConfig.enableHaltOnError = true;
-     * userConfig.enableContinuousLinkMode = false;
-     * userConfig.enableDebugMode = false;
-     */
-    EDMA_GetDefaultConfig(&userConfig);
-
-    EDMA_Init(DMA0, &userConfig);
-
-    /* Set up dspi master */
-    memset(&(obj->spi.spiDmaMasterRx.handle), 0, sizeof(obj->spi.spiDmaMasterRx.handle));
-    memset(&(obj->spi.spiDmaMasterTx.handle), 0, sizeof(obj->spi.spiDmaMasterTx.handle));
-    memset(&(obj->spi.spiDmaMasterIntermediary.handle), 0, sizeof(obj->spi.spiDmaMasterIntermediary.handle));
-
-    EDMA_CreateHandle(&(obj->spi.spiDmaMasterRx.handle), DMA0, obj->spi.spiDmaMasterRx.dmaChannel);
-    EDMA_CreateHandle(&(obj->spi.spiDmaMasterIntermediary.handle), DMA0,
-                      obj->spi.spiDmaMasterIntermediary.dmaChannel);
-    EDMA_CreateHandle(&(obj->spi.spiDmaMasterTx.handle), DMA0, obj->spi.spiDmaMasterTx.dmaChannel);
-
-    DSPI_MasterTransferCreateHandleEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle, (dspi_master_edma_transfer_callback_t)handler,
-                                        NULL, &obj->spi.spiDmaMasterRx.handle,
-                                        &obj->spi.spiDmaMasterIntermediary.handle,
-                                        &obj->spi.spiDmaMasterTx.handle);
     return true;
 }
 
-static void spi_enable_dma(spi_t *obj, uint32_t handler, DMAUsage state)
-{
-    dma_init();
+void spi_transfer_async_abort(spi_t *obj) {
+    SPI_Type *spi = spi_address[obj->instance];
 
-    if (state == DMA_USAGE_ALWAYS && obj->spi.spiDmaMasterRx.dmaUsageState != DMA_USAGE_ALLOCATED) {
-        /* Try to allocate channels */
-        if (spi_allocate_dma(obj, handler)) {
-            obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_ALLOCATED;
-        } else {
-            obj->spi.spiDmaMasterRx.dmaUsageState = state;
-        }
-    } else if (state == DMA_USAGE_OPPORTUNISTIC) {
-        if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED) {
-            /* Channels have already been allocated previously by an ALWAYS state, so after this transfer, we will release them */
-            obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_TEMPORARY_ALLOCATED;
-        } else {
-            /* Try to allocate channels */
-            if (spi_allocate_dma(obj, handler)) {
-                obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_TEMPORARY_ALLOCATED;
-            } else {
-                obj->spi.spiDmaMasterRx.dmaUsageState = state;
-            }
-        }
-    } else if (state == DMA_USAGE_NEVER) {
-        /* If channels are allocated, get rid of them */
-        if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED) {
-            dma_channel_free(obj->spi.spiDmaMasterRx.dmaChannel);
-            dma_channel_free(obj->spi.spiDmaMasterTx.dmaChannel);
-            dma_channel_free(obj->spi.spiDmaMasterIntermediary.dmaChannel);
-        }
-        obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_NEVER;
-    }
-}
-
-static void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
-{
-    obj->tx_buff.buffer = (void *)tx;
-    obj->rx_buff.buffer = rx;
-    obj->tx_buff.length = tx_length;
-    obj->rx_buff.length = rx_length;
-    obj->tx_buff.pos = 0;
-    obj->rx_buff.pos = 0;
-    obj->tx_buff.width = bit_width;
-    obj->rx_buff.width = bit_width;
-}
-
-void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
-{
-    if (spi_active(obj)) {
-        return;
-    }
-
-    /* check corner case */
-    if (tx_length == 0) {
-        tx_length = rx_length;
-        tx = (void *) 0;
-    }
-
-    /* First, set the buffer */
-    spi_buffer_set(obj, tx, tx_length, rx, rx_length, bit_width);
-
-    /* If using DMA, allocate  channels only if they have not already been allocated */
-    if (hint != DMA_USAGE_NEVER) {
-        /* User requested to transfer using DMA */
-        spi_enable_dma(obj, handler, hint);
-
-        /* Check if DMA setup was successful */
-        if (obj->spi.spiDmaMasterRx.dmaUsageState != DMA_USAGE_ALLOCATED && obj->spi.spiDmaMasterRx.dmaUsageState != DMA_USAGE_TEMPORARY_ALLOCATED) {
-            /* Set up an interrupt transfer as DMA is unavailable */
-            DSPI_MasterTransferCreateHandle(spi_address[obj->spi.instance], &obj->spi.spi_master_handle, (dspi_master_transfer_callback_t)handler, NULL);
-        }
-
+    if (obj->is_slave) {
+        DSPI_SlaveTransferAbort(spi, &obj->u.slave.handle);
     } else {
-        /* User requested to transfer using interrupts */
-        /* Disable the DMA */
-        spi_enable_dma(obj, handler, hint);
-
-        /* Set up the interrupt transfer */
-        DSPI_MasterTransferCreateHandle(spi_address[obj->spi.instance], &obj->spi.spi_master_handle, (dspi_master_transfer_callback_t)handler, NULL);
+        DSPI_MasterTransferAbort(spi, &obj->u.master.handle);
     }
-
-    /* Start the transfer */
-    if (spi_master_transfer_asynch(obj) != kStatus_Success) {
-        obj->spi.status = kDSPI_Idle;
-    }
-}
-
-uint32_t spi_irq_handler_asynch(spi_t *obj)
-{
-    uint32_t transferSize;
-    dspi_transfer_t masterXfer;
-
-    /* Determine whether the current scenario is DMA or IRQ, and act accordingly */
-    if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
-        /* DMA implementation */
-        /* Check If there is still data in the TX buffer */
-        if (obj->tx_buff.pos < obj->tx_buff.length) {
-            /* Setup a new DMA transfer. */
-            if (obj->spi.bits > 8) {
-                transferSize = 1022;
-            } else {
-                transferSize = 511;
-            }
-
-            /* Update the TX buffer only if it is used */
-            if (obj->tx_buff.buffer) {
-                masterXfer.txData = ((uint8_t *)obj->tx_buff.buffer) + obj->tx_buff.pos;
-            } else {
-                masterXfer.txData = 0;
-            }
-
-            /* Update the RX buffer only if it is used */
-            if (obj->rx_buff.buffer) {
-                masterXfer.rxData = ((uint8_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
-            } else {
-                masterXfer.rxData = 0;
-            }
-
-            /* Check how much data is remaining in the buffer */
-            if ((obj->tx_buff.length - obj->tx_buff.pos) > transferSize) {
-                masterXfer.dataSize = transferSize;
-            } else {
-                masterXfer.dataSize = obj->tx_buff.length - obj->tx_buff.pos;
-            }
-            masterXfer.configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous;
-
-            /* Save amount of TX done by DMA */
-            obj->tx_buff.pos += masterXfer.dataSize;
-            obj->rx_buff.pos += masterXfer.dataSize;
-
-            /* Start another transfer */
-            DSPI_MasterTransferEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle, &masterXfer);
-            return 0;
-        } else {
-            /* Release the dma channels if they were opportunistically allocated */
-            if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
-                dma_channel_free(obj->spi.spiDmaMasterRx.dmaChannel);
-                dma_channel_free(obj->spi.spiDmaMasterTx.dmaChannel);
-                dma_channel_free(obj->spi.spiDmaMasterIntermediary.dmaChannel);
-                obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-            }
-            obj->spi.status = kDSPI_Idle;
-
-            return SPI_EVENT_COMPLETE;
-        }
-    } else {
-        /* Interrupt implementation */
-        obj->spi.status = kDSPI_Idle;
-
-        return SPI_EVENT_COMPLETE;
-    }
-}
-
-void spi_abort_asynch(spi_t *obj)
-{
-    // If we're not currently transferring, then there's nothing to do here
-    if (spi_active(obj) == 0) {
-        return;
-    }
-
-    // Determine whether we're running DMA or interrupt
-    if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-            obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
-        DSPI_MasterTransferAbortEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle);
-        /* Release the dma channels if they were opportunistically allocated */
-        if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
-            dma_channel_free(obj->spi.spiDmaMasterRx.dmaChannel);
-            dma_channel_free(obj->spi.spiDmaMasterTx.dmaChannel);
-            dma_channel_free(obj->spi.spiDmaMasterIntermediary.dmaChannel);
-            obj->spi.spiDmaMasterRx.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-        }
-    } else {
-        /* Interrupt implementation */
-        DSPI_MasterTransferAbort(spi_address[obj->spi.instance], &obj->spi.spi_master_handle);
-    }
-
-    obj->spi.status = kDSPI_Idle;
-}
-
-uint8_t spi_active(spi_t *obj)
-{
-    return obj->spi.status;
 }
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_SOUT;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_SIN;
 }
 
 const PinMap *spi_master_clk_pinmap()
@@ -491,12 +626,12 @@ const PinMap *spi_master_cs_pinmap()
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_SIN;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_SOUT;
 }
 
 const PinMap *spi_slave_clk_pinmap()
