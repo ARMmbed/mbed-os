@@ -68,11 +68,10 @@ void UDPSOCKET_ECHOTEST()
 
     int recvd;
     int sent;
-    int s_idx = 0;
     int packets_sent = 0;
     int packets_recv = 0;
-    for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; pkt_s = ++s_idx) {
-        pkt_s = pkt_sizes[s_idx];
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+        int pkt_s = pkt_sizes[s_idx];
 
         fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
 
@@ -147,15 +146,14 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     sock.sigio(callback(_sigio_handler));
 
     int sent;
-    int s_idx = 0;
     int packets_sent = 0;
     int packets_recv = 0;
     Thread *thread;
     unsigned char *stack_mem = (unsigned char *)malloc(OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
 
-    for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
-        pkt_s = pkt_sizes[s_idx];
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+        int pkt_s = pkt_sizes[s_idx];
 
         thread = new Thread(osPriorityNormal,
                             OS_STACK_SIZE,
