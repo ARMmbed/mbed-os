@@ -8512,7 +8512,7 @@
     "GD32_F307VG": {
         "inherits": ["GD32_Target"],
         "supported_form_factors": ["ARDUINO"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "extra_labels_add": ["GD32F30X", "GD32F307VG", "GD_EMAC"],
         "device_has_add": [
             "RTC",
@@ -8567,7 +8567,7 @@
     "GD32_F450ZI": {
         "inherits": ["GD32_Target"],
         "supported_form_factors": ["ARDUINO"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC"],
         "device_has_add": [
             "RTC",
@@ -8596,7 +8596,7 @@
     "GD32_E103VB": {
         "inherits": ["GD32_Target"],
         "supported_form_factors": ["ARDUINO"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "extra_labels_add": ["GD32E10X", "GD32E103VB"],
         "device_has_add": [
             "RTC",
