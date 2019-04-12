@@ -79,7 +79,7 @@
 ; Minimum heap should be larger then smallest RAM bank (else can use 
 ; that bank for heap) and less then largest RAM bank.
 #define MINIMUM_HEAP                0x4000
-#define RAM_FIXED_SIZE              0x0
+#define RAM_FIXED_SIZE              MBED_BOOT_STACK_SIZE
 
 ;Splitting the RW and ZI section in IRAM1 (MBED_RAM_SIZE-MINIMUM_HEAP = 0x8000 available)
 ;and IRAM2 (MBED_IRAM2_SIZE = 0x3E70 available)
