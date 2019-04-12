@@ -15,8 +15,12 @@
  */
 
 #if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+#include <inttypes.h>
+
 #include <string.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 #include "ESP8266.h"
@@ -601,7 +605,7 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     set_timeout(ESP8266_SEND_TIMEOUT);
     _busy = false;
     _error = false;
-    if (!_parser.send("AT+CIPSEND=%d,%lu", id, amount)) {
+    if (!_parser.send("AT+CIPSEND=%d,%" PRIu32, id, amount)) {
         tr_debug("ESP8266::send(): AT+CIPSEND failed");
         goto END;
     }
@@ -734,7 +738,7 @@ int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t
         amount = amount > 2048 ? 2048 : amount;
 
         // NOTE: documentation v3.0 says '+CIPRECVDATA:<data_len>,' but it's not how the FW responds...
-        bool done = _parser.send("AT+CIPRECVDATA=%d,%lu", id, amount)
+        bool done = _parser.send("AT+CIPRECVDATA=%d,%" PRIu32, id, amount)
                     && _parser.recv("OK\n");
 
         _sock_i[id].tcp_data = NULL;
@@ -1056,7 +1060,7 @@ void ESP8266::_oob_tcp_data_hdlr()
 
     MBED_ASSERT(_sock_active_id >= 0 && _sock_active_id < 5);
 
-    if (!_parser.recv("%ld:", &len)) {
+    if (!_parser.recv("%" SCNd32 ":", &len)) {
         return;
     }
 
