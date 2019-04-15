@@ -104,7 +104,7 @@ You can also set custom compiler flags and other configurations supported by CMa
 
 #### Example
 
-With the following steps, you can write a simple unit test. In this example we will create dummy classes to be tested. Then we will create and configure unit tests for a class. Finally we will stub all external dependencies.
+With the following steps, you can write a simple unit test. This example creates dummy classes to be tested, creates and configures unit tests for a class and stubs all external dependencies.
 
 1. Create the following dummy classes in `mbed-os/example`:
 
@@ -245,7 +245,7 @@ With the following steps, you can write a simple unit test. In this example we w
     }
     ```
 
-This example does not use any Mbed OS code, but if your unit tests do then remember to update header stubs in `UNITTESTS/target_h` and source stubs in `UNITTESTS/stubs` with any missing type or function declarations. 
+This example does not use any Mbed OS code, but if your unit tests do, then remember to update header stubs in `UNITTESTS/target_h` and source stubs in `UNITTESTS/stubs` with any missing type or function declarations. 
 
 ### Building and running unit tests
 
