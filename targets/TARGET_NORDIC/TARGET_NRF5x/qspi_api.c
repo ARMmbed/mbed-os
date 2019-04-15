@@ -263,17 +263,19 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length)
 {
-    // length needs to be rounded up to the next WORD (4 bytes)
-    if ((*length & WORD_MASK) > 0) {
+    // flash address and buffer length must be divisible by 4
+    if ((*length & WORD_MASK) > 0 ||
+        (command->address.value & WORD_MASK) > 0) {
         return QSPI_STATUS_INVALID_PARAMETER;
     }
-		
+
     qspi_status_t status = qspi_prepare_command(obj, command, true);
     if (status != QSPI_STATUS_OK) {
         return status;
     }
 
-    if (is_word_aligned(data)) {
+    if (is_word_aligned(data) &&
+        nrf_drv_is_in_RAM(data)) {
         // write here does not return how much it transfered, we return transfered all
         ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
         if (ret == NRF_SUCCESS ) {
@@ -283,7 +285,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         }
     }
     else {
-        // if the data buffer is not WORD/4-byte aligned, use an aligned buffer on the stack
+        // if the data buffer is not WORD/4-byte aligned or in RAM, use an aligned buffer on the stack
         uint32_t aligned_buffer[WORD_COUNT];
         uint32_t pos = 0;
         size_t bytes_to_write = *length;
@@ -298,6 +300,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
             if (ret != NRF_SUCCESS ) {
                 return QSPI_STATUS_ERROR;
             }
+
             pos += diff;
             bytes_to_write -= diff;
         }
@@ -307,8 +310,9 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
 {
-    // length needs to be rounded up to the next WORD (4 bytes)
-    if ((*length & WORD_MASK) > 0) {
+    // flash address and buffer length must be divisible by 4
+    if ((*length & WORD_MASK) > 0 ||
+        (command->address.value & WORD_MASK) > 0) {
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
@@ -316,19 +320,46 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     if (command->instruction.value == READSFDP_opcode) {
         qspi_status_t status = sfdp_read(obj, command, data, length );
         return status;
-    } else {
-        qspi_status_t status = qspi_prepare_command(obj, command, false);
-        if (status != QSPI_STATUS_OK) {
-            return status;
-        }
     }
 
-    ret_code_t ret = nrf_drv_qspi_read(data, *length, command->address.value);
-    if (ret == NRF_SUCCESS ) {
-        return QSPI_STATUS_OK;
-    } else {
-        return QSPI_STATUS_ERROR;
+    qspi_status_t status = qspi_prepare_command(obj, command, false);
+    if (status != QSPI_STATUS_OK) {
+        return status;
     }
+
+    if (is_word_aligned(data) &&
+        nrf_drv_is_in_RAM(data)) {
+        ret_code_t ret = nrf_drv_qspi_read(data, *length, command->address.value);
+        if (ret == NRF_SUCCESS ) {
+            return QSPI_STATUS_OK;
+        } else {
+            return QSPI_STATUS_ERROR;
+        }
+    }
+    else {
+       // if the data buffer is not WORD/4-byte aligned or in RAM, use an aligned buffer on the stack
+        uint32_t aligned_buffer[WORD_COUNT];
+        uint32_t pos = 0;
+        size_t bytes_to_read = *length;
+
+        while(pos < *length) {
+
+            size_t diff = bytes_to_read <= sizeof(aligned_buffer) ? bytes_to_read : sizeof(aligned_buffer);
+
+            // read one buffer over QSPI
+            ret_code_t ret = nrf_drv_qspi_read(aligned_buffer, diff, command->address.value+pos);
+            if (ret != NRF_SUCCESS ) {
+                return QSPI_STATUS_ERROR;
+            }
+
+            // copy into original read buffer
+            memcpy(&((uint8_t *)data)[pos], aligned_buffer, diff);
+
+            pos += diff;
+            bytes_to_read -= diff;
+        }
+    }
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
