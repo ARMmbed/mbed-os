@@ -28,6 +28,11 @@
 #define TIMEOUT_POWER_ON     (1*1000)
 #define TIMEOUT_SIM_PIN      (1*1000)
 #define TIMEOUT_NETWORK      (10*1000)
+/** CellularStateMachine does connecting up to packet service attach, and
+ *  after that it's up to CellularContext::connect() to connect to PDN.
+ *  If CellularContext or an application does not set timeout (via `CellularDevice::set_timeout`)
+ *  then TIMEOUT_CONNECT is used also for connecting to PDN and also for socket operations.
+ */
 #define TIMEOUT_CONNECT      (60*1000)
 #define TIMEOUT_REGISTRATION (180*1000)
 
@@ -35,6 +40,7 @@
 #define TIMEOUT_NETWORK_MAX (20*60)
 
 #define RETRY_COUNT_DEFAULT 3
+
 
 const int STM_STOPPED = -99;
 const int ACTIVE_PDP_CONTEXT = 0x01;
@@ -68,6 +74,12 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = CELLULAR_RETRY_ARRAY_SIZE;
+
+    _state_timeout_power_on = TIMEOUT_POWER_ON;
+    _state_timeout_sim_pin = TIMEOUT_SIM_PIN;
+    _state_timeout_registration = TIMEOUT_REGISTRATION;
+    _state_timeout_network = TIMEOUT_NETWORK;
+    _state_timeout_connect = TIMEOUT_CONNECT;
 }
 
 CellularStateMachine::~CellularStateMachine()
@@ -273,8 +285,8 @@ void CellularStateMachine::enter_to_state(CellularState state)
 
 void CellularStateMachine::retry_state_or_fail()
 {
-    if (++_retry_count < CELLULAR_RETRY_ARRAY_SIZE) {
-        tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, CELLULAR_RETRY_ARRAY_SIZE);
+    if (_retry_count < _retry_array_length) {
+        tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, _retry_array_length);
         // send info to application/driver about error logic so it can implement proper error logic
         _cb_data.status_data = _current_event;
         _cb_data.data = &_retry_count;
@@ -284,15 +296,17 @@ void CellularStateMachine::retry_state_or_fail()
         _event_timeout = _retry_timeout_array[_retry_count];
         _is_retry = true;
         _cb_data.error = NSAPI_ERROR_OK;
+        _retry_count++;
     } else {
+        _cb_data.final_try = true;
         report_failure(get_state_string(_state));
     }
 }
 
 void CellularStateMachine::state_init()
 {
-    _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-    tr_info("Start connecting (timeout %d s)", TIMEOUT_POWER_ON / 1000);
+    _cellularDevice.set_timeout(_state_timeout_power_on);
+    tr_info("Start connecting (timeout %d ms)", _state_timeout_power_on);
     _cb_data.error = _cellularDevice.is_ready();
     _status = _cb_data.error ? 0 : DEVICE_READY;
     if (_cb_data.error != NSAPI_ERROR_OK) {
@@ -308,8 +322,8 @@ void CellularStateMachine::state_init()
 
 void CellularStateMachine::state_power_on()
 {
-    _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-    tr_info("Modem power ON (timeout %d s)", TIMEOUT_POWER_ON / 1000);
+    _cellularDevice.set_timeout(_state_timeout_power_on);
+    tr_info("Modem power ON (timeout %d ms)", _state_timeout_power_on);
     if (power_on()) {
         enter_to_state(STATE_DEVICE_READY);
     } else {
@@ -340,7 +354,7 @@ bool CellularStateMachine::device_ready()
 
 void CellularStateMachine::state_device_ready()
 {
-    _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
+    _cellularDevice.set_timeout(_state_timeout_power_on);
     if (!(_status & DEVICE_READY)) {
         tr_debug("Device was not ready, calling soft_power_on()");
         _cb_data.error = _cellularDevice.soft_power_on();
@@ -364,8 +378,8 @@ void CellularStateMachine::state_device_ready()
 
 void CellularStateMachine::state_sim_pin()
 {
-    _cellularDevice.set_timeout(TIMEOUT_SIM_PIN);
-    tr_info("Setup SIM (timeout %d s)", TIMEOUT_SIM_PIN / 1000);
+    _cellularDevice.set_timeout(_state_timeout_sim_pin);
+    tr_info("Setup SIM (timeout %d ms)", _state_timeout_sim_pin);
     if (open_sim()) {
         bool success = false;
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
@@ -419,8 +433,7 @@ void CellularStateMachine::state_signal_quality()
 
 void CellularStateMachine::state_registering()
 {
-    _cellularDevice.set_timeout(TIMEOUT_NETWORK);
-    tr_info("Network registration (timeout %d s)", TIMEOUT_REGISTRATION / 1000);
+    _cellularDevice.set_timeout(_state_timeout_network);
     if (is_registered()) {
         if (_cb_data.status_data != CellularNetwork::RegisteredHomeNetwork &&
                 _cb_data.status_data != CellularNetwork::RegisteredRoaming && _status) {
@@ -432,7 +445,8 @@ void CellularStateMachine::state_registering()
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
-        _cellularDevice.set_timeout(TIMEOUT_REGISTRATION);
+        tr_info("Network registration (timeout %d ms)", _state_timeout_registration);
+        _cellularDevice.set_timeout(_state_timeout_registration);
         if (!_command_success && !_plmn) { // don't call set_registration twice for manual registration
             _cb_data.error = _network.set_registration(_plmn);
             _command_success = (_cb_data.error == NSAPI_ERROR_OK);
@@ -443,9 +457,9 @@ void CellularStateMachine::state_registering()
 
 void CellularStateMachine::state_attaching()
 {
-    _cellularDevice.set_timeout(TIMEOUT_CONNECT);
-    tr_info("Attaching network (timeout %d s)", TIMEOUT_CONNECT / 1000);
     if (_status != ATTACHED_TO_NETWORK) {
+        _cellularDevice.set_timeout(_state_timeout_connect);
+        tr_info("Attaching network (timeout %d ms)", _state_timeout_connect);
         _cb_data.error = _network.set_attach();
     }
     if (_cb_data.error == NSAPI_ERROR_OK) {
@@ -695,11 +709,10 @@ void CellularStateMachine::device_ready_cb()
 void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int array_len)
 {
     if (!timeout || array_len <= 0) {
-        tr_warn("set_retry_timeout_array, timeout array null or invalid length");
+        _retry_array_length = 0;
         return;
     }
     _retry_array_length = array_len > CELLULAR_RETRY_ARRAY_SIZE ? CELLULAR_RETRY_ARRAY_SIZE : array_len;
-
     for (int i = 0; i < _retry_array_length; i++) {
         _retry_timeout_array[i] = timeout[i];
     }
@@ -711,6 +724,15 @@ void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array
         timeout[i] = _retry_timeout_array[i];
     }
     array_len = _retry_array_length;
+}
+
+void CellularStateMachine::set_timeout(int timeout)
+{
+    _state_timeout_power_on = timeout;
+    _state_timeout_sim_pin = timeout;
+    _state_timeout_registration = timeout;
+    _state_timeout_network = timeout;
+    _state_timeout_connect = timeout;
 }
 
 } // namespace

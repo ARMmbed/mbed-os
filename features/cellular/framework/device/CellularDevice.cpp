@@ -237,4 +237,11 @@ nsapi_error_t CellularDevice::shutdown()
     return NSAPI_ERROR_OK;
 }
 
+void CellularDevice::set_retry_timeout_array(const uint16_t timeout[], int array_len)
+{
+    if (create_state_machine() == NSAPI_ERROR_OK) {
+        _state_machine->set_retry_timeout_array(timeout, array_len);
+    }
+}
+
 } // namespace mbed
