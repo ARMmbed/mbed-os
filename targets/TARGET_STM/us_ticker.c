@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_USTICKER
+
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
@@ -264,3 +267,4 @@ void us_ticker_free(void)
     us_ticker_disable_interrupt();
 }
 
+#endif /* DEVICE_USTICKER */
