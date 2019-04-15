@@ -10,6 +10,9 @@ the code and keeping track of which code is executed.
 
 Just running make will produce the test program.
 
+Running make with parameter 'D=-DLWIP_FUZZ_MULTI_PACKET' will produce a binary
+that parses the input data as multiple packets (experimental!).
+
 Then run afl with:
 
 afl-fuzz -i inputs/<INPUT> -o output ./lwip_fuzz

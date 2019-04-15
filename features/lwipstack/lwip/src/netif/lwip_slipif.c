@@ -40,8 +40,8 @@
 
 
 /**
- * @defgroup slipif SLIP netif
- * @ingroup addons
+ * @defgroup slipif SLIP
+ * @ingroup netifs
  *
  * This is an arch independent SLIP netif. The specific serial hooks must be
  * provided by another file. They are sio_open, sio_read/sio_tryread and sio_send
@@ -88,8 +88,8 @@
 #endif
 
 enum slipif_recv_state {
-    SLIP_RECV_NORMAL,
-    SLIP_RECV_ESCAPE
+  SLIP_RECV_NORMAL,
+  SLIP_RECV_ESCAPE
 };
 
 struct slipif_priv {
@@ -124,7 +124,7 @@ slipif_output(struct netif *netif, struct pbuf *p)
   LWIP_ASSERT("netif->state != NULL", (netif->state != NULL));
   LWIP_ASSERT("p != NULL", (p != NULL));
 
-  LWIP_DEBUGF(SLIP_DEBUG, ("slipif_output(%"U16_F"): sending %"U16_F" bytes\n", (u16_t)netif->num, p->tot_len));
+  LWIP_DEBUGF(SLIP_DEBUG, ("slipif_output: sending %"U16_F" bytes\n", p->tot_len));
   priv = (struct slipif_priv *)netif->state;
 
   /* Send pbuf out on the serial I/O device. */
@@ -135,20 +135,20 @@ slipif_output(struct netif *netif, struct pbuf *p)
     for (i = 0; i < q->len; i++) {
       c = ((u8_t *)q->payload)[i];
       switch (c) {
-      case SLIP_END:
-        /* need to escape this byte (0xC0 -> 0xDB, 0xDC) */
-        sio_send(SLIP_ESC, priv->sd);
-        sio_send(SLIP_ESC_END, priv->sd);
-        break;
-      case SLIP_ESC:
-        /* need to escape this byte (0xDB -> 0xDB, 0xDD) */
-        sio_send(SLIP_ESC, priv->sd);
-        sio_send(SLIP_ESC_ESC, priv->sd);
-        break;
-      default:
-        /* normal byte - no need for escaping */
-        sio_send(c, priv->sd);
-        break;
+        case SLIP_END:
+          /* need to escape this byte (0xC0 -> 0xDB, 0xDC) */
+          sio_send(SLIP_ESC, priv->sd);
+          sio_send(SLIP_ESC_END, priv->sd);
+          break;
+        case SLIP_ESC:
+          /* need to escape this byte (0xDB -> 0xDB, 0xDD) */
+          sio_send(SLIP_ESC, priv->sd);
+          sio_send(SLIP_ESC_ESC, priv->sd);
+          break;
+        default:
+          /* normal byte - no need for escaping */
+          sio_send(c, priv->sd);
+          break;
       }
     }
   }
@@ -203,7 +203,7 @@ slipif_output_v6(struct netif *netif, struct pbuf *p, const ip6_addr_t *ipaddr)
  *        return a complete packet, NULL is returned before - used for polling)
  * @return The IP packet when SLIP_END is received
  */
-static struct pbuf*
+static struct pbuf *
 slipif_rxbyte(struct netif *netif, u8_t c)
 {
   struct slipif_priv *priv;
@@ -215,47 +215,47 @@ slipif_rxbyte(struct netif *netif, u8_t c)
   priv = (struct slipif_priv *)netif->state;
 
   switch (priv->state) {
-  case SLIP_RECV_NORMAL:
-    switch (c) {
-    case SLIP_END:
-      if (priv->recved > 0) {
-        /* Received whole packet. */
-        /* Trim the pbuf to the size of the received packet. */
-        pbuf_realloc(priv->q, priv->recved);
+    case SLIP_RECV_NORMAL:
+      switch (c) {
+        case SLIP_END:
+          if (priv->recved > 0) {
+            /* Received whole packet. */
+            /* Trim the pbuf to the size of the received packet. */
+            pbuf_realloc(priv->q, priv->recved);
 
-        LINK_STATS_INC(link.recv);
+            LINK_STATS_INC(link.recv);
 
-        LWIP_DEBUGF(SLIP_DEBUG, ("slipif: Got packet (%"U16_F" bytes)\n", priv->recved));
-        t = priv->q;
-        priv->p = priv->q = NULL;
-        priv->i = priv->recved = 0;
-        return t;
+            LWIP_DEBUGF(SLIP_DEBUG, ("slipif: Got packet (%"U16_F" bytes)\n", priv->recved));
+            t = priv->q;
+            priv->p = priv->q = NULL;
+            priv->i = priv->recved = 0;
+            return t;
+          }
+          return NULL;
+        case SLIP_ESC:
+          priv->state = SLIP_RECV_ESCAPE;
+          return NULL;
+        default:
+          break;
+      } /* end switch (c) */
+      break;
+    case SLIP_RECV_ESCAPE:
+      /* un-escape END or ESC bytes, leave other bytes
+         (although that would be a protocol error) */
+      switch (c) {
+        case SLIP_ESC_END:
+          c = SLIP_END;
+          break;
+        case SLIP_ESC_ESC:
+          c = SLIP_ESC;
+          break;
+        default:
+          break;
       }
-      return NULL;
-    case SLIP_ESC:
-      priv->state = SLIP_RECV_ESCAPE;
-      return NULL;
-    default:
-      break;
-    } /* end switch (c) */
-    break;
-  case SLIP_RECV_ESCAPE:
-    /* un-escape END or ESC bytes, leave other bytes
-       (although that would be a protocol error) */
-    switch (c) {
-    case SLIP_ESC_END:
-      c = SLIP_END;
-      break;
-    case SLIP_ESC_ESC:
-      c = SLIP_ESC;
+      priv->state = SLIP_RECV_NORMAL;
       break;
     default:
       break;
-    }
-    priv->state = SLIP_RECV_NORMAL;
-    break;
-  default:
-    break;
   } /* end switch (priv->state) */
 
   /* byte received, packet not yet completely received */
@@ -290,11 +290,11 @@ slipif_rxbyte(struct netif *netif, u8_t c)
       priv->i = 0;
       if (priv->p->next != NULL && priv->p->next->len > 0) {
         /* p is a chain, on to the next in the chain */
-          priv->p = priv->p->next;
+        priv->p = priv->p->next;
       } else {
         /* p is a single pbuf, set it to NULL so next time a new
          * pbuf is allocated */
-          priv->p = NULL;
+        priv->p = NULL;
       }
     }
   }
@@ -342,6 +342,7 @@ slipif_loop_thread(void *nf)
 #endif /* SLIP_USE_RX_THREAD */
 
 /**
+ * @ingroup slipif
  * SLIP netif initialization
  *
  * Call the arch specific sio_open and remember
@@ -352,9 +353,7 @@ slipif_loop_thread(void *nf)
  *         ERR_MEM if no memory could be allocated,
  *         ERR_IF is serial line couldn't be opened
  *
- * @note netif->num must contain the number of the serial port to open
- *       (0 by default). If netif->state is != NULL, it is interpreted as an
- *       u8_t pointer pointing to the serial port number instead of netif->num.
+ * @note If netif->state is interpreted as an u8_t serial port number.
  *
  */
 err_t
@@ -363,7 +362,12 @@ slipif_init(struct netif *netif)
   struct slipif_priv *priv;
   u8_t sio_num;
 
-  LWIP_DEBUGF(SLIP_DEBUG, ("slipif_init: netif->num=%"U16_F"\n", (u16_t)netif->num));
+  LWIP_ASSERT("slipif needs an input callback", netif->input != NULL);
+
+  /* netif->state contains serial port number */
+  sio_num = LWIP_PTR_NUMERIC_CAST(u8_t, netif->state);
+
+  LWIP_DEBUGF(SLIP_DEBUG, ("slipif_init: netif->num=%"U16_F"\n", (u16_t)sio_num));
 
   /* Allocate private data */
   priv = (struct slipif_priv *)mem_malloc(sizeof(struct slipif_priv));
@@ -381,12 +385,6 @@ slipif_init(struct netif *netif)
 #endif /* LWIP_IPV6 */
   netif->mtu = SLIP_MAX_SIZE;
 
-  /* netif->state or netif->num contain the port number */
-  if (netif->state != NULL) {
-    sio_num = *(u8_t*)netif->state;
-  } else {
-    sio_num = netif->num;
-  }
   /* Try to open the serial port. */
   priv->sd = sio_open(sio_num);
   if (!priv->sd) {
@@ -413,12 +411,13 @@ slipif_init(struct netif *netif)
 #if SLIP_USE_RX_THREAD
   /* Create a thread to poll the serial line. */
   sys_thread_new(SLIPIF_THREAD_NAME, slipif_loop_thread, netif,
-    SLIPIF_THREAD_STACKSIZE, SLIPIF_THREAD_PRIO);
+                 SLIPIF_THREAD_STACKSIZE, SLIPIF_THREAD_PRIO);
 #endif /* SLIP_USE_RX_THREAD */
   return ERR_OK;
 }
 
 /**
+ * @ingroup slipif
  * Polls the serial device and feeds the IP layer with incoming packets.
  *
  * @param netif The lwip network interface structure for this slipif
@@ -441,6 +440,7 @@ slipif_poll(struct netif *netif)
 
 #if SLIP_RX_FROM_ISR
 /**
+ * @ingroup slipif
  * Feeds the IP layer with incoming packets that were receive
  *
  * @param netif The lwip network interface structure for this slipif
@@ -476,6 +476,7 @@ slipif_process_rxqueue(struct netif *netif)
     }
     SYS_ARCH_PROTECT(old_level);
   }
+  SYS_ARCH_UNPROTECT(old_level);
 }
 
 /** Like slipif_rxbyte, but queues completed packets.
@@ -514,6 +515,7 @@ slipif_rxbyte_enqueue(struct netif *netif, u8_t data)
 }
 
 /**
+ * @ingroup slipif
  * Process a received byte, completed packets are put on a queue that is
  * fed into IP through slipif_process_rxqueue().
  *
@@ -531,6 +533,7 @@ slipif_received_byte(struct netif *netif, u8_t data)
 }
 
 /**
+ * @ingroup slipif
  * Process multiple received byte, completed packets are put on a queue that is
  * fed into IP through slipif_process_rxqueue().
  *

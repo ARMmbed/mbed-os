@@ -1,4 +1,4 @@
-# Doxyfile 1.8.11
+# Doxyfile 1.8.13
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
@@ -38,7 +38,7 @@ PROJECT_NAME           = "lwIP"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "2.0.2"
+PROJECT_NUMBER         = "2.1.2"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = output
+OUTPUT_DIRECTORY       = "output"
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -302,6 +302,15 @@ EXTENSION_MAPPING      =
 # The default value is: YES.
 
 MARKDOWN_SUPPORT       = YES
+
+# When the TOC_INCLUDE_HEADINGS tag is set to a non-zero value, all headings up
+# to that level are automatically included in the table of contents, even if
+# they do not have an id attribute.
+# Note: This feature currently applies only to Markdown headings.
+# Minimum value: 0, maximum value: 99, default value: 0.
+# This tag requires that the tag MARKDOWN_SUPPORT is set to YES.
+
+TOC_INCLUDE_HEADINGS   = 0
 
 # When enabled doxygen tries to link words that correspond to documented
 # classes, or namespaces to their corresponding documentation. Such a link can
@@ -781,7 +790,8 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = main_page.h ../../src
+INPUT                  = main_page.h \
+                         ../../src
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -803,8 +813,8 @@ INPUT_ENCODING         = UTF-8
 # If left blank the following patterns are tested:*.c, *.cc, *.cxx, *.cpp,
 # *.c++, *.java, *.ii, *.ixx, *.ipp, *.i++, *.inl, *.idl, *.ddl, *.odl, *.h,
 # *.hh, *.hxx, *.hpp, *.h++, *.cs, *.d, *.php, *.php4, *.php5, *.phtml, *.inc,
-# *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f, *.for, *.tcl,
-# *.vhd, *.vhdl, *.ucf, *.qsf, *.as and *.js.
+# *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
+# *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
 FILE_PATTERNS          = *.c \
                          *.cc \
@@ -875,7 +885,8 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = ../ ../../
+EXAMPLE_PATH           = ../ \
+                         ../../
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -2077,16 +2088,26 @@ PREDEFINED             = __DOXYGEN__=1 \
                          LWIP_ICMP=1 \
                          LWIP_RAW=1 \
                          LWIP_DHCP=1 \
+                         LWIP_IPV6_DHCP6=1 \
                          LWIP_UDPLITE=1 \
                          LWIP_UDP=1 \
                          LWIP_IGMP=1 \
                          LWIP_TCP=1 \
+                         LWIP_ALTCP=1 \
+                         LWIP_ALTCP_TLS=1 \
+                         LWIP_IPV6_SCOPES=1 \
                          TCP_LISTEN_BACKLOG=1 \
                          LWIP_SNMP=1 \
                          SNMP_USE_NETCONN=1 \
                          SNMP_USE_RAW=1 \
                          MIB2_STATS=1 \
                          LWIP_MDNS_RESPONDER=1 \
+                         HTTPD_ENABLE_HTTPS=1 \
+                         LWIP_HTTPD_CGI=1 \
+                         LWIP_HTTPD_SSI=1 \
+                         LWIP_HTTPD_SSI_RAW=1 \
+                         LWIP_HTTPD_SUPPORT_POST=1 \
+                         LWIP_HTTPD_POST_MANUAL_WND=1 \
                          MEMP_OVERFLOW_CHECK=0 \
                          MEMP_SANITY_CHECK=1 \
                          LWIP_ARP=1 \
@@ -2097,6 +2118,7 @@ PREDEFINED             = __DOXYGEN__=1 \
                          LWIP_NETIF_STATUS_CALLBACK=1 \
                          LWIP_NETIF_REMOVE_CALLBACK=1 \
                          LWIP_NETIF_LINK_CALLBACK=1 \
+                         LWIP_NETIF_EXT_STATUS_CALLBACK=1 \
                          LWIP_NUM_NETIF_CLIENT_DATA=1 \
                          ENABLE_LOOPBACK=1 \
                          LWIP_AUTOIP=1 \
@@ -2115,8 +2137,9 @@ PREDEFINED             = __DOXYGEN__=1 \
                          SO_REUSE=1 \
                          SO_REUSE_RXTOALL=1 \
                          LWIP_HAVE_SLIPIF=1 \
-                         LWIP_6LOWPAN=1
- 
+                         SLIP_RX_FROM_ISR=1 \
+                         LWIP_TCP_PCB_NUM_EXT_ARGS=1
+
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
 # macro definition that is found in the sources will be used. Use the PREDEFINED
@@ -2228,7 +2251,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # http://www.graphviz.org/), a graph visualization toolkit from AT&T and Lucent
 # Bell Labs. The other options in this section have no effect if this option is
 # set to NO
-# The default value is: YES.
+# The default value is: NO.
 
 HAVE_DOT               = NO
 
@@ -2384,9 +2407,7 @@ DIRECTORY_GRAPH        = YES
 # Note: If you choose svg you need to set HTML_FILE_EXTENSION to xhtml in order
 # to make the SVG files visible in IE 9+ (other browsers do not have this
 # requirement).
-# Possible values are: png, png:cairo, png:cairo:cairo, png:cairo:gd, png:gd,
-# png:gd:gd, jpg, jpg:cairo, jpg:cairo:gd, jpg:gd, jpg:gd:gd, gif, gif:cairo,
-# gif:cairo:gd, gif:gd, gif:gd:gd, svg, png:gd, png:gd:gd, png:cairo,
+# Possible values are: png, jpg, gif, svg, png:gd, png:gd:gd, png:cairo,
 # png:cairo:gd, png:cairo:cairo, png:cairo:gdiplus, png:gdiplus and
 # png:gdiplus:gdiplus.
 # The default value is: png.
@@ -2438,6 +2459,11 @@ DIAFILE_DIRS           =
 # will not generate output for the diagram.
 
 PLANTUML_JAR_PATH      =
+
+# When using plantuml, the PLANTUML_CFG_FILE tag can be used to specify a
+# configuration file for plantuml.
+
+PLANTUML_CFG_FILE      =
 
 # When using plantuml, the specified paths are searched for files specified by
 # the !include statement in a plantuml block.

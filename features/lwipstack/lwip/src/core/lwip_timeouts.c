@@ -57,6 +57,7 @@
 #include "lwip/nd6.h"
 #include "lwip/ip6_frag.h"
 #include "lwip/mld6.h"
+#include "lwip/dhcp6.h"
 #include "lwip/sys.h"
 #include "lwip/pbuf.h"
 
@@ -65,6 +66,11 @@
 #else /* LWIP_DEBUG_TIMERNAMES */
 #define HANDLER(x) x
 #endif /* LWIP_DEBUG_TIMERNAMES */
+
+#define LWIP_MAX_TIMEOUT  0x7fffffff
+
+/* Check if timer's expiry time is greater than time and care about u32_t wraparounds */
+#define TIME_LESS_THAN(t, compare_to) ( (((u32_t)((t)-(compare_to))) > LWIP_MAX_TIMEOUT) ? 1 : 0 )
 
 /** This array contains all stack-internal cyclic timers. To get the number of
  * timers, use LWIP_ARRAYSIZE() */
@@ -103,14 +109,27 @@ const struct lwip_cyclic_timer lwip_cyclic_timers[] = {
 #if LWIP_IPV6_MLD
   {MLD6_TMR_INTERVAL, HANDLER(mld6_tmr)},
 #endif /* LWIP_IPV6_MLD */
+#if LWIP_IPV6_DHCP6
+  {DHCP6_TIMER_MSECS, HANDLER(dhcp6_tmr)},
+#endif /* LWIP_IPV6_DHCP6 */
 #endif /* LWIP_IPV6 */
 };
+const int lwip_num_cyclic_timers = LWIP_ARRAYSIZE(lwip_cyclic_timers);
 
 #if LWIP_TIMERS && !LWIP_TIMERS_CUSTOM
 
 /** The one and only timeout list */
 static struct sys_timeo *next_timeout;
-static u32_t timeouts_last_time;
+
+static u32_t current_timeout_due_time;
+
+#if LWIP_TESTMODE
+struct sys_timeo**
+sys_timeouts_get_next_timeout(void)
+{
+  return &next_timeout;
+}
+#endif
 
 #if LWIP_TCP
 /** global variable that shows if the tcp timer is currently scheduled or not */
@@ -146,6 +165,8 @@ tcpip_tcp_timer(void *arg)
 void
 tcp_timer_needed(void)
 {
+  LWIP_ASSERT_CORE_LOCKED();
+
   /* timer is off but needed again? */
   if (!tcpip_tcp_timer_active && (tcp_active_pcbs || tcp_tw_pcbs)) {
     /* enable and start timer */
@@ -155,20 +176,88 @@ tcp_timer_needed(void)
 }
 #endif /* LWIP_TCP */
 
+static void
+#if LWIP_DEBUG_TIMERNAMES
+sys_timeout_abs(u32_t abs_time, sys_timeout_handler handler, void *arg, const char *handler_name)
+#else /* LWIP_DEBUG_TIMERNAMES */
+sys_timeout_abs(u32_t abs_time, sys_timeout_handler handler, void *arg)
+#endif
+{
+  struct sys_timeo *timeout, *t;
+
+  timeout = (struct sys_timeo *)memp_malloc(MEMP_SYS_TIMEOUT);
+  if (timeout == NULL) {
+    LWIP_ASSERT("sys_timeout: timeout != NULL, pool MEMP_SYS_TIMEOUT is empty", timeout != NULL);
+    return;
+  }
+
+  timeout->next = NULL;
+  timeout->h = handler;
+  timeout->arg = arg;
+  timeout->time = abs_time;
+
+#if LWIP_DEBUG_TIMERNAMES
+  timeout->handler_name = handler_name;
+  LWIP_DEBUGF(TIMERS_DEBUG, ("sys_timeout: %p abs_time=%"U32_F" handler=%s arg=%p\n",
+                             (void *)timeout, abs_time, handler_name, (void *)arg));
+#endif /* LWIP_DEBUG_TIMERNAMES */
+
+  if (next_timeout == NULL) {
+    next_timeout = timeout;
+    return;
+  }
+  if (TIME_LESS_THAN(timeout->time, next_timeout->time)) {
+    timeout->next = next_timeout;
+    next_timeout = timeout;
+  } else {
+    for (t = next_timeout; t != NULL; t = t->next) {
+      if ((t->next == NULL) || TIME_LESS_THAN(timeout->time, t->next->time)) {
+        timeout->next = t->next;
+        t->next = timeout;
+        break;
+      }
+    }
+  }
+}
+
 /**
- * Timer callback function that calls mld6_tmr() and reschedules itself.
+ * Timer callback function that calls cyclic->handler() and reschedules itself.
  *
  * @param arg unused argument
  */
-static void
-cyclic_timer(void *arg)
+#if !LWIP_TESTMODE
+static
+#endif
+void
+lwip_cyclic_timer(void *arg)
 {
-  const struct lwip_cyclic_timer* cyclic = (const struct lwip_cyclic_timer*)arg;
+  u32_t now;
+  u32_t next_timeout_time;
+  const struct lwip_cyclic_timer *cyclic = (const struct lwip_cyclic_timer *)arg;
+
 #if LWIP_DEBUG_TIMERNAMES
   LWIP_DEBUGF(TIMERS_DEBUG, ("tcpip: %s()\n", cyclic->handler_name));
 #endif
   cyclic->handler();
-  sys_timeout(cyclic->interval_ms, cyclic_timer, arg);
+
+  now = sys_now();
+  next_timeout_time = (u32_t)(current_timeout_due_time + cyclic->interval_ms);  /* overflow handled by TIME_LESS_THAN macro */ 
+  if (TIME_LESS_THAN(next_timeout_time, now)) {
+    /* timer would immediately expire again -> "overload" -> restart without any correction */
+#if LWIP_DEBUG_TIMERNAMES
+    sys_timeout_abs((u32_t)(now + cyclic->interval_ms), lwip_cyclic_timer, arg, cyclic->handler_name);
+#else
+    sys_timeout_abs((u32_t)(now + cyclic->interval_ms), lwip_cyclic_timer, arg);
+#endif
+
+  } else {
+    /* correct cyclic interval with handler execution delay and sys_check_timeouts jitter */
+#if LWIP_DEBUG_TIMERNAMES
+    sys_timeout_abs(next_timeout_time, lwip_cyclic_timer, arg, cyclic->handler_name);
+#else
+    sys_timeout_abs(next_timeout_time, lwip_cyclic_timer, arg);
+#endif
+  }
 }
 
 /** Initialize this module */
@@ -176,14 +265,11 @@ void sys_timeouts_init(void)
 {
   size_t i;
   /* tcp_tmr() at index 0 is started on demand */
-  for (i = 1; i < LWIP_ARRAYSIZE(lwip_cyclic_timers); i++) {
+  for (i = (LWIP_TCP ? 1 : 0); i < LWIP_ARRAYSIZE(lwip_cyclic_timers); i++) {
     /* we have to cast via size_t to get rid of const warning
       (this is OK as cyclic_timer() casts back to const* */
-    sys_timeout(lwip_cyclic_timers[i].interval_ms, cyclic_timer, LWIP_CONST_CAST(void*, &lwip_cyclic_timers[i]));
+    sys_timeout(lwip_cyclic_timers[i].interval_ms, lwip_cyclic_timer, LWIP_CONST_CAST(void *, &lwip_cyclic_timers[i]));
   }
-
-  /* Initialise timestamp for sys_check_timeouts */
-  timeouts_last_time = sys_now();
 }
 
 /**
@@ -198,67 +284,25 @@ void sys_timeouts_init(void)
  */
 #if LWIP_DEBUG_TIMERNAMES
 void
-sys_timeout_debug(u32_t msecs, sys_timeout_handler handler, void *arg, const char* handler_name)
+sys_timeout_debug(u32_t msecs, sys_timeout_handler handler, void *arg, const char *handler_name)
 #else /* LWIP_DEBUG_TIMERNAMES */
 void
 sys_timeout(u32_t msecs, sys_timeout_handler handler, void *arg)
 #endif /* LWIP_DEBUG_TIMERNAMES */
 {
-  struct sys_timeo *timeout, *t;
-  u32_t now, diff;
+  u32_t next_timeout_time;
 
-  timeout = (struct sys_timeo *)memp_malloc(MEMP_SYS_TIMEOUT);
-  if (timeout == NULL) {
-    LWIP_ASSERT("sys_timeout: timeout != NULL, pool MEMP_SYS_TIMEOUT is empty", timeout != NULL);
-    return;
-  }
+  LWIP_ASSERT_CORE_LOCKED();
 
-  now = sys_now();
-  if (next_timeout == NULL) {
-    diff = 0;
-    timeouts_last_time = now;
-  } else {
-    diff = now - timeouts_last_time;
-  }
+  LWIP_ASSERT("Timeout time too long, max is LWIP_UINT32_MAX/4 msecs", msecs <= (LWIP_UINT32_MAX / 4));
 
-  timeout->next = NULL;
-  timeout->h = handler;
-  timeout->arg = arg;
-  timeout->time = msecs + diff;
+  next_timeout_time = (u32_t)(sys_now() + msecs); /* overflow handled by TIME_LESS_THAN macro */ 
+
 #if LWIP_DEBUG_TIMERNAMES
-  timeout->handler_name = handler_name;
-  LWIP_DEBUGF(TIMERS_DEBUG, ("sys_timeout: %p msecs=%"U32_F" handler=%s arg=%p\n",
-    (void *)timeout, msecs, handler_name, (void *)arg));
-#endif /* LWIP_DEBUG_TIMERNAMES */
-
-  if (next_timeout == NULL) {
-    next_timeout = timeout;
-    return;
-  }
-
-  if (next_timeout->time > msecs) {
-    next_timeout->time -= msecs;
-    timeout->next = next_timeout;
-    next_timeout = timeout;
-  } else {
-    for (t = next_timeout; t != NULL; t = t->next) {
-      timeout->time -= t->time;
-      if (t->next == NULL || t->next->time > timeout->time) {
-        if (t->next != NULL) {
-          t->next->time -= timeout->time;
-        } else if (timeout->time > msecs) {
-          /* If this is the case, 'timeouts_last_time' and 'now' differs too much.
-             This can be due to sys_check_timeouts() not being called at the right
-             times, but also when stopping in a breakpoint. Anyway, let's assume
-             this is not wanted, so add the first timer's time instead of 'diff' */
-          timeout->time = msecs + next_timeout->time;
-        }
-        timeout->next = t->next;
-        t->next = timeout;
-        break;
-      }
-    }
-  }
+  sys_timeout_abs(next_timeout_time, handler, arg, handler_name);
+#else
+  sys_timeout_abs(next_timeout_time, handler, arg);
+#endif
 }
 
 /**
@@ -274,6 +318,8 @@ sys_untimeout(sys_timeout_handler handler, void *arg)
 {
   struct sys_timeo *prev_t, *t;
 
+  LWIP_ASSERT_CORE_LOCKED();
+
   if (next_timeout == NULL) {
     return;
   }
@@ -286,10 +332,6 @@ sys_untimeout(sys_timeout_handler handler, void *arg)
         next_timeout = t->next;
       } else {
         prev_t->next = t->next;
-      }
-      /* If not the last one, add time of this one back to next */
-      if (t->next != NULL) {
-        t->next->time += t->time;
       }
       memp_free(MEMP_SYS_TIMEOUT, t);
       return;
@@ -306,61 +348,54 @@ sys_untimeout(sys_timeout_handler handler, void *arg)
  *
  * Must be called periodically from your main loop.
  */
-#if !NO_SYS && !defined __DOXYGEN__
-static
-#endif /* !NO_SYS */
 void
 sys_check_timeouts(void)
 {
-  if (next_timeout) {
+  u32_t now;
+
+  LWIP_ASSERT_CORE_LOCKED();
+
+  /* Process only timers expired at the start of the function. */
+  now = sys_now();
+
+  do {
     struct sys_timeo *tmptimeout;
-    u32_t diff;
     sys_timeout_handler handler;
     void *arg;
-    u8_t had_one;
-    u32_t now;
 
-    now = sys_now();
-    /* this cares for wraparounds */
-    diff = now - timeouts_last_time;
-    do {
-      PBUF_CHECK_FREE_OOSEQ();
-      had_one = 0;
-      tmptimeout = next_timeout;
-      if (tmptimeout && (tmptimeout->time <= diff)) {
-        /* timeout has expired */
-        had_one = 1;
-        timeouts_last_time += tmptimeout->time;
-        diff -= tmptimeout->time;
-        next_timeout = tmptimeout->next;
-        handler = tmptimeout->h;
-        arg = tmptimeout->arg;
+    PBUF_CHECK_FREE_OOSEQ();
+
+    tmptimeout = next_timeout;
+    if (tmptimeout == NULL) {
+      return;
+    }
+
+    if (TIME_LESS_THAN(now, tmptimeout->time)) {
+      return;
+    }
+
+    /* Timeout has expired */
+    next_timeout = tmptimeout->next;
+    handler = tmptimeout->h;
+    arg = tmptimeout->arg;
+    current_timeout_due_time = tmptimeout->time;
 #if LWIP_DEBUG_TIMERNAMES
-        if (handler != NULL) {
-          LWIP_DEBUGF(TIMERS_DEBUG, ("sct calling h=%s arg=%p\n",
-            tmptimeout->handler_name, arg));
-        }
+    if (handler != NULL) {
+      LWIP_DEBUGF(TIMERS_DEBUG, ("sct calling h=%s t=%"U32_F" arg=%p\n",
+                                 tmptimeout->handler_name, sys_now() - tmptimeout->time, arg));
+    }
 #endif /* LWIP_DEBUG_TIMERNAMES */
-        memp_free(MEMP_SYS_TIMEOUT, tmptimeout);
-        if (handler != NULL) {
-#if !NO_SYS
-          /* For LWIP_TCPIP_CORE_LOCKING, lock the core before calling the
-             timeout handler function. */
-          LOCK_TCPIP_CORE();
-#endif /* !NO_SYS */
-          handler(arg);
-#if !NO_SYS
-          UNLOCK_TCPIP_CORE();
-#endif /* !NO_SYS */
-        }
-        LWIP_TCPIP_THREAD_ALIVE();
-      }
-    /* repeat until all expired timers have been called */
-    } while (had_one);
-  }
+    memp_free(MEMP_SYS_TIMEOUT, tmptimeout);
+    if (handler != NULL) {
+      handler(arg);
+    }
+    LWIP_TCPIP_THREAD_ALIVE();
+
+    /* Repeat until all expired timers have been called */
+  } while (1);
 }
 
-/** Set back the timestamp of the last call to sys_check_timeouts()
+/** Rebase the timeout times to the current time.
  * This is necessary if sys_check_timeouts() hasn't been called for a long
  * time (e.g. while saving energy) to prevent all timer functions of that
  * period being called.
@@ -368,61 +403,44 @@ sys_check_timeouts(void)
 void
 sys_restart_timeouts(void)
 {
-  timeouts_last_time = sys_now();
+  u32_t now;
+  u32_t base;
+  struct sys_timeo *t;
+
+  if (next_timeout == NULL) {
+    return;
+  }
+
+  now = sys_now();
+  base = next_timeout->time;
+
+  for (t = next_timeout; t != NULL; t = t->next) {
+    t->time = (t->time - base) + now;
+  }
 }
 
 /** Return the time left before the next timeout is due. If no timeouts are
  * enqueued, returns 0xffffffff
  */
-#if !NO_SYS
-static
-#endif /* !NO_SYS */
 u32_t
 sys_timeouts_sleeptime(void)
 {
-  u32_t diff;
+  u32_t now;
+
+  LWIP_ASSERT_CORE_LOCKED();
+
   if (next_timeout == NULL) {
-    return 0xffffffff;
+    return SYS_TIMEOUTS_SLEEPTIME_INFINITE;
   }
-  diff = sys_now() - timeouts_last_time;
-  if (diff > next_timeout->time) {
+  now = sys_now();
+  if (TIME_LESS_THAN(next_timeout->time, now)) {
     return 0;
   } else {
-    return next_timeout->time - diff;
+    u32_t ret = (u32_t)(next_timeout->time - now);
+    LWIP_ASSERT("invalid sleeptime", ret <= LWIP_MAX_TIMEOUT);
+    return ret;
   }
 }
-
-#if !NO_SYS
-
-/**
- * Wait (forever) for a message to arrive in an mbox.
- * While waiting, timeouts are processed.
- *
- * @param mbox the mbox to fetch the message from
- * @param msg the place to store the message
- */
-void
-sys_timeouts_mbox_fetch(sys_mbox_t *mbox, void **msg)
-{
-  u32_t sleeptime;
-
-again:
-  if (!next_timeout) {
-    sys_arch_mbox_fetch(mbox, msg, 0);
-    return;
-  }
-
-  sleeptime = sys_timeouts_sleeptime();
-  if (sleeptime == 0 || sys_arch_mbox_fetch(mbox, msg, sleeptime) == SYS_ARCH_TIMEOUT) {
-    /* If a SYS_ARCH_TIMEOUT value is returned, a timeout occurred
-       before a message could be fetched. */
-    sys_check_timeouts();
-    /* We try again to fetch a message from the mbox. */
-    goto again;
-  }
-}
-
-#endif /* NO_SYS */
 
 #else /* LWIP_TIMERS && !LWIP_TIMERS_CUSTOM */
 /* Satisfy the TCP code which calls this function */

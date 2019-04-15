@@ -29,12 +29,12 @@ Or, obtain a specific (fixed) release as follows:
 The Savannah server uses SSH (Secure Shell) protocol 2 authentication and encryption.
 As such, Git commits to the server occur through a SSH tunnel for project members.
 To create a SSH2 key pair in UNIX-like environments, do this:
- ssh-keygen -t dsa
+ ssh-keygen
 
 Under Windows, a recommended SSH client is "PuTTY", freely available with good
 documentation and a graphic user interface. Use its key generator.
 
-Now paste the id_dsa.pub contents into your Savannah account public key list. Wait
+Now paste the id_rsa.pub contents into your Savannah account public key list. Wait
 a while so that Savannah can update its configuration (This can take minutes).
 
 Try to login using SSH:

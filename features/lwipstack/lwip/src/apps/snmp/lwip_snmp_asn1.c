@@ -54,7 +54,7 @@
  * @return ERR_OK if successful, ERR_ARG if we can't (or won't) encode
  */
 err_t
-snmp_ans1_enc_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tlv)
+snmp_ans1_enc_tlv(struct snmp_pbuf_stream *pbuf_stream, struct snmp_asn1_tlv *tlv)
 {
   u8_t data;
   u8_t length_bytes_required;
@@ -130,7 +130,7 @@ snmp_ans1_enc_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tl
  * @return ERR_OK if successful, ERR_ARG if we can't (or won't) encode
  */
 err_t
-snmp_asn1_enc_raw(struct snmp_pbuf_stream* pbuf_stream, const u8_t *raw, u16_t raw_len)
+snmp_asn1_enc_raw(struct snmp_pbuf_stream *pbuf_stream, const u8_t *raw, u16_t raw_len)
 {
   PBUF_OP_EXEC(snmp_pbuf_stream_writebuf(pbuf_stream, raw, raw_len));
 
@@ -148,7 +148,7 @@ snmp_asn1_enc_raw(struct snmp_pbuf_stream* pbuf_stream, const u8_t *raw, u16_t r
  * @see snmp_asn1_enc_u32t_cnt()
  */
 err_t
-snmp_asn1_enc_u32t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, u32_t value)
+snmp_asn1_enc_u32t(struct snmp_pbuf_stream *pbuf_stream, u16_t octets_needed, u32_t value)
 {
   if (octets_needed > 5) {
     return ERR_ARG;
@@ -169,48 +169,6 @@ snmp_asn1_enc_u32t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, u3
 
   return ERR_OK;
 }
-
-/**
- * Encodes u64_t (counter64) into a pbuf chained ASN1 msg.
- *
- * @param pbuf_stream points to a pbuf stream
- * @param octets_needed encoding length (from snmp_asn1_enc_u32t_cnt())
- * @param value is the host order u32_t value to be encoded
- * @return ERR_OK if successful, ERR_ARG if we can't (or won't) encode
- *
- * @see snmp_asn1_enc_u64t_cnt()
- */
-err_t
-snmp_asn1_enc_u64t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, const u32_t* value)
-{
-  if (octets_needed > 9) {
-    return ERR_ARG;
-  }
-  if (octets_needed == 9) {
-    /* not enough bits in 'value' add leading 0x00 */
-    PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, 0x00));
-    octets_needed--;
-  }
-
-  while (octets_needed > 4) {
-    octets_needed--;
-    PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(*value >> ((octets_needed-4) << 3))));
-  }
-
-  /* skip to low u32 */
-  value++;
-
-  while (octets_needed > 1) {
-    octets_needed--;
-    PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(*value >> (octets_needed << 3))));
-  }
-
-  /* always write at least one octet (also in case of value == 0) */
-  PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(*value)));
-
-  return ERR_OK;
-}
-
 /**
  * Encodes s32_t integer into a pbuf chained ASN1 msg.
  *
@@ -222,7 +180,7 @@ snmp_asn1_enc_u64t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, co
  * @see snmp_asn1_enc_s32t_cnt()
  */
 err_t
-snmp_asn1_enc_s32t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, s32_t value)
+snmp_asn1_enc_s32t(struct snmp_pbuf_stream *pbuf_stream, u16_t octets_needed, s32_t value)
 {
   while (octets_needed > 1) {
     octets_needed--;
@@ -245,7 +203,7 @@ snmp_asn1_enc_s32t(struct snmp_pbuf_stream* pbuf_stream, u16_t octets_needed, s3
  * @return ERR_OK if successful, ERR_ARG if we can't (or won't) encode
  */
 err_t
-snmp_asn1_enc_oid(struct snmp_pbuf_stream* pbuf_stream, const u32_t *oid, u16_t oid_len)
+snmp_asn1_enc_oid(struct snmp_pbuf_stream *pbuf_stream, const u32_t *oid, u16_t oid_len)
 {
   if (oid_len > 1) {
     /* write compressed first two sub id's */
@@ -330,31 +288,6 @@ snmp_asn1_enc_u32t_cnt(u32_t value, u16_t *octets_needed)
 }
 
 /**
- * Returns octet count for an u64_t.
- *
- * @param value value to be encoded
- * @param octets_needed points to the return value
- *
- * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
- * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
- */
-void
-snmp_asn1_enc_u64t_cnt(const u32_t *value, u16_t *octets_needed)
-{
-  /* check if high u32 is 0 */
-  if (*value == 0x00) {
-    /* only low u32 is important */
-    value++;
-    snmp_asn1_enc_u32t_cnt(*value, octets_needed);
-  } else {
-    /* low u32 does not matter for length determination */
-    snmp_asn1_enc_u32t_cnt(*value, octets_needed);
-    *octets_needed = *octets_needed + 4; /* add the 4 bytes of low u32 */
-  }
-}
-
-/**
  * Returns octet count for an s32_t.
  *
  * @param value value to be encoded
@@ -420,7 +353,7 @@ snmp_asn1_enc_oid_cnt(const u32_t *oid, u16_t oid_len, u16_t *octets_needed)
  * @return ERR_OK if successful, ERR_VAL if we can't decode
  */
 err_t
-snmp_asn1_dec_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tlv)
+snmp_asn1_dec_tlv(struct snmp_pbuf_stream *pbuf_stream, struct snmp_asn1_tlv *tlv)
 {
   u8_t data;
 
@@ -442,6 +375,9 @@ snmp_asn1_dec_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tl
     tlv->value_len  = data;
   } else if (data > 0x80) { /* long form */
     u8_t length_bytes = data - 0x80;
+    if (length_bytes > pbuf_stream->length) {
+      return ERR_VAL;
+    }
     tlv->length_len = length_bytes + 1; /* this byte + defined number of length bytes following */
     tlv->value_len = 0;
 
@@ -510,60 +446,6 @@ snmp_asn1_dec_u32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value
 }
 
 /**
- * Decodes large positive integer (counter64) into 2x u32_t.
- *
- * @param pbuf_stream points to a pbuf stream
- * @param len length of the coded integer field
- * @param value return host order integer
- * @return ERR_OK if successful, ERR_ARG if we can't (or won't) decode
- *
- * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
- * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
- */
-err_t
-snmp_asn1_dec_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value)
-{
-  u8_t data;
-
-  if (len <= 4) {
-    /* high u32 is 0 */
-    *value = 0;
-    /* directly skip to low u32 */
-    value++;
-  }
-
-  if ((len > 0) && (len <= 9)) {
-    PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
-
-    /* expecting sign bit to be zero, only unsigned please! */
-    if (((len == 9) && (data == 0x00)) || ((len < 9) && ((data & 0x80) == 0))) {
-      *value = data;
-      len--;
-
-      while (len > 0) {
-        PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
-
-        if (len == 4) {
-          /* skip to low u32 */
-          value++;
-          *value = 0;
-        } else {
-          *value <<= 8;
-        }
-
-        *value |= data;
-        len--;
-      }
-
-      return ERR_OK;
-    }
-  }
-
-  return ERR_VAL;
-}
-
-/**
  * Decodes integer into s32_t.
  *
  * @param pbuf_stream points to a pbuf stream
@@ -576,51 +458,26 @@ snmp_asn1_dec_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value
 err_t
 snmp_asn1_dec_s32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, s32_t *value)
 {
-#if BYTE_ORDER == LITTLE_ENDIAN
-  u8_t *lsb_ptr = (u8_t*)value;
-#endif
-#if BYTE_ORDER == BIG_ENDIAN
-  u8_t *lsb_ptr = (u8_t*)value + sizeof(s32_t) - 1;
-#endif
-  u8_t sign;
   u8_t data;
 
   if ((len > 0) && (len < 5)) {
     PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
-    len--;
 
     if (data & 0x80) {
       /* negative, start from -1 */
       *value = -1;
-      sign = 1;
-      *lsb_ptr &= data;
+      *value = (*value << 8) | data;
     } else {
       /* positive, start from 0 */
-      *value = 0;
-      sign = 0;
-      *lsb_ptr |= data;
+      *value = data;
     }
-
-    /* OR/AND octets with value */
+    len--;
+    /* shift in the remaining value */
     while (len > 0) {
       PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
+      *value = (*value << 8) | data;
       len--;
-
-#if BYTE_ORDER == LITTLE_ENDIAN
-      *value <<= 8;
-#endif
-#if BYTE_ORDER == BIG_ENDIAN
-      *value >>= 8;
-#endif
-
-      if (sign) {
-        *lsb_ptr |= 255;
-        *lsb_ptr &= data;
-      } else {
-        *lsb_ptr |= data;
-      }
     }
-
     return ERR_OK;
   }
 
@@ -638,7 +495,7 @@ snmp_asn1_dec_s32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, s32_t *value
  * @return ERR_OK if successful, ERR_ARG if we can't (or won't) decode
  */
 err_t
-snmp_asn1_dec_oid(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t* oid, u8_t* oid_len, u8_t oid_max_len)
+snmp_asn1_dec_oid(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *oid, u8_t *oid_len, u8_t oid_max_len)
 {
   u32_t *oid_ptr;
   u8_t data;
@@ -729,7 +586,7 @@ snmp_asn1_dec_oid(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t* oid, u
  * @return ERR_OK if successful, ERR_ARG if we can't (or won't) decode
  */
 err_t
-snmp_asn1_dec_raw(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u8_t *buf, u16_t* buf_len, u16_t buf_max_len)
+snmp_asn1_dec_raw(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u8_t *buf, u16_t *buf_len, u16_t buf_max_len)
 {
   if (len > buf_max_len) {
     /* not enough dst space */
@@ -745,5 +602,103 @@ snmp_asn1_dec_raw(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u8_t *buf, u1
 
   return ERR_OK;
 }
+
+#if LWIP_HAVE_INT64
+/**
+ * Returns octet count for an u64_t.
+ *
+ * @param value value to be encoded
+ * @param octets_needed points to the return value
+ *
+ * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
+ * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
+ * of 0xFFFFFFFFFFFFFFFF is preceded with 0x00 and the length is 9 octets!!
+ */
+void
+snmp_asn1_enc_u64t_cnt(u64_t value, u16_t *octets_needed)
+{
+  /* check if high u32 is 0 */
+  if ((value >> 32) == 0) {
+    /* only low u32 is important */
+    snmp_asn1_enc_u32t_cnt((u32_t)value, octets_needed);
+  } else {
+    /* low u32 does not matter for length determination */
+    snmp_asn1_enc_u32t_cnt((u32_t)(value >> 32), octets_needed);
+    *octets_needed = *octets_needed + 4; /* add the 4 bytes of low u32 */
+  }
+}
+
+/**
+ * Decodes large positive integer (counter64) into 2x u32_t.
+ *
+ * @param pbuf_stream points to a pbuf stream
+ * @param len length of the coded integer field
+ * @param value return 64 bit integer
+ * @return ERR_OK if successful, ERR_ARG if we can't (or won't) decode
+ *
+ * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
+ * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
+ * of 0xFFFFFFFFFFFFFFFF is preceded with 0x00 and the length is 9 octets!!
+ */
+err_t
+snmp_asn1_dec_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u64_t *value)
+{
+  u8_t data;
+
+  if ((len > 0) && (len <= 9)) {
+    PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
+
+    /* expecting sign bit to be zero, only unsigned please! */
+    if (((len == 9) && (data == 0x00)) || ((len < 9) && ((data & 0x80) == 0))) {
+      *value = data;
+      len--;
+
+      while (len > 0) {
+        PBUF_OP_EXEC(snmp_pbuf_stream_read(pbuf_stream, &data));
+        *value <<= 8;
+        *value |= data;
+        len--;
+      }
+
+      return ERR_OK;
+    }
+  }
+
+  return ERR_VAL;
+}
+
+/**
+ * Encodes u64_t (counter64) into a pbuf chained ASN1 msg.
+ *
+ * @param pbuf_stream points to a pbuf stream
+ * @param octets_needed encoding length (from snmp_asn1_enc_u32t_cnt())
+ * @param value is the value to be encoded
+ * @return ERR_OK if successful, ERR_ARG if we can't (or won't) encode
+ *
+ * @see snmp_asn1_enc_u64t_cnt()
+ */
+err_t
+snmp_asn1_enc_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t octets_needed, u64_t value)
+{
+  if (octets_needed > 9) {
+    return ERR_ARG;
+  }
+  if (octets_needed == 9) {
+    /* not enough bits in 'value' add leading 0x00 */
+    PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, 0x00));
+    octets_needed--;
+  }
+
+  while (octets_needed > 1) {
+    octets_needed--;
+    PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(value >> (octets_needed << 3))));
+  }
+
+  /* always write at least one octet (also in case of value == 0) */
+  PBUF_OP_EXEC(snmp_pbuf_stream_write(pbuf_stream, (u8_t)(value)));
+
+  return ERR_OK;
+}
+#endif
 
 #endif /* LWIP_SNMP */

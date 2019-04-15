@@ -6,7 +6,12 @@
  * @ingroup ip6
  * Multicast listener discovery for IPv6. Aims to be compliant with RFC 2710.
  * No support for MLDv2.\n
- * To be called from TCPIP thread
+ * Note: The allnodes (ff01::1, ff02::1) group is assumed be received by your 
+ * netif since it must always be received for correct IPv6 operation (e.g. SLAAC).
+ * Ensure the netif filters are configured accordingly!\n
+ * The netif flags also need NETIF_FLAG_MLD6 flag set to enable MLD6 on a
+ * netif ("netif->flags |= NETIF_FLAG_MLD6;").\n
+ * To be called from TCPIP thread.
  */
 
 /*
@@ -293,11 +298,17 @@ mld6_input(struct pbuf *p, struct netif *inp)
 
 /**
  * @ingroup mld6
- * Join a group on a network interface.
+ * Join a group on one or all network interfaces.
  *
- * @param srcaddr ipv6 address of the network interface which should
- *                join a new group. If IP6_ADDR_ANY, join on all netifs
- * @param groupaddr the ipv6 address of the group to join
+ * If the group is to be joined on all interfaces, the given group address must
+ * not have a zone set (i.e., it must have its zone index set to IP6_NO_ZONE).
+ * If the group is to be joined on one particular interface, the given group
+ * address may or may not have a zone set.
+ *
+ * @param srcaddr ipv6 address (zoned) of the network interface which should
+ *                join a new group. If IP6_ADDR_ANY6, join on all netifs
+ * @param groupaddr the ipv6 address of the group to join (possibly but not
+ *                  necessarily zoned)
  * @return ERR_OK if group was joined on the netif(s), an err_t otherwise
  */
 err_t
@@ -306,9 +317,10 @@ mld6_joingroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
   err_t         err = ERR_VAL; /* no matching interface */
   struct netif *netif;
 
+  LWIP_ASSERT_CORE_LOCKED();
+
   /* loop through netif's */
-  netif = netif_list;
-  while (netif != NULL) {
+  NETIF_FOREACH(netif) {
     /* Should we join this interface ? */
     if (ip6_addr_isany(srcaddr) ||
         netif_get_ip6_addr_match(netif, srcaddr) >= 0) {
@@ -317,9 +329,6 @@ mld6_joingroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
         return err;
       }
     }
-
-    /* proceed to next network interface */
-    netif = netif->next;
   }
 
   return err;
@@ -330,13 +339,28 @@ mld6_joingroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
  * Join a group on a network interface.
  *
  * @param netif the network interface which should join a new group.
- * @param groupaddr the ipv6 address of the group to join
+ * @param groupaddr the ipv6 address of the group to join (possibly but not
+ *                  necessarily zoned)
  * @return ERR_OK if group was joined on the netif, an err_t otherwise
  */
 err_t
 mld6_joingroup_netif(struct netif *netif, const ip6_addr_t *groupaddr)
 {
   struct mld_group *group;
+#if LWIP_IPV6_SCOPES
+  ip6_addr_t ip6addr;
+
+  /* If the address has a particular scope but no zone set, use the netif to
+   * set one now. Within the mld6 module, all addresses are properly zoned. */
+  if (ip6_addr_lacks_zone(groupaddr, IP6_MULTICAST)) {
+    ip6_addr_set(&ip6addr, groupaddr);
+    ip6_addr_assign_zone(&ip6addr, IP6_MULTICAST, netif);
+    groupaddr = &ip6addr;
+  }
+  IP6_ADDR_ZONECHECK_NETIF(groupaddr, netif);
+#endif /* LWIP_IPV6_SCOPES */
+
+  LWIP_ASSERT_CORE_LOCKED();
 
   /* find group or create a new one if not found */
   group = mld6_lookfor_group(netif, groupaddr);
@@ -368,9 +392,12 @@ mld6_joingroup_netif(struct netif *netif, const ip6_addr_t *groupaddr)
  * @ingroup mld6
  * Leave a group on a network interface.
  *
- * @param srcaddr ipv6 address of the network interface which should
- *                leave the group. If IP6_ISANY, leave on all netifs
- * @param groupaddr the ipv6 address of the group to leave
+ * Zoning of address follows the same rules as @ref mld6_joingroup.
+ *
+ * @param srcaddr ipv6 address (zoned) of the network interface which should
+ *                leave the group. If IP6_ADDR_ANY6, leave on all netifs
+ * @param groupaddr the ipv6 address of the group to leave (possibly, but not
+ *                  necessarily zoned)
  * @return ERR_OK if group was left on the netif(s), an err_t otherwise
  */
 err_t
@@ -379,9 +406,10 @@ mld6_leavegroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
   err_t         err = ERR_VAL; /* no matching interface */
   struct netif *netif;
 
+  LWIP_ASSERT_CORE_LOCKED();
+
   /* loop through netif's */
-  netif = netif_list;
-  while (netif != NULL) {
+  NETIF_FOREACH(netif) {
     /* Should we leave this interface ? */
     if (ip6_addr_isany(srcaddr) ||
         netif_get_ip6_addr_match(netif, srcaddr) >= 0) {
@@ -391,8 +419,6 @@ mld6_leavegroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
         err = res;
       }
     }
-    /* proceed to next network interface */
-    netif = netif->next;
   }
 
   return err;
@@ -403,13 +429,26 @@ mld6_leavegroup(const ip6_addr_t *srcaddr, const ip6_addr_t *groupaddr)
  * Leave a group on a network interface.
  *
  * @param netif the network interface which should leave the group.
- * @param groupaddr the ipv6 address of the group to leave
+ * @param groupaddr the ipv6 address of the group to leave (possibly, but not
+ *                  necessarily zoned)
  * @return ERR_OK if group was left on the netif, an err_t otherwise
  */
 err_t
 mld6_leavegroup_netif(struct netif *netif, const ip6_addr_t *groupaddr)
 {
   struct mld_group *group;
+#if LWIP_IPV6_SCOPES
+  ip6_addr_t ip6addr;
+
+  if (ip6_addr_lacks_zone(groupaddr, IP6_MULTICAST)) {
+    ip6_addr_set(&ip6addr, groupaddr);
+    ip6_addr_assign_zone(&ip6addr, IP6_MULTICAST, netif);
+    groupaddr = &ip6addr;
+  }
+  IP6_ADDR_ZONECHECK_NETIF(groupaddr, netif);
+#endif /* LWIP_IPV6_SCOPES */
+
+  LWIP_ASSERT_CORE_LOCKED();
 
   /* find group */
   group = mld6_lookfor_group(netif, groupaddr);
@@ -456,9 +495,9 @@ mld6_leavegroup_netif(struct netif *netif, const ip6_addr_t *groupaddr)
 void
 mld6_tmr(void)
 {
-  struct netif *netif = netif_list;
+  struct netif *netif;
 
-  while (netif != NULL) {
+  NETIF_FOREACH(netif) {
     struct mld_group *group = netif_mld6_data(netif);
 
     while (group != NULL) {
@@ -475,7 +514,6 @@ mld6_tmr(void)
       }
       group = group->next;
     }
-    netif = netif->next;
   }
 }
 
@@ -484,20 +522,20 @@ mld6_tmr(void)
  *
  * @param group the mld_group for which "delaying" membership report
  *              should be sent
- * @param maxresp the max resp delay provided in the query
+ * @param maxresp_in the max resp delay provided in the query
  */
 static void
-mld6_delayed_report(struct mld_group *group, u16_t maxresp)
+mld6_delayed_report(struct mld_group *group, u16_t maxresp_in)
 {
   /* Convert maxresp from milliseconds to tmr ticks */
-  maxresp = maxresp / MLD6_TMR_INTERVAL;
+  u16_t maxresp = maxresp_in / MLD6_TMR_INTERVAL;
   if (maxresp == 0) {
     maxresp = 1;
   }
 
 #ifdef LWIP_RAND
   /* Randomize maxresp. (if LWIP_RAND is supported) */
-  maxresp = LWIP_RAND() % maxresp;
+  maxresp = (u16_t)(LWIP_RAND() % maxresp);
   if (maxresp == 0) {
     maxresp = 1;
   }
@@ -529,14 +567,14 @@ mld6_send(struct netif *netif, struct mld_group *group, u8_t type)
   const ip6_addr_t *src_addr;
 
   /* Allocate a packet. Size is MLD header + IPv6 Hop-by-hop options header. */
-  p = pbuf_alloc(PBUF_IP, sizeof(struct mld_header) + sizeof(struct ip6_hbh_hdr), PBUF_RAM);
+  p = pbuf_alloc(PBUF_IP, sizeof(struct mld_header) + MLD6_HBH_HLEN, PBUF_RAM);
   if (p == NULL) {
     MLD6_STATS_INC(mld6.memerr);
     return;
   }
 
   /* Move to make room for Hop-by-hop options header. */
-  if (pbuf_header(p, -IP6_HBH_HLEN)) {
+  if (pbuf_remove_header(p, MLD6_HBH_HLEN)) {
     pbuf_free(p);
     MLD6_STATS_INC(mld6.lenerr);
     return;
@@ -561,7 +599,7 @@ mld6_send(struct netif *netif, struct mld_group *group, u8_t type)
   mld_hdr->chksum = 0;
   mld_hdr->max_resp_delay = 0;
   mld_hdr->reserved = 0;
-  ip6_addr_set(&(mld_hdr->multicast_address), &(group->group_address));
+  ip6_addr_copy_to_packed(mld_hdr->multicast_address, group->group_address);
 
 #if CHECKSUM_GEN_ICMP6
   IF__NETIF_CHECKSUM_ENABLED(netif, NETIF_CHECKSUM_GEN_ICMP6) {

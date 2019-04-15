@@ -34,4 +34,9 @@ Suite* create_suite(const char* name, testfunc *tests, size_t num_tests, SFun se
 int lwip_unittests_run(void)
 #endif
 
+/* helper functions */
+#define SKIP_POOL(x) (1 << x)
+#define SKIP_HEAP    (1 << MEMP_MAX)
+void lwip_check_ensure_no_alloc(unsigned int skip);
+
 #endif /* LWIP_HDR_LWIP_CHECK_H */
