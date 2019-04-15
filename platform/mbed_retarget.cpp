@@ -1242,8 +1242,12 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 
 #if defined(MBED_SPLIT_HEAP)
 
+// Default RAM memory used for heap
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
+/* Additional RAM memory used for heap - please note this
+ * address should be lower address then the previous default address
+ */
 extern uint32_t __mbed_sbrk_start_0;
 extern uint32_t __mbed_krbs_start_0;
 
@@ -1256,6 +1260,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
 
     /**
      * If the new address is outside the first region, start allocating from the second region.
+     * Jump to second region is done just once, and `static bool once` is used to keep track of that.
      */
     if (once && (new_heap > (uint32_t) &__mbed_krbs_start_0)) {
         once = false;
