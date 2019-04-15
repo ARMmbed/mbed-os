@@ -23,7 +23,7 @@ import warnings
 try:
     from cmsis_pack_manager import Cache as _Cache
     _CPM_PRESENT = True
-except ImportError:
+except (ImportError, OSError):
     _CPM_PRESENT = False
 
 from tools.flash_algo import PackFlashAlgo
