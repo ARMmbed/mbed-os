@@ -1564,6 +1564,7 @@ __STATIC_INLINE void Cy_SAR_ClearInterrupt(SAR_Type *base, uint32_t intrMask)
 
     /* Dummy read for buffered writes. */
     unused = base->INTR;
+    (void)unused;
 }
 
 /*******************************************************************************
@@ -1720,6 +1721,7 @@ __STATIC_INLINE void Cy_SAR_ClearRangeInterrupt(SAR_Type *base, uint32_t chanMas
 
     /* Dummy read for buffered writes. */
     unused = base->RANGE_INTR;
+    (void)unused;
 }
 
 /*******************************************************************************
@@ -1863,6 +1865,7 @@ __STATIC_INLINE void Cy_SAR_ClearSatInterrupt(SAR_Type *base, uint32_t chanMask)
 
     /* Dummy read for buffered writes. */
     unused = base->SATURATE_INTR;
+    (void)unused;
 }
 
 /*******************************************************************************

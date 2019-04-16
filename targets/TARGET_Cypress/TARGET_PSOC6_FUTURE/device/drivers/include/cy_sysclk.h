@@ -2085,6 +2085,7 @@ __STATIC_INLINE cy_en_sysclk_status_t
                             _VAL2FLD(PERI_DIV_CMD_TYPE_SEL, dividerType) |
                             _VAL2FLD(PERI_DIV_CMD_DIV_SEL,  dividerNum);
             unused = PERI->DIV_CMD; /* dummy read to handle buffered writes */
+            (void)unused;
             retval = CY_SYSCLK_SUCCESS;
         }
     }
