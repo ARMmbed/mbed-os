@@ -74,28 +74,33 @@ void UDPSOCKET_ECHOTEST()
         int pkt_s = pkt_sizes[s_idx];
 
         fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
+        int packets_sent_prev = packets_sent;
 
         for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
             memset(rx_buffer, 0, BUFF_SIZE);
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
             if (check_oversized_packets(sent, pkt_s)) {
                 TEST_IGNORE_MESSAGE("This device does not handle oversized packets");
-            } else if (sent > 0) {
+            } else if (sent == pkt_s) {
                 packets_sent++;
-            }
-            if (sent != pkt_s) {
+            } else {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
             recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
             if (recvd == pkt_s) {
                 break;
+            } else {
+                printf("[Round#%02d - Receiver] error, returned %d\n", s_idx, recvd);
             }
         }
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
             packets_recv++;
         }
+        // Make sure that at least one packet of every size was sent.
+        TEST_ASSERT_TRUE(packets_sent > packets_sent_prev);
     }
+
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
@@ -154,6 +159,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
 
     for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
+        int packets_sent_prev = packets_sent;
 
         thread = new Thread(osPriorityNormal,
                             OS_STACK_SIZE,
@@ -165,16 +171,15 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
             fill_tx_buffer_ascii(tx_buffer, pkt_s);
 
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
-            if (sent > 0) {
+            if (sent == pkt_s) {
                 packets_sent++;
-            }
-            if (sent == NSAPI_ERROR_WOULD_BLOCK) {
+            } else if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if (tc_exec_time.read() >= time_allotted ||
                         osSignalWait(SIGNAL_SIGIO_TX, SIGIO_TIMEOUT).status == osEventTimeout) {
                     continue;
                 }
                 --retry_cnt;
-            } else if (sent != pkt_s) {
+            } else {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
@@ -183,6 +188,8 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
             }
             break;
         }
+        // Make sure that at least one packet of every size was sent.
+        TEST_ASSERT_TRUE(packets_sent > packets_sent_prev);
         thread->join();
         delete thread;
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
