@@ -310,28 +310,50 @@ status_t DSPI_TransferBlockingLimit(SPI_Type *base, dspi_transfer_t *transfer, u
     return kStatus_Success;
 }
 
-void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
+void spi_get_capabilities(SPIName name, PinName ssel, bool slave, spi_capabilities_t *cap)
 {
-    cap->word_length = 0x00008080;
-    cap->support_slave_mode = false;
-    cap->half_duplex = false;
-    cap->hw_cs_handle = true;
+    if (slave) {
+        cap->minimum_frequency = 200000;
+        cap->maximum_frequency = 4000000;
 
-    cap->minimum_frequency = 200000;
-    cap->maximum_frequency = 4000000;
+        cap->word_length = 0x00008080;     // 8, 16 bits
+        cap->support_slave_mode = false;
+        cap->half_duplex = false;
+        cap->hw_cs_handle = true;
+        cap->clk_modes = (1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE) |
+                         (1 << SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE);
+        cap->bit_order = (1 << SPI_BIT_ORDERING_MSB_FIRST);
+        cap->async_mode = true;
+        cap->slave_delay_between_symbols_ns = 1000; // 1 us
+    } else {
+        cap->minimum_frequency = 200000;
+        cap->maximum_frequency = 4000000;
 
+        cap->word_length = 0x00008080;     // 8, 16 bits
+        cap->support_slave_mode = false;
+        cap->half_duplex = false;
+        cap->hw_cs_handle = true;
+        /* Clock Polarity High is disabled since after setting such format spi master still keeps CLK line low.
+           Because of that if CS is not handled by hardware (CS is set manually before calling spi_transfer()) CLK line has invalid
+           state (low) which is inconsistent with SPI standard. */
+        cap->clk_modes = ((1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE));
+        cap->bit_order = (1 << SPI_BIT_ORDERING_MSB_FIRST) | (1 << SPI_BIT_ORDERING_LSB_FIRST);
+        cap->async_mode = true;
+        cap->slave_delay_between_symbols_ns = 0;
+    }
+
+    // Determine slave mode based on CS pin
+#if DEVICE_SPISLAVE
     const PinMap *cs_pins = spi_master_cs_pinmap();
-
     PinName pin = NC;
-
     while(cs_pins->pin != NC) {
         if (cs_pins->pin == ssel) {
             cap->support_slave_mode = true;
             break;
         }
-
         cs_pins++;
     }
+#endif
 }
 
 SPIName spi_get_module(PinName mosi, PinName miso, PinName sclk) {

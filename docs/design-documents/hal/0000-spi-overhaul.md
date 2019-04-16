@@ -6,8 +6,8 @@ This update targets the SPI HAL as the first step of a wide plan for all HAL API
 
 ## Motivation
 
-This work is part of the effort to bring well defined specification to APIs in `mbed-os`. Some users have shown interest in some addition to the supported features of this API ([bit ordering selection #4789](https://github.com/ARMmbed/mbed-os/issues/4789)).  
-Analysis of previous work also revealed some inconsistencies in the current SPI HAL API that this RFC aims at fixing. Those inconsistencies are listed in the next chapter.  
+This work is part of the effort to bring well defined specification to APIs in `mbed-os`. Some users have shown interest in some addition to the supported features of this API ([bit ordering selection #4789](https://github.com/ARMmbed/mbed-os/issues/4789)).
+Analysis of previous work also revealed some inconsistencies in the current SPI HAL API that this RFC aims at fixing. Those inconsistencies are listed in the next chapter.
 Finally, `mbed-os` has grown a lot its supported target count and some of the oldest one could benefit quite significantly in maintenance cost from a factorisation of their code base.
 
 ### Inconsistencies
@@ -32,30 +32,30 @@ In order to provide a meaningful API, this RFC will consider the following use c
 - <details><summary>SPI Master: <a href="https://github.com/ARMmbed/mbed-os/tree/master/features/unsupported/tests/peripherals/C12832">C12832 LCD screen driver</a> and <a href="https://github.com/ARMmbed/mbed-os/tree/master/features/unsupported/tests/peripherals/ADXL345">ADXL345 3 axis accelerometer</a></summary><ul><li>initial freq : 19.2MHz</li><li>clock polarity: high</li><li>clock phase : second edge</li><li>symbol size : 8bits</li><li>Chip select : manual (could be automated).</li></ul></details>
 - <details><summary>SPI Master: <a href="https://github.com/ARMmbed/wifi-ism43362">ism43362</a> (WiFi module)</summary><ul><li>initial freq  : 20MHz</li><li>clock polarity: low</li><li>clock phase : first edge</li><li>symbol size : 16bits</li><li>Chip select : manual (could it be automated ? There seem to be some special delays)</li></ul></details>
 - <details><summary>SPI Master: <a href="https://github.com/ARMmbed/atmel-rf-driver">atmel-rf</a> (802.15.4)</summary><ul><li>initial freq  : 3.75 -> 7.5MHz</li><li>clock polarity: ? default</li><li>clock phase : ? default</li><li>symbol size : ? default</li><li>Chip select : manual (could be automated)</li></ul></details>
-- <details><summary>SPI Master: <a href="https://github.com/ARMmbed/stm-spirit1-rf-driver">stm-spirit1-rf</a> (Sub-1 GHz RF based on the SPSGRF-868 Module)</summary><ul><li>initial freq : 10MHz</li><li>clock polarity: low</li><li>clock phase : first edge</li><li>symbol size : 8bits</li><li>Chip select : manual (could it be automated ? There seem to be some special delays)</li></ul></details> 
+- <details><summary>SPI Master: <a href="https://github.com/ARMmbed/stm-spirit1-rf-driver">stm-spirit1-rf</a> (Sub-1 GHz RF based on the SPSGRF-868 Module)</summary><ul><li>initial freq : 10MHz</li><li>clock polarity: low</li><li>clock phase : first edge</li><li>symbol size : 8bits</li><li>Chip select : manual (could it be automated ? There seem to be some special delays)</li></ul></details>
 - <details><summary>SPI Master: <a href="https://github.com/ARMmbed/ble-x-nucleo-idb0xa1">ble-x-nucleo-idb0xa1</a> (BLE module)</summary><ul><li>initial freq : 8MHz</li><li>clock polarity: low</li><li>clock phase : first edge</li><li>symbol size : 8bits</li><li>Chip select : manual (could be automated as it is sending/receiving byte by byte)</li></ul></details>
 - <details><summary>SPI Master: <a href="https://os.mbed.com/cookbook/SPI-communication-with-external-ADC-MCP3">ADC</a></summary><ul><li>initial freq  : 1MHz</li><li>clock polarity: low</li><li>clock phase : first edge</li><li>symbol size : 7bits</li><li>Chip select : manual (could it be automated ? There seem to be some special delays)</li><li>The comment in the code is confusing as it refers to "high steady state" and "second edge capture".</li></ul></details>
 - <details><summary>SPI Master: <a href="https://os.mbed.com/users/AppNearMe/code/AppNearMe_MuNFC_PN532">AppNearMe MuNFC PN532</a></summary><ul><li>Initial freq: 5MHz</li><li>clock polarity: Idle High</li><li>clock phase: Data on second edge (aka active to idle edge)</li><li>symbol size: 8bits</li><li>chip select: manual</li><li>use of different tx_len & rx_len + some skip offset.</li></ul></details>
 
 ### Other use cases
-- SPI Slave  
-  In this use case the user wants to receive a command frame and send back an answer frame.  
+- SPI Slave
+  In this use case the user wants to receive a command frame and send back an answer frame.
   Both frames are constructed that way :
 
   | size     | frame type | variable length frame | crc
   | ---      | ---        | ---                   | ---
   | 2 bytes  | 1 byte     | \<size> bytes         | 1 byte
 
-  Data are sent as 8 bit symbols, little endian, lsb first. The Frame cannot exceed 2048bytes in length.  
-  CS has to stay asserted between request and response.  
+  Data are sent as 8 bit symbols, little endian, lsb first. The Frame cannot exceed 2048bytes in length.
+  CS has to stay asserted between request and response.
   The master expect to receive the symbol `0xFF` as a place holder.
-- Simultaneous transaction over multiple SPI peripheral.  
+- Simultaneous transaction over multiple SPI peripheral.
   For example: Reading/Writing to an SD Card while using the communication interface over another SPI interface (other peripheral).
-- Asynchronous:  
+- Asynchronous:
   These are basically the same the regular ones except that the function call should return immediately and a callback should be triggered once the operation is completed.
   - SPI Master block transfer
   - SPI Slave block transfer : Not supported in current API
- 
+
   The asynchronous API is particularly important when dealing with multiple interfaces. Indeed, handling simultaneously two SPI transfers would require two thread with a blocking API while only one is required by the asynchronous API saving kilobytes of RAM.
 - Half-duplex mode:
   The [LPS22HB](https://www.st.com/en/mems-and-sensors/lps22hb.html) product family can be controlled through a half-duplex SPI interface (called 3 wire mode in the data sheet).
@@ -98,14 +98,15 @@ typedef struct {
      *  testing.
      */
     uint32_t    maximum_frequency;
-    /** Each bit represents the corresponding symbol length. lsb => 1bit, msb => 32bits.
-     *
-     * For example, if the peripheral supports 8 bits, 12bits to 16bits and 32bits,
-     * the value should be 0x8000F880.
-     */
-    uint32_t    symbol_length;
+    /** Each bit represents the corresponding word length. lsb => 1bit, msb => 32bit. */
+    uint32_t    word_length;
+    uint16_t    slave_delay_between_symbols_ns; /**< specifies required number of ns between transmission of successive symbols in slave mode. */
+    uint8_t     clk_modes; /**< specifies supported modes from spi_mode_t. Each bit represents the corresponding mode. */
+    uint8_t     bit_order; /**< specifies supported bit order from spi_bit_ordering_t. Each bit represents the corresponding bit order. */
     bool        support_slave_mode; /**< If true, the device can handle SPI slave mode using hardware management on the specified ssel pin. */
     bool        half_duplex; /**< If true, the device also supports SPI transmissions using only 3 wires. */
+    bool        hw_cs_handle; /**< If true, in SPI master mode Chip Select can be handled by hardware. */
+    bool        async_mode; /**< If true, in async mode is supported. */
 } spi_capabilities_t;
 
 typedef struct {
@@ -137,7 +138,7 @@ SPIName spi_get_module(PinName mosi, PinName miso, PinName mclk);
 /**
  * Fills the given spi_capabilities_t structure with the capabilities of the given peripheral.
  */
-void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap);
+void spi_get_capabilities(SPIName name, PinName ssel, bool slave, spi_capabilities_t *cap);
 
 void spi_init(spi_t *obj, bool is_slave, PinName mosi, PinName miso, PinName mclk, PinName ssel);
 void spi_format(spi_t *obj, uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bit_ordering);
@@ -153,7 +154,7 @@ void spi_free(spi_t *obj);
 
 - `spi_get_module()` returns the `SPIName` unique identifier to the peripheral associated to this SPI channel.
 - `spi_get_capabilities()` fills the given `spi_capabilities_t` instance
-- `spi_get_capabilities()` should consider the `ssel` pin when evaluation the `support_slave_mode` capability.  
+- `spi_get_capabilities()` should consider the `ssel` pin when evaluation the `support_slave_mode` capability.
   If the given `ssel` pin cannot be managed by hardware in slave mode, `support_slave_mode` should be false.
 - At least a symbol width of 8bit must be supported.
 - The supported frequency range must include the range [0.2..2] MHz.
@@ -188,7 +189,7 @@ void spi_free(spi_t *obj);
   - if `rx` is NULL then inputs are discarded.
   - if `tx` is NULL then `fill_symbol` is used instead.
   - returns the number of symbol clocked on the bus during this transfer.
-  - expects symbols types to be the closest stdint type bigger or equal to its size following the platform's endianness.  
+  - expects symbols types to be the closest stdint type bigger or equal to its size following the platform's endianness.
     e.g.:
     - 7bits => uint8_t
     - 15bits => uint16_t
@@ -199,9 +200,9 @@ void spi_free(spi_t *obj);
   - In Half-duplex mode :
     - as master, `spi_transfer()` sends `tx_len` symbols and then reads `rx_len` symbols.
     - as slave, `spi_transfer()` receives `rx_len` symbols and then sends `tx_len` symbols.
-- `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously with the following exceptions:  
-    - in async mode only transfers of the same size are allowed (tx size must be equal to rx size)  
-    - async mode only supports full-duplex mode  
+- `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously with the following exceptions:
+    - in async mode only transfers of the same size are allowed (tx size must be equal to rx size)
+    - async mode only supports full-duplex mode
 - `spi_transter_async()` returns immediately with a boolean indicating whether the transfer was successfully scheduled or not.
 - The callback given to `spi_transfer_async()` is invoked when the transfer completes (with a success or an error).
 - `spi_transfer_async()` saves the handler and the `ctx` pointer.
@@ -221,7 +222,7 @@ void spi_free(spi_t *obj);
 - Passing an invalid pointer as `cap` to `spi_get_capabilities`.
 - Passing pins that cannot be on the same peripheral.
 - Passing an invalid pointer as `obj` to any method.
-- Giving a `ssel` pin to `spi_init()` when using in master mode.  
+- Giving a `ssel` pin to `spi_init()` when using in master mode.
   SS must be managed by hardware in slave mode and must **NOT** be managed by hardware in master mode.
 - Setting a frequency outside of the range given by `spi_get_capabilities()`.
 - Setting a frequency in slave mode.
@@ -242,7 +243,7 @@ Some examples will be created in order to cover the remaining behaviours and use
 
 ## Impact on partners' implementations
 
-The new API does not impact partners much as most of them factorise HAL implementation to family level.  
+The new API does not impact partners much as most of them factorise HAL implementation to family level.
 For example :
 
 | Partner       | #of&nbsp;Implementation | details |
@@ -266,8 +267,8 @@ The partner the most impacted by these changes is definitely Freescale/NXP but o
 
 ## Questions
 
-- To keep consistency between peripherals in terms of design pattern, do we want to expose a peripheral or a communication channel ?  
-  The current SPI driver implementation has 1 instance per slave while i²c driver implementation has 1 instance per peripheral. 
+- To keep consistency between peripherals in terms of design pattern, do we want to expose a peripheral or a communication channel ?
+  The current SPI driver implementation has 1 instance per slave while i²c driver implementation has 1 instance per peripheral.
   - SPI addresses slave in `spi_init` using the chip select.
   - I²C addresses slave in transfer functions using the address.
   See also: [#7358](https://github.com/ARMmbed/mbed-os/issues/7358)
