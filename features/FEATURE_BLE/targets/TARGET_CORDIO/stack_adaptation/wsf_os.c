@@ -121,7 +121,7 @@ void WsfTaskUnlock(void)
 void WsfSetEvent(wsfHandlerId_t handlerId, wsfEventMask_t event)
 {
   WSF_CS_INIT(cs);
-
+  // coverity[CONSTANT_EXPRESSION_RESULT]
   WSF_ASSERT(WSF_HANDLER_FROM_ID(handlerId) < WSF_MAX_HANDLERS);
 
   WSF_TRACE_INFO2("WsfSetEvent handlerId:%u event:%u", handlerId, event);
