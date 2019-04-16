@@ -5403,6 +5403,28 @@
             "target.network-default-interface-type": "ETHERNET"
         }
     },
+    "ARM_MUSCA_B1": {
+        "inherits": ["Target"],
+        "core": "Cortex-M33-NS",
+        "device_has": ["INTERRUPTIN",
+                       "LPTICKER",
+                       "SERIAL",
+                       "SLEEP",
+                       "USTICKER"],
+        "macros": ["__STARTUP_CLEAR_BSS",
+                   "CMSIS_NVIC_VIRTUAL",
+                   "LPTICKER_DELAY_TICKS=3",
+                   "MBED_FAULT_HANDLER_DISABLED",
+                   "MBED_TZ_DEFAULT_ACCESS=1",
+                   "TFM_NS_CLIENT_IDENTIFICATION",
+                   "MBED_MPU_CUSTOM"],
+        "extra_labels": ["ARM_SSG", "MUSCA_B1"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM"],
+        "default_toolchain": "ARMC6",
+        "post_binary_hook": {"function": "ArmMuscaB1Code.binary_hook"},
+        "forced_reset_timeout": 10,
+        "release_versions": ["5"]
+    },
     "RZ_A1XX": {
         "inherits": ["Target"],
         "core": "Cortex-A9",

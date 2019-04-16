@@ -1,0 +1,36 @@
+/*
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+{{utilities.donotedit_warning}}
+
+#ifndef __TFM_VENEERS_H__
+#define __TFM_VENEERS_H__
+
+#include "tfm_api.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+{% for manifest in manifests %}
+    {% if manifest.attr.conditional %}
+#ifdef {{manifest.attr.conditional}}
+    {% endif %}
+/******** {{manifest.manifest.name}} ********/
+    {% for function in manifest.manifest.secure_functions%}
+psa_status_t tfm_{{function.tfm_symbol}}_veneer(psa_invec *in_vec, size_t in_len, psa_outvec *out_vec, size_t out_len);
+    {% endfor %}
+    {% if manifest.attr.conditional %}
+#endif /* {{manifest.attr.conditional}} */
+    {% endif %}
+
+{% endfor %}
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __TFM_VENEERS_H__ */

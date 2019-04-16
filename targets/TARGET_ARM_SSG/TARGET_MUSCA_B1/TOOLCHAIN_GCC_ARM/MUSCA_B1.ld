@@ -1,0 +1,248 @@
+;/*
+; * Copyright (c) 2018-2019 Arm Limited
+; *
+; * Licensed under the Apache License, Version 2.0 (the "License");
+; * you may not use this file except in compliance with the License.
+; * You may obtain a copy of the License at
+; *
+; *     http://www.apache.org/licenses/LICENSE-2.0
+; *
+; * Unless required by applicable law or agreed to in writing, software
+; * distributed under the License is distributed on an "AS IS" BASIS,
+; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; * See the License for the specific language governing permissions and
+; * limitations under the License.
+; *
+; *
+; * This file is derivative of CMSIS V5.00 gcc_arm.ld
+; */
+
+/* Linker script to configure memory regions. */
+/* This file will be run trough the pre-processor. */
+
+#include "../device/memory_regions.h"
+#include "../device/cmsis_nvic.h"
+
+MEMORY
+{
+  CODE_MEMORY (rx)  : ORIGIN = CODE_START, LENGTH = TOTAL_CODE_MEMORY_SIZE
+  /* Vector table is copied to RAM, so RAM address needs to be adjusted */
+  RAM      (rwx) : ORIGIN = NVIC_RAM_VECTOR_LIMIT, LENGTH = (NS_TOTAL_RAM_SIZE - NVIC_RAM_VECTOR_SIZE)
+}
+
+/* Stack size is 1K for Mbed-OS */
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
+__stack_size__ = MBED_BOOT_STACK_SIZE;
+
+/* Library configurations */
+GROUP(libgcc.a libc.a libm.a libnosys.a)
+
+/* Linker script to place sections and symbol values. Should be used together
+ * with other linker script that defines memory regions FLASH and RAM.
+ * It references following symbols, which must be defined in code:
+ *   Reset_Handler : Entry of reset handler
+ *
+ * It defines following symbols, which code can use without definition:
+ *   __exidx_start
+ *   __exidx_end
+ *   Image$$ER_CODE_SRAM$$Base
+ *   Image$$ER_CODE_SRAM$$Limit
+ *   Image$$ER_CODE_SRAM$$Length
+ *   Load$$ER_CODE_SRAM$$Base
+ *   Load$$ER_CODE_SRAM$$Length
+ *   Load$$ER_CODE_SRAM$$Limit
+ *   __copy_table_start__
+ *   __copy_table_end__
+ *   __zero_table_start__
+ *   __zero_table_end__
+ *   __etext
+ *   __data_start__
+ *   __preinit_array_start
+ *   __preinit_array_end
+ *   __init_array_start
+ *   __init_array_end
+ *   __fini_array_start
+ *   __fini_array_end
+ *   __data_end__
+ *   __bss_start__
+ *   __bss_end__
+ *   __end__
+ *   end
+ *   __HeapBase
+ *   __HeapLimit
+ *   __StackLimit
+ *   __StackTop
+ *   __stack
+ *   __Vectors_End
+ *   __Vectors_Size
+ */
+ENTRY(Reset_Handler)
+
+SECTIONS
+{
+    .startup :
+    {
+        KEEP(*(.vectors))
+        __Vectors_End = .;
+        __Vectors_Size = __Vectors_End - __Vectors;
+        __end__ = .;
+
+        KEEP(*(.init))
+        KEEP(*(.fini))
+
+    } > CODE_MEMORY
+    ASSERT(__Vectors_Size >= NVIC_RAM_VECTOR_SIZE, "Vector Table Corrupted")
+
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > CODE_MEMORY
+
+    __exidx_start = .;
+    .ARM.exidx :
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > CODE_MEMORY
+    __exidx_end = .;
+
+    .text : ALIGN(4)
+    {
+        *(.text*)
+
+        /* .ctors */
+        *crtbegin.o(.ctors)
+        *crtbegin?.o(.ctors)
+        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+        *(SORT(.ctors.*))
+        *(.ctors)
+
+        /* .dtors */
+         *crtbegin.o(.dtors)
+         *crtbegin?.o(.dtors)
+         *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+         *(SORT(.dtors.*))
+         *(.dtors)
+
+        *(.rodata*)
+
+        KEEP(*(.eh_frame*))
+    } >CODE_MEMORY
+    . = ALIGN(4); /* This alignment is needed to make the section size 4 bytes aligned */
+
+    /* Create same symbols that armclang does so that in the c files
+     * we do not have to deal with the compiler type
+     */
+    Image$$ER_CODE_SRAM$$Base = ADDR(.text);
+    Image$$ER_CODE_SRAM$$Limit = .;
+    Image$$ER_CODE_SRAM$$Length = Image$$ER_CODE_SRAM$$Limit - Image$$ER_CODE_SRAM$$Base;
+    Load$$ER_CODE_SRAM$$Base = LOADADDR(.text);
+    Load$$ER_CODE_SRAM$$Length = Image$$ER_CODE_SRAM$$Length;
+    Load$$ER_CODE_SRAM$$Limit = Load$$ER_CODE_SRAM$$Base + Load$$ER_CODE_SRAM$$Length;
+
+    /* To copy multiple ROM to RAM sections,
+     * define etext2/data2_start/data2_end and
+     * define __STARTUP_COPY_MULTIPLE for the startup asm file */
+    .copy.table :
+    {
+        . = ALIGN(4);
+        __copy_table_start__ = .;
+        LONG (__etext)
+        LONG (__data_start__)
+        LONG (__data_end__ - __data_start__)
+        LONG (DEFINED(__etext2) ? __etext2 : 0)
+        LONG (DEFINED(__data2_start__) ? __data2_start__ : 0)
+        LONG (DEFINED(__data2_start__) ? __data2_end__ - __data2_start__ : 0)
+        __copy_table_end__ = .;
+    } > CODE_MEMORY
+
+    /* To clear multiple BSS sections,
+     * define __STARTUP_CLEAR_BSS_MULTIPLE in the startup assembly */
+    .zero.table :
+    {
+       . = ALIGN(4);
+       __zero_table_start__ = .;
+       LONG (__bss_start__)
+       LONG (__bss_end__ - __bss_start__)
+       LONG (DEFINED(__bss2_start__) ? __bss2_start__ : 0)
+       LONG (DEFINED(__bss2_start__) ? __bss2_end__ - __bss2_start__ : 0)
+       __zero_table_end__ = .;
+    } > CODE_MEMORY
+
+    __etext = .;
+
+    .data : ALIGN(4)
+    {
+        __data_start__ = .;
+        *(vtable)
+        *(.data*)
+
+        . = ALIGN(4);
+        /* preinit data */
+        PROVIDE_HIDDEN (__preinit_array_start = .);
+        KEEP(*(.preinit_array))
+        PROVIDE_HIDDEN (__preinit_array_end = .);
+
+        . = ALIGN(4);
+        /* init data */
+        PROVIDE_HIDDEN (__init_array_start = .);
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array))
+        PROVIDE_HIDDEN (__init_array_end = .);
+
+
+        . = ALIGN(4);
+        /* finit data */
+        PROVIDE_HIDDEN (__fini_array_start = .);
+        KEEP(*(SORT(.fini_array.*)))
+        KEEP(*(.fini_array))
+        PROVIDE_HIDDEN (__fini_array_end = .);
+
+        KEEP(*(.jcr*))
+        . = ALIGN(8);
+        /* All data end */
+        __data_end__ = .;
+
+    } > RAM AT>CODE_MEMORY
+    data_size = __data_end__ - __data_start__;
+
+    .bss : ALIGN(4)
+    {
+        __bss_start__ = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __bss_end__ = .;
+    } > RAM
+    bss_size = __bss_end__ - __bss_start__;
+
+    ASSERT((__stack_size__ % 8) == 0, "Stack size is not aligned")
+    .heap : ALIGN(8)
+    {
+        __end__ = .;
+        PROVIDE(end = .);
+        __HeapBase = .;
+        __data_bss_size = __HeapBase - ORIGIN(RAM);
+        __heap_size__ = LENGTH(RAM) - __data_bss_size - __stack_size__;
+        . += __heap_size__;
+        __HeapLimit = .;
+        __heap_limit = .; /* Add for _sbrk */
+    } > RAM
+
+    .stack : ALIGN(8)
+    {
+        __StackLimit = .;
+        KEEP(*(.stack*))
+        . += __stack_size__;
+        __StackTop = .;
+    } > RAM
+
+    /* Set stack top to end of the used RAM section, and stack limit move down by
+     * size of stack_dummy section */
+    PROVIDE(__stack = __StackTop);
+
+    /* Check if data + heap + stack exceeds RAM limit */
+    ASSERT(__StackTop <= (DATA_RAM_START + NS_TOTAL_RAM_SIZE), "RAM region overflowed")
+}

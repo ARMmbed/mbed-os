@@ -130,6 +130,9 @@
         }
     },
     "target_overrides": {
+        "ARM_MUSCA_B1": {
+            "stdio-baud-rate": 115200
+        },
         "EFM32": {
             "stdio-baud-rate": 115200
         },
