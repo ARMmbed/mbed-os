@@ -87,10 +87,12 @@ git checkout master
 cd ..
 ```
 
+Prepare an `mbed_app.json` configuration file with all the required definitions provided. See [template_mbed_app.txt](template_mbed_app.txt) file for the full list of necessary definitions.
+
 Now build test binaries:
 
 ```.sh
-mbed test --compile -t <toolchain> -m <target> -n mbed-os-tests-network-wifi
+mbed test --compile -t <toolchain> -m <target> --app-config TESTS/network/wifi/template_mbed_app.txt -n mbed-os-tests-network-wifi
 ```
 
 Running tests
