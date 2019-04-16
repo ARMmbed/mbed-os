@@ -175,7 +175,7 @@ class Uvision(Exporter):
             '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' +
             ",".join("-D{}".format(s) for s in
                      self.toolchain.get_symbols(for_asm=True)))
-        flags['asm_flags'] = asm_flag_string
+        flags['asm_flags'] = "{} {}".format(" ".join(self.toolchain.flags['asm']), asm_flag_string)
 
         config_header = self.config_header_ref
         config_option = self.toolchain.get_config_option(config_header.name)
