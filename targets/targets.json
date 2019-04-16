@@ -7916,7 +7916,7 @@
     },
     "TMPM46B": {
         "inherits": ["Target"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "is_disk_virtual": true,
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM46B__"],
@@ -8113,7 +8113,7 @@
     },
     "TMPM4G9": {
         "inherits": ["Target"],
-        "core": "Cortex-M4",
+        "core": "Cortex-M4F",
         "is_disk_virtual": true,
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4G9__"],
@@ -8627,7 +8627,7 @@
 	},
     "TT_M4G9": {
 		"inherits": ["Target"],
-		"core": "Cortex-M4",
+		"core": "Cortex-M4F",
 		"is_disk_virtual": true,
 		"extra_labels": ["TT"],
 		"macros": ["__TT_M4G9__"],
