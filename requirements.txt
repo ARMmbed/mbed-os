@@ -10,7 +10,7 @@ mbed-cloud-sdk==2.0.5
 requests>=2.20,<2.21
 idna>=2,<2.8
 pyserial>=3,<=3.4
-Jinja2>=2.7.3,<=2.10
+Jinja2>=2.10.1,<2.11
 intelhex>=1.3,<=2.2.1
 mbed-ls>=1.5.1,<1.8
 mbed-host-tests>=1.4.4,<1.6
