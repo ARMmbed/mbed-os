@@ -104,20 +104,39 @@ void spi6_irq_handler(void) {
 }
 #endif
 
-void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
+void spi_get_capabilities(SPIName name, PinName ssel, bool slave, spi_capabilities_t *cap)
 {
-    cap->word_length = 0x00008080;
-    cap->support_slave_mode = false;
-    cap->half_duplex = true;
-    cap->hw_cs_handle = false;
+    if (slave) {
+        cap->minimum_frequency = 200000;
+        cap->maximum_frequency = 2000000;
 
-    cap->minimum_frequency = 200000;
-    cap->maximum_frequency = 4000000;
+        cap->word_length = 0x00008080;
+        cap->support_slave_mode = false;
+        cap->half_duplex = true;
+        cap->hw_cs_handle = false;
+        cap->clk_modes = (1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE) |
+                         (1 << SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE);
+        cap->bit_order = (1 << SPI_BIT_ORDERING_MSB_FIRST) | (1 << SPI_BIT_ORDERING_LSB_FIRST);
+        cap->async_mode = true;
+        cap->slave_delay_between_symbols_ns = 2500; // 2.5 us
+    } else {
+        cap->minimum_frequency = 200000;
+        cap->maximum_frequency = 4000000;
 
+        cap->word_length = 0x00008080;
+        cap->support_slave_mode = false;
+        cap->half_duplex = true;
+        cap->hw_cs_handle = false;
+        cap->clk_modes = (1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE) |
+                         (1 << SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE);
+        cap->bit_order = (1 << SPI_BIT_ORDERING_MSB_FIRST) | (1 << SPI_BIT_ORDERING_LSB_FIRST);
+        cap->async_mode = true;
+        cap->slave_delay_between_symbols_ns = 0;
+    }
+
+#if DEVICE_SPISLAVE
     const PinMap *cs_pins = spi_master_cs_pinmap();
-
     PinName pin = NC;
-
     while(cs_pins->pin != NC) {
         if (cs_pins->pin == ssel) {
             cap->support_slave_mode = true;
@@ -126,6 +145,7 @@ void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
 
         cs_pins++;
     }
+#endif
 }
 
 void init_spi(spi_t *obj)

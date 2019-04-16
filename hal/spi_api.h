@@ -139,9 +139,14 @@ typedef struct {
     uint32_t    maximum_frequency;
     /** Each bit represents the corresponding word length. lsb => 1bit, msb => 32bit. */
     uint32_t    word_length;
+    uint16_t    slave_delay_between_symbols_ns; /**< specifies required number of ns between transmission of successive symbols in slave mode. */
+    uint8_t     clk_modes; /**< specifies supported modes from spi_mode_t. Each bit represents the corresponding mode. */
+    uint8_t     bit_order; /**< specifies supported bit order from spi_bit_ordering_t. Each bit represents the corresponding bit order. */
     bool        support_slave_mode; /**< If true, the device can handle SPI slave mode using hardware management on the specified ssel pin. */
     bool        half_duplex; /**< If true, the device also supports SPI transmissions using only 3 wires. */
     bool        hw_cs_handle; /**< If true, in SPI master mode Chip Select can be handled by hardware. */
+    bool        async_mode; /**< If true, in async mode is supported. */
+
 } spi_capabilities_t;
 
 /**
@@ -183,7 +188,7 @@ SPIName spi_get_module(PinName mosi, PinName miso, PinName mclk);
 /**
  * Fills the given spi_capabilities_t structure with the capabilities of the given peripheral.
  */
-void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap);
+void spi_get_capabilities(SPIName name, PinName ssel, bool slave, spi_capabilities_t *cap);
 
 /**
  * Initialized a spi peripheral.
