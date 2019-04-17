@@ -140,9 +140,6 @@ void PalSysInit(void)
   palSysBusyCount = 0;
 
   PalRtcInit();
-  PalLedInit();
-  PalLedOff(PAL_LED_ID_ERROR);
-  PalLedOn(PAL_LED_ID_CPU_ACTIVE);
 
 #ifdef DEBUG
   /* Reset free memory. */
@@ -159,8 +156,6 @@ void PalSysInit(void)
 /*************************************************************************************************/
 void PalSysAssertTrap(void)
 {
-  PalLedOn(PAL_LED_ID_ERROR);
-
   palSysAssertCount++;
 
   while (PalSysAssertTrapEnable);
