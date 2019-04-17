@@ -167,7 +167,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket 
     int retry_open = 1;
 retry_open:
     // setup internet session profile
-    int internet_service_id = socket->id;
+    int internet_service_id = find_socket_index(socket);
     bool foundSrvType = false;
     bool foundConIdType = false;
     _at.cmd_start("AT^SISS?");
@@ -244,26 +244,26 @@ retry_open:
     }
 
     _at.cmd_start("AT^SISS=");
-    _at.write_int(socket->id);
+    _at.write_int(internet_service_id);
     _at.write_string("address", false);
     _at.write_string(sock_addr);
     _at.cmd_stop_read_resp();
 
     _at.cmd_start("AT^SISO=");
-    _at.write_int(socket->id);
+    _at.write_int(internet_service_id);
     _at.cmd_stop_read_resp();
 
     if (_at.get_last_error()) {
         tr_error("Socket %d open failed!", socket->id);
         _at.clear_error();
-        socket_close_impl(socket->id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
+        socket_close_impl(internet_service_id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
         if (retry_open--) {
             goto retry_open;
         }
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    socket->created = true;
+    socket->id = internet_service_id;
     tr_debug("Cinterion open %d (err %d)", socket->id, _at.get_last_error());
 
     return _at.get_last_error();
@@ -316,11 +316,11 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
             socket->remoteAddress = address;
             _at.resp_start("^SISW:");
             int sock_id = _at.read_int();
+            MBED_ASSERT(sock_id == socket->id);
             int urc_code = _at.read_int();
             tr_debug("TX ready: socket=%d, urc=%d (err=%d)", sock_id, urc_code, _at.get_last_error());
             (void)sock_id;
             (void)urc_code;
-            socket->created = true;
             socket->started = true;
             socket->tx_ready = true;
         }
@@ -399,6 +399,10 @@ sisw_retry:
 nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                             void *buffer, nsapi_size_t size)
 {
+    // AT_CellularStack::recvfrom(...) will make sure that we do have a socket
+    // open on the modem, assert here to catch a programming error
+    MBED_ASSERT(socket->id != -1);
+
     // we must use this flag, otherwise ^SISR URC can come while we are reading response and there is
     // no way to detect if that is really an URC or response
     if (!socket->rx_avail) {
