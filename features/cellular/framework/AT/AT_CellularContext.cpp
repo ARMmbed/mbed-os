@@ -687,6 +687,10 @@ nsapi_error_t AT_CellularContext::disconnect()
 {
     tr_info("CellularContext disconnect()");
     if (!_nw || !_is_connected) {
+        if (_new_context_set) {
+            delete_current_context();
+        }
+        _cid = -1;
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -715,6 +719,11 @@ nsapi_error_t AT_CellularContext::disconnect()
 
     // call device's callback, it will broadcast this to here (cellular_callback)
     _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
+
+    if (_new_context_set) {
+        delete_current_context();
+    }
+    _cid = -1;
 
     return _at.unlock_return_error();
 }
