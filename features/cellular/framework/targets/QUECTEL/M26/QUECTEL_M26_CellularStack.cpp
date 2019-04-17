@@ -302,6 +302,8 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
 {
     CellularSocket *socket = (CellularSocket *)handle;
 
+    MBED_ASSERT(socket->id != -1);
+
     int modem_connect_id = -1;
     int request_connect_id = socket->id;
     int err = -1;
@@ -348,7 +350,6 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
     _at.unlock();
 
     if ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
-        socket->created = true;
         socket->remoteAddress = address;
         socket->connected = true;
         return NSAPI_ERROR_OK;
@@ -359,7 +360,29 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
 
 nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int request_connect_id = socket->id;
+    // This modem is a special case. It takes in the socket ID rather than spitting
+    // it out. So we will first try to use the index of the socket construct as the id
+    // but if another opened socket is already opened with that id we will pick the next
+    // id which is not in use
+    bool duplicate = false;
+    int potential_sid = -1;
+    int index = find_socket_index(socket);
+
+    for (int i = 0; i < get_max_socket_count(); i++) {
+        CellularSocket *sock = _socket[i];
+        if (sock && sock != socket && sock->id == index) {
+            duplicate = true;
+        } else if (duplicate && !sock) {
+            potential_sid = i;
+            break;
+        }
+    }
+
+    if (duplicate) {
+        index = potential_sid;
+    }
+
+    int request_connect_id = index;
     int modem_connect_id = request_connect_id;
     int err = -1;
     nsapi_error_t ret_val;
@@ -403,13 +426,15 @@ nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *sock
         }
 
         ret_val = _at.get_last_error();
-        socket->created = ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id));
+        if ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
+            socket->id = request_connect_id;
+        }
         return ret_val;
     } else {
         ret_val = NSAPI_ERROR_OK;
     }
 
-    tr_debug("QUECTEL_M26_CellularStack:%s:%u: END [%d,%d]", __FUNCTION__, __LINE__, socket->created, ret_val);
+    tr_debug("QUECTEL_M26_CellularStack:%s:%u: END [%d]", __FUNCTION__, __LINE__, ret_val);
     return ret_val;
 }
 
@@ -431,11 +456,11 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (!socket->created) {
+    if (socket->id == -1) {
         socket->remoteAddress = address;
         socket->connected = true;
         nsapi_error_t ret_val = create_socket_impl(socket);
-        if ((ret_val != NSAPI_ERROR_OK) || (!socket->created)) {
+        if ((ret_val != NSAPI_ERROR_OK) || (socket->id == -1)) {
             tr_error("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_NO_SOCKET]", __FUNCTION__, __LINE__);
             return NSAPI_ERROR_NO_SOCKET;
         }
