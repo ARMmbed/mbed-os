@@ -69,16 +69,14 @@ def buildStep(target, compilerLabel, toolchain) {
                     // checkout PR.
                     checkout scm
 
+                    // remove wrapper file so we don't compare minimal-printf with itself.
+                    sh "rm ./mbed_printf_wrapper.c"
+
                     // checkout newest Mbed OS release.
                     sh "mbed new ."
 
-                    if (toolchain == "GCC_ARM") {
-                        // use custom release profile from minimal-printf to override functions in GCC.
-                        sh "mbed test -vv --compile -m ${target} -t ${toolchain} -n '*minimal-printf*' --build ci --stats-depth 10 --profile ./profiles/release.json"
-                    } else {
-                        // use default release profile for ARM and IAR.
-                        sh "mbed test -vv --compile -m ${target} -t ${toolchain} -n '*minimal-printf*' --build ci --stats-depth 10"
-                    }
+                    // use default release profile for ARM and IAR.
+                    sh "mbed test -vv --compile -m ${target} -t ${toolchain} -n '*minimal-printf*' --build ci --stats-depth 10"
 
                     // stash build directory for testins step.
                     stash name: "minimal-printf-greentea-${target}-${toolchain}", includes: "ci/**"
