@@ -75,7 +75,7 @@ bool UBLOX_N2XX_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 
 nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int sock_id = 0;
+    int sock_id = -1;
     int localport = socket->localAddress.get_port();
 
     if (localport == 5683 || localport < 0 || localport > 65535) {
@@ -101,13 +101,12 @@ nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socke
     // Check for duplicate socket id delivered by modem
     for (int i = 0; i < N2XX_MAX_SOCKET; i++) {
         CellularSocket *sock = _socket[i];
-        if (sock && sock->created && sock->id == sock_id) {
+        if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;
         }
     }
 
     socket->id = sock_id;
-    socket->created = true;
 
     return NSAPI_ERROR_OK;
 }
@@ -115,6 +114,8 @@ nsapi_error_t UBLOX_N2XX_CellularStack::create_socket_impl(CellularSocket *socke
 nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                    const void *data, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     if (size > N2XX_MAX_PACKET_SIZE) {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -150,6 +151,8 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocke
 nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                      void *buffer, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     nsapi_size_or_error_t nsapi_error_size = NSAPI_ERROR_DEVICE_ERROR;
     nsapi_size_t read_blk, usorf_sz, count = 0, length = size;
     bool success = true;
