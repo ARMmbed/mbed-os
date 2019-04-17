@@ -40,7 +40,14 @@ void hal_sleep(void)
 
 /**
  * Enter power-down mode, in which HXT/HIRC are halted.
+ *
+ * \note On NUC472, on wake-up from power-down mode, we may meet hard fault or
+ *       some other unknown error. Before its cause is found, we enter idle mode
+ *       instead for a workaround. To simulate power-down mode with idle mode, we
+ *       also disable us_ticker during power-down period.
  */
+#include "nu_modutil.h"
+const struct nu_modinit_s *nu_us_ticker_modinit(void);
 void hal_deepsleep(void)
 {
 #if DEVICE_SERIAL
@@ -49,9 +56,11 @@ void hal_deepsleep(void)
     }
 #endif
 
+    CLK_DisableModuleClock(nu_us_ticker_modinit()->clkidx);
     SYS_UnlockReg();
-    CLK_PowerDown();
+    CLK_Idle();
     SYS_LockReg();
+    CLK_EnableModuleClock(nu_us_ticker_modinit()->clkidx);
 }
 
 #endif

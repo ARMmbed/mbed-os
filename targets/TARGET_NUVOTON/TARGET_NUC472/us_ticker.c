@@ -38,6 +38,13 @@ static void tmr0_vec(void);
 
 static const struct nu_modinit_s timer0_modinit = {TIMER_0, TMR0_MODULE, CLK_CLKSEL1_TMR0SEL_PCLK, 0, TMR0_RST, TMR0_IRQn, (void *) tmr0_vec};
 
+/* Externalize this function for hal_deepsleep() to get around unknown error
+ * with power-down. */
+const struct nu_modinit_s *nu_us_ticker_modinit(void)
+{
+    return &timer0_modinit;
+}
+
 #define TIMER_MODINIT      timer0_modinit
 
 /* Track ticker status */
