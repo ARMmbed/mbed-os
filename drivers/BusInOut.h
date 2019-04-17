@@ -25,8 +25,8 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** A digital input output bus, used for setting the state of a collection of pins.
- *  Implemented as an array of DigitalInOut pins, the bus can be constucted by any
- *  pins without restriction other than being capable of digitial input or output
+ *  Implemented as an array of DigitalInOut pins, the bus can be constructed by any
+ *  pins without restriction other than being capable of digital input or output
  *  capabilities
  *
  * @note Synchronization level: Thread safe
