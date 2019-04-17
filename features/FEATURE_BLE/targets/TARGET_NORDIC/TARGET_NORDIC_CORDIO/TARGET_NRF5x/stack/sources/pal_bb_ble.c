@@ -153,28 +153,6 @@ uint32_t USEC_TO_TICKS(uint32_t usec)
 #define BB_ENABLE_INLINE_DEC_RX     FALSE
 #endif
 
-#define PAL_LED0_MASK                      0x00002000
-#define PAL_LED1_MASK                      0x00004000
-#define PAL_LED2_MASK                      0x00008000
-#define PAL_LED3_MASK                      0x00010000
-
-/* LED definitions */
-#ifndef BB_LED_ENA
-#define BB_LED_ENA             0
-#endif
-
-#if (BB_LED_ENA == 1)
-#define BB_LED_1M_ON()        PalLedOn(0)
-#define BB_LED_2M_ON()        PalLedOn(2)
-#define BB_LED_CODED_ON()     PalLedOnGroup(PAL_LED0_MASK | PAL_LED2_MASK)
-#define BB_LED_OFF()          PalLedOffGroup(PAL_LED0_MASK | PAL_LED2_MASK)
-#else
-#define BB_LED_1M_ON()
-#define BB_LED_2M_ON()
-#define BB_LED_CODED_ON()
-#define BB_LED_OFF()
-#endif
-
 /*! \brief convert little endian byte buffer to uint16_t. */
 #define BYTES_TO_UINT16(n, p)     {n = ((uint16_t)(p)[0] + ((uint16_t)(p)[1] << 8));}
 
@@ -367,16 +345,12 @@ uint16_t diagCancels               = 0;
 #endif
 /////////////////////////////////////////////////////////////////////////////////
 
-#if defined(BOARD_PCA10056)
-#define DIAG_USER_DEBUG_PINS_ENA      1
-#else
-#define DIAG_USER_DEBUG_PINS_ENA      0
-#endif
+#define DIAG_USER_DEBUG_PINS_ENA   0
 
-/////////////////////////////////////////////////////////////////////////////////
+#define DIAG_PINS_ENA              0
+
+#if DIAG_PINS_ENA
 #if defined(BOARD_PCA10028)
-
-#define DIAG_PINS_ENA             1
 
 #define TX_PIN                    12   /* P0.12 */
 #define RX_PIN                    13   /* P0.13 */
@@ -390,8 +364,6 @@ uint16_t diagCancels               = 0;
 
 #elif defined(BOARD_PCA10040)
 
-#define DIAG_PINS_ENA             1
-
 #define TX_PIN                    11   /* P0.11 */
 #define RX_PIN                    12   /* P0.12 */
 #define RADIO_READY_TOGGLE_PIN    13   /* P0.13 */
@@ -403,8 +375,6 @@ uint16_t diagCancels               = 0;
 #define DIAG_PIN_CLEAR(x)         { nrf_gpio_pin_clear(x); }
 #elif defined(BOARD_PCA10056)
 
-#define DIAG_PINS_ENA             1
-
 #define TX_PIN                     3   /* P0.03 */
 #define RX_PIN                     4   /* P0.04 */
 #define RADIO_READY_TOGGLE_PIN    30   /* P0.30 */
@@ -412,22 +382,24 @@ uint16_t diagCancels               = 0;
 #define RADIO_INT_PIN             29   /* P0.29 */
 #define TIMER0_INT_PIN            28   /* P0.28 */
 
-#if DIAG_USER_DEBUG_PINS_ENA
+#define DIAG_USER_DEBUG_PINS_ENA   1
 #define USER_DEBUG_0_PIN          35   /* P1.03 */
 #define USER_DEBUG_1_PIN          36   /* P1.04 */
 #define USER_DEBUG_2_PIN          37   /* P1.05 */
 #define USER_DEBUG_3_PIN          38   /* P1.06 */
-#endif
 
 #define DIAG_PIN_SET(x)           { nrf_gpio_pin_set(x); }
 #define DIAG_PIN_CLEAR(x)         { nrf_gpio_pin_clear(x); }
 #else
+#error "Diagnostic pins not supported on board"
+#endif
 
-#define DIAG_PINS_ENA             0
+#else // DIAG_PINS_ENA
 
 #define DIAG_PIN_SET(x)
 #define DIAG_PIN_CLEAR(x)
-#endif
+#endif // DIAG_PINS_ENA
+
 /////////////////////////////////////////////////////////////////////////////////
 
 /*************************************************************************************************/
@@ -473,22 +445,6 @@ static inline void palBbSetRadioMode(uint8_t phy, uint8_t option)
 
     default:
       NRF_RADIO->MODE = RADIO_MODE_MODE_Ble_1Mbit;
-      break;
-  }
-
-  /* select LED according to client selection not actual PHY used */
-  switch (bbRxPhy)
-  {
-    case BB_PHY_BLE_1M:
-      BB_LED_1M_ON();
-      break;
-    case BB_PHY_BLE_2M:
-      BB_LED_2M_ON();
-      break;
-    case BB_PHY_BLE_CODED:
-      BB_LED_CODED_ON();
-      break;
-    default:
       break;
   }
 
@@ -1281,7 +1237,6 @@ void PalBbBleEnablePrbs15(bool_t enable)
 
     /* update the driver state */
     driverState = IDLE_STATE;
-    BB_LED_OFF();
   }
 }
 
@@ -2672,7 +2627,6 @@ void BbBleDrvRadioIRQHandler(void)
     {
       /* update driver state, *before* callback */
       driverState = IDLE_STATE;
-      BB_LED_OFF();
 
       /* run callback function */
       palBbRestoreTrl();
@@ -2759,7 +2713,6 @@ void BbBleDrvRadioIRQHandler(void)
       rssi = (int8_t)(-(NRF_RADIO->RSSISAMPLE & 0x7F)) - PalRadioGetRxRfPathComp();
       /* update driver state, *before* callback */
       driverState = IDLE_STATE;
-      BB_LED_OFF();
 
       /* Follow Rx PHY options */
       bbTxPhyOptions = bbRxPhyOptions;
@@ -2919,7 +2872,6 @@ static void palBbRadioHardStop(void)
 
   /* update driver state */
   driverState = IDLE_STATE;
-  BB_LED_OFF();
 
   /* clear diagnostics pins */
   DIAG_PIN_CLEAR( TX_PIN );
