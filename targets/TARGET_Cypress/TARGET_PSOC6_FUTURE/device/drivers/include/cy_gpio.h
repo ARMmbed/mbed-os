@@ -1577,6 +1577,7 @@ __STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum
 
     /* This read ensures that the initial write has been flushed out to the hardware */
     unused = base->INTR;
+    (void)unused;
 }
 
 

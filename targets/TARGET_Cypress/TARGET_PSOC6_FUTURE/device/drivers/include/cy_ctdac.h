@@ -928,6 +928,7 @@ __STATIC_INLINE void Cy_CTDAC_ClearInterrupt(CTDAC_Type *base)
 
     /* Dummy read for buffered writes. */
     unused = base->INTR;
+    (void)unused;
 }
 
 /*******************************************************************************

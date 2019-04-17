@@ -666,6 +666,7 @@ __STATIC_INLINE void Cy_SCB_ClearRxFifo(CySCB_Type* base)
     base->RX_FIFO_CTRL &= (uint32_t) ~SCB_RX_FIFO_CTRL_CLEAR_Msk;
 
     unused = base->RX_FIFO_CTRL;
+    (void)unused;
 }
 
 
@@ -793,6 +794,7 @@ __STATIC_INLINE void Cy_SCB_ClearTxFifo(CySCB_Type *base)
     base->TX_FIFO_CTRL &= (uint32_t) ~SCB_TX_FIFO_CTRL_CLEAR_Msk;
 
     unused = base->TX_FIFO_CTRL;
+    (void)unused;
 }
 
 
@@ -968,6 +970,7 @@ __STATIC_INLINE void Cy_SCB_ClearRxInterrupt(CySCB_Type *base, uint32_t interrup
 
     base->INTR_RX = interruptMask;
     unused = base->INTR_RX;
+    (void)unused;
 }
 
 
@@ -1116,6 +1119,7 @@ __STATIC_INLINE void Cy_SCB_ClearTxInterrupt(CySCB_Type *base, uint32_t interrup
 
     base->INTR_TX = interruptMask;
     unused = base->INTR_TX;
+    (void)unused;
 }
 
 
@@ -1255,6 +1259,7 @@ __STATIC_INLINE void Cy_SCB_ClearMasterInterrupt(CySCB_Type *base, uint32_t inte
 
     base->INTR_M = interruptMask;
     unused = base->INTR_M;
+    (void)unused;
 }
 
 
@@ -1396,6 +1401,7 @@ __STATIC_INLINE void Cy_SCB_ClearSlaveInterrupt(CySCB_Type *base, uint32_t inter
 
     base->INTR_S = interruptMask;
     unused = base->INTR_S;
+    (void)unused;
 }
 
 
@@ -1534,6 +1540,7 @@ __STATIC_INLINE void Cy_SCB_ClearI2CInterrupt(CySCB_Type *base, uint32_t interru
 
     base->INTR_I2C_EC = interruptMask;
     unused = base->INTR_I2C_EC;
+    (void)unused;
 }
 
 
@@ -1649,6 +1656,7 @@ __STATIC_INLINE void Cy_SCB_ClearSpiInterrupt(CySCB_Type *base, uint32_t interru
 
     base->INTR_SPI_EC = interruptMask;
     unused = base->INTR_SPI_EC;
+    (void)unused;
 }
 
 /** \cond INTERNAL */
@@ -1734,6 +1742,7 @@ __STATIC_INLINE void Cy_SCB_FwBlockReset(CySCB_Type *base)
     base->CTRL |= (uint32_t)  SCB_CTRL_ENABLED_Msk;
 
     unused = base->CTRL;
+    (void)unused;
 }
 
 

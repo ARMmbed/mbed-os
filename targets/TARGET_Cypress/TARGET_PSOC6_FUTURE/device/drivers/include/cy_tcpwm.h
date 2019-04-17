@@ -539,6 +539,7 @@ __STATIC_INLINE void Cy_TCPWM_ClearInterrupt(TCPWM_Type *base, uint32_t cntNum, 
 
     base->CNT[cntNum].INTR = source;
     unused = base->CNT[cntNum].INTR;
+    (void)unused;
 }
 
 
