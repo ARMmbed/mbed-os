@@ -69,7 +69,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
-                socket->created = false;
+                socket->id = -1;
                 _at.unlock();
                 return NSAPI_ERROR_PARAMETER;
             }
@@ -106,7 +106,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     _at.unlock();
 
     if ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
-        socket->created = true;
+        socket->id = request_connect_id;
         socket->remoteAddress = address;
         socket->connected = true;
         return NSAPI_ERROR_OK;
@@ -182,9 +182,13 @@ void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int modem_connect_id = -1;
-    int request_connect_id = socket->id;
     int remote_port = 0;
     int err = -1;
+
+    int request_connect_id = find_socket_index(socket);
+    // assert here as its a programming error if the socket container doesn't contain
+    // specified handle
+    MBED_ASSERT(request_connect_id != -1);
 
     if (socket->proto == NSAPI_UDP && !socket->connected) {
         _at.cmd_start("AT+QIOPEN=");
@@ -201,7 +205,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
-                socket->created = false;
+                socket->id = -1;
                 return NSAPI_ERROR_PARAMETER;
             }
             _at.cmd_start("AT+QICLOSE=");
@@ -233,7 +237,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
-                socket->created = false;
+                socket->id = -1;
                 return NSAPI_ERROR_PARAMETER;
             }
             _at.cmd_start("AT+QICLOSE=");
@@ -261,7 +265,9 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
     nsapi_error_t ret_val = _at.get_last_error();
 
-    socket->created = ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id));
+    if (ret_val == NSAPI_ERROR_OK && (modem_connect_id == request_connect_id)) {
+        socket->id = request_connect_id;
+    }
 
     return ret_val;
 }
