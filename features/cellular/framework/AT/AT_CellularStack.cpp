@@ -52,7 +52,6 @@ int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
     return -1;
 }
 
-
 /** NetworkStack
  */
 
@@ -131,10 +130,12 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
 
     tr_info("Socket %d open", index);
     // create local socket structure, socket on modem is created when app calls sendto/recvfrom
+    // Do not assign a socket ID yet. Socket is not created at the Modem yet.
+    // create_socket_impl(handle) will assign the correct socket ID.
     _socket[index] = new CellularSocket;
     CellularSocket *psock = _socket[index];
     SocketAddress addr(0, get_dynamic_ip_port());
-    psock->id = index;
+
     psock->localAddress = addr;
     psock->proto = proto;
     *handle = psock;
@@ -153,7 +154,6 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
         return err;
     }
     int sock_id = socket->id;
-    bool sock_created = socket->created;
 
     int index = find_socket_index(handle);
     if (index == -1) {
@@ -165,14 +165,14 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
 
     // Close the socket on the modem if it was created
     _at.lock();
-    if (sock_created) {
+    if (sock_id > -1) {
         err = socket_close_impl(sock_id);
     }
 
     if (!err) {
         tr_info("Socket %d closed", index);
     } else {
-        tr_info("Socket %d close (id %d, created %d, started %d, error %d)", index, sock_id, socket->created, socket->started, err);
+        tr_info("Socket %d close (id %d, started %d, error %d)", index, sock_id, socket->started, err);
     }
 
     _socket[index] = NULL;
@@ -206,7 +206,7 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
         }
     }
 
-    if (!socket->created) {
+    if (socket->id == -1) {
         create_socket_impl(socket);
     }
 
@@ -266,7 +266,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
-    if (!socket->created) {
+    if (socket->id == -1) {
         _at.lock();
 
         ret_val = create_socket_impl(socket);
@@ -317,7 +317,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
-    if (!socket->created) {
+    if (socket->id == -1) {
         _at.lock();
 
         ret_val = create_socket_impl(socket);
