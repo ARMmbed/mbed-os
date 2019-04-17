@@ -38,6 +38,18 @@
             "QSPI_FREQ": "32000000",
             "QSPI_MIN_READ_SIZE": "4",
             "QSPI_MIN_PROG_SIZE": "4"
+        }, 
+        "CY8CPROTO_062_4343W": {
+            "QSPI_FREQ": "50000000",
+            "QSPI_MIN_PROG_SIZE": "512"
+        },
+        "CY8CKIT_062_WIFI_BT": {
+            "QSPI_FREQ": "50000000",
+            "QSPI_MIN_PROG_SIZE": "512"
+        },
+        "CY8CKIT_062_BLE": {
+            "QSPI_FREQ": "50000000",
+            "QSPI_MIN_PROG_SIZE": "512"
         }
     }
 }
