@@ -574,6 +574,7 @@ class ARMC6(ARM_STD):
             "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M7FD": "Cortex-M7",
             "Cortex-M33": "Cortex-M33.no_dsp.no_fp",
+            "Cortex-M33E": "Cortex-M33.no_fp",
             "Cortex-M33F": "Cortex-M33.no_dsp",
             "Cortex-M33FE": "Cortex-M33"}.get(core, core)
 
