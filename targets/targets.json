@@ -5205,7 +5205,7 @@
     "ARM_MPS2_M0": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M0",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M0"],
         "macros": [
             "CMSDK_CM0",
@@ -5226,14 +5226,16 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "USTICKER"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M0P": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M0+",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M0P"],
         "macros": ["CMSDK_CM0plus"],
         "device_has": [
@@ -5250,14 +5252,16 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "USTICKER"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M3": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M3",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M3"],
         "macros": ["CMSDK_CM3"],
         "device_has": [
@@ -5274,14 +5278,17 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M4": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M4F",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M4"],
         "macros": ["CMSDK_CM4"],
         "device_has": [
@@ -5298,14 +5305,17 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M7": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M7",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M7"],
         "macros": ["CMSDK_CM7"],
         "device_has": [
@@ -5322,9 +5332,12 @@
             "SPI",
             "SPISLAVE",
             "TSC",
-            "MPU"
+            "MPU",
+            "USTICKER"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_IOTSS_Target": {
         "inherits": ["Target"],
