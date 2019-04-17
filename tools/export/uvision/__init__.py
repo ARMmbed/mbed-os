@@ -183,7 +183,7 @@ class Uvision(Exporter):
             flags['c_flags'] + flags['cxx_flags'] + flags['common_flags']
         )
         in_template = set(
-            ["--no_vla", "--cpp", "--c99", "-MMD"] + config_option
+            ["--no_vla", "--cpp", "--cpp11", "--c99", "-MMD"] + config_option
         )
 
         def valid_flag(x):
