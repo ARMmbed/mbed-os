@@ -214,6 +214,10 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
         return sent_len;
     }
 
+    if (_at.get_last_device_error().errType == DeviceErrorTypeErrorCME && _at.get_last_device_error().errCode == 159) { // Uplink busy/flow control
+        return NSAPI_ERROR_BUSY;
+    }
+
     return _at.get_last_error();
 }
 

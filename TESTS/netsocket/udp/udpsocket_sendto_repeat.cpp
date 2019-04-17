@@ -37,18 +37,13 @@ void UDPSOCKET_SENDTO_REPEAT()
     Timer timer;
     int i;
     static const char tx_buffer[] = {'h', 'e', 'l', 'l', 'o'};
-    bool oom_earlier = false; // 2 times in a row -> time to give up
     for (i = 0; i < 100; i++) {
         sent = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-        if (sent == NSAPI_ERROR_NO_MEMORY) {
-            if (oom_earlier) {
-                break;
-            }
-            oom_earlier = true;
+        if (sent == NSAPI_ERROR_NO_MEMORY || sent == NSAPI_ERROR_BUSY) {
             wait(1);
-            continue;
+            printf("Temporary failure %s\n", sent == NSAPI_ERROR_NO_MEMORY ? "NSAPI_ERROR_NO_MEMORY" : "NSAPI_ERROR_BUSY");
+            continue; // it may recover so keep going
         }
-        oom_earlier = false;
         TEST_ASSERT_EQUAL(sizeof(tx_buffer), sent);
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
