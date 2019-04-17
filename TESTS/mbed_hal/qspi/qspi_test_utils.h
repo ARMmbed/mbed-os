@@ -62,6 +62,9 @@ struct Qspi {
 #ifdef QSPI_CMD_WRITE_2IO
 #define WRITE_1_2_2     MODE_1_2_2, QSPI_CMD_WRITE_2IO
 #endif
+#ifdef QSPI_CMD_WRITE_1I4O      // Quad page program - command: 0x32
+#define WRITE_1_1_4     MODE_1_1_4, QSPI_CMD_WRITE_1I4O
+#endif
 #ifdef QSPI_CMD_WRITE_4IO
 #define WRITE_1_4_4     MODE_1_4_4, QSPI_CMD_WRITE_4IO
 #endif
@@ -147,6 +150,7 @@ qspi_status_t fast_mode_disable(Qspi &qspi);
 
 qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi);
 
+bool is_quad_io_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_extended_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_dual_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_quad_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
