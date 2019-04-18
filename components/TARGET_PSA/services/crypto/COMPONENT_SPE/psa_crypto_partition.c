@@ -8,7 +8,7 @@
 #define PSA_CRYPTO_SECURE 1
 #include "crypto_spe.h"
 #include "crypto_platform_spe.h"
-#include "psa_crypto_srv_partition.h"
+#include "mbed_spm_partitions.h"
 #include "mbedtls/entropy.h"
 #include "psa_crypto_access_control.h"
 
