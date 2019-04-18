@@ -99,6 +99,9 @@ protected:
     virtual void deactivate_ip_context();
     virtual void set_disconnect();
     virtual void deactivate_context();
+    virtual bool get_context();
+    pdp_type_t string_to_pdp_type(const char *pdp_type);
+    AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
 private:
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t open_data_channel();
@@ -111,11 +114,8 @@ private:
     nsapi_error_t activate_ip_context();
     void check_and_deactivate_context();
     bool set_new_context(int cid);
-    bool get_context();
     nsapi_error_t delete_current_context();
-    pdp_type_t string_to_pdp_type(const char *pdp_type);
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
-    AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
 private:
