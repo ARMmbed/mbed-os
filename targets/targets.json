@@ -1920,7 +1920,6 @@
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "SDRAM_IS_SHAREABLE",
             "MBED_MPU_CUSTOM"
         ],
         "inherits": ["Target"],
