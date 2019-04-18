@@ -321,8 +321,10 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     memset(attribute_it->pValue + *attribute_it->pLen, 0, attribute_it->maxLen - *attribute_it->pLen);
 
     // Set value attribute settings
+    attribute_it->settings = 0;
+
     if (properties & READ_PROPERTY) {
-        attribute_it->settings = ATTS_SET_READ_CBACK;
+        attribute_it->settings |= ATTS_SET_READ_CBACK;
     }
     if (properties & WRITABLE_PROPERTIES) {
         attribute_it->settings |= ATTS_SET_WRITE_CBACK;
