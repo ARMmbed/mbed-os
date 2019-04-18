@@ -183,7 +183,6 @@ class Manifest(object):
     def __init__(
             self,
             manifest_file,
-            psa_type,
             name,
             partition_id,
             partition_type,
@@ -201,7 +200,6 @@ class Manifest(object):
         Manifest C'tor (Aligned with json schema)
 
         :param manifest_file: Path to json manifest
-        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :param name: Partition unique name
         :param partition_id: Partition identifier
         :param partition_type: Whether the partition is unprivileged or part
@@ -240,17 +238,14 @@ class Manifest(object):
         assert isinstance(entry_point, string_types)
         assert partition_type in self.PARTITION_TYPES
         assert partition_id > 0
-        assert psa_type in ['TFM', 'MBED_SPM']
 
         self.file = manifest_file
         self.name = name
-        self.psa_type = psa_type
         self.id = partition_id
         self.type = partition_type
-        if psa_type == 'TFM':
-            self.priority = priority
-        else:
-            self.priority = self.PRIORITY[priority]
+
+        self.priority_tfm = priority
+        self.priority_mbed = self.PRIORITY[priority]
         self.heap_size = heap_size
         self.stack_size = stack_size
         self.entry_point = entry_point
@@ -295,7 +290,8 @@ class Manifest(object):
                 (self.name == other.name) and
                 (self.id == other.id) and
                 (self.type == other.type) and
-                (self.priority == other.priority) and
+                (self.priority_mbed == other.priority_mbed) and
+                (self.priority_tfm == other.priority_tfm) and
                 (self.heap_size == other.heap_size) and
                 (self.stack_size == other.stack_size) and
                 (self.entry_point == other.entry_point) and
@@ -307,13 +303,12 @@ class Manifest(object):
         )
 
     @classmethod
-    def from_json(cls, manifest_file, skip_src=False, psa_type='MBED_SPM'):
+    def from_json(cls, manifest_file, skip_src=False):
         """
         Load a partition manifest file
 
         :param manifest_file: Manifest file path
         :param skip_src: Ignore the `source_files` entry
-        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :return: Manifest object
         """
 
@@ -352,7 +347,6 @@ class Manifest(object):
 
         return Manifest(
             manifest_file=manifest_file,
-            psa_type=psa_type,
             name=manifest['name'],
             partition_id=_assert_int(manifest['id']),
             partition_type=manifest['type'],
@@ -599,31 +593,37 @@ def validate_partition_manifests(manifests):
 
 
 def is_test_manifest(manifest):
-    return 'tests' in manifest
+    return 'TESTS' in manifest
 
 
 def is_service_manifest(manifest):
     return not is_test_manifest(manifest)
 
 
-def manifests_discovery(root_dir=SERVICES_DIR):
+def manifests_discovery(root_dirs, ignore_paths):
     service_manifest_files = set()
     test_manifest_files = set()
+    for root_dir in root_dirs:
+        for root, dirs, files in os.walk(root_dir, followlinks=True):
+            # Filters paths if they are inside one of the ignore paths
+            if next((True for igp in ignore_paths if igp in root), False):
+                continue
 
-    for root, dirs, files in os.walk(root_dir):
-        to_add = [path_join(root, f) for f in
-                  fnmatch.filter(files, MANIFEST_FILE_PATTERN)]
-        service_manifest_files.update(filter(is_service_manifest, to_add))
-        test_manifest_files.update(filter(is_test_manifest, to_add))
+            to_add = [path_join(root, f) for f in
+                      fnmatch.filter(files, MANIFEST_FILE_PATTERN)]
+            service_manifest_files.update(filter(is_service_manifest, to_add))
+            test_manifest_files.update(filter(is_test_manifest, to_add))
 
-    return sorted(list(service_manifest_files)), sorted(list(test_manifest_files))
+    service_manifest_files = sorted(list(service_manifest_files))
+    test_manifest_files = sorted(list(test_manifest_files))
+    return service_manifest_files, test_manifest_files
 
 
-def parse_manifests(manifests_files, psa_type):
+def parse_manifests(manifests_files):
     region_list = []
     manifests = []
     for manifest_file in manifests_files:
-        manifest_obj = Manifest.from_json(manifest_file, psa_type=psa_type)
+        manifest_obj = Manifest.from_json(manifest_file)
         manifests.append(manifest_obj)
         for region in manifest_obj.mmio_regions:
             region_list.append(region)
@@ -634,7 +634,6 @@ def parse_manifests(manifests_files, psa_type):
 def generate_source_files(
         templates,
         render_args,
-        output_folder,
         extra_filters=None
 ):
     """
@@ -642,7 +641,6 @@ def generate_source_files(
 
     :param templates: Dictionary of template and their auto-generated products
     :param render_args: Dictionary of arguments that should be passed to render
-    :param output_folder: Output directory for file generation
     :param extra_filters: Dictionary of extra filters to use in the rendering
            process
     :return: Path to generated folder containing common generated files
@@ -672,11 +670,9 @@ def generate_source_files(
         if not os.path.exists(rendered_file_dir):
             os.makedirs(rendered_file_dir)
 
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
     for fname, data in rendered_files:
+        output_folder = os.path.dirname(fname)
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
         with open(fname, 'wt') as fh:
             fh.write(data)
-
-    return output_folder
