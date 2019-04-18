@@ -915,6 +915,7 @@ class mbedToolchain:
             pass
 
     STACK_PARAM = "target.boot-stack-size"
+    TFM_LVL_PARAM = "tfm.level"
 
     def add_linker_defines(self):
         params, _ = self.config_data
@@ -923,6 +924,15 @@ class mbedToolchain:
             define_string = self.make_ld_define(
                 "MBED_BOOT_STACK_SIZE",
                 int(params[self.STACK_PARAM].value, 0)
+            )
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
+        # Pass TFM_LVL to linker files, so single linker file can support different TFM security levels.
+        if self.TFM_LVL_PARAM in params:
+            define_string = self.make_ld_define(
+                "TFM_LVL",
+                params[self.TFM_LVL_PARAM].value
             )
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
