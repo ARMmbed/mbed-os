@@ -23,8 +23,8 @@
 #error [NOT_SUPPORTED] this test is supported on GCC only
 #endif
 
-#if defined(__CORTEX_M33)
-#error [NOT_SUPPORTED] Cannot run on M33 core as SecureFault is implemented in secure-side and cant be remapped
+#if DOMAIN_NS == 1
+#error [NOT_SUPPORTED] Cannot run on M23/M33 core as SecureFault is implemented in secure-side and cant be remapped
 #endif
 
 #include "utest/utest.h"
