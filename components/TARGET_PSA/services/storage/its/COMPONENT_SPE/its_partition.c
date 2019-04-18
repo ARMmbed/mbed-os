@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include "psa/client.h"
 #include "psa/service.h"
@@ -25,6 +26,8 @@
 
 #if defined(TARGET_MBED_SPM)
 #include "kv_config.h"
+#else
+int kv_init_storage_config();
 #endif
 
 #ifdef   __cplusplus

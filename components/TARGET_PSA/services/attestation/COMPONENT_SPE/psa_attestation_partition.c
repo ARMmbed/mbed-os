@@ -25,6 +25,7 @@
 #include "psa_attest_inject_key.h"
 #include "psa_inject_attestation_key_impl.h"
 #include "attestation.h"
+#include <stdlib.h>
 #include <string.h>
 #include "psa/crypto.h"
 
