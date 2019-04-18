@@ -365,7 +365,7 @@ def test_validate_partition_manifest(request, temp_test_data, manifests, asserti
     """
     test_name = extract_test_name(request.node.name)
     jsons = [dump_manifest_to_json(m, '%s_%d' % (test_name, i), temp_test_data['dir']) for i, m in enumerate(manifests)]
-    created_manifests, _ = parse_manifests(jsons, 'MBED_SPM')
+    created_manifests, _ = parse_manifests(jsons)
 
     with pytest.raises(assertion[0], match=assertion[1]):
         validate_partition_manifests(created_manifests)
@@ -460,7 +460,7 @@ def test_verify_json(verify_json):
     :param verify_json: The 'verify_json' fixture.
     :return:
     """
-    test_manifests, _ = parse_manifests(verify_json['files_list'], 'MBED_SPM')
+    test_manifests, _ = parse_manifests(verify_json['files_list'])
     validate_partition_manifests(test_manifests)
     assert getattr(test_manifests[0], verify_json['field']) == verify_json['expected']
 
@@ -509,7 +509,7 @@ def test_template_setup(tmpdir_factory):
     manifest_files = [
         dump_manifest_to_json(manifest, manifest['name'], test_dir) for
         manifest in manifests]
-    manifest_objects, regions = parse_manifests(manifest_files, 'MBED_SPM')
+    manifest_objects, regions = parse_manifests(manifest_files)
     filters = {
         'basename': os.path.basename,
         'find_priority_key': find_priority_key,
@@ -562,7 +562,6 @@ def test_generate_source_files(test_template_setup):
                 'partition': manifest,
                 'dependent_partitions': manifest.find_dependencies(test_template_setup['manifests'])
             },
-            output_folder=test_template_setup['dir'],
             extra_filters=test_template_setup['filters']
         )
 
@@ -572,7 +571,6 @@ def test_generate_source_files(test_template_setup):
             'partitions': test_template_setup['manifests'],
             'region_pair_list': region_pair_list
         },
-        output_folder=test_template_setup['dir'],
         extra_filters=test_template_setup['filters']
     )
 
@@ -609,74 +607,6 @@ def test_generate_source_files(test_template_setup):
                 'num_of_region_pairs': len(region_pair_list)
             }
         assert generated == expected
-
-
-def test_generate_partitions_sources(monkeypatch, test_template_setup):
-    """
-    Test which calls generate_partitions_sources() with the data from
-    'test_template_setup' fixture.
-    Because generate_partitions_sources() is a compound of the other functions in
-    the module which are tested individually, this test just do the following:
-    1. Calls generate_partitions_sources() and checks that the autogen directory
-       was created.
-    2. Saves the modified times of the generated files.
-    3. Calls generate_partitions_sources() again, checks that the autogen directory
-       still exist and that modified times of the generated files didn't
-       change.
-
-    :param monkeypatch: The 'monkeypatch' fixture
-           (https://docs.pytest.org/en/latest/monkeypatch.html).
-    :param test_template_setup: The 'test_template_setup' fixture.
-    :return:
-    """
-    monkeypatch.setitem(DEFAULT_FILTERS, 'basename', os.path.basename)
-    monkeypatch.setitem(DEFAULT_FILTERS, 'find_priority_key',
-                        find_priority_key)
-    monkeypatch.setitem(DEFAULT_FILTERS, 'find_permission_key',
-                        find_permission_key)
-
-    autogen_dirs = generate_partitions_sources(test_template_setup['manifest_files'])
-    autogen_dirs_backup = tempfile.mkdtemp()
-    for directory in autogen_dirs:
-        assert os.path.isdir(directory)
-        shutil.copytree(directory, os.path.join(autogen_dirs_backup, os.path.split(directory)[1]))
-
-    autogen_dirs = generate_partitions_sources(test_template_setup['manifest_files'])
-    for directory in autogen_dirs:
-        assert os.path.isdir(directory)
-        dcmp = filecmp.dircmp(directory, os.path.join(autogen_dirs_backup, os.path.split(directory)[1]))
-        assert not dcmp.diff_files
-
-    spm_output_dir = generate_psa_setup(
-        test_template_setup['manifest_files'],
-        os.path.join(test_template_setup['dir'], 'SETUP'),
-        weak_setup=False,
-        extra_filters=test_template_setup['filters']
-    )
-
-    assert os.path.isdir(spm_output_dir)
-    shutil.copytree(spm_output_dir, os.path.join(autogen_dirs_backup, os.path.split(spm_output_dir)[1]))
-
-    for gen_file in test_template_setup['common_files']:
-        generated_file = os.path.join(spm_output_dir, gen_file)
-        expected_file = os.path.join(test_template_setup['dir'], gen_file)
-        assert os.path.isfile(generated_file)
-        assert os.path.isfile(expected_file)
-
-        with open(generated_file) as gfh:
-            with open(expected_file) as efh:
-                assert json.load(gfh) == json.load(efh)
-
-    spm_output_dir = generate_psa_setup(
-        test_template_setup['manifest_files'],
-        os.path.join(test_template_setup['dir'], 'SETUP'),
-        weak_setup=False,
-        extra_filters=test_template_setup['filters']
-    )
-
-    assert os.path.isdir(spm_output_dir)
-    dcmp = filecmp.dircmp(spm_output_dir, os.path.join(autogen_dirs_backup, os.path.split(spm_output_dir)[1]))
-    assert not dcmp.diff_files
 
 
 circular_call_dependency_params = {
@@ -748,6 +678,6 @@ def test_check_circular_call_dependencies(circular_dependencies):
     :param circular_dependencies: the 'circular_dependencies' fixture
     :return:
     """
-    objects, _ = parse_manifests(circular_dependencies['files'], 'MBED_SPM')
+    objects, _ = parse_manifests(circular_dependencies['files'])
     assert check_circular_call_dependencies(objects) == circular_dependencies[
         'result']

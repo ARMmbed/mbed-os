@@ -40,8 +40,7 @@ subprocess_err = None
 MAKE_PY_LOCATTION = os.path.join(ROOT, 'tools', 'make.py')
 TEST_PY_LOCATTION = os.path.join(ROOT, 'tools', 'test.py')
 TFM_MBED_APP = os.path.join(ROOT, 'tools', 'psa', 'tfm', 'mbed_app.json')
-MBED_PSA_TESTS = '*psa-spm*,*psa-crypto_access_control'
-TFM_TESTS = {
+PSA_TESTS = {
     '*psa-spm_smoke': ['USE_PSA_TEST_PARTITIONS', 'USE_SMOKE_TESTS_PART1'],
     '*psa-spm_client': ['USE_PSA_TEST_PARTITIONS', 'USE_CLIENT_TESTS_PART1'],
     '*psa-spm_server': ['USE_PSA_TEST_PARTITIONS', 'USE_SERVER_TESTS_PART1',
@@ -90,33 +89,6 @@ def _get_psa_secure_targets_list():
             Target.get_target(t).is_PSA_secure_target]
 
 
-def _get_default_image_build_command(target, toolchain, profile, args):
-    """
-    Creates a build command for a default image.
-
-    :param target: target to be built.
-    :param toolchain: toolchain to be used.
-    :param profile: build profile.
-    :param args: list of extra arguments.
-    :return: Build command in a list form.
-    """
-    cmd = [
-        sys.executable, MAKE_PY_LOCATTION,
-        '-t', toolchain,
-        '-m', target,
-        '--profile', profile,
-        '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', target)
-    ]
-
-    if _psa_backend(target) is 'TFM':
-        cmd += ['--app-config', TFM_MBED_APP]
-    else:
-        cmd += ['--artifact-name', 'psa_release_1.0']
-
-    return cmd + args
-
-
 def verbose_check_call(cmd, check_call=True):
     """
     Calls a shell command and logs the call.
@@ -161,53 +133,21 @@ def create_mbed_ignore(build_dir):
         f.write('*\n')
 
 
-def build_tests_mbed_spm_platform(target, toolchain, profile, args):
+def build_tests(target, toolchain, profile, args):
     """
-    Builds Secure images for MBED-SPM target.
+    Builds secure images for tests.
 
     :param target: target to be built.
     :param toolchain: toolchain to be used.
     :param profile: build profile.
     :param args: list of extra arguments.
     """
-    logger.info(
-        "Building tests images({}) for {} using {} with {} profile".format(
-            MBED_PSA_TESTS, target, toolchain, profile))
-    cmd = [
-        sys.executable, TEST_PY_LOCATTION,
-        '--greentea',
-        '--profile', profile,
-        '-t', toolchain,
-        '-m', target,
-        '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-        '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
-                                    target, 'test_spec.json'),
-        '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
-                                     target, 'build_data.json'),
-        '-n', MBED_PSA_TESTS] + args
-
-    verbose_check_call(cmd)
-    logger.info(
-        "Finished building tests images({}) for {} successfully".format(
-            MBED_PSA_TESTS, target))
-
-
-def build_tests_tfm_platform(target, toolchain, profile, args):
-    """
-    Builds Secure images for TF-M target.
-
-    :param target: target to be built.
-    :param toolchain: toolchain to be used.
-    :param profile: build profile.
-    :param args: list of extra arguments.
-    """
-    for test in TFM_TESTS.keys():
+    for test in PSA_TESTS.keys():
         logger.info(
             "Building tests image({}) for {} using {} with {} profile".format(
                 test, target, toolchain, profile))
 
-        test_defines = ['-D{}'.format(define) for define in TFM_TESTS[test]]
+        test_defines = ['-D{}'.format(define) for define in PSA_TESTS[test]]
         cmd = [
             sys.executable, TEST_PY_LOCATTION,
             '--greentea',
@@ -220,12 +160,44 @@ def build_tests_tfm_platform(target, toolchain, profile, args):
                                         target, 'test_spec.json'),
             '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
                                          target, 'build_data.json'),
-            '-n', test,
-            '--app-config', TFM_MBED_APP] + test_defines + args
+            '-n', test] + test_defines + args
+
+        if _psa_backend(target) is 'TFM':
+            cmd += ['--app-config', TFM_MBED_APP]
 
         verbose_check_call(cmd)
         logger.info(
             "Finished Building tests image({}) for {}".format(test, target))
+
+
+def build_default_image(target, toolchain, profile, args):
+    """
+    Builds the default secure image.
+
+    :param target: target to be built.
+    :param toolchain: toolchain to be used.
+    :param profile: build profile.
+    :param args: list of extra arguments.
+    """
+    logger.info("Building default image for {} using {} with {} profile".format(
+        target, toolchain, profile))
+
+    cmd = [
+        sys.executable, MAKE_PY_LOCATTION,
+        '-t', toolchain,
+        '-m', target,
+        '--profile', profile,
+        '--source', ROOT,
+        '--build', os.path.join(ROOT, 'BUILD', target)] + args
+
+    if _psa_backend(target) is 'TFM':
+        cmd += ['--app-config', TFM_MBED_APP]
+    else:
+        cmd += ['--artifact-name', 'psa_release_1.0']
+
+    verbose_check_call(cmd)
+    logger.info(
+        "Finished building default image for {} successfully".format(target))
 
 
 def commit_binaries(target, delivery_dir):
@@ -276,19 +248,9 @@ def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
     """
     profile = 'debug' if debug else 'release'
     if not skip_tests:
-        if _psa_backend(target) is 'TFM':
-            build_tests_tfm_platform(target, toolchain, profile, args)
-        else:
-            build_tests_mbed_spm_platform(target, toolchain, profile, args)
+        build_tests(target, toolchain, profile, args)
 
-    logger.info("Building default image for {} using {} with {} profile".format(
-        target, toolchain, profile))
-
-    cmd = _get_default_image_build_command(target, toolchain, profile, args)
-    verbose_check_call(cmd)
-    logger.info(
-        "Finished building default image for {} successfully".format(target))
-
+    build_default_image(target, toolchain, profile, args)
     if git_commit:
         commit_binaries(target, delivery_dir)
 
