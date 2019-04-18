@@ -19,7 +19,7 @@
 #include <string.h>
 #include "psa/client.h"
 #include "psa/service.h"
-#include "psa_server_tests_part2_partition.h"
+#include "mbed_spm_partitions.h"
 
 #if defined(TARGET_MBED_SPM)
 #include "cmsis_os2.h"
