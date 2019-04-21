@@ -21,7 +21,7 @@ TEST BUILD & RUN
 from __future__ import print_function
 from builtins import str
 import sys
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, normpath
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -34,7 +34,6 @@ from tools.paths import MBED_LIBRARIES
 from tools.paths import RPC_LIBRARY
 from tools.paths import USB_LIBRARIES
 from tools.paths import DSP_LIBRARIES
-from tools.paths import is_relative_to_root
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
@@ -56,7 +55,8 @@ from tools.utils import print_end_warnings
 from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
-
+from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.resources import OsAndSpeResourceFilter
 
 def default_args_dict(options):
     return dict(
@@ -74,7 +74,8 @@ def wrapped_build_project(src_dir, build_dir, mcu, end_warnings, options, *args,
     error = False
     try:
         bin_file, update_file = build_project(
-            src_dir, build_dir, mcu, *args, **kwargs
+            src_dir, build_dir, mcu,
+            *args, **kwargs
         )
         if update_file:
             print('Update Image: %s' % update_file)
@@ -304,6 +305,10 @@ def main():
     elif options.list_tests is True:
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
     else:
+
+        if options.clean:
+            clean_psa_autogen()
+
         # Target
         if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")
@@ -315,9 +320,6 @@ def main():
         toolchain = options.tool[0]
 
         target = Target.get_target(mcu)
-        if target.is_PSA_secure_target and \
-                not is_relative_to_root(options.source_dir):
-                options.source_dir = ROOT
 
         if (options.program is None) and (not options.source_dir):
             args_error(parser, "one of -p, -n, or --source is required")
@@ -337,6 +339,16 @@ def main():
             args_error(parser, str(e))
 
         if options.source_dir is not None:
+            if target.is_PSA_target:
+                generate_psa_sources(
+                    source_dirs=options.source_dir,
+                    ignore_paths=[options.build_dir]
+                )
+
+            resource_filter = None
+            if target.is_PSA_secure_target:
+                resource_filter = OsAndSpeResourceFilter()
+
             wrapped_build_project(
                 options.source_dir,
                 options.build_dir,
@@ -346,6 +358,7 @@ def main():
                 toolchain_name,
                 notify=notify,
                 build_profile=extract_profile(parser, options, internal_tc_name),
+                resource_filter=resource_filter,
                 **default_args_dict(options)
             )
         else:

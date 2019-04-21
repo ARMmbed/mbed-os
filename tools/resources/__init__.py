@@ -41,6 +41,7 @@ from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normpath,
                      abspath, exists)
 
+from tools.settings import ROOT
 from .ignore import MbedIgnoreSet, IGNORE_FILENAME
 
 # Support legacy build conventions: the original mbed build system did not have
@@ -594,7 +595,45 @@ class Resources(object):
         config.load_resources(self)
         return self
 
-    def filter_spe(self):
-        spe_filter = lambda x: 'COMPONENT_SPE' in x
-        for type in [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC]:
-            self._file_refs[type] = set([f for f in self._file_refs[type] if spe_filter(f.name) or spe_filter(f.path)])
+    def filter(self, res_filter):
+        if res_filter is None:
+            return
+
+        for t in res_filter.file_types:
+            self._file_refs[t] = set(filter(
+                res_filter.predicate, self._file_refs[t]))
+
+
+class ResourceFilter(object):
+    def __init__(self, file_types):
+        self.file_types = file_types
+
+    def predicate(self, ref):
+        raise NotImplemented
+
+
+class SpeOnlyResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return 'COMPONENT_SPE' in ref.name
+
+
+class OsAndSpeResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return ROOT in abspath(ref.name) or 'COMPONENT_SPE' in ref.name
+
+
+class PsaManifestResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.JSON])
+
+    def predicate(self, ref):
+        return not ref.name.endswith('_psa.json')

@@ -21,7 +21,7 @@ from __future__ import print_function, division, absolute_import
 
 import sys
 from time import time
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, normpath
 
 
 # Be sure that the tools directory is in the search path
@@ -44,7 +44,8 @@ from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_dir_not_parent
 from tools.utils import NoValidToolchainException
 from tools.utils import print_end_warnings
-from tools.paths import is_relative_to_root
+from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.resources import OsAndSpeResourceFilter
 
 def main():
     start = time()
@@ -171,6 +172,9 @@ def main():
     skipped = []
     end_warnings = []
 
+    if options.clean:
+        clean_psa_autogen()
+
     for toolchain in toolchains:
         for target_name in targets:
             target = Target.get_target(target_name)
@@ -192,10 +196,17 @@ def main():
                     notifier = TerminalNotifier(options.verbose, options.silent)
                     profile = extract_profile(parser, options, internal_tc_name)
 
-                    if target.is_PSA_secure_target and \
-                            not is_relative_to_root(options.source_dir):
-                        options.source_dir = ROOT
                     if options.source_dir:
+                        if target.is_PSA_target:
+                            generate_psa_sources(
+                                source_dirs=options.source_dir,
+                                ignore_paths=[options.build_dir]
+                            )
+
+                        resource_filter = None
+                        if target.is_PSA_secure_target:
+                            resource_filter = OsAndSpeResourceFilter()
+
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, target, toolchain_name,
                             jobs=options.jobs,
@@ -205,7 +216,8 @@ def main():
                             name=options.artifact_name,
                             build_profile=profile,
                             ignore=options.ignore,
-                            notify = notifier,
+                            notify=notifier,
+                            resource_filter=resource_filter
                         )
                     else:
                         lib_build_res = build_mbed_libs(
