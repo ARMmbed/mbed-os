@@ -2120,7 +2120,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None, stats_depth=None, ignore=None, spe_build=False):
+                build_profile=None, stats_depth=None, ignore=None,
+                resource_filter=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2179,7 +2180,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,
             'notify': MockNotifier(),
-            'spe_build': spe_build
+            'resource_filter': resource_filter
         }
 
         results.append(p.apply_async(build_test_worker, args, kwargs))
