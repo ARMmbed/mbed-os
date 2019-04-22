@@ -8514,7 +8514,6 @@
         "mbed_ram_size": "0x1ff80",
         "mbed_rom_start": "0x18001000",
         "mbed_rom_size": "0x1F4000",
-        "device_name": "RDA5981X",
         "sectors": [[0,4096]],
         "overrides": {
             "network-default-interface-type" : "WIFI"
