@@ -42,4 +42,12 @@ extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 #error "no toolchain defined"
 #endif
 
+#if defined(TARGET_UNO_91H)
+/* Stack Pointer */
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x120000UL)
+//#define INITIAL_SP              (0x1A8000UL)
+#endif
+#endif
+
 #endif  // MBED_MBED_RTX_H
