@@ -6,12 +6,20 @@
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x18001000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 2000K
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
     /* If ICache is enable, use virtual flash base address */
     /* Use partition index: 0 */
-    FLASH (rx)      : ORIGIN = 0x18001000, LENGTH = 2000K
+    FLASH (rx)      : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
     /* Use partition index: 1 */
     /* FLASH (rx)      : ORIGIN = 0x181F5000, LENGTH = 2000K */
 
