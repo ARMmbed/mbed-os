@@ -17,7 +17,12 @@ if (0 == RDA_PARTITION_INDEX) {
 if (1 == RDA_ICACHE_DISABLE) {
   define symbol RDA_CODE_BASE       = RDA_FLASH_BASE + RDA_PADDR_OFST;
 } else {
+
+/* MBED_APP_START */
+if (!isdefinedsymbol(MBED_APP_START)) { 
   define symbol RDA_CODE_BASE       = RDA_ICACHE_BASE + RDA_PADDR_OFST;
+else 
+  define symbol RDA_CODE_BASE       = MBED_APP_START;
 }
 define symbol RDA_CODE_END          = RDA_CODE_BASE + 0x1F3FFF;
 define symbol RDA_AHB1_BASE         = 0x40100000;
