@@ -980,10 +980,6 @@ class Config(object):
                 yield region._replace(filename=self.target.header_format)
 
         if self.target.restrict_size is not None:
-            new_size = int(self.target.restrict_size, 0)
-            new_size = Config._align_floor(
-                start + new_size, self.sectors
-            ) - start
 
             if self.target.app_offset:
                 start = self._assign_new_offset(
@@ -992,6 +988,10 @@ class Config(object):
                     "application",
                     regions
                 )
+            new_size = int(self.target.restrict_size, 0)
+            new_size = Config._align_floor(
+                start + new_size, self.sectors
+            ) - start
 
             yield Region("application", start, new_size, True, None)
             start += new_size
