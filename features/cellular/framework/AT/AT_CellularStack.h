@@ -105,7 +105,8 @@ protected:
             pending_bytes(0)
         {
         }
-        // Socket id from cellular device
+        // Socket identifier, generally it will be the socket ID assigned by the
+        // modem. In a few special cases, modems may take that as an input argument.
         int id;
         // Being connected means remote ip address and port are set
         bool connected;
