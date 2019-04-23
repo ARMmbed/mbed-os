@@ -24,6 +24,14 @@
         "provide-default": {
             "help": "Provide as default CellularDevice [true/false]",
             "value": false
+        },
+        "power": {
+            "help": "Modem's power key.",
+            "value": null
+        },
+        "reset": {
+            "help": "Modem's reset key.",
+            "value": null
         }
     }
 }
