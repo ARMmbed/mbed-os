@@ -21,6 +21,8 @@
 #include "QUECTEL_BG96_CellularInformation.h"
 #include "QUECTEL_BG96_CellularContext.h"
 #include "CellularLog.h"
+#include "DigitalOut.h"
+#include "mbed_wait_api.h"
 
 using namespace mbed;
 using namespace events;
@@ -74,6 +76,51 @@ void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
     _at->set_urc_handler(DEVICE_READY_URC, callback);
 }
 
+nsapi_error_t QUECTEL_BG96::hard_power_on()
+{
+    DigitalOut ModemResetIn (MBED_CONF_QUECTEL_BG96_POWER);
+printf("QUECTEL_BG96::hard_power_on\n");
+    wait_ms(250);
+    ModemResetIn = 0;
+    wait_ms(250);
+    ModemResetIn = 1;
+    wait_ms(500);
+    wait_ms(250);
+    return NSAPI_ERROR_OK;
+}
+nsapi_error_t QUECTEL_BG96::soft_power_on()
+{
+    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_RESET);
+printf("QUECTEL_BG96::soft_power_on\n");
+    ModemPwrkey = 0;
+    wait_ms(100);
+    ModemPwrkey = 1;
+    wait_ms(500);
+    ModemPwrkey = 0;
+    wait_ms(500);
+printf("wait for RDY\n");
+    _at->lock();
+    _at->set_at_timeout(60000);
+    _at->resp_start();
+    _at->set_stop_tag("RDY");
+    bool rdy = _at->consume_to_stop_tag();
+    _at->set_stop_tag(OK);
+    _at->unlock();
+    if (!rdy)
+    {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return NSAPI_ERROR_OK;
+}
+nsapi_error_t QUECTEL_BG96::hard_power_off()
+{
+    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_POWER);
+printf("QUECTEL_BG96::hard_power_off\n");
+    ModemPwrkey = 1;
+    wait_ms(250);
+    ModemPwrkey = 0;
+    return NSAPI_ERROR_OK;
+}
 #if MBED_CONF_QUECTEL_BG96_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
