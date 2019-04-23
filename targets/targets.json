@@ -2088,6 +2088,7 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
+            "SERIAL_FC",
             "SLEEP",
             "SPI",
             "SPISLAVE",
