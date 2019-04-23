@@ -83,3 +83,5 @@ MBED_WEAK const PinList *pinmap_restricted_pins()
     return &pin_list;
 }
 ```
+
+In addition to `pinmap_restricted_pins()`, the `pinmap_restricted_pins_gpio()` is used to skip pins during GPIO testing. By default this function returns an empty list and any target can override it to provide a list of pins that should be skipped. For example, D14 and D15 pins present in the Arduino form factor of FRDM-K64F have fixed pull-up resistors. The `PullDown` `PinMode` is impossible to test. However, other peripherals like the I2C may be successfully tested on these pins.

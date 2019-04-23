@@ -139,6 +139,25 @@ bool pinmap_list_has_pin(const PinList *list, PinName pin);
  */
 const PinList *pinmap_restricted_pins(void);
 
+/**
+ * Get the additional list of pins to avoid during GPIO testing
+ *
+ * Unlike a list returned by generic pinmap_restricted_pins(),
+ * that is used by *ALL* tests, this list is used only for GPIO tests.
+ * This list extends the one returned by pinmap_restricted_pins().
+ *
+ * For example, PTE25 & PTE24 on the FRDM-K64F have fixed pull-ups
+ * making the PullDown PinMode impossible to test. However, the I2C
+ * may be successfully tested on these pins.
+ *
+ * Targets should override the weak implementation of this
+ * function if they have additional pins which should be
+ * skipped during GPIO testing.
+ *
+ * @return Pointer to a pin list of pins to avoid
+ */
+const PinList *pinmap_restricted_pins_gpio(void);
+
 #ifdef TARGET_FF_ARDUINO
 
 /**

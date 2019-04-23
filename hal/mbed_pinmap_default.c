@@ -77,3 +77,11 @@ MBED_WEAK const PinList *pinmap_restricted_pins()
     return &pin_list;
 }
 
+//*** Default restricted pins for the GPIO test ***
+MBED_WEAK const PinList *pinmap_restricted_pins_gpio()
+{
+    static const PinName pins[] = {};
+    static const PinList pin_list = {0, pins};
+    return &pin_list;
+}
+
