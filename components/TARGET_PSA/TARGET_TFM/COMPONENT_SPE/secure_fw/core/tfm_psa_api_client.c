@@ -48,7 +48,8 @@ int32_t tfm_core_ns_ipc_request(void *fn, int32_t arg1, int32_t arg2,
                                 int32_t arg3, int32_t arg4)
 {
     int32_t args[4] = {arg1, arg2, arg3, arg4};
-    struct tfm_sfn_req_s desc, *desc_ptr = &desc;
+    volatile struct tfm_sfn_req_s desc;
+    struct tfm_sfn_req_s *desc_ptr = &desc;
     int32_t res;
 
     desc.sfn = fn;
@@ -98,7 +99,7 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t minor_version)
 __tfm_secure_gateway_attributes__
 psa_status_t tfm_psa_call_veneer(psa_handle_t handle,
                                  const psa_invec *in_vecs,
-                                 const psa_invec *out_vecs)
+                                 psa_outvec *out_vecs)
 {
     TFM_CORE_NS_IPC_REQUEST_VENEER(tfm_svcall_psa_call, handle, in_vecs,
                                    out_vecs, 0);
