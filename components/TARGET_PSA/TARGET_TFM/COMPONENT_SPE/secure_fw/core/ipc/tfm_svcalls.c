@@ -148,12 +148,16 @@ psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller, uint32_t lr)
          * FixMe: From non-secure caller, vec and len are composed into a new
          * struct parameter. Need to extract them.
          */
+        /*
+         * Read parameters from the arguments. It is a fatal error if the
+         * memory reference for buffer is invalid or not readable.
+         */
         if (tfm_memory_check((void *)args[1], sizeof(uint32_t),
-            ns_caller) != IPC_SUCCESS) {
+            ns_caller, TFM_MEMORY_ACCESS_RO) != IPC_SUCCESS) {
             tfm_panic();
         }
         if (tfm_memory_check((void *)args[2], sizeof(uint32_t),
-            ns_caller) != IPC_SUCCESS) {
+            ns_caller, TFM_MEMORY_ACCESS_RO) != IPC_SUCCESS) {
             tfm_panic();
         }
 
@@ -175,13 +179,22 @@ psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller, uint32_t lr)
         tfm_panic();
     }
 
-    /* It is a fatal error if an invalid memory reference was provide. */
+    /*
+     * Read client invecs from the wrap input vector. It is a fatal error
+     * if the memory reference for the wrap input vector is invalid or not
+     * readable.
+     */
     if (tfm_memory_check((void *)inptr, in_num * sizeof(psa_invec),
-        ns_caller) != IPC_SUCCESS) {
+        ns_caller, TFM_MEMORY_ACCESS_RO) != IPC_SUCCESS) {
         tfm_panic();
     }
+    /*
+     * Read client outvecs from the wrap output vector and will update the
+     * actual length later. It is a fatal error if the memory reference for
+     * the wrap output vector is invalid or not read-write.
+     */
     if (tfm_memory_check((void *)outptr, out_num * sizeof(psa_outvec),
-        ns_caller) != IPC_SUCCESS) {
+        ns_caller, TFM_MEMORY_ACCESS_RW) != IPC_SUCCESS) {
         tfm_panic();
     }
 
@@ -193,18 +206,22 @@ psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller, uint32_t lr)
     tfm_memcpy(outvecs, outptr, out_num * sizeof(psa_outvec));
 
     /*
-     * It is a fatal error if an invalid payload memory reference
-     * was provided.
+     * For client input vector, it is a fatal error if the provided payload
+     * memory reference was invalid or not readable.
      */
     for (i = 0; i < in_num; i++) {
         if (tfm_memory_check((void *)invecs[i].base, invecs[i].len,
-            ns_caller) != IPC_SUCCESS) {
+            ns_caller, TFM_MEMORY_ACCESS_RO) != IPC_SUCCESS) {
             tfm_panic();
         }
     }
+    /*
+     * For client output vector, it is a fatal error if the provided payload
+     * memory reference was invalid or not read-write.
+     */
     for (i = 0; i < out_num; i++) {
         if (tfm_memory_check(outvecs[i].base, outvecs[i].len,
-            ns_caller) != IPC_SUCCESS) {
+            ns_caller, TFM_MEMORY_ACCESS_RW) != IPC_SUCCESS) {
             tfm_panic();
         }
     }
@@ -360,11 +377,11 @@ static psa_status_t tfm_svcall_psa_get(uint32_t *args)
     }
 
     /*
-     * It is a fatal error if the input msg pointer is not a valid memory
-     * reference.
+     * Write the message to the service buffer. It is a fatal error if the
+     * input msg pointer is not a valid memory reference or not read-write.
      */
     if (tfm_memory_check((void *)msg, sizeof(psa_msg_t),
-        false) != IPC_SUCCESS) {
+        false, TFM_MEMORY_ACCESS_RW) != IPC_SUCCESS) {
         tfm_panic();
     }
 
@@ -517,11 +534,11 @@ static size_t tfm_svcall_psa_read(uint32_t *args)
     }
 
     /*
-     * It is a fatal error if the memory reference for buffer is invalid or
-     * not writable
+     * Copy the client data to the service buffer. It is a fatal error
+     * if the memory reference for buffer is invalid or not read-write.
      */
-    /* FixMe: write permission check to be added */
-    if (tfm_memory_check(buffer, num_bytes, false) != IPC_SUCCESS) {
+    if (tfm_memory_check(buffer, num_bytes, false,
+        TFM_MEMORY_ACCESS_RW) != IPC_SUCCESS) {
         tfm_panic();
     }
 
@@ -671,8 +688,12 @@ static void tfm_svcall_psa_write(uint32_t *args)
         tfm_panic();
     }
 
-    /* It is a fatal error if the memory reference for buffer is valid */
-    if (tfm_memory_check(buffer, num_bytes, false) != IPC_SUCCESS) {
+    /*
+     * Copy the service buffer to client outvecs. It is a fatal error
+     * if the memory reference for buffer is invalid or not readable.
+     */
+    if (tfm_memory_check(buffer, num_bytes, false,
+        TFM_MEMORY_ACCESS_RO) != IPC_SUCCESS) {
         tfm_panic();
     }
 

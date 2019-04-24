@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -35,7 +35,7 @@ void jump_to_ns_code(void);
  * \brief Called if veneer is running in thread mode
  */
 uint32_t tfm_core_partition_request_svc_handler(
-        uint32_t *svc_args, uint32_t lr);
+        const uint32_t *svc_args, uint32_t lr);
 
 /**
  * \brief Called when secure service returns

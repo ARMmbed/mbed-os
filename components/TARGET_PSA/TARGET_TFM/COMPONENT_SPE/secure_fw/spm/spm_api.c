@@ -33,7 +33,7 @@ typedef enum {
  * returned.
  */
 static void tfm_spm_partition_err_handler(
-    struct spm_partition_desc_t *partition,
+    const struct spm_partition_desc_t *partition,
     sp_error_type_t err_type,
     int32_t err_code)
 {
@@ -42,17 +42,32 @@ static void tfm_spm_partition_err_handler(
         printf("Partition init failed for partition id 0x%08X\r\n",
                 partition->static_data.partition_id);
     } else {
-        printf("Unknown partition error %d for partition id 0x%08X\r\n",
-            err_type, partition->static_data.partition_id);
+        printf(
+            "Unknown partition error %d (code: %d) for partition id 0x%08X\r\n",
+            err_type, err_code, partition->static_data.partition_id);
     }
+#else
+    (void)err_type;
+    (void)err_code;
 #endif
     tfm_spm_partition_set_state(partition->static_data.partition_id,
             SPM_PARTITION_STATE_CLOSED);
 }
 
+/*
+ * This function prevents name clashes between the variable names accessibles in
+ * the scope of where tfm_partition_list.inc is included and the varaible names
+ * defined inside tfm_partition_list.inc file.
+ */
+static inline enum spm_err_t add_user_defined_partitions(void) {
+    #include "secure_fw/services/tfm_partition_list.inc"
+
+    return SPM_ERR_OK;
+}
+
 uint32_t get_partition_idx(uint32_t partition_id)
 {
-    int i;
+    uint32_t i;
 
     if (partition_id == INVALID_PARTITION_ID) {
         return SPM_INVALID_PARTITION_IDX;
@@ -70,8 +85,9 @@ uint32_t get_partition_idx(uint32_t partition_id)
 enum spm_err_t tfm_spm_db_init(void)
 {
     struct spm_partition_desc_t *part_ptr;
+    enum spm_err_t err;
 
-    tfm_memset (&g_spm_partition_db, 0, sizeof(g_spm_partition_db));
+    (void)tfm_memset (&g_spm_partition_db, 0, sizeof(g_spm_partition_db));
 
     /* This function initialises partition db */
     g_spm_partition_db.running_partition_idx = SPM_INVALID_PARTITION_IDX;
@@ -121,8 +137,10 @@ enum spm_err_t tfm_spm_db_init(void)
     part_ptr->runtime_data.partition_state = SPM_PARTITION_STATE_UNINIT;
     ++g_spm_partition_db.partition_count;
 
-    /* Add user-defined secure partitions */
-    #include "tfm_partition_list.inc"
+    err = add_user_defined_partitions();
+    if (err != SPM_ERR_OK) {
+        return err;
+    }
 
     g_spm_partition_db.is_init = 1;
 
@@ -154,7 +172,7 @@ enum spm_err_t tfm_spm_partition_init(void)
             int32_t res;
 
             desc.args = args;
-            desc.ns_caller = 0;
+            desc.ns_caller = 0U;
             desc.iovec_api = TFM_SFN_API_IOVEC;
             desc.sfn = (sfn_t)part->static_data.partition_init;
             desc.sp_id = part->static_data.partition_id;
@@ -314,20 +332,25 @@ enum spm_err_t tfm_spm_partition_set_share(uint32_t partition_idx,
     return ret;
 }
 
-void tfm_spm_partition_set_iovec(uint32_t partition_idx, int32_t *args)
+enum spm_err_t tfm_spm_partition_set_iovec(uint32_t partition_idx,
+                                           const int32_t *args)
 {
     struct spm_partition_runtime_data_t *runtime_data =
             &g_spm_partition_db.partitions[partition_idx].runtime_data;
-    int32_t i;
+    size_t i;
 
-    runtime_data->iovec_args.in_len = args[1];
-    for (i = 0; i < runtime_data->iovec_args.in_len; ++i) {
+    if ((args[1] < 0) || (args[3] < 0)) {
+        return SPM_ERR_INVALID_PARAMETER;
+    }
+
+    runtime_data->iovec_args.in_len = (size_t)args[1];
+    for (i = 0U; i < runtime_data->iovec_args.in_len; ++i) {
         runtime_data->iovec_args.in_vec[i].base =
                                                  ((psa_invec *)args[0])[i].base;
         runtime_data->iovec_args.in_vec[i].len = ((psa_invec *)args[0])[i].len;
     }
-    runtime_data->iovec_args.out_len = args[3];
-    for (i = 0; i < runtime_data->iovec_args.out_len; ++i) {
+    runtime_data->iovec_args.out_len = (size_t)args[3];
+    for (i = 0U; i < runtime_data->iovec_args.out_len; ++i) {
         runtime_data->iovec_args.out_vec[i].base =
                                                 ((psa_outvec *)args[2])[i].base;
         runtime_data->iovec_args.out_vec[i].len =
@@ -335,6 +358,8 @@ void tfm_spm_partition_set_iovec(uint32_t partition_idx, int32_t *args)
     }
     runtime_data->orig_outvec = (psa_outvec *)args[2];
     runtime_data->iovec_api = 1;
+
+    return SPM_ERR_OK;
 }
 
 uint32_t tfm_spm_partition_get_running_partition_idx(void)

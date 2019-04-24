@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "secure_utilities.h"
-#include "arm_acle.h"
 #include "tfm_svc.h"
 #include "tfm_secure_api.h"
 #include "region_defs.h"
@@ -66,9 +65,9 @@ void SecureFault_Handler(void)
 
     /* Only save the context if sp is valid */
     if ((sp >=  S_DATA_START &&
-         sp <=  S_DATA_LIMIT - sizeof(tfm_fault_context) + 1) ||
+         sp <=  (S_DATA_LIMIT - sizeof(tfm_fault_context)) + 1) ||
         (sp >= NS_DATA_START &&
-         sp <= NS_DATA_LIMIT - sizeof(tfm_fault_context) + 1)) {
+         sp <= (NS_DATA_LIMIT - sizeof(tfm_fault_context)) + 1)) {
         tfm_memcpy(&tfm_fault_context,
                    (const void *)sp,
                    sizeof(tfm_fault_context));
@@ -103,7 +102,7 @@ void HardFault_Handler(void)
 #if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) void SVC_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
     "TST     lr, #4\n"  /* Check store SP in thread mode to r0 */
     "IT      EQ\n"
     "BXEQ    lr\n"
@@ -116,7 +115,7 @@ __attribute__((naked)) void SVC_Handler(void)
 #elif defined(__ARM_ARCH_8M_BASE__)
 __attribute__((naked)) void SVC_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
     ".syntax unified\n"
     "MOVS    r0, #4\n"  /* Check store SP in thread mode to r0 */
     "MOV     r1, lr\n"
