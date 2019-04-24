@@ -444,7 +444,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
     if (_at.info_resp()) {
         _at.skip_param();
         _at.skip_param();
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE - 1);
+        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE);
         if (len == -1) {
             _ip[0] = '\0';
             _at.unlock();
@@ -454,7 +454,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE - 1);
+            len = _at.read_string(_ip, PDP_IPV6_SIZE);
         }
     }
     _at.resp_stop();
