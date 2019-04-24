@@ -9,47 +9,78 @@
 
 #include "cmsis_compiler.h"
 
-/* The magic number has two purposes: corruption detection and debug */
-#define TFM_EVENT_MAGIC               0x65766e74
+#define EVENT_MAGIC               0x65766e74
+#define EVENT_STAT_WAITED         0x0
+#define EVENT_STAT_SIGNALED       0x1
 
-struct tfm_event_t {
-    uint32_t magic;               /* 'evnt'               */
-    struct tfm_thrd_ctx *owner;   /* Event blocked thread */
+struct tfm_event_ctx {
+    uint32_t magic;               /* 'evnt'              */
+    struct tfm_thrd_ctx *owner;   /* waiting thread      */
+    uint32_t status;              /* status              */
+    uint32_t retval;              /* return value        */
 };
 
 /*
- * Initialize an event object.
+ * Initialize an event context.
  *
- * Parameters:
- *  pevnt      -    The pointer of event object allocated by the caller
+ * Parameters :
+ *  pevt        -    pointer of event context caller provided
+ *  stat        -    initial status (EVENT_STAT_WAITED or EVENT_STAT_SIGNALED)
  */
-void __STATIC_INLINE tfm_event_init(struct tfm_event_t *pevnt)
+void __STATIC_INLINE tfm_event_init(struct tfm_event_ctx *pevt, uint32_t stat)
 {
-    pevnt->magic = TFM_EVENT_MAGIC;
-    pevnt->owner = NULL;
+    pevt->magic = EVENT_MAGIC;
+    pevt->status = stat;
+    pevt->owner = NULL;
+    pevt->retval = 0;
 }
 
 /*
- * Wait on an event object.
- *
- * Parameters:
- *  pevnt      -    The pointer of event object allocated by the caller
- *
- * Notes:
- *  Block caller thread by calling this function.
- */
-void tfm_event_wait(struct tfm_event_t *pevnt);
-
-/*
- * Wake up an event object.
+ * Wait on an event.
  *
  * Parameters :
- *  pevnt      -    The pointer of event object allocated by the caller
- *  retval     -    Value to be returned to owner
+ *  pevt        -    pointer of event context
  *
- * Notes:
- *  Wake up the blocked thread and set parameter 'retval' as the return value.
+ * Notes :
+ *  Thread is blocked if event is not signaled.
  */
-void tfm_event_wake(struct tfm_event_t *pevnt, uint32_t retval);
+void tfm_event_wait(struct tfm_event_ctx *pevt);
+
+/*
+ * Signal an event.
+ *
+ * Parameters :
+ *  pevt        -    pointer of event context
+ *
+ * Notes :
+ *  Waiting thread on this event will be running.
+ */
+void tfm_event_signal(struct tfm_event_ctx *pevt);
+
+/*
+ * Peek an event status.
+ *
+ * Parameters :
+ *  pevt        -    pointer of event context
+ *
+ * Return :
+ *  Status of event.
+ *
+ * Notes :
+ *  This function is used for getting event status without blocking thread.
+ */
+uint32_t tfm_event_peek(struct tfm_event_ctx *pevt);
+
+/*
+ * Set event owner return value.
+ *
+ * Parameters :
+ *  pevt        -    pointer of event context
+ *  retval      -    return value of blocked owner thread
+ *
+ * Notes :
+ *  Thread return value is set while thread is to be running.
+ */
+void tfm_event_owner_retval(struct tfm_event_ctx *pevt, uint32_t retval);
 
 #endif
