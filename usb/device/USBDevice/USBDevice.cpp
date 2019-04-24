@@ -48,6 +48,7 @@
 #define ENDPOINT_ENABLED (1 << 0)
 #define ENDPOINT_STALLED (1 << 1)
 
+/* The maximum wMaxPacketSize for endpoint 0 */
 #if defined(MAX_PACKET_SIZE_EP0)
 #undef MAX_PACKET_SIZE_EP0
 #endif
@@ -663,7 +664,7 @@ void USBDevice::_control_setup()
     /* Control transfer setup stage */
     uint8_t buffer[MAX_PACKET_SIZE_EP0];
 
-    _phy->ep0_setup_read_result(buffer, MAX_PACKET_SIZE_EP0);
+    _phy->ep0_setup_read_result(buffer, _max_packet_size_ep0);
 
     /* Initialise control transfer state */
     _decode_setup_packet(buffer, &_transfer.setup);
@@ -805,7 +806,7 @@ void USBDevice::_control_setup_continue()
             /* the end of this transfer */
             if (_transfer.setup.wLength > _transfer.remaining) {
                 /* Device wishes to transfer less than host requested */
-                if ((_transfer.remaining % MAX_PACKET_SIZE_EP0) == 0) {
+                if ((_transfer.remaining % _max_packet_size_ep0) == 0) {
                     /* Transfer is a multiple of EP0 max packet size */
                     _transfer.zlp = true;
                 }
