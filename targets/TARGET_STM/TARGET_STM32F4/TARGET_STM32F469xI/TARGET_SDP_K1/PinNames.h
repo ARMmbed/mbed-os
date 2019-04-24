@@ -306,22 +306,25 @@ typedef enum {
 	// Debug pins
 	DEBUG_GPIO0	= PG_6,
     // Generic signals namings
-    LED1        = PK_4,	// Status LED
-    LED2        = PK_7, // Red LED
-    LED3        = PK_6, // Orange LED
-    LED4        = PK_5, // Green LED
-    AWAKE        = PK_3,	
+    LED1        = PK_7, // Red LED
+    LED2        = PK_6, // Orange LED
+    LED3        = PK_5, // Green LED
+    LED_RED		= LED1,
+	LED_ORANGE	= LED2,
+	LED_GREEN	= LED3,
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_7,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PB_4,
-    SPI_SCK     = PB_3,
-    SPI_CS      = PA_15,	// SPI pins to Arduino connector
-	
+    
+	// SPI and I2C pins on Arduino connector
+	SPI_CS      = D10,
+    SPI_MOSI    = D11,
+    SPI_MISO    = D12,
+    SPI_SCK     = D13,
+	I2C_SDA     = D14,
+	I2C_SCL     = D15,
+
 	// Adding these signals for the SDP connector
 	SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
 	SDP_SPI_MISO = PF_8, 
