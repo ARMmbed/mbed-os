@@ -7000,7 +7000,7 @@
         "macros_add": [
             "WSF_MAX_HANDLERS=10"
         ],
-        "device_has_remove": ["ITM", "RESET_REASON"]
+        "device_has_remove": ["ITM", "WATCHDOG", "RESET_REASON"]
     },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
