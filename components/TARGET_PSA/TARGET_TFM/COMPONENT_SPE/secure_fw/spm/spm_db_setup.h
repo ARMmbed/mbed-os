@@ -76,7 +76,7 @@ struct spm_partition_db_t {
     } while (0)
 #endif
 
-#define PARTITION_DECLARE(partition, flag, type, id, priority, part_stack_size)   \
+#define PARTITION_DECLARE(partition, flag, type, id, priority)               \
     do {                                                                     \
         REGION_DECLARE(Image$$, partition, $$Base);                          \
         REGION_DECLARE(Image$$, partition, $$Limit);                         \
@@ -102,12 +102,8 @@ struct spm_partition_db_t {
         if (g_spm_partition_db.partition_count >= SPM_MAX_PARTITIONS) {      \
             return SPM_ERR_INVALID_CONFIG;                                   \
         }                                                                    \
-        __attribute__((section(".data.partitions_stacks")))                  \
-        static uint8_t partition##_stack[part_stack_size] __attribute__((aligned(8))); \
         part_ptr = &(g_spm_partition_db.partitions[                          \
             g_spm_partition_db.partition_count]);                            \
-        part_ptr->stack_limit = (uint32_t)partition##_stack;                 \
-        part_ptr->stack_size = part_stack_size;                              \
         PARTITION_INIT_STATIC_DATA(part_ptr->static_data, partition, flags,  \
                                    id, priority);                            \
         PARTITION_INIT_RUNTIME_DATA(part_ptr->runtime_data, partition);      \
@@ -115,21 +111,21 @@ struct spm_partition_db_t {
         ++g_spm_partition_db.partition_count;                                \
     } while (0)
 
-#define PARTITION_ADD_INIT_FUNC(partition, init_func)                 \
-    do {                                                              \
-        extern int32_t init_func(void);                               \
-        uint32_t partition_idx = get_partition_idx(partition##_ID);   \
-        struct spm_partition_desc_t *part_ptr =                       \
-            &(g_spm_partition_db.partitions[partition_idx]);          \
-        part_ptr->static_data.partition_init = init_func;             \
+#define PARTITION_ADD_INIT_FUNC(partition, init_func)                     \
+    do {                                                                  \
+        extern int32_t init_func(void);                                   \
+        uint32_t partition_idx = get_partition_idx(partition##_ID);       \
+        struct spm_partition_desc_t *part_ptr =                           \
+            &(g_spm_partition_db.partitions[partition_idx]);              \
+        part_ptr->static_data.partition_init = init_func;                 \
     } while (0)
 
-#define PARTITION_ADD_PERIPHERAL(partition, peripheral)               \
-    do {                                                               \
-        uint32_t partition_idx = get_partition_idx(partition##_ID);    \
-        struct spm_partition_desc_t *part_ptr =                        \
-            &(g_spm_partition_db.partitions[partition_idx]);           \
-        part_ptr->platform_data = peripheral;                          \
+#define PARTITION_ADD_PERIPHERAL(partition, peripheral)                    \
+    do {                                                                   \
+        uint32_t partition_idx = get_partition_idx(partition##_ID);        \
+        struct spm_partition_desc_t *part_ptr =                            \
+            &(g_spm_partition_db.partitions[partition_idx]);               \
+        part_ptr->platform_data = peripheral;                              \
     } while (0)
 
 #endif /* __SPM_DB_SETUP_H__ */

@@ -197,6 +197,16 @@ struct shared_data_tlv_entry {
     uint16_t tlv_len; /* size of single TLV entry (including this header). */
 };
 
+/**
+ * \struct tfm_boot_data
+ *
+ * \brief Store the data for the runtime SW
+ */
+struct tfm_boot_data {
+    struct shared_data_tlv_header header;
+    uint8_t data[];
+};
+
 #define SHARED_DATA_ENTRY_HEADER_SIZE sizeof(struct shared_data_tlv_entry)
 #define SHARED_DATA_ENTRY_SIZE(size) (size + SHARED_DATA_ENTRY_HEADER_SIZE)
 

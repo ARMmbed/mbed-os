@@ -9,16 +9,13 @@
 
 #include <stdbool.h>
 #include "tfm_list.h"
+#include "tfm_secure_api.h"
 
-#ifndef TFM_SPM_MAX_ROT_SERV_NUM
 #define TFM_SPM_MAX_ROT_SERV_NUM        28
-#endif
 #define TFM_VERSION_POLICY_RELAXED      0
 #define TFM_VERSION_POLICY_STRICT       1
 
-#ifndef TFM_CONN_HANDLE_MAX_NUM
 #define TFM_CONN_HANDLE_MAX_NUM         32
-#endif
 
 /* RoT connection handle list */
 struct tfm_conn_handle_t {
@@ -283,12 +280,15 @@ int32_t tfm_spm_check_client_version(struct tfm_spm_service_t *service,
  * \param[in] buffer        Pointer of memory reference
  * \param[in] len           Length of memory reference in bytes
  * \param[in] ns_caller     From non-secure caller
+ * \param[in] access        Type of access specified by the
+ *                          \ref tfm_memory_access_e
  *
  * \retval IPC_SUCCESS      Success
  * \retval IPC_ERROR_BAD_PARAMETERS Bad parameters input
  * \retval IPC_ERROR_MEMORY_CHECK Check failed
  */
-int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller);
+int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller,
+                         enum tfm_memory_access_e access);
 
 /* This function should be called before schedule function */
 void tfm_spm_init(void);

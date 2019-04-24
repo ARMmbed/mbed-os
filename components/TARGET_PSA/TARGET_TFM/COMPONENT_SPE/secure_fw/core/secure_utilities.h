@@ -25,8 +25,6 @@
 #define EXC_NUM_PENDSV          (14)
 #define EXC_NUM_SYSTICK         (15)
 
-#define printf(...)
-
 /* Disable NS exceptions by setting NS PRIMASK to 1 */
 #define TFM_NS_EXC_DISABLE()    __TZ_set_PRIMASK_NS(1)
 /* Enable NS exceptions by setting NS PRIMASK to 0 */
@@ -51,9 +49,9 @@ struct tfm_exc_stack_t {
 #endif
 
 #define LOG_MSG_THR(MSG) \
-            __ASM("MOV r0, %0\n" \
-                  "SVC %1\n" \
-                  : : "r" (MSG), "I" (TFM_SVC_PRINT))
+            __ASM volatile("MOV r0, %0\n" \
+                           "SVC %1\n" \
+                           : : "r" (MSG), "I" (TFM_SVC_PRINT))
 
 #define LOG_MSG(MSG) \
             do { \
@@ -96,14 +94,14 @@ __STATIC_INLINE uint32_t __get_active_exc_num(void)
 }
 
 __attribute__ ((always_inline))
-__STATIC_INLINE void __set_CONTROL_SPSEL(int32_t SPSEL)
+__STATIC_INLINE void __set_CONTROL_SPSEL(uint32_t SPSEL)
 {
     CONTROL_Type ctrl;
 
     ctrl.w = __get_CONTROL();
     ctrl.b.SPSEL = SPSEL;
     __set_CONTROL(ctrl.w);
-    __asm("ISB");
+    __ISB();
 }
 
 #endif /* __SECURE_UTILITIES_H__ */

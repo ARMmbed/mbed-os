@@ -94,7 +94,7 @@ void tfm_initialize_context(struct tfm_state_context *ctx,
 #if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) void PendSV_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
         "mrs     r0, psp                    \n"
         "mrs     r1, psplim                 \n"
         "push    {r0, r1, r2, lr}           \n"
@@ -111,7 +111,7 @@ __attribute__((naked)) void PendSV_Handler(void)
 #elif defined(__ARM_ARCH_8M_BASE__)
 __attribute__((naked)) void PendSV_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
         "mrs     r0, psp                    \n"
         "mrs     r1, psplim                 \n"
         "push    {r0, r1, r2, lr}           \n"
@@ -143,14 +143,14 @@ __attribute__((naked)) void PendSV_Handler(void)
 /* Reserved for future usage */
 __attribute__((naked)) void MemManage_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }
 
 __attribute__((naked)) void BusFault_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }
 __attribute__((naked)) void UsageFault_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }
