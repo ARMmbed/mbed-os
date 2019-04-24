@@ -45,7 +45,7 @@
  * Variables
  */
 static int maclib_task_run = 0;
-static sys_mbox_t maclib_mbox;
+static void* maclib_mbox;
 static int g_event_num = 0;
 static int g_event_proc_done = 1;
 static sys_sem_t g_maclib_sem_sleep;
@@ -56,55 +56,13 @@ extern maclib_func_t *maclib_func_p;
 extern void rda_critical_sec_start(void);
 extern void rda_critical_sec_end(void);
 extern void wland_set_sta_sleep(unsigned char is_sleep);
-
-#define MAX_MSG_POOL_NUM    (64)
-maclib_msg_t msg_str_pool[MAX_MSG_POOL_NUM];
-int msg_str_pool_inited = 0;
-
-void init_msg_str_pool(void)
-{
-    int idx;
-    for(idx = 0; idx < MAX_MSG_POOL_NUM; idx++) {
-        msg_str_pool[idx].is_free = 1;
-    }
-}
-
-maclib_msg_t *alloc_msg_str(void)
-{
-    int idx;
-    maclib_msg_t *ret = NULL;
-    rda_critical_sec_start();
-    if (0 == msg_str_pool_inited) {
-        init_msg_str_pool();
-        msg_str_pool_inited = 1;
-    }
-    rda_critical_sec_end();
-    for (idx = 0; idx < MAX_MSG_POOL_NUM; idx++) {
-        rda_critical_sec_start();
-        ret = &msg_str_pool[idx];
-        if (1 == ret->is_free) {
-            ret->is_free = 0;
-            rda_critical_sec_end();
-            break;
-        }
-        rda_critical_sec_end();
-    }
-    return ret;
-}
-
-void free_msg_str(maclib_msg_t *p_msg)
-{
-    rda_critical_sec_start();
-    p_msg->is_free = 1;
-    rda_critical_sec_end();
-}
-
 /**
  * Functions
  */
 /* maybe called in isr, should not use "printf", "malloc" */
 void mbed_event_handle_cb(unsigned int event)
 {
+    static unsigned int sec_cnt = 0;
     MACLIB_EVENT_HANDLE_T type = (MACLIB_EVENT_HANDLE_T)event;
     if ((maclib_task_run == 0) && (MACLIB_EVENT_CLEANUP != type)) {
         mbed_error_printf("evntHndlCb_nulldata\r\n");
@@ -115,18 +73,13 @@ void mbed_event_handle_cb(unsigned int event)
             rda_critical_sec_start();
             g_event_num++;
             if((1 == g_event_num) && (1 == g_event_proc_done)) {
-                maclib_msg_t *msg;
+                maclib_msg_t msg;
 #if MACLIB_TASK_DEBUG
                 mbed_error_printf("#1-1,%d(%08X)\r\n", g_event_num, __get_xPSR());
 #endif
-                msg = alloc_msg_str();
-                if(NULL == msg) {
-                    mbed_error_printf("malloc err\r\n");
-                    return;
-                }
-                msg->type = MACLIB_MSG_EVNT_HNDL;
-                msg->msg = NULL;
-                sys_mbox_trypost(&(maclib_mbox), msg);
+                msg.type = MACLIB_MSG_EVNT_HNDL;
+                msg.msg = NULL;
+                rda_mail_put(maclib_mbox, (void*)&msg, 0);
 #if MACLIB_TASK_DEBUG
                 mbed_error_printf("#1-2\r\n");
 #endif
@@ -205,9 +158,9 @@ void maclib_task(void *pvParameters)
     sys_sem_new(&g_maclib_sem_sleep, 0);
     //sleep_entry_register(&maclib_sleep_entry);
 
-    ret = sys_mbox_new(&(maclib_mbox), 8);
-    if(0 != ret) {
-        LWIP_DEBUGF(NETIF_DEBUG,"msgbox init err!\r\n");
+    maclib_mbox = (void *)rda_mail_create(8, sizeof(maclib_msg_t));//ret = sys_mbox_new(&(maclib_mbox), 8);
+    if(NULL == maclib_mbox) {
+        mbed_error_printf("msgbox init err!\r\n");
         goto mac_lib_err;
     }
 #if MACLIB_TASK_DEBUG
@@ -215,14 +168,13 @@ void maclib_task(void *pvParameters)
 #endif
     maclib_task_run = 1;
     while(1) {
-        int mem_free = 1;
-        maclib_msg_t *msg = NULL;
-        unsigned int time = sys_arch_mbox_fetch(&(maclib_mbox), (void **)&msg, 0);
-        if ((SYS_ARCH_TIMEOUT == time) || (NULL == msg)) {
-            LWIP_DEBUGF(NETIF_DEBUG, "ml_task: invalid msg\r\n");
+        maclib_msg_t msg;
+        osStatus_t status = rda_mail_get(maclib_mbox, (void *)&msg, osWaitForever);
+        if(osOK != status) {
+            mbed_error_printf("ml_task: invalid msg ret=%08X\r\n", status);
             continue;
         }
-        switch(msg->type) {
+        switch(msg.type) {
             case MACLIB_MSG_EVNT_HNDL: {
                 rda_critical_sec_start();
                 g_event_proc_done = 0;
@@ -246,11 +198,10 @@ void maclib_task(void *pvParameters)
 #if MACLIB_TASK_DEBUG
                     mbed_error_printf("#2-1\r\n");
 #endif
-                    sys_mbox_trypost(&(maclib_mbox), msg);
+                    rda_mail_put(maclib_mbox, (void*)&msg, 0);
 #if MACLIB_TASK_DEBUG
                     mbed_error_printf("#2-2\r\n");
 #endif
-                    mem_free = 0;
                 }
                 rda_critical_sec_end();
 #if MACLIB_TASK_DEBUG
@@ -261,12 +212,9 @@ void maclib_task(void *pvParameters)
             default:
                 break;
         }
-        if (mem_free) {
-            free_msg_str(msg);
 #if MACLIB_TASK_DEBUG
             mbed_error_printf("#4\r\n");
 #endif
-        }
     }
 
 mac_lib_err:

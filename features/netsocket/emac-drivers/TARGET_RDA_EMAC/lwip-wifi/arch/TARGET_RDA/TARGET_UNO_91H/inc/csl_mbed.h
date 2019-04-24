@@ -88,6 +88,7 @@ typedef struct {
     void (*mbed_critical_sec_end)(void);
 
     /* Create interrupt in mbed, input param: vector/priority/isr(function), */
+    unsigned int (*mbed_critical_sec_counter_get)(void);
     /* return: interrupt handle, non-zero is valid                           */
     void * (*mbed_create_interrupt)(unsigned int vec, unsigned int pri, void *isr);
 
