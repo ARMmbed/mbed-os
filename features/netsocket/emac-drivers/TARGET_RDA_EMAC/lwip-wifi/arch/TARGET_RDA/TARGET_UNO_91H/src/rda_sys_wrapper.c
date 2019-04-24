@@ -239,10 +239,13 @@ int rda_alarm_stop(void *handle)
 {
     if (NULL != handle) {
         osTimerId timer_id = (osTimerId)handle;
-        osStatus retval = osTimerStop(timer_id);
-        if (osOK != retval) {
-            RDA_SYS_PRINT("Stop alarm error: %d\r\n", retval);
-            return ERR;
+        os_timer_t *timer = osRtxTimerId(timer_id);
+        if(timer->state == osRtxTimerRunning){
+            osStatus retval = osTimerStop(timer_id);
+            if(osOK != retval) {
+                RDA_SYS_PRINT("Stop alarm error: %d\r\n", retval);
+                return ERR;
+            }
         }
         return NO_ERR;
     }

@@ -172,10 +172,8 @@ void RDA5981x_EMAC::packet_rx()
             case 0:
                 p = low_level_input((unsigned char*)msg.arg1, msg.arg2);
                 if (p == NULL) {
-                    rda_sem_release((void*)msg.arg3);
                     break;
                 }
-                rda_sem_release((void*)msg.arg3);
                 if (p) {
                     emac_link_input_cb(p);
                 }
