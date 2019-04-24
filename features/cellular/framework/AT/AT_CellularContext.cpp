@@ -394,9 +394,9 @@ bool AT_CellularContext::get_context()
             cid_max = cid;
         }
         char pdp_type_from_context[10];
-        int pdp_type_len = _at.read_string(pdp_type_from_context, sizeof(pdp_type_from_context) - 1);
+        int pdp_type_len = _at.read_string(pdp_type_from_context, sizeof(pdp_type_from_context));
         if (pdp_type_len > 0) {
-            apn_len = _at.read_string(apn, sizeof(apn) - 1);
+            apn_len = _at.read_string(apn, sizeof(apn));
             if (apn_len >= 0) {
                 if (_apn && (strcmp(apn, _apn) != 0)) {
                     continue;
