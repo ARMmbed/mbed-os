@@ -587,6 +587,8 @@ private:
     LWIPMemoryManager memory_manager;
     osThreadId tcpip_thread_id;
     rtos::Mutex adaptation;
+    rtos::EventFlags _event_flag;
+    static const int TCP_CLOSED_FLAG = 0x4u;
 };
 
 #endif /* LWIPSTACK_H_ */

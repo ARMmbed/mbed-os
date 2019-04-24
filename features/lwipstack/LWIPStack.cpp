@@ -50,8 +50,11 @@ void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
     }
 
     LWIP &lwip = LWIP::get_instance();
-
     lwip.adaptation.lock();
+
+    if (eh == NETCONN_EVT_RCVPLUS && nc->state == NETCONN_NONE) {
+        lwip._event_flag.set(TCP_CLOSED_FLAG);
+    }
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {
         if (lwip.arena[i].in_use
@@ -292,7 +295,17 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
 {
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
-
+#if LWIP_TCP
+    /* Check if TCP FSM is in ESTABLISHED state.
+     * Then give extra time for connection close handshaking  until TIME_WAIT state.
+     * The purpose is to prevent eth/wifi driver stop and  FIN ACK corrupt.
+     * This may happend if network interface disconnect follows immediately after socket_close.*/
+    if (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && s->conn->pcb.tcp->state == ESTABLISHED) {
+        _event_flag.clear(TCP_CLOSED_FLAG);
+        netconn_shutdown(s->conn, false, true);
+        _event_flag.wait_any(TCP_CLOSED_FLAG, TCP_CLOSE_TIMEOUT);
+    }
+#endif
     netbuf_delete(s->buf);
     err_t err = netconn_delete(s->conn);
     arena_dealloc(s);
