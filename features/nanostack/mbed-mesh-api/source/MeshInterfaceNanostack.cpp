@@ -120,8 +120,9 @@ nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 void Nanostack::Interface::network_handler(mesh_connection_status_t status)
 {
     if (_blocking) {
-        if (status == MESH_CONNECTED || status == MESH_CONNECTED_LOCAL ||
-                status == MESH_CONNECTED_GLOBAL) {
+        if (_connect_status == NSAPI_STATUS_CONNECTING
+                && (status == MESH_CONNECTED || status == MESH_CONNECTED_LOCAL
+                    || status == MESH_CONNECTED_GLOBAL)) {
             connect_semaphore.release();
         } else if (status == MESH_DISCONNECTED) {
             disconnect_semaphore.release();
