@@ -51,3 +51,5 @@ The Python modules used by Mbed tools are used under the following licenses:
 - [pyusb](https://pypi.org/project/pyusb/) - Apache-2.0
 - [cmsis-pack-manager](https://pypi.org/project/cmsis-pack-manager) - Apache-2.0
 - [hidapi](https://pypi.org/project/hidapi/) - BSD-style
+- [pywin32](https://pypi.org/project/pywin32/) - PSF
+- [wmi](https://pypi.org/project/WMI/) - MIT
