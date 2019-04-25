@@ -18,8 +18,6 @@
 #include "TELIT_ME910.h"
 #include "AT_CellularNetwork.h"
 
-#define TRACE_GROUP   "ME91"
-
 using namespace mbed;
 using namespace events;
 
