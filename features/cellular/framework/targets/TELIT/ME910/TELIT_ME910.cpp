@@ -86,23 +86,3 @@ CellularDevice *CellularDevice::get_default_instance()
     return &device;
 }
 #endif
-
-nsapi_error_t TELIT_ME910::hard_power_on()
-{
-    return AT_CellularDevice::hard_power_on();
-}
-
-nsapi_error_t TELIT_ME910::hard_power_off()
-{
-    return AT_CellularDevice::hard_power_off();
-}
-
-nsapi_error_t TELIT_ME910::soft_power_on()
-{
-    return AT_CellularDevice::soft_power_on();
-}
-
-nsapi_error_t TELIT_ME910::soft_power_off()
-{
-    return AT_CellularDevice::soft_power_off();
-}
