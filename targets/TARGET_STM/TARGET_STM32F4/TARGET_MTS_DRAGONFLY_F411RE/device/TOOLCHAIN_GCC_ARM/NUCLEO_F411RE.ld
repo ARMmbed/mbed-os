@@ -1,11 +1,19 @@
 /* Linker script for STM32F411 */
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+    #ifdef DISABLE_POST_BINARY_HOOK
+        #define MBED_APP_START 0x08000000
+    #else
+        #define MBED_APP_START 0x08010000
+    #endif
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 512K
+    #ifdef DISABLE_POST_BINARY_HOOK
+        #define MBED_APP_SIZE 0x80000
+    #else
+        #define MBED_APP_SIZE (0x80000 - 0x10000)
+    #endif
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)

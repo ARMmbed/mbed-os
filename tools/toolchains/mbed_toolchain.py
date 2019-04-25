@@ -255,6 +255,7 @@ class mbedToolchain:
                     "COMPONENT_" + data + "=1"
                     for data in self.target.components
                 ]
+
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
@@ -946,6 +947,13 @@ class mbedToolchain:
                 ("MBED_PUBLIC_RAM_SIZE", "target.public-ram-size")
             ]:
                 define_string = self.make_ld_define(flag, params[param].value)
+                self.ld.append(define_string)
+                self.flags["ld"].append(define_string)
+
+        if hasattr(self.target, 'post_binary_hook'):
+            if self.target.post_binary_hook is None:
+                define_string = self.make_ld_define(
+                    "DISABLE_POST_BINARY_HOOK", 1)
                 self.ld.append(define_string)
                 self.flags["ld"].append(define_string)
 

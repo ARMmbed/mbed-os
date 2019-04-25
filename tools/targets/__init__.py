@@ -404,6 +404,9 @@ class Target(namedtuple(
             hook_data = self.post_binary_hook
         except AttributeError:
             return None
+        # If hook is null, also return
+        if hook_data is None:
+            return None
         # A hook was found. The hook's name is in the format
         # "classname.functionname"
         temp = hook_data["function"].split(".")
