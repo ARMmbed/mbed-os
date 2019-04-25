@@ -74,7 +74,6 @@ CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_TELIT_ME910_TX, MBED_CONF_TELIT_ME910_RX, MBED_CONF_TELIT_ME910_BAUDRATE);
 #if defined (MBED_CONF_TELIT_ME910_RTS) && defined (MBED_CONF_TELIT_ME910_CTS)
-    tr_debug("TELIT_ME910 flow control: RTS %d CTS %d", MBED_CONF_TELIT_ME910_RTS, MBED_CONF_TELIT_ME910_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_TELIT_ME910_RTS, MBED_CONF_TELIT_ME910_CTS);
 #endif
     static TELIT_ME910 device(&serial);
