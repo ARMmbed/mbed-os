@@ -83,6 +83,12 @@ void SPI::_do_construct()
         _peripheral->name = name;
     }
     core_util_critical_section_exit();
+
+#if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
+    // prime the SingletonPtr, so we don't have a problem trying to
+    // construct the buffer if asynch operation initiated from IRQ
+    _peripheral->transaction_buffer.get();
+#endif
     // we don't need to _acquire at this stage.
     // this will be done anyway before any operation.
 }
