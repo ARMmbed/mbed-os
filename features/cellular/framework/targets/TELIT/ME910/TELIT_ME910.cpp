@@ -17,11 +17,6 @@
 
 #include "TELIT_ME910.h"
 #include "AT_CellularNetwork.h"
-#include "mbed-trace/mbed_trace.h"
-#include "gpio_api.h"
-#include "platform/mbed_wait_api.h"
-#include "PinNames.h"
-#include "mbed.h"
 
 #define TRACE_GROUP   "ME91"
 
