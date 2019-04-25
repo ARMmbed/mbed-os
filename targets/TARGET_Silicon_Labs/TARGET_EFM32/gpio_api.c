@@ -29,6 +29,8 @@
 
 void gpio_write(gpio_t *obj, int value)
 {
+    MBED_ASSERT(obj->pin != NC);
+
     if (value) {
         GPIO_PinOutSet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
     } else {
@@ -38,6 +40,8 @@ void gpio_write(gpio_t *obj, int value)
 
 int gpio_read(gpio_t *obj)
 {
+    MBED_ASSERT(obj->pin != NC);
+
     if (obj->dir == PIN_INPUT) {
         return GPIO_PinInGet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
     } else {
@@ -63,8 +67,6 @@ uint32_t gpio_set(PinName pin)
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    MBED_ASSERT(pin != NC);
-
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     obj->pin = pin;
@@ -72,6 +74,8 @@ void gpio_init(gpio_t *obj, PinName pin)
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
+    MBED_ASSERT(obj->pin != NC);
+
     uint32_t pin = 1 << (obj->pin & 0xF);
     uint32_t port = (obj->pin >> 4) & 0xF;
 
@@ -129,6 +133,8 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 // Used by DigitalInOut to set correct mode when direction is set
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
+    MBED_ASSERT(obj->pin != NC);
+
     obj->dir = direction;
     switch (direction) {
         case PIN_INPUT:
