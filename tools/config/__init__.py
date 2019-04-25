@@ -980,7 +980,6 @@ class Config(object):
                 yield region._replace(filename=self.target.header_format)
 
         if self.target.restrict_size is not None:
-
             if self.target.app_offset:
                 start = self._assign_new_offset(
                     rom_start,
