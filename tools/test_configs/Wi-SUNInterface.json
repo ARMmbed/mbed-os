@@ -1,0 +1,50 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "mbed-mesh-api.wisun-bc-interval"           : "1000",
+            "mbed-mesh-api.wisun-bc-dwell-interval"     : "200",
+            "mbed-mesh-api.wisun-uc-dwell-interval"     : "150",
+            "mbed-mesh-api.wisun-regulatory-domain"     : "3",
+            "mbed-mesh-api.wisun-network-name"          : "\"Wi-SUN Network\"",
+            "mbed-mesh-api.heap-size"                   : 65536,
+            "mbed-mesh-api.6lowpan-nd-panid-filter"     : "0xFFFF",
+            "mbed-mesh-api.6lowpan-nd-security-mode"    : "NONE",
+            "mbed-trace.enable"                         : true,
+            "mbed-trace.max-level"                      : "TRACE_LEVEL_ERROR",
+            "nanostack.configuration"                   : "ws_router",
+            "nanostack-hal.event_loop_thread_stack_size": 8192,
+            "nsapi.default-mesh-type"                   : "WISUN",
+            "nsapi.default-stack"                       : "NANOSTACK",
+            "target.device_has_add"                     : ["802_15_4_PHY"],
+            "target.network-default-interface-type"     : "MESH"
+        },
+        "NUCLEO_F429ZI": {
+            "s2lp.provide-default"                      : true
+        },
+        "MTB_STM_S2LP": {
+            "s2lp.provide-default"                      : true
+        }
+    }
+}
