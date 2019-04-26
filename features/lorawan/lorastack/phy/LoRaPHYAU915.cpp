@@ -163,6 +163,41 @@
 #define AU915_RX_WND_2_DR                           DR_8
 
 /*!
+ * Beacon default frequency
+ */
+#define AU915_BEACON_CHANNEL_FREQ                   923300000
+
+/*!
+ * Beacon frequency channel stepwidth
+ */
+#define AU915_BEACON_CHANNEL_STEPWIDTH              600000
+
+/*!
+ * Number of possible beacon channels
+ */
+#define AU915_BEACON_NB_CHANNELS                    8
+
+/*!
+ * Ping slot default frequency
+ */
+#define AU915_PING_CHANNEL_FREQ                     923300000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define AU915_BEACON_RFU1_SIZE                      3
+
+/*!
+ * Size of RFU 2 field
+ */
+#define AU915_BEACON_RFU2_SIZE                      1
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define AU915_BEACON_CHANNEL_DR                     DR_8
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -334,55 +369,18 @@ LoRaPHYAU915::LoRaPHYAU915()
     phy_params.ack_timeout_rnd = AU915_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = AU915_RX_WND_2_DR;
     phy_params.rx_window2_frequency = AU915_RX_WND_2_FREQ;
+
+    phy_params.beacon.default_frequency = AU915_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = AU915_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = AU915_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = AU915_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = AU915_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYAU915::~LoRaPHYAU915()
 {
 }
 
-bool LoRaPHYAU915::rx_config(rx_config_params_t *params)
-{
-    int8_t dr = params->datarate;
-    uint8_t max_payload = 0;
-    int8_t phy_dr = 0;
-    uint32_t frequency = params->frequency;
-
-    if (_radio->get_status() != RF_IDLE) {
-        return false;
-    }
-
-    if (params->rx_slot == RX_SLOT_WIN_1) {
-        // Apply window 1 frequency
-        frequency = AU915_FIRST_RX1_CHANNEL
-                    + (params->channel % 8) * AU915_STEPWIDTH_RX1_CHANNEL;
-        // Caller may print the frequency to log so update it to match actual frequency
-        params->frequency = frequency;
-    }
-
-    // Read the physical datarate from the datarates table
-    phy_dr = datarates_AU915[dr];
-
-    _radio->lock();
-
-    _radio->set_channel(frequency);
-
-    // Radio configuration
-    _radio->set_rx_config(MODEM_LORA, params->bandwidth, phy_dr, 1, 0, 8,
-                          params->window_timeout, false, 0, false, 0, 0, true,
-                          params->is_rx_continuous);
-
-    if (params->is_repeater_supported == true) {
-        max_payload = max_payload_with_repeater_AU915[dr];
-    } else {
-        max_payload = max_payload_AU915[dr];
-    }
-    _radio->set_max_payload_length(MODEM_LORA,
-                                   max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
-
-    _radio->unlock();
-
-    return true;
-}
 
 bool LoRaPHYAU915::tx_config(tx_config_params_t *params, int8_t *tx_power,
                              lorawan_time_t *tx_toa)
@@ -659,4 +657,28 @@ void LoRaPHYAU915::fill_channel_mask_with_value(uint16_t *channel_mask,
     for (uint8_t i = 0; i < size; i++) {
         channel_mask[i] = value;
     }
+}
+
+
+uint32_t LoRaPHYAU915::get_beacon_frequency(uint32_t beacon_time)
+{
+    uint8_t  channel;
+
+    channel = (beacon_time / LORA_BEACON_INTERVAL) % AU915_BEACON_NB_CHANNELS;
+    return AU915_BEACON_CHANNEL_FREQ + (channel * AU915_BEACON_CHANNEL_STEPWIDTH);
+}
+
+uint32_t LoRaPHYAU915::get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time)
+{
+    uint8_t channel = (dev_addr + (beacon_time / LORA_BEACON_INTERVAL)) % AU915_BEACON_NB_CHANNELS;
+    return AU915_FIRST_RX1_CHANNEL + (channel * AU915_STEPWIDTH_RX1_CHANNEL);
+}
+
+uint32_t LoRaPHYAU915::get_rx1_frequency(uint8_t channel)
+{
+    // For AU915 spectrum, we have 8 Downstream channels, MAC would have
+    // selected a channel randomly from 72 Upstream channels, that index is
+    // passed in rx_config_params_t. Based on that channel index, we choose the
+    // frequency for first RX slot
+    return AU915_FIRST_RX1_CHANNEL + (channel % 8) * AU915_STEPWIDTH_RX1_CHANNEL;
 }
