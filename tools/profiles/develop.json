@@ -2,7 +2,7 @@
     "GCC_ARM": {
         "common": ["-c", "-Wall", "-Wextra",
                    "-Wno-unused-parameter", "-Wno-missing-field-initializers",
-                   "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
+                   "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD", "-fno-delete-null-pointer-checks",
                    "-fomit-frame-pointer", "-Os", "-g1", "-DMBED_TRAP_ERRORS_ENABLED=1"],
