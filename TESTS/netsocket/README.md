@@ -785,9 +785,9 @@ Verify working of different packet sizes.
 
 **Expected result:**
 
-All sendto() calls should return the packet size. All recvfrom() calls
-should return the same sized packet that was send with same content.
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+At least one sendto() call of every size should return the packet size.
+Errors returned from recvfrom() calls are tolerated. 
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
 
 
@@ -819,11 +819,9 @@ mode
 
 **Expected result:**
 
-All sendto() calls should return the packet size. All recvfrom() calls
-should return the same sized packet that was send with same content or
-NSAPI_ERROR_WOULD_BLOCK.
-
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+At least one sendto() call of every size should return the packet size.
+Errors returned from recvfrom() calls are tolerated. 
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
 
 
