@@ -60,6 +60,8 @@
  */
 #define LORA_MAX_NB_CHANNELS                        16
 
+#define LORA_BEACON_INTERVAL                        128
+
 /*!
  * Macro to compute bit of a channel index.
  */
@@ -500,9 +502,14 @@ typedef struct {
     channel_params_t *channel_list;
 } loraphy_channels_t;
 
-/*!
- * Global configuration parameters of a given PHY
- */
+typedef struct  {
+    uint32_t default_frequency;
+    uint32_t alternate_frequency;
+    uint8_t  datarate;
+    uint8_t  rfu1_size;
+    uint8_t  rfu2_size;
+} loraphy_beacon_t;
+
 typedef struct {
     bool duty_cycle_enabled;
     bool accept_tx_param_setup_req;
@@ -559,6 +566,11 @@ typedef struct {
     unsigned ul_dwell_time_setting : 1;
     unsigned dl_dwell_time_setting : 1;
 
+    loraphy_beacon_t beacon;
+
+    uint32_t ping_slot_frequency;
+    uint32_t ping_slot_default_frequency;
+    uint8_t  ping_slot_datarate;
 } loraphy_params_t;
 
 
