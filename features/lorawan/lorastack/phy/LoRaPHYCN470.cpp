@@ -184,6 +184,40 @@ static const band_t CN470_BAND0 = {1, CN470_MAX_TX_POWER, 0, 0, 0}; //  100.0 %
 #define CN470_STEPWIDTH_RX1_CHANNEL                 ((uint32_t) 200000)
 
 /*!
+ * Beacon default frequency
+ */
+#define CN470_BEACON_CHANNEL_FREQ                   508300000
+
+/*!
+ * Beacon frequency channel stepwidth
+ */
+#define CN470_BEACON_CHANNEL_STEPWIDTH              200000
+
+/*!
+ * Number of possible beacon channels
+ */
+#define CN470_BEACON_NB_CHANNELS                    8
+
+/*!
+ * Ping slot default frequency
+ */
+#define CN470_PING_CHANNEL_FREQ                     500300000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define CN470_BEACON_RFU1_SIZE                      3
+
+/*!
+ * Size of RFU 2 field
+ */
+#define CN470_BEACON_RFU2_SIZE                      1
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define CN470_BEACON_CHANNEL_DR                     DR_2
+/*!
  * Data rates table definition
  */
 static const uint8_t datarates_CN470[]  = {12, 11, 10,  9,  8,  7};
@@ -294,6 +328,13 @@ LoRaPHYCN470::LoRaPHYCN470()
     phy_params.ack_timeout_rnd = CN470_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = CN470_RX_WND_2_DR;
     phy_params.rx_window2_frequency = CN470_RX_WND_2_FREQ;
+
+
+    phy_params.beacon.default_frequency = CN470_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = CN470_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = CN470_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = CN470_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = CN470_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYCN470::~LoRaPHYCN470()
@@ -356,57 +397,6 @@ lorawan_status_t LoRaPHYCN470::set_next_channel(channel_selection_params_t *para
 
     *time = 0;
     return LORAWAN_STATUS_NO_CHANNEL_FOUND;
-}
-
-bool LoRaPHYCN470::rx_config(rx_config_params_t *config)
-{
-    int8_t dr = config->datarate;
-    uint8_t max_payload = 0;
-    int8_t phy_dr = 0;
-    uint32_t frequency = config->frequency;
-
-    _radio->lock();
-
-    if (_radio->get_status() != RF_IDLE) {
-        _radio->unlock();
-        return false;
-    }
-
-    _radio->unlock();
-
-    if (config->rx_slot == RX_SLOT_WIN_1) {
-        // Apply window 1 frequency
-        frequency = CN470_FIRST_RX1_CHANNEL + (config->channel % 48) * CN470_STEPWIDTH_RX1_CHANNEL;
-        // Caller may print the frequency to log so update it to match actual frequency
-        config->frequency = frequency;
-    }
-
-    // Read the physical datarate from the datarates table
-    phy_dr = datarates_CN470[dr];
-
-    _radio->lock();
-
-    _radio->set_channel(frequency);
-
-    // Radio configuration
-    _radio->set_rx_config(MODEM_LORA, config->bandwidth, phy_dr, 1, 0,
-                          MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                          config->window_timeout, false, 0, false, 0, 0, true,
-                          config->is_rx_continuous);
-
-    _radio->unlock();
-
-    if (config->is_repeater_supported == true) {
-        max_payload = max_payloads_with_repeater_CN470[dr];
-    } else {
-        max_payload = max_payloads_CN470[dr];
-    }
-
-    _radio->lock();
-    _radio->set_max_payload_length(MODEM_LORA, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
-    _radio->unlock();
-
-    return true;
 }
 
 bool LoRaPHYCN470::tx_config(tx_config_params_t *config, int8_t *tx_power,
@@ -573,4 +563,27 @@ uint8_t LoRaPHYCN470::accept_rx_param_setup_req(rx_param_setup_req_t *params)
     }
 
     return status;
+}
+
+uint32_t LoRaPHYCN470::get_beacon_frequency(uint32_t beacon_time)
+{
+    uint8_t  channel;
+
+    channel = (beacon_time / LORA_BEACON_INTERVAL) % CN470_BEACON_NB_CHANNELS;
+    return CN470_BEACON_CHANNEL_FREQ + (channel * CN470_BEACON_CHANNEL_STEPWIDTH);
+}
+
+uint32_t LoRaPHYCN470::get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time)
+{
+    uint8_t channel = (dev_addr + (beacon_time / LORA_BEACON_INTERVAL)) % CN470_BEACON_NB_CHANNELS;
+    return CN470_FIRST_RX1_CHANNEL + (channel * CN470_STEPWIDTH_RX1_CHANNEL);
+}
+
+uint32_t LoRaPHYCN470::get_rx1_frequency(uint8_t channel)
+{
+    // For CN470 spectrum, we have 8 Downstream channels, MAC would have
+    // selected a channel randomly from 96 Upstream channels, that index is
+    // passed in rx_config_params_t. Based on that channel index, we choose the
+    // frequency for first RX slot
+    return CN470_FIRST_RX1_CHANNEL + (channel % 8) * CN470_STEPWIDTH_RX1_CHANNEL;
 }

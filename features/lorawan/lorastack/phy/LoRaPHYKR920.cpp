@@ -183,6 +183,30 @@
 #define KR920_RX_WND_2_DR                           DR_0
 
 /*!
+ * Beacon frequency
+ */
+#define KR920_BEACON_CHANNEL_FREQ                   923100000
+
+/*!
+ * Ping slot default frequency
+ */
+#define KR920_PING_CHANNEL_FREQ                     923100000
+
+/*!
+ * Size of RFU1 field
+ */
+#define KR920_BEACON_RFU1_SIZE                      2
+/*!
+ * Size of RFU2 field
+ */
+#define KR920_BEACON_RFU2_SIZE                      0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define KR920_BEACON_CHANNEL_DR                     DR_3
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -324,6 +348,11 @@ LoRaPHYKR920::LoRaPHYKR920()
     phy_params.ack_timeout_rnd = KR920_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = KR920_RX_WND_2_DR;
     phy_params.rx_window2_frequency = KR920_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = KR920_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = KR920_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = KR920_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = KR920_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = KR920_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYKR920::~LoRaPHYKR920()
