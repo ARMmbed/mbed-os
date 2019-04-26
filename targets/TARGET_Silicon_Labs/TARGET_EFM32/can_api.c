@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2019 ToolSense
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 #include "pinmap_function.h"
 #include "PeripheralPins.h"
 #include "mbed_assert.h"
-#include "can_device.h"
 #include "em_cmu.h"
 #include "em_can.h"
 
@@ -48,12 +47,16 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 
     CMU_Clock_TypeDef cmuClock_number;
     switch ((CANName)obj->instance) {
+#ifdef CAN0
         case CAN_0:
         	cmuClock_number = cmuClock_CAN0;
             break;
+#endif
+#ifdef CAN1
         case CAN_1:
         	cmuClock_number = cmuClock_CAN1;
             break;
+#endif
     }
 
     MBED_ASSERT((unsigned int)rd != NC);
@@ -106,12 +109,16 @@ void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 	int index = 0;
 
     switch ((CANName)obj->instance) {
+#ifdef CAN0
         case CAN_0:
         	index = 0;
             break;
+#endif
+#ifdef CAN1
         case CAN_1:
         	index = 1;
             break;
+#endif
     }
 
 	irq_handler = handler;
@@ -124,12 +131,16 @@ void can_irq_free(can_t *obj)
 	CAN_MessageIntClear(obj->instance, 0xFFFFFFFF);
 
     switch ((CANName)obj->instance) {
+#ifdef CAN0
         case CAN_0:
         	NVIC_DisableIRQ(CAN0_IRQn);
             break;
+#endif
+#ifdef CAN1
         case CAN_1:
         	NVIC_DisableIRQ(CAN1_IRQn);
             break;
+#endif
     }
 }
 
@@ -149,6 +160,7 @@ int can_frequency(can_t *obj, int f)
                    CanInit.phaseBufferSegment1,
                    CanInit.phaseBufferSegment2,
                    CanInit.synchronisationJumpWidth);
+    return 0;
 }
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
@@ -179,6 +191,8 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 	if (CAN_HasNewdata(obj->instance)) {
 
 		receiver.msgNum = 2;
+		receiver.extended = false;
+		receiver.extendedMask = false;
 
 		CAN_ReadMessage(obj->instance, CAN_RX_IF, &receiver);
 
@@ -259,14 +273,18 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     }
 
 	switch ((CANName)obj->instance) {
+#ifdef CAN0
         case CAN_0:
         	NVIC_SetVector(CAN0_IRQn, CAN0_IRQHandler);
         	NVIC_EnableIRQ(CAN0_IRQn);
             break;
+#endif
+#ifdef CAN1
         case CAN_1:
         	NVIC_SetVector(CAN1_IRQn, CAN1_IRQHandler);
         	NVIC_EnableIRQ(CAN1_IRQn);
             break;
+#endif
     }
 }
 
@@ -286,16 +304,19 @@ static void can_irq(CANName name, int id)
 	}
 }
 
+#ifdef CAN0
 void CAN0_IRQHandler(void)
 {
 	can_irq(CAN_0, 0);
 }
+#endif
 
+#ifdef CAN1
 void CAN1_IRQHandler(void)
 {
 	can_irq(CAN_1, 1);
 }
-
+#endif
 
 const PinMap *can_rd_pinmap()
 {
@@ -307,4 +328,4 @@ const PinMap *can_td_pinmap()
     return PinMap_CAN_RX;
 }
 
-#endif // DEVICE_CAN
+#endif //DEVICE_CAN
