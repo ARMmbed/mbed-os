@@ -114,7 +114,8 @@ typedef enum lorawan_status {
     LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,       /**< None of the channels is enabled at the moment*/
     LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,  /**< None of the enabled channels is ready for another TX (duty cycle limited)*/
     LORAWAN_STATUS_METADATA_NOT_AVAILABLE = -1023, /**< Meta-data after an RX or TX is stale*/
-    LORAWAN_STATUS_ALREADY_CONNECTED = -1024       /**< The device has already joined a network*/
+    LORAWAN_STATUS_ALREADY_CONNECTED = -1024,      /**< The device has already joined a network*/
+    LORAWAN_STATUS_NO_BEACON_FOUND = -1025,        /**< Network beacon not found */
 } lorawan_status_t;
 
 /** The lorawan_connect_otaa structure.
@@ -243,7 +244,14 @@ typedef struct lorawan_connect {
  *                        a particular device class
  * DEVICE_TIME_SYNCHED  - When the device has received and applied the current time and date
  *                        indicated by the network
- *
+ * PING_SLOT_INFO_SYNCHED
+ *                      - When the device has received ping slot periodicity acknowledgement
+ *                        from the server
+ * BEACON_LOCK          - When network beacon is received
+ * BEACON_NOT_FOUND     - When beacon acquisition fails
+ * SWITCH_CLASS_B_TO_A
+ *                      - When no beacon has been received for 2 hours, synchronization
+ *                        with the network is lost and the device switches back to class A.
  */
 typedef enum lora_events {
     CONNECTED = 0,
@@ -263,7 +271,13 @@ typedef enum lora_events {
     CLASS_CHANGED, //only in Lorawan 1.1 (ch 18.1)
     SERVER_ACCEPTED_CLASS_IN_USE, //only in Lorawan 1.1 (ch 18.1)
     SERVER_DOES_NOT_SUPPORT_CLASS_IN_USE, //only in Lorawan 1.1 (ch 18.1)
-    DEVICE_TIME_SYNCHED // only in LoRaWAN v1.0.3 and v1.1.x
+    DEVICE_TIME_SYNCHED, // only in LoRaWAN v1.0.3 and v1.1.x
+    PING_SLOT_INFO_SYNCHED,
+    BEACON_FOUND, // only in LoRaWAN v1.0.3 and v1.1.x
+    BEACON_NOT_FOUND, // only in LoRaWAN v1.0.3 and v1.1.x
+    BEACON_LOCK, // only in LoRaWAN v1.0.3 and v1.1.x
+    BEACON_MISS, // only in LoRaWAN v1.0.3 and v1.1.x
+    SWITCH_CLASS_B_TO_A // only in LoRaWAN v1.0.3 and v1.1.x (ch 9)
 } lorawan_event_t;
 
 /**
