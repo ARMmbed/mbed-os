@@ -414,6 +414,42 @@ public:
      */
     void reset_to_default_values(loramac_protocol_params *params, bool init = false);
 
+    /**
+     * @brief accept_ping_slot_channel_req  Makes decision whether to accept
+     *        or reject PingSlotChannelReq MAC command.
+     *
+     * @param frequency The unicast ping slot channel
+     *
+     * @return True to let the MAC know that the request is
+     *         accepted and MAC can apply Ping slot channel received
+     *         form Network Server. Otherwise false is returned.
+     */
+
+    /**
+     * @brief accept_ping_slot_channel_req  Makes decision whether to accept
+     *        or reject PIngSlotChannelReq MAC command.
+     *
+     * @param frequency The unicast ping slot channel
+     *
+     * @return Status bits RFU[7:2], DrOk[1], FreqOk[0]. If status bit is 1 the
+     *         parameter is compatible. If either status bit is zero, the request
+     *         fails.
+     */
+    virtual uint8_t accept_ping_slot_channel_req(uint32_t frequency, uint8_t datarate);
+
+    /**
+     * @brief accept_beacon_frequency_request  Makes decision whether to accept
+     *        or reject BeaconFreqReq MAC command.
+     *
+     * @param frequency The frequency at which beacons will be broadcast
+     *
+     * @return 1 to let the MAC know that the device can use the frequency
+     * @return 1 to let the MAC know that the request is accepted and
+     *         MAC can apply Beacon frequency received form Network Server.
+     *         Otherwise 0 is returned.
+     */
+    virtual uint8_t accept_beacon_frequency_request(uint32_t frequency);
+
 public:
     /**
      * @brief get_next_lower_tx_datarate Gets the next lower datarate
@@ -600,6 +636,50 @@ public: //Verifiers
      */
     uint32_t get_rejoin_max_count() const;
 
+    virtual void compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
+                                           uint32_t rx_error, rx_config_params_t *config);
+
+    /**
+     * @brief get_beacon_rfu_size Gets the current region beacon RFU field sizes
+     */
+    virtual void get_beacon_rfu_size(uint8_t &rfu1, uint8_t &rfu2);
+
+    /**
+     * @brief get_beacon_frequency Computes beacon frequency
+     * @param beacon_time beacon time used to compute beacon frequency
+     * @return beacon frequency
+     */
+    virtual uint32_t get_beacon_frequency(uint32_t beacon_time);
+
+    /*!
+     * Computes the ping slot frequency, window timeout and offset.
+     *
+     * @param [in] beacon_time      The current beacon period time
+     *
+     * @param [in] devaddr          Device address for ping frequency computation
+     *
+     * @param [in] min_rx_symbols   The minimum number of symbols required to
+     *                              detect an RX frame.
+     *
+     * @param [in] rx_error         The maximum timing error of the receiver
+     *                              in milliseconds. The receiver will turn on
+     *                              in a [-rxError : +rxError] ms interval around
+     *                              RxOffset.
+     *
+     * @param [out] rx_conf_params  Pointer to the structure that needs to be
+     *                              filled with receive window parameters.
+     */
+    virtual void compute_ping_win_params(uint32_t beacon_time, uint32_t devaddr,
+                                         uint8_t min_rx_symbols, uint32_t rx_error,
+                                         rx_config_params_t *config);
+
+    /**
+     * @brief compute_beacon_time_on_air
+     * @param compute_beacon_time_on_air computes beacon frame time on air
+     * @return time on air in milliseconds
+     */
+    virtual uint32_t compute_beacon_time_on_air();
+
 protected:
     LoRaPHY();
 
@@ -666,10 +746,9 @@ protected:
     /**
      * Computes the RX window timeout and the RX window offset.
      */
-    void get_rx_window_params(float t_symbol, uint8_t min_rx_symbols,
-                              float rx_error, float wakeup_time,
-                              uint32_t *window_length, uint32_t *window_length_ms,
-                              int32_t *window_offset,
+    void get_rx_window_params(float t_symbol, float max_preamble_len,
+                              uint8_t min_rx_symbols, float rx_error, float wakeup_time,
+                              uint32_t *window_length, int32_t *window_offset,
                               uint8_t phy_dr);
 
     /**
@@ -697,6 +776,10 @@ protected:
                                   uint8_t *delayTx);
 
     bool is_datarate_supported(const int8_t datarate) const;
+
+    virtual uint32_t get_rx1_frequency(uint8_t channel);
+
+    virtual uint32_t get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time);
 
 private:
 
