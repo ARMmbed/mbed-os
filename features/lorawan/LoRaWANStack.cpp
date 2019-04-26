@@ -36,6 +36,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define INVALID_PORT                0xFF
 #define MAX_CONFIRMED_MSG_RETRIES   255
 #define COMPLIANCE_TESTING_PORT     224
+
 /**
  * Control flags for transient states
  */
@@ -88,7 +89,10 @@ LoRaWANStack::LoRaWANStack()
       _forced_period(0),
       _forced_retry_count(0),
       _forced_rejoin_type(REJOIN_REQUEST_TYPE0),
-      _forced_counter(0)
+      _forced_counter(0),
+      _ping_slot_info_requested(false),
+      _device_time_requested(false),
+      _last_beacon_rx_time(0)
 {
     _tx_metadata.stale = true;
     _rx_metadata.stale = true;
@@ -351,6 +355,16 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
         _loramac.setup_link_check_request();
     }
 
+    // add device time request until the application explicitly removes it
+    if (_device_time_requested) {
+        _loramac.setup_device_time_request(callback(this, &LoRaWANStack::handle_device_time_sync_event));
+    }
+
+    // add ping slot info request until the application explicitly removes it
+    if (_ping_slot_info_requested) {
+        _loramac.add_ping_slot_info_req();
+    }
+
     _qos_cnt = 1;
 
     lorawan_status_t status;
@@ -471,23 +485,32 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
     return LORAWAN_STATUS_OK;
 }
 
-void LoRaWANStack::handle_device_time_sync_event(lorawan_time_t gps_time)
+void LoRaWANStack::handle_device_time_sync_event(lorawan_gps_time_t gps_time)
 {
-    _lora_time.set_gps_time(gps_time);
+    _device_time_requested = false;
+    // The time provided by the network server is the time captured at
+    // the end of the uplink transmission
+    lorawan_time_t uplink_elapsed_time = _loramac.get_current_time() - _tx_timestamp;
+    set_current_gps_time(gps_time + uplink_elapsed_time);
     send_event_to_application(DEVICE_TIME_SYNCHED);
+
 }
 
-lorawan_status_t LoRaWANStack::set_device_time_request()
+lorawan_status_t LoRaWANStack::set_device_time_request(void)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
-    }
-
-    if (!_loramac.nwk_joined()) {
+    } else  if (!_loramac.nwk_joined()) {
         return LORAWAN_STATUS_NO_NETWORK_JOINED;
+    } else {
+        _device_time_requested = true;
+        return LORAWAN_STATUS_OK;
     }
+}
 
-    return _loramac.setup_device_time_request(callback(this, &LoRaWANStack::handle_device_time_sync_event));
+void LoRaWANStack::remove_device_time_request(void)
+{
+    _device_time_requested = false;
 }
 
 void LoRaWANStack::set_reset_indication()
@@ -521,26 +544,25 @@ lorawan_status_t LoRaWANStack::shutdown()
 
 lorawan_status_t LoRaWANStack::set_device_class(const device_class_t &device_class)
 {
+    lorawan_status_t status = LORAWAN_STATUS_OK;
+
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    if (device_class == CLASS_B) {
-        return LORAWAN_STATUS_UNSUPPORTED;
-    }
     // Only change the class when needed
     if (_loramac.get_device_class() != device_class) {
-        if (_loramac.get_server_type() == LW1_1) {
+        if ((_loramac.get_server_type() == LW1_1) && (device_class != CLASS_B)) {
             _new_class_type = device_class;
             set_device_mode_indication();
             _device_mode_ind_needed = true;
             _device_mode_ind_ongoing = true;
         } else {
-            _loramac.set_device_class(device_class, mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
+            status = _loramac.set_device_class(device_class,
+                                               mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
         }
-
     }
-    return LORAWAN_STATUS_OK;
+    return status;
 }
 
 lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata &tx_metadata)
@@ -608,9 +630,11 @@ void LoRaWANStack::rx_interrupt_handler(const uint8_t *payload, uint16_t size,
         return;
     }
 
+    _rx_timestamp = _loramac.get_current_time();
     memcpy(_rx_payload, payload, size);
 
     const uint8_t *ptr = _rx_payload;
+
     const int ret = _queue->call(this, &LoRaWANStack::process_reception,
                                  ptr, size, rssi, snr);
     MBED_ASSERT(ret != 0);
@@ -681,7 +705,8 @@ void LoRaWANStack::process_transmission(void)
 
     if (_loramac.get_server_type() == LW1_1 && _device_mode_ind_ongoing == true) {
         _device_mode_ind_ongoing = false;
-        _loramac.set_device_class(device_class_t(_new_class_type), mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
+        _loramac.set_device_class(device_class_t(_new_class_type),
+                                  mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
         send_event_to_application(CLASS_CHANGED);
     }
 }
@@ -807,6 +832,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
     bool joined = _loramac.nwk_joined();
 
+    rx_slot_t rx_slot = _loramac.get_current_slot();
+
     _loramac.on_radio_rx_done(payload, size, rssi, snr, mbed::callback(this, &LoRaWANStack::mlme_confirm_handler));
 
     if (!joined) {
@@ -822,33 +849,48 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
     make_rx_metadata_available();
 
-    // Post process transmission in response to the reception
-    post_process_tx_with_reception();
+    switch (rx_slot) {
+        case RX_SLOT_WIN_1:
+        case RX_SLOT_WIN_2:
+        case RX_SLOT_WIN_CLASS_C: // Is this right?
+            // Post process transmission in response to the reception
+            post_process_tx_with_reception();
 
-    // handle any pending MCPS indication
-    if (_loramac.get_mcps_indication()->pending) {
-        _loramac.post_process_mcps_ind();
-        _ctrl_flags |= MSG_RECVD_FLAG;
-        state_controller(DEVICE_STATE_STATUS_CHECK);
-    }
+            // handle any pending MCPS indication
+            if (_loramac.get_mcps_indication()->pending) {
+                _loramac.post_process_mcps_ind();
+                _ctrl_flags |= MSG_RECVD_FLAG;
+                state_controller(DEVICE_STATE_STATUS_CHECK);
+            }
 
-    // complete the cycle only if TX_DONE_FLAG is set
-    if (_ctrl_flags & TX_DONE_FLAG) {
-        state_machine_run_to_completion();
-    }
+            // complete the cycle only if TX_DONE_FLAG is set
+            if (_ctrl_flags & TX_DONE_FLAG) {
+                state_machine_run_to_completion();
+            }
 
-    // suppress auto uplink if another auto-uplink is in AWAITING_ACK state
-    if (_loramac.get_mlme_indication()->pending && !_automatic_uplink_ongoing) {
-        tr_debug("MLME Indication pending");
-        _loramac.post_process_mlme_ind();
-        tr_debug("Immediate Uplink requested");
-        mlme_indication_handler();
-    }
+            // suppress auto uplink if another auto-uplink is in AWAITING_ACK state
+            if (_loramac.get_mlme_indication()->pending && !_automatic_uplink_ongoing) {
+                tr_debug("MLME Indication pending");
+                _loramac.post_process_mlme_ind();
+                tr_debug("Immediate Uplink requested");
+                mlme_indication_handler();
+            }
 
-    //TODO: This does not apply if server does not support 1.1!
-    //OR if we are in ABP mode
-    if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
-        poll_rejoin();
+            //TODO: This does not apply if server does not support 1.1!
+            //OR if we are in ABP mode
+            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+                poll_rejoin();
+            }
+            break;
+        case RX_SLOT_BEACON:
+            break;
+        case RX_SLOT_WIN_UNICAST_PING_SLOT:
+        case RX_SLOT_WIN_MULTICAST_PING_SLOT:
+            _ctrl_flags |= MSG_RECVD_FLAG;
+            state_controller(DEVICE_STATE_STATUS_CHECK);
+            break;
+        default:
+            MBED_ASSERT(false);
     }
 
     core_util_atomic_flag_clear(&_rx_payload_in_use);
@@ -891,15 +933,16 @@ void LoRaWANStack::poll_rejoin(void)
 
 void LoRaWANStack::process_reception_timeout(bool is_timeout)
 {
-    rx_slot_t slot = _loramac.get_current_slot();
     _rejoin_type0_counter++;
+
+    rx_slot_t rx_slot = _loramac.get_current_slot();
 
     // when is_timeout == false, a CRC error took place in the received frame
     // we treat that erroneous frame as no frame received at all, hence handle
     // it exactly as we would handle timeout
     _loramac.on_radio_rx_timeout(is_timeout);
 
-    if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
+    if (rx_slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
         state_controller(DEVICE_STATE_JOINING);
         return;
     }
@@ -915,7 +958,7 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
      * NOTE: This code block doesn't get hit for Class C as in Class C, RX2 timeout
      * never occurs.
      */
-    if (slot == RX_SLOT_WIN_2) {
+    if (rx_slot == RX_SLOT_WIN_2) {
         post_process_tx_no_reception();
 
         state_controller(DEVICE_STATE_STATUS_CHECK);
@@ -1174,6 +1217,17 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t &mlme_confirm)
             if (_forced_retry_count) {
                 _loramac.get_lora_time()->start(_forced_timer, _forced_period);
             }
+        }
+    } else if (mlme_confirm.type == MLME_PING_SLOT_INFO) {
+        if (_ping_slot_info_requested) {
+            _ping_slot_info_requested = false;
+            send_event_to_application(PING_SLOT_INFO_SYNCHED);
+        }
+    } else if (mlme_confirm.type == MLME_BEACON_ACQUISITION) {
+        if (mlme_confirm.status == LORAMAC_EVENT_INFO_STATUS_OK) {
+            send_event_to_application(BEACON_FOUND);
+        } else {
+            send_event_to_application(BEACON_NOT_FOUND);
         }
     }
 }
@@ -1510,12 +1564,100 @@ void LoRaWANStack::process_rejoin_type0()
     }
 }
 
-lorawan_time_t LoRaWANStack::get_current_gps_time()
+lorawan_gps_time_t LoRaWANStack::get_current_gps_time()
 {
     return _loramac.get_gps_time();
 }
 
-void LoRaWANStack::set_current_gps_time(lorawan_time_t gps_time)
+void LoRaWANStack::set_current_gps_time(lorawan_gps_time_t gps_time)
 {
     _loramac.set_gps_time(gps_time);
+}
+
+lorawan_status_t LoRaWANStack::add_ping_slot_info_request(uint8_t periodicity)
+{
+    lorawan_status_t status;
+
+    if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
+    // Cannot only change periodicity when device is in class A
+    if (_loramac.get_device_class() != CLASS_A) {
+        return LORAWAN_STATUS_NO_OP;
+    }
+
+    status = _loramac.set_ping_slot_info(periodicity);
+    if (status == LORAWAN_STATUS_OK) {
+        _ping_slot_info_requested = true;
+    }
+
+    return status;
+}
+
+void LoRaWANStack::remove_ping_slot_info_request()
+{
+    _ping_slot_info_requested = false;
+}
+
+bool LoRaWANStack::process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon)
+{
+    bool gps_time_set = false;
+    loramac_mlme_confirm_t mlme_confirm;
+
+    switch (status) {
+        case BEACON_STATUS_ACQUISITION_FAILED:
+            mlme_confirm.type = MLME_BEACON_ACQUISITION;
+            mlme_confirm.status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
+            mlme_confirm_handler(mlme_confirm);
+            break;
+        case BEACON_STATUS_ACQUISITION_SUCCESS:
+            _last_beacon_rx_time = _loramac.get_current_time();
+            mlme_confirm.type = MLME_BEACON_ACQUISITION;
+            mlme_confirm.status = LORAMAC_EVENT_INFO_STATUS_OK;
+            gps_time_set = true;
+            mlme_confirm_handler(mlme_confirm);
+            break;
+        case BEACON_STATUS_LOCK:
+            gps_time_set = true;
+            _last_beacon_rx_time = _loramac.get_current_time();
+            send_event_to_application(BEACON_LOCK);
+            break;
+        case BEACON_STATUS_MISS:
+            send_event_to_application(BEACON_MISS);
+            // Switch back to class A after beacon-less operation timeout (12.1)
+            if (_loramac.get_device_class() == CLASS_B) {
+                lorawan_time_t no_beacon_rx_time = _loramac.get_current_time() - _last_beacon_rx_time;
+                if ((no_beacon_rx_time / 1000) >=  MBED_CONF_LORA_CLASS_B_BEACONLESS_PERIOD) {
+                    device_class_t device_class = CLASS_A;
+                    _loramac.set_device_class(device_class,
+                                              mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
+                    send_event_to_application(SWITCH_CLASS_B_TO_A);
+                }
+            }
+            break;
+        default:
+            tr_error("Unknown Beacon Status %d", status);
+            MBED_ASSERT(false);
+    }
+
+    if (gps_time_set) {
+        MBED_ASSERT(beacon != NULL);
+        lorawan_gps_time_t gps_time = (lorawan_gps_time_t)beacon->time * 1000 + beacon->time_on_air +
+                                      (_loramac.get_current_time() - _rx_timestamp);
+        _loramac.get_lora_time()->set_gps_time(gps_time);
+        tr_debug("Synchronized GPS Time = %llu from Received Beacon", gps_time);
+    }
+
+    return gps_time_set;
+}
+
+lorawan_status_t LoRaWANStack::enable_beacon_acquisition()
+{
+    return _loramac.enable_beacon_acquisition(mbed::callback(this, &LoRaWANStack::process_beacon_event));
+}
+
+lorawan_status_t LoRaWANStack::get_last_rx_beacon(loramac_beacon_t &beacon)
+{
+    return _loramac.get_last_rx_beacon(beacon);
 }

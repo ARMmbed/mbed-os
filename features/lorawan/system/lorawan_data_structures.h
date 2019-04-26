@@ -623,7 +623,7 @@ typedef union {
         /*!
          * RFU (Used for downlink frame pending or uplink class b mode)
          */
-        uint8_t rfu : 1;
+        uint8_t dl_fpending_ul_class_b : 1;
 
         /*!
          * Message acknowledge bit.
