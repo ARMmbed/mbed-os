@@ -138,8 +138,12 @@ typedef enum {
 
 #if DEVICE_CAN
 typedef enum {
+#ifdef CAN0_BASE
     CAN_0 = (int)CAN0_BASE,
-    CAN_1 = (int)CAN1_BASE
+#endif
+#ifdef CAN1_BASE
+    CAN_1 = (int)CAN1_BASE,
+#endif
 } CANName;
 #endif
 
