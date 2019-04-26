@@ -644,6 +644,14 @@ public:
      */
     virtual bool check_rf_frequency(uint32_t frequency) = 0;
 
+    int32_t lora_time_on_air(uint16_t preamble_length,
+                             uint8_t datarate,
+                             uint32_t bandwidth,
+                             uint8_t code_rate,
+                             bool crc_on,
+                             bool fixed_len,
+                             uint8_t pkt_len);
+
     /**
      * Acquires exclusive access to this radio.
      */
