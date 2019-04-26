@@ -646,14 +646,35 @@ nsapi_size_or_error_t Nanostack::do_sendto(void *handle, const ns_address_t *add
      * \return -5 Socket not connected
      * \return -6 Packet too short (ICMP raw socket error).
      * */
-    if (retcode == NS_EWOULDBLOCK) {
-        ret = NSAPI_ERROR_WOULD_BLOCK;
-    } else if (retcode < 0) {
-        tr_error("socket_sendmsg: error=%d", retcode);
-        ret = NSAPI_ERROR_DEVICE_ERROR;
-    } else {
+    if (retcode >= 0) {
         ret = retcode;
-    }
+    } else switch (retcode) {
+            case -1:
+                ret = NSAPI_ERROR_PARAMETER;
+                break;
+            case -2:
+                ret = NSAPI_ERROR_NO_MEMORY;
+                break;
+            case -3:
+                ret = NSAPI_ERROR_NO_ADDRESS;
+                break;
+            case -4:
+                ret = NSAPI_ERROR_BUSY;
+                break;
+            case -5:
+                ret = NSAPI_ERROR_NO_CONNECTION;
+                break;
+            case -6:
+                ret = NSAPI_ERROR_PARAMETER;
+                break;
+            case NS_EWOULDBLOCK:
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            default:
+                tr_error("socket_sendmsg: error=%d", retcode);
+                ret = NSAPI_ERROR_DEVICE_ERROR;
+                break;
+        }
 
 out:
     tr_debug("socket_sendto(socket=%p) sock_id=%d, ret=%i", socket, socket->socket_id, ret);
