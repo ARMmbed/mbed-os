@@ -160,6 +160,31 @@
 #define EU868_ACKTIMEOUT                            2000
 
 /*!
+ * Beacon default frequency
+ */
+#define EU868_BEACON_CHANNEL_FREQ                   869525000
+
+/*!
+ * Beacon default frequency
+ */
+#define EU868_PING_CHANNEL_FREQ                     869525000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define EU868_BEACON_RFU1_SIZE                      2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define EU868_BEACON_RFU2_SIZE                      0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define EU868_BEACON_CHANNEL_DR                     DR_3
+
+/*!
  * Random ack timeout limits
  */
 #define EU868_ACK_TIMEOUT_RND     1000
@@ -344,6 +369,11 @@ LoRaPHYEU868::LoRaPHYEU868()
     phy_params.ack_timeout_rnd = EU868_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = EU868_RX_WND_2_DR;
     phy_params.rx_window2_frequency = EU868_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = EU868_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = EU868_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = EU868_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = EU868_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = EU868_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYEU868::~LoRaPHYEU868()

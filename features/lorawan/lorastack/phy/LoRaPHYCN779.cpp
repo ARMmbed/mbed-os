@@ -182,6 +182,31 @@
 #define CN779_RX_WND_2_DR                           DR_0
 
 /*!
+ * Beacon default frequency
+ */
+#define CN779_BEACON_CHANNEL_FREQ                   785000000
+
+/*!
+ * Beacon default frequency
+ */
+#define CN779_PING_CHANNEL_FREQ                     785000000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define CN779_BEACON_RFU1_SIZE                      2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define CN779_BEACON_RFU2_SIZE                      0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define CN779_BEACON_CHANNEL_DR                     DR_3
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -313,6 +338,11 @@ LoRaPHYCN779::LoRaPHYCN779()
     phy_params.ack_timeout_rnd = CN779_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = CN779_RX_WND_2_DR;
     phy_params.rx_window2_frequency = CN779_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = CN779_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = CN779_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = CN779_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = CN779_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = CN779_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYCN779::~LoRaPHYCN779()

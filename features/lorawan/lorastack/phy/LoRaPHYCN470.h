@@ -62,8 +62,6 @@ public:
                                               uint8_t *channel, lorawan_time_t *time,
                                               lorawan_time_t *aggregate_timeoff);
 
-    virtual bool rx_config(rx_config_params_t *config);
-
     virtual bool tx_config(tx_config_params_t *config, int8_t *tx_power,
                            lorawan_time_t *tx_toa);
 
@@ -72,6 +70,12 @@ public:
                                      uint8_t *nb_bytes_parsed);
 
     virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t *params);
+
+    virtual uint32_t get_rx1_frequency(uint8_t channel);
+
+    virtual uint32_t get_beacon_frequency(uint32_t beacon_time);
+
+    virtual uint32_t get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time);
 
 private:
 
