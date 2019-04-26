@@ -2,7 +2,7 @@
     "name": "lora",
     "config": {
         "version": {
-            "help": "LoRaWAN Version: LW1.0.2 = 0, LW1.1 = 10",
+            "help": "LoRaWAN Version: LW1.0.2 = 0, LW1.0.3 = 01, LW1.1 = 10",
             "value": 0
         },
         "phy": {
@@ -105,6 +105,10 @@
             "help": "Number of preamble symbols to transmit. Default: 8",
             "value": 8
         },
+        "beacon-preamble-length": {
+            "help": "Number of whole preamble symbols needed to have a firm lock on the signal.",
+            "value": 7 
+        },
         "fsb-mask": {
             "help": "FSB mask for upstream [Only for US915 & AU915] Check lorawan/FSB_Usage.txt for more details",
             "value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}"
@@ -132,6 +136,58 @@
         "gps-epoch-tai-minus-utc": {
             "help": " GPS epoch TAI minus UTC time, default 19 (as of 2018)",
             "value": 19
-        } 
+        },
+        "class-b": {
+            "help": "Enables/disables support for Class B. Default is disabled. NOTE: Requires LoRaWAN Version >= 1.0.3",
+            "value": false
+        },
+        "beacon-acquisition-nb-trials":{
+            "help": "Indicates how many times beacon acquisition can be tried, default: 8",
+            "value": 8 
+        },
+        "ping-slot-periodicity":{
+            "help": "Class B ping slot periodicity. Default: 7",
+            "value": 7 
+        },
+        "class-b-beaconless-period":{
+            "help": "Revert to Class A after this period without receiving a beacon, Default: 7200",
+            "value": 7200 
+        },
+        "class-b-expansion-timeout-default":{
+            "help": "Class B reception slot expansion default symbol timeout, Default: 8",
+            "value": 8 
+        },
+        "class-b-expansion-timeout-factor":{
+            "help": "Class B reception slot expansion factor, Default: 2",
+            "value": 2
+        },
+        "class-b-expansion-beacon-timeout-max":{
+            "help": "Class B beacon slot expansion maximum symbol timeout, Default: 1023",
+            "value": 1023 
+        },
+        "class-b-expansion-ping-timeout-max":{
+            "help": "Class B ping slot exapsnion maximum symbol timeout, Default: 30",
+            "value": 30 
+        },
+        "class-b-expansion-offset-default":{
+            "help": "Class B reception slot expansion default offset, Default: 2",
+            "value": 2 
+        },
+        "class-b-expansion-offset-max":{
+            "help": "Class B reception slot expansion maximum offset, Default: 256",
+            "value": 256
+        },
+        "class-b-expansion-offset-factor":{
+            "help": "Class B reception slot offset expansion factor, Default: 2",
+            "value": 2
+        },
+        "class-b-extra-debug-trace-level":{
+            "help": "Set extra Class B debug tracing level. Disabled=0, Beacon=1, Beacon&Ping=2. Default: 0",
+            "value": 0
+        },
+        "class-b-multicast-address-max-count":{
+            "help": "Maximum number of Class B ping slot enabled multicast addresses. Default:1",
+            "value": 1 
+        }
     }
 }
