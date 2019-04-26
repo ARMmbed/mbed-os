@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_sema.c
-* \version 1.30
+* \version 1.40
 *
 *  Description:
 *   IPC Semaphore Driver - This source file contains the source code for the
@@ -73,6 +73,7 @@ cy_en_ipcsema_status_t Cy_IPC_Sema_Init(uint32_t ipcChannel,
                                         uint32_t count, uint32_t memPtr[])
 {
     /* Structure containing semaphores control data */
+    CY_SECTION(".cy_sharedmem")
     static cy_stc_ipc_sema_t       cy_semaData;
 
     cy_en_ipcsema_status_t retStatus = CY_IPC_SEMA_BAD_PARAM;

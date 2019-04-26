@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.c
-* \version 3.20
+* \version 3.30
 *
 * \brief
 * Provides the public functions for the API for the PSoC 6 Flash Driver.
@@ -72,6 +72,10 @@ typedef struct
 #define CY_FLASH_OPCODE_PROGRAM_ROW        ((0x06UL) << 24UL)
 /** SROM API opcode for row erase operation */
 #define CY_FLASH_OPCODE_ERASE_ROW          ((0x1CUL) << 24UL)
+/** SROM API opcode for sub sector erase operation */
+#define CY_FLASH_OPCODE_ERASE_SUB_SECTOR   ((0x1DUL) << 24UL)
+/** SROM API opcode for sector erase operation */
+#define CY_FLASH_OPCODE_ERASE_SECTOR       ((0x14UL) << 24UL)
 /** SROM API opcode for flash checksum operation */
 #define CY_FLASH_OPCODE_CHECKSUM           ((0x0BUL) << 24UL)
 /** SROM API opcode for flash hash operation */
@@ -146,9 +150,9 @@ typedef cy_en_flashdrv_status_t (*Cy_Flash_Proxy)(cy_stc_flash_context_t *contex
     #define CY_FLASH_START_PROGRAM_DELAY_TICKS         (6000UL)
     /* Delay time for StartProgram function in us */
     #define CY_FLASH_START_PROGRAM_DELAY_TIME          (900UL + CY_FLASH_DELAY_CORRECTIVE(CY_FLASH_START_PROGRAM_DELAY_TICKS))
-    /* Number of the CM0P ticks for StartErase function delay corrective time */
+    /* Number of the CM0P ticks for StartErase functions delay corrective time */
     #define CY_FLASH_START_ERASE_DELAY_TICKS           (9500UL)
-    /* Delay time for StartErase function in us */
+    /* Delay time for StartErase functions in us */
     #define CY_FLASH_START_ERASE_DELAY_TIME            (2200UL + CY_FLASH_DELAY_CORRECTIVE(CY_FLASH_START_ERASE_DELAY_TICKS))
     /* Number of the CM0P ticks for StartWrite function delay corrective time */
     #define CY_FLASH_START_WRITE_DELAY_TICKS           (19000UL)
@@ -228,23 +232,23 @@ static volatile cy_stc_flash_context_t flashContext;
         {
             ipcWaitMessage->clientID = CY_FLASH_IPC_CLIENT_ID;
             ipcWaitMessage->pktType = CY_FLASH_ENTER_WAIT_LOOP;
-            ipcWaitMessage->intrRelMask = 0u;            
+            ipcWaitMessage->intrRelMask = 0U;            
         }                    
             
-        if (cy_device->flashRwwRequired != 0u)
+        if (cy_device->flashRwwRequired != 0U)
         {
             #if (CY_CPU_CORTEX_M4)
                 cy_stc_sysint_t flashIntConfig =
                 {
                     (IRQn_Type)cy_device->cpussFmIrq,   /* .intrSrc */
-                    0u                                  /* .intrPriority */
+                    0U                                  /* .intrPriority */
                 };
 
                 (void)Cy_SysInt_Init(&flashIntConfig, &Cy_Flash_ResumeIrqHandler);
                 NVIC_EnableIRQ(flashIntConfig.intrSrc);
             #endif
 
-                if (cy_device->flashPipeRequired != 0u)
+                if (cy_device->flashPipeRequired != 0U)
                 {
                     (void)Cy_IPC_Pipe_RegisterCallback(CY_IPC_EP_CYPIPE_ADDR, &Cy_Flash_NotifyHandler,
                                                       (uint32_t)CY_FLASH_IPC_CLIENT_ID);
@@ -320,12 +324,13 @@ static volatile cy_stc_flash_context_t flashContext;
 * and erase operations. If the default startup file is not used, or the function
 * SystemInit() is not called in your project, ensure to perform the following steps 
 * before any flash or EmEEPROM write/erase operations:
-* \snippet flash\3.20\snippet\main.c Flash Initialization
+* \snippet flash/snippet/main.c Flash Initialization
 *
 *******************************************************************************/
 void Cy_Flash_Init(void)
 {
     #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)    
+        CY_SECTION(".cy_sharedmem")
         CY_ALIGN(4) static cy_stc_flash_notify_t ipcWaitMessageStc;
         
         Cy_Flash_InitExt(&ipcWaitMessageStc);
@@ -368,7 +373,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
     uint32_t intr;
     uint32_t semaTryCount = 0uL;
     
-    if (cy_device->flashRwwRequired != 0u)
+    if (cy_device->flashRwwRequired != 0U)
     {
         /* Check for active core is CM0+, or CM4 on single core device */
     #if (CY_CPU_CORTEX_M0P)
@@ -376,7 +381,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
     #else
         bool isPeerCoreEnabled = false;
         
-        if (SFLASH_SINGLE_CORE == 0u)
+        if (SFLASH_SINGLE_CORE == 0U)
         {
             isPeerCoreEnabled = true;
         }
@@ -429,7 +434,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
                     }
                     else
                     {
-                        while (0u != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, *ipcLockStatus))
+                        while (0U != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, *ipcLockStatus))
                         {
                             /* Polls whether the IPC is released and the Flash operation is performed */
                         }
@@ -476,7 +481,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
             }
             else
             {
-                while (0u != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, *ipcLockStatus))
+                while (0U != _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, *ipcLockStatus))
                 {
                     /* Polls whether the IPC is released and the Flash operation is performed */
                 }
@@ -623,7 +628,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 * a reason for failure. Does not return until the Write operation is
 * complete. Returns immediately and reports a \ref CY_FLASH_DRV_IPC_BUSY error in
 * the case when another process is writing to flash or erasing the row.
-* User firmware should not enter the Hibernate or Deep-Sleep mode until flash Erase
+* User firmware should not enter the Hibernate or Deep Sleep mode until flash Erase
 * is complete. The Flash operation is allowed in Sleep mode.
 * During the Flash operation, the device should not be reset, including the
 * XRES pin, a software reset, and watchdog reset sources. Also, low-voltage
@@ -654,13 +659,299 @@ cy_en_flashdrv_status_t Cy_Flash_EraseRow(uint32_t rowAddr)
         flashContext.arg2 = 0UL;
         flashContext.arg3 = 0UL;
 
-        if (cy_device->flashEraseDelay != 0u)
+        if (cy_device->flashEraseDelay != 0U)
         {
             result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
         }
         else
         {
             result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_NO_DELAY);
+        }
+    }
+
+    return (result);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_Flash_StartEraseRow
+****************************************************************************//**
+*
+* Starts erasing a single row of flash. Returns immediately
+* and reports a successful start or reason for failure.
+* Reports a \ref CY_FLASH_DRV_IPC_BUSY error in the case when IPC structure is locked
+* by another process. User firmware should not enter the Hibernate or Deep Sleep mode until
+* flash Erase is complete. The Flash operation is allowed in Sleep mode.
+* During the flash operation, the device should not be reset, including the
+* XRES pin, a software reset, and watchdog reset sources. Also, the low-voltage
+* detect circuits should be configured to generate an interrupt instead of a reset.
+* Otherwise, portions of flash may undergo unexpected changes.
+* \note Before reading data from previously programmed/erased flash rows, the
+* user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
+* function.
+*
+* \param rowAddr Address of the flash row number. 
+* The Read-while-Write violation occurs when the flash read operation is
+* initiated in the same flash sector where the flash erase operation is
+* performing. Refer to the device datasheet for the details.
+* Address must match row start address.
+*
+* \return Returns the status of the Flash operation,
+* see \ref cy_en_flashdrv_status_t.
+*
+*******************************************************************************/
+cy_en_flashdrv_status_t Cy_Flash_StartEraseRow(uint32_t rowAddr)
+{
+    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
+
+    if (Cy_Flash_BoundsCheck(rowAddr) != false)
+    {
+        SystemCoreClockUpdate();
+
+        /* Prepares arguments to be passed to SROM API */
+        flashContext.opcode = CY_FLASH_OPCODE_ERASE_ROW;
+        if (SFLASH_SINGLE_CORE != 0U)
+        {
+            flashContext.opcode |= CY_FLASH_BLOCKING_MODE;
+        }
+        
+        flashContext.arg1 = rowAddr;
+        flashContext.arg2 = 0UL;
+        flashContext.arg3 = 0UL;
+
+        if (cy_device->flashEraseDelay != 0U)
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
+        }
+        else
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_NO_DELAY);
+        }
+    }
+
+    return (result);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_Flash_EraseSector
+****************************************************************************//**
+*
+* This function erases a 256KB sector of flash. Reports success or
+* a reason for failure. Does not return until the Erase operation is
+* complete. Returns immediately and reports a \ref CY_FLASH_DRV_IPC_BUSY error in
+* the case when another process is writing to flash or erasing the row.
+* User firmware should not enter the Hibernate or Deep Sleep mode until flash Erase
+* is complete. The Flash operation is allowed in Sleep mode.
+* During the Flash operation, the device should not be reset, including the
+* XRES pin, a software reset, and watchdog reset sources. Also, low-voltage
+* detect circuits should be configured to generate an interrupt instead of a
+* reset. Otherwise, portions of flash may undergo unexpected changes.
+*
+* \param sectorAddr Address of the flash row number. 
+* The Read-while-Write violation occurs when the flash read operation is
+* initiated in the same flash sector where the flash write operation is
+* performing. Refer to the device datasheet for the details.
+* Address must match row start address.
+*
+* \return Returns the status of the Flash operation,
+* see \ref cy_en_flashdrv_status_t.
+*
+*******************************************************************************/
+cy_en_flashdrv_status_t Cy_Flash_EraseSector(uint32_t sectorAddr)
+{
+    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
+
+    /* Prepares arguments to be passed to SROM API */
+    if (Cy_Flash_BoundsCheck(sectorAddr) != false)
+    {
+        SystemCoreClockUpdate();
+
+        flashContext.opcode = CY_FLASH_OPCODE_ERASE_SECTOR | CY_FLASH_BLOCKING_MODE;
+        flashContext.arg1 = sectorAddr;
+        flashContext.arg2 = 0UL;
+        flashContext.arg3 = 0UL;
+
+        if (cy_device->flashEraseDelay != 0U)
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
+        }
+        else
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_NO_DELAY);
+        }
+    }
+
+    return (result);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_Flash_StartEraseSector
+****************************************************************************//**
+*
+* Starts erasing a 256KB sector of flash. Returns immediately
+* and reports a successful start or reason for failure.
+* Reports a \ref CY_FLASH_DRV_IPC_BUSY error in the case when IPC structure is locked
+* by another process. User firmware should not enter the Hibernate or Deep Sleep mode until
+* flash Erase is complete. The Flash operation is allowed in Sleep mode.
+* During the flash operation, the device should not be reset, including the
+* XRES pin, a software reset, and watchdog reset sources. Also, the low-voltage
+* detect circuits should be configured to generate an interrupt instead of a reset.
+* Otherwise, portions of flash may undergo unexpected changes.
+* \note Before reading data from previously programmed/erased flash rows, the
+* user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
+* function.
+*
+* \param rowAddr Address of the flash row number. 
+* The Read-while-Write violation occurs when the flash read operation is
+* initiated in the same flash sector where the flash erase operation is
+* performing. Refer to the device datasheet for the details.
+* Address must match row start address.
+*
+* \return Returns the status of the Flash operation,
+* see \ref cy_en_flashdrv_status_t.
+*
+*******************************************************************************/
+cy_en_flashdrv_status_t Cy_Flash_StartEraseSector(uint32_t sectorAddr)
+{
+    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
+
+    if (Cy_Flash_BoundsCheck(sectorAddr) != false)
+    {
+        SystemCoreClockUpdate();
+
+        /* Prepares arguments to be passed to SROM API */
+        flashContext.opcode = CY_FLASH_OPCODE_ERASE_SECTOR;
+        if (SFLASH_SINGLE_CORE != 0U)
+        {
+            flashContext.opcode |= CY_FLASH_BLOCKING_MODE;
+        }
+        
+        flashContext.arg1 = sectorAddr;
+        flashContext.arg2 = 0UL;
+        flashContext.arg3 = 0UL;
+
+        if (cy_device->flashEraseDelay != 0U)
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
+        }
+        else
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_NO_DELAY);
+        }
+    }
+
+    return (result);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_Flash_EraseSubsector
+****************************************************************************//**
+*
+* This function erases an 8-row subsector of flash. Reports success or
+* a reason for failure. Does not return until the Write operation is
+* complete. Returns immediately and reports a \ref CY_FLASH_DRV_IPC_BUSY error in
+* the case when another process is writing to flash or erasing the row.
+* User firmware should not enter the Hibernate or Deep-Sleep mode until flash Erase
+* is complete. The Flash operation is allowed in Sleep mode.
+* During the Flash operation, the device should not be reset, including the
+* XRES pin, a software reset, and watchdog reset sources. Also, low-voltage
+* detect circuits should be configured to generate an interrupt instead of a
+* reset. Otherwise, portions of flash may undergo unexpected changes.
+*
+* \param rowAddr Address of the flash row number. 
+* The Read-while-Write violation occurs when the flash read operation is
+* initiated in the same flash sector where the flash write operation is
+* performing. Refer to the device datasheet for the details.
+* Address must match row start address.
+*
+* \return Returns the status of the Flash operation,
+* see \ref cy_en_flashdrv_status_t.
+*
+*******************************************************************************/
+cy_en_flashdrv_status_t Cy_Flash_EraseSubsector(uint32_t subSectorAddr)
+{
+    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
+
+    /* Prepares arguments to be passed to SROM API */
+    if (Cy_Flash_BoundsCheck(subSectorAddr) != false)
+    {
+        SystemCoreClockUpdate();
+
+        flashContext.opcode = CY_FLASH_OPCODE_ERASE_SUB_SECTOR | CY_FLASH_BLOCKING_MODE;
+        flashContext.arg1 = subSectorAddr;
+        flashContext.arg2 = 0UL;
+        flashContext.arg3 = 0UL;
+
+        if (cy_device->flashEraseDelay != 0U)
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
+        }
+        else
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_NO_DELAY);
+        }
+    }
+
+    return (result);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_Flash_StartEraseSubsector
+****************************************************************************//**
+*
+* Starts erasing an 8-row subsector of flash. Returns immediately
+* and reports a successful start or reason for failure.
+* Reports a \ref CY_FLASH_DRV_IPC_BUSY error in the case when IPC structure is locked
+* by another process. User firmware should not enter the Hibernate or Deep-Sleep mode until
+* flash Erase is complete. The Flash operation is allowed in Sleep mode.
+* During the flash operation, the device should not be reset, including the
+* XRES pin, a software reset, and watchdog reset sources. Also, the low-voltage
+* detect circuits should be configured to generate an interrupt instead of a reset.
+* Otherwise, portions of flash may undergo unexpected changes.
+* \note Before reading data from previously programmed/erased flash rows, the
+* user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
+* function.
+*
+* \param rowAddr Address of the flash row number. 
+* The Read-while-Write violation occurs when the flash read operation is
+* initiated in the same flash sector where the flash erase operation is
+* performing. Refer to the device datasheet for the details.
+* Address must match row start address.
+*
+* \return Returns the status of the Flash operation,
+* see \ref cy_en_flashdrv_status_t.
+*
+*******************************************************************************/
+cy_en_flashdrv_status_t Cy_Flash_StartEraseSubsector(uint32_t subSectorAddr)
+{
+    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
+
+    if (Cy_Flash_BoundsCheck(subSectorAddr) != false)
+    {
+        SystemCoreClockUpdate();
+
+        /* Prepares arguments to be passed to SROM API */
+        flashContext.opcode = CY_FLASH_OPCODE_ERASE_SUB_SECTOR;
+        if (SFLASH_SINGLE_CORE != 0U)
+        {
+            flashContext.opcode |= CY_FLASH_BLOCKING_MODE;
+        }
+        
+        flashContext.arg1 = subSectorAddr;
+        flashContext.arg2 = 0UL;
+        flashContext.arg3 = 0UL;
+
+        if (cy_device->flashEraseDelay != 0U)
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
+        }
+        else
+        {
+            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_NO_DELAY);
         }
     }
 
@@ -720,7 +1011,7 @@ cy_en_flashdrv_status_t Cy_Flash_ProgramRow(uint32_t rowAddr, const uint32_t* da
         flashContext.arg2   = rowAddr;
         flashContext.arg3   = (uint32_t)data;
 
-        if (cy_device->flashProgramDelay != 0u)
+        if (cy_device->flashProgramDelay != 0U)
         {
             result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_START_PROGRAM_DELAY);
         }
@@ -782,7 +1073,7 @@ cy_en_flashdrv_status_t Cy_Flash_WriteRow(uint32_t rowAddr, const uint32_t* data
         flashContext.arg2   = rowAddr;
         flashContext.arg3   = (uint32_t)data;
 
-        if (cy_device->flashWriteDelay != 0u)
+        if (cy_device->flashWriteDelay != 0U)
         {
             result = Cy_Flash_SendCmd(CY_FLASH_BLOCKING_MODE, CY_FLASH_START_WRITE_DELAY);
         }
@@ -836,7 +1127,7 @@ cy_en_flashdrv_status_t Cy_Flash_StartWrite(uint32_t rowAddr, const uint32_t* da
     /* Checks whether the input parameters are valid */
     if ((Cy_Flash_BoundsCheck(rowAddr) != false) && (NULL != data))
     {
-        result = Cy_Flash_StartErase(rowAddr);
+        result = Cy_Flash_StartEraseRow(rowAddr);
 
         if (CY_FLASH_DRV_OPERATION_STARTED == result)
         {
@@ -875,66 +1166,6 @@ cy_en_flashdrv_status_t Cy_Flash_IsOperationComplete(void)
 
 
 /*******************************************************************************
-* Function Name: Cy_Flash_StartErase
-****************************************************************************//**
-*
-* Starts erasing a single row of flash. Returns immediately
-* and reports a successful start or reason for failure.
-* Reports a \ref CY_FLASH_DRV_IPC_BUSY error in the case when IPC structure is locked
-* by another process. User firmware should not enter the Hibernate or Deep-Sleep mode until
-* flash Erase is complete. The Flash operation is allowed in Sleep mode.
-* During the flash operation, the device should not be reset, including the
-* XRES pin, a software reset, and watchdog reset sources. Also, the low-voltage
-* detect circuits should be configured to generate an interrupt instead of a reset.
-* Otherwise, portions of flash may undergo unexpected changes.
-* \note Before reading data from previously programmed/erased flash rows, the
-* user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
-* function.
-*
-* \param rowAddr Address of the flash row number. 
-* The Read-while-Write violation occurs when the flash read operation is
-* initiated in the same flash sector where the flash erase operation is
-* performing. Refer to the device datasheet for the details.
-* Address must match row start address.
-*
-* \return Returns the status of the Flash operation,
-* see \ref cy_en_flashdrv_status_t.
-*
-*******************************************************************************/
-cy_en_flashdrv_status_t Cy_Flash_StartErase(uint32_t rowAddr)
-{
-    cy_en_flashdrv_status_t result = CY_FLASH_DRV_INVALID_INPUT_PARAMETERS;
-
-    if (Cy_Flash_BoundsCheck(rowAddr) != false)
-    {
-        SystemCoreClockUpdate();
-
-        /* Prepares arguments to be passed to SROM API */
-        flashContext.opcode = CY_FLASH_OPCODE_ERASE_ROW;
-        if (SFLASH_SINGLE_CORE != 0u)
-        {
-            flashContext.opcode |= CY_FLASH_BLOCKING_MODE;
-        }
-        
-        flashContext.arg1 = rowAddr;
-        flashContext.arg2 = 0UL;
-        flashContext.arg3 = 0UL;
-
-        if (cy_device->flashEraseDelay != 0u)
-        {
-            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_START_ERASE_DELAY);
-        }
-        else
-        {
-            result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_NO_DELAY);
-        }
-    }
-
-    return (result);
-}
-
-
-/*******************************************************************************
 * Function Name: Cy_Flash_StartProgram
 ****************************************************************************//**
 *
@@ -948,7 +1179,7 @@ cy_en_flashdrv_status_t Cy_Flash_StartErase(uint32_t rowAddr)
 * detect circuits should be configured to generate an interrupt instead of a reset.
 * Otherwise, portions of flash may undergo unexpected changes.\n
 * Before calling this function, the target flash region must be erased by
-* the StartErase/EraseRow function.\n
+* the StartEraseRow/EraseRow function.\n
 * Data to be programmed must be located in the SRAM memory region.
 * \note Before reading data from previously programmed/erased flash rows, the
 * user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
@@ -979,7 +1210,7 @@ cy_en_flashdrv_status_t Cy_Flash_StartProgram(uint32_t rowAddr, const uint32_t* 
         /* Prepares arguments to be passed to SROM API */
         flashContext.opcode = CY_FLASH_OPCODE_PROGRAM_ROW;
         
-        if (SFLASH_SINGLE_CORE != 0u)
+        if (SFLASH_SINGLE_CORE != 0U)
         {
             flashContext.opcode |= CY_FLASH_BLOCKING_MODE;
         }
@@ -988,7 +1219,7 @@ cy_en_flashdrv_status_t Cy_Flash_StartProgram(uint32_t rowAddr, const uint32_t* 
         flashContext.arg2   = rowAddr;
         flashContext.arg3   = (uint32_t)data;
 
-        if (cy_device->flashProgramDelay != 0u)
+        if (cy_device->flashProgramDelay != 0U)
         {
             result = Cy_Flash_SendCmd(CY_FLASH_NON_BLOCKING_MODE, CY_FLASH_START_PROGRAM_DELAY);
         }

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ipc_drv.h
-* \version 1.30
+* \version 1.40
 *
 * Provides an API declaration of the IPC driver.
 *
@@ -81,8 +81,8 @@
 * conduit to transfer messages or data to and from multiple processes or CPUs.
 *
 * A pipe has two endpoints, one on each core. Each endpoint contains a dedicated
-* IPC channel and an interrupt. IPC channels 0-7 and IPC interrupts 0-7 are
-* reserved for system use.
+* IPC channel and an interrupt. IPC channels 0-7(8 for the CYB064XX devices) 
+* and IPC interrupts 0-7 are reserved for system use.
 *
 * The pipe also contains the number of clients it supports, and for each client
 * a callback function. So the pipe can service a number of clients, each with a
@@ -251,6 +251,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="1">1.40</td>
+*     <td>Moved cy_semaData structure to the RAM section called ".cy_sharedmem".</td>
+*     <td>Support Secure Boot devices.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">1.30</td>
 *     <td>Flattened the organization of the driver source code into the single source directory and the single include directory.</td>
 *     <td>Driver library directory-structure simplification.</td>
@@ -338,7 +343,7 @@
 #define CY_IPC_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_IPC_DRV_VERSION_MINOR       30
+#define CY_IPC_DRV_VERSION_MINOR       40
 
 /** Defines a value to indicate that no notification events are needed */
 #define CY_IPC_NO_NOTIFICATION         (uint32_t)(0x00000000ul)

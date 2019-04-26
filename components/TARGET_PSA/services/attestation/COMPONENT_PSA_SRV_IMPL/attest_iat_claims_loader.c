@@ -17,6 +17,7 @@
 */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 #include "tfm_plat_boot_seed.h"
@@ -154,7 +155,7 @@ enum psa_attest_err_t attest_get_caller_client_id(int32_t *caller_id)
 /* Boot seed data is part of bootloader status*/
 enum tfm_plat_err_t tfm_plat_get_boot_seed(uint32_t size, uint8_t *buf)
 {
-    return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
+    return (enum tfm_plat_err_t)PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
 }
 
 /**
@@ -181,13 +182,13 @@ enum tfm_plat_err_t tfm_plat_get_instance_id(uint32_t *size, uint8_t *buf)
 /* HW version data is part of bootloader status*/
 enum tfm_plat_err_t tfm_plat_get_hw_version(uint32_t *size, uint8_t *buf)
 {
-    return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
+    return (enum tfm_plat_err_t)PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
 }
 
 enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size, uint8_t *buf)
 {
     memcpy(buf, impl_id_data, *size);
-    return PSA_ATTEST_ERR_SUCCESS;
+    return (enum tfm_plat_err_t)PSA_ATTEST_ERR_SUCCESS;
 }
 
 /* Temporary Implementation of security lifecycle data: mandatory claim.

@@ -127,7 +127,9 @@ MBED_NORETURN void mbed_die(void);
 /** Print out an error message.  This is typically called when
  * handling a crash.
  *
- * @note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe, as long as the
+ *       FileHandle::write of the stderr device is. See mbed_error_puts
+ *       for more information.
  * @note This uses an internal 128-byte buffer to format the string,
  *       so the output may be truncated. If you need to write a potentially
  *       long string, use mbed_error_puts.
@@ -145,7 +147,9 @@ void mbed_error_printf(const char *format, ...) MBED_PRINTF(1, 2);
 /** Print out an error message.  Similar to mbed_error_printf
  * but uses a va_list.
  *
- * @note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe, as long as the
+ *       FileHandle::write of the stderr device is. See mbed_error_puts
+ *       for more information.
  *
  * @param format    C string that contains data stream to be printed.
  * @param arg       Variable arguments list
@@ -160,7 +164,13 @@ void mbed_error_vprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
  * length. Unlike standard puts, but like standard fputs, this does not
  * append a '\n' character.
  *
- * @note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe, as long as the
+ *       FileHandle::write of the stderr device is. The default
+ *       serial console is safe, either buffered or not. If the
+ *       console has not previously been initialized, an attempt
+ *       to use this from interrupt may during console initialization.
+ *       Special handling of `mbed_error` relaxes various system traps
+ *       to increase the chance of initialization working.
  *
  * @param str    C string that contains data stream to be printed.
  *

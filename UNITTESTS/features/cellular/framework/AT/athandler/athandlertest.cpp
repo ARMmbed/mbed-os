@@ -29,8 +29,11 @@
 using namespace mbed;
 using namespace events;
 
+uint8_t urc_callback_count;
+
 void urc_callback()
 {
+    urc_callback_count++;
 }
 
 void urc2_callback()
@@ -44,6 +47,7 @@ protected:
 
     void SetUp()
     {
+        urc_callback_count = 0;
     }
 
     void TearDown()
@@ -954,16 +958,19 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table7[] = "urc: info\r\nresponseOK\r\n\0";
+    char table7[] = "urc: info\r\nresponse\r\nOK\r\n\0";
     at.flush();
     at.clear_error();
     filehandle_stub_table = table7;
     filehandle_stub_table_pos = 0;
 
-    at.set_urc_handler("urc: ", NULL);
+    mbed::Callback<void()> cb1(&urc_callback);
+    at.set_urc_handler("urc: ", cb1);
     at.resp_start(); // recv_buff: "responseOK\r\n\0"
     at.resp_stop();  // consumes to OKCRLF -> OK
     EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+    EXPECT_TRUE(urc_callback_count == 1);
+    urc_callback_count = 0;
 
     char table8[] = "urc: info\r\nresponse\0";
     at.flush();
@@ -1060,8 +1067,21 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
     filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
     at.resp_start();
-
     at.resp_stop();
+
+    // Set stop tag for response to CRLF -> resp stop should stop on first CRLF
+    char table6[] = "line1\r\nline2\r\nOK\r\n";
+    filehandle_stub_table = table6;
+    filehandle_stub_table_pos = 0;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+
+    at.resp_start();
+    at.set_stop_tag("\r\n");
+    at.resp_stop();
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
 
     char table7[] = "ssssss\0";
     filehandle_stub_table = table7;
@@ -1072,6 +1092,38 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
     filehandle_stub_table_pos = 0;
     at.resp_start("ss", false);
     at.resp_stop();
+
+    // prefix + URC line + some other line + URC line + URC line + OKCRLF
+    char table4[] = "line1\r\nline2abcd\r\nline3abcd\r\nline4\r\n\r\nline3\r\nline3\r\nOK\r\n";
+    filehandle_stub_table = table4;
+    filehandle_stub_table_pos = 0;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed::Callback<void()> cb1(&urc_callback);
+    at.set_urc_handler("line3", cb1);
+
+    at.resp_start("line2");
+    at.resp_stop();
+    EXPECT_TRUE(urc_callback_count == 3);
+    urc_callback_count = 0;
+
+    // URC line + prefix + URC line + some other line + URC line + URC line + some other line + OKCRLF
+    char table5[] = "line1\r\nline3\r\nline2abcd\r\nline3abcd\r\nline4\r\n\r\nline3\r\nline3\r\nline4\r\nOK\r\n";
+    filehandle_stub_table = table5;
+    filehandle_stub_table_pos = 0;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed::Callback<void()> cb2(&urc_callback);
+    at.set_urc_handler("line3", cb2);
+
+    at.resp_start("line2");
+    at.resp_stop();
+    EXPECT_TRUE(urc_callback_count == 4);
+    urc_callback_count = 0;
 }
 
 TEST_F(TestATHandler, test_ATHandler_info_resp)

@@ -20,7 +20,7 @@
 #include "Semaphore.h"
 #include "mbed_assert.h"
 #include "cy_ipc_config.h"
-#include "ipc/cy_ipc_pipe.h"
+#include "cy_ipc_pipe.h"
 #include <stdarg.h>
 #include "platform/SingletonPtr.h"
 

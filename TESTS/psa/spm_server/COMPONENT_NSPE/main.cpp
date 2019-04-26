@@ -28,7 +28,7 @@
 #include "psa_manifest/sid.h"
 
 #if defined(TARGET_TFM)
-#include "psa/service.h"
+#define PSA_MAX_IOVEC 4
 #endif
 
 using namespace utest::v1;

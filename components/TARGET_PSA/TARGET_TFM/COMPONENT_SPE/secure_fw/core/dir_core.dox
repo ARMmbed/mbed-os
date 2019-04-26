@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+//This file holds description for the current directory. This documentation
+//will be included in the Doxygen output.
+
+/*!
+\dir
+\brief Source code for the TF-M core.
+\details This directory holds the source code of the "TF-M core" module.
+
+*/

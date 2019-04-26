@@ -1058,21 +1058,52 @@ bool ATHandler::consume_to_stop_tag()
 
 void ATHandler::resp_stop()
 {
-    // Do not return on error so that we can consume whatever there is in the buffer
+    if (_is_fh_usable) {
+        // Do not return on error so that we can consume whatever there is in the buffer
 
-    if (_current_scope == ElemType) {
-        information_response_element_stop();
-        set_scope(InfoType);
+        if (_current_scope == ElemType) {
+            information_response_element_stop();
+            set_scope(InfoType);
+        }
+
+        if (_current_scope == InfoType) {
+            information_response_stop();
+        }
+
+        // Go for response stop_tag
+        if (_stop_tag && !_stop_tag->found && !_error_found) {
+            // Check for URC for every new line
+            while (!get_last_error()) {
+
+                if (match(_stop_tag->tag, _stop_tag->len)) {
+                    break;
+                }
+
+                if (match_urc()) {
+                    continue;
+                }
+
+                // If no URC nor stop_tag found, look for CRLF and consume everything up to and including CRLF
+                if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
+                    consume_to_tag(CRLF, true);
+                    // If stop tag is CRLF we have to stop reading/consuming the buffer
+                    if (!strncmp(CRLF, _stop_tag->tag, _stop_tag->len)) {
+                        break;
+                    }
+                    // If no URC nor CRLF nor stop_tag -> fill buffer
+                } else {
+                    if (!fill_buffer()) {
+                        // if we don't get any match and no data within timeout, set an error to indicate need for recovery
+                        set_error(NSAPI_ERROR_DEVICE_ERROR);
+                    }
+                }
+            }
+        }
+    } else {
+        _last_err = NSAPI_ERROR_BUSY;
     }
 
-    if (_current_scope == InfoType) {
-        information_response_stop();
-    }
-
-    // Go for response stop_tag
-    if (consume_to_stop_tag()) {
-        set_scope(NotSet);
-    }
+    set_scope(NotSet);
 
     // Restore stop tag to OK
     set_tag(&_resp_stop, OK);
@@ -1289,7 +1320,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
 #if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
         const int buf_size = len * 4 + 1; // x4 -> reserve space for extra characters, +1 -> terminating null
-        char *buffer = (char *)malloc(buf_size);
+        char *buffer = new char [buf_size];
         if (buffer) {
             memset(buffer, 0, buf_size);
 
@@ -1319,7 +1350,7 @@ void ATHandler::debug_print(const char *p, int len, ATType type)
                 tr_info("AT ERR (%2d): %s", len, buffer);
             }
 
-            free(buffer);
+            delete [] buffer;
         } else {
             tr_error("AT trace unable to allocate buffer!");
         }

@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2019, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+//This file holds description for the current directory. This documentation
+//will be included in the Doxygen output.
+
+/*!
+\dir
+\brief Include files for the TF-M.
+\details This directory currently only holds the include file for the SPM
+module.
+
+*/

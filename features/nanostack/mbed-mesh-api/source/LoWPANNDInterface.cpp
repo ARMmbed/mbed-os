@@ -33,7 +33,7 @@ public:
     virtual nsapi_error_t bringdown();
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
-    friend Nanostack;
+    friend class Nanostack;
     friend class ::LoWPANNDInterface;
 private:
     LoWPANNDInterface(NanostackRfPhy &phy) : MeshInterface(phy) { }

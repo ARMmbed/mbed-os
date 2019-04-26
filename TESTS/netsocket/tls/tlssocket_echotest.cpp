@@ -70,17 +70,17 @@ void TLSSOCKET_ECHOTEST()
 
     int recvd;
     int sent;
-    int x = 0;
-    for (int pkt_s = pkt_sizes[x]; x < PKTS; pkt_s = pkt_sizes[x++]) {
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
+        int pkt_s = pkt_sizes[s_idx];
         fill_tx_buffer_ascii(tls_global::tx_buffer, BUFF_SIZE);
 
         sent = sock->send(tls_global::tx_buffer, pkt_s);
         if (sent < 0) {
-            printf("[Round#%02d] network error %d\n", x, sent);
+            printf("[Round#%02d] network error %d\n", s_idx, sent);
             TEST_FAIL();
             break;
         } else if (sent != pkt_s) {
-            printf("[%02d] sock.send return size %d does not match the expectation %d\n", x, sent, pkt_s);
+            printf("[%02d] sock.send return size %d does not match the expectation %d\n", s_idx, sent, pkt_s);
             TEST_FAIL();
             break;
         }
@@ -89,7 +89,7 @@ void TLSSOCKET_ECHOTEST()
         while (bytes2recv) {
             recvd = sock->recv(&(tls_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", x, recvd);
+                printf("[Round#%02d] network error %d\n", s_idx, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
                 return;
@@ -146,7 +146,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
 
     int bytes2send;
     int sent;
-    int s_idx = 0;
+    ;
     receive_error = false;
     unsigned char *stack_mem = (unsigned char *)malloc(tls_global::TLS_OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
@@ -158,8 +158,8 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
     event_queue = &queue;
     TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
 
-    for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
-        pkt_s = pkt_sizes[s_idx];
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+        int pkt_s = pkt_sizes[s_idx];
         bytes2recv = pkt_s;
         bytes2recv_total = pkt_s;
 

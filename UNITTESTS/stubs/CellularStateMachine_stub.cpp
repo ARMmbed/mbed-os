@@ -25,8 +25,8 @@ CellularStubState CellularStateMachine_stub::get_current_target_state = STATE_IN
 CellularStubState CellularStateMachine_stub::get_current_current_state = STATE_INIT;
 bool CellularStateMachine_stub::bool_value = false;
 
-CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
-    _cellularDevice(device), _queue(queue)
+CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
+    _cellularDevice(device), _network(nw), _queue(queue)
 {
 }
 

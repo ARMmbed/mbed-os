@@ -26,6 +26,7 @@ FNULL = open(os.devnull, 'w')
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                     os.pardir, os.pardir))
 sys.path.insert(0, ROOT)
+from tools.toolchains import TOOLCHAIN_CLASSES
 from tools.targets import Target, TARGET_MAP, TARGET_NAMES
 
 
@@ -366,6 +367,11 @@ def main():
     psa_platforms_list = get_mbed_official_psa_release(options.mcu)
     logger.info("Building the following platforms: {}".format(
         ', '.join([t[0] for t in psa_platforms_list])))
+
+    toolchains_set = set([t[1] for t in psa_platforms_list])
+    for tc in toolchains_set:
+        if not TOOLCHAIN_CLASSES[tc].check_executable():
+            raise Exception("Toolchain {} was not found in PATH".format(tc))
 
     for target, tc, directory in psa_platforms_list:
         build_psa_platform(target, tc, directory, options.debug,

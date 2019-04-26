@@ -269,6 +269,10 @@ class Resources(object):
         if file_type:
             if sep != self._sep:
                 file_name = file_name.replace(sep, self._sep)
+            # Mbed OS projects only use one linker script at a time, so remove
+            # any existing linker script when adding a new one
+            if file_type == FileType.LD_SCRIPT:
+                self._file_refs[file_type].clear()
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def _include_file(self, ref):
@@ -500,7 +504,10 @@ class Resources(object):
                 start_at = index + 1
                 break
         for n in range(start_at, len(components)):
-            parent_name = self._sep.join([into_path] + components[:n])
+            parent_name_parts = components[:n]
+            if into_path:
+                parent_name_parts.insert(0, into_path)
+            parent_name = self._sep.join(parent_name_parts)
             parent_path = join(base_path, *components[:n])
             yield FileRef(parent_name, parent_path)
 

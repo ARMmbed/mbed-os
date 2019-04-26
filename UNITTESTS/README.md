@@ -104,75 +104,148 @@ You can also set custom compiler flags and other configurations supported by CMa
 
 #### Example
 
-With the following steps, you can write a simple unit test. In this example, `rtos/Semaphore.cpp` is a class under test.
+With the following steps, you can write a simple unit test. This example creates dummy classes to be tested, creates and configures unit tests for a class and stubs all external dependencies.
 
-1. Create a directory for unit test files in `UNITTESTS/rtos/Semaphore`.
-1. Create a test configuration file `UNITTESTS/rtos/Semaphore/unittest.cmake` with the following content:
+1. Create the following dummy classes in `mbed-os/example`:
 
-   ```
-   set(unittest-sources
-       ../rtos/Semaphore.cpp
-   )
-   
-   set(unittest-test-sources
-       stubs/mbed_assert_stub.c
-       stubs/Kernel_stub.cpp
-       rtos/Semaphore/test_Semaphore.cpp
-   )
-   ```
-1. Stub all external dependencies. Create stubs `UNITTESTS/stubs/mbed_assert_stub.c` and `UNITTESTS/stubs/Kernel_stub.cpp` if they don't already exist.
-1. Update header stubs with any missing type or function declarations.
-1. Create a test source file `UNITTESTS/rtos/Semaphore/test_Semaphore.cpp` with the following content:
+    **MyClass.h**
 
-```
-#include  "gtest/gtest.h"
-#include  "rtos/Semaphore.h"
+    ```
+    #ifndef MYCLASS_H_
+    #define MYCLASS_H_
 
-static osStatus_t retval = osOK;
-static uint32_t count = 0;
+    namespace example {
 
-// Test stubs
-osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphore_id, uint32_t timeout)
-{
-    return retval;
-}
-osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
-{
-    return retval;
-}
-osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id)
-{
-    return retval;
-}
-uint32_t osSemaphoreGetCount(osSemaphoreId_t semaphore_id)
-{
-    return count;
-}
-osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
-{
-    return (void *)&count; // Just a dymmy reference
-}
+    class MyClass {
+    public:
+        int myFunction();
+    };
 
-class  TestSemaphore : public  testing::Test {
-protected:
-    rtos::Semaphore *sem;
-
-    virtual  void  SetUp()
-    {
-        sem = new rtos::Semaphore();
     }
 
-    virtual  void  TearDown()
-    {
-        delete sem;
-    }
-};
+    #endif
+    ```
 
-TEST_F(TestSemaphore, constructor)
-{
-    EXPECT_TRUE(sem);
-}
-```
+    **MyClass.cpp**
+
+    ```
+    #include "MyClass.h"
+    #include "OtherClass.h"
+
+    namespace example {
+
+    int MyClass::myFunction() {
+        OtherClass o = OtherClass();
+        return o.otherFunction();
+    }
+
+    }
+    ```
+
+    **OtherClass.h**
+
+    ```
+    #ifndef OTHERCLASS_H_
+    #define OTHERCLASS_H_
+
+    namespace example {
+
+    class OtherClass {
+    public:
+        int otherFunction();
+    };
+
+    }
+
+    #endif
+    ```
+
+    **OtherClass.cpp**
+
+    ```
+    #include "OtherClass.h"
+
+    namespace example {
+
+    int OtherClass::otherFunction() {
+        return 1;
+    }
+
+    }
+    ```
+
+1. Create a directory for MyClass unit tests in `UNITTESTS/example/MyClass`.
+1. Create a configuration file and a source file for MyClass unit tests in `UNITTESTS/example/MyClass`:
+
+    **unittest.cmake**
+
+    ```
+    # Add here additional test specific include paths
+    set(unittest-includes ${unittest-includes}
+        ../example
+    )
+
+    # Add here classes under test
+    set(unittest-sources
+        ../example/MyClass.cpp
+    )
+
+    # Add here test classes and stubs
+    set(unittest-test-sources
+        example/MyClass/test_MyClass.cpp
+        stubs/OtherClass_stub.cpp
+    )
+    ```
+
+    **test_MyClass.cpp**
+
+    ```
+    #include "gtest/gtest.h"
+    #include "example/MyClass.h"
+
+    class TestMyClass : public testing::Test {
+    protected:
+        example::MyClass *obj;
+
+        virtual void SetUp()
+        {
+            obj = new example::MyClass();
+        }
+
+        virtual void TearDown()
+        {
+            delete obj;
+        }
+    };
+
+    TEST_F(TestMyClass, constructor)
+    {
+        EXPECT_TRUE(obj);
+    }
+
+    TEST_F(TestMyClass, myfunction)
+    {
+        EXPECT_EQ(obj->myFunction(), 0);
+    }
+    ```
+
+1. Stub all external dependencies. Create the following stub in `UNITTESTS/stubs`:
+
+    **OtherClass_stub.cpp**
+
+    ```
+    #include "example/OtherClass.h"
+
+    namespace example {
+
+    int OtherClass::otherFunction() {
+        return 0;
+    }
+
+    }
+    ```
+
+This example does not use any Mbed OS code, but if your unit tests do, then remember to update header stubs in `UNITTESTS/target_h` and source stubs in `UNITTESTS/stubs` with any missing type or function declarations. 
 
 ### Building and running unit tests
 
@@ -187,6 +260,7 @@ Use Mbed CLI to build and run unit tests. For advanced use, you can run CMake an
    * Add `-DCMAKE_MAKE_PROGRAM=<value>`, `-DCMAKE_CXX_COMPILER=<value>` and `-DCMAKE_C_COMPILER=<value>` to use a specific Make program and compilers.
    * Add `-DCMAKE_BUILD_TYPE=Debug` for a debug build.
    * Add `-DCOVERAGE=True` to add coverage compiler flags.
+   * Add `-Dgtest_disable_pthreads=ON` to run in a single thread.
    * See the [CMake manual](https://cmake.org/cmake/help/v3.0/manual/cmake.1.html) for more information.
 1. Run a Make program to build tests.
 
