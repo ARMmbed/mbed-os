@@ -90,10 +90,10 @@ public:
      * tick time and current tick time.
      * If the GPS time was not set by the network yet, the API returns zero.
      *
-     * @return Current GPS time in seconds
+     * @return Current GPS time in millisseconds
      *         Or 0 if the GPS time is not yet set by the network
      */
-    lorawan_time_t get_gps_time(void);
+    lorawan_gps_time_t get_gps_time(void);
 
     /** Store GPS time received from the network
      *
@@ -103,19 +103,20 @@ public:
      * GPS time and the forthcoming CPU tick. Please refer to `get_gps_time()` API
      * documentation for more information.
      *
-     * It is important that the caller relays the network provided GPS time (in seconds)
+     * It is important that the caller relays the network provided GPS time (in milliseconds)
      * as it is without adjustment (for leap seconds or conversions to TAI/UTC etc).
      * The rationale here is that we are not setting system time here. This time base
      * is used only for device level synchronization with network.
      *
-     * @param gps_time              Current GPS time provided by the network (seconds)
+     * @param gps_time              Current GPS time provided by the network (milliseconds)
      */
-    void set_gps_time(lorawan_time_t gps_time);
+    void set_gps_time(lorawan_gps_time_t gps_time);
 
 private:
     events::EventQueue *_queue;
-    lorawan_time_t _gps_time; // seconds
+    lorawan_gps_time_t _gps_time; // gps time in milliseconds
     lorawan_time_t _monotonic_tick_time; //milliseconds
+
 };
 
 #endif // MBED_LORAWAN_SYS_TIMER_H__
