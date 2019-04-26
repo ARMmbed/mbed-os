@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2019 Arm Limited
+ * Copyright (c) 2017-2019 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -22,10 +22,15 @@
  */
 
 #include "device.h"
+#include "mbed_critical.h"
 #include "timer_cmsdk_drv.h"
 #include "us_ticker_api.h"
 
 static uint64_t total_ticks = 0;
+/* Stores the last reload value, or the last tick value read when a read API
+ * call occurs from the upper layer, needed to keep total_ticks
+ * accumulated properly.
+ */
 static uint32_t previous_ticks = 0;
 
 static void restart_timer(uint32_t new_reload)
@@ -37,6 +42,23 @@ static void restart_timer(uint32_t new_reload)
     timer_cmsdk_clear_interrupt(&USEC_TIMER_DEV);
     timer_cmsdk_enable_interrupt(&USEC_TIMER_DEV);
     timer_cmsdk_enable(&USEC_TIMER_DEV);
+}
+
+static void update_ticker(void)
+{
+    if (timer_cmsdk_is_interrupt_active(&USEC_TIMER_DEV)) {
+        total_ticks += previous_ticks;
+        previous_ticks = TIMER_CMSDK_MAX_RELOAD;
+        restart_timer(previous_ticks);
+    } else {
+        uint32_t tick = timer_cmsdk_get_current_value(&USEC_TIMER_DEV);
+
+        if (tick < previous_ticks) {
+            uint32_t delta = previous_ticks - tick;
+            total_ticks += delta;
+            previous_ticks = tick;
+        }
+    }
 }
 
 void us_ticker_init(void)
@@ -54,20 +76,11 @@ void us_ticker_free(void)
 
 uint32_t us_ticker_read(void)
 {
-    if (timer_cmsdk_is_interrupt_active(&USEC_TIMER_DEV)) {
-        total_ticks += previous_ticks;
-        previous_ticks = TIMER_CMSDK_MAX_RELOAD;
-        restart_timer(previous_ticks);
-    }
-    uint32_t tick = timer_cmsdk_get_current_value(&USEC_TIMER_DEV);
+    core_util_critical_section_enter();
+    update_ticker();
+    core_util_critical_section_exit();
 
-    if (tick < previous_ticks) {
-        uint32_t delta = previous_ticks - tick;
-        total_ticks += delta;
-        previous_ticks = tick;
-    }
-
-    return (total_ticks >> USEC_REPORTED_SHIFT);
+    return (uint32_t)(total_ticks >> USEC_REPORTED_SHIFT);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
@@ -106,6 +119,6 @@ const ticker_info_t* us_ticker_get_info()
 #endif
 void usec_interval_irq_handler(void)
 {
-    us_ticker_read();
+    update_ticker();
     us_ticker_irq_handler();
 }

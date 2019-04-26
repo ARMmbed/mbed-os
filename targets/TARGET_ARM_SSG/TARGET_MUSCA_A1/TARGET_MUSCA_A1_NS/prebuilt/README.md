@@ -6,6 +6,16 @@ Built by mbed-cli using GNU Arm Embedded - version 6.3.1
 
 These images were compiled by the following command:
 
+## mcuboot.bin
+### Repository
+https://git.trustedfirmware.org/trusted-firmware-m.git
+### Commit SHA
+8da7f102a6a6a1a99462f7f32edbd1565096c2f3
+```sh
+cmake ../ -G"Unix Makefiles" -DTARGET_PLATFORM=MUSCA_A -DCOMPILER=ARMCLANG -DCMAKE_BUILD_TYPE=Debug
+make
+```
+
 ## tfm.bin
 
 ```sh
