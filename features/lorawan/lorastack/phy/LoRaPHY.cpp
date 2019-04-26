@@ -42,6 +42,13 @@ SPDX-License-Identifier: BSD-3-Clause
 #define DEVICE_DOES_NOT_SUPPORT_TIME 0
 #define DEVICE_SUPPORTS_TIME 1
 
+#define BEACON_PREAMBLE_LENGTH   10.0f
+#define BEACON_COMMON_FRAME_SIZE 15
+#define BEACON_BANDWIDTH         500000
+#define BEACON_CODING_RATE       1
+#define BEACON_CRC_ON            false
+#define BEACON_FIXED_LEN         true
+
 LoRaPHY::LoRaPHY()
     : _radio(NULL),
       _lora_time(NULL),
@@ -414,23 +421,22 @@ float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 }
 
 
-void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
-                                   float error_fudge, float wakeup_time,
-                                   uint32_t *window_length, uint32_t *window_length_ms,
-                                   int32_t *window_offset,
-                                   uint8_t phy_dr)
+void LoRaPHY::get_rx_window_params(float t_symb, float max_preamble_len,
+                                   uint8_t min_rx_symb, float error_fudge,
+                                   float wakeup_time, uint32_t *window_length,
+                                   int32_t *window_offset, uint8_t phy_dr)
 {
     float target_rx_window_offset;
     float window_len_in_ms;
 
     if (phy_params.fsk_supported && phy_dr == phy_params.max_rx_datarate) {
-        min_rx_symb = MAX_PREAMBLE_LENGTH;
+        min_rx_symb = max_preamble_len;
     }
 
     // We wish to be as close as possible to the actual start of data, i.e.,
     // we are interested in the preamble symbols which are at the tail of the
     // preamble sequence.
-    target_rx_window_offset = (MAX_PREAMBLE_LENGTH - min_rx_symb) * t_symb; //in ms
+    target_rx_window_offset = (max_preamble_len - min_rx_symb) * t_symb; //in ms
 
     // Actual window offset in ms in response to timing error fudge factor and
     // radio wakeup/turned around time.
@@ -873,6 +879,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     rx_config_params_t *rx_conf_params)
 {
     float t_symbol = 0.0f;
+    float max_preamble_len = MAX_PREAMBLE_LENGTH;
 
     // Get the datarate, perform a boundary check
     rx_conf_params->datarate = MIN(datarate, phy_params.max_rx_datarate);
@@ -888,32 +895,75 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                              ((uint32_t *)phy_params.bandwidths.table)[rx_conf_params->datarate]);
     }
 
-    if (rx_conf_params->rx_slot == RX_SLOT_WIN_1) {
-        rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
+    switch (rx_conf_params->rx_slot) {
+        case RX_SLOT_WIN_1:
+            rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
+            break;
+        case RX_SLOT_BEACON:
+            max_preamble_len = BEACON_PREAMBLE_LENGTH;
+            break;
+        case RX_SLOT_WIN_UNICAST_PING_SLOT:
+        case RX_SLOT_WIN_MULTICAST_PING_SLOT:
+        case RX_SLOT_WIN_2:
+        case RX_SLOT_WIN_CLASS_C:
+            break;
+        default:
+            MBED_ASSERT(false);
     }
 
-    get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
-                         &rx_conf_params->window_timeout, &rx_conf_params->window_timeout_ms,
-                         &rx_conf_params->window_offset,
+    get_rx_window_params(t_symbol, max_preamble_len, min_rx_symbols,
+                         (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
+                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
 }
 
-uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
-{
-    uint32_t toa = 0;
-
-    _radio->lock();
-    toa = _radio->time_on_air((radio_modems_t) modem, pkt_len);
-    _radio->unlock();
-
-    return toa;
-}
 
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 {
-    uint8_t dr = rx_conf->datarate;
+    radio_modems_t modem;
+    int8_t dr = rx_conf->datarate;
+    int8_t phy_dr = 0;
     uint8_t max_payload = 0;
-    uint8_t phy_dr = 0;
+    uint32_t frequency = rx_conf->frequency;
+    uint16_t preamble_len = MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH;
+    bool fixed_len = false;
+    bool iq_invert = true;
+
+    _radio->lock();
+
+    if (_radio->get_status() != RF_IDLE) {
+        _radio->unlock();
+        return false;
+    }
+
+    _radio->unlock();
+
+    switch (rx_conf->rx_slot) {
+        case RX_SLOT_WIN_1:
+            frequency = get_rx1_frequency(rx_conf->channel);
+            rx_conf->frequency = frequency;
+            break;
+        case RX_SLOT_WIN_UNICAST_PING_SLOT:
+        case RX_SLOT_WIN_MULTICAST_PING_SLOT:
+            // Frequency must be set by compute_ping_win_params
+            MBED_ASSERT(rx_conf->frequency);
+            frequency = rx_conf->frequency;
+            break;
+        case RX_SLOT_BEACON:
+            // Frequency must be set by compute_beacon_win_params
+            MBED_ASSERT(rx_conf->frequency);
+            preamble_len = MBED_CONF_LORA_BEACON_PREAMBLE_LENGTH;
+            iq_invert = false;
+            fixed_len = true;
+            max_payload = BEACON_COMMON_FRAME_SIZE + phy_params.beacon.rfu1_size +
+                          phy_params.beacon.rfu2_size;
+            break;
+        case RX_SLOT_WIN_2:
+        case RX_SLOT_WIN_CLASS_C:
+            break;
+        default:
+            MBED_ASSERT(false);
+    }
 
     // Read the physical datarate from the datarates table
     uint8_t *datarate_table = (uint8_t *) phy_params.datarates.table;
@@ -921,6 +971,15 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
     uint8_t *payload_with_repeater_table = (uint8_t *) phy_params.payloads_with_repeater.table;
 
     phy_dr = datarate_table[dr];
+
+    // Calculate max payload for datarate
+    if (rx_conf->rx_slot != RX_SLOT_BEACON) {
+        if (rx_conf->is_repeater_supported) {
+            max_payload = payload_with_repeater_table[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD;
+        } else {
+            max_payload = payload_table[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD;
+        }
+    }
 
     _radio->lock();
 
@@ -933,20 +992,14 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
                               rx_conf->window_timeout, false, 0, true, 0, 0,
                               false, rx_conf->is_rx_continuous);
     } else {
-        rx_conf->modem_type = MODEM_LORA;
-        _radio->set_rx_config((radio_modems_t) rx_conf->modem_type, rx_conf->bandwidth, phy_dr, 1, 0,
-                              MAX_PREAMBLE_LENGTH,
-                              rx_conf->window_timeout, false, 0, false, 0, 0,
-                              true, rx_conf->is_rx_continuous);
+        modem = MODEM_LORA;
+        _radio->set_rx_config(MODEM_LORA, rx_conf->bandwidth, phy_dr, 1, 0,
+                              preamble_len,
+                              rx_conf->window_timeout, fixed_len, max_payload, false, 0, 0,
+                              iq_invert, rx_conf->is_rx_continuous);
     }
 
-    if (rx_conf->is_repeater_supported) {
-        max_payload = payload_with_repeater_table[dr];
-    } else {
-        max_payload = payload_table[dr];
-    }
-
-    _radio->set_max_payload_length((radio_modems_t) rx_conf->modem_type, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
+    _radio->set_max_payload_length(modem, max_payload);
 
     _radio->unlock();
 
@@ -1483,3 +1536,116 @@ uint32_t LoRaPHY::get_rejoin_max_count() const
     return _rejoin_max_count;
 }
 
+uint8_t LoRaPHY::accept_ping_slot_channel_req(uint32_t frequency, uint8_t datarate)
+{
+    uint8_t status = 0;
+
+    // A value of 0 instructs the device to use the default configuration
+    if ((frequency == 0) || (lookup_band_for_frequency(frequency) != -1)) {
+        status |= 1 << 0;
+    }
+
+    if ((datarate == 0) || verify_rx_datarate(datarate)) {
+        status |= 1 << 1;
+    }
+
+    if (status == 0x03) {
+        phy_params.ping_slot_frequency = frequency;
+        phy_params.ping_slot_datarate = datarate;
+    }
+
+    return status;
+}
+
+uint8_t LoRaPHY::accept_beacon_frequency_request(uint32_t frequency)
+{
+    uint8_t status = 0;
+
+    // A value of 0 instructs the device to use the default configuration
+    if ((frequency == 0) || (lookup_band_for_frequency(frequency) != -1)) {
+        phy_params.beacon.alternate_frequency = frequency;
+        status |= 1 << 0;
+    }
+
+    return status;
+}
+
+void LoRaPHY::get_beacon_rfu_size(uint8_t &rfu1, uint8_t &rfu2)
+{
+    rfu1 = phy_params.beacon.rfu1_size;
+    rfu2 = phy_params.beacon.rfu2_size;
+}
+
+uint32_t LoRaPHY::get_beacon_frequency(uint32_t beacon_time)
+{
+    return phy_params.beacon.default_frequency;
+}
+
+void LoRaPHY::compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
+                                        uint32_t rx_error, rx_config_params_t *config)
+{
+    config->datarate = phy_params.beacon.datarate;
+
+    // Apply the alternative frequency, if it is available
+    if (phy_params.beacon.alternate_frequency) {
+        config->frequency = phy_params.beacon.alternate_frequency;
+    } else {
+        config->frequency = get_beacon_frequency(beacon_time);
+        MBED_ASSERT(config->frequency != 0);
+    }
+
+    compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
+}
+
+
+void LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t dev_addr,
+                                      uint8_t min_rx_symbols, uint32_t rx_error,
+                                      rx_config_params_t *config)
+{
+    // Apply the alternative frequency, if it is available
+    if (phy_params.ping_slot_frequency) {
+        config->frequency = phy_params.ping_slot_frequency;
+    } else {
+        config->frequency = get_ping_slot_frequency(dev_addr, beacon_time);
+        MBED_ASSERT(config->frequency != 0);
+    }
+
+    // Apply the alternative datarate, if it is available
+    if (phy_params.ping_slot_datarate) {
+        config->datarate = phy_params.ping_slot_datarate;
+    } else {
+        config->datarate = phy_params.beacon.datarate;
+    }
+
+    compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
+}
+
+uint32_t LoRaPHY::get_rx1_frequency(uint8_t channel)
+{
+    return phy_params.channels.channel_list[channel].frequency;
+}
+
+uint32_t LoRaPHY::get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time)
+{
+    return phy_params.ping_slot_default_frequency;
+}
+
+uint32_t LoRaPHY::compute_beacon_time_on_air()
+{
+    uint8_t beacon_length;
+    uint8_t phy_dr;
+
+    beacon_length = BEACON_COMMON_FRAME_SIZE + phy_params.beacon.rfu1_size +
+                    phy_params.beacon.rfu2_size;
+
+    // Read the physical datarate from the datarates table
+    phy_dr = ((uint8_t *)phy_params.datarates.table)[phy_params.beacon.datarate];
+
+    return _radio->lora_time_on_air(BEACON_PREAMBLE_LENGTH,
+                                    phy_dr,
+                                    BEACON_BANDWIDTH,
+                                    BEACON_CODING_RATE,
+                                    BEACON_CRC_ON,
+                                    BEACON_FIXED_LEN,
+                                    beacon_length);
+}
