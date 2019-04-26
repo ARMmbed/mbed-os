@@ -69,7 +69,6 @@ lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *nwk_key, uint8_t *app_key, uin
 
         memcpy(_keys.app_skey, app_skey,
                sizeof(_keys.app_skey));
-
         memcpy(_keys.nwk_skey, snwk_sintkey,
                sizeof(_keys.nwk_skey));
 
@@ -454,6 +453,44 @@ exit:
     return ret;
 }
 
+int LoRaMacCrypto::compute_ping_slot_random_offset(uint32_t beacon_time, uint32_t dev_addr, uint16_t *rand)
+{
+    uint8_t nonce[16];
+    uint8_t key[16];
+    uint8_t output[16];
+    int ret = 0;
+
+    mbedtls_aes_init(&aes_ctx);
+
+    memset(key, 0, sizeof(key));
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, APPKEY_KEY_LENGTH);
+    if (0 != ret) {
+        goto exit;
+    }
+
+    memset(nonce, 0, sizeof(nonce));
+    nonce[0] = beacon_time & 0xFF;
+    nonce[1] = (beacon_time >> 8) & 0xFF;
+    nonce[2] = (beacon_time >> 16) & 0xFF;
+    nonce[3] = (beacon_time >> 24) & 0xFF;
+
+    nonce[4] = dev_addr & 0xFF;
+    nonce[5] = (dev_addr >> 8) & 0xFF;
+    nonce[6] = (dev_addr >> 16) & 0xFF;
+    nonce[7] = (dev_addr >> 24) & 0xFF;
+
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, output);
+    if (0 != ret) {
+        goto exit;
+    }
+
+    *rand = output[0] + (output[1] * 256);
+
+exit:
+    mbedtls_aes_free(&aes_ctx);
+    return ret;
+}
+
 #else
 
 LoRaMacCrypto::LoRaMacCrypto()
@@ -539,6 +576,14 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint8_t,
 }
 
 int LoRaMacCrypto::compute_join_server_keys(const uint8_t *)
+{
+    MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+
+    // Never actually reaches here
+    return LORAWAN_STATUS_CRYPTO_FAIL;
+}
+
+int LoRaMacCrypto::compute_ping_slot_random_offset(uint32_t beacon_time, uint32_t dev_addr, uint16_t *rand)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
