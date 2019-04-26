@@ -147,6 +147,7 @@ lorawan_status_t LoRaMacClassB::disable(void)
     _opstatus.ping_on = 0;
     _lora_time->stop(_beacon_timer);
     _lora_time->stop(_ping_slot_timer);
+    _lora_time->stop(_beacon_acq_timer);
 
     return LORAWAN_STATUS_OK;
 }
