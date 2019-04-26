@@ -716,6 +716,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     at.resp_start("s");
     // TO read from: ss\rsss -> read all 6 chars ss\rsss
     EXPECT_TRUE(6 == at.read_string(buf4, 6 + 1/*for NULL*/));
+    at.resp_stop();
 
     // *** Reading when buffer only has "  ***
     at.clear_error();
@@ -729,6 +730,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     // TO read from buffer having only " -> trying to find delimiter or stop_tag(OKCRLF)
     EXPECT_TRUE(-1 == at.read_string(buf4, 5));
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
+    at.resp_stop();
 
     // *** Reading through partially matching stop tag  ***
     at.clear_error();
@@ -760,10 +762,10 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     EXPECT_TRUE(6 == at.read_string(buf9, 6 + 1/*for NULL*/));
 
     at.clear_error();
-    char table11[] = "\"1016\",\"39AB\",9\r\n\0";
+    char table10[] = "\"1016\",\"39AB\",9\r\n\0";
     mbed_poll_stub::int_value = 0;
     at.flush();
-    filehandle_stub_table = table11;
+    filehandle_stub_table = table10;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;
@@ -776,19 +778,46 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
 
     // *** CRLF part of the string ***
     at.clear_error();
-    char table10[] = "\"s\"\r\nOK\r\n\0";
+    char table11[] = "\"s\"\r\nOK\r\n\0";
     mbed_poll_stub::int_value = 0;
     at.flush();
-    filehandle_stub_table = table10;
+    filehandle_stub_table = table11;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;
-    char buf10[10];
+    char buf11[10];
 
     // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
     at.resp_start();
     // TO read from
-    EXPECT_TRUE(3 == at.read_string(buf10, 9 + 1/*for NULL*/));
+    EXPECT_TRUE(3 == at.read_string(buf11, 9 + 1/*for NULL*/));
+
+    // *** Read size hits in the middle of stop tag ***
+    at.clear_error();
+    char table12[] = "abcdOK\r\nefg\r\n\0";
+    mbed_poll_stub::int_value = 0;
+    at.flush();
+    filehandle_stub_table = table12;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf12[7];
+
+    at.resp_start();
+    // Read size hits in the middle of OKCRLF
+    EXPECT_TRUE(4 == at.read_string(buf12, 7));
+    EXPECT_TRUE(!strncmp(buf12, "abcd", 4));
+    // Not running into time out
+    EXPECT_TRUE(NSAPI_ERROR_OK == at.get_last_error());
+    // No error -> -1 returned because stop tag found already
+    EXPECT_TRUE(-1 == at.read_string(buf12, 1));
+
+    at.resp_stop();
+    at.resp_start();
+    EXPECT_TRUE(3 == at.read_string(buf12, 4));
+    EXPECT_TRUE(!strncmp(buf12, "efg", 3));
+    // No stop tag found
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 }
 
 TEST_F(TestATHandler, test_ATHandler_read_hex_string)
