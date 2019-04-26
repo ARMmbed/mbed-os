@@ -1,4 +1,3 @@
-#include <stdio.h>
 /**
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
@@ -85,6 +84,13 @@ static void memcpy_convert_endianess(uint8_t *dst,
     }
 }
 
+static const char *rx_slot_strings[RX_SLOT_MAX] = {"RX1", "RX2", "Class-C", "Ping-slot", "Beacon"};
+
+inline const char *get_rx_slot_string(rx_slot_t rx_slot)
+{
+    return (rx_slot < RX_SLOT_MAX) ? rx_slot_strings[rx_slot] : "RX?";
+}
+
 LoRaMac::LoRaMac()
     : _lora_time(),
       _lora_phy(NULL),
@@ -122,6 +128,8 @@ LoRaMac::LoRaMac()
 
     reset_mcps_confirmation();
     reset_mcps_indication();
+
+    set_ping_slot_info(MBED_CONF_LORA_PING_SLOT_PERIODICITY);
 }
 
 LoRaMac::~LoRaMac()
@@ -193,12 +201,12 @@ lorawan_time_t LoRaMac::get_current_time(void)
     return _lora_time.get_current_time();
 }
 
-lorawan_time_t LoRaMac::get_gps_time(void)
+lorawan_gps_time_t LoRaMac::get_gps_time(void)
 {
     return _lora_time.get_gps_time();
 }
 
-void LoRaMac::set_gps_time(lorawan_time_t gps_time)
+void LoRaMac::set_gps_time(lorawan_gps_time_t gps_time)
 {
     _lora_time.set_gps_time(gps_time);
 }
@@ -447,7 +455,8 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
 
             if (_mac_commands.process_mac_commands(_params.rx_buffer, 0, frame_len,
                                                    snr, _params.sys_params, *_lora_phy,
-                                                   confirm_handler)
+                                                   confirm_handler,
+                                                   get_current_slot())
                     != LORAWAN_STATUS_OK) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 return;
@@ -518,8 +527,8 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
 
         if (_mac_commands.process_mac_commands(buffer, 0, fopts_len,
                                                snr, _params.sys_params,
-                                               *_lora_phy, confirm_handler)
-
+                                               *_lora_phy, confirm_handler,
+                                               get_current_slot())
                 != LORAWAN_STATUS_OK) {
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             return false;
@@ -640,7 +649,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     _mcps_indication.is_data_recvd = false;
     _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_OK;
     _mcps_indication.multicast = is_multicast;
-    _mcps_indication.fpending_status = fctrl.bits.fpending;
+    _mcps_indication.fpending_status = fctrl.bits.dl_fpending_ul_class_b;
     _mcps_indication.buffer = NULL;
     _mcps_indication.buffer_size = 0;
     _mcps_indication.dl_frame_counter = downlink_counter;
@@ -804,6 +813,8 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
         }
     } else {
         _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
+        // Resume Class B reception slots
+        LoRaMacClassB::Resume();
     }
 
     _params.last_channel_idx = _params.channel;
@@ -820,12 +831,27 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     _demod_ongoing = false;
+
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         _lora_time.stop(_rx2_closure_timer_for_class_c);
         open_rx2_window();
     } else if (_device_class != CLASS_C) {
         _lora_time.stop(_params.timers.rx_window1_timer);
-        _lora_phy->put_radio_to_sleep();
+
+        /* Only disable the radio if not transmitting. It has been
+         * observed with class B receive windows that rx done event processing
+         * can occur after  uplink transmission is started 
+         */
+        if (!tx_ongoing()) {
+            _lora_phy->put_radio_to_sleep();
+        }
+    }
+
+    // Class B handling
+    rx_slot_t rx_slot = get_current_slot();
+    LoRaMacClassB::Handle_rx(rx_slot, payload, size);
+    if (rx_slot == RX_SLOT_BEACON) {
+        return;
     }
 
     loramac_event_info_status_t ret;
@@ -837,11 +863,13 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     switch (mac_hdr.bits.mtype) {
 
         case FRAME_TYPE_JOIN_ACCEPT:
-
-            ret = handle_join_accept_frame(payload, size);
-            mlme.type = MLME_JOIN_ACCEPT;
-            mlme.status = ret;
-            confirm_handler(mlme);
+            // SKN: Local fix for unintentional processing of join accepts not for us
+            if (_params.is_last_tx_join_request) {
+                ret = handle_join_accept_frame(payload, size);
+                mlme.type = MLME_JOIN_ACCEPT;
+                mlme.status = ret;
+                confirm_handler(mlme);
+            }
 
             break;
 
@@ -865,6 +893,9 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             _mcps_indication.pending = false;
             break;
     }
+
+    // Resume Class B reception slots
+    LoRaMacClassB::Resume();
 }
 
 void LoRaMac::on_radio_tx_timeout(void)
@@ -892,14 +923,24 @@ void LoRaMac::on_radio_tx_timeout(void)
 
     _mcps_confirmation.ack_received = false;
     _mcps_confirmation.tx_toa = 0;
+
+    // Resume Class B reception slots
+    LoRaMacClassB::Resume();
 }
 
 void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 {
     _demod_ongoing = false;
-    if (_device_class == CLASS_A) {
+
+    /* Only disable the radio if not transmitting. It has been
+     * observed with class B receive windows that rx done event processing
+     * can occur after  uplink transmission is started */
+    if ((_device_class != CLASS_C)  && !tx_ongoing()) {
         _lora_phy->put_radio_to_sleep();
     }
+
+    // Class B Rx timeout notification 
+    LoRaMacClassB::Handle_rx_timeout(_params.rx_slot);
 
     if (_params.rx_slot == RX_SLOT_WIN_1) {
         if (_params.is_node_ack_requested == true) {
@@ -908,12 +949,16 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
         if (_device_class != CLASS_C) {
             if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time) >= _params.rx_window2_delay) {
                 _lora_time.stop(_params.timers.rx_window2_timer);
+                // Resume Class B reception slots
+                LoRaMacClassB::Resume();
             }
         }
-    } else {
+    } else if (_params.rx_slot == RX_SLOT_WIN_2) {
         if (_params.is_node_ack_requested == true) {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
         }
+        // Resume Class B reception slots
+        LoRaMacClassB::Resume();
     }
 }
 
@@ -1012,11 +1057,14 @@ void LoRaMac::on_backoff_timer_expiry(void)
 
 void LoRaMac::open_rx1_window(void)
 {
+    if (!set_rx_slot(RX_SLOT_WIN_1)) {
+        return;
+    }
+
     Lock lock(*this);
-    _demod_ongoing = true;
+
     _continuous_rx2_window_open = false;
     _lora_time.stop(_params.timers.rx_window1_timer);
-    _params.rx_slot = RX_SLOT_WIN_1;
 
     channel_params_t *active_channel_list = _lora_phy->get_phy_channels();
     _params.rx_window1_config.channel = _params.channel;
@@ -1045,11 +1093,12 @@ void LoRaMac::open_rx1_window(void)
 
 void LoRaMac::open_rx2_window()
 {
-    if (_demod_ongoing) {
-        tr_info("RX1 Demodulation ongoing, skip RX2 window opening");
+    if (!set_rx_slot(RX_SLOT_WIN_2)) {
         return;
     }
+
     Lock lock(*this);
+
     _continuous_rx2_window_open = true;
     _lora_time.stop(_params.timers.rx_window2_timer);
 
@@ -1072,8 +1121,53 @@ void LoRaMac::open_rx2_window()
     _lora_phy->rx_config(&_params.rx_window2_config);
     _lora_phy->handle_receive();
     _params.rx_slot = _params.rx_window2_config.rx_slot;
+    _demod_ongoing = true;
 
     tr_debug("RX2 slot open, Freq = %lu", _params.rx_window2_config.frequency);
+}
+
+bool LoRaMac::set_rx_slot(rx_slot_t rx_slot)
+{
+    Lock(*this);
+
+    /* If currently demodulating, class A reception slots have higher priority*/
+    if (_demod_ongoing) {
+        switch (rx_slot) {
+            case RX_SLOT_WIN_1:
+            case RX_SLOT_WIN_2:
+                _lora_phy->put_radio_to_sleep();
+                _params.rx_slot = rx_slot;
+                return true;
+            default:
+                tr_info("%s Demodulation ongoing, skip %s window opening",
+                        get_rx_slot_string(rx_slot), get_rx_slot_string(get_current_slot()));
+                return false;
+        }
+    } else {
+        _params.rx_slot = rx_slot;
+        _demod_ongoing = true;
+        return true;
+    }
+    return false;
+}
+
+bool LoRaMac::open_rx_window(rx_config_params_t *rx_config)
+{
+    // Open slot if not transmitting and no higher priority slot is active
+    if (!tx_ongoing() && set_rx_slot(rx_config->rx_slot)) {
+        _lora_phy->rx_config(rx_config);
+        _lora_phy->handle_receive();
+        return true;
+    }
+    return false;
+}
+
+void LoRaMac::close_rx_window(rx_slot_t slot)
+{
+    if ((_params.rx_slot == slot)  && (_demod_ongoing)) {
+        _lora_phy->put_radio_to_sleep();
+        _demod_ongoing = false;
+    }
 }
 
 void LoRaMac::on_ack_timeout_timer_event(void)
@@ -1171,7 +1265,7 @@ lorawan_status_t LoRaMac::send(loramac_mhdr_t *machdr, const uint8_t fport,
 
     fctrl.value = 0;
     fctrl.bits.fopts_len = 0;
-    fctrl.bits.fpending = 0;
+    fctrl.bits.dl_fpending_ul_class_b = get_device_class() == CLASS_B ? 1 : 0;
     fctrl.bits.ack = false;
     fctrl.bits.adr_ack_req = false;
     fctrl.bits.adr = _params.sys_params.adr_on;
@@ -1591,18 +1685,29 @@ device_class_t LoRaMac::get_device_class() const
     return _device_class;
 }
 
-void LoRaMac::set_device_class(const device_class_t &device_class,
-                               mbed::Callback<void(void)>rx2_would_be_closure_handler)
+lorawan_status_t LoRaMac::set_device_class(const device_class_t &device_class,
+                                           mbed::Callback<void(void)>rx2_would_be_closure_handler)
 {
-    _device_class = device_class;
+    lorawan_status_t status = LORAWAN_STATUS_OK;
+
     _rx2_would_be_closure_for_class_c = rx2_would_be_closure_handler;
 
     _lora_time.init(_rx2_closure_timer_for_class_c, _rx2_would_be_closure_for_class_c);
 
-    if (CLASS_A == _device_class) {
+    if (CLASS_B == _device_class) {
+        LoRaMacClassB::Disable();
+    }
+
+    if (CLASS_A == device_class) {
         tr_debug("Changing device class to -> CLASS_A");
         _lora_phy->put_radio_to_sleep();
-    } else if (CLASS_C == _device_class) {
+    } else if (CLASS_B == device_class) {
+        status = LoRaMacClassB::Enable();
+        if (status == LORAWAN_STATUS_OK) {
+            tr_debug("Changing device class to -> CLASS_B");
+            _lora_phy->put_radio_to_sleep();
+        }
+    } else if (CLASS_C == device_class) {
         tr_debug("Changing device class to -> CLASS_C");
         _params.is_node_ack_requested = false;
         _lora_phy->put_radio_to_sleep();
@@ -1612,10 +1717,16 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
                                          &_params.rx_window2_config);
     }
 
+    if (status == LORAWAN_STATUS_OK) {
+        _device_class = device_class;
+    }
+
     if (CLASS_C == _device_class) {
         tr_debug("Changing device class to -> CLASS_C");
         open_rx2_window();
     }
+
+    return status;
 }
 
 void LoRaMac::setup_link_check_request()
@@ -1623,7 +1734,7 @@ void LoRaMac::setup_link_check_request()
     _mac_commands.add_link_check_req();
 }
 
-lorawan_status_t LoRaMac::setup_device_time_request(mbed::Callback<void(lorawan_time_t)> notify)
+lorawan_status_t LoRaMac::setup_device_time_request(mbed::Callback<void(lorawan_gps_time_t gps_time)> notify)
 {
     return _mac_commands.add_device_time_req(notify);
 }
@@ -1658,7 +1769,7 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             _params.app_eui = params->connection_u.otaa.app_eui;
             lorawan_status_t ret;
 
-            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+            if (MBED_CONF_LORA_VERSION < LORAWAN_VERSION_1_1) {
                 ret = _lora_crypto.set_keys(params->connection_u.otaa.app_key,
                                             params->connection_u.otaa.app_key);
             } else {
@@ -1710,12 +1821,13 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             _params.dev_addr = params->connection_u.abp.dev_addr;
 
             lorawan_status_t ret;
-            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+            if (MBED_CONF_LORA_VERSION < LORAWAN_VERSION_1_1) {
                 ret = _lora_crypto.set_keys(NULL, NULL, params->connection_u.abp.nwk_skey,
                                             params->connection_u.abp.app_skey,
                                             params->connection_u.abp.nwk_skey,
                                             params->connection_u.abp.nwk_skey);
                 _params.server_type = LW1_0_2;
+
             } else {
                 ret = _lora_crypto.set_keys(NULL, NULL, params->connection_u.abp.nwk_skey,
                                             params->connection_u.abp.app_skey,
@@ -1739,7 +1851,7 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
         _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
         lorawan_status_t ret;
 
-        if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+        if (MBED_CONF_LORA_VERSION < LORAWAN_VERSION_1_1) {
             ret = _lora_crypto.set_keys(const_cast<uint8_t *>(app_key),
                                         const_cast<uint8_t *>(app_key));
         } else {
@@ -1777,12 +1889,13 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
         _params.dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
 
         lorawan_status_t ret;
-        if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+        if (MBED_CONF_LORA_VERSION < LORAWAN_VERSION_1_1) {
             ret = _lora_crypto.set_keys(NULL, NULL, nwk_skey,
                                         app_skey,
                                         nwk_skey,
                                         nwk_skey);
             _params.server_type = LW1_0_2;
+
         } else {
             ret = _lora_crypto.set_keys(NULL, NULL, nwk_skey,
                                         app_skey,
@@ -2054,6 +2167,9 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     tx_config.antenna_gain = _params.sys_params.antenna_gain;
     tx_config.pkt_len = _params.tx_buffer_len;
 
+    LoRaMacClassB::Pause();
+    _demod_ongoing = false;
+
     _lora_phy->tx_config(&tx_config, &tx_power, &_params.timers.tx_toa);
 
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -2136,6 +2252,11 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
 
     _params.sys_params.adr_on = MBED_CONF_LORA_ADR_ON;
     _params.sys_params.channel_data_rate = _lora_phy->get_default_max_tx_datarate();
+
+    LoRaMacClassB::Initialize(&_lora_time, _lora_phy, &_lora_crypto,
+                              &_params, mbed::callback(this, &LoRaMac::open_rx_window),
+                              mbed::callback(this, &LoRaMac::close_rx_window));
+
 
     return LORAWAN_STATUS_OK;
 }
@@ -2362,4 +2483,36 @@ lorawan_status_t LoRaMac::calculate_userdata_mic()
     _params.tx_buffer_len += LORAMAC_MFR_LEN;
 
     return status;
+}
+
+lorawan_status_t LoRaMac::set_ping_slot_info(uint8_t periodicity)
+{
+    /* Must be in Class A to change ping slot periodicity (1.1 Chapter 14.1)*/
+    if (get_device_class() != CLASS_A) {
+        return LORAWAN_STATUS_NO_OP;
+        /* Periodicity is encoded in 3 bits */
+    } else if (periodicity > 7) {
+        return LORAWAN_STATUS_PARAMETER_INVALID;
+    } else {
+        _params.sys_params.ping_slot.periodicity = periodicity;
+        _params.sys_params.ping_slot.ping_nb = 1 << (7 - periodicity);
+        _params.sys_params.ping_slot.ping_period = 1 << (5 + periodicity);
+        return LORAWAN_STATUS_OK;
+    }
+}
+
+lorawan_status_t LoRaMac::add_ping_slot_info_req()
+{
+    return _mac_commands.add_ping_slot_info_req(_params.sys_params.ping_slot.periodicity);
+}
+
+lorawan_status_t LoRaMac::enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+                                                                        const loramac_beacon_t *)>beacon_event_cb)
+{
+    return LoRaMacClassB::Enable_beacon_acquisition(beacon_event_cb);
+}
+
+lorawan_status_t LoRaMac::get_last_rx_beacon(loramac_beacon_t &beacon)
+{
+    return LoRaMacClassB::Get_last_rx_beacon(beacon);
 }
