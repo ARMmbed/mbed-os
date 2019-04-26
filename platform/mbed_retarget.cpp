@@ -920,25 +920,33 @@ __asm(".global __use_no_semihosting\n\t");
 #endif
 #endif
 
-#if !defined(HEAP_START)
+// Through weak-reference, we can check if ARM_LIB_HEAP is defined at run-time.
+// If ARM_LIB_HEAP is defined, we can fix heap allocation.
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Length[];
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Limit[];
+
 // Heap here is considered starting after ZI ends to Stack start
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
-#define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
-#define HEAP_SIZE             ((uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base - (uint32_t) HEAP_START))
-#endif
-
-#define HEAP_LIMIT            ((uint32_t)((uint32_t)HEAP_START + (uint32_t)HEAP_SIZE))
 
 extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
-    uint32_t heap_base  = (uint32_t)HEAP_START;
+    // Define heap by assuming one-region
+    uint32_t heap_base  = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t heap_limit = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
     struct __initial_stackheap r;
+
+    // Fix heap if ARM_LIB_HEAP is defined
+    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+        heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
+        heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
+    }
 
     // Ensure heap_base is 8-byte aligned
     heap_base = (heap_base + 7) & ~0x7;
-    r.heap_base = (uint32_t)heap_base;
-    r.heap_limit = (uint32_t)HEAP_LIMIT;
+    r.heap_base = heap_base;
+    r.heap_limit = heap_limit;
 
     return r;
 }
@@ -948,7 +956,17 @@ extern "C" __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned hea
 
 extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
-    return $Super$$__rt_lib_init((unsigned)HEAP_START, (unsigned)HEAP_LIMIT);
+    // Define heap by assuming one-region
+    uint32_t heap_base  = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t heap_limit = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
+
+    // Fix heap if ARM_LIB_HEAP is defined
+    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+        heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
+        heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
+    }
+
+    return $Super$$__rt_lib_init((unsigned)heap_base, (unsigned)heap_limit);
 }
 #endif
 
