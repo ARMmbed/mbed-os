@@ -37,8 +37,8 @@
 #undef FLASH_SIZE
 #endif
 
-// Only the first 128 pages are accessible when security is enabled
-#define FLASH_SIZE    ((uint32_t)0x80000) // 128 pages x 4 Kbytes = 512 Kbytes
+// Only the first the application side is accessible.
+#define FLASH_SIZE    ((uint32_t)0xC0000) // 768 Kbytes
 
 #endif
 #endif
