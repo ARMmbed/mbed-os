@@ -182,6 +182,32 @@
 #define EU433_RX_WND_2_DR                           DR_0
 
 /*!
+ * Beacon default frequency
+ */
+#define EU433_BEACON_CHANNEL_FREQ                   434665000
+
+/*!
+ * Ping slot default frequency
+ */
+#define EU433_PING_CHANNEL_FREQ                     434665000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define EU433_BEACON_RFU1_SIZE                      2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define EU433_BEACON_RFU2_SIZE                      0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define EU433_BEACON_CHANNEL_DR                     DR_3
+
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -314,6 +340,11 @@ LoRaPHYEU433::LoRaPHYEU433()
     phy_params.ack_timeout_rnd = EU433_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = EU433_RX_WND_2_DR;
     phy_params.rx_window2_frequency = EU433_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = EU433_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = EU433_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = EU433_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = EU433_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = EU433_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYEU433::~LoRaPHYEU433()

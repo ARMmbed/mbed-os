@@ -185,6 +185,32 @@
 #define AS923_RX_WND_2_DR                           DR_2
 
 /*!
+ * Beacon default frequency
+ */
+#define AS923_BEACON_CHANNEL_FREQ                   923400000
+
+/*!
+ * Ping slot default frequency
+ */
+#define AS923_PING_CHANNEL_FREQ                     923400000
+
+/*!
+ * Size of RFU 1 field
+ */
+#define AS923_BEACON_RFU1_SIZE                      2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define AS923_BEACON_RFU2_SIZE                      0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define AS923_BEACON_CHANNEL_DR                     DR_3
+
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -324,6 +350,11 @@ LoRaPHYAS923::LoRaPHYAS923()
     phy_params.ack_timeout_rnd = AS923_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = AS923_RX_WND_2_DR;
     phy_params.rx_window2_frequency = AS923_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = AS923_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = AS923_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = AS923_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = AS923_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = AS923_PING_CHANNEL_FREQ;
 }
 
 LoRaPHYAS923::~LoRaPHYAS923()

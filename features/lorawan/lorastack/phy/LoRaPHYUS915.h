@@ -58,8 +58,6 @@ public:
 
     virtual void restore_default_channels();
 
-    virtual bool rx_config(rx_config_params_t *config);
-
     virtual bool tx_config(tx_config_params_t *config, int8_t *tx_power,
                            lorawan_time_t *tx_toa);
 
@@ -76,6 +74,12 @@ public:
                                               lorawan_time_t *time, lorawan_time_t *aggregate_timeOff);
 
     virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
+
+    virtual uint32_t get_rx1_frequency(uint8_t channel);
+
+    virtual uint32_t get_beacon_frequency(uint32_t beacon_time);
+
+    virtual uint32_t get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time);
 
 private:
 

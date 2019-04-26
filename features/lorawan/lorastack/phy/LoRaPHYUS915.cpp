@@ -180,6 +180,50 @@ static const band_t US915_BAND0 = { 1, US915_MAX_TX_POWER, 0, 0, 0 }; //  100.0 
  */
 #define US915_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 600000 )
 
+/*
+ * CLASS B
+ */
+
+/*!
+ * Beacon frequency
+ */
+#define US915_BEACON_CHANNEL_FREQ                   923300000
+
+/*!
+ * Beacon frequency channel stepwidth
+ */
+#define US915_BEACON_CHANNEL_STEPWIDTH              600000
+
+/*!
+ * Number of possible beacon channels
+ */
+#define US915_BEACON_NB_CHANNELS                    8
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define US915_BEACON_SIZE                           23
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define US915_BEACON_PREAMBLE_LEN                   10
+
+/*!
+ * Size of RFU 1 field
+ */
+#define US915_RFU1_SIZE                             5
+
+/*!
+ * Size of RFU 2 field
+ */
+#define US915_RFU2_SIZE                             3
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define US915_BEACON_CHANNEL_DR                     DR_8
+
 /*!
  * Data rates table definition
  */
@@ -313,6 +357,11 @@ LoRaPHYUS915::LoRaPHYUS915()
     phy_params.ack_timeout_rnd = US915_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = US915_RX_WND_2_DR;
     phy_params.rx_window2_frequency = US915_RX_WND_2_FREQ;
+
+    phy_params.beacon.default_frequency = US915_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = US915_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = US915_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = US915_RFU2_SIZE;
 }
 
 LoRaPHYUS915::~LoRaPHYUS915()
@@ -348,68 +397,6 @@ void LoRaPHYUS915::restore_default_channels()
 
     // Update running channel mask
     intersect_channel_mask(channel_mask, current_channel_mask, US915_CHANNEL_MASK_SIZE);
-}
-
-bool LoRaPHYUS915::rx_config(rx_config_params_t *config)
-{
-    int8_t dr = config->datarate;
-    uint8_t max_payload = 0;
-    int8_t phy_dr = 0;
-    uint32_t frequency = config->frequency;
-
-    _radio->lock();
-
-    if (_radio->get_status() != RF_IDLE) {
-
-        _radio->unlock();
-        return false;
-
-    }
-
-    _radio->unlock();
-
-    // For US915 spectrum, we have 8 Downstream channels, MAC would have
-    // selected a channel randomly from 72 Upstream channels, that index is
-    // passed in rx_config_params_t. Based on that channel index, we choose the
-    // frequency for first RX slot
-    if (config->rx_slot == RX_SLOT_WIN_1) {
-        // Apply window 1 frequency
-        frequency = US915_FIRST_RX1_CHANNEL + (config->channel % 8) * US915_STEPWIDTH_RX1_CHANNEL;
-        // Caller may print the frequency to log so update it to match actual frequency
-        config->frequency = frequency;
-    }
-
-    // Read the physical datarate from the datarates table
-    phy_dr = datarates_US915[dr];
-
-    _radio->lock();
-
-    _radio->set_channel(frequency);
-
-    // Radio configuration
-    _radio->set_rx_config(MODEM_LORA, config->bandwidth, phy_dr, 1, 0,
-                          MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                          config->window_timeout, false, 0, false, 0, 0, true,
-                          config->is_rx_continuous);
-    _radio->unlock();
-
-    if (config->is_repeater_supported == true) {
-
-        max_payload = max_payloads_with_repeater_US915[dr];
-
-    } else {
-
-        max_payload = max_payloads_US915[dr];
-
-    }
-
-    _radio->lock();
-
-    _radio->set_max_payload_length(MODEM_LORA, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
-
-    _radio->unlock();
-
-    return true;
 }
 
 bool LoRaPHYUS915::tx_config(tx_config_params_t *config, int8_t *tx_power,
@@ -695,4 +682,28 @@ void LoRaPHYUS915::fill_channel_mask_with_value(uint16_t *channel_mask,
     for (uint8_t i = 0; i < size; i++) {
         channel_mask[i] = value;
     }
+}
+
+uint32_t LoRaPHYUS915::get_beacon_frequency(uint32_t beacon_time)
+{
+    uint8_t  channel;
+
+    channel = (beacon_time / LORA_BEACON_INTERVAL) % US915_BEACON_NB_CHANNELS;
+    return US915_BEACON_CHANNEL_FREQ + (channel * US915_BEACON_CHANNEL_STEPWIDTH);
+}
+
+uint32_t LoRaPHYUS915::get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time)
+{
+    uint8_t channel = (dev_addr + (beacon_time / LORA_BEACON_INTERVAL)) % US915_BEACON_NB_CHANNELS;
+    return US915_FIRST_RX1_CHANNEL + (channel * US915_STEPWIDTH_RX1_CHANNEL);
+}
+
+uint32_t LoRaPHYUS915::get_rx1_frequency(uint8_t channel)
+{
+    // For US915 spectrum, we have 8 Downstream channels, MAC would have
+    // selected a channel randomly from 72 Upstream channels, that index is
+    // passed in rx_config_params_t. Based on that channel index, we choose the
+    // frequency for first RX slot
+
+    return US915_FIRST_RX1_CHANNEL + (channel % 8) * US915_STEPWIDTH_RX1_CHANNEL;
 }
