@@ -86,7 +86,13 @@ void LoRaWANInterface::remove_link_check_request()
 lorawan_status_t LoRaWANInterface::add_device_time_request()
 {
     Lock lock(*this);
-    return _lw_stack.set_device_time_request();
+    return _lw_stack.add_device_time_request();
+}
+
+void LoRaWANInterface::remove_device_time_request()
+{
+    Lock lock(*this);
+    _lw_stack.remove_device_time_request();
 }
 
 lorawan_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
@@ -227,3 +233,29 @@ lorawan_status_t LoRaWANInterface::set_system_time_utc(unsigned int tai_utc_diff
 
     return LORAWAN_STATUS_OK;
 }
+
+lorawan_status_t LoRaWANInterface::add_ping_slot_info_request(uint8_t periodicity)
+{
+    Lock lock(*this);
+    return _lw_stack.add_ping_slot_info_request(periodicity);
+}
+
+void LoRaWANInterface::remove_ping_slot_info_request()
+{
+    Lock lock(*this);
+    return _lw_stack.remove_ping_slot_info_request();
+}
+
+lorawan_status_t LoRaWANInterface::enable_beacon_acquisition()
+{
+    Lock lock(*this);
+    return  _lw_stack.enable_beacon_acquisition();
+}
+
+lorawan_status_t LoRaWANInterface::get_last_rx_beacon(loramac_beacon_t &beacon)
+{
+    Lock lock(*this);
+    return  _lw_stack.get_last_rx_beacon(beacon);
+
+}
+
