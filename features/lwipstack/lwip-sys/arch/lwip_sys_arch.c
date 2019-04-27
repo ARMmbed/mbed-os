@@ -605,7 +605,7 @@ MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, cons
     \param[in]    line  Line number in file with error
     \param[in]    file  Filename with error
  */
-MBED_NORETURN void assert_printf(char *msg, int line, char *file) {
+MBED_NORETURN void assert_printf(const char *msg, int line, const char *file) {
     if (msg)
         error("%s:%d in file %s\n", msg, line, file);
     else
