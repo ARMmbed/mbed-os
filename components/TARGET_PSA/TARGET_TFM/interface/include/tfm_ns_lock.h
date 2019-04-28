@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "tfm_api.h"
 
 typedef int32_t (*veneer_fn) (uint32_t arg0, uint32_t arg1,
                       uint32_t arg2, uint32_t arg3);
