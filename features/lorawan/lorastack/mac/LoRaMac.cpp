@@ -84,7 +84,10 @@ static void memcpy_convert_endianess(uint8_t *dst,
     }
 }
 
-static const char *rx_slot_strings[RX_SLOT_MAX] = {"RX1", "RX2", "Class-C", "Ping-slot", "Beacon"};
+static const char *rx_slot_strings[RX_SLOT_MAX] = {
+    "RX1", "RX2", "Class-C", "Beacon",
+    "Unicast Ping-Slot", "Multicast Ping-Slot"
+};
 
 inline const char *get_rx_slot_string(rx_slot_t rx_slot)
 {
@@ -840,7 +843,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 
         /* Only disable the radio if not transmitting. It has been
          * observed with class B receive windows that rx done event processing
-         * can occur after  uplink transmission is started 
+         * can occur after  uplink transmission is started
          */
         if (!tx_ongoing()) {
             _lora_phy->put_radio_to_sleep();
@@ -850,7 +853,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     // Class B handling
     rx_slot_t rx_slot = get_current_slot();
     LoRaMacClassB::Handle_rx(rx_slot, payload, size);
-    if (rx_slot == RX_SLOT_BEACON) {
+    if (rx_slot == RX_SLOT_WIN_BEACON) {
         return;
     }
 
@@ -939,7 +942,7 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
         _lora_phy->put_radio_to_sleep();
     }
 
-    // Class B Rx timeout notification 
+    // Class B Rx timeout notification
     LoRaMacClassB::Handle_rx_timeout(_params.rx_slot);
 
     if (_params.rx_slot == RX_SLOT_WIN_1) {
@@ -1130,25 +1133,25 @@ bool LoRaMac::set_rx_slot(rx_slot_t rx_slot)
 {
     Lock(*this);
 
-    /* If currently demodulating, class A reception slots have higher priority*/
     if (_demod_ongoing) {
-        switch (rx_slot) {
-            case RX_SLOT_WIN_1:
-            case RX_SLOT_WIN_2:
-                _lora_phy->put_radio_to_sleep();
-                _params.rx_slot = rx_slot;
-                return true;
-            default:
-                tr_info("%s Demodulation ongoing, skip %s window opening",
-                        get_rx_slot_string(rx_slot), get_rx_slot_string(get_current_slot()));
-                return false;
+        /* rx_slot_t is ordered from high to low priority. Class A receive windows being highest
+         * priority then class C followed by beacon, multicast ping slot and coming in last 
+         * is unicast ping slot. 
+         */
+        if(rx_slot <= _params.rx_slot){
+            _lora_phy->put_radio_to_sleep();
+            _params.rx_slot = rx_slot;
+            return true;
+        } else{
+            tr_info("%s Demodulation ongoing, skip %s window opening",
+                    get_rx_slot_string(rx_slot), get_rx_slot_string(get_current_slot()));
+            return false;
         }
     } else {
         _params.rx_slot = rx_slot;
         _demod_ongoing = true;
         return true;
     }
-    return false;
 }
 
 bool LoRaMac::open_rx_window(rx_config_params_t *rx_config)

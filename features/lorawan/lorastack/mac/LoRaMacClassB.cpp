@@ -160,6 +160,7 @@ lorawan_status_t LoRaMacClassB::enable_beacon_acquisition(mbed::Callback<bool(lo
     } else if (!_opstatus.beacon_on) {
         _beacon_event_cb = beacon_event_cb;
         _beacon.beacon_time = 0;
+        _opstatus.beacon_found = 0;
         _opstatus.beacon_on = 1;
         reset_window_expansion();
         schedule_beacon_window();
@@ -178,13 +179,13 @@ void LoRaMacClassB::beacon_acquisition_timeout(void)
     // Disable beacon acquisition
     _opstatus.beacon_on = 0;
     _lora_time->stop(_beacon_timer);
-    _close_rx_window(RX_SLOT_BEACON);
+    _close_rx_window(RX_SLOT_WIN_BEACON);
     send_beacon_miss_indication();
 }
 
 void LoRaMacClassB::set_beacon_rx_config(uint32_t beacon_time, rx_config_params_t *rx_config)
 {
-    rx_config->rx_slot = RX_SLOT_BEACON;
+    rx_config->rx_slot = RX_SLOT_WIN_BEACON;
     rx_config->is_rx_continuous =  beacon_time == 0;
 
     _lora_phy->compute_beacon_win_params(beacon_time,
@@ -270,7 +271,7 @@ void LoRaMacClassB::open_beacon_window(void)
 void LoRaMacClassB::handle_rx(rx_slot_t rx_slot, const uint8_t *const payload, uint16_t size)
 {
     switch (rx_slot) {
-        case RX_SLOT_BEACON:
+        case RX_SLOT_WIN_BEACON:
             handle_beacon_rx(payload, size);
             break;
         case RX_SLOT_WIN_UNICAST_PING_SLOT:
@@ -291,7 +292,7 @@ void LoRaMacClassB::handle_rx(rx_slot_t rx_slot, const uint8_t *const payload, u
 void LoRaMacClassB::handle_rx_timeout(rx_slot_t rx_slot)
 {
     switch (rx_slot) {
-        case RX_SLOT_BEACON:
+        case RX_SLOT_WIN_BEACON:
             expand_window();
             handle_beacon_rx_timeout();
             break;
@@ -573,8 +574,6 @@ void LoRaMacClassB::schedule_ping_slot(void)
                 _ping.slot_idx = i;
                 best_slot_time = slot_time;
             }
-            tr_debug("Ping Slot Address = %08lx, offset = %u, next slot = %u",
-                     _ping.slot[i].address, _ping.slot[i].offset, _ping.slot[i].slot_nb);
         }
     }
 
@@ -607,8 +606,11 @@ void LoRaMacClassB::open_ping_slot(void)
         // Limiting ping slot trace period to prevent excessive debug output for small ping period
         current_time = _lora_time->get_current_time();
         if ((current_time - last_ping_slot_time) > CLASSB_PING_OPEN_DBG_TRACE_PERIOD) {
-            tr_debug("Ping slot = %u open, Freq = %lu",
-                     _ping.slot[_ping.slot_idx].slot_nb, _ping.slot[_ping.slot_idx].rx_config.frequency);
+            tr_debug("Ping address = %lx slot = %u open, Freq = %lu",
+                     _ping.slot[_ping.slot_idx].address, 
+                     _ping.slot[_ping.slot_idx].slot_nb, 
+                     _ping.slot[_ping.slot_idx].rx_config.frequency);
+
             last_ping_slot_time = current_time;
         }
     }
