@@ -834,7 +834,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
     rx_slot_t rx_slot = _loramac.get_current_slot();
 
-    _loramac.on_radio_rx_done(payload, size, rssi, snr, mbed::callback(this, &LoRaWANStack::mlme_confirm_handler));
+    _loramac.on_radio_rx_done(payload, size, rssi, snr, _rx_timestamp,
+                              mbed::callback(this, &LoRaWANStack::mlme_confirm_handler));
 
     if (!joined) {
         core_util_atomic_flag_clear(&_rx_payload_in_use);
@@ -1600,9 +1601,8 @@ void LoRaWANStack::remove_ping_slot_info_request()
     _ping_slot_info_requested = false;
 }
 
-bool LoRaWANStack::process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon)
+void LoRaWANStack::process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon)
 {
-    bool gps_time_set = false;
     loramac_mlme_confirm_t mlme_confirm;
 
     switch (status) {
@@ -1615,11 +1615,9 @@ bool LoRaWANStack::process_beacon_event(loramac_beacon_status_t status, const lo
             _last_beacon_rx_time = _loramac.get_current_time();
             mlme_confirm.type = MLME_BEACON_ACQUISITION;
             mlme_confirm.status = LORAMAC_EVENT_INFO_STATUS_OK;
-            gps_time_set = true;
             mlme_confirm_handler(mlme_confirm);
             break;
         case BEACON_STATUS_LOCK:
-            gps_time_set = true;
             _last_beacon_rx_time = _loramac.get_current_time();
             send_event_to_application(BEACON_LOCK);
             break;
@@ -1640,16 +1638,6 @@ bool LoRaWANStack::process_beacon_event(loramac_beacon_status_t status, const lo
             tr_error("Unknown Beacon Status %d", status);
             MBED_ASSERT(false);
     }
-
-    if (gps_time_set) {
-        MBED_ASSERT(beacon != NULL);
-        lorawan_gps_time_t gps_time = (lorawan_gps_time_t)beacon->time * 1000 + beacon->time_on_air +
-                                      (_loramac.get_current_time() - _rx_timestamp);
-        _loramac.get_lora_time()->set_gps_time(gps_time);
-        tr_debug("Synchronized GPS Time = %llu from Received Beacon", gps_time);
-    }
-
-    return gps_time_set;
 }
 
 lorawan_status_t LoRaWANStack::enable_beacon_acquisition()
