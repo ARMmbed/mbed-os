@@ -899,7 +899,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
         case RX_SLOT_WIN_1:
             rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
             break;
-        case RX_SLOT_BEACON:
+        case RX_SLOT_WIN_BEACON:
             max_preamble_len = BEACON_PREAMBLE_LENGTH;
             break;
         case RX_SLOT_WIN_UNICAST_PING_SLOT:
@@ -949,7 +949,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
             MBED_ASSERT(rx_conf->frequency);
             frequency = rx_conf->frequency;
             break;
-        case RX_SLOT_BEACON:
+        case RX_SLOT_WIN_BEACON:
             // Frequency must be set by compute_beacon_win_params
             MBED_ASSERT(rx_conf->frequency);
             preamble_len = MBED_CONF_LORA_BEACON_PREAMBLE_LENGTH;
@@ -973,7 +973,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
     phy_dr = datarate_table[dr];
 
     // Calculate max payload for datarate
-    if (rx_conf->rx_slot != RX_SLOT_BEACON) {
+    if (rx_conf->rx_slot != RX_SLOT_WIN_BEACON) {
         if (rx_conf->is_repeater_supported) {
             max_payload = payload_with_repeater_table[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD;
         } else {

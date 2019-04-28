@@ -882,7 +882,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
                 poll_rejoin();
             }
             break;
-        case RX_SLOT_BEACON:
+        case RX_SLOT_WIN_BEACON:
             break;
         case RX_SLOT_WIN_UNICAST_PING_SLOT:
         case RX_SLOT_WIN_MULTICAST_PING_SLOT:
