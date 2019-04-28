@@ -153,8 +153,7 @@ def get_last_cherry_pick_sha(branch):
     lines = output.split('\n')
     for line in lines:
         if 'cherry picked from' in line:
-            sha = line.split(' ')[-1]
-            return sha[:-1]
+            sha = line.split(' ')[-1][:-1]
     return sha
 
 
@@ -272,21 +271,23 @@ if __name__ == "__main__":
     branch_checkout(branch)
     commit_sha = json_data["commit_sha"]
     last_sha = get_last_cherry_pick_sha(branch)
-    if not last_sha:
-        ## Apply commits specific to mbed-os changes
-        for sha in commit_sha:
-            cherry_pick_sha = ['git', 'cherry-pick', '-x', sha]
-            run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
-            rel_log.info("Cherry-picked commit = %s", sha)
-    ## Few commits are already applied, check the next in sequence
-    ## and skip to last applied
-    else:
-        found = False
-        for sha in commit_sha:
-            if sha == last_sha:
-                found = True
-                continue
-            if found is True:
-                cherry_pick_sha = ['git', 'cherry-pick', '-x', sha]
-                run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
-                rel_log.info("Cherry-picked commit = %s", sha)
+
+    # Few commits are already applied, check the next in sequence
+    # and skip to next commit
+    if last_sha:
+        assert last_sha in commit_sha, "%s not found in config file" % last_sha
+        # Calculate the index of the next sha to be applied
+        next_sha_idx = commit_sha.index(last_sha) + 1
+        if next_sha_idx >= len(commit_sha):
+            rel_log.info("No more commits to apply")
+            sys.exit(0)
+        # Skipping applied commits
+        commit_sha = commit_sha[next_sha_idx:]
+
+    # Apply commits specific to mbed-os changes
+    for sha in commit_sha:
+        cherry_pick_sha = ['git', 'cherry-pick', '-x', sha]
+        rel_log.info("Cherry-picking commit = %s", sha)
+        run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
+
+    rel_log.info("Finished import successfully :)")
