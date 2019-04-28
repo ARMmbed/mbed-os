@@ -22,6 +22,7 @@ import sys
 import subprocess
 import logging
 import argparse
+import re
 from os.path import dirname, abspath, join, isfile, normpath
 
 # Be sure that the tools directory is in the search path
@@ -29,6 +30,9 @@ ROOT = abspath(join(dirname(__file__), os.path.pardir, os.path.pardir))
 sys.path.insert(0, ROOT)
 
 from tools.utils import delete_dir_files, mkdir, copy_file
+
+cherry_pick_re = re.compile(
+    '\s*\(cherry picked from commit (([0-9]|[a-f]|[A-F])+)\)')
 
 
 def del_file(name):
@@ -150,11 +154,14 @@ def get_last_cherry_pick_sha(branch):
     sha = None
     get_commit = ['git', 'log', '-n', '1']
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
-    lines = output.split('\n')
+
+    lines = output.splitlines()
+    lines.reverse()
     for line in lines:
-        if 'cherry picked from' in line:
-            sha = line.split(' ')[-1][:-1]
-    return sha
+        match = cherry_pick_re.match(line)
+        if match:
+            return match.group(1)
+    return None
 
 
 def normalize_commit_sha(sha_lst):
