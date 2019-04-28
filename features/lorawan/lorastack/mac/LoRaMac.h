@@ -395,7 +395,7 @@ public:
      * MAC operations upon reception
      */
     void on_radio_rx_done(const uint8_t *const payload, uint16_t size,
-                          int16_t rssi, int8_t snr,
+                          int16_t rssi, int8_t snr, uint32_t rx_timestamp,
                           mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
 
     /**
@@ -497,7 +497,8 @@ public:
      * Enable network beacon acquisition and tracking
      * @param beacon_event_cb - stack callback
      */
-    lorawan_status_t enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t, const loramac_beacon_t*)>beacon_event_cb);
+    lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
+                                                                   const loramac_beacon_t *)>beacon_event_cb);
 
     /**
      * Set Class B ping slot periodicity

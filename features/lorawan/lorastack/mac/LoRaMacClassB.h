@@ -25,12 +25,9 @@
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorastack/mac/LoRaMacCrypto.h"
 #include "platform/ScopedLock.h"
-
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos/Mutex.h"
 #endif
-
-#ifdef LORA_CLASS_B_ENABLED
 
 class LoRaMacClassB {
 public:
@@ -63,7 +60,7 @@ public:
      *
      * @return LORAWAN_STATUS_OK or a negative error return code
      */
-    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                                  const loramac_beacon_t *)> beacon_event_cb)
     {
         return _loramac_class_b.enable_beacon_acquisition(beacon_event_cb);
@@ -115,13 +112,15 @@ public:
 
     /**
      * Handle radio receive event
+     * @param [in] rx_slot
      * @param [in] data
      * @param [in] size
+     * @param [in] rx_timestamp
      */
-    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size)
+    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp)
     {
         if (is_operational()) {
-            return _loramac_class_b.handle_rx(rx_slot, data, size);
+            return _loramac_class_b.handle_rx(rx_slot, data, size, rx_timestamp);
         }
     }
 
@@ -205,7 +204,7 @@ protected:
      * Enable beacon acquisition
      * @param [in] beacon_event_cb - stack beacon event callback
      */
-    lorawan_status_t enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+    lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                    const loramac_beacon_t *)> beacon_event_cb);
     /**
      * @brief Enables class b mode
@@ -239,15 +238,17 @@ protected:
      * @param [in] rx_slot  receive window
      * @param [in] data  received data
      * @param [in] size  data size in bytes
+     * @param [in] rx_timestamp  radio receive time
      */
-    void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size);
+    void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp);
 
     /**
      * @brief Process frame received in beacon window
      * @param [in] data
      * @param [in] size  data size in bytes
+     * @param [in] rx_timestamp  radio receive time
      */
-    void handle_beacon_rx(const uint8_t *const data, uint16_t size);
+    void handle_beacon_rx(const uint8_t *const data, uint16_t size, uint32_t rx_timestamp);
 
     /**
      * @brief Process a beacon frame and perform integrity checks
@@ -399,6 +400,7 @@ protected:
         uint8_t rfu2_size; // beacon frame rfu2 size
         loramac_beacon_t received_beacon; // last received beacon
         loramac_window_expansion_t expansion; // beacon window expansion
+        uint32_t time_on_air; // beacon frame time on air
     } _beacon;
 
     /**
@@ -445,7 +447,7 @@ protected:
 
     mbed::Callback<bool(rx_config_params_t *)> _open_rx_window; // loramac open rx window  function
     mbed::Callback<void(rx_slot_t)> _close_rx_window; // loramac close rx window function
-    mbed::Callback<bool(loramac_beacon_status_t, const loramac_beacon_t *)> _beacon_event_cb; // beacon event callback
+    mbed::Callback<void(loramac_beacon_status_t, const loramac_beacon_t *)> _beacon_event_cb; // beacon event callback
 
     static LoRaMacClassB _loramac_class_b;
 
@@ -468,7 +470,7 @@ public:
         return LORAWAN_STATUS_UNSUPPORTED;
     }
 
-    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                                  const loramac_beacon_t *)> beacon_event_cb)
     {
         return LORAWAN_STATUS_UNSUPPORTED;
@@ -496,7 +498,7 @@ public:
     {
     }
 
-    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size)
+    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp)
     {
     }
 
