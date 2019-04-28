@@ -35,6 +35,24 @@ cherry_pick_re = re.compile(
     '\s*\(cherry picked from commit (([0-9]|[a-f]|[A-F])+)\)')
 
 
+class StoreDir(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        directory = os.path.abspath(values)
+        if not os.path.isdir(directory):
+            raise argparse.ArgumentError(
+                None, "The directory %s does not exist!" % directory)
+        setattr(namespace, self.dest, directory)
+
+
+class StoreValidFile(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        fn = os.path.abspath(values)
+        if not os.path.isfile(fn):
+            raise argparse.ArgumentError(
+                None, "The file %s does not exist!" % fn)
+        setattr(namespace, self.dest, fn)
+
+
 def del_file(name):
     """ Delete the file in RTOS/CMSIS/features directory of mbed-os
     Args:
@@ -170,19 +188,22 @@ def normalize_commit_sha(sha_lst):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+
     parser.add_argument('-l', '--log-level',
                         help="Level for providing logging output",
                         default='INFO')
     parser.add_argument('-r', '--repo-path',
                         help="Git Repository to be imported",
-                        default=None,
-                        required=True)
+                        required=True,
+                        action=StoreDir)
     parser.add_argument('-c', '--config-file',
                         help="Configuration file",
-                        default=None,
-                        required=True)
+                        required=True,
+                        action=StoreValidFile)
+
     args = parser.parse_args()
     level = getattr(logging, args.log_level.upper())
 
@@ -194,33 +215,13 @@ if __name__ == "__main__":
     logging.basicConfig(level=level)
     rel_log = logging.getLogger("Importer")
 
-    if (args.repo_path is None) or (args.config_file is None):
-        rel_log.error(
-            "Repository path and config file required as input. "
-            "Use \"--help\" for more info.")
-        sys.exit(1)
-
-    json_file = abspath(args.config_file)
-    if not os.path.isfile(json_file):
-        rel_log.error("%s not found.", args.config_file)
-        sys.exit(1)
-
-    repo = abspath(args.repo_path)
-    if not os.path.exists(repo):
-        rel_log.error("%s not found.", args.repo_path)
-        sys.exit(1)
-
-    sha = get_curr_sha(repo)
-    if not sha:
-        rel_log.error("Could not obtain latest SHA")
-        sys.exit(1)
-    rel_log.info("%s SHA = %s", os.path.basename(repo), sha)
-
-    branch = 'feature_' + os.path.basename(repo) + '_' + sha
-    commit_msg = "[" + os.path.basename(repo) + "]" + ": Updated to " + sha
+    sha = get_curr_sha(args.repo_path)
+    repo_dir = os.path.basename(args.repo_path)
+    branch = 'feature_' + repo_dir + '_' + sha
+    commit_msg = "[" + repo_dir + "]" + ": Updated to " + sha
 
     # Read configuration data
-    with open(json_file, 'r') as config:
+    with open(args.config_file, 'r') as config:
         json_data = json.load(config)
 
     '''
@@ -252,7 +253,7 @@ if __name__ == "__main__":
 
         # Copy all the files listed in json file to mbed-os
         for fh in data_files:
-            repo_file = join(repo, fh['src_file'])
+            repo_file = join(args.repo_path, fh['src_file'])
             mbed_path = join(ROOT, fh['dest_file'])
             mkdir(dirname(mbed_path))
             copy_file(repo_file, mbed_path)
@@ -260,7 +261,7 @@ if __name__ == "__main__":
                           normpath(mbed_path))
 
         for folder in data_folders:
-            repo_folder = join(repo, folder['src_folder'])
+            repo_folder = join(args.repo_path, folder['src_folder'])
             mbed_path = join(ROOT, folder['dest_folder'])
             copy_folder(repo_folder, mbed_path)
             rel_log.debug("Copied %s to %s", normpath(repo_folder),
