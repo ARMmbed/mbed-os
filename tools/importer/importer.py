@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 Copyright (c) 2017-2019 ARM Limited. All rights reserved.
 
@@ -37,7 +38,7 @@ cherry_pick_re = re.compile(
 
 class StoreDir(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        directory = os.path.abspath(values)
+        directory = abspath(values)
         if not os.path.isdir(directory):
             raise argparse.ArgumentError(
                 None, "The directory %s does not exist!" % directory)
@@ -46,8 +47,8 @@ class StoreDir(argparse.Action):
 
 class StoreValidFile(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        fn = os.path.abspath(values)
-        if not os.path.isfile(fn):
+        fn = abspath(values)
+        if not isfile(fn):
             raise argparse.ArgumentError(
                 None, "The file %s does not exist!" % fn)
         setattr(namespace, self.dest, fn)
@@ -67,7 +68,7 @@ def del_file(name):
                 result.append(join(root, name))
     for f in result:
         os.remove(f)
-        rel_log.debug("Deleted %s", os.path.relpath(file, ROOT))
+        rel_log.debug("Deleted %s", os.path.relpath(f, ROOT))
 
 
 def copy_folder(src, dest):
@@ -79,7 +80,7 @@ def copy_folder(src, dest):
     files = os.listdir(src)
     for f in files:
         abs_src_file = join(src, f)
-        if os.path.isfile(abs_src_file):
+        if isfile(abs_src_file):
             abs_dst_file = join(dest, f)
             mkdir(dirname(abs_dst_file))
             copy_file(abs_src_file, abs_dst_file)
@@ -101,18 +102,18 @@ def run_cmd_with_output(command, exit_on_failure=False):
     output - The output of the command if it was successful, else empty string
     """
     rel_log.debug('[Exec] %s', ' '.join(command))
-    returncode = 0
+    return_code = 0
     output = ""
     try:
         output = subprocess.check_output(command)
     except subprocess.CalledProcessError as e:
-        returncode = e.returncode
+        return_code = e.returncode
 
         if exit_on_failure:
             rel_log.error("The command %s failed with return code: %s",
-                          (' '.join(command)), returncode)
+                          (' '.join(command)), return_code)
             sys.exit(1)
-    return returncode, output
+    return return_code, output
 
 
 def get_curr_sha(repo_path):
@@ -123,10 +124,15 @@ def get_curr_sha(repo_path):
     Returns:
     sha - last commit SHA
     """
-    repo_path = abspath(repo_path)
+
     cmd = ['git', '-C', repo_path, 'log', '--pretty=format:%h', '-n', '1']
     _, _sha = run_cmd_with_output(cmd, exit_on_failure=True)
 
+    if not _sha:
+        rel_log.error("Could not obtain latest SHA")
+        sys.exit(1)
+
+    rel_log.info("%s SHA = %s", repo_path, sha)
     return _sha
 
 
@@ -157,20 +163,16 @@ def branch_checkout(name):
     rel_log.info("Checkout to branch %s", name)
 
 
-def get_last_cherry_pick_sha(branch):
+def get_last_cherry_pick_sha():
     """
     SHA of last cherry pick commit is returned. SHA should be added to all
     cherry-pick commits with -x option.
 
     Args:
-    branch - Hash to be verified.
     Returns - SHA if found, else None
     """
-    cmd = ['git', 'checkout', branch]
-    run_cmd_with_output(cmd, exit_on_failure=False)
 
-    sha = None
-    get_commit = ['git', 'log', '-n', '1']
+    get_commit = ['git', '-C', ROOT, 'log', '-n', '1']
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
 
     lines = output.splitlines()
@@ -282,7 +284,7 @@ if __name__ == "__main__":
     # Checkout the feature branch
     branch_checkout(branch)
     commit_sha = normalize_commit_sha(json_data["commit_sha"])
-    last_sha = get_last_cherry_pick_sha(branch)
+    last_sha = get_last_cherry_pick_sha()
 
     # Few commits are already applied, check the next in sequence
     # and skip to next commit
