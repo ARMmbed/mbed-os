@@ -162,18 +162,17 @@ typedef enum {
      */
     RX_SLOT_WIN_CLASS_C,
     /*!
-     * LoRaMAC class b unicast ping slot window
+     * LoRaMAC class b beacon window
      */
-    RX_SLOT_WIN_UNICAST_PING_SLOT,
+    RX_SLOT_WIN_BEACON,
     /*!
      * LoRaMAC class b multicast ping slot window
      */
     RX_SLOT_WIN_MULTICAST_PING_SLOT,
     /*!
-     * LoRaMAC class b beacon window
+     * LoRaMAC class b unicast ping slot window
      */
-    RX_SLOT_BEACON,
-
+    RX_SLOT_WIN_UNICAST_PING_SLOT,
     /*!
      * Put new slot types before here
      */
