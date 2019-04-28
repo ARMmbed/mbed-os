@@ -55,10 +55,13 @@ class StoreValidFile(argparse.Action):
 
 
 def del_file(name):
-    """ Delete the file in RTOS/CMSIS/features directory of mbed-os
-    Args:
-    name - name of the file
     """
+    Delete the file in RTOS/CMSIS/features directory of mbed-os.
+
+    :param name: Name of the file.
+    :return: None.
+    """
+
     result = []
     search_path = [join(ROOT, 'rtos'), join(ROOT, 'cmsis'),
                    join(ROOT, 'features')]
@@ -71,36 +74,38 @@ def del_file(name):
         rel_log.debug("Deleted %s", os.path.relpath(f, ROOT))
 
 
-def copy_folder(src, dest):
-    """ Copy contents of folder in mbed-os listed path
-    Args:
-    src - src folder path
-    dest - destination folder path
+def copy_folder(src, dst):
     """
+    Copy contents of folder in mbed-os listed path.
+
+    :param src: Source folder path.
+    :param dst: Destination folder path.
+    :return: None.
+    """
+
     files = os.listdir(src)
     for f in files:
         abs_src_file = join(src, f)
         if isfile(abs_src_file):
-            abs_dst_file = join(dest, f)
+            abs_dst_file = join(dst, f)
             mkdir(dirname(abs_dst_file))
             copy_file(abs_src_file, abs_dst_file)
 
 
 def run_cmd_with_output(command, exit_on_failure=False):
-    """ Passes a command to the system and returns a True/False result once the
-        command has been executed, indicating success/failure. If the command was
-        successful then the output from the command is returned to the caller.
-        Commands are passed as a list of tokens.
-        E.g. The command 'git remote -v' would be passed in as ['git', 'remote', '-v']
-
-    Args:
-    command - system command as a list of tokens
-    exit_on_failure - If True exit the program on failure (default = False)
-
-    Returns:
-    result - True/False indicating the success/failure of the command
-    output - The output of the command if it was successful, else empty string
     """
+    Passes a command to the system and returns a True/False result once the
+    command has been executed, indicating success/failure. If the command was
+    successful then the output from the command is returned to the caller.
+    Commands are passed as a list of tokens.
+    E.g. The command 'git remote -v' would be passed in as:
+     ['git', 'remote', '-v']
+
+    :param command: System command as a list of tokens.
+    :param exit_on_failure: Exit the program on failure (default=False)
+    :return: Command return status code and output as tuple.
+    """
+
     rel_log.debug('[Exec] %s', ' '.join(command))
     return_code = 0
     output = ""
@@ -117,12 +122,11 @@ def run_cmd_with_output(command, exit_on_failure=False):
 
 
 def get_curr_sha(repo_path):
-    """ Gets the latest SHA for the specified repo
-    Args:
-    repo_path - path to the repository
+    """
+    Gets the latest SHA for the specified repo.
 
-    Returns:
-    sha - last commit SHA
+    :param repo_path: Path to a git repository.
+    :return: Last commit SHA.
     """
 
     cmd = ['git', '-C', repo_path, 'log', '--pretty=format:%h', '-n', '1']
@@ -137,27 +141,27 @@ def get_curr_sha(repo_path):
 
 
 def branch_exists(name):
-    """ Check if branch already exists in mbed-os local repository.
-    It will not verify if branch is present in remote repository.
-    Args:
-    name - branch name
-    Returns:
-    True - If branch is already present
+    """
+    Check if branch already exists in mbed-os local repository.
+
+    :param name: Branch name.
+    :return: True if branch is already present, False otherwise.
     """
 
-    cmd = ['git', 'branch']
+    cmd = ['git', '-C', ROOT, 'branch']
     _, output = run_cmd_with_output(cmd, exit_on_failure=False)
-    if name in output:
-        return True
-    return False
+
+    return name in output
 
 
 def branch_checkout(name):
     """
-    Checkout the required branch
-    Args:
-    name - branch name
+    Checkout the required git branch.
+
+    :param name: Branch to checkout.
+    :return: None.
     """
+
     cmd = ['git', 'checkout', name]
     _, _ = run_cmd_with_output(cmd, exit_on_failure=False)
     rel_log.info("Checkout to branch %s", name)
@@ -165,11 +169,10 @@ def branch_checkout(name):
 
 def get_last_cherry_pick_sha():
     """
-    SHA of last cherry pick commit is returned. SHA should be added to all
-    cherry-pick commits with -x option.
+    Finds the SHA of last cherry picked commit.
+    SHA should be added to cherry-pick commits with -x option.
 
-    Args:
-    Returns - SHA if found, else None
+    :return: SHA if found, None otherwise.
     """
 
     get_commit = ['git', '-C', ROOT, 'log', '-n', '1']
@@ -185,6 +188,15 @@ def get_last_cherry_pick_sha():
 
 
 def normalize_commit_sha(sha_lst):
+    """
+    The commit_sha section of the config file can hold commits in 2 ways:
+    * "<SHA>" - E.g. "428acae1b2ac15c3ad523e8d40755a9301220822".
+    * {"sha": "<SHA>", "msg": "<HELP>"} - E.g.
+    {"sha": "d9d622afe0ca8c7ab9d24c17f9fe59b54dcc61c9", "msg": "Fix ..."}.
+
+    :param sha_lst: JSON data from config file.
+    :return: list of commit SHA.
+    """
     return [_sha['sha'] if isinstance(_sha, dict) else _sha for _sha in sha_lst]
 
 
