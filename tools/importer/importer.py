@@ -25,10 +25,11 @@ import argparse
 from os.path import dirname, abspath, join, isfile, normpath
 
 # Be sure that the tools directory is in the search path
-ROOT = abspath(join(dirname(__file__), "../.."))
+ROOT = abspath(join(dirname(__file__), os.path.pardir, os.path.pardir))
 sys.path.insert(0, ROOT)
 
-from tools.utils import run_cmd, delete_dir_files, mkdir, copy_file
+from tools.utils import delete_dir_files, mkdir, copy_file
+
 
 def del_file(name):
     """ Delete the file in RTOS/CMSIS/features directory of mbed-os
@@ -36,14 +37,16 @@ def del_file(name):
     name - name of the file
     """
     result = []
-    search_path = [join(ROOT, 'rtos'), join(ROOT, 'cmsis'), join(ROOT, 'features')]
+    search_path = [join(ROOT, 'rtos'), join(ROOT, 'cmsis'),
+                   join(ROOT, 'features')]
     for path in search_path:
         for root, dirs, files in os.walk(path):
             if name in files:
                 result.append(join(root, name))
-    for file in result:
-        os.remove(file)
+    for f in result:
+        os.remove(f)
         rel_log.debug("Deleted %s", os.path.relpath(file, ROOT))
+
 
 def copy_folder(src, dest):
     """ Copy contents of folder in mbed-os listed path
@@ -52,12 +55,13 @@ def copy_folder(src, dest):
     dest - destination folder path
     """
     files = os.listdir(src)
-    for file in files:
-        abs_src_file = join(src, file)
+    for f in files:
+        abs_src_file = join(src, f)
         if os.path.isfile(abs_src_file):
-            abs_dst_file = join(dest, file)
+            abs_dst_file = join(dest, f)
             mkdir(dirname(abs_dst_file))
             copy_file(abs_src_file, abs_dst_file)
+
 
 def run_cmd_with_output(command, exit_on_failure=False):
     """ Passes a command to the system and returns a True/False result once the
@@ -84,9 +88,10 @@ def run_cmd_with_output(command, exit_on_failure=False):
 
         if exit_on_failure:
             rel_log.error("The command %s failed with return code: %s",
-                        (' '.join(command)), returncode)
+                          (' '.join(command)), returncode)
             sys.exit(1)
     return returncode, output
+
 
 def get_curr_sha(repo_path):
     """ Gets the latest SHA for the specified repo
@@ -96,14 +101,12 @@ def get_curr_sha(repo_path):
     Returns:
     sha - last commit SHA
     """
-    cwd = os.getcwd()
-    os.chdir(abspath(repo_path))
+    repo_path = abspath(repo_path)
+    cmd = ['git', '-C', repo_path, 'log', '--pretty=format:%h', '-n', '1']
+    _, _sha = run_cmd_with_output(cmd, exit_on_failure=True)
 
-    cmd = ['git', 'log', '--pretty=format:%h', '-n', '1']
-    _, sha = run_cmd_with_output(cmd, exit_on_failure=True)
+    return _sha
 
-    os.chdir(cwd)
-    return sha
 
 def branch_exists(name):
     """ Check if branch already exists in mbed-os local repository.
@@ -120,6 +123,7 @@ def branch_exists(name):
         return True
     return False
 
+
 def branch_checkout(name):
     """
     Checkout the required branch
@@ -129,6 +133,7 @@ def branch_checkout(name):
     cmd = ['git', 'checkout', name]
     _, _ = run_cmd_with_output(cmd, exit_on_failure=False)
     rel_log.info("Checkout to branch %s", name)
+
 
 def get_last_cherry_pick_sha(branch):
     """
@@ -151,6 +156,7 @@ def get_last_cherry_pick_sha(branch):
             sha = line.split(' ')[-1]
             return sha[:-1]
     return sha
+
 
 if __name__ == "__main__":
 
@@ -175,23 +181,25 @@ if __name__ == "__main__":
     rel_log = logging.getLogger("Importer")
 
     if (args.repo_path is None) or (args.config_file is None):
-        rel_log.error("Repository path and config file required as input. Use \"--help\" for more info.")
-        exit(1)
+        rel_log.error(
+            "Repository path and config file required as input. "
+            "Use \"--help\" for more info.")
+        sys.exit(1)
 
     json_file = abspath(args.config_file)
     if not os.path.isfile(json_file):
         rel_log.error("%s not found.", args.config_file)
-        exit(1)
+        sys.exit(1)
 
     repo = abspath(args.repo_path)
     if not os.path.exists(repo):
         rel_log.error("%s not found.", args.repo_path)
-        exit(1)
+        sys.exit(1)
 
     sha = get_curr_sha(repo)
     if not sha:
         rel_log.error("Could not obtain latest SHA")
-        exit(1)
+        sys.exit(1)
     rel_log.info("%s SHA = %s", os.path.basename(repo), sha)
 
     branch = 'feature_' + os.path.basename(repo) + '_' + sha
@@ -212,14 +220,14 @@ if __name__ == "__main__":
         data_files = json_data["files"]
         data_folders = json_data["folders"]
 
-        ## Remove all files listed in .json from mbed-os repo to avoid duplications
-        for file in data_files:
-            src_file = file['src_file']
+    # Remove all files listed in .json from mbed-os repo to avoid duplications
+        for fh in data_files:
+            src_file = fh['src_file']
             del_file(os.path.basename(src_file))
-            dest_file = join(ROOT, file['dest_file'])
+            dest_file = join(ROOT, fh['dest_file'])
             if isfile(dest_file):
                 os.remove(join(ROOT, dest_file))
-                rel_log.debug("Deleted %s", file['dest_file'])
+                rel_log.debug("Deleted %s", fh['dest_file'])
 
         for folder in data_folders:
             dest_folder = folder['dest_folder']
@@ -228,21 +236,23 @@ if __name__ == "__main__":
 
         rel_log.info("Removed files/folders listed in json file")
 
-        ## Copy all the files listed in json file to mbed-os
-        for file in data_files:
-            repo_file = join(repo, file['src_file'])
-            mbed_path = join(ROOT, file['dest_file'])
+        # Copy all the files listed in json file to mbed-os
+        for fh in data_files:
+            repo_file = join(repo, fh['src_file'])
+            mbed_path = join(ROOT, fh['dest_file'])
             mkdir(dirname(mbed_path))
             copy_file(repo_file, mbed_path)
-            rel_log.debug("Copied %s to %s", normpath(repo_file), normpath(mbed_path))
+            rel_log.debug("Copied %s to %s", normpath(repo_file),
+                          normpath(mbed_path))
 
         for folder in data_folders:
             repo_folder = join(repo, folder['src_folder'])
             mbed_path = join(ROOT, folder['dest_folder'])
             copy_folder(repo_folder, mbed_path)
-            rel_log.debug("Copied %s to %s", normpath(repo_folder), normpath(mbed_path))
+            rel_log.debug("Copied %s to %s", normpath(repo_folder),
+                          normpath(mbed_path))
 
-        ## Create new branch with all changes
+        # Create new branch with all changes
         create_branch = ['git', 'checkout', '-b', branch]
         run_cmd_with_output(create_branch, exit_on_failure=True)
         rel_log.info("Branch created: %s", branch)
@@ -254,7 +264,7 @@ if __name__ == "__main__":
         run_cmd_with_output(commit_branch, exit_on_failure=True)
         rel_log.info('Commit added: "%s"', commit_msg)
 
-    ## Checkout the feature branch
+    # Checkout the feature branch
     branch_checkout(branch)
     commit_sha = json_data["commit_sha"]
     last_sha = get_last_cherry_pick_sha(branch)
