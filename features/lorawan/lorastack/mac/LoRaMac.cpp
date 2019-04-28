@@ -830,7 +830,7 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 }
 
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
-                               int16_t rssi, int8_t snr,
+                               int16_t rssi, int8_t snr, uint32_t rx_timestamp,
                                Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     _demod_ongoing = false;
@@ -852,7 +852,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 
     // Class B handling
     rx_slot_t rx_slot = get_current_slot();
-    LoRaMacClassB::Handle_rx(rx_slot, payload, size);
+    LoRaMacClassB::Handle_rx(rx_slot, payload, size, rx_timestamp);
     if (rx_slot == RX_SLOT_WIN_BEACON) {
         return;
     }
@@ -2509,7 +2509,7 @@ lorawan_status_t LoRaMac::add_ping_slot_info_req()
     return _mac_commands.add_ping_slot_info_req(_params.sys_params.ping_slot.periodicity);
 }
 
-lorawan_status_t LoRaMac::enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+lorawan_status_t LoRaMac::enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                         const loramac_beacon_t *)>beacon_event_cb)
 {
     return LoRaMacClassB::Enable_beacon_acquisition(beacon_event_cb);
