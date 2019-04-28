@@ -88,15 +88,15 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
                 break;
             }
             case MOTE_MAC_LINK_ADR_ANS:
-            case MOTE_MAC_NEW_CHANNEL_ANS: { // 1 byte payload
+            case MOTE_MAC_NEW_CHANNEL_ANS: 
+            case MOTE_MAC_PING_SLOT_INFO_REQ: { // 1 byte payload
                 i++;
                 break;
             }
             case MOTE_MAC_TX_PARAM_SETUP_ANS:
             case MOTE_MAC_DUTY_CYCLE_ANS:
             case MOTE_MAC_LINK_CHECK_REQ:
-            case MOTE_MAC_DEVICE_TIME_REQ:
-            case MOTE_MAC_PING_SLOT_INFO_REQ: { // 0 byte payload
+            case MOTE_MAC_DEVICE_TIME_REQ: { // 0 byte payload
                 break;
             }
             default: {
