@@ -176,6 +176,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     level = getattr(logging, args.log_level.upper())
 
+    if ROOT not in abspath(os.curdir):
+        parser.error("This script must be run from the mbed-os directory "
+                     "to work correctly.")
+
     # Set logging level
     logging.basicConfig(level=level)
     rel_log = logging.getLogger("Importer")
