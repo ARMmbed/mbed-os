@@ -32,6 +32,7 @@ sys.path.insert(0, ROOT)
 
 from tools.utils import delete_dir_files, mkdir, copy_file
 
+rel_log = logging.getLogger("Importer")
 cherry_pick_re = re.compile(
     '\s*\(cherry picked from commit (([0-9]|[a-f]|[A-F])+)\)')
 
@@ -52,6 +53,11 @@ class StoreValidFile(argparse.Action):
             raise argparse.ArgumentError(
                 None, "The file %s does not exist!" % fn)
         setattr(namespace, self.dest, fn)
+
+
+class SetLogLevel(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        logging.basicConfig(level=values)
 
 
 def del_file(name):
@@ -136,7 +142,7 @@ def get_curr_sha(repo_path):
         rel_log.error("Could not obtain latest SHA")
         sys.exit(1)
 
-    rel_log.info("%s SHA = %s", repo_path, sha)
+    rel_log.info("%s SHA = %s", repo_path, _sha)
     return _sha
 
 
@@ -201,14 +207,15 @@ def normalize_commit_sha(sha_lst):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-l', '--log-level',
                         help="Level for providing logging output",
-                        default='INFO')
+                        choices=['DEBUG', 'INFO', 'ERROR'],
+                        default='INFO',
+                        action=SetLogLevel)
     parser.add_argument('-r', '--repo-path',
                         help="Git Repository to be imported",
                         required=True,
@@ -218,17 +225,11 @@ if __name__ == "__main__":
                         required=True,
                         action=StoreValidFile)
 
-    args = parser.parse_args()
-    level = getattr(logging, args.log_level.upper())
-
     if ROOT not in abspath(os.curdir):
         parser.error("This script must be run from the mbed-os directory "
                      "to work correctly.")
 
-    # Set logging level
-    logging.basicConfig(level=level)
-    rel_log = logging.getLogger("Importer")
-
+    args = parser.parse_args()
     sha = get_curr_sha(args.repo_path)
     repo_dir = os.path.basename(args.repo_path)
     branch = 'feature_' + repo_dir + '_' + sha
