@@ -1609,7 +1609,6 @@ typedef enum {
  */
 typedef struct {
     uint32_t time; // beacon time
-    uint32_t time_on_air;  // beacon frame time on air
     uint8_t gw_specific[LORAMAC_BEACON_GW_SPECIFIC_LEN];  // info descriptior + info (15.3)
 } loramac_beacon_t;
 
