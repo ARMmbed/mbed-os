@@ -621,7 +621,7 @@ private:
 
     void handle_device_time_sync_event(lorawan_gps_time_t gps_time);
 
-    bool process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon);
+    void process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon);
 
 private:
     LoRaMac _loramac;

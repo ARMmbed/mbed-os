@@ -115,7 +115,7 @@ void LoRaMacClassB::initialize(LoRaWANTimeHandler *lora_time, LoRaPHY *lora_phy,
         _open_rx_window = open_window;
         _close_rx_window = close_window;
 
-        _beacon.received_beacon.time_on_air = _lora_phy->compute_beacon_time_on_air();
+        _beacon.time_on_air = _lora_phy->compute_beacon_time_on_air();
 
         _ping.slot[0].rx_config.rx_slot =  RX_SLOT_WIN_UNICAST_PING_SLOT;
         for (uint8_t i = 1; i <= MBED_CONF_LORA_CLASS_B_MULTICAST_ADDRESS_MAX_COUNT; i++) {
@@ -152,7 +152,7 @@ lorawan_status_t LoRaMacClassB::disable(void)
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t LoRaMacClassB::enable_beacon_acquisition(mbed::Callback<bool(loramac_beacon_status_t,
+lorawan_status_t LoRaMacClassB::enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                               const loramac_beacon_t *)> beacon_event_cb)
 {
     if (!_opstatus.initialized) {
@@ -210,7 +210,7 @@ bool LoRaMacClassB::schedule_beacon_window(void)
         open_beacon_window();
     } else {
         lorawan_gps_time_t next_beacon_time = ((current_time / LORA_BEACON_INTERVAL_MILLIS) + 1)
-                                             * LORA_BEACON_INTERVAL_MILLIS;
+                                              * LORA_BEACON_INTERVAL_MILLIS;
 
         // Delay until next beacon
         lorawan_gps_time_t beacon_delay = next_beacon_time - current_time;
@@ -268,11 +268,11 @@ void LoRaMacClassB::open_beacon_window(void)
     }
 }
 
-void LoRaMacClassB::handle_rx(rx_slot_t rx_slot, const uint8_t *const payload, uint16_t size)
+void LoRaMacClassB::handle_rx(rx_slot_t rx_slot, const uint8_t *const payload, uint16_t size, uint32_t rx_timestamp)
 {
     switch (rx_slot) {
         case RX_SLOT_WIN_BEACON:
-            handle_beacon_rx(payload, size);
+            handle_beacon_rx(payload, size, rx_timestamp);
             break;
         case RX_SLOT_WIN_UNICAST_PING_SLOT:
         case RX_SLOT_WIN_MULTICAST_PING_SLOT:
@@ -311,20 +311,30 @@ void LoRaMacClassB::handle_rx_timeout(rx_slot_t rx_slot)
     }
 }
 
-void LoRaMacClassB::handle_beacon_rx(const uint8_t *const frame, uint16_t size)
+void LoRaMacClassB::handle_beacon_rx(const uint8_t *const frame, uint16_t size, uint32_t rx_timestamp)
 {
     lorawan_time_t beacon_time;
     loramac_beacon_status_t beacon_status;
+    lorawan_gps_time_t gps_time;
 
     _opstatus.beacon_rx = 0;
 
     beacon_time = process_beacon_frame(frame, size);
 
-    // Beacon is ok if beacon time read  
+    // Beacon is ok if beacon time read
     if (beacon_time) {
         _beacon.beacon_time = beacon_time;
 
-        // Is this the first found beacon
+        // Update gps time
+        gps_time = (lorawan_gps_time_t)beacon_time * 1000 + _beacon.time_on_air +
+                   (_lora_time->get_current_time() - rx_timestamp);
+        _lora_time->set_gps_time(gps_time);
+        tr_debug("Synchronized GPS Time = %llu from Received Beacon", gps_time);
+
+        // Reset window expansion to defaults
+        reset_window_expansion();
+
+        // Stop acquistion timeout if this the first found beacon
         if (!_opstatus.beacon_found) {
             _opstatus.beacon_found = 1;
             _lora_time->stop(_beacon_acq_timer);
@@ -333,11 +343,8 @@ void LoRaMacClassB::handle_beacon_rx(const uint8_t *const frame, uint16_t size)
             beacon_status = BEACON_STATUS_LOCK;
         }
 
-        // Stack returns true when device time is synchronized
-        // to beacon time. In this event reset beacon window expansion
-        if (_beacon_event_cb(beacon_status, &_beacon.received_beacon)) {
-            reset_window_expansion();
-        }
+        // Send event to the stack
+        _beacon_event_cb(beacon_status, &_beacon.received_beacon);
         // Schedule next beacon window reception
         schedule_beacon_window();
         // Schedule beacon window ping slots
@@ -357,7 +364,7 @@ void LoRaMacClassB::handle_beacon_rx_timeout(void)
 {
     _opstatus.beacon_rx = 0;
 
-    // Missed beacon, adjust time if beacon previously found 
+    // Missed beacon, adjust time if beacon previously found
     if (_opstatus.beacon_found) {
         _beacon.beacon_time += LORA_BEACON_INTERVAL;
         send_beacon_miss_indication();
@@ -443,7 +450,7 @@ void LoRaMacClassB::expand_window(void)
         _beacon.expansion.timeout = MBED_CONF_LORA_CLASS_B_EXPANSION_BEACON_TIMEOUT_MAX;
     }
 
-    // beacon slot movement 
+    // beacon slot movement
     _beacon.expansion.movement *= MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_FACTOR;
     if (_beacon.expansion.movement > MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX) {
         _beacon.expansion.movement = MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX;
@@ -455,7 +462,7 @@ void LoRaMacClassB::expand_window(void)
         _ping.expansion.timeout = MBED_CONF_LORA_CLASS_B_EXPANSION_PING_TIMEOUT_MAX;
     }
 
-    // ping slot movement 
+    // ping slot movement
     _ping.expansion.movement *= MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_FACTOR;
     if (_ping.expansion.movement > MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX) {
         _ping.expansion.movement = MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX;
@@ -480,9 +487,9 @@ bool LoRaMacClassB::compute_ping_offset(uint32_t beacon_time, uint32_t address, 
 }
 
 lorawan_gps_time_t LoRaMacClassB::compute_ping_slot(uint32_t beacon_time, lorawan_gps_time_t current_time,
-                                                   uint16_t ping_period, uint8_t  ping_nb, uint32_t address,
-                                                   uint16_t ping_slot_offset, uint16_t &next_slot_nb,
-                                                   rx_config_params_t &rx_config)
+                                                    uint16_t ping_period, uint8_t  ping_nb, uint32_t address,
+                                                    uint16_t ping_slot_offset, uint16_t &next_slot_nb,
+                                                    rx_config_params_t &rx_config)
 {
     uint64_t beacon_time_millis;
     uint8_t  slot = 0;
@@ -532,7 +539,7 @@ void LoRaMacClassB::start_ping_slots(uint32_t beacon_time)
 
     loramac_protocol_params *params = protocol_params();
 
-    // Compute unicast & multicast ping slot offsets 
+    // Compute unicast & multicast ping slot offsets
     for (uint8_t i = 0; i <= MBED_CONF_LORA_CLASS_B_MULTICAST_ADDRESS_MAX_COUNT; i++) {
         if (_ping.slot[i].address) {
             compute_ping_offset(beacon_time, _ping.slot[i].address,
@@ -577,7 +584,7 @@ void LoRaMacClassB::schedule_ping_slot(void)
         }
     }
 
-    // Valid slot idx if ping slot to open in the current beacon period 
+    // Valid slot idx if ping slot to open in the current beacon period
     if (_ping.slot_idx != LORAMAC_INVALID_PING_SLOT) {
         delay = best_slot_time - get_gps_time();
         if (delay > 0) {
@@ -607,8 +614,8 @@ void LoRaMacClassB::open_ping_slot(void)
         current_time = _lora_time->get_current_time();
         if ((current_time - last_ping_slot_time) > CLASSB_PING_OPEN_DBG_TRACE_PERIOD) {
             tr_debug("Ping address = %lx slot = %u open, Freq = %lu",
-                     _ping.slot[_ping.slot_idx].address, 
-                     _ping.slot[_ping.slot_idx].slot_nb, 
+                     _ping.slot[_ping.slot_idx].address,
+                     _ping.slot[_ping.slot_idx].slot_nb,
                      _ping.slot[_ping.slot_idx].rx_config.frequency);
 
             last_ping_slot_time = current_time;
@@ -684,7 +691,7 @@ bool LoRaMacClassB::add_multicast_address(uint32_t address)
 
         _ping.slot[i].address = address;
         if (_opstatus.ping_on) {
-            compute_ping_offset(_beacon.beacon_time, address, 
+            compute_ping_offset(_beacon.beacon_time, address,
                                 protocol_params()->sys_params.ping_slot.ping_period,
                                 _ping.slot[i].offset);
         }
