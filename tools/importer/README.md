@@ -16,6 +16,7 @@ Note: Only files present in folder will be copied, directories inside the folder
 `commit_sha` is list of commits present in mbed-os repo. These commits will be applied after copying files and folders listed above.Each commit in the commit_sha list is cherry-picked and applied with the -x option, which records the SHA of the source commit in the commit message.
 Note: You must resolve any conflicts that arise during this cherry-pick process. Make sure that the "(cherry picked from commit ...)" statement is present in the commit message. Re-execute the python script to apply rest of the SHA commits.
 
+```json
 {
   "files" : [
     {
@@ -41,9 +42,10 @@ Note: You must resolve any conflicts that arise during this cherry-pick process.
   ],
    "commit_sha" : [
       "428acae1b2ac15c3ad523e8d40755a9301220822",
-      "d9d622afe0ca8c7ab9d24c17f9fe59b54dcc61c9",
+      {"sha": "d9d622afe0ca8c7ab9d24c17f9fe59b54dcc61c9", "msg": "Fix ..."}
     ]
 }
+```
 
 ### Input to importer.py
 1. Repository: -r <repo_path> ( Example: CMSIS / Mbed-tls)

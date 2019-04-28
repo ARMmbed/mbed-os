@@ -157,6 +157,10 @@ def get_last_cherry_pick_sha(branch):
     return sha
 
 
+def normalize_commit_sha(sha_lst):
+    return [_sha['sha'] if isinstance(_sha, dict) else _sha for _sha in sha_lst]
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__,
@@ -269,7 +273,7 @@ if __name__ == "__main__":
 
     # Checkout the feature branch
     branch_checkout(branch)
-    commit_sha = json_data["commit_sha"]
+    commit_sha = normalize_commit_sha(json_data["commit_sha"])
     last_sha = get_last_cherry_pick_sha(branch)
 
     # Few commits are already applied, check the next in sequence
