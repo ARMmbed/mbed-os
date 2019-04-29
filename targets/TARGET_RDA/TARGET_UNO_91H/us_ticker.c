@@ -41,7 +41,6 @@ extern void rda_timer_irq_set(void);
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
-        us_ticker_disable_interrupt();
         return;
     }
 
