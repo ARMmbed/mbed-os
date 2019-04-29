@@ -51,7 +51,6 @@ typedef enum {
 } PinDirection;
 
 #define NOT_CONNECTED (int)0xFFFFFFFF
-#define PORT_SHIFT  3
 
 typedef enum {
     p0  = 0,
