@@ -96,6 +96,46 @@ def copy_folder(src, dst):
             copy_file(abs_src_file, abs_dst_file)
 
 
+def import_files(repo_path, data_files, data_folders):
+    """
+    Imports files and directories to mbed-os
+
+    :param repo_path: Path to the repo copying from.
+    :param data_files: List of files to be copied. (with destination)
+    :param data_folders: List of directories to be copied. (with destination)
+    :return: None
+    """
+
+    # Remove all files listed in .json from mbed-os repo to avoid duplications
+    for fh in data_files:
+        src_file = fh['src_file']
+        del_file(os.path.basename(src_file))
+        dest_file = join(ROOT, fh['dest_file'])
+        if isfile(dest_file):
+            os.remove(join(ROOT, dest_file))
+            rel_log.debug("Deleted %s", fh['dest_file'])
+    for folder in data_folders:
+        dest_folder = folder['dest_folder']
+        delete_dir_files(dest_folder)
+        rel_log.debug("Deleted: %s", folder['dest_folder'])
+    rel_log.info("Removed files/folders listed in json file")
+
+    # Copy all the files listed in json file to mbed-os
+    for fh in data_files:
+        repo_file = join(repo_path, fh['src_file'])
+        mbed_path = join(ROOT, fh['dest_file'])
+        mkdir(dirname(mbed_path))
+        copy_file(repo_file, mbed_path)
+        rel_log.debug("Copied %s to %s", normpath(repo_file),
+                      normpath(mbed_path))
+    for folder in data_folders:
+        repo_folder = join(repo_path, folder['src_folder'])
+        mbed_path = join(ROOT, folder['dest_folder'])
+        copy_folder(repo_folder, mbed_path)
+        rel_log.debug("Copied %s to %s", normpath(repo_folder),
+                      normpath(mbed_path))
+
+
 def run_cmd_with_output(command, exit_on_failure=False):
     """
     Passes a command to the system and returns a True/False result once the
@@ -247,38 +287,7 @@ if __name__ == "__main__":
     else:
         data_files = json_data["files"]
         data_folders = json_data["folders"]
-
-    # Remove all files listed in .json from mbed-os repo to avoid duplications
-        for fh in data_files:
-            src_file = fh['src_file']
-            del_file(os.path.basename(src_file))
-            dest_file = join(ROOT, fh['dest_file'])
-            if isfile(dest_file):
-                os.remove(join(ROOT, dest_file))
-                rel_log.debug("Deleted %s", fh['dest_file'])
-
-        for folder in data_folders:
-            dest_folder = folder['dest_folder']
-            delete_dir_files(dest_folder)
-            rel_log.debug("Deleted: %s", folder['dest_folder'])
-
-        rel_log.info("Removed files/folders listed in json file")
-
-        # Copy all the files listed in json file to mbed-os
-        for fh in data_files:
-            repo_file = join(args.repo_path, fh['src_file'])
-            mbed_path = join(ROOT, fh['dest_file'])
-            mkdir(dirname(mbed_path))
-            copy_file(repo_file, mbed_path)
-            rel_log.debug("Copied %s to %s", normpath(repo_file),
-                          normpath(mbed_path))
-
-        for folder in data_folders:
-            repo_folder = join(args.repo_path, folder['src_folder'])
-            mbed_path = join(ROOT, folder['dest_folder'])
-            copy_folder(repo_folder, mbed_path)
-            rel_log.debug("Copied %s to %s", normpath(repo_folder),
-                          normpath(mbed_path))
+        import_files(args.repo_path, data_files, data_folders)
 
         # Create new branch with all changes
         create_branch = ['git', 'checkout', '-b', branch]
