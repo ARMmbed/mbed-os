@@ -33,8 +33,6 @@ sys.path.insert(0, ROOT)
 from tools.utils import delete_dir_files, mkdir, copy_file
 
 rel_log = logging.getLogger("Importer")
-cherry_pick_re = re.compile(
-    '\s*\(cherry picked from commit (([0-9]|[a-f]|[A-F])+)\)')
 
 
 class StoreDir(argparse.Action):
@@ -184,13 +182,13 @@ def get_last_cherry_pick_sha():
     get_commit = ['git', '-C', ROOT, 'log', '-n', '1']
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
 
-    lines = output.splitlines()
-    lines.reverse()
-    for line in lines:
-        match = cherry_pick_re.match(line)
-        if match:
-            return match.group(1)
-    return None
+    shas = re.findall(
+        pattern='^\s*\(cherry picked from commit ([0-9a-fA-F]+)\)$',
+        string=output,
+        flags=re.MULTILINE
+    )
+
+    return shas[-1] if shas else None
 
 
 def normalize_commit_sha(sha_lst):
