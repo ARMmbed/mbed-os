@@ -197,13 +197,13 @@ lorawan_status_t LoRaWANInterface::set_device_class(const device_class_t device_
     return _lw_stack.set_device_class(device_class);
 }
 
-lorawan_time_t LoRaWANInterface::get_current_gps_time()
+lorawan_gps_time_t LoRaWANInterface::get_current_gps_time()
 {
     Lock lock(*this);
     return _lw_stack.get_current_gps_time();
 }
 
-void LoRaWANInterface::set_current_gps_time(lorawan_time_t gps_time)
+void LoRaWANInterface::set_current_gps_time(lorawan_gps_time_t gps_time)
 {
     Lock lock(*this);
     _lw_stack.set_current_gps_time(gps_time);
