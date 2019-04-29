@@ -273,7 +273,7 @@ typedef enum {
     A3          = PC_1,
     A4          = PC_4,
     A5          = PC_5,
-	
+
     D0          = PA_1,
     D1          = PA_0,
     D2          = PG_7,
@@ -303,52 +303,52 @@ typedef enum {
     STDIO_UART_RX = PD_2,
 #endif
 
-	// Debug pins
-	DEBUG_GPIO0	= PG_6,
+    // Debug pins
+    DEBUG_GPIO0	= PG_6,
     // Generic signals namings
     LED1        = PK_7, // Red LED
     LED2        = PK_6, // Orange LED
     LED3        = PK_5, // Green LED
-    LED_RED		= LED1,
-	LED_ORANGE	= LED2,
-	LED_GREEN	= LED3,
+    LED_RED     = LED1,
+    LED_ORANGE  = LED2,
+    LED_GREEN   = LED3,
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
     
-	// SPI and I2C pins on Arduino connector
-	SPI_CS      = D10,
+    // SPI and I2C pins on Arduino connector
+    SPI_CS      = D10,
     SPI_MOSI    = D11,
     SPI_MISO    = D12,
     SPI_SCK     = D13,
-	I2C_SDA     = D14,
-	I2C_SCL     = D15,
+    I2C_SDA     = D14,
+    I2C_SCL     = D15,
 
-	// Adding these signals for the SDP connector
-	SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
-	SDP_SPI_MISO = PF_8, 
-	SDP_SPI_SCK  = PH_6,
-	SDP_SPI_CS_A = PB_9,
-	SDP_SPI_CS_B = PC_6,
-	SDP_SPI_CS_C = PC_7,
-	SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
-	SDP_I2C_SCL	 = PH_7,
-	SDP_GPIO_0	 = PJ_0,		// SDP connector GPIO 0-7  
-	SDP_GPIO_1	 = PJ_1, 
-	SDP_GPIO_2	 = PJ_3,
-	SDP_GPIO_3	 = PJ_4,
-	SDP_GPIO_4	 = PJ_5,
-	SDP_GPIO_5	 = PJ_12,
-	SDP_GPIO_6	 = PJ_13,
-	SDP_GPIO_7	 = PJ_14,	
-	SDP_UART_TX	 = PD_5,		// SDP connector UART
-	SDP_UART_RX	 = PD_6,
-	SDP_TMR_A	 = PB_14,		// SDP connector TMR A, B & D
-	SDP_TMR_B	 = PE_6,
-	SDP_TMR_D	 = PC_8,
-	
-    PWM_OUT     = PA_1,
+    // Adding these signals for the SDP connector
+    SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
+    SDP_SPI_MISO = PF_8, 
+    SDP_SPI_SCK  = PH_6,
+    SDP_SPI_CS_A = PB_9,
+    SDP_SPI_CS_B = PC_6,
+    SDP_SPI_CS_C = PC_7,
+    SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
+    SDP_I2C_SCL  = PH_7,
+    SDP_GPIO_0   = PJ_0,		// SDP connector GPIO 0-7  
+    SDP_GPIO_1   = PJ_1, 
+    SDP_GPIO_2   = PJ_3,
+    SDP_GPIO_3   = PJ_4,
+    SDP_GPIO_4   = PJ_5,
+    SDP_GPIO_5   = PJ_12,
+    SDP_GPIO_6   = PJ_13,
+    SDP_GPIO_7   = PJ_14,	
+    SDP_UART_TX  = PD_5,		// SDP connector UART
+    SDP_UART_RX  = PD_6,
+    SDP_TMR_A    = PB_14,		// SDP connector TMR A, B & D
+    SDP_TMR_B    = PE_6,
+    SDP_TMR_D    = PC_8,
+
+    PWM_OUT      = PA_1,
 
     /**** USB pins ****/
     USB_OTG_HS_DM = PB_14,
