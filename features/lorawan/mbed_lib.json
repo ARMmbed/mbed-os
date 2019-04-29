@@ -166,7 +166,7 @@
             "value": 1023 
         },
         "class-b-expansion-ping-timeout-max":{
-            "help": "Class B ping slot exapsnion maximum symbol timeout, Default: 30",
+            "help": "Class B ping slot expansion maximum symbol timeout, Default: 30",
             "value": 30 
         },
         "class-b-expansion-offset-default":{
@@ -180,10 +180,6 @@
         "class-b-expansion-offset-factor":{
             "help": "Class B reception slot offset expansion factor, Default: 2",
             "value": 2
-        },
-        "class-b-extra-debug-trace-level":{
-            "help": "Set extra Class B debug tracing level. Disabled=0, Beacon=1, Beacon&Ping=2. Default: 0",
-            "value": 0
         },
         "class-b-multicast-address-max-count":{
             "help": "Maximum number of Class B ping slot enabled multicast addresses. Default:1",
