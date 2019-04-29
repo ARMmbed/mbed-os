@@ -60,15 +60,6 @@ LoRaMacClassB LoRaMacClassB::_loramac_class_b;
 #define LORA_BEACON_INTERVAL_MILLIS          (LORA_BEACON_INTERVAL*1000UL)
 
 
-/*!
- * Extra beacon debug logging that can be enabled with a json option
- */
-#if MBED_CONF_LORA_CLASS_B_EXTRA_DEBUG_TRACE_LEVEL > 0
-#define BEACON_DBG(format, ...) do{ printf(format, ## __VA_ARGS__);}while(0)
-#else
-#define BEACON_DBG(format, ...)
-#endif
-
 LoRaMacClassB::LoRaMacClassB()
     : _lora_phy(NULL),
       _lora_time(NULL),
@@ -232,13 +223,7 @@ bool LoRaMacClassB::schedule_beacon_window(void)
             _lora_time->start(_beacon_timer, delay);
         }
 
-        BEACON_DBG("\nSchedule Beacon\n");
-        BEACON_DBG("\tNext Beacon    : %llu\n", next_beacon_time);
-        BEACON_DBG("\tDevice Time    : %llu\n", current_time);
-        BEACON_DBG("\tBeacon Delay   : %ld\n", delay);
-        BEACON_DBG("\tWindow Offset  : %ld\n", window_offset);
-        BEACON_DBG("\tSymbol Timeout : %ld\n", _beacon.rx_config.window_timeout);
-        BEACON_DBG("\tFrequency      : %lu\n", _beacon.rx_config.frequency);
+        tr_debug("Next beacon time = %llu in %ld ms", next_beacon_time/1000, delay);
     }
 
     return true;
@@ -419,15 +404,6 @@ uint32_t LoRaMacClassB::process_beacon_frame(const uint8_t *const frame, uint16_
         }
     }
 
-#if MBED_CONF_LORA_CLASS_B_EXTRA_DEBUG_TRACE_LEVEL > 0
-    if (beacon_time == 0) {
-        BEACON_DBG("Bad beacon frame: ");
-        for (uint16_t i = 0; i < size; i++) {
-            BEACON_DBG("%02x", frame[i]);
-        }
-        BEACON_DBG("\n");
-    }
-#endif
     return beacon_time;
 }
 
@@ -455,6 +431,8 @@ void LoRaMacClassB::expand_window(void)
     if (_beacon.expansion.movement > MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX) {
         _beacon.expansion.movement = MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX;
     }
+    tr_debug("Expand beacon window timeout=%u, movement=%u",
+             _beacon.expansion.timeout, _beacon.expansion.movement);
 
     // ping slot symbol timeout
     _ping.expansion.timeout *= MBED_CONF_LORA_CLASS_B_EXPANSION_TIMEOUT_FACTOR;
@@ -467,6 +445,8 @@ void LoRaMacClassB::expand_window(void)
     if (_ping.expansion.movement > MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX) {
         _ping.expansion.movement = MBED_CONF_LORA_CLASS_B_EXPANSION_OFFSET_MAX;
     }
+    tr_debug("Expand ping slot timeout=%u, movement=%u",
+             _ping.expansion.timeout, _ping.expansion.movement);
 }
 
 bool LoRaMacClassB::compute_ping_offset(uint32_t beacon_time, uint32_t address, uint16_t ping_period, uint16_t &ping_offset)
@@ -521,7 +501,14 @@ lorawan_gps_time_t LoRaMacClassB::compute_ping_slot(uint32_t beacon_time, lorawa
         // For window timeout select the larger of the phy computed and class-b window expanded
         rx_config.window_timeout = MAX(_ping.expansion.timeout, rx_config.window_timeout);
 
-        slot_time = slot_time + rx_config.window_offset;
+        // PHY layer computes window offset adjusting for minimum preamble,
+        // timing errors, receiver wakeup time
+        int32_t window_offset = 0;// rx_config.window_offset;
+
+        // Expand PHY offset by class b window expansion
+        window_offset -= _ping.expansion.movement;
+
+        slot_time += window_offset;
         next_slot_nb = slot_nb;
         return slot_time;
     }
