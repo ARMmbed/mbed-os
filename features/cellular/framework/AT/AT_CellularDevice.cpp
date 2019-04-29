@@ -28,6 +28,7 @@
 #include "UARTSerial.h"
 #endif // #if DEVICE_SERIAL
 #include "FileHandle.h"
+#include <ctype.h>
 
 using namespace mbed_cellular_util;
 using namespace events;
@@ -43,10 +44,24 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
     MBED_ASSERT(fh);
     _at = get_at_handler(fh);
     MBED_ASSERT(_at);
+
+    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        _at->set_urc_handler("+CGEV: NW DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
+        _at->set_urc_handler("+CGEV: ME DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
+        _at->set_urc_handler("+CGEV: NW PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
+        _at->set_urc_handler("+CGEV: ME PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
+    }
 }
 
 AT_CellularDevice::~AT_CellularDevice()
 {
+    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        _at->set_urc_handler("+CGEV: NW DEACT", 0);
+        _at->set_urc_handler("+CGEV: ME DEACT", 0);
+        _at->set_urc_handler("+CGEV: NW PDN D", 0);
+        _at->set_urc_handler("+CGEV: ME PDN D", 0);
+    }
+
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
     _network_ref_count = 1;
     _sms_ref_count = 1;
@@ -67,6 +82,56 @@ AT_CellularDevice::~AT_CellularDevice()
     }
 
     release_at_handler(_at);
+}
+
+void AT_CellularDevice::urc_nw_deact()
+{
+    // The network has forced a context deactivation
+    char buf[10];
+    _at->read_string(buf, 10);
+    int cid;
+    if (isalpha(buf[0])) {
+        // this is +CGEV: NW DEACT <PDP_type>, <PDP_addr>, [<cid>]
+        // or      +CGEV: ME DEACT <PDP_type>, <PDP_addr>, [<cid>]
+        _at->skip_param(); // skip <PDP_addr>
+        cid = _at->read_int();
+    } else {
+        // this is +CGEV: NW DEACT <p_cid>, <cid>, <event_type>[,<WLAN_Offload>]
+        // or      +CGEV: ME DEACT <p_cid>, <cid>, <event_type
+        cid = _at->read_int();
+    }
+    send_disconnect_to_context(cid);
+}
+
+void AT_CellularDevice::urc_pdn_deact()
+{
+    // The network has deactivated a context
+    // The mobile termination has deactivated a context.
+    // +CGEV: NW PDN DEACT <cid>[,<WLAN_Offload>]
+    // +CGEV: ME PDN DEACT <cid>
+    _at->set_delimiter(' ');
+    _at->skip_param();
+    _at->set_delimiter(',');
+
+    int cid = _at->read_int();
+    send_disconnect_to_context(cid);
+}
+
+void AT_CellularDevice::send_disconnect_to_context(int cid)
+{
+    tr_debug("send_disconnect_to_context, cid: %d", cid);
+    AT_CellularContext *curr = _context_list;
+    while (curr) {
+        if (cid >= 0) {
+            if (curr->get_cid() == cid) {
+                CellularDevice::cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, curr);
+                break;
+            }
+        } else {
+            CellularDevice::cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        }
+        curr = (AT_CellularContext *)curr->_next;
+    }
 }
 
 nsapi_error_t AT_CellularDevice::hard_power_on()

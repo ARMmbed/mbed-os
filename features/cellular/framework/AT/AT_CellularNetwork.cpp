@@ -85,9 +85,13 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
         }
     }
 
-    _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
-    // additional urc to get better disconnect info for application. Not critical.
-    _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    if (get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        // additional urc to get better disconnect info for application. Not critical.
+        _at.set_urc_handler("+CGEV: NW DET", callback(this, &AT_CellularNetwork::urc_cgev));
+        _at.set_urc_handler("+CGEV: ME DET", callback(this, &AT_CellularNetwork::urc_cgev));
+    }
+
+
     _at.set_urc_handler("+CCIOTOPTI:", callback(this, &AT_CellularNetwork::urc_cciotopti));
 }
 
@@ -100,44 +104,16 @@ AT_CellularNetwork::~AT_CellularNetwork()
         }
     }
 
-    _at.set_urc_handler("NO CARRIER", 0);
-    _at.set_urc_handler("+CGEV:", 0);
-}
-
-void AT_CellularNetwork::urc_no_carrier()
-{
-    tr_info("NO CARRIER");
-    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    if (get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        _at.set_urc_handler("+CGEV: ME DET", 0);
+        _at.set_urc_handler("+CGEV: NW DET", 0);
+    }
+    _at.set_urc_handler("+CCIOTOPTI:", 0);
 }
 
 void AT_CellularNetwork::urc_cgev()
 {
-    char buf[13];
-    if (_at.read_string(buf, 13) < 8) { // smallest string length we wan't to compare is 8
-        return;
-    }
-    tr_debug("CGEV: %s", buf);
-
-    bool call_cb = false;
-    // NOTE! If in future there will be 2 or more active contexts we might wan't to read context id also but not for now.
-
-    if (memcmp(buf, "NW DETACH", 9) == 0) { // The network has forced a PS detach
-        call_cb = true;
-    } else if (memcmp(buf, "ME DETACH", 9) == 0) {// The mobile termination has forced a PS detach.
-        call_cb = true;
-    } else if (memcmp(buf, "NW DEACT", 8) == 0) {// The network has forced a context deactivation
-        call_cb = true;
-    } else if (memcmp(buf, "ME DEACT", 8) == 0) {// The mobile termination has forced a context deactivation
-        call_cb = true;
-    } else if (memcmp(buf, "NW PDN DEACT", 12) == 0) {// The network has deactivated a context
-        call_cb = true;
-    } else if (memcmp(buf, "ME PDN DEACT", 12) == 0) {// The mobile termination has deactivated a context.
-        call_cb = true;
-    }
-
-    if (call_cb) {
-        call_network_cb(NSAPI_STATUS_DISCONNECTED);
-    }
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 }
 
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
@@ -159,8 +135,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
             _reg_params._status = reg_params._status;
             data.status_data = reg_params._status;
             _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, (intptr_t)&data);
-            if (!(reg_params._status == RegisteredHomeNetwork ||
-                    reg_params._status == RegisteredRoaming)) {
+            if (reg_params._status == NotRegistered) { // Other states means that we are trying to connect or connected
                 if (previous_registration_status == RegisteredHomeNetwork ||
                         previous_registration_status == RegisteredRoaming) {
                     if (type != C_REG) {// we are interested only if we drop from packet network
@@ -713,8 +688,8 @@ nsapi_error_t AT_CellularNetwork::set_packet_domain_event_reporting(bool on)
     }
 
     _at.lock();
-    _at.cmd_start("AT+CGEREP=");// discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
-    _at.write_int(on ? 1 : 0);
+    _at.cmd_start("AT+CGEREP=");
+    _at.write_int(on ? 1 : 0); // discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
     _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();

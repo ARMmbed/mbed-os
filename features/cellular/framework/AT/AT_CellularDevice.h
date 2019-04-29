@@ -140,6 +140,11 @@ public:
     int _default_timeout;
     bool _modem_debug_on;
     ATHandler *_at;
+
+private:
+    void urc_nw_deact();
+    void urc_pdn_deact();
+    void send_disconnect_to_context(int cid);
 };
 
 } // namespace mbed

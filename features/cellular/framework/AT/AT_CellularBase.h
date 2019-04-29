@@ -67,18 +67,18 @@ public:
      */
     static void set_cellular_properties(const intptr_t *property_array);
 
-protected:
-
-    static const intptr_t *_property_array;
-
-    ATHandler &_at;
-
     /** Get value for the given key.
      *
      *  @param key  key for value to be fetched
      *  @return     property value for the given key. Value type is defined in enum CellularProperty
      */
     static intptr_t get_property(CellularProperty key);
+
+protected:
+
+    static const intptr_t *_property_array;
+
+    ATHandler &_at;
 };
 
 } // namespace mbed

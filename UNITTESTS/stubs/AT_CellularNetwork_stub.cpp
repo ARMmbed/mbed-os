@@ -95,11 +95,6 @@ nsapi_error_t AT_CellularNetwork::detach()
     return NSAPI_ERROR_OK;
 }
 
-void AT_CellularNetwork::urc_no_carrier()
-{
-
-}
-
 nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
     return NSAPI_ERROR_OK;

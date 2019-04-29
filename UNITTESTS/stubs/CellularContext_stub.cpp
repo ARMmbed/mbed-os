@@ -29,6 +29,11 @@ CellularDevice *CellularContext::get_device() const
     return _device;
 }
 
+int CellularContext::get_cid() const
+{
+    return _cid;
+}
+
 void CellularContext::do_connect_with_retry()
 {
     do_connect();

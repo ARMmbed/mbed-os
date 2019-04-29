@@ -121,7 +121,7 @@ public:
 
     /** Set callback function for URC
      *
-     *  @param prefix   URC text to look for, e.g. "+CMTI:"
+     *  @param prefix   URC text to look for, e.g. "+CMTI:". Maximum length is BUFF_SIZE.
      *  @param callback function to call on prefix, or 0 to remove callback
      */
     void set_urc_handler(const char *prefix, Callback<void()> callback);
