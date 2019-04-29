@@ -49,6 +49,20 @@ class SetLogLevel(argparse.Action):
         logging.basicConfig(level=values)
 
 
+class DirContext(object):
+    def __init__(self, dir):
+        self.dir = dir
+
+    def __enter__(self):
+        _backup_dir = os.getcwd()
+        os.chdir(self.dir)
+        self.dir = _backup_dir
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        os.chdir(self.dir)
+
+
 def del_file(name):
     """
     Delete the file in RTOS/CMSIS/features directory of mbed-os.
@@ -183,7 +197,7 @@ def branch_exists(name):
     :return: True if branch is already present, False otherwise.
     """
 
-    cmd = ['git', '-C', ROOT, 'branch']
+    cmd = ['git', 'branch']
     _, output = run_cmd_with_output(cmd, exit_on_failure=False)
 
     return name in output
@@ -210,7 +224,7 @@ def get_last_cherry_pick_sha():
     :return: SHA if found, None otherwise.
     """
 
-    get_commit = ['git', '-C', ROOT, 'log', '-n', '1']
+    get_commit = ['git', 'log', '-n', '1']
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
 
     shas = re.findall(
@@ -235,7 +249,7 @@ def normalize_commit_sha(sha_lst):
     return [_sha['sha'] if isinstance(_sha, dict) else _sha for _sha in sha_lst]
 
 
-if __name__ == "__main__":
+def get_parser():
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -254,10 +268,11 @@ if __name__ == "__main__":
                         required=True,
                         type=argparse.FileType('r'))
 
-    if ROOT not in abspath(os.curdir):
-        parser.error("This script must be run from the mbed-os directory "
-                     "to work correctly.")
+    return parser
 
+
+def main():
+    parser = get_parser()
     args = parser.parse_args()
     sha = get_curr_sha(args.repo_path)
     repo_dir = os.path.basename(args.repo_path)
@@ -315,3 +330,8 @@ if __name__ == "__main__":
         run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
 
     rel_log.info("Finished import successfully :)")
+
+
+if __name__ == "__main__":
+    with DirContext(ROOT):
+        main()

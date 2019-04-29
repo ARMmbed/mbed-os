@@ -54,4 +54,3 @@ Note: You must resolve any conflicts that arise during this cherry-pick process.
 For example the command below can be used to update CMSIS:
 `python tools\importer\importer.py -c tools\importer\cmsis_importer.json -r <path to cmsis repo>`
 
-Note: This script must be run from the mbed-os directory to work correctly.
