@@ -503,10 +503,7 @@ lorawan_gps_time_t LoRaMacClassB::compute_ping_slot(uint32_t beacon_time, lorawa
 
         // PHY layer computes window offset adjusting for minimum preamble,
         // timing errors, receiver wakeup time
-        int32_t window_offset = 0;// rx_config.window_offset;
-
-        // Expand PHY offset by class b window expansion
-        window_offset -= _ping.expansion.movement;
+        int32_t window_offset = rx_config.window_offset - _ping.expansion.movement;
 
         slot_time += window_offset;
         next_slot_nb = slot_nb;
