@@ -44,15 +44,6 @@ class StoreDir(argparse.Action):
         setattr(namespace, self.dest, directory)
 
 
-class StoreValidFile(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        fn = abspath(values)
-        if not isfile(fn):
-            raise argparse.ArgumentError(
-                None, "The file %s does not exist!" % fn)
-        setattr(namespace, self.dest, fn)
-
-
 class SetLogLevel(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         logging.basicConfig(level=values)
@@ -261,7 +252,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--config-file',
                         help="Configuration file",
                         required=True,
-                        action=StoreValidFile)
+                        type=argparse.FileType('r'))
 
     if ROOT not in abspath(os.curdir):
         parser.error("This script must be run from the mbed-os directory "
@@ -274,8 +265,7 @@ if __name__ == "__main__":
     commit_msg = "[" + repo_dir + "]" + ": Updated to " + sha
 
     # Read configuration data
-    with open(args.config_file, 'r') as config:
-        json_data = json.load(config)
+    json_data = json.load(args.config_file)
 
     '''
     Check if branch exists already, in case branch is present
