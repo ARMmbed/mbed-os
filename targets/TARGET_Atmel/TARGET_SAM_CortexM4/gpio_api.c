@@ -30,13 +30,15 @@ uint32_t gpio_set(PinName pin)
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    MBED_ASSERT(pin != (PinName)NC);
     if (g_sys_init == 0) {
         sysclk_init();
         system_board_init();
         g_sys_init = 1;
     }
     obj->pin = pin;
+    if (pin == NC) {
+        return;
+    }
 
     ioport_set_pin_dir(pin, IOPORT_DIR_INPUT);
     ioport_set_pin_mode(pin, IOPORT_MODE_PULLUP);
