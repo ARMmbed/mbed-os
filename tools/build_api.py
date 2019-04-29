@@ -26,6 +26,7 @@ from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
 from os import linesep, remove, makedirs
+from copy import copy
 from time import time
 from json import load, dump
 from jinja2 import FileSystemLoader
@@ -365,17 +366,13 @@ def transform_release_toolchains(target, version):
     """
     if int(target.build_tools_metadata["version"]) > 0:
         if version == '5':
-            non_arm_toolchains = set(["IAR", "GCC_ARM"])
-            if 'ARMC5' in target.supported_toolchains:
-                result = ["ARMC5"]
-            else:
-                result = ["ARM", "ARMC6"]
-            result.extend(
-                set(target.supported_toolchains).intersection(
-                    non_arm_toolchains
-                )
-            )
-            return result
+            toolchains = copy(target.supported_toolchains)
+
+            if "ARM" in toolchains:
+                toolchains.remove("ARM")
+                toolchains.extend(["ARMC5", "ARMC6"])
+
+            return toolchains
         return target.supported_toolchains
     else:
         if version == '5':
