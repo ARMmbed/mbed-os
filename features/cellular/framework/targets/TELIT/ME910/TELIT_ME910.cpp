@@ -17,6 +17,8 @@
 
 #include "TELIT_ME910.h"
 #include "AT_CellularNetwork.h"
+#include "gpio_api.h"
+#include "platform/mbed_wait_api.h"
 
 using namespace mbed;
 using namespace events;
@@ -78,3 +80,43 @@ CellularDevice *CellularDevice::get_default_instance()
     return &device;
 }
 #endif
+
+nsapi_error_t TELIT_ME910::hard_power_on()
+{
+    soft_power_on();
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t TELIT_ME910::soft_power_on()
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, MDMPWRON, 1);
+    wait_ms(500);
+    gpio_write(&gpio, 0);
+    wait_ms(5000);
+    gpio_write(&gpio, 1);
+    wait_ms(5000);
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t TELIT_ME910::hard_power_off()
+{
+    gpio_t gpio;
+
+    gpio_init_out_ex(&gpio, MDMPWRON, 0);
+    /* keep the power line low for more than 10 seconds.
+     * If 3G_ON_OFF pin is kept low for more than a second, a controlled disconnect and shutdown takes
+     * place, Due to the network disconnect, shut-off can take up to 30 seconds. However, we wait for 10
+     * seconds only   */
+    wait_ms(10 * 1000);
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t TELIT_ME910::soft_power_off()
+{
+    return AT_CellularDevice::soft_power_off();
+}
