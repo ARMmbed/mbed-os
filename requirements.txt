@@ -1,5 +1,5 @@
 colorama==0.3.9
-urllib3[secure]==1.23
+urllib3[secure]==1.24.2
 prettytable==0.7.2
 junit-xml==1.8
 pyyaml==4.2b1
