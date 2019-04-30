@@ -46,7 +46,7 @@ typedef uint32_t lorawan_time_t;
 
 
 /*!
- * \brief GPS time in milliseconds 
+ * \brief GPS time in milliseconds
  */
 #ifndef lorawan_gps_time_t
 typedef uint64_t lorawan_gps_time_t;
@@ -88,7 +88,7 @@ typedef uint64_t lorawan_gps_time_t;
 #endif
 
 /**
- * 
+ *
  * Network Beacon Gateway Specific field length
  */
 #define LORAMAC_BEACON_GW_SPECIFIC_LEN          7
