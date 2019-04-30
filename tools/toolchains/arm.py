@@ -547,6 +547,7 @@ class ARMC6(ARM_STD):
             "Cortex-M7FD": "cortex-m7",
             "Cortex-M33": "cortex-m33+nodsp",
             "Cortex-M33F": "cortex-m33+nodsp",
+            "Cortex-M33E": "cortex-m33",
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
         cpu = cpu.lower()
