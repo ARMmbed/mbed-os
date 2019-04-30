@@ -141,6 +141,9 @@ public:
     bool _modem_debug_on;
     ATHandler *_at;
 
+protected:
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+
 private:
     void urc_nw_deact();
     void urc_pdn_deact();

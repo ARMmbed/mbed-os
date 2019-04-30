@@ -450,7 +450,7 @@ protected:
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
-    void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
     void stm_callback(nsapi_event_t ev, intptr_t ptr);
     int _network_ref_count;
     int _sms_ref_count;

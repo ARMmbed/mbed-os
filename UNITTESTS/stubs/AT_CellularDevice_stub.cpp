@@ -242,3 +242,7 @@ nsapi_error_t AT_CellularDevice::soft_power_off()
 {
     return NSAPI_ERROR_OK;
 }
+
+void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
+{
+}

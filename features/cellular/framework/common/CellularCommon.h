@@ -65,6 +65,9 @@ typedef enum cellular_event_status {
     CellularSignalQuality                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 8, /* cell_callback_data_t.error will contains return value when signal quality was queried. data will hold the pointer to cell_signal_quality struct. See possible values from ../API/CellularNetwork.h*/
     CellularStateRetryEvent                 = NSAPI_EVENT_CELLULAR_STATUS_BASE + 9, /* cell_callback_data_t.error contain an error if any. cell_callback_data_t.status_data contains cellular_event_status and it specifies the operation which is retried.
                                                                                        cellular_event_status.data contains current retrycount */
+    CellularDeviceTimeout                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 10,/* cell_callback_data_t.error contain an error or NSAPI_ERROR_OK,
+                                                                                       cell_callback_data_t.status_data contains the current cellular_connection_status_t,
+                                                                                       cellular_event_status.data contains new timeout value in milliseconds */
 } cellular_connection_status_t;
 
 #endif // CELLULAR_COMMON_

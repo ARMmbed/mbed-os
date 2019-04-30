@@ -601,3 +601,19 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
 
     return _at->unlock_return_error();
 }
+
+void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
+{
+    if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
+        cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
+        if (cell_ev == CellularDeviceTimeout) {
+            cell_callback_data_t *data = (cell_callback_data_t *)ptr;
+            int timeout = *(int *)data->data;
+            if (_default_timeout != timeout) {
+                _default_timeout = timeout;
+                ATHandler::set_at_timeout_list(_default_timeout, true);
+            }
+        }
+    }
+    CellularDevice::cellular_callback(ev, ptr, ctx);
+}
