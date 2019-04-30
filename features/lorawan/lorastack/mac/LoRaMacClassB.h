@@ -74,12 +74,12 @@ protected:
     lorawan_status_t enable(void);
 
     /**
-     * Disable Class B 
+     * Disable Class B
      */
     lorawan_status_t disable(void);
 
     /**
-     * Temporarily pause Class B operation during class A uplink & rx windows 
+     * Temporarily pause Class B operation during class A uplink & rx windows
      */
     void pause(void);
 
@@ -129,7 +129,7 @@ protected:
     }
 
     /**
-     * Returns True if beacon acquisition/tracking is enabled 
+     * Returns True if beacon acquisition/tracking is enabled
      */
     inline bool is_operational(void)
     {
