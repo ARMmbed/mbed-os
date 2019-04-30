@@ -3466,7 +3466,7 @@
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_SPLIT_HEAP"],
         "device_name": "STM32L443RC",
         "detect_code": ["0458"],
         "bootloader_supported": true
@@ -3491,7 +3491,8 @@
         "detect_code": ["0765"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER"
+            "USBHOST_OTHER",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3553,7 +3554,8 @@
         "macros_add": [
             "MBED_TICKLESS",
             "USBHOST_OTHER",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
+            "MBEDTLS_CONFIG_HW_SUPPORT",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3588,7 +3590,8 @@
         "detect_code": ["0460"],
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
-            "WISE_1570"
+            "WISE_1570",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4148,7 +4151,8 @@
         "detect_code": ["0764"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER"
+            "USBHOST_OTHER",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4179,7 +4183,7 @@
             }
         },
         "detect_code": ["0468"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": ["USBHOST_OTHER", "MBED_SPLIT_HEAP"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -4212,7 +4216,8 @@
         "detect_code": ["0820"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER"
+            "USBHOST_OTHER",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4227,7 +4232,7 @@
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
-	"RHOMBIO_L476DMW1K": {
+    "RHOMBIO_L476DMW1K": {
         "components_add": ["FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
@@ -4248,7 +4253,7 @@
         "macros_add": [
             "MBED_TICKLESS",
             "USBHOST_OTHER",
-            "TWO_RAM_REGIONS"
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4356,6 +4361,9 @@
             "TRNG",
             "FLASH",
             "MPU"
+        ],
+        "macros_add": [
+            "MBED_SPLIT_HEAP"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32L471QG",

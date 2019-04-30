@@ -1258,6 +1258,46 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
+#if defined(MBED_SPLIT_HEAP)
+
+// Default RAM memory used for heap
+extern uint32_t __mbed_sbrk_start;
+extern uint32_t __mbed_krbs_start;
+/* Additional RAM memory used for heap - please note this
+ * address should be lower address then the previous default address
+ */
+extern uint32_t __mbed_sbrk_start_0;
+extern uint32_t __mbed_krbs_start_0;
+
+extern "C" WEAK caddr_t _sbrk(int incr)
+{
+    static uint32_t heap = (uint32_t) &__mbed_sbrk_start_0;
+    static bool once = true;
+    uint32_t prev_heap = heap;
+    uint32_t new_heap = heap + incr;
+
+    /**
+     * If the new address is outside the first region, start allocating from the second region.
+     * Jump to second region is done just once, and `static bool once` is used to keep track of that.
+     */
+    if (once && (new_heap > (uint32_t) &__mbed_krbs_start_0)) {
+        once = false;
+        prev_heap = (uint32_t) &__mbed_sbrk_start;
+        new_heap = prev_heap + incr;
+    } else if (new_heap > (uint32_t) &__mbed_krbs_start) {
+        /**
+        * If the new address is outside the second region, return out-of-memory.
+        */
+        errno = ENOMEM;
+        return (caddr_t) - 1;
+    }
+
+    heap = new_heap;
+    return (caddr_t) prev_heap;
+}
+
+#else
+
 extern "C" uint32_t         __end__;
 extern "C" uint32_t         __HeapLimit;
 
@@ -1281,6 +1321,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
+#endif
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM)
