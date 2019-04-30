@@ -31,7 +31,7 @@
 #endif /* RDA_ICACHE_DISABLE */
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 2000K
+  #define MBED_APP_SIZE (0x1F4000)
 #endif
 #define RDA_CODE_SIZE         (MBED_APP_SIZE)
 #define RDA_AHB1_BASE         (0x40100000)
