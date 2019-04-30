@@ -46,7 +46,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define CLASSB_PING_SLOT_WINDOW              30
 
 /*!
- * Invalid ping slot 
+ * Invalid ping slot
  */
 #define LORAMAC_INVALID_PING_SLOT -1
 
