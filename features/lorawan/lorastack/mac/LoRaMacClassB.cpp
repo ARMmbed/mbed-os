@@ -30,10 +30,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "LMAC"
 
-#ifdef LORA_CLASS_B_ENABLED
-
-LoRaMacClassB LoRaMacClassB::_loramac_class_b;
-
 /*!
  * Limit ping slot mbed tracing to once per this period in millis
  */
@@ -50,7 +46,7 @@ LoRaMacClassB LoRaMacClassB::_loramac_class_b;
 #define CLASSB_PING_SLOT_WINDOW              30
 
 /*!
- * Invalid  slot length time in ms
+ * Invalid ping slot 
  */
 #define LORAMAC_INVALID_PING_SLOT -1
 
@@ -74,11 +70,14 @@ LoRaMacClassB::LoRaMacClassB()
     memset(&_opstatus, 0, sizeof(_opstatus));
 }
 
-void LoRaMacClassB::initialize(LoRaWANTimeHandler *lora_time, LoRaPHY *lora_phy,
-                               LoRaMacCrypto *lora_crypto, loramac_protocol_params *params,
-                               mbed::Callback<bool(rx_config_params_t *)> open_window,
-                               mbed::Callback<void(rx_slot_t)> close_window)
+lorawan_status_t LoRaMacClassB::initialize(LoRaWANTimeHandler *lora_time, LoRaPHY *lora_phy,
+                                           LoRaMacCrypto *lora_crypto, loramac_protocol_params *params,
+                                           mbed::Callback<bool(rx_config_params_t *)> open_window,
+                                           mbed::Callback<void(rx_slot_t)> close_window)
 {
+    // Initialization should not be called more than once
+    MBED_ASSERT(!_opstatus.initialized);
+
     if (!_opstatus.initialized) {
         MBED_ASSERT(lora_time);
         MBED_ASSERT(lora_crypto);
@@ -115,6 +114,8 @@ void LoRaMacClassB::initialize(LoRaWANTimeHandler *lora_time, LoRaPHY *lora_phy,
 
         _opstatus.initialized = 1;
     }
+
+    return LORAWAN_STATUS_OK;
 }
 
 lorawan_status_t LoRaMacClassB::enable(void)
@@ -223,7 +224,7 @@ bool LoRaMacClassB::schedule_beacon_window(void)
             _lora_time->start(_beacon_timer, delay);
         }
 
-        tr_debug("Next beacon time = %llu in %ld ms", next_beacon_time/1000, delay);
+        tr_debug("Next beacon time = %llu in %ld ms", next_beacon_time / 1000, delay);
     }
 
     return true;
@@ -693,5 +694,3 @@ void LoRaMacClassB::remove_multicast_address(uint32_t address)
         }
     }
 }
-
-#endif //#if MBED_CONF_LORA_CLASS_B_SUPPORT 
