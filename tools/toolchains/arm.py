@@ -522,7 +522,7 @@ class ARMC6(ARM_STD):
                 self.flags['asm'].append("--library_type=microlib")
 
         core = target.core
-        if CORE_ARCH[target.core] == 8:
+        if CORE_ARCH[target.core] == 8 and (target.is_PSA_secure_target or "MBED_TZ_DEFAULT_ACCESS=1" in target.macros):
             if ((not target.core.endswith("-NS")) and
                     kwargs.get('build_dir', False)):
                 # Create Secure library

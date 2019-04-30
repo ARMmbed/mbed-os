@@ -61,7 +61,7 @@ class GCC(mbedToolchain):
 
         core = target.core
         self.cpu = []
-        if CORE_ARCH[target.core] == 8:
+        if CORE_ARCH[target.core] == 8 and (target.is_PSA_secure_target or "MBED_TZ_DEFAULT_ACCESS=1" in target.macros):
             # Add linking time preprocessor macro DOMAIN_NS
             if target.core.endswith("-NS"):
                 self.flags["ld"].append("-DDOMAIN_NS=1")
