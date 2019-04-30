@@ -16,8 +16,8 @@ raas_timeout = 1200
 
 // Test combinations, for each listed target, each toolchain is build and tested on RaaS instance.
 targets = [
-    "K64F":           ["toolchains": [ "ARM", "IAR", "GCC_ARM"], "raas": "eeva.mbedcloudtesting.com"],
-    "NUCLEO_F429ZI":  ["toolchains": [ "ARM", "IAR", "GCC_ARM"], "raas": "ruka.mbedcloudtesting.com"],
+    "K64F":           ["toolchains": [ "ARM", "IAR", "GCC_ARM"], "raas": "https://eeva.mbedcloudtesting.com"],
+    "NUCLEO_F429ZI":  ["toolchains": [ "ARM", "IAR", "GCC_ARM"], "raas": "https://ruka.mbedcloudtesting.com"],
 ]
 
 // Map toolchains to compiler labels to find suitable node on Jenkins.
@@ -108,7 +108,7 @@ def testStep(target, compilerLabel, toolchain) {
                 raas = targets[target]["raas"]
 
                 // execute greentea on RaaS.
-                execute("mbedgt --grm ${target}:raas_client:${raas}:80 -vV --test-spec ./ci/test_spec.json --polling-timeout 240")
+                execute("mbedgt -g ${target}:raas_client:${raas}:443 -vV --test-spec ./ci/test_spec.json --polling-timeout 240")
 
                 // Clean up workarea.
                 step([$class: 'WsCleanup'])
