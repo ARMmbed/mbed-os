@@ -47,7 +47,6 @@
 #include "system/LoRaWANTimer.h"
 #include "system/lorawan_data_structures.h"
 
-#include "LoRaMacClassB.h"
 #include "LoRaMacChannelPlan.h"
 #include "LoRaMacCommand.h"
 #include "LoRaMacCrypto.h"

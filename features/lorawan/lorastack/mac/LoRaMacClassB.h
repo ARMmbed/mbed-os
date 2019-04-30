@@ -17,10 +17,6 @@
  * limitations under the License.
  */
 
-#if (MBED_CONF_LORA_VERSION >= 01) && (MBED_CONF_LORA_CLASS_B == true)
-#define LORA_CLASS_B_ENABLED
-#endif
-
 #include "system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorastack/mac/LoRaMacCrypto.h"
@@ -30,7 +26,20 @@
 #endif
 
 class LoRaMacClassB {
-public:
+protected:
+
+    // LoRaWANClassBInterface provides the public interface
+    friend class LoRaMacClassBInterface;
+
+    /**
+     * Constructor
+     */
+    LoRaMacClassB();
+
+    /**
+     * Destructor
+     */
+    ~LoRaMacClassB() {};
 
     /**
      * Initialize Class B system
@@ -40,75 +49,50 @@ public:
      * @param [in] lora_crypto
      * @param [in] params
      * @param [in] open_rx_window   LoRaMac open rx window callback
-     * @param [in] close_rx_window   LoRaMac close rx window callback
+     * @param [in] close_rx_window  LoRaMac close rx window callback
      * @return LORAWAN_STATUS_OK or a negative error return code
      */
-    inline static lorawan_status_t Initialize(LoRaWANTimeHandler *lora_time,
-                                              LoRaPHY *lora_phy,
-                                              LoRaMacCrypto *lora_crypto,
-                                              loramac_protocol_params *params,
-                                              mbed::Callback<bool(rx_config_params_t *)> open_rx_window,
-                                              mbed::Callback<void(rx_slot_t)> close_rx_window)
-    {
-        _loramac_class_b.initialize(lora_time, lora_phy, lora_crypto, params,
-                                    open_rx_window, close_rx_window);
-        return LORAWAN_STATUS_OK;
-    }
+    lorawan_status_t initialize(LoRaWANTimeHandler *lora_time,
+                                LoRaPHY *lora_phy,
+                                LoRaMacCrypto *lora_crypto,
+                                loramac_protocol_params *params,
+                                mbed::Callback<bool(rx_config_params_t *)> open_rx_window,
+                                mbed::Callback<void(rx_slot_t)> close_rx_window);
 
     /**
      * Enable beacon acquisition and tracking
      *
      * @return LORAWAN_STATUS_OK or a negative error return code
      */
-    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
-                                                                                 const loramac_beacon_t *)> beacon_event_cb)
-    {
-        return _loramac_class_b.enable_beacon_acquisition(beacon_event_cb);
-    }
+    lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
+                                                                   const loramac_beacon_t *)> beacon_event_cb);
 
     /**
-     * Enable Class B mode. Called after successful beacon acquisition
+     * Enable Class B mode. Called after successful beacon acquisition to enable B ping slots
      * @return LORAWAN_STATUS_OK or a negative error return code
      */
-    inline static lorawan_status_t Enable(void)
-    {
-        return _loramac_class_b.enable();
-    }
+    lorawan_status_t enable(void);
 
     /**
-     * Disables Class B beacon and ping slot scheduling
+     * Disable Class B 
      */
-    inline static lorawan_status_t Disable(void)
-    {
-        return _loramac_class_b.disable();
-    }
+    lorawan_status_t disable(void);
 
     /**
-     * Pause class b operation. Called prior to class A uplink
+     * Temporarily pause Class B operation during class A uplink & rx windows 
      */
-    inline static void Pause(void)
-    {
-        _loramac_class_b.pause();
-    }
+    void pause(void);
 
     /**
-     * Resume class b operation. Called after  class A receive windows
+     * Resume class b operation after pause. To be called after class A receive windows
      */
-    inline static void Resume(void)
-    {
-        _loramac_class_b.resume();
-    }
+    void resume(void);
 
     /**
      *  Handle radio receive timeout event
      * @param [in] rx_slot  The receive window type
      */
-    inline static void Handle_rx_timeout(rx_slot_t rx_slot)
-    {
-        if (is_operational()) {
-            _loramac_class_b.handle_rx_timeout(rx_slot);
-        }
-    }
+    void handle_rx_timeout(rx_slot_t rx_slot);
 
     /**
      * Handle radio receive event
@@ -117,46 +101,42 @@ public:
      * @param [in] size
      * @param [in] rx_timestamp
      */
-    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp)
-    {
-        if (is_operational()) {
-            return _loramac_class_b.handle_rx(rx_slot, data, size, rx_timestamp);
-        }
-    }
+    void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp);
 
     /**
      * Returns last received beacon info
      */
-    inline static lorawan_status_t Get_last_rx_beacon(loramac_beacon_t &beacon)
-    {
-        return _loramac_class_b.get_last_rx_beacon(beacon);
-    }
+    lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
 
     /**
      * Add ping slot multicast address
+     * @param [in] address  Multicast address
      */
-    inline static bool Add_multicast_address(uint32_t address)
-    {
-        return _loramac_class_b.add_multicast_address(address);
-
-    }
+    bool add_multicast_address(uint32_t address);
 
     /**
      * Remove ping slot multicast address
+     * @param [in] address  Multicast address
      */
-    inline static void Remove_multicast_address(uint32_t address)
+    void remove_multicast_address(uint32_t address);
+
+    /**
+     * @brief Return gps time
+     */
+    inline lorawan_gps_time_t get_gps_time(void)
     {
-        return _loramac_class_b.remove_multicast_address(address);
+        return _lora_time->get_gps_time();
     }
 
     /**
-     * Returns True if class B beacon window scheduling is enabled
+     * Returns True if beacon acquisition/tracking is enabled 
      */
-    inline static bool is_operational(void)
+    inline bool is_operational(void)
     {
-        return (_loramac_class_b._opstatus.beacon_on);
+        return _opstatus.beacon_on;
     }
 
+public:
     /**
      * These locks trample through to the upper layers and make
      * the stack thread safe.
@@ -175,72 +155,7 @@ public:
     void unlock(void) { }
 #endif
 
-    /**
-     * Constructor
-     */
-    LoRaMacClassB();
-
-    /**
-     * Destructor
-     */
-    ~LoRaMacClassB() {};
-
-protected:
-
-    /**
-     * Initialize class b system
-     * @param [in] lora_time
-     * @param [in] lora_phy
-     * @param [in] lora_crypto
-     * @param [in] open_rx_window function to open rx widnow
-     * @param [in] close_rx_window function to close rx widnow
-     */
-    void initialize(LoRaWANTimeHandler *lora_time, LoRaPHY *lora_phy,
-                    LoRaMacCrypto *lora_crypto, loramac_protocol_params *params,
-                    mbed::Callback<bool(rx_config_params_t *)> open_rx_window,
-                    mbed::Callback<void(rx_slot_t)> close_rx_window);
-
-    /**
-     * Enable beacon acquisition
-     * @param [in] beacon_event_cb - stack beacon event callback
-     */
-    lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
-                                                                   const loramac_beacon_t *)> beacon_event_cb);
-    /**
-     * @brief Enables class b mode
-     * @return[out] LORAWAN_STATUS_OK or negative error code
-     */
-    lorawan_status_t enable(void);
-
-    /**
-     * @brief Disables class b mode
-     */
-    lorawan_status_t disable(void);
-
-    /**
-     * @brief Pause class b mode
-     */
-    void pause(void);
-
-    /**
-     * @brief Resume class b mode
-     */
-    void resume(void);
-
-    /**
-     * @brief RX window timeout handler
-     * @param [in] rx_slot
-     */
-    void handle_rx_timeout(rx_slot_t rx_slot) ;
-
-    /**
-     * @brief RX window reception handler
-     * @param [in] rx_slot  receive window
-     * @param [in] data  received data
-     * @param [in] size  data size in bytes
-     * @param [in] rx_timestamp  radio receive time
-     */
-    void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp);
+private:
 
     /**
      * @brief Process frame received in beacon window
@@ -338,19 +253,6 @@ protected:
                                          uint16_t &next_slot_nb, rx_config_params_t &rx_config);
 
     /**
-     * @brief Return precise device time
-     */
-    inline lorawan_gps_time_t get_gps_time(void)
-    {
-        return _lora_time->get_gps_time();
-    }
-
-    /**
-     *  Return last received beacon
-     */
-    lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
-
-    /**
      *  Send beacon miss indication
      */
     void send_beacon_miss_indication(void);
@@ -363,17 +265,6 @@ protected:
         MBED_ASSERT(_protocol_params);
         return _protocol_params;
     }
-
-    /**
-     * @brief Adds multicast address to ping slots scheduling
-     */
-    bool add_multicast_address(uint32_t address);
-
-
-    /**
-     * @brief Remove multicast address ping slot scheduling
-     */
-    void remove_multicast_address(uint32_t address);
 
     /**
      * Class B Window Expansion
@@ -449,72 +340,10 @@ protected:
     mbed::Callback<void(rx_slot_t)> _close_rx_window; // loramac close rx window function
     mbed::Callback<void(loramac_beacon_status_t, const loramac_beacon_t *)> _beacon_event_cb; // beacon event callback
 
-    static LoRaMacClassB _loramac_class_b;
-
 #if MBED_CONF_RTOS_PRESENT
     rtos::Mutex _mutex;
 #endif
     typedef mbed::ScopedLock<LoRaMacClassB> Lock;
+
 };
-#else
-class LoRaMacClassB {
-
-public:
-
-    inline static lorawan_status_t Initialize(LoRaWANTimeHandler *lora_time,
-                                              LoRaPHY *lora_phy, LoRaMacCrypto *lora_crypto,
-                                              loramac_protocol_params *params,
-                                              mbed::Callback<bool(rx_config_params_t *)> open_rx_window,
-                                              mbed::Callback<void(rx_slot_t)> close_rx_window)
-    {
-        return LORAWAN_STATUS_UNSUPPORTED;
-    }
-
-    inline static lorawan_status_t Enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
-                                                                                 const loramac_beacon_t *)> beacon_event_cb)
-    {
-        return LORAWAN_STATUS_UNSUPPORTED;
-    }
-
-    inline static lorawan_status_t Enable(void)
-    {
-        return LORAWAN_STATUS_UNSUPPORTED;
-    }
-
-    inline static lorawan_status_t Disable(void)
-    {
-        return LORAWAN_STATUS_UNSUPPORTED;
-    }
-
-    inline static void Pause(void)
-    {
-    }
-
-    inline static void Resume(void)
-    {
-    }
-
-    inline static void Handle_rx_timeout(rx_slot_t rx_slot)
-    {
-    }
-
-    inline static void Handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp)
-    {
-    }
-
-    inline static lorawan_status_t Get_last_rx_beacon(loramac_beacon_t &beacon)
-    {
-        return LORAWAN_STATUS_NO_BEACON_FOUND;
-    }
-
-    inline static bool Add_multicast_address(uint32_t address)
-    {
-        return false;
-    }
-
-    inline static void Remove_multicast_address(uint32_t address)
-    {
-    }
-};
-#endif // #if LORA_CLASS_B_ENABLED
 #endif // #ifndef MBED_LORAWAN_LORAMACCLASSB_H_
