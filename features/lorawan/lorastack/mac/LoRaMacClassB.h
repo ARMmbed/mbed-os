@@ -32,12 +32,14 @@ protected:
     friend class LoRaMacClassBInterface;
 
     /**
-     * Constructor
+     * @brief Construct a new LoRaMacClass B object
+     *
      */
     LoRaMacClassB();
 
     /**
-     * Destructor
+     * @brief Destroy the LoRaMacClass B object
+     *
      */
     ~LoRaMacClassB() {};
 
@@ -60,62 +62,76 @@ protected:
                                 mbed::Callback<void(rx_slot_t)> close_rx_window);
 
     /**
-     * Enable beacon acquisition and tracking
+     * @brief Enable beacon acquisition and tracking
      *
-     * @return LORAWAN_STATUS_OK or a negative error return code
+     * @param beacon_event_cb  stack beacon event callback
+     * @return lorawan_status_t LORAWAN_STATUS_OK or a negative error return code
      */
     lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                    const loramac_beacon_t *)> beacon_event_cb);
 
     /**
-     * Enable Class B mode. Called after successful beacon acquisition to enable B ping slots
-     * @return LORAWAN_STATUS_OK or a negative error return code
+     * @brief Enable class B. To be called after successful beacon acquisition to enable B ping slots
+     *
+     * @return lorawan_status_t LORAWAN_STATUS_OK or a negative error return code
      */
     lorawan_status_t enable(void);
 
     /**
-     * Disable Class B
+     * @brief Disable class B. Disables beacon and ping slots
+     *
+     * @return lorawan_status_t
      */
     lorawan_status_t disable(void);
 
     /**
-     * Temporarily pause Class B operation during class A uplink & rx windows
+     * @brief Temporarily pause class B rx slots during class A uplink & rx windows
+     *
      */
     void pause(void);
 
     /**
-     * Resume class b operation after pause. To be called after class A receive windows
+     * @brief Resumes class b rx slots after pause. To be called after class A receive windows
+     *
      */
     void resume(void);
 
     /**
-     *  Handle radio receive timeout event
-     * @param [in] rx_slot  The receive window type
+     * @brief Handle radio receive timeout
+     *
+     * @param rx_slot  The rx slot type
      */
     void handle_rx_timeout(rx_slot_t rx_slot);
 
     /**
-     * Handle radio receive event
-     * @param [in] rx_slot
-     * @param [in] data
-     * @param [in] size
-     * @param [in] rx_timestamp
+     * @brief Handle radio receive
+     *
+     * @param rx_slot
+     * @param data
+     * @param size
+     * @param rx_timestamp
      */
     void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp);
 
     /**
-     * Returns last received beacon info
+     * @brief Get the last rx beacon object
+     *
+     * @param beacon
+     * @return lorawan_status_t
      */
     lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
 
     /**
-     * Add ping slot multicast address
-     * @param [in] address  Multicast address
+     * @brief Add ping slot multicast address
+     *
+     * @param address  Multicast address
+     * @return Add result
      */
     bool add_multicast_address(uint32_t address);
 
     /**
-     * Remove ping slot multicast address
+     * @brief  Remove ping slot multicast address
+     *
      * @param [in] address  Multicast address
      */
     void remove_multicast_address(uint32_t address);
@@ -129,7 +145,9 @@ protected:
     }
 
     /**
-     * Returns True if beacon acquisition/tracking is enabled
+     * @brief Get beacon rx is enabled status
+     *
+     * @return true if beacons rx slot is enabled
      */
     inline bool is_operational(void)
     {
@@ -209,6 +227,10 @@ private:
      */
     void expand_window(void);
 
+    /**
+     * @brief Beacon acquisition timeout callback
+     *
+     */
     void beacon_acquisition_timeout(void);
 
     /**
@@ -242,10 +264,10 @@ private:
      * param [in] ping_period Period of receiver wakeup expressed in number of slots
      * param [in] ping_nb Number of ping slots per beacon period
      * param [in] address  unicast or multicast device address
-     * param [in] ping_offset  Randomized offset computed at each beacon period start
-     * param [out] next_slot_nb  computed slotaddress ping slot configuration
-     * param [out] slot_time next ping slot window device time
-     * return device time for ping slot, 0 if no ping slots for the current beacon period
+     * param [in] ping_slot_offset  Randomized offset computed at each beacon period start
+     * param [out] next_slot_nb   slot number to open
+     * param [out] rx_config ping slot rx configuration
+     * return GPS time for the ping slot, 0 if no ping slots remain for the current beacon period
      */
     lorawan_gps_time_t compute_ping_slot(uint32_t beacon_time, lorawan_gps_time_t current_time,
                                          uint16_t ping_period, uint8_t ping_nb,
@@ -253,7 +275,8 @@ private:
                                          uint16_t &next_slot_nb, rx_config_params_t &rx_config);
 
     /**
-     *  Send beacon miss indication
+     * @brief  send beacon miss event to the stack
+     *
      */
     void send_beacon_miss_indication(void);
 
@@ -267,7 +290,8 @@ private:
     }
 
     /**
-     * Class B Window Expansion
+     * @brief  RX Window Expansion parameters
+     *
      */
     struct loramac_window_expansion_t {
         int16_t movement; // window movement in ms
@@ -275,9 +299,10 @@ private:
     };
 
     /**
-     * Beacon Context
+     * @brief Beacon state variables
+     *
      */
-    struct loramac_beacon_context_t {
+    typedef struct loramac_beacon_context_s {
         static const uint8_t BEACON_FRAME_COMMON_SIZE = 15;
 
         uint8_t frame_size(void)
@@ -286,19 +311,20 @@ private:
         }
 
         lorawan_time_t beacon_time; // beacon period time
-        rx_config_params_t rx_config;
+        rx_config_params_t rx_config; // beacon receiver configuration
         uint8_t rfu1_size; // beacon frame rfu1 size
         uint8_t rfu2_size; // beacon frame rfu2 size
         loramac_beacon_t received_beacon; // last received beacon
         loramac_window_expansion_t expansion; // beacon window expansion
         uint32_t time_on_air; // beacon frame time on air
-    } _beacon;
+    } loramac_beacon_context_t;
 
     /**
-     * Ping Slot Context
+     * @brief Ping state variables
+     *
      */
-    struct loramac_ping_slot_context_t {
-        const static int8_t UNICAST_PING_SLOT_IDX = 0;
+    typedef struct loramac_ping_slot_context_s {
+        const static int8_t UNICAST_PING_SLOT_IDX = 0; // Invalid slot index value
 
         loramac_window_expansion_t expansion; // ping slot expansion
         struct {
@@ -309,32 +335,33 @@ private:
         } slot[1 + MBED_CONF_LORA_CLASS_B_MULTICAST_ADDRESS_MAX_COUNT];
 
         int8_t slot_idx; // holds next ping_slot idx
-    } _ping;
-
+    } loramac_ping_slot_context_t;
 
     /**
      * Class B Operational Status
      */
     typedef struct {
-        uint32_t initialized  : 1; // Class B initialized
-        uint32_t beacon_on    : 1; // Beacon windows enabled
-        uint32_t beacon_found : 1; // Beacon found
-        uint32_t ping_on      : 1; // Class B ping slots enabled
-        uint32_t paused       : 1; // Class B enabled, rx slots paused
-        uint32_t beacon_rx    : 1; // Beacon slot is open
-        uint32_t ping_rx      : 1; // PIng slot is open
+        uint32_t initialized  : 1; // class B initialized
+        uint32_t beacon_on    : 1; // beacon windows enabled
+        uint32_t beacon_found : 1; // beacon found
+        uint32_t ping_on      : 1; // ping slots are enabled
+        uint32_t paused       : 1; // class B enabled, all rx slots paused
+        uint32_t beacon_rx    : 1; // beacon slot is open
+        uint32_t ping_rx      : 1; // ping slot is open
     } class_b_operstatus_bits_t;
 
-    class_b_operstatus_bits_t _opstatus;
+    class_b_operstatus_bits_t _opstatus; // operational status mask
+    loramac_beacon_context_t _beacon; // beacon state
+    loramac_ping_slot_context_t _ping; // ping slot state
 
     timer_event_t _beacon_timer;     // beacon window timer
     timer_event_t _beacon_acq_timer; // beacon acquisition timeout
     timer_event_t _ping_slot_timer;  // ping window timer
 
-    LoRaPHY *_lora_phy;
-    LoRaWANTimeHandler *_lora_time;
-    LoRaMacCrypto *_lora_crypto;
-    loramac_protocol_params *_protocol_params;
+    LoRaPHY *_lora_phy; // LoRa PHY
+    LoRaWANTimeHandler *_lora_time;  // time support
+    LoRaMacCrypto *_lora_crypto; // Crypto library
+    loramac_protocol_params *_protocol_params; // loramac parammeters
 
     mbed::Callback<bool(rx_config_params_t *)> _open_rx_window; // loramac open rx window  function
     mbed::Callback<void(rx_slot_t)> _close_rx_window; // loramac close rx window function
