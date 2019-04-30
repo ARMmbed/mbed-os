@@ -766,7 +766,7 @@ class mbedToolchain:
         self.mem_stats(mapfile)
 
         self.notify.var("compile_succeded", True)
-        self.notify.var("binary", filename)
+        self.notify.var("binary", full_path)
 
         return full_path, updatable
 
