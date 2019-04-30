@@ -69,12 +69,18 @@ public:
 
     inline static void handle_rx_timeout(rx_slot_t rx_slot)
     {
-        _class_b.handle_rx_timeout(rx_slot);
+        // As an optimization, it is safe to skip calling the handler when beacon Rx is disabled
+        if (_class_b.is_operational()) {
+            _class_b.handle_rx_timeout(rx_slot);
+        }
     }
 
     inline static void handle_rx(rx_slot_t rx_slot, const uint8_t *const data, uint16_t size, uint32_t rx_timestamp)
     {
-        _class_b.handle_rx(rx_slot, data, size, rx_timestamp);
+        // As an optimization, it is safe to skip calling the handler when beacon Rx is disabled
+        if (_class_b.is_operational()) {
+            _class_b.handle_rx(rx_slot, data, size, rx_timestamp);
+        }
     }
 
     inline static lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon)
