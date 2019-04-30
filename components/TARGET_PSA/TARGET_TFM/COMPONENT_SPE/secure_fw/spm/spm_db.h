@@ -21,7 +21,7 @@ typedef psa_status_t(*sp_init_function)(void);
 #define TFM_PARTITION_TYPE_APP   "APPLICATION-ROT"
 #define TFM_PARTITION_TYPE_PSA   "PSA-ROT"
 
-#define TFM_STACK_SIZE  1024
+#define TFM_STACK_SIZE           (1024 * 5)
 
 #ifdef TFM_PSA_API
 enum tfm_partition_priority {

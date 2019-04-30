@@ -39,9 +39,9 @@ static uint32_t is_boot_data_valid = BOOT_DATA_INVALID;
 
 void tfm_core_validate_boot_data(void)
 {
-    struct shared_data_tlv_header *tlv_header;
+    struct tfm_boot_data *boot_data;
 
-    tlv_header = (struct shared_data_tlv_header *)BOOT_TFM_SHARED_DATA_BASE;
+    boot_data = (struct tfm_boot_data *)BOOT_TFM_SHARED_DATA_BASE;
 
     /* FixMe: Enhance sanity check of shared memory area, it might be invalid:
      *        - temporal exposure of RAM to non-secure actors
@@ -49,7 +49,7 @@ void tfm_core_validate_boot_data(void)
      *        - version mismatch between bootloader and runtime binary
      *        - etc.
      */
-    if (tlv_header->tlv_magic == SHARED_DATA_TLV_INFO_MAGIC) {
+    if (boot_data->header.tlv_magic == SHARED_DATA_TLV_INFO_MAGIC) {
         is_boot_data_valid = BOOT_DATA_VALID;
     }
 }
@@ -62,7 +62,7 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
     uint8_t *ptr;
     uint32_t running_partition_idx =
             tfm_spm_partition_get_running_partition_idx();
-    struct shared_data_tlv_header *tlv_header;
+    struct tfm_boot_data *boot_data;
     struct shared_data_tlv_entry tlv_entry;
     uintptr_t tlv_end, offset;
     uint32_t res;
@@ -88,8 +88,8 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
     }
 
     /* Get the boundaries of TLV section */
-    tlv_header = (struct shared_data_tlv_header *)BOOT_TFM_SHARED_DATA_BASE;
-    tlv_end = BOOT_TFM_SHARED_DATA_BASE + tlv_header->tlv_tot_len;
+    boot_data = (struct tfm_boot_data *)BOOT_TFM_SHARED_DATA_BASE;
+    tlv_end = BOOT_TFM_SHARED_DATA_BASE + boot_data->header.tlv_tot_len;
     offset  = BOOT_TFM_SHARED_DATA_BASE + SHARED_DATA_HEADER_SIZE;
 
     /* Add header to output buffer as well */
@@ -97,10 +97,10 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
         args[0] = TFM_ERROR_INVALID_PARAMETER;
         return;
     } else {
-        tlv_header = (struct shared_data_tlv_header *)buf_start;
-        tlv_header->tlv_magic   = SHARED_DATA_TLV_INFO_MAGIC;
-        tlv_header->tlv_tot_len = SHARED_DATA_HEADER_SIZE;
-        ptr = (uint8_t *)tlv_header + SHARED_DATA_HEADER_SIZE;
+        boot_data = (struct tfm_boot_data *)buf_start;
+        boot_data->header.tlv_magic   = SHARED_DATA_TLV_INFO_MAGIC;
+        boot_data->header.tlv_tot_len = SHARED_DATA_HEADER_SIZE;
+        ptr = boot_data->data;
     }
 
     /* Iterates over the TLV section and copy TLVs with requested major
@@ -113,7 +113,7 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
                    SHARED_DATA_ENTRY_HEADER_SIZE);
         if (GET_MAJOR(tlv_entry.tlv_type) == tlv_major) {
             /* Check buffer overflow */
-            if ((ptr - buf_start + tlv_entry.tlv_len) > buf_size) {
+            if (((ptr - buf_start) + tlv_entry.tlv_len) > buf_size) {
                 args[0] = TFM_ERROR_INVALID_PARAMETER;
                 return;
             }
@@ -121,7 +121,7 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
             tfm_memcpy(ptr, (const void *)offset, tlv_entry.tlv_len);
 
             ptr += tlv_entry.tlv_len;
-            tlv_header->tlv_tot_len += tlv_entry.tlv_len;
+            boot_data->header.tlv_tot_len += tlv_entry.tlv_len;
         }
     }
     args[0] = TFM_SUCCESS;

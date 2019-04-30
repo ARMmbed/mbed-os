@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -121,7 +121,7 @@ TZ_MemoryId_t TZ_AllocModuleContext_S (TZ_ModuleId_t module)
     }
 
     /* TZ_MemoryId_t must be a positive integer */
-    tz_id = free_index + 1;
+    tz_id = (TZ_MemoryId_t)free_index + 1;
     NsClientIdList[free_index].ns_client_id = get_next_ns_client_id();
 #ifdef PRINT_NSPM_DEBUG
     printf("TZ_AllocModuleContext_S called, returning id %d\r\n",
