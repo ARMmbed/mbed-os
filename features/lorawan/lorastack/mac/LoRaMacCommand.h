@@ -282,7 +282,7 @@ private:
 
     /**
      * @brief Adds a new PingSlotChannelAns MAC command to be sent.
-     * @param status Status bits 
+     * @param status Status bits
      * @return status  Function status: LORAWAN_STATUS_OK: OK,
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
@@ -290,7 +290,7 @@ private:
 
     /**
      * @brief Adds a new BeaconFreqAns MAC command to be sent.
-     * @param status  Status bits 
+     * @param status  Status bits
      * @return status  Function status: LORAWAN_STATUS_OK: OK,
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
