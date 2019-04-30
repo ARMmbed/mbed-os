@@ -88,7 +88,7 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
                 break;
             }
             case MOTE_MAC_LINK_ADR_ANS:
-            case MOTE_MAC_NEW_CHANNEL_ANS: 
+            case MOTE_MAC_NEW_CHANNEL_ANS:
             case MOTE_MAC_PING_SLOT_INFO_REQ: { // 1 byte payload
                 i++;
                 break;

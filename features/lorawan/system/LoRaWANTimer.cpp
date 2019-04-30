@@ -76,7 +76,7 @@ void LoRaWANTimeHandler::set_gps_time(lorawan_gps_time_t gps_time)
 
 lorawan_gps_time_t LoRaWANTimeHandler::get_gps_time(void)
 {
-    if(_gps_time == 0){
+    if (_gps_time == 0) {
         return _gps_time;
     }
     return _gps_time + get_current_time() - _monotonic_tick_time;
