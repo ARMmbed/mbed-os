@@ -275,13 +275,13 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 	switch ((CANName)obj->instance) {
 #ifdef CAN0
         case CAN_0:
-        	NVIC_SetVector(CAN0_IRQn, CAN0_IRQHandler);
+        	NVIC_SetVector(CAN0_IRQn, (uint32_t)CAN0_IRQHandler);
         	NVIC_EnableIRQ(CAN0_IRQn);
             break;
 #endif
 #ifdef CAN1
         case CAN_1:
-        	NVIC_SetVector(CAN1_IRQn, CAN1_IRQHandler);
+        	NVIC_SetVector(CAN1_IRQn, (uint32_t)CAN1_IRQHandler);
         	NVIC_EnableIRQ(CAN1_IRQn);
             break;
 #endif
