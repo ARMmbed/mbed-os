@@ -115,7 +115,8 @@ LoRaMac::LoRaMac()
       _dl_fport_available(true),
       _device_class(CLASS_A),
       _prev_qos_level(LORAWAN_DEFAULT_QOS),
-      _demod_ongoing(false)
+      _demod_ongoing(false),
+      _mod_ongoing(false)
 {
     _params.rejoin_forced = false;
     _params.forced_datarate = DR_0;
@@ -777,6 +778,8 @@ void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_le
 
 void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 {
+    _mod_ongoing = false;
+
     if (_device_class == CLASS_C) {
         // this will open a continuous RX2 window until time==RECV_DELAY1
         open_rx2_window();
@@ -837,23 +840,23 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 {
     _demod_ongoing = false;
 
+    rx_slot_t rx_slot = get_current_slot();
+
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         _lora_time.stop(_rx2_closure_timer_for_class_c);
         open_rx2_window();
     } else if (_device_class != CLASS_C) {
         _lora_time.stop(_params.timers.rx_window1_timer);
 
-        /* Only disable the radio if not transmitting. It has been
-         * observed with class B receive windows that rx done event processing
-         * can occur after  uplink transmission is started
-         */
-        if (!tx_ongoing()) {
+        /*Put radio to sleep if not in class C and not transmitting. Check for transmit is
+         * necessary because class B rx slot radio interrupts are asynchronous with transmits,
+         * so rx done/timeout can run at anytime, including during a transmit.*/
+        if (!_mod_ongoing) {
             _lora_phy->put_radio_to_sleep();
         }
     }
 
     // Class B handling
-    rx_slot_t rx_slot = get_current_slot();
     LoRaMacClassBInterface::handle_rx(rx_slot, payload, size, rx_timestamp);
     if (rx_slot == RX_SLOT_WIN_BEACON) {
         return;
@@ -905,6 +908,8 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 
 void LoRaMac::on_radio_tx_timeout(void)
 {
+    _mod_ongoing = false;
+
     _lora_time.stop(_params.timers.rx_window1_timer);
     _lora_time.stop(_params.timers.rx_window2_timer);
     _lora_time.stop(_rx2_closure_timer_for_class_c);
@@ -937,10 +942,10 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 {
     _demod_ongoing = false;
 
-    /* Only disable the radio if not transmitting. It has been
-     * observed with class B receive windows that rx done event processing
-     * can occur after  uplink transmission is started */
-    if ((_device_class != CLASS_C)  && !tx_ongoing()) {
+    /*Put radio to sleep if not in class C and not transmitting. Check for transmit
+    * because class B rx slot radio interrupts are asynchronous with transmits,
+    * so rx done/timeout can run at anytime, including during a transmit.*/
+    if ((_device_class != CLASS_C) && (!_mod_ongoing)) {
         _lora_phy->put_radio_to_sleep();
     }
 
@@ -2188,6 +2193,7 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
         _params.join_request_trial_counter++;
     }
 
+    _mod_ongoing = true;
     _lora_phy->handle_send(_params.tx_buffer, _params.tx_buffer_len);
 
     return LORAWAN_STATUS_OK;
