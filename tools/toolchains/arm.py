@@ -547,6 +547,7 @@ class ARMC6(ARM_STD):
             "Cortex-M7FD": "cortex-m7",
             "Cortex-M33": "cortex-m33+nodsp",
             "Cortex-M33F": "cortex-m33+nodsp",
+            "Cortex-M33E": "cortex-m33",
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
         cpu = cpu.lower()
@@ -554,7 +555,7 @@ class ARMC6(ARM_STD):
         self.SHEBANG += " -mcpu=%s" % cpu
 
         # FPU handling
-        if core == "Cortex-M4" or core == "Cortex-M7" or "core" == "Cortex-M33":
+        if core in ["Cortex-M4", "Cortex-M7", "Cortex-M33", "Cortex-M33E"]:
             self.flags['common'].append("-mfpu=none")
         elif core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
