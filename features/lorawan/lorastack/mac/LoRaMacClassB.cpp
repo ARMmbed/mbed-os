@@ -147,23 +147,31 @@ lorawan_status_t LoRaMacClassB::disable(void)
 lorawan_status_t LoRaMacClassB::enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
                                                                               const loramac_beacon_t *)> beacon_event_cb)
 {
+    lorawan_status_t status = LORAWAN_STATUS_OK;
+
     if (!_opstatus.initialized) {
-        return LORAWAN_STATUS_NOT_INITIALIZED;
+        status = LORAWAN_STATUS_NOT_INITIALIZED;
     } else if (!_opstatus.beacon_on) {
         _beacon_event_cb = beacon_event_cb;
         _beacon.beacon_time = 0;
         _opstatus.beacon_found = 0;
         _opstatus.beacon_on = 1;
+
         reset_window_expansion();
-        schedule_beacon_window();
 
-        uint32_t acquisition_timeout = MBED_CONF_LORA_BEACON_ACQUISITION_NB_TRIALS *
-                                       LORA_BEACON_INTERVAL_MILLIS;
-        _lora_time->start(_beacon_acq_timer, acquisition_timeout);
+        if (schedule_beacon_window()) {
 
-        tr_debug("Beacon Acquisition - Enabled");
+            uint32_t acquisition_timeout = MBED_CONF_LORA_BEACON_ACQUISITION_NB_TRIALS *
+                                           LORA_BEACON_INTERVAL_MILLIS;
+            _lora_time->start(_beacon_acq_timer, acquisition_timeout);
+
+            tr_debug("Enabled Beacon Acquisition");
+        } else {
+            _opstatus.beacon_on = 0;
+            status = LORAWAN_STATUS_NO_OP; // Cannot perform request operation
+        }
     }
-    return LORAWAN_STATUS_OK;
+    return status;
 }
 
 void LoRaMacClassB::beacon_acquisition_timeout(void)
@@ -175,20 +183,30 @@ void LoRaMacClassB::beacon_acquisition_timeout(void)
     send_beacon_miss_indication();
 }
 
-void LoRaMacClassB::set_beacon_rx_config(uint32_t beacon_time, rx_config_params_t *rx_config)
+bool LoRaMacClassB::set_beacon_rx_config(uint32_t beacon_time, rx_config_params_t &rx_config)
 {
-    rx_config->rx_slot = RX_SLOT_WIN_BEACON;
-    rx_config->is_rx_continuous =  beacon_time == 0;
+    bool status;
 
-    _lora_phy->compute_beacon_win_params(beacon_time,
-                                         MBED_CONF_LORA_BEACON_PREAMBLE_LENGTH,
-                                         MBED_CONF_LORA_MAX_SYS_RX_ERROR, rx_config);
+    rx_config.rx_slot = RX_SLOT_WIN_BEACON;
+    rx_config.is_rx_continuous =  beacon_time == 0;
 
-    _beacon.rx_config.window_timeout = MAX(_beacon.expansion.timeout, _beacon.rx_config.window_timeout);
+    status = _lora_phy->compute_beacon_win_params(beacon_time,
+                                                  MBED_CONF_LORA_BEACON_PREAMBLE_LENGTH,
+                                                  MBED_CONF_LORA_MAX_SYS_RX_ERROR, &rx_config);
+
+    if (status) {
+        rx_config.window_timeout = MAX(_beacon.expansion.timeout, rx_config.window_timeout);
+    } else {
+        tr_error("Compute Beacon PHY parameters failed");
+    }
+
+    return status;
 }
 
 bool LoRaMacClassB::schedule_beacon_window(void)
 {
+    bool status = false;
+
     // Abort if beacon slot is disabled
     if (!_opstatus.beacon_on) {
         return false;
@@ -198,8 +216,10 @@ bool LoRaMacClassB::schedule_beacon_window(void)
 
     // Receiver put in continuous mode when device time is not set
     if (current_time == 0) {
-        set_beacon_rx_config(0, &_beacon.rx_config);
-        open_beacon_window();
+        status = set_beacon_rx_config(0, _beacon.rx_config);
+        if (status) {
+            open_beacon_window();
+        }
     } else {
         lorawan_gps_time_t next_beacon_time = ((current_time / LORA_BEACON_INTERVAL_MILLIS) + 1)
                                               * LORA_BEACON_INTERVAL_MILLIS;
@@ -208,26 +228,27 @@ bool LoRaMacClassB::schedule_beacon_window(void)
         lorawan_gps_time_t beacon_delay = next_beacon_time - current_time;
 
         // Compute beacon window receiver configuration
-        set_beacon_rx_config(next_beacon_time / 1000, &_beacon.rx_config);
+        status = set_beacon_rx_config(next_beacon_time / 1000, _beacon.rx_config);
+        if (status) {
+            // PHY layer computes window offset adjusting for minimum preamble,
+            // timing errors, receiver wakeup time
+            int32_t window_offset = _beacon.rx_config.window_offset;
+            // Expand PHY offset by class b window expansion
+            window_offset -= _beacon.expansion.movement;
+            int32_t delay =  beacon_delay + window_offset;
 
-        // PHY layer computes window offset adjusting for minimum preamble,
-        // timing errors, receiver wakeup time
-        int32_t window_offset = _beacon.rx_config.window_offset;
-        // Expand PHY offset by class b window expansion
-        window_offset -= _beacon.expansion.movement;
-        int32_t delay =  beacon_delay + window_offset;
+            // Open window now if delay elapsed
+            if (delay < 0) {
+                open_beacon_window();
+            } else {
+                _lora_time->start(_beacon_timer, delay);
+            }
 
-        // Open window now if delay elapsed
-        if (delay < 0) {
-            open_beacon_window();
-        } else {
-            _lora_time->start(_beacon_timer, delay);
+            tr_debug("Next beacon time = %llu in %ld ms", next_beacon_time / 1000, delay);
         }
-
-        tr_debug("Next beacon time = %llu in %ld ms", next_beacon_time / 1000, delay);
     }
 
-    return true;
+    return status;
 }
 
 void LoRaMacClassB::open_beacon_window(void)
@@ -461,7 +482,7 @@ bool LoRaMacClassB::compute_ping_offset(uint32_t beacon_time, uint32_t address, 
         ping_offset = rand_offset % ping_period;
         return true;
     } else {
-        tr_error("Compute ping slot random offset crypto error (%d)", crypto_status);
+        tr_error("Compute Ping slot random offset crypto error (%d)", crypto_status);
     }
 
     return false;
@@ -476,6 +497,7 @@ lorawan_gps_time_t LoRaMacClassB::compute_ping_slot(uint32_t beacon_time, lorawa
     uint8_t  slot = 0;
     uint16_t slot_nb = ping_slot_offset;
     lorawan_gps_time_t slot_time = 0;
+    bool status;
 
     // Convert beacon time to millis
     beacon_time_millis = (uint64_t)beacon_time * 1000;
@@ -495,20 +517,24 @@ lorawan_gps_time_t LoRaMacClassB::compute_ping_slot(uint32_t beacon_time, lorawa
 
     // Check computed slot is less than configured number of slots per beacon period
     if (slot < ping_nb) {
-        _lora_phy->compute_ping_win_params(beacon_time, address,
-                                           MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                                           MBED_CONF_LORA_MAX_SYS_RX_ERROR, &rx_config);
+        status = _lora_phy->compute_ping_win_params(beacon_time, address,
+                                                    MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR, &rx_config);
 
-        // For window timeout select the larger of the phy computed and class-b window expanded
-        rx_config.window_timeout = MAX(_ping.expansion.timeout, rx_config.window_timeout);
+        if (status) {
+            // For window timeout select the larger of the phy computed and class-b window expanded
+            rx_config.window_timeout = MAX(_ping.expansion.timeout, rx_config.window_timeout);
 
-        // PHY layer computes window offset adjusting for minimum preamble,
-        // timing errors, receiver wakeup time
-        int32_t window_offset = rx_config.window_offset - _ping.expansion.movement;
+            // PHY layer computes window offset adjusting for minimum preamble,
+            // timing errors, receiver wakeup time
+            int32_t window_offset = rx_config.window_offset - _ping.expansion.movement;
 
-        slot_time += window_offset;
-        next_slot_nb = slot_nb;
-        return slot_time;
+            slot_time += window_offset;
+            next_slot_nb = slot_nb;
+            return slot_time;
+        } else {
+            tr_error("Compute Ping slot PHY parameters failed");
+        }
     }
 
     return 0;
