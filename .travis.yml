@@ -164,7 +164,6 @@ matrix:
           pylint>=1.9,<2
           hypothesis>=3,<4
           coverage>=4.5,<5
-          coveralls>=1.5,<2
           "
         - python -m pip install --upgrade pip==18.1
         - python -m pip install --upgrade setuptools==40.4.3
@@ -176,7 +175,6 @@ matrix:
         - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
-        - coveralls
 
     - <<: *pytools-vm
       name: "tools-py35"
