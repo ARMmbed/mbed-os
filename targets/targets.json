@@ -1,6 +1,7 @@
 {
     "Target": {
         "core": null,
+        "trustzone": false,
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
@@ -8042,6 +8043,7 @@
             "MBED_TZ_DEFAULT_ACCESS=1",
             "LPTICKER_DELAY_TICKS=3"
         ],
+        "trustzone": true,
         "is_disk_virtual": true,
         "supported_toolchains": ["ARMC6"],
         "config": {
