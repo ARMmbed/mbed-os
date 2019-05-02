@@ -34,11 +34,6 @@ void mailbox_init(void);
 *******************************************************************************/
 void mbed_sdk_init(void)
 {
-#if !defined(COMPONENT_SPM_MAILBOX)
-    /* Disable global interrupts */
-    __disable_irq();
-#endif
-
     /* Initialize shared resource manager */
     cy_srm_initialize();
 
@@ -50,16 +45,11 @@ void mbed_sdk_init(void)
     mailbox_init();
 #endif
 
-#if (CY_CPU_CORTEX_M0P)
-    #if !defined(COMPONENT_SPM_MAILBOX)
-        /* Enable global interrupts */
-        __enable_irq();
-    #endif
-#else
+#if (!CY_CPU_CORTEX_M0P)
     /* Set up the device based on configurator selections */
     init_cycfg_all();
 
-    /* Enable global interrupts */
+    /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
 #endif
 }
