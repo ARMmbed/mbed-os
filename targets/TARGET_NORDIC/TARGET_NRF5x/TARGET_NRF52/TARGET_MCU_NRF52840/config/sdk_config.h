@@ -48,11 +48,6 @@
 
 // <h> nRF_BLE
 
-// SYSTICK_ENABLED
-#ifndef SYSTICK_ENABLED
-#define SYSTICK_ENABLED 0
-#endif
-
 //==========================================================
 // <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
  
