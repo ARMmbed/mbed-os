@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
 * Copyright (c) 2006-2019 ARM Limited
 * SPDX-License-Identifier: Apache-2.0
-
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -58,6 +58,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
 
+static void TurnOnAwakeSignal(void);
 
 /**
   * @brief  Setup the microcontroller system
@@ -102,6 +103,7 @@ void SystemInit(void)
     SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
 
+    TurnOnAwakeSignal();
 }
 
 
@@ -274,3 +276,27 @@ uint8_t SetSysClock_PLL_HSI(void)
     return 1; // OK
 }
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
+
+/**
+  * @brief  Sets F469 "Awake" signal (PK3 pin) to turn on daughterboard power supplies
+  * @param  None
+  * @retval None
+  *
+  */
+static void TurnOnAwakeSignal(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    /* Enable peripheral clock */
+    __HAL_RCC_GPIOK_CLK_ENABLE();
+
+    /* GPIO Configuration */
+    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOK, &GPIO_InitStruct);		
+
+    /* Enable AWAKE pin */
+    HAL_GPIO_WritePin(GPIOK, GPIO_PIN_3, GPIO_PIN_SET);
+}
