@@ -50,7 +50,7 @@
 
 // SYSTICK_ENABLED
 #ifndef SYSTICK_ENABLED
-#define SYSTICK_ENABLED 1
+#define SYSTICK_ENABLED 0
 #endif
 
 //==========================================================
