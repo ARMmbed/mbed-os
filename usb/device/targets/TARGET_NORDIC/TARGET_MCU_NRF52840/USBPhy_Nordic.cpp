@@ -74,10 +74,10 @@ void USBPhyHw::init(USBPhyEvents *events)
     // Interrupts will be reenabled by the Nordic driver
     NRFX_IRQ_DISABLE(USBD_IRQn);
 
-    if(this->events == NULL) {
-	sleep_manager_lock_deep_sleep();
+    if (this->events == NULL) {
+        sleep_manager_lock_deep_sleep();
     }
-    
+
     this->events = events;
 
     ret_code_t ret;
@@ -89,7 +89,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     // Register callback for USB Power events
     static const nrfx_power_usbevt_config_t config = {
-    		.handler = power_usb_event_handler
+        .handler = power_usb_event_handler
     };
 
     nrfx_power_usbevt_init(&config);
@@ -133,8 +133,8 @@ void USBPhyHw::deinit()
     // Disable the power peripheral driver
     nrfx_power_uninit();
 
-    if(this->events != NULL) {
-	sleep_manager_unlock_deep_sleep();
+    if (this->events != NULL) {
+        sleep_manager_unlock_deep_sleep();
     }
 
     this->events = NULL;
@@ -146,7 +146,7 @@ void USBPhyHw::deinit()
 bool USBPhyHw::powered()
 {
     if (nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_CONNECTED
-     || nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_READY) {
+            || nrfx_power_usbstatus_get() == NRFX_POWER_USB_STATE_READY) {
         return true;
     } else {
         return false;
@@ -403,9 +403,10 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
     nrf_drv_usbd_ep_t ep = get_nordic_endpoint(endpoint);
 
     // Unstall may be called on an endpoint that isn't stalled
-    if(nrf_drv_usbd_ep_stall_check(ep))
-	nrf_drv_usbd_ep_stall_clear(ep);
-	
+    if (nrf_drv_usbd_ep_stall_check(ep)) {
+        nrf_drv_usbd_ep_stall_clear(ep);
+    }
+
     // Clear data toggle
     nrf_drv_usbd_ep_dtoggle_clear(ep);
 
