@@ -401,10 +401,13 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
     nrf_drv_usbd_ep_t ep = get_nordic_endpoint(endpoint);
-    nrf_drv_usbd_ep_stall_clear(ep);
+
+    // Unstall may be called on an endpoint that isn't stalled
+    if(nrf_drv_usbd_ep_stall_check(ep))
+	nrf_drv_usbd_ep_stall_clear(ep);
 	
-	// Clear data toggle
-	nrf_drv_usbd_ep_dtoggle_clear(ep);
+    // Clear data toggle
+    nrf_drv_usbd_ep_dtoggle_clear(ep);
 
     /*
      * This is a somewhat hacky fix to fully "unload"
