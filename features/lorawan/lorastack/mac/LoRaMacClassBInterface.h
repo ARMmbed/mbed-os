@@ -1,7 +1,5 @@
-#ifndef MBED_LORAWAN_LORAMACCLASSB_INTERFACE_H_
-#define MBED_LORAWAN_LORAMACCLASSB_INTERFACE_H_
 /**
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+#ifndef MBED_LORAWAN_LORAMACCLASSB_INTERFACE_H_
+#define MBED_LORAWAN_LORAMACCLASSB_INTERFACE_H_
 
 #include "LoRaMacClassB.h"
 
