@@ -2414,6 +2414,7 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "components_add": ["FLASHIAP"],
         "detect_code": ["0745"],
         "device_has_add": [
             "ANALOGOUT",
