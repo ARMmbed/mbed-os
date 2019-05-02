@@ -874,7 +874,7 @@ bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t &dr_out,
     return set_adr_ack_bit;
 }
 
-void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
+bool LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     uint32_t rx_error,
                                     rx_config_params_t *rx_conf_params)
 {
@@ -908,13 +908,14 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
         case RX_SLOT_WIN_CLASS_C:
             break;
         default:
-            MBED_ASSERT(false);
+            return false;
     }
 
     get_rx_window_params(t_symbol, max_preamble_len, min_rx_symbols,
                          (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
+    return true;
 }
 
 
@@ -928,6 +929,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
     uint16_t preamble_len = MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH;
     bool fixed_len = false;
     bool iq_invert = true;
+    bool is_valid_rx_slot = true;
 
     _radio->lock();
 
@@ -943,26 +945,25 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
             frequency = get_rx1_frequency(rx_conf->channel);
             rx_conf->frequency = frequency;
             break;
-        case RX_SLOT_WIN_UNICAST_PING_SLOT:
-        case RX_SLOT_WIN_MULTICAST_PING_SLOT:
-            // Frequency must be set by compute_ping_win_params
-            MBED_ASSERT(rx_conf->frequency);
-            frequency = rx_conf->frequency;
-            break;
         case RX_SLOT_WIN_BEACON:
-            // Frequency must be set by compute_beacon_win_params
-            MBED_ASSERT(rx_conf->frequency);
             preamble_len = MBED_CONF_LORA_BEACON_PREAMBLE_LENGTH;
             iq_invert = false;
             fixed_len = true;
             max_payload = BEACON_COMMON_FRAME_SIZE + phy_params.beacon.rfu1_size +
                           phy_params.beacon.rfu2_size;
             break;
+        case RX_SLOT_WIN_UNICAST_PING_SLOT:
+        case RX_SLOT_WIN_MULTICAST_PING_SLOT:
         case RX_SLOT_WIN_2:
         case RX_SLOT_WIN_CLASS_C:
             break;
         default:
-            MBED_ASSERT(false);
+            is_valid_rx_slot = false;
+            break;
+    }
+
+    if (!is_valid_rx_slot || _radio->check_rf_frequency(frequency) == false) {
+        return false;
     }
 
     // Read the physical datarate from the datarates table
@@ -1581,7 +1582,7 @@ uint32_t LoRaPHY::get_beacon_frequency(uint32_t beacon_time)
     return phy_params.beacon.default_frequency;
 }
 
-void LoRaPHY::compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
+bool LoRaPHY::compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
                                         uint32_t rx_error, rx_config_params_t *config)
 {
     config->datarate = phy_params.beacon.datarate;
@@ -1594,11 +1595,11 @@ void LoRaPHY::compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_sym
         MBED_ASSERT(config->frequency != 0);
     }
 
-    compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
+    return compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
 }
 
 
-void LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t dev_addr,
+bool LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t dev_addr,
                                       uint8_t min_rx_symbols, uint32_t rx_error,
                                       rx_config_params_t *config)
 {
@@ -1617,7 +1618,7 @@ void LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t dev_addr,
         config->datarate = phy_params.beacon.datarate;
     }
 
-    compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
+    return compute_rx_win_params(config->datarate, min_rx_symbols, rx_error, config);
 }
 
 uint32_t LoRaPHY::get_rx1_frequency(uint8_t channel)
