@@ -18,7 +18,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 
 
-Copyright (c) 2017, Arm Limited and affiliates.
+Copyright (c) 2019, Arm Limited and affiliates.
 
 SPDX-License-Identifier: BSD-3-Clause
 */
