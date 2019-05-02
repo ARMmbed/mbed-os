@@ -112,6 +112,10 @@ typedef enum {
     ADC_0 = (int)SAR_BASE,
 } ADCName;
 
+typedef enum {
+    SMIF_0 = (int)SMIF0_BASE,
+} SMIFName;
+
 #ifdef __cplusplus
 }
 #endif
