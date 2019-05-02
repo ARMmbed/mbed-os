@@ -845,8 +845,6 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
         }
     } else {
         _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
-        // Resume Class B reception slots
-        LoRaMacClassBInterface::resume();
     }
 
     _params.last_channel_idx = _params.channel;
@@ -925,9 +923,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             _mcps_indication.pending = false;
             break;
     }
-
-    // Resume Class B reception slots
-    LoRaMacClassBInterface::resume();
 }
 
 void LoRaMac::on_radio_tx_timeout(void)
@@ -957,9 +952,6 @@ void LoRaMac::on_radio_tx_timeout(void)
 
     _mcps_confirmation.ack_received = false;
     _mcps_confirmation.tx_toa = 0;
-
-    // Resume Class B reception slots
-    LoRaMacClassBInterface::resume();
 }
 
 void LoRaMac::on_radio_rx_timeout(bool is_timeout)
@@ -983,16 +975,12 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
         if (_device_class != CLASS_C) {
             if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time) >= _params.rx_window2_delay) {
                 _lora_time.stop(_params.timers.rx_window2_timer);
-                // Resume Class B reception slots
-                LoRaMacClassBInterface::resume();
             }
         }
     } else if (_params.rx_slot == RX_SLOT_WIN_2) {
         if (_params.is_node_ack_requested == true) {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
         }
-        // Resume Class B reception slots
-        LoRaMacClassBInterface::resume();
     }
 }
 
@@ -1155,7 +1143,6 @@ void LoRaMac::open_rx2_window()
     _lora_phy->rx_config(&_params.rx_window2_config);
     _lora_phy->handle_receive();
     _params.rx_slot = _params.rx_window2_config.rx_slot;
-    _demod_ongoing = true;
 
     tr_debug("RX2 slot open, Freq = %lu", _params.rx_window2_config.frequency);
 }
@@ -1198,9 +1185,11 @@ bool LoRaMac::open_rx_window(rx_config_params_t *rx_config)
 
 void LoRaMac::close_rx_window(rx_slot_t slot)
 {
-    if ((_params.rx_slot == slot)  && (_demod_ongoing)) {
-        _lora_phy->put_radio_to_sleep();
+    if ((_params.rx_slot == slot) && (_demod_ongoing)) {
         _demod_ongoing = false;
+        if (!_mod_ongoing) {
+            _lora_phy->put_radio_to_sleep();
+        }
     }
 }
 
@@ -1553,6 +1542,7 @@ void LoRaMac::reset_mac_parameters(void)
     _params.last_channel_idx = _params.channel;
 
     _demod_ongoing = false;
+    _mod_ongoing = false;
 }
 
 uint8_t LoRaMac::get_default_tx_datarate()
@@ -1590,6 +1580,11 @@ void LoRaMac::set_tx_ongoing(bool ongoing)
 {
     _can_cancel_tx = true;
     _ongoing_tx_msg.tx_ongoing = ongoing;
+
+    // Notify Class B to resume its reception slots.
+    if (!ongoing) {
+        LoRaMacClassBInterface::resume();
+    }
 }
 
 void LoRaMac::reset_ongoing_tx(bool reset_pending)
@@ -1600,6 +1595,7 @@ void LoRaMac::reset_ongoing_tx(bool reset_pending)
     if (reset_pending) {
         _ongoing_tx_msg.pending_size = 0;
     }
+    LoRaMacClassBInterface::resume();
 }
 
 int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
@@ -2201,9 +2197,10 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     tx_config.antenna_gain = _params.sys_params.antenna_gain;
     tx_config.pkt_len = _params.tx_buffer_len;
 
+    // Pause Class B reception slots
     LoRaMacClassBInterface::pause();
-    _demod_ongoing = false;
 
+    _mod_ongoing = true;
     _lora_phy->tx_config(&tx_config, &tx_power, &_params.timers.tx_toa);
 
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -2217,7 +2214,6 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
         _params.join_request_trial_counter++;
     }
 
-    _mod_ongoing = true;
     _lora_phy->handle_send(_params.tx_buffer, _params.tx_buffer_len);
 
     return LORAWAN_STATUS_OK;
