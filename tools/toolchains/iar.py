@@ -19,7 +19,6 @@ from os import remove
 from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
-from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import run_cmd
 
@@ -54,20 +53,23 @@ class IAR(mbedToolchain):
             build_dir=build_dir,
             build_profile=build_profile
         )
-        core = target.core
-        if CORE_ARCH[target.core] == 8:
-            # Add linking time preprocessor macro DOMAIN_NS
-            if target.core.endswith("-NS"):
-                define_string = self.make_ld_define("DOMAIN_NS", "0x1")
-                self.flags["ld"].append(define_string)
-                core = target.core[:-3]
-            else:
-                # Create Secure library
-                self.flags["asm"] += ["--cmse"]
-                self.flags["common"] += ["--cmse"]
-                secure_file = join(build_dir, "cmse_lib.o")
-                self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
+        if target.is_TrustZone_secure_target:
+            # Enable compiler security extensions
+            self.flags["asm"] += ["--cmse"]
+            self.flags["common"] += ["--cmse"]
+            # Output secure import library
+            secure_file = join(build_dir, "cmse_lib.o")
+            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
+
+        if target.is_TrustZone_non_secure_target:
+            # Add linking time preprocessor macro DOMAIN_NS
+            # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS
+            # in mbedToolchain.get_symbols)
+            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+            self.flags["ld"].append(define_string)
+
+        core = target.core_without_NS
         cpu = {
             "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M7FD": "Cortex-M7.fp.dp",

@@ -25,7 +25,6 @@ from tempfile import mkstemp
 from shutil import rmtree
 from distutils.version import LooseVersion
 
-from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import mkdir, NotSupportedException, run_cmd
 from tools.resources import FileRef
@@ -521,25 +520,25 @@ class ARMC6(ARM_STD):
             if "--library_type=microlib" not in self.flags['asm']:
                 self.flags['asm'].append("--library_type=microlib")
 
-        core = target.core
-        if CORE_ARCH[target.core] == 8:
-            if ((not target.core.endswith("-NS")) and
-                    kwargs.get('build_dir', False)):
-                # Create Secure library
+        if target.is_TrustZone_secure_target:
+            if kwargs.get('build_dir', False):
+                # Output secure import library
                 build_dir = kwargs['build_dir']
                 secure_file = join(build_dir, "cmse_lib.o")
                 self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
-            # Add linking time preprocessor macro DOMAIN_NS
-            if target.core.endswith("-NS"):
-                define_string = self.make_ld_define("DOMAIN_NS", "0x1")
-                self.flags["ld"].append(define_string)
-                core = target.core[:-3]
-            else:
-                # Add secure build flag
-                self.flags['cxx'].append("-mcmse")
-                self.flags['c'].append("-mcmse")
+            # Enable compiler security extensions
+            self.flags['cxx'].append("-mcmse")
+            self.flags['c'].append("-mcmse")
 
+        if target.is_TrustZone_non_secure_target:
+            # Add linking time preprocessor macro DOMAIN_NS
+            # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS
+            # in mbedToolchain.get_symbols)
+            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+            self.flags["ld"].append(define_string)
+
+        core = target.core_without_NS
         cpu = {
             "Cortex-M0+": "cortex-m0plus",
             "Cortex-M4F": "cortex-m4",
