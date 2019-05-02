@@ -169,7 +169,7 @@ int DeviceKey::read_key_from_kvstore(uint32_t *output, size_t &size)
         return DEVICEKEY_NOT_FOUND;
     }
 
-    int kvStatus = ((TDBStore *)inner_store)->reserved_data_get(output, size);
+    int kvStatus = ((TDBStore *)inner_store)->reserved_data_get(output, size, &size);
     if (MBED_ERROR_ITEM_NOT_FOUND == kvStatus) {
         return DEVICEKEY_NOT_FOUND;
     }
