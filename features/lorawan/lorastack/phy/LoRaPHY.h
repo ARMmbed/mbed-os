@@ -279,8 +279,9 @@ public:
      * @param [out] rx_conf_params  Pointer to the structure that needs to be
      *                              filled with receive window parameters.
      *
+     * @return False, if invalid receive parameters
      */
-    virtual void compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
+    virtual bool compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                        uint32_t rx_error,
                                        rx_config_params_t *rx_conf_params);
 
@@ -636,7 +637,25 @@ public: //Verifiers
      */
     uint32_t get_rejoin_max_count() const;
 
-    virtual void compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
+    /*!
+     * @brief Computes beacon RX window frequency, timeout and offset.
+     *
+     * @param [in] beacon_time      Beacon time for frequency calculation
+     *
+     * @param [in] min_rx_symbols   The minimum number of symbols required to
+     *                              detect an RX frame.
+     *
+     * @param [in] rx_error         The maximum timing error of the receiver
+     *                              in milliseconds. The receiver will turn on
+     *                              in a [-rxError : +rxError] ms interval around
+     *                              RxOffset.
+     *
+     * @param [out] rx_conf_params  Pointer to the structure that needs to be
+     *                              filled with receive window parameters.
+     *
+     * @return False, if invalid receive parameters
+     */
+    virtual bool compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
                                            uint32_t rx_error, rx_config_params_t *config);
 
     /**
@@ -668,8 +687,10 @@ public: //Verifiers
      *
      * @param [out] rx_conf_params  Pointer to the structure that needs to be
      *                              filled with receive window parameters.
+     *
+     * @return False, if invalid receive parameters
      */
-    virtual void compute_ping_win_params(uint32_t beacon_time, uint32_t devaddr,
+    virtual bool compute_ping_win_params(uint32_t beacon_time, uint32_t devaddr,
                                          uint8_t min_rx_symbols, uint32_t rx_error,
                                          rx_config_params_t *config);
 

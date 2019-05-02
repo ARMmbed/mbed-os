@@ -196,11 +196,13 @@ private:
     void handle_beacon_rx_timeout(void);
 
     /**
-     * @brief Calculate beacon window configuration
-     * @param [in]  beacon_time beacon time
-     * @param [out] rx_config beacon window configuration
+     * @brief Set the beacon rx config
+     *
+     * @param beacon_time
+     * @param rx_config
+     * @return False if beacon PHY configuration could not be computed
      */
-    void set_beacon_rx_config(uint32_t beacon_time, rx_config_params_t *rx_config);
+    bool set_beacon_rx_config(uint32_t beacon_time, rx_config_params_t &rx_config);
 
     /**
      * @brief Schedules next beacon window opening
