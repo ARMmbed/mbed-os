@@ -7420,6 +7420,7 @@
             "FLASH",
             "MPU"
         ],
+        "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
@@ -8086,6 +8087,7 @@
             "FLASH",
             "MPU"
         ],
+        "components_add": ["FLASHIAP"],
         "detect_code": ["1305"],
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
