@@ -39,7 +39,7 @@
             "value": null
         },
         "default-mesh-type": {
-            "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD]",
+            "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD/WISUN]",
             "value": "THREAD"
         },
         "dns-response-wait-time": {
