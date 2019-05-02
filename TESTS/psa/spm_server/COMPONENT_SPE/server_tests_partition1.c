@@ -18,7 +18,7 @@
 #include "string.h"
 #include "psa/client.h"
 #include "psa/service.h"
-#include "psa_server_tests_part1_partition.h"
+#include "mbed_spm_partitions.h"
 #include "server_tests.h"
 
 extern psa_test_server_side_func test_list[];

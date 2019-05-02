@@ -19,7 +19,7 @@
 #include <string.h>
 #include "psa/client.h"
 #include "psa/service.h"
-#include "psa_its_partition.h"
+#include "mbed_spm_partitions.h"
 #include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "mbed_error.h"

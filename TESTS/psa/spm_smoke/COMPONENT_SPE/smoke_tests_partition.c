@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "psa/client.h"
 #include "psa/service.h"
-#include "psa_smoke_tests_part1_partition.h"
+#include "mbed_spm_partitions.h"
 
 // ------------------------------------ Definitions ----------------------------------
 

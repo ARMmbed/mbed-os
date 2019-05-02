@@ -19,7 +19,7 @@
 #include "psa_attest_inject_key.h"
 #include "psa/crypto.h"
 #include "psa/client.h"
-#include "psa_attest_srv_ifs.h"
+#include "psa_manifest/sid.h"
 
 #define MINOR_VER 1
 

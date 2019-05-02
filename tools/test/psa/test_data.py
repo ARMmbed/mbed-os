@@ -457,7 +457,7 @@ test_partition_template = '''{
     "name": "{{partition.name}}",
     "id": "0x{{"%0x"|format(partition.id|int)|upper}}",
     "type": "{{partition.type}}",
-    "priority": "{{partition.priority|find_priority_key}}",
+    "priority": "{{partition.priority_mbed|find_priority_key}}",
     "entry_point": "{{partition.entry_point}}",
     "stack_size": {{partition.stack_size}},
     "heap_size": {{partition.heap_size}},

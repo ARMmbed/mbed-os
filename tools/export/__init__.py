@@ -208,7 +208,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                    linker_script=None, notify=None, name=None, inc_dirs=None,
                    jobs=1, config=None, macros=None, zip_proj=None,
                    inc_repos=False, build_profile=None, app_config=None,
-                   ignore=None):
+                   ignore=None, resource_filter=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -230,6 +230,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     zip_proj - string name of the zip archive you wish to creat (exclude arg
      if you do not wish to create an archive
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
     """
 
     # Convert src_path to a list if needed
@@ -278,6 +279,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
 
     if toolchain.config.name:
         name = toolchain.config.name
+
+    resources.filter(resource_filter)
 
     files, exporter = generate_project_files(
         resources, export_path, target, name, toolchain, ide, zip_proj, macros=macros
