@@ -646,9 +646,15 @@ void LoRaMacClassB::pause(void)
     if (_opstatus.beacon_on) {
         tr_debug("Pause Class B");
 
-        // Disable radio if beacon or ping slot is open
-        if ((_opstatus.beacon_rx || _opstatus.ping_rx)) {
-            _lora_phy->put_radio_to_standby();
+        // Disable radio if beacon or ping slot is active
+        if (_opstatus.beacon_rx) {
+            _close_rx_window(RX_SLOT_WIN_BEACON);
+        } else if (_opstatus.ping_rx) {
+            if (_ping.slot_idx == 0) {
+                _close_rx_window(RX_SLOT_WIN_UNICAST_PING_SLOT);
+            } else {
+                _close_rx_window(RX_SLOT_WIN_MULTICAST_PING_SLOT);
+            }
         }
     }
 }
