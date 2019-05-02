@@ -16,11 +16,12 @@ See the License for the specific language governing permissions and
 limitations 
 """
 import os
-from os.path import dirname, abspath, basename
+from os.path import dirname, abspath, basename, join, normpath
 import os.path
 import sys
 import subprocess
 from shutil import rmtree
+import json
 
 """ Import and bulid a bunch of example programs
 
@@ -369,6 +370,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
 
     """
     results = {}
+    test_json = {"builds":{}}
     valid_examples = set(examples)
     print("\nCompiling example repos....\n")
     for example in config['examples']:
@@ -380,31 +382,60 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
         successes = []
         compiled = True
         pass_status = True
+        if example.has_key('test') and example.has_key('baud_rate') and example.has_key('compare_log'):
+            test_example = True
+        else:
+            test_example = False
         if example['compile']:
             for repo_info in get_repo_list(example):
                 name = basename(repo_info['repo'])
                 os.chdir(name)
-
                 # Check that the target, toolchain and features combinations are valid and return a
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(valid_choices(example['targets'], targets),
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
-                    print("Compiling %s for %s, %s" % (name, target, toolchain))
+                    
                     build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target] + (['-v'] if verbose else [])
-
                     if profile:
                         build_command.append("--profile")
                         build_command.append(profile)
+                    
+                    print("Compiling [%s] for [%s] with toolchain [%s]\n\n>  %s" % (name, target, toolchain, " ".join(build_command)))
+                    
+                    proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                    proc = subprocess.Popen(build_command)
-
-                    proc.wait()
+                    std_out, std_err = proc.communicate()
+                    print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
+                    
+                    if test_example:
+                        log = example['compare_log'].pop(0)
+                        image = fetch_output_image(std_out)
+                        if image:
+                            image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
+                        else:
+                            print ("Warning: could not found built image for example %s" % name)
+                        
                     example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
                         successes.append(example_summary)
+                        if test_example:
+                            test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
+                            if example['test'] and image:
+                                if not test_json['builds'].has_key(test_group):
+                                    test_json['builds'][test_group] = {
+                                        "platform":target ,
+                                        "toolchain": toolchain ,
+                                        "base_path": os.getcwd() ,
+                                        "baud_rate": int(example['baud_rate']), 
+                                        "tests":{} }
+                                test_json['builds'][test_group]['tests'][name]={"binaries":image_info}
+                        else:
+                            print("Warning: Test for %s will not be generated." % name)
+                            print("One or more of 'test' 'baud_rate' and 'compare_log' keys are missing from the json file\n")
+
                 os.chdir("..")
 
             # If there are any compilation failures for the example 'set' then the overall status is fail.
@@ -415,6 +446,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
 
         results[example['name']] = [compiled, pass_status, successes, failures]
 
+    save_test_spec(test_json)
     return results
 
 
@@ -444,3 +476,18 @@ def update_mbedos_version(config, tag, examples):
     
     return 0
   
+def save_test_spec(json_spec, name="test_spec.json"):
+    """save the given json data to test_spec.json"""
+    print ("Dumping json test_specs file {}".format(name))
+    with open(name, 'w') as outfile:  
+        json.dump(json_spec, outfile , indent=4)
+        
+def fetch_output_image(output):
+    """find the mbed build image from thet last 5 lines of a given log """
+    lines = output.splitlines()
+    for index in range(-1,-6,-1):
+        if lines[index].startswith("Image:"):
+            image = lines[index][7:]
+            if os.path.isfile(image):
+                return image
+    return False
