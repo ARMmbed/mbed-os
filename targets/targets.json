@@ -7236,7 +7236,7 @@
             "TRNG",
             "USTICKER",
             "QSPI",
-	    "USBDEVICE"
+            "USBDEVICE"
         ],
         "extra_labels": [
             "NORDIC",
