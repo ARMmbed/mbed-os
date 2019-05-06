@@ -16,11 +16,9 @@
 # limitations under the License.
 
 import os
-from os.path import abspath, basename, dirname, splitext
+from os.path import abspath, basename, dirname, splitext, isdir
 from os.path import join as path_join
-import tempfile
 import re
-import shutil
 from argparse import Namespace
 from tools.psa.tfm.bin_utils.assemble import Assembly
 from tools.psa.tfm.bin_utils.imgtool import do_sign
@@ -30,8 +28,16 @@ SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 MUSCA_A1_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_ARM_SSG', 'TARGET_MUSCA_A1')
 
+
 def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
-    tempdir = tempfile.mkdtemp()
+
+    assert os.path.isfile(secure_bin)
+    assert os.path.isfile(non_secure_bin)
+
+    build_dir = dirname(non_secure_bin)
+    tempdir = path_join(build_dir, 'temp')
+    if not isdir(tempdir):
+        os.makedirs(tempdir)
     flash_layout = path_join(MUSCA_A1_BASE, 'partition', 'flash_layout.h')
     mcuboot_bin = path_join(MUSCA_A1_BASE, 'TARGET_MUSCA_A1_NS', 'prebuilt', 'mcuboot.bin')
     ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
@@ -39,8 +45,6 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
     signed_bin = path_join(tempdir, 'tfm_' + ns_bin_name + '_signed' + ns_bin_ext)
 
     assert os.path.isfile(flash_layout)
-    assert os.path.isfile(secure_bin)
-    assert os.path.isfile(non_secure_bin)
 
     #1. Concatenate secure TFM and non-secure mbed binaries
     output = Assembly(flash_layout, concatenated_bin)
@@ -69,8 +73,6 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
             out_fh.write(mcuboot_fh.read())
             out_fh.seek(mcuboot_image_size)
             out_fh.write(signed_fh.read())
-
-    shutil.rmtree(tempdir)
 
 
 def find_bl2_size(configFile):
