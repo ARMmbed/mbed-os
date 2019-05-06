@@ -175,7 +175,9 @@ public:
 
     /**
      * @brief add_ping_slot_info_req Adds PingSlotInfoReq MAC command to be sent.
-     *        Communicates the ping unicast slot periodicity to the network server.
+     *                               Communicates the ping unicast slot periodicity to the
+     *                               network server.
+     * @param periodicity The ping slot period
      * @return status  Function status: LORAWAN_STATUS_OK: OK,
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full,
      *                                  LORAWAN_STATUS_PARAMETER_INVALID: Invalid periodicity
