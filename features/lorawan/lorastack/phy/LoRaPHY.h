@@ -416,38 +416,23 @@ public:
     void reset_to_default_values(loramac_protocol_params *params, bool init = false);
 
     /**
-     * @brief accept_ping_slot_channel_req  Makes decision whether to accept
-     *        or reject PingSlotChannelReq MAC command.
+     * @brief accept_ping_slot_channel_req  Makes decision whether to accept or reject 
+     *                                      PingSlotChannelReq MAC command
+     * 
+     * @param [in] frequency The ping slot frequency
+     * @param [in] datarate The ping slot datarate
      *
-     * @param frequency The unicast ping slot channel
-     *
-     * @return True to let the MAC know that the request is
-     *         accepted and MAC can apply Ping slot channel received
-     *         form Network Server. Otherwise false is returned.
-     */
-
-    /**
-     * @brief accept_ping_slot_channel_req  Makes decision whether to accept
-     *        or reject PIngSlotChannelReq MAC command.
-     *
-     * @param frequency The unicast ping slot channel
-     *
-     * @return Status bits RFU[7:2], DrOk[1], FreqOk[0]. If status bit is 1 the
-     *         parameter is compatible. If either status bit is zero, the request
-     *         fails.
+     * @return True to let the MAC know that the request is accepted and the MAC
+     *         can apply the ping slot configuration from the Network Server
      */
     virtual uint8_t accept_ping_slot_channel_req(uint32_t frequency, uint8_t datarate);
 
     /**
-     * @brief accept_beacon_frequency_request  Makes decision whether to accept
-     *        or reject BeaconFreqReq MAC command.
-     *
-     * @param frequency The frequency at which beacons will be broadcast
-     *
-     * @return 1 to let the MAC know that the device can use the frequency
-     * @return 1 to let the MAC know that the request is accepted and
-     *         MAC can apply Beacon frequency received form Network Server.
-     *         Otherwise 0 is returned.
+     * @brief accept_beacon_frequency_request Makes decision whether to accept 
+     *                                        or reject BeaconFreqReq MAC command
+     * 
+     * @param [in] frequency The frequency at which beacons will be broadcast
+     * @return 1 to let the MAC know that the request is accepted, 0 otherwise
      */
     virtual uint8_t accept_beacon_frequency_request(uint32_t frequency);
 
@@ -637,20 +622,17 @@ public: //Verifiers
      */
     uint32_t get_rejoin_max_count() const;
 
-    /*!
-     * @brief Computes beacon RX window frequency, timeout and offset.
-     *
+    /**
+     * @brief compute_beacon_win_params  Computes beacon RX window frequency, 
+     *                                   timeout and offset.
      * @param [in] beacon_time      Beacon time for frequency calculation
-     *
      * @param [in] min_rx_symbols   The minimum number of symbols required to
      *                              detect an RX frame.
-     *
      * @param [in] rx_error         The maximum timing error of the receiver
      *                              in milliseconds. The receiver will turn on
      *                              in a [-rxError : +rxError] ms interval around
      *                              RxOffset.
-     *
-     * @param [out] rx_conf_params  Pointer to the structure that needs to be
+     * @param [out] config          Pointer to the structure that needs to be
      *                              filled with receive window parameters.
      *
      * @return False, if invalid receive parameters
@@ -660,6 +642,8 @@ public: //Verifiers
 
     /**
      * @brief get_beacon_rfu_size Gets the current region beacon RFU field sizes
+     * @param [out] rfu1  beacon rfu1 size
+     * @param [out] rfu2  beacon rfu2 size
      */
     virtual void get_beacon_rfu_size(uint8_t &rfu1, uint8_t &rfu2);
 
@@ -670,22 +654,19 @@ public: //Verifiers
      */
     virtual uint32_t get_beacon_frequency(uint32_t beacon_time);
 
-    /*!
-     * Computes the ping slot frequency, window timeout and offset.
+    /**
+     * @brief compute_ping_win_params Computes the ping slot frequency, 
+     *                                window timeout and offset.
      *
      * @param [in] beacon_time      The current beacon period time
-     *
      * @param [in] devaddr          Device address for ping frequency computation
-     *
      * @param [in] min_rx_symbols   The minimum number of symbols required to
      *                              detect an RX frame.
-     *
      * @param [in] rx_error         The maximum timing error of the receiver
      *                              in milliseconds. The receiver will turn on
      *                              in a [-rxError : +rxError] ms interval around
      *                              RxOffset.
-     *
-     * @param [out] rx_conf_params  Pointer to the structure that needs to be
+     * @param [out] config          Pointer to the structure that needs to be
      *                              filled with receive window parameters.
      *
      * @return False, if invalid receive parameters
@@ -695,8 +676,7 @@ public: //Verifiers
                                          rx_config_params_t *config);
 
     /**
-     * @brief compute_beacon_time_on_air
-     * @param compute_beacon_time_on_air computes beacon frame time on air
+     * @brief compute_beacon_time_on_air  Compute beacon frame time on air
      * @return time on air in milliseconds
      */
     virtual uint32_t compute_beacon_time_on_air();
@@ -798,8 +778,19 @@ protected:
 
     bool is_datarate_supported(const int8_t datarate) const;
 
+    /**
+     * @brief Get Class A RX1 frequency 
+     * @param [in] channel  The uplink channel number
+     * @return RX1 frequency 
+     */
     virtual uint32_t get_rx1_frequency(uint8_t channel);
 
+    /**
+     * @brief get_ping_slot_frequency Get ping slot frequency for device address
+     * @param [in] dev_addr unicast or multicast device address
+     * @param [in] beacon_time  the beacon time 
+     * @return ping slot freqeucny 
+     */
     virtual uint32_t get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time);
 
 private:
