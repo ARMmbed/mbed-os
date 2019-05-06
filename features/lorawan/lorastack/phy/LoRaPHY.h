@@ -416,9 +416,9 @@ public:
     void reset_to_default_values(loramac_protocol_params *params, bool init = false);
 
     /**
-     * @brief accept_ping_slot_channel_req  Makes decision whether to accept or reject 
+     * @brief accept_ping_slot_channel_req  Makes decision whether to accept or reject
      *                                      PingSlotChannelReq MAC command
-     * 
+     *
      * @param [in] frequency The ping slot frequency
      * @param [in] datarate The ping slot datarate
      *
@@ -428,9 +428,9 @@ public:
     virtual uint8_t accept_ping_slot_channel_req(uint32_t frequency, uint8_t datarate);
 
     /**
-     * @brief accept_beacon_frequency_request Makes decision whether to accept 
+     * @brief accept_beacon_frequency_request Makes decision whether to accept
      *                                        or reject BeaconFreqReq MAC command
-     * 
+     *
      * @param [in] frequency The frequency at which beacons will be broadcast
      * @return 1 to let the MAC know that the request is accepted, 0 otherwise
      */
@@ -623,7 +623,7 @@ public: //Verifiers
     uint32_t get_rejoin_max_count() const;
 
     /**
-     * @brief compute_beacon_win_params  Computes beacon RX window frequency, 
+     * @brief compute_beacon_win_params  Computes beacon RX window frequency,
      *                                   timeout and offset.
      * @param [in] beacon_time      Beacon time for frequency calculation
      * @param [in] min_rx_symbols   The minimum number of symbols required to
@@ -655,7 +655,7 @@ public: //Verifiers
     virtual uint32_t get_beacon_frequency(uint32_t beacon_time);
 
     /**
-     * @brief compute_ping_win_params Computes the ping slot frequency, 
+     * @brief compute_ping_win_params Computes the ping slot frequency,
      *                                window timeout and offset.
      *
      * @param [in] beacon_time      The current beacon period time
@@ -779,17 +779,17 @@ protected:
     bool is_datarate_supported(const int8_t datarate) const;
 
     /**
-     * @brief Get Class A RX1 frequency 
+     * @brief Get Class A RX1 frequency
      * @param [in] channel  The uplink channel number
-     * @return RX1 frequency 
+     * @return RX1 frequency
      */
     virtual uint32_t get_rx1_frequency(uint8_t channel);
 
     /**
      * @brief get_ping_slot_frequency Get ping slot frequency for device address
      * @param [in] dev_addr unicast or multicast device address
-     * @param [in] beacon_time  the beacon time 
-     * @return ping slot freqeucny 
+     * @param [in] beacon_time  the beacon time
+     * @return ping slot frequency
      */
     virtual uint32_t get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time);
 
