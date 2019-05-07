@@ -134,13 +134,19 @@ bool pinmap_find_peripheral_pins(const PinList *whitelist, const PinList *blackl
                 if (map->peripheral != per) {
                     continue;
                 }
-                if (!pinmap_list_has_pin(whitelist, map->pin)) {
-                    // Not part of this form factor
-                    continue;
+
+                if (whitelist) {
+                    if (!pinmap_list_has_pin(whitelist, map->pin)) {
+                        // Not part of this form factor
+                        continue;
+                    }
                 }
-                if (pinmap_list_has_pin(blacklist, map->pin)) {
-                    // Restricted pin
-                    continue;
+
+                if (blacklist) {
+                    if (pinmap_list_has_pin(blacklist, map->pin)) {
+                        // Restricted pin
+                        continue;
+                    }
                 }
                 bool already_in_use = false;
                 for (uint32_t j = 0; j < count; j++) {
