@@ -18,8 +18,10 @@
 #ifndef MBED_TESTER_H
 #define MBED_TESTER_H
 
-#include "mbed.h"
 #include "DynamicPinList.h"
+#include "platform/FileHandle.h"
+#include "platform/Callback.h"
+#include "drivers/DigitalInOut.h"
 
 class MbedTester {
 public:
@@ -156,7 +158,7 @@ public:
      * @param progress Optional progress callback called when the percent complete changes
      * @return true if firmware was successfully read, false otherwise
      */
-    bool firmware_dump(FileHandle *dest, Callback<void(uint8_t)> progress = Callback<void(uint8_t)>());
+    bool firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8_t)> progress = mbed::Callback<void(uint8_t)>());
 
     /**
      * Read FPGA CI Test Shield flash
@@ -168,7 +170,7 @@ public:
      * @param progress Optional progress callback called when the percent complete changes
      * @return true if firmware was successfully read, false otherwise
      */
-    bool firmware_dump_all(FileHandle *dest, Callback<void(uint8_t)> progress = Callback<void(uint8_t)>());
+    bool firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(uint8_t)> progress = mbed::Callback<void(uint8_t)>());
 
     /**
      * Program new FPGA CI Test Shield firmware
@@ -184,7 +186,7 @@ public:
      * @param progress Optional progress callback called when the percent complete changes
      * @return true if firmware was successfully applied, false otherwise
      */
-    bool firmware_update(FileHandle *src, Callback<void(uint8_t)> progress = Callback<void(uint8_t)>());
+    bool firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint8_t)> progress = mbed::Callback<void(uint8_t)>());
 
     /**
      * Map a physical pin to the given logical pin
@@ -864,10 +866,10 @@ private:
     PhysicalIndex _mosi_index;
     PhysicalIndex _miso_index;
     PhysicalIndex _aux_index;
-    DigitalInOut *_clk;
-    DigitalInOut *_mosi;
-    DigitalInOut *_miso;
-    DigitalInOut *_aux;
+    mbed::DigitalInOut *_clk;
+    mbed::DigitalInOut *_mosi;
+    mbed::DigitalInOut *_miso;
+    mbed::DigitalInOut *_aux;
     /*
      * Used to reset IO expander chips only once the first time
      * any IO expander is accessed as well as during an io_exp_test

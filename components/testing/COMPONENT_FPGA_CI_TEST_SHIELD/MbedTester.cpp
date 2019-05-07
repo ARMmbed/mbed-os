@@ -18,6 +18,9 @@
 #include "MbedTester.h"
 #include "fpga_config.h"
 #include "BlockDevice.h"
+#include "platform/mbed_wait_api.h"
+#include "platform/mbed_error.h"
+#include "drivers/MbedCRC.h"
 
 #define mbed_tester_printf(...)
 
@@ -76,7 +79,7 @@ private:
     uint32_t _bitmap[(width + 31) / 32];
 };
 
-static uint8_t spi_transfer(DigitalInOut *clk, DigitalInOut *mosi, DigitalInOut *miso, uint8_t data)
+static uint8_t spi_transfer(mbed::DigitalInOut *clk, mbed::DigitalInOut *mosi, mbed::DigitalInOut *miso, uint8_t data)
 {
     uint8_t ret = 0;
     for (int i = 0; i < 8; i++) {
@@ -90,7 +93,7 @@ static uint8_t spi_transfer(DigitalInOut *clk, DigitalInOut *mosi, DigitalInOut 
     return ret;
 }
 
-static void mbed_tester_command(DigitalInOut *clk, DigitalInOut *mosi, DigitalInOut *miso, uint8_t miso_index, uint32_t addr, bool write_n_read, uint8_t *data, uint8_t size)
+static void mbed_tester_command(mbed::DigitalInOut *clk, mbed::DigitalInOut *mosi, mbed::DigitalInOut *miso, uint8_t miso_index, uint32_t addr, bool write_n_read, uint8_t *data, uint8_t size)
 {
     // 8 - Start Key
     for (uint32_t i = 0; i < sizeof(KEY); i++) {
@@ -126,7 +129,7 @@ static void mbed_tester_command(DigitalInOut *clk, DigitalInOut *mosi, DigitalIn
 
 }
 
-static bool mbed_tester_test(DigitalInOut *clk, DigitalInOut *mosi, DigitalInOut *miso, uint8_t miso_index)
+static bool mbed_tester_test(mbed::DigitalInOut *clk, mbed::DigitalInOut *mosi, mbed::DigitalInOut *miso, uint8_t miso_index)
 {
     uint8_t buf[4];
     memset(buf, 0, sizeof(buf));
@@ -138,7 +141,7 @@ static bool mbed_tester_test(DigitalInOut *clk, DigitalInOut *mosi, DigitalInOut
 class MbedTesterBlockDevice : public BlockDevice {
 public:
 
-    MbedTesterBlockDevice(DigitalInOut &mosi, DigitalInOut &miso, DigitalInOut &clk, DigitalInOut &cs, uint32_t frequency)
+    MbedTesterBlockDevice(mbed::DigitalInOut &mosi, mbed::DigitalInOut &miso, mbed::DigitalInOut &clk, mbed::DigitalInOut &cs, uint32_t frequency)
         : _mosi(mosi), _miso(miso), _clk(clk), _cs(cs), _wait_ns(1000000000 / frequency / 2), _init(false) {
 
         // Set initial values
@@ -430,10 +433,10 @@ protected:
         wait_ns(_wait_ns);
     }
 
-    DigitalInOut &_mosi;
-    DigitalInOut &_miso;
-    DigitalInOut &_clk;
-    DigitalInOut &_cs;
+    mbed::DigitalInOut &_mosi;
+    mbed::DigitalInOut &_miso;
+    mbed::DigitalInOut &_clk;
+    mbed::DigitalInOut &_cs;
     uint32_t _wait_ns;
     bool _init;
 };
@@ -636,12 +639,12 @@ void MbedTester::set_control_pins_manual(PinName clk, PinName mosi, PinName miso
     _control_valid = true;
 }
 
-bool MbedTester::firmware_dump(FileHandle *dest, Callback<void(uint8_t)> progress)
+bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8_t)> progress)
 {
     _update_control_pins();
 
     if (!progress) {
-        progress = callback(dummy_progress);
+        progress = mbed::callback(dummy_progress);
     }
 
     // Mapping intentionally different from control channel to prevent
@@ -717,12 +720,12 @@ bool MbedTester::firmware_dump(FileHandle *dest, Callback<void(uint8_t)> progres
     return true;
 }
 
-bool MbedTester::firmware_dump_all(FileHandle *dest, Callback<void(uint8_t)> progress)
+bool MbedTester::firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(uint8_t)> progress)
 {
     _update_control_pins();
 
     if (!progress) {
-        progress = callback(dummy_progress);
+        progress = mbed::callback(dummy_progress);
     }
 
     // Mapping intentionally different from control channel to prevent
@@ -770,12 +773,12 @@ bool MbedTester::firmware_dump_all(FileHandle *dest, Callback<void(uint8_t)> pro
     return true;
 }
 
-bool MbedTester::firmware_update(FileHandle *src, Callback<void(uint8_t)> progress)
+bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint8_t)> progress)
 {
     _update_control_pins();
 
     if (!progress) {
-        progress = callback(dummy_progress);
+        progress = mbed::callback(dummy_progress);
     }
 
     // Mapping intentionally different from control channel to prevent
@@ -814,7 +817,7 @@ bool MbedTester::firmware_update(FileHandle *src, Callback<void(uint8_t)> progre
 
     // Setup CRC calculation
     uint32_t crc;
-    MbedCRC<POLY_32BIT_ANSI, 32> ct;
+    mbed::MbedCRC<POLY_32BIT_ANSI, 32> ct;
     if (ct.compute_partial_start(&crc) != 0) {
         sys_pin_mode_disabled();
         return false;
@@ -1156,9 +1159,9 @@ int MbedTester::io_expander_i2c_read(uint8_t i2c_index, uint8_t dev_addr, uint8_
     //sda_val = _aux_index
     //scl_in = _mosi_index (PHYSICAL_NC)
     //scl_val = _clk_index
-    DigitalInOut *sda_in = _miso;
-    DigitalInOut *sda_val = _aux;
-    DigitalInOut *scl_val = _clk;
+    mbed::DigitalInOut *sda_in = _miso;
+    mbed::DigitalInOut *sda_val = _aux;
+    mbed::DigitalInOut *scl_val = _clk;
     sda_in->input();
     sda_val->output();
     *sda_val = 1;
@@ -1295,9 +1298,9 @@ int MbedTester::io_expander_i2c_write(uint8_t i2c_index, uint8_t dev_addr, uint8
     //sda_val = _aux_index
     //scl_in = _mosi_index (PHYSICAL_NC)
     //scl_val = _clk_index
-    DigitalInOut *sda_in = _miso;
-    DigitalInOut *sda_val = _aux;
-    DigitalInOut *scl_val = _clk;
+    mbed::DigitalInOut *sda_in = _miso;
+    mbed::DigitalInOut *sda_val = _aux;
+    mbed::DigitalInOut *scl_val = _clk;
     sda_in->input();
     sda_val->output();
     *sda_val = 1;
@@ -2205,15 +2208,15 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
         // Free CLK and MOSI pins found. Mark them as unavailable
         allowed.clear(clk_index);
         allowed.clear(mosi_index);
-        DigitalInOut clk(_form_factor.get(clk_index), PIN_OUTPUT, ::PullNone, 0);
-        DigitalInOut mosi(_form_factor.get(mosi_index), PIN_OUTPUT, ::PullNone, 0);
+        mbed::DigitalInOut clk(_form_factor.get(clk_index), PIN_OUTPUT, ::PullNone, 0);
+        mbed::DigitalInOut mosi(_form_factor.get(mosi_index), PIN_OUTPUT, ::PullNone, 0);
 
         for (uint8_t miso_index = 0; miso_index < max_pins; miso_index++) {
             if (!allowed.get(miso_index)) {
                 continue;
             }
 
-            DigitalInOut miso(_form_factor.get(miso_index));
+            mbed::DigitalInOut miso(_form_factor.get(miso_index));
             if (!mbed_tester_test(&clk, &mosi, &miso, miso_index)) {
                 // Pin doesn't work
                 continue;
@@ -2225,7 +2228,7 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
                     continue;
                 }
 
-                DigitalInOut aux(_form_factor.get(aux_index));
+                mbed::DigitalInOut aux(_form_factor.get(aux_index));
                 if (!mbed_tester_test(&clk, &mosi, &aux, aux_index)) {
                     // Pin doesn't work
                     continue;
@@ -2259,10 +2262,10 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
 
 void MbedTester::_setup_control_pins()
 {
-    _clk = new  DigitalInOut(_form_factor.get(_clk_index), PIN_OUTPUT, ::PullNone, 0);
-    _mosi = new DigitalInOut(_form_factor.get(_mosi_index), PIN_OUTPUT, ::PullNone, 0);
-    _miso = new  DigitalInOut(_form_factor.get(_miso_index));
-    _aux = new  DigitalInOut(_form_factor.get(_aux_index));
+    _clk = new  mbed::DigitalInOut(_form_factor.get(_clk_index), PIN_OUTPUT, ::PullNone, 0);
+    _mosi = new mbed::DigitalInOut(_form_factor.get(_mosi_index), PIN_OUTPUT, ::PullNone, 0);
+    _miso = new  mbed::DigitalInOut(_form_factor.get(_miso_index));
+    _aux = new  mbed::DigitalInOut(_form_factor.get(_aux_index));
 }
 
 void MbedTester::_free_control_pins()

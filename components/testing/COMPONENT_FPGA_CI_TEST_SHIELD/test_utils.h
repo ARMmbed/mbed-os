@@ -383,6 +383,7 @@ public:
 };
 
 #if DEVICE_SPI
+#include "spi_api.h"
 struct SPIMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -415,6 +416,7 @@ typedef Port<4, SPISlaveMaps, DefaultFormFactor, TF4> SPISlavePort;
 #endif
 
 #if DEVICE_I2C
+#include "i2c_api.h"
 struct I2CMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -427,6 +429,7 @@ typedef Port<2, I2CMaps, DefaultFormFactor, TF2> I2CPort;
 #endif
 
 #if DEVICE_PWMOUT
+#include "pwmout_api.h"
 struct PWMMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -439,6 +442,7 @@ typedef Port<1, PWMMaps, DefaultFormFactor, TF1> PWMPort;
 #endif
 
 #if DEVICE_ANALOGIN
+#include "analogin_api.h"
 struct AnaloginMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -451,6 +455,7 @@ typedef Port<1, AnaloginMaps, DefaultFormFactor, TF1> AnaloginPort;
 #endif
 
 #if DEVICE_ANALOGOUT
+#include "analogout_api.h"
 struct AnalogoutMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];

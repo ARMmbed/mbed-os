@@ -18,7 +18,6 @@
 #ifndef DYNAMIC_PIN_LIST_H
 #define DYNAMIC_PIN_LIST_H
 
-#include "mbed.h"
 #include "pinmap.h"
 #include <vector>
 
@@ -87,7 +86,7 @@ public:
     int index(PinName pin) const;
 
 private:
-    vector<PinName> _pins;
+    std::vector<PinName> _pins;
 };
 
 #endif
