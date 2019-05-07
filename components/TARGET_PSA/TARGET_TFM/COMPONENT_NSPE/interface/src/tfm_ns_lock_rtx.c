@@ -54,11 +54,15 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
     }
 
     /* TFM request protected by NS lock */
-    osMutexAcquire(ns_lock.id,osWaitForever);
+    if (osMutexAcquire(ns_lock.id,osWaitForever) != osOK) {
+        return TFM_ERROR_GENERIC;
+    }
 
     result = fn(arg0, arg1, arg2, arg3);
 
-    osMutexRelease(ns_lock.id);
+    if (osMutexRelease(ns_lock.id) != osOK) {
+        return TFM_ERROR_GENERIC;
+    }
 
     return result;
 }
@@ -66,7 +70,7 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
 /**
  * \brief NS world, Init NS lock
  */
-uint32_t tfm_ns_lock_init()
+enum tfm_status_e tfm_ns_lock_init()
 {
     if (ns_lock.init == false) {
         ns_lock.id = osMutexNew(&ns_lock_attrib);

@@ -106,6 +106,10 @@ typedef enum {
     DAC_0 = (int)CTDAC0_BASE,
 } DACName;
 
+typedef enum {
+    SMIF_0 = (int)SMIF0_BASE,
+} SMIFName;
+
 #ifdef __cplusplus
 }
 #endif

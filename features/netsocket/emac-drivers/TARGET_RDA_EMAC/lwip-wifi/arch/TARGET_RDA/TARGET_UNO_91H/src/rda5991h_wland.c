@@ -110,7 +110,7 @@ void rda_netif_link_down(int netif)
     rda_msg msg;
     msg.type = 1;
     msg.arg1 = 0;
-    rda_mail_put(packet_rx_queue, (void*)&msg, osWaitForever);
+    rda_mail_put(packet_rx_queue, (void*)&msg, 0);
 }
 
 void rda_netif_up(int netif)
@@ -127,7 +127,7 @@ void rda_netif_link_up(int netif)
     rda_msg msg;
     msg.type = 1;
     msg.arg1 = 1;
-    rda_mail_put(packet_rx_queue, (void*)&msg, osWaitForever);
+    rda_mail_put(packet_rx_queue, (void*)&msg, 0);
     return;
 }
 
@@ -179,6 +179,32 @@ void rda_critical_sec_end(void)
 #endif /* CONFIG_DISABLE_ALL_INT */
         }
     }
+}
+
+unsigned int rda_critical_sec_counter_get(void)
+{
+    if (__get_IPSR() == 0U) {
+        return g_critical_sec_counter;
+    } else {
+        return 0xFFFFFFFF;
+    }
+}
+
+void rda_critical_sec_start_resume(unsigned int cnt)
+{
+    unsigned int i = 0;
+    for(i=0; i<cnt; i++) {
+        rda_critical_sec_start();
+    }
+}
+
+unsigned int rda_critical_sec_end_all(void)
+{
+    unsigned int ret = g_critical_sec_counter;
+    while(g_critical_sec_counter !=0 ) {
+        rda_critical_sec_end();
+    }
+    return ret;
 }
 
 void * rda_create_interrupt(unsigned int vec, unsigned int pri, void *isr)
@@ -278,18 +304,13 @@ static struct pbuf *r91h_low_level_input(struct netif *netif, u8_t *data, u32_t 
  *  \param[in] netif the lwip network interface structure
  *  \param[in] idx   index of packet to be read
  */
-void *data_sem = NULL;
 void r91h_wifiif_input(struct netif *netif, u8_t *data, u32_t len, int idx)
 {
-    if(data_sem == NULL)
-        data_sem = rda_sem_create(0);
     rda_msg msg;
     msg.type = 0;
     msg.arg1 = (int)data;
     msg.arg2 = len;
-    msg.arg3 = (int)data_sem;
-    rda_mail_put(packet_rx_queue, (void*)&msg, osWaitForever);
-    rda_sem_wait(data_sem, osWaitForever);
+    rda_mail_put(packet_rx_queue, (void*)&msg, 0);
     return;
 }
 

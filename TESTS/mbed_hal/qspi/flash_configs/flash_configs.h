@@ -58,5 +58,8 @@
 #elif defined(TARGET_LPC546XX)
 #include "NXP/LPC546XX/flash_config.h"
 
+#elif (defined(TARGET_CY8CPROTO_062_4343W) || defined(TARGET_CY8CKIT_062_WIFI_BT) || defined(TARGET_CY8CKIT_062_BLE))
+#include "S25FL512S_config.h"
+
 #endif
 #endif // MBED_FLASH_CONFIGS_H

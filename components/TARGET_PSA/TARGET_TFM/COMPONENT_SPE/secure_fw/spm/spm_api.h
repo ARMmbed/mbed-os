@@ -20,6 +20,7 @@ enum spm_err_t {
     SPM_ERR_PARTITION_DB_NOT_INIT,
     SPM_ERR_PARTITION_ALREADY_ACTIVE,
     SPM_ERR_PARTITION_NOT_AVAILABLE,
+    SPM_ERR_INVALID_PARAMETER,
     SPM_ERR_INVALID_CONFIG,
 };
 
@@ -297,11 +298,14 @@ enum spm_err_t tfm_spm_partition_set_share(uint32_t partition_idx,
  *   args[2] is out_vec
  *   args[3] is out_len
  *
+ * \return Error code \ref spm_err_t
+ *
  * \note This function doesn't check if partition_idx is valid.
  * \note This function assumes that the iovecs that are passed in args are
  *       valid, and does no sanity check on them at all.
  */
-void tfm_spm_partition_set_iovec(uint32_t partition_idx, int32_t *args);
+enum spm_err_t tfm_spm_partition_set_iovec(uint32_t partition_idx,
+                                           const int32_t *args);
 
 /**
  * \brief Initialize partition database

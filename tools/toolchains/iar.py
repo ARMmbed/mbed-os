@@ -69,9 +69,10 @@ class IAR(mbedToolchain):
                 self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
         cpu = {
-            "Cortex-M7FD": "Cortex-M7.fp.dp",
             "Cortex-M7F": "Cortex-M7.fp.sp",
+            "Cortex-M7FD": "Cortex-M7.fp.dp",
             "Cortex-M33": "Cortex-M33.no_dsp",
+            "Cortex-M33E": "Cortex-M33",
             "Cortex-M33F": "Cortex-M33.fp.no_dsp",
             "Cortex-M33FE": "Cortex-M33.fp"}.get(core, core)
 

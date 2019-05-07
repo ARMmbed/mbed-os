@@ -43,7 +43,8 @@ from tools.utils import argparse_dir_not_parent
 from tools.utils import print_end_warnings
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.paths import is_relative_to_root
+from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.resources import OsAndSpeResourceFilter, SpeOnlyResourceFilter
 
 def main():
     error = False
@@ -150,7 +151,6 @@ def main():
             args_error(parser, "argument -m/--mcu is required")
         mcu = extract_mcus(parser, options)[0]
         target = Target.get_target(mcu)
-        mcu_secured = target.is_PSA_secure_target
 
         # Toolchain
         if options.tool is None:
@@ -212,14 +212,15 @@ def main():
             print_tests(tests, options.format)
             sys.exit(0)
         else:
+
+            if options.clean:
+                clean_psa_autogen()
+
             # Build all tests
             if not options.build_dir:
                 args_error(parser, "argument --build is required")
 
-            if mcu_secured and not is_relative_to_root(options.source_dir):
-                base_source_paths = ROOT
-            else:
-                base_source_paths = options.source_dir
+            base_source_paths = options.source_dir
 
             # Default base source path is the current directory
             if not base_source_paths:
@@ -231,6 +232,16 @@ def main():
             library_build_success = False
             profile = extract_profile(parser, options, internal_tc_name)
             try:
+                resource_filter = None
+                if target.is_PSA_secure_target:
+                    resource_filter = OsAndSpeResourceFilter()
+
+                if target.is_PSA_target:
+                    generate_psa_sources(
+                        source_dirs=base_source_paths,
+                        ignore_paths=[options.build_dir]
+                    )
+
                 # Build sources
                 notify = TerminalNotifier(options.verbose)
                 build_library(base_source_paths, options.build_dir, mcu,
@@ -241,7 +252,9 @@ def main():
                               notify=notify, archive=False,
                               app_config=config,
                               build_profile=profile,
-                              ignore=options.ignore)
+                              ignore=options.ignore,
+                              resource_filter=resource_filter
+                              )
 
                 library_build_success = True
             except ToolException as e:
@@ -260,6 +273,11 @@ def main():
             if not library_build_success:
                 print("Failed to build library")
             else:
+                if target.is_PSA_secure_target:
+                    resource_filter = SpeOnlyResourceFilter()
+                else:
+                    resource_filter = None
+
                 # Build all the tests
                 notify = TerminalNotifier(options.verbose)
                 test_build_success, test_build = build_tests(
@@ -279,7 +297,7 @@ def main():
                     build_profile=profile,
                     stats_depth=options.stats_depth,
                     ignore=options.ignore,
-                    spe_build=mcu_secured)
+                    resource_filter=resource_filter)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
