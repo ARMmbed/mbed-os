@@ -32,16 +32,20 @@ using namespace utest::v1;
 #define FREQ_1MHZ   (1000000)
 #define FREQ_2MHZ   (2000000)
 
-#define SPI_MASTER_MOSI      SPI_TEST_MASTER_PIN(MOSI)
-#define SPI_MASTER_MISO      SPI_TEST_MASTER_PIN(MISO)
-#define SPI_MASTER_SCK       SPI_TEST_MASTER_PIN(SCK)
-#define SPI_MASTER_CS        SPI_TEST_MASTER_PIN(CS)
-#define SPI_SLAVE_MOSI       SPI_TEST_SLAVE_PIN(MOSI)
-#define SPI_SLAVE_MISO       SPI_TEST_SLAVE_PIN(MISO)
-#define SPI_SLAVE_SCK        SPI_TEST_SLAVE_PIN(SCK)
-#define SPI_SLAVE_CS         SPI_TEST_SLAVE_PIN(CS)
-
 #define SYM_CNT 100
+
+static PinName SPI_MASTER_MOSI  = NC;
+static PinName SPI_MASTER_MISO  = NC;
+static PinName SPI_MASTER_SCK   = NC;
+static PinName SPI_MASTER_CS    = NC;
+static PinName SPI_SLAVE_MOSI   = NC;
+static PinName SPI_SLAVE_MISO   = NC;
+static PinName SPI_SLAVE_SCK    = NC;
+static PinName SPI_SLAVE_CS     = NC;
+
+static int SPI_TEST_MASTER = 0xFFFFFFFF;
+static int SPI_TEST_SLAVE = 0xFFFFFFFF;
+
 
 static uint8_t tx_buff_uint8[SYM_CNT];
 static uint8_t rx_buff_uint8[SYM_CNT];
@@ -99,6 +103,66 @@ static uint32_t some_ctx;
 static spi_async_event_t expected_event;
 static volatile bool handler_called;
 
+static void init_spi_pins()
+{
+    PinName miso, mosi, clk, cs;
+
+    const PinMap *const master_maps[] = {
+        spi_master_mosi_pinmap(),
+        spi_master_miso_pinmap(),
+        spi_master_clk_pinmap(),
+        spi_master_cs_pinmap()
+    };
+
+#ifdef DEVICE_SPISLAVE
+    const PinMap *const slave_maps[] = {
+        spi_slave_mosi_pinmap(),
+        spi_slave_miso_pinmap(),
+        spi_slave_clk_pinmap(),
+        spi_slave_cs_pinmap()
+    };
+#endif
+
+    PinName *pins[] = {
+        &mosi,
+        &miso,
+        &clk,
+        &cs
+    };
+
+    int per = master_maps[0]->peripheral;
+    mosi = master_maps[0]->pin;
+    miso = NC;
+    clk = NC;
+    cs = NC;
+
+    bool status = pinmap_find_peripheral_pins(NULL, pinmap_restricted_pins(), per, master_maps, pins, sizeof(pins) / sizeof(pins[0]));
+    TEST_ASSERT_TRUE_MESSAGE(status, "SPI master pins not found");
+
+    SPI_TEST_MASTER  = per;
+    SPI_MASTER_MOSI  = mosi;
+    SPI_MASTER_MISO  = miso;
+    SPI_MASTER_SCK   = clk;
+    SPI_MASTER_CS    = cs;
+
+#ifdef DEVICE_SPISLAVE
+    per = slave_maps[0]->peripheral;
+    mosi = slave_maps[0]->pin;
+    miso = NC;
+    clk = NC;
+    cs = NC;
+
+    status = pinmap_find_peripheral_pins(NULL, pinmap_restricted_pins(), per, slave_maps, pins, sizeof(pins) / sizeof(pins[0]));
+    TEST_ASSERT_TRUE_MESSAGE(status, "SPI slave pins not found");
+
+    SPI_TEST_SLAVE   = per;
+    SPI_SLAVE_MOSI   = mosi;
+    SPI_SLAVE_MISO   = miso;
+    SPI_SLAVE_SCK    = clk;
+    SPI_SLAVE_CS     = cs;
+#endif
+}
+
 static void async_handler(spi_t *obj, void *ctx, spi_async_event_t *event)
 {
     TEST_ASSERT_EQUAL(expected_spi_obj, obj);
@@ -120,7 +184,7 @@ void test_get_module()
 
     TEST_ASSERT_EQUAL(SPI_TEST_MASTER, spi_name);
 
-#ifdef SPISLAVE
+#ifdef DEVICE_SPISLAVE
     spi_name = spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK);
 
     TEST_ASSERT_EQUAL(SPI_TEST_SLAVE, spi_name);
@@ -133,23 +197,34 @@ void test_get_capabilities()
 {
     spi_capabilities_t capabilities;
 
-    /* Slave capabielities. */
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, &capabilities);
+    /* Master capabielities. */
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, false, &capabilities);
 
     /* The supported frequency range must include the range [0.2..2] MHz according to defined behaviour.
-     * At least a symbol width of 8 bit must be supported.
+     * At least a symbol width of 8 bit must be supported. If CS pin is not specified slave mode support
+     * should be considered as not supported.
      */
     TEST_ASSERT(capabilities.minimum_frequency <= FREQ_200KHZ);
     TEST_ASSERT(capabilities.maximum_frequency >= FREQ_2MHZ);
     TEST_ASSERT_TRUE(capabilities.word_length & CAPABILITY_WORD_LENGTH_8);
+    TEST_ASSERT_EQUAL(false, capabilities.support_slave_mode);
 
-    /* SS pin not passed to spi_get_capabilities. */
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), SPI_MASTER_SCK, &capabilities);
+    /* Master capabielities - SS pin not passed to spi_get_capabilities. */
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), SPI_MASTER_CS, false, &capabilities);
 
     TEST_ASSERT(capabilities.minimum_frequency <= FREQ_200KHZ);
     TEST_ASSERT(capabilities.maximum_frequency >= FREQ_2MHZ);
     TEST_ASSERT_TRUE(capabilities.word_length & CAPABILITY_WORD_LENGTH_8);
 
+    /* Slave capabielities. */
+    spi_get_capabilities(spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK), SPI_SLAVE_CS, true, &capabilities);
+
+    TEST_ASSERT(capabilities.minimum_frequency <= FREQ_200KHZ);
+    TEST_ASSERT(capabilities.maximum_frequency >= FREQ_2MHZ);
+    TEST_ASSERT_TRUE(capabilities.word_length & CAPABILITY_WORD_LENGTH_8);
+#ifdef DEVICE_SPISLAVE
+    TEST_ASSERT_EQUAL(true, capabilities.support_slave_mode);
+#endif
 }
 
 /* Test that spi_init() successfully initializes the pins and spi_free() can successfully
@@ -159,8 +234,8 @@ void test_init_free()
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
 
-#ifdef SPISLAVE
-    spi_get_capabilities(spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK), SPI_SLAVE_CS, &capabilities);
+#ifdef DEVICE_SPISLAVE
+    spi_get_capabilities(spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK), SPI_SLAVE_CS, true, &capabilities);
 #endif
 
     /* SPI master - CS pin ignored. */
@@ -195,7 +270,7 @@ void test_init_free()
 
     spi_free(&spi_obj);
 
-#ifdef SPISLAVE
+#if DEVICE_SPISLAVE
     if (capabilities.support_slave_mode) {
         /* SPI slave - CS pin must be defined. */
         /* Full duplex. */
@@ -225,8 +300,8 @@ void test_set_format()
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
 
-#ifdef SPISLAVE
-    spi_get_capabilities(spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK), SPI_SLAVE_CS, &capabilities);
+#ifdef DEVICE_SPISLAVE
+    spi_get_capabilities(spi_get_module(SPI_SLAVE_MOSI, SPI_SLAVE_MISO, SPI_SLAVE_SCK), SPI_SLAVE_CS, true, &capabilities);
 #endif
 
     /* SPI master. */
@@ -244,7 +319,7 @@ void test_set_format()
 
     spi_free(&spi_obj);
 
-#ifdef SPISLAVE
+#ifdef DEVICE_SPISLAVE
     if (capabilities.support_slave_mode) {
 
         /* SPI slave. */
@@ -306,7 +381,7 @@ void test_transfer_master()
     void *p_rx_buf;
     void *p_fill_sym;
 
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, &capabilities);
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, false, &capabilities);
 
     /* SPI master. */
     spi_init(&spi_obj, false, SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK, NC);
@@ -355,7 +430,7 @@ void test_transfer_master_fill_sym()
     uint8_t rx_buf[SYM_CNT] = {0};
     uint8_t fill_sym = 0;
 
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, &capabilities);
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, false, &capabilities);
 
     /* SPI master. */
     spi_init(&spi_obj, false, SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK, NC);
@@ -399,7 +474,7 @@ void test_transfer_master_async()
     void *p_rx_buf;
     void *p_fill_sym;
 
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, &capabilities);
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, false, &capabilities);
 
     /* SPI master. */
     spi_init(&spi_obj, false, SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK, NC);
@@ -463,7 +538,7 @@ void test_transfer_master_async_abort()
     void *p_rx_buf;
     void *p_fill_sym;
 
-    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, &capabilities);
+    spi_get_capabilities(spi_get_module(SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK), NC, false, &capabilities);
 
     /* SPI master. */
     spi_init(&spi_obj, false, SPI_MASTER_MOSI, SPI_MASTER_MISO, SPI_MASTER_SCK, NC);
@@ -557,5 +632,6 @@ Specification specification(test_setup, cases);
 
 int main()
 {
+    init_spi_pins();
     return !Harness::run(specification);
 }
