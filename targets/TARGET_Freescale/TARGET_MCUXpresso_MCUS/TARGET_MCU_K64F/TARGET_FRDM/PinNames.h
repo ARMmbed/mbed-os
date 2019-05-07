@@ -242,27 +242,6 @@ typedef enum {
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
-    //SPI Pins configuration
-    /* Note:
-    This board does not provide SPI MOSI/MISO pins, instead we have SIN/SOUT pins which can be used
-    as SPI MOSI/MISO lines depending on SPI operation mode(master or slave):
-    master: SIN  ---> MISO
-            SOUT ---> MOSI
-    slave:  SIN  ---> MOSI
-            SOUT ---> MISO
-
-    SPI_0 interface represents SPI pins configuration for slave and SPI_2 respresents spi configuration
-    for master.
-    */
-    SPI_0_MOSI   = PTD3,
-    SPI_0_MISO   = PTD2,
-    SPI_0_SCK    = PTD1,
-    SPI_0_CS     = PTD0,
-    SPI_2_MOSI   = PTB22,
-    SPI_2_MISO   = PTB23,
-    SPI_2_SCK    = PTB21,
-    SPI_2_CS     = PTB20,
-
     SPI_MOSI    = PTE3,
     SPI_MISO    = PTE1,
     SPI_SCK     = PTE2,
