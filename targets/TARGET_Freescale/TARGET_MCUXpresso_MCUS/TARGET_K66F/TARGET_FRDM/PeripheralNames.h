@@ -133,12 +133,6 @@ typedef enum {
     SPI_2 = 2,
 } SPIName;
 
-/* Specify master/slave interfaces for testing purposes. */
-#define SPI_TEST_MASTER SPI_2
-#define SPI_TEST_SLAVE SPI_0
-#define SPI_TEST_MASTER_PIN(SPI_PIN) SPI_2##_##SPI_PIN
-#define SPI_TEST_SLAVE_PIN(SPI_PIN)  SPI_0##_##SPI_PIN
-
 #ifdef __cplusplus
 }
 #endif
