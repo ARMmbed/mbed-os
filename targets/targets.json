@@ -4256,7 +4256,7 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-			"QSPI", 
+            "QSPI", 
             "MPU"
         ],
         "release_versions": ["2", "5"],
