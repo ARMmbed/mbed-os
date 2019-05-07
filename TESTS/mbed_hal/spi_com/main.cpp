@@ -63,6 +63,8 @@ using namespace utest::v1;
 #define MAX(a, b) ((a>b)?(a):(b))
 #endif
 
+#define TEST_CAPABILITY_BIT(MASK, CAP) ((1 << CAP) & (MASK))
+
 typedef enum {
     FULL_DUPLEX, HALF_DUPLEX
 } duplex_t;
@@ -164,12 +166,22 @@ static config_test_case_t test_cases[] = {
 
 /* Function returns true if configuration is consistent with the capabilities of
  * the SPI peripheral, false otherwise. */
-static bool check_capabilities(spi_capabilities_t *p_cabs, uint32_t symbol_size, bool slave, bool half_duplex)
+static bool check_capabilities(spi_capabilities_t *p_cabs, config_test_case_t *tc_config, bool slave)
 {
-    if (!(p_cabs->word_length & (1 << (symbol_size - 1))) ||
-            (slave && !p_cabs->support_slave_mode)) {
+    printf("word_len: 0x%X, symbol_size: %d \r\n", p_cabs->word_length, tc_config->symbol_size);
+
+    if ((!TEST_CAPABILITY_BIT(p_cabs->word_length, (tc_config->symbol_size - 1))) ||
+            (!TEST_CAPABILITY_BIT(p_cabs->clk_modes, tc_config->mode)) ||
+            (!TEST_CAPABILITY_BIT(p_cabs->bit_order, tc_config->bit_ordering)) ||
+            (!p_cabs->support_slave_mode) ||
+            (tc_config->freq_hz != FREQ_MAX && tc_config->freq_hz != FREQ_MIN && tc_config->freq_hz < p_cabs->minimum_frequency && tc_config->freq_hz > p_cabs->maximum_frequency) ||
+            (!tc_config->sync && !p_cabs->async_mode) ||
+            (tc_config->duplex == HALF_DUPLEX && !p_cabs->half_duplex) ||
+            (tc_config->auto_ss && !p_cabs->hw_cs_handle)
+       ) {
         return false;
     }
+
     return true;
 }
 
@@ -275,14 +287,14 @@ template<typename T, const uint32_t tc_id, bool sync>
 void test_spi_transfer()
 {
     DigitalOut *mcs_pin = NULL;
-    PinName mcs = SPI_TEST_MASTER_PIN(CS);
-    PinName mmclk = SPI_TEST_MASTER_PIN(SCK);
-    PinName mmiso = SPI_TEST_MASTER_PIN(MISO);
-    PinName mmosi = SPI_TEST_MASTER_PIN(MOSI);
-    PinName scs = SPI_TEST_SLAVE_PIN(CS);
-    PinName smclk = SPI_TEST_SLAVE_PIN(SCK);
-    PinName smiso = SPI_TEST_SLAVE_PIN(MISO);
-    PinName smosi = SPI_TEST_SLAVE_PIN(MOSI);
+    PinName mcs = SPI_TEST_MASTER_CS;
+    PinName mmclk = SPI_TEST_MASTER_SCK;
+    PinName mmiso = SPI_TEST_MASTER_MISO;
+    PinName mmosi = SPI_TEST_MASTER_MOSI;
+    PinName scs = SPI_TEST_SLAVE_CS;
+    PinName smclk = SPI_TEST_SLAVE_SCK;
+    PinName smiso = SPI_TEST_SLAVE_MISO;
+    PinName smosi = SPI_TEST_SLAVE_MOSI;
     uint32_t freq_hz = test_cases[tc_id].freq_hz;
     T symbol_mask = (T)((1 << test_cases[tc_id].symbol_size) - 1);
 
@@ -329,26 +341,29 @@ void test_spi_transfer()
 
     spi_get_capabilities(
         spi_get_module(mmosi, mmiso, mmclk),
-        NC,
+        scs,
+        false,
         &master_capab
     );
     spi_get_capabilities(
         spi_get_module(smosi, smiso, smclk),
-        NC,
+        scs,
+        true,
         &slave_capab
     );
-    if (!check_capabilities(&master_capab, test_cases[tc_id].symbol_size, false, test_cases[tc_id].duplex) ||
-            !check_capabilities(&slave_capab, test_cases[tc_id].symbol_size, false, test_cases[tc_id].duplex)) {
+
+    if (!check_capabilities(&master_capab, &test_cases[tc_id], false) ||
+            !check_capabilities(&slave_capab, &test_cases[tc_id], true)) {
         TEST_SKIP_MESSAGE("Configuration not supported. Skipping. \n");
     }
 
     /* Adapt min/max frequency for testing based of capabilities. */
     switch (freq_hz) {
         case FREQ_MIN:
-            freq_hz = master_capab.minimum_frequency;
+            freq_hz = ((master_capab.minimum_frequency > slave_capab.minimum_frequency) ? master_capab.minimum_frequency : slave_capab.minimum_frequency);
             break;
         case FREQ_MAX:
-            freq_hz = master_capab.maximum_frequency;
+            freq_hz = ((master_capab.maximum_frequency < slave_capab.maximum_frequency) ? master_capab.maximum_frequency : slave_capab.maximum_frequency);
             break;
         default:
             break;
