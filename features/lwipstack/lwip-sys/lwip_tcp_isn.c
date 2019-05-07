@@ -82,14 +82,14 @@
 #define  PPP_FAKED_ON 1
 #endif
 
-#include "netif/ppp/ppp_opts.h"
-#include "netif/ppp/ppp.h"
-#include "netif/ppp/pppcrypt.h"
+#include "ppp_opts.h"
+#include "ppp.h"
+#include "pppcrypt.h"
 
 #if PPP_FAKED_ON && !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS
 #undef  LWIP_INCLUDED_POLARSSL_MD5
 #define LWIP_INCLUDED_POLARSSL_MD5 1
-#include "netif/ppp/polarssl/lwip_md5.c"
+#include "polarssl/lwip_md5.c"
 #endif
 
 static u8_t input[64];

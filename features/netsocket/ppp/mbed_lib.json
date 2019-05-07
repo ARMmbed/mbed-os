@@ -1,0 +1,29 @@
+{
+    "name": "ppp",
+    "config": {
+        "ppp-enabled": {
+            "help": "Enable support for PPP interfaces",
+            "value": false,
+            "macro_name": "NSAPI_PPP_AVAILABLE"
+        },
+        "ppp-ipv4-enabled": {
+            "help": "Enable support for ipv4 PPP interface",
+            "value": false,
+            "macro_name": "PPP_IPV4_SUPPORT"
+        },
+        "ppp-ipv6-enabled": {
+            "help": "Enable support for ipv6 PPP interface",
+            "value": true,
+            "macro_name": "PPP_IPV6_SUPPORT"
+        },
+        "ppp-thread-stacksize": {
+            "help": "Thread stack size for PPP",
+            "value": 768
+        }
+    },
+    "target_overrides": {
+        "RZ_A1_EMAC": {
+            "ppp-thread-stacksize": 896
+        }
+    }
+}
