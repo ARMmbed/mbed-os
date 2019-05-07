@@ -119,7 +119,7 @@ public:
     /**
      * Start UART transmission
      */
-    void tx_start(bool cts_enabled=false);
+    void tx_start(bool cts_enabled = false);
 
     /**
      * Stop UART transmission

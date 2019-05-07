@@ -46,27 +46,31 @@ template<size_t width>
 class MbedTesterBitMap {
 public:
 
-    MbedTesterBitMap() {
+    MbedTesterBitMap()
+    {
         for (size_t i = 0; i < _count; i++) {
             _bitmap[i] = 0;
         }
     }
 
-    bool get(size_t index) {
+    bool get(size_t index)
+    {
         if (index >= width) {
             return false;
         }
         return _bitmap[index / 32] & (1 << (index % 32)) ? true : false;
     }
 
-    void set(size_t index) {
+    void set(size_t index)
+    {
         if (index >= width) {
             return;
         }
         _bitmap[index / 32] |= 1 << (index % 32);
     }
 
-    void clear(size_t index) {
+    void clear(size_t index)
+    {
         if (index >= width) {
             return;
         }
@@ -142,7 +146,8 @@ class MbedTesterBlockDevice : public BlockDevice {
 public:
 
     MbedTesterBlockDevice(mbed::DigitalInOut &mosi, mbed::DigitalInOut &miso, mbed::DigitalInOut &clk, mbed::DigitalInOut &cs, uint32_t frequency)
-        : _mosi(mosi), _miso(miso), _clk(clk), _cs(cs), _wait_ns(1000000000 / frequency / 2), _init(false) {
+        : _mosi(mosi), _miso(miso), _clk(clk), _cs(cs), _wait_ns(1000000000 / frequency / 2), _init(false)
+    {
 
         // Set initial values
         _cs.write(1);
@@ -397,7 +402,8 @@ protected:
         return true;
     }
 
-    void _write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
+    void _write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length)
+    {
         int transfers = 0;
         if (tx_length > transfers) {
             transfers = tx_length;
@@ -426,7 +432,8 @@ protected:
         }
     }
 
-    void _assert_cs(bool asserted) {
+    void _assert_cs(bool asserted)
+    {
         _clk = 0;
         wait_ns(_wait_ns);
         _cs = asserted ? 0 : 1;
@@ -649,8 +656,8 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso , *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
-    sys_pin_mode_spi_serial_flash(_clk_index , _miso_index, _mosi_index, _aux_index);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
+    sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
 
@@ -709,8 +716,8 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
 
         const uint8_t percent_done = (offset * 100) / firmware_size;
         if (percent_done != prev_percent_done) {
-           progress(percent_done);
-           prev_percent_done = percent_done;
+            progress(percent_done);
+            prev_percent_done = percent_done;
         }
     }
 
@@ -730,8 +737,8 @@ bool MbedTester::firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(u
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso , *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
-    sys_pin_mode_spi_serial_flash(_clk_index , _miso_index, _mosi_index, _aux_index);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
+    sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
 
@@ -762,8 +769,8 @@ bool MbedTester::firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(u
 
         const uint8_t percent_done = (pos * 100) / total_size;
         if (percent_done != prev_percent_done) {
-           progress(percent_done);
-           prev_percent_done = percent_done;
+            progress(percent_done);
+            prev_percent_done = percent_done;
         }
     }
 
@@ -783,8 +790,8 @@ bool MbedTester::firmware_update(mbed::FileHandle *src, mbed::Callback<void(uint
 
     // Mapping intentionally different from control channel to prevent
     // unintentional activation (clk and mosi flipped)
-    MbedTesterBlockDevice flash(*_clk, *_miso , *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
-    sys_pin_mode_spi_serial_flash(_clk_index , _miso_index, _mosi_index, _aux_index);
+    MbedTesterBlockDevice flash(*_clk, *_miso, *_mosi, *_aux, FLASH_SPI_FREQ_HZ);
+    sys_pin_mode_spi_serial_flash(_clk_index, _miso_index, _mosi_index, _aux_index);
 
     progress(0);
 
@@ -1258,7 +1265,7 @@ int MbedTester::io_expander_i2c_read(uint8_t i2c_index, uint8_t dev_addr, uint8_
             *scl_val = 0;
             wait_ns(2500);
         } else {
-            if (j == (length-1)) {//NACK to signal end of read
+            if (j == (length - 1)) { //NACK to signal end of read
                 *sda_val = 1;
                 wait_ns(1000);
                 *scl_val = 1;
@@ -1458,8 +1465,8 @@ uint8_t MbedTester::io_expander_read_bb(PinName pin, IOExpanderReg reg_type)
         sda = I2CSda2;
         scl = I2CScl2;
     } else {
-        sda = (SystemPin)-1;
-        scl = (SystemPin)-1;
+        sda = (SystemPin) - 1;
+        scl = (SystemPin) - 1;
         error("Invalid pin index, index should be in the range of 0-127");
     }
 
@@ -1567,7 +1574,7 @@ int MbedTester::io_expander_i2c_read_bb(SystemPin sda, SystemPin scl, uint8_t de
             }
             sys_pin_write(scl, 0, true);
         } else {
-            if (j == (length-1)) {//NACK to signal end of read
+            if (j == (length - 1)) { //NACK to signal end of read
                 sys_pin_write(sda, 0, false);
                 sys_pin_write(scl, 0, false);
                 sys_pin_write(scl, 0, true);
@@ -1666,8 +1673,7 @@ void MbedTester::set_mux_enable(bool val)
 {
     if (val == true) {
         sys_pin_write(AnalogMuxEnable, 1, true);
-    }
-    else if (val == false) {
+    } else if (val == false) {
         sys_pin_write(AnalogMuxEnable, 0, true);
     }
     wait_us(10);
@@ -1678,8 +1684,7 @@ void MbedTester::set_pwm_enable(bool val)
     uint8_t data;
     if (val == true) {
         data = 1;
-    }
-    else if (val == false) {
+    } else if (val == false) {
         data = 0;
     }
     write(TESTER_SYS_IO_PWM_ENABLE, &data, sizeof(data));
@@ -1691,8 +1696,7 @@ bool MbedTester::get_pwm_enable()
     read(TESTER_SYS_IO_PWM_ENABLE, &val, sizeof(val));
     if (val == 1) {
         return true;
-    }
-    else if (val == 0) {
+    } else if (val == 0) {
         return false;
     } else {
         error("Corrupt pwm enable value");
@@ -1705,15 +1709,15 @@ void MbedTester::set_pwm_period_and_cycles_high(uint32_t period, uint32_t cycles
     set_pwm_enable(false);
     uint32_t p = period - 1;//period in cycles
     uint32_t d = cycles_high;//number of cycles pwm out is high
-    write(TESTER_SYS_IO_PWM_PERIOD, (uint8_t*)&p, sizeof(p));
-    write(TESTER_SYS_IO_PWM_CYCLES_HIGH, (uint8_t*)&d, sizeof(d));
+    write(TESTER_SYS_IO_PWM_PERIOD, (uint8_t *)&p, sizeof(p));
+    write(TESTER_SYS_IO_PWM_CYCLES_HIGH, (uint8_t *)&d, sizeof(d));
     set_pwm_enable(true);
 }
 
 uint32_t MbedTester::get_pwm_period()
 {
     uint32_t period = 0;
-    read(TESTER_SYS_IO_PWM_PERIOD, (uint8_t*)&period, sizeof(period));
+    read(TESTER_SYS_IO_PWM_PERIOD, (uint8_t *)&period, sizeof(period));
     return period + 1;//clk cycles
 }
 
@@ -1730,7 +1734,7 @@ uint16_t MbedTester::get_analogmuxin_measurement()
     //take snapshot of conversion value to make safe for reading
     set_snapshot();
     uint16_t an_mux_analogin_measurement = 0;
-    read(TESTER_SYS_AN_MUX_ANALOGIN_MEASUREMENT, (uint8_t*)&an_mux_analogin_measurement, sizeof(an_mux_analogin_measurement));
+    read(TESTER_SYS_AN_MUX_ANALOGIN_MEASUREMENT, (uint8_t *)&an_mux_analogin_measurement, sizeof(an_mux_analogin_measurement));
     return an_mux_analogin_measurement;
 }
 
@@ -1743,7 +1747,7 @@ uint16_t MbedTester::get_anin_measurement(int index)
     //take snapshot of conversion value to make safe for reading
     set_snapshot();
     uint16_t anin_measurement = 0;
-    read((TESTER_SYS_ANIN0_MEASUREMENT + (index * 10)), (uint8_t*)&anin_measurement, sizeof(anin_measurement));//10 because sizeof measurement + sizeof measurements_sum = 10
+    read((TESTER_SYS_ANIN0_MEASUREMENT + (index * 10)), (uint8_t *)&anin_measurement, sizeof(anin_measurement)); //10 because sizeof measurement + sizeof measurements_sum = 10
     return anin_measurement;
 }
 
@@ -1755,9 +1759,9 @@ void MbedTester::get_anin_sum_samples_cycles(int index, uint64_t *sum, uint32_t 
     }
     //take snapshot of the sum/samples/cycles so that all 3 values are correct in relation to each other
     set_snapshot();
-    read((TESTER_SYS_ANIN0_MEASUREMENTS_SUM + (index * 10)), (uint8_t*)sum, sizeof(*sum));//10 because sizeof measurement + sizeof measurements_sum = 10
-    read(TESTER_SYS_NUM_POWER_SAMPLES, (uint8_t*)samples, sizeof(*samples));
-    read(TESTER_SYS_NUM_POWER_CYCLES, (uint8_t*)cycles, sizeof(*cycles));
+    read((TESTER_SYS_ANIN0_MEASUREMENTS_SUM + (index * 10)), (uint8_t *)sum, sizeof(*sum)); //10 because sizeof measurement + sizeof measurements_sum = 10
+    read(TESTER_SYS_NUM_POWER_SAMPLES, (uint8_t *)samples, sizeof(*samples));
+    read(TESTER_SYS_NUM_POWER_CYCLES, (uint8_t *)cycles, sizeof(*cycles));
 }
 
 void MbedTester::set_snapshot()
@@ -1772,8 +1776,7 @@ void MbedTester::set_sample_adc(bool val)
     uint8_t data;
     if (val == true) {
         data = 1;
-    }
-    else if (val == false) {
+    } else if (val == false) {
         data = 0;
     }
     write(TESTER_SYS_SAMPLE_ADC, &data, sizeof(data));
@@ -2198,7 +2201,7 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
         }
     }
 
-    for  (size_t i = 0; i < max_controls; i++) {
+    for (size_t i = 0; i < max_controls; i++) {
         uint8_t clk_index = i * 2 + 0;
         uint8_t mosi_index = i * 2 + 1;
         if (!allowed.get(clk_index) || !allowed.get(mosi_index)) {

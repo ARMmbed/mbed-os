@@ -37,41 +37,41 @@ uint32_t SPITester::get_receive_checksum(uint32_t addr_checksum, uint32_t size_c
 void SPITester::set_mode(SPITester::SpiMode mode, uint32_t addr_spi_ctrl, uint32_t size_spi_ctrl, uint32_t offset_clk_mode, uint32_t size_clk_mode)
 {
     uint32_t spi_ctrl = 0;
-    read(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    read(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
     spi_ctrl &= ~(((1  <<  size_clk_mode) - 1) << offset_clk_mode);
     spi_ctrl |= (mode  <<  offset_clk_mode);
-    write(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    write(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
 }
 
 void SPITester::set_bit_order(SPITester::SpiBitOrder bit_order, uint32_t addr_spi_ctrl, uint32_t size_spi_ctrl, uint32_t offset_bit_order, uint32_t size_bit_order)
 {
     uint32_t spi_ctrl = 0;
-    read(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    read(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
     spi_ctrl &= ~(((1  <<  size_bit_order) - 1) << offset_bit_order);
     spi_ctrl |= (bit_order  <<  offset_bit_order);
-    write(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    write(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
 }
 
 void SPITester::set_sym_size(uint32_t sym_size, uint32_t addr_spi_ctrl, uint32_t size_spi_ctrl, uint32_t offset_sym_size, uint32_t size_sym_size)
 {
     uint32_t spi_ctrl = 0;
-    read(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    read(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
     spi_ctrl &= ~(((1  <<  size_sym_size) - 1) << offset_sym_size) ;
     spi_ctrl |= (sym_size  <<  offset_sym_size);
-    write(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    write(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
 }
 
 void SPITester::set_duplex_mode(SPITester::SpiDuplex duplex, uint32_t addr_spi_ctrl, uint32_t size_spi_ctrl, uint32_t offset_duplex, uint32_t size_duplex)
 {
     uint32_t spi_ctrl = 0;
-    read(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    read(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
     spi_ctrl &= ~(((1  <<  size_duplex) - 1) << offset_duplex);
     spi_ctrl |= (duplex  <<  offset_duplex);
-    write(addr_spi_ctrl, (uint8_t*)&spi_ctrl, size_spi_ctrl);
+    write(addr_spi_ctrl, (uint8_t *)&spi_ctrl, size_spi_ctrl);
 }
 
 void SPITester::set_hd_tx_rx_cnt(uint16_t tx_cnt, uint16_t rx_cnt, uint32_t addr_hd_rx_cnt, uint32_t size_hd_rx_cnt, uint32_t addr_hd_tx_cnt, uint32_t size_hd_tx_cnt)
 {
-    write(addr_hd_rx_cnt, (uint8_t*)&rx_cnt, size_hd_rx_cnt);
-    write(addr_hd_tx_cnt, (uint8_t*)&tx_cnt, size_hd_tx_cnt);
+    write(addr_hd_rx_cnt, (uint8_t *)&rx_cnt, size_hd_rx_cnt);
+    write(addr_hd_tx_cnt, (uint8_t *)&tx_cnt, size_hd_tx_cnt);
 }

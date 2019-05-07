@@ -55,30 +55,30 @@ void SPISlaveTester::set_hd_tx_rx_cnt(uint16_t tx_cnt, uint16_t rx_cnt)
 
 void SPISlaveTester::set_spi_master_freq(uint16_t clk_div)
 {
-    write(TESTER_SPI_SLAVE_CLK_DIV, (uint8_t*)&clk_div, TESTER_SPI_SLAVE_CLK_DIV_SIZE);
+    write(TESTER_SPI_SLAVE_CLK_DIV, (uint8_t *)&clk_div, TESTER_SPI_SLAVE_CLK_DIV_SIZE);
 }
 
 void SPISlaveTester::set_num_of_symbols(uint16_t num_of_sym)
 {
-    write(TESTER_SPI_SLAVE_NUM_OF_SYMBOLS, (uint8_t*)&num_of_sym, TESTER_SPI_SLAVE_NUM_OF_SYMBOLS_SIZE);
+    write(TESTER_SPI_SLAVE_NUM_OF_SYMBOLS, (uint8_t *)&num_of_sym, TESTER_SPI_SLAVE_NUM_OF_SYMBOLS_SIZE);
 }
 
 void SPISlaveTester::set_start_delay_us(uint8_t start_delay_us)
 {
-    write(TESTER_SPI_SLAVE_START_DELAY_US, (uint8_t*)&start_delay_us, TESTER_SPI_SLAVE_START_DELAY_US_SIZE);
+    write(TESTER_SPI_SLAVE_START_DELAY_US, (uint8_t *)&start_delay_us, TESTER_SPI_SLAVE_START_DELAY_US_SIZE);
 }
 
 void SPISlaveTester::set_sym_delay_ns(uint16_t sym_delay_ns)
 {
     const uint16_t sym_delay_ticks = (sym_delay_ns + 9) / 10; // round up
-    write(TESTER_SPI_SLAVE_SYM_DELAY_TICKS, (uint8_t*)&sym_delay_ticks, TESTER_SPI_SLAVE_SYM_DELAY_TICKS_SIZE);
+    write(TESTER_SPI_SLAVE_SYM_DELAY_TICKS, (uint8_t *)&sym_delay_ticks, TESTER_SPI_SLAVE_SYM_DELAY_TICKS_SIZE);
 }
 
 void SPISlaveTester::start_transfer()
 {
     uint32_t spi_ctrl = 0;
-    read(TESTER_SPI_SLAVE_CTRL, (uint8_t*)&spi_ctrl, TESTER_SPI_SLAVE_CTRL_SIZE);
+    read(TESTER_SPI_SLAVE_CTRL, (uint8_t *)&spi_ctrl, TESTER_SPI_SLAVE_CTRL_SIZE);
     spi_ctrl &= ~(((1  <<  TESTER_SPI_SLAVE_START_REQUEST_SIZE) - 1) << TESTER_SPI_SLAVE_START_REQUEST_OFFSET);
     spi_ctrl |= (1  <<  TESTER_SPI_SLAVE_START_REQUEST_OFFSET);
-    write(TESTER_SPI_SLAVE_CTRL, (uint8_t*)&spi_ctrl, TESTER_SPI_SLAVE_CTRL_SIZE);
+    write(TESTER_SPI_SLAVE_CTRL, (uint8_t *)&spi_ctrl, TESTER_SPI_SLAVE_CTRL_SIZE);
 }

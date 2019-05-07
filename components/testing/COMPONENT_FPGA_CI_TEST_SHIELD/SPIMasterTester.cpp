@@ -56,7 +56,7 @@ void SPIMasterTester::set_hd_tx_rx_cnt(uint16_t tx_cnt, uint16_t rx_cnt)
 uint32_t SPIMasterTester::get_cs_to_first_clk_edge_ns()
 {
     uint32_t delay_ns;
-    read(TESTER_SPI_MASTER_CS_TO_FIRST_SCLK_CNT, (uint8_t*)&delay_ns, TESTER_SPI_MASTER_CS_TO_FIRST_SCLK_CNT_SIZE);
+    read(TESTER_SPI_MASTER_CS_TO_FIRST_SCLK_CNT, (uint8_t *)&delay_ns, TESTER_SPI_MASTER_CS_TO_FIRST_SCLK_CNT_SIZE);
 
     return (delay_ns * 10);
 }
@@ -64,7 +64,7 @@ uint32_t SPIMasterTester::get_cs_to_first_clk_edge_ns()
 uint32_t SPIMasterTester::get_last_clk_edge_to_cs_ns()
 {
     uint32_t delay_ns;
-    read(TESTER_SPI_MASTER_LAST_SCLK_TO_CS_CNT, (uint8_t*)&delay_ns, TESTER_SPI_MASTER_LAST_SCLK_TO_CS_CNT_SIZE);
+    read(TESTER_SPI_MASTER_LAST_SCLK_TO_CS_CNT, (uint8_t *)&delay_ns, TESTER_SPI_MASTER_LAST_SCLK_TO_CS_CNT_SIZE);
 
     return (delay_ns * 10);
 }

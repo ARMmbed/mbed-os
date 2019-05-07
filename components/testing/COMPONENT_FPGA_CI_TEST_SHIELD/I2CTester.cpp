@@ -35,14 +35,14 @@ uint8_t I2CTester::num_stops()
 uint16_t I2CTester::num_acks()
 {
     uint16_t num_acks = 0;
-    read(TESTER_I2C_ACKS, (uint8_t*)&num_acks, sizeof(num_acks));
+    read(TESTER_I2C_ACKS, (uint8_t *)&num_acks, sizeof(num_acks));
     return num_acks;
 }
 
 uint16_t I2CTester::num_nacks()
 {
     uint16_t num_nacks = 0;
-    read(TESTER_I2C_NACKS, (uint8_t*)&num_nacks, sizeof(num_nacks));
+    read(TESTER_I2C_NACKS, (uint8_t *)&num_nacks, sizeof(num_nacks));
     return num_nacks;
 }
 
@@ -50,7 +50,7 @@ uint16_t I2CTester::transfer_count()
 {
     uint16_t transfers = 0;
     MBED_ASSERT(sizeof(transfers) == TESTER_I2C_TRANSFERS_SIZE);
-    read(TESTER_I2C_TRANSFERS, (uint8_t*)&transfers, sizeof(transfers));
+    read(TESTER_I2C_TRANSFERS, (uint8_t *)&transfers, sizeof(transfers));
     return transfers;
 }
 
@@ -58,7 +58,7 @@ uint32_t I2CTester::get_receive_checksum()
 {
     uint32_t to_slave_checksum = 0;
     MBED_ASSERT(sizeof(to_slave_checksum) == TESTER_I2C_TO_SLAVE_CHECKSUM_SIZE);
-    read(TESTER_I2C_TO_SLAVE_CHECKSUM, (uint8_t*)&to_slave_checksum, sizeof(to_slave_checksum));
+    read(TESTER_I2C_TO_SLAVE_CHECKSUM, (uint8_t *)&to_slave_checksum, sizeof(to_slave_checksum));
     return to_slave_checksum;
 }
 
@@ -79,13 +79,13 @@ uint8_t I2CTester::num_dev_addr_matches()
 void I2CTester::set_device_address(uint16_t addr)
 {
     uint16_t data = addr;
-    write(TESTER_I2C_DEVICE_ADDRESS, (uint8_t*)&data, sizeof(data));
+    write(TESTER_I2C_DEVICE_ADDRESS, (uint8_t *)&data, sizeof(data));
 }
 
 uint16_t I2CTester::get_device_address()
 {
     uint16_t addr = 0;
-    read(TESTER_I2C_DEVICE_ADDRESS, (uint8_t*)&addr, sizeof(addr));
+    read(TESTER_I2C_DEVICE_ADDRESS, (uint8_t *)&addr, sizeof(addr));
     return addr;
 }
 
@@ -133,12 +133,12 @@ uint8_t I2CTester::get_next_from_slave()
 uint16_t I2CTester::num_writes()
 {
     uint16_t num_writes = 0;
-    read(TESTER_I2C_NUM_WRITES, (uint8_t*)&num_writes, sizeof(num_writes));
+    read(TESTER_I2C_NUM_WRITES, (uint8_t *)&num_writes, sizeof(num_writes));
     return num_writes;
 }
 uint16_t I2CTester::num_reads()
 {
     uint16_t num_reads = 0;
-    read(TESTER_I2C_NUM_READS, (uint8_t*)&num_reads, sizeof(num_reads));
+    read(TESTER_I2C_NUM_READS, (uint8_t *)&num_reads, sizeof(num_reads));
     return num_reads;
 }

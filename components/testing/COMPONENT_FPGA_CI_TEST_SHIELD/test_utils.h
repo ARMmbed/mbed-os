@@ -28,14 +28,12 @@ typedef void (*TF4)(PinName p0, PinName p1, PinName p2, PinName p3);
 typedef void (*TF5)(PinName p0, PinName p1, PinName p2, PinName p3, PinName p4);
 
 template<typename PortType, typename FunctionType, FunctionType f>
-struct FunctionCaller
-{
+struct FunctionCaller {
 
 };
 
 template<typename PortType, TF1 f>
-struct FunctionCaller<PortType, TF1, f>
-{
+struct FunctionCaller<PortType, TF1, f> {
     void operator()(PortType &port)
     {
         f(port.pins[0]);
@@ -43,8 +41,7 @@ struct FunctionCaller<PortType, TF1, f>
 };
 
 template<typename PortType, TF2 f>
-struct FunctionCaller<PortType, TF2, f>
-{
+struct FunctionCaller<PortType, TF2, f> {
     void operator()(PortType &port)
     {
         f(port.pins[0], port.pins[1]);
@@ -52,8 +49,7 @@ struct FunctionCaller<PortType, TF2, f>
 };
 
 template<typename PortType, TF3 f>
-struct FunctionCaller<PortType, TF3, f>
-{
+struct FunctionCaller<PortType, TF3, f> {
     void operator()(PortType &port)
     {
         f(port.pins[0], port.pins[1], port.pins[2]);
@@ -61,8 +57,7 @@ struct FunctionCaller<PortType, TF3, f>
 };
 
 template<typename PortType, TF4 f>
-struct FunctionCaller<PortType, TF4, f>
-{
+struct FunctionCaller<PortType, TF4, f> {
     void operator()(PortType &port)
     {
         f(port.pins[0], port.pins[1], port.pins[2], port.pins[3]);
@@ -70,8 +65,7 @@ struct FunctionCaller<PortType, TF4, f>
 };
 
 template<typename PortType, TF5 f>
-struct FunctionCaller<PortType, TF5, f>
-{
+struct FunctionCaller<PortType, TF5, f> {
     void operator()(PortType &port)
     {
         f(port.pins[0], port.pins[1], port.pins[2], port.pins[3], port.pins[4]);

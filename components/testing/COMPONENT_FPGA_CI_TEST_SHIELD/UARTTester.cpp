@@ -43,7 +43,7 @@ void UARTTester::set_stops(uint8_t stop_bits)
 void UARTTester::set_parity(bool enable, bool odd_n_even)
 {
     uint8_t parity = (enable ? TESTER_UART_PARITY_ENABLE : 0) |
-            (odd_n_even ? TESTER_UART_PARITY_ODD_N_EVEN : 0);
+                     (odd_n_even ? TESTER_UART_PARITY_ODD_N_EVEN : 0);
     write(TESTER_UART_PARITY, &parity, sizeof(parity));
 }
 
