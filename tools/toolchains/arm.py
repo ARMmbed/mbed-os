@@ -681,6 +681,9 @@ class ARMC6(ARM_STD):
 
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]
+        if self.is_mbed_studio_armc6:
+            # NOTE: the --ide=mbed argument is only for use with Mbed OS
+            cmd.insert(1, "--ide=mbed")
 
         # Return command array, don't execute
         return [cmd_pre, cmd]
