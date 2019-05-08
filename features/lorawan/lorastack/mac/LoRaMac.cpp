@@ -337,7 +337,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
             reset_frame_counters();
             reset_phy_params();
         } else if (_params.server_type == LW1_1 &&
-                _params.join_request_type == REJOIN_REQUEST_TYPE2) {
+                   _params.join_request_type == REJOIN_REQUEST_TYPE2) {
             reset_frame_counters();
         }
 

@@ -206,7 +206,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mac_sys_params.max_duty_cycle = payload[mac_index++];
                 mac_sys_params.aggregated_duty_cycle = 1 << mac_sys_params.max_duty_cycle;
                 ret_value = add_duty_cycle_ans();
-            break;
+                break;
             case SRV_MAC_RX_PARAM_SETUP_REQ: {
                 rx_param_setup_req_t rxParamSetupReq;
 
