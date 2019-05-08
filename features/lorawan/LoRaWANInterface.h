@@ -52,13 +52,14 @@ public:
     LoRaWANInterface(LoRaRadio &radio);
 
     /** Constructs a LoRaWANInterface using the user provided PHY object.
-
      * @param radio A reference to radio object
      * @param phy   A reference to PHY object
      */
     LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy);
 
-<<<<<<< 4715651667564ee5357d54a4d245a8fd4c587010
+    /**
+     * Destructor
+     */
     ~LoRaWANInterface();
 
     /** Initialize the LoRa stack.
