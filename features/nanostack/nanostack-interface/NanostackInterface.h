@@ -24,5 +24,6 @@
 #include "ThreadInterface.h"
 #include "NanostackEthernetInterface.h"
 #include "MeshInterfaceNanostack.h"
+#include "NanostackPppInterface.h"
 #include "WisunInterface.h"
 #endif /* NANOSTACK_INTERFACE_H_ */

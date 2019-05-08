@@ -467,7 +467,7 @@ nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetwo
 #if LWIP_IPV4
                    0, 0, 0,
 #endif
-                   interface, &LWIP::Interface::l3ip_if_init, tcpip_input)) {
+                   interface, &LWIP::Interface::l3ip_if_init, ip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
@@ -526,8 +526,7 @@ nsapi_error_t LWIP::remove_l3ip_interface(OnboardNetworkStack::Interface **inter
 
 #endif //LWIP_L3IP
 }
-/* Internal API to preserve existing PPP functionality - revise to better match mbed_ipstak_add_ethernet_interface later */
-nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out)
+nsapi_error_t LWIP::add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, OnboardNetworkStack::Interface **interface_out)
 {
 #if LWIP_PPP_API
     Interface *interface = new (std::nothrow) Interface();
@@ -537,7 +536,7 @@ nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack
     interface->hw = hw;
     interface->ppp = true;
 
-    nsapi_error_t ret = ppp_lwip_if_init(hw, &interface->netif, stack);
+    nsapi_error_t ret = ppp_stack_if_init(hw, &interface->netif, stack);
     if (ret != NSAPI_ERROR_OK) {
         free(interface);
         return ret;
@@ -635,7 +634,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 
     if (ppp) {
-        err_t err = ppp_lwip_connect(hw);
+        err_t err = ppp_if_connect(hw);
         if (err) {
             connected = NSAPI_STATUS_DISCONNECTED;
             if (client_callback) {
@@ -649,7 +648,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
         if (blocking) {
             if (osSemaphoreAcquire(linked, LINK_TIMEOUT * 1000) != osOK) {
                 if (ppp) {
-                    (void) ppp_lwip_disconnect(hw);
+                    (void) ppp_if_disconnect(hw);
                 }
                 return NSAPI_ERROR_NO_CONNECTION;
             }
@@ -671,7 +670,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     if (!LWIP::get_ip_addr(true, &netif)) {
         if (osSemaphoreAcquire(has_any_addr, DHCP_TIMEOUT * 1000) != osOK) {
             if (ppp) {
-                (void) ppp_lwip_disconnect(hw);
+                (void) ppp_if_disconnect(hw);
             }
             return NSAPI_ERROR_DHCP_FAILURE;
         }
@@ -720,7 +719,7 @@ nsapi_error_t LWIP::Interface::bringdown()
 
     if (ppp) {
         /* this is a blocking call, returns when PPP is properly closed */
-        err_t err = ppp_lwip_disconnect(hw);
+        err_t err = ppp_if_disconnect(hw);
         if (err) {
             return err_remap(err);
         }

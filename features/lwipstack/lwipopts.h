@@ -305,11 +305,6 @@
 #define DNS_DEBUG                   LWIP_DBG_OFF
 #define IP6_DEBUG                   LWIP_DBG_OFF
 
-#if MBED_CONF_LWIP_ENABLE_PPP_TRACE
-#define PPP_DEBUG                   LWIP_DBG_ON
-#else
-#define PPP_DEBUG                   LWIP_DBG_OFF
-#endif //MBED_CONF_LWIP_ENABLE_PPP_TRACE
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 

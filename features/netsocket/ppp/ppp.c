@@ -403,7 +403,7 @@ err_t ppp_free(ppp_pcb *pcb) {
 
   err = pcb->link_cb->free(pcb, pcb->link_ctx_cb);
 
-  LWIP_MEMPOOL_FREE(PPP_PCB, pcb);
+  MEMPOOL_FREE(PPP_PCB, pcb);
   return err;
 }
 
@@ -654,7 +654,7 @@ ppp_pcb *ppp_new(struct netif *pppif, const struct link_callbacks *callbacks, vo
     return NULL;
   }
 
-  pcb = (ppp_pcb*)LWIP_MEMPOOL_ALLOC(PPP_PCB);
+  pcb = (ppp_pcb*)MEMPOOL_ALLOC(PPP_PCB);
   if (pcb == NULL) {
     return NULL;
   }
@@ -703,7 +703,7 @@ ppp_pcb *ppp_new(struct netif *pppif, const struct link_callbacks *callbacks, vo
                  IP4_ADDR_ANY4, IP4_ADDR_BROADCAST, IP4_ADDR_ANY4,
 #endif /* LWIP_IPV4 */
                  (void *)pcb, ppp_netif_init_cb, NULL)) {
-    LWIP_MEMPOOL_FREE(PPP_PCB, pcb);
+    MEMPOOL_FREE(PPP_PCB, pcb);
     PPPDEBUG(LOG_ERR, ("ppp_new: netif_add failed\n"));
     return NULL;
   }

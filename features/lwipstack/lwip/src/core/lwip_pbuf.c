@@ -85,6 +85,7 @@
 #endif
 
 #include <string.h>
+#include "ppp_lwip.h"
 
 #define SIZEOF_STRUCT_PBUF        LWIP_MEM_ALIGN_SIZE(sizeof(struct pbuf))
 /* Since the pool is created in memp, PBUF_POOL_BUFSIZE will be automatically
@@ -240,7 +241,11 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
       rem_len = length;
       do {
         u16_t qlen;
+#if MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
+        q = (struct pbuf *)ns_dyn_mem_alloc(sizeof(ppp_pcb));
+#else
         q = (struct pbuf *)memp_malloc(MEMP_PBUF_POOL);
+#endif
         if (q == NULL) {
           PBUF_POOL_IS_EMPTY();
           /* free chain so far allocated */

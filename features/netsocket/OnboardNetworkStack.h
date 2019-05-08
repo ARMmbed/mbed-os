@@ -165,6 +165,8 @@ public:
         return NSAPI_ERROR_OK;
     };
 
+    virtual nsapi_error_t add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, Interface **interface_out) = 0;
+
     virtual nsapi_error_t remove_l3ip_interface(Interface **interface_out)
     {
         return NSAPI_ERROR_OK;

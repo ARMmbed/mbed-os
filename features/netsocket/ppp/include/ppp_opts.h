@@ -125,12 +125,6 @@
 #define MEMP_NUM_PPP_API_MSG 5
 #endif
 
-/**
- * PPP_DEBUG: Enable debugging for PPP.
- */
-#ifndef PPP_DEBUG
-#define PPP_DEBUG                       LWIP_DBG_OFF
-#endif
 
 /**
  * PPP_INPROC_IRQ_SAFE==1 call pppos_input() using tcpip_callback().
@@ -148,20 +142,6 @@
  */
 #ifndef PRINTPKT_SUPPORT
 #define PRINTPKT_SUPPORT                0
-#endif
-
-/**
- * PPP_IPV4_SUPPORT==1: Enable PPP IPv4 support
- */
-#ifndef PPP_IPV4_SUPPORT
-#define PPP_IPV4_SUPPORT                (LWIP_IPV4)
-#endif
-
-/**
- * PPP_IPV6_SUPPORT==1: Enable PPP IPv6 support
- */
-#ifndef PPP_IPV6_SUPPORT
-#define PPP_IPV6_SUPPORT                (LWIP_IPV6)
 #endif
 
 /**
@@ -600,11 +580,34 @@
 #define LWIP_INCLUDED_POLARSSL_ARC4     0
 #endif /* LWIP_INCLUDED_POLARSSL_ARC4 */
 
-#endif /* PPP_SUPPORT */
+#define BUF_ALLOC(a,b,c) pbuf_alloc(a,b,c)
+
+#if MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
+#define PPPOS_DECL_PROTECT(lev)
+#undef PPPOS_PROTECT
+#undef PPPOS_UNPROTECT
+#define SYS_ARCH_PROTECT(lev) PPPOS_PROTECT(lev)
+#define SYS_ARCH_UNPROTECT(lev) PPPOS_UNPROTECT(lev)
+#define PPPOS_PROTECT(lev) platform_enter_critical()
+#define PPPOS_UNPROTECT(lev) platform_exit_critical()
+#define MEMPOOL_ALLOC(x) ns_dyn_mem_temporary_alloc(sizeof(ppp_pcb))
+#else //LWIP is used
+#define PPPOS_DECL_PROTECT(lev) SYS_ARCH_DECL_PROTECT(lev)
+#define PPPOS_PROTECT(lev) SYS_ARCH_PROTECT(lev)
+#define PPPOS_UNPROTECT(lev) SYS_ARCH_UNPROTECT(lev)
+
+#define MEMPOOL_ALLOC(x) LWIP_MEMPOOL_ALLOC(x)
+#endif
+
+#define MEMPOOL_FREE(a,b) LWIP_MEMPOOL_FREE(a,b)
 
 /* Default value if unset */
 #ifndef PPP_NUM_TIMEOUTS
 #define PPP_NUM_TIMEOUTS                0
 #endif /* PPP_NUM_TIMEOUTS */
+
+#define UNUSED_ARG(x) (void)x
+
+#endif /* PPP_SUPPORT */
 
 #endif /* LWIP_PPP_OPTS_H */

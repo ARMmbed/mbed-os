@@ -70,8 +70,9 @@ struct mem {
 #if defined (__ICCARM__)
 #pragma location = ".ethusbram"
 #endif
+#if !MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
 LWIP_DECLARE_MEMORY_ALIGNED(lwip_ram_heap, MEM_SIZE_ALIGNED + (2U*SIZEOF_STRUCT_MEM)) ETHMEM_SECTION;
-
+#endif
  #if NO_SYS==1
 #include "cmsis.h"
 

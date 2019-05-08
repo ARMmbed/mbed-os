@@ -78,10 +78,10 @@ static void mppe_rekey(ppp_mppe_state * state, int initial_key)
 	MEMCPY(state->session_key, sha1_digest, state->keylen);
 
 	if (!initial_key) {
-		lwip_arc4_init(&state->arc4);
-		lwip_arc4_setup(&state->arc4, sha1_digest, state->keylen);
-		lwip_arc4_crypt(&state->arc4, state->session_key, state->keylen);
-		lwip_arc4_free(&state->arc4);
+		ARC4_init(&state->arc4);
+		ARC4_setup(&state->arc4, sha1_digest, state->keylen);
+		ARC4_crypt(&state->arc4, state->session_key, state->keylen);
+		ARC4_free(&state->arc4);
 	}
 	if (state->keylen == 8) {
 		/* See RFC 3078 */
@@ -89,8 +89,8 @@ static void mppe_rekey(ppp_mppe_state * state, int initial_key)
 		state->session_key[1] = 0x26;
 		state->session_key[2] = 0x9e;
 	}
-	lwip_arc4_init(&state->arc4);
-	lwip_arc4_setup(&state->arc4, state->session_key, state->keylen);
+	ARC4_init(&state->arc4);
+	ARC4_setup(&state->arc4, state->session_key, state->keylen);
 }
 
 /*
@@ -250,7 +250,7 @@ mppe_compress(ppp_pcb *pcb, ppp_mppe_state *state, struct pbuf **pb, u16_t proto
 
 	/* Encrypt packet */
 	for (n = np; n != NULL; n = n->next) {
-		lwip_arc4_crypt(&state->arc4, (u8_t*)n->payload, n->len);
+		ARC4_crypt(&state->arc4, (u8_t*)n->payload, n->len);
 		if (n->tot_len == n->len) {
 			break;
 		}
@@ -386,7 +386,7 @@ mppe_decompress(ppp_pcb *pcb, ppp_mppe_state *state, struct pbuf **pb)
 
 	/* Decrypt the packet. */
 	for (n = n0; n != NULL; n = n->next) {
-		lwip_arc4_crypt(&state->arc4, (u8_t*)n->payload, n->len);
+		ARC4_crypt(&state->arc4, (u8_t*)n->payload, n->len);
 		if (n->tot_len == n->len) {
 			break;
 		}

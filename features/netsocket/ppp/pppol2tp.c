@@ -114,15 +114,15 @@ ppp_pcb *pppol2tp_create(struct netif *pppif,
   pppol2tp_pcb *l2tp;
   struct udp_pcb *udp;
 #if !PPPOL2TP_AUTH_SUPPORT
-  LWIP_UNUSED_ARG(secret);
-  LWIP_UNUSED_ARG(secret_len);
+  UNUSED_ARG(secret);
+  UNUSED_ARG(secret_len);
 #endif /* !PPPOL2TP_AUTH_SUPPORT */
 
   if (ipaddr == NULL) {
     goto ipaddr_check_failed;
   }
 
-  l2tp = (pppol2tp_pcb *)LWIP_MEMPOOL_ALLOC(PPPOL2TP_PCB);
+  l2tp = (pppol2tp_pcb *)MEMPOOL_ALLOC(PPPOL2TP_PCB);
   if (l2tp == NULL) {
     goto memp_malloc_l2tp_failed;
   }
@@ -155,7 +155,7 @@ ppp_pcb *pppol2tp_create(struct netif *pppif,
 ppp_new_failed:
   udp_remove(udp);
 udp_new_failed:
-  LWIP_MEMPOOL_FREE(PPPOL2TP_PCB, l2tp);
+  MEMPOOL_FREE(PPPOL2TP_PCB, l2tp);
 memp_malloc_l2tp_failed:
 ipaddr_check_failed:
   return NULL;
@@ -169,7 +169,7 @@ static err_t pppol2tp_write(ppp_pcb *ppp, void *ctx, struct pbuf *p) {
 #if MIB2_STATS
   u16_t tot_len;
 #else /* MIB2_STATS */
-  LWIP_UNUSED_ARG(ppp);
+  UNUSED_ARG(ppp);
 #endif /* MIB2_STATS */
 
   ph = pbuf_alloc(PBUF_TRANSPORT, (u16_t)(PPPOL2TP_OUTPUT_DATA_HEADER_LEN), PBUF_RAM);
@@ -209,7 +209,7 @@ static err_t pppol2tp_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_sh
 #if MIB2_STATS
   u16_t tot_len;
 #else /* MIB2_STATS */
-  LWIP_UNUSED_ARG(ppp);
+  UNUSED_ARG(ppp);
 #endif /* MIB2_STATS */
 
   /* @todo: try to use pbuf_header() here! */
@@ -246,11 +246,11 @@ static err_t pppol2tp_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_sh
 /* Destroy a L2TP control block */
 static err_t pppol2tp_destroy(ppp_pcb *ppp, void *ctx) {
   pppol2tp_pcb *l2tp = (pppol2tp_pcb *)ctx;
-  LWIP_UNUSED_ARG(ppp);
+  UNUSED_ARG(ppp);
 
   sys_untimeout(pppol2tp_timeout, l2tp);
   udp_remove(l2tp->udp);
-  LWIP_MEMPOOL_FREE(PPPOL2TP_PCB, l2tp);
+  MEMPOOL_FREE(PPPOL2TP_PCB, l2tp);
   return ERR_OK;
 }
 
@@ -346,7 +346,7 @@ static void pppol2tp_input(void *arg, struct udp_pcb *pcb, struct pbuf *p, const
   pppol2tp_pcb *l2tp = (pppol2tp_pcb*)arg;
   u16_t hflags, hlen, len=0, tunnel_id=0, session_id=0, ns=0, nr=0, offset=0;
   u8_t *inp;
-  LWIP_UNUSED_ARG(pcb);
+  UNUSED_ARG(pcb);
 
   /* we can't unbound a UDP pcb, thus we can still receive UDP frames after the link is closed */
   if (l2tp->phase < PPPOL2TP_STATE_SCCRQ_SENT) {
@@ -488,7 +488,7 @@ static void pppol2tp_dispatch_control_packet(pppol2tp_pcb *l2tp, u16_t port, str
   u16_t avplen, avpflags, vendorid, attributetype, messagetype=0;
   err_t err;
 #if PPPOL2TP_AUTH_SUPPORT
-  lwip_md5_context md5_ctx;
+  MD5_context md5_ctx;
   u8_t md5_hash[16];
   u8_t challenge_id = 0;
 #endif /* PPPOL2TP_AUTH_SUPPORT */
@@ -617,14 +617,14 @@ static void pppol2tp_dispatch_control_packet(pppol2tp_pcb *l2tp, u16_t port, str
               return;
             }
             /* Generate hash of ID, secret, challenge */
-            lwip_md5_init(&md5_ctx);
-            lwip_md5_starts(&md5_ctx);
+            MD5_init(&md5_ctx);
+            MD5_starts(&md5_ctx);
             challenge_id = PPPOL2TP_MESSAGETYPE_SCCCN;
-            lwip_md5_update(&md5_ctx, &challenge_id, 1);
-            lwip_md5_update(&md5_ctx, l2tp->secret, l2tp->secret_len);
-            lwip_md5_update(&md5_ctx, inp, avplen);
-            lwip_md5_finish(&md5_ctx, l2tp->challenge_hash);
-            lwip_md5_free(&md5_ctx);
+            MD5_update(&md5_ctx, &challenge_id, 1);
+            MD5_update(&md5_ctx, l2tp->secret, l2tp->secret_len);
+            MD5_update(&md5_ctx, inp, avplen);
+            MD5_finish(&md5_ctx, l2tp->challenge_hash);
+            MD5_free(&md5_ctx);
             l2tp->send_challenge = 1;
             goto skipavp;
           case PPPOL2TP_AVPTYPE_CHALLENGERESPONSE:
@@ -633,14 +633,14 @@ static void pppol2tp_dispatch_control_packet(pppol2tp_pcb *l2tp, u16_t port, str
                return;
             }
             /* Generate hash of ID, secret, challenge */
-            lwip_md5_init(&md5_ctx);
-            lwip_md5_starts(&md5_ctx);
+            MD5_init(&md5_ctx);
+            MD5_starts(&md5_ctx);
             challenge_id = PPPOL2TP_MESSAGETYPE_SCCRP;
-            lwip_md5_update(&md5_ctx, &challenge_id, 1);
-            lwip_md5_update(&md5_ctx, l2tp->secret, l2tp->secret_len);
-            lwip_md5_update(&md5_ctx, l2tp->secret_rv, sizeof(l2tp->secret_rv));
-            lwip_md5_finish(&md5_ctx, md5_hash);
-            lwip_md5_free(&md5_ctx);
+            MD5_update(&md5_ctx, &challenge_id, 1);
+            MD5_update(&md5_ctx, l2tp->secret, l2tp->secret_len);
+            MD5_update(&md5_ctx, l2tp->secret_rv, sizeof(l2tp->secret_rv));
+            MD5_finish(&md5_ctx, md5_hash);
+            MD5_free(&md5_ctx);
             if ( memcmp(inp, md5_hash, sizeof(md5_hash)) ) {
               PPPDEBUG(LOG_DEBUG, ("pppol2tp: Received challenge response from peer and secret key do not match\n"));
               pppol2tp_abort_connect(l2tp);
@@ -693,12 +693,12 @@ nextavp:
       l2tp->our_ns++;
       if ((err = pppol2tp_send_scccn(l2tp, l2tp->our_ns)) != 0) {
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send SCCCN, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       l2tp->our_ns++;
       if ((err = pppol2tp_send_icrq(l2tp, l2tp->our_ns)) != 0) {
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send ICRQ, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_untimeout(pppol2tp_timeout, l2tp);
       sys_timeout(PPPOL2TP_CONTROL_TIMEOUT, pppol2tp_timeout, l2tp);
@@ -710,7 +710,7 @@ nextavp:
       l2tp->our_ns++;
       if ((err = pppol2tp_send_iccn(l2tp, l2tp->our_ns)) != 0) {
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send ICCN, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_untimeout(pppol2tp_timeout, l2tp);
       sys_timeout(PPPOL2TP_CONTROL_TIMEOUT, pppol2tp_timeout, l2tp);
@@ -751,7 +751,7 @@ static void pppol2tp_timeout(void *arg) {
       if ((err = pppol2tp_send_sccrq(l2tp)) != 0) {
         l2tp->sccrq_retried--;
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send SCCRQ, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(retry_wait, pppol2tp_timeout, l2tp);
       break;
@@ -767,7 +767,7 @@ static void pppol2tp_timeout(void *arg) {
         if ((err = pppol2tp_send_scccn(l2tp, l2tp->our_ns -1)) != 0) {
           l2tp->icrq_retried--;
           PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send SCCCN, error=%d\n", err));
-          LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+          UNUSED_ARG(err); /* if PPPDEBUG is disabled */
           sys_timeout(PPPOL2TP_CONTROL_TIMEOUT, pppol2tp_timeout, l2tp);
           break;
         }
@@ -775,7 +775,7 @@ static void pppol2tp_timeout(void *arg) {
       if ((err = pppol2tp_send_icrq(l2tp, l2tp->our_ns)) != 0) {
         l2tp->icrq_retried--;
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send ICRQ, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(PPPOL2TP_CONTROL_TIMEOUT, pppol2tp_timeout, l2tp);
       break;
@@ -790,7 +790,7 @@ static void pppol2tp_timeout(void *arg) {
       if ((err = pppol2tp_send_iccn(l2tp, l2tp->our_ns)) != 0) {
         l2tp->iccn_retried--;
         PPPDEBUG(LOG_DEBUG, ("pppol2tp: failed to send ICCN, error=%d\n", err));
-        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
+        UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(PPPOL2TP_CONTROL_TIMEOUT, pppol2tp_timeout, l2tp);
       break;

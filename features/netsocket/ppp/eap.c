@@ -1314,7 +1314,7 @@ static void eap_request(ppp_pcb *pcb, u_char *inp, int id, int len) {
 	int secret_len;
 	char secret[MAXSECRETLEN];
 	char rhostname[MAXNAMELEN];
-	lwip_md5_context mdContext;
+	MD5_context mdContext;
 	u_char hash[MD5_SIGNATURE_SIZE];
 #ifdef USE_SRP
 	struct t_client *tc;
@@ -1443,15 +1443,15 @@ static void eap_request(ppp_pcb *pcb, u_char *inp, int id, int len) {
 			eap_send_nak(pcb, id, EAPT_SRP);
 			break;
 		}
-		lwip_md5_init(&mdContext);
-		lwip_md5_starts(&mdContext);
+		MD5_init(&mdContext);
+		MD5_starts(&mdContext);
 		typenum = id;
-		lwip_md5_update(&mdContext, &typenum, 1);
-		lwip_md5_update(&mdContext, (u_char *)secret, secret_len);
+		MD5_update(&mdContext, &typenum, 1);
+		MD5_update(&mdContext, (u_char *)secret, secret_len);
 		BZERO(secret, sizeof (secret));
-		lwip_md5_update(&mdContext, inp, vallen);
-		lwip_md5_finish(&mdContext, hash);
-		lwip_md5_free(&mdContext);
+		MD5_update(&mdContext, inp, vallen);
+		MD5_finish(&mdContext, hash);
+		MD5_free(&mdContext);
 		eap_chap_response(pcb, id, hash, pcb->eap.es_client.ea_name,
 		    pcb->eap.es_client.ea_namelen);
 		break;
@@ -1728,7 +1728,7 @@ static void eap_response(ppp_pcb *pcb, u_char *inp, int id, int len) {
 	int secret_len;
 	char secret[MAXSECRETLEN];
 	char rhostname[MAXNAMELEN];
-	lwip_md5_context mdContext;
+	MD5_context mdContext;
 	u_char hash[MD5_SIGNATURE_SIZE];
 #ifdef USE_SRP
 	struct t_server *ts;
@@ -1871,14 +1871,14 @@ static void eap_response(ppp_pcb *pcb, u_char *inp, int id, int len) {
 			eap_send_failure(pcb);
 			break;
 		}
-		lwip_md5_init(&mdContext);
-		lwip_md5_starts(&mdContext);
-		lwip_md5_update(&mdContext, &pcb->eap.es_server.ea_id, 1);
-		lwip_md5_update(&mdContext, (u_char *)secret, secret_len);
+		MD5_init(&mdContext);
+		MD5_starts(&mdContext);
+		MD5_update(&mdContext, &pcb->eap.es_server.ea_id, 1);
+		MD5_update(&mdContext, (u_char *)secret, secret_len);
 		BZERO(secret, sizeof (secret));
-		lwip_md5_update(&mdContext, pcb->eap.es_challenge, pcb->eap.es_challen);
-		lwip_md5_finish(&mdContext, hash);
-		lwip_md5_free(&mdContext);
+		MD5_update(&mdContext, pcb->eap.es_challenge, pcb->eap.es_challen);
+		MD5_finish(&mdContext, hash);
+		MD5_free(&mdContext);
 		if (BCMP(hash, inp, MD5_SIGNATURE_SIZE) != 0) {
 			eap_send_failure(pcb);
 			break;

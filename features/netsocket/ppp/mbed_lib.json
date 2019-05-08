@@ -6,6 +6,11 @@
             "value": false,
             "macro_name": "NSAPI_PPP_AVAILABLE"
         },
+        "ppp-debug": {
+            "help": "Enable debugging for PPP",
+            "value": false,
+            "macro_name": "PPP_DEBUG"
+        },
         "ppp-ipv4-enabled": {
             "help": "Enable support for ipv4 PPP interface",
             "value": false,

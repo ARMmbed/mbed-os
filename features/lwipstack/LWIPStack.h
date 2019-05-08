@@ -251,7 +251,7 @@ public:
      * @param[out] interface_out    set to interface handle that must be passed to subsequent mbed_stack calls
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
-    nsapi_error_t _add_ppp_interface(void *pcb, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out);
+    nsapi_error_t add_ppp_interface(void *pcb, bool default_if, nsapi_ip_stack_t stack, OnboardNetworkStack::Interface **interface_out);
 
     /** Remove a network interface from IP stack
      *

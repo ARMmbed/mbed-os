@@ -98,14 +98,14 @@ static u32_t magic_randomseed;    /* Seed used for random number generation. */
  * Ref: Applied Cryptography 2nd Ed. by Bruce Schneier p. 427
  */
 static void magic_churnrand(char *rand_data, u32_t rand_len) {
-  lwip_md5_context md5_ctx;
+  MD5_context md5_ctx;
 
   /* LWIP_DEBUGF(LOG_INFO, ("magic_churnrand: %u@%P\n", rand_len, rand_data)); */
-  lwip_md5_init(&md5_ctx);
-  lwip_md5_starts(&md5_ctx);
-  lwip_md5_update(&md5_ctx, (u_char *)magic_randpool, sizeof(magic_randpool));
+  MD5_init(&md5_ctx);
+  MD5_starts(&md5_ctx);
+  MD5_update(&md5_ctx, (u_char *)magic_randpool, sizeof(magic_randpool));
   if (rand_data) {
-    lwip_md5_update(&md5_ctx, (u_char *)rand_data, rand_len);
+    MD5_update(&md5_ctx, (u_char *)rand_data, rand_len);
   } else {
     struct {
       /* INCLUDE fields for any system sources of randomness */
@@ -120,10 +120,10 @@ static void magic_churnrand(char *rand_data, u32_t rand_len) {
     sys_data.rand = LWIP_RAND();
 #endif /* LWIP_RAND */
     /* Load sys_data fields here. */
-    lwip_md5_update(&md5_ctx, (u_char *)&sys_data, sizeof(sys_data));
+    MD5_update(&md5_ctx, (u_char *)&sys_data, sizeof(sys_data));
   }
-  lwip_md5_finish(&md5_ctx, (u_char *)magic_randpool);
-  lwip_md5_free(&md5_ctx);
+  MD5_finish(&md5_ctx, (u_char *)magic_randpool);
+  MD5_free(&md5_ctx);
 /*  LWIP_DEBUGF(LOG_INFO, ("magic_churnrand: -> 0\n")); */
 }
 
@@ -160,17 +160,17 @@ void magic_randomize(void) {
  *  it was documented.
  */
 void magic_random_bytes(unsigned char *buf, u32_t buf_len) {
-  lwip_md5_context md5_ctx;
+  MD5_context md5_ctx;
   u_char tmp[MD5_HASH_SIZE];
   u32_t n;
 
   while (buf_len > 0) {
-    lwip_md5_init(&md5_ctx);
-    lwip_md5_starts(&md5_ctx);
-    lwip_md5_update(&md5_ctx, (u_char *)magic_randpool, sizeof(magic_randpool));
-    lwip_md5_update(&md5_ctx, (u_char *)&magic_randcount, sizeof(magic_randcount));
-    lwip_md5_finish(&md5_ctx, tmp);
-    lwip_md5_free(&md5_ctx);
+    MD5_init(&md5_ctx);
+    MD5_starts(&md5_ctx);
+    MD5_update(&md5_ctx, (u_char *)magic_randpool, sizeof(magic_randpool));
+    MD5_update(&md5_ctx, (u_char *)&magic_randcount, sizeof(magic_randcount));
+    MD5_finish(&md5_ctx, tmp);
+    MD5_free(&md5_ctx);
     magic_randcount++;
     n = LWIP_MIN(buf_len, MD5_HASH_SIZE);
     MEMCPY(buf, tmp, n);

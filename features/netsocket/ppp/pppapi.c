@@ -33,7 +33,7 @@
 
 #include "ppp_opts.h"
 
-#if LWIP_PPP_API /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT
 
 #include "pppapi.h"
 #include "lwip/priv/tcpip_priv.h"
@@ -424,4 +424,4 @@ pppapi_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg)
   return err;
 }
 
-#endif /* LWIP_PPP_API */
+#endif /* PPP_SUPPORT */

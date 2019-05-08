@@ -155,17 +155,6 @@ ppp_get_fcs(u8_t byte)
 #define PPP_INITFCS     0xffff  /* Initial FCS value */
 #define PPP_GOODFCS     0xf0b8  /* Good final FCS value */
 
-#if PPP_INPROC_IRQ_SAFE
-#define PPPOS_DECL_PROTECT(lev) SYS_ARCH_DECL_PROTECT(lev)
-#define PPPOS_PROTECT(lev) SYS_ARCH_PROTECT(lev)
-#define PPPOS_UNPROTECT(lev) SYS_ARCH_UNPROTECT(lev)
-#else
-#define PPPOS_DECL_PROTECT(lev)
-#define PPPOS_PROTECT(lev)
-#define PPPOS_UNPROTECT(lev)
-#endif /* PPP_INPROC_IRQ_SAFE */
-
-
 /*
  * Create a new PPP connection using the given serial I/O device.
  *
@@ -178,14 +167,14 @@ ppp_pcb *pppos_create(struct netif *pppif, pppos_output_cb_fn output_cb,
   ppp_pcb *ppp;
   LWIP_ASSERT_CORE_LOCKED();
 
-  pppos = (pppos_pcb *)LWIP_MEMPOOL_ALLOC(PPPOS_PCB);
+  pppos = (pppos_pcb *)MEMPOOL_ALLOC(PPPOS_PCB);
   if (pppos == NULL) {
     return NULL;
   }
 
   ppp = ppp_new(pppif, &pppos_callbacks, pppos, link_status_cb, ctx_cb);
   if (ppp == NULL) {
-    LWIP_MEMPOOL_FREE(PPPOS_PCB, pppos);
+    MEMPOOL_FREE(PPPOS_PCB, pppos);
     return NULL;
   }
 
@@ -406,7 +395,7 @@ pppos_destroy(ppp_pcb *ppp, void *ctx)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  LWIP_MEMPOOL_FREE(PPPOS_PCB, pppos);
+  MEMPOOL_FREE(PPPOS_PCB, pppos);
   return ERR_OK;
 }
 
@@ -560,6 +549,10 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
           /* hide the room for Ethernet forwarding header */
           pbuf_remove_header(inp, PBUF_LINK_ENCAPSULATION_HLEN + PBUF_LINK_HLEN);
 #endif /* IP_FORWARD || LWIP_IPV6_FORWARD */
+#if MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
+          pbuf_header(inp, -(s16_t)sizeof(struct pppos_input_header));
+          ppp_input(ppp, inp);
+#else
 #if PPP_INPROC_IRQ_SAFE
           if(tcpip_try_callback(pppos_input_callback, inp) != ERR_OK) {
             PPPDEBUG(LOG_ERR, ("pppos_input[%d]: tcpip_callback() failed, dropping packet\n", ppp->netif->num));
@@ -570,6 +563,7 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
 #else /* PPP_INPROC_IRQ_SAFE */
           ppp_input(ppp, inp);
 #endif /* PPP_INPROC_IRQ_SAFE */
+#endif /* MBED_CONF_APP_NANOSTACK_PPP_SUPPORT */
         }
 
         /* Prepare for a new packet. */

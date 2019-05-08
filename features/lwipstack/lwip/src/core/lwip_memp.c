@@ -349,7 +349,12 @@ memp_malloc_fn(memp_t type, const char *file, const int line)
 #if !MEMP_OVERFLOW_CHECK
   memp = do_memp_malloc_pool(memp_pools[type]);
 #else
-  memp = do_memp_malloc_pool_fn(memp_pools[type], file, line);
+#if MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
+    //memp = ns_dyn_mem_alloc(sizeof(struct memp_desc));
+  memp = ns_dyn_mem_alloc(memp_pools[type]->size);
+#else
+    memp = do_memp_malloc_pool_fn(memp_pools[type], file, line);
+#endif
 #endif
 
   return memp;
@@ -419,6 +424,9 @@ memp_free_pool(const struct memp_desc *desc, void *mem)
 void
 memp_free(memp_t type, void *mem)
 {
+#if MBED_CONF_APP_NANOSTACK_PPP_SUPPORT
+	ns_dyn_mem_free(mem);
+#else
 #ifdef LWIP_HOOK_MEMP_AVAILABLE
   struct memp *old_first;
 #endif
@@ -443,5 +451,6 @@ memp_free(memp_t type, void *mem)
   if (old_first == NULL) {
     LWIP_HOOK_MEMP_AVAILABLE(type);
   }
+#endif
 #endif
 }

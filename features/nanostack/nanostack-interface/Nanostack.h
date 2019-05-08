@@ -44,6 +44,8 @@ public:
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr = NULL);
 
+    nsapi_error_t add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, OnboardNetworkStack::Interface **interface_out);
+
 protected:
 
     Nanostack();

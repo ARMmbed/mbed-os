@@ -62,7 +62,7 @@ static int chap_md5_verify_response(ppp_pcb *pcb, int id, const char *name,
 			 const unsigned char *secret, int secret_len,
 			 const unsigned char *challenge, const unsigned char *response,
 			 char *message, int message_space) {
-	lwip_md5_context ctx;
+	MD5_context ctx;
 	unsigned char idbyte = id;
 	unsigned char hash[MD5_HASH_SIZE];
 	int challenge_len, response_len;
@@ -73,13 +73,13 @@ static int chap_md5_verify_response(ppp_pcb *pcb, int id, const char *name,
 	response_len = *response++;
 	if (response_len == MD5_HASH_SIZE) {
 		/* Generate hash of ID, secret, challenge */
-		lwip_md5_init(&ctx);
-		lwip_md5_starts(&ctx);
-		lwip_md5_update(&ctx, &idbyte, 1);
-		lwip_md5_update(&ctx, secret, secret_len);
-		lwip_md5_update(&ctx, challenge, challenge_len);
-		lwip_md5_finish(&ctx, hash);
-		lwip_md5_free(&ctx);
+		MD5_Init(&ctx);
+		MD5_starts(&ctx);
+		MD5_update(&ctx, &idbyte, 1);
+		MD5_update(&ctx, secret, secret_len);
+		MD5_update(&ctx, challenge, challenge_len);
+		MD5_finish(&ctx, hash);
+		MD5_free(&ctx);
 
 		/* Test if our hash matches the peer's response */
 		if (memcmp(hash, response, MD5_HASH_SIZE) == 0) {
@@ -95,20 +95,20 @@ static int chap_md5_verify_response(ppp_pcb *pcb, int id, const char *name,
 static void chap_md5_make_response(ppp_pcb *pcb, unsigned char *response, int id, const char *our_name,
 		       const unsigned char *challenge, const char *secret, int secret_len,
 		       unsigned char *private_) {
-	lwip_md5_context ctx;
+	MD5_context ctx;
 	unsigned char idbyte = id;
 	int challenge_len = *challenge++;
 	LWIP_UNUSED_ARG(our_name);
 	LWIP_UNUSED_ARG(private_);
 	LWIP_UNUSED_ARG(pcb);
 
-	lwip_md5_init(&ctx);
-	lwip_md5_starts(&ctx);
-	lwip_md5_update(&ctx, &idbyte, 1);
-	lwip_md5_update(&ctx, (const u_char *)secret, secret_len);
-	lwip_md5_update(&ctx, challenge, challenge_len);
-	lwip_md5_finish(&ctx, &response[1]);
-	lwip_md5_free(&ctx);
+	MD5_init(&ctx);
+	MD5_starts(&ctx);
+	MD5_update(&ctx, &idbyte, 1);
+	MD5_update(&ctx, (const u_char *)secret, secret_len);
+	MD5_update(&ctx, challenge, challenge_len);
+	MD5_finish(&ctx, &response[1]);
+	MD5_free(&ctx);
 	response[0] = MD5_HASH_SIZE;
 }
 
