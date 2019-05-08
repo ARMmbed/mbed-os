@@ -125,6 +125,8 @@ typedef enum nsapi_security {
     NSAPI_SECURITY_WPA_WPA2     = 0x4,      /*!< phrase conforms to WPA/WPA2 */
     NSAPI_SECURITY_PAP          = 0x5,      /*!< phrase conforms to PPP authentication context */
     NSAPI_SECURITY_CHAP         = 0x6,      /*!< phrase conforms to PPP authentication context */
+    NSAPI_SECURITY_EAP_TLS      = 0x7,      /*!< phrase conforms to EAP-TLS */
+    NSAPI_SECURITY_PEAP         = 0x8,      /*!< phrase conforms to PEAP */
     NSAPI_SECURITY_UNKNOWN      = 0xFF,     /*!< unknown/unsupported security in scan results */
 } nsapi_security_t;
 
