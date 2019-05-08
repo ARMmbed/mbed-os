@@ -23,6 +23,48 @@
 #include "platform/Callback.h"
 #include "drivers/DigitalInOut.h"
 
+/**
+ * The base class for controlling the FPGA CI Test Shield
+ *
+ * This is the primary interface to the FPGA CI Test Shield. It contains
+ * all the code to communicate with the FPGA. It also provides high level
+ * helper functions, such as functions to setup pin multiplexing, to
+ * select the currently active peripheral and to perform software updates.
+ *
+ * Subclasses can inherit from this class and provide further functionality,
+ * such as the ability to test SPI.
+ *
+ * @note Synchronization level: Not protected
+ *
+ * Example of how to toggle Arduino pin D6 from the FPGA cI Test Shield:
+ * @code
+ * #include "mbed.h"
+ * #include "MbedTester.h"
+ *
+ * const PinList *form_factor = pinmap_ff_default_pins();
+ * const PinList *restricted = pinmap_restricted_pins();
+ * MbedTester tester(form_factor, restricted);
+ *
+ * int main() {
+ *     // Reset the FPGA CI Test Shield to put it into a known state
+ *     tester.reset();
+ *
+ *     // Select the GPIO peripheral
+ *     tester.select_peripheral(MbedTester::PeripheralGPIO);
+ *
+ *     // Map D6 to LogicalPinGPIO0
+ *     tester.pin_map_set(D6, MbedTester::LogicalPinGPIO0);
+ *
+ *     // Toggle the LED
+ *     int toggle = 0;
+ *     while (1) {
+ *         tester.gpio_write(MbedTester::LogicalPinGPIO0, toggle, true);
+ *         wait(0.5);
+ *         toggle = !toggle;
+ *     }
+ * }
+ * @endcode
+ */
 class MbedTester {
 public:
 

@@ -226,6 +226,17 @@ void test_all_peripherals(std::list<PortType> &matched_ports, std::list<PortType
     }
 }
 
+/**
+ * Test function for all pinouts of all peripherals of a given type
+ *
+ * This template function takes in three template parameters:
+ * - PortType - The type of peripheral to test
+ * - FormFactorType - The form factor to test on
+ * - f - The test function to run.
+ *
+ * This function is calls the test function multiple times with
+ * the appropriate combinations of pins.
+ */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
 void all_ports()
 {
@@ -236,6 +247,17 @@ void all_ports()
     test_all_ports<PortType, FormFactorType, typename PortType::TestFunctionType, f>(matched_ports, not_matched_ports);
 }
 
+/**
+ * Test function for one pinout of all peripherals of a given type
+ *
+ * This template function takes in three template parameters:
+ * - PortType - The type of peripheral to test
+ * - FormFactorType - The form factor to test on
+ * - f - The test function to run.
+ *
+ * This function is calls the test function once for each peripheral
+ * of the given type.
+ */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
 void all_peripherals()
 {
@@ -250,6 +272,17 @@ void all_peripherals()
     test_all_peripherals<PortType, typename PortType::TestFunctionType, f>(matched_ports, not_matched_ports);
 }
 
+/**
+ * Test function for one pinout of one peripheral of a given type
+ *
+ * This template function takes in three template parameters:
+ * - PortType - The type of peripheral to test
+ * - FormFactorType - The form factor to test on
+ * - f - The test function to run.
+ *
+ * This function is calls the test function once for one peripheral
+ * of the given type.
+ */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
 void one_peripheral()
 {
@@ -358,6 +391,13 @@ bool operator== (const Port<N, PinMapType, FormFactorType, FunctionType> &port1,
     return true;
 }
 
+/**
+ * This is a convenience class for use with the above templates
+ *
+ * This class can be passed as a template parameter to all_ports,
+ * all_peripherals or one_peripheral to choose test pins from
+ * the default form factor.
+ */
 class DefaultFormFactor {
 public:
     static const PinList *pins()
@@ -375,6 +415,15 @@ public:
         return pinmap_ff_default_pin_to_string(pin);
     }
 };
+
+/*
+ * Peripheral port declarations are given below
+ *
+ * Each Port type represents a set of pins used by a peripheral.
+ * The Port typedef is used as a template parameter to the functions
+ * all_ports, all_peripherals and one_peripheral to select the peripheral
+ * pin set to use for testing.
+ */
 
 #if DEVICE_SPI
 #include "spi_api.h"
