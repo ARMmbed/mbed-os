@@ -29,7 +29,6 @@
 
 #define MSG_VALUE_WATCHDOG_STATUS "wdg_present"
 #define WDG_TIMEOUT_MS 50UL
-#define WDG_TIMEOUT_DELTA_MS 50UL
 
 #else
 #define MSG_VALUE_WATCHDOG_STATUS "no_wdg"
@@ -115,7 +114,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
             TEST_ASSERT_MESSAGE(0, "hal_watchdog_init() error.");
             return CMD_STATUS_ERROR;
         }
-        wait_ms(WDG_TIMEOUT_MS + WDG_TIMEOUT_DELTA_MS);
+        wait_ms(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
         TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
         return CMD_STATUS_ERROR;
     }
