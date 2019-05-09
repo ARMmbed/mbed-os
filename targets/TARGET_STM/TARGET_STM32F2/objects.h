@@ -116,6 +116,7 @@ struct i2c_s {
     IRQn_Type error_i2cIRQ;
     uint8_t XferOperation;
     uint32_t clock_stretching_enabled;
+    uint32_t timeout; // transmission timeout in milliseconds
     volatile uint8_t event;
 #if DEVICE_I2CSLAVE
     uint8_t slave;
