@@ -1321,45 +1321,24 @@ status_t I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t tx
 
 #if defined(FSL_FEATURE_I2C_HAS_START_STOP_DETECT) && FSL_FEATURE_I2C_HAS_START_STOP_DETECT
     /* Check start flag. */
-    if (!(base->FLT & I2C_FLT_STARTF_MASK)) // don't clear the IICIF flag if start/address match already done
+    while (!(base->FLT & I2C_FLT_STARTF_MASK))
     {
-        while (!(base->FLT & I2C_FLT_STARTF_MASK))
-        {
-        }
-        /* Clear the IICIF flag. */
-        base->S = kI2C_IntPendingFlag;
     }
     /* Clear STARTF flag. */
     base->FLT |= I2C_FLT_STARTF_MASK;
-
+    /* Clear the IICIF flag. */
+    base->S = kI2C_IntPendingFlag;
 #endif /* FSL_FEATURE_I2C_HAS_START_STOP_DETECT */
 
     /* Wait for address match flag. */
     while (!(base->S & kI2C_AddressMatchFlag))
     {
     }
-    while (!(base->S & kI2C_IntPendingFlag))
-    {
-    }
 
-    /* Clear the IICIF flag. */
-    base->S = kI2C_IntPendingFlag;
-    /* Setup the I2C peripheral to transmit data. */
-    base->C1 |= I2C_C1_TX_MASK;
+    /* Read dummy to release bus. */
+    dummy = base->D;
 
-    while (txSize--)
-    {
-        /* Send a byte of data. */
-        base->D = *txBuff++;
-
-        /* Wait until data transfer complete. */
-        while (!(base->S & kI2C_IntPendingFlag))
-        {
-        }
-
-        /* Clear the IICIF flag. */
-        base->S = kI2C_IntPendingFlag;
-    }
+    result = I2C_MasterWriteBlocking(base, txBuff, txSize, kI2C_TransferDefaultFlag);
 
     /* Switch to receive mode. */
     base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
@@ -1380,16 +1359,13 @@ void I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
 /* Wait until address match. */
 #if defined(FSL_FEATURE_I2C_HAS_START_STOP_DETECT) && FSL_FEATURE_I2C_HAS_START_STOP_DETECT
     /* Check start flag. */
-    if (!(base->FLT & I2C_FLT_STARTF_MASK)) // don't clear the IICIF flag if start/address match already done
+    while (!(base->FLT & I2C_FLT_STARTF_MASK))
     {
-        while (!(base->FLT & I2C_FLT_STARTF_MASK))
-        {
-        }
-        /* Clear the IICIF flag. */
-        base->S = kI2C_IntPendingFlag;
     }
     /* Clear STARTF flag. */
     base->FLT |= I2C_FLT_STARTF_MASK;
+    /* Clear the IICIF flag. */
+    base->S = kI2C_IntPendingFlag;
 #endif /* FSL_FEATURE_I2C_HAS_START_STOP_DETECT */
 
     /* Wait for address match and int pending flag. */

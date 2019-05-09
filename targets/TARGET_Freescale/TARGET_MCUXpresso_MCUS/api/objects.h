@@ -67,8 +67,16 @@ struct analogin_s {
 
 struct i2c_s {
     uint32_t instance;
+    uint32_t frequency;
     uint8_t next_repeated_start;
     bool is_slave;
+    uint32_t timeout; // transmission timeout in milliseconds
+    volatile uint8_t event;
+    uint8_t *volatile tx_data;
+    volatile uint32_t tx_size;
+    uint8_t *volatile rx_data;
+    volatile uint32_t rx_size;
+    volatile uint32_t transferred_count;
 #if DEVICE_I2C_ASYNCH
     uint16_t address;
     bool stop;
