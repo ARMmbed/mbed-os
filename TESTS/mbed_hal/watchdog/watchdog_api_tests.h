@@ -65,32 +65,22 @@ void test_stop();
 
 /** Test Watchdog init multiple times
  *
- * Given @a max_timeout value returned by @a hal_watchdog_get_platform_features():
- *
- * Given @a config.timeout_ms is set to WDG_TIMEOUT_MS,
- * when @a hal_watchdog_init() is called,
- * then @a WATCHDOG_STATUS_OK is returned
- *     and @a hal_watchdog_get_reload_value() returns WDG_TIMEOUT_MS.
- *
- * Given @a config.timeout_ms is set to max_timeout-delta,
- * when @a hal_watchdog_init() is called,
- * then @a WATCHDOG_STATUS_OK is returned
- *     and @a hal_watchdog_get_reload_value() returns max_timeout-delta.
- *
- * Given @a config.timeout_ms is set to max_timeout,
- * when @a hal_watchdog_init() is called,
- * then @a WATCHDOG_STATUS_OK is returned
- *     and @a hal_watchdog_get_reload_value() returns max_timeout.
+ * Given a set of unique timeout values,
+ * when @a config.timeout_ms is set to each of these values (T),
+ * then, for every value T, @a hal_watchdog_init() returns @a WATCHDOG_STATUS_OK
+ *     and @a hal_watchdog_get_reload_value() returns a reload value R
+ *     and T <= R < 2 * T.
  */
 void test_update_config();
 
 /** Test Watchdog init with a valid config
  *
- * Given @a config.timeout_ms is set to X ms,
+ * Given @a config.timeout_ms is set to T ms,
  *     which is within supported Watchdog timeout range,
  * when @a hal_watchdog_init() is called,
  * then @a WATCHDOG_STATUS_OK is returned
- *     and @a hal_watchdog_get_reload_value() returns X.
+ *     and @a hal_watchdog_get_reload_value() returns a reload value R
+ *     and T <= R < 2 * T.
  */
 template<uint32_t timeout_ms>
 void test_init();
