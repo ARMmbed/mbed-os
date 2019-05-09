@@ -28,18 +28,12 @@
 
 #include <stdlib.h>
 
-/* This is platform specific and depends on the watchdog timer implementation,
- * e.g. STM32F4 uses 32kHz internal RC oscillator to clock the IWDG, so
- * when the prescaler divider is set to max value of 256 the resolution
- * drops to 8 ms.
- */
-#define WORST_TIMEOUT_RESOLUTION_MS 8UL
+/* The shortest timeout value, this test suite is able to handle correctly. */
+#define WDG_MIN_TIMEOUT_MS 50UL
 
-#define TIMEOUT_DELTA_MS (WORST_TIMEOUT_RESOLUTION_MS)
-
-// Do not set watchdog timeout shorter than 50 ms as it may cause the
-// host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
-// performs reset during test suite teardown.
+// Do not set watchdog timeout shorter than WDG_MIN_TIMEOUT_MS, as it may
+// cause the host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS'
+// if watchdog performs reset during test suite teardown.
 #define WDG_TIMEOUT_MS 100UL
 
 #define MSG_VALUE_DUMMY "0"
@@ -115,7 +109,7 @@ void test_stop()
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&WDG_CONFIG_DEFAULT));
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
     // Make sure that a disabled watchdog does not reset the core.
-    wait_ms(WDG_TIMEOUT_MS + TIMEOUT_DELTA_MS);
+    wait_ms(2 * WDG_TIMEOUT_MS); // Watchdog should fire before twice the timeout value.
 
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
 }
@@ -129,16 +123,27 @@ void test_update_config()
     }
 
     watchdog_config_t config = WDG_CONFIG_DEFAULT;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
+    uint32_t timeouts[] = {
+        features.max_timeout / 4,
+        features.max_timeout / 8,
+        features.max_timeout / 16
+    };
+    int num_timeouts = sizeof timeouts / sizeof timeouts[0];
 
-    config.timeout_ms = features.max_timeout - 2 * WORST_TIMEOUT_RESOLUTION_MS;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
+    for (size_t i = 0; i < num_timeouts; i++) {
+        if (timeouts[i] < WDG_MIN_TIMEOUT_MS) {
+            TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
+            return;
+        }
 
-    config.timeout_ms = features.max_timeout;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
+        config.timeout_ms = timeouts[i];
+        TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
+        uint32_t reload_value = hal_watchdog_get_reload_value();
+        // The watchdog should trigger at, or after the timeout value.
+        TEST_ASSERT(reload_value >= timeouts[i]);
+        // The watchdog should trigger before twice the timeout value.
+        TEST_ASSERT(reload_value < 2 * timeouts[i]);
+    }
 }
 
 utest::v1::status_t case_setup_sync_on_reset(const Case *const source, const size_t index_of_case)
@@ -186,9 +191,17 @@ utest::v1::status_t case_teardown_wdg_stop_or_reset(const Case *const source, co
 template<uint32_t timeout_ms>
 void test_init()
 {
-    watchdog_config_t config = { timeout_ms };
+    if (timeout_ms < WDG_MIN_TIMEOUT_MS) {
+        TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
+        return;
+    }
+    watchdog_config_t config = { .timeout_ms = timeout_ms };
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, timeout_ms, hal_watchdog_get_reload_value());
+    uint32_t reload_value = hal_watchdog_get_reload_value();
+    // The watchdog should trigger at, or after the timeout value.
+    TEST_ASSERT(reload_value >= timeout_ms);
+    // The watchdog should trigger before twice the timeout value.
+    TEST_ASSERT(reload_value < 2 * timeout_ms);
 }
 
 void test_init_max_timeout()
@@ -196,7 +209,8 @@ void test_init_max_timeout()
     watchdog_features_t features = hal_watchdog_get_platform_features();
     watchdog_config_t config = { .timeout_ms = features.max_timeout };
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, features.max_timeout, hal_watchdog_get_reload_value());
+    // The watchdog should trigger at, or after the timeout value.
+    TEST_ASSERT(hal_watchdog_get_reload_value() >= features.max_timeout);
 }
 
 int testsuite_setup_sync_on_reset(const size_t number_of_cases)
