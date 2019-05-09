@@ -593,7 +593,6 @@ nrf_drv_usbd_transfer_t *USBPhyHw::get_transfer_buffer(usb_ep_t endpoint)
 
 nrf_drv_usbd_ep_t USBPhyHw::get_nordic_endpoint(usb_ep_t endpoint)
 {
-    // Clear the most-significant-bit (input endpoint flag)
     return (nrf_drv_usbd_ep_t) endpoint;
 }
 
