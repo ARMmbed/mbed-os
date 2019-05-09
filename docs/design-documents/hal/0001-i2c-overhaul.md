@@ -89,7 +89,7 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** `i2c_timeout` function to the API.
 
-  The timeout value is used when a slave attached to the master is clock stretching. The timeout value is used to specify the maximum period of time that the master peripheral will wait for the slave to release the SCL line. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error.
+  Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C. To restore the deafault timeout value call `i2c_timeout` with `0` timeout value
 
 - **Add** an `i2c_get_capabilities` function to API return supported capabilities and constraints on the currently running platform.
 
@@ -116,17 +116,13 @@ List of drivers and examples currently using the I2C interface:
 
 The main changes involve the removal of the single byte read/write functions and rolling their functionality into the block read/write functions, removing unnecessary parameters from functions and amending their types.
 
-- **Remove** the `stop` parameter from `i2c_write` and `i2c_read` functions.
-
-  This parameter is not required, the STOP command should be sent manually by calling `i2c_stop` this reduces the amount of conditions that implementations have to meet.
-
 - **Remove** the `i2c_byte_read` and `i2c_byte_write` functions from the API and integrate the functionality into `i2c_read` and `i2c_write`.
 
   The functionality of these calls can be implemented as part of the normal `i2c_read` and `i2c_write` functions. Sending individual bytes of data is inefficient and should be avoided where possible.
 
 - **Change** the `address` parameter in `i2c_write` and `i2c_read` functions from `int` to `uint16_t`.
 
-  The address parameter is up to a 9-bit value, specifying a type with correct sign and size is sensible.
+  The address parameter is up to a 10-bit value, specifying a type with correct sign and size is sensible.
 
 - **Remove** the return values from `i2c_start` and `i2c_stop`
 
@@ -136,7 +132,7 @@ The main changes involve the removal of the single byte read/write functions and
 
   The length parameter cannot be signed.
 
-- **Change** the `data` parameter in `i2c_write` and `i2c_read` functions from `char*` to `void*`.
+- **Change** the `data` parameter in `i2c_write` and `i2c_read` functions from `char*` to `uint8_t*`.
 
 ### Slave API changes
 
@@ -145,10 +141,6 @@ The main changes involve removing the slave specific read/write functions and ro
 - **Remove** the `i2c_slave_mode` function, add an `is_slave` parameter to the `i2c_init` function.
 
   The decision to initialise the peripheral in master or slave mode should be decided at construction time. This simplifies the API as it removes the need for two separate functions to initialise slave mode `i2c_slave_mode` and `i2c_slave_address` .
-
-- **Remove** the `i2c_slave_address` function, add an `address` parameter to the `i2c_init` function.
-
-  The decision to initialise the I2C peripheral in master or slave mode should be decided at construction time. Adding the `address` parameter removes the need to initialise the address separately. This parameter is ignored if the `is_slave` Boolean is not set.
 
 - **Remove** the I2C slave specific transfer functions: `i2c_slave_read`, `i2c_slave_write`.
 
@@ -238,12 +230,15 @@ void i2c_free(i2c_t *obj);
  */
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
-
-/** Configure the timeout duration in milliseconds the I2C peripheral should
- *  allow the slave peripheral to stretch the clock for before timing out.
+/** Configure the timeout duration in milliseconds for blocking transmission
  *
  *  @param obj        The I2C object
- *  @param timeout    Clock stretching timeout in milliseconds.
+ *  @param timeout    Transmission timeout in milliseconds.
+ *
+ *  @note If no timeout is set the default timeout is used.
+ *        Default timeout value is based on I2C frequency.
+ *        Is computed as triply amount of time it would take
+ *        to send data over I2C
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
@@ -282,7 +277,7 @@ void i2c_stop(i2c_t *obj);
  *   - Generate a STOP condition if the specified `stop` field is true.
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 0)
+ *  @param address 7/10-bit address (last bit is 0)
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    If true, stop will be generated after the transfer is done
@@ -297,7 +292,7 @@ void i2c_stop(i2c_t *obj);
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop);
+int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t length, bool stop);
 
 /** Blocking reading data
  *
@@ -315,7 +310,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
  *   - Generate a STOP condition if the specified `stop` field is true.
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 1)
+ *  @param address 7/10-bit address (last bit is 1)
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
  *  @param stop    If true, stop will be generated after the transfer is done
@@ -330,7 +325,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool stop);
+int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, bool stop);
 
 typedef enum {
     NoData         = 0, // Slave has not been addressed.
@@ -364,12 +359,14 @@ typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t eve
  *  @param tx_length The number of bytes to transmit
  *  @param rx        The receive buffer
  *  @param rx_length The number of bytes to receive
- *  @param address   The address to be set - 7bit or 9bit
+ *  @param address   The address to be set - 7bit or 10bit
  *  @param stop      If true, stop will be generated after the transfer is done
  *  @param handler   The I2C IRQ handler to be set
+ *  @param ctx       The context pointer
+ *  @return          true if the transfer was successfully scheduled, false otherwise
  */
-void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
-                        void *rx, uint32_t rx_length, uint16_t address,
+bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length,
+                        uint8_t *rx, uint32_t rx_length, uint16_t address,
                         bool stop, i2c_async_handler_f handler, void *ctx);
 
 /** Abort asynchronous transfer
@@ -400,21 +397,24 @@ void i2c_abort_async(i2c_t *obj);
   - Sets the frequency to use for the transfer.
   - Must leave all other configuration unchanged.
 - `i2c_timeout`:
-  - Sets the clock stretching timeout to use for the following transfers.
-  - If the timeout is set to 0, disables clock stretching.
+  - Sets the transmision timeout to use for the following blocking transfers.
+  - If the timeout is not set the default timeout is used.
+  - If the timeout is set to 0, default timeout is restored.
+  - Default timeout value is based on I2C frequency. Is computed as triple amount of time it would take to send data over I2C
 - `i2c_write`:
   - Writes `length` number of symbols to the bus.
   - Returns the number of symbols sent to the bus.
-  - Returns an error status if transfer fails.
+  - Returns an error code if transfer fails.
   - Generates a stop condition on the bus at the end of the transfer if `stop` parameter is true.
   - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
-  - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the slave stretches the clock for longer than the configured timeout duration.
+  - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the transfer takes longer than the configured timeout duration.
 - `i2c_read`:
-  - Reads `rx_len` symbols from the bus.
+  - Reads `length` symbols from the bus.
   - Returns the number of symbols received from the bus.
   - Returns an error code if transfer fails.
+  - Generates a stop condition on the bus at the end of the transfer if `stop` parameter is true.
   - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
-  - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the slave stretches the clock for longer than the configured timeout duration.
+  - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the transfer takes longer than the configured timeout duration.
 - `i2c_start`:
   - Generates I2C START condition on the bus in master mode.
   - Does nothing if called when the peripheral is configured in slave mode.
@@ -426,7 +426,7 @@ void i2c_abort_async(i2c_t *obj);
   - Returns not addressed when called in master mode.
 - `i2c_slave_address`:
   - Sets the address of the peripheral to the `address` parameter.
-  - Does nothing if called master mode.
+  - Does nothing if called in master mode.
 - `i2c_transfer_async`:
   - Returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not.
   - The callback given to `i2c_transfer_async` is invoked when the transfer finishes.
@@ -450,7 +450,6 @@ void i2c_abort_async(i2c_t *obj);
 - Setting an address larger than the 10-bit supported maximum.
 - Setting a frequency outside the supported range given by `i2c_get_capabilities`
 - Using the device in a multimaster configuration when `supports_multimaster_mode` is false.
-- Setting the timeout outside the supported range given by `i2c_get_capabilities`.
 - Specifying an invalid address when calling any `read` or `write` functions.
 - Setting the length of the transfer or receive buffers to larger than the buffers are.
 - Passing an invalid pointer as `handler` to `i2c_transfer_async`.
