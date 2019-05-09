@@ -2,7 +2,7 @@
 /** \addtogroup hal */
 /** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,6 +153,18 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  */
 void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
 
+/** Configure the timeout duration in milliseconds for blocking transmission
+ *
+ *  @param obj        The I2C object
+ *  @param timeout    Transmission timeout in milliseconds.
+ *
+ *  @note If no timeout is set the default timeout is used.
+ *        Default timeout value is based on I2C frequency.
+ *        Is computed as twice amount of time it would take
+ *        to send data over I2C
+ */
+void i2c_timeout(i2c_t *obj, uint32_t timeout);
+
 /** Send START command
  *
  *  @param obj The I2C object.
@@ -188,7 +200,7 @@ void i2c_stop(i2c_t *obj);
  *   - Generate a STOP condition if the specified `stop` field is true.
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 0)
+ *  @param address 7/10-bit address (last bit is 0)
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    If true, stop will be generated after the transfer is done
@@ -203,7 +215,7 @@ void i2c_stop(i2c_t *obj);
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data,
+int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
                   uint32_t length, bool stop);
 
 /** Blocking reading data
@@ -222,11 +234,10 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data,
  *   - Generate a STOP condition if the specified `stop` field is true.
  *
  *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 1)
+ *  @param address 7/10-bit address (last bit is 1)
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
- *  @param last    If true, indicates that the transfer contains the last byte
- *                 to be sent.
+ *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the transfer
  *        will block until the peripheral can gain arbitration of the bus and
@@ -238,8 +249,8 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data,
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length,
-                 bool last);
+int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length,
+                 bool stop);
 
 /** Get the pins that support I2C SDA
  *
@@ -305,7 +316,7 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj);
  *  @note This function does nothing when configured in master mode.
  *
  *  @param obj     The I2C object
- *  @param address The address to be set
+ *  @param address The address to be set - 7bit or 10bit
  */
 void i2c_slave_address(i2c_t *obj, uint16_t address);
 
@@ -327,12 +338,14 @@ void i2c_slave_address(i2c_t *obj, uint16_t address);
  *  @param tx_length The number of bytes to transmit
  *  @param rx        The receive buffer
  *  @param rx_length The number of bytes to receive
- *  @param address   The address to be set - 7bit or 9bit
+ *  @param address   The address to be set - 7bit or 10bit
  *  @param stop      If true, stop will be generated after the transfer is done
  *  @param handler   The I2C IRQ handler to be set
+ *  @param ctx       The context pointer
+ *  @return          true if the transfer was successfully scheduled, false otherwise
  */
-void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
-                        void *rx, uint32_t rx_length, uint16_t address,
+bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length,
+                        uint8_t *rx, uint32_t rx_length, uint16_t address,
                         bool stop, i2c_async_handler_f handler, void *ctx);
 
 /** Abort asynchronous transfer
