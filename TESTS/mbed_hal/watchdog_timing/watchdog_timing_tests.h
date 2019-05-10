@@ -34,8 +34,8 @@
  *
  * Phase 2.
  * Given a device restarted by the watchdog timer,
- * when the device receives time measurement from the host,
- * then time measured by host equals X ms.
+ * when the device receives time measurement T from the host,
+ * then X <= T < 2 * X.
  */
 template<uint32_t timeout_ms, uint32_t delta_ms>
 void test_timing();
