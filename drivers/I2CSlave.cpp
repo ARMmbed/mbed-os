@@ -36,6 +36,11 @@ void I2CSlave::frequency(int hz)
     i2c_frequency(&_i2c, hz);
 }
 
+void I2CSlave::timeout(uint32_t timeout)
+{
+    i2c_timeout(&_i2c, timeout);
+}
+
 void I2CSlave::address(int address)
 {
     int addr = (address & 0xFF) | 1;
@@ -50,12 +55,12 @@ int I2CSlave::receive(void)
 
 int I2CSlave::read(char *data, int length)
 {
-    return i2c_read(&_i2c, 0, data, length, false) != length;
+    return i2c_read(&_i2c, 0, (uint8_t *)data, length, false) != length;
 }
 
 int I2CSlave::read(void)
 {
-    int ret;
+    uint8_t ret;
     i2c_read(&_i2c, 0, &ret, 1, false);
 
     return ret;
@@ -63,12 +68,13 @@ int I2CSlave::read(void)
 
 int I2CSlave::write(const char *data, int length)
 {
-    return i2c_write(&_i2c, 0, data, length, false) != length;
+    return i2c_write(&_i2c, 0, (const uint8_t *)data, length, false) != length;
 }
 
 int I2CSlave::write(int data)
 {
-    return i2c_write(&_i2c, 0, (void *)&data, 1, false);
+    uint8_t byte = data;
+    return i2c_write(&_i2c, 0, &byte, 1, false);
 }
 
 void I2CSlave::stop(void)

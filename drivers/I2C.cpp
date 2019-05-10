@@ -68,6 +68,14 @@ void I2C::frequency(int hz)
     unlock();
 }
 
+void I2C::timeout(uint32_t timeout)
+{
+    lock();
+    i2c_timeout(&_i2c, timeout);
+    unlock();
+}
+
+
 void I2C::aquire()
 {
     lock();
@@ -85,7 +93,7 @@ int I2C::write(int address, const char *data, int length, bool repeated)
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int written = i2c_write(&_i2c, address, (void *)data, length, stop);
+    int written = i2c_write(&_i2c, address, (const uint8_t *)data, length, stop);
 
     unlock();
     return length != written;
@@ -94,7 +102,8 @@ int I2C::write(int address, const char *data, int length, bool repeated)
 int I2C::write(int data)
 {
     lock();
-    int ret = i2c_write(&_i2c, 0, (void *)&data, 1, false);
+    uint8_t byte = data;
+    int ret = i2c_write(&_i2c, 0, &byte, 1, false);
     unlock();
     return ret;
 }
@@ -106,7 +115,7 @@ int I2C::read(int address, char *data, int length, bool repeated)
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int read = i2c_read(&_i2c, address, data, length, stop);
+    int read = i2c_read(&_i2c, address, (uint8_t *)data, length, stop);
 
     unlock();
     return length != read;
@@ -115,7 +124,7 @@ int I2C::read(int address, char *data, int length, bool repeated)
 int I2C::read(int ack)
 {
     lock();
-    int ret;
+    uint8_t ret;
     i2c_read(&_i2c, 0, &ret, 1, (ack == 0));
     unlock();
     return ret;
@@ -206,7 +215,7 @@ int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_bu
     _callback = callback;
     bool stop = (repeated) ? false : true;
     _async_transfer_ongoing = true;
-    i2c_transfer_async(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void *)this);
+    i2c_transfer_async(&_i2c, (const uint8_t *)tx_buffer, tx_length, (uint8_t *)rx_buffer, rx_length, address, stop, &I2C::irq_handler_asynch, (void *)this);
     unlock();
     return 0;
 }
