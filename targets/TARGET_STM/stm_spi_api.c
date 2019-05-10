@@ -92,7 +92,8 @@ void init_spi(spi_t *obj)
     }
 }
 
-SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk) {
+SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
+{
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
     SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);

@@ -25,7 +25,7 @@ static uint32_t crc_mask;
   +-------------------------+---------------------------------------+---------------+
   | Polynomial coefficients |         Fixed to 0x4C11DB7            | Programmable  |
   +-------------------------+---------------------------------------+---------------+
-  
+
   #1 The STM32F0 series which supported polynomial in 7, 8, 16, 32 bits as below list:
      STM32F071xB
      STM32F072xB
@@ -77,24 +77,23 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
     current_state.Init.InitValue               = config->initial_xor;
     current_state.Init.GeneratingPolynomial    = config->polynomial;
 
-	switch (config->width)
-	{
-	case HAL_CRC_LENGTH_32B:
-		current_state.Init.CRCLength = CRC_POLYLENGTH_32B;
-		break;
-	case HAL_CRC_LENGTH_16B:
-		current_state.Init.CRCLength = CRC_POLYLENGTH_16B;
-		break;
-	case HAL_CRC_LENGTH_8B:
-		current_state.Init.CRCLength = CRC_POLYLENGTH_8B;
-		break;
-	case HAL_CRC_LENGTH_7B:
-		current_state.Init.CRCLength = CRC_POLYLENGTH_7B;
-		break;
-	default:
-		MBED_ASSERT(false);
-		break;
-	}
+    switch (config->width) {
+        case HAL_CRC_LENGTH_32B:
+            current_state.Init.CRCLength = CRC_POLYLENGTH_32B;
+            break;
+        case HAL_CRC_LENGTH_16B:
+            current_state.Init.CRCLength = CRC_POLYLENGTH_16B;
+            break;
+        case HAL_CRC_LENGTH_8B:
+            current_state.Init.CRCLength = CRC_POLYLENGTH_8B;
+            break;
+        case HAL_CRC_LENGTH_7B:
+            current_state.Init.CRCLength = CRC_POLYLENGTH_7B;
+            break;
+        default:
+            MBED_ASSERT(false);
+            break;
+    }
 
     current_state.Init.InputDataInversionMode  =
         config->reflect_in ? CRC_INPUTDATA_INVERSION_BYTE
@@ -104,7 +103,7 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
         : CRC_OUTPUTDATA_INVERSION_DISABLE;
 #endif
 
-    if (HAL_CRC_Init(&current_state) != HAL_OK)	{
+    if (HAL_CRC_Init(&current_state) != HAL_OK) {
         MBED_ASSERT(false);
     }
 }
@@ -124,21 +123,22 @@ uint32_t hal_crc_get_result(void)
     /* The CRC-7 SD needs to shift left by 1 bit after obtaining the result, but the output
      * inversion of CRC peripheral will convert the result before shift left by 1 bit, so
      * the result seems to have shifted after the conversion.
-     * 
+     *
      * Example:
      *  [Gerenal setps]
      *  1. Before output inversion: 0x75 (0111 0101)
      *  2. Left shift by 1 bit:     0xEA (1110 1010)
      *  3. After output inversion:  0x57 (0101 0111)
-     *  
+     *
      *  [STM32 CRC peripheral steps]
      *  1. Before output inversion: 0x75 (0111 0101)
      *  2. After output inversion:  0x57 (0101 0111) <= no needs shift again
      */
     if (current_state.Init.CRCLength == CRC_POLYLENGTH_7B &&
-        current_state.Init.GeneratingPolynomial == POLY_7BIT_SD &&
-        current_state.Init.OutputDataInversionMode == CRC_OUTPUTDATA_INVERSION_DISABLE)
+            current_state.Init.GeneratingPolynomial == POLY_7BIT_SD &&
+            current_state.Init.OutputDataInversionMode == CRC_OUTPUTDATA_INVERSION_DISABLE) {
         result = result << 1;
+    }
 #endif
     return (result ^ final_xor) & crc_mask;
 }
