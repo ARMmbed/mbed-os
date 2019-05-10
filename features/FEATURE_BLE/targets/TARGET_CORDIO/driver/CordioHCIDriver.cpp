@@ -223,11 +223,6 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
             }   break;
 
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
-                /* send next command in sequence */
-                HciReadLocalVerInfoCmd();
-                break;
-
-            case HCI_OPCODE_READ_LOCAL_VER_INFO:
                 if (hciCoreCb.extResetSeq) {
                     /* send first extended command */
                     HciReadLocalVerInfoCmd();
