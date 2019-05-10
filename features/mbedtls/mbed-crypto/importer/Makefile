@@ -35,6 +35,13 @@ CRYPTO_REPO_URL ?= git@github.com:ARMmbed/mbed-crypto.git
 # Translate between Mbed Crypto namespace and Mbed OS namespace
 TARGET_PREFIX:=..
 TARGET_INC:=$(TARGET_PREFIX)/inc
+TARGET_SRC:=$(TARGET_PREFIX)/src
+
+TLS_SRC := \
+	$(TARGET_SRC)/error.c \
+	$(TARGET_SRC)/version.c \
+	$(TARGET_SRC)/version_features.c \
+	# end
 
 # A folder structure is introduced here for targets that have both a Secure
 # Processing Environment (SPE) targets and Non-secure Processing Environment
@@ -82,6 +89,13 @@ rsync:
 	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
 	rsync -a --delete $(CRYPTO_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)/
 	rsync -a --delete $(CRYPTO_DIR)/library/psa_*.h $(TARGET_SRV_IMPL)/
+	rsync -a --delete $(CRYPTO_DIR)/library/*.c $(TARGET_SRC)/
+	#
+	# Remove PSA-specific C files (they go into $(TARGET_SRV_IMPL))
+	rm -rf $(TARGET_SRC)/psa_*.c
+	#
+	# Remove files that duplicate Mbed TLS
+	rm -rf $(TLS_SRC)
 
 update: $(CRYPTO_GIT_CFG)
 	#
@@ -109,6 +123,7 @@ clean:
 	rm -f $(TARGET_PREFIX)/VERSION.txt
 	rm -f $(TARGET_PREFIX)/AUTHORS.txt
 	rm -rf $(TARGET_INC)
+	rm -rf $(TARGET_SRC)
 	rm -rf $(CRYPTO_DIR)
 	rm -rf $(TARGET_SRV_IMPL)
 	rm -rf $(TARGET_SPE)
