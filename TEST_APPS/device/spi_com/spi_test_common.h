@@ -62,6 +62,8 @@
 #define SLAVE_TRANSMISSION_DELAY_MS MBED_CONF_APP_SPI_SLAVE_DELAY
 #define SLAVE_TRANSMISSION_DELAY_MASTER_MS MBED_CONF_APP_SPI_MASTER_DELAY
 
+#define TEST_CAPABILITY_BIT(MASK, CAP) ((1 << CAP) & (MASK))
+
 #define DEBUG MBED_CONF_APP_SPI_DEBUG
 
 #if(MASTER_SPI_SS_ACTIVE_HIGH)
@@ -288,26 +290,30 @@ void spi_async_callback(spi_t *obj, void *ctx, spi_async_event_t *event)
 
 /* Function returns true if configuration is consistent with the capabilities of
  * the SPI peripheral, false otherwise. */
-static int check_capabilities(uint32_t symbol_size, bool slave, bool half_duplex, bool sync_mode)
+static int check_capabilities(config_test_case_t *tc_config, bool slave)
 {
     spi_capabilities_t capabilities = { 0 };
     if (slave) {
-        spi_get_capabilities(spi_get_module(MASTER_SPI_MOSI, MASTER_SPI_MISO, MASTER_SPI_CLK), NC, &capabilities);
+        spi_get_capabilities(spi_get_module(MASTER_SPI_MOSI, MASTER_SPI_MISO, MASTER_SPI_CLK), MASTER_SPI_SS, true, &capabilities);
     } else {
-        spi_get_capabilities(spi_get_module(SLAVE_SPI_MOSI, SLAVE_SPI_MISO, SLAVE_SPI_CLK), SLAVE_SPI_SS, &capabilities);
+        spi_get_capabilities(spi_get_module(SLAVE_SPI_MOSI, SLAVE_SPI_MISO, SLAVE_SPI_CLK), SLAVE_SPI_SS, false, &capabilities);
     }
 
-    if (!(capabilities.word_length & (1 << (symbol_size - 1))) || (slave && !capabilities.support_slave_mode)
-            || (half_duplex && !capabilities.half_duplex)
-#ifndef DEVICE_SPI_ASYNCH
-            || (!sync_mode)
-#endif
+    if ((!TEST_CAPABILITY_BIT(capabilities.word_length, (tc_config->symbol_size - 1))) ||
+            (!TEST_CAPABILITY_BIT(capabilities.clk_modes, tc_config->mode)) ||
+            (!TEST_CAPABILITY_BIT(capabilities.bit_order, tc_config->bit_ordering)) ||
+            (slave && !capabilities.support_slave_mode) ||
+            (tc_config->freq_hz != FREQ_MAX && tc_config->freq_hz != FREQ_MIN && tc_config->freq_hz < capabilities.minimum_frequency && tc_config->freq_hz > capabilities.maximum_frequency) ||
+            (!slave && !tc_config->master_sync && !capabilities.async_mode) ||
+            (slave && !tc_config->slave_sync && !capabilities.async_mode) ||
+            (tc_config->duplex == HALF_DUPLEX && !capabilities.half_duplex) ||
+            (!slave && tc_config->auto_ss && !capabilities.hw_cs_handle)
        ) {
-#if IS_MASTER
-        printf("SKIP: Configuration not supported by master.\r\n");
-#else
-        printf("SKIP: Configuration not supported by slave.\r\n");
-#endif
+        if (!slave) {
+            printf("SKIP: Configuration not supported by master.\r\n");
+        } else {
+            printf("SKIP: Configuration not supported by slave.\r\n");
+        }
     }
 
     return CMDLINE_RETCODE_SUCCESS;

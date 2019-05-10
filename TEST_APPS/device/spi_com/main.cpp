@@ -101,9 +101,9 @@ int validate_config_callback(int argc, char *argv[])
     }
 
     if (spi_target == MASTER) {
-        result = check_capabilities(tc_config.symbol_size, false, tc_config.duplex, tc_config.master_sync);
+        result = check_capabilities(&tc_config, false);
     } else {
-        result = check_capabilities(tc_config.symbol_size, true, tc_config.duplex, tc_config.slave_sync);
+        result = check_capabilities(&tc_config, true);
     }
 
     return result;

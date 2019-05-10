@@ -109,12 +109,15 @@ void init_transmission_buffers_master(config_test_case_t *config, T *p_tx_patter
 /* Function handles test_init command. */
 int test_init_master(spi_t *obj, config_test_case_t *config, DigitalOut **ss)
 {
-    spi_capabilities_t capabilities = { 0 };
+    spi_capabilities_t capabilities_master = { 0 };
+    spi_capabilities_t capabilities_slave = { 0 };
     PinName ss_pin = MASTER_SPI_SS;
     PinName miso = MASTER_SPI_MISO;
     PinName mosi = MASTER_SPI_MOSI;
 
-    spi_get_capabilities(spi_get_module(MASTER_SPI_MOSI, MASTER_SPI_MISO, MASTER_SPI_CLK), NC, &capabilities);
+    spi_get_capabilities(spi_get_module(MASTER_SPI_MOSI, MASTER_SPI_MISO, MASTER_SPI_CLK), MASTER_SPI_SS, false, &capabilities_master);
+
+    spi_get_capabilities(spi_get_module(SLAVE_SPI_MOSI, SLAVE_SPI_MISO, SLAVE_SPI_CLK), SLAVE_SPI_SS, true, &capabilities_slave);
 
     /* Adapt Half Duplex settings. */
     if (config->duplex == HALF_DUPLEX) {
@@ -130,11 +133,11 @@ int test_init_master(spi_t *obj, config_test_case_t *config, DigitalOut **ss)
     /* Adapt min/max frequency for testing based of capabilities. */
     switch (config->freq_hz) {
         case FREQ_MIN:
-            config->freq_hz = capabilities.minimum_frequency;
+            config->freq_hz = (capabilities_master.minimum_frequency < capabilities_slave.minimum_frequency ? capabilities_slave.minimum_frequency : capabilities_master.minimum_frequency);
             break;
 
         case FREQ_MAX:
-            config->freq_hz = capabilities.maximum_frequency;
+            config->freq_hz = (capabilities_master.maximum_frequency > capabilities_slave.maximum_frequency ? capabilities_slave.maximum_frequency : capabilities_master.maximum_frequency);
             break;
 
         default:
@@ -170,7 +173,6 @@ int test_transfer_master(spi_t *obj, config_test_case_t *config, DigitalOut *ss)
     transm_thread_timeout.attach_us(transm_timeout_handler, 5 * US_PER_S + 2 * MASTER_TRANSMISSION_DELAY_MS * US_PER_MS);
 
     transfer_finished = false;
-    transm_thread.set_priority(osPriorityNormal);
 
     transm_thread.start(callback(transfer_thread, (void *) &trans_thread_params));
 
@@ -180,7 +182,6 @@ int test_transfer_master(spi_t *obj, config_test_case_t *config, DigitalOut *ss)
         transm_thread.terminate();
         printf("ERROR: Master transmission timeout. \r\n ");
     }
-
     return status;
 }
 
