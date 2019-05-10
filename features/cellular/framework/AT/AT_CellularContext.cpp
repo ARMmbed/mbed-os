@@ -51,28 +51,8 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _nonip_req(nonip_req), _cp_in_use(false)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
-    _stack = NULL;
-    _pdp_type = DEFAULT_PDP_TYPE;
-    _authentication_type = CellularContext::CHAP;
-    _connect_status = NSAPI_STATUS_DISCONNECTED;
-    _is_context_active = false;
-    _is_context_activated = false;
     _apn = apn;
-    _uname = NULL;
-    _pwd = NULL;
-    _status_cb = NULL;
-    _cid = -1;
-    _new_context_set = false;
-    _next = NULL;
-    _dcd_pin = NC;
-    _active_high = false;
-    _cp_netif = NULL;
-    memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
-    _retry_array_length = 0;
-    _retry_count = 0;
-    _is_blocking = true;
     _device = device;
-    _nw = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
