@@ -102,6 +102,17 @@ public:
      */
     void frequency(int hz);
 
+    /** Configure the timeout duration in milliseconds for blocking transmission
+    *
+    *  @param timeout    Transmission timeout in milliseconds.
+    *
+    *  @note If no timeout is set the default timeout is used.
+    *        Default timeout value is based on I2C frequency.
+    *        Is computed as twice amount of time it would take
+    *        to send data over I2C
+    */
+    void timeout(uint32_t timeout);
+
     /** Read from an I2C slave
      *
      * Performs a complete read transaction. The bottom bit of
