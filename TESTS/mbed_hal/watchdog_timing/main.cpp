@@ -47,7 +47,7 @@ struct testcase_data {
 
 testcase_data current_case;
 
-template<uint32_t timeout_ms, uint32_t delta_ms>
+template<uint32_t timeout_ms>
 void test_timing()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
@@ -57,9 +57,15 @@ void test_timing()
     }
 
     // Phase 2. -- verify the test results.
-    // Verify the heartbeat time span sent by host is within given delta.
+    // Verify the heartbeat time span sent by host is within given range:
+    // 1. The watchdog should trigger at, or after the timeout value.
+    // 2. The watchdog should trigger before twice the timeout value.
     if (current_case.received_data != CASE_DATA_INVALID) {
-        TEST_ASSERT_UINT32_WITHIN(delta_ms, timeout_ms, current_case.received_data);
+        // Provided the watchdog works as expected, the last timestamp received
+        // by the host will always be before the expected reset time. Because
+        // of that, the constraint no 1. is not verified.
+        TEST_ASSERT(current_case.received_data > 0);
+        TEST_ASSERT(current_case.received_data < 2 * timeout_ms);
         current_case.received_data = CASE_DATA_INVALID;
         return;
     }
@@ -141,10 +147,10 @@ int testsuite_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Timing, 200 ms", case_setup, test_timing<200UL, 55UL>),
-    Case("Timing, 500 ms", case_setup, test_timing<500UL, 130UL>),
-    Case("Timing, 1000 ms", case_setup, test_timing<1000UL, 255UL>),
-    Case("Timing, 3000 ms", case_setup, test_timing<3000UL, 380UL>),
+    Case("Timing, 200 ms", case_setup, test_timing<200UL>),
+    Case("Timing, 500 ms", case_setup, test_timing<500UL>),
+    Case("Timing, 1000 ms", case_setup, test_timing<1000UL>),
+    Case("Timing, 3000 ms", case_setup, test_timing<3000UL>),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);
