@@ -25,15 +25,8 @@
 #include "watchdog_reset_tests.h"
 #include "mbed.h"
 
-#if TARGET_NUMAKER_PFM_NANO130
-/* On NUMAKER_PFM_NANO130 target, WDT's clock source is fixed to LIRC, which is more
- * inaccurate than other targets. Enlarge this delta define to pass this test. */
-#define TIMEOUT_MS 500UL
-#define TIMEOUT_DELTA_MS 100UL
-#else
 #define TIMEOUT_MS 100UL
-#define TIMEOUT_DELTA_MS 10UL
-#endif
+#define KICK_ADVANCE_MS 10UL
 
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
@@ -103,12 +96,13 @@ void test_simple_reset()
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
     watchdog_config_t config = { TIMEOUT_MS };
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
 
     // Watchdog reset should have occurred during wait_ms() above;
 
@@ -130,23 +124,22 @@ void test_sleep_reset()
     watchdog_config_t config = { TIMEOUT_MS };
     Semaphore sem(0, 1);
     Timeout timeout;
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     sleep_manager_lock_deep_sleep();
-    timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (TIMEOUT_MS + TIMEOUT_DELTA_MS));
+    // Watchdog should fire before twice the timeout value.
+    timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
     if (sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be disallowed.");
         return;
     }
-    while (sem.wait(0) != 1) {
-        sleep(); // Device reset expected.
-    }
+    sem.wait(); // Device reset expected.
     sleep_manager_unlock_deep_sleep();
 
-    // Watchdog reset should have occurred during sleep() above;
+    // Watchdog reset should have occurred during sem.wait() (sleep) above;
 
     hal_watchdog_kick();  // Just to buy some time for testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -166,21 +159,20 @@ void test_deepsleep_reset()
     watchdog_config_t config = { TIMEOUT_MS };
     Semaphore sem(0, 1);
     LowPowerTimeout lp_timeout;
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (TIMEOUT_MS + TIMEOUT_DELTA_MS));
+    // Watchdog should fire before twice the timeout value.
+    lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (2 * TIMEOUT_MS));
     wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
-    while (sem.wait(0) != 1) {
-        sleep(); // Device reset expected.
-    }
+    sem.wait(); // Device reset expected.
 
-    // Watchdog reset should have occurred during that sleep() above;
+    // Watchdog reset should have occurred during sem.wait() (deepsleep) above;
 
     hal_watchdog_kick();  // Just to buy some time for testsuite failure handling.
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
@@ -209,14 +201,17 @@ void test_restart_reset()
     wait_ms(TIMEOUT_MS / 2UL);
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
     // Check that stopping the Watchdog prevents a device reset.
-    wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_DELTA_MS);
+    // The watchdog should trigger at, or after the timeout value.
+    // The watchdog should trigger before twice the timeout value.
+    wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_MS);
 
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
 
     // Watchdog reset should have occurred during that wait() above;
 
@@ -237,14 +232,17 @@ void test_kick_reset()
     watchdog_config_t config = { TIMEOUT_MS };
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     for (int i = 3; i; i--) {
-        wait_ms(TIMEOUT_MS / 2UL);
+        // The reset is prevented as long as the watchdog is kicked
+        // anytime before the timeout.
+        wait_ms(TIMEOUT_MS - KICK_ADVANCE_MS);
         hal_watchdog_kick();
     }
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * TIMEOUT_MS) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait_ms(2 * TIMEOUT_MS); // Device reset expected.
 
     // Watchdog reset should have occurred during that wait() above;
 
