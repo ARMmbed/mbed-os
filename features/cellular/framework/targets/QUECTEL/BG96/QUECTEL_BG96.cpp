@@ -78,27 +78,30 @@ void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
 
 nsapi_error_t QUECTEL_BG96::hard_power_on()
 {
-    DigitalOut ModemResetIn (MBED_CONF_QUECTEL_BG96_POWER);
-printf("QUECTEL_BG96::hard_power_on\n");
+    DigitalOut ModemResetIn (MBED_CONF_QUECTEL_BG96_PWR);
+
     wait_ms(250);
     ModemResetIn = 0;
     wait_ms(250);
     ModemResetIn = 1;
     wait_ms(500);
-    wait_ms(250);
+
     return NSAPI_ERROR_OK;
 }
+
 nsapi_error_t QUECTEL_BG96::soft_power_on()
 {
-    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_RESET);
-printf("QUECTEL_BG96::soft_power_on\n");
+   // turn moden on
+    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_RST);
+
     ModemPwrkey = 0;
     wait_ms(100);
     ModemPwrkey = 1;
     wait_ms(500);
     ModemPwrkey = 0;
     wait_ms(500);
-printf("wait for RDY\n");
+
+    // wait for RDY
     _at->lock();
     _at->set_at_timeout(60000);
     _at->resp_start();
@@ -106,21 +109,66 @@ printf("wait for RDY\n");
     bool rdy = _at->consume_to_stop_tag();
     _at->set_stop_tag(OK);
     _at->unlock();
+
     if (!rdy)
     {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+
     return NSAPI_ERROR_OK;
 }
+
 nsapi_error_t QUECTEL_BG96::hard_power_off()
 {
-    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_POWER);
-printf("QUECTEL_BG96::hard_power_off\n");
+    // turn moden off
+    DigitalOut ModemPwrkey (MBED_CONF_QUECTEL_BG96_PWR);
+
     ModemPwrkey = 1;
     wait_ms(250);
     ModemPwrkey = 0;
+
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t QUECTEL_BG96::init()
+{
+    int retry = 0;
+
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("ATE0"); // echo off
+    _at->cmd_stop_read_resp();
+
+    _at->cmd_start("AT+CMEE=1"); // verbose responses
+    _at->cmd_stop_read_resp();
+
+    if (_at->get_last_error() != NSAPI_ERROR_OK)
+    {
+        do
+        {
+            _at->cmd_start("AT+CFUN=1"); // set full functionality
+            _at->cmd_stop_read_resp();
+
+            // CFUN executed ok 
+            if (_at->get_last_error() != NSAPI_ERROR_OK)
+            {
+                // wait some time that modem gets ready for CFUN command, and try again
+                retry++;
+                _at->flush();
+                wait_ms(64);
+            }
+            else
+            {
+                // yes continue
+                break;
+            }
+
+            /* code */
+        } while ( (retry < 3) );
+    }
+    return _at->unlock_return_error();
+}
+
 #if MBED_CONF_QUECTEL_BG96_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
