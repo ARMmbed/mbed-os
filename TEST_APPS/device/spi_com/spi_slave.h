@@ -114,7 +114,7 @@ int test_init_slave(spi_t *obj, config_test_case_t *config)
     spi_get_capabilities(spi_get_module(SLAVE_SPI_MOSI,
                                         SLAVE_SPI_MISO,
                                         SLAVE_SPI_CLK),
-                         SLAVE_SPI_SS, &capabilities);
+                         SLAVE_SPI_SS, true, &capabilities);
 
     PinName miso = SLAVE_SPI_MISO;
     PinName mosi = SLAVE_SPI_MOSI;
@@ -151,7 +151,6 @@ int test_transfer_slave(spi_t *obj, config_test_case_t *config)
                                     5 * US_PER_S + 2 * MASTER_TRANSMISSION_DELAY_MS * US_PER_MS);
 
     transfer_finished = false;
-    transm_thread.set_priority(osPriorityNormal);
 
     transm_thread.start(callback(transfer_thread, (void *) &trans_thread_params));
 
