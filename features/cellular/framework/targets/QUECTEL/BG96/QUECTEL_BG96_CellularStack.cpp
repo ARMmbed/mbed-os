@@ -118,7 +118,7 @@ void QUECTEL_BG96_CellularStack::urc_qiurc()
 {
     char urc_string[MAX_QIURC_LENGTH + 1];
     _at.lock();
-    const int urc_string_length = _at.read_string(urc_string, sizeof(urc_string));
+    (void)_at.read_string(urc_string, sizeof(urc_string));
     const int sock_id = _at.read_int();
     const nsapi_error_t err = _at.unlock_return_error();
 
