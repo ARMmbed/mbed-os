@@ -38,6 +38,7 @@ from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
 from tools.project import EXPORTER_ALIASES
 from tools.toolchains import TOOLCHAINS
+from tools.utils import write_json_to_file
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
 SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() + EXPORTER_ALIASES.keys()
@@ -382,7 +383,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
         successes = []
         compiled = True
         pass_status = True
-        if example.has_key('test') and example.has_key('baud_rate') and example.has_key('compare_log'):
+        if example.has_key('test') and example['test'] and example.has_key('baud_rate') and example.has_key('compare_log'):
             test_example = True
         else:
             test_example = False
@@ -414,16 +415,15 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                         if image:
                             image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
                         else:
-                            print ("Warning: could not found built image for example %s" % name)
+                            print ("Warning: could not find built image for example %s" % name)
                         
                     example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
-                        successes.append(example_summary)
                         if test_example:
                             test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
-                            if example['test'] and image:
+                            if image:
                                 if not test_json['builds'].has_key(test_group):
                                     test_json['builds'][test_group] = {
                                         "platform":target ,
@@ -432,9 +432,14 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                                         "baud_rate": int(example['baud_rate']), 
                                         "tests":{} }
                                 test_json['builds'][test_group]['tests'][name]={"binaries":image_info}
+                                test_status = "TEST_ON"
+                            else:
+                                test_status = "NO_IMAGE"
                         else:
                             print("Warning: Test for %s will not be generated." % name)
-                            print("One or more of 'test' 'baud_rate' and 'compare_log' keys are missing from the json file\n")
+                            print("One or more of 'test', 'baud_rate', and 'compare_log' keys are missing from the example config json file\n")
+                            test_status = "TEST_OFF"
+                        successes.append(example_summary + " " + test_status)
 
                 os.chdir("..")
 
@@ -446,7 +451,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
 
         results[example['name']] = [compiled, pass_status, successes, failures]
 
-    save_test_spec(test_json)
+    write_json_to_file(test_json, "test_spec.json")
     return results
 
 
@@ -475,15 +480,9 @@ def update_mbedos_version(config, tag, examples):
                 return result
     
     return 0
-  
-def save_test_spec(json_spec, name="test_spec.json"):
-    """save the given json data to test_spec.json"""
-    print ("Dumping json test_specs file {}".format(name))
-    with open(name, 'w') as outfile:  
-        json.dump(json_spec, outfile , indent=4)
-        
+
 def fetch_output_image(output):
-    """find the mbed build image from thet last 5 lines of a given log """
+    """Find the build image from the last 5 lines of a given log"""
     lines = output.splitlines()
     for index in range(-1,-6,-1):
         if lines[index].startswith("Image:"):
