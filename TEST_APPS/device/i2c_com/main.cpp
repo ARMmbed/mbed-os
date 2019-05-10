@@ -44,6 +44,9 @@
 #define ASYNC_WRITE_READ        "async_write-read"
 #define ASYNC_TRANSFER          "async_transfer"
 #endif
+#define STOP_EACH_TRANSFER  2
+#define STOP_EACH_ITERATION 1
+#define STOP_AT_THE_END     0
 
 
 #define GET_PARAM_STR(key, str) \
@@ -132,17 +135,23 @@ int test_exec_master(int argc, char *argv[])
     int32_t address10 = -1;
     GET_PARAM_INT("address10:", address10, true);
 
+    int32_t stop;
+    GET_PARAM_INT("stop:", stop, false);
+
+    bool stop_each = (stop == STOP_EACH_TRANSFER);
+    bool stop_each_iter = (stop == STOP_EACH_ITERATION);
+
     uint32_t write_address = address7 != -1 ? MAKE_7BIT_WRITE_ADDRESS(address7) : MAKE_10BIT_WRITE_ADDRESS(address10);
     uint32_t read_address = address7 != -1 ? MAKE_7BIT_READ_ADDRESS(address7) : MAKE_10BIT_READ_ADDRESS(address10);
 
     bool ret = false;
     if (strcmp(BLOCKING_WRITE_READ, com_type) == 0) {
         if (write_size && read_size) {
-            ret = master_write_read(write_size, read_size, write_address, read_address, iterations);
+            ret = master_write_read(write_size, read_size, write_address, read_address, iterations, stop_each, stop_each_iter);
         } else if (write_size) {
-            ret = master_write(write_size, write_result_size, write_address, iterations);
+            ret = master_write(write_size, write_result_size, write_address, iterations, stop_each || stop_each_iter);
         } else if (read_size) {
-            ret = master_read(read_size, read_result_size, read_address, iterations);
+            ret = master_read(read_size, read_result_size, read_address, iterations, stop_each || stop_each_iter);
         } else {
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
@@ -150,16 +159,16 @@ int test_exec_master(int argc, char *argv[])
 #if DEVICE_I2C_ASYNCH
     else if (strcmp(ASYNC_WRITE_READ, com_type) == 0) {
         if (write_size && read_size) {
-            ret = master_write_read_async(write_size, read_size, address7, iterations);
+            ret = master_write_read_async(write_size, read_size, address7, iterations, stop_each, stop_each_iter);
         } else if (write_size) {
-            ret = master_write_async(write_size, write_result_size, address7, iterations);
+            ret = master_write_async(write_size, write_result_size, address7, iterations, stop_each || stop_each_iter);
         } else if (read_size) {
-            ret = master_read_async(write_size, read_result_size, address7, iterations);
+            ret = master_read_async(write_size, read_result_size, address7, iterations, stop_each || stop_each_iter);
         } else {
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
     } else if (strcmp(ASYNC_TRANSFER, com_type) == 0) {
-        ret = master_transfer_async(write_size, read_size, address7, iterations);
+        ret = master_transfer_async(write_size, read_size, address7, iterations, stop_each || stop_each_iter);
     }
 #endif
     else {
@@ -241,6 +250,7 @@ void wrap_printf(const char *f, va_list a)
 
 int main()
 {
+    ticker_read(get_us_ticker_data()); // start ticker here for future use in srand
 #if I2C_DEBUG_PIN_MASTER==1 || I2C_DEBUG_PIN_SLAVE==1
     test_pin_init();
 #endif

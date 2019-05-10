@@ -64,7 +64,7 @@ bool test_check_message(bool condition, const char *condition_str, const char *m
 bool test_check_equal_int(int32_t expected, int32_t actual, const char *file, int line)
 {
     if (expected != actual) {
-        printf("assertion failed: %d != %d  %s:%d\r\n", expected, actual, file, line);
+        printf("assertion failed: %ld != %ld  %s:%d\r\n", expected, actual, file, line);
         return false;
     } else {
         return true;
@@ -74,7 +74,7 @@ bool test_check_equal_int(int32_t expected, int32_t actual, const char *file, in
 bool test_check_equal_uint(uint32_t expected, uint32_t actual, const char *file, int line)
 {
     if (expected != actual) {
-        printf("assertion failed: %u != %u  %s:%d\r\n", expected, actual, file, line);
+        printf("assertion failed: %lu != %lu  %s:%d\r\n", expected, actual, file, line);
         return false;
     } else {
         return true;
@@ -84,7 +84,7 @@ bool test_check_equal_uint(uint32_t expected, uint32_t actual, const char *file,
 bool test_check_uint_within(uint32_t min, uint32_t max, uint32_t actual, const char *file, int line)
 {
     if (actual < min || actual > max) {
-        printf("assertion failed: %u not in range (%u,%u) %s:%d\r\n", actual, min, max, file, line);
+        printf("assertion failed: %lu not in range (%lu,%lu) %s:%d\r\n", actual, min, max, file, line);
         return false;
     } else {
         return true;

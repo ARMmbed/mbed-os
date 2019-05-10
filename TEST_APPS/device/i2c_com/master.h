@@ -18,13 +18,13 @@
 #ifndef TEST_APPS_DEVICE_I2C_COM_MASTER_H_
 #define TEST_APPS_DEVICE_I2C_COM_MASTER_H_
 
-bool master_write(uint32_t write_size, uint32_t write_result, uint16_t address, uint32_t iterations);
-bool master_read(uint32_t read_size, uint32_t read_result, uint16_t address, uint32_t iterations);
-bool master_write_read(uint32_t write_size, uint32_t read_size, uint16_t write_address, uint16_t read_address, uint32_t iterations);
-bool master_write_async(uint32_t write_size, uint32_t write_reulting_size, uint16_t address, uint32_t iterations);
-bool master_read_async(uint32_t read_size, uint32_t read_resulting_size, uint16_t address, uint32_t iterations);
-bool master_write_read_async(uint32_t write_size, uint32_t read_size, uint16_t address, uint32_t iterations);
-bool master_transfer_async(uint32_t write_size, uint32_t read_size, uint16_t address, uint32_t iterations);
+bool master_write(uint32_t write_size, uint32_t write_result, uint16_t address, uint32_t iterations, bool stop_each);
+bool master_read(uint32_t read_size, uint32_t read_result, uint16_t address, uint32_t iterations, bool stop_each);
+bool master_write_read(uint32_t write_size, uint32_t read_size, uint16_t write_address, uint16_t read_address, uint32_t iterations, bool stop_each, bool stop_each_iter);
+bool master_write_async(uint32_t write_size, uint32_t write_reulting_size, uint16_t address, uint32_t iterations, bool stop_each);
+bool master_read_async(uint32_t read_size, uint32_t read_resulting_size, uint16_t address, uint32_t iterations, bool stop_each);
+bool master_write_read_async(uint32_t write_size, uint32_t read_size, uint16_t address, uint32_t iterations, bool stop_each, bool stop_each_iter);
+bool master_transfer_async(uint32_t write_size, uint32_t read_size, uint16_t address, uint32_t iterations, bool stop_each);
 bool master_init(uint32_t frequency);
 bool master_deinit();
 

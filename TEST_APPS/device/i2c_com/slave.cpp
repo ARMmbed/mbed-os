@@ -96,6 +96,10 @@ static uint32_t _i2c_frequency(uint32_t frequency)
     return i2c_frequency(&i2c_obj, frequency);
 }
 
+static void _i2c_timeout(uint32_t timeout)
+{
+    i2c_timeout(&i2c_obj, timeout);
+}
 
 static void _i2c_slave_address(uint16_t address)
 {
@@ -107,12 +111,12 @@ static i2c_slave_status_t _i2c_slave_status()
     return i2c_slave_status(&i2c_obj);
 }
 
-static int32_t _i2c_read(void *data, uint32_t length, bool last)
+static int32_t _i2c_read(uint8_t *data, uint32_t length, bool last)
 {
     return i2c_read(&i2c_obj, 0, data, length, last);
 }
 
-static int32_t _i2c_write(const void *data, uint32_t length, bool stop)
+static int32_t _i2c_write(const uint8_t *data, uint32_t length, bool stop)
 {
     return i2c_write(&i2c_obj, 0, data, length, stop);
 }
@@ -162,8 +166,9 @@ void slave_transfer_job(TransferConfig *tc)
 
         I2C_DEBUG_PRINTF("[slave] read data count: %d\n", ret);
         I2C_DEBUG_PRINTF("[slave] read data: ");
-        for (int i = 0; i < tc->read_size; i++) {
-            I2C_DEBUG_PRINTF("%X ", data[i]);
+        for (uint32_t j = 0; j < tc->read_size; j++) {
+            data[j]++;
+            I2C_DEBUG_PRINTF("%X ", data[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
 
@@ -203,8 +208,8 @@ void slave_read_job(TransferConfig *tc)
 
         I2C_DEBUG_PRINTF("[slave] read data count: %d\n", ret);
         I2C_DEBUG_PRINTF("[slave] read data: ");
-        for (int i = 0; i < tc->read_size; i++) {
-            I2C_DEBUG_PRINTF("%X ", data[i]);
+        for (uint32_t j = 0; j < tc->read_size; j++) {
+            I2C_DEBUG_PRINTF("%X ", data[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
 
@@ -239,7 +244,7 @@ void slave_write_job(TransferConfig *tc)
     _i2c_slave_address(tc->address);
 
     for (uint32_t i = 0; i < tc->iterations; i++) {
-        SLAVE_PIN_TOGGLE(5);
+        SLAVE_PIN_TOGGLE(1);
         while (_i2c_slave_status() != ReadAddressed && !done);
         SLAVE_PIN_TOGGLE(1);
         int ret = _i2c_write(data, tc->write_size, false);
