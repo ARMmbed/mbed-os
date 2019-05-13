@@ -33,11 +33,14 @@ set(unittest-includes ${unittest-includes}
 set(unittest-test-sources
   features/lorawan/loramaccommand/Test_LoRaMacCommand.cpp
   stubs/mbed_assert_stub.cpp
+  stubs/mbed_rtc_time_stub.cpp
   stubs/LoRaPHY_stub.cpp
 )
 
 set(unittest-test-flags
   -DMBED_CONF_LORA_TX_MAX_SIZE=255
   -DMBED_CONF_LORA_VERSION=0
+  -DMBED_CONF_LORA_CURRENT_TAI_MINUS_UTC=0
+  -DMBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC=0
 )
 
