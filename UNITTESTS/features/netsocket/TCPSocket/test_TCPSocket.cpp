@@ -257,7 +257,6 @@ TEST_F(TestTCPSocket, listen)
     EXPECT_EQ(socket->listen(1), NSAPI_ERROR_OK);
 }
 
-/* these tests will have to be readjusted after TCPServer is deprecated. */
 
 TEST_F(TestTCPSocket, accept_no_open)
 {

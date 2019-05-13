@@ -122,35 +122,6 @@ public:
     /** @copydoc Socket::getpeername
      */
     virtual nsapi_error_t getpeername(SocketAddress *address);
-
-    /** Register a callback on state change of the socket.
-     *
-     *  @see Socket::sigio
-     *  @deprecated
-     *      The behavior of Socket::attach differs from other attach functions in
-     *      Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4",
-                          "The behavior of Socket::attach differs from other attach functions in "
-                          "Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
-    void attach(mbed::Callback<void()> func);
-
-    /** Register a callback on state change of the socket.
-     *
-     *  @see Socket::sigio
-     *  @deprecated
-     *      The attach function does not support cv-qualifiers. Replaced by
-     *      attach(callback(obj, method)).
-     */
-    template <typename T, typename M>
-    MBED_DEPRECATED_SINCE("mbed-os-5.1",
-                          "The attach function does not support cv-qualifiers. Replaced by "
-                          "attach(callback(obj, method)).")
-    void attach(T *obj, M method)
-    {
-        attach(mbed::callback(obj, method));
-    }
-
 #if !defined(DOXYGEN_ONLY)
 
 protected:

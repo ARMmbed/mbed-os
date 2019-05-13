@@ -201,6 +201,7 @@ nsapi_error_t InternetSocket::getsockopt(int level, int optname, void *optval, u
     return ret;
 
 }
+
 void InternetSocket::event()
 {
     _event_flag.set(READ_FLAG | WRITE_FLAG);
@@ -215,11 +216,6 @@ void InternetSocket::sigio(Callback<void()> callback)
     core_util_critical_section_enter();
     _callback = callback;
     core_util_critical_section_exit();
-}
-
-void InternetSocket::attach(Callback<void()> callback)
-{
-    sigio(callback);
 }
 
 nsapi_error_t InternetSocket::getpeername(SocketAddress *address)

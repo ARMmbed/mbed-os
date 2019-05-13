@@ -84,7 +84,7 @@ Icetea prints the results from the test run to the command-line, and the final r
 | test_cmdline                   |   pass  |             |             |    K64F   |  8.555   |
 | UDPSOCKET_BIND_PORT            |   pass  |             |             |    K64F   |  19.614  |
 | TCPSOCKET_BIND_PORT            |   pass  |             |             |    K64F   |  15.852  |
-| TCPSERVER_ACCEPT               |   pass  |             |             |    K64F   |  41.629  |
+| TCPSOCKET_ACCEPT               |   pass  |             |             |    K64F   |  41.629  |
 | TCPSOCKET_ECHOTEST_BURST_SHORT |   pass  |             |             |    K64F   |  19.926  |
 +--------------------------------+---------+-------------+-------------+-----------+----------+
 +---------------+----------------+

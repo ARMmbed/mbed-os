@@ -17,7 +17,6 @@
 #include "NetworkStack.h"
 #include "UDPSocket.h"
 #include "TCPSocket.h"
-#include "TCPServer.h"
 #include "TLSSocket.h"
 #include "NetworkInterface.h"
 #include "SocketAddress.h"
@@ -49,7 +48,7 @@
                             "\r\n"\
                             "socket <operation> [options]\r\n\r\n"\
                             " new <type>\r\n" \
-                            "   type: UDPSocket|TCPSocket|TCPServer|TLSSocket [--cert_file <file>|--cert_default]\r\n"\
+                            "   type: UDPSocket|TCPSocket|TLSSocket [--cert_file <file>|--cert_default]\r\n"\
                             "   return socket id\r\n"\
                             " <id> delete\r\n"\
                             "   remote the space allocated for Socket\r\n"\
@@ -84,7 +83,7 @@
                             " <id> listen [backlog]\r\n"\
                             " <id> accept\r\n" \
                             "   accept new connection and returns new socket ID\r\n" \
-                            "\r\nFor TCPServer\r\n"\
+                            "\r\nFor TCPSocket\r\n"\
                             " <id> accept <new_id>\r\n"\
                             "   accept new connection into <new_id> socket. Requires <new_id> to be pre-allocated.\r\n"\
                             "\r\nOther options\r\n"\
@@ -125,7 +124,6 @@ class SInfo {
 public:
     enum SocketType {
         IP,
-        TCP_SERVER,
         OTHER,
 #if defined(MBEDTLS_SSL_CLI_C)
         TLS
@@ -135,25 +133,6 @@ public:
         _id(id_count++),
         _sock(sock),
         _type(SInfo::IP),
-        _blocking(true),
-        _dataLen(0),
-        _maxRecvLen(0),
-        _repeatBufferFill(1),
-        _receivedTotal(0),
-        _receiverThread(NULL),
-        _receiveBuffer(NULL),
-        _senderThreadId(NULL),
-        _receiverThreadId(NULL),
-        _packetSizes(NULL),
-        _check_pattern(false),
-        _delete_on_exit(delete_on_exit)
-    {
-        MBED_ASSERT(sock);
-    }
-    SInfo(TCPServer *sock, bool delete_on_exit = true):
-        _id(id_count++),
-        _sock(sock),
-        _type(SInfo::TCP_SERVER),
         _blocking(true),
         _dataLen(0),
         _maxRecvLen(0),
@@ -238,10 +217,6 @@ public:
     InternetSocket *internetsocket()
     {
         return this->_type == SInfo::IP ? static_cast<InternetSocket *>(this->_sock) : NULL;
-    }
-    TCPServer *tcp_server()
-    {
-        return this->_type == SInfo::TCP_SERVER ? static_cast<TCPServer *>(this->_sock) : NULL;
     }
 #if defined(MBEDTLS_SSL_CLI_C)
     TLSSocket *tls_socket()
@@ -349,9 +324,6 @@ public:
         switch (this->_type) {
             case SInfo::IP:
                 str = "InternetSocket";
-                break;
-            case SInfo::TCP_SERVER:
-                str = "TCPServer";
                 break;
             case SInfo::OTHER:
                 str = "Socket";
@@ -593,9 +565,6 @@ static int cmd_socket_new(int argc, char *argv[])
         } else if (strcmp(s, "TCPSocket") == 0) {
             tr_debug("Creating a new TCPSocket");
             info = new SInfo(new TCPSocket);
-        } else if (strcmp(s, "TCPServer") == 0) {
-            tr_debug("Creating a new TCPServer");
-            info = new SInfo(new TCPServer);
 #if defined(MBEDTLS_SSL_CLI_C)
         } else if (strcmp(s, "TLSSocket") == 0) {
             tr_debug("Creating a new TLSSocket");
@@ -1039,8 +1008,6 @@ static int cmd_socket(int argc, char *argv[])
         switch (info->type()) {
             case SInfo::IP:
                 return handle_nsapi_error("Socket::open()", info->internetsocket()->open(interface));
-            case SInfo::TCP_SERVER:
-                return handle_nsapi_error("TCPServer::open()", info->tcp_server()->open(interface));
 #if defined(MBEDTLS_SSL_CLI_C)
             case SInfo::TLS:
                 return handle_nsapi_error("Socket::open()", info->tls_socket()->open(interface));
@@ -1226,49 +1193,26 @@ static int cmd_socket(int argc, char *argv[])
     }
 
     /*
-     * Commands for TCPServer
+     * Commands for TCPSocket
      * listen, accept
      */
     if (COMMAND_IS("listen")) {
         int32_t backlog;
         if (cmd_parameter_int(argc, argv, "listen", &backlog)) {
-            return handle_nsapi_error("TCPServer::listen()", info->socket().listen(backlog));
+            return handle_nsapi_error("TCPSocket::listen()", info->socket().listen(backlog));
         } else {
-            return handle_nsapi_error("TCPServer::listen()", info->socket().listen());
+            return handle_nsapi_error("TCPSocket::listen()", info->socket().listen());
         }
 
     } else if (COMMAND_IS("accept")) {
         nsapi_error_t ret;
-
-        if (info->type() != SInfo::TCP_SERVER) {
-            Socket *new_sock = info->socket().accept(&ret);
-            if (ret == NSAPI_ERROR_OK) {
-                SInfo *new_info = new SInfo(new_sock, false);
-                m_sockets.push_back(new_info);
-                cmd_printf("Socket::accept() new socket sid: %d\r\n", new_info->id());
-            }
-            return handle_nsapi_error("Socket::accept()", ret);
-        } else { // Old TCPServer API
-            int32_t id;
-            SocketAddress addr;
-
-            if (!cmd_parameter_int(argc, argv, "accept", &id)) {
-                cmd_printf("Need new socket id\r\n");
-                return CMDLINE_RETCODE_INVALID_PARAMETERS;
-            }
-            SInfo *new_info = get_sinfo(id);
-            if (!new_info) {
-                cmd_printf("Invalid socket id\r\n");
-                return CMDLINE_RETCODE_FAIL;
-            }
-            TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
-            nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
-            if (ret == NSAPI_ERROR_OK) {
-                cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                           new_info->id(), addr.get_ip_address(), addr.get_port());
-            }
-            return handle_nsapi_error("TCPServer::accept()", ret);
+        Socket *new_sock = info->socket().accept(&ret);
+        if (ret == NSAPI_ERROR_OK) {
+            SInfo *new_info = new SInfo(new_sock, false);
+            m_sockets.push_back(new_info);
+            cmd_printf("Socket::accept() new socket sid: %d\r\n", new_info->id());
         }
+        return handle_nsapi_error("Socket::accept()", ret);
     }
 
 

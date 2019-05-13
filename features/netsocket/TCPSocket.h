@@ -36,26 +36,6 @@ public:
      *  Must call open to initialize the socket on a network stack.
      */
     TCPSocket();
-
-    /** Create a socket on a network interface
-     *
-     *  Creates and opens a socket on the network stack of the given
-     *  network interface.
-     *
-     *  @param stack    Network stack as target for socket
-     *
-     *  @deprecated since mbed-os-5.11
-     */
-    template <typename S>
-    MBED_DEPRECATED_SINCE("mbed-os-5.11",
-                          "The TCPSocket(S *stack) constructor is deprecated."
-                          "It discards the open() call return value."
-                          "Use another constructor and call open() explicitly, instead.")
-    TCPSocket(S *stack)
-    {
-        open(stack);
-    }
-
     /** Destroy a socket
      *
      *  Closes socket if the socket is still open
@@ -187,7 +167,6 @@ public:
     virtual nsapi_error_t listen(int backlog = 1);
 
 protected:
-    friend class TCPServer;
     virtual nsapi_protocol_t get_proto();
 
 private:

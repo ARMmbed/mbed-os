@@ -37,12 +37,12 @@ Open and bind port.
 
 The test exits with status `PASS` without timeouts.
 
-### `TCPSERVER_ACCEPT`
+### `TCPSOCKET_ACCEPT`
 
 **Description:**
 
-Test that `TCPServer::bind()`, `TCPServer::listen()`
-and `TCPServer::accept()` works.
+Test that `TCPSocket::bind()`, `TCPSocket::listen()`
+and `TCPSocket::accept()` works.
 
 Requires 2 devices.
 
@@ -53,7 +53,7 @@ Requires 2 devices.
 
 **Test steps:**
 
-1.  DUT1: `socket new TCPServer`
+1.  DUT1: `socket new TCPSocket`
     Command returns server base socket ID
 2.  DUT1: `socket <base socket ID> open)`
 3.  DUT1: `socket <base socket ID> bind port <port>)`

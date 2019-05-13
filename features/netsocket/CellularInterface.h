@@ -115,15 +115,6 @@ public:
      *                  or null if no network mask has been received.
      */
     virtual const char *get_gateway() = 0;
-
-    /** @copydoc NetworkInterface::cellularBase
-     */
-    MBED_DEPRECATED_SINCE("mbed-os-5.12", "Migrated to CellularInterface")
-    virtual CellularInterface *cellularBase()
-    {
-        return this;
-    }
-
     /** @copydoc NetworkInterface::cellularInterface
      */
     virtual CellularInterface *cellularInterface()
