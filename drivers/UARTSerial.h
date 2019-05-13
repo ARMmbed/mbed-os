@@ -234,13 +234,14 @@ public:
      */
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
     
-     /** get the available characters in the RX ringbuffer*/
+    /** get the available characters in the RX ringbuffer*/
     uint32_t getRxBufferSize()
     {
         return this->_rxbuf.size();
     }
-     /** get the available characters in the TX ringbuffer*/
-   uint32_t getTxBufferSize()
+    
+    /** get the available characters in the TX ringbuffer*/
+    uint32_t getTxBufferSize()
     {
         return this->_txbuf.size();
     }
