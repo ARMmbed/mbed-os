@@ -157,17 +157,17 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     }
     else
     {
+	   /*  check if CCC */
+      if ((pAttr->settings & ATTS_SET_CCC) && (attsCb.cccCback != NULL))
+      {
+        err = (*attsCb.cccCback)(pCcb->connId, ATT_METHOD_WRITE, handle, pPacket);
+      }
       /* if write callback is desired */
       if ((pAttr->settings & ATTS_SET_WRITE_CBACK) &&
           (pGroup->writeCback != NULL))
       {
         err = (*pGroup->writeCback)(pCcb->connId, handle, opcode, 0, writeLen,
                                     pPacket, pAttr);
-      }
-      /* else check if CCC */
-      else if ((pAttr->settings & ATTS_SET_CCC) && (attsCb.cccCback != NULL))
-      {
-        err = (*attsCb.cccCback)(pCcb->connId, ATT_METHOD_WRITE, handle, pPacket);
       }
       else
       {
