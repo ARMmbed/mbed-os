@@ -26,9 +26,6 @@
 #elif COMPONENT_SD
 #include "SDBlockDevice.h"
 #include "FATFileSystem.h"
-#elif COMPONENT_FLASHIAP
-#include "FlashIAPBlockDevice.h"
-#include "LittleFileSystem.h"
 #else
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
@@ -76,14 +73,12 @@ static void deinit()
 static void bd_init_fs_reformat()
 {
     bd_type = bd->get_type();
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     init();
 }
 
 //fopen path without fs prefix
 static void FS_fopen_path_not_valid()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 
@@ -92,7 +87,6 @@ static void FS_fopen_path_not_valid()
 //fopen empty file name with r mode
 static void FS_fopen_empty_path_r_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "", "rb")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
@@ -100,7 +94,6 @@ static void FS_fopen_empty_path_r_mode()
 //fopen empty file name with w mode
 static void FS_fopen_empty_path_w_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "", "wb")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
@@ -108,7 +101,6 @@ static void FS_fopen_empty_path_w_mode()
 //fopen empty mode
 static void FS_fopen_invalid_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "Invalid_mode", "")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
@@ -116,7 +108,6 @@ static void FS_fopen_invalid_mode()
 //fopen with valid flowSystemStorage
 static void FS_fopen_supported_wb_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -130,7 +121,6 @@ static void FS_fopen_supported_wb_mode()
 //fopen with append mode
 static void FS_fopen_supported_a_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "a")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -144,7 +134,6 @@ static void FS_fopen_supported_a_mode()
 //fopen with read mode
 static void FS_fopen_supported_r_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
@@ -152,7 +141,6 @@ static void FS_fopen_supported_r_mode()
 //fopen with append update mode
 static void FS_fopen_supported_a_update_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "a+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -166,7 +154,6 @@ static void FS_fopen_supported_a_update_mode()
 //fopen with read update mode
 static void FS_fopen_supported_r_update_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
@@ -174,7 +161,6 @@ static void FS_fopen_supported_r_update_mode()
 //fopen with write update mode
 static void FS_fopen_supported_w_update_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "w+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -188,7 +174,6 @@ static void FS_fopen_supported_w_update_mode()
 //fopen with read update create, check contents exist
 static void FS_fopen_read_update_create()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
@@ -218,7 +203,6 @@ static void FS_fopen_read_update_create()
 //fopen with write update create, check contents doesnt exist
 static void FS_fopen_write_update_create()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
@@ -248,7 +232,6 @@ static void FS_fopen_write_update_create()
 //fclose valid flow
 static void FS_fclose_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -264,7 +247,6 @@ static void FS_fclose_valid_flow()
 //fwrite with nmemb zero
 static void FS_fwrite_nmemb_zero()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -283,7 +265,6 @@ static void FS_fwrite_nmemb_zero()
 //fwrite valid flow
 static void FS_fwrite_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
@@ -313,7 +294,6 @@ static void FS_fwrite_valid_flow()
 //fwrite to fopen mode r
 static void FS_fwrite_with_fopen_r_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -340,7 +320,6 @@ static void FS_fwrite_with_fopen_r_mode()
 //fread with size zero
 static void FS_fread_size_zero()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -368,7 +347,6 @@ static void FS_fread_size_zero()
 //fread with nmemb zero
 static void FS_fread_nmemb_zero()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -396,7 +374,6 @@ static void FS_fread_nmemb_zero()
 //fread to fopen mode w
 static void FS_fread_with_fopen_w_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -421,7 +398,6 @@ static void FS_fread_with_fopen_w_mode()
 //fread to fwrite file
 static void FS_fread_to_fwrite_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
@@ -444,7 +420,6 @@ static void FS_fread_to_fwrite_file()
 //fread empty file
 static void FS_fread_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -469,7 +444,6 @@ static void FS_fread_empty_file()
 //fread valid flow small file
 static void FS_fread_valid_flow_small_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
@@ -500,7 +474,6 @@ static void FS_fread_valid_flow_small_file()
 //fread valid flow medium file
 static void FS_fread_valid_flow_medium_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[medium_buf_size] = { 1 };
     char read_buf[medium_buf_size] = {};
 
@@ -530,7 +503,6 @@ static void FS_fread_valid_flow_medium_file()
 //fread valid flow large file
 static void FS_fread_valid_flow_large_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[large_buf_size] = { 1 };
     char read_buf[large_buf_size] = {};
 
@@ -560,7 +532,6 @@ static void FS_fread_valid_flow_large_file()
 //fread valid flow small file read more than write
 static void FS_fread_valid_flow_small_file_read_more_than_write()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size + 10] = {};
 
@@ -592,7 +563,6 @@ static void FS_fread_valid_flow_small_file_read_more_than_write()
 //fgetc to an empty file
 static void FS_fgetc_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -615,7 +585,6 @@ static void FS_fgetc_empty_file()
 //fgetc valid flow
 static void FS_fgetc_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
     int ch = 0;
@@ -650,7 +619,6 @@ static void FS_fgetc_valid_flow()
 //fgetc to fopen mode w
 static void FS_fgetc_with_fopen_w_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -675,7 +643,6 @@ static void FS_fgetc_with_fopen_w_mode()
 //fgets to an empty file
 static void FS_fgets_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -699,7 +666,6 @@ static void FS_fgets_empty_file()
 //fgets with buffer null with zero len of buffer string
 static void FS_fgets_null_buffer_zero_len()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -721,7 +687,6 @@ static void FS_fgets_null_buffer_zero_len()
 //fgets with buffer null
 static void FS_fgets_null_buffer()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -743,7 +708,6 @@ static void FS_fgets_null_buffer()
 //fgets valid flow
 static void FS_fgets_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
@@ -772,7 +736,6 @@ static void FS_fgets_valid_flow()
 //fgets up to new line character
 static void FS_fgets_new_line()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
@@ -803,7 +766,6 @@ static void FS_fgets_new_line()
 //fgets to fopen mode w
 static void FS_fgets_with_fopen_w_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -829,7 +791,6 @@ static void FS_fgets_with_fopen_w_mode()
 //fflush with null
 static void FS_fflush_null_stream()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = fflush(NULL);
     TEST_ASSERT_EQUAL(0, res);
 }
@@ -838,7 +799,6 @@ static void FS_fflush_null_stream()
 //fflush valid flow
 static void FS_fflush_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -861,7 +821,6 @@ static void FS_fflush_valid_flow()
 //fflush twice
 static void FS_fflush_twice()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -888,7 +847,6 @@ static void FS_fflush_twice()
 //fputc valid flow
 static void FS_fputc_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int write_ch = 10, read_ch = 0;
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -916,7 +874,6 @@ static void FS_fputc_valid_flow()
 //fputc with file open for read mode
 static void FS_fputc_in_read_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int write_ch = 10;
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -943,7 +900,6 @@ static void FS_fputc_in_read_mode()
 //fputs valid flow
 static void FS_fputs_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
 
@@ -973,7 +929,6 @@ static void FS_fputs_valid_flow()
 //fputs with file open for read mode
 static void FS_fputs_in_read_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char buffer[small_buf_size] = "good_day";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1000,7 +955,6 @@ static void FS_fputs_in_read_mode()
 //fseek empty file, SEEK_SET, offset 0
 static void FS_fseek_empty_file_seek_set()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -1026,7 +980,6 @@ static void FS_fseek_empty_file_seek_set()
 //fseek non empty file, SEEK_SET, offset 0
 static void FS_fseek_non_empty_file_seek_set()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1057,7 +1010,6 @@ static void FS_fseek_non_empty_file_seek_set()
 //fseek empty file, SEEK_SET, offset 1 - beyond end of file
 static void FS_fseek_beyond_empty_file_seek_set()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = "";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1088,7 +1040,6 @@ static void FS_fseek_beyond_empty_file_seek_set()
 //fseek non empty file, SEEK_SET, offset data_size + 1 - beyond end of file
 static void FS_fseek_beyond_non_empty_file_seek_set()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
@@ -1123,7 +1074,6 @@ static void FS_fseek_beyond_non_empty_file_seek_set()
 //fseek empty file, SEEK_CUR, offset 0
 static void FS_fseek_empty_file_seek_cur()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -1149,7 +1099,6 @@ static void FS_fseek_empty_file_seek_cur()
 //fseek non empty file, SEEK_CUR, offset 0
 static void FS_fseek_non_empty_file_seek_cur()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1180,7 +1129,6 @@ static void FS_fseek_non_empty_file_seek_cur()
 //fseek empty file, SEEK_CUR, offset 1 - beyond end of file
 static void FS_fseek_beyond_empty_file_seek_cur()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1211,7 +1159,6 @@ static void FS_fseek_beyond_empty_file_seek_cur()
 //fseek non empty file, SEEK_CUR, offset data_size + 1 - beyond end of file
 static void FS_fseek_beyond_non_empty_file_seek_cur()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
@@ -1246,7 +1193,6 @@ static void FS_fseek_beyond_non_empty_file_seek_cur()
 //fseek empty file, SEEK_END, offset 0
 static void FS_fseek_empty_file_seek_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -1272,7 +1218,6 @@ static void FS_fseek_empty_file_seek_end()
 //fseek non empty file, SEEK_END, offset 0
 static void FS_fseek_non_empty_file_seek_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1303,7 +1248,6 @@ static void FS_fseek_non_empty_file_seek_end()
 //fseek empty file, SEEK_END, offset 1 - beyond end of file
 static void FS_fseek_beyond_empty_file_seek_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1334,7 +1278,6 @@ static void FS_fseek_beyond_empty_file_seek_end()
 //fseek non empty file, SEEK_END, offset data_size + 1 - beyond end of file
 static void FS_fseek_beyond_non_empty_file_seek_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
@@ -1369,7 +1312,6 @@ static void FS_fseek_beyond_non_empty_file_seek_end()
 //fseek non empty file, SEEK_END, offset negative
 static void FS_fseek_negative_non_empty_file_seek_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1402,7 +1344,6 @@ static void FS_fseek_negative_non_empty_file_seek_end()
 //fgetpos rewrite file and check data
 static void FS_fgetpos_rewrite_check_data()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char rewrite_buf[small_buf_size] = "987654321";
     char read_buf[small_buf_size] = {};
@@ -1445,7 +1386,6 @@ static void FS_fgetpos_rewrite_check_data()
 //fscanf valid flow
 static void FS_fscanf_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
     int num = 0;
@@ -1480,7 +1420,6 @@ static void FS_fscanf_valid_flow()
 //fscanf empty file
 static void FS_fscanf_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int num = 0;
 
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
@@ -1499,7 +1438,6 @@ static void FS_fscanf_empty_file()
 //fscanf more fields than exist
 static void FS_fscanf_more_fields_than_exist()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
     int num = 0;
@@ -1539,7 +1477,6 @@ static void FS_fscanf_more_fields_than_exist()
 //fprintf in mode r
 static void FS_fprintf_read_mode()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -1564,7 +1501,6 @@ static void FS_fprintf_read_mode()
 //freopen point to the same file with two file handler
 static void FS_freopen_point_to_same_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
@@ -1583,7 +1519,6 @@ static void FS_freopen_point_to_same_file()
 //freopen valid flow
 static void FS_freopen_valid_flow()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
 
@@ -1612,7 +1547,6 @@ static void FS_freopen_valid_flow()
 //create a 1 byte file
 static void FS_fopen_write_one_byte_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf = 1;
     char read_buf[1] = {};
 
@@ -1642,7 +1576,6 @@ static void FS_fopen_write_one_byte_file()
 //create a 2 bytes file
 static void FS_fopen_write_two_byte_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[2] = "1";
     char read_buf[2] = {};
 
@@ -1672,7 +1605,6 @@ static void FS_fopen_write_two_byte_file()
 //create a 5 bytes file
 static void FS_fopen_write_five_byte_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[5] = "1234";
     char read_buf[5] = {};
 
@@ -1702,7 +1634,6 @@ static void FS_fopen_write_five_byte_file()
 //create a 15 bytes file
 static void FS_fopen_write_fifteen_byte_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[15] = "12345678901234";
     char read_buf[15] = {};
 
@@ -1732,7 +1663,6 @@ static void FS_fopen_write_fifteen_byte_file()
 //create a 5000 bytes file
 static void FS_fopen_write_five_Kbyte_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     int buf_sz = 5000;
     char *write_buf = (char *)malloc(buf_sz);
     char read_buf[10] = {};
@@ -1765,7 +1695,6 @@ static void FS_fopen_write_five_Kbyte_file()
 //rewrite file begining
 static void FS_fseek_rewrite_non_empty_file_begining()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[15] = "12345678901234";
     char rewrite_buf[6] = "abcde";
     char check_buf[15] = "abcde678901234";
@@ -1812,7 +1741,6 @@ static void FS_fseek_rewrite_non_empty_file_begining()
 //rewrite file middle
 static void FS_fseek_rewrite_non_empty_file_middle()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[15] = "12345678901234";
     char rewrite_buf[6] = "abcde";
     char check_buf[15] = "12345abcde1234";
@@ -1859,7 +1787,6 @@ static void FS_fseek_rewrite_non_empty_file_middle()
 //rewrite file end
 static void FS_fseek_rewrite_non_empty_file_end()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[15] = "12345678901234";
     char rewrite_buf[6] = "abcde";
     char check_buf[15] = "123456789abcde";
@@ -1906,7 +1833,6 @@ static void FS_fseek_rewrite_non_empty_file_end()
 //append buffer to empty file
 static void FS_append_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[17] = "1234567890123456";
     char read_buf[17] = {};
 
@@ -1936,7 +1862,6 @@ static void FS_append_empty_file()
 //append buffer to non empty file
 static void FS_append_non_empty_file()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[17] = "1234567890123456";
     char rewrite_buf[17] = "abcdefghijklmnop";
     char read_buf[34] = {};
@@ -1980,7 +1905,6 @@ static void FS_append_non_empty_file()
 //fill write_buf buffer with random data, read back the data from the file
 static void FS_write_read_random_data()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     char write_buf[medium_buf_size] = {};
     unsigned int i;
 
@@ -2016,7 +1940,6 @@ static void FS_write_read_random_data()
 //fill write_buf buffer with random data, read back the data from the file
 static void FS_fill_data_and_seek()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     unsigned int i, j;
 
     int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
@@ -2067,7 +1990,6 @@ static void FS_fill_data_and_seek()
 //deinit the blockdevice and unmount the filesystem
 static void bd_deinit_fs_unmount()
 {
-    TEST_SKIP_UNLESS_MESSAGE(strcmp(bd_type, "FLASHIAP") != 0, "Skip FS tests on FlashIAP");
     deinit();
 }
 
