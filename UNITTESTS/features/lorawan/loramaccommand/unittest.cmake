@@ -33,10 +33,11 @@ set(unittest-includes ${unittest-includes}
 set(unittest-test-sources
   features/lorawan/loramaccommand/Test_LoRaMacCommand.cpp
   stubs/mbed_assert_stub.c
+  stubs/mbed_rtc_time_stub.cpp
   stubs/LoRaPHY_stub.cpp
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_VERSION=0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_VERSION=0")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_VERSION=0 -DMBED_CONF_LORA_CURRENT_TAI_MINUS_UTC=0 -DMBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC=0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_VERSION=0 -DMBED_CONF_LORA_CURRENT_TAI_MINUS_UTC=0 -DMBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC=0")
 
 
