@@ -9,7 +9,7 @@
             "help": "Maximum number of pending legacy or extended advertising reports.",
             "value": 8
         },
-        "default-extended-advertising-framentation-size": {
+        "default-extended-advertising-fragmentation-size": {
             "help": "Default extended advertising data fragmentation size.",
             "value": 64
         },

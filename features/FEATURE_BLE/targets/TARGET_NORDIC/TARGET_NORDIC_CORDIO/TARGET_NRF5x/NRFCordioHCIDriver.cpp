@@ -114,7 +114,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
 /** Maximum extended advertising data size. */
 /*uint16_t*/  .maxExtAdvDataLen = MBED_CONF_CORDIO_LL_EXTENDED_ADVERTISING_SIZE,
 /** Default extended advertising data fragmentation size. */
-/*uint8_t*/   .defExtAdvDataFrag = MBED_CONF_CORDIO_LL_DEFAULT_EXTENDED_ADVERTISING_FRAMENTATION_SIZE,
+/*uint8_t*/   .defExtAdvDataFrag = MBED_CONF_CORDIO_LL_DEFAULT_EXTENDED_ADVERTISING_FRAGMENTATION_SIZE,
 /** Auxiliary Offset delay above T_MAFS in microseconds. */
 /*uint16_t*/  .auxDelayUsec = 0,
 /** Delay of auxiliary packet in microseconds from the time specified by auxPtr. */
