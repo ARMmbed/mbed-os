@@ -350,6 +350,11 @@ void LoRaMac::setup_link_check_request()
 {
 }
 
+lorawan_status_t LoRaMac::setup_device_time_request(mbed::Callback<void(void)> notify)
+{
+    return LoRaMac_stub::status_value;
+}
+
 void LoRaMac::setup_reset_indication()
 {
 }
