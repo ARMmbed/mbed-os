@@ -109,6 +109,11 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
     return LoRaMacCommand_stub::status_value;
 }
 
+lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(void)> notify)
+{
+    return LoRaMacCommand_stub::status_value;
+}
+
 lorawan_status_t LoRaMacCommand::add_link_adr_ans(uint8_t status)
 {
     return LoRaMacCommand_stub::status_value;
