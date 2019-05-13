@@ -157,6 +157,7 @@ private:
     void pre_event(CellularState state);
     bool check_is_target_reached();
     void send_event_cb(cellular_connection_status_t status);
+    void change_timeout(const int &timeout);
 
     CellularDevice &_cellularDevice;
     CellularState _state;
