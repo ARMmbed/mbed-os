@@ -124,6 +124,11 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
     return LORAWAN_STATUS_OK;
 }
 
+lorawan_status_t LoRaWANStack::set_device_time_request()
+{
+    return LORAWAN_STATUS_OK;
+}
+
 void LoRaWANStack::remove_link_check_request()
 {
 }
