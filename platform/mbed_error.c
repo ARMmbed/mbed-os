@@ -20,6 +20,7 @@
 #include "device.h"
 #include "platform/mbed_crash_data_offsets.h"
 #include "platform/mbed_retarget.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_error_hist.h"

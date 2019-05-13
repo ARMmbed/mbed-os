@@ -17,6 +17,7 @@
 
 #include "mbed_power_mgmt.h"
 #include "mbed_interface.h"
+#include "mbed_atomic.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"

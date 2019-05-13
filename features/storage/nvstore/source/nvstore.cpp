@@ -22,7 +22,7 @@
 
 #include "FlashIAP.h"
 #include "SystemStorage.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"

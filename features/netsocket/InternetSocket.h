@@ -25,7 +25,7 @@
 #include "rtos/Mutex.h"
 #include "rtos/EventFlags.h"
 #include "Callback.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #include "mbed_toolchain.h"
 #include "SocketStats.h"
 

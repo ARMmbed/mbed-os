@@ -50,6 +50,7 @@
 #include "nrf_drv_gpiote.h"
 #include "PeripheralPins.h"
 
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 
 #if UART0_ENABLED == 0

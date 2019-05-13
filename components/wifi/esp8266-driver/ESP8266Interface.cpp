@@ -26,7 +26,7 @@
 #include "features/netsocket/nsapi_types.h"
 #include "mbed_trace.h"
 #include "platform/Callback.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_wait_api.h"
 

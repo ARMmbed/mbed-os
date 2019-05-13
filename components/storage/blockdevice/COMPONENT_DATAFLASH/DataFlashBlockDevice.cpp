@@ -15,7 +15,7 @@
  */
 
 #include "DataFlashBlockDevice.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 
 #include <inttypes.h>
 

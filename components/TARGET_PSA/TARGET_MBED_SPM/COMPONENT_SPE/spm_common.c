@@ -16,7 +16,7 @@
  */
 
 #include "cmsis_os2.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #include "psa_defs.h"
 #include "spm_internal.h"
 #include "spm_panic.h"
