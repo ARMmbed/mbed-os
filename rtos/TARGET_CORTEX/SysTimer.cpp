@@ -21,9 +21,6 @@
  */
 #include "rtos/TARGET_CORTEX/SysTimer.h"
 
-#if DEVICE_LPTICKER
-
-#include "hal/lp_ticker_api.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #if defined(TARGET_CORTEX_A)
@@ -56,14 +53,6 @@ extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
 
 namespace rtos {
 namespace internal {
-
-SysTimer::SysTimer() :
-    TimerEvent(get_lp_ticker_data()), _time_us(0), _tick(0)
-{
-    _time_us = ticker_read_us(_ticker_data);
-    _suspend_time_passed = true;
-    _suspended = false;
-}
 
 SysTimer::SysTimer(const ticker_data_t *data) :
     TimerEvent(data), _time_us(0), _tick(0)
@@ -193,5 +182,3 @@ void SysTimer::handler()
 
 }
 }
-
-#endif
