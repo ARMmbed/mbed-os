@@ -233,19 +233,19 @@ public:
      *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
-    
+
     /** get the available characters in the RX ringbuffer*/
-    uint32_t getRxBufferSize()
+    uint32_t get_rx_buffer_Size()
     {
         return this->_rxbuf.size();
     }
-    
+
     /** get the available characters in the TX ringbuffer*/
-    uint32_t getTxBufferSize()
+    uint32_t get_tx_buffer_Size()
     {
         return this->_txbuf.size();
     }
-    
+
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
     // such as XON/XOFF or manual GPIO RTSCTS.
