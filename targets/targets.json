@@ -3352,6 +3352,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
         "device_name": "STM32L073RZ"
