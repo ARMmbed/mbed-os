@@ -31,15 +31,14 @@
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE
-#define MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE 256
+#define MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE  256
 #endif
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE
-#define MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE 256
+#define MBED_CONF_DRIVERS_UART_SERIAL_TXBUF_SIZE  256
 #endif
 
-namespace mbed
-{
+namespace mbed {
 
 /** \addtogroup drivers */
 
@@ -48,10 +47,10 @@ namespace mbed
  * @ingroup drivers
  */
 
-class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial>
-{
+class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
 
 public:
+
     /** Create a UARTSerial port, connected to the specified transmit and receive pins, with a particular baud rate.
      *  @param tx Transmit pin
      *  @param rx Receive pin
@@ -221,11 +220,11 @@ public:
     // Expose private SerialBase::Parity as UARTSerial::Parity
     using SerialBase::Parity;
     // In C++11, we wouldn't need to also have using directives for each value
-    using SerialBase::Even;
-    using SerialBase::Forced0;
-    using SerialBase::Forced1;
     using SerialBase::None;
     using SerialBase::Odd;
+    using SerialBase::Even;
+    using SerialBase::Forced1;
+    using SerialBase::Forced0;
 
     /** Set the transmission format used by the serial port
      *
@@ -234,26 +233,26 @@ public:
      *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
-
-    /** get the available characters in the RX ringbuffer*/
+    
+     /** get the available characters in the RX ringbuffer*/
     uint32_t getRxBufferSize()
     {
         return this->_rxbuf.size();
     }
-    /** get the available characters in the TX ringbuffer*/
-    uint32_t getTxBufferSize()
+     /** get the available characters in the TX ringbuffer*/
+   uint32_t getTxBufferSize()
     {
         return this->_txbuf.size();
     }
-
+    
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
     // such as XON/XOFF or manual GPIO RTSCTS.
     using SerialBase::Flow;
     // In C++11, we wouldn't need to also have using directives for each value
-    using SerialBase::CTS;
     using SerialBase::Disabled;
     using SerialBase::RTS;
+    using SerialBase::CTS;
     using SerialBase::RTSCTS;
 
     /** Set the flow control type on the serial port
@@ -266,6 +265,7 @@ public:
 #endif
 
 private:
+
     void wait_ms(uint32_t millisec);
 
     /** SerialBase lock override */
@@ -323,6 +323,7 @@ private:
     void wake(void);
 
     void dcd_irq(void);
+
 };
 } //namespace mbed
 
