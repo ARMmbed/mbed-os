@@ -23,12 +23,13 @@
 
 #include "pal_types.h"
 #include "pal_bb_ble.h"
-
+#if defined(NRF52840_XXAA)
 #include "crys_rsa_kg.h"
 #include "crys_dh.h"
 #include "ssi_pal_types.h"
 #include "ssi_aes.h"
 #include "crys_aesccm.h"
+#endif
 
 /* Nordic specific definitions. */
 #include "nrf_ecb.h"
