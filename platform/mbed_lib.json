@@ -198,6 +198,10 @@
         "NUCLEO_F411RE": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
+        },
+        "DISCO_F407VG": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
         }
     }
 }
