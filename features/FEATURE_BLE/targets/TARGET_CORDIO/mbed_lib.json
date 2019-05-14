@@ -48,7 +48,7 @@
             "macro_name": "SMP_DB_MAX_DEVICES"
         },
         "desired-att-mtu": {
-            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive).",
+            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive). The effective ATT_MTU is limited by rx-acl-buffer-size (minus 4 bytes for the header).",
             "value": 23
         },
         "rx-acl-buffer-size": {
