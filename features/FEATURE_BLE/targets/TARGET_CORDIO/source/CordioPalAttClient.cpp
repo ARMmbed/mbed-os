@@ -32,6 +32,16 @@ void CordioAttClient::att_client_handler(const attEvt_t* event)
         if (handler) {
             handler->on_att_mtu_change(event->hdr.param, event->mtu);
         }
+    } else if (event->hdr.event == ATTC_WRITE_CMD_RSP) {
+        ble::vendor::cordio::BLE& ble = ble::vendor::cordio::BLE::deviceInstance();
+        impl::PalGattClientImpl::EventHandler *handler = ble.getPalGattClient().get_event_handler();
+        if (handler) {
+            handler->on_write_command_sent(
+                event->hdr.param,
+                event->handle,
+                event->hdr.status
+            );
+        }
     } else {
         // all handlers are stored in a static array
         static const event_handler_t handlers[] = {

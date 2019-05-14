@@ -52,6 +52,18 @@ struct GattClientEventHandler : StaticInterface<Impl, GattClientEventHandler> {
     ) { 
         impl()->on_att_mtu_change_(connection_handle, att_mtu_size);
     }
+
+    void on_write_command_sent(
+        ble::connection_handle_t connection_handle,
+        ble::attribute_handle_t attribute_handle,
+        uint8_t status
+    ) {
+        impl()->on_write_command_sent_(
+            connection_handle,
+            attribute_handle,
+            status
+        );
+    }
 };
 
 

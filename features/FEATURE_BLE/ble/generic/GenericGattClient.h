@@ -147,6 +147,15 @@ public:
         uint16_t att_mtu_size
     );
 
+    /**
+     * @see pal::GattClient::EventHandler::on_write_command_sent
+     */
+    void on_write_command_sent_(
+        ble::connection_handle_t connection_handle,
+        ble::attribute_handle_t attribute_handle,
+        uint8_t status
+    );
+
 private:
     struct ProcedureControlBlock;
     struct DiscoveryControlBlock;
