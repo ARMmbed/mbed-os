@@ -309,6 +309,7 @@ typedef enum {
     LED1        = PK_7, // Red LED
     LED2        = PK_6, // Orange LED
     LED3        = PK_5, // Green LED
+    LED4        = PK_4,
     LED_RED     = LED1,
     LED_ORANGE  = LED2,
     LED_GREEN   = LED3,
