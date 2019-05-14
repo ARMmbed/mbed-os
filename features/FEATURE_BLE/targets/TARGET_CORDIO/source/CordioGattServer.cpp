@@ -695,10 +695,6 @@ ble_error_t GattServer::write_(
     }
 #endif // BLE_FEATURE_SECURITY
 
-    if (updates_sent) {
-        handleDataSentEvent(updates_sent);
-    }
-
     return BLE_ERROR_NONE;
 }
 
@@ -748,10 +744,6 @@ ble_error_t GattServer::write_(
         }
     }
 #endif // BLE_FEATURE_SECURITY
-
-    if (updates_sent) {
-        handleDataSentEvent(updates_sent);
-    }
 
     return BLE_ERROR_NONE;
 }
