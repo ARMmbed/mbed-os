@@ -70,7 +70,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
                 socket->created = false;
-				_at.unlock();
+                _at.unlock();
                 return NSAPI_ERROR_PARAMETER;
             }
             _at.cmd_start("AT+QICLOSE=");
