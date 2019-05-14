@@ -966,6 +966,7 @@ GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::GenericGattClient
 	_pal_client->when_transaction_timeout(
 		mbed::callback(this, &GenericGattClient::on_transaction_timeout)
 	);
+	_pal_client->set_event_handler(this);
 }
 
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
