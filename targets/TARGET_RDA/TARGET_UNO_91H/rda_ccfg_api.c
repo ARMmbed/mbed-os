@@ -78,6 +78,12 @@ static inline void rda_ccfg_ck(void)
 
     cfg = (RDA_SCU->CORECFG >> 11) & 0x07U;
     rd_rf_usb_reg(0xA4, &val, 0);
+
+    // If i2c_wakeup_en is already set, do nothing and return
+    if((val & 0x01U) == 0x00U) {
+        return;
+    }
+
 #if ((SYS_CPU_CLK == CLK_FREQ_160M) && (AHB_BUS_CLK == CLK_FREQ_80M))
     /* HCLK inv */
     if(((CLK_FREQ_40M << 1) | CLK_FREQ_40M) == cfg) {
