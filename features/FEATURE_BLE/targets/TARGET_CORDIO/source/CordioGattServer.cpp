@@ -510,7 +510,7 @@ ble_error_t GattServer::insert_descriptor(
 #endif // BLE_FEATURE_SECURITY
         }
 
-        if (properties & READ_PROPERTY) {
+        if (properties & READ_PROPERTY && !(attribute_it->settings & ATTS_SET_CCC)) {
             attribute_it->settings |= ATTS_SET_READ_CBACK;
         }
     }
