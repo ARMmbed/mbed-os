@@ -349,8 +349,6 @@ typedef enum {
     SDP_TMR_B    = PE_6,
     SDP_TMR_D    = PC_8,
 
-    PWM_OUT      = PA_1,
-
     /**** USB pins ****/
     USB_OTG_HS_DM = PB_14,
     USB_OTG_HS_DP = PB_15,
