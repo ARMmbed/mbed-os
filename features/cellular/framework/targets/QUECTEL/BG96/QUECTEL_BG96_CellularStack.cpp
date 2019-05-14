@@ -70,6 +70,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
                 socket->created = false;
+				_at.unlock();
                 return NSAPI_ERROR_PARAMETER;
             }
             _at.cmd_start("AT+QICLOSE=");
@@ -177,6 +178,7 @@ void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_
     modem_connect_id = _at.read_int();
     err = _at.read_int();
 }
+
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int modem_connect_id = -1;
