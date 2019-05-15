@@ -61,6 +61,7 @@ enum opcode {
     DATAFLASH_OP_PROGRAM_DIRECT            = 0x02, // Program through Buffer 1 without Built-In Erase
     DATAFLASH_OP_PROGRAM_DIRECT_WITH_ERASE = 0x82,
     DATAFLASH_OP_ERASE_BLOCK               = 0x50,
+    DATAFLASH_OP_ERASE_PAGE                = 0x81,
 };
 
 /* non-exhaustive command list */
@@ -447,17 +448,17 @@ int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         /* disable write protection */
         _write_enable(true);
 
-        /* erase one block at a time until the full size has been erased */
+        /* erase one page at a time until the full size has been erased */
         uint32_t erased = 0;
         while (erased < size) {
 
-            /* set block erase opcode */
-            uint32_t command = DATAFLASH_OP_ERASE_BLOCK;
+            /* set page erase opcode */
+            uint32_t command = DATAFLASH_OP_ERASE_PAGE;
 
             /* translate address */
             uint32_t address = _translate_address(addr);
 
-            /* set block address */
+            /* set page address */
             command = (command << 8) | ((address >> 16) & 0xFF);
             command = (command << 8) | ((address >>  8) & 0xFF);
             command = (command << 8) | (address & 0xFF);
@@ -474,8 +475,8 @@ int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
             }
 
             /* update loop variables */
-            addr += _block_size;
-            erased += _block_size;
+            addr += _page_size;
+            erased += _page_size;
         }
 
         /* enable write protection */
@@ -503,8 +504,8 @@ bd_size_t DataFlashBlockDevice::get_program_size() const
 bd_size_t DataFlashBlockDevice::get_erase_size() const
 {
     _mutex.lock();
-    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _block_size);
-    bd_size_t block_size = _block_size;
+    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _page_size);
+    bd_size_t block_size = _page_size;
     _mutex.unlock();
     return block_size;
 }
@@ -512,8 +513,8 @@ bd_size_t DataFlashBlockDevice::get_erase_size() const
 bd_size_t DataFlashBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     _mutex.lock();
-    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _block_size);
-    bd_size_t block_size = _block_size;
+    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _page_size);
+    bd_size_t block_size = _page_size;
     _mutex.unlock();
     return block_size;
 }
