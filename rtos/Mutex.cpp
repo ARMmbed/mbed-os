@@ -42,7 +42,7 @@ void Mutex::constructor(const char *name)
 {
     osMutexAttr_t attr =
     { 0 };
-    attr.name = name ? name : "aplication_unnamed_mutex";
+    attr.name = name ? name : "application_unnamed_mutex";
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
     attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
