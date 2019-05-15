@@ -411,6 +411,8 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                     
                     if test_example:
                         log = example['compare_log'].pop(0)
+                        # example['compare_log'] is a list of log file/files, which matches each examples/sub-examples from same repo. 
+                        # pop the log file out of list regardless the compilation for each example pass of fail
                         image = fetch_output_image(std_out)
                         if image:
                             image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
