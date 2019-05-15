@@ -235,13 +235,13 @@ public:
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
 
     /** get the available characters in the RX ringbuffer*/
-    uint32_t get_rx_buffer_size()
+    const uint32_t get_rx_buffer_size()
     {
         return this->_rxbuf.size();
     }
 
     /** get the available characters in the TX ringbuffer*/
-    uint32_t get_tx_buffer_size()
+    const uint32_t get_tx_buffer_size()
     {
         return this->_txbuf.size();
     }
