@@ -100,9 +100,10 @@ extern "C" {
 // inlining. ARM C 5 is being retired anyway.
 
 #ifdef __CC_ARM
+#pragma diag_suppress 3732
 #define DO_MBED_LOCKFREE_EXCHG_ASM(M)                           \
     __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                        \
+        LDREX##M    oldValue, [valuePtr]                      ; \
         STREX##M    fail, newValue, [valuePtr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
@@ -133,8 +134,8 @@ extern "C" {
 #ifdef __CC_ARM
 #define DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M)              \
     __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                        \
-        OP          newValue, oldValue, arg                     \
+        LDREX##M    oldValue, [valuePtr]                      ; \
+        OP          newValue, oldValue, arg                   ; \
         STREX##M    fail, newValue, [valuePtr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
@@ -172,9 +173,9 @@ extern "C" {
 #ifdef __CC_ARM
 #define DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M)              \
     __asm {                                                     \
-        LDREX##M    oldValue, [valuePtr]                        \
-        MOV         newValue, oldValue                          \
-        OP          newValue, arg                               \
+        LDREX##M    oldValue, [valuePtr]                      ; \
+        MOV         newValue, oldValue                        ; \
+        OP          newValue, arg                             ; \
         STREX##M    fail, newValue, [valuePtr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
@@ -216,8 +217,8 @@ extern "C" {
 #ifdef __CC_ARM
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm {                                                     \
-        LDREX##M     oldValue, [ptr]                            \
-        SUBS         fail, oldValue, expectedValue              \
+        LDREX##M     oldValue, [ptr]                          ; \
+        SUBS         fail, oldValue, expectedValue            ; \
         STREX##M##EQ fail, desiredValue, [ptr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
@@ -251,10 +252,10 @@ extern "C" {
 #ifdef __CC_ARM
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm {                                                     \
-        LDREX##M     oldValue, [ptr]                            \
-        SUBS         fail, oldValue, expectedValue              \
-        BNE          done                                       \
-        STREX##M     fail, desiredValue, [ptr]                  \
+        LDREX##M     oldValue, [ptr]                          ; \
+        SUBS         fail, oldValue, expectedValue            ; \
+        BNE          done                                     ; \
+        STREX##M     fail, desiredValue, [ptr]                ; \
 done:                                                           \
     }
 #elif defined __clang__ || defined __GNUC__
@@ -298,13 +299,13 @@ done:                                                           \
 #ifdef __CC_ARM
 #define DO_MBED_LOCKFREE_CAS_STRONG_ASM(M)                      \
     __asm {                                                     \
-    retry:                                                      \
-        LDREX##M     oldValue, [ptr]                            \
-        SUBS         fail, oldValue, expectedValue              \
-        BNE          done                                       \
-        STREX##M     fail, desiredValue, [ptr]                  \
-        CMP          fail, #0                                   \
-        BNE          retry                                      \
+    retry:                                                    ; \
+        LDREX##M     oldValue, [ptr]                          ; \
+        SUBS         fail, oldValue, expectedValue            ; \
+        BNE          done                                     ; \
+        STREX##M     fail, desiredValue, [ptr]                ; \
+        CMP          fail, 0                                  ; \
+        BNE          retry                                    ; \
     done:                                                       \
     }
 #elif defined __clang__ || defined __GNUC__
