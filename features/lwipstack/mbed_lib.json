@@ -25,6 +25,10 @@
             "help": "Enable support for Ethernet interfaces",
             "value": true
         },
+        "l3ip-enabled": {
+            "help": "Enable support for L3IP interfaces",
+            "value": false
+        },
         "debug-enabled": {
             "help": "Enable debug trace support",
             "value": false
@@ -88,6 +92,14 @@
             "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (4 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
             "value": null
         },
+        "tcp-maxrtx": {
+            "help": "Maximum number of retransmissions of data segments.",
+            "value": 6
+        },
+        "tcp-synmaxrtx": {
+            "help": "Maximum number of retransmissions of SYN segments. Current default (used if null here) is set to 6 in opt.h",
+            "value": null
+        },
         "pbuf-pool-size": {
             "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
             "value": null
@@ -115,16 +127,17 @@
     },
     "target_overrides": {
         "REALTEK_RTL8195AM": {
-            "tcpip-thread-stacksize": 1600
+            "tcpip-thread-stacksize": 1600,
+            "mem-size": 12800
         },
         "UBLOX_EVK_ODIN_W2": {
             "pbuf-pool-size" :  10
         },
         "STM": {
-            "mem-size": 25600
+            "mem-size": 2310
         },
         "Freescale": {
-            "mem-size": 36560
+            "mem-size": 33270
         },
         "LPC1768": {
             "mem-size": 16362
@@ -163,6 +176,9 @@
         },
         "FVP_MPS2_M3": {
             "mem-size": 36560
+        },
+        "MTS_DRAGONFLY_F411RE": {
+            "tcpip-thread-stacksize": 1600
         }
     }
 }

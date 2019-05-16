@@ -20,9 +20,10 @@ from os import getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
-from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
-from tools.hooks import hook_tool
-from tools.utils import run_cmd, NotSupportedException
+from tools.targets import CORE_ARCH
+from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
+from tools.utils import run_cmd
+
 
 class GCC(mbedToolchain):
     OFFICIALLY_SUPPORTED = True
@@ -37,53 +38,70 @@ class GCC(mbedToolchain):
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros,
-                               build_profile=build_profile, build_dir=build_dir)
+        mbedToolchain.__init__(
+            self,
+            target,
+            notify,
+            macros,
+            build_profile=build_profile,
+            build_dir=build_dir
+        )
 
-        tool_path=TOOLCHAIN_PATHS['GCC_ARM']
+        tool_path = TOOLCHAIN_PATHS['GCC_ARM']
         # Add flags for current size setting
         default_lib = "std"
         if hasattr(target, "default_lib"):
             default_lib = target.default_lib
-        elif hasattr(target, "default_build"): # Legacy
+        elif hasattr(target, "default_build"):
             default_lib = target.default_build
 
         if default_lib == "small":
             self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
             self.flags["ld"].append("--specs=nano.specs")
 
-        if target.core == "Cortex-M0+":
-            self.cpu = ["-mcpu=cortex-m0plus"]
-        elif target.core.startswith("Cortex-M4"):
-            self.cpu = ["-mcpu=cortex-m4"]
-        elif target.core.startswith("Cortex-M7"):
-            self.cpu = ["-mcpu=cortex-m7"]
-        elif target.core.startswith("Cortex-M23"):
-            self.cpu = ["-mcpu=cortex-m23"]
-        elif target.core.startswith("Cortex-M33FD"):
-            self.cpu = ["-mcpu=cortex-m33"]
-        elif target.core.startswith("Cortex-M33F"):
-            self.cpu = ["-mcpu=cortex-m33+nodsp"]
-        elif target.core.startswith("Cortex-M33"):
-            self.cpu = ["-march=armv8-m.main"]
+        core = target.core
+        self.cpu = []
+        if CORE_ARCH[target.core] == 8:
+            # Add linking time preprocessor macro DOMAIN_NS
+            if target.core.endswith("-NS"):
+                self.flags["ld"].append("-DDOMAIN_NS=1")
+                core = target.core[:-3]
+            else:
+                self.cpu.append("-mcmse")
+                self.flags["ld"].extend([
+                    "-Wl,--cmse-implib",
+                    "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+                ])
+
+        cpu = {
+            "Cortex-M0+": "cortex-m0plus",
+            "Cortex-M4F": "cortex-m4",
+            "Cortex-M7F": "cortex-m7",
+            "Cortex-M7FD": "cortex-m7",
+            "Cortex-M33": "cortex-m33+nodsp",
+            "Cortex-M33E": "cortex-m33",
+            "Cortex-M33F": "cortex-m33+nodsp",
+            "Cortex-M33FE": "cortex-m33"}.get(core, core)
+
+        if cpu == "cortex-m33+nodsp":
+            self.cpu.append("-march=armv8-m.main")
+        elif cpu == "cortex-m33":
+            self.cpu.append("-march=armv8-m.main+dsp")
         else:
-            self.cpu = ["-mcpu={}".format(target.core.lower())]
+            self.cpu.append("-mcpu={}".format(cpu.lower()))
 
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
         # FPU handling, M7 possibly to have double FPU
-        if target.core == "Cortex-M4F":
+        if core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
-        elif target.core == "Cortex-M7F":
+        elif core == "Cortex-M7F" or core.startswith("Cortex-M33F"):
             self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
-        elif target.core == "Cortex-M7FD":
+        elif core == "Cortex-M7FD":
             self.cpu.append("-mfpu=fpv5-d16")
-            self.cpu.append("-mfloat-abi=softfp")
-        elif target.core.startswith("Cortex-M33F"):
-            self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
         if target.core == "Cortex-A9":
@@ -94,28 +112,13 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS")):
-            self.cpu.append("-mcmse")
-            self.flags["ld"].extend([
-                "-Wl,--cmse-implib",
-                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
-            ])
-
-        # Add linking time preprocessor macro DOMAIN_NS
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            target.core.endswith("-NS")):
-            self.flags["ld"].append("-DDOMAIN_NS=1")
-
         self.flags["common"] += self.cpu
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
         self.asm = [main_cc] + self.flags['asm'] + self.flags["common"]
-        self.cc  = [main_cc]
-        self.cppc =[main_cppc]
+        self.cc = [main_cc]
+        self.cppc = [main_cppc]
         self.cc += self.flags['c'] + self.flags['common']
         self.cppc += self.flags['cxx'] + self.flags['common']
 
@@ -133,10 +136,14 @@ class GCC(mbedToolchain):
     def version_check(self):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
-        match = self.GCC_VERSION_RE.search(stdout)
-        found_version = LooseVersion(match.group(0).decode('utf-8')) if match else None
+        match = self.GCC_VERSION_RE.search(stdout.encode("utf-8"))
+        if match:
+            found_version = LooseVersion(match.group(0).decode('utf-8'))
+        else:
+            found_version = None
         min_ver, max_ver = self.GCC_RANGE
-        if found_version and (found_version < min_ver or found_version >= max_ver):
+        if found_version and (found_version < min_ver
+                              or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"
                    .format(found_version, min_ver, max_ver))
@@ -199,18 +206,15 @@ class GCC(mbedToolchain):
             opts = opts + self.get_config_option(config_header)
         return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_assembler(cmd)
+        cmd = self.asm + self.get_compile_options(
+            self.get_symbols(True), includes
+        ) + ["-o", object, source]
 
         # Return command array, don't execute
         return [cmd]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
@@ -219,8 +223,6 @@ class GCC(mbedToolchain):
 
         cmd.extend(["-o", object, source])
 
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
         if self.use_distcc:
             cmd = ["distcc"] + cmd
 
@@ -232,7 +234,6 @@ class GCC(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         libs = []
         for l in libraries:
@@ -243,15 +244,23 @@ class GCC(mbedToolchain):
         # Preprocess
         if mem_map:
             preproc_output = join(dirname(output), ".link_script.ld")
-            cmd = (self.preproc + [mem_map] + self.ld[1:] +
-                   [ "-o", preproc_output])
+            cmd = (
+                self.preproc + [mem_map] + self.ld[1:] + ["-o", preproc_output]
+            )
             self.notify.cc_verbose("Preproc: %s" % ' '.join(cmd))
             self.default_cmd(cmd)
             mem_map = preproc_output
 
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+        cmd = (
+            self.ld +
+            ["-o", output, "-Wl,-Map=%s" % map_file] +
+            objects +
+            ["-Wl,--start-group"] +
+            libs +
+            ["-Wl,--end-group"]
+        )
 
         if mem_map:
             cmd.extend(['-T', mem_map])
@@ -259,9 +268,6 @@ class GCC(mbedToolchain):
         for L in lib_dirs:
             cmd.extend(['-L', L])
         cmd.extend(libs)
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
 
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file
@@ -273,7 +279,6 @@ class GCC(mbedToolchain):
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @hook_tool
     def archive(self, objects, lib_path):
         if self.RESPONSE_FILES:
             param = ["@%s" % self.get_arch_file(objects)]
@@ -283,15 +288,11 @@ class GCC(mbedToolchain):
         # Exec command
         self.default_cmd([self.ar, 'rcs', lib_path] + param)
 
-    @hook_tool
     def binary(self, resources, elf, bin):
         # Build binary command
         _, fmt = splitext(bin)
         bin_arg = {'.bin': 'binary', '.hex': 'ihex'}[fmt]
         cmd = [self.elf2bin, "-O", bin_arg, elf, bin]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
         self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
@@ -312,9 +313,12 @@ class GCC(mbedToolchain):
     @staticmethod
     def check_executable():
         """Returns True if the executable (arm-none-eabi-gcc) location
-        specified by the user exists OR the executable can be found on the PATH.
-        Returns False otherwise."""
-        if not TOOLCHAIN_PATHS['GCC_ARM'] or not exists(TOOLCHAIN_PATHS['GCC_ARM']):
+        specified by the user exists OR the executable can be found on the
+        PATH. Returns False otherwise."""
+        if (
+            not TOOLCHAIN_PATHS['GCC_ARM'] or
+            not exists(TOOLCHAIN_PATHS['GCC_ARM'])
+        ):
             if find_executable('arm-none-eabi-gcc'):
                 TOOLCHAIN_PATHS['GCC_ARM'] = ''
                 return True
@@ -323,6 +327,7 @@ class GCC(mbedToolchain):
         else:
             exec_name = join(TOOLCHAIN_PATHS['GCC_ARM'], 'arm-none-eabi-gcc')
             return exists(exec_name) or exists(exec_name + '.exe')
+
 
 class GCC_ARM(GCC):
     pass

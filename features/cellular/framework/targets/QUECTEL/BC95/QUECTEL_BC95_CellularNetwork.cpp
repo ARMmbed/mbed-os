@@ -28,11 +28,6 @@ QUECTEL_BC95_CellularNetwork::~QUECTEL_BC95_CellularNetwork()
 {
 }
 
-AT_CellularNetwork::RegistrationMode QUECTEL_BC95_CellularNetwork::has_registration(RegistrationType reg_tech)
-{
-    return (reg_tech == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
-}
-
 nsapi_error_t QUECTEL_BC95_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     if (opRat != RAT_NB1) {

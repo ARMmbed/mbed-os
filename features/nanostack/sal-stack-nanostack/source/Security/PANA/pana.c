@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 #include "string.h"
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "ccmLIB.h"
 #include "shalib.h"

@@ -120,6 +120,16 @@ void UARTSerial::tx_irq(void)
 {
 }
 
+int UARTSerial::enable_input(bool enabled)
+{
+    return 0;
+}
+
+int UARTSerial::enable_output(bool enabled)
+{
+    return 0;
+}
+
 void UARTSerial::wait_ms(uint32_t millisec)
 {
 

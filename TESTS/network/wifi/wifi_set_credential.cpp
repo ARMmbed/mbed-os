@@ -29,31 +29,31 @@ void wifi_set_credential(void)
     nsapi_error_t error;
 
     error = iface->set_credentials(NULL, NULL, NSAPI_SECURITY_NONE);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("", "", NSAPI_SECURITY_NONE);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_NONE);
-    TEST_ASSERT(error == NSAPI_ERROR_OK);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     error = iface->set_credentials("OK", "", NSAPI_SECURITY_NONE);
-    TEST_ASSERT(error == NSAPI_ERROR_OK);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WEP);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("OK", "", NSAPI_SECURITY_WEP);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WPA_WPA2);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("OK", "", NSAPI_SECURITY_WPA_WPA2);
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_NONE);
-    TEST_ASSERT(error == NSAPI_ERROR_OK);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     error = iface->set_credentials("OK", "12345678", NSAPI_SECURITY_WEP);
     TEST_ASSERT((error == NSAPI_ERROR_OK) || (error == NSAPI_ERROR_UNSUPPORTED));
@@ -65,11 +65,11 @@ void wifi_set_credential(void)
     TEST_ASSERT((error == NSAPI_ERROR_OK) || (error == NSAPI_ERROR_UNSUPPORTED));
 
     error = iface->set_credentials("OK", "12345678", NSAPI_SECURITY_WPA_WPA2);
-    TEST_ASSERT(error == NSAPI_ERROR_OK);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     error = iface->set_credentials("OK", "kUjd0PHHeAqaDoyfcDDEOvbyiVbYMpUHDukGoR6EJZnO5iLzWsfwiM9JQqOngni", get_security());
-    TEST_ASSERT(error == NSAPI_ERROR_OK);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 
     error = iface->set_credentials("OK", "kUjd0PHHeAqaDoyfcDDEOvbyiVbYMpUHDukGoR6EJZnO5iLzWsfwiM9JQqOngni8", get_security());
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 }

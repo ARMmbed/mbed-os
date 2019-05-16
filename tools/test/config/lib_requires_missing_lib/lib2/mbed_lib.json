@@ -1,0 +1,9 @@
+{
+    "name": "lib2",
+    "requires": ["lib3"],
+    "config": {
+        "test": {
+            "value": "BAD"
+        }
+    }
+}

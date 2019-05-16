@@ -1,5 +1,6 @@
 {
     "name": "mbed-mesh-api",
+    "requires": ["nanostack"],
     "config": {
         "heap-size": {
             "help": "Nanostack's heap size [bytes: 0-65534]",
@@ -111,7 +112,7 @@
         },
         "wisun-network-name": {
             "help": "default network name for wisun network",
-            "value": "\"NETWORK_NAME\""
+            "value": "\"Wi-SUN Network\""
         },
         "wisun-regulatory-domain": {
             "help": "Regulator domain.",
@@ -160,6 +161,9 @@
             "mbed-mesh-api.heap-size": 14000
         },
         "NCS36510": {
+            "mbed-mesh-api.heap-size": 14000
+        },
+        "KW41Z": {
             "mbed-mesh-api.heap-size": 14000
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,7 @@ extern uint16_t whiteboard_size_get(void);
 #define whiteboard_table_check_address(address) NULL
 #define whiteboard_table_update(address, eui64, status) NULL
 #define whiteboard_interface_unregister_all_address(nwk_id)
+#define whiteboard_interface_register(address, nwk_id)
 #define whiteboard_interface_address_cmp(address) false
 #endif
 

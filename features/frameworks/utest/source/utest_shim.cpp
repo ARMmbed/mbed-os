@@ -18,50 +18,9 @@
 
 #include "utest/utest_shim.h"
 #include "utest/utest_stack_trace.h"
-
-#if UTEST_SHIM_SCHEDULER_USE_MINAR
-#include "minar/minar.h"
-
-static int32_t utest_minar_init()
-{
-    return 0;
-}
-static void *utest_minar_post(const utest_v1_harness_callback_t callback, const uint32_t delay_ms)
-{
-    void *handle = minar::Scheduler::postCallback(callback).delay(minar::milliseconds(delay_ms)).getHandle();
-    return handle;
-}
-static int32_t utest_minar_cancel(void *handle)
-{
-    int32_t ret = minar::Scheduler::cancelCallback(handle);
-    return ret;
-}
-static int32_t utest_minar_run()
-{
-    return 0;
-}
-extern "C" {
-static const utest_v1_scheduler_t utest_v1_scheduler =
-{
-    utest_minar_init,
-    utest_minar_post,
-    utest_minar_cancel,
-    utest_minar_run
-};
-utest_v1_scheduler_t utest_v1_get_scheduler()
-{
-    return utest_v1_scheduler;
-}
-}
-
-#elif UTEST_SHIM_SCHEDULER_USE_US_TICKER
-#ifdef YOTTA_MBED_HAL_VERSION_STRING
-#   include "mbed-hal/us_ticker_api.h"
-#else
 #include "platform/SingletonPtr.h"
 #include "Timeout.h"
 using mbed::Timeout;
-#endif
 
 // only one callback is active at any given time
 static volatile utest_v1_harness_callback_t minimal_callback;
@@ -79,7 +38,7 @@ static void ticker_handler()
 static int32_t utest_us_ticker_init()
 {
     UTEST_LOG_FUNCTION();
-    // initialize the Timeout object to makes sure it is not initialized in 
+    // initialize the Timeout object to makes sure it is not initialized in
     // interrupt context.
     utest_timeout_object.get();
     return 0;
@@ -88,13 +47,13 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, ti
 {
     UTEST_LOG_FUNCTION();
     timestamp_t delay_us = delay_ms *1000;
-    
+
     if (delay_ms) {
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
         utest_timeout_object->attach_us(ticker_handler, delay_us);
-        
-    } 
+
+    }
     else {
         minimal_callback = callback;
     }
@@ -142,10 +101,3 @@ utest_v1_scheduler_t utest_v1_get_scheduler()
     return utest_v1_scheduler;
 }
 }
-#endif
-
-#ifdef YOTTA_CORE_UTIL_VERSION_STRING
-// their functionality is implemented using the CriticalSectionLock class
-void utest_v1_enter_critical_section(void) {}
-void utest_v1_leave_critical_section(void) {}
-#endif

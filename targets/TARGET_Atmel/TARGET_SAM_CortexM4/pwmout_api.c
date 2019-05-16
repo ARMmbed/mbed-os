@@ -305,3 +305,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     float new_duty = (us / 1000000.0) * (float)obj->waveconfig.us_frequency;
     pwmout_write(obj, new_duty);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

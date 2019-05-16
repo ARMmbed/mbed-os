@@ -25,10 +25,11 @@ The order of handler execution is:
 
 ## Example
 
-The following example showcases a lot of functionality and proper integration with the [Greentea testing automation framework](https://github.com/ARMmbed/greentea), while making use of the [unity test macros](https://github.com/ARMmbed/mbed-os/tree/master/features/frameworks/unity):
+The following example showcases a lot of functionality and proper integration with the [Greentea test tool](https://github.com/ARMmbed/mbed-os-tools/tree/master/packages/mbed-greentea), while making use of the [unity test macros](https://github.com/ARMmbed/mbed-os/tree/master/features/frameworks/unity):
 
 ```cpp
-#include "mbed-drivers/test_env.h"
+#include "mbed.h"
+#include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 
@@ -45,6 +46,7 @@ status_t test_repeats_setup(const Case *const source, const size_t index_of_case
     printf("Setting up for '%s'\n", source->get_description());
     return status;
 }
+
 control_t test_repeats(const size_t call_count) {
     printf("Called for the %u. time\n", call_count);
     TEST_ASSERT_NOT_EQUAL(3, call_count);
@@ -58,10 +60,12 @@ void test_callback_validate() {
     // Validate the callback
     Harness::validate_callback();
 }
+
 control_t test_asynchronous() {
     TEST_ASSERT_TRUE_MESSAGE(true, "(true == false) o_O");
     // Set up a callback in the future. This may also be an interrupt!
-    minar::Scheduler::postCallback(test_callback_validate).delay(minar::milliseconds(100));
+    EventQueue *queue = mbed_event_queue();
+    queue->call_in(100, test_callback_validate);
     // Set a 200ms timeout starting from now
     return CaseTimeout(200);
 }
@@ -72,7 +76,8 @@ control_t test_asynchronous_timeout(const size_t call_count) {
     // but automatically repeat only this handler on timeout.
     if (call_count >= 5) {
         // but after the 5th call, the callback finally gets validated
-        minar::Scheduler::postCallback(test_callback_validate).delay(minar::milliseconds(100));
+        EventQueue *queue = mbed_event_queue();
+        queue->call_in(100, test_callback_validate);
     }
     return CaseRepeatHandlerOnTimeout(200);
 }
@@ -95,7 +100,7 @@ Case cases[] = {
 // Declare your test specification with a custom setup handler
 Specification specification(greentea_setup, cases);
 
-void app_start(int, char**)
+int main()
 {   // Run the test specification
     Harness::run(specification);
 }
@@ -155,7 +160,7 @@ Please see the `utest/types.h` file for a detailed description.
 1. `status_t case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)`: called after execution of each test case, and if testing is aborted.
 1. `status_t case_failure_handler_t(const Case *const source, const failure_t reason)`: called whenever a failure occurs during the execution of a test case.
 
-All handlers are defaulted for integration with the [Greentea testing automation framework](https://github.com/ARMmbed/greentea).
+All handlers are defaulted for integration with the [Greentea testing tool](https://github.com/ARMmbed/mbed-os-tools/tree/master/packages/mbed-greentea).
 
 ### Test Case Handlers
 

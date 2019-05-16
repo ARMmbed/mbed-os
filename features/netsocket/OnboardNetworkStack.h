@@ -21,6 +21,7 @@
 
 #include "NetworkStack.h"
 #include "EMAC.h"
+#include "L3IP.h"
 
 /**
  * mbed OS API for onboard IP stack abstraction
@@ -88,21 +89,46 @@ public:
          *
          *  @return         The connection status according to ConnectionStatusType
          */
+
         virtual nsapi_connection_status_t get_connection_status() const = 0;
 
+        /** Returns interface name
+        *
+        * @return  string containing name of network interface for example "en0"
+        */
+
+        virtual char *get_interface_name(char *buf)
+        {
+            return NULL;
+        };
         /** Return MAC address of the network interface
          *
          * @return              MAC address as "V:W:X:Y:Z"
          */
+
         virtual char *get_mac_address(char *buf, nsapi_size_t buflen) = 0;
 
         /** Copies IP address of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
          * @param    buflen     size of supplied buffer
+         * @param    interface_name  Network interface name
          * @return              Pointer to a buffer, or NULL if the buffer is too small
          */
+
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen) = 0;
+
+        /** Copies IP address of the network interface to user supplied buffer
+         *
+         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
+         * @param    buflen     size of supplied buffer
+         * @param    interface_name  Network interface name
+         * @return              Pointer to a buffer, or NULL if the buffer is too small
+         */
+        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
+        {
+            return NULL;
+        };
 
         /** Copies netmask of the network interface to user supplied buffer
          *
@@ -133,6 +159,21 @@ public:
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
     virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out) = 0;
+
+    virtual nsapi_error_t add_l3ip_interface(L3IP &l3ip, bool default_if, Interface **interface_out)
+    {
+        return NSAPI_ERROR_OK;
+    };
+
+    virtual nsapi_error_t remove_l3ip_interface(Interface **interface_out)
+    {
+        return NSAPI_ERROR_OK;
+    };
+
+    virtual void set_default_interface(OnboardNetworkStack::Interface *interface)
+    {
+    }
+
 };
 
 #endif /* MBED_IPSTACK_H */

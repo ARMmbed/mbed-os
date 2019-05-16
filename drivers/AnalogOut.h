@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_ANALOGOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_ANALOGOUT || defined(DOXYGEN_ONLY)
 
 #include "hal/analogout_api.h"
 #include "platform/PlatformMutex.h"

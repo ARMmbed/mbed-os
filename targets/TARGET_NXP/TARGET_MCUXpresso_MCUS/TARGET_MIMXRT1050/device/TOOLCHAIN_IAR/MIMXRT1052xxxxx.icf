@@ -55,7 +55,12 @@
 
 define symbol __ram_vector_table__ = 1;
 
-define symbol __stack_size__=0x8000;
+/* Sizes */
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+define symbol __stack_size__=MBED_BOOT_STACK_SIZE;
 define symbol __heap_size__=0x10000;
 
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
@@ -90,7 +95,6 @@ define symbol m_boot_hdr_ivt_start           = 0x60001000;
 define symbol m_boot_hdr_boot_data_start     = 0x60001020;
 define symbol m_boot_hdr_dcd_data_start      = 0x60001030;
 
-/* Sizes */
 if (isdefinedsymbol(__stack_size__)) {
   define symbol __size_cstack__        = __stack_size__;
 } else {

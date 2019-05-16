@@ -59,12 +59,12 @@ void mbedtls_ssl_conf_max_version(mbedtls_ssl_config *conf, int major, int minor
 
 }
 
-void mbedtls_ssl_conf_transport( mbedtls_ssl_config *conf, int transport )
+void mbedtls_ssl_conf_transport(mbedtls_ssl_config *conf, int transport)
 {
 
 }
 
-void mbedtls_ssl_config_init( mbedtls_ssl_config *a )
+void mbedtls_ssl_config_init(mbedtls_ssl_config *a)
 {
 
 }
@@ -203,12 +203,12 @@ int mbedtls_ssl_write(mbedtls_ssl_context *a, const unsigned char *b, size_t c)
     return mbedtls_stub.expected_int;
 }
 
-int mbedtls_ssl_set_hostname( mbedtls_ssl_context *ssl, const char *hostname )
+int mbedtls_ssl_set_hostname(mbedtls_ssl_context *ssl, const char *hostname)
 {
     return 0;
 }
 
-const mbedtls_x509_crt *mbedtls_ssl_get_peer_cert( const mbedtls_ssl_context *ssl )
+const mbedtls_x509_crt *mbedtls_ssl_get_peer_cert(const mbedtls_ssl_context *ssl)
 {
     return NULL;
 }
@@ -267,14 +267,14 @@ int mbedtls_x509_crt_parse(mbedtls_x509_crt *a, const unsigned char *b, size_t c
     return mbedtls_stub.expected_int;
 }
 
-int mbedtls_x509_crt_info( char *buf, size_t size, const char *prefix,
-                   const mbedtls_x509_crt *crt )
+int mbedtls_x509_crt_info(char *buf, size_t size, const char *prefix,
+                          const mbedtls_x509_crt *crt)
 {
     return 0;
 }
 
-int mbedtls_x509_crt_verify_info( char *buf, size_t size, const char *prefix,
-                          uint32_t flags )
+int mbedtls_x509_crt_verify_info(char *buf, size_t size, const char *prefix,
+                                 uint32_t flags)
 {
     return 0;
 }
@@ -384,5 +384,18 @@ int mbedtls_ssl_session_reset(mbedtls_ssl_context *ssl)
     return mbedtls_stub.expected_int;
 }
 
-void mbedtls_strerror( int ret, char *buf, size_t buflen ){
+void mbedtls_strerror(int ret, char *buf, size_t buflen)
+{
+}
+
+int mbedtls_platform_setup(mbedtls_platform_context *ctx)
+{
+    (void)ctx;
+
+    return (0);
+}
+
+void mbedtls_platform_teardown(mbedtls_platform_context *ctx)
+{
+    (void)ctx;
 }

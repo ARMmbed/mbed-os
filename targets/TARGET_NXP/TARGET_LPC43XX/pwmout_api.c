@@ -269,3 +269,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
         LPC_SCT->OUT[i].CLR = (1 << 0); // event 0 clears PWM pin
     }
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

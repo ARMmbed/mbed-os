@@ -167,4 +167,9 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     FTM_SetSoftwareTrigger(base, true);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif

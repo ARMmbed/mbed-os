@@ -35,35 +35,36 @@ namespace mbed {
  */
 class BufferedBlockDevice : public BlockDevice {
 public:
-    /** Lifetime of the memory block device
+    /** Lifetime of a memory-buffered block device wrapping an underlying block device
      *
      *  @param bd        Block device to back the BufferedBlockDevice
      */
     BufferedBlockDevice(BlockDevice *bd);
 
-    /** Lifetime of a block device
+    /** Lifetime of the memory-buffered block device
      */
     virtual ~BufferedBlockDevice();
 
-    /** Initialize a block device
+    /** Initialize a buffered-memory block device and its underlying block device
      *
      *  @return         0 on success or a negative error code on failure
      */
     virtual int init();
 
-    /** Deinitialize a block device
+    /** Deinitialize the buffered-memory block device and its underlying block device
      *
      *  @return         0 on success or a negative error code on failure
      */
     virtual int deinit();
 
-    /** Ensure data on storage is in sync with the driver
+    /** Ensure that data on the underlying storage block device is in sync with the
+     *  memory-buffered block device
      *
      *  @return         0 on success or a negative error code on failure
      */
     virtual int sync();
 
-    /** Read blocks from a block device
+    /** Read blocks from the memory-buffered block device
      *
      *  @param buffer   Buffer to read blocks into
      *  @param addr     Address of block to begin reading from
@@ -72,9 +73,9 @@ public:
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
 
-    /** Program blocks to a block device
+    /** Program data to the memory-buffered block device
      *
-     *  The blocks must have been erased prior to being programmed
+     *  The write address blocks must be erased prior to being programmed.
      *
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
@@ -83,10 +84,10 @@ public:
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
-    /** Erase blocks on a block device
+    /** Erase blocks from the memory-buffered block device
      *
      *  The state of an erased block is undefined until it has been programmed,
-     *  unless get_erase_value returns a non-negative byte value
+     *  unless get_erase_value returns a non-negative byte value.
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
@@ -127,7 +128,7 @@ public:
      */
     virtual bd_size_t get_erase_size() const;
 
-    /** Get the size of an erasable block given address
+    /** Get the size of an erasable block of a given address
      *
      *  @param addr     Address within the erasable block
      *  @return         Size of an erasable block in bytes
@@ -135,7 +136,7 @@ public:
      */
     virtual bd_size_t get_erase_size(bd_addr_t addr) const;
 
-    /** Get the value of storage when erased
+    /** Get the value of storage data after being erased
      *
      *  If get_erase_value returns a non-negative byte value, the underlying
      *  storage is set to that value when erased, and storage containing
@@ -152,6 +153,12 @@ public:
      */
     virtual bd_size_t size() const;
 
+    /** Get the underlying BlockDevice class type
+     *
+     *  @return         A string representing the underlying BlockDevice class type
+     */
+    virtual const char *get_type() const;
+
 protected:
     BlockDevice *_bd;
     bd_size_t _bd_program_size;
@@ -164,6 +171,7 @@ protected:
     uint32_t _init_ref_count;
     bool _is_initialized;
 
+#if !(DOXYGEN_ONLY)
     /** Flush data in cache
      *
      *  @return         0 on success or a negative error code on failure
@@ -175,7 +183,7 @@ protected:
      *  @return         none
      */
     void invalidate_write_cache();
-
+#endif //#if !(DOXYGEN_ONLY)
 };
 } // namespace mbed
 

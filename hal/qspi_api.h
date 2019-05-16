@@ -21,6 +21,7 @@
 #define MBED_QSPI_API_H
 
 #include "device.h"
+#include "pinmap.h"
 #include <stdbool.h>
 
 #if DEVICE_QSPI
@@ -181,6 +182,60 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
            QSPI_STATUS_ERROR otherwise
  */
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length);
+
+/** Get the pins that support QSPI SCLK
+ *
+ * Return a PinMap array of pins that support QSPI SCLK in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_sclk_pinmap(void);
+
+/** Get the pins that support QSPI SSEL
+ *
+ * Return a PinMap array of pins that support QSPI SSEL in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_ssel_pinmap(void);
+
+/** Get the pins that support QSPI DATA0
+ *
+ * Return a PinMap array of pins that support QSPI DATA0 in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_data0_pinmap(void);
+
+/** Get the pins that support QSPI DATA1
+ *
+ * Return a PinMap array of pins that support QSPI DATA1 in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_data1_pinmap(void);
+
+/** Get the pins that support QSPI DATA2
+ *
+ * Return a PinMap array of pins that support QSPI DATA2 in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_data2_pinmap(void);
+
+/** Get the pins that support QSPI DATA3
+ *
+ * Return a PinMap array of pins that support QSPI DATA3 in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *qspi_master_data3_pinmap(void);
 
 /**@}*/
 

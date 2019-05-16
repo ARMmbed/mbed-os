@@ -56,6 +56,7 @@ protected:
         stack.return_values.clear();
         eventFlagsStubNextRetval.clear();
         delete wrapper;
+        delete transport;
     }
 
     char *cert = "-----BEGIN CERTIFICATE-----\
@@ -101,6 +102,7 @@ TEST_F(TestTLSSocketWrapper, constructor)
 TEST_F(TestTLSSocketWrapper, constructor_hostname)
 {
     TLSSocketWrapper *wrapper2 = new TLSSocketWrapper(transport, "localhost");
+    delete wrapper2;
 }
 
 /* connect */
@@ -159,7 +161,7 @@ TEST_F(TestTLSSocketWrapper, connect_fail_ctr_drbg_seed)
     mbedtls_stub.crt_expected_int = 1; // mbedtls_ctr_drbg_seed error
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_AUTH_FAILURE);
     mbedtls_stub.crt_expected_int = 0;
 }
 
@@ -171,7 +173,7 @@ TEST_F(TestTLSSocketWrapper, connect_fail_ssl_setup)
     mbedtls_stub.retArray[1] = 2; // mbedtls_ssl_setup           error
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_AUTH_FAILURE);
 }
 
 TEST_F(TestTLSSocketWrapper, connect_handshake_fail_ssl_handshake)

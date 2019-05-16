@@ -74,7 +74,8 @@ static const ticker_interface_t lp_interface = {
     lp_ticker_wrapper_set_interrupt,
     lp_ticker_wrapper_fire_interrupt,
     lp_ticker_wrapper_free,
-    lp_ticker_wrapper_get_info
+    lp_ticker_wrapper_get_info,
+    true
 };
 
 void lp_ticker_wrapper_irq_handler(ticker_irq_handler_type handler)

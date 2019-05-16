@@ -36,8 +36,8 @@ void ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE()
                                   &result_dns_failure, &result_exp_timeout);
 
     // Addresses were cached on last step, OK for all
-    TEST_ASSERT(result_ok == MBED_CONF_APP_DNS_SIMULT_QUERIES + 1);
-    TEST_ASSERT(result_no_mem == 0);
-    TEST_ASSERT(result_dns_failure == 0);
-    TEST_ASSERT(result_exp_timeout == 0);
+    TEST_ASSERT_EQUAL(MBED_CONF_APP_DNS_SIMULT_QUERIES + 1, result_ok);
+    TEST_ASSERT_EQUAL(0, result_no_mem);
+    TEST_ASSERT_EQUAL(0, result_dns_failure);
+    TEST_ASSERT_EQUAL(0, result_exp_timeout);
 }

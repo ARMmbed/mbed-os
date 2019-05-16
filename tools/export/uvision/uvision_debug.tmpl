@@ -6,11 +6,20 @@
 		<ToolsetNumber>0x4</ToolsetNumber>
 		<ToolsetName>ARM-ADS</ToolsetName>
 		<TargetOption>
+			{% if postbuild_step_active %}
+			<OPTTT>
+				<RunAbUc>1</RunAbUc>
+			</OPTTT>
+			{% endif %}
 			<DebugOpt>
 				<uSim>0</uSim>
 				<uTrg>1</uTrg>
 				<nTsel>11</nTsel>
 				<pMon>{{device.debug_interface.bin_loc}}</pMon>
+				{% if postbuild_step_active %}
+				<tIfile>./debug_init.ini</tIfile>
+				<tLdApp>0</tLdApp>
+				{% endif %}
 			</DebugOpt>
 			<TargetDriverDllRegistry>
 				<SetRegEntry>

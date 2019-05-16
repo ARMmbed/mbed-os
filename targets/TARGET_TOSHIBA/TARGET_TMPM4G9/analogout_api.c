@@ -129,3 +129,8 @@ uint16_t analogout_read_u16(dac_t *obj)
     // Upper and lower byte stored with read value
     return ((value << (16 - DAC_NB_BITS)) | value);
 }
+
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}

@@ -29,28 +29,25 @@
 #define OS_CLOCK                160000000
 #endif
 
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
 extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
-extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define HEAP_START              ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
-#define HEAP_SIZE               ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
-#define ISR_STACK_START         ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
-#define ISR_STACK_SIZE          ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
+#define HEAP_START              Image$$ARM_LIB_HEAP$$ZI$$Base
+#define HEAP_SIZE               Image$$ARM_LIB_HEAP$$ZI$$Length
 #elif defined(__GNUC__)
-extern uint32_t                 __StackTop[];
-extern uint32_t                 __StackLimit[];
-extern uint32_t                 __end__[];
-extern uint32_t                 __HeapLimit[];
-#define HEAP_START              ((unsigned char*)__end__)
-#define HEAP_SIZE               ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
-#define ISR_STACK_START         ((unsigned char*)__StackLimit)
-#define ISR_STACK_SIZE          ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
+/* No region declarations needed */
 #elif defined(__ICCARM__)
 /* No region declarations needed */
 #else
 #error "no toolchain defined"
+#endif
+
+#if defined(TARGET_UNO_91H)
+/* Stack Pointer */
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x120000UL)
+//#define INITIAL_SP              (0x1A8000UL)
+#endif
 #endif
 
 #endif  // MBED_MBED_RTX_H

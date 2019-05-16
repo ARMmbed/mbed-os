@@ -1,20 +1,56 @@
+#! armcc -E
 
-LR_IROM1 0x00000000 0x20000  {    ; load region size_region (128K)
-  ER_IROM1 0x00000000 0x20000  {  ; load address = execution address
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START            0x00000000
+#endif
+
+; 128K flash
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE             0x20000
+#endif
+
+; 8KB
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x10000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x00002000
+#endif
+
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
+; 8_byte_aligned(48 vect * 4 bytes) =  8_byte_aligned(0xC0) = 0xC0
+#define VECTOR_SIZE                 0xC0
+
+#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE+VECTOR_SIZE)
+
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  ; 8_byte_aligned(48 vect * 4 bytes) =  8_byte_aligned(0xC0) = 0xC0
-  ; 8KB - 0xC0 = 0x1F40
-  RW_IRAM1 0x100000C0 0x1F40  {
+
+  RW_IRAM1  (MBED_RAM_START+VECTOR_SIZE)  (MBED_RAM_SIZE-VECTOR_SIZE)  {  ; RW data
    .ANY (+RW +ZI)
   }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
+  }
+
   RW_IRAM2 0x20000000 0x800   { ; RW data, I/O Handler RAM
    .ANY (IOHANDLER_RAM)
   }
+
   RW_IRAM3 0x20004000 0x800   { ; RW data, USB RAM
    .ANY (USBRAM)
   }
-}
 
+  ARM_LIB_STACK  (MBED_RAM_START+MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE { ; stack
+  }
+}

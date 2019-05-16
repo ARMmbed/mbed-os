@@ -2,6 +2,12 @@
  * NCS36510 ARM GCC linker script file
  */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 MEMORY {
     FIB (rx)              : ORIGIN = 0x00002000, LENGTH = 0x00000800
     TRIM (rx)             : ORIGIN = 0x00002800, LENGTH = 0x00000800
@@ -154,7 +160,7 @@ MEMORY {
         __end__ = .;
         end = __end__;
         *(.heap*);
-        . += 0x800;
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
     PROVIDE(__heap_size = SIZEOF(.heap));
@@ -169,12 +175,12 @@ MEMORY {
     {
         __StackLimit = .;
         *(.stack*);
-        . += 0x800 - (. - __StackLimit);
+        . += STACK_SIZE - (. - __StackLimit);
     } > RAM
 
     /* Set stack top to end of RAM */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - SIZEOF(.stack);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
 }

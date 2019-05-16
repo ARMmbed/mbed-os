@@ -43,10 +43,10 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 {
     spifi_config_t config = {0};
 
-    uint32_t qspiio0name = pinmap_peripheral(io0, PinMap_QSPI_DATA);
-    uint32_t qspiio1name = pinmap_peripheral(io1, PinMap_QSPI_DATA);
-    uint32_t qspiio2name = pinmap_peripheral(io2, PinMap_QSPI_DATA);
-    uint32_t qspiio3name = pinmap_peripheral(io3, PinMap_QSPI_DATA);
+    uint32_t qspiio0name = pinmap_peripheral(io0, PinMap_QSPI_DATA0);
+    uint32_t qspiio1name = pinmap_peripheral(io1, PinMap_QSPI_DATA1);
+    uint32_t qspiio2name = pinmap_peripheral(io2, PinMap_QSPI_DATA2);
+    uint32_t qspiio3name = pinmap_peripheral(io3, PinMap_QSPI_DATA3);
     uint32_t qspiclkname = pinmap_peripheral(sclk, PinMap_QSPI_SCLK);
     uint32_t qspisselname = pinmap_peripheral(ssel, PinMap_QSPI_SSEL);
 
@@ -70,10 +70,10 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     // tested all combinations, take first
     obj->instance = qspi_data_first;
 
-    pinmap_pinout(io0, PinMap_QSPI_DATA);
-    pinmap_pinout(io1, PinMap_QSPI_DATA);
-    pinmap_pinout(io2, PinMap_QSPI_DATA);
-    pinmap_pinout(io3, PinMap_QSPI_DATA);
+    pinmap_pinout(io0, PinMap_QSPI_DATA0);
+    pinmap_pinout(io1, PinMap_QSPI_DATA1);
+    pinmap_pinout(io2, PinMap_QSPI_DATA2);
+    pinmap_pinout(io3, PinMap_QSPI_DATA3);
 
     pinmap_pinout(sclk, PinMap_QSPI_SCLK);
     pinmap_pinout(ssel, PinMap_QSPI_SSEL);
@@ -336,6 +336,36 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     }
 
     return QSPI_STATUS_OK;
+}
+
+const PinMap *qspi_master_sclk_pinmap()
+{
+    return PinMap_QSPI_SCLK;
+}
+
+const PinMap *qspi_master_ssel_pinmap()
+{
+    return PinMap_QSPI_SSEL;
+}
+
+const PinMap *qspi_master_data0_pinmap()
+{
+    return PinMap_QSPI_DATA0;
+}
+
+const PinMap *qspi_master_data1_pinmap()
+{
+    return PinMap_QSPI_DATA1;
+}
+
+const PinMap *qspi_master_data2_pinmap()
+{
+    return PinMap_QSPI_DATA2;
+}
+
+const PinMap *qspi_master_data3_pinmap()
+{
+    return PinMap_QSPI_DATA3;
 }
 
 #endif

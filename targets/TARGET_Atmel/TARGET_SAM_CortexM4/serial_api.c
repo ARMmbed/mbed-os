@@ -283,7 +283,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     sysclk_enable_peripheral_clock(clockid);
 }
 
-#ifdef DEVICE_SERIAL_FC
+#if DEVICE_SERIAL_FC
 
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
@@ -577,6 +577,26 @@ int serial_writable(serial_t *obj)
         status = 1;
     }
     return status;
+}
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
 }
 
 /************************************************************************************

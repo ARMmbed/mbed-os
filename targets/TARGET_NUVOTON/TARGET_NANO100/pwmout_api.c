@@ -188,4 +188,9 @@ static void pwmout_config(pwmout_t* obj)
     PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - (obj->pulsewidth_us * 100 / obj->period_us), obj->period_us);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif

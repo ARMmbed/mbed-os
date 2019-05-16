@@ -26,28 +26,28 @@ using namespace utest::v1;
 
 void TCPSOCKET_BIND_WRONG_TYPE()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
-    }
-#endif
-
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
+        return;
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
     char addr_bytes[16] = {0xfe, 0x80, 0xff, 0x1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    SocketAddress sockAddr = SocketAddress(addr_bytes, NSAPI_IPv4, 80);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->bind(sockAddr));
+    SocketAddress sockAddr;
+    if (get_ip_version() == NSAPI_IPv4) {
+        sockAddr = SocketAddress(addr_bytes, NSAPI_IPv4, 80);
+    } else if (get_ip_version() == NSAPI_IPv6) {
+        sockAddr = SocketAddress(addr_bytes, NSAPI_IPv6, 80);
+    } else {
+        TEST_FAIL_MESSAGE("This stack is neither IPv4 nor IPv6");
+    }
+    nsapi_error_t bind_result = sock->bind(sockAddr);
+    if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
+        TEST_IGNORE_MESSAGE("bind() not supported");
+    } else {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, bind_result);
+    }
 
     delete sock;
-
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
-    }
-#endif
 }

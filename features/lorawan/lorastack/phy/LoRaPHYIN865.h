@@ -32,8 +32,9 @@
 #ifndef MBED_OS_LORAPHY_IN865_H_
 #define MBED_OS_LORAPHY_IN865_H_
 
-#include "LoRaPHY.h"
+#if !(DOXYGEN_ONLY)
 
+#include "LoRaPHY.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -79,4 +80,5 @@ private:
     uint16_t default_channel_mask[IN865_CHANNEL_MASK_SIZE];
 };
 
+#endif /* DOXYGEN_ONLY */
 #endif /* MBED_OS_LORAPHY_IN865_H_ */

@@ -17,6 +17,8 @@
 #ifndef __NRF5x_GAP_H__
 #define __NRF5x_GAP_H__
 
+#include "ble/Gap.h"
+
 #ifdef YOTTA_CFG_MBED_OS
     #include "mbed-drivers/mbed.h"
 #else
@@ -61,62 +63,71 @@ void radioNotificationStaticCallback(bool param);
 
 */
 /**************************************************************************/
-class nRF5xGap : public ::Gap, public ble::pal::ConnectionEventMonitor {
+class nRF5xGap :
+    public ble::interface::LegacyGap<nRF5xGap>,
+    public ble::pal::ConnectionEventMonitor<ble::impl::ConnectionEventHandler> {
+
 public:
     nRF5xGap();
 
-    virtual ~nRF5xGap() { }
+    ~nRF5xGap() { }
 
     /* Functions that must be implemented from Gap */
-    virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
-    virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
-    virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
+    ble_error_t setAddress_(AddressType_t  type,  const Address_t address);
+    ble_error_t getAddress_(AddressType_t *typeP, Address_t address);
+    ble_error_t setAdvertisingData_(const GapAdvertisingData &, const GapAdvertisingData &);
 
-    virtual uint16_t    getMinAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
-    virtual uint16_t    getMinNonConnectableAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);}
-    virtual uint16_t    getMaxAdvertisingInterval(void) const {return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);}
+    uint16_t    getMinAdvertisingInterval_(void) const {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);
+    }
+    uint16_t    getMinNonConnectableAdvertisingInterval_(void) const {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);
+    }
+    uint16_t    getMaxAdvertisingInterval_(void) const {
+        return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);
+    }
 
-    virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
-    virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
-    virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
-            ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
-    virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
-    virtual ble_error_t disconnect(DisconnectionReason_t reason);
+    ble_error_t startAdvertising_(const GapAdvertisingParams &);
+    ble_error_t stopAdvertising_(void);
+    ble_error_t connect_(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+    ble_error_t connect_(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+    /* non virtual */ ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
+    ble_error_t disconnect_(Handle_t connectionHandle, DisconnectionReason_t reason);
+    ble_error_t disconnect_(DisconnectionReason_t reason);
 
-    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
-    virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
-    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
-    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
+    ble_error_t setDeviceName_(const uint8_t *deviceName);
+    ble_error_t getDeviceName_(uint8_t *deviceName, unsigned *lengthP);
+    ble_error_t setAppearance_(GapAdvertisingData::Appearance appearance);
+    ble_error_t getAppearance_(GapAdvertisingData::Appearance *appearanceP);
 
-    virtual ble_error_t setTxPower(int8_t txPower);
-    virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
+    ble_error_t setTxPower_(int8_t txPower);
+    void        getPermittedTxPowerValues_(const int8_t **valueArrayPP, size_t *countP);
 
     void     setConnectionHandle(uint16_t con_handle);
     uint16_t getConnectionHandle(void);
 
-    virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
-    virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
-    virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+    ble_error_t getPreferredConnectionParams_(ConnectionParams_t *params);
+    ble_error_t setPreferredConnectionParams_(const ConnectionParams_t *params);
+    ble_error_t updateConnectionParams_(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual ble_error_t reset(void);
+    ble_error_t reset_(void);
 
     /*
      * The following functions are part of the whitelisting experimental API.
      * Therefore, this functionality can change in the near future.
      */
-    virtual uint8_t getMaxWhitelistSize(void) const;
-    virtual ble_error_t getWhitelist(Gap::Whitelist_t &whitelistOut) const;
-    virtual ble_error_t setWhitelist(const Gap::Whitelist_t &whitelistIn);
+    uint8_t getMaxWhitelistSize_(void) const;
+    ble_error_t getWhitelist_(Whitelist_t &whitelistOut) const;
+    ble_error_t setWhitelist_(const Whitelist_t &whitelistIn);
 
-    virtual ble_error_t setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode);
-    virtual ble_error_t setScanningPolicyMode(ScanningPolicyMode_t mode);
-    virtual ble_error_t setInitiatorPolicyMode(InitiatorPolicyMode_t mode);
-    virtual Gap::AdvertisingPolicyMode_t getAdvertisingPolicyMode(void) const;
-    virtual Gap::ScanningPolicyMode_t getScanningPolicyMode(void) const;
-    virtual Gap::InitiatorPolicyMode_t getInitiatorPolicyMode(void) const;
+    ble_error_t setAdvertisingPolicyMode_(AdvertisingPolicyMode_t mode);
+    ble_error_t setScanningPolicyMode_(ScanningPolicyMode_t mode);
+    ble_error_t setInitiatorPolicyMode_(InitiatorPolicyMode_t mode);
+    AdvertisingPolicyMode_t getAdvertisingPolicyMode_(void) const;
+    ScanningPolicyMode_t getScanningPolicyMode_(void) const;
+    InitiatorPolicyMode_t getInitiatorPolicyMode_(void) const;
 
-    virtual ble_error_t initRadioNotification(void) {
+    ble_error_t initRadioNotification_(void) {
         if (ble_radio_notification_init(APP_IRQ_PRIORITY_HIGH /*MID*/, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
         }
@@ -124,28 +135,28 @@ public:
         return BLE_ERROR_UNSPECIFIED;
     }
 
-    virtual ble_error_t enablePrivacy(bool enable);
+    ble_error_t enablePrivacy_(bool enable);
 
-    virtual ble_error_t setPeripheralPrivacyConfiguration(
+    ble_error_t setPeripheralPrivacyConfiguration_(
         const PeripheralPrivacyConfiguration_t *configuration
     );
 
-    virtual ble_error_t getPeripheralPrivacyConfiguration(
+    ble_error_t getPeripheralPrivacyConfiguration_(
         PeripheralPrivacyConfiguration_t *configuration
     );
 
-    virtual ble_error_t setCentralPrivacyConfiguration(
+    ble_error_t setCentralPrivacyConfiguration_(
         const CentralPrivacyConfiguration_t *configuration
     );
 
-    virtual ble_error_t getCentralPrivacyConfiguration(
+    ble_error_t getCentralPrivacyConfiguration_(
         CentralPrivacyConfiguration_t *configuration
     );
 
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
-    virtual ble_error_t stopScan(void);
+    ble_error_t startRadioScan_(const GapScanningParams &scanningParams);
+    ble_error_t stopScan_(void);
 #endif
 
 private:
@@ -154,8 +165,8 @@ private:
      */
 
     /* Policy modes set by the user. By default these are set to ignore the whitelist */
-    Gap::AdvertisingPolicyMode_t advertisingPolicyMode;
-    Gap::ScanningPolicyMode_t    scanningPolicyMode;
+    AdvertisingPolicyMode_t advertisingPolicyMode;
+    ScanningPolicyMode_t    scanningPolicyMode;
 
     /* Internal representation of a whitelist */
     uint8_t         whitelistAddressesSize;
@@ -244,13 +255,6 @@ private:
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 
 public:
-    /** @note Implements ConnectionEventMonitor.
-     *  @copydoc ConnectionEventMonitor::set_connection_event_handler
-     */
-    virtual void set_connection_event_handler(
-        ConnectionEventMonitor::EventHandler* connection_event_handler
-    );
-
     /**
      * @copydoc ::Gap::processDisconnectionEvent
      */
@@ -269,6 +273,15 @@ public:
      */
     ble_error_t get_role(ble::connection_handle_t connection, Role_t& role);
 
+protected:
+    // import from Gap
+    friend ble::interface::Gap<nRF5xGap>;
+
+    using ble::interface::Gap<nRF5xGap>::startAdvertising_;
+    using ble::interface::Gap<nRF5xGap>::stopAdvertising_;
+    using ble::interface::Gap<nRF5xGap>::connect_;
+    using ble::interface::Gap<nRF5xGap>::disconnect_;
+
 private:
     friend void btle_handler(ble_evt_t *p_ble_evt);
 
@@ -280,8 +293,6 @@ private:
     void release_all_connections_role();
 
     uint16_t m_connectionHandle;
-
-    ConnectionEventMonitor::EventHandler* _connection_event_handler;
 
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;

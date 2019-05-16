@@ -221,4 +221,24 @@ int i2c_byte_write(i2c_t *obj, int data)
     return -1;
 }
 
+const PinMap *i2c_master_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_master_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
+}
+
+const PinMap *i2c_slave_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_slave_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
+}
+
 #endif  // #if DEVICE_I2C

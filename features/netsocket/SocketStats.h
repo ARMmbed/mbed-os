@@ -143,7 +143,7 @@ public:
      */
     void stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes);
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 private:
     static mbed_stats_socket_t _stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
     static SingletonPtr<PlatformMutex> _mutex;

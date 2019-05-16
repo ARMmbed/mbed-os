@@ -60,7 +60,7 @@ public:
     Semaphore(int32_t count, uint16_t max_count);
 
     /** Wait until a Semaphore resource becomes available.
-      @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
+      @param   millisec  timeout value. (default: osWaitForever).
       @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.

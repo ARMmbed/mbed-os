@@ -64,6 +64,7 @@ typedef enum {
     PHY_EXTENSION_GET_TIMESTAMP, /**<  Read 32-bit constant monotonic time stamp in us */
     PHY_EXTENSION_SET_CSMA_PARAMETERS, /**< CSMA parameter's are given by phy_csma_params_t structure remember type cast uint8_t pointer to structure type*/
     PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, /**<  Read Symbols per seconds which will help to convert symbol time to real time  */
+    PHY_EXTENSION_SET_RF_CONFIGURATION  /**<  Set RF configuration using phy_rf_channel_parameters_s structure */
 } phy_extension_type_e;
 
 /** Address types */
@@ -130,6 +131,7 @@ typedef enum phy_modulation_e {
     M_OQPSK,    ///< OQPSK
     M_BPSK,     ///< BPSK
     M_GFSK,     ///< GFSK
+    M_2FSK,     ///< 2FSK
     M_UNDEFINED ///< UNDEFINED
 } phy_modulation_e;
 
@@ -146,13 +148,21 @@ typedef enum {
     CHANNEL_PAGE_10 = 10    ///< Page 10
 } channel_page_e;
 
+/** Modulation index */
+typedef enum {
+    MODULATION_INDEX_0_5 = 0,   ///< Modulation index 0.5
+    MODULATION_INDEX_1_0 = 1,   ///< Modulation index 1.0
+    MODULATION_INDEX_UNDEFINED  ///< Modulation index undefined
+} phy_modulation_index_e;
+
 /** Channel configuration */
 typedef struct phy_rf_channel_configuration_s {
-    uint32_t channel_0_center_frequency;    ///< Center frequency
-    uint32_t channel_spacing;               ///< Channel spacing
-    uint32_t datarate;                      ///< Data rate
-    uint16_t number_of_channels;            ///< Number of channels
-    phy_modulation_e modulation;            ///< Modulation scheme
+    uint32_t channel_0_center_frequency;        ///< Center frequency
+    uint32_t channel_spacing;                   ///< Channel spacing
+    uint32_t datarate;                          ///< Data rate
+    uint16_t number_of_channels;                ///< Number of channels
+    phy_modulation_e modulation;                ///< Modulation scheme
+    phy_modulation_index_e modulation_index;    ///< Modulation index
 } phy_rf_channel_configuration_s;
 
 /** Channel page configuration */

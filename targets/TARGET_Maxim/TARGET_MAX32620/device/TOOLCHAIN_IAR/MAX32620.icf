@@ -15,7 +15,11 @@ define region ROM_region      = mem:[from __region_ROM_start__   to __region_ROM
 define region RAM_region      = mem:[from __region_RAM_start__   to __region_RAM_end__];
 
 /* Stack and Heap */
-define symbol __size_cstack__ = 0x1000;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x4000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

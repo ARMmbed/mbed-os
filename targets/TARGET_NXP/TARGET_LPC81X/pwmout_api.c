@@ -29,6 +29,30 @@
 static unsigned char sct_used = 0;
 static int sct_inited = 0;
 
+// Pinmap used for testing only
+static const PinMap PinMap_PWM_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10, 0, 0},
+    {P0_11, 0, 0},
+    {P0_12, 0, 0},
+    {P0_13, 0, 0},
+    {P0_14, 0, 0},
+    {P0_15, 0, 0},
+    {P0_16, 0, 0},
+    {P0_17, 0, 0},
+
+    {NC, NC, 0}
+};
+
 // Find available output channel
 // Max number of PWM outputs is 4 on LPC812
 static int get_available_sct() {
@@ -244,6 +268,11 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     }
 //Should add Sanity check to make sure pulsewidth < period!
     obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)us; // New endtime for this channel
+}
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM_testing;
 }
 
 #endif

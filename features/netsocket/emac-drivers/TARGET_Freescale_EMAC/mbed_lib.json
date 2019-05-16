@@ -1,7 +1,7 @@
 {
     "name": "kinetis-emac",
     "config": {
-        "rx-ring-len": 16,
-        "tx-ring-len": 8
+        "rx-ring-len": 2,
+        "tx-ring-len": 1
     }
 }

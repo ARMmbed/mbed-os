@@ -32,6 +32,8 @@
 #ifndef MBED_OS_LORAPHY_EU433_H_
 #define MBED_OS_LORAPHY_EU433_H_
 
+#if !(DOXYGEN_ONLY)
+
 #include "LoRaPHY.h"
 
 /*!
@@ -76,5 +78,5 @@ private:
     uint16_t default_channel_mask[EU433_CHANNEL_MASK_SIZE];
 };
 
-
+#endif /* DOXYGEN_ONLY*/
 #endif /* MBED_OS_LORAPHY_EU433_H_ */

@@ -1,11 +1,32 @@
 /* Linker script for STM32F411 */
 
+#if !defined(MBED_APP_START)
+    #ifdef DISABLE_POST_BINARY_HOOK
+        #define MBED_APP_START 0x08000000
+    #else
+        #define MBED_APP_START 0x08010000
+    #endif
+#endif
+
+#if !defined(MBED_APP_SIZE)
+    #ifdef DISABLE_POST_BINARY_HOOK
+        #define MBED_APP_SIZE 0x80000
+    #else
+        #define MBED_APP_SIZE (0x80000 - 0x10000)
+    #endif
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
+
 /* Linker script to configure memory regions. */
 MEMORY
-{ 
-  /* First 64kB of flash reserved for bootloader */
-  /* Other 448kB for application */
-  FLASH (rx) : ORIGIN = 0x08010000, LENGTH = 448K
+{
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
 /*  CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 64K */
   RAM (rwx) : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
 }
@@ -130,6 +151,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -144,7 +166,7 @@ SECTIONS
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
     
     /* Check if data + heap + stack exceeds RAM limit */

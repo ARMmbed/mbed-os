@@ -102,6 +102,12 @@ static int coap_security_handler_init(coap_security_t *sec)
     const int entropy_source_type = MBEDTLS_ENTROPY_SOURCE_WEAK;
 #endif
 
+#if defined(MBEDTLS_PLATFORM_C)
+    if (mbedtls_platform_setup(NULL) != 0) {
+        return -1;
+    }
+#endif /* MBEDTLS_PLATFORM_C */
+
     mbedtls_ssl_init(&sec->_ssl);
     mbedtls_ssl_config_init(&sec->_conf);
     mbedtls_ctr_drbg_init(&sec->_ctr_drbg);
@@ -153,6 +159,9 @@ static void coap_security_handler_reset(coap_security_t *sec)
     mbedtls_ctr_drbg_free(&sec->_ctr_drbg);
     mbedtls_ssl_config_free(&sec->_conf);
     mbedtls_ssl_free(&sec->_ssl);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
 }
 
 

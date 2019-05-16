@@ -142,6 +142,7 @@ static trace_t m_trace = {
     .line_length = DEFAULT_TRACE_LINE_LENGTH,
     .tmp_data = 0,
     .tmp_data_length = DEFAULT_TRACE_TMP_LINE_LEN,
+    .tmp_data_ptr = 0,
     .prefix_f = 0,
     .suffix_f = 0,
     .printf  = mbed_trace_default_print,

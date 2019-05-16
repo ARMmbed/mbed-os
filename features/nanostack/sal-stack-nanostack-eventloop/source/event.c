@@ -179,23 +179,25 @@ arm_event_storage_t *event_core_get(void)
 
 void event_core_free_push(arm_event_storage_t *free)
 {
-    free->state = ARM_LIB_EVENT_UNQUEUED;
-
     switch (free->allocator) {
         case ARM_LIB_EVENT_STARTUP_POOL:
+            free->state = ARM_LIB_EVENT_UNQUEUED;
             platform_enter_critical();
             ns_list_add_to_start(&free_event_entry, free);
             platform_exit_critical();
             break;
         case ARM_LIB_EVENT_DYNAMIC:
             // Free all dynamically allocated events.
+            // No need to set state to UNQUEUED - it's being freed.
             ns_dyn_mem_free(free);
             break;
         case ARM_LIB_EVENT_TIMER:
             // Hand it back to the timer system
+            free->state = ARM_LIB_EVENT_UNQUEUED;
             timer_sys_event_free(free);
             break;
         case ARM_LIB_EVENT_USER:
+            // No need set state to UNQUEUED - we forget about it.
         default:
             break;
     }

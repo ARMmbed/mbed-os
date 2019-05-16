@@ -59,13 +59,13 @@ struct spi_s {
     uint8_t bits;
 };
 
-#if defined(DEVICE_FLASH)
+#if DEVICE_FLASH && !defined(TARGET_FLASH_CMSIS_ALGO)
 struct flash_s {
     uint8_t dummy;
 };
 #endif
 
-#if defined(DEVICE_TRNG)
+#if DEVICE_TRNG
 struct trng_s {
     uint8_t dummy;
 };

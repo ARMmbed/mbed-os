@@ -33,10 +33,10 @@ static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(19);
 
-    nsapi_error_t err = sock.open(get_interface());
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
         return err;
     }
@@ -118,6 +118,7 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
 
 void TCPSOCKET_RECV_100K()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
@@ -145,6 +146,9 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
         int rd = sock.recv(buff, buff_size);
         TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
         if (rd > 0) {
+            if (rd > buff_size) {
+                TEST_FAIL_MESSAGE("sock.recv returned more than requested.");
+            }
             check_RFC_864_pattern(buff, rd, recvd_size);
             recvd_size += rd;
         } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
@@ -169,6 +173,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_RECV_100K_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket     sock;
     nsapi_error_t err = _tcpsocket_connect_to_chargen_srv(sock);
 

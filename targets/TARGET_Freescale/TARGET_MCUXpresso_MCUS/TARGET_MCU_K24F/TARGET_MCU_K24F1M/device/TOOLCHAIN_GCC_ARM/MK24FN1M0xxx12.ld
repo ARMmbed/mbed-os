@@ -47,14 +47,16 @@
 ** ###################################################################
 */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 /* Entry Point */
 ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* Heap 1/4 of ram and stack 1/8 */
-__stack_size__ = 0x8000;
-__heap_size__ = 0x10000;
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
@@ -64,7 +66,6 @@ __heap_size__ = 0x10000;
   #define MBED_APP_SIZE 0x100000
 #endif
 
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x8000;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x10000;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 
@@ -255,7 +256,7 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - STACK_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data_2

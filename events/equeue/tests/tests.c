@@ -779,6 +779,29 @@ void break_request_cleared_on_timeout(void)
     equeue_destroy(&q);
 }
 
+void sibling_test(void)
+{
+    equeue_t q;
+    int err = equeue_create(&q, 1024);
+    test_assert(!err);
+
+    int id0 = equeue_call_in(&q, 1, pass_func, 0);
+    int id1 = equeue_call_in(&q, 1, pass_func, 0);
+    int id2 = equeue_call_in(&q, 1, pass_func, 0);
+
+    struct equeue_event *e = q.queue;
+
+    for (; e; e = e->next) {
+        for (struct equeue_event *s = e->sibling; s; s = s->sibling) {
+            test_assert(!s->next);
+        }
+    }
+    equeue_cancel(&q, id0);
+    equeue_cancel(&q, id1);
+    equeue_cancel(&q, id2);
+    equeue_destroy(&q);
+}
+
 int main()
 {
     printf("beginning tests...\n");
@@ -806,7 +829,7 @@ int main()
     test_run(fragmenting_barrage_test, 20);
     test_run(multithreaded_barrage_test, 20);
     test_run(break_request_cleared_on_timeout);
-
+    test_run(sibling_test);
     printf("done!\n");
     return test_failure;
 }

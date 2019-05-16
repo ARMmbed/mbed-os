@@ -42,23 +42,24 @@ typedef enum psa_sec_function_s {
     PSA_CRYPTO_INVALID,
     PSA_CRYPTO_INIT,
     PSA_IMPORT_KEY,
+    PSA_ALLOCATE_KEY,
+    PSA_CREATE_KEY,
+    PSA_OPEN_KEY,
+    PSA_CLOSE_KEY,
     PSA_DESTROY_KEY,
     PSA_GET_KEY_INFORMATION,
     PSA_EXPORT_KEY,
     PSA_EXPORT_PUBLIC_KEY,
-    PSA_KEY_POLICY_INIT,
-    PSA_KEY_POLICY_SET_USAGE,
-    PSA_KEY_POLICY_GET_USAGE,
-    PSA_KEY_POLICY_GET_ALGORITHM,
     PSA_SET_KEY_POLICY,
     PSA_GET_KEY_POLICY,
-    PSA_SET_KEY_LIFETIME,
     PSA_GET_KEY_LIFETIME,
     PSA_HASH_SETUP,
     PSA_HASH_UPDATE,
     PSA_HASH_FINISH,
     PSA_HASH_VERIFY,
     PSA_HASH_ABORT,
+    PSA_HASH_CLONE_BEGIN,
+    PSA_HASH_CLONE_END,
     PSA_MAC_SIGN_SETUP,
     PSA_MAC_VERIFY_SETUP,
     PSA_MAC_UPDATE,
@@ -95,52 +96,50 @@ typedef enum psa_sec_function_s {
 */
 
 /** psa_crypto_ipc_s struct used for some of the
- * PSA Crypto APIs that need psa_key_slot_t and psa_algorithm_t arguments
+ * PSA Crypto APIs that need psa_key_handle_t and psa_algorithm_t arguments
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-
 typedef struct psa_crypto_ipc_s {
     psa_sec_function_t func;
-    psa_key_slot_t key;
+    psa_key_handle_t handle;
     psa_algorithm_t alg;
 } psa_crypto_ipc_t;
 
 /** psa_crypto_derivation_ipc_s struct used for some of the
- * PSA Crypto APIs that need psa_key_slot_t and psa_algorithm_t arguments
+ * PSA Crypto APIs that need psa_key_handle_t and psa_algorithm_t arguments
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
 typedef struct psa_crypto_derivation_ipc_s {
     psa_sec_function_t func;
-    psa_key_slot_t key;
+    psa_key_handle_t handle;
     psa_algorithm_t alg;
     size_t capacity;
 } psa_crypto_derivation_ipc_t;
 
 /** psa_key_mng_ipc_s struct used for some of the
- * PSA Crypto APIs that need psa_key_slot_t and psa_algorithm_t arguments
+ * PSA Crypto APIs that need psa_key_handle_t and psa_algorithm_t arguments
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-
 typedef struct psa_key_mng_ipc_s {
-    psa_key_slot_t key;
+    psa_key_handle_t handle;
+    psa_key_lifetime_t lifetime;
     psa_key_type_t type;
     psa_sec_function_t func;
 } psa_key_mng_ipc_t;
 
 /** psa_crypto_ipc_aead_s struct used for AEAD integrated
- * PSA Crypto APIs that need psa_key_slot_t and psa_algorithm_t  and extra arguments
+ * PSA Crypto APIs that need psa_key_handle_t and psa_algorithm_t and extra arguments
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-
 // Max length supported for nonce is 16 bytes.
 #define PSA_AEAD_MAX_NONCE_SIZE 16
 typedef struct psa_crypto_ipc_aead_s {
     psa_sec_function_t func;
-    psa_key_slot_t key;
+    psa_key_handle_t handle;
     psa_algorithm_t alg;
     uint16_t nonce_size;
     size_t additional_data_length;
@@ -149,18 +148,17 @@ typedef struct psa_crypto_ipc_aead_s {
 } psa_crypto_ipc_aead_t;
 
 /** psa_crypto_ipc_asymmetric_s struct used for asymmetric
- * PSA Crypto APIs that need psa_key_slot_t and psa_algorithm_t arguments
+ * PSA Crypto APIs that need psa_key_handle_t and psa_algorithm_t arguments
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
 typedef struct psa_crypto_ipc_asymmetric_s {
     psa_sec_function_t func;
-    psa_key_slot_t key;
+    psa_key_handle_t handle;
     psa_algorithm_t alg;
     size_t input_length;
     size_t salt_length;
 } psa_crypto_ipc_asymmetric_t;
-
 
 /**@}*/
 

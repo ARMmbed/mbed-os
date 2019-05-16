@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
 #define MAC_HELPER_H
 
 #include "mlme.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 
 struct channel_list_s;
 struct nwk_scan_params;

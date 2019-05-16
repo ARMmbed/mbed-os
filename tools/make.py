@@ -21,7 +21,7 @@ TEST BUILD & RUN
 from __future__ import print_function
 from builtins import str
 import sys
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, normpath
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -40,19 +40,23 @@ from tools.tests import test_known, test_name_known
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
+from tools.options import get_toolchain_list
 from tools.notifier.term import TerminalNotifier
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
-from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
 from tools.build_api import merge_build_data
-from utils import argparse_filestring_type
-from utils import argparse_many
-from utils import argparse_dir_not_parent
-from tools.toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from tools.build_api import find_valid_toolchain
+from tools.utils import argparse_filestring_type
+from tools.utils import argparse_many
+from tools.utils import argparse_dir_not_parent
+from tools.utils import NoValidToolchainException
+from tools.utils import print_end_warnings
+from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
-
+from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.resources import OsAndSpeResourceFilter
 
 def default_args_dict(options):
     return dict(
@@ -66,11 +70,12 @@ def default_args_dict(options):
         ignore=options.ignore
     )
 
-
-def wrapped_build_project(src_dir, build_dir, mcu, *args, **kwargs):
+def wrapped_build_project(src_dir, build_dir, mcu, end_warnings, options, *args, **kwargs):
+    error = False
     try:
         bin_file, update_file = build_project(
-            src_dir, build_dir, mcu, *args, **kwargs
+            src_dir, build_dir, mcu,
+            *args, **kwargs
         )
         if update_file:
             print('Update Image: %s' % update_file)
@@ -78,17 +83,22 @@ def wrapped_build_project(src_dir, build_dir, mcu, *args, **kwargs):
     except KeyboardInterrupt as e:
         print("\n[CTRL+c] exit")
     except NotSupportedException as e:
-        print("\nCould not compile for %s: %s" % (mcu, str(e)))
+        print("\nCould not compile for {}: {}".format(mcu, str(e)))
+        error = True
     except Exception as e:
         if options.verbose:
             import traceback
             traceback.print_exc(file=sys.stdout)
         else:
-            print("[ERROR] %s" % str(e))
+            print("[ERROR] {}".format(str(e)))
+
+        error = True
+
+    print_end_warnings(end_warnings)
+    if error:
         sys.exit(1)
 
-
-if __name__ == '__main__':
+def main():
     # Parse Options
     parser = get_default_options_parser(add_app_config=True)
 
@@ -280,23 +290,25 @@ if __name__ == '__main__':
     )
     options = parser.parse_args()
 
+    end_warnings = []
+
     if options.supported_toolchains:
         if options.supported_toolchains == "matrix":
-            print(mcu_toolchain_matrix(
+            print_large_string(mcu_toolchain_matrix(
                 platform_filter=options.general_filter_regex,
                 release_version=None
             ))
         elif options.supported_toolchains == "toolchains":
-            toolchain_list = mcu_toolchain_list()
-            # Only print the lines that matter
-            for line in toolchain_list.split("\n"):
-                if "mbed" not in line:
-                    print(line)
+            print('\n'.join(get_toolchain_list()))
         elif options.supported_toolchains == "targets":
-            print(mcu_target_list())
+            print_large_string(mcu_target_list())
     elif options.list_tests is True:
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
     else:
+
+        if options.clean:
+            clean_psa_autogen()
+
         # Target
         if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")
@@ -307,8 +319,7 @@ if __name__ == '__main__':
             args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
 
-        if Target.get_target(mcu).is_PSA_secure_target:
-            options.source_dir = ROOT
+        target = Target.get_target(mcu)
 
         if (options.program is None) and (not options.source_dir):
             args_error(parser, "one of -p, -n, or --source is required")
@@ -319,20 +330,35 @@ if __name__ == '__main__':
 
         notify = TerminalNotifier(options.verbose, options.silent, options.color)
 
-        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
-            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
-            args_error(parser, "Could not find executable for %s.\n"
-                               "Currently set search path: %s"
-                               %(toolchain, search_path))
+        try:
+            toolchain_name, internal_tc_name, end_warnings = find_valid_toolchain(
+                target, toolchain
+            )
+        except NoValidToolchainException as e:
+            print_end_warnings(e.end_warnings)
+            args_error(parser, str(e))
 
         if options.source_dir is not None:
+            if target.is_PSA_target:
+                generate_psa_sources(
+                    source_dirs=options.source_dir,
+                    ignore_paths=[options.build_dir]
+                )
+
+            resource_filter = None
+            if target.is_PSA_secure_target:
+                resource_filter = OsAndSpeResourceFilter()
+
             wrapped_build_project(
                 options.source_dir,
                 options.build_dir,
                 mcu,
-                toolchain,
+                end_warnings,
+                options,
+                toolchain_name,
                 notify=notify,
-                build_profile=extract_profile(parser, options, toolchain),
+                build_profile=extract_profile(parser, options, internal_tc_name),
+                resource_filter=resource_filter,
                 **default_args_dict(options)
             )
         else:
@@ -384,13 +410,18 @@ if __name__ == '__main__':
                     test.source_dir,
                     build_dir,
                     mcu,
-                    toolchain,
+                    end_warnings,
+                    options,
+                    toolchain_name,
                     set(test.dependencies),
                     notify=notify,
                     report=build_data_blob,
                     inc_dirs=[dirname(MBED_LIBRARIES)],
-                    build_profile=extract_profile(parser, options, toolchain),
+                    build_profile=extract_profile(parser, options, internal_tc_name),
                     **default_args_dict(options)
                 )
             if options.build_data:
                 merge_build_data(options.build_data, build_data_blob, "application")
+
+if __name__ == '__main__':
+    main()

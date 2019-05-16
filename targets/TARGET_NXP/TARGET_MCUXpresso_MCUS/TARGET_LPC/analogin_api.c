@@ -16,7 +16,7 @@
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
-#if DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN && !defined(NXP_LPADC)
 
 #include "cmsis.h"
 #include "pinmap.h"
@@ -100,6 +100,11 @@ float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)0xFFFF);
+}
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
 }
 
 #endif

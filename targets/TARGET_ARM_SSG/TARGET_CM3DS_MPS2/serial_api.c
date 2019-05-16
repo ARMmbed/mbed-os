@@ -391,3 +391,34 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow,
     error("serial_set_flow_control function not supported");
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+#if !DEVICE_SERIAL_FC
+    static const PinMap PinMap_UART_CTS[] = {
+        {NC, NC, 0}
+    };
+#endif
+
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+#if !DEVICE_SERIAL_FC
+    static const PinMap PinMap_UART_RTS[] = {
+        {NC, NC, 0}
+    };
+#endif
+
+    return PinMap_UART_RTS;
+}

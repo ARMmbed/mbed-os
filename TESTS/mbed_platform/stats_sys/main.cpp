@@ -39,7 +39,7 @@ void test_sys_info()
 
 #if defined(__IAR_SYSTEMS_ICC__)
     TEST_ASSERT_EQUAL(IAR, stats.compiler_id);
-#elif defined(__CC_ARM)
+#elif defined(__ARMCC_VERSION)
     TEST_ASSERT_EQUAL(ARM, stats.compiler_id);
 #elif defined(__GNUC__)
     TEST_ASSERT_EQUAL(GCC_ARM, stats.compiler_id);

@@ -19,9 +19,12 @@
 
 #warning ble/services/EddystoneConfigService.h is deprecated. Please use the example in 'github.com/ARMmbed/ble-examples/tree/master/BLE_EddystoneService'.
 
-#include "mbed.h"
+#if BLE_FEATURE_GATT_SERVER
+
 #include "ble/BLE.h"
 #include "ble/services/EddystoneService.h"
+#include "Timer.h"
+#include "Ticker.h"
 
 #define UUID_URI_BEACON(FIRST, SECOND) {                         \
         0xee, 0x0c, FIRST, SECOND, 0x87, 0x86, 0x40, 0xba,       \
@@ -497,8 +500,8 @@ private:
 
     BLEDevice                                  &ble;
     Params_t                                   &params;
-    Ticker                                     timeSinceBootTick;
-    Timeout                                    switchFrame;
+    mbed::Ticker                               timeSinceBootTick;
+    mbed::Timeout                              switchFrame;
     // Default value that is restored on reset.
     PowerLevels_t                              &defaultAdvPowerLevels; // This goes into the advertising frames (radio power measured at 1m from device).
     PowerLevels_t                              &radioPowerLevels;      // This configures the power levels of the radio.
@@ -541,5 +544,7 @@ private:
     ReadWriteGattCharacteristic<uint16_t>      beaconPeriodChar;
     WriteOnlyGattCharacteristic<uint8_t>       resetChar;
 };
+
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif  // SERVICES_EDDYSTONE_BEACON_CONFIG_SERVICE_H_

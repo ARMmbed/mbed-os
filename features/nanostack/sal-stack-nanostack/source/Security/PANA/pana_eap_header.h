@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,7 +52,7 @@
  *
  */
 
-typedef struct {
+typedef struct eap_header {
     uint16_t length;
     uint8_t eap_code;
     uint8_t id_seq;
@@ -60,7 +60,7 @@ typedef struct {
     uint8_t *data_ptr;
 } eap_header_t;
 
-typedef struct {
+typedef struct eap_tls_header {
     uint8_t *data_ptr;
     uint8_t eap_tls_flags;
     uint16_t tls_frame_length;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 #include "common_functions.h"
 #include "ccmLIB.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Core/include/ns_buffer.h"
 #include "MLE/mle.h"
 #include "mac_common_defines.h"

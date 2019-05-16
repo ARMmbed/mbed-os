@@ -20,6 +20,12 @@
 
 using namespace mbed;
 
+const char *QIURC_RECV = "recv";
+const uint8_t QIURC_RECV_LENGTH = 4;
+const char *QIURC_CLOSED = "closed";
+const uint8_t QIURC_CLOSED_LENGTH = 6;
+const uint8_t MAX_QIURC_LENGTH = QIURC_CLOSED_LENGTH;
+
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
 {
     _at.set_urc_handler("+QIURC:", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc));
@@ -62,6 +68,11 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                _at.unlock();
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop();
@@ -106,20 +117,30 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 
 void QUECTEL_BG96_CellularStack::urc_qiurc()
 {
-    int sock_id = 0;
-
+    char urc_string[MAX_QIURC_LENGTH + 1];
     _at.lock();
-    (void) _at.skip_param();
-    sock_id = _at.read_int();
-    _at.unlock();
+    const int urc_string_length = _at.read_string(urc_string, sizeof(urc_string));
+    const int sock_id = _at.read_int();
+    const nsapi_error_t err = _at.unlock_return_error();
 
-    for (int i = 0; i < get_max_socket_count(); i++) {
-        CellularSocket *sock = _socket[i];
-        if (sock && sock->id == sock_id) {
+    if (err != NSAPI_ERROR_OK) {
+        return;
+    }
+
+    bool recv = strcmp(urc_string, "recv") == 0;
+    bool closed = strcmp(urc_string, "closed") == 0;
+
+    CellularSocket *sock = find_socket(sock_id);
+    if (sock) {
+        if (closed) {
+            tr_error("Socket closed %d", sock_id);
+            sock->closed = true;
+        }
+
+        if (recv || closed) {
             if (sock->_cb) {
                 sock->_cb(sock->_data);
             }
-            break;
         }
     }
 }
@@ -157,6 +178,7 @@ void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_
     modem_connect_id = _at.read_int();
     err = _at.read_int();
 }
+
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int modem_connect_id = -1;
@@ -178,6 +200,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop_read_resp();
@@ -206,6 +232,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop_read_resp();
@@ -239,6 +269,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                      const void *data, nsapi_size_t size)
 {
+    if (size > BG96_MAX_SEND_SIZE) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     int sent_len = 0;
     int sent_len_before = 0;
     int sent_len_after = 0;
@@ -296,6 +330,11 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
 
     _at.cmd_start("AT+QIRD=");
     _at.write_int(socket->id);
+    if (socket->proto == NSAPI_TCP) {
+        // do not read more than max size
+        size = size > BG96_MAX_RECV_SIZE ? BG96_MAX_RECV_SIZE : size;
+        _at.write_int(size);
+    }
     _at.cmd_stop();
 
     _at.resp_start("+QIRD:");
@@ -303,11 +342,15 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
     if (recv_len > 0) {
+        // do not read more than buffer size
+        recv_len = recv_len > (nsapi_size_or_error_t)size ? size : recv_len;
         _at.read_bytes((uint8_t *)buffer, recv_len);
     }
     _at.resp_stop();
 
-    if (!recv_len || (_at.get_last_error() != NSAPI_ERROR_OK)) {
+    // We block only if 0 recv length really means no data.
+    // If 0 is followed by ip address and port can be an UDP 0 length packet
+    if (!recv_len && port < 0) {
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 

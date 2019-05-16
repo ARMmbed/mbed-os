@@ -28,7 +28,7 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/pk.h"
-
+#include "mbedtls/platform.h"
 
 
 #define HANDSHAKE_FINISHED_VALUE 8888

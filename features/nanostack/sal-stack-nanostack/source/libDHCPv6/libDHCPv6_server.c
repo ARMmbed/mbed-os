@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,8 @@ static void libdhcpv6_address_generate(dhcpv6_gua_server_entry_s *serverInfo, dh
     memcpy(ptr, serverInfo->guaPrefix, 8);
     ptr += 8;
     if (serverInfo->enableAddressAutonous) {
-        if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
+        if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
+                entry->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
             memcpy(ptr, entry->linkId, 8);
             *ptr ^= 2;
         } else if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
@@ -131,7 +132,8 @@ dhcpv6_gua_server_entry_s *libdhcpv6_server_data_get_by_prefix_and_socketinstanc
 {
     ns_list_foreach(dhcpv6_gua_server_entry_s, cur, &dhcpv6_gua_server_list) {
         if (cur->socketInstance_id == socketInstance) {
-            if (memcmp(cur->guaPrefix, prefixPtr, 8) == 0) {
+
+            if (!prefixPtr || memcmp(cur->guaPrefix, prefixPtr, 8) == 0) {
                 return cur;
             }
         }
@@ -211,7 +213,8 @@ dhcpv6_alloacted_address_entry_t *libdhcpv6_address_allocated_list_scan(dhcpv6_g
 {
     dhcpv6_alloacted_address_entry_t *newEntry = NULL;
     uint16_t duiLength = 6;
-    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
+    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
+            linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
         duiLength = 8;
     }
     ns_list_foreach(dhcpv6_alloacted_address_entry_t, cur, &serverInfo->allocatedAddressList) {

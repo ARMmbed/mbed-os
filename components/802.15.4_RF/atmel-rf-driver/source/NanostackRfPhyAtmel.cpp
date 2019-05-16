@@ -15,7 +15,7 @@
  */
 #include <string.h>
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C && defined(MBED_CONF_RTOS_PRESENT)
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && DEVICE_I2C && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
@@ -26,6 +26,12 @@
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_trace.h"
 #include "mbed_toolchain.h"
+#include "DigitalIn.h"
+#include "DigitalOut.h"
+#include "InterruptIn.h"
+#include "SPI.h"
+#include "inttypes.h"
+#include "Timeout.h"
 
 #define TRACE_GROUP "AtRF"
 
@@ -49,6 +55,8 @@
 #define RFF_RX 0x02
 #define RFF_TX 0x04
 #define RFF_CCA 0x08
+
+namespace {
 
 typedef enum {
     RF_MODE_NORMAL = 0,
@@ -82,6 +90,8 @@ typedef enum {
     STATE_TRANSITION_IN_PROGRESS = 0x1F
 } rf_trx_states_t;
 
+} // anonymous namespace
+
 static const uint8_t *rf_tx_data; // Points to Nanostack's buffer
 static uint8_t rf_tx_length;
 /*ACK wait duration changes depending on data rate*/
@@ -102,8 +112,8 @@ static uint8_t mac_tx_handle = 0;
 static uint8_t xah_ctrl_1;
 
 /* Channel configurations for 2.4 and sub-GHz */
-static const phy_rf_channel_configuration_s phy_24ghz = {2405000000U, 5000000U, 250000U, 16U, M_OQPSK};
-static const phy_rf_channel_configuration_s phy_subghz = {868300000U, 2000000U, 250000U, 11U, M_OQPSK};
+static const phy_rf_channel_configuration_s phy_24ghz = {.channel_0_center_frequency = 2405000000U, .channel_spacing = 5000000U, .datarate = 250000U, .number_of_channels = 16U, .modulation = M_OQPSK};
+static const phy_rf_channel_configuration_s phy_subghz = {.channel_0_center_frequency = 868300000U, .channel_spacing = 2000000U, .datarate = 250000U, .number_of_channels = 11U, .modulation = M_OQPSK};
 
 static const phy_device_channel_page_s phy_channel_pages[] = {
     { CHANNEL_PAGE_0, &phy_24ghz},
@@ -215,8 +225,9 @@ static inline rf_trx_states_t rf_if_trx_status_from_full(uint8_t full_trx_status
 }
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "mbed.h"
+
 #include "rtos.h"
+
 using namespace mbed;
 using namespace rtos;
 
@@ -310,75 +321,10 @@ static void rf_if_ack_timer_signal(void)
 }
 #endif
 
-// *INDENT-OFF*
-/* Delay functions for RF Chip SPI access */
-#ifdef __CC_ARM
-__asm static void delay_loop(uint32_t count)
-{
-1
-  SUBS a1, a1, #1
-  BCS  %BT1
-  BX   lr
-}
-#elif defined (__ARMCC_VERSION) /* ARMC6 */
-void delay_loop(uint32_t count)
-{
-    // TODO: This needs implementation
-    while(count--)
-        ;;
-}
-#elif defined (__ICCARM__)
-static void delay_loop(uint32_t count)
-{
-  __asm volatile(
-    "loop: \n"
-    " SUBS %0, %0, #1 \n"
-    " BCS.n  loop\n"
-    : "+r" (count)
-    :
-    : "cc"
-  );
-}
-#else // GCC
-static void delay_loop(uint32_t count)
-{
-  __asm__ volatile (
-    "%=:\n\t"
-#if defined(__thumb__) && !defined(__thumb2__)
-    "SUB  %0, #1\n\t"
-#else
-    "SUBS %0, %0, #1\n\t"
-#endif
-    "BCS  %=b\n\t"
-    : "+l" (count)
-    :
-    : "cc"
-  );
-}
-#endif
-// *INDENT-ON*
-
-static void delay_ns(uint32_t ns)
-{
-    uint32_t cycles_per_us = SystemCoreClock / 1000000;
-    // Cortex-M0 takes 4 cycles per loop (SUB=1, BCS=3)
-    // Cortex-M3 and M4 takes 3 cycles per loop (SUB=1, BCS=2)
-    // Cortex-M7 - who knows?
-    // Cortex M3-M7 have "CYCCNT" - would be better than a software loop, but M0 doesn't
-    // Assume 3 cycles per loop for now - will be 33% slow on M0. No biggie,
-    // as original version of code was 300% slow on M4.
-    // [Note that this very calculation, plus call overhead, will take multiple
-    // cycles. Could well be 100ns on its own... So round down here, startup is
-    // worth at least one loop iteration.]
-    uint32_t count = (cycles_per_us * ns) / 3000;
-
-    delay_loop(count);
-}
-
 // t1 = 180ns, SEL falling edge to MISO active [SPI setup assumed slow enough to not need manual delay]
 #define CS_SELECT()  {rf->CS = 0; /* delay_ns(180); */}
 // t9 = 250ns, last clock to SEL rising edge, t8 = 250ns, SPI idle time between consecutive access
-#define CS_RELEASE() {delay_ns(250); rf->CS = 1; delay_ns(250);}
+#define CS_RELEASE() {wait_ns(250); rf->CS = 1; wait_ns(250);}
 
 /*
  * \brief Read connected radio part.
@@ -1078,21 +1024,20 @@ static void rf_if_interrupt_handler(void)
 
     /*Frame end interrupt (RX and TX)*/
     if (irq_status & TRX_END) {
-        /*TX done interrupt*/
         rf_trx_states_t trx_status = rf_if_trx_status_from_full(full_trx_status);
-        if (trx_status == PLL_ON || trx_status == TX_ARET_ON) {
+        if (rf_flags & RFF_TX) {
             rf_handle_tx_end(trx_status);
-        }
-        /*Frame received interrupt*/
-        else {
+        } else if (rf_flags & RFF_RX) {
             rf_handle_rx_end(trx_status);
+        } else {
+            //something went really wrong
         }
     }
     if (irq_status & CCA_ED_DONE) {
         rf_handle_cca_ed_done(full_trx_status);
     }
     if (irq_status & TRX_UR) {
-        // Here some counter could be used to monitor the underrun occurancy count.
+        // Here some counter could be used to monitor the under run occurrence count.
         // Do not print anything here!
     }
 }

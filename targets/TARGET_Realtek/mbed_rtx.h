@@ -23,21 +23,10 @@
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
-    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Length[];
-    #define ISR_STACK_START     (unsigned char *)(Image$$ARM_LIB_STACK$$ZI$$Base)
-    #define ISR_STACK_SIZE      (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Length)
-    #define INITIAL_SP          (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base)
+    #define INITIAL_SP          ((uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base))
 #elif defined(__GNUC__)
-    extern uint32_t             __StackTop[];
-    extern uint32_t             __StackLimit[];
-    extern uint32_t             __HeapLimit[];
-    #define INITIAL_SP          (__StackTop)
-#endif
-
-#if defined(__GNUC__)
-#ifndef ISR_STACK_SIZE
-#define ISR_STACK_SIZE          (0x1000)
-#endif
+    extern uint32_t             __StackTop;
+    #define INITIAL_SP          ((uint32_t)(&__StackTop))
 #endif
 
 #endif

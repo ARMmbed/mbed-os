@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_PWMOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_PWMOUT || defined(DOXYGEN_ONLY)
 #include "hal/pwmout_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
@@ -68,6 +68,7 @@ public:
     ~PwmOut()
     {
         core_util_critical_section_enter();
+        pwmout_free(&_pwm);
         unlock_deep_sleep();
         core_util_critical_section_exit();
     }

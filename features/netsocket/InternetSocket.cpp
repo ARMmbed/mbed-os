@@ -15,15 +15,18 @@
  */
 
 #include "InternetSocket.h"
+#include "platform/mbed_critical.h"
 #include "platform/Callback.h"
 
 using namespace mbed;
 
 InternetSocket::InternetSocket()
     : _stack(0), _socket(0), _timeout(osWaitForever),
-      _readers(0), _writers(0), _pending(0),
+      _remote_peer(),
+      _readers(0), _writers(0),
       _factory_allocated(false)
 {
+    core_util_atomic_flag_clear(&_pending);
     _socket_stats.stats_new_socket_entry(this);
 }
 
@@ -53,7 +56,7 @@ nsapi_error_t InternetSocket::open(NetworkStack *stack)
     _socket = socket;
     _event = callback(this, &InternetSocket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
-
+    _interface_name[0] = '\0';
     _lock.unlock();
     return NSAPI_ERROR_OK;
 }
@@ -85,7 +88,7 @@ nsapi_error_t InternetSocket::close()
         _event_flag.wait_any(FINISHED_FLAG, osWaitForever);
         _lock.lock();
     }
-
+    _interface_name[0] = '\0';
     _lock.unlock();
 
     // When allocated by accept() call, will destroy itself on close();
@@ -174,6 +177,9 @@ nsapi_error_t InternetSocket::setsockopt(int level, int optname, const void *opt
         ret = NSAPI_ERROR_NO_SOCKET;
     } else {
         ret = _stack->setsockopt(_socket, level, optname, optval, optlen);
+        if (optname == NSAPI_BIND_TO_DEVICE && level == NSAPI_SOCKET) {
+            strncpy(_interface_name, static_cast<const char *>(optval), optlen);
+        }
     }
 
     _lock.unlock();
@@ -199,17 +205,16 @@ void InternetSocket::event()
 {
     _event_flag.set(READ_FLAG | WRITE_FLAG);
 
-    _pending += 1;
-    if (_callback && _pending == 1) {
+    if (_callback && !core_util_atomic_flag_test_and_set(&_pending)) {
         _callback();
     }
 }
 
 void InternetSocket::sigio(Callback<void()> callback)
 {
-    _lock.lock();
+    core_util_critical_section_enter();
     _callback = callback;
-    _lock.unlock();
+    core_util_critical_section_exit();
 }
 
 void InternetSocket::attach(Callback<void()> callback)

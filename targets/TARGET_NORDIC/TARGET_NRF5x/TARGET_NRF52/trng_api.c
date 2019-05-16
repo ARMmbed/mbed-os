@@ -36,7 +36,7 @@
  *
  */
 
-#if defined(DEVICE_TRNG)
+#if DEVICE_TRNG
 #if !defined(FEATURE_CRYPTOCELL310)
 #include "hal/trng_api.h"
 #include "hal/critical_section_api.h"

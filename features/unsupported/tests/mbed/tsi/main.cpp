@@ -6,7 +6,7 @@ int main(void) {
     TSISensor tsi;
 
     while (true) {
-        printf("slider percentage: %f%\r\n", tsi.readPercentage());
+        printf("slider percentage: %f%%\r\n", tsi.readPercentage());
         printf("slider distance: %dmm\r\n", tsi.readDistance());
         wait(1);
         led = !led;

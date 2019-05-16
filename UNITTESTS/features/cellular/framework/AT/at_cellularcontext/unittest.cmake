@@ -9,11 +9,13 @@ set(unittest-includes ${unittest-includes}
   ../features/cellular/framework/common
   ../features/cellular/framework/AT
   ../features/cellular/framework/device
+  ../features/netsocket/cellular
 )
 
 # Source files
 set(unittest-sources
   ../features/cellular/framework/AT/AT_CellularContext.cpp
+  ../features/cellular/framework/AT/ATHandler_factory.cpp
   ../features/cellular/framework/common/CellularUtil.cpp
 )
 
@@ -32,8 +34,12 @@ set(unittest-test-sources
   stubs/FileHandle_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/NetworkInterface_stub.cpp
+  stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/NetworkStack_stub.cpp
   stubs/randLIB_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/us_ticker_stub.cpp
+  stubs/UARTSerial_stub.cpp
+  stubs/SerialBase_stub.cpp
+  stubs/CellularContext_stub.cpp
 )

@@ -1,3 +1,4 @@
+/** @file DTLSSocket.h DTLSSocket */
 /*
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -14,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/** @addtogroup netsocket
+* @{
+*/
 
 #ifndef DTLSSOCKET_H
 #define DTLSSOCKET_H
@@ -25,9 +29,16 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
+/**
+ * \brief DTLSSocket implement DTLS stream over UDP Socket.
+ *
+ * This is a helper class that uses DTLSSocketWrapper with
+ * internal UDPSocket.
+ */
+
 class DTLSSocket : public DTLSSocketWrapper {
 public:
-    /** Create an uninitialized DTLS socket
+    /** Create an uninitialized DTLS socket.
      *
      *  Must call open to initialize the socket on a network stack.
      */
@@ -37,14 +48,14 @@ public:
      */
     virtual ~DTLSSocket();
 
-    /** Create a socket on a network interface
+    /** Create a socket on a network interface.
      *
      *  Creates and opens a socket on the network stack of the given
      *  network interface.
      *  If hostname is also given, user is not required to call set_hostname() later.
      *
-     *  @param stack    Network stack as target for socket
-     *  @param hostname Hostname used for certificate verification
+     *  @param stack    Network stack as target for socket.
+     *  @param hostname Hostname used for certificate verification.
      */
     template <typename S>
     DTLSSocket(S *stack, const char *hostname = NULL) : DTLSSocketWrapper(&_udp_socket, hostname)
@@ -53,14 +64,14 @@ public:
         MBED_ASSERT(ret == NSAPI_ERROR_OK);
     }
 
-    /** Opens a socket
+    /** Opens a socket.
      *
      *  Creates a network socket on the network stack of the given
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
-     *  @param stack    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
+     *  @param stack    Network stack as target for socket.
+     *  @return         0 on success, negative error code on failure.
      */
     virtual nsapi_error_t open(NetworkStack *stack)
     {
@@ -75,14 +86,14 @@ public:
 
     using DTLSSocketWrapper::connect;
 
-    /** Connects TCP socket to a remote host
+    /** Connects TCP socket to a remote host.
      *
      *  Initiates a connection to a remote server specified by either
      *  a domain name or an IP address and a port.
      *
-     *  @param host     Hostname of the remote host
-     *  @param port     Port of the remote host
-     *  @return         0 on success, negative error code on failure
+     *  @param host     Hostname of the remote host.
+     *  @param port     Port of the remote host.
+     *  @return         0 on success, negative error code on failure.
      */
     nsapi_error_t connect(const char *host, uint16_t port);
 
@@ -92,3 +103,4 @@ private:
 
 #endif
 #endif
+/** @} */

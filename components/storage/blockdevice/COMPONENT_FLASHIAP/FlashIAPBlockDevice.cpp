@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 
 #include "FlashIAPBlockDevice.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
+#include "mbed_error.h"
 
-#include "mbed.h"
 using namespace mbed;
 #include <inttypes.h>
 
@@ -39,7 +39,10 @@ using namespace mbed;
 FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t size)
     : _flash(), _base(address), _size(size), _is_initialized(false), _init_ref_count(0)
 {
-
+    if ((address == 0xFFFFFFFF) || (size == 0)) {
+        MBED_ERROR(MBED_ERROR_INVALID_ARGUMENT,
+                   "Base address and size need to be set in flashiap-block-device configuration in order to use default constructor");
+    }
 }
 
 FlashIAPBlockDevice::~FlashIAPBlockDevice()
@@ -248,4 +251,19 @@ bd_size_t FlashIAPBlockDevice::size() const
     return _size;
 }
 
+const char *FlashIAPBlockDevice::get_type() const
+{
+    return "FLASHIAP";
+}
+
+bool FlashIAPBlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size) const
+{
+    /* Calculate address alignment for the full flash */
+    bd_addr_t base_addr = addr + (_base - _flash.get_flash_start());
+
+    return (
+               addr + size <= this->size() &&
+               base_addr % get_erase_size(addr) == 0 &&
+               (base_addr + size) % get_erase_size(addr + size - 1) == 0);
+}
 #endif /* DEVICE_FLASH */

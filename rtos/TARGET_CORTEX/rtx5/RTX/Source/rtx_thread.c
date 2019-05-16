@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -143,11 +143,6 @@ void osRtxThreadListPut (os_object_t *object, os_thread_t *thread) {
   os_thread_t *prev, *next;
   int32_t      priority;
 
-  if (thread == NULL) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return;
-  }
-
   priority = thread->priority;
 
   prev = osRtxThreadObject(object);
@@ -171,13 +166,11 @@ os_thread_t *osRtxThreadListGet (os_object_t *object) {
   os_thread_t *thread;
 
   thread = object->thread_list;
-  if (thread != NULL) {
-    object->thread_list = thread->thread_next;
-    if (thread->thread_next != NULL) {
-      thread->thread_next->thread_prev = osRtxThreadObject(object);
-    }
-    thread->thread_prev = NULL;
+  object->thread_list = thread->thread_next;
+  if (thread->thread_next != NULL) {
+    thread->thread_next->thread_prev = osRtxThreadObject(object);
   }
+  thread->thread_prev = NULL;
 
   return thread;
 }
@@ -196,7 +189,7 @@ static void *osRtxThreadListRoot (os_thread_t *thread) {
   os_thread_t *thread0;
 
   thread0 = thread;
-  while ((thread0 != NULL) && (thread0->id == osRtxIdThread)) {
+  while (thread0->id == osRtxIdThread) {
     thread0 = thread0->thread_prev;
   }
   return thread0;
@@ -308,29 +301,25 @@ static void osRtxThreadDelayInsert (os_thread_t *thread, uint32_t delay) {
 static void osRtxThreadDelayRemove (os_thread_t *thread) {
 
   if (thread->delay == osWaitForever) {
-    if ((thread->delay_prev != NULL) || (osRtxInfo.thread.wait_list == thread)) {
-      if (thread->delay_next != NULL) {
-        thread->delay_next->delay_prev = thread->delay_prev;
-      }
-      if (thread->delay_prev != NULL) {
-        thread->delay_prev->delay_next = thread->delay_next;
-        thread->delay_prev = NULL;
-      } else {
-        osRtxInfo.thread.wait_list = thread->delay_next;
-      }
+    if (thread->delay_next != NULL) {
+      thread->delay_next->delay_prev = thread->delay_prev;
+    }
+    if (thread->delay_prev != NULL) {
+      thread->delay_prev->delay_next = thread->delay_next;
+      thread->delay_prev = NULL;
+    } else {
+      osRtxInfo.thread.wait_list = thread->delay_next;
     }
   } else {
-    if ((thread->delay_prev != NULL) || (osRtxInfo.thread.delay_list == thread)) {
-      if (thread->delay_next != NULL) {
-        thread->delay_next->delay += thread->delay;
-        thread->delay_next->delay_prev = thread->delay_prev;
-      }
-      if (thread->delay_prev != NULL) {
-        thread->delay_prev->delay_next = thread->delay_next;
-        thread->delay_prev = NULL;
-      } else {
-        osRtxInfo.thread.delay_list = thread->delay_next;
-      }
+    if (thread->delay_next != NULL) {
+      thread->delay_next->delay += thread->delay;
+      thread->delay_next->delay_prev = thread->delay_prev;
+    }
+    if (thread->delay_prev != NULL) {
+      thread->delay_prev->delay_next = thread->delay_next;
+      thread->delay_prev = NULL;
+    } else {
+      osRtxInfo.thread.delay_list = thread->delay_next;
     }
   }
 }
@@ -351,10 +340,10 @@ void osRtxThreadDelayTick (void) {
     do {
       switch (thread->state) {
         case osRtxThreadWaitingDelay:
-          EvrRtxThreadDelayCompleted();
+          EvrRtxDelayCompleted(thread);
           break;
         case osRtxThreadWaitingThreadFlags:
-          EvrRtxThreadFlagsWaitTimeout();
+          EvrRtxThreadFlagsWaitTimeout(thread);
           break;
         case osRtxThreadWaitingEventFlags:
           EvrRtxEventFlagsWaitTimeout((osEventFlagsId_t)osRtxThreadListRoot(thread));
@@ -449,7 +438,7 @@ void osRtxThreadDispatch (os_thread_t *thread) {
   if (thread == NULL) {
     thread_ready = osRtxInfo.thread.ready.thread_list;
     if ((kernel_state == osRtxKernelRunning) &&
-        (thread_running != NULL) && (thread_ready != NULL) &&
+        (thread_ready != NULL) &&
         (thread_ready->priority > thread_running->priority)) {
       // Preempt running Thread
       osRtxThreadListRemove(thread_ready);
@@ -458,7 +447,6 @@ void osRtxThreadDispatch (os_thread_t *thread) {
     }
   } else {
     if ((kernel_state == osRtxKernelRunning) &&
-        (thread_running != NULL) &&
         (thread->priority > thread_running->priority)) {
       // Preempt running Thread
       osRtxThreadBlock(thread_running);
@@ -503,18 +491,14 @@ bool_t osRtxThreadWaitEnter (uint8_t state, uint32_t timeout) {
     return FALSE;
   }
 
-  // Check running thread
-  thread = osRtxThreadGetRunning();
-  if (thread == NULL) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return FALSE;
-  }
-
   // Check if any thread is ready
   if (osRtxInfo.thread.ready.thread_list == NULL) {
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return FALSE;
   }
+
+  // Get running thread
+  thread = osRtxThreadGetRunning();
 
   EvrRtxThreadBlocked(thread, timeout);
 
@@ -574,7 +558,7 @@ static void osRtxThreadPostProcess (os_thread_t *thread) {
     thread_flags = ThreadFlagsCheck(thread, thread->wait_flags, thread->flags_options);
     if (thread_flags != 0U) {
       osRtxThreadWaitExit(thread, thread_flags, FALSE);
-      EvrRtxThreadFlagsWaitCompleted(thread->wait_flags, thread->flags_options, thread_flags);
+      EvrRtxThreadFlagsWaitCompleted(thread->wait_flags, thread->flags_options, thread_flags, thread);
     }
   }
 }
@@ -953,6 +937,7 @@ static osStatus_t svcRtxThreadSetPriority (osThreadId_t thread_id, osPriority_t 
   if (thread->priority   != (int8_t)priority) {
     thread->priority      = (int8_t)priority;
     thread->priority_base = (int8_t)priority;
+    EvrRtxThreadPriorityUpdated(thread, priority);
     osRtxThreadListSort(thread);
     osRtxThreadDispatch(NULL);
   }
@@ -990,20 +975,19 @@ static osPriority_t svcRtxThreadGetPriority (osThreadId_t thread_id) {
 /// Pass control to next thread that is in state READY.
 /// \note API identical to osThreadYield
 static osStatus_t svcRtxThreadYield (void) {
-  uint8_t      kernel_state;
   os_thread_t *thread_running;
   os_thread_t *thread_ready;
 
-  kernel_state   = osRtxKernelGetState();
-  thread_running = osRtxThreadGetRunning();
-  thread_ready   = osRtxInfo.thread.ready.thread_list;
-  if ((kernel_state == osRtxKernelRunning) &&
-      (thread_ready != NULL) && (thread_running != NULL) &&
-      (thread_ready->priority == thread_running->priority)) {
-    osRtxThreadListRemove(thread_ready);
-    osRtxThreadReadyPut(thread_running);
-    EvrRtxThreadPreempted(thread_running);
-    osRtxThreadSwitch(thread_ready);
+  if (osRtxKernelGetState() == osRtxKernelRunning) {
+    thread_running = osRtxThreadGetRunning();
+    thread_ready   = osRtxInfo.thread.ready.thread_list;
+    if ((thread_ready != NULL) &&
+        (thread_ready->priority == thread_running->priority)) {
+      osRtxThreadListRemove(thread_ready);
+      osRtxThreadReadyPut(thread_running);
+      EvrRtxThreadPreempted(thread_running);
+      osRtxThreadSwitch(thread_ready);
+    }
   }
 
   return osOK;
@@ -1215,19 +1199,15 @@ static osStatus_t svcRtxThreadJoin (osThreadId_t thread_id) {
 static void svcRtxThreadExit (void) {
   os_thread_t *thread;
 
-  // Check running thread
-  thread = osRtxThreadGetRunning();
-  if (thread == NULL) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return;
-  }
-
   // Check if switch to next Ready Thread is possible
   if ((osRtxKernelGetState() != osRtxKernelRunning) ||
       (osRtxInfo.thread.ready.thread_list == NULL)) {
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return;
   }
+
+  // Get running thread
+  thread = osRtxThreadGetRunning();
 
   // Release owned Mutexes
   osRtxMutexOwnerRelease(thread->mutex_list);
@@ -1427,14 +1407,14 @@ static uint32_t svcRtxThreadFlagsSet (osThreadId_t thread_id, uint32_t flags) {
   // Check parameters
   if ((thread == NULL) || (thread->id != osRtxIdThread) ||
       ((flags & ~(((uint32_t)1U << osRtxThreadFlagsLimit) - 1U)) != 0U)) {
-    EvrRtxThreadError(thread, (int32_t)osErrorParameter);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
   }
 
   // Check object state
   if (thread->state == osRtxThreadTerminated) {
-    EvrRtxThreadError(thread, (int32_t)osErrorResource);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorResource);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorResource);
   }
@@ -1452,7 +1432,7 @@ static uint32_t svcRtxThreadFlagsSet (osThreadId_t thread_id, uint32_t flags) {
         thread_flags = thread_flags0;
       }
       osRtxThreadWaitExit(thread, thread_flags0, TRUE);
-      EvrRtxThreadFlagsWaitCompleted(thread->wait_flags, thread->flags_options, thread_flags0);
+      EvrRtxThreadFlagsWaitCompleted(thread->wait_flags, thread->flags_options, thread_flags0, thread);
     }
   }
 
@@ -1470,14 +1450,14 @@ static uint32_t svcRtxThreadFlagsClear (uint32_t flags) {
   // Check running thread
   thread = osRtxThreadGetRunning();
   if (thread == NULL) {
-    EvrRtxThreadError(NULL, osRtxErrorKernelNotRunning);
+    EvrRtxThreadFlagsError(NULL, osRtxErrorKernelNotRunning);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osError);
   }
 
   // Check parameters
   if ((flags & ~(((uint32_t)1U << osRtxThreadFlagsLimit) - 1U)) != 0U) {
-    EvrRtxThreadError(thread, (int32_t)osErrorParameter);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
   }
@@ -1517,14 +1497,14 @@ static uint32_t svcRtxThreadFlagsWait (uint32_t flags, uint32_t options, uint32_
   // Check running thread
   thread = osRtxThreadGetRunning();
   if (thread == NULL) {
-    EvrRtxThreadError(NULL, osRtxErrorKernelNotRunning);
+    EvrRtxThreadFlagsError(NULL, osRtxErrorKernelNotRunning);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osError);
   }
 
   // Check parameters
   if ((flags & ~(((uint32_t)1U << osRtxThreadFlagsLimit) - 1U)) != 0U) {
-    EvrRtxThreadError(thread, (int32_t)osErrorParameter);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
   }
@@ -1532,7 +1512,7 @@ static uint32_t svcRtxThreadFlagsWait (uint32_t flags, uint32_t options, uint32_
   // Check Thread Flags
   thread_flags = ThreadFlagsCheck(thread, flags, options);
   if (thread_flags != 0U) {
-    EvrRtxThreadFlagsWaitCompleted(flags, options, thread_flags);
+    EvrRtxThreadFlagsWaitCompleted(flags, options, thread_flags, thread);
   } else {
     // Check if timeout is specified
     if (timeout != 0U) {
@@ -1542,7 +1522,7 @@ static uint32_t svcRtxThreadFlagsWait (uint32_t flags, uint32_t options, uint32_
       thread->flags_options = (uint8_t)options;
       // Suspend current Thread
       if (!osRtxThreadWaitEnter(osRtxThreadWaitingThreadFlags, timeout)) {
-        EvrRtxThreadFlagsWaitTimeout();
+        EvrRtxThreadFlagsWaitTimeout(thread);
       }
       thread_flags = (uint32_t)osErrorTimeout;
     } else {
@@ -1591,14 +1571,14 @@ uint32_t isrRtxThreadFlagsSet (osThreadId_t thread_id, uint32_t flags) {
   // Check parameters
   if ((thread == NULL) || (thread->id != osRtxIdThread) ||
       ((flags & ~(((uint32_t)1U << osRtxThreadFlagsLimit) - 1U)) != 0U)) {
-    EvrRtxThreadError(thread, (int32_t)osErrorParameter);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
   }
 
   // Check object state
   if (thread->state == osRtxThreadTerminated) {
-    EvrRtxThreadError(thread, (int32_t)osErrorResource);
+    EvrRtxThreadFlagsError(thread, (int32_t)osErrorResource);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorResource);
   }
@@ -1623,24 +1603,17 @@ bool_t osRtxThreadStartup (void) {
   bool_t ret = TRUE;
 
   // Create Idle Thread
-  if (osRtxInfo.thread.idle == NULL) {
-    osRtxInfo.thread.idle = osRtxThreadId(
-      svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr)
-    );
-    if (osRtxInfo.thread.idle == NULL) {
-      ret = FALSE;
-    }
-  }
+  osRtxInfo.thread.idle = osRtxThreadId(
+    svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr)
+  );
 
   // Create Timer Thread
   if (osRtxConfig.timer_mq_mcnt != 0U) {
+    osRtxInfo.timer.thread = osRtxThreadId(
+      svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr)
+    );
     if (osRtxInfo.timer.thread == NULL) {
-      osRtxInfo.timer.thread = osRtxThreadId(
-        svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr)
-      );
-      if (osRtxInfo.timer.thread == NULL) {
-        ret = FALSE;
-      }
+      ret = FALSE;
     }
   }
 
@@ -1892,7 +1865,7 @@ uint32_t osThreadFlagsClear (uint32_t flags) {
 
   EvrRtxThreadFlagsClear(flags);
   if (IsIrqMode() || IsIrqMasked()) {
-    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    EvrRtxThreadFlagsError(NULL, (int32_t)osErrorISR);
     thread_flags = (uint32_t)osErrorISR;
   } else {
     thread_flags = __svcThreadFlagsClear(flags);
@@ -1919,7 +1892,7 @@ uint32_t osThreadFlagsWait (uint32_t flags, uint32_t options, uint32_t timeout) 
 
   EvrRtxThreadFlagsWait(flags, options, timeout);
   if (IsIrqMode() || IsIrqMasked()) {
-    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    EvrRtxThreadFlagsError(NULL, (int32_t)osErrorISR);
     thread_flags = (uint32_t)osErrorISR;
   } else {
     thread_flags = __svcThreadFlagsWait(flags, options, timeout);

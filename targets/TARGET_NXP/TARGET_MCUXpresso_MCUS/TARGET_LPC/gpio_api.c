@@ -62,7 +62,7 @@ void gpio_write(gpio_t *obj, int value)
     uint32_t pin_number = obj->pin & 0x1F;
     uint8_t port_number = obj->pin / 32;
 
-    GPIO_WritePinOutput(GPIO, port_number, pin_number, value);
+    GPIO_PinWrite(GPIO, port_number, pin_number, value);
 }
 
 int gpio_read(gpio_t *obj)
@@ -71,5 +71,5 @@ int gpio_read(gpio_t *obj)
     uint32_t pin_number = obj->pin & 0x1F;
     uint8_t port_number = obj->pin / 32;
 
-    return (int)GPIO_ReadPinInput(GPIO, port_number, pin_number);
+    return (int)GPIO_PinRead(GPIO, port_number, pin_number);
 }

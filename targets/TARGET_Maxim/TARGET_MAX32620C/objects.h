@@ -61,6 +61,10 @@ struct port_s {
     PinMode mode;
 };
 
+struct flash_s {
+    uint8_t notused;
+};
+
 struct gpio_irq_s {
     uint8_t port;
     uint8_t pin;

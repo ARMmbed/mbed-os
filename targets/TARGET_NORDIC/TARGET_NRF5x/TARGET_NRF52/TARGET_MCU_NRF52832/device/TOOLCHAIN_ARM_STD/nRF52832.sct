@@ -9,6 +9,8 @@
   #define MBED_APP_SIZE 0x80000
 #endif
 
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 /* If softdevice is present, set aside space for it */
 #if !defined(MBED_RAM_START)
   #if defined(SOFTDEVICE_PRESENT)
@@ -37,5 +39,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
   }
   RW_IRAM1 MBED_RAM1_START MBED_RAM1_SIZE {
    .ANY (+RW +ZI)
+  }
+  ARM_LIB_STACK MBED_RAM1_START+MBED_RAM1_SIZE EMPTY -Stack_Size { ; Stack region growing down
   }
 }

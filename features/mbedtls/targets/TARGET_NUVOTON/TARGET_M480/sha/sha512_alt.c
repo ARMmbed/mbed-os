@@ -31,7 +31,7 @@
  */
 static void mbedtls_sha512_init_internal(mbedtls_sha512_context *ctx, int try_hw)
 {
-    if (try_hw && crypto_sha_acquire()) {
+    if (try_hw && crypto_sha_try_acquire()) {
         ctx->active_ctx = &ctx->hw_ctx;
         mbedtls_sha512_hw_init(&ctx->hw_ctx);
     } else {

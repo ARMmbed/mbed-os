@@ -26,6 +26,7 @@
 
 SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
 {
+    mem_init();
     _ip_address = NULL;
     set_addr(addr);
     set_port(port);
@@ -33,6 +34,7 @@ SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
 
 SocketAddress::SocketAddress(const char *addr, uint16_t port)
 {
+    mem_init();
     _ip_address = NULL;
     set_ip_address(addr);
     set_port(port);
@@ -40,6 +42,7 @@ SocketAddress::SocketAddress(const char *addr, uint16_t port)
 
 SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port)
 {
+    mem_init();
     _ip_address = NULL;
     set_ip_bytes(bytes, version);
     set_port(port);
@@ -47,9 +50,17 @@ SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_
 
 SocketAddress::SocketAddress(const SocketAddress &addr)
 {
+    mem_init();
     _ip_address = NULL;
     set_addr(addr.get_addr());
     set_port(addr.get_port());
+}
+
+void SocketAddress::mem_init(void)
+{
+    _addr.version = NSAPI_UNSPEC;
+    memset(_addr.bytes, 0, NSAPI_IP_BYTES);
+    _port = 0;
 }
 
 bool SocketAddress::set_ip_address(const char *addr)

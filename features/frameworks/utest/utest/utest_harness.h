@@ -41,11 +41,6 @@ namespace v1 {
      * The harness executes the test specification in an asynchronous fashion, therefore
      * `run()` returns immediately.
      *
-     * By default, this harness uses the MINAR scheduler for asynchronous callbacks.
-     * If you wamt to provide your own custom scheduler, set `config.utest.use_custom_scheduler` to `true`
-     * inside your yotta config and set a custom scheduler implementation using the `set_scheduler()` function.
-     * You must set the scheduler before running a specification.
-     *
      * @note In case of an test abort, the harness will busy-wait and never finish.
      */
     class Harness

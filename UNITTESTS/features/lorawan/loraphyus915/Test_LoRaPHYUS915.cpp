@@ -177,6 +177,7 @@ TEST_F(Test_LoRaPHYUS915, tx_config)
 
 TEST_F(Test_LoRaPHYUS915, link_ADR_request)
 {
+    uint8_t payload [] = {SRV_MAC_LINK_ADR_REQ, 1, 2, 3, 4};
     adr_req_params_t params;
     memset(&params, 0, sizeof(params));
     int8_t dr_out = 0;
@@ -184,8 +185,14 @@ TEST_F(Test_LoRaPHYUS915, link_ADR_request)
     uint8_t nb_rep_out = 0;
     uint8_t nb_bytes_parsed = 0;
 
-    EXPECT_TRUE(0 == object->link_ADR_request(&params, &dr_out, &tx_power_out, &nb_rep_out, &nb_bytes_parsed));
+    params.payload = payload;
+    params.payload_size = 4;
 
+    uint8_t status = object->link_ADR_request(&params, &dr_out, &tx_power_out, &nb_rep_out, &nb_bytes_parsed);
+
+    EXPECT_TRUE(0 == nb_bytes_parsed);
+
+    params.payload_size = 5;
     LoRaPHY_stub::uint8_value = 1;
     LoRaPHY_stub::ch_mask_value = 6;
     LoRaPHY_stub::adr_parse_count = 2;

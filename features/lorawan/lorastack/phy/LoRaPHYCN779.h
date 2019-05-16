@@ -32,6 +32,8 @@
 #ifndef MBED_OS_LORAPHY_CN779_H_
 #define MBED_OS_LORAPHY_CN779_H_
 
+#if !(DOXYGEN_ONLY)
+
 #include "LoRaPHY.h"
 
 #define CN779_MAX_NB_CHANNELS                       16
@@ -70,4 +72,5 @@ private:
     uint16_t default_channel_mask[CN779_CHANNEL_MASK_SIZE];
 };
 
+#endif /* DOXYGEN_ONLY*/
 #endif /* MBED_OS_LORAPHY_CN779_H_ */

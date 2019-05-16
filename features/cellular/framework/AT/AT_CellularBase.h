@@ -42,30 +42,49 @@ public:
      */
     device_err_t get_device_error() const;
 
-    /** Cellular module need to define an array of unsupported features if any,
-     *  by default all features are supported.
+    /* Supported features by the modem
      *
-     *  @param features Array of type SupportedFeature with last element FEATURE_END_MARK
+     * NOTE! These are used as index to feature table, so the only allowed modification to this is appending
+     *       to the end (just before PROPERTY_MAX). Do not modify any of the existing fields.
      */
-    enum SupportedFeature {
-        AT_CGSN_WITH_TYPE, // AT+CGSN without type is likely always supported similar to AT+GSN
-        AT_CGDATA, // alternative is to support only ATD*99***<cid>#
-        AT_CGAUTH, // APN authentication AT commands supported
-        SUPPORTED_FEATURE_END_MARK // must be last element in the array of features
+    enum CellularProperty {
+        PROPERTY_C_EREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_GREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_REG,             // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_AT_CGSN_WITH_TYPE, // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
+        PROPERTY_AT_CGDATA,         // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
+        PROPERTY_AT_CGAUTH,         // 0 = not supported, 1 = supported. APN authentication AT commands supported
+        PROPERTY_AT_CNMI,           // 0 = not supported, 1 = supported. New message (SMS) indication AT command
+        PROPERTY_AT_CSMP,           // 0 = not supported, 1 = supported. Set text mode AT command
+        PROPERTY_AT_CMGF,           // 0 = not supported, 1 = supported. Set preferred message format AT command
+        PROPERTY_AT_CSDH,           // 0 = not supported, 1 = supported. Show text mode AT command
+        PROPERTY_IPV4_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV4?
+        PROPERTY_IPV6_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV6?
+        PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?
+        PROPERTY_NON_IP_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support Non-IP?
+        PROPERTY_AT_CGEREP,         // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
+
+        PROPERTY_MAX
     };
-    static void set_unsupported_features(const SupportedFeature *unsupported_features);
+
+    /** Cellular module need to define an array of cellular properties which defines module supported property values.
+     *
+     *  @param property_array array of module properties
+     */
+    static void set_cellular_properties(const intptr_t *property_array);
+
+    /** Get value for the given key.
+     *
+     *  @param key  key for value to be fetched
+     *  @return     property value for the given key. Value type is defined in enum CellularProperty
+     */
+    static intptr_t get_property(CellularProperty key);
 
 protected:
-    ATHandler &_at;
 
-    /** Check if some functionality is supported by a cellular module. For example,
-     *  most of standard AT commands are optional and not implemented by all cellular modules.
-     *
-     *  @param feature  check for feature to support
-     *  @return         true on supported, otherwise false
-     */
-    static const SupportedFeature *_unsupported_features;
-    static bool is_supported(SupportedFeature feature);
+    static const intptr_t *_property_array;
+
+    ATHandler &_at;
 };
 
 } // namespace mbed

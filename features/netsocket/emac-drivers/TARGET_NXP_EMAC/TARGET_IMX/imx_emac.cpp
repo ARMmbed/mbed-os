@@ -99,6 +99,9 @@ static void update_read_buffer(uint8_t *buf)
         g_handle.rxBdCurrent[0]->buffer = buf;
     }
 
+    /* Ensures buffer pointer is written before control. */
+    __DMB();
+
     /* Clears status. */
     g_handle.rxBdCurrent[0]->control &= ENET_BUFFDESCRIPTOR_RX_WRAP_MASK;
 
@@ -111,6 +114,9 @@ static void update_read_buffer(uint8_t *buf)
     } else {
         g_handle.rxBdCurrent[0]++;
     }
+
+    /* Ensures descriptor is written before kicking hardware. */
+    __DSB();
 
     /* Actives the receive buffer descriptor. */
     ENET->RDAR = ENET_RDAR_RDAR_MASK;
@@ -189,11 +195,13 @@ bool Kinetis_EMAC::low_level_init_successful()
 
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
-        rx_buff[i] = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        rx_buff[i] = memory_manager->alloc_heap(ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT),
+                                                ENET_BUFF_ALIGNMENT);
         if (NULL == rx_buff[i])
             return false;
 
         rx_ptr[i] = (uint32_t*)memory_manager->get_ptr(rx_buff[i]);
+        SCB_InvalidateDCache_by_Addr(rx_ptr[i], ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT));
     }
 
     tx_consume_index = tx_produce_index = 0;
@@ -276,10 +284,12 @@ emac_mem_buf_t *Kinetis_EMAC::low_level_input(int idx)
 
         /* Zero-copy */
         p = rx_buff[idx];
+        SCB_InvalidateDCache_by_Addr(rx_ptr[idx], length);
         memory_manager->set_len(p, length);
 
         /* Attempt to queue new buffer */
-        temp_rxbuf = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        temp_rxbuf = memory_manager->alloc_heap(ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT),
+                                                ENET_BUFF_ALIGNMENT);
         if (NULL == temp_rxbuf) {
             /* Re-queue the same buffer */
             update_read_buffer(NULL);
@@ -293,6 +303,7 @@ emac_mem_buf_t *Kinetis_EMAC::low_level_input(int idx)
 
         rx_buff[idx] = temp_rxbuf;
         rx_ptr[idx] = (uint32_t*)memory_manager->get_ptr(rx_buff[idx]);
+        SCB_InvalidateDCache_by_Addr(rx_ptr[idx], ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT));
 
         update_read_buffer((uint8_t*)rx_ptr[idx]);
     }
@@ -397,6 +408,8 @@ bool Kinetis_EMAC::link_out(emac_mem_buf_t *buf)
         buf = copy_buf;
     }
 
+    SCB_CleanDCache_by_Addr(static_cast<uint32_t *>(memory_manager->get_ptr(buf)), memory_manager->get_len(buf));
+
     /* Check if a descriptor is available for the transfer (wait 10ms before dropping the buffer) */
     if (xTXDCountSem.wait(10) == 0) {
         memory_manager->free(buf);
@@ -413,6 +426,8 @@ bool Kinetis_EMAC::link_out(emac_mem_buf_t *buf)
     /* Setup transfers */
     g_handle.txBdCurrent[0]->buffer = static_cast<uint8_t *>(memory_manager->get_ptr(buf));
     g_handle.txBdCurrent[0]->length = memory_manager->get_len(buf);
+    /* Ensures buffer and length is written before control. */
+    __DMB();
     g_handle.txBdCurrent[0]->control |= (ENET_BUFFDESCRIPTOR_TX_READY_MASK | ENET_BUFFDESCRIPTOR_TX_LAST_MASK);
 
     /* Increase the buffer descriptor address. */
@@ -421,6 +436,9 @@ bool Kinetis_EMAC::link_out(emac_mem_buf_t *buf)
     } else {
         g_handle.txBdCurrent[0]++;
     }
+
+    /* Ensures descriptor is written before kicking hardware. */
+    __DSB();
 
     /* Active the transmit buffer descriptor. */
     ENET->TDAR = ENET_TDAR_TDAR_MASK;

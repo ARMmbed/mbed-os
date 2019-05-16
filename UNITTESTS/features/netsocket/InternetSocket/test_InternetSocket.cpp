@@ -79,14 +79,6 @@ public:
     {
         _writers--;
     }
-    void add_pending(void)
-    {
-        _pending++;
-    }
-    void rem_pending(void)
-    {
-        _pending--;
-    }
 
 protected:
     virtual nsapi_protocol_t get_proto()

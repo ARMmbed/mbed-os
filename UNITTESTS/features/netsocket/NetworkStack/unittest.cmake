@@ -24,6 +24,7 @@ set(unittest-test-sources
   stubs/mbed_assert_stub.c
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
+  stubs/mbed_error.c
   stubs/mbed_shared_queues_stub.cpp
   stubs/nsapi_dns_stub.cpp
   stubs/EventFlags_stub.cpp

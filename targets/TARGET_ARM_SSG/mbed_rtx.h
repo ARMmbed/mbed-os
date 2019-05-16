@@ -23,6 +23,14 @@
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
+#elif defined(TARGET_MPS2_M0) || defined(TARGET_MPS2_M0P) || \
+	      defined(TARGET_MPS2_M3) || defined(TARGET_MPS2_M4) || \
+      defined(TARGET_MPS2_M7)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20400000UL)
+#endif
+
 #elif defined(TARGET_CM3DS_MPS2)
 
 #include "memory_zones.h"

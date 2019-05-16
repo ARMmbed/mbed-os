@@ -293,15 +293,15 @@ coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, 
     return transaction_find_by_address(address_ptr, port);
 }
 
-int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
-                                              uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
+int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, int8_t recv_if_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
+                                              uint8_t *data_ptr, uint16_t data_len,  coap_msg_process_cb *msg_process_callback)
 {
     sn_nsdl_addr_s src_addr;
     sn_coap_hdr_s *coap_message;
     int16_t ret_val = 0;
     coap_transaction_t *this = NULL;
 
-    if (!cb || !handle) {
+    if (!msg_process_callback || !handle) {
         return -1;
     }
 
@@ -337,21 +337,21 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         goto exit;
     }
 
-    /* Request received */
     if (coap_message->msg_code > 0 && coap_message->msg_code < 32) {
+        /* Request received */
         transaction_ptr->msg_id = coap_message->msg_id;
         transaction_ptr->req_msg_type = coap_message->msg_type;
         if (coap_message->token_len) {
             memcpy(transaction_ptr->token, coap_message->token_ptr, coap_message->token_len);
             transaction_ptr->token_len = coap_message->token_len;
         }
-        if (cb(socket_id, coap_message, transaction_ptr) < 0) {
+        if (msg_process_callback(socket_id, recv_if_id, coap_message, transaction_ptr, dst_addr_ptr) < 0) {
             // negative return value = message ignored -> delete transaction
             transaction_delete(transaction_ptr);
         }
         goto exit;
-        /* Response received */
     } else {
+        /* Response received */
         transaction_delete(transaction_ptr); // transaction_ptr not needed in response
         if (coap_message->token_ptr) {
             this = transaction_find_client_by_token(coap_message->token_ptr, coap_message->token_len, source_addr_ptr, port);

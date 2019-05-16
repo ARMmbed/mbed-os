@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018, Arm Limited and affiliates.
+ * Copyright (c) 2012-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"

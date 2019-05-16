@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +24,8 @@
 
 #include <stdint.h>
 #include <device.h>
-#include "drivers/peripheral/gpio/cy_gpio.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
+#include "cy_gpio.h"
+#include "cy_sysclk.h"
 
 #else
 
@@ -163,7 +165,7 @@ void cy_srm_initialize(void);
  * \return void.
  *
  */
-void cy_get_bd_mac_address(uint8_t* buffer);
+void cy_get_bd_mac_address(uint8_t *buffer);
 
 
 /** \brief Determines proper PSoC6 pin drive mode settings.
@@ -213,6 +215,30 @@ static inline uint32_t gpio_get_cy_drive_mode(PinDirection dir, PinMode mode)
     return cymode;
 }
 
+typedef enum {
+    CY_CRYPTO_TRNG_HW,
+    CY_CRYPTO_CRC_HW,
+    CY_CRYPTO_VU_HW,
+    CY_CRYPTO_COMMON_HW
+} cy_en_crypto_submodule_t;
+
+#define NUM_CRYPTO_HW     ((uint32_t)CY_CRYPTO_COMMON_HW + 1u)
+
+/** \brief Request allocation of CRYPTO block.
+ *
+ * \param module_num      Id of the CRYPTO submodule.
+ * \return (0) when OK, (-1) when reservation conflict occurs.
+ *
+ */
+int cy_reserve_crypto(cy_en_crypto_submodule_t module_num);
+
+/** \brief Releases CRYPTO block.
+ *
+ * \param module_num      Id of the CRYPTO submodule.
+ * \return void
+ *
+ */
+void cy_free_crypto(cy_en_crypto_submodule_t module_num);
 
 
 #if defined(__cplusplus)

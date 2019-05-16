@@ -16,16 +16,25 @@ limitations under the License.
 """
 
 import os
-import sys
 import json
 import pytest
 from mock import patch
 from hypothesis import given
 from hypothesis.strategies import sampled_from
-from os.path import join, isfile, dirname, abspath
+from os.path import join, isfile, dirname, abspath, normpath
 from tools.build_api import get_config
-from tools.targets import set_targets_json_location, Target, TARGET_NAMES
-from tools.config import ConfigException, Config, ConfigParameter, ConfigMacro
+from tools.targets import set_targets_json_location
+from tools.config import (
+    ConfigException, Config, ConfigParameter, ConfigMacro, ROM_ALL_MEMORIES
+)
+from tools.resources import Resources
+
+NOT_CONFIG = [
+    "expected_macros",
+    "expected_features",
+    "included_source",
+    "excluded_source",
+]
 
 def compare_config(cfg, expected):
     """Compare the output of config against a dictionary of known good results
@@ -40,7 +49,7 @@ def compare_config(cfg, expected):
     except KeyError:
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
-        if k not in ["expected_macros", "expected_features"] + list(cfg.keys()):
+        if k not in NOT_CONFIG + list(cfg.keys()):
             return "Expected key '%s' was not found in configuration data" % k
     return ""
 
@@ -73,7 +82,7 @@ def test_config(name):
     set_targets_json_location(targets_json if isfile(targets_json) else None)
     for target, expected in test_data.items():
         try:
-            cfg, macros, features = get_config(test_dir, target, "GCC_ARM")
+            cfg, macros, features, resources = get_config(test_dir, target, "GCC_ARM")
             res = compare_config(cfg, expected)
             assert not(res), res
             expected_macros = expected.get("expected_macros", None)
@@ -84,6 +93,25 @@ def test_config(name):
                 assert sorted(expected_macros) == sorted(macros)
             if expected_features is not None:
                 assert sorted(expected_features) == sorted(features)
+
+            included_source = [
+                normpath(join(test_dir, src)) for src in
+                expected.get("included_source", [])
+            ]
+            excluded_source = [
+                normpath(join(test_dir, src)) for src in
+                expected.get("excluded_source", [])
+            ]
+            for typ in Resources.ALL_FILE_TYPES:
+                for _, path in resources.get_file_refs(typ):
+                    path = normpath(path)
+                    if included_source and path in included_source:
+                        included_source.remove(path)
+                    if excluded_source:
+                        assert(path not in excluded_source)
+            assert(not included_source)
+            if included_source:
+                assert(False)
         except ConfigException as e:
             err_msg = str(e)
             if "exception_msg" not in expected:
@@ -224,3 +252,16 @@ def test_parameters_and_config_macros_to_macros():
 
     macro_list = Config._parameters_and_config_macros_to_macros(params, macros)
     assert macro_list == ["CUSTOM_MACRO_NAME=1"]
+
+
+@pytest.mark.parametrize("target_start_size", [
+    ("FUTURE_SEQUANA_PSA", 0x10080000, 0x78000),
+    ("FUTURE_SEQUANA_M0_PSA", 0x10000000, 0x80000)
+])
+def test_PSA_overrides(target_start_size):
+    target, start, size = target_start_size
+    set_targets_json_location()
+    config = Config(target)
+    roms = config.get_all_active_memories(ROM_ALL_MEMORIES)
+    assert("ROM" in roms)
+    assert(roms["ROM"] == [start, size])

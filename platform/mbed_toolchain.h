@@ -152,6 +152,77 @@
 #endif
 #endif
 
+/** MBED_COMPILER_BARRIER
+ * Stop the compiler moving memory accesses.
+ *
+ * The barrier stops memory accesses from being moved from one side of the
+ * barrier to the other for safety against other threads and interrupts.
+ *
+ * This macro should only be used if we know only one CPU is accessing the data,
+ * or we are otherwise synchronising CPUs via acquire/release instructions.
+ * Otherwise, use MBED_BARRIER, which will act as a compiler barrier and also
+ * a CPU barrier if necessary.
+ *
+ * @internal
+ * This is not for use by normal code - it is a building block for the
+ * higher-level functions in mbed_critical.h. Higher-level lock/unlock or
+ * acquire/release APIs always provide ordering semantics, using this if
+ * necessary.
+ *
+ * @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  void atomic_flag_clear_armv8(atomic_flag *flagPtr)
+ *  {
+ *      // ARMv8 LDA and STL instructions provide sequential consistency against
+ *      // other CPUs, so no CPU barrier is needed. But we still need compiler
+ *      // barriers to give us sequentially-consistent release semantics with
+ *      // respect to compiler reordering - __STLB does not currently
+ *      // include this.
+ *      MBED_COMPILER_BARRIER();
+ *      __STLB(&flagPtr->_flag, false);
+ *      MBED_COMPILER_BARRIER();
+ *  }
+ */
+#ifdef __CC_ARM
+#define MBED_COMPILER_BARRIER() __memory_changed()
+#elif defined(__GNUC__) || defined(__clang__) || defined(__ICCARM__)
+#define MBED_COMPILER_BARRIER() asm volatile("" : : : "memory")
+#else
+#error "Missing MBED_COMPILER_BARRIER implementation"
+#endif
+
+/** MBED_BARRIER
+ * Stop the compiler, and CPU if SMP, from moving memory accesses.
+ *
+ * The barrier stops memory accesses from being moved from one side of the
+ * barrier to the other for safety against other threads and interrupts,
+ * potentially on other CPUs.
+ *
+ * In a single-CPU system, this is just a compiler barrier.
+ * If we supported multiple CPUs, this would be a DMB (with implied compiler
+ * barrier).
+ *
+ * @internal
+ * This is not for use by normal code - it is a building block for the
+ * higher-level functions in mbed_critical.h. Higher-level lock/unlock or
+ * acquire/release APIs always provide ordering semantics, using this if
+ * necessary.
+ * @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  void atomic_flag_clear_armv7(atomic_flag *flagPtr)
+ *  {
+ *      // ARMv7 LDR and STR instructions do not provide any ordering
+ *      // consistency against other CPUs, so explicit barrier DMBs are needed
+ *      // for a multi-CPU system, otherwise just compiler barriers for single-CPU.
+ *      MBED_BARRIER();
+ *      flagPtr->_flag = false;
+ *      MBED_BARRIER();
+ *  }
+ */
+#define MBED_BARRIER() MBED_COMPILER_BARRIER()
+
 /** MBED_PURE
  *  Hint to the compiler that a function depends only on parameters
  *

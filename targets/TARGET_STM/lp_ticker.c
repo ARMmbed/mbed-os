@@ -59,16 +59,19 @@ const ticker_info_t *lp_ticker_get_info()
 
 volatile uint8_t  lp_Fired = 0;
 
+static int LPTICKER_inited = 0;
+
 static void LPTIM1_IRQHandler(void);
 static void (*irq_handler)(void);
 
 void lp_ticker_init(void)
 {
     /* Check if LPTIM is already configured */
-    if (__HAL_RCC_LPTIM1_IS_CLK_ENABLED()) {
+    if (LPTICKER_inited) {
         lp_ticker_disable_interrupt();
         return;
     }
+    LPTICKER_inited = 1;
 
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -136,6 +139,13 @@ void lp_ticker_init(void)
 #endif /* MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK */
 
     LptimHandle.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
+#if defined (LPTIM_ACTIVEEDGE_FALLING)
+    LptimHandle.Init.Trigger.ActiveEdge = LPTIM_ACTIVEEDGE_FALLING;
+#endif
+#if defined (LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION)
+    LptimHandle.Init.Trigger.SampleTime = LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION;
+#endif
+
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;

@@ -49,10 +49,6 @@ using namespace utest::v1;
 #define MBED_TEST_DIRS 4
 #endif
 
-#ifndef MBED_TEST_BUFFER
-#define MBED_TEST_BUFFER 8192
-#endif
-
 #ifndef MBED_TEST_TIMEOUT
 #define MBED_TEST_TIMEOUT 120
 #endif
@@ -76,9 +72,7 @@ FILE *fd[MBED_TEST_FILES];
 struct dirent ent;
 struct dirent *ed;
 size_t size;
-uint8_t buffer[MBED_TEST_BUFFER];
-uint8_t rbuffer[MBED_TEST_BUFFER];
-uint8_t wbuffer[MBED_TEST_BUFFER];
+uint8_t buffer[MBED_CONF_SD_TEST_BUFFER];
 
 
 // tests

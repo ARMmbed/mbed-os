@@ -41,23 +41,23 @@
 #include "wsf_types.h"
 #include "att_api.h"
 
-class MaximGattServer : public GattServer
+class MaximGattServer : public ble::interface::GattServer<MaximGattServer>
 {
 public:
     static MaximGattServer &getInstance();
 
     /* Functions that must be implemented from GattServer */
-    virtual ble_error_t addService(GattService &);
+    ble_error_t addService_(GattService &);
 
-    virtual ble_error_t read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t write(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
+    ble_error_t read_(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    ble_error_t read_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    ble_error_t write_(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
+    ble_error_t write_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
 
-    virtual ble_error_t areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP);
-    virtual ble_error_t areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
+    ble_error_t areUpdatesEnabled_(const GattCharacteristic &characteristic, bool *enabledP);
+    ble_error_t areUpdatesEnabled_(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
 
-    virtual bool isOnDataReadAvailable() const { return true; }
+    bool isOnDataReadAvailable_() const { return true; }
 
 private:
     static void cccCback(attsCccEvt_t *pEvt);

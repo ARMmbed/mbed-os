@@ -245,7 +245,10 @@ void test_handler_called_once(void)
     int32_t sem_slots = st.sem_wait(0);
     TEST_ASSERT_EQUAL_INT32(0, sem_slots);
 
-    sem_slots = st.sem_wait(osWaitForever);
+    // Wait in a busy loop to prevent entering sleep or deepsleep modes.
+    while (sem_slots != 1) {
+        sem_slots = st.sem_wait(0);
+    }
     us_timestamp_t t2 = st.get_time();
     TEST_ASSERT_EQUAL_INT32(1, sem_slots);
     TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
@@ -285,7 +288,7 @@ void test_sleep(void)
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
 }
 
-#if DEVICE_LPTICKER
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
 /** Test wake up from deepsleep
  *
  * Given a SysTimer with a tick scheduled in the future
@@ -339,7 +342,7 @@ Case cases[] = {
     Case("Handler called once", test_handler_called_once),
 #if DEVICE_SLEEP
     Case("Wake up from sleep", test_sleep),
-#if DEVICE_LPTICKER
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
     Case("Wake up from deep sleep", test_deepsleep),
 #endif
 #endif

@@ -282,6 +282,8 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 
             if (bands[i].off_time != 0) {
                 next_tx_delay = MIN(bands[i].off_time - txDoneTime, next_tx_delay);
+                // add a random delay from 200ms to a 1000ms
+                next_tx_delay += (rand() % 800 + 200);
             }
         } else {
             // if network has been joined
@@ -307,11 +309,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 }
 
 uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t *payload,
+                                    uint8_t payload_size,
                                     link_adr_params_t *params)
 {
     uint8_t ret_index = 0;
 
-    if (payload[0] == SRV_MAC_LINK_ADR_REQ) {
+    if (payload_size >= 5) {
 
         // Parse datarate and tx power
         params->datarate = payload[1];
@@ -403,7 +406,8 @@ float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 
 void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
                                    float error_fudge, float wakeup_time,
-                                   uint32_t *window_length, int32_t *window_offset,
+                                   uint32_t *window_length, uint32_t *window_length_ms,
+                                   int32_t *window_offset,
                                    uint8_t phy_dr)
 {
     float target_rx_window_offset;
@@ -439,6 +443,7 @@ void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
     // Setting the window_length in terms of 'symbols' for LoRa modulation or
     // in terms of 'bytes' for FSK
     *window_length = (uint32_t) ceil(window_len_in_ms / t_symb);
+    *window_length_ms = window_len_in_ms;
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -625,8 +630,7 @@ uint16_t LoRaPHY::get_maximum_frame_counter_gap()
 uint32_t LoRaPHY::get_ack_timeout()
 {
     uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
-    return (phy_params.ack_timeout
-            + get_random(-ack_timeout_rnd, ack_timeout_rnd));
+    return (phy_params.ack_timeout + get_random(0, ack_timeout_rnd));
 }
 
 uint32_t LoRaPHY::get_default_rx2_frequency()
@@ -846,26 +850,27 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
     }
 
     get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
-                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
+                         &rx_conf_params->window_timeout, &rx_conf_params->window_timeout_ms,
+                         &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
+}
+
+uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
+{
+    uint32_t toa = 0;
+
+    _radio->lock();
+    toa = _radio->time_on_air((radio_modems_t) modem, pkt_len);
+    _radio->unlock();
+
+    return toa;
 }
 
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 {
-    radio_modems_t modem;
     uint8_t dr = rx_conf->datarate;
     uint8_t max_payload = 0;
     uint8_t phy_dr = 0;
-    uint32_t frequency = rx_conf->frequency;
-
-    if (rx_conf->rx_slot == RX_SLOT_WIN_1) {
-        // Apply window 1 frequency
-        frequency = phy_params.channels.channel_list[rx_conf->channel].frequency;
-        // Apply the alternative RX 1 window frequency, if it is available
-        if (phy_params.channels.channel_list[rx_conf->channel].rx1_frequency != 0) {
-            frequency = phy_params.channels.channel_list[rx_conf->channel].rx1_frequency;
-        }
-    }
 
     // Read the physical datarate from the datarates table
     uint8_t *datarate_table = (uint8_t *) phy_params.datarates.table;
@@ -876,17 +881,17 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 
     _radio->lock();
 
-    _radio->set_channel(frequency);
+    _radio->set_channel(rx_conf->frequency);
 
     // Radio configuration
     if (dr == DR_7 && phy_params.fsk_supported) {
-        modem = MODEM_FSK;
-        _radio->set_rx_config(modem, 50000, phy_dr * 1000, 0, 83333, MAX_PREAMBLE_LENGTH,
+        rx_conf->modem_type = MODEM_FSK;
+        _radio->set_rx_config((radio_modems_t) rx_conf->modem_type, 50000, phy_dr * 1000, 0, 83333, MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, true, 0, 0,
                               false, rx_conf->is_rx_continuous);
     } else {
-        modem = MODEM_LORA;
-        _radio->set_rx_config(modem, rx_conf->bandwidth, phy_dr, 1, 0,
+        rx_conf->modem_type = MODEM_LORA;
+        _radio->set_rx_config((radio_modems_t) rx_conf->modem_type, rx_conf->bandwidth, phy_dr, 1, 0,
                               MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, false, 0, 0,
                               true, rx_conf->is_rx_continuous);
@@ -898,7 +903,7 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
         max_payload = payload_table[dr];
     }
 
-    _radio->set_max_payload_length(modem, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
+    _radio->set_max_payload_length((radio_modems_t) rx_conf->modem_type, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
 
     _radio->unlock();
 
@@ -971,13 +976,17 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
 
     verify_adr_params_t verify_params;
 
-    while (bytes_processed < link_adr_req->payload_size) {
+    while (bytes_processed < link_adr_req->payload_size &&
+            link_adr_req->payload[bytes_processed] == SRV_MAC_LINK_ADR_REQ) {
         // Get ADR request parameters
         next_index = parse_link_ADR_req(&(link_adr_req->payload[bytes_processed]),
+                                        link_adr_req->payload_size - bytes_processed,
                                         &adr_settings);
 
         if (next_index == 0) {
-            break; // break loop, since no more request has been found
+            bytes_processed = 0;
+            // break loop, malformed packet
+            break;
         }
 
         // Update bytes processed
@@ -1020,6 +1029,11 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
             // Channel mask control applies to RFUs
             status &= 0xFE; // Channel mask KO
         }
+    }
+
+    if (bytes_processed == 0) {
+        *nb_bytes_processed = 0;
+        return status;
     }
 
     if (is_datarate_supported(adr_settings.datarate)) {

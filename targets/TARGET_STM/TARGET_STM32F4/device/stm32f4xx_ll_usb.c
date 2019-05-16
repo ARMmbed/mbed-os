@@ -450,7 +450,8 @@ HAL_StatusTypeDef USB_ActivateEndpoint(USB_OTG_GlobalTypeDef *USBx, USB_OTG_EPTy
    
     if (((USBx_INEP(ep->num)->DIEPCTL) & USB_OTG_DIEPCTL_USBAEP) == 0U)
     {
-      USBx_INEP(ep->num)->DIEPCTL |= ((ep->maxpacket & USB_OTG_DIEPCTL_MPSIZ ) | (ep->type << 18U) |\
+      // MBED PATCH
+      USBx_INEP(ep->num)->DIEPCTL = ((ep->maxpacket & USB_OTG_DIEPCTL_MPSIZ ) | (ep->type << 18U) |\
         ((ep->num) << 22U) | (USB_OTG_DIEPCTL_SD0PID_SEVNFRM) | (USB_OTG_DIEPCTL_USBAEP)); 
     } 
   }
@@ -460,7 +461,8 @@ HAL_StatusTypeDef USB_ActivateEndpoint(USB_OTG_GlobalTypeDef *USBx, USB_OTG_EPTy
      
     if (((USBx_OUTEP(ep->num)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U)
     {
-      USBx_OUTEP(ep->num)->DOEPCTL |= ((ep->maxpacket & USB_OTG_DOEPCTL_MPSIZ ) | (ep->type << 18U) |\
+      // MBED PATCH
+      USBx_OUTEP(ep->num)->DOEPCTL = ((ep->maxpacket & USB_OTG_DOEPCTL_MPSIZ ) | (ep->type << 18U) |\
        (USB_OTG_DIEPCTL_SD0PID_SEVNFRM)| (USB_OTG_DOEPCTL_USBAEP));
     } 
   }
@@ -481,7 +483,8 @@ HAL_StatusTypeDef USB_ActivateDedicatedEndpoint(USB_OTG_GlobalTypeDef *USBx, USB
   {
     if (((USBx_INEP(ep->num)->DIEPCTL) & USB_OTG_DIEPCTL_USBAEP) == 0U)
     {
-      USBx_INEP(ep->num)->DIEPCTL |= ((ep->maxpacket & USB_OTG_DIEPCTL_MPSIZ ) | (ep->type << 18U) |\
+      // MBED PATCH
+      USBx_INEP(ep->num)->DIEPCTL = ((ep->maxpacket & USB_OTG_DIEPCTL_MPSIZ ) | (ep->type << 18U) |\
         ((ep->num) << 22U) | (USB_OTG_DIEPCTL_SD0PID_SEVNFRM) | (USB_OTG_DIEPCTL_USBAEP)); 
     } 
     
@@ -495,7 +498,8 @@ HAL_StatusTypeDef USB_ActivateDedicatedEndpoint(USB_OTG_GlobalTypeDef *USBx, USB
   {
     if (((USBx_OUTEP(ep->num)->DOEPCTL) & USB_OTG_DOEPCTL_USBAEP) == 0U)
     {
-      USBx_OUTEP(ep->num)->DOEPCTL |= ((ep->maxpacket & USB_OTG_DOEPCTL_MPSIZ ) | (ep->type << 18U) |\
+      // MBED PATCH
+      USBx_OUTEP(ep->num)->DOEPCTL = ((ep->maxpacket & USB_OTG_DOEPCTL_MPSIZ ) | (ep->type << 18U) |\
         ((ep->num) << 22U) | (USB_OTG_DOEPCTL_USBAEP));
       
       debug = (uint32_t)(((uint32_t )USBx) + USB_OTG_OUT_ENDPOINT_BASE + (0U)*USB_OTG_EP_REG_SIZE);
@@ -864,6 +868,174 @@ HAL_StatusTypeDef USB_EP0StartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeD
   }
   return HAL_OK;
 }
+
+// MBED PATCH
+/**
+  * @brief  USB_EPStoptXfer : stop transfer on this endpoint
+  * @param  USBx : Selected device
+  * @param  ep: pointer to endpoint structure
+  * @retval HAL status
+  * @note IN endpoints must have NAK enabled before calling this function
+  * @note OUT endpoints must have global out NAK enabled before calling this
+  *           function. Furthermore, the RX fifo must be empty or the status
+  *           HAL_BUSY will be returned.
+  */
+HAL_StatusTypeDef USB_EPStopXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeDef *ep)
+{
+  HAL_StatusTypeDef ret = HAL_OK;
+  uint32_t count = 0U;
+  uint32_t epint, fifoemptymsk;
+
+  /* IN endpoint */
+  if (ep->is_in == 1U)
+  {
+
+    /* EP enable, IN data in FIFO */
+    if (((USBx_INEP(ep->num)->DIEPCTL) & USB_OTG_DIEPCTL_EPENA) == USB_OTG_DIEPCTL_EPENA)
+    {
+      /* Disable this endpoint */
+      USBx_INEP(ep->num)->DIEPCTL |= USB_OTG_DIEPCTL_EPDIS;
+      count = 0;
+      do
+      {
+        if (++count > 200000U)
+        {
+          return HAL_TIMEOUT;
+        }
+      }
+      while ((USBx_INEP(ep->num)->DIEPCTL & USB_OTG_DIEPCTL_EPENA) == USB_OTG_DIEPCTL_EPENA);
+    }
+
+    /* Clear transfer complete interrupt */
+    epint = USB_ReadDevInEPInterrupt(USBx, ep->num);
+    if((epint & USB_OTG_DIEPINT_XFRC) == USB_OTG_DIEPINT_XFRC)
+    {
+      CLEAR_IN_EP_INTR(ep->num, USB_OTG_DIEPINT_XFRC);
+    }
+
+    /* Mask fifo empty interrupt */
+    fifoemptymsk = 0x1U << ep->num;
+    atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK,  fifoemptymsk);
+  }
+  else /* OUT endpoint */
+  {
+    if (((USBx_OUTEP(ep->num)->DOEPCTL) & USB_OTG_DOEPCTL_EPENA) == USB_OTG_DOEPCTL_EPENA)
+    {
+        /* Disable this endpoint */
+        USBx_OUTEP(ep->num)->DOEPCTL |= USB_OTG_DOEPCTL_EPDIS;
+        count = 0;
+        do
+        {
+          if (++count > 200000U)
+          {
+            return HAL_TIMEOUT;
+          }
+          if ((USBx->GINTSTS & USB_OTG_GINTSTS_RXFLVL) == USB_OTG_GINTSTS_RXFLVL)
+          {
+            /* Although not mentioned in the Reference Manual, it appears that the
+             * rx fifo must be empty for an OUT endpoint to be disabled. Typically
+             * this will happen when setting the global OUT nak (required by Reference
+             * Manual) as this requires processing the rx fifo. This is not guaranteed
+             * though, as a setup packet can arrive even while global OUT nak is set.
+             *
+             * During testing this event was observed and prevented endpoint disabling
+             * from completing until the rx fifo was empty. To address this problem
+             * return HAL_BUSY if the rx fifo is not empty to give higher level code
+             * a chance to clear the fifo and retry the operation.
+             *
+             */
+            return HAL_BUSY;
+          }
+        }
+        while ((USBx_OUTEP(ep->num)->DOEPCTL & USB_OTG_DOEPCTL_EPENA) == USB_OTG_DOEPCTL_EPENA);
+    }
+
+    /* Clear interrupt */
+    epint = USB_ReadDevOutEPInterrupt(USBx, ep->num);
+    if(( epint & USB_OTG_DOEPINT_XFRC) == USB_OTG_DOEPINT_XFRC)
+    {
+      CLEAR_OUT_EP_INTR(ep->num, USB_OTG_DOEPINT_XFRC);
+    }
+  }
+  return ret;
+}
+
+/**
+  * @brief  USB_EPSetNak : stop transfer and nak all tokens on this endpoint
+  * @param  USBx : Selected device
+  * @param  ep: pointer to endpoint structure
+  * @retval HAL status
+  */
+HAL_StatusTypeDef USB_EPSetNak(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeDef *ep)
+{
+  uint32_t count = 0;
+  if (ep->is_in == 1U)
+  {
+    USBx_INEP(ep->num)->DIEPCTL |= USB_OTG_DIEPCTL_SNAK;
+    count = 0;
+    do
+    {
+      if (++count > 200000U)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+    while ((USBx_INEP(ep->num)->DIEPCTL & USB_OTG_DIEPCTL_NAKSTS) != USB_OTG_DIEPCTL_NAKSTS);
+  }
+  else
+  {
+    USBx_OUTEP(ep->num)->DOEPCTL |= USB_OTG_DOEPCTL_SNAK;
+    count = 0;
+    do
+    {
+      if (++count > 200000U)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+    while ((USBx_OUTEP(ep->num)->DOEPCTL & USB_OTG_DOEPCTL_NAKSTS) != USB_OTG_DOEPCTL_NAKSTS);
+  }
+  return HAL_OK;
+}
+
+/**
+  * @brief  USB_EPSetNak : resume transfer and stop naking on this endpoint
+  * @param  USBx : Selected device
+  * @param  ep: pointer to endpoint structure
+  * @retval HAL status
+  */
+HAL_StatusTypeDef USB_EPClearNak(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeDef *ep)
+{
+  uint32_t count = 0;
+  if (ep->is_in == 1U)
+  {
+    USBx_INEP(ep->num)->DIEPCTL |= USB_OTG_DIEPCTL_CNAK;
+    count = 0;
+    do
+    {
+      if (++count > 200000U)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+    while ((USBx_INEP(ep->num)->DIEPCTL & USB_OTG_DIEPCTL_NAKSTS) == USB_OTG_DIEPCTL_NAKSTS);
+  }
+  else
+  {
+    USBx_OUTEP(ep->num)->DOEPCTL |= USB_OTG_DOEPCTL_CNAK;
+    count = 0;
+    do
+    {
+      if (++count > 200000U)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+    while ((USBx_OUTEP(ep->num)->DOEPCTL & USB_OTG_DOEPCTL_NAKSTS) == USB_OTG_DOEPCTL_NAKSTS);
+  }
+  return HAL_OK;
+}
+// MBED PATCH
 
 /**
   * @brief  USB_WritePacket : Writes a packet into the Tx FIFO associated 

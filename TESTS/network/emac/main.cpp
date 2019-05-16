@@ -35,7 +35,8 @@
     !defined(TARGET_MTB_ADV_WISE_1530)      && \
     !defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
     !defined(TARGET_MTB_MXCHIP_EMW3166)     && \
-    !defined(TARGET_MTB_UBLOX_ODIN_W2)
+    !defined(TARGET_MTB_UBLOX_ODIN_W2)      && \
+    !defined(TARGET_UNO_91H)
 #error [NOT_SUPPORTED] Wifi tests are not valid for the target
 #endif
 #endif
@@ -53,8 +54,13 @@ using namespace utest::v1;
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
 #if !MBED_CONF_APP_ECHO_SERVER
+#ifdef MBED_GREENTEA_TEST_EMAC_TIMEOUT_S
+    GREENTEA_SETUP(MBED_GREENTEA_TEST_EMAC_TIMEOUT_S, "default_auto");
+#else
     GREENTEA_SETUP(1400, "default_auto");
-#endif
+#endif // #ifdef MBED_GREENTEA_TEST_EMAC_TIMEOUT_S
+#endif // #if !MBED_CONF_APP_ECHO_SERVER
+
     return verbose_test_setup_handler(number_of_cases);
 }
 

@@ -40,6 +40,14 @@
 #undef QSPI_CMD_WRITE_DPI
 #undef QSPI_CMD_WRITE_QPI
 
+#elif defined(TARGET_RHOMBIO_L476DMW1K)
+#include "MT25Q_config.h" // MT25QL128ABA1EW7
+/* See STM32L476 Errata Sheet, it is not possible to use Dual-/Quad-mode for the command phase */
+#undef QSPI_CMD_READ_DPI
+#undef QSPI_CMD_READ_QPI
+#undef QSPI_CMD_WRITE_DPI
+#undef QSPI_CMD_WRITE_QPI
+
 #elif defined(TARGET_DISCO_L496AG)
 #include "MX25RXX35F_config.h" // MX25R6435F
 
@@ -57,6 +65,9 @@
 
 #elif defined(TARGET_LPC546XX)
 #include "NXP/LPC546XX/flash_config.h"
+
+#elif (defined(TARGET_CY8CPROTO_062_4343W) || defined(TARGET_CY8CKIT_062_WIFI_BT) || defined(TARGET_CY8CKIT_062_BLE))
+#include "S25FL512S_config.h"
 
 #endif
 #endif // MBED_FLASH_CONFIGS_H

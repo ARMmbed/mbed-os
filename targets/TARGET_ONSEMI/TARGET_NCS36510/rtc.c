@@ -42,7 +42,7 @@
  *
  */
 
-#ifdef DEVICE_RTC
+#if DEVICE_RTC
 
 #include "rtc.h"
 #include "mbed_assert.h"

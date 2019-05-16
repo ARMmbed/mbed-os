@@ -1,0 +1,11 @@
+{
+    "requires" : ["lib1"],
+    "target_overrides": {
+        "should_fail": {
+            "lib2.test": "GOOD"
+        },
+        "should_pass": {
+            "lib1.test": "GOOD"
+        }
+    }
+}

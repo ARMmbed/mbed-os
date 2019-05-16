@@ -22,11 +22,11 @@
 using utest::v1::Case;
 
 
-volatile bool callback_called;
+bool callback_called;
 
 void tiemout_callback(void)
 {
-    callback_called = true;
+    core_util_atomic_store(&callback_called, true);
 }
 
 template<int N>
@@ -49,7 +49,7 @@ void critical_section_raii_recursive(Timeout &timeout)
         wait_us(wait_time_us);
     }
     TEST_ASSERT_TRUE(core_util_in_critical_section());
-    TEST_ASSERT_FALSE(callback_called);
+    TEST_ASSERT_FALSE(core_util_atomic_load(&callback_called));
 }
 
 
@@ -82,31 +82,30 @@ void test_C_API(void)
 
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
-    callback_called = false;
+    core_util_atomic_store(&callback_called, false);
     timeout.attach_us(callback(tiemout_callback), timeout_time_us);
     wait_us(wait_time_us);
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_exchange(&callback_called, false));
 
     for (int i = 0; i < N; i++) {
         core_util_critical_section_enter();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
     }
 
-    callback_called = false;
     timeout.attach_us(callback(tiemout_callback), timeout_time_us);
     wait_us(wait_time_us);
-    TEST_ASSERT_FALSE(callback_called);
+    TEST_ASSERT_FALSE(core_util_atomic_load(&callback_called));
     TEST_ASSERT_TRUE(core_util_in_critical_section());
 
     for (int i = 0; i < N - 1; i++) {
         core_util_critical_section_exit();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
-        TEST_ASSERT_FALSE(callback_called);
+        TEST_ASSERT_FALSE(core_util_atomic_load(&callback_called));
     }
 
     core_util_critical_section_exit();
     TEST_ASSERT_FALSE(core_util_in_critical_section());
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_load(&callback_called));
 }
 
 /** Template for tests
@@ -138,16 +137,15 @@ void test_CPP_API_constructor_destructor(void)
 
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
-    callback_called = false;
+    core_util_atomic_store(&callback_called, false);
     timeout.attach_us(callback(tiemout_callback), timeout_time_us);
     wait_us(wait_time_us);
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_exchange(&callback_called, false));
 
-    callback_called = false;
     critical_section_raii_recursive<N>(timeout);
 
     TEST_ASSERT_FALSE(core_util_in_critical_section());
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_load(&callback_called));
 }
 
 /** Template for tests
@@ -179,31 +177,30 @@ void test_CPP_API_enable_disable(void)
 
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
-    callback_called = false;
+    core_util_atomic_store(&callback_called, false);
     timeout.attach_us(callback(tiemout_callback), timeout_time_us);
     wait_us(wait_time_us);
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_exchange(&callback_called, false));
 
     for (int i = 0; i < N; i++) {
         CriticalSectionLock::enable();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
     }
 
-    callback_called = false;
     timeout.attach_us(callback(tiemout_callback), timeout_time_us);
     wait_us(wait_time_us);
-    TEST_ASSERT_FALSE(callback_called);
+    TEST_ASSERT_FALSE(core_util_atomic_load(&callback_called));
     TEST_ASSERT_TRUE(core_util_in_critical_section());
 
     for (int i = 0; i < N - 1; i++) {
         CriticalSectionLock::disable();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
-        TEST_ASSERT_FALSE(callback_called);
+        TEST_ASSERT_FALSE(core_util_atomic_load(&callback_called));
     }
 
     CriticalSectionLock::disable();
     TEST_ASSERT_FALSE(core_util_in_critical_section());
-    TEST_ASSERT_TRUE(callback_called);
+    TEST_ASSERT_TRUE(core_util_atomic_load(&callback_called));
 }
 
 

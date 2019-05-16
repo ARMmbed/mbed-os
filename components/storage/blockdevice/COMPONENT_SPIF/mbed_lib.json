@@ -32,29 +32,42 @@
              "SPI_CLK":  "PE_12",
              "SPI_CS":   "PE_11"
         },
-         "MTB_ADV_WISE_1530": {
+        "MTB_ADV_WISE_1530": {
              "SPI_MOSI": "PC_3",
              "SPI_MISO": "PC_2",
              "SPI_CLK":  "PB_13",
-             "SPI_CS":   "PC_12"            
+             "SPI_CS":   "PC_12"
        },
-         "MTB_MXCHIP_EMW3166": {
+       "MTB_MXCHIP_EMW3166": {
              "SPI_MOSI": "PB_15",
              "SPI_MISO": "PB_14",
              "SPI_CLK":  "PB_13",
-             "SPI_CS":   "PA_10"            
+             "SPI_CS":   "PA_10"
        },
-         "MTB_USI_WM_BN_BM_22": {
+       "MTB_USI_WM_BN_BM_22": {
              "SPI_MOSI": "PC_3",
              "SPI_MISO": "PC_2",
              "SPI_CLK":  "PB_13",
-             "SPI_CS":   "PA_6"            
+             "SPI_CS":   "PA_6"
        },
-         "MTB_ADV_WISE_1570": {
+       "MTB_ADV_WISE_1570": {
              "SPI_MOSI": "PA_7",
              "SPI_MISO": "PA_6",
              "SPI_CLK":  "PA_5",
-             "SPI_CS":   "PB_12"
+             "SPI_CS":   "PB_12",
+             "SPI_FREQ": "20000000"
+       },
+         "UHURU_RAVEN": {
+             "SPI_MOSI": "PE_14",
+             "SPI_MISO": "PE_13",
+             "SPI_CLK":  "PE_12",
+             "SPI_CS":   "PE_11"
+       },
+       "MTS_DRAGONFLY_F411RE": {
+           "SPI_MOSI": "SPI3_MOSI",
+           "SPI_MISO": "SPI3_MISO",
+           "SPI_CLK":  "SPI3_SCK",
+           "SPI_CS":   "SPI_CS1"
        }
     }
 }

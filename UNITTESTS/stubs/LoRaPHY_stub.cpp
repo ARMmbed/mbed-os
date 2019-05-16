@@ -151,9 +151,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 }
 
 uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t *payload,
+                                    uint8_t payload_size,
                                     link_adr_params_t *params)
 {
     params->ch_mask_ctrl = LoRaPHY_stub::ch_mask_value;
+    params->channel_mask = 0;
+    params->datarate = 0;
 
     if (LoRaPHY_stub::adr_parse_count) {
         return --LoRaPHY_stub::adr_parse_count;
@@ -170,7 +173,8 @@ uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
 
 void LoRaPHY::get_rx_window_params(float t_symbol, uint8_t min_rx_symbols,
                                    float rx_error, float wakeup_time,
-                                   uint32_t *window_length, int32_t *window_offset,
+                                   uint32_t *window_length, uint32_t *window_length_ms,
+                                   int32_t *window_offset,
                                    uint8_t phy_dr)
 {
 }
@@ -412,4 +416,8 @@ uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
     return LoRaPHY_stub::uint8_value;
 }
 
+uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
+{
+    return LoRaPHY_stub::uint32_value;
+}
 

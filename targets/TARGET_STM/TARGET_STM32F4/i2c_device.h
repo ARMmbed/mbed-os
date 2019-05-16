@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-#ifdef DEVICE_I2C
+#if DEVICE_I2C
 
 /*  Define IP version */
 #define I2C_IP_VERSION_V1

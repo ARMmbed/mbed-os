@@ -28,6 +28,9 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
     P0_0 = 0,
     P0_1 = 1,
     P0_2 = 2,
@@ -52,6 +55,8 @@ typedef enum {
     D2 = P0_6,
     D3 = P0_8,
     D4 = P0_9,
+    D5 = NC,
+    D6 = NC,
     
     D7 = P0_7,
     D8 = P0_17,
@@ -63,6 +68,10 @@ typedef enum {
     D14 = P0_10,
     D15 = P0_11,
     
+    A0 = NC,
+    A1 = NC,
+    A2 = NC,
+    A3 = NC,
     A4 = P0_10,
     A5 = P0_11,
     
@@ -80,9 +89,7 @@ typedef enum {
     // Serial to USB pins
     USBTX = P0_6,
     USBRX = P0_1,
-    
-    // Not connected
-    NC = (int)0xFFFFFFFF,
+
 } PinName;
 
 typedef enum {

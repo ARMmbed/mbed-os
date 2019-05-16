@@ -1,0 +1,6 @@
+{
+    "name": "tfm_build",
+    "requires" : ["psa-services", "tfm", "tfm-s", "psa"],
+    "macros": ["MBEDTLS_CIPHER_MODE_CTR", "MBEDTLS_CMAC_C"],
+    "artifact_name": "tfm"
+}

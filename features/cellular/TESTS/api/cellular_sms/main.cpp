@@ -20,13 +20,6 @@
 #error [NOT_SUPPORTED] A json configuration file is needed. Skipping this build.
 #endif
 
-#include "CellularUtil.h" // for CELLULAR_ helper macros
-#include "CellularTargets.h"
-
-#ifndef CELLULAR_DEVICE
-#error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
-#endif
-
 #ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
 #endif
@@ -45,12 +38,10 @@
 #include "CellularContext.h"
 #include "CellularDevice.h"
 #include "../../cellular_tests_common.h"
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 #define NETWORK_TIMEOUT (600*1000)
 #define SIM_BUSY 314
-static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-static EventQueue queue(8 * EVENTS_EVENT_SIZE);
+
 static CellularContext *ctx;
 static CellularDevice *device;
 static CellularSMS *sms;
@@ -59,10 +50,10 @@ static int service_address_type;
 
 static void create_context()
 {
-    device = new CELLULAR_DEVICE(&cellular_serial);
+    device = CellularDevice::get_default_instance();
     TEST_ASSERT(device != NULL);
     device->set_timeout(9000);
-    ctx = device->create_context();
+    ctx = CellularContext::get_default_instance();
     TEST_ASSERT(ctx != NULL);
     ctx->set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
 #ifdef MBED_CONF_APP_APN
@@ -75,12 +66,12 @@ static void store_service_center_address()
     // First we need to go SIM_PIN state to make sure that we can get service address and device ready to accept AT commands
     create_context();
     TEST_ASSERT(ctx->set_sim_ready() == NSAPI_ERROR_OK);
-    wait(1);
-    delete device; // will also delete context
 
-    wait(3); // some modems needs more time access sim
+    wait(5); // some modems needs more time access sim
 
-    ATHandler *at_init = new ATHandler(&cellular_serial, queue, 30000, "\r");
+    ATHandler *at_init = device->get_at_handler();
+    at_init->lock();
+    at_init->set_at_timeout(30 * 1000);
     at_init->cmd_start("AT+CSCA?");
     at_init->cmd_stop();
 
@@ -90,10 +81,10 @@ static void store_service_center_address()
     at_init->read_string(service_center_address, sizeof(service_center_address));
     service_address_type = at_init->read_int();
     at_init->resp_stop();
-
     TEST_ASSERT(at_init->get_last_error() == NSAPI_ERROR_OK);
 
-    delete at_init;
+    at_init->unlock();
+    device->release_at_handler(at_init);
 }
 
 static void init()
@@ -103,7 +94,7 @@ static void init()
     create_context();
 
     TEST_ASSERT(ctx->register_to_network() == NSAPI_ERROR_OK);
-    sms = device->open_sms(&cellular_serial);
+    sms = device->open_sms();
     TEST_ASSERT(sms != NULL);
     wait(3); // some modems needs more time access sim
 }
@@ -119,21 +110,21 @@ static void test_sms_initialize_text_mode()
 static void test_sms_initialize_pdu_mode()
 {
     nsapi_error_t err = sms->initialize(CellularSMS::CellularSMSMmodePDU);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_cscs()
 {
     nsapi_error_t err = sms->set_cscs("IRA");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_cscs("UCS2");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_cscs("GSM");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_csca()
@@ -152,8 +143,8 @@ static void test_set_csca()
 static void test_set_cpms_me()
 {
     nsapi_error_t err = sms->set_cpms("ME", "ME", "ME");
-    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
-                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                                                            ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 #ifdef MBED_CONF_APP_CELLULAR_PHONE_NUMBER

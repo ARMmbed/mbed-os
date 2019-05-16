@@ -37,38 +37,10 @@
 ; 
 ;*******************************************************************************
 
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00000400
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __initial_sp
-                
-Stack_Mem       SPACE   Stack_Size
 __initial_sp    EQU     0x20020000 ; Top of RAM
-
-
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size       EQU     0x00000200
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-                
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit    EQU (__initial_sp - Stack_Size)
 
                 PRESERVE8
                 THUMB
-
 
 ; Vector Table Mapped to Address 0 at Reset
                 AREA    RESET, DATA, READONLY
@@ -195,15 +167,9 @@ __Vectors_Size  EQU  __Vectors_End - __Vectors
 ; Reset handler
 Reset_Handler    PROC
                  EXPORT  Reset_Handler             [WEAK]
-        IMPORT  SystemInitPre
-        IMPORT  HAL_InitPre
         IMPORT  SystemInit
         IMPORT  __main
 
-                 LDR     R0, =SystemInitPre
-                 BLX     R0
-                 LDR     R0, =HAL_InitPre
-                 BLX     R0
                  LDR     R0, =SystemInit
                  BLX     R0
                  LDR     R0, =__main

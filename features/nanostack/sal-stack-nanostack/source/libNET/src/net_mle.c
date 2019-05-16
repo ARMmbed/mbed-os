@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2017, 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "net_mle_api.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "net_interface.h"
 #include "MLE/mle.h"
 #include "NWK_INTERFACE/Include/protocol.h"

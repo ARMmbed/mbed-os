@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_ANALOGIN) || defined(DOXYGEN_ONLY)
+#if DEVICE_ANALOGIN || defined(DOXYGEN_ONLY)
 
 #include "hal/analogin_api.h"
 #include "platform/SingletonPtr.h"

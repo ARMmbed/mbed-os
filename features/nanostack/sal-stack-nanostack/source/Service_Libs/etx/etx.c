@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 #include "platform/arm_hal_phy.h"
 #include "net_interface.h"
 
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "MLE/mle.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "NWK_INTERFACE/Include/protocol_stats.h"

@@ -117,7 +117,7 @@ class RTC_time_calc_test(BaseHostTest):
             self.send_kv("passed", str(response))
         else:
             self.send_kv("failed", 0)
-            print "expected = %d, result = %d" %  (expected_timestamp , actual_timestamp)
+            print("expected = %d, result = %d" %  (expected_timestamp , actual_timestamp))
 
         # calculate next date
         if (self.first):

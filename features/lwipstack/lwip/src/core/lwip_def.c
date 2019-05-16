@@ -11,7 +11,7 @@
  * \#define lwip_htonl(x) your_htonl
  *
  * Note lwip_ntohs() and lwip_ntohl() are merely references to the htonx counterparts.
- * 
+ *
  * If you \#define them to htons() and htonl(), you should
  * \#define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS to prevent lwIP from
  * defining htonx/ntohx compatibility macros.
@@ -75,7 +75,7 @@
 u16_t
 lwip_htons(u16_t n)
 {
-  return (u16_t)PP_HTONS(n);
+  return PP_HTONS(n);
 }
 #endif /* lwip_htons */
 
@@ -89,7 +89,7 @@ lwip_htons(u16_t n)
 u32_t
 lwip_htonl(u32_t n)
 {
-  return (u32_t)PP_HTONL(n);
+  return PP_HTONL(n);
 }
 #endif /* lwip_htonl */
 
@@ -101,10 +101,10 @@ lwip_htonl(u32_t n)
  * lwIP default implementation for strnstr() non-standard function.
  * This can be \#defined to strnstr() depending on your platform port.
  */
-char*
-lwip_strnstr(const char* buffer, const char* token, size_t n)
+char *
+lwip_strnstr(const char *buffer, const char *token, size_t n)
 {
-  const char* p;
+  const char *p;
   size_t tokenlen = strlen(token);
   if (tokenlen == 0) {
     return LWIP_CONST_CAST(char *, buffer);
@@ -125,7 +125,7 @@ lwip_strnstr(const char* buffer, const char* token, size_t n)
  * This can be \#defined to stricmp() depending on your platform port.
  */
 int
-lwip_stricmp(const char* str1, const char* str2)
+lwip_stricmp(const char *str1, const char *str2)
 {
   char c1, c2;
 
@@ -160,7 +160,7 @@ lwip_stricmp(const char* str1, const char* str2)
  * This can be \#defined to strnicmp() depending on your platform port.
  */
 int
-lwip_strnicmp(const char* str1, const char* str2, size_t len)
+lwip_strnicmp(const char *str1, const char *str2, size_t len)
 {
   char c1, c2;
 
@@ -183,7 +183,8 @@ lwip_strnicmp(const char* str1, const char* str2, size_t len)
         return 1;
       }
     }
-  } while (len-- && c1 != 0);
+    len--;
+  } while ((len != 0) && (c1 != 0));
   return 0;
 }
 #endif
@@ -195,28 +196,45 @@ lwip_strnicmp(const char* str1, const char* str2, size_t len)
  * This can be \#defined to itoa() or snprintf(result, bufsize, "%d", number) depending on your platform port.
  */
 void
-lwip_itoa(char* result, size_t bufsize, int number)
+lwip_itoa(char *result, size_t bufsize, int number)
 {
-  const int base = 10;
-  char* ptr = result, *ptr1 = result, tmp_char;
-  int tmp_value;
-  LWIP_UNUSED_ARG(bufsize);
+  char *res = result;
+  char *tmp = result + bufsize - 1;
+  int n = (number >= 0) ? number : -number;
 
-  do {
-    tmp_value = number;
-    number /= base;
-    *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + (tmp_value - number * base)];
-  } while(number);
+  /* handle invalid bufsize */
+  if (bufsize < 2) {
+    if (bufsize == 1) {
+      *result = 0;
+    }
+    return;
+  }
 
-   /* Apply negative sign */
-  if (tmp_value < 0) {
-     *ptr++ = '-';
+  /* First, add sign */
+  if (number < 0) {
+    *res++ = '-';
   }
-  *ptr-- = '\0';
-  while(ptr1 < ptr) {
-    tmp_char = *ptr;
-    *ptr--= *ptr1;
-    *ptr1++ = tmp_char;
+  /* Then create the string from the end and stop if buffer full,
+     and ensure output string is zero terminated */
+  *tmp = 0;
+  while ((n != 0) && (tmp > res)) {
+    char val = (char)('0' + (n % 10));
+    tmp--;
+    *tmp = val;
+    n = n / 10;
   }
+  if (n) {
+    /* buffer is too small */
+    *result = 0;
+    return;
+  }
+  if (*tmp == 0) {
+    /* Nothing added? */
+    *res++ = '0';
+    *res++ = 0;
+    return;
+  }
+  /* move from temporary buffer to output buffer (sign is not moved) */
+  memmove(res, tmp, (size_t)((result + bufsize) - tmp));
 }
 #endif

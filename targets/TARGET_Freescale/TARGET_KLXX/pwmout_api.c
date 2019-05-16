@@ -123,3 +123,8 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     *obj->CnV = (uint32_t)(pwm_clock * (float)us);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

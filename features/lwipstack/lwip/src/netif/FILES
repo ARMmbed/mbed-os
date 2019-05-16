@@ -5,13 +5,12 @@ are:
 ethernet.c
           Shared code for Ethernet based interfaces.
 
-ethernetif.c
-          An example of how an Ethernet device driver could look. This
-          file can be used as a "skeleton" for developing new Ethernet
-          network device drivers. It uses the etharp.c ARP code.
-
 lowpan6.c
           A 6LoWPAN implementation as a netif.
+
+lowpan6_ble.c
+          A 6LoWPAN over Bluetooth Low Energy (BLE) implementation as netif,
+          according to RFC-7668.
 
 slipif.c
           A generic implementation of the SLIP (Serial Line IP)

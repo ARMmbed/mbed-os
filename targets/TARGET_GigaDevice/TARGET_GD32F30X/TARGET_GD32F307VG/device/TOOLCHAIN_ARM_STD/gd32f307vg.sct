@@ -11,6 +11,12 @@
   #define MBED_APP_SIZE 0x100000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region (1024K)
 
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -20,8 +26,11 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region (1024K)
   }
 
   ; 84 vectors (16 core + 68 peripheral) * 4 bytes = 336 bytes to reserve (0x150)
-  RW_IRAM1 (0x20000000+0x150) (0x18000-0x150)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x150) (0x18000-0x150-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_STACK (0x20000000+0x18000) EMPTY -Stack_Size { ; stack
   }
 }
 

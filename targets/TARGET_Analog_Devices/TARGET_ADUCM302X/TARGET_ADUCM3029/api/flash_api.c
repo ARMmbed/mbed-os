@@ -38,7 +38,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 #include "flash_api.h"
 #include "flash_data.h"
 #include "mbed_critical.h"

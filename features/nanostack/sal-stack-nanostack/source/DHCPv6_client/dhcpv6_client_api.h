@@ -34,8 +34,21 @@
  * /param interface interface id of this instance.
  *
  */
-
 void dhcp_client_init(int8_t interface);
+
+/* Set configurations for DHCP client
+ *
+ * /param renew_uses_solicit Instead of renew message SOLICIT is used.
+ */
+void dhcp_client_configure(int8_t interface, bool renew_uses_solicit);
+
+/* Set Timeout parameters for SOLICIT transactions
+ *
+ * /param timeout SOLICIT timeout initial value. 0 means use defaults
+ * /param max_rt SOLICIT timeout max value.
+ * /param max_rc SOLICIT re-transmission count. 0 means infinite.
+ */
+void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc);
 
 /* Delete dhcp client.
  *
@@ -57,13 +70,14 @@ void dhcp_client_delete(int8_t interface);
  * /param dhcp_addr dhcp server ML16 address where address is registered.
  * /param prefix dhcp server ML16 address where address is registered.
  * /param mac64 64 bit mac address for identifieng client.
+ * /param link_type Link hardware type.
  * /param error_cb error callback that is called if address cannot be created or becomes invalid.
  * /param register_status true if address registered.
  *
  */
 typedef void (dhcp_client_global_adress_cb)(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status);
 
-int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], uint8_t mac64[static 8], dhcp_client_global_adress_cb *error_cb);
+int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], uint8_t mac64[static 8], uint16_t link_type, dhcp_client_global_adress_cb *error_cb);
 
 /* Renew all leased adddresses might be used when short address changes
  *

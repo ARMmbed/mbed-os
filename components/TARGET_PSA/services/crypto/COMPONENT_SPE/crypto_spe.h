@@ -25,7 +25,6 @@ extern "C" {
 #define psa_set_key_policy  psa_sec_set_key_policy
 #define psa_get_key_policy  psa_sec_get_key_policy
 #define psa_get_key_lifetime  psa_sec_get_key_lifetime
-#define psa_set_key_lifetime  psa_sec_set_key_lifetime
 #define psa_hash_setup  psa_sec_hash_setup
 #define psa_hash_update  psa_sec_hash_update
 #define psa_hash_finish  psa_sec_hash_finish
@@ -60,6 +59,13 @@ extern "C" {
 #define psa_key_agreement  psa_sec_key_agreement
 #define psa_generator_abort  psa_sec_generator_abort
 #define mbedtls_psa_inject_entropy  mbedtls_psa_sec_inject_entropy
+#define psa_allocate_key  psa_sec_allocate_key
+#define psa_open_key  psa_sec_open_key
+#define psa_create_key  psa_sec_create_key
+#define psa_close_key  psa_sec_close_key
+#define psa_hash_clone  psa_sec_hash_clone
+
+#define MBEDTLS_PSA_CRYPTO_KEY_FILE_ID_ENCODES_OWNER 1
 
 #include "crypto.h"
 

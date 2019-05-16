@@ -223,6 +223,11 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
             }   break;
 
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
+                /* send next command in sequence */
+                HciReadLocalVerInfoCmd();
+                break;
+
+            case HCI_OPCODE_READ_LOCAL_VER_INFO:
                 if (hciCoreCb.extResetSeq) {
                     /* send first extended command */
                     (*hciCoreCb.extResetSeq)(pMsg, opcode);
@@ -276,6 +281,10 @@ void CordioHCIDriver::signal_reset_sequence_done()
 uint16_t CordioHCIDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
     return _transport_driver.write(type, len, pData);
+}
+
+void CordioHCIDriver::on_host_stack_inactivity()
+{
 }
 
 } // namespace cordio

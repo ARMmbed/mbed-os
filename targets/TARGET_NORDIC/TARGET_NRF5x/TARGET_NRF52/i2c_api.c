@@ -36,7 +36,7 @@
  *
  */
 
-#if (defined(DEVICE_I2C) && defined(DEVICE_LPTICKER))
+#if DEVICE_I2C && DEVICE_LPTICKER
 /* I2C
  *
  * This HAL implementation uses the nrf_drv_twi.h API primarily but switches to TWI for the
@@ -53,6 +53,7 @@
 
 #include "object_owners.h"
 #include "pinmap_ex.h"
+#include "PeripheralPins.h"
 
 #include "nrf_drv_twi.h"
 #include "nrf_drv_common.h"
@@ -166,6 +167,26 @@ void i2c_frequency(i2c_t *obj, int hz)
     /* Only store frequency in object. Configuration happens at the beginning of each transaction. */
     config->frequency = new_frequency;
     config->update = true;
+}
+
+const PinMap *i2c_master_sda_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_master_scl_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_slave_sda_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_slave_scl_pinmap()
+{
+    return PinMap_I2C_testing;
 }
 
 

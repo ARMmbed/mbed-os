@@ -80,10 +80,11 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-__stack_size__ = 0x2000;
-__heap_size__ = 0x4000;
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
 
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0800;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0xE4 : 0x0;
 RPMSG_SHMEM_SIZE = DEFINED(__use_shmem__) ? 0x1800 : 0;
@@ -269,7 +270,7 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data) + LENGTH(m_data) - STACK_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data

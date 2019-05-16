@@ -25,6 +25,7 @@
 #include "rtos/Mutex.h"
 #include "rtos/EventFlags.h"
 #include "Callback.h"
+#include "mbed_atomic.h"
 #include "mbed_toolchain.h"
 #include "SocketStats.h"
 
@@ -157,7 +158,7 @@ protected:
     virtual nsapi_protocol_t get_proto() = 0;
     virtual void event();
     int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
-
+    char _interface_name[NSAPI_INTERFACE_NAME_MAX_SIZE];
     NetworkStack *_stack;
     nsapi_socket_t _socket;
     uint32_t _timeout;
@@ -168,7 +169,7 @@ protected:
     SocketAddress _remote_peer;
     uint8_t _readers;
     uint8_t _writers;
-    volatile unsigned _pending;
+    core_util_atomic_flag _pending;
     bool _factory_allocated;
 
     // Event flags

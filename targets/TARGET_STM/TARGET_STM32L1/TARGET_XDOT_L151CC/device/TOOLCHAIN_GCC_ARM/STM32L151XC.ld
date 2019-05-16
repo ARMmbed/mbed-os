@@ -6,6 +6,13 @@
 #if !defined(MBED_APP_SIZE)
   #define MBED_APP_SIZE 256k
 #endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 MEMORY
 {
   /* 256KB FLASH, 32KB RAM, Reserve up till 0x13C. There are 0x73 vectors = 292
@@ -141,6 +148,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 
@@ -156,7 +164,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

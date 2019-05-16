@@ -305,7 +305,7 @@ void can_free(can_t *obj)
  */
 int can_frequency(can_t *obj, int hz)
 {
-    int reval;
+    int reval = 0;
 
     /* The maximum baud rate support to 1M */
     if (hz <= 1000000) {
@@ -627,6 +627,16 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
     can1_filter_start_bank(handle);
 
     return handle;
+}
+
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
 }
 
 #endif

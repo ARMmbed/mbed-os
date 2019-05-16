@@ -181,8 +181,11 @@ public:
      *
      *  @param target   Queue that will dispatch this queue's events as a
      *                  part of its dispatch loop
+     *
+     *  @return Zero on success and negative error code value if chaining fails
+     *
      */
-    void chain(EventQueue *target);
+    int chain(EventQueue *target);
 
 
 

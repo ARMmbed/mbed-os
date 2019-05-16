@@ -28,9 +28,12 @@
 DOMAIN_NS     EQU      0
 #endif
 
-#ifndef __FPU_USED
+#ifdef __ARM_FP
+__FPU_USED      EQU      1
+#else
 __FPU_USED      EQU      0
 #endif
+
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset

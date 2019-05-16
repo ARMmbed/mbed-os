@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +27,8 @@
 
 #include "gpio_irq_api.h"
 #include "gpio_object.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/syspm/cy_syspm.h"
+#include "cy_sysclk.h"
+#include "cy_syspm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +36,7 @@ extern "C" {
 
 #if DEVICE_INTERRUPTIN
 struct gpio_irq_s {
-    GPIO_PRT_Type*      port;
+    GPIO_PRT_Type      *port;
     uint32_t            port_id;
     uint32_t            pin;
     gpio_irq_event      mode;
@@ -69,6 +71,7 @@ struct port_s {
 struct serial_s {
     CySCB_Type                  *base;
     uint32_t                    serial_id;
+    bool                        already_reserved;
     PinName                     pin_rx;
     PinName                     pin_tx;
     PinName                     pin_cts;
@@ -99,6 +102,7 @@ struct serial_s {
 struct spi_s {
     CySCB_Type                          *base;
     uint32_t                            spi_id;
+    bool                                already_reserved;
     PinName                             pin_miso;
     PinName                             pin_mosi;
     PinName                             pin_sclk;
@@ -131,12 +135,23 @@ struct spi_s {
 };
 #endif // DEVICE_SPI
 
+#if DEVICE_QSPI
+#include "cy_smif.h"
+
+struct qspi_s {
+    SMIF_Type *base;
+    cy_stc_smif_context_t context;
+    cy_en_smif_slave_select_t slaveSelect;
+};
+#endif // DEVICE_QSPI
+
 #if DEVICE_I2C
 #include "cy_scb_i2c.h"
 
 struct i2c_s {
     CySCB_Type                          *base;
     uint32_t                            i2c_id;
+    bool                                already_reserved;
     PinName                             pin_sda;
     PinName                             pin_scl;
     en_clk_dst_t                        clock;
@@ -171,42 +186,42 @@ struct i2c_s {
 #include "cy_tcpwm.h"
 
 struct pwmout_s {
-    TCPWM_Type *base;
-    PinName pin;
-    uint32_t counter_id;
-    uint32_t clock;
-    uint32_t period;
-    uint32_t pulse_width;
-    uint32_t prescaler;
+    TCPWM_Type  *base;
+    PinName      pin;
+    uint32_t     counter_id;
+    en_clk_dst_t clock;
+    uint32_t     period;
+    uint32_t     pulse_width;
+    uint32_t     prescaler;
 #if DEVICE_SLEEP && DEVICE_LPTICKER
-    cy_stc_syspm_callback_params_t      pm_callback_params;
-    cy_stc_syspm_callback_t             pm_callback_handler;
+    cy_stc_syspm_callback_params_t pm_callback_params;
+    cy_stc_syspm_callback_t        pm_callback_handler;
 #endif
 };
 #endif // DEVICE_PWMOUT
 
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 #include "cy_sar.h"
 
 struct analogin_s {
     SAR_Type *base;
     PinName pin;
     uint32_t channel_mask;
-    uint32_t clock;
+    en_clk_dst_t clock;
 };
 #endif // DEVICE_ANALOGIN
 
-#ifdef DEVICE_ANALOGOUT
+#if DEVICE_ANALOGOUT
 #include "cy_ctdac.h"
 
 struct dac_s {
     CTDAC_Type *base;
     PinName pin;
-    uint32_t clock;
+    en_clk_dst_t clock;
 };
 #endif // DEVICE_ANALOGOUT
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 struct flash_s {
     /*  nothing to be stored for now */
     void *dummy;

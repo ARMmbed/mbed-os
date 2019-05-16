@@ -24,8 +24,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_toolchain.h"
 
-static volatile uint32_t critical_section_reentrancy_counter = 0;
-
 bool core_util_are_interrupts_enabled(void)
 {
     return false;
@@ -48,68 +46,3 @@ void core_util_critical_section_enter(void)
 void core_util_critical_section_exit(void)
 {
 }
-
-bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
-{
-    return false;
-}
-
-bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
-{
-    return false;
-}
-
-
-bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
-{
-    return false;
-}
-
-
-uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
-{
-    return 0;
-}
-
-uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
-{
-    return 0;
-}
-
-uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
-{
-    return 0;
-}
-
-
-uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
-{
-    return 0;
-}
-
-uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
-{
-    return 0;
-}
-
-uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
-{
-    return 0;
-}
-
-
-bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue)
-{
-    return false;
-}
-
-void *core_util_atomic_incr_ptr(void *volatile *valuePtr, ptrdiff_t delta)
-{
-    return NULL;
-}
-
-void *core_util_atomic_decr_ptr(void *volatile *valuePtr, ptrdiff_t delta)
-{
-    return NULL;
-}
-

@@ -138,8 +138,7 @@ TEST_F(Testutil, prefer_ipv6)
 
 TEST_F(Testutil, separate_ip_addresses)
 {
-    char *s = (char *)malloc(128);
-
+    char s[128] = {'\0'};
     char ip[64] = {0};
     char subnet[64] = {0};
 

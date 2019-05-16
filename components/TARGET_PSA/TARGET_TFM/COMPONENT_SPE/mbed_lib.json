@@ -1,0 +1,11 @@
+{
+    "name": "tfm-s",
+    "macros": ["MBED_FAULT_HANDLER_DISABLED", "BYPASS_NVSTORE_CHECK=1"],
+    "config": {
+        "max_ns_thread_count": {
+            "help": "maximum allowed number of non-secure threads",
+            "macro_name": "TFM_MAX_NS_THREAD_COUNT",
+            "value": 10
+        }
+    }
+}

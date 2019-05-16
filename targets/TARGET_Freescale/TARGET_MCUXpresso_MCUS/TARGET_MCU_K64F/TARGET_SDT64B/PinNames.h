@@ -228,20 +228,20 @@ typedef enum {
     USBRX = PTC14,
 
     // UART pins
-    UART0_RX  = PTD8,
-    UART0_TX  = PTD9,
-    UART0_CTS = PTD11,
-    UART0_RTS = PTD10,
+    UART0_RX  = PTC16,
+    UART0_TX  = PTC17,
+    UART0_CTS = PTC19,
+    UART0_RTS = PTC18,
 
     UART1_RX  = USBRX,
     UART1_TX  = USBTX,
     UART1_CTS = PTC13,
     UART1_RTS = PTC12,
 
-    UART2_RX  = PTC16,
-    UART2_TX  = PTC17,
-    UART2_CTS = PTC19,
-    UART2_RTS = PTC18,
+    UART2_RX  = PTD8,
+    UART2_TX  = PTD9,
+    UART2_CTS = PTD11,
+    UART2_RTS = PTD10,
 
     // I2C pins
     I2C0_SCL = PTC10,

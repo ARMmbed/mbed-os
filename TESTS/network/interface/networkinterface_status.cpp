@@ -36,7 +36,9 @@ nsapi_connection_status_t statuses[status_buffer_size];
 
 void status_cb(nsapi_event_t event, intptr_t value)
 {
-    TEST_ASSERT_EQUAL(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, event);
+    if (event != NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        return;
+    }
 
     statuses[status_write_counter] = static_cast<nsapi_connection_status_t>(value);
     status_write_counter++;
@@ -137,8 +139,6 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
 
 void NETWORKINTERFACE_STATUS_GET()
 {
-    nsapi_connection_status_t status;
-
     net = NetworkInterface::get_default_instance();
     net->set_blocking(true);
 

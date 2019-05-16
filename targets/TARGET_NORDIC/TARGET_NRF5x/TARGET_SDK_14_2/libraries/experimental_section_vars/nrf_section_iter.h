@@ -87,7 +87,7 @@ typedef struct
 typedef struct
 {
     nrf_section_set_t const * p_set;        //!< Pointer to the appropriate section set.
-#if !defined(__GNUC__) || defined(__CC_ARM)
+#if !defined(__GNUC__) || defined(__ARMCC_VERSION)
     nrf_section_t const     * p_section;    //!< Pointer to the selected section.
                                             /**<
                                              * In case of GCC all sections in the set are sorted and

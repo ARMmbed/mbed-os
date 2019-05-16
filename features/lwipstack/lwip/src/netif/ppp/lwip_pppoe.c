@@ -81,7 +81,7 @@
 #include "lwip/stats.h"
 #include "lwip/snmp.h"
 
-#include "netif/lwip_ethernet.h"
+#include "netif/ethernet.h"
 #include "netif/ppp/ppp_impl.h"
 #include "netif/ppp/lcp.h"
 #include "netif/ppp/ipcp.h"
@@ -177,6 +177,7 @@ ppp_pcb *pppoe_create(struct netif *pppif,
   struct pppoe_softc *sc;
   LWIP_UNUSED_ARG(service_name);
   LWIP_UNUSED_ARG(concentrator_name);
+  LWIP_ASSERT_CORE_LOCKED();
 
   sc = (struct pppoe_softc *)LWIP_MEMPOOL_ALLOC(PPPOE_IF);
   if (sc == NULL) {
@@ -210,7 +211,7 @@ static err_t pppoe_write(ppp_pcb *ppp, void *ctx, struct pbuf *p) {
 #endif /* MIB2_STATS */
 
   /* skip address & flags */
-  pbuf_header(p, -(s16_t)2);
+  pbuf_remove_header(p, 2);
 
   ph = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN), PBUF_RAM);
   if(!ph) {
@@ -221,7 +222,7 @@ static err_t pppoe_write(ppp_pcb *ppp, void *ctx, struct pbuf *p) {
     return ERR_MEM;
   }
 
-  pbuf_header(ph, -(s16_t)PPPOE_HEADERLEN); /* hide PPPoE header */
+  pbuf_remove_header(ph, PPPOE_HEADERLEN); /* hide PPPoE header */
   pbuf_cat(ph, p);
 #if MIB2_STATS
   tot_len = ph->tot_len;
@@ -261,7 +262,7 @@ static err_t pppoe_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_short
     return ERR_MEM;
   }
 
-  pbuf_header(pb, -(s16_t)PPPOE_HEADERLEN);
+  pbuf_remove_header(pb, PPPOE_HEADERLEN);
 
   pl = (u8_t*)pb->payload;
   PUTSHORT(protocol, pl);
@@ -371,7 +372,7 @@ static struct pppoe_softc* pppoe_find_softc_by_hunique(u8_t *token, size_t len, 
 void
 pppoe_disc_input(struct netif *netif, struct pbuf *pb)
 {
-  u16_t tag, len;
+  u16_t tag, len, off;
   u16_t session, plen;
   struct pppoe_softc *sc;
 #if PPP_DEBUG
@@ -385,7 +386,7 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
 #endif
   struct pppoehdr *ph;
   struct pppoetag pt;
-  int off, err;
+  int err;
   struct eth_hdr *ethhdr;
 
   /* don't do anything if there is not a single PPPoE instance */
@@ -394,13 +395,9 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
     return;
   }
 
-  pb = ppp_singlebuf(pb);
+  pb = pbuf_coalesce(pb, PBUF_RAW);
 
-  if (pb->len < sizeof(*ethhdr)) {
-    goto done;
-  }
   ethhdr = (struct eth_hdr *)pb->payload;
-  off = sizeof(*ethhdr);
 
   ac_cookie = NULL;
   ac_cookie_len = 0;
@@ -409,7 +406,8 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
   hunique_len = 0;
 #endif
   session = 0;
-  if (pb->len - off < (u16_t)PPPOE_HEADERLEN) {
+  off = sizeof(struct eth_hdr) + sizeof(struct pppoehdr);
+  if (pb->len < off) {
     PPPDEBUG(LOG_DEBUG, ("pppoe: packet too short: %d\n", pb->len));
     goto done;
   }
@@ -421,15 +419,18 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
   }
   session = lwip_ntohs(ph->session);
   plen = lwip_ntohs(ph->plen);
-  off += sizeof(*ph);
 
-  if (plen + off > pb->len) {
+  if (plen > (pb->len - off)) {
     PPPDEBUG(LOG_DEBUG, ("pppoe: packet content does not fit: data available = %d, packet size = %u\n",
         pb->len - off, plen));
     goto done;
   }
   if(pb->tot_len == pb->len) {
-    pb->tot_len = pb->len = (u16_t)off + plen; /* ignore trailing garbage */
+    u16_t framelen = off + plen;
+    if (framelen < pb->len) {
+      /* ignore trailing garbage */
+      pb->tot_len = pb->len = framelen;
+    }
   }
   tag = 0;
   len = 0;
@@ -604,6 +605,7 @@ breakbreak:;
       sc->sc_state = PPPOE_STATE_PADR_SENT;
       if ((err = pppoe_send_padr(sc)) != 0) {
         PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": failed to send PADR, error=%d\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, err));
+        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(PPPOE_DISC_TIMEOUT * (1 + sc->sc_padr_retried), pppoe_timeout, sc);
       break;
@@ -659,9 +661,9 @@ pppoe_data_input(struct netif *netif, struct pbuf *pb)
 #ifdef PPPOE_TERM_UNKNOWN_SESSIONS
   MEMCPY(shost, ((struct eth_hdr *)pb->payload)->src.addr, sizeof(shost));
 #endif
-  if (pbuf_header(pb, -(s16_t)sizeof(struct eth_hdr)) != 0) {
+  if (pbuf_remove_header(pb, sizeof(struct eth_hdr)) != 0) {
     /* bail out */
-    PPPDEBUG(LOG_ERR, ("pppoe_data_input: pbuf_header failed\n"));
+    PPPDEBUG(LOG_ERR, ("pppoe_data_input: pbuf_remove_header failed\n"));
     LINK_STATS_INC(link.lenerr);
     goto drop;
   } 
@@ -692,9 +694,9 @@ pppoe_data_input(struct netif *netif, struct pbuf *pb)
 
   plen = lwip_ntohs(ph->plen);
 
-  if (pbuf_header(pb, -(s16_t)(PPPOE_HEADERLEN)) != 0) {
+  if (pbuf_remove_header(pb, PPPOE_HEADERLEN) != 0) {
     /* bail out */
-    PPPDEBUG(LOG_ERR, ("pppoe_data_input: pbuf_header PPPOE_HEADERLEN failed\n"));
+    PPPDEBUG(LOG_ERR, ("pppoe_data_input: pbuf_remove_header PPPOE_HEADERLEN failed\n"));
     LINK_STATS_INC(link.lenerr);
     goto drop;
   } 
@@ -723,7 +725,7 @@ pppoe_output(struct pppoe_softc *sc, struct pbuf *pb)
   err_t res;
 
   /* make room for Ethernet header - should not fail */
-  if (pbuf_header(pb, (s16_t)(sizeof(struct eth_hdr))) != 0) {
+  if (pbuf_add_header(pb, sizeof(struct eth_hdr)) != 0) {
     /* bail out */
     PPPDEBUG(LOG_ERR, ("pppoe: %c%c%"U16_F": pppoe_output: could not allocate room for Ethernet header\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
     LINK_STATS_INC(link.lenerr);
@@ -851,6 +853,7 @@ pppoe_timeout(void *arg)
       if ((err = pppoe_send_padi(sc)) != 0) {
         sc->sc_padi_retried--;
         PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": failed to transmit PADI, error=%d\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, err));
+        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(retry_wait, pppoe_timeout, sc);
       break;
@@ -863,6 +866,7 @@ pppoe_timeout(void *arg)
         sc->sc_padr_retried = 0;
         if ((err = pppoe_send_padi(sc)) != 0) {
           PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": failed to send PADI, error=%d\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, err));
+          LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
         }
         sys_timeout(PPPOE_DISC_TIMEOUT * (1 + sc->sc_padi_retried), pppoe_timeout, sc);
         return;
@@ -870,6 +874,7 @@ pppoe_timeout(void *arg)
       if ((err = pppoe_send_padr(sc)) != 0) {
         sc->sc_padr_retried--;
         PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": failed to send PADR, error=%d\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, err));
+        LWIP_UNUSED_ARG(err); /* if PPPDEBUG is disabled */
       }
       sys_timeout(PPPOE_DISC_TIMEOUT * (1 + sc->sc_padr_retried), pppoe_timeout, sc);
       break;
@@ -1039,7 +1044,12 @@ pppoe_send_padt(struct netif *outgoing_if, u_int session, const u8_t *dest)
   }
   LWIP_ASSERT("pb->tot_len == pb->len", pb->tot_len == pb->len);
 
-  pbuf_header(pb, (s16_t)sizeof(struct eth_hdr));
+  if (pbuf_add_header(pb, sizeof(struct eth_hdr))) {
+    PPPDEBUG(LOG_ERR, ("pppoe: pppoe_send_padt: could not allocate room for PPPoE header\n"));
+    LINK_STATS_INC(link.lenerr);
+    pbuf_free(pb);
+    return ERR_BUF;
+  }
   ethhdr = (struct eth_hdr *)pb->payload;
   ethhdr->type = PP_HTONS(ETHTYPE_PPPOEDISC);
   MEMCPY(&ethhdr->dest.addr, dest, sizeof(ethhdr->dest.addr));
@@ -1133,7 +1143,7 @@ pppoe_xmit(struct pppoe_softc *sc, struct pbuf *pb)
   len = pb->tot_len;
 
   /* make room for PPPoE header - should not fail */
-  if (pbuf_header(pb, (s16_t)(PPPOE_HEADERLEN)) != 0) {
+  if (pbuf_add_header(pb, PPPOE_HEADERLEN) != 0) {
     /* bail out */
     PPPDEBUG(LOG_ERR, ("pppoe: %c%c%"U16_F": pppoe_xmit: could not allocate room for PPPoE header\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
     LINK_STATS_INC(link.lenerr);

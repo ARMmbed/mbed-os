@@ -40,7 +40,7 @@
 
 #include "sleep_api.h"
 
-#ifdef DEVICE_SLEEP
+#if DEVICE_SLEEP
 
 #include "adi_pwr.h"
 #include "adi_pwr_def.h"
@@ -253,4 +253,4 @@ void hal_deepsleep(void)
     pADI_CLKG0_CLK->CTL5 = 0;
 }
 
-#endif  // #ifdef DEVICE_SLEEP
+#endif  // #if DEVICE_SLEEP

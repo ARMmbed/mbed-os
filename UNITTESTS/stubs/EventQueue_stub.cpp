@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "Callback.h"
 #include "EventQueue_stub.h"
 
@@ -60,7 +60,7 @@ void EventQueue::background(Callback<void(int)> update)
 {
 }
 
-void EventQueue::chain(EventQueue *target)
+int EventQueue::chain(EventQueue *target)
 {
 }
 

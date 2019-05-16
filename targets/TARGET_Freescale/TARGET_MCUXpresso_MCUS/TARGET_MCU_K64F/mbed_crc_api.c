@@ -18,7 +18,7 @@
 #include "drivers/fsl_crc.h"
 #include "platform/mbed_assert.h"
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
 
 static crc_bits_t width;
 static uint32_t final_xor;

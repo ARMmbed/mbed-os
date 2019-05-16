@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2017, 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 #ifndef ND_DEFINES_H_
 #define ND_DEFINES_H_
 
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "ns_list.h"
 #include "6LoWPAN/IPHC_Decode/lowpan_context.h"
 #include "Common_Protocols/icmpv6_prefix.h"

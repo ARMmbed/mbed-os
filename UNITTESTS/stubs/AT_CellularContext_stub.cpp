@@ -19,12 +19,12 @@
 
 using namespace mbed;
 
-AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-    AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
-    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
+AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
+    AT_CellularBase(at), _is_connected(false),
+    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
 {
     _stack = NULL;
-    _ip_stack_type = DEFAULT_STACK;
+    _pdp_type = DEFAULT_PDP_TYPE;
     _authentication_type = CellularContext::CHAP;
     _connect_status = NSAPI_STATUS_DISCONNECTED;
     _is_context_active = false;
@@ -36,9 +36,24 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _cid = -1;
     _new_context_set = false;
     _next = NULL;
+    _cp_netif = NULL;
+    memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
+    _retry_array_length = 0;
+    _retry_count = 0;
+    _is_blocking = true;
+    _device = device;
+    _nw = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
+{
+}
+
+void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+{
+}
+
+void AT_CellularContext::enable_hup(bool enable)
 {
 }
 
@@ -81,6 +96,8 @@ uint32_t AT_CellularContext::get_timeout_for_operation(ContextOperation op) cons
     uint32_t timeout = 10 * 60 * 1000; // default timeout is 10 minutes as registration and attach may take time
     return timeout;
 }
+
+
 
 bool AT_CellularContext::is_connected()
 {
@@ -135,19 +152,23 @@ const char *AT_CellularContext::get_gateway()
     return NULL;
 }
 
-bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
+AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
 {
-    return true;
+    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_PDP_TYPE;
+    if (pdp_type == IPV6_PDP_TYPE) {
+        prop = PROPERTY_IPV6_PDP_TYPE;
+    } else if (pdp_type == IPV4V6_PDP_TYPE) {
+        prop = PROPERTY_IPV4V6_PDP_TYPE;
+    } else if (pdp_type == NON_IP_PDP_TYPE) {
+        prop = PROPERTY_NON_IP_PDP_TYPE;
+    }
+
+    return prop;
 }
 
-nsapi_ip_stack_t AT_CellularContext::get_stack_type()
+pdp_type_t AT_CellularContext::string_to_pdp_type(const char *pdp_type)
 {
-    return IPV4V6_STACK;
-}
-
-nsapi_ip_stack_t AT_CellularContext::string_to_stack_type(const char *pdp_type)
-{
-    return IPV4V6_STACK;
+    return IPV4V6_PDP_TYPE;
 }
 
 // PDP Context handling
@@ -176,6 +197,16 @@ nsapi_error_t AT_CellularContext::do_activate_context()
     return NSAPI_ERROR_OK;
 }
 
+void AT_CellularContext::activate_context()
+{
+
+}
+
+void AT_CellularContext::deactivate_context()
+{
+
+}
+
 void AT_CellularContext::do_connect()
 {
 }
@@ -195,6 +226,12 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 nsapi_error_t AT_CellularContext::disconnect()
 {
     return NSAPI_ERROR_OK;
+}
+
+
+nsapi_connection_status_t AT_CellularContext::get_connection_status() const
+{
+    return NSAPI_STATUS_DISCONNECTED;
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
@@ -219,6 +256,34 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
 }
 
-void AT_CellularContext::call_network_cb(nsapi_connection_status_t status)
+ControlPlane_netif *AT_CellularContext::get_cp_netif()
 {
+    return NULL;
+}
+
+nsapi_error_t AT_CellularContext::activate_non_ip_context()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularContext::setup_control_plane_opt()
+{
+    return NSAPI_ERROR_OK;
+}
+
+void AT_CellularContext::deactivate_ip_context()
+{
+}
+
+void AT_CellularContext::deactivate_non_ip_context()
+{
+}
+
+void AT_CellularContext::set_disconnect()
+{
+}
+
+void AT_CellularContext::do_connect_with_retry()
+{
+
 }

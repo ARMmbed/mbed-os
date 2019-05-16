@@ -36,6 +36,12 @@
   #define MBED_APP_SIZE 0x200000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 #define MBED_RAM_START              0x20000000
 #define MBED_RAM_SIZE               0x30000
 #define MBED_VECTTABLE_RAM_START    (MBED_RAM_START)
@@ -45,7 +51,7 @@
 #define MBED_RAM0_START             (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
 #define MBED_RAM0_SIZE              (MBED_RAM_SIZE - MBED_VECTTABLE_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
 
-; 2 MB FLASH (0x200000) + 192 KB SRAM (0x30000)
+; 2 MB FLASH (0x200000) + 256 KB SRAM (0x30000 + 0x10000)
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -58,9 +64,15 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
 
   ; Total: 107 vectors = 428 bytes (0x1AC) 8-byte aligned = 0x1B0 (0x1AC + 0x4) to be reserved in RAM
-  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE)  {  ; RW data
+  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+  
+  RW_IRAM2 (0x10000000) (0x10000)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
+  }
 }
 

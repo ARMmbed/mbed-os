@@ -147,9 +147,13 @@ typedef enum {
     SDMISO = P0_8,
     SDSCLK = P1_29,
     SDSSEL = P1_12,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
+
+    // Standard but not supported pins
+    USBTX = NC,
+    USBRX = NC,
 } PinName;
 
 typedef enum {

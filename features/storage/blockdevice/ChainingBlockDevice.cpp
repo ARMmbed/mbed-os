@@ -15,7 +15,7 @@
  */
 
 #include "ChainingBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_assert.h"
 
 namespace mbed {
@@ -281,6 +281,11 @@ int ChainingBlockDevice::get_erase_value() const
 bd_size_t ChainingBlockDevice::size() const
 {
     return _size;
+}
+
+const char *ChainingBlockDevice::get_type() const
+{
+    return "CHAINING";
 }
 
 } // namespace mbed

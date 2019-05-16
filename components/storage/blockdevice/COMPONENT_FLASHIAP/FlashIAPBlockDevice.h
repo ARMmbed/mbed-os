@@ -17,7 +17,7 @@
 #ifndef MBED_FLASHIAP_BLOCK_DEVICE_H
 #define MBED_FLASHIAP_BLOCK_DEVICE_H
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 
 #include "FlashIAP.h"
 #include "BlockDevice.h"
@@ -120,6 +120,21 @@ public:
      *  @return         Size of the underlying device in bytes
      */
     virtual mbed::bd_size_t size() const;
+
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char *get_type() const;
+
+    /** Convenience function for checking block erase validity
+    *
+    *  @param addr     Address of block to begin erasing
+    *  @param size     Size to erase in bytes
+    *  @return         True if erase is valid for underlying block device
+    */
+    virtual bool is_valid_erase(bd_addr_t addr, bd_size_t size) const;
+
 
 private:
     // Device configuration

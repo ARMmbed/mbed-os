@@ -12,8 +12,7 @@
             "nanostack-hal.event_loop_thread_stack_size": 2000,
             "mbed-trace.enable": true,
             "nsapi.default-stack": "LWIP",
-            "target.device_has_add": ["802_15_4_PHY"],
-            "atmel-rf.provide-default": true
+            "target.device_has_add": ["802_15_4_PHY"]
         }
     }
 }

@@ -15,7 +15,7 @@
  */
 
 #include "HeapBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -183,4 +183,10 @@ int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
+const char *HeapBlockDevice::get_type() const
+{
+    return "HEAP";
+}
+
 } // namespace mbed
+

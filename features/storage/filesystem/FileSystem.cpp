@@ -84,6 +84,11 @@ off_t FileSystem::file_size(fs_file_t file)
     return size;
 }
 
+int FileSystem::file_truncate(fs_file_t file, off_t length)
+{
+    return -ENOSYS;
+}
+
 int FileSystem::dir_open(fs_dir_t *dir, const char *path)
 {
     return -ENOSYS;

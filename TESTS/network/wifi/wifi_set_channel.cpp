@@ -51,22 +51,22 @@ void wifi_set_channel(void)
 
     if (is_2Ghz) {
         error = wifi->set_channel(0);
-        TEST_ASSERT(error == NSAPI_ERROR_OK);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
         error = wifi->set_channel(1);
-        TEST_ASSERT(error == NSAPI_ERROR_OK);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
         error = wifi->set_channel(13);
         TEST_ASSERT(error == NSAPI_ERROR_OK || error == NSAPI_ERROR_PARAMETER);
         error = wifi->set_channel(15);
-        TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
     }
 
     if (is_5Ghz) {
         error = wifi->set_channel(30);
-        TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
         error = wifi->set_channel(36);
-        TEST_ASSERT(error == NSAPI_ERROR_OK);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
         error = wifi->set_channel(169);
-        TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
     }
 
     wifi->set_channel(0);

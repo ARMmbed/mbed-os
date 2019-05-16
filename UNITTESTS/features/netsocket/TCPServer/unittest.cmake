@@ -22,8 +22,11 @@ set(unittest-sources
 set(unittest-test-sources
   stubs/Mutex_stub.cpp
   stubs/mbed_assert_stub.c
+  stubs/mbed_atomic_stub.c
+  stubs/mbed_critical_stub.c
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
+  stubs/mbed_error.c
   stubs/mbed_shared_queues_stub.cpp
   stubs/nsapi_dns_stub.cpp
   stubs/EventFlags_stub.cpp

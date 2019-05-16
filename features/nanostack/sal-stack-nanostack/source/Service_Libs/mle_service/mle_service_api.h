@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -804,6 +804,6 @@ void mle_service_frame_counter_entry_delete(int8_t interface_id, uint8_t attribu
  */
 void mle_service_receive_filter_cb_set(mle_service_filter_cb *filter_cb);
 #else
-#define mle_service_receive_filter_cb_set(filter_cb) ((void) 0)
+#define mle_service_receive_filter_cb_set(filter_cb) ((void) filter_cb)
 #endif /* MLE_TEST */
 #endif /* MLE_SERVICE_API_H_ */

@@ -32,22 +32,6 @@ namespace mbed {
 
 
 /** Block device for measuring storage operations of another block device
- *
- *  @code
- *  #include "mbed.h"
- *  #include "HeapBlockDevice.h"
- *  #include "ProfilingBlockDevice.h"
- *
- *  // Create a heap block device and profiling block device
- *  HeapBlockDevice mem(64*512, 512);
- *  ProfilingBlockDevice profiler(&mem);
- *
- *  // do block device work....
- *
- *  printf("read count: %lld\n", profiler.get_read_count());
- *  printf("program count: %lld\n", profiler.get_program_count());
- *  printf("erase count: %lld\n", profiler.get_erase_count());
- *  @endcode
  */
 class ProfilingBlockDevice : public BlockDevice {
 public:
@@ -86,7 +70,7 @@ public:
      *  @param buffer   Buffer to read blocks into
      *  @param addr     Address of block to begin reading from
      *  @param size     Size to read in bytes, must be a multiple of read block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
 
@@ -97,7 +81,7 @@ public:
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
      *  @param size     Size to write in bytes, must be a multiple of program block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
@@ -108,7 +92,7 @@ public:
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int erase(bd_addr_t addr, bd_size_t size);
 
@@ -178,6 +162,12 @@ public:
      *  @return The number of bytes that have been erased from the block device
      */
     bd_size_t get_erase_count() const;
+
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char *get_type() const;
 
 private:
     BlockDevice *_bd;

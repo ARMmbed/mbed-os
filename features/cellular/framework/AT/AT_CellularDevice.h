@@ -25,8 +25,6 @@ namespace mbed {
 class ATHandler;
 class AT_CellularInformation;
 class AT_CellularNetwork;
-class AT_CellularPower;
-class AT_CellularSIM;
 class AT_CellularSMS;
 class AT_CellularContext;
 
@@ -41,26 +39,35 @@ public:
     AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL);
+    virtual nsapi_error_t hard_power_on();
+
+    virtual nsapi_error_t hard_power_off();
+
+    virtual nsapi_error_t soft_power_on();
+
+    virtual nsapi_error_t soft_power_off();
+
+    virtual nsapi_error_t set_pin(const char *sim_pin);
+
+    virtual nsapi_error_t get_sim_state(SimState &state);
+
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false);
+
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
+    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false, bool cp_req = false, bool nonip_req = false);
+#endif // #if DEVICE_SERIAL
+
     virtual void delete_context(CellularContext *context);
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);
 
     virtual CellularSMS *open_sms(FileHandle *fh = NULL);
 
-    virtual CellularPower *open_power(FileHandle *fh = NULL);
-
-    virtual CellularSIM *open_sim(FileHandle *fh = NULL);
-
     virtual CellularInformation *open_information(FileHandle *fh = NULL);
 
     virtual void close_network();
 
     virtual void close_sms();
-
-    virtual void close_power();
-
-    virtual void close_sim();
 
     virtual void close_information();
 
@@ -70,26 +77,38 @@ public:
 
     virtual void modem_debug_on(bool on);
 
-    virtual nsapi_error_t init_module();
+    virtual nsapi_error_t init();
 
-    ATHandler *_atHandlers;
+    virtual nsapi_error_t shutdown();
 
-    ATHandler *get_at_handler(FileHandle *fh);
+    virtual nsapi_error_t is_ready();
+
+    virtual void set_ready_cb(Callback<void()> callback);
+
+    virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0);
+
+
+    virtual ATHandler *get_at_handler(FileHandle *fh);
+
+    virtual ATHandler *get_at_handler();
 
     /** Releases the given at_handler. If last reference to at_hander then it's deleted.
      *
      *  @param at_handler
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
      */
-    void release_at_handler(ATHandler *at_handler);
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler);
 
     /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
      *
-     *  @param at       ATHandler reference for communication with the modem.
-     *  @param apn      access point to use with context
-     *  @return         new instance of class AT_CellularContext
+     *  @param at           ATHandler reference for communication with the modem.
+     *  @param apn          access point to use with context
+     *  @param cp_req       flag indicating if control plane EPS optimization needs to be setup
+     *  @param nonip_req    flag indicating if PDP context needs to be Non-IP
+     *  @return             new instance of class AT_CellularContext
      *
      */
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
      *
@@ -105,20 +124,6 @@ public:
      */
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
 
-    /** Create new instance of AT_CellularPower or if overridden, modem specific implementation.
-     *
-     *  @param at   ATHandler reference for communication with the modem.
-     *  @return new instance of class AT_CellularPower
-     */
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
-
-    /** Create new instance of AT_CellularSIM or if overridden, modem specific implementation.
-     *
-     *  @param at   ATHandler reference for communication with the modem.
-     *  @return new instance of class AT_CellularSIM
-     */
-    virtual AT_CellularSIM *open_sim_impl(ATHandler &at);
-
     /** Create new instance of AT_CellularInformation or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
@@ -130,12 +135,19 @@ public:
 
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
-    AT_CellularSIM *_sim;
-    AT_CellularPower *_power;
     AT_CellularInformation *_information;
     AT_CellularContext *_context_list;
     int _default_timeout;
     bool _modem_debug_on;
+    ATHandler *_at;
+
+protected:
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+
+private:
+    void urc_nw_deact();
+    void urc_pdn_deact();
+    void send_disconnect_to_context(int cid);
 };
 
 } // namespace mbed

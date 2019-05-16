@@ -667,6 +667,46 @@ uint8_t spi_get_module(spi_t *obj)
     return _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
 }
 
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
 
 #if DEVICE_SPI_ASYNCH
 /**

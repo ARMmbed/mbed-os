@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
 #include "thread_border_router_api.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #ifdef HAVE_THREAD_ROUTER
@@ -1407,6 +1407,7 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
                 //Register GP --> 16
                 int retVal = thread_nd_address_registration(cur, tempIPv6Address, mac16, cur->mac_parameters->pan_id, mac64, &new_neighbour_created);
                 thread_extension_address_registration(cur, tempIPv6Address, mac64, new_neighbour_created, retVal == -2);
+                (void) retVal;
             } else {
                 tr_debug("No Context %u", ctxId);
             }
@@ -1427,6 +1428,7 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
                 //Register GP --> 16
                 int retVal = thread_nd_address_registration(cur, ptr, mac16, cur->mac_parameters->pan_id, mac64, &new_neighbour_created);
                 thread_extension_address_registration(cur, ptr, mac64, new_neighbour_created, retVal == -2);
+                (void) retVal;
             }
 
             ptr += 16;
@@ -1809,6 +1811,11 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 update_mac_mib = true;
                 entry_temp->mac16 = shortAddress; // short address refreshed
 
+                if (thread_is_router_addr(shortAddress)) {
+                    // Set full data as REED/Router needs full data (SED will not make links)
+                    thread_neighbor_class_request_full_data_setup_set(&cur->thread_info->neighbor_class, entry_temp->index, true);
+                }
+
                 if (entry_temp->connected_device) {
                     if (mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisteredTlv)) {
                         if (!entry_temp->ffd_device) {
@@ -1942,9 +1949,9 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 uint32_t timeout = 0;
                 uint64_t active_timestamp = 0;
                 uint64_t pending_timestamp = 0;
-                mle_tlv_info_t addressRegisterTlv = {0};
-                mle_tlv_info_t challengeTlv = {0};
-                mle_tlv_info_t tlv_req = {0};
+                mle_tlv_info_t addressRegisterTlv = {MLE_TYPE_SRC_ADDRESS, 0, 0};
+                mle_tlv_info_t challengeTlv = {MLE_TYPE_SRC_ADDRESS, 0, 0};
+                mle_tlv_info_t tlv_req = {MLE_TYPE_SRC_ADDRESS, 0, 0};
                 entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
 
                 if (mle_tlv_read_8_bit_tlv(MLE_TYPE_STATUS, mle_msg->data_ptr, mle_msg->data_length, &status)) {

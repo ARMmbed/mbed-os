@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@
 #include "Service_Libs/blacklist/blacklist.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "tebs"
@@ -470,8 +470,9 @@ static bool thread_host_prefer_parent_response(protocol_interface_info_entry_t *
 {
     (void) connectivity;
     (void) cur;
+    bool cur_version = thread_extension_version_check(thread_info(cur)->version);
 
-    if (!thread_extension_version_check(thread_info(cur)->version)) {
+    if (!cur_version) {
         return false;
     }
 

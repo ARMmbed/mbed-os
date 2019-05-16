@@ -42,7 +42,7 @@
 #include "adi_gpio.h"
 #include "adi_gpio_def.h"
 
-#ifdef DEVICE_INTERRUPTIN
+#if DEVICE_INTERRUPTIN
 
 #define MAX_GPIO_LINES    16
 #define MAX_GPIO_PORTS    ADI_GPIO_NUM_PORTS
@@ -326,4 +326,4 @@ void gpio_irq_disable(gpio_irq_t *obj)
     channel_ids[port][pin_num].int_enable = 0;
 }
 
-#endif	// #ifdef DEVICE_INTERRUPTIN
+#endif	// #if DEVICE_INTERRUPTIN

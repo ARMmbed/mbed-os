@@ -17,7 +17,7 @@
 #ifndef ESP8266_H
 #define ESP8266_H
 
-#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <stdint.h>
 
 #include "drivers/UARTSerial.h"
@@ -27,6 +27,7 @@
 #include "platform/ATCmdParser.h"
 #include "platform/Callback.h"
 #include "platform/mbed_error.h"
+#include "rtos/ConditionVariable.h"
 #include "rtos/Mutex.h"
 
 // Various timeouts for different ESP8266 operations
@@ -42,6 +43,11 @@
 #ifndef ESP8266_MISC_TIMEOUT
 #define ESP8266_MISC_TIMEOUT    2000
 #endif
+
+#define ESP8266_SCAN_TIME_MIN 0     // [ms]
+#define ESP8266_SCAN_TIME_MAX 1500  // [ms]
+#define ESP8266_SCAN_TIME_MIN_DEFAULT 120 // [ms]
+#define ESP8266_SCAN_TIME_MAX_DEFAULT 360 // [ms]
 
 // Firmware version
 #define ESP8266_SDK_VERSION 2000000
@@ -192,14 +198,23 @@ public:
      */
     int8_t rssi();
 
+    /** Scan mode
+     */
+    enum scan_mode {
+        SCANMODE_ACTIVE = 0, /*!< active mode */
+        SCANMODE_PASSIVE = 1 /*!< passive mode */
+    };
+
     /** Scan for available networks
      *
      * @param  ap    Pointer to allocated array to store discovered AP
      * @param  limit Size of allocated @a res array, or 0 to only count available AP
+     * @param  t_max Maximum scan time per channel
+     * @param  t_min Minimum scan time per channel in active mode, can be omitted in passive mode
      * @return       Number of entries in @a res, or if @a count was 0 number of available networks, negative on error
      *               see @a nsapi_error
      */
-    int scan(WiFiAccessPoint *res, unsigned limit);
+    int scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned t_max, unsigned t_min);
 
     /**Perform a dns query
     *
@@ -334,6 +349,15 @@ public:
      */
     bool set_default_wifi_mode(const int8_t mode);
 
+    /**
+     * @param track_ap      if TRUE, sets the county code to be the same as the AP's that ESP is connected to,
+     *                      if FALSE the code will not change
+     * @param country_code  ISO 3166-1 Alpha-2 coded country code
+     * @param channel_start the channel number to start at
+     * @param channels      number of channels
+     */
+    bool set_country_code_policy(bool track_ap, const char *country_code, int channel_start, int channels);
+
     /** Get the connection status
      *
      *  @return         The connection status according to ConnectionStatusType
@@ -367,6 +391,15 @@ public:
      */
     void bg_process_oob(uint32_t timeout, bool all);
 
+    /**
+     * Flush the serial port input buffers.
+     *
+     * If you do HW reset for ESP module, you should
+     * flush the input buffers from existing responses
+     * from the device.
+     */
+    void flush();
+
     static const int8_t WIFIMODE_STATION = 1;
     static const int8_t WIFIMODE_SOFTAP = 2;
     static const int8_t WIFIMODE_STATION_SOFTAP = 3;
@@ -387,6 +420,7 @@ private:
     PinName _serial_rts;
     PinName _serial_cts;
     rtos::Mutex _smutex; // Protect serial port access
+    rtos::Mutex _rmutex; // Reset protection
 
     // AT Command Parser
     mbed::ATCmdParser _parser;
@@ -426,6 +460,8 @@ private:
     void _oob_watchdog_reset();
     void _oob_busy();
     void _oob_tcp_data_hdlr();
+    void _oob_ready();
+    void _oob_scan_results();
 
     // OOB state variables
     int _connect_error;
@@ -435,6 +471,8 @@ private:
     bool _closed;
     bool _error;
     bool _busy;
+    rtos::ConditionVariable _reset_check;
+    bool _reset_done;
 
     // Modem's address info
     char _ip_buffer[16];
@@ -451,6 +489,14 @@ private:
         int32_t tcp_data_rcvd;
     };
     struct _sock_info _sock_i[SOCKET_COUNT];
+
+    // Scan results
+    struct _scan_results {
+        WiFiAccessPoint *res;
+        unsigned limit;
+        unsigned cnt;
+    };
+    struct _scan_results _scan_r;
 
     // Connection state reporting
     nsapi_connection_status_t _conn_status;

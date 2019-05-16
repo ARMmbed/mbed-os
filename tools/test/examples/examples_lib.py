@@ -1,15 +1,33 @@
-""" Import and bulid a bunch of example programs
+"""
+Copyright (c) 2017-2019 ARM Limited. All rights reserved.
 
-    This library includes functions that are shared between the examples.py and
-    the update.py modules.
+SPDX-License-Identifier: Apache-2.0
 
- """
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations 
+"""
 import os
 from os.path import dirname, abspath, basename
 import os.path
 import sys
 import subprocess
 from shutil import rmtree
+
+""" Import and bulid a bunch of example programs
+
+    This library includes functions that are shared between the examples.py and
+    the update.py modules.
+
+ """
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
@@ -329,7 +347,7 @@ def export_repos(config, ides, targets, examples):
     return results
 
 
-def compile_repos(config, toolchains, targets, profile, examples):
+def compile_repos(config, toolchains, targets, profile, verbose, examples):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -373,7 +391,7 @@ def compile_repos(config, toolchains, targets, profile, examples):
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
                     print("Compiling %s for %s, %s" % (name, target, toolchain))
-                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-v"]
+                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target] + (['-v'] if verbose else [])
 
                     if profile:
                         build_command.append("--profile")

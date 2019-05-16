@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@
 #include "socket_api.h"
 #include "nsdynmemLIB.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_of0.h"
 #include "RPL/rpl_mrhof.h"
@@ -67,6 +67,9 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
+#ifdef HAVE_WS
+#include "6LoWPAN/ws/ws_pae_controller.h"
+#endif
 #include "BorderRouter/border_router.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
@@ -692,6 +695,8 @@ int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface
     cur->interface_name = interface_name_ptr;
     return cur->id;
 #else
+    (void)api;
+    (void)interface_name_ptr;
     return -2;
 #endif
 }
@@ -928,10 +933,39 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
 
 int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info)
 {
-#ifndef PANA
+#if !defined(PANA) && !defined(HAVE_WS)
     (void)chain_info;
 #endif
+
+#ifdef HAVE_WS
+    ws_pae_controller_certificate_chain_set(chain_info);
+#endif
+
     return pana_interface_certificate_chain_set(chain_info);
+}
+
+int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
+{
+    (void) cert;
+    return -1;
+}
+
+int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert)
+{
+    (void) cert;
+    return -1;
+}
+
+int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
+{
+    (void) crl;
+    return -1;
+}
+
+int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl)
+{
+    (void) crl;
+    return -1;
 }
 
 /**
@@ -1016,11 +1050,20 @@ int8_t arm_pana_client_library_init(int8_t interface_id, net_tls_cipher_e cipher
 
 int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)
 {
+#ifndef HAVE_ETHERNET
+    (void)interface_id;
+    (void)bootstrap_mode;
+    (void)ipv6_prefix_pointer;
+#endif
     return ipv6_interface_configure_ipv6_bootstrap_set(interface_id, bootstrap_mode, ipv6_prefix_pointer);
 }
 
 int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra)
 {
+#ifndef HAVE_ETHERNET
+    (void)interface_id;
+    (void)accept_ra;
+#endif
     return ipv6_interface_accept_ra(interface_id, accept_ra);
 }
 

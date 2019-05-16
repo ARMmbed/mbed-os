@@ -1,7 +1,14 @@
-/* [ROM = 192kb = 0x30000] */
-define symbol __intvec_start__     = 0x08000000;
-define symbol __region_ROM_start__ = 0x08000000;
-define symbol __region_ROM_end__   = 0x0802FFFF;
+if (!isdefinedsymbol(MBED_APP_START)) { 
+    define symbol MBED_APP_START = 0x08000000; 
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) { 
+    define symbol MBED_APP_SIZE = 0x30000;
+}
+
+define symbol __intvec_start__     = MBED_APP_START;
+define symbol __region_ROM_start__ = MBED_APP_START;
+define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
 
 /* [RAM = 20kb = 0x5000] Vector table dynamic copy: 48 vectors = 192 bytes (0xC0) to be reserved in RAM */
 define symbol __NVIC_start__          = 0x20000000;
@@ -15,7 +22,10 @@ define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__]
 define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
 
 /* Stack and Heap */
-define symbol __size_cstack__ = 0x500;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x1000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

@@ -20,7 +20,7 @@
 #ifndef MBED_ITM_API_H
 #define MBED_ITM_API_H
 
-#if defined(DEVICE_ITM)
+#if DEVICE_ITM
 
 #include <stdint.h>
 #include <stddef.h>

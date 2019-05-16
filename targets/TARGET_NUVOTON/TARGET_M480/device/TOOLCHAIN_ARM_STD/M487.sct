@@ -8,17 +8,14 @@
   #define MBED_APP_SIZE 0x00080000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
+
 #define SPIM_CCM_START  0x20020000
 #define SPIM_CCM_END    0x20028000
 
-#define MBED_RAM_START              0x20000000
-#define MBED_RAM_SIZE               0x20000
-#define MBED_STACK_RAM_START        (MBED_RAM_START)
-#define MBED_STACK_RAM_SIZE         0x800
-#define MBED_VECTTABLE_RAM_START    (MBED_STACK_RAM_START + MBED_STACK_RAM_SIZE)
-#define MBED_VECTTABLE_RAM_SIZE     (4*(16 + 96))
-#define MBED_CRASH_REPORT_RAM_START (MBED_VECTTABLE_RAM_START + MBED_VECTTABLE_RAM_SIZE)
-#define MBED_CRASH_REPORT_RAM_SIZE  0x100
 
 LR_IROM1 MBED_APP_START {
   ER_IROM1 MBED_APP_START {  ; load address = execution address
@@ -26,15 +23,19 @@ LR_IROM1 MBED_APP_START {
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  
-  
-  ARM_LIB_STACK MBED_STACK_RAM_START EMPTY MBED_STACK_RAM_SIZE {
+
+  ARM_LIB_STACK 0x20000000 EMPTY MBED_BOOT_STACK_SIZE {
+  }
+
+  /* VTOR[TBLOFF] alignment requires:
+   *
+   * 1. Minumum 32-word
+   * 2. Rounding up to the next power of two of table size
+   */
+  ER_IRAMVEC AlignExpr(+0, 512) EMPTY (4*(16 + 96)) {  ; Reserve for vectors
   }
   
-  ER_IRAMVEC MBED_VECTTABLE_RAM_START EMPTY MBED_VECTTABLE_RAM_SIZE {  ; Reserve for vectors
-  }
-  
-  RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; Reserve for crash data storage
+  RW_m_crash_data AlignExpr(+0, 0x100) EMPTY 0x100 { ; Reserve for crash data storage
   }
   
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned

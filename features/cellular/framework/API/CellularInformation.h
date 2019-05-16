@@ -21,7 +21,15 @@
 #include <stddef.h>
 #include "nsapi_types.h"
 
+const int MAX_IMSI_LENGTH = 15;
+const int MAX_ICCID_LENGTH = 20 + 1; // +1 for zero termination
+
 namespace mbed {
+
+/**
+ * @addtogroup cellular
+ * @{
+ */
 
 /**
  *  Class CellularInformation
@@ -43,6 +51,7 @@ public:
      *  @param buf      manufacturer identification as zero terminated string
      *  @param buf_size max length of manufacturer identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if buf is null or buf_size is zero
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_manufacturer(char *buf, size_t buf_size) = 0;
@@ -52,6 +61,7 @@ public:
      *  @param buf      model identification as zero terminated string
      *  @param buf_size max length of model identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if buf is null or buf_size is zero
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_model(char *buf, size_t buf_size) = 0;
@@ -61,6 +71,7 @@ public:
      *  @param buf      revision identification as zero terminated string
      *  @param buf_size max length of revision identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if buf is null or buf_size is zero
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_revision(char *buf, size_t buf_size) = 0;
@@ -71,6 +82,7 @@ public:
      *  @param buf_size max length of serial number is 2048 characters
      *  @param type     serial number type to read
      *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if buf is null or buf_size is zero
      *                  NSAPI_ERROR_UNSUPPORTED if the modem does not support SerialNumberType
      *                  NSAPI_ERROR_DEVICE_ERROR on other failures
      */
@@ -80,8 +92,35 @@ public:
         IMEISV = 2, // IMEI and Software Version number
         SVN  = 3 // Software Version Number
     };
-    virtual nsapi_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
+    virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
+
+    /** Get IMSI from the sim card
+     *
+     *  @remark         Given imsi buffer length must be 16 or more as imsi max length is 15!
+     *
+     *  @param imsi     preallocated char* which after successful request contains imsi
+     *  @param buf_size size of imsi buffer
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if imsi is null or buf_size is zero or buf_size is smaller than
+     *                  MAX_IMSI_LENGTH + 1
+     *                  NSAPI_ERROR_DEVICE_ERROR on other failures
+     */
+    virtual nsapi_error_t get_imsi(char *imsi, size_t buf_size) = 0;
+
+    /** Get serial number from the SIM card
+     *
+     *  @param buf      SIM ICCID as zero terminated string
+     *  @param buf_size max length of SIM ICCID is MAX_ICCID_LENGTH
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if buf is null or buf_size is zero
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size) = 0;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

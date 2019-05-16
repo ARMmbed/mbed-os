@@ -83,7 +83,7 @@ struct GattWriteCallbackParams {
     /**
      * Handle of the connection that triggered the event.
      */
-    Gap::Handle_t connHandle;
+    ble::connection_handle_t connHandle;
 
     /**
      * Handle of the attribute to which the write operation applies.
@@ -152,7 +152,7 @@ struct GattReadCallbackParams {
     /**
      * Handle of the connection that triggered the event.
      */
-    Gap::Handle_t connHandle;
+    ble::connection_handle_t connHandle;
 
     /**
      * Attribute Handle to which the read operation applies.
@@ -274,7 +274,7 @@ struct GattWriteAuthCallbackParams {
     /**
      * Handle of the connection that triggered the event.
      */
-    Gap::Handle_t connHandle;
+    ble::connection_handle_t connHandle;
 
     /**
      * Attribute Handle to which the write operation applies.
@@ -313,7 +313,7 @@ struct GattReadAuthCallbackParams {
     /**
      * The handle of the connection that triggered the event.
      */
-    Gap::Handle_t connHandle;
+    ble::connection_handle_t connHandle;
 
     /**
      * Attribute Handle to which the read operation applies.
@@ -357,7 +357,7 @@ struct GattHVXCallbackParams {
     /**
      * The handle of the connection that triggered the event.
      */
-    Gap::Handle_t connHandle;
+    ble::connection_handle_t connHandle;
 
     /**
      * Attribute Handle to which the HVx operation applies.

@@ -1,0 +1,75 @@
+{
+    "name": "ble",
+    "config": {
+        "ble-role-observer": {
+            "help": "Include observer BLE role support (scanning for and processing advertising packets).",
+            "value": true,
+            "macro_name": "BLE_ROLE_OBSERVER"
+        },
+        "ble-role-broadcaster": {
+            "help": "Include broadcaster BLE role support (sending advertising packets).",
+            "value": true,
+            "macro_name": "BLE_ROLE_BROADCASTER"
+        },
+        "ble-role-central": {
+            "help": "Include central BLE role support (initiates connections), depends on observer role.",
+            "value": true,
+            "macro_name": "BLE_ROLE_CENTRAL"
+        },
+        "ble-role-peripheral": {
+            "help": "Include peripheral BLE role support (accepts connections), depends on broadcaster role.",
+            "value": true,
+            "macro_name": "BLE_ROLE_PERIPHERAL"
+        },
+        "ble-feature-gatt-client": {
+            "help": "Include Gatt Client BLE role support (requests remote operations on attributes), depends on peripheral and central role.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_GATT_CLIENT"
+        },
+        "ble-feature-gatt-server": {
+            "help": "Include Gatt Server BLE role support (executes operations on stored attributes), depends on peripheral or central role.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_GATT_SERVER"
+        },
+        "ble-feature-security": {
+            "help": "Include security support (key management), depends on peripheral or central role.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_SECURITY"
+        },
+        "ble-feature-secure-connections": {
+            "help": "Include secure connections support, depends on the security feature.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_SECURE_CONNECTIONS"
+        },
+        "ble-feature-signing": {
+            "help": "Include signing support (signed attribute writes), depends on the security feature.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_SIGNING"
+        },
+        "ble-feature-whitelist": {
+            "help": "Include whitelist support (peer filtering), depends on the security feature.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_WHITELIST"
+        },
+        "ble-feature-privacy": {
+            "help": "Include privacy support (random resolvable addresses), depends on the security feature.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_PRIVACY"
+        },
+        "ble-feature-phy-management": {
+            "help": "Additional PHY support (2M and Coded)",
+            "value": true,
+            "macro_name": "BLE_FEATURE_PHY_MANAGEMENT"
+        },
+        "ble-feature-extended-advertising": {
+            "help": "Include extended advertising support (advertising sets, secondary channels).",
+            "value": true,
+            "macro_name": "BLE_FEATURE_EXTENDED_ADVERTISING"
+        },
+        "ble-feature-periodic-advertising": {
+            "help": "Include periodic advertising support, depends on the extended advertising feature.",
+            "value": true,
+            "macro_name": "BLE_FEATURE_PERIODIC_ADVERTISING"
+        }
+    }
+}

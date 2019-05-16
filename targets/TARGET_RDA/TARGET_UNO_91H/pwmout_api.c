@@ -391,4 +391,9 @@ static void pwmout_update_cfgreg(pwmout_t* obj)
         *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254
     }
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
 #endif

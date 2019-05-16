@@ -1,11 +1,25 @@
 /* Linker script for mbed RDA5981C */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x18001000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 2000K
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
     /* If ICache is enable, use virtual flash base address */
     /* Use partition index: 0 */
-    FLASH (rx)      : ORIGIN = 0x18001000, LENGTH = 2000K
+    FLASH (rx)      : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
     /* Use partition index: 1 */
     /* FLASH (rx)      : ORIGIN = 0x181F5000, LENGTH = 2000K */
 
@@ -148,7 +162,7 @@ SECTIONS
     /* Set stack top to end of IRAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(IRAM) + LENGTH(IRAM);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + stack exceeds RAM limit */
@@ -160,6 +174,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(DRAM) + LENGTH(DRAM);
         __HeapLimit = .;
     } > DRAM
     PROVIDE(__sbrk_start = ADDR(.heap));

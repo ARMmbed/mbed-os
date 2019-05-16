@@ -35,7 +35,7 @@ bool bitsequal(const uint8_t *a, const uint8_t *b, uint_fast8_t bits)
     uint_fast8_t bytes = bits / 8;
     bits %= 8;
 
-    if (memcmp(a, b, bytes)) {
+    if (bytes && memcmp(a, b, bytes)) {
         return false;
     }
 

@@ -227,12 +227,17 @@ uint16_t adc_read(analogin_t *obj)
     } else {
         debug("HAL_ADC_PollForConversion issue\n");
     }
-
+    LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
     if (HAL_ADC_Stop(&obj->handle) != HAL_OK) {
         debug("HAL_ADC_Stop issue\n");;
     }
 
     return MeasuredValue;
+}
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
 }
 
 #endif

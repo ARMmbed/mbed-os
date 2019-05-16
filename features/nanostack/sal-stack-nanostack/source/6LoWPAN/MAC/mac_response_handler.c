@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,8 @@
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
 #include "NWK_INTERFACE/Include/protocol_timer.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
-#include "Core/include/address.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_address_internal.h"
+#include "Core/include/ns_socket.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/MAC/mac_helper.h"

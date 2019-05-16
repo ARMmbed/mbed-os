@@ -16,6 +16,10 @@
         "radio-access-technology": {
             "help": "Radio access technology to use. Value in integer: GSM=0, GSM_COMPACT=1, UTRAN=2, EGPRS=3, HSDPA=4, HSUPA=5, HSDPA_HSUPA=6, E_UTRAN=7, CATM1=8 ,NB1=9",
             "value": null
+        },
+        "control-plane-opt": {
+            "help": "Enables control plane CIoT EPS optimization",
+            "value": false
         }
     }
 }

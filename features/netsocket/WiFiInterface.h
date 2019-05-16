@@ -1,5 +1,4 @@
-
-/* WiFiInterface
+/*
  * Copyright (c) 2015 - 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,11 @@
  * limitations under the License.
  */
 
+/** @file WifiInterface.h Common interface between Wi-Fi devices */
+/** @addtogroup netinterface
+ * @{
+ */
+
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
@@ -22,15 +26,13 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
-/** Common interface that is shared between Wi-Fi devices.
- *
- *  @addtogroup netsocket
+/** Common interface between Wi-Fi devices.
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
     /** Get the default Wi-Fi interface.
      *
-     * This is provided as a weak method so applications can override.
+     * This is provided as a weak method so applications can override it.
      * Default behavior is to get the target's default interface, if
      * any.
      *
@@ -51,7 +53,7 @@ public:
 
     /** Set the Wi-Fi network channel.
      *
-     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0).
+     *  @param channel   Channel to make the connection, or 0 for any (Default: 0).
      *  @return          NSAPI_ERROR_OK on success, or error code on failure.
      */
     virtual nsapi_error_t set_channel(uint8_t channel) = 0;
@@ -68,7 +70,7 @@ public:
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
      *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE).
-     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0).
+     *  @param channel   Channel to make the connection, or 0 for any (Default: 0).
      *  @return          NSAPI_ERROR_OK on success, or error code on failure.
      */
     virtual nsapi_error_t connect(const char *ssid, const char *pass,
@@ -89,13 +91,15 @@ public:
 
     /** Scan for available networks.
      *
-     *  This function will block. If the count is 0, function will only return count of available networks, so that
-     *  user can allocated necessary memory. If the count is grater than 0 and the a \p res is not NULL it'll be populated
-     *  with discovered networks up to value of count.
+     *  @note This is a blocking function.
+     *
+     *  If the \p count is 0, the function only returns the number of available networks.
+     *  If the \p count is greater than 0 and the \p res is not NULL, the array of discovered APs is populated
+     *  with discovered networks up to the value of the \p count.
      *
      *  @param  res      Pointer to allocated array to store discovered APs.
      *  @param  count    Size of allocated res array, or 0 to only count available APs.
-     *  @return          Number of entries in res, or if count was 0 number of available networks.
+     *  @return          Number of entries in res, or if count was 0, number of available networks.
      *                   Negative on error (@see nsapi_types.h for nsapi_error).
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
@@ -112,13 +116,25 @@ protected:
 
     /** Get the target's default Wi-Fi interface.
      *
-     * This is provided as a weak method so targets can override. The
+     * This is provided as a weak method so targets can override it. The
      * default implementation returns NULL.
      *
      * @return pointer to interface, if any.
      */
     static WiFiInterface *get_target_default_instance();
 #endif //!defined(DOXYGEN_ONLY)
+
+public:
+    /** Set default parameters on a Wi-Fi interface.
+     *
+     * A Wi-Fi interface instantiated directly or using
+     * WiFiInterface::get_default_instance() is initially unconfigured.
+     * This call can be used to set the default parameters that would
+     * have been set if the interface had been requested using
+     * NetworkInterface::get_default_instance() (see nsapi JSON
+     * configuration).
+     */
+    virtual void set_default_parameters();
 };
 
 #endif

@@ -460,13 +460,18 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t *params,
     // Initialize local copy of channels mask
     copy_channel_mask(temp_channel_masks, channel_mask, CN470_CHANNEL_MASK_SIZE);
 
-    while (bytes_processed < params->payload_size) {
+    while (bytes_processed < params->payload_size &&
+            params->payload[bytes_processed] == SRV_MAC_LINK_ADR_REQ) {
 
         // Get ADR request parameters
-        next_index = parse_link_ADR_req(&(params->payload[bytes_processed]), &adr_settings);
+        next_index = parse_link_ADR_req(&(params->payload[bytes_processed]),
+                                        params->payload_size,
+                                        &adr_settings);
 
         if (next_index == 0) {
-            break; // break loop, since no more request has been found
+            bytes_processed = 0;
+            // break loop, malformed packet
+            break;
         }
 
         // Update bytes processed
@@ -499,6 +504,11 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t *params,
 
             temp_channel_masks[adr_settings.ch_mask_ctrl] = adr_settings.channel_mask;
         }
+    }
+
+    if (bytes_processed == 0) {
+        *nb_bytes_parsed = 0;
+        return status;
     }
 
     verify_params.status = status;

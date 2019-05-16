@@ -32,6 +32,7 @@
 #include "lwip/igmp.h"
 #include "lwip/dns.h"
 #include "lwip/udp.h"
+#include "lwip/raw.h"
 #include "lwip/lwip_errno.h"
 #include "lwip-sys/arch/sys_arch.h"
 
@@ -175,12 +176,12 @@ LWIP::LWIP()
     arena_init();
 }
 
-nsapi_error_t LWIP::get_dns_server(int index, SocketAddress *address)
+nsapi_error_t LWIP::get_dns_server(int index, SocketAddress *address, const char *interface_name)
 {
     int dns_entries = 0;
 
     for (int i = 0; i < DNS_MAX_SERVERS; i++) {
-        const ip_addr_t *ip_addr = dns_getserver(i);
+        const ip_addr_t *ip_addr = dns_getserver(i, interface_name);
         if (!ip_addr_isany(ip_addr)) {
             if (index == dns_entries) {
                 nsapi_addr_t addr;
@@ -509,6 +510,14 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     switch (optname) {
+        case NSAPI_BIND_TO_DEVICE:
+            if (optlen > NSAPI_INTERFACE_NAME_MAX_SIZE) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            netconn_bind_if(s->conn,  netif_name_to_index((const char *)optval));
+
+            return 0;
 #if LWIP_TCP
         case NSAPI_KEEPALIVE:
             if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {

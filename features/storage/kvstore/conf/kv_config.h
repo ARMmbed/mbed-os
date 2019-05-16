@@ -20,12 +20,6 @@
 extern "C" {
 #endif
 
-#if MBED_CONF_STORAGE_STORAGE_TYPE == FILESYSTEM
-#define FSST_FOLDER_PATH MBED_CONF_STORAGE_FILESYSTEM_FOLDER_PATH
-#elif MBED_CONF_STORAGE_STORAGE_TYPE == FILESYSTEM_NO_RBP
-#define FSST_FOLDER_PATH MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH
-#endif
-
 #ifndef MBED_CONF_STORAGE_STORAGE
 #define MBED_CONF_STORAGE_STORAGE USER_DEFINED
 #endif
@@ -40,6 +34,13 @@ extern "C" {
  * @returns 0 on success or negative value on failure.
  */
 int kv_init_storage_config();
+
+/**
+ * @brief A getter for filesystemstore folder path configuration
+ *
+ * @returns string with the file folder path or NULL if not set
+ */
+const char *get_filesystemstore_folder_path();
 
 #ifdef __cplusplus
 } // closing brace for extern "C"

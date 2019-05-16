@@ -1,0 +1,34 @@
+{
+  "name": "SERVER_TESTS_PART1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000002",
+  "entry_point": "server_part1_main",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "SERVER_TESTS_PART1_CONTROL",
+      "identifier": "0x00001A01",
+      "signal": "CONTROL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "SERVER_TESTS_PART1_TEST",
+      "identifier": "0x00001A02",
+      "signal": "TEST_MSK",
+      "non_secure_clients": true,
+      "minor_version": 12,
+      "minor_policy": "STRICT"
+    }
+  ],
+  "extern_sids": [
+    "SERVER_TESTS_PART2_ROT_SRV_REVERSE",
+    "SERVER_TESTS_PART2_ROT_SRV_DB_TST"
+  ],
+  "source_files": [
+    "COMPONENT_SPE/server_tests_partition1.c",
+    "COMPONENT_SPE/tests.c"
+  ]
+}

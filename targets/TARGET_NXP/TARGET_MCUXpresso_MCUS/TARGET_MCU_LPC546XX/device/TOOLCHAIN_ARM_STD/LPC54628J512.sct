@@ -68,10 +68,14 @@
 /* USB BDT size */
 #define usb_bdt_size                   0x0
 /* Sizes */
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
 #else
-  #define Stack_Size                   0x0400
+  #define Stack_Size                   MBED_BOOT_STACK_SIZE
 #endif
 
 #if (defined(__heap_size__))

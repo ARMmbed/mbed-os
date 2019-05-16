@@ -55,6 +55,10 @@
         "default_test_configuration": "NO_NETWORK",
         "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
     },
+    "KW41Z": {
+        "default_test_configuration": "NO_NETWORK",
+        "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
+    },
     "TB_SENSE_12": {
         "default_test_configuration": "NO_NETWORK",
         "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]

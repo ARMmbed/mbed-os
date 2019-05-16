@@ -18,7 +18,6 @@
 #ifndef NANOSTACK_INTERFACE_H_
 #define NANOSTACK_INTERFACE_H_
 
-#include "mbed.h"
 #include "MeshInterface.h"
 // Include here for backward compatibility
 #include "LoWPANNDInterface.h"

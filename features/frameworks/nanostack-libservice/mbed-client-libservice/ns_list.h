@@ -96,6 +96,9 @@ typedef struct ns_list {
  * always assign returned entry pointers to a properly typed pointer variable.
  * This assignment will be then type-checked where the compiler supports it, and
  * will dereference correctly on compilers that don't support this extension.
+ *
+ * If you need to support C++03 compilers that cannot return properly-typed
+ * pointers, such as IAR 7, you need to use NS_LIST_TYPECOERCE to force the type.
  * ~~~
  *     NS_LIST_HEAD(example_entry_t, link) my_list;
  *
@@ -197,6 +200,27 @@ union \
 #define NS_LIST_TYPECAST_(list, val) ((NS_LIST_PTR_TYPE_(list)) (val))
 #else
 #define NS_LIST_TYPECAST_(list, val) (0 ? (list)->type : (val))
+#endif
+
+/** \brief Macro to force correct type if necessary.
+ *
+ * In C, doesn't matter if NS_LIST_TYPECAST_ works or not, as it's legal
+ * to assign void * to a pointer. In C++, we can't do that, so need
+ * a back-up plan for C++03. This forces the type, so breaks type-safety -
+ * only activate when needed, meaning we still get typechecks on other
+ * toolchains.
+ *
+ * If a straight assignment of a ns_list function to a pointer fails
+ * on a C++03 compiler, use the following construct. This will not be
+ * required with C++11 compilers.
+ * ~~~
+ *     type *elem = NS_LIST_TYPECOERCE(type *, ns_list_get_first(list));
+ * ~~~
+ */
+#if defined(NS_LIST_PTR_TYPE_) || !defined(__cplusplus)
+#define NS_LIST_TYPECOERCE(type, val) (val)
+#else
+#define NS_LIST_TYPECOERCE(type, val) (type) (val)
 #endif
 
 /** \brief Internal macro to check types of input entry pointer. */
@@ -480,7 +504,8 @@ typedef struct ns_list_link {
  * \param list `(const list_t *)` Pointer to list - evaluated multiple times.
  */
 #define ns_list_foreach(type, e, list) \
-    for (type *e = ns_list_get_first(list); e; e = ns_list_get_next(list, e))
+    for (type *e = NS_LIST_TYPECOERCE(type *, ns_list_get_first(list)); \
+        e; e = NS_LIST_TYPECOERCE(type *, ns_list_get_next(list, e)))
 
 /** \brief Iterate forwards over a list, where user may delete.
  *
@@ -500,8 +525,8 @@ typedef struct ns_list_link {
  * \param list `(list_t *)`  Pointer to list - evaluated multiple times.
  */
 #define ns_list_foreach_safe(type, e, list) \
-    for (type *e = ns_list_get_first(list), *_next##e; \
-        e && (_next##e = ns_list_get_next(list, e), true); e = _next##e)
+    for (type *e = NS_LIST_TYPECOERCE(type *, ns_list_get_first(list)), *_next##e; \
+        e && (_next##e = NS_LIST_TYPECOERCE(type *, ns_list_get_next(list, e)), true); e = _next##e)
 
 /** \brief Iterate backwards over a list.
  *
@@ -509,7 +534,8 @@ typedef struct ns_list_link {
  * Iterating forwards is *slightly* more efficient.
  */
 #define ns_list_foreach_reverse(type, e, list) \
-    for (type *e = ns_list_get_last(list); e; e = ns_list_get_previous(list, e))
+    for (type *e = NS_LIST_TYPECOERCE(type *, ns_list_get_last(list)); \
+        e; e = NS_LIST_TYPECOERCE(type *, ns_list_get_previous(list, e)))
 
 /** \brief Iterate backwards over a list, where user may delete.
  *
@@ -517,8 +543,8 @@ typedef struct ns_list_link {
  * Iterating forwards is *slightly* more efficient.
  */
 #define ns_list_foreach_reverse_safe(type, e, list) \
-    for (type *e = ns_list_get_last(list), *_next##e; \
-        e && (_next##e = ns_list_get_previous(list, e), true); e = _next##e)
+    for (type *e = NS_LIST_TYPECOERCE(type *, ns_list_get_last(list)), *_next##e; \
+        e && (_next##e = NS_LIST_TYPECOERCE(type *, ns_list_get_previous(list, e)), true); e = _next##e)
 
 /** \hideinitializer \brief Count entries on a list
  *

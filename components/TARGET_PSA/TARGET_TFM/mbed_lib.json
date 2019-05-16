@@ -1,0 +1,29 @@
+{
+    "name": "tfm",
+    "macros": [
+        "TFM_PSA_API", "MBED_TZ_DEFAULT_ACCESS=1"
+    ],
+    "config": {
+        "level": {
+            "help": "TFM security level",
+            "macro_name": "TFM_LVL",
+            "value": 1
+        },
+        "handle_pool_size": {
+            "help": "maximum number of handles that can be opened at the same time",
+            "macro_name": "TFM_CONN_HANDLE_MAX_NUM",
+            "value": 10
+        },
+        "rot_pool_size": {
+            "help": "maximum number of RoT services allowed",
+            "macro_name": "TFM_SPM_MAX_ROT_SERV_NUM",
+            "value": 32
+        },
+        "message_pool_size": {
+            "help": "maximum number of active messages allowed",
+            "macro_name": "TFM_MSG_QUEUE_MAX_MSG_NUM",
+            "value": 10
+        }
+    }
+}
+

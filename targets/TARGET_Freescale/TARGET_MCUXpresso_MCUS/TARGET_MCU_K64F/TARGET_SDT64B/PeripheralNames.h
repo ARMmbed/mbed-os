@@ -32,6 +32,7 @@ typedef enum {
     UART_2 = 2,
     UART_3 = 3,
     UART_4 = 4,
+    UART_5 = 5,
 } UARTName;
 
 #define STDIO_UART_TX     USBTX

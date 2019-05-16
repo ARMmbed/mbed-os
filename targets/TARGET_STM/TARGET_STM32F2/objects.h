@@ -94,7 +94,7 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-#ifdef DEVICE_SPI_ASYNCH
+#if DEVICE_SPI_ASYNCH
     uint32_t event;
     uint8_t transfer_type;
 #endif
@@ -137,13 +137,17 @@ struct pwmout_s {
     uint8_t inverted;
 };
 
-#ifdef DEVICE_CAN
+#if DEVICE_CAN
 struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
     int hz;
 };
 #endif
+
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
 
 #if DEVICE_FLASH
 struct flash_s {

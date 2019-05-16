@@ -53,6 +53,39 @@ static const int acceptedSpeeds[18][2] = {
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
+// Pinmap used for testing only
+static const PinMap PinMap_UART_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10,  0, 0},
+    {P0_11,  0, 0},
+    {P0_12,  0, 0},
+    {P0_13,  0, 0},
+    {P0_14,  0, 0},
+    {P0_15,  0, 0},
+    {P0_16,  0, 0},
+    {P0_17,  0, 0},
+    {P0_18,  0, 0},
+    {P0_19,  0, 0},
+    {P0_20,  0, 0},
+    {P0_21,  0, 0},
+    {P0_22,  0, 0},
+    {P0_23,  0, 0},
+    {P0_24,  0, 0},
+    {P0_25,  0, 0},
+    {P0_28,  0, 0},
+    {P0_29,  0, 0},
+    {P0_30,  0, 0},
+    {NC, NC, 0}
+};
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
     UARTName uart = UART_0;
@@ -303,4 +336,24 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 }
 
 void serial_clear(serial_t *obj) {
+}
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_testing;
 }

@@ -17,12 +17,39 @@
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if defined(DEVICE_TRNG)
+
+#ifndef __PLATFORM_MBED__H__
+#define __PLATFORM_MBED__H__
+
+#if (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+
+#include "default_random_seed.h"
+
+#if !defined(MBEDTLS_PLATFORM_NV_SEED_READ_MACRO)
+#define MBEDTLS_PLATFORM_NV_SEED_READ_MACRO mbed_default_seed_read
+#endif
+
+#if !defined(MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO)
+#define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO mbed_default_seed_write
+#endif
+
+#endif  // (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+
+#if DEVICE_TRNG
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
+#endif
+
+#if defined(TARGET_PSA)
+/* The following configurations are a needed for Mbed Crypto submodule.
+ * They are related to the persistent key storage feature.
+ */
+#define MBEDTLS_PSA_CRYPTO_STORAGE_C
+#define MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
+#undef MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
 #endif
 
 /*
@@ -31,3 +58,5 @@
 #define MBEDTLS_ERR_PLATFORM_HW_FAILED       -0x0080
 
 #define MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED -0x0070
+
+#endif  // __PLATFORM_MBED__H__

@@ -209,3 +209,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     // Update the register
     pwmout_update(obj);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

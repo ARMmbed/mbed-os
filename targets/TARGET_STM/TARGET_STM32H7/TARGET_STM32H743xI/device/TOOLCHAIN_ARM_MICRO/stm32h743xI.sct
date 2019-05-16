@@ -1,0 +1,82 @@
+#! armcc -E
+; Scatter-Loading Description File
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Copyright (c) 2016, STMicroelectronics
+; All rights reserved.
+;
+; Redistribution and use in source and binary forms, with or without
+; modification, are permitted provided that the following conditions are met:
+;
+; 1. Redistributions of source code must retain the above copyright notice,
+;     this list of conditions and the following disclaimer.
+; 2. Redistributions in binary form must reproduce the above copyright notice,
+;    this list of conditions and the following disclaimer in the documentation
+;    and/or other materials provided with the distribution.
+; 3. Neither the name of STMicroelectronics nor the names of its contributors
+;    may be used to endorse or promote products derived from this software
+;    without specific prior written permission.
+;
+; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+; IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+; SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+; CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+; OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START            0x08000000
+#endif
+
+; STM32F743xl: 2048KB FLASH (0x200000)
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE             0x200000
+#endif
+
+; 128KB DTCM RAM (0x20000)
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x20000
+#endif
+
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
+; 166 vectors = 664 bytes (0x298) to be reserved in RAM
+#define VECTOR_SIZE                 0x298
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#define MBED_IRAM1_START             (MBED_RAM_START + VECTOR_SIZE + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_IRAM1_SIZE              (MBED_RAM_SIZE - VECTOR_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
+
+#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE + VECTOR_SIZE + MBED_CRASH_REPORT_RAM_SIZE)
+
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_m_crash_data  (MBED_RAM_START+VECTOR_SIZE)  EMPTY  MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  RW_IRAM1  MBED_IRAM1_START  MBED_IRAM1_SIZE  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
+  }
+
+  ARM_LIB_STACK  (MBED_RAM_START+MBED_RAM_SIZE)  EMPTY  -MBED_BOOT_STACK_SIZE { ; stack
+  }
+}

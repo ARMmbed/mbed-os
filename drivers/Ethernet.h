@@ -20,7 +20,7 @@
 #include "platform/platform.h"
 #include "platform/NonCopyable.h"
 
-#if defined (DEVICE_ETHERNET) || defined(DOXYGEN_ONLY)
+#if DEVICE_ETHERNET || defined(DOXYGEN_ONLY)
 
 namespace mbed {
 /** \addtogroup drivers */

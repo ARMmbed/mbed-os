@@ -117,7 +117,7 @@ void fIrqUart2Handler(void)
     Uart2_Irq();
 }
 
-#ifdef DEVICE_RTC
+#if DEVICE_RTC
 /** Call the RTC IRQ handler */
 void fIrqRtcHandler(void)
 {

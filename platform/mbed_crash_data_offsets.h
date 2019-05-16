@@ -28,15 +28,12 @@ extern "C" {
 extern uint32_t Image$$RW_m_crash_data$$ZI$$Base[];
 extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
 #define __CRASH_DATA_RAM_START__    Image$$RW_m_crash_data$$ZI$$Base
-#define __CRASH_DATA_RAM_SIZE__     Image$$RW_m_crash_data$$ZI$$Size
 #elif defined(__ICCARM__)
 extern uint32_t __CRASH_DATA_RAM_START__[];
 extern uint32_t __CRASH_DATA_RAM_END__[];
-#define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
 #elif defined(__GNUC__)
 extern uint32_t __CRASH_DATA_RAM_START__[];
 extern uint32_t __CRASH_DATA_RAM_END__[];
-#define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
 #endif /* defined(__CC_ARM) */
 
 /* Offset definitions for context capture */

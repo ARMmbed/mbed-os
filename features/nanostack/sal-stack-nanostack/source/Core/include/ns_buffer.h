@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2018, Arm Limited and affiliates.
+ * Copyright (c) 2008-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@
 #endif
 
 #include "ns_types.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
 #include "ns_list.h"
 #include "ipv6_stack/ipv6_routing_table.h"

@@ -24,7 +24,7 @@
 typedef int32_t                  osStatus;
 
 #define osOK 0
-
+#define osErrorNoMemory -5
 
 
 //These are from cmsis_os2.h

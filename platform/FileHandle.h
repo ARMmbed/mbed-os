@@ -138,6 +138,21 @@ public:
      */
     virtual off_t size();
 
+    /** Truncate or extend a file.
+     *
+     * The file's length is set to the specified value. The seek pointer is
+     * not changed. If the file is extended, the extended area appears as if
+     * it were zero-filled.
+     *
+     *  @param length   The requested new length for the file
+     *
+     *  @return         Zero on success, negative error code on failure
+     */
+    virtual int truncate(off_t length)
+    {
+        return -EINVAL;
+    }
+
     /** Move the file position to a given offset from a given location.
      *
      *  @param offset The offset from whence to move to
@@ -203,6 +218,42 @@ public:
     virtual bool is_blocking() const
     {
         return true;
+    }
+
+    /** Enable or disable input
+     *
+     * Control enabling of device for input. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate for
+     * input and/or output may be fixed at creation time, but this call can
+     * allow input to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable input, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    virtual int enable_input(bool enabled)
+    {
+        return -EINVAL;
+    }
+
+    /** Enable or disable output
+     *
+     * Control enabling of device for output. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate for
+     * input and/or output may be fixed at creation time, but this call can
+     * allow output to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable output, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    virtual int enable_output(bool enabled)
+    {
+        return -EINVAL;
     }
 
     /** Check for poll event flags

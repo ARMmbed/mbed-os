@@ -30,6 +30,7 @@
 **/
 
 #include "stm32f7xx.h"
+#include "nvic_addr.h"
 #include "mbed_error.h"
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
@@ -92,7 +93,7 @@ void SystemInit(void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = RAMDTCM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
 
 }
@@ -208,14 +209,14 @@ uint8_t SetSysClock_PLL_HSI(void)
     __PWR_CLK_ENABLE();
 
     // Enable HSI oscillator and activate PLL with HSI as source
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
     RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
     RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
-    RCC_OscInitStruct.PLL.PLLM            = 8;            // VCO input clock = 1 MHz (16 MHz / 16)
-    RCC_OscInitStruct.PLL.PLLN            = 216;           // VCO output clock = 432 MHz (1 MHz * 432)
+    RCC_OscInitStruct.PLL.PLLM            = 8;            // VCO input clock = 2 MHz (16 MHz / 8)
+    RCC_OscInitStruct.PLL.PLLN            = 216;           // VCO output clock = 432 MHz (2 MHz * 216)
     RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 216 MHz (432 MHz / 2)
     RCC_OscInitStruct.PLL.PLLQ            = 9;
 

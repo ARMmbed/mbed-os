@@ -16,7 +16,7 @@
 
 #include "BufferedBlockDevice.h"
 #include "platform/mbed_assert.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include <algorithm>
 #include <string.h>
 
@@ -328,6 +328,15 @@ bd_size_t BufferedBlockDevice::size() const
     }
 
     return _bd_size;
+}
+
+const char *BufferedBlockDevice::get_type() const
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
 }
 
 } // namespace mbed

@@ -156,7 +156,7 @@ err_t LWIP::Interface::emac_if_init(struct netif *netif)
     /* Then we write back either what they gave us, or our default */
     mbed_if->emac->set_hwaddr(netif->hwaddr);
 
-    mbed_if->emac->get_ifname(netif->name, 2);
+    mbed_if->emac->get_ifname(netif->name, NSAPI_INTERFACE_PREFIX_SIZE);
 
 #if LWIP_IPV4
     netif->output = etharp_output;

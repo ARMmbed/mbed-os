@@ -17,8 +17,8 @@
 #define EVENTLOOP_CONFIG_H_
 
 /*
- * Options can be picked up from mbed-cli JSON configuration, or from
- * Yotta JSON configuration, or from a user configuration file - see below.
+ * Options can be picked up from mbed-cli JSON configuration or from
+ * a user configuration file - see below.
  *
  * Undefine all internal flags before evaluating the configuration.
  */
@@ -37,13 +37,6 @@
 
 #ifdef MBED_CONF_NANOSTACK_EVENTLOOP_EXCLUDE_HIGHRES_TIMER
 #define NS_EXCLUDE_HIGHRES_TIMER        1
-#endif
-
-/*
- * For mbedOS 3 and minar use platform tick timer by default, highres timers should come from eventloop adaptor
- */
-#ifdef YOTTA_CFG_MINAR
-#define NS_EVENTLOOP_USE_TICK_TIMER     1
 #endif
 
 /*

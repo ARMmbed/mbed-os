@@ -88,20 +88,20 @@ typedef enum {
     P_A2       = NC,
     P_A3       = NC,
     P_A4       = NC,
-    P_A5       = PC_2,   // UART-DTR
-    P_A6       = PF_2,   // Switch-0
-    P_A7       = PE_0,   // Red, Mode
-    P_A8       = PB_6,   // Green, Switch-1
-    P_A9       = PB_8,   // Blue
-    P_A10      = PA_11,  // UART-CTS
-    P_A11      = PA_9,   // UART-TXD
-    P_A12      = PA_12,  // UART-RTS
-    P_A13      = PA_10,  // UART-RXD
-    P_A14      = PD_9,   // GPIO-0
-    P_A15      = PD_8,   // GPIO-1
-    P_A16      = PD_11,  // GPIO-2
-    P_A17      = PD_12,  // GPIO-3
-    P_A18      = PA_3,   // UART-DSR
+    P_A5       = PC_2,
+    P_A6       = PF_2,
+    P_A7       = PE_0,
+    P_A8       = PB_6,
+    P_A9       = PB_8,
+    P_A10      = PA_11,
+    P_A11      = PA_9,
+    P_A12      = PA_12,
+    P_A13      = PA_10,
+    P_A14      = PD_9,
+    P_A15      = PD_8,
+    P_A16      = PD_11,
+    P_A17      = PD_12,
+    P_A18      = PA_3,
     // PortB
     P_B1       = NC,
     P_B2       = NC,
@@ -116,38 +116,38 @@ typedef enum {
     P_C2       = NC,
     P_C3       = NC,
     P_C4       = NC,
-    P_C5       = PG_4,   // SPI-IRQ
-    P_C6       = PE_13,  // SPI-MISO
+    P_C5       = PG_4,
+    P_C6       = PE_13,
     P_C7       = NC,
-    P_C8       = PE_12,  // Res
+    P_C8       = PE_12,
     P_C9       = NC,
-    P_C10      = PE_14,  // SPI-MOSI
-    P_C11      = PE_11,  // SPI-CS0
-    P_C12      = PE_9,   // Res
-    P_C13      = PF_6,   // GPIO-4
-    P_C14      = PC_1,   // RMII-MDC
-    P_C15      = PA_2,   // RMII-MDIO
-    P_C16      = PF_7,   // GPIO-7
-    P_C17      = PF_1,   // I2C-SCL
-    P_C18      = PF_0,   // I2C-SDA
+    P_C10      = PE_14,
+    P_C11      = PE_11,
+    P_C12      = PE_9,
+    P_C13      = PF_6,
+    P_C14      = PC_1,
+    P_C15      = PA_2,
+    P_C16      = PF_7,
+    P_C17      = PF_1,
+    P_C18      = PF_0,
     // PortD
-    P_D1       = PB_12,  // RMII-TXD0
-    P_D2       = PB_13,  // RMII-TXD1
-    P_D3       = PB_11,  // RMII-TXEN
-    P_D4       = PA_7,   // RMII-CRSDV
-    P_D5       = PC_4,   // RMII-RXD0
-    P_D6       = PC_5,   // RMII-RXD1
+    P_D1       = PB_12,
+    P_D2       = PB_13,
+    P_D3       = PB_11,
+    P_D4       = PA_7,
+    P_D5       = PC_4,
+    P_D6       = PC_5,
     P_D7       = NC,
-    P_D8       = PA_1,   // RMII-REFCLK
+    P_D8       = PA_1,
     // TestPads
-    P_TP5      = PB_4,   // NTRST
-    P_TP7      = PA_13,  // TMS  SWDIO
-    P_TP8      = PA_15,  // TDI
-    P_TP9      = PA_14,  // TCK  SWCLK
-    P_TP10     = PB_3,   // TDO
+    P_TP5      = PB_4,
+    P_TP7      = PA_13,
+    P_TP8      = PA_15,
+    P_TP9      = PA_14,
+    P_TP10     = PB_3, 
     //P_TP11,         // BOOT0
 
-    // Internal
+    // Mbed pins
     LED_RED    = PE_0,
     LED_GREEN  = PB_6,
     LED_BLUE   = PB_8,
@@ -157,11 +157,9 @@ typedef enum {
     LED3       = LED_BLUE,
 
     SW1        = PF_2,
-    SW2        = PG_4,
 
     // Standardized button names
     BUTTON1    = SW1,
-    BUTTON2    = SW2,
 
     I2C_SDA    = PF_0,
     I2C_SCL    = PF_1,
@@ -169,8 +167,9 @@ typedef enum {
     SPI0_MOSI  = PE_14,
     SPI0_MISO  = PE_13,
     SPI0_SCK   = PE_12,
-    SPI0_CS    = PE_11,
-    SPI1_CS    = PE_9,
+    SPI0_CS    = PE_11, //CS for SPI Flash on MCB
+    SPI1_CS    = PE_9, //CS for LCD on MTB
+    SPI2_CS    = PG_4, //CS for SD card on MTB
 
     SPI_MOSI   = SPI0_MOSI,
     SPI_MISO   = SPI0_MISO,
@@ -216,7 +215,7 @@ typedef enum {
     MISO1          = P_C6,
     SCK1           = SPI_SCK,
     GP0            = BUTTON1,
-    GP1            = SPI_CS,
+    GP1            = P_C11,
     AIN0           = P_C13,
     AIN1           = P_A18,
     AIN2           = P_A5,
@@ -226,9 +225,9 @@ typedef enum {
     GP10           = NC,
     RTS            = NC,
     CTS            = NC,
-    GP7            = P_C12,
-    GP6            = P_A12,
-    GP5            = P_A10,
+    GP7            = P_C12, //LCD CS on MTB
+    GP6            = P_A12, //LCD Reset on MTB
+    GP5            = P_A10, //LCD A0 on MTB
     GP4            = P_A17,
     TX2            = NC,
     RX2            = NC,
@@ -238,7 +237,7 @@ typedef enum {
     MISO2          = NC,
     SCK2           = NC,
     GP3            = P_A16,
-    GP2            = P_C5,
+    GP2            = P_C5, //CS for SD Card on MTB
     PWM2           = LED_GREEN,
     PWM1           = LED_BLUE,
     PWM0           = LED_RED,

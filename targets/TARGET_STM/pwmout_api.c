@@ -182,7 +182,7 @@ void pwmout_write(pwmout_t *obj, float value)
         value = 1.0;
     }
 
-    obj->pulse = (uint32_t)((float)obj->period * value);
+    obj->pulse = (uint32_t)((float)obj->period * value + 0.5);
 
     // Configure channels
     sConfig.OCMode       = TIM_OCMODE_PWM1;
@@ -339,6 +339,11 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     float value = (float)us / (float)obj->period;
     pwmout_write(obj, value);
+}
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
 }
 
 #endif

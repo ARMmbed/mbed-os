@@ -1,6 +1,6 @@
-## The mbed-events library ##
+## The `mbed-events` library ##
 
-The mbed-events library provides a flexible queue for scheduling events.
+The `mbed-events` library provides a flexible queue for scheduling events.
 
 ``` cpp
 #include "mbed_events.h"
@@ -20,18 +20,18 @@ int main() {
 }
 ```
 
-The mbed-events library can be used as a normal event loop, or it can be
-backgrounded on a single hardware timer or even another event loop. It is
-both thread and irq safe, and provides functions for easily composing 
+You can use the `mbed-events library` as a normal event loop, or you can
+background it on a single hardware timer or even another event loop. It is
+both thread and IRQ safe and provides functions for easily composing 
 independent event queues.
 
-The mbed-events library can act as a drop-in scheduler, provide synchronization
-between multiple threads, or just act as a mechanism for moving events out of 
+The `mbed-events` library can act as a drop-in scheduler, provide synchronization
+between multiple threads or act as a mechanism for moving events out of 
 interrupt contexts.
 
 ### Usage ###
 
-The core of the mbed-events library is the [EventQueue](EventQueue.h) class,
+The core of the `mbed-events library` is the [EventQueue](EventQueue.h) class,
 which represents a single event queue. The `EventQueue::dispatch` function
 runs the queue, providing the context for executing events.
 
@@ -53,8 +53,8 @@ queue.dispatch();
 ```
 
 The EventQueue class provides several call functions for posting events
-to the underlying event queue. The call functions are thread and irq safe,
-don't need the underlying loop to be running, and provide an easy mechanism
+to the underlying event queue. The call functions are thread and IRQ safe,
+don't need the underlying loop to be running and provide a mechanism
 for moving events out of interrupt contexts.
 
 ``` cpp
@@ -73,8 +73,8 @@ queue.call_every(2000, doit_every_two_seconds);
 queue.call_every(400, printf, "called every 0.4 seconds\n");
 ```
 
-The call functions return an id that uniquely represents the event in the 
-the event queue. This id can be passed to `EventQueue::cancel` to cancel
+The call functions return an ID that uniquely represents the event in the 
+the event queue. You can pass this ID to `EventQueue::cancel` to cancel
 an in-flight event.
 
 ``` cpp
@@ -92,9 +92,9 @@ if (id) {
 queue.cancel(id);
 ```
 
-For a more fine-grain control of event dispatch, the `Event` class can be
-manually instantiated and configured. An `Event` represents an event as
-a C++ style function object and can be directly passed to other APIs that
+For a more detailed control of event dispatch, you can manually instantiate
+and configure the `Event` class. An `Event` represents an event as
+a C++ style function object, and you can directly pass it to other APIs that
 expect a callback.
 
 ``` cpp
@@ -126,7 +126,7 @@ queue.dispatch();
 
 Event queues easily align with module boundaries, where internal state can
 be implicitly synchronized through event dispatch. Multiple modules can
-use independent event queues, but still be composed through the
+use independent event queues but still be composed through the
 `EventQueue::chain` function.
 
 ``` cpp

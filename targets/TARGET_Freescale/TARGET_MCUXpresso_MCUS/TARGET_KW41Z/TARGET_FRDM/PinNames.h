@@ -100,6 +100,7 @@ typedef enum {
 
     DAC0_OUT = PTB18,
 
+    A0 = (int)0xFFFFFFFF,
     A1 = DAC0_OUT,
     A2 = PTB2,
     A3 = PTB3,

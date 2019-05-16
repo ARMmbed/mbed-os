@@ -26,7 +26,7 @@
 #include "unity.h"
 #include "utest.h"
 #include "nsapi_dns.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "dns_tests.h"
 
 using namespace utest::v1;
@@ -122,7 +122,6 @@ void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_cou
         SocketAddress address;
         nsapi_error_t err = net->gethostbyname(hosts[i], &address);
 
-        TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
         if (err == NSAPI_ERROR_OK) {
             (*exp_ok)++;
             printf("DNS: query \"%s\" => \"%s\"\n",
@@ -136,6 +135,9 @@ void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_cou
         } else if (err == NSAPI_ERROR_NO_MEMORY) {
             (*exp_no_mem)++;
             printf("DNS: query \"%s\" => no memory\n", hosts[i]);
+        } else {
+            printf("DNS: query \"%s\" => %d, unexpected answer\n", hosts[i], err);
+            TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
         }
     }
 }
@@ -155,12 +157,24 @@ static void net_bringup()
     printf("MBED: IP address is '%s'\n", net->get_ip_address());
 }
 
+static void net_bringdown()
+{
+    NetworkInterface::get_default_instance()->disconnect();
+    printf("MBED: ifdown\n");
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(120, "default_auto");
+    GREENTEA_SETUP(dns_global::TESTS_TIMEOUT, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
+}
+
+void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    net_bringdown();
+    return greentea_test_teardown_handler(passed, failed, failure);
 }
 
 Case cases[] = {
@@ -173,15 +187,13 @@ Case cases[] = {
     Case("ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE", ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE),
     Case("ASYNCHRONOUS_DNS_INVALID_HOST", ASYNCHRONOUS_DNS_INVALID_HOST),
     Case("ASYNCHRONOUS_DNS_TIMEOUTS", ASYNCHRONOUS_DNS_TIMEOUTS),
-#ifdef MBED_EXTENDED_TESTS
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT",  ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT),
-#endif
     Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
     Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
 };
 
-Specification specification(test_setup, cases, greentea_continue_handlers);
+Specification specification(test_setup, cases, greentea_teardown, greentea_continue_handlers);
 
 int main()
 {

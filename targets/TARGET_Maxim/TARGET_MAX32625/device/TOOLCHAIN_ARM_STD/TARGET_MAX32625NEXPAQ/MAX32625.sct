@@ -1,6 +1,13 @@
+#! armcc -E
 ; MAX32625
 ; 512KB FLASH (0x70000) @ 0x000010000
 ; 160KB RAM (0x24F00) @ 0x20003100
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x800
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
 
 LR_IROM1 0x000010000 0x70000  {    ; load region size_region
     ER_IROM1 0x000010000 0x70000  {  ; load address = execution address 
@@ -10,7 +17,9 @@ LR_IROM1 0x000010000 0x70000  {    ; load region size_region
     }
 
     ; [RAM] Vector table dynamic copy: 68 vectors * 4 bytes = 272 (0x110)
-    RW_IRAM1 (0x20003100+0x110) (0x24F00-0x110)  {  ; RW data
+    RW_IRAM1 (0x20003100+0x110) (0x24F00-0x110-Stack_Size)  {  ; RW data
         .ANY (+RW +ZI)
+    }
+    ARM_LIB_STACK (0x20003100+0x24F00) EMPTY -Stack_Size { ; stack
     }
 }

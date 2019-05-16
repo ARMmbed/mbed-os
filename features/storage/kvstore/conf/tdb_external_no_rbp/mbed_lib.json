@@ -2,7 +2,7 @@
     "name": "storage_tdb_external_no_rbp",
     "config": {
         "blockdevice": {
-            "help": "Options are default, SPIF, DATAFASH, QSPIF or SD. If default the block device will be chosen by the defined component",
+            "help": "Options are default, SPIF, DATAFASH, QSPIF, SD or other. If default the block device will be chosen by the defined component. If other, override get_other_blockdevice() to support block device out of Mbed OS tree.",
             "value": "default"
         },
         "external_size": {

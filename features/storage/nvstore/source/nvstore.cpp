@@ -21,14 +21,18 @@
 #if NVSTORE_ENABLED
 
 #include "FlashIAP.h"
-#include "mbed_critical.h"
+#include "SystemStorage.h"
+#include "mbed_atomic.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 #include "mbed_wait_api.h"
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
 
 // --------------------------------------------------------- Definitions ----------------------------------------------------------
+
+namespace {
 
 static const uint16_t delete_item_flag = 0x8000;
 static const uint16_t set_once_flag    = 0x4000;
@@ -68,9 +72,18 @@ typedef struct {
 static const uint32_t min_area_size = 4096;
 static const uint32_t max_data_size = 4096;
 
-static const int num_write_retries = 16;
-
 static const uint8_t blank_flash_val = 0xFF;
+
+typedef enum {
+    NVSTORE_AREA_STATE_NONE = 0,
+    NVSTORE_AREA_STATE_EMPTY,
+    NVSTORE_AREA_STATE_VALID,
+} area_state_e;
+
+static const uint32_t initial_crc = 0xFFFFFFFF;
+
+} // anonymous namespace
+
 
 // See whether any of these defines are given (by config files)
 // If so, this means that that area configuration is given by the user
@@ -94,15 +107,6 @@ NVStore::nvstore_area_data_t NVStore::initial_area_params[] = {{0, 0},
     {0, 0}
 };
 #endif
-
-typedef enum {
-    NVSTORE_AREA_STATE_NONE = 0,
-    NVSTORE_AREA_STATE_EMPTY,
-    NVSTORE_AREA_STATE_VALID,
-} area_state_e;
-
-static const uint32_t initial_crc = 0xFFFFFFFF;
-
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
 
@@ -228,62 +232,41 @@ int NVStore::flash_read_area(uint8_t area, uint32_t offset, uint32_t size, void 
 
 int NVStore::flash_write_area(uint8_t area, uint32_t offset, uint32_t size, const void *buf)
 {
-    int ret;
-    // On some boards, write action can fail due to HW limitations (like critical drivers
-    // that disable all other actions). Just retry a few times until success.
-    for (int i = 0; i < num_write_retries; i++) {
-        ret = _flash->program(buf, _flash_area_params[area].address + offset, size);
-        if (!ret) {
-            return ret;
-        }
-        wait_ms(1);
-    }
+    int ret = _flash->program(buf, _flash_area_params[area].address + offset, size);
     return ret;
 }
 
 int NVStore::flash_erase_area(uint8_t area)
 {
-    int ret;
-    // On some boards, write action can fail due to HW limitations (like critical drivers
-    // that disable all other actions). Just retry a few times until success.
-    for (int i = 0; i < num_write_retries; i++) {
-        ret = _flash->erase(_flash_area_params[area].address, _flash_area_params[area].size);
-        if (!ret) {
-            return ret;
-        }
-        wait_ms(1);
-    }
+    int ret = _flash->erase(_flash_area_params[area].address, _flash_area_params[area].size);
     return ret;
 }
 
 void NVStore::calc_validate_area_params()
 {
-    int num_sectors = 0;
-
-    size_t flash_addr = _flash->get_flash_start();
+    size_t flash_start_addr = _flash->get_flash_start();
     size_t flash_size = _flash->get_flash_size();
+    size_t flash_addr;
     size_t sector_size;
-    int max_sectors = flash_size / _flash->get_sector_size(flash_addr) + 1;
-    size_t *sector_map = new size_t[max_sectors];
 
     int area = 0;
     size_t left_size = flash_size;
 
     memcpy(_flash_area_params, initial_area_params, sizeof(_flash_area_params));
-    int user_config = (_flash_area_params[0].size != 0);
-    int in_area = 0;
+    bool user_config = (_flash_area_params[0].size != 0);
+    bool in_area = false;
     size_t area_size = 0;
 
-    while (left_size) {
-        sector_size = _flash->get_sector_size(flash_addr);
-        sector_map[num_sectors++] = flash_addr;
+    if (user_config) {
+        flash_addr = flash_start_addr;
+        while (left_size) {
+            sector_size = _flash->get_sector_size(flash_addr);
 
-        if (user_config) {
             // User configuration - here we validate it
             // Check that address is on a sector boundary, that size covers complete sector sizes,
             // and that areas don't overlap.
             if (_flash_area_params[area].address == flash_addr) {
-                in_area = 1;
+                in_area = true;
             }
             if (in_area) {
                 area_size += sector_size;
@@ -292,18 +275,13 @@ void NVStore::calc_validate_area_params()
                     if (area == NVSTORE_NUM_AREAS) {
                         break;
                     }
-                    in_area = 0;
+                    in_area = false;
                     area_size = 0;
                 }
             }
+            flash_addr += sector_size;
+            left_size -= sector_size;
         }
-
-        flash_addr += sector_size;
-        left_size -= sector_size;
-    }
-    sector_map[num_sectors] = flash_addr;
-
-    if (user_config) {
         // Valid areas were counted. Assert if not the expected number.
         MBED_ASSERT(area == NVSTORE_NUM_AREAS);
     } else {
@@ -311,23 +289,20 @@ void NVStore::calc_validate_area_params()
         // Take last two sectors by default. If their sizes aren't big enough, take
         // a few consecutive ones.
         area = 1;
-        _flash_area_params[area].size = 0;
-        int i;
-        for (i = num_sectors - 1; i >= 0; i--) {
-            sector_size = sector_map[i + 1] - sector_map[i];
+        flash_addr = flash_start_addr + flash_size;
+        _flash_area_params[0].size = 0;
+        _flash_area_params[1].size = 0;
+        while (area >= 0) {
+            MBED_ASSERT(flash_addr > flash_start_addr);
+            sector_size = _flash->get_sector_size(flash_addr - 1);
+            flash_addr -= sector_size;
             _flash_area_params[area].size += sector_size;
             if (_flash_area_params[area].size >= min_area_size) {
-                _flash_area_params[area].address = sector_map[i];
+                _flash_area_params[area].address = flash_addr;
                 area--;
-                if (area < 0) {
-                    break;
-                }
-                _flash_area_params[area].size = 0;
             }
         }
     }
-
-    delete[] sector_map;
 }
 
 
@@ -836,7 +811,6 @@ int NVStore::init()
     uint32_t free_space_offset_of_area[NVSTORE_NUM_AREAS];
     uint32_t init_attempts_val;
     uint32_t next_offset;
-    int os_ret;
     int ret = NVSTORE_SUCCESS;
     int valid;
     uint16_t key;
@@ -849,6 +823,12 @@ int NVStore::init()
     if (_init_done) {
         return NVSTORE_SUCCESS;
     }
+
+    //Check if we are on internal memory && try to set the internal memory for TDBStore use.
+    ret = avoid_conflict_nvstore_tdbstore(NVSTORE);
+    //NVstore in internal memory can not be initialize when TDBStore is in use
+    MBED_ASSERT(ret != MBED_ERROR_ALREADY_INITIALIZED);
+
 
     // This handles the case that init function is called by more than one thread concurrently.
     // Only the one who gets the value of 1 in _init_attempts_val will proceed, while others will
@@ -888,8 +868,8 @@ int NVStore::init()
 
         // Find start of empty space at the end of the area. This serves for both
         // knowing whether the area is empty and for the record traversal at the end.
-        os_ret = calc_empty_space(area, free_space_offset_of_area[area]);
-        MBED_ASSERT(!os_ret);
+        ret = calc_empty_space(area, free_space_offset_of_area[area]);
+        MBED_ASSERT(!ret);
 
         if (!free_space_offset_of_area[area]) {
             area_state[area] = NVSTORE_AREA_STATE_EMPTY;
@@ -910,8 +890,8 @@ int NVStore::init()
 
         // We have a non valid master record, in a non-empty area. Just erase the area.
         if ((!valid) || (key != master_record_key)) {
-            os_ret = flash_erase_area(area);
-            MBED_ASSERT(!os_ret);
+            ret = flash_erase_area(area);
+            MBED_ASSERT(!ret);
             area_state[area] = NVSTORE_AREA_STATE_EMPTY;
             continue;
         }
@@ -958,8 +938,8 @@ int NVStore::init()
             _active_area = 1;
         }
         _active_area_version = versions[_active_area];
-        os_ret = flash_erase_area(1 - _active_area);
-        MBED_ASSERT(!os_ret);
+        ret = flash_erase_area(1 - _active_area);
+        MBED_ASSERT(!ret);
     }
 
     // Traverse area until reaching the empty space at the end or until reaching a faulty record

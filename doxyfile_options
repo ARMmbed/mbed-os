@@ -843,8 +843,6 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */cmsis/* \
                          */features/cryptocell/* \
                          */features/mbedtls/* \
-                         */features/storage/cfstore/* \
-                         */features/storage/FEATURE_STORAGE/* \
                          */features/unsupported/* \
                          */features/lwipstack/* \
                          */features/nanostack/sal-stack-nanostack/* \
@@ -859,7 +857,10 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */ble/pal/* \
                          */components/802.15.4_RF/* \
                          */components/wifi/* \
-                         */UNITTESTS/*
+                         */UNITTESTS/* \
+                         */features/cellular/framework/AT/* \
+                         */features/cellular/framework/device/* \
+                         */features/cellular/framework/common/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -2101,9 +2102,24 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_STORAGE          \
                          COMPONENT_SPE           \
                          COMPONENT_SPM_MAILBOX   \
+                         "TFM_LVL=1" \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \
-                         "MBED_DEPRECATED(s)="
+                         "MBED_DEPRECATED(s)=" \
+                         "BLE_ROLE_OBSERVER=1" \
+                         "BLE_ROLE_BROADCASTER=1" \
+                         "BLE_ROLE_PERIPHERAL=1" \
+                         "BLE_ROLE_CENTRAL=1" \
+                         "BLE_FEATURE_GATT_CLIENT=1" \
+                         "BLE_FEATURE_GATT_SERVER=1" \
+                         "BLE_FEATURE_SECURITY=1" \
+                         "BLE_FEATURE_SECURE_CONNECTIONS=1" \
+                         "BLE_FEATURE_SIGNING=1" \
+                         "BLE_FEATURE_PHY_MANAGEMENT=1" \
+                         "BLE_FEATURE_WHITELIST=1" \
+                         "BLE_FEATURE_PRIVACY=1" \
+                         "BLE_FEATURE_PERIODIC_ADVERTISING=1" \
+                         "BLE_FEATURE_EXTENDED_ADVERTISING=1"
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

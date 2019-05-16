@@ -13,7 +13,7 @@
 #warning Statistics are currently not supported without the rtos.
 #endif
 
-#if defined(MBED_CPU_STATS_ENABLED) && (!defined(DEVICE_LPTICKER) || !defined(DEVICE_SLEEP))
+#if defined(MBED_CPU_STATS_ENABLED) && (!DEVICE_LPTICKER || !DEVICE_SLEEP)
 #warning CPU statistics are not supported without low power timer support.
 #endif
 
@@ -21,7 +21,7 @@ void mbed_stats_cpu_get(mbed_stats_cpu_t *stats)
 {
     MBED_ASSERT(stats != NULL);
     memset(stats, 0, sizeof(mbed_stats_cpu_t));
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER) && defined(DEVICE_SLEEP)
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER && DEVICE_SLEEP
     stats->uptime = mbed_uptime();
     stats->idle_time = mbed_time_idle();
     stats->sleep_time = mbed_time_sleep();
@@ -170,7 +170,7 @@ void mbed_stats_sys_get(mbed_stats_sys_t *stats)
 #if defined(__IAR_SYSTEMS_ICC__)
     stats->compiler_id = IAR;
     stats->compiler_version = __VER__;
-#elif defined(__CC_ARM)
+#elif defined(__ARMCC_VERSION)
     stats->compiler_id = ARM;
     stats->compiler_version = __ARMCC_VERSION;
 #elif defined(__GNUC__)

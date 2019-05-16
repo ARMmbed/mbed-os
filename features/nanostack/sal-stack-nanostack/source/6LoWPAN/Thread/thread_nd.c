@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 #include "eventOS_event.h"
 #include "common_functions.h"
 #include "socket_api.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
@@ -213,6 +213,7 @@ static mac_neighbor_table_entry_t *thread_nd_child_mleid_get(protocol_interface_
 
 static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t target_addr[static 16], uint16_t *rloc, uint16_t *addr_out, bool *proxy, uint32_t *last_transaction_time, uint8_t *mleid_ptr)
 {
+    (void) rloc;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return -1;

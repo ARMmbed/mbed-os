@@ -18,7 +18,7 @@
 #define ODIN_WIFI_INTERFACE_H
 
 #include "WiFiInterface.h"
-#ifdef DEVICE_WIFI_AP
+#if DEVICE_WIFI_AP
 #include "UbloxWiFiSoftAPInterface.h"
 #endif
 
@@ -46,7 +46,7 @@ struct wlan_scan_indication_s;
 /** OdinWiFiInterface class
  *  Implementation of the WiFiInterface for the ODIN-W2 module
  */
-#ifdef DEVICE_WIFI_AP
+#if DEVICE_WIFI_AP
 class OdinWiFiInterface : public WiFiInterface, public UbloxWiFiSoftAPInterface, public EMACInterface
 #else
 class OdinWiFiInterface : public WiFiInterface, public EMACInterface
@@ -141,7 +141,7 @@ public:
      */
     virtual nsapi_error_t set_timeout(int ms);
 
-#ifdef DEVICE_WIFI_AP
+#if DEVICE_WIFI_AP
 
     /** Set IP config for access point
          *

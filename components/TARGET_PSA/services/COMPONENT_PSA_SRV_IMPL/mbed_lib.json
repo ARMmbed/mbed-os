@@ -1,0 +1,13 @@
+{
+    "name": "psa-services",
+    "requires": [
+        "drivers",
+        "platform",
+        "mbedtls",
+        "mbed-crypto",
+        "storage",
+        "flashiap-block-device",
+        "tdbstore",
+        "storage_tdb_internal"
+    ]
+}

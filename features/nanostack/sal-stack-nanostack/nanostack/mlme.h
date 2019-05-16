@@ -264,6 +264,7 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macRfConfiguration = 0xfb,      /*<RF channel configuration parameters*/
     macAcceptByPassUnknowDevice = 0xfc,  /*< Accept data trough MAC if packet is data can be authenticated by group key nad MIC. Security enforsment point must be handled carefully these packets */
     macLoadBalancingBeaconTx = 0xfd,  /*< Trig Beacon from load balance module periodic */
     macLoadBalancingAcceptAnyBeacon = 0xfe, /*<Beacon accept state control from other network. Value size bool, data true=Enable, false=disable .*/

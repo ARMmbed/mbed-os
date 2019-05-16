@@ -74,10 +74,10 @@ defined in linker script */
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
-Reset_Handler:
-  ldr   sp, =__stack       /* set stack pointer */
-
-/* Copy the data segment initializers from flash to SRAM */
+Reset_Handler: 
+  ldr   sp, =_estack       /* set stack pointer */
+ 
+/* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
 
@@ -106,8 +106,6 @@ LoopFillZerobss:
   bcc  FillZerobss
 
 /* Call the clock system intitialization function.*/
-  bl SystemInitPre
-  bl HAL_InitPre
   bl  SystemInit   
 /* Call static constructors */
   //bl __libc_init_array
@@ -142,10 +140,10 @@ Infinite_Loop:
 *******************************************************************************/
    .section  .isr_vector,"a",%progbits
   .type  g_pfnVectors, %object
-  .size  g_pfnVectors, .-g_pfnVectors
-   
-g_pfnVectors:
-  .word  __stack
+  .size  g_pfnVectors, .-g_pfnVectors 
+  
+  g_pfnVectors:
+  .word  _estack
   .word  Reset_Handler
 
   .word  NMI_Handler
@@ -212,7 +210,7 @@ g_pfnVectors:
   .word     TIM8_TRG_COM_TIM14_IRQHandler     /* TIM8 Trigger and Commutation and TIM14 */
   .word     TIM8_CC_IRQHandler                /* TIM8 Capture Compare         */                          
   .word     DMA1_Stream7_IRQHandler           /* DMA1 Stream7                 */                          
-  .word     FMC_IRQHandler                    /* FMC                         */                   
+  .word     FMC_IRQHandler                    /* FMC                          */                   
   .word     SDIO_IRQHandler                   /* SDIO                         */                   
   .word     TIM5_IRQHandler                   /* TIM5                         */                   
   .word     SPI3_IRQHandler                   /* SPI3                         */                   
@@ -252,8 +250,8 @@ g_pfnVectors:
   .word     SPI5_IRQHandler                   /* SPI5 						  */
   .word     SPI6_IRQHandler                   /* SPI6						  */
   .word     SAI1_IRQHandler                   /* SAI1						  */
-  .word     LTDC_IRQHandler                   /* LTDC_IRQHandler			  */
-  .word     LTDC_ER_IRQHandler                /* LTDC_ER_IRQHandler			  */
+  .word     LTDC_IRQHandler                   /* LTDC           		      */
+  .word     LTDC_ER_IRQHandler                /* LTDC error          	      */
   .word     DMA2D_IRQHandler                  /* DMA2D                        */
   
 /*******************************************************************************

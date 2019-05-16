@@ -313,11 +313,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
-    
-    // First, disable flow control completely.
-    uart_base->INTEN &= ~(UART_INTEN_ATORTSEN_Msk | UART_INTEN_ATOCTSEN_Msk);
 
-    if ((type == FlowControlRTS || type == FlowControlRTSCTS) && rxflow != NC) {
+    if (rxflow != NC) {
         // Check if RTS pin matches.
         uint32_t uart_rts = pinmap_peripheral(rxflow, PinMap_UART_RTS);
         MBED_ASSERT(uart_rts == obj->serial.uart);
@@ -325,12 +322,24 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(rxflow, PinMap_UART_RTS);
         // nRTS pin output is low level active
         uart_base->MODEM |= UART_MODEM_RTSACTLV_Msk;
+        // Configure RTS trigger level to 8 bytes
         uart_base->FIFO = (uart_base->FIFO & ~UART_FIFO_RTSTRGLV_Msk) | UART_FIFO_RTSTRGLV_8BYTES;
-        // Enable RTS
-        uart_base->INTEN |= UART_INTEN_ATORTSEN_Msk;
+
+        if (type == FlowControlRTS || type == FlowControlRTSCTS) {        
+            // Enable RTS
+            uart_base->INTEN |= UART_INTEN_ATORTSEN_Msk;
+        } else {
+            // Disable RTS
+            uart_base->INTEN &= ~UART_INTEN_ATORTSEN_Msk;
+            /* Drive nRTS pin output to low-active. Allow the peer to be able to send data
+             * even though its CTS is still enabled. */
+            uart_base->MODEM &= ~UART_MODEM_RTS_Msk;
+        }
     }
-    
-    if ((type == FlowControlCTS || type == FlowControlRTSCTS) && txflow != NC)  {
+
+    /* If CTS is disabled, we don't need to configure CTS. But to be consistent with
+     * RTS code above, we still configure CTS. */
+    if (txflow != NC) {
         // Check if CTS pin matches.
         uint32_t uart_cts = pinmap_peripheral(txflow, PinMap_UART_CTS);
         MBED_ASSERT(uart_cts == obj->serial.uart);
@@ -338,8 +347,14 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(txflow, PinMap_UART_CTS);
         // nCTS pin input is low level active
         uart_base->MODEMSTS |= UART_MODEMSTS_CTSACTLV_Msk;
-        // Enable CTS
-        uart_base->INTEN |= UART_INTEN_ATOCTSEN_Msk;
+
+        if (type == FlowControlCTS || type == FlowControlRTSCTS)  {        
+            // Enable CTS
+            uart_base->INTEN |= UART_INTEN_ATOCTSEN_Msk;
+        } else {
+            // Disable CTS
+            uart_base->INTEN &= ~UART_INTEN_ATOCTSEN_Msk;
+        }
     }
 }
 
@@ -1120,6 +1135,26 @@ bool serial_can_deep_sleep(void)
         modinit++;
     }
     return sleep_allowed;
+}
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
 }
 
 #endif  // #if DEVICE_SERIAL

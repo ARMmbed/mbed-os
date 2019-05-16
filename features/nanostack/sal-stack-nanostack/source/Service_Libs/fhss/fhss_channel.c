@@ -27,8 +27,14 @@
 
 #define TRACE_GROUP "fhss"
 
-// Enable this flag to use channel traces
-// #define FHSS_CHANNEL_DEBUG
+#ifdef FHSS_CHANNEL_DEBUG_CBS
+void (*fhss_uc_switch)(void) = NULL;
+void (*fhss_bc_switch)(void) = NULL;
+#endif /*FHSS_CHANNEL_DEBUG_CBS*/
+
+#ifdef FHSS_CHANNEL_DEBUG
+uint8_t debug_destination_channel = 0;
+#endif /*FHSS_CHANNEL_DEBUG*/
 
 static uint8_t fhss_get_bc_index(const fhss_structure_t *fhss_structure);
 
@@ -138,13 +144,22 @@ bool fhss_change_to_next_channel(fhss_structure_t *fhss_structure)
     next_channel = channel_list_get_channel(fhss_structure->bs->fhss_configuration.channel_mask, channel_index_tmp);
 
     fhss_structure->rx_channel = next_channel;
-#ifdef FHSS_CHANNEL_DEBUG
+
     if (fhss_is_current_channel_broadcast(fhss_structure) == true) {
+#ifdef FHSS_CHANNEL_DEBUG
         tr_info("%"PRIu32" BC %u", fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api), next_channel);
-    } else {
-        tr_info("%"PRIu32" UC %u", fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api), next_channel);
-    }
 #endif /*FHSS_CHANNEL_DEBUG*/
+    } else {
+#ifdef FHSS_CHANNEL_DEBUG_CBS
+        if (fhss_uc_switch) {
+            fhss_uc_switch();
+        }
+#endif /*FHSS_CHANNEL_DEBUG_CBS*/
+#ifdef FHSS_CHANNEL_DEBUG
+        tr_info("%"PRIu32" UC %u", fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api), next_channel);
+#endif /*FHSS_CHANNEL_DEBUG*/
+    }
+
     fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, next_channel);
     return broadcast_channel;
 }
@@ -231,7 +246,7 @@ int fhss_change_to_tx_channel(fhss_structure_t *fhss_structure, uint8_t *destina
             uint8_t destination_channel = fhss_get_destination_channel(fhss_structure, destination_address);
             fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, destination_channel);
 #ifdef FHSS_CHANNEL_DEBUG
-            tr_info("TX channel: %u", destination_channel);
+            debug_destination_channel = destination_channel;
 #endif /*FHSS_CHANNEL_DEBUG*/
         }
     }

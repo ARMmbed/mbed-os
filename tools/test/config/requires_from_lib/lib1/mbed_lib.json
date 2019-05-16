@@ -1,0 +1,7 @@
+{
+    "name": "lib1",
+    "requires": ["lib2"],
+    "config": {
+        "test": "BAD"
+    }
+}

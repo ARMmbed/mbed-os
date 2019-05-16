@@ -30,9 +30,4 @@
 
 //#define TRANSACTION_QUEUE_SIZE_SPI   16
 
-// Minar platform configuration
-
-#define MINAR_PLATFORM_TIME_BASE 1000000
-#define MINAR_PLATFORM_MINIMUM_SLEEP 10
-
 #endif

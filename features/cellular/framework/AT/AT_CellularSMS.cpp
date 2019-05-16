@@ -210,6 +210,9 @@ void AT_CellularSMS::cmti_urc()
 
 nsapi_error_t AT_CellularSMS::set_cnmi()
 {
+    if (!get_property(PROPERTY_AT_CNMI)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CNMI=2,1");
     _at.cmd_stop_read_resp();
@@ -218,6 +221,9 @@ nsapi_error_t AT_CellularSMS::set_cnmi()
 
 nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 {
+    if (!get_property(PROPERTY_AT_CMGF)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CMGF=");
     _at.write_int(msg_format);
@@ -227,6 +233,9 @@ nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 
 nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 {
+    if (!get_property(PROPERTY_AT_CSMP)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CSMP=");
     _at.write_int(fo);
@@ -239,6 +248,9 @@ nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 
 nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 {
+    if (!get_property(PROPERTY_AT_CSDH)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CSDH=");
     _at.write_int(show_header);
@@ -248,10 +260,8 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 
 nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
 {
-    if (NSAPI_ERROR_OK != _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
-            NSAPI_ERROR_OK != _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
-        return NSAPI_ERROR_NO_MEMORY;
-    }
+    _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
+    _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 
     _at.lock();
     set_cnmi();     //set new SMS indication
@@ -992,7 +1002,7 @@ void AT_CellularSMS::add_info(sms_info_t *info, int index, int part_number)
         return;
     }
     sms_info_t *current = _sms_info;
-    sms_info_t *prev;
+    sms_info_t *prev = NULL;
     bool found_msg = false;
     while (current) {
         prev = current;
@@ -1047,11 +1057,6 @@ nsapi_error_t AT_CellularSMS::list_messages()
     _at.resp_start("+CMGL:");
     while (_at.info_resp()) {
         info = new sms_info_t();
-        if (!info) {
-            _at.resp_stop();
-            return NSAPI_ERROR_NO_MEMORY;
-        }
-
         if (_mode == CellularSMSMmodePDU) {
             //+CMGL: <index>,<stat>,[<alpha>],<length><CR><LF><pdu>[<CR><LF>
             // +CMGL:<index>,<stat>,[<alpha>],<length><CR><LF><pdu>
@@ -1062,11 +1067,6 @@ nsapi_error_t AT_CellularSMS::list_messages()
             length = length * 2 + 20; // *2 as it's hex encoded and +20 as service center number is not included in size given by CMGL
             pdu = new char[length];
             memset(pdu, 0, length);
-            if (!pdu) {
-                delete info;
-                _at.resp_stop();
-                return NSAPI_ERROR_NO_MEMORY;
-            }
             _at.read_string(pdu, length, true);
             if (_at.get_last_error() == NSAPI_ERROR_OK) {
                 info->msg_size = get_data_from_pdu(pdu, info, &part_number);
@@ -1194,9 +1194,6 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char *str, uint16_t len, c
     }
     // convert to 7bit gsm first
     char *gsm_str = new char[len];
-    if (!gsm_str) {
-        return 0;
-    }
     for (uint16_t y = 0; y < len; y++) {
         for (int x = 0; x < GSM_TO_ASCII_TABLE_SIZE; x++) {
             if (gsm_to_ascii[x] == str[y]) {

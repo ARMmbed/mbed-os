@@ -8,6 +8,10 @@
         "uart-serial-rxbuf-size": {
             "help": "Default RX buffer size for a UARTSerial instance (unit Bytes))",
             "value": 256
+        },
+        "spi_count_max": {
+            "help": "The maximum number of SPI peripherals used at the same time. Determines RAM allocated for SPI peripheral management. If null, limit determined by hardware.",
+            "value": null
         }
     }
 }

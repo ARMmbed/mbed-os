@@ -117,12 +117,25 @@ const PinMap PinMap_PWM[] = {
 };
 
 /************QSPI***************/
-const PinMap PinMap_QSPI_DATA[] = {
+
+const PinMap PinMap_QSPI_DATA0[] = {
     {P0_24, QSPI_0, 6},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA1[] = {
     {P0_25, QSPI_0, 6},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA2[] = {
     {P0_28, QSPI_0, 6},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA3[] = {
     {P0_27, QSPI_0, 6},
-    {NC   , NC    , 0}
+    {NC, NC, 0}
 };
  const PinMap PinMap_QSPI_SCLK[] = {
     {P0_26, QSPI_0, 6},

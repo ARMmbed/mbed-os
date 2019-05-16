@@ -292,4 +292,36 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     irq_handler = handler;
     serial_irq_ids[0] = id;
 }
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+#if !DEVICE_SERIAL_FC
+    static const PinMap PinMap_UART_CTS[] = {
+        {NC, NC, 0}
+    };
+#endif
+
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+#if !DEVICE_SERIAL_FC
+    static const PinMap PinMap_UART_RTS[] = {
+        {NC, NC, 0}
+    };
+#endif
+
+    return PinMap_UART_RTS;
+}
 #endif

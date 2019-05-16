@@ -66,7 +66,7 @@ extern "C" {
  * param[in]    section_name    Name of the section.
  * @hideinitializer
  */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define NRF_SECTION_START_ADDR(section_name)       &CONCAT_2(section_name, $$Base)
 
 #elif defined(__GNUC__)
@@ -82,7 +82,7 @@ extern "C" {
  * @param[in]   section_name    Name of the section.
  * @hideinitializer
  */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define NRF_SECTION_END_ADDR(section_name)         &CONCAT_2(section_name, $$Limit)
 
 #elif defined(__GNUC__)
@@ -111,7 +111,7 @@ extern "C" {
  * @warning Data type must be word aligned to prevent padding.
  * @hideinitializer
  */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define NRF_SECTION_DEF(section_name, data_type)                \
     extern data_type * CONCAT_2(section_name, $$Base);          \
     extern void      * CONCAT_2(section_name, $$Limit)
@@ -140,7 +140,7 @@ extern "C" {
  * @param[in]   section_var     Variable to register in the given section.
  * @hideinitializer
  */
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 #define NRF_SECTION_ITEM_REGISTER(section_name, section_var) \
     section_var __attribute__ ((section(STRINGIFY(section_name)))) __attribute__((used))
 

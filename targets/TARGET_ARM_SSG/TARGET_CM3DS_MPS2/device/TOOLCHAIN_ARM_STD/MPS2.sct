@@ -29,6 +29,12 @@
 #include "../memory_zones.h"
 #include "../cmsis_nvic.h"
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 ; The vector table is loaded at address 0x00000000 in Flash memory region.
 LR_IROM1 FLASH_START FLASH_SIZE  {
   ER_IROM1 FLASH_START FLASH_SIZE  {
@@ -38,9 +44,11 @@ LR_IROM1 FLASH_START FLASH_SIZE  {
 
 ; Rest of the code is loaded to the ZBT SSRAM1.
 LR_IROM2 ZBT_SSRAM1_START ZBT_SSRAM1_SIZE {
-  ER_IROM2 ZBT_SSRAM1_START ZBT_SSRAM1_SIZE  {
+  ER_IROM2 ZBT_SSRAM1_START ZBT_SSRAM1_SIZE-Stack_Size  {
    *(InRoot$$Sections)
    .ANY (+RO)
+  }
+  ARM_LIB_STACK ZBT_SSRAM1_START+ZBT_SSRAM1_SIZE EMPTY -Stack_Size { ; Stack region growing down
   }
   ; At execution, RAM is set to be in ZBT SSRAM2 and 3, just after the vector
   ; table previously moved from Flash.

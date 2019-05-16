@@ -1,5 +1,4 @@
-
-/* SocketAddress
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,10 @@
  * limitations under the License.
  */
 
+/** @file SocketAddress.h SocketAddress class */
+/** \addtogroup netsocket
+ * @{*/
+
 #ifndef SOCKET_ADDRESS_H
 #define SOCKET_ADDRESS_H
 
@@ -25,11 +28,9 @@
 class NetworkStack;
 class NetworkInterface;
 
-
 /** SocketAddress class
  *
  *  Representation of an IP address and port pair.
- *  @addtogroup netsocket
  */
 class SocketAddress {
 public:
@@ -40,6 +41,7 @@ public:
      *
      *  On failure, the IP address and port will be set to zero
      *
+     *  @tparam S       Type of the Network stack
      *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port, defaults to 0
@@ -58,7 +60,7 @@ public:
 
     /** Create a SocketAddress from a raw IP address and port
      *
-     * To construct from a host name, use NetworkInterface::gethostbyname
+     *  @note To construct from a host name, use NetworkInterface::gethostbyname
      *
      *  @param addr     Raw IP address
      *  @param port     Optional 16-bit port, defaults to 0
@@ -125,7 +127,7 @@ public:
      */
     const char *get_ip_address() const;
 
-    /*  Get the raw IP bytes
+    /** Get the raw IP bytes
      *
      *  @return         Raw IP address in big-endian order
      */
@@ -175,6 +177,9 @@ public:
 
 private:
     void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
+
+    /** Initialize memory */
+    void mem_init(void);
 
     mutable char *_ip_address;
     nsapi_addr_t _addr;

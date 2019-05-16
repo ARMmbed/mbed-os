@@ -15,7 +15,7 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_assert.h"
 
 namespace mbed {
@@ -194,4 +194,14 @@ bd_size_t ExhaustibleBlockDevice::size() const
     return _bd->size();
 }
 
+const char *ExhaustibleBlockDevice::get_type() const
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
+

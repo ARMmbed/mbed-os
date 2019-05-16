@@ -26,8 +26,8 @@ from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
 from os import linesep, remove, makedirs
+from copy import copy
 from time import time
-from intelhex import IntelHex
 from json import load, dump
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
@@ -35,17 +35,18 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset, integer, generate_update_filename, copy_when_different)
+                    copy_when_different, NoValidToolchainException)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources, FileType, FileRef
+from .resources import Resources, FileType, FileRef, PsaManifestResourceFilter
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
-from .toolchains import TOOLCHAIN_CLASSES
+from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
@@ -121,6 +122,133 @@ def add_result_to_report(report, result):
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
 
+def get_valid_toolchain_names(target, toolchain_name):
+    """Return the list of toolchains with which a build should be attempted. This
+    list usually contains one element, however there may be multiple entries if
+    a toolchain is expected to fallback to different versions depending on the
+    environment configuration. If an invalid supported_toolchain configuration
+    is detected, an Exception will be raised.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
+    if int(target.build_tools_metadata["version"]) > 0:
+        all_arm_toolchain_names = ["ARMC6", "ARMC5", "ARM"]
+        arm_st = set(target.supported_toolchains).intersection(
+            set(all_arm_toolchain_names)
+        )
+        if len(arm_st) > 1:
+            raise Exception(
+                "Targets may only specify one of the following in "
+                "supported_toolchains: {}\n"
+                "The following toolchains were present: {}".format(
+                    ", ".join(all_arm_toolchain_names),
+                    ", ".join(arm_st),
+                )
+            )
+        if toolchain_name == "ARM":
+            # The order matters here
+            all_arm_toolchain_names = ["ARMC6", "ARMC5"]
+            if "ARM" in target.supported_toolchains:
+                return all_arm_toolchain_names
+
+            result_list = []
+            for tc_name in all_arm_toolchain_names:
+                if tc_name in target.supported_toolchains:
+                    result_list.append(tc_name)
+            return result_list
+
+    return [toolchain_name]
+
+def get_toolchain_name(target, toolchain_name):
+    """Get the internal toolchain name given the toolchain_name provided by
+    the front-end scripts (usually by the -t/--toolchain argument) and the target
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+
+    Overview of what the current return values should be for the "ARM" family of
+    toolchains (since the behavior is fairly complex). Top row header represents
+    the argument "toolchain_name", Left column header represents the attribute
+    "supported_toolchains" of the "target" argument.
+
+    | supported_toolchains/toolchain_name |+| ARMC5 | ARMC6 | ARM    |
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    | ARMC5                               |+| ARM*  | ARMC6 | ARM    |
+    | ARMC6                               |+| ARM*  | ARMC6 | ARMC6* |
+    | ARM                                 |+| ARM*  | ARMC6 | ARMC6* |
+
+    * Denotes that the input "toolchain_name" changes in the return value
+    """
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name == "ARMC5":
+            return "ARM"
+        elif toolchain_name == "ARM":
+            if set(target.supported_toolchains).intersection(set(["ARMC6", "ARM"])):
+                return "ARMC6"
+        elif toolchain_name == "uARM":
+            if "ARMC5" in target.supported_toolchains:
+                return "uARM" #use ARM_MICRO to use AC5+microlib
+            else:
+                return "ARMC6" #use AC6+microlib
+    else:
+        if toolchain_name == "ARM":
+            if CORE_ARCH[target.core] == 8:
+                return "ARMC6"
+            elif getattr(target, "default_toolchain", None) == "uARM":
+                return "uARM"
+
+    return toolchain_name
+
+def find_valid_toolchain(target, toolchain):
+    """Given a target and toolchain, get the names for the appropriate
+    toolchain to use. The environment is also checked to see if the corresponding
+    compiler is configured correctl. For the ARM compilers, there is an automatic
+    fallback behavior if "ARM" is the specified toolchain, if the latest compiler
+    (ARMC6) is not available, and the target supports building with both ARMC5
+    and ARMC6. In the case where the environment configuration triggers the fallback
+    to ARMC5, add a warning to the list that is returned in the results.
+
+    Returns:
+    toolchain_name - The name of the toolchain. When "ARM" is supplied as the
+    "toolchain", this be changed to either "ARMC5" or "ARMC6".
+    internal_tc_name - This corresponds to that name of the class that will be
+    used to actually complete the build. This is mostly used for accessing build
+    profiles and just general legacy sections within the code.
+    end_warnings - This is a list of warnings (strings) that were raised during
+    the process of finding toolchain. This is used to warn the user of the ARM
+    fallback mechanism mentioned above.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
+    end_warnings = []
+    toolchain_names = get_valid_toolchain_names(target, toolchain)
+    last_error = None
+    for index, toolchain_name in enumerate(toolchain_names):
+        internal_tc_name = get_toolchain_name(target, toolchain_name)
+        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
+            end_warnings.append(ARMC5_MIGRATION_WARNING)
+        if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
+            search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
+            last_error = (
+                "Could not find executable for {}.\n"
+                "Currently set search path: {}"
+            ).format(toolchain_name, search_path)
+        else:
+            return toolchain_name, internal_tc_name, end_warnings
+    else:
+        if last_error:
+            e = NoValidToolchainException(last_error)
+            e.end_warnings = end_warnings
+            raise e
+
 def get_config(src_paths, target, toolchain_name=None, app_config=None):
     """Get the configuration object for a target-toolchain combination
 
@@ -147,7 +275,7 @@ def get_config(src_paths, target, toolchain_name=None, app_config=None):
 
     cfg, macros = config.get_config_data()
     features = config.get_features()
-    return cfg, macros, features
+    return cfg, macros, features, res
 
 def is_official_target(target_name, version):
     """ Returns True, None if a target is part of the official release for the
@@ -167,8 +295,8 @@ def is_official_target(target_name, version):
     if hasattr(target, 'release_versions') \
        and version in target.release_versions:
         if version == '2':
-            # For version 2, either ARM or uARM toolchain support is required
-            required_toolchains = set(['ARM', 'uARM'])
+            # For version 2, one of the ARM toolchains(ARM, ARMC6, ARMC5 or uARM) support is required
+            required_toolchains = set(['ARM', 'ARMC5', 'ARMC6', 'uARM'])
 
             if not len(required_toolchains.intersection(
                     set(target.supported_toolchains))) > 0:
@@ -184,7 +312,8 @@ def is_official_target(target_name, version):
         elif version == '5':
             # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
             required_toolchains = [
-                set(['ARM', 'GCC_ARM', 'IAR']),
+                set(['ARM', 'GCC_ARM']),
+                set(['ARMC5', 'GCC_ARM']),
                 set(['ARMC6'])
             ]
             supported_toolchains = set(target.supported_toolchains)
@@ -226,8 +355,8 @@ def is_official_target(target_name, version):
 
     return result, reason
 
-def transform_release_toolchains(toolchains, version):
-    """ Given a list of toolchains and a release version, return a list of
+def transform_release_toolchains(target, version):
+    """ Given a release version and target, return a list of
     only the supported toolchains for that release
 
     Positional arguments:
@@ -235,11 +364,21 @@ def transform_release_toolchains(toolchains, version):
     version - The release version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-    if version == '5':
-        return ['ARM', 'GCC_ARM', 'IAR']
-    else:
-        return toolchains
+    if int(target.build_tools_metadata["version"]) > 0:
+        if version == '5':
+            toolchains = copy(target.supported_toolchains)
 
+            if "ARM" in toolchains:
+                toolchains.remove("ARM")
+                toolchains.extend(["ARMC5", "ARMC6"])
+
+            return toolchains
+        return target.supported_toolchains
+    else:
+        if version == '5':
+            return ['ARM', 'GCC_ARM', 'IAR']
+        else:
+            return target.supported_toolchains
 
 def get_mbed_official_release(version):
     """ Given a release version string, return a tuple that contains a target
@@ -258,7 +397,7 @@ def get_mbed_official_release(version):
                 [
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(
-                        TARGET_MAP[target].supported_toolchains, version))
+                        TARGET_MAP[target], version))
                 ]
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
@@ -275,13 +414,25 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
 def target_supports_toolchain(target, toolchain_name):
-    if toolchain_name in ARM_COMPILERS:
-        return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name in target.supported_toolchains:
+            return True
+        else:
+            if(toolchain_name == "ARM"):
+                #we cant find ARM, see if one ARMC5, ARMC6 or uARM listed
+                return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
+            if(toolchain_name == "ARMC6" or toolchain_name == "ARMC5"):
+                #we did not find ARMC6 or ARMC5, but check if ARM is listed
+                return "ARM" in target.supported_toolchains
+        #return False in other cases
+        return False
     else:
-        return toolchain_name in target.supported_toolchains
-
+        ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
+        if toolchain_name in ARM_COMPILERS:
+            return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+        else:
+            return toolchain_name in target.supported_toolchains
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -312,12 +463,19 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+
     if not target_supports_toolchain(target, toolchain_name):
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
-    if (toolchain_name == "ARM" and CORE_ARCH[target.core] == 8):
-        toolchain_name = "ARMC6"
+
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it,
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+    toolchain_name = selected_toolchain_name
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -341,109 +499,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     return toolchain
 
-def _printihex(ihex):
-    import pprint
-    pprint.PrettyPrinter().pprint(ihex.todict())
-
-def _real_region_size(region):
-    try:
-        part = intelhex_offset(region.filename, offset=region.start)
-        return (part.maxaddr() - part.minaddr()) + 1
-    except AttributeError:
-        return region.size
-
-
-def _fill_header(region_list, current_region):
-    """Fill an application header region
-
-    This is done it three steps:
-     * Fill the whole region with zeros
-     * Fill const, timestamp and size entries with their data
-     * Fill the digests using this header as the header region
-    """
-    region_dict = {r.name: r for r in region_list}
-    header = IntelHex()
-    header.puts(current_region.start, b'\x00' * current_region.size)
-    start = current_region.start
-    for member in current_region.filename:
-        _, type, subtype, data = member
-        member_size = Config.header_member_size(member)
-        if type == "const":
-            fmt = {
-                "8le": ">B", "16le": "<H", "32le": "<L", "64le": "<Q",
-                "8be": "<B", "16be": ">H", "32be": ">L", "64be": ">Q"
-            }[subtype]
-            header.puts(start, struct.pack(fmt, integer(data, 0)))
-        elif type == "timestamp":
-            fmt = {"32le": "<L", "64le": "<Q",
-                   "32be": ">L", "64be": ">Q"}[subtype]
-            header.puts(start, struct.pack(fmt, int(time())))
-        elif type == "size":
-            fmt = {"32le": "<L", "64le": "<Q",
-                   "32be": ">L", "64be": ">Q"}[subtype]
-            size = sum(_real_region_size(region_dict[r]) for r in data)
-            header.puts(start, struct.pack(fmt, size))
-        elif type  == "digest":
-            if data == "header":
-                ih = header[:start]
-            else:
-                ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
-            if subtype.startswith("CRCITT32"):
-                fmt = {"CRCITT32be": ">l", "CRCITT32le": "<l"}[subtype]
-                header.puts(start, struct.pack(fmt, zlib.crc32(ih.tobinarray())))
-            elif subtype.startswith("SHA"):
-                if subtype == "SHA256":
-                    hash = hashlib.sha256()
-                elif subtype == "SHA512":
-                    hash = hashlib.sha512()
-                hash.update(ih.tobinarray())
-                header.puts(start, hash.digest())
-        start += Config.header_member_size(member)
-    return header
-
-
-def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
-    """Merge the region_list into a single image
-
-    Positional Arguments:
-    region_list - list of regions, which should contain filenames
-    destination - file name to write all regions to
-    padding - bytes to fill gapps with
-    """
-    merged = IntelHex()
-    _, format = splitext(destination)
-    notify.info("Merging Regions")
-
-    for region in region_list:
-        if region.active and not region.filename:
-            raise ToolException("Active region has no contents: No file found.")
-        if isinstance(region.filename, list):
-            header_basename, _ = splitext(destination)
-            header_filename = header_basename + "_header.hex"
-            _fill_header(region_list, region).tofile(header_filename, format='hex')
-            region = region._replace(filename=header_filename)
-        if region.filename:
-            notify.info("  Filling region %s with %s" % (region.name, region.filename))
-            part = intelhex_offset(region.filename, offset=region.start)
-            part.start_addr = None
-            merged.merge(part)
-
-    # Hex file can have gaps, so no padding needed. While other formats may
-    # need padding. Iterate through segments and pad the gaps.
-    if format != ".hex":
-        # begin patching from the end of the first segment
-        _, begin = merged.segments()[0]
-        for start, stop in merged.segments()[1:]:
-            pad_size = start - begin
-            merged.puts(begin, padding * pad_size)
-            begin = stop + 1
-
-    if not exists(dirname(destination)):
-        makedirs(dirname(destination))
-    notify.info("Space used after regions merged: 0x%x" %
-                (merged.maxaddr() - merged.minaddr() + 1))
-    merged.tofile(destination, format=format.strip("."))
-
 
 UPDATE_WHITELIST = (
     "application",
@@ -456,7 +511,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
                   app_config=None, build_profile=None, stats_depth=None,
-                  ignore=None, spe_build=False):
+                  ignore=None, resource_filter=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -484,6 +539,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     build_profile - a dict of flags that will be passed to the compiler
     stats_depth - depth level for memap to display file/dirs
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
     """
     # Convert src_path to a list if needed
     if not isinstance(src_paths, list):
@@ -526,39 +582,20 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, inc_dirs=inc_dirs)
-        if spe_build:
-            resources.filter_spe()
+        resources.filter(resource_filter)
+
         # Change linker script if specified
         if linker_script is not None:
             resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
         if not resources.get_file_refs(FileType.LD_SCRIPT):
+            notify.info("No Linker Script found")
             raise NotSupportedException("No Linker Script found")
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, sorted(resources.get_file_paths(FileType.INC_DIR)))
         resources.add_files_to_type(FileType.OBJECT, objects)
 
-        # Link Program
-        if toolchain.config.has_regions:
-            binary, _ = toolchain.link_program(resources, build_path, name + "_application")
-            region_list = list(toolchain.config.regions)
-            region_list = [r._replace(filename=binary) if r.active else r
-                           for r in region_list]
-            res = "%s.%s" % (join(build_path, name),
-                             getattr(toolchain.target, "OUTPUT_EXT", "bin"))
-            merge_region_list(region_list, res, notify)
-            update_regions = [
-                r for r in region_list if r.name in UPDATE_WHITELIST
-            ]
-            if update_regions:
-                update_res = join(build_path, generate_update_filename(name, toolchain.target))
-                merge_region_list(update_regions, update_res, notify)
-                res = (res, update_res)
-            else:
-                res = (res, None)
-        else:
-            res, _ = toolchain.link_program(resources, build_path, name)
-            res = (res, None)
+        res = toolchain.link_program(resources, build_path, name)
 
         into_dir, extra_artifacts = toolchain.config.deliver_into()
         if into_dir:
@@ -576,7 +613,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
                         copy_when_different(join(build_path, art), into_dir)
 
         memap_instance = getattr(toolchain, 'memap_instance', None)
-        memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
             memap_table = memap_instance.generate_output('table', stats_depth)
@@ -629,7 +665,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None, ignore=None):
+                  build_profile=None, ignore=None, resource_filter=None):
     """ Build a library
 
     Positional arguments:
@@ -655,6 +691,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
     """
 
     # Convert src_path to a list if needed
@@ -680,6 +717,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
         build_profile=build_profile, ignore=ignore)
+    toolchain.version_check()
 
     # The first path will give the name to the library
     if name is None:
@@ -714,6 +752,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
     try:
         res = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
+        res.filter(resource_filter)
+        res.filter(PsaManifestResourceFilter())
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib
@@ -854,6 +894,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             src_paths, tmp_path, target, toolchain_name, macros=macros,
             notify=notify, build_profile=build_profile, jobs=jobs, clean=clean,
             ignore=ignore)
+        toolchain.version_check()
 
         notify.info("Building library %s (%s, %s)" %
                     (name.upper(), target.name, toolchain_name))
@@ -942,6 +983,13 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
     Return - True if target + toolchain built correctly, False if not supported
     """
 
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it,
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+
     if report is not None:
         start = time()
         id_name = "MBED"
@@ -955,7 +1003,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
             prep_properties(
                 properties, target.name, toolchain_name, vendor_label)
 
-    if toolchain_name not in target.supported_toolchains:
+    if not target_supports_toolchain(target, toolchain_name):
         supported_toolchains_text = ", ".join(target.supported_toolchains)
         notify.info('The target {} does not support the toolchain {}'.format(
             target.name,
@@ -975,14 +1023,16 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     try:
         # Source and Build Paths
+
         build_toolchain = join(
-            MBED_LIBRARIES, mbed2_obj_path(target.name, toolchain_name))
+            MBED_LIBRARIES, mbed2_obj_path(target.name, selected_toolchain_name)
+        )
         mkdir(build_toolchain)
 
         tmp_path = join(
             MBED_LIBRARIES,
             '.temp',
-            mbed2_obj_path(target.name, toolchain_name)
+            mbed2_obj_path(target.name, selected_toolchain_name)
         )
         mkdir(tmp_path)
 
@@ -990,6 +1040,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         toolchain = prepare_toolchain(
             [""], tmp_path, target, toolchain_name, macros=macros, notify=notify,
             build_profile=build_profile, jobs=jobs, clean=clean, ignore=ignore)
+        toolchain.version_check()
 
         config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
@@ -1100,30 +1151,6 @@ def _lowercase_release_version(release_version):
     except AttributeError:
         return 'all'
 
-def mcu_toolchain_list(release_version='5'):
-    """  Shows list of toolchains
-
-    """
-    release_version = _lowercase_release_version(release_version)
-    version_release_targets = {}
-    version_release_target_names = {}
-
-    for version in RELEASE_VERSIONS:
-        version_release_targets[version] = get_mbed_official_release(version)
-        version_release_target_names[version] = [x[0] for x in
-                                                 version_release_targets[
-                                                     version]]
-
-    if release_version in RELEASE_VERSIONS:
-        release_targets = version_release_targets[release_version]
-    else:
-        release_targets = None
-
-    unique_supported_toolchains = get_unique_supported_toolchains(
-        release_targets)
-    columns = ["mbed OS %s" % x for x in RELEASE_VERSIONS] + unique_supported_toolchains
-    return "\n".join(columns)
-
 
 def mcu_target_list(release_version='5'):
     """  Shows target list
@@ -1182,6 +1209,11 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
+    #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
+    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json
+    #capture that info in a separate column
+    unique_supported_toolchains.append('ARMC5')
+
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
     # All tests status table print
@@ -1224,8 +1256,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
                 (unique_toolchain == "ARMC6" and
                  "ARM" in tgt_obj.supported_toolchains) or
                 (unique_toolchain == "ARM" and
-                 "ARMC6" in tgt_obj.supported_toolchains and
-                 CORE_ARCH[tgt_obj.core] == 8)):
+                 "ARMC6" in tgt_obj.supported_toolchains)):
                 text = "Supported"
                 perm_counter += 1
             else:

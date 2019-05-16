@@ -32,6 +32,8 @@
 #ifndef MBED_OS_LORAPHY_CN470_H_
 #define MBED_OS_LORAPHY_CN470_H_
 
+#if !(DOXYGEN_ONLY)
+
 #include "LoRaPHY.h"
 
 // Definitions
@@ -94,4 +96,5 @@ private:
     uint16_t default_channel_mask[CN470_CHANNEL_MASK_SIZE];
 };
 
+#endif /* DOXYGEN_ONLY*/
 #endif /* MBED_OS_LORAPHY_CN470_H_ */

@@ -197,6 +197,9 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
     int8_t status;
     fhss_timer_t *fhss_timer_ptr = &fhss_functions;
 
+    wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
+    wisun_tasklet_data_ptr->operating_mode_extension = NET_6LOWPAN_WS;
+
     arm_nwk_interface_configure_6lowpan_bootstrap_set(
         wisun_tasklet_data_ptr->network_interface_id,
         wisun_tasklet_data_ptr->operating_mode,
@@ -300,8 +303,6 @@ void wisun_tasklet_init(void)
         memset(wisun_tasklet_data_ptr, 0, sizeof(wisun_tasklet_data_str_t));
         wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_CREATED;
         wisun_tasklet_data_ptr->network_interface_id = INVALID_INTERFACE_ID;
-        wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
-        wisun_tasklet_data_ptr->operating_mode_extension = NET_6LOWPAN_WS;
     }
 }
 

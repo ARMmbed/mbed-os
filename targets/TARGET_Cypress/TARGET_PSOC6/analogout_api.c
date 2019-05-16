@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,11 +68,10 @@ static void ctdac_init(dac_t *obj)
         dac_clock_divider = cy_clk_allocate_divider(CY_SYSCLK_DIV_8_BIT);
         if (dac_clock_divider == CY_INVALID_DIVIDER) {
             error("CTDAC clock divider allocation failed.");
-            return;
         }
         Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT,
                                    dac_clock_divider,
-                                   ((CY_CLK_PERICLK_FREQ_HZ + CTDAC_BASE_CLOCK_HZ / 2) / CTDAC_BASE_CLOCK_HZ) - 1);
+                                   ((cy_PeriClkFreqHz + CTDAC_BASE_CLOCK_HZ / 2) / CTDAC_BASE_CLOCK_HZ) - 1);
         Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, dac_clock_divider);
         Cy_SysClk_PeriphAssignDivider(obj->clock, CY_SYSCLK_DIV_8_BIT, dac_clock_divider);
 
@@ -90,17 +91,29 @@ void analogout_init(dac_t *obj, PinName pin)
 
     dac = pinmap_peripheral(pin, PinMap_DAC);
     if (dac != (uint32_t)NC) {
-        if (cy_reserve_io_pin(pin)) {
+
+        if ((0 != cy_reserve_io_pin(pin)) && !ctdac_initialized) {
             error("ANALOG OUT pin reservation conflict.");
         }
-        obj->base = (CTDAC_Type*)CY_PERIPHERAL_BASE(dac);
+
+        /* Initialize object */
+        obj->base = (CTDAC_Type *)CY_PERIPHERAL_BASE(dac);
         obj->pin = pin;
 
-        // Configure clock.
+        /* Configure CTDAC hardware */
         dac_function = pinmap_function(pin, PinMap_DAC);
         obj->clock = CY_PIN_CLOCK(dac_function);
         pin_function(pin, dac_function);
+
+        if (AOUT != pin) {
+            const PinName directOutput = AOUT;
+
+            /* Connect AOUT to the AMUXA bus to drive output */
+            Cy_GPIO_SetHSIOM(Cy_GPIO_PortToAddr(CY_PORT(directOutput)), CY_PIN(directOutput), HSIOM_SEL_AMUXA);
+        }
+
         ctdac_init(obj);
+
     } else {
         error("ANALOG OUT pinout mismatch.");
     }
@@ -108,7 +121,7 @@ void analogout_init(dac_t *obj, PinName pin)
 
 void analogout_free(dac_t *obj)
 {
-    // Not supported yet.
+    /* MBED AnalogIn driver does not call this function in destructor */
 }
 
 void analogout_write(dac_t *obj, float value)
@@ -144,6 +157,11 @@ uint16_t analogout_read_u16(dac_t *obj)
     value <<= (16 - CTDAC_NUM_BITS); // Convert to 16-bit range.
 
     return value;
+}
+
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
 }
 
 #endif // DEVICE_ANALOGIN

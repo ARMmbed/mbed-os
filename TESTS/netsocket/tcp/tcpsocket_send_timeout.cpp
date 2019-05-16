@@ -26,6 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_SEND_TIMEOUT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     if (tcpsocket_connect_to_discard_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
@@ -44,6 +45,7 @@ void TCPSOCKET_SEND_TIMEOUT()
                 (timer.read_ms() <= 800)) {
             continue;
         }
+        printf("send: err %d, time %d", err, timer.read_ms());
         TEST_FAIL();
         break;
     }

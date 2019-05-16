@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_cm1.h
  * @brief    CMSIS Cortex-M1 Core Peripheral Access Layer Header File
- * @version  V1.0.0
- * @date     23. July 2018
+ * @version  V1.0.1
+ * @date     12. November 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
@@ -81,7 +81,7 @@
   #endif
 
 #elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-  #if defined __ARM_PCS_VFP
+  #if defined __ARM_FP
     #error "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
   #endif
 

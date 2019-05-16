@@ -26,10 +26,8 @@
 
 #include "os_tick.h"
 #include "irq_ctrl.h"
-
-#include <MBRZA1H.h>
-
-#include <cmsis.h>
+#include "cmsis.h"
+#include "mbed_drv_cfg.h"
 
 
 // Define OS TImer interrupt priority
@@ -62,15 +60,15 @@ int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler)
   // Get CPG.FRQCR[IFC] bits
   clock = (CPG.FRQCR >> 8) & 0x03;
 
-  // Determine Divider 2 output clock by using SystemCoreClock
+  // Determine Divider 2 output clock by using RENESAS_RZ_A1_P0_CLK
   if (clock == 0x03U) {
-    clock = (SystemCoreClock * 3U);
+    clock = (RENESAS_RZ_A1_P0_CLK * 3U);
   }
   else if (clock == 0x01U) {
-    clock = (SystemCoreClock * 3U)/2U;
+    clock = (RENESAS_RZ_A1_P0_CLK * 3U)/2U;
   }
   else {
-    clock = SystemCoreClock;
+    clock = RENESAS_RZ_A1_P0_CLK;
   }
 
   // Determine tick frequency

@@ -114,7 +114,7 @@ nsapi_error_t map_mesh_error(mesh_error_t err)
         case MESH_ERROR_MEMORY:
             return NSAPI_ERROR_NO_MEMORY;
         case MESH_ERROR_PARAM:
-            return NSAPI_ERROR_UNSUPPORTED;
+            return NSAPI_ERROR_PARAMETER;
         case MESH_ERROR_STATE:
             return NSAPI_ERROR_DEVICE_ERROR;
         default:
@@ -646,14 +646,35 @@ nsapi_size_or_error_t Nanostack::do_sendto(void *handle, const ns_address_t *add
      * \return -5 Socket not connected
      * \return -6 Packet too short (ICMP raw socket error).
      * */
-    if (retcode == NS_EWOULDBLOCK) {
-        ret = NSAPI_ERROR_WOULD_BLOCK;
-    } else if (retcode < 0) {
-        tr_error("socket_sendmsg: error=%d", retcode);
-        ret = NSAPI_ERROR_DEVICE_ERROR;
-    } else {
+    if (retcode >= 0) {
         ret = retcode;
-    }
+    } else switch (retcode) {
+            case -1:
+                ret = NSAPI_ERROR_PARAMETER;
+                break;
+            case -2:
+                ret = NSAPI_ERROR_NO_MEMORY;
+                break;
+            case -3:
+                ret = NSAPI_ERROR_NO_ADDRESS;
+                break;
+            case -4:
+                ret = NSAPI_ERROR_BUSY;
+                break;
+            case -5:
+                ret = NSAPI_ERROR_NO_CONNECTION;
+                break;
+            case -6:
+                ret = NSAPI_ERROR_PARAMETER;
+                break;
+            case NS_EWOULDBLOCK:
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            default:
+                tr_error("socket_sendmsg: error=%d", retcode);
+                ret = NSAPI_ERROR_DEVICE_ERROR;
+                break;
+        }
 
 out:
     tr_debug("socket_sendto(socket=%p) sock_id=%d, ret=%i", socket, socket->socket_id, ret);
@@ -664,7 +685,7 @@ out:
 nsapi_size_or_error_t Nanostack::socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     if (address.get_ip_version() != NSAPI_IPv6) {
-        return NSAPI_ERROR_UNSUPPORTED;
+        return NSAPI_ERROR_PARAMETER;
     }
 
     ns_address_t ns_address;
@@ -736,7 +757,7 @@ nsapi_error_t Nanostack::socket_bind(void *handle, const SocketAddress &address)
             addr_field = &ns_in6addr_any;
             break;
         default:
-            return NSAPI_ERROR_UNSUPPORTED;
+            return NSAPI_ERROR_PARAMETER;
     }
 
     NanostackLockGuard lock;
@@ -874,7 +895,7 @@ nsapi_error_t Nanostack::socket_connect(void *handle, const SocketAddress &addr)
     NanostackLockGuard lock;
 
     if (addr.get_ip_version() != NSAPI_IPv6) {
-        ret = NSAPI_ERROR_UNSUPPORTED;
+        ret = NSAPI_ERROR_PARAMETER;
         goto out;
     }
 
@@ -1006,3 +1027,4 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
     return Nanostack::get_instance();
 }
 #endif
+

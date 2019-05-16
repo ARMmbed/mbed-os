@@ -16,7 +16,7 @@
 #include "pbuf.h"
 #include "LWIPMemoryManager.h"
 
-emac_mem_buf_t *LWIPMemoryManager::alloc_heap(uint32_t size, uint32_t align)
+net_stack_mem_buf_t *LWIPMemoryManager::alloc_heap(uint32_t size, uint32_t align)
 {
     struct pbuf *pbuf = pbuf_alloc(PBUF_RAW, size + align, PBUF_RAM);
     if (pbuf == NULL) {
@@ -25,10 +25,10 @@ emac_mem_buf_t *LWIPMemoryManager::alloc_heap(uint32_t size, uint32_t align)
 
     align_memory(pbuf, align);
 
-    return static_cast<emac_mem_buf_t *>(pbuf);
+    return static_cast<net_stack_mem_buf_t *>(pbuf);
 }
 
-emac_mem_buf_t *LWIPMemoryManager::alloc_pool(uint32_t size, uint32_t align)
+net_stack_mem_buf_t *LWIPMemoryManager::alloc_pool(uint32_t size, uint32_t align)
 {
     uint32_t total_align = count_total_align(size, align);
 
@@ -39,7 +39,7 @@ emac_mem_buf_t *LWIPMemoryManager::alloc_pool(uint32_t size, uint32_t align)
 
     align_memory(pbuf, align);
 
-    return static_cast<emac_mem_buf_t *>(pbuf);
+    return static_cast<net_stack_mem_buf_t *>(pbuf);
 }
 
 uint32_t LWIPMemoryManager::get_pool_alloc_unit(uint32_t align) const
@@ -48,56 +48,56 @@ uint32_t LWIPMemoryManager::get_pool_alloc_unit(uint32_t align) const
     return alloc_unit;
 }
 
-void LWIPMemoryManager::free(emac_mem_buf_t *buf)
+void LWIPMemoryManager::free(net_stack_mem_buf_t *buf)
 {
     pbuf_free(static_cast<struct pbuf *>(buf));
 }
 
-uint32_t LWIPMemoryManager::get_total_len(const emac_mem_buf_t *buf) const
+uint32_t LWIPMemoryManager::get_total_len(const net_stack_mem_buf_t *buf) const
 {
     return (static_cast<const struct pbuf *>(buf))->tot_len;
 }
 
-void LWIPMemoryManager::copy(emac_mem_buf_t *to_buf, const emac_mem_buf_t *from_buf)
+void LWIPMemoryManager::copy(net_stack_mem_buf_t *to_buf, const net_stack_mem_buf_t *from_buf)
 {
     pbuf_copy(static_cast<struct pbuf *>(to_buf), static_cast<const struct pbuf *>(from_buf));
 }
 
-void LWIPMemoryManager::copy_to_buf(emac_mem_buf_t *to_buf, const void *ptr, uint32_t len)
+void LWIPMemoryManager::copy_to_buf(net_stack_mem_buf_t *to_buf, const void *ptr, uint32_t len)
 {
     pbuf_take(static_cast<struct pbuf *>(to_buf), ptr, len);
 }
 
-uint32_t LWIPMemoryManager::copy_from_buf(void *ptr, uint32_t len, const emac_mem_buf_t *from_buf) const
+uint32_t LWIPMemoryManager::copy_from_buf(void *ptr, uint32_t len, const net_stack_mem_buf_t *from_buf) const
 {
     return pbuf_copy_partial(static_cast<const struct pbuf *>(from_buf), ptr, len, 0);
 }
 
-void LWIPMemoryManager::cat(emac_mem_buf_t *to_buf, emac_mem_buf_t *cat_buf)
+void LWIPMemoryManager::cat(net_stack_mem_buf_t *to_buf, net_stack_mem_buf_t *cat_buf)
 {
     pbuf_cat(static_cast<struct pbuf *>(to_buf), static_cast<struct pbuf *>(cat_buf));
 }
 
-emac_mem_buf_t *LWIPMemoryManager::get_next(const emac_mem_buf_t *buf) const
+net_stack_mem_buf_t *LWIPMemoryManager::get_next(const net_stack_mem_buf_t *buf) const
 {
     if (!buf) {
         return NULL;
     }
     struct pbuf *next = (static_cast<const struct pbuf *>(buf))->next;
-    return static_cast<emac_mem_buf_t *>(next);
+    return static_cast<net_stack_mem_buf_t *>(next);
 }
 
-void *LWIPMemoryManager::get_ptr(const emac_mem_buf_t *buf) const
+void *LWIPMemoryManager::get_ptr(const net_stack_mem_buf_t *buf) const
 {
     return (static_cast<const struct pbuf *>(buf))->payload;
 }
 
-uint32_t LWIPMemoryManager::get_len(const emac_mem_buf_t *buf) const
+uint32_t LWIPMemoryManager::get_len(const net_stack_mem_buf_t *buf) const
 {
     return (static_cast<const struct pbuf *>(buf))->len;
 }
 
-void LWIPMemoryManager::set_len(emac_mem_buf_t *buf, uint32_t len)
+void LWIPMemoryManager::set_len(net_stack_mem_buf_t *buf, uint32_t len)
 {
     struct pbuf *pbuf = static_cast<struct pbuf *>(buf);
     pbuf->len = len;

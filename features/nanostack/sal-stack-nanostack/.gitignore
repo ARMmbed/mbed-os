@@ -1,5 +1,4 @@
 .settings/
-.yotta.json
 *.dep
 *.htm
 *.crf
@@ -66,8 +65,7 @@ cscope.files
 !debugger.ini
 *Log.txt
 *.mpw
-yotta_modules
-yotta_targets
 build
 html
 site
+

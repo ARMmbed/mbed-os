@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@
 #include "Common_Protocols/ip.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/mld.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ip_fsc.h"
@@ -340,6 +340,26 @@ static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
 }
 
 #ifdef HAVE_IPV6_ND
+
+static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
+{
+    (void) src_addr;
+    dptr += 2;
+    uint16_t life_time;
+    uint8_t nd_status  = *dptr;
+    dptr += 4;
+    life_time = common_read_16_bit(dptr);
+    dptr += 2;
+    if (memcmp(dptr, cur_interface->mac, 8) != 0) {
+        return;
+    }
+
+    (void)life_time;
+    if (nd_status != ARO_SUCCESS) {
+        ws_common_aro_failure(cur_interface, src_addr);
+    }
+}
+
 static void icmpv6_na_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *dptr, const uint8_t *dst_addr)
 {
     (void)dst_addr;
@@ -985,10 +1005,13 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
         goto drop;
     }
 
-    if (cur->ipv6_neighbour_cache.recv_na_aro) {
-        const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 2);
-        if (aro) {
+    const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 2);
+    if (aro) {
+        if (cur->ipv6_neighbour_cache.recv_na_aro) {
             icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
+        }
+        if (ws_info(cur)) {
+            icmpv6_na_wisun_aro_handler(cur, aro, buf->src_sa.address);
         }
     }
 
@@ -1092,7 +1115,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 buf = rpl_control_source_route_error_handler(buf, cur);
             }
 #endif
-        /* no break */
+        /* fall through */
 
         default:
             if (buf) {

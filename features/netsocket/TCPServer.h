@@ -1,5 +1,4 @@
-
-/* TCPServer
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,10 @@
  * limitations under the License.
  */
 
+/** @file TCPServer.h Deprecated TCPServer class */
+/** \addtogroup netsocket
+ * @{*/
+
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
@@ -26,7 +29,6 @@
 
 
 /** TCP socket server
- *  @addtogroup netsocket
  */
 class TCPServer : public TCPSocket {
 public:
@@ -82,3 +84,5 @@ public:
 };
 
 #endif
+
+/** @} */

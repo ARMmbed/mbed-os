@@ -44,7 +44,7 @@
 #include <string.h>
 
 err_t
-snmp_pbuf_stream_init(struct snmp_pbuf_stream* pbuf_stream, struct pbuf* p, u16_t offset, u16_t length)
+snmp_pbuf_stream_init(struct snmp_pbuf_stream *pbuf_stream, struct pbuf *p, u16_t offset, u16_t length)
 {
   pbuf_stream->offset = offset;
   pbuf_stream->length = length;
@@ -54,7 +54,7 @@ snmp_pbuf_stream_init(struct snmp_pbuf_stream* pbuf_stream, struct pbuf* p, u16_
 }
 
 err_t
-snmp_pbuf_stream_read(struct snmp_pbuf_stream* pbuf_stream, u8_t* data)
+snmp_pbuf_stream_read(struct snmp_pbuf_stream *pbuf_stream, u8_t *data)
 {
   if (pbuf_stream->length == 0) {
     return ERR_BUF;
@@ -71,13 +71,13 @@ snmp_pbuf_stream_read(struct snmp_pbuf_stream* pbuf_stream, u8_t* data)
 }
 
 err_t
-snmp_pbuf_stream_write(struct snmp_pbuf_stream* pbuf_stream, u8_t data)
+snmp_pbuf_stream_write(struct snmp_pbuf_stream *pbuf_stream, u8_t data)
 {
   return snmp_pbuf_stream_writebuf(pbuf_stream, &data, 1);
 }
 
 err_t
-snmp_pbuf_stream_writebuf(struct snmp_pbuf_stream* pbuf_stream, const void* buf, u16_t buf_len)
+snmp_pbuf_stream_writebuf(struct snmp_pbuf_stream *pbuf_stream, const void *buf, u16_t buf_len)
 {
   if (pbuf_stream->length < buf_len) {
     return ERR_BUF;
@@ -94,7 +94,7 @@ snmp_pbuf_stream_writebuf(struct snmp_pbuf_stream* pbuf_stream, const void* buf,
 }
 
 err_t
-snmp_pbuf_stream_writeto(struct snmp_pbuf_stream* pbuf_stream, struct snmp_pbuf_stream* target_pbuf_stream, u16_t len)
+snmp_pbuf_stream_writeto(struct snmp_pbuf_stream *pbuf_stream, struct snmp_pbuf_stream *target_pbuf_stream, u16_t len)
 {
 
   if ((pbuf_stream == NULL) || (target_pbuf_stream == NULL)) {
@@ -112,14 +112,14 @@ snmp_pbuf_stream_writeto(struct snmp_pbuf_stream* pbuf_stream, struct snmp_pbuf_
     u16_t chunk_len;
     err_t err;
     u16_t target_offset;
-    struct pbuf* pbuf = pbuf_skip(pbuf_stream->pbuf, pbuf_stream->offset, &target_offset);
+    struct pbuf *pbuf = pbuf_skip(pbuf_stream->pbuf, pbuf_stream->offset, &target_offset);
 
     if ((pbuf == NULL) || (pbuf->len == 0)) {
       return ERR_BUF;
     }
 
     chunk_len = LWIP_MIN(len, pbuf->len);
-    err = snmp_pbuf_stream_writebuf(target_pbuf_stream, &((u8_t*)pbuf->payload)[target_offset], chunk_len);
+    err = snmp_pbuf_stream_writebuf(target_pbuf_stream, &((u8_t *)pbuf->payload)[target_offset], chunk_len);
     if (err != ERR_OK) {
       return err;
     }
@@ -133,7 +133,7 @@ snmp_pbuf_stream_writeto(struct snmp_pbuf_stream* pbuf_stream, struct snmp_pbuf_
 }
 
 err_t
-snmp_pbuf_stream_seek(struct snmp_pbuf_stream* pbuf_stream, s32_t offset)
+snmp_pbuf_stream_seek(struct snmp_pbuf_stream *pbuf_stream, s32_t offset)
 {
   if ((offset < 0) || (offset > pbuf_stream->length)) {
     /* we cannot seek backwards or forward behind stream end */
@@ -147,7 +147,7 @@ snmp_pbuf_stream_seek(struct snmp_pbuf_stream* pbuf_stream, s32_t offset)
 }
 
 err_t
-snmp_pbuf_stream_seek_abs(struct snmp_pbuf_stream* pbuf_stream, u32_t offset)
+snmp_pbuf_stream_seek_abs(struct snmp_pbuf_stream *pbuf_stream, u32_t offset)
 {
   s32_t rel_offset = offset - pbuf_stream->offset;
   return snmp_pbuf_stream_seek(pbuf_stream, rel_offset);

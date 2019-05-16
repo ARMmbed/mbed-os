@@ -61,8 +61,6 @@
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
-        EXTERN  SystemInitPre
-        EXTERN  HAL_InitPre
         EXTERN  SystemInit
         PUBLIC  __vector_table
 
@@ -188,10 +186,6 @@ __vector_table
         SECTION .text:CODE:REORDER:NOROOT(2)
 Reset_Handler
 
-        LDR     R0, =SystemInitPre
-        BLX     R0
-        LDR     R0, =HAL_InitPre
-        BLX     R0
         LDR     R0, =SystemInit
         BLX     R0
         LDR     R0, =__iar_program_start
@@ -648,13 +642,13 @@ FPU_IRQHandler
         B FPU_IRQHandler
 
         PUBWEAK UART7_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1) 
+        SECTION .text:CODE:REORDER:NOROOT(1)
 UART7_IRQHandler 
         B UART7_IRQHandler  
 
         PUBWEAK UART8_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-UART8_IRQHandler             
+UART8_IRQHandler
         B UART8_IRQHandler
 
         PUBWEAK SPI4_IRQHandler
@@ -664,7 +658,7 @@ SPI4_IRQHandler
 
         PUBWEAK SPI5_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SPI5_IRQHandler   
+SPI5_IRQHandler
         B SPI5_IRQHandler
 
         PUBWEAK SPI6_IRQHandler

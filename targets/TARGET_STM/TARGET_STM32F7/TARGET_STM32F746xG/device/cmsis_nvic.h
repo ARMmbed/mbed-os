@@ -34,7 +34,7 @@
 // CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
 // MCU Peripherals: 98 vectors = 392 bytes from 0x40 to 0x1C7
 // Total: 114 vectors = 456 bytes (0x1C8) to be reserved in RAM
-#define NVIC_NUM_VECTORS      114
+#define NVIC_NUM_VECTORS        114
 #define NVIC_RAM_VECTOR_ADDRESS 0x20000000    // Vectors positioned at start of RAM
 
 #endif

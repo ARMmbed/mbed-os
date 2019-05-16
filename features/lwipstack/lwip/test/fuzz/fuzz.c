@@ -32,13 +32,30 @@
 
 #include "lwip/init.h"
 #include "lwip/netif.h"
+#include "lwip/dns.h"
 #include "netif/etharp.h"
 #if LWIP_IPV6
 #include "lwip/ethip6.h"
 #include "lwip/nd6.h"
 #endif
+
+#include "lwip/apps/httpd.h"
+#include "lwip/apps/snmp.h"
+#include "lwip/apps/lwiperf.h"
+#include "lwip/apps/mdns.h"
+
 #include <string.h>
 #include <stdio.h>
+
+/* This define enables multi packet processing.
+ * For this, the input is interpreted as 2 byte length + data + 2 byte length + data...
+ * #define LWIP_FUZZ_MULTI_PACKET
+*/
+#ifdef LWIP_FUZZ_MULTI_PACKET
+u8_t pktbuf[20000];
+#else
+u8_t pktbuf[2000];
+#endif
 
 /* no-op send function */
 static err_t lwip_tx_func(struct netif *netif, struct pbuf *p)
@@ -56,7 +73,7 @@ static err_t testif_init(struct netif *netif)
   netif->linkoutput = lwip_tx_func;
   netif->mtu = 1500;
   netif->hwaddr_len = 6;
-  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_IGMP;
 
   netif->hwaddr[0] = 0x00;
   netif->hwaddr[1] = 0x23;
@@ -93,13 +110,40 @@ static void input_pkt(struct netif *netif, const u8_t *data, size_t len)
   }
 }
 
+static void input_pkts(struct netif *netif, const u8_t *data, size_t len)
+{
+#ifdef LWIP_FUZZ_MULTI_PACKET
+  const u16_t max_packet_size = 1514;
+  const u8_t *ptr = data;
+  size_t rem_len = len;
+
+  while (rem_len > sizeof(u16_t)) {
+    u16_t frame_len;
+    memcpy(&frame_len, ptr, sizeof(u16_t));
+    ptr += sizeof(u16_t);
+    rem_len -= sizeof(u16_t);
+    frame_len = htons(frame_len) & 0x7FF;
+    frame_len = LWIP_MIN(frame_len, max_packet_size);
+    if (frame_len > rem_len) {
+      frame_len = (u16_t)rem_len;
+    }
+    if (frame_len != 0) {
+      input_pkt(netif, ptr, frame_len);
+    }
+    ptr += frame_len;
+    rem_len -= frame_len;
+  }
+#else /* LWIP_FUZZ_MULTI_PACKET */
+  input_pkt(netif, data, len);
+#endif /* LWIP_FUZZ_MULTI_PACKET */
+}
+
 int main(int argc, char** argv)
 {
   struct netif net_test;
   ip4_addr_t addr;
   ip4_addr_t netmask;
   ip4_addr_t gw;
-  u8_t pktbuf[2000];
   size_t len;
 
   lwip_init();
@@ -110,10 +154,19 @@ int main(int argc, char** argv)
 
   netif_add(&net_test, &addr, &netmask, &gw, &net_test, testif_init, ethernet_input);
   netif_set_up(&net_test);
+  netif_set_link_up(&net_test);
 
 #if LWIP_IPV6
   nd6_tmr(); /* tick nd to join multicast groups */
 #endif
+  dns_setserver(0, &net_test.gw);
+
+  /* initialize apps */
+  httpd_init();
+  lwiperf_start_tcp_server_default(NULL, NULL);
+  mdns_resp_init();
+  mdns_resp_add_netif(&net_test, "hostname", 255);
+  snmp_init();
 
   if(argc > 1) {
     FILE* f;
@@ -130,7 +183,7 @@ int main(int argc, char** argv)
   } else {
     len = fread(pktbuf, 1, sizeof(pktbuf), stdin);
   }
-  input_pkt(&net_test, pktbuf, len);
+  input_pkts(&net_test, pktbuf, len);
 
   return 0;
 }

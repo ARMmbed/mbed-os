@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-#ifdef DEVICE_I2C
+#if DEVICE_I2C
 
 #if defined I2C1_BASE
 #define I2C1_EV_IRQn I2C1_IRQn

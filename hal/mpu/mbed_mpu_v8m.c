@@ -15,7 +15,6 @@
  */
 #include "hal/mpu_api.h"
 #include "platform/mbed_assert.h"
-#include "platform/mbed_error.h"
 #include "cmsis.h"
 
 #if ((__ARM_ARCH_8M_BASE__ == 1U) || (__ARM_ARCH_8M_MAIN__ == 1U)) && \
@@ -26,35 +25,44 @@
 #error "Device has v8m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"
 #endif
 
-#if !defined(MBED_MPU_ROM_END)
-#define MBED_MPU_ROM_END             (0x20000000 - 1)
+#ifdef MBED_CONF_TARGET_MPU_ROM_END
+#define MBED_MPU_ROM_END             MBED_CONF_TARGET_MPU_ROM_END
+#else
+#define MBED_MPU_ROM_END             (0x10000000 - 1)
 #endif
+#define MBED_MPU_RAM_START           (MBED_MPU_ROM_END + 1)
 
-MBED_STATIC_ASSERT(MBED_MPU_ROM_END == 0x1fffffff, "Changing MBED_MPU_ROM_END for ARMv8-M is not supported.");
+MBED_STATIC_ASSERT(MBED_MPU_ROM_END <= 0x20000000 - 1,
+                   "Unsupported value for MBED_MPU_ROM_END");
 
 void mbed_mpu_init()
 {
     // Flush memory writes before configuring the MPU.
-    __DSB();
+    __DMB();
 
     const uint32_t regions = (MPU->TYPE & MPU_TYPE_DREGION_Msk) >> MPU_TYPE_DREGION_Pos;
-    if (regions < 4) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_EINVAL), "Device is not capable of supporting an MPU - remove DEVICE_MPU for device_has.");
-    }
+
+    // Our MPU setup requires 4 or 5 regions - if this assert is hit, remove
+    // a region by setting MPU_ROM_END to 0x1fffffff, or remove MPU from device_has
+#if MBED_MPU_RAM_START == 0x20000000
+    MBED_ASSERT(regions >= 4);
+#else
+    MBED_ASSERT(regions >= 5);
+#endif
 
     // Disable the MCU
     MPU->CTRL = 0;
 
     // Reset all mapping
     for (uint32_t i = 0; i < regions; i++) {
-        ARM_MPU_ClrRegionEx(MPU, i);
+        ARM_MPU_ClrRegion(i);
     }
 
     /*
      * ARMv8-M memory map:
      *
      * Start        End            Name            Executable by default    Default cache       Mbed MPU protection
-     * 0x00000000 - 0x1FFFFFFF     Code            Yes                      WT, WA              Write disabled
+     * 0x00000000 - 0x1FFFFFFF     Code            Yes                      WT, WA              Write disabled for first portion and execute disabled for the rest
      * 0x20000000 - 0x3FFFFFFF     SRAM            Yes                      WB, WA, RA          Execute disabled
      * 0x40000000 - 0x5FFFFFFF     Peripheral      No
      * 0x60000000 - 0x7FFFFFFF     RAM             Yes                      WB, WA, RA          Execute disabled
@@ -64,61 +72,85 @@ void mbed_mpu_init()
      * 0xE0000000 - 0xFFFFFFFF     System          No
      */
 
-    uint32_t region;
-    uint8_t outer;
-    uint8_t inner;
+    const uint8_t WTRA = ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0);      // Non-transient, Write-Through, Read-allocate, Not Write-allocate
+    const uint8_t WBWARA = ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1);    // Non-transient, Write-Back, Read-allocate, Write-allocate
+    enum {
+        AttrIndex_WTRA,
+        AttrIndex_WBWARA,
+    };
 
-    region = 0;
-    MPU->RNR = region;
-    outer = 0xA;    // Write-Through, Non-transient, Read-allocate
-    inner = 0xA;    // Write-Through, Non-transient, Read-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x00000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x00000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (3 << MPU_RBAR_AP_Pos) |             // RO allowed by all privilege levels
-                (0 << MPU_RBAR_XN_Pos);              // Execute Never disabled
-    MPU->RLAR = (0x1FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x1FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetMemAttr(AttrIndex_WTRA, ARM_MPU_ATTR(WTRA, WTRA));
+    ARM_MPU_SetMemAttr(AttrIndex_WBWARA, ARM_MPU_ATTR(WBWARA, WBWARA));
 
-    region = 1;
-    MPU->RNR = region;
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x20000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x20000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x3FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x3FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetRegion(
+        0,                          // Region
+        ARM_MPU_RBAR(
+            0x00000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            1,                      // Read-Only
+            1,                      // Non-Privileged
+            0),                     // Execute Never disabled
+        ARM_MPU_RLAR(
+            MBED_MPU_ROM_END,       // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
 
-    region = 2;
-    MPU->RNR = region;
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x60000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x60000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x7FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x7FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+#if MBED_MPU_RAM_START != 0x20000000
+    ARM_MPU_SetRegion(
+        4,                          // Region
+        ARM_MPU_RBAR(
+            MBED_MPU_RAM_START,     // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x1FFFFFFF,             // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
+#define LAST_RAM_REGION 4
+#else
+#define LAST_RAM_REGION 3
+#endif
 
-    region = 3;
-    MPU->RNR = region;
-    outer = 0xA;    // Write-Through, Non-transient, Read-allocate
-    inner = 0xA;    // Write-Through, Non-transient, Read-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x80000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x80000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x9FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x9FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetRegion(
+        1,                          // Region
+        ARM_MPU_RBAR(
+            0x20000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x3FFFFFFF,             // Limit
+            AttrIndex_WBWARA)       // Attribute index - Write-Back, Write-allocate
+    );
+
+    ARM_MPU_SetRegion(
+        2,                          // Region
+        ARM_MPU_RBAR(
+            0x60000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x7FFFFFFF,             // Limit
+            AttrIndex_WBWARA)       // Attribute index - Write-Back, Write-allocate
+    );
+
+    ARM_MPU_SetRegion(
+        3,                          // Region
+        ARM_MPU_RBAR(
+            0x80000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x9FFFFFFF,             // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
 
     // Enable the MPU
     MPU->CTRL =
@@ -127,53 +159,53 @@ void mbed_mpu_init()
         (1 << MPU_CTRL_ENABLE_Pos);                 // Enable MPU
 
     // Ensure changes take effect
-    __ISB();
     __DSB();
+    __ISB();
 }
 
 void mbed_mpu_free()
 {
     // Flush memory writes before configuring the MPU.
-    __DSB();
+    __DMB();
 
     // Disable the MCU
     MPU->CTRL = 0;
 
     // Ensure changes take effect
-    __ISB();
     __DSB();
+    __ISB();
+}
+
+static void enable_region(bool enable, uint32_t region)
+{
+    MPU->RNR = region;
+    MPU->RLAR = (MPU->RLAR & ~MPU_RLAR_EN_Msk) | (enable << MPU_RLAR_EN_Pos);
 }
 
 void mbed_mpu_enable_rom_wn(bool enable)
 {
     // Flush memory writes before configuring the MPU.
-    __DSB();
+    __DMB();
 
-    MPU->RNR = 0;
-    MPU->RLAR = (MPU->RLAR & ~MPU_RLAR_EN_Msk) | (enable ? MPU_RLAR_EN_Msk : 0);
+    enable_region(enable, 0);
 
     // Ensure changes take effect
-    __ISB();
     __DSB();
+    __ISB();
 }
 
 void mbed_mpu_enable_ram_xn(bool enable)
 {
     // Flush memory writes before configuring the MPU.
-    __DSB();
+    __DMB();
 
-    MPU->RNR = 1;
-    MPU->RLAR = (MPU->RLAR & ~MPU_RLAR_EN_Msk) | (enable ? MPU_RLAR_EN_Msk : 0);
-
-    MPU->RNR = 2;
-    MPU->RLAR = (MPU->RLAR & ~MPU_RLAR_EN_Msk) | (enable ? MPU_RLAR_EN_Msk : 0);
-
-    MPU->RNR = 3;
-    MPU->RLAR = (MPU->RLAR & ~MPU_RLAR_EN_Msk) | (enable ? MPU_RLAR_EN_Msk : 0);
+    for (uint32_t region = 1; region <= LAST_RAM_REGION; region++) {
+        enable_region(enable, region);
+    }
 
     // Ensure changes take effect
-    __ISB();
     __DSB();
+    __ISB();
 }
 
 #endif

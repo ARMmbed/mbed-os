@@ -30,6 +30,7 @@
 **/
 
 #include "stm32f4xx.h"
+#include "nvic_addr.h"
 #include "mbed_error.h"
 
 
@@ -97,7 +98,7 @@ void SystemInit(void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
 
 }

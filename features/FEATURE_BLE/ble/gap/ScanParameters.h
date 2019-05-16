@@ -133,9 +133,12 @@ public:
         phy_configuration_t conf(scan_interval, scan_window, active_scanning);
         if (phy == phy_t::LE_1M) {
             phy_1m_configuration = conf;
-        } else if (phy == phy_t::LE_CODED) {
+        }
+#if BLE_FEATURE_PHY_MANAGEMENT
+        else if (phy == phy_t::LE_CODED) {
             phy_coded_configuration = conf;
         }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     }
 
     /**
@@ -173,7 +176,11 @@ public:
      */
     scanning_filter_policy_t getFilter() const
     {
+#if BLE_FEATURE_WHITELIST
         return scanning_filter_policy;
+#else
+        return scanning_filter_policy_t::NO_FILTER;
+#endif // BLE_FEATURE_WHITELIST
     }
 
     /**
@@ -184,8 +191,10 @@ public:
      */
     ScanParameters &setPhys(bool enable_1m, bool enable_coded)
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         phys.set_1m(enable_1m);
         phys.set_coded(enable_coded);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
 
@@ -238,10 +247,12 @@ public:
         bool active_scanning
     )
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         phys.set_coded(true);
         phy_coded_configuration = phy_configuration_t(
             interval, window, active_scanning
         );
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
 

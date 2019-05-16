@@ -40,6 +40,7 @@ enum ops {
     SPIF_WRDI = 0x04, // Write Disable
     SPIF_RDSR = 0x05, // Read Status Register
     SPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
+    SPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register
 };
 
 // Status register from RDSR
@@ -47,7 +48,6 @@ enum ops {
 // [-   6   -|  1  |  1  ]
 #define SPIF_WEL 0x2
 #define SPIF_WIP 0x1
-
 
 SPIFReducedBlockDevice::SPIFReducedBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName cs, int freq)
@@ -67,9 +67,9 @@ int SPIFReducedBlockDevice::init()
     switch (id[0]) {
         case 0xbf:
             // SST devices come preset with block protection
-            // enabled for some regions, issue gbpu instruction to clear
+            // enabled for some regions, issue global protection unlock to clear
             _wren();
-            _cmdwrite(0x98, 0, 0, 0x0, NULL);
+            _cmdwrite(SPIF_ULBPR, 0, 0, 0x0, NULL);
             break;
     }
 
@@ -344,3 +344,9 @@ bd_size_t SPIFReducedBlockDevice::size() const
 {
     return _size;
 }
+
+const char *SPIFReducedBlockDevice::get_type() const
+{
+    return "SPIFR";
+}
+

@@ -414,7 +414,7 @@ public:
 
     /** Wait for one or more Thread Flags to become signaled for the current RUNNING thread.
       @param   signals   wait until all specified signal flags are set or 0 for any single signal flag.
-      @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
+      @param   millisec  timeout value. (default: osWaitForever).
       @return  event flag information or error code. @note if @a millisec is set to 0 and flag is no set the event carries osOK value.
 
       @note You cannot call this function from ISR context.

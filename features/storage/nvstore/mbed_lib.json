@@ -49,6 +49,24 @@
         },
         "FUTURE_SEQUANA_M0_PSA": {
             "enabled" : false
+        },
+        "CY8CKIT_062_WIFI_BT": {
+            "area_1_address": "0x100F8000",
+            "area_1_size": 16384,
+            "area_2_address": "0x100FC000",
+            "area_2_size": 16384
+        },
+	"CY8CKIT_062_WIFI_BT_M0": {
+            "area_1_address": "0x10078000",
+            "area_1_size": 16384,
+            "area_2_address": "0x1007C000",
+            "area_2_size": 16384
+        },
+        "CY8CKIT_062_WIFI_BT_PSA": {
+            "enabled" : false
+        },
+        "CY8CKIT_062_WIFI_BT_M0_PSA": {
+            "enabled" : false
         }
     }
 }

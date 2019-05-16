@@ -93,3 +93,9 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
     return result;
 }
+
+//******************************************************************************
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}

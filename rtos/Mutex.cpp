@@ -40,15 +40,17 @@ Mutex::Mutex(const char *name)
 
 void Mutex::constructor(const char *name)
 {
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
     osMutexAttr_t attr =
     { 0 };
-    attr.name = name ? name : "aplication_unnamed_mutex";
+    attr.name = name ? name : "application_unnamed_mutex";
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
     attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     _id = osMutexNew(&attr);
-    MBED_ASSERT(_id);
+    // To permit certain cases where a device may get constructed in
+    // by the attempt to print an error in a fatal shutdown, let a
+    // mutex construction error pass.
+    MBED_ASSERT(_id || mbed_get_error_in_progress());
 }
 
 osStatus Mutex::lock(void)
@@ -58,7 +60,7 @@ osStatus Mutex::lock(void)
         _count++;
     }
 
-    if (status != osOK) {
+    if (status != osOK && !mbed_get_error_in_progress()) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
     }
 
@@ -76,7 +78,7 @@ osStatus Mutex::lock(uint32_t millisec)
                     (status == osErrorResource && millisec == 0) ||
                     (status == osErrorTimeout && millisec != osWaitForever));
 
-    if (!success) {
+    if (!success && !mbed_get_error_in_progress()) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
     }
 
@@ -99,7 +101,7 @@ bool Mutex::trylock_for(uint32_t millisec)
                     (status == osErrorResource && millisec == 0) ||
                     (status == osErrorTimeout && millisec != osWaitForever));
 
-    if (!success) {
+    if (!success && !mbed_get_error_in_progress()) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
     }
 
@@ -122,15 +124,16 @@ bool Mutex::trylock_until(uint64_t millisec)
 
 osStatus Mutex::unlock()
 {
-    _count--;
-
     osStatus status = osMutexRelease(_id);
+    if (osOK == status) {
+        _count--;
+    }
 
-    if (status != osOK) {
+    if (status != osOK && !mbed_get_error_in_progress()) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_UNLOCK_FAILED), "Mutex unlock failed", status);
     }
 
-    return osOK;
+    return status;
 }
 
 osThreadId Mutex::get_owner()

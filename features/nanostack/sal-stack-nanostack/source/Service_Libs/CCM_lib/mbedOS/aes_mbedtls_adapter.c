@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,7 +83,9 @@ arm_aes_context_t *arm_aes_start(const uint8_t key[static 16])
     arm_aes_context_t *context = mbed_tls_context_get();
     if (context) {
         mbedtls_aes_init(&context->ctx);
-        mbedtls_aes_setkey_enc(&context->ctx, key, 128);
+        if (0 != mbedtls_aes_setkey_enc(&context->ctx, key, 128)) {
+            return NULL;
+        }
     }
     return context;
 }

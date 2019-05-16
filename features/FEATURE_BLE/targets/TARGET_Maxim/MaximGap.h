@@ -49,48 +49,65 @@
 
 */
 /**************************************************************************/
-class MaximGap : public Gap
+class MaximGap : public ble::interface::LegacyGap<MaximGap>
 {
 public:
     static MaximGap &getInstance();
 
     /* Functions that must be implemented from Gap */
-    virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
-    virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
-    virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
+    ble_error_t setAddress_(AddressType_t  type,  const Address_t address);
+    ble_error_t getAddress_(AddressType_t *typeP, Address_t address);
+    ble_error_t setAdvertisingData_(const GapAdvertisingData &, const GapAdvertisingData &);
 
     #define BLE_GAP_ADV_INTERVAL_MIN        0x0020 /**< Minimum Advertising interval in 625 us units, i.e. 20 ms. */
     #define BLE_GAP_ADV_NONCON_INTERVAL_MIN 0x00A0 /**< Minimum Advertising interval in 625 us units for non connectable mode, i.e. 100 ms. */
     #define BLE_GAP_ADV_INTERVAL_MAX        0x4000 /**< Maximum Advertising interval in 625 us units, i.e. 10.24 s. */
 
-    virtual uint16_t getMinAdvertisingInterval(void) const { return BLE_GAP_ADV_INTERVAL_MIN; }
-    virtual uint16_t getMinNonConnectableAdvertisingInterval(void) const { return BLE_GAP_ADV_NONCON_INTERVAL_MIN; }
-    virtual uint16_t getMaxAdvertisingInterval(void) const { return BLE_GAP_ADV_INTERVAL_MAX; }
+    uint16_t getMinAdvertisingInterval_(void) const { return BLE_GAP_ADV_INTERVAL_MIN; }
+    uint16_t getMinNonConnectableAdvertisingInterval_(void) const { return BLE_GAP_ADV_NONCON_INTERVAL_MIN; }
+    uint16_t getMaxAdvertisingInterval_(void) const { return BLE_GAP_ADV_INTERVAL_MAX; }
 
-    virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
-    virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
-    virtual ble_error_t disconnect(DisconnectionReason_t reason);
+    ble_error_t startAdvertising_(const GapAdvertisingParams &);
+    ble_error_t stopAdvertising_(void);
+    ble_error_t disconnect_(Handle_t connectionHandle, DisconnectionReason_t reason);
+    ble_error_t disconnect_(DisconnectionReason_t reason);
 
-    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
-    virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
-    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
-    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
+    ble_error_t setDeviceName_(const uint8_t *deviceName);
+    ble_error_t getDeviceName_(uint8_t *deviceName, unsigned *lengthP);
+    ble_error_t setAppearance_(GapAdvertisingData::Appearance appearance);
+    ble_error_t getAppearance_(GapAdvertisingData::Appearance *appearanceP);
 
-    virtual ble_error_t setTxPower(int8_t txPower);
-    virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
+    ble_error_t setTxPower_(int8_t txPower);
+    void        getPermittedTxPowerValues_(const int8_t **valueArrayPP, size_t *countP);
 
     void     setConnectionHandle(uint16_t m_connectionHandle);
     uint16_t getConnectionHandle(void);
 
-    virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
-    virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
-    virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+    ble_error_t getPreferredConnectionParams_(ConnectionParams_t *params);
+    ble_error_t setPreferredConnectionParams_(const ConnectionParams_t *params);
+    ble_error_t updateConnectionParams_(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
-    virtual ble_error_t stopScan(void);
+    ble_error_t startRadioScan_(const GapScanningParams &scanningParams);
+    ble_error_t stopScan_(void);
 
     void     advertisingStopped(void);
+
+protected:
+    // import from Gap
+    friend ble::interface::Gap<MaximGap>;
+
+    using ble::interface::Gap<MaximGap>::startAdvertising_;
+    using ble::interface::Gap<MaximGap>::stopAdvertising_;
+    using ble::interface::Gap<MaximGap>::connect_;
+    using ble::interface::Gap<MaximGap>::disconnect_;
+
+    // import from LegacyGap
+    friend ble::interface::LegacyGap<MaximGap>;
+
+    using ble::interface::LegacyGap<MaximGap>::startAdvertising_;
+    using ble::interface::LegacyGap<MaximGap>::stopAdvertising_;
+    using ble::interface::LegacyGap<MaximGap>::connect_;
+    using ble::interface::LegacyGap<MaximGap>::disconnect_;
 
 private:
     uint16_t m_connectionHandle;

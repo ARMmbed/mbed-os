@@ -17,7 +17,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-#include "SMM_MPS2.h"
+#include "FVP_MPS2.h"
 #include "mbed_wait_api.h"
 #include "fpga.h"
 
@@ -586,4 +586,24 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     return 0;
+}
+
+const PinMap *i2c_master_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_master_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
+}
+
+const PinMap *i2c_slave_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_slave_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
 }

@@ -38,10 +38,10 @@ static nsapi_error_t _tcpsocket_connect_to_daytime_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(13);
 
-    nsapi_error_t err = sock.open(get_interface());
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
         return err;
     }
@@ -49,9 +49,9 @@ static nsapi_error_t _tcpsocket_connect_to_daytime_srv(TCPSocket &sock)
     return sock.connect(tcp_addr);
 }
 
-
 void TCPSOCKET_ENDPOINT_CLOSE()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];
     int time_allotted = split2half_rmng_tcp_test_time(); // [s]
@@ -68,11 +68,11 @@ void TCPSOCKET_ENDPOINT_CLOSE()
     int recvd = 0;
     int recvd_total = 0;
     while (true) {
-        recvd = sock.recv(&(buff[recvd_total]), MORE_THAN_AVAILABLE);
+        recvd = sock.recv(buff, MORE_THAN_AVAILABLE);
         if (recvd_total > 0 && recvd == 0) {
             break; // Endpoint closed socket, success
         } else if (recvd <= 0) {
-            TEST_FAIL();
+            TEST_ASSERT_EQUAL(0, recvd);
             break;
         } else if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
             if (tc_exec_time.read() >= time_allotted ||

@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-#ifdef DEVICE_PWMOUT
+#if DEVICE_PWMOUT
 
 typedef enum {
     PWMOUT_ON_APB1 = 0,

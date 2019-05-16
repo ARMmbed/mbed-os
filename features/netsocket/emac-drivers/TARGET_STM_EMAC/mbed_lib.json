@@ -1,0 +1,13 @@
+{
+    "name": "stm32-emac",
+    "config": {
+        "eth-rxbufnb": 4,
+        "eth-txbufnb": 4
+    },
+    "target_overrides": {
+        "NUCLEO_F207ZG": {
+            "eth-rxbufnb": 2,
+            "eth-txbufnb": 4
+        }
+    }
+}

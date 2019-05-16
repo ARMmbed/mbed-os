@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,6 +94,7 @@ static const uint8_t thread_discovery_extented_address[8] = {0x35, 0x06, 0xfe, 0
 uint32_t thread_delay_timer_default = THREAD_DELAY_TIMER_DEFAULT_SECONDS;
 uint32_t thread_router_selection_jitter = THREAD_ROUTER_SELECTION_JITTER;
 uint16_t thread_joiner_port = THREAD_DEFAULT_JOINER_PORT;
+uint8_t thread_max_mcast_addr = THREAD_MCAST_ADDR_PER_MSG;
 
 /*
  * Prototypes
@@ -1345,6 +1346,11 @@ int8_t thread_management_get_request_full_nwk_data(int8_t interface_id, bool *fu
 
 int thread_management_device_certificate_set(int8_t interface_id, const unsigned char *device_certificate_ptr, uint16_t device_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len)
 {
+    (void) device_certificate_ptr;
+    (void) device_certificate_len;
+    (void) priv_key_ptr;
+    (void) priv_key_len;
+
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
 
@@ -1358,17 +1364,19 @@ int thread_management_device_certificate_set(int8_t interface_id, const unsigned
 
 #else
     (void) interface_id;
-    (void) device_certificate_ptr;
-    (void) device_certificate_len;
-    (void) priv_key_ptr;
-    (void) priv_key_len;
     return -1;
 #endif
 }
 int thread_management_network_certificate_set(int8_t interface_id, const unsigned char *network_certificate_ptr, uint16_t network_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len)
 {
+    (void) network_certificate_ptr;
+    (void) network_certificate_len;
+    (void) priv_key_ptr;
+    (void) priv_key_len;
+
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
+    int ret_val;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -1376,17 +1384,14 @@ int thread_management_network_certificate_set(int8_t interface_id, const unsigne
         return -1;
     }
 
-    if (0 > thread_extension_bootstrap_network_certificate_set(cur, network_certificate_ptr, network_certificate_len)) {
+    ret_val = thread_extension_bootstrap_network_certificate_set(cur, network_certificate_ptr, network_certificate_len);
+    if (0 > ret_val) {
         return -1;
     }
 
     return thread_extension_bootstrap_network_private_key_set(cur, priv_key_ptr, priv_key_len);
 #else
     (void) interface_id;
-    (void) network_certificate_ptr;
-    (void) network_certificate_len;
-    (void) priv_key_ptr;
-    (void) priv_key_len;
     return -1;
 #endif
 }

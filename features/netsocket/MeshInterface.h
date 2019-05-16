@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* MeshInterface
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* @file MeshInterface.h Mesh network interface */
+/** \addtogroup netinterface */
+/** @{*/
 
 #ifndef MESH_INTERFACE_H
 #define MESH_INTERFACE_H

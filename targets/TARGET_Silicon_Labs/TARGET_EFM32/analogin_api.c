@@ -103,4 +103,9 @@ float analogin_read(analogin_t *obj)
     return analogin_read_u16(obj) / (float) 0xFFF0;
 }
 
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif

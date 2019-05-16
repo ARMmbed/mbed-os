@@ -66,6 +66,11 @@ void rtc_setup_oscillator(void)
     SYSCON->RTCOSCCTRL |= SYSCON_RTCOSCCTRL_EN_MASK;
 }
 
+uint32_t us_ticker_get_clock()
+{
+    return CLOCK_GetFreq(kCLOCK_BusClk);;
+}
+
 void ADC_ClockPower_Configuration(void)
 {
     /* SYSCON power. */

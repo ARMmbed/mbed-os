@@ -27,13 +27,8 @@
 #include "crys_ecpki_domain.h"
 #include "crys_ec_edw_api.h"
 #include "mbedtls/platform.h"
+#include "mbedtls/platform_util.h"
 #include "cc_internal.h"
-
-/* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v;
-    while( n-- ) *p++ = 0;
-}
 
 static CRYS_ECPKI_HASH_OpMode_t message_size_to_hash_mode( size_t blen )
 {
@@ -110,7 +105,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
         if( CrysRet != CRYS_OK )
         {
             ret = convert_CrysError_to_mbedtls_err( CrysRet );
-            mbedtls_zeroize( temp_buf, sizeof(temp_buf) );
+            mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
             goto cleanup;
         }
 
@@ -123,7 +118,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
                                 blen,
                                 pSignature,
                                 &signature_size );
-        mbedtls_zeroize( temp_buf, sizeof(temp_buf) );
+        mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
         if( CrysRet != CRYS_OK )
         {
             ret = convert_CrysError_to_mbedtls_err( CrysRet );
@@ -145,13 +140,13 @@ cleanup:
 
     if ( pHeap )
     {
-        mbedtls_zeroize( pHeap, heapSize );
+        mbedtls_platform_zeroize( pHeap, heapSize );
         mbedtls_free( pHeap );
     }
 
     if( pSignature )
     {
-        mbedtls_zeroize( pSignature, signature_size_for_heap );
+        mbedtls_platform_zeroize( pSignature, signature_size_for_heap );
         mbedtls_free( pSignature );
 
     }
@@ -232,13 +227,13 @@ cleanup:
 
     if( pHeap )
     {
-        mbedtls_zeroize( pHeap, heapSize );
+        mbedtls_platform_zeroize( pHeap, heapSize );
         mbedtls_free( pHeap );
     }
 
     if( pSignature )
     {
-        mbedtls_zeroize( pSignature, signature_size );
+        mbedtls_platform_zeroize( pSignature, signature_size );
         mbedtls_free( pSignature );
 
     }
@@ -301,12 +296,12 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
         if ( CrysRet != CRYS_OK )
         {
             ret = convert_CrysError_to_mbedtls_err( CrysRet );
-            mbedtls_zeroize( temp_buf, sizeof(temp_buf) );
+            mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
             goto cleanup;
         }
 
         ret = mbedtls_mpi_read_binary( &ctx->d, temp_buf, (ctx->grp.nbits+7)/8 );
-        mbedtls_zeroize( temp_buf, sizeof(temp_buf) );
+        mbedtls_platform_zeroize( temp_buf, sizeof(temp_buf) );
         if ( ret != 0 )
         {
             goto cleanup;
@@ -319,7 +314,7 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
 cleanup:
     if ( pHeap )
     {
-        mbedtls_zeroize( pHeap, heapSize );
+        mbedtls_platform_zeroize( pHeap, heapSize );
         mbedtls_free ( pHeap );
     }
     return ( ret );

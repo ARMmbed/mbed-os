@@ -308,5 +308,15 @@ void can_monitor(can_t *obj, int silent)
 {
     CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk);
 }
+
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
+}
  
 #endif // DEVICE_CAN

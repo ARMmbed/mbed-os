@@ -33,6 +33,25 @@ static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 /* Array of SPI bus clock frequencies */
 static clock_name_t const spi_clocks[] = SPI_CLOCK_FREQS;
 
+SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk)
+{
+    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
+    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+
+    SPIName spi_per;
+
+    // If 3 wire SPI is used, the miso is not connected.
+    if (miso == NC) {
+        spi_per = (SPIName)pinmap_merge(spi_mosi, spi_sclk);
+    } else {
+        SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
+        spi_per = (SPIName)pinmap_merge(spi_data, spi_sclk);
+    }
+
+    return spi_per;
+}
+
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     // determine the SPI to use
@@ -104,7 +123,7 @@ void spi_frequency(spi_t *obj, int hz)
     DSPI_MasterSetDelayTimes(spi_address[obj->spi.instance], kDSPI_Ctar0, kDSPI_LastSckToPcs, busClock, 500000000 / hz);
 }
 
-static inline int spi_readable(spi_t * obj)
+static inline int spi_readable(spi_t *obj)
 {
     return (DSPI_GetStatusFlags(spi_address[obj->spi.instance]) & kDSPI_RxFifoDrainRequestFlag);
 }
@@ -128,17 +147,18 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     // Default write is done in each and every call, in future can create HAL API instead
     DSPI_SetDummyData(spi_address[obj->spi.instance], write_fill);
 
-    DSPI_MasterTransferBlocking(spi_address[obj->spi.instance], &(dspi_transfer_t){
-          .txData = (uint8_t *)tx_buffer,
-          .rxData = (uint8_t *)rx_buffer,
-          .dataSize = total,
-          .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
+    DSPI_MasterTransferBlocking(spi_address[obj->spi.instance], &(dspi_transfer_t) {
+        .txData = (uint8_t *)tx_buffer,
+        .rxData = (uint8_t *)rx_buffer,
+        .dataSize = total,
+        .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
     });
 
     DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
@@ -181,7 +201,7 @@ static int32_t spi_master_transfer_asynch(spi_t *obj)
     obj->spi.status = kDSPI_Busy;
 
     if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         status = DSPI_MasterTransferEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle, &masterXfer);
         if (status ==  kStatus_DSPI_OutOfRange) {
             if (obj->spi.bits > 8) {
@@ -313,14 +333,14 @@ static void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void 
 
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    if(spi_active(obj)) {
+    if (spi_active(obj)) {
         return;
     }
 
     /* check corner case */
-    if(tx_length == 0) {
+    if (tx_length == 0) {
         tx_length = rx_length;
-        tx = (void*) 0;
+        tx = (void *) 0;
     }
 
     /* First, set the buffer */
@@ -421,13 +441,13 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 void spi_abort_asynch(spi_t *obj)
 {
     // If we're not currently transferring, then there's nothing to do here
-    if(spi_active(obj) == 0) {
+    if (spi_active(obj) == 0) {
         return;
     }
 
     // Determine whether we're running DMA or interrupt
     if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         DSPI_MasterTransferAbortEDMA(spi_address[obj->spi.instance], &obj->spi.spi_dma_master_handle);
         /* Release the dma channels if they were opportunistically allocated */
         if (obj->spi.spiDmaMasterRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
@@ -447,6 +467,46 @@ void spi_abort_asynch(spi_t *obj)
 uint8_t spi_active(spi_t *obj)
 {
     return obj->spi.status;
+}
+
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
 }
 
 #endif

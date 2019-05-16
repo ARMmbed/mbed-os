@@ -78,12 +78,7 @@ typedef enum IRQn {
 #define __NVIC_PRIO_BITS          4         /*!< Number of Bits used for Priority Levels          */
 #define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
 
-//#define YOTTA_CFG_CMSIS_NVIC_USER_IRQ_OFFSET    16
-//#define YOTTA_CFG_CMSIS_NVIC_USER_IRQ_NUMBER    20
 //#define NVIC_NUM_VECTORS     (NVIC_USER_IRQ_OFFSET + NVIC_USER_IRQ_NUMBER)
-
-//#define YOTTA_CFG_CMSIS_NVIC_RAM_VECTOR_ADDRESS
-//#define YOTTA_CFG_CMSIS_NVIC_FLASH_VECTOR_ADDRESS    0x3000
 
 #include <core_cm3.h>                       /* Cortex-M3 processor and core peripherals           */
 #include "system_NCS36510.h"                  /* System Header                                      */

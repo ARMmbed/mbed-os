@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,6 +127,7 @@ void rpl_control_delete_dodag_root(rpl_domain_t *domain, struct rpl_dodag *dodag
 void rpl_control_update_dodag_route(struct rpl_dodag *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, bool age);
 void rpl_control_update_dodag_prefix(struct rpl_dodag *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, uint32_t preftime, bool age);
 void rpl_control_increment_dodag_version(struct rpl_dodag *dodag);
+void rpl_control_update_dodag_config(struct rpl_dodag *dodag, const rpl_dodag_conf_t *conf);
 void rpl_control_set_dodag_pref(struct rpl_dodag *dodag, uint8_t pref);
 void rpl_control_increment_dtsn(struct rpl_dodag *dodag);
 
@@ -148,6 +149,8 @@ void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[1
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16]);
 void rpl_control_register_address(struct protocol_interface_info_entry *interface, if_address_entry_t *addr);
 void rpl_control_address_register_done(struct buffer *buf, uint8_t status);
+bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
+void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
 
 /* Configure and return the routing lookup predicate for a specified RPL instance ID */
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);

@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2019 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
-    exists
+    exists, normpath
 from os import remove
 import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
@@ -38,6 +38,15 @@ SHELL_ESCAPE_TABLE = {
 def shell_escape(string):
     return "".join(SHELL_ESCAPE_TABLE.get(char, char) for char in string)
 
+def _fix_include_asm_flag(flag, ctx):
+    if flag.startswith('-I'):
+        new_path = normpath(join(ctx['vpath'][0], flag[2:]))
+        return "-I{}".format(new_path)
+    elif flag.startswith('--preinclude='):
+        new_path = normpath(join(ctx['vpath'][0], flag[13:]))
+        return "--preinclude={}".format(new_path)
+    else:
+        return flag
 
 class Makefile(Exporter):
     """Generic Makefile template that mimics the behavior of the python build
@@ -54,7 +63,8 @@ class Makefile(Exporter):
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
-        "LPC4088Code.binary_hook"
+        "LPC4088Code.binary_hook",
+        "PSOC6Code.complete"
     ])
 
     @classmethod
@@ -92,11 +102,8 @@ class Makefile(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
-            'hex_files': self.resources.hex_files,
-            'vpath': (["../../.."]
-                      if (basename(dirname(dirname(self.export_dir)))
-                          == "projectfiles")
-                      else [".."]),
+            'hex_files': self.hex_files,
+            'vpath': ([".."]),
             'cc_cmd': basename(self.toolchain.cc[0]),
             'cppc_cmd': basename(self.toolchain.cppc[0]),
             'asm_cmd': basename(self.toolchain.asm[0]),
@@ -107,6 +114,7 @@ class Makefile(Exporter):
             'user_library_flag': self.USER_LIBRARY_FLAG,
             'needs_asm_preproc': self.PREPROCESS_ASM,
             'shell_escape': shell_escape,
+            'response_option': self.RESPONSE_OPTION,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -137,12 +145,14 @@ class Makefile(Exporter):
         # Add the virtual path the the include option in the ASM flags
         new_asm_flags = []
         for flag in ctx['asm_flags']:
-            if flag.startswith('-I'):
-                new_asm_flags.append("-I{}/{}".format(ctx['vpath'][0], flag[2:]))
-            elif flag.startswith('--preinclude='):
-                new_asm_flags.append("--preinclude={}/{}".format(ctx['vpath'][0], flag[13:]))
+            if flag.startswith('--cpreproc_opts='):
+                sub_flags = flag.split(',')
+                new_sub_flags = []
+                for sub_flag in sub_flags:
+                    new_sub_flags.append(_fix_include_asm_flag(sub_flag, ctx))
+                new_asm_flags.append(','.join(new_sub_flags))
             else:
-                new_asm_flags.append(flag)
+                new_asm_flags.append(_fix_include_asm_flag(flag, ctx))
         ctx['asm_flags'] = new_asm_flags
 
         for templatefile in \
@@ -227,6 +237,7 @@ class GccArm(Makefile):
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "@"
 
     @staticmethod
     def prepare_lib(libname):
@@ -244,6 +255,7 @@ class Arm(Makefile):
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
     TEMPLATE = 'make-arm'
+    RESPONSE_OPTION = "--via "
 
     @staticmethod
     def prepare_lib(libname):
@@ -257,11 +269,14 @@ class Arm(Makefile):
         if self.resources.linker_script:
             sct_file = self.resources.get_file_refs(FileType.LD_SCRIPT)[-1]
             new_script = self.toolchain.correct_scatter_shebang(
-                sct_file.path, join("..", dirname(sct_file.name)))
+                sct_file, join("..", dirname(sct_file.name))
+            )
             if new_script is not sct_file:
-                self.resources.add_files_to_type(
-                    FileType.LD_SCRIPT, [new_script])
-                self.generated_files.append(new_script)
+                self.resources.add_file_ref(
+                    FileType.LD_SCRIPT,
+                    new_script.name,
+                    new_script.path
+                )
         return super(Arm, self).generate()
 
 class Armc5(Arm):
@@ -270,10 +285,47 @@ class Armc5(Arm):
     TOOLCHAIN = "ARM"
     PREPROCESS_ASM = True
 
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        if int(target.build_tools_metadata["version"]) > 0:
+            #Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
+            if "ARMC5" not in target.supported_toolchains:
+                return False
+
+        arm_res = apply_supported_whitelist(
+            "ARM", cls.POST_BINARY_WHITELIST, target
+        )
+        armc5_res = apply_supported_whitelist(
+            "ARMC5", cls.POST_BINARY_WHITELIST, target
+        )
+        return arm_res or armc5_res
+
 class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not (len(set(target.supported_toolchains).intersection(
+                    set(["ARM", "ARMC6"]))) > 0):
+                return False
+
+            if not apply_supported_whitelist(
+                cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
+                #ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
+                #and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
+                return apply_supported_whitelist(
+                    "ARM", cls.POST_BINARY_WHITELIST, target)
+            else:
+                return True
+        else:
+            return apply_supported_whitelist(
+                    cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
 
 class IAR(Makefile):
@@ -283,6 +335,7 @@ class IAR(Makefile):
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "-f "
 
     @staticmethod
     def prepare_lib(libname):

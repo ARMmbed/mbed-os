@@ -14,6 +14,7 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../features/cellular/framework/AT/ATHandler.cpp
+  ../features/cellular/framework/AT/ATHandler_factory.cpp
   ../features/cellular/framework/common/CellularUtil.cpp
 )
 

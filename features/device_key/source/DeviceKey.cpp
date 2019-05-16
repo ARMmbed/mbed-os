@@ -19,6 +19,7 @@
 #if DEVICEKEY_ENABLED
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
+#include "mbedtls/platform.h"
 #include "KVStore.h"
 #include "TDBStore.h"
 #include "KVMap.h"
@@ -30,6 +31,7 @@
 #include "entropy.h"
 #include "platform_mbed.h"
 #include "mbed_trace.h"
+#include "ssl_internal.h"
 
 #define TRACE_GROUP "DEVKEY"
 
@@ -58,15 +60,25 @@ namespace mbed {
 
 DeviceKey::DeviceKey()
 {
+
     int ret = kv_init_storage_config();
     if (ret != MBED_SUCCESS) {
         tr_error("DeviceKey: Fail to initialize KvStore configuration.");
     }
+#if defined(MBEDTLS_PLATFORM_C)
+    ret = mbedtls_platform_setup(NULL);
+    if (ret != MBED_SUCCESS) {
+        tr_error("DeviceKey: Fail in mbedtls_platform_setup.");
+    }
+#endif /* MBEDTLS_PLATFORM_C */
     return;
 }
 
 DeviceKey::~DeviceKey()
 {
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
     return;
 }
 
@@ -157,7 +169,7 @@ int DeviceKey::read_key_from_kvstore(uint32_t *output, size_t &size)
         return DEVICEKEY_NOT_FOUND;
     }
 
-    int kvStatus = ((TDBStore *)inner_store)->reserved_data_get(output, size);
+    int kvStatus = ((TDBStore *)inner_store)->reserved_data_get(output, size, &size);
     if (MBED_ERROR_ITEM_NOT_FOUND == kvStatus) {
         return DEVICEKEY_NOT_FOUND;
     }
@@ -259,19 +271,23 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
-#if defined(DEVICE_TRNG)
+#if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED)
+    uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
+    memset(test_buff, 0, size);
 
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
-    if (ret != MBED_SUCCESS) {
+    if (ret != MBED_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
+    } else {
+        ret = DEVICEKEY_SUCCESS;
     }
 
     mbedtls_entropy_free(entropy);
     delete entropy;
-    ret = DEVICEKEY_SUCCESS;
+
 #endif
 
     return ret;

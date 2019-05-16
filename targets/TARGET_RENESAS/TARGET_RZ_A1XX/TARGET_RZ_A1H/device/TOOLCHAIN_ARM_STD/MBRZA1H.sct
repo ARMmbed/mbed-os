@@ -72,7 +72,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE       ; load region size_region
   RW_IRAM1    +0 ALIGN 0x10
   { * (+ZI) }                   ; Application ZI data (.bss)
 
-  ARM_LIB_HEAP  +0
+  ARM_LIB_HEAP  +0 ALIGN 0x8
   { * (HEAP) }                  ; Application heap area (HEAP)
 
   ARM_LIB_STACK (__RAM_BASE + __NM_RAM_SIZE) EMPTY -__STACK_SIZE      ; Stack region growing down

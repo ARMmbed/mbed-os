@@ -1,0 +1,44 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        },
+        "trace-level": {
+            "help": "Note that excessive trace prints may mess up with Greentea parsing",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value": "TRACE_LEVEL_ERROR"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "CELLULAR",
+            "nsapi.default-cellular-sim-pin": null,
+            "nsapi.dns-response-wait-time": 30000,
+            "ppp-cell-iface.apn-lookup": false,
+            "cellular.use-apn-lookup": false,
+            "lwip.ipv4-enabled": true,
+            "lwip.ipv6-enabled": true,
+            "lwip.tcp-enabled": true,
+            "lwip.ppp-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "cellular.debug-at": false
+        }
+    }
+}

@@ -34,21 +34,15 @@
 using namespace utest::v1;
 
 namespace {
-NetworkInterface *net;
 Timer tc_bucket; // Timer to limit a test cases run time
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
 char tcp_global::rx_buffer[RX_BUFF_SIZE];
 char tcp_global::tx_buffer[TX_BUFF_SIZE];
-
-NetworkInterface *get_interface()
-{
-    return net;
-}
 
 void drop_bad_packets(TCPSocket &sock, int orig_timeout)
 {
@@ -63,9 +57,18 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout)
     sock.set_timeout(orig_timeout);
 }
 
+nsapi_version_t get_ip_version()
+{
+    SocketAddress test;
+    if (!test.set_ip_address(NetworkInterface::get_default_instance()->get_ip_address())) {
+        return NSAPI_UNSPEC;
+    }
+    return test.get_ip_version();
+}
+
 static void _ifup()
 {
-    net = NetworkInterface::get_default_instance();
+    NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address());
@@ -73,38 +76,53 @@ static void _ifup()
 
 static void _ifdown()
 {
-    net->disconnect();
+    NetworkInterface::get_default_instance()->disconnect();
     printf("MBED: ifdown\n");
+}
+
+nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
+{
+    SocketAddress tcp_addr;
+
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    tcp_addr.set_port(port);
+
+    printf("MBED: Server '%s', port %d\n", tcp_addr.get_ip_address(), tcp_addr.get_port());
+
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
+    if (err != NSAPI_ERROR_OK) {
+        printf("Error from sock.open: %d\n", err);
+        return err;
+    }
+
+    err = sock.connect(tcp_addr);
+    if (err != NSAPI_ERROR_OK) {
+        printf("Error from sock.connect: %d\n", err);
+        return err;
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock)
 {
-    SocketAddress tcp_addr;
-
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
-    nsapi_error_t err = sock.open(get_interface());
-    if (err != NSAPI_ERROR_OK) {
-        return err;
-    }
-
-    return sock.connect(tcp_addr);
+    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_PORT);
 }
 
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock)
 {
-    SocketAddress tcp_addr;
+    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT);
+}
 
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(9);
-
-    nsapi_error_t err = sock.open(get_interface());
-    if (err != NSAPI_ERROR_OK) {
-        return err;
+bool is_tcp_supported()
+{
+    static bool supported;
+    static bool tested = false;
+    if (!tested) {
+        TCPSocket socket;
+        supported = socket.open(NetworkInterface::get_default_instance()) == NSAPI_ERROR_OK;
     }
-
-    return sock.connect(tcp_addr);
+    return supported;
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)
@@ -119,7 +137,7 @@ int split2half_rmng_tcp_test_time()
     return (tcp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 int fetch_stats()
 {
     return SocketStats::mbed_stats_socket_get_each(&tcp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
@@ -142,14 +160,45 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
     return greentea_test_teardown_handler(passed, failed, failure);
 }
 
+utest::v1::status_t greentea_case_setup_handler_tcp(const Case *const source, const size_t index_of_case)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
+    }
+#endif
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t greentea_case_teardown_handler_tcp(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
+    }
+#endif
+    return greentea_case_teardown_handler(source, passed, failed, failure);
+}
+
+static void test_failure_handler(const failure_t failure)
+{
+    UTEST_LOG_FUNCTION();
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
+        verbose_test_failure_handler(failure);
+        GREENTEA_TESTSUITE_RESULT(false);
+        while (1) ;
+    }
+}
+
 
 Case cases[] = {
+    Case("TCPSOCKET_OPEN_LIMIT", TCPSOCKET_OPEN_LIMIT),
     Case("TCPSOCKET_ECHOTEST", TCPSOCKET_ECHOTEST),
     Case("TCPSOCKET_ECHOTEST_NONBLOCK", TCPSOCKET_ECHOTEST_NONBLOCK),
     Case("TCPSOCKET_OPEN_CLOSE_REPEAT", TCPSOCKET_OPEN_CLOSE_REPEAT),
-    Case("TCPSOCKET_OPEN_LIMIT", TCPSOCKET_OPEN_LIMIT),
     Case("TCPSOCKET_THREAD_PER_SOCKET_SAFETY", TCPSOCKET_THREAD_PER_SOCKET_SAFETY),
-#ifdef MBED_EXTENDED_TESTS
     Case("TCPSOCKET_CONNECT_INVALID", TCPSOCKET_CONNECT_INVALID),
     Case("TCPSOCKET_ECHOTEST_BURST", TCPSOCKET_ECHOTEST_BURST),
     Case("TCPSOCKET_ECHOTEST_BURST_NONBLOCK", TCPSOCKET_ECHOTEST_BURST_NONBLOCK),
@@ -170,10 +219,18 @@ Case cases[] = {
     Case("TCPSOCKET_SEND_REPEAT", TCPSOCKET_SEND_REPEAT),
     Case("TCPSOCKET_SEND_TIMEOUT", TCPSOCKET_SEND_TIMEOUT),
     Case("TCPSOCKET_ENDPOINT_CLOSE", TCPSOCKET_ENDPOINT_CLOSE),
-#endif
 };
 
-Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
+handlers_t tcp_test_case_handlers = {
+    default_greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    test_failure_handler,
+    greentea_case_setup_handler_tcp,
+    greentea_case_teardown_handler_tcp,
+    greentea_case_failure_continue_handler
+};
+
+Specification specification(greentea_setup, cases, greentea_teardown, tcp_test_case_handlers);
 
 int main()
 {

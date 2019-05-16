@@ -25,7 +25,7 @@ TCPSocket::TCPSocket()
 
 TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
 {
-    _socket = socket,
+    _socket = socket;
     _stack = parent->_stack;
     _factory_allocated = true;
     _remote_peer = address;
@@ -62,7 +62,7 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         ret = _stack->socket_connect(_socket, address);
         if ((_timeout == 0) || !(ret == NSAPI_ERROR_IN_PROGRESS || ret == NSAPI_ERROR_ALREADY)) {
             _socket_stats.stats_update_socket_state(this, SOCK_CONNECTED);
@@ -110,7 +110,12 @@ nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
     if (!_socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
-    nsapi_error_t err = _stack->gethostbyname(host, &address);
+    nsapi_error_t err;
+    if (!strcmp(_interface_name, "")) {
+        err = _stack->gethostbyname(host, &address);
+    } else {
+        err = _stack->gethostbyname(host, &address, NSAPI_UNSPEC, _interface_name);
+    }
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
@@ -143,7 +148,7 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         ret = _stack->socket_send(_socket, data_ptr + written, size - written);
         if (ret >= 0) {
             written += ret;
@@ -210,7 +215,7 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         ret = _stack->socket_recv(_socket, data, size);
         if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             _socket_stats.stats_update_recv_bytes(this, ret);
@@ -281,13 +286,15 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
             break;
         }
 
-        _pending = 0;
+        core_util_atomic_flag_clear(&_pending);
         void *socket;
         SocketAddress address;
         ret = _stack->socket_accept(_socket, &socket, &address);
 
         if (0 == ret) {
             connection = new TCPSocket(this, socket, address);
+            _socket_stats.stats_update_peer(connection, address);
+            _socket_stats.stats_update_socket_state(connection, SOCK_CONNECTED);
             break;
         } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;

@@ -21,7 +21,6 @@
 #include "FileHandle_stub.h"
 #include "myCellularDevice.h"
 #include "CellularStateMachine_stub.h"
-#include "CellularSIM.h"
 
 using namespace mbed;
 
@@ -54,7 +53,7 @@ TEST_F(TestCellularDevice, test_create_delete)
     dev = NULL;
 
     CellularDevice *dev1 = CellularDevice::get_default_instance();
-    EXPECT_TRUE(dev1);
+    EXPECT_FALSE(dev1);
 }
 
 TEST_F(TestCellularDevice, test_set_sim_pin)
@@ -119,12 +118,12 @@ TEST_F(TestCellularDevice, test_set_sim_ready)
     CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_OK);
 
-    CellularStateMachine_stub::get_current_current_state = STATE_MANUAL_REGISTERING_NETWORK;
+    CellularStateMachine_stub::get_current_current_state = STATE_REGISTERING_NETWORK;
     CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_ALREADY);
 
     CellularStateMachine_stub::bool_value = true;
-    CellularStateMachine_stub::get_current_target_state = STATE_MANUAL_REGISTERING_NETWORK;
+    CellularStateMachine_stub::get_current_target_state = STATE_REGISTERING_NETWORK;
     CellularStateMachine_stub::get_current_current_state = STATE_POWER_ON;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_IN_PROGRESS);
     delete dev;
@@ -185,11 +184,11 @@ TEST_F(TestCellularDevice, test_get_context_list)
     CellularContext *ctx = dev->create_context();
     EXPECT_TRUE(dev->get_context_list());
     delete dev;
-    dev = NULL;
 
     dev = new myCellularDevice(&fh1);
     EXPECT_TRUE(dev);
     EXPECT_FALSE(dev->get_context_list());
+    delete dev;
 }
 
 TEST_F(TestCellularDevice, test_stop)
@@ -221,11 +220,23 @@ TEST_F(TestCellularDevice, test_cellular_callback)
     dev->cellular_callback((nsapi_event_t)CellularDeviceReady, (intptr_t)&data);
 
     dev->set_sim_pin("1234");
-    data.status_data = CellularSIM::SimStatePinNeeded;
+    data.status_data = CellularDevice::SimStatePinNeeded;
     dev->cellular_callback((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&data);
 
     CellularContext *ctx = dev->create_context();
     dev->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+
+    delete dev;
+}
+
+TEST_F(TestCellularDevice, test_shutdown)
+{
+    FileHandle_stub fh1;
+    CellularDevice *dev = new myCellularDevice(&fh1);
+    EXPECT_TRUE(dev);
+
+    CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ASSERT_EQ(dev->shutdown(), NSAPI_ERROR_OK);
 
     delete dev;
 }

@@ -50,7 +50,7 @@ void ASYNCHRONOUS_DNS_CACHE()
 
         semaphore.wait();
 
-        TEST_ASSERT(data.result == NSAPI_ERROR_OK);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
         TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
 
         int delay_ms = (ticker_us - started_us) / 1000;

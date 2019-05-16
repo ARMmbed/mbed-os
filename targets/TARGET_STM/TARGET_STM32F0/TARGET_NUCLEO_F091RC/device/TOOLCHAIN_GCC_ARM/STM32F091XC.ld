@@ -1,4 +1,11 @@
 /* Linker script to configure memory regions. */
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+StackSize = MBED_BOOT_STACK_SIZE;
+
 MEMORY
 { 
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 256k
@@ -130,6 +137,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - StackSize;
         __HeapLimit = .;
     } > RAM
 
@@ -145,7 +153,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - StackSize;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

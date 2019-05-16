@@ -36,7 +36,7 @@
 #define MBED_CMSIS_H
 
 #include "CMSDK_CM3.h"
-#include "SMM_MPS2.h"
+#include "FVP_MPS2.h"
 #include "cmsis_nvic.h"
 
 #endif

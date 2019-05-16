@@ -28,12 +28,26 @@
 
 #include "LoRaMacCrypto.h"
 #include "system/lorawan_data_structures.h"
+#include "mbedtls/platform.h"
 
 
 #if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
 
 LoRaMacCrypto::LoRaMacCrypto()
 {
+#if defined(MBEDTLS_PLATFORM_C)
+    int ret = mbedtls_platform_setup(NULL);
+    if (ret != 0) {
+        MBED_ASSERT(0 && "LoRaMacCrypto: Fail in mbedtls_platform_setup.");
+    }
+#endif /* MBEDTLS_PLATFORM_C */
+}
+
+LoRaMacCrypto::~LoRaMacCrypto()
+{
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
 }
 
 int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
@@ -289,6 +303,10 @@ exit:
 LoRaMacCrypto::LoRaMacCrypto()
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+}
+
+LoRaMacCrypto::~LoRaMacCrypto()
+{
 }
 
 // If mbedTLS is not configured properly, these dummies will ensure that

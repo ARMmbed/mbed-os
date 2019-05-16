@@ -1,4 +1,21 @@
-"""Just a template for subclassing"""
+"""
+Copyright (c) 2016-2019 ARM Limited. All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
 import os
 from abc import abstractmethod, ABCMeta
 import logging
@@ -10,8 +27,9 @@ import copy
 
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
-from tools.resources import FileType
+from tools.resources import FileType, FileRef
 
+"""Just a template for subclassing"""
 
 class TargetNotSupportedException(Exception):
     """Indicates that an IDE does not support a particular MCU"""
@@ -55,7 +73,7 @@ class Exporter(object):
     CLEAN_FILES = ("GettingStarted.html",)
 
 
-    def __init__(self, target, export_dir, project_name, toolchain,
+    def __init__(self, target, export_dir, project_name, toolchain, zip,
                  extra_symbols=None, resources=None):
         """Initialize an instance of class exporter
         Positional arguments:
@@ -63,6 +81,7 @@ class Exporter(object):
         export_dir    - the directory of the exported project files
         project_name  - the name of the project
         toolchain     - an instance of class toolchain
+        zip           - True if the exported project will be zipped
 
         Keyword arguments:
         extra_symbols - a list of extra macros for the toolchain
@@ -74,11 +93,21 @@ class Exporter(object):
         self.toolchain = toolchain
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
+        resources.win_to_unix()
         self.resources = resources
+        self.zip = zip
         self.generated_files = []
+        getting_started_name = "GettingStarted.html"
+        dot_mbed_name = ".mbed"
         self.static_files = (
-            join(self.TEMPLATE_DIR, "GettingStarted.html"),
-            join(self.TEMPLATE_DIR, ".mbed"),
+            FileRef(
+                getting_started_name,
+                join(self.TEMPLATE_DIR, getting_started_name)
+            ),
+            FileRef(
+                dot_mbed_name,
+                join(self.TEMPLATE_DIR, dot_mbed_name)
+            ),
         )
         self.builder_files_dict = {}
         self.add_config()
@@ -122,6 +151,15 @@ class Exporter(object):
     def libraries(self):
         return [l for l in self.resources.get_file_names(FileType.LIB)
                 if l.endswith(self.toolchain.LIBRARY_EXT)]
+
+    @property
+    def hex_files(self):
+        """Returns a list of hex files to include in the exported project"""
+        hex_files = self.resources.hex_files
+        if hasattr(self.toolchain.target, 'hex_filename'):
+            hex_filename = self.toolchain.target.hex_filename
+            hex_files = [f for f in hex_files if basename(f) == hex_filename]
+        return hex_files
 
     def toolchain_flags(self, toolchain):
         """Returns a dictionary of toolchain flags.
@@ -176,22 +214,24 @@ class Exporter(object):
         mkdir(dirname(target_path))
         logging.debug("Generating: %s", target_path)
         open(target_path, "w").write(target_text)
-        self.generated_files += [target_path]
+        self.generated_files += [FileRef(target_file, target_path)]
 
     def gen_file_nonoverwrite(self, template_file, data, target_file, **kwargs):
-        """Generates a project file from a template using jinja"""
+        """Generates or selectively appends a project file from a template"""
         target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
         target_path = self.gen_file_dest(target_file)
         if exists(target_path):
             with open(target_path) as fdin:
-                old_text = fdin.read()
-            if target_text not in old_text:
+                old_lines_set = set(fdin.read().splitlines())
+            target_set = set(target_text.splitlines())
+            to_append = target_set - old_lines_set
+            if len(to_append) > 0:
                 with open(target_path, "a") as fdout:
-                    fdout.write(target_text)
+                    fdout.write("\n".join(to_append))
         else:
             logging.debug("Generating: %s", target_path)
             open(target_path, "w").write(target_text)
-        self.generated_files += [target_path]
+        self.generated_files += [FileRef(template_file, target_path)]
 
     def _gen_file_inner(self, template_file, data, target_file, **kwargs):
         """Generates a project file from a template using jinja"""
@@ -207,7 +247,7 @@ class Exporter(object):
         target_path = join(self.export_dir, target_file)
         logging.debug("Generating: %s", target_path)
         open(target_path, "w").write(target_text)
-        self.generated_files += [target_path]
+        self.generated_files += [FileRef(target_file, target_path)]
 
     def make_key(self, src):
         """From a source file, extract group name

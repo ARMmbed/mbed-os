@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_gcc.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.2
- * @date     09. April 2018
+ * @version  V1.1.0
+ * @date     20. December 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
@@ -171,7 +171,7 @@ __STATIC_FORCEINLINE  uint32_t __REV(uint32_t value)
 #else
   uint32_t result;
 
-  __ASM volatile ("rev %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+  __ASM volatile ("rev %0, %1" : "=r" (result) : "r" (value) );
   return result;
 #endif
 }
@@ -204,7 +204,7 @@ __STATIC_FORCEINLINE  int16_t __REVSH(int16_t value)
 #else
   int16_t result;
 
-  __ASM volatile ("revsh %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+  __ASM volatile ("revsh %0, %1" : "=r" (result) : "r" (value) );
   return result;
 #endif
 }
@@ -267,7 +267,23 @@ __STATIC_FORCEINLINE  uint32_t __RBIT(uint32_t value)
   \param [in]  value  Value to count the leading zeros
   \return             number of leading zeros in value
  */
-#define __CLZ                             (uint8_t)__builtin_clz
+__STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
+{
+  /* Even though __builtin_clz produces a CLZ instruction on ARM, formally
+     __builtin_clz(0) is undefined behaviour, so handle this case specially.
+     This guarantees ARM-compatible results if happening to compile on a non-ARM
+     target, and ensures the compiler doesn't decide to activate any
+     optimisations using the logic "value was passed to __builtin_clz, so it
+     is non-zero".
+     ARM GCC 7.3 and possibly earlier will optimise this test away, leaving a
+     single CLZ instruction.
+   */
+  if (value == 0U)
+  {
+    return 32U;
+  }
+  return __builtin_clz(value);
+}
 
 /**
   \brief   LDR Exclusive (8 bit)

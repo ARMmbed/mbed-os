@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -220,7 +220,8 @@ dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_entry_get_by_prefix(int8_t in
 uint16_t libdhcpv6_duid_option_size(uint16_t linkType)
 {
     uint16_t length = 8; // Type & Length header part *2
-    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
+    if (linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE ||
+            linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
         length += 8;
     } else {
         length += 6;
@@ -452,7 +453,8 @@ int libdhcpv6_compare_DUID(dhcp_link_options_params_t *targetId, dhcp_link_optio
 {
     if (targetId->linkType == parsedId->linkType) {
         uint8_t cmpLen;
-        if (targetId->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
+        if (targetId->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE  ||
+                targetId->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) {
             //Compare Current Interface EUID64
             cmpLen = 8;
         } else {
@@ -625,6 +627,8 @@ int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_lengt
                     return 0;
                 } else if ((params->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) && (option_msg.len == DHCPV6_SERVER_ID_MAC64_OPTION_LEN)) {
                     return 0;
+                } else if ((params->linkType == DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) && (option_msg.len == DHCPV6_SERVER_ID_MAC64_OPTION_LEN)) {
+                    return 0;
                 }
             }
         }
@@ -683,6 +687,11 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
                     return 0;
                 }
             }
+        } else if (length == 0) {
+            params->nonTemporalAddress = NULL;
+            params->preferredValidLifeTime = 0;
+            params->validLifeTime = 0;
+            return 0;
         }
     }
     return -1;

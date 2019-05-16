@@ -247,7 +247,7 @@
  * value for better performance.
  */
 #define THREAD_INDIRECT_BIG_PACKETS_TOTAL 10
-#define THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD 2
+#define THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD 3
 
 /**
  * Maximum number of MTD children, default 16

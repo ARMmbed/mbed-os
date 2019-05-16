@@ -26,25 +26,18 @@ using namespace utest::v1;
 
 void TCPSOCKET_BIND_UNOPENED()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
-    }
-#endif
-
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
+        return;
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_SOCKET, sock->bind(1024));
+    nsapi_error_t bind_result = sock->bind(1024);
+    if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
+        TEST_IGNORE_MESSAGE("bind() not supported");
+    } else {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_SOCKET, bind_result);
+    }
 
     delete sock;
-
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
-    }
-#endif
 }

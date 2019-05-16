@@ -34,21 +34,28 @@
 using namespace utest::v1;
 
 namespace {
-NetworkInterface *net;
+Timer tc_bucket; // Timer to limit a test cases run time
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
-NetworkInterface *get_interface()
+void drop_bad_packets(UDPSocket &sock, int orig_timeout)
 {
-    return net;
+    nsapi_error_t err;
+    sock.set_timeout(0);
+    while (true) {
+        err = sock.recv(NULL, 0);
+        if (err == NSAPI_ERROR_WOULD_BLOCK) {
+            break;
+        }
+    }
+    sock.set_timeout(orig_timeout);
 }
-
 static void _ifup()
 {
-    net = NetworkInterface::get_default_instance();
+    NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
@@ -56,21 +63,36 @@ static void _ifup()
 
 static void _ifdown()
 {
-    net->disconnect();
+    NetworkInterface::get_default_instance()->disconnect();
     printf("MBED: ifdown\n");
 }
 
-void drop_bad_packets(UDPSocket &sock, int orig_timeout)
+
+nsapi_version_t get_ip_version()
 {
-    nsapi_error_t err;
-    sock.set_timeout(0);
-    while (true) {
-        err = sock.recvfrom(NULL, 0, 0);
-        if (err == NSAPI_ERROR_WOULD_BLOCK) {
-            break;
+    SocketAddress test;
+    if (!test.set_ip_address(NetworkInterface::get_default_instance()->get_ip_address())) {
+        return NSAPI_UNSPEC;
+    }
+    return test.get_ip_version();
+}
+
+bool check_oversized_packets(nsapi_error_t error, int &size)
+{
+    if (error == NSAPI_ERROR_PARAMETER) {
+        if (get_ip_version() == NSAPI_IPv4) {
+            if (size > udp_global::MAX_SEND_SIZE_IPV4) {
+                size = udp_global::MAX_SEND_SIZE_IPV4;
+                return true;
+            }
+        } else if (get_ip_version() == NSAPI_IPv6) {
+            if (size > udp_global::MAX_SEND_SIZE_IPV6) {
+                size = udp_global::MAX_SEND_SIZE_IPV6;
+                return true;
+            }
         }
     }
-    sock.set_timeout(orig_timeout);
+    return false;
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)
@@ -80,7 +102,12 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+int split2half_rmng_udp_test_time()
+{
+    return (udp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
+}
+
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 int fetch_stats()
 {
     return SocketStats::mbed_stats_socket_get_each(&udp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
@@ -90,24 +117,56 @@ int fetch_stats()
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(480, "default_auto");
+    GREENTEA_SETUP(udp_global::TESTS_TIMEOUT, "default_auto");
     _ifup();
+    tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);
 }
 
 void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
 {
+    tc_bucket.stop();
     _ifdown();
     return greentea_test_teardown_handler(passed, failed, failure);
 }
 
+utest::v1::status_t greentea_case_setup_handler_udp(const Case *const source, const size_t index_of_case)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  udp_stats[j].state);
+    }
+#endif
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t greentea_case_teardown_handler_udp(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  udp_stats[j].state);
+    }
+#endif
+    return greentea_case_teardown_handler(source, passed, failed, failure);
+}
+
+static void test_failure_handler(const failure_t failure)
+{
+    UTEST_LOG_FUNCTION();
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
+        verbose_test_failure_handler(failure);
+        GREENTEA_TESTSUITE_RESULT(false);
+        while (1) ;
+    }
+}
+
 Case cases[] = {
-    Case("UDPSOCKET_ECHOTEST", UDPSOCKET_ECHOTEST),
-    Case("UDPSOCKET_ECHOTEST_NONBLOCK", UDPSOCKET_ECHOTEST_NONBLOCK),
     Case("UDPSOCKET_OPEN_CLOSE_REPEAT", UDPSOCKET_OPEN_CLOSE_REPEAT),
     Case("UDPSOCKET_OPEN_LIMIT", UDPSOCKET_OPEN_LIMIT),
+    Case("UDPSOCKET_RECV_TIMEOUT", UDPSOCKET_RECV_TIMEOUT),
     Case("UDPSOCKET_SENDTO_TIMEOUT", UDPSOCKET_SENDTO_TIMEOUT),
-#ifdef MBED_EXTENDED_TESTS
     Case("UDPSOCKET_OPEN_DESTRUCT", UDPSOCKET_OPEN_DESTRUCT),
     Case("UDPSOCKET_OPEN_TWICE", UDPSOCKET_OPEN_TWICE),
     Case("UDPSOCKET_BIND_PORT", UDPSOCKET_BIND_PORT),
@@ -119,14 +178,23 @@ Case cases[] = {
     Case("UDPSOCKET_BIND_WRONG_TYPE", UDPSOCKET_BIND_WRONG_TYPE),
     Case("UDPSOCKET_BIND_UNOPENED", UDPSOCKET_BIND_UNOPENED),
     Case("UDPSOCKET_SENDTO_INVALID", UDPSOCKET_SENDTO_INVALID),
-    Case("UDPSOCKET_ECHOTEST", UDPSOCKET_ECHOTEST),
-    Case("UDPSOCKET_ECHOTEST_BURST", UDPSOCKET_ECHOTEST_BURST),
+    Case("UDPSOCKET_ECHOTEST_NONBLOCK", UDPSOCKET_ECHOTEST_NONBLOCK),
     Case("UDPSOCKET_ECHOTEST_BURST_NONBLOCK", UDPSOCKET_ECHOTEST_BURST_NONBLOCK),
     Case("UDPSOCKET_SENDTO_REPEAT", UDPSOCKET_SENDTO_REPEAT),
-#endif
+    Case("UDPSOCKET_ECHOTEST", UDPSOCKET_ECHOTEST),
+    Case("UDPSOCKET_ECHOTEST_BURST", UDPSOCKET_ECHOTEST_BURST),
 };
 
-Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
+handlers_t udp_test_case_handlers = {
+    default_greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    test_failure_handler,
+    greentea_case_setup_handler_udp,
+    greentea_case_teardown_handler_udp,
+    greentea_case_failure_continue_handler
+};
+
+Specification specification(greentea_setup, cases, greentea_teardown, udp_test_case_handlers);
 
 int main()
 {

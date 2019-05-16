@@ -17,7 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "LoRaWANStack.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 
 #include "LoRaPHY_stub.h"
 #include "LoRaMac_stub.h"
@@ -494,6 +494,10 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     ind.buffer = ind_buf;
     ind.buffer_size = 150;
     ind.type = MCPS_UNCONFIRMED;
+    ind.port = 15;
+    ind.is_data_recvd = true;
+    ind.fpending_status = false;
+    LoRaMac_stub::dev_class_value = CLASS_A;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
     //data == NULL || LENGTH == 0 (2 cases)

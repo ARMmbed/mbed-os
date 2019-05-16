@@ -51,8 +51,8 @@
 #include "lwip/inet_chksum.h"
 #include "lwip/netif.h"
 #include "lwip/icmp6.h"
-#include "lwip/prot/lwip_ethernet.h"
-#include "netif/lwip_ethernet.h"
+#include "lwip/prot/ethernet.h"
+#include "netif/ethernet.h"
 
 #include <string.h>
 
@@ -81,6 +81,11 @@ ethip6_output(struct netif *netif, struct pbuf *q, const ip6_addr_t *ip6addr)
   struct eth_addr dest;
   const u8_t *hwaddr;
   err_t result;
+
+  LWIP_ASSERT_CORE_LOCKED();
+
+  /* The destination IP address must be properly zoned from here on down. */
+  IP6_ADDR_ZONECHECK_NETIF(ip6addr, netif);
 
   /* multicast destination IP address? */
   if (ip6_addr_ismulticast(ip6addr)) {

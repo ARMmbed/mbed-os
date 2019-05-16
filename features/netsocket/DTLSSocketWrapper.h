@@ -1,3 +1,4 @@
+/** @file DTLSSocketWrapper.h DTLSSocketWrapper */
 /*
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -14,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/** @addtogroup netsocket
+* @{
+*/
 
 #ifndef DTLSSOCKETWRAPPER_H
 #define DTLSSOCKETWRAPPER_H
@@ -23,8 +27,17 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
+/**
+ * \brief DTLSSocketWrapper implement DTLS stream over the existing Socket transport.
+ */
 class DTLSSocketWrapper : public TLSSocketWrapper {
 public:
+    /** Create a DTLSSocketWrapper.
+     *
+     * @param transport    Underlying transport socket to wrap.
+     * @param hostname     Hostname of the remote host, used for certificate checking.
+     * @param control      Transport control mode. See @ref control_transport.
+     */
     DTLSSocketWrapper(Socket *transport, const char *hostname = NULL, control_transport control = TRANSPORT_CONNECT_AND_CLOSE);
 private:
     static void timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms);
@@ -37,3 +50,4 @@ private:
 
 #endif
 #endif
+/** @} */

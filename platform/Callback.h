@@ -94,6 +94,7 @@ public:
      */
     Callback(const Callback<R()> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }
@@ -718,6 +719,7 @@ public:
      */
     Callback(const Callback<R(A0)> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }
@@ -1343,6 +1345,7 @@ public:
      */
     Callback(const Callback<R(A0, A1)> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }
@@ -1969,6 +1972,7 @@ public:
      */
     Callback(const Callback<R(A0, A1, A2)> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }
@@ -2596,6 +2600,7 @@ public:
      */
     Callback(const Callback<R(A0, A1, A2, A3)> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }
@@ -3224,6 +3229,7 @@ public:
      */
     Callback(const Callback<R(A0, A1, A2, A3, A4)> &func)
     {
+        memset(this, 0, sizeof(Callback));
         if (func._ops) {
             func._ops->move(this, &func);
         }

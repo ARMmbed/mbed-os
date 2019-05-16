@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +50,15 @@ static void gpio_irq_dispatcher(uint32_t port_id)
             gpio_irq_t *obj = irq_objects[port_id][pin];
             MBED_ASSERT(obj);
             Cy_GPIO_ClearInterrupt(port, pin);
-            event = (obj->mode == IRQ_FALL)? IRQ_FALL : IRQ_RISE;
+            /*    event = (obj->mode == IRQ_FALL)? IRQ_FALL : IRQ_RISE; */
+
+            /* Read pin to determine the edge to support "both" mode */
+            event = (0UL != Cy_GPIO_Read(port, pin)) ? IRQ_RISE : IRQ_FALL;
+            if (0UL == (obj->mode & event)) {
+                /* In case of very short pulse, actually both edges are occurred, so indicating only the supported one */
+                event = obj->mode;
+            } /* Otherwise the determined edge is supported (0UL != (obj->mode & event)), so indicating it as is */
+
             obj->handler(obj->id_arg, event);
         }
     }
@@ -182,10 +192,11 @@ static int gpio_irq_setup_channel(gpio_irq_t *obj)
         irq_config.cm0pSrc = obj->cm0p_irq_src;
 #endif
         if (Cy_SysInt_Init(&irq_config, irq_dispatcher_table[obj->port_id]) != CY_SYSINT_SUCCESS) {
-            return(-1);
+            return (-1);
         }
 
         irq_port_usage[obj->port_id].pin_mask |= (1 << obj->pin);
+        gpio_irq_enable(obj);
         NVIC_EnableIRQ(irqn);
     }
 
@@ -204,6 +215,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         }
         obj->handler = handler;
         obj->id_arg = id;
+        /* Save reference to current object */
+        irq_objects[obj->port_id][obj->pin] = obj;
+
         return gpio_irq_setup_channel(obj);
     } else {
         return (-1);

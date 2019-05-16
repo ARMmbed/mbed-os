@@ -47,10 +47,11 @@
 
 #include "mbedtls/md5.h"
 #include "mbedtls/sha1.h"
+#include "mbedtls/platform.h"
 
 err_t
-snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
-    const u8_t* key, u8_t algo, u8_t* hmac_out)
+snmpv3_auth(struct snmp_pbuf_stream *stream, u16_t length,
+            const u8_t *key, snmpv3_auth_algo_t algo, u8_t *hmac_out)
 {
   u32_t i;
   u8_t key_len;
@@ -59,6 +60,11 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
   struct snmp_pbuf_stream read_stream;
   snmp_pbuf_stream_init(&read_stream, stream->pbuf, stream->offset, stream->length);
 
+#if defined(MBEDTLS_PLATFORM_C)
+    if (mbedtls_platform_setup(NULL) != 0) {
+        return ERR_ARG;
+    }
+#endif /* MBEDTLS_PLATFORM_C */
   if (algo == SNMP_V3_AUTH_ALGO_MD5) {
     md_info = mbedtls_md_info_from_type(MBEDTLS_MD_MD5);
     key_len = SNMP_V3_MD5_LEN;
@@ -66,14 +72,14 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
     md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
     key_len = SNMP_V3_SHA_LEN;
   } else {
-    return ERR_ARG;
+    goto platform_teardown;
   }
 
   mbedtls_md_init(&ctx);
   if(mbedtls_md_setup(&ctx, md_info, 1) != 0) {
-    return ERR_ARG;
+    goto platform_teardown;
   }
-          
+
   if (mbedtls_md_hmac_starts(&ctx, key, key_len) != 0) {
     goto free_md;
   }
@@ -95,19 +101,26 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
   }
 
   mbedtls_md_free(&ctx);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return ERR_OK;
-  
+
 free_md:
   mbedtls_md_free(&ctx);
+platform_teardown:
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return ERR_ARG;
 }
 
 #if LWIP_SNMP_V3_CRYPTO
 
 err_t
-snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
-    const u8_t* key, const u8_t* priv_param, const u32_t engine_boots,
-    const u32_t engine_time, u8_t algo, u8_t mode)
+snmpv3_crypt(struct snmp_pbuf_stream *stream, u16_t length,
+             const u8_t *key, const u8_t *priv_param, const u32_t engine_boots,
+             const u32_t engine_time, snmpv3_priv_algo_t algo, snmpv3_priv_mode_t mode)
 {
   size_t i;
   mbedtls_cipher_context_t ctx;
@@ -117,6 +130,11 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
   struct snmp_pbuf_stream write_stream;
   snmp_pbuf_stream_init(&read_stream, stream->pbuf, stream->offset, stream->length);
   snmp_pbuf_stream_init(&write_stream, stream->pbuf, stream->offset, stream->length);
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    return ERR_ARG;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_cipher_init(&ctx);
 
   if (algo == SNMP_V3_PRIV_ALGO_DES) {
@@ -126,25 +144,25 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
 
     /* RFC 3414 mandates padding for DES */
     if ((length & 0x07) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
 
     cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_DES_CBC);
     if(mbedtls_cipher_setup(&ctx, cipher_info) != 0) {
-      return ERR_ARG;
+      goto platform_teardown
     }
     if(mbedtls_cipher_set_padding_mode(&ctx, MBEDTLS_PADDING_NONE) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
-    if(mbedtls_cipher_setkey(&ctx, key, 8*8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT)? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
+    if (mbedtls_cipher_setkey(&ctx, key, 8 * 8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT) ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
       goto error;
     }
 
-    /* Prepare IV */    
+    /* Prepare IV */
     for (i = 0; i < LWIP_ARRAYSIZE(iv_local); i++) {
       iv_local[i] = priv_param[i] ^ key[i + 8];
     }
-    if(mbedtls_cipher_set_iv(&ctx, iv_local, LWIP_ARRAYSIZE(iv_local)) != 0) {
+    if (mbedtls_cipher_set_iv(&ctx, iv_local, LWIP_ARRAYSIZE(iv_local)) != 0) {
       goto error;
     }
 
@@ -152,31 +170,38 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
       size_t j;
       u8_t in_bytes[8];
       out_len = LWIP_ARRAYSIZE(out_bytes) ;
-      
+
       for (j = 0; j < LWIP_ARRAYSIZE(in_bytes); j++) {
-        snmp_pbuf_stream_read(&read_stream, &in_bytes[j]);
+        if (snmp_pbuf_stream_read(&read_stream, &in_bytes[j]) != ERR_OK) {
+          goto error;
+        }
       }
 
-      if(mbedtls_cipher_update(&ctx, in_bytes, LWIP_ARRAYSIZE(in_bytes), out_bytes, &out_len) != 0) {
+      if (mbedtls_cipher_update(&ctx, in_bytes, LWIP_ARRAYSIZE(in_bytes), out_bytes, &out_len) != 0) {
         goto error;
       }
 
-      snmp_pbuf_stream_writebuf(&write_stream, out_bytes, out_len);
+      if (snmp_pbuf_stream_writebuf(&write_stream, out_bytes, (u16_t)out_len) != ERR_OK) {
+        goto error;
+      }
     }
-    
+
     out_len = LWIP_ARRAYSIZE(out_bytes);
-    if(mbedtls_cipher_finish(&ctx, out_bytes, &out_len) != 0) {
+    if (mbedtls_cipher_finish(&ctx, out_bytes, &out_len) != 0) {
       goto error;
     }
-    snmp_pbuf_stream_writebuf(&write_stream, out_bytes, out_len);
+
+    if (snmp_pbuf_stream_writebuf(&write_stream, out_bytes, (u16_t)out_len) != ERR_OK) {
+      goto error;
+    }
   } else if (algo == SNMP_V3_PRIV_ALGO_AES) {
     u8_t iv_local[16];
 
     cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_CFB128);
     if(mbedtls_cipher_setup(&ctx, cipher_info) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
-    if(mbedtls_cipher_setkey(&ctx, key, 16*8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT)? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
+    if (mbedtls_cipher_setkey(&ctx, key, 16 * 8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT) ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
       goto error;
     }
 
@@ -193,7 +218,7 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
     iv_local[4 + 2] = (engine_time  >>  8) & 0xFF;
     iv_local[4 + 3] = (engine_time  >>  0) & 0xFF;
     SMEMCPY(iv_local + 8, priv_param, 8);
-    if(mbedtls_cipher_set_iv(&ctx, iv_local, LWIP_ARRAYSIZE(iv_local)) != 0) {
+    if (mbedtls_cipher_set_iv(&ctx, iv_local, LWIP_ARRAYSIZE(iv_local)) != 0) {
       goto error;
     }
 
@@ -201,15 +226,19 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
       u8_t in_byte;
       u8_t out_byte;
       size_t out_len = sizeof(out_byte);
-      
-      snmp_pbuf_stream_read(&read_stream, &in_byte);
-      if(mbedtls_cipher_update(&ctx, &in_byte, sizeof(in_byte), &out_byte, &out_len) != 0) {
+
+      if (snmp_pbuf_stream_read(&read_stream, &in_byte) != ERR_OK) {
         goto error;
       }
-      snmp_pbuf_stream_write(&write_stream, out_byte);
+      if (mbedtls_cipher_update(&ctx, &in_byte, sizeof(in_byte), &out_byte, &out_len) != 0) {
+        goto error;
+      }
+      if (snmp_pbuf_stream_write(&write_stream, out_byte) != ERR_OK) {
+        goto error;
+      }
     }
   } else {
-    return ERR_ARG;
+    goto platform_teardown;
   }
 
   mbedtls_cipher_free(&ctx);
@@ -217,19 +246,23 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
 
 error:
   mbedtls_cipher_free(&ctx);
-  return ERR_OK;
+platform_teardown:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
+  return ERR_ARG;
 }
 
 #endif /* LWIP_SNMP_V3_CRYPTO */
 
 /* A.2.1. Password to Key Sample Code for MD5 */
-void 
+void
 snmpv3_password_to_key_md5(
-    const u8_t *password,    /* IN */
-    u8_t        passwordlen, /* IN */
-    const u8_t *engineID,    /* IN  - pointer to snmpEngineID  */
-    u8_t        engineLength,/* IN  - length of snmpEngineID */
-    u8_t       *key)         /* OUT - pointer to caller 16-octet buffer */
+  const u8_t *password,    /* IN */
+  size_t      passwordlen, /* IN */
+  const u8_t *engineID,    /* IN  - pointer to snmpEngineID  */
+  u8_t        engineLength,/* IN  - length of snmpEngineID */
+  u8_t       *key)         /* OUT - pointer to caller 16-octet buffer */
 {
   mbedtls_md5_context MD;
   u8_t *cp, password_buf[64];
@@ -237,6 +270,11 @@ snmpv3_password_to_key_md5(
   u8_t i;
   u32_t count = 0;
 
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    goto end;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_md5_init(&MD); /* initialize MD5 */
   mbedtls_md5_starts(&MD);
 
@@ -272,17 +310,22 @@ snmpv3_password_to_key_md5(
   mbedtls_md5_finish(&MD, key);
 
   mbedtls_md5_free(&MD);
+
+end:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return;
 }
 
 /* A.2.2. Password to Key Sample Code for SHA */
-void 
+void
 snmpv3_password_to_key_sha(
-    const u8_t *password,    /* IN */
-    u8_t        passwordlen, /* IN */
-    const u8_t *engineID,    /* IN  - pointer to snmpEngineID  */
-    u8_t        engineLength,/* IN  - length of snmpEngineID */
-    u8_t       *key)         /* OUT - pointer to caller 20-octet buffer */
+  const u8_t *password,    /* IN */
+  size_t      passwordlen, /* IN */
+  const u8_t *engineID,    /* IN  - pointer to snmpEngineID  */
+  u8_t        engineLength,/* IN  - length of snmpEngineID */
+  u8_t       *key)         /* OUT - pointer to caller 20-octet buffer */
 {
   mbedtls_sha1_context SH;
   u8_t *cp, password_buf[72];
@@ -290,6 +333,11 @@ snmpv3_password_to_key_sha(
   u8_t i;
   u32_t count = 0;
 
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    goto end;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_sha1_init(&SH); /* initialize SHA */
   mbedtls_sha1_starts(&SH);
 
@@ -323,8 +371,13 @@ snmpv3_password_to_key_sha(
   mbedtls_sha1_starts(&SH);
   mbedtls_sha1_update(&SH, password_buf, 40 + engineLength);
   mbedtls_sha1_finish(&SH, key);
-  
+
   mbedtls_sha1_free(&SH);
+
+end:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return;
 }
 

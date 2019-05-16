@@ -19,7 +19,7 @@
 
 #include <limits.h>
 #include "platform/mbed_power_mgmt.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 
 namespace mbed {
 

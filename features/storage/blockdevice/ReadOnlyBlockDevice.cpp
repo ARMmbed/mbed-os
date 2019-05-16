@@ -101,6 +101,17 @@ bd_size_t ReadOnlyBlockDevice::size() const
     return _bd->size();
 }
 
+const char *ReadOnlyBlockDevice::get_type() const
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
 
 /** @}*/
+
+

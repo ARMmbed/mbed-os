@@ -1,4 +1,20 @@
-""" import and bulid a bunch of example programs """
+"""
+Copyright (c) 2017-2019 ARM Limited. All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations 
+"""
 
 from argparse import ArgumentParser
 import os
@@ -7,6 +23,8 @@ import os.path
 import sys
 import subprocess
 import json
+
+""" import and bulid a bunch of example programs """
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
@@ -58,6 +76,12 @@ def main():
     compile_cmd.add_argument("--profile",
                              help=("build profile file"),
                              metavar="profile")
+
+    compile_cmd.add_argument("-v", "--verbose",
+                             action="store_true",
+                             dest="verbose",
+                             default=False,
+                             help="Verbose diagnostic output")
 
     export_cmd = subparsers.add_parser("export")
     export_cmd.set_defaults(fn=do_export),
@@ -113,8 +137,7 @@ def do_deploy(_, config, examples):
 def do_compile(args, config, examples):
     """Do the compile step"""
     results = {}
-    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, examples)
-    
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples)
     lib.print_summary(results)
     failures = lib.get_num_failures(results)
     print("Number of failures = %d" % failures)

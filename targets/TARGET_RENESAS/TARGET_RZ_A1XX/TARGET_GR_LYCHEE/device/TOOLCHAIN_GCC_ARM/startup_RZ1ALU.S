@@ -223,27 +223,4 @@ sf_boot:
     .pool
     .size Reset_Handler, . - Reset_Handler
 
-
-    .text
-
-/*    Macro to define default handlers. Default handler
- *    will be weak symbol and just dead loops. They can be
- *    overwritten by other handlers */
-                .macro    def_default_handler    handler_name
-                .align 1
-                .thumb_func
-                .weak    \handler_name
-                .type    \handler_name, %function
-\handler_name :
-                b    .
-                .size    \handler_name, . - \handler_name
-                .endm
-
-                def_default_handler    Undef_Handler
-                def_default_handler    SVC_Handler
-                def_default_handler    PAbt_Handler
-                def_default_handler    DAbt_Handler
-                def_default_handler    IRQ_Handler
-                def_default_handler    FIQ_Handler
-
-                .END
+    .end

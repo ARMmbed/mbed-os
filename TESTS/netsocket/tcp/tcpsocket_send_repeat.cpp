@@ -26,13 +26,14 @@ using namespace utest::v1;
 
 void TCPSOCKET_SEND_REPEAT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     tcpsocket_connect_to_discard_srv(sock);
 
     int snd;
     Timer timer;
     static const char tx_buffer[] = {'h', 'e', 'l', 'l', 'o'};
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 100; i++) {
         snd = sock.send(tx_buffer, sizeof(tx_buffer));
         if (snd != sizeof(tx_buffer)) {
             TEST_FAIL();

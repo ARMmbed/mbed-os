@@ -2,16 +2,17 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import normpath, exists, dirname
+from os.path import normpath, exists, dirname, join, abspath, relpath
 import ntpath
 import copy
 from collections import namedtuple
 import shutil
 from subprocess import Popen, PIPE
 import re
+import json
 
 from tools.resources import FileType
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, CORE_ARCH
 from tools.export.exporters import Exporter
 from tools.export.cmsis import DeviceCMSIS
 
@@ -26,7 +27,6 @@ class DeviceUvision(DeviceCMSIS):
         self.svd = ''
         if self.debug_svd:
             self.svd = dev_format.format(self.dname, self.debug_svd)
-        self.reg_file = dev_format.format(self.dname, self.compile_header)
         self.debug_interface = self.uv_debug()
         self.flash_dll = self.generate_flash_dll()
 
@@ -73,14 +73,10 @@ class DeviceUvision(DeviceCMSIS):
         '''
         fl_count = 0
 
-        def get_mem_no_x(mem_str):
-            mem_reg = "\dx(\w+)"
-            m = re.search(mem_reg, mem_str)
-            return m.group(1) if m else None
-
         RAMS = [
-            (get_mem_no_x(info["start"]), get_mem_no_x(info["size"]))
-            for mem, info in self.target_info["memory"].items() if "RAM" in mem
+            (info["start"], info["size"])
+            for mem, info in self.target_info["memories"].items()
+            if "RAM" in mem
         ]
         format_str = (
             "UL2CM3(-S0 -C0 -P0 -FD{ramstart}"
@@ -90,26 +86,27 @@ class DeviceUvision(DeviceCMSIS):
         # Default according to Keil developer
         ramsize = '1000'
         if len(RAMS) >= 1:
-            ramstart = RAMS[0][0]
+            ramstart = '{:x}'.format(RAMS[0][0])
         extra_flags = []
-        for name, info in self.target_info["algorithm"].items():
-            if not name or not info:
+        for info in self.target_info["algorithms"]:
+            if not info:
                 continue
-            if int(info["default"]) == 0:
+            if not info["default"]:
                 continue
-            name_reg = "\w*/([\w_]+)\.flm"
+            name = info['file_name']
+            name_reg = "\w*[/\\\\]([\w_]+)\.flm"
             m = re.search(name_reg, name.lower())
             fl_name = m.group(1) if m else None
             name_flag = "-FF" + str(fl_count) + fl_name
 
-            start = get_mem_no_x(info["start"])
-            size = get_mem_no_x(info["size"])
+            start = '{:x}'.format(info["start"])
+            size = '{:x}'.format(info["size"])
             rom_start_flag = "-FS" + str(fl_count) + str(start)
             rom_size_flag = "-FL" + str(fl_count) + str(size)
 
-            if info["ramstart"] is not None and info["ramsize"] is not None:
-                ramstart = get_mem_no_x(info["ramstart"])
-                ramsize = get_mem_no_x(info["ramsize"])
+            if info["ram_start"] is not None and info["ram_size"] is not None:
+                ramstart = '{:x}'.format(info["ram_start"])
+                ramsize = '{:x}'.format(info["ram_size"])
 
             path_flag = "-FP{}($$Device:{}${})".format(
                 str(fl_count), self.dname, name
@@ -141,7 +138,8 @@ class Uvision(Exporter):
         "LPC4088Code.binary_hook",
         "MTSCode.combine_bins_mts_dot",
         "MTSCode.combine_bins_mts_dragonfly",
-        "NCS36510TargetCode.ncs36510_addfib"
+        "NCS36510TargetCode.ncs36510_addfib",
+        "LPC55S69Code.binary_hook"
     ])
 
     # File associations within .uvprojx file
@@ -220,9 +218,12 @@ class Uvision(Exporter):
     @staticmethod
     def format_fpu(core):
         """Generate a core's FPU string"""
-        if core.endswith("FD"):
+        fpu_core_name = core.replace("-NS", "").rstrip("E")
+        if fpu_core_name.endswith("FD"):
             return "FPU3(DFPU)"
-        elif core.endswith("F"):
+        elif fpu_core_name.endswith("F"):
+            if CORE_ARCH[core] == 8:
+                return "FPU3(SFPU)"
             return "FPU2"
         else:
             return ""
@@ -241,19 +242,46 @@ class Uvision(Exporter):
             'project_files': sorted(list(self.format_src(srcs).items()),
                                     key=lambda tuple: tuple[0].lower()),
             'include_paths': ';'.join(self.filter_dot(d) for d in
-                                      self.resources.inc_dirs).encode('utf-8'),
+                                      self.resources.inc_dirs),
             'device': DeviceUvision(self.target),
+            'postbuild_step_active': 0,
         }
-        sct_name, sct_path = self.resources.get_file_refs(
-            FileType.LD_SCRIPT)[0]
-        ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
-            sct_path, dirname(sct_name))
-        if ctx['linker_script'] != sct_path:
-            self.generated_files.append(ctx['linker_script'])
-        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
-        if ctx['device'].core.endswith("FD"):
+
+        if self.toolchain.config.has_regions and not self.zip:
+            # Serialize region information
+            export_info = {}
+            restrict_size = getattr(self.toolchain.config.target, "restrict_size")
+            if restrict_size:
+                export_info["target"] = {
+                    "restrict_size": restrict_size
+                }
+
+            binary_path = "BUILD/{}.hex".format(self.project_name)
+            region_list = list(self.toolchain.config.regions)
+            export_info["region_list"] = [
+                r._replace(filename=binary_path) if r.active else r for r in region_list
+            ]
+            # Enable the post build step
+            postbuild_script_path = join(relpath(dirname(__file__)), "postbuild.py")
+            ctx['postbuild_step'] = (
+                'python {} "$K\\" "#L"'.format(postbuild_script_path)
+            )
+            ctx['postbuild_step_active'] = 1
+            ctx['export_info'] = json.dumps(export_info, indent=4)
+
+        sct_file_ref = self.resources.get_file_refs(FileType.LD_SCRIPT)[0]
+        sct_file_ref = self.toolchain.correct_scatter_shebang(
+            sct_file_ref, dirname(sct_file_ref.name)
+        )
+        self.resources.add_file_ref(
+            FileType.LD_SCRIPT, sct_file_ref.name, sct_file_ref.path
+        )
+        ctx['linker_script'] = sct_file_ref.name
+        fpu_included_core_name = ctx['device'].core.replace("-NS", "")
+        ctx['cputype'] = fpu_included_core_name.rstrip("FDE")
+        if fpu_included_core_name.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif ctx['device'].core.endswith("F"):
+        elif fpu_included_core_name.rstrip("E").endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
@@ -268,10 +296,29 @@ class Uvision(Exporter):
             'uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx"
         )
 
+        if ctx['postbuild_step_active']:
+            self.gen_file(
+                'uvision/debug_init.ini', ctx, 'debug_init.ini'
+            )
+            self.gen_file(
+                'uvision/flash_init.ini', ctx, 'flash_init.ini'
+            )
+            self.gen_file(
+                'uvision/export_info.tmpl', ctx, 'export_info.json'
+            )
+
     @staticmethod
     def clean(project_name):
         os.remove(project_name + ".uvprojx")
         os.remove(project_name + ".uvoptx")
+
+        if exists("export_info.json"):
+            os.remove("export_info.json")
+        if exists("debug_init.ini"):
+            os.remove("debug_init.ini")
+        if exists("flash_init.ini"):
+            os.remove("flash_init.ini")
+
         # legacy .build directory cleaned if exists
         if exists('.build'):
             shutil.rmtree('.build')
@@ -315,9 +362,15 @@ class UvisionArmc5(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains).intersection(
-                set(["ARM", "uARM"]))):
-            return False
+        if int(target.build_tools_metadata["version"]) > 0:
+            #Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
+            if "ARMC5" not in target.supported_toolchains:
+                return False
+        else:
+            if not (set(target.supported_toolchains).intersection(
+                    set(["ARM", "uARM"]))):
+                return False
+
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:
@@ -338,9 +391,14 @@ class UvisionArmc6(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains).intersection(
-                set(["ARMC6"]))):
-            return False
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not len(set(target.supported_toolchains).intersection(
+                    set(["ARM", "ARMC6"]))) > 0:
+                return False
+        else:
+            if "ARMC6" not in target.supported_toolchains:
+                return False
+
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:

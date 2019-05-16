@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,10 @@ void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur);
 
 int ws_bootstrap_restart(int8_t interface_id);
 
+int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs);
+
+int ws_bootstrap_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(protocol_interface_info_entry_t *cur);
 
@@ -66,11 +70,14 @@ void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_
 
 void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t *prefix);
 
+bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
+
 #else
 
 #define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
 #define ws_bootstrap_state_machine(cur)
 #define ws_bootstrap_restart(cur)
+#define ws_bootstrap_neighbor_remove(cur, ll_address)
 #define ws_primary_parent_update(interface, neighbor)
 #define ws_secondary_parent_update(interface)
 

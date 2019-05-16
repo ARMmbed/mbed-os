@@ -41,6 +41,31 @@ const PinMap PinMap_SSI_MISO[] = {
     {NC,    NC,     0}
 };
 
+// For testing only
+const PinMap PinMap_SSI_SCLK[] = {
+    {PC_1,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
+
+    {NC,    NC,     0}
+};
+
+// For testing only
+const PinMap PinMap_SSI_SSEL[] = {
+    {PE_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
+    {PC_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
+    {PC_4,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
+    {PC_0,  RTL_PIN_PERI(SPI0, 0, S0), /* Unused */ 0},
+    {PA_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PD_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+
+    {NC,    NC,     0}
+};
+
 // for serial_api.c
 const PinMap PinMap_UART_TX[] = {
     {PC_3,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)},
@@ -136,6 +161,22 @@ const PinMap PinMap_I2C_SCL[] = {
     {PE_2,  RTL_PIN_PERI(I2C3, 3, S1), RTL_PIN_FUNC(I2C3, S1)},
     {PE_4,  RTL_PIN_PERI(I2C3, 3, S2), RTL_PIN_FUNC(I2C3, S2)},
     {PD_8,  RTL_PIN_PERI(I2C3, 3, S3), RTL_PIN_FUNC(I2C3, S3)},
+
+    {NC,    NC,     0}
+};
+
+// For testing only
+const PinMap PinMap_ADC[] = {
+    {A1,    /* Unused */ 0, /* Unused */ 0},
+    {A2,    /* Unused */ 0, /* Unused */ 0},
+
+    {NC,    NC,     0}
+};
+
+// For testing only
+const PinMap PinMap_DAC[] = {
+    {DA_0,  /* Unused */ 0, /* Unused */ 0},
+    {DA_1,  /* Unused */ 0, /* Unused */ 0},
 
     {NC,    NC,     0}
 };

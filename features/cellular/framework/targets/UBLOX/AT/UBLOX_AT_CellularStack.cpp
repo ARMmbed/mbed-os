@@ -296,6 +296,12 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 _at.read_string(ipAddress, sizeof(ipAddress));
                 port = _at.read_int();
                 usorf_sz = _at.read_int();
+                if (usorf_sz > size) {
+                    usorf_sz = size;
+                }
+                _at.read_bytes(&ch, 1);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
+                _at.resp_stop();
 
                 // Must use what +USORF returns here as it may be less or more than we asked for
                 if (usorf_sz > socket->pending_bytes) {
@@ -303,13 +309,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     socket->pending_bytes -= usorf_sz;
                 }
-
-                if (usorf_sz > size) {
-                    usorf_sz = size;
-                }
-                _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
-                _at.resp_stop();
 
                 if (usorf_sz > 0) {
                     count += usorf_sz;
@@ -345,6 +344,12 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 _at.resp_start("+USORD:");
                 _at.skip_param(); // receiving socket id
                 usorf_sz = _at.read_int();
+                if (usorf_sz > size) {
+                    usorf_sz = size;
+                }
+                _at.read_bytes(&ch, 1);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
+                _at.resp_stop();
 
                 // Must use what +USORD returns here as it may be less or more than we asked for
                 if (usorf_sz > socket->pending_bytes) {
@@ -352,13 +357,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     socket->pending_bytes -= usorf_sz;
                 }
-
-                if (usorf_sz > size) {
-                    usorf_sz = size;
-                }
-                _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
-                _at.resp_stop();
 
                 if (usorf_sz > 0) {
                     count += usorf_sz;
@@ -446,7 +444,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
     if (_at.info_resp()) {
         _at.skip_param();
         _at.skip_param();
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE - 1);
+        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE);
         if (len == -1) {
             _ip[0] = '\0';
             _at.unlock();
@@ -456,7 +454,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE - 1);
+            len = _at.read_string(_ip, PDP_IPV6_SIZE);
         }
     }
     _at.resp_stop();
@@ -468,7 +466,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
     return _ip;
 }
 
-nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     char ipAddress[NSAPI_IP_SIZE];
     nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
@@ -481,8 +479,11 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
         _at.cmd_start("AT+UDNSRN=0,");
         _at.write_string(host);
         _at.cmd_stop();
-
-        _at.set_at_timeout(60000);
+#ifdef TARGET_UBLOX_C030_R41XM
+        _at.set_at_timeout(70000);
+#else
+        _at.set_at_timeout(120000);
+#endif
         _at.resp_start("+UDNSRN:");
         if (_at.info_resp()) {
             _at.read_string(ipAddress, sizeof(ipAddress));

@@ -24,7 +24,7 @@
 #define LWIP_TIMEVAL_PRIVATE 0
 #include <sys/time.h>
 #endif
-
+#include "nsapi_types.h"
 // Operating System
 #define NO_SYS                      0
 
@@ -58,6 +58,7 @@
 #endif
 
 #define DHCP_TIMEOUT                60
+#define LINK_TIMEOUT                60
 
 #define PREF_IPV4                   1
 #define PREF_IPV6                   2
@@ -82,7 +83,9 @@
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
+#ifndef LWIP_RAW
 #define LWIP_RAW                    0
+#endif
 
 #define TCPIP_MBOX_SIZE             8
 #define DEFAULT_TCP_RECVMBOX_SIZE   8
@@ -157,6 +160,14 @@
 // TCP sender buffer space (bytes).
 #ifdef MBED_CONF_LWIP_TCP_WND
 #define TCP_WND                     MBED_CONF_LWIP_TCP_WND
+#endif
+
+#ifdef MBED_CONF_LWIP_TCP_MAXRTX
+#define TCP_MAXRTX                  MBED_CONF_LWIP_TCP_MAXRTX
+#endif
+
+#ifdef MBED_CONF_LWIP_TCP_SYNMAXRTX
+#define TCP_SYNMAXRTX               MBED_CONF_LWIP_TCP_SYNMAXRTX
 #endif
 
 // Number of pool pbufs.
@@ -331,6 +342,14 @@
 #define LWIP_ETHERNET               0
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
 
+#if MBED_CONF_LWIP_L3IP_ENABLED
+#define LWIP_L3IP                   1
+#else
+#define LWIP_L3IP                   0
+#endif
+
+//Maximum size of network interface name
+#define INTERFACE_NAME_MAX_SIZE NSAPI_INTERFACE_NAME_MAX_SIZE
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
 #if NSAPI_PPP_AVAILABLE

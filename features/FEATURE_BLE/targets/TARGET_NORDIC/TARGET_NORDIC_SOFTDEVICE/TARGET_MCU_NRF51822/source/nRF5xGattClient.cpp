@@ -18,7 +18,7 @@
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 ble_error_t
-nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
+nRF5xGattClient::launchServiceDiscovery_(Gap::Handle_t                               connectionHandle,
                                         ServiceDiscovery::ServiceCallback_t         sc,
                                         ServiceDiscovery::CharacteristicCallback_t  cc,
                                         const UUID                                 &matchingServiceUUIDIn,
@@ -27,7 +27,7 @@ nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                           
     return _discovery.launch(connectionHandle, sc, cc, matchingServiceUUIDIn, matchingCharacteristicUUIDIn);
 }
 
-ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
+ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors_(
     const DiscoveredCharacteristic& characteristic,
     const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
     const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback)
@@ -39,11 +39,11 @@ ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
     );
 }
 
-bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
+bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive_(const DiscoveredCharacteristic& characteristic) const {
     return _characteristicDescriptorDiscoverer.isActive(characteristic);   
 }
 
-void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic) { 
+void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery_(const DiscoveredCharacteristic& characteristic) {
     return _characteristicDescriptorDiscoverer.requestTerminate(characteristic);
 }
 

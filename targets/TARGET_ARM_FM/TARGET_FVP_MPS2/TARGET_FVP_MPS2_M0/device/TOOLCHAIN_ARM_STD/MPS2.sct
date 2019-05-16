@@ -53,11 +53,11 @@ LR_IROM1 MAPPABLE_START MAPPABLE_SIZE  {
 LR_IROM2 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {    ; load region size_region
   ER_IROM2 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {  ; load address = execution address
    *(InRoot$$Sections)
-   .ANY (+RO)
+   *(+RO)
   }
   ; NVIC_VECTORS_SIZE Total: 64 vectors = 256 bytes (0x100) to be reserved in RAM
   RW_IRAM1 (ZBT_SRAM2_START + NVIC_VECTORS_SIZE) (ZBT_SRAM2_SIZE - NVIC_VECTORS_SIZE)  {  ; RW data
-   .ANY (+RW +ZI)
+   *(+RW +ZI)
   }
   ARM_LIB_STACK (ZBT_SRAM2_START + ZBT_SRAM2_SIZE) EMPTY - STACK_SIZE { ; Stack region growing down
   }

@@ -15,7 +15,7 @@
  */
 
 #include "DataFlashBlockDevice.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 
 #include <inttypes.h>
 
@@ -525,6 +525,11 @@ bd_size_t DataFlashBlockDevice::size() const
     bd_size_t device_size = _device_size;
     _mutex.unlock();
     return device_size;
+}
+
+const char *DataFlashBlockDevice::get_type() const
+{
+    return "DATAFLASH";
 }
 
 /**

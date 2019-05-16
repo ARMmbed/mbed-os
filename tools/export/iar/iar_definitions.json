@@ -96,6 +96,12 @@
     "LPC54628J512ET180": {
         "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
+    "LPC55S69JBD100": {
+        "OGChipSelectEditMenu": "LPC55S69_core0\tNXP LPC55S69_core0"
+    },
+    "MIMXRT1052": {
+        "OGChipSelectEditMenu": "MIMXRT1052xxx6B\tNXP MIMXRT1052xxx6B"
+    },
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
     },
@@ -252,11 +258,25 @@
     "NCS36510":{
         "OGChipSelectEditMenu": "NCS36510\tONSemiconductor NCS36510"
     },
+    "NANO130KE3BN": {
+        "OGChipSelectEditMenu": "Nano100BN series\tNuvoton Nano100BN series (Nano100BN,Nano110BN,Nano120BN,Nano130BN)",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler"
+    },
     "NUC472HI8AE": {
-        "OGChipSelectEditMenu": "NUC400AE series\tNuvoton NUC400AE series (NUC442AE,NUC472AE)"
+        "OGChipSelectEditMenu": "NUC400AE series\tNuvoton NUC400AE series (NUC442AE,NUC472AE)",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler"
     },
     "M453VG6AE": {
-        "OGChipSelectEditMenu": "M451AE series\tNuvoton M451AE series (M451AE,M452AE,M453AE,M451MAE)"
+        "OGChipSelectEditMenu": "M451AE series\tNuvoton M451AE series (M451AE,M452AE,M453AE,M451MAE)",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler"
+    },
+    "M487JIDAE": {
+        "OGChipSelectEditMenu": "M481AE series\tNuvoton M480AE series (M481AE,M482AE,M483AE,M484AE,M485AE,M487AE)",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler"
     },
     "nRF52840_xxAA":{
         "OGChipSelectEditMenu": "nRF52840_xxAA\tNordicSemi nRF52840_xxAA",
@@ -338,5 +358,11 @@
         "GBECoreSlave": 39,
         "FPU2": 6,
         "GFPUCoreSlave2": 39
+    },
+    "M2351KIAAEES": {
+        "OGChipSelectEditMenu": "M2351 series\tNuvoton M2351 series",
+        "IlinkOverrideProgramEntryLabel": 1,
+        "IlinkProgramEntryLabel": "Reset_Handler",
+        "TrustZone": 1
     }
 }

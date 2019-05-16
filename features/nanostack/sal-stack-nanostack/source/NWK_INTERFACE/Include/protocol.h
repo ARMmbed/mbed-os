@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
 
 // Users of protocol.h can assume it includes these headers
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Core/include/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them

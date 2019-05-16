@@ -378,3 +378,8 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     NRF_TIMER2->SHORTS      = TIMER_SHORTS_COMPARE3_CLEAR_Msk | TIMER_SHORTS_COMPARE3_STOP_Msk;
     NRF_TIMER2->TASKS_START = 1;
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

@@ -26,6 +26,7 @@
 
 #include "ble/GapEvents.h"
 #include "nRF5xn.h"
+#include <algorithm>
 
 #ifdef S110
     #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
@@ -112,7 +113,6 @@ static uint32_t signalEvent()
 
 error_t btle_init(void)
 {
-    nrf_clock_lf_cfg_t clockConfiguration;
     ret_code_t err_code;
 
     // register softdevice handler vector
@@ -122,6 +122,7 @@ error_t btle_init(void)
     err_code = nrf_sdh_enable_request();
     ASSERT_STATUS(err_code);
 #else
+    nrf_clock_lf_cfg_t clockConfiguration;
     // Configure the LF clock according to values provided by btle_clock.h.
     // It is input from the chain of the yotta configuration system.
     clockConfiguration.source        = LFCLK_CONF_SOURCE;
@@ -280,13 +281,14 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 #endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    nRF5xGattClient::handle_events(p_ble_evt);
+    ble::impl::PalGattClientImpl::handle_events(p_ble_evt);
 #endif
 
     nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
     nRF5xGap             &gap             = (nRF5xGap &) ble.getGap();
     nRF5xGattServer      &gattServer      = (nRF5xGattServer &) ble.getGattServer();
-    nRF5xSecurityManager &securityManager = nRF5xSecurityManager::get_security_manager();
+    ble::impl::PalSecurityManagerImpl &securityManager =
+        ble::impl::PalSecurityManagerImpl::get_security_manager();
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
@@ -323,7 +325,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
-            nRF5xGattClient::handle_connection_termination(handle);
+            ble::impl::PalGattClientImpl::handle_connection_termination(handle);
 #endif
 
             gap.processDisconnectionEvent(handle, reason);
@@ -334,48 +336,97 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 #if  (NRF_SD_BLE_API_VERSION >= 5)
 #ifndef S140
         // Handle PHY upgrade request
-        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST: {
             gap.on_phy_update_request(
                 p_ble_evt->evt.gap_evt.conn_handle,
                 p_ble_evt->evt.gap_evt.params.phy_update_request
             );
             break;
+        }
 #endif
-        case BLE_GAP_EVT_PHY_UPDATE:
+        case BLE_GAP_EVT_PHY_UPDATE: {
             gap.on_phy_update(
                 p_ble_evt->evt.gap_evt.conn_handle,
                 p_ble_evt->evt.gap_evt.params.phy_update
             );
             break;
+        }
 
-        	// Handle Data length negotiation request
-        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
-        {
-            ble_gap_evt_t       const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+        // Handle Data length negotiation request
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST: {
+            ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
             uint8_t const data_length_peer =
                 p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
 
-            const uint8_t max_data_length = NRF_SDH_BLE_GATT_MAX_MTU_SIZE + 4 /* L2CAP header size */;
+            uint8_t const data_length = MIN(
+                NRF_SDH_BLE_GATT_MAX_MTU_SIZE + 4 /* L2CAP header size */,
+                data_length_peer
+            );
 
-            uint8_t const data_length = MIN(max_data_length, data_length_peer);
-
-            ble_gap_data_length_params_t const dlp =
-            {
-                /* max_rx_octets */ data_length,
-                /* max_tx_octets */ data_length
+            ble_gap_data_length_params_t const dlp = {
+                /* max_rx_octets */data_length,
+                /* max_tx_octets */data_length
             };
 
             ASSERT_STATUS_RET_VOID(sd_ble_gap_data_length_update(p_gap_evt->conn_handle, &dlp, NULL));
-        		break;
+            break;
         }
 
-        	// Handle MTU exchange request
-        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
-        {
-        		// Respond with the server MTU
-            uint16_t   conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
+        // Handle Data length negotiation result
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE: {
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gap_evt_data_length_update_t &update =
+                    p_ble_evt->evt.gap_evt.params.data_length_update;
+
+                gap._eventHandler->onDataLengthChange(
+                    connection,
+                    update.effective_params.max_tx_octets,
+                    update.effective_params.max_rx_octets
+                );
+            }
+            break;
+        }
+
+        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST: {
+            /* Respond with the server MTU */
+            uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
             ASSERT_STATUS_RET_VOID(sd_ble_gatts_exchange_mtu_reply(conn_handle, NRF_SDH_BLE_GATT_MAX_MTU_SIZE));
-        		break;
+
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gatts_evt_exchange_mtu_request_t &update =
+                    p_ble_evt->evt.gatts_evt.params.exchange_mtu_request;
+
+                nRF5xGattServer &gatt_server = (nRF5xGattServer&) ble.getGattServer();
+                if (gatt_server.getEventHandler()) {
+                    gatt_server.getEventHandler()->onAttMtuChange(
+                        connection,
+                        std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.client_rx_mtu))
+                    );
+                }
+            }
+            break;
+        }
+
+        case BLE_GATTC_EVT_EXCHANGE_MTU_RSP: {
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gattc_evt_exchange_mtu_rsp_t &update =
+                    p_ble_evt->evt.gattc_evt.params.exchange_mtu_rsp;
+
+                ble::impl::PalGattClientImpl &gatt_client = (ble::impl::PalGattClientImpl&) ble.getGattClient();
+                if (gatt_client.get_event_handler()) {
+                    gatt_client.get_event_handler()->on_att_mtu_change(
+                        connection,
+                        std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.server_rx_mtu))
+                    );
+                }
+            }
+            break;
         }
 #endif
         case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {

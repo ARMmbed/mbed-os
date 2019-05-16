@@ -23,6 +23,10 @@
 #include "netsocket/NetworkInterface.h"
 #include "DNS.h"
 
+/** @file NetworkStack.h NetworkStack class */
+/** @addtogroup netsocket
+ * @{ */
+
 // Predeclared classes
 class OnboardNetworkStack;
 
@@ -32,7 +36,6 @@ class OnboardNetworkStack;
  *  can connect to a network over IP. By implementing the
  *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
- *  @addtogroup netsocket
  */
 class NetworkStack: public DNS {
 public:
@@ -44,6 +47,14 @@ public:
      *                  or null if not yet connected
      */
     virtual const char *get_ip_address();
+
+    /** Get the local IP address on interface name
+     *
+     *  @param          interface_name  Network interface_name
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
+     */
+    virtual const char *get_ip_address_if(const char *interface_name);
 
     /** Translates a hostname to an IP address with specific version
      *
@@ -57,10 +68,11 @@ public:
      *  @param address  Pointer to a SocketAddress to store the result.
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @param interface_name  Network interface_name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC, const char *interface_name = NULL);
 
     /** Hostname translation callback (asynchronous)
      *
@@ -94,13 +106,14 @@ public:
      *  @param callback Callback that is called for result
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @param interface_name  Network interface_name
      *  @return         0 on immediate success,
      *                  negative error code on immediate failure or
      *                  a positive unique id that represents the hostname translation operation
      *                  and can be passed to cancel
      */
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
-                                                       nsapi_version_t version = NSAPI_UNSPEC);
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version = NSAPI_UNSPEC,
+                                                       const char *interface_name = NULL);
 
     /** Cancels asynchronous hostname translation
      *
@@ -114,9 +127,10 @@ public:
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Destination for the host address
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+    virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name = NULL);
 
     /** Get a domain name server from a list of servers to query
      *
@@ -125,9 +139,10 @@ public:
      *
      *  @param index    Index of the DNS server, starts from zero
      *  @param address  Destination for the host address
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
-    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address);
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name = NULL);
 
     /*  Set stack options
      *
@@ -421,3 +436,5 @@ NetworkStack *nsapi_create_stack(IF *iface)
 
 
 #endif
+
+/** @} */

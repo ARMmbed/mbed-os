@@ -31,7 +31,7 @@
 #include "pwmout_api.h"
 #include "pwmout_device.h"
 
-#ifdef DEVICE_PWMOUT
+#if DEVICE_PWMOUT
 
 const pwm_apb_map_t pwm_apb_map_table[] = {
 #if defined(TIM2_BASE)

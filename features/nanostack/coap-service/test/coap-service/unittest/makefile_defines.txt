@@ -24,16 +24,6 @@ INCLUDE_DIRS =\
   ../stub\
   ../../../../coap-service/\
   ../../../../source/include/\
-  ../../../../yotta_modules/mbedtls/ \
-  ../../../../yotta_modules/sal-stack-nanostack/nanostack/ \
-  ../../../../yotta_modules/nanostack-randlib/mbed-client-randlib/ \
-  ../../../../yotta_modules/nanostack-libservice/ \
-  ../../../../yotta_modules/nanostack-libservice/mbed-client-libservice/ \
-  ../../../../yotta_modules/mbed-coap/ \
-  ../../../../yotta_modules/mbed-coap/source/include/ \
-  ../../../../yotta_modules/sal-stack-nanostack-eventloop/nanostack-event-loop/ \
-  ../../../../yotta_modules/sal-stack-nanostack-eventloop/source/ \
-  ../../../../yotta_modules/mbed-trace/ \
   ../../../../../nanostack/nanostack/\
   ../../../../../libService/libService/\
   ../../../../../mbed-coap/\

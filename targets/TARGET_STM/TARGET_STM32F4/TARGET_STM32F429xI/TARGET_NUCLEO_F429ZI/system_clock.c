@@ -18,7 +18,7 @@
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------------
   * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock) |
-  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | CLOCK_SOURCE_USB=1
+  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | DEVICE_USBDEVICE=1
   *                       | 3- USE_PLL_HSI (internal 16 MHz clock)     |
   *-----------------------------------------------------------------------------------
   * SYSCLK(MHz)           |                               180          | 168
@@ -30,7 +30,7 @@
 **/
 
 #include "stm32f4xx.h"
-
+#include "nvic_addr.h"
 #include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
@@ -56,6 +56,10 @@ uint8_t SetSysClock_PLL_HSI(void);
   */
 void SystemInit(void)
 {
+    /* FPU settings ------------------------------------------------------------*/
+#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
+#endif
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
     RCC->CR |= (uint32_t)0x00000001;
@@ -78,6 +82,13 @@ void SystemInit(void)
 #if defined (DATA_IN_ExtSRAM) || defined (DATA_IN_ExtSDRAM)
     SystemInit_ExtMemCtl();
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
+
+    /* Configure the Vector Table location add offset address ------------------*/
+#ifdef VECT_TAB_SRAM
+    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+#else
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
+#endif
 
 }
 
@@ -141,13 +152,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
+#if (DEVICE_USBDEVICE)
     RCC_OscInitStruct.PLL.PLLN = 336;
 #else
     RCC_OscInitStruct.PLL.PLLN = 360;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
@@ -196,13 +207,13 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
+#if (DEVICE_USBDEVICE)
     RCC_OscInitStruct.PLL.PLLN = 168;
 #else
     RCC_OscInitStruct.PLL.PLLN = 180;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }

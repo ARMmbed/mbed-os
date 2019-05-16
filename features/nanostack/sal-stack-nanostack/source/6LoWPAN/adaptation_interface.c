@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +23,8 @@
 #include "ns_list.h"
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/address.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_address_internal.h"
+#include "Core/include/ns_socket.h"
 #include "mac_api.h"
 #include "mac_mcps.h"
 #include "mac_common_defines.h"
@@ -40,6 +40,8 @@
 #include "6LoWPAN/IPHC_Decode/iphc_decompress.h"
 #include "lowpan_adaptation_interface.h"
 #include "MLE/mle.h"
+#include "Service_Libs/mle_service/mle_service_api.h"
+#include "Common_Protocols/icmpv6.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_data.h"
 #endif
@@ -787,49 +789,112 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_first_cached_request_ge
     return NULL;
 }
 
-static void lowpan_adaptation_make_room_for_small_packet(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, mac_neighbor_table_entry_t *neighbour_to_count)
+static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
+{
+    // Mle messages
+    if (buf->dst_sa.port == MLE_ALLOCATED_PORT || buf->src_sa.port == MLE_ALLOCATED_PORT) {
+        return true;
+    }
+
+    // Management messages: address solicit, response, query, notification
+    if (buf->dst_sa.port  == THREAD_MANAGEMENT_PORT || buf->src_sa.port == THREAD_MANAGEMENT_PORT) {
+        return true;
+    }
+
+    // dhcp messages
+    if (buf->dst_sa.port == DHCPV6_SERVER_PORT || buf->src_sa.port == DHCPV6_SERVER_PORT) {
+        return true;
+    }
+
+    if (buf->dst_sa.port == DHCPV6_CLIENT_PORT || buf->src_sa.port == DHCPV6_CLIENT_PORT) {
+        return true;
+    }
+
+    // ICMPv6 messages
+    if (buf->options.type == ICMPV6_TYPE_ERROR_DESTINATION_UNREACH ||
+            buf->options.type == ICMPV6_TYPE_ERROR_PACKET_TOO_BIG ||
+            buf->options.type == ICMPV6_TYPE_ERROR_TIME_EXCEEDED ||
+            buf->options.type == ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM) {
+        return true;
+    }
+    return false;
+}
+
+static bool lowpan_adaptation_make_room_for_small_packet(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, mac_neighbor_table_entry_t *neighbour_to_count, fragmenter_tx_entry_t *new_entry)
 {
     if (interface_ptr->max_indirect_small_packets_per_child == 0) {
-        return;
+        // this means there is always space for small packets - no need to check further
+        return true;
     }
 
     uint_fast16_t count = 0;
+    fragmenter_tx_entry_t *low_priority_msg_ptr = NULL;
 
     ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, tx_entry, &interface_ptr->indirect_tx_queue) {
         mac_neighbor_table_entry_t *tx_neighbour = mac_neighbor_table_address_discover(mac_neighbor_info(cur), tx_entry->buf->dst_sa.address + 2, tx_entry->buf->dst_sa.addr_type);
         if (tx_neighbour == neighbour_to_count && buffer_data_length(tx_entry->buf) <= interface_ptr->indirect_big_packet_threshold) {
+            if (!lowpan_adaptation_is_priority_message(tx_entry->buf)) {
+                // if there is sub priorities inside message example age here you could compare
+                low_priority_msg_ptr = tx_entry;
+            }
             if (++count >= interface_ptr->max_indirect_small_packets_per_child) {
-                tr_debug_extra("Purge seq: %d", tx_entry->buf->seq);
-                if (lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, tx_entry) == false) {
+                if (!low_priority_msg_ptr) {
+                    // take last entry if no low priority entry found
+                    if (lowpan_adaptation_is_priority_message(new_entry->buf)) {
+                        low_priority_msg_ptr = tx_entry;
+                    } else {
+                        return false;
+                    }
+                }
+                tr_debug_extra("Purge seq: %d", low_priority_msg_ptr->buf->seq);
+                if (lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, low_priority_msg_ptr) == false) {
                     /* entry could not be purged from mac, try next entry */
                     tr_debug_extra("Purge failed, try next");
                     count--;
                 }
+                low_priority_msg_ptr = NULL;
             }
         }
     }
+    return true;
 }
 
-static void lowpan_adaptation_make_room_for_big_packet(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr)
+static bool lowpan_adaptation_make_room_for_big_packet(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *new_entry)
 {
     if (interface_ptr->max_indirect_big_packets_total == 0) {
-        return;
+        // this means there is always space for big packets - no need to check further
+        return true;
     }
 
     uint_fast16_t count = 0;
+    fragmenter_tx_entry_t *low_priority_msg_ptr = NULL;
 
     ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, tx_entry, &interface_ptr->indirect_tx_queue) {
         if (buffer_data_length(tx_entry->buf) > interface_ptr->indirect_big_packet_threshold) {
+            if (!lowpan_adaptation_is_priority_message(tx_entry->buf)) {
+                // if there is sub priorities inside message example age here you could compare
+                low_priority_msg_ptr = tx_entry;
+            }
             if (++count >= interface_ptr->max_indirect_big_packets_total) {
-                tr_debug_extra("Purge seq: %d", tx_entry->buf->seq);
-                if (lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, tx_entry) == false) {
-                    tr_debug("Purge failed, try next entry");
+                if (!low_priority_msg_ptr) {
+                    // take last entry if no low priority entry found
+                    if (lowpan_adaptation_is_priority_message(new_entry->buf)) {
+                        low_priority_msg_ptr = tx_entry;
+                    } else {
+                        return false;
+                    }
+                }
+                tr_debug_extra("Purge seq: %d", low_priority_msg_ptr->buf->seq);
+                if (lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, low_priority_msg_ptr) == false) {
+                    tr_debug_extra("Purge failed, try next entry");
                     /* entry could not be purged from mac, try next entry */
                     count--;
                 }
+                low_priority_msg_ptr = NULL;
             }
         }
     }
+    return true;
 }
 
 static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
@@ -868,6 +933,7 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
 
 int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buffer_t *buf)
 {
+    bool is_room_for_new_message;
     if (!buf) {
         return -1;
     }
@@ -940,9 +1006,9 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
 
         // Make room for new message if needed */
         if (buffer_data_length(buf) <= interface_ptr->indirect_big_packet_threshold) {
-            lowpan_adaptation_make_room_for_small_packet(cur, interface_ptr, neigh_entry_ptr);
+            is_room_for_new_message = lowpan_adaptation_make_room_for_small_packet(cur, interface_ptr, neigh_entry_ptr, tx_ptr);
         } else {
-            lowpan_adaptation_make_room_for_big_packet(cur, interface_ptr);
+            is_room_for_new_message = lowpan_adaptation_make_room_for_big_packet(cur, interface_ptr, tx_ptr);
         }
 
         if (lowpan_adaptation_indirect_mac_data_request_active(interface_ptr, tx_ptr)) {
@@ -951,7 +1017,15 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
             tx_ptr->indirect_data_cached = true;
         }
 
-        ns_list_add_to_end(&interface_ptr->indirect_tx_queue, tx_ptr);
+        if (is_room_for_new_message) {
+            ns_list_add_to_end(&interface_ptr->indirect_tx_queue, tx_ptr);
+        } else {
+            if (tx_ptr->fragmenter_buf) {
+                ns_dyn_mem_free(tx_ptr->fragmenter_buf);
+            }
+            ns_dyn_mem_free(tx_ptr);
+            goto tx_error_handler;
+        }
 
         // Check if current message can be delivered to MAC or should some cached message be delivered first
         tx_ptr_cached = lowpan_adaptation_indirect_first_cached_request_get(interface_ptr, tx_ptr);

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-// define this to get rid of the minar dependency.
-#define YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER 1
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"

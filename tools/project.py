@@ -1,6 +1,21 @@
-""" The CLI entry point for exporting projects from the mbed tools to any of the
-supported IDEs or project structures.
 """
+Copyright (c) 2016-2019 ARM Limited. All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations 
+"""
+
 from __future__ import print_function, absolute_import
 from builtins import str
 
@@ -25,7 +40,7 @@ from tools.export import (
 )
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
-from tools.targets import TARGET_NAMES
+from tools.targets import TARGET_NAMES, Target
 from tools.utils import (
     argparse_filestring_type,
     argparse_profile_filestring_type,
@@ -38,6 +53,12 @@ from tools.utils import print_large_string
 from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
 from tools.notifier.term import TerminalNotifier
+from tools.psa import generate_psa_sources, clean_psa_autogen
+from tools.resources import OsAndSpeResourceFilter
+
+""" The CLI entry point for exporting projects from the mbed tools to any of the
+supported IDEs or project structures.
+"""
 
 EXPORTER_ALIASES = {
     u'gcc_arm': u'make_gcc_arm',
@@ -107,7 +128,7 @@ def setup_project(
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
            zip_proj=False, build_profile=None, export_path=None, notify=None,
-           app_config=None, ignore=None):
+           app_config=None, ignore=None, resource_filter=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -122,6 +143,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     clean - start from a clean state before exporting
     zip_proj - create a zip file or not
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
 
     Returns an object of type Exporter (tools/exports/exporters.py)
     """
@@ -149,7 +171,8 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
         build_profile=build_profile,
         notify=TerminalNotifier(),
         app_config=app_config,
-        ignore=ignore
+        ignore=ignore,
+        resource_filter=resource_filter
     )
 
 def clean(source_dir):
@@ -271,6 +294,15 @@ def get_args(argv):
     )
 
     parser.add_argument(
+        "--custom-targets",
+        action="append",
+        type=argparse_filestring_type,
+        dest="custom_targets_directory",
+        default=[],
+        help="Specify directory containing custom_targets.json"
+    )
+
+    parser.add_argument(
         "-D",
         action="append",
         dest="macros",
@@ -348,6 +380,7 @@ def main():
 
         if options.clean:
             clean(options.source_dir)
+            clean_psa_autogen()
 
         ide = resolve_exporter_alias(options.ide)
         exporter, toolchain_name = get_exporter_toolchain(ide)
@@ -357,6 +390,16 @@ def main():
             args_error(parser, "%s not supported by %s" % (mcu, ide))
 
         try:
+            target = Target.get_target(mcu)
+            if target.is_PSA_target:
+                generate_psa_sources(source_dirs=options.source_dir,
+                                     ignore_paths=[]
+                )
+
+            resource_filter = None
+            if target.is_PSA_secure_target:
+                resource_filter = OsAndSpeResourceFilter()
+
             export(
                 mcu,
                 ide,
@@ -368,12 +411,14 @@ def main():
                 build_profile=profile,
                 app_config=options.app_config,
                 export_path=options.build_dir,
-                ignore=options.ignore
+                ignore=options.ignore,
+                resource_filter=resource_filter
             )
         except NotSupportedException as exc:
-            args_error(parser, "%s not supported by %s" % (mcu, ide))
             print("[Not Supported] %s" % str(exc))
+            exit(1)
     exit(0)
+
 
 if __name__ == "__main__":
     main()

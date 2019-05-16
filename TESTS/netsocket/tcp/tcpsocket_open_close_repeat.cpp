@@ -26,26 +26,15 @@ using namespace utest::v1;
 
 void TCPSOCKET_OPEN_CLOSE_REPEAT()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
-    }
-#endif
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
     }
 
     for (int i = 0; i < 2; i++) {
-        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
     }
     delete sock;
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
-    }
-#endif
 }

@@ -1,0 +1,60 @@
+{
+  "default": {
+    "generic": {
+      "doContinue": "true",
+      "doFirstReset": "true",
+      "doGdbServerAllocateSemihostingConsole": "true",
+      "doSecondReset": "true",
+      "enableSemihosting": "true",
+      "firstResetType": "init",
+      "gdbClientOtherCommands": "set mem inaccessible-by-default off",
+      "gdbClientOtherOptions": "",
+      "gdbServerBusSpeed": 1000000,
+      "gdbServerEnableSemihosting": "true",
+      "gdbServerFlashMode": 0,
+      "gdbServerGdbPortNumber": 3333,
+      "gdbServerHaltAtHardFault": "true",
+      "gdbServerOther": "",
+      "otherRunCommands": "",
+      "secondResetType": "halt",
+      "coreLoadImage": "true",
+      "coreLoadSymbols": "true",
+      "corePortNumber": 3333,
+      "setStopAt": "true"
+    },
+    "debug": {
+    },
+    "program": {
+      "doContinue": "false",
+      "otherRunCommands": "continue&amp;&#13;&#10;quit",
+      "coreLoadSymbols": "false",
+      "setStopAt": "false"
+    },
+    "erase": {
+      "doContinue": "false",
+      "doSecondReset": "false",
+      "otherRunCommands": "mon erase --chip&#13;&#10;quit",
+      "coreLoadImage": "false",
+      "coreLoadSymbols": "false",
+      "setStopAt": "false"
+    }
+  },
+
+  "targets": {
+    "PSOC6_01": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    },
+
+    "PSOC6_02": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    }
+  }
+}

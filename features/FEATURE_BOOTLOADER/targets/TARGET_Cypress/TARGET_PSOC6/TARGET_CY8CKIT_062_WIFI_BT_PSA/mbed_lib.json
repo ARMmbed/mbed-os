@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_CY8CKIT_062_WIFI_BT_PSA",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0x0A400",
+            "target.header_offset": "0x0A000",
+            "target.bootloader_img": "mbed-bootloader-cy8ckit_062_wifi_bt-psa-block_device-kvstore.hex"
+        }
+    }
+}

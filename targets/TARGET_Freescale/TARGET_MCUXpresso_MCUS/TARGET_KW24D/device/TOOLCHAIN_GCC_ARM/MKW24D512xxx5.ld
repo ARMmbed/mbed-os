@@ -48,11 +48,13 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 /* With the RTOS in use, this does not affect the main stack size. The size of
  * the stack where main runs is determined via the RTOS. */
-__stack_size__ = 0x400;
-
-__heap_size__ = 0x4000;
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
@@ -62,7 +64,6 @@ __heap_size__ = 0x4000;
   #define MBED_APP_SIZE 0x80000
 #endif
 
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 
@@ -239,7 +240,7 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - STACK_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data_2

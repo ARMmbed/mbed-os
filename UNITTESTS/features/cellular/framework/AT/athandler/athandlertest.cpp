@@ -17,7 +17,7 @@
 #include "gtest/gtest.h"
 #include <string.h>
 #include "AT_CellularNetwork.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "ATHandler.h"
 #include "AT_CellularStack.h"
 #include "FileHandle_stub.h"
@@ -29,8 +29,11 @@
 using namespace mbed;
 using namespace events;
 
+uint8_t urc_callback_count;
+
 void urc_callback()
 {
+    urc_callback_count++;
 }
 
 void urc2_callback()
@@ -44,6 +47,7 @@ protected:
 
     void SetUp()
     {
+        urc_callback_count = 0;
     }
 
     void TearDown()
@@ -84,6 +88,37 @@ TEST_F(TestATHandler, test_ATHandler_set_file_handle)
     ATHandler at(&fh1, que, 0, ",");
 
     at.set_file_handle(&fh2);
+}
+
+TEST_F(TestATHandler, test_ATHandler_list)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(false);
+
+    ATHandler *at1 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
+    EXPECT_TRUE(at1->get_ref_count() == 1);
+
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(true);
+
+    EXPECT_TRUE(ATHandler::get_instance(NULL, que, 0, ",", 0, 0) == NULL);
+
+    ATHandler *at2 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
+    EXPECT_TRUE(at1->get_ref_count() == 2);
+    EXPECT_TRUE(at2->get_ref_count() == 2);
+
+    ATHandler::set_at_timeout_list(2000, true);
+    ATHandler::set_debug_list(false);
+
+    EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
+    EXPECT_TRUE(at2->get_ref_count() == 1);
+    EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
+
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(false);
 }
 
 TEST_F(TestATHandler, test_ATHandler_lock)
@@ -128,7 +163,7 @@ TEST_F(TestATHandler, test_ATHandler_set_urc_handler)
     at.set_urc_handler(ch, cb);
 
     //THIS IS NOT same callback in find_urc_handler???
-    EXPECT_TRUE(NSAPI_ERROR_OK == at.set_urc_handler(ch, cb));
+    at.set_urc_handler(ch, cb);
 }
 
 TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
@@ -142,8 +177,7 @@ TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
     mbed::Callback<void()> cb(&urc_callback);
     at.set_urc_handler(ch, cb);
 
-    //This does nothing!!!
-    at.remove_urc_handler(ch);
+    at.set_urc_handler(ch, 0);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)
@@ -296,15 +330,6 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     filehandle_stub_short_value_counter = 0;
     filehandle_stub_table_pos = 0;
     filehandle_stub_table = NULL;
-}
-
-TEST_F(TestATHandler, test_ATHandler_set_filehandle_sigio)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    at.set_filehandle_sigio();
 }
 
 TEST_F(TestATHandler, test_ATHandler_flush)
@@ -472,11 +497,10 @@ TEST_F(TestATHandler, test_ATHandler_skip_param)
     at.resp_start();
     at.skip_param();
 
-    char table2[] = "sssOK\r\n\0";
-    filehandle_stub_table = table2;
-
     at.flush();
     at.clear_error();
+    char table2[] = "sssOK\r\n\0";
+    filehandle_stub_table = table2;
     filehandle_stub_short_value_counter = 1;
     filehandle_stub_table_pos = 0;
     at.resp_start();
@@ -692,6 +716,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     at.resp_start("s");
     // TO read from: ss\rsss -> read all 6 chars ss\rsss
     EXPECT_TRUE(6 == at.read_string(buf4, 6 + 1/*for NULL*/));
+    at.resp_stop();
 
     // *** Reading when buffer only has "  ***
     at.clear_error();
@@ -705,6 +730,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     // TO read from buffer having only " -> trying to find delimiter or stop_tag(OKCRLF)
     EXPECT_TRUE(-1 == at.read_string(buf4, 5));
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
+    at.resp_stop();
 
     // *** Reading through partially matching stop tag  ***
     at.clear_error();
@@ -736,10 +762,10 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     EXPECT_TRUE(6 == at.read_string(buf9, 6 + 1/*for NULL*/));
 
     at.clear_error();
-    char table11[] = "\"1016\",\"39AB\",9\r\n\0";
+    char table10[] = "\"1016\",\"39AB\",9\r\n\0";
     mbed_poll_stub::int_value = 0;
     at.flush();
-    filehandle_stub_table = table11;
+    filehandle_stub_table = table10;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;
@@ -752,19 +778,46 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
 
     // *** CRLF part of the string ***
     at.clear_error();
-    char table10[] = "\"s\"\r\nOK\r\n\0";
+    char table11[] = "\"s\"\r\nOK\r\n\0";
     mbed_poll_stub::int_value = 0;
     at.flush();
-    filehandle_stub_table = table10;
+    filehandle_stub_table = table11;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;
-    char buf10[10];
+    char buf11[10];
 
     // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
     at.resp_start();
     // TO read from
-    EXPECT_TRUE(3 == at.read_string(buf10, 9 + 1/*for NULL*/));
+    EXPECT_TRUE(3 == at.read_string(buf11, 9 + 1/*for NULL*/));
+
+    // *** Read size hits in the middle of stop tag ***
+    at.clear_error();
+    char table12[] = "abcdOK\r\nefg\r\n\0";
+    mbed_poll_stub::int_value = 0;
+    at.flush();
+    filehandle_stub_table = table12;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf12[7];
+
+    at.resp_start();
+    // Read size hits in the middle of OKCRLF
+    EXPECT_TRUE(4 == at.read_string(buf12, 7));
+    EXPECT_TRUE(!strncmp(buf12, "abcd", 4));
+    // Not running into time out
+    EXPECT_TRUE(NSAPI_ERROR_OK == at.get_last_error());
+    // No error -> -1 returned because stop tag found already
+    EXPECT_TRUE(-1 == at.read_string(buf12, 1));
+
+    at.resp_stop();
+    at.resp_start();
+    EXPECT_TRUE(3 == at.read_string(buf12, 4));
+    EXPECT_TRUE(!strncmp(buf12, "efg", 3));
+    // No stop tag found
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 }
 
 TEST_F(TestATHandler, test_ATHandler_read_hex_string)
@@ -893,13 +946,12 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start("ssssaaaassssaaaassss"); //too long prefix
 
-    char table3[] = "+CME ERROR: 108\0";
+    at.flush();
+    at.clear_error();
+    char table3[] = "+CME ERROR: 108\r\n";
     filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
 
-    at.flush();
-    at.clear_error();
-    filehandle_stub_table_pos = 0;
     at.resp_start();
 
 
@@ -908,7 +960,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table4[] = "+CMS ERROR: 6\0";
+    char table4[] = "+CMS ERROR: 6\r\n";
     filehandle_stub_table = table4;
 
     filehandle_stub_table_pos = 0;
@@ -935,16 +987,19 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table7[] = "urc: info\r\nresponseOK\r\n\0";
+    char table7[] = "urc: info\r\nresponse\r\nOK\r\n\0";
     at.flush();
     at.clear_error();
     filehandle_stub_table = table7;
     filehandle_stub_table_pos = 0;
 
-    at.set_urc_handler("urc: ", NULL);
+    mbed::Callback<void()> cb1(&urc_callback);
+    at.set_urc_handler("urc: ", cb1);
     at.resp_start(); // recv_buff: "responseOK\r\n\0"
     at.resp_stop();  // consumes to OKCRLF -> OK
     EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+    EXPECT_TRUE(urc_callback_count == 1);
+    urc_callback_count = 0;
 
     char table8[] = "urc: info\r\nresponse\0";
     at.flush();
@@ -964,10 +1019,10 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table = table9;
     filehandle_stub_table_pos = 0;
 
+    at.set_urc_handler("urc: ", &urc_callback);
     at.set_urc_handler("urc: ", NULL);
     at.resp_start();
-    // Match URC consumes to CRLF -> nothing to read after that -> ERROR
-    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+    EXPECT_EQ(at.get_last_error(), NSAPI_ERROR_OK);
 
     char table10[] = "urc: info\r\ngarbage\r\nprefix: info\r\nOK\r\n\0";
     at.flush();
@@ -1034,16 +1089,28 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
     at.set_stop_tag("OK\r\n");
     at.resp_stop();
 
-    char table3[] = "+CME ERROR: 108\0";
+    at.flush();
+    at.clear_error();
+
+    char table3[] = "+CME ERROR: 108\r\n";
     filehandle_stub_table = table3;
+    filehandle_stub_table_pos = 0;
+    at.resp_start();
+    at.resp_stop();
+
+    // Set stop tag for response to CRLF -> resp stop should stop on first CRLF
+    char table6[] = "line1\r\nline2\r\nOK\r\n";
+    filehandle_stub_table = table6;
     filehandle_stub_table_pos = 0;
 
     at.flush();
     at.clear_error();
     filehandle_stub_table_pos = 0;
-    at.resp_start();
 
+    at.resp_start();
+    at.set_stop_tag("\r\n");
     at.resp_stop();
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
 
     char table7[] = "ssssss\0";
     filehandle_stub_table = table7;
@@ -1054,6 +1121,38 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
     filehandle_stub_table_pos = 0;
     at.resp_start("ss", false);
     at.resp_stop();
+
+    // prefix + URC line + some other line + URC line + URC line + OKCRLF
+    char table4[] = "line1\r\nline2abcd\r\nline3abcd\r\nline4\r\n\r\nline3\r\nline3\r\nOK\r\n";
+    filehandle_stub_table = table4;
+    filehandle_stub_table_pos = 0;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed::Callback<void()> cb1(&urc_callback);
+    at.set_urc_handler("line3", cb1);
+
+    at.resp_start("line2");
+    at.resp_stop();
+    EXPECT_TRUE(urc_callback_count == 3);
+    urc_callback_count = 0;
+
+    // URC line + prefix + URC line + some other line + URC line + URC line + some other line + OKCRLF
+    char table5[] = "line1\r\nline3\r\nline2abcd\r\nline3abcd\r\nline4\r\n\r\nline3\r\nline3\r\nline4\r\nOK\r\n";
+    filehandle_stub_table = table5;
+    filehandle_stub_table_pos = 0;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed::Callback<void()> cb2(&urc_callback);
+    at.set_urc_handler("line3", cb2);
+
+    at.resp_start("line2");
+    at.resp_stop();
+    EXPECT_TRUE(urc_callback_count == 4);
+    urc_callback_count = 0;
 }
 
 TEST_F(TestATHandler, test_ATHandler_info_resp)
@@ -1064,7 +1163,7 @@ TEST_F(TestATHandler, test_ATHandler_info_resp)
     filehandle_stub_table = NULL;
 
     ATHandler at(&fh1, que, 0, ",");
-    EXPECT_TRUE(at.info_resp());
+    EXPECT_TRUE(!at.info_resp());
 
     at.resp_start();
     EXPECT_TRUE(!at.info_resp());

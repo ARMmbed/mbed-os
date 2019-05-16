@@ -23,26 +23,28 @@
 #include "ble/SecurityManager.h"
 #include "btle_security.h"
 
-class nRF5xSecurityManager : public SecurityManager
+class nRF5xSecurityManager : public ble::interface::SecurityManager<nRF5xSecurityManager>
 {
 public:
     /* Functions that must be implemented from SecurityManager */
-    virtual ble_error_t init(bool                     enableBonding,
-                             bool                     requireMITM,
-                             SecurityIOCapabilities_t iocaps,
-                             const Passkey_t          passkey) {
+    ble_error_t init_(bool                     enableBonding,
+                      bool                     requireMITM,
+                      SecurityIOCapabilities_t iocaps,
+                      const Passkey_t          passkey,
+                      bool                     signing,
+                      const char              *dbFilepath) {
         return btle_initializeSecurity(enableBonding, requireMITM, iocaps, passkey);
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+    ble_error_t getLinkSecurity_(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
         return btle_getLinkSecurity(connectionHandle, securityStatusP);
     }
 
-    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+    ble_error_t setLinkSecurity_(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
         return btle_setLinkSecurity(connectionHandle, securityMode);
     }
 
-    virtual ble_error_t purgeAllBondingState(void) {
+    ble_error_t purgeAllBondingState_(void) {
         return btle_purgeAllBondingState();
     }
 
@@ -58,7 +60,7 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+    ble_error_t getAddressesFromBondTable_(Gap::Whitelist_t &addresses) const {
         uint8_t i;
 
         ble_gap_whitelist_t  whitelistFromBondTable;
@@ -119,9 +121,9 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t reset(void)
+    ble_error_t reset_(void)
     {
-        if (SecurityManager::reset() != BLE_ERROR_NONE) {
+        if (ble::interface::SecurityManager<nRF5xSecurityManager>::reset_() != BLE_ERROR_NONE) {
             return BLE_ERROR_INVALID_STATE;
         }
 

@@ -31,21 +31,41 @@ class DeviceCMSIS():
 
     Encapsulates target information retrieved by arm-pack-manager"""
 
+    # TODO: This class uses the TARGET_MAP. Usage of the target map may
+    # not work in the online compiler or may work but give the incorrect
+    # information.
     CACHE = Cache(True, False)
     def __init__(self, target):
         target_info = self.check_supported(target)
         if not target_info:
             raise TargetNotSupportedException("Target not supported in CMSIS pack")
-        self.url = target_info['pdsc_file']
-        self.pdsc_url, self.pdsc_id, _ = split_path(self.url)
-        self.pack_url, self.pack_id, _ = split_path(target_info['pack_file'])
-        self.dname = target_info["_cpu_name"]
+        self.pack_url = target_info['from_pack']['url']
+        self.pack_id = "{}.{}.{}".format(
+            target_info['from_pack']['vendor'],
+            target_info['from_pack']['pack'],
+            target_info['from_pack']['version']
+        )
+        self.dname = target_info["name"]
         self.core = target_info["_core"]
-        self.dfpu = target_info['processor']['fpu']
-        self.debug, self.dvendor = self.vendor_debug(target_info['vendor'])
-        self.dendian = target_info['processor'].get('endianness','Little-endian')
+        self.dfpu = None
+        try:
+            self.dfpu = target_info['processor']['Symmetric']['fpu']
+        except KeyError:
+            # TODO: refactor this into a "base_core_for" function
+            cmsis_core = self.core.replace("F", "").replace("-", "").replace("E", "")
+            cmsis_core = cmsis_core.replace("NS", "")
+            for core_name, proc in target_info['processor']['Asymmetric'].items():
+                if proc['core'] == cmsis_core:
+                    self.dfpu = proc['fpu']
+                    self.dname = '{}:{}'.format(self.dname, core_name)
+                    break
+        self.debug, self.dvendor = self.vendor_debug(
+            target_info.get('vendor') or target_info['from_pack']['vendor']
+        )
+        self.dendian = target_info['processor'].get(
+            'endianness', 'Little-endian'
+        )
         self.debug_svd = target_info.get('debug', '')
-        self.compile_header = target_info['compile']['header']
         self.target_info = target_info
 
     @staticmethod

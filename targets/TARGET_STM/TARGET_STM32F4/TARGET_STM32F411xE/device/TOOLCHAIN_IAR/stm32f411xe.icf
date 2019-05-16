@@ -25,8 +25,10 @@ define exported symbol __CRASH_DATA_RAM_START__ = __region_CRASH_DATA_RAM_start_
 define exported symbol __CRASH_DATA_RAM_END__ = __region_CRASH_DATA_RAM_end__;
 
 /* Stack and Heap */
-/*Heap 84kB and stack 1kB */
-define symbol __size_cstack__ = 0x400;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x15000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

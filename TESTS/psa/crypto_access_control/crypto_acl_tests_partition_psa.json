@@ -1,0 +1,89 @@
+{
+  "name": "CRYPTO_ACL_TEST",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000080",
+  "entry_point": "test_partition_main",
+  "stack_size": "0x200",
+  "heap_size": "0x400",
+  "services": [
+    {
+      "name": "CRYPTO_CREATE_PERSISTENT_KEY",
+      "identifier": "0x00000200",
+      "signal": "CRYPTO_CREATE_PERSISTENT_KEY_MSK",
+      "non_secure_clients": true,
+      "minor_version": 1,
+      "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_GENERATE_KEY",
+        "identifier": "0x00000201",
+        "signal": "CRYPTO_GENERATE_KEY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_OPEN_PERSISTENT_KEY",
+        "identifier": "0x00000202",
+        "signal": "CRYPTO_OPEN_PERSISTENT_KEY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_CLOSE_KEY",
+        "identifier": "0x00000203",
+        "signal": "CRYPTO_CLOSE_KEY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_SET_KEY_POLICY",
+        "identifier": "0x00000204",
+        "signal": "CRYPTO_SET_KEY_POLICY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_DESTROY_KEY",
+        "identifier": "0x00000205",
+        "signal": "CRYPTO_DESTROY_KEY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_GET_KEY_INFO",
+        "identifier": "0x00000206",
+        "signal": "CRYPTO_GET_KEY_INFO_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_GET_KEY_POLICY",
+        "identifier": "0x00000207",
+        "signal": "CRYPTO_GET_KEY_POLICY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    },
+    {
+        "name": "CRYPTO_IMPORT_KEY",
+        "identifier": "0x00000208",
+        "signal": "CRYPTO_IMPORT_KEY_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+    }
+  ],
+  "extern_sids": [
+    "PSA_KEY_MNG_ID"
+  ],
+  "source_files": [
+    "COMPONENT_SPE/test_partition.c"
+  ]
+}

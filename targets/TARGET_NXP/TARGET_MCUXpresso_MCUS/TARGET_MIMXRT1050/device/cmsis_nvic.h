@@ -31,7 +31,7 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$VECTOR_RAM$$Base[];
 #define __VECTOR_RAM Image$$VECTOR_RAM$$Base
 #else

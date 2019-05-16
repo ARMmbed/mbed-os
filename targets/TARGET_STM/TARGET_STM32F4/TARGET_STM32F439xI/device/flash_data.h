@@ -38,7 +38,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-/* Flash Size */
+/* FLASH SIZE */
 #define FLASH_SIZE      (uint32_t) 0x200000
 
 /* Base address of the Flash sectors Bank 1 */

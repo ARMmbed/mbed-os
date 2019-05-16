@@ -1,6 +1,6 @@
 # UNITY: Unit Testing for C
 
-This yotta module is a fork of the [UNITY test framework](http://www.throwtheswitch.org/unity/) with minor modifications to be able to use it with the [utest harness](https://github.com/ARMmbed/utest) for mbed OS.
+This module is a fork of the [UNITY test framework](http://www.throwtheswitch.org/unity/) with minor modifications to be able to use it with the [utest harness](https://github.com/ARMmbed/utest) for Mbed OS.
 
 Please note that this module only contains the unity test macros, and no additions such as the unity fixtures.
 Furthermore the failure macros have been modified to integrate with `utest` failure handlers, as `setjmp` and `longjmp` are not supported by `utest`.

@@ -337,8 +337,20 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                     randCnt++;
                     HciLeRandCmd();
                 } else {
-                    signal_reset_sequence_done();
+                    uint8_t addr[6] = { 0 };
+                    memcpy(addr, pMsg, sizeof(addr));
+                    DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
+                    // note: will invoke set rand address
+                    cordio::BLE::deviceInstance().getGap().setAddress(
+                        BLEProtocol::AddressType::RANDOM_STATIC,
+                        addr
+                    );
                 }
+                break;
+
+            case HCI_OPCODE_LE_SET_RAND_ADDR:
+                /* send next command in sequence */
+                signal_reset_sequence_done();
                 break;
 
             default:

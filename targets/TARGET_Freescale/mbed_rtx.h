@@ -17,6 +17,8 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#include <stdint.h>
+
 #if defined(TARGET_K20D50M)
 
 #ifndef INITIAL_SP
@@ -119,6 +121,13 @@
 #define INITIAL_SP              (0x20030000UL)
 #endif
 
+#endif
+
+#if defined(__ARMCC_VERSION)
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
+#define HEAP_START            Image$$ARM_LIB_HEAP$$ZI$$Base
+#define HEAP_SIZE             Image$$ARM_LIB_HEAP$$ZI$$Length
 #endif
 
 #endif  // MBED_MBED_RTX_H

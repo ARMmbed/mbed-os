@@ -21,6 +21,7 @@
 #define MBED_ANALOGIN_API_H
 
 #include "device.h"
+#include "pinmap.h"
 
 #if DEVICE_ANALOGIN
 
@@ -58,6 +59,15 @@ float analogin_read(analogin_t *obj);
  * @return An unsigned 16bit value representing the current input voltage
  */
 uint16_t analogin_read_u16(analogin_t *obj);
+
+/** Get the pins that support analogin
+ *
+ * Return a PinMap array of pins that support analogin. The
+ * array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *analogin_pinmap(void);
 
 /**@}*/
 

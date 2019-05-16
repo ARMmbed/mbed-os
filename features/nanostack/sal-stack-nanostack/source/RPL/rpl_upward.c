@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@
 
 #include "net_interface.h"
 
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_prefix.h"
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
@@ -1562,6 +1562,29 @@ bool rpl_instance_local_repair(const rpl_instance_t *instance)
 uint16_t rpl_instance_current_rank(const rpl_instance_t *instance)
 {
     return instance->current_rank;
+}
+
+bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr)
+{
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (neighbour->dodag_parent && addr_ipv6_equal(neighbour->ll_address, ipv6_addr)) {
+            return true;
+        }
+        if (!neighbour->dodag_parent) {
+            // list is ordered so first encounter of false means no more parents in list
+            return false;
+        }
+    }
+    return false;
+}
+void rpl_instance_neighbor_delete(rpl_instance_t *instance, const uint8_t *ipv6_addr)
+{
+    ns_list_foreach_safe(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (addr_ipv6_equal(neighbour->ll_address, ipv6_addr)) {
+            rpl_delete_neighbour(instance, neighbour);
+        }
+    }
+    return;
 }
 
 void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds)

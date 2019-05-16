@@ -16,7 +16,7 @@
 
 #include "FlashSimBlockDevice.h"
 #include "platform/mbed_assert.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
@@ -212,4 +212,14 @@ int FlashSimBlockDevice::get_erase_value() const
     return _erase_value;
 }
 
+const char *FlashSimBlockDevice::get_type() const
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
+

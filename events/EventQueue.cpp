@@ -71,12 +71,12 @@ void EventQueue::background(Callback<void(int)> update)
     }
 }
 
-void EventQueue::chain(EventQueue *target)
+int EventQueue::chain(EventQueue *target)
 {
     if (target) {
-        equeue_chain(&_equeue, &target->_equeue);
+        return equeue_chain(&_equeue, &target->_equeue);
     } else {
-        equeue_chain(&_equeue, 0);
+        return equeue_chain(&_equeue, 0);
     }
 }
 }

@@ -17,6 +17,7 @@
 #ifndef _GENERIC_SECURITY_MANAGER_H_
 #define _GENERIC_SECURITY_MANAGER_H_
 
+#include "ble/SecurityManager.h"
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
 #include "ble/generic/SecurityDb.h"
@@ -30,12 +31,45 @@
 namespace ble {
 namespace generic {
 
-typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
+template <template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+class GenericSecurityManager :
+    public interface::SecurityManager<GenericSecurityManager<TPalSecurityManager, SigningMonitor > >, // SecurityManager
+    public pal::SecurityManagerEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // PalSmEventHandler
+    public pal::ConnectionEventMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // ConnectionObserver
+    public pal::SigningMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > //SigningObserver
+{
+    // typedefs
+    typedef interface::SecurityManager<GenericSecurityManager> SecurityManager;
+    typedef SigningMonitor<GenericSecurityManager> SigningEventMonitor;
+    typedef typename TPalSecurityManager<GenericSecurityManager>::Base PalSecurityManager;
 
-class GenericSecurityManager : public SecurityManager,
-                               public pal::SecurityManager::EventHandler,
-                               public pal::ConnectionEventMonitor::EventHandler,
-                               public pal::SigningEventMonitor::EventHandler {
+    // friends
+    friend class pal::ConnectionEventMonitorEventHandler<GenericSecurityManager>;
+
+    // imports from SecurityManager
+    typedef typename SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
+    typedef typename SecurityManager::SecurityMode_t SecurityMode_t;
+    typedef typename SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
+    typedef typename SecurityManager::Passkey_t Passkey_t;
+    typedef typename SecurityManager::Keypress_t Keypress_t;
+    typedef typename SecurityManager::EventHandler SecurityManagerEventHandler;
+
+    using SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+    using SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
+    using SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+    using SecurityManager::SECURITY_MODE_SIGNED_NO_MITM;
+    using SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM;
+    using SecurityManager::SEC_STATUS_TIMEOUT;
+    using SecurityManager::SEC_STATUS_SUCCESS;
+
+    using SecurityManager::eventHandler;
+    using SecurityManager::requestPairing;
+    using SecurityManager::getLinkEncryption;
+    using SecurityManager::requestAuthentication;
+    using SecurityManager::generateOOB;
+    using SecurityManager::cancelPairingRequest;
+    using SecurityManager::acceptPairingRequest;
+
 public:
 
     /* implements SecurityManager */
@@ -44,20 +78,20 @@ public:
     // SM lifecycle management
     //
 
-    virtual ble_error_t init(
-        bool bondable = true,
-        bool mitm = true,
-        SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-        const Passkey_t passkey = NULL,
-        bool signing = true,
-        const char* db_path = NULL
+    ble_error_t init_(
+        bool bondable,
+        bool mitm,
+        SecurityIOCapabilities_t iocaps,
+        const uint8_t* passkey,
+        bool signing,
+        const char* db_path
     );
 
-    virtual ble_error_t setDatabaseFilepath(const char *db_path = NULL);
+    ble_error_t setDatabaseFilepath_(const char *db_path = NULL);
 
-    virtual ble_error_t reset();
+    ble_error_t reset_();
 
-    virtual ble_error_t preserveBondingStateOnReset(
+    ble_error_t preserveBondingStateOnReset_(
         bool enabled
     );
 
@@ -65,9 +99,9 @@ public:
     // List management
     //
 
-    virtual ble_error_t purgeAllBondingState();
+    ble_error_t purgeAllBondingState_();
 
-    virtual ble_error_t generateWhitelistFromBondTable(
+    ble_error_t generateWhitelistFromBondTable_(
         ::Gap::Whitelist_t *whitelist
     ) const;
 
@@ -75,19 +109,19 @@ public:
     // Pairing
     //
 
-    virtual ble_error_t requestPairing(
+    ble_error_t requestPairing_(
         connection_handle_t connection
     );
 
-    virtual ble_error_t acceptPairingRequest(
+    ble_error_t acceptPairingRequest_(
         connection_handle_t connection
     );
 
-    virtual ble_error_t cancelPairingRequest(
+    ble_error_t cancelPairingRequest_(
         connection_handle_t connection
     );
 
-    virtual ble_error_t setPairingRequestAuthorisation(
+    ble_error_t setPairingRequestAuthorisation_(
         bool required = true
     );
 
@@ -95,11 +129,11 @@ public:
     // Feature support
     //
 
-    virtual ble_error_t allowLegacyPairing(
+    ble_error_t allowLegacyPairing_(
         bool allow = true
     );
 
-    virtual ble_error_t getSecureConnectionsSupport(
+    ble_error_t getSecureConnectionsSupport_(
         bool *enabled
     );
 
@@ -107,62 +141,62 @@ public:
     // Security settings
     //
 
-    virtual ble_error_t setIoCapability(
+    ble_error_t setIoCapability_(
         SecurityIOCapabilities_t iocaps
     );
 
-    virtual ble_error_t setDisplayPasskey(
-        const Passkey_t passkey
+    ble_error_t setDisplayPasskey_(
+        const uint8_t* passkey
     );
 
-    virtual ble_error_t setAuthenticationTimeout(
+    ble_error_t setAuthenticationTimeout_(
         connection_handle_t connection,
         uint32_t timeout_in_ms
     );
 
-    virtual ble_error_t getAuthenticationTimeout(
+    ble_error_t getAuthenticationTimeout_(
         connection_handle_t connection,
         uint32_t *timeout_in_ms
     );
 
-    virtual ble_error_t setLinkSecurity(
+    ble_error_t setLinkSecurity_(
         connection_handle_t connection,
         SecurityMode_t securityMode
     );
 
-    virtual ble_error_t setKeypressNotification(
-        bool enabled = true
+    ble_error_t setKeypressNotification_(
+        bool enabled
     );
 
-    virtual ble_error_t enableSigning(
+    ble_error_t enableSigning_(
         connection_handle_t connection,
-        bool enabled = true
+        bool enabled
     );
 
-    virtual ble_error_t setHintFutureRoleReversal(
-        bool enable = true
+    ble_error_t setHintFutureRoleReversal_(
+        bool enable
     );
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
 
-    virtual ble_error_t getLinkEncryption(
+    ble_error_t getLinkEncryption_(
         connection_handle_t connection,
         link_encryption_t *encryption
     );
 
-    virtual ble_error_t setLinkEncryption(
+    ble_error_t setLinkEncryption_(
         connection_handle_t connection,
         link_encryption_t encryption
     );
 
-    virtual ble_error_t getEncryptionKeySize(
+    ble_error_t getEncryptionKeySize_(
         connection_handle_t connection,
         uint8_t *size
     );
 
-    virtual ble_error_t setEncryptionKeyRequirements(
+    ble_error_t setEncryptionKeyRequirements_(
         uint8_t minimumByteSize,
         uint8_t maximumByteSize
     );
@@ -171,7 +205,7 @@ public:
     // Privacy
     //
 
-    virtual ble_error_t setPrivateAddressTimeout(
+    ble_error_t setPrivateAddressTimeout_(
         uint16_t timeout_in_seconds
     );
 
@@ -179,7 +213,7 @@ public:
     // Keys
     //
 
-    virtual ble_error_t getSigningKey(
+    ble_error_t getSigningKey_(
         connection_handle_t connection,
         bool authenticated
     );
@@ -188,7 +222,7 @@ public:
     // Authentication
     //
 
-    virtual ble_error_t requestAuthentication(
+    ble_error_t requestAuthentication_(
         connection_handle_t connection
     );
 
@@ -196,37 +230,37 @@ public:
     // MITM
     //
 
-    virtual ble_error_t generateOOB(
+    ble_error_t generateOOB_(
         const address_t *address
     );
 
-    virtual ble_error_t setOOBDataUsage(
+    ble_error_t setOOBDataUsage_(
         connection_handle_t connection,
         bool useOOB,
-        bool OOBProvidesMITM = true
+        bool OOBProvidesMITM
     );
 
-    virtual ble_error_t confirmationEntered(
+    ble_error_t confirmationEntered_(
         connection_handle_t connection,
         bool confirmation
     );
 
-    virtual ble_error_t passkeyEntered(
+    ble_error_t passkeyEntered_(
         connection_handle_t connection,
         Passkey_t passkey
     );
 
-    virtual ble_error_t sendKeypressNotification(
+    ble_error_t sendKeypressNotification_(
         connection_handle_t connection,
         Keypress_t keypress
     );
 
-    virtual ble_error_t legacyPairingOobReceived(
+    ble_error_t legacyPairingOobReceived_(
         const address_t *address,
         const oob_tk_t *tk
     );
 
-    virtual ble_error_t oobReceived(
+    ble_error_t oobReceived_(
         const address_t *address,
         const oob_lesc_value_t *random,
         const oob_confirm_t *confirm
@@ -236,9 +270,9 @@ public:
 
 public:
     GenericSecurityManager(
-        pal::SecurityManager &palImpl,
-        pal::ConnectionEventMonitor &connMonitorImpl,
-        pal::SigningEventMonitor &signingMonitorImpl
+        PalSecurityManager &palImpl,
+        pal::ConnectionEventMonitor<GenericSecurityManager> &connMonitorImpl,
+        SigningEventMonitor &signingMonitorImpl
     ) : _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
@@ -380,7 +414,7 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] enable if true set the MITM protection to on.
      */
-    virtual void set_mitm_performed(
+    void set_mitm_performed(
         connection_handle_t connection,
         bool enable = true
     );
@@ -396,7 +430,7 @@ private:
      * @param[in] peer_address Address of the connected device.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual void on_connected(
+    void on_connected_(
         connection_handle_t connection,
         ::Gap::Role_t role,
         peer_address_type_t peer_address_type,
@@ -413,7 +447,7 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual void on_disconnected(
+    void on_disconnected_(
         connection_handle_t connection,
         ::Gap::DisconnectionReason_t reason
     );
@@ -490,9 +524,9 @@ private:
         uint8_t csrk_failures:2;
     };
 
-    pal::SecurityManager &_pal;
-    pal::ConnectionEventMonitor &_connection_monitor;
-    pal::SigningEventMonitor &_signing_monitor;
+    PalSecurityManager &_pal;
+    pal::ConnectionEventMonitor<GenericSecurityManager> &_connection_monitor;
+    SigningEventMonitor &_signing_monitor;
 
     SecurityDb *_db;
 
@@ -523,7 +557,7 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_pairing_request
      */
-    virtual void on_pairing_request(
+    void on_pairing_request_(
         connection_handle_t connection,
         bool use_oob,
         pal::AuthenticationMask authentication,
@@ -533,20 +567,20 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_pairing_error
      */
-    virtual void on_pairing_error(
+    void on_pairing_error_(
         connection_handle_t connection,
         pairing_failure_t error
     );
 
     /** @copydoc ble::pal::SecurityManager::on_pairing_timed_out
      */
-    virtual void on_pairing_timed_out(
+    void on_pairing_timed_out_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_pairing_completed
      */
-    virtual void on_pairing_completed(
+    void on_pairing_completed_(
         connection_handle_t connection
     );
 
@@ -556,30 +590,30 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_valid_mic_timeout
      */
-    virtual void on_valid_mic_timeout(
+    void on_valid_mic_timeout_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_signed_write_received
      */
-    virtual void on_signed_write_received(
+    void on_signed_write_received_(
         connection_handle_t connection,
         uint32_t sign_coutner
     );
 
     /** @copydoc ble::pal::SecurityManager::on_signed_write_verification_failure
      */
-    virtual void on_signed_write_verification_failure(
+    void on_signed_write_verification_failure_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_signed_write
      */
-    virtual void on_signed_write();
+    void on_signed_write_();
 
     /** @copydoc ble::pal::SecurityManager::on_slave_security_request
      */
-    virtual void on_slave_security_request(
+    void on_slave_security_request_(
         connection_handle_t connection,
         pal::AuthenticationMask authentication
     );
@@ -590,14 +624,14 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_link_encryption_result
      */
-    virtual void on_link_encryption_result(
+    void on_link_encryption_result_(
         connection_handle_t connection,
         link_encryption_t result
     );
 
     /** @copydoc ble::pal::SecurityManager::on_link_encryption_request_timed_out
      */
-    virtual void on_link_encryption_request_timed_out(
+    void on_link_encryption_request_timed_out_(
         connection_handle_t connection
     );
 
@@ -607,45 +641,45 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_passkey_display
      */
-    virtual void on_passkey_display(
+    void on_passkey_display_(
         connection_handle_t connection,
         passkey_num_t passkey
     );
 
     /** @copydoc ble::pal::SecurityManager::on_keypress_notification
      */
-    virtual void on_keypress_notification(
+    void on_keypress_notification_(
         connection_handle_t connection,
-        SecurityManager::Keypress_t keypress
+        Keypress_t keypress
     );
 
     /** @copydoc ble::pal::SecurityManager::on_passkey_request
      */
-    virtual void on_passkey_request(
+    void on_passkey_request_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_confirmation_request
      */
-    virtual void on_confirmation_request(
+    void on_confirmation_request_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_request
      */
-    virtual void on_secure_connections_oob_request(
+    void on_secure_connections_oob_request_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_legacy_pairing_oob_request
      */
-    virtual void on_legacy_pairing_oob_request(
+    void on_legacy_pairing_oob_request_(
         connection_handle_t connection
     );
 
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_generated
      */
-    virtual void on_secure_connections_oob_generated(
+    void on_secure_connections_oob_generated_(
         const oob_lesc_value_t &random,
         const oob_confirm_t &confirm
     );
@@ -656,21 +690,21 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_ltk_generated
      */
-    virtual void on_secure_connections_ltk_generated(
+    void on_secure_connections_ltk_generated_(
         connection_handle_t connection,
         const ltk_t &ltk
     );
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_ltk
      */
-    virtual void on_keys_distributed_ltk(
+    void on_keys_distributed_ltk_(
         connection_handle_t connection,
         const ltk_t &ltk
     );
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_ediv_rand
      */
-    virtual void on_keys_distributed_ediv_rand(
+    void on_keys_distributed_ediv_rand_(
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
@@ -678,14 +712,14 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_local_ltk
      */
-    virtual void on_keys_distributed_local_ltk(
+    void on_keys_distributed_local_ltk_(
         connection_handle_t connection,
         const ltk_t &ltk
     );
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_local_ediv_rand
      */
-    virtual void on_keys_distributed_local_ediv_rand(
+    void on_keys_distributed_local_ediv_rand_(
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
@@ -693,14 +727,14 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_irk
      */
-    virtual void on_keys_distributed_irk(
+    void on_keys_distributed_irk_(
         connection_handle_t connection,
         const irk_t &irk
     );
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_bdaddr
      */
-    virtual void on_keys_distributed_bdaddr(
+    void on_keys_distributed_bdaddr_(
         connection_handle_t connection,
         pal::advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
@@ -708,14 +742,14 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_keys_distributed_csrk
      */
-    virtual void on_keys_distributed_csrk(
+    void on_keys_distributed_csrk_(
         connection_handle_t connection,
         const csrk_t &csrk
     );
 
     /** @copydoc ble::pal::SecurityManager::on_ltk_requeston_ltk_request
      */
-    virtual void on_ltk_request(
+    void on_ltk_request_(
         connection_handle_t connection,
         const ediv_t &ediv,
         const rand_t &rand
@@ -723,7 +757,7 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_ltk_requeston_ltk_request
      */
-    virtual void on_ltk_request(
+    void on_ltk_request_(
         connection_handle_t connection
     );
 

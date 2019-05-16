@@ -12,28 +12,8 @@
 ; *****************************************************************************/
 
 
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00000400
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __initial_sp
-
-Stack_Mem       SPACE   Stack_Size
 __initial_sp        EQU     0x20003000  ; Top of RAM
 
-
-Heap_Size       EQU     0x00000000
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
 
                 PRESERVE8
                 THUMB

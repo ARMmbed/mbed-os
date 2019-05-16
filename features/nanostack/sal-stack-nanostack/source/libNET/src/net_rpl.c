@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
 #include "ns_types.h"
 #include <string.h>
 
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "RPL/rpl_protocol.h"
@@ -74,6 +74,11 @@ int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t *dodag_
     }
     return 0;
 #else // !HAVE_RPL_ROOT
+    (void)dodag_id;
+    (void)config;
+    (void)instance_id;
+    (void)flags;
+
     return -1;
 #endif
 }

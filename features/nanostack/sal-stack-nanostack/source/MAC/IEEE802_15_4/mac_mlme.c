@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,6 +68,7 @@ static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf
 static void mac_mlme_timer_cb(int8_t timer_id, uint16_t slots);
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf);
 static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf);
+static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
 
 static void mac_mlme_energy_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t channel)
 {
@@ -635,6 +636,29 @@ void mac_extended_mac_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const
     }
 }
 
+static uint32_t mac_calc_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t symbols)
+{
+    uint32_t AckWaitDuration = 0;
+    if (rf_mac_setup->rf_csma_extension_supported) {
+        AckWaitDuration = symbols * rf_mac_setup->symbol_time_us;
+    }
+    return AckWaitDuration;
+}
+
+static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    uint16_t symbols = common_read_16_bit_inverse((uint8_t *)set_req->value_pointer);
+    uint32_t ack_wait_time_us = mac_calc_ack_wait_duration(rf_mac_setup, symbols);
+    if (ack_wait_time_us < 50) {
+        return -1;
+    }
+    // MAC timer uses 50us resolution
+    rf_mac_setup->mac_ack_wait_duration = ack_wait_time_us / 50;
+    tr_debug("Set macAckWaitDuration: %uus", rf_mac_setup->mac_ack_wait_duration * 50);
+
+    return 0;
+}
+
 static int8_t mac_mlme_device_description_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
 
@@ -707,6 +731,8 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
     }
 
     switch (set_req->attr) {
+        case macAckWaitDuration:
+            return mac_mlme_set_ack_wait_duration(rf_mac_setup, set_req);
         case macDeviceTable:
             return mac_mlme_device_description_set(rf_mac_setup, set_req);
         case macKeyTable:
@@ -722,6 +748,10 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
+            return 0;
+        case macRfConfiguration:
+            rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
+            mac_mlme_set_symbol_rate(rf_mac_setup);
             return 0;
         default:
             return mac_mlme_handle_set_values(rf_mac_setup, set_req);
@@ -1009,6 +1039,17 @@ static uint8_t mac_backoff_ticks_calc(phy_device_driver_s *phy_driver)
     return (uint8_t) ticks;
 }
 
+static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    if (rf_mac_setup->rf_csma_extension_supported) {
+        rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, (uint8_t *) &rf_mac_setup->symbol_rate);
+        rf_mac_setup->symbol_time_us = 1000000 / rf_mac_setup->symbol_rate;
+        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" us symbol time length", rf_mac_setup->symbol_rate, rf_mac_setup->symbol_time_us);
+        return 0;
+    }
+    return -1;
+}
+
 protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, arm_device_driver_list_s *dev_driver, mac_description_storage_size_t *storage_sizes)
 {
     uint16_t total_length = 0;
@@ -1099,11 +1140,7 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     bool rf_support = false;
     dev_driver->phy_driver->extension(PHY_EXTENSION_DYNAMIC_RF_SUPPORTED, (uint8_t *)&rf_support);
     entry->rf_csma_extension_supported = rf_support;
-    if (entry->rf_csma_extension_supported) {
-        entry->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, (uint8_t *) &entry->symbol_rate);
-        entry->symbol_time_us = 1000000 / entry->symbol_rate;
-        tr_debug("SW-MAC driver support rf extension %"PRIu32" symbol/seconds  %"PRIu32" us symbol time length", entry->symbol_rate, entry->symbol_time_us);
-    }
+    mac_mlme_set_symbol_rate(entry);
 
     //How many 10us ticks backoff period is for waiting 20symbols which is typically 10 bytes time
     entry->backoff_period_in_10us = mac_backoff_ticks_calc(dev_driver->phy_driver);
@@ -1710,8 +1747,6 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
         }*/
     }
     buf->priority = MAC_PD_DATA_HIGH_PRIOTITY;
-
-    tr_debug("BEA tx");
     mcps_sap_pd_req_queue_write(rf_ptr, buf);
     sw_mac_stats_update(rf_ptr, STAT_MAC_BEA_TX_COUNT, 0);
     return 0;

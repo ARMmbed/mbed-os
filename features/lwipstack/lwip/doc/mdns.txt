@@ -32,8 +32,8 @@ generated.
 The MDNS code puts its structs on the stack where suitable to reduce dynamic
 memory allocation. It may use up to 1kB of stack.
 
-MDNS needs a strncasecmp() implementation. If you have one, define
-LWIP_MDNS_STRNCASECMP to it. Otherwise the code will provide an implementation
+MDNS (like other apps) needs a strncasecmp() implementation. If you have one, define
+'lwip_strnicmp' to it. Otherwise the code will provide an implementation
 for you.
 
 
@@ -57,11 +57,11 @@ Answers will use the supplied TTL (in seconds)
 MDNS allows UTF-8 names, but it is recommended to stay within ASCII,
 since the default case-insensitive comparison assumes this.
 
-It is recommended to call this function after an IPv4 address has been set,
-since there is currently no check if the v4 address is valid.
+Call mdns_resp_announce() every time the IP address on the netif has changed.
 
-Call mdns_resp_netif_settings_changed() every time the IP address
-on the netif has changed.
+Call mdns_resp_restart() every time the network interface comes up after being
+down, for example cable connected after being disconnected, administrative 
+interface comes up after being down, or the device wakes up from sleep.
 
 To stop responding on a netif, run
   mdns_resp_remove_netif(struct netif *netif)
@@ -108,6 +108,5 @@ and point them to <hostname>.local:80
 Relevant information will be sent as additional records to reduce number of
 requests required from a client.
 
-Removing services is currently not supported. Services are removed when the
-netif is removed.
-
+To remove a service from a netif, run
+  mdns_resp_del_service(struct netif *netif, s8_t slot)

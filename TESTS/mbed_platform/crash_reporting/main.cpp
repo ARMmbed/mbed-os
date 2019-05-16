@@ -53,12 +53,17 @@ void test_crash_reporting()
 
     // Report readiness
     greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
+    printf("\nMessage sent: %s\n", MSG_KEY_DEVICE_READY);
 
     static char _key[MSG_KEY_LEN + 1] = { };
     static char _value[MSG_VALUE_LEN + 1] = { };
 
+    printf("\nWaiting for crash inject error message: %s\n", MSG_KEY_DEVICE_ERROR);
     greentea_parse_kv(_key, _value, MSG_KEY_LEN, MSG_VALUE_LEN);
+    printf("\nCrash inject error message received\n");
+
     if (strcmp(_key, MSG_KEY_DEVICE_ERROR) == 0) {
+        printf("\nForcing error\n");
         MBED_ERROR1(MBED_ERROR_OUT_OF_MEMORY, "Executing crash reporting test.", 0xDEADBAD);
         TEST_ASSERT_MESSAGE(0, "crash_reporting() error call failed.");
     }
@@ -67,7 +72,7 @@ void test_crash_reporting()
 
 int main(void)
 {
-    GREENTEA_SETUP(30, "crash_reporting");
+    GREENTEA_SETUP(40, "crash_reporting");
     test_crash_reporting();
     GREENTEA_TESTSUITE_RESULT(0);
 

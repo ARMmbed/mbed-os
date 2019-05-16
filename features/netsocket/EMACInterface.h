@@ -117,6 +117,17 @@ public:
      */
     virtual const char *get_gateway();
 
+    /** Get the network interface name
+      *
+      *  @return         Null-terminated representation of the network interface name
+      *                  or null if  interface not exists
+      */
+    virtual char *get_interface_name(char *interface_name);
+
+    /** Set the network interface as default one
+      */
+    virtual void set_as_default();
+
     /** Register callback for status reporting
      *
      *  @param status_cb The callback for status changes

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && DEVICE_INTERRUPTIN && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 
 #include <string.h>
 #include <stdint.h>
@@ -26,9 +26,9 @@
 #include "features/netsocket/nsapi_types.h"
 #include "mbed_trace.h"
 #include "platform/Callback.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_wait_api.h"
-#include "Kernel.h"
 
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
@@ -55,26 +55,33 @@ ESP8266Interface::ESP8266Interface()
     : _esp(MBED_CONF_ESP8266_TX, MBED_CONF_ESP8266_RX, MBED_CONF_ESP8266_DEBUG, MBED_CONF_ESP8266_RTS, MBED_CONF_ESP8266_CTS),
       _rst_pin(MBED_CONF_ESP8266_RST), // Notice that Pin7 CH_EN cannot be left floating if used as reset
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
+      _if_blocking(true),
+      _if_connected(_cmutex),
       _initialized(false),
+      _connect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
-      _global_event_queue(NULL),
-      _oob_event_id(0)
+      _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
+      _oob_event_id(0),
+      _connect_event_id(0)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
 
+    _ch_info.track_ap = true;
+    strncpy(_ch_info.country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_ch_info.country_code));
+    _ch_info.channel_start = MBED_CONF_ESP8266_CHANNEL_START;
+    _ch_info.channels = MBED_CONF_ESP8266_CHANNELS;
+
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
-
-    _oob2global_event_queue();
 }
 #endif
 
@@ -83,26 +90,32 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
     : _esp(tx, rx, debug, rts, cts),
       _rst_pin(rst),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
+      _if_blocking(true),
+      _if_connected(_cmutex),
       _initialized(false),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
-      _global_event_queue(NULL),
-      _oob_event_id(0)
+      _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
+      _oob_event_id(0),
+      _connect_event_id(0)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
 
+    _ch_info.track_ap = true;
+    strncpy(_ch_info.country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_ch_info.country_code));
+    _ch_info.channel_start = MBED_CONF_ESP8266_CHANNEL_START;
+    _ch_info.channels = MBED_CONF_ESP8266_CHANNELS;
+
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
-
-    _oob2global_event_queue();
 }
 
 ESP8266Interface::~ESP8266Interface()
@@ -110,6 +123,12 @@ ESP8266Interface::~ESP8266Interface()
     if (_oob_event_id) {
         _global_event_queue->cancel(_oob_event_id);
     }
+
+    _cmutex.lock();
+    if (_connect_event_id) {
+        _global_event_queue->cancel(_connect_event_id);
+    }
+    _cmutex.unlock();
 
     // Power down the modem
     _rst_pin.rst_assert();
@@ -156,20 +175,43 @@ int ESP8266Interface::connect(const char *ssid, const char *pass, nsapi_security
     return connect();
 }
 
-void ESP8266Interface::_oob2global_event_queue()
+void ESP8266Interface::_connect_async()
 {
-    _global_event_queue = mbed_event_queue();
-    _oob_event_id = _global_event_queue->call_every(ESP8266_RECV_TIMEOUT, callback(this, &ESP8266Interface::proc_oob_evnt));
-
-    if (!_oob_event_id) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                   "ESP8266::_oob2geq: unable to allocate OOB event");
+    _cmutex.lock();
+    if (!_connect_event_id) {
+        tr_debug("_connect_async(): cancelled");
+        _cmutex.unlock();
+        return;
     }
+    _connect_retval = _esp.connect(ap_ssid, ap_pass);
+    int timeleft_ms = ESP8266_INTERFACE_CONNECT_TIMEOUT_MS - _conn_timer.read_ms();
+    if (_connect_retval == NSAPI_ERROR_OK || _connect_retval == NSAPI_ERROR_AUTH_FAILURE
+            || _connect_retval == NSAPI_ERROR_NO_SSID
+            || ((_if_blocking == true) && (timeleft_ms <= 0))) {
+        _connect_event_id = 0;
+        _conn_timer.stop();
+        if (timeleft_ms <= 0) {
+            _connect_retval = NSAPI_ERROR_CONNECTION_TIMEOUT;
+        }
+        _if_connected.notify_all();
+    } else {
+        // Postpone to give other stuff time to run
+        _connect_event_id = _global_event_queue->call_in(ESP8266_INTERFACE_CONNECT_INTERVAL_MS,
+                                                         callback(this, &ESP8266Interface::_connect_async));
+        if (!_connect_event_id) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                       "ESP8266Interface::_connect_async(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+        }
+    }
+    _cmutex.unlock();
 }
 
 int ESP8266Interface::connect()
 {
-    nsapi_error_t status;
+    nsapi_error_t status = _conn_status_to_error();
+    if (status != NSAPI_ERROR_NO_CONNECTION) {
+        return status;
+    }
 
     if (strlen(ap_ssid) == 0) {
         return NSAPI_ERROR_NO_SSID;
@@ -190,20 +232,45 @@ int ESP8266Interface::connect()
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
-    status = _startup(ESP8266::WIFIMODE_STATION);
-    if (status != NSAPI_ERROR_OK) {
-        return status;
-    }
-
     if (!_esp.dhcp(true, 1)) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
 
-    return _esp.connect(ap_ssid, ap_pass);
+    _cmutex.lock();
+
+    _connect_retval = NSAPI_ERROR_NO_CONNECTION;
+    MBED_ASSERT(!_connect_event_id);
+    _conn_timer.stop();
+    _conn_timer.reset();
+    _conn_timer.start();
+    _connect_event_id = _global_event_queue->call(callback(this, &ESP8266Interface::_connect_async));
+
+    if (!_connect_event_id) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                   "connect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+    }
+
+    while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)
+            && (_connect_retval == NSAPI_ERROR_NO_CONNECTION)) {
+        _if_connected.wait();
+    }
+
+    _cmutex.unlock();
+
+    if (!_if_blocking) {
+        return NSAPI_ERROR_OK;
+    } else {
+        return _connect_retval;
+    }
 }
 
 int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
+    nsapi_error_t status = _conn_status_to_error();
+    if (status != NSAPI_ERROR_NO_CONNECTION) {
+        return status;
+    }
+
     _ap_sec = security;
 
     if (!ssid) {
@@ -249,10 +316,16 @@ int ESP8266Interface::set_channel(uint8_t channel)
 
 int ESP8266Interface::disconnect()
 {
+    _cmutex.lock();
+    if (_connect_event_id) {
+        _global_event_queue->cancel(_connect_event_id);
+        _connect_event_id = 0; // cancel asynchronous connection attempt if one is ongoing
+    }
+    _cmutex.unlock();
     _initialized = false;
 
-    if (_conn_stat == NSAPI_STATUS_DISCONNECTED)
-    {
+    nsapi_error_t status = _conn_status_to_error();
+    if (status == NSAPI_ERROR_NO_CONNECTION) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -308,19 +381,25 @@ int8_t ESP8266Interface::get_rssi()
 
 int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count)
 {
-    nsapi_error_t status;
+    return scan(res, count, SCANMODE_ACTIVE, 0, 0);
+}
 
-    status = _init();
+int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode, unsigned t_max, unsigned t_min)
+{
+    if (t_max > ESP8266_SCAN_TIME_MAX) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    if (mode == SCANMODE_ACTIVE && t_min > t_max) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    nsapi_error_t status = _init();
     if (status != NSAPI_ERROR_OK) {
         return status;
     }
 
-    status = _startup(ESP8266::WIFIMODE_STATION);
-    if (status != NSAPI_ERROR_OK) {
-        return status;
-    }
-
-    return _esp.scan(res, count);
+    return _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
+                     t_min, t_max);
 }
 
 bool ESP8266Interface::_get_firmware_ok()
@@ -344,15 +423,7 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
-        _hw_reset();
-
-        if (!_esp.at_available()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-        if (!_esp.stop_uart_hw_flow_ctrl()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-        if (!_esp.reset()) {
+        if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.echo_off()) {
@@ -367,7 +438,13 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.set_default_wifi_mode(ESP8266::WIFIMODE_STATION)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
+        if (!_esp.set_country_code_policy(true, _ch_info.country_code, _ch_info.channel_start, _ch_info.channels)) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
         if (!_esp.cond_enable_tcp_passive_mode()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+        if (!_esp.startup(ESP8266::WIFIMODE_STATION)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
 
@@ -376,23 +453,26 @@ nsapi_error_t ESP8266Interface::_init(void)
     return NSAPI_ERROR_OK;
 }
 
-void ESP8266Interface::_hw_reset()
+nsapi_error_t ESP8266Interface::_reset()
 {
-    _rst_pin.rst_assert();
-    // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
-    // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
-    wait_us(200);
-    _rst_pin.rst_deassert();
-}
-
-nsapi_error_t ESP8266Interface::_startup(const int8_t wifi_mode)
-{
-    if (_conn_stat == NSAPI_STATUS_DISCONNECTED) {
-        if (!_esp.startup(wifi_mode)) {
+    if (_rst_pin.is_connected()) {
+        _rst_pin.rst_assert();
+        // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
+        // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
+        wait_ms(2); // Documentation says 200 us should have been enough, but experimentation shows that 1ms was not enough
+        _esp.flush();
+        _rst_pin.rst_deassert();
+    } else {
+        _esp.flush();
+        if (!_esp.at_available()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+        if (!_esp.reset()) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
     }
-    return NSAPI_ERROR_OK;
+
+    return _esp.at_available() ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
 
 struct esp8266_socket {
@@ -445,6 +525,10 @@ int ESP8266Interface::socket_close(void *handle)
     if (socket->connected && !_esp.close(socket->id)) {
         err = NSAPI_ERROR_DEVICE_ERROR;
     }
+
+    _cbs[socket->id].callback = NULL;
+    _cbs[socket->id].data = NULL;
+    core_util_atomic_store_u8(&_cbs[socket->id].deferred, false);
 
     socket->connected = false;
     _sock_i[socket->id].open = false;
@@ -514,20 +598,34 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
 {
     nsapi_error_t status;
     struct esp8266_socket *socket = (struct esp8266_socket *)handle;
+    uint8_t expect_false = false;
 
     if (!socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    unsigned long int sendStartTime = rtos::Kernel::get_ms_count();
-    do {
-        status = _esp.send(socket->id, data, size);
-    } while ((sendStartTime - rtos::Kernel::get_ms_count() < 50)
-            && (status != NSAPI_ERROR_OK));
+    if (!_sock_i[socket->id].open) {
+        return NSAPI_ERROR_CONNECTION_LOST;
+    }
 
-    if (status == NSAPI_ERROR_WOULD_BLOCK) {
-        debug("Enqueuing the event call");
-        _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
+    if (!size) {
+        // Firmware limitation
+        return socket->proto == NSAPI_TCP ? 0 : NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    status = _esp.send(socket->id, data, size);
+
+    if (status == NSAPI_ERROR_WOULD_BLOCK
+            && socket->proto == NSAPI_TCP
+            && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
+        tr_debug("Postponing SIGIO from the device");
+        if (!_global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred))) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                       "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+        }
+
+    } else if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_UDP) {
+        status = NSAPI_ERROR_DEVICE_ERROR;
     }
 
     return status != NSAPI_ERROR_OK ? status : size;
@@ -539,6 +637,10 @@ int ESP8266Interface::socket_recv(void *handle, void *data, unsigned size)
 
     if (!socket) {
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (!_sock_i[socket->id].open) {
+        return NSAPI_ERROR_CONNECTION_LOST;
     }
 
     int32_t recv;
@@ -668,8 +770,27 @@ nsapi_error_t ESP8266Interface::getsockopt(nsapi_socket_t handle, int level, int
 
 void ESP8266Interface::event()
 {
+    if (!_oob_event_id) {
+        // Throttles event creation by using arbitrary small delay
+        _oob_event_id = _global_event_queue->call_in(50, callback(this, &ESP8266Interface::proc_oob_evnt));
+        if (!_oob_event_id) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                       "ESP8266Interface::event(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+        }
+    }
+
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         if (_cbs[i].callback) {
+            _cbs[i].callback(_cbs[i].data);
+        }
+    }
+}
+
+void ESP8266Interface::event_deferred()
+{
+    for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+        uint8_t expect_true = true;
+        if (core_util_atomic_cas_u8(&_cbs[i].deferred, &expect_true, false) && _cbs[i].callback) {
             _cbs[i].callback(_cbs[i].data);
         }
     }
@@ -695,14 +816,10 @@ WiFiInterface *WiFiInterface::get_default_instance()
 
 #endif
 
-void ESP8266Interface::update_conn_state_cb()
+void ESP8266Interface::refresh_conn_state_cb()
 {
     nsapi_connection_status_t prev_stat = _conn_stat;
     _conn_stat = _esp.connection_status();
-
-    if (prev_stat == _conn_stat) {
-        return;
-    }
 
     switch (_conn_stat) {
         // Doesn't require changes
@@ -718,7 +835,17 @@ void ESP8266Interface::update_conn_state_cb()
         default:
             _initialized = false;
             _conn_stat = NSAPI_STATUS_DISCONNECTED;
+            for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+                _sock_i[i].open = false;
+                _sock_i[i].sport = 0;
+            }
     }
+
+    if (prev_stat == _conn_stat) {
+        return;
+    }
+
+    tr_debug("refresh_conn_state_cb(): changed to %d", _conn_stat);
 
     // Inform upper layers
     if (_conn_stat_cb) {
@@ -728,7 +855,60 @@ void ESP8266Interface::update_conn_state_cb()
 
 void ESP8266Interface::proc_oob_evnt()
 {
-        _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+    _oob_event_id = 0; // Allows creation of a new event
+    _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+}
+
+nsapi_error_t ESP8266Interface::_conn_status_to_error()
+{
+    nsapi_error_t ret;
+
+    _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+
+    switch (_conn_stat) {
+        case NSAPI_STATUS_DISCONNECTED:
+            ret = NSAPI_ERROR_NO_CONNECTION;
+            break;
+        case NSAPI_STATUS_CONNECTING:
+            ret = NSAPI_ERROR_ALREADY;
+            break;
+        case NSAPI_STATUS_GLOBAL_UP:
+            ret = NSAPI_ERROR_IS_CONNECTED;
+            break;
+        default:
+            ret = NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    return ret;
+}
+
+nsapi_error_t ESP8266Interface::set_blocking(bool blocking)
+{
+    _if_blocking = blocking;
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *country_code, int len, int channel_start, int channels)
+{
+    for (int i = 0; i < len; i++) {
+        // Validation done by firmware
+        if (!country_code[i]) {
+            tr_warning("invalid country code");
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
+
+    _ch_info.track_ap = track_ap;
+
+    // Firmware takes only first three characters
+    strncpy(_ch_info.country_code, country_code, sizeof(_ch_info.country_code));
+    _ch_info.country_code[sizeof(_ch_info.country_code) - 1] = '\0';
+
+    _ch_info.channel_start = channel_start;
+    _ch_info.channels = channels;
+
+    return NSAPI_ERROR_OK;
 }
 
 #endif

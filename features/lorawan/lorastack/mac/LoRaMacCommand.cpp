@@ -149,7 +149,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 int8_t link_adr_dr = DR_0;
                 int8_t link_adr_txpower = TX_POWER_0;
                 uint8_t link_adr_nbtrans = 0;
-                uint8_t link_adr_nb_bytes_pasred = 0;
+                uint8_t link_adr_nb_bytes_parsed = 0;
 
                 // Fill parameter structure
                 link_adr_req.payload = &payload[mac_index - 1];
@@ -165,7 +165,14 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                    &link_adr_dr,
                                                    &link_adr_txpower,
                                                    &link_adr_nbtrans,
-                                                   &link_adr_nb_bytes_pasred);
+                                                   &link_adr_nb_bytes_parsed);
+
+                // If nothing was consumed, we have a malformed packet at our hand
+                // we bin everything and return. link_adr_nb_bytes_parsed being 0 is
+                // a magic identifier letting us know that there are payload inconsistencies
+                if (link_adr_nb_bytes_parsed == 0) {
+                    return LORAWAN_STATUS_UNSUPPORTED;
+                }
 
                 if ((status & 0x07) == 0x07) {
                     mac_sys_params.channel_data_rate = link_adr_dr;
@@ -174,11 +181,11 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 }
 
                 // Add the answers to the buffer
-                for (uint8_t i = 0; i < (link_adr_nb_bytes_pasred / 5); i++) {
+                for (uint8_t i = 0; i < (link_adr_nb_bytes_parsed / 5); i++) {
                     ret_value = add_link_adr_ans(status);
                 }
                 // Update MAC index
-                mac_index += link_adr_nb_bytes_pasred - 1;
+                mac_index += link_adr_nb_bytes_parsed - 1;
             }
             break;
             case SRV_MAC_DUTY_CYCLE_REQ:

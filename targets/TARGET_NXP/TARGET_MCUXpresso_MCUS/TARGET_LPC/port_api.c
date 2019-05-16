@@ -71,12 +71,12 @@ void port_dir(port_t *obj, PinDirection dir)
 
 void port_write(port_t *obj, int value)
 {
-    GPIO_WriteMPort(GPIO, obj->port, value);
+    GPIO_PortMaskedWrite(GPIO, obj->port, value);
 }
 
 int port_read(port_t *obj)
 {
-    return (int)(GPIO_ReadMPort(GPIO, obj->port));
+    return (int)(GPIO_PortMaskedRead(GPIO, obj->port));
 }
 
 #endif

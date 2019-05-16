@@ -18,13 +18,13 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#ifndef YOTTA_CFG_MBED_TRACE
-#define YOTTA_CFG_MBED_TRACE 1
-#define YOTTA_CFG_MBED_TRACE_FEA_IPV6 1
+#ifndef MBED_CONF_MBED_TRACE_ENABLE
+#define MBED_CONF_MBED_TRACE_ENABLE 1
+#define MBED_CONF_MBED_TRACE_FEA_IPV6 1
 #endif
 
 #include "mbed-trace/mbed_trace.h"
-#if YOTTA_CFG_MBED_TRACE_FEA_IPV6 == 1
+#if MBED_CONF_MBED_TRACE_FEA_IPV6 == 1
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/common_functions.h"
 #endif
@@ -101,7 +101,7 @@ const char *mbed_trace_last(void)
 }
 
 /* Helping functions */
-#if YOTTA_CFG_MBED_TRACE_FEA_IPV6 == 1
+#if MBED_CONF_MBED_TRACE_FEA_IPV6 == 1
 char *mbed_trace_ipv6(const void *addr_ptr)
 {
     return NULL;
@@ -111,7 +111,7 @@ char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len)
 {
     return NULL;
 }
-#endif //YOTTA_CFG_MBED_TRACE_FEA_IPV6
+#endif //MBED_CONF_MBED_TRACE_FEA_IPV6
 
 char *mbed_trace_array(const uint8_t *buf, uint16_t len)
 {

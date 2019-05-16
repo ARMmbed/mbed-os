@@ -167,7 +167,7 @@ typedef enum _SYSCON_RSTn
     {                                              \
         kGINT_RST_SHIFT_RSTn, kGINT_RST_SHIFT_RSTn \
     } /* Reset bits for GINT peripheral. GINT0 & GINT1 share same slot */
-#define GPIO_RSTS                                    \
+#define GPIO_RSTS_N                                    \
     {                                                \
         kGPIO0_RST_SHIFT_RSTn, kGPIO1_RST_SHIFT_RSTn, kGPIO2_RST_SHIFT_RSTn, kGPIO3_RST_SHIFT_RSTn,  \
         kGPIO4_RST_SHIFT_RSTn, kGPIO5_RST_SHIFT_RSTn                                                 \

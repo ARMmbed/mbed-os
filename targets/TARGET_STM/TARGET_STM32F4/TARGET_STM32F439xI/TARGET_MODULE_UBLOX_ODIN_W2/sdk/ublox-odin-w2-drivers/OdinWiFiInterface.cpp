@@ -411,7 +411,7 @@ int OdinWiFiInterface::scan(WiFiAccessPoint *res_list, unsigned count)
      return found_aps;
 }
 
-#ifdef DEVICE_WIFI_AP
+#if DEVICE_WIFI_AP
 
 nsapi_error_t OdinWiFiInterface::set_ap_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -879,7 +879,7 @@ void OdinWiFiInterface::handle_user_connect(user_connect_s *user_connect)
 
     if(error_code == NSAPI_ERROR_OK) {
         memset(&_wlan_status_connected_info, 0, sizeof(cbWLAN_StatusConnectedInfo));
-        memcpy(&_wlan_status_disconnected_info, 0, sizeof(cbWLAN_StatusDisconnectedInfo));
+        memset(&_wlan_status_disconnected_info, 0, sizeof(cbWLAN_StatusDisconnectedInfo));
 
         _state_sta = entry_wait_connect();
     }
@@ -1044,10 +1044,6 @@ void OdinWiFiInterface::handle_wlan_status_started(wlan_status_started_s *start)
 				start->info.macAddress[4],
 				start->info.macAddress[5]);
 
-			if(!_wlan_initialized) {
-				//Initialize network stack interface without activating it
-			}
-
 			if (!_interface) {
 				nsapi_error_t error_code = _stack.add_ethernet_interface(_emac, true, &_interface);
 				if (error_code != NSAPI_ERROR_OK) {
@@ -1058,16 +1054,9 @@ void OdinWiFiInterface::handle_wlan_status_started(wlan_status_started_s *start)
 				}
 			}
 
-
-	#ifdef DEVICE_WIFI_AP
-			if(!_wlan_initialized) {
-				_wlan_initialized = true;
-			}
-	#else
 			if (!_wlan_initialized) {
 				_wlan_initialized = true;
 			}
-	#endif
 
 			// The OdinWifiInterface object is now fully initialized
 			_state = S_STARTED;

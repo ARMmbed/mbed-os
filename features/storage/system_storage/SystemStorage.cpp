@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "SystemStorage.h"
 #include "BlockDevice.h"
 #include "FileSystem.h"
 #include "FATFileSystem.h"
 #include "LittleFileSystem.h"
+#include "mbed_error.h"
+
 
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
+#endif
+
+#if COMPONENT_RSPIF
+#include "SPIFReducedBlockDevice.h"
 #endif
 
 #if COMPONENT_QSPIF
@@ -39,6 +46,31 @@
 #endif
 
 using namespace mbed;
+
+
+
+MBED_WEAK int avoid_conflict_nvstore_tdbstore(owner_type_e in_mem_owner)
+{
+    int status = MBED_SUCCESS;
+    static PlatformMutex _mutex;
+    static owner_type_e internal_memory_owner = NONE;
+
+    _mutex.lock();
+
+    if (internal_memory_owner != NONE &&
+            internal_memory_owner != in_mem_owner) {
+
+        status = MBED_ERROR_ALREADY_INITIALIZED;
+
+    } else {
+
+        internal_memory_owner = in_mem_owner;
+    }
+
+    _mutex.unlock();
+
+    return status;
+}
 
 // Align a value to a specified size.
 // Parameters :
@@ -60,6 +92,18 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SPIF_DRIVER_SPI_CLK,
         MBED_CONF_SPIF_DRIVER_SPI_CS,
         MBED_CONF_SPIF_DRIVER_SPI_FREQ
+    );
+
+    return &default_bd;
+
+#elif COMPONENT_RSPIF
+
+    static SPIFReducedBlockDevice default_bd(
+        MBED_CONF_RSPIF_DRIVER_SPI_MOSI,
+        MBED_CONF_RSPIF_DRIVER_SPI_MISO,
+        MBED_CONF_RSPIF_DRIVER_SPI_CLK,
+        MBED_CONF_RSPIF_DRIVER_SPI_CS,
+        MBED_CONF_RSPIF_DRIVER_SPI_FREQ
     );
 
     return &default_bd;
@@ -116,7 +160,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
     }
 
     //Find the start of first sector after text area
-    bottom_address = align_up(FLASHIAP_ROM_END, flash.get_sector_size(FLASHIAP_ROM_END));
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
     start_address = flash.get_flash_start();
     flash_size = flash.get_flash_size();
 

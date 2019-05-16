@@ -40,7 +40,7 @@
 #define STREG_BUSY_BIT               (0x01u)    /* SR.[0]BUSY Erase/Write In Progress (RO) */
 
 /* Definition of the base address for the MMU translation table */
-#if defined(__CC_ARM) || defined(__GNUC__)
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
 extern uint32_t Image$$TTB$$ZI$$Base;
 #define TTB         ((uint32_t)&Image$$TTB$$ZI$$Base)   /* using linker symbol */
 #elif defined(__ICCARM__)

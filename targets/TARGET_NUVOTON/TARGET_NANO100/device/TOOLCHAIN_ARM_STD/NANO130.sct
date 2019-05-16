@@ -1,3 +1,8 @@
+#! armcc -E
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
 
 LR_IROM1 0x00000000 {
   ER_IROM1 0x00000000 {  ; load address = execution address
@@ -7,7 +12,7 @@ LR_IROM1 0x00000000 {
   }
   
   
-  ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
+  ARM_LIB_STACK 0x20000000 EMPTY MBED_BOOT_STACK_SIZE {
   }
   
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned

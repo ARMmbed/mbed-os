@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 #include "hal/analogin_api.h"
 
 #include "pinmap.h"
@@ -143,6 +143,11 @@ float analogin_read(analogin_t *obj)
     float result = ((float) value / (float) ADC_16BIT_RANGE);
 
     return result;
+}
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
 }
 
 #endif // DEVICE_ANALOGIN

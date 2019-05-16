@@ -58,6 +58,16 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
+struct qspi_s {
+    QSPI_HandleTypeDef handle;
+    PinName io0;
+    PinName io1;
+    PinName io2;
+    PinName io3;
+    PinName sclk;
+    PinName ssel;
+};
+
 #include "common_objects.h"
 
 #ifdef __cplusplus

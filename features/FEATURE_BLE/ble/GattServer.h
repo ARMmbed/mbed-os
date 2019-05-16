@@ -17,12 +17,18 @@
 #ifndef MBED_GATT_SERVER_H__
 #define MBED_GATT_SERVER_H__
 
-#include "ble/Gap.h"
-#include "GattService.h"
-#include "GattAttribute.h"
-#include "GattServerEvents.h"
-#include "GattCallbackParamTypes.h"
-#include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/common/StaticInterface.h"
+#include "ble/GattService.h"
+#include "ble/GattAttribute.h"
+#include "ble/GattServerEvents.h"
+#include "ble/GattCallbackParamTypes.h"
+#include "ble/CallChainOfFunctionPointersWithContext.h"
+#include "BleImplementationForward.h"
+
+#if !defined(DOXYGEN_ONLY)
+namespace ble {
+namespace interface {
+#endif
 
 /**
  * @addtogroup ble
@@ -85,8 +91,48 @@
  * Characteristic Value Notification and Characteristic Value Indication when
  * the nature of the server initiated is not relevant.
  */
+#if !defined(DOXYGEN_ONLY)
+template <class Impl>
+class GattServer : public StaticInterface<Impl, GattServer> {
+#else
 class GattServer {
+#endif
+
+    using StaticInterface<Impl, ::ble::interface::GattServer>::impl;
+
 public:
+
+    /**
+     * Definition of the general handler of GattServer related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void onAttMtuChange(
+            ble::connection_handle_t connectionHandle,
+            uint16_t attMtuSize
+        )
+        {
+        }
+    };
+
+    /**
+     * Assign the event handler implementation that will be used by the
+     * module to signal events back to the application.
+     *
+     * @param handler Application implementation of an EventHandler.
+     */
+    void setEventHandler(EventHandler *handler)
+    {
+        eventHandler = handler;
+    }
+
     /**
      * Event handler invoked when the server has sent data to a client.
      *
@@ -163,16 +209,7 @@ protected:
     /**
      * Construct a GattServer instance.
      */
-    GattServer() :
-        serviceCount(0),
-        characteristicCount(0),
-        dataSentCallChain(),
-        dataWrittenCallChain(),
-        dataReadCallChain(),
-        updatesEnabledCallback(NULL),
-        updatesDisabledCallback(NULL),
-        confirmationReceivedCallback(NULL) {
-    }
+    GattServer();
 
     /*
      * The following functions are meant to be overridden in the platform
@@ -204,15 +241,7 @@ public:
      *
      * @return BLE_ERROR_NONE if the service was successfully added.
      */
-    virtual ble_error_t addService(GattService &service)
-    {
-        /* Avoid compiler warnings about unused variables. */
-        (void)service;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    ble_error_t addService(GattService &service);
 
     /**
      * Read the value of an attribute present in the local GATT server.
@@ -227,24 +256,15 @@ public:
      *
      * @return BLE_ERROR_NONE if a value was read successfully into the buffer.
      *
-     * @attention read(Gap::Handle_t, GattAttribute::Handle_t, uint8_t *, uint16_t *)
+     * @attention read(ble::connection_handle_t, GattAttribute::Handle_t, uint8_t *, uint16_t *)
      * must be used to read Client Characteristic Configuration Descriptor (CCCD)
      * because the value of this type of attribute depends on the connection.
      */
-    virtual ble_error_t read(
+    ble_error_t read(
         GattAttribute::Handle_t attributeHandle,
         uint8_t buffer[],
         uint16_t *lengthP
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)attributeHandle;
-        (void)buffer;
-        (void)lengthP;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Read the value of an attribute present in the local GATT server.
@@ -264,22 +284,12 @@ public:
      *
      * @return BLE_ERROR_NONE if a value was read successfully into the buffer.
      */
-    virtual ble_error_t read(
-        Gap::Handle_t connectionHandle,
+    ble_error_t read(
+        ble::connection_handle_t connectionHandle,
         GattAttribute::Handle_t attributeHandle,
         uint8_t *buffer,
         uint16_t *lengthP
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)attributeHandle;
-        (void)buffer;
-        (void)lengthP;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Update the value of an attribute present in the local GATT server.
@@ -296,22 +306,12 @@ public:
      * @return BLE_ERROR_NONE if the attribute value has been successfully
      * updated.
      */
-    virtual ble_error_t write(
+    ble_error_t write(
         GattAttribute::Handle_t attributeHandle,
         const uint8_t *value,
         uint16_t size,
         bool localOnly = false
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)attributeHandle;
-        (void)value;
-        (void)size;
-        (void)localOnly;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Update the value of an attribute present in the local GATT server.
@@ -334,24 +334,13 @@ public:
      * @return BLE_ERROR_NONE if the attribute value has been successfully
      * updated.
      */
-    virtual ble_error_t write(
-        Gap::Handle_t connectionHandle,
+    ble_error_t write(
+        ble::connection_handle_t connectionHandle,
         GattAttribute::Handle_t attributeHandle,
         const uint8_t *value,
         uint16_t size,
         bool localOnly = false
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)attributeHandle;
-        (void)value;
-        (void)size;
-        (void)localOnly;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Determine if one of the connected clients has subscribed to notifications
@@ -364,18 +353,10 @@ public:
      * @return BLE_ERROR_NONE if the connection and handle are found. False
      * otherwise.
      */
-    virtual ble_error_t areUpdatesEnabled(
+    ble_error_t areUpdatesEnabled(
         const GattCharacteristic &characteristic,
         bool *enabledP
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)characteristic;
-        (void)enabledP;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Determine if an identified client has subscribed to notifications or
@@ -390,20 +371,11 @@ public:
      * @return BLE_ERROR_NONE if the connection and handle are found. False
      * otherwise.
      */
-    virtual ble_error_t areUpdatesEnabled(
-        Gap::Handle_t connectionHandle,
+    ble_error_t areUpdatesEnabled(
+        ble::connection_handle_t connectionHandle,
         const GattCharacteristic &characteristic,
         bool *enabledP
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)characteristic;
-        (void)enabledP;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Indicate if the underlying stack emit events when an attribute is read by
@@ -414,12 +386,7 @@ public:
      *
      * @return true if onDataRead is supported; false otherwise.
      */
-    virtual bool isOnDataReadAvailable() const
-    {
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return false;
-    }
+    bool isOnDataReadAvailable() const;
 
     /*
      * APIs with nonvirtual implementations.
@@ -758,26 +725,63 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void)
-    {
-        /* Notify that the instance is about to shutdown */
-        shutdownCallChain.call(this);
-        shutdownCallChain.clear();
-
-        serviceCount = 0;
-        characteristicCount = 0;
-
-        dataSentCallChain.clear();
-        dataWrittenCallChain.clear();
-        dataReadCallChain.clear();
-        updatesEnabledCallback       = NULL;
-        updatesDisabledCallback      = NULL;
-        confirmationReceivedCallback = NULL;
-
-        return BLE_ERROR_NONE;
-    }
+    ble_error_t reset(void);
 
 protected:
+    /* --- Abstract calls to override --- */
+
+    /* Derived implementation must call the base reset_ */
+    ble_error_t reset_(void);
+
+    ble_error_t addService_(GattService &service);
+
+    ble_error_t read_(
+        GattAttribute::Handle_t attributeHandle,
+        uint8_t buffer[],
+        uint16_t *lengthP
+    );
+
+    ble_error_t read_(
+        ble::connection_handle_t connectionHandle,
+        GattAttribute::Handle_t attributeHandle,
+        uint8_t *buffer,
+        uint16_t *lengthP
+    );
+
+    ble_error_t write_(
+        GattAttribute::Handle_t attributeHandle,
+        const uint8_t *value,
+        uint16_t size,
+        bool localOnly
+    );
+
+    ble_error_t write_(
+        ble::connection_handle_t connectionHandle,
+        GattAttribute::Handle_t attributeHandle,
+        const uint8_t *value,
+        uint16_t size,
+        bool localOnly
+    );
+
+    ble_error_t areUpdatesEnabled_(
+        const GattCharacteristic &characteristic,
+        bool *enabledP
+    );
+
+    ble_error_t areUpdatesEnabled_(
+        ble::connection_handle_t connectionHandle,
+        const GattCharacteristic &characteristic,
+        bool *enabledP
+    );
+
+    bool isOnDataReadAvailable_() const;
+
+protected:
+    /**
+     * Event handler provided by the application.
+     */
+    EventHandler *eventHandler;
+
     /**
      * The total number of services added to the ATT table.
      */
@@ -839,5 +843,14 @@ private:
  * @}
  * @}
  */
+
+#if !defined(DOXYGEN_ONLY)
+} // interface
+} // ble
+
+typedef ble::impl::GattServer GattServer;
+
+#endif
+
 
 #endif /* ifndef MBED_GATT_SERVER_H__ */
