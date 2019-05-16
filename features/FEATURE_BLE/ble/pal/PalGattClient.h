@@ -53,6 +53,14 @@ struct GattClientEventHandler : StaticInterface<Impl, GattClientEventHandler> {
         impl()->on_att_mtu_change_(connection_handle, att_mtu_size);
     }
 
+    /**
+     * Function invoked when a write command has been sent out of the stack
+     * (either to the controller or over the air).
+     *
+     * @param connection_handle Connection targeted by the write command
+     * @param attribute_handle Attribute written
+     * @param status HCI status of the operation.
+     */
     void on_write_command_sent(
         ble::connection_handle_t connection_handle,
         ble::attribute_handle_t attribute_handle,
