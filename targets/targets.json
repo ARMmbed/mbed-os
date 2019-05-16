@@ -8104,6 +8104,7 @@
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
         "tickless-from-us-ticker": true,
+        "forced_reset_timeout": 3,
         "mbed_rom_start"    : "0x10040000",
         "mbed_rom_size"     : "0x40000",
         "mbed_ram_start"    : "0x30008000",
