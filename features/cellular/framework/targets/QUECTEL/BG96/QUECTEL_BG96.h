@@ -27,13 +27,14 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
+#include "DigitalOut.h"
 #include "AT_CellularDevice.h"
 
 namespace mbed {
 
 class QUECTEL_BG96 : public AT_CellularDevice {
 public:
-    QUECTEL_BG96(FileHandle *fh);
+    QUECTEL_BG96(FileHandle *fh, PinName pwr = NC, bool active_high = true, PinName rst = NC);
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
@@ -47,6 +48,12 @@ protected: // AT_CellularDevice
 
 public:
     void handle_urc(FileHandle *fh);
+
+private:
+    nsapi_error_t press_power_button(uint32_t timeout);
+    bool _active_high;
+    DigitalOut _pwr;
+    DigitalOut _rst;
 };
 } // namespace mbed
 #endif // QUECTEL_BG96_H_
