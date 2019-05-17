@@ -483,6 +483,9 @@ extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
     if (!mbed_sdk_inited) {
         mbed_copy_nvic();
         mbed_sdk_init();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+        us_ticker_init();
+#endif
         mbed_sdk_inited = 1;
     }
 #endif

@@ -41,6 +41,21 @@ extern "C" {
  *
  * @see hal_us_ticker_tests
  *
+ * # Compile-time optimization macros
+ *
+ * To permit compile-time optimization, particularly of wait_us, the following macros should
+ * be defined by a target's device.h:
+ *
+ * US_TICKER_PERIOD_NUM, US_TICKER_PERIOD_DEN: These denote the ratio (numerator, denominator)
+ * of the ticker period to a microsecond. For example, an 8MHz ticker would have NUM = 1, DEN = 8;
+ * a 1MHz ticker would have NUM = 1, DEN = 1; a 250kHz ticker would have NUM = 4, DEN = 1.
+ * Both numerator and denominator must be 16 bits or less.
+ *
+ * US_TICKER_MASK: The value mask for the ticker - eg 0x07FFFFFF for a 27-bit ticker.
+ *
+ * If any are defined, all 3 must be defined, and the macros are checked for consistency with
+ * us_ticker_get_info by test ::us_ticker_info_test.
+
  * @{
  */
 
@@ -74,6 +89,7 @@ extern "C" {
  * Verified by ::ticker_fire_now_test
  * * The ticker operations ticker_read, ticker_clear_interrupt, ticker_set_interrupt and ticker_fire_interrupt
  * take less than 20us to complete - Verified by ::ticker_speed_test
+ * * The ticker operations ticker_init and ticker_read are atomic.
  *
  * # Undefined behavior
  * * Calling any function other than ticker_init before the initialization of the ticker
@@ -210,7 +226,7 @@ void us_ticker_free(void);
  * }
  * @endcode
  */
-uint32_t us_ticker_read(void);
+uint32_t (us_ticker_read)(void);
 
 /** Set interrupt for specified timestamp
  *
