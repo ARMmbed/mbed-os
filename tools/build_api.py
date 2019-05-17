@@ -601,10 +601,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if into_dir:
             copy_when_different(res[0], into_dir)
             if not extra_artifacts:
-                if (
-                    CORE_ARCH[toolchain.target.core] == 8 and
-                    not toolchain.target.core.endswith("NS")
-                ):
+                if toolchain.target.is_TrustZone_secure_target:
                     cmse_lib = join(dirname(res[0]), "cmse_lib.o")
                     copy_when_different(cmse_lib, into_dir)
             else:
