@@ -37,4 +37,6 @@
 
 #include "objects.h"
 
+#include "us_ticker_defines.h"
+
 #endif
