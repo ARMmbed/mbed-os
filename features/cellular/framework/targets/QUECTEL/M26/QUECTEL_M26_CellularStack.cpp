@@ -490,6 +490,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
         _at.resp_start("+QISACK:");
         sent_len_after = _at.read_int();
         sent_acked = _at.read_int();
+        (void)sent_acked; // avoid compile warning, used only for debugging
         sent_nacked = _at.read_int();
         _at.resp_stop();
 
@@ -526,7 +527,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSo
     uint64_t start_time = rtos::Kernel::get_ms_count();
     nsapi_size_t len = 0;
     for (; len < size;) {
-        int read_len = (size - len > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size - len;
+        unsigned int read_len = (size - len > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size - len;
         _at.cmd_start("AT+QIRD=");
         _at.write_int(0); /* at+qifgcnt 0-1 */
         _at.write_int(1); /* 1-Client, 2-Server */
