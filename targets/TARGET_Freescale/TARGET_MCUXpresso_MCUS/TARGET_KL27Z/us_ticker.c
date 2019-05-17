@@ -15,6 +15,7 @@
  */
 #include <stddef.h>
 #include "us_ticker_api.h"
+#include "us_ticker_defines.h"
 #include "PeripheralNames.h"
 #include "fsl_pit.h"
 #include "fsl_tpm.h"
@@ -95,9 +96,9 @@ void us_ticker_init(void)
 }
 
 
-uint32_t us_ticker_read()
+uint32_t (us_ticker_read)()
 {
-    return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
+    return us_ticker_read();
 }
 
 void us_ticker_disable_interrupt(void)
