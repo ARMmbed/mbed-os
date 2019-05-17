@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "tfm_api.h"
 
 typedef int32_t (*veneer_fn) (uint32_t arg0, uint32_t arg1,
@@ -34,6 +35,14 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
  *          to initialize the TFM NS lock object
  */
 enum tfm_status_e tfm_ns_lock_init();
+
+/**
+ * \brief NS world, NS lock initialized
+ *
+ * \details Check if NS lock has initialized. If not, NS world can call into
+ *          secure world straight because now is in pre-rtos stage.
+ */
+bool tfm_ns_lock_get_init_state();
 
 #ifdef __cplusplus
 }
