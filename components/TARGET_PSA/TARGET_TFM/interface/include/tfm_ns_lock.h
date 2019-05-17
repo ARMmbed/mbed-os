@@ -44,6 +44,15 @@ enum tfm_status_e tfm_ns_lock_init();
  */
 bool tfm_ns_lock_get_init_state();
 
+/**
+ * \brief NS world, NS lock locked
+ *
+ * \details Check if NS lock has locked. If not and also interrupt disabled, the
+ *          current thread can regard as having acquired NS lock and can call into
+ *          secure world straight.
+ */
+bool tfm_ns_lock_get_lock_state();
+
 #ifdef __cplusplus
 }
 #endif

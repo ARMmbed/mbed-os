@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "cmsis.h"
 #include "rtx_os.h"
+#include "rtx_lib.h"
 #include "cmsis_os2.h"
 #include "tfm_api.h"
 #include "tfm_ns_lock.h"
@@ -87,3 +88,12 @@ bool tfm_ns_lock_get_init_state()
     return ns_lock.init;
 }
 
+bool tfm_ns_lock_get_lock_state()
+{
+    if (ns_lock.init) {
+        os_mutex_t *mutex = osRtxMutexId(ns_lock.id);
+        return (mutex->lock != 0U);
+    } else {
+        return false;
+    }
+}
