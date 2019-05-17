@@ -47,6 +47,10 @@
             "tickless-from-us-ticker": {
                 "help": "Run tickless from the microsecond ticker rather than the low power ticker. Running tickless off of the microsecond ticker improves interrupt latency on targets which use lpticker_delay_ticks",
                 "value": false
+            },
+            "init-us-ticker-at-boot": {
+                "help": "Initialize the microsecond ticker at boot rather than on first use, and leave it initialized. This speeds up wait_us in particular.",
+                "value": false
             }
         }
     },
@@ -1885,7 +1889,8 @@
         },
         "overrides": {
             "deep-sleep-latency": 3,
-            "tickless-from-us-ticker": true
+            "tickless-from-us-ticker": true,
+            "init-us-ticker-at-boot": true
         },
         "device_has": [
             "USTICKER",
