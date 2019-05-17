@@ -103,6 +103,8 @@ struct qspi_s {
 
 #include "gpio_object.h"
 
+#include "us_ticker_defines.h"
+
 #ifdef __cplusplus
 }
 #endif
