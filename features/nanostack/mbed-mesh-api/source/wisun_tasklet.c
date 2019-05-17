@@ -29,6 +29,10 @@
 #include "sw_mac.h"
 #include "ws_management_api.h" //ws_management_node_init
 #ifdef MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
+#if !defined(MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) || !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) || \
+    !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY)
+#error Invalid Wi-SUN certificate configuration
+#endif
 #include MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
 #endif
 

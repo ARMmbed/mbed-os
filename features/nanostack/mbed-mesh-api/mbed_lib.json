@@ -155,7 +155,7 @@
             "value": 0
         },
         "certificate-header": {
-            "help": "Certificate header",
+            "help": "File name of the certificate header file (used on include directive)",
             "value": null
         },
         "root-certificate": {
