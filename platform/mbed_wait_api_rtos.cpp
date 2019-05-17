@@ -63,17 +63,5 @@ void wait_ms(int ms)
     }
 }
 
-/*  The actual time delay may be 1 less usec */
-void wait_us(int us)
-{
-    if (us > 10000) {
-        MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_UNKNOWN),
-                     "wait_us blocks deep sleep, wait_ms recommended for long delays\n");
-    }
-    const ticker_data_t *const ticker = get_us_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)us);
-}
-
 #endif // #if MBED_CONF_RTOS_PRESENT
 
