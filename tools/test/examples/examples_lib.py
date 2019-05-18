@@ -486,7 +486,8 @@ def update_mbedos_version(config, tag, examples):
 def fetch_output_image(output):
     """Find the build image from the last 5 lines of a given log"""
     lines = output.splitlines()
-    for index in range(-1,-6,-1):
+    last_index = -6 if len(lines)>4 else (-1 - len(lines))
+    for index in range(-1,last_index,-1):
         if lines[index].startswith("Image:"):
             image = lines[index][7:]
             if os.path.isfile(image):
