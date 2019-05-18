@@ -373,6 +373,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
     results = {}
     test_json = {"builds":{}}
     valid_examples = set(examples)
+    base_path = os.getcwd()
     print("\nCompiling example repos....\n")
     for example in config['examples']:
         example_names = [basename(x['repo']) for x in get_repo_list(example)]
@@ -430,7 +431,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                                     test_json['builds'][test_group] = {
                                         "platform":target ,
                                         "toolchain": toolchain ,
-                                        "base_path": os.getcwd() ,
+                                        "base_path": base_path ,
                                         "baud_rate": int(example['baud_rate']), 
                                         "tests":{} }
                                 test_json['builds'][test_group]['tests'][name]={"binaries":image_info}
