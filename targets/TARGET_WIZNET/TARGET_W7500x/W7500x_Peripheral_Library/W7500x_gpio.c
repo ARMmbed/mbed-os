@@ -230,15 +230,19 @@ void HAL_GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal)
     temp_gpio_lb = (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]);
     temp_gpio_ub = (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]);
  
-    if( BitVal == Bit_SET)
+    if (GPIO_Pin < 256)
     {
-        (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]) = (temp_gpio_lb | GPIO_Pin);
-        (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]) = (temp_gpio_ub | GPIO_Pin);
+        if(BitVal)
+            (GPIOx->LB_MASKED[(uint8_t) (GPIO_Pin)]) = 0xFFFF;
+        else
+            (GPIOx->LB_MASKED[(uint8_t) (GPIO_Pin)]) = 0x0;
     }
     else
     {
-        (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]) = (temp_gpio_lb & ~(GPIO_Pin));
-        (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]) = (temp_gpio_ub & ~(GPIO_Pin));
+        if(BitVal)
+            (GPIOx->UB_MASKED[(uint8_t) (GPIO_Pin)]) = 0xFFFF;
+        else
+            (GPIOx->UB_MASKED[(uint8_t) (GPIO_Pin)]) = 0x0;
     }
 }
 
