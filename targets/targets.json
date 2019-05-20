@@ -8058,7 +8058,7 @@
             "USTICKER"
         ],
         "release_versions": ["5"],
-        "components_add": ["LAN91C111"],
+        "components_add": ["LAN91C111", "FLASHIAP"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
