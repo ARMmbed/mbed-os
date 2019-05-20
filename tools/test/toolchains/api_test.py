@@ -155,15 +155,23 @@ def test_gcc_version_check(_run_cmd):
     toolchain = TOOLCHAIN_CLASSES["GCC_ARM"](
         TARGET_MAP["K64F"], notify=notifier)
     toolchain.version_check()
-    assert notifier.messages == []
+    assert len(notifier.messages) == 1
     _run_cmd.return_value = ("""
-    arm-none-eabi-gcc (Arch Repository) 8.1.0
-    Copyright (C) 2018 Free Software Foundation, Inc.
+    arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 20191025 (release) [ARM/arm-9-branch revision 277599]
+    Copyright (C) 2019 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     """, "", 0)
     toolchain.version_check()
     assert len(notifier.messages) == 1
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 10-2020-q4-major) 10.2.1 20201025 (release) [ARM/arm-10-branch revision 377599]
+    Copyright (C) 2020 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 2
     _run_cmd.return_value = ("""
     arm-none-eabi-gcc (Arch Repository)
     Copyright (C) 2018 Free Software Foundation, Inc.
@@ -171,7 +179,7 @@ def test_gcc_version_check(_run_cmd):
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     """, "", 0)
     toolchain.version_check()
-    assert len(notifier.messages) == 2
+    assert len(notifier.messages) == 3
 
 
 @given(fixed_dictionaries({
