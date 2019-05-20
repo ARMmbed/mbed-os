@@ -21,6 +21,12 @@
 #define I2C_TEST_COMMON_H
 
 
+#undef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+#undef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 // uncomment this in order to test i2c driver layer
 //#define TEST_I2C_DRIVER
 
@@ -30,6 +36,10 @@
 
 #define EMPTY_PARAM_INT (-1)
 
+// max data buffer allocated on stack, optimization for less heap usage
+#define MAX_STACK_DATA 768
+
+#define TEST_PATTERN_SIZE 100
 
 #define MASTER_1_ID     111
 #define MASTER_2_ID     222

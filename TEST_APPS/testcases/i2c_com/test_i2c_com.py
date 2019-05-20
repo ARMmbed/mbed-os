@@ -45,13 +45,11 @@ class I2CComTest(Bench):
     I2C_7BIT_ADDRESS_MIN = 8
     I2C_7BIT_ADDRESS_MAX = 119
     I2C_7BIT_ADDRESS = 85
-    address_range_7bit = (I2C_7BIT_ADDRESS_MIN,
-                          I2C_7BIT_ADDRESS, I2C_7BIT_ADDRESS_MAX)
+    address_range_7bit = (I2C_7BIT_ADDRESS_MIN, I2C_7BIT_ADDRESS_MAX)
     I2C_10BIT_ADDRESS_MIN = 0
     I2C_10BIT_ADDRESS_MAX = 1023
     I2C_10BIT_ADDRESS = 512
-    address_range_10bit = (I2C_10BIT_ADDRESS_MIN,
-                           I2C_10BIT_ADDRESS, I2C_10BIT_ADDRESS_MAX)
+    address_range_10bit = (I2C_10BIT_ADDRESS_MIN, I2C_10BIT_ADDRESS_MAX)
 
     def __init__(self, **kwargs):
         testcase_args = {
@@ -221,7 +219,7 @@ def I2C_COM_BLOCKING_WRITE_READ_257B_MIN_FREQUENCY(self):
            title="test write read")
 def I2C_COM_BLOCKING_WRITE_READ_1025B_MIN_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["minimum_frequency"], "communication": "blocking_write-read", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
 
 # maximum_frequency
 
@@ -252,7 +250,7 @@ def I2C_COM_BLOCKING_WRITE_READ_257B_MAX_FREQUENCY(self):
            title="test write read")
 def I2C_COM_BLOCKING_WRITE_READ_1025B_MAX_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["maximum_frequency"], "communication": "blocking_write-read", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
 
 ###########################
 # async_write-read
@@ -286,7 +284,7 @@ def I2C_COM_ASYNC_WRITE_READ_257B_MIN_FREQUENCY(self):
            title="test write read")
 def I2C_COM_ASYNC_WRITE_READ_1025B_MIN_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["minimum_frequency"], "communication": "async_write-read", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
 
 # maximum_frequency
 
@@ -316,7 +314,7 @@ def I2C_COM_ASYNC_WRITE_READ_257B_MAX_FREQUENCY(self):
            title="test write read")
 def I2C_COM_ASYNC_WRITE_READ_1025B_MAX_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["maximum_frequency"], "communication": "async_write-read", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
 
 ###########################
 # async_transfer
@@ -350,7 +348,7 @@ def I2C_COM_ASYNC_TRANSFER_257B_MIN_FREQUENCY(self):
            title="test write read")
 def I2C_COM_ASYNC_TRANSFER_1025B_MIN_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["minimum_frequency"], "communication": "async_transfer", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
 
 # maximum_frequency
 
@@ -380,4 +378,4 @@ def I2C_COM_ASYNC_TRANSFER_257B_MAX_FREQUENCY(self):
            title="test write read")
 def I2C_COM_ASYNC_TRANSFER_1025B_MAX_FREQUENCY(self):
     self.test_execute({"frequency": self.caps["maximum_frequency"], "communication": "async_transfer", "iterations": 1,
-                       "write_size": 1025, "read_size": 1025, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})
+                       "write_size": 513, "read_size": 513, "address": [self.address_range_7bit, self.address_range_10bit], "stop": [self.STOP_EACH_TRANSFER, self.STOP_EACH_ITERATION, self.STOP_AT_THE_END]})

@@ -21,8 +21,6 @@
 #define I2C_MASTER_SDA MBED_CONF_APP_I2C_MASTER_SDA
 #define I2C_MASTER_SCL MBED_CONF_APP_I2C_MASTER_SCL
 
-#undef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #if DEVICE_I2C_ASYNCH
 struct  async_status {
@@ -173,59 +171,54 @@ bool master_deinit()
 bool master_write_read(uint32_t write_size, uint32_t read_size, uint16_t write_address, uint16_t read_address, uint32_t iterations, bool stop_each, bool stop_each_iter)
 {
     bool result = true;
-
-    uint8_t *tx_buf = new uint8_t[write_size];
-    uint8_t *rx_buf = new uint8_t[read_size];
-
-    srand(ticker_read(get_us_ticker_data()));
+    uint8_t _buf[MAX_STACK_DATA];
+    const uint32_t max_size = MAX(write_size, read_size);
+    uint8_t *buf = max_size <= MAX_STACK_DATA ? _buf : new uint8_t[max_size];
 
     for (uint32_t i = 0; i < iterations && result; i++) {
         int ret;
 
         for (uint32_t j = 0; j < write_size; j++) {
-            tx_buf[j] = (uint8_t)(rand() % 100);
+            buf[j] = j % TEST_PATTERN_SIZE;
         }
 
-        MASTER_PIN_TOGGLE(5);
-        ret = _i2c_write(write_address, tx_buf, write_size, stop_each);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(write_size, ret);
+        MASTER_PIN_TOGGLE(1);
+        ret = _i2c_write(write_address, buf, write_size, stop_each);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] write count: %d\n", ret);
-
-        if (result) {
-            MASTER_PIN_TOGGLE(5);
-            ret = _i2c_read(read_address, rx_buf, read_size, stop_each || stop_each_iter);
-            MASTER_PIN_TOGGLE(5);
-            result = TEST_CHECK_EQUAL_INT(read_size, ret);
-            I2C_DEBUG_PRINTF("[master] read count: %d\n", ret);
+        I2C_DEBUG_PRINTF("[master] write data: ");
+        for (uint32_t j = 0; j < write_size; j++) {
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
         }
+        I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(write_size, ret);
 
         if (result) {
-            for (uint32_t j = 0; j < MIN(write_size, read_size); j++) {
-                if (rx_buf[j] != tx_buf[j]) {
-                    result = TEST_CHECK_EQUAL_INT(tx_buf[j] + 1, rx_buf[j]);
+            MASTER_PIN_TOGGLE(1);
+            ret = _i2c_read(read_address, buf, read_size, stop_each || stop_each_iter);
+            MASTER_PIN_TOGGLE(1);
+            I2C_DEBUG_PRINTF("[master] read count: %d\n", ret);
+            I2C_DEBUG_PRINTF("[master] read data:    ");
+            for (uint32_t j = 0; j < read_size; j++) {
+                I2C_DEBUG_PRINTF("%X ", buf[j]);
+            }
+            I2C_DEBUG_PRINTF("\r\n");
+            result = TEST_CHECK_EQUAL_INT(read_size, ret);
+            for (uint32_t j = 0; j < read_size; j++) {
+                if (buf[j] != (read_size - j - 1) % TEST_PATTERN_SIZE) {
+                    result = TEST_CHECK_EQUAL_INT((read_size - j - 1) % TEST_PATTERN_SIZE, buf[j]);
                     break;
                 }
             }
         }
-
-        I2C_DEBUG_PRINTF("[master] write data: ");
-        for (uint32_t j = 0; j < write_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", tx_buf[j]);
-        }
-        I2C_DEBUG_PRINTF("\r\n");
-        I2C_DEBUG_PRINTF("[master] read data:    ");
-        for (uint32_t j = 0; j < read_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", rx_buf[j]);
-        }
-        I2C_DEBUG_PRINTF("\r\n");
     }
     if (!stop_each && !stop_each_iter) {
         _i2c_stop();
     }
 
-    delete []tx_buf;
-    delete []rx_buf;
+    if (max_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -233,26 +226,26 @@ bool master_write_read(uint32_t write_size, uint32_t read_size, uint16_t write_a
 bool master_read(uint32_t read_size, uint32_t read_result, uint16_t address, uint32_t iterations, bool stop_each_iter)
 {
     bool result = true;
-
-    uint8_t *rx_buf = new uint8_t[read_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    uint8_t *buf = read_size <= MAX_STACK_DATA ? _buf : new uint8_t[read_size];
 
     for (uint32_t i = 0; i < iterations && result; i++) {
-        MASTER_PIN_TOGGLE(5);
-        int ret = _i2c_read(MAKE_7BIT_READ_ADDRESS(address), rx_buf, read_size, stop_each_iter);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(read_result, ret);
+        MASTER_PIN_TOGGLE(1);
+        int ret = _i2c_read(MAKE_7BIT_READ_ADDRESS(address), buf, read_size, stop_each_iter);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] read count: %d\n", ret);
-
         I2C_DEBUG_PRINTF("[master] read data:    ");
         for (uint32_t j = 0; j < read_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", rx_buf[j]);
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(read_result, ret);
 
         if (result) {
             for (uint32_t j = 0; j < read_result; j++) {
-                if (j != rx_buf[j]) {
-                    result = TEST_CHECK_EQUAL_INT(j, rx_buf[j]);
+                const uint8_t pat = (read_size - j - 1) % TEST_PATTERN_SIZE;
+                if (buf[j] != pat) {
+                    result = TEST_CHECK_EQUAL_INT(pat, buf[j]);
                     break;
                 }
             }
@@ -262,7 +255,9 @@ bool master_read(uint32_t read_size, uint32_t read_result, uint16_t address, uin
         _i2c_stop();
     }
 
-    delete []rx_buf;
+    if (read_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -270,31 +265,33 @@ bool master_read(uint32_t read_size, uint32_t read_result, uint16_t address, uin
 bool master_write(uint32_t write_size, uint32_t write_result, uint16_t address, uint32_t iterations, bool stop_each_iter)
 {
     bool result = true;
-
-    uint8_t *tx_buf = new uint8_t[write_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    uint8_t *buf = write_size <= MAX_STACK_DATA ? _buf : new uint8_t[write_size];
 
     for (uint32_t j = 0; j < write_size; j++) {
-        tx_buf[j] = j;
+        buf[j] = j % TEST_PATTERN_SIZE;
     }
 
     for (uint32_t i = 0; i < iterations && result; i++) {
-        MASTER_PIN_TOGGLE(5);
-        int ret = _i2c_write(MAKE_7BIT_WRITE_ADDRESS(address), tx_buf, write_size, stop_each_iter);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(write_result, ret);
+        MASTER_PIN_TOGGLE(1);
+        int ret = _i2c_write(MAKE_7BIT_WRITE_ADDRESS(address), buf, write_size, stop_each_iter);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] write count: %d\n", ret);
-
         I2C_DEBUG_PRINTF("[master] written data: ");
         for (uint32_t j = 0; j < write_result; j++) {
-            I2C_DEBUG_PRINTF("%X ", tx_buf[j]);
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(write_result, ret);
+
     }
     if (!stop_each_iter) {
         _i2c_stop();
     }
 
-    delete []tx_buf;
+    if (write_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -329,53 +326,46 @@ bool master_write_read_async(uint32_t write_size, uint32_t read_size, uint16_t a
 {
     async_status transmit_status = {};
     async_status receive_status = {};
-    uint8_t *tx_buf = new uint8_t[write_size];
-    uint8_t *rx_buf = new uint8_t[read_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    const uint32_t max_size = MAX(write_size, read_size);
+    uint8_t *buf = max_size <= MAX_STACK_DATA ? _buf : new uint8_t[max_size];
     bool result = true;
-
-    srand(ticker_read(get_us_ticker_data()));
 
     for (uint32_t i = 0; i < iterations && result; i++) {
         for (uint32_t j = 0; j < write_size; j++) {
-            tx_buf[j] = (uint8_t)(rand() % 100);
+            buf[j] = j % TEST_PATTERN_SIZE;
         }
         transmit_status.done = false;
-        MASTER_PIN_TOGGLE(5);
-        _i2c_transfer_async(tx_buf, write_size, NULL, 0, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transmit_status);
-        MASTER_PIN_TOGGLE(5);
+        MASTER_PIN_TOGGLE(1);
+        _i2c_transfer_async(buf, write_size, NULL, 0, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transmit_status);
+        MASTER_PIN_TOGGLE(1);
         while (!transmit_status.done);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(write_size, transmit_status.event.sent_bytes);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] sent_bytes: %u\r\n", transmit_status.event.sent_bytes);
-
-        MASTER_PIN_TOGGLE(5);
+        I2C_DEBUG_PRINTF("[master] write data: ");
+        for (uint32_t j = 0; j < write_size; j++) {
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
+        }
+        I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(write_size, transmit_status.event.sent_bytes);
 
         if (result) {
             receive_status.done = false;
-            MASTER_PIN_TOGGLE(5);
-            _i2c_transfer_async(NULL, 0, rx_buf, read_size, MAKE_7BIT_READ_ADDRESS(address), stop_each || stop_each_iter, async_callback, &receive_status);
-            MASTER_PIN_TOGGLE(5);
+            MASTER_PIN_TOGGLE(1);
+            _i2c_transfer_async(NULL, 0, buf, read_size, MAKE_7BIT_READ_ADDRESS(address), stop_each || stop_each_iter, async_callback, &receive_status);
+            MASTER_PIN_TOGGLE(1);
             while (!receive_status.done);
-            MASTER_PIN_TOGGLE(5);
-            result = TEST_CHECK_EQUAL_INT(read_size, receive_status.event.received_bytes);
+            MASTER_PIN_TOGGLE(1);
             I2C_DEBUG_PRINTF("[master] received_bytes: %u\r\n", receive_status.event.received_bytes);
-        }
-        MASTER_PIN_TOGGLE(5);
-        I2C_DEBUG_PRINTF("[master] write data: ");
-        for (uint32_t j = 0; j < write_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", tx_buf[j]);
-        }
-        I2C_DEBUG_PRINTF("\r\n");
-        I2C_DEBUG_PRINTF("[master] read data: ");
-        for (uint32_t j = 0; j < read_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", rx_buf[j]);
-        }
-        I2C_DEBUG_PRINTF("\r\n");
-
-        if (result) {
-            for (uint32_t j = 0; j < MIN(write_size, read_size); j++) {
-                if (rx_buf[j] != (tx_buf[j] + 1)) {
-                    result = TEST_CHECK_EQUAL_INT(tx_buf[j], rx_buf[j]);
+            I2C_DEBUG_PRINTF("[master] read data: ");
+            for (uint32_t j = 0; j < read_size; j++) {
+                I2C_DEBUG_PRINTF("%X ", buf[j]);
+            }
+            I2C_DEBUG_PRINTF("\r\n");
+            result = TEST_CHECK_EQUAL_INT(read_size, receive_status.event.received_bytes);
+            for (uint32_t j = 0; j < read_size; j++) {
+                if (buf[j] != (read_size - j - 1) % TEST_PATTERN_SIZE) {
+                    result = TEST_CHECK_EQUAL_INT((read_size - j - 1) % TEST_PATTERN_SIZE, buf[j]);
                     break;
                 }
             }
@@ -385,8 +375,9 @@ bool master_write_read_async(uint32_t write_size, uint32_t read_size, uint16_t a
         _i2c_stop();
     }
 
-    delete [] tx_buf;
-    delete [] rx_buf;
+    if (max_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -394,25 +385,26 @@ bool master_write_read_async(uint32_t write_size, uint32_t read_size, uint16_t a
 bool master_write_async(uint32_t write_size, uint32_t write_reulting_size, uint16_t address, uint32_t iterations, bool stop_each)
 {
     async_status transmit_status = {};
-    uint8_t *tx_buf = new uint8_t[write_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    uint8_t *buf = write_size <= MAX_STACK_DATA ? _buf : new uint8_t[write_size];
     bool result = true;
 
     for (uint32_t j = 0; j < write_size; j++) {
-        tx_buf[j] = j;
+        buf[j] = j % TEST_PATTERN_SIZE;
     }
 
     for (uint32_t i = 0; i < iterations && result; i++) {
         transmit_status.done = false;
-        MASTER_PIN_TOGGLE(5);
-        _i2c_transfer_async(tx_buf, write_size, NULL, 0, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transmit_status);
-        MASTER_PIN_TOGGLE(5);
+        MASTER_PIN_TOGGLE(1);
+        _i2c_transfer_async(buf, write_size, NULL, 0, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transmit_status);
+        MASTER_PIN_TOGGLE(1);
         while (!transmit_status.done);
-        MASTER_PIN_TOGGLE(5);
+        MASTER_PIN_TOGGLE(1);
         result = TEST_CHECK_EQUAL_INT(write_reulting_size, transmit_status.event.sent_bytes);
         I2C_DEBUG_PRINTF("[master] sent_bytes: %u\r\n", transmit_status.event.sent_bytes);
         I2C_DEBUG_PRINTF("[master] write data: ");
         for (uint32_t j = 0; j < write_reulting_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", tx_buf[j]);
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
     }
@@ -420,7 +412,9 @@ bool master_write_async(uint32_t write_size, uint32_t write_reulting_size, uint1
         _i2c_stop();
     }
 
-    delete [] tx_buf;
+    if (write_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -428,28 +422,29 @@ bool master_write_async(uint32_t write_size, uint32_t write_reulting_size, uint1
 bool master_read_async(uint32_t read_size, uint32_t read_resulting_size, uint16_t address, uint32_t iterations, bool stop_each)
 {
     async_status receive_status = {};
-    uint8_t *rx_buf = new uint8_t[read_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    uint8_t *buf = read_size <= MAX_STACK_DATA ? _buf : new uint8_t[read_size];
     bool result = true;
 
     for (uint32_t i = 0; i < iterations && result; i++) {
         receive_status.done = false;
-        MASTER_PIN_TOGGLE(5);
-        _i2c_transfer_async(NULL, 0, rx_buf, read_size, MAKE_7BIT_READ_ADDRESS(address), stop_each, async_callback, &receive_status);
-        MASTER_PIN_TOGGLE(5);
+        MASTER_PIN_TOGGLE(1);
+        _i2c_transfer_async(NULL, 0, buf, read_size, MAKE_7BIT_READ_ADDRESS(address), stop_each, async_callback, &receive_status);
+        MASTER_PIN_TOGGLE(1);
         while (!receive_status.done);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(read_resulting_size, receive_status.event.received_bytes);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] received_bytes: %u\r\n", receive_status.event.received_bytes);
         I2C_DEBUG_PRINTF("[master] read data: ");
         for (uint32_t j = 0; j < read_resulting_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", rx_buf[j]);
+            I2C_DEBUG_PRINTF("%X ", buf[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(read_resulting_size, receive_status.event.received_bytes);
 
         if (result) {
             for (uint32_t j = 0; j < read_resulting_size; j++) {
-                if (rx_buf[j] != j) {
-                    result = TEST_CHECK_EQUAL_INT(j, rx_buf[j]);
+                if (buf[j] != (read_size - j - 1) % TEST_PATTERN_SIZE) {
+                    result = TEST_CHECK_EQUAL_INT((read_size - j - 1) % TEST_PATTERN_SIZE, buf[j]);
                     break;
                 }
             }
@@ -459,7 +454,9 @@ bool master_read_async(uint32_t read_size, uint32_t read_resulting_size, uint16_
         _i2c_stop();
     }
 
-    delete [] rx_buf;
+    if (read_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }
@@ -467,45 +464,42 @@ bool master_read_async(uint32_t read_size, uint32_t read_resulting_size, uint16_
 bool master_transfer_async(uint32_t write_size, uint32_t read_size, uint16_t address, uint32_t iterations, bool stop_each)
 {
     async_status transfer_status = {};
-    uint8_t *tx_buf = new uint8_t[write_size];
-    uint8_t *rx_buf = new uint8_t[read_size];
+    uint8_t _buf[MAX_STACK_DATA];
+    const uint32_t max_size = MAX(write_size, read_size);
+    uint8_t *buf = max_size <= MAX_STACK_DATA ? _buf : new uint8_t[max_size];
     bool result = true;
 
     srand(ticker_read(get_us_ticker_data()));
 
     for (uint32_t i = 0; i < iterations && true; i++) {
         for (uint32_t j = 0; j < write_size; j++) {
-            tx_buf[j] = (uint8_t)(rand() % 100);
+            buf[j] = j % TEST_PATTERN_SIZE;
         }
         transfer_status.done = false;
-        MASTER_PIN_TOGGLE(5);
-        _i2c_transfer_async(tx_buf, write_size, rx_buf, read_size, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transfer_status);
-        MASTER_PIN_TOGGLE(5);
+        MASTER_PIN_TOGGLE(1);
+        _i2c_transfer_async(buf, write_size, buf, read_size, MAKE_7BIT_WRITE_ADDRESS(address), stop_each, async_callback, &transfer_status);
+        MASTER_PIN_TOGGLE(1);
         while (!transfer_status.done);
-        MASTER_PIN_TOGGLE(5);
-        result = TEST_CHECK_EQUAL_INT(write_size, transfer_status.event.sent_bytes);
+        MASTER_PIN_TOGGLE(1);
         I2C_DEBUG_PRINTF("[master] sent_bytes: %u\n", transfer_status.event.sent_bytes);
-
-        if (result) {
-            result = TEST_CHECK_EQUAL_INT(read_size, transfer_status.event.received_bytes);
-            I2C_DEBUG_PRINTF("[master] received_bytes: %u\n", transfer_status.event.received_bytes);
-        }
-
         I2C_DEBUG_PRINTF("[master] written data: ");
         for (uint32_t j = 0; j < write_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", tx_buf[j]);
+            I2C_DEBUG_PRINTF("%X ", j % TEST_PATTERN_SIZE;);
         }
         I2C_DEBUG_PRINTF("\r\n");
-        I2C_DEBUG_PRINTF("[master] read data: ");
-        for (uint32_t j = 0; j < read_size; j++) {
-            I2C_DEBUG_PRINTF("%X ", rx_buf[j]);
-        }
-        I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(write_size, transfer_status.event.sent_bytes);
 
         if (result) {
-            for (uint32_t j = 0; j < write_size; j++) {
-                if (rx_buf[j] != (tx_buf[j] + 1)) {
-                    result = TEST_CHECK_EQUAL_INT(tx_buf[j] + 1, rx_buf[j]);
+            I2C_DEBUG_PRINTF("[master] received_bytes: %u\n", transfer_status.event.received_bytes);
+            I2C_DEBUG_PRINTF("[master] read data: ");
+            for (uint32_t j = 0; j < read_size; j++) {
+                I2C_DEBUG_PRINTF("%X ", (read_size - j - 1) % TEST_PATTERN_SIZE;);
+            }
+            I2C_DEBUG_PRINTF("\r\n");
+            result = TEST_CHECK_EQUAL_INT(read_size, transfer_status.event.received_bytes);
+            for (uint32_t j = 0; j < read_size; j++) {
+                if (buf[j] != (read_size - j - 1) % TEST_PATTERN_SIZE) {
+                    result = TEST_CHECK_EQUAL_INT((read_size - j - 1) % TEST_PATTERN_SIZE, buf[j]);
                     break;
                 }
             }
@@ -515,8 +509,9 @@ bool master_transfer_async(uint32_t write_size, uint32_t read_size, uint16_t add
         _i2c_stop();
     }
 
-    delete [] tx_buf;
-    delete [] rx_buf;
+    if (max_size > MAX_STACK_DATA) {
+        delete [] buf;
+    }
 
     return result;
 }

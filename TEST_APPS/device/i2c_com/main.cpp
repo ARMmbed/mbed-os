@@ -250,7 +250,6 @@ void wrap_printf(const char *f, va_list a)
 
 int main()
 {
-    ticker_read(get_us_ticker_data()); // start ticker here for future use in srand
 #if I2C_DEBUG_PIN_MASTER==1 || I2C_DEBUG_PIN_SLAVE==1
     test_pin_init();
 #endif

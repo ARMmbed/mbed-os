@@ -23,9 +23,6 @@
 #define I2C_SLAVE_SDA MBED_CONF_APP_I2C_SLAVE_SDA
 #define I2C_SLAVE_SCL MBED_CONF_APP_I2C_SLAVE_SCL
 
-#undef MAX
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
 volatile bool done;
 
 
@@ -151,7 +148,9 @@ void slave_finish()
 void slave_transfer_job(TransferConfig *tc)
 {
     bool result;
-    uint8_t *data = new uint8_t[MAX(tc->read_size, tc->write_size)];
+    const uint32_t max_size = MAX(tc->read_size, tc->write_size);
+    uint8_t _data[MAX_STACK_DATA];
+    uint8_t *data = max_size <= MAX_STACK_DATA ? _data : new uint8_t[max_size];
     _i2c_slave_address(tc->address);
 
     for (uint32_t i = 0; i < tc->iterations; i++) {
@@ -162,24 +161,31 @@ void slave_transfer_job(TransferConfig *tc)
         SLAVE_PIN_TOGGLE(1);
         ret = _i2c_read(data, tc->read_size, false);
         SLAVE_PIN_TOGGLE(1);
-        result = TEST_CHECK_EQUAL_INT(tc->read_size_resulting, ret);
-
         I2C_DEBUG_PRINTF("[slave] read data count: %d\n", ret);
         I2C_DEBUG_PRINTF("[slave] read data: ");
         for (uint32_t j = 0; j < tc->read_size; j++) {
-            data[j]++;
             I2C_DEBUG_PRINTF("%X ", data[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(tc->read_size_resulting, ret);
+        for (uint32_t j = 0; j < tc->read_size; j++) {
+            if (data[j] != j % TEST_PATTERN_SIZE) {
+                result = TEST_CHECK_EQUAL_INT(j, data[j]);
+                break;
+            }
+        }
 
         if (result) {
+            for (uint32_t j = 0; j < tc->write_size; j++) {
+                data[j] = (tc->write_size - j - 1) % TEST_PATTERN_SIZE;
+            }
             SLAVE_PIN_TOGGLE(1);
             while (_i2c_slave_status() != ReadAddressed && !done);
             SLAVE_PIN_TOGGLE(1);
             ret = _i2c_write(data, tc->write_size, false);
             SLAVE_PIN_TOGGLE(1);
-            result = TEST_CHECK_EQUAL_INT(tc->write_size_resulting, ret);
             I2C_DEBUG_PRINTF("[slave] write data count: %d\n", ret);
+            result = TEST_CHECK_EQUAL_INT(tc->write_size_resulting, ret);
         }
 
         if (!result || done) {
@@ -188,13 +194,16 @@ void slave_transfer_job(TransferConfig *tc)
     }
     tc->result = result;
 
-    delete []data;
+    if (max_size > MAX_STACK_DATA) {
+        delete [] data;
+    }
 }
 
 void slave_read_job(TransferConfig *tc)
 {
-    uint8_t *data = new uint8_t[tc->read_size];
     bool result = true;
+    uint8_t _data[MAX_STACK_DATA];
+    uint8_t *data = tc->read_size <= MAX_STACK_DATA ? _data : new uint8_t[tc->read_size];
 
     _i2c_slave_address(tc->address);
 
@@ -204,18 +213,17 @@ void slave_read_job(TransferConfig *tc)
         SLAVE_PIN_TOGGLE(1);
         int ret = _i2c_read(data, tc->read_size, false);
         SLAVE_PIN_TOGGLE(1);
-        result = TEST_CHECK_EQUAL_INT(tc->read_size_resulting, ret);
-
         I2C_DEBUG_PRINTF("[slave] read data count: %d\n", ret);
         I2C_DEBUG_PRINTF("[slave] read data: ");
         for (uint32_t j = 0; j < tc->read_size; j++) {
             I2C_DEBUG_PRINTF("%X ", data[j]);
         }
         I2C_DEBUG_PRINTF("\r\n");
+        result = TEST_CHECK_EQUAL_INT(tc->read_size_resulting, ret);
 
         if (result) {
             for (uint32_t j = 0; j < tc->read_size_resulting; j++) {
-                if (data[j] != j) {
+                if (data[j] != j % TEST_PATTERN_SIZE) {
                     result = TEST_CHECK_EQUAL_INT(j, data[j]);
                     break;
                 }
@@ -228,17 +236,20 @@ void slave_read_job(TransferConfig *tc)
     }
     tc->result = result;
 
-    delete []data;
+    if (tc->read_size > MAX_STACK_DATA) {
+        delete [] data;
+    }
 }
 
 void slave_write_job(TransferConfig *tc)
 {
-    uint8_t *data = new uint8_t[tc->write_size];
     bool result = true;
+    uint8_t _data[MAX_STACK_DATA];
+    uint8_t *data = tc->write_size <= MAX_STACK_DATA ? _data : new uint8_t[tc->write_size];
 
     // prepare data to send
     for (uint32_t i = 0; i < tc->write_size; i++) {
-        data[i] = i;
+        data[i] = (tc->write_size - i - 1) % TEST_PATTERN_SIZE;
     }
 
     _i2c_slave_address(tc->address);
@@ -249,8 +260,8 @@ void slave_write_job(TransferConfig *tc)
         SLAVE_PIN_TOGGLE(1);
         int ret = _i2c_write(data, tc->write_size, false);
         SLAVE_PIN_TOGGLE(1);
-        result = TEST_CHECK_EQUAL_INT(tc->write_size_resulting, ret);
         I2C_DEBUG_PRINTF("[slave] write data count: %d\n", ret);
+        result = TEST_CHECK_EQUAL_INT(tc->write_size_resulting, ret);
 
         if (!result || done) {
             break;
@@ -258,7 +269,9 @@ void slave_write_job(TransferConfig *tc)
     }
     tc->result = result;
 
-    delete []data;
+    if (tc->read_size > MAX_STACK_DATA) {
+        delete [] data;
+    }
 }
 
 bool slave_transfer(uint32_t write_size, uint32_t write_size_resulting, uint32_t read_size, uint32_t read_size_resulting, uint16_t address, uint32_t iterations)
@@ -273,16 +286,20 @@ bool slave_transfer(uint32_t write_size, uint32_t write_size_resulting, uint32_t
     tc.result = false;
     done = false;
 
-    void (*job)(TransferConfig * tc);
+    void (*job)(TransferConfig * tc) = NULL;
     if (write_size && read_size) {
         job = slave_transfer_job;
     } else if (write_size) {
         job = slave_write_job;
     } else if (read_size) {
         job = slave_read_job;
+    } else {
+        return false;
     }
 
-    WorkerThread<1024> slave_thread;
+    // MBedOS main thread stack is 4kB (3 kB for some small RAM targets)
+    // so 1.5kB for slave thread is OK
+    WorkerThread<1536> slave_thread;
     slave_thread.start(callback(job, &tc));
     slave_thread.join();
 
