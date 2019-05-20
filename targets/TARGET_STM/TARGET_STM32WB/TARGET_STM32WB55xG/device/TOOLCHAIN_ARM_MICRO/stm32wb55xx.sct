@@ -34,11 +34,11 @@
 #endif
 
 #if !defined(MBED_APP_SIZE)
-; 512KB FLASH
-#define MBED_APP_SIZE 0x80000
+; 768KB FLASH
+#define MBED_APP_SIZE 0xC0000
 #endif
 
-; 512KB FLASH (0x80000) + 192KB SRAM (0x30000) +  Shared mem
+; 768KB FLASH (0xC0000) + 192KB SRAM (0x30000) +  Shared mem
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address

@@ -77,7 +77,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
 #if defined(CFG_HW_FLASH_SEMID)
     /*  In case RNG is a shared ressource, get the HW semaphore first */
-    while( LL_HSEM_1StepLock( HSEM, CFG_HW_FLASH_SEMID ) );
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID));
 #endif
 
     /* Unlock the Flash to enable the flash control register access */
@@ -109,7 +109,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     HAL_FLASH_Lock();
 
 #if defined(CFG_HW_FLASH_SEMID)
-    LL_HSEM_ReleaseLock( HSEM, CFG_HW_FLASH_SEMID, 0 );
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
 #endif
 
     return status;
@@ -141,7 +141,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 #if defined(CFG_HW_FLASH_SEMID)
     /*  In case RNG is a shared ressource, get the HW semaphore first */
-    while( LL_HSEM_1StepLock( HSEM, CFG_HW_FLASH_SEMID ) );
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID));
 #endif
 
     /* Unlock the Flash to enable the flash control register access */
@@ -182,7 +182,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     HAL_FLASH_Lock();
 
 #if defined(CFG_HW_FLASH_SEMID)
-    LL_HSEM_ReleaseLock( HSEM, CFG_HW_FLASH_SEMID, 0 );
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, 0);
 #endif
 
     return status;

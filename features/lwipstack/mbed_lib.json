@@ -176,6 +176,9 @@
         },
         "FVP_MPS2_M3": {
             "mem-size": 36560
+        },
+        "MTS_DRAGONFLY_F411RE": {
+            "tcpip-thread-stacksize": 1600
         }
     }
 }

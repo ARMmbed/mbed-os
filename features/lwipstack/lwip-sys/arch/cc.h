@@ -110,7 +110,7 @@ MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, cons
 #else // MBED_CONF_LWIP_USE_MBED_TRACE
 #include <stdio.h>
 
-MBED_NORETURN void assert_printf(char *msg, int line, char *file);
+MBED_NORETURN void assert_printf(const char *msg, int line, const char *file);
 
 /* Plaform specific diagnostic output */
 #define LWIP_PLATFORM_DIAG(vars) printf vars

@@ -59,12 +59,14 @@ void ublox_mdm_powerOn(int usb)
     // turn on the mode by enabling power with power on pin low and correct USB detect level
     gpio_init_out_ex(&gpio, MDMUSBDET,  usb ? 1 : 0);  // USBDET: 0=disabled, 1=enabled
     if (!modemOn) { // enable modem
+        modemOn = true;
         gpio_init_out_ex(&gpio, MDMEN, 1);        // LDOEN:  1=on
         wait_ms(1);                   // wait until supply switched off
         // now we can safely enable the level shifters
         gpio_init_out_ex(&gpio, MDMLVLOE, 0);      // LVLEN:  0=enabled (uart/gpio)
-        if (gpsOn)
+        if (gpsOn) {
             gpio_init_out_ex(&gpio, MDMILVLOE, 1); // ILVLEN: 1=enabled (i2c)
+        }
     }
 }
 
@@ -78,13 +80,13 @@ void ublox_mdm_powerOff(void)
 {
     gpio_t gpio;
     if (modemOn) {
+        modemOn = false;
         // diable all level shifters
         gpio_init_out_ex(&gpio, MDMILVLOE, 0);  // ILVLEN: 0=disabled (i2c)
         gpio_init_out_ex(&gpio, MDMLVLOE, 1);   // LVLEN:  1=disabled (uart/gpio)
         gpio_init_out_ex(&gpio,MDMUSBDET, 0);  // USBDET: 0=disabled
         // now we can savely switch off the ldo
         gpio_init_out_ex(&gpio, MDMEN, 0);      // LDOEN:  0=off
-        modemOn = false;
     }
 }        
 
@@ -92,11 +94,13 @@ void ublox_gps_powerOn(void)
 {
     gpio_t gpio;
     if (!gpsOn) {
+        gpsOn = true;
         // switch on power supply
         gpio_init_out_ex(&gpio, GPSEN, 1);          // LDOEN: 1=on
         wait_ms(1);                     // wait until supply switched off
-        if (modemOn)
+        if (modemOn) {
             gpio_init_out_ex(&gpio, MDMILVLOE, 1);  // ILVLEN: 1=enabled (i2c)
+        }
     }
 }
 
@@ -104,6 +108,7 @@ void ublox_gps_powerOff(void)
 {
     gpio_t gpio;
     if (gpsOn) {
+        gpsOn = false;
         gpio_init_out_ex(&gpio, MDMILVLOE, 0);   // ILVLEN: 0=disabled (i2c)
         gpio_init_out_ex(&gpio, GPSEN, 0);       // LDOEN: 0=off
     }

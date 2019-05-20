@@ -22,16 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdint.h>
 #include <stdbool.h>
-#include "cy_device.h"
-#include "device.h"
 #include "system_psoc6.h"
+#include "cy_device.h"
 #include "cy_device_headers.h"
-#include "psoc6_utils.h"
 #include "cy_syslib.h"
 #include "cy_wdt.h"
-#include "cycfg.h"
 
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     #include "cy_ipc_sema.h"
@@ -43,10 +39,6 @@
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
-
-#if defined(COMPONENT_SPM_MAILBOX)
-void mailbox_init(void);
-#endif
 
 
 /*******************************************************************************
@@ -163,38 +155,6 @@ uint32_t cy_delay32kMs    = CY_DELAY_MS_OVERFLOW_THRESHOLD *
 #define CY_SYS_CM4_PWR_CTL_KEY_OPEN  (0x05FAUL)
 #define CY_SYS_CM4_PWR_CTL_KEY_CLOSE (0xFA05UL)
 #define CY_SYS_CM4_VECTOR_TABLE_VALID_ADDR  (0x000003FFUL)
-
-
-/*******************************************************************************
-* Function Name: mbed_sdk_init
-****************************************************************************//**
-*
-* Mbed's post-memory-initialization function.
-* Used here to initialize common parts of the Cypress libraries.
-*
-*******************************************************************************/
-void mbed_sdk_init(void)
-{
-#if !defined(COMPONENT_SPM_MAILBOX)
-    /* Disable global interrupts */
-    __disable_irq();
-#endif
-
-    /* Initialize shared resource manager */
-    cy_srm_initialize();
-
-    /* Initialize system and clocks. */
-    /* Placed here as it must be done after proper LIBC initialization. */
-    SystemInit();
-
-#if defined(COMPONENT_SPM_MAILBOX)
-    /* Configure mailbox IPC interrupts */
-    mailbox_init();
-#else
-    /* Enable global interrupts */
-    __enable_irq();
-#endif
-}
 
 
 /*******************************************************************************
