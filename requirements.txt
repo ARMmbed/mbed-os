@@ -14,7 +14,7 @@ Jinja2>=2.10.1,<2.11
 intelhex>=1.3,<=2.2.1
 mbed-ls>=1.5.1,<1.8
 mbed-host-tests>=1.4.4,<1.6
-mbed-greentea>=0.2.24,<1.7
+mbed-greentea>=0.2.24,<1.8
 beautifulsoup4>=4,<=4.6.3
 pyelftools>=0.24,<=0.25
 manifest-tool==1.4.8
