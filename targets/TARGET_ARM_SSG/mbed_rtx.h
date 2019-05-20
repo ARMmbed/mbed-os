@@ -61,4 +61,3 @@
 #endif  /* TARGET_MUSCA_A1 */
 
 #endif  /* MBED_MBED_RTX_H */
-
