@@ -510,7 +510,7 @@ void BLE::stack_setup()
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
 
-    HciSetMaxRxAclLen(100);
+    HciSetMaxRxAclLen(MBED_CONF_CORDIO_RX_ACL_BUFFER_SIZE);
 
     DmRegister(BLE::device_manager_cb);
 #if BLE_FEATURE_CONNECTABLE
