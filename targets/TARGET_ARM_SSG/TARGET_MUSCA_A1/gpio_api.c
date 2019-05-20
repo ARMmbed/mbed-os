@@ -30,52 +30,52 @@
 
 uint32_t gpio_set(PinName pin)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
     return 0;
 }
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
 }
 
 int gpio_is_connected(const gpio_t *obj)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
     return 0;
 }
 
 void gpio_write(gpio_t *obj, int value)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
 }
 
 int gpio_read(gpio_t *obj)
 {
-   /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
-    * service should be used for GPIO in NS domain.
-    */
+    /* Due to a HW limitation, GPIO in Musca-A1 is Secure only, so secure
+     * service should be used for GPIO in NS domain.
+     */
     return 0;
 }
