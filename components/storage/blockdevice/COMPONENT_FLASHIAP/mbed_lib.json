@@ -15,7 +15,7 @@
             "base-address": "0x1C0000",
             "size": "0x40000"
         },
-        "FVP_MPS2_M3": {
+        "FVP_MPS2": {
             "base-address": "0x00200000",
             "size": "0x200000"
         }
