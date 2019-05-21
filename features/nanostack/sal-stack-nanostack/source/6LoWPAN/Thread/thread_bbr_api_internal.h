@@ -66,6 +66,13 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t tics);
  * \param interface_id current interface id
  */
 int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
+/**
+ * \brief get commissioner service id to add new services
+ *
+ * \param interface_id current interface id
+ * \return service id or 0 if invalid
+ */
+int8_t thread_bbr_get_commissioner_service(int8_t interface_id);
 
 #else
 #define thread_bbr_init(interface_id, external_commisssioner_port)

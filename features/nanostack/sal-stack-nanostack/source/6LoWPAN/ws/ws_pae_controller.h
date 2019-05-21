@@ -125,6 +125,50 @@ int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr);
 int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *chain);
 
 /**
+ * ws_pae_controller_trusted_certificate_add add trusted certificate
+ *
+ * \param cert trusted certificate
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_trusted_certificate_remove remove trusted certificate
+ *
+ * \param cert trusted certificate
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_certificate_revocation_list_add add certification revocation list
+ *
+ * \param crl certification revocation list
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl);
+
+/**
+ * ws_pae_controller_certificate_revocation_list_remove remove certification revocation list
+ *
+ * \param crl certification revocation list
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl);
+
+/**
  * ws_pae_controller_nw_info_set set network information
  *
  * \param interface_ptr interface
@@ -173,14 +217,172 @@ int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_
 int8_t ws_pae_controller_border_router_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
 
 /**
- * ws_pae_controller_key_insert new GTK key available callback
+ * ws_pae_controller_gtk_update update GTKs (test interface)
  *
- * \param interface_ptr interface
- * \param gtk_index index of the new GTK key
- * \param gtk new GTK key
+ * \param interface_id interface identifier
+ * \param gtk GTK array, if GTK is not set, pointer for the index shall be NULL.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
  *
  */
-typedef void ws_pae_controller_key_insert(protocol_interface_info_entry_t *interface_ptr, uint8_t gtk_index, uint8_t *gtk);
+int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
+
+/**
+ * ws_pae_controller_next_gtk_update update next GTKs used during GTK lifecycle (test interface)
+ *
+ * \param interface_id interface identifier
+ * \param gtk GTK array, if GTK is not set, pointer for the index shall be NULL.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_next_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
+
+/**
+ * ws_pae_controller_key_lifetime_update update key lifetime
+ *
+ * \param interface_id interface identifier
+ * \param gtk_lifetime GTK lifetime
+ * \param pmk_lifetime PMK lifetime
+ * \param ptk_lifetime PTK lifetime
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_key_lifetime_update(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
+
+/**
+ * ws_pae_controller_gtk_time_settings_update update GTK time settings
+ *
+ * \param interface_id interface identifier
+ * \param revocat_lifetime_reduct revocation lifetime reduction
+ * \param new_activation_time new activation time
+ * \param new_install_req new install required
+ * \param max_mismatch max mismatch time
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_gtk_time_settings_update(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
+
+/**
+ * ws_pae_controller_node_keys_remove remove node's keys
+ *
+ * \param interface_id interface identifier
+ * \param eui-64 EUI-64
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64);
+
+/**
+ * ws_pae_controller_node_access_revoke_start start node's access revoke
+ *
+ * \param interface_id interface identifier
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id);
+
+/**
+ * ws_pae_controller_active_key_update update active key (test interface)
+ *
+ * \param interface_id interface identifier
+ * \param index GTK index
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index);
+
+/**
+ * ws_pae_controller_gtk_hash_ptr_get get pointer to GTK hash storage
+ *
+ * \param interface_ptr interface
+ *
+ * \return pointer to GTK has storage or NULL
+ *
+ */
+uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+
+/**
+ * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param gtkhash new GTK hash
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+
+/**
+ * ws_pae_controller_nw_key_index_update key index been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param index key index
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+
+/**
+ * ws_pae_controller_nw_keys_remove remove network keys
+ *
+ * \param interface_ptr interface
+ *
+ */
+void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr);
+
+/**
+ * ws_pae_controller_nw_key_insert network key insert callback
+ *
+ * \param interface_ptr interface
+ * \param slot key slot (MAC key descriptor), from 0 to 4
+ * \param index index of the new network key
+ * \param key new key
+ *
+ */
+typedef void ws_pae_controller_nw_key_set(protocol_interface_info_entry_t *interface_ptr, uint8_t slot, uint8_t index, uint8_t *key);
+
+/**
+ * ws_pae_controller_nw_key_clear network key clear callback
+ *
+ * \param interface_ptr interface
+ * \param slot key slot (MAC key descriptor), from 0 to 4
+ *
+ */
+typedef void ws_pae_controller_nw_key_clear(protocol_interface_info_entry_t *interface_ptr, uint8_t slot);
+
+/**
+ * ws_pae_controller_nw_send_key_index_set network send key index set callback
+ *
+ * \param interface_ptr interface
+ * \param index index of the key to be used on sending
+ *
+ */
+typedef void ws_pae_controller_nw_send_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+
+/**
+ * ws_pae_controller_nw_frame_counter_set network frame counter set callback
+ *
+ * \param interface_ptr interface
+ * \param counter frame counter
+ *
+ */
+typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entry_t *interface_ptr, uint32_t counter);
 
 /**
  * ws_pae_controller_auth_completed authentication completed callback
@@ -192,25 +394,46 @@ typedef void ws_pae_controller_key_insert(protocol_interface_info_entry_t *inter
 typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *interface_ptr, bool success);
 
 /**
+ * ws_pae_controller_pan_ver_increment PAN version increment callback
+ *
+ * \param interface_ptr interface
+ *
+ */
+typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  * ws_pae_controller_cb_register register PEA controller callbacks
  *
  * \param interface_ptr interface
  * \param completed authentication completed callback
- * \param key_insert GTK key insert callback
+ * \param nw_key_set network key set callback
+ * \param nw_key_clear network key clear callback
+ * \param nw_send_key_index_set network send key index set callback
+ * \param nw_frame_counter_set network frame counter set callback
+ * \param pan_ver_increment PAN version increment callback
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_key_insert *key_insert);
+int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_pan_ver_increment *pan_ver_increment);
 
 /**
- * ws_pae_controller_timer PAE controller timer call
+ * ws_pae_controller_fast_timer PAE controller fast timer call
  *
  * \param ticks elapsed ticks
  *
  */
-void ws_pae_controller_timer(uint16_t ticks);
+void ws_pae_controller_fast_timer(uint16_t ticks);
+
+
+/**
+ * ws_pae_controller_slow_timer PAE controller slow timer call
+ *
+ * \param seconds elapsed seconds
+ *
+ */
+void ws_pae_controller_slow_timer(uint16_t seconds);
 
 #else
 
@@ -222,14 +445,16 @@ void ws_pae_controller_timer(uint16_t ticks);
 #define ws_pae_controller_border_router_addr_write(interface_ptr, eui_64) -1
 #define ws_pae_controller_border_router_addr_read(interface_ptr, eui_64) -1
 
+#define ws_pae_controller_gtk_set(interface_id, gtk) -1
+#define ws_pae_controller_next_gtks_update(interface_id, gtk) -1
+
 #define ws_pae_controller_init(interface_ptr) 1
 #define ws_pae_controller_supp_init(interface_ptr) 1
 #define ws_pae_controller_auth_init(interface_ptr) 1
 
 #define ws_pae_controller_stop(interface_ptr)
 #define ws_pae_controller_delete(interface_ptr)
-#define ws_pae_controller_cb_register(interface_ptr, completed, key_insert) 1
-#define ws_pae_controller_timer(ticks)
+#define ws_pae_controller_cb_register(interface_ptr, completed, nw_key_set, nw_key_clear, nw_send_key_index_set, pan_ver_increment) 1
 
 #endif
 

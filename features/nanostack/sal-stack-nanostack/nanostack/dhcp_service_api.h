@@ -133,6 +133,16 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
 */
 void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address);
 
+/**
+* \brief Get DHCPv6 Relay Agent address pointer.
+*
+* \param instance The instance ID of the registered server.
+*
+* \return NULL when address is not available
+* {
+*/
+uint8_t *dhcp_service_relay_global_addres_get(uint16_t instance);
+
 
 /**
 * \brief Deletes a server instance.
@@ -187,6 +197,15 @@ uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr,
  *
  */
 void dhcp_service_set_retry_timers(uint32_t msg_tr_id, uint16_t timeout_init, uint16_t timeout_max, uint8_t retrans_max);
+
+/**
+ * \brief Update DHCP service server address to active tx process.
+ *
+ * \param msg_tr_id The message transaction ID.
+ * \param server_address New destination address to server / relay Agent.
+ *
+ */
+void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_address);
 
 /**
  * \brief Stops transactions for a message (retransmissions).

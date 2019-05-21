@@ -113,9 +113,9 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index);
  * Pairwise Transient Key (PTK) lifetimes.
  *
  * \param interface_id Network interface ID.
- * \param gtk_lifetime GTK lifetime in minutes
- * \param pmk_lifetime PMK lifetime in minutes
- * \param ptk_lifetime PTK lifetime in minutes
+ * \param gtk_lifetime GTK lifetime in minutes or zero if value is not changed
+ * \param pmk_lifetime PMK lifetime in minutes or zero if value is not changed
+ * \param ptk_lifetime PTK lifetime in minutes or zero if value is not changed
  *
  * \return 0                         Lifetimes are set
  * \return <0                        Lifetime set has failed
@@ -135,9 +135,10 @@ int ws_test_key_lifetime_set(
  * maximum mismatch time in minutes.
  *
  * \param interface_id Network interface ID.
- * \param revocat_lifetime_reduct GTK Revocation Lifetime Reduction (1 / value * GTK lifetime)
- * \param new_activation_time GTK New Activation Time (1 / value * GTK lifetime)
- * \param max_mismatch GTK maximum mismatch in minutes
+ * \param revocat_lifetime_reduct GTK Revocation Lifetime Reduction (1 / value * GTK lifetime) or zero if value is not changed
+ * \param new_activation_time GTK New Activation Time (1 / value * GTK lifetime) or zero if value is not changed
+ * \param new_install_req GTK New Install Required (percent * GTK lifetime) or zero if value is not changed
+ * \param max_mismatch GTK maximum mismatch in minutes or zero if value is not changed
  *
  * \return 0                         Lifetimes are set
  * \return <0                        Lifetime set has failed.
@@ -146,8 +147,25 @@ int ws_test_gtk_time_settings_set(
     int8_t interface_id,
     uint8_t revocat_lifetime_reduct,
     uint8_t new_activation_time,
+    uint8_t new_install_req,
     uint32_t max_mismatch
 );
+
+/**
+ * Sets Next Group Transient Keys used during GTK life cycle
+ *
+ * Sets next Group Transient Keys (GTKs) used during GTK life cycle. Up to four
+ * GTKs can be set (GTKs from index 0 to 3). When next GTK(s) are set, border
+ * router inserts GTKs from the next GTK list into use during GTK update
+ * procedure.
+ *
+ * \param interface_id Network interface ID.
+ * \param gtk GTK array, if GTK is not set, pointer for the index shall be NULL.
+ *
+ * \return 0                         GTKs are set
+ * \return <0                        GTK set has failed
+ */
+int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
 
 #ifdef __cplusplus
 }

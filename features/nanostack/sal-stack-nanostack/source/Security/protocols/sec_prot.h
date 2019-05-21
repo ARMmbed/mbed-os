@@ -207,6 +207,18 @@ typedef void sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64, uin
  */
 typedef sec_prot_t *sec_prot_by_type_get(sec_prot_t *prot, uint8_t type);
 
+/**
+ * sec_prot_receive_disable disables receiving of messages
+ *
+ * \param prot protocol
+ *
+ * \return security protocol or NULL
+ *
+ */
+typedef void sec_prot_receive_disable(sec_prot_t *prot);
+
+typedef struct sec_prot_int_data_s sec_prot_int_data_t;
+
 // Security protocol data
 struct sec_prot_s {
     sec_prot_create_request       *create_req;           /**< Create request */
@@ -232,10 +244,11 @@ struct sec_prot_s {
 
     sec_prot_eui64_addr_get       *addr_get;             /**< Gets EUI-64 addresses */
     sec_prot_by_type_get          *type_get;             /**< Gets security protocol by type */
+    sec_prot_receive_disable      *receive_disable;      /**< Disable receiving of messages */
 
     sec_prot_keys_t               *sec_keys;             /**< Security keys storage pointer */
     uint8_t                       header_size;           /**< Header size */
-    uint8_t                       data;                  /**< Protocol internal data */
+    sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };
 
 #endif /* SEC_PROT_H_ */

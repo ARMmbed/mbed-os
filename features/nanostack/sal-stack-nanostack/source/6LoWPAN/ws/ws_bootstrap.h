@@ -23,13 +23,14 @@ typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
     WS_DISCOVERY_START,      /**< discovery start*/
     WS_CONFIGURATION_START,  /**< configuration learn start*/
-    WS_AUTHENTICATION_START, /**< authentication start*/
     WS_OPERATION_START,      /**< active operation start*/
     WS_ROUTING_READY,        /**< RPL routing connected to BR*/
     WS_ADDRESS_ADDED         /**< Address added to IF*/
 } ws_bootsrap_event_type_e;
 
 #ifdef HAVE_WS
+
+struct llc_neighbour_req;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
@@ -40,6 +41,8 @@ int ws_bootstrap_restart(int8_t interface_id);
 int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs);
 
 int ws_bootstrap_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+
+int ws_bootstrap_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(protocol_interface_info_entry_t *cur);
@@ -72,12 +75,15 @@ void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t
 
 bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
 
+void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
+
 #else
 
 #define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
 #define ws_bootstrap_state_machine(cur)
 #define ws_bootstrap_restart(cur)
 #define ws_bootstrap_neighbor_remove(cur, ll_address)
+#define ws_bootstrap_aro_failure(cur, ll_address)
 #define ws_primary_parent_update(interface, neighbor)
 #define ws_secondary_parent_update(interface)
 

@@ -67,12 +67,14 @@ struct tls_security_s {
     mbedtls_entropy_context        entropy;              /**< mbed TLS entropy context */
 
     mbedtls_x509_crt               cacert;               /**< CA certificate(s) */
-    mbedtls_x509_crl               crl;                  /**< Certificate Revocation List */
+    mbedtls_x509_crl               *crl;                 /**< Certificate Revocation List */
     mbedtls_x509_crt               owncert;              /**< Own certificate(s) */
     mbedtls_pk_context             pkey;                 /**< Private key for own certificate */
 
     uint8_t                        client_random[32];    /**< Client random (from Client Hello) */
     uint8_t                        server_random[32];    /**< Server random (from Server Hello) */
+
+    uint8_t                        step;                 /**< Random extract step */
 
     void                           *handle;              /**< Handle provided in callbacks (defined by library user) */
     tls_sec_prot_lib_send          *send;                /**< Send callback */
@@ -94,9 +96,20 @@ static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
 #endif
 
+#ifdef MBEDTLS_PLATFORM_MEMORY
+static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
+static void tls_sec_prot_lib_mem_free(void *ptr);
+#endif
+
 int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 {
     const char *pers = "ws_tls";
+
+#ifdef MBEDTLS_PLATFORM_MEMORY
+    // Disable for now
+    //mbedtls_platform_set_calloc_free(tls_sec_prot_lib_mem_calloc, tls_sec_prot_lib_mem_free);
+#endif
+
 
     mbedtls_ssl_init(&sec->ssl);
     mbedtls_ssl_config_init(&sec->conf);
@@ -104,17 +117,22 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
     mbedtls_entropy_init(&sec->entropy);
 
     mbedtls_x509_crt_init(&sec->cacert);
-    mbedtls_x509_crl_init(&sec->crl);
+
     mbedtls_x509_crt_init(&sec->owncert);
     mbedtls_pk_init(&sec->pkey);
 
+    sec->crl = NULL;
+    sec->step = 0;
+
     if (mbedtls_entropy_add_source(&sec->entropy, tls_sec_lib_entropy_poll, NULL,
                                    128, MBEDTLS_ENTROPY_SOURCE_WEAK) < 0) {
+        tr_error("Entropy add fail");
         return -1;
     }
 
     if ((mbedtls_ctr_drbg_seed(&sec->ctr_drbg, mbedtls_entropy_func, &sec->entropy,
                                (const unsigned char *) pers, strlen(pers))) != 0) {
+        tr_error("drbg seed fail");
         return -1;
     }
 
@@ -146,7 +164,10 @@ void tls_sec_prot_lib_set_cb_register(tls_security_t *sec, void *handle,
 void tls_sec_prot_lib_free(tls_security_t *sec)
 {
     mbedtls_x509_crt_free(&sec->cacert);
-    mbedtls_x509_crl_free(&sec->crl);
+    if (sec->crl) {
+        mbedtls_x509_crl_free(sec->crl);
+        ns_dyn_mem_free(sec->crl);
+    }
     mbedtls_x509_crt_free(&sec->owncert);
     mbedtls_pk_free(&sec->pkey);
     mbedtls_entropy_free(&sec->entropy);
@@ -158,6 +179,7 @@ void tls_sec_prot_lib_free(tls_security_t *sec)
 static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const sec_prot_certs_t *certs)
 {
     if (!certs->own_cert_chain.cert[0]) {
+        tr_error("no own cert");
         return -1;
     }
 
@@ -168,11 +190,13 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
         uint8_t *cert = sec_prot_certs_cert_get(&certs->own_cert_chain, index, &cert_len);
         if (!cert) {
             if (index == 0) {
+                tr_error("No own cert");
                 return -1;
             }
             break;
         }
         if (mbedtls_x509_crt_parse(&sec->owncert, cert, cert_len) < 0) {
+            tr_error("Own cert parse eror");
             return -1;
         }
         index++;
@@ -182,15 +206,18 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
     uint8_t key_len;
     uint8_t *key = sec_prot_certs_priv_key_get(&certs->own_cert_chain, &key_len);
     if (!key) {
+        tr_error("No private key");
         return -1;
     }
 
     if (mbedtls_pk_parse_key(&sec->pkey, key, key_len, NULL, 0) < 0) {
+        tr_error("Private key parse error");
         return -1;
     }
 
     // Configure own certificate chain and private key
     if (mbedtls_ssl_conf_own_cert(&sec->conf, &sec->owncert, &sec->pkey) != 0) {
+        tr_error("Own cert and private key conf error");
         return -1;
     }
 
@@ -202,11 +229,13 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
             uint8_t *cert = sec_prot_certs_cert_get(entry, index, &cert_len);
             if (!cert) {
                 if (index == 0) {
+                    tr_error("No trusted cert");
                     return -1;
                 }
                 break;
             }
             if (mbedtls_x509_crt_parse(&sec->cacert, cert, cert_len) < 0) {
+                tr_error("Trusted cert parse error");
                 return -1;
             }
             index++;
@@ -216,17 +245,27 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
     // Parse certificate revocation lists
     ns_list_foreach(cert_revocat_list_entry_t, entry, &certs->cert_revocat_lists) {
         uint16_t crl_len;
-        uint8_t *crl = sec_prot_certs_revocat_list_get(entry, &crl_len);
+        const uint8_t *crl = sec_prot_certs_revocat_list_get(entry, &crl_len);
         if (!crl) {
             break;
         }
-        if (mbedtls_x509_crl_parse(&sec->crl, crl, crl_len) < 0) {
+        if (!sec->crl) {
+            sec->crl = ns_dyn_mem_temporary_alloc(sizeof(mbedtls_x509_crl));
+            if (!sec->crl) {
+                tr_error("No memory for CRL");
+                return -1;
+            }
+            mbedtls_x509_crl_init(sec->crl);
+        }
+
+        if (mbedtls_x509_crl_parse(sec->crl, crl, crl_len) < 0) {
+            tr_error("CRL parse error");
             return -1;
         }
     }
 
     // Configure trusted certificates and certificate revocation lists
-    mbedtls_ssl_conf_ca_chain(&sec->conf, &sec->cacert, &sec->crl);
+    mbedtls_ssl_conf_ca_chain(&sec->conf, &sec->cacert, sec->crl);
 
     // Certificate verify required on both client and server
     mbedtls_ssl_conf_authmode(&sec->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
@@ -246,6 +285,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     }
 
     if ((mbedtls_ssl_config_defaults(&sec->conf, endpoint, MBEDTLS_SSL_TRANSPORT_STREAM, 0)) != 0) {
+        tr_error("config defaults fail");
         return -1;
     }
 
@@ -258,6 +298,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
 #endif
 
     if ((mbedtls_ssl_setup(&sec->ssl, &sec->conf)) != 0) {
+        tr_error("ssl setup fail");
         return -1;
     }
 
@@ -267,10 +308,9 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
 
     // Configure certificates, keys and certificate revocation list
     if (tls_sec_prot_lib_configure_certificates(sec, certs) != 0) {
-        tr_debug("security credential configure failed");
+        tr_error("cert conf fail");
         return -1;
     }
-
 
     // Configure ciphersuites
     static const int sec_suites[] = {
@@ -292,6 +332,13 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     mbedtls_ssl_conf_min_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
     mbedtls_ssl_conf_max_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
 
+#ifdef MBEDTLS_ECP_RESTARTABLE
+    if (endpoint == MBEDTLS_SSL_IS_SERVER) {
+        // Temporary to enable non blocking ECC */
+        sec->ssl.handshake->ecrs_enabled = 1;
+    }
+#endif
+
     return 0;
 }
 
@@ -310,7 +357,7 @@ int8_t tls_sec_prot_lib_process(tls_security_t *sec)
     while (ret != MBEDTLS_ERR_SSL_WANT_READ) {
         ret = mbedtls_ssl_handshake_step(&sec->ssl);
 
-#ifdef MBEDTLS_ECP_RESTARTABLE
+#if defined(MBEDTLS_ECP_RESTARTABLE) && defined(MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS)
         if (ret == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS /* || ret == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS */) {
             return TLS_SEC_PROT_LIB_CALCULATING;
         }
@@ -365,10 +412,7 @@ static int tls_sec_prot_lib_ssl_recv(void *ctx, unsigned char *buf, size_t len)
 
 static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *buf, uint16_t len)
 {
-    static uint8_t *random_ptr = NULL;
-    static uint8_t step = 0;
-
-    if (step == 0) {
+    if (sec->step == 0) {
         if (*buf++ != 22 && len < 5) {
             return;
         }
@@ -379,14 +423,15 @@ static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *
         buf++; // length
         buf++;
 
-        step++;
+        sec->step++;
 
         if (len < 6) {
             return;
         }
     }
 
-    if (step == 1) {
+    if (sec->step == 1) {
+        uint8_t *random_ptr;
         if (*buf == 0x01) { // Client hello
             random_ptr = sec->client_random;
         } else if (*buf == 0x02) { // Server hello
@@ -405,7 +450,7 @@ static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *
 
         memcpy(random_ptr, buf, 32);
 
-        step = 0;
+        sec->step = 0;
     }
 }
 
@@ -438,6 +483,7 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
 
     char *c = (char *)ns_dyn_mem_temporary_alloc(len);
     if (!c) {
+        tr_error("entropy alloca fail");
         return MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
     }
     memset(c, 0, len);
@@ -450,6 +496,24 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     ns_dyn_mem_free(c);
     return (0);
 }
+
+#ifdef MBEDTLS_PLATFORM_MEMORY
+static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size)
+{
+    void *mem_ptr = ns_dyn_mem_temporary_alloc(count * size);
+
+    if (mem_ptr) {
+        // Calloc should initialize with zero
+        memset(mem_ptr, 0, count * size);
+    }
+    return mem_ptr;
+}
+
+static void tls_sec_prot_lib_mem_free(void *ptr)
+{
+    ns_dyn_mem_free(ptr);
+}
+#endif
 
 #else /* WS_MBEDTLS_SECURITY_ENABLED */
 

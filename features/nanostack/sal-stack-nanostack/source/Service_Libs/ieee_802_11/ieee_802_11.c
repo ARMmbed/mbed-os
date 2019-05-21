@@ -67,7 +67,7 @@ int8_t ieee_802_11_prf_finish(ieee_802_11_prf_t *prf, uint8_t *result)
 
     for (uint8_t i = 0; i < (prf->bits + 159) / 160; i++) {
         prf->string[prf->a_len + 1 + prf->b_len] = i; /* X (index) */
-        if (hmac_sha1_calc(prf->key, prf->key_len, prf->string, string_len, result) < 0) {
+        if (hmac_sha1_calc(prf->key, prf->key_len, prf->string, string_len, result, 20) < 0) {
             return -1;
         }
         result += 160 / 8;

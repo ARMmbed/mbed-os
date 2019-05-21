@@ -37,23 +37,24 @@
 #define TRACE_GROUP "kmap"
 
 struct kmp_api_s {
-    void                         *app_data_ptr;         /**< Opaque pointer for application data */
-    kmp_api_create_confirm       *create_conf;          /**< KMP-CREATE.confirm callback */
-    kmp_api_create_indication    *create_ind;           /**< KMP-CREATE.indication callback */
-    kmp_api_finished_indication  *finished_ind;         /**< KMP-FINISHED.indication callback */
-    kmp_api_finished             *finished;             /**< Finished i.e. ready to be deleted callback */
-    kmp_type_e                   type;                  /**< KMP type */
-    kmp_addr_t                   *addr;                 /**< Supplicant EUI-64, Relay IP address, Relay port */
-    kmp_service_t                *service;              /**< KMP service */
-    bool                         timer_start_pending;   /**< Timer is pending to start */
-    sec_prot_t                   sec_prot;              /**< Security protocol interface */
+    void                         *app_data_ptr;           /**< Opaque pointer for application data */
+    kmp_api_create_confirm       *create_conf;            /**< KMP-CREATE.confirm callback */
+    kmp_api_create_indication    *create_ind;             /**< KMP-CREATE.indication callback */
+    kmp_api_finished_indication  *finished_ind;           /**< KMP-FINISHED.indication callback */
+    kmp_api_finished             *finished;               /**< Finished i.e. ready to be deleted callback */
+    kmp_type_e                   type;                    /**< KMP type */
+    kmp_addr_t                   *addr;                   /**< Supplicant EUI-64, Relay IP address, Relay port */
+    kmp_service_t                *service;                /**< KMP service */
+    bool                         timer_start_pending : 1; /**< Timer is pending to start */
+    bool                         receive_disable : 1;     /**< Receiving disabled, do not route messages anymore */
+    sec_prot_t                   sec_prot;                /**< Security protocol interface */
 };
 
 typedef struct {
-    kmp_type_e                   type;                  /**< Security protocol type callback */
-    kmp_sec_prot_size            *size;                 /**< Security protocol data size callback */
-    kmp_sec_prot_init            *init;                 /**< Security protocol init */
-    ns_list_link_t               link;                  /**< Link */
+    kmp_type_e                   type;                    /**< Security protocol type callback */
+    kmp_sec_prot_size            *size;                   /**< Security protocol data size callback */
+    kmp_sec_prot_init            *init;                   /**< Security protocol init */
+    ns_list_link_t               link;                    /**< Link */
 } kmp_sec_prot_entry_t;
 
 typedef NS_LIST_HEAD(kmp_sec_prot_entry_t, link) kmp_sec_prot_list_t;
@@ -88,6 +89,7 @@ static void kmp_sec_prot_timer_stop(sec_prot_t *prot);
 static void kmp_sec_prot_state_machine_call(sec_prot_t *prot);
 static void kmp_sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64,  uint8_t *remote_eui64);
 static sec_prot_t *kmp_sec_prot_by_type_get(sec_prot_t *prot, uint8_t type);
+static void kmp_sec_prot_receive_disable(sec_prot_t *prot);
 
 #define kmp_api_get_from_prot(prot) (kmp_api_t *)(((uint8_t *)prot) - offsetof(kmp_api_t, sec_prot));
 
@@ -126,6 +128,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type)
     kmp->addr = 0;
     kmp->service = service;
     kmp->timer_start_pending = false;
+    kmp->receive_disable = false;
 
     memset(&kmp->sec_prot, 0, sec_size);
 
@@ -140,6 +143,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type)
     kmp->sec_prot.state_machine_call = kmp_sec_prot_state_machine_call;
     kmp->sec_prot.addr_get = kmp_sec_prot_eui64_addr_get;
     kmp->sec_prot.type_get = kmp_sec_prot_by_type_get;
+    kmp->sec_prot.receive_disable = kmp_sec_prot_receive_disable;
 
     if (sec_prot->init(&kmp->sec_prot) < 0) {
         ns_dyn_mem_free(kmp);
@@ -279,6 +283,12 @@ static sec_prot_t *kmp_sec_prot_by_type_get(sec_prot_t *prot, uint8_t type)
     return &kmp_by_type->sec_prot;
 }
 
+static void kmp_sec_prot_receive_disable(sec_prot_t *prot)
+{
+    kmp_api_t *kmp = kmp_api_get_from_prot(prot);
+    kmp->receive_disable = true;
+}
+
 void kmp_api_delete(kmp_api_t *kmp)
 {
     if (kmp->sec_prot.delete) {
@@ -312,9 +322,9 @@ kmp_type_e kmp_api_type_from_id_get(uint8_t kmp_id)
         case IEEE_802_11_4WH:
             return IEEE_802_11_4WH;
         case IEEE_802_11_GKH:
-            return IEEE_802_1X_MKA;
+            return IEEE_802_11_GKH;
         default:
-            return INVALID_KMP_TYPE;
+            return KMP_TYPE_NONE;
     }
 }
 
@@ -423,6 +433,11 @@ int8_t kmp_service_msg_if_receive(kmp_service_t *service, kmp_type_e type, const
 
     kmp_api_t *kmp = (kmp_api_t *) service->incoming_ind(service, type, addr);
     if (!kmp) {
+        return -1;
+    }
+
+    // Security protocol has disables message receiving
+    if (kmp->receive_disable) {
         return -1;
     }
 

@@ -123,7 +123,8 @@ typedef struct ipv6_neighbour_cache {
     bool                                    recv_ns_aro : 1;
     bool                                    recv_na_aro : 1;
     bool                                    use_eui64_as_slla_in_aro : 1;
-    bool                                    omit_aro_success : 1;
+    bool                                    omit_na_aro_success : 1;
+    bool                                    omit_na : 1; // except for ARO successes which have a separate flag
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
     uint8_t                                 gc_timer;
@@ -170,8 +171,9 @@ extern void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint1
 extern void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seconds);
 extern void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print_fn_t *print_fn);
 extern void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-
 extern int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache);
+extern int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
+extern int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
 
 /* Backwards compatibility with test app */
 #define ROUTE_RPL_UP ROUTE_RPL_DIO

@@ -156,6 +156,7 @@ void addr_fast_timer(struct protocol_interface_info_entry *cur, uint_fast16_t ti
 void addr_slow_timer(struct protocol_interface_info_entry *cur, uint_fast16_t seconds);
 struct if_address_entry *addr_add(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16], uint_fast8_t prefix_len, if_address_source_t source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad);
 int_fast8_t addr_delete(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
+int_fast8_t addr_deprecate(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
 void addr_delete_matching(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_t source);
 void addr_delete_entry(struct protocol_interface_info_entry *cur, if_address_entry_t *addr);
 void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_address_source_t source);
@@ -165,6 +166,8 @@ void addr_notification_register(if_address_notification_fn fn);
 void addr_cb(struct protocol_interface_info_entry *interface, if_address_entry_t *addr, if_address_callback_t reason);
 void addr_set_valid_lifetime(struct protocol_interface_info_entry *interface, if_address_entry_t *entry, uint32_t valid_lifetime);
 void addr_set_preferred_lifetime(struct protocol_interface_info_entry *interface, if_address_entry_t *entry, uint32_t preferred_lifetime);
+
+void addr_lifetime_update(struct protocol_interface_info_entry *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold);
 
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
@@ -177,6 +180,8 @@ int8_t addr_interface_select_source(struct protocol_interface_info_entry *cur, u
 struct if_address_entry *addr_get_entry(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
 bool addr_is_assigned_to_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
 bool addr_is_tentative_for_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
+
+void addr_policy_remove_by_label(uint8_t label);
 
 void addr_duplicate_detected(struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
 

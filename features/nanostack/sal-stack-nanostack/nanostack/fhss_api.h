@@ -143,13 +143,13 @@ typedef int16_t fhss_synch_state_set(const fhss_api_t *api, fhss_states fhss_sta
 typedef uint32_t fhss_read_timestamp(const fhss_api_t *api);
 
 /**
- * @brief Get retransmission period. FHSS uses different retry periods for different destinations.
+ * @brief Get additional retransmission period. FHSS uses different retry periods depending on destination or channel availability.
  * @param api FHSS instance.
  * @param destination_address Destination MAC address.
  * @param phy_mtu PHY MTU size.
- * @return Retransmission period.
+ * @return Retransmission period in microsecond which should be added to normal backoff period.
  */
-typedef uint16_t fhss_get_retry_period(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu);
+typedef uint32_t fhss_get_retry_period(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu);
 
 /**
  * @brief Write synchronization info to given pointer.

@@ -57,6 +57,11 @@ typedef enum {
 #define MAC_SAP_TRIG_TX                 7
 #define MCPS_SAP_DATA_ACK_CNF_EVENT     8
 
+// Default number of CSMA-CA periods
+#define MAC_DEFAULT_NUMBER_OF_CSMA_PERIODS  1
+// Interval between two CCA checks
+#define MAC_DEFAULT_CSMA_MULTI_CCA_INTERVAL 1000
+
 /**
  * @brief struct mac_aux_security_header_t MAC auxiliarity security header structure
  * INTERNAL use only
@@ -126,6 +131,9 @@ typedef struct mac_pre_build_frame {
     uint8_t *mac_payload;
     uint8_t status;
     uint8_t asynch_channel;
+    uint8_t csma_periods_left;
+    uint8_t fhss_retry_count;
+    uint8_t fhss_cca_retry_count;
     uint32_t tx_time;
     bool upper_layer_request;
     bool mac_allocated_payload_ptr: 1;
@@ -206,6 +214,6 @@ uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_ma
 
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 
-int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload, uint32_t rx_time);
+int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload);
 
 #endif /* MAC_IEEE802_15_4_MAC_MCPS_SAP_H_ */

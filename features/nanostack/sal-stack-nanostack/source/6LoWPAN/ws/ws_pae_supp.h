@@ -38,12 +38,13 @@
  *
  * \param interface_ptr interface
  * \param cert_chain certificate chain
+ * \param timer_settings timer settings
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs);
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, timer_settings_t *timer_settings);
 
 /**
  * ws_pae_supp_delete deletes PAE supplicant
@@ -57,12 +58,20 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
 int8_t ws_pae_supp_delete(protocol_interface_info_entry_t *interface_ptr);
 
 /**
- * ws_pae_supp_timer PAE supplicant timer call
+ * ws_pae_supp_fast_timer PAE supplicant fast timer call
  *
  * \param ticks elapsed ticks
  *
  */
-void ws_pae_supp_timer(uint16_t ticks);
+void ws_pae_supp_fast_timer(uint16_t ticks);
+
+/**
+ * ws_pae_supp_slow_timer PAE supplicant slow timer call
+ *
+ * \param ticks elapsed seconds
+ *
+ */
+void ws_pae_supp_slow_timer(uint16_t seconds);
 
 /**
  * ws_pae_supp_authenticate start EAPOL authentication
@@ -127,6 +136,39 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
 int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_supp_gtk_hash_update GTK hash has been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param gtkhash GTK hash, 32 bytes
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+
+/**
+ * ws_pae_supp_nw_key_index_update key index been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param index key index
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+
+/**
+ * ws_pae_supp_nw_key_index_set network send key index set callback
+ *
+ * \param interface_ptr interface
+ * \param index network send key index
+ *
+ */
+typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+
+/**
  * ws_pae_supp_auth_completed authentication completed callback
  *
  * \param interface_ptr interface
@@ -136,36 +178,42 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr);
 typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interface_ptr, bool success);
 
 /**
- * ws_pae_supp_key_insert new GTK key available
+ * ws_pae_supp_nw_key_insert network key insert callback
  *
  * \param interface_ptr interface
- * \param gtk_index index of the new GTK key
- * \param gtk new GTK key
+ * \param gtks group keys
+ *
+ * \return < 0 failure
+ * \return >= 0 success
  *
  */
-typedef void ws_pae_supp_key_insert(protocol_interface_info_entry_t *interface_ptr, uint8_t gtk_index, uint8_t *gtk);
+typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
 
 /**
  * ws_pae_supp_cb_register register PEA supplicant callbacks
  *
  * \param interface_ptr interface
  * \param completed authentication completed callback
- * \param key_insert GTK key insert callback
+ * \param nw_key_insert network key index callback
+ * \param nw_key_index_set network send key index callback
  *
  */
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_key_insert *key_insert);
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set);
 
 #else
 
-#define ws_pae_supp_init(interface_ptr, certs) 1
+#define ws_pae_supp_init(interface_ptr, certs, timer_settings) 1
 #define ws_pae_supp_delete NULL
-#define ws_pae_supp_cb_register(interface_ptr, completed, key_insert)
+#define ws_pae_supp_cb_register(interface_ptr, completed, nw_key_insert, nw_key_index_set)
 #define ws_pae_supp_nw_info_set(interface_ptr, pan_id, network_name) -1
 #define ws_pae_supp_nw_key_valid(interface_ptr) -1
-#define ws_pae_supp_timer NULL
+#define ws_pae_supp_fast_timer NULL
+#define ws_pae_supp_slow_timer NULL
 #define ws_pae_supp_authenticate(interface_ptr, dest_pan_id, dest_eui_64) PAE_SUPP_NOT_ENABLED
 #define ws_pae_supp_border_router_addr_write NULL
 #define ws_pae_supp_border_router_addr_read NULL
+#define ws_pae_supp_gtk_hash_update NULL
+#define ws_pae_supp_nw_key_index_update NULL
 
 #endif
 

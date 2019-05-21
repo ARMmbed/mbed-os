@@ -888,6 +888,7 @@ void thread_interface_init(protocol_interface_info_entry_t *cur)
     thread_discovery_reset(cur->id);
     thread_routing_set_mesh_callbacks(cur);
     dhcp_client_init(cur->id);
+    dhcp_client_configure(cur->id, false, false, false);
     thread_management_client_init(cur->id);
     thread_address_registration_init();
     cur->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_MAC_SHORT;
@@ -945,6 +946,31 @@ static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t 
         tr_debug("Set End node Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_END_DEVICE;
     }
+
+    if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
+        // set router neighbour cache
+        ipv6_neighbour_cache_configure(THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_SIZE,
+                                       THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_SHORT_TERM,
+                                       THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_LONG_TERM,
+                                       THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_LIFETIME);
+        // set router destination cache
+        ipv6_destination_cache_configure(THREAD_ROUTER_IPV6_DESTINATION_CACHE_SIZE,
+                                         THREAD_ROUTER_IPV6_DESTINATION_CACHE_SHORT_TERM,
+                                         THREAD_ROUTER_IPV6_DESTINATION_CACHE_LONG_TERM,
+                                         THREAD_ROUTER_IPV6_DESTINATION_CACHE_LIFETIME);
+    } else {
+        // device is some sort of end device
+        ipv6_neighbour_cache_configure(THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_SIZE,
+                                       THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_SHORT_TERM,
+                                       THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_LONG_TERM,
+                                       THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_LIFETIME);
+
+        ipv6_destination_cache_configure(THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_SIZE,
+                                         THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_SHORT_TERM,
+                                         THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_LONG_TERM,
+                                         THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_LIFETIME);
+    }
+
     cur->thread_info->thread_attached_state = THREAD_STATE_NETWORK_DISCOVER;
 }
 
@@ -2540,7 +2566,7 @@ int thread_bootstrap_network_data_process(protocol_interface_info_entry_t *cur, 
                                                         } else {
                                                             tr_debug("SLAAC address set as NOT preferred.");
                                                         }
-                                                        addr_set_preferred_lifetime(cur, e, genericService.P_preferred ? 0xfffffffff : 0);
+                                                        addr_set_preferred_lifetime(cur, e, genericService.P_preferred ? 0xffffffff : 0);
                                                     }
                                                 }
                                             }

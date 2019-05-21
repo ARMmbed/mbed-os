@@ -272,7 +272,7 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
  *  /param guaPrefix Prefix which will be removed
  *  /param delete_gua_addresses Whether or not assigned addresses with the prefix should be removed from the interface.
  */
-void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 16], bool delete_gua_addresses)
+void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (serverInfo) {
@@ -390,7 +390,7 @@ int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], u
 
     return -1;
 }
-void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 16], bool delete_gua_addresses)
+void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
 {
     (void) interface;
     (void) guaPrefix;

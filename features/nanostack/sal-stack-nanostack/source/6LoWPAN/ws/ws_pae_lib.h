@@ -18,6 +18,11 @@
 #ifndef WS_PAE_LIB_H_
 #define WS_PAE_LIB_H_
 
+/*
+ * Port access entity library functions.
+ *
+ */
+
 typedef struct {
     kmp_api_t *kmp;                    /**< KMP API */
     bool timer_running;                /**< Timer running inside KMP */
@@ -31,7 +36,9 @@ typedef struct {
     kmp_addr_t *addr;                  /**< EUI-64 (Relay IP address, Relay port) */
     sec_prot_keys_t sec_keys;          /**< Security keys */
     uint32_t ticks;                    /**< Ticks */
-    bool active;                       /**< Is active */
+    uint16_t retry_ticks;              /**< Retry ticks */
+    bool active : 1;                   /**< Is active */
+    bool access_revoked : 1;           /**< Nodes access is revoked */
     ns_list_link_t link;               /**< Link */
 } supp_entry_t;
 
@@ -144,11 +151,6 @@ typedef void ws_pae_lib_kmp_timer_timeout(kmp_api_t *kmp, uint16_t ticks);
  */
 bool ws_pae_lib_kmp_timer_update(kmp_list_t *kmp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout);
 
-
-
-
-
-
 /**
  *  ws_pae_lib_supp_list_init initiates supplicant list
  *
@@ -212,6 +214,16 @@ void ws_pae_lib_supp_list_delete(supp_list_t *supp_list);
 bool ws_pae_lib_supp_list_timer_update(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, uint16_t ticks, ws_pae_lib_kmp_timer_timeout timeout);
 
 /**
+ *  ws_pae_lib_supp_list_slow_timer_update updates slow timer on supplicant list
+ *
+ * \param supp_list list of supplicants
+ * \param timer_settings timer settings
+ * \param seconds seconds
+ *
+ */
+void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, timer_settings_t *timer_settings, uint16_t seconds);
+
+/**
  *  ws_pae_lib_supp_list_timer_update updates supplicant timers
  *
  * \param entry supplicant entry
@@ -267,5 +279,26 @@ void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *
  *
  */
 void ws_pae_lib_supp_list_to_inactive(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, supp_entry_t *entry);
+
+/**
+ *  ws_pae_lib_supp_list_kmp_count counts the number of KMPs of a certain type in a list of supplicants
+ *
+ * \param supp_list list of supplicants
+ * \param type KMP type
+ *
+ * \return number of KMPs in the supplicant list
+ *
+ */
+uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type);
+
+/**
+ *  ws_pae_lib_supp_list_entry_retry_timer_get checks if some supplicant has retry timer running
+ *
+ * \param supp_list list of supplicants
+ *
+ * \return supplicant with retry timer running or NULL if no supplicants with timer running
+ *
+ */
+supp_entry_t *ws_pae_lib_supp_list_entry_retry_timer_get(supp_list_t *supp_list);
 
 #endif /* WS_PAE_AUTH_H_ */

@@ -582,7 +582,7 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
             break;
 
         case macMinBE:
-            if (value > rf_mac_setup->macMaxBE) {
+            if (value < rf_mac_setup->macMaxBE) {
                 rf_mac_setup->macMinBE = value;
             }
             break;
@@ -724,6 +724,16 @@ static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_m
     return -1;
 }
 
+static int8_t mac_mlme_set_multi_csma_parameters(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    mlme_multi_csma_ca_param_t multi_csma_params;
+    memcpy(&multi_csma_params, set_req->value_pointer, sizeof(mlme_multi_csma_ca_param_t));
+    rf_mac_setup->multi_cca_interval = multi_csma_params.multi_cca_interval;
+    rf_mac_setup->number_of_csma_ca_periods = multi_csma_params.number_of_csma_ca_periods;
+    tr_debug("Multi CSMA-CA, interval: %u, periods %u", rf_mac_setup->multi_cca_interval, rf_mac_setup->number_of_csma_ca_periods);
+    return 0;
+}
+
 int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
@@ -749,6 +759,8 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
             return 0;
+        case macMultiCSMAParameters:
+            return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
@@ -1072,6 +1084,8 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->mac_interface_id = -1;
     entry->dev_driver = dev_driver;
     entry->aUnitBackoffPeriod = 20; //This can be different in some Platform 20 comes from 12-symbol turnaround and 8 symbol CCA read
+    entry->number_of_csma_ca_periods = MAC_DEFAULT_NUMBER_OF_CSMA_PERIODS;
+    entry->multi_cca_interval = MAC_DEFAULT_CSMA_MULTI_CCA_INTERVAL;
 
     if (mac_sec_mib_init(entry, storage_sizes) != 0) {
         mac_mlme_data_base_deallocate(entry);
@@ -1140,6 +1154,10 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     bool rf_support = false;
     dev_driver->phy_driver->extension(PHY_EXTENSION_DYNAMIC_RF_SUPPORTED, (uint8_t *)&rf_support);
     entry->rf_csma_extension_supported = rf_support;
+    dev_driver->phy_driver->extension(PHY_EXTENSION_FILTERING_SUPPORT, (uint8_t *)&entry->mac_frame_filters);
+    if (entry->mac_frame_filters & (1 << MAC_FRAME_VERSION_2)) {
+        tr_debug("PHY supports 802.15.4-2015 frame filtering");
+    }
     mac_mlme_set_symbol_rate(entry);
 
     //How many 10us ticks backoff period is for waiting 20symbols which is typically 10 bytes time

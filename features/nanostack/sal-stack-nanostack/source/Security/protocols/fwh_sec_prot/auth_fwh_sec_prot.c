@@ -155,12 +155,18 @@ static int8_t auth_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
         // Get message
         data->recv_msg = auth_fwh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys);
         if (data->recv_msg != FWH_MESSAGE_UNKNOWN) {
+            tr_info("4WH: recv %s, eui-64: %s", data->recv_msg == FWH_MESSAGE_2 ? "Message 2" : "Message 4", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+
             // Call state machine
             data->recv_pdu = pdu;
             data->recv_size = size;
             prot->state_machine(prot);
+        } else {
+            tr_error("4WH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
         }
         ret_val = 0;
+    } else {
+        tr_error("4WH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
     }
 
     memset(&data->recv_eapol_pdu, 0, sizeof(eapol_pdu_t));
@@ -180,7 +186,7 @@ static fwh_sec_prot_msg_e auth_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, 
         return FWH_MESSAGE_UNKNOWN;
     }
 
-    uint8_t key_mask = sec_prot_lib_key_mask_get(eapol_pdu);
+    uint8_t key_mask = eapol_pdu_key_mask_get(eapol_pdu);
 
     switch (key_mask) {
         case KEY_INFO_KEY_MIC:
@@ -191,7 +197,7 @@ static fwh_sec_prot_msg_e auth_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, 
             break;
         case KEY_INFO_KEY_MIC | KEY_INFO_SECURED_KEY_FRAME:
             // Only accept message from supplicant with expected replay counter
-            if (eapol_pdu->msg.key.replay_counter ==  sec_prot_keys_pmk_replay_cnt_get(sec_keys)) {
+            if (eapol_pdu->msg.key.replay_counter == sec_prot_keys_pmk_replay_cnt_get(sec_keys)) {
                 msg = FWH_MESSAGE_4;
             }
             break;
@@ -241,14 +247,14 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         break;
         case FWH_MESSAGE_3: {
             uint8_t gtk_index;
-            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys->gtks, &gtk_index);
+            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys, &gtk_index);
             if (gtk) {
                 kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
 
                 uint32_t gtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->gtks, gtk_index);
                 kde_end = kde_lifetime_write(kde_end, gtk_lifetime);
             }
-            uint8_t gtkl = sec_prot_keys_gtkl_get(prot->sec_keys->gtks);
+            uint8_t gtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->gtks);
             kde_end = kde_gtkl_write(kde_end, gtkl);
             kde_padding_write(kde_end, kde_start + kde_len);
         }
@@ -267,7 +273,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
             sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys);
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
             eapol_pdu.msg.key.key_information.key_ack = true;
-            eapol_pdu.msg.key.key_length = 32;
+            eapol_pdu.msg.key.key_length = EAPOL_KEY_LEN;
             eapol_pdu.msg.key.key_nonce = data->nonce;
             break;
         case FWH_MESSAGE_3:
@@ -279,7 +285,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
             eapol_pdu.msg.key.key_information.secured_key_frame = true;
             eapol_pdu.msg.key.key_information.encrypted_key_data = true;
             eapol_pdu.msg.key.key_nonce = data->nonce;
-            eapol_pdu.msg.key.key_length = 32;
+            eapol_pdu.msg.key.key_length = EAPOL_KEY_LEN;
             break;
         default:
             break;
@@ -292,6 +298,8 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
     if (eapol_pdu_frame == NULL) {
         return -1;
     }
+
+    tr_info("4WH: send %s, eui-64: %s", msg == FWH_MESSAGE_1 ? "Message 1" : "Message 3", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;
@@ -319,7 +327,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case FWH_STATE_CREATE_REQ:
-            tr_debug("4WH start");
+            tr_info("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             uint8_t *pmk = sec_prot_keys_pmk_get(prot->sec_keys);
             if (!pmk) { // If PMK is not set fails
@@ -383,13 +391,18 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
 
+                // If GTK was inserted set it valid
+                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys);
+                // Reset PTK mismatch
+                sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
+                // Update PTK
                 sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             }
             break;
 
         case FWH_STATE_FINISH:
-            tr_debug("4WH finish");
+            tr_info("4WH: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), 0);
@@ -417,6 +430,7 @@ static int8_t auth_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
 
     uint8_t *remote_nonce = data->recv_eapol_pdu.msg.key.key_nonce;
     if (!remote_nonce) {
+        tr_error("SNonce invalid");
         return 1;
     }
 

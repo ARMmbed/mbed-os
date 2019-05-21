@@ -18,6 +18,12 @@
 #ifndef WS_PAE_NVM_STORE_H_
 #define WS_PAE_NVM_STORE_H_
 
+/*
+ * Port access entity non-volatile memory (NVM) storage module. Module is used
+ * to write and read PAE NVM data TLVs to/from filesystem.
+ *
+ */
+
 // tag + length
 #define NVM_TLV_FIXED_LEN               4
 

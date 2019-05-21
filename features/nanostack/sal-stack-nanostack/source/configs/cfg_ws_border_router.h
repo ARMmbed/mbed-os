@@ -23,6 +23,3 @@
 #define HAVE_DHCPV6_SERVER
 #define EXTRA_CONSISTENCY_CHECKS
 
-//#define HAVE_PAE_SUPP
-//#define HAVE_PAE_AUTH
-//#define HAVE_EAPOL_RELAY

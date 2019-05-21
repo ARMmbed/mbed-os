@@ -138,7 +138,6 @@ uint8_t ws_neighbor_class_rssi_from_dbm_calculate(int8_t dbm_heard)
 {
     if (DEVICE_MIN_SENS > dbm_heard) {
         // We are hearing packet with lower than min_sens dynamically learn the sensitivity
-        tr_info("heard packet below min sensitivity");
         DEVICE_MIN_SENS = dbm_heard;
     }
     return dbm_heard - DEVICE_MIN_SENS;

@@ -690,6 +690,13 @@ const uint8_t *addr_select_source(protocol_interface_info_entry_t *interface, co
             }
         }
 
+        /* Rule 9 select most precated one  */
+        if (policy_SA->precedence > policy_SB->precedence) {
+            PREFER_SA;
+        } else if (policy_SB->precedence > policy_SA->precedence) {
+            PREFER_SB;
+        }
+
         /* Tie */
         PREFER_SA;
     }
@@ -858,6 +865,7 @@ void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
             }
 #endif
         } else {
+            addr->addr_reg_done = 0;
             addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
         }
 
@@ -1002,6 +1010,19 @@ int_fast8_t addr_delete(protocol_interface_info_entry_t *cur, const uint8_t addr
     return -1;
 }
 
+int_fast8_t addr_deprecate(protocol_interface_info_entry_t *cur, const uint8_t address[static 16])
+{
+    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
+        if (memcmp(e->address, address, 16) == 0) {
+            tr_debug("Deprecate address %s", trace_ipv6(e->address));
+            addr_lifetime_update(cur, e, 0, 0, 30 * 60); //Accept max 30 min lifetime
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
 void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_t source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
@@ -1089,6 +1110,20 @@ void addr_set_preferred_lifetime(protocol_interface_info_entry_t *interface, if_
             }
         }
     }
+}
+
+void addr_lifetime_update(protocol_interface_info_entry_t *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold)
+{
+    //Update Current lifetimes (see RFC 4862 for rules detail)
+    if (valid_lifetime > threshold || valid_lifetime > address->valid_lifetime) {
+        addr_set_valid_lifetime(interface, address, valid_lifetime);
+    } else if (address->valid_lifetime <= threshold) {
+        //NOT Update Valid Lifetime
+    } else {
+        addr_set_valid_lifetime(interface, address, threshold);
+    }
+
+    addr_set_preferred_lifetime(interface, address, preferred_lifetime);
 }
 
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len)
@@ -1396,6 +1431,21 @@ int8_t addr_interface_select_source(protocol_interface_info_entry_t *cur, uint8_
         }
     }
     return ret_val;
+}
+
+void addr_policy_remove_by_label(uint8_t label)
+{
+    ns_list_foreach_safe(addr_policy_table_entry_t, entry, &addr_policy_table) {
+        if (entry->label == label) {
+            /*
+             * Remove label policy if no local address matches"
+             */
+            if (!protocol_interface_any_address_match(entry->prefix, entry->prefix_len)) {
+                ns_list_remove(&addr_policy_table, entry);
+                ns_dyn_mem_free(entry);
+            }
+        }
+    }
 }
 
 // This last function must always be compiled with tracing enabled

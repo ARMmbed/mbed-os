@@ -33,6 +33,7 @@
 #include "Service_Libs/Trickle/trickle.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/Thread/thread_common.h"
+#include "6LoWPAN/ws/ws_common.h"
 #include "MPL/mpl.h"
 
 #define TRACE_GROUP "mpl"
@@ -1105,7 +1106,8 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
 
     /* "Compress" seed ID if it's the IPv6 source address */
     /* (For Thread, also compress if source is the 16-bit address) */
-    if (seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
+    /* (For Wi-sun, not support seed id address compression */
+    if (!ws_info(buf->interface) && seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
         seed_id_len = 0;
     } else if (seed_id_len == 2 && thread_addr_is_mesh_local_16(buf->src_sa.address, buf->interface) &&
                seed_id[0] == buf->src_sa.address[14] && seed_id[1] == buf->src_sa.address[15]) {
