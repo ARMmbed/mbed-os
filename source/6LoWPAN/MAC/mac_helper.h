@@ -67,9 +67,17 @@ uint8_t mac_helper_default_key_index_get(struct protocol_interface_info_entry *i
 
 int8_t mac_helper_security_default_key_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode);
 
+int8_t mac_helper_security_default_recv_key_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode);
+
+int8_t mac_helper_security_auto_request_key_index_set(struct protocol_interface_info_entry *interface, uint8_t id);
+
 int8_t mac_helper_security_next_key_set(struct protocol_interface_info_entry *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode);
 
 int8_t mac_helper_security_prev_key_set(struct protocol_interface_info_entry *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode);
+
+int8_t mac_helper_security_key_to_descriptor_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
+
+int8_t mac_helper_security_key_descriptor_clear(struct protocol_interface_info_entry *interface, uint8_t descriptor);
 
 void mac_helper_security_key_swap_next_to_default(struct protocol_interface_info_entry *interface);
 

@@ -160,7 +160,7 @@ void rpl_control_print(route_print_fn_t *print_fn);
 
 struct rpl_instance *rpl_control_enumerate_instances(rpl_domain_t *domain, struct rpl_instance *instance);
 struct rpl_instance *rpl_control_lookup_instance(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid);
-bool rpl_control_get_instance_dao_target_count(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, uint16_t *target_count);
+bool rpl_control_get_instance_dao_target_count(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const uint8_t *prefix, uint16_t *target_count);
 bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl_dodag_info_t *dodag_info);
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);

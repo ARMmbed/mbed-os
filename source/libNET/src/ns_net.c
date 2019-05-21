@@ -946,26 +946,42 @@ int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *ch
 
 int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_trusted_certificate_add(cert);
+#else
     (void) cert;
     return -1;
+#endif
 }
 
 int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_trusted_certificate_remove(cert);
+#else
     (void) cert;
     return -1;
+#endif
 }
 
 int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_certificate_revocation_list_add(crl);
+#else
     (void) crl;
     return -1;
+#endif
 }
 
 int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_certificate_revocation_list_remove(crl);
+#else
     (void) crl;
     return -1;
+#endif
 }
 
 /**

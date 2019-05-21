@@ -35,9 +35,11 @@ prefix_entry_t *icmpv6_prefix_add(prefix_list_t *list, const uint8_t *prefixPtr,
 
     entry = icmpv6_prefix_compare(list, prefixPtr, prefix_len);
     if (entry) {
-        entry->options = flags;
-        entry->lifetime = lifeTime;
-        entry->preftime = prefTime;
+        if (flags != 0xff) {
+            entry->options = flags;
+            entry->lifetime = lifeTime;
+            entry->preftime = prefTime;
+        }
         return entry;
     }
 

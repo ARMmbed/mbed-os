@@ -119,7 +119,7 @@ bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
             t->I = params->Imax;
         }
 
-        if (t->e < UINT8_MAX) {
+        if (t->e < TRICKLE_EXPIRATIONS_INFINITE - 1) {
             t->e++;
         }
         trickle_begin_interval(t);

@@ -34,6 +34,7 @@ SRCS += \
 	source/6LoWPAN/ws/ws_pae_lib.c \
 	source/6LoWPAN/ws/ws_pae_nvm_data.c \
 	source/6LoWPAN/ws/ws_pae_nvm_store.c \
+	source/6LoWPAN/ws/ws_pae_timers.c \
 	source/6LoWPAN/ws/ws_eapol_relay.c \
 	source/6LoWPAN/ws/ws_eapol_auth_relay.c \
 	source/6LoWPAN/ws/ws_eapol_relay_lib.c \

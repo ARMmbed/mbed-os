@@ -25,6 +25,7 @@
 #include "6LoWPAN/ws/ws_config.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
+#include "6LoWPAN/ws/ws_pae_controller.h"
 #include "randLIB.h"
 
 #include "ns_trace.h"
@@ -60,7 +61,7 @@ int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4])
     (void) interface_id;
     (void) gtk;
 
-    return 0;
+    return ws_pae_controller_gtk_update(interface_id, gtk);
 }
 
 int ws_test_active_key_set(int8_t interface_id, uint8_t index)
@@ -68,7 +69,7 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index)
     (void) interface_id;
     (void) index;
 
-    return 0;
+    return ws_pae_controller_active_key_update(interface_id, index);
 }
 
 int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
@@ -78,17 +79,27 @@ int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_
     (void) pmk_lifetime;
     (void) ptk_lifetime;
 
-    return 0;
+    return ws_pae_controller_key_lifetime_update(interface_id, gtk_lifetime, pmk_lifetime, ptk_lifetime);
 }
 
-int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint32_t max_mismatch)
+int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
 {
     (void) interface_id;
     (void) revocat_lifetime_reduct;
     (void) new_activation_time;
+    (void) new_install_req;
     (void) max_mismatch;
 
-    return 0;
+
+    return ws_pae_controller_gtk_time_settings_update(interface_id, revocat_lifetime_reduct, new_activation_time, new_install_req, max_mismatch);
+}
+
+int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
+{
+    (void) interface_id;
+    (void) gtk;
+
+    return ws_pae_controller_next_gtk_update(interface_id, gtk);
 }
 
 #endif // HAVE_WS

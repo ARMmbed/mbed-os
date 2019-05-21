@@ -339,6 +339,26 @@ int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *inte
     return 0;
 }
 
+int8_t mac_helper_security_default_recv_key_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
+{
+    if (id == 0 || keyid_mode > 3) {
+        return -1;
+    }
+
+    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters->mac_default_key_attribute_id);
+    return 0;
+}
+
+int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t id)
+{
+    if (id == 0) {
+        return -1;
+    }
+
+    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
+    return 0;
+}
+
 
 int8_t mac_helper_security_pairwisekey_set(protocol_interface_info_entry_t *interface, const uint8_t *key, const uint8_t *mac_64, uint8_t key_attribute)
 {
@@ -374,6 +394,33 @@ int8_t mac_helper_security_prev_key_set(protocol_interface_info_entry_t *interfa
 
 }
 
+int8_t mac_helper_security_key_to_descriptor_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
+{
+    if (id == 0) {
+        return -1;
+    }
+
+    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, descriptor);
+    return 0;
+}
+
+int8_t mac_helper_security_key_descriptor_clear(protocol_interface_info_entry_t *interface, uint8_t descriptor)
+{
+    if (!interface->mac_api) {
+        return -1;
+    }
+
+    mlme_set_t set_req;
+    mlme_key_descriptor_entry_t key_description;
+    memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
+
+    set_req.attr = macKeyTable;
+    set_req.value_pointer = &key_description;
+    set_req.value_size = sizeof(mlme_key_descriptor_entry_t);
+    set_req.attr_index = descriptor;
+    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
+    return 0;
+}
 
 void mac_helper_security_key_swap_next_to_default(protocol_interface_info_entry_t *interface)
 {

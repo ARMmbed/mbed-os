@@ -38,9 +38,12 @@ void dhcp_client_init(int8_t interface);
 
 /* Set configurations for DHCP client
  *
+ * /param interface Client Inteface ID
  * /param renew_uses_solicit Instead of renew message SOLICIT is used.
+ * /param one_client_for_this_interface True Interface use oneinstance for allocate address
+ * /param no_address_hint IAID use address at Solicit
  */
-void dhcp_client_configure(int8_t interface, bool renew_uses_solicit);
+void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_client_for_this_interface, bool no_address_hint);
 
 /* Set Timeout parameters for SOLICIT transactions
  *
@@ -92,10 +95,12 @@ void dhcp_client_global_address_renew(int8_t interface);
  * /param prefix dhcp server ML16 address where address is registered.
  *
  */
-void dhcp_client_global_address_delete(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16]);
+void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uint8_t prefix[static 16]);
 
 
 void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16]);
+
+int dhcp_client_server_address_update(int8_t interface, uint8_t prefix[static 16], uint8_t server_address[static 16]);
 
 
 

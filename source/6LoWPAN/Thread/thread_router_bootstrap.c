@@ -67,6 +67,7 @@
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
+#include "6LoWPAN/Thread/thread_extension_bootstrap.h"
 #include "thread_management_if.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"
@@ -1484,6 +1485,12 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 return;
             }
 
+            // check if security policy prevents sending of parent response
+            if (!thread_extension_is_reed_upgrade_allowed(cur)) {
+                tr_debug("Security policy prevents parent response; drop packet");
+                return;
+            }
+
             if (thread_am_reed(cur)) {
                 // If we are in REED mode and receive PARENT_REQ from our parent, don't send response.
                 if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
@@ -1597,8 +1604,14 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 return;
             }
 
-            // If we are in REED mode and receive child ID request from our parent, call connection error.
+            // check if security policy prevents sending of child id response
+            if (!thread_extension_is_reed_upgrade_allowed(cur)) {
+                tr_debug("Security policy prevents child id response; drop packet");
+                return;
+            }
+
             if (thread_am_reed(cur)) {
+                // If we are in REED mode and receive child ID request from our parent, call connection error.
                 if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
                     tr_debug("Child ID req from own parent -> connection error");
                     entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
@@ -2223,6 +2236,10 @@ bool thread_router_bootstrap_reed_upgrade(protocol_interface_info_entry_t *cur)
     uint8_t activeRouterCount;
 
     if (!thread_router_bootstrap_routing_allowed(cur)) {
+        return false;
+    }
+
+    if (!thread_extension_is_reed_upgrade_allowed(cur)) {
         return false;
     }
 

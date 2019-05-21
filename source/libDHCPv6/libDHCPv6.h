@@ -266,7 +266,7 @@ uint16_t libdhcvp6_request_option_size(uint8_t optionCnt);
 uint16_t libdhcpv6_non_temporal_address_size(bool addressDefined);
 
 uint16_t libdhcpv6_solication_message_length(uint16_t clientLinkType, bool addressDefined, uint8_t requestOptionCount);
-uint16_t libdhcpv6_address_request_message_len(uint16_t clientLinkType, uint16_t serverLinkType, uint8_t requstOptionCnt);
+uint16_t libdhcpv6_address_request_message_len(uint16_t clientLinkType, uint16_t serverLinkType, uint8_t requstOptionCnt, bool add_address);
 #ifdef HAVE_DHCPV6_SERVER
 uint16_t libdhcpv6_address_reply_message_len(uint16_t clientLinkType, uint16_t serverLinkType, uint16_t vendorDataLen, bool rapidCommon, bool status);
 #else

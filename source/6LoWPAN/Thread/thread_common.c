@@ -988,11 +988,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
     thread_resolution_client_timer(cur->id, ticks);
     thread_key_switch_timer(cur, ticks);
     thread_child_update_req_timer(cur, ticks);
-
-    if (!thread_bootstrap_should_register_address(cur)) {
-        /* Only FTD refreshes the address registration timer */
-        thread_address_registration_timer(cur, ticks);
-    }
+    thread_address_registration_timer(cur, ticks);
 
     if (thread_attach_ready(cur) != 0) {
         return;

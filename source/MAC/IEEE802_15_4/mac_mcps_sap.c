@@ -362,8 +362,6 @@ static int8_t mac_virtual_data_req_handler(protocol_interface_rf_mac_setup_s *rf
     }
 
     mac_header_parse_fcf_dsn(&buffer->fcf_dsn, data_ptr);
-    buffer->fcf_dsn.DstPanPresents = mac_dst_panid_present(&buffer->fcf_dsn);
-    buffer->fcf_dsn.SrcPanPresents = mac_src_panid_present(&buffer->fcf_dsn);
     // Use MAC sequence as handle
     buffer->msduHandle = buffer->fcf_dsn.DSN;
     memcpy(buffer->mac_payload, data_ptr,  data_length);
@@ -982,11 +980,6 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
         mcps_sap_pre_parsed_frame_buffer_free(buf);
         return;
     }
-
-    if (mac_filter_modify_link_quality(rf_mac_setup->mac_interface_id, buf) == 1) {
-        mcps_sap_pre_parsed_frame_buffer_free(buf);
-        return;
-    }
     /* push data to stack if sniffer mode is enabled */
     if (rf_mac_setup->macProminousMode) {
         mac_nap_tun_data_handler(buf, rf_mac_setup);
@@ -1423,13 +1416,20 @@ static void mcps_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_ptr, 
         // FHSS checks if this failed buffer needs to be pushed back to TX queue and retransmitted
         if ((rf_ptr->mac_tx_result == MAC_TX_FAIL) || (rf_ptr->mac_tx_result == MAC_CCA_FAIL)) {
             if (rf_ptr->fhss_api->data_tx_fail(rf_ptr->fhss_api, buffer->msduHandle, mac_convert_frame_type_to_fhss(buffer->fcf_dsn.frametype)) == true) {
+
+                if (rf_ptr->mac_tx_result == MAC_TX_FAIL) {
+                    buffer->fhss_retry_count += 1 + rf_ptr->mac_tx_status.retry;
+                } else {
+                    buffer->fhss_retry_count += rf_ptr->mac_tx_status.retry;
+                }
+                buffer->fhss_cca_retry_count += rf_ptr->mac_tx_status.cca_cnt;
                 mcps_sap_pd_req_queue_write(rf_ptr, buffer);
                 return;
             }
         }
     }
-    confirm.cca_retries = rf_ptr->mac_tx_status.cca_cnt;
-    confirm.tx_retries = rf_ptr->mac_tx_status.retry;
+    confirm.cca_retries = rf_ptr->mac_tx_status.cca_cnt + buffer->fhss_cca_retry_count;
+    confirm.tx_retries = rf_ptr->mac_tx_status.retry + buffer->fhss_retry_count;
     mac_common_data_confirmation_handle(rf_ptr, buffer);
     confirm.msduHandle = buffer->msduHandle;
     confirm.status = buffer->status;
@@ -1600,9 +1600,8 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     return 0;
 }
 
-int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload, uint32_t rx_time)
+int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload)
 {
-    (void)rx_time;
     phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
     dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
 
@@ -1740,7 +1739,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const m
     rf_ptr->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t *) &csma_params);
     if (rf_ptr->active_pd_data_request) {
         timer_mac_stop(rf_ptr);
-        mac_pd_sap_set_phy_tx_time(rf_ptr, 0, false);
+        mac_pd_abort_active_tx(rf_ptr);
     }
     return mcps_pd_data_cca_trig(rf_ptr, buffer);
 }
@@ -1827,6 +1826,13 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
                 return -1;
             }
             cca_enabled = true;
+        }
+        // Use double CCA check with FHSS for data packets only
+        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->active_pd_data_request->asynch_request) {
+            if ((buffer->tx_time - (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1))) > mac_mcps_sap_get_phy_timestamp(rf_ptr)) {
+                buffer->csma_periods_left = rf_ptr->number_of_csma_ca_periods - 1;
+                buffer->tx_time -= (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1));
+            }
         }
         mac_pd_sap_set_phy_tx_time(rf_ptr, buffer->tx_time, cca_enabled);
         if (mac_plme_cca_req(rf_ptr) != 0) {

@@ -117,6 +117,6 @@ int8_t eap_tls_sec_prot_lib_message_handle(uint8_t *data, uint16_t length, bool 
  * \return pointer to message to be sent or NULL in case of failure
  *
  */
-uint8_t *eap_tls_sec_prot_lib_message_build(uint8_t eap_code, uint8_t eap_type, uint8_t flags, uint8_t eap_id_seq, uint8_t header_size, tls_data_t *tls_send, uint16_t *length);
+uint8_t *eap_tls_sec_prot_lib_message_build(uint8_t eap_code, uint8_t eap_type, uint8_t *flags, uint8_t eap_id_seq, uint8_t header_size, tls_data_t *tls_send, uint16_t *length);
 
 #endif /* EAP_TLS_SEC_PROT_H_ */

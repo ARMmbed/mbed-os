@@ -268,7 +268,7 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
 static int8_t net_load_balance_api_get_node_count_cb(void *lb_user, uint16_t *node_count)
 {
     protocol_interface_info_entry_t *interface_ptr = lb_user;
-    if (rpl_control_get_instance_dao_target_count(interface_ptr->rpl_domain, 1, NULL, node_count)) {
+    if (rpl_control_get_instance_dao_target_count(interface_ptr->rpl_domain, 1, NULL, NULL, node_count)) {
         return 0;
     }
 

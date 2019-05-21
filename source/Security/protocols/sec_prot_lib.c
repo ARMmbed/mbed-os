@@ -38,6 +38,7 @@
 #include "Service_Libs/ieee_802_11/ieee_802_11.h"
 #include "Service_Libs/hmac/hmac_sha1.h"
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
+#include "mbedtls/sha256.h"
 
 #ifdef HAVE_WS
 
@@ -53,7 +54,7 @@ void sec_prot_init(sec_prot_common_t *data)
 
 void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, const trickle_params_t *trickle_params, uint16_t ticks)
 {
-    if (data->trickle_running) {
+    if (data->trickle_running && trickle_params) {
         bool running = trickle_running(&data->trickle_timer, trickle_params);
 
         // Checks for trickle timer expiration */
@@ -108,9 +109,16 @@ void sec_prot_state_set(sec_prot_t *prot, sec_prot_common_t *data, uint8_t state
             return;
 
         case SEC_STATE_FINISHED:
-            // Wait for timeout
+            // If not already on finished state
+            if (data->state != SEC_STATE_FINISHED) {
+                // Wait for timeout
+                data->ticks = SEC_FINISHED_TIMEOUT;
+            }
             data->trickle_running = false;
-            data->ticks = SEC_FINISHED_TIMEOUT;
+
+            // Disables receiving of messages when state machine sets SEC_STATE_FINISHED
+            prot->receive_disable(prot);
+
             // Clear result
             sec_prot_result_set(data, SEC_RESULT_OK);
             break;
@@ -159,22 +167,10 @@ bool sec_prot_result_ok_check(sec_prot_common_t *data)
     return false;
 }
 
-/*
- * IEEE 802.11 advises using sequential nonces, but should this be
- * randlib?
- */
 void sec_prot_lib_nonce_generate(uint8_t *nonce)
 {
-    // For now, use randlib
+    // Use randlib
     randLIB_get_n_bytes_random(nonce, EAPOL_KEY_NONCE_LEN);
-
-#if 0
-    for (int i = 31; i >= 0; i--) {
-        if (++nonce[i] != 0) {
-            break;
-        }
-    }
-#endif
 }
 
 /*
@@ -285,10 +281,11 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_sha1_calc(pmk, PMK_LEN, data, data_len, pmkid) < 0) {
+    if (hmac_sha1_calc(pmk, PMK_LEN, data, data_len, pmkid, PMKID_LEN) < 0) {
         return -1;
     }
 
+    tr_info("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
     return 0;
 }
 
@@ -306,10 +303,11 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
     ptr += EUI64_LEN;
     memcpy(ptr, supp_eui64, EUI64_LEN);
 
-    if (hmac_sha1_calc(ptk, PTK_LEN, data, data_len, ptkid) < 0) {
+    if (hmac_sha1_calc(ptk, PTK_LEN, data, data_len, ptkid, PTKID_LEN) < 0) {
         return -1;
     }
 
+    tr_info("PTKID %s EUI-64 %s %s", trace_array(ptkid, PTKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
     return 0;
 }
 
@@ -337,7 +335,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 
     if (eapol_pdu->msg.key.key_information.key_mic) {
         uint8_t mic[EAPOL_KEY_MIC_LEN];
-        if (hmac_sha1_calc(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic) < 0) {
+        if (hmac_sha1_calc(ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
             ns_dyn_mem_free(eapol_pdu_frame);
             return NULL;
         }
@@ -362,6 +360,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
     if (eapol_pdu->msg.key.key_information.encrypted_key_data) {
         size_t output_len = eapol_pdu->msg.key.key_data_length;
         if (nist_aes_key_wrap(0, &ptk[KEK_INDEX], 128, key_data, key_data_len, kde, &output_len) < 0 || output_len != (size_t) key_data_len - 8) {
+            tr_error("Decrypt failed");
             ns_dyn_mem_free(kde);
             return NULL;
         }
@@ -373,42 +372,40 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
     return kde;
 }
 
-int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *gtks)
+int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_keys_t *sec_keys)
 {
-    // If a valid new GTK value present, insert it
-    int8_t gtk_set_index = -1;
+    int8_t gtk_index = -1;
 
     uint8_t key_id;
     uint8_t gtk[GTK_LEN];
 
     if (kde_gtk_read(kde, kde_len, &key_id, gtk) >= 0) {
-        // A new GTK value
-        if (sec_prot_keys_gtk_set(gtks, key_id, gtk) >= 0) {
-            gtk_set_index = (int8_t) key_id; // Insert
+        uint32_t lifetime = 0;
+        if (kde_lifetime_read(kde, kde_len, &lifetime) >= 0) {
+
         }
 
-        uint32_t lifetime;
-        if (kde_lifetime_read(kde, kde_len, &lifetime) >= 0) {
-            sec_prot_keys_gtk_lifetime_set(gtks, key_id, lifetime);
+        // A new GTK value
+        if (sec_prot_keys_gtk_set(sec_keys->gtks, key_id, gtk, lifetime) >= 0) {
+            gtk_index = (int8_t) key_id; // Insert
         }
     }
     uint8_t gtkl;
     if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-        sec_prot_keys_gtkl_set(gtks, gtkl);
+        sec_prot_keys_gtkl_set(sec_keys, gtkl);
     } else {
+        tr_error("No GTKL");
         return -1;
     }
 
     // Sanity checks
-    if (gtk_set_index >= 0) {
-        if (!sec_prot_keys_gtk_is_live(gtks, gtk_set_index)) {
-            gtk_set_index = -1;
+    if (gtk_index >= 0) {
+        if (!sec_prot_keys_gtkl_gtk_is_live(sec_keys, gtk_index)) {
+            tr_error("mismatch between GTK and GTKL");
         }
     }
 
-    if (gtk_set_index >= 0) {
-        sec_prot_keys_gtk_insert_index_set(gtks, gtk_set_index);
-    }
+    tr_info("GTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_keys->gtks, gtk_index));
 
     return 0;
 }
@@ -421,43 +418,34 @@ int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8
     eapol_write_key_packet_mic(pdu, 0);
 
     uint8_t calc_mic[EAPOL_KEY_MIC_LEN];
-    if (hmac_sha1_calc(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic) < 0) {
+    if (hmac_sha1_calc(ptk, EAPOL_KEY_MIC_LEN, pdu, pdu_size, calc_mic, EAPOL_KEY_MIC_LEN) < 0) {
+        tr_error("MIC invalid");
         return -1;
     }
     if (memcmp(recv_mic, calc_mic, EAPOL_KEY_MIC_LEN) != 0) {
+        tr_error("MIC invalid");
         return -1;
     }
     return 0;
 }
 
-uint8_t sec_prot_lib_key_mask_get(eapol_pdu_t *eapol_pdu)
-{
-    uint8_t key_mask = 0;
-
-    if (eapol_pdu->msg.key.key_information.install) {
-        key_mask |= KEY_INFO_INSTALL;
-    }
-    if (eapol_pdu->msg.key.key_information.key_ack) {
-        key_mask |= KEY_INFO_KEY_ACK;
-    }
-    if (eapol_pdu->msg.key.key_information.key_mic) {
-        key_mask |= KEY_INFO_KEY_MIC;
-    }
-    if (eapol_pdu->msg.key.key_information.secured_key_frame) {
-        key_mask |= KEY_INFO_SECURED_KEY_FRAME;
-    }
-
-    return key_mask;
-}
-
 int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_auth)
 {
-    uint8_t local_eui64[8];
-    uint8_t remote_eui64[8];
-    prot->addr_get(prot, local_eui64, remote_eui64);
     uint8_t *pmk = sec_prot_keys_pmk_get(prot->sec_keys);
     if (!pmk) {
         return -1;
+    }
+
+    uint8_t local_eui64[8];
+    uint8_t remote_eui64[8];
+    // Tries to get the EUI-64 that is validated by PTK procedure or bound to supplicant entry
+    uint8_t *remote_eui64_ptr = sec_prot_keys_ptk_eui_64_get(prot->sec_keys);
+    if (remote_eui64_ptr) {
+        memcpy(remote_eui64, remote_eui64_ptr, 8);
+        prot->addr_get(prot, local_eui64, NULL);
+    } else {
+        // If validated EUI-64 is not present, use the remote EUI-64
+        prot->addr_get(prot, local_eui64, remote_eui64);
     }
 
     if (is_auth) {
@@ -470,10 +458,14 @@ int8_t sec_prot_lib_pmkid_generate(sec_prot_t *prot, uint8_t *pmkid, bool is_aut
 int8_t sec_prot_lib_ptkid_generate(sec_prot_t *prot, uint8_t *ptkid, bool is_auth)
 {
     uint8_t local_eui64[8];
-    uint8_t remote_eui64[8];
-    prot->addr_get(prot, local_eui64, remote_eui64);
+    prot->addr_get(prot, local_eui64, NULL);
     uint8_t *ptk = sec_prot_keys_pmk_get(prot->sec_keys);
     if (!ptk) {
+        return -1;
+    }
+    // Uses always the EUI-64 that is validated by PTK procedure or bound to supplicant entry
+    uint8_t *remote_eui64 = sec_prot_keys_ptk_eui_64_get(prot->sec_keys);
+    if (!remote_eui64) {
         return -1;
     }
 
@@ -484,5 +476,46 @@ int8_t sec_prot_lib_ptkid_generate(sec_prot_t *prot, uint8_t *ptkid, bool is_aut
     }
 }
 
+int8_t sec_prot_lib_gtkhash_generate(uint8_t *gtk, uint8_t *gtk_hash)
+{
+    int8_t ret_val = 0;
+
+    mbedtls_sha256_context ctx;
+
+    mbedtls_sha256_init(&ctx);
+
+    if (mbedtls_sha256_starts_ret(&ctx, 0) != 0) {
+        ret_val = -1;
+        goto error;
+    }
+
+    if (mbedtls_sha256_update_ret(&ctx, gtk, 16) != 0) {
+        ret_val = -1;
+        goto error;
+    }
+
+    uint8_t output[32];
+
+    if (mbedtls_sha256_finish_ret(&ctx, output) != 0) {
+        ret_val = -1;
+        goto error;
+    }
+
+    memcpy(gtk_hash, &output[24], 8);
+
+error:
+    mbedtls_sha256_free(&ctx);
+
+    return ret_val;
+}
+
+uint8_t *sec_prot_remote_eui_64_addr_get(sec_prot_t *prot)
+{
+    if (prot->sec_keys && prot->sec_keys->ptk_eui_64_set) {
+        return prot->sec_keys->ptk_eui_64;
+    } else {
+        return NULL;
+    }
+}
 
 #endif /* HAVE_WS */

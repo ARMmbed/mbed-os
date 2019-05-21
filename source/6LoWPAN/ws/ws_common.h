@@ -79,6 +79,7 @@ typedef struct ws_info_s {
     bool trickle_pa_running: 1;
     bool trickle_pcs_running: 1;
     bool trickle_pc_running: 1;
+    bool power_up_setup: 1;
     // default fhss parameters for this device
     uint8_t fhss_uc_dwell_interval;
     uint8_t fhss_bc_dwell_interval;
@@ -118,7 +119,9 @@ void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8
 
 void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
-bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur);
+void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+
+bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
 
 #define ws_info(cur) ((cur)->ws_info)
 #else
@@ -126,8 +129,9 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur);
 #define ws_common_seconds_timer(cur, seconds)
 #define ws_common_neighbor_update(cur, ll_address) ((void) 0)
 #define ws_common_aro_failure(cur, ll_address)
+#define ws_common_neighbor_remove(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
-#define ws_common_allow_child_registration(cur) (false)
+#define ws_common_allow_child_registration(cur, eui64) (false)
 
 
 #endif //HAVE_WS

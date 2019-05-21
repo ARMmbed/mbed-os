@@ -27,8 +27,8 @@
  *
  */
 
-#define WS_RPL_DIO_IMIN 14
-#define WS_RPL_DIO_DOUBLING 3
+#define WS_RPL_DIO_IMIN 15
+#define WS_RPL_DIO_DOUBLING 2
 #define WS_RPL_DIO_REDUNDANCY 0
 
 
