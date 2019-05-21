@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.1.0
- * @date     18. March 2019
+ * @version  V1.1.1
+ * @date     15. May 2019
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
@@ -509,10 +509,11 @@ __STATIC_INLINE void __FPU_Enable(void)
 #endif
 
     //Initialise FPSCR to a known state
-    "        VMRS    R2,FPSCR          \n"
-    "        LDR     R3,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-    "        AND     R2,R2,R3          \n"
-    "        VMSR    FPSCR,R2            "
+    "        VMRS    R1,FPSCR          \n"
+    "        LDR     R2,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+    "        AND     R1,R1,R2          \n"
+    "        VMSR    FPSCR,R1            "
+    : : : "cc", "r1", "r2"
   );
 }
 
