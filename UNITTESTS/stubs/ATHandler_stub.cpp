@@ -17,7 +17,6 @@
 
 #include <ctype.h>
 #include "nsapi_types.h"
-#include "ATHandler.h"
 #include "events/EventQueue.h"
 #include "ATHandler_stub.h"
 
@@ -27,6 +26,7 @@ using namespace events;
 #include "CellularLog.h"
 
 const int DEFAULT_AT_TIMEOUT = 1000; // at default timeout in milliseconds
+const uint8_t MAX_RESP_LENGTH = 7;
 
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
@@ -55,9 +55,6 @@ bool ATHandler_stub::process_oob_urc = false;
 int ATHandler_stub::read_string_index = kRead_string_table_size;
 const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
-int ATHandler_stub::urc_amount = 0;
-mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
-char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {NULL};
 
 bool ATHandler_stub::get_debug_flag = false;
 uint8_t ATHandler_stub::set_debug_call_count = 0;
@@ -86,17 +83,14 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _nextATHandler(0),
     _fileHandle(fh),
     _queue(queue),
-    _ref_count(1)
+    _ref_count(1),
+    _oob_string_max_length(0),
+    _oobs(NULL),
+    _max_resp_length(MAX_RESP_LENGTH)
 {
     ATHandler_stub::ref_count = 1;
 
     ATHandler_stub::process_oob_urc = false;
-    ATHandler_stub::urc_amount = 0;
-    int i = 0;
-    while (i < kATHandler_urc_table_max_size) {
-        ATHandler_stub::callback[i] = NULL;
-        ATHandler_stub::urc_string_table[i++] = NULL;
-    }
 }
 
 void ATHandler::set_debug(bool debug_on)
@@ -115,15 +109,10 @@ bool ATHandler::get_debug() const
 ATHandler::~ATHandler()
 {
     ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
-
-    int i = 0;
-    while (i < kATHandler_urc_table_max_size) {
-        if (ATHandler_stub::urc_string_table[i]) {
-            delete [] ATHandler_stub::urc_string_table[i];
-            i++;
-        } else {
-            break;
-        }
+    while (_oobs) {
+        struct oob_t *oob = _oobs;
+        _oobs = oob->next;
+        delete oob;
     }
 }
 
@@ -154,6 +143,19 @@ void ATHandler::set_file_handle(FileHandle *fh)
 {
 }
 
+bool ATHandler::find_urc_handler(const char *prefix)
+{
+    struct oob_t *oob = _oobs;
+    while (oob) {
+        if (strcmp(prefix, oob->prefix) == 0) {
+            return true;
+        }
+        oob = oob->next;
+    }
+
+    return false;
+}
+
 void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     if (!cb) {
@@ -161,19 +163,25 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
         return;
     }
 
-    if (ATHandler_stub::urc_amount < kATHandler_urc_table_max_size) {
-        ATHandler_stub::callback[ATHandler_stub::urc_amount] = cb;
-        if (urc) {
-            ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount] = new char[kATHandler_urc_string_max_size];
-            memset(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount], 0, sizeof(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount]));
-            int bytes_to_copy = strlen(urc) < kATHandler_urc_string_max_size ? strlen(urc) : kATHandler_urc_string_max_size;
-            memcpy(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount], urc, bytes_to_copy);
-        }
-        ATHandler_stub::urc_amount++;
-    } else {
-        ATHandler_stub::callback[0] = cb;
-        MBED_ASSERT("ATHandler URC amount limit reached");
+    if (find_urc_handler(urc)) {
+        return;
     }
+
+    struct oob_t *oob = new struct oob_t;
+    size_t prefix_len = strlen(urc);
+    if (prefix_len > _oob_string_max_length) {
+        _oob_string_max_length = prefix_len;
+        if (_oob_string_max_length > _max_resp_length) {
+            _max_resp_length = _oob_string_max_length;
+        }
+    }
+
+    oob->prefix = urc;
+    oob->prefix_len = prefix_len;
+    oob->cb = cb;
+    oob->next = _oobs;
+    _oobs = oob;
+
     if (ATHandler_stub::call_immediately) {
         cb();
     }
@@ -181,19 +189,20 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 
 void ATHandler::remove_urc_handler(const char *prefix)
 {
-    bool found_urc = false;
-    for (int i = 0; i < ATHandler_stub::urc_amount; i++) {
-        if (found_urc && i < 0) {
-            ATHandler_stub::urc_string_table[i - 1] = ATHandler_stub::urc_string_table[i];
-            ATHandler_stub::urc_string_table[i] = 0;
-        } else if (ATHandler_stub::urc_string_table[i] && strcmp(prefix, ATHandler_stub::urc_string_table[i]) == 0) {
-            delete [] ATHandler_stub::urc_string_table[i];
-            ATHandler_stub::urc_string_table[i] = 0;
-            found_urc = true;
+    struct oob_t *current = _oobs;
+    struct oob_t *prev = NULL;
+    while (current) {
+        if (strcmp(prefix, current->prefix) == 0) {
+            if (prev) {
+                prev->next = current->next;
+            } else {
+                _oobs = current->next;
+            }
+            delete current;
+            break;
         }
-    }
-    if (found_urc) {
-        ATHandler_stub::urc_amount--;
+        prev = current;
+        current = prev->next;
     }
 }
 
@@ -232,21 +241,13 @@ void ATHandler::restore_at_timeout()
 void ATHandler::process_oob()
 {
     if (ATHandler_stub::process_oob_urc) {
-        int i = 0;
-        while (i < ATHandler_stub::urc_amount) {
-            if (ATHandler_stub::read_string_index >= 0) {
-                int len = 0;
-                if (ATHandler_stub::urc_string_table[i]) {
-                    len = strlen(ATHandler_stub::urc_string_table[i]);
-                }
-                if (!memcmp(ATHandler_stub::urc_string_table[i],
-                            ATHandler_stub::read_string_table[ATHandler_stub::read_string_index],
-                            len)) {
-                    ATHandler_stub::callback[i]();
-                    break;
-                }
+        size_t prefix_len = 0;
+        for (struct oob_t *oob = _oobs; oob; oob = oob->next) {
+            prefix_len = oob->prefix_len;
+            if (!memcmp(oob->prefix, ATHandler_stub::read_string_table[ATHandler_stub::read_string_index], prefix_len)) {
+                oob->cb();
+                break;
             }
-            i++;
         }
     }
 }

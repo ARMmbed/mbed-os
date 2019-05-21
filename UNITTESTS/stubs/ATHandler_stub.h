@@ -56,7 +56,6 @@ extern uint8_t info_elem_true_counter;
 extern uint8_t uint8_value;
 extern mbed::FileHandle_stub *fh_value;
 extern mbed::device_err_t device_err_value;
-extern mbed::Callback<void()> callback[kATHandler_urc_table_max_size];
 extern bool call_immediately;
 extern const char *read_string_table[kRead_string_table_size];
 extern int read_string_index;
@@ -64,8 +63,6 @@ extern int int_valid_count_table[kRead_int_table_size];
 extern int int_count;
 extern int resp_stop_success_count;
 extern bool process_oob_urc;
-extern int urc_amount;
-extern char *urc_string_table[kATHandler_urc_table_max_size];
 
 extern bool get_debug_flag;
 bool is_get_debug_run();
