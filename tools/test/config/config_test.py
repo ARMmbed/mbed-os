@@ -252,16 +252,3 @@ def test_parameters_and_config_macros_to_macros():
 
     macro_list = Config._parameters_and_config_macros_to_macros(params, macros)
     assert macro_list == ["CUSTOM_MACRO_NAME=1"]
-
-
-@pytest.mark.parametrize("target_start_size", [
-    ("FUTURE_SEQUANA_PSA", 0x10080000, 0x78000),
-    ("FUTURE_SEQUANA_M0_PSA", 0x10000000, 0x80000)
-])
-def test_PSA_overrides(target_start_size):
-    target, start, size = target_start_size
-    set_targets_json_location()
-    config = Config(target)
-    roms = config.get_all_active_memories(ROM_ALL_MEMORIES)
-    assert("ROM" in roms)
-    assert(roms["ROM"] == [start, size])

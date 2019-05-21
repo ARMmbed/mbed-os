@@ -8426,52 +8426,6 @@
             }
         }
     },
-    "FUTURE_SEQUANA_M0_PSA": {
-        "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "macros_add": [
-            "MBED_TICKLESS",
-            "PSOC6_DYNSRM_DISABLE=1",
-            "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C",
-            "MBEDTLS_ENTROPY_NV_SEED"
-        ],
-        "deliver_to_target": "FUTURE_SEQUANA_PSA",
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6_FUTURE/TARGET_FUTURE_SEQUANA_PSA/prebuilt",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
-            "non-secure-rom-start": "0x10080000",
-            "non-secure-rom-size": "0x78000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37700",
-            "shared-ram-start": "0x08047700",
-            "shared-ram-size": "0x100"
-        }
-    },
-    "FUTURE_SEQUANA_PSA": {
-        "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "extra_labels_remove": ["CORDIO"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],
-        "hex_filename": "psa_release_1.0.hex",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
-            "non-secure-rom-start": "0x10080000",
-            "non-secure-rom-size": "0x78000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37700",
-            "shared-ram-start": "0x08047700",
-            "shared-ram-size": "0x100"
-        }
-    },
     "TMPM3HQ": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
