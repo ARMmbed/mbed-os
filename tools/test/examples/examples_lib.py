@@ -16,11 +16,12 @@ See the License for the specific language governing permissions and
 limitations 
 """
 import os
-from os.path import dirname, abspath, basename
+from os.path import dirname, abspath, basename, join, normpath
 import os.path
 import sys
 import subprocess
 from shutil import rmtree
+import json
 
 """ Import and bulid a bunch of example programs
 
@@ -37,6 +38,7 @@ from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
 from tools.project import EXPORTER_ALIASES
 from tools.toolchains import TOOLCHAINS
+from tools.utils import write_json_to_file
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
 SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() + EXPORTER_ALIASES.keys()
@@ -369,7 +371,9 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
 
     """
     results = {}
+    test_json = {"builds":{}}
     valid_examples = set(examples)
+    base_path = os.getcwd()
     print("\nCompiling example repos....\n")
     for example in config['examples']:
         example_names = [basename(x['repo']) for x in get_repo_list(example)]
@@ -380,31 +384,66 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
         successes = []
         compiled = True
         pass_status = True
+        if example.has_key('test') and example['test'] and example.has_key('baud_rate') and example.has_key('compare_log'):
+            test_example = True
+        else:
+            test_example = False
         if example['compile']:
             for repo_info in get_repo_list(example):
                 name = basename(repo_info['repo'])
                 os.chdir(name)
-
                 # Check that the target, toolchain and features combinations are valid and return a
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(valid_choices(example['targets'], targets),
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
-                    print("Compiling %s for %s, %s" % (name, target, toolchain))
+                    
                     build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target] + (['-v'] if verbose else [])
-
                     if profile:
                         build_command.append("--profile")
                         build_command.append(profile)
+                    
+                    print("Compiling [%s] for [%s] with toolchain [%s]\n\n>  %s" % (name, target, toolchain, " ".join(build_command)))
+                    
+                    proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                    proc = subprocess.Popen(build_command)
-
-                    proc.wait()
+                    std_out, std_err = proc.communicate()
+                    print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
+                    
+                    if test_example:
+                        log = example['compare_log'].pop(0)
+                        # example['compare_log'] is a list of log file/files, which matches each examples/sub-examples from same repo. 
+                        # pop the log file out of list regardless the compilation for each example pass of fail
+                        image = fetch_output_image(std_out)
+                        if image:
+                            image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
+                        else:
+                            print ("Warning: could not find built image for example %s" % name)
+                        
                     example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
-                        successes.append(example_summary)
+                        if test_example:
+                            test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
+                            if image:
+                                if not test_json['builds'].has_key(test_group):
+                                    test_json['builds'][test_group] = {
+                                        "platform":target ,
+                                        "toolchain": toolchain ,
+                                        "base_path": base_path ,
+                                        "baud_rate": int(example['baud_rate']), 
+                                        "tests":{} }
+                                test_json['builds'][test_group]['tests'][name]={"binaries":image_info}
+                                test_status = "TEST_ON"
+                            else:
+                                test_status = "NO_IMAGE"
+                        else:
+                            print("Warning: Test for %s will not be generated." % name)
+                            print("One or more of 'test', 'baud_rate', and 'compare_log' keys are missing from the example config json file\n")
+                            test_status = "TEST_OFF"
+                        successes.append(example_summary + " " + test_status)
+
                 os.chdir("..")
 
             # If there are any compilation failures for the example 'set' then the overall status is fail.
@@ -415,6 +454,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
 
         results[example['name']] = [compiled, pass_status, successes, failures]
 
+    write_json_to_file(test_json, "test_spec.json")
     return results
 
 
@@ -443,4 +483,14 @@ def update_mbedos_version(config, tag, examples):
                 return result
     
     return 0
-  
+
+def fetch_output_image(output):
+    """Find the build image from the last 5 lines of a given log"""
+    lines = output.splitlines()
+    last_index = -6 if len(lines)>4 else (-1 - len(lines))
+    for index in range(-1,last_index,-1):
+        if lines[index].startswith("Image:"):
+            image = lines[index][7:]
+            if os.path.isfile(image):
+                return image
+    return False
