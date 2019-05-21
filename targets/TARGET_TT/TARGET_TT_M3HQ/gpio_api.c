@@ -36,9 +36,11 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     // Store above pin mask, pin name into GPIO object
     obj->pin = pin;
-    obj->mask = gpio_set(pin);
-    obj->port = (PortName) (pin >> 3);
-    TSB_CG->FSYSENA |= (1<<(obj->port));
+    if (pin != NC) {
+        obj->mask = gpio_set(pin);
+        obj->port = (PortName) (pin >> 3);
+        TSB_CG->FSYSENA |= (1<<(obj->port));
+    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)

@@ -45,13 +45,13 @@ uint32_t gpio_set(PinName pin)
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
+    obj->pin = pin;
     if (pin == (PinName)NC) {
         return;
     }
     
     obj->port_num = WIZ_PORT(pin);
     obj->pin_index    = WIZ_PIN_INDEX(pin);
-    obj->pin = pin;
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(obj->port_num);
     obj->reg_data_in    = &gpio->DATA;
 }
