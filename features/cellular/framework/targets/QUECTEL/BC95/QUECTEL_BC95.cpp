@@ -102,7 +102,7 @@ nsapi_error_t QUECTEL_BC95::init()
 CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_QUECTEL_BC95_TX, MBED_CONF_QUECTEL_BC95_RX, MBED_CONF_QUECTEL_BC95_BAUDRATE);
-#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+#if defined(MBED_CONF_QUECTEL_BC95_RTS) && defined(MBED_CONF_QUECTEL_BC95_CTS)
     tr_debug("QUECTEL_BC95 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_BC95_RTS, MBED_CONF_QUECTEL_BC95_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_BC95_RTS, MBED_CONF_QUECTEL_BC95_CTS);
 #endif
