@@ -61,7 +61,7 @@ public:
         GattCharacteristic *hrmChars[] = {&tempMeasurement, &tempLocation, };
         GattService         hrmService(GattService::UUID_HEALTH_THERMOMETER_SERVICE, hrmChars, sizeof(hrmChars) / sizeof(GattCharacteristic *));
 
-        ble.addService(hrmService);
+        ble.gattServer().addService(hrmService);
     }
 
     /**
@@ -72,10 +72,8 @@ public:
     *
     */
     void updateTemperature(float temperature) {
-        if (ble.getGapState().connected) {
-            valueBytes.updateTemperature(temperature);
-            ble.gattServer().write(tempMeasurement.getValueHandle(), valueBytes.getPointer(), sizeof(TemperatureValueBytes));
-        }
+        valueBytes.updateTemperature(temperature);
+        ble.gattServer().write(tempMeasurement.getValueHandle(), valueBytes.getPointer(), sizeof(TemperatureValueBytes));
     }
 
     /**
