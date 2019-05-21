@@ -298,6 +298,21 @@ extern void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn
  */
 extern uint16_t sn_coap_protocol_get_configured_blockwise_size(struct coap_s *handle);
 
+/**
+ * \fn void sn_coap_protocol_linked_list_duplication_info_remove(struct coap_s *handle, const uint8_t *src_addr_ptr, const uint16_t port, const uint16_t msg_id);
+ *
+ * \brief Removes stored Duplication info from Linked list.
+ *
+ * \param *handle Pointer to CoAP library handle
+ * \param *addr_ptr is pointer to Address key to be removed
+ * \param port is Port key to be removed
+ * \param msg_id is Message ID key to be removed
+ */
+extern void sn_coap_protocol_linked_list_duplication_info_remove(struct coap_s *handle,
+                                                                 const uint8_t *src_addr_ptr,
+                                                                 const uint16_t port,
+                                                                 const uint16_t msg_id);
+
 #endif /* SN_COAP_PROTOCOL_H_ */
 
 #ifdef __cplusplus

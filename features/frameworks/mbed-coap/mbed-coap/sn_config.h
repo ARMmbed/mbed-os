@@ -21,6 +21,14 @@
 #include MBED_CLIENT_USER_CONFIG_FILE
 #endif
 
+#ifdef MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#include MBED_CLOUD_CLIENT_USER_CONFIG_FILE
+#endif
+
+#ifdef MBED_CLOUD_CLIENT_CONFIGURATION_ENABLED
+#include "mbed-cloud-client/MbedCloudClientConfig.h"
+#endif
+
 /**
 * \brief Configuration options (set of defines and values)
 *
