@@ -142,7 +142,7 @@ static const uint16_t delay_loop_code[] = {
 };
 
 /* Take the address of the code, set LSB to indicate Thumb, and cast to void() function pointer */
-#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code | 1))
+#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code + 1))
 
 void wait_ns(unsigned int ns)
 {
