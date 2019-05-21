@@ -165,6 +165,18 @@ SECTIONS
 
     } > RAM AT > FLASH
 
+    .bss (NOLOAD):
+    {
+        . = ALIGN(4);
+        __bss_start__ = .;
+        _sbss = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __bss_end__ = .;
+        _ebss = .;
+    } > RAM
+
     /* Uninitialized data section
      * This region is not initialized by the C/C++ library and can be used to
      * store state across soft reboots. */
@@ -176,18 +188,6 @@ SECTIONS
         KEEP(*(.keep.uninitialized))
         . = ALIGN(32);
         __uninitialized_end = .;
-    } > RAM
-
-    .bss (NOLOAD):
-    {
-        . = ALIGN(4);
-        __bss_start__ = .;
-        _sbss = .;
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-        _ebss = .;
     } > RAM
 
     .heap (NOLOAD):
