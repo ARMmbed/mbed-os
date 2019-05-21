@@ -246,6 +246,11 @@
 #define LWIP_TCP                    1
 #define TCP_OVERSIZE                0
 #define LWIP_TCP_KEEPALIVE          1
+#ifdef MBED_CONF_TCP_CLOSE_TIMEOUT
+#define TCP_CLOSE_TIMEOUT            MBED_CONF_TCP_CLOSE_TIMEOUT
+#else
+#define TCP_CLOSE_TIMEOUT            1000
+#endif
 #else
 #define LWIP_TCP                    0
 #endif
