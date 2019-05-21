@@ -60,7 +60,7 @@ def _psa_backend(target):
     return 'TFM' if 'TFM' in Target.get_target(target).labels else 'MBED_SPM'
 
 
-def _get_target_info(target):
+def _get_target_info(target, toolchain):
     """
     Creates a PSA target tuple with default toolchain and
     artifact delivery directory.
@@ -74,7 +74,14 @@ def _get_target_info(target):
     if not os.path.exists(delivery_dir):
         raise Exception("{} does not have delivery_dir".format(target))
 
-    return tuple([TARGET_MAP[target].name,
+    if toolchain:
+        if toolchain not in TARGET_MAP[target].supported_toolchains:
+            raise Exception("Toolchain {} is not supported by {}".format(toolchain, TARGET_MAP[target].name))
+        return tuple([TARGET_MAP[target].name,
+                      toolchain,
+                      delivery_dir])
+    else:
+        return tuple([TARGET_MAP[target].name,
                   TARGET_MAP[target].default_toolchain,
                   delivery_dir])
 
@@ -105,7 +112,7 @@ def verbose_check_call(cmd, check_call=True):
     return subprocess.call(cmd, stdout=subprocess_output, stderr=subprocess_err)
 
 
-def get_mbed_official_psa_release(target=None):
+def get_mbed_official_psa_release(target=None, toolchain=None):
     """
     Creates a list of PSA targets with default toolchain and
     artifact delivery directory.
@@ -117,9 +124,9 @@ def get_mbed_official_psa_release(target=None):
     logger.debug("Found the following PSA targets: {}".format(
         ', '.join(psa_secure_targets)))
     if target is not None:
-        return [_get_target_info(target)]
+        return [_get_target_info(target, toolchain)]
 
-    return [_get_target_info(t) for t in psa_secure_targets]
+    return [_get_target_info(t, toolchain) for t in psa_secure_targets]
 
 
 def create_mbed_ignore(build_dir):
@@ -142,6 +149,11 @@ def build_tests(target, toolchain, profile, args):
     :param profile: build profile.
     :param args: list of extra arguments.
     """
+    build_dir = os.path.join(ROOT, 'BUILD', 'tests', target)
+    if os.path.exists(build_dir):
+        logger.info("BUILD directory deleted: {}".format(build_dir))
+        shutil.rmtree(build_dir)
+
     for test in PSA_TESTS.keys():
         logger.info(
             "Building tests image({}) for {} using {} with {} profile".format(
@@ -155,11 +167,9 @@ def build_tests(target, toolchain, profile, args):
             '-t', toolchain,
             '-m', target,
             '--source', ROOT,
-            '--build', os.path.join(ROOT, 'BUILD', 'tests', target),
-            '--test-spec', os.path.join(ROOT, 'BUILD', 'tests',
-                                        target, 'test_spec.json'),
-            '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
-                                         target, 'build_data.json'),
+            '--build', build_dir,
+            '--test-spec', os.path.join(build_dir, 'test_spec.json'),
+            '--build-data', os.path.join(build_dir, 'build_data.json'),
             '-n', test] + test_defines + args
 
         if _psa_backend(target) is 'TFM':
@@ -182,13 +192,18 @@ def build_default_image(target, toolchain, profile, args):
     logger.info("Building default image for {} using {} with {} profile".format(
         target, toolchain, profile))
 
+    build_dir = os.path.join(ROOT, 'BUILD', target)
+    if os.path.exists(build_dir):
+        logger.info("BUILD directory deleted: {}".format(build_dir))
+        shutil.rmtree(build_dir)
+
     cmd = [
         sys.executable, MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
         '--profile', profile,
         '--source', ROOT,
-        '--build', os.path.join(ROOT, 'BUILD', target)] + args
+        '--build', build_dir] + args
 
     if _psa_backend(target) is 'TFM':
         cmd += ['--app-config', TFM_MBED_APP]
@@ -200,7 +215,7 @@ def build_default_image(target, toolchain, profile, args):
         "Finished building default image for {} successfully".format(target))
 
 
-def commit_binaries(target, delivery_dir):
+def commit_binaries(target, delivery_dir, toolchain):
     """
     Commits changes in secure binaries.
 
@@ -222,8 +237,8 @@ def commit_binaries(target, delivery_dir):
             'add', os.path.relpath(delivery_dir, ROOT)])
 
         logger.info("Committing images for {}".format(target))
-        commit_message = '--message="Update secure binaries for {}"'.format(
-            target)
+        commit_message = '--message="Update secure binaries for %s (%s)"' % (
+            target, toolchain)
         verbose_check_call([
             'git',
             '-C', ROOT,
@@ -252,7 +267,7 @@ def build_psa_platform(target, toolchain, delivery_dir, debug, git_commit,
 
     build_default_image(target, toolchain, profile, args)
     if git_commit:
-        commit_binaries(target, delivery_dir)
+        commit_binaries(target, delivery_dir, toolchain)
 
 
 def get_parser():
@@ -262,6 +277,10 @@ def get_parser():
                         default=None,
                         choices=_get_psa_secure_targets_list(),
                         metavar="MCU")
+
+    parser.add_argument("-t", "--tc",
+                        help="build for the given tool chain (default is default_toolchain)",
+                        default=None)
 
     parser.add_argument("-d", "--debug",
                         help="set build profile to debug",
@@ -298,16 +317,10 @@ def get_parser():
 
 
 def prep_build_dir():
-    """
-    Creates a clean BUILD directory
-    """
     build_dir = os.path.join(ROOT, 'BUILD')
-    if os.path.exists(build_dir):
-        logger.debug("BUILD directory already exists... Deleting")
-        shutil.rmtree(build_dir)
-
-    os.makedirs(build_dir)
-    logger.info("BUILD directory created in {}".format(build_dir))
+    if not os.path.exists(build_dir):
+        logger.info("BUILD directory created in {}".format(build_dir))
+        os.makedirs(build_dir)
     create_mbed_ignore(build_dir)
 
 
@@ -326,7 +339,7 @@ def main():
         return
 
     prep_build_dir()
-    psa_platforms_list = get_mbed_official_psa_release(options.mcu)
+    psa_platforms_list = get_mbed_official_psa_release(options.mcu, options.tc)
     logger.info("Building the following platforms: {}".format(
         ', '.join([t[0] for t in psa_platforms_list])))
 

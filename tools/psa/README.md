@@ -35,12 +35,14 @@ For an application with custom secure portions, the secure image should be gener
 
 ### Usage
 ```text
-usage: release.py [-h] [-m MCU] [-d] [-q] [-l] [--commit] [--skip-tests]
-                  [-x ...]
+usage: release.py [-h] [-m MCU] [-t TC] [-d] [-q] [-l] [--commit]
+                  [--skip-tests] [-x ...]
 
 optional arguments:
   -h, --help           show this help message and exit
   -m MCU, --mcu MCU    build for the given MCU
+  -t TC, --tc TC       build for the given tool chain (default is
+                       default_toolchain)
   -d, --debug          set build profile to debug
   -q, --quiet          No Build log will be printed
   -l, --list           Print supported PSA secure targets
@@ -50,6 +52,7 @@ optional arguments:
 ```
 
 * When `MCU ` is not specified, the script compiles all the images for all the targets.
+* When `-t/--tc` is not specified, the script compiles with the default_toolchain speciified in targets.json.
 * When `-d/--debug` is not specified, the script compiles the images using the release profile.
 * When `--commit` is not specified, the script will not commit the images to git.
 * A user can specify additional commands that will be passed on to the build commands (Ex. -D for compilation defines).
