@@ -1,6 +1,0 @@
-{
-    "name": "SecureStore",
-    "macros": ["MBEDTLS_CIPHER_MODE_CTR", "MBEDTLS_CMAC_C"],
-    "config": {
-    }
-}

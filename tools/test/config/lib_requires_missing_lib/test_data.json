@@ -1,5 +1,0 @@
-{
-    "test_target": {
-    	"exception_msg": "'lib2' requires 'lib3' which is not present"
-    }
-}

@@ -1,4 +1,0 @@
-{
-  "name": "bare-metal",
-  "requires": ["platform", "drivers"]
-}

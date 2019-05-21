@@ -1,8 +1,0 @@
-{
-    "K64F": {
-        "exception_msg": "not found"
-    },
-    "LPC1768": {
-        "exception_msg": "not found"
-    }
-}
