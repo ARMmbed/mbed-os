@@ -153,6 +153,22 @@
         "wisun-uc-dwell-interval": {
             "help": "Unicast dwell interval. Range: 15-255 milliseconds",
             "value": 0
+        },
+        "certificate-header": {
+            "help": "File name of the certificate header file (used on include directive)",
+            "value": null
+        },
+        "root-certificate": {
+            "help": "Root certificate in PEM format (must be a null terminated c-string)",
+            "value": null
+        },
+        "own-certificate": {
+            "help": "Own certificate in PEM format (must be a null terminated c-string)",
+            "value": null
+        },
+        "own-certificate-key": {
+            "help": "Own certificate's key in PEM format (must be a null terminated c-string)",
+            "value": null
         }
     },
     "target_overrides": {
