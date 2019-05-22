@@ -57,12 +57,6 @@
 #   define DEBUG_PRINTF(...) {}
 #endif
 
-#if DEVICE_I2C_ASYNCH
-#define I2C_S(obj) (struct i2c_s *) (&((obj)->i2c))
-#else
-#define I2C_S(obj) (struct i2c_s *) (obj)
-#endif
-
 /*  Family specific description for I2C */
 #define I2C_NUM (5)
 static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
@@ -133,7 +127,7 @@ static void i2c5_irq(void)
 
 void i2c_ev_err_enable(i2c_t *obj, uint32_t handler)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
     IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
     /*  default prio in master case is set to 2 */
@@ -161,7 +155,7 @@ void i2c_ev_err_enable(i2c_t *obj, uint32_t handler)
 
 void i2c_ev_err_disable(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     IRQn_Type irq_event_n = obj_s->event_i2cIRQ;
     IRQn_Type irq_error_n = obj_s->error_i2cIRQ;
 
@@ -171,7 +165,7 @@ void i2c_ev_err_disable(i2c_t *obj)
 
 uint32_t i2c_get_irq_handler(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     uint32_t handler = 0;
 
@@ -210,7 +204,7 @@ uint32_t i2c_get_irq_handler(i2c_t *obj)
 void i2c_hw_reset(i2c_t *obj)
 {
     int timeout;
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
@@ -260,7 +254,7 @@ void i2c_hw_reset(i2c_t *obj)
 
 void i2c_sw_reset(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     /*  SW reset procedure:
      *  PE must be kept low during at least 3 APB clock cycles
@@ -279,7 +273,7 @@ void i2c_sw_reset(i2c_t *obj)
 
 static int i2c_slave_read(i2c_t *obj, uint8_t *data, int length)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int ret = 0;
     uint32_t timeout = 0;
@@ -303,7 +297,7 @@ static int i2c_slave_read(i2c_t *obj, uint8_t *data, int length)
 
 static int i2c_slave_write(i2c_t *obj, const uint8_t *data, int length)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int ret = 0;
     uint32_t timeout = 0;
@@ -342,8 +336,7 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 {
-
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
 
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
@@ -448,7 +441,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 
 void i2c_free(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
 
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
@@ -459,7 +452,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 {
     int timeout;
     uint32_t selected_frequency = frequency;
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     // wait before init
@@ -573,7 +566,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 
 void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     obj_s->clock_stretching_enabled =
@@ -594,7 +587,7 @@ void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 
 void i2c_timeout(i2c_t *obj, uint32_t timeout)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     obj_s->timeout = timeout;
 }
 
@@ -622,7 +615,7 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c)
 void i2c_start(i2c_t *obj)
 {
     int timeout;
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     // Clear Acknowledge failure flag
@@ -651,7 +644,7 @@ void i2c_start(i2c_t *obj)
 
 void i2c_stop(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
 
     // Generate the STOP condition
@@ -676,14 +669,14 @@ void i2c_stop(i2c_t *obj)
 
 void i2c_start(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     /*  This I2C IP doesn't  */
     obj_s->pending_start = 1;
 }
 
 void i2c_stop(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int timeout = FLAG_TIMEOUT;
 #if DEVICE_I2CSLAVE
@@ -738,9 +731,9 @@ void i2c_stop(i2c_t *obj)
 /*
  *  SYNC APIS
  */
-int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, bool last)
+int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, bool stop)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
 #ifdef DEVICE_I2CSLAVE
@@ -754,14 +747,14 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, b
     uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
     uint32_t op2 = I2C_LAST_FRAME;
     if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
-        if (last) {
+        if (stop) {
             obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
         } else {
             obj_s->XferOperation = I2C_FIRST_FRAME;
         }
     } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
                (obj_s->XferOperation == I2C_NEXT_FRAME)) {
-        if (last) {
+        if (stop) {
             obj_s->XferOperation = I2C_LAST_FRAME;
         } else {
             obj_s->XferOperation = I2C_NEXT_FRAME;
@@ -823,7 +816,7 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, b
 
 int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t length, bool stop)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
 #ifdef DEVICE_I2CSLAVE
@@ -904,7 +897,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     obj_s->tx_complete = 1;
@@ -956,7 +949,7 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     /* Set event flag */
@@ -984,7 +977,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
 #if DEVICE_I2CSLAVE
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     uint16_t address = 0;
@@ -1063,7 +1056,7 @@ const PinMap *i2c_slave_scl_pinmap()
 /* SLAVE API FUNCTIONS */
 void i2c_slave_address(i2c_t *obj, uint16_t address)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     // I2C configuration
@@ -1079,7 +1072,7 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
 
     /*  Transfer direction in HAL is from Master point of view */
     if (TransferDirection == I2C_DIRECTION_RECEIVE) {
@@ -1095,7 +1088,7 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(I2cHandle);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     obj_s->pending_slave_tx_master_rx = 0;
 }
 
@@ -1103,7 +1096,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(I2cHandle);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     obj_s->pending_slave_rx_maxter_tx = 0;
 }
 
@@ -1115,7 +1108,7 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
 
 i2c_slave_status_t i2c_slave_status(i2c_t *obj)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
 
     i2c_slave_status_t retValue = NoData;
 
@@ -1137,7 +1130,7 @@ void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     /* Disable IT. Not always done before calling macro */
@@ -1174,7 +1167,7 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length,
                         uint8_t *rx, uint32_t rx_length, uint16_t address,
                         bool stop, i2c_async_handler_f handler, void *ctx)
 {
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     HAL_StatusTypeDef ret = HAL_ERROR;
 
@@ -1259,7 +1252,7 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length,
 void i2c_abort_async(i2c_t *obj)
 {
 
-    struct i2c_s *obj_s = I2C_S(obj);
+    struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     /* Abort HAL requires DevAddress, but is not used. Use Dummy */
