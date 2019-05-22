@@ -22,7 +22,7 @@
 #ifndef MBED_SYS_TIMER_H
 #define MBED_SYS_TIMER_H
 
-#if DEVICE_LPTICKER || defined(DOXYGEN_ONLY)
+#if MBED_TICKLESS || defined(DOXYGEN_ONLY)
 
 #include "platform/NonCopyable.h"
 #include "drivers/TimerEvent.h"
