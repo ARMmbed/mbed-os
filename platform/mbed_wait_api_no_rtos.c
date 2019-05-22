@@ -99,9 +99,13 @@ void wait_us(int us)
  * functions well. So sidestep that by hand-assembling the code. Also avoids
  * the hassle of handling multiple toolchains with different assembler
  * syntax.
+ *
+ * Not all chips' flash are non-zero wait state. These chips usually have cache to
+ * improve performance. To avoid non-zero wait state and non-constant instruction
+ * cycles, this thumb code is located on SRAM instead of on flash.
  */
 MBED_ALIGN(8)
-static const uint16_t delay_loop_code[] = {
+static uint16_t delay_loop_code[] = {
     0x1E40, // SUBS R0,R0,#1
     0xBF00, // NOP
     0xBF00, // NOP
@@ -120,6 +124,10 @@ void wait_ns(unsigned int ns)
     // worth at least one loop iteration.
     uint32_t count = (cycles_per_us * ns) / LOOP_SCALER;
 
+    mbed_mpu_manager_lock_ram_execution();
+
     delay_loop(count);
+    
+    mbed_mpu_manager_unlock_ram_execution();
 }
 #endif // LOOP_SCALER
