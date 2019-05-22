@@ -3130,7 +3130,6 @@
             "lpticker_delay_ticks": 4,
             "network-default-interface-type": "WIFI"
         },
-        "components_add": ["SPIF"],
         "detect_code": ["9020"],
         "device_has_add": ["ANALOGOUT", "CAN", "TRNG", "FLASH", "MPU"],
         "device_has_remove": ["SERIAL_FC"],
