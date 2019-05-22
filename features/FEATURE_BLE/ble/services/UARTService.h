@@ -26,8 +26,11 @@
 
 #include "ble/UUID.h"
 #include "ble/BLE.h"
+#include "ble/pal/Deprecated.h"
 
 #if BLE_FEATURE_GATT_SERVER
+
+BLE_DEPRECATED_API_USE_BEGIN()
 
 extern const uint8_t  UARTServiceBaseUUID[UUID::LENGTH_OF_LONG_UUID];
 extern const uint16_t UARTServiceShortUUID;
@@ -222,6 +225,8 @@ protected:
                                            *   they'd read from in order to receive the bytes transmitted by this
                                            *   application. */
 };
+
+BLE_DEPRECATED_API_USE_END()
 
 #endif // BLE_FEATURE_GATT_SERVER
 
