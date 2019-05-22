@@ -198,6 +198,39 @@ nsapi_error_t LWIP::get_dns_server(int index, SocketAddress *address, const char
     return NSAPI_ERROR_NO_ADDRESS;
 }
 
+nsapi_error_t LWIP::add_dns_server(const SocketAddress &address, const char *interface_name)
+{
+    int index;
+    nsapi_addr_t addr = address.get_addr();
+    const ip_addr_t *ip_addr_move;
+    ip_addr_t ip_addr;
+
+    convert_mbed_addr_to_lwip(&ip_addr, &addr);
+
+    if (ip_addr_isany(&ip_addr)) {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+
+    if (interface_name == NULL) {
+        for (index = DNS_MAX_SERVERS - 1; index > 0; index--) {
+            ip_addr_move = dns_getserver(index - 1, NULL);
+            if (!ip_addr_isany(ip_addr_move)) {
+                dns_setserver(index, ip_addr_move, NULL);
+            }
+        }
+        dns_setserver(0, &ip_addr, NULL);
+    } else {
+        for (index = DNS_MAX_SERVERS - 1; index > 0; index--) {
+            ip_addr_move = dns_get_interface_server(index - 1, interface_name);
+            if (!ip_addr_isany(ip_addr_move)) {
+                dns_add_interface_server(index, interface_name, ip_addr_move);
+            }
+        }
+        dns_add_interface_server(0, interface_name, &ip_addr);
+    }
+    return NSAPI_ERROR_OK;
+}
+
 void LWIP::tcpip_thread_callback(void *ptr)
 {
     lwip_callback *cb = static_cast<lwip_callback *>(ptr);

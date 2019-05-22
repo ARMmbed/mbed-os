@@ -487,7 +487,7 @@ dns_get_interface_server(u8_t numdns, const char *interface_name)
 {
   struct dns_server_interface *interface_server;
 
-  if (numdns < DNS_MAX_SERVERS) {
+  if (numdns >= DNS_MAX_SERVERS) {
     return IP_ADDR_ANY;
   }
 
