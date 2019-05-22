@@ -62,9 +62,6 @@ protected:
         ATHandler_stub::read_string_table[kRead_string_table_size];
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
         CellularDevice_stub::connect_counter = 2;
-        for (int i=0; i < kATHandler_urc_table_max_size; i++) {
-            ATHandler_stub::callback[i] = NULL;
-        }
     }
 
     void TearDown()
