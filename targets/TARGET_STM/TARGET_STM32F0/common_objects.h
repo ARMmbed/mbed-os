@@ -99,7 +99,7 @@ struct i2c_s {
     IRQn_Type error_i2cIRQ;
     uint32_t XferOperation;
     uint32_t clock_stretching_enabled;
-    uint32_t timeout; // transmission timeout in milliseconds
+    uint32_t timeout; // transmission timeout in microseconds
     volatile uint8_t event;
     volatile int pending_start;
 #if DEVICE_I2CSLAVE

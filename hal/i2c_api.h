@@ -148,15 +148,16 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  */
 void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
 
-/** Configure the timeout duration in milliseconds for blocking transmission
+/** Configure the timeout duration in microseconds for blocking transmission
  *
  *  @param obj        The I2C object
- *  @param timeout    Transmission timeout in milliseconds.
+ *  @param timeout    Transmission timeout in microseconds.
  *
  *  @note If no timeout is set the default timeout is used.
  *        Default timeout value is based on I2C frequency.
- *        Is computed as twice amount of time it would take
- *        to send data over I2C
+ *        Byte timeout is computed as triple amount of time it would take
+ *        to send 10bit over I2C and is expressed by the formula:
+ *        3 * (1/frequency * 10 * 1000000)
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
