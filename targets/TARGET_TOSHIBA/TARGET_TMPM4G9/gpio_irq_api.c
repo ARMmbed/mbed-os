@@ -179,14 +179,14 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         // Get gpio interrupt event
         if (event == IRQ_RISE) {
             if ((obj->event == CG_INT_ACTIVE_STATE_FALLING) ||
-                (obj->event == CG_INT_ACTIVE_STATE_BOTH_EDGES)) {
+                    (obj->event == CG_INT_ACTIVE_STATE_BOTH_EDGES)) {
                 obj->event = CG_INT_ACTIVE_STATE_BOTH_EDGES;
             } else {
                 obj->event = CG_INT_ACTIVE_STATE_RISING;
             }
         } else if (event == IRQ_FALL) {
             if ((obj->event == CG_INT_ACTIVE_STATE_RISING) ||
-                (obj->event == CG_INT_ACTIVE_STATE_BOTH_EDGES)) {
+                    (obj->event == CG_INT_ACTIVE_STATE_BOTH_EDGES)) {
                 obj->event = CG_INT_ACTIVE_STATE_BOTH_EDGES;
             } else {
                 obj->event = CG_INT_ACTIVE_STATE_FALLING;
@@ -198,14 +198,14 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         // Get gpio interrupt event
         if (event == IRQ_RISE) {
             if ((obj->event == CG_INT_ACTIVE_STATE_RISING) ||
-                (obj->event == CG_INT_ACTIVE_STATE_INVALID)) {
+                    (obj->event == CG_INT_ACTIVE_STATE_INVALID)) {
                 obj->event = CG_INT_ACTIVE_STATE_BOTH_EDGES;
             } else {
                 obj->event = CG_INT_ACTIVE_STATE_FALLING;
             }
         } else if (event == IRQ_FALL) {
             if ((obj->event == CG_INT_ACTIVE_STATE_FALLING) ||
-                (obj->event == CG_INT_ACTIVE_STATE_INVALID)) {
+                    (obj->event == CG_INT_ACTIVE_STATE_INVALID)) {
                 obj->event = CG_INT_ACTIVE_STATE_BOTH_EDGES;
             } else {
                 obj->event = CG_INT_ACTIVE_STATE_RISING;
