@@ -46,10 +46,10 @@ extern "C" {
 #error Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false
 #endif
 
-#include "rtos/TARGET_CORTEX/SysTimer.h"
+#include "platform/SysTimer.h"
 
-    static rtos::internal::SysTimer *os_timer;
-    static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
+    static mbed::internal::SysTimer *os_timer;
+    static uint64_t os_timer_data[sizeof(mbed::internal::SysTimer) / 8];
 
     // Enable System Timer.
     void OS_Tick_Enable(void)
@@ -57,9 +57,9 @@ extern "C" {
         // Do not use SingletonPtr since this relies on the RTOS
         if (NULL == os_timer) {
 #if MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
-            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_us_ticker_data());
+            os_timer = new (os_timer_data) mbed::internal::SysTimer(get_us_ticker_data());
 #else
-            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_lp_ticker_data());
+            os_timer = new (os_timer_data) mbed::internal::SysTimer(get_lp_ticker_data());
 #endif
             os_timer->setup_irq();
         }

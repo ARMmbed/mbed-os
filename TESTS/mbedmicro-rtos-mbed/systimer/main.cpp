@@ -26,7 +26,7 @@
 extern "C" {
 #include "rtx_lib.h"
 }
-#include "rtos/TARGET_CORTEX/SysTimer.h"
+#include "platform/SysTimer.h"
 
 #define TEST_TICKS 42UL
 #define DELAY_DELTA_US 2500ULL
@@ -44,7 +44,7 @@ using namespace utest::v1;
 const us_timestamp_t DELAY_US = 1000000ULL * TEST_TICKS / OS_TICK_FREQ;
 
 // Override the handler() -- the SysTick interrupt must not be set as pending by the test code.
-class SysTimerTest: public rtos::internal::SysTimer {
+class SysTimerTest: public mbed::internal::SysTimer {
 private:
     Semaphore _sem;
     virtual void handler()

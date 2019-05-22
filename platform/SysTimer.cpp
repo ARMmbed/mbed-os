@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "rtos/TARGET_CORTEX/SysTimer.h"
+#include "platform/SysTimer.h"
 
 #if MBED_TICKLESS
 
@@ -55,7 +55,7 @@ extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
 extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
 #endif
 
-namespace rtos {
+namespace mbed {
 namespace internal {
 
 SysTimer::SysTimer() :

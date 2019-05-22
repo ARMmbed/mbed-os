@@ -27,7 +27,7 @@
 #include "platform/NonCopyable.h"
 #include "drivers/TimerEvent.h"
 
-namespace rtos {
+namespace mbed {
 namespace internal {
 
 /**
