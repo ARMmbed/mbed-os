@@ -5142,7 +5142,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC"
         ]
     },
@@ -5191,7 +5190,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC",
             "USTICKER"
         ],
@@ -5216,7 +5214,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC",
             "MPU",
             "USTICKER"
@@ -5242,7 +5239,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC",
             "MPU",
             "USTICKER"
@@ -5268,7 +5264,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC",
             "MPU",
             "USTICKER"
@@ -5313,7 +5308,6 @@
             "PORTINOUT",
             "PORTOUT",
             "SERIAL",
-            "SERIAL_FC",
             "TSC",
             "MPU"
         ],
