@@ -45,10 +45,9 @@
 
 /**@}*/
 
-#if DEVICE_I2C_ASYNCH
-
 typedef struct i2c i2c_t;
 
+#if DEVICE_I2C_ASYNCH
 typedef struct i2c_async_event {
     uint32_t sent_bytes;
     uint32_t received_bytes;
@@ -56,23 +55,19 @@ typedef struct i2c_async_event {
 } i2c_async_event_t;
 
 typedef void (*i2c_async_handler_f)(i2c_t *obj, i2c_async_event_t *event, void *ctx);
+#endif
 
-/** Asynch I2C HAL structure
+/** I2C HAL structure
  */
 struct i2c {
     struct i2c_s i2c;        /**< Target specific I2C structure */
+#if DEVICE_I2C_ASYNCH
     struct buffer_s tx_buff; /**< Tx buffer */
     struct buffer_s rx_buff; /**< Rx buffer */
     i2c_async_handler_f handler;
     void *ctx;
-};
-
-#else
-/** Non-asynch I2C HAL structure
- */
-typedef struct i2c_s i2c_t;
-
 #endif
+};
 
 enum {
     I2C_ERROR_NO_SLAVE = -1,
