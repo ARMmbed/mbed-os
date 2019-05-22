@@ -25,12 +25,13 @@
 #include "fsl_port.h"
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
+#include <limits.h>
 
 /* Timeout values are based on I2C clock. The BYTE_TIMEOUT_US is computed
-   as triply the number of cycles it would take to send 10 bits over I2C.
-   200 us for 100kHz
-   50 us for 400kHz
-   20 us for 1MHz
+   as triple the number of cycles it would take to send 10 bits over I2C.
+   300 us for 100kHz
+   75 us for 400kHz
+   30 us for 1MHz
    ...
 */
 #define BYTE_TIMEOUT_US ((1000000 * 10 * 3) / obj_s->frequency)
@@ -68,7 +69,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 
   obj_s->instance = pinmap_merge(i2c_sda, i2c_scl);
   obj_s->next_repeated_start = 0;
-  obj_s->timeout = 0;
+  obj_s->timeout = UINT32_MAX;
   obj_s->frequency = 0;
   obj_s->event = 0;
   obj_s->is_slave = is_slave;
@@ -180,7 +181,8 @@ void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 void i2c_timeout(i2c_t *obj, uint32_t timeout)
 {
   struct i2c_s *obj_s = &obj->i2c;
-  obj_s->timeout = timeout;
+  // UINT32_MAX is reserved for init value
+  obj_s->timeout = timeout == UINT32_MAX ? UINT32_MAX - 1 : timeout;
 }
 
 #if DEVICE_I2CSLAVE
@@ -255,7 +257,7 @@ static int i2c_slave_block_read(i2c_t *obj, uint8_t *data, uint32_t length)
   struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
-  uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+  uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * length;
   status_t ret = _I2C_SlaveReadBlocking(base, data, length, timeout);
   if (ret == kStatus_Success) {
     return length;
@@ -350,7 +352,7 @@ static int i2c_slave_block_write(i2c_t *obj, const uint8_t *data, uint32_t lengt
   struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
-  uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+  uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * length;
   status_t ret = _I2C_SlaveWriteBlocking(base, data, length, timeout);
   if (ret == kStatus_Success) {
     return length;
@@ -406,7 +408,8 @@ static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint3
     return I2C_ERROR_BUS_BUSY;
   }
 
-  uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+  // + 1 for addressing stage
+  uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * (length + 1);
   /*  transfer started : wait completion or timeout */
   while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
       wait_ns(1000);
@@ -474,7 +477,8 @@ int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint3
     return I2C_ERROR_BUS_BUSY;
   }
 
-  uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+  // + 1 for addressing stage
+  uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * (length + 1);
   /*  transfer started : wait completion or timeout */
   while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
       wait_ns(1000);

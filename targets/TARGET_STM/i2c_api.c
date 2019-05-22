@@ -40,6 +40,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
+#include <limits.h>
 
 #ifdef I2C_IP_VERSION_V2
 #include <stdlib.h>
@@ -66,12 +67,16 @@ static I2C_HandleTypeDef *i2c_handles[I2C_NUM];
    This is for immediate FLAG or ACK check.
 */
 #define BYTE_TIMEOUT ((SystemCoreClock / obj_s->hz) * 2 * 10)
-/* Timeout values based on I2C clock.
-   The BYTE_TIMEOUT_US is computed as 3x the time in us it would
-   take to send 10 bits over I2C. Most Flags should take less than that.
-   This is for complete transfers check.
+
+/* Timeout values are based on I2C clock. The BYTE_TIMEOUT_US is computed
+   as triple the number of cycles it would take to send 10 bits over I2C.
+   300 us for 100kHz
+   75 us for 400kHz
+   30 us for 1MHz
+   ...
 */
 #define BYTE_TIMEOUT_US   ((1000000 * 10 * 3) / obj_s->hz)
+
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted.
@@ -273,7 +278,7 @@ static int i2c_slave_read(i2c_t *obj, uint8_t *data, int length)
     ret = HAL_I2C_Slave_Sequential_Receive_IT(handle, data, length, I2C_NEXT_FRAME);
 
     if (ret == HAL_OK) {
-        timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : BYTE_TIMEOUT_US * (length + 1);
+        timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * length;
         while (obj_s->pending_slave_rx_maxter_tx && (--timeout != 0)) {
             wait_ns(1000);
         }
@@ -297,7 +302,7 @@ static int i2c_slave_write(i2c_t *obj, const uint8_t *data, int length)
     ret = HAL_I2C_Slave_Sequential_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if (ret == HAL_OK) {
-        timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : BYTE_TIMEOUT_US * (length + 1);
+        timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * length;
         while (obj_s->pending_slave_tx_master_rx && (--timeout != 0)) {
             wait_ns(1000);
         }
@@ -416,7 +421,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
     obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
     obj_s->clock_stretching_enabled = I2C_NOSTRETCH_DISABLE;
-    obj_s->timeout = 0;
+    obj_s->timeout = UINT32_MAX;
 #ifdef I2C_IP_VERSION_V2
     obj_s->pending_start = 0;
 #endif
@@ -563,7 +568,8 @@ void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 void i2c_timeout(i2c_t *obj, uint32_t timeout)
 {
     struct i2c_s *obj_s = &obj->i2c;
-    obj_s->timeout = timeout;
+    // UINT32_MAX is reserved for init value
+    obj_s->timeout = timeout == UINT32_MAX ? UINT32_MAX - 1 : timeout;
 }
 
 
@@ -753,7 +759,8 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, b
         return I2C_ERROR_BUS_BUSY;
     }
 
-    uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+    // + 1 for addressing stage
+    uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * (length + 1);
 
     /*  transfer started : wait completion or timeout */
     while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
@@ -820,7 +827,8 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t le
       return I2C_ERROR_BUS_BUSY;
     }
 
-    uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
+    // + 1 for addressing stage
+    uint32_t timeout = obj_s->timeout != UINT32_MAX ? obj_s->timeout : BYTE_TIMEOUT_US * (length + 1);
 
     /*  transfer started : wait completion or timeout */
     while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
