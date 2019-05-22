@@ -53,3 +53,4 @@ The Python modules used by Mbed tools are used under the following licenses:
 - [hidapi](https://pypi.org/project/hidapi/) - BSD-style
 - [pywin32](https://pypi.org/project/pywin32/) - PSF
 - [wmi](https://pypi.org/project/WMI/) - MIT
+- [psutil](https://pypi.org/project/psutil/) - BSD
