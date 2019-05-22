@@ -280,6 +280,7 @@ uint8_t i2c_active_t(_i2c_t *p_obj);
 TXZ_Result i2c_transfer_asynch_t(_i2c_t *p_obj, uint8_t *p_tx, int32_t tx_length, uint8_t *p_rx, int32_t rx_length, int32_t address, int32_t stop);
 uint32_t i2c_irq_handler_asynch_t(_i2c_t *p_obj);
 void i2c_abort_asynch_t(_i2c_t *p_obj);
+uint32_t set_i2c(uint8_t ch, uint32_t *p_irqn);
 
 /* For slave */
 void i2c_slave_mode_t(_i2c_t *p_obj, int32_t enable_slave);
