@@ -26,12 +26,6 @@
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
 
-#if DEVICE_I2C_ASYNCH
-#define I2C_S(obj) (struct i2c_s *) (&((obj)->i2c))
-#else
-#define I2C_S(obj) (struct i2c_s *) (obj)
-#endif
-
 /* Timeout values are based on I2C clock. The BYTE_TIMEOUT_US is computed
    as triply the number of cycles it would take to send 10 bits over I2C.
    200 us for 100kHz
@@ -65,7 +59,7 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
   uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
 
@@ -121,7 +115,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
 
 void i2c_free(i2c_t *obj)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   if (obj_s->is_slave) {
@@ -134,7 +128,7 @@ void i2c_free(i2c_t *obj)
 
 void i2c_start(i2c_t *obj)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   const uint32_t statusFlags = I2C_MasterGetStatusFlags(base);
@@ -157,7 +151,7 @@ void i2c_start(i2c_t *obj)
 
 void i2c_stop(i2c_t *obj)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   I2C_MasterStop(base);
@@ -165,7 +159,7 @@ void i2c_stop(i2c_t *obj)
 
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   const uint32_t busClock = CLOCK_GetFreq(i2c_clocks[obj_s->instance]);
@@ -178,14 +172,14 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 
 void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   (void)obj_s;
   (void)enabled;
 }
 
 void i2c_timeout(i2c_t *obj, uint32_t timeout)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   obj_s->timeout = timeout;
 }
 
@@ -258,7 +252,7 @@ static status_t _I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t r
 
 static int i2c_slave_block_read(i2c_t *obj, uint8_t *data, uint32_t length)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
@@ -272,7 +266,7 @@ static int i2c_slave_block_read(i2c_t *obj, uint8_t *data, uint32_t length)
 
 i2c_slave_status_t i2c_slave_status(i2c_t *obj)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   uint32_t status_flags = I2C_SlaveGetStatusFlags(i2c_addrs[obj_s->instance]);
 
   if ((status_flags & kI2C_AddressMatchFlag) == 0) {
@@ -353,7 +347,7 @@ static status_t _I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, s
 
 static int i2c_slave_block_write(i2c_t *obj, const uint8_t *data, uint32_t length)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   uint32_t timeout = obj_s->timeout != 0 ? obj_s->timeout * 1000 : (BYTE_TIMEOUT_US * (length + 1));
@@ -367,7 +361,7 @@ static int i2c_slave_block_write(i2c_t *obj, const uint8_t *data, uint32_t lengt
 
 void i2c_slave_address(i2c_t *obj, uint16_t address)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   if (!obj_s->is_slave) {
     return;
   }
@@ -379,14 +373,14 @@ void i2c_slave_address(i2c_t *obj, uint16_t address)
 void master_callback(I2C_Type *base, i2c_master_handle_t *handle, status_t status, void *userData)
 {
   i2c_t *obj = (i2c_t*)userData;
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
 
   obj_s->event = status != kStatus_Success ? I2C_EVENT_ERROR : I2C_EVENT_TRANSFER_COMPLETE;
 }
 
 static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool stop)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   i2c_master_transfer_t transfer;
@@ -434,7 +428,7 @@ static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint3
 int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length,
                  bool stop)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   if ((length == 0) || (data == NULL)) {
     return 0;
   }
@@ -452,7 +446,7 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length,
 
 int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
   i2c_master_transfer_t master_xfer;
 
@@ -502,7 +496,7 @@ int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint3
 int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
                   uint32_t length, bool stop)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   if ((length == 0) || (data == NULL)) {
     return 0;
   }
@@ -523,7 +517,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
 void async_transfer_callback(I2C_Type *base, i2c_master_handle_t *handle, status_t status, void *userData)
 {
   i2c_t *obj = (i2c_t*)userData;
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   i2c_async_event_t event;
   memset(&event, 0, sizeof(i2c_async_event_t));
 
@@ -571,7 +565,7 @@ void async_transfer_callback(I2C_Type *base, i2c_master_handle_t *handle, status
 bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length, uint8_t *rx, uint32_t rx_length,
                         uint16_t address, bool stop, i2c_async_handler_f handler, void *ctx)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
   i2c_master_transfer_t master_xfer;
 
@@ -626,7 +620,7 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length, uint8
 
 void i2c_abort_async(i2c_t *obj)
 {
-  struct i2c_s *obj_s = I2C_S(obj);
+  struct i2c_s *obj_s = &obj->i2c;
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]);
