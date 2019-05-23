@@ -3196,7 +3196,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "USE_FULL_LL_DRIVER"
         ],
         "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],

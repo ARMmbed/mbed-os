@@ -15,7 +15,7 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *  ******************************************************************************
   */
-#if 1 // MBED PATCH defined(USE_FULL_LL_DRIVER)
+#if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_ll_lptim.h"
