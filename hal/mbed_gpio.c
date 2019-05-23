@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "hal/gpio_api.h"
+#include "platform/mbed_toolchain.h"
 
 static inline void _gpio_init_in(gpio_t *gpio, PinName pin, PinMode mode)
 {
@@ -65,4 +66,12 @@ void gpio_init_inout(gpio_t *gpio, PinName pin, PinDirection direction, PinMode 
     } else {
         _gpio_init_out(gpio, pin, mode, value);
     }
+}
+
+MBED_WEAK const PinMap *gpio_pinmap()
+{
+    static const PinMap empty_gpio_pinmap[] = {
+        {NC, NC, 0},
+    };
+    return empty_gpio_pinmap;
 }
