@@ -155,6 +155,9 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	# Checking out the required release
 	git -C $(MBED_TLS_DIR) checkout $(MBED_TLS_RELEASE)
 	#
+	# Update and checkout git submodules
+	git -C $(MBED_TLS_DIR) submodule update --init --recursive
+	#
 	# Updating checked out version tag
 	git -C $(MBED_TLS_DIR) describe --tags --abbrev=12 --dirty --always > $(TARGET_PREFIX)VERSION.txt
 
