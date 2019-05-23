@@ -200,7 +200,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                     if (_at.get_last_error() == NSAPI_ERROR_OK) {
                         Timer t1;
                         t1.start();
-                        while (!(t1.read() >= 180)){
+                        while (!(t1.read() >= 180)) {
                             _at.cmd_start("AT+UPSND=" PROFILE ",8");
                             _at.cmd_stop();
                             _at.resp_start("+UPSND:");
@@ -208,8 +208,9 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                             _at.read_int() ? activated = true : activated = false;
                             _at.resp_stop();
 
-                            if (activated)    //If context is activated, exit while loop and return status
+                            if (activated) {  //If context is activated, exit while loop and return status
                                 break;
+                            }
                             wait_ms(5000);    //Wait for 5 seconds and then try again
                         }
                         t1.stop();
