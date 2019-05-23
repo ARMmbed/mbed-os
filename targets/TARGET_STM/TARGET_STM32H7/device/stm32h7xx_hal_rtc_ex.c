@@ -243,8 +243,10 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp_IT(RTC_HandleTypeDef *hrtc, uint32_t Ti
   /* Enable IT timestamp */
   __HAL_RTC_TIMESTAMP_ENABLE_IT(hrtc,RTC_IT_TS);
 
+#if !defined(DUAL_CORE)
   /* RTC timestamp Interrupt Configuration: EXTI configuration */
     __HAL_RTC_TAMPER_TIMESTAMP_EXTI_ENABLE_IT();
+#endif
 
 
   __HAL_RTC_TAMPER_TIMESTAMP_EXTI_ENABLE_RISING_EDGE();
@@ -697,8 +699,10 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
   /* Copy desired configuration into configuration register */
   hrtc->Instance->TAMPCR = tmpreg;
 
-  /* RTC Tamper Interrupt Configuration: EXTI configuration */
-  __HAL_RTC_TAMPER_TIMESTAMP_EXTI_ENABLE_IT();
+#if !defined(DUAL_CORE)
+     /* RTC Tamper Interrupt Configuration: EXTI configuration */
+     __HAL_RTC_TAMPER_TIMESTAMP_EXTI_ENABLE_IT();
+#endif
 
   __HAL_RTC_TAMPER_TIMESTAMP_EXTI_ENABLE_RISING_EDGE();
 
@@ -764,7 +768,18 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t T
 void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
 {
   /* Clear the EXTI's Flag for RTC TimeStamp and Tamper */
-  __HAL_RTC_TAMPER_TIMESTAMP_EXTI_CLEAR_FLAG();
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    __HAL_RTC_TAMPER_TIMESTAMP_EXTI_CLEAR_FLAG();
+  }
+  else
+  {
+    __HAL_RTC_TAMPER_TIMESTAMP_EXTID2_CLEAR_FLAG();
+  }
+#else
+    __HAL_RTC_TAMPER_TIMESTAMP_EXTI_CLEAR_FLAG();
+#endif
 
   /* Get the TimeStamp interrupt source enable status */
   if(__HAL_RTC_TIMESTAMP_GET_IT_SOURCE(hrtc, RTC_IT_TS) != 0u)
@@ -1222,9 +1237,10 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
   /* Configure the clock source */
   hrtc->Instance->CR |= (uint32_t)WakeUpClock;
 
-
+#if !defined(DUAL_CORE)
   /* RTC WakeUpTimer Interrupt Configuration: EXTI configuration */
    __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_IT();
+#endif
 
    __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
   /* Configure the Interrupt in the RTC_CR register */
@@ -1314,22 +1330,32 @@ uint32_t HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc)
   */
 void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
 {
-  /* Clear the EXTI's line Flag for RTC WakeUpTimer */
-  __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
-
-  /* Get the pending status of the WAKEUPTIMER Interrupt */
-  if(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTF) != 0u)
-  {
-    /* Clear the WAKEUPTIMER interrupt pending bit */
-    __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
-
-  /* WAKEUPTIMER callback */
-#if (USE_HAL_RTC_REGISTER_CALLBACKS == 1)
-  hrtc->WakeUpTimerEventCallback(hrtc);
+      /* Clear the EXTI's line Flag for RTC WakeUpTimer */
+#if defined(DUAL_CORE)
+   if (HAL_GetCurrentCPUID() == CM7_CPUID)
+   {
+     __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
+   }
+   else
+   {
+     __HAL_RTC_WAKEUPTIMER_EXTID2_CLEAR_FLAG();
+   }
 #else
-  HAL_RTCEx_WakeUpTimerEventCallback(hrtc);
+     __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
+#endif
+    /* Get the pending status of the WAKEUPTIMER Interrupt */
+    if(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTF) != 0u)
+    {
+      /* Clear the WAKEUPTIMER interrupt pending bit */
+      __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
+
+    /* WAKEUPTIMER callback */
+#if (USE_HAL_RTC_REGISTER_CALLBACKS == 1)
+      hrtc->WakeUpTimerEventCallback(hrtc);
+#else
+      HAL_RTCEx_WakeUpTimerEventCallback(hrtc);
 #endif /* USE_HAL_RTC_REGISTER_CALLBACKS */
-  }
+    }
 
   /* Change RTC state */
   hrtc->State = HAL_RTC_STATE_READY;

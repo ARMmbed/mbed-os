@@ -284,14 +284,14 @@ static HAL_StatusTypeDef HMAC_Processing(HASH_HandleTypeDef *hhash, uint32_t Tim
   */
 HAL_StatusTypeDef HAL_HASH_Init(HASH_HandleTypeDef *hhash)
 {
-  /* Check the parameters */
-  assert_param(IS_HASH_DATATYPE(hhash->Init.DataType));
-
   /* Check the hash handle allocation */
   if(hhash == NULL)
   {
     return HAL_ERROR;
   }
+
+  /* Check the parameters */
+  assert_param(IS_HASH_DATATYPE(hhash->Init.DataType));
 
 #if (USE_HAL_HASH_REGISTER_CALLBACKS == 1)
   if (hhash->State == HAL_HASH_STATE_RESET)
@@ -1367,14 +1367,15 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
     }
 
     /* Disable DMA channel */
-    if (HAL_DMA_Abort(hhash->hdmain) ==HAL_OK)
-    {
-      /*
+    /*
       Note that the Abort function will
       - Clear the transfer error flags
       - Unlock
       - Set the State
-      */
+    */
+    if (HAL_DMA_Abort(hhash->hdmain) != HAL_OK)
+    {
+      return HAL_ERROR;
     }
 
     /* Clear DMAE bit */

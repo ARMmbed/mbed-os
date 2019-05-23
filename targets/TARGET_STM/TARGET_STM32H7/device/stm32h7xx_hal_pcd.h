@@ -152,9 +152,9 @@ typedef struct
 /** @defgroup PCD_Speed PCD Speed
   * @{
   */
-#define PCD_SPEED_HIGH               0U
-#define PCD_SPEED_HIGH_IN_FULL       1U
-#define PCD_SPEED_FULL               2U
+#define PCD_SPEED_HIGH               USBD_HS_SPEED
+#define PCD_SPEED_HIGH_IN_FULL       USBD_HSINFS_SPEED
+#define PCD_SPEED_FULL               USBD_FS_SPEED
 /**
   * @}
   */
@@ -165,19 +165,6 @@ typedef struct
 #define PCD_PHY_ULPI                 1U
 #define PCD_PHY_EMBEDDED             2U
 #define PCD_PHY_UTMI                 3U
-/**
-  * @}
-  */
-
-/** @defgroup PCD_Turnaround_Timeout Turnaround Timeout Value
-  * @{
-  */
-#ifndef USBD_HS_TRDT_VALUE
-#define USBD_HS_TRDT_VALUE           9U
-#endif /* USBD_HS_TRDT_VALUE */
-#ifndef USBD_FS_TRDT_VALUE
-#define USBD_FS_TRDT_VALUE           5U
-#endif /* USBD_HS_TRDT_VALUE */
 /**
   * @}
   */
@@ -221,24 +208,8 @@ typedef struct
 
 #define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_IT()    EXTI_D1->IMR2 |= (USB_OTG_HS_WAKEUP_EXTI_LINE)
 #define __HAL_USB_OTG_HS_WAKEUP_EXTI_DISABLE_IT()   EXTI_D1->IMR2 &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE)
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_GET_FLAG()     EXTI_D1->PR2 &(USB_OTG_HS_WAKEUP_EXTI_LINE)
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_CLEAR_FLAG()   EXTI_D1->PR2 = (USB_OTG_HS_WAKEUP_EXTI_LINE)
-
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_RISING_EDGE() \
-                        do { \
-                             EXTI->FTSR2 &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE); \
-                             EXTI->RTSR2 |= USB_OTG_HS_WAKEUP_EXTI_LINE; \
-                           } while(0U)
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_IT()    EXTI_D1->IMR2 |= (USB_OTG_FS_WAKEUP_EXTI_LINE)
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_DISABLE_IT()   EXTI_D1->IMR2 &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE)
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_GET_FLAG()     EXTI_D1->PR2 &(USB_OTG_FS_WAKEUP_EXTI_LINE)
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_CLEAR_FLAG()   EXTI_D1->PR2 = (USB_OTG_FS_WAKEUP_EXTI_LINE)
-
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_EDGE() \
-                        do { \
-                             EXTI->FTSR2 &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE); \
-                             EXTI->RTSR2 |= USB_OTG_FS_WAKEUP_EXTI_LINE; \
-                           } while(0U)
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
 
@@ -411,6 +382,32 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /**
   * @}
   */
+
+#if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+#ifndef USB_OTG_DOEPINT_OTEPSPR
+#define USB_OTG_DOEPINT_OTEPSPR                (0x1UL << 5)      /*!< Status Phase Received interrupt */
+#endif
+
+#ifndef USB_OTG_DOEPMSK_OTEPSPRM
+#define USB_OTG_DOEPMSK_OTEPSPRM               (0x1UL << 5)      /*!< Setup Packet Received interrupt mask */
+#endif
+
+#ifndef USB_OTG_DOEPINT_NAK
+#define USB_OTG_DOEPINT_NAK                    (0x1UL << 13)      /*!< NAK interrupt */
+#endif
+
+#ifndef USB_OTG_DOEPMSK_NAKM
+#define USB_OTG_DOEPMSK_NAKM                   (0x1UL << 13)      /*!< OUT Packet NAK interrupt mask */
+#endif
+
+#ifndef USB_OTG_DOEPINT_STPKTRX
+#define USB_OTG_DOEPINT_STPKTRX                (0x1UL << 15)      /*!< Setup Packet Received interrupt */
+#endif
+
+#ifndef USB_OTG_DOEPMSK_NYETM
+#define USB_OTG_DOEPMSK_NYETM                  (0x1UL << 14)      /*!< Setup Packet Received interrupt mask */
+#endif
+#endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
 /* Private macros ------------------------------------------------------------*/
 /** @defgroup PCD_Private_Macros PCD Private Macros

@@ -140,6 +140,9 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
                                          (((__CONFIG__) & I2C_FASTMODEPLUS_PB9)  == I2C_FASTMODEPLUS_PB9)  || \
                                          (((__CONFIG__) & I2C_FASTMODEPLUS_I2C1) == I2C_FASTMODEPLUS_I2C1))
 #endif /* SYSCFG_PMCR_I2C1_FMP && SYSCFG_PMCR_I2C2_FMP && SYSCFG_PMCR_I2C3_FMP && SYSCFG_PMCR_I2C4_FMP */
+
+
+
 /**
   * @}
   */

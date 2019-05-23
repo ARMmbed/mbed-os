@@ -159,98 +159,93 @@ HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd)
 void HAL_PCDEx_BCD_VBUSDetect(PCD_HandleTypeDef *hpcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
-  uint32_t USBx_BASE = (uint32_t)USBx;
   uint32_t tickstart = HAL_GetTick();
 
-  /* Start BCD When device is connected */
-  if ((USBx_DEVICE->DCTL & USB_OTG_DCTL_SDIS) == USB_OTG_DCTL_SDIS)
+  /* Enable DCD : Data Contact Detect */
+  USBx->GCCFG |= USB_OTG_GCCFG_DCDEN;
+
+  /* Wait Detect flag or a timeout is happen*/
+  while ((USBx->GCCFG & USB_OTG_GCCFG_DCDET) == 0U)
   {
-    /* Enable DCD : Data Contact Detect */
-    USBx->GCCFG |= USB_OTG_GCCFG_DCDEN;
-
-    /* Wait Detect flag or a timeout is happen*/
-    while ((USBx->GCCFG & USB_OTG_GCCFG_DCDET) == 0U)
+    /* Check for the Timeout */
+    if ((HAL_GetTick() - tickstart) > 1000U)
     {
-      /* Check for the Timeout */
-      if ((HAL_GetTick() - tickstart) > 1000U)
-      {
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-        hpcd->BCDCallback(hpcd, PCD_BCD_ERROR);
+      hpcd->BCDCallback(hpcd, PCD_BCD_ERROR);
 #else
-        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_ERROR);
+      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_ERROR);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 
-        return;
-      }
+      return;
     }
+  }
 
-    /* Right response got */
-    HAL_Delay(200U);
+  /* Right response got */
+  HAL_Delay(200U);
 
-    /* Check Detect flag*/
-    if ((USBx->GCCFG & USB_OTG_GCCFG_DCDET) == USB_OTG_GCCFG_DCDET)
-    {
+  /* Check Detect flag*/
+  if ((USBx->GCCFG & USB_OTG_GCCFG_DCDET) == USB_OTG_GCCFG_DCDET)
+  {
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-      hpcd->BCDCallback(hpcd, PCD_BCD_CONTACT_DETECTION);
+    hpcd->BCDCallback(hpcd, PCD_BCD_CONTACT_DETECTION);
 #else
-      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CONTACT_DETECTION);
+    HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CONTACT_DETECTION);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-    }
+  }
 
-    /*Primary detection: checks if connected to Standard Downstream Port
-    (without charging capability) */
-    USBx->GCCFG &= ~ USB_OTG_GCCFG_DCDEN;
-    HAL_Delay(50U);
-    USBx->GCCFG |=  USB_OTG_GCCFG_PDEN;
-    HAL_Delay(50U);
+  /*Primary detection: checks if connected to Standard Downstream Port
+  (without charging capability) */
+  USBx->GCCFG &= ~ USB_OTG_GCCFG_DCDEN;
+  HAL_Delay(50U);
+  USBx->GCCFG |=  USB_OTG_GCCFG_PDEN;
+  HAL_Delay(50U);
 
-    if ((USBx->GCCFG & USB_OTG_GCCFG_PDET) == 0U)
-    {
-      /* Case of Standard Downstream Port */
+  if ((USBx->GCCFG & USB_OTG_GCCFG_PDET) == 0U)
+  {
+    /* Case of Standard Downstream Port */
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-      hpcd->BCDCallback(hpcd, PCD_BCD_STD_DOWNSTREAM_PORT);
+    hpcd->BCDCallback(hpcd, PCD_BCD_STD_DOWNSTREAM_PORT);
 #else
-      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_STD_DOWNSTREAM_PORT);
+    HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_STD_DOWNSTREAM_PORT);
+#endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+  }
+  else
+  {
+    /* start secondary detection to check connection to Charging Downstream
+    Port or Dedicated Charging Port */
+    USBx->GCCFG &= ~ USB_OTG_GCCFG_PDEN;
+    HAL_Delay(50U);
+    USBx->GCCFG |=  USB_OTG_GCCFG_SDEN;
+    HAL_Delay(50U);
+
+    if ((USBx->GCCFG & USB_OTG_GCCFG_SDET) == USB_OTG_GCCFG_SDET)
+    {
+      /* case Dedicated Charging Port  */
+#if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+      hpcd->BCDCallback(hpcd, PCD_BCD_DEDICATED_CHARGING_PORT);
+#else
+      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DEDICATED_CHARGING_PORT);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
     }
     else
     {
-      /* start secondary detection to check connection to Charging Downstream
-      Port or Dedicated Charging Port */
-      USBx->GCCFG &= ~ USB_OTG_GCCFG_PDEN;
-      HAL_Delay(50U);
-      USBx->GCCFG |=  USB_OTG_GCCFG_SDEN;
-      HAL_Delay(50U);
-
-      if ((USBx->GCCFG & USB_OTG_GCCFG_SDET) == USB_OTG_GCCFG_SDET)
-      {
-        /* case Dedicated Charging Port  */
+      /* case Charging Downstream Port  */
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-        hpcd->BCDCallback(hpcd, PCD_BCD_DEDICATED_CHARGING_PORT);
+      hpcd->BCDCallback(hpcd, PCD_BCD_CHARGING_DOWNSTREAM_PORT);
 #else
-        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DEDICATED_CHARGING_PORT);
+      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CHARGING_DOWNSTREAM_PORT);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-      }
-      else
-      {
-        /* case Charging Downstream Port  */
-#if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-        hpcd->BCDCallback(hpcd, PCD_BCD_CHARGING_DOWNSTREAM_PORT);
-#else
-        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CHARGING_DOWNSTREAM_PORT);
-#endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-      }
     }
+  }
 
-    /* Battery Charging capability discovery finished */
-    (void)HAL_PCDEx_DeActivateBCD(hpcd);
+  /* Battery Charging capability discovery finished */
+  (void)HAL_PCDEx_DeActivateBCD(hpcd);
 
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
-    hpcd->BCDCallback(hpcd, PCD_BCD_DISCOVERY_COMPLETED);
+  hpcd->BCDCallback(hpcd, PCD_BCD_DISCOVERY_COMPLETED);
 #else
-    HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DISCOVERY_COMPLETED);
+  HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DISCOVERY_COMPLETED);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-  }
 }
 
 /**
@@ -262,12 +257,16 @@ HAL_StatusTypeDef HAL_PCDEx_ActivateBCD(PCD_HandleTypeDef *hpcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
 
-  hpcd->battery_charging_active = 1U;
-
-  /* Enable DCD : Data Contact Detect */
   USBx->GCCFG &= ~(USB_OTG_GCCFG_PDEN);
   USBx->GCCFG &= ~(USB_OTG_GCCFG_SDEN);
+
+  /* Power Down USB tranceiver  */
+  USBx->GCCFG &= ~(USB_OTG_GCCFG_PWRDWN);
+
+  /* Enable Battery charging */
   USBx->GCCFG |= USB_OTG_GCCFG_BCDEN;
+
+  hpcd->battery_charging_active = 1U;
 
   return HAL_OK;
 }
@@ -280,8 +279,15 @@ HAL_StatusTypeDef HAL_PCDEx_ActivateBCD(PCD_HandleTypeDef *hpcd)
 HAL_StatusTypeDef HAL_PCDEx_DeActivateBCD(PCD_HandleTypeDef *hpcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
-  hpcd->battery_charging_active = 0U;
+
+  USBx->GCCFG &= ~(USB_OTG_GCCFG_SDEN);
+  USBx->GCCFG &= ~(USB_OTG_GCCFG_PDEN);
+
+  /* Disable Battery charging */
   USBx->GCCFG &= ~(USB_OTG_GCCFG_BCDEN);
+
+  hpcd->battery_charging_active = 0U;
+
   return HAL_OK;
 }
 

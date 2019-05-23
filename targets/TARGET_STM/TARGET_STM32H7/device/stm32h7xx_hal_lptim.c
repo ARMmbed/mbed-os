@@ -1446,8 +1446,6 @@ uint32_t HAL_LPTIM_ReadCompare(LPTIM_HandleTypeDef *hlptim)
   * @}
   */
 
-
-
 /** @defgroup LPTIM_Exported_Functions_Group4 LPTIM IRQ handler and callbacks
  *  @brief  LPTIM  IRQ handler.
  *
@@ -1848,31 +1846,31 @@ HAL_StatusTypeDef HAL_LPTIM_UnRegisterCallback(LPTIM_HandleTypeDef        *hlpti
         break;
 
       case HAL_LPTIM_COMPARE_MATCH_CB_ID :
-        hlptim->CompareMatchCallback = HAL_LPTIM_CompareMatchCallback;         /* Legacy weak IC Msp Init Callback */
+        hlptim->CompareMatchCallback = HAL_LPTIM_CompareMatchCallback;         /* Legacy weak Compare match Callback */
         break;
 
       case HAL_LPTIM_AUTORELOAD_MATCH_CB_ID :
-        hlptim->AutoReloadMatchCallback = HAL_LPTIM_AutoReloadMatchCallback;   /* Legacy weak IC Msp DeInit Callback */
+        hlptim->AutoReloadMatchCallback = HAL_LPTIM_AutoReloadMatchCallback;   /* Legacy weak Auto-reload match Callback */
         break;
 
       case HAL_LPTIM_TRIGGER_CB_ID :
-        hlptim->TriggerCallback = HAL_LPTIM_TriggerCallback;                   /* Legacy weak OC Msp Init Callback */
+        hlptim->TriggerCallback = HAL_LPTIM_TriggerCallback;                   /* Legacy weak External trigger event detection Callback */
         break;
 
       case HAL_LPTIM_COMPARE_WRITE_CB_ID :
-        hlptim->CompareWriteCallback = HAL_LPTIM_CompareWriteCallback;         /* Legacy weak OC Msp DeInit Callback */
+        hlptim->CompareWriteCallback = HAL_LPTIM_CompareWriteCallback;         /* Legacy weak Compare register write complete Callback */
         break;
 
       case HAL_LPTIM_AUTORELOAD_WRITE_CB_ID :
-        hlptim->AutoReloadWriteCallback = HAL_LPTIM_AutoReloadWriteCallback;   /* Legacy weak PWM Msp Init Callback */
+        hlptim->AutoReloadWriteCallback = HAL_LPTIM_AutoReloadWriteCallback;   /* Legacy weak Auto-reload register write complete Callback */
         break;
 
       case HAL_LPTIM_DIRECTION_UP_CB_ID :
-        hlptim->DirectionUpCallback = HAL_LPTIM_DirectionUpCallback;           /* Legacy weak PWM Msp DeInit Callback */
+        hlptim->DirectionUpCallback = HAL_LPTIM_DirectionUpCallback;           /* Legacy weak Up-counting direction change Callback */
         break;
 
       case HAL_LPTIM_DIRECTION_DOWN_CB_ID :
-        hlptim->DirectionDownCallback = HAL_LPTIM_DirectionDownCallback;       /* Legacy weak One Pulse Msp Init Callback */
+        hlptim->DirectionDownCallback = HAL_LPTIM_DirectionDownCallback;       /* Legacy weak Down-counting direction change Callback */
         break;
 
       default :
@@ -1971,7 +1969,7 @@ static void LPTIM_ResetCallback(LPTIM_HandleTypeDef *lptim)
   lptim->CompareWriteCallback    = HAL_LPTIM_CompareWriteCallback;    /* Compare register write complete Callback     */
   lptim->AutoReloadWriteCallback = HAL_LPTIM_AutoReloadWriteCallback; /* Auto-reload register write complete Callback */
   lptim->DirectionUpCallback     = HAL_LPTIM_DirectionUpCallback;     /* Up-counting direction change Callback        */
-  lptim->DirectionDownCallback   = HAL_LPTIM_DirectionDownCallback;   /* Down-counting direction change Callback       */
+  lptim->DirectionDownCallback   = HAL_LPTIM_DirectionDownCallback;   /* Down-counting direction change Callback      */
 }
 #endif /* USE_HAL_LPTIM_REGISTER_CALLBACKS */
 
@@ -2062,19 +2060,19 @@ void LPTIM_Disable(LPTIM_HandleTypeDef *lptim)
     switch ((uint32_t)lptim->Instance)
     {
        case LPTIM1_BASE:
-         __HAL_RCC_LPTIM1_CONFIG(0UL);
+         __HAL_RCC_LPTIM1_CONFIG(RCC_LPTIM1CLKSOURCE_D2PCLK1);
          break;
        case LPTIM2_BASE:
-         __HAL_RCC_LPTIM2_CONFIG(0UL);
+         __HAL_RCC_LPTIM2_CONFIG(RCC_LPTIM2CLKSOURCE_D3PCLK1);
          break;
        case LPTIM3_BASE:
-         __HAL_RCC_LPTIM3_CONFIG(0UL);
+         __HAL_RCC_LPTIM3_CONFIG(RCC_LPTIM3CLKSOURCE_D3PCLK1);
          break;
        case LPTIM4_BASE:
-         __HAL_RCC_LPTIM4_CONFIG(0UL);
+         __HAL_RCC_LPTIM4_CONFIG(RCC_LPTIM4CLKSOURCE_D3PCLK1);
          break;
        case LPTIM5_BASE:
-         __HAL_RCC_LPTIM5_CONFIG(0UL);
+         __HAL_RCC_LPTIM5_CONFIG(RCC_LPTIM5CLKSOURCE_D3PCLK1);
          break;
        default:
          break;

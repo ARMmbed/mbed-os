@@ -130,7 +130,7 @@ typedef enum
   HAL_LPTIM_STATE_READY            = 0x01U,    /*!< Peripheral Initialized and ready for use    */
   HAL_LPTIM_STATE_BUSY             = 0x02U,    /*!< An internal process is ongoing              */
   HAL_LPTIM_STATE_TIMEOUT          = 0x03U,    /*!< Timeout state                               */
-  HAL_LPTIM_STATE_ERROR            = 0x04U     /*!< Internal Process is ongoing                */
+  HAL_LPTIM_STATE_ERROR            = 0x04U     /*!< Internal Process is ongoing                 */
 } HAL_LPTIM_StateTypeDef;
 
 /**
@@ -352,7 +352,6 @@ typedef  void (*pLPTIM_CallbackTypeDef)(LPTIM_HandleTypeDef *hlptim);  /*!< poin
 /** @defgroup LPTIM_Interrupts_Definition LPTIM Interrupts Definition
   * @{
   */
-
 #define LPTIM_IT_DOWN                            LPTIM_IER_DOWNIE
 #define LPTIM_IT_UP                              LPTIM_IER_UPIE
 #define LPTIM_IT_ARROK                           LPTIM_IER_ARROKIE

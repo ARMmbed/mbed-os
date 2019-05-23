@@ -237,6 +237,7 @@ typedef struct
 #define  MPU_REGION_NUMBER5    ((uint8_t)0x05)
 #define  MPU_REGION_NUMBER6    ((uint8_t)0x06)
 #define  MPU_REGION_NUMBER7    ((uint8_t)0x07)
+#if !defined(CORE_CM4)
 #define  MPU_REGION_NUMBER8    ((uint8_t)0x08)
 #define  MPU_REGION_NUMBER9    ((uint8_t)0x09)
 #define  MPU_REGION_NUMBER10   ((uint8_t)0x0A)
@@ -245,6 +246,7 @@ typedef struct
 #define  MPU_REGION_NUMBER13   ((uint8_t)0x0D)
 #define  MPU_REGION_NUMBER14   ((uint8_t)0x0E)
 #define  MPU_REGION_NUMBER15   ((uint8_t)0x0F)
+#endif /* !defined(CORE_CM4) */
 
 /**
   * @}
@@ -272,6 +274,9 @@ typedef struct
   */
 #define CM7_CPUID        ((uint32_t)0x00000003)
 
+#if defined(DUAL_CORE)
+#define CM4_CPUID        ((uint32_t)0x00000001)
+#endif /*DUAL_CORE*/
 /**
   * @}
   */
@@ -374,6 +379,7 @@ uint32_t HAL_GetCurrentCPUID(void);
                                                   ((TYPE) == MPU_REGION_PRIV_RO)     || \
                                                   ((TYPE) == MPU_REGION_PRIV_RO_URO))
 
+#if !defined(CORE_CM4)
 #define IS_MPU_REGION_NUMBER(NUMBER)    (((NUMBER) == MPU_REGION_NUMBER0)  || \
                                          ((NUMBER) == MPU_REGION_NUMBER1)  || \
                                          ((NUMBER) == MPU_REGION_NUMBER2)  || \
@@ -390,6 +396,16 @@ uint32_t HAL_GetCurrentCPUID(void);
                                          ((NUMBER) == MPU_REGION_NUMBER13) || \
                                          ((NUMBER) == MPU_REGION_NUMBER14) || \
                                          ((NUMBER) == MPU_REGION_NUMBER15))
+#else
+#define IS_MPU_REGION_NUMBER(NUMBER)    (((NUMBER) == MPU_REGION_NUMBER0)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER1)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER2)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER3)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER4)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER5)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER6)  || \
+                                         ((NUMBER) == MPU_REGION_NUMBER7))
+#endif /* !defined(CORE_CM4) */
 
 #define IS_MPU_REGION_SIZE(SIZE)    (((SIZE) == MPU_REGION_SIZE_32B)   || \
                                      ((SIZE) == MPU_REGION_SIZE_64B)   || \

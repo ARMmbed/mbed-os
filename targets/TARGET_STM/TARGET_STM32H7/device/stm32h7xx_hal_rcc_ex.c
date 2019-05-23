@@ -94,7 +94,7 @@ static HAL_StatusTypeDef RCCEx_PLL3_Config(RCC_PLL3InitTypeDef *pll3, uint32_t D
   *         parameters in the RCC_PeriphCLKInitTypeDef.
   * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals
-  *         clocks(SDMMC, CKPER, FMC, QSPI, SPI45, SPDIF, DFSDM1, FDCAN, SWPMI,SAI23, SAI1, SPI123,
+  *         clocks(SDMMC, CKPER, FMC, QSPI, DSI, SPI45, SPDIF, DFSDM1, FDCAN, SWPMI,SAI23, SAI1, SPI123,
   *         USART234578, USART16, RNG, HRTIM1, I2C123, USB,CEC, LPTIM1, LPUART1, I2C4, LPTIM2, LPTIM345, ADC,
   *         SAI4A,SAI4B,SPI6,RTC).
   * @note   Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to select
@@ -566,6 +566,43 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       status = ret;
     }
   }
+
+#if defined(DSI)
+  /*---------------------------- DSI configuration -------------------------------*/
+  if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_DSI) == RCC_PERIPHCLK_DSI)
+  {
+    switch(PeriphClkInit->DsiClockSelection)
+    {
+
+    case RCC_DSICLKSOURCE_PLL2: /* PLL2 is used as clock source for DSI*/
+
+      ret = RCCEx_PLL2_Config(&(PeriphClkInit->PLL2),DIVIDER_Q_UPDATE);
+
+      /* DSI clock source configuration done later after clock selection check */
+      break;
+
+    case RCC_DSICLKSOURCE_PHY:
+      /* PHY is used as clock source for DSI*/
+      /* DSI clock source configuration done later after clock selection check */
+      break;
+
+    default:
+      ret = HAL_ERROR;
+      break;
+    }
+
+    if(ret == HAL_OK)
+    {
+      /* Set the source of DSI clock*/
+      __HAL_RCC_DSI_CONFIG(PeriphClkInit->DsiClockSelection);
+    }
+    else
+    {
+      /* set overall return value */
+      status = ret;
+    }
+  }
+#endif /*DSI*/
 
 #if defined(FDCAN1) || defined(FDCAN2)
   /*---------------------------- FDCAN configuration -------------------------------*/
@@ -1202,6 +1239,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     }
   }
 
+#if defined(LTDC)
   /*-------------------------------------- LTDC Configuration -----------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LTDC) == RCC_PERIPHCLK_LTDC)
   {
@@ -1210,6 +1248,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       status=HAL_ERROR;
     }
   }
+#endif /* LTDC */
 
   /*------------------------------ RNG Configuration -------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RNG) == RCC_PERIPHCLK_RNG)
@@ -1317,7 +1356,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   * @brief  Get the RCC_ClkInitStruct according to the internal RCC configuration registers.
   * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
 *         returns the configuration information for the Extended Peripherals clocks :
-  *         (SDMMC, CKPER, FMC, QSPI, SPI45, SPDIF, DFSDM1, FDCAN, SWPMI,SAI23, SAI1, SPI123,
+  *         (SDMMC, CKPER, FMC, QSPI, DSI, SPI45, SPDIF, DFSDM1, FDCAN, SWPMI,SAI23, SAI1, SPI123,
   *         USART234578, USART16, RNG,HRTIM1, I2C123, USB,CEC, LPTIM1, LPUART1, I2C4, LPTIM2, LPTIM345, ADC,
 *         SAI4A,SAI4B,SPI6,RTC,TIM).
   * @retval None
@@ -1332,8 +1371,12 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
                  RCC_PERIPHCLK_SPI123  | RCC_PERIPHCLK_SPI45       | RCC_PERIPHCLK_SPI6    | RCC_PERIPHCLK_FDCAN    |
                  RCC_PERIPHCLK_SDMMC   | RCC_PERIPHCLK_RNG         | RCC_PERIPHCLK_USB     | RCC_PERIPHCLK_ADC      |
                  RCC_PERIPHCLK_SWPMI1  | RCC_PERIPHCLK_DFSDM1      | RCC_PERIPHCLK_RTC     | RCC_PERIPHCLK_CEC      |
-                 RCC_PERIPHCLK_FMC     | RCC_PERIPHCLK_QSPI        | RCC_PERIPHCLK_SPDIFRX | RCC_PERIPHCLK_HRTIM1   |
-                 RCC_PERIPHCLK_LTDC    | RCC_PERIPHCLK_TIM         | RCC_PERIPHCLK_CKPER;
+                 RCC_PERIPHCLK_FMC     | RCC_PERIPHCLK_QSPI        | RCC_PERIPHCLK_DSI     | RCC_PERIPHCLK_SPDIFRX  |
+                 RCC_PERIPHCLK_HRTIM1  | RCC_PERIPHCLK_TIM         | RCC_PERIPHCLK_CKPER;
+
+#if defined(LTDC)
+  PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_LTDC;
+#endif /* LTDC */
 
   /* Get the PLL3 Clock configuration -----------------------------------------------*/
   PeriphClkInit->PLL3.PLL3M = (uint32_t)((RCC->PLLCKSELR & RCC_PLLCKSELR_DIVM3)>> RCC_PLLCKSELR_DIVM3_Pos);
@@ -1408,6 +1451,11 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   /* Get the QSPI clock source -----------------------------------------------*/
   PeriphClkInit->QspiClockSelection         = __HAL_RCC_GET_QSPI_SOURCE();
 
+#if defined(DSI)
+  /* Get the DSI clock source ------------------------------------------------*/
+  PeriphClkInit->DsiClockSelection          = __HAL_RCC_GET_DSI_SOURCE();
+#endif /*DSI*/
+
   /* Get the CKPER clock source ----------------------------------------------*/
   PeriphClkInit->CkperClockSelection        = __HAL_RCC_GET_CLKP_SOURCE();
 
@@ -1441,7 +1489,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   PLL3_ClocksTypeDef pll3_clocks;
 
   /* This variable is used to store the SAI clock frequency (value in Hz) */
-  uint32_t frequency = 0;
+  uint32_t frequency;
   /* This variable is used to store the SAI and CKP clock source */
   uint32_t saiclocksource;
   uint32_t ckpclocksource;
@@ -1513,6 +1561,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -1584,6 +1633,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -1656,6 +1706,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -1728,6 +1779,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -1799,6 +1851,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -1857,6 +1910,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 
       default :
         {
+          frequency = 0;
           break;
         }
       }
@@ -2167,6 +2221,43 @@ void HAL_RCCEx_KerWakeUpStopCLKConfig(uint32_t WakeUpClk)
   __HAL_RCC_KERWAKEUPSTOP_CLK_CONFIG(WakeUpClk);
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Enable COREx boot independently of CMx_B option byte value
+  * @param  RCC_BootCx: Boot Core to be enabled
+  *         This parameter can be one of the following values:
+  *            @arg RCC_BOOT_C1: CM7 core selection
+  *            @arg RCC_BOOT_C2: CM4 core selection
+  * @note   This bit can be set by software but is cleared by hardware after a system reset or STANDBY
+  *
+  * @retval None
+  */
+void HAL_RCCEx_EnableBootCore(uint32_t RCC_BootCx)
+{
+  assert_param(IS_RCC_BOOT_CORE(RCC_BootCx));
+  SET_BIT(RCC->GCR, RCC_BootCx) ;
+}
+
+#endif /*DUAL_CORE*/
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Configure WWDGx to generate a system reset not only CPUx reset(default) when a time-out occurs
+  * @param  RCC_WWDGx: WWDGx to be configured
+  *         This parameter can be one of the following values:
+  *            @arg RCC_WWDG1: WWDG1 generates system reset
+  *            @arg RCC_WWDG2: WWDG2 generates system reset
+  * @note   This bit can be set by software but is cleared by hardware during a system reset
+  *
+  * @retval None
+  */
+void HAL_RCCEx_WWDGxSysResetConfig(uint32_t RCC_WWDGx)
+{
+  assert_param(IS_RCC_SCOPE_WWDG(RCC_WWDGx));
+  SET_BIT(RCC->GCR, RCC_WWDGx) ;
+}
+
+#else
 
 /**
   * @brief  Configure WWDG1 to generate a system reset not only CPU reset(default) when a time-out occurs
@@ -2182,6 +2273,8 @@ void HAL_RCCEx_WWDGxSysResetConfig(uint32_t RCC_WWDGx)
   assert_param(IS_RCC_SCOPE_WWDG(RCC_WWDGx));
   SET_BIT(RCC->GCR, RCC_WWDGx) ;
 }
+
+#endif /*DUAL_CORE*/
 
 
 /** @defgroup RCCEx_Exported_Functions_Group3 Extended Clock Recovery System Control functions
@@ -2274,8 +2367,15 @@ void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
   /* Set the SYNCDIV[2:0] bits according to Pre-scaler value */
   /* Set the SYNCSRC[1:0] bits according to Source value */
   /* Set the SYNCSPOL bit according to Polarity value */
-  value = (pInit->Prescaler | pInit->Source | pInit->Polarity);
-
+  if ((HAL_GetREVID() <= REV_ID_Y) && (pInit->Source == RCC_CRS_SYNC_SOURCE_USB2))
+  {
+    /* Use Rev.Y value of USB2 */
+    value = (pInit->Prescaler | RCC_CRS_SYNC_SOURCE_PIN | pInit->Polarity);
+  }
+  else
+  {
+    value = (pInit->Prescaler | pInit->Source | pInit->Polarity);
+  }
   /* Set the RELOAD[15:0] bits according to ReloadValue value */
   value |= pInit->ReloadValue;
   /* Set the FELIM[7:0] bits according to ErrorLimitValue value */

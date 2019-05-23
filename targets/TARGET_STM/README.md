@@ -18,6 +18,7 @@ This table summarizes the STM32Cube versions currently used :
 | F3          |    1.9.0     |
 | F4          |    1.19.0    |
 | F7          |    1.10.0    |
+| H7          |    1.4.0     |
 | L0          |    1.10.0    |
 | L1          |    1.8.1     |
 | L4          |    1.11.0    |

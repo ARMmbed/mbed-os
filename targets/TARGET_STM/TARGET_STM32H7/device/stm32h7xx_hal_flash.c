@@ -186,6 +186,7 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t FlashAddress,
     }
 
     __ISB();
+    __DSB();
 
     /* Program the 256 bits flash word */
     do
@@ -196,6 +197,7 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t FlashAddress,
       row_index--;
     } while (row_index != 0U);
 
+    __ISB();
     __DSB();
 
     /* Wait for last operation to be completed */
@@ -265,22 +267,13 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t FlashAddre
   }
   else
   {
-    /* Set internal variables used by the IRQ handler */
-    if(IS_FLASH_PROGRAM_ADDRESS_BANK1(FlashAddress))
-    {
-      bank = FLASH_BANK_1;
-      pFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM_BANK1;
-    }
-    else
-    {
-      bank = FLASH_BANK_2;
-      pFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM_BANK2;
-    }
-
     pFlash.Address = FlashAddress;
 
     if(bank == FLASH_BANK_1)
     {
+      /* Set internal variables used by the IRQ handler */
+      pFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM_BANK1;
+
       /* Set PG bit */
       SET_BIT(FLASH->CR1, FLASH_CR_PG);
 
@@ -290,6 +283,9 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t FlashAddre
     }
     else
     {
+      /* Set internal variables used by the IRQ handler */
+      pFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM_BANK2;
+
       /* Set PG bit */
       SET_BIT(FLASH->CR2, FLASH_CR_PG);
 
@@ -299,6 +295,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t FlashAddre
     }
 
     __ISB();
+    __DSB();
 
     /* Program the 256 bits flash word */
     do
@@ -309,6 +306,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t FlashAddre
       row_index--;
     } while (row_index != 0U);
 
+    __ISB();
     __DSB();
   }
 

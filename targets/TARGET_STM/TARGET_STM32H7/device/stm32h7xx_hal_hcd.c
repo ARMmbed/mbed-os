@@ -42,11 +42,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
-  *
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) YYYY STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -114,6 +110,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
   */
 HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 {
+  USB_OTG_GlobalTypeDef *USBx;
+
   /* Check the HCD handle allocation */
   if (hhcd == NULL)
   {
@@ -122,6 +120,8 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 
   /* Check the parameters */
   assert_param(IS_HCD_ALL_INSTANCE(hhcd->Instance));
+
+  USBx = hhcd->Instance;
 
   if (hhcd->State == HAL_HCD_STATE_RESET)
   {
@@ -150,6 +150,12 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   }
 
   hhcd->State = HAL_HCD_STATE_BUSY;
+
+  /* Disable DMA mode for FS instance */
+  if ((USBx->CID & (0x1U << 8)) == 0U)
+  {
+    hhcd->Init.dma_enable = 0U;
+  }
 
   /* Disable the Interrupts */
   __HAL_HCD_DISABLE(hhcd);
@@ -1300,6 +1306,7 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
              (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK))
     {
       hhcd->hc[ch_num].ErrCnt = 0U;
+
       if (hhcd->Init.dma_enable == 0U)
       {
         hhcd->hc[ch_num].state = HC_NAK;
@@ -1419,7 +1426,8 @@ static void HCD_HC_OUT_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     if (hhcd->hc[ch_num].state == HC_XFRC)
     {
       hhcd->hc[ch_num].urb_state  = URB_DONE;
-      if (hhcd->hc[ch_num].ep_type == EP_TYPE_BULK)
+      if ((hhcd->hc[ch_num].ep_type == EP_TYPE_BULK) ||
+          (hhcd->hc[ch_num].ep_type == EP_TYPE_INTR))
       {
         hhcd->hc[ch_num].toggle_out ^= 1U;
       }

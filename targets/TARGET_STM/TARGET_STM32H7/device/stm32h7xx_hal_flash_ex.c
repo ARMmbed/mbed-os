@@ -120,6 +120,10 @@ static void FLASH_OB_GetSecureArea(uint32_t *SecureAreaConfig, uint32_t *SecureA
 static void FLASH_CRC_AddSector(uint32_t Sector, uint32_t Bank);
 static void FLASH_CRC_SelectAddress(uint32_t CRCStartAddr, uint32_t CRCEndAddr, uint32_t Bank);
 
+#if defined(DUAL_CORE)
+static void FLASH_OB_CM4BootAddConfig(uint32_t BootOption, uint32_t BootAddress0, uint32_t BootAddress1);
+static void FLASH_OB_GetCM4BootAdd(uint32_t *BootAddress0, uint32_t *BootAddress1);
+#endif /*DUAL_CORE*/
 /**
   * @}
   */
@@ -439,12 +443,25 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
       FLASH_OB_BOR_LevelConfig(pOBInit->BORLevel);
     }
 
+#if defined(DUAL_CORE)
+    /*CM7 Boot Address  configuration*/
+    if((pOBInit->OptionType & OPTIONBYTE_CM7_BOOTADD) == OPTIONBYTE_CM7_BOOTADD)
+    {
+      FLASH_OB_BootAddConfig(pOBInit->BootConfig, pOBInit->BootAddr0, pOBInit->BootAddr1);
+    }
+
+    /*CM4 Boot Address  configuration*/
+    if((pOBInit->OptionType & OPTIONBYTE_CM4_BOOTADD) == OPTIONBYTE_CM4_BOOTADD)
+    {
+      FLASH_OB_CM4BootAddConfig(pOBInit->CM4BootConfig, pOBInit->CM4BootAddr0, pOBInit->CM4BootAddr1);
+    }
+#else /* Single Core*/
     /*Boot Address  configuration*/
     if((pOBInit->OptionType & OPTIONBYTE_BOOTADD) == OPTIONBYTE_BOOTADD)
     {
       FLASH_OB_BootAddConfig(pOBInit->BootConfig, pOBInit->BootAddr0, pOBInit->BootAddr1);
     }
-
+#endif /*DUAL_CORE*/
     /*Bank1 secure area  configuration*/
     if((pOBInit->OptionType & OPTIONBYTE_SECURE_AREA) == OPTIONBYTE_SECURE_AREA)
     {
@@ -496,8 +513,14 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
 
   /*Get Boot Address*/
   FLASH_OB_GetBootAdd(&(pOBInit->BootAddr0), &(pOBInit->BootAddr1));
+#if defined(DUAL_CORE)
+  pOBInit->OptionType |= OPTIONBYTE_CM7_BOOTADD | OPTIONBYTE_CM4_BOOTADD;
 
+  /*Get CM4 Boot Address*/
+  FLASH_OB_GetCM4BootAdd(&(pOBInit->CM4BootAddr0), &(pOBInit->CM4BootAddr1));
+#else
   pOBInit->OptionType |= OPTIONBYTE_BOOTADD;
+#endif /*DUAL_CORE*/
 }
 
 /**
@@ -959,9 +982,40 @@ static void FLASH_OB_RDPConfig(uint32_t RDPLevel)
   */
 static uint32_t FLASH_OB_GetRDP(void)
 {
-  return (FLASH->OPTSR_CUR & FLASH_OPTSR_RDP);
+  uint32_t rdp_level = READ_BIT(FLASH->OPTSR_CUR, FLASH_OPTSR_RDP);
+  
+  if ((rdp_level != OB_RDP_LEVEL_0) && (rdp_level != OB_RDP_LEVEL_2))
+  {
+    return (OB_RDP_LEVEL_1);
+  }
+  else
+  {
+    return rdp_level;
+  }
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Program the FLASH User Option Byte.
+  *
+  * @note   To configure the user option bytes, the option lock bit OPTLOCK must
+  *         be cleared with the call of the HAL_FLASH_OB_Unlock() function.
+  *
+  * @note   To validate the user option bytes, the option bytes must be reloaded
+  *         through the call of the HAL_FLASH_OB_Launch() function.
+  *
+  * @param  UserType The FLASH User Option Bytes to be modified :
+  *                   a combination of @ref FLASHEx_OB_USER_Type
+  *
+  * @param  UserConfig The FLASH User Option Bytes values:
+  *         IWDG1_SW(Bit4), IWDG2_SW(Bit 5), nRST_STOP_D1(Bit 6), nRST_STDY_D1(Bit 7),
+  *         FZ_IWDG_STOP(Bit 17), FZ_IWDG_SDBY(Bit 18), ST_RAM_SIZE(Bit[19:20]),
+  *         SECURITY(Bit 21), BCM4(Bit 22), BCM7(Bit 23), nRST_STOP_D2(Bit 24),
+  *         nRST_STDY_D2(Bit 25), IO_HSLV (Bit 29) and SWAP_BANK_OPT(Bit 31).
+  *
+  * @retval HAL status
+  */
+#else
 /**
   * @brief  Program the FLASH User Option Byte.
   *
@@ -981,7 +1035,7 @@ static uint32_t FLASH_OB_GetRDP(void)
   *
   * @retval HAL status
   */
-
+#endif /*DUAL_CORE*/
 static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
 {
   uint32_t optr_reg_val = 0;
@@ -999,7 +1053,17 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
     optr_reg_val |= (UserConfig & FLASH_OPTSR_IWDG1_SW);
     optr_reg_mask |= FLASH_OPTSR_IWDG1_SW;
   }
+#if defined(DUAL_CORE)
+  if((UserType & OB_USER_IWDG2_SW) != 0U)
+  {
+    /* IWDG2_SW option byte should be modified */
+    assert_param(IS_OB_IWDG2_SOURCE(UserConfig & FLASH_OPTSR_IWDG2_SW));
 
+    /* Set value and mask for IWDG2_SW option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTSR_IWDG2_SW);
+    optr_reg_mask |= FLASH_OPTSR_IWDG2_SW;
+  }
+#endif /*DUAL_CORE*/
   if((UserType & OB_USER_NRST_STOP_D1) != 0U)
   {
     /* NRST_STOP option byte should be modified */
@@ -1060,7 +1124,47 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
     optr_reg_mask |= FLASH_OPTSR_SECURITY;
   }
 
+#if defined(DUAL_CORE)
+  if((UserType & OB_USER_BCM4) != 0U)
+  {
+    /* BCM4 option byte should be modified */
+    assert_param(IS_OB_USER_BCM4(UserConfig & FLASH_OPTSR_BCM4));
 
+    /* Set value and mask for BCM4 option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTSR_BCM4);
+    optr_reg_mask |= FLASH_OPTSR_BCM4;
+  }
+
+  if((UserType & OB_USER_BCM7) != 0U)
+  {
+    /* BCM7 option byte should be modified */
+    assert_param(IS_OB_USER_BCM7(UserConfig & FLASH_OPTSR_BCM7));
+
+    /* Set value and mask for BCM7 option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTSR_BCM7);
+    optr_reg_mask |= FLASH_OPTSR_BCM7;
+  }
+
+  if((UserType & OB_USER_NRST_STOP_D2) != 0U)
+  {
+    /* NRST_STOP option byte should be modified */
+    assert_param(IS_OB_STOP_D2_RESET(UserConfig & FLASH_OPTSR_NRST_STOP_D2));
+
+    /* Set value and mask for NRST_STOP option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTSR_NRST_STOP_D2);
+    optr_reg_mask |= FLASH_OPTSR_NRST_STOP_D2;
+  }
+
+  if((UserType & OB_USER_NRST_STDBY_D2) != 0U)
+  {
+    /* NRST_STDBY option byte should be modified */
+    assert_param(IS_OB_STDBY_D2_RESET(UserConfig & FLASH_OPTSR_NRST_STBY_D2));
+
+    /* Set value and mask for NRST_STDBY option byte */
+    optr_reg_val |= (UserConfig & FLASH_OPTSR_NRST_STBY_D2);
+    optr_reg_mask |= FLASH_OPTSR_NRST_STBY_D2;
+  }
+#endif /*DUAL_CORE*/
   if((UserType & OB_USER_SWAP_BANK) != 0U)
   {
     /* SWAP_BANK_OPT option byte should be modified */
@@ -1085,6 +1189,16 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
   MODIFY_REG(FLASH->OPTSR_PRG, optr_reg_mask, optr_reg_val);
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Return the FLASH User Option Byte value.
+  * @retval The FLASH User Option Bytes values
+  *         IWDG1_SW(Bit4), IWDG2_SW(Bit 5), nRST_STOP_D1(Bit 6), nRST_STDY_D1(Bit 7),
+  *         FZ_IWDG_STOP(Bit 17), FZ_IWDG_SDBY(Bit 18), ST_RAM_SIZE(Bit[19:20]),
+  *         SECURITY(Bit 21), BCM4(Bit 22), BCM7(Bit 23), nRST_STOP_D2(Bit 24),
+  *         nRST_STDY_D2(Bit 25), IO_HSLV (Bit 29) and SWAP_BANK_OPT(Bit 31).
+  */
+#else
 /**
   * @brief  Return the FLASH User Option Byte value.
   * @retval The FLASH User Option Bytes values
@@ -1092,6 +1206,7 @@ static void FLASH_OB_UserConfig(uint32_t UserType, uint32_t UserConfig)
   *         FZ_IWDG_STOP(Bit 17), FZ_IWDG_SDBY(Bit 18), ST_RAM_SIZE(Bit[19:20]),
   *         SECURITY(Bit 21), IO_HSLV (Bit 29) and SWAP_BANK_OPT(Bit 31).
   */
+#endif /*DUAL_CORE*/
 static uint32_t FLASH_OB_GetUser(void)
 {
   uint32_t userConfig = READ_REG(FLASH->OPTSR_CUR);
@@ -1250,7 +1365,11 @@ static void FLASH_OB_BootAddConfig(uint32_t BootOption, uint32_t BootAddress0, u
     assert_param(IS_BOOT_ADDRESS(BootAddress0));
 
     /* Configure CM7 BOOT ADD0 */
+#if defined(DUAL_CORE)
+    MODIFY_REG(FLASH->BOOT7_PRG, FLASH_BOOT7_BCM7_ADD0, (BootAddress0 >> 16));
+#else /* Single Core*/
     MODIFY_REG(FLASH->BOOT_PRG, FLASH_BOOT_ADD0, (BootAddress0 >> 16));
+#endif /* DUAL_CORE */
   }
 
   if((BootOption & OB_BOOT_ADD1) == OB_BOOT_ADD1)
@@ -1259,7 +1378,11 @@ static void FLASH_OB_BootAddConfig(uint32_t BootOption, uint32_t BootAddress0, u
     assert_param(IS_BOOT_ADDRESS(BootAddress1));
 
     /* Configure CM7 BOOT ADD1 */
+#if defined(DUAL_CORE)
+    MODIFY_REG(FLASH->BOOT7_PRG, FLASH_BOOT7_BCM7_ADD1, BootAddress1);
+#else /* Single Core*/
     MODIFY_REG(FLASH->BOOT_PRG, FLASH_BOOT_ADD1, BootAddress1);
+#endif /* DUAL_CORE */
   }
 }
 
@@ -1273,11 +1396,71 @@ static void FLASH_OB_GetBootAdd(uint32_t *BootAddress0, uint32_t *BootAddress1)
 {
   uint32_t regvalue;
 
+#if defined(DUAL_CORE)
+  regvalue = FLASH->BOOT7_CUR;
+
+  (*BootAddress0) = (regvalue & FLASH_BOOT7_BCM7_ADD0) << 16;
+  (*BootAddress1) = (regvalue & FLASH_BOOT7_BCM7_ADD1);
+#else /* Single Core */
   regvalue = FLASH->BOOT_CUR;
 
   (*BootAddress0) = (regvalue & FLASH_BOOT_ADD0) << 16;
   (*BootAddress1) = (regvalue & FLASH_BOOT_ADD1);
+#endif /* DUAL_CORE */
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Set CM4 Boot address
+  * @param  BootOption Boot address option byte to be programmed,
+  *                     This parameter must be a value of @ref FLASHEx_OB_BOOT_OPTION
+                        (OB_BOOT_ADD0, OB_BOOT_ADD1 or OB_BOOT_ADD_BOTH)
+  *
+  * @param  BootAddress0 Specifies the CM4 Boot Address 0.
+  * @param  BootAddress1 Specifies the CM4 Boot Address 1.
+  * @retval HAL Status
+  */
+static void FLASH_OB_CM4BootAddConfig(uint32_t BootOption, uint32_t BootAddress0, uint32_t BootAddress1)
+{
+  /* Check the parameters */
+  assert_param(IS_OB_BOOT_ADD_OPTION(BootOption));
+
+  if((BootOption & OB_BOOT_ADD0) == OB_BOOT_ADD0)
+  {
+    /* Check the parameters */
+    assert_param(IS_BOOT_ADDRESS(BootAddress0));
+
+    /* Configure CM4 BOOT ADD0 */
+    MODIFY_REG(FLASH->BOOT4_PRG, FLASH_BOOT4_BCM4_ADD0, (BootAddress0 >> 16));
+
+  }
+
+  if((BootOption & OB_BOOT_ADD1) == OB_BOOT_ADD1)
+  {
+    /* Check the parameters */
+    assert_param(IS_BOOT_ADDRESS(BootAddress1));
+
+    /* Configure CM4 BOOT ADD1 */
+    MODIFY_REG(FLASH->BOOT4_PRG, FLASH_BOOT4_BCM4_ADD1, BootAddress1);
+  }
+}
+
+/**
+  * @brief  Get CM4 Boot address
+  * @param  BootAddress0 Specifies the CM4 Boot Address 0.
+  * @param  BootAddress1 Specifies the CM4 Boot Address 1.
+  * @retval HAL Status
+  */
+static void FLASH_OB_GetCM4BootAdd(uint32_t *BootAddress0, uint32_t *BootAddress1)
+{
+  uint32_t regvalue;
+
+  regvalue = FLASH->BOOT4_CUR;
+
+  (*BootAddress0) = (regvalue & FLASH_BOOT4_BCM4_ADD0) << 16;
+  (*BootAddress1) = (regvalue & FLASH_BOOT4_BCM4_ADD1);
+}
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Set secure area configuration
