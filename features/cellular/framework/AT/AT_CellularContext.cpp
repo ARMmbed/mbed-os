@@ -59,6 +59,7 @@ AT_CellularContext::~AT_CellularContext()
 {
     tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
 
+    _is_blocking = true;
     (void)disconnect();
 
     if (_nw) {
@@ -659,15 +660,14 @@ void AT_CellularContext::ppp_disconnected()
 
 #endif //#if NSAPI_PPP_AVAILABLE
 
-nsapi_error_t AT_CellularContext::disconnect()
+void AT_CellularContext::do_disconnect()
 {
-    tr_info("CellularContext disconnect()");
     if (!_nw || !_is_connected) {
         if (_new_context_set) {
             delete_current_context();
         }
         _cid = -1;
-        return NSAPI_ERROR_NO_CONNECTION;
+        _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
     }
 
     // set false here so callbacks know that we are not connected and so should not send DISCONNECTED
@@ -703,8 +703,22 @@ nsapi_error_t AT_CellularContext::disconnect()
         delete_current_context();
     }
     _cid = -1;
+    _cb_data.error = _at.unlock_return_error();
+}
 
-    return _at.unlock_return_error();
+nsapi_error_t AT_CellularContext::disconnect()
+{
+    tr_info("CellularContext disconnect()");
+    if (_is_blocking) {
+        do_disconnect();
+        return _cb_data.error;
+    } else {
+        int event_id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_disconnect);
+        if (event_id == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        return NSAPI_ERROR_OK;
+    }
 }
 
 void AT_CellularContext::deactivate_ip_context()

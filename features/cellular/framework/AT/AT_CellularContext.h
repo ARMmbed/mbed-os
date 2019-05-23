@@ -118,6 +118,7 @@ private:
     AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
+    void do_disconnect();
 private:
     bool _is_connected;
     ContextOperation  _current_op;

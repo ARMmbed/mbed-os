@@ -603,15 +603,22 @@ TEST_F(TestAT_CellularContext, connect_disconnect_async)
     ASSERT_EQ(network_cb_count, 5);
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_IS_CONNECTED);
     EXPECT_TRUE(ctx1.is_connected() == true);
+    ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_NO_MEMORY);
+    EXPECT_TRUE(ctx1.is_connected() == true);
+
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
     EXPECT_TRUE(ctx1.is_connected() == false);
 
     // sdet CellularDevice_stub::connect_counter = 0 so device is already attached and will return NSAPI_ERROR_ALREADY to context when calling connect
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = false;
     CellularDevice_stub::connect_counter = 0;
     // queue can't allocate so return NSAPI_ERROR_NO_MEMORY
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_NO_MEMORY);
 
-    struct equeue_event ptr;
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_OK);
