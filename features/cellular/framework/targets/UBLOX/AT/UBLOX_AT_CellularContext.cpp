@@ -89,8 +89,7 @@ nsapi_error_t UBLOX_AT_CellularContext::open_data_channel()
     _at.cmd_start("AT+UPSND=" PROFILE ",8");
     _at.cmd_stop();
     _at.resp_start("+UPSND:");
-    _at.read_int();
-    _at.read_int();
+    _at.skip_param(2);
     active = _at.read_int();
     _at.resp_stop();
 
@@ -133,7 +132,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
     // Set up the APN
     if (apn) {
         success = false;
-        _at.cmd_start("AT+UPSD=0,1,");
+        _at.cmd_start("AT+UPSD=" PROFILE ",1,");
         _at.write_string(apn);
         _at.cmd_stop();
         _at.resp_start();
@@ -183,7 +182,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
         for (int protocol = nsapi_security_to_modem_security(NSAPI_SECURITY_NONE);
                 success && (protocol <= nsapi_security_to_modem_security(NSAPI_SECURITY_CHAP)); protocol++) {
             if ((_auth == NSAPI_SECURITY_UNKNOWN) || (nsapi_security_to_modem_security(_auth) == protocol)) {
-                _at.cmd_start("AT+UPSD=0,6,");
+                _at.cmd_start("AT+UPSD=" PROFILE ",6,");
                 _at.write_int(protocol);
                 _at.cmd_stop();
                 _at.resp_start();
@@ -192,14 +191,29 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                 if (_at.get_last_error() == NSAPI_ERROR_OK) {
                     // Activate, wait upto 30 seconds for the connection to be made
                     _at.set_at_timeout(30000);
-                    _at.cmd_start("AT+UPSDA=0,3");
+                    _at.cmd_start("AT+UPSDA=" PROFILE ",3");
                     _at.cmd_stop();
                     _at.resp_start();
                     _at.resp_stop();
                     _at.restore_at_timeout();
 
                     if (_at.get_last_error() == NSAPI_ERROR_OK) {
-                        activated = true;
+                        Timer t1;
+                        t1.start();
+                        while (!(t1.read() >= 180)) {
+                            _at.cmd_start("AT+UPSND=" PROFILE ",8");
+                            _at.cmd_stop();
+                            _at.resp_start("+UPSND:");
+                            _at.skip_param(2);
+                            _at.read_int() ? activated = true : activated = false;
+                            _at.resp_stop();
+
+                            if (activated) {  //If context is activated, exit while loop and return status
+                                break;
+                            }
+                            wait_ms(5000);    //Wait for 5 seconds and then try again
+                        }
+                        t1.stop();
                     }
                 }
             }
