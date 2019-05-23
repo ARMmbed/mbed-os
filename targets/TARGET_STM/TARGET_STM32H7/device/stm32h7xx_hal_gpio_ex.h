@@ -54,6 +54,14 @@ extern "C" {
 #define GPIO_AF0_SWJ           ((uint8_t)0x00)  /* SWJ (SWD and JTAG) Alternate Function mapping             */
 #define GPIO_AF0_LCDBIAS       ((uint8_t)0x00)  /* LCDBIAS Alternate Function mapping                        */
 #define GPIO_AF0_TRACE         ((uint8_t)0x00)  /* TRACE Alternate Function mapping                          */
+#define GPIO_AF0_C1DSLEEP      ((uint8_t)0x00)  /* Cortex-M7 Deep Sleep Alternate Function mapping : available on STM32H7 Rev.B and above  */
+#define GPIO_AF0_C1SLEEP       ((uint8_t)0x00)  /* Cortex-M7 Sleep Alternate Function mapping : available on STM32H7 Rev.B and above       */
+#define GPIO_AF0_D1PWREN       ((uint8_t)0x00)  /* Domain 1 PWR enable Alternate Function mapping : available on STM32H7 Rev.B and above   */
+#define GPIO_AF0_D2PWREN       ((uint8_t)0x00)  /* Domain 2 PWR enable Alternate Function mapping : available on STM32H7 Rev.B and above   */
+#if defined(DUAL_CORE)
+#define GPIO_AF0_C2DSLEEP      ((uint8_t)0x00)  /* Cortex-M4 Deep Sleep Alternate Function mapping : available on STM32H7 Rev.B and above  */
+#define GPIO_AF0_C2SLEEP       ((uint8_t)0x00)  /* Cortex-M4 Sleep Alternate Function mapping : available on STM32H7 Rev.B and above       */
+#endif /* DUAL_CORE */
 
 /**
   * @brief   AF 1 selection
@@ -176,6 +184,7 @@ extern "C" {
 #define GPIO_AF10_COMP1         ((uint8_t)0xA)  /* COMP1 Alternate Function mapping */
 #define GPIO_AF10_COMP2         ((uint8_t)0xA)  /* COMP2 Alternate Function mapping */
 #define GPIO_AF10_LTDC          ((uint8_t)0xA)  /* LTDC Alternate Function mapping   */
+#define GPIO_AF10_CRS_SYNC      ((uint8_t)0xA)  /* CRS Sync Alternate Function mapping : available on STM32H7 Rev.B and above  */
 
 
 /**
@@ -207,6 +216,7 @@ extern "C" {
   * @brief   AF 13 selection
   */
 #define GPIO_AF13_DCMI          ((uint8_t)0x0D)   /* DCMI Alternate Function mapping */
+#define GPIO_AF13_DSI           ((uint8_t)0x0D)   /* DSI Alternate Function mapping */
 #define GPIO_AF13_COMP1         ((uint8_t)0x0D)   /* COMP1 Alternate Function mapping */
 #define GPIO_AF13_COMP2         ((uint8_t)0x0D)   /* COMP2 Alternate Function mapping */
 #define GPIO_AF13_LTDC          ((uint8_t)0x0D)   /* LTDC Alternate Function mapping   */

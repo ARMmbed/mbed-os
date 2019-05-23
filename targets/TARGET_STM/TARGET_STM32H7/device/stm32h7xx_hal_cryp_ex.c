@@ -157,6 +157,16 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, u
 
     /* Write the number of bits in header (64 bits) followed by the number of bits
     in the payload */
+    /* STM32H7 rev.B and above : data has to be inserted normally (no swapping)*/
+    if (hcryp->Version >= REV_ID_B)
+    {
+      hcryp->Instance->DIN = 0U;
+      hcryp->Instance->DIN = (uint32_t)(headerlength);
+      hcryp->Instance->DIN = 0U;
+      hcryp->Instance->DIN = (uint32_t)(inputlength);
+    }
+    else/* data has to be swapped according to the DATATYPE */
+    {
       if (hcryp->Init.DataType == CRYP_DATATYPE_1B)
       {
         hcryp->Instance->DIN = 0U;
@@ -189,6 +199,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESGCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, u
       {
         /* Nothing to do */
       }
+    }
     /* Wait for OFNE flag to be raised */
     tickstart = HAL_GetTick();
     while (HAL_IS_BIT_CLR(hcryp->Instance->SR, CRYP_FLAG_OFNE))
@@ -301,6 +312,19 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, u
     ctr0[2] = hcryp->Init.B0[2];
     ctr0[3] = hcryp->Init.B0[3] &  CRYP_CCM_CTR0_3;
 
+    /*STM32H7 rev.B and above : data has to be inserted normally (no swapping)*/
+    if (hcryp->Version >= REV_ID_B)
+    {
+      hcryp->Instance->DIN = *(uint32_t *)(ctr0addr);
+      ctr0addr += 4U;
+      hcryp->Instance->DIN = *(uint32_t *)(ctr0addr);
+      ctr0addr += 4U;
+      hcryp->Instance->DIN = *(uint32_t *)(ctr0addr);
+      ctr0addr += 4U;
+      hcryp->Instance->DIN = *(uint32_t *)(ctr0addr);
+    }
+    else /* data has to be swapped according to the DATATYPE */
+    {
       if (hcryp->Init.DataType == CRYP_DATATYPE_8B)
       {
         hcryp->Instance->DIN = __REV(*(uint32_t *)(ctr0addr));
@@ -341,6 +365,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AESCCM_GenerateAuthTAG(CRYP_HandleTypeDef *hcryp, u
         ctr0addr += 4U;
         hcryp->Instance->DIN = *(uint32_t *)(ctr0addr);
       }
+    }
     /* Wait for OFNE flag to be raised */
     tickstart = HAL_GetTick();
     while (HAL_IS_BIT_CLR(hcryp->Instance->SR, CRYP_FLAG_OFNE))

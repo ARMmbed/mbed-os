@@ -111,6 +111,17 @@ typedef struct
 
   uint32_t BootAddr1;   /*!< Boot Address 1.
                                 This parameter must be a value between begin and end of a bank */
+#if defined(DUAL_CORE)
+  uint32_t CM4BootConfig;  /*!< specifies if the CM4 boot Address to be configured BOOT_ADD0, BOOT_ADD1
+                                or both.
+                                This parameter must be a value of @ref FLASHEx_OB_BOOT_OPTION enumeration */
+
+  uint32_t CM4BootAddr0;   /*!< CM4 Boot Address 0.
+                                This parameter must be a value between begin and end of a bank */
+
+  uint32_t CM4BootAddr1;   /*!< CM4 Boot Address 1.
+                                This parameter must be a value between begin and end of a bank */
+#endif /*DUAL_CORE*/
 
   uint32_t SecureAreaConfig;  /*!< specifies if the bank secured area shall be erased or not
                                    when RDP level decreased from Level 1 to Level 0 or during a mass erase.
@@ -199,7 +210,13 @@ typedef struct
 #define OPTIONBYTE_PCROP         0x08U  /*!< PCROP option byte configuration */
 #define OPTIONBYTE_BOR           0x10U  /*!< BOR option byte configuration */
 #define OPTIONBYTE_SECURE_AREA   0x20U  /*!< secure area option byte configuration */
+#if defined(DUAL_CORE)
+#define OPTIONBYTE_CM7_BOOTADD   0x40U  /*!< CM7 BOOT ADD option byte configuration */
+#define OPTIONBYTE_CM4_BOOTADD   0x80U  /*!< CM4 BOOT ADD option byte configuration */
+#define OPTIONBYTE_BOOTADD       OPTIONBYTE_CM7_BOOTADD  /*!< BOOT ADD option byte configuration */
+#else /* Single core*/
 #define OPTIONBYTE_BOOTADD       0x40U  /*!< BOOT ADD option byte configuration */
+#endif /*DUAL_CORE*/
 /**
   * @}
   */
@@ -378,6 +395,26 @@ typedef struct
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup FLASHEx_OB_BCM7  FLASHEx OB BCM7
+  * @{
+  */
+#define OB_BCM7_DISABLE       0x00000000U              /*!< CM7 Boot disabled */
+#define OB_BCM7_ENABLE        FLASH_OPTSR_BCM7         /*!< CM7 Boot enabled */
+
+/**
+  * @}
+  */
+
+/** @defgroup FLASHEx_OB_BCM4  FLASHEx OB BCM4
+  * @{
+  */
+#define OB_BCM4_DISABLE       0x00000000U              /*!< CM4 Boot disabled */
+#define OB_BCM4_ENABLE        FLASH_OPTSR_BCM4         /*!< CM4 Boot enabled */
+/**
+  * @}
+  */
+#endif /*DUAL_CORE*/
 
 /** @defgroup FLASHEx_OB_IWDG1_SW  FLASHEx OB IWDG1 SW
   * @{
@@ -388,6 +425,16 @@ typedef struct
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup FLASHEx_OB_IWDG2_SW  FLASHEx OB IWDG2 SW
+  * @{
+  */
+#define OB_IWDG2_SW            FLASH_OPTSR_IWDG2_SW  /*!< Hardware independent watchdog 2*/
+#define OB_IWDG2_HW            0x00000000U           /*!< Software independent watchdog 2*/
+/**
+  * @}
+  */
+#endif
 
 /** @defgroup FLASHEx_OB_NRST_STOP_D1  FLASHEx OB NRST STOP D1
   * @{
@@ -407,6 +454,25 @@ typedef struct
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup FLASHEx_OB_NRST_STOP_D2  FLASHEx OB NRST STOP D2
+  * @{
+  */
+#define OB_STOP_RST_D2         0x00000000U              /*!< Reset generated when entering the D2 to stop mode */
+#define OB_STOP_NO_RST_D2      FLASH_OPTSR_NRST_STOP_D2 /*!< No reset generated when entering the D2 to stop mode */
+/**
+  * @}
+  */
+
+/** @defgroup FLASHEx_OB_NRST_STDBY_D2  FLASHEx OB NRST STDBY D2
+  * @{
+  */
+#define OB_STDBY_RST_D2        0x00000000U              /*!< Reset generated when entering the D2 to standby mode */
+#define OB_STDBY_NO_RST_D2     FLASH_OPTSR_NRST_STBY_D2 /*!< No reset generated when entering the D2 to standby mode */
+/**
+  * @}
+  */
+#endif
 
 /** @defgroup FLASHEx_OB_SWAP_BANK  FLASHEx OB SWAP BANK
   * @{
@@ -448,6 +514,13 @@ typedef struct
 #define OB_USER_SECURITY          0x0040U /*!< security selection */
 #define OB_USER_IOHSLV            0x0080U /*!< IO HSLV selection */
 #define OB_USER_SWAP_BANK         0x0100U /*!< Bank swap selection */
+#if defined(DUAL_CORE)
+#define OB_USER_IWDG2_SW          0x0200U /*!< Window watchdog selection */
+#define OB_USER_BCM4              0x0400U /*!< CM4 boot selection */
+#define OB_USER_BCM7              0x0800U /*!< CM7 boot selection */
+#define OB_USER_NRST_STOP_D2      0x1000U /*!< Reset when entering Stop mode selection*/
+#define OB_USER_NRST_STDBY_D2     0x2000U /*!< Reset when entering standby mode selection*/
+#endif /*DUAL_CORE*/
 
 /**
   * @}
@@ -598,8 +671,11 @@ HAL_StatusTypeDef HAL_FLASHEx_ComputeCRC(FLASH_CRCInitTypeDef *pCRCInit, uint32_
 
 #define IS_WRPSTATE(VALUE)    (((VALUE) == OB_WRPSTATE_DISABLE) || \
                                ((VALUE) == OB_WRPSTATE_ENABLE))
-
+#if defined(DUAL_CORE)
+#define IS_OPTIONBYTE(VALUE)    (((VALUE) <= 0x3FFFU) && ((VALUE) != 0U))
+#else
 #define IS_OPTIONBYTE(VALUE)    (((VALUE) <= 0x01FFU) && ((VALUE) != 0U))
+#endif /*DUAL_CORE*/
 
 #define IS_OB_BOOT_ADDRESS(ADDRESS)     ((ADDRESS) <= 0x8013U)
 
@@ -663,7 +739,9 @@ HAL_StatusTypeDef HAL_FLASHEx_ComputeCRC(FLASH_CRCInitTypeDef *pCRCInit, uint32_
 #define IS_OB_USER_IOHSLV(VALUE)         (((VALUE) == OB_IOHSLV_DISABLE) || ((VALUE) == OB_IOHSLV_ENABLE))
 
 #define IS_OB_IWDG1_SOURCE(SOURCE)       (((SOURCE) == OB_IWDG1_SW) || ((SOURCE) == OB_IWDG1_HW))
-
+#if defined(DUAL_CORE)
+#define IS_OB_IWDG2_SOURCE(SOURCE)       (((SOURCE) == OB_IWDG2_SW) || ((SOURCE) == OB_IWDG2_HW))
+#endif /*DUAL_CORE*/
 #define IS_OB_STOP_D1_RESET(VALUE)       (((VALUE) == OB_STOP_NO_RST_D1) || ((VALUE) == OB_STOP_RST_D1))
 
 #define IS_OB_STDBY_D1_RESET(VALUE)      (((VALUE) == OB_STDBY_NO_RST_D1) || ((VALUE) == OB_STDBY_RST_D1))
@@ -677,7 +755,20 @@ HAL_StatusTypeDef HAL_FLASHEx_ComputeCRC(FLASH_CRCInitTypeDef *pCRCInit, uint32_
 
 #define IS_OB_USER_SECURITY(VALUE)       (((VALUE) == OB_SECURITY_ENABLE) || ((VALUE) == OB_SECURITY_DISABLE))
 
+#if defined(DUAL_CORE)
+#define IS_OB_USER_BCM4(VALUE)           (((VALUE) == OB_BCM4_DISABLE) || ((VALUE) == OB_BCM4_ENABLE))
+
+#define IS_OB_USER_BCM7(VALUE)           (((VALUE) == OB_BCM7_DISABLE) || ((VALUE) == OB_BCM7_ENABLE))
+
+#define IS_OB_STOP_D2_RESET(VALUE)       (((VALUE) == OB_STOP_NO_RST_D2) || ((VALUE) == OB_STOP_RST_D2))
+
+#define IS_OB_STDBY_D2_RESET(VALUE)      (((VALUE) == OB_STDBY_NO_RST_D2) || ((VALUE) == OB_STDBY_RST_D2))
+#endif /*DUAL_CORE*/
+#if defined(DUAL_CORE)
+#define IS_OB_USER_TYPE(TYPE)            (((TYPE) <= (uint32_t)0x3FFFU) && ((TYPE) != 0U))
+#else
 #define IS_OB_USER_TYPE(TYPE)            (((TYPE) <= (uint32_t)0x73FU) && ((TYPE) != 0U))
+#endif
 
 #define IS_OB_BOOT_ADD_OPTION(VALUE)     (((VALUE) == OB_BOOT_ADD0)  || \
                                           ((VALUE) == OB_BOOT_ADD1)  || \

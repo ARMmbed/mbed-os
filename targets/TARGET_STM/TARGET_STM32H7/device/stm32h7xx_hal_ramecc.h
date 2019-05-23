@@ -218,8 +218,8 @@ HAL_StatusTypeDef HAL_RAMECC_DeInit(RAMECC_HandleTypeDef *hramecc);
   */
 HAL_StatusTypeDef HAL_RAMECC_StartMonitor(RAMECC_HandleTypeDef *hramecc);
 HAL_StatusTypeDef HAL_RAMECC_StopMonitor(RAMECC_HandleTypeDef *hramecc);
-HAL_StatusTypeDef HAL_RAMECC_EnableNotifiaction(RAMECC_HandleTypeDef *hramecc, uint32_t Noftications);
-HAL_StatusTypeDef HAL_RAMECC_DisableNotifiaction(RAMECC_HandleTypeDef *hramecc, uint32_t Noftications);
+HAL_StatusTypeDef HAL_RAMECC_EnableNotification(RAMECC_HandleTypeDef *hramecc, uint32_t Notifications);
+HAL_StatusTypeDef HAL_RAMECC_DisableNotification(RAMECC_HandleTypeDef *hramecc, uint32_t Notifications);
 void              HAL_RAMECC_IRQHandler(RAMECC_HandleTypeDef *hramecc);
 HAL_StatusTypeDef HAL_RAMECC_RegisterCallback(RAMECC_HandleTypeDef *hramecc, void (* pCallback)(RAMECC_HandleTypeDef *_hramecc));
 HAL_StatusTypeDef HAL_RAMECC_UnRegisterCallback(RAMECC_HandleTypeDef *hramecc);

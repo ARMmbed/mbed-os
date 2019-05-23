@@ -122,6 +122,7 @@ typedef struct
 /** @defgroup PWR_Regulator_Voltage_Scale PWR Regulator Voltage Scale
   * @{
   */
+#define PWR_REGULATOR_VOLTAGE_SCALE0  ((uint32_t)0x00000000)
 #define PWR_REGULATOR_VOLTAGE_SCALE1  (PWR_D3CR_VOS_1 | PWR_D3CR_VOS_0)
 #define PWR_REGULATOR_VOLTAGE_SCALE2  (PWR_D3CR_VOS_1)
 #define PWR_REGULATOR_VOLTAGE_SCALE3  (PWR_D3CR_VOS_0)
@@ -136,13 +137,25 @@ typedef struct
 #define PWR_FLAG_SB_D1      ((uint8_t)0x02U)
 #define PWR_FLAG_SB_D2      ((uint8_t)0x03U)
 #define PWR_FLAG_SB         ((uint8_t)0x04U)
+#if defined(DUAL_CORE)
+#define PWR_FLAG_CPU_HOLD   ((uint8_t)0x05U)
+#define PWR_FLAG_CPU2_HOLD  ((uint8_t)0x06U)
+#define PWR_FLAG2_STOP      ((uint8_t)0x07U)
+#define PWR_FLAG2_SB_D1     ((uint8_t)0x08U)
+#define PWR_FLAG2_SB_D2     ((uint8_t)0x09U)
+#define PWR_FLAG2_SB        ((uint8_t)0x0AU)
+#endif /*DUAL_CORE*/
 #define PWR_FLAG_PVDO       ((uint8_t)0x0BU)
 #define PWR_FLAG_AVDO       ((uint8_t)0x0CU)
 #define PWR_FLAG_ACTVOSRDY  ((uint8_t)0x0DU)
 #define PWR_FLAG_ACTVOS     ((uint8_t)0x0EU)
 #define PWR_FLAG_BRR        ((uint8_t)0x0FU)
 #define PWR_FLAG_VOSRDY     ((uint8_t)0x10U)
+#if defined(SMPS)
+#define PWR_FLAG_SMPSEXTRDY ((uint8_t)0x11U)
+#else
 #define PWR_FLAG_SCUEN      ((uint8_t)0x11U)
+#endif /* SMPS */
 /**
   * @}
   */
@@ -167,22 +180,93 @@ typedef struct
   * @param  __REGULATOR__: specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption when the device does
   *         not operate at the maximum frequency (refer to the datasheets for more details).
-  *         This parameter can be one of the following values:
+  *          This parameter can be one of the following values:
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE0: Regulator voltage output Scale 0 mode
   *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output Scale 1 mode
   *            @arg PWR_REGULATOR_VOLTAGE_SCALE2: Regulator voltage output Scale 2 mode
   *            @arg PWR_REGULATOR_VOLTAGE_SCALE3: Regulator voltage output Scale 3 mode
+  * @note  PWR_REGULATOR_VOLTAGE_SCALE0 is only possible when Vcore is supplied from LDO.
+  *        the SYSCFG Clock must be enabled before selecting PWR_REGULATOR_VOLTAGE_SCALE0
+  *        using macro   __HAL_RCC_SYSCFG_CLK_ENABLE().
+  *        Transition to PWR_REGULATOR_VOLTAGE_SCALE0 is only possible when the system is already in
+  *        PWR_REGULATOR_VOLTAGE_SCALE1.
+  *        transition from PWR_REGULATOR_VOLTAGE_SCALE0 is only possible to PWR_REGULATOR_VOLTAGE_SCALE1
+  *        then once in PWR_REGULATOR_VOLTAGE_SCALE1 it is possible to switch to another voltage scale.
+  *        After each regulator voltage setting, wait on PWR_FLAG_VOSRDY to be set using macro __HAL_PWR_GET_FLAG
+  *        To enter low power mode , and if current regulator voltage is PWR_REGULATOR_VOLTAGE_SCALE0 then first
+  *        switch to PWR_REGULATOR_VOLTAGE_SCALE1 before entering low power mode.
+  *
   * @retval None
   */
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__)  \
 do { \
-      __IO uint32_t tmpreg = 0x00; \
-      MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, (__REGULATOR__)); \
+    __IO uint32_t tmpreg = 0x00; \
+    if((__REGULATOR__) == PWR_REGULATOR_VOLTAGE_SCALE0) \
+    { \
+      MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, PWR_REGULATOR_VOLTAGE_SCALE1); \
       /* Delay after setting the voltage scaling */  \
       tmpreg = READ_BIT(PWR->D3CR, PWR_D3CR_VOS); \
-      UNUSED(tmpreg); \
+      MODIFY_REG(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN, SYSCFG_PWRCR_ODEN); \
+      /* Delay after setting the syscfg boost setting */  \
+      tmpreg = READ_BIT(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN); \
+    } \
+    else \
+    { \
+      CLEAR_BIT(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN); \
+      /* Delay after setting the syscfg boost setting */  \
+      tmpreg = READ_BIT(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN); \
+      MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, (__REGULATOR__)); \
+      tmpreg = READ_BIT(PWR->D3CR, PWR_D3CR_VOS); \
+    } \
+    UNUSED(tmpreg); \
 } while(0)
 
-
+#if defined(DUAL_CORE)
+/** @brief  Check PWR PVD/AVD and VOSflags are set or not.
+  * @param  __FLAG__: specifies the flag to check.
+  *           This parameter can be one of the following values:
+  *            @arg PWR_FLAG_PVDO: PVD Output. This flag is valid only if PVD is enabled
+  *                  by the HAL_PWR_EnablePVD() function. The PVD is stopped by Standby mode.
+  *                  For this reason, this bit is equal to 0 after Standby or reset
+  *                  until the PVDE bit is set.
+  *            @arg PWR_FLAG_AVDO: AVD Output. This flag is valid only if AVD is enabled
+  *                  by the HAL_PWREx_EnableAVD() function. The AVD is stopped by Standby mode.
+  *                  For this reason, this bit is equal to 0 after Standby or reset
+  *                  until the AVDE bit is set.
+  *            @arg PWR_FLAG_ACTVOSRDY: This flag indicates that the Regulator voltage
+  *                 scaling output selection is ready.
+  *            @arg PWR_FLAG_VOSRDY: This flag indicates that the Regulator voltage
+  *                 scaling output selection is ready.
+  *            @arg PWR_FLAG_SMPSEXTRDY: SMPS External supply ready flag.
+  *            @arg PWR_FLAG_BRR: Backup regulator ready flag. This bit is not reset
+  *                  when the device wakes up from Standby mode or by a system reset
+  *                  or power reset.
+  *            @arg PWR_FLAG_SB: StandBy flag
+  *            @arg PWR_FLAG_STOP: STOP flag
+  *            @arg PWR_FLAG_SB_D1: StandBy D1 flag
+  *            @arg PWR_FLAG_SB_D2: StandBy D2 flag
+  *            @arg PWR_FLAG_CPU1_HOLD: CPU1 system wake up with hold
+  *            @arg PWR_FLAG_CPU2_HOLD: CPU2 system wake up with hold
+  * @retval The new state of __FLAG__ (TRUE or FALSE).
+  */
+#define __HAL_PWR_GET_FLAG(__FLAG__) ( \
+((__FLAG__) == PWR_FLAG_PVDO)?((PWR->CSR1 & PWR_CSR1_PVDO) == PWR_CSR1_PVDO) : \
+((__FLAG__) == PWR_FLAG_AVDO)?((PWR->CSR1 & PWR_CSR1_AVDO) == PWR_CSR1_AVDO) : \
+((__FLAG__) == PWR_FLAG_ACTVOSRDY)?((PWR->CSR1 & PWR_CSR1_ACTVOSRDY) == PWR_CSR1_ACTVOSRDY) : \
+((__FLAG__) == PWR_FLAG_VOSRDY)?((PWR->D3CR & PWR_D3CR_VOSRDY) == PWR_D3CR_VOSRDY) : \
+((__FLAG__) == PWR_FLAG_SMPSEXTRDY)?((PWR->CR3 & PWR_CR3_SMPSEXTRDY) == PWR_CR3_SMPSEXTRDY) : \
+((__FLAG__) == PWR_FLAG_BRR)?((PWR->CR2 & PWR_CR2_BRRDY) == PWR_CR2_BRRDY) : \
+((__FLAG__) == PWR_FLAG_CPU_HOLD)?((PWR->CPU2CR & PWR_CPU2CR_HOLD1F) == PWR_CPU2CR_HOLD1F) : \
+((__FLAG__) == PWR_FLAG_CPU2_HOLD)?((PWR->CPUCR & PWR_CPUCR_HOLD2F) == PWR_CPUCR_HOLD2F) : \
+((__FLAG__) == PWR_FLAG_SB)?(READ_BIT(PWR->CPUCR, PWR_CPUCR_SBF) == PWR_CPUCR_SBF) : \
+((__FLAG__) == PWR_FLAG2_SB)?(READ_BIT(PWR->CPU2CR, PWR_CPU2CR_SBF) == PWR_CPU2CR_SBF) : \
+((__FLAG__) == PWR_FLAG_STOP)?(READ_BIT(PWR->CPUCR, PWR_CPUCR_STOPF) == PWR_CPUCR_STOPF) : \
+((__FLAG__) == PWR_FLAG2_STOP)?(READ_BIT(PWR->CPU2CR, PWR_CPU2CR_STOPF) == PWR_CPU2CR_STOPF) : \
+((__FLAG__) == PWR_FLAG_SB_D1)?(READ_BIT(PWR->CPUCR, PWR_CPUCR_SBF_D1) == PWR_CPUCR_SBF_D1) : \
+((__FLAG__) == PWR_FLAG2_SB_D1)?(READ_BIT(PWR->CPU2CR, PWR_CPU2CR_SBF_D1) == PWR_CPU2CR_SBF_D1) : \
+((__FLAG__) == PWR_FLAG_SB_D2)?(READ_BIT(PWR->CPUCR, PWR_CPUCR_SBF_D2) == PWR_CPUCR_SBF_D2) : \
+(READ_BIT(PWR->CPU2CR, PWR_CPU2CR_SBF_D2) == PWR_CPU2CR_SBF_D2))
+#else
 /** @brief  Check PWR PVD/AVD and VOSflags are set or not.
   * @param  __FLAG__: specifies the flag to check.
   *           This parameter can be one of the following values:
@@ -218,8 +302,23 @@ do { \
 ((__FLAG__) == PWR_FLAG_STOP)?((PWR->CPUCR & PWR_CPUCR_STOPF) == PWR_CPUCR_STOPF) : \
 ((__FLAG__) == PWR_FLAG_SB_D1)?((PWR->CPUCR & PWR_CPUCR_SBF_D1) == PWR_CPUCR_SBF_D1) : \
 ((PWR->CPUCR & PWR_CPUCR_SBF_D2) == PWR_CPUCR_SBF_D2))
+#endif /*DUAL_CORE*/
 
 
+#if defined(DUAL_CORE)
+/** @brief  Clear PWR flags.
+  * @param  __FLAG__: specifies the flag to clear.
+  *           This parameter can be one of the following values:
+  *            @arg PWR_FLAG_SB: Standby flag.
+  *            @arg PWR_CPU_FLAGS: Clear HOLD2F, STOPF, SBF, SBF_D1, and SBF_D2 CPU flags.
+  * @retval None.
+  */
+#define __HAL_PWR_CLEAR_FLAG(__FLAG__)      \
+do {                                        \
+     SET_BIT(PWR->CPUCR, PWR_CPUCR_CSSF);   \
+     SET_BIT(PWR->CPU2CR, PWR_CPU2CR_CSSF); \
+} while(0)
+#else
 /** @brief  Clear PWR flags.
   * @param  __FLAG__: specifies the flag to clear.
   *           This parameter can be one of the following values:
@@ -228,6 +327,7 @@ do { \
   * @retval None.
   */
 #define __HAL_PWR_CLEAR_FLAG(__FLAG__)  SET_BIT(PWR->CPUCR, PWR_CPUCR_CSSF)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief Enable the PVD EXTI Line 16.
@@ -235,11 +335,27 @@ do { \
   */
 #define __HAL_PWR_PVD_EXTI_ENABLE_IT()  SET_BIT(EXTI->IMR1, PWR_EXTI_LINE_PVD)
 
+#if defined(DUAL_CORE)
+/**
+  * @brief Enable the PVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTID2_ENABLE_IT()  SET_BIT(EXTI_D2->IMR1, PWR_EXTI_LINE_PVD)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief Disable the PVD EXTI Line 16.
   * @retval None.
   */
 #define __HAL_PWR_PVD_EXTI_DISABLE_IT()  CLEAR_BIT(EXTI->IMR1, PWR_EXTI_LINE_PVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief Disable the PVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTID2_DISABLE_IT()  CLEAR_BIT(EXTI_D2->IMR1, PWR_EXTI_LINE_PVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief   Enable event on PVD EXTI Line 16.
@@ -247,11 +363,27 @@ do { \
   */
 #define __HAL_PWR_PVD_EXTI_ENABLE_EVENT()  SET_BIT(EXTI->EMR1, PWR_EXTI_LINE_PVD)
 
+#if defined(DUAL_CORE)
+/**
+  * @brief   Enable event on PVD EXTI D2 Line.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTID2_ENABLE_EVENT()  SET_BIT(EXTI_D2->EMR1, PWR_EXTI_LINE_PVD)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief   Disable event on PVD EXTI Line 16.
   * @retval None.
   */
 #define __HAL_PWR_PVD_EXTI_DISABLE_EVENT()  CLEAR_BIT(EXTI->EMR1, PWR_EXTI_LINE_PVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief   Disable event on PVD EXTI D2 Line.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTID2_DISABLE_EVENT()  CLEAR_BIT(EXTI_D2->EMR1, PWR_EXTI_LINE_PVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief Enable the PVD Extended Interrupt Rising Trigger.
@@ -305,11 +437,28 @@ do { \
   */
 #define __HAL_PWR_PVD_EXTI_GET_FLAG()  ((READ_BIT(EXTI->PR1, PWR_EXTI_LINE_PVD) == PWR_EXTI_LINE_PVD) ? SET : RESET)
 
+
+#if defined(DUAL_CORE)
+/**
+  * @brief checks whether the specified PVD Exti interrupt flag is set or not.
+  * @retval EXTI D2 PVD Line Status.
+  */
+#define __HAL_PWR_PVD_EXTID2_GET_FLAG()  ((READ_BIT(EXTI_D2->PR1, PWR_EXTI_LINE_PVD) == PWR_EXTI_LINE_PVD) ? SET : RESET)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief Clear the PVD EXTI flag.
   * @retval None.
   */
 #define __HAL_PWR_PVD_EXTI_CLEAR_FLAG()  SET_BIT(EXTI->PR1, PWR_EXTI_LINE_PVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief Clear the PVD EXTI D2 flag.
+  * @retval None.
+  */
+#define __HAL_PWR_PVD_EXTID2_CLEAR_FLAG()    SET_BIT(EXTI_D2->PR1, PWR_EXTI_LINE_PVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Generates a Software interrupt on PVD EXTI line.

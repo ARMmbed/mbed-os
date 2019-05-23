@@ -92,6 +92,10 @@ typedef struct
                                      @note If both audio blocks of same SAI are used, this parameter has
                                            to be set to the same value for each audio block */
 
+  uint32_t MckOutput;           /*!< Specifies whether master clock output will be generated or not.
+                                     This parameter can be a value of @ref SAI_Block_MckOutput
+                                     @note This feature is only available on STM32H7xx Rev.B and above */
+
   uint32_t OutputDrive;         /*!< Specifies when SAI Block outputs are driven.
                                      This parameter can be a value of @ref SAI_Block_Output_Drive
                                      @note This value has to be set before enabling the audio block
@@ -102,7 +106,8 @@ typedef struct
                                      @note If bit NODIV in the SAI_xCR1 register is cleared, the frame length
                                            should be aligned to a number equal to a power of 2, from 8 to 256.
                                            If bit NODIV in the SAI_xCR1 register is set, the frame length can
-                                           take any of the values from 8 to 256. */
+                                           take any of the values from 8 to 256.
+                                     @note The NODIV bit is the same as NOMCK bit in STM32H7xx rev.Y */
 
   uint32_t FIFOThreshold;       /*!< Specifies SAI Block FIFO threshold.
                                      This parameter can be a value of @ref SAI_Block_Fifo_Threshold */
@@ -308,6 +313,15 @@ typedef void (*pSAI_CallbackTypeDef)(SAI_HandleTypeDef *hsai);
   * @}
   */
 
+/** @defgroup SAI_Block_MckOutput SAI Block Master Clock Output
+  * @{
+  */
+#define SAI_MCK_OUTPUT_DISABLE      0x00000000U
+#define SAI_MCK_OUTPUT_ENABLE       SAI_xCR1_MCKEN
+/**
+  * @}
+  */
+
 /** @defgroup SAI_Protocol SAI Supported protocol
   * @{
   */
@@ -445,7 +459,7 @@ typedef void (*pSAI_CallbackTypeDef)(SAI_HandleTypeDef *hsai);
   * @{
   */
 #define SAI_MASTERDIVIDER_ENABLE    0x00000000U
-#define SAI_MASTERDIVIDER_DISABLE   SAI_xCR1_NOMCK
+#define SAI_MASTERDIVIDER_DISABLE   SAI_xCR1_NODIV
 /**
   * @}
   */
@@ -864,6 +878,9 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
                                        ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI2) || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI3) || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI4))
+
+#define IS_SAI_BLOCK_MCK_OUTPUT(VALUE) (((VALUE) == SAI_MCK_OUTPUT_ENABLE) || \
+                                        ((VALUE) == SAI_MCK_OUTPUT_DISABLE))
 
 #define IS_SAI_BLOCK_OUTPUT_DRIVE(DRIVE) (((DRIVE) == SAI_OUTPUTDRIVE_DISABLE) || \
                                           ((DRIVE) == SAI_OUTPUTDRIVE_ENABLE))

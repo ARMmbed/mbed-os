@@ -2569,54 +2569,56 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
     while (HAL_IS_BIT_SET(hspi->Instance->CR1, SPI_CR1_CSTART));
   }
 
-  /* Reset Callbacks */
-  hspi->hdmarx->XferAbortCallback = NULL;
-  hspi->hdmatx->XferAbortCallback = NULL;
-
   /* If DMA Tx and/or DMA Rx Handles are associated to SPI Handle, DMA Abort complete callbacks should be initialized
      before any call to DMA Abort functions */
 
-  if (HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_TXDMAEN) && (hspi->hdmatx != NULL))
+  if(hspi->hdmatx != NULL)
   {
-    /* Set DMA Abort Complete callback if UART DMA Tx request if enabled */
-    hspi->hdmatx->XferAbortCallback = SPI_DMATxAbortCallback;
-  }
-
-  if ((HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_RXDMAEN)) && (hspi->hdmarx != NULL))
-  {
-    /* Set DMA Abort Complete callback if UART DMA Rx request if enabled */
-    hspi->hdmarx->XferAbortCallback = SPI_DMARxAbortCallback;
-  }
-
-  /* Disable the SPI DMA Tx request if enabled */
-  if ((HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_TXDMAEN)) && (hspi->hdmatx != NULL))
-  {
-    dma_tx_abort_done = 0UL;
-
-    /* Abort DMA Tx Handle linked to SPI Peripheral */
-    if (HAL_DMA_Abort_IT(hspi->hdmatx) != HAL_OK)
+    if (HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_TXDMAEN))
     {
-      if (HAL_DMA_GetError(hspi->hdmatx) == HAL_DMA_ERROR_NO_XFER)
+      /* Set DMA Abort Complete callback if SPI DMA Tx request if enabled */
+      hspi->hdmatx->XferAbortCallback = SPI_DMATxAbortCallback;
+
+      dma_tx_abort_done = 0UL;
+
+      /* Abort DMA Tx Handle linked to SPI Peripheral */
+      if (HAL_DMA_Abort_IT(hspi->hdmatx) != HAL_OK)
       {
-        dma_tx_abort_done = 1UL;
-        hspi->hdmatx->XferAbortCallback = NULL;
+        if (HAL_DMA_GetError(hspi->hdmatx) == HAL_DMA_ERROR_NO_XFER)
+        {
+          dma_tx_abort_done = 1UL;
+          hspi->hdmatx->XferAbortCallback = NULL;
+        }
       }
+    }
+    else
+    {
+      hspi->hdmatx->XferAbortCallback = NULL;
     }
   }
 
-  /* Disable the SPI DMA Rx request if enabled */
-  if (HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_RXDMAEN) && (hspi->hdmarx != NULL))
+  if(hspi->hdmarx != NULL)
   {
-    dma_rx_abort_done = 0UL;
-
-    /* Abort DMA Rx Handle linked to SPI Peripheral */
-    if (HAL_DMA_Abort_IT(hspi->hdmarx) != HAL_OK)
+    if (HAL_IS_BIT_SET(hspi->Instance->CFG1, SPI_CFG1_RXDMAEN))
     {
-      if (HAL_DMA_GetError(hspi->hdmarx) == HAL_DMA_ERROR_NO_XFER)
+      /* Set DMA Abort Complete callback if SPI DMA Rx request if enabled */
+      hspi->hdmarx->XferAbortCallback = SPI_DMARxAbortCallback;
+
+      dma_rx_abort_done = 0UL;
+
+      /* Abort DMA Rx Handle linked to SPI Peripheral */
+      if (HAL_DMA_Abort_IT(hspi->hdmarx) != HAL_OK)
       {
-        dma_rx_abort_done = 1UL;
-        hspi->hdmarx->XferAbortCallback = NULL;
+        if (HAL_DMA_GetError(hspi->hdmarx) == HAL_DMA_ERROR_NO_XFER)
+        {
+          dma_rx_abort_done = 1UL;
+          hspi->hdmarx->XferAbortCallback = NULL;
+        }
       }
+    }
+    else
+    {
+      hspi->hdmarx->XferAbortCallback = NULL;
     }
   }
 

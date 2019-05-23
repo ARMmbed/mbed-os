@@ -45,8 +45,10 @@
 /** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
   * @{
   */
+#if !defined (DUAL_CORE)
 #define PVD_MODE_IT              ((uint32_t)0x00010000U)
 #define PVD_MODE_EVT             ((uint32_t)0x00020000U)
+#endif /* DUAL_CORE */
 #define PVD_RISING_EDGE          ((uint32_t)0x00000001U)
 #define PVD_FALLING_EDGE         ((uint32_t)0x00000002U)
 #define PVD_RISING_FALLING_EDGE  ((uint32_t)0x00000003U)
@@ -260,11 +262,14 @@ void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
   MODIFY_REG(PWR->CR1, PWR_CR1_PLS, sConfigPVD->PVDLevel);
 
   /* Clear any previous config */
+#if !defined (DUAL_CORE)
   __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
   __HAL_PWR_PVD_EXTI_DISABLE_IT();
+#endif /* DUAL_CORE */
   __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();
   __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
 
+#if !defined (DUAL_CORE)
   /* Configure interrupt mode */
   if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
   {
@@ -276,6 +281,7 @@ void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_EVENT();
   }
+#endif /* DUAL_CORE */
 
   /* Configure the edge */
   if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
@@ -429,6 +435,11 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   /* Store the new value */
   PWR->CR1 = tmpreg;
 
+#if defined(DUAL_CORE)
+  /* Keep DSTOP mode when D1 domain enters Deepsleep */
+  CLEAR_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D1);
+  CLEAR_BIT(PWR->CPU2CR, PWR_CPU2CR_PDDS_D1);
+#else
   /* Keep DSTOP mode when D1 domain enters Deepsleep */
   CLEAR_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D1);
 
@@ -437,6 +448,7 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 
   /* Keep DSTOP mode when D3 domain enters Deepsleep */
   CLEAR_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D3);
+#endif /*DUAL_CORE*/
 
   /* Set SLEEPDEEP bit of Cortex System Control Register */
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
@@ -469,6 +481,11 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   */
 void HAL_PWR_EnterSTANDBYMode(void)
 {
+#if defined(DUAL_CORE)
+  /* Keep DSTANDBY mode when D1 domain enters Deepsleep */
+  SET_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D1);
+  SET_BIT(PWR->CPU2CR, PWR_CPU2CR_PDDS_D1);
+#else
   /* Keep DSTANDBY mode when D1 domain enters Deepsleep */
   SET_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D1);
 
@@ -477,6 +494,7 @@ void HAL_PWR_EnterSTANDBYMode(void)
 
   /* Keep DSTANDBY mode when D3 domain enters Deepsleep */
   SET_BIT(PWR->CPUCR, PWR_CPUCR_PDDS_D3);
+#endif /*DUAL_CORE*/
 
   /* Set SLEEPDEEP bit of Cortex System Control Register */
   SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
@@ -547,6 +565,33 @@ void HAL_PWR_DisableSEVOnPend(void)
   */
 void HAL_PWR_PVD_IRQHandler(void)
 {
+#if defined(DUAL_CORE)
+  /* PVD EXTI line interrupt detected */
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* Check PWR EXTI flag */
+    if(__HAL_PWR_PVD_EXTI_GET_FLAG() != RESET)
+    {
+      /* PWR PVD interrupt user callback */
+      HAL_PWR_PVDCallback();
+
+      /* Clear PWR EXTI pending bit */
+      __HAL_PWR_PVD_EXTI_CLEAR_FLAG();
+    }
+  }
+  else
+  {
+    /* Check PWR EXTI D2 flag */
+    if(__HAL_PWR_PVD_EXTID2_GET_FLAG() != RESET)
+    {
+      /* PWR PVD interrupt user callback */
+      HAL_PWR_PVDCallback();
+
+      /* Clear PWR EXTI D2 pending bit */
+      __HAL_PWR_PVD_EXTID2_CLEAR_FLAG();
+    }
+  }
+#else
   /* PVD EXTI line interrupt detected */
   if(__HAL_PWR_PVD_EXTI_GET_FLAG() != RESET)
   {
@@ -556,6 +601,7 @@ void HAL_PWR_PVD_IRQHandler(void)
     /* Clear PWR EXTI pending bit */
     __HAL_PWR_PVD_EXTI_CLEAR_FLAG();
   }
+#endif /*DUAL_CORE*/
 }
 
 /**

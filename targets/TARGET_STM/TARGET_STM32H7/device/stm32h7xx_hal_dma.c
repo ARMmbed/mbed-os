@@ -734,8 +734,8 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
 {
   /* calculate DMA base and stream number */
-  DMA_Base_Registers *regs_dma = NULL;
-  BDMA_Base_Registers *regs_bdma = NULL;
+  DMA_Base_Registers *regs_dma;
+  BDMA_Base_Registers *regs_bdma;
   const __IO uint32_t *enableRegister;
 
   uint32_t tickstart = HAL_GetTick();
@@ -765,7 +765,6 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
       ((DMA_Stream_TypeDef   *)hdma->Instance)->CR  &= ~(DMA_IT_TC | DMA_IT_TE | DMA_IT_DME | DMA_IT_HT);
       ((DMA_Stream_TypeDef   *)hdma->Instance)->FCR &= ~(DMA_IT_FE);
 
-      regs_dma = (DMA_Base_Registers *)hdma->StreamBaseAddress;
       enableRegister = (__IO uint32_t *)(&(((DMA_Stream_TypeDef   *)hdma->Instance)->CR));
     }
     else /* BDMA channel */
@@ -773,7 +772,6 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
       /* Disable DMA All Interrupts */
       ((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR  &= ~(BDMA_CCR_TCIE | BDMA_CCR_HTIE | BDMA_CCR_TEIE);
 
-      regs_bdma = (BDMA_Base_Registers *)hdma->StreamBaseAddress;
       enableRegister = (__IO uint32_t *)(&(((BDMA_Channel_TypeDef   *)hdma->Instance)->CCR));
     }
 
@@ -805,10 +803,12 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
     /* Clear all interrupt flags at correct offset within the register */
     if(IS_DMA_STREAM_INSTANCE(hdma->Instance) != 0U) /* DMA1 or DMA2 instance */
     {
+      regs_dma = (DMA_Base_Registers *)hdma->StreamBaseAddress;
       regs_dma->IFCR = 0x3FUL << (hdma->StreamIndex & 0x1FU);
     }
     else /* BDMA channel */
     {
+      regs_bdma = (BDMA_Base_Registers *)hdma->StreamBaseAddress;
       regs_bdma->IFCR = ((BDMA_IFCR_CGIF0) << (hdma->StreamIndex & 0x1FU));
     }
 
@@ -843,7 +843,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   */
 HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
 {
-  BDMA_Base_Registers *regs_bdma = NULL;
+  BDMA_Base_Registers *regs_bdma;
 
   /* Check the DMA peripheral handle */
   if(hdma == NULL)
@@ -1067,15 +1067,14 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
         hdma->ErrorCode = HAL_DMA_ERROR_TIMEOUT;
 
         /* if timeout then abort the current transfer */
-        if (HAL_DMA_Abort(hdma) == HAL_OK)
-        {
-          /*
-            Note that the Abort function will
-              - Clear the transfer error flags
-              - Unlock
-              - Set the State
-          */
-        }
+        /* No need to check return value: as in this case we will return HAL_ERROR with HAL_DMA_ERROR_TIMEOUT error code  */
+        (void) HAL_DMA_Abort(hdma);
+        /*
+          Note that the Abort function will
+            - Clear the transfer error flags
+            - Unlock
+            - Set the State
+        */
 
         return HAL_ERROR;
       }

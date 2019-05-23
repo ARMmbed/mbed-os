@@ -28,6 +28,8 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal_def.h"
 
+#if defined (JPEG)
+
 /** @addtogroup STM32H7xx_HAL_Driver
   * @{
   */
@@ -641,6 +643,8 @@ uint32_t               HAL_JPEG_GetError(JPEG_HandleTypeDef *hjpeg);
 /**
   * @}
   */
+
+#endif /* JPEG */
 
 #ifdef __cplusplus
 }

@@ -46,7 +46,7 @@ extern "C" {
 /** @defgroup RCC_LL_Private_Variables RCC Private Variables
   * @{
   */
-static const uint8_t LL_RCC_PrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
+extern const uint8_t LL_RCC_PrescTable[16];
 
 /**
   * @}
@@ -173,6 +173,11 @@ typedef struct
 #if !defined  (EXTERNAL_CLOCK_VALUE)
 #define EXTERNAL_CLOCK_VALUE    12288000U /*!< Value of the I2S_CKIN external oscillator in Hz */
 #endif /* EXTERNAL_CLOCK_VALUE */
+
+#if !defined  (HSI48_VALUE)
+#define HSI48_VALUE  48000000U  /*!< Value of the HSI48 oscillator in Hz */
+#endif /* HSI48_VALUE */
+
 /**
   * @}
   */
@@ -585,6 +590,17 @@ typedef struct
   * @}
   */
 
+#if defined(DSI)
+/** @defgroup RCC_LL_EC_DSI_CLKSOURCE  Peripheral DSI clock source selection
+  * @{
+  */
+#define LL_RCC_DSI_CLKSOURCE_PHY               (0x00000000U)
+#define LL_RCC_DSI_CLKSOURCE_PLL2Q             (RCC_D1CCIPR_DSISEL)
+/**
+  * @}
+  */
+#endif /* DSI */
+
 /** @defgroup RCC_LL_EC_DFSDM_CLKSOURCE  Peripheral DFSDM clock source selection
   * @{
   */
@@ -768,6 +784,16 @@ typedef struct
 /**
   * @}
   */
+
+#if defined(DSI)
+/** @defgroup RCC_LL_EC_DSI  Peripheral DSI get clock source
+  * @{
+  */
+#define LL_RCC_DSI_CLKSOURCE             RCC_D1CCIPR_DSISEL
+/**
+  * @}
+  */
+#endif /* DSI */
 
 /** @defgroup RCC_LL_EC_DFSDM  Peripheral DFSDM get clock source
   * @{
@@ -1217,12 +1243,12 @@ __STATIC_INLINE void LL_RCC_HSI_DisableStopMode(void)
   * @brief  Get HSI Calibration value
   * @note When HSITRIM is written, HSICAL is updated with the sum of
   *       HSITRIM and the factory trim value
-  * @rmtoll ICSCR        HSICAL        LL_RCC_HSI_GetCalibration
+  * @rmtoll HSICFGR        HSICAL        LL_RCC_HSI_GetCalibration
   * @retval A value between 0 and 4095 (0xFFF)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibration(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_HSICAL) >> RCC_ICSCR_HSICAL_Pos);
+  return (uint32_t)(READ_BIT(RCC->HSICFGR, RCC_HSICFGR_HSICAL) >> RCC_HSICFGR_HSICAL_Pos);
 }
 
 /**
@@ -1230,23 +1256,41 @@ __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibration(void)
   * @note user-programmable trimming value that is added to the HSICAL
   * @note Default value is 64 (32 for Cut1.x), which, when added to the HSICAL value,
   *       should trim the HSI to 64 MHz +/- 1 %
-  * @rmtoll ICSCR        HSITRIM       LL_RCC_HSI_SetCalibTrimming
-  * @param  Value can be a value between 0 and 63
+  * @rmtoll HSICFGR        HSITRIM       LL_RCC_HSI_SetCalibTrimming
+  * @param  Value can be a value between 0 and 127 (63 for Cut1.x)
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_HSI_SetCalibTrimming(uint32_t Value)
 {
-  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_HSITRIM, Value << RCC_ICSCR_HSITRIM_Pos);
+  if ((DBGMCU->IDCODE & 0xF0000000U) == 0x10000000U)
+  {
+    /* STM32H7 Rev.Y */
+    MODIFY_REG(RCC->HSICFGR, 0x3F000U, Value << 12U);
+  }
+  else
+  {
+    /* STM32H7 Rev.V */
+    MODIFY_REG(RCC->HSICFGR, RCC_HSICFGR_HSITRIM, Value << RCC_HSICFGR_HSITRIM_Pos);
+  }
 }
 
 /**
   * @brief  Get HSI Calibration trimming
-  * @rmtoll ICSCR        HSITRIM       LL_RCC_HSI_GetCalibTrimming
-  * @retval A value between 0 and 63
+  * @rmtoll HSICFGR        HSITRIM       LL_RCC_HSI_GetCalibTrimming
+  * @retval A value between 0 and 127 (63 for Cut1.x)
   */
 __STATIC_INLINE uint32_t LL_RCC_HSI_GetCalibTrimming(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_HSITRIM) >> RCC_ICSCR_HSITRIM_Pos);
+  if ((DBGMCU->IDCODE & 0xF0000000U) == 0x10000000U)
+  {
+    /* STM32H7 Rev.Y */
+    return (uint32_t)(READ_BIT(RCC->HSICFGR, 0x3F000U) >> 12U);
+  }
+  else
+  {
+    /* STM32H7 Rev.V */
+    return (uint32_t)(READ_BIT(RCC->HSICFGR, RCC_HSICFGR_HSITRIM) >> RCC_HSICFGR_HSITRIM_Pos);
+  }
 }
 
 /**
@@ -1311,12 +1355,21 @@ __STATIC_INLINE void LL_RCC_CSI_DisableStopMode(void)
   * @brief  Get CSI Calibration value
   * @note When CSITRIM is written, CSICAL is updated with the sum of
   *       CSITRIM and the factory trim value
-  * @rmtoll ICSCR        CSICAL        LL_RCC_CSI_GetCalibration
+  * @rmtoll CSICFGR        CSICAL        LL_RCC_CSI_GetCalibration
   * @retval A value between 0 and 255 (0xFF)
   */
 __STATIC_INLINE uint32_t LL_RCC_CSI_GetCalibration(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_CSICAL) >> RCC_ICSCR_CSICAL_Pos);
+  if ((DBGMCU->IDCODE & 0xF0000000U) == 0x10000000U)
+  {
+    /* STM32H7 Rev.Y */
+    return (uint32_t)(READ_BIT(RCC->HSICFGR, 0x3FC0000U) >> 18U);
+  }
+  else
+  {
+    /* STM32H7 Rev.V */
+    return (uint32_t)(READ_BIT(RCC->CSICFGR, RCC_CSICFGR_CSICAL) >> RCC_CSICFGR_CSICAL_Pos);
+  }
 }
 
 /**
@@ -1324,23 +1377,41 @@ __STATIC_INLINE uint32_t LL_RCC_CSI_GetCalibration(void)
   * @note user-programmable trimming value that is added to the CSICAL
   * @note Default value is 16, which, when added to the CSICAL value,
   *       should trim the CSI to 4 MHz +/- 1 %
-  * @rmtoll ICSCR        CSITRIM       LL_RCC_CSI_SetCalibTrimming
+  * @rmtoll CSICFGR        CSITRIM       LL_RCC_CSI_SetCalibTrimming
   * @param  Value can be a value between 0 and 31
   * @retval None
   */
 __STATIC_INLINE void LL_RCC_CSI_SetCalibTrimming(uint32_t Value)
 {
-  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_CSITRIM, Value << RCC_ICSCR_CSITRIM_Pos);
+  if ((DBGMCU->IDCODE & 0xF0000000U) == 0x10000000U)
+  {
+    /* STM32H7 Rev.Y */
+    MODIFY_REG(RCC->HSICFGR, 0x7C000000U, Value << 26U);
+  }
+  else
+  {
+    /* STM32H7 Rev.V */
+    MODIFY_REG(RCC->CSICFGR, RCC_CSICFGR_CSITRIM, Value << RCC_CSICFGR_CSITRIM_Pos);
+  }
 }
 
 /**
   * @brief  Get CSI Calibration trimming
-  * @rmtoll ICSCR        CSITRIM       LL_RCC_CSI_GetCalibTrimming
+  * @rmtoll CSICFGR        CSITRIM       LL_RCC_CSI_GetCalibTrimming
   * @retval A value between 0 and 31
   */
 __STATIC_INLINE uint32_t LL_RCC_CSI_GetCalibTrimming(void)
 {
-  return (uint32_t)(READ_BIT(RCC->ICSCR, RCC_ICSCR_CSITRIM) >> RCC_ICSCR_CSITRIM_Pos);
+  if ((DBGMCU->IDCODE & 0xF0000000U) == 0x10000000U)
+  {
+    /* STM32H7 Rev.Y */
+    return (uint32_t)(READ_BIT(RCC->HSICFGR, 0x7C000000U) >> 26U);
+  }
+  else
+  {
+    /* STM32H7 Rev.V */
+    return (uint32_t)(READ_BIT(RCC->CSICFGR, RCC_CSICFGR_CSITRIM) >> RCC_CSICFGR_CSITRIM_Pos);
+  }
 }
 
 /**
@@ -1457,10 +1528,80 @@ __STATIC_INLINE uint32_t LL_RCC_WWDG1_IsSystemReset(void)
   return ((READ_BIT(RCC->GCR, RCC_GCR_WW1RSC) == RCC_GCR_WW1RSC)?1UL:0UL);
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Enable system wide reset for Window Watch Dog 2
+  * @rmtoll GCR          WW1RSC        LL_RCC_WWDG2_EnableSystemReset
+  * @retval None.
+  */
+__STATIC_INLINE void LL_RCC_WWDG2_EnableSystemReset(void)
+{
+  SET_BIT(RCC->GCR, RCC_GCR_WW2RSC);
+}
+
+/**
+  * @brief  Check if Window Watch Dog 2 reset is system wide
+  * @rmtoll GCR          WW2RSC        LL_RCC_WWDG2_IsSystemReset
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_WWDG2_IsSystemReset(void)
+{
+  return ((READ_BIT(RCC->GCR, RCC_GCR_WW2RSC) == RCC_GCR_WW2RSC)?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 /**
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup RCC_LL_EF_BOOT_CPU CPU
+  * @{
+  */
+
+/**
+  * @brief  Force CM4 boot (if hold by option byte BCM4 = 0)
+  * @rmtoll GCR          BOOT_C2        LL_RCC_ForceCM4Boot
+  * @retval None.
+  */
+__STATIC_INLINE void LL_RCC_ForceCM4Boot(void)
+{
+  SET_BIT(RCC->GCR, RCC_GCR_BOOT_C2);
+}
+
+/**
+  * @brief  Check if CM4 boot is forced
+  * @rmtoll GCR          BOOT_C2        LL_RCC_IsCM4BootForced
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsCM4BootForced(void)
+{
+  return ((READ_BIT(RCC->GCR, RCC_GCR_BOOT_C2) == RCC_GCR_BOOT_C2)?1UL:0UL);
+}
+
+/**
+  * @brief  Force CM7 boot (if hold by option byte BCM7 = 0)
+  * @rmtoll GCR          BOOT_C1        LL_RCC_ForceCM7Boot
+  * @retval None.
+  */
+__STATIC_INLINE void LL_RCC_ForceCM7Boot(void)
+{
+  SET_BIT(RCC->GCR, RCC_GCR_BOOT_C1);
+}
+
+/**
+  * @brief  Check if CM7 boot is forced
+  * @rmtoll GCR          BOOT_C1        LL_RCC_IsCM7BootForced
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsCM7BootForced(void)
+{
+  return ((READ_BIT(RCC->GCR, RCC_GCR_BOOT_C1) == RCC_GCR_BOOT_C1)?1UL:0UL);
+}
+
+/**
+  * @}
+  */
+#endif  /*DUAL_CORE*/
 
 /** @defgroup RCC_LL_EF_LSE LSE
   * @{
@@ -2240,6 +2381,21 @@ __STATIC_INLINE void LL_RCC_SetCECClockSource(uint32_t ClkSource)
   MODIFY_REG(RCC->D2CCIP2R, RCC_D2CCIP2R_CECSEL, ClkSource);
 }
 
+#if defined(DSI)
+/**
+  * @brief  Configure DSIx clock source
+  * @rmtoll D1CCIPR         DSISEL        LL_RCC_SetDSIClockSource
+  * @param  ClkSource This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PHY
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PLL2Q
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_SetDSIClockSource(uint32_t ClkSource)
+{
+  MODIFY_REG(RCC->D1CCIPR, RCC_D1CCIPR_DSISEL, ClkSource);
+}
+#endif /* DSI */
+
 /**
   * @brief  Configure DFSDMx Kernel clock source
   * @rmtoll D2CCIP1R         DFSDM1SEL        LL_RCC_SetDFSDMClockSource
@@ -2693,6 +2849,23 @@ __STATIC_INLINE uint32_t LL_RCC_GetCECClockSource(uint32_t Periph)
   UNUSED(Periph);
   return (uint32_t)(READ_BIT(RCC->D2CCIP2R, RCC_D2CCIP2R_CECSEL));
 }
+
+#if defined(DSI)
+/**
+  * @brief  Get DSI clock source
+  * @rmtoll D1CCIPR         DSISEL        LL_RCC_GetDSIClockSource
+  * @param  Periph This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PHY
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE_PLL2Q
+  */
+__STATIC_INLINE uint32_t LL_RCC_GetDSIClockSource(uint32_t Periph)
+{
+  UNUSED(Periph);
+  return (uint32_t)(READ_BIT(RCC->D1CCIPR, RCC_D1CCIPR_DSISEL));
+}
+#endif /* DSI */
 
 /**
   * @brief  Get DFSDM Kernel clock source
@@ -4374,9 +4547,24 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_HSECSS(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWRRST(void)
 {
+#if defined(DUAL_CORE)
+  return ((READ_BIT(RCC->RSR, RCC_RSR_LPWR1RSTF) == (RCC_RSR_LPWR1RSTF))?1UL:0UL);
+#else
   return ((READ_BIT(RCC->RSR, RCC_RSR_LPWRRSTF) == (RCC_RSR_LPWRRSTF))?1UL:0UL);
+#endif /*DUAL_CORE*/
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC flag Low Power D2 reset is set or not.
+  * @rmtoll RSR          LPWR2RSTF      LL_RCC_IsActiveFlag_LPWR2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_LPWR2RST(void)
+{
+  return ((READ_BIT(RCC->RSR, RCC_RSR_LPWR2RSTF) == (RCC_RSR_LPWR2RSTF))?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 
 /**
   * @brief  Check if RCC flag Window Watchdog 1 reset is set or not.
@@ -4388,6 +4576,17 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_WWDG1RST(void)
   return ((READ_BIT(RCC->RSR, RCC_RSR_WWDG1RSTF) == (RCC_RSR_WWDG1RSTF))?1UL:0UL);
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC flag Window Watchdog 2 reset is set or not.
+  * @rmtoll RSR          WWDG2RSTF      LL_RCC_IsActiveFlag_WWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_WWDG2RST(void)
+{
+  return ((READ_BIT(RCC->RSR, RCC_RSR_WWDG2RSTF) == (RCC_RSR_WWDG2RSTF))?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 
 /**
   * @brief  Check if RCC flag Independent Watchdog 1 reset is set or not.
@@ -4398,6 +4597,18 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDG1RST(void)
 {
   return ((READ_BIT(RCC->RSR, RCC_RSR_IWDG1RSTF) == (RCC_RSR_IWDG1RSTF))?1UL:0UL);
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC flag Independent Watchdog 2 reset is set or not.
+  * @rmtoll RSR          IWDG2RSTF      LL_RCC_IsActiveFlag_IWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDG2RST(void)
+{
+  return ((READ_BIT(RCC->RSR, RCC_RSR_IWDG2RSTF) == (RCC_RSR_IWDG2RSTF))?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 
 /**
   * @brief  Check if RCC flag Software reset is set or not.
@@ -4410,9 +4621,24 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_IWDG1RST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFTRST(void)
 {
+#if defined(DUAL_CORE)
+  return ((READ_BIT(RCC->RSR, RCC_RSR_SFT1RSTF) == (RCC_RSR_SFT1RSTF))?1UL:0UL);
+#else
   return ((READ_BIT(RCC->RSR, RCC_RSR_SFTRSTF) == (RCC_RSR_SFTRSTF))?1UL:0UL);
+#endif  /*DUAL_CORE*/
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC flag Software reset is set or not.
+  * @rmtoll RSR          SFT2RSTF       LL_RCC_IsActiveFlag_SFT2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_SFT2RST(void)
+{
+  return ((READ_BIT(RCC->RSR, RCC_RSR_SFT2RSTF) == (RCC_RSR_SFT2RSTF))?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 
 /**
   * @brief  Check if RCC flag POR/PDR reset is set or not.
@@ -4475,9 +4701,24 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_D2RST(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_CPURST(void)
 {
+#if defined(DUAL_CORE)
+  return ((READ_BIT(RCC->RSR, RCC_RSR_C1RSTF) == (RCC_RSR_C1RSTF))?1UL:0UL);
+#else
   return ((READ_BIT(RCC->RSR, RCC_RSR_CPURSTF) == (RCC_RSR_CPURSTF))?1UL:0UL);
+#endif/*DUAL_CORE*/
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC flag CPU2 reset is set or not.
+  * @rmtoll RSR          C2RSTF       LL_RCC_IsActiveFlag_CPU2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_CPU2RST(void)
+{
+  return ((READ_BIT(RCC->RSR, RCC_RSR_C2RSTF) == (RCC_RSR_C2RSTF))?1UL:0UL);
+}
+#endif  /*DUAL_CORE*/
 
 /**
   * @brief  Set RMVF bit to clear all reset flags.
@@ -4488,6 +4729,328 @@ __STATIC_INLINE void LL_RCC_ClearResetFlags(void)
 {
   SET_BIT(RCC->RSR, RCC_RSR_RMVF);
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check if RCC_C1 flag Low Power D1 reset is set or not.
+  * @rmtoll RSR          LPWR1RSTF      LL_C1_RCC_IsActiveFlag_LPWRRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_LPWRRST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_LPWR1RSTF) == (RCC_RSR_LPWR1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Low Power D2 reset is set or not.
+  * @rmtoll RSR          LPWR2RSTF      LL_C1_RCC_IsActiveFlag_LPWR2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_LPWR2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_LPWR2RSTF) == (RCC_RSR_LPWR2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Window Watchdog 1 reset is set or not.
+  * @rmtoll RSR          WWDG1RSTF      LL_C1_RCC_IsActiveFlag_WWDG1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_WWDG1RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_WWDG1RSTF) == (RCC_RSR_WWDG1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Window Watchdog 2 reset is set or not.
+  * @rmtoll RSR          WWDG2RSTF      LL_C1_RCC_IsActiveFlag_WWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_WWDG2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_WWDG2RSTF) == (RCC_RSR_WWDG2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Independent Watchdog 1 reset is set or not.
+  * @rmtoll RSR          IWDG1RSTF      LL_C1_RCC_IsActiveFlag_IWDG1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_IWDG1RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_IWDG1RSTF) == (RCC_RSR_IWDG1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Independent Watchdog 2 reset is set or not.
+  * @rmtoll RSR          IWDG2RSTF      LL_C1_RCC_IsActiveFlag_IWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_IWDG2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_IWDG2RSTF) == (RCC_RSR_IWDG2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Software reset is set or not.
+  * @rmtoll RSR          SFT1RSTF       LL_C1_RCC_IsActiveFlag_SFTRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_SFTRST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_SFT1RSTF) == (RCC_RSR_SFT1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Software reset is set or not.
+  * @rmtoll RSR          SFT2RSTF       LL_C1_RCC_IsActiveFlag_SFT2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_SFT2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_SFT2RSTF) == (RCC_RSR_SFT2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag POR/PDR reset is set or not.
+  * @rmtoll RSR          PORRSTF       LL_C1_RCC_IsActiveFlag_PORRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_PORRST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_PORRSTF) == (RCC_RSR_PORRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag Pin reset is set or not.
+  * @rmtoll RSR          PINRSTF       LL_C1_RCC_IsActiveFlag_PINRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_PINRST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_PINRSTF) == (RCC_RSR_PINRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag BOR reset is set or not.
+  * @rmtoll RSR          BORRSTF       LL_C1_RCC_IsActiveFlag_BORRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_BORRST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_BORRSTF) == (RCC_RSR_BORRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag D1 reset is set or not.
+  * @rmtoll RSR          D1RSTF       LL_C1_RCC_IsActiveFlag_D1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_D1RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_D1RSTF) == (RCC_RSR_D1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag D2 reset is set or not.
+  * @rmtoll RSR          D2RSTF       LL_C1_RCC_IsActiveFlag_D2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_D2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_D2RSTF) == (RCC_RSR_D2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag CPU reset is set or not.
+  * @rmtoll RSR          C1RSTF       LL_C1_RCC_IsActiveFlag_CPURST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_CPURST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_C1RSTF) == (RCC_RSR_C1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C1 flag CPU2 reset is set or not.
+  * @rmtoll RSR          C2RSTF       LL_C1_RCC_IsActiveFlag_CPU2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C1_RCC_IsActiveFlag_CPU2RST(void)
+{
+  return ((READ_BIT(RCC_C1->RSR, RCC_RSR_C2RSTF) == (RCC_RSR_C2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Set RMVF bit to clear the reset flags.
+  * @rmtoll RSR          RMVF          LL_C1_RCC_ClearResetFlags
+  * @retval None
+  */
+__STATIC_INLINE void LL_C1_RCC_ClearResetFlags(void)
+{
+  SET_BIT(RCC_C1->RSR, RCC_RSR_RMVF);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Low Power D1 reset is set or not.
+  * @rmtoll RSR          LPWR1RSTF      LL_C2_RCC_IsActiveFlag_LPWRRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_LPWRRST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_LPWR1RSTF) == (RCC_RSR_LPWR1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Low Power D2 reset is set or not.
+  * @rmtoll RSR          LPWR2RSTF      LL_C2_RCC_IsActiveFlag_LPWR2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_LPWR2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_LPWR2RSTF) == (RCC_RSR_LPWR2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Window Watchdog 1 reset is set or not.
+  * @rmtoll RSR          WWDG1RSTF      LL_C2_RCC_IsActiveFlag_WWDG1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_WWDG1RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_WWDG1RSTF) == (RCC_RSR_WWDG1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Window Watchdog 2 reset is set or not.
+  * @rmtoll RSR          WWDG2RSTF      LL_C2_RCC_IsActiveFlag_WWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_WWDG2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_WWDG2RSTF) == (RCC_RSR_WWDG2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Independent Watchdog 1 reset is set or not.
+  * @rmtoll RSR          IWDG1RSTF      LL_C2_RCC_IsActiveFlag_IWDG1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_IWDG1RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_IWDG1RSTF) == (RCC_RSR_IWDG1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Independent Watchdog 2 reset is set or not.
+  * @rmtoll RSR          IWDG2RSTF      LL_C2_RCC_IsActiveFlag_IWDG2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_IWDG2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_IWDG2RSTF) == (RCC_RSR_IWDG2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Software reset is set or not.
+  * @rmtoll RSR          SFT1RSTF       LL_C2_RCC_IsActiveFlag_SFTRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_SFTRST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_SFT1RSTF) == (RCC_RSR_SFT1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Software reset is set or not.
+  * @rmtoll RSR          SFT2RSTF       LL_C2_RCC_IsActiveFlag_SFT2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_SFT2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_SFT2RSTF) == (RCC_RSR_SFT2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag POR/PDR reset is set or not.
+  * @rmtoll RSR          PORRSTF       LL_C2_RCC_IsActiveFlag_PORRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_PORRST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_PORRSTF) == (RCC_RSR_PORRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag Pin reset is set or not.
+  * @rmtoll RSR          PINRSTF       LL_C2_RCC_IsActiveFlag_PINRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_PINRST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_PINRSTF) == (RCC_RSR_PINRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag BOR reset is set or not.
+  * @rmtoll RSR          BORRSTF       LL_C2_RCC_IsActiveFlag_BORRST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_BORRST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_BORRSTF) == (RCC_RSR_BORRSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag D1 reset is set or not.
+  * @rmtoll RSR          D1RSTF       LL_C2_RCC_IsActiveFlag_D1RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_D1RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_D1RSTF) == (RCC_RSR_D1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag D2 reset is set or not.
+  * @rmtoll RSR          D2RSTF       LL_C2_RCC_IsActiveFlag_D2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_D2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_D2RSTF) == (RCC_RSR_D2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag CPU reset is set or not.
+  * @rmtoll RSR          C1RSTF       LL_C2_RCC_IsActiveFlag_CPURST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_CPURST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_C1RSTF) == (RCC_RSR_C1RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Check if RCC_C2 flag CPU2 reset is set or not.
+  * @rmtoll RSR          C2RSTF       LL_C2_RCC_IsActiveFlag_CPU2RST
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_C2_RCC_IsActiveFlag_CPU2RST(void)
+{
+  return ((READ_BIT(RCC_C2->RSR, RCC_RSR_C2RSTF) == (RCC_RSR_C2RSTF))?1UL:0UL);
+}
+
+/**
+  * @brief  Set RMVF bit to clear the reset flags.
+  * @rmtoll RSR          RMVF          LL_C2_RCC_ClearResetFlags
+  * @retval None
+  */
+__STATIC_INLINE void LL_C2_RCC_ClearResetFlags(void)
+{
+  SET_BIT(RCC_C2->RSR, RCC_RSR_RMVF);
+}
+#endif /*DUAL_CORE*/
 
 /**
   * @}
@@ -4830,6 +5393,9 @@ uint32_t    LL_RCC_GetRNGClockFreq(uint32_t RNGxSource);
 uint32_t    LL_RCC_GetCECClockFreq(uint32_t CECxSource);
 uint32_t    LL_RCC_GetUSBClockFreq(uint32_t USBxSource);
 uint32_t    LL_RCC_GetDFSDMClockFreq(uint32_t DFSDMxSource);
+#if defined(DSI)
+uint32_t    LL_RCC_GetDSIClockFreq(uint32_t DSIxSource);
+#endif /* DSI */
 uint32_t    LL_RCC_GetSPDIFClockFreq(uint32_t SPDIFxSource);
 uint32_t    LL_RCC_GetSPIClockFreq(uint32_t SPIxSource);
 uint32_t    LL_RCC_GetSWPClockFreq(uint32_t SWPxSource);

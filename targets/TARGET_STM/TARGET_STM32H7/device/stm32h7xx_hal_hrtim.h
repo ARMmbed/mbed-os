@@ -171,7 +171,8 @@ typedef struct
 /**
   * @brief  Simple output compare mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Period;                   /*!< Specifies the timer period.
                                           The period value must be above 3 periods of the fHRTIM clock.
                                           Maximum value is = 0xFFDFU */
@@ -186,7 +187,8 @@ typedef struct {
 /**
   * @brief  Simple output compare mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Mode;       /*!< Specifies the output compare mode (toggle, active, inactive).
                             This parameter can be any value of of @ref HRTIM_Simple_OC_Mode */
   uint32_t Pulse;      /*!< Specifies the compare value to be loaded into the Compare Register.
@@ -200,7 +202,8 @@ typedef struct {
 /**
   * @brief  Simple PWM output mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Pulse;            /*!< Specifies the compare value to be loaded into the Compare Register.
                                   The compare value must be above or equal to 3 periods of the fHRTIM clock */
   uint32_t Polarity;        /*!< Specifies the output polarity.
@@ -212,7 +215,8 @@ typedef struct {
 /**
   * @brief  Simple capture mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Event;             /*!< Specifies the external event triggering the capture.
                                    This parameter can be any 'EEVx' value of @ref HRTIM_External_Event_Channels */
   uint32_t EventPolarity;     /*!< Specifies the polarity of the external event (in case of level sensitivity).
@@ -226,7 +230,8 @@ typedef struct {
 /**
   * @brief  Simple One Pulse mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Pulse;             /*!< Specifies the compare value to be loaded into the Compare Register.
                                    The compare value must be above or equal to 3 periods of the fHRTIM clock */
   uint32_t OutputPolarity;    /*!< Specifies the output polarity.
@@ -246,7 +251,8 @@ typedef struct {
 /**
   * @brief  Timer configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t InterruptRequests;      /*!< Relevant for all HRTIM timers, including the master.
                                        Specifies which interrupts requests must enabled for the timer.
                                        This parameter can be any combination of  @ref HRTIM_Master_Interrupt_Enable
@@ -315,7 +321,8 @@ typedef struct {
 /**
   * @brief  Compare unit configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t CompareValue;         /*!< Specifies the compare value of the timer compare unit.
                                       The minimum value must be greater than or equal to 3 periods of the fHRTIM clock.
                                       The maximum value must be less than or equal to 0xFFFFU - 1 periods of the fHRTIM clock */
@@ -328,7 +335,8 @@ typedef struct {
 /**
   * @brief  Capture unit configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Trigger;          /*!< Specifies source(s) triggering the capture.
                                   This parameter can be a combination of @ref HRTIM_Capture_Unit_Trigger */
 } HRTIM_CaptureCfgTypeDef;
@@ -336,7 +344,8 @@ typedef struct {
 /**
   * @brief  Output configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Polarity;                    /*!< Specifies the output polarity.
                                              This parameter can be any value of @ref HRTIM_Output_Polarity */
   uint32_t SetSource;                   /*!< Specifies the event(s) transitioning the output from its inactive level to its active level.
@@ -358,7 +367,8 @@ typedef struct {
 /**
   * @brief  External event filtering in timing units configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Filter;       /*!< Specifies the type of event filtering within the timing unit.
                              This parameter can be a value of @ref HRTIM_Timer_External_Event_Filter */
   uint32_t Latch;       /*!< Specifies whether or not the signal is latched.
@@ -368,7 +378,8 @@ typedef struct {
 /**
   * @brief  Dead time feature configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Prescaler;        /*!< Specifies the dead-time prescaler.
                                   This parameter can be a value of @ref  HRTIM_Deadtime_Prescaler_Ratio */
   uint32_t RisingValue;      /*!< Specifies the dead-time following a rising edge.
@@ -387,12 +398,13 @@ typedef struct {
                                   This parameter can be a value of @ref HRTIM_Deadtime_Falling_Lock */
   uint32_t FallingSignLock;  /*!< Specifies whether or not dead-time falling sign is write protected.
                                   This parameter can be a value of @ref HRTIM_Deadtime_Falling_Sign_Lock */
-} HRTIM_DeadTimeCfgTypeDef ;
+} HRTIM_DeadTimeCfgTypeDef;
 
 /**
   * @brief  Chopper mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t CarrierFreq;  /*!< Specifies the Timer carrier frequency value.
                               This parameter can be a value of @ref HRTIM_Chopper_Frequency */
   uint32_t DutyCycle;    /*!< Specifies the Timer chopper duty cycle value.
@@ -404,7 +416,8 @@ typedef struct {
 /**
   * @brief  External event channel configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Source;        /*!< Identifies the source of the external event.
                                This parameter can be a value of @ref HRTIM_External_Event_Sources */
   uint32_t Polarity;      /*!< Specifies the polarity of the external event (in case of level sensitivity).
@@ -420,7 +433,8 @@ typedef struct {
 /**
   * @brief  Fault channel configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Source;        /*!< Identifies the source of the fault.
                                This parameter can be a value of @ref HRTIM_Fault_Sources */
   uint32_t Polarity;      /*!< Specifies the polarity of the fault event.
@@ -434,7 +448,8 @@ typedef struct {
 /**
   * @brief  Burst mode configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t Mode;           /*!< Specifies the burst mode operating mode.
                                 This parameter can be a value of @ref HRTIM_Burst_Mode_Operating_Mode */
   uint32_t ClockSource;    /*!< Specifies the burst mode clock source.
@@ -454,7 +469,8 @@ typedef struct {
 /**
   * @brief  ADC trigger configuration definition
   */
-typedef struct {
+typedef struct
+{
   uint32_t UpdateSource;  /*!< Specifies the ADC trigger update source.
                                This parameter can be a value of @ref HRTIM_ADC_Trigger_Update_Source  */
   uint32_t Trigger;       /*!< Specifies the event(s) triggering the ADC conversion.
@@ -1684,7 +1700,7 @@ typedef void (* pHRTIM_TIMxCallbackTypeDef)(HRTIM_HandleTypeDef *hhrtim,    /*!<
 
 /** @defgroup HRTIM_Burst_Mode_Trigger HRTIM Burst Mode Trigger
   * @{
-  * @brief Constants defining the events that can be used tor trig the burst
+  * @brief Constants defining the events that can be used to trig the burst
   *        mode operation
   */
 #define HRTIM_BURSTMODETRIGGER_NONE               0x00000000U             /*!<  No trigger */

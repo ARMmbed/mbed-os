@@ -483,6 +483,26 @@ __weak void HAL_SYSTICK_Callback(void)
    */
 }
 
+#if defined(DUAL_CORE)
+
+/**
+  * @brief  Returns the current CPU ID.
+  * @retval CPU identifier
+  */
+uint32_t HAL_GetCurrentCPUID(void)
+{
+  if (((SCB->CPUID & 0x000000F0U) >> 4 )== 0x7U)
+  {
+    return  CM7_CPUID;
+  }
+  else
+  {
+    return CM4_CPUID;
+  }
+}
+
+#else
+
 /**
 * @brief  Returns the current CPU ID.
 * @retval CPU identifier
@@ -492,6 +512,7 @@ uint32_t HAL_GetCurrentCPUID(void)
   return  CM7_CPUID;
 }
 
+#endif /*DUAL_CORE*/
 /**
   * @}
   */

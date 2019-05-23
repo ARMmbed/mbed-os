@@ -169,15 +169,27 @@ typedef struct
 #define EXTI_LINE_76                        (EXTI_DIRECT   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_ALL_CPU | 0x0CU)
 #define EXTI_LINE_77                        (EXTI_DIRECT   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU1| 0x0DU)
 
+#if defined (DUAL_CORE)
+#define EXTI_LINE_78                        (EXTI_DIRECT   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU2| 0x0EU)
+#else
 #define EXTI_LINE_78                        (EXTI_RESERVED | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_NONE| 0x0EU)
+#endif /* DUAL_CORE */
 
 #define EXTI_LINE_79                        (EXTI_DIRECT   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU1| 0x0FU)
 
+#if defined (DUAL_CORE)
+#define EXTI_LINE_80                        (EXTI_DIRECT   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU2| 0x10U)
+#else
 #define EXTI_LINE_80                        (EXTI_RESERVED | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_NONE| 0x10U)
+#endif /* DUAL_CORE */
 
 #define EXTI_LINE_81                        (EXTI_RESERVED | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_NONE| 0x11U)
 
+#if defined (DUAL_CORE)
+#define EXTI_LINE_82                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU2| 0x12U)
+#else
 #define EXTI_LINE_82                        (EXTI_RESERVED | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_NONE| 0x12U)
+#endif /* DUAL_CORE */
 
 #define EXTI_LINE_83                        (EXTI_RESERVED | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_NONE| 0x13U)
 #define EXTI_LINE_84                        (EXTI_CONFIG   | EXTI_EVENT | EXTI_REG3 | EXTI_TARGET_MSK_CPU1| 0x14U)
@@ -195,6 +207,12 @@ typedef struct
 #define EXTI_MODE_NONE                      0x00000000U
 #define EXTI_MODE_INTERRUPT                 0x00000001U
 #define EXTI_MODE_EVENT                     0x00000002U
+#if defined(DUAL_CORE)
+#define EXTI_MODE_CORE1_INTERRUPT           EXTI_MODE_INTERRUPT
+#define EXTI_MODE_CORE1_EVENT               EXTI_MODE_EVENT
+#define EXTI_MODE_CORE2_INTERRUPT           0x00000010U
+#define EXTI_MODE_CORE2_EVENT               0x00000020U
+#endif /* DUAL_CORE */
 /**
   * @}
   */
@@ -294,14 +312,24 @@ typedef struct
 #define EXTI_TARGET_MSK_NONE                (0x00UL << EXTI_TARGET_SHIFT)
 #define EXTI_TARGET_MSK_D3SRD               (0x01UL << EXTI_TARGET_SHIFT)
 #define EXTI_TARGET_MSK_CPU1                (0x02UL << EXTI_TARGET_SHIFT)
+#if defined (DUAL_CORE)
+#define EXTI_TARGET_MSK_CPU2                (0x04UL << EXTI_TARGET_SHIFT)
+#define EXTI_TARGET_MASK                    (EXTI_TARGET_MSK_D3SRD | EXTI_TARGET_MSK_CPU1 | EXTI_TARGET_MSK_CPU2)
+#define EXTI_TARGET_MSK_ALL_CPU             (EXTI_TARGET_MSK_CPU1 | EXTI_TARGET_MSK_CPU2)
+#else
 #define EXTI_TARGET_MASK                    (EXTI_TARGET_MSK_D3SRD | EXTI_TARGET_MSK_CPU1)
 #define EXTI_TARGET_MSK_ALL_CPU              EXTI_TARGET_MSK_CPU1
+#endif /* DUAL_CORE */
 #define EXTI_TARGET_MSK_ALL                  EXTI_TARGET_MASK
 
 /**
   * @brief  EXTI Mask for interrupt & event mode
   */
+#if defined (DUAL_CORE)
+#define EXTI_MODE_MASK                      (EXTI_MODE_CORE1_EVENT | EXTI_MODE_CORE1_INTERRUPT | EXTI_MODE_CORE2_INTERRUPT | EXTI_MODE_CORE2_EVENT)
+#else
 #define EXTI_MODE_MASK                      (EXTI_MODE_EVENT | EXTI_MODE_INTERRUPT)
+#endif /* DUAL_CORE */
 
 /**
   * @brief  EXTI Mask for trigger possibilities
@@ -324,8 +352,15 @@ typedef struct
 #define IS_EXTI_PROPERTY(__LINE__)      ((((__LINE__) & EXTI_PROPERTY_MASK) == EXTI_DIRECT) || \
                                          (((__LINE__) & EXTI_PROPERTY_MASK) == EXTI_CONFIG)          || \
                                          (((__LINE__) & EXTI_PROPERTY_MASK) == EXTI_GPIO))
+#if defined (DUAL_CORE)
+#define IS_EXTI_TARGET(__LINE__)        ((((__LINE__) & EXTI_TARGET_MASK)   == EXTI_TARGET_MSK_CPU1)      || \
+                                         (((__LINE__) & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_CPU2)    || \
+                                         (((__LINE__) & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_ALL_CPU) || \
+                                         (((__LINE__) & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_ALL))
+#else
 #define IS_EXTI_TARGET(__LINE__)        ((((__LINE__) & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_CPU1)   || \
                                          (((__LINE__) & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_ALL))
+#endif
 
 #define IS_EXTI_LINE(__LINE__)          ((((__LINE__) & ~(EXTI_PROPERTY_MASK | EXTI_EVENT_PRESENCE_MASK | EXTI_REG_MASK | EXTI_PIN_MASK | EXTI_TARGET_MASK)) == 0x00UL) && \
                                          IS_EXTI_PROPERTY(__LINE__) && IS_EXTI_TARGET(__LINE__) && \
