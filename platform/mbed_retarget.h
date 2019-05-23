@@ -122,7 +122,7 @@ FileHandle *mbed_target_override_console(int fd);
  *
  * Example using UARTSerial:
  * @code
- * FileHandle* mbed::mbed_override_console(int) {
+ * FileHandle *mbed::mbed_override_console(int) {
  *     static UARTSerial my_serial(D0, D1);
  *     return &my_serial;
  * }
@@ -130,7 +130,7 @@ FileHandle *mbed_target_override_console(int fd);
  *
  * Example using SingleWireOutput:
  * @code
- * FileHandle* mbed::mbed_override_console(int) {
+ * FileHandle *mbed::mbed_override_console(int) {
  *     static SerialWireOutput swo;
  *     return &swo;
  * }
@@ -138,7 +138,7 @@ FileHandle *mbed_target_override_console(int fd);
  *
  * Example using arm semihosting:
  * @code
- * FileHandle* mbed::mbed_override_console(int fileno) {
+ * FileHandle *mbed::mbed_override_console(int fileno) {
  *    static LocalFileSystem fs("host");
  *    if (fileno == STDIN_FILENO) {
  *        static FileHandle *in_terminal;
