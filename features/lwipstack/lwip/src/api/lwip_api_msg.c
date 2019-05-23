@@ -1332,7 +1332,7 @@ lwip_netconn_do_connected(void *arg, struct tcp_pcb *pcb, err_t err)
   conn->state = NETCONN_NONE;
   API_EVENT(conn, NETCONN_EVT_SENDPLUS, 0);
 
-  if (was_blocking) {
+  if (was_blocking && op_completed_sem != NULL) {
     sys_sem_signal(op_completed_sem);
   }
   return ERR_OK;
