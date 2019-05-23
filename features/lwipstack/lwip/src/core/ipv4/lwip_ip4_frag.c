@@ -206,7 +206,9 @@ ip_reass_free_complete_datagram(struct ip_reassdata *ipr, struct ip_reassdata *p
     pbuf_free(pcur);
   }
   /* Then, unchain the struct ip_reassdata from the list and free it. */
-  ip_reass_dequeue_datagram(ipr, prev);
+  if (prev != NULL) {
+    ip_reass_dequeue_datagram(ipr, prev);
+  }
   LWIP_ASSERT("ip_reass_pbufcount >= pbufs_freed", ip_reass_pbufcount >= pbufs_freed);
   ip_reass_pbufcount = (u16_t)(ip_reass_pbufcount - pbufs_freed);
 
@@ -660,8 +662,9 @@ ip4_reass(struct pbuf *p)
     }
 
     /* release the sources allocate for the fragment queue entry */
-    ip_reass_dequeue_datagram(ipr, ipr_prev);
-
+    if (ipr_prev != NULL) {
+      ip_reass_dequeue_datagram(ipr, ipr_prev);
+    }
     /* and adjust the number of pbufs currently queued for reassembly. */
     clen = pbuf_clen(p);
     LWIP_ASSERT("ip_reass_pbufcount >= clen", ip_reass_pbufcount >= clen);
