@@ -55,7 +55,7 @@ Additionally, since the original implementations were added for the API a large 
 
 - The behaviour of the `stop` parameter in `i2c_write`  is not consistent across platforms.
 
-  The parameter is intended to issue the `STOP` command when a transfer has finished. Not all platforms use this bit, some platforms ignore the argument and either always issue a `STOP` command, or never. This parameter should be removed, there is already a means to call `STOP`.
+  The parameter is intended to issue the `STOP` command when a transfer has finished. Not all platforms use this bit, some platforms ignore the argument and either always issue a `STOP` command, or never. This should be fixed.
 
 - The behaviour of the I2C peripheral is not uniform in multimaster configurations. There are no specifications indicating what a device should do when needs to handle collision or arbitration loss due to other master devices sharing the bus. Some platforms will transparently handle arbitration and others will return an error to the user API, and some do not handle multimaster.
 
@@ -89,7 +89,7 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** `i2c_timeout` function to the API.
 
-  Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C. To restore the deafault timeout value call `i2c_timeout` with `0` timeout value
+  Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C.
 
 - **Add** an `i2c_get_capabilities` function to API return supported capabilities and constraints on the currently running platform.
 
@@ -146,7 +146,7 @@ The main changes involve removing the slave specific read/write functions and ro
 
   These functions are superfluous and can be rolled into the existing `i2c_read` and `i2c_write` functions. The `transfer` function will execute the slave read/write based on the current configuration of the peripheral.
 
-- **Change** the return type of `i2c_slave_receive` from an integer to an enumeration.
+- **Change** `i2c_slave_receive` to `i2c_slave_status` and the return type from an integer to an enumeration.
 
   The function returns which mode the peripheral is currently operating in as an integer, this is better expressed as an enumeration.
 
@@ -230,15 +230,16 @@ void i2c_free(i2c_t *obj);
  */
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
-/** Configure the timeout duration in milliseconds for blocking transmission
+/** Configure the timeout duration in microseconds for blocking transmission
  *
  *  @param obj        The I2C object
- *  @param timeout    Transmission timeout in milliseconds.
+ *  @param timeout    Transmission timeout in microseconds.
  *
  *  @note If no timeout is set the default timeout is used.
  *        Default timeout value is based on I2C frequency.
- *        Is computed as triply amount of time it would take
- *        to send data over I2C
+ *        Byte timeout is computed as triple amount of time it would take
+ *        to send 10bit over I2C and is expressed by the formula:
+ *        3 * (1/frequency * 10 * 1000000)
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
@@ -399,7 +400,6 @@ void i2c_abort_async(i2c_t *obj);
 - `i2c_timeout`:
   - Sets the transmision timeout to use for the following blocking transfers.
   - If the timeout is not set the default timeout is used.
-  - If the timeout is set to 0, default timeout is restored.
   - Default timeout value is based on I2C frequency. Is computed as triple amount of time it would take to send data over I2C
 - `i2c_write`:
   - Writes `length` number of symbols to the bus.
@@ -421,7 +421,7 @@ void i2c_abort_async(i2c_t *obj);
 - `i2c_stop`:
   - Generates I2C STOP condition on the bus in master mode.
   - Does nothing if called when the peripheral is configured in slave mode.
-- `i2c_slave_receive`:
+- `i2c_slave_status`:
   - Indicates which mode the peripheral has been addressed in.
   - Returns not addressed when called in master mode.
 - `i2c_slave_address`:
