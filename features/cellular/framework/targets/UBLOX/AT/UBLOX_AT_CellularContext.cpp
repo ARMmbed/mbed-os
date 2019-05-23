@@ -212,6 +212,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                                 break;
                             wait_ms(5000);    //Wait for 5 seconds and then try again
                         }
+                        t1.stop();
                     }
                 }
             }
