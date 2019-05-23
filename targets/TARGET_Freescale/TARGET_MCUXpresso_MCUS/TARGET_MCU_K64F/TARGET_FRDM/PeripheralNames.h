@@ -23,11 +23,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    GPIO_A = 0,
-    GPIO_B = 1,
-    GPIO_C = 2,
-    GPIO_D = 3,
-    GPIO_E = 4,
+    GPIO_X = 0, // dummy peripheral used instead of GPIO_A..GPIO_E
 } GPIOName;
 
 typedef enum {
