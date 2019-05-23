@@ -182,7 +182,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
         for (int protocol = nsapi_security_to_modem_security(NSAPI_SECURITY_NONE);
                 success && (protocol <= nsapi_security_to_modem_security(NSAPI_SECURITY_CHAP)); protocol++) {
             if ((_auth == NSAPI_SECURITY_UNKNOWN) || (nsapi_security_to_modem_security(_auth) == protocol)) {
-                _at.cmd_start("AT+UPSD=0,6,");
+                _at.cmd_start("AT+UPSD=" PROFILE ",6,");
                 _at.write_int(protocol);
                 _at.cmd_stop();
                 _at.resp_start();
@@ -191,7 +191,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                 if (_at.get_last_error() == NSAPI_ERROR_OK) {
                     // Activate, wait upto 30 seconds for the connection to be made
                     _at.set_at_timeout(30000);
-                    _at.cmd_start("AT+UPSD=" PROFILE ",6,");
+                    _at.cmd_start("AT+UPSDA=" PROFILE ",3");
                     _at.cmd_stop();
                     _at.resp_start();
                     _at.resp_stop();
