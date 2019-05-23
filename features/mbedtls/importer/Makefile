@@ -150,8 +150,7 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	# Updating to the specified mbed TLS library version
 	# (If it is not an initial checkout we will start with the repository
 	# being in a detached head state)
-	git -C $(MBED_TLS_DIR) checkout development
-	git -C $(MBED_TLS_DIR) pull --rebase origin development
+	git -C $(MBED_TLS_DIR) fetch
 	#
 	# Checking out the required release
 	git -C $(MBED_TLS_DIR) checkout $(MBED_TLS_RELEASE)
