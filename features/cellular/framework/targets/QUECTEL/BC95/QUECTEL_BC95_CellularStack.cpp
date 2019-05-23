@@ -51,7 +51,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_connect(nsapi_socket_t handle, 
     CellularSocket *socket = (CellularSocket *)handle;
 
     _at.lock();
-    if (!socket->created) {
+    if (socket->id == -1) {
         const nsapi_error_t error_create = create_socket_impl(socket);
         if (error_create != NSAPI_ERROR_OK) {
             return error_create;
@@ -187,8 +187,8 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     // Check for duplicate socket id delivered by modem
     for (int i = 0; i < BC95_SOCKET_MAX; i++) {
         CellularSocket *sock = _socket[i];
-        if (sock && sock->created && sock->id == sock_id) {
-            tr_error("Duplicate socket index: %d created:%d, sock_id: %d", i, sock->created, sock_id);
+        if (sock && sock->id != -1 && sock->id == sock_id) {
+            tr_error("Duplicate socket index: %d, sock_id: %d", i, sock_id);
             return NSAPI_ERROR_NO_SOCKET;
         }
     }
@@ -196,7 +196,6 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     tr_info("Socket create id: %d", sock_id);
 
     socket->id = sock_id;
-    socket->created = true;
 
     return NSAPI_ERROR_OK;
 }
@@ -204,6 +203,10 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
 nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                      const void *data, nsapi_size_t size)
 {
+    //AT_CellularStack::socket_sendto(...) will create a socket on modem if it wasn't
+    // open already.
+    MBED_ASSERT(socket->id != -1);
+
     int sent_len = 0;
 
     if (size > PACKET_SIZE_MAX) {
@@ -250,6 +253,10 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                        void *buffer, nsapi_size_t size)
 {
+    //AT_CellularStack::socket_recvfrom(...) will create a socket on modem if it wasn't
+    // open already.
+    MBED_ASSERT(socket->id != -1);
+
     nsapi_size_or_error_t recv_len = 0;
     int port;
     char ip_address[NSAPI_IP_SIZE];

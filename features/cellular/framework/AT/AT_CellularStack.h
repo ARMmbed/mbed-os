@@ -97,7 +97,6 @@ protected:
             localAddress("", 0),
             _cb(NULL),
             _data(NULL),
-            created(false),
             closed(false),
             started(false),
             tx_ready(false),
@@ -115,7 +114,6 @@ protected:
         SocketAddress localAddress;
         void (*_cb)(void *);
         void *_data;
-        bool created; // socket has been created on modem stack
         bool closed; // socket has been closed by a peer
         bool started; // socket has been opened on modem stack
         bool tx_ready; // socket is ready for sending on modem stack
@@ -176,12 +174,22 @@ protected:
                                                        void *buffer, nsapi_size_t size) = 0;
 
     /**
-     *  Find the socket handle based on socket identifier
+     *  Find the socket handle based on the index of the socket construct
+     *  in the socket container. Please note that this index may or may not be
+     *  the socket id. The actual meaning of this index depends upon the modem
+     *  being used.
      *
-     *  @param sock_id  Socket identifier
+     *  @param index    Index of the socket construct in the container
      *  @return         Socket handle, NULL on error
      */
-    CellularSocket *find_socket(int sock_id);
+    CellularSocket *find_socket(int index);
+
+    /**
+     *  Find the index of the given CellularSocket handle. This index may or may
+     *  not be the socket id. The actual meaning of this index depends upon the modem
+     *  being used.
+     */
+    int find_socket_index(nsapi_socket_t handle);
 
     // socket container
     CellularSocket **_socket;
@@ -199,7 +207,6 @@ protected:
     nsapi_ip_stack_t _stack_type;
 
 private:
-    int find_socket_index(nsapi_socket_t handle);
 
     int get_socket_index_by_port(uint16_t port);
 

@@ -118,7 +118,7 @@ bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int sock_id = 0;
+    int sock_id = SOCKET_UNUSED;
 
     _at.lock();
     if (socket->proto == NSAPI_UDP) {
@@ -146,13 +146,12 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
     // Check for duplicate socket id delivered by modem
     for (int i = 0; i < UBLOX_MAX_SOCKET; i++) {
         CellularSocket *sock = _socket[i];
-        if (sock && sock->created && sock->id == sock_id) {
+        if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;
         }
     }
 
     socket->id = sock_id;
-    socket->created = true;
 
     return NSAPI_ERROR_OK;
 }
@@ -162,7 +161,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     CellularSocket *socket = (CellularSocket *)handle;
 
     if (socket) {
-        if (!socket->created) {
+        if (socket->id != SOCKET_UNUSED) {
             nsapi_error_t err = create_socket_impl(socket);
             if (err != NSAPI_ERROR_OK) {
                 return err;
@@ -192,6 +191,8 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
 nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                  const void *data, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     int sent_len = 0;
     pollfh fhs;
     fhs.fh = _at.get_file_handle();
@@ -261,6 +262,8 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
 nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                    void *buffer, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     nsapi_size_or_error_t nsapi_error_size = NSAPI_ERROR_DEVICE_ERROR;
     bool success = true;
     nsapi_size_t read_blk;
@@ -430,7 +433,6 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
         socket->pending_bytes = 0;
         socket->_cb      = NULL;
         socket->_data    = NULL;
-        socket->created  = false;
     }
 }
 
