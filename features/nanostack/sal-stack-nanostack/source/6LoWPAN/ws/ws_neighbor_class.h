@@ -31,6 +31,7 @@ typedef struct ws_neighbor_class_entry {
     bool candidate_parent: 1;
     bool broadcast_timing_info_stored: 1;
     bool broadcast_shedule_info_stored: 1;
+    bool synch_done : 1;
 } ws_neighbor_class_entry_t;
 
 /**
@@ -147,7 +148,7 @@ uint8_t ws_neighbor_class_rssi_from_dbm_calculate(int8_t dbm_heard);
  *
  */
 #define ws_neighbor_class_rsl_in_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
-#define ws_neighbor_class_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_in >> WS_RSL_SCALING)
+#define ws_neighbor_class_rsl_out_get(ws_neighbour) (ws_neighbour->rsl_out >> WS_RSL_SCALING)
 
 /**
  * ws_neighbor_class_neighbor_broadcast_schedule_set a function for update neighbor broadcast shedule information

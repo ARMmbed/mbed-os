@@ -1,5 +1,6 @@
 /**************************************************************************
 *
+* Copyright (c) 2019 Arm Limited and affiliates.
 * Copyright 2011-2016 by Andrey Butok. FNET Community.
 * Copyright 2008-2010 by Andrey Butok. Freescale Semiconductor, Inc.
 *
@@ -69,6 +70,11 @@
     #define FNET_COMP_PACKED_END    _Pragma("pack(8)")
 
     #define FNET_COMP_PACKED_VAR    __packed
+#endif
+
+#if FNET_CFG_COMP_CLANG
+    #define FNET_COMP_PACKED_BEGIN  _Pragma("pack(1)")
+    #define FNET_COMP_PACKED_END    _Pragma("pack()")
 #endif
 
 #if FNET_CFG_COMP_GNUC

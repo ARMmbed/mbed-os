@@ -181,5 +181,12 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
     return -1;
 }
 
-#endif // no HAVE_WS
+int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
+{
+    (void) interface_id;
+    (void) gtk;
 
+    return -1;
+}
+
+#endif // no HAVE_WS

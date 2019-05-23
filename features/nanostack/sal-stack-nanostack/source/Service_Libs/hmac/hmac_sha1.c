@@ -25,7 +25,7 @@
 
 #define TRACE_GROUP "hmac"
 
-int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result)
+int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len)
 {
 #ifdef EXTRA_DEBUG_INFO
     // Extensive debug for now, to be disabled later
@@ -62,13 +62,21 @@ int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data,
     if (mbedtls_md_hmac_update(&ctx, (const unsigned char *) data, data_len) != 0) {
         goto error;
     }
-    if (mbedtls_md_hmac_finish(&ctx, result) != 0) {
+
+    uint8_t result_value[20];
+    if (mbedtls_md_hmac_finish(&ctx, result_value) != 0) {
         goto error;
     }
     mbedtls_md_free(&ctx);
 
+    if (result_len > 20) {
+        result_len = 20;
+    }
+
+    memcpy(result, result_value, result_len);
+
 #ifdef EXTRA_DEBUG_INFO
-    tr_debug("hmac_sha_1 result %s\n", trace_array(result, 20));
+    tr_debug("hmac_sha_1 result %s\n", trace_array(result_value, 20));
 #endif
     return 0;
 

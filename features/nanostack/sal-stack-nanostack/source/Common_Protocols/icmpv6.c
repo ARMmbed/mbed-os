@@ -325,12 +325,12 @@ static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
 
     if (addr_is_ipv6_multicast(buf->dst_sa.address)) {
         const uint8_t *ipv6_ptr;
+        memcpy(buf->dst_sa.address, buf->src_sa.address, 16);
         ipv6_ptr = addr_select_source(cur, buf->dst_sa.address, 0);
         if (!ipv6_ptr) {
             tr_debug("No address");
             return buffer_free(buf);
         }
-        memcpy(buf->dst_sa.address, buf->src_sa.address, 16);
         memcpy(buf->src_sa.address, ipv6_ptr, 16);
     } else {
         memswap(buf->dst_sa.address, buf->src_sa.address, 16);
@@ -570,16 +570,8 @@ int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const 
     //Validate first current list If prefix is already defined adress
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && bitsequal(e->address, prefix_ptr, prefix_len)) {
-            //Update Current lifetimes (see RFC 4862 for rules detail)
-            if (valid_lifetime > (2 * 60 * 60) || valid_lifetime > e->valid_lifetime) {
-                addr_set_valid_lifetime(cur, e, valid_lifetime);
-            } else if (e->valid_lifetime <= (2 * 60 * 60)) {
-                //NOT Update Valid Lifetime
-            } else {
-                addr_set_valid_lifetime(cur, e, 2 * 60 * 60);
-            }
 
-            addr_set_preferred_lifetime(cur, e, preferred_lifetime);
+            addr_lifetime_update(cur, e, valid_lifetime, preferred_lifetime, 2 * 60 * 60);
             ret_val = 0;
         }
     }
@@ -1320,6 +1312,63 @@ uint8_t *icmpv6_write_mtu_option(uint32_t mtu, uint8_t *dptr)
     return dptr;
 }
 
+void ack_receive_cb(struct buffer *buffer_ptr, uint8_t status)
+{
+    /*icmpv6_na_handler functionality based on ACK*/
+    ipv6_neighbour_t *neighbour_entry;
+    uint8_t ll_target[16];
+
+    if (status != SOCKET_TX_DONE) {
+        /*NS failed*/
+        return;
+    }
+
+    if (buffer_ptr->dst_sa.addr_type == ADDR_IPV6) {
+        /*Full IPv6 address*/
+        memcpy(ll_target, buffer_ptr->dst_sa.address, 16);
+    } else if (buffer_ptr->dst_sa.addr_type == ADDR_802_15_4_LONG) {
+        // Build link local address from long MAC address
+        memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(ll_target + 8, &buffer_ptr->dst_sa.address[2], 8);
+        ll_target[8] ^= 2;
+    } else {
+        tr_warn("wrong address %d %s", buffer_ptr->dst_sa.addr_type, trace_array(buffer_ptr->dst_sa.address, 16));
+        return;
+    }
+
+    neighbour_entry = ipv6_neighbour_lookup(&buffer_ptr->interface->ipv6_neighbour_cache, ll_target);
+    if (neighbour_entry) {
+        ipv6_neighbour_update_from_na(&buffer_ptr->interface->ipv6_neighbour_cache, neighbour_entry, NA_S, buffer_ptr->dst_sa.addr_type, buffer_ptr->dst_sa.address);
+    }
+
+    if (ws_info(buffer_ptr->interface)) {
+        ws_common_neighbor_update(buffer_ptr->interface, ll_target);
+    }
+}
+void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
+{
+    /*icmpv6_na_handler functionality based on ACK*/
+    uint8_t ll_target[16];
+    (void)status;
+
+    if (buffer_ptr->dst_sa.addr_type == ADDR_IPV6) {
+        /*Full IPv6 address*/
+        memcpy(ll_target, buffer_ptr->dst_sa.address, 16);
+    } else if (buffer_ptr->dst_sa.addr_type == ADDR_802_15_4_LONG) {
+        // Build link local address from long MAC address
+        memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(ll_target + 8, &buffer_ptr->dst_sa.address[2], 8);
+        ll_target[8] ^= 2;
+    } else {
+        tr_warn("wrong address %d %s", buffer_ptr->dst_sa.addr_type, trace_array(buffer_ptr->dst_sa.address, 16));
+        return;
+    }
+    if (ws_info(buffer_ptr->interface)) {
+        ws_common_neighbor_remove(buffer_ptr->interface, ll_target);
+    }
+
+}
+
 buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
@@ -1394,10 +1443,15 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
         }
         /* If ARO Success sending is omitted, MAC ACK is used instead */
         /* Setting callback for receiving ACK from adaptation layer */
-        if (aro && cur->ipv6_neighbour_cache.omit_aro_success) {
+        if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success) {
             buf->ack_receive_cb = rpl_control_address_register_done;
         }
     }
+    if (unicast && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
+        /*MAC ACK is processed as success response*/
+        buf->ack_receive_cb = ack_receive_cb;
+    }
+
     buf->src_sa.addr_type = ADDR_IPV6;
 
     /* NS packets are implicitly on-link. If we ever find ourselves sending an
@@ -1530,11 +1584,16 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
 
     tr_debug("Build NA");
 
-    /* Check if ARO status == success, then sending can be omitted with flag */
-    if (aro && cur->ipv6_neighbour_cache.omit_aro_success && aro->status == ARO_SUCCESS) {
-        tr_debug("Omit success reply");
+    /* Check if ARO response and status == success, then sending can be omitted with flag */
+    if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success && aro->status == ARO_SUCCESS) {
+        tr_debug("Omit NA ARO success");
         return NULL;
     }
+    /* All other than ARO NA messages are omitted and MAC ACK is considered as success */
+    if (!tllao_required && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
+        return NULL;
+    }
+
 
     buffer_t *buf = buffer_get(8 + 16 + 16 + 16); /* fixed, target addr, target ll addr, aro */
     if (!buf) {
@@ -1616,6 +1675,11 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
         memcpy(ptr, aro->eui64, 8);
         ptr += 8;
     }
+    if (ws_info(cur) && aro && aro->status != ARO_SUCCESS) {
+        /*If Aro failed we will kill the neigbour after we have succeeded in sending message*/
+        buf->ack_receive_cb = ack_remove_neighbour_cb;
+    }
+
     //Force Next Hop is destination
     ipv6_buffer_route_to(buf, buf->dst_sa.address, cur);
 

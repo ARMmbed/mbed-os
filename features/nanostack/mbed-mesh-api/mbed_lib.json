@@ -3,7 +3,7 @@
     "requires": ["nanostack"],
     "config": {
         "heap-size": {
-            "help": "Nanostack's heap size [bytes: 0-65534]",
+            "help": "Nanostack's heap size [bytes: 0-‭4294967295‬]",
             "value": 32500
         },
         "use-malloc-for-heap": {

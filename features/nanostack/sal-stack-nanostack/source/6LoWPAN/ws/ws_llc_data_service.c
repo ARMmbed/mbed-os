@@ -36,6 +36,8 @@
 #include "6LoWPAN/ws/ws_llc.h"
 #include "6LoWPAN/ws/ws_mpx_header.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "Security/PANA/pana_eap_header.h"
+#include "Security/eapol/eapol_helper.h"
 #include "Service_Libs/etx/etx.h"
 #include "fhss_ws_extension.h"
 
@@ -511,9 +513,12 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
         mac_payload_IE_t ws_wp_nested;
         ws_us_ie_t us_ie;
         bool us_ie_inline = false;
+        bool bs_ie_inline = false;
         ws_wp_nested.id = WS_WP_NESTED_IE;
+        ws_bs_ie_t ws_bs_ie;
         if (mac_ie_payload_discover(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_wp_nested) > 2) {
             us_ie_inline = ws_wp_nested_us_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &us_ie);
+            bs_ie_inline = ws_wp_nested_bs_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &ws_bs_ie);
         }
 
         llc_neighbour_req_t neighbor_info;
@@ -534,7 +539,11 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64)) {
                 ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
             }
+            if (bs_ie_inline) {
+                ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+            }
         }
+
 
         //Update BT if it is part of message
         ws_bt_ie_t ws_bt;
@@ -543,6 +552,8 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             if (neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 // We have broadcast schedule set up set the broadcast parent schedule
                 ns_fhss_ws_set_parent(interface->ws_info->fhss_api, neighbor_info.neighbor->mac64, &neighbor_info.ws_neighbor->fhss_data.bc_timing_info, false);
+            } else if (ws_utt.message_type == WS_FT_EAPOL) {
+                ws_bootstrap_eapol_parent_synch(interface, &neighbor_info);
             }
         }
 
@@ -617,6 +628,37 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
     return header_size;
 }
 
+static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, protocol_interface_info_entry_t *cur)
+{
+    if (!ws_eapol_relay_state_active(cur)) {
+        return false;
+    }
+
+    eapol_pdu_t eapol_pdu;
+    uint8_t kmp_type = *pdu++;
+    length--;
+    if (!eapol_parse_pdu_header(pdu, length, &eapol_pdu)) {
+        return false;
+    }
+    if (eapol_pdu.packet_type == EAPOL_EAP_TYPE) {
+        if (eapol_pdu.msg.eap.eap_code == EAP_REQ && eapol_pdu.msg.eap.type == EAP_IDENTITY) {
+            return true;
+        }
+    } else {
+
+        uint8_t key_mask = eapol_pdu_key_mask_get(&eapol_pdu);
+        if (kmp_type == 6 && key_mask == KEY_INFO_KEY_ACK) {
+            //FWK first message validation
+            return true;
+        } else if (kmp_type == 7 && key_mask == (KEY_INFO_KEY_ACK | KEY_INFO_KEY_MIC | KEY_INFO_SECURED_KEY_FRAME)) {
+            //GWK first message validation
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
@@ -646,11 +688,9 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
             nested_wp_id.vp_ie = true;
         }
     } else if (user_id == MPX_KEY_MANAGEMENT_ENC_USER_ID) {
-
-        if (*data->msdu == 1) { //Only when KMP_ID is 1
-            ie_header_mask.ea_ie = ws_eapol_relay_state_active(base->interface_ptr);
-            ie_header_mask.bt_ie = ie_header_mask.ea_ie;
-        }
+        ie_header_mask.bt_ie = ws_eapol_relay_state_active(base->interface_ptr);
+        ie_header_mask.ea_ie = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
+        nested_wp_id.bs_ie = ie_header_mask.ea_ie;
 
     }
 
@@ -735,6 +775,11 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
         ptr = ws_wp_base_write(ptr, nested_ie_length);
         //Write unicast schedule
         ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, true);
+
+        if (nested_wp_id.bs_ie) {
+            //Write Broadcastcast schedule
+            ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, false);
+        }
     }
 
 

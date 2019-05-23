@@ -517,6 +517,34 @@ static int thread_border_relay_to_leader_cb(int8_t service_id, uint8_t source_ad
 }
 
 #ifdef HAVE_THREAD_BORDER_ROUTER
+static bool thread_bbr_default_route_exists(struct protocol_interface_info_entry *cur, uint8_t prefix_ptr[8])
+{
+    uint16_t rloc16 = mac_helper_mac16_address_get(cur);
+    ns_list_foreach(thread_network_data_prefix_cache_entry_t, prefix, &cur->thread_info->networkDataStorage.localPrefixList) {
+
+        if (prefix_ptr &&
+                (prefix->servicesPrefixLen != 64 ||
+                 memcmp(prefix_ptr, prefix->servicesPrefix, 8) != 0)) {
+            // Only matching prefixes are counted
+            continue;
+        }
+
+        ns_list_foreach(thread_network_server_data_entry_t, br, &prefix->borderRouterList) {
+            if (br->routerID == 0xfffe) {
+                continue;
+            }
+            if (!br->P_default_route) {
+                continue;
+            }
+            if (rloc16 != br->routerID) {
+                // different default route exists
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static bool thread_bbr_i_host_prefix(struct protocol_interface_info_entry *cur, uint8_t prefix_ptr[8], uint8_t *br_count, bool *i_am_lowest)
 {
     bool i_host_this_prefix = false;
@@ -600,14 +628,15 @@ static void thread_bbr_network_data_send(thread_bbr_t *this, uint8_t prefix[8], 
     this->br_info_published = true;
 }
 
-static void thread_bbr_routing_enable(thread_bbr_t *this)
+static void thread_bbr_routing_enable(thread_bbr_t *this, bool multicast_routing_enabled)
 {
     if (this->routing_enabled) {
         return;
     }
     tr_info("br: enable routing");
     // Start multicast proxying
-    multicast_fwd_set_forwarding(this->interface_id, true);
+    // We do not enable multicast forwarding as there is other default router present in network
+    multicast_fwd_set_forwarding(this->interface_id, multicast_routing_enabled);
     this->routing_enabled = true;
 }
 
@@ -663,7 +692,13 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
 
     // Check from network data are we currently BR or not and change routing state
     if (this->br_hosted) {
-        thread_bbr_routing_enable(this);
+
+        //If there is a default router present in any prefix other than us we do not forward multicast
+        //This prevents multicasts to different interfaces where Thread Mesh is forwarder
+        bool forward_multicast = !thread_bbr_default_route_exists(cur, NULL);
+        thread_extension_bbr_mcast_fwd_check(cur->id, &forward_multicast);
+
+        thread_bbr_routing_enable(this, forward_multicast);
     } else {
         thread_bbr_routing_disable(this);
     }
@@ -896,6 +931,15 @@ int8_t thread_bbr_init(int8_t interface_id, uint16_t external_commisssioner_port
     return 0;
 }
 
+int8_t thread_bbr_get_commissioner_service(int8_t interface_id)
+{
+    thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
+    if (!this) {
+        return 0;
+    }
+
+    return this->br_service_id;
+}
 void thread_bbr_delete(int8_t interface_id)
 {
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
@@ -1100,8 +1144,11 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     // By default multicast forwarding is not enabled as it causes multicast loops
     multicast_fwd_set_forwarding(this->interface_id, false);
 
-    // Adjust BBR neighbor and destination cache size
-    arm_nwk_ipv6_max_cache_entries(THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE);
+    // Configure BBR neighbour cache parameters
+    arm_nwk_ipv6_neighbour_cache_configure(THREAD_BBR_IPV6_NEIGHBOUR_CACHE_SIZE,
+                                           THREAD_BBR_IPV6_NEIGHBOUR_CACHE_SHORT_TERM,
+                                           THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LONG_TERM,
+                                           THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LIFETIME);
 
     thread_extension_bbr_init(interface_id, backbone_interface_id);
 
@@ -1124,6 +1171,7 @@ int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t tim
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
 }
+
 
 int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix)
 {
@@ -1158,8 +1206,6 @@ int thread_bbr_validation_interface_address_set(int8_t interface_id, const uint8
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
 }
-
-
 
 void thread_bbr_stop(int8_t interface_id)
 {

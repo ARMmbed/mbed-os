@@ -42,7 +42,6 @@
 
 /* Environment */
 #define FNET_CFG_CPU_LITTLE_ENDIAN      (1) // Simulator is big endian, Add HW endianess also, follow target
-#define FNET_CFG_COMP_GNUC              (1) // select compiler to keep compiler selection happy
 #define FNET_CFG_MDNS_MAX               (1) // allow only 1 mDNS server, as socket needs to be bound to port 5353
 #define FNET_CFG_MDNS_SERVICE_MAX       (2) // Allow 2 services per server
 

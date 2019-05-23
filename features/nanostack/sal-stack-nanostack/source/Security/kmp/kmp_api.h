@@ -29,7 +29,7 @@
  */
 
 typedef enum {
-    INVALID_KMP_TYPE = 0,
+    KMP_TYPE_NONE = 0,
 
     IEEE_802_1X_MKA = 1,
     IEEE_802_11_4WH = 6,

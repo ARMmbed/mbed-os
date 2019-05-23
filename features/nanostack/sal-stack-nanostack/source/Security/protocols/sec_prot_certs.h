@@ -46,7 +46,7 @@ typedef struct {
 } cert_chain_entry_t;
 
 typedef struct {
-    uint8_t *crl;                                       /**< Certificate Revocation List */
+    const uint8_t *crl;                                 /**< Certificate Revocation List */
     uint16_t crl_len;                                   /**< Certificate Revocation List length */
     ns_list_link_t link;                                /**< Link */
 } cert_revocat_list_entry_t;
@@ -91,6 +91,13 @@ cert_chain_entry_t *sec_prot_certs_chain_entry_create(void);
  * \param entry certificate chain entry
  */
 void sec_prot_certs_chain_entry_init(cert_chain_entry_t *entry);
+
+/**
+ * sec_prot_certs_chain_entry_delete deletes certificate chain entry
+ *
+ * \param entry certificate chain entry
+ */
+void sec_prot_certs_chain_entry_delete(cert_chain_entry_t *entry);
 
 /**
  * sec_prot_certs_cert_set set certificate to chain entry
@@ -154,6 +161,26 @@ void sec_prot_certs_chain_list_add(cert_chain_list_t *cert_chain_list, cert_chai
 void sec_prot_certs_chain_list_delete(cert_chain_list_t *chain_list);
 
 /**
+ * sec_prot_certs_chain_list_entry_delete deletes entry from certificate chain list
+ *
+ * \param cert_chain_list certificate chain entry list
+ * \param entry deleted certificate chain entry
+ *
+ */
+void sec_prot_certs_chain_list_entry_delete(cert_chain_list_t *chain_list, cert_chain_entry_t *entry);
+
+/**
+ * sec_prot_certs_chain_list_entry_find finds entry from certificate chain list
+ *
+ * \param cert_chain_list certificate chain entry list
+ * \param entry searched certificate chain entry
+ *
+ * \return certificate chain entry or NULL
+ *
+ */
+cert_chain_entry_t *sec_prot_certs_chain_list_entry_find(cert_chain_list_t *chain_list, cert_chain_entry_t *entry);
+
+/**
  * sec_prot_certs_revocat_list_entry_create allocate memory for certificate revocation list entry
  *
  * \return certificate revocation list entry or NULL
@@ -168,6 +195,13 @@ cert_revocat_list_entry_t *sec_prot_certs_revocat_list_entry_create(void);
 void sec_prot_certs_revocat_list_entry_init(cert_revocat_list_entry_t *entry);
 
 /**
+ * sec_prot_certs_revocat_list_entry_delete deletes certificate revocation list entry
+ *
+ * \param entry certificate revocation list entry
+ */
+void sec_prot_certs_revocat_list_entry_delete(cert_revocat_list_entry_t *entry);
+
+/**
  * sec_prot_certs_revocat_list_set set certificate revocation list to list entry
  *
  * \param entry certificate revocation list entry
@@ -177,7 +211,7 @@ void sec_prot_certs_revocat_list_entry_init(cert_revocat_list_entry_t *entry);
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t sec_prot_certs_revocat_list_set(cert_revocat_list_entry_t *entry, uint8_t *crl, uint16_t crl_len);
+int8_t sec_prot_certs_revocat_list_set(cert_revocat_list_entry_t *entry, const uint8_t *crl, uint16_t crl_len);
 
 /**
  * sec_prot_certs_revocat_list_set set certificate revocation list from list entry
@@ -187,15 +221,34 @@ int8_t sec_prot_certs_revocat_list_set(cert_revocat_list_entry_t *entry, uint8_t
  *
  * \return pointer to crl or NULL
  */
-uint8_t *sec_prot_certs_revocat_list_get(const cert_revocat_list_entry_t *entry, uint16_t *crl_len);
+const uint8_t *sec_prot_certs_revocat_list_get(const cert_revocat_list_entry_t *entry, uint16_t *crl_len);
 
 /**
- * sec_prot_certs_revocat_lists_add add certificate chain entry to certificate chain list
+ * sec_prot_certs_revocat_lists_add add certificate revocation list entry to certificate revocation lists
  *
  * \param cert_revocat_lists certificate revocation lists
  * \param entry certificate revocation list entry
  */
 void sec_prot_certs_revocat_lists_add(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry);
+
+/**
+ * sec_prot_certs_revocat_lists_entry_delete delete certificate revocation list entry from certificate revocation lists
+ *
+ * \param cert_revocat_lists certificate revocation lists
+ * \param entry certificate revocation list entry
+ *
+ */
+void sec_prot_certs_revocat_lists_entry_delete(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry);
+
+/**
+ * sec_prot_certs_revocat_lists_entry_find find certificate revocation list entry from certificate revocation lists
+ *
+ * \param cert_revocat_lists certificate revocation lists
+ * \param entry certificate revocation list entry
+ *
+ * \return certificate revocation list entry or NULL
+ */
+cert_revocat_list_entry_t *sec_prot_certs_revocat_lists_entry_find(cert_revocat_lists_t *cert_revocat_lists, cert_revocat_list_entry_t *entry);
 
 /**
  * sec_prot_certs_chain_list_delete delete certificate chain list

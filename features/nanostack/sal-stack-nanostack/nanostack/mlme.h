@@ -264,6 +264,7 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macMultiCSMAParameters = 0xfa,  /*<Multi CSMA parameters*/
     macRfConfiguration = 0xfb,      /*<RF channel configuration parameters*/
     macAcceptByPassUnknowDevice = 0xfc,  /*< Accept data trough MAC if packet is data can be authenticated by group key nad MIC. Security enforsment point must be handled carefully these packets */
     macLoadBalancingBeaconTx = 0xfd,  /*< Trig Beacon from load balance module periodic */
@@ -498,5 +499,15 @@ typedef struct mlme_poll_s {
 typedef struct mlme_poll_conf_s {
     uint8_t status;             /**< Status of Poll operation */
 } mlme_poll_conf_t;
+
+/**
+ * @brief struct mlme_multi_csma_ca_param_s Set multi CSMA-CA parameters
+ *
+ * Non standard extension to perform CCA multiple times before transmission
+ */
+typedef struct mlme_multi_csma_ca_s {
+    uint8_t number_of_csma_ca_periods;  /**< Number of CSMA-CA periods */
+    uint16_t multi_cca_interval;        /**< Length of the additional CSMA-CA period(s) in microseconds */
+} mlme_multi_csma_ca_param_t;
 
 #endif /* MLME_H_ */

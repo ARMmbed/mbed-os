@@ -43,6 +43,16 @@ int8_t arm_nwk_ipv6_max_cache_entries(uint16_t max_entries)
     return ipv6_neighbour_set_current_max_cache(max_entries);
 }
 
+int8_t arm_nwk_ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime)
+{
+    return ipv6_destination_cache_configure(max_entries, short_term_threshold, long_term_threshold, lifetime);
+}
+
+int8_t arm_nwk_ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime)
+{
+    return ipv6_neighbour_cache_configure(max_entries, short_term_threshold, long_term_threshold, lifetime);
+}
+
 void arm_nwk_ipv6_auto_flow_label(bool auto_flow_label)
 {
     ipv6_flow_auto_label = auto_flow_label;

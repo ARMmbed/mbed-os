@@ -180,7 +180,7 @@ static void kmp_socket_if_socket_cb(void *ptr)
     data_ptr += 8;
 
     kmp_type_e type = kmp_api_type_from_id_get(*data_ptr++);
-    if (type == INVALID_KMP_TYPE) {
+    if (type == KMP_TYPE_NONE) {
         ns_dyn_mem_free(pdu);
         return;
     }

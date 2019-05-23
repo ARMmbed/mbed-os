@@ -744,6 +744,7 @@ static bool thread_address_registration_tlv_check(protocol_interface_info_entry_
             }
         }
     }
+    thread_extension_child_address_registration_response_process(cur);
 
     return ret_val;
 }

@@ -60,6 +60,7 @@ typedef struct {
     tls_data_t                    tls_send;         /**< EAP-TLS send buffer */
     tls_data_t                    tls_recv;         /**< EAP-TLS receive buffer */
     uint8_t                       eap_id_seq;       /**< EAP sequence */
+    uint8_t                       recv_eap_id_seq;  /**< Last received EAP sequence */
     uint8_t                       eap_code;         /**< Received EAP code */
     uint8_t                       eap_type;         /**< Received EAP type */
     int8_t                        tls_result;       /**< Result of TLS operation */
@@ -72,7 +73,7 @@ static const trickle_params_t eap_tls_trickle_params = {
     .Imin = 200,           /* 20s; ticks are 100ms */
     .Imax = 450,           /* 45s */
     .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
+    .TimerExpirations = 2
 };
 
 static uint16_t auth_eap_tls_sec_prot_size(void);
@@ -129,6 +130,7 @@ static int8_t auth_eap_tls_sec_prot_init(sec_prot_t *prot)
 
     data->tls_prot = NULL;
     data->eap_id_seq = 0;
+    data->recv_eap_id_seq = 0;
     data->eap_code = 0;
     data->eap_type = 0;
     eap_tls_sec_prot_lib_message_init(&data->tls_recv);
@@ -188,21 +190,32 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
     uint16_t length = data->recv_eapol_pdu.msg.eap.length;
 
     bool new_seq_id = false;
-    // Confirmation that supplicant has received the message, proceed with protocol
-    if (data->recv_eapol_pdu.msg.eap.id_seq == data->eap_id_seq) {
+    bool old_seq_id = false;
+
+    // Already received sequence ID is received again, ignore
+    if (data->recv_eapol_pdu.msg.eap.id_seq < data->eap_id_seq) {
+        old_seq_id = true;
+    } else if (data->recv_eapol_pdu.msg.eap.id_seq == data->eap_id_seq) {
+        // Confirmation that supplicant has received the message, proceed with protocol
+        data->recv_eap_id_seq = data->recv_eapol_pdu.msg.eap.id_seq;
         data->eap_id_seq++;
         new_seq_id = true;
     }
 
-    tr_debug("recv EAP %s type %s id %i flags %x len %i", eap_msg_trace[data->eap_code - 1],
-             data->eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->recv_eapol_pdu.msg.eap.id_seq,
-             length >= 6 ? data_ptr[0] : 0, length);
+    tr_info("EAP-TLS: recv %s type %s id %i flags %x len %i, eui-64 %s", eap_msg_trace[data->eap_code - 1],
+            data->eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->recv_eapol_pdu.msg.eap.id_seq,
+            length >= 6 ? data_ptr[0] : 0, length, trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+
+    if (old_seq_id) {
+        return EAP_TLS_MSG_DECODE_ERROR;
+    }
 
     if (data->eap_type == EAP_IDENTITY) {
         return EAP_TLS_MSG_IDENTITY;
     }
 
     if (!data_ptr || length < 6) {
+        tr_error("EAP-TLS: decode error");
         return EAP_TLS_MSG_DECODE_ERROR;
     }
 
@@ -226,15 +239,22 @@ static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_c
             eap_tls_sec_prot_lib_message_allocate(&data->tls_send, TLS_HEAD_LEN, 0);
             flags = EAP_TLS_START;
         }
-    } else if (eap_code != EAP_SUCCESS && eap_code != EAP_FAILURE) {
+    } else if (eap_code == EAP_SUCCESS || eap_code == EAP_FAILURE) {
+        // Send Success and Failure with same identifier as received in EAP Response
+        data->eap_id_seq = data->recv_eap_id_seq;
+    } else {
         return -1;
     }
 
     uint16_t eapol_pdu_size;
-    uint8_t *eapol_decoded_data = eap_tls_sec_prot_lib_message_build(eap_code, eap_type, flags, data->eap_id_seq, prot->header_size, &data->tls_send, &eapol_pdu_size);
+    uint8_t *eapol_decoded_data = eap_tls_sec_prot_lib_message_build(eap_code, eap_type, &flags, data->eap_id_seq, prot->header_size, &data->tls_send, &eapol_pdu_size);
     if (!eapol_decoded_data) {
         return -1;
     }
+
+    tr_info("EAP-TLS: send %s type %s id %i flags %x len %i, eui-64: %s", eap_msg_trace[eap_code - 1],
+            eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->eap_id_seq, flags, eapol_pdu_size,
+            trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
     if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
         return -1;
@@ -267,10 +287,13 @@ static void auth_eap_tls_sec_prot_tls_finished_indication(sec_prot_t *tls_prot, 
 
     if (result == SEC_RESULT_OK) {
         data->tls_result = EAP_TLS_RESULT_HANDSHAKE_OVER;
+        tr_info("EAP-TLS: handshake success");
     } else if (result == SEC_RESULT_CONF_ERROR) {
         data->tls_result = EAP_TLS_RESULT_HANDSHAKE_FATAL_ERROR;
+        tr_error("EAP-TLS: handshake fatal error");
     } else {
         data->tls_result = EAP_TLS_RESULT_HANDSHAKE_FAILED;
+        tr_error("EAP-TLS: handshake failed");
     }
 
     data->tls_ongoing = false;
@@ -328,12 +351,7 @@ static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
 
 static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
 {
-    eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
-    // If initialized, TLS terminates on its own
-    if (data->tls_prot) {
-        return;
-    }
-
+    // Triggers TLS to terminate if it is not already terminating by its own
     sec_prot_t *tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
     if (tls_prot) {
         tls_prot->finished_send(tls_prot);
@@ -353,7 +371,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case EAP_TLS_STATE_CREATE_REQ:
-            tr_debug("EAP-TLS start");
+            tr_info("EAP-TLS start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             prot->timer_start(prot);
 
@@ -386,9 +404,6 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             if (auth_eap_tls_sec_prot_message_handle(prot) != EAP_TLS_MSG_IDENTITY) {
                 return;
             }
-
-            // Increment sequence ID
-            //auth_eap_tls_sec_prot_seq_id_update(prot);
 
             // Sends EAP request, TLS EAP start
             auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_START);
@@ -477,6 +492,8 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             } else {
                 // TLS done, indicate success to peer
                 if (data->tls_result == EAP_TLS_RESULT_HANDSHAKE_OVER) {
+                    // Supplicant PMK is now valid
+                    sec_prot_keys_pmk_mismatch_reset(prot->sec_keys);
                     // Sends EAP success
                     auth_eap_tls_sec_prot_message_send(prot, EAP_SUCCESS, 0, EAP_TLS_EXCHANGE_NONE);
                 } else {
@@ -491,13 +508,12 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISH:
-            tr_debug("EAP-TLS finish");
+            tr_info("EAP-TLS finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_FINISHED);
-            data->common.ticks = 10 * 10;
             break;
 
         case EAP_TLS_STATE_FINISHED:

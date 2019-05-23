@@ -35,7 +35,10 @@
 #include "net_rpl.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
+#include "6LoWPAN/ws/ws_pae_controller.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+
+#include "ws_bbr_api.h"
 
 #define TRACE_GROUP "wsbs"
 
@@ -49,6 +52,7 @@
  *
  */
 static int8_t backbone_interface_id = -1; // BBR backbone information
+static uint16_t configuration = BBR_ULA_C | BBR_GUA_C | BBR_GUA_ROUTE;
 
 static uint8_t static_dodag_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
 static uint8_t static_ula_address[16] = {0};
@@ -109,15 +113,10 @@ static void ws_bbr_rpl_root_start(uint8_t *dodag_id)
         tr_err("RPL dodag init failed");
         return;
     }
-    memcpy(static_dodag_id, dodag_id, 16);
-
     // RPL memory limits set larger for Border router
     rpl_control_set_memory_limits(64 * 1024, 0);
-
-    uint8_t t_flags = PIO_A;
-
-    rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, dodag_id, 64, t_flags, 7200, 7200, false);
-    rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, dodag_id, 64, 0x18, 7200, false);
+    // Save configured static id to check for changes later
+    memcpy(static_dodag_id, dodag_id, 16);
 }
 
 static void ws_bbr_rpl_root_stop(void)
@@ -129,6 +128,17 @@ static void ws_bbr_rpl_root_stop(void)
     memset(static_dodag_id, 0, 16);
     memset(global_dodag_id, 0, 16);
 }
+
+static void ws_bbr_ula_prefix_enable(uint8_t *dodag_id)
+{
+    tr_info("RPL ula prefix start");
+
+    uint8_t t_flags = PIO_A;
+
+    rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, dodag_id, 64, t_flags, 7200, 7200, false);
+    rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, dodag_id, 64, 0x18, 7200, false);
+}
+
 
 static int ws_border_router_proxy_validate(int8_t interface_id, uint8_t *address)
 {
@@ -170,12 +180,13 @@ static int ws_bbr_static_ula_create(protocol_interface_info_entry_t *cur)
     tr_info("BBR generate ula prefix");
 
     // This address is only used if no other address available.
-    if_address_entry_t *add_entry = icmpv6_slaac_address_add(cur, static_dodag_prefix, 64, 0xffffffff, 0, true, SLAAC_IID_FIXED);
+    if_address_entry_t *add_entry = icmpv6_slaac_address_add(cur, static_dodag_prefix, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
     if (!add_entry) {
         return -1;
     }
     memcpy(static_ula_address, add_entry->address, 16);
     tr_info("BBR generate ula prefix addr %s", trace_ipv6(static_ula_address));
+    addr_policy_table_add_entry(static_dodag_prefix, 64, 2, WS_NON_PREFFRED_LABEL);
 
     return 0;
 }
@@ -266,6 +277,32 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     return true;
 }
 
+static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id)
+{
+    uint8_t ll[16];
+    memcpy(ll, ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(&ll[8], cur->mac, 8);
+    ll[8] ^= 2;
+
+    tr_debug("DHCP server activate %s", trace_ipv6(global_id));
+
+    if (DHCPv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
+        tr_error("DHCPv6 Server create fail");
+        return;
+    }
+    DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
+
+    DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true);
+    DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, 7200);
+
+    ws_dhcp_client_address_request(cur, global_id, ll);
+}
+static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
+{
+    tr_debug("DHCP server deactivate %s", trace_ipv6(global_id));
+    DHCPv6_server_service_delete(cur->id, global_id, false);
+
+}
 
 static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 {
@@ -277,56 +314,73 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 
     ws_bbr_dodag_get(cur, static_id, global_id);
 
+    // Check if we need to wait for Global ID
+    if (configuration & BBR_GUA_WAIT) {
+        if (memcmp(global_dodag_id, ADDR_UNSPECIFIED, 16) == 0 &&
+                memcmp(global_id, ADDR_UNSPECIFIED, 16) == 0) {
+            // We need to wait for Global connectivity to start anything
+            return;
+        }
+    }
+
     if (memcmp(static_dodag_id, static_id, 16) != 0) {
         // Static id updated or first setup
         ws_bbr_rpl_root_start(static_id);
+        if (configuration & BBR_ULA_C) {
+            // Start static ULA prefix and routing always
+            ws_bbr_ula_prefix_enable(static_id);
+        }
     }
+
     if (memcmp(global_dodag_id, global_id, 16) != 0) {
         // Global prefix changed
         if (memcmp(global_dodag_id, ADDR_UNSPECIFIED, 16) != 0) {
             // TODO remove old global prefix
             tr_info("RPL GUA deactivate %s", trace_ipv6(global_dodag_id));
 
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, static_dodag_id, 64, PIO_A, 7200, 7200, false);
-            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, static_dodag_id, 64, 0x18, 7200, false);
-
             // Old backbone information is deleted after 120 seconds
-            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, NULL, 0, 0, 120, true);
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_dodag_id, 64, 0, 120, 0, true);
-            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, global_dodag_id, 64, 0, 120, true);
+            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, NULL, 0, 0, 0, true);
+            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_dodag_id, 64, 0, 0, 0, true);
+            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, global_dodag_id, 64, 0, 0, true);
             ipv6_route_add_with_info(global_dodag_id, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 120, 0);
-            DHCPv6_server_service_delete(cur->id, global_dodag_id, false);
 
-            // Set old addresses to deferred and timeout
-            ws_dhcp_client_address_delete(cur, global_dodag_id);
+            ws_bbr_dhcp_server_stop(cur, global_dodag_id);
         }
         // TODO add global prefix
         if (memcmp(global_id, ADDR_UNSPECIFIED, 16) != 0) {
-            //DHCPv6 Server set here
-            //Interface LL64 address
-            uint8_t ll[16];
-            memcpy(ll, ADDR_LINK_LOCAL_PREFIX, 8);
-            memcpy(&ll[8], cur->mac, 8);
-            ll[8] ^= 2;
+            //DHCPv6 Server flags set 0 by default
+            uint8_t t_flags = 0;
 
-            if (DHCPv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
-                tr_error("DHCPv6 Server create fail");
-                return;
-            }
-            DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
-
-            DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true);
-            DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, 7200);
-
-            tr_info("RPL GUA activate %s", trace_ipv6(global_id));
-            ws_dhcp_client_address_request(cur, global_id, ll);
-
+            // Add default route to RPL
             rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, NULL, 0, 0, 7200, false);
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, static_dodag_id, 64, PIO_A, 7200, 0, false);
-            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, static_dodag_id, 64, 0x18, 7200, false);
-            rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_id, 64, 0, 7200, 7200, false);
-            rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, global_id, 64, 0, 7200, false);
+            // Enable default routing to backbone
             ipv6_route_add_with_info(global_id, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0xffffffff, 0);
+
+            if (configuration & BBR_GUA_SLAAC) {
+                // GUA prefix is using SLAAC so no DHCP started and set correct flags for prefix
+                t_flags = PIO_A;
+                icmpv6_slaac_address_add(cur, global_id, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
+            } else {
+                ws_bbr_dhcp_server_start(cur, global_id);
+            }
+
+            if (configuration & BBR_GUA_C) {
+                // Add also global prefix and route to RPL
+                uint32_t valid_lifetime;
+                if (t_flags & PIO_A) {
+                    valid_lifetime = 7200;
+                } else {
+                    valid_lifetime = 0;
+                }
+
+                rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_id, 64, t_flags, valid_lifetime, valid_lifetime, false);
+
+            }
+            if (configuration & BBR_GUA_ROUTE) {
+                // Add also global prefix and route to RPL
+                rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, global_id, 64, 0, 7200, false);
+            }
+
         }
         memcpy(global_dodag_id, global_id, 16);
         rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag);
@@ -420,12 +474,44 @@ uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
     if (test_pan_size_override != 0xffff) {
         return test_pan_size_override;
     }
+    //
+    const uint8_t *prefix_ptr;
+    if ((configuration & (BBR_ULA_C | BBR_GUA_C)) == BBR_GUA_C) {
+        //Use just GUA Prefix
+        prefix_ptr = global_dodag_id;
 
-    rpl_control_get_instance_dao_target_count(cur->rpl_domain, RPL_INSTANCE_ID, NULL, &result);
+    } else {
+        //Use ULA for indentifier
+        prefix_ptr = static_dodag_id;
+    }
+
+    rpl_control_get_instance_dao_target_count(cur->rpl_domain, RPL_INSTANCE_ID, NULL, prefix_ptr, &result);
     return result;
 }
 
+bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
+{
 
+    (void)cur;
+    uint8_t global_address[16];
+
+    if (backbone_interface_id < 0) {
+        // No need to wait for backbone
+        return true;
+    }
+
+    if ((configuration & BBR_BB_WAIT) != BBR_BB_WAIT) {
+        // No need to wait for backbone
+        return true;
+    }
+
+    if (arm_net_address_get(backbone_interface_id, ADDR_IPV6_GP, global_address) != 0) {
+        // No global prefix available
+        return false;
+    }
+
+    return true;
+}
 #endif //HAVE_WS_BORDER_ROUTER
 
 /* Public APIs
@@ -471,18 +557,44 @@ void ws_bbr_stop(int8_t interface_id)
     (void)interface_id;
 #endif
 }
+int ws_bbr_configure(int8_t interface_id, uint16_t options)
+{
+#ifdef HAVE_WS_BORDER_ROUTER
+
+    (void)interface_id;
+    if (protocol_6lowpan_rpl_root_dodag &&
+            options != configuration) {
+        //Configuration changed delete previus setup
+        ws_bbr_rpl_root_stop();
+    }
+    configuration = options;
+    return 0;
+#else
+    (void)interface_id;
+    (void)options;
+    return -1;
+#endif
+}
 
 int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
 {
     (void) interface_id;
     (void) eui64;
 
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_node_keys_remove(interface_id, eui64);
+#else
     return -1;
+#endif
 }
 
 int ws_bbr_node_access_revoke_start(int8_t interface_id)
 {
     (void) interface_id;
 
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_node_access_revoke_start(interface_id);
+#else
     return -1;
+#endif
 }

@@ -112,6 +112,8 @@ rpl_dio_route_t *rpl_dodag_update_dio_route(rpl_dodag_t *dodag, const uint8_t *p
 void rpl_dodag_delete_dio_route(rpl_dodag_t *dodag, rpl_dio_route_t *route);
 const rpl_dio_route_list_t *rpl_dodag_get_route_list(const rpl_dodag_t *dodag);
 
+void rpl_dodag_update_unpublished_dio_prefix_start(rpl_dodag_t *dodag);
+void rpl_dodag_update_unpublished_dio_prefix_finish(rpl_dodag_t *dodag);
 prefix_entry_t *rpl_dodag_update_dio_prefix(rpl_dodag_t *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, uint32_t preftime, bool publish, bool age);
 void rpl_dodag_delete_dio_prefix(rpl_dodag_t *dodag, prefix_entry_t *prefix);
 const prefix_list_t *rpl_dodag_get_prefix_list(const rpl_dodag_t *dodag);
@@ -143,5 +145,5 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance);
 void rpl_upward_print_instance(rpl_instance_t *instance, route_print_fn_t *print_fn);
 
 bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, struct rpl_dodag_info_t *dodag_info);
-uint16_t rpl_upward_read_dao_target_list_size(const rpl_instance_t *instance);
+uint16_t rpl_upward_read_dao_target_list_size(const rpl_instance_t *instance, const uint8_t *target_prefix);
 #endif /* RPL_UPWARD_H_ */

@@ -192,6 +192,7 @@ typedef struct thread_connectivity_s {
 typedef struct thread_parent_info_s {
     uint8_t mac64[8];
     uint16_t shortAddress;
+    uint16_t version;
     uint8_t router_id;
     uint8_t pathCostToLeader;
     bool    childUpdatePending: 1;

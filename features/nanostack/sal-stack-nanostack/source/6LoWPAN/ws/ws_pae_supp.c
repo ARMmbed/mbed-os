@@ -17,6 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
+#include <randLIB.h>
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
@@ -41,6 +42,7 @@
 #include "Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.h"
 #include "Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/ws/ws_pae_timers.h"
 #include "6LoWPAN/ws/ws_pae_supp.h"
 #include "6LoWPAN/ws/ws_pae_lib.h"
 #include "6LoWPAN/ws/ws_pae_nvm_store.h"
@@ -59,10 +61,17 @@
 #define PAE_TASKLET_TIMER                      3
 
 // Wait for for authenticator to continue with authentication (e.g. after EAP-TLS to initiate 4WH)
-#define WAIT_FOR_AUTHENTICATION_TICKS          30 * 10  // 30 seconds
+#define WAIT_FOR_AUTHENTICATION_TICKS          30 * 10      // 30 seconds
+
+// Wait for re-authentication after GTK update
+#define WAIT_FOR_REAUTHENTICATION_TICKS        120 * 10     // 120 seconds
 
 // How many times in maximum stored keys are used for authentication
-#define STORED_KEYS_MAXIMUM_USE_COUNT           2
+#define STORED_KEYS_MAXIMUM_USE_COUNT          2
+
+// Delay for sending the initial EAPOL-Key
+#define INITIAL_KEY_TIMER_MIN                  3
+#define INITIAL_KEY_TIMER_MAX                  30
 
 const char *NW_INFO_FILE = "pae_nw_info";
 const char *KEYS_FILE = "pae_keys";
@@ -70,7 +79,8 @@ const char *KEYS_FILE = "pae_keys";
 typedef struct {
     char network_name[33];                                 /**< Network name for keys */
     sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
-    uint16_t pan_id;                                       /**< PAN ID for keys */
+    uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */
+    uint16_t key_pan_id;                                   /**< PAN ID for keys */
     bool updated : 1;                                      /**< Network info has been updated */
 } sec_prot_keys_nw_info_t;
 
@@ -79,27 +89,33 @@ typedef struct {
     kmp_service_t *kmp_service;                            /**< KMP service */
     protocol_interface_info_entry_t *interface_ptr;        /**< Interface */
     ws_pae_supp_auth_completed *auth_completed;            /**< Authentication completed callback, continue bootstrap */
-    ws_pae_supp_key_insert *key_insert;                    /**< Key insert callback */
+    ws_pae_supp_nw_key_insert *nw_key_insert;              /**< Key insert callback */
+    ws_pae_supp_nw_key_index_set *nw_key_index_set;        /**< Key index set callback */
     supp_entry_t entry;                                    /**< Supplicant data */
     kmp_addr_t target_addr;                                /**< EAPOL target (parent) address */
-    trickle_t auth_trickle_timer;                          /**< Trickle timer for re-sending initial EAPOL-key */
+    uint16_t initial_key_timer;                            /**< Timer to trigger initial EAPOL-Key */
+    trickle_t auth_trickle_timer;                          /**< Trickle timer for re-sending initial EAPOL-key or for GTK mismatch */
+    trickle_params_t auth_trickle_params;                  /**< Trickle parameters for initial EAPOL-key or for GTK mismatch */
     sec_prot_gtk_keys_t gtks;                              /**< GTKs */
     uint8_t new_br_eui_64[8];                              /**< Border router EUI-64 indicated by bootstrap */
-    uint8_t ptk_eui_64[8];                                 /**< Border router EUI-64 used on PTK generation */
     sec_prot_keys_nw_info_t sec_keys_nw_info;              /**< Security keys network information */
+    timer_settings_t *timer_settings;                      /**< Timer settings */
     uint8_t nw_keys_used_cnt;                              /**< How many times bootstrap has been tried with current keys */
-    bool auth_trickle_running : 1;                         /**< Trickle timer running */
+    bool auth_trickle_running : 1;                         /**< Initial EAPOL-Key Trickle timer running */
     bool auth_requested : 1;                               /**< Authentication has been requested */
     bool timer_running : 1;                                /**< Timer is running */
     bool new_br_eui_64_set : 1;                            /**< Border router address has been set */
+    bool new_br_eui_64_fresh : 1;                          /**< Border router address is fresh (set during this authentication attempt) */
 } pae_supp_t;
 
-// Wi-SUN specification states initial retransmission to be around 5 minutes and maximum 60 minutes
-static const trickle_params_t auth_trickle_params = {
-    .Imin = 30 * 10,          /* 30s; ticks are 100ms */
-    .Imax = 60 * 10,          /* 60s */
-    .k = 0,                   /* infinity - no consistency checking */
-    .TimerExpirations = 3
+
+#define TRICKLE_IMIN_180_SECS   180
+
+static trickle_params_t initial_eapol_key_trickle_params = {
+    .Imin = TRICKLE_IMIN_180_SECS,          /* 180 second; ticks are 1 second */
+    .Imax = TRICKLE_IMIN_180_SECS << 1,     /* 360 second */
+                                  .k = 0,   /* infinity - no consistency checking */
+                                  .TimerExpirations = 3
 };
 
 static void ws_pae_supp_free(pae_supp_t *pae_supp);
@@ -122,6 +138,7 @@ static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_ap
 static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, kmp_type_e type, const kmp_addr_t *addr);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
+static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
 
 static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
@@ -152,29 +169,33 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     // Delete GTKs
     sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info.gtks);
 
+    /* PAN ID has changed, delete key data associated with border router
+       i.e PMK, PTK, EA-IE data (border router EUI-64) */
+    if (pae_supp->sec_keys_nw_info.key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info.key_pan_id != dest_pan_id) {
+        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
+        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
+    }
+
+    pae_supp->sec_keys_nw_info.key_pan_id = dest_pan_id;
+
     // Prepare to receive new border router address
-    pae_supp->new_br_eui_64_set = false;
+    pae_supp->new_br_eui_64_fresh = false;
 
     // Stores target/parent address
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, dest_eui_64);
     // Sets target address in use
     pae_supp->entry.addr = (kmp_addr_t *) &pae_supp->target_addr;
 
-    // Sends initial EAPOL-Key message
-    if (ws_pae_supp_initial_key_send(pae_supp) < 0) {
-        pae_supp->auth_completed(interface_ptr, false);
-    }
+    pae_supp->auth_requested = true;
 
-    // Starts trickle
-    trickle_start(&pae_supp->auth_trickle_timer, &auth_trickle_params);
-    pae_supp->auth_trickle_running = true;
+    // Randomizes the sending of initial EAPOL-Key messsage
+    pae_supp->initial_key_timer = randLIB_get_random_in_range(INITIAL_KEY_TIMER_MIN, INITIAL_KEY_TIMER_MAX);
 
     // Starts supplicant timer
     ws_pae_supp_timer_start(pae_supp);
 
-    pae_supp->auth_requested = true;
-
-    tr_debug("PAE active");
+    tr_debug("PAE active, timer %i", pae_supp->initial_key_timer);
 
     return 1;
 }
@@ -187,8 +208,8 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     }
 
     // PAN ID has been modified
-    if (pan_id != 0xffff && pan_id != pae_supp->sec_keys_nw_info.pan_id) {
-        pae_supp->sec_keys_nw_info.pan_id = pan_id;
+    if (pan_id != 0xffff && pan_id != pae_supp->sec_keys_nw_info.new_pan_id) {
+        pae_supp->sec_keys_nw_info.new_pan_id = pan_id;
         pae_supp->sec_keys_nw_info.updated = true;
     }
 
@@ -211,6 +232,7 @@ int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *int
 
     memcpy(pae_supp->new_br_eui_64, eui_64, 8);
     pae_supp->new_br_eui_64_set = true;
+    pae_supp->new_br_eui_64_fresh = true;
 
     return 0;
 }
@@ -222,11 +244,12 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
         return -1;
     }
 
-    if (!pae_supp->entry.sec_keys.ptk_eui_64 || !pae_supp->entry.sec_keys.ptk_eui_64_set) {
+    uint8_t *br_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
+    if (!br_eui_64) {
         return -1;
     }
 
-    memcpy(eui_64, pae_supp->entry.sec_keys.ptk_eui_64, 8);
+    memcpy(eui_64, br_eui_64, 8);
 
     return 0;
 }
@@ -238,11 +261,76 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr)
         return -1;
     }
 
+    tr_info("NW key valid");
+
     // Stored keys are valid
     pae_supp->nw_keys_used_cnt = 0;
 
     // Update NVM if data has been changed
     ws_pae_supp_nvm_update(pae_supp);
+
+    return 0;
+}
+
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
+{
+    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
+    if (!pae_supp) {
+        return -1;
+    }
+
+    // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
+    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(&pae_supp->gtks, gtkhash);
+    if (mismatch > GTK_NO_MISMATCH) {
+        tr_info("GTK hash update %s %s %s %s",
+                trace_array(&gtkhash[0], 8),
+                trace_array(&gtkhash[8], 8),
+                trace_array(&gtkhash[16], 8),
+                trace_array(&gtkhash[24], 8));
+
+        // Mismatch, initiate EAPOL
+        if (!pae_supp->auth_trickle_running) {
+            uint8_t timer_expirations = 3;
+            // For GTK lifetime mismatch send only once
+            if (mismatch == GTK_LIFETIME_MISMATCH) {
+                timer_expirations = 1;
+            }
+
+            pae_supp->auth_trickle_params.Imin = pae_supp->timer_settings->gtk_request_imin;
+            pae_supp->auth_trickle_params.Imax = pae_supp->timer_settings->gtk_request_imax;
+            pae_supp->auth_trickle_params.k = 0;
+            pae_supp->auth_trickle_params.TimerExpirations = timer_expirations;
+
+            // Starts trickle
+            trickle_start(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
+            pae_supp->auth_trickle_running = true;
+
+            // Starts supplicant timer
+            ws_pae_supp_timer_start(pae_supp);
+
+            tr_info("GTK update start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->timer_settings->gtk_request_imin, pae_supp->timer_settings->gtk_request_imax, pae_supp->timer_settings->gtk_max_mismatch, pae_supp->auth_trickle_timer.t);
+        }
+    }
+
+    // Modify keys
+    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info.gtks);
+
+    return 0;
+}
+
+int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
+{
+    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
+    if (!pae_supp) {
+        return -1;
+    }
+
+    if (sec_prot_keys_gtk_status_active_set(&pae_supp->gtks, index) >= 0) {
+        tr_info("NW send key index set: %i", index + 1);
+        pae_supp->nw_key_index_set(interface_ptr, index);
+    } else {
+        tr_info("NW send key index: %i, no changes", index + 1);
+    }
 
     return 0;
 }
@@ -268,7 +356,7 @@ static int8_t ws_pae_supp_nvm_nw_info_write(pae_supp_t *pae_supp)
     nvm_tlv_list_t tlv_list;
     ns_list_init(&tlv_list);
 
-    nvm_tlv_entry_t *tlv_entry = ws_pae_nvm_store_nw_info_tlv_create(pae_supp->sec_keys_nw_info.pan_id,
+    nvm_tlv_entry_t *tlv_entry = ws_pae_nvm_store_nw_info_tlv_create(pae_supp->sec_keys_nw_info.key_pan_id,
                                                                      pae_supp->sec_keys_nw_info.network_name,
                                                                      &pae_supp->gtks);
     ns_list_add_to_end(&tlv_list, tlv_entry);
@@ -288,7 +376,7 @@ static int8_t ws_pae_supp_nvm_nw_info_read(pae_supp_t *pae_supp)
     ws_pae_nvm_store_tlv_file_read(NW_INFO_FILE, &tlv_list);
 
     ns_list_foreach_safe(nvm_tlv_entry_t, entry, &tlv_list) {
-        ws_pae_nvm_store_nw_info_tlv_read(entry, &pae_supp->sec_keys_nw_info.pan_id,
+        ws_pae_nvm_store_nw_info_tlv_read(entry, &pae_supp->sec_keys_nw_info.key_pan_id,
                                           pae_supp->sec_keys_nw_info.network_name,
                                           &pae_supp->gtks);
         ns_list_remove(&tlv_list, entry);
@@ -340,10 +428,28 @@ static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, bool success
 
 static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
 {
+    if (!pae_supp->auth_requested) {
+        // If not making initial authentication updates target (RPL parent) for each EAPOL-key message
+        uint8_t parent_eui_64[8];
+        if (ws_pae_supp_parent_eui_64_get(pae_supp->interface_ptr, parent_eui_64) < 0) {
+            return -1;
+        }
+
+        // Stores target/parent address
+        kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, parent_eui_64);
+        // Sets parent address in use
+        pae_supp->entry.addr = (kmp_addr_t *) &pae_supp->target_addr;
+
+        ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_REAUTHENTICATION_TICKS);
+        tr_info("PAE wait for auth seconds: %i", WAIT_FOR_REAUTHENTICATION_TICKS / 10);
+    }
+
     kmp_api_t *kmp = ws_pae_supp_kmp_create_and_start(pae_supp->kmp_service, IEEE_802_1X_MKA_KEY, pae_supp);
     if (!kmp) {
         return -1;
     }
+
+    tr_info("EAPOL target: %s", trace_array(kmp_address_eui_64_get(pae_supp->entry.addr), 8));
 
     kmp_api_create_request(kmp, IEEE_802_1X_MKA_KEY, pae_supp->entry.addr, &pae_supp->entry.sec_keys);
 
@@ -365,34 +471,21 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
         return -1;
     }
 
-    // First attempt to authenticate, checks if keys exists
-    if (pae_supp->nw_keys_used_cnt == 0 && pan_id == pae_supp->sec_keys_nw_info.pan_id) {
-        sec_prot_gtk_keys_t *gtks = pae_supp->sec_keys_nw_info.gtks;
-
-        bool key_inserted = false;
-
-        for (uint8_t i = 0; i < GTK_NUM; i++) {
-            uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
-            if (gtk) {
-                // Insert also non-live keys since GTK hash information not yet received
-                pae_supp->key_insert(pae_supp->interface_ptr, i, gtk);
-                key_inserted = true;
-            }
-        }
-
-        if (key_inserted) {
-            tr_debug("Keys inserted");
-            pae_supp->nw_keys_used_cnt++;
-            return 0;
-        }
-    }
-
-    if (pae_supp->nw_keys_used_cnt == 0) {
-        return -1;
-    } else {
+    /* Checks if keys match to PAN ID and that needed keys exists (PMK, PTK and a GTK),
+       and calls inserts function that will update the network keys as needed */
+    if ((pan_id == pae_supp->sec_keys_nw_info.key_pan_id) &&
+            (sec_prot_keys_gtk_count(pae_supp->sec_keys_nw_info.gtks) > 0) &&
+            (sec_prot_keys_pmk_get(&pae_supp->entry.sec_keys) != NULL) &&
+            (sec_prot_keys_ptk_get(&pae_supp->entry.sec_keys) != NULL)) {
         tr_debug("Existing keys used, counter %i", pae_supp->nw_keys_used_cnt);
+        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info.gtks) >= 0) {
+            tr_debug("Keys inserted");
+        }
         pae_supp->nw_keys_used_cnt++;
         return 0;
+    } else {
+        pae_supp->nw_keys_used_cnt = 0;
+        return -1;
     }
 }
 
@@ -405,10 +498,12 @@ static void ws_pae_supp_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_i
     memset(sec_keys_nw_info, 0, sizeof(sec_prot_keys_nw_info_t));
 
     sec_keys_nw_info->gtks = gtks;
+    sec_keys_nw_info->new_pan_id = 0xFFFF;
+    sec_keys_nw_info->key_pan_id = 0xFFFF;
     sec_keys_nw_info->updated = false;
 }
 
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_key_insert *key_insert)
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -416,10 +511,11 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
     }
 
     pae_supp->auth_completed = completed;
-    pae_supp->key_insert = key_insert;
+    pae_supp->nw_key_insert = nw_key_insert;
+    pae_supp->nw_key_index_set = nw_key_index_set;
 }
 
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs)
+int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, timer_settings_t *timer_settings)
 {
     if (!interface_ptr) {
         return -1;
@@ -435,10 +531,17 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     }
 
     pae_supp->interface_ptr = interface_ptr;
-    pae_supp->auth_completed = 0;
-    pae_supp->key_insert = 0;
-    pae_supp->auth_trickle_running = false;
+    pae_supp->auth_completed = NULL;
+    pae_supp->nw_key_insert = NULL;
+    pae_supp->nw_key_index_set = NULL;
+    pae_supp->initial_key_timer = 0;
     pae_supp->nw_keys_used_cnt = 0;
+    pae_supp->timer_settings = timer_settings;
+    pae_supp->auth_trickle_running = false;
+    pae_supp->auth_requested = false;
+    pae_supp->timer_running = false;
+    pae_supp->new_br_eui_64_set = false;
+    pae_supp->new_br_eui_64_fresh = false;
 
     ws_pae_lib_supp_init(&pae_supp->entry);
 
@@ -449,8 +552,6 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     sec_prot_keys_gtks_init(&pae_supp->gtks);
     sec_prot_keys_init(&pae_supp->entry.sec_keys, &pae_supp->gtks, certs);
     memset(pae_supp->new_br_eui_64, 0, 8);
-    memset(pae_supp->ptk_eui_64, 0, 8);
-    sec_prot_keys_ptk_eui_64_set(&pae_supp->entry.sec_keys, pae_supp->ptk_eui_64);
 
     pae_supp->kmp_service = kmp_service_create();
     if (!pae_supp->kmp_service) {
@@ -619,29 +720,18 @@ static void ws_pae_supp_tasklet_handler(arm_event_s *event)
     }
 }
 
-void ws_pae_supp_timer(uint16_t ticks)
+void ws_pae_supp_fast_timer(uint16_t ticks)
 {
     ns_list_foreach(pae_supp_t, pae_supp, &pae_supp_list) {
         if (!ws_pae_supp_timer_running(pae_supp)) {
             continue;
         }
 
-        // Checks whether initial EAPOL-Key message needs to be re-send
-        if (pae_supp->auth_trickle_running) {
-            if (trickle_timer(&pae_supp->auth_trickle_timer, &auth_trickle_params, ticks)) {
-                ws_pae_supp_initial_key_send(pae_supp);
-            }
-            // Maximum number of trickle expires, authentication fails
-            if (!trickle_running(&pae_supp->auth_trickle_timer, &auth_trickle_params)) {
-                ws_pae_supp_authenticate_response(pae_supp, false);
-            }
-        }
-
         // Updates KMP timers and supplicant authentication ongoing timer
         bool running = ws_pae_lib_supp_timer_update(&pae_supp->entry, ticks, kmp_service_timer_if_timeout);
 
         // Checks whether timer needs to be active
-        if (!pae_supp->auth_trickle_running && !running) {
+        if (!pae_supp->initial_key_timer && !pae_supp->auth_trickle_running && !running) {
 
             tr_debug("PAE idle");
             // Sets target/parent address to null
@@ -651,6 +741,48 @@ void ws_pae_supp_timer(uint16_t ticks)
             ws_pae_supp_authenticate_response(pae_supp, false);
 
             ws_pae_supp_timer_stop(pae_supp);
+        }
+    }
+}
+
+void ws_pae_supp_slow_timer(uint16_t seconds)
+{
+    ns_list_foreach(pae_supp_t, pae_supp, &pae_supp_list) {
+
+        // Checks whether initial EAPOL-Key message needs to be re-send or new GTK request to be sent
+        if (pae_supp->auth_trickle_running) {
+            if (trickle_timer(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params, seconds)) {
+                ws_pae_supp_initial_key_send(pae_supp);
+            }
+            // Maximum number of trickle expires, authentication fails
+            if (!trickle_running(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params)) {
+                ws_pae_supp_authenticate_response(pae_supp, false);
+            }
+        }
+
+        // Decrements GTK lifetimes
+        for (uint8_t i = 0; i < GTK_NUM; i++) {
+            if (!sec_prot_keys_gtk_is_set(&pae_supp->gtks, i)) {
+                continue;
+            }
+            sec_prot_keys_gtk_lifetime_decrement(&pae_supp->gtks, i, seconds);
+        }
+
+        if (pae_supp->initial_key_timer > 0) {
+            if (pae_supp->initial_key_timer > seconds) {
+                pae_supp->initial_key_timer -= seconds;
+            } else {
+                pae_supp->initial_key_timer = 0;
+
+                // Sends initial EAPOL-Key message
+                ws_pae_supp_initial_key_send(pae_supp);
+
+                // Starts trickle
+                pae_supp->auth_trickle_params = initial_eapol_key_trickle_params;
+                trickle_start(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
+                pae_supp->auth_trickle_running = true;
+            }
+
         }
     }
 }
@@ -720,21 +852,38 @@ static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_
         }
     }
 
+    // Get parent
+    uint8_t parent_eui_64[8];
+    if (ws_pae_supp_parent_eui_64_get(interface_ptr, parent_eui_64) < 0) {
+        return -1;
+    }
+
+    // Message from RPL parent, route to self
+    if (memcmp(parent_eui_64, eui_64, 8) == 0) {
+        return 0;
+    }
+
+    return -1;
+}
+
+static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
+{
     rpl_dodag_info_t dodag_info;
+    if (!interface_ptr->rpl_domain) {
+        return -1;
+    }
     struct rpl_instance *instance = rpl_control_enumerate_instances(interface_ptr->rpl_domain, NULL);
     if (instance && rpl_control_read_dodag_info(instance, &dodag_info)) {
         // Get parent
         const uint8_t *parent_ll_addr = rpl_control_preferred_parent_addr(instance, false);
-
-        // Message from RPL parent, route to self
-        if (parent_ll_addr && memcmp(&parent_ll_addr[8], eui_64, 8) == 0) {
+        if (parent_ll_addr) {
+            memcpy(eui_64, &parent_ll_addr[8], 8);
+            eui_64[0] |= 0x02;
             return 0;
         }
-
-        return -1;
     }
 
-    return 0;
+    return -1;
 }
 
 static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr)
@@ -752,13 +901,23 @@ static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *
         kmp_address_eui_64_set(local_addr, mac_params.mac_long);
     }
 
-    if (pae_supp->new_br_eui_64_set) {
+    // BR address has been received during authentication attempt
+    if (pae_supp->new_br_eui_64_fresh) {
         kmp_address_eui_64_set(remote_addr, pae_supp->new_br_eui_64);
-    } else if (pae_supp->entry.sec_keys.ptk_eui_64_set) {
-        kmp_address_eui_64_set(remote_addr, pae_supp->entry.sec_keys.ptk_eui_64);
     } else {
-        memset(remote_addr, 0, 8);
-        tr_error("No border router EUI-64");
+        uint8_t *eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
+        // BR address is set on security keys (confirmed using 4WH)
+        if (eui_64) {
+            kmp_address_eui_64_set(remote_addr, eui_64);
+        } else {
+            // For initial EAPOL key, if BR address has been received during previous attempt, generate PMKID using it
+            if (pae_supp->new_br_eui_64_set && kmp_api_type_get(kmp) >= IEEE_802_1X_INITIAL_KEY) {
+                kmp_address_eui_64_set(remote_addr, pae_supp->new_br_eui_64);
+            } else {
+                memset(remote_addr, 0, sizeof(kmp_addr_t));
+                tr_error("No border router EUI-64");
+            }
+        }
     }
 }
 
@@ -897,18 +1056,12 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
         ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_AUTHENTICATION_TICKS);
     }
 
-    sec_prot_keys_t *keys = sec_keys;
-    // Key is to be inserted
-    if (keys) {
-        uint8_t gtk_index;
-        uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(keys->gtks, &gtk_index);
-        if (gtk) {
-            pae_supp->key_insert(pae_supp->interface_ptr, gtk_index, gtk);
-            sec_prot_keys_gtk_insert_index_clear(keys->gtks);
-        }
-    }
-
     if ((type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result == KMP_RESULT_OK) {
+        if (sec_keys) {
+            sec_prot_keys_t *keys = sec_keys;
+            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks);
+        }
+
         ws_pae_supp_authenticate_response(pae_supp, true);
     }
 }

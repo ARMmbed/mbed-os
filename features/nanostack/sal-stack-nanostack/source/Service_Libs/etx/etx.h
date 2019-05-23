@@ -31,6 +31,25 @@
    Range for value can be from 1 to 11 */
 #define ETX_MOVING_AVERAGE_FRACTION      3     // n >> 3, 1/8
 
+/* ETX cache configuration definitions */
+
+/* Amount of accelerated ETX samples
+ * After this value is received the ETX calculation starts to follow the
+ * slower ETX cache configuration values.
+ *
+ * Maximum value is 6
+ */
+#define ETX_ACCELERATED_SAMPLE_COUNT      3
+
+/* Amount of samples before updating the ETX value when in accelerated mode.
+ *
+ * if set to 1 every sample updates an ETX value. if set to 2 every second
+ * ETX sample updates the ETX value.
+ *
+ * This value should be smaller than ETX_ACCELERATED_SAMPLE_COUNT
+ */
+#define ETX_ACCELERATED_INTERVAL          2
+
 typedef struct etx_storage_s {
     uint16_t        etx;                       /*!< 12 bits fraction */
     uint16_t        stored_diff_etx;           /*!< 12 bits fraction */
@@ -40,6 +59,13 @@ typedef struct etx_storage_s {
     unsigned        linkIdr: 4;
     unsigned        etx_samples: 3;
 } etx_storage_t;
+
+typedef struct etx_sample_storage_s {
+    uint16_t           attempts_count;         /*!< TX attempt count */
+    uint8_t            etx_timer;              /*!< Count down from configured value 0 means that ETX Update is possible done again*/
+    uint8_t            received_acks;          /*!< Received ACK's */
+    uint8_t            sample_count;           /*!< Finished TX count */
+} etx_sample_storage_t;
 
 /**
  * \brief A function to update ETX value based on transmission attempts
@@ -221,5 +247,42 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index);
  *
  */
 void etx_neighbor_add(int8_t interface_id, uint8_t attribute_index);
+
+/**
+ * \brief A function for update cached ETX calculation
+ *
+ *  Shuold be call second intevall
+ *
+ * \param interface_id Interface ID
+ * \param seconds_update Seconds Update
+ *
+ */
+void etx_cache_timer(int8_t interface_id, uint16_t seconds_update);
+
+/**
+ * \brief A function for enable cached ETX mode and parametrs
+ *
+ *  Default values for enabled Cached mode is wait time 60 seconds, etx_max_update is 0 (disabled) and etx_min_sample_count is 4.
+ *  ETX update will happen when min wait time is reached and also reached min etx sample count.
+ *
+ * \param min_wait_time how many seconds must wait before do new ETX
+ * \param etx_min_sample_count define how many completed TX process must be done for new ETX. Min accepted value is 4.
+ *
+ * \return true Enable is OK
+ * \return false Memory allocation fail
+ *
+ */
+bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_sample_count);
+
+
+/**
+ * \brief A function for set Maxium ETX update
+ *
+ * ETX RFC define that that Max value for update is 0xffff but this API cuold make that Poor link start go down slowly.
+ *
+ * \param etx_max_update 0 No limit for Update higher value means. This pameter will change normal ETX which could be 0xffff.
+ *
+ */
+void etx_max_update_set(uint16_t etx_max_update);
 
 #endif /* ETX_H_ */

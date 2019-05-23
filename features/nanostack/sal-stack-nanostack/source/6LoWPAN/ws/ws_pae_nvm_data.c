@@ -104,8 +104,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nvm_tlv_entry_t *tlv_entry, uint16_t *p
         if (*tlv++ == 1) { /* GTK is set */
             uint32_t lifetime = common_read_32_bit(tlv);
             tlv += 4;
-            sec_prot_keys_gtk_set(gtks, i, tlv);
-            sec_prot_keys_gtk_lifetime_set(gtks, i, lifetime);
+            sec_prot_keys_gtk_set(gtks, i, tlv, lifetime);
             tlv += GTK_LEN;
         } else {
             tlv += 4 + GTK_LEN;

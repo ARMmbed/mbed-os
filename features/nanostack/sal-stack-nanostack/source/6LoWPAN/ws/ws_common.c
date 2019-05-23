@@ -274,6 +274,7 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_3;
     cur->ws_info->hopping_schdule.operating_class = 2;
     ws_common_regulatory_domain_config(cur);
+    cur->ws_info->network_size_config = NETWORK_SIZE_AUTOMATIC;
     ws_common_network_size_configure(cur, 10); // defaults to small network size
 
     // Set defaults for the device. user can modify these.
@@ -302,7 +303,12 @@ void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint
         // imin: 14 (16s)
         // doublings:3 (128s)
         // redundancy; 0 Disabled
-        ws_bbr_rpl_config(0, 0, 0);// set the default values
+        if (cur->ws_info->network_size_config == NETWORK_SIZE_AUTOMATIC) {
+            ws_bbr_rpl_config(14, 3, 0);
+        } else {
+            ws_bbr_rpl_config(0, 0, 0);
+        }
+
     } else if (network_size < 300) {
         // Configure the Wi-SUN discovery trickle parameters
         cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_medium;
@@ -348,11 +354,19 @@ void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8
 
 void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
 {
-    //Neighbor connectected update
+    tr_warn("ARO registration Failure %s", trace_ipv6(ll_address));
+    ws_bootstrap_aro_failure(cur, ll_address);
+}
+
+void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
+{
+    tr_debug("neighbor remove %s", trace_ipv6(ll_address));
     ws_bootstrap_neighbor_remove(cur, ll_address);
 }
 
-bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interface)
+
+
+bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
 {
     uint8_t child_count = 0;
     uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - WS_NON_CHILD_NEIGHBOUR_COUNT;
@@ -360,6 +374,12 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interfa
     // Test API to limit child count
     if (test_max_child_count_override != 0xffff) {
         max_child_count = test_max_child_count_override;
+    }
+
+    //Validate Is EUI64 already allocated for any address
+    if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, eui64)) {
+        tr_info("Child registration from old child");
+        return true;
     }
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
