@@ -55,7 +55,7 @@ public:
     HealthThermometerService(BLE &_ble, float initialTemp, uint8_t _location) :
         ble(_ble),
         valueBytes(initialTemp),
-        tempMeasurement(GattCharacteristic::UUID_TEMPERATURE_MEASUREMENT_CHAR, (TemperatureValueBytes *)valueBytes.getPointer(), GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY),
+        tempMeasurement(GattCharacteristic::UUID_TEMPERATURE_MEASUREMENT_CHAR, (TemperatureValueBytes *)valueBytes.getPointer(), GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE),
         tempLocation(GattCharacteristic::UUID_TEMPERATURE_TYPE_CHAR, &_location) {
 
         GattCharacteristic *hrmChars[] = {&tempMeasurement, &tempLocation, };
