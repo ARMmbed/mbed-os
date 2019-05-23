@@ -23,6 +23,14 @@ extern "C" {
 #endif
 
 typedef enum {
+    GPIO_A = 0,
+    GPIO_B = 1,
+    GPIO_C = 2,
+    GPIO_D = 3,
+    GPIO_E = 4,
+} GPIOName;
+
+typedef enum {
     OSC32KCLK = 0,
 } RTCName;
 
