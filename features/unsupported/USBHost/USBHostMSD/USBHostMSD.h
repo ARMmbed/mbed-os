@@ -63,6 +63,7 @@ public:
     virtual bd_size_t get_program_size() const;
     virtual bd_size_t get_erase_size() const;
     virtual bd_size_t size() const;
+    virtual const char *get_type() const;
 
 
 
