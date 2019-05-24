@@ -13,6 +13,9 @@
       "exporters": [],
       "compile" : true,
       "export": true,
+      "test" : true,
+      "baud_rate": 9600,
+      "compare_log": ["mbed-os-example-blinky/tests/blinky.log"],
       "auto-update" : true
     },
     {
@@ -77,11 +80,14 @@
       ],
       "test-repo-source": "github",
       "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI", "NUMAKER_PFM_NUC472"],
+      "targets" : ["K66F", "NUCLEO_F429ZI", "NUMAKER_PFM_NUC472", "FVP_MPS2_M3"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
       "export": true,
+      "test" : true,
+      "baud_rate": 9600,
+      "compare_log": ["mbed-os-example-sockets/tests/sockets.log"],
       "auto-update" : true
     },
     {
@@ -96,6 +102,9 @@
       "exporters": [],
       "compile" : true,
       "export": true,
+      "test" : true,
+      "baud_rate": 9600,
+      "compare_log": ["mbed-os-example-tls-socket/tests/tls-socket.log"],
       "auto-update" : true
     },
     {
@@ -162,6 +171,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-nvstore/tests/nvstore.log"],
         "auto-update" : true
     },
     {
@@ -175,6 +187,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
         "auto-update" : true
     },
     {
@@ -188,6 +203,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-thread-statistics/tests/thread-statistics.log"],
         "auto-update" : true
     },
     {
@@ -201,6 +219,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-sys-info/tests/sys-info.log"],
         "auto-update" : true
     },
     {
@@ -209,11 +230,14 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["K66F"],
+        "targets" : ["K66F", "FVP_MPS2_M3"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-cpu-usage/tests/cpu-usage.log"],
         "auto-update" : true
     },
     {
@@ -222,11 +246,14 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["K64F"],
+        "targets" : ["K64F", "FVP_MPS2_M3"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-cpu-stats/tests/cpu-stats.log"],
         "auto-update" : true
     },
     {
@@ -240,6 +267,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-socket-stats/tests/socket-stats.log"],
         "auto-update" : true
     },
     {
@@ -253,6 +283,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-error-handling/tests/error-handling.log"],
         "auto-update" : true
     },
     {
@@ -263,11 +296,14 @@
         ],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["K82F"],
+        "targets" : ["K64F","K82F"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-filesystem/tests/filesystem.log"],
         "auto-update" : true
     },
     {
@@ -314,6 +350,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-mbed-crypto/tests/mbed-crypto.log"],
         "auto-update" : true
     },
     {
@@ -342,6 +381,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-blockdevice/tests/blockdevice.log"],
         "auto-update" : true
     },
     {
@@ -355,6 +397,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
         "auto-update" : true
     },
     {
@@ -363,11 +408,14 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["K64F", "DISCO_L475VG_IOT01A", "FVP_MPS2_M3"],
+        "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-crash-reporting/tests/crash-reporting.log"],
         "auto-update" : true
     },
     {
@@ -381,6 +429,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-sd-driver/tests/sd-driver.log"],
         "auto-update" : true
     },
     {
@@ -400,6 +451,9 @@
         "exporters": [],
         "compile" : true,
         "export": true,
+        "test" : true,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
         "auto-update" : true
     }
   ]
