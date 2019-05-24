@@ -35,6 +35,8 @@ set(unittest-test-sources
   stubs/CellularDevice_stub.cpp
   stubs/equeue_stub.c
   stubs/ThisThread_stub.cpp
+  stubs/ConditionVariable_stub.cpp
+  stubs/Mutex_stub.cpp
 )
 
 # defines

@@ -20,6 +20,7 @@
 
 #include "AT_CellularBase.h"
 #include "NetworkStack.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 
