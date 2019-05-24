@@ -17,6 +17,7 @@
     "ARMC6": {
         "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Os",
                    "-Wno-armcc-pragma-push-pop", "-Wno-armcc-pragma-anon-unions",
+                   "-Wno-reserved-user-defined-literal",
                    "-DMULADDC_CANNOT_USE_R7", "-fdata-sections",
                    "-fno-exceptions", "-MMD", "-D_LIBCPP_EXTERN_TEMPLATE(...)=",
                    "-fshort-enums", "-fshort-wchar", "-DMBED_TRAP_ERRORS_ENABLED=1"],
