@@ -68,6 +68,46 @@ void gpio_init_inout(gpio_t *gpio, PinName pin, PinDirection direction, PinMode 
     }
 }
 
+#ifdef TARGET_FF_ARDUINO
+
+typedef enum {
+    DEFAULT_GPIO = 0,
+} DefaultGPIOPeripheralName;
+
+MBED_WEAK const PinMap *gpio_pinmap()
+{
+    // Targets should override this weak implementation to provide correct data.
+    static const PinMap empty_gpio_pinmap[] = {
+        {D0, DEFAULT_GPIO, 0},
+        {D1, DEFAULT_GPIO, 0},
+        {D2, DEFAULT_GPIO, 0},
+        {D3, DEFAULT_GPIO, 0},
+        {D4, DEFAULT_GPIO, 0},
+        {D5, DEFAULT_GPIO, 0},
+        {D6, DEFAULT_GPIO, 0},
+        {D7, DEFAULT_GPIO, 0},
+        {D8, DEFAULT_GPIO, 0},
+        {D9, DEFAULT_GPIO, 0},
+        {D10, DEFAULT_GPIO, 0},
+        {D11, DEFAULT_GPIO, 0},
+        {D12, DEFAULT_GPIO, 0},
+        {D13, DEFAULT_GPIO, 0},
+        {D14, DEFAULT_GPIO, 0},
+        {D15, DEFAULT_GPIO, 0},
+        {A0, DEFAULT_GPIO, 0},
+        {A1, DEFAULT_GPIO, 0},
+        {A2, DEFAULT_GPIO, 0},
+        {A3, DEFAULT_GPIO, 0},
+        {A4, DEFAULT_GPIO, 0},
+        {A5, DEFAULT_GPIO, 0},
+
+        {NC, NC, 0},
+    };
+    return empty_gpio_pinmap;
+}
+
+#else
+
 MBED_WEAK const PinMap *gpio_pinmap()
 {
     static const PinMap empty_gpio_pinmap[] = {
@@ -75,3 +115,5 @@ MBED_WEAK const PinMap *gpio_pinmap()
     };
     return empty_gpio_pinmap;
 }
+
+#endif
