@@ -68,3 +68,11 @@ uint32_t SPIMasterTester::get_last_clk_edge_to_cs_ns()
 
     return (delay_ns * 10);
 }
+
+uint8_t SPIMasterTester::get_start_stop_stats()
+{
+    uint8_t start_stop_stats;
+    read(TESTER_SPI_MASTER_START_STOP_STATS, (uint8_t *)&start_stop_stats, TESTER_SPI_MASTER_START_STOP_STATS_SIZE);
+
+    return start_stop_stats;
+}
