@@ -20,9 +20,6 @@
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
-#ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
-#error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,6 +27,10 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "tcp_tests.h"
+
+#ifndef ECHO_SERVER_ADDR
+#error [NOT_SUPPORTED] Requires parameters for echo server
+#endif
 
 using namespace utest::v1;
 
@@ -84,7 +85,7 @@ nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
 {
     SocketAddress tcp_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(port);
 
     printf("MBED: Server '%s', port %d\n", tcp_addr.get_ip_address(), tcp_addr.get_port());
@@ -106,12 +107,12 @@ nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
 
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock)
 {
-    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_PORT);
+    return tcpsocket_connect_to_srv(sock, ECHO_SERVER_PORT);
 }
 
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock)
 {
-    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT);
+    return tcpsocket_connect_to_srv(sock, ECHO_SERVER_DISCARD_PORT);
 }
 
 bool is_tcp_supported()

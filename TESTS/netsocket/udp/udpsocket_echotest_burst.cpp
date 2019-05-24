@@ -71,8 +71,8 @@ static void _sigio_handler(osThreadId id)
 void UDPSOCKET_ECHOTEST_BURST()
 {
     SocketAddress udp_addr;
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
-    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
+    udp_addr.set_port(ECHO_SERVER_PORT);
 
     UDPSocket sock;
     const int TIMEOUT = 5000; // [ms]
@@ -154,8 +154,8 @@ void UDPSOCKET_ECHOTEST_BURST()
 void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
     SocketAddress udp_addr;
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
-    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
+    udp_addr.set_port(ECHO_SERVER_PORT);
 
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
