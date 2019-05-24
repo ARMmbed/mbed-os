@@ -1660,11 +1660,14 @@ int MbedTester::set_mux_addr(PinName pin)
 
 int MbedTester::set_mux_addr_index(int index)
 {
-    int addr_pin = (int)AnalogMuxAddr0;
-    for (int i = 0; i < 8; i += 1) {
-        sys_pin_write((SystemPin)addr_pin, (((1 << i) & index) >> i), true);
-        addr_pin += 1;
-    }
+    sys_pin_write(AnalogMuxAddr0, index & 0x01, true);
+    sys_pin_write(AnalogMuxAddr1, (index & 0x02) >> 1, true);
+    sys_pin_write(AnalogMuxAddr2, (index & 0x04) >> 2, true);
+    sys_pin_write(AnalogMuxAddr3, (index & 0x08) >> 3, true);
+    sys_pin_write(AnalogMuxAddr4, (index & 0x10) >> 4, true);
+    sys_pin_write(AnalogMuxAddr5, (index & 0x20) >> 5, true);
+    sys_pin_write(AnalogMuxAddr6, (index & 0x40) >> 6, true);
+    sys_pin_write(AnalogMuxAddr7, (index & 0x80) >> 7, true);
 
     return 0;
 }
@@ -1672,9 +1675,9 @@ int MbedTester::set_mux_addr_index(int index)
 void MbedTester::set_mux_enable(bool val)
 {
     if (val == true) {
-        sys_pin_write(AnalogMuxEnable, 1, true);
+        sys_pin_write(AnalogMuxEnable, 0, true);//enable analog MUXes
     } else if (val == false) {
-        sys_pin_write(AnalogMuxEnable, 0, true);
+        sys_pin_write(AnalogMuxEnable, 1, true);//disable analog MUXes
     }
     wait_us(10);
 }
@@ -1734,7 +1737,7 @@ uint16_t MbedTester::get_analogmuxin_measurement()
     //take snapshot of conversion value to make safe for reading
     set_snapshot();
     uint16_t an_mux_analogin_measurement = 0;
-    read(TESTER_SYS_AN_MUX_ANALOGIN_MEASUREMENT, (uint8_t *)&an_mux_analogin_measurement, sizeof(an_mux_analogin_measurement));
+    read(TESTER_SYS_IO_AN_MUX_ANALOGIN_MEASUREMENT, (uint8_t *)&an_mux_analogin_measurement, sizeof(an_mux_analogin_measurement));
     return an_mux_analogin_measurement;
 }
 
@@ -1747,7 +1750,7 @@ uint16_t MbedTester::get_anin_measurement(int index)
     //take snapshot of conversion value to make safe for reading
     set_snapshot();
     uint16_t anin_measurement = 0;
-    read((TESTER_SYS_ANIN0_MEASUREMENT + (index * 10)), (uint8_t *)&anin_measurement, sizeof(anin_measurement)); //10 because sizeof measurement + sizeof measurements_sum = 10
+    read((TESTER_SYS_IO_ANIN0_MEASUREMENT + (index * 10)), (uint8_t *)&anin_measurement, sizeof(anin_measurement)); //10 because sizeof measurement + sizeof measurements_sum = 10
     return anin_measurement;
 }
 
@@ -1759,15 +1762,15 @@ void MbedTester::get_anin_sum_samples_cycles(int index, uint64_t *sum, uint32_t 
     }
     //take snapshot of the sum/samples/cycles so that all 3 values are correct in relation to each other
     set_snapshot();
-    read((TESTER_SYS_ANIN0_MEASUREMENTS_SUM + (index * 10)), (uint8_t *)sum, sizeof(*sum)); //10 because sizeof measurement + sizeof measurements_sum = 10
-    read(TESTER_SYS_NUM_POWER_SAMPLES, (uint8_t *)samples, sizeof(*samples));
-    read(TESTER_SYS_NUM_POWER_CYCLES, (uint8_t *)cycles, sizeof(*cycles));
+    read((TESTER_SYS_IO_ANIN0_MEASUREMENTS_SUM + (index * 10)), (uint8_t *)sum, sizeof(*sum)); //10 because sizeof measurement + sizeof measurements_sum = 10
+    read(TESTER_SYS_IO_NUM_POWER_SAMPLES, (uint8_t *)samples, sizeof(*samples));
+    read(TESTER_SYS_IO_NUM_POWER_CYCLES, (uint8_t *)cycles, sizeof(*cycles));
 }
 
 void MbedTester::set_snapshot()
 {
     uint8_t data = 1;
-    write(TESTER_SYS_ADC_SNAPSHOT, &data, sizeof(data));
+    write(TESTER_SYS_IO_ADC_SNAPSHOT, &data, sizeof(data));
     wait_us(1);
 }
 
@@ -1779,7 +1782,7 @@ void MbedTester::set_sample_adc(bool val)
     } else if (val == false) {
         data = 0;
     }
-    write(TESTER_SYS_SAMPLE_ADC, &data, sizeof(data));
+    write(TESTER_SYS_IO_SAMPLE_ADC, &data, sizeof(data));
 }
 
 float MbedTester::get_analog_in()

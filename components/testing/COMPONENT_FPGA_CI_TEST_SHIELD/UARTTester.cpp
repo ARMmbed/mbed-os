@@ -114,6 +114,12 @@ void UARTTester::tx_stop()
     write(TESTER_UART_TX_CONTROL, (uint8_t *)&control, sizeof(control));
 }
 
+void UARTTester::tx_set_delay(uint32_t delay_ns)
+{
+    uint32_t delay_clks = (delay_ns + TESTER_CLOCK_PERIOD_NS - 1) / TESTER_CLOCK_PERIOD_NS;
+    write(TESTER_UART_TX_DELAY, (uint8_t *)&delay_clks, sizeof(delay_clks));
+}
+
 void UARTTester::tx_set_count(uint32_t count)
 {
     write(TESTER_UART_TX_COUNT, (uint8_t *)&count, sizeof(count));

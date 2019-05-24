@@ -35,19 +35,19 @@
 #define TESTER_SYS_IO_PWM_ENABLE                      (0x001 + 0x00002C00)
 #define TESTER_SYS_IO_PWM_PERIOD                      (0x002 + 0x00002C00)
 #define TESTER_SYS_IO_PWM_CYCLES_HIGH                 (0x006 + 0x00002C00)
-#define TESTER_SYS_AN_MUX_ANALOGIN_MEASUREMENT        (0x00A + 0x00002C00)
-#define TESTER_SYS_NUM_POWER_SAMPLES                  (0x00C + 0x00002C00)
-#define TESTER_SYS_NUM_POWER_CYCLES                   (0x010 + 0x00002C00)
-#define TESTER_SYS_ADC_SNAPSHOT                       (0x018 + 0x00002C00)
-#define TESTER_SYS_SAMPLE_ADC                         (0x019 + 0x00002C00)
-#define TESTER_SYS_ANIN0_MEASUREMENT                  (0x030 + 0x00002C00)
-#define TESTER_SYS_ANIN0_MEASUREMENTS_SUM             (0x032 + 0x00002C00)
-#define TESTER_SYS_ANIN1_MEASUREMENT                  (0x03A + 0x00002C00)
-#define TESTER_SYS_ANIN1_MEASUREMENTS_SUM             (0x03C + 0x00002C00)
-#define TESTER_SYS_ANIN2_MEASUREMENT                  (0x044 + 0x00002C00)
-#define TESTER_SYS_ANIN2_MEASUREMENTS_SUM             (0x046 + 0x00002C00)
-#define TESTER_SYS_ANIN3_MEASUREMENT                  (0x04E + 0x00002C00)
-#define TESTER_SYS_ANIN3_MEASUREMENTS_SUM             (0x050 + 0x00002C00)
+#define TESTER_SYS_IO_AN_MUX_ANALOGIN_MEASUREMENT     (0x00A + 0x00002C00)
+#define TESTER_SYS_IO_NUM_POWER_SAMPLES               (0x00C + 0x00002C00)
+#define TESTER_SYS_IO_NUM_POWER_CYCLES                (0x010 + 0x00002C00)
+#define TESTER_SYS_IO_ADC_SNAPSHOT                    (0x018 + 0x00002C00)
+#define TESTER_SYS_IO_SAMPLE_ADC                      (0x019 + 0x00002C00)
+#define TESTER_SYS_IO_ANIN0_MEASUREMENT               (0x030 + 0x00002C00)
+#define TESTER_SYS_IO_ANIN0_MEASUREMENTS_SUM          (0x032 + 0x00002C00)
+#define TESTER_SYS_IO_ANIN1_MEASUREMENT               (0x03A + 0x00002C00)
+#define TESTER_SYS_IO_ANIN1_MEASUREMENTS_SUM          (0x03C + 0x00002C00)
+#define TESTER_SYS_IO_ANIN2_MEASUREMENT               (0x044 + 0x00002C00)
+#define TESTER_SYS_IO_ANIN2_MEASUREMENTS_SUM          (0x046 + 0x00002C00)
+#define TESTER_SYS_IO_ANIN3_MEASUREMENT               (0x04E + 0x00002C00)
+#define TESTER_SYS_IO_ANIN3_MEASUREMENTS_SUM          (0x050 + 0x00002C00)
 #define TESTER_PERIPHERAL                             0x00100000
 #define TESTER_PERIPHERAL_SELECT                      0x00100000
 #define TESTER_GPIO                                   0x00101000
@@ -169,6 +169,8 @@
 #define TESTER_UART_TX_NEXT_SIZE                      2
 #define TESTER_UART_CTS_DEACTIVATE_DELAY              (0x210 + 0x00104000)
 #define TESTER_UART_CTS_DEACTIVATE_DELAY_SIZE         4
+#define TESTER_UART_TX_DELAY                          (0x214 + 0x00104000)
+#define TESTER_UART_TX_DELAY_SIZE                     4
 #define TESTER_I2C_STARTS                             (0x000 + 0x00105000)
 #define TESTER_I2C_STOPS                              (0x001 + 0x00105000)
 #define TESTER_I2C_ACKS                               (0x002 + 0x00105000)

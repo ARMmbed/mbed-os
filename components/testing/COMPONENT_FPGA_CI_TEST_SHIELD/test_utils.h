@@ -510,4 +510,26 @@ const char *const AnalogoutMaps::name = "DAC";
 typedef Port<1, AnalogoutMaps, DefaultFormFactor, TF1> AnalogoutPort;
 #endif
 
+#if DEVICE_SERIAL
+struct UARTMaps {
+    static const PinMap *maps[];
+    static const char *const pin_type_names[];
+    static const char *const name;
+};
+const PinMap *UARTMaps::maps[] = { serial_tx_pinmap(), serial_rx_pinmap(), serial_cts_pinmap(), serial_rts_pinmap() };
+const char *const UARTMaps::pin_type_names[] = { "TX", "RX", "CLS", "RTS" };
+const char *const UARTMaps::name = "UART";
+typedef Port<4, UARTMaps, DefaultFormFactor, TF4> UARTPort;
+
+struct UARTNoFCMaps {
+    static const PinMap *maps[];
+    static const char *const pin_type_names[];
+    static const char *const name;
+};
+const PinMap *UARTNoFCMaps::maps[] = { serial_tx_pinmap(), serial_rx_pinmap() };
+const char *const UARTNoFCMaps::pin_type_names[] = { "TX", "RX" };
+const char *const UARTNoFCMaps::name = "UART-no-FC";
+typedef Port<2, UARTNoFCMaps, DefaultFormFactor, TF2> UARTNoFCPort;
+#endif
+
 #endif

@@ -127,6 +127,14 @@ public:
     void tx_stop();
 
     /**
+     * Set the delay after the tx_start() call and before the actual start
+     * of UART transmission
+     *
+     * @param delay in nanoseconds
+     */
+    void tx_set_delay(uint32_t delay_ns);
+
+    /**
      * Set the number of bytes to send
      *
      * @param count Number of bytes to send when started
