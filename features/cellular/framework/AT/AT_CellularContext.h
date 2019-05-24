@@ -99,6 +99,10 @@ protected:
     virtual void deactivate_ip_context();
     virtual void set_disconnect();
     virtual void deactivate_context();
+    virtual bool get_context();
+    pdp_type_t string_to_pdp_type(const char *pdp_type);
+    AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
+    bool set_new_context(int cid);
 private:
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t open_data_channel();
@@ -110,23 +114,19 @@ private:
     nsapi_error_t find_and_activate_context();
     nsapi_error_t activate_ip_context();
     void check_and_deactivate_context();
-    bool set_new_context(int cid);
-    bool get_context();
     nsapi_error_t delete_current_context();
-    pdp_type_t string_to_pdp_type(const char *pdp_type);
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
-    AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
 private:
     bool _is_connected;
     ContextOperation  _current_op;
-    char _found_apn[MAX_APN_LENGTH];
     FileHandle *_fh;
     rtos::Semaphore _semaphore;
     rtos::Semaphore _cp_opt_semaphore;
 
 protected:
+    char _found_apn[MAX_APN_LENGTH];
     // flag indicating if CP was requested to be setup
     bool _cp_req;
     // flag indicating if Non-IP context was requested to be setup
