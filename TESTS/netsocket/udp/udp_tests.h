@@ -18,6 +18,8 @@
 #ifndef UDP_TESTS_H
 #define UDP_TESTS_H
 
+#include "../test_params.h"
+
 NetworkInterface *get_interface();
 void drop_bad_packets(UDPSocket &sock, int orig_timeout);
 nsapi_version_t get_ip_version();

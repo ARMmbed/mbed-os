@@ -33,7 +33,7 @@ void TLSSOCKET_SEND_CLOSED()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK,
-                      sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT_TLS));
+                      sock.connect(ECHO_SERVER_ADDR, ECHO_SERVER_PORT_TLS));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
     TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_SOCKET, sock.send("12345", 5));
 }

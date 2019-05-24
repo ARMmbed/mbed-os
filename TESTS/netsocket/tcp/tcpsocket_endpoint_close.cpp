@@ -38,7 +38,7 @@ static nsapi_error_t _tcpsocket_connect_to_daytime_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(13);
 
     nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());

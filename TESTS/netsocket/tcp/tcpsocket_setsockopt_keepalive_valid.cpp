@@ -40,7 +40,7 @@ void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
     }
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, ret);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(ECHO_SERVER_ADDR, 9));
     // LWIP stack does not support getsockopt so the part below is commented out
     //    int32_t optval;
     //    unsigned int optlen;
