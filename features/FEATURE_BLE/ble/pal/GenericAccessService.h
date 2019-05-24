@@ -18,7 +18,7 @@
 #define BLE_PAL_GENERIC_ACCESS_SERVICE_H_
 
 #include "GapTypes.h"
-#include "ble/ArrayView.h"
+#include "ble/BLETypes.h"
 #include "ble/blecommon.h"
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
@@ -71,7 +71,7 @@ struct GenericAccessService {
      *
      * @see Bluetooth 4.2 Vol 3 PartC: 12.1 - Device Name Characteristic
      */
-    virtual ble_error_t get_device_name(ArrayView<uint8_t>& array) = 0;
+    virtual ble_error_t get_device_name(Span<uint8_t>& array) = 0;
 
     /**
      * Set the value of the device name characteristic exposed by the GAP GATT

@@ -367,7 +367,7 @@ struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DiscoveryC
 			GattClient* client,
 			connection_handle_t connection_handle,
 			uint16_t decl_handle,
-			const ArrayView<const uint8_t> value
+			const Span<const uint8_t> value
 		) : DiscoveredCharacteristic() {
 			gattc = client;
 			uuid = get_uuid(value);
@@ -378,7 +378,7 @@ struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DiscoveryC
 			connHandle = connection_handle;
 		}
 
-		static UUID get_uuid(const ArrayView<const uint8_t>& value) {
+		static UUID get_uuid(const Span<const uint8_t>& value) {
 			if (value.size() == 5) {
 				return UUID(value[3] | (value[4] << 8));
 			} else {
@@ -386,7 +386,7 @@ struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DiscoveryC
 			}
 		}
 
-		static DiscoveredCharacteristic::Properties_t get_properties(const ArrayView<const uint8_t>& value) {
+		static DiscoveredCharacteristic::Properties_t get_properties(const Span<const uint8_t>& value) {
 			uint8_t raw_properties = value[0];
 			DiscoveredCharacteristic::Properties_t result;
 			result._broadcast = (raw_properties & (1 << 0)) ? true : false;
@@ -399,7 +399,7 @@ struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DiscoveryC
 			return result;
 		}
 
-		static uint16_t get_value_handle(const ArrayView<const uint8_t>& value) {
+		static uint16_t get_value_handle(const Span<const uint8_t>& value) {
 			return value[1] | (value[2] << 8);
 		}
 
@@ -729,7 +729,7 @@ struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::WriteContr
 		if (offset < len) {
 			err = client->_pal_client->queue_prepare_write(
 				connection_handle, attribute_handle,
-				make_const_ArrayView(
+				make_const_Span(
 					data + offset,
 					std::min((len - offset), (mtu_size - 5))
 				),
@@ -1135,7 +1135,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
         return _pal_client->write_without_response(
             connection_handle,
             attribute_handle,
-            make_const_ArrayView(value, length)
+            make_const_Span(value, length)
         );
 #if BLE_FEATURE_SIGNING
 	} else if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
@@ -1145,7 +1145,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
         ble_error_t status = _pal_client->signed_write_without_response(
             connection_handle,
             attribute_handle,
-            make_const_ArrayView(value, length)
+            make_const_Span(value, length)
         );
 
         if (_signing_event_handler && (status == BLE_ERROR_NONE)) {
@@ -1183,14 +1183,14 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
             err = _pal_client->queue_prepare_write(
                 connection_handle,
                 attribute_handle,
-                make_const_ArrayView(value, mtu - PREPARE_WRITE_HEADER_LENGTH),
+                make_const_Span(value, mtu - PREPARE_WRITE_HEADER_LENGTH),
                 /* offset */0
             );
         } else {
             err = _pal_client->write_attribute(
                 connection_handle,
                 attribute_handle,
-                make_const_ArrayView(value, length)
+                make_const_Span(value, length)
             );
         }
 

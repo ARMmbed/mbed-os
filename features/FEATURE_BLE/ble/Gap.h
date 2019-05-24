@@ -1438,13 +1438,13 @@ public:
      * Reset the value of the advertising payload advertised.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,
+     * Use setAdvertisingPayload(ble::advertising_handle_t, Span<uint8_t>,
      * bool).
      */
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11.0",
         "Deprecated since addition of extended advertising support. "
-        "Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,"
+        "Use setAdvertisingPayload(ble::advertising_handle_t, Span<uint8_t>,"
         "bool)."
     )
     void clearAdvertisingPayload(void);

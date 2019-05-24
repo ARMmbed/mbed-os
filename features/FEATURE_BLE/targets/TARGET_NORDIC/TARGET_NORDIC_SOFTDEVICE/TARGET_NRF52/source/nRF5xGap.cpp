@@ -40,7 +40,7 @@ template class ble::interface::LegacyGap<nRF5xGap>;
 template class ble::interface::Gap<nRF5xGap>;
 
 using ble::pal::vendor::nordic::nRF5xSecurityManager;
-using ble::ArrayView;
+using mbed::Span;
 using ble::pal::advertising_peer_address_type_t;
 using ble::peer_address_type_t;
 
@@ -360,10 +360,10 @@ ble_error_t nRF5xGap::startAdvertising_(const GapAdvertisingParams &params)
 
     if (_privacy_enabled) {
         if (_peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
-            ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
+            Span<resolving_list_entry_t> entries = get_sm().get_resolving_list();
 
             size_t limit = std::min(
-                entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+                (size_t) entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
             );
 
             for (size_t i = 0; i < limit; ++i) {
@@ -703,10 +703,10 @@ ble_error_t nRF5xGap::connect(
         // configure the "whitelist" with the IRK associated with the identity
         // address in input.
         if (is_identity_address(peerAddrType)) {
-            ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
+            Span<resolving_list_entry_t> entries = get_sm().get_resolving_list();
 
             size_t i;
-            for (i = 0; i < entries.size(); ++i) {
+            for (i = 0; i < (size_t) entries.size(); ++i) {
                 const ble::address_t& entry_address = entries[i].peer_identity_address;
 
                 // entry found; fill the whitelist and invalidate addr_ptr
@@ -720,7 +720,7 @@ ble_error_t nRF5xGap::connect(
             }
 
             // Occur only if the address in input hasn't been resolved.
-            if (i == entries.size()) {
+            if (i == (size_t) entries.size()) {
                 return BLE_ERROR_INVALID_PARAM;
             }
         }
@@ -1540,9 +1540,9 @@ ble_error_t nRF5xGap::update_identities_list(bool resolution_enabled)
     uint32_t err;
 
     if (resolution_enabled) {
-        ArrayView<ble_gap_id_key_t> entries = get_sm().get_resolving_list();
+        Span<ble_gap_id_key_t> entries = get_sm().get_resolving_list();
         size_t limit = std::min(
-            entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+            (size_t) entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
         );
         ble_gap_id_key_t* id_keys_pp[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
 

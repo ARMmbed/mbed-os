@@ -18,7 +18,7 @@
 #define BLE_PAL_GAP_MESSAGE_H_
 
 #include "GapTypes.h"
-#include "ble/ArrayView.h"
+#include "ble/BLETypes.h"
 
 namespace ble {
 namespace pal {
@@ -307,7 +307,7 @@ struct GapAdvertisingReportEvent : public GapEvent {
         received_advertising_type_t type;
         connection_peer_address_type_t address_type;
         address_t address;
-        ArrayView<const uint8_t> data;
+        Span<const uint8_t> data;
         int8_t rssi;
     };
 

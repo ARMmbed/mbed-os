@@ -97,7 +97,7 @@ public:
             connection_handle,
             attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
             SERVICE_TYPE_UUID,
-            ArrayView<const uint8_t>(
+            Span<const uint8_t>(
                 uuid.getBaseUUID(),
                 (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) ? 2 : UUID::LENGTH_OF_LONG_UUID
             )
@@ -193,7 +193,7 @@ public:
      */
     ble_error_t read_multiple_characteristic_values_(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& characteristic_value_handles
+        const Span<const attribute_handle_t>& characteristic_value_handles
     ) {
         return _client.read_multiple_request(
             connection_handle,
@@ -207,7 +207,7 @@ public:
     ble_error_t write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return _client.write_command(
             connection_handle,
@@ -222,7 +222,7 @@ public:
     ble_error_t signed_write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return _client.signed_write_command(
             connection_handle,
@@ -237,7 +237,7 @@ public:
     ble_error_t write_attribute_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return _client.write_request(
             connection_handle,
@@ -252,7 +252,7 @@ public:
     ble_error_t queue_prepare_write_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const Span<const uint8_t>& value,
         uint16_t offset
     ) {
         return _client.prepare_write_request(

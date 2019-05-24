@@ -43,7 +43,7 @@ struct SimpleAttFindInformationResponse : public AttFindInformationResponse {
      * by the Format field
      */
     SimpleAttFindInformationResponse(
-        Format format, ArrayView<const uint8_t> information_data
+        Format format, Span<const uint8_t> information_data
     ) : AttFindInformationResponse(),
         _format(format), _information_data(information_data),
         _item_size(information_data_item_size()) {
@@ -82,7 +82,7 @@ private:
     }
 
     const Format _format;
-    const ArrayView<const uint8_t> _information_data;
+    const Span<const uint8_t> _information_data;
     const size_t _item_size;
 };
 
@@ -97,7 +97,7 @@ struct SimpleAttFindByTypeValueResponse : public AttFindByTypeValueResponse {
      * Handle Informations.
      * @param handles raw array containing one or more Handle Informations.
      */
-    SimpleAttFindByTypeValueResponse(ArrayView<const uint8_t> handles) :
+    SimpleAttFindByTypeValueResponse(Span<const uint8_t> handles) :
         AttFindByTypeValueResponse(), _handles(handles) {
     }
 
@@ -121,7 +121,7 @@ struct SimpleAttFindByTypeValueResponse : public AttFindByTypeValueResponse {
 
 private:
     static const size_t item_size = 4;
-    const ArrayView<const uint8_t> _handles;
+    const Span<const uint8_t> _handles;
 };
 
 
@@ -138,7 +138,7 @@ struct SimpleAttReadByTypeResponse : public AttReadByTypeResponse {
      * data.
      */
     SimpleAttReadByTypeResponse(
-        uint8_t element_size, ArrayView<const uint8_t> attribute_data
+        uint8_t element_size, Span<const uint8_t> attribute_data
     ) : AttReadByTypeResponse(),
         _attribute_data(attribute_data), _element_size(element_size) {
     }
@@ -160,7 +160,7 @@ struct SimpleAttReadByTypeResponse : public AttReadByTypeResponse {
 
         attribute_data_t result = {
             handle,
-            ArrayView<const uint8_t>(
+            Span<const uint8_t>(
                 item + sizeof(handle),
                 _element_size - sizeof(handle)
             )
@@ -170,7 +170,7 @@ struct SimpleAttReadByTypeResponse : public AttReadByTypeResponse {
     }
 
 private:
-    ArrayView<const uint8_t> _attribute_data;
+    Span<const uint8_t> _attribute_data;
     uint8_t _element_size;
 };
 
@@ -187,7 +187,7 @@ struct SimpleAttReadByGroupTypeResponse : public AttReadByGroupTypeResponse {
      * @param attribute_data Byte array containing the list of Attribute Data.
      */
     SimpleAttReadByGroupTypeResponse(
-        uint8_t element_size, ArrayView<const uint8_t> attribute_data
+        uint8_t element_size, Span<const uint8_t> attribute_data
     ) : AttReadByGroupTypeResponse(),
         _attribute_data(attribute_data), _element_size(element_size) {
     }
@@ -212,7 +212,7 @@ struct SimpleAttReadByGroupTypeResponse : public AttReadByGroupTypeResponse {
 
         attribute_data_t result = {
             { begin, end },
-            ArrayView<const uint8_t>(
+            Span<const uint8_t>(
                 item + sizeof(begin) + sizeof(end),
                 _element_size - (sizeof(begin) + sizeof(end))
             )
@@ -222,7 +222,7 @@ struct SimpleAttReadByGroupTypeResponse : public AttReadByGroupTypeResponse {
     }
 
 private:
-    ArrayView<const uint8_t> _attribute_data;
+    Span<const uint8_t> _attribute_data;
     uint8_t _element_size;
 };
 

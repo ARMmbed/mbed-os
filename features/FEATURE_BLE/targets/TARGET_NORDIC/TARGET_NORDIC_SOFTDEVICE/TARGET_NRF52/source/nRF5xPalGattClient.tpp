@@ -287,7 +287,7 @@ ble_error_t nRF5xGattClient<EventHandler>::read_attribute_blob_(
 template<class EventHandler>
 ble_error_t nRF5xGattClient<EventHandler>::read_multiple_characteristic_values_(
     connection_handle_t connection,
-    const ArrayView<const attribute_handle_t>& characteristic_handles
+    const Span<const attribute_handle_t>& characteristic_handles
 ) {
     return launch_procedure<ReadMultipleCharacteristicsProcedure>(
         connection, characteristic_handles
@@ -298,7 +298,7 @@ template<class EventHandler>
 ble_error_t nRF5xGattClient<EventHandler>::write_without_response_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value
+    const Span<const uint8_t>& value
 ) {
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_WRITE_CMD,
@@ -317,7 +317,7 @@ template<class EventHandler>
 ble_error_t nRF5xGattClient<EventHandler>::signed_write_without_response_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value
+    const Span<const uint8_t>& value
 ) {
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_SIGN_WRITE_CMD,
@@ -336,7 +336,7 @@ template<class EventHandler>
 ble_error_t nRF5xGattClient<EventHandler>::write_attribute_(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
-    const ArrayView<const uint8_t>& value
+    const Span<const uint8_t>& value
 ) {
     return launch_procedure<WriteAttributeProcedure>(
         connection_handle, attribute_handle, value
@@ -347,7 +347,7 @@ template<class EventHandler>
 ble_error_t nRF5xGattClient<EventHandler>::queue_prepare_write_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value,
+    const Span<const uint8_t>& value,
     uint16_t offset
 ) {
     return launch_procedure<QueuePrepareWriteProcedure>(
@@ -515,7 +515,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
     using GattProcedure::procedure_opcode;
     using GattProcedure::connection_handle;
     using GattProcedure::terminate;
-    typedef ArrayView<const ble_gattc_service_t> services_array_t;
+    typedef Span<const ble_gattc_service_t> services_array_t;
 
     DiscoverPrimaryServiceProcedure(connection_handle_t connection) :
         GattProcedure(connection, AttributeOpcode::READ_BY_GROUP_TYPE_REQUEST),
@@ -607,7 +607,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
             {
                 attribute_data_t result = {
                     to_ble_handle_range(services[i].handle_range),
-                    make_const_ArrayView(
+                    make_const_Span(
                         reinterpret_cast<const uint8_t*>(&services[i].uuid.uuid),
                         sizeof(uint16_t)
                     )
@@ -694,7 +694,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
         if (idx == count) {
             terminate(SimpleAttReadByGroupTypeResponse(
                 sizeof(packed_discovery_response_t),
-                make_const_ArrayView(
+                make_const_Span(
                     reinterpret_cast<const uint8_t*>(response),
                     count * sizeof(packed_discovery_response_t)
                 ))
@@ -728,7 +728,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceByUUIDProcedure : Re
     using GattProcedure::procedure_opcode;
     using GattProcedure::connection_handle;
     using GattProcedure::terminate;
-    typedef ArrayView<const ble_gattc_service_t> services_array_t;
+    typedef Span<const ble_gattc_service_t> services_array_t;
 
     DiscoverPrimaryServiceByUUIDProcedure(connection_handle_t connection) :
         RegularGattProcedure(
@@ -781,7 +781,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceByUUIDProcedure : Re
             {
                 attribute_data_t result = {
                     to_ble_handle_range(services[i].handle_range),
-                    make_ArrayView(uuid.getBaseUUID(), uuid.getLen())
+                    make_Span(uuid.getBaseUUID(), uuid.getLen())
                 };
                 return result;
             }
@@ -806,7 +806,7 @@ struct nRF5xGattClient<EventHandler>::FindIncludedServicesProcedure : RegularGat
     using GattProcedure::procedure_opcode;
     using GattProcedure::connection_handle;
     using GattProcedure::terminate;
-    typedef ArrayView<const ble_gattc_service_t> services_array_t;
+    typedef Span<const ble_gattc_service_t> services_array_t;
 
     FindIncludedServicesProcedure(connection_handle_t connection) :
         RegularGattProcedure(
@@ -862,7 +862,7 @@ struct nRF5xGattClient<EventHandler>::FindIncludedServicesProcedure : RegularGat
 
         terminate(SimpleAttReadByTypeResponse(
             element_size,
-            make_const_ArrayView(buffer, buffer_size)
+            make_const_Span(buffer, buffer_size)
         ));
 
         delete[] buffer;
@@ -1033,7 +1033,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
     void forward_response_and_terminate() {
         terminate(SimpleAttReadByTypeResponse(
             _response.element_size,
-            make_const_ArrayView(
+            make_const_Span(
                 _response.buffer,
                 _response.element_size * _response.count
             )
@@ -1226,7 +1226,7 @@ struct nRF5xGattClient<EventHandler>::ReadAttributeProcedure : RegularGattProced
             return;
         }
 
-        terminate(AttReadResponse(make_const_ArrayView(rsp.data, rsp.len)));
+        terminate(AttReadResponse(make_const_Span(rsp.data, rsp.len)));
     }
 };
 
@@ -1281,7 +1281,7 @@ struct nRF5xGattClient<EventHandler>::ReadUsingCharacteristicUUIDProcedure : Reg
 
         terminate(SimpleAttReadByTypeResponse(
             element_size,
-            make_const_ArrayView(
+            make_const_Span(
                 rsp.handle_value,
                 rsp.count * element_size
             )
@@ -1307,7 +1307,7 @@ struct nRF5xGattClient<EventHandler>::ReadUsingCharacteristicUUIDProcedure : Reg
             {
                 attribute_data_t result = {
                     response.handle_value[i].handle,
-                    make_const_ArrayView(
+                    make_const_Span(
                         response.handle_value[i].p_value,
                         response.value_len
                     )
@@ -1348,7 +1348,7 @@ struct nRF5xGattClient<EventHandler>::ReadAttributeBlobProcedure : RegularGattPr
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
-        terminate(AttReadBlobResponse(make_const_ArrayView(
+        terminate(AttReadBlobResponse(make_const_Span(
             evt.params.read_rsp.data,
             evt.params.read_rsp.len
         )));
@@ -1372,7 +1372,7 @@ struct nRF5xGattClient<EventHandler>::ReadMultipleCharacteristicsProcedure : Reg
             BLE_GATTC_EVT_CHAR_VALS_READ_RSP
         ) { }
 
-    ble_error_t start(const ArrayView<const attribute_handle_t>& characteristic_handles)
+    ble_error_t start(const Span<const attribute_handle_t>& characteristic_handles)
     {
         uint32_t err = sd_ble_gattc_char_values_read(
             connection_handle,
@@ -1384,7 +1384,7 @@ struct nRF5xGattClient<EventHandler>::ReadMultipleCharacteristicsProcedure : Reg
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
-        terminate(AttReadMultipleResponse(make_const_ArrayView(
+        terminate(AttReadMultipleResponse(make_const_Span(
             evt.params.char_vals_read_rsp.values,
             evt.params.char_vals_read_rsp.len
         )));
@@ -1407,7 +1407,7 @@ struct nRF5xGattClient<EventHandler>::WriteAttributeProcedure : RegularGattProce
         ) { }
 
     ble_error_t start(
-        attribute_handle_t attribute_handle, const ArrayView<const uint8_t>& value
+        attribute_handle_t attribute_handle, const Span<const uint8_t>& value
     ) {
         ble_gattc_write_params_t write_params = {
             BLE_GATT_OP_WRITE_REQ,
@@ -1447,7 +1447,7 @@ struct nRF5xGattClient<EventHandler>::QueuePrepareWriteProcedure : RegularGattPr
 
     ble_error_t start(
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const Span<const uint8_t>& value,
         uint16_t offset
     ) {
         ble_gattc_write_params_t write_params = {
@@ -1475,7 +1475,7 @@ struct nRF5xGattClient<EventHandler>::QueuePrepareWriteProcedure : RegularGattPr
         terminate(AttPrepareWriteResponse(
             response.handle,
             response.offset,
-            make_const_ArrayView(response.data, response.len)
+            make_const_Span(response.data, response.len)
         ));
     }
 };
@@ -1733,7 +1733,7 @@ void nRF5xGattClient<EventHandler>::handle_hvx_event(const ble_evt_t &evt)
                 connection,
                 AttHandleValueNotification(
                     hvx_evt.handle,
-                    make_const_ArrayView(hvx_evt.data, hvx_evt.len)
+                    make_const_Span(hvx_evt.data, hvx_evt.len)
                 )
             );
             return;
@@ -1744,7 +1744,7 @@ void nRF5xGattClient<EventHandler>::handle_hvx_event(const ble_evt_t &evt)
                 connection,
                 AttHandleValueIndication(
                     hvx_evt.handle,
-                    make_const_ArrayView(hvx_evt.data, hvx_evt.len)
+                    make_const_Span(hvx_evt.data, hvx_evt.len)
                 )
             );
             return;
