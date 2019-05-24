@@ -58,6 +58,7 @@
 #include "thread_network_synch.h"
 #include "thread_network_data_lib.h"
 #include "thread_joiner_application.h"
+#include "thread_extension.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
@@ -318,6 +319,7 @@ static link_configuration_s *link_configuration_create(void)
     }
     memset(this, 0, sizeof(link_configuration_s));
     this->securityPolicy = SECURITY_POLICY_ALL_SECURITY;        // Set all default values ('1') for security policy flags
+    this->securityPolicyExt = SECURITY_POLICY_ALL_SECURITY;     // Set all default values
     return this;
 }
 
@@ -345,6 +347,7 @@ static void link_configuration_copy(link_configuration_s *this, link_configurati
     this->panId = configuration_ptr->panId;
     this->rfChannel = configuration_ptr->rfChannel;
     this->securityPolicy = configuration_ptr->securityPolicy;
+    this->securityPolicyExt = configuration_ptr->securityPolicyExt;
     this->timestamp = configuration_ptr->timestamp;
     return;
 }
@@ -396,10 +399,14 @@ static int link_configuration_update(link_configuration_s *link_configuration, u
     if (thread_meshcop_tlv_find(msg_ptr, msg_len, MESHCOP_TLV_PSKC, &ptr) >= 16) {
         memcpy(link_configuration->PSKc, ptr, 16);
     }
-
-    if (thread_meshcop_tlv_find(msg_ptr, msg_len, MESHCOP_TLV_SECURITY_POLICY, &ptr) >= 3) {
+    uint16_t tlv_len = thread_meshcop_tlv_find(msg_ptr, msg_len, MESHCOP_TLV_SECURITY_POLICY, &ptr);
+    if (tlv_len  >= 3) {
+        link_configuration->securityPolicyExt = SECURITY_POLICY_ALL_SECURITY;
         link_configuration->securityPolicy = ptr[2];
         link_configuration->key_rotation = common_read_16_bit(ptr);
+        if (tlv_len > 3) {
+            link_configuration->securityPolicyExt = ptr[3];
+        }
     }
 
     return 0;
@@ -512,8 +519,8 @@ static void device_configuration_validate(device_configuration_s *this)
         this->vendor_stack_version[1] = (uint8_t)(THREAD_ARM_OUI >> 8);
         this->vendor_stack_version[2] = (uint8_t)(THREAD_ARM_OUI);
         this->vendor_stack_version[3] = (uint8_t)(THREAD_BUILD_NUMBER >> 4);
-        this->vendor_stack_version[4] = (uint8_t)(((THREAD_BUILD_NUMBER & 0x0f) << 4) || THREAD_REVISION_NUMBER);
-        this->vendor_stack_version[5] = (uint8_t)((THREAD_VERSION_MIN  << 4) || THREAD_VERSION_MAJ);
+        this->vendor_stack_version[4] = (uint8_t)(((THREAD_BUILD_NUMBER & 0x0f) << 4) | THREAD_REVISION_NUMBER);
+        this->vendor_stack_version[5] = (uint8_t)((THREAD_VERSION_MIN  << 4) | THREAD_VERSION_MAJ);
     }
 }
 
@@ -710,7 +717,7 @@ static void configuration_set_copy_mandatory(configuration_set_t *destination_pt
     tr_debug("mandatory TLVs needed: %s", trace_array(tlv_list, tlv_list_len));
     configuration_set_add_fields(destination_ptr, source_ptr->data, source_ptr->length, tlv_list, tlv_list_len);
 }
-static void configuration_set_generate(configuration_set_t *destination_ptr, link_configuration_s *configuration_ptr)
+static void configuration_set_generate(int8_t interface_id, configuration_set_t *destination_ptr, link_configuration_s *configuration_ptr)
 {
     uint8_t *response_ptr;
 
@@ -733,11 +740,18 @@ static void configuration_set_generate(configuration_set_t *destination_ptr, lin
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_PSKC, 16, configuration_ptr->PSKc);
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_NAME, stringlen((char *)&configuration_ptr->name, 16), configuration_ptr->name);
     *response_ptr++ = MESHCOP_TLV_SECURITY_POLICY; // type
-    *response_ptr++ = 3; // length
-    response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);
-    *response_ptr++ = configuration_ptr->securityPolicy;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (thread_extension_version_check(thread_info(cur)->version)) {
+        *response_ptr++ = 4; // length
+        response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);
+        *response_ptr++ = configuration_ptr->securityPolicy;
+        *response_ptr++ = configuration_ptr->securityPolicyExt;
+    } else {
+        *response_ptr++ = 3; // length
+        response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);
+        *response_ptr++ = configuration_ptr->securityPolicy;
+    }
     response_ptr = thread_tmfcop_tlv_data_write_uint64(response_ptr, MESHCOP_TLV_ACTIVE_TIME_STAMP, configuration_ptr->timestamp);
-
     destination_ptr->length = response_ptr - destination_ptr->data;
 }
 
@@ -859,7 +873,7 @@ int thread_joiner_application_init(int8_t interface_id, device_configuration_s *
             //If no master key or PSKc set we assume not valid configuration for thread network others may be possible to be 0
             //This allows some configurations to be set statically for testing purposes
             this->configuration_valid = true;
-            configuration_set_generate(this->active_configuration_ptr, this->configuration_ptr);
+            configuration_set_generate(this->interface_id, this->active_configuration_ptr, this->configuration_ptr);
         }
     }
     // Always load link configuration from bootstrap state machine. NVM overrides Static configuration
@@ -1533,7 +1547,7 @@ int thread_joiner_application_link_configuration_store(int8_t interface_id, link
     }
 
     thread_joiner_application_validate_settings(this);// Generate all random information
-    configuration_set_generate(this->active_configuration_ptr, link_config);
+    configuration_set_generate(this->interface_id, this->active_configuration_ptr, link_config);
     link_configuration_update(this->configuration_ptr, this->active_configuration_ptr->data, this->active_configuration_ptr->length);
     this->configuration_ptr->key_sequence = link_config->key_sequence;
     this->configuration_valid = true;

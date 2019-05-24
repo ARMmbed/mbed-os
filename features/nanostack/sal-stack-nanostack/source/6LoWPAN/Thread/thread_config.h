@@ -326,11 +326,34 @@
  */
 #define THREAD_BBR_ROUTER_ID_REQUEST_STATUS THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST
 
-/*
- * Number of destination and neighbor cache entries assuming 250 thread devices (worst case) connecting to cloud service.
+/* Border Router IPv6 neighbour and destination cache configuration
+ * Number of neighbor cache entries assuming 250 thread devices (worst case) connecting to cloud service.
  * Six entries reserved for backbone devices.
  */
-#define THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE  256
+#define THREAD_BBR_IPV6_NEIGHBOUR_CACHE_SIZE                256
+#define THREAD_BBR_IPV6_NEIGHBOUR_CACHE_SHORT_TERM          128
+#define THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LONG_TERM           32
+#define THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LIFETIME            600
+
+/* Router IPv6 neighbour and destination cache configuration */
+#define THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_SIZE             128
+#define THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_SHORT_TERM       64
+#define THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_LONG_TERM        8
+#define THREAD_ROUTER_IPV6_NEIGHBOUR_CACHE_LIFETIME         600
+#define THREAD_ROUTER_IPV6_DESTINATION_CACHE_SIZE           32
+#define THREAD_ROUTER_IPV6_DESTINATION_CACHE_SHORT_TERM     16
+#define THREAD_ROUTER_IPV6_DESTINATION_CACHE_LONG_TERM      4
+#define THREAD_ROUTER_IPV6_DESTINATION_CACHE_LIFETIME       600
+
+/* End device IPv6 neighbour and destination cache configuration */
+#define THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_SIZE         32
+#define THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_SHORT_TERM   16
+#define THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_LONG_TERM    4
+#define THREAD_END_DEVICE_IPV6_NEIGHBOUR_CACHE_LIFETIME     600
+#define THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_SIZE       16
+#define THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_SHORT_TERM 8
+#define THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_LONG_TERM  4
+#define THREAD_END_DEVICE_IPV6_DESTINATION_CACHE_LIFETIME   600
 
 /*
  * Timeout to solicit address from DHCP if previous request fails.

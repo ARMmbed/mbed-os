@@ -16,7 +16,7 @@
   *
   ******************************************************************************
   */
-#if 1 // MBED PATCH defined(USE_FULL_LL_DRIVER)
+#if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_ll_rcc.h"
@@ -39,6 +39,7 @@
 
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+const uint8_t LL_RCC_PrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
 /* Private constants ---------------------------------------------------------*/
 /* Private macros ------------------------------------------------------------*/
 /** @addtogroup RCC_LL_Private_Macros
@@ -143,26 +144,26 @@ void LL_RCC_DeInit(void)
   /* Reset D3CFGR register */
   CLEAR_REG(RCC->D3CFGR);
 
-  /* Reset PLLCKSELR register */
-  CLEAR_REG(RCC->PLLCKSELR);
+  /* Reset PLLCKSELR register to default value */
+  RCC->PLLCKSELR= RCC_PLLCKSELR_DIVM1_5|RCC_PLLCKSELR_DIVM2_5|RCC_PLLCKSELR_DIVM3_5;
 
-  /* Reset PLLCFGR register */
-  CLEAR_REG(RCC->PLLCFGR);
+  /* Reset PLLCFGR register to default value */
+  LL_RCC_WriteReg(PLLCFGR, 0x01FF0000U);
 
-  /* Reset PLL1DIVR register */
-  CLEAR_REG(RCC->PLL1DIVR);
+  /* Reset PLL1DIVR register to default value */
+  LL_RCC_WriteReg(PLL1DIVR, 0x01010280U);
 
   /* Reset PLL1FRACR register */
   CLEAR_REG(RCC->PLL1FRACR);
 
-  /* Reset PLL2DIVR register */
-  CLEAR_REG(RCC->PLL2DIVR);
+  /* Reset PLL2DIVR register to default value */
+  LL_RCC_WriteReg(PLL2DIVR, 0x01010280U);
 
   /* Reset PLL2FRACR register */
   CLEAR_REG(RCC->PLL2FRACR);
 
-  /* Reset PLL3DIVR register */
-  CLEAR_REG(RCC->PLL3DIVR);
+  /* Reset PLL3DIVR register to default value */
+  LL_RCC_WriteReg(PLL3DIVR, 0x01010280U);
 
   /* Reset PLL3FRACR register */
   CLEAR_REG(RCC->PLL3FRACR);
@@ -242,7 +243,6 @@ void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
 
 /**
   * @brief  Return PLL1 clocks frequencies
-  * @note   LL_RCC_PERIPH_FREQUENCY_NO returned for non activated output or oscillator not ready
   * @retval None
   */
 void LL_RCC_GetPLL1ClockFreq(LL_PLL_ClocksTypeDef *PLL_Clocks)
@@ -316,7 +316,6 @@ void LL_RCC_GetPLL1ClockFreq(LL_PLL_ClocksTypeDef *PLL_Clocks)
 
 /**
   * @brief  Return PLL2 clocks frequencies
-  * @note   LL_RCC_PERIPH_FREQUENCY_NO returned for non activated output or oscillator not ready
   * @retval None
   */
 void LL_RCC_GetPLL2ClockFreq(LL_PLL_ClocksTypeDef *PLL_Clocks)
@@ -390,7 +389,6 @@ void LL_RCC_GetPLL2ClockFreq(LL_PLL_ClocksTypeDef *PLL_Clocks)
 
 /**
   * @brief  Return PLL3 clocks frequencies
-  * @note   LL_RCC_PERIPH_FREQUENCY_NO returned for non activated output or oscillator not ready
   * @retval None
   */
 void LL_RCC_GetPLL3ClockFreq(LL_PLL_ClocksTypeDef *PLL_Clocks)
@@ -1043,14 +1041,11 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
     case LL_RCC_USB_CLKSOURCE_HSI48:
       if (LL_RCC_HSI48_IsReady() != 0U)
       {
-        usb_frequency = 48000000U;
+        usb_frequency = HSI48_VALUE;
       }
       break;
 
     case LL_RCC_USB_CLKSOURCE_DISABLE:
-        usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
-        break;
-
     default:
       /* Nothing to do */
       break;
@@ -1087,6 +1082,44 @@ uint32_t LL_RCC_GetDFSDMClockFreq(uint32_t DFSDMxSource)
 
   return dfsdm_frequency;
 }
+
+
+#if defined(DSI)
+/**
+  * @brief  Return DSI clock frequency
+  * @param  DSIxSource This parameter can be one of the following values:
+  *         @arg @ref LL_RCC_DSI_CLKSOURCE
+  * @retval DSI clock frequency (in Hz)
+  *         - @ref  LL_RCC_PERIPH_FREQUENCY_NO indicates that oscillator is not ready
+  *         - @ref  LL_RCC_PERIPH_FREQUENCY_NA indicates that external clock is used
+  */
+uint32_t LL_RCC_GetDSIClockFreq(uint32_t DSIxSource)
+{
+  uint32_t dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+  LL_PLL_ClocksTypeDef PLL_Clocks;
+
+  switch (LL_RCC_GetDSIClockSource(DSIxSource))
+  {
+    case LL_RCC_DSI_CLKSOURCE_PLL2Q:
+      if (LL_RCC_PLL2_IsReady() != 0U)
+      {
+        LL_RCC_GetPLL2ClockFreq(&PLL_Clocks);
+        dsi_frequency = PLL_Clocks.PLL_Q_Frequency;
+      }
+      break;
+
+    case LL_RCC_DSI_CLKSOURCE_PHY:
+      dsi_frequency = LL_RCC_PERIPH_FREQUENCY_NA;
+      break;
+
+    default:
+      /* Nothing to do */
+      break;
+  }
+
+  return dsi_frequency;
+}
+#endif /* DSI */
 
 /**
   * @brief  Return SPDIF clock frequency

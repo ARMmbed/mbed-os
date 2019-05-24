@@ -33,6 +33,7 @@ typedef struct TCPSocketItem {
 
 void TCPSOCKET_OPEN_LIMIT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     int open_sockets[2] = {0};
 
     for (int i = 0; i < 2; i++) {

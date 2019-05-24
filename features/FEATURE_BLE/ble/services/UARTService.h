@@ -26,8 +26,11 @@
 
 #include "ble/UUID.h"
 #include "ble/BLE.h"
+#include "ble/pal/Deprecated.h"
 
 #if BLE_FEATURE_GATT_SERVER
+
+BLE_DEPRECATED_API_USE_BEGIN()
 
 extern const uint8_t  UARTServiceBaseUUID[UUID::LENGTH_OF_LONG_UUID];
 extern const uint16_t UARTServiceShortUUID;
@@ -41,9 +44,15 @@ extern const uint8_t  UARTServiceTXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID]
 extern const uint8_t  UARTServiceRXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID];
 
 /**
-* @class UARTService.
-* @brief BLE Service to enable UART over BLE.
-*/
+ * @class UARTService.
+ * @brief BLE Service to enable UART over BLE.
+ *
+ * @deprecated This service is deprecated, and no replacement is currently available.
+ */
+MBED_DEPRECATED_SINCE(
+    "mbed-os-5.13",
+    "This service is deprecated, and no replacement is currently available."
+)
 class UARTService {
 public:
     /** Maximum length of data (in bytes) that the UART service module can transmit to the peer. */
@@ -216,6 +225,8 @@ protected:
                                            *   they'd read from in order to receive the bytes transmitted by this
                                            *   application. */
 };
+
+BLE_DEPRECATED_API_USE_END()
 
 #endif // BLE_FEATURE_GATT_SERVER
 

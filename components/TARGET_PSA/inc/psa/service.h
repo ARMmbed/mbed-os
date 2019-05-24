@@ -18,6 +18,7 @@
 #if defined(TARGET_TFM)
 
 #include "interface/include/psa_service.h"
+#include "secure_fw/core/ipc/include/tfm_utils.h"
 #define SPM_PANIC(format, ...) tfm_panic()
 
 #elif defined(TARGET_MBED_SPM)

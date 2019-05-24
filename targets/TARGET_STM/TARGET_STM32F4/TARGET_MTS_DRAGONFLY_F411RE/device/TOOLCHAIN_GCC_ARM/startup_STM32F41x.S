@@ -66,8 +66,8 @@ __HeapLimit:
 
     .section .isr_vector
     .align 2
-    .globl __isr_vector
-__isr_vector:
+    .globl g_pfnVectors
+g_pfnVectors:
     .long    __StackTop            /* Top of Stack */
     .long    Reset_Handler         /* Reset Handler */
     .long    NMI_Handler           /* NMI Handler */
@@ -171,7 +171,7 @@ __isr_vector:
     .long     SPI4_IRQHandler                   /* SPI4 */ 
     .long     SPI5_IRQHandler                   /* SPI5 */ 
 
-    .size    __isr_vector, . - __isr_vector
+    .size    g_pfnVectors, . - g_pfnVectors
 
     .text
     .thumb

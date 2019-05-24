@@ -498,7 +498,7 @@ ble_error_t AdvertisingDataBuilder::setUUIDData(
     size_t old_size = getFieldSize(shortType) + getFieldSize(longType);
 
     /* if we can't fit the new data do not proceed */
-    if (new_size > data.size() - (_payload_length - old_size)) {
+    if (new_size > _buffer.size() - (_payload_length - old_size)) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 

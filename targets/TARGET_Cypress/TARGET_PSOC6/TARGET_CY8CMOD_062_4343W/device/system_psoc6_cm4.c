@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6_cm4.c
-* \version 2.30
+* \version 2.40
 *
 * The device system-source file.
 *
@@ -22,16 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdint.h>
 #include <stdbool.h>
-#include "cy_device.h"
-#include "device.h"
 #include "system_psoc6.h"
+#include "cy_device.h"
 #include "cy_device_headers.h"
-#include "psoc6_utils.h"
 #include "cy_syslib.h"
 #include "cy_wdt.h"
-#include "cycfg.h"
 
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     #include "cy_ipc_sema.h"
@@ -268,32 +264,6 @@ void SystemInit(void)
 
 
 /*******************************************************************************
-* Function Name: mbed_sdk_init
-****************************************************************************//**
-*
-* Mbed's post-memory-initialization function.
-* Used here to initialize common parts of the Cypress libraries.
-*
-*******************************************************************************/
-void mbed_sdk_init(void)
-{
-    /* Initialize shared resource manager */
-    cy_srm_initialize();
-
-    /* Initialize system and clocks. */
-    /* Placed here as it must be done after proper LIBC initialization. */
-    SystemInit();
-
-    /* Set up the device based on configurator selections */
-    init_cycfg_all();
-
-    /* Enable global interrupts */
-    __enable_irq();
-}
-
-
-
-/*******************************************************************************
 * Function Name: Cy_SystemInit
 ****************************************************************************//**
 *
@@ -513,6 +483,7 @@ void Cy_SysIpcPipeIsrCm4(void)
 }
 #endif
 
+
 /*******************************************************************************
 * Function Name: Cy_MemorySymbols
 ****************************************************************************//**
@@ -522,7 +493,7 @@ void Cy_SysIpcPipeIsrCm4(void)
 * linker configuration files. The following symbols used by the cymcuelftool.
 *
 *******************************************************************************/
-#if defined (__ARMCC_VERSION)
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050)
 __asm void Cy_MemorySymbols(void)
 {
     /* Flash */
@@ -575,8 +546,7 @@ __cy_memory_4_start     EQU __cpp(0x90700000)
 __cy_memory_4_length    EQU __cpp(0x100000)
 __cy_memory_4_row_size  EQU __cpp(1)
 }
-
-#endif /* defined (__ARMCC_VERSION) */
+#endif /* defined (__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050) */
 
 
 /* [] END OF FILE */

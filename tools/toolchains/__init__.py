@@ -26,6 +26,10 @@ TOOLCHAIN_CLASSES = {
     u'IAR': iar.IAR
 }
 
+EXTRA_TOOLCHAIN_NAMES = [
+    u"ARMC5"
+]
+
 TOOLCHAINS = set(TOOLCHAIN_CLASSES.keys())
 
 # Top level re-exports

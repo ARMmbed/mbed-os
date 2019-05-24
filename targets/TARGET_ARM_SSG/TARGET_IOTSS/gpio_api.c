@@ -25,10 +25,10 @@ uint32_t gpio_set(PinName pin) {
 // this links the board control bits for each pin 
 // with the object created for the pin
 void gpio_init(gpio_t *obj, PinName pin) {
+        obj->pin = pin;
         if(pin == NC){ return;}
         else {
         int pin_value = 0;
-        obj->pin = pin;
         if(pin <=15){
             pin_value = pin;
         }else if (pin >= 16 && pin <= 31){

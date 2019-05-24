@@ -27,8 +27,8 @@
 #include "psa_manifest/sid.h"
 
 #if defined(TARGET_TFM)
-#include "psa/service.h"
 #define MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS TFM_CONN_HANDLE_MAX_NUM
+#define PSA_MAX_IOVEC 4
 #endif
 
 using namespace utest::v1;

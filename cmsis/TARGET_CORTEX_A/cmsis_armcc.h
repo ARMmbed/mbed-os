@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.2
- * @date     10. January 2018
+ * @version  V1.0.3
+ * @date     15. May 2019
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -533,10 +533,10 @@ __STATIC_INLINE __ASM void __FPU_Enable(void)
   ENDIF
 
         //Initialise FPSCR to a known state
-        VMRS    R2,FPSCR
-        LDR     R3,=0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-        AND     R2,R2,R3
-        VMSR    FPSCR,R2
+        VMRS    R1,FPSCR
+        LDR     R2,=0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+        AND     R1,R1,R2
+        VMSR    FPSCR,R1
 
         BX      LR
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -338,16 +338,8 @@ static uint32_t svcRtxEventFlagsGet (osEventFlagsId_t ef_id) {
 /// \note API identical to osEventFlagsWait
 static uint32_t svcRtxEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout) {
   os_event_flags_t *ef = osRtxEventFlagsId(ef_id);
-  os_thread_t      *running_thread;
+  os_thread_t      *thread;
   uint32_t          event_flags;
-
-  // Check running thread
-  running_thread = osRtxThreadGetRunning();
-  if (running_thread == NULL) {
-    EvrRtxEventFlagsError(ef, osRtxErrorKernelNotRunning);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osError);
-  }
 
   // Check parameters
   if ((ef == NULL) || (ef->id != osRtxIdEventFlags) ||
@@ -365,12 +357,13 @@ static uint32_t svcRtxEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, ui
     // Check if timeout is specified
     if (timeout != 0U) {
       EvrRtxEventFlagsWaitPending(ef, flags, options, timeout);
-      // Store waiting flags and options
-      running_thread->wait_flags = flags;
-      running_thread->flags_options = (uint8_t)options;
       // Suspend current Thread
       if (osRtxThreadWaitEnter(osRtxThreadWaitingEventFlags, timeout)) {
-        osRtxThreadListPut(osRtxObject(ef), running_thread);
+        thread = osRtxThreadGetRunning();
+        osRtxThreadListPut(osRtxObject(ef), thread);
+        // Store waiting flags and options
+        thread->wait_flags = flags;
+        thread->flags_options = (uint8_t)options;
       } else {
         EvrRtxEventFlagsWaitTimeout(ef);
       }

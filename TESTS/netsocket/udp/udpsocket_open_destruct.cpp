@@ -26,13 +26,6 @@ using namespace utest::v1;
 
 void UDPSOCKET_OPEN_DESTRUCT()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  udp_stats[j].state);
-    }
-#endif
-
     for (int i = 0; i < 100; i++) {
         UDPSocket *sock = new UDPSocket;
         if (!sock) {
@@ -41,10 +34,4 @@ void UDPSOCKET_OPEN_DESTRUCT()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
         delete sock;
     }
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
-    }
-#endif
 }

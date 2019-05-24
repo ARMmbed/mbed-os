@@ -16,8 +16,8 @@
     (+) Each Exti line can be configured within this driver.
 
     (+) Exti line can be configured in 3 different modes
-        (++) Interrupt
-        (++) Event
+        (++) Interrupt (CORE1 or CORE2 in case of dual core line )
+        (++) Event (CORE1 or CORE2 in case of dual core line )
         (++) a combination of the previous
 
     (+) Configurable Exti lines can be configured with 3 different triggers
@@ -284,6 +284,45 @@ HAL_StatusTypeDef HAL_EXTI_SetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
   /* Store event mode */
   *regaddr = regval;
 
+#if defined (DUAL_CORE)
+  /* Configure interrupt mode for Core2 : read current mode */
+  regaddr = (__IO uint32_t *)(&EXTI->C2IMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = *regaddr;
+
+  /* Mask or set line */
+  if ((pExtiConfig->Mode & EXTI_MODE_CORE2_INTERRUPT) != 0x00U)
+  {
+    regval |= maskline;
+  }
+  else
+  {
+    regval &= ~maskline;
+  }
+
+  /* Store interrupt mode */
+  *regaddr = regval;
+
+  /* The event mode cannot be configured if the line does not support it */
+  assert_param(((pExtiConfig->Line & EXTI_EVENT) == EXTI_EVENT) || ((pExtiConfig->Mode & EXTI_MODE_CORE2_EVENT) != EXTI_MODE_CORE2_EVENT));
+
+  /* Configure event mode : read current mode */
+  regaddr = (__IO uint32_t *)(&EXTI->C2EMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = *regaddr;
+
+  /* Mask or set line */
+  if ((pExtiConfig->Mode & EXTI_MODE_CORE2_EVENT) != 0x00U)
+  {
+    regval |= maskline;
+  }
+  else
+  {
+    regval &= ~maskline;
+  }
+
+  /* Store event mode */
+  *regaddr = regval;
+#endif /* DUAL_CORE */
+
   /* Configure the D3 PendClear source in case of Wakeup target is Any */
   if ((pExtiConfig->Line & EXTI_TARGET_MASK) == EXTI_TARGET_MSK_ALL)
   {
@@ -380,6 +419,26 @@ HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
   {
     pExtiConfig->Mode |= EXTI_MODE_EVENT;
   }
+#if defined (DUAL_CORE)
+  regaddr = (__IO uint32_t *)(&EXTI->C2IMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = *regaddr;
+
+  /* Check if selected line is enable */
+  if ((regval & maskline) != 0x00U)
+  {
+    pExtiConfig->Mode = EXTI_MODE_CORE2_INTERRUPT;
+  }
+
+  /* Get event mode */
+  regaddr = (__IO uint32_t *)(&EXTI->C2EMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = *regaddr;
+
+  /* Check if selected line is enable */
+  if ((regval & maskline) != 0x00U)
+  {
+    pExtiConfig->Mode |= EXTI_MODE_CORE2_EVENT;
+  }
+#endif /*DUAL_CORE*/
 
   /* 2] Get trigger for configurable lines : rising */
   if ((pExtiConfig->Line & EXTI_CONFIG) != 0x00U)
@@ -499,6 +558,18 @@ HAL_StatusTypeDef HAL_EXTI_ClearConfigLine(EXTI_HandleTypeDef *hexti)
   regaddr = (__IO uint32_t *)(&EXTI->EMR1 + (EXTI_MODE_OFFSET * offset));
   regval = (*regaddr & ~maskline);
   *regaddr = regval;
+
+#if defined (DUAL_CORE)
+    /* 1] Clear CM4 interrupt mode */
+  regaddr = (__IO uint32_t *)(&EXTI->C2IMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = (*regaddr & ~maskline);
+  *regaddr = regval;
+
+  /* 2] Clear CM4 event mode */
+  regaddr = (__IO uint32_t *)(&EXTI->C2EMR1 + (EXTI_MODE_OFFSET * offset));
+  regval = (*regaddr & ~maskline);
+  *regaddr = regval;
+#endif /* DUAL_CORE */
 
   /* 3] Clear triggers in case of configurable lines */
   if ((hexti->Line & EXTI_CONFIG) != 0x00U)
@@ -639,7 +710,20 @@ void HAL_EXTI_IRQHandler(EXTI_HandleTypeDef *hexti)
   offset = ((hexti->Line & EXTI_REG_MASK) >> EXTI_REG_SHIFT);
   maskline = (1UL << (hexti->Line & EXTI_PIN_MASK));
 
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+  else /* Cortex-M4*/
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->C2PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+#else
   regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+#endif /* DUAL_CORE */
 
   /* Get pending bit  */
   regval = (*regaddr & maskline);
@@ -685,7 +769,20 @@ uint32_t HAL_EXTI_GetPending(EXTI_HandleTypeDef *hexti, uint32_t Edge)
   linepos = (hexti->Line & EXTI_PIN_MASK);
   maskline = (1UL << linepos);
 
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+  else /* Cortex-M4 */
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->C2PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+#else
   regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+#endif /* DUAL_CORE */
 
   /* return 1 if bit is set else 0 */
   regval = ((*regaddr & maskline) >> linepos);
@@ -717,7 +814,20 @@ void HAL_EXTI_ClearPending(EXTI_HandleTypeDef *hexti, uint32_t Edge)
   offset = ((hexti->Line & EXTI_REG_MASK) >> EXTI_REG_SHIFT);
   maskline = (1UL << (hexti->Line & EXTI_PIN_MASK));
 
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+  else /* Cortex-M4 */
+  {
+    /* Get pending register address */
+    regaddr = (__IO uint32_t *)(&EXTI->C2PR1 + (EXTI_MODE_OFFSET * offset));
+  }
+#else
   regaddr = (__IO uint32_t *)(&EXTI->PR1 + (EXTI_MODE_OFFSET * offset));
+#endif /* DUAL_CORE */
 
   /* Clear Pending bit */
   *regaddr =  maskline;

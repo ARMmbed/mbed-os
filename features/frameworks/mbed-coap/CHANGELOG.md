@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.8.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.0) 
+- Make `sn_coap_protocol_linked_list_duplication_info_remove` API to public. User might want to delete some messages from the duplicate list.
+- Enable support for unified client configuration.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.7.4...v4.8.0)
+
 ## [v4.7.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.4) 
 
 - Remove dependency to yotta tool

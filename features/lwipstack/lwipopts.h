@@ -83,7 +83,9 @@
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
+#ifndef LWIP_RAW
 #define LWIP_RAW                    0
+#endif
 
 #define TCPIP_MBOX_SIZE             8
 #define DEFAULT_TCP_RECVMBOX_SIZE   8
@@ -244,6 +246,11 @@
 #define LWIP_TCP                    1
 #define TCP_OVERSIZE                0
 #define LWIP_TCP_KEEPALIVE          1
+#ifdef MBED_CONF_TCP_CLOSE_TIMEOUT
+#define TCP_CLOSE_TIMEOUT            MBED_CONF_TCP_CLOSE_TIMEOUT
+#else
+#define TCP_CLOSE_TIMEOUT            1000
+#endif
 #else
 #define LWIP_TCP                    0
 #endif

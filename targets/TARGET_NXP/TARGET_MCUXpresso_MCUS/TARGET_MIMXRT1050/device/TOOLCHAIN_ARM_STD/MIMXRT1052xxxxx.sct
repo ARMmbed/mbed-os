@@ -56,9 +56,6 @@
 
 #define __ram_vector_table__           1
 
-#define __stack_size__                 0x8000
-#define __heap_size__                  0x10000
-
 #if (defined(__ram_vector_table__))
   #define __ram_vector_table_size__    0x00000400
 #else

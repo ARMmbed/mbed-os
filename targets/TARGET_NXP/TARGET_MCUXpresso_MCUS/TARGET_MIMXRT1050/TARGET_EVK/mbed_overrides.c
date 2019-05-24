@@ -102,13 +102,13 @@ void BOARD_ConfigMPU(void)
      * this suggestion is referred from chapter 2.2.1 Memory regions,
      * types and attributes in Cortex-M7 Devices, Generic User Guide */
 #if defined(SDRAM_IS_SHAREABLE)
-    /* Region 7 setting: Memory with Normal type, not shareable, outer/inner write back */
+    /* Region 7 setting: Memory with Normal type, shareable, outer/inner write back, write/read allocate */
     MPU->RBAR = ARM_MPU_RBAR(7, 0x80000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
 #else
-    /* Region 7 setting: Memory with Normal type, not shareable, outer/inner write back */
+    /* Region 7 setting: Memory with Normal type, not shareable, outer/inner write back, write/read allocate */
     MPU->RBAR = ARM_MPU_RBAR(7, 0x80000000U);
-    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_32MB);
 #endif
 
     /* Region 8 setting, set last 2MB of SDRAM can't be accessed by cache, glocal variables which are not expected to be

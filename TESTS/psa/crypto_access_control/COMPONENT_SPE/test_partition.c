@@ -16,7 +16,7 @@
  */
 
 #include <stdlib.h>
-#include "psa_crypto_acl_test_partition.h"
+#include "mbed_spm_partitions.h"
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa/crypto.h"

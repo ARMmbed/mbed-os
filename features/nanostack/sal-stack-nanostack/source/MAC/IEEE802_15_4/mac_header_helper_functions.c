@@ -267,6 +267,9 @@ const uint8_t *mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_
     } else {
         header->DSN = 0;
     }
+    //Check PanID presents at header
+    header->DstPanPresents = mac_dst_panid_present(header);
+    header->SrcPanPresents = mac_src_panid_present(header);
     return ptr;
 
 }

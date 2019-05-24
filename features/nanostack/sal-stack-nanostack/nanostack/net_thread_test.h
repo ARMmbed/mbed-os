@@ -242,6 +242,19 @@ int thread_test_version_set(int8_t interface_id, uint8_t version);
 int thread_test_router_selection_jitter_set(int8_t interface_id, uint32_t jitter);
 
 /**
+ * \brief Set Thread PBBR status response override.
+ *
+ * \param interface_id Network Interface
+ * \param dua_status expected dua response value from PBBR
+ * \param dua_count number of times dua_response is repeated
+ * \param ba_failure_count number of times bba failure is repeated
+ *
+ * \return 0, OK
+ * \return <0 Error
+ */
+int thread_test_pbbr_response_override_set(int8_t interface_id, uint8_t dua_status, uint8_t dua_count, uint8_t ba_failure_count);
+
+/**
  * \brief Sets the thread MIN_DELAY_TIMER default value.
  *
  * \param interface_id Network Interface

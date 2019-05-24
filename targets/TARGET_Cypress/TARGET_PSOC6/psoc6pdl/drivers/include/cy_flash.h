@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.20
+* \version 3.30
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -104,7 +104,7 @@
 *    Crypto).
 * -# If you do not use the default startup, perform the following steps 
 *    before any flash write/erase operations:
-* \snippet flash\3.20\snippet\main.c Flash Initialization
+* \snippet flash/snippet/main.c Flash Initialization
 *
 * \subsection group_flash_config_rww Partially Blocking:
 * This method has a much shorter time window during which Flash accesses are not
@@ -112,7 +112,7 @@
 * Flash Write duration, for both cores. Blocking duration depends upon the API
 * sequence used.
 *
-* For API sequence Cy_Flash_StartErase() + Cy_Flash_StartProgram() there are
+* For API sequence Cy_Flash_StartEraseRow() + Cy_Flash_StartProgram() there are
 * four block-out regions during which the read is blocked using the software
 * driver (PDL). See <b>Figure 1</b>.
 *
@@ -216,7 +216,7 @@
 *    (DMA and Crypto).
 * -# If you do not use the default startup, perform the following steps 
 *    before any flash write/erase operations:
-* \snippet flash\3.20\snippet\main.c Flash Initialization
+* \snippet flash/snippet/main.c Flash Initialization
 *
 * \subsection group_flash_config_emeeprom EEPROM section use:
 * If you plan to use "cy_em_eeprom" section for different purposes for both of
@@ -254,6 +254,21 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="3">3.30</td>
+*     <td>Moved ipcWaitMessageStc structure to the RAM section called ".cy_sharedmem".</td>
+*     <td>Support Secure Boot devices.</td>
+*   </tr>
+*	<tr>
+*     <td>Renamed Function Cy_Flash_StartErase() to Cy_Flash_StartEraseRow().</td>
+*     <td>The driver improvements based on the usability feedback.</td>
+*	</tr>
+*   <tr>
+*     <td>Added new API functions \ref Cy_Flash_EraseSector, 
+*   	  \ref Cy_Flash_StartEraseSector, \ref Cy_Flash_EraseSubsector, 
+*         \ref Cy_Flash_StartEraseSubsector </td>
+*     <td>The driver improvements based on the usability feedback.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="3">3.20</td>
 *     <td>Flattened the organization of the driver source code into the single source directory and the single include directory.</td>
@@ -359,7 +374,7 @@ extern "C" {
 #define CY_FLASH_DRV_VERSION_MAJOR       3
 
 /** Driver minor version */
-#define CY_FLASH_DRV_VERSION_MINOR       20
+#define CY_FLASH_DRV_VERSION_MINOR       30
 
 #define CY_FLASH_ID               (CY_PDL_DRV_ID(0x14UL))                          /**< FLASH PDL ID */
 
@@ -377,8 +392,6 @@ extern "C" {
 
 /** Flash row size */
 #define CY_FLASH_SIZEOF_ROW                (CPUSS_FLASHC_PA_SIZE * 4u)
-/** Flash effective page size */
-#define CY_FLASH_EFFECTIVE_PAGE_SIZE       32
 /** Long words flash row size */
 #define CY_FLASH_SIZEOF_ROW_LONG_UNITS     (CY_FLASH_SIZEOF_ROW / sizeof(uint32_t))
 
@@ -430,11 +443,15 @@ typedef enum cy_en_flashdrv_status
 */
 void Cy_Flash_Init(void);
 cy_en_flashdrv_status_t Cy_Flash_EraseRow(uint32_t rowAddr);
+cy_en_flashdrv_status_t Cy_Flash_StartEraseRow(uint32_t rowAddr);
+cy_en_flashdrv_status_t Cy_Flash_EraseSector(uint32_t sectorAddr);
+cy_en_flashdrv_status_t Cy_Flash_StartEraseSector(uint32_t sectorAddr);
+cy_en_flashdrv_status_t Cy_Flash_EraseSubsector(uint32_t subSectorAddr);
+cy_en_flashdrv_status_t Cy_Flash_StartEraseSubsector(uint32_t subSectorAddr);
 cy_en_flashdrv_status_t Cy_Flash_ProgramRow(uint32_t rowAddr, const uint32_t* data);
 cy_en_flashdrv_status_t Cy_Flash_WriteRow(uint32_t rowAddr, const uint32_t* data);
 cy_en_flashdrv_status_t Cy_Flash_StartWrite(uint32_t rowAddr, const uint32_t* data);
 cy_en_flashdrv_status_t Cy_Flash_StartProgram(uint32_t rowAddr, const uint32_t* data);
-cy_en_flashdrv_status_t Cy_Flash_StartErase(uint32_t rowAddr);
 cy_en_flashdrv_status_t Cy_Flash_IsOperationComplete(void);
 cy_en_flashdrv_status_t Cy_Flash_RowChecksum(uint32_t rowAddr, uint32_t* checksumPtr);
 cy_en_flashdrv_status_t Cy_Flash_CalculateHash(const uint32_t* data, uint32_t numberOfBytes, uint32_t* hashPtr);
@@ -451,11 +468,15 @@ uint32_t Cy_Flash_GetExternalStatus(void);
 void Cy_Flash_ResumeIrqHandler(void);
 #endif
 
-/* Macros to backward compatibility */
+/*******************************************************************************
+Backward compatibility macro. The following code is DEPRECATED and must
+not be used in new projects
+*******************************************************************************/
 #define     Cy_Flash_IsWriteComplete(...)    Cy_Flash_IsOperationComplete()
 #define     Cy_Flash_IsProgramComplete(...)  Cy_Flash_IsOperationComplete()
 #define     Cy_Flash_IsEraseComplete(...)    Cy_Flash_IsOperationComplete()
-#define     CY_FLASH_NUMBER_ROWS            (CY_FLASH_SIZE / CY_FLASH_SIZEOF_ROW)
+#define     CY_FLASH_NUMBER_ROWS             (CY_FLASH_SIZE / CY_FLASH_SIZEOF_ROW)
+#define     Cy_Flash_StartErase              Cy_Flash_StartEraseRow
 
 /** \endcond */
 

@@ -55,7 +55,7 @@ TDBStore includes the following design basics:
 
 All writes occur sequentially on the physical storage as records, superseding the previous ones for the same key. Each data record is written right after the last written one. If a key is updated, a new record with this key is written, overriding the previous value of this key. If a key is deleted, a new record with a "deleted" flag is added.
 
-Writes expect the storage to be erased. However, TDBStore takes the "erase as you go" approcah, meaning that when it crosses a sector boundary, it checks whether the next sector is erased. If not, it erases the next sector. This saves time during initialization and garbage collection. 
+Writes expect the storage to be erased. However, TDBStore takes the "erase as you go" approach, meaning that when it crosses a sector boundary, it checks whether the next sector is erased. If not, it erases the next sector. This saves time during initialization and garbage collection. 
 
 ### Memory layout and areas
 

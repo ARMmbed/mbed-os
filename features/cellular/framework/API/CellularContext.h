@@ -122,6 +122,7 @@ public:
 protected:
     // friend of CellularDevice, so it's the only way to close or delete this class.
     friend class CellularDevice;
+    CellularContext();
     virtual ~CellularContext() {}
 public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
@@ -172,6 +173,11 @@ public: // from NetworkInterface
      */
     static CellularContext *get_default_nonip_instance();
 
+    /** Get pointer to CellularDevice instance. May be null if not AT-layer.
+     *
+     *  @return pointer to CellularDevice instance
+     */
+    CellularDevice *get_device() const;
 
 // Operations, can be sync/async. Also Connect() is this kind of operation, inherited from NetworkInterface above.
 
@@ -277,6 +283,12 @@ public: // from NetworkInterface
      */
     virtual ControlPlane_netif *get_cp_netif() = 0;
 
+    /** Get the pdp context id associated with this context.
+     *
+     *  @return cid
+     */
+    int get_cid() const;
+
 protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,
@@ -309,6 +321,22 @@ protected: // Device specific implementations might need these so protected
      */
     void cp_data_received();
 
+    /** Retry logic after device attached to network. Retry to find and activate pdp context or in case
+     *  of PPP find correct pdp context and open data channel. Retry logic is the same which is used in
+     *  CellularStateMachine.
+     */
+    virtual void do_connect_with_retry();
+
+    /** Helper method to call callback function if it is provided
+     *
+     *  @param status connection status which is parameter in callback function
+     */
+    void call_network_cb(nsapi_connection_status_t status);
+
+    /** Find and activate pdp context or in case of PPP find correct pdp context and open data channel.
+     */
+    virtual void do_connect();
+
     // member variables needed in target override methods
     NetworkStack *_stack; // must be pointer because of PPP
     pdp_type_t _pdp_type;
@@ -327,6 +355,12 @@ protected: // Device specific implementations might need these so protected
     bool _active_high;
 
     ControlPlane_netif *_cp_netif;
+    uint16_t _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
+    int _retry_array_length;
+    int _retry_count;
+    CellularDevice *_device;
+    CellularNetwork *_nw;
+    bool _is_blocking;
 };
 
 /**

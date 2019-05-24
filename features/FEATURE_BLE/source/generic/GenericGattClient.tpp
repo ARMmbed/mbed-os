@@ -966,6 +966,7 @@ GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::GenericGattClient
 	_pal_client->when_transaction_timeout(
 		mbed::callback(this, &GenericGattClient::on_transaction_timeout)
 	);
+	_pal_client->set_event_handler(this);
 }
 
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
@@ -1337,6 +1338,24 @@ void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_att_mtu_c
 		eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
 	}
 }
+
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_write_command_sent_(
+    ble::connection_handle_t connection_handle,
+    ble::attribute_handle_t attribute_handle,
+    uint8_t status
+) {
+    GattWriteCallbackParams response = {
+        connection_handle,
+        attribute_handle,
+        GattWriteCallbackParams::OP_WRITE_CMD,
+        BLE_ERROR_NONE,
+        status
+    };
+
+    this->processWriteResponse(&response);
+}
+
 
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
 void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_termination(connection_handle_t connection_handle) {

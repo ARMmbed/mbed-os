@@ -17,7 +17,7 @@
 #if DEVICE_FLASH
 
 #include "FlashIAPBlockDevice.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #include "mbed_error.h"
 
 using namespace mbed;

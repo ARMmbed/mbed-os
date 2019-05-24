@@ -34,13 +34,14 @@ all compile: lwip_fuzz
 
 CC=afl-gcc
 LDFLAGS=-lm
-CFLAGS=-O0
+# use 'make D=-DUSER_DEFINE' to pass a user define to gcc
+CFLAGS=-O0 $(D)
 
 CONTRIBDIR=../../../lwip-contrib
 include $(CONTRIBDIR)/ports/unix/Common.mk
 
 clean:
-	rm -f *.o $(LWIPLIBCOMMON) lwip_fuzz *.s .depend* *.core core
+	rm -f *.o $(LWIPLIBCOMMON) $(APPLIB) lwip_fuzz *.s .depend* *.core core
 
 depend dep: .depend
 
@@ -49,5 +50,5 @@ include .depend
 .depend: fuzz.c $(LWIPFILES) $(APPFILES)
 	$(CCDEP) $(CFLAGS) -MM $^ > .depend || rm -f .depend
 
-lwip_fuzz: .depend $(LWIPLIBCOMMON) fuzz.o
-	$(CC) $(CFLAGS) -o lwip_fuzz fuzz.o $(LWIPLIBCOMMON) $(LDFLAGS)
+lwip_fuzz: .depend $(LWIPLIBCOMMON) $(APPLIB) fuzz.o
+	$(CC) $(CFLAGS) -o lwip_fuzz fuzz.o $(APPLIB) $(LWIPLIBCOMMON) $(LDFLAGS)

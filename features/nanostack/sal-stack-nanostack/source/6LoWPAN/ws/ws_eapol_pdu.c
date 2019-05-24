@@ -197,12 +197,15 @@ int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, 
     }
     msdu_entry->data_ptr = data;
     msdu_entry->buffer = buffer;
-    msdu_entry->handle = eapol_pdu_data->msdu_handle++;
+    msdu_entry->handle = eapol_pdu_data->msdu_handle;
     ns_list_add_to_start(&eapol_pdu_data->msdu_list, msdu_entry);
 
     memcpy(data_request.DstAddr, eui_64, 8);
     data_request.msdu = data;
     data_request.msduLength = size;
+    data_request.msduHandle = eapol_pdu_data->msdu_handle;
+
+    eapol_pdu_data->msdu_handle++;
 
     eapol_pdu_data->mpx_api->mpx_data_request(eapol_pdu_data->mpx_api, &data_request, eapol_pdu_data->mpx_user_id);
     return 0;

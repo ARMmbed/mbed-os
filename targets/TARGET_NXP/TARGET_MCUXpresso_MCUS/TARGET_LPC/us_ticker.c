@@ -18,6 +18,8 @@
 #include "fsl_ctimer.h"
 #include "PeripheralNames.h"
 
+#if DEVICE_USTICKER
+
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #define CTIMER       CTIMER0
 #define CTIMER_IRQn  CTIMER0_IRQn
@@ -117,3 +119,6 @@ void us_ticker_free(void)
     NVIC_DisableIRQ(CTIMER_IRQn);
     us_ticker_inited = false;
 }
+
+#endif // DEVICE_USTICKER
+

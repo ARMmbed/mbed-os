@@ -144,8 +144,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define MDIOS_PORT_ADDRESS_SHIFT        ((uint32_t)8)
-#define	MDIOS_ALL_REG_FLAG	        ((uint32_t)0xFFFFFFFFU)
-#define	MDIOS_ALL_ERRORS_FLAG           ((uint32_t)(MDIOS_SR_PERF | MDIOS_SR_SERF | MDIOS_SR_TERF))
+#define  MDIOS_ALL_REG_FLAG             ((uint32_t)0xFFFFFFFFU)
+#define  MDIOS_ALL_ERRORS_FLAG          ((uint32_t)(MDIOS_SR_PERF | MDIOS_SR_SERF | MDIOS_SR_TERF))
 
 #define MDIOS_DIN_BASE_ADDR             (MDIOS_BASE + 0x100U)
 #define MDIOS_DOUT_BASE_ADDR            (MDIOS_BASE + 0x180U)
@@ -771,9 +771,42 @@ void HAL_MDIOS_IRQHandler(MDIOS_HandleTypeDef *hmdios)
     }
     hmdios->ErrorCode = HAL_MDIOS_ERROR_NONE;
   }
+#if defined(DUAL_CORE)
 
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    if(__HAL_MDIOS_WAKEUP_EXTI_GET_FLAG(MDIOS_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
+    {
+      /* Clear MDIOS WAKEUP Exti pending bit */
+      __HAL_MDIOS_WAKEUP_EXTI_CLEAR_FLAG(MDIOS_WAKEUP_EXTI_LINE);
+
+#if (USE_HAL_MDIOS_REGISTER_CALLBACKS == 1)
+      /*Call registered WakeUp callback*/
+      hmdios->WakeUpCallback(hmdios);
+#else
+      /* MDIOS WAKEUP callback */
+      HAL_MDIOS_WakeUpCallback(hmdios);
+#endif  /* USE_HAL_MDIOS_REGISTER_CALLBACKS */
+    }
+  }
+  else
+  {
+    if(__HAL_MDIOS_WAKEUP_EXTID2_GET_FLAG(MDIOS_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
+    {
+      /* Clear MDIOS WAKEUP Exti D2 pending bit */
+      __HAL_MDIOS_WAKEUP_EXTID2_CLEAR_FLAG(MDIOS_WAKEUP_EXTI_LINE);
+#if (USE_HAL_MDIOS_REGISTER_CALLBACKS == 1)
+      /*Call registered WakeUp callback*/
+      hmdios->WakeUpCallback(hmdios);
+#else
+      /* MDIOS WAKEUP callback */
+      HAL_MDIOS_WakeUpCallback(hmdios);
+#endif  /* USE_HAL_MDIOS_REGISTER_CALLBACKS */
+    }
+  }
+#else
   /* check MDIOS WAKEUP exti flag */
-  if(__HAL_MDIOS_WAKEUP_EXTI_GET_FLAG(MDIOS_WAKEUP_EXTI_LINE) != RESET)
+  if(__HAL_MDIOS_WAKEUP_EXTI_GET_FLAG(MDIOS_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
   {
     /* Clear MDIOS WAKEUP Exti pending bit */
     __HAL_MDIOS_WAKEUP_EXTI_CLEAR_FLAG(MDIOS_WAKEUP_EXTI_LINE);
@@ -781,10 +814,11 @@ void HAL_MDIOS_IRQHandler(MDIOS_HandleTypeDef *hmdios)
       /*Call registered WakeUp callback*/
       hmdios->WakeUpCallback(hmdios);
 #else
-			/* MDIOS WAKEUP callback */
+      /* MDIOS WAKEUP callback */
       HAL_MDIOS_WakeUpCallback(hmdios);
 #endif  /* USE_HAL_MDIOS_REGISTER_CALLBACKS */
   }
+#endif
 }
 
 /**

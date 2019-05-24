@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
@@ -38,6 +39,7 @@ extern "C" {
 #define thread_extension_bootstrap_free(cur);
 #define thread_extension_bootstrap_device_certificate_set(cur, device_certificate_ptr, device_certificate_len, priv_key_ptr, priv_key_len) (-1)
 #define thread_extension_bootstrap_network_certificate_set(cur, domain_certificate_ptr, domain_certificate_len) (-1)
+#define thread_extension_bootstrap_network_certificate_available(cur) (false)
 #define thread_extension_bootstrap_network_private_key_set(cur, priv_key_ptr, priv_key_len) (-1)
 #define thread_extension_bootstrap_thread_name_set(cur, thread_name) (-1)
 #define thread_extension_bootstrap_commission_start(cur, parent_address, port, done_cb) (-1)

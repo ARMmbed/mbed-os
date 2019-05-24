@@ -12,12 +12,12 @@
         },
 
         "stdio-buffered-serial": {
-            "help": "Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
+            "help": "(Applies if target.console-uart is true.) Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
             "value": false
         },
 
         "stdio-baud-rate": {
-            "help": "Baud rate for stdio",
+            "help": "(Applies if target.console-uart is true.) Baud rate for stdio",
             "value": 9600
         },
 
@@ -130,6 +130,12 @@
         }
     },
     "target_overrides": {
+        "ARM_MUSCA_A1_NS": {
+            "stdio-baud-rate": 115200
+        },
+        "ARM_MUSCA_A1_S": {
+            "stdio-baud-rate": 115200
+        },
         "EFM32": {
             "stdio-baud-rate": 115200
         },
@@ -183,6 +189,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NUMAKER_PFM_NUC472": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
@@ -192,6 +202,10 @@
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F411RE": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
+        "DISCO_F407VG": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         }

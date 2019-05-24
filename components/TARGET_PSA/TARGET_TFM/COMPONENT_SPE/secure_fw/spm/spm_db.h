@@ -8,6 +8,7 @@
 #ifndef __SPM_DB_H__
 #define __SPM_DB_H__
 
+
 #ifdef TFM_PSA_API
 #include "tfm_thread.h"
 #endif
@@ -15,14 +16,12 @@
 struct spm_partition_desc_t;
 struct spm_partition_db_t;
 
-uint32_t get_partition_idx(uint32_t partition_id);
-
-typedef int32_t(*sp_init_function)(void);
+typedef psa_status_t(*sp_init_function)(void);
 
 #define TFM_PARTITION_TYPE_APP   "APPLICATION-ROT"
 #define TFM_PARTITION_TYPE_PSA   "PSA-ROT"
 
-#define TFM_STACK_SIZE  1024
+#define TFM_STACK_SIZE           (1024 * 5)
 
 #ifdef TFM_PSA_API
 enum tfm_partition_priority {

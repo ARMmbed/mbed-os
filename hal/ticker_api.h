@@ -67,6 +67,7 @@ typedef struct {
     void (*fire_interrupt)(void);                 /**< Fire interrupt right-away */
     void (*free)(void);                           /**< Disable function */
     const ticker_info_t *(*get_info)(void);       /**< Return info about this ticker's implementation */
+    bool runs_in_deep_sleep;                      /**< Whether ticker operates in deep sleep */
 } ticker_interface_t;
 
 /** Ticker's event queue structure

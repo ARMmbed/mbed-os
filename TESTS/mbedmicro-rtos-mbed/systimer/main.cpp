@@ -17,10 +17,6 @@
 #error [NOT_SUPPORTED] Tickless mode not supported for this target.
 #endif
 
-#if !DEVICE_LPTICKER
-#error [NOT_SUPPORTED] Current SysTimer implementation requires lp ticker support.
-#endif
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"

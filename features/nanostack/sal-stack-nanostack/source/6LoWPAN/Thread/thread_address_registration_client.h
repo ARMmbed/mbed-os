@@ -34,6 +34,7 @@
 #ifdef HAVE_THREAD_V2
 
 void thread_address_registration_init(void);
+bool thread_address_registration_running(void);
 void thread_address_registration_deinit(void);
 
 void thread_address_registration_timer_set(protocol_interface_info_entry_t *interface, uint16_t dua_delay_seconds, uint16_t mlr_refresh_seconds);
@@ -41,6 +42,7 @@ void thread_address_registration_timer(protocol_interface_info_entry_t *interfac
 #else
 
 #define thread_address_registration_init(void)
+#define thread_address_registration_running(void)
 #define thread_address_registration_deinit(void)
 
 #define thread_address_registration_timer_set(interface, dua_delay_seconds, mlr_refresh_seconds);

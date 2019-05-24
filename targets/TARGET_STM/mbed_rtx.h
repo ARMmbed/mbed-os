@@ -102,7 +102,8 @@
 #elif (defined(TARGET_STM32F429ZI) ||\
        defined(TARGET_STM32F437VG) ||\
        defined(TARGET_STM32F439VI) ||\
-       defined(TARGET_STM32F439ZI))
+       defined(TARGET_STM32F439ZI) ||\
+       defined(TARGET_STM32WB55RG))
 #define INITIAL_SP              (0x20030000UL)
 
 #elif defined(TARGET_STM32F412ZG)
@@ -118,6 +119,7 @@
 #define INITIAL_SP              (0x20050000UL)
 
 #elif (defined(TARGET_STM32F767ZI) ||\
+       defined(TARGET_STM32F767VI) ||\
        defined(TARGET_STM32F769NI))
 #define INITIAL_SP              (0x20080000UL)
 
@@ -135,6 +137,15 @@
 #undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
 #endif
 #define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
+#endif
+
+#if (defined(TARGET_STM32L475VG) || defined(TARGET_STM32L443RC))
+#if defined(__ARMCC_VERSION)
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
+#define HEAP_START            Image$$ARM_LIB_HEAP$$ZI$$Base
+#define HEAP_SIZE             Image$$ARM_LIB_HEAP$$ZI$$Length
+#endif
 #endif
 
 #endif  // MBED_MBED_RTX_H

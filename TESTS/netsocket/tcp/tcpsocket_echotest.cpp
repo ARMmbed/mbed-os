@@ -59,6 +59,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_ECHOTEST()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     if (tcpsocket_connect_to_echo_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
         return;
@@ -66,23 +67,25 @@ void TCPSOCKET_ECHOTEST()
 
     int recvd;
     int sent;
-    int x = 0;
-    for (int pkt_s = pkt_sizes[x]; x < PKTS; pkt_s = pkt_sizes[x++]) {
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
+        int pkt_s = pkt_sizes[s_idx];
         fill_tx_buffer_ascii(tcp_global::tx_buffer, BUFF_SIZE);
-
         sent = sock.send(tcp_global::tx_buffer, pkt_s);
         if (sent < 0) {
-            printf("[Round#%02d] network error %d\n", x, sent);
+            printf("[Round#%02d] network error %d\n", s_idx, sent);
             TEST_FAIL();
-            TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
-            return;
+            break;
+        } else if (sent != pkt_s) {
+            printf("[%02d] sock.send return size %d does not match the expectation %d\n", s_idx, sent, pkt_s);
+            TEST_FAIL();
+            break;
         }
 
         int bytes2recv = sent;
         while (bytes2recv) {
             recvd = sock.recv(&(tcp_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", x, recvd);
+                printf("[Round#%02d] network error %d\n", s_idx, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
                 return;
@@ -127,13 +130,7 @@ void tcpsocket_echotest_nonblock_receive()
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    int j = 0;
-    int count = fetch_stats();
-    for (; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
-    }
-#endif
+    SKIP_IF_TCP_UNSUPPORTED();
     tc_exec_time.start();
     time_allotted = split2half_rmng_tcp_test_time(); // [s]
 
@@ -146,7 +143,6 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
 
     int bytes2send;
     int sent;
-    int s_idx = 0;
     receive_error = false;
     unsigned char *stack_mem = (unsigned char *)malloc(tcp_global::TCP_OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
@@ -157,8 +153,8 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
 
     TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
 
-    for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
-        pkt_s = pkt_sizes[s_idx];
+    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+        int pkt_s = pkt_sizes[s_idx];
         bytes2recv = pkt_s;
         bytes2recv_total = pkt_s;
 
@@ -182,7 +178,8 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
             bytes2send -= sent;
         }
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-        count = fetch_stats();
+        int count = fetch_stats();
+        int j;
         for (j = 0; j < count; j++) {
             if ((tcp_stats[j].state == SOCK_OPEN) && (tcp_stats[j].proto == NSAPI_TCP)) {
                 break;

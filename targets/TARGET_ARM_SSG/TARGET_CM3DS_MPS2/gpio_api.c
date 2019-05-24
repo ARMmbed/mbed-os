@@ -101,6 +101,13 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     struct arm_gpio_dev_t *gpio_dev;
 
+    if (pin == NC) {
+        obj->pin_number = NC;
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = NULL;
+        return;
+    }
+
     if (pin >= EXP0 && pin <= EXP51) {
         /* GPIO pins */
         switch (GPIO_DEV_NUMBER(pin)) {

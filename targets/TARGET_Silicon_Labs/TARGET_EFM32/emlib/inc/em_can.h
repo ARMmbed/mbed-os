@@ -1,32 +1,31 @@
 /***************************************************************************//**
- * @file em_can.h
+ * @file
  * @brief Controller Area Network API
- * @version 5.3.3
+ * @version 5.7.2
  *******************************************************************************
  * # License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
+ *
+ * SPDX-License-Identifier: Zlib
+ *
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- *
- * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
- * obligation to support this Software. Silicon Labs is providing the
- * Software "AS IS", with no express or implied warranties of any kind,
- * including, but not limited to, any implied warranties of merchantability
- * or fitness for any particular purpose or warranties against infringement
- * of any proprietary rights of a third party.
- *
- * Silicon Labs will not be liable for any consequential, incidental, or
- * special damages, or any other relief, or for any claim by any third party,
- * arising from your use of this Software.
  *
  ******************************************************************************/
 
@@ -61,9 +60,9 @@ extern "C" {
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
-/** CAN Status codes */
+/** CAN Status codes. */
 typedef enum {
-  /** No error occurred during last CAN bus event. */
+  /** No error occurred during the last CAN bus event. */
   canErrorNoError  = CAN_STATUS_LEC_NONE,
 
   /**
@@ -78,36 +77,36 @@ typedef enum {
   /** The message this CAN Core transmitted was not acknowledged by another node. */
   canErrorAck      = CAN_STATUS_LEC_ACK,
 
-  /** Wrong monitored bus value : dominant when the module wanted to send a recessive. */
+  /** A wrong monitored bus value : dominant when the module wants to send a recessive. */
   canErrorBit1     = CAN_STATUS_LEC_BIT1,
 
-  /** Wrong monitored bus value : recessive when the module intended to send a dominant. */
+  /** A wrong monitored bus value : recessive when the module intends to send a dominant. */
   canErrorBit0     = CAN_STATUS_LEC_BIT0,
 
   /** CRC check sum incorrect. */
   canErrorCrc      = CAN_STATUS_LEC_CRC,
 
-  /** Unused. No new error since the cpu wrote this value */
+  /** Unused. No new error since the CPU wrote this value. */
   canErrorUnused   = CAN_STATUS_LEC_UNUSED
 } CAN_ErrorCode_TypeDef;
 
-/** CAN peripheral mode */
+/** CAN peripheral mode. */
 typedef enum {
-  /** CAN peripheral in Normal mode : ready to send and receive messages */
+  /** CAN peripheral in Normal mode : ready to send and receive messages. */
   canModeNormal,
 
-  /** CAN peripheral in Basic mode : no use of the RAM */
+  /** CAN peripheral in Basic mode : no use of the RAM. */
   canModeBasic,
 
   /**
    * CAN peripheral in Loopback mode : input from the CAN bus is disregarded
-   * and comes from TX instead
+   * and comes from TX instead.
    */
   canModeLoopBack,
 
   /**
    * CAN peripheral in SilentLoopback mode : input from the CAN bus is
-   * disregarded and comes from TX instead ; no output on the CAN bus
+   * disregarded and comes from TX instead ; no output on the CAN bus.
    */
   canModeSilentLoopBack,
 
@@ -122,57 +121,57 @@ typedef enum {
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** CAN Message Object TypeDef structure. LSBs is used */
+/** CAN Message Object TypeDef structure. LSBs is used. */
 typedef struct {
-  /** Message number of this Message Object, [1 - 32] */
+  /** A message number of this Message Object, [1 - 32]. */
   uint8_t   msgNum;
 
-  /** Id extended if true, standard if false  */
+  /** ID extended if true, standard if false.  */
   bool      extended;
 
   /**
-   * Id of the message, with 11 bits (standard) or 28 bits (extended).
-   * LSBs are used for both of them
+   * ID of the message with 11 bits (standard) or 28 bits (extended).
+   * LSBs are used for both.
    */
   uint32_t  id;
 
-  /** Data Length Code [0 - 8]  */
+  /** Data Length Code [0 - 8].  */
   uint8_t   dlc;
 
-  /** Pointer to the data, [0 - 8] bytes  */
+  /** A pointer to data, [0 - 8] bytes.  */
   uint8_t   data[8];
 
-  /** Mask for id filtering */
+  /** A mask for ID filtering. */
   uint32_t  mask;
 
-  /** Enable the use of 'extended' value for filtering */
+  /** Enable the use of 'extended' value for filtering. */
   bool      extendedMask;
 
-  /** Enable the use of 'direction' value for filtering */
+  /** Enable the use of 'direction' value for filtering. */
   bool      directionMask;
 } CAN_MessageObject_TypeDef;
 
 /** CAN initialization structure. */
 typedef struct {
-  /** true to set the CAN Device in normal mode after init */
+  /** True to set the CAN Device in normal mode after initialization. */
   bool      enable;
 
-  /** True to reset messages during initialization */
+  /** True to reset messages during initialization. */
   bool      resetMessages;
 
-  /** Default bitrate */
+  /** Default bitrate. */
   uint32_t  bitrate;
 
-  /** Default Propagation Time Segment */
+  /** Default Propagation Time Segment. */
   uint8_t   propagationTimeSegment;
 
-  /** Default Phase Buffer Segment 1 */
+  /** Default Phase Buffer Segment 1. */
   uint8_t   phaseBufferSegment1;
 
-  /** Default Phase Buffer Segment 2 */
+  /** Default Phase Buffer Segment 2. */
   uint8_t   phaseBufferSegment2;
 
-  /** Default Synchronisation Jump Width */
+  /** Default Synchronisation Jump Width. */
   uint8_t   synchronisationJumpWidth;
 } CAN_Init_TypeDef;
 
@@ -180,17 +179,17 @@ typedef struct {
  * Default initialization of CAN_Init_TypeDef. The total duration of a bit with
  * these default parameters is 10 tq (time quantum : tq = brp/fsys, brp being
  * the baudrate prescaler and being set according to the wanted bitrate, fsys
- * beeing the CAN Device frequency).
+ * beeing the CAN device frequency).
  */
-#define CAN_INIT_DEFAULT                                           \
-  {                                                                \
-    true,     /** Set the CAN Device in normal mode after init  */ \
-    true,     /** Reset messages during initialization          */ \
-    100000,   /** Set bitrate to 100 000                        */ \
-    1,        /** Set the Propagation Time Segment to 1         */ \
-    4,        /** Set the Phase Buffer Segment 1 to 4           */ \
-    4,        /** Set the Phase Buffer Segment 2 to 4           */ \
-    1         /** Set the Synchronization Jump Width to 1       */ \
+#define CAN_INIT_DEFAULT                                                      \
+  {                                                                           \
+    true,     /** Set the CAN Device in normal mode after initialization.  */ \
+    true,     /** Reset messages during initialization.         */            \
+    100000,   /** Set bitrate to 100 000                        */            \
+    1,        /** Set the Propagation Time Segment to 1.         */           \
+    4,        /** Set the Phase Buffer Segment 1 to 4.           */           \
+    4,        /** Set the Phase Buffer Segment 2 to 4.           */           \
+    1         /** Set the Synchronization Jump Width to 1.       */           \
   }
 
 /*******************************************************************************
@@ -264,11 +263,11 @@ void CAN_SendRequest(CAN_TypeDef *can,
  *   Enable the Host Controller to send messages.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] enable
- *   true to enable CAN device, false to disable it. If the CAN device is
- *   enabled, it goes in normal mode (the default working mode).
+ *   True to enable CAN device, false to disable it. If the CAN device is
+ *   enabled, it goes to normal mode (the default working mode).
  ******************************************************************************/
 __STATIC_INLINE void CAN_Enable(CAN_TypeDef *can, bool enable)
 {
@@ -277,13 +276,13 @@ __STATIC_INLINE void CAN_Enable(CAN_TypeDef *can, bool enable)
 
 /***************************************************************************//**
  * @brief
- *   Gives the communication capabilities state.
+ *   Give the communication capabilities state.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
- *   true if the Host Controller can send messages, false otherwise.
+ *   True if the Host Controller can send messages, false otherwise.
  ******************************************************************************/
 __STATIC_INLINE bool CAN_IsEnabled(CAN_TypeDef *can)
 {
@@ -295,7 +294,7 @@ __STATIC_INLINE bool CAN_IsEnabled(CAN_TypeDef *can)
  *   Waiting function.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] interface
  *   Indicate which Message Interface Register to use.
@@ -328,13 +327,13 @@ __STATIC_INLINE CAN_ErrorCode_TypeDef CAN_GetLastErrorCode(CAN_TypeDef *can)
 
 /***************************************************************************//**
  * @brief
- *   Indicates which messages objects have received new data.
+ *   Indicates which message objects have received new data.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
- *   State of MESSAGEDATA register indicating which messages objects have received
+ *   State of MESSAGEDATA register indicating which message objects have received
  *   new data.
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_HasNewdata(CAN_TypeDef *can)
@@ -347,7 +346,7 @@ __STATIC_INLINE uint32_t CAN_HasNewdata(CAN_TypeDef *can)
  *   Clear one or more pending CAN status interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   Pending CAN status interrupt source(s) to clear.
@@ -362,7 +361,7 @@ __STATIC_INLINE void CAN_StatusIntClear(CAN_TypeDef *can, uint32_t flags)
  *   Disable CAN status interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN status interrupt source(s) to disable.
@@ -377,7 +376,7 @@ __STATIC_INLINE void CAN_StatusIntDisable(CAN_TypeDef *can, uint32_t flags)
  *   Enable CAN status interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN status interrupt source(s) to enable.
@@ -392,10 +391,10 @@ __STATIC_INLINE void CAN_StatusIntEnable(CAN_TypeDef *can, uint32_t flags)
  *   Get pending CAN status interrupt flags.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   This function does not clear event bits.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
  *   CAN interrupt source(s) pending.
@@ -410,10 +409,10 @@ __STATIC_INLINE uint32_t CAN_StatusIntGet(CAN_TypeDef *can)
  *   Get pending and enabled CAN status interrupt flags.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   This function does not clear event bits.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
  *   CAN interrupt source(s) pending and enabled.
@@ -431,7 +430,7 @@ __STATIC_INLINE uint32_t CAN_StatusIntGetEnabled(CAN_TypeDef *can)
  *   Set one or more CAN status interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN status interrupt source(s) to set to pending.
@@ -446,10 +445,10 @@ __STATIC_INLINE void CAN_StatusIntSet(CAN_TypeDef *can, uint32_t flags)
  *   Get CAN status.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
- *   Value of CAN register STATUS.
+ *   A value of CAN register STATUS.
  ******************************************************************************/
 __STATIC_INLINE uint32_t CAN_StatusGet(CAN_TypeDef *can)
 {
@@ -461,7 +460,7 @@ __STATIC_INLINE uint32_t CAN_StatusGet(CAN_TypeDef *can)
  *   Clear CAN status.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN status bits to clear.
@@ -476,7 +475,7 @@ __STATIC_INLINE void CAN_StatusClear(CAN_TypeDef *can, uint32_t flags)
  *   Get the error count.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
  *   Error count.
@@ -491,7 +490,7 @@ __STATIC_INLINE uint32_t CAN_GetErrorCount(CAN_TypeDef *can)
  *   Clear one or more pending CAN message interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   Pending CAN message interrupt source(s) to clear.
@@ -506,7 +505,7 @@ __STATIC_INLINE void CAN_MessageIntClear(CAN_TypeDef *can, uint32_t flags)
  *   Disable CAN message interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN message interrupt source(s) to disable.
@@ -521,7 +520,7 @@ __STATIC_INLINE void CAN_MessageIntDisable(CAN_TypeDef *can, uint32_t flags)
  *   Enable CAN message interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
  *   CAN message interrupt source(s) to enable.
@@ -536,10 +535,10 @@ __STATIC_INLINE void CAN_MessageIntEnable(CAN_TypeDef *can, uint32_t flags)
  *   Get pending CAN message interrupt flags.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   This function does not clear event bits.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
  *   CAN message interrupt source(s) pending.
@@ -554,10 +553,10 @@ __STATIC_INLINE uint32_t CAN_MessageIntGet(CAN_TypeDef *can)
  *   Get CAN message interrupt flags that are pending and enabled.
  *
  * @note
- *   The event bits are not cleared by the use of this function.
+ *   This function does not clear event bits.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @return
  *   CAN message interrupt source(s) pending and enabled.
@@ -575,10 +574,10 @@ __STATIC_INLINE uint32_t CAN_MessageIntGetEnabled(CAN_TypeDef *can)
  *   Set one or more CAN message interrupts.
  *
  * @param[in] can
- *   Pointer to CAN peripheral register block.
+ *   A pointer to the CAN peripheral register block.
  *
  * @param[in] flags
- *   CAN message interrupt source(s) to set to pending.
+ *   CAN message interrupt source(s) to set as pending.
  ******************************************************************************/
 __STATIC_INLINE void CAN_MessageIntSet(CAN_TypeDef *can, uint32_t flags)
 {

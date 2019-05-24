@@ -11,9 +11,9 @@
 #include "cmsis.h"
 #include "psa_client.h"
 #include "psa_service.h"
-#include "secure_utilities.h"
 #include "tfm_utils.h"
 #include "tfm_thread.h"
+#include "tfm_memory_utils.h"
 
 /* This file contains the ARCH code for ARM V8M */
 
@@ -91,9 +91,10 @@ void tfm_initialize_context(struct tfm_state_context *ctx,
  * thread SP/SP_LIMIT. R2 holds dummy data due to stack operation is 8 bytes
  * aligned.
  */
+#if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) void PendSV_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
         "mrs     r0, psp                    \n"
         "mrs     r1, psplim                 \n"
         "push    {r0, r1, r2, lr}           \n"
@@ -107,18 +108,49 @@ __attribute__((naked)) void PendSV_Handler(void)
         "bx      lr                         \n"
     );
 }
+#elif defined(__ARM_ARCH_8M_BASE__)
+__attribute__((naked)) void PendSV_Handler(void)
+{
+    __ASM volatile(
+        "mrs     r0, psp                    \n"
+        "mrs     r1, psplim                 \n"
+        "push    {r0, r1, r2, lr}           \n"
+        "push    {r4-r7}                    \n"
+        "mov     r4, r8                     \n"
+        "mov     r5, r9                     \n"
+        "mov     r6, r10                    \n"
+        "mov     r7, r11                    \n"
+        "push    {r4-r7}                    \n"
+        "mov     r0, sp                     \n"
+        "bl      tfm_pendsv_do_schedule     \n"
+        "pop     {r4-r7}                    \n"
+        "mov     r8, r4                     \n"
+        "mov     r9, r5                     \n"
+        "mov     r10, r6                    \n"
+        "mov     r11, r7                    \n"
+        "pop     {r4-r7}                    \n"
+        "pop     {r0-r3}                    \n"
+        "mov     lr, r3                     \n"
+        "msr     psp, r0                    \n"
+        "msr     psplim, r1                 \n"
+        "bx      lr                         \n"
+    );
+}
+#else
+#error "Unsupported ARM Architecture."
+#endif
 
 /* Reserved for future usage */
 __attribute__((naked)) void MemManage_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }
 
 __attribute__((naked)) void BusFault_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }
 __attribute__((naked)) void UsageFault_Handler(void)
 {
-    __ASM("b    .");
+    __ASM volatile("b    .");
 }

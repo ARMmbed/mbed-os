@@ -64,5 +64,5 @@ nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTe
         }
     }
 
-    return(ret);
+    return (ret);
 }

@@ -159,8 +159,12 @@ nsapi_error_t RDAWiFiInterface::disconnect()
     if(sta_state < 2) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
+    void* wifi_disconnect_sem = rda_sem_create(0);
     msg.type = WLAND_DISCONNECT;
+    msg.arg1 = (unsigned int)wifi_disconnect_sem;
     rda_mail_put(wland_msgQ, (void*)&msg, osWaitForever);
+    rda_sem_wait(wifi_disconnect_sem, osWaitForever);
+    rda_sem_delete(wifi_disconnect_sem);
     if (_interface) {
         return _interface->bringdown();
     }

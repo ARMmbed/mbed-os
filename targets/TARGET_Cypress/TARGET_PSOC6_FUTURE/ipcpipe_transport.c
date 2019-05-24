@@ -17,8 +17,7 @@
 
 #include "ipcpipe_transport.h"
 #include "cy_ipc_config.h"
-#include "ipc/cy_ipc_pipe.h"
-//#include "syspm/cy_syspm.h"
+#include "cy_ipc_pipe.h"
 
 #ifdef __cplusplus
 extern "C" {

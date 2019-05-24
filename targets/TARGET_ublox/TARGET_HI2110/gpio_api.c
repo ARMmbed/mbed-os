@@ -36,13 +36,13 @@
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
+    obj->pin = pin;
     if (pin == (PinName)NC) {
         return;
     }
     
     MBED_ASSERT (pin <  NUM_PINS);
 
-    obj->pin = pin;
     obj->mask = (1ul << pin);
 
     obj->reg_set = &GPIO_OUT_BITSET;

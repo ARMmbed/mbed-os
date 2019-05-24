@@ -18,7 +18,6 @@
 #ifndef CELLULAR_DEVICE_H_
 #define CELLULAR_DEVICE_H_
 
-#include "CellularTargets.h"
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
@@ -63,8 +62,9 @@ public:
         SimStateUnknown
     };
 
-    /** Returns singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
-     *  defined, then it returns NULL. See NetworkInterface::get_default_instance for details.
+    /** Returns singleton instance of CellularDevice, if Mbed target board has a supported
+     *  onboard modem, or provide-default is defined for a cellular driver in JSON configuration
+     *  files. Otherwise returns NULL. See NetworkInterface::get_default_instance for details.
      *
      *  @remark Application may override this (non-weak) default implementation.
      *
@@ -332,9 +332,25 @@ public:
 
     /** Set the default response timeout.
      *
+     *  @remark CellularStateMachine timeouts for all states are also changed to `timeout`.
+     *
      *  @param timeout    milliseconds to wait response from modem
      */
     virtual void set_timeout(int timeout) = 0;
+
+    /** Set an array of timeouts to wait before CellularStateMachine retries after failure.
+     *  To disable retry behavior completely use `set_retry_timeout_array(NULL, 0)`.
+     *  CellularContext callback event `cell_callback_data_t.final_try` indicates true when all retries have failed.
+     *
+     *  @remark Use `set_retry_timeout_array` for CellularStateMachine to wait before it retries again after failure,
+     *          this is useful to send repetitive requests when don't know exactly when modem is ready to accept requests.
+     *          Use `set_timeout` for timeout how long to wait for a response from modem for each request,
+     *          this is useful if modem can accept requests but processing takes long time before sending response.
+     *
+     *  @param timeout      timeout array using seconds
+     *  @param array_len    length of the array
+     */
+    void set_retry_timeout_array(const uint16_t timeout[], int array_len);
 
     /** Turn modem debug traces on
      *
@@ -418,13 +434,23 @@ public:
 protected:
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;
+    friend class CellularContext;
+
+    /** Get the retry array from the CellularStateMachine. Array is used in retry logic.
+     *  Array contains seconds and retry logic uses those second to wait before trying again.
+     *
+     *  @param timeout      timeout array containing seconds for retry logic. Must have space for
+     *                      CELLULAR_RETRY_ARRAY_SIZE (defined in CellularCommon.h)
+     *  @param array_len    length of the timeout array on return
+     */
+    void get_retry_timeout_array(uint16_t *timeout, int &array_len) const;
 
     /** Cellular callback to be attached to Network and CellularStateMachine classes.
      *  CellularContext calls this when in PPP mode to provide network changes.
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
-    void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
     void stm_callback(nsapi_event_t ev, intptr_t ptr);
     int _network_ref_count;
     int _sms_ref_count;

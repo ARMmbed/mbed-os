@@ -417,4 +417,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_ready_cb)
 
     dev->set_ready_cb(&device_ready_cb);
     dev->set_ready_cb(0);
+
+    delete dev;
 }

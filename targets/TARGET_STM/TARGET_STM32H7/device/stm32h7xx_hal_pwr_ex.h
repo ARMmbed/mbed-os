@@ -135,6 +135,17 @@ typedef struct
   * @}
   */
 
+#if defined(DUAL_CORE)
+/** @defgroup PWREx_Core_Select PWREx Core definition
+  * @{
+  */
+#define PWR_CORE_CPU1  ((uint32_t)0x00000000U)
+#define PWR_CORE_CPU2  ((uint32_t)0x00000001U)
+/**
+  * @}
+  */
+#endif /*DUAL_CORE*/
+
 /** @defgroup PWREx_Domains PWREx Domains definition
   * @{
   */
@@ -148,7 +159,12 @@ typedef struct
 /** @defgroup PWREx_Domain_Flags PWREx Domain Flags definition
   * @{
   */
+#if defined(DUAL_CORE)
+#define PWR_D1_DOMAIN_FLAGS  ((uint32_t)0x00000000U)
+#define PWR_D2_DOMAIN_FLAGS  ((uint32_t)0x00000001U)
+#else
 #define PWR_CPU_FLAGS        ((uint32_t)0x00000000U)
+#endif /*DUAL_CORE*/
 /**
   * @}
   */
@@ -167,8 +183,23 @@ typedef struct
   * @{
   */
 #define PWR_LDO_SUPPLY                      PWR_CR3_LDOEN                                                               /*!< Core domains are suppplied from the LDO                                                                     */
-#define PWR_EXTERNAL_SOURCE_SUPPLY          PWR_CR3_BYPASS                                                              /*!< the LDO Bypass. The Core domain is supplied from an external source                 */
+#if defined(SMPS)
+#define PWR_DIRECT_SMPS_SUPPLY              PWR_CR3_SMPSEN                                                              /*!< Core domains are suppplied from the SMPS only                                                               */
+#define PWR_SMPS_1V8_SUPPLIES_LDO           (PWR_CR3_SMPSLEVEL_0 | PWR_CR3_SMPSEN | PWR_CR3_LDOEN)                      /*!< The SMPS 1.8V output supplies the LDO which supplies the Core domains                                       */
+#define PWR_SMPS_2V5_SUPPLIES_LDO           (PWR_CR3_SMPSLEVEL_1 | PWR_CR3_SMPSEN | PWR_CR3_LDOEN)                      /*!< The SMPS 2.5V output supplies the LDO which supplies the Core domains                                       */
+#define PWR_SMPS_1V8_SUPPLIES_EXT_AND_LDO   (PWR_CR3_SMPSLEVEL_0 | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_LDOEN)  /*!< The SMPS 1.8V output supplies an external circuits and the LDO. The Core domains are suppplied from the LDO */
+#define PWR_SMPS_2V5_SUPPLIES_EXT_AND_LDO   (PWR_CR3_SMPSLEVEL_1 | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_LDOEN)  /*!< The SMPS 2.5V output supplies an external circuits and the LDO. The Core domains are suppplied from the LDO */
+#define PWR_SMPS_1V8_SUPPLIES_EXT           (PWR_CR3_SMPSLEVEL_0 | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_BYPASS) /*!< The SMPS 1.8V output supplies an external source which supplies the Core domains                            */
+#define PWR_SMPS_2V5_SUPPLIES_EXT           (PWR_CR3_SMPSLEVEL_1 | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_BYPASS) /*!< The SMPS 2.5V output supplies an external source which supplies the Core domains                            */
+#endif /* SMPS */
+#define PWR_EXTERNAL_SOURCE_SUPPLY          PWR_CR3_BYPASS                                                              /*!< The SMPS disabled and the LDO Bypass. The Core domains are supplied from an external source                 */
+
+#if defined(SMPS)
+#define PWR_SUPPLY_CONFIG_MASK               (PWR_CR3_SMPSLEVEL | PWR_CR3_SMPSEXTHP | \
+                                              PWR_CR3_SMPSEN | PWR_CR3_LDOEN | PWR_CR3_BYPASS)
+#else
 #define PWR_SUPPLY_CONFIG_MASK               (PWR_CR3_SCUEN | PWR_CR3_LDOEN | PWR_CR3_BYPASS)
+#endif /* SMPS */
 /**
   * @}
   */
@@ -258,11 +289,27 @@ typedef struct
   */
 #define __HAL_PWR_AVD_EXTI_ENABLE_IT()  SET_BIT(EXTI->IMR1, PWR_EXTI_LINE_AVD)
 
+#if defined(DUAL_CORE)
+/**
+  * @brief Enable the AVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_AVD_EXTID2_ENABLE_IT()  SET_BIT(EXTI_D2->IMR1, PWR_EXTI_LINE_AVD)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief Disable the AVD EXTI Line 16
   * @retval None.
   */
 #define __HAL_PWR_AVD_EXTI_DISABLE_IT()  CLEAR_BIT(EXTI->IMR1, PWR_EXTI_LINE_AVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief Disable the AVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_AVD_EXTID2_DISABLE_IT()  CLEAR_BIT(EXTI_D2->IMR1, PWR_EXTI_LINE_AVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief   Enable event on AVD EXTI Line 16.
@@ -270,11 +317,27 @@ typedef struct
   */
 #define __HAL_PWR_AVD_EXTI_ENABLE_EVENT()  SET_BIT(EXTI->EMR1, PWR_EXTI_LINE_AVD)
 
+#if defined(DUAL_CORE)
+/**
+  * @brief   Enable event on AVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_AVD_EXTID2_ENABLE_EVENT()  SET_BIT(EXTI_D2->EMR1, PWR_EXTI_LINE_AVD)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief   Disable event on AVD EXTI Line 16.
   * @retval None.
   */
 #define __HAL_PWR_AVD_EXTI_DISABLE_EVENT()  CLEAR_BIT(EXTI->EMR1, PWR_EXTI_LINE_AVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief   Disable event on AVD EXTI D2 Line 16.
+  * @retval None.
+  */
+#define __HAL_PWR_AVD_EXTID2_DISABLE_EVENT()  CLEAR_BIT(EXTI_D2->EMR1, PWR_EXTI_LINE_AVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Enable the AVD Extended Interrupt Rising Trigger.
@@ -327,11 +390,27 @@ do { \
   */
 #define __HAL_PWR_AVD_EXTI_GET_FLAG()  ((READ_BIT(EXTI->PR1, PWR_EXTI_LINE_AVD) == PWR_EXTI_LINE_AVD) ? SET : RESET)
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Check whether the specified AVD EXTI D2 interrupt flag is set or not.
+  * @retval EXTI D2 AVD Line Status.
+  */
+#define __HAL_PWR_AVD_EXTID2_GET_FLAG()  ((READ_BIT(EXTI_D2->PR1, PWR_EXTI_LINE_AVD) == PWR_EXTI_LINE_AVD) ? SET : RESET)
+#endif /*DUAL_CORE*/
+
 /**
   * @brief  Clear the AVD EXTI flag.
   * @retval None.
   */
 #define __HAL_PWR_AVD_EXTI_CLEAR_FLAG()  SET_BIT(EXTI->PR1, PWR_EXTI_LINE_AVD)
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Clear the AVD EXTI D2 flag.
+  * @retval None.
+  */
+#define __HAL_PWR_AVD_EXTID2_CLEAR_FLAG()  SET_BIT(EXTI_D2->PR1, PWR_EXTI_LINE_AVD)
+#endif /*DUAL_CORE*/
 
 /**
   * @}
@@ -364,6 +443,15 @@ uint32_t HAL_PWREx_GetStopModeVoltageRange(void);
 void HAL_PWREx_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry, uint32_t Domain);
 void HAL_PWREx_EnterSTANDBYMode(uint32_t Domain);
 void HAL_PWREx_ConfigD3Domain(uint32_t D3State);
+
+#if defined(DUAL_CORE)
+void HAL_PWREx_ClearDomainFlags(uint32_t DomainFlags);
+
+/* Power core holding functions */
+HAL_StatusTypeDef HAL_PWREx_HoldCore(uint32_t CPU);
+void HAL_PWREx_ReleaseCore(uint32_t CPU);
+
+#endif /*DUAL_CORE*/
 
 /* Clear pending event function */
 void HAL_PWREx_ClearPendingEvent(void);
@@ -445,8 +533,21 @@ void HAL_PWREx_AVDCallback(void);
 /** @defgroup PWREx_IS_PWR_Definitions PWREx Private macros to check input parameters
   * @{
   */
+#if defined(SMPS)
+#define IS_PWR_SUPPLY(PWR_SOURCE)  (((PWR_SOURCE) == PWR_LDO_SUPPLY)                    || \
+                                    ((PWR_SOURCE) == PWR_DIRECT_SMPS_SUPPLY)            || \
+                                    ((PWR_SOURCE) == PWR_SMPS_1V8_SUPPLIES_LDO)         || \
+                                    ((PWR_SOURCE) == PWR_SMPS_2V5_SUPPLIES_LDO)         || \
+                                    ((PWR_SOURCE) == PWR_SMPS_1V8_SUPPLIES_EXT_AND_LDO) || \
+                                    ((PWR_SOURCE) == PWR_SMPS_2V5_SUPPLIES_EXT_AND_LDO) || \
+                                    ((PWR_SOURCE) == PWR_SMPS_1V8_SUPPLIES_EXT)         || \
+                                    ((PWR_SOURCE) == PWR_SMPS_2V5_SUPPLIES_EXT)         || \
+                                    ((PWR_SOURCE) == PWR_EXTERNAL_SOURCE_SUPPLY))
+
+#else
 #define IS_PWR_SUPPLY(PWR_SOURCE)  (((PWR_SOURCE) == PWR_LDO_SUPPLY) || \
                                     ((PWR_SOURCE) == PWR_EXTERNAL_SOURCE_SUPPLY))
+#endif /*SMPS*/
 
 #define IS_PWR_STOP_MODE_REGULATOR_VOLTAGE(VOLTAGE)  (((VOLTAGE) == PWR_REGULATOR_SVOS_SCALE3)  || \
                                                       ((VOLTAGE) == PWR_REGULATOR_SVOS_SCALE4)  || \
@@ -503,6 +604,15 @@ void HAL_PWREx_AVDCallback(void);
                                                    ((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_1_5))
 
 #define IS_PWR_D1_CPU(CPU) ((CPU) == CM7_CPUID)
+
+#if defined(DUAL_CORE)
+#define IS_PWR_CORE(CPU)  (((CPU) == PWR_CORE_CPU1) || ((CPU) == PWR_CORE_CPU2))
+
+#define IS_PWR_D2_CPU(CPU) ((CPU) == CM4_CPUID)
+
+#define IS_PWR_DOMAIN_FLAG(FLAG)  (((FLAG) == PWR_D1_DOMAIN_FLAGS) || \
+                                   ((FLAG) == PWR_D2_DOMAIN_FLAGS))
+#endif /*DUAL_CORE*/
 
 /**
   * @}

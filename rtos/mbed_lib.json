@@ -21,12 +21,22 @@
          "idle-thread-stack-size-tickless-extra": {
             "help": "Additional size to add to the idle thread when tickless is enabled and LPTICKER_DELAY_TICKS is used",
             "value": 256
+         },
+         "idle-thread-stack-size-debug-extra": {
+            "help": "Additional size to add to the idle thread when code compilation optimisation is disabled",
+            "value": 0
          }
     },
     "macros": ["_RTE_"],
     "target_overrides": {
         "*": {
             "target.boot-stack-size": "0x400"
+        },
+        "STM": {
+            "idle-thread-stack-size-debug-extra": 128
+        },
+        "STM32L1": {
+            "idle-thread-stack-size-debug-extra": 512
         },
 	    "MCU_NRF51": {
 	        "target.boot-stack-size": "0x800"

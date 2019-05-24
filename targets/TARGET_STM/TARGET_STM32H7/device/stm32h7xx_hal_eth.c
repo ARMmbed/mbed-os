@@ -1214,6 +1214,11 @@ HAL_StatusTypeDef HAL_ETH_GetRxDataBuffer(ETH_HandleTypeDef *heth, ETH_BufferTyp
       /* No data to be transferred to the application */
       return HAL_ERROR;
     }
+    else
+    {
+      descidx = dmarxdesclist->FirstAppDesc;
+      dmarxdesc = (ETH_DMADescTypeDef *)dmarxdesclist->RxDesc[descidx];
+    }
   }
 
   /* Get intermediate descriptors buffers: in case of the Packet is splitted into multi descriptors */
@@ -1460,17 +1465,14 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
   {
     if(__HAL_ETH_DMA_GET_IT_SOURCE(heth, ETH_DMACIER_RIE))
     {
-      /* Call this function to update handle fields */
-      if(HAL_ETH_IsRxDataAvailable(heth) == 1U)
-      {
+
 #if (USE_HAL_ETH_REGISTER_CALLBACKS == 1)
-        /*Call registered Receive complete callback*/
-        heth->RxCpltCallback(heth);
+      /*Call registered Receive complete callback*/
+      heth->RxCpltCallback(heth);
 #else
-        /* Receive complete callback */
-        HAL_ETH_RxCpltCallback(heth);
+      /* Receive complete callback */
+      HAL_ETH_RxCpltCallback(heth);
 #endif  /* USE_HAL_ETH_REGISTER_CALLBACKS */
-      }
 
       /* Clear the Eth DMA Rx IT pending bits */
       __HAL_ETH_DMA_CLEAR_IT(heth, ETH_DMACSR_RI | ETH_DMACSR_NIS);
@@ -1588,8 +1590,43 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
 
     heth->MACLPIEvent = (uint32_t)(0x0U);
   }
+
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* check ETH WAKEUP exti flag */
+    if(__HAL_ETH_WAKEUP_EXTI_GET_FLAG(ETH_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
+    {
+      /* Clear ETH WAKEUP Exti pending bit */
+      __HAL_ETH_WAKEUP_EXTI_CLEAR_FLAG(ETH_WAKEUP_EXTI_LINE);
+#if (USE_HAL_ETH_REGISTER_CALLBACKS == 1)
+      /* Call registered WakeUp callback*/
+      heth->WakeUpCallback(heth);
+#else
+      /* ETH WAKEUP callback */
+      HAL_ETH_WakeUpCallback(heth);
+#endif
+    }
+  }
+  else
+  {
+    /* check ETH WAKEUP exti flag */
+    if(__HAL_ETH_WAKEUP_EXTID2_GET_FLAG(ETH_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
+    {
+      /* Clear ETH WAKEUP Exti pending bit */
+      __HAL_ETH_WAKEUP_EXTID2_CLEAR_FLAG(ETH_WAKEUP_EXTI_LINE);
+#if (USE_HAL_ETH_REGISTER_CALLBACKS == 1)
+      /* Call registered WakeUp callback*/
+      heth->WakeUpCallback(heth);
+#else
+      /* ETH WAKEUP callback */
+      HAL_ETH_WakeUpCallback(heth);
+#endif
+    }
+  }
+#else
   /* check ETH WAKEUP exti flag */
-  if(__HAL_ETH_WAKEUP_EXTI_GET_FLAG(ETH_WAKEUP_EXTI_LINE) != RESET)
+  if(__HAL_ETH_WAKEUP_EXTI_GET_FLAG(ETH_WAKEUP_EXTI_LINE) != (uint32_t)RESET)
   {
     /* Clear ETH WAKEUP Exti pending bit */
     __HAL_ETH_WAKEUP_EXTI_CLEAR_FLAG(ETH_WAKEUP_EXTI_LINE);
@@ -1601,6 +1638,7 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
       HAL_ETH_WakeUpCallback(heth);
 #endif
   }
+#endif
 }
 
 /**
@@ -2827,10 +2865,15 @@ static uint32_t ETH_Prepare_Tx_Descriptors(ETH_HandleTypeDef *heth, ETH_TxPacket
   /* only if the packet is splitted into more than one descriptors > 1 */
   while (txbuffer->next != NULL)
   {
+    /* Clear the LD bit of previous descriptor */
+    CLEAR_BIT(dmatxdesc->DESC3, ETH_DMATXNDESCRF_LD);
     /* Increment current tx descriptor index */
     INCR_TX_DESC_INDEX(descidx, 1U);
     /* Get current descriptor address */
     dmatxdesc = (ETH_DMADescTypeDef *)dmatxdesclist->TxDesc[descidx];
+
+    /* Clear the FD bit of new Descriptor */
+    CLEAR_BIT(dmatxdesc->DESC3, ETH_DMATXNDESCRF_FD);
 
     /* Current Tx Descriptor Owned by DMA: cannot be used by the application  */
     if(READ_BIT(dmatxdesc->DESC3, ETH_DMATXNDESCRF_OWN) == ETH_DMATXNDESCRF_OWN)

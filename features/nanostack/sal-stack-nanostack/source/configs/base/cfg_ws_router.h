@@ -22,3 +22,5 @@
 #define HAVE_6LOWPAN_ND
 #define HAVE_MPL
 #define HAVE_WS
+#define HAVE_PAE_SUPP
+#define HAVE_EAPOL_RELAY

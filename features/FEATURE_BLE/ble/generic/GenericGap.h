@@ -782,7 +782,7 @@ private:
     );
 
     void on_scan_timeout_();
-
+    void process_legacy_scan_timeout();
 
 private:
     pal::EventQueue &_event_queue;

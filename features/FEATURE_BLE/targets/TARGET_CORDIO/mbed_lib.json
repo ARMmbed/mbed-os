@@ -48,8 +48,12 @@
             "macro_name": "SMP_DB_MAX_DEVICES"
         },
         "desired-att-mtu": {
-            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive).",
+            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive). The effective ATT_MTU is limited by rx-acl-buffer-size (minus 4 bytes for the header).",
             "value": 23
+        },
+        "rx-acl-buffer-size": {
+            "help": "Size of the buffer holding the reassembled complete ACL packet. This will limit the effective ATT_MTU (to its value minus 4 bytes for the header). The size of the buffer must be small enough to be allocated from the existing cordio pool. If this value is increased you may need to adjust the memory pool.",
+            "value": 100
         },
         "max-prepared-writes": {
             "help": "Number of queued prepare writes supported by server.",

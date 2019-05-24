@@ -19,7 +19,6 @@
 #include "CellularContext.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
-#include "CellularTargets.h"
 #include "events/EventQueue.h"
 
 namespace mbed {
@@ -35,7 +34,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
 }
 
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
-    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
+    _info_ref_count(0), _fh(fh), _queue(8 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
     MBED_ASSERT(fh);
     set_sim_pin(NULL);
@@ -45,6 +44,7 @@ CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref
 CellularDevice::~CellularDevice()
 {
     tr_debug("CellularDevice destruct");
+    delete _state_machine;
 }
 
 void CellularDevice::stop()
@@ -66,6 +66,13 @@ events::EventQueue *CellularDevice::get_queue()
 CellularContext *CellularDevice::get_context_list() const
 {
     return NULL;
+}
+
+void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+    if (_state_machine && timeout) {
+        _state_machine->get_retry_timeout_array(timeout, array_len);
+    }
 }
 
 void CellularDevice::set_sim_pin(const char *sim_pin)
@@ -112,7 +119,10 @@ nsapi_error_t CellularDevice::create_state_machine()
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
-        _state_machine = new CellularStateMachine(*this, *get_queue());
+        _nw = open_network(_fh);
+        // Attach to network so we can get update status from the network
+        _nw->attach(callback(this, &CellularDevice::stm_callback));
+        _state_machine = new CellularStateMachine(*this, *get_queue(), *_nw);
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::stm_callback));
         err = _state_machine->start_dispatch();
         if (err) {
@@ -171,19 +181,17 @@ void CellularDevice::stm_callback(nsapi_event_t ev, intptr_t ptr)
 void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
-        cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
-        tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
+        cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
+        (void)ptr_data; // avoid compile warning, used only for debugging
+        if (cell_ev == CellularStateRetryEvent) {
+            tr_debug("callback: CellularStateRetryEvent, err: %d, data: %d, retrycount: %d", ptr_data->error, ptr_data->status_data, *(const int *)ptr_data->data);
+        } else {
+            tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
+        }
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
             // broadcast only network registration changes to state machine
             _state_machine->cellular_event_changed(ev, ptr);
-        }
-        if (cell_ev == CellularDeviceReady && ptr_data->error == NSAPI_ERROR_OK) {
-            // Here we can create mux and give new filehandles as mux reserves the one what was in use.
-            // if mux we would need to set new filehandle:_state_machine->set_filehandle( get fh from mux);
-            _nw = open_network(_fh);
-            // Attach to network so we can get update status from the network
-            _nw->attach(callback(this, &CellularDevice::stm_callback));
         }
     } else {
         tr_debug("callback: %d, ptr: %d", ev, ptr);
@@ -227,6 +235,13 @@ nsapi_error_t CellularDevice::shutdown()
         curr = (CellularContext *)curr->_next;
     }
     return NSAPI_ERROR_OK;
+}
+
+void CellularDevice::set_retry_timeout_array(const uint16_t timeout[], int array_len)
+{
+    if (create_state_machine() == NSAPI_ERROR_OK) {
+        _state_machine->set_retry_timeout_array(timeout, array_len);
+    }
 }
 
 } // namespace mbed

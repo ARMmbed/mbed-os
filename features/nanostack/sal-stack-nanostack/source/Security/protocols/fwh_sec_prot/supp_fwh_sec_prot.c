@@ -47,6 +47,7 @@ typedef enum {
     FWH_STATE_CREATE_IND = SEC_STATE_CREATE_IND,
     FWH_STATE_MESSAGE_1 = SEC_STATE_FIRST,
     FWH_STATE_MESSAGE_3,
+    FWH_STATE_MESSAGE_3_RETRY_WAIT,
     FWH_STATE_CREATE_RESP_SUPP_RETRY,
     FWH_STATE_FINISH = SEC_STATE_FINISH,
     FWH_STATE_FINISHED = SEC_STATE_FINISHED
@@ -76,14 +77,10 @@ typedef struct {
     void                          *recv_pdu;                   /**< received pdu */
     uint16_t                      recv_size;                   /**< received pdu size */
     uint64_t                      recv_replay_cnt;             /**< received replay counter */
+    bool                          msg3_received : 1;           /**< Valid Message 3 has been received */
+    bool                          msg3_retry_wait : 1;         /**< Waiting for Message 3 retry */
+    bool                          recv_replay_cnt_set : 1;     /**< received replay counter set */
 } fwh_sec_prot_int_t;
-
-static const trickle_params_t fwh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
-};
 
 static uint16_t supp_fwh_sec_prot_size(void);
 static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot);
@@ -91,7 +88,7 @@ static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot);
 static void supp_fwh_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void supp_fwh_sec_prot_delete(sec_prot_t *prot);
 static int8_t supp_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
-static fwh_sec_prot_msg_e supp_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, sec_prot_keys_t *sec_keys);
+static fwh_sec_prot_msg_e supp_fwh_sec_prot_message_get(sec_prot_t *prot, eapol_pdu_t *eapol_pdu);
 static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot);
 
 static int8_t supp_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_e msg);
@@ -101,6 +98,7 @@ static int8_t supp_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
 static int8_t supp_fwh_sec_prot_mic_validate(sec_prot_t *prot);
 
 static void supp_fwh_sec_prot_recv_replay_counter_store(sec_prot_t *prot);
+static bool supp_fwh_sec_prot_recv_replay_cnt_compare(uint64_t received_counter, sec_prot_t *prot);
 static void supp_fwh_sec_prot_anonce_store(sec_prot_t *prot);
 static int8_t supp_fwh_sec_prot_anonce_validate(sec_prot_t *prot);
 static void supp_fwh_sec_prot_security_replay_counter_update(sec_prot_t *prot);
@@ -141,6 +139,10 @@ static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot)
     sec_prot_state_set(prot, &data->common, FWH_STATE_INIT);
 
     data->common.ticks = 30 * 10; // 30 seconds
+    data->msg3_received = false;
+    data->msg3_retry_wait = false;
+    data->recv_replay_cnt = 0;
+    data->recv_replay_cnt_set = false;
 
     uint8_t eui64[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
     sec_prot_lib_nonce_init(data->snonce, eui64, 1000);
@@ -171,14 +173,20 @@ static int8_t supp_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
     // Decoding is successful
     if (eapol_parse_pdu_header(pdu, size, &data->recv_eapol_pdu)) {
         // Get message
-        data->recv_msg = supp_fwh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys);
+        data->recv_msg = supp_fwh_sec_prot_message_get(prot, &data->recv_eapol_pdu);
         if (data->recv_msg != FWH_MESSAGE_UNKNOWN) {
+            tr_info("4WH: recv %s", data->recv_msg == FWH_MESSAGE_1 ? "Message 1" : "Message 3");
+
             // Call state machine
             data->recv_pdu = pdu;
             data->recv_size = size;
             prot->state_machine(prot);
+        } else {
+            tr_error("4WH: recv error");
         }
         ret_val = 0;
+    } else {
+        tr_error("4WH: recv error");
     }
 
     memset(&data->recv_eapol_pdu, 0, sizeof(eapol_pdu_t));
@@ -189,7 +197,7 @@ static int8_t supp_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
     return ret_val;
 }
 
-static fwh_sec_prot_msg_e supp_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, sec_prot_keys_t *sec_keys)
+static fwh_sec_prot_msg_e supp_fwh_sec_prot_message_get(sec_prot_t *prot, eapol_pdu_t *eapol_pdu)
 {
     fwh_sec_prot_msg_e msg = FWH_MESSAGE_UNKNOWN;
 
@@ -198,23 +206,33 @@ static fwh_sec_prot_msg_e supp_fwh_sec_prot_message_get(eapol_pdu_t *eapol_pdu, 
         return FWH_MESSAGE_UNKNOWN;
     }
 
-    uint8_t key_mask = sec_prot_lib_key_mask_get(eapol_pdu);
+    uint8_t key_mask = eapol_pdu_key_mask_get(eapol_pdu);
 
     switch (key_mask) {
+        // Message 1
         case KEY_INFO_KEY_ACK:
-            // Must have valid replay counter
-            if (eapol_pdu->msg.key.replay_counter > sec_prot_keys_pmk_replay_cnt_get(sec_keys)) {
+            /* Must have valid replay counter, both larger for PMK and larger that is used on
+             * the four way handshake session (note: PMK replay counter is not updated for Message 1
+             * but session specific counter is)
+             */
+            if (sec_prot_keys_pmk_replay_cnt_compare(eapol_pdu->msg.key.replay_counter, prot->sec_keys) &&
+                    supp_fwh_sec_prot_recv_replay_cnt_compare(eapol_pdu->msg.key.replay_counter, prot)) {
                 msg = FWH_MESSAGE_1;
+            } else {
+                tr_error("4WH: invalid replay counter %"PRId64, eapol_pdu->msg.key.replay_counter);
             }
             break;
+        // Message 3
         case KEY_INFO_INSTALL | KEY_INFO_KEY_ACK | KEY_INFO_KEY_MIC | KEY_INFO_SECURED_KEY_FRAME:
             // Must have valid replay counter
-            if (eapol_pdu->msg.key.replay_counter > sec_prot_keys_pmk_replay_cnt_get(sec_keys)) {
+            if (sec_prot_keys_pmk_replay_cnt_compare(eapol_pdu->msg.key.replay_counter, prot->sec_keys)) {
                 if (eapol_pdu->msg.key.key_information.encrypted_key_data) {
                     // This should include the GTK KDE, Lifetime KDE and GTKL KDE.
                     // At least some of them should be present
                     msg = FWH_MESSAGE_3;
                 }
+            } else {
+                tr_error("4WH: invalid replay counter %"PRId64, eapol_pdu->msg.key.replay_counter);
             }
             break;
         default:
@@ -256,6 +274,8 @@ static int8_t supp_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         return -1;
     }
 
+    tr_info("4WH: send %s", msg == FWH_MESSAGE_2 ? "Message 2" : "Message 4");
+
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;
     }
@@ -266,7 +286,7 @@ static int8_t supp_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 static void supp_fwh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &fwh_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
 }
 
 static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
@@ -291,7 +311,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            tr_debug("4WH start");
+            tr_info("4WH: start");
 
             // Store authenticator nonce for check when 4WH Message 3 is received
             supp_fwh_sec_prot_anonce_store(prot);
@@ -335,9 +355,13 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 if (supp_fwh_sec_prot_ptk_generate(prot, prot->sec_keys) < 0) {
                     return;
                 }
+
+                supp_fwh_sec_prot_recv_replay_counter_store(prot);
+
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
                 data->common.ticks = 30 * 10; // 30 seconds
+                return;
             } else if (data->recv_msg != FWH_MESSAGE_3) {
                 return;
             }
@@ -359,6 +383,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
             supp_fwh_sec_prot_recv_replay_counter_store(prot);
             supp_fwh_sec_prot_security_replay_counter_update(prot);
+            data->msg3_received = true;
 
             // Sends 4WH Message 4
             supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
@@ -367,19 +392,37 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISH:
-            tr_debug("4WH finish");
+            if (data->msg3_retry_wait) {
+                tr_info("4WH: Message 3 retry timeout");
+                sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
+                return;
+            }
 
-            // KMP-FINISHED.indication
-            sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk);
-            sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
-            prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
-            sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
+            // If Message 3 has been received updates key data and waits for Message 3 retry
+            if (data->msg3_received) {
+                data->msg3_retry_wait = true;
+
+                tr_info("4WH: finish, wait Message 3 retry");
+
+                sec_prot_keys_ptk_write(prot->sec_keys, data->new_ptk);
+                sec_prot_keys_ptk_eui_64_write(prot->sec_keys, data->remote_eui64);
+
+                data->common.ticks = 60 * 10; // 60 seconds
+                // KMP-FINISHED.indication
+                prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
+                sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3_RETRY_WAIT);
+            } else {
+                tr_info("4WH: finish");
+                // KMP-FINISHED.indication
+                prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
+                sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
+            }
             break;
 
-        case FWH_STATE_FINISHED:
+        case FWH_STATE_MESSAGE_3_RETRY_WAIT:
             if (sec_prot_result_timeout_check(&data->common)) {
-                prot->timer_stop(prot);
-                prot->finished(prot);
+                tr_info("4WH: Message 3 retry timeout");
+                sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
             } else {
                 if (data->recv_msg != FWH_MESSAGE_3) {
                     return;
@@ -403,25 +446,15 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 supp_fwh_sec_prot_recv_replay_counter_store(prot);
                 supp_fwh_sec_prot_security_replay_counter_update(prot);
 
-                tr_debug("4WH start again");
+                tr_info("4WH: send Message 4 again");
 
-                // Send KMP-CREATE.indication
-                prot->create_ind(prot);
-                sec_prot_state_set(prot, &data->common, FWH_STATE_CREATE_RESP_SUPP_RETRY);
+                supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
             }
             break;
 
-        // Special case for second receiving of 4WH message 3
-        case FWH_STATE_CREATE_RESP_SUPP_RETRY:
-            if (sec_prot_result_ok_check(&data->common)) {
-                // Send 4WH message 4
-                supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
-                data->common.ticks = 30 * 10; // 30 seconds
-                sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
-            } else {
-                // Ready to be deleted
-                sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
-            }
+        case FWH_STATE_FINISHED:
+            prot->timer_stop(prot);
+            prot->finished(prot);
             break;
 
         default:
@@ -438,7 +471,8 @@ static int8_t supp_fwh_sec_prot_ptk_generate(sec_prot_t *prot, sec_prot_keys_t *
 
     uint8_t *remote_nonce = data->recv_eapol_pdu.msg.key.key_nonce;
     if (!remote_nonce) {
-        return 1;
+        tr_error("No ANonce");
+        return -1;
     }
 
     uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
@@ -457,6 +491,21 @@ static void supp_fwh_sec_prot_recv_replay_counter_store(sec_prot_t *prot)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
     data->recv_replay_cnt = data->recv_eapol_pdu.msg.key.replay_counter;
+    data->recv_replay_cnt_set = true;
+}
+
+static bool supp_fwh_sec_prot_recv_replay_cnt_compare(uint64_t received_counter, sec_prot_t *prot)
+{
+    fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
+    // If previous value is set must be greater
+    if (data->recv_replay_cnt_set && received_counter > data->recv_replay_cnt) {
+        return true;
+    } else if (!data->recv_replay_cnt_set && received_counter >= data->recv_replay_cnt) {
+        // Otherwise allows also same value e.g. zero
+        return true;
+    }
+
+    return false;
 }
 
 static void supp_fwh_sec_prot_anonce_store(sec_prot_t *prot)
@@ -469,6 +518,7 @@ static int8_t supp_fwh_sec_prot_anonce_validate(sec_prot_t *prot)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
     if (memcmp(data->anonce, data->recv_eapol_pdu.msg.key.key_nonce, EAPOL_KEY_NONCE_LEN) != 0) {
+        tr_error("ANonce invalid");
         return -1;
     }
     return 0;
@@ -508,7 +558,7 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
 
         case FWH_MESSAGE_3:
             // If a valid new GTK value present, insert it
-            if (sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys->gtks) < 0) {
+            if (sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys) < 0) {
                 goto error;
             }
             break;
@@ -521,6 +571,7 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
     return 0;
 
 error:
+    tr_error("Invalid KDEs");
     ns_dyn_mem_free(kde);
     return -1;
 }

@@ -83,7 +83,7 @@ typedef enum {
 //    * as there are ODD and EVEN buffer -> 8*2 bdt
 MBED_ALIGN(512) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];  // 512 bytes aligned!
 
-uint8_t * endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
+uint8_t *endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
 uint8_t ep0_buffer[2][MAX_PACKET_SIZE_EP0];
 uint8_t ep1_buffer[2][MAX_PACKET_SIZE_EP1];
 uint8_t ep2_buffer[2][MAX_PACKET_SIZE_EP2];
@@ -96,8 +96,9 @@ static ctrl_xfer_t ctrl_xfer = CTRL_XFER_READY;
 
 static uint32_t Data1  = 0x55555555;
 
-static uint32_t frameNumber() {
-    return((USB0->FRMNUML | (USB0->FRMNUMH << 8)) & 0x07FF);
+static uint32_t frameNumber()
+{
+    return ((USB0->FRMNUML | (USB0->FRMNUMH << 8)) & 0x07FF);
 }
 
 USBPhy *get_usb_phy()
@@ -126,11 +127,11 @@ void USBPhyHw::init(USBPhyEvents *events)
     NVIC_DisableIRQ(USB0_IRQn);
 
 #if (defined(FSL_FEATURE_SOC_MPU_COUNT) && (FSL_FEATURE_SOC_MPU_COUNT > 0U))
-    MPU->CESR=0;
+    MPU->CESR = 0;
 #endif
 
 #if (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
-    SYSMPU->CESR=0;
+    SYSMPU->CESR = 0;
 #endif
 
 #if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
@@ -150,9 +151,9 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     // USB Module Configuration
     // Set BDT Base Register
-    USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt>>8);
-    USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt>>16);
-    USB0->BDTPAGE3 = (uint8_t)((uint32_t)bdt>>24);
+    USB0->BDTPAGE1 = (uint8_t)((uint32_t)bdt >> 8);
+    USB0->BDTPAGE2 = (uint8_t)((uint32_t)bdt >> 16);
+    USB0->BDTPAGE3 = (uint8_t)((uint32_t)bdt >> 24);
 
     // Clear interrupt flag
     USB0->ISTAT = 0xff;
@@ -209,7 +210,7 @@ void USBPhyHw::connect()
 void USBPhyHw::disconnect()
 {
     // disable all endpoints to prevent them from nacking when disconnected
-    for(int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++) {
         USB0->ENDPOINT[i].ENDPT = 0x00;
     }
     // disable USB
@@ -259,7 +260,7 @@ void USBPhyHw::remote_wakeup()
 #define ALLOW_BULK_OR_INT_ENDPOINTS (USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT)
 #define ALLOW_NO_ENDPOINTS 0
 
-const usb_ep_table_t* USBPhyHw::endpoint_table()
+const usb_ep_table_t *USBPhyHw::endpoint_table()
 {
     static const usb_ep_table_t endpoint_table = {
         1, // No cost per endpoint - everything allocated up front
@@ -349,7 +350,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
         // Prepare for next setup packet
         endpoint_read_core(EP0OUT, MAX_PACKET_SIZE_EP0);
         ctrl_xfer = CTRL_XFER_READY;
-     }
+    }
     endpoint_write(EP0IN, buffer, size);
 
     // Clear suspend after the setup stage
@@ -386,7 +387,7 @@ void USBPhyHw::ep0_stall()
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type)
 {
     uint32_t handshake_flag = 0;
-    uint8_t * buf;
+    uint8_t *buf;
 
     if (DESC_TO_PHY(endpoint) > NUMBER_OF_PHYSICAL_ENDPOINTS - 1) {
         return false;
@@ -406,21 +407,21 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
     // IN endpt -> device to host (TX)
     if (DESC_EP_IN(endpoint)) {
-        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].address = (uint32_t) buf;
-        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].info       = 0;
+        bdt[EP_BDT_IDX(log_endpoint, TX, ODD)].address = (uint32_t) buf;
+        bdt[EP_BDT_IDX(log_endpoint, TX, ODD)].info       = 0;
         bdt[EP_BDT_IDX(log_endpoint, TX, EVEN)].address = 0;
         USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
                                               USB_ENDPT_EPTXEN_MASK;  // en TX (IN) tran
     }
     // OUT endpt -> host to device (RX)
     else {
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].byte_count = max_packet;
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].address    = (uint32_t) buf;
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info       = BD_DTS_MASK;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].byte_count = max_packet;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].address    = (uint32_t) buf;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].info       = BD_DTS_MASK;
         bdt[EP_BDT_IDX(log_endpoint, RX, EVEN)].info       = 0;
         if (log_endpoint == 0) {
             // Prepare for setup packet
-            bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info |= BD_OWN_MASK;
+            bdt[EP_BDT_IDX(log_endpoint, RX, ODD)].info |= BD_OWN_MASK;
         }
         USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
                                               USB_ENDPT_EPRXEN_MASK;  // en RX (OUT) tran.
@@ -466,8 +467,7 @@ bool USBPhyHw::endpoint_read_core(usb_ep_t endpoint, uint32_t max_packet)
     bdt[idx].byte_count = max_packet;
     if ((Data1 >> DESC_TO_PHY(endpoint)) & 1) {
         bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK | BD_DATA01_MASK;
-    }
-    else {
+    } else {
         bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK;
     }
 
@@ -491,7 +491,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
 {
     uint32_t n, sz, idx, setup = 0;
     uint8_t not_iso;
-    uint8_t * ep_buf;
+    uint8_t *ep_buf;
 
     uint32_t log_endpoint = DESC_TO_LOG(endpoint);
 
@@ -542,7 +542,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
 bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
     uint32_t idx, n;
-    uint8_t * ep_buf;
+    uint8_t *ep_buf;
 
     if (DESC_TO_PHY(endpoint) > NUMBER_OF_PHYSICAL_ENDPOINTS - 1) {
         return false;
@@ -588,7 +588,7 @@ void USBPhyHw::process()
     // reset interrupt
     if (istat & USB_ISTAT_USBRST_MASK) {
         // disable all endpt
-        for(i = 0; i < 16; i++) {
+        for (i = 0; i < 16; i++) {
             USB0->ENDPOINT[i].ENDPT = 0x00;
         }
 
@@ -631,9 +631,10 @@ void USBPhyHw::process()
     }
 
     // stall interrupt
-    if (istat & 1<<7) {
-        if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK)
+    if (istat & 1 << 7) {
+        if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK) {
             USB0->ENDPOINT[0].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
+        }
         USB0->ISTAT = USB_ISTAT_STALL_MASK;
     }
 
@@ -660,9 +661,9 @@ void USBPhyHw::process()
         } else {
             // OUT packet
             if (rx_en && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == OUT_TOKEN)) {
-                if (num == 0)
+                if (num == 0) {
                     events->ep0_out();
-                else {
+                } else {
                     epComplete |= EP(phy_ep);
                     events->out(PHY_TO_DESC(phy_ep));
                 }
@@ -676,8 +677,7 @@ void USBPhyHw::process()
                         USB0->ADDR = addr & 0x7F;
                         set_addr = 0;
                     }
-                }
-                else {
+                } else {
                     epComplete |= EP(phy_ep);
                     events->in(PHY_TO_DESC(phy_ep));
                 }
@@ -688,7 +688,7 @@ void USBPhyHw::process()
     }
 
     // sleep interrupt
-    if (istat & 1<<4) {
+    if (istat & 1 << 4) {
         USB0->ISTAT = USB_ISTAT_SLEEP_MASK;
         events->suspend(true);
     }
@@ -713,7 +713,8 @@ void USBPhyHw::process()
     NVIC_EnableIRQ(USB0_IRQn);
 }
 
-void USBPhyHw::_usbisr(void) {
+void USBPhyHw::_usbisr(void)
+{
     NVIC_DisableIRQ(USB0_IRQn);
     instance->events->start_process();
 }

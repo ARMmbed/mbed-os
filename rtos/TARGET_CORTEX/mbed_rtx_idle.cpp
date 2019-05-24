@@ -38,10 +38,13 @@ extern "C" {
 
 #ifdef MBED_TICKLESS
 
-    MBED_STATIC_ASSERT(!MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_USTICKER,
-                       "Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true");
-    MBED_STATIC_ASSERT(MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_LPTICKER,
-                       "Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false");
+#if MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER && !DEVICE_USTICKER
+#error Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true
+#endif
+
+#if !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER && !DEVICE_LPTICKER
+#error Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false
+#endif
 
 #include "rtos/TARGET_CORTEX/SysTimer.h"
 
@@ -137,7 +140,7 @@ extern "C" {
     }
 
 
-#else
+#else // MBED_TICKLESS
 
     static void default_idle_hook(void)
     {
@@ -149,7 +152,7 @@ extern "C" {
         core_util_critical_section_exit();
     }
 
-#endif // (defined(MBED_TICKLESS) && DEVICE_LPTICKER)
+#endif // MBED_TICKLESS
 
     static void (*idle_hook_fptr)(void) = &default_idle_hook;
 

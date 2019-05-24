@@ -20,8 +20,8 @@
 #include "psoc6_utils.h"
 
 #if defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_IPC_DEFAULT_CFG_DISABLE)
-    #include "ipc/cy_ipc_drv.h"
-    #include "flash/cy_flash.h"
+    #include "cy_ipc_drv.h"
+    #include "cy_flash.h"
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 
 
@@ -409,7 +409,7 @@ void Cy_SystemInitFpuEnable(void)
 * linker configuration files. The following symbols used by the cymcuelftool.
 *
 *******************************************************************************/
-#if defined (__ARMCC_VERSION)
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
 __asm void Cy_MemorySymbols(void)
 {
     /* Flash */

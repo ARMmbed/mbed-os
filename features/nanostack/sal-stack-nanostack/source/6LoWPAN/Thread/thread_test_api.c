@@ -49,6 +49,7 @@
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
+#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "MLE/mle.h"
 #include "thread_meshcop_lib.h"
@@ -639,6 +640,23 @@ int thread_test_version_set(int8_t interface_id, uint8_t version)
     return -1;
 #endif
 }
+
+int thread_test_pbbr_response_override_set(int8_t interface_id, uint8_t dua_status, uint8_t dua_count, uint8_t ba_failure_count)
+{
+#ifdef HAVE_THREAD
+    (void)interface_id;
+    thread_extension_bbr_status_override_set(dua_status, dua_count, ba_failure_count);
+    return 0;
+
+#else
+    (void)interface_id;
+    (void)dua_status;
+    (void)dua_count;
+    (void)ba_failure_count;
+    return -1;
+#endif
+}
+
 int thread_test_router_selection_jitter_set(int8_t interface_id, uint32_t jitter)
 {
 #ifdef HAVE_THREAD

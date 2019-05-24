@@ -83,10 +83,11 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     uint32_t pin_name;
 
+    obj->pin = pin;
+
     if (pin == (PinName)NC)
         return;
 
-    obj->pin = pin;
     obj->mode = PullNone;
     obj->direction = PIN_INPUT;
     pin_name = gpio_set(pin); // get the IP pin name

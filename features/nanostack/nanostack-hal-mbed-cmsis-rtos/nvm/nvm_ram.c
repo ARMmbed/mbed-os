@@ -15,14 +15,6 @@
  * limitations under the License.
  */
 
-#ifdef MBED_CONF_NANOSTACK_HAL_NVM_CFSTORE
-#  if MBED_CONF_NANOSTACK_HAL_NVM_CFSTORE
-#    define IGNORE_SIMULATED_NVM_STORAGE
-#  else
-#    undef IGNORE_SIMULATED_NVM_STORAGE
-#  endif
-#endif
-
 /*
  * Define flag IGNORE_SIMULATED_NVM_STORAGE to ignore usage of simulated NVM and use
  * platform specific NVM instead.

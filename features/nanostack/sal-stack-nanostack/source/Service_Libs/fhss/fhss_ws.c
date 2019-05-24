@@ -82,7 +82,7 @@ static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
 static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure);
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
-static uint8_t fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure);
+static uint32_t fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure);
 
 // This function supports rounding up
 static int32_t divide_integer(int32_t dividend, int32_t divisor)
@@ -169,9 +169,9 @@ static int fhss_ws_manage_channel_table_allocation(fhss_structure_t *fhss_struct
     return 0;
 }
 
-static uint8_t fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure)
+static uint32_t fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure)
 {
-    uint8_t number_of_tx_slots = ((fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) / WS_MAX_TXRX_SLOT_LEN_MS) / 2;
+    uint32_t number_of_tx_slots = ((fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) / WS_MAX_TXRX_SLOT_LEN_MS) / 2;
     if (!number_of_tx_slots) {
         return 0;
     }
@@ -197,9 +197,21 @@ static int32_t fhss_ws_calc_bc_channel(fhss_structure_t *fhss_structure)
         }
     }
 #ifdef FHSS_CHANNEL_DEBUG
-    tr_info("%"PRIu32" BC %u %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel, fhss_structure->ws->bc_slot);
+    tr_info("%"PRIu32" BC %u %u %u", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api), next_channel, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi);
 #endif /*FHSS_CHANNEL_DEBUG*/
     return next_channel;
+}
+
+static uint8_t calc_own_tx_trig_slot(uint8_t own_hop)
+{
+    if (own_hop == 0xff) {
+        return 0;
+    }
+    if (own_hop & 1) {
+        own_hop--;
+    }
+    own_hop /= 2;
+    return (own_hop & 1);
 }
 
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
@@ -213,6 +225,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval == 0 || fhss_structure->ws->fhss_configuration.fhss_broadcast_interval == 0) {
         // stop broadcast schedule
         fhss_structure->ws->is_on_bc_channel = false;
+        fhss_structure->ws->synchronization_time = 0;
         return;
     }
     if (fhss_structure->ws->is_on_bc_channel == false) {
@@ -230,19 +243,27 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         uint16_t bc_max_random = (bc_dwell_us / 10) / 50;
         eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(bc_min_random, bc_max_random));
     } else {
+        fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
         uint32_t timeout = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
         fhss_ws_start_timer(fhss_structure, timeout - (delay * fhss_structure->platform_functions.fhss_resolution_divider), fhss_broadcast_handler);
         fhss_structure->ws->is_on_bc_channel = false;
         // Should return to own (unicast) listening channel after broadcast channel
         next_channel = fhss_structure->rx_channel;
         /* Start timer with random timeout to trigger unicast TX queue poll event.
-         * Min random is 1/30 of the TX slot length.
-         * Max random is 1/10 of the TX slot length.
+         * For hops 0,1,4,5,8,9,...
+         * Min random is 1/100 of the TX slot length.
+         * Max random is 1/5 of the TX slot length.
+         *
+         * For hops 2,3,6,7,10,11,...
+         * Min random is 1/100 of the TX slot length plus 0.5*TX slot length.
+         * Max random is 1/10 of the TX slot length plus 0.5*TX slot length.
          * Event timer resolution is 50us.
          */
+        // returns 1 if polling of TX queue is done on latter half of the TX slot
+        uint8_t own_tx_trig_slot = calc_own_tx_trig_slot(fhss_structure->own_hop);
         uint32_t txrx_slot_length_us = MS_TO_US(fhss_structure->ws->txrx_slot_length_ms);
-        uint16_t uc_min_random = (txrx_slot_length_us / 30) / 50;
-        uint16_t uc_max_random = (txrx_slot_length_us / 10) / 50;
+        uint16_t uc_min_random = (((txrx_slot_length_us / 2) * own_tx_trig_slot) / 50) + ((txrx_slot_length_us / 100) / 50);
+        uint16_t uc_max_random = (((txrx_slot_length_us / 2) * own_tx_trig_slot) / 50) + ((txrx_slot_length_us / 5) / 50);
         bool tx_allowed = fhss_ws_check_tx_allowed(fhss_structure);
         if (!tx_allowed) {
             uc_min_random += (txrx_slot_length_us) / 50;
@@ -288,6 +309,10 @@ static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
     } else {
         // On unicast, start timer to trigger polling event on next TX slot
         uint32_t delay_between_tx_slots_us = MS_TO_US(fhss_structure->ws->txrx_slot_length_ms) * 2;
+        // Timer could drift to RX slot when broadcast interval is high. Return timer to TX slot.
+        if (fhss_ws_check_tx_allowed(fhss_structure) == false) {
+            delay_between_tx_slots_us -= MS_TO_US(fhss_structure->ws->txrx_slot_length_ms - (calc_own_tx_trig_slot(fhss_structure->own_hop) * (fhss_structure->ws->txrx_slot_length_ms / 2)));
+        }
         if (delay_between_tx_slots_us < get_remaining_slots_us(fhss_structure, fhss_broadcast_handler, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval))) {
             eventOS_callback_timer_start(fhss_structure->fhss_event_timer, delay_between_tx_slots_us / 50);
         }
@@ -376,6 +401,8 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
             fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval), fhss_unicast_handler);
             fhss_structure->ws->unicast_timer_running = true;
         }
+    } else if (fhss_state == FHSS_UNSYNCHRONIZED) {
+        fhss_structure->ws->synchronization_time = 0;
     }
 
     fhss_structure->fhss_state = fhss_state;
@@ -445,7 +472,6 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
         fhss_ws_neighbor_timing_info_t *neighbor_timing_info = fhss_structure->ws->get_neighbor_info(api, destination_address);
         if (!neighbor_timing_info) {
-            tr_err("FHSS: No neighbor info: %s", trace_array(destination_address, 8));
             return -2;
         }
         // TODO: WS bootstrap has to store neighbors number of channels
@@ -467,7 +493,7 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
             }
         }
 #ifdef FHSS_CHANNEL_DEBUG
-        tr_debug("TX channel: %u %u", tx_channel, destination_slot + 1);
+        tr_debug("TX channel: %u %u %s", tx_channel, destination_slot + 1, trace_array(destination_address, 8));
 #endif /*FHSS_CHANNEL_DEBUG*/
         fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, tx_channel);
     }
@@ -500,23 +526,19 @@ static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure)
     if (fhss_structure->ws->is_on_bc_channel == true) {
         return true;
     }
-    uint8_t number_of_tx_slots = fhss_set_txrx_slot_length(fhss_structure);
+    uint32_t number_of_tx_slots = fhss_set_txrx_slot_length(fhss_structure);
     // Allow transmission when broadcast interval is very short comparing to MAX slot length
     if (!number_of_tx_slots) {
         return true;
     }
 
     uint32_t remaining_time_ms = get_remaining_slots_us(fhss_structure, fhss_broadcast_handler, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval)) / 1000;
-    uint32_t tx_slot_begin = (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - (fhss_structure->ws->txrx_slot_length_ms * (fhss_structure->own_hop & 1));
-    uint32_t rx_slot_begin = tx_slot_begin - fhss_structure->ws->txrx_slot_length_ms;
-    uint8_t n_o_tx_slots = number_of_tx_slots;
-
-    while (n_o_tx_slots--) {
-        if ((remaining_time_ms <= tx_slot_begin) && (remaining_time_ms > rx_slot_begin)) {
-            return true;
-        }
-        tx_slot_begin -= (2 * fhss_structure->ws->txrx_slot_length_ms);
-        rx_slot_begin = tx_slot_begin - fhss_structure->ws->txrx_slot_length_ms;
+    uint32_t tx_slot_begin_ms = (fhss_structure->ws->fhss_configuration.fhss_broadcast_interval - fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval) - (fhss_structure->ws->txrx_slot_length_ms * (fhss_structure->own_hop & 1));
+    tx_slot_begin_ms = tx_slot_begin_ms - (((tx_slot_begin_ms - remaining_time_ms) / (2 * fhss_structure->ws->txrx_slot_length_ms)) * (2 * fhss_structure->ws->txrx_slot_length_ms));
+    uint32_t rx_slot_begin_ms = tx_slot_begin_ms - fhss_structure->ws->txrx_slot_length_ms;
+    // Check if we are currently on TX slot.
+    if ((remaining_time_ms <= tx_slot_begin_ms) && (remaining_time_ms > rx_slot_begin_ms)) {
+        return true;
     }
 
     return false;
@@ -698,6 +720,45 @@ static bool fhss_ws_use_broadcast_queue_cb(const fhss_api_t *api, bool is_broadc
     return is_broadcast_addr;
 }
 
+static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu)
+{
+    (void) destination_address;
+    (void) phy_mtu;
+    uint32_t return_value = 0;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return return_value;
+    }
+    if (fhss_structure->own_hop == 0xff) {
+        return return_value;
+    }
+    if (fhss_structure->ws->is_on_bc_channel == true) {
+        return return_value;
+    }
+
+    uint32_t txrx_slot_length_us = MS_TO_US(fhss_structure->ws->txrx_slot_length_ms);
+    uint32_t unicast_start_us = fhss_structure->ws->unicast_start_time_us;
+    uint32_t cur_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
+    uint32_t tx_trig_offset_us = (txrx_slot_length_us / 2) * calc_own_tx_trig_slot(fhss_structure->own_hop);
+
+    uint32_t next_tx_trig_slot_start_us = unicast_start_us + (txrx_slot_length_us * !fhss_ws_check_tx_allowed(fhss_structure)) + tx_trig_offset_us;
+    uint32_t next_tx_trig_slot_end_us = next_tx_trig_slot_start_us + (txrx_slot_length_us / 2);
+    while ((next_tx_trig_slot_start_us < cur_time_us) || ((next_tx_trig_slot_start_us - cur_time_us) > (uint32_t) MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval))) {
+        if (cur_time_us < next_tx_trig_slot_end_us) {
+            return 0;
+        }
+        next_tx_trig_slot_start_us += (txrx_slot_length_us * 2);
+        next_tx_trig_slot_end_us = next_tx_trig_slot_start_us + (txrx_slot_length_us / 2);
+    }
+    return_value = next_tx_trig_slot_start_us - cur_time_us;
+    uint32_t time_to_bc_channel = get_remaining_slots_us(fhss_structure, fhss_broadcast_handler, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval));
+    if (time_to_bc_channel <= return_value) {
+        return_value += MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
+    }
+
+    return return_value;
+}
+
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
 {
     uint32_t timeout = 0;
@@ -734,7 +795,7 @@ int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure)
     fhss_structure->fhss_api->data_tx_fail = &fhss_ws_data_tx_fail_callback;
     fhss_structure->fhss_api->synch_state_set = &fhss_ws_synch_state_set_callback;
     fhss_structure->fhss_api->read_timestamp = NULL;
-    fhss_structure->fhss_api->get_retry_period = NULL;
+    fhss_structure->fhss_api->get_retry_period = &fhss_ws_get_retry_period_callback;
     fhss_structure->fhss_api->write_synch_info = &fhss_ws_write_synch_info_callback;
     fhss_structure->fhss_api->init_callbacks = &fhss_init_callbacks_cb;
     return 0;
@@ -753,6 +814,7 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         return 0;
     }
     platform_enter_critical();
+    uint16_t own_bc_slot = fhss_structure->ws->bc_slot;
     uint32_t prev_synchronization_time = fhss_structure->ws->synchronization_time;
     fhss_structure->ws->synchronization_time = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
     uint32_t time_since_last_synch_us = fhss_structure->ws->synchronization_time - prev_synchronization_time;
@@ -774,19 +836,30 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
     fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;
     fhss_structure->ws->fhss_configuration.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
     fhss_set_txrx_slot_length(fhss_structure);
-    fhss_structure->ws->bc_slot = bc_timing_info->broadcast_slot + slots_since_reception;
+    if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
+        fhss_structure->ws->bc_slot = 0;
+    } else {
+        fhss_structure->ws->bc_slot = bc_timing_info->broadcast_slot + slots_since_reception;
+    }
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
     }
     platform_exit_critical();
     //TODO: support multiple parents
     fhss_structure->ws->parent_bc_info = bc_timing_info;
-    if (prev_synchronization_time) {
+    if (prev_synchronization_time && fhss_structure->ws->fhss_configuration.ws_bc_channel_function != WS_FIXED_CHANNEL) {
+        //TODO: Compensation for fixed channel configuration
         if (SYNCH_COMPENSATION_MIN_INTERVAL <= US_TO_S(time_since_last_synch_us)) {
             // Update clock drift
-            fhss_structure->ws->drift_per_millisecond_ns += divide_integer(MS_TO_NS(true_bc_interval_offset - own_bc_interval_offset), US_TO_MS(time_since_last_synch_us));
+            int32_t drift_per_ms_tmp = divide_integer(MS_TO_NS((true_bc_interval_offset - own_bc_interval_offset) + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval)), US_TO_MS(time_since_last_synch_us));
+            if (drift_per_ms_tmp > MAX_DRIFT_COMPENSATION_STEP) {
+                drift_per_ms_tmp = MAX_DRIFT_COMPENSATION_STEP;
+            } else if (drift_per_ms_tmp < -MAX_DRIFT_COMPENSATION_STEP) {
+                drift_per_ms_tmp = -MAX_DRIFT_COMPENSATION_STEP;
+            }
+            fhss_structure->ws->drift_per_millisecond_ns += drift_per_ms_tmp;
         }
-        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu32" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset, US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
+        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu32" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
     return 0;
 }
@@ -812,6 +885,10 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = false;
     }
+    if (fhss_configuration->ws_bc_channel_function == WS_FIXED_CHANNEL || (fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval == 0 || fhss_structure->ws->fhss_configuration.fhss_broadcast_interval == 0)) {
+        fhss_structure->ws->synchronization_time = 0;
+    }
+
     if ((fhss_structure->ws->unicast_timer_running == false) && (fhss_configuration->ws_uc_channel_function != WS_FIXED_CHANNEL) && fhss_configuration->fhss_uc_dwell_interval) {
         fhss_ws_start_timer(fhss_structure, MS_TO_US(fhss_configuration->fhss_uc_dwell_interval), fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = true;
@@ -840,5 +917,4 @@ int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_co
     fhss_structure->own_hop = hop_count;
     return 0;
 }
-
 #endif // HAVE_WS

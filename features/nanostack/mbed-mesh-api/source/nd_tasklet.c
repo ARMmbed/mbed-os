@@ -103,9 +103,9 @@ static void initialize_channel_list(void)
 
     arm_nwk_set_channel_list(tasklet_data_ptr->network_interface_id, &tasklet_data_ptr->channel_list);
 
-    tr_debug("Channel: %ld", channel);
+    tr_debug("Channel: %" PRIu32, channel);
     tr_debug("Channel page: %d", tasklet_data_ptr->channel_list.channel_page);
-    tr_debug("Channel mask: 0x%.8lx", tasklet_data_ptr->channel_list.channel_mask[word_index]);
+    tr_debug("Channel mask: 0x%.8" PRIx32, tasklet_data_ptr->channel_list.channel_mask[word_index]);
 }
 
 /*

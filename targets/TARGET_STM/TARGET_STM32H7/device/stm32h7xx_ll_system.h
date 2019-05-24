@@ -175,6 +175,49 @@ extern "C" {
   * @}
   */
 
+/** @defgroup SYSTEM_LL_EC_TIMBREAK SYSCFG TIMER BREAK
+  * @{
+  */
+#define LL_SYSCFG_TIMBREAK_AXISRAM_DBL_ECC SYSCFG_CFGR_AXISRAML /*!< Enables and locks the AXIRAM double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_ITCM_DBL_ECC    SYSCFG_CFGR_ITCML    /*!< Enables and locks the ITCM double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_DTCM_DBL_ECC    SYSCFG_CFGR_DTCML    /*!< Enables and locks the DTCM double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_SRAM1_DBL_ECC   SYSCFG_CFGR_SRAM1L   /*!< Enables and locks the SRAM1 double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_SRAM2_DBL_ECC   SYSCFG_CFGR_SRAM2L   /*!< Enables and locks the SRAM2 double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_SRAM3_DBL_ECC   SYSCFG_CFGR_SRAM3L   /*!< Enables and locks the SRAM3 double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_SRAM4_DBL_ECC   SYSCFG_CFGR_SRAM4L   /*!< Enables and locks the SRAM4 double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_BKRAM_DBL_ECC   SYSCFG_CFGR_BKRAML   /*!< Enables and locks the BKRAM double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_CM7_LOCKUP      SYSCFG_CFGR_CM7L     /*!< Enables and locks the Cortex-M7 LOCKUP signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_FLASH_DBL_ECC   SYSCFG_CFGR_FLASHL   /*!< Enables and locks the FLASH double ECC error signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+
+#define LL_SYSCFG_TIMBREAK_PVD             SYSCFG_CFGR_PVDL     /*!< Enables and locks the PVD connection
+                                                                     with TIM1/8/15/16/17 and HRTIM Break Input
+                                                                     and also the PVDE and PLS bits of the Power Control Interface */
+#if defined(DUAL_CORE)
+#define LL_SYSCFG_TIMBREAK_CM4_LOCKUP      SYSCFG_CFGR_CM4L     /*!< Enables and locks the Cortex-M4 LOCKUP signal
+                                                                     with Break Input of TIM1/8/15/16/17 and HRTIM        */
+#endif /* DUAL_CORE */
+/**
+  * @}
+  */
 
 /** @defgroup SYSTEM_LL_EC_CS SYSCFG I/O compensation cell Code selection
   * @{
@@ -193,6 +236,17 @@ extern "C" {
 /**
   * @}
   */
+
+#if defined (DUAL_CORE)
+/** @defgroup SYSTEM_LL_IWDG2_CONTROL_MODES SYSCFG IWDG2 control modes
+  * @{
+  */
+#define LL_SYSCFG_IWDG2_SW_CONTROL_MODE   0U
+#define LL_SYSCFG_IWDG2_HW_CONTROL_MODE   SYSCFG_UR12_IWDG2M
+/**
+  * @}
+  */
+#endif /* DUAL_CORE */
 
 /** @defgroup SYSTEM_LL_DTCM_RAM_SIZE SYSCFG DTCM RAM size configuration
   * @{
@@ -551,6 +605,93 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetEXTISource(uint32_t Line)
 }
 
 /**
+  * @brief  Set connections to TIM1/8/15/16/17 and HRTIM Break inputs
+  * @note this feature is available on STM32H7 rev.B and above
+  * @rmtoll SYSCFG_CFGR AXISRAML       LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR ITCML          LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR DTCML          LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM1L         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM2L         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM3L         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM4L         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR BKRAML         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR CM7L           LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR FLASHL         LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR PVDL           LL_SYSCFG_SetTIMBreakInputs\n
+  *         SYSCFG_CFGR_CM4L           LL_SYSCFG_SetTIMBreakInputs
+  * @param  Break This parameter can be a combination of the following values:
+  *         @arg @ref LL_SYSCFG_TIMBREAK_AXISRAM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_ITCM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_DTCM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM1_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM2_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM3_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM4_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_BKRAM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_CM7_LOCKUP
+  *         @arg @ref LL_SYSCFG_TIMBREAK_FLASH_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_PVD
+  *         @arg @ref LL_SYSCFG_TIMBREAK_CM4_LOCKUP (available for dual core lines only)
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetTIMBreakInputs(uint32_t Break)
+{
+#if defined(DUAL_CORE)
+  MODIFY_REG(SYSCFG->CFGR, SYSCFG_CFGR_AXISRAML | SYSCFG_CFGR_ITCML  | SYSCFG_CFGR_DTCML  | SYSCFG_CFGR_SRAM1L | SYSCFG_CFGR_SRAM2L | \
+                           SYSCFG_CFGR_SRAM3L   | SYSCFG_CFGR_SRAM4L | SYSCFG_CFGR_BKRAML | SYSCFG_CFGR_CM7L   | SYSCFG_CFGR_FLASHL | \
+                           SYSCFG_CFGR_PVDL     | SYSCFG_CFGR_CM4L, Break);
+#else
+  MODIFY_REG(SYSCFG->CFGR, SYSCFG_CFGR_AXISRAML | SYSCFG_CFGR_ITCML  | SYSCFG_CFGR_DTCML  | SYSCFG_CFGR_SRAM1L | SYSCFG_CFGR_SRAM2L | \
+                           SYSCFG_CFGR_SRAM3L   | SYSCFG_CFGR_SRAM4L | SYSCFG_CFGR_BKRAML | SYSCFG_CFGR_CM7L   | SYSCFG_CFGR_FLASHL | \
+                           SYSCFG_CFGR_PVDL, Break);
+#endif /* DUAL_CORE */
+}
+
+/**
+  * @brief  Get connections to TIM1/8/15/16/17 and HRTIM Break inputs
+  * @note this feature is available on STM32H7 rev.B and above
+  * @rmtoll SYSCFG_CFGR AXISRAML       LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR ITCML          LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR DTCML          LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM1L         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM2L         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM3L         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR SRAM4L         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR BKRAML         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR CM7L           LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR FLASHL         LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR PVDL           LL_SYSCFG_GetTIMBreakInputs\n
+  *         SYSCFG_CFGR_CM4L           LL_SYSCFG_GetTIMBreakInputs
+  * @retval Returned value can be can be a combination of the following values:
+  *         @arg @ref LL_SYSCFG_TIMBREAK_AXISRAM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_ITCM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_DTCM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM1_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM2_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM3_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_SRAM4_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_BKRAM_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_CM7_LOCKUP
+  *         @arg @ref LL_SYSCFG_TIMBREAK_FLASH_DBL_ECC
+  *         @arg @ref LL_SYSCFG_TIMBREAK_PVD
+  *         @arg @ref LL_SYSCFG_TIMBREAK_CM4_LOCKUP (available for dual core lines only)
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetTIMBreakInputs(void)
+{
+#if defined(DUAL_CORE)
+  return (uint32_t)(READ_BIT(SYSCFG->CFGR,  SYSCFG_CFGR_AXISRAML | SYSCFG_CFGR_ITCML  | SYSCFG_CFGR_DTCML  | \
+                                            SYSCFG_CFGR_SRAM1L   | SYSCFG_CFGR_SRAM2L | SYSCFG_CFGR_SRAM3L | \
+                                            SYSCFG_CFGR_SRAM4L   | SYSCFG_CFGR_BKRAML | SYSCFG_CFGR_CM7L   | \
+                                            SYSCFG_CFGR_FLASHL   | SYSCFG_CFGR_PVDL   | SYSCFG_CFGR_CM4L));
+#else
+  return (uint32_t)(READ_BIT(SYSCFG->CFGR,  SYSCFG_CFGR_AXISRAML | SYSCFG_CFGR_ITCML  | SYSCFG_CFGR_DTCML  | \
+                                            SYSCFG_CFGR_SRAM1L   | SYSCFG_CFGR_SRAM2L | SYSCFG_CFGR_SRAM3L | \
+                                            SYSCFG_CFGR_SRAM4L   | SYSCFG_CFGR_BKRAML | SYSCFG_CFGR_CM7L   | \
+                                            SYSCFG_CFGR_FLASHL   | SYSCFG_CFGR_PVDL ));
+#endif /* DUAL_CORE */
+}
+
+/**
   * @brief  Enable the Compensation Cell
   * @rmtoll CCCSR   EN    LL_SYSCFG_EnableCompensationCell
   * @note   The I/O compensation cell can be used only when the device supply
@@ -782,7 +923,11 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetBrownoutResetLevel(void)
 __STATIC_INLINE void LL_SYSCFG_SetCM7BootAddress0(uint16_t BootAddress)
 {
   /* Configure CM7 BOOT ADD0 */
+#if defined(DUAL_CORE)
+  MODIFY_REG(SYSCFG->UR2, SYSCFG_UR2_BCM7_ADD0, ((uint32_t)BootAddress << SYSCFG_UR2_BCM7_ADD0_Pos));
+#else
   MODIFY_REG(SYSCFG->UR2, SYSCFG_UR2_BOOT_ADD0, ((uint32_t)BootAddress << SYSCFG_UR2_BOOT_ADD0_Pos));
+#endif /*DUAL_CORE*/
 }
 
 /**
@@ -793,7 +938,11 @@ __STATIC_INLINE void LL_SYSCFG_SetCM7BootAddress0(uint16_t BootAddress)
 __STATIC_INLINE uint16_t LL_SYSCFG_GetCM7BootAddress0(void)
 {
   /* Get CM7 BOOT ADD0 */
+#if defined(DUAL_CORE)
+  return (uint16_t)((uint32_t)READ_BIT(SYSCFG->UR2, SYSCFG_UR2_BCM7_ADD0) >> SYSCFG_UR2_BCM7_ADD0_Pos);
+#else
   return (uint16_t)((uint32_t)READ_BIT(SYSCFG->UR2, SYSCFG_UR2_BOOT_ADD0) >> SYSCFG_UR2_BOOT_ADD0_Pos);
+#endif /*DUAL_CORE*/
 }
 
 /**
@@ -805,7 +954,11 @@ __STATIC_INLINE uint16_t LL_SYSCFG_GetCM7BootAddress0(void)
 __STATIC_INLINE void LL_SYSCFG_SetCM7BootAddress1(uint16_t BootAddress)
 {
   /* Configure CM7 BOOT ADD1 */
+#if defined(DUAL_CORE)
+  MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BCM7_ADD1, BootAddress);
+#else
   MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BOOT_ADD1, BootAddress);
+#endif /*DUAL_CORE*/
 }
 
 /**
@@ -816,8 +969,60 @@ __STATIC_INLINE void LL_SYSCFG_SetCM7BootAddress1(uint16_t BootAddress)
 __STATIC_INLINE uint16_t LL_SYSCFG_GetCM7BootAddress1(void)
 {
   /* Get CM7 BOOT ADD0 */
+#if defined(DUAL_CORE)
+  return (uint16_t)(READ_BIT(SYSCFG->UR3, SYSCFG_UR3_BCM7_ADD1));
+#else
   return (uint16_t)(READ_BIT(SYSCFG->UR3, SYSCFG_UR3_BOOT_ADD1));
+#endif /* DUAL_CORE */
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  BootCM4 address 0 configuration
+  * @rmtoll UR3   BCM4_ADD0   LL_SYSCFG_SetCM4BootAddress0
+  * @param  BootAddress :Specifies the CM4 Boot Address to be loaded in Address0
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetCM4BootAddress0(uint16_t BootAddress)
+{
+  /* Configure CM4 BOOT ADD0 */
+  MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BCM4_ADD0, ((uint32_t)BootAddress << SYSCFG_UR3_BCM4_ADD0_Pos));
+}
+
+/**
+  * @brief  Get BootCM4 address 0
+  * @rmtoll UR3   BCM4_ADD0   LL_SYSCFG_GetCM4BootAddress0
+  * @retval Returned the CM4 Boot Address0
+  */
+__STATIC_INLINE uint16_t LL_SYSCFG_GetCM4BootAddress0(void)
+{
+  /* Get CM4 BOOT ADD0 */
+  return (uint16_t)((uint32_t)READ_BIT(SYSCFG->UR3, SYSCFG_UR3_BCM4_ADD0) >> SYSCFG_UR3_BCM4_ADD0_Pos);
+}
+
+/**
+  * @brief  BootCM4 address 1 configuration
+  * @rmtoll UR4   BCM4_ADD1   LL_SYSCFG_SetCM4BootAddress1
+  * @param  BootAddress :Specifies the CM4 Boot Address to be loaded in Address1
+  * @retval None
+  */
+__STATIC_INLINE void LL_SYSCFG_SetCM4BootAddress1(uint16_t BootAddress)
+{
+  /* Configure CM4 BOOT ADD1 */
+  MODIFY_REG(SYSCFG->UR4, SYSCFG_UR4_BCM4_ADD1, BootAddress);
+}
+
+/**
+  * @brief  Get BootCM4 address 1
+  * @rmtoll UR4   BCM4_ADD1   LL_SYSCFG_GetCM4BootAddress1
+  * @retval Returned the CM4 Boot Address0
+  */
+__STATIC_INLINE uint16_t LL_SYSCFG_GetCM4BootAddress1(void)
+{
+  /* Get CM4 BOOT ADD0 */
+  return (uint16_t)(READ_BIT(SYSCFG->UR4, SYSCFG_UR4_BCM4_ADD1));
+}
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Indicates if the flash protected area (Bank 1) is erased by a mass erase
@@ -1111,6 +1316,20 @@ __STATIC_INLINE uint32_t LL_SYSCFG_GetIWDG1ControlMode(void)
   return (uint32_t)(READ_BIT(SYSCFG->UR11, SYSCFG_UR11_IWDG1M));
 }
 
+#if defined (DUAL_CORE)
+/**
+  * @brief  Get the Independent Watchdog 2 control mode (Software or Hardware)
+  * @rmtoll UR12    IWDG2M    LL_SYSCFG_GetIWDG2ControlMode
+  * @retval Returned value can be one of the following values:
+  *         @arg @ref LL_SYSCFG_IWDG2_SW_CONTROL_MODE
+  *         @arg @ref LL_SYSCFG_IWDG2_HW_CONTROL_MODE
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_GetIWDG2ControlMode(void)
+{
+  return (uint32_t)(READ_BIT(SYSCFG->UR12, SYSCFG_UR12_IWDG2M));
+}
+#endif /* DUAL_CORE */
+
 /**
   * @brief  Indicates the Secure mode status
   * @rmtoll UR12    SECURE    LL_SYSCFG_IsSecureModeEnabled
@@ -1154,6 +1373,28 @@ __STATIC_INLINE uint32_t LL_SYSCFG_IsD1StopGenerateReset(void)
 {
   return ((READ_BIT(SYSCFG->UR14, SYSCFG_UR14_D1STPRST) == 0U) ? 1UL : 0UL);
 }
+
+#if defined (DUAL_CORE)
+/**
+  * @brief  Indicates if a reset is generated when D2 domain enters DStandby mode
+  * @rmtoll UR14    D2SBRST   LL_SYSCFG_IsD2StandbyGenerateReset
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_IsD2StandbyGenerateReset(void)
+{
+  return ((READ_BIT(SYSCFG->UR14, SYSCFG_UR14_D2SBRST) == 0U) ? 1UL : 0UL);
+}
+
+/**
+  * @brief  Indicates if a reset is generated when D2 domain enters DStop mode
+  * @rmtoll UR15    D2STPRST    LL_SYSCFG_IsD2StopGenerateReset
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_SYSCFG_IsD2StopGenerateReset(void)
+{
+  return ((READ_BIT(SYSCFG->UR15, SYSCFG_UR15_D2STPRST) == 0U) ? 1UL : 0UL);
+}
+#endif /* DUAL_CORE */
 
 /**
   * @brief  Indicates if the independent watchdog is frozen in Standby mode
@@ -1287,6 +1528,68 @@ __STATIC_INLINE void LL_DBGMCU_DisableD1DebugInStandbyMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD1);
 }
+
+#if defined (DUAL_CORE)
+/**
+  * @brief  Enable D2 Domain debug during SLEEP mode
+  * @rmtoll DBGMCU_CR    DBGSLEEP_D2     LL_DBGMCU_EnableD2DebugInSleepMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_EnableD2DebugInSleepMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEPD2);
+}
+
+/**
+  * @brief  Disable D2 Domain debug during SLEEP mode
+  * @rmtoll DBGMCU_CR    DBGSLEEP_D2     LL_DBGMCU_DisableD2DebugInSleepMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_DisableD2DebugInSleepMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEPD2);
+}
+
+/**
+  * @brief  Enable D2 Domain debug during STOP mode
+  * @rmtoll DBGMCU_CR    DBGSTOP_D2     LL_DBGMCU_EnableD2DebugInStopMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_EnableD2DebugInStopMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOPD2);
+}
+
+/**
+  * @brief  Disable D2 Domain debug during STOP mode
+  * @rmtoll DBGMCU_CR    DBGSTOP_D2     LL_DBGMCU_DisableD2DebugInStopMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_DisableD2DebugInStopMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOPD2);
+}
+
+/**
+  * @brief  Enable D2 Domain debug during STANDBY mode
+  * @rmtoll DBGMCU_CR    DBGSTBY_D2     LL_DBGMCU_EnableD2DebugInStandbyMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_EnableD2DebugInStandbyMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD2);
+}
+
+/**
+  * @brief  Disable D2 Domain debug during STANDBY mode
+  * @rmtoll DBGMCU_CR    DBGSTBY_D2     LL_DBGMCU_DisableD2DebugInStandbyMode
+  * @retval None
+  */
+__STATIC_INLINE void LL_DBGMCU_DisableD2DebugInStandbyMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD2);
+}
+#endif /* DUAL_CORE */
 
 
 /**

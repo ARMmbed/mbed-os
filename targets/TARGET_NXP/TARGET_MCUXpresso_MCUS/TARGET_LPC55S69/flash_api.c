@@ -15,6 +15,7 @@
  */
 
 #include "flash_api.h"
+#include "mbed_toolchain.h"
 #include "mbed_critical.h"
 
 #if DEVICE_FLASH
@@ -65,6 +66,9 @@ static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t
 
 MBED_NONSECURE_ENTRY int32_t flash_init(flash_t *obj)
 {
+    /* Set the clock frequency to prevent from ROM changing the Flash access time */
+    flash_config.modeConfig.sysFreqInMHz = SystemCoreClock / 1000000; 
+
     if (FLASH_Init(&flash_config) != kStatus_Success) {
         return -1;
     } else {
@@ -113,7 +117,7 @@ MBED_NONSECURE_ENTRY int32_t flash_program_page(flash_t *obj, uint32_t address, 
     uint32_t status;
     uint32_t failedAddress, failedData;
 
-    status = FLASH_Program(&flash_config, address, data, size);
+    status = FLASH_Program(&flash_config, address, (uint8_t *)data, size);
     if (status == kStatus_Success) {
         status = FLASH_VerifyProgram(&flash_config, address, size, data, &failedAddress, &failedData);
     }

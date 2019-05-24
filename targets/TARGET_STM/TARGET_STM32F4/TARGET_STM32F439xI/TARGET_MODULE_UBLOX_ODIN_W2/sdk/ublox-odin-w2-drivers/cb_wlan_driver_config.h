@@ -118,6 +118,50 @@ typedef enum targetConfigParams {
     cbTARGET_CFG_GET_BAD_RSSI_YIELD_TMO,                         //!< SEE CORRESPONDING GSETTING
     cbTARGET_CFG_SET_BLACKLIST_LAST_BSSID_TIMEOUT,               //!< SEE CORRESPONDING GSETTING
     cbTARGET_CFG_GET_BLACKLIST_LAST_BSSID_TIMEOUT,               //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_PMF_STA,                                    //!< Set PMF option
+    cbTARGET_CFG_GET_PMF_STA,                                    //!< Get PMF option
+    cbTARGET_CFG_SET_FT_MODE,                                    //!< Set fast transition option
+    cbTARGET_CFG_GET_FT_MODE,                                    //!< Get fast transition option
+    cbTARGET_CFG_SET_MIN_SCAN_TIME,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_MIN_SCAN_TIME,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_MAX_SCAN_TIME,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_MAX_SCAN_TIME,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_SCAN_TYPE,                                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_SCAN_TYPE,                                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_QOS_ENABLE,                                 //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_QOS_ENABLE,                                 //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_RTS_THRESHOLD,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_RTS_THRESHOLD,                              //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_TX_POWER,                                   //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_TX_POWER,                                   //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_MAX_PASSIVE_SCAN_TIME,                      //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_MAX_PASSIVE_SCAN_TIME,                      //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_SCAN_LISTEN_INTERVAL,                       //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_SCAN_LISTEN_INTERVAL,                       //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_DOT11_SHORT_RETRY_LIMIT,                    //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_DOT11_SHORT_RETRY_LIMIT,                    //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_DOT11_LONG_RETRY_LIMIT,                     //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_DOT11_LONG_RETRY_LIMIT,                     //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_AP_DOT11_SHORT_RETRY_LIMIT,                 //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_AP_DOT11_SHORT_RETRY_LIMIT,                 //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_AP_DOT11_LONG_RETRY_LIMIT,                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_AP_DOT11_LONG_RETRY_LIMIT,                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_REMAIN_ON_CHANNEL,                          //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_REMAIN_ON_CHANNEL,                          //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_STA_TX_RATE_MASK,                           //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_STA_TX_RATE_MASK,                           //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_FORCE_WORLD_MODE,                           //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_FORCE_WORLD_MODE,                           //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_TX_PACKET_ACK_TIMEOUT_WD,                   //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_TX_PACKET_ACK_TIMEOUT_WD,                   //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_CTS_PROTECTION,                             //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_CTS_PROTECTION,                             //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_HIDDEN_SSID,                                //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_HIDDEN_SSID,                                //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_AP_STA_INACTIVITY_TIMEOUT,                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_AP_STA_INACTIVITY_TIMEOUT,                  //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_SET_ROAMING_AREA_HYSTERESIS,                    //!< SEE CORRESPONDING GSETTING
+    cbTARGET_CFG_GET_ROAMING_AREA_HYSTERESIS,                    //!< SEE CORRESPONDING GSETTING
     cbTARGET_CFG_LAST,                                           
     cbTARGET_CFG_SET_GSETTING = 1000,                            //!< Pipe to @ref cbWM_gSet.
     cbTARGET_CFG_SET_TSETTING = 2000,                            //!< Pipe to @ref cbWM_tSet.

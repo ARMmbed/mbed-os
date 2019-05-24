@@ -9,7 +9,7 @@
 #include "tfm_arch_v8m.h"
 #include "tfm_thread.h"
 #include "tfm_utils.h"
-#include "secure_utilities.h"
+#include "tfm_memory_utils.h"
 
 /* Force ZERO in case ZI(bss) clear is missing */
 static struct tfm_thrd_ctx *p_thrd_head = NULL;

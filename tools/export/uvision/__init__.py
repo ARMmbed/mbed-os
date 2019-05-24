@@ -2,16 +2,17 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import normpath, exists, dirname
+from os.path import normpath, exists, dirname, join, abspath, relpath
 import ntpath
 import copy
 from collections import namedtuple
 import shutil
 from subprocess import Popen, PIPE
 import re
+import json
 
 from tools.resources import FileType
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, CORE_ARCH
 from tools.export.exporters import Exporter
 from tools.export.cmsis import DeviceCMSIS
 
@@ -93,7 +94,7 @@ class DeviceUvision(DeviceCMSIS):
             if not info["default"]:
                 continue
             name = info['file_name']
-            name_reg = "\w*/([\w_]+)\.flm"
+            name_reg = "\w*[/\\\\]([\w_]+)\.flm"
             m = re.search(name_reg, name.lower())
             fl_name = m.group(1) if m else None
             name_flag = "-FF" + str(fl_count) + fl_name
@@ -217,9 +218,12 @@ class Uvision(Exporter):
     @staticmethod
     def format_fpu(core):
         """Generate a core's FPU string"""
-        if core.endswith("FD"):
+        fpu_core_name = core.replace("-NS", "").rstrip("E")
+        if fpu_core_name.endswith("FD"):
             return "FPU3(DFPU)"
-        elif core.endswith("F"):
+        elif fpu_core_name.endswith("F"):
+            if CORE_ARCH[core] == 8:
+                return "FPU3(SFPU)"
             return "FPU2"
         else:
             return ""
@@ -240,17 +244,44 @@ class Uvision(Exporter):
             'include_paths': ';'.join(self.filter_dot(d) for d in
                                       self.resources.inc_dirs),
             'device': DeviceUvision(self.target),
+            'postbuild_step_active': 0,
         }
-        sct_name, sct_path = self.resources.get_file_refs(
-            FileType.LD_SCRIPT)[0]
-        ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
-            sct_path, dirname(sct_name))
-        if ctx['linker_script'] != sct_path:
-            self.generated_files.append(ctx['linker_script'])
-        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
-        if ctx['device'].core.endswith("FD"):
+
+        if self.toolchain.config.has_regions and not self.zip:
+            # Serialize region information
+            export_info = {}
+            restrict_size = getattr(self.toolchain.config.target, "restrict_size")
+            if restrict_size:
+                export_info["target"] = {
+                    "restrict_size": restrict_size
+                }
+
+            binary_path = "BUILD/{}.hex".format(self.project_name)
+            region_list = list(self.toolchain.config.regions)
+            export_info["region_list"] = [
+                r._replace(filename=binary_path) if r.active else r for r in region_list
+            ]
+            # Enable the post build step
+            postbuild_script_path = join(relpath(dirname(__file__)), "postbuild.py")
+            ctx['postbuild_step'] = (
+                'python {} "$K\\" "#L"'.format(postbuild_script_path)
+            )
+            ctx['postbuild_step_active'] = 1
+            ctx['export_info'] = json.dumps(export_info, indent=4)
+
+        sct_file_ref = self.resources.get_file_refs(FileType.LD_SCRIPT)[0]
+        sct_file_ref = self.toolchain.correct_scatter_shebang(
+            sct_file_ref, dirname(sct_file_ref.name)
+        )
+        self.resources.add_file_ref(
+            FileType.LD_SCRIPT, sct_file_ref.name, sct_file_ref.path
+        )
+        ctx['linker_script'] = sct_file_ref.name
+        fpu_included_core_name = ctx['device'].core.replace("-NS", "")
+        ctx['cputype'] = fpu_included_core_name.rstrip("FDE")
+        if fpu_included_core_name.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif ctx['device'].core.endswith("F"):
+        elif fpu_included_core_name.rstrip("E").endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
@@ -265,10 +296,29 @@ class Uvision(Exporter):
             'uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx"
         )
 
+        if ctx['postbuild_step_active']:
+            self.gen_file(
+                'uvision/debug_init.ini', ctx, 'debug_init.ini'
+            )
+            self.gen_file(
+                'uvision/flash_init.ini', ctx, 'flash_init.ini'
+            )
+            self.gen_file(
+                'uvision/export_info.tmpl', ctx, 'export_info.json'
+            )
+
     @staticmethod
     def clean(project_name):
         os.remove(project_name + ".uvprojx")
         os.remove(project_name + ".uvoptx")
+
+        if exists("export_info.json"):
+            os.remove("export_info.json")
+        if exists("debug_init.ini"):
+            os.remove("debug_init.ini")
+        if exists("flash_init.ini"):
+            os.remove("flash_init.ini")
+
         # legacy .build directory cleaned if exists
         if exists('.build'):
             shutil.rmtree('.build')

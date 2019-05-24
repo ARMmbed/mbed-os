@@ -1,6 +1,6 @@
 /**************************************************************************
 *
-* Copyright (c) 2017, Arm Limited and affiliates.
+* Copyright (c) 2017, 2019 Arm Limited and affiliates.
 * Copyright 2016 by Andrey Butok. FNET Community.
 *
 ***************************************************************************
@@ -1614,7 +1614,7 @@ static const fnet_uint8_t *fnet_mdns_process_response(fnet_mdns_if_t *mdns_if, c
                 mdns_if->host_name_conflict_timestamp = fnet_timer_get_ms();
 
                 /* If in Probing state, change name and try again */
-                if((mdns_if->state == FNET_MDNS_STATE_PROBING))
+                if(mdns_if->state == FNET_MDNS_STATE_PROBING)
                 {
                     fnet_mdns_update_name_counter(mdns_if); /* Regenerate name.*/
                 }

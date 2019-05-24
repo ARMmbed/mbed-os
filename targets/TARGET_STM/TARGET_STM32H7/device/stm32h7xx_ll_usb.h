@@ -215,12 +215,33 @@ typedef struct
   */
 
 #if defined (USB_OTG_FS) || defined (USB_OTG_HS)
+/** @defgroup USB_OTG_CORE VERSION ID
+  * @{
+  */
+#define USB_OTG_CORE_ID_300A          0x4F54300AU
+#define USB_OTG_CORE_ID_310A          0x4F54310AU
+/**
+  * @}
+  */
+
 /** @defgroup USB_Core_Mode_ USB Core Mode
   * @{
   */
 #define USB_OTG_MODE_DEVICE                    0U
 #define USB_OTG_MODE_HOST                      1U
 #define USB_OTG_MODE_DRD                       2U
+/**
+  * @}
+  */
+
+/** @defgroup USB_LL Device Speed
+  * @{
+  */
+#define USBD_HS_SPEED               0U
+#define USBD_HSINFS_SPEED           1U
+#define USBH_HS_SPEED               0U
+#define USBD_FS_SPEED               2U
+#define USBH_FS_SPEED               1U
 /**
   * @}
   */
@@ -240,11 +261,20 @@ typedef struct
   */
 #define USB_OTG_ULPI_PHY                       1U
 #define USB_OTG_EMBEDDED_PHY                   2U
-#define USB_OTG_HS_EMBEDDED_PHY                3U
+/**
+  * @}
+  */
 
-#if !defined  (USB_HS_PHYC_TUNE_VALUE)
-#define USB_HS_PHYC_TUNE_VALUE    0x00000F13U /*!< Value of USB HS PHY Tune */
-#endif /* USB_HS_PHYC_TUNE_VALUE */
+/** @defgroup USB_LL_Turnaround_Timeout Turnaround Timeout Value
+  * @{
+  */
+#ifndef USBD_HS_TRDT_VALUE
+#define USBD_HS_TRDT_VALUE           9U
+#endif /* USBD_HS_TRDT_VALUE */
+#ifndef USBD_FS_TRDT_VALUE
+#define USBD_FS_TRDT_VALUE           5U
+#define USBD_DEFAULT_TRDT_VALUE      9U
+#endif /* USBD_HS_TRDT_VALUE */
 /**
   * @}
   */
@@ -371,7 +401,6 @@ typedef struct
 
 #define USBx_HOST       ((USB_OTG_HostTypeDef *)(USBx_BASE + USB_OTG_HOST_BASE))
 #define USBx_HC(i)      ((USB_OTG_HostChannelTypeDef *)(USBx_BASE + USB_OTG_HOST_CHANNEL_BASE + ((i) * USB_OTG_HOST_CHANNEL_SIZE)))
-#define USBPHYC         ((USBPHYC_GlobalTypeDef *)((uint32_t )USB_PHY_HS_CONTROLLER_BASE))
 #endif /* defined (USB_OTG_FS) || defined (USB_OTG_HS) */
 
 #define EP_ADDR_MSK                            0xFU
@@ -403,6 +432,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
 HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg);
 HAL_StatusTypeDef USB_EnableGlobalInt(USB_OTG_GlobalTypeDef *USBx);
 HAL_StatusTypeDef USB_DisableGlobalInt(USB_OTG_GlobalTypeDef *USBx);
+HAL_StatusTypeDef USB_SetTurnaroundTime(USB_OTG_GlobalTypeDef *USBx, uint32_t hclk, uint8_t speed);
 HAL_StatusTypeDef USB_SetCurrentMode(USB_OTG_GlobalTypeDef *USBx, USB_OTG_ModeTypeDef mode);
 HAL_StatusTypeDef USB_SetDevSpeed(USB_OTG_GlobalTypeDef *USBx, uint8_t speed);
 HAL_StatusTypeDef USB_FlushRxFifo(USB_OTG_GlobalTypeDef *USBx);

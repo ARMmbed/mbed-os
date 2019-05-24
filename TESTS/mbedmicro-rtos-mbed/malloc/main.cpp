@@ -107,6 +107,44 @@ void test_multithread_allocation(void)
     TEST_ASSERT_FALSE(thread_alloc_failure);
 }
 
+/** Test for multiple heap alloc and free calls */
+#define ALLOC_ARRAY_SIZE    100
+#define ALLOC_LOOP          20
+#define SIZE_INCREMENTS     1023
+#define SIZE_MODULO         31
+
+void test_alloc_and_free(void)
+{
+    void *array[ALLOC_ARRAY_SIZE];
+    void *data = NULL;
+    long total_allocated = 0;
+    int count = 0;
+    int size = SIZE_INCREMENTS;
+    int loop = ALLOC_LOOP;
+    while (loop) {
+        data = malloc(size);
+        if (NULL != data) {
+            array[count++] = data;
+            memset((void *)data, 0xdeadbeef, size);
+            total_allocated += size;
+            size += SIZE_INCREMENTS;
+            if (size > 10000) {
+                size %= SIZE_MODULO;
+            }
+        } else {
+            for (int i = 0; i < count; i++) {
+                free(array[i]);
+                array[i] = NULL;
+            }
+            loop--;
+            printf("Total size dynamically allocated: %luB\n", total_allocated);
+            total_allocated = 0;
+            count = 0;
+            continue;
+        }
+    }
+}
+
 /** Test for large heap allocation
 
     Given a heap of size mbed_heap_size
@@ -167,7 +205,8 @@ Case cases[] = {
     Case("Test 0 size allocation", test_zero_allocation),
     Case("Test NULL pointer free", test_null_free),
     Case("Test multithreaded allocations", test_multithread_allocation),
-    Case("Test large allocation", test_big_allocation)
+    Case("Test large allocation", test_big_allocation),
+    Case("Test multiple alloc and free calls", test_alloc_and_free)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

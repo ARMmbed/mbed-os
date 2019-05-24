@@ -27,6 +27,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_poll.h"
 #include "platform/PlatformMutex.h"
@@ -261,7 +262,7 @@ MBED_WEAK FileHandle *mbed::mbed_override_console(int fd)
 
 static FileHandle *default_console()
 {
-#if DEVICE_SERIAL
+#if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
@@ -274,7 +275,7 @@ static FileHandle *default_console()
 #  else
     static DirectSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
-#else // DEVICE_SERIAL
+#else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
     static Sink console;
 #endif
     return &console;
@@ -920,25 +921,33 @@ __asm(".global __use_no_semihosting\n\t");
 #endif
 #endif
 
-#if !defined(HEAP_START)
+// Through weak-reference, we can check if ARM_LIB_HEAP is defined at run-time.
+// If ARM_LIB_HEAP is defined, we can fix heap allocation.
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Length[];
+extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Limit[];
+
 // Heap here is considered starting after ZI ends to Stack start
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
-#define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
-#define HEAP_SIZE             ((uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base - (uint32_t) HEAP_START))
-#endif
-
-#define HEAP_LIMIT            ((uint32_t)((uint32_t)HEAP_START + (uint32_t)HEAP_SIZE))
 
 extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
-    uint32_t heap_base  = (uint32_t)HEAP_START;
+    // Define heap by assuming one-region
+    uint32_t heap_base  = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t heap_limit = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
     struct __initial_stackheap r;
+
+    // Fix heap if ARM_LIB_HEAP is defined
+    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+        heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
+        heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
+    }
 
     // Ensure heap_base is 8-byte aligned
     heap_base = (heap_base + 7) & ~0x7;
-    r.heap_base = (uint32_t)heap_base;
-    r.heap_limit = (uint32_t)HEAP_LIMIT;
+    r.heap_base = heap_base;
+    r.heap_limit = heap_limit;
 
     return r;
 }
@@ -948,7 +957,17 @@ extern "C" __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned hea
 
 extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
-    return $Super$$__rt_lib_init((unsigned)HEAP_START, (unsigned)HEAP_LIMIT);
+    // Define heap by assuming one-region
+    uint32_t heap_base  = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t heap_limit = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
+
+    // Fix heap if ARM_LIB_HEAP is defined
+    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+        heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
+        heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
+    }
+
+    return $Super$$__rt_lib_init((unsigned)heap_base, (unsigned)heap_limit);
 }
 #endif
 
@@ -1240,6 +1259,46 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
+#if defined(MBED_SPLIT_HEAP)
+
+// Default RAM memory used for heap
+extern uint32_t __mbed_sbrk_start;
+extern uint32_t __mbed_krbs_start;
+/* Additional RAM memory used for heap - please note this
+ * address should be lower address then the previous default address
+ */
+extern uint32_t __mbed_sbrk_start_0;
+extern uint32_t __mbed_krbs_start_0;
+
+extern "C" WEAK caddr_t _sbrk(int incr)
+{
+    static uint32_t heap = (uint32_t) &__mbed_sbrk_start_0;
+    static bool once = true;
+    uint32_t prev_heap = heap;
+    uint32_t new_heap = heap + incr;
+
+    /**
+     * If the new address is outside the first region, start allocating from the second region.
+     * Jump to second region is done just once, and `static bool once` is used to keep track of that.
+     */
+    if (once && (new_heap > (uint32_t) &__mbed_krbs_start_0)) {
+        once = false;
+        prev_heap = (uint32_t) &__mbed_sbrk_start;
+        new_heap = prev_heap + incr;
+    } else if (new_heap > (uint32_t) &__mbed_krbs_start) {
+        /**
+        * If the new address is outside the second region, return out-of-memory.
+        */
+        errno = ENOMEM;
+        return (caddr_t) - 1;
+    }
+
+    heap = new_heap;
+    return (caddr_t) prev_heap;
+}
+
+#else
+
 extern "C" uint32_t         __end__;
 extern "C" uint32_t         __HeapLimit;
 
@@ -1263,6 +1322,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
+#endif
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM)

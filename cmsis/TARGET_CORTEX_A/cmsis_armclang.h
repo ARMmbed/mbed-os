@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.2
- * @date     10. January 2018
+ * @version  V1.1.1
+ * @date     15. May 2019
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -214,7 +214,23 @@ __STATIC_FORCEINLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
   \param [in]  value  Value to count the leading zeros
   \return             number of leading zeros in value
  */
-#define __CLZ           (uint8_t)__builtin_clz
+__STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
+{
+  /* Even though __builtin_clz produces a CLZ instruction on ARM, formally
+     __builtin_clz(0) is undefined behaviour, so handle this case specially.
+     This guarantees ARM-compatible results if happening to compile on a non-ARM
+     target, and ensures the compiler doesn't decide to activate any
+     optimisations using the logic "value was passed to __builtin_clz, so it
+     is non-zero".
+     ARM Compiler 6.10 and possibly earlier will optimise this test away, leaving a
+     single CLZ instruction.
+   */
+  if (value == 0U)
+  {
+    return 32U;
+  }
+  return __builtin_clz(value);
+}
 
 /**
   \brief   LDR Exclusive (8 bit)
@@ -375,8 +391,8 @@ __STATIC_FORCEINLINE uint32_t __get_SP_usr()
     "MRS     %0, cpsr   \n"
     "CPS     #0x1F      \n" // no effect in USR mode
     "MOV     %1, sp     \n"
-    "MSR     cpsr_c, %2 \n" // no effect in USR mode
-    "ISB" :  "=r"(cpsr), "=r"(result) : "r"(cpsr) : "memory"
+    "MSR     cpsr_c, %0 \n" // no effect in USR mode
+    "ISB" :  "=r"(cpsr), "=r"(result) : : "memory"
    );
   return result;
 }
@@ -391,8 +407,8 @@ __STATIC_FORCEINLINE void __set_SP_usr(uint32_t topOfProcStack)
     "MRS     %0, cpsr   \n"
     "CPS     #0x1F      \n" // no effect in USR mode
     "MOV     sp, %1     \n"
-    "MSR     cpsr_c, %2 \n" // no effect in USR mode
-    "ISB" : "=r"(cpsr) : "r" (topOfProcStack), "r"(cpsr) : "memory"
+    "MSR     cpsr_c, %0 \n" // no effect in USR mode
+    "ISB" : "=r"(cpsr) : "r" (topOfProcStack) : "memory"
    );
 }
 
@@ -493,10 +509,11 @@ __STATIC_INLINE void __FPU_Enable(void)
 #endif
 
     //Initialise FPSCR to a known state
-    "        VMRS    R2,FPSCR          \n"
-    "        LDR     R3,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-    "        AND     R2,R2,R3          \n"
-    "        VMSR    FPSCR,R2            "
+    "        VMRS    R1,FPSCR          \n"
+    "        LDR     R2,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+    "        AND     R1,R1,R2          \n"
+    "        VMSR    FPSCR,R1            "
+    : : : "cc", "r1", "r2"
   );
 }
 

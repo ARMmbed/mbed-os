@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stddef.h>
 #include "hal/us_ticker_api.h"
+
+#if DEVICE_USTICKER
 
 static ticker_event_queue_t events = { 0 };
 
@@ -29,6 +33,7 @@ static const ticker_interface_t us_interface = {
     .fire_interrupt = us_ticker_fire_interrupt,
     .get_info = us_ticker_get_info,
     .free = us_ticker_free,
+    .runs_in_deep_sleep = false,
 };
 
 static const ticker_data_t us_data = {
@@ -56,3 +61,12 @@ void us_ticker_irq_handler(void)
         irq_handler(&us_data);
     }
 }
+
+#else
+
+const ticker_data_t *get_us_ticker_data(void)
+{
+    return NULL;
+}
+
+#endif  // DEVICE_USTICKER

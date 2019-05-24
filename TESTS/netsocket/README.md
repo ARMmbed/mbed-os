@@ -785,9 +785,9 @@ Verify working of different packet sizes.
 
 **Expected result:**
 
-All sendto() calls should return the packet size. All recvfrom() calls
-should return the same sized packet that was send with same content.
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+At least one sendto() call of every size should return the packet size.
+Errors returned from recvfrom() calls are tolerated. 
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
 
 
@@ -819,11 +819,9 @@ mode
 
 **Expected result:**
 
-All sendto() calls should return the packet size. All recvfrom() calls
-should return the same sized packet that was send with same content or
-NSAPI_ERROR_WOULD_BLOCK.
-
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+At least one sendto() call of every size should return the packet size.
+Errors returned from recvfrom() calls are tolerated. 
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
 
 
@@ -858,9 +856,6 @@ Within each loop, one `recvfrom()` may return the received packet size
 
 When `NSAPI_ERROR_WOULD_BLOCK` is received, check that time consumed is
 more that 100 milliseconds but less than 200 milliseconds.
-
-After repeating for 10 times, at least 5 packets must have been
-received.
 
 
 ### UDPSOCKET_SENDTO_TIMEOUT

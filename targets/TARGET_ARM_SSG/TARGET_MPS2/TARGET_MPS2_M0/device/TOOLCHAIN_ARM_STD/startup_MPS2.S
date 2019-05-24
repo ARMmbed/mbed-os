@@ -1,6 +1,6 @@
 ; MPS2 CMSIS Library
 ;
-; Copyright (c) 2006-2016 ARM Limited
+; Copyright (c) 2006-2019 Arm Limited
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -38,29 +38,27 @@
 ;-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;
 
-
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00004000
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
-
-
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00001000
+Heap_Size       EQU     0x00000400
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base
 Heap_Mem        SPACE   Heap_Size
 __heap_limit
 
+; <h> Stack Configuration
+;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+; </h>
+
+Stack_Size      EQU     0x00001000
+
+                AREA    STACK, NOINIT, READWRITE, ALIGN=3
+Stack_Mem       SPACE   Stack_Size
+
+__initial_sp    EQU     0x20400000
 
                 PRESERVE8
                 THUMB
@@ -115,14 +113,14 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     UARTTX4_Handler           ; UART 4 TX Handler
                 DCD     ADCSPI_Handler            ; SHIELD ADC SPI exceptions Handler
                 DCD     SHIELDSPI_Handler         ; SHIELD SPI exceptions Handler
-                DCD     PORT0_0_Handler           ; GPIO Port 0 pin 0 Handler                                    
-                DCD     PORT0_1_Handler           ; GPIO Port 0 pin 1 Handler                                    
-                DCD     PORT0_2_Handler           ; GPIO Port 0 pin 2 Handler                                    
-                DCD     PORT0_3_Handler           ; GPIO Port 0 pin 3 Handler                                    
-                DCD     PORT0_4_Handler           ; GPIO Port 0 pin 4 Handler                                    
-                DCD     PORT0_5_Handler           ; GPIO Port 0 pin 5 Handler                                    
-                DCD     PORT0_6_Handler           ; GPIO Port 0 pin 6 Handler                                    
-                DCD     PORT0_7_Handler           ; GPIO Port 0 pin 7 Handler                                    
+                DCD     PORT0_0_Handler           ; GPIO Port 0 pin 0 Handler
+                DCD     PORT0_1_Handler           ; GPIO Port 0 pin 1 Handler
+                DCD     PORT0_2_Handler           ; GPIO Port 0 pin 2 Handler
+                DCD     PORT0_3_Handler           ; GPIO Port 0 pin 3 Handler
+                DCD     PORT0_4_Handler           ; GPIO Port 0 pin 4 Handler
+                DCD     PORT0_5_Handler           ; GPIO Port 0 pin 5 Handler
+                DCD     PORT0_6_Handler           ; GPIO Port 0 pin 6 Handler
+                DCD     PORT0_7_Handler           ; GPIO Port 0 pin 7 Handler
 __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -217,22 +215,22 @@ UARTOVF_Handler
 ETHERNET_Handler
 I2S_Handler
 TSC_Handler
-PORT2_COMB_Handler       
-PORT3_COMB_Handler       
-UARTRX3_Handler          
-UARTTX3_Handler          
-UARTRX4_Handler          
-UARTTX4_Handler          
-ADCSPI_Handler           
-SHIELDSPI_Handler        
-PORT0_0_Handler                                   
-PORT0_1_Handler                                   
-PORT0_2_Handler                                   
-PORT0_3_Handler                                   
-PORT0_4_Handler                                   
-PORT0_5_Handler                                   
-PORT0_6_Handler                                   
-PORT0_7_Handler                                   
+PORT2_COMB_Handler
+PORT3_COMB_Handler
+UARTRX3_Handler
+UARTTX3_Handler
+UARTRX4_Handler
+UARTTX4_Handler
+ADCSPI_Handler
+SHIELDSPI_Handler
+PORT0_0_Handler
+PORT0_1_Handler
+PORT0_2_Handler
+PORT0_3_Handler
+PORT0_4_Handler
+PORT0_5_Handler
+PORT0_6_Handler
+PORT0_7_Handler
                 B       .
 
                 ENDP

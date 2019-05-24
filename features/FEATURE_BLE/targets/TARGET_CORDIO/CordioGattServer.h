@@ -185,6 +185,8 @@ public:
 
 
 private:
+    void add_default_services();
+
     static uint16_t compute_attributes_count(GattService& service);
 
     void insert_service_attribute(
@@ -279,6 +281,8 @@ private:
     alloc_block_t* allocated_blocks;
 
     uint16_t currentHandle;
+
+    bool default_services_added;
 
 private:
     GattServer();

@@ -192,6 +192,7 @@ typedef struct protocol_interface_rf_mac_setup {
     unsigned macCurrentBE: 4;
     uint8_t macMaxCSMABackoffs;
     uint8_t backoff_period_in_10us; // max 2550us - it's 320us for standard 250kbps
+    uint8_t mac_frame_filters;
     /* MAC channel parameters */
     channel_list_s mac_channel_list;
     uint8_t scan_duration; //Needed???
@@ -219,6 +220,8 @@ typedef struct protocol_interface_rf_mac_setup {
     uint16_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;
+    uint8_t number_of_csma_ca_periods;  /**< Number of CSMA-CA periods */
+    uint16_t multi_cca_interval;        /**< Length of the additional CSMA-CA period(s) in microseconds */
     /* Indirect queue parameters */
     struct mac_pre_build_frame *indirect_pd_data_request_queue;
     arm_event_t mac_mcps_timer_event;

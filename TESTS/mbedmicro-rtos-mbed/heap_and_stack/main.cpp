@@ -48,6 +48,12 @@ extern uint32_t mbed_heap_size;
 extern uint32_t mbed_stack_isr_start;
 extern uint32_t mbed_stack_isr_size;
 
+#if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
+extern uint32_t __mbed_sbrk_start_0;
+extern uint32_t __mbed_krbs_start_0;
+unsigned char *mbed_heap_start_0 = (unsigned char *) &__mbed_sbrk_start_0;;
+uint32_t mbed_heap_size_0 = (uint32_t) &__mbed_krbs_start_0 - (uint32_t) &__mbed_sbrk_start_0;
+#endif
 
 struct linked_list {
     linked_list *next;
@@ -121,7 +127,11 @@ static void allocate_and_fill_heap(linked_list *&head)
             break;
         }
         bool result = rangeinrange((uint32_t) temp, sizeof(linked_list), mbed_heap_start, mbed_heap_size);
-
+#if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
+        if (false == result) {
+            result = rangeinrange((uint32_t) temp, sizeof(linked_list), (uint32_t)mbed_heap_start_0, mbed_heap_size_0);
+        }
+#endif
         TEST_ASSERT_TRUE_MESSAGE(result, "Memory allocation out of range");
 
         // Init
@@ -169,7 +179,11 @@ void test_heap_in_range(void)
     TEST_ASSERT_NOT_NULL(initial_heap);
 
     bool result = inrange((uint32_t) initial_heap, mbed_heap_start, mbed_heap_size);
-
+#if defined(TOOLCHAIN_GCC_ARM) && defined(MBED_SPLIT_HEAP)
+    if (false == result) {
+        result = inrange((uint32_t) initial_heap, (uint32_t)mbed_heap_start_0, mbed_heap_size_0);
+    }
+#endif
     TEST_ASSERT_TRUE_MESSAGE(result, "Heap in wrong location");
     free(initial_heap);
 }

@@ -28,6 +28,13 @@
 #include "mac_api.h"
 #include "sw_mac.h"
 #include "ws_management_api.h" //ws_management_node_init
+#ifdef MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
+#if !defined(MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) || !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) || \
+    !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY)
+#error Invalid Wi-SUN certificate configuration
+#endif
+#include MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
+#endif
 
 // For tracing we need to define flag, have include and define group
 //#define HAVE_DEBUG
@@ -209,6 +216,18 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
                             MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
                             network_name,
                             fhss_timer_ptr);
+
+#if defined(MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER)
+    arm_certificate_chain_entry_s chain_info;
+    memset(&chain_info, 0, sizeof(arm_certificate_chain_entry_s));
+    chain_info.cert_chain[0] = (const uint8_t *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE;
+    chain_info.cert_len[0] = strlen((const char *) MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) + 1;
+    chain_info.cert_chain[1] = (const uint8_t *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE;
+    chain_info.cert_len[1] = strlen((const char *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) + 1;
+    chain_info.key_chain[1] = (const uint8_t *) MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE_KEY;
+    chain_info.chain_length = 2;
+    arm_network_certificate_chain_set((const arm_certificate_chain_entry_s *) &chain_info);
+#endif
 
     status = arm_nwk_interface_up(wisun_tasklet_data_ptr->network_interface_id);
     if (status >= 0) {

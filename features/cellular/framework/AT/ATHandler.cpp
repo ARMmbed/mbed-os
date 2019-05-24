@@ -368,7 +368,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         tr_error("AT overflow");
-        debug_print(_recv_buff, _recv_len);
+        debug_print(_recv_buff, _recv_len, AT_ERR);
         reset_buffer();
     }
 
@@ -379,7 +379,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     if (count > 0 && (fhs.revents & POLLIN)) {
         ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
         if (len > 0) {
-            debug_print(_recv_buff + _recv_len, len);
+            debug_print(_recv_buff + _recv_len, len, AT_RX);
             _recv_len += len;
             return true;
         }
@@ -405,6 +405,11 @@ int ATHandler::get_char()
 void ATHandler::skip_param(uint32_t count)
 {
     if (_last_err || !_stop_tag || _stop_tag->found) {
+        return;
+    }
+
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return;
     }
 
@@ -436,6 +441,10 @@ void ATHandler::skip_param(ssize_t len, uint32_t count)
     if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return;
+    }
 
     for (uint32_t i = 0; i < count; i++) {
         ssize_t read_len = 0;
@@ -456,6 +465,10 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
     if (_last_err) {
         return -1;
     }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return -1;
+    }
 
     bool debug_on = _debug_on;
     size_t read_len = 0;
@@ -468,7 +481,6 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         }
         buf[read_len] = c;
         if (_debug_on && read_len >= DEBUG_MAXLEN) {
-            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
             _debug_on = false;
         }
     }
@@ -479,6 +491,10 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
     if (_last_err || !_stop_tag || (_stop_tag->found && read_even_stop_tag == false)) {
+        return -1;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return -1;
     }
 
@@ -547,6 +563,10 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
     if (_last_err || !_stop_tag || _stop_tag->found) {
         return -1;
     }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return -1;
+    }
 
     size_t match_pos = 0;
 
@@ -565,7 +585,6 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
         int c = get_char();
 
         if (_debug_on && read_idx >= DEBUG_MAXLEN) {
-            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
             _debug_on = false;
         }
 
@@ -618,6 +637,10 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
 int32_t ATHandler::read_int()
 {
     if (_last_err || !_stop_tag || _stop_tag->found) {
+        return -1;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return -1;
     }
 
@@ -879,6 +902,10 @@ void ATHandler::resp_start(const char *prefix, bool stop)
     if (_last_err) {
         return;
     }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return;
+    }
 
     set_scope(NotSet);
     // Try get as much data as possible
@@ -903,6 +930,10 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 bool ATHandler::info_resp()
 {
     if (_last_err || _resp_stop.found) {
+        return false;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return false;
     }
 
@@ -933,6 +964,10 @@ bool ATHandler::info_resp()
 bool ATHandler::info_elem(char start_tag)
 {
     if (_last_err) {
+        return false;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return false;
     }
 
@@ -1005,6 +1040,11 @@ bool ATHandler::consume_to_stop_tag()
         return true;
     }
 
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return true;
+    }
+
     if (consume_to_tag((const char *)_stop_tag->tag, true)) {
         return true;
     }
@@ -1018,21 +1058,52 @@ bool ATHandler::consume_to_stop_tag()
 
 void ATHandler::resp_stop()
 {
-    // Do not return on error so that we can consume whatever there is in the buffer
+    if (_is_fh_usable) {
+        // Do not return on error so that we can consume whatever there is in the buffer
 
-    if (_current_scope == ElemType) {
-        information_response_element_stop();
-        set_scope(InfoType);
+        if (_current_scope == ElemType) {
+            information_response_element_stop();
+            set_scope(InfoType);
+        }
+
+        if (_current_scope == InfoType) {
+            information_response_stop();
+        }
+
+        // Go for response stop_tag
+        if (_stop_tag && !_stop_tag->found && !_error_found) {
+            // Check for URC for every new line
+            while (!get_last_error()) {
+
+                if (match(_stop_tag->tag, _stop_tag->len)) {
+                    break;
+                }
+
+                if (match_urc()) {
+                    continue;
+                }
+
+                // If no URC nor stop_tag found, look for CRLF and consume everything up to and including CRLF
+                if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
+                    consume_to_tag(CRLF, true);
+                    // If stop tag is CRLF we have to stop reading/consuming the buffer
+                    if (!strncmp(CRLF, _stop_tag->tag, _stop_tag->len)) {
+                        break;
+                    }
+                    // If no URC nor CRLF nor stop_tag -> fill buffer
+                } else {
+                    if (!fill_buffer()) {
+                        // if we don't get any match and no data within timeout, set an error to indicate need for recovery
+                        set_error(NSAPI_ERROR_DEVICE_ERROR);
+                    }
+                }
+            }
+        }
+    } else {
+        _last_err = NSAPI_ERROR_BUSY;
     }
 
-    if (_current_scope == InfoType) {
-        information_response_stop();
-    }
-
-    // Go for response stop_tag
-    if (consume_to_stop_tag()) {
-        set_scope(NotSet);
-    }
+    set_scope(NotSet);
 
     // Restore stop tag to OK
     set_tag(&_resp_stop, OK);
@@ -1081,13 +1152,16 @@ const char *ATHandler::mem_str(const char *dest, size_t dest_len, const char *sr
 
 void ATHandler::cmd_start(const char *cmd)
 {
+    if (_last_err != NSAPI_ERROR_OK) {
+        return;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return;
+    }
 
     if (_at_send_delay) {
         rtos::ThisThread::sleep_until(_last_response_stop + _at_send_delay);
-    }
-
-    if (_last_err != NSAPI_ERROR_OK) {
-        return;
     }
 
     (void)write(cmd, strlen(cmd));
@@ -1136,6 +1210,10 @@ void ATHandler::cmd_stop()
     if (_last_err != NSAPI_ERROR_OK) {
         return;
     }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return;
+    }
     // Finish with CR
     (void)write(_output_delimiter, strlen(_output_delimiter));
 }
@@ -1150,6 +1228,10 @@ void ATHandler::cmd_stop_read_resp()
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     if (_last_err != NSAPI_ERROR_OK) {
+        return 0;
+    }
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return 0;
     }
 
@@ -1178,9 +1260,8 @@ size_t ATHandler::write(const void *data, size_t len)
         }
         if (_debug_on && write_len < DEBUG_MAXLEN) {
             if (write_len + ret < DEBUG_MAXLEN) {
-                debug_print((char *)data + write_len, ret);
+                debug_print((char *)data + write_len, ret, AT_TX);
             } else {
-                debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
                 _debug_on = false;
             }
         }
@@ -1195,6 +1276,11 @@ size_t ATHandler::write(const void *data, size_t len)
 bool ATHandler::check_cmd_send()
 {
     if (_last_err != NSAPI_ERROR_OK) {
+        return false;
+    }
+
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
         return false;
     }
 
@@ -1218,6 +1304,10 @@ bool ATHandler::check_cmd_send()
 
 void ATHandler::flush()
 {
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return;
+    }
     tr_debug("AT flush");
     reset_buffer();
     while (fill_buffer(false)) {
@@ -1225,36 +1315,55 @@ void ATHandler::flush()
     }
 }
 
-void ATHandler::debug_print(const char *p, int len)
+void ATHandler::debug_print(const char *p, int len, ATType type)
 {
 #if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
-#if MBED_CONF_MBED_TRACE_ENABLE
-        mbed_cellular_trace::mutex_wait();
-#endif
-        char c;
-        for (ssize_t i = 0; i < len; i++) {
-            c = *p++;
-            if (!isprint(c)) {
-                if (c == '\r') {
-                    debug("\n");
+        const int buf_size = len * 4 + 1; // x4 -> reserve space for extra characters, +1 -> terminating null
+        char *buffer = new char [buf_size];
+        if (buffer) {
+            memset(buffer, 0, buf_size);
+
+            char *pbuf = buffer;
+            for (ssize_t i = 0; i < len; i++) {
+                const char c = *p++;
+                if (isprint(c)) {
+                    *pbuf++ = c;
+                } else if (c == '\r') {
+                    sprintf(pbuf, "<cr>");
+                    pbuf += 4;
                 } else if (c == '\n') {
+                    sprintf(pbuf, "<ln>");
+                    pbuf += 4;
                 } else {
-                    debug("#%02x", c);
+                    sprintf(pbuf, "<%02X>", c);
+                    pbuf += 4;
                 }
-            } else {
-                debug("%c", c);
             }
+            MBED_ASSERT((int)(pbuf - buffer) <= buf_size); // Check for buffer overflow
+
+            if (type == AT_RX) {
+                tr_info("AT RX (%2d): %s", len, buffer);
+            } else if (type == AT_TX) {
+                tr_info("AT TX (%2d): %s", len, buffer);
+            } else {
+                tr_info("AT ERR (%2d): %s", len, buffer);
+            }
+
+            delete [] buffer;
+        } else {
+            tr_error("AT trace unable to allocate buffer!");
         }
-#if MBED_CONF_MBED_TRACE_ENABLE
-        mbed_cellular_trace::mutex_release();
-#endif
     }
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
 }
 
 bool ATHandler::sync(int timeout_ms)
 {
+    if (!_is_fh_usable) {
+        _last_err = NSAPI_ERROR_BUSY;
+        return false;
+    }
     tr_debug("AT sync");
     lock();
     uint32_t timeout = _at_timeout;

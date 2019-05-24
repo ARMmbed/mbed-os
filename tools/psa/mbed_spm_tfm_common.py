@@ -21,6 +21,7 @@ import json
 from jsonschema import validate
 import fnmatch
 from six import integer_types, string_types
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
@@ -29,7 +30,7 @@ TESTS_DIR = path_join(MBED_OS_ROOT, "TESTS", "psa")
 MANIFEST_FILE_PATTERN = '*_psa.json'
 
 
-def assert_int(num):
+def _assert_int(num):
     """
     Tries to parse an integer num from a given string
 
@@ -74,13 +75,13 @@ class RotService(object):
         self.id = identifier
         self.signal = signal
 
-        assert assert_int(identifier)
+        assert _assert_int(identifier)
 
         assert isinstance(non_secure_clients, bool), \
             'non_secure_clients parameter must be of boolean type'
         self.nspe_callable = non_secure_clients
 
-        self.minor_version = assert_int(minor_version)
+        self.minor_version = _assert_int(minor_version)
         assert self.minor_version > 0, 'minor_version parameter is invalid'
 
         assert minor_policy in self.MINOR_POLICIES, \
@@ -89,7 +90,7 @@ class RotService(object):
 
     @property
     def numeric_id(self):
-        return assert_int(self.id)
+        return _assert_int(self.id)
 
     def __eq__(self, other):
         return (
@@ -131,10 +132,10 @@ class MmioRegion(object):
             self.size = '(sizeof(*({})))'.format(kwargs['name'])
         if 'base' in kwargs:
             self.base = kwargs['base']
-            self.size = assert_int(kwargs['size'])
+            self.size = _assert_int(kwargs['size'])
 
         assert 'partition_id' in kwargs
-        self.partition_id = assert_int(kwargs['partition_id'])
+        self.partition_id = _assert_int(kwargs['partition_id'])
 
         assert hasattr(self, 'base')
         assert hasattr(self, 'size')
@@ -157,7 +158,7 @@ class Irq(object):
         :param line_num: number of interrupt used by the partition
         :param signal: IRQ line identifier inside the partition
         """
-        self.line_num = assert_int(line_num)
+        self.line_num = _assert_int(line_num)
         assert isinstance(signal, string_types)
         self.signal = signal
 
@@ -182,7 +183,6 @@ class Manifest(object):
     def __init__(
             self,
             manifest_file,
-            psa_type,
             name,
             partition_id,
             partition_type,
@@ -200,7 +200,6 @@ class Manifest(object):
         Manifest C'tor (Aligned with json schema)
 
         :param manifest_file: Path to json manifest
-        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :param name: Partition unique name
         :param partition_id: Partition identifier
         :param partition_type: Whether the partition is unprivileged or part
@@ -239,17 +238,14 @@ class Manifest(object):
         assert isinstance(entry_point, string_types)
         assert partition_type in self.PARTITION_TYPES
         assert partition_id > 0
-        assert psa_type in ['TFM', 'MBED_SPM']
 
         self.file = manifest_file
         self.name = name
-        self.psa_type = psa_type
         self.id = partition_id
         self.type = partition_type
-        if psa_type == 'TFM':
-            self.priority = priority
-        else:
-            self.priority = self.PRIORITY[priority]
+
+        self.priority_tfm = priority
+        self.priority_mbed = self.PRIORITY[priority]
         self.heap_size = heap_size
         self.stack_size = stack_size
         self.entry_point = entry_point
@@ -294,7 +290,8 @@ class Manifest(object):
                 (self.name == other.name) and
                 (self.id == other.id) and
                 (self.type == other.type) and
-                (self.priority == other.priority) and
+                (self.priority_mbed == other.priority_mbed) and
+                (self.priority_tfm == other.priority_tfm) and
                 (self.heap_size == other.heap_size) and
                 (self.stack_size == other.stack_size) and
                 (self.entry_point == other.entry_point) and
@@ -306,13 +303,12 @@ class Manifest(object):
         )
 
     @classmethod
-    def from_json(cls, manifest_file, skip_src=False, psa_type='MBED_SPM'):
+    def from_json(cls, manifest_file, skip_src=False):
         """
         Load a partition manifest file
 
         :param manifest_file: Manifest file path
         :param skip_src: Ignore the `source_files` entry
-        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :return: Manifest object
         """
 
@@ -351,13 +347,12 @@ class Manifest(object):
 
         return Manifest(
             manifest_file=manifest_file,
-            psa_type=psa_type,
             name=manifest['name'],
-            partition_id=assert_int(manifest['id']),
+            partition_id=_assert_int(manifest['id']),
             partition_type=manifest['type'],
             priority=manifest['priority'],
-            heap_size=assert_int(manifest['heap_size']),
-            stack_size=assert_int(manifest['stack_size']),
+            heap_size=_assert_int(manifest['heap_size']),
+            stack_size=_assert_int(manifest['stack_size']),
             entry_point=manifest['entry_point'],
             source_files=source_files,
             mmio_regions=mmio_regions,
@@ -598,21 +593,86 @@ def validate_partition_manifests(manifests):
 
 
 def is_test_manifest(manifest):
-    return 'tests' in manifest
+    return 'TESTS' in manifest
 
 
 def is_service_manifest(manifest):
     return not is_test_manifest(manifest)
 
 
-def manifests_discovery(root_dir=SERVICES_DIR):
+def manifests_discovery(root_dirs, ignore_paths):
     service_manifest_files = set()
     test_manifest_files = set()
+    for root_dir in root_dirs:
+        for root, dirs, files in os.walk(root_dir, followlinks=True):
+            # Filters paths if they are inside one of the ignore paths
+            if next((True for igp in ignore_paths if igp in root), False):
+                continue
 
-    for root, dirs, files in os.walk(root_dir):
-        to_add = [path_join(root, f) for f in
-                  fnmatch.filter(files, MANIFEST_FILE_PATTERN)]
-        service_manifest_files.update(filter(is_service_manifest, to_add))
-        test_manifest_files.update(filter(is_test_manifest, to_add))
+            to_add = [path_join(root, f) for f in
+                      fnmatch.filter(files, MANIFEST_FILE_PATTERN)]
+            service_manifest_files.update(filter(is_service_manifest, to_add))
+            test_manifest_files.update(filter(is_test_manifest, to_add))
 
-    return sorted(list(service_manifest_files)), sorted(list(test_manifest_files))
+    service_manifest_files = sorted(list(service_manifest_files))
+    test_manifest_files = sorted(list(test_manifest_files))
+    return service_manifest_files, test_manifest_files
+
+
+def parse_manifests(manifests_files):
+    region_list = []
+    manifests = []
+    for manifest_file in manifests_files:
+        manifest_obj = Manifest.from_json(manifest_file)
+        manifests.append(manifest_obj)
+        for region in manifest_obj.mmio_regions:
+            region_list.append(region)
+
+    return manifests, region_list
+
+
+def generate_source_files(
+        templates,
+        render_args,
+        extra_filters=None
+):
+    """
+    Generate SPM common C code from manifests using given templates
+
+    :param templates: Dictionary of template and their auto-generated products
+    :param render_args: Dictionary of arguments that should be passed to render
+    :param extra_filters: Dictionary of extra filters to use in the rendering
+           process
+    :return: Path to generated folder containing common generated files
+    """
+
+    rendered_files = []
+    templates_dirs = list(
+        set([os.path.dirname(path) for path in templates])
+    )
+    template_files = {os.path.basename(t): t for t in templates}
+
+    # Load templates for the code generation.
+    env = Environment(
+        loader=FileSystemLoader(templates_dirs),
+        lstrip_blocks=True,
+        trim_blocks=True,
+        undefined=StrictUndefined
+    )
+    if extra_filters:
+        env.filters.update(extra_filters)
+
+    for tf in template_files:
+        template = env.get_template(tf)
+        rendered_files.append(
+            (templates[template_files[tf]], template.render(**render_args)))
+        rendered_file_dir = os.path.dirname(templates[template_files[tf]])
+        if not os.path.exists(rendered_file_dir):
+            os.makedirs(rendered_file_dir)
+
+    for fname, data in rendered_files:
+        output_folder = os.path.dirname(fname)
+        if not os.path.isdir(output_folder):
+            os.makedirs(output_folder)
+        with open(fname, 'wt') as fh:
+            fh.write(data)

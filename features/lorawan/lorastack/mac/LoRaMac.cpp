@@ -626,6 +626,17 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     if (_mcps_confirmation.ack_received) {
         _lora_time.stop(_params.timers.ack_timeout_timer);
     }
+
+    channel_params_t *list = _lora_phy->get_phy_channels();
+    _mcps_indication.channel = list[_params.channel].frequency;
+
+    if (get_current_slot() == RX_SLOT_WIN_1) {
+        _mcps_indication.rx_toa = _lora_phy->get_rx_time_on_air(_params.rx_window1_config.modem_type,
+                                                                _mcps_indication.buffer_size);
+    } else {
+        _mcps_indication.rx_toa = _lora_phy->get_rx_time_on_air(_params.rx_window2_config.modem_type,
+                                                                _mcps_indication.buffer_size);
+    }
 }
 
 void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -664,13 +675,14 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
         if (get_device_class() == CLASS_C) {
             _lora_time.start(_rx2_closure_timer_for_class_c,
                              (_params.rx_window2_delay - time_diff) +
-                             _params.rx_window2_config.window_timeout);
+                             _params.rx_window2_config.window_timeout_ms);
         }
 
         // start timer after which ack wait will timeout (for Confirmed messages)
         if (_params.is_node_ack_requested) {
             _lora_time.start(_params.timers.ack_timeout_timer,
                              (_params.rx_window2_delay - time_diff) +
+                             _params.rx_window2_config.window_timeout_ms +
                              _lora_phy->get_ack_timeout());
         }
     } else {
@@ -888,7 +900,13 @@ void LoRaMac::open_rx1_window(void)
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
+    channel_params_t *active_channel_list = _lora_phy->get_phy_channels();
     _params.rx_window1_config.channel = _params.channel;
+    _params.rx_window1_config.frequency = active_channel_list[_params.channel].frequency;
+    // Apply the alternative RX 1 window frequency, if it is available
+    if (active_channel_list[_params.channel].rx1_frequency != 0) {
+        _params.rx_window1_config.frequency = active_channel_list[_params.channel].rx1_frequency;
+    }
     _params.rx_window1_config.dr_offset = _params.sys_params.rx1_dr_offset;
     _params.rx_window1_config.dl_dwell_time = _params.sys_params.downlink_dwell_time;
     _params.rx_window1_config.is_repeater_supported = _params.is_repeater_supported;
@@ -1094,6 +1112,8 @@ lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;
     lorawan_time_t backoff_time = 0;
+    lorawan_time_t aggregated_timeoff = 0;
+    uint8_t channel = 0;
     uint8_t fopts_len = 0;
 
     if (_params.sys_params.max_duty_cycle == 255) {
@@ -1119,9 +1139,12 @@ lorawan_status_t LoRaMac::schedule_tx()
     next_channel.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
     lorawan_status_t status = _lora_phy->set_next_channel(&next_channel,
-                                                          &_params.channel,
+                                                          &channel,
                                                           &backoff_time,
-                                                          &_params.timers.aggregated_timeoff);
+                                                          &aggregated_timeoff);
+
+    _params.channel = channel;
+    _params.timers.aggregated_timeoff = aggregated_timeoff;
 
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:

@@ -118,12 +118,12 @@ TEST_F(TestCellularDevice, test_set_sim_ready)
     CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_OK);
 
-    CellularStateMachine_stub::get_current_current_state = STATE_MANUAL_REGISTERING_NETWORK;
+    CellularStateMachine_stub::get_current_current_state = STATE_REGISTERING_NETWORK;
     CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_ALREADY);
 
     CellularStateMachine_stub::bool_value = true;
-    CellularStateMachine_stub::get_current_target_state = STATE_MANUAL_REGISTERING_NETWORK;
+    CellularStateMachine_stub::get_current_target_state = STATE_REGISTERING_NETWORK;
     CellularStateMachine_stub::get_current_current_state = STATE_POWER_ON;
     ASSERT_EQ(dev->set_sim_ready(), NSAPI_ERROR_IN_PROGRESS);
     delete dev;

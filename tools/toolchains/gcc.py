@@ -20,7 +20,6 @@ from os import getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
-from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import run_cmd
 
@@ -59,30 +58,37 @@ class GCC(mbedToolchain):
             self.flags["common"].append("-DMBED_RTOS_SINGLE_THREAD")
             self.flags["ld"].append("--specs=nano.specs")
 
-        core = target.core
         self.cpu = []
-        if CORE_ARCH[target.core] == 8:
-            # Add linking time preprocessor macro DOMAIN_NS
-            if target.core.endswith("-NS"):
-                self.flags["ld"].append("-DDOMAIN_NS=1")
-                core = target.core[:-3]
-            else:
-                self.cpu.append("-mcmse")
-                self.flags["ld"].extend([
-                    "-Wl,--cmse-implib",
-                    "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
-                ])
+        if target.is_TrustZone_secure_target:
+            # Enable compiler security extensions
+            self.cpu.append("-mcmse")
+            # Output secure import library
+            self.flags["ld"].extend([
+                "-Wl,--cmse-implib",
+                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+            ])
 
+        if target.is_TrustZone_non_secure_target:
+            # Add linking time preprocessor macro DOMAIN_NS
+            # (DOMAIN_NS is passed to compiler and assembler via CORTEX_SYMBOLS
+            # in mbedToolchain.get_symbols)
+            self.flags["ld"].append("-DDOMAIN_NS=1")
+
+        core = target.core_without_NS
         cpu = {
             "Cortex-M0+": "cortex-m0plus",
             "Cortex-M4F": "cortex-m4",
             "Cortex-M7F": "cortex-m7",
             "Cortex-M7FD": "cortex-m7",
+            "Cortex-M33": "cortex-m33+nodsp",
+            "Cortex-M33E": "cortex-m33",
             "Cortex-M33F": "cortex-m33+nodsp",
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
-        if core == "Cortex-M33":
+        if cpu == "cortex-m33+nodsp":
             self.cpu.append("-march=armv8-m.main")
+        elif cpu == "cortex-m33":
+            self.cpu.append("-march=armv8-m.main+dsp")
         else:
             self.cpu.append("-mcpu={}".format(cpu.lower()))
 
@@ -93,14 +99,11 @@ class GCC(mbedToolchain):
         if core == "Cortex-M4F":
             self.cpu.append("-mfpu=fpv4-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
-        elif core == "Cortex-M7F":
+        elif core == "Cortex-M7F" or core.startswith("Cortex-M33F"):
             self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
         elif core == "Cortex-M7FD":
             self.cpu.append("-mfpu=fpv5-d16")
-            self.cpu.append("-mfloat-abi=softfp")
-        elif core.startswith("Cortex-M33F"):
-            self.cpu.append("-mfpu=fpv5-sp-d16")
             self.cpu.append("-mfloat-abi=softfp")
 
         if target.core == "Cortex-A9":

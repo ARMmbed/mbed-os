@@ -81,6 +81,7 @@
 #include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
 #include "Service_Libs/load_balance/load_balance_api.h"
 #include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
+#include "Service_Libs/etx/etx.h"
 
 #include "mac_api.h"
 #include "ethernet_mac_api.h"
@@ -260,6 +261,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                     if (cur->nwk_wpan_nvm_api) {
                         cur->nwk_wpan_nvm_api->nvm_params_update_cb(cur->nwk_wpan_nvm_api, false);
                     }
+                    etx_cache_timer(cur->id, seconds);
                 }
             } else if (cur->nwk_id == IF_IPV6) {
                 //Slow Pointer Update
@@ -300,6 +302,9 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
+#ifdef HAVE_WS
+        ws_pae_controller_slow_timer(seconds);
+#endif
         protocol_6lowpan_mle_timer(seconds);
         /* This limit bad behaviour device's MLE link reject generation */
 
@@ -339,7 +344,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
     icmpv6_radv_timer(ticksUpdate);
     protocol_core_security_tick_update(ticksUpdate);
 #ifdef HAVE_WS
-    ws_pae_controller_timer(ticksUpdate);
+    ws_pae_controller_fast_timer(ticksUpdate);
 #endif
     platform_enter_critical();
     protocol_core_timer_info.core_timer_event = false;
@@ -1134,4 +1139,28 @@ int8_t protocol_interface_address_compare(const uint8_t *addr)
 
     return -1;
 }
+
+static bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *interface, const uint8_t *prefix, uint8_t prefix_len)
+{
+    ns_list_foreach(if_address_entry_t, adr, &interface->ip_addresses) {
+        if (bitsequal(adr->address, prefix, prefix_len)) {
+            /* Prefix  stil used at list so stop checking */
+            return true;
+        }
+    }
+    return false;
+}
+
+bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len)
+{
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+
+        if (protocol_address_prefix_cmp(cur, prefix, prefix_len)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 

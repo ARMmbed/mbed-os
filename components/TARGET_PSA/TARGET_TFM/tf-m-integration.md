@@ -26,12 +26,12 @@ TF-M is built as bare-metal in a secure target, in order to build a secure targe
 ## Build hooks
 
 Mbed-OS testing tools are designed to work with a single image (`.bin` or `.hex`).
-When building mbed-os for ARMv8-M targets two images are created. One for normal world(NW) and one for TrustZone(TZ).
+When building mbed-os for TF-M targets two images are created. One for normal world(NW) and one for TrustZone(TZ).
 Mbed-OS build system provides `post_binary_hook` that allows executing arbitrary Python script for merging NW and TZ images. Typically `post_binary_hook` is added to NW target and assumes TZ target images as a prerequisite.
 
-## Porting ARMv8-M targets
+## Porting TF-M targets
 
-Typically firmware for ARMv8-M targets consist of 2 or more images: normal world and TrustZone image. More images can be present in case boot loaders are used.
+Typically firmware for TF-M targets consist of 2 or more images: normal world and TrustZone image. More images can be present in case boot loaders are used.
 Two images must be built and linked separately. TrustZone image must be built first.
 
 There may be code and/or header files sharing between the two targets.

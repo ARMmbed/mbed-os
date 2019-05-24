@@ -24,6 +24,7 @@
 #include "platform/mbed_assert.h"
 #include "Timeout.h"
 #include "Timer.h"
+#include "Ticker.h"
 #include "events/Event.h"
 #include "events/mbed_shared_queues.h"
 
@@ -44,6 +45,61 @@ static EventQueue *equeue;
 
 static uint32_t due;
 static void (*arm_hal_callback)(void);
+
+#if defined(NS_EVENTLOOP_USE_TICK_TIMER)
+
+#if MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
+static SingletonPtr<Ticker> tick_ticker;
+#endif
+
+static int tick_timer_id;
+static void (*tick_timer_cb)(void);
+
+int8_t platform_tick_timer_register(void (*tick_timer_cb_handler)(void))
+{
+#if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
+    equeue = mbed_highprio_event_queue();
+    MBED_ASSERT(equeue != NULL);
+#endif
+
+    tick_timer_cb = tick_timer_cb_handler;
+    return 0;
+}
+
+int8_t platform_tick_timer_start(uint32_t period_ms)
+{
+    int8_t retval = -1;
+    if (tick_timer_cb && tick_timer_id == 0) {
+#if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
+        tick_timer_id = equeue->call_every(period_ms, tick_timer_cb);
+        if (tick_timer_id != 0) {
+            retval = 0;
+        }
+#else
+        tick_ticker->attach_us(tick_timer_cb, period_ms * 1000);
+        tick_timer_id = 1;
+        retval = 0;
+#endif
+    }
+    return retval;
+}
+
+int8_t platform_tick_timer_stop(void)
+{
+    int8_t retval = -1;
+    if (tick_timer_id != 0) {
+#if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
+        equeue->cancel(tick_timer_id);
+#else
+        tick_ticker->detach();
+#endif
+        tick_timer_id = 0;
+        retval = 0;
+    }
+    return retval;
+}
+#endif // NS_EVENTLOOP_USE_TICK_TIMER
+
 
 // Called once at boot
 void platform_timer_enable(void)

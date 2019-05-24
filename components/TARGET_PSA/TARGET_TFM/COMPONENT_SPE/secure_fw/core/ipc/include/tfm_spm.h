@@ -9,6 +9,7 @@
 
 #include <stdbool.h>
 #include "tfm_list.h"
+#include "tfm_secure_api.h"
 
 #ifndef TFM_SPM_MAX_ROT_SERV_NUM
 #define TFM_SPM_MAX_ROT_SERV_NUM        28
@@ -59,7 +60,7 @@ struct tfm_spm_service_t {
 struct tfm_spm_ipc_partition_t {
     int32_t index;                      /* Partition index                   */
     int32_t id;                         /* Secure partition ID               */
-    struct tfm_event_ctx signal_event;  /* Event signal                      */
+    struct tfm_event_t signal_evnt;     /* Event signal                      */
     uint32_t signals;                   /* Service signals had been triggered*/
     uint32_t signal_mask;        /* Service signal mask passed by psa_wait() */
     struct tfm_list_node_t service_list;/* Service list                      */
@@ -283,12 +284,15 @@ int32_t tfm_spm_check_client_version(struct tfm_spm_service_t *service,
  * \param[in] buffer        Pointer of memory reference
  * \param[in] len           Length of memory reference in bytes
  * \param[in] ns_caller     From non-secure caller
+ * \param[in] access        Type of access specified by the
+ *                          \ref tfm_memory_access_e
  *
  * \retval IPC_SUCCESS      Success
  * \retval IPC_ERROR_BAD_PARAMETERS Bad parameters input
  * \retval IPC_ERROR_MEMORY_CHECK Check failed
  */
-int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller);
+int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller,
+                         enum tfm_memory_access_e access);
 
 /* This function should be called before schedule function */
 void tfm_spm_init(void);

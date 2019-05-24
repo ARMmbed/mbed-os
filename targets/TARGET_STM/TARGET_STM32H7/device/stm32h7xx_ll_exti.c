@@ -16,7 +16,7 @@
   *
   ******************************************************************************
   */
-#if 1 // MBED PATCH defined(USE_FULL_LL_DRIVER)
+#if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_ll_exti.h"
@@ -126,6 +126,23 @@ ErrorStatus LL_EXTI_DeInit(void)
   LL_EXTI_WriteReg(PR2, EXTI_PR2_PR_Msk);
   LL_EXTI_WriteReg(PR3, EXTI_PR3_PR_Msk);
 
+#if defined(DUAL_CORE)
+  /* Interrupt mask register set to default reset values  for Core 2 (Coretx-M4)*/
+  LL_EXTI_WriteReg(C2IMR1, 0x00000000U);
+  LL_EXTI_WriteReg(C2IMR2, 0x00000000U);
+  LL_EXTI_WriteReg(C2IMR3, 0x00000000U);
+
+  /*  Event mask register set to default reset values */
+  LL_EXTI_WriteReg(C2EMR1, 0x00000000U);
+  LL_EXTI_WriteReg(C2EMR2, 0x00000000U);
+  LL_EXTI_WriteReg(C2EMR3, 0x00000000U);
+
+  /* Clear Pending requests */
+  LL_EXTI_WriteReg(C2PR1, EXTI_PR1_PR_Msk);
+  LL_EXTI_WriteReg(C2PR2, EXTI_PR2_PR_Msk);
+  LL_EXTI_WriteReg(C2PR3, EXTI_PR3_PR_Msk);
+
+#endif /* DUAL_CORE*/
   return SUCCESS;
 }
 
@@ -175,6 +192,29 @@ ErrorStatus LL_EXTI_Init(LL_EXTI_InitTypeDef *EXTI_InitStruct)
         /* Disable event on provided Lines for Cortex-M7 */
         LL_EXTI_DisableEvent_0_31(EXTI_InitStruct->Line_0_31);
       }
+#if defined(DUAL_CORE)
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_IT) == LL_EXTI_MODE_C2_IT)
+      {
+        /* Enable IT on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableIT_0_31 (EXTI_InitStruct->Line_0_31);
+      }
+      else
+      {
+        /* Disable IT on provided Lines for Cortex-M4*/
+        LL_C2_EXTI_DisableIT_0_31(EXTI_InitStruct->Line_0_31);
+      }
+
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_EVENT) == LL_EXTI_MODE_C2_EVENT)
+      {
+        /* Enable event on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableEvent_0_31(EXTI_InitStruct->Line_0_31);
+      }
+      else
+      {
+        /* Disable event on provided Lines for Cortex-M4*/
+        LL_C2_EXTI_DisableEvent_0_31(EXTI_InitStruct->Line_0_31);
+      }
+#endif /* DUAL_CORE */
 
       if (EXTI_InitStruct->Trigger != LL_EXTI_TRIGGER_NONE)
       {
@@ -226,6 +266,29 @@ ErrorStatus LL_EXTI_Init(LL_EXTI_InitTypeDef *EXTI_InitStruct)
         /* Disable event on provided Lines for Cortex-M7 */
         LL_EXTI_DisableEvent_32_63(EXTI_InitStruct->Line_32_63);
       }
+#if defined(DUAL_CORE)
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_IT) == LL_EXTI_MODE_C2_IT)
+      {
+        /* Enable IT on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableIT_32_63 (EXTI_InitStruct->Line_32_63);
+      }
+      else
+      {
+        /* Disable IT on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_DisableIT_32_63 (EXTI_InitStruct->Line_32_63);
+      }
+
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_EVENT) == LL_EXTI_MODE_C2_EVENT)
+      {
+        /* Enable event on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableEvent_32_63(EXTI_InitStruct->Line_32_63);
+      }
+      else
+      {
+        /* Disable event on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_DisableEvent_32_63(EXTI_InitStruct->Line_32_63);
+      }
+#endif /* DUAL_CORE */
 
       if (EXTI_InitStruct->Trigger != LL_EXTI_TRIGGER_NONE)
       {
@@ -278,6 +341,30 @@ ErrorStatus LL_EXTI_Init(LL_EXTI_InitTypeDef *EXTI_InitStruct)
         LL_EXTI_DisableEvent_64_95(EXTI_InitStruct->Line_64_95);
       }
 
+#if defined(DUAL_CORE)
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_IT) == LL_EXTI_MODE_C2_IT)
+      {
+        /* Enable IT on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableIT_64_95 (EXTI_InitStruct->Line_64_95);
+      }
+      else
+      {
+        /* Disable IT on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_DisableIT_64_95 (EXTI_InitStruct->Line_64_95);
+      }
+
+      if((EXTI_InitStruct->Mode & LL_EXTI_MODE_C2_EVENT) == LL_EXTI_MODE_C2_EVENT)
+      {
+        /* Enable event on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_EnableEvent_64_95(EXTI_InitStruct->Line_64_95);
+      }
+      else
+      {
+        /* Disable event on provided Lines for Cortex-M4 */
+        LL_C2_EXTI_DisableEvent_64_95(EXTI_InitStruct->Line_64_95);
+      }
+#endif /* DUAL_CORE */
+
       if (EXTI_InitStruct->Trigger != LL_EXTI_TRIGGER_NONE)
       {
         switch (EXTI_InitStruct->Trigger)
@@ -317,6 +404,17 @@ ErrorStatus LL_EXTI_Init(LL_EXTI_InitTypeDef *EXTI_InitStruct)
     LL_EXTI_DisableEvent_32_63(EXTI_InitStruct->Line_32_63);
     LL_EXTI_DisableEvent_64_95(EXTI_InitStruct->Line_64_95);
 
+#if defined(DUAL_CORE)
+    /* Disable IT on provided Lines for Cortex-M4*/
+    LL_C2_EXTI_DisableIT_0_31(EXTI_InitStruct->Line_0_31);
+    LL_C2_EXTI_DisableIT_32_63(EXTI_InitStruct->Line_32_63);
+    LL_C2_EXTI_DisableIT_64_95(EXTI_InitStruct->Line_64_95);
+
+    /* Disable event on provided Lines for Cortex-M4 */
+    LL_C2_EXTI_DisableEvent_0_31(EXTI_InitStruct->Line_0_31);
+    LL_C2_EXTI_DisableEvent_32_63(EXTI_InitStruct->Line_32_63);
+    LL_C2_EXTI_DisableEvent_64_95(EXTI_InitStruct->Line_64_95);
+#endif /* DUAL_CORE */
   }
 
   return status;

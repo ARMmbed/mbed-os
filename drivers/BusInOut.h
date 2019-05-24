@@ -24,7 +24,10 @@
 namespace mbed {
 /** \addtogroup drivers */
 
-/** A digital input output bus, used for setting the state of a collection of pins
+/** A digital input output bus, used for setting the state of a collection of pins.
+ *  Implemented as an array of DigitalInOut pins, the bus can be constructed by any
+ *  pins without restriction other than being capable of digital input or output
+ *  capabilities
  *
  * @note Synchronization level: Thread safe
  * @ingroup drivers
@@ -33,7 +36,7 @@ class BusInOut : private NonCopyable<BusInOut> {
 
 public:
 
-    /** Create an BusInOut, connected to the specified pins
+    /** Create a BusInOut, connected to the specified pins
      *
      *  @param p0 DigitalInOut pin to connect to bus bit
      *  @param p1 DigitalInOut pin to connect to bus bit
@@ -61,9 +64,11 @@ public:
              PinName p8 = NC, PinName p9 = NC, PinName p10 = NC, PinName p11 = NC,
              PinName p12 = NC, PinName p13 = NC, PinName p14 = NC, PinName p15 = NC);
 
-    /** Create an BusInOut, connected to the specified pins
+    /** Create a BusInOut, connected to the specified pins
      *
-     *  @param pins An array of pins to construct a BusInOut from
+     *  @param pins An array of pins (PinName) to construct a BusInOut from. The maximum
+     *  number of pins in the array is 16 and any pins that are unspecified or are not to be
+     *  connected must be specified as NC in the array that is passed in
      */
     BusInOut(PinName pins[16]);
 
@@ -111,7 +116,7 @@ public:
     }
 
     /** A shorthand for write()
-    * \sa BusInOut::write()
+     * \sa BusInOut::write()
      */
     BusInOut &operator= (int v);
     BusInOut &operator= (BusInOut &rhs);
@@ -125,8 +130,9 @@ public:
      * \sa BusInOut::read()
      */
     operator int();
-#if !defined(DOXYGEN_ONLY)
+
 protected:
+#if !defined(DOXYGEN_ONLY)
     virtual void lock();
     virtual void unlock();
     DigitalInOut *_pin[16];
@@ -138,7 +144,7 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
-#endif
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

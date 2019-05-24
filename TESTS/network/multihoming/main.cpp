@@ -29,6 +29,8 @@
 #error [NOT_SUPPORTED] Both Wifi and Ethernet devices are required for multihoming tests.
 #endif
 
+#define STRING_VERIFY(str) (str != NULL ? str : "not supported")
+
 
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -95,13 +97,12 @@ static void _ifup()
             TEST_FAIL_MESSAGE("Wifi connection error!");
             return;
         }
-        wifi->get_interface_name(interface_name[interface_num]);
-        printf("MAC: %s\n", wifi->get_mac_address());
-        printf("IP: %s\n", wifi->get_ip_address());
-        printf("Netmask: %s\n", wifi->get_netmask());
-        printf("Gateway: %s\n", wifi->get_gateway());
+        printf("Wifi interface name: %s\n\n", STRING_VERIFY(wifi->get_interface_name(interface_name[interface_num])));
+        printf("MAC: %s\n", STRING_VERIFY(wifi->get_mac_address()));
+        printf("IP: %s\n", STRING_VERIFY(wifi->get_ip_address()));
+        printf("Netmask: %s\n", STRING_VERIFY(wifi->get_netmask()));
+        printf("Gateway: %s\n", STRING_VERIFY(wifi->get_gateway()));
         printf("RSSI: %d\n\n", wifi->get_rssi());
-        printf("Wifi interface name: %s\n\n", interface_name[interface_num]);
         interface_num++;
     } else {
         TEST_FAIL_MESSAGE("ERROR: No WiFiInterface found!");

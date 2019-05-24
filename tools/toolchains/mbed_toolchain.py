@@ -255,6 +255,7 @@ class mbedToolchain:
                     "COMPONENT_" + data + "=1"
                     for data in self.target.components
                 ]
+
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
@@ -663,7 +664,10 @@ class mbedToolchain:
         region_list = [r._replace(filename=binary) if r.active else r
                        for r in region_list]
         res = "{}.{}".format(join(self.build_dir, name), ext)
-        merge_region_list(region_list, res, self.notify, self.config)
+        merge_region_list(
+            region_list, res, self.notify,
+            restrict_size=self.config.target.restrict_size
+        )
         update_regions = [
             r for r in region_list if r.name in UPDATE_WHITELIST
         ]
@@ -676,7 +680,7 @@ class mbedToolchain:
                 update_regions,
                 update_res,
                 self.notify,
-                self.config
+                restrict_size=self.config.target.restrict_size
             )
             return res, update_res
         else:
@@ -763,7 +767,7 @@ class mbedToolchain:
         self.mem_stats(mapfile)
 
         self.notify.var("compile_succeded", True)
-        self.notify.var("binary", filename)
+        self.notify.var("binary", full_path)
 
         return full_path, updatable
 
@@ -775,6 +779,7 @@ class mbedToolchain:
         )
         self.notify.debug("Return: %s" % rc)
 
+        self.parse_output(stderr)
         for output_line in stdout.splitlines():
             self.notify.debug("Output: %s" % output_line)
         for error_line in stderr.splitlines():
@@ -840,7 +845,7 @@ class mbedToolchain:
     def _add_all_regions(self, region_list, active_region_name):
         for region in region_list:
             self._add_defines_from_region(region)
-            if region.active:
+            if region.active and active_region_name:
                 for define in [
                         ("%s_START" % active_region_name,
                          "0x%x" % region.start),
@@ -874,7 +879,7 @@ class mbedToolchain:
                     "s" if len(regions) > 1 else "",
                     ", ".join(r.name for r in regions)
                 ))
-                self._add_all_regions(regions, "MBED_RAM")
+                self._add_all_regions(regions, None)
             except ConfigException:
                 pass
 
@@ -914,6 +919,7 @@ class mbedToolchain:
             pass
 
     STACK_PARAM = "target.boot-stack-size"
+    TFM_LVL_PARAM = "tfm.level"
 
     def add_linker_defines(self):
         params, _ = self.config_data
@@ -926,28 +932,30 @@ class mbedToolchain:
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
 
-        flags2params = {}
-        if self.target.is_PSA_non_secure_target:
-            flags2params = {
-                "MBED_ROM_START": "target.non-secure-rom-start",
-                "MBED_ROM_SIZE": "target.non-secure-rom-size",
-                "MBED_RAM_START": "target.non-secure-ram-start",
-                "MBED_RAM_SIZE": "target.non-secure-ram-size"
-            }
-        if self.target.is_PSA_secure_target:
-            flags2params = {
-                "MBED_ROM_START": "target.secure-rom-start",
-                "MBED_ROM_SIZE": "target.secure-rom-size",
-                "MBED_RAM_START": "target.secure-ram-start",
-                "MBED_RAM_SIZE": "target.secure-ram-size",
-                "MBED_PUBLIC_RAM_START": "target.public-ram-start",
-                "MBED_PUBLIC_RAM_SIZE": "target.public-ram-size"
-            }
-
-        for flag, param in flags2params.items():
-            define_string = self.make_ld_define(flag, params[param].value)
+        # Pass TFM_LVL to linker files, so single linker file can support different TFM security levels.
+        if self.TFM_LVL_PARAM in params:
+            define_string = self.make_ld_define(
+                "TFM_LVL",
+                params[self.TFM_LVL_PARAM].value
+            )
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
+
+        if self.target.is_PSA_secure_target:
+            for flag, param in [
+                ("MBED_PUBLIC_RAM_START", "target.public-ram-start"),
+                ("MBED_PUBLIC_RAM_SIZE", "target.public-ram-size")
+            ]:
+                define_string = self.make_ld_define(flag, params[param].value)
+                self.ld.append(define_string)
+                self.flags["ld"].append(define_string)
+
+        if hasattr(self.target, 'post_binary_hook'):
+            if self.target.post_binary_hook is None:
+                define_string = self.make_ld_define(
+                    "DISABLE_POST_BINARY_HOOK", 1)
+                self.ld.append(define_string)
+                self.flags["ld"].append(define_string)
 
     # Set the configuration data
     def set_config_data(self, config_data):

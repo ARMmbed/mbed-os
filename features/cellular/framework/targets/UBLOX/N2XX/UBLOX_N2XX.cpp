@@ -40,7 +40,7 @@ UBLOX_N2XX::UBLOX_N2XX(FileHandle *fh): AT_CellularDevice(fh)
 {
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _at->set_urc_handler("+NPIN:", mbed::Callback<void()>(this, &UBLOX_N2XX::NPIN_URC));
-    memset(simstr,0,sizeof(simstr));
+    memset(simstr, 0, sizeof(simstr));
 }
 
 UBLOX_N2XX::~UBLOX_N2XX()
@@ -113,18 +113,18 @@ nsapi_error_t UBLOX_N2XX::get_sim_state(SimState &state)
 
 #if MBED_CONF_MBED_TRACE_ENABLE
     switch (state) {
-    case SimStatePinNeeded:
-        tr_info("SIM PIN required");
-        break;
-    case SimStatePukNeeded:
-        tr_error("SIM PUK required");
-        break;
-    case SimStateUnknown:
-        tr_warn("SIM state unknown");
-        break;
-    default:
-        tr_info("SIM is ready");
-        break;
+        case SimStatePinNeeded:
+            tr_info("SIM PIN required");
+            break;
+        case SimStatePukNeeded:
+            tr_error("SIM PUK required");
+            break;
+        case SimStateUnknown:
+            tr_warn("SIM state unknown");
+            break;
+        default:
+            tr_info("SIM is ready");
+            break;
     }
 #endif
     return error;
@@ -149,3 +149,17 @@ nsapi_error_t UBLOX_N2XX::set_pin(const char *sim_pin)
     _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }
+
+#if MBED_CONF_UBLOX_N2XX_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_UBLOX_N2XX_TX, MBED_CONF_UBLOX_N2XX_RX, MBED_CONF_UBLOX_N2XX_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_N2XX_RTS) && defined(MBED_CONF_UBLOX_N2XX_CTS)
+    tr_debug("UBLOX_N2XX flow control: RTS %d CTS %d", MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_N2XX_RTS, MBED_CONF_UBLOX_N2XX_CTS);
+#endif
+    static UBLOX_N2XX device(&serial);
+    return &device;
+}
+#endif

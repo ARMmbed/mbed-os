@@ -7849,7 +7849,6 @@ static void  HRTIM_OutputConfig(HRTIM_HandleTypeDef * hhrtim,
       /* Set the output set/reset crossbar */
       hhrtim->Instance->sTimerxRegs[TimerIdx].SETx1R = pOutputCfg->SetSource;
       hhrtim->Instance->sTimerxRegs[TimerIdx].RSTx1R = pOutputCfg->ResetSource;
-      shift = 0U;
       break;
     }
 

@@ -107,6 +107,7 @@ extern "C" {
 #define LL_MPU_REGION_NUMBER5              0x05UL /*!< REGION Number 5  */
 #define LL_MPU_REGION_NUMBER6              0x06UL /*!< REGION Number 6  */
 #define LL_MPU_REGION_NUMBER7              0x07UL /*!< REGION Number 7  */
+#if !defined(CORE_CM4)
 #define LL_MPU_REGION_NUMBER8              0x08UL /*!< REGION Number 8  */
 #define LL_MPU_REGION_NUMBER9              0x09UL /*!< REGION Number 9  */
 #define LL_MPU_REGION_NUMBER10             0x0AUL /*!< REGION Number 10 */
@@ -115,6 +116,7 @@ extern "C" {
 #define LL_MPU_REGION_NUMBER13             0x0DUL /*!< REGION Number 13 */
 #define LL_MPU_REGION_NUMBER14             0x0EUL /*!< REGION Number 14 */
 #define LL_MPU_REGION_NUMBER15             0x0FUL /*!< REGION Number 15 */
+#endif /* !defined(CORE_CM4) */
 /**
   * @}
   */

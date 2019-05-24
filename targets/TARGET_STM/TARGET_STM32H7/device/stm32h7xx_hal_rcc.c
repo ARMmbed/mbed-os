@@ -205,7 +205,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   }
 
   /* Set HSITRIM[6:0] bits to the reset value */
-  SET_BIT(RCC->ICSCR, RCC_ICSCR_HSITRIM_5);
+  SET_BIT(RCC->HSICFGR, RCC_HSICFGR_HSITRIM_6);
 
   /* Reset CFGR register */
   CLEAR_REG(RCC->CFGR);
@@ -719,6 +719,7 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
         assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
         assert_param(IS_RCC_PLLQ_VALUE(RCC_OscInitStruct->PLL.PLLQ));
         assert_param(IS_RCC_PLLR_VALUE(RCC_OscInitStruct->PLL.PLLR));
+        assert_param(IS_RCC_PLLFRACN_VALUE(RCC_OscInitStruct->PLL.PLLFRACN));
 
         /* Disable the main PLL. */
         __HAL_RCC_PLL_DISABLE();
@@ -742,6 +743,9 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
                              RCC_OscInitStruct->PLL.PLLP,
                              RCC_OscInitStruct->PLL.PLLQ,
                              RCC_OscInitStruct->PLL.PLLR);
+
+         /* Disable PLLFRACN . */
+         __HAL_RCC_PLLFRACN_DISABLE();
 
          /* Configure PLL  PLL1FRACN */
          __HAL_RCC_PLLFRACN_CONFIG(RCC_OscInitStruct->PLL.PLLFRACN);
@@ -1361,7 +1365,14 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->CSIState = RCC_CSI_OFF;
   }
 
-  RCC_OscInitStruct->CSICalibrationValue = (uint32_t)((RCC->ICSCR & RCC_ICSCR_CSITRIM) >> RCC_ICSCR_CSITRIM_Pos);
+  if(HAL_GetREVID() <= REV_ID_Y)
+  {
+    RCC_OscInitStruct->CSICalibrationValue = (uint32_t)(READ_BIT(RCC->HSICFGR, HAL_RCC_REV_Y_CSITRIM_Msk) >> HAL_RCC_REV_Y_CSITRIM_Pos);
+  }
+  else
+  {
+    RCC_OscInitStruct->CSICalibrationValue = (uint32_t)(READ_BIT(RCC->CSICFGR, RCC_CSICFGR_CSITRIM) >> RCC_CSICFGR_CSITRIM_Pos);
+  }
 
   /* Get the HSI configuration -----------------------------------------------*/
   if((RCC->CR &RCC_CR_HSION) == RCC_CR_HSION)
@@ -1373,7 +1384,14 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->HSIState = RCC_HSI_OFF;
   }
 
-  RCC_OscInitStruct->HSICalibrationValue = (uint32_t)((RCC->ICSCR & RCC_ICSCR_HSITRIM) >> RCC_ICSCR_HSITRIM_Pos);
+  if(HAL_GetREVID() <= REV_ID_Y)
+  {
+    RCC_OscInitStruct->HSICalibrationValue = (uint32_t)(READ_BIT(RCC->HSICFGR, HAL_RCC_REV_Y_HSITRIM_Msk) >> HAL_RCC_REV_Y_HSITRIM_Pos);
+  }
+  else
+  {
+    RCC_OscInitStruct->HSICalibrationValue = (uint32_t)(READ_BIT(RCC->HSICFGR, RCC_HSICFGR_HSITRIM) >> RCC_HSICFGR_HSITRIM_Pos);
+  }
 
   /* Get the LSE configuration -----------------------------------------------*/
   if((RCC->BDCR &RCC_BDCR_LSEBYP) == RCC_BDCR_LSEBYP)

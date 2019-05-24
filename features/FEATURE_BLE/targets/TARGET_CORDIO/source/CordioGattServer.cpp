@@ -71,12 +71,21 @@ void GattServer::initialize()
 #if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
 #endif
-    add_generic_access_service();
-    add_generic_attribute_service();
+    add_default_services();
+}
+
+void GattServer::add_default_services()
+{
+    if (!default_services_added) {
+        default_services_added = true;
+        add_generic_access_service();
+        add_generic_attribute_service();
+    }
 }
 
 ble_error_t GattServer::addService_(GattService &service)
 {
+    add_default_services();
     // create and fill the service structure
     internal_service_t *att_service = new internal_service_t;
     att_service->attGroup.pNext = NULL;
@@ -312,8 +321,10 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     memset(attribute_it->pValue + *attribute_it->pLen, 0, attribute_it->maxLen - *attribute_it->pLen);
 
     // Set value attribute settings
+    attribute_it->settings = 0;
+
     if (properties & READ_PROPERTY) {
-        attribute_it->settings = ATTS_SET_READ_CBACK;
+        attribute_it->settings |= ATTS_SET_READ_CBACK;
     }
     if (properties & WRITABLE_PROPERTIES) {
         attribute_it->settings |= ATTS_SET_WRITE_CBACK;
@@ -395,7 +406,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     // characteristic.
     // User defined security authorisation does not impact this flag
     if ((attribute_it->permissions & (ATTS_PERMIT_READ_AUTHORIZ | ATTS_PERMIT_WRITE_AUTHORIZ)) ||
-        (attribute_it->permissions & UPDATE_PROPERTIES) ||
+        (properties & UPDATE_PROPERTIES) ||
         characteristic->isReadAuthorizationEnabled() ||
         characteristic->isWriteAuthorizationEnabled()
     ) {
@@ -499,7 +510,7 @@ ble_error_t GattServer::insert_descriptor(
 #endif // BLE_FEATURE_SECURITY
         }
 
-        if (properties & READ_PROPERTY) {
+        if (properties & READ_PROPERTY && !(attribute_it->settings & ATTS_SET_CCC)) {
             attribute_it->settings |= ATTS_SET_READ_CBACK;
         }
     }
@@ -532,7 +543,7 @@ ble_error_t GattServer::insert_descriptor(
 #endif // BLE_FEATURE_SECURITY
         }
 
-        if (properties & WRITABLE_PROPERTIES) {
+        if (properties & WRITABLE_PROPERTIES && !(attribute_it->settings & ATTS_SET_CCC)) {
             attribute_it->settings |= ATTS_SET_WRITE_CBACK;
         }
     }
@@ -684,10 +695,6 @@ ble_error_t GattServer::write_(
     }
 #endif // BLE_FEATURE_SECURITY
 
-    if (updates_sent) {
-        handleDataSentEvent(updates_sent);
-    }
-
     return BLE_ERROR_NONE;
 }
 
@@ -737,10 +744,6 @@ ble_error_t GattServer::write_(
         }
     }
 #endif // BLE_FEATURE_SECURITY
-
-    if (updates_sent) {
-        handleDataSentEvent(updates_sent);
-    }
 
     return BLE_ERROR_NONE;
 }
@@ -1344,7 +1347,8 @@ GattServer::GattServer() :
     generic_attribute_service(),
     registered_service(NULL),
     allocated_blocks(NULL),
-    currentHandle(0)
+    currentHandle(0),
+    default_services_added(false)
 {
 }
 

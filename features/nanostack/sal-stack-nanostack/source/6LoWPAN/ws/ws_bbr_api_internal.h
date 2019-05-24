@@ -29,13 +29,15 @@ uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur);
 
 void ws_bbr_rpl_config(uint8_t imin, uint8_t doubling, uint8_t redundancy);
 
+bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur);
 
 
 #else
 
 #define ws_bbr_seconds_timer( cur, seconds)
 #define ws_bbr_pan_size(cur) 0
-#define ws_bbr_rpl_config( imin, doubling, redundancy);
+#define ws_bbr_rpl_config( imin, doubling, redundancy)
+#define ws_bbr_ready_to_start(cur) true
 
 #endif //HAVE_WS_BORDER_ROUTER
 

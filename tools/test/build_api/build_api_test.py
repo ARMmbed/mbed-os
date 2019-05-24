@@ -247,11 +247,9 @@ class BuildApiTests(unittest.TestCase):
                          "prepare_toolchain was called with an incorrect app_config")
 
     @patch('tools.regions.intelhex_offset')
-    @patch('tools.config')
-    def test_merge_region_no_fit(self, mock_config, mock_intelhex_offset):
+    def test_merge_region_no_fit(self, mock_intelhex_offset):
         """
         Test that merge_region_list call fails when part size overflows region size.
-        :param mock_config: config object that is mocked.
         :param mock_intelhex_offset: mocked intel_hex_offset call.
         :return:
         """
@@ -267,15 +265,12 @@ class BuildApiTests(unittest.TestCase):
         region_list = [region_application, region_post_application]
         # path to store the result in, should not get used as we expect exception.
         res = "./"
-        mock_config.target.restrict_size = 90000
         toolexception = False
 
         try:
-            merge_region_list(region_list, res, notify, mock_config)
+            merge_region_list(region_list, res, notify, restrict_size=90000)
         except ToolException:
             toolexception = True
-        except Exception as e:
-            print("%s %s" % (e.message, e.args))
 
         self.assertTrue(toolexception, "Expected ToolException not raised")
 

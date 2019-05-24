@@ -47,10 +47,10 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /**
- * @brief STM32H7xx HAL Driver version number V1.4.0
+ * @brief STM32H7xx HAL Driver version number V1.5.0
    */
 #define __STM32H7xx_HAL_VERSION_MAIN   (0x01UL) /*!< [31:24] main version */
-#define __STM32H7xx_HAL_VERSION_SUB1   (0x04UL) /*!< [23:16] sub1 version */
+#define __STM32H7xx_HAL_VERSION_SUB1   (0x05UL) /*!< [23:16] sub1 version */
 #define __STM32H7xx_HAL_VERSION_SUB2   (0x00UL) /*!< [15:8]  sub2 version */
 #define __STM32H7xx_HAL_VERSION_RC     (0x00UL) /*!< [7:0]  release candidate */
 #define __STM32H7xx_HAL_VERSION         ((__STM32H7xx_HAL_VERSION_MAIN << 24)\
@@ -127,6 +127,12 @@ HAL_StatusTypeDef HAL_Init(void)
 {
   /* Set Interrupt Group Priority */
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+  /* Update the SystemCoreClock global variable */
+  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
+
+  /* Update the SystemD2Clock global variable */  
+  SystemD2Clock = (SystemCoreClock >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_HPRE)>> RCC_D1CFGR_HPRE_Pos]) & 0x1FU));
 
   /* Use systick as time base source and configure 1ms tick (default clock after Reset is HSI) */
   if(HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK)
@@ -229,11 +235,32 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     return HAL_ERROR;
   }
 
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
+    /* Cortex-M7 detected */
+    /* Configure the SysTick to have interrupt in 1ms time basis*/
+    if (HAL_SYSTICK_Config(SystemCoreClock / (1000UL / (uint32_t)uwTickFreq)) > 0U)
+    {
+      return HAL_ERROR;
+    }
+  }
+  else
+  {
+    /* Cortex-M4 detected */
+    /* Configure the SysTick to have interrupt in 1ms time basis*/
+    if (HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / (1000UL / (uint32_t)uwTickFreq)) > 0U)
+    {
+      return HAL_ERROR;
+    }
+  }
+#else
   /* Configure the SysTick to have interrupt in 1ms time basis*/
   if (HAL_SYSTICK_Config(SystemCoreClock / (1000UL / (uint32_t)uwTickFreq)) > 0U)
   {
     return HAL_ERROR;
   }
+#endif
 
   /* Configure the SysTick IRQ priority */
   if (TickPriority < (1UL << __NVIC_PRIO_BITS))
@@ -602,15 +629,91 @@ void HAL_SYSCFG_CM7BootAddConfig(uint32_t BootRegister, uint32_t BootAddress)
   if ( BootRegister == SYSCFG_BOOT_ADDR0 )
   {
     /* Configure CM7 BOOT ADD0 */
+#if defined(DUAL_CORE)
+    MODIFY_REG(SYSCFG->UR2, SYSCFG_UR2_BCM7_ADD0, ((BootAddress >> 16) << SYSCFG_UR2_BCM7_ADD0_Pos));
+#else
     MODIFY_REG(SYSCFG->UR2, SYSCFG_UR2_BOOT_ADD0, ((BootAddress >> 16) << SYSCFG_UR2_BOOT_ADD0_Pos));
+#endif /*DUAL_CORE*/
   }
   else
   {
     /* Configure CM7 BOOT ADD1 */
+#if defined(DUAL_CORE)
+    MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BCM7_ADD1, (BootAddress >> 16));
+#else
     MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BOOT_ADD1, (BootAddress >> 16));
+#endif /*DUAL_CORE*/
   }
 
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  BootCM4 address 0 configuration
+  * @param  BootRegister :Specifies the Boot Address register (Address0 or Address1)
+  *   This parameter can be one of the following values:
+  *   @arg SYSCFG_BOOT_ADDR0 : Select the boot address0
+  *   @arg SYSCFG_BOOT_ADDR1:  Select the boot address1
+  * @param  BootAddress :Specifies the CM4 Boot Address to be loaded in Address0 or Address1
+  * @retval None
+  */
+void HAL_SYSCFG_CM4BootAddConfig(uint32_t BootRegister, uint32_t BootAddress)
+{
+  /* Check the parameters */
+  assert_param(IS_SYSCFG_BOOT_REGISTER(BootRegister));
+  assert_param(IS_SYSCFG_BOOT_ADDRESS(BootAddress));
+
+  if ( BootRegister == SYSCFG_BOOT_ADDR0 )
+  {
+    /* Configure CM4 BOOT ADD0 */
+    MODIFY_REG(SYSCFG->UR3, SYSCFG_UR3_BCM4_ADD0, ((BootAddress >> 16)<< SYSCFG_UR3_BCM4_ADD0_Pos));
+  }
+
+  else
+  {
+    /* Configure CM4 BOOT ADD1 */
+    MODIFY_REG(SYSCFG->UR4, SYSCFG_UR4_BCM4_ADD1, (BootAddress >> 16));
+  }
+}
+
+/**
+  * @brief  Enables the Cortex-M7 boot
+  * @retval None
+  */
+void HAL_SYSCFG_EnableCM7BOOT(void)
+{
+ SET_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM7);
+}
+
+/**
+  * @brief  Disables the Cortex-M7 boot
+  * @note   Disabling the boot will gate the CPU clock
+  * @retval None
+  */
+void HAL_SYSCFG_DisableCM7BOOT(void)
+{
+ CLEAR_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM7) ;
+}
+
+/**
+  * @brief  Enables the Cortex-M4 boot
+  * @retval None
+  */
+void HAL_SYSCFG_EnableCM4BOOT(void)
+{
+ SET_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM4);
+}
+
+/**
+  * @brief  Disables the Cortex-M4 boot
+  * @note   Disabling the boot will gate the CPU clock
+  * @retval None
+  */
+void HAL_SYSCFG_DisableCM4BOOT(void)
+{
+  CLEAR_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM4);
+}
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Enables the I/O Compensation Cell.
@@ -747,6 +850,63 @@ void HAL_DisableDBGStandbyMode(void)
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD1);
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Enable the Debug Module during Domain1 SLEEP mode
+  * @retval None
+  */
+void HAL_EnableDomain2DBGSleepMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEPD2);
+}
+
+/**
+  * @brief  Disable the Debug Module during Domain2 SLEEP mode
+  * @retval None
+  */
+void HAL_DisableDomain2DBGSleepMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEPD2);
+}
+
+/**
+  * @brief  Enable the Debug Module during Domain2 STOP mode
+  * @retval None
+  */
+void HAL_EnableDomain2DBGStopMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOPD2);
+}
+
+/**
+  * @brief  Disable the Debug Module during Domain2 STOP mode
+  * @retval None
+  */
+void HAL_DisableDomain2DBGStopMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOPD2);
+}
+
+/**
+  * @brief  Enable the Debug Module during Domain2 STANDBY mode
+  * @retval None
+  */
+void HAL_EnableDomain2DBGStandbyMode(void)
+{
+  SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD2);
+}
+
+/**
+  * @brief  Disable the Debug Module during Domain2 STANDBY mode
+  * @retval None
+  */
+void HAL_DisableDomain2DBGStandbyMode(void)
+{
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBYD2);
+}
+#endif /*DUAL_CORE*/
+
+
 /**
   * @brief  Enable the Debug Module during Domain3 STOP mode
   * @retval None
@@ -867,6 +1027,21 @@ void HAL_EXTI_D1_ClearFlag(uint32_t EXTI_Line)
 
 }
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Clears the EXTI's line pending flags for Domain D2
+  * @param   EXTI_Line: Specifies the EXTI LINE, it can be one of the following values,
+  *         (EXTI_LINE0....EXTI_LINE87)excluding :line45, line81,line83 which are reserved
+  * @retval None
+  */
+void HAL_EXTI_D2_ClearFlag(uint32_t EXTI_Line)
+{
+  /* Check the parameters */
+ assert_param(IS_EXTI_D2_LINE(EXTI_Line));
+ SET_BIT(*(__IO uint32_t *) (((uint32_t) &(EXTI_D2->PR1)) + ((EXTI_Line >> 5 ) * 0x10UL)), (uint32_t)(1UL << (EXTI_Line & 0x1FUL)));
+}
+
+#endif /*DUAL_CORE*/
 /**
   * @brief  Configure the EXTI input event line for Domain D1
   * @param   EXTI_Line: Specifies the EXTI LINE, it can be one of the following values,
@@ -911,6 +1086,53 @@ void HAL_EXTI_D1_EventInputConfig(uint32_t EXTI_Line , uint32_t EXTI_Mode,  uint
     }
   }
 }
+
+#if defined(DUAL_CORE)
+/**
+  * @brief  Configure the EXTI input event line for Domain D2
+  * @param   EXTI_Line: Specifies the EXTI LINE, it can be one of the following values,
+  *         (EXTI_LINE0....EXTI_LINE87)excluding :line45, line81,line83 which are reserved
+  * @param   EXTI_Mode: Specifies which EXTI line is used as interrupt or an event.
+  *          This parameter can be one or a combination of the following values :
+  *   @arg EXTI_MODE_IT :  Interrupt Mode selected
+  *   @arg EXTI_MODE_EVT : Event Mode selected
+  * @param   EXTI_LineCmd controls (Enable/Disable) the EXTI line.
+
+  * @retval None
+  */
+void HAL_EXTI_D2_EventInputConfig(uint32_t EXTI_Line , uint32_t EXTI_Mode,  uint32_t EXTI_LineCmd )
+{
+  /* Check the parameter */
+  assert_param(IS_EXTI_D2_LINE(EXTI_Line));
+  assert_param(IS_EXTI_MODE_LINE(EXTI_Mode));
+
+  if( (EXTI_Mode & EXTI_MODE_IT) == EXTI_MODE_IT)
+  {
+    if( EXTI_LineCmd == 0UL)
+    {
+    /* Clear EXTI line configuration */
+     CLEAR_BIT(*(__IO uint32_t *) (((uint32_t) &(EXTI_D2->IMR1)) + ((EXTI_Line >> 5 ) * 0x10UL)),(uint32_t)(1UL << (EXTI_Line & 0x1FUL)) );
+    }
+    else
+    {
+     SET_BIT(*(__IO uint32_t *) (((uint32_t) &(EXTI_D2->IMR1)) + ((EXTI_Line >> 5 ) * 0x10UL)), (uint32_t)(1UL << (EXTI_Line & 0x1FUL)));
+    }
+  }
+
+  if( (EXTI_Mode & EXTI_MODE_EVT) == EXTI_MODE_EVT)
+  {
+    if( EXTI_LineCmd == 0UL)
+    {
+      /* Clear EXTI line configuration */
+      CLEAR_BIT(  *(__IO uint32_t *) (((uint32_t) &(EXTI_D2->EMR1)) + ((EXTI_Line >> 5 ) * 0x10UL)), (uint32_t)(1UL << (EXTI_Line & 0x1FUL)));
+    }
+    else
+    {
+      SET_BIT(  *(__IO uint32_t *) (((uint32_t) &(EXTI_D2->EMR1)) + ((EXTI_Line >> 5 ) * 0x10UL)), (uint32_t)(1UL << (EXTI_Line & 0x1FUL)));
+    }
+  }
+}
+#endif /*DUAL_CORE*/
 
 /**
   * @brief  Configure the EXTI input event line for Domain D3

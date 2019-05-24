@@ -18,7 +18,6 @@
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
-#include "hal/lp_ticker_api.h"
 
 namespace mbed {
 
@@ -27,12 +26,10 @@ Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data(
     reset();
 }
 
-Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data), _lock_deepsleep(true)
+Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data),
+    _lock_deepsleep(!data->interface->runs_in_deep_sleep)
 {
     reset();
-#if DEVICE_LPTICKER
-    _lock_deepsleep = (data != get_lp_ticker_data());
-#endif
 }
 
 Timer::~Timer()

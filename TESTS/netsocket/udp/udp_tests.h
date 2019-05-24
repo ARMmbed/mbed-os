@@ -21,6 +21,7 @@
 NetworkInterface *get_interface();
 void drop_bad_packets(UDPSocket &sock, int orig_timeout);
 nsapi_version_t get_ip_version();
+bool check_oversized_packets(nsapi_error_t error, int &size);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
@@ -39,6 +40,9 @@ static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
 #else
 static const int TESTS_TIMEOUT = 480;
 #endif
+
+static const int MAX_SEND_SIZE_IPV4 = 536;
+static const int MAX_SEND_SIZE_IPV6 = 1220;
 }
 
 /*

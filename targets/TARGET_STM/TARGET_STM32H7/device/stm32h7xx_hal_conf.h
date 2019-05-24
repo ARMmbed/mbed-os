@@ -46,6 +46,7 @@
 #define HAL_DFSDM_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_DMA2D_MODULE_ENABLED
+#define HAL_DSI_MODULE_ENABLED
 #define HAL_ETH_MODULE_ENABLED
 #define HAL_EXTI_MODULE_ENABLED
 #define HAL_FDCAN_MODULE_ENABLED
@@ -133,6 +134,12 @@
   #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for LSE start up, in ms */
 #endif /* LSE_STARTUP_TIMEOUT */
 
+#if !defined  (LSI_VALUE)
+  #define LSI_VALUE  ((uint32_t)32000)      /*!< LSI Typical Value in Hz*/
+#endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
+                                              The real value may vary depending on the variations
+                                              in voltage and temperature.*/
+
 /**
   * @brief External clock source for I2S peripheral
   *        This value is used by the I2S HAL module to compute the I2S clock source
@@ -162,6 +169,7 @@
 #define  USE_HAL_DCMI_REGISTER_CALLBACKS    0U /* DCMI register callback disabled    */
 #define  USE_HAL_DFSDM_REGISTER_CALLBACKS   0U /* DFSDM register callback disabled   */
 #define  USE_HAL_DMA2D_REGISTER_CALLBACKS   0U /* DMA2D register callback disabled   */
+#define  USE_HAL_DSI_REGISTER_CALLBACKS     0U /* DSI register callback disabled     */
 #define  USE_HAL_ETH_REGISTER_CALLBACKS     0U /* ETH register callback disabled     */
 #define  USE_HAL_FDCAN_REGISTER_CALLBACKS   0U /* FDCAN register callback disabled   */
 #define  USE_HAL_NAND_REGISTER_CALLBACKS    0U /* NAND register callback disabled    */
@@ -241,6 +249,10 @@
 #ifdef HAL_DMA2D_MODULE_ENABLED
   #include "stm32h7xx_hal_dma2d.h"
 #endif /* HAL_DMA2D_MODULE_ENABLED */
+
+#ifdef HAL_DSI_MODULE_ENABLED
+  #include "stm32h7xx_hal_dsi.h"
+#endif /* HAL_DSI_MODULE_ENABLED */
 
 #ifdef HAL_DFSDM_MODULE_ENABLED
   #include "stm32h7xx_hal_dfsdm.h"
@@ -437,11 +449,11 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  //MBED PATCH #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
+  //MBED PATCH   #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
   //MBED PATCH void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
 
 #ifdef __cplusplus

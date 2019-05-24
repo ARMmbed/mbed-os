@@ -100,6 +100,7 @@ Undef_Cont
                 SUB     LR, LR, R0
                 LDR     R0, [SP, #28]               ; Restore stacked SPSR
                 MSR     SPSR_CXSF, R0
+                CLREX                               ; Clear exclusive monitor
                 POP     {R0-R4, R12}                ; Restore stacked APCS registers
                 ADD     SP, SP, #8                  ; Adjust SP for already-restored banked registers
                 MOVS    PC, LR
@@ -126,6 +127,7 @@ PAbt_Handler
                 POP     {R12, LR}                   ; Get stack adjustment & discard dummy LR
                 ADD     SP, SP, R12                 ; Unadjust stack
 
+                CLREX                               ; Clear exclusive monitor
                 POP     {R0-R4, R12}                ; Restore stack APCS registers
                 RFEFD   SP!                         ; Return from exception
 
@@ -137,7 +139,6 @@ DAbt_Handler
                 SUB     LR, LR, #8                  ; Pre-adjust LR
                 SRSFD   SP!, #MODE_ABT              ; Save LR and SPRS to ABT mode stack
                 PUSH    {R0-R4, R12}                ; Save APCS corruptible registers to ABT mode stack
-                CLREX                               ; State of exclusive monitors unknown after taken data abort
                 MRC     p15, 0, R0, c5, c0, 0       ; DFSR
                 MRC     p15, 0, R1, c6, c0, 0       ; DFAR
 
@@ -152,6 +153,7 @@ DAbt_Handler
                 POP     {R12, LR}                   ; Get stack adjustment & discard dummy LR
                 ADD     SP, SP, R12                 ; Unadjust stack
 
+                CLREX                               ; Clear exclusive monitor
                 POP     {R0-R4, R12}                ; Restore stacked APCS registers
                 RFEFD   SP!                         ; Return from exception
 
@@ -202,6 +204,7 @@ IRQ_End
                 SUBS    R1, R1, #1                  ; Decrement IRQ nesting level
                 STR     R1, [R0]
 
+                CLREX                               ; Clear exclusive monitor for interrupted code
                 POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
                 RFEFD   SP!                         ; Return from IRQ handler
 
@@ -269,6 +272,7 @@ SVC_ContextCheck
                 SUB     R1, R1, #1                  ; Decrement IRQ nesting level
                 STR     R1, [R0]
 
+                CLREX                               ; Clear exclusive monitor
                 POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
                 RFEFD   SP!                         ; Return from exception
 
@@ -281,6 +285,7 @@ SVC_User
                 LDR     R12,[R5,R12,LSL #2]         ; Load SVC Function Address
                 BLX     R12                         ; Call SVC Function
 SVC_Done
+                CLREX                               ; Clear exclusive monitor
                 POP     {R4, R5, R12, LR}
                 RFEFD   SP!                         ; Return from exception
 
