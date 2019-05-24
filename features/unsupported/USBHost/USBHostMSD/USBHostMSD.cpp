@@ -403,4 +403,9 @@ bd_size_t USBHostMSD::size() const
     USB_DBG("FILESYSTEM: size ");
     return (disk_init ? (bd_size_t)blockSize : 0);
 }
+
+const char *USBHostMSD::get_type() const
+{
+    return "USBMSD";
+}
 #endif
