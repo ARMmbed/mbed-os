@@ -18,6 +18,7 @@
 #ifndef TLS_TESTS_H
 #define TLS_TESTS_H
 
+#include "../test_params.h"
 #include "TLSSocket.h"
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
