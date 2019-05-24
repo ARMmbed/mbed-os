@@ -51,6 +51,7 @@ protected:
         urc_callback_count = 0;
         CellularUtil_stub::char_ptr = NULL;
         CellularUtil_stub::char_pos = 0;
+        filehandle_stub_short_value_counter = 0;
     }
 
     void TearDown()
@@ -352,6 +353,7 @@ TEST_F(TestATHandler, test_ATHandler_cmd_start)
 {
     EventQueue que;
     FileHandle_stub fh1;
+    fh1.short_value = 0;
 
     ATHandler at(&fh1, que, 0, ",");
     mbed_poll_stub::revents_value = POLLOUT;
