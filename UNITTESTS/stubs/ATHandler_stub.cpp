@@ -83,6 +83,9 @@ void ATHandler_stub::debug_call_count_clear()
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+    _oobCv(_fileHandleMutex),
+#endif
     _fileHandle(fh),
     _queue(queue),
     _ref_count(1),

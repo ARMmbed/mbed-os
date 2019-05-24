@@ -29,4 +29,6 @@ set(unittest-test-sources
   stubs/SocketAddress_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/ThisThread_stub.cpp
+  stubs/ConditionVariable_stub.cpp
+  stubs/Mutex_stub.cpp
 )
