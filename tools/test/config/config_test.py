@@ -255,8 +255,8 @@ def test_parameters_and_config_macros_to_macros():
 
 
 @pytest.mark.parametrize("target_start_size", [
-    ("FUTURE_SEQUANA_PSA", 0x10080000, 0x78000),
-    ("FUTURE_SEQUANA_M0_PSA", 0x10000000, 0x80000)
+    ("CY8CKIT_062_WIFI_BT_PSA", 0x10040000, 0xB8000),
+    ("CY8CKIT_062_WIFI_BT_M0_PSA", 0x10000000, 0x40000)
 ])
 def test_PSA_overrides(target_start_size):
     target, start, size = target_start_size
