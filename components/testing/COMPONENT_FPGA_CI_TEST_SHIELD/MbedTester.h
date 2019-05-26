@@ -55,7 +55,7 @@
  *     // Map D6 to LogicalPinGPIO0
  *     tester.pin_map_set(D6, MbedTester::LogicalPinGPIO0);
  *
- *     // Toggle the LED
+ *     // Toggle pin D6
  *     int toggle = 0;
  *     while (1) {
  *         tester.gpio_write(MbedTester::LogicalPinGPIO0, toggle, true);
