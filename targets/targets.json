@@ -3174,9 +3174,7 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32H7",
-            "STM32H743",
-            "STM32H743xI",
-            "STM32H743ZI"
+            "STM32H743xI"
         ],
         "config": {
             "d11_configuration": {
