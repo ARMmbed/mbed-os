@@ -1854,6 +1854,7 @@
         "extra_labels": ["STM"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "macros": [
+            "USE_HAL_DRIVER",
             "USE_FULL_LL_DRIVER",
             "TRANSACTION_QUEUE_SIZE_SPI=2"
         ],
@@ -3199,6 +3200,7 @@
             }
         },
         "macros_add": [
+            "STM32H743xx",
             "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 4 },
