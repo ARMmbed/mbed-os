@@ -8382,6 +8382,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
+            "CM0P_SLEEP",
             "WICED",
             "CYW43XXX",
             "CYW4343X",
@@ -8389,7 +8390,6 @@
         ],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1900"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8427,6 +8427,7 @@
     "CY8CKIT_062_WIFI_BT_PSA": {
         "inherits": ["NSPE_Target", "CY8CKIT_062_WIFI_BT"],
         "extra_labels_add": ["PSA", "MBED_SPM"],
+        "extra_labels_remove": ["CM0P_SLEEP"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "device_has_remove": ["CRC"],
         "hex_filename": "psa_release_1.0.hex",
@@ -8453,6 +8454,7 @@
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
+            "CM0P_SLEEP",
             "WICED",
             "CYW43XXX",
             "CYW4343X",
@@ -8468,7 +8470,6 @@
         "inherits": ["CY8CMOD_062_4343W"],
         "components_add": ["QSPIF"],
         "detect_code": ["1901"],
-        "hex_filename": "psoc6_02_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
@@ -8477,10 +8478,12 @@
         "inherits": ["MCU_PSOC6_M4"],
         "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["PSOC6_01"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "CM0P_SLEEP"
+        ],
         "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1902"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8494,6 +8497,7 @@
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
+            "CM0P_SLEEP",
             "WICED",
             "CYW43XXX",
             "CYW4343X",
@@ -8501,7 +8505,6 @@
         ],
         "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1905"],
-        "hex_filename": "psoc6_02_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8522,6 +8525,7 @@
         "features": ["BLE"],
         "extra_labels_add": [
             "PSOC6_01",
+            "CM0P_SLEEP",
             "WICED",
             "CYW43XXX",
             "CYW43012",
@@ -8529,7 +8533,6 @@
         ],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1906"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
