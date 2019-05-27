@@ -101,7 +101,10 @@ typedef enum {
     MBED_CONF_APP_UART0_RX = PE2,
 
     // Switches
-    SW2 = PL4,
+    SW1 = (int)0xFFFFFFFF,        //Reset Button
+    SW2 = PL4,       //Push button S2
+    SW3 = PM0,       //DIP switch J7_1
+    SW4 = PM1,       //DIP switch J7_2
     USER_BUTTON = PL4,
 
     // I2C pins
