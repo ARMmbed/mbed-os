@@ -23,6 +23,10 @@ extern "C" {
 #endif
 
 typedef enum {
+    GPIO_X = 0, // dummy peripheral used instead of GPIO_A..GPIO_C
+} GPIOName;
+
+typedef enum {
     OSC32KCLK = 0
 } RTCName;
 

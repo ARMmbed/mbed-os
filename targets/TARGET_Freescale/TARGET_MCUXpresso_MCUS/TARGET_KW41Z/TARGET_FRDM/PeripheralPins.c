@@ -16,6 +16,45 @@
 
 #include "PeripheralPins.h"
 
+/************GPIO***************/
+const PinMap PinMap_GPIO[] = {
+    {PTA0, GPIO_X, 1},
+    {PTA1, GPIO_X, 1},
+    {PTA2, GPIO_X, 1},
+    {PTA16, GPIO_X, 1},
+    {PTA17, GPIO_X, 1},
+    {PTA18, GPIO_X, 1},
+    {PTA19, GPIO_X, 1},
+
+    {PTB0, GPIO_X, 1},
+    {PTB1, GPIO_X, 1},
+    {PTB2, GPIO_X, 1},
+    {PTB3, GPIO_X, 1},
+    {PTB16, GPIO_X, 1},
+    {PTB17, GPIO_X, 1},
+    {PTB18, GPIO_X, 1},
+
+    // {PTC0, GPIO_X, 1}, // PTC0 is not available on the 48-pin Laminate QFN package.
+    {PTC1, GPIO_X, 1},
+    {PTC2, GPIO_X, 1},
+    {PTC3, GPIO_X, 1},
+    {PTC4, GPIO_X, 1},
+    {PTC5, GPIO_X, 1},
+    {PTC6, GPIO_X, 1},
+    {PTC7, GPIO_X, 1},
+    {PTC16, GPIO_X, 1},
+    {PTC17, GPIO_X, 1},
+    {PTC18, GPIO_X, 1},
+    {PTC19, GPIO_X, 1},
+
+    {NC   , NC    , 0}
+};
+
+const PinMap *gpio_pinmap()
+{
+    return PinMap_GPIO;
+}
+
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
