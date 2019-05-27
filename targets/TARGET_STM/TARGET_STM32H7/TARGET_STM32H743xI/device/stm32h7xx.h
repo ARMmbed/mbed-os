@@ -88,8 +88,6 @@
 #define USE_HAL_DRIVER // MBED PATCH
 #endif /* USE_HAL_DRIVER */
 
-#define USE_FULL_LL_DRIVER // MBED PATCH
-
 /**
   * @brief CMSIS Device version number V1.5.0
   */
