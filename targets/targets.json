@@ -8715,7 +8715,7 @@
         ],
 		"macros_add": ["HSE_VALUE=16000000"],
         "release_versions": ["5"],
-        "device_name": "STM32L151CB-A"
+        "device_name": "STM32L151CBxxA"
     },
     "__build_tools_metadata__": {
         "version": "1",
