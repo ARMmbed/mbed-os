@@ -112,7 +112,10 @@ static const uint16_t delay_loop_code[] = {
 /* Take the address of the code, set LSB to indicate Thumb, and cast to void() function pointer */
 #define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code | 1))
 
-void wait_ns(unsigned int ns)
+/* Some targets may not provide zero-wait-state flash performance. Export this function
+ * to be overridable for targets to provide more accurate implementation like locating
+ * 'delay_loop_code' in SRAM. */
+MBED_WEAK void wait_ns(unsigned int ns)
 {
     uint32_t cycles_per_us = SystemCoreClock / 1000000;
     // Note that this very calculation, plus call overhead, will take multiple
