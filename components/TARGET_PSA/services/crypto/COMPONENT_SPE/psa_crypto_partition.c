@@ -1453,7 +1453,7 @@ static void psa_entropy_operation(void)
         }
 
         case PSA_IPC_CALL: {
-#if (defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO))
+#if defined(MBEDTLS_PSA_INJECT_ENTROPY)
             unsigned char *seed = NULL;
             uint32_t bytes_read;
             size_t seed_size = msg.in_size[0];
@@ -1479,7 +1479,7 @@ static void psa_entropy_operation(void)
             mbedtls_free(seed);
 #else
             status = PSA_ERROR_NOT_SUPPORTED;
-#endif /* MBEDTLS_ENTROPY_NV_SEED && MBEDTLS_PSA_HAS_ITS_IO*/
+#endif /* MBEDTLS_PSA_INJECT_ENTROPY */
             break;
         }
 
