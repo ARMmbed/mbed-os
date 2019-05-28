@@ -33,6 +33,14 @@
 #define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO mbed_default_seed_write
 #endif
 
+/* Automatically enable the Mbed Crypto entropy injection API if
+ * MBEDTLS_ENTROPY_NV_SEED is enabled. WARNING: the current implementation of
+ * the Mbed Crypto entropy injection API is incompatible with other entropy
+ * sources. When MBEDTLS_ENTROPY_NV_SEED is used on PSA target, the NV Seed is
+ * the sole source of entropy and all other entropy sources are ignored. */
+#define MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
+#define MBEDTLS_PSA_INJECT_ENTROPY
+
 #endif  // (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
 
 #if DEVICE_TRNG
