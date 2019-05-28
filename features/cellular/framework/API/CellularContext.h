@@ -289,6 +289,12 @@ public: // from NetworkInterface
      */
     int get_cid() const;
 
+    /** Set the authentication type to be used in user authentication if user name and password are defined
+     *
+     *  @param type enum AuthenticationType
+     */
+    void set_authentication_type(AuthenticationType type);
+
 protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,

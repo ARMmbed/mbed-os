@@ -82,6 +82,11 @@ int CellularContext::get_cid() const
     return _cid;
 }
 
+void CellularContext::set_authentication_type(AuthenticationType type)
+{
+    _authentication_type = type;
+}
+
 void CellularContext::do_connect_with_retry()
 {
     if (_cb_data.final_try) {
