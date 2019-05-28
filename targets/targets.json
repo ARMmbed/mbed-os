@@ -8858,13 +8858,13 @@
         "secure_image_filename": "tfm.hex",
         "overrides": {
             "secure-rom-start"      : "0x0",
-            "secure-rom-size"       : "0x40000",
+            "secure-rom-size"       : "0x3C000",
             "secure-ram-start"      : "0x20000000",
-            "secure-ram-size"       : "0x8000",
-            "non-secure-rom-start"  : "0x10040000",
-            "non-secure-rom-size"   : "0x40000",
-            "non-secure-ram-start"  : "0x30008000",
-            "non-secure-ram-size"   : "0x10000"
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
         }
     },
     "NU_PFM_M2351_S": {
@@ -8887,13 +8887,13 @@
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NS/TARGET_NU_PREBUILD_SECURE",
         "overrides": {
             "secure-rom-start"      : "0x0",
-            "secure-rom-size"       : "0x40000",
+            "secure-rom-size"       : "0x3C000",
             "secure-ram-start"      : "0x20000000",
-            "secure-ram-size"       : "0x8000",
-            "non-secure-rom-start"  : "0x10040000",
-            "non-secure-rom-size"   : "0x40000",
-            "non-secure-ram-start"  : "0x30008000",
-            "non-secure-ram-size"   : "0x10000"
+            "secure-ram-size"       : "0x10000",
+            "non-secure-rom-start"  : "0x1003C000",
+            "non-secure-rom-size"   : "0x44000",
+            "non-secure-ram-start"  : "0x30010000",
+            "non-secure-ram-size"   : "0x8000"
         }
     },
     "NUMAKER_M252KG": {
