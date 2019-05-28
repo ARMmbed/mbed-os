@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_critical.h"
 
 // This implementation of the wait functions will be compiled only
 // if the RTOS is not present.
@@ -36,7 +37,19 @@ void wait_ms(int ms)
 #if DEVICE_LPTICKER
     const ticker_data_t *const ticker = get_lp_ticker_data();
     uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)(ms * 1000));
+    while ((ticker_read(ticker) - start) < (uint32_t)(ms * 1000)) {
+        if (core_util_are_interrupts_enabled()) {
+            mbed_override_sleep_hook();
+        }
+    }
+#elif DEVICE_USTICKER
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)(ms * 1000)) {
+        if (core_util_are_interrupts_enabled()) {
+            mbed_override_sleep_hook();
+        }
+    }
 #else
     wait_us(ms * 1000);
 #endif

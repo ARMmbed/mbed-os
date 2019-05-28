@@ -255,3 +255,8 @@ bool sleep_manager_can_deep_sleep(void)
 }
 
 #endif
+
+// default hook for sleep calls
+MBED_WEAK void mbed_override_sleep_hook(void)
+{
+}

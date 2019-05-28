@@ -25,8 +25,9 @@
 #define MBED_POWER_MGMT_H
 
 #include "hal/sleep_api.h"
-#include "mbed_toolchain.h"
 #include "hal/ticker_api.h"
+#include "platform/mbed_toolchain.h"
+#include "platform/mbed_critical.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -170,6 +171,33 @@ bool sleep_manager_can_deep_sleep_test_check(void);
  */
 void sleep_manager_sleep_auto(void);
 
+/** Applications may implement this to hook any calls to sleep or deepsleep
+ *
+ * This hook gives the application a chance to run additional code when the
+ * system would normally waste cycles waiting for an external event.
+ *
+ * @note This function is explicitly _not_ called when we are in an interrupt
+ * or critical section, as this would violate the expectations of both critical
+ * sections and sleep hooks. In normal usage interrupts should not be calling
+ * sleep.
+ *
+ * Example blinks an LED when the application sleeps:
+ * @code
+ * DigitalOut led1(LED1);
+ *
+ * void mbed_override_sleep_hook(void) {
+ *     led1 = !led1;
+ * }
+ *
+ * int main() {
+ *     while (true) {
+ *         ThisThread::sleep_for(1000);
+ *     }
+ * }
+ * @endcode
+ */
+void mbed_override_sleep_hook(void);
+
 /** Send the microcontroller to sleep
  *
  * @note This function can be a noop if not implemented by the platform.
@@ -193,6 +221,9 @@ void sleep_manager_sleep_auto(void);
  */
 static inline void sleep(void)
 {
+    if (core_util_are_interrupts_enabled()) {
+        mbed_override_sleep_hook();
+    }
 #if DEVICE_SLEEP
 #if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
     sleep_manager_sleep_auto();
@@ -223,6 +254,9 @@ static inline void sleep(void)
 MBED_DEPRECATED_SINCE("mbed-os-5.6", "One entry point for an application, use sleep()")
 static inline void deepsleep(void)
 {
+    if (core_util_are_interrupts_enabled()) {
+        mbed_override_sleep_hook();
+    }
 #if DEVICE_SLEEP
     sleep_manager_sleep_auto();
 #endif /* DEVICE_SLEEP */
