@@ -183,7 +183,7 @@ class Uvision(Exporter):
             flags['c_flags'] + flags['cxx_flags'] + flags['common_flags']
         )
         in_template = set(
-            ["--no_vla", "--cpp", "--c99", "-MMD"] + config_option
+            ["--no_vla", "--cpp", "--cpp11", "--c99", "-MMD"] + config_option
         )
 
         def valid_flag(x):
@@ -288,6 +288,34 @@ class Uvision(Exporter):
         ctx['fputype'] = self.format_fpu(ctx['device'].core)
         ctx['armc6'] = int(self.TOOLCHAIN is 'ARMC6')
         ctx['toolchain_name'] = self.TOOLCHAIN_NAME
+
+        std = [flag for flag in self.flags['c_flags'] if flag.startswith("-std=")]
+        if len(std) >= 1:
+            std = std[-1][len('-std='):]
+        else:
+            std = None
+        c_std = {
+            'c89': 1, 'gnu89': 2,
+            'c90': 1, 'gnu90': 2,
+            'c99': 3, 'gnu99': 4,
+            'c11': 5, 'gnu11': 6,
+        }
+        ctx['v6_lang'] = c_std.get(std, 0)
+
+        std = [flag for flag in self.flags['cxx_flags'] if flag.startswith("-std=")]
+        if len(std) >= 1:
+            std = std[-1][len('-std='):]
+        else:
+            std = None
+        cpp_std = {
+            'c++98': 1, 'gnu++98': 2,
+            'c++03': 5, 'gnu++03': 2, # UVision 5.27.1.0 does not support gnu++03 - fall back to gnu++98
+            'c++11': 3, 'gnu++11': 4,
+            'c++14': 6, 'gnu++14': 4, # UVision 5.27.1.0 does not support gnu++14 - should be able to get it as compiler default, but that doesn't work as documented and requests gnu++98. So fall back to gnu++11
+            'c++17': 6, 'gnu++17': 4, # UVision 5.27.1.0 does not support c++17/gnu++17 - fall back to c++14/gnu++11
+        }
+        ctx['v6_lang_p'] = cpp_std.get(std, 0)
+
         ctx.update(self.format_flags())
         self.gen_file(
             'uvision/uvision.tmpl', ctx, self.project_name + ".uvprojx"

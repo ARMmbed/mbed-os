@@ -854,8 +854,8 @@ ble_error_t nRF5xGap::setPhy_(
 #else
     // TODO handle coded symbol once supported by the softdevice.
     ble_gap_phys_t gap_phys = {
-        txPhys? txPhys->value() : 0,
-        rxPhys? rxPhys->value() : 0
+        txPhys? txPhys->value() : uint8_t(0),
+        rxPhys? rxPhys->value() : uint8_t(0)
     };
 
     uint32_t err = sd_ble_gap_phy_update(connection, &gap_phys);
@@ -1819,8 +1819,8 @@ void nRF5xGap::on_phy_update_request(
     const ble_gap_evt_phy_update_request_t& evt
 ) {
     ble_gap_phys_t phys = {
-        _preferred_tx_phys & evt.peer_preferred_phys.tx_phys,
-        _preferred_rx_phys & evt.peer_preferred_phys.rx_phys
+        static_cast<uint8_t>(_preferred_tx_phys & evt.peer_preferred_phys.tx_phys),
+        static_cast<uint8_t>(_preferred_rx_phys & evt.peer_preferred_phys.rx_phys)
     };
 
     if (!phys.tx_phys) {

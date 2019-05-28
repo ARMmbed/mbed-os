@@ -185,9 +185,9 @@ public:
 
         uint8_t cmd[] = {
             0x0B,                       // Fast read
-            (addr >> (2 * 8)) & 0xFF,   // Address
-            (addr >> (1 * 8)) & 0xFF,
-            (addr >> (0 * 8)) & 0xFF,
+            (uint8_t)(addr >> (2 * 8)), // Address
+            (uint8_t)(addr >> (1 * 8)),
+            (uint8_t)(addr >> (0 * 8)),
             0x00                        // Dummy
         };
         _write((char *)cmd, sizeof(cmd), NULL, 0);
