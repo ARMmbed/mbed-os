@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,17 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Baseband interface file.
+ *  \file
+ *  \brief      Baseband interface file.
  *
  *  \addtogroup BB_API              Baseband (BB) API
  *  \{
+ *
+ *  The baseband porting layer is a protocol independent BB + radio abstraction layer. It allows
+ *  the simultaneous operation of protocol specific schedulers to transport packets across each
+ *  medium via a single multi-protocol baseband. This interface describes operations for the
+ *  following protocols:
+ *
  *    - Bluetooth low energy: advertising and connections
  *    - ZigBee/802.15.4 (TBD)
  *    - BAN/802.15.6 (TBD)
@@ -73,85 +80,7 @@ extern "C" {
 /*! \addtogroup BB_API_BOD
  *  \{ */
 
-/*! \brief      Protocol types */
-enum
-{
-  BB_PROT_NONE,                         /*!< Non-protocol specific operation. */
-  BB_PROT_BLE,                          /*!< Bluetooth Low Energy normal mode. */
-  BB_PROT_BLE_DTM,                      /*!< Bluetooth Low Energy direct test mode. */
-  BB_PROT_PRBS15,                       /*!< Enable the continuous PRBS15 transmit sequence. */
-  BB_PROT_15P4,                         /*!< 802.15.4. */
-  BB_PROT_NUM                           /*!< Number of protocols. */
-};
-
-/*! \brief      Status codes */
-enum
-{
-  BB_STATUS_SUCCESS,                    /*!< Operation successful. */
-  BB_STATUS_FAILED,                     /*!< General failure. */
-  BB_STATUS_CANCELED,                   /*!< Receive canceled. */
-  BB_STATUS_RX_TIMEOUT,                 /*!< Receive packet timeout. */
-  BB_STATUS_CRC_FAILED,                 /*!< Receive packet with CRC verification failed. */
-  BB_STATUS_FRAME_FAILED,               /*!< Receive packet with frame verification failed. */
-  BB_STATUS_ACK_FAILED,                 /*!< ACK packet failure. */
-  BB_STATUS_ACK_TIMEOUT,                /*!< ACK packet timeout. */
-  BB_STATUS_TX_CCA_FAILED,              /*!< Transmit CCA failure. */
-  BB_STATUS_TX_FAILED                   /*!< Transmit failure. */
-};
-
-/*! \brief      PHY types. */
-enum
-{
-  BB_PHY_BLE_1M    = 1,                 /*!< Bluetooth Low Energy 1Mbps PHY. */
-  BB_PHY_BLE_2M    = 2,                 /*!< Bluetooth Low Energy 2Mbps PHY. */
-  BB_PHY_BLE_CODED = 3,                 /*!< Bluetooth Low Energy Coded PHY (data coding unspecified). */
-  BB_PHY_15P4      = 4,                 /*!< 802.15.4 PHY. */
-};
-
-/*! \brief      PHY options. */
-enum
-{
-  BB_PHY_OPTIONS_DEFAULT          = 0,  /*!< BB defined PHY Options behavior. */
-  BB_PHY_OPTIONS_BLE_S2           = 1,  /*!< Always use S=2 coding when transmitting on LE Coded PHY. */
-  BB_PHY_OPTIONS_BLE_S8           = 2   /*!< Always use S=8 coding when transmitting on LE Coded PHY. */
-};
-
 /*! \} */    /* BB_API_BOD */
-
-/**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-/*! \brief      Binary divide with 1,000,000 divisor (n[max]=0xFFFFFFFF). */
-#define BB_MATH_DIV_10E6(n)     ((uint32_t)(((uint64_t)(n) * UINT64_C(4295)) >> 32))
-
-#if (BB_CLK_RATE_HZ == 1000000)
-/*! \brief      Return microseconds (no conversion required). */
-#define BB_US_TO_BB_TICKS(us)       (us)
-#elif (BB_CLK_RATE_HZ == 8000000)
-/*! \brief      Compute BB ticks from given time in microseconds (max time is interval=1,996s). */
-#define BB_US_TO_BB_TICKS(us)       ((uint32_t)((us) << 3))
-#elif (BB_CLK_RATE_HZ == 32768)
-/*! \brief      Compute BB ticks from given time in microseconds (max time is interval=1,996s). */
-#define BB_US_TO_BB_TICKS(us)       ((uint32_t)(((uint64_t)(us) * UINT64_C(549755)) >> 24))   /* calculated value may be one tick low */
-#else
-/*! \brief      Compute BB ticks from given time in microseconds (max time is interval=1,996s). */
-#define BB_US_TO_BB_TICKS(us)       BB_MATH_DIV_10E6((uint64_t)(us) * (uint64_t)(BB_CLK_RATE_HZ))
-#endif
-
-#if (BB_CLK_RATE_HZ == 1000000)
-/*! \brief      BB ticks to microseconds (no conversion required). */
-#define BB_TICKS_TO_US(n)           (n)
-#elif (BB_CLK_RATE_HZ == 8000000)
-/*! \brief      BB ticks to microseconds (8MHz). */
-#define BB_TICKS_TO_US(n)           ((n) >> 3)
-#elif (BB_CLK_RATE_HZ == 32768)
-/*! \brief      BB ticks to microseconds (32768 Hz). */
-#define BB_TICKS_TO_US(n)           (uint32_t)(((uint64_t)(n) * 15625) >> 9)
-#else
-/*! \brief      BB ticks to microseconds. */
-#define BB_TICKS_TO_US(n)           (uint32_t)((uint64_t)(n) * 1000000 / BB_CLK_RATE_HZ)
-#endif
 
 /**************************************************************************************************
   Data Types
@@ -159,16 +88,6 @@ enum
 
 /*! \addtogroup BB_API_INIT
  *  \{ */
-
-/*! \brief      Typical maximum duration to scan in a scan interval (BbRtCfg_t::maxScanPeriodMs). */
-#define BB_MAX_SCAN_PERIOD_MS       1000
-
-/*! \brief      Typical RF setup delay (BbRtCfg_t::rfSetupDelayUs). */
-#define BB_RF_SETUP_DELAY_US        150
-
-/*! \brief      Typical operation setup delay in microseconds (BbRtCfg_t::schSetupDelayUs). */
-#define BB_SCH_SETUP_DELAY_US       500
-
 
 /*! \brief      BB runtime configuration parameters. */
 typedef struct
@@ -240,6 +159,7 @@ typedef struct BbOpDesc_tag
   BbBodCback_t  abortCback;         /*!< Abort BOD callback (when BOD is removed before beginning). */
 
   void          *pCtx;              /*!< Client defined context. */
+  uint16_t      *pDataLen;          /*!< Pointer to client data length. */
 
   union
   {
@@ -379,12 +299,13 @@ BbOpDesc_t *BbGetCurrentBod(void);
 
 /*************************************************************************************************/
 /*!
- *  \brief      Cancel current executing BOD.
+ *  \brief      Set termination flag of current executing BOD.
  *
  *  \return     None.
  *
  *  \note       This function is expected to be called during the execution context of the
- *              current executing BOD, typically in the related ISRs.
+ *              current executing BOD, typically in the related ISRs. In the end, termination
+ *              flag will help to decide if BbTerminateBod() should be called.
  */
 /*************************************************************************************************/
 void BbSetBodTerminateFlag(void);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link manager connection implementation file.
+ * \file
+ * \brief Link manager connection implementation file.
  */
 /*************************************************************************************************/
 
@@ -52,4 +53,8 @@ void LmgrConnInit(void)
   lmgrConnCb.allPhys = LL_ALL_PHY_TX_PREFERENCE_BIT | LL_ALL_PHY_RX_PREFERENCE_BIT;
   lmgrConnCb.rxPhys = LL_PHYS_NONE;
   lmgrConnCb.txPhys = LL_PHYS_NONE;
+
+  lmgrConnCb.syncMode = LL_SYNC_TRSF_MODE_OFF;
+  lmgrConnCb.syncSkip = 0;
+  lmgrConnCb.syncTimeout = LL_SYNC_MIN_TIMEOUT;
 }

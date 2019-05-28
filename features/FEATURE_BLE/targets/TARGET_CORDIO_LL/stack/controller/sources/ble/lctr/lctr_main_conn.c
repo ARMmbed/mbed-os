@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller data path implementation file.
+ * \file
+ * \brief Link layer controller data path implementation file.
  */
 /*************************************************************************************************/
 
@@ -68,6 +69,24 @@ lctrCtrlPduHdlr_t lctrCtrlPduHdlr = NULL;
 
 /*! \brief      Build remap table handlers. */
 LctrChSelHdlr_t lctrChSelHdlr[LCTR_CH_SEL_MAX] = { 0 };
+
+/*! \brief      Check if CIS is enabled function. */
+lctrCheckCisEstCisFn_t  lctrCheckCisEstCisFn = NULL;
+
+/*! \brief      Pointer to lctrSendPerSyncFromScan function. */
+lctrLlcpEh_t lctrSendPerSyncFromScanFn = NULL;
+
+/*! \brief      Pointer to lctrSendPerSyncFromBcst function. */
+lctrLlcpEh_t lctrSendPerSyncFromBcstFn = NULL;
+
+/*! \brief      Pointer to lctrSendPeriodicSyncInd function. */
+lctrLlcpEh_t lctrSendPeriodicSyncIndFn = NULL;
+
+/*! \brief      Pointer to lctrStorePeriodicSyncTrsf function. */
+lctrLlcpEh_t lctrStorePeriodicSyncTrsfFn = NULL;
+
+/*! \brief      Pointer to lctrReceivePeriodicSyncInd function. */
+lctrLlcpEh_t lctrReceivePeriodicSyncIndFn = NULL;
 
 /*************************************************************************************************/
 /*!
@@ -158,6 +177,28 @@ uint8_t LctrValidateConnSpec(const LlConnSpec_t *pConnSpec)
   {
     LL_TRACE_WARN0("LctrValidateConnSpec: invalid parameters");
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Validate modify sca parameters.
+ *
+ *  \param      action       Action to take.
+ *
+ *  \return     Status error code.
+ */
+/*************************************************************************************************/
+uint8_t LctrValidateModifyScaParam(uint8_t action)
+{
+  int8_t curSca = (int8_t) lctrComputeSca();
+
+  if (((curSca == LL_SCA_MIN_INDEX) && (action == LL_MODIFY_SCA_LESS_ACCURATE)) ||
+      ((curSca == LL_SCA_MAX_INDEX) && (action == LL_MODIFY_SCA_MORE_ACCURATE)))
+  {
+    return LL_ERROR_CODE_LIMIT_REACHED;
   }
 
   return LL_SUCCESS;
@@ -345,6 +386,14 @@ lctrConnCtx_t *lctrAllocConnCtx(void)
       pCtx->allPhys = lmgrConnCb.allPhys;
       pCtx->txPhys = lmgrConnCb.txPhys;
       pCtx->rxPhys = lmgrConnCb.rxPhys;
+
+      /* SCA initialization. */
+      pCtx->scaMod = lmgrCb.scaMod;
+
+      /* Default settings for PAST(periodic advertising sync transfer). */
+      pCtx->syncMode = lmgrConnCb.syncMode;
+      pCtx->syncSkip = lmgrConnCb.syncSkip;
+      pCtx->syncTimeout = lmgrConnCb.syncTimeout;
 
       /* Set default minimum number of used channels. */
       for (unsigned i = 0; i < LL_MAX_PHYS; i++)
@@ -763,6 +812,11 @@ void LctrTxAcl(uint8_t *pAclBuf)
       (aclHdr.len > pLctrRtCfg->maxAclLen))
   {
     LL_TRACE_ERR2("Invalid ACL header: invalid packet length, actLen=%u, maxLen=%u", aclHdr.len, pCtx->effDataPdu.maxTxLen);
+    if ((aclHdr.pktBound == LCTR_PB_START_NON_AUTO_FLUSH) && (aclHdr.len == 0))
+    {
+      pCtx->forceStartPdu = TRUE; /* If this was supposed to be the start fragment, make the next packet a start fragment. */
+      LL_TRACE_INFO0("Next ACL header will be forced to a start fragment.");
+    }
     WsfMsgFree(pAclBuf);
     lmgrPersistCb.sendCompCback(aclHdr.connHandle, 1);
     return;
@@ -845,6 +899,25 @@ bool_t LctrIsConnHandleEnabled(uint16_t handle)
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Get enable state of a handle.
+ *
+ *  \param  handle      Connection handle.
+ *
+ *  \return TRUE if enabled, FALSE otherwise.
+ */
+/*************************************************************************************************/
+bool_t LctrIsCisConnHandleEnabled(uint16_t handle)
+{
+  if (lctrCheckCisEstCisFn)
+  {
+    return lctrCheckCisEstCisFn(handle);
+  }
+
+  return FALSE;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Get role of a connection.
  *
  *  \param  handle      Connection handle.
@@ -923,8 +996,11 @@ uint64_t LctrGetChannelMap(uint16_t handle)
  *  \return Used feature set bitmask.
  */
 /*************************************************************************************************/
-uint8_t LctrGetUsedFeatures(uint16_t handle)
+uint64_t LctrGetUsedFeatures(uint16_t handle)
 {
+//  LL_TRACE_INFO1("LctrGetUsedFeatures, lmgrCb.features=%x", lmgrCb.features);
+//  LL_TRACE_INFO1("LctrGetUsedFeatures, pLctrConnTbl[handle].usedFeatSet=%x", pLctrConnTbl[handle].usedFeatSet);
+
   return pLctrConnTbl[handle].usedFeatSet;
 }
 
@@ -1090,12 +1166,15 @@ BbOpDesc_t *lctrConnResolveConflict(BbOpDesc_t *pNewOp, BbOpDesc_t *pExistOp)
   }
 
   /* Supervision timeout is imminent (2 CE). */
-  if ((pExistCtx->tmrSupTimeout.ticks * WSF_MS_PER_TICK * 1000) < (uint32_t)(LCTR_CONN_IND_US(pExistCtx->connInterval) << 1))
+  if ((pExistCtx->svtState > pNewCtx->svtState) ||
+      ((pExistCtx->tmrSupTimeout.ticks * WSF_MS_PER_TICK * 1000) < (uint32_t)(LCTR_CONN_IND_US(pExistCtx->connInterval) << 1)))
   {
     LL_TRACE_WARN2("!!! Scheduling conflict, imminent SVT: existing handle=%u prioritized over incoming handle=%u", LCTR_GET_CONN_HANDLE(pExistCtx), LCTR_GET_CONN_HANDLE(pNewCtx));
     return pExistOp;
   }
-  if ((pNewCtx->tmrSupTimeout.ticks * WSF_MS_PER_TICK * 1000) < (uint32_t)(LCTR_CONN_IND_US(pNewCtx->connInterval) << 1))
+
+  if ((pNewCtx->svtState != LCTR_SVT_STATE_IDLE) ||
+      ((pNewCtx->tmrSupTimeout.ticks * WSF_MS_PER_TICK * 1000) < (uint32_t)(LCTR_CONN_IND_US(pNewCtx->connInterval) << 1)))
   {
     LL_TRACE_WARN2("!!! Scheduling conflict, imminent SVT: incoming handle=%u prioritized over existing handle=%u", LCTR_GET_CONN_HANDLE(pNewCtx), LCTR_GET_CONN_HANDLE(pExistCtx));
     return pNewOp;
@@ -1144,7 +1223,7 @@ BbOpDesc_t *lctrConnResolveConflict(BbOpDesc_t *pNewOp, BbOpDesc_t *pExistOp)
 
 /*************************************************************************************************/
 /*!
- *  \brief  Compute the master clock accuracy index.
+ *  \brief  Compute the master sleep clock accuracy index.
  *
  *  \return SCA index.
  */
@@ -1152,44 +1231,104 @@ BbOpDesc_t *lctrConnResolveConflict(BbOpDesc_t *pNewOp, BbOpDesc_t *pExistOp)
 uint8_t lctrComputeSca(void)
 {
   const uint16_t clkPpm = BbGetClockAccuracy();
+  int8_t sca;
 
-       if (clkPpm <=  20) return 7;
-  else if (clkPpm <=  30) return 6;
-  else if (clkPpm <=  50) return 5;
-  else if (clkPpm <=  75) return 4;
-  else if (clkPpm <= 100) return 3;
-  else if (clkPpm <= 150) return 2;
-  else if (clkPpm <= 250) return 1;
-  else                    return 0;
+       if (clkPpm <=  20) sca = 7;
+  else if (clkPpm <=  30) sca = 6;
+  else if (clkPpm <=  50) sca = 5;
+  else if (clkPpm <=  75) sca = 4;
+  else if (clkPpm <= 100) sca = 3;
+  else if (clkPpm <= 150) sca = 2;
+  else if (clkPpm <= 250) sca = 1;
+  else                    sca = 0;
+
+  return (uint8_t) (sca + lmgrCb.scaMod);
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get offsets of connections and periodic advertising.
+ *  \brief      Get reference time(due time) of the connection handle.
  *
- *  \param      rsvnOffs    Storage for list of reservation offsets indexed by handle.
- *  \param      refTime     Starting reference time.
+ *  \param      connHandle    Connection handle.
+ *  \param      pDurUsec      Pointer to duration of the connection BOD.
  *
- *  \return     None.
+ *  \return     Due time in BB ticks of the connection handle.
  */
 /*************************************************************************************************/
-void lctrGetConnOffsets(uint32_t rsvnOffs[], uint32_t refTime)
+uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec)
 {
-  for (unsigned int connIndex = 0; connIndex < pLctrRtCfg->maxConn; connIndex++)
-  {
-    lctrConnCtx_t *pCtx = &pLctrConnTbl[connIndex];
+  uint32_t refTime = 0;
+  lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(connHandle);
 
-    if (pCtx->enabled &&
-        (pCtx->bleData.chan.opType == BB_BLE_OP_MST_CONN_EVENT))
+  if (pCtx->enabled && (pCtx->bleData.chan.opType == BB_BLE_OP_MST_CONN_EVENT))
+  {
+    refTime = pCtx->connBod.due;
+    if (pDurUsec)
     {
-      if (pCtx->connBod.due - refTime < LCTR_SCH_MAX_SPAN)    /* due time has not passed */
-      {
-        rsvnOffs[connIndex] = BB_TICKS_TO_US(pCtx->connBod.due - refTime);
-      }
-      else
-      {
-        rsvnOffs[connIndex] = BB_TICKS_TO_US(pCtx->connBod.due + BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval)) - refTime);
-      }
+      *pDurUsec = pCtx->connBod.minDurUsec;
     }
   }
+
+  return refTime;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get the time of anchor point of the specified connection event counter.
+ *
+ *  \param      pCtx        Connection context.
+ *  \param      ceCounter     Connection event counter.
+ *
+ *  \return     The time of anchor point of the given connection event counter.
+ */
+/*************************************************************************************************/
+uint32_t lctrConnGetAnchorPoint(lctrConnCtx_t *pCtx, uint16_t ceCounter)
+{
+  uint16_t numCe;
+
+  if (pCtx->role == LL_ROLE_MASTER)
+  {
+    if ((uint16_t)(ceCounter - pCtx->eventCounter) < (uint16_t)LCTR_MAX_INSTANT)  /* ceCounter is in the future. */
+    {
+      numCe = ceCounter - pCtx->eventCounter;
+      return (pCtx->connBod.due + BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+    }
+    else
+    {
+      numCe = pCtx->eventCounter - ceCounter;
+      return (pCtx->connBod.due - BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+    }
+  }
+  else
+  {
+    if ((uint16_t)(ceCounter - (pCtx->data.slv.lastActiveEvent - 1)) < (uint16_t)LCTR_MAX_INSTANT)  /* ceCounter is in the future. */
+    {
+      numCe = ceCounter - (pCtx->data.slv.lastActiveEvent - 1);
+      return (pCtx->data.slv.anchorPoint + BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+    }
+    else
+    {
+      numCe = (pCtx->data.slv.lastActiveEvent - 1) - ceCounter;
+      return (pCtx->data.slv.anchorPoint - BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval * numCe)));
+    }
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Check if there is a CIS established for the ACL indicated by the handle.
+ *
+ *  \param  handle      Connection handle.
+ *
+ *  \return TRUE if there is one established, FALSE otherwise.
+ */
+/*************************************************************************************************/
+bool_t LctrIsCisEnabled(uint16_t handle)
+{
+  if (pLctrConnTbl[handle].checkCisEstAcl)
+  {
+    return pLctrConnTbl[handle].checkCisEstAcl(handle);
+  }
+
+  return FALSE;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave connection state machine implementation file.
+ * \file
+ * \brief Link layer controller slave connection state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -416,6 +417,8 @@ static uint8_t lctrSlvConnUpdRemapEvent(lctrConnCtx_t *pCtx, uint8_t event)
         case LL_PDU_UNKNOWN_RSP:
           if (lctrDataPdu.pld.unknownRsp.unknownType == LL_PDU_CONN_PARAM_REQ)
           {
+            /* Remember this remote device does not support Connection Parameters Request procedure. */
+            pCtx->usedFeatSet &= ~LL_FEAT_CONN_PARAM_REQ_PROC;
             return LCTR_CU_EVENT_PEER_REJECT;
           }
           /* Not for this SM. */
@@ -429,6 +432,10 @@ static uint8_t lctrSlvConnUpdRemapEvent(lctrConnCtx_t *pCtx, uint8_t event)
           break;
         case LL_PDU_REJECT_EXT_IND:
           if (lctrDataPdu.pld.rejInd.opcode == LL_PDU_CONN_PARAM_REQ)
+          {
+            return LCTR_CU_EVENT_PEER_REJECT;
+          }
+          if (lctrDataPdu.pld.rejInd.opcode == LL_PDU_CONN_PARAM_RSP)
           {
             return LCTR_CU_EVENT_PEER_REJECT;
           }
@@ -542,6 +549,7 @@ static void lctrSlvCheckProcOverride(lctrConnCtx_t *pCtx, uint8_t event)
         case LCTR_PROC_CMN_VER_EXCH:
         case LCTR_PROC_CMN_FEAT_EXCH:
         case LCTR_PROC_CMN_DATA_LEN_UPD:
+        case LCTR_PROC_CMN_REQ_PEER_SCA:
           pCtx->llcpPendMask |= 1 << pCtx->llcpActiveProc;
           pCtx->llcpActiveProc = LCTR_PROC_CONN_UPD;
           pCtx->llcpIsOverridden = TRUE;
@@ -698,6 +706,8 @@ void lctrSlvLlcpExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PING]     && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PING](pCtx, event)) &&
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CONN_UPD] && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CONN_UPD](pCtx, event)) &&
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PHY_UPD]  && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_PHY_UPD](pCtx, event)) &&
+      !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_EST]  && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_EST](pCtx, event)) &&
+      !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_TERM] && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CIS_TERM](pCtx, event)) &&
       !(lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN]      && lctrSlvLlcpSmTbl[LCTR_LLCP_SM_CMN](pCtx, event)))
   {
     lctrLlcpStatelessEventHandler(pCtx, event);

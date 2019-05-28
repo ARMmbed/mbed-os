@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller interface file.
+ * \file
+ * \brief Internal link layer controller interface file.
  */
 /*************************************************************************************************/
 
@@ -27,6 +28,7 @@
 #include "ll_defs.h"
 #include "lmgr_api.h"
 #include "ll_math.h"
+#include "util/crc32.h"
 
 #if (LL_ENABLE_TESTER)
 #include "ll_tester_api.h"
@@ -68,7 +70,7 @@ extern "C" {
 /*! \brief      Convert BLE protocol ticks to microseconds. */
 #define LCTR_BLE_TO_US(x)               ((x) * LL_BLE_US_PER_TICK)
 
-/*! \brief      Convert periodic interval milliseconds to microseconds. */
+/*! \brief      Convert periodic interval units to microseconds. */
 #define LCTR_PER_INTER_TO_US(x)         ((x) * 1250)
 
 /*! \brief      Convert periodic interval microseconds to milliseconds. */
@@ -76,6 +78,9 @@ extern "C" {
 
 /*! \brief      Convert periodic sync timeout unit to milliseconds. */
 #define LCTR_PER_SYNC_TIMEOUT_TO_MS(x)  ((x) * 10)
+
+/*! \brief      Convert isochronous interval to microseconds. */
+#define LCTR_ISO_INT_TO_US(x)           ((x) * 1250)
 
 /*! \brief      Fast termination supervision multiplier. */
 #define LCTR_FAST_TERM_CNT              6
@@ -102,24 +107,14 @@ extern "C" {
 #define LCTR_ADVB_BUF_OFFSET_CRC        ((LCTR_ADVB_BUF_SIZE - LCTR_ADVB_BUF_EXTRA_SIZE) + 2)
 
 /*! \brief      LCTR Maximum span of scheduler elements. */
-#define         LCTR_SCH_MAX_SPAN            0x80000000
+#define         LCTR_SCH_MAX_SPAN       0x80000000
+
+/*! \brief      LCTR Maximum value for sleep clock accuracy. */
+#define         LCTR_MAX_SCA            7
 
 /**************************************************************************************************
   Data Types
 **************************************************************************************************/
-
-/*! \brief      Channel parameters. */
-typedef struct
-{
-  /* Channel parameters */
-  uint8_t       lastChanIdx;        /*!< Current channel index. */
-  uint8_t       numUsedChan;        /*!< Number of used channels. */
-  uint64_t      chanMask;           /*!< Channel mask. */
-  uint8_t       chanRemapTbl[LL_CHAN_DATA_MAX_IDX + 1]; /*!< Channel remapping table. */
-
-  uint8_t       usedChSel;          /*!< Used channel selection. */
-  uint16_t      chIdentifier;       /*!< Channel identifier. */
-} lctrChanParam_t;
 
 /*! \brief      Call signature of a reset handler. */
 typedef void (*LctrResetHdlr_t)(void);
@@ -141,8 +136,7 @@ extern LctrResetHdlr_t lctrResetHdlrTbl[LCTR_DISP_TOTAL];
 extern LctrMsgDisp_t lctrMsgDispTbl[LCTR_DISP_TOTAL];
 extern LctrEvtHdlr_t lctrEventHdlrTbl[LCTR_EVENT_TOTAL];
 extern lctrMsgHdr_t *pLctrMsg;
-extern LctrRmCback_t lctrGetConnOffsetsCback;
-extern LctrRmCback_t lctrGetPerOffsetsCback;
+extern const uint16_t scaPpmTbl[];
 
 /**************************************************************************************************
   Functions
@@ -151,10 +145,11 @@ extern LctrRmCback_t lctrGetPerOffsetsCback;
 /* Helper routines. */
 uint32_t lctrComputeAccessAddr(void);
 uint8_t lctrComputeHopInc(void);
-uint8_t lctrPeriodicSelectNextChannel(lctrChanParam_t *pChanParam, uint16_t eventCounter);
-void lctrPeriodicBuildRemapTable(lctrChanParam_t *pChanParam);
+uint8_t lctrPeriodicSelectNextChannel(lmgrChanParam_t *pChanParam, uint16_t eventCounter);
+void lctrPeriodicBuildRemapTable(lmgrChanParam_t *pChanParam);
 uint16_t lctrCalcTotalAccuracy(uint8_t mstScaIdx);
 uint32_t lctrComputeCrcInit(void);
+uint32_t lctrCalcWindowWideningUsec(uint32_t unsyncTimeUsec, uint32_t caPpm);
 
 /* Host events */
 void lctrNotifyHostHwErrInd(uint8_t code);
@@ -169,18 +164,17 @@ void lctrSlvAdvExecuteSm(uint8_t event);
 
 /*************************************************************************************************/
 /*!
- *  \brief      Get operational mode flag.
+ *  \brief  Calculate DID.
  *
- *  \param      flag  Flag to check.
+ *  \param  pBuf    Data buffer.
+ *  \param  len     Length of data buffer.
  *
- *  \return     TRUE if flag is set.
- *
- *  Get mode flag governing LL operations.
+ *  \return DID value.
  */
 /*************************************************************************************************/
-static inline bool_t lctrGetOpFlag(uint32_t flag)
+static inline uint16_t lctrCalcDID(const uint8_t *pBuf, uint16_t len)
 {
-  return (lmgrCb.opModeFlags & flag) ? TRUE : FALSE;
+  return CalcCrc32(LlMathRandNum(), len, pBuf);
 }
 
 #ifdef __cplusplus

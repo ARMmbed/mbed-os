@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master advertising event ISR callbacks.
+ * \file
+ * \brief Link layer controller master advertising event ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -128,6 +129,10 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
           lctrMstInit.data.init.localRpa = localAddr;
           BbBleResListUpdateLocal(pScan->filtResults.peerIdAddrRand, pScan->filtResults.peerIdAddr, &localAddr);
         }
+        else
+        {
+          lctrMstInit.data.init.localRpa = 0;
+        }
       }
       else
       {
@@ -152,6 +157,15 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
       lctrMstInit.data.init.localRpa = 0;
     }
 
+#if (LL_ENABLE_TESTER)
+    if (llTesterCb.auxReq.len)
+    {
+      /* Overriding CONNECT_IND from test script. */
+      memcpy(pScan->pTxReqBuf, llTesterCb.auxReq.buf, llTesterCb.auxReq.len);
+      pScan->txReqLen = llTesterCb.auxReq.len;
+    }
+#endif
+
     lctrPackAdvbPduHdr(pScan->pTxReqBuf, &lctrMstInit.reqPduHdr);
 
     /* Update txWinOffset field in CONN_IND PDU. */
@@ -159,6 +173,24 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
     uint16_t txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec) - LCTR_DATA_CHAN_DLY;
     UINT16_TO_BUF(pScan->pTxReqBuf + LCTR_CONN_IND_TX_WIN_OFFSET, txWinOffset);
     lctrMstInit.data.init.connInd.txWinOffset = txWinOffset;
+
+#if (LL_ENABLE_TESTER)
+    switch (llTesterCb.connFirstCePos)
+    {
+    case LL_TESTER_FIRST_CE_POS_BEGIN:
+      /* BOD is not scheduled; force time adjustment here. */
+      pCtx->connBod.due = advEndTs + BB_US_TO_BB_TICKS(txWinOffsetUsec + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US);
+      break;
+    case LL_TESTER_FIRST_CE_POS_END:
+      /* BOD is not scheduled; force time adjustment here. */
+      pCtx->connBod.due = advEndTs + BB_US_TO_BB_TICKS(txWinOffsetUsec + LCTR_CONN_IND_US(lctrMstInit.data.init.connInd.txWinSize - 1) + LL_BLE_TIFS_US + LCTR_CONN_IND_PKT_1M_US);
+      break;
+    case LL_TESTER_FIRST_CE_POS_NORMAL:
+    default:
+      break;
+    }
+    llTesterCb.connFirstCePos = LL_TESTER_FIRST_CE_POS_NORMAL;
+#endif
 
     if (txWinOffsetUsec < LCTR_CONN_IND_US(LCTR_DATA_CHAN_DLY))
     {
@@ -207,6 +239,14 @@ bool_t lctrMstInitiateAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
 /*************************************************************************************************/
 bool_t lctrMstConnIndTxCompHandler(BbOpDesc_t *pOp, const uint8_t *pIndBuf)
 {
+#if (LL_ENABLE_TESTER == TRUE)
+  if (llTesterCb.auxReq.len)
+  {
+    /* Do not establish connection when CONNECT_IND is overridden. */
+    return FALSE;
+  }
+#endif
+
   WSF_ASSERT(pOp->protId == BB_PROT_BLE);
   WSF_ASSERT(pOp->prot.pBle->chan.opType == BB_BLE_OP_MST_ADV_EVENT);
 

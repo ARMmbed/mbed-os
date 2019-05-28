@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Main link layer controller implementation file.
+ * \file
+ * \brief Main link layer controller implementation file.
  */
 /*************************************************************************************************/
 
@@ -289,4 +290,33 @@ void lctrNotifyHostHwErrInd(uint8_t code)
   LL_TRACE_INFO1("### LlEvent ###  LL_ERROR_IND, status=%u", code);
 
   LmgrSendEvent((LlEvt_t *)&evt);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Compute the window widening delay in microseconds.
+ *
+ *  \param  unsyncTimeUsec  Unsynchronized time in microseconds.
+ *  \param  caPpm           Total clock accuracy.
+ *
+ *  \return Window widening delay in microseconds.
+ */
+/*************************************************************************************************/
+uint32_t lctrCalcWindowWideningUsec(uint32_t unsyncTimeUsec, uint32_t caPpm)
+{
+  if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_WW))
+  {
+    /* Largest unsynchronized time is 1,996 seconds (interval=4s and latency=499) and
+     * largest total accuracy is 1000 ppm. */
+    /* coverity[overflow_before_widen] */
+    uint64_t wwDlyUsec = LL_MATH_DIV_10E6(((uint64_t)unsyncTimeUsec * caPpm) +
+                                          999999);     /* round up */
+
+    /* Reduce to 32-bits and always round up to a sleep clock tick. */
+    return wwDlyUsec + pLctrRtCfg->ceJitterUsec + LL_WW_RX_DEVIATION_USEC;
+  }
+  else
+  {
+    return 0;
+  }
 }

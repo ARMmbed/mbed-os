@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) master parameter interface implementation file.
+ * \file
+ * \brief Link layer (LL) master parameter interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -85,6 +86,7 @@ uint8_t LlSetScanParam(const LlScanParam_t *pParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -142,11 +144,13 @@ void LlScanEnable(uint8_t enable, uint8_t filterDup)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     LmgrSendScanEnableCnf(LL_ERROR_CODE_CMD_DISALLOWED);
     return;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
+      (enable == TRUE) &&
       !LmgrIsAddressTypeAvailable(lmgrMstScanCb.scanParam.ownAddrType))
   {
     LL_TRACE_WARN1("Address type invalid or not available, ownAddrType=%u", lmgrMstScanCb.scanParam.ownAddrType);

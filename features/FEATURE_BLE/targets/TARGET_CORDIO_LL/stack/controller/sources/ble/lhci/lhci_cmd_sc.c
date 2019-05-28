@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ * \file
+ * \brief HCI command module implementation file.
  */
 /*************************************************************************************************/
 
@@ -69,6 +70,17 @@ bool_t lhciScDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
     case HCI_OPCODE_LE_GENERATE_DHKEY:
     {
       status = LlGenerateDhKey(pBuf, pBuf + LL_ECC_KEY_LEN);
+      paramLen = LHCI_LEN_CMD_STATUS_EVT;
+      break;
+    }
+
+    case HCI_OPCODE_LE_GENERATE_DHKEY_V2:
+    {
+      uint8_t keyType;
+      uint8_t * pKeyType = pBuf + (2 * LL_ECC_KEY_LEN);
+      BSTREAM_TO_UINT8(keyType, pKeyType);
+
+      status = LlGenerateDhKeyV2(pBuf, pBuf + LL_ECC_KEY_LEN, keyType);
       paramLen = LHCI_LEN_CMD_STATUS_EVT;
       break;
     }

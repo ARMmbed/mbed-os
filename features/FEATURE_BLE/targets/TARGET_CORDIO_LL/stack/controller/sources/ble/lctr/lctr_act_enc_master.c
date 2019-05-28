@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master encryption action routines.
+ * \file
+ * \brief Link layer controller master encryption action routines.
  */
 /*************************************************************************************************/
 
@@ -46,10 +47,10 @@ void lctrGenerateMstVectors(lctrConnCtx_t *pCtx)
   pCtx->ediv = pLctrConnMsg->startEnc.diversifier;
 
   /* Generate master part of IV. */
-  BbBleDrvRand(pCtx->iv + LCTR_IV_M_OFFS, LL_IV_LEN / 2);
+  PalCryptoGenerateRandomNumber(pCtx->iv + LCTR_IV_M_OFFS, LL_IV_LEN / 2);
 
   /* Generate master part of SKD. */
-  BbBleDrvRand(pCtx->skd + LCTR_SKD_M_OFFS, LL_SKD_LEN / 2);
+  PalCryptoGenerateRandomNumber(pCtx->skd + LCTR_SKD_M_OFFS, LL_SKD_LEN / 2);
 }
 
 /*************************************************************************************************/

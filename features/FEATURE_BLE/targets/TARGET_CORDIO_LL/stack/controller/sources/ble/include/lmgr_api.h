@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer manager common interface file.
+ * \file
+ * \brief Link layer manager common interface file.
  */
 /*************************************************************************************************/
 
@@ -25,6 +26,7 @@
 
 #include "ll_api.h"
 #include "ll_defs.h"
+#include "hci_defs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,8 +69,15 @@ typedef struct
   wsfHandlerId_t    handlerId;          /*!< System event handler ID. */
   uint16_t          connCtxSize;        /*!< Size of the connection context. */
   uint16_t          advSetCtxSize;      /*!< Size of the advertising set context. */
+  uint16_t          extScanCtxSize;     /*!< Size of the extended scanner context. */
+  uint16_t          extInitCtxSize;     /*!< Size of the extended initiator context. */
   uint16_t          perScanCtxSize;     /*!< Size of the periodic scanning context. */
+  uint16_t          cisCtxSize;         /*!< Size of the CIS context. */
+  uint16_t          cigCtxSize;         /*!< Size of the CIG context. */
   uint64_t          featuresDefault;    /*!< Default supported features. */
+
+  llIsoCback_t      sendIsoCompCback;   /*!< ISO data send complete callback. */
+  llIsoCback_t      recvIsoPendCback;   /*!< ISO data receive pending callback. */
 
   /* Device parameters */
   uint64_t          bdAddr;             /*!< Public device address. */
@@ -108,11 +117,34 @@ typedef struct
   bool_t            addrResEna;         /*!< Address resolution enabled. */
   bool_t            useLegacyCmds;      /*!< Use only legacy advertising, scan or initiate commands. */
   bool_t            useExtCmds;         /*!< Use only extended advertising, scan or initiate commands. */
+  uint64_t          chanClass;          /*!< Channel class. */
+
+  /* Sleep clock accuracy override value. */
+  int8_t            scaMod;             /*!< SCA override value. */
 
   /* Power Class 1. */
   int8_t            powerThreshold[LL_MAX_PHYS];    /*!< Power threshold for each PHY. */
   uint8_t           localMinUsedChan[LL_MAX_PHYS];  /*!< Local minimum number of used channels for each PHY. */
+
+  uint8_t           hciSupCommands[HCI_SUP_CMD_LEN]; /*!< Supported HCI commands bit mask. */
 } lmgrCtrlBlk_t;
+
+/*! \brief      Channel parameters. */
+typedef struct
+{
+  /* Channel parameters */
+  uint8_t       lastChanIdx;        /*!< Current channel index. */
+  uint8_t       numUsedChan;        /*!< Number of used channels. */
+  uint64_t      chanMask;           /*!< Channel mask. */
+  uint8_t       chanRemapTbl[LL_CHAN_DATA_MAX_IDX + 1]; /*!< Channel remapping table. */
+
+  uint8_t       usedChSel;          /*!< Used channel selection. */
+  uint16_t      chIdentifier;       /*!< Channel identifier. */
+
+  /* For subevent calculation only */
+  uint16_t      prnLast;            /*!< Last used permutation. */
+  uint8_t       subEvtIdx;          /*!< Subevent index. */
+} lmgrChanParam_t;
 
 /**************************************************************************************************
   Global Variables
@@ -143,11 +175,34 @@ bool_t LmgrIsAddressTypeAvailable(uint8_t ownAddrType);
 bool_t LmgrIsLegacyCommandAllowed(void);
 bool_t LmgrIsExtCommandAllowed(void);
 
+/* Utility */
+void LmgrBuildRemapTable(lmgrChanParam_t *pChanParam);
+uint8_t LmgrSelectNextChannel(lmgrChanParam_t *pChanParam, uint16_t eventCounter, uint16_t numSkip, bool_t calSubEvt);
+uint32_t LmgrCalcWindowWideningUsec(uint32_t unsyncTimeUsec, uint32_t caPpm);
+uint8_t LmgrSelectNextSubEvtChannel(lmgrChanParam_t *pChanParam);
+uint8_t * LmgrReadHciSupCmd(void);
+
 /* Event Messages */
 void LmgrSendAdvEnableCnf(uint8_t status);
 void LmgrSendScanEnableCnf(uint8_t status);
 void LmgrSendAdvSetTermInd(uint8_t handle, uint8_t status, uint16_t connHandle, uint8_t numEvents);
 bool_t LmgrSendEvent(LlEvt_t *pEvt);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get operational mode flag.
+ *
+ *  \param      flag  Flag to check.
+ *
+ *  \return     TRUE if flag is set.
+ *
+ *  Get mode flag governing LL operations.
+ */
+/*************************************************************************************************/
+static inline bool_t lmgrGetOpFlag(uint32_t flag)
+{
+  return (lmgrCb.opModeFlags & flag) ? TRUE : FALSE;
+}
 
 /*! \} */    /* LL_LMGR_API */
 

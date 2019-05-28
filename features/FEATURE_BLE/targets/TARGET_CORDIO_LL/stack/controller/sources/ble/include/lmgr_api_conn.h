@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer manager connection interface file.
+ * \file
+ * \brief Link layer manager connection interface file.
  */
 /*************************************************************************************************/
 
@@ -54,6 +55,10 @@ typedef struct
   uint8_t       allPhys;                /*!< Default all PHYs. */
   uint8_t       txPhys;                 /*!< Default transmitter PHYs. */
   uint8_t       rxPhys;                 /*!< Default receiver PHYs. */
+
+  uint8_t       syncMode;               /*!< Default sync transfer mode. */
+  uint16_t      syncSkip;               /*!< Default sync skip for periodic adv sync transfer. */
+  uint16_t      syncTimeout;            /*!< Default sync timeout for periodic adv sync transfer. */
 
 } lmgrConnCtrlBlk_t;
 

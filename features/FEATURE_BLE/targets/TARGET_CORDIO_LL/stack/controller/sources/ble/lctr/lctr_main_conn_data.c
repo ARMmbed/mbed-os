@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller data path implementation file.
+ * \file
+ * \brief Link layer controller data path implementation file.
  */
 /*************************************************************************************************/
 
@@ -32,7 +33,7 @@
 #include "wsf_trace.h"
 #include "util/bstream.h"
 #include "hci_defs.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include <string.h>
 
 /**************************************************************************************************
@@ -99,33 +100,21 @@ static wsfHandlerId_t lctrTxCompBufHandlerId;
  *  \return     None.
  */
 /*************************************************************************************************/
-static void  lctrCheckAbortSlvLatency(lctrConnCtx_t *pCtx)
+static void lctrCheckAbortSlvLatency(lctrConnCtx_t *pCtx)
 {
-  if (pCtx->role == LL_ROLE_MASTER)
+  if ((pCtx->role == LL_ROLE_MASTER) ||
+      !lctrGetConnOpFlag(pCtx, LL_OP_MODE_FLAG_ENA_SLV_LATENCY_WAKEUP))
   {
-    return;
-  }
-
-  if (((pCtx->llcpActiveProc == LCTR_PROC_CONN_UPD) && (lctrSlvCheckConnUpdInstant(pCtx)) && (pCtx->llcpInstantComp == TRUE)) ||
-      ((pCtx->llcpActiveProc == LCTR_PROC_PHY_UPD) && (pCtx->isSlvPhyUpdInstant == TRUE) && (pCtx->llcpInstantComp == TRUE)) ||
-      ((pCtx->llcpActiveProc == LCTR_PROC_CMN_CH_MAP_UPD) && (pCtx->cmnState == LCTR_CMN_STATE_BUSY) && (pCtx->llcpInstantComp == TRUE)))
-  {
-    /* Don't abort slave latency between the last CE with old parameter and the first CE with new parameter. */
     return;
   }
 
   if (pCtx->maxLatency)
   {
-    const uint32_t curTime = BbDrvGetCurrentTime();
+    const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
     uint32_t connInterval = BB_US_TO_BB_TICKS(LCTR_CONN_IND_US(pCtx->connInterval));
     BbOpDesc_t *pOp = &pCtx->connBod;
 
-    if ((pOp->due - curTime) >= LCTR_SCH_MAX_SPAN)
-    {
-      /* Slave tries to exit latency while the current BoD is executing. */
-      pCtx->data.slv.abortSlvLatency = TRUE;
-    }
-    else if (pOp->due - curTime > connInterval)   /* Imply (pOp->due - curTime) < LCTR_SCH_MAX_SPAN */
+    if (((pOp->due - curTime) > connInterval) && ((pOp->due - curTime) < LCTR_SCH_MAX_SPAN))
     {
       /* If the connection BOD is due in the future and after the next immediate anchor point,
        * set the flag to adjust the connection BOD later. */
@@ -136,6 +125,7 @@ static void  lctrCheckAbortSlvLatency(lctrConnCtx_t *pCtx)
     }
   }
 }
+
 /*************************************************************************************************/
 /*!
  *  \brief      Initialize the transmit memory resources.
@@ -265,6 +255,7 @@ void lctrSetPacketTimeRestriction(lctrConnCtx_t *pCtx, uint8_t txPhys)
 {
   pCtx->txPhysPending = txPhys;
 }
+
 /*************************************************************************************************/
 /*!
  *  \brief      Remove packet time restriction.
@@ -356,13 +347,13 @@ uint16_t lctrTxFragLen(lctrConnCtx_t *pCtx)
         {
           txPhy = BB_PHY_BLE_1M;
         }
-        /* no break */
+        /* Fallthrough */
       case BB_PHY_BLE_1M:
         if (pCtx->txPhysPending & LL_PHYS_LE_CODED_BIT)
         {
           txPhy = BB_PHY_BLE_CODED;
         }
-        /* no break */
+        /* Fallthrough */
       case BB_PHY_BLE_CODED:
         /* no slower PHYs */
         break;
@@ -429,13 +420,14 @@ static void lctrFreeTxBufDesc(lctrTxBufDesc_t *pDesc)
 /*!
  *  \brief  Assemble data PDU.
  *
+ *  \param  pCtx        Connection context.
  *  \param  pAclHdr     ACL header.
  *  \param  pBuf        Buffer to pack the Data PDU header.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-static void lctrAssembleDataPdu(lctrAclHdr_t *pAclHdr, uint8_t *pBuf)
+static void lctrAssembleDataPdu(lctrConnCtx_t *pCtx, lctrAclHdr_t *pAclHdr, uint8_t *pBuf)
 {
   /* All additional fields must be zero'ed since flow control bits will be or'ed in at transmit. */
   lctrDataPduHdr_t dataHdr = { 0 };
@@ -445,10 +437,19 @@ static void lctrAssembleDataPdu(lctrAclHdr_t *pAclHdr, uint8_t *pBuf)
   {
     case LCTR_PB_START_NON_AUTO_FLUSH:
       dataHdr.llid = LL_LLID_START_PDU;
+      pCtx->forceStartPdu = FALSE;
       break;
+
     case LCTR_PB_CONT_FRAG:
       dataHdr.llid = LL_LLID_CONT_PDU;
+      /* If the next data Pdu is forced to a start pdu, change pdu type to start. */
+      if (pCtx->forceStartPdu == TRUE)
+      {
+        dataHdr.llid = LL_LLID_START_PDU;
+        pCtx->forceStartPdu = FALSE;
+      }
       break;
+
     case LCTR_PB_VS_DATA:
     default:
       dataHdr.llid = LL_LLID_VS_PDU;
@@ -528,7 +529,7 @@ void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAc
     memcpy(pData, pAclBuf, fragSize);
 
     pAclHdr->len = fragSize;
-    lctrAssembleDataPdu(pAclHdr, pHdr);
+    lctrAssembleDataPdu(pCtx, pAclHdr, pHdr);
 
     if (lctrPktEncryptHdlr && lctrPktEncryptHdlr(&pCtx->bleData.chan.enc, pHdr, pData, pMic))
     {
@@ -570,7 +571,7 @@ void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAc
     const uint16_t fragSize = WSF_MIN(dataRem, fragLen);
 
     pAclHdr->len = fragSize;
-    lctrAssembleDataPdu(pAclHdr, pDesc->frag[fragCnt].hdr);
+    lctrAssembleDataPdu(pCtx, pAclHdr, pDesc->frag[fragCnt].hdr);
     pDesc->frag[fragCnt].hdrLen = LL_DATA_HDR_LEN;
 
     if (lctrPktEncryptHdlr && lctrPktEncryptHdlr(&pCtx->bleData.chan.enc, pDesc->frag[fragCnt].hdr, pAclBuf, pDesc->frag[fragCnt].trl))
@@ -715,7 +716,7 @@ uint8_t *lctrTxCtrlPduAlloc(uint8_t pduLen)
  *  \return Number of BB descriptors.
  */
 /*************************************************************************************************/
-uint8_t lctrTxQueuePeek(lctrConnCtx_t *pCtx, BbBleDrvTxBufDesc_t *descs, bool_t *pMd)
+uint8_t lctrTxQueuePeek(lctrConnCtx_t *pCtx, PalBbBleTxBufDesc_t *descs, bool_t *pMd)
 {
   wsfHandlerId_t handlerId;
   uint8_t *pTxBuf;
@@ -726,7 +727,7 @@ uint8_t lctrTxQueuePeek(lctrConnCtx_t *pCtx, BbBleDrvTxBufDesc_t *descs, bool_t 
   pTxBuf = WsfMsgPeek(&pCtx->txArqQ, &handlerId);
   if (pTxBuf != NULL)
   {
-    md = !lctrIsQueueDepthOne(&pCtx->txArqQ);
+    md = !WsfIsQueueDepthOne(&pCtx->txArqQ);
 
     /*** Send Data PDU ***/
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave data channel packet implementation file.
+ * \file
+ * \brief Link layer controller slave data channel packet implementation file.
  */
 /*************************************************************************************************/
 
@@ -558,6 +559,182 @@ uint8_t lctrUnpackMinUsedChanIndPdu(lctrMinUsedChanInd_t *pPdu, const uint8_t *p
 
 /*************************************************************************************************/
 /*!
+ *  \brief  Unpack a periodic sync indication PDU.
+ *
+ *  \param  pPdu        Unpacked periodic sync indication PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackPerSyncIndPdu(lctrPerSyncInd_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_PERIODIC_SYNC_PDU_LEN;
+  uint8_t i;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT16 (pPdu->id, pBuf);
+
+  for (i = 0; i < LL_SYNC_INFO_LEN; i++)
+  {
+    BSTREAM_TO_UINT8(pPdu->syncInfo[i], pBuf);
+  }
+
+  BSTREAM_TO_UINT16 (pPdu->ceCounter, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->lastPECounter, pBuf);
+
+  uint8_t field8;
+  BSTREAM_TO_UINT8 (field8, pBuf);
+  pPdu->sid     = (field8 >>  0) & 0x0F;
+  pPdu->aType   = (field8 >>  4) & 0x01;
+  pPdu->sca     = (field8 >>  5) & 0x07;
+
+  BSTREAM_TO_UINT8(pPdu->phy, pBuf);
+  BSTREAM_TO_BDA64(pPdu->advA, pBuf);
+  BSTREAM_TO_UINT16(pPdu->syncConnEvtCounter, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a peer SCA response PDU.
+ *
+ *  \param  pPdu        SCA PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackPeerScaPdu(lctrPeerSca_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_PEER_SCA_REQ_LEN;  /* LL_PEER_SCA_REQ_LEN = LL_PEER_SCA_RSP_LEN*/
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->sca, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a CIS request PDU.
+ *
+ *  \param  pPdu        CIS request PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackCisReqPdu(lctrCisReq_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_CIS_REQ_LEN;
+  uint8_t bn;
+  uint16_t sduSizeMToS;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->cigId, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->cisId, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->phyMToS, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->phySToM, pBuf);
+
+  BSTREAM_TO_UINT16 (sduSizeMToS, pBuf);
+  pPdu->isoalPduType = (sduSizeMToS >> 15) & 0x01;
+  pPdu->sduSizeMToS = sduSizeMToS & 0x0FFF;
+  BSTREAM_TO_UINT16 (pPdu->sduSizeSToM, pBuf);
+  pPdu->sduSizeSToM &= 0x0FFF;
+  BSTREAM_TO_UINT24 (pPdu->sduIntervalMToS, pBuf);
+  pPdu->sduIntervalMToS &= 0xFFFFF;
+  BSTREAM_TO_UINT24 (pPdu->sduIntervalSToM, pBuf);
+  pPdu->sduIntervalSToM &= 0xFFFFF;
+
+  BSTREAM_TO_UINT8 (pPdu->plMToS, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->plSToM, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->nse, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->subIntervUsec, pBuf);
+  BSTREAM_TO_UINT8 (bn, pBuf);
+  pPdu->bnSToM = (bn & 0xF0) >> 4;
+  pPdu->bnMToS = bn & 0x0F;
+  BSTREAM_TO_UINT8 (pPdu->ftMToS, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->ftSToM, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->isoInterval, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cisOffMinUsec, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cisOffMaxUsec, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->ceRef, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a CIS response PDU.
+ *
+ *  \param  pPdu        CIS response PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackCisRspPdu(lctrCisRsp_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_CIS_RSP_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT24 (pPdu->cisOffMinUsec, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cisOffMaxUsec, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->ceRef, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a CIS indication PDU.
+ *
+ *  \param  pPdu        CIS indication PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackCisIndPdu(lctrCisInd_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_CIS_IND_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT32 (pPdu->accessAddr, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cisOffUsec, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cigSyncDelayUsec, pBuf);
+  BSTREAM_TO_UINT24 (pPdu->cisSyncDelayUsec, pBuf);
+  BSTREAM_TO_UINT16 (pPdu->ceRef, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Unpack a CIS terminate PDU.
+ *
+ *  \param  pPdu        CIS terminate PDU.
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return PDU length.
+ */
+/*************************************************************************************************/
+uint8_t lctrUnpackCisTermPdu(lctrCisTermInd_t *pPdu, const uint8_t *pBuf)
+{
+  const uint8_t len = LL_CIS_TERM_LEN;
+
+  pBuf += 1;        /* skip opcode */
+  BSTREAM_TO_UINT8 (pPdu->cigId, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->cisId, pBuf);
+  BSTREAM_TO_UINT8 (pPdu->reason, pBuf);
+
+  return len;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief  Decode an LE-C channel buffer.
  *
  *  \param  pPdu    Destination unpacked PDU.
@@ -581,8 +758,11 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      if ((lctrUnpackConnUpdateIndPdu(&pPdu->pld.connUpdInd, pBuf) != pPdu->hdr.len) ||
-          (lctrIsConnUpdateParamValid(&pPdu->pld.connUpdInd) == FALSE))
+      if (lctrUnpackConnUpdateIndPdu(&pPdu->pld.connUpdInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrIsConnUpdateParamValid(&pPdu->pld.connUpdInd) == FALSE)
       {
         return LL_ERROR_CODE_INVALID_LMP_PARAMS;
       }
@@ -592,7 +772,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      /* no break */
+      /* Fallthrough */
     case LL_PDU_CONN_PARAM_REQ:
       if ((lmgrCb.features & LL_FEAT_CONN_PARAM_REQ_PROC) == 0)
       {
@@ -600,7 +780,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       }
       if (lctrUnpackConnParamPdu(&pPdu->pld.connParamReqRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_CHANNEL_MAP_IND:
@@ -608,8 +788,11 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      if ((lctrUnpackChanMapIndPdu(&pPdu->pld.chanMapInd, pBuf) != pPdu->hdr.len) ||
-          (lctrIsChanMaskValid(pPdu->pld.chanMapInd.chanMask) == FALSE))
+      if (lctrUnpackChanMapIndPdu(&pPdu->pld.chanMapInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrIsChanMaskValid(pPdu->pld.chanMapInd.chanMask) == FALSE)
       {
         return LL_ERROR_CODE_INVALID_LMP_PARAMS;
       }
@@ -618,19 +801,19 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
     case LL_PDU_LENGTH_RSP:
       if (lctrUnpackDataLengthPdu(&pPdu->pld.lenRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_TERMINATE_IND:
       if (lctrUnpackTerminateIndPdu(&pPdu->pld.termInd, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_UNKNOWN_RSP:
       if (lctrUnpackUnknownRspPdu(&pPdu->pld.unknownRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_FEATURE_REQ:
@@ -638,11 +821,11 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      /* no break */
+      /* Fallthrough */
     case LL_PDU_FEATURE_RSP:
       if (lctrUnpackFeaturePdu(&pPdu->pld.featReqRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_SLV_FEATURE_REQ:
@@ -656,20 +839,20 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       }
       if (lctrUnpackFeaturePdu(&pPdu->pld.featReqRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_VERSION_IND:
       if (lctrUnpackVersionIndPdu(&pPdu->pld.verInd, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_REJECT_IND:
       pPdu->pld.rejInd.opcode = LL_PDU_UNSPECIFIED;
       if (lctrUnpackRejectIndPdu(&pPdu->pld.rejInd.reason, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_REJECT_EXT_IND:
@@ -679,7 +862,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       }
       if (lctrUnpackRejectExtIndPdu(&pPdu->pld.rejInd, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_PHY_RSP:
@@ -687,7 +870,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      /* no break */
+      /* Fallthrough */
     case LL_PDU_PHY_REQ:
       if ((lmgrCb.features & (LL_FEAT_LE_2M_PHY | LL_FEAT_LE_CODED_PHY)) == 0)
       {
@@ -695,7 +878,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       }
       if (lctrUnpackPhyPdu(&pPdu->pld.phyReq, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_PHY_UPDATE_IND:
@@ -709,7 +892,7 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       }
       if (lctrUnpackPhyUpdateIndPdu(&pPdu->pld.phyUpdInd, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_MIN_USED_CHAN_IND:
@@ -721,10 +904,84 @@ uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role
       {
         return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
-      if ((lctrUnpackMinUsedChanIndPdu(&pPdu->pld.minUsedChanInd, pBuf) != pPdu->hdr.len) ||
-          (lctrIsSetMinUsedChanParamValid(&pPdu->pld.minUsedChanInd) == FALSE))
+      if (lctrUnpackMinUsedChanIndPdu(&pPdu->pld.minUsedChanInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrIsSetMinUsedChanParamValid(&pPdu->pld.minUsedChanInd) == FALSE)
       {
         return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+      }
+      break;
+    case LL_PDU_PERIODIC_SYNC_IND:
+      if ((lmgrCb.features & LL_FEAT_PAST_RECIPIENT) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPerSyncIndPdu(&pPdu->pld.perSyncInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_PEER_SCA_REQ:
+      if ((lmgrCb.features & (LL_FEAT_SCA_UPDATE)) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPeerScaPdu(&pPdu->pld.peerSca, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_PEER_SCA_RSP:
+      if ((lmgrCb.features & (LL_FEAT_SCA_UPDATE)) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackPeerScaPdu(&pPdu->pld.peerSca, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_CIS_REQ:
+      if ((lmgrCb.features & (LL_FEAT_CIS_SLAVE_ROLE)) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackCisReqPdu(&pPdu->pld.cisReq, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_CIS_RSP:
+      if ((lmgrCb.features & (LL_FEAT_CIS_MASTER_ROLE)) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackCisRspPdu(&pPdu->pld.cisRsp, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_CIS_IND:
+      if ((lmgrCb.features & (LL_FEAT_CIS_SLAVE_ROLE)) == 0)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackCisIndPdu(&pPdu->pld.cisInd, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      break;
+    case LL_PDU_CIS_TERM_IND:
+      if (((lmgrCb.features & (LL_FEAT_CIS_SLAVE_ROLE)) == 0) &&
+          ((lmgrCb.features & (LL_FEAT_CIS_MASTER_ROLE)) == 0))
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
+      }
+      if (lctrUnpackCisTermPdu(&pPdu->pld.cisTerm, pBuf) != pPdu->hdr.len)
+      {
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
 

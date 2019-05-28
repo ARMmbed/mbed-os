@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection operation builder implementation file.
+ * \file
+ * \brief Link layer controller master connection operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -36,11 +37,6 @@
 /**************************************************************************************************
   Globals
 **************************************************************************************************/
-/*! \brief      Get connection offsets callback. */
-LctrRmCback_t lctrGetConnOffsetsCback = NULL;
-
-/*! \brief      Get periodic advertising offsets callback. */
-LctrRmCback_t lctrGetPerOffsetsCback = NULL;
 
 /*************************************************************************************************/
 /*!
@@ -188,7 +184,7 @@ static void lctrMstConnDisp(lctrConnMsg_t *pMsg)
 {
   if (pMsg->hdr.dispId != LCTR_DISP_BCST)
   {
-    WSF_ASSERT(pMsg->hdr.handle < pLctrRtCfg->maxConn);
+    WSF_ASSERT(pMsg->hdr.handle < (pLctrRtCfg->maxConn + (pLctrRtCfg->maxCis * pLctrRtCfg->maxCig)));
     lctrMstConnExecute(pMsg);
   }
   else
@@ -236,6 +232,8 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
   pCtx->pingPeriodMs = lctrCalcPingPeriodMs(pCtx, LL_DEF_AUTH_TO_MS);
   /* pCtx->llcpState = LCTR_LLCP_STATE_IDLE; */
   pCtx->llcpActiveProc = LCTR_PROC_INVALID;
+  pCtx->crcInit = pConnInd->crcInit;
+  pCtx->accessAddr = pConnInd->accessAddr;
 
   lctrBuildRemapTable(pCtx);
   pCtx->chIdentifier = (pConnInd->accessAddr >> 16) ^
@@ -265,7 +263,7 @@ void lctrMstConnBuildOp(lctrConnCtx_t *pCtx, lctrConnInd_t *pConnInd)
   /* pBle->chan.enc.enaEncrypt = FALSE; */  /* cleared in alloc */
   /* pBle->chan.enc.enaDecrypt = FALSE; */
   pBle->chan.enc.enaAuth = TRUE;
-  /* pBle->chan.enc.nonceMode = BB_NONCE_MODE_PKT_CNTR; */  /* cleared in alloc */
+  /* pBle->chan.enc.nonceMode = PAL_BB_NONCE_MODE_PKT_CNTR; */  /* cleared in alloc */
 
   pCtx->txHdr.llid = ~LL_LLID_VS_PDU;     /* reset last PDU LLID */
 
@@ -380,8 +378,11 @@ void LctrMstConnInit(void)
     lmgrPersistCb.featuresDefault |=
       LL_FEAT_MIN_NUM_USED_CHAN;
   }
-
-  lctrGetConnOffsetsCback = lctrGetConnOffsets;
+  if (pLctrRtCfg->btVer >= LL_VER_BT_CORE_SPEC_5_1)
+  {
+    lmgrPersistCb.featuresDefault |=
+        (LL_FEAT_PAST_SENDER | LL_FEAT_SCA_UPDATE);
+  }
 }
 
 /*************************************************************************************************/
@@ -415,14 +416,15 @@ uint8_t lctrComputeHopInc(void)
 /*!
  *  \brief  Adjust the start time of a pre-established connection BOD.
  *
- *  \param  pCtx        Connection context.
- *  \param  scanRefTime Scan BOD reference time.
- *  \param  pConnInd    Connection indication.
+ *  \param  pCtx            Connection context.
+ *  \param  scanRefTime     Scan  BOD reference time.
+ *  \param  scanMinDurUsec  Scan BOD minimum duration.
+ *  \param  pConnInd        Connection indication.
  *
  *  \return First CE due time.
  */
 /*************************************************************************************************/
-uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, lctrConnInd_t *pConnInd)
+uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, uint32_t scanMinDurUsec, lctrConnInd_t *pConnInd)
 {
   /* Pre-resolve common structures for efficient access. */
   BbOpDesc_t * const pOp = &pCtx->connBod;
@@ -434,18 +436,14 @@ uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, lct
 
   /*** General setup ***/
 
-  uint32_t rsvnOffs[SCH_RM_MAX_RSVN];
-  memset(&rsvnOffs[0], 0, sizeof(rsvnOffs));
-  if (lctrGetConnOffsetsCback)
-  {
-    lctrGetConnOffsetsCback(rsvnOffs, scanRefTime);
-  }
-  if (lctrGetPerOffsetsCback)
-  {
-    lctrGetPerOffsetsCback(&rsvnOffs[LL_MAX_CONN], scanRefTime);
-  }
   /* Use maximum txWindowOffset (i.e. connInterval) to maximize scan opportunity. */
-  uint32_t maxOffsetUsec = SchRmGetOffsetUsec(rsvnOffs, LCTR_CONN_IND_US(pConnInd->interval), LCTR_GET_CONN_HANDLE(pCtx));
+  uint32_t maxOffsetUsec = SchRmGetOffsetUsec(LCTR_CONN_IND_US(pConnInd->interval), LCTR_GET_CONN_HANDLE(pCtx), scanRefTime);
+
+  if (maxOffsetUsec <= scanMinDurUsec)
+  {
+    /* To avoid the case that the connection BOD might kill the scan BOD which does the scan for the connection. */
+    maxOffsetUsec += LCTR_CONN_IND_US(pConnInd->interval);
+  }
 
   pOp->due = scanRefTime + BB_US_TO_BB_TICKS(maxOffsetUsec);
 

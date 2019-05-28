@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ * \file
+ * \brief Link layer controller master connection state machine action routines.
  */
 /*************************************************************************************************/
 
@@ -61,8 +62,10 @@ void lctrSendConnUpdateInd(lctrConnCtx_t *pCtx)
   uint32_t durUsec = pCtx->localConnDurUsec;
   uint32_t connIntervalUsec;
 
-  /* TODO: accommodate pCtx->connParam.prefPeriod. */
-  if (!SchRmStartUpdate(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, durUsec, &connIntervalUsec))
+  /* Accommodate peer PreferredPeriodicity. */
+  uint32_t commonPrefPerUsec = SchRmCalcCommonPeriodicityUsec(LCTR_CONN_IND_US(pCtx->connParam.prefPeriod));
+
+  if (!SchRmStartUpdate(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, commonPrefPerUsec, durUsec, &connIntervalUsec))
   {
     LL_TRACE_WARN1("Could not update connection, handle=%u", LCTR_GET_CONN_HANDLE(pCtx));
     lctrSendConnMsg(pCtx, LCTR_CONN_LLCP_REJECT_CONN_UPD);

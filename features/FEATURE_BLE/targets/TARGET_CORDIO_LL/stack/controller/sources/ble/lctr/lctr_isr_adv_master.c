@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master advertising event ISR callbacks.
+ * \file
+ * \brief Link layer controller master advertising event ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -34,6 +35,9 @@
 #include "bb_ble_api_reslist.h"
 #include "util/bstream.h"
 #include <string.h>
+#if (LL_ENABLE_TESTER == TRUE)
+extern bool_t bbTxAccAddrShiftMask;
+#endif
 
 /*************************************************************************************************/
 /*!
@@ -100,7 +104,8 @@ void lctrMstDiscoverEndOp(BbOpDesc_t *pOp)
   /* Reset due time to start of scan window. */
   pOp->due = pCtx->scanWinStart;
 
-  if ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pCtx->scanParam.scanWindow))
+  if ((pCtx->scanParam.scanInterval != pCtx->scanParam.scanWindow) &&
+      ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pCtx->scanParam.scanWindow)))
   {
     const uint32_t min = BB_US_TO_BB_TICKS(pScan->elapsedUsec);
     const uint32_t max = BB_BLE_TO_BB_TICKS(pCtx->scanParam.scanWindow);
@@ -217,7 +222,11 @@ bool_t lctrMstDiscoverAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
         lctrPackAdvbPduHdr(lctrMstScan.reqBuf, &lctrMstScan.reqPduHdr);
 
         /* Scan backoff. */
-        if (lctrGetOpFlag(LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF))
+        if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF)
+#if (LL_ENABLE_TESTER == TRUE)
+            && !bbTxAccAddrShiftMask
+#endif
+            )
         {
           if (lctrMstScan.backoffCount)
           {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +16,21 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller extended scanning master interface file.
+ * \file
+ * \brief Internal link layer controller extended scanning master interface file.
  */
 /*************************************************************************************************/
 
 #ifndef LCTR_INT_ADV_MASTER_AE_H
 #define LCTR_INT_ADV_MASTER_AE_H
 
+#include "lctr_int_adv_ae.h"
 #include "lctr_int.h"
 #include "lctr_api_adv_master_ae.h"
 #include "lctr_int_adv_master.h"
 #include "lctr_pdu_adv_ae.h"
 #include "bb_ble_api.h"
+#include "ll_defs.h"
 #include "wsf_timer.h"
 
 #ifdef __cplusplus
@@ -69,6 +72,16 @@ enum
   LCTR_CREATE_SYNC_STATE_SHUTDOWN,          /*!< Create sync shutdown in process state. */
   LCTR_CREATE_SYNC_STATE_RESET,             /*!< Create sync reset in progress. */
   LCTR_CREATE_SYNC_STATE_TOTAL              /*!< Total number of Create sync states. */
+};
+
+/*! \brief      Transfer sync states. */
+enum
+{
+  LCTR_TRANSFER_SYNC_STATE_DISABLED = LCTR_CREATE_SYNC_STATE_DISABLED,      /*!< Transfer sync disabled state. */
+  LCTR_TRANSFER_SYNC_STATE_DISCOVER = LCTR_CREATE_SYNC_STATE_DISCOVER,      /*!< Transfer sync enabled state. */
+  LCTR_TRANSFER_SYNC_STATE_SHUTDOWN = LCTR_CREATE_SYNC_STATE_SHUTDOWN,      /*!< Transfer sync shutdown in process state. */
+  LCTR_TRANSFER_SYNC_STATE_RESET    = LCTR_CREATE_SYNC_STATE_RESET,         /*!< Transfer sync reset in progress. */
+  LCTR_TRANSFER_SYNC_STATE_TOTAL    = LCTR_CREATE_SYNC_STATE_TOTAL          /*!< Total number of Transfer sync states. */
 };
 
 /*! \brief      Periodic scanning states. */
@@ -117,7 +130,9 @@ typedef struct
     {
       /* Report handling. */
       LlExtAdvReportInd_t advRpt;       /*!< Advertising report. */
-      lctrRptState_t advRptState:8;     /*!< Advertising report state. */
+      lctrRptState_t advRptState;       /*!< Advertising report state. */
+      LlExtAdvReportInd_t auxAdvRpt;    /*!< Auxiliary Advertising report (only used with scannable advertising). */
+      lctrRptState_t auxAdvRptState;    /*!< Auxiliary Advertising report state. */
 
       /* Backoff. */
       uint16_t      upperLimit;         /*!< Scan backoff upper limit. */
@@ -188,16 +203,6 @@ typedef struct
   wsfTimer_t        tmrScanPer;         /*!< Scan period timer. */
 } lctrExtScanCtrlBlk_t;
 
-
-/*! \brief      Periodic advertising create sync parameters. */
-typedef struct
-{
-  uint8_t   filterPolicy;   /*!< Filter Policy. */
-  uint8_t   advSID;         /*!< Advertising SID. */
-  uint8_t   advAddrType;    /*!< Advertiser Address Type. */
-  uint64_t  advAddr;        /*!< Advertiser Address. */
-} lctrPerParam_t;
-
 /*! \brief      Periodic scanning context. */
 typedef struct
 {
@@ -205,7 +210,11 @@ typedef struct
   uint8_t           state;              /*!< Current state. */
   bool_t            shutdown;           /*!< Client initiated shutdown flag. */
   bool_t            cancelCreateSync;   /*!< Shut down due to create sync cancel. */
+  bool_t            cancelByHost;       /*!< Cancel command was issued from host. */
   bool_t            firstPerAdvRcv;     /*!< True if first periodic advertising packet is received. */
+  bool_t            repDisabled;        /*!< Reporting disabled. */
+  bool_t            bodAborted;         /*!< Tue if periodic scan BOD was aborted. */
+  uint8_t           createDispId;       /*!< Dispatcher id to tell if periodic sync was created or transferred. */
 
   /* Report handling. */
   LlPerAdvReportInd_t advRpt;           /*!< Periodic advertising report. */
@@ -225,6 +234,11 @@ typedef struct
   uint32_t          rxSyncDelayUsec;    /*!< Receive timeout in microseconds. */
   uint32_t          lastAnchorPoint;    /*!< Last anchor point in BB tick. */
   uint16_t          lastActiveEvent;    /*!< Last active event counter. */
+  uint16_t          initEventCounter;   /*!< Initial event counter received from sync_info. */
+
+  /* Acad control block */
+  /* Note: for now, the acad type only applies to the periodic context. */
+  lctrAcadParam_t   acadParams[LCTR_ACAD_NUM_ID]; /*!< Acad control block array. */
 
   /* Local periodic scanning parameters */
   uint16_t          skip;               /*!< Skip. */
@@ -236,7 +250,7 @@ typedef struct
   /* RF parameters */
   int8_t            rssi;               /*!< RSSI. */
 
-  lctrChanParam_t   chanParam;          /*!< Channel parameters. */
+  lmgrChanParam_t   chanParam;          /*!< Channel parameters. */
 
   /* Supervision */
   wsfTimer_t        tmrSupTimeout;      /*!< Supervision timer. */
@@ -244,7 +258,9 @@ typedef struct
   /* Peer device info */
   uint8_t           advSID;             /*!< Advertising SID. */
   uint8_t           advAddrType;        /*!< Advertiser Address Type. */
+  uint8_t           trsfAddrType;       /*!< Advertiser Address Type to be used for sync transfer. */
   uint64_t          advAddr;            /*!< Advertiser Address. */
+  uint64_t          trsfAdvAddr;        /*!< Advertiser Address to be used for sync transfer. */
 
   /* Packet state. */
   lctrExtAdvHdr_t   extAdvHdr;          /*!< Coalesced extended advertising header. */
@@ -263,6 +279,35 @@ typedef struct
   lctrPerScanCtx_t              *pPerScanCtx;       /*!< Current synchronous context. */
 } lctrPerCreateSyncCtrlBlk_t;
 
+/*! \brief      Acad message header. */
+typedef struct
+{
+  uint16_t          eventCtr;         /*!< Current event counter. */
+  uint16_t          skip;             /*!< Skip amount. */
+  uint8_t           acadId;           /*!< Acad ID being processed. */
+  uint16_t          handle;           /*!< Active Handle. */
+} lctrAcadMsgHdr_t;
+
+/*! \brief      Acad message generic type. */
+typedef union
+{
+  lctrAcadMsgHdr_t     hdr; /*!< Header of an Acad Msg. */
+} lctrAcadMsg_t;
+
+/*! \brief      Periodic sync transfer state context. */
+typedef struct
+{
+  uint8_t                       state;              /*!< Periodic sync transfer state. */
+  uint16_t                      connHandle;         /*!< Connection handle. */
+  uint16_t                      serviceData;        /*!< Service Data. */
+  uint16_t                      ceRef;              /*!< Reference connection event counter. */
+  uint16_t                      ceRcvd;             /*!< Connection event counter when LL_PERIODIC_SYNC_IND was received. */
+  uint16_t                      syncCe;             /*!< Connection event counter when the contents of the PDU is determined. */
+  uint8_t                       scaB;               /*!< Sleep clock accuracy of the device sending LL_PERIODIC_SYNC_IND. */
+  uint16_t                      lastPECounter;      /*!< Last PA event counter. */
+  lctrPerScanCtx_t              *pPerScanCtx;       /*!< Current synchronous context. */
+} lctrPerTransferSyncCtrlBlk_t;
+
 /**************************************************************************************************
   Globals
 **************************************************************************************************/
@@ -270,7 +315,9 @@ typedef struct
 extern lctrExtScanCtx_t lctrMstExtScanTbl[LCTR_SCAN_PHY_TOTAL];
 extern lctrExtScanCtrlBlk_t lctrMstExtScan;
 extern lctrPerCreateSyncCtrlBlk_t lctrPerCreateSync;
+extern lctrPerTransferSyncCtrlBlk_t lctrPerTransferSync;
 extern lctrPerScanCtx_t lctrMstPerScanTbl[LL_MAX_PER_SCAN];
+extern lctrSyncInfo_t trsfSyncInfo;
 
 /**************************************************************************************************
   Function Declarations
@@ -280,8 +327,9 @@ extern lctrPerScanCtx_t lctrMstPerScanTbl[LL_MAX_PER_SCAN];
 uint8_t lctrMstExtDiscoverBuildOp(lctrExtScanCtx_t *pExtScanCtx);
 uint8_t lctrMstAuxDiscoverBuildOp(lctrExtScanCtx_t *pExtScanCtx);
 void lctrMstAuxDiscoverOpCommit(lctrExtScanCtx_t *pExtScanCtx, lctrAuxPtr_t *pAuxPtr, uint32_t startTs, uint32_t endTs);
-uint8_t lctrMstPerScanBuildOp(lctrPerScanCtx_t *pPerScanCtx, lctrPerCreateSyncMsg_t *pMsg);
+uint8_t lctrMstPerScanBuildOp(lctrPerScanCtx_t *pPerScanCtx);
 void lctrMstPerScanOpCommit(lctrExtScanCtx_t *pExtScanCtx, lctrAuxPtr_t *pAuxPtr, lctrSyncInfo_t *pSyncInfo, uint32_t startTs, uint32_t endTs);
+void lctrMstPerScanTransferOpCommit(uint16_t connHandle);
 
 /* ISR: Discovery packet handlers */
 bool_t lctrMstDiscoverRxExtAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
@@ -297,6 +345,7 @@ bool_t lctrMstDiscoverRxLegacyScanRspHandler(BbOpDesc_t *pOp, const uint8_t *pRs
 void lctrMstExtDiscoverEndOp(BbOpDesc_t *pOp);
 void lctrMstAuxDiscoverEndOp(BbOpDesc_t *pOp);
 void lctrMstPerScanEndOp(BbOpDesc_t *pOp);
+void lctrMstPerScanAbortOp(BbOpDesc_t *pOp);
 uint32_t lctrMstPerScanRxPerAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf, uint8_t status);
 bool_t lctrMstPerScanRxPerAdvPktPostHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf);
 
@@ -310,25 +359,37 @@ void lctrExtScanActSelfTerm(lctrExtScanCtx_t *pExtScanCtx);
 void lctrExtScanActUpdateDiscover(lctrExtScanCtx_t *pExtScanCtx);
 void lctrCreateSyncActCreate(void);
 void lctrCreateSyncActCancel(void);
+void lctrCreateSyncActFailed(void);
 void lctrCreateSyncActTerminate(void);
 void lctrCreateSyncActDone(void);
+void lctrTransferSyncActStart(void);
+void lctrTransferSyncActDone(void);
+void lctrTransferSyncActFailed(void);
+void lctrTransferSyncActCancel(void);
+void lctrTransferSyncActTerminate(void);
+
 void lctrPerScanActSyncEstd(lctrPerScanCtx_t *pPerScanCtx);
 void lctrPerScanActSyncTerminate(lctrPerScanCtx_t *pPerScanCtx);
 void lctrPerScanActSyncTerminateDone(lctrPerScanCtx_t *pPerScanCtx);
 void lctrPerScanActSyncTimeout(lctrPerScanCtx_t *pPerScanCtx);
+void lctrPerScanActProcessAcad(lctrAcadMsg_t *pMsg);
 
 /* State machine */
 void lctrMstExtScanExecuteSm(lctrExtScanCtx_t *pExtScanCtx, uint8_t event);
 void lctrMstCreateSyncExecuteSm(uint8_t event);
+void lctrMstTransferSyncExecuteSm(uint8_t event);
 void lctrMstPerScanExecuteSm(lctrPerScanCtx_t *pPerScanCtx, uint8_t event);
 
 /* Helpers */
 lctrPerScanCtx_t *lctrAllocPerScanCtx(void);
+BbOpDesc_t *lctrPerScanResolveConflict(BbOpDesc_t *pNewOp, BbOpDesc_t *pExistOp);
+void lctrMstPerScanIsrInit(void);
 
 /* Messaging */
 void lctrSendExtScanMsg(lctrExtScanCtx_t *pExtScanCtx, uint8_t event);
-void lctrSendCreateSyncMsg(uint8_t event);
+void lctrSendCreateSyncMsg(lctrPerScanCtx_t *pCtx, uint8_t event);
 void lctrSendPerScanMsg(lctrPerScanCtx_t *pCtx, uint8_t event);
+void LctrSendPerSyncTrsfRcvdEvt(uint8_t status, lctrPerScanCtx_t *pPerScanCtx);
 
 /*************************************************************************************************/
 /*!
@@ -378,35 +439,6 @@ static inline uint8_t lctrConvertAuxPtrPhyToBbPhy(uint8_t auxPtrPhy)
 
 /*************************************************************************************************/
 /*!
- *  \brief  Compute the connection interval window widening delay in microseconds.
- *
- *  \param  unsyncTimeUsec  Unsynchronized time in microseconds.
- *  \param  caPpm           Total clock accuracy.
- *
- *  \return Window widening delay in microseconds.
- */
-/*************************************************************************************************/
-static inline uint32_t lctrCalcAuxAdvWindowWideningUsec(uint32_t unsyncTimeUsec, uint32_t caPpm)
-{
-  if (lctrGetOpFlag(LL_OP_MODE_FLAG_ENA_WW))
-  {
-    /* Largest unsynchronized time is 1,996 seconds (interval=4s and latency=499) and
-     * largest total accuracy is 1000 ppm. */
-    /* coverity[overflow_before_widen] */
-    uint64_t wwDlyUsec = LL_MATH_DIV_10E6(((uint64_t)unsyncTimeUsec * caPpm) +
-                                          999999);     /* round up */
-
-    /* Reduce to 32-bits and always round up to a sleep clock tick. */
-    return wwDlyUsec + pLctrRtCfg->ceJitterUsec;
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief  Compute auxiliary offset.
  *
  *  \param  pAuxPtr         Auxiliary Pointer.
@@ -420,7 +452,7 @@ static inline void lctrMstComputeAuxOffset(lctrAuxPtr_t *pAuxPtr, uint32_t *pOff
 {
   uint32_t offsetUsec = pAuxPtr->auxOffset * ((pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300);
   uint32_t caPpm = BbGetClockAccuracy() + ((pAuxPtr->ca == LCTR_CLK_ACC_0_50_PPM) ? 50 : 500);
-  uint32_t wwUsec = lctrCalcAuxAdvWindowWideningUsec(offsetUsec, caPpm);
+  uint32_t wwUsec = lctrCalcWindowWideningUsec((offsetUsec + (pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300), caPpm);
 
   *pOffsetUsec = offsetUsec - wwUsec;
   *pSyncDelayUsec = (wwUsec << 1) + ((pAuxPtr->offsetUnits == LCTR_OFFS_UNITS_30_USEC) ? 30 : 300);    /* rounding compensation */

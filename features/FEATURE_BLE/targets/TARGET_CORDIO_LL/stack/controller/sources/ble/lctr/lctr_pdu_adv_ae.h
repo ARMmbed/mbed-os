@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller extended advertising channel packet interface file.
+ * \file
+ * \brief Link layer controller extended advertising channel packet interface file.
  */
 /*************************************************************************************************/
 
@@ -57,7 +58,6 @@ enum
 
 #define LCTR_AUX_PTR_LEN    3           /*!< Size of AuxPtr field. */
 #define LCTR_TX_POWER_LEN   1           /*!< Size of TxPower field. */
-#define LCTR_SYNC_INFO_LEN  18          /*!< Size of SyncInfo field. */
 
 /**************************************************************************************************
   Data Types
@@ -95,6 +95,7 @@ typedef struct
 {
   uint16_t      syncOffset;         /*!< Sync packet offset. */
   uint8_t       offsetUnits;        /*!< Offset units. */
+  uint8_t       offsetAdjust;       /*!< Offset adjust. */
   uint16_t      syncInter;          /*!< Sync interval. */
   uint64_t      chanMap;            /*!< Secondary channel map. */
   uint8_t       sca;                /*!< Sleep clock accuracy. */
@@ -117,6 +118,7 @@ void lctrPackAuxPtr(lctrAdvSet_t const *pAdvSet, uint32_t offsUsec, uint8_t chId
 uint8_t lctrPackLegacyAdvPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf);
 uint8_t lctrPackLegacyScanRspPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf);
 uint8_t lctrPackSyncIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDataBuf_t *pAdvData, bool_t isPeriodic);
+uint8_t* lctrPackAcad(lctrAdvSet_t *pAdvSet, uint8_t commExtAdvPdu, uint8_t *pBuf, uint16_t *pRemLen, uint8_t acadId);
 
 /* Unpack */
 uint8_t lctrUnpackExtAdvHeader(lctrExtAdvHdr_t *pPdu, uint8_t *pNewFlags, const uint8_t *pBuf);

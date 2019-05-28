@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller connection state machine implementation file.
+ * \file
+ * \brief Link layer controller connection state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -164,6 +165,10 @@ void lctrSlvConnExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
           pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_DATA_LEN_UPD;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_DATA_LEN_UPD;
           break;
+        case LCTR_CONN_MSG_API_REQ_PEER_SCA:
+          pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_REQ_PEER_SCA;
+          pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_REQ_PEER_SCA;
+          break;
         case LCTR_CONN_MSG_API_PHY_UPDATE:
           pCtx->llcpPendMask |= 1 << LCTR_PROC_PHY_UPD;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_PHY_UPD;
@@ -171,6 +176,10 @@ void lctrSlvConnExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
         case LCTR_CONN_MSG_API_SET_MIN_USED_CHAN:
           pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_SET_MIN_USED_CHAN;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_SET_MIN_USED_CHAN;
+          break;
+        case LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF:
+          pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
+          pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
           break;
 
         default:

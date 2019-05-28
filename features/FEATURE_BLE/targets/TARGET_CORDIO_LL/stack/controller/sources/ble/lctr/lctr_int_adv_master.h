@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller scanning master interface file.
+ * \file
+ * \brief Internal link layer controller scanning master interface file.
  */
 /*************************************************************************************************/
 
@@ -37,8 +38,8 @@ extern "C" {
   Macros
 **************************************************************************************************/
 
-/*! \brief      Minimum amount of time required for scanning, (minimum scanWindow size is 2.5ms). */
-#define LCTR_MIN_SCAN_USEC      0
+/*! \brief      Minimum amount of time required for scanning, to be same as minimum time in BB(1528us). */
+#define LCTR_MIN_SCAN_USEC     BB_SCAN_GUARD_US
 
 /**************************************************************************************************
   Constants

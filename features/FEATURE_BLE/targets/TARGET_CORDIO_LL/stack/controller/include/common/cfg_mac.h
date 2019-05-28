@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief MAC system configuration.
+ * \file
+ * \brief MAC system configuration.
  */
 /*************************************************************************************************/
 
@@ -41,6 +42,11 @@ extern "C" {
 
 #ifndef CHCI_BUF_TAILROOM
 #define CHCI_BUF_TAILROOM       4       /*!< Extra byte allocation required for buffer (e.g., for MIC). */
+#endif
+
+/*** Scheduler ***/
+#ifndef SCH_TIMER_REQUIRED
+#define SCH_TIMER_REQUIRED      TRUE    /*!< If hardware timer is required for radio access scheduler.*/
 #endif
 
 #ifdef __cplusplus

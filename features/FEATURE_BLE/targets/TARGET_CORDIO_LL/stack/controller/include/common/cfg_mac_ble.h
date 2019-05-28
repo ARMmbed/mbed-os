@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief BLE MAC system configuration.
+ * \file
+ * \brief BLE MAC system configuration.
  */
 /*************************************************************************************************/
 
@@ -49,12 +50,28 @@ extern "C" {
 #define LL_MAX_ADV_SETS         6       /*!< Absolute maximum number of advertising sets. */
 #endif
 
+#ifndef LL_MAX_PHYS
+#define LL_MAX_PHYS             3       /*!< Absolute maximum number of PHYs supported. */
+#endif
+
 #ifndef LL_MAX_PER_SCAN
 #define LL_MAX_PER_SCAN         6       /*!< Absolute maximum number of periodic scanners (maximum is 32). */
 #endif
 
 #ifndef LL_ENABLE_TESTER
 #define LL_ENABLE_TESTER        0       /*!< Enable LL tester extensions. */
+#endif
+
+#ifndef LL_ENABLE_CALIBRATION
+#define LL_ENABLE_CALIBRATION   0       /*!< Enable LL calibration extensions. */
+#endif
+
+#ifndef LL_MAX_CIG
+#define LL_MAX_CIG              2       /*!< Absolute maximum number of connected isochronous groups. */
+#endif
+
+#ifndef LL_MAX_CIS
+#define LL_MAX_CIS              2       /*!< Absolute maximum number of connected isochronous streams per CIG. */
 #endif
 
 #ifndef LHCI_ENABLE_VS
@@ -64,7 +81,7 @@ extern "C" {
 /*** Scheduler ***/
 
 #ifndef SCH_RM_MAX_RSVN
-#define SCH_RM_MAX_RSVN         (LL_MAX_CONN + LL_MAX_ADV_SETS) /*!< Maximum number of reservations (maximum is 32). */
+#define SCH_RM_MAX_RSVN         (LL_MAX_CONN + LL_MAX_ADV_SETS + LL_MAX_CIG) /*!< Maximum number of reservations (maximum is 32). */
 #endif
 
 /*** Baseband ***/

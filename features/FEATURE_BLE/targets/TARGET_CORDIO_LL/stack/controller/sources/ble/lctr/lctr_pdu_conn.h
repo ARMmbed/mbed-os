@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller data channel packet interface file.
+ * \file
+ * \brief Link layer controller data channel packet interface file.
  */
 /*************************************************************************************************/
 
@@ -180,6 +181,79 @@ typedef struct
   uint8_t           minUsedChan;          /*!< Minimum number of used channels. */
 } lctrMinUsedChanInd_t;
 
+/*! \brief      Periodic sync indication PDU. */
+typedef struct
+{
+  uint16_t          id;                 /*!< identifier provided by the host. */
+  uint8_t           syncInfo[LL_SYNC_INFO_LEN];   /*!< Syncinfo field. */
+  uint16_t          ceCounter;          /*!< Reference connection event counter. */
+  uint16_t          lastPECounter;      /*!< paEventCounter applying to AUX_SYNC_IND PDU. */
+  uint8_t           sid;                /*!< Advertising SID subfield. */
+  uint8_t           aType;              /*!< Address type of periodic advertising. */
+  uint8_t           sca;                /*!< Sleep clock accuracy of the device sending this PDU. */
+  uint8_t           phy;                /*!< PHY used by the periodic advertising. */
+  uint64_t          advA;               /*!< Advertiser's address in the periodic advertising. */
+  uint16_t          syncConnEvtCounter; /*!< Connection event counter when the contents of the PDU is determined. */
+} lctrPerSyncInd_t;
+
+/*! \brief      Peer SCA response PDU. */
+typedef struct
+{
+  uint8_t           sca;                  /*!< Peer SCA. */
+} lctrPeerSca_t;
+
+/*! \brief      CIS request PDU. */
+typedef struct
+{
+  uint8_t           cigId;                /*!< CIG identifier. */
+  uint8_t           cisId;                /*!< CIS identifier. */
+  uint8_t           phyMToS;              /*!< Master to slave PHY. */
+  uint8_t           phySToM;              /*!< Slave to Master PHY. */
+  uint8_t           isoalPduType;         /*!< ISOAL PDU type. */
+  uint16_t          sduSizeMToS;          /*!< Maximum SDU size from the master Host. */
+  uint16_t          sduSizeSToM;          /*!< Maximum SDU size from the slave Host. */
+  uint32_t          sduIntervalMToS;      /*!< Time interval between the start of consecutive SDUs from the master Host  */
+  uint32_t          sduIntervalSToM;      /*!< Time interval between the start of consecutive SDUs from the master Host  */
+  uint8_t           plMToS;               /*!< Master to slave payload. */
+  uint8_t           plSToM;               /*!< Slave to master payload. */
+  uint8_t           nse;                  /*!< Number of subevent. */
+  uint32_t          subIntervUsec;        /*!< Contain the time between the start of a subevent and the start of the next subevent, 24 significant bits. */
+  uint8_t           bnMToS;               /*!< Master to slave burst number, 4 significant bits. */
+  uint8_t           bnSToM;               /*!< Slave to master burst number, 4 significant bits. */
+  uint8_t           ftMToS;               /*!< Master to slave flush time. */
+  uint8_t           ftSToM;               /*!< Slave to master flush time. */
+  uint16_t          isoInterval;          /*!< Contain the time between two CIS anchor points in 1.25msec unit. */
+  uint32_t          cisOffMinUsec;        /*!< Contain the minimum time between the CE and the first CIS anchor point. */
+  uint32_t          cisOffMaxUsec;        /*!< Contain the maximum time between the CE and the first CIS anchor point. */
+  uint16_t          ceRef;                /*!< Contain the reference CE where offsets are applied. */
+} lctrCisReq_t;
+
+/*! \brief      CIS response PDU. */
+typedef struct
+{
+  uint32_t          cisOffMinUsec;        /*!< Contain the minimum time between the CE and the first CIS anchor point. */
+  uint32_t          cisOffMaxUsec;        /*!< Contain the maximum time between the CE and the first CIS anchor point. */
+  uint16_t          ceRef;                /*!< Contain the reference CE where offsets are applied. */
+} lctrCisRsp_t;
+
+/*! \brief      CIS indication PDU. */
+typedef struct
+{
+  uint32_t          accessAddr;           /*!< Contain the access address of the CIS. */
+  uint32_t          cisOffUsec;           /*!< Contain the time from the start of the referenced CE to the first CIS anchor point. */
+  uint32_t          cigSyncDelayUsec;     /*!< CIG synchronization delay in usec. */
+  uint32_t          cisSyncDelayUsec;     /*!< CIG synchronization delay in usec. */
+  uint16_t          ceRef;                /*!< Contain the reference CE where offsets are applied. */
+} lctrCisInd_t;
+
+/*! \brief      CIS terminate PDU. */
+typedef struct
+{
+  uint8_t           cigId;                /*!< CIG identifier. */
+  uint8_t           cisId;                /*!< CIS identifier. */
+  uint8_t           reason;               /*!< Reason for termination. */
+} lctrCisTermInd_t;
+
 /*! \brief      Data channel control PDU. */
 typedef struct
 {
@@ -204,6 +278,12 @@ typedef struct
     lctrPhy_t        phyRsp;            /*!< PHY response. */
     lctrPhyUpdInd_t  phyUpdInd;         /*!< PHY update indication. */
     lctrMinUsedChanInd_t minUsedChanInd;/*!< Minimum number of used channels indication. */
+    lctrPerSyncInd_t perSyncInd;        /*!< Periodic sync indication. */
+    lctrPeerSca_t    peerSca;           /*!< Peer SCA request/response. */
+    lctrCisReq_t     cisReq;            /*!< CIS request. */
+    lctrCisRsp_t     cisRsp;            /*!< CIS response. */
+    lctrCisInd_t     cisInd;            /*!< CIS indication. */
+    lctrCisTermInd_t cisTerm;           /*!< CIS terminate indication. */
   } pld;                                /*!< Unpacked PDU payload. */
 } lctrDataPdu_t;
 
@@ -232,6 +312,7 @@ uint8_t lctrUnpackDataLengthPdu(lctrDataLen_t *pPdu, const uint8_t *pBuf);
 uint8_t lctrUnpackPhyPdu(lctrPhy_t *pPdu, const uint8_t *pBuf);
 uint8_t lctrUnpackPhyUpdateIndPdu(lctrPhyUpdInd_t *pPdu, const uint8_t *pBuf);
 uint8_t lctrUnpackMinUsedChanIndPdu(lctrMinUsedChanInd_t *pPdu, const uint8_t *pBuf);
+uint8_t lctrUnpackPerSyncIndPdu(lctrPerSyncInd_t *pPdu, const uint8_t *pBuf);
 
 /* Decode */
 uint8_t lctrDecodeCtrlPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role);

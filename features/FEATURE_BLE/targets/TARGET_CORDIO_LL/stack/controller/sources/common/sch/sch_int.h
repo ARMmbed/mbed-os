@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal multi-protocol scheduler interface file.
+ * \file
+ * \brief Internal multi-protocol scheduler interface file.
  */
 /*************************************************************************************************/
 
@@ -24,7 +25,7 @@
 #define SCH_INT_H
 
 #include "sch_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "wsf_assert.h"
 
 #ifdef __cplusplus
@@ -38,6 +39,9 @@ extern "C" {
 /*! \brief      Maximum span of scheduler elements. */
 #define SCH_MAX_SPAN            0x80000000
 
+/*! \brief      Typical time needed for loading BOD. */
+#define SCH_LOAD_DELAY_US       300
+
 /**************************************************************************************************
   Constants
 **************************************************************************************************/
@@ -46,7 +50,6 @@ extern "C" {
 enum
 {
   SCH_STATE_IDLE,               /*!< Scheduler idle. */
-  SCH_STATE_LOAD,               /*!< Scheduler loading next BOD. */
   SCH_STATE_EXEC                /*!< Scheduler executing BOD. */
 };
 
@@ -54,22 +57,15 @@ enum
   Data Types
 **************************************************************************************************/
 
-typedef struct
-{
-  bool_t active;                  /*!< Whether background task is active. */
-  BbOpDesc_t *pBod;               /*!< Head element of scheduled list of BOD. */
-} SchBackground_t;
-
 /*! \brief      Scheduler control block. */
 typedef struct
 {
   bool_t state;                 /*!< Current scheduler state. */
-  bool_t eventSetFlag;          /*!< Scheduler event set (BB terminated BOD). */
+  uint8_t eventSetFlagCount;    /*!< Scheduler event set count. */
   wsfHandlerId_t handlerId;     /*!< System event handler ID. */
 
   BbOpDesc_t *pHead;            /*!< Head element of scheduled list of BOD. */
   BbOpDesc_t *pTail;            /*!< Tail element of scheduled list of BOD. */
-  SchBackground_t background;   /*!< Background BOD. */
 } SchCtrlBlk_t;
 
 /**************************************************************************************************
@@ -83,7 +79,7 @@ extern SchCtrlBlk_t schCb;
 **************************************************************************************************/
 
 /* Load */
-void schLoadNext(void);
+bool_t schTryCurTailLoadNext(void);
 bool_t schTryLoadHead(void);
 
 /* List management */
@@ -102,12 +98,42 @@ static inline bool_t schDueTimeInFuture(BbOpDesc_t *pBod)
 {
   bool_t result = FALSE;
 
-  const uint32_t curTime = BbDrvGetCurrentTime();
+  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
   const uint32_t delta = pBod->due - curTime;
 
   if (delta < SCH_MAX_SPAN)     /* due time has not passed */
   {
     result = TRUE;
+  }
+
+  return result;
+}
+
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Return the time between now and the BOD to be executed.
+ *
+ *  \param      pBod    Target BOD.
+ *
+ *  \return     usec.
+ */
+/*************************************************************************************************/
+static inline uint32_t schGetTimeToExecBod(BbOpDesc_t *pBod)
+{
+  uint32_t result = 0;
+
+  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
+  const uint32_t delta = pBod->due - curTime;
+
+  if ((delta >= BB_US_TO_BB_TICKS(SCH_LOAD_DELAY_US)) &&   /* sufficient time to cancel */
+      (delta < SCH_MAX_SPAN))                                   /* due time has not passed */
+  {
+    result = BB_TICKS_TO_US(delta - BB_US_TO_BB_TICKS(SCH_LOAD_DELAY_US));
+  }
+  else
+  {
+    result = 0;
   }
 
   return result;

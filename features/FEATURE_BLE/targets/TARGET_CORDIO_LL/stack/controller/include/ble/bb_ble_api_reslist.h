@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief BLE baseband resolving list interface file.
+ * \file
+ * \brief BLE baseband resolving list interface file.
  */
 /*************************************************************************************************/
 
@@ -336,6 +337,32 @@ uint8_t BbBleResListLocalStatus(bool_t peerAddrRand, uint64_t peerIdentityAddr);
  */
 /*************************************************************************************************/
 void BbBleResListHandleTimeout(void);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if either local RPA or peer RPA is updated.
+ *
+ *  \param      peerAddrType        Peer identity address type.
+ *  \param      peerIdentityAddr    Peer identity address.
+ *
+ *  \return     TRUE if either local RPA or peer RPA is updated.
+ *
+ */
+/*************************************************************************************************/
+bool_t BbBleResListIsRpaUpd(uint8_t peerAddrType, uint64_t peerIdentityAddr);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if peer identity is in the resolving list.
+ *
+ *  \param      peerAddrType        Peer identity address type.
+ *  \param      peerIdentityAddr    Peer identity address.
+ *
+ *  \return     TRUE if peer addr is in the resolving list.
+ *
+ */
+/*************************************************************************************************/
+bool_t bbBleIsPeerInResList(uint8_t peerAddrType, uint64_t peerIdentityAddr);
 
 /*! \} */    /* BB_API_BLE_RL */
 

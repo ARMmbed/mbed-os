@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ * \file
+ * \brief HCI command module implementation file.
  */
 /*************************************************************************************************/
 
@@ -108,7 +109,7 @@ bool_t lhciMstExtConnDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
     {
       LlExtInitParam_t initParam;
       LlExtInitScanParam_t initScanParam[LHCI_MAX_INIT_PHY];
-      LlConnSpec_t connSpec[LHCI_MAX_INIT_PHY] = { 0 };
+      LlConnSpec_t connSpec[LHCI_MAX_INIT_PHY] = { {0} };
 
       lhciUnpackExtInitParam(&initParam, initScanParam, connSpec, pBuf);
       status = LlExtCreateConn(&initParam, initScanParam, connSpec);

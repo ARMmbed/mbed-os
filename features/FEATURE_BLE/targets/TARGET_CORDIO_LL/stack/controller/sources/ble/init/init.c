@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief LL initialization for SoC configuration.
+ * \file
+ * \brief LL initialization for SoC configuration.
  */
 /*************************************************************************************************/
 
 #include "ll_init_api.h"
 #include "bb_ble_api.h"
+#include "pal_bb_ble.h"
+#include "pal_radio.h"
 #include "sch_api.h"
 
 /**************************************************************************************************
@@ -59,6 +62,36 @@ void LlInitBbInit(void)
     #endif
   #endif
 
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+    #ifdef INIT_OBSERVER
+      BbBleAuxScanMasterInit();
+      BbBlePerScanMasterInit();
+    #endif
+
+    #ifdef INIT_BROADCASTER
+      BbBleAuxAdvSlaveInit();
+      PalRadioInitPathComp();
+    #endif
+  #endif
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+    #ifdef INIT_CENTRAL
+      BbBleCisMasterInit();
+    #else
+      #ifdef INIT_OBSERVER
+      /* TODO BIS observer */
+      #endif
+    #endif
+
+    #ifdef INIT_PERIPHERAL
+      BbBleCisSlaveInit();
+    #else
+      #ifdef INIT_BROADCASTER
+      /* TODO BIS broadcaster */
+      #endif
+    #endif
+  #endif
+
   BbBleTestInit();
 }
 
@@ -79,20 +112,11 @@ void LlInitSchInit(void)
 /*!
  *  \brief  Initialize LL.
  *
- *  \param  initHandler     Initialize WSF handler.
- *
  *  \return None.
  */
 /*************************************************************************************************/
-void LlInitLlInit(bool_t initHandler)
+void LlInitLlInit(void)
 {
-  if (initHandler)
-  {
-    wsfHandlerId_t handlerId = WsfOsSetNextHandler(LlHandler);
-    LlHandlerInit(handlerId);
-  }
-  /* else LlHandlerInit() is called by client */
-
   #ifdef INIT_CENTRAL
     LlScanMasterInit();
     LlInitMasterInit();
@@ -124,6 +148,44 @@ void LlInitLlInit(bool_t initHandler)
     LlPrivInit();
     LlScInit();
   #endif
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+    #ifdef INIT_CENTRAL
+      LlExtScanMasterInit();
+      LlExtInitMasterInit();
+      LlPhyMasterInit();
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+        LlCisMasterInit();
+      #endif
+    #else
+      #ifdef INIT_OBSERVER
+        LlExtScanMasterInit();
+      #endif
+    #endif
+
+    #ifdef INIT_PERIPHERAL
+      LlExtAdvSlaveInit();
+      LlPhySlaveInit();
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+        LlCisSlaveInit();
+      #endif
+    #else
+      #ifdef INIT_BROADCASTER
+        LlExtAdvSlaveInit();
+      #endif
+    #endif
+
+    #if defined(INIT_PERIPHERAL) || defined(INIT_CENTRAL)
+      LlChannelSelection2Init();
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_1)
+        LlPastInit();
+      #endif
+    #endif
+  #endif
+
+  /* Initialize handler after feature bits are set. */
+  wsfHandlerId_t handlerId = WsfOsSetNextHandler(LlHandler);
+  LlHandlerInit(handlerId);
 }
 
 /*************************************************************************************************/
@@ -153,10 +215,12 @@ uint32_t LlInitSetBbRtCfg(const BbRtCfg_t *pBbRtCfg, const uint8_t wlSizeCfg, co
   freeMemAvail -= memUsed;
   totalMemUsed += memUsed;
 
-  memUsed = BbBleInitPeriodicList(plSizeCfg, pFreeMem, freeMemAvail);
-  pFreeMem += memUsed;
-  freeMemAvail -= memUsed;
-  totalMemUsed += memUsed;
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+    memUsed = BbBleInitPeriodicList(plSizeCfg, pFreeMem, freeMemAvail);
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+  #endif
 
   #ifdef INIT_ENCRYPTED
     memUsed = BbBleInitResolvingList(rlSizeCfg, pFreeMem, freeMemAvail);
@@ -185,13 +249,40 @@ uint32_t LlInitSetLlRtCfg(const LlRtCfg_t *pLlRtCfg, uint8_t *pFreeMem, uint32_t
 {
   uint32_t totalMemUsed = 0;
 
+  #if defined (INIT_PERIPHERAL) || defined (INIT_CENTRAL) || (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+  uint32_t memUsed;
+  #endif
+
   LlInitRunTimeCfg(pLlRtCfg);
 
   #if defined (INIT_PERIPHERAL) || defined (INIT_CENTRAL)
-    uint32_t memUsed;
     memUsed = LlInitConnMem(pFreeMem, freeMemAvail);
-    /* pFreeMem += memUsed; */
-    /* freeMemAvail -= memUsed; */
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+  #endif
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+    memUsed = LlInitExtScanMem(pFreeMem, freeMemAvail);
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+
+    memUsed = LlInitExtAdvMem(pFreeMem, freeMemAvail);
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+  #endif
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+    memUsed = LlInitCisMem(pFreeMem, freeMemAvail);
+    pFreeMem += memUsed;
+    freeMemAvail -= memUsed;
+    totalMemUsed += memUsed;
+
+    memUsed = LlInitIsoMem(pFreeMem, freeMemAvail);
+    /* pFreeMem += memUsed;
+    freeMemAvail -= memUsed; */
     totalMemUsed += memUsed;
   #endif
 
@@ -200,20 +291,20 @@ uint32_t LlInitSetLlRtCfg(const LlRtCfg_t *pLlRtCfg, uint8_t *pFreeMem, uint32_t
 
 /*************************************************************************************************/
 /*!
- *  \brief  Initialize standard configuration.
+ *  \brief  Initialize configuration.
  *
  *  \param  pCfg    Runtime configuration.
  *
  *  \return Memory used.
  */
 /*************************************************************************************************/
-uint32_t LlInitStdInit(LlInitRtCfg_t *pCfg)
+uint32_t LlInit(LlInitRtCfg_t *pCfg)
 {
   uint32_t memUsed;
   uint32_t totalMemUsed = 0;
 
   memUsed = LlInitSetBbRtCfg(pCfg->pBbRtCfg, pCfg->wlSizeCfg, pCfg->rlSizeCfg, pCfg->plSizeCfg,
-                            pCfg->pFreeMem, pCfg->freeMemAvail);
+                             pCfg->pFreeMem, pCfg->freeMemAvail);
   pCfg->pFreeMem += memUsed;
   pCfg->freeMemAvail -= memUsed;
   totalMemUsed += memUsed;
@@ -225,7 +316,7 @@ uint32_t LlInitStdInit(LlInitRtCfg_t *pCfg)
 
   LlInitBbInit();
   LlInitSchInit();
-  LlInitLlInit(TRUE);
+  LlInitLlInit();
 
   return totalMemUsed;
 }

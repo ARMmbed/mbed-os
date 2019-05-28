@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master advertising event ISR callbacks.
+ * \file
+ * \brief Link layer controller master advertising event ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -55,10 +56,14 @@ static void lctrMstExtInitiateScanReschedule(lctrExtScanCtx_t *pExtInitCtx)
 
   /*** Reschedule primary operation ***/
 
+  /* Recover primary scan BOD min duration so that its run will be guaranteed in BB. */
+  pOp->minDurUsec = LCTR_MIN_SCAN_USEC;
+
   /* Reset due time to start of scan window. */
   pOp->due = pExtInitCtx->data.init.scanWinStart;
 
-  if ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pExtInitCtx->data.init.param.scanWindow))
+  if ((pExtInitCtx->data.init.param.scanInterval != pExtInitCtx->data.init.param.scanWindow) &&
+      ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pExtInitCtx->data.init.param.scanWindow)))
   {
     const uint32_t min = BB_US_TO_BB_TICKS(pScan->elapsedUsec);
     const uint32_t max = BB_BLE_TO_BB_TICKS(pExtInitCtx->data.init.param.scanWindow);
@@ -133,6 +138,7 @@ void lctrMstExtPreInitiateExecHandler(BbOpDesc_t *pOp)
      * before initiate's scan operation sets up its executing duration (i.e. "pre-execute"). */
     pExtInitCtx->data.init.firstCeDue = lctrMstConnAdjustOpStart(LCTR_GET_CONN_CTX(pExtInitCtx->data.init.connHandle),
                                                                  pOp->due,
+                                                                 pOp->minDurUsec,
                                                                  &pExtInitCtx->data.init.connInd);
     pExtInitCtx->data.init.connBodLoaded = TRUE;
   }
@@ -247,6 +253,7 @@ void lctrMstExtInitiateEndOp(BbOpDesc_t *pOp)
 
       pExtInitCtx->data.init.firstCeDue = lctrMstConnAdjustOpStart(LCTR_GET_CONN_CTX(pExtInitCtx->data.init.connHandle),
                                                                    pExtInitCtx->auxScanBod.due,
+                                                                   pExtInitCtx->auxScanBod.minDurUsec,
                                                                    &pExtInitCtx->data.init.connInd);
       pExtInitCtx->data.init.connBodLoaded = TRUE;
     }
@@ -301,6 +308,14 @@ void lctrMstAuxInitiateEndOp(BbOpDesc_t *pOp)
 /*************************************************************************************************/
 bool_t lctrMstExtConnIndTxCompHandler(BbOpDesc_t *pOp, const uint8_t *pIndBuf)
 {
+#if (LL_ENABLE_TESTER == TRUE)
+  if (llTesterCb.auxReq.len)
+  {
+    /* Do not establish connection when AUX_CONNECT_REQ is overridden. */
+    return FALSE;
+  }
+#endif
+
   WSF_ASSERT(pOp->protId == BB_PROT_BLE);
   WSF_ASSERT(pOp->prot.pBle->chan.opType == BB_BLE_OP_MST_ADV_EVENT);
 
@@ -337,7 +352,7 @@ bool_t lctrMstInitiateExtAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
 
   uint32_t advEndTs = pScan->advStartTs +
                       BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pScan->advRxPhyOptions,
-                                                                     pScan->filtResults.pduLen));
+                                                                     LL_ADV_HDR_LEN + pScan->filtResults.pduLen));
 
   /*** Transmit response PDU processing. ***/
 
@@ -400,11 +415,20 @@ bool_t lctrMstInitiateExtAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
       pCtx->data.init.localRpa = 0;
     }
 
+    if (lmgrCb.features & LL_FEAT_CH_SEL_2)
+    {
+      pCtx->reqPduHdr.chSel = LL_CH_SEL_2;
+    }
+    else
+    {
+      pCtx->reqPduHdr.chSel = LL_CH_SEL_1;
+    }
+
     lctrPackAdvbPduHdr(pScan->pTxReqBuf, &pCtx->reqPduHdr);
 
     /* Update txWinOffset field in CONN_IND PDU. */
     uint32_t txWinOffsetUsec = BB_TICKS_TO_US(pCtx->data.init.firstCeDue - advEndTs) - LL_BLE_TIFS_US -
-                               SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy,  pScan->advRxPhyOptions, LL_CONN_IND_PDU_LEN); /* Assume conn_ind uses the same PHY as adv_ind. */
+                               SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy,  pScan->advRxPhyOptions, LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN); /* Assume conn_ind uses the same PHY as adv_ind. */
     uint16_t txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec) - LCTR_DATA_CHAN_DLY;
     UINT16_TO_BUF(pScan->pTxReqBuf + LCTR_CONN_IND_TX_WIN_OFFSET, txWinOffset);
     pCtx->data.init.connInd.txWinOffset = txWinOffset;
@@ -541,6 +565,17 @@ void lctrMstInitiateRxExtAdvPktPostProcessHandler(BbOpDesc_t *pOp, const uint8_t
 
           pOp->minDurUsec = 0;  /* Update primary scan BOD min duration so that secondary scan can be scheduled. */
 
+          /* TODO */
+          /* Because of scheduling conflict between preallocated connection bod and aux scan bod,             */
+          /* connection cannot be established with small connection interval(< 30ms) when coded phy is used.  */
+          lctrInitiateMsg_t *pInitMsg = (lctrInitiateMsg_t *)pLctrMsg;
+          if ((auxPhy == BB_PHY_BLE_CODED) && (LCTR_CONN_IND_US(pExtInitCtx->data.init.connInterval) < 30000))
+          {
+            lctrScanNotifyHostInitiateError(LL_ERROR_CODE_CONN_FAILED_TO_ESTABLISH, pInitMsg->peerAddrType, pInitMsg->peerAddr);
+            lctrSendExtInitMsg(pExtInitCtx, LCTR_EXT_INIT_MSG_RESET);
+            break;
+          }
+
           uint32_t endTs = pScan->advStartTs +
                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pScan->advRxPhyOptions, LL_ADV_HDR_LEN + pScan->filtResults.pduLen));
           lctrMstAuxDiscoverOpCommit(pExtInitCtx, &auxPtr, pScan->advStartTs, endTs);
@@ -636,9 +671,9 @@ bool_t lctrMstInitiateRxAuxAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf
     lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(pExtInitCtx->data.init.connHandle);
 
     uint32_t connReqEndTs = pAuxScan->auxStartTs +
-                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxScan->auxRxPhyOptions, advHdr.len) +
+                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxScan->auxRxPhyOptions, LL_ADV_HDR_LEN + advHdr.len) +
                                               LL_BLE_TIFS_US +
-                                              SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : pAuxScan->auxRxPhyOptions, LL_CONN_IND_PDU_LEN));
+                                              SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : pAuxScan->auxRxPhyOptions, LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN));
 
     /* Update auxiliary connection request header's advertiser address. */
     uint8_t *pAuxConnReqAdvA = pAuxScan->pTxAuxReqBuf + LL_ADV_HDR_LEN + BDA_ADDR_LEN;
@@ -691,6 +726,7 @@ bool_t lctrMstInitiateRxAuxAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf
 #if (LL_ENABLE_TESTER)
     if (llTesterCb.auxReq.len)
     {
+      /* Overriding AUX_CONNECT_REQ from test script. */
       memcpy(pAuxScan->pTxAuxReqBuf, llTesterCb.auxReq.buf, llTesterCb.auxReq.len);
       pAuxScan->txAuxReqLen = llTesterCb.auxReq.len;
 
@@ -709,7 +745,7 @@ bool_t lctrMstInitiateRxAuxAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf
     /* Update txWinOffset field in AUX_CONN_REQ PDU. */
     uint32_t txWinOffsetUsec = BB_TICKS_TO_US(pExtInitCtx->data.init.firstCeDue - connReqEndTs);
     uint16_t txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec);
-    unsigned int chanDelay;
+    uint16_t chanDelay;
     switch (pBle->chan.rxPhy)
     {
       case BB_PHY_BLE_1M:
@@ -798,7 +834,7 @@ bool_t lctrMstInitiateRxAuxConnRspHandler(BbOpDesc_t *pOp, const uint8_t *pRspBu
   params.localAddr = pExtInitCtx->extAdvHdr.tgtAddr;
   params.localAddrRand = advHdr.rxAddrRnd;
 
-  if (BbBleExtPduFiltCheck(&params, &pOp->prot.pBle->pduFilt, FALSE, &pAuxScan->filtResults) == FALSE)
+  if (BbBleExtPduFiltCheck(&params, &pOp->prot.pBle->pduFilt, TRUE, &pAuxScan->filtResults) == FALSE)
   {
     LL_TRACE_WARN0("LL_PDU_AUX_CONNECT_RSP failed PDU filtering.");
   }

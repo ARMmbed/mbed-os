@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,13 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Connectable master BLE baseband porting implementation file.
+ * \file
+ * \brief Connectable master BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "bb_ble_int.h"
 #include <string.h>
 
@@ -51,6 +52,8 @@ static void bbMstConnTxCompCback(uint8_t status)
   BbOpDesc_t * const pCur = BbGetCurrentBod();
   BbBleMstConnEvent_t * const pConn = &pCur->prot.pBle->op.mstConn;
 
+  WSF_ASSERT(pCur);
+
   pConn->txDataCback(pCur, status);
 
   if (bbBleCb.pRxDataBuf &&
@@ -59,7 +62,7 @@ static void bbMstConnTxCompCback(uint8_t status)
     BB_ISR_MARK(bbConnStats.rxSetupUsec);
 
     bbBleSetIfs();     /* TODO set only if Tx may follow in CE */
-    BbBleDrvRxTifsData(bbBleCb.pRxDataBuf, bbBleCb.rxDataLen);
+    PalBbBleRxTifsData(bbBleCb.pRxDataBuf, bbBleCb.rxDataLen);
   }
   else
   {
@@ -67,7 +70,7 @@ static void bbMstConnTxCompCback(uint8_t status)
     switch (status)
     {
       case BB_STATUS_SUCCESS:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       case BB_STATUS_FAILED:
       default:
@@ -147,7 +150,7 @@ static void bbMstConnRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -189,7 +192,7 @@ static void bbMstConnRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
 /*************************************************************************************************/
 static void bbMstExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   WSF_ASSERT(pBle->op.mstConn.txDataCback);
   WSF_ASSERT(pBle->op.mstConn.rxDataCback);
@@ -200,7 +203,7 @@ static void bbMstExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
   bbBleCb.bbParam.rxTimeoutUsec = 2 * LL_MAX_TIFS_DEVIATION;
 
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = 0;
 
@@ -219,10 +222,11 @@ static void bbMstExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 /*************************************************************************************************/
 static void bbMstCancelConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
-  WSF_ASSERT(pBod && pBle);
+  WSF_ASSERT(pBod);
+  WSF_ASSERT(pBle);
   WSF_ASSERT(pBle->op.mstConn.rxDataCback);
 
-  BbBleDrvCancelData();
+  PalBbBleCancelData();
 
   if (bbBleCb.pRxDataBuf)
   {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) master control interface implementation file.
+ * \file
+ * \brief Link layer (LL) master control interface implementation file.
  */
 /*************************************************************************************************/
 
 #include "ll_api.h"
 #include "ll_math.h"
 #include "lctr_api_adv_slave_ae.h"
+#include "lctr_api_adv_master_ae.h"
 #include "lmgr_api_adv_slave.h"
 #include "lmgr_api_adv_slave_ae.h"
 #include "bb_ble_api.h"
@@ -57,6 +59,25 @@ uint8_t LlSetAdvSetRandAddr(uint8_t handle, const uint8_t *pAddr)
   WSF_ASSERT(pAddr);
 
   return LctrSetExtAdvSetRandAddr(handle, pAddr);
+}
+
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Read periodic channel map for slave or master
+ *
+ *  \param  pBuf        Packed packet buffer.
+ *
+ *  \return Channel map, packed into a 64bit int
+ *
+ *   Note: Consider moving to ll_main_ae.c (as of now, no file for this exists).
+ */
+/*************************************************************************************************/
+uint64_t LlGetPeriodicChanMap(uint16_t handle, bool_t isAdv)
+{
+  LL_TRACE_INFO2("### LlApi ###  LlGetPeriodicChanMap, handle=%u | isAdv=%u", handle, isAdv);
+
+  return isAdv ? LctrGetPerAdvChanMap((uint8_t) handle) : LctrGetPerScanChanMap(handle);
 }
 
 /*************************************************************************************************/
@@ -112,6 +133,7 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -126,6 +148,7 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
         ((pExtAdvParam->priAdvInterMin < validAdvInterMin) ||
          (pExtAdvParam->priAdvInterMax < validAdvInterMin)))))
   {
+    LL_TRACE_WARN1("Invalid Advertising Interval values, handle=%u", handle);
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -134,6 +157,7 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
        ((pExtAdvParam->priAdvInterMin > validAdvInterMax) ||
         (pExtAdvParam->priAdvInterMax > validAdvInterMax))))
   {
+    LL_TRACE_WARN1("Unsupported Advertising Interval values, handle=%u", handle);
     return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -143,13 +167,14 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
        ((pExtAdvParam->advEventProp & LL_ADV_EVT_PROP_LEGACY_ADV_BIT) &&
            (pExtAdvParam->advEventProp & (LL_ADV_EVT_PROP_OMIT_AA_BIT | LL_ADV_EVT_PROP_TX_PWR_BIT)))))
   {
+    LL_TRACE_WARN1("Invalid Advertising Event Properties, handle=%u", handle);
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
       ((pExtAdvParam->advEventProp & LL_ADV_EVT_PROP_OMIT_AA_BIT) &&
        (pExtAdvParam->advEventProp & (LL_ADV_EVT_PROP_CONN_ADV_BIT | LL_ADV_EVT_PROP_SCAN_ADV_BIT))))
   {
-    /* Only non-connectable and non-scannable advertising can do anonymous advertising. */
+    LL_TRACE_WARN1("Only non-connectable and non-scannable advertising can do anonymous advertising, handle=%u", handle);
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -160,13 +185,15 @@ uint8_t LlSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam)
        (((pExtAdvParam->advEventProp & LL_ADV_EVT_PROP_LEGACY_ADV_BIT) == 0) &&
          (pExtAdvParam->secAdvPhy != LL_PHY_LE_1M) && (pExtAdvParam->secAdvPhy != LL_PHY_LE_2M) && (pExtAdvParam->secAdvPhy != LL_PHY_LE_CODED))))
   {
+    LL_TRACE_WARN1("Invalid PHY for legacy advertising, handle=%u", handle);
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
       (((pExtAdvParam->secAdvPhy == LL_PHY_LE_2M) && ((lmgrCb.features & LL_FEAT_LE_2M_PHY) == 0)) ||
       (((pExtAdvParam->priAdvPhy == LL_PHY_LE_CODED) || (pExtAdvParam->secAdvPhy == LL_PHY_LE_CODED)) && ((lmgrCb.features & LL_FEAT_LE_CODED_PHY) == 0))))
   {
-    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+    LL_TRACE_WARN1("Unsupported PHY, handle=%u", handle);
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
   pExtAdvParam->priAdvInterMin = BB_BLE_TO_BB_TICKS(pExtAdvParam->priAdvInterMin);
   pExtAdvParam->priAdvInterMax = BB_BLE_TO_BB_TICKS(pExtAdvParam->priAdvInterMax);
@@ -216,6 +243,7 @@ uint8_t LlSetExtAdvData(uint8_t handle, uint8_t op, uint8_t fragPref, uint8_t le
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -246,6 +274,7 @@ uint8_t LlSetExtScanRespData(uint8_t handle, uint8_t op, uint8_t fragPref, uint8
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -277,6 +306,7 @@ void LlExtAdvEnable(uint8_t enable, uint8_t numAdvSets, LlExtAdvEnableParam_t en
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     lmgrCb.extAdvEnaDelayCnt = 1;
     LmgrSendExtAdvEnableCnf(0, LL_ERROR_CODE_CMD_DISALLOWED);
     return;
@@ -372,6 +402,7 @@ uint8_t LlReadMaxAdvDataLen(uint16_t *pLen)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -399,6 +430,7 @@ uint8_t LlReadNumSupAdvSets(uint8_t *pNumSets)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -426,6 +458,7 @@ uint8_t LlRemoveAdvSet(uint8_t handle)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -448,6 +481,7 @@ uint8_t LlClearAdvSets(void)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -475,6 +509,7 @@ uint8_t LlSetPeriodicAdvParam(uint8_t handle, LlPerAdvParam_t *pPerAdvParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -516,6 +551,7 @@ uint8_t LlSetPeriodicAdvData(uint8_t handle, uint8_t op, uint8_t len, const uint
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -541,7 +577,7 @@ uint8_t LlSetPeriodicAdvData(uint8_t handle, uint8_t op, uint8_t len, const uint
  *  \param      enable      Set to TRUE to enable advertising, FALSE to disable advertising.
  *  \param      handle      Advertising handle.
  *
- *  \return     Status error code.
+ *  \return     None.
  *
  *  Enable or disable periodic advertising.
  */
@@ -553,6 +589,7 @@ void LlSetPeriodicAdvEnable(uint8_t handle, uint8_t enable)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     LmgrSendPeriodicAdvEnableCnf(handle, LL_ERROR_CODE_CMD_DISALLOWED);
     return;
   }
@@ -574,7 +611,7 @@ void LlSetPeriodicAdvEnable(uint8_t handle, uint8_t enable)
  *  \param      handle      Advertising handle.
  *  \param      delayUsec   Additional time in microseconds. "0" to disable.
  *
- *  \return     None.
+ *  \return     Status error code.
  *
  *  Additional delay given to auxiliary packets specified by AuxPtr. Offset values are
  *  limited by the advertising interval.

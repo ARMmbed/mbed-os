@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master scanning operation builder implementation file.
+ * \file
+ * \brief Link layer controller master scanning operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -40,7 +41,7 @@
 /*! \brief      Extended scan operational context. */
 lctrExtScanCtx_t lctrMstExtInitTbl[LCTR_SCAN_PHY_TOTAL];
 
-/*! \brief      Extended scan control block. */
+/*! \brief      Extended initiator control block. */
 lctrExtInitCtrlBlk_t lctrMstExtInit;
 
 /*************************************************************************************************/
@@ -69,29 +70,6 @@ static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
   /* Subsystem event handling. */
   switch (pMsg->hdr.event)
   {
-    case LCTR_EXT_INIT_MSG_TERMINATE:
-      for (unsigned i = 0; i < LCTR_SCAN_PHY_TOTAL; i++)
-      {
-        if (lctrMstExtInit.enaPhys & (1 << i))
-        {
-          if ((lctrMstExtInit.estConnPhys & (1 << i)) == 0)
-          {
-            if (lctrMstExtInit.initTermByHost)
-            {
-              lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstExtInitTbl[i].data.init.connHandle);
-
-              if (pCtx->enabled == TRUE)
-              {
-                /* Cleanup unused initiate PHY connection context. */
-                SchRmRemove(lctrMstExtInitTbl[i].data.init.connHandle);
-                lctrFreeConnCtx(pCtx);
-              }
-            }
-          }
-        }
-      }
-      break;
-
     case LCTR_EXT_INIT_MSG_INITIATE:
     {
       LL_TRACE_INFO1("lctrMstExtInitExecuteCommonSm: scanMode=%u, event=INITIATE", lmgrCb.scanMode);
@@ -124,8 +102,6 @@ static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
 
       if (status != LL_SUCCESS)
       {
-        lctrScanNotifyHostInitiateError(status, pExtInitMsg->peerAddrType, pExtInitMsg->peerAddr);
-        lctrSendExtInitMsg(NULL, LCTR_EXT_INIT_MSG_INITIATE_CANCEL);
         break;
       }
 
@@ -151,6 +127,10 @@ static void lctrMstExtInitExecuteCommonSm(LctrExtScanMsg_t *pMsg)
 
     case LCTR_EXT_INIT_MSG_RESET:
       LL_TRACE_INFO1("lctrMstExtInitExecuteCommonSm: scanMode=%u, event=RESET", lmgrCb.scanMode);
+      break;
+
+    case LCTR_EXT_INIT_MSG_TERMINATE:
+      LL_TRACE_INFO1("lctrMstExtInitExecuteCommonSm: scanMode=%u, event=TERMINATE", lmgrCb.scanMode);
       break;
 
     default:
@@ -180,16 +160,6 @@ static void lctrMstExtInitDisp(LctrExtScanMsg_t *pMsg)
   {
     /* Global broadcast message. */
     isBcstMsg = TRUE;
-  }
-
-  /* Set message property. */
-  switch (event)
-  {
-    case LCTR_EXT_INIT_MSG_INITIATE_CANCEL:
-      lctrMstExtInit.initTermByHost = TRUE;
-      break;
-    default:
-      break;
   }
 
   /* Broadcast message. */
@@ -324,7 +294,7 @@ uint8_t lctrMstExtInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
   pConnInd->interval = pExtInitCtx->data.init.connInterval;
   pConnInd->latency = pConnSpec->connLatency;
   pConnInd->timeout = pConnSpec->supTimeout;
-  pConnInd->chanMask = lmgrMstScanCb.chanClass;
+  pConnInd->chanMask = lmgrCb.chanClass;
   pConnInd->hopInc = lctrComputeHopInc();
   pConnInd->masterSca = lctrComputeSca();
 
@@ -341,15 +311,6 @@ uint8_t lctrMstExtInitiateBuildOp(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t *p
 
   pExtInitCtx->reqPduHdr.pduType = LL_PDU_CONNECT_IND;
   pExtInitCtx->reqPduHdr.len = LL_CONN_IND_PDU_LEN;
-
-  if (lmgrCb.features & LL_FEAT_CH_SEL_2)
-  {
-    pExtInitCtx->reqPduHdr.chSel = LL_CH_SEL_2;
-  }
-  else
-  {
-    pExtInitCtx->reqPduHdr.chSel = LL_CH_SEL_1;
-  }
 
   /* Always match local address in PDU to initiator's address (in directed advertisements). */
   if (pExtInitCtx->data.init.ownAddrType & LL_ADDR_RANDOM_BIT)
@@ -575,7 +536,13 @@ void LctrMstExtInitInit(void)
   /* Add initiate message dispatchers. */
   lctrMsgDispTbl[LCTR_DISP_EXT_INIT] = (LctrMsgDisp_t)lctrMstExtInitDisp;
 
+
+  /* Add utility function pointers. */
+  LctrMstExtInitEnabled = LctrMstExtInitIsEnabled;
+
   LctrMstExtInitDefaults();
+
+  lmgrPersistCb.extInitCtxSize = sizeof(lctrExtScanCtx_t);
 }
 
 /*************************************************************************************************/
@@ -670,4 +637,33 @@ void lctrSendExtInitMsg(lctrExtScanCtx_t *pExtInitCtx, uint8_t event)
 
     WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if scanner is enabled or not.
+ *
+ *  \param      scanPhy   scanner Phy.
+ *
+ *  \return     True if scanner enabled. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstExtInitIsEnabled(uint8_t scanPhy)
+{
+  return (lctrMstExtInitTbl[scanPhy].state != LCTR_EXT_SCAN_STATE_DISABLED);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if private addresses are being used.
+ *
+ *  \param      scanPhy   scanner Phy.
+ *
+ *  \return     Returns True if scanner is using private addresses. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstExtInitIsPrivAddr(uint8_t scanPhy)
+{
+  /* Check if private address bit is enabled. */
+  return (lctrMstExtInitTbl[scanPhy].scanParam.ownAddrType & LL_ADDR_RANDOM_BIT);
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) master control interface implementation file.
+ * \file
+ * \brief Link layer (LL) master control interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -25,6 +26,7 @@
 #include "lmgr_api.h"
 #include "lmgr_api_adv_master_ae.h"
 #include "bb_ble_api_periodiclist.h"
+#include "hci_defs.h"
 #include "util/bstream.h"
 #include "wsf_assert.h"
 #include "wsf_msg.h"
@@ -80,6 +82,7 @@ uint8_t LlSetExtScanParam(uint8_t ownAddrType, uint8_t scanFiltPolicy, uint8_t s
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -180,6 +183,7 @@ void LlExtScanEnable(uint8_t enable, uint8_t filterDup, uint16_t duration, uint1
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     lmgrCb.extScanEnaDelayCnt = 1;
     LmgrSendExtScanEnableCnf(LL_ERROR_CODE_CMD_DISALLOWED);
     return;
@@ -190,6 +194,15 @@ void LlExtScanEnable(uint8_t enable, uint8_t filterDup, uint16_t duration, uint1
          ((filterDup > filterDupMax) ||
          ((perMs > 0) && (durMs == 0)) ||       /* Minimum Duration is 1. */
          ((perMs > 0) && (perMs <= durMs)))))   /* Ensure Period > Duration. */
+  {
+    lmgrCb.extScanEnaDelayCnt = 1;
+    LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
+    return;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((enable != 0) &&
+         ((filterDup == LL_SCAN_FILTER_DUP_ENABLE_PERIODIC) && ((duration == 0) || (period == 0)))))
   {
     lmgrCb.extScanEnaDelayCnt = 1;
     LmgrSendExtScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
@@ -234,14 +247,15 @@ uint8_t LlPeriodicAdvCreateSync(const LlPerAdvCreateSyncCmd_t *pParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
-      ((pParam->filterPolicy > LL_PER_SCAN_FILTER_PL_BIT) ||
-      (pParam->advAddrType > LL_ADDR_RANDOM) ||
+      ((pParam->advAddrType > LL_ADDR_RANDOM) ||
       (pParam->advSID > LL_MAX_ADV_SID) ||
       (pParam->skip > LL_SYNC_MAX_SKIP) ||
+      (pParam->options & ~LL_PER_ADV_CREATE_SYNC_OPTIONS_BITS) ||
       (pParam->syncTimeOut > LL_SYNC_MAX_TIMEOUT) ||
       (pParam->syncTimeOut < LL_SYNC_MIN_TIMEOUT)))
   {
@@ -258,6 +272,17 @@ uint8_t LlPeriodicAdvCreateSync(const LlPerAdvCreateSyncCmd_t *pParam)
     return LL_ERROR_CODE_ACL_CONN_ALREADY_EXISTS;
   }
 
+  if (lctrMstPerGetNumPerScanCtx() >= LL_MAX_PER_SCAN)
+  {
+    return LL_ERROR_CODE_MEM_CAP_EXCEEDED;
+  }
+
+  /* If reporting is initially disabled and controller does not support LE_Set_Per_Adv_Rcv_En cmd, return error. */
+  if (((pParam->options >> 1) & 0x01) && !(lmgrCb.hciSupCommands[40] & HCI_SUP_LE_SET_PER_ADV_RCV_ENABLE))
+  {
+    return LL_ERROR_CODE_CONN_FAILED_TO_ESTABLISH;
+  }
+
   lctrPerCreateSyncMsg_t *pMsg;
 
   if ((pMsg = WsfMsgAlloc(sizeof(*pMsg))) != NULL)
@@ -268,7 +293,8 @@ uint8_t LlPeriodicAdvCreateSync(const LlPerAdvCreateSyncCmd_t *pParam)
     pMsg->advAddr = BstreamToBda64(pParam->pAdvAddr);
     pMsg->advAddrType = pParam->advAddrType;
     pMsg->advSID = pParam->advSID;
-    pMsg->filterPolicy = pParam->filterPolicy;
+    pMsg->filterPolicy = pParam->options & 0x01;
+    pMsg->repDisabled = (pParam->options >> 1) & 0x01;
     pMsg->skip = pParam->skip;
     pMsg->syncTimeOut = pParam->syncTimeOut;
 
@@ -292,6 +318,7 @@ uint8_t LlPeriodicAdvCreateSyncCancel(void)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -329,12 +356,19 @@ uint8_t LlPeriodicAdvTerminateSync(uint16_t syncHandle)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
       syncHandle > LL_SYNC_MAX_HANDLE)
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      !lctrMstPerIsSyncHandleValid(syncHandle))
+  {
+    return LL_ERROR_CODE_UNKNOWN_ADV_ID;
   }
 
   if (LctrMstPerIsSyncPending())
@@ -370,6 +404,7 @@ uint8_t LlAddDeviceToPeriodicAdvList(const LlDevicePerAdvList_t *pParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -415,6 +450,7 @@ uint8_t LlRemoveDeviceFromPeriodicAdvList(const LlDevicePerAdvList_t *pParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsExtCommandAllowed())
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -457,7 +493,8 @@ uint8_t LlClearPeriodicAdvList(void)
   if ((LL_API_PARAM_CHECK == 1) &&
        !LmgrIsExtCommandAllowed())
   {
-     return LL_ERROR_CODE_CMD_DISALLOWED;
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
+    return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   if (lmgrCb.numPlFilterEnabled)
@@ -491,7 +528,8 @@ uint8_t LlReadPeriodicAdvListSize(uint8_t *pListSize)
   if ((LL_API_PARAM_CHECK == 1) &&
        !LmgrIsExtCommandAllowed())
   {
-     return LL_ERROR_CODE_CMD_DISALLOWED;
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
+    return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   *pListSize = BbBlePeriodicListGetSize();

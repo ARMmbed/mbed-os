@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave advertising action routines.
+ * \file
+ * \brief Link layer controller slave advertising action routines.
  */
 /*************************************************************************************************/
 
 #include "lctr_int_adv_slave.h"
 #include "sch_api.h"
 #include "bb_ble_api_reslist.h"
+#include "lctr_pdu_adv.h"
 #include "wsf_assert.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
@@ -199,27 +201,40 @@ void lctrAdvActSelfTerm(void)
           restartAdv = TRUE;
         }
 
+        lctrConnEstablish_t *pMsg;
+        if ((pMsg = (lctrConnEstablish_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+        {
+          lctrUnpackConnIndPdu(&pMsg->connInd, pBuf + LL_ADV_HDR_LEN);
+
+          if (!lctrValidateConnIndPdu(&pMsg->connInd))
+          {
+            restartAdv = TRUE;
+          }
+        }
+
         if (restartAdv)
         {
+          if (pMsg != NULL)
+          {
+            WsfMsgFree(pMsg);
+          }
+
           /* Reuse message. */
-          lctrMsgHdr_t *pMsg = (lctrMsgHdr_t *)pBuf - 1;
-          pMsg->dispId = LCTR_DISP_ADV;
-          pMsg->event = LCTR_ADV_MSG_INT_START;
-          WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+          lctrMsgHdr_t *pResMsg = (lctrMsgHdr_t *)pBuf - 1;
+          pResMsg->dispId = LCTR_DISP_ADV;
+          pResMsg->event = LCTR_ADV_MSG_INT_START;
+          WsfMsgSend(lmgrPersistCb.handlerId, pResMsg);
 
           BbStop(BB_PROT_BLE);
         }
         else
         {
-          lctrConnEstablish_t *pMsg;
-
-          if ((pMsg = (lctrConnEstablish_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+          if (pMsg != NULL)
           {
             /* pMsg->hdr.handle = 0; */
             pMsg->hdr.dispId = LCTR_DISP_CONN_IND;
             /* pMsg->hdr.event = 0; */
 
-            lctrUnpackConnIndPdu(&pMsg->connInd, pBuf + LL_ADV_HDR_LEN);
             pMsg->connIndEndTs = lctrSlvAdv.reqEndTs;
 
             BbBlePduFiltResultsGetPeerIdAddr(&pAdv->filtResults, &pMsg->peerIdAddr, &pMsg->peerIdAddrType);

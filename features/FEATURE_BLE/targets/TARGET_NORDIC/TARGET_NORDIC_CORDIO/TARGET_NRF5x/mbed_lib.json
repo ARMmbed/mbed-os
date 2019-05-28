@@ -1,6 +1,19 @@
 {
     "name": "cordio-nordic-ll",
+    "config": {
+        "zero-copy-hci": {
+            "help": "messages sent between Host and Controller are passed directly without copying if enabled. WSF messages ownership is trasfered to the callee.",
+            "value": 1,
+            "macro_name": "CORDIO_ZERO_COPY_HCI"
+        }
+    },
     "macros": [
-        "INIT_BROADCASTER", "INIT_OBSERVER", "INIT_CENTRAL", "INIT_PERIPHERAL", "INIT_ENCRYPTED", "LHCI_ENABLE_VS=0", "BB_CLK_RATE_HZ=1000000"
+        "INIT_BROADCASTER",
+        "INIT_OBSERVER",
+        "INIT_CENTRAL",
+        "INIT_PERIPHERAL",
+        "INIT_ENCRYPTED",
+        "LHCI_ENABLE_VS=0",
+        "BB_CLK_RATE_HZ=1000000"
     ]
 }

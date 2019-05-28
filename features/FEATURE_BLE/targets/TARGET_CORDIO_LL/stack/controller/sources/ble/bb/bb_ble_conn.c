@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,13 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Connectable BLE baseband porting implementation file.
+ * \file
+ * \brief Connectable BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "bb_ble_int.h"
 
 #if BB_DATA_PLD_MAX_LEN < LL_MAX_DATA_LEN_MIN
@@ -52,13 +53,13 @@ BbBleDataPktStats_t bbConnStats;          /*!< Connection packet statistics. */
  *              callback routine.
  */
 /*************************************************************************************************/
-void BbBleTxData(BbBleDrvTxBufDesc_t descs[], uint8_t cnt)
+void BbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt)
 {
   if ((BbGetCurrentBod()->prot.pBle->chan.opType == BB_BLE_OP_MST_CONN_EVENT) &&
       (bbBleCb.evtState == 0))
   {
     bbBleSetIfs();     /* master always Rx's after Tx */
-    BbBleDrvTxData(descs, cnt);
+    PalBbBleTxData(descs, cnt);
   }
   else
   {
@@ -66,7 +67,7 @@ void BbBleTxData(BbBleDrvTxBufDesc_t descs[], uint8_t cnt)
 
     /* TODO set only if master or if slave and Rx may follow in CE. */
     bbBleSetIfs();
-    BbBleDrvTxTifsData(descs, cnt);
+    PalBbBleTxTifsData(descs, cnt);
   }
 }
 
@@ -99,7 +100,7 @@ void BbBleRxData(uint8_t *pBuf, uint16_t len)
       (bbBleCb.evtState == 0))
   {
     bbBleSetIfs();       /* slave always Tx's after Rx */
-    BbBleDrvRxData(pBuf, len);
+    PalBbBleRxData(pBuf, len);
   }
 }
 

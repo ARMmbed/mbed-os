@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Extended advertising slave BLE baseband porting implementation file.
+ * \file
+ * \brief Extended advertising slave BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
@@ -71,15 +72,15 @@ static bool_t bbSlvAdvSetupTxAuxChainInd(BbOpDesc_t *pCur, BbBleSlvAuxAdvEvent_t
   }
 
   /* Set updated auxiliary channel. */
-  BbBleDrvSetChannelParam(&pCur->prot.pBle->chan);
+  PalBbBleSetChannelParam(&pCur->prot.pBle->chan);
 
   /* Offset may be up to 1 unit earlier than actual transmission. */
   bbBleCb.bbParam.due += BB_US_TO_BB_TICKS(auxOffsUsec);
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   BB_ISR_MARK(bbAuxAdvStats.rxSetupUsec);
   bbBleClrIfs();      /* CHAIN_IND does not use TIFS. */
-  BbBleDrvTxData(pAuxAdv->txAuxChainPdu, 2);
+  PalBbBleTxData(pAuxAdv->txAuxChainPdu, 2);
 
   /* Operation continues. */
   return FALSE;
@@ -130,7 +131,7 @@ static void bbSlvAuxAdvTxCompCback(uint8_t status)
         bbBleCb.evtState = BB_EVT_STATE_RX_SCAN_OR_CONN_REQ;
         BB_ISR_MARK(bbAuxAdvStats.rxSetupUsec);
         bbBleSetIfs();     /* set up for Tx SCAN_RSP */
-        BbBleDrvRxTifsData(pAuxAdv->pRxAuxReqBuf, BB_REQ_PDU_MAX_LEN);   /* reduce max length requirement */
+        PalBbBleRxTifsData(pAuxAdv->pRxAuxReqBuf, BB_REQ_PDU_MAX_LEN);   /* reduce max length requirement */
       }
       BB_INC_STAT(bbAuxAdvStats.txAdv);
       break;
@@ -138,7 +139,7 @@ static void bbSlvAuxAdvTxCompCback(uint8_t status)
     case BB_EVT_STATE_TX_SCAN_RSP:
       bbBleCb.evtState = BB_EVT_STATE_TX_CHAIN_IND;
       bbBleCb.bbParam.due = pAuxAdv->auxReqStartTs +
-                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxAdv->auxRxPhyOptions, LL_ADV_HDR_LEN + LL_SCAN_REQ_PDU_LEN )) +
+                            BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxAdv->auxRxPhyOptions, LL_ADV_HDR_LEN + LL_SCAN_REQ_PDU_LEN)) +
                             BB_US_TO_BB_TICKS(LL_BLE_TIFS_US);
       bodComplete = bbSlvAdvSetupTxAuxChainInd(pCur, pAuxAdv);
       BB_INC_STAT(bbAuxAdvStats.txRsp);
@@ -165,7 +166,7 @@ Cleanup:
     switch (status)
     {
       case BB_STATUS_SUCCESS:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -220,7 +221,7 @@ static void bbSlvAuxAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, ui
             BB_ISR_MARK(bbAuxAdvStats.txSetupUsec);
 
             bbBleClrIfs();  /* last operation in event */
-            BbBleDrvTxTifsData(pAuxAdv->txAuxRspPdu, 2);
+            PalBbBleTxTifsData(pAuxAdv->txAuxRspPdu, 2);
 
             if (pAuxAdv->rxAuxReqPostCback)
             {
@@ -276,7 +277,7 @@ static void bbSlvAuxAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, ui
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -322,11 +323,11 @@ static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
     pAuxAdv->txAuxSetupCback(pBod, FALSE);
   }
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.due = pBod->due;
   bbBleCb.evtState = BB_EVT_STATE_TX_ADV_IND;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   if (pAuxAdv->pRxAuxReqBuf)
   {
@@ -339,7 +340,7 @@ static void bbSlvExecuteAuxAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
     bbBleClrIfs();
   }
 
-  BbBleDrvTxData(pAuxAdv->txAuxAdvPdu, 2);
+  PalBbBleTxData(pAuxAdv->txAuxAdvPdu, 2);
 }
 
 /*************************************************************************************************/
@@ -376,11 +377,11 @@ static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
     pAuxAdv->txAuxSetupCback(pBod, FALSE);
   }
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.due = pBod->due;
   bbBleCb.evtState = BB_EVT_STATE_TX_ADV_IND;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   if (pAuxAdv->pRxAuxReqBuf)
   {
@@ -393,7 +394,7 @@ static void bbSlvExecutePerAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
     bbBleClrIfs();
   }
 
-  BbBleDrvTxData(pAuxAdv->txAuxAdvPdu, 2);
+  PalBbBleTxData(pAuxAdv->txAuxAdvPdu, 2);
 }
 
 /*************************************************************************************************/

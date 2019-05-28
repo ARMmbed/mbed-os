@@ -27,8 +27,6 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
-#define PORT_SHIFT  3
-
 typedef enum {
     p0  = 0,
     p1  = 1,

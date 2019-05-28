@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller PHY features action routines.
+ * \file
+ * \brief Link layer controller PHY features action routines.
  */
 /*************************************************************************************************/
 
@@ -191,7 +192,7 @@ void lctrSendPhyUpdateIndPdu(lctrConnCtx_t *pCtx, uint8_t txPhys, uint8_t rxPhys
 
     uint16_t ceOffset;
 #if (LL_ENABLE_TESTER == TRUE)
-    if (llTesterCb.eventCounterOffset)
+    if (llTesterCb.eventCounterOverride == TRUE)
     {
       ceOffset = llTesterCb.eventCounterOffset + 1;         /* +1 for next CE */
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Generic BLE baseband driver implementation file.
+ * \file
+ * \brief Generic BLE baseband driver implementation file.
  */
 /*************************************************************************************************/
 
@@ -76,16 +77,16 @@ static void bbTestTxCompCback(uint8_t status)
     const uint32_t pktInter     = BB_US_TO_BB_TICKS(pktInterUsec);
     int16_t dueOffsetUsec       = pktInterUsec - BB_TICKS_TO_US(pktInter);
 
-    BbBleDrvCancelTifs();
+    PalBbBleCancelTifs();
 
     bbBleCb.bbParam.due           = bbBleCb.bbParam.due + pktInter;
     bbBleCb.bbParam.dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
-    BbBleDrvSetChannelParam(&pBle->chan);
-    BbBleDrvSetDataParams(&bbBleCb.bbParam);
+    PalBbBleSetChannelParam(&pBle->chan);
+    PalBbBleSetDataParams(&bbBleCb.bbParam);
 
     bbBleClrIfs();     /* never setup for TIFS */
-    BbBleDrvTxBufDesc_t desc = {.pBuf = pTx->pTxBuf, .len = pTx->txLen};
-    BbBleDrvTxData(&desc, 1);
+    PalBbBleTxBufDesc_t desc = {.pBuf = pTx->pTxBuf, .len = pTx->txLen};
+    PalBbBleTxData(&desc, 1);
   }
 
   switch (status)
@@ -146,20 +147,20 @@ static void bbTestRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint32_
   }
   else
   {
-    BbBleDrvCancelTifs();
+    PalBbBleCancelTifs();
 
     const uint32_t pktInterUsec = pBbRtCfg->rfSetupDelayUs;
     const uint32_t pktInter     = BB_US_TO_BB_TICKS(pktInterUsec);
     int16_t dueOffsetUsec       = pktInterUsec - BB_TICKS_TO_US(pktInter);
 
-    bbBleCb.bbParam.due           = BbDrvGetCurrentTime() + pktInter;
+    bbBleCb.bbParam.due           = PalBbGetCurrentTime(USE_RTC_BB_CLK) + pktInter;
     bbBleCb.bbParam.dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
     bbBleCb.bbParam.rxTimeoutUsec = pRx->rxSyncDelayUsec;
-    BbBleDrvSetChannelParam(&pBle->chan);
-    BbBleDrvSetDataParams(&bbBleCb.bbParam);
+    PalBbBleSetChannelParam(&pBle->chan);
+    PalBbBleSetDataParams(&bbBleCb.bbParam);
 
     bbBleClrIfs();     /* never setup for TIFS */
-    BbBleDrvRxData(pRx->pRxBuf, pRx->rxLen);
+    PalBbBleRxData(pRx->pRxBuf, pRx->rxLen);
   }
 
   switch (status)
@@ -192,7 +193,7 @@ static void bbTestRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint32_
 /*************************************************************************************************/
 static void bbTestCleanupOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
-  BbBleDrvCancelData();
+  PalBbBleCancelData();
   BbTerminateBod();
 }
 
@@ -215,12 +216,12 @@ static void bbSlvExecuteTestTxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.due           = pBod->due;
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
 
-  BbBleDrvSetChannelParam(&pBle->chan);
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetChannelParam(&pBle->chan);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleClrIfs();     /* never setup for TIFS */
-  BbBleDrvTxBufDesc_t desc = {.pBuf = pTx->pTxBuf, .len = pTx->txLen};
-  BbBleDrvTxData(&desc, 1);
+  PalBbBleTxBufDesc_t desc = {.pBuf = pTx->pTxBuf, .len = pTx->txLen};
+  PalBbBleTxData(&desc, 1);
 }
 
 /*************************************************************************************************/
@@ -243,11 +244,11 @@ static void bbSlvExecuteTestRxOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
   bbBleCb.bbParam.rxTimeoutUsec = pRx->rxSyncDelayUsec;
 
-  BbBleDrvSetChannelParam(&pBle->chan);
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetChannelParam(&pBle->chan);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleClrIfs();     /* never setup for TIFS */
-  BbBleDrvRxData(pRx->pRxBuf, pRx->rxLen);
+  PalBbBleRxData(pRx->pRxBuf, pRx->rxLen);
 }
 
 /*************************************************************************************************/

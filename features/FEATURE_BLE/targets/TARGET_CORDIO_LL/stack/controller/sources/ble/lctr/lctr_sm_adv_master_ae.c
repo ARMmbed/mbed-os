@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master scan state machine implementation file.
+ * \file
+ * \brief Link layer controller master scan state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -108,6 +109,7 @@ static const lctrCreateSyncActFn_t lctrCreateSyncActionTbl[LCTR_CREATE_SYNC_STAT
     NULL,                           /* LCTR_CREATE_SYNC_MSG_RESET       */
     lctrCreateSyncActCreate,        /* LCTR_CREATE_SYNC_MSG_CREATE      */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    NULL,                           /* LCTR_CREATE_SYNC_MSG_FAILED      */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_DONE        */
     NULL                            /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -115,6 +117,7 @@ static const lctrCreateSyncActFn_t lctrCreateSyncActionTbl[LCTR_CREATE_SYNC_STAT
     lctrCreateSyncActCancel,        /* LCTR_CREATE_SYNC_MSG_RESET       */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CREATE      */  /* Handled by API. */
     lctrCreateSyncActCancel,        /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    lctrCreateSyncActFailed,        /* LCTR_CREATE_SYNC_MSG_FAILED      */
     lctrCreateSyncActDone,          /* LCTR_CREATE_SYNC_MSG_DONE        */
     NULL                            /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -122,6 +125,7 @@ static const lctrCreateSyncActFn_t lctrCreateSyncActionTbl[LCTR_CREATE_SYNC_STAT
     NULL,                           /* LCTR_CREATE_SYNC_MSG_RESET       */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CREATE      */  /* Handled by API. */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    NULL,                           /* LCTR_CREATE_SYNC_MSG_FAILED      */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_DONE        */
     lctrCreateSyncActTerminate      /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -129,6 +133,7 @@ static const lctrCreateSyncActFn_t lctrCreateSyncActionTbl[LCTR_CREATE_SYNC_STAT
     NULL,                           /* LCTR_CREATE_SYNC_MSG_RESET       */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CREATE      */  /* Handled by API. */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    NULL,                           /* LCTR_CREATE_SYNC_MSG_FAILED      */
     NULL,                           /* LCTR_CREATE_SYNC_MSG_DONE        */
     lctrCreateSyncActTerminate      /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   }
@@ -141,6 +146,7 @@ static const uint8_t lctrCreateSyncNextStateTbl[LCTR_CREATE_SYNC_STATE_TOTAL][LC
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_RESET       */
     LCTR_CREATE_SYNC_STATE_DISCOVER,        /* LCTR_CREATE_SYNC_MSG_CREATE      */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_FAILED      */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_DONE        */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -148,6 +154,7 @@ static const uint8_t lctrCreateSyncNextStateTbl[LCTR_CREATE_SYNC_STATE_TOTAL][LC
     LCTR_CREATE_SYNC_STATE_RESET,           /* LCTR_CREATE_SYNC_MSG_RESET       */
     LCTR_CREATE_SYNC_STATE_DISCOVER,        /* LCTR_CREATE_SYNC_MSG_CREATE      */
     LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_FAILED      */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_DONE        */
     LCTR_CREATE_SYNC_STATE_DISCOVER         /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -155,6 +162,7 @@ static const uint8_t lctrCreateSyncNextStateTbl[LCTR_CREATE_SYNC_STATE_TOTAL][LC
     LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_RESET       */
     LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_CREATE      */
     LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_FAILED      */
     LCTR_CREATE_SYNC_STATE_SHUTDOWN,        /* LCTR_CREATE_SYNC_MSG_DONE        */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
   },
@@ -163,8 +171,84 @@ static const uint8_t lctrCreateSyncNextStateTbl[LCTR_CREATE_SYNC_STATE_TOTAL][LC
     LCTR_CREATE_SYNC_STATE_RESET,           /* LCTR_CREATE_SYNC_MSG_RESET       */
     LCTR_CREATE_SYNC_STATE_RESET,           /* LCTR_CREATE_SYNC_MSG_CREATE      */
     LCTR_CREATE_SYNC_STATE_RESET,           /* LCTR_CREATE_SYNC_MSG_CANCEL      */
+    LCTR_CREATE_SYNC_STATE_RESET,           /* LCTR_CREATE_SYNC_MSG_FAILED      */
     LCTR_CREATE_SYNC_STATE_DISABLED,        /* LCTR_CREATE_SYNC_MSG_DONE        */
     LCTR_CREATE_SYNC_STATE_DISABLED         /* LCTR_CREATE_SYNC_MSG_TERMINATE   */
+  }
+};
+
+/*! \brief      Transfer sync state machine action table. */
+static const lctrCreateSyncActFn_t lctrTransferSyncActionTbl[LCTR_TRANSFER_SYNC_STATE_TOTAL][LCTR_TRANSFER_SYNC_MSG_TOTAL] =
+{
+  { /* LCTR_TRANSFER_SYNC_STATE_DISABLED */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_RESET       */
+    lctrTransferSyncActStart,         /* LCTR_TRANSFER_SYNC_MSG_START       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_CANCEL      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_FAILED      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_DONE        */
+    NULL                              /* LCTR_TRANSFER_SYNC_MSG_TERMINATE   */
+  },
+  { /* LCTR_TRANSFER_SYNC_STATE_DISCOVER */
+    lctrTransferSyncActCancel,        /* LCTR_TRANSFER_SYNC_MSG_RESET       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_START       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_CANCEL      */
+    lctrTransferSyncActFailed,        /* LCTR_TRANSFER_SYNC_MSG_FAILED      */
+    lctrTransferSyncActDone,          /* LCTR_TRANSFER_SYNC_MSG_DONE        */
+    NULL                              /* LCTR_TRANSFER_SYNC_MSG_TERMINATE   */
+  },
+  { /* LCTR_TRANSFER_SYNC_STATE_SHUTDOWN */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_RESET       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_START       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_CANCEL      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_FAILED      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_DONE        */
+    lctrTransferSyncActTerminate      /* LCTR_TRANSFER_SYNC_MSG_TERMINATE   */
+  },
+  { /* LCTR_TRANSFER_SYNC_STATE_RESET */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_RESET       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_START       */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_CANCEL      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_FAILED      */
+    NULL,                             /* LCTR_TRANSFER_SYNC_MSG_DONE        */
+    lctrTransferSyncActTerminate      /* LCTR_TRANSFER_SYNC_MSG_TERMINATE   */
+  }
+};
+
+/*! \brief      Transfer sync state machine next state table. */
+static const uint8_t lctrTransferSyncNextStateTbl[LCTR_TRANSFER_SYNC_STATE_TOTAL][LCTR_TRANSFER_SYNC_MSG_TOTAL] =
+{
+  { /* LCTR_TRANSFER_SYNC_STATE_DISABLED  */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_RESET     */
+    LCTR_TRANSFER_SYNC_STATE_DISCOVER,      /* LCTR_TRANSFER_SYNC_MSG_START     */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_CANCEL    */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_FAILED    */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_DONE      */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_TERMINATE */
+  },
+  { /* LCTR_TRANSFER_SYNC_STATE_DISCOVER  */
+    LCTR_TRANSFER_SYNC_STATE_RESET,         /* LCTR_TRANSFER_SYNC_MSG_RESET     */
+    LCTR_TRANSFER_SYNC_STATE_DISCOVER,      /* LCTR_TRANSFER_SYNC_MSG_START     */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_CANCEL    */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_FAILED    */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_DONE      */
+    LCTR_TRANSFER_SYNC_STATE_DISCOVER       /* LCTR_TRANSFER_SYNC_MSG_TERMINATE */
+  },
+  { /* LCTR_TRANSFER_SYNC_STATE_SHUTDOWN  */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_RESET     */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_START     */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_CANCEL    */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_FAILED    */
+    LCTR_TRANSFER_SYNC_STATE_SHUTDOWN,      /* LCTR_TRANSFER_SYNC_MSG_DONE      */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_TERMINATE */
+  },
+
+  { /* LCTR_TRANSFER_SYNC_STATE_RESET     */
+    LCTR_TRANSFER_SYNC_STATE_RESET,         /* LCTR_TRANSFER_SYNC_MSG_RESET     */
+    LCTR_TRANSFER_SYNC_STATE_RESET,         /* LCTR_TRANSFER_SYNC_MSG_START     */
+    LCTR_TRANSFER_SYNC_STATE_RESET,         /* LCTR_TRANSFER_SYNC_MSG_CANCEL    */
+    LCTR_TRANSFER_SYNC_STATE_RESET,         /* LCTR_TRANSFER_SYNC_MSG_FAILED    */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED,      /* LCTR_TRANSFER_SYNC_MSG_DONE      */
+    LCTR_TRANSFER_SYNC_STATE_DISABLED       /* LCTR_TRANSFER_SYNC_MSG_TERMINATE */
   }
 };
 
@@ -276,6 +360,27 @@ void lctrMstCreateSyncExecuteSm(uint8_t event)
   }
 
   lctrPerCreateSync.state = lctrCreateSyncNextStateTbl[lctrPerCreateSync.state][event];
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Execute master transfer sync state machine.
+ *
+ *  \param      event       State machine event.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrMstTransferSyncExecuteSm(uint8_t event)
+{
+  LL_TRACE_INFO2("lctrMstTransferSyncExecuteSm: state=%u, event=%u", lctrPerTransferSync.state, event);
+
+  if (lctrTransferSyncActionTbl[lctrPerTransferSync.state][event])
+  {
+    lctrTransferSyncActionTbl[lctrPerTransferSync.state][event]();
+  }
+
+  lctrPerTransferSync.state = lctrTransferSyncNextStateTbl[lctrPerTransferSync.state][event];
 }
 
 /*************************************************************************************************/

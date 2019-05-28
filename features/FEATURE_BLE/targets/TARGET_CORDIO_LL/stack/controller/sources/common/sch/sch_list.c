@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,13 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Operation list maintenance implementation file.
+ * \file
+ * \brief Operation list maintenance implementation file.
  */
 /*************************************************************************************************/
 
 #include "sch_int.h"
+#include "pal_timer.h"
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_math.h"
@@ -45,6 +47,12 @@
 /*! \brief      Is BOD[a] due time after BOD[b] completion time. */
 #define SCH_IS_DUE_AFTER(a, b, rt)      SCH_IS_DONE_BEFORE(b, a, rt)
 
+/*! \brief      Minimum time in microseconds to start scheduler timer. */
+#define SCH_MIN_TIMER_USEC      5
+
+/*! \brief      Margin in microseconds to cancel a BOD. */
+#define SCH_CANCEL_MARGIN_USEC  15
+
 #ifndef SCH_TRACE_ENABLE
 /*! \brief      Enable scheduler trace. */
 #define SCH_TRACE_ENABLE  FALSE
@@ -65,7 +73,8 @@
 /*! \brief      Warning trace with 1 parameters. */
 #define SCH_TRACE_WARN1(msg, var1)
 #endif
-
+/*! \brief      Maximum allowed number of deleted BOD due to conflicts. */
+#define SCH_MAX_DELETE_BOD                          8
 #ifndef SCH_CHECK_LIST_INTEGRITY
 /*! \brief      Check list requirements upon insertions and removals. */
 #define SCH_CHECK_LIST_INTEGRITY                    FALSE
@@ -91,17 +100,18 @@ static inline void SchCheckIsNotInserted(BbOpDesc_t *pBod)
     pCur = pCur->pNext;
   }
 }
+#endif
 
 /*************************************************************************************************/
 /*!
- *  \brief      Ensure BOD is already inserted in the list.
+ *  \brief      Check whether BOD is inserted in the list.
  *
  *  \param      pBod    Target BOD.
  *
- *  \return     None.
+ *  \return     True if BOD is inserted.
  */
 /*************************************************************************************************/
-static inline void SchCheckIsInserted(BbOpDesc_t *pBod)
+static inline bool_t SchCheckIsInserted(BbOpDesc_t *pBod)
 {
   BbOpDesc_t *pCur = schCb.pHead;
 
@@ -110,13 +120,13 @@ static inline void SchCheckIsInserted(BbOpDesc_t *pBod)
     if (pCur == pBod)
     {
       /* pBod found in the list. */
-      return;
+      return TRUE;
     }
     pCur = pCur->pNext;
   }
-  WSF_ASSERT(pCur != NULL);
+
+  return FALSE;
 }
-#endif
 
 /*************************************************************************************************/
 /*!
@@ -131,7 +141,7 @@ static inline bool_t SchEnoughTimeToCancel(BbOpDesc_t *pBod)
 {
   bool_t result = FALSE;
 
-  const uint32_t curTime = BbDrvGetCurrentTime();
+  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
   const uint32_t delta = pBod->due - curTime;
 
   if ((delta >= BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs())) &&   /* sufficient time to cancel */
@@ -160,36 +170,38 @@ static inline uint32_t SchGetStartRefTime(void)
   }
   else
   {
-    return BbDrvGetCurrentTime();
+    return PalBbGetCurrentTime(USE_RTC_BB_CLK);
   }
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Cancel current head operation.
+ *  \brief      Check and return the status of whether it is ok to cancel the head BOD.
  *
  *  \return     TRUE if successful, FALSE otherwise.
  */
 /*************************************************************************************************/
-static inline bool_t schCancelHead(void)
+static inline bool_t schCheckCancelHead(void)
 {
   bool_t result = FALSE;
-
-  if (schCb.state == SCH_STATE_EXEC)
+#if SCH_TIMER_REQUIRED == TRUE
+  if (schCb.state == SCH_STATE_IDLE)
   {
-    if ((result = SchEnoughTimeToCancel(schCb.pHead)) == TRUE)
-    {
-      BbCancelBod();
-
-      schCb.state = SCH_STATE_IDLE;
-    }
+    result = SchEnoughTimeToCancel(schCb.pHead);
   }
   else
   {
-    /* If not the current BOD then cancel is unconditional. */
-    result = TRUE;
+    /* If head BOD is executing, it can't be canceled. */
+    result = FALSE;
   }
-
+#else
+  /* For platforms without sch timer, cancel the head. */
+  if ((result = SchEnoughTimeToCancel(schCb.pHead)) == TRUE)
+  {
+    BbCancelBod();
+    schCb.state = SCH_STATE_IDLE;
+  }
+#endif
   return result;
 }
 
@@ -232,7 +244,8 @@ static inline void schInsertToEmptyList(BbOpDesc_t *pItem)
 /*************************************************************************************************/
 static inline void schInsertBefore(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
 {
-  WSF_ASSERT(pTgt && pItem);
+  WSF_ASSERT(pTgt);
+  WSF_ASSERT(pItem);
 
   pItem->pNext = pTgt;
   pItem->pPrev = pTgt->pPrev;
@@ -265,7 +278,8 @@ static inline void schInsertBefore(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
 /*************************************************************************************************/
 static inline void schInsertAfter(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
 {
-  WSF_ASSERT(pTgt && pItem);
+  WSF_ASSERT(pTgt);
+  WSF_ASSERT(pItem);
 
   pItem->pPrev = pTgt;
   pItem->pNext = pTgt->pNext;
@@ -339,7 +353,8 @@ static void schRemoveMiddle(BbOpDesc_t *pBod)
   else
   {
     /* Linkage is intact. */
-    WSF_ASSERT(pBod->pPrev && pBod->pNext);
+    WSF_ASSERT(pBod->pPrev);
+    WSF_ASSERT(pBod->pNext);
 
     /* Middle element */
     pBod->pPrev->pNext = pBod->pNext;
@@ -368,23 +383,58 @@ static bool_t schRemoveForConflict(BbOpDesc_t *pBod)
 
   bool_t result = FALSE;
 
+#if SCH_TIMER_REQUIRED == FALSE
   if (schCb.pHead == pBod)
   {
-    if (schCb.state == SCH_STATE_EXEC)
+    if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
     {
-      if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
-      {
-        BbCancelBod();
-        schRemoveHead();
-        result = TRUE;
-      }
-    }
-    else
-    {
+      /* Stop timer for canceled BOD. */
+      PalTimerStop();
+
       schRemoveHead();
+
+      if (schCb.pHead)
+      {
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead));
+      }
+      schCb.state = SCH_STATE_IDLE;
       result = TRUE;
     }
   }
+#else
+  if (schCb.pHead == pBod)
+  {
+    if (schCb.state == SCH_STATE_IDLE && (result = SchEnoughTimeToCancel(pBod)) == TRUE)
+    {
+      /* Stop timer for canceled BOD. */
+      PalTimerStop();
+
+      schRemoveHead();
+
+      if (schCb.pHead)
+      {
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead));
+      }
+      result = TRUE;
+    }
+  }
+  else if (schCb.pHead->pNext == pBod && schCb.state == SCH_STATE_EXEC)
+  {
+    if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
+    {
+      /* Stop timer for next BOD. */
+      PalTimerStop();
+
+      schRemoveMiddle(pBod);
+
+      if (schCb.pHead->pNext)
+      {
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead->pNext));
+      }
+      result = TRUE;
+    }
+  }
+#endif
   else
   {
     schRemoveMiddle(pBod);
@@ -447,19 +497,54 @@ static bool_t SchIsBodResolvable(BbOpDesc_t *pItem, BbOpDesc_t *pTgt, BbConflict
 static bool_t SchResolveConflict(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
 {
   bool_t result = FALSE;
+  BbOpDesc_t *pCur = pTgt;
+  int numDeletedBod = 0;
+  BbOpDesc_t *pDeleted[SCH_MAX_DELETE_BOD];
 
-  BbOpDesc_t *pNext = pTgt->pNext;
-  BbOpDesc_t *pPrev = pTgt->pPrev;
+  const uint32_t startRef = SchGetStartRefTime();
 
-  if ((result = schRemoveForConflict(pTgt)) == TRUE)
+  WSF_ASSERT(pTgt);
+  WSF_ASSERT(pItem);
+
+  while (TRUE)
   {
-    if (pNext)
+    if (numDeletedBod == SCH_MAX_DELETE_BOD)
     {
-      schInsertBefore(pItem, pNext);
+      result = FALSE;
+      break;
     }
-    else if (pPrev)
+
+    pDeleted[numDeletedBod++] = pCur;
+
+    if ((pCur->pNext == NULL) ||                                /* pCur is the tail. */
+        (SCH_IS_DONE_BEFORE(pItem, pCur->pNext, startRef)))     /* Only conflict with pCur. */
     {
-      schInsertAfter(pItem, pPrev);
+      /* Remove only 1 conflicting BOD. */
+      result = schRemoveForConflict(pCur);
+      break;
+    }
+    else
+    {
+      /* Remove all conflicting BODs until it fails. */
+      if ((result = schRemoveForConflict(pCur)) == FALSE)
+      {
+        break;
+      }
+    }
+
+    /* Traverse to the next BOD. */
+    pCur = pCur->pNext;
+  }
+
+  if (result == TRUE)
+  {
+    if (pCur->pNext)
+    {
+      schInsertBefore(pItem, pCur->pNext);
+    }
+    else if (pTgt->pPrev)
+    {
+      schInsertAfter(pItem, pTgt->pPrev);
     }
     else
     {
@@ -467,9 +552,13 @@ static bool_t SchResolveConflict(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
       schInsertToEmptyList(pItem);
     }
 
-    if (pTgt->abortCback)
+    /* Call abort callback for all removed BODs. */
+    for (int i = 0; i < numDeletedBod; i++)
     {
-      pTgt->abortCback(pTgt);
+      if (pDeleted[i]->abortCback)
+      {
+        pDeleted[i]->abortCback(pDeleted[i]);
+      }
     }
   }
   else
@@ -478,56 +567,6 @@ static bool_t SchResolveConflict(BbOpDesc_t *pItem, BbOpDesc_t *pTgt)
   }
 
   return result;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Remove background BOD.
- *
- *  \return     None.
- *
- *  \note       Removes the background BOD, usually unconditionally. It will call the BOD's cancel
- *              callback.
- */
-/*************************************************************************************************/
-void SchRemoveBackground(void)
-{
-  if ((schCb.background.pBod != NULL) &&
-      schCb.background.active)
-  {
-    BbCancelBod();
-    schCb.background.active = FALSE;
-  }
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Insert BOD into background slot.
- *
- *  \param      pBod    Element to insert.
- *
- *  \return     None.
- *
- *  Insert this BOD in the background slot.
- */
-/*************************************************************************************************/
-void SchInsertBackground(BbOpDesc_t *pBod)
-{
-  /* Only set if there is no current background or activity in the list */
-  if ((schCb.background.pBod == NULL) &&
-      !schCb.background.active)
-  {
-    /* Mark the BOD as background */
-    schCb.background.pBod = pBod;
-    if (schCb.pHead == NULL)
-    {
-      /* Only start it if there is no other active BOD */
-      BbExecuteBod(pBod);
-      schCb.background.active = TRUE;
-    }
-  }
-  SCH_TRACE_INFO1("++| schInsertBackground  |++ pBod=0x%08x", (uint32_t)pBod);
-  SCH_TRACE_INFO1("++|                      |++     .active=%u", (uint32_t)schCb.background.active);
 }
 
 /*************************************************************************************************/
@@ -548,7 +587,8 @@ static bool_t SchIsConflictResolvable(BbOpDesc_t *pItem, BbOpDesc_t *pTgt, BbCon
   const uint32_t startRef = SchGetStartRefTime();
   BbOpDesc_t *pCur = pTgt;
 
-  WSF_ASSERT(pTgt && pItem);
+  WSF_ASSERT(pTgt)
+  WSF_ASSERT(pItem);
 
   while (TRUE)
   {
@@ -576,6 +616,67 @@ static bool_t SchIsConflictResolvable(BbOpDesc_t *pItem, BbOpDesc_t *pTgt, BbCon
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Try to load or add scheduler timer for inserted item if possible.
+ *
+ *  \param      pBod    Inserted BOD.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+static inline void SchInsertTryLoadBod(BbOpDesc_t *pBod)
+{
+  uint32_t execTimeUsec = schGetTimeToExecBod(pBod);
+
+  WSF_ASSERT(pBod);
+  WSF_ASSERT(schCb.pHead);
+
+  /* If inserted BOD is head. */
+  if (pBod == schCb.pHead)
+  {
+    /* At this moment, head BOD should not be loaded. */
+    WSF_ASSERT(schCb.state == SCH_STATE_IDLE);
+    if (execTimeUsec >= SCH_MIN_TIMER_USEC)
+    {
+      /* If HEAD BOD due time is not close, add scheduler timer to load it in the future.
+       * Always stop existing timer first for simplicity.
+       */
+      PalTimerStop();
+      PalTimerStart(execTimeUsec);
+    }
+    else
+    {
+      /* Send scheduler load event. */
+      SchLoadHandler();
+    }
+  }
+#if SCH_TIMER_REQUIRED == TRUE
+  /* If head is executing and inserted BOD is the second one in the list,
+   * we might need to add scheduler timer or do curtail load.
+   */
+  else if (pBod == schCb.pHead->pNext && schCb.state == SCH_STATE_EXEC)
+  {
+    /* At this moment, head BOD should be in the past.  */
+    WSF_ASSERT(schGetTimeToExecBod(schCb.pHead) == 0);
+
+    if (execTimeUsec >= SCH_MIN_TIMER_USEC)
+    {
+      /* If BOD due time is not close, add scheduler timer to load it in the future.
+       * Always stop existing timer first for simplicity.
+       */
+      PalTimerStop();
+      PalTimerStart(execTimeUsec);
+    }
+    else
+    {
+      /* Send scheduler load event. */
+      SchLoadHandler();
+    }
+  }
+#endif
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Insert item into BOD list at the next available opportunity.
  *
  *  \param      pBod    Element to insert.
@@ -591,18 +692,16 @@ void SchInsertNextAvailable(BbOpDesc_t *pBod)
   SchCheckIsNotInserted(pBod);
 #endif
 
-  SchRemoveBackground();
-
   const uint32_t startRef = SchGetStartRefTime();
 
-  pBod->due = BbDrvGetCurrentTime() + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
+  pBod->due = PalBbGetCurrentTime(USE_RTC_BB_CLK) + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
 
   if (schCb.pHead == NULL)
   {
     schInsertToEmptyList(pBod);
   }
   else if (SCH_IS_DONE_BEFORE(pBod, schCb.pHead, startRef) &&
-           schCancelHead())
+           schCheckCancelHead())
   {
     /* Insert at head */
     WSF_ASSERT(pBod != schCb.pHead);
@@ -633,7 +732,7 @@ void SchInsertNextAvailable(BbOpDesc_t *pBod)
     }
   }
 
-  schLoadNext();
+  SchInsertTryLoadBod(pBod);
 }
 
 /*************************************************************************************************/
@@ -655,8 +754,6 @@ bool_t SchInsertAtDueTime(BbOpDesc_t *pBod, BbConflictAct_t conflictCback)
 #if (SCH_CHECK_LIST_INTEGRITY)
   SchCheckIsNotInserted(pBod);
 #endif
-
-  SchRemoveBackground();
 
   const uint32_t startRef = SchGetStartRefTime();
 
@@ -681,17 +778,18 @@ bool_t SchInsertAtDueTime(BbOpDesc_t *pBod, BbConflictAct_t conflictCback)
     {
       WSF_ASSERT(pBod != pCur);
 
-      if (SCH_IS_DUE_BEFORE(pBod, pCur, startRef))          /* BOD is due before pCur. */
+      if (SCH_IS_DONE_BEFORE(pBod, pCur, startRef))          /* BOD is due and done before pCur(no overlap), try to insert before. */
       {
-        if ((SCH_IS_DONE_BEFORE(pBod, pCur, startRef)) ||                               /* BOD is due and done before pCur, insert before. */
-            ((result = SchIsConflictResolvable(pBod, pCur, conflictCback)) == TRUE))    /* Check priority if due before but done after pCur. */
+        if (pCur == schCb.pHead)
         {
-          schInsertBefore(pBod, pCur);
-          result = TRUE;
+          (void) schCheckCancelHead();
         }
+        /* Insert before head case. */
+        schInsertBefore(pBod, pCur);
+        result = TRUE;
         break;
       }
-      else if (!SCH_IS_DONE_BEFORE(pCur, pBod, startRef))   /* BOD is due during pCur, check priority and resolve BOD. */
+      else if (!SCH_IS_DONE_BEFORE(pCur, pBod, startRef))    /* pCur has overlap with pBod, check priority and resolve BOD. */
       {
         if ((result = SchIsConflictResolvable(pBod, pCur, conflictCback)) == TRUE)
         {
@@ -700,7 +798,7 @@ bool_t SchInsertAtDueTime(BbOpDesc_t *pBod, BbConflictAct_t conflictCback)
         }
         break;
       }
-      else if (pCur->pNext == NULL)                         /* BOD is due after pCur and pCur is tail, insert after. */
+      else if (pCur->pNext == NULL)                          /* BOD is due after pCur and pCur is tail, insert after. */
       {
         schInsertAfter(pBod, pCur);
         result = TRUE;
@@ -712,9 +810,9 @@ bool_t SchInsertAtDueTime(BbOpDesc_t *pBod, BbConflictAct_t conflictCback)
     }
   }
 
-  if (result && (pBod == schCb.pHead))
+  if (result)
   {
-    result = schTryLoadHead();
+    SchInsertTryLoadBod(pBod);
   }
 
   return result;
@@ -742,8 +840,6 @@ bool_t SchInsertEarlyAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
   SchCheckIsNotInserted(pBod);
 #endif
 
-  SchRemoveBackground();
-
   bool_t result = FALSE;
 
   const uint32_t startRef = SchGetStartRefTime();
@@ -751,6 +847,12 @@ bool_t SchInsertEarlyAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
 
   /* Try inserting at minimum interval. */
   pBod->due += min;
+
+  if ((max == SCH_MAX_SPAN) && !schDueTimeInFuture(pBod))
+  {
+    /* With SCH_MAX_SPAN, this function will insert the BOD regardless of the current due. */
+    pBod->due = PalBbGetCurrentTime(USE_RTC_BB_CLK) + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
+  }
 
   if (schDueTimeInFuture(pBod))
   {
@@ -761,7 +863,7 @@ bool_t SchInsertEarlyAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
     }
     else if (SCH_IS_DUE_BEFORE (pBod, schCb.pHead, startRef) &&
              SCH_IS_DONE_BEFORE(pBod, schCb.pHead, startRef) &&
-             schCancelHead())
+             schCheckCancelHead())
     {
       /* Insert at head */
       WSF_ASSERT(pBod != schCb.pHead);
@@ -814,9 +916,9 @@ bool_t SchInsertEarlyAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
     }
   }
 
-  if (result && (pBod == schCb.pHead))
+  if (result)
   {
-    result = schTryLoadHead();
+    SchInsertTryLoadBod(pBod);
   }
 
   if (!result)
@@ -851,8 +953,6 @@ bool_t SchInsertLateAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
 #if (SCH_CHECK_LIST_INTEGRITY)
   SchCheckIsNotInserted(pBod);
 #endif
-
-  SchRemoveBackground();
 
   const uint32_t startRef = SchGetStartRefTime();
   const uint32_t dueOrigin = pBod->due;
@@ -899,7 +999,7 @@ bool_t SchInsertLateAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
 
         if ((nextAvailInter >= min) &&
             (nextAvailInter <= max) &&
-            schCancelHead())
+            schCheckCancelHead())
         {
           /* Insert at head. */
           schInsertBefore(pBod, pCur);
@@ -933,9 +1033,9 @@ bool_t SchInsertLateAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max)
     }
   }
 
-  if (result && (pBod == schCb.pHead))
+  if (result)
   {
-    result = schTryLoadHead();
+    SchInsertTryLoadBod(pBod);
   }
 
   if (!result)
@@ -962,72 +1062,90 @@ bool_t SchRemove(BbOpDesc_t *pBod)
 {
   WSF_ASSERT(pBod);
 
-  if (schCb.pHead == NULL)
+  if (!SchCheckIsInserted(pBod))
   {
+    LL_TRACE_WARN0("No such BOD to remove.");
     return FALSE;
   }
 
   bool_t result = FALSE;
 
+#if SCH_TIMER_REQUIRED == FALSE
   if (schCb.pHead == pBod)
   {
-    if (schCb.state == SCH_STATE_EXEC)
+    if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
     {
-      if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
-      {
-        BbCancelBod();
+      /* Stop timer for canceled BOD. */
+      PalTimerStop();
 
-        /* Call callback after removing from list. */
-        schRemoveHead();
-        schCb.state = SCH_STATE_LOAD;
-        if (pBod->abortCback)
-        {
-          pBod->abortCback(pBod);
-        }
-        schCb.state = SCH_STATE_IDLE;
+      /* Call callback after removing from list. */
+      schRemoveHead();
 
-        result = TRUE;
-      }
-      else
+      if (schCb.pHead)
       {
-        BbSetBodTerminateFlag();
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead));
       }
+
+      schCb.state = SCH_STATE_IDLE;
+      result = TRUE;
     }
     else
     {
-      /* Call callback after removing from list. */
-      schRemoveHead();
-      if (pBod->abortCback)
-      {
-        pBod->abortCback(pBod);
-      }
-
-      result = TRUE;
-    }
-
-    if (result)
-    {
-      schLoadNext();    /* TODO prevent recursion */
+      BbSetBodTerminateFlag();
     }
   }
+#else
+  if (schCb.pHead == pBod)
+  {
+    if (schCb.state == SCH_STATE_IDLE && (result = SchEnoughTimeToCancel(pBod)) == TRUE)
+    {
+      /* Stop timer for canceled BOD. */
+      PalTimerStop();
+
+      /* Call callback after removing from list. */
+      schRemoveHead();
+
+      if (schCb.pHead)
+      {
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead));
+      }
+      result = TRUE;
+    }
+    else
+    {
+      BbSetBodTerminateFlag();
+    }
+  }
+  else if (schCb.pHead->pNext == pBod && schCb.state == SCH_STATE_EXEC)
+  {
+    if ((result = SchEnoughTimeToCancel(pBod)) == TRUE)
+    {
+      /* Stop timer for next BOD. */
+      PalTimerStop();
+
+      schRemoveMiddle(pBod);
+
+      if (schCb.pHead->pNext)
+      {
+        PalTimerStart(schGetTimeToExecBod(schCb.pHead->pNext));
+      }
+      result = TRUE;
+    }
+  }
+#endif
   else
   {
-#if (SCH_CHECK_LIST_INTEGRITY)
-    SchCheckIsInserted(pBod);
-#endif
-
     /* Call callback after removing from list. */
     schRemoveMiddle(pBod);
-    if (pBod->abortCback)
-    {
-      pBod->abortCback(pBod);
-    }
-
     result = TRUE;
   }
 
   if (result)
   {
+    if (pBod->abortCback)
+    {
+      pBod->abortCback(pBod);
+    }
     SCH_TRACE_INFO1("--| SchRemove            |-- pBod=0x%08x", (uint32_t)pBod);
     SCH_TRACE_INFO1("--|                      |--     .due=%u", pBod->due);
   }
@@ -1049,8 +1167,38 @@ bool_t SchRemove(BbOpDesc_t *pBod)
 void SchReload(BbOpDesc_t *pBod)
 {
   if ((schCb.pHead == pBod) &&
-      schCancelHead())
+      schCheckCancelHead())
   {
-    schLoadNext();
+
+    SchInsertTryLoadBod(pBod);
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if BOD can be cancelled.
+ *
+ *  \param      pBod    Element to be cancelled
+ *
+ *  \return     TRUE if BOD can be cancelled, FALSE otherwise.
+ *
+ *  Check if BOD can be cancelled.
+ */
+/*************************************************************************************************/
+bool_t SchIsBodCancellable(BbOpDesc_t *pBod)
+{
+  WSF_ASSERT(pBod);
+
+  bool_t result = FALSE;
+  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
+  const uint32_t delta = pBod->due - curTime;
+
+  /* Checking if bod can be cancelled by the client. */
+  if ((delta >= (uint32_t)(BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs() + SCH_CANCEL_MARGIN_USEC))) &&   /* sufficient time to cancel */
+      (delta < SCH_MAX_SPAN))                                   /* due time has not passed */
+  {
+    result = TRUE;
+  }
+
+  return result;
 }

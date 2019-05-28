@@ -7114,7 +7114,7 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "SDK_14_2",
+            "SDK_15_0",
             "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132_FULL"
@@ -7241,7 +7241,7 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "SDK_14_2",
+            "SDK_15_0",
             "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S140_FULL"
@@ -7285,6 +7285,7 @@
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_add": ["NRFX_RNG_ENABLED=1", "RNG_ENABLED=1", "NRF_QUEUE_ENABLED=1"],
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC"
         }

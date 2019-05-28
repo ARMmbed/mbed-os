@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief BLE baseband PDU filtering interface file.
+ * \file
+ * \brief BLE baseband PDU filtering interface file.
  */
 /*************************************************************************************************/
 
@@ -39,7 +40,7 @@ extern "C" {
 /*! \brief      Check whether a flag is set. */
 #define BB_BLE_PDU_FILT_FLAG_IS_SET(pFilt, flag)   (((pFilt)->flags & BB_BLE_PDU_FILT_FLAG_##flag) != 0)
 
-/*! \brief      Check whether a flag is clear. */
+/*! \brief      Set a flag. */
 #define BB_BLE_PDU_FILT_SET_FLAG(pFilt, flag)        (pFilt)->flags |= BB_BLE_PDU_FILT_FLAG_##flag;
 
 /*! \brief      PDU filtering flags. */

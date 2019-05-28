@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief BLE baseband interface file.
+ * \file
+ * \brief BLE baseband interface file.
  */
 /*************************************************************************************************/
 
@@ -24,7 +25,7 @@
 #define BB_BLE_API_OP_H
 
 #include "bb_api.h"
-#include "bb_ble_drv.h"
+#include "pal_bb_ble.h"
 #include "bb_ble_api_pdufilt.h"
 #include "ll_defs.h"
 
@@ -62,11 +63,19 @@ enum
   BB_BLE_OP_SLV_AUX_ADV_EVENT,      /*!< Slave auxiliary advertising event. */
   BB_BLE_OP_SLV_PER_ADV_EVENT,      /*!< Slave periodic advertising event. */
   BB_BLE_OP_MST_PER_SCAN_EVENT,     /*!< Master periodic scanning event. */
+  BB_BLE_OP_MST_CIS_EVENT,          /*!< Master CIS event. */
+  BB_BLE_OP_SLV_CIS_EVENT,          /*!< Slave CIS event. */
   BB_BLE_OP_NUM                     /*!< Total number of operations. */
 };
 
 /*! \brief      Maximum request PDU length (MAX(LL_SCAN_REQ_PDU_LEN, LL_CONN_IND_PDU_LEN)). */
 #define BB_REQ_PDU_MAX_LEN          (LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN)
+
+/*! \brief      Guard time at the end of a scan window to the next BOD. Backoff one advertise data exchange. */
+#define BB_SCAN_GUARD_US            (LL_ADV_PKT_MAX_USEC  + LL_BLE_TIFS_US + \
+                                     LL_SCAN_REQ_MAX_USEC + LL_BLE_TIFS_US + \
+                                     LL_SCAN_RSP_MAX_USEC + \
+                                     BbGetSchSetupDelayUs())
 
 /**************************************************************************************************
   Data Types
@@ -104,6 +113,15 @@ typedef void (*BbBleTxDataComp_t)(BbOpDesc_t *pBod, uint8_t status);
 
 /*! \brief      Data receive completion callback signature. */
 typedef void (*BbBleRxDataComp_t)(BbOpDesc_t *pBod, uint8_t *pBuf, uint8_t status);
+
+/*! \brief      CIS check whether to continue current operation call signature. */
+typedef uint32_t (*BbBleCisCheckContOp_t)(BbOpDesc_t *pBod, bool_t *pNewCisCtx);
+
+/*! \brief      CIS post execute callback signature. */
+typedef void (*BbBleCisPostExec_t)(BbOpDesc_t *pBod, uint8_t status);
+
+/*! \brief      CIS data receive completion callback signature. */
+typedef void (*BbBleCisRxDataComp_t)(BbOpDesc_t *pBod, uint8_t *pBuf, uint8_t status);
 
 /*! \brief      Test completion callback signature. */
 typedef bool_t (*BbBleTestComp_t)(BbOpDesc_t *pBod, uint8_t status);
@@ -164,6 +182,8 @@ typedef struct
   uint8_t                 txAdvLen;           /*!< Advertising buffer length. */
   uint8_t                 txRspLen;           /*!< Scan response buffer length. */
 
+  uint8_t                 firstAdvChIdx;      /*!< first advertising channel index. */
+
   uint8_t                 advChMap;           /*!< Advertising channel map. */
 
   /* Return parameters. */
@@ -219,10 +239,10 @@ typedef struct
 typedef struct
 {
   /* TODO BbBleSlvAuxAdvEvent_t hide buffer descriptors in BB layer. */
-  BbBleDrvTxBufDesc_t     txAuxAdvPdu[2];     /*!< Advertising PDU descriptor. */
+  PalBbBleTxBufDesc_t     txAuxAdvPdu[2];     /*!< Advertising PDU descriptor. */
   uint8_t                 *pRxAuxReqBuf;      /*!< Auxiliary request buffer (must be size of BB_REQ_PDU_MAX_LEN). */
-  BbBleDrvTxBufDesc_t     txAuxRspPdu[2];     /*!< Response PDU descriptor. */
-  BbBleDrvTxBufDesc_t     txAuxChainPdu[2];   /*!< Auxiliary chain PDU descriptor. */
+  PalBbBleTxBufDesc_t     txAuxRspPdu[2];     /*!< Response PDU descriptor. */
+  PalBbBleTxBufDesc_t     txAuxChainPdu[2];   /*!< Auxiliary chain PDU descriptor. */
 
   BbBleAdvComp_t          rxAuxReqCback;      /*!< Auxiliary request receive completion callback. */
   BbBleAdvPost_t          rxAuxReqPostCback;  /*!< Auxiliary scan/connect request receive post processing callback. */
@@ -266,6 +286,39 @@ typedef struct
   uint8_t                 rxPhyOptions;       /*!< Rx PHY options. */
 } BbBleSlvConnEvent_t;
 
+/*! \brief      CIS master event operation data (\ref BB_BLE_OP_MST_CIS_EVENT). */
+typedef struct
+{
+  BbBleCisCheckContOp_t   checkContOpCback;   /*!< Check whether to continue current operation callback. */
+  BbBleExec_t             execCback;          /*!< Execute callback. */
+  BbBleExec_t             contExecCback;      /*!< Continue execute callback. */
+  BbBleCisPostExec_t      postSubEvtCback;    /*!< Post subevent callback. */
+  BbBleCancel_t           cancelCback;        /*!< Cancel callback. */
+  BbBleTxDataComp_t       txDataCback;        /*!< Transmit completion callback. */
+  BbBleCisRxDataComp_t    rxDataCback;        /*!< Receive completion callback. */
+  /* Return parameters. */
+  int8_t                  rssi;               /*!< RSSI of the last received packet. */
+  uint8_t                 rxPhyOptions;       /*!< Rx PHY options. */
+} BbBleMstCisEvent_t;
+
+/*! \brief      CIS slave event operation data (\ref BB_BLE_OP_SLV_CIS_EVENT). */
+typedef struct
+{
+  BbBleCisCheckContOp_t   checkContOpCback;   /*!< Check whether to continue current operation callback. */
+  BbBleExec_t             execCback;          /*!< Execute callback. */
+  BbBleExec_t             contExecCback;      /*!< Continue execute callback. */
+  BbBleCisPostExec_t      postSubEvtCback;    /*!< Post subevent callback. */
+  BbBleCancel_t           cancelCback;        /*!< Cancel callback. */
+  BbBleTxDataComp_t       txDataCback;        /*!< Transmit completion callback. */
+  BbBleRxDataComp_t       rxDataCback;        /*!< Receive completion callback. */
+
+  /* Return parameters. */
+  uint32_t                startTs;            /*!< Start timestamp of the first received packet. */
+  int8_t                  rssi;               /*!< RSSI of the last received packet. */
+  uint8_t                 rxPhyOptions;       /*!< Rx PHY options. */
+  uint32_t                rxSyncDelayUsec;    /*!< Receive timeout in microseconds. */
+} BbBleSlvCisEvent_t;
+
 /*! \brief      Continuous transmit operation data (\ref BB_BLE_OP_TEST_TX). */
 typedef struct
 {
@@ -289,7 +342,7 @@ typedef struct
 /*! \brief      Bluetooth Low Energy protocol specific operation parameters. */
 typedef struct BbBleData_tag
 {
-  BbBleDrvChan_t          chan;               /*!< Channelization parameters. */
+  PalBbBleChan_t          chan;               /*!< Channelization parameters. */
   bbBlePduFiltParams_t    pduFilt;            /*!< PDU filter parameters. */
 
   union
@@ -300,8 +353,10 @@ typedef struct BbBleData_tag
     BbBleSlvAuxAdvEvent_t slvAuxAdv;          /*!< Slave auxiliary advertising event data. */
     BbBleSlvAuxAdvEvent_t slvPerAdv;          /*!< Slave periodic advertising event data. */
     BbBleMstConnEvent_t   mstConn;            /*!< Master connection event data. */
-    BbBleMstPerScanEvent_t mstPerScan;        /*!< Master periodic scanning event data. */
     BbBleSlvConnEvent_t   slvConn;            /*!< Slave connection event data. */
+    BbBleMstPerScanEvent_t mstPerScan;        /*!< Master periodic scanning event data. */
+    BbBleMstCisEvent_t    mstCis;             /*!< Master CIS event data. */
+    BbBleSlvCisEvent_t    slvCis;             /*!< Slave CIS event data. */
     BbBleTestTx_t         testTx;             /*!< Transmit test data. */
     BbBleTestRx_t         testRx;             /*!< Receive test data. */
   } op;                                       /*!< Operation specific data. */
@@ -324,7 +379,7 @@ typedef struct BbBleData_tag
  *              \ref BbBleSlvConnEvent_t::rxDataCback callback routine.
  */
 /*************************************************************************************************/
-void BbBleTxData(BbBleDrvTxBufDesc_t descs[], uint8_t cnt);
+void BbBleTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt);
 
 /*************************************************************************************************/
 /*!
@@ -344,6 +399,39 @@ void BbBleTxData(BbBleDrvTxBufDesc_t descs[], uint8_t cnt);
 /*************************************************************************************************/
 void BbBleRxData(uint8_t *pBuf, uint16_t len);
 
+/*************************************************************************************************/
+/*!
+ *  \brief      Transmit CIS PDU at next transmit slot.
+ *
+ *  \param      descs       Array of transmit buffer descriptor.
+ *  \param      cnt         Number of descriptors.
+ *
+ *  \return     None.
+ *
+ *  \note       This function is expected to be called during the call context of
+ *              \ref BbBleMstCisEvent_t::rxDataCback or \ref BbBleSlvCisEvent_t::rxDataCback
+ *              callback routine.
+ */
+/*************************************************************************************************/
+void BbBleCisTxData(PalBbBleTxBufDesc_t descs[], uint8_t cnt);
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set receive data buffer for next receive slot.
+ *
+ *  \param      pBuf        Receive data buffer.
+ *  \param      len         Maximum length of data buffer.
+ *
+ *  \return     None.
+ *
+ *  \note       This function is expected to be called during the call context of
+ *              \ref BbBleSlvCisEvent_t::rxDataCback callback routine.
+ *
+ *  \note       BB must always call the BbBleSlvCisEvent_t::rxDataCback callback routine of the
+ *              currently executing BOD with the given buffer.
+ */
+/*************************************************************************************************/
+void BbBleCisRxData(uint8_t *pBuf, uint16_t len);
 /*! \} */    /* BB_API_BLE */
 
 #ifdef __cplusplus

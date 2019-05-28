@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave parameter interface implementation file.
+ * \file
+ * \brief Link layer (LL) slave parameter interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -24,12 +25,15 @@
 #include "lmgr_api_adv_slave.h"
 #include "lctr_api_adv_slave.h"
 #include "bb_ble_api.h"
+#include "pal_bb_ble.h"
+#include "pal_radio.h"
 #include "bb_ble_api_op.h"
 #include "util/bstream.h"
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
+#include "bb_ble_api_reslist.h"
 #include <string.h>
 
 /*************************************************************************************************/
@@ -66,11 +70,12 @@ uint8_t LlGetAdvTxPower(int8_t *pAdvTxPwr)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   WSF_ASSERT(pAdvTxPwr);
-  *pAdvTxPwr = BbBleRfGetActualTxPower(lmgrCb.advTxPwr, FALSE);
+  *pAdvTxPwr = PalRadioGetActualTxPower(lmgrCb.advTxPwr, FALSE);
 
   LL_TRACE_INFO1("### LlApi ###  LlGetAdvTxPower, advTxPwr=%d", *pAdvTxPwr);
 
@@ -113,6 +118,7 @@ uint8_t LlSetAdvParam(uint16_t advIntervalMin, uint16_t advIntervalMax, uint8_t 
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -181,6 +187,7 @@ uint8_t LlSetAdvData(uint8_t len, const uint8_t *pData)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -219,11 +226,13 @@ uint8_t LlSetScanRespData(uint8_t len, const uint8_t *pData)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   if (len > sizeof(lmgrSlvAdvCb.scanRspData.buf))
   {
+    LL_TRACE_WARN2("Invalid scan response buffer size, len=%u, maxLen=%u", len, sizeof(lmgrSlvAdvCb.scanRspData.buf));
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
 
@@ -256,6 +265,7 @@ void LlAdvEnable(uint8_t enable)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     LmgrSendAdvEnableCnf(LL_ERROR_CODE_CMD_DISALLOWED);
     return;
   }
@@ -276,8 +286,23 @@ void LlAdvEnable(uint8_t enable)
       break;
   }
   if ((LL_API_PARAM_CHECK == 1) &&
+      (enable == TRUE) &&
       !LmgrIsAddressTypeAvailable(lmgrSlvAdvCb.advParam.ownAddrType))
   {
+    if (lmgrSlvAdvCb.advParam.advType == LL_ADDR_RANDOM_IDENTITY)
+    {
+      if (bbBleIsPeerInResList(lmgrSlvAdvCb.advParam.peerAddrType, lmgrSlvAdvCb.advParam.peerAddr))
+      {
+        if ((pMsg = WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+        {
+          pMsg->dispId = LCTR_DISP_ADV;
+          pMsg->event = LCTR_ADV_MSG_START;
+
+          WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+          return;
+        }
+      }
+    }
     LL_TRACE_WARN1("Address type invalid or not available, ownAddrType=%u", lmgrSlvAdvCb.advParam.ownAddrType);
     LmgrSendAdvEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
     return;

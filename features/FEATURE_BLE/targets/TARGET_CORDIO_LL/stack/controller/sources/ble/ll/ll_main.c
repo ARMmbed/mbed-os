@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,22 +16,48 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave parameter interface implementation file.
+ * \file
+ * \brief Link layer (LL) slave parameter interface implementation file.
  */
 /*************************************************************************************************/
 
 #include "ll_api.h"
 #include "ll_math.h"
 #include "lctr_api.h"
+#include "lctr_api_conn.h"
+#include "lctr_api_adv_slave_ae.h"
+#include "lctr_api_adv_master_ae.h"
+#include "lctr_api_adv_master.h"
+#include "lctr_api_init_master.h"
+#include "lctr_api_init_master_ae.h"
+#include "lmgr_api_adv_slave.h"
 #include "lmgr_api.h"
 #include "bb_ble_api.h"
 #include "bb_ble_api_whitelist.h"
-#include "bb_ble_drv.h"
+#include "pal_bb_ble.h"
+#include "pal_radio.h"
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_trace.h"
+#include "wsf_msg.h"
 #include "util/bstream.h"
 #include <string.h>
+
+/*************************************************************************************************
+ Globals
+*************************************************************************************************/
+
+/*! \brief      Check if periodic adv is enabled (ae functionality). */
+LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled; /*!< Lctr Per Adv Enabled check function (defined if AE supported). */
+
+/*! \brief      Check if periodic adv is enabled (ae functionality). */
+LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled; /*!< Lctr Per Adv Enabled check function (defined if AE supported). */
+
+/*! \brief      Check is Ext Scan is enabled (ae functionality). */
+LctrExtCheckFn_t LctrMstExtScanEnabled;
+
+/*! \brief      Check is Ext Init is enabled (ae functionality). */
+LctrExtCheckFn_t LctrMstExtInitEnabled;
 
 /*************************************************************************************************/
 /*!
@@ -96,9 +122,55 @@ uint8_t LlSetRandAddr(const uint8_t *pAddr)
 
   WSF_ASSERT(pAddr);
 
-  if (lmgrCb.advEnabled || lmgrCb.numScanEnabled || lmgrCb.numInitEnabled)
+  /* Legacy Advertising */
+  if ((lmgrCb.advEnabled &&
+    ((lmgrSlvAdvCb.advParam.ownAddrType & 0x01))))
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  /* Scanning. */
+  if (lmgrCb.numScanEnabled)
+  {
+    /* Legacy Scanning. */
+    if (LctrMstScanIsEnabled())
+    {
+      return LL_ERROR_CODE_CMD_DISALLOWED;
+    }
+
+    /* Extended Scanning. */
+    if (LctrMstExtScanEnabled)
+    {
+      for (int scanPhy = 0; scanPhy < LCTR_SCAN_PHY_TOTAL; scanPhy++)
+      {
+        if (LctrMstExtScanEnabled(scanPhy))
+        {
+          return LL_ERROR_CODE_CMD_DISALLOWED;
+        }
+      }
+    }
+  }
+
+  /* Initiating */
+  if (lmgrCb.numInitEnabled)
+  {
+    /* Legacy init. */
+    if (LctrMstInitIsEnabled())
+    {
+      return LL_ERROR_CODE_CMD_DISALLOWED;
+    }
+
+    /* Extended Initiating */
+    if (LctrMstExtInitEnabled)
+    {
+      for (int scanPhy = 0; scanPhy < LCTR_SCAN_PHY_TOTAL; scanPhy++)
+      {
+        if (LctrMstExtInitEnabled(scanPhy))
+        {
+          return LL_ERROR_CODE_CMD_DISALLOWED;
+        }
+      }
+    }
   }
 
   uint64_t bdAddr;
@@ -271,11 +343,17 @@ uint8_t LlSetOpFlags(uint32_t flags, bool_t enable)
     LL_OP_MODE_FLAG_ENA_LEN_LLCP_STARTUP |
     LL_OP_MODE_FLAG_ENA_FEAT_LLCP_STARTUP |
     LL_OP_MODE_FLAG_SLV_DELAY_LLCP_STARTUP |
+    LL_OP_MODE_FLAG_ENA_MST_CIS_NULL_PDU |
     LL_OP_MODE_FLAG_ENA_ADV_DLY |
     LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF |
     LL_OP_MODE_FLAG_ENA_WW |
     LL_OP_MODE_FLAG_ENA_SLV_LATENCY |
-    LL_OP_MODE_FLAG_ENA_LLCP_TIMER;
+    LL_OP_MODE_FLAG_ENA_SLV_LATENCY_WAKEUP |
+    LL_OP_MODE_FLAG_ENA_SLV_AUX_SCAN_RSP_ADI |
+    LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA |
+    LL_OP_MODE_FLAG_ENA_ADV_CHAN_RAND |
+    LL_OP_MODE_FLAG_ENA_LLCP_TIMER |
+    LL_OP_MODE_FLAG_IGNORE_CRC_ERR_TS;
 
   LL_TRACE_INFO2("### LlApi ###  LlSetOpFlags flag=%x enable=%d", flags, enable);
 
@@ -457,7 +535,7 @@ uint8_t LlGetRandNum(uint8_t *pRandNum)
   LL_TRACE_INFO0("### LlApi ###  LlGetRandNum");
 
   /* Return 8 bytes of random data. */
-  BbBleDrvRand(pRandNum, sizeof(uint64_t) / sizeof(uint8_t));
+  PalCryptoGenerateRandomNumber(pRandNum, sizeof(uint64_t) / sizeof(uint8_t));
 
   return LL_SUCCESS;
 }
@@ -478,7 +556,7 @@ void LlReadSupTxPower(int8_t *pMinTxPwr, int8_t *pMaxTxPwr)
 {
   WSF_ASSERT(pMinTxPwr && pMaxTxPwr);
 
-  BbBleRfGetSupTxPower(pMinTxPwr, pMaxTxPwr);
+  PalRadioGetSupTxPower(pMinTxPwr, pMaxTxPwr);
 }
 
 /*************************************************************************************************/
@@ -498,7 +576,7 @@ void LlReadRfPathComp(int16_t *pTxPathComp, int16_t *pRxPathComp)
   LL_TRACE_INFO0("### LlApi ###  LlReadRfPathComp");
 
   WSF_ASSERT(pTxPathComp && pRxPathComp);
-  BbBleRfReadRfPathComp(pTxPathComp, pRxPathComp);
+  PalRadioReadRfPathComp(pTxPathComp, pRxPathComp);
 }
 
 /*************************************************************************************************/
@@ -518,10 +596,106 @@ uint8_t LlWriteRfPathComp(int16_t txPathComp, int16_t rxPathComp)
 {
   LL_TRACE_INFO0("### LlApi ###  LlWriteRfPathComp");
 
-  if (!BbBleRfWriteRfPathComp(txPathComp, rxPathComp))
+  if (!PalRadioWriteRfPathComp(txPathComp, rxPathComp))
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
   }
 
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set channel class.
+ *
+ *  \param      pChanMap        Channel map (0=bad, 1=usable).
+ *
+ *  \return     Status error code.
+ *
+ *  Set the channel class. At least 2 bits must be set.
+ */
+/*************************************************************************************************/
+uint8_t LlSetChannelClass(const uint8_t *pChanMap)
+{
+  lctrChanMapUpdate_t *pMsg;
+  uint64_t chanMap;
+  uint16_t handle;
+
+  LL_TRACE_INFO0("### LlApi ###  LlSetChannelClass");
+
+  BSTREAM_TO_UINT40(chanMap, pChanMap);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((LlMathGetNumBitsSet(chanMap) < 2) ||
+       ((chanMap & ~LL_CHAN_DATA_ALL) != 0)))
+  {
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  lmgrCb.chanClass = chanMap;
+
+  /* Update for connections */
+  for (handle = 0; handle < pLctrRtCfg->maxConn; handle++)
+  {
+    if ((LctrIsConnHandleEnabled(handle)) &&
+        (LctrGetRole(handle) == LL_ROLE_MASTER))
+    {
+      if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CHAN_MAP_UPDATE) == TRUE)
+      {
+        return LL_ERROR_CODE_CMD_DISALLOWED;
+      }
+
+      if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+      {
+        pMsg->hdr.handle = handle;
+        pMsg->hdr.dispId = LCTR_DISP_CONN;
+        pMsg->hdr.event  = LCTR_CONN_MSG_API_CHAN_MAP_UPDATE;
+
+        pMsg->chanMap = chanMap;
+
+        WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+      }
+    }
+  }
+
+  /* If periodic advertising is not included, return here. */
+  if (LctrPerAdvEnabled)
+  {
+    /* Update for periodic adv sets */
+    for(uint8_t perAdvHandle = 0; perAdvHandle < pLctrRtCfg->maxAdvSets; perAdvHandle++)
+    {
+      if (LctrPerAdvEnabled(perAdvHandle) == TRUE)
+      {
+        if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+        {
+          pMsg->hdr.handle = (uint16_t) perAdvHandle;
+          pMsg->hdr.dispId = LCTR_DISP_ACAD;
+          pMsg->hdr.event  = LCTR_ACAD_MSG_CHAN_UPDATE;
+          pMsg->chanMap = chanMap;
+
+          WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+        }
+      }
+    }
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set Hci supported command
+ *
+ *  \param      byte            Byte location of command
+ *  \param      bit             Bit location of command
+ *  \param      enable          Enable or disable command
+ *
+ *  \return     Status error code
+ *
+ */
+/*************************************************************************************************/
+uint8_t LlSetHciSupCmd(uint8_t byte, uint8_t bit, bool_t enable)
+{
+  lmgrCb.hciSupCommands[byte] = ((lmgrCb.hciSupCommands[byte] & ~(1 << bit)) | ((uint8_t) enable << bit));
   return LL_SUCCESS;
 }

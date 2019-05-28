@@ -28,8 +28,6 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
-#define PORT_SHIFT 3
-
 typedef enum {
     // nRF52 pin names
     p0 = 0,

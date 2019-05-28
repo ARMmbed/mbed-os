@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master encryption packet implementation file.
+ * \file
+ * \brief Link layer controller master encryption packet implementation file.
  */
 /*************************************************************************************************/
 
@@ -101,7 +102,7 @@ uint8_t lctrDecodeEncPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role)
       }
       if (lctrUnpackEncReqPdu(&pPdu->pld.encReq, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_ENC_RSP:
@@ -111,7 +112,7 @@ uint8_t lctrDecodeEncPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role)
       }
       if (lctrUnpackEncRspPdu(&pPdu->pld.encRsp, pBuf) != pPdu->hdr.len)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_START_ENC_REQ:
@@ -121,7 +122,7 @@ uint8_t lctrDecodeEncPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role)
       }
       if ( pPdu->hdr.len != LL_START_ENC_LEN)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_PAUSE_ENC_REQ:
@@ -131,19 +132,19 @@ uint8_t lctrDecodeEncPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role)
       }
       if ( pPdu->hdr.len != LL_PAUSE_ENC_LEN)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_START_ENC_RSP:
       if ( pPdu->hdr.len != LL_START_ENC_LEN)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_PAUSE_ENC_RSP:
       if ( pPdu->hdr.len != LL_PAUSE_ENC_LEN)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     case LL_PDU_PING_REQ:
@@ -154,7 +155,7 @@ uint8_t lctrDecodeEncPdu(lctrDataPdu_t *pPdu, const uint8_t *pBuf, uint8_t role)
       }
       if ( pPdu->hdr.len != LL_PING_PDU_LEN)
       {
-        return LL_ERROR_CODE_INVALID_LMP_PARAMS;
+        return LL_ERROR_CODE_UNKNOWN_LMP_PDU;
       }
       break;
     default:

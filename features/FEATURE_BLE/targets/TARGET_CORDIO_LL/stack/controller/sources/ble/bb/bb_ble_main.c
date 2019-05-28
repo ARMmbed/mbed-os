@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,14 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Generic BLE baseband driver implementation file.
+ * \file
+ * \brief Generic BLE baseband driver implementation file.
  */
 /*************************************************************************************************/
 
 #include "bb_api.h"
 #include "bb_ble_int.h"
-#include "bb_ble_drv.h"
+#include "pal_bb_ble.h"
 #include <string.h>
 
 /**************************************************************************************************
@@ -44,8 +45,8 @@ bbBleCtrlBlk_t bbBleCb;               /*!< BB BLE control block. */
 /*************************************************************************************************/
 static void bbBleStartBle(void)
 {
-  BbBleDrvEnable();
-  BbBleDrvEnableDataWhitening(TRUE);
+  PalBbBleEnable();
+  PalBbBleEnableDataWhitening(TRUE);
 }
 
 /*************************************************************************************************/
@@ -57,7 +58,7 @@ static void bbBleStartBle(void)
 /*************************************************************************************************/
 static void bbBleStopBle(void)
 {
-  BbBleDrvDisable();
+  PalBbBleDisable();
 }
 
 /*************************************************************************************************/
@@ -69,8 +70,8 @@ static void bbBleStopBle(void)
 /*************************************************************************************************/
 static void bbBleStartBleDtm(void)
 {
-  BbBleDrvEnable();
-  BbBleDrvEnableDataWhitening(FALSE);
+  PalBbBleEnable();
+  PalBbBleEnableDataWhitening(FALSE);
 }
 
 /*************************************************************************************************/
@@ -82,9 +83,9 @@ static void bbBleStartBleDtm(void)
 /*************************************************************************************************/
 static void bbBleStartPrbs15(void)
 {
-  BbBleDrvEnable();
-  BbBleDrvEnableDataWhitening(FALSE);
-  BbBleDrvEnablePrbs15(TRUE);
+  PalBbBleEnable();
+  PalBbBleEnableDataWhitening(FALSE);
+  PalBbBleEnablePrbs15(TRUE);
 }
 
 /*************************************************************************************************/
@@ -96,8 +97,8 @@ static void bbBleStartPrbs15(void)
 /*************************************************************************************************/
 static void bbBleStopPrbs15(void)
 {
-  BbBleDrvDisable();
-  BbBleDrvEnablePrbs15(FALSE);
+  PalBbBleDisable();
+  PalBbBleEnablePrbs15(FALSE);
 }
 
 /*************************************************************************************************/
@@ -152,7 +153,7 @@ static void bbBleCancelOp(BbOpDesc_t *pBod)
 /*************************************************************************************************/
 void BbBleInit(void)
 {
-  BbBleDrvInit();
+  PalBbBleInit();
   BbRegisterProt(BB_PROT_BLE,     bbBleExecOp, bbBleCancelOp, bbBleStartBle,    bbBleStopBle);
   BbRegisterProt(BB_PROT_BLE_DTM, bbBleExecOp, bbBleCancelOp, bbBleStartBleDtm, bbBleStopBle);
   BbRegisterProt(BB_PROT_PRBS15,  NULL,        bbBleCancelOp, bbBleStartPrbs15, bbBleStopPrbs15);

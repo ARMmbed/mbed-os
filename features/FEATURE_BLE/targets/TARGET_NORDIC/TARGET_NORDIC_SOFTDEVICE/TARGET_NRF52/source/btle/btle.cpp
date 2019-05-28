@@ -334,7 +334,6 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 
 
 #if  (NRF_SD_BLE_API_VERSION >= 5)
-#ifndef S140
         // Handle PHY upgrade request
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST: {
             gap.on_phy_update_request(
@@ -428,7 +427,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
             }
             break;
         }
-#endif
+
         case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
             Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
             const ble_gap_evt_conn_param_update_request_t *update_request =

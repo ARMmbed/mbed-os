@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Extended scanning master BLE baseband porting implementation file.
+ * \file
+ * \brief Extended scanning master BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
@@ -83,7 +84,7 @@ static void bbMstAuxScanTxCompCback(uint8_t status)
           BB_ISR_MARK(bbAuxScanStats.rxSetupUsec);
 
           bbBleClrIfs();      /* Prepare for SCAN_OR_CONN_RSP */
-          BbBleDrvRxTifsData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
+          PalBbBleRxTifsData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
 
           break;
         }
@@ -175,10 +176,10 @@ static void bbMstAuxScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
 
               BB_ISR_MARK(bbAuxScanStats.txSetupUsec);
 
-              BbBleDrvTxBufDesc_t desc = {.pBuf = pAuxScan->pTxAuxReqBuf, .len = pAuxScan->txAuxReqLen};
+              PalBbBleTxBufDesc_t desc = {.pBuf = pAuxScan->pTxAuxReqBuf, .len = pAuxScan->txAuxReqLen};
 
               bbBleSetIfs();
-              BbBleDrvTxTifsData(&desc, 1);
+              PalBbBleTxTifsData(&desc, 1);
             }
           }
           else if ((pAuxScan->rxAuxChainCback) &&
@@ -189,16 +190,16 @@ static void bbMstAuxScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
             bbBleCb.evtState = BB_EVT_STATE_RX_CHAIN_IND;
 
             /* Cancel Tifs operation is needed for passive scan and non connectable/scannable adv with chain. */
-            BbBleDrvCancelTifs();
+            PalBbBleCancelTifs();
 
-            BbBleDrvSetChannelParam(&pBle->chan);
+            PalBbBleSetChannelParam(&pBle->chan);
             bbBleCb.bbParam.due = timestamp + BB_US_TO_BB_TICKS(auxOffsetUsec);
-            BbBleDrvSetDataParams(&bbBleCb.bbParam);
+            PalBbBleSetDataParams(&bbBleCb.bbParam);
 
             BB_ISR_MARK(bbAuxScanStats.rxSetupUsec);
 
             bbBleClrIfs();        /* CHAIN_IND does not use TIFS. */
-            BbBleDrvRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
+            PalBbBleRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
 
             WSF_ASSERT(pAuxScan->rxAuxChainPostCback);
             if (pAuxScan->rxAuxChainPostCback(pCur, bbAuxAdvBuf) == FALSE)
@@ -269,14 +270,14 @@ static void bbMstAuxScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
           if ((pAuxScan->rxAuxChainCback) &&
               ((auxOffsetUsec = pAuxScan->rxAuxChainCback(pCur, bbAuxAdvBuf)) > 0))
           {
-            BbBleDrvSetChannelParam(&pBle->chan);
+            PalBbBleSetChannelParam(&pBle->chan);
             bbBleCb.bbParam.due = timestamp + BB_US_TO_BB_TICKS(auxOffsetUsec);
-            BbBleDrvSetDataParams(&bbBleCb.bbParam);
+            PalBbBleSetDataParams(&bbBleCb.bbParam);
 
             BB_ISR_MARK(bbAuxScanStats.rxSetupUsec);
 
             bbBleClrIfs();        /* CHAIN_IND does not use TIFS. */
-            BbBleDrvRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
+            PalBbBleRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
 
             WSF_ASSERT(pAuxScan->rxAuxChainPostCback);
             if (pAuxScan->rxAuxChainPostCback(pCur, bbAuxAdvBuf) == FALSE)
@@ -342,14 +343,14 @@ static void bbMstAuxScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
           uint32_t auxOffsetUsec;
           if ((auxOffsetUsec = pAuxScan->rxAuxChainCback(pCur, bbAuxAdvBuf)) > 0)
           {
-            BbBleDrvSetChannelParam(&pBle->chan);
+            PalBbBleSetChannelParam(&pBle->chan);
             bbBleCb.bbParam.due = timestamp + BB_US_TO_BB_TICKS(auxOffsetUsec);
-            BbBleDrvSetDataParams(&bbBleCb.bbParam);
+            PalBbBleSetDataParams(&bbBleCb.bbParam);
 
             BB_ISR_MARK(bbAuxScanStats.rxSetupUsec);
 
             bbBleClrIfs();        /* CHAIN_IND does not use TIFS. */
-            BbBleDrvRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
+            PalBbBleRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
 
             WSF_ASSERT(pAuxScan->rxAuxChainPostCback);
             if (pAuxScan->rxAuxChainPostCback(pCur, bbAuxAdvBuf) == FALSE)
@@ -421,7 +422,7 @@ static void bbMstAuxScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -452,14 +453,14 @@ static void bbMstExecuteAuxScanOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
   BbBleMstAuxAdvEvent_t * const pAuxScan = &pBod->prot.pBle->op.mstAuxAdv;
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.txCback       = bbMstAuxScanTxCompCback;
   bbBleCb.bbParam.rxCback       = bbMstAuxScanRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = pAuxScan->rxSyncDelayUsec;
   bbBleCb.bbParam.due           = pBod->due;
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = 0;
 
@@ -471,7 +472,7 @@ static void bbMstExecuteAuxScanOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   {
     bbBleClrIfs();    /* passive scan */
   }
-  BbBleDrvRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
+  PalBbBleRxData(bbAuxAdvBuf, sizeof(bbAuxAdvBuf));
 }
 
 /*************************************************************************************************/
@@ -524,13 +525,13 @@ static void bbMstPerScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
 
           if ((auxOffsetUsec = pPerScan->rxPerAdvCback(pCur, bbPerScanBuf, status)) > 0)
           {
-            BbBleDrvSetChannelParam(&pBle->chan);
+            PalBbBleSetChannelParam(&pBle->chan);
             bbBleCb.bbParam.due = timestamp + BB_US_TO_BB_TICKS(auxOffsetUsec);
-            BbBleDrvSetDataParams(&bbBleCb.bbParam);
+            PalBbBleSetDataParams(&bbBleCb.bbParam);
             BB_ISR_MARK(bbPerScanStats.rxSetupUsec);
 
             bbBleClrIfs();        /* SYNC_IND does not use TIFS. */
-            BbBleDrvRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
+            PalBbBleRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
 
             if (pPerScan->rxPerAdvPostCback(pCur, bbAuxAdvBuf) == FALSE)
             {
@@ -594,14 +595,14 @@ static void bbMstPerScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
           if ((auxOffsetUsec = pPerScan->rxPerAdvCback(pCur, bbPerScanBuf, status)) > 0)
           {
             /* Continue BOD with the CHAIN_IND and adjust the channel parameters. */
-            BbBleDrvSetChannelParam(&pBle->chan);
+            PalBbBleSetChannelParam(&pBle->chan);
             bbBleCb.bbParam.due = timestamp + BB_US_TO_BB_TICKS(auxOffsetUsec);
-            BbBleDrvSetDataParams(&bbBleCb.bbParam);
+            PalBbBleSetDataParams(&bbBleCb.bbParam);
 
             BB_ISR_MARK(bbPerScanStats.rxSetupUsec);
 
             bbBleClrIfs();        /* SYNC_IND does not use TIFS. */
-            BbBleDrvRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
+            PalBbBleRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
 
             if (pPerScan->rxPerAdvPostCback(pCur, bbAuxAdvBuf) == FALSE)
             {
@@ -665,7 +666,7 @@ static void bbMstPerScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, u
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -696,19 +697,19 @@ static void bbMstExecutePerScanOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
   BbBleMstPerScanEvent_t * const pPerScan = &pBod->prot.pBle->op.mstPerScan;
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.rxCback       = bbMstPerScanRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = pPerScan->rxSyncDelayUsec;
   bbBleCb.bbParam.due           = pBod->due;
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = 0;
 
   bbBleClrIfs();    /* passive scan */
 
-  BbBleDrvRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
+  PalBbBleRxData(bbPerScanBuf, sizeof(bbPerScanBuf));
 }
 
 /*************************************************************************************************/

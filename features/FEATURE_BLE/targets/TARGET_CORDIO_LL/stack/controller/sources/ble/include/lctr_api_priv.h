@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller privacy interface file.
+ * \file
+ * \brief Link layer controller privacy interface file.
  */
 /*************************************************************************************************/
 
@@ -39,10 +40,11 @@ extern "C" {
   Constants
 **************************************************************************************************/
 
-/*! \brief      Slave advertising task messages for \a LCTR_DISP_ADV dispatcher. */
+/*! \brief      Slave advertising task messages for \a LCTR_DISP_PRIV dispatcher. */
 enum
 {
   /* Privacy events */
+  LCTR_PRIV_MSG_RESET,                  /*!< HCI reset event. */
   LCTR_PRIV_MSG_RES_PRIV_ADDR_TIMEOUT,  /*!< Resolvable private address timeout event. */
   LCTR_PRIV_MSG_ADDR_RES_NEEDED         /*!< Address resolution needed. */
 };

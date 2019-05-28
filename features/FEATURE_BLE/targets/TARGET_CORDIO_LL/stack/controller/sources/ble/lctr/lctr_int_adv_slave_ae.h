@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller slave extended advertising interface file.
+ * \file
+ * \brief Internal link layer controller slave extended advertising interface file.
  */
 /*************************************************************************************************/
 
 #ifndef LCTR_INT_ADV_SLAVE_AE_H
 #define LCTR_INT_ADV_SLAVE_AE_H
 
+#include "lctr_int_adv_ae.h"
 #include "lctr_int.h"
 #include "lctr_api_adv_slave_ae.h"
 #include "lmgr_api_adv_slave_ae.h"
@@ -58,7 +60,10 @@ extern "C" {
 #define LCTR_COMP_EXT_ADV_DATA_MAX_LEN  251         /* TODO: cfg_mac_ble.h configuration */
 
 /*! \brief      Resolve the extended advertising index from the context pointer. */
-#define LCTR_GET_EXT_ADV_INDEX(pAdvSet)  (pAdvSet - &pLctrAdvSetTbl[0])
+#define LCTR_GET_EXT_ADV_INDEX(pAdvSet)   (pAdvSet - &pLctrAdvSetTbl[0])
+
+/*! \brief      Get reservation manager handle for periodic ADV from the context pointer. */
+#define LCTR_GET_PER_RM_HANDLE(pAdvSet)   (LL_MAX_CONN + LCTR_GET_EXT_ADV_INDEX(pAdvSet))
 
 /**************************************************************************************************
   Constants
@@ -104,6 +109,7 @@ typedef struct
   uint8_t       priAdvPhy;          /*!< Primary Advertising PHY. */
   uint8_t       secAdvMaxSkip;      /*!< Secondary Advertising Maximum Skip. */
   uint8_t       secAdvPhy;          /*!< Secondary Advertising PHY. */
+  uint16_t      advDID;             /*!< Advertising Data ID. */
   uint8_t       advSID;             /*!< Advertising SID. */
   uint8_t       scanReqNotifEna;    /*!< Scan Request Notification Enable. */
 } lctrExtAdvParam_t;
@@ -131,13 +137,13 @@ typedef struct
   bool_t        advParamReady;      /*!< Periodic Advertising Parameter is ready or not. */
 
   /* Channel parameters */
-  lctrChanParam_t   perChanParam;   /*!< Periodic Advertising Channel parameter. */
+  lmgrChanParam_t   perChanParam;   /*!< Periodic Advertising Channel parameter. */
+  uint64_t          updChanMask;    /*!< Last updated channel mask */
 } lctrPerAdvParam_t;
 
 /*! \brief      Advertising data buffer descriptor. */
 typedef struct
 {
-  uint16_t    did;              /*!< Advertising Data ID. */
   uint16_t    len;              /*!< Advertising data length. */
   uint8_t     *pBuf;            /*!< Advertising data buffer. */
   bool_t      ready;            /*!< Advertising data buffer complete. */
@@ -183,6 +189,9 @@ typedef struct
   lctrExtAdvParam_t param;      /*!< Extended advertising parameters. */
   uint32_t    auxDelayUsec;     /*!< Auxiliary advertising event delay. */
   uint8_t     advDataFragLen;   /*!< Advertising data fragmentation length. */
+
+  /* Acad control block */
+  lctrAcadParam_t acadParams[LCTR_ACAD_NUM_ID];  /*!< Acad parameters. */
 
   /* Periodic advertising parameters */
   lctrPerAdvParam_t perParam;   /*!< Periodic advertising parameters. */
@@ -230,6 +239,8 @@ typedef struct
   uint32_t    auxOffsUsec;      /*!< Offset in microseconds to the next auxiliary PDU. */
   uint8_t     auxChIdx;         /*!< AUX LL Channel. */
   bool_t      auxBodUsed;       /*!< Auxiliary BOD in use flag. */
+  bool_t      didPerUpdate;     /*!< Data ID update due to periodic enable or disable. */
+  bool_t      advBodAbort;      /*!< TRUE if extended advertising BOD is aborted. */
   lctrAdvbPduHdr_t  rspPduHdr;  /*!< Response PDU header. */
 } lctrAdvSet_t;
 
@@ -254,6 +265,7 @@ extern LctrPerAdvMsg_t *pLctrSlvPerAdvMsg;
 
 /* Context */
 void lctrFreeAdvSet(lctrAdvSet_t *pAdvSet);
+lctrAdvSet_t *lctrFindAdvSet(uint8_t handle);
 
 /* Address selection */
 void lctrChooseSetAdvA(lctrAdvbPduHdr_t *pPduHdr, BbBleData_t * const pBle, lctrAdvSet_t *pAdvSet);
@@ -282,16 +294,21 @@ bool_t lctrSlvRxAuxConnReqHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf);
 bool_t lctrSlvRxLegacyReqHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf);
 void   lctrSlvRxLegacyReqPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf);
 uint32_t lctrSlvTxSetupPeriodicAdvDataHandler(BbOpDesc_t *pOp, bool_t isChainInd);
+void   lctrSlvAcadHandler(lctrAdvSet_t *pAdvSet);
 
 /* ISR: BOD handlers */
 void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp);
+void lctrSlvExtAdvAbortOp(BbOpDesc_t *pOp);
 void lctrSlvAuxAdvEndOp(BbOpDesc_t *pOp);
 void lctrSlvPeriodicAdvEndOp(BbOpDesc_t *pOp);
+void lctrSlvPeriodicAdvAbortOp(BbOpDesc_t *pOp);
 
 /* Action routines */
 void lctrExtAdvActStart(lctrAdvSet_t *pAdvSet);
+void lctrExtAdvActSelfStart(lctrAdvSet_t *pAdvSet);
 void lctrExtAdvActRestart(lctrAdvSet_t *pAdvSet);
 void lctrExtAdvActShutdown(lctrAdvSet_t *pAdvSet);
+void lctrExtAdvActResetShutdown(lctrAdvSet_t *pAdvSet);
 void lctrExtAdvActAdvCnf(lctrAdvSet_t *pAdvSet);
 void lctrExtAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet);
 void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet);
@@ -305,13 +322,16 @@ void lctrPeriodicAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet);
 void lctrPeriodicAdvActShutdown(lctrAdvSet_t *pAdvSet);
 void lctrPeriodicAdvActResetTerm(lctrAdvSet_t *pAdvSet);
 void lctrPeriodicAdvActAdvTerm(lctrAdvSet_t *pAdvSet);
+void lctrSlvAcadActChanMapUpdateStart(lctrAdvSet_t *pAdvSet);
+void lctrSlvAcadActChanMapUpdateFinish(lctrAdvSet_t *pAdvSet);
 
 /* Reservation */
-void lctrGetPerAdvOffsets(uint32_t rsvnOffs[], uint32_t refTime);
+uint32_t lctrGetPerRefTime(uint8_t perHandle, uint32_t *pDurUsec);
 
 /* State machine */
 void lctrSlvExtAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event);
 void lctrSlvPeriodicAdvExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event);
+void lctrSlvAcadExecuteSm(lctrAdvSet_t *pAdvSet, uint8_t event);
 
 /* Messaging */
 void lctrSendAdvSetMsg(lctrAdvSet_t *pAdvSet, uint8_t event);

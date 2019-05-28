@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) test interface implementation file.
+ * \file
+ * \brief Link layer (LL) test interface implementation file.
  */
 /*************************************************************************************************/
 
 #include "ll_api.h"
 #include "lmgr_api.h"
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 
 /*************************************************************************************************/
 /*!
@@ -50,7 +51,7 @@ uint8_t LlGetTime(uint32_t *pTime)
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
-  *pTime = BbDrvGetCurrentTime();
+  *pTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
 
   return LL_SUCCESS;
 }

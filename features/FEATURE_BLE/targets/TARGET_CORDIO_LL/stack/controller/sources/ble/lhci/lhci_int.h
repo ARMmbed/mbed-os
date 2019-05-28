@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief LL HCI main module interface file.
+ * \file
+ * \brief LL HCI main module interface file.
  */
 /*************************************************************************************************/
 
@@ -132,6 +133,22 @@ extern "C" {
 #define LHCI_LEN_LE_SET_DEF_PHY_EVT             1       /*!< LE set default PHY command complete event length. */
 #define LHCI_LEN_LE_ENHANCED_RECEIVER_TEST_EVT  1       /*!< LE enhanced receiver test command complete event length. */
 #define LHCI_LEN_LE_ENHANCED_TRANSMITTER_TEST_EVT 1     /*!< LE enhanced transmitter test command complete event length. */
+/* New in version 5.1 */
+#define LHCI_LEN_LE_SET_PER_ADV_RCV_ENABLE      1       /*!< LE set periodic advertising receive enable command complete event length. */
+#define LHCI_LEN_LE_PER_ADV_SYNC_TRANSFER       3       /*!< LE periodic advertising sync transfer command complete event length. */
+#define LHCI_LEN_LE_PER_ADV_SET_INFO_TRANSFER   3       /*!< LE periodic advertising set info transfer command complete event length. */
+#define LHCI_LEN_LE_SET_PAST_PARAM              1       /*!< LE set periodic advertising sync transfer parameters command complete event length. */
+#define LHCI_LEN_LE_SET_DEFAULT_PAST_PARAM      1       /*!< LE set default periodic advertising sync transfer parameters command complete event length. */
+#define LHCI_LEN_LE_MODIFY_SCA_EVT              1       /*!< LE Modify sleep clock accuracy event length. */
+/* New in version Milan */
+#define LHCI_LEN_LE_READ_ISO_BUF_SIZE           4       /*!< LE read ISO buffer size command complete event length. */
+#define LHCI_LEN_LE_REMOVE_CIG                  1       /*!< LE remove CIG. */
+#define LHCI_LEN_LE_REJECT_CIS_REQ              1       /*!< LE reject CIS request. */
+#define LHCI_LEN_LE_SETUP_ISO_DATA_PATH         1       /*!< LE setup ISO data path. */
+#define LHCI_LEN_LE_REMOVE_ISO_DATA_PATH        1       /*!< LE remove ISO data path. */
+#define LHCI_LEN_LE_ISO_TX_TEST                 1       /*!< LE ISO Tx Test. */
+#define LHCI_LEN_LE_ISO_RX_TEST                 1       /*!< LE ISO Rx Test. */
+#define LHCI_LEN_LE_ISO_READ_TEST_COUNTER       13      /*!< LE ISO read test counter. */
 
 /*! \brief  Mandatory event mask. */
 #define LHCI_DEF_EVT_MASK                   UINT64_C(0x00001FFFFFFFFFFF);
@@ -156,7 +173,7 @@ extern "C" {
 /*! \brief  Indicate command status event shall be returned. */
 #define LHCI_LEN_CMD_STATUS_EVT             0xFF
 
-/* Cordio vendor specific OCF range is 0x3E0-0x3FF. */
+/* Cordio vendor specific OCF range is 0x3C0-0x3FF */
 #define LHCI_OPCODE_VS_SET_SCAN_CH_MAP           HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E0)  /*!< Set Scan Channel Map opcode. */
 #define LHCI_OPCODE_VS_SET_EVENT_MASK            HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E1)  /*!< Set Vendor Specific Event Mask opcode. */
 #define LHCI_OPCODE_VS_SET_RSRC_MGR_MODE         HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E2)  /*!< DEPRECATED. */
@@ -166,9 +183,13 @@ extern "C" {
 #define LHCI_OPCODE_VS_SET_TX_TEST_ERR_PATT      HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E6)  /*!< Set Tx Test Error Pattern opcode. */
 #define LHCI_OPCODE_VS_SET_CONN_OP_FLAGS         HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E7)  /*!< Set Connection Operational Flags opcode. */
 #define LHCI_OPCODE_VS_SET_P256_PRIV_KEY         HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E8)  /*!< Set P-256 Private Key opcode. */
+#define LHCI_OPCODE_VS_GET_PER_CHAN_MAP          HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3DE)  /*!< Get channel map of periodic scan/adv. */
+#define LHCI_OPCODE_VS_SET_HCI_SUP_CMD           HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3DF)  /*!< Set Hci supported commands. */
 #define LHCI_OPCODE_VS_GET_ACL_TEST_REPORT       HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3E9)  /*!< Get ACL Test Report opcode. */
 #define LHCI_OPCODE_VS_SET_LOCAL_MIN_USED_CHAN   HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3EA)  /*!< Set local minimum number of used channels. */
 #define LHCI_OPCODE_VS_GET_PEER_MIN_USED_CHAN    HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3EB)  /*!< Get peer minimum number of used channels. */
+#define LHCI_OPCODE_VS_VALIDATE_PUB_KEY_MODE     HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3EC)  /*!< Set validate public key mode between ALT1 and ALT2. */
+
 #define LHCI_OPCODE_VS_SET_BD_ADDR               HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3F0)  /*!< Set BD address opcode. */
 #define LHCI_OPCODE_VS_GET_RAND_ADDR             HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3F1)  /*!< Get Random Address opcode. */
 #define LHCI_OPCODE_VS_SET_LOCAL_FEAT            HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3F2)  /*!< Set Local Feature opcode. */
@@ -192,10 +213,18 @@ extern "C" {
 #define LHCI_OPCODE_VS_SET_EXT_ADV_FRAG_LEN      HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D1)  /*!< Set extended advertising data fragmentation length. */
 #define LHCI_OPCODE_VS_SET_EXT_ADV_PHY_OPTS      HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D2)  /*!< Set extended advertising PHY options. */
 #define LHCI_OPCODE_VS_SET_EXT_ADV_DEF_PHY_OPTS  HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D3)  /*!< Set extended advertising default PHY options. */
+#define LHCI_OPCODE_VS_SET_EXT_SCAN_PHY_OPTS     HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D4)  /*!< Set extended scanning default PHY options. */
+#define LHCI_OPCODE_VS_GENERATE_ISO              HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D5)  /*!< Generate ISO Packets opcode. */
+#define LHCI_OPCODE_VS_GET_ISO_TEST_REPORT       HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D6)  /*!< Get ISO Test Report opcode. */
+#define LHCI_OPCODE_VS_ENA_ISO_SINK              HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D7)  /*!< Enable ISO Packet Sink opcode. */
+#define LHCI_OPCODE_VS_ENA_AUTO_GEN_ISO          HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D8)  /*!< Enable Auto Generate ISO Packets opcode. */
+#define LHCI_OPCODE_VS_GET_CIS_STATS             HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3D9)  /*!< Get ISO Connection Statistics opcode. */
 
 #define LHCI_OPCODE_VS_GET_AUX_ADV_STATS         HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3DA)  /*!< Get Auxiliary Advertising Statistics opcode. */
 #define LHCI_OPCODE_VS_GET_AUX_SCAN_STATS        HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3DB)  /*!< Get Auxiliary Scanning Statistics opcode. */
 #define LHCI_OPCODE_VS_GET_PER_SCAN_STATS        HCI_OPCODE(HCI_OGF_VENDOR_SPEC, 0x3DC)  /*!< Get Periodic Scanning Statistics opcode. */
+
+
 
 /* Vendor specific event masks. */
 #define LHCI_VS_EVT_MASK_SCAN_REPORT_EVT    0x01   /*!< (Byte 0) VS event bit, scan report. */
@@ -220,6 +249,10 @@ enum
   LHCI_MSG_PER_ADV,                     /*!< Periodic advertising command handler type. */
   LHCI_MSG_SC,                          /*!< Secure connections command handler type. */
   LHCI_MSG_PHY,                         /*!< PHY features command handler type. */
+  LHCI_MSG_PAST,                        /*!< Periodic advertising sync transfer command handler type. */
+  LHCI_MSG_CIS_MST,                     /*!< Connected isochronous stream master features command handler type. */
+  LHCI_MSG_CIS_SLV,                     /*!< Connected isochronous stream slave features command handler type. */
+  LHCI_MSG_ISO,                         /*!< Isochronous features command handler type. */
   LHCI_MSG_VS_EXT,                      /*!< Extended vendor specific command handler type. */
   LHCI_MSG_TESTER,                      /*!< Tester vendor specific command handler type. */
   LHCI_MSG_TOTAL                        /*!< Total number of command handlers. */
@@ -232,6 +265,7 @@ enum
   LHCI_EVT_CMD_RCVD       = (1 << 1),   /*!< HCI command packet received. */
   LHCI_EVT_SEND_CMPL      = (1 << 2),   /*!< HCI event packet send completion. */
   LHCI_EVT_HW_ERR         = (1 << 3),   /*!< HCI hardware error. */
+  LHCI_EVT_ISO_RCVD       = (1 << 4),   /*!< HCI ISO packet received. */
 };
 
 /*! \brief      Event handler call signature. */
@@ -239,6 +273,9 @@ typedef bool_t (*lhciEvtHandler_t)(LlEvt_t *pEvt);
 
 /*! \brief      Service ACL call signature. */
 typedef uint8_t *(*lhciServiceAcl_t)(void);
+
+/*! \brief      Service SCO call signature. */
+typedef uint8_t *(*lhciServiceIso_t)(void);
 
 /*! \brief      Control block of the LL HCI subsystem (persists with resets). */
 typedef struct
@@ -248,6 +285,7 @@ typedef struct
   wsfQueue_t        aclQ;               /*!< ACL queue. */
   wsfQueue_t        cmdQ;               /*!< Command queue. */
   wsfQueue_t        evtQ;               /*!< Event queue. */
+  wsfQueue_t        isoQ;               /*!< ISO queue. */
   bool_t            evtTrPending;       /*!< Event transport in progress. */
 } lhciPersistCb_t;
 
@@ -270,6 +308,20 @@ typedef struct
   uint32_t          genPktCnt;          /*!< Generate ACL packet count. */
   uint32_t          genOctetCnt;        /*!< Generate ACL octet count. */
 
+  bool_t            recvIsoSink;        /*!< Receive ISO sink. */
+  uint32_t          recvIsoPktCnt;      /*!< Receive ISO packet count. */
+  uint32_t          recvIsoOctetCnt;    /*!< Receive Iso octet count. */
+  bool_t            isoGenEnaFlag;      /*!< Generate ISO enable flag. */
+  uint8_t           isoGenPldCnt;       /*!< Generate ISO packet fill value. */
+  uint16_t          isoGenPktLen;       /*!< Generate ISO packet length (0 to disable). */
+  uint32_t          isoGenPktCnt;       /*!< Generate ISO packet count. */
+  uint32_t          isoGenOctetCnt;     /*!< Generate ISO octet count. */
+
+  bool_t            isoTxTest;          /*!< TRUE if ISO Tx test is enabled. */
+  bool_t            isoRxTest;          /*!< TRUE if ISO Rx test is enabled. */
+  uint8_t           isoTxTestPlLen;     /*!< ISO Tx test payload length. */
+  uint8_t           isoRxTestPlLen;     /*!< ISO Rx test payload length. */
+
   uint8_t           numAdvReport;       /*!< Number of pending advertising reports. */
 } lhciCb_t;
 
@@ -285,6 +337,9 @@ extern lhciEvtHandler_t lhciEvtTbl[LHCI_MSG_TOTAL];
 
 /*! \brief      Receive pending handler. */
 extern lhciServiceAcl_t lhciServiceAcl;
+
+/*! \brief      Receive pending handler. */
+extern lhciServiceIso_t lhciServiceIso;
 
 /* Persistent control block */
 extern lhciPersistCb_t lhciPersistCb;
@@ -306,6 +361,7 @@ void lhciReset(void);
 void lhciRecv(uint8_t type, uint8_t *pBuf);
 void lhciSendComplete(uint8_t type, uint8_t *pBuf);
 bool_t lhciService(uint8_t *pType, uint16_t *pLen, uint8_t **pBuf);
+void lhciSendIsoComplete(uint8_t type, uint8_t *pBuf);
 void lhciSendHwError(uint8_t code);
 
 /* Handlers */
@@ -314,6 +370,11 @@ void lhciAclSendComplete(uint16_t handle, uint8_t numBufs);
 uint8_t *lhciRecvAcl(void);
 void lhciAclRecvPending(uint16_t handle, uint8_t numBufs);
 void lhciGenerateAcl(uint16_t handle, uint16_t pktLen, uint8_t numPkts);
+
+void lhciIsoSendComplete(uint16_t handle, uint8_t numBufs);
+uint8_t *lhciRecvIso(void);
+void lhciIsoRecvPending(uint16_t handle, uint8_t numBufs);
+void lhciGenerateIso(uint16_t handle, uint16_t pktLen, uint8_t numPkts);
 
 /* Command parser */
 bool_t lhciCommonDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
@@ -330,6 +391,11 @@ bool_t lhciPrivAdvDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciPrivConnDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciScDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciPhyDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+bool_t lhciPastDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+bool_t lhciMstCisDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+bool_t lhciSlvCisDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+bool_t lhciIsoDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+
 bool_t lhciCommonVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciConnVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciMstConnVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
@@ -340,6 +406,7 @@ bool_t lhciScVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciMstExtScanVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciSlvExtAdvVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 bool_t lhciVsExtDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+bool_t lhciIsoVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
 
 /* Event builders */
 void lhciSendCmdStatusEvt(LhciHdr_t *pCmdHdr, uint8_t status);
@@ -355,11 +422,17 @@ bool_t lhciSlvEncEncodeEvtPkt(LlEvt_t *pEvt);
 bool_t lhciPrivConnEncodeEvtPkt(LlEvt_t *pEvt);
 bool_t lhciScEncodeEvtPkt(LlEvt_t *pEvt);
 bool_t lhciPhyEncodeEvtPkt(LlEvt_t *pEvt);
+bool_t lhciMstCisEncodeEvtPkt(LlEvt_t *pEvt);
+bool_t lhciSlvCisEncodeEvtPkt(LlEvt_t *pEvt);
+bool_t lhciIsoEncodeEvtPkt(LlEvt_t *pEvt);
+
+
 bool_t lhciSlvVsStdEncodeEvtPkt(LlEvt_t *pEvt);
 
 /* Events */
 uint8_t *lhciAllocEvt(uint8_t evtCode, uint8_t paramLen);
 uint8_t *lhciAllocCmdCmplEvt(uint8_t paramLen, uint16_t opCode);
+void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen, uint8_t *pParam, uint16_t handle);
 
 /* Command packet. */
 uint8_t lhciUnpackConnSpec(LlConnSpec_t *pConnSpec, const uint8_t *pBuf);

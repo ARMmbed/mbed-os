@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller common interface file.
+ * \file
+ * \brief Link layer controller common interface file.
  */
 /*************************************************************************************************/
 
@@ -55,7 +56,10 @@ enum
   LCTR_DISP_EXT_INIT,                   /*!< Extended Initiate message dispatch handler type. */
   LCTR_DISP_PER_ADV,                    /*!< Periodic Advertising message dispatch handler type. */
   LCTR_DISP_PER_CREATE_SYNC,            /*!< Periodic Create Sync message dispatch handler type. */
+  LCTR_DISP_TRANFER_SYNC,               /*!< Periodic Sync Transfer message dispatch handler type. */
   LCTR_DISP_PER_SCAN,                   /*!< Periodic Scanning message dispatch handler type. */
+  LCTR_DISP_ACAD,                       /*!< ACAD message dispatch handler type (currently only used by slave). */
+  LCTR_DISP_CIS,                        /*!< Connected isochronous stream dispatch handler type. */
   LCTR_DISP_TOTAL,                      /*!< Total number of dispatch handlers. */
   /* Special IDs */
   LCTR_DISP_FIRST_SM  = LCTR_DISP_CONN_IND+1,   /*!< First state machine. */
@@ -75,6 +79,9 @@ enum
   LCTR_EVENT_RX_PENDING,                /*!< Receive data PDU pending. */
   LCTR_EVENT_TX_PENDING,                /*!< Transmit data PDU pending. */
   LCTR_EVENT_TX_COMPLETE,               /*!< Transmit data PDU completed. */
+  LCTR_EVENT_CIS_TX_PENDING,            /*!< Transmit data PDU pending. */
+  LCTR_EVENT_CIS_RX_PENDING,            /*!< Receive data PDU pending. */
+  LCTR_EVENT_CIS_TX_COMPLETE,           /*!< Transmit data PDU completed. */
   LCTR_EVENT_RX_ADVB,                   /*!< Receive AdvB PDU completed. */
   LCTR_EVENT_RX_DIRECT_ADVB,            /*!< Receive direct AdvB PDU completed. */
   LCTR_EVENT_RX_SCAN_REQ,               /*!< Receive scan request PDU completed.  */
@@ -88,6 +95,7 @@ enum
 {
   LCTR_HOST_REPLY_CONN_PARAM_REQ    = (1 << 0),     /*!< Waiting for host to submit a connection parameter request reply. */
   LCTR_HOST_REPLY_LTK_REQ           = (1 << 1),     /*!< Waiting for host to submit a LTK request reply. */
+  LCTR_HOST_REPLY_CIS_REQ           = (1 << 2),     /*!< Waiting for host to submit a CIS request reply. */
 };
 
 /**************************************************************************************************
@@ -101,6 +109,13 @@ typedef struct
   uint8_t           dispId;             /*!< Dispatch ID. */
   uint8_t           event;              /*!< PDU ID. */
 } lctrMsgHdr_t;
+
+/*! \brief      Channel map update message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint64_t          chanMap;            /*!< Channel map. */
+} lctrChanMapUpdate_t;
 
 /*! \brief      Connect request PDU. */
 typedef struct
@@ -140,6 +155,21 @@ typedef struct
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
+
+/* \brief       Call signature for periodic enabled check function */
+typedef bool_t (*LctrIsPerAdvEnabledFn_t)(uint8_t handle);
+
+/* Function pointer for periodic advertising enable check */
+extern LctrIsPerAdvEnabledFn_t LctrPerAdvEnabled;
+
+/* \brief       Call signature for extended scan enabled check function. */
+typedef bool_t (*LctrExtCheckFn_t)(uint8_t scanPhy);
+
+/* Function pointer for extended scan enable check. */
+extern LctrExtCheckFn_t LctrMstExtScanEnabled;
+
+/* Function pointer for extended advertising init enable check. */
+extern LctrExtCheckFn_t LctrMstExtInitEnabled;
 
 /* Runtime configuration. */
 extern const LlRtCfg_t *pLctrRtCfg;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller extended initiating master interface file.
+ * \file
+ * \brief Link layer controller extended initiating master interface file.
  */
 /*************************************************************************************************/
 
@@ -39,6 +40,11 @@ extern "C" {
 /**************************************************************************************************
   Constants
 **************************************************************************************************/
+/*! \brief      Change supervision timeout value to us. */
+#define LL_SUP_TIMEOUT_VAL_TO_US(x)           x * 10000
+
+/*! \brief      Change connection interval value to us. */
+#define LL_CONN_INTERVAL_VAL_TO_US(x)         x * 1250
 
 /*! \brief      Master extended initiate task messages for \a LCTR_DISP_EXT_INIT dispatcher. */
 enum
@@ -71,6 +77,10 @@ void LctrMstExtInitDefaults(void);
 void LctrMstExtInitParam(uint8_t initPhy, const LlExtInitScanParam_t *pScanParam, const LlConnSpec_t *pConnSpec);
 void LctrMstExtInitSetScanPhy(uint8_t scanPhy);
 void LctrMstExtInitClearScanPhy(uint8_t scanPhy);
+
+/* Utility */
+bool_t LctrMstExtInitIsEnabled(uint8_t scanPhy);
+bool_t LctrMstExtInitIsPrivAddr(uint8_t scanPhy);
 
 /*! \} */    /* LL_LCTR_API_INIT_MST_AE */
 

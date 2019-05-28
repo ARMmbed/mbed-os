@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,14 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller connection state machine action routines.
+ * \file
+ * \brief Link layer controller connection state machine action routines.
  */
 /*************************************************************************************************/
 
 #include "lctr_int_conn.h"
 #include "lctr_int_adv_slave.h"
+#include "lctr_int_adv_master_ae.h"
 #include "sch_api.h"
 #include "sch_api_ble.h"
 #include "lmgr_api_conn.h"
@@ -51,10 +53,27 @@
                                  LL_FEAT_STABLE_MOD_IDX_RECEIVER | \
                                  LL_FEAT_LE_CODED_PHY | \
                                  LL_FEAT_CH_SEL_2 | \
-                                 LL_FEAT_LE_POWER_CLASS_1)
+                                 LL_FEAT_LE_POWER_CLASS_1 | \
+                                 LL_FEAT_MIN_NUM_USED_CHAN | \
+                                 LL_FEAT_CONN_CTE_REQ | \
+                                 LL_FEAT_CONN_CTE_RSP | \
+                                 LL_FEAT_RECV_CTE | \
+                                 LL_FEAT_PAST_SENDER | \
+                                 LL_FEAT_PAST_RECIPIENT | \
+                                 LL_FEAT_SCA_UPDATE | \
+                                 LL_FEAT_CIS_MASTER_ROLE | \
+                                 LL_FEAT_CIS_SLAVE_ROLE | \
+                                 LL_FEAT_ISO_BROADCASTER | \
+                                 LL_FEAT_ISO_SYNC)
 
 /*! \brief      Used feature bitmask, i.e. FeatureSet[0]. */
 #define LCTR_USED_FEAT_SET_MASK     0xFF
+
+/*! \brief      Used feature bitmask, i.e. FeatureSet[0]. */
+#define LCTR_USED_FEAT_SET_MASK     0xFF
+
+/*! \brief      Features bits mask over the air */
+#define LCTR_OTA_FEAT_MASK      (~LL_FEAT_REMOTE_PUB_KEY_VALIDATION & LL_FEAT_ALL_MASK)
 
 /*************************************************************************************************/
 /*!
@@ -77,6 +96,33 @@ static bool_t lctrValidateConnParam(const lctrConnParam_t *pConnParam)
   }
 
   return TRUE;
+}
+
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Compute the sleep clock accuracy index in connection context.
+ *
+ *  \param  pCtx    Connection context.
+ *
+ *  \return SCA index.
+ */
+/*************************************************************************************************/
+static uint8_t lctrComputeConnSca(lctrConnCtx_t *pCtx)
+{
+  const uint16_t clkPpm = BbGetClockAccuracy();
+  int8_t sca;
+
+       if (clkPpm <=  20) sca = 7;
+  else if (clkPpm <=  30) sca = 6;
+  else if (clkPpm <=  50) sca = 5;
+  else if (clkPpm <=  75) sca = 4;
+  else if (clkPpm <= 100) sca = 3;
+  else if (clkPpm <= 150) sca = 2;
+  else if (clkPpm <= 250) sca = 1;
+  else                    sca = 0;
+
+  return (uint8_t) (sca + pCtx->scaMod);
 }
 
 /*************************************************************************************************/
@@ -262,7 +308,7 @@ void lctrSendChanMapUpdateInd(lctrConnCtx_t *pCtx)
     uint8_t *pBuf = pPdu;
 
 #if (LL_ENABLE_TESTER)
-    if (llTesterCb.eventCounterOffset)
+    if (llTesterCb.eventCounterOverride == TRUE)
     {
       pCtx->chanMapUpd.instant = pCtx->eventCounter +
                                  llTesterCb.eventCounterOffset + 1;     /* +1 for next CE */
@@ -330,7 +376,7 @@ void lctrSendFeatureReq(lctrConnCtx_t *pCtx)
     /*** Assemble control PDU. ***/
 
     UINT8_TO_BSTREAM(pBuf, opcode);
-    UINT64_TO_BSTREAM(pBuf, (lmgrCb.features & LCTR_FEAT_PEER_MASK));
+    UINT64_TO_BSTREAM(pBuf, (lmgrCb.features & LCTR_OTA_FEAT_MASK));
 
     /*** Queue for transmit. ***/
 
@@ -361,7 +407,7 @@ void lctrSendFeatureRsp(lctrConnCtx_t *pCtx)
 
     uint64_t featSet = (pCtx->usedFeatSet &  LCTR_USED_FEAT_SET_MASK) |     /* FeatureSet[0] used by master and slave */
                        (lmgrCb.features   & ~LCTR_USED_FEAT_SET_MASK);      /* FeatureSet[1..7] used by sender */
-    UINT64_TO_BSTREAM(pBuf, (featSet & LCTR_FEAT_PEER_MASK));               /* Only send valid features bits between controllers. */
+    UINT64_TO_BSTREAM(pBuf, (featSet & LCTR_OTA_FEAT_MASK));                /* Only send valid features bits between controllers. */
 
     /*** Queue for transmit. ***/
 
@@ -380,7 +426,7 @@ void lctrSendFeatureRsp(lctrConnCtx_t *pCtx)
 /*************************************************************************************************/
 void lctrStoreUsedFeatures(lctrConnCtx_t *pCtx)
 {
-  pCtx->usedFeatSet = lmgrCb.features & lctrDataPdu.pld.featReqRsp.featSet;
+  pCtx->usedFeatSet = lmgrCb.features & lctrDataPdu.pld.featReqRsp.featSet & LCTR_FEAT_PEER_MASK;
   pCtx->featExchFlag = TRUE;
 
   /* Update stable modulation index. */
@@ -806,7 +852,12 @@ void lctrSendConnParamReq(lctrConnCtx_t *pCtx)
     pCtx->connUpdSpec.supTimeout      = llTesterCb.connParamReq.supTimeout;
     pCtx->connUpdSpec.minCeLen        = 0;
     pCtx->connUpdSpec.maxCeLen        = 0;
+
     llTesterCb.connParamReqEnabled    = FALSE;
+
+    lctrSendConnParamPdu(pCtx, LL_PDU_CONN_PARAM_REQ, &pCtx->connUpdSpec, llTesterCb.connParamReq.prefPeriod);
+
+    return;
   }
 #endif
 
@@ -828,7 +879,6 @@ void lctrSendConnParamRsp(lctrConnCtx_t *pCtx)
       (lmgrCb.numConnEnabled > 1))
   {
     /* TODO resolve scheduling with multiple connections */
-    WSF_ASSERT(0);
   }
 
   lctrSendConnParamPdu(pCtx, LL_PDU_CONN_PARAM_RSP, &pLctrConnMsg->connParamReply.connSpec, 1);
@@ -959,6 +1009,17 @@ static void lctrSendDataLengthPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
       maxRxTime = WSF_MIN(pCtx->localDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
       maxTxTime = WSF_MIN(pCtx->localDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
     }
+    else
+    {
+      if (pCtx->bleData.chan.rxPhy == BB_PHY_BLE_CODED)
+      {
+        maxRxTime = WSF_MAX(pCtx->localDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+      }
+      if (pCtx->bleData.chan.txPhy == BB_PHY_BLE_CODED)
+      {
+        maxTxTime = WSF_MAX(pCtx->localDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+      }
+    }
 
     UINT16_TO_BSTREAM(pBuf, pCtx->localDataPdu.maxRxLen);
     UINT16_TO_BSTREAM(pBuf, maxRxTime);
@@ -1019,13 +1080,36 @@ void lctrStoreRemoteDataLength(lctrConnCtx_t *pCtx)
     LL_TRACE_WARN0("Received invalid parameters in LENGTH_PDU");
     return;
   }
+
   lctrDataLen_t oldEffDataPdu = pCtx->effDataPdu;
+
+  uint16_t maxRxTime = pCtx->localDataPdu.maxRxTime;
+  uint16_t maxTxTime = pCtx->localDataPdu.maxTxTime;
+
+  /* If LL_FEAT_LE_CODED_PHY is not supported, maxRxTime and maxTxTime can not be more than 2120. */
+  if (!(pCtx->usedFeatSet & LL_FEAT_LE_CODED_PHY))
+  {
+    maxRxTime = WSF_MIN(pCtx->localDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
+    maxTxTime = WSF_MIN(pCtx->localDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MAX_1M);
+  }
 
   /* Compute effective values */
   pCtx->effDataPdu.maxTxLen  = WSF_MIN(pCtx->localDataPdu.maxTxLen,  lctrDataPdu.pld.lenReq.maxRxLen);
   pCtx->effDataPdu.maxRxLen  = WSF_MIN(pCtx->localDataPdu.maxRxLen,  lctrDataPdu.pld.lenReq.maxTxLen);
-  pCtx->effDataPdu.maxTxTime = WSF_MIN(pCtx->localDataPdu.maxTxTime, lctrDataPdu.pld.lenReq.maxRxTime);
-  pCtx->effDataPdu.maxRxTime = WSF_MIN(pCtx->localDataPdu.maxRxTime, lctrDataPdu.pld.lenReq.maxTxTime);
+  pCtx->effDataPdu.maxTxTime = WSF_MIN(maxTxTime, lctrDataPdu.pld.lenReq.maxRxTime);
+  pCtx->effDataPdu.maxRxTime = WSF_MIN(maxRxTime, lctrDataPdu.pld.lenReq.maxTxTime);
+
+  /* connEffectiveMaxRxTimeCoded - the greater of 2704 and connEffectiveMaxRxTimeUncoded. */
+  if (pCtx->bleData.chan.rxPhy == BB_PHY_BLE_CODED)
+  {
+    pCtx->effDataPdu.maxRxTime = WSF_MAX(pCtx->effDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+  }
+
+  if (pCtx->bleData.chan.txPhy == BB_PHY_BLE_CODED)
+  {
+    pCtx->effDataPdu.maxTxTime = WSF_MAX(pCtx->effDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+  }
+
   if ((oldEffDataPdu.maxTxLen  != pCtx->effDataPdu.maxTxLen) ||
       (oldEffDataPdu.maxRxLen  != pCtx->effDataPdu.maxRxLen) ||
       (oldEffDataPdu.maxTxTime != pCtx->effDataPdu.maxTxTime) ||
@@ -1035,9 +1119,44 @@ void lctrStoreRemoteDataLength(lctrConnCtx_t *pCtx)
   }
   pCtx->effConnDurUsec = lctrCalcConnDurationUsec(pCtx, &pCtx->effDataPdu);
 
-
   LL_TRACE_INFO2("Effective data lengths maxTxLen=%u, maxRxLen=%u", pCtx->effDataPdu.maxTxLen, pCtx->effDataPdu.maxRxLen);
   LL_TRACE_INFO2("Effective data times maxTxTime=%u, maxRxTime=%u", pCtx->effDataPdu.maxTxTime, pCtx->effDataPdu.maxRxTime);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Notify host of data length change indication.
+ *
+ *  \param      pCtx    Connection context.
+ *  \param      status  Status.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrNotifyHostDataLengthInd(lctrConnCtx_t *pCtx, uint8_t status)
+{
+  const uint16_t handle = LCTR_GET_CONN_HANDLE(pCtx);
+
+  LlDataLenChangeInd_t evt =
+  {
+    .hdr =
+    {
+      .param         = handle,
+      .event         = LL_DATA_LEN_CHANGE_IND,
+      .status        = status
+    },
+
+    .handle          = handle,
+  };
+
+  evt.maxTxLen     = pCtx->effDataPdu.maxTxLen;
+  evt.maxTxTime    = pCtx->effDataPdu.maxTxTime;
+  evt.maxRxLen     = pCtx->effDataPdu.maxRxLen;
+  evt.maxRxTime    = pCtx->effDataPdu.maxRxTime;
+
+  LL_TRACE_INFO2("### LlEvent ###  LL_DATA_LEN_CHANGE_IND, handle=%u, status=%u", handle, status);
+
+  LmgrSendEvent((LlEvt_t *)&evt);
 }
 
 /*************************************************************************************************/
@@ -1113,36 +1232,170 @@ void lctrStoreSetMinUsedChan(lctrConnCtx_t *pCtx)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Notify host of data length change indication.
+ *  \brief      Send peer SCA request PDU.
  *
  *  \param      pCtx    Connection context.
- *  \param      status  Status.
+ *  \param      opcode  PDU opcode.
  *
  *  \return     None.
  */
 /*************************************************************************************************/
-void lctrNotifyHostDataLengthInd(lctrConnCtx_t *pCtx, uint8_t status)
+static void lctrSendPeerScaReqPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
+{
+  uint8_t *pPdu;
+
+  if ((pPdu = lctrTxCtrlPduAlloc(LL_PEER_SCA_REQ_LEN)) != NULL)
+  {
+    uint8_t *pBuf = pPdu;
+
+    /*** Assemble control PDU. ***/
+    UINT8_TO_BSTREAM (pBuf, opcode);
+    UINT8_TO_BSTREAM (pBuf, lctrComputeConnSca(pCtx));
+
+    /*** Queue for transmit. ***/
+    lctrTxCtrlPduQueue(pCtx, pPdu);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Update action for sca processing.
+ *
+ *  \param      pCtx    Connection Context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrStoreScaAction(lctrConnCtx_t *pCtx)
+{
+  pCtx->scaUpdAction = pLctrConnMsg->scaReq.action;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Send peer SCA request.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrSendPeerScaReq(lctrConnCtx_t *pCtx)
+{
+  switch (pCtx->scaUpdAction)
+  {
+    /* Update by syncing instead of increment/decrement to prevent desync of the SCA value. */
+    case LL_MODIFY_SCA_MORE_ACCURATE:
+      if (pCtx->scaMod < lmgrCb.scaMod)
+      {
+        pCtx->scaMod = lmgrCb.scaMod;
+      }
+      break;
+    case LL_MODIFY_SCA_LESS_ACCURATE:
+      if (pCtx->scaMod > lmgrCb.scaMod)
+      {
+        pCtx->scaMod = lmgrCb.scaMod;
+      }
+      break;
+
+    default: /* LL_MODIFY_SCA_NO_ACTION */
+      /* This happens when we are sending a tester REQ. */
+      break;
+  }
+
+  lctrSendPeerScaReqPdu(pCtx, LL_PDU_PEER_SCA_REQ);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Send peer SCA response PDU.
+ *
+ *  \param      pCtx    Connection context.
+ *  \param      opcode  PDU opcode.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+static void lctrSendPeerScaRspPdu(lctrConnCtx_t *pCtx, uint8_t opcode)
+{
+  uint8_t *pPdu;
+
+  if ((pPdu = lctrTxCtrlPduAlloc(LL_PEER_SCA_RSP_LEN)) != NULL)
+  {
+    uint8_t *pBuf = pPdu;
+
+    /*** Assemble control PDU. ***/
+    UINT8_TO_BSTREAM (pBuf, opcode);
+    UINT8_TO_BSTREAM (pBuf, lctrComputeConnSca(pCtx));
+
+    /*** Queue for transmit. ***/
+    lctrTxCtrlPduQueue(pCtx, pPdu);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Send peer SCA response.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrSendPeerScaRsp(lctrConnCtx_t *pCtx)
+{
+  lctrSendPeerScaRspPdu(pCtx, LL_PDU_PEER_SCA_RSP);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Store peer SCA.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrStorePeerSca(lctrConnCtx_t *pCtx)
+{
+  pCtx->peerSca = lctrDataPdu.pld.peerSca.sca;
+
+  if (pCtx->role == LL_ROLE_SLAVE)
+  {
+    pCtx->data.slv.totalAcc = lctrCalcTotalAccuracy(pCtx->peerSca);
+
+    LL_TRACE_INFO1("lctrStorePeerSca pCtx->data.slv.totalAcc=%d", pCtx->data.slv.totalAcc);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Notify host of peer SCA request confirmation.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrNotifyHostPeerScaCnf(lctrConnCtx_t *pCtx)
 {
   const uint16_t handle = LCTR_GET_CONN_HANDLE(pCtx);
 
-  LlDataLenChangeInd_t evt =
+  LlPeerScaCnf_t evt =
   {
     .hdr =
     {
-      .param         = handle,
-      .event         = LL_DATA_LEN_CHANGE_IND,
-      .status        = status
+      .param        = handle,
+      .event        = LL_REQ_PEER_SCA_IND,
+      .status       = LL_SUCCESS
     },
 
-    .handle          = handle,
+    .status         = LL_SUCCESS,
+    .connHandle     = handle,
+    .peerSca        = pCtx->peerSca,
   };
 
-  evt.maxTxLen     = pCtx->effDataPdu.maxTxLen;
-  evt.maxTxTime    = pCtx->effDataPdu.maxTxTime;
-  evt.maxRxLen     = pCtx->effDataPdu.maxRxLen;
-  evt.maxRxTime    = pCtx->effDataPdu.maxRxTime;
-
-  LL_TRACE_INFO2("### LlEvent ###  LL_DATA_LEN_CHANGE_IND, handle=%u, status=%u", handle, status);
+  LL_TRACE_INFO1("### LlEvent ###  LL_REQ_PEER_SCA_CNF, handle=%u, status=LL_SUCCESS", handle);
 
   LmgrSendEvent((LlEvt_t *)&evt);
 }
@@ -1381,4 +1634,55 @@ void lctrUnpauseRxData(lctrConnCtx_t *pCtx)
 {
   pCtx->pauseRxData = FALSE;
   LL_TRACE_INFO1("    >>> Data Path Rx Unpaused/Resumed, handle=%u <<<", LCTR_GET_CONN_HANDLE(pCtx));
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Store periodic advertising sync transfer parameters.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrActStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx)
+{
+  if (lctrStorePeriodicSyncTrsfFn)
+  {
+    lctrStorePeriodicSyncTrsfFn(pCtx);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Send periodic sync indication PDU to peer.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrActSendPeriodicSyncInd(lctrConnCtx_t *pCtx)
+{
+  if (lctrSendPeriodicSyncIndFn)
+  {
+    lctrSendPeriodicSyncIndFn(pCtx);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Handle received periodic sync indication PDU.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrActReceivePeriodicSyncInd(lctrConnCtx_t *pCtx)
+{
+  if (lctrReceivePeriodicSyncIndFn)
+  {
+    lctrReceivePeriodicSyncIndFn(pCtx);
+  }
 }

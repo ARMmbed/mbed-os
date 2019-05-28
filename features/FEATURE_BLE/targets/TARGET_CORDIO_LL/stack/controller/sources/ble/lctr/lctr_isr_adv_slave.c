@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave advertising ISR callbacks.
+ * \file
+ * \brief Link layer controller slave advertising ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -310,7 +311,7 @@ void lctrSlvAdvEndOp(BbOpDesc_t *pOp)
     }
 #endif
   }
-  SchBleCalcAdvOpDuration(pOp);
+  SchBleCalcAdvOpDuration(pOp, 0);
 
   /*** Reschedule operation ***/
 
@@ -325,7 +326,7 @@ void lctrSlvAdvEndOp(BbOpDesc_t *pOp)
 
       do
       {
-        if (lctrGetOpFlag(LL_OP_MODE_FLAG_ENA_ADV_DLY))
+        if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_ADV_DLY))
         {
           /* maxDelay is 16, it times 625 still fits in uint32_t. */
           /* coverity[overflow_before_widen] */

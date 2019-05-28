@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ * \file
+ * \brief Link layer controller master connection state machine action routines.
  */
 /*************************************************************************************************/
 #include "lctr_int_init_master_ae.h"
@@ -61,6 +62,24 @@ void lctrExtInitActShutdown(lctrExtScanCtx_t *pExtInitCtx)
 /*************************************************************************************************/
 void lctrExtInitActScanTerm(lctrExtScanCtx_t *pExtInitCtx)
 {
+  for (unsigned i = 0; i < LCTR_SCAN_PHY_TOTAL; i++)
+  {
+    if (lctrMstExtInit.enaPhys & (1 << i))
+    {
+      if ((lctrMstExtInit.estConnPhys & (1 << i)) == 0)
+      {
+        lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstExtInitTbl[i].data.init.connHandle);
+
+        if (pCtx->enabled == TRUE)
+        {
+          /* Cleanup unused initiate PHY connection context. */
+          SchRmRemove(lctrMstExtInitTbl[i].data.init.connHandle);
+          lctrFreeConnCtx(pCtx);
+        }
+      }
+    }
+  }
+
   lctrMstExtInitCleanupOp(pExtInitCtx);
 
   if (pExtInitCtx->state != LCTR_EXT_INIT_STATE_RESET)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal scheduler resource manager interface file.
+ * \file
+ * \brief Internal scheduler resource manager interface file.
  */
 /*************************************************************************************************/
 
@@ -24,8 +25,10 @@
 #define SCH_INT_RM_H
 
 #include "sch_api.h"
+#include "sch_api_ble.h"
 #include "ll_math.h"
 #include "cfg_mac_ble.h"
+#include "pal_bb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,13 +41,20 @@ extern "C" {
 /*! \brief      Maximum number of reservations per unit of preferred periodicity. */
 #define SCH_RM_MAX_RSVN_PREF_PER    2           /* TODO allow run-time configuration */
 
-/*! \brief      Preferred periodicity. */
-#define SCH_RM_PREF_PER_USEC        40000       /* TODO allow run-time configuration (e.g. multiples of 10-ms) */
-                                                /*      Use 10000 for 1M and 2M only PHY support. */
-                                                /*      Use 40000 for Coded S8 PHY support. */
-
-/*! \brief      Binary divide by preferred periodicity (10,000us) (n[max]=75,776). */
+/*! \brief      Binary divide by preferred periodicity (10,000us) (n[max]=2^32). */
 #define SCH_RM_DIV_PREF_PER(n)      ((uint32_t)(((uint64_t)(n) * UINT64_C(1717987)) >> 34))
+
+/*! \brief      Minimum offset unit of reservation manager in microseconds. (Half of minimum isochronous interval) */
+#define SCH_RM_MIN_OFFSET_UNIT      2500
+
+/*! \brief      Distance between common reservation and uncommon reservation. */
+#define SCH_RM_OFFSET_UNCOMMON      3750
+
+/*! \brief      Maximum depth to be searched between intervals. (4 means 16 times(2^4) */
+#define SCH_RM_MAX_SEARCH_DEPTH     4
+
+/*! \brief      Maximum span of scheduler elements. */
+#define SCH_RM_MAX_SPAN             0x80000000
 
 /**************************************************************************************************
   Data Types
@@ -54,15 +64,23 @@ extern "C" {
 typedef struct
 {
   uint8_t handle;           /*!< Reservation handle. */
-  uint32_t offsUsec;        /*!< Offset in microseconds. */
+  bool_t commIntUsed;       /*!< Reservation is controlled by common interval. */
+  uint8_t offsetBit;        /*! < Offset bit location. */
   uint32_t interUsec;       /*!< Interval in microseconds. */
+  GetRefTimeCb_t refTimeCb; /*!< Callback function to get reference time of the handle. */
 } schRmRsvn_t;
 
 /*! \brief      Scheduler resource manager control block. */
 typedef struct
 {
   uint8_t numRsvn;                              /*!< Number of reservations. */
+  uint8_t refHandle;                            /*!< Handle to be used to get reference time. */
+  uint8_t offsetDepth;                          /*!< Offset depth from common interval. */
+  uint8_t indexUncommon;                        /*!< Index of uncommon reservations. */
+  uint32_t rmStatus;                            /*!< Reservation status. */
+  uint32_t commonInt;                           /*!< Common interval. */
   uint32_t rsvnInterUsec[SCH_RM_MAX_RSVN];      /*!< Reserved intervals indexed by handle. */
+  schRmRsvn_t rsvn[SCH_RM_MAX_RSVN];            /*!< Reservation info for each handle. */
 } SchRmCb_t;
 
 /**************************************************************************************************
@@ -75,9 +93,7 @@ extern SchRmCb_t schRmCb;
   Function Declarations
 **************************************************************************************************/
 
-uint8_t schRmBuildReservationTable(schRmRsvn_t rsvn[], uint32_t rsvnOffs[], uint8_t exclude);
 void schRmSortListDescending(uint32_t item[], uint8_t numItems);
-void schRmSortRsvnList(schRmRsvn_t rsvn[], uint8_t numRsvn);
 
 #ifdef __cplusplus
 };

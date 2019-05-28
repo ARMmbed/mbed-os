@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave encryption implementation file.
+ * \file
+ * \brief Link layer controller slave encryption implementation file.
  */
 /*************************************************************************************************/
 
@@ -86,16 +87,16 @@ void LctrSlvConnEncInit(void)
   }
 
   /* Add packet encryption handlers. */
-  lctrInitCipherBlkHdlr = BbBleDrvAesInitCipherBlock;
+  lctrInitCipherBlkHdlr = PalCryptoAesSetupCipherBlock;
 #if (!BB_ENABLE_INLINE_ENC_TX)
-  lctrPktEncryptHdlr = BbBleDrvAesCcmEncrypt;
+  lctrPktEncryptHdlr = PalCryptoAesCcmEncrypt;
 #else
-  lctrSetEncryptPktCountHdlr = BbBleDrvSetEncryptPacketCount;
+  lctrSetEncryptPktCountHdlr = PalCryptoSetEncryptPacketCount;
 #endif
 #if (!BB_ENABLE_INLINE_DEC_RX)
-  lctrPktDecryptHdlr = BbBleDrvAesCcmDecrypt;
+  lctrPktDecryptHdlr = PalCryptoAesCcmDecrypt;
 #else
-  lctrSetDecryptPktCountHdlr = BbBleDrvSetDecryptPacketCount;
+  lctrSetDecryptPktCountHdlr = PalCryptoSetDecryptPacketCount;
 #endif
 
   /* Set supported features. */

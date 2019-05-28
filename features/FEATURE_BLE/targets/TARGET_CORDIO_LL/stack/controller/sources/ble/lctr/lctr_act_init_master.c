@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ * \file
+ * \brief Link layer controller master connection state machine action routines.
  */
 /*************************************************************************************************/
 
@@ -55,11 +56,11 @@ void lctrInitActInitiate(void)
     uint32_t interMaxUsec = LCTR_CONN_IND_US(pInitMsg->connSpec.connIntervalMax);
     uint32_t durUsec = pCtx->localConnDurUsec;
 
-    if (!SchRmAdd(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, durUsec, &connInterUsec))
+    if (!SchRmAdd(LCTR_GET_CONN_HANDLE(pCtx), SCH_RM_PREF_PERFORMANCE, interMinUsec, interMaxUsec, durUsec, &connInterUsec, lctrGetConnRefTime))
     {
       lctrFreeConnCtx(pCtx);
       result = FALSE;
-      lctrScanNotifyHostInitiateError(LL_ERROR_CODE_UNACCEPTABLE_CONN_INTERVAL, pInitMsg->peerAddrType, pInitMsg->peerAddr);
+      lctrScanNotifyHostInitiateError(LL_ERROR_CODE_CONN_REJ_LIMITED_RESOURCES, pInitMsg->peerAddrType, pInitMsg->peerAddr);
       break;
     }
   } while (FALSE);
@@ -176,8 +177,6 @@ void lctrInitActShutdown(void)
 {
   if (lmgrCb.numInitEnabled)
   {
-    SchRmRemove(lctrMstInit.data.init.connHandle);
-    lctrFreeConnCtx(LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle));
     lctrMstInit.shutdown = TRUE;
     SchRemove(&lctrMstInit.scanBod);
 
@@ -201,6 +200,9 @@ void lctrInitActScanTerm(void)
   BbStop(BB_PROT_BLE);
 
   lctrScanCleanup(&lctrMstInit);
+
+  SchRmRemove(lctrMstInit.data.init.connHandle);
+  lctrFreeConnCtx(LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle));
 
   LlCreateConnCancelCnf_t evt =
   {

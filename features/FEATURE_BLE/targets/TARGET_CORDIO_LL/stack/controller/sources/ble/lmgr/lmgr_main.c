@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link manager common implementation file.
+ * \file
+ * \brief Link manager common implementation file.
  */
 /*************************************************************************************************/
-
+#include "ll_math.h"
 #include "lmgr_api.h"
+#include "lhci_api.h"
 #include "wsf_assert.h"
+#include "wsf_math.h"
 #include <string.h>
 
 /**************************************************************************************************
@@ -70,12 +73,21 @@ void LmgrSetDefaults(void)
     /* LL_OP_MODE_FLAG_REQ_SYM_PHY | */                 /* disabled */
     /* LL_OP_MODE_FLAG_ENA_FEAT_LLCP_STARTUP | */       /* disabled */
     /* LL_OP_MODE_FLAG_SLV_DELAY_LLCP_STARTUP | */      /* disabled */
+    LL_OP_MODE_FLAG_ENA_SLV_LATENCY_WAKEUP |
     LL_OP_MODE_FLAG_ENA_LEN_LLCP_STARTUP |
     LL_OP_MODE_FLAG_ENA_ADV_DLY |
     LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF |
     LL_OP_MODE_FLAG_ENA_WW |
     LL_OP_MODE_FLAG_ENA_SLV_LATENCY |
+    LL_OP_MODE_FLAG_ENA_SLV_AUX_SCAN_RSP_ADI |
+    LL_OP_MODE_FLAG_ENA_MST_CIS_NULL_PDU |
+    /* LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA | */        /* disabled */
+    LL_OP_MODE_FLAG_ENA_ADV_CHAN_RAND |
     LL_OP_MODE_FLAG_ENA_LLCP_TIMER;
+
+  LhciSetDefaultHciSupCmd(lmgrCb.hciSupCommands);
+
+  lmgrCb.chanClass = LL_CHAN_DATA_ALL;
 }
 
 /*************************************************************************************************/
@@ -223,4 +235,193 @@ bool_t LmgrIsExtCommandAllowed(void)
 
   lmgrCb.useExtCmds = TRUE;
   return TRUE;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Build channel remapping table.
+ *
+ *  \param  pChanParam  Channel parameters.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void LmgrBuildRemapTable(lmgrChanParam_t *pChanParam)
+{
+  unsigned int chanIdx;
+  unsigned int numUsedChan = 0;
+
+  for (chanIdx = 0; chanIdx < sizeof(pChanParam->chanRemapTbl); chanIdx++)
+  {
+    if (pChanParam->chanMask & (UINT64_C(1) << chanIdx))
+    {
+      pChanParam->chanRemapTbl[numUsedChan++] = chanIdx;
+    }
+  }
+
+  WSF_ASSERT(numUsedChan);          /* must have at least one channel */
+
+  pChanParam->numUsedChan = numUsedChan;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Calculate permutation.
+ *
+ *  \param  v       Input value.
+ *
+ *  \return Result of permutation calculation.
+ */
+/*************************************************************************************************/
+static inline uint32_t lmgrCalcPerm(uint32_t v)
+{
+  uint32_t mask;
+
+  /*          abcd efgh ijkl mnop */
+  mask = 0x0F0F0F0F;
+  v    = ((v << 8) & mask) | (v & ~mask);
+
+  /*     efgh abcd mnop ijkl xxxx */
+  mask = mask ^ (mask << 2);
+  v    = ((v << 4) & mask) | (v & ~mask);
+
+  /*  gh efcd abop mnkl ijxx xxxx */
+  mask = mask ^ (mask << 1);
+  v    = ((v << 2) & mask) | (v & ~mask);
+
+  /* hgf edcb apon mlkj ixxx xxxx */
+  return v >> 7;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Calculate MAM (Multiply, Add, Modulo).
+ *
+ *  \param  a       Input value a.
+ *  \param  b       Input value b.
+ *
+ *  \return Result of MAM.
+ */
+/*************************************************************************************************/
+static inline uint16_t lmgrCalcMAM(uint16_t a, uint16_t b)
+{
+  /* (17 x a + b) mod 2^16 */
+  return ((17 * a) + b) & 0xFFFFF;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Compute next channel index, algorithm #2.
+ *
+ *  \param  pChanParam    Channel parameters.
+ *  \param  eventCounter  Event Counter.
+ *  \param  numSkip       Number of skip.
+ *  \param  calSubEvt     TRUE if calculation of subevent is needed.
+ *
+ *  \return Next data channel index.
+ */
+/*************************************************************************************************/
+uint8_t LmgrSelectNextChannel(lmgrChanParam_t *pChanParam, uint16_t eventCounter, uint16_t numSkip, bool_t calSubEvt)
+{
+  unsigned int prn;
+
+  /* Ignore parameter since eventCounter is adjusted by client. */
+  (void)numSkip;
+
+  /* Pseudo random number */
+
+  prn = eventCounter ^ pChanParam->chIdentifier;
+  prn = lmgrCalcPerm(prn);
+  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);
+  prn = lmgrCalcPerm(prn);
+  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);
+  prn = lmgrCalcPerm(prn);
+  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);
+
+  pChanParam->prnLast = prn;      /* Used by subevent only. */
+
+  unsigned int prn_e = prn ^ pChanParam->chIdentifier;
+
+  /* unmappedChannel */
+
+  uint16_t unmapChan = LL_MATH_MOD_37(prn_e & 0xFFFF);
+
+  pChanParam->lastChanIdx = unmapChan;
+
+  /* remappingIndex */
+
+  if (!((UINT64_C(1) << unmapChan) & pChanParam->chanMask))
+  {
+    /* remappingIndex = (N * prn_e) / 2^16 */
+    uint8_t remapIdx = (pChanParam->numUsedChan * prn_e) >> 16;
+    if (calSubEvt)
+    {
+      pChanParam->subEvtIdx = remapIdx;
+    }
+    return pChanParam->chanRemapTbl[remapIdx];
+  }
+  else
+  {
+    if (calSubEvt)
+    {
+      for (unsigned int chanIdx = 0; chanIdx < sizeof(pChanParam->chanRemapTbl); chanIdx++)
+      {
+        if (pChanParam->chanRemapTbl[chanIdx] == unmapChan)
+        {
+          pChanParam->subEvtIdx = chanIdx;
+          break;
+        }
+      }
+    }
+  }
+
+  return unmapChan;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Compute next subevent channel index, algorithm #2.
+ *
+ *  \param  pChanParam    Channel parameters.
+ *
+ *  \return Next data channel index.
+ */
+/*************************************************************************************************/
+uint8_t LmgrSelectNextSubEvtChannel(lmgrChanParam_t *pChanParam)
+{
+  uint16_t prn = pChanParam->prnLast;
+  uint8_t subEvtIdx = pChanParam->subEvtIdx;
+  uint8_t d;
+
+  /* Subevent pseudo random number generator. */
+  prn = lmgrCalcPerm(prn);
+  prn = lmgrCalcMAM(prn, pChanParam->chIdentifier);   /* prn is prnSubEvent_lu*/
+
+  pChanParam->prnLast = prn;
+
+  prn = prn ^ pChanParam->chIdentifier;               /* prn is prnSubEvent_se */
+
+  /* Subevent mapped to used channel index. */
+  /* d = max(1, max(min(3, N-5), min(11, (N-10)/2))) */
+  d = WSF_MAX(1, WSF_MAX(WSF_MIN(3, (pChanParam->numUsedChan - 5)), WSF_MIN(11, ((pChanParam->numUsedChan - 10) >> 1))));
+
+  /* subEventIndex = (indexofLAstUsedChannel + d + (prnSubEvent_se * (N - 2 * d +1)/ 2 ^16)) mod N */
+  uint16_t temp = subEvtIdx + d + ((prn * (pChanParam->numUsedChan - (d << 1) + 1)) >> 16);
+  subEvtIdx = temp - (temp / pChanParam->numUsedChan) * pChanParam->numUsedChan;
+
+  pChanParam->subEvtIdx = subEvtIdx;                  /* Update subEvtIdx */
+
+  return pChanParam->chanRemapTbl[subEvtIdx];
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Lmgr Read HCI Supported cmd
+ *
+ *  \return Supported command bitmask table.
+ */
+/*************************************************************************************************/
+uint8_t * LmgrReadHciSupCmd(void)
+{
+  return lmgrCb.hciSupCommands;
 }

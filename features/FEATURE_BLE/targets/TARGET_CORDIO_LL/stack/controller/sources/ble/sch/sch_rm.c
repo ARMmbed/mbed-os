@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Operation list maintenance implementation file.
+ * \file
+ * \brief Operation list maintenance implementation file.
  */
 /*************************************************************************************************/
 
@@ -66,7 +67,10 @@ WSF_CT_ASSERT((SCH_RM_MAX_RSVN <= 32));
 **************************************************************************************************/
 
 /*! \brief      Total number of reservation bins. */
-#define SCH_RM_MAX_RSVN_BINS     ((SCH_RM_MAX_RSVN + (SCH_RM_MAX_RSVN_PREF_PER - 1)) / SCH_RM_MAX_RSVN_PREF_PER)
+#define SCH_RM_MAX_RSVN_BINS      ((sizeof(schRmRsvnRatio)/sizeof(schRmRsvnRatio[0])) - 1)
+
+/*! \brief      Nominal window widening in microseconds in slave scheduler. */
+#define SCH_RM_SLAVE_WW_USECS     100
 
 /**************************************************************************************************
   Global Variables
@@ -75,28 +79,48 @@ WSF_CT_ASSERT((SCH_RM_MAX_RSVN <= 32));
 /*! \brief      Scheduler resource manager control block. */
 SchRmCb_t schRmCb;
 
+/*! \brief      Reservation ratio for each reservation bin. One reservation with 10ms takes 50%, one with 20ms takes 25% and so on. */
+const uint16_t schRmRsvnRatio[] = {50, 25, 17, 13, 10, 5};
+
 /*************************************************************************************************/
 /*!
  *  \brief      Select the preferred interval.
  *
  *  \param      minUsec     Minimum interval in microseconds.
  *  \param      maxUsec     Maximum interval in microseconds.
+ *  \param      prefPerUsec Preferred periodicity in microseconds.
+ *  \param      pref        Preference for selecting the interval.
  *  \param      exclude     Handle to exclude.
  *
  *  \return     Preferred interval in microseconds.
  */
 /*************************************************************************************************/
-static uint32_t schRmSelectPreferredIntervalUsec(uint32_t minUsec, uint32_t maxUsec, uint8_t exclude)
+static uint32_t schRmSelectPreferredIntervalUsec(uint32_t minUsec, uint32_t maxUsec, uint32_t prefPerUsec, uint8_t pref, uint8_t exclude)
 {
-  /*** Select lower bound rounded to preferred interval ***/
+  uint32_t prefInterUsec;
+  uint32_t numInter;
 
-  uint32_t numMinInter = SCH_RM_DIV_PREF_PER(minUsec);
-  uint32_t prefMinInterUsec = numMinInter * SCH_RM_PREF_PER_USEC;
-
-  if (prefMinInterUsec < minUsec)
+  if (pref == SCH_RM_PREF_CAPACITY)   /* Search from upper bound */
   {
-    /* Round up to next periodic interval. */
-    prefMinInterUsec = (numMinInter + 1) * SCH_RM_PREF_PER_USEC;
+    numInter = (prefPerUsec > SCH_RM_PREF_PER_USEC) ? SCH_RM_DIV_PREF_PER(maxUsec) / SCH_RM_DIV_PREF_PER(prefPerUsec) : SCH_RM_DIV_PREF_PER(maxUsec);
+    prefInterUsec = numInter * prefPerUsec;
+
+    /* Use maxUsec if we can not find any interval between min and max with our preferred periodicity. */
+    if (prefInterUsec < minUsec)
+    {
+      prefInterUsec = maxUsec;
+    }
+  }
+  else  /* Search from lower bound */
+  {
+    numInter = (prefPerUsec > SCH_RM_PREF_PER_USEC) ? SCH_RM_DIV_PREF_PER(minUsec) / SCH_RM_DIV_PREF_PER(prefPerUsec) : SCH_RM_DIV_PREF_PER(minUsec);
+    prefInterUsec = numInter * prefPerUsec;
+
+    if (prefInterUsec < minUsec)
+    {
+      /* Round up to next periodic interval. */
+      prefInterUsec = (numInter + 1) * prefPerUsec;
+    }
   }
 
   /*** Prefer existing intervals ***/
@@ -118,7 +142,7 @@ static uint32_t schRmSelectPreferredIntervalUsec(uint32_t minUsec, uint32_t maxU
 
   for (unsigned int i = 0; i < numIntervUsec; i++)
   {
-    if ((intervUsec[i] >= prefMinInterUsec) &&
+    if ((intervUsec[i] >= prefInterUsec) &&
         (intervUsec[i] <= maxUsec))
     {
       return intervUsec[i];
@@ -127,13 +151,13 @@ static uint32_t schRmSelectPreferredIntervalUsec(uint32_t minUsec, uint32_t maxU
 
   /*** Limit upper bound ***/
 
-  if (prefMinInterUsec > maxUsec)
+  if (prefInterUsec > maxUsec)
   {
     /* Limit to max value. */
-    prefMinInterUsec = maxUsec;
+    prefInterUsec = maxUsec;
   }
 
-  return prefMinInterUsec;
+  return prefInterUsec;
 }
 
 /*************************************************************************************************/
@@ -151,7 +175,7 @@ static bool_t schRmCheckRsvnCapacity(uint8_t handle, uint32_t interUsec)
   unsigned int maxBinIdx = 0;
 
   /* Number of reservations by interval size; zero index is SCH_RM_PREF_PER_USEC. */
-  uint8_t numRsvnPerInter[SCH_RM_MAX_RSVN_BINS] = { 0 };
+  uint8_t numRsvnPerInter[SCH_RM_MAX_RSVN_BINS + 1] = { 0 };
   for (unsigned int i = 0; i < SCH_RM_MAX_RSVN; i++)
   {
     unsigned int rsvnIntervUsec;
@@ -172,39 +196,35 @@ static bool_t schRmCheckRsvnCapacity(uint8_t handle, uint32_t interUsec)
 
     /* Bin interval value inclusive of max value. */
     unsigned int binIdx = SCH_RM_DIV_PREF_PER(rsvnIntervUsec - 1);
-    if (binIdx < SCH_RM_MAX_RSVN_BINS)
-    {
-      numRsvnPerInter[binIdx]++;
-      maxBinIdx = WSF_MAX(binIdx, maxBinIdx);
-    }
-    /* Else interval is too large to be significant. */
+
+    binIdx = (binIdx > SCH_RM_MAX_RSVN_BINS) ? SCH_RM_MAX_RSVN_BINS : binIdx;
+    numRsvnPerInter[binIdx]++;
+    maxBinIdx = WSF_MAX(binIdx, maxBinIdx);
   }
 
   /* Check capacity. */
-  unsigned int numRsvnLimit = 0;
-  unsigned int numRsvnSum = 0;
+
+  uint16_t rsvnPerc = 0;    /* Reservation percentage */
+  uint16_t numRsvn;
   bool_t isMaxCap = FALSE;
+
   for (unsigned int i = 0; i < (maxBinIdx + 1); i++)
   {
-    if (!isMaxCap)
+    numRsvn = numRsvnPerInter[i];
+    while (numRsvn)
     {
-      numRsvnLimit += SCH_RM_MAX_RSVN_PREF_PER;
-      numRsvnSum += numRsvnPerInter[i];
-
-      if (numRsvnSum > numRsvnLimit)
+      if (!isMaxCap)
       {
-        /* Capacity exceeded. */
-        return FALSE;
+        rsvnPerc += schRmRsvnRatio[i];
+        numRsvn--;
+
+        if (rsvnPerc >= 100)
+        {
+          isMaxCap = TRUE;
+        }
       }
 
-      if (numRsvnSum == numRsvnLimit)
-      {
-        isMaxCap = TRUE;
-      }
-    }
-    else
-    {
-      if (numRsvnPerInter[i])
+      if (isMaxCap && (numRsvn > 0))
       {
         /* Capacity exceeded. */
         return FALSE;
@@ -217,227 +237,372 @@ static bool_t schRmCheckRsvnCapacity(uint8_t handle, uint32_t interUsec)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Find reservations with equal intervals.
+ *  \brief      Calculate depth between interval.
  *
- *  \param      rsvn            Sorted reservation sequence table.
- *  \param      numRsvn         Number of reservations in sequence table.
- *  \param      handle          Target reservation handle.
- *  \param      pSelectMask     Bitmask of selected reservations.
- *  \param      pNumSelected    Number of selected reservations.
+ *  \param      intLarge    Larger interval to be compared.
+ *  \param      intSmall    Smaller interval to be compared.
+ *
+ *  \return     Depth between intervals.
+ */
+/*************************************************************************************************/
+static uint8_t schRmIntCalculateDepth(uint32_t intLarge, uint32_t intSmall)
+{
+  uint8_t x;
+  uint8_t depth = 0;
+  uint32_t tmpInt = intLarge;
+
+  WSF_ASSERT(intLarge > intSmall);
+
+  for (x = 0; (x < SCH_RM_MAX_SEARCH_DEPTH) && (tmpInt > SCH_RM_MIN_OFFSET_UNIT); x++)
+  {
+    tmpInt >>= 1;
+    if (tmpInt == intSmall)
+    {
+      depth = x + 1;
+      break;
+    }
+  }
+
+  return depth;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Add resource manager offset for the specified handle.
+ *
+ *  \param      handle      Client defined reservation handle.
+ *  \param      depth       Offset depth of the interval of the handle compared to maxConInt.
+ *
+ *  \return     TRUE if update was successful, FALSE otherwise..
+ */
+/*************************************************************************************************/
+static bool_t schRmIntAddRmOffset(uint8_t handle, uint8_t depth)
+{
+  bool_t updated = FALSE;
+  uint8_t x, y, numBitsOn;
+
+  WSF_ASSERT(schRmCb.offsetDepth >= depth);
+
+  for (x = 0; x < (1 << (schRmCb.offsetDepth - depth)); x++)
+  {
+    /* Depth 0 means that the interval of the handle is same as common interval. Depth 1 means that it is half of common interval. */
+    /* When offsetDepth is 3(8 bits) and depth is 1, we will cut rmStatus in half and check if the bits in same location are all zero. */
+    numBitsOn = 0;
+    for (y = 0; y < (1 << depth); y++)
+    {
+      if ((schRmCb.rmStatus >> ((1 << (schRmCb.offsetDepth - depth)) * y + x)) & 0x01)
+      {
+        numBitsOn++;
+      }
+    }
+
+    /* Found available offset bit(s). */
+    if (numBitsOn == 0)
+    {
+      /* Set all the bits */
+      for (y = 0; y < (1 << depth); y++)
+      {
+        schRmCb.rmStatus |= (0x01 << ((1 << (schRmCb.offsetDepth - depth)) * y + x));
+      }
+
+      schRmCb.rsvn[handle].offsetBit = x;
+      schRmCb.rsvn[handle].commIntUsed = TRUE;
+      updated = TRUE;
+
+      LL_TRACE_WARN2("schRmIntAddRmOffset, handle = %u, offsetDepth = %u", handle, schRmCb.offsetDepth);
+      LL_TRACE_WARN1("                     rmStatus = 0x%x", schRmCb.rmStatus);
+      LL_TRACE_WARN1("                     commonInt = %u", schRmCb.commonInt);
+      break;
+    }
+  }
+
+  return updated;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Increase reservation manager offset depth.
+ *
+ *  \param      depth     Offset depth to be increased.
  *
  *  \return     None.
  */
 /*************************************************************************************************/
-static void schRmFindEqualIntervals(schRmRsvn_t rsvn[], uint8_t numRsvn, uint8_t handle,
-                                    uint32_t *pSelectMask, uint8_t *pNumSelected)
+static void schRmIntIncOffsetDepth(uint8_t depth)
 {
-  WSF_ASSERT(numRsvn > 0);
+  uint32_t tmpStatus = schRmCb.rmStatus;
+  uint8_t x, handle;
 
-  const uint32_t inter = schRmCb.rsvnInterUsec[handle];
-
-  uint32_t selectMask = 0;
-  uint8_t numSelected = 0;
-
-  for (unsigned int i = 0; i < numRsvn; i++)
+  /* b'11 becomes b'00010001, when depth is 2. */
+  schRmCb.rmStatus = 0;
+  for (x = 0; x < (1 << schRmCb.offsetDepth); x++)
   {
-    if (rsvn[i].interUsec == inter)
+    if ((tmpStatus >> x) & 0x01)
     {
-      selectMask |= 1 << i;
-      numSelected++;
+      schRmCb.rmStatus |= (0x01 << (x * (1 << depth)));
     }
   }
 
-  /* Return values. */
-  *pSelectMask = selectMask;
-  *pNumSelected = numSelected;
+  schRmCb.offsetDepth += depth;
+
+  /* Update database according to the new offsetDepth. */
+  for (handle = 0; handle < SCH_RM_MAX_RSVN; handle++)
+  {
+    if (schRmCb.rsvn[handle].commIntUsed)
+    {
+      /* For example, with depth 2, bit1 will move into bit4. */
+      schRmCb.rsvn[handle].offsetBit *= (1 << depth);
+    }
+  }
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Find reservations with the largest intervals.
- *
- *  \param      rsvn        Sorted reservation sequence table.
- *  \param      numRsvn     Number of reservations in sequence table.
- *  \param      pSelectMask Bitmask of selected reservations.
+ *  \brief      Decrease reservation manager offset depth by one if necessary.
  *
  *  \return     None.
  */
 /*************************************************************************************************/
-static void schRmFindLargestIntervals(schRmRsvn_t rsvn[], uint8_t numRsvn, uint32_t *pSelectMask)
+static void schRmIntCheckDecOffsetDepth(void)
 {
-  WSF_ASSERT(numRsvn > 0);
+  uint32_t tmpStatus = schRmCb.rmStatus;
+  uint8_t x, evenOdd, other, handle, numBitsOn;
+  uint8_t depth = schRmCb.offsetDepth - 1;
 
-  /* Initially the largest interval is first reservation. */
-  uint32_t selectMask = 1 << 0;
-  uint32_t lgInterUsec = rsvn[0].interUsec;
-
-  /* Start comparison with the second reservation. */
-  for (unsigned int i = 1; i < numRsvn; i++)
+  if (schRmCb.offsetDepth < 2)
   {
-    if (rsvn[i].interUsec < lgInterUsec)
-    {
-      /* Skip this reservation. */
-      continue;
-    }
-
-    if (rsvn[i].interUsec > lgInterUsec)
-    {
-      /* New largest interval found. */
-      selectMask = 0;
-      lgInterUsec = rsvn[i].interUsec;
-    }
-
-    selectMask |= 1 << i;
+    /* nothing to do. */
+    return;
   }
 
-  /* Return values. */
-  *pSelectMask = selectMask;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Find largest gap between start times of reservation with equal intervals.
- *
- *  \param      rsvn        Sorted reservation sequence table.
- *  \param      numRsvn     Number of reservations in sequence table.
- *  \param      selectMask  Bitmask of equal interval reservations.
- *
- *  \return     Offset in microseconds of the center of the largest gap.
- */
-/*************************************************************************************************/
-static uint32_t schRmFindLargestGapOffsetUsec(schRmRsvn_t rsvn[], uint8_t numRsvn, uint32_t selectMask)
-{
-  WSF_ASSERT(numRsvn > 0);
-  WSF_ASSERT(selectMask != 0);
-
-  schRmRsvn_t *pFirstRsvn = NULL;
-  schRmRsvn_t *pLastRsvn = NULL;
-  schRmRsvn_t *pLgGapEnd = NULL;
-  uint32_t lgGap = 0;
-  uint32_t gapStartOffsUsec = 0;
-
-  for (unsigned int i = 0; i < numRsvn; i++)
+  /* b'1010 with depth 2 is same as b'11 with depth 1. */
+  /* Check if all even or odd bits are zero. */
+  for (evenOdd = 0; evenOdd < 2; evenOdd++)
   {
-    if ((selectMask & (1 << i)) == 0)
-    {
-      continue;
-    }
+    numBitsOn = 0;
+    other = (evenOdd == 0) ? 1 : 0; /* When checking even bits, other is 1. */
 
-    if (!pFirstRsvn)
+    for (x = 0; x < (1 << depth); x++)
     {
-      pFirstRsvn = &rsvn[i];
-    }
-
-    uint32_t gap = pLastRsvn ? (rsvn[i].offsUsec - pLastRsvn->offsUsec) : rsvn[i].offsUsec;
-
-    /* Favor latest offset. */
-    if (lgGap <= gap)
-    {
-      lgGap = gap;
-      if (pLgGapEnd)
+      if ((tmpStatus >> (x * 2 + evenOdd)) & 0x01)
       {
-        gapStartOffsUsec = pLgGapEnd->offsUsec;
-      }
-      pLgGapEnd = &rsvn[i];
-    }
-
-    pLastRsvn = &rsvn[i];
-  }
-
-  /* Check end of sequence gap. */
-  if (pFirstRsvn)       /* pLastRsvn valid if pFirstRsvn valid */
-  {
-    uint32_t firstNextOffsUsec = pFirstRsvn->offsUsec + pFirstRsvn->interUsec;
-    WSF_ASSERT(firstNextOffsUsec > pLastRsvn->offsUsec);
-
-    if (firstNextOffsUsec > pLastRsvn->offsUsec)
-    {
-      uint32_t gap = firstNextOffsUsec - pLastRsvn->offsUsec;
-
-      /* Favor earliest offset. */
-      if (lgGap < gap)
-      {
-        lgGap = gap;
-        gapStartOffsUsec = pLastRsvn->offsUsec;
+        numBitsOn++;
       }
     }
-  }
 
-  return gapStartOffsUsec + (lgGap >> 1);
+    if (numBitsOn == 0)
+    {
+      schRmCb.offsetDepth--;
+      schRmCb.rmStatus = 0;
+
+      for (x = 0; x < (1 << depth); x++)
+      {
+        if ((tmpStatus >> (x * 2 + other)) & 0x01)
+        {
+          schRmCb.rmStatus |= (0x01 << (x));
+        }
+      }
+
+      /* Update database according to the new offsetDepth. */
+      for (handle = 0; handle < SCH_RM_MAX_RSVN; handle++)
+      {
+        if (schRmCb.rsvn[handle].commIntUsed)
+        {
+          schRmCb.rsvn[handle].offsetBit >>= 1;
+
+          /* The handle for Bit0 is updated to reference handle. */
+          if (schRmCb.rsvn[handle].offsetBit == 0)
+          {
+            schRmCb.refHandle = handle;
+          }
+        }
+      }
+
+      return;
+    }
+  }
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Select initial offset considering existing reservations.
+ *  \brief      Remove resource manager offset for the specified handle.
  *
- *  \param      rsvn        Sorted reservation sequence table.
- *  \param      numRsvn     Number of reservations in sequence table.
- *  \param      selectMask  Bitmask of selected reservations in rsvn[].
- *  \param      numSelected Number of selected reservations in rsvn[].
+ *  \param      handle      Client defined reservation handle.
  *
- *  \return     Suggested offset in microseconds.
+ *  \return     TRUE if update was successful, FALSE otherwise..
  */
 /*************************************************************************************************/
-static uint32_t schRmSelectInitOffset(schRmRsvn_t rsvn[], uint8_t numRsvn, uint32_t selectMask, uint8_t numSelected)
+static void schRmIntRemoveRmOffset(uint8_t handle)
 {
-  uint32_t interUsec = 0;
+  uint8_t x, depth;
 
-  for (unsigned int i = 0; i < numRsvn; i++)
+  if (schRmCb.rsvn[handle].commIntUsed)
   {
-    if ((selectMask & (1 << i)) == 0)
+    /* The interval of this handle must be equal to or smaller than the common interval. */
+    if (schRmCb.commonInt == schRmCb.rsvn[handle].interUsec)
     {
-      /* Reservation not selected. */
-      continue;
+      schRmCb.rmStatus &= ~(1 << schRmCb.rsvn[handle].offsetBit);
+    }
+    else
+    {
+      depth = schRmIntCalculateDepth(schRmCb.commonInt, schRmCb.rsvn[handle].interUsec);
+
+      if (depth)
+      {
+        for (x = 0; x < (1 << depth); x++)
+        {
+          schRmCb.rmStatus &= ~(1 << ((1 << (schRmCb.offsetDepth - depth)) * x + schRmCb.rsvn[handle].offsetBit));
+        }
+      }
     }
 
-    interUsec = rsvn[i].interUsec;
-    break;
+    schRmCb.rsvn[handle].commIntUsed = FALSE;
+
+    /* Adjust offsetDepth if necessary. */
+    schRmIntCheckDecOffsetDepth();
+
+    /* All the reservations are removed. */
+    if (schRmCb.rmStatus == 0)
+    {
+      schRmCb.commonInt = 0;
+      schRmCb.offsetDepth = 0;
+    }
+
+    LL_TRACE_WARN2("schRmIntRemoveRmOffset, handle = %u, offsetDepth = %u", handle, schRmCb.offsetDepth);
+    LL_TRACE_WARN1("                        rmStatus = 0x%x", schRmCb.rmStatus);
+    LL_TRACE_WARN1("                        commonInt = %u", schRmCb.commonInt);
   }
-
-  WSF_ASSERT(interUsec != 0);
-
-  uint32_t offsetUsec = schRmFindLargestGapOffsetUsec(rsvn, numRsvn, selectMask);
-
-  if (offsetUsec > interUsec)
+  else
   {
-    /* Ensure offset is within bounds. */
-    offsetUsec -= interUsec;
+    if (schRmCb.indexUncommon > 0)
+    {
+      /* Uncommon handle by reservation manager. */
+      schRmCb.indexUncommon--;
+      LL_TRACE_WARN2("schRmIntRemoveRmOffset, deleted uncommon index %u, Handle = %u", schRmCb.indexUncommon, handle);
+    }
   }
-
-  return offsetUsec;
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Build reservation table.
+ *  \brief      Increase common interval of reservation manager.
  *
- *  \param      rsvn        Target reservation sequence table.
- *  \param      rsvnOffs    List of reservation offsets indexed by handle.
- *  \param      exclude     Handle of reservation to exclude.
+ *  \param      depth     Depth between current interval and new interval.
  *
- *  \return     Number of valid reservation entries.
+ *  \return     None.
  */
 /*************************************************************************************************/
-uint8_t schRmBuildReservationTable(schRmRsvn_t rsvn[], uint32_t rsvnOffs[], uint8_t exclude)
+static void schRmIntIncCommInterval(uint8_t depth)
 {
-  uint8_t numRsvn = 0;
+  uint8_t x, y;
+  uint32_t tmpStatus = schRmCb.rmStatus;
 
-  for (unsigned int i = 0; i < SCH_RM_MAX_RSVN; i++)
+  WSF_ASSERT(depth > 0);
+
+  schRmCb.commonInt = schRmCb.commonInt << depth;
+
+  /* Reconstruct rmStatus as to the new common interval. */
+  schRmCb.rmStatus = 0;
+  for (x = 0; x < (1 << schRmCb.offsetDepth); x++)
   {
-    if ((schRmCb.rsvnInterUsec[i]) &&
-        (i != exclude))
+    if ((tmpStatus >> x) & 0x01)
     {
-      rsvn[numRsvn].handle = i;
-      rsvn[numRsvn].offsUsec = rsvnOffs[i];
-      rsvn[numRsvn].interUsec = schRmCb.rsvnInterUsec[i];
-
-      numRsvn++;
+      for (y = 0; y < (1 << depth); y++)
+      {
+        schRmCb.rmStatus |= (0x01 << (y * (1 << schRmCb.offsetDepth) + x));
+      }
     }
   }
 
-  schRmSortRsvnList(rsvn, numRsvn);
+  schRmCb.offsetDepth += depth;
 
-  return numRsvn;
+  /* Offset bit location(offsetBit) stays same for existing handles. */
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Handle Adding resource manager offset for the specified handle.
+ *
+ *  \param      handle      Client defined reservation handle.
+ *
+ *  \return     TRUE if update was successful, FALSE otherwise..
+ */
+/*************************************************************************************************/
+static void schRmIntHandleAddRmOffset(uint8_t handle, uint32_t newInterUsec)
+{
+  schRmCb.rsvn[handle].handle = handle;
+  schRmCb.rsvn[handle].interUsec = newInterUsec;
+
+  /* Let's assume all connections are with common multiples. */
+  /* Will add function later to determine if 2 intervals are with common intervals. */
+  if (schRmCb.commonInt == 0)
+  {
+    schRmCb.commonInt = newInterUsec;
+    schRmCb.indexUncommon = 0;
+    schRmCb.offsetDepth = 0;  /* Offset unit is same as commonInt. */
+    schRmCb.rmStatus = 0x01;  /* 100 percent reserved. */
+
+    schRmCb.rsvn[handle].offsetBit = 0;
+    schRmCb.rsvn[handle].commIntUsed = TRUE;
+    schRmCb.refHandle = handle;
+  }
+  else if (schRmCb.commonInt == newInterUsec)
+  {
+    if (!schRmIntAddRmOffset(handle, 0))
+    {
+      /* Offset depth needs to be increased if RM status is full with the current depth. */
+      schRmIntIncOffsetDepth(1);
+      (void)schRmIntAddRmOffset(handle, 0);
+    }
+  }
+  else if (schRmCb.commonInt < newInterUsec)   /* new interval is multiple of commonInt. */
+  {
+    uint8_t depth = schRmIntCalculateDepth(newInterUsec, schRmCb.commonInt);
+
+    if (depth)
+    {
+      schRmIntIncCommInterval(depth);
+
+      if (!schRmIntAddRmOffset(handle, 0))
+      {
+        /* Offset depth needs to be increased if RM status is full with the current depth. */
+        schRmIntIncOffsetDepth(1);
+        (void)schRmIntAddRmOffset(handle, 0);
+      }
+    }
+    else
+    {
+      /* Uncommon handle by reservation manager. */
+      schRmCb.indexUncommon++;
+      LL_TRACE_WARN2("Adding uncommon index %u, Handle = %u", schRmCb.indexUncommon, handle);
+    }
+  }
+  else if (schRmCb.commonInt > newInterUsec)
+  {
+    uint8_t depth = schRmIntCalculateDepth(schRmCb.commonInt, newInterUsec);
+
+    if (depth)
+    {
+      /* First update offset depth so that offset unit would be same as new interval. */
+      if (schRmCb.offsetDepth < depth)
+      {
+        schRmIntIncOffsetDepth(depth - schRmCb.offsetDepth);
+      }
+
+      if (!schRmIntAddRmOffset(handle, depth))
+      {
+        /* Offset depth needs to be increased if RM status is full with the current depth. */
+        schRmIntIncOffsetDepth(1);
+        (void)schRmIntAddRmOffset(handle, depth);
+      }
+    }
+    else
+    {
+      /* Uncommon handle by reservation manager. */
+      schRmCb.indexUncommon++;
+      LL_TRACE_WARN2("Adding uncommon index %u, Handle = %u", schRmCb.indexUncommon, handle);
+    }
+  }
 }
 
 /*************************************************************************************************/
@@ -484,47 +649,6 @@ void schRmSortListDescending(uint32_t item[], uint8_t numItems)
 
 /*************************************************************************************************/
 /*!
- *  \brief      In-place sorting of a reservation description list.
- *
- *  \param      rsvn        Reservation descriptor table.
- *  \param      numRsvn     Number of reservation descriptors in rsvn[].
- *
- *  \return     None.
- */
-/*************************************************************************************************/
-void schRmSortRsvnList(schRmRsvn_t rsvn[], uint8_t numRsvn)
-{
-  if (numRsvn <= 1)
-  {
-    return;
-  }
-
-  unsigned int numUnsorted = numRsvn;
-
-  do
-  {
-    unsigned int swapIdx = 0;
-
-    for (unsigned int i = 1; i < numUnsorted; i++)
-    {
-      if (rsvn[i-1].offsUsec > rsvn[i].offsUsec)
-      {
-        schRmRsvn_t tmp;
-        memcpy(&tmp, &rsvn[i-1], sizeof(schRmRsvn_t));
-        memcpy(&rsvn[i-1], &rsvn[i], sizeof(schRmRsvn_t));
-        memcpy(&rsvn[i], &tmp, sizeof(schRmRsvn_t));
-        swapIdx = i;
-      }
-    }
-
-    /* Reservations after swapIdx are sorted. */
-    numUnsorted = swapIdx;
-
-  } while (numUnsorted > 1);
-}
-
-/*************************************************************************************************/
-/*!
  *  \brief      Initialize the resource manager.
  *
  *  \return     None.
@@ -549,9 +673,32 @@ uint32_t SchRmPreferredPeriodUsec(void)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Calculate the common periodicity.
+ *
+ *  \param      peerPerUsec Peer's periodicity in microseconds.
+ *
+ *  \return     Common periodicity in microseconds.
+ */
+/*************************************************************************************************/
+uint32_t SchRmCalcCommonPeriodicityUsec(uint32_t peerPerUsec)
+{
+  /* Is peer periodicity a multiple of local periodicity? */
+  if ((SCH_RM_DIV_PREF_PER(peerPerUsec) * SCH_RM_PREF_PER_USEC) == peerPerUsec)
+  {
+    /* Accommodate the peer's periodicity. */
+    return WSF_MAX(SCH_RM_PREF_PER_USEC, peerPerUsec);
+  }
+
+  /* Default to local preference. */
+  return SCH_RM_PREF_PER_USEC;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Validate and commit a new reservation against collision.
  *
  *  \param      handle      Client defined reservation handle.
+ *  \param      pref        Preference for selecting the interval.
  *  \param      minUsec     Minimum interval in microseconds.
  *  \param      maxUsec     Maximum interval in microseconds.
  *  \param      durUsec     Duration of the connection in microseconds.
@@ -560,15 +707,21 @@ uint32_t SchRmPreferredPeriodUsec(void)
  *  \return     TRUE if reservation available, FALSE otherwise.
  */
 /*************************************************************************************************/
-bool_t SchRmAdd(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t durUsec, uint32_t *pInterUsec)
+bool_t SchRmAdd(uint8_t handle, uint8_t pref, uint32_t minUsec, uint32_t maxUsec, uint32_t durUsec, uint32_t *pInterUsec, GetRefTimeCb_t refTimeCb)
 {
+  uint32_t perfPerUsec = SCH_RM_PREF_PER_CONN_USEC;
+
   WSF_ASSERT(handle < SCH_RM_MAX_RSVN);
   WSF_ASSERT(maxUsec >= minUsec);
-  WSF_ASSERT(durUsec <= (SCH_RM_PREF_PER_USEC / SCH_RM_MAX_RSVN_PREF_PER));
+
+  if (pref == SCH_RM_PREF_CAPACITY)
+  {
+    perfPerUsec = SCH_RM_PREF_PER_SYNC_USEC;
+  }
 
   /*** Select reservation's preferred interval. ***/
 
-  uint32_t prefInterUsec = schRmSelectPreferredIntervalUsec(minUsec, maxUsec, handle);
+  uint32_t prefInterUsec = schRmSelectPreferredIntervalUsec(minUsec, maxUsec, perfPerUsec, pref, handle);
 
   /*** Check reservation capacity. ***/
 
@@ -581,7 +734,13 @@ bool_t SchRmAdd(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t dur
 
   schRmCb.rsvnInterUsec[handle] = prefInterUsec;
   schRmCb.numRsvn++;
-  *pInterUsec = prefInterUsec;
+  if (pInterUsec)
+  {
+    *pInterUsec = prefInterUsec;
+  }
+
+  schRmIntHandleAddRmOffset(handle, prefInterUsec);
+  schRmCb.rsvn[handle].refTimeCb = refTimeCb;
 
   return TRUE;
 }
@@ -593,6 +752,7 @@ bool_t SchRmAdd(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t dur
  *  \param      handle      Client defined reservation handle.
  *  \param      minUsec     Minimum interval in microseconds.
  *  \param      maxUsec     Maximum interval in microseconds.
+ *  \param      perfPerUsec Preferred periodicity in microseconds.
  *  \param      durUsec     Duration of the connection in microseconds.
  *  \param      pInterUsec  Actual interval return value in microseconds.
  *
@@ -601,15 +761,14 @@ bool_t SchRmAdd(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t dur
  *  \note       For BLE, connection belonging to handle must be a master only.
  */
 /*************************************************************************************************/
-bool_t SchRmStartUpdate(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t durUsec, uint32_t *pInterUsec)
+bool_t SchRmStartUpdate(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint32_t perfPerUsec, uint32_t durUsec, uint32_t *pInterUsec)
 {
   WSF_ASSERT(handle < SCH_RM_MAX_RSVN);
   WSF_ASSERT(maxUsec >= minUsec);
-  WSF_ASSERT(durUsec <= (SCH_RM_PREF_PER_USEC / SCH_RM_MAX_RSVN_PREF_PER));
 
   /*** Select reservation's preferred interval. ***/
 
-  uint32_t prefInterUsec = schRmSelectPreferredIntervalUsec(minUsec, maxUsec, handle);
+  uint32_t prefInterUsec = schRmSelectPreferredIntervalUsec(minUsec, maxUsec, perfPerUsec, SCH_RM_PREF_PERFORMANCE, handle);
 
   /*** Check reservation capacity. ***/
 
@@ -622,6 +781,9 @@ bool_t SchRmStartUpdate(uint8_t handle, uint32_t minUsec, uint32_t maxUsec, uint
 
   schRmCb.rsvnInterUsec[handle] = prefInterUsec;
   *pInterUsec = prefInterUsec;
+
+  schRmIntRemoveRmOffset(handle);
+  schRmIntHandleAddRmOffset(handle, prefInterUsec);
 
   return TRUE;
 }
@@ -656,6 +818,8 @@ void SchRmRemove(uint8_t handle)
 
   schRmCb.rsvnInterUsec[handle] = 0;
   schRmCb.numRsvn--;
+
+  schRmIntRemoveRmOffset(handle);
 }
 
 /*************************************************************************************************/
@@ -679,15 +843,19 @@ void SchRmSetReference(uint8_t handle)
 /*!
  *  \brief      Get the next available offset in microseconds.
  *
- *  \param      rsvnOffs    List of reservation offsets indexed by handle.
  *  \param      defOffsUsec Default offset in microseconds.
  *  \param      handle      Reservation handle.
+ *  \param      refTime     Reference time in BB ticks.
  *
  *  \return     Offset in microseconds.
  */
 /*************************************************************************************************/
-uint32_t SchRmGetOffsetUsec(uint32_t rsvnOffs[], uint32_t defOffsUsec, uint8_t handle)
+uint32_t SchRmGetOffsetUsec(uint32_t defOffsUsec, uint8_t handle, uint32_t refTime)
 {
+  uint32_t rmRefTime = refTime;
+  uint32_t offsUsec, targetTime;
+  uint32_t offsetUnitUs = schRmCb.commonInt >> schRmCb.offsetDepth;
+
   WSF_ASSERT(schRmCb.numRsvn);
 
   if (schRmCb.numRsvn <= 1)
@@ -696,28 +864,74 @@ uint32_t SchRmGetOffsetUsec(uint32_t rsvnOffs[], uint32_t defOffsUsec, uint8_t h
     return defOffsUsec;
   }
 
-  schRmRsvn_t rsvn[SCH_RM_MAX_RSVN];
-  uint8_t numRsvn;
-  uint8_t numSelected;
-  uint32_t selectMask;
-  numRsvn = schRmBuildReservationTable(rsvn, rsvnOffs, handle);
-
-  /* Attempt alignment with existing reservations at equal intervals. */
-  schRmFindEqualIntervals(rsvn, numRsvn, handle, &selectMask, &numSelected);
-  if (numSelected)
+  /* rmRefTime is the time for offset bit 0. */
+  if (schRmCb.rsvn[schRmCb.refHandle].refTimeCb != NULL)
   {
-    return schRmSelectInitOffset(rsvn, numRsvn, selectMask, numSelected);
+    rmRefTime = schRmCb.rsvn[schRmCb.refHandle].refTimeCb(schRmCb.refHandle, NULL);
   }
 
-  /* Else align with largest interval reservations. */
-  schRmFindLargestIntervals(rsvn, numRsvn, &selectMask);
-  uint32_t lgGapOffsUsec = schRmFindLargestGapOffsetUsec(rsvn, numRsvn, selectMask);
-
-  /* Ensure offset is within bounds. */
-  while (lgGapOffsUsec > schRmCb.rsvnInterUsec[handle])
+  if ((schRmCb.commonInt != 0) && (schRmCb.rsvn[handle].commIntUsed == TRUE))
   {
-    lgGapOffsUsec = lgGapOffsUsec >> 1;
+    /* Time of Offset bit n = rmRefTime + offsetUnit * n. */
+    offsUsec = offsetUnitUs * schRmCb.rsvn[handle].offsetBit;
+    if (offsUsec == 0)
+    {
+      offsUsec += schRmCb.rsvn[handle].interUsec;
+    }
+
+    targetTime = rmRefTime + BB_US_TO_BB_TICKS(offsUsec);
+
+    LL_TRACE_WARN2("SchRmGetOffsetUsec, handle = %u, refHandle = %u", handle, schRmCb.refHandle);
+    LL_TRACE_WARN1("                    refTime = %u", refTime);
+    LL_TRACE_WARN1("                    targetTime = %u", targetTime);
+  }
+  else
+  {
+    uint8_t offsetBit = 0;
+    uint8_t numUncommon = schRmCb.indexUncommon;
+    uint32_t uncommonOffsetUs = SCH_RM_OFFSET_UNCOMMON; /* Offset in microseconds for uncommon handle */
+
+    numUncommon--;
+    while (numUncommon)
+    {
+      offsetBit++;
+      numUncommon--;
+      offsetBit = (offsetBit >= (1 << schRmCb.offsetDepth)) ? 0 : offsetBit;
+    }
+
+    /* Find the duration of BOD of the handle which occupies the offset bit. */
+    for (uint8_t i = 0; i < SCH_RM_MAX_RSVN; i++)
+    {
+      if ((schRmCb.rsvn[i].offsetBit == offsetBit) && (schRmCb.rsvn[i].commIntUsed == TRUE))
+      {
+        if (schRmCb.rsvn[i].refTimeCb != NULL)
+        {
+          (void)schRmCb.rsvn[i].refTimeCb(i, &uncommonOffsetUs);
+          uncommonOffsetUs += BbGetSchSetupDelayUs();
+        }
+      }
+    }
+
+    /* Place the uncommon handle away from each common ones to avoid conflicts. */
+    targetTime = rmRefTime + BB_US_TO_BB_TICKS(offsetBit * offsetUnitUs) + BB_US_TO_BB_TICKS(uncommonOffsetUs);
+
+    LL_TRACE_WARN2("SchRmGetOffsetUsec, uncommon handle = %u, refHandle = %u", handle, schRmCb.refHandle);
+    LL_TRACE_WARN1("                    refTime = %u", refTime);
+    LL_TRACE_WARN1("                    targetTime = %u", targetTime);
   }
 
-  return lgGapOffsUsec;
+  /* Time to return has to be future from refTime. */
+  while (targetTime - refTime >= SCH_RM_MAX_SPAN)
+  {
+    targetTime += BB_US_TO_BB_TICKS(schRmCb.rsvn[handle].interUsec);
+  }
+
+  /* 0 < targetTime <= interval */
+  while (targetTime - refTime > BB_US_TO_BB_TICKS(schRmCb.rsvn[handle].interUsec))
+  {
+    targetTime -= BB_US_TO_BB_TICKS(schRmCb.rsvn[handle].interUsec);
+  }
+
+  LL_TRACE_WARN1("                    offsUsec = %u", (targetTime - refTime));
+  return BB_TICKS_TO_US(targetTime - refTime);
 }

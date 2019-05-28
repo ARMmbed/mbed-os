@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller connection interface file.
+ * \file
+ * \brief Link layer controller connection interface file.
  */
 /*************************************************************************************************/
 
@@ -77,6 +78,12 @@ enum
   LCTR_CONN_MSG_API_DATA_LEN_CHANGE,    /*!< Data length change API event. */
   LCTR_CONN_MSG_API_PHY_UPDATE,         /*!< PHY update API event. */
   LCTR_CONN_MSG_API_SET_MIN_USED_CHAN,  /*!< Set minimum number of used channels API event. */
+  LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF,  /*!< Periodic advertising sync transfer API event. */
+  LCTR_CONN_MSG_API_REQ_PEER_SCA,       /*!< Request peer SCA. */
+  LCTR_CONN_MSG_API_CIS_REQ,            /*!< CIS request API event. */
+  LCTR_CONN_MSG_API_CIS_REQ_ACCEPT,     /*!< Peer CIS request accept API event. */
+  LCTR_CONN_MSG_API_CIS_REQ_REJECT,     /*!< Peer CIS request accept API event. */
+
   /* Internal events */
   _LCTR_CONN_INT_EVENTS                 = 40,
   LCTR_CONN_DATA_PENDING,               /*!< New data pending. */
@@ -93,13 +100,15 @@ enum
   LCTR_CONN_LLCP_START_PENDING,         /*!< Start pending LLCP procedure. */
   LCTR_CONN_LLCP_SKIP_CONN_PARAM,       /*!< Skip connection parameter exchange. */
   LCTR_CONN_LLCP_REJECT_CONN_UPD,       /*!< Reject a connection update. */
-  _LCTR_CONN_TERM_EVENTS                = 60,
+  _LCTR_CONN_TERM_EVENTS                = 70,
   LCTR_CONN_TERM_SUP_TIMEOUT,           /*!< Terminate connection due to supervision timeout. */
   LCTR_CONN_TERM_MIC_FAILED,            /*!< Terminate connection due to MIC failure. */
   LCTR_CONN_TERM_INST_PASSED,           /*!< Terminate connection due to instant passed. */
+  LCTR_CONN_TERM_CIS_LOCAL_RESOURCE,    /*!< Terminate CIS connection due to local resource limitation. */
   LCTR_CONN_TERMINATED,                 /*!< Connection event terminated. */
-  _LCTR_CONN_TMR_EVENTS                 = 70,
+  _LCTR_CONN_TMR_EVENTS                 = 80,
   LCTR_CONN_TMR_LLCP_RSP_EXP,           /*!< LLCP response timer expired. */
+  LCTR_CONN_TMR_CIS_LLCP_RSP_EXP,       /*!< CIS LLCP response timer expired. */
   LCTR_CONN_TMR_PING_PERIOD_EXP,        /*!< LE Ping period timer expired. */
   LCTR_CONN_TMR_AUTH_PAYLOAD_EXP        /*!< Authentication payload timer expired. */
 };
@@ -114,13 +123,6 @@ typedef struct
   lctrMsgHdr_t      hdr;                /*!< Message header. */
   LlConnSpec_t      connSpec;           /*!< Updated connection specification. */
 } lctrConnUpdate_t;
-
-/*! \brief      Channel map update message. */
-typedef struct
-{
-  lctrMsgHdr_t      hdr;                /*!< Message header. */
-  uint64_t          chanMap;            /*!< Channel map. */
-} lctrChanMapUpdate_t;
 
 /*! \brief      Disconnect message. */
 typedef struct
@@ -185,6 +187,45 @@ typedef struct
   uint8_t           minUsedChan;        /*!< Minimum number of used channels. */
 } lctrSetMinUsedChan_t;
 
+/*! \brief      Periodic advertising sync transfer message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint16_t          syncSource;         /*!< Periodic sync source. */
+  uint16_t          syncHandle;         /*!< Periodic sync handle. */
+  uint16_t          serviceData;        /*!< Service data provided by the host. */
+} lctrPerAdvSyncTrsf_t;
+
+/*! \brief      Set minimum number of used channels message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint8_t           action;             /*!< Action. */
+} lctrScaReq_t;
+
+/*! \brief      CIS set CIG test CIS parameters. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint16_t          cisHandle;          /*!< CIS handle. */
+} lctrCreateCis_t;
+
+/*! \brief      Internal reject CIS request message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                    /*!< Message header. */
+//  uint16_t          cisHandle;              /*!< CIS handle. */
+  uint8_t           reason;                 /*!< Reject reason. */
+} lctrRejCisReq_t;
+
+/*! \brief      Disconnect message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint8_t           reason;             /*!< Disconnect reason. */
+  uint16_t          cisHandle;          /*!< CIS handle. */
+} lctrCisDisc_t;
+
 /*! \brief      Link layer controller message data. */
 typedef union
 {
@@ -200,6 +241,13 @@ typedef union
   lctrDataLengthChange_t  dataLenChange;    /*!< Data length change message data. */
   lctrPhyUpdate_t         phyUpd;           /*!< PHY update message data. */
   lctrSetMinUsedChan_t    setMinUsedChan;   /*!< Set minimum number of used channels message data. */
+  lctrPerAdvSyncTrsf_t    perAdvSyncTrsf;   /*!< Periodic advertising sync transfer data. */
+  lctrScaReq_t            scaReq;           /*!< Sleep clock accuracy request. */
+
+  /* CIS */
+  lctrCreateCis_t         createCis;        /*!< Create CIS message data. */
+  lctrRejCisReq_t         rejCisReq;        /*!< Reject CIS request message data. */
+  lctrCisDisc_t           cisDisc;          /*!< CIS disconnect message data. */
 } lctrConnMsg_t;
 
 /*! \brief      Initialize connection context. */
@@ -249,19 +297,22 @@ void LctrVsConnInit(const LctrVsHandlers_t *pHdlrs);
 
 /* Helpers */
 uint8_t LctrValidateConnSpec(const LlConnSpec_t *pConnSpec);
+uint8_t LctrValidateModifyScaParam(uint8_t action);
 bool_t LctrIsProcActPended(uint16_t handle, uint8_t event);
 
 /* Status */
 bool_t LctrIsConnHandleEnabled(uint16_t handle);
+bool_t LctrIsCisConnHandleEnabled(uint16_t handle);
 uint8_t LctrGetRole(uint16_t handle);
 int8_t LctrGetRssi(uint16_t handle);
 int8_t LctrGetTxPowerLevel(uint16_t handle);
 uint64_t LctrGetChannelMap(uint16_t handle);
-uint8_t LctrGetUsedFeatures(uint16_t handle);
+uint64_t LctrGetUsedFeatures(uint16_t handle);
 uint8_t LctrGetTxPhy(uint16_t handle);
 uint8_t LctrGetRxPhy(uint16_t handle);
 void LctrGetPeerMinUsedChan(uint16_t handle, uint8_t *pPeerMinUsedChan);
 bool_t LctrIsWaitingForReply(uint16_t handle, uint8_t reply);
+bool_t LctrIsCisEnabled(uint16_t handle);
 
 
 /* Control */

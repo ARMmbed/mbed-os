@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) Host Controller Interface (HCI) initialization implementation file.
+ * \file
+ * \brief Link layer (LL) Host Controller Interface (HCI) initialization implementation file.
  */
 /*************************************************************************************************/
 
@@ -25,7 +26,7 @@
 #include "hci_defs.h"
 #include "ll_api.h"
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "wsf_assert.h"
 #include "wsf_msg.h"
 #include "util/bstream.h"
@@ -43,6 +44,9 @@ lhciEvtHandler_t lhciEvtTbl[LHCI_MSG_TOTAL];
 
 /*! \brief      Receive pending handler. */
 lhciServiceAcl_t lhciServiceAcl;
+
+/*! \brief      Receive pending handler. */
+lhciServiceIso_t lhciServiceIso;
 
 /*! \brief      Persistent control block */
 lhciPersistCb_t lhciPersistCb;
@@ -89,7 +93,7 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   uint32_t startTime;
   uint32_t endTime;
 
-  startTimeValid = BbDrvGetTimestamp(&startTime);
+  startTimeValid = PalBbGetTimestamp(&startTime);
 
   if (event & LHCI_EVT_ACL_RCVD)
   {
@@ -161,7 +165,7 @@ void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   }
 
   if (startTimeValid &&
-      BbDrvGetTimestamp(&endTime))
+      PalBbGetTimestamp(&endTime))
   {
     uint32_t durUsec = BB_TICKS_TO_US(endTime - startTime);
     if (lhciHandlerWatermarkUsec < durUsec)
@@ -193,6 +197,11 @@ void lhciRecv(uint8_t type, uint8_t *pBuf)
     case CHCI_TR_TYPE_CMD:
       WsfMsgEnq(&lhciPersistCb.cmdQ, 0, pBuf);
       WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_CMD_RCVD);
+      break;
+
+    case CHCI_TR_TYPE_ISO:
+      WsfMsgEnq(&lhciPersistCb.isoQ, 0, pBuf);
+      WsfSetEvent(lhciPersistCb.handlerId, LHCI_EVT_ISO_RCVD);
       break;
 
     default:
@@ -242,7 +251,6 @@ void lhciSendComplete(uint8_t type, uint8_t *pBuf)
       break;
 
     default:
-      WSF_ASSERT(FALSE);
       break;
   }
 
@@ -281,6 +289,23 @@ bool_t lhciService(uint8_t *pType, uint16_t *pLen, uint8_t **pBuf)
     }
     else
     {
+      if (lhciServiceIso != NULL)
+      {
+        /* Additionally check if ISO data needs servicing. */
+        if ((pBufTemp = lhciServiceIso()) != NULL)
+        {
+
+          len = pBufTemp[2] + HCI_ISO_HDR_LEN;
+          lhciPersistCb.evtTrPending = TRUE;
+
+          *pType = CHCI_TR_TYPE_ISO;
+          *pLen  = len;
+          *pBuf  = pBufTemp;
+
+          return TRUE;
+        }
+      }
+
       if (lhciServiceAcl != NULL)
       {
         /* Additionally check if ACL data needs servicing. */
@@ -333,4 +358,197 @@ void lhciReset(void)
   lhciCb.evtMsk = LHCI_DEF_EVT_MASK;
   lhciCb.evtMskPg2 = LHCI_DEF_EVT_PG2_MASK;
   lhciCb.leEvtMsk = LHCI_DEF_LE_EVT_MASK;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set default Hci supported cmds.
+ *
+ *  \return     None.
+ *
+ *  This function is called at reset by lmgr.
+ */
+/*************************************************************************************************/
+void LhciSetDefaultHciSupCmd(uint8_t *pBuf)
+{
+  pBuf[5]  = HCI_SUP_SET_EVENT_MASK |                           /* mandatory */
+             HCI_SUP_RESET;                                     /* mandatory */
+  pBuf[14] = HCI_SUP_READ_LOCAL_VER_INFO |                      /* mandatory */
+             HCI_SUP_READ_LOCAL_SUP_FEAT;                       /* mandatory */
+  pBuf[15] = HCI_SUP_READ_BD_ADDR;                              /* mandatory */
+  pBuf[22] = HCI_SUP_SET_EVENT_MASK_PAGE2;                      /* optional or LE ping */
+  pBuf[25] = HCI_SUP_LE_SET_EVENT_MASK |                        /* mandatory */
+             HCI_SUP_LE_READ_BUF_SIZE |                         /* mandatory */
+             HCI_SUP_LE_READ_LOCAL_SUP_FEAT |                   /* mandatory */
+             HCI_SUP_LE_SET_RAND_ADDR;                          /* Tx device */
+  pBuf[26] = HCI_SUP_LE_READ_WHITE_LIST_SIZE |                  /* mandatory */
+             HCI_SUP_LE_CLEAR_WHITE_LIST;                       /* mandatory */
+  pBuf[27] = HCI_SUP_LE_ADD_DEV_WHITE_LIST |                    /* mandatory */
+             HCI_SUP_LE_REMOVE_DEV_WHITE_LIST |                 /* mandatory */
+             HCI_SUP_LE_RAND;                                   /* LL encryption or optional */
+  pBuf[28] = HCI_SUP_LE_READ_SUP_STATES |                       /* mandatory (4.1+) */
+             HCI_SUP_LE_RECEIVER_TEST |                         /* Rx device */
+             HCI_SUP_LE_TRANSMITTER_TEST |                      /* Tx device */
+             HCI_SUP_LE_TEST_END;                               /* mandatory */
+  pBuf[38] = HCI_SUP_LE_READ_TX_POWER;                          /* mandatory (5.0) */
+
+  if (lhciCmdTbl[LHCI_MSG_CONN])
+  {
+    pBuf[0]  |= HCI_SUP_DISCONNECT;                             /* Master or slave */
+    pBuf[2]  |= HCI_SUP_READ_REMOTE_VER_INFO;                   /* Master or slave */
+    pBuf[10] |= HCI_SUP_READ_TX_PWR_LVL;                        /* Master or slave */
+    pBuf[15] |= HCI_SUP_READ_RSSI;                              /* Master or slave */
+
+    pBuf[27] |= HCI_SUP_LE_CONN_UPDATE |                        /* Master role or initiating conn param req */
+                HCI_SUP_LE_READ_CHAN_MAP |                      /* Master or slave */
+                HCI_SUP_LE_READ_REMOTE_FEAT;                    /* Master or optional */
+
+    pBuf[33] |= HCI_SUP_LE_SET_DATA_LEN |                       /* Data length extensions */
+                HCI_SUP_LE_READ_DEF_DATA_LEN |                  /* Data length extensions */
+                HCI_SUP_LE_REM_CONN_PARAM_REQ_REPL |            /* Accepting conn param req */
+                HCI_SUP_LE_REM_CONN_PARAM_REQ_NEG_REPL;         /* Accepting conn param req */
+    pBuf[34] |= HCI_SUP_LE_WRITE_DEF_DATA_LEN;                  /* Data length extensions */
+    pBuf[35] |= HCI_SUP_LE_READ_MAX_DATA_LEN;                   /* Data length extensions */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_SCAN]) /* i.e. master */
+  {
+    pBuf[26] |= HCI_SUP_LE_SET_SCAN_PARAM |                     /* Rx device */
+                HCI_SUP_LE_SET_SCAN_ENABLE;                     /* Rx device */
+
+    if (lhciCmdTbl[LHCI_MSG_CONN])
+    {
+      pBuf[26] |= HCI_SUP_LE_CREATE_CONN |                      /* Master role */
+                  HCI_SUP_LE_CREATE_CONN_CANCEL;                /* Master role */
+      pBuf[27] |= HCI_SUP_LE_SET_HOST_CHAN_CLASS;               /* Master role */
+    }
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_ADV]) /* i.e. slave */
+  {
+    pBuf[25] |= HCI_SUP_LE_SET_ADV_PARAM |                      /* Tx device */
+                HCI_SUP_LE_READ_ADV_TX_POWER |                  /* Tx device */
+                HCI_SUP_LE_SET_ADV_DATA;                        /* Tx device */
+    pBuf[26] |= HCI_SUP_LE_SET_SCAN_RESP_DATA |                 /* Tx + Rx device */
+                HCI_SUP_LE_SET_ADV_ENABLE;                      /* Tx device */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_ENC] &&
+      lhciCmdTbl[LHCI_MSG_CONN])
+  {
+    pBuf[27] |= HCI_SUP_LE_ENCRYPT;                             /* LL encryption */
+    pBuf[28] |= HCI_SUP_LE_LTK_REQ_REPL |                       /* LL encryption + slave */
+                HCI_SUP_LE_LTK_REQ_NEG_REPL |                   /* LL encryption + slave */
+                HCI_SUP_LE_START_ENCRYPTION;                    /* LL encryption + master */
+    pBuf[32] |= HCI_SUP_READ_AUTH_PAYLOAD_TO |                  /* LE ping */
+                HCI_SUP_WRITE_AUTH_PAYLOAD_TO;                  /* LE ping */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PRIV])
+  {
+    pBuf[34] |= HCI_SUP_LE_ADD_DEV_RES_LIST_EVT |               /* LE privacy */
+                HCI_SUP_LE_REMOVE_DEV_RES_LIST |                /* LE privacy */
+                HCI_SUP_LE_CLEAR_RES_LIST |                     /* LE privacy */
+                HCI_SUP_LE_READ_RES_LIST_SIZE;                  /* LE privacy */
+    pBuf[35] |= HCI_SUP_LE_SET_ADDR_RES_ENABLE |                /* LE privacy */
+                HCI_SUP_LE_SET_RES_PRIV_ADDR_TO;                /* LE privacy */
+    pBuf[39] |= HCI_SUP_LE_SET_PRIVACY_MODE;                    /* LE privacy */
+
+    if (lhciCmdTbl[LHCI_MSG_CONN])
+    {
+      pBuf[34] |= HCI_SUP_LE_READ_PEER_RES_ADDR;                /* LE privacy + master or slave */
+      pBuf[35] |= HCI_SUP_LE_READ_LOCAL_RES_ADDR;               /* LE privacy + master or slave */
+    }
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_SC])
+  {
+    pBuf[34] |= HCI_SUP_LE_READ_LOCAL_P256_PUB_KEY |            /* Secure connections */
+                HCI_SUP_LE_GENERATE_DHKEY;                      /* Secure connections */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PHY])
+  {
+    pBuf[35] |= HCI_SUP_LE_READ_PHY |                           /* LE PHY features */
+                HCI_SUP_LE_SET_DEF_PHY |                        /* LE PHY features */
+                HCI_SUP_LE_SET_PHY |                            /* LE PHY features */
+                HCI_SUP_LE_ENHANCED_RECEIVER_TEST;              /* LE PHY features */
+    pBuf[36] |= HCI_SUP_LE_ENHANCED_TRANSMITTER_TEST;           /* LE PHY features */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_EXT_ADV])
+  {
+    pBuf[36] |= HCI_SUP_LE_SET_ADV_SET_RAND_ADDR |              /* Extended advertising */
+                HCI_SUP_LE_SET_EXT_ADV_PARAM |                  /* Extended advertising */
+                HCI_SUP_LE_SET_EXT_ADV_DATA |                   /* Extended advertising */
+                HCI_SUP_LE_SET_EXT_SCAN_RESP_DATA |             /* Extended advertising */
+                HCI_SUP_LE_SET_EXT_ADV_ENABLE |                 /* Extended advertising */
+                HCI_SUP_LE_READ_MAX_ADV_DATA_LEN |              /* Extended advertising */
+                HCI_SUP_LE_READ_NUM_OF_SUP_ADV_SETS;            /* Extended advertising */
+    pBuf[37] |= HCI_SUP_LE_REMOVE_ADV_SET |                     /* Extended advertising */
+                HCI_SUP_LE_CLEAR_ADV_SETS;                      /* Extended advertising */
+    pBuf[39] |= HCI_SUP_LE_READ_RF_PATH_COMP |                  /* Extended advertising */
+                HCI_SUP_LE_WRITE_RF_PATH_COMP;                  /* Extended advertising */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_EXT_SCAN])
+  {
+    pBuf[37] |= HCI_SUP_LE_SET_EXT_SCAN_PARAM |                 /* Extended scanning */
+                HCI_SUP_LE_SET_EXT_SCAN_ENABLE;                 /* Extended scanning */
+
+    if (lhciCmdTbl[LHCI_MSG_CONN])
+    {
+      pBuf[37] |= HCI_SUP_LE_EXT_CREATE_CONN;                   /* Extended initiate. */
+    }
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PER_ADV])
+  {
+    pBuf[37] |= HCI_SUP_LE_SET_PER_ADV_PARAM |                  /* Periodic advertising */
+                HCI_SUP_LE_SET_PER_ADV_DATA  |                  /* Periodic advertising */
+                HCI_SUP_LE_SET_PER_ADV_ENABLE;
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PER_SCAN])
+  {
+    pBuf[38] |= HCI_SUP_LE_PER_ADV_CREATE_SYNC |                /* Periodic scanning */
+                HCI_SUP_LE_PER_ADV_CREATE_SYNC_CANCEL  |        /* Periodic scanning */
+                HCI_SUP_LE_PER_ADV_TERMINATE_SYNC  |            /* Periodic scanning */
+                HCI_SUP_LE_ADD_DEV_PER_ADV_LIST  |              /* Periodic scanning */
+                HCI_SUP_LE_REMOVE_DEV_PER_ADV_LIST  |           /* Periodic scanning */
+                HCI_SUP_LE_CLEAR_PER_ADV_LIST  |                /* Periodic scanning */
+                HCI_SUP_LE_READ_PER_ADV_LIST_SIZE;              /* Periodic scanning */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_PAST])
+  {
+    pBuf[40] |= HCI_SUP_LE_SET_PER_ADV_RCV_ENABLE |             /* Periodic advertising sync transfer */
+                HCI_SUP_LE_PER_ADV_SYNC_TRANSFER  |             /* Periodic advertising sync transfer */
+                HCI_SUP_LE_PER_ADV_SET_INFO_TRANSFER;           /* Periodic advertising sync transfer */
+    pBuf[41] |= HCI_SUP_LE_SET_PAST_PARAM |                     /* Periodic advertising sync transfer */
+                HCI_SUP_LE_SET_DEFAULT_PAST_PARAM;              /* Periodic advertising sync transfer */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_CIS_MST])
+  {
+    pBuf[42] |= HCI_SUP_LE_READ_BUF_SIZE_V2 |                   /* Isochronous stream master */
+                HCI_SUP_LE_SET_CIG_PARAM |                      /* Isochronous stream master */
+                HCI_SUP_LE_CREATE_CIS  |                        /* Isochronous stream master */
+                HCI_SUP_LE_REMOVE_CIG;                          /* Isochronous stream master */
+
+    pBuf[44] |= HCI_SUP_LE_SETUP_ISO_DATA_PATH |                /* Isochronous stream master */
+                HCI_SUP_LE_REMOVE_ISO_DATA_PATH  |              /* Isochronous stream master */
+                HCI_SUP_LE_REQ_PEER_SCA;                        /* Isochronous stream master */
+  }
+
+  if (lhciCmdTbl[LHCI_MSG_CIS_SLV])
+  {
+    pBuf[42] |= HCI_SUP_LE_READ_BUF_SIZE_V2 |                   /* Isochronous stream master */
+                HCI_SUP_LE_ACCEPT_CIS_REQ |                     /* Isochronous stream master */
+                HCI_SUP_LE_REJECT_CIS_REQ;                      /* Isochronous stream master */
+
+    pBuf[44] |= HCI_SUP_LE_SETUP_ISO_DATA_PATH |                /* Isochronous stream master */
+                HCI_SUP_LE_REMOVE_ISO_DATA_PATH  |              /* Isochronous stream master */
+                HCI_SUP_LE_REQ_PEER_SCA;                        /* Isochronous stream master */
+  }
 }
