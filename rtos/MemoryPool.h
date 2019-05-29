@@ -183,8 +183,7 @@ public:
 
 private:
     osMemoryPoolId_t             _id;
-    /* osMemoryPoolNew requires that pool block size is a multiple of 4 bytes. */
-    char                         _pool_mem[((sizeof(T) + 3) & ~3) * pool_sz];
+    char                         _pool_mem[MBED_RTOS_STORAGE_MEM_POOL_MEM_SIZE(pool_sz, sizeof(T))];
     mbed_rtos_storage_mem_pool_t _obj_mem;
 };
 /** @}*/
@@ -192,5 +191,3 @@ private:
 
 }
 #endif
-
-
