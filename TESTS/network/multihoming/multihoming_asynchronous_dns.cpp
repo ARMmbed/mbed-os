@@ -67,7 +67,7 @@ void MULTIHOMING_ASYNCHRONOUS_DNS()
                                                                        mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data), NSAPI_UNSPEC, interface_name[j]);
                 TEST_ASSERT(err >= 0);
 
-                semaphore.wait();
+                semaphore.acquire();
 
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
                 printf("DNS: query  interface_name %s %d \n", interface_name[j], j);

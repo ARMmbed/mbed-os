@@ -21,7 +21,6 @@
 #include "EMACInterface.h"
 #include "WiFiInterface.h"
 
-#include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
 class WICED_EMAC : public EMAC {

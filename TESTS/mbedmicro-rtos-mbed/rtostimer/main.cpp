@@ -50,7 +50,7 @@ public:
 
     void start(void)
     {
-        _sem.wait(0);
+        _sem.try_acquire();
         Timer::start();
     }
 
@@ -68,7 +68,7 @@ public:
         if (!running) {
             return 1;
         }
-        return _sem.wait(millisec);
+        return _sem.try_acquire_for(millisec);
     }
 };
 
@@ -169,8 +169,8 @@ void test_start_again()
     osStatus status = rtostimer.start(DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(DELAY_MS + DELTA_MS);
-    TEST_ASSERT_EQUAL(1, slots);
+    bool acquired = sem.try_acquire_for(DELAY_MS + DELTA_MS);
+    TEST_ASSERT(acquired);
 
 #if !MBED_TRAP_ERRORS_ENABLED
     status = rtostimer.stop();
@@ -180,8 +180,8 @@ void test_start_again()
     status = rtostimer.start(DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(DELAY_MS + DELTA_MS);
-    TEST_ASSERT_EQUAL(1, slots);
+    acquired = sem.try_acquire_for(DELAY_MS + DELTA_MS);
+    TEST_ASSERT(acquired);
 
 #if !MBED_TRAP_ERRORS_ENABLED
     status = rtostimer.stop();
@@ -255,14 +255,14 @@ void test_stop()
     osStatus status = rtostimer.start(DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(RESTART_DELAY_MS);
-    TEST_ASSERT_EQUAL(0, slots);
+    bool acquired = sem.try_acquire_for(RESTART_DELAY_MS);
+    TEST_ASSERT_FALSE(acquired);
 
     status = rtostimer.stop();
     TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(DELAY_MS + DELTA_MS);
-    TEST_ASSERT_EQUAL(0, slots);
+    acquired = sem.try_acquire_for(DELAY_MS + DELTA_MS);
+    TEST_ASSERT_FALSE(acquired);
 
 #if !MBED_TRAP_ERRORS_ENABLED
     status = rtostimer.stop();

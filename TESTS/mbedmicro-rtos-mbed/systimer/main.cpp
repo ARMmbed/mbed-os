@@ -62,9 +62,9 @@ public:
     {
     }
 
-    int32_t sem_wait(uint32_t millisec)
+    bool sem_try_acquire(uint32_t millisec)
     {
-        return _sem.wait(millisec);
+        return _sem.try_acquire_for(millisec);
     }
 };
 
@@ -204,8 +204,8 @@ void test_cancel_tick(void)
     st.schedule_tick(TEST_TICKS);
 
     st.cancel_tick();
-    int32_t sem_slots = st.sem_wait((DELAY_US + DELAY_DELTA_US) / 1000ULL);
-    TEST_ASSERT_EQUAL_INT32(0, sem_slots);
+    bool acquired = st.sem_try_acquire((DELAY_US + DELAY_DELTA_US) / 1000ULL);
+    TEST_ASSERT_FALSE(acquired);
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
 }
 
@@ -220,8 +220,8 @@ void test_schedule_zero(void)
     SysTimerTest st;
 
     st.schedule_tick(0UL);
-    int32_t sem_slots = st.sem_wait(0UL);
-    TEST_ASSERT_EQUAL_INT32(1, sem_slots);
+    bool acquired = st.sem_try_acquire(0);
+    TEST_ASSERT_TRUE(acquired);
 }
 
 /** Test handler called once
@@ -238,20 +238,20 @@ void test_handler_called_once(void)
     SysTimerTest st;
     st.schedule_tick(TEST_TICKS);
     us_timestamp_t t1 = st.get_time();
-    int32_t sem_slots = st.sem_wait(0);
-    TEST_ASSERT_EQUAL_INT32(0, sem_slots);
+    bool acquired = st.sem_try_acquire(0);
+    TEST_ASSERT_FALSE(acquired);
 
     // Wait in a busy loop to prevent entering sleep or deepsleep modes.
-    while (sem_slots != 1) {
-        sem_slots = st.sem_wait(0);
+    while (!acquired) {
+        acquired = st.sem_try_acquire(0);
     }
     us_timestamp_t t2 = st.get_time();
-    TEST_ASSERT_EQUAL_INT32(1, sem_slots);
+    TEST_ASSERT_TRUE(acquired);
     TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, t2 - t1);
 
-    sem_slots = st.sem_wait((DELAY_US + DELAY_DELTA_US) / 1000ULL);
-    TEST_ASSERT_EQUAL_INT32(0, sem_slots);
+    acquired = st.sem_try_acquire((DELAY_US + DELAY_DELTA_US) / 1000ULL);
+    TEST_ASSERT_FALSE(acquired);
     TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
 }
 
@@ -275,7 +275,7 @@ void test_sleep(void)
     st.schedule_tick(TEST_TICKS);
 
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "Deep sleep should be disallowed");
-    while (st.sem_wait(0) != 1) {
+    while (!st.sem_try_acquire(0)) {
         sleep();
     }
     timer.stop();
@@ -313,7 +313,7 @@ void test_deepsleep(void)
     lptimer.start();
     st.schedule_tick(TEST_TICKS);
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep_test_check(), "Deep sleep should be allowed");
-    while (st.sem_wait(0) != 1) {
+    while (!st.sem_try_acquire(0)) {
         sleep();
     }
     lptimer.stop();

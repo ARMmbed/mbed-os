@@ -409,7 +409,7 @@ bool LPC546XX_EMAC::link_out(emac_mem_buf_t *buf)
     }
 
     /* Check if a descriptor is available for the transfer. */
-    if (xTXDCountSem.wait(0) == 0) {
+    if (!xTXDCountSem.try_acquire()) {
         memory_manager->free(buf);
         return false;
     }

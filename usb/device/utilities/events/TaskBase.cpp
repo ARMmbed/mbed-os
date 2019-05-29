@@ -79,7 +79,7 @@ void TaskBase::wait()
     _flush_sem = &sem;
     core_util_critical_section_exit();
 
-    sem.wait();
+    sem.acquire();
 }
 
 bool TaskBase::ready()

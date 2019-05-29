@@ -78,9 +78,9 @@ nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
     }
 
     if (blocking) {
-        int32_t count = connect_semaphore.wait(30000);
+        bool acquired = connect_semaphore.try_acquire_for(30000);
 
-        if (count <= 0) {
+        if (!acquired) {
             return NSAPI_ERROR_DHCP_FAILURE; // sort of...
         }
     }
@@ -112,7 +112,7 @@ nsapi_error_t Nanostack::EthernetInterface::bringdown()
     }
 
     if (_blocking) {
-        int32_t count = disconnect_semaphore.wait(30000);
+        int32_t count = disconnect_semaphore.try_acquire_for(30000);
 
         if (count <= 0) {
             return NSAPI_ERROR_TIMEOUT;

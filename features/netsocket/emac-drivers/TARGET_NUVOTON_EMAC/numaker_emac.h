@@ -18,7 +18,6 @@
 #define NUMAKER_EMAC_H_
 
 #include "EMAC.h"
-#include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
 class NUMAKER_EMAC : public EMAC {
@@ -161,7 +160,6 @@ private:
     mbed_rtos_storage_thread_t thread_cb;
     osThreadId_t thread; /**< Processing thread */
     rtos::Mutex TXLockMutex;/**< TX critical section mutex */
-    rtos::Semaphore xTXDCountSem; /**< TX free buffer counting semaphore */
     emac_link_input_cb_t emac_link_input_cb; /**< Callback for incoming data */
     emac_link_state_change_cb_t emac_link_state_cb; /**< Link state change callback */
     EMACMemoryManager *memory_manager; /**< Memory manager */

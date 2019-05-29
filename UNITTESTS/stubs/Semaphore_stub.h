@@ -19,6 +19,7 @@
 
 namespace Semaphore_stub {
 extern int wait_return_value;
+extern bool acquire_return_value;
 }
 
 

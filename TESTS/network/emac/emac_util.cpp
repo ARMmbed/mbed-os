@@ -525,9 +525,9 @@ void worker_loop_start(void (*test_step_cb_fnc)(int opt), int timeout)
     }
 
 #if MBED_CONF_APP_ECHO_SERVER
-    worker_loop_semaphore.wait();
+    worker_loop_semaphore.acquire();
 #else
-    worker_loop_semaphore.wait(600 * SECOND_TO_MS);
+    worker_loop_semaphore.try_acquire_for(600 * SECOND_TO_MS);
 #endif
 
     worker_loop_event_queue.cancel(test_step_cb_timer);
@@ -554,7 +554,7 @@ static void worker_loop_event_cb(int event)
 void worker_loop_link_up_wait(void)
 {
     if (!link_up) {
-        link_status_semaphore.wait();
+        link_status_semaphore.acquire();
     }
 }
 

@@ -183,7 +183,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
-            if (tx_sem.wait(WAIT2RECV_TIMEOUT * 2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
+            if (!tx_sem.try_acquire_for(WAIT2RECV_TIMEOUT * 2)) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
                 continue;
             }
             break;

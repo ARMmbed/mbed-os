@@ -187,7 +187,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
         }
         TEST_ASSERT_EQUAL(bytes2send, tcp_stats[j].sent_bytes);
 #endif
-        tx_sem.wait(split2half_rmng_tcp_test_time() * 1000); // *1000 to convert s->ms
+        tx_sem.try_acquire_for(split2half_rmng_tcp_test_time() * 1000); // *1000 to convert s->ms
         if (receive_error) {
             break;
         }

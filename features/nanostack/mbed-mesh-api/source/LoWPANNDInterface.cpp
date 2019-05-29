@@ -92,11 +92,7 @@ nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
 
     if (blocking) {
         // wait connection for ever
-        int32_t count = connect_semaphore.wait(osWaitForever);
-
-        if (count <= 0) {
-            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
-        }
+        connect_semaphore.acquire();
     }
     return 0;
 
