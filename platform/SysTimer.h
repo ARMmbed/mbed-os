@@ -21,9 +21,12 @@
 #include "platform/mbed_atomic.h"
 #include "drivers/TimerEvent.h"
 #include "cmsis.h"
+
+extern "C" {
 #if defined(TARGET_CORTEX_A)
 #include "irq_ctrl.h"
 #endif
+}
 
 namespace mbed {
 namespace internal {
