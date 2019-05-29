@@ -79,12 +79,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
             status =  -1;
         }
-        /* Mass erase of second bank */
-        EraseInitStruct.TypeErase = FLASH_TYPEERASE_MASSERASE;
-        EraseInitStruct.Banks = FLASH_BANK_2;
-        if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
-            status = -1;
-        }
     } else {
         EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
         EraseInitStruct.Banks = FLASH_BANK_2;
