@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -109,6 +108,7 @@ extern "C" {
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_EXCHG_ASM(M)                           \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "LDREX"#M "\t%[oldValue], %[value]\n\t"                 \
         "STREX"#M "\t%[fail], %[newValue], %[value]\n\t"        \
       : [oldValue] "=&r" (oldValue),                            \
@@ -141,6 +141,7 @@ extern "C" {
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M)              \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "LDREX"#M "\t%[oldValue], %[value]\n\t"                 \
         #OP       "\t%[newValue], %[oldValue], %[arg]\n\t"      \
         "STREX"#M "\t%[fail], %[newValue], %[value]\n\t"        \
@@ -181,6 +182,7 @@ extern "C" {
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M)              \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "LDREX"#M "\t%[oldValue], %[value]\n\t"                 \
         "MOV"     "\t%[newValue], %[oldValue]\n\t"              \
         #OP       "\t%[newValue], %[arg]\n\t"                   \
@@ -224,6 +226,7 @@ extern "C" {
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "LDREX"#M  "\t%[oldValue], %[value]\n\t"                \
         "SUBS"     "\t%[fail], %[oldValue], %[expectedValue]\n\t"\
         "STREX"#M"EQ\t%[fail], %[desiredValue], %[value]\n\t"   \
@@ -261,6 +264,7 @@ done:                                                           \
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_WEAK_ASM(M)                        \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "LDREX"#M  "\t%[oldValue], %[value]\n\t"                \
         "SUBS"     "\t%[fail], %[oldValue], %[expectedValue]\n\t"\
         "BNE"      "\t%=f\n\t"                                  \
@@ -311,6 +315,7 @@ done:                                                           \
 #elif defined __clang__ || defined __GNUC__
 #define DO_MBED_LOCKFREE_CAS_STRONG_ASM(M)                      \
     __asm volatile (                                            \
+        ".syntax unified\n\t"                                   \
         "\n%=:\n\t"                                             \
         "LDREX"#M  "\t%[oldValue], %[value]\n\t"                \
         "SUBS"     "\t%[fail], %[oldValue], %[expectedValue]\n\t"\
