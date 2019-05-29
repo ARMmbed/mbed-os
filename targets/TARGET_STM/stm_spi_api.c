@@ -182,8 +182,14 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
         handle->Init.NSS = SPI_NSS_HARD_OUTPUT;
+#if defined(SPI_NSS_PULSE_ENABLE)
+        handle->Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+#endif
     } else {
         handle->Init.NSS = SPI_NSS_SOFT;
+#if defined(SPI_NSS_PULSE_DISABLE)
+        handle->Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+#endif
     }
 
     /* Fill default value */
@@ -206,7 +212,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.TIMode            = SPI_TIMODE_DISABLE;
 
 #if TARGET_STM32H7
-    handle->Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
     handle->Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_ENABLE;
     handle->Init.FifoThreshold     = SPI_FIFO_THRESHOLD_01DATA;
 #endif
