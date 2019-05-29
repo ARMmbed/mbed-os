@@ -8627,7 +8627,8 @@
         "inherits": ["GD32_Target"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC"],
+        "components_add": ["FLASHIAP"],
+        "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC","PSA"],
         "device_has_add": [
             "RTC",
             "I2C",
@@ -8646,7 +8647,8 @@
         ],
         "device_name": "GD32F450ZI",
         "detect_code": ["1702"],
-        "macros_add": ["GD32F450"],
+        "macros_add": ["GD32F450", "MBEDTLS_PSA_CRYPTO_C"],
+        "bootloader_supported": true,
         "release_versions": ["5"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
