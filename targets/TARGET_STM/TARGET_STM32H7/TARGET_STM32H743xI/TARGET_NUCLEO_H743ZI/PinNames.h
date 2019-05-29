@@ -240,18 +240,38 @@ typedef enum {
     A0          = PA_3,
     A1          = PC_0,
     A2          = PC_3,
+#ifdef TARGET_NUCLEO_H743ZI2
+    A3          = PB_1,
+    A4          = PC_2,
+#else
     A3          = PF_3,
     A4          = PF_5,
+#endif
     A5          = PF_10,
+#ifdef TARGET_NUCLEO_H743ZI2
+    D0          = PB_7,
+    D1          = PB_6,
+    D2          = PG_14,
+#else
     D0          = PG_9,
     D1          = PG_14,
     D2          = PF_15,
+#endif
     D3          = PE_13,
+#ifdef TARGET_NUCLEO_H743ZI2
+    D4          = PE_14,
+#else
     D4          = PF_14,
+#endif
     D5          = PE_11,
     D6          = PE_9,
+#ifdef TARGET_NUCLEO_H743ZI2
+    D7          = PG_12,
+    D8          = PF_3,
+#else
     D7          = PF_13,
     D8          = PF_12,
+#endif
     D9          = PD_15,
     D10         = PD_14,
     D11         = STM32_D11_SPI_ETHERNET_PIN, /* config in targets.json file */
@@ -274,12 +294,18 @@ typedef enum {
 
     // Generic signals namings
     LED1        = PB_0,  // LD1 = GREEN
+#ifdef TARGET_NUCLEO_H743ZI2
+    LED2        = PE_1,  // Yellow
+#else
     LED2        = PB_7,  // Blue
+#endif
     LED3        = PB_14, // Red
-    LED4        = PB_0,
-    USER_BUTTON = PC_13,
+    LED4        = PB_0, // LD4 is not user, mapped to LD1
+
     // Standardized button names
+    USER_BUTTON = PC_13,
     BUTTON1 = USER_BUTTON,
+
     SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
     SERIAL_RX   = STDIO_UART_RX, // Virtual Com Port
     USBTX       = STDIO_UART_TX, // Virtual Com Port
