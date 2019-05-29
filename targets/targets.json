@@ -3216,6 +3216,11 @@
         "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
+    "NUCLEO_H743ZI2": {
+        "inherits": ["NUCLEO_H743ZI"],
+        "overrides": { "d11_configuration": "PB_5" },
+        "detect_code": ["0836"]
+    },
     "UHURU_RAVEN": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
