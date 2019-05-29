@@ -60,9 +60,6 @@ SysTimer<US_IN_TICK, IRQ>::SysTimer() :
     _ticking(false),
     _deep_sleep_locked(false)
 {
-    if (!_ticker_data->interface->runs_in_deep_sleep) {
-        sleep_manager_lock_deep_sleep();
-    }
 }
 
 template<uint32_t US_IN_TICK, bool IRQ>
@@ -76,9 +73,6 @@ SysTimer<US_IN_TICK, IRQ>::SysTimer(const ticker_data_t *data) :
     _ticking(false),
     _deep_sleep_locked(false)
 {
-    if (!_ticker_data->interface->runs_in_deep_sleep) {
-        sleep_manager_lock_deep_sleep();
-    }
 }
 
 template<uint32_t US_IN_TICK, bool IRQ>
@@ -86,9 +80,6 @@ SysTimer<US_IN_TICK, IRQ>::~SysTimer()
 {
     cancel_tick();
     cancel_wake();
-    if (!_ticker_data->interface->runs_in_deep_sleep) {
-        sleep_manager_unlock_deep_sleep();
-    }
 }
 
 template<uint32_t US_IN_TICK, bool IRQ>
@@ -116,6 +107,11 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
     /* Set this first, before attaching the interrupt that can unset it */
     _wake_time_set = true;
     _wake_time_passed = false;
+
+    if (!_deep_sleep_locked && !_ticker_data->interface->runs_in_deep_sleep) {
+        _deep_sleep_locked = true;
+        sleep_manager_lock_deep_sleep();
+    }
 
     /* If deep sleep is unlocked, and we have enough time, let's go for it */
     if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 &&
