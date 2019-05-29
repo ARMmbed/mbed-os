@@ -161,7 +161,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     CellularSocket *socket = (CellularSocket *)handle;
 
     if (socket) {
-        if (socket->id != SOCKET_UNUSED) {
+        if (socket->id == SOCKET_UNUSED) {
             nsapi_error_t err = create_socket_impl(socket);
             if (err != NSAPI_ERROR_OK) {
                 return err;
@@ -177,9 +177,10 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
     _at.cmd_stop_read_resp();
+    nsapi_error_t err = _at.get_last_error();
     _at.unlock();
 
-    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    if (err == NSAPI_ERROR_OK) {
         socket->remoteAddress = addr;
         socket->connected = true;
         return NSAPI_ERROR_OK;
