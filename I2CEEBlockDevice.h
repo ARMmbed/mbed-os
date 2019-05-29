@@ -16,7 +16,7 @@
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
  
-#include <mbed.h>
+#include "mbed.h"
 #include "BlockDevice.h"
 
  
