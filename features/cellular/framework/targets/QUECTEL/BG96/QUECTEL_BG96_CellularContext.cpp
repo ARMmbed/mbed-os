@@ -70,17 +70,8 @@ ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 {
     if (_pwd && _uname) {
-        _at.cmd_start("AT+QICSGP=");
-        _at.write_int(_cid);
-        _at.write_int(1); // IPv4
-        _at.write_string(_apn);
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
-        _at.write_int(_authentication_type);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-        if (_at.get_last_error() != NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, 1,
+                                 _apn, _uname, _pwd, _authentication_type) != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }
@@ -90,17 +81,9 @@ nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 
 nsapi_error_t QUECTEL_BG96_CellularContext::activate_non_ip_context()
 {
-    _at.lock();
 
     // Open the NIDD connection
-    _at.cmd_start("AT+QCFGEXT=\"nipd\",1");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-
-    nsapi_size_or_error_t ret = _at.get_last_error();
-
-    _at.unlock();
+    nsapi_size_or_error_t ret = _at.at_cmd_discard("+QCFGEXT", "=\"nipd\",1");
 
     if (ret == NSAPI_ERROR_OK) {
         _semaphore.try_acquire_for(NIDD_OPEN_URC_TIMEOUT);
@@ -115,28 +98,21 @@ nsapi_error_t QUECTEL_BG96_CellularContext::activate_non_ip_context()
 void QUECTEL_BG96_CellularContext::activate_context()
 {
     tr_info("Activate PDP context %d", _cid);
-    _at.cmd_start("AT+QIACT=");
-    _at.write_int(_cid);
-    _at.cmd_stop_read_resp();
-    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+
+    if (_at.at_cmd_discard("+QIACT", "=", "%d", _cid) == NSAPI_ERROR_OK) {
         _is_context_activated = true;
     }
 }
 
 void QUECTEL_BG96_CellularContext::deactivate_context()
 {
-    _at.cmd_start("AT+QIDEACT=");
-    _at.write_int(_cid);
-    _at.cmd_stop_read_resp();
+    _at.at_cmd_discard("+QIDEACT", "=", "%d", _cid);
 }
 
 void QUECTEL_BG96_CellularContext::deactivate_non_ip_context()
 {
     // Close the NIDD connection
-    _at.cmd_start("AT+QCFGEXT=\"nipd\",0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.at_cmd_discard("+QCFGEXT", "=\"nipd\",0");
 }
 
 void QUECTEL_BG96_CellularContext::urc_nidd()
@@ -178,30 +154,16 @@ nsapi_error_t QUECTEL_BG96_CellularContext::setup_control_plane_opt()
 {
     _at.lock();
 
-    _at.cmd_start("AT+QCFGEXT=\"pdp_type\",");
-    _at.write_int(NIDD_PDP_CONTEXT_ID);
-    _at.write_string("Non-IP");
-    _at.write_string(_apn);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    _at.cmd_start("AT+CFUN=0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    _at.cmd_start("AT+CFUN=1");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.at_cmd_discard("+QCFGEXT", "=\"pdp_type\",", "%d%s%s", NIDD_PDP_CONTEXT_ID, "Non-IP", _apn);
+
+    _at.at_cmd_discard("+CFUN", "=0");
+
+    _at.at_cmd_discard("+CFUN", "=1");
 
     // Configure Non-IP outgoing data type - 0 for no exception data
-    _at.cmd_start("AT+QCFGEXT=\"nipdcfg\",0,");
-    _at.write_string(_apn);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    nsapi_error_t err = _at.at_cmd_discard("+QCFGEXT", "=\"nipdcfg\",0,", "%s", _apn);
 
-    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    if (err == NSAPI_ERROR_OK) {
         _cp_in_use = true;
         if (_nonip_req) {
             _pdp_type = NON_IP_PDP_TYPE;

@@ -59,9 +59,7 @@ const char *AT_CellularStack::get_ip_address()
 {
     _at.lock();
 
-    _at.cmd_start("AT+CGPADDR=");
-    _at.write_int(_cid);
-    _at.cmd_stop();
+    _at.cmd_start_stop("+CGPADDR", "=");
 
     _at.resp_start("+CGPADDR:");
 

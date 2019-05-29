@@ -26,6 +26,7 @@
 
 #include "PlatformMutex.h"
 #include "Callback.h"
+#include <cstdarg>
 
 namespace mbed {
 
@@ -259,6 +260,54 @@ public:
      *  @param cmd  AT command to be written to modem
      */
     virtual void cmd_start(const char *cmd);
+
+    /**
+     * @brief cmd_start_stop Starts an AT command, writes given variadic arguments and stops the command. Use this
+     *        command when you need multiple responses to be handled.
+     *        NOTE: Does not lock ATHandler for process!
+     *
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     */
+    void cmd_start_stop(const char *cmd, const char* cmd_chr, const char* format = "", ...);
+
+    /**
+     * @brief at_cmd_str Send an AT command and read 1 line string response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp_buf Response buffer
+     * @param resp_buf_size Response buffer size
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_str(const char *cmd, const char* cmd_chr, char *resp_buf, size_t resp_buf_size, const char* format = "", ...);
+
+    /**
+     * @brief at_cmd_int Send an AT command and read 1 line integer response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp Integer to hold response
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_int(const char *cmd, const char* cmd_chr, int &resp, const char* format = "", ...);
+
+    /**
+     * @brief at_cmd_discard Send an AT command and read and discard a response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp Integer to hold response
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_discard(const char *cmd, const char* cmd_chr, const char* format = "", ...);
+
+public:
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
@@ -497,6 +546,19 @@ private:
     // time when a command or an URC processing was started
     uint64_t _start_time;
 
+    char _cmd_buffer[BUFF_SIZE];
+
+private:
+    //Handles the arguments from given variadic list
+    void handle_args(const char* format, va_list list);
+
+    //Starts an AT command based on given parameters
+    void handle_start(const char *cmd, const char *cmd_chr);
+
+    //Checks that ATHandler does not have a pending error condition and filehandle is usable
+    bool ok_to_proceed();
+
+private:
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
     // Returns a next char or -1 on failure (also sets error flag)

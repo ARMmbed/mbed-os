@@ -184,10 +184,10 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     char simstr[MAX_SIM_RESPONSE_LENGTH];
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT+CPIN?");
-    _at->cmd_stop();
-    _at->resp_start("+CPIN:");
-    ssize_t len = _at->read_string(simstr, sizeof(simstr));
+    nsapi_error_t error = _at->at_cmd_str("+CPIN", "?", simstr, sizeof(simstr));
+    ssize_t len = strlen(simstr);
+    _at->unlock();
+
     if (len != -1) {
         if (len >= 5 && memcmp(simstr, "READY", 5) == 0) {
             state = SimStateReady;
@@ -204,9 +204,6 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
         tr_warn("SIM not readable.");
         state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
     }
-    _at->resp_stop();
-    nsapi_error_t error = _at->get_last_error();
-    _at->unlock();
 #if MBED_CONF_MBED_TRACE_ENABLE
     switch (state) {
         case SimStatePinNeeded:
@@ -240,16 +237,14 @@ nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
     }
 
     _at->lock();
-    _at->cmd_start("AT+CPIN=");
 
     const bool stored_debug_state = _at->get_debug();
     _at->set_debug(false);
 
-    _at->write_string(sim_pin);
+    _at->at_cmd_discard("+CPIN", "=,", "%s", sim_pin);
 
     _at->set_debug(stored_debug_state);
 
-    _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }
 
@@ -431,41 +426,34 @@ nsapi_error_t AT_CellularDevice::init()
 {
     _at->lock();
     _at->flush();
-    _at->cmd_start("ATE0"); // echo off
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("E0", "");
 
-    _at->cmd_start("AT+CMEE=1"); // verbose responses
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CMEE", "=1");
 
-    _at->cmd_start("AT+CFUN=1"); // set full functionality
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CFUN", "=1");
 
     return _at->unlock_return_error();
 }
 
 nsapi_error_t AT_CellularDevice::shutdown()
 {
-    _at->lock();
     if (_state_machine) {
         _state_machine->reset();
     }
     CellularDevice::shutdown();
-    _at->cmd_start("AT+CFUN=0");// set to minimum functionality
-    _at->cmd_stop_read_resp();
-    return _at->unlock_return_error();
+
+    return _at->at_cmd_discard("+CFUN", "=0");
 }
 
 nsapi_error_t AT_CellularDevice::is_ready()
 {
     _at->lock();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("", "");
 
     // we need to do this twice because for example after data mode the first 'AT' command will give modem a
     // stimulus that we are back to command mode.
     _at->clear_error();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("", "");
 
     return _at->unlock_return_error();
 }
@@ -480,9 +468,7 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
 
     if (periodic_time == 0 && active_time == 0) {
         // disable PSM
-        _at->cmd_start("AT+CPSMS=");
-        _at->write_int(0);
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("+CPSMS", "=0");
     } else {
         const int PSMTimerBits = 5;
 
@@ -583,13 +569,8 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
         at[8] = '\0';
 
         // request for both GPRS and LTE
-        _at->cmd_start("AT+CPSMS=");
-        _at->write_int(1);
-        _at->write_string(pt);
-        _at->write_string(at);
-        _at->write_string(pt);
-        _at->write_string(at);
-        _at->cmd_stop_read_resp();
+
+        _at->at_cmd_discard("+CPSMS", "=1,", "%s%s%s%s", pt, at, pt, at);
 
         if (_at->get_last_error() != NSAPI_ERROR_OK) {
             tr_warn("Power save mode not enabled!");

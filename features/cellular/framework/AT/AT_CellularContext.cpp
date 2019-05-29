@@ -301,9 +301,8 @@ nsapi_error_t AT_CellularContext::delete_current_context()
 {
     tr_info("Delete context %d", _cid);
     _at.clear_error();
-    _at.cmd_start("AT+CGDCONT=");
-    _at.write_int(_cid);
-    _at.cmd_stop_read_resp();
+
+    _at.at_cmd_discard("+CGDCONT", "=", "%d", _cid);
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         _cid = -1;
@@ -320,19 +319,13 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
         if (!get_property(PROPERTY_AT_CGAUTH)) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
-        _at.cmd_start("AT+CGAUTH=");
-        _at.write_int(_cid);
-        _at.write_int(_authentication_type);
-
         const bool stored_debug_state = _at.get_debug();
         _at.set_debug(false);
 
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
+        _at.at_cmd_discard("+CGAUTH", "=", "%d%d%s%s", _cid, _authentication_type, _uname, _pwd);
 
         _at.set_debug(stored_debug_state);
 
-        _at.cmd_stop_read_resp();
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
@@ -359,8 +352,8 @@ bool AT_CellularContext::get_context()
 {
     bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
     bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
-    _at.cmd_start("AT+CGDCONT?");
-    _at.cmd_stop();
+
+    _at.cmd_start_stop("+CGDCONT", "?");
     _at.resp_start("+CGDCONT:");
     _cid = -1;
     int cid_max = 0; // needed when creating new context
@@ -437,13 +430,8 @@ bool AT_CellularContext::set_new_context(int cid)
     }
 
     //apn: "If the value is null or omitted, then the subscription value will be requested."
-    bool success = false;
-    _at.cmd_start("AT+CGDCONT=");
-    _at.write_int(cid);
-    _at.write_string(pdp_type_str);
-    _at.write_string(_apn);
-    _at.cmd_stop_read_resp();
-    success = (_at.get_last_error() == NSAPI_ERROR_OK);
+
+    bool success = (_at.at_cmd_discard("+CGDCONT", "=", "%d%s%s", cid, pdp_type_str, _apn) == NSAPI_ERROR_OK);
 
     if (success) {
         _pdp_type = pdp_type;
@@ -480,9 +468,7 @@ nsapi_error_t AT_CellularContext::activate_non_ip_context()
 void AT_CellularContext::activate_context()
 {
     tr_info("Activate PDP context %d", _cid);
-    _at.cmd_start("AT+CGACT=1,");
-    _at.write_int(_cid);
-    _at.cmd_stop_read_resp();
+    _at.at_cmd_discard("+CGACT", "=1,", "%d", _cid);
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         _is_context_activated = true;
     }
@@ -589,8 +575,7 @@ nsapi_error_t AT_CellularContext::open_data_channel()
 
     tr_info("CellularContext PPP connect");
     if (get_property(PROPERTY_AT_CGDATA)) {
-        _at.cmd_start("AT+CGDATA=\"PPP\",");
-        _at.write_int(_cid);
+        _at.cmd_start_stop("+CGDATA", "=\"PPP\",", "%d", _cid);
     } else {
         MBED_ASSERT(_cid >= 0 && _cid <= 99);
         _at.cmd_start("ATD*99***");
@@ -598,8 +583,8 @@ nsapi_error_t AT_CellularContext::open_data_channel()
         _at.write_int(_cid);
         _at.write_string("#", false);
         _at.use_delimiter(true);
+        _at.cmd_stop();
     }
-    _at.cmd_stop();
 
     _at.resp_start("CONNECT", true);
     if (_at.get_last_error()) {
@@ -719,9 +704,7 @@ void AT_CellularContext::deactivate_non_ip_context()
 
 void AT_CellularContext::deactivate_context()
 {
-    _at.cmd_start("AT+CGACT=0,");
-    _at.write_int(_cid);
-    _at.cmd_stop_read_resp();
+    _at.at_cmd_discard("+CGACT", "=0,", "%d", _cid);
 }
 
 void AT_CellularContext::check_and_deactivate_context()
@@ -745,9 +728,7 @@ void AT_CellularContext::check_and_deactivate_context()
 
     if (_new_context_set) {
         _at.clear_error();
-        _at.cmd_start("AT+CGDCONT=");
-        _at.write_int(_cid);
-        _at.cmd_stop_read_resp();
+        _at.at_cmd_discard("+CGDCONT", "=", "%d", _cid);
     }
 
     _at.restore_at_timeout();
@@ -758,9 +739,7 @@ nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
     // If apn is set
     if (_apn) {
         _at.lock();
-        _at.cmd_start("AT+CABTRDP=");
-        _at.write_string(_apn);
-        _at.cmd_stop();
+        _at.cmd_start_stop("+CABTRDP", "=", "%s", _apn);
         _at.resp_start("+CABTRDP:");
         if (_at.info_resp()) {
             _at.skip_param();
@@ -779,9 +758,7 @@ nsapi_error_t AT_CellularContext::get_rate_control(
 {
     _at.lock();
 
-    _at.cmd_start("AT+CGAPNRC=");
-    _at.write_int(_cid);
-    _at.cmd_stop();
+    _at.cmd_start_stop("+CGAPNRC", "=", "%d", _cid);
 
     _at.resp_start("+CGAPNRC:");
     _at.read_int();
@@ -823,9 +800,7 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
 
     _at.lock();
 
-    _at.cmd_start("AT+CGCONTRDP=");
-    _at.write_int(_cid);
-    _at.cmd_stop();
+    _at.cmd_start_stop("+CGCONTRDP", "=", "%d", _cid);
 
     _at.resp_start("+CGCONTRDP:");
     pdpcontext_params_t *params = NULL;
