@@ -52,6 +52,9 @@ typedef osRtxEventFlags_t mbed_rtos_storage_event_flags_t;
 typedef osRtxMessage_t mbed_rtos_storage_message_t;
 typedef osRtxTimer_t mbed_rtos_storage_timer_t;
 
+#define MBED_RTOS_STORAGE_MEM_POOL_MEM_SIZE(block_count, block_size) \
+  osRtxMemoryPoolMemSize(block_count, block_size)
+
 #ifdef __cplusplus
 }
 #endif
