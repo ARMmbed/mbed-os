@@ -17,6 +17,8 @@
 #ifndef MBED_SPI_H
 #define MBED_SPI_H
 
+#define TEST_MACRO_FOR_TEST 1
+
 #include "platform/platform.h"
 
 #if DEVICE_SPI || defined(DOXYGEN_ONLY)
