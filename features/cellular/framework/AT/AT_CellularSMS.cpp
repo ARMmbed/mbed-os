@@ -394,7 +394,8 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
 
 nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const char *message, int msg_len)
 {
-    int single_sms_max_length = _use_8bit_encoding ? SMS_MAX_SIZE_8BIT_SINGLE_SMS_SIZE :
+    int single_sms_max_length = _use_8bit_encoding ?
+                                SMS_MAX_SIZE_8BIT_SINGLE_SMS_SIZE :
                                 SMS_MAX_SIZE_GSM7_SINGLE_SMS_SIZE;
     if ((_mode == CellularSMSMmodeText && msg_len > single_sms_max_length) || !phone_number) {
         return NSAPI_ERROR_PARAMETER;
@@ -432,7 +433,8 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
         // supports uncompressed 8 bit data and GSM 7 bit default alphabet data. Current implementation uses only
         // GSM 7 bit default but support is done for 8 bit data.
         int sms_count;
-        int concatenated_sms_length = _use_8bit_encoding ? SMS_MAX_8BIT_CONCATENATED_SINGLE_SMS_SIZE :
+        int concatenated_sms_length = _use_8bit_encoding ?
+                                      SMS_MAX_8BIT_CONCATENATED_SINGLE_SMS_SIZE :
                                       SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE;
 
         if (msg_len <= single_sms_max_length) {
@@ -523,7 +525,6 @@ void AT_CellularSMS::set_sms_callback(Callback<void()> func)
 
 nsapi_error_t AT_CellularSMS::set_cpms(const char *memr, const char *memw, const char *mems)
 {
-
     return _at.at_cmd_discard("+CPMS", "=", "%s%s%s", memr, memw, mems);
 }
 

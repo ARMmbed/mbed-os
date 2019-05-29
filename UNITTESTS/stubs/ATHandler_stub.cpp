@@ -431,23 +431,26 @@ void ATHandler::flush()
 
 }
 
-nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char* cmd_chr, char *resp_buf, size_t buf_size, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf,
+                                    size_t buf_size, const char *format, ...)
 {
     read_string(resp_buf, buf_size);
     return ATHandler_stub::nsapi_error_value;
 }
 
-nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char* cmd_chr, int &resp, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char *cmd_chr, int &resp,
+                                    const char *format, ...)
 {
     resp = read_int();
     return ATHandler_stub::nsapi_error_value;
 }
 
-void ATHandler::cmd_start_stop(const char *cmd, const char* cmd_chr, const char* format, ...)
+void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format, ...)
 {
 }
 
-nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char* cmd_chr, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char *cmd_chr,
+                                        const char *format, ...)
 {
     return ATHandler_stub::nsapi_error_value;
 }

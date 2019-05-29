@@ -757,7 +757,6 @@ nsapi_error_t AT_CellularContext::get_rate_control(
     CellularContext::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
 {
     _at.lock();
-
     _at.cmd_start_stop("+CGAPNRC", "=", "%d", _cid);
 
     _at.resp_start("+CGAPNRC:");

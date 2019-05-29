@@ -71,7 +71,7 @@ nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 {
     if (_pwd && _uname) {
         if (_at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, 1,
-                                 _apn, _uname, _pwd, _authentication_type) != NSAPI_ERROR_OK) {
+                               _apn, _uname, _pwd, _authentication_type) != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }

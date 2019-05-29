@@ -271,7 +271,7 @@ public:
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
      */
-    void cmd_start_stop(const char *cmd, const char* cmd_chr, const char* format = "", ...);
+    void cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format = "", ...);
 
     /**
      * @brief at_cmd_str Send an AT command and read 1 line string response. Locks and unlocks ATHandler for operation
@@ -283,7 +283,7 @@ public:
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
      * @return @return last error that happened when parsing AT responses
      */
-    nsapi_error_t at_cmd_str(const char *cmd, const char* cmd_chr, char *resp_buf, size_t resp_buf_size, const char* format = "", ...);
+    nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
 
     /**
      * @brief at_cmd_int Send an AT command and read 1 line integer response. Locks and unlocks ATHandler for operation
@@ -294,7 +294,7 @@ public:
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
      * @return @return last error that happened when parsing AT responses
      */
-    nsapi_error_t at_cmd_int(const char *cmd, const char* cmd_chr, int &resp, const char* format = "", ...);
+    nsapi_error_t at_cmd_int(const char *cmd, const char *cmd_chr, int &resp, const char *format = "", ...);
 
     /**
      * @brief at_cmd_discard Send an AT command and read and discard a response. Locks and unlocks ATHandler for operation
@@ -305,7 +305,7 @@ public:
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
      * @return @return last error that happened when parsing AT responses
      */
-    nsapi_error_t at_cmd_discard(const char *cmd, const char* cmd_chr, const char* format = "", ...);
+    nsapi_error_t at_cmd_discard(const char *cmd, const char *cmd_chr, const char *format = "", ...);
 
 public:
 
@@ -550,7 +550,7 @@ private:
 
 private:
     //Handles the arguments from given variadic list
-    void handle_args(const char* format, va_list list);
+    void handle_args(const char *format, va_list list);
 
     //Starts an AT command based on given parameters
     void handle_start(const char *cmd, const char *cmd_chr);

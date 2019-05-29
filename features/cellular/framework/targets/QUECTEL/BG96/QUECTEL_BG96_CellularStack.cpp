@@ -56,7 +56,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
-                             address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
+                           address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
 
         handle_open_socket_response(modem_connect_id, err);
 
@@ -69,7 +69,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
             _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
-                                 address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
+                               address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
 
             handle_open_socket_response(modem_connect_id, err);
         }
@@ -166,8 +166,8 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
     if (socket->proto == NSAPI_UDP && !socket->connected) {
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                             (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
-                              remote_port, socket->localAddress.get_port(), 0);
+                           (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                           remote_port, socket->localAddress.get_port(), 0);
 
         handle_open_socket_response(modem_connect_id, err);
 
@@ -179,14 +179,14 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             socket_close_impl(modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                                 (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
-                                  remote_port, socket->localAddress.get_port(), 0);
+                               (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                               remote_port, socket->localAddress.get_port(), 0);
 
             handle_open_socket_response(modem_connect_id, err);
         }
     } else if (socket->proto == NSAPI_UDP && socket->connected) {
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
-                             socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
+                           socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
 
         handle_open_socket_response(modem_connect_id, err);
 
@@ -198,7 +198,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             socket_close_impl(modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
-                                 socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
+                               socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
 
             handle_open_socket_response(modem_connect_id, err);
         }
@@ -235,7 +235,7 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     // Send
     if (socket->proto == NSAPI_UDP) {
         _at.cmd_start_stop("+QISEND", "=", "%d%d%s%d", socket->id, size,
-                                 address.get_ip_address(), address.get_port());
+                           address.get_ip_address(), address.get_port());
     } else {
         _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, size);
     }

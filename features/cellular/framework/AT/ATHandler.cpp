@@ -1142,17 +1142,17 @@ void ATHandler::cmd_start(const char *cmd)
     _cmd_start = true;
 }
 
-void ATHandler::handle_args(const char* format, va_list list)
+void ATHandler::handle_args(const char *format, va_list list)
 {
     while (*format != '\0') {
         if (*format == 'd') {
             int i = va_arg(list, int);
             write_int(i);
         } else if (*format == 's') {
-            char * str = (char *)va_arg(list, char*);
+            char *str = (char *)va_arg(list, char *);
             write_string(str);
         } else if (*format == 'b') {
-            uint8_t *bytes = va_arg(list, uint8_t*);
+            uint8_t *bytes = va_arg(list, uint8_t *);
             int size = va_arg(list, int);
             write_bytes(bytes, size);
         }
@@ -1164,7 +1164,7 @@ void ATHandler::handle_start(const char *cmd, const char *cmd_chr)
 {
     int len = 0;
     memcpy(_cmd_buffer, "AT", 2);
-    len +=2;
+    len += 2;
     memcpy(_cmd_buffer + len, cmd, strlen(cmd));
     len += strlen(cmd);
 
@@ -1176,7 +1176,7 @@ void ATHandler::handle_start(const char *cmd, const char *cmd_chr)
     cmd_start(_cmd_buffer);
 }
 
-void ATHandler::cmd_start_stop(const char *cmd, const char* cmd_chr, const char* format, ...)
+void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format, ...)
 {
     handle_start(cmd, cmd_chr);
 
@@ -1188,7 +1188,7 @@ void ATHandler::cmd_start_stop(const char *cmd, const char* cmd_chr, const char*
     cmd_stop();
 }
 
-nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char* cmd_chr, char *resp_buf, size_t buf_size, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t buf_size, const char *format, ...)
 {
     lock();
 
@@ -1203,7 +1203,7 @@ nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char* cmd_chr, char *
 
     memcpy(_cmd_buffer, cmd, strlen(cmd));
     _cmd_buffer[strlen(cmd)] = ':';
-    _cmd_buffer[strlen(cmd)+1] = '\0';
+    _cmd_buffer[strlen(cmd) + 1] = '\0';
     resp_start(_cmd_buffer);
 
     read_string(resp_buf, buf_size);
@@ -1211,7 +1211,7 @@ nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char* cmd_chr, char *
     return unlock_return_error();
 }
 
-nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char* cmd_chr, int &resp, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char *cmd_chr, int &resp, const char *format, ...)
 {
     lock();
 
@@ -1227,7 +1227,7 @@ nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char* cmd_chr, int &r
     size_t len = strlen(cmd);
     memcpy(temp, cmd, len);
     temp[len] = ':';
-    temp[len+1] = '\0';
+    temp[len + 1] = '\0';
     resp_start(temp);
 
     resp = read_int();
@@ -1235,7 +1235,7 @@ nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char* cmd_chr, int &r
     return unlock_return_error();
 }
 
-nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char* cmd_chr, const char* format, ...)
+nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char *cmd_chr, const char *format, ...)
 {
     lock();
 
