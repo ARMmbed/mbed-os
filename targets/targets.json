@@ -8645,11 +8645,12 @@
             "FLASH",
             "SLEEP",
             "MPU",
-            "TRNG"
+            "TRNG",
+            "USBDEVICE"
         ],
         "device_name": "GD32F450ZI",
         "detect_code": ["1702"],
-        "macros_add": ["GD32F450", "MBEDTLS_PSA_CRYPTO_C"],
+        "macros_add": ["GD32F450", "MBEDTLS_PSA_CRYPTO_C", "USE_USB_FS"],
         "bootloader_supported": true,
         "release_versions": ["5"],
         "overrides": {

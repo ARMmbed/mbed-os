@@ -295,8 +295,8 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 static void usart_irq(int usart_index, uint32_t usart_periph)
 {
     if (serial_irq_ids[usart_index] != 0) {
-        if (usart_interrupt_flag_get(usart_periph, USART_INT_FLAG_TC) != RESET) {
-            usart_interrupt_flag_clear(usart_periph, USART_INT_FLAG_TC);
+        if (usart_interrupt_flag_get(usart_periph, USART_INT_FLAG_TBE) != RESET) {
+            usart_interrupt_flag_clear(usart_periph, USART_INT_FLAG_TBE);
             irq_handler(serial_irq_ids[usart_index], TxIrq);
         }
 
