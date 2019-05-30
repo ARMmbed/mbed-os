@@ -17,7 +17,7 @@ mbed-host-tests>=1.4.4,<1.6
 mbed-greentea>=0.2.24,<1.8
 beautifulsoup4>=4,<=4.6.3
 pyelftools>=0.24,<=0.25
-manifest-tool==1.4.8
+manifest-tool==1.5.2
 icetea>=1.2.1,<1.3
 pycryptodome>=3.7.2,<=3.7.3
 pyusb>=1.0.0,<2.0.0
