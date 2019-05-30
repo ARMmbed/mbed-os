@@ -41,7 +41,12 @@
 #define I2C_EVENT_ERROR_NO_SLAVE      (1 << 2)
 #define I2C_EVENT_TRANSFER_COMPLETE   (1 << 3)
 #define I2C_EVENT_TRANSFER_EARLY_NACK (1 << 4)
-#define I2C_EVENT_ALL                 (I2C_EVENT_ERROR |  I2C_EVENT_TRANSFER_COMPLETE | I2C_EVENT_ERROR_NO_SLAVE | I2C_EVENT_TRANSFER_EARLY_NACK)
+#define I2C_EVENT_ARBITRATION_LOST    (1 << 5)
+#define I2C_EVENT_ALL                 (I2C_EVENT_ERROR |  \
+                                       I2C_EVENT_TRANSFER_COMPLETE | \
+                                       I2C_EVENT_ERROR_NO_SLAVE | \
+                                       I2C_EVENT_TRANSFER_EARLY_NACK | \
+                                       I2C_EVENT_ARBITRATION_LOST)
 
 /**@}*/
 
@@ -51,6 +56,7 @@ typedef struct i2c i2c_t;
 typedef struct i2c_async_event {
     uint32_t sent_bytes;
     uint32_t received_bytes;
+    int32_t error_status; // error description I2C_ERROR_XXX
     bool error;
 } i2c_async_event_t;
 
@@ -69,10 +75,12 @@ struct i2c {
 #endif
 };
 
+/** Error codes */
 enum {
     I2C_ERROR_NO_SLAVE = -1,
     I2C_ERROR_BUS_BUSY = -2,
-    I2C_ERROR_TIMEOUT  = -3
+    I2C_ERROR_TIMEOUT  = -3,
+    I2C_ERROR_ARBITRATION_LOST = -4
 };
 
 #ifdef __cplusplus
@@ -85,13 +93,13 @@ typedef struct {
     /**< Maximum frequency supported must be set by target device */
     uint32_t    maximum_frequency;
     /**< If true, the device can handle I2C slave mode. */
-    bool      supports_slave_mode;
+    bool        supports_slave_mode;
     /**< If true, supports 10-bit addressing. */
-    bool      supports_10bit_addressing;
+    bool        supports_10bit_addressing;
     /**< If true, the device handle multimaster collisions and arbitration safely*/
-    bool      supports_multi_master;
+    bool        supports_multi_master;
     /**< If true, supports configuring clock stretching. */
-    bool supports_clock_stretching;
+    bool        supports_clock_stretching;
 } i2c_capabilities_t;
 
 /**
@@ -137,11 +145,6 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
 /** Enable or disable clock stretching for the I2C peripheral.
  *
- *  The behaviour is undefined unless `obj` points to a valid 'i2c_t' object
- *  and the target supports configuring clock stretching, indicated by the
- *  'supports_clock_stretching' attribute returned by the 'i2c_get_capabilities'
- *  function.
- *
  * @param obj     The I2C object
  * @param enabled If 'true' enable clock stretching on the given I2C peripheral,
  *                otherwise disable it.
@@ -157,7 +160,7 @@ void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
  *        Default timeout value is based on I2C frequency.
  *        Byte timeout is computed as triple amount of time it would take
  *        to send 10bit over I2C and is expressed by the formula:
- *        3 * (1/frequency * 10 * 1000000)
+ *        byte_timeout = 3 * (1/frequency * 10 * 1000000)
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
@@ -201,11 +204,17 @@ void i2c_stop(i2c_t *obj);
  *  @param length  Number of bytes to write
  *  @param stop    If true, stop will be generated after the transfer is done
  *
- *  @note If the current platform supports multimaster operation the transfer
- *        will block until the peripheral can gain arbitration of the bus and
- *        complete the transfer. If the device does not support multimaster
- *        operation this function is not safe to execute when the bus is shared
- *        with another device in master mode.
+ *  @note If the current platform supports multimaster operation the peripheral
+ *        will perform arbitration automatically when detects collision and
+ *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
+ *        when loses arbitration.
+ *
+ *        Additional time for arbitration or clock stretching should by count
+ *        by setting appropriate timeout value.
+ *
+ *        When no transmision timeout was set by the user the default timeout value will
+ *        be used. It will count one additional byte for addressing stage:
+ *        default_timeout = (length + 1) * byte_timeout.
  *
  *  @return
  *      zero or non-zero - Number of written bytes
@@ -235,11 +244,17 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
  *  @param length  Number of bytes to read
  *  @param stop    If true, stop will be generated after the transfer is done
  *
- *  @note If the current platform supports multimaster operation the transfer
- *        will block until the peripheral can gain arbitration of the bus and
- *        complete the transfer. If the device does not support multimaster
- *        operation this function is not safe to execute when the bus is shared
- *        with another device in master mode.
+ *  @note If the current platform supports multimaster operation the peripheral
+ *        will perform arbitration automatically when detects collision and
+ *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
+ *        when loses arbitration.
+ *
+ *        Additional time for arbitration or clock stretching should by count
+ *        by setting appropriate timeout value.
+ *
+ *        When no transmision timeout was set by the user the default timeout value will
+ *        be used. It will count one additional byte for addressing stage:
+ *        default_timeout = (length + 1) * byte_timeout.
  *
  *  @return
  *      zero or non-zero - Number of written bytes

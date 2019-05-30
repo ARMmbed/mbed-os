@@ -195,7 +195,6 @@ static status_t _I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t r
 
     /* Add this to avoid build warning. */
     dummy++;
-    //printf("_I2C_SlaveReadBlocking timeout1: %u\n", timeout);
 
 /* Wait until address match. */
 #if defined(FSL_FEATURE_I2C_HAS_START_STOP_DETECT) && FSL_FEATURE_I2C_HAS_START_STOP_DETECT
@@ -248,7 +247,6 @@ static status_t _I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t r
         /* Read from the data register. */
         *rxBuff++ = base->D;
     }
-    //printf("_I2C_SlaveReadBlocking timeout2: %u\n", timeout);
     return result;
 }
 
@@ -376,8 +374,19 @@ void master_callback(I2C_Type *base, i2c_master_handle_t *handle, status_t statu
 {
   i2c_t *obj = (i2c_t*)userData;
   struct i2c_s *obj_s = &obj->i2c;
+  switch(status) {
+    case kStatus_Success:
+      obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
+      break;
 
-  obj_s->event = status != kStatus_Success ? I2C_EVENT_ERROR : I2C_EVENT_TRANSFER_COMPLETE;
+    case kStatus_I2C_ArbitrationLost:
+      obj_s->event = I2C_EVENT_ARBITRATION_LOST;
+      break;
+
+    default:
+      obj_s->event = I2C_EVENT_ERROR;
+      break;
+  }
 }
 
 static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool stop)
@@ -418,14 +427,15 @@ static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint3
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
       // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]);
+      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
     return length;
-  } else {
-    return 0;
+  } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
+    return I2C_ERROR_ARBITRATION_LOST;
   }
+  return 0;
 }
 
 int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length,
@@ -487,14 +497,15 @@ int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint3
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
       // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]);
+      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
     return length;
-  } else {
-    return 0;
+  } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
+    return I2C_ERROR_ARBITRATION_LOST;
   }
+  return 0;
 }
 
 int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
@@ -563,6 +574,11 @@ void async_transfer_callback(I2C_Type *base, i2c_master_handle_t *handle, status
   }
 
   event.error = status != kStatus_Success;
+  switch(status) {
+    case kStatus_I2C_ArbitrationLost:
+      event.error_status = I2C_ERROR_ARBITRATION_LOST;
+      break;
+  }
   obj->handler(obj, &event, obj->ctx);
 }
 

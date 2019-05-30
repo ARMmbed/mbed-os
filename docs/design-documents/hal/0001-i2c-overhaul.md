@@ -73,7 +73,7 @@ List of drivers and examples currently using the I2C interface:
 
 - I2C Async
 
-  These are basically the same the regular ones except that the function  call should return immediately and a callback should be triggered once  the operation is completed.
+  These are basically the same the regular ones except that the function call should return immediately and a callback should be triggered once the operation is completed or error detected.
 
 - I2C MultiMaster
 
@@ -89,11 +89,11 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** `i2c_timeout` function to the API.
 
-  Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C.
+  Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C. The timeout value should count the additional time needed by arbitration and clock stretching if any of these can happen
 
 - **Add** an `i2c_get_capabilities` function to API return supported capabilities and constraints on the currently running platform.
 
-- **Add** specification enforcing multimaster support on platforms that support it. Not all partner boards support multimaster, any platform that does support it must handle arbitration with other masters on the same bus transparently to the user and API.
+- **Add** specification enforcing multimaster support on platforms that support it. Not all partner boards support multimaster, any platform that does support it must handle arbitration with other masters on the same bus and return `I2C_ERROR_ARBITRATION_LOST` status when loses arbitration.
 
 - **Remove** `i2c_reset` function from the API.
 
@@ -105,11 +105,16 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** a return value to the `i2c_frequency` which indicates the frequency that the peripheral was configured to.
 
-  The frequency requested may not be supported by the I2C peripheral, the peripheral will select the nearest supported frequency instead, this selected frequency will be returned to inform the caller of the difference.
+  The frequency requested may not be supported by the I2C peripheral, the peripheral will select the nearest supported frequency instead (but not greater then requested), this selected frequency will be returned to inform the caller of the difference.
 
 - **Change** the `stop` parameter for the transfer function from an `int` value to a `bool` value.
 
   This function argument does not make sense as an `int` value other than for outdated compatibility reasons, the `bool` value expresses the intent more accurately.
+
+- **Add** two more error status.
+
+  `I2C_ERROR_TIMEOUT` returned by `i2c_write` and `i2c_read` when transminssion timeout occurs.
+  `I2C_ERROR_ARBITRATION_LOST` returned by `i2c_write` and `i2c_read` and passed in `i2c_async_event_t` when lost the arbitration.
 
 
 ### Sync API changes
@@ -179,12 +184,20 @@ The main changes involve removing the slave specific read/write functions and ro
 ### The new API
 
 ```c++
+/** Error codes */
+enum {
+    I2C_ERROR_NO_SLAVE = -1,
+    I2C_ERROR_BUS_BUSY = -2,
+    I2C_ERROR_TIMEOUT  = -3,
+    I2C_ERROR_ARBITRATION_LOST = -4
+};
+
 typedef struct {
     /**< Minimum frequency supported must be set by target device */
     uint32_t    minimum_frequency;
     /**< Maximum frequency supported must be set by target device */
     uint32_t    maximum_frequency;
-	/**< If true, the device can handle I2C slave mode. */
+    /**< If true, the device can handle I2C slave mode. */
     bool      supports_slave_mode;
     /**< If true, supports 10-bit addressing. */
     bool      supports_10bit_addressing;
@@ -230,6 +243,14 @@ void i2c_free(i2c_t *obj);
  */
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
+/** Enable or disable clock stretching for the I2C peripheral.
+ *
+ * @param obj     The I2C object
+ * @param enabled If 'true' enable clock stretching on the given I2C peripheral,
+ *                otherwise disable it.
+ */
+void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
+
 /** Configure the timeout duration in microseconds for blocking transmission
  *
  *  @param obj        The I2C object
@@ -239,7 +260,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  *        Default timeout value is based on I2C frequency.
  *        Byte timeout is computed as triple amount of time it would take
  *        to send 10bit over I2C and is expressed by the formula:
- *        3 * (1/frequency * 10 * 1000000)
+ *        byte_timeout = 3 * (1/frequency * 10 * 1000000)
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
@@ -283,11 +304,17 @@ void i2c_stop(i2c_t *obj);
  *  @param length  Number of bytes to write
  *  @param stop    If true, stop will be generated after the transfer is done
  *
- *  @note If the current platform supports multimaster operation the transfer
- *        will block until the peripheral can gain arbitration of the bus and
- *        complete the transfer. If the device does not support multimaster
- *        operation this function is not safe to execute when the bus is shared
- *        with another device in master mode.
+ *  @note If the current platform supports multimaster operation the peripheral
+ *        will perform arbitration automatically when detects collision and
+ *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
+ *        when loses arbitration.
+ *
+ *        Additional time for arbitration or clock stretching should by count
+ *        by setting appropriate timeout value.
+ *
+ *        When no transmision timeout was set by the user the default timeout value will
+ *        be used. It will count one additional byte for addressing stage:
+ *        default_timeout = (length + 1) * byte_timeout.
  *
  *  @return
  *      zero or non-zero - Number of written bytes
@@ -316,11 +343,17 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t le
  *  @param length  Number of bytes to read
  *  @param stop    If true, stop will be generated after the transfer is done
  *
- *  @note If the current platform supports multimaster operation the transfer
- *        will block until the peripheral can gain arbitration of the bus and
- *        complete the transfer. If the device does not support multimaster
- *        operation this function is not safe to execute when the bus is shared
- *        with another device in master mode.
+ *  @note If the current platform supports multimaster operation the peripheral
+ *        will perform arbitration automatically when detects collision and
+ *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
+ *        when loses arbitration.
+ *
+ *        Additional time for arbitration or clock stretching should by count
+ *        by setting appropriate timeout value.
+ *
+ *        When no transmision timeout was set by the user the default timeout value will
+ *        be used. It will count one additional byte for addressing stage:
+ *        default_timeout = (length + 1) * byte_timeout.
  *
  *  @return
  *      zero or non-zero - Number of written bytes
@@ -347,11 +380,11 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj);
  *  @note This function does nothing when configured in master mode.
  *
  *  @param obj     The I2C object
- *  @param address The address to be set
+ *  @param address The address to be set - 7bit or 10bit
  */
 void i2c_slave_address(i2c_t *obj, uint16_t address);
 
-typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t event);
+typedef void (*i2c_async_handler_f)(i2c_t *obj, i2c_async_event_t *event, void *ctx);
 
 /** Start I2C asynchronous transfer
  *
@@ -429,10 +462,11 @@ void i2c_abort_async(i2c_t *obj);
   - Does nothing if called in master mode.
 - `i2c_transfer_async`:
   - Returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not.
-  - The callback given to `i2c_transfer_async` is invoked when the transfer finishes.
+  - The callback given to `i2c_transfer_async` is invoked when the transfer finishes or error occurs.
   - Must save the handler and context pointers inside the `obj` pointer.
   - The context pointer is passed to the callback on transfer completion.
   - The callback must be invoked on completion unless the transfer is aborted.
+  - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
   - `i2c_async_event_t` must be filled with the number of symbols sent to the bus during transfer.
 - `i2c_abort_async`:
   - Aborts any on-going async transfers.

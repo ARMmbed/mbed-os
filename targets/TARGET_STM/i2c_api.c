@@ -777,9 +777,9 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, b
 #else
         i2c_init(obj, obj_s->sda, obj_s->scl, false);
 #endif // DEVICE_I2CSLAVE
-
-
         return I2C_ERROR_TIMEOUT;
+    } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
+        return I2C_ERROR_ARBITRATION_LOST;
     }
 
     return (length - handle->XferCount);
@@ -847,6 +847,8 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t le
 #endif // DEVICE_I2CSLAVE
 
         return I2C_ERROR_TIMEOUT;
+    } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
+        return I2C_ERROR_ARBITRATION_LOST;
     }
 
     return (length - handle->XferCount);
@@ -967,6 +969,9 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 
     i2c_async_event_t event;
     event.error = true;
+    if (hi2c->ErrorCode & HAL_I2C_ERROR_ARLO) {
+        event.error_status = I2C_ERROR_ARBITRATION_LOST;
+    }
 
     if (!obj_s->tx_complete) {
         event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
