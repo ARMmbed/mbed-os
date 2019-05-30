@@ -32,13 +32,13 @@
 
 #include "drv_usbd_int.h"
 
-static uint32_t usbd_ep_setup (usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
-static uint32_t usbd_ep_clear (usb_core_driver *udev, uint8_t ep_addr);
-static uint32_t usbd_ep_recev (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len);
-static uint32_t usbd_ep_send (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len);
-static uint32_t usbd_ep_stall (usb_core_driver *udev, uint8_t ep_addr);
-static uint32_t usbd_ep_stall_clear (usb_core_driver *udev, uint8_t ep_addr);
-static uint16_t usbd_rxcount_get (usb_core_driver *udev, uint8_t ep_num);
+static uint32_t usbd_ep_setup(usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
+static uint32_t usbd_ep_clear(usb_core_driver *udev, uint8_t ep_addr);
+static uint32_t usbd_ep_recev(usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len);
+static uint32_t usbd_ep_send(usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len);
+static uint32_t usbd_ep_stall(usb_core_driver *udev, uint8_t ep_addr);
+static uint32_t usbd_ep_stall_clear(usb_core_driver *udev, uint8_t ep_addr);
+static uint16_t usbd_rxcount_get(usb_core_driver *udev, uint8_t ep_num);
 
 /* endpoint conversion macros */
 #define EP_TO_LOG(ep)       ((ep) & 0x7F)
@@ -54,10 +54,10 @@ static uint16_t usbd_rxcount_get (usb_core_driver *udev, uint8_t ep_num);
 #define ENDPOINT_NON_ISO        (USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT)
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_ISO
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_ISO
 };
 
 uint32_t USBD_PCDEx_GetTxFiFo(usb_core_driver *hpcd, uint8_t fifo)
@@ -126,7 +126,7 @@ void USBD_PCD_SuspendCallback(usb_core_driver *hpcd)
 
 void USBD_PCD_ResumeCallback(usb_core_driver *hpcd)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->suspend(0);
 }
 
@@ -214,16 +214,16 @@ void USBPhyHw::init(USBPhyEvents *events)
     rcu_periph_clock_enable(RCU_USBFS);
 
     // Configure PCD and FIFOs
-    hpcd.pData = (void*)this;
+    hpcd.pData = (void *)this;
 
     /* configure USB capabilites */
-    usb_basic_init (hpcd.bp, &hpcd.regs);
+    usb_basic_init(hpcd.bp, &hpcd.regs);
 
     /* initailizes the USB core*/
-    usb_core_init (hpcd.bp, &hpcd.regs);
+    usb_core_init(hpcd.bp, &hpcd.regs);
 
     /* initailizes device mode */
-    usb_devcore_init (&hpcd);
+    usb_devcore_init(&hpcd);
 
     usb_dev_disconnect(&hpcd);
 
@@ -246,10 +246,10 @@ void USBPhyHw::init(USBPhyEvents *events)
     }
 
     /* flush all Tx FIFOs */
-    usb_txfifo_flush (&hpcd.regs, 0x10);
+    usb_txfifo_flush(&hpcd.regs, 0x10);
 
     /* flush entire Rx FIFO */
-    usb_rxfifo_flush (&hpcd.regs);
+    usb_rxfifo_flush(&hpcd.regs);
 
     /* 1.25 kbytes */
     MBED_ASSERT(total_bytes <= 1280);
@@ -453,14 +453,14 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
-    if (epComplete[EP_TO_IDX(endpoint)]==0) {
+    if (epComplete[EP_TO_IDX(endpoint)] == 0) {
         /*  no reception possible !!! */
         return 0;
-    } else if ((epComplete[EP_TO_IDX(endpoint)]!=1)) {
+    } else if ((epComplete[EP_TO_IDX(endpoint)] != 1)) {
         return 0;
     }
 
-    epComplete[EP_TO_IDX(endpoint)]= 0;
+    epComplete[EP_TO_IDX(endpoint)] = 0;
 
     return usbd_rxcount_get(&hpcd, endpoint);;
 }
@@ -475,7 +475,9 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
     MBED_ASSERT(ret == 0U);
 
     // update the status
-    if (ret != 0U) return false;
+    if (ret != 0U) {
+        return false;
+    }
 
     // fix me return is too simple
     return true;
@@ -495,7 +497,8 @@ void USBPhyHw::process()
     NVIC_EnableIRQ(USBHAL_IRQn);
 }
 
-void USBPhyHw::_usbisr(void) {
+void USBPhyHw::_usbisr(void)
+{
     NVIC_DisableIRQ(USBHAL_IRQn);
     instance->events->start_process();
 }
@@ -507,7 +510,7 @@ void USBPhyHw::_usbisr(void) {
     \param[out] none
     \retval     none
 */
-uint32_t usbd_ep_setup (usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type)
+uint32_t usbd_ep_setup(usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type)
 {
     usb_transc *transc;
 
@@ -527,7 +530,7 @@ uint32_t usbd_ep_setup (usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps,
     transc->ep_type = ep_type;
 
     /* active USB endpoint function */
-    usb_transc_active (udev, transc);
+    usb_transc_active(udev, transc);
 
     return 0;
 }
@@ -542,7 +545,7 @@ uint32_t usbd_ep_setup (usb_core_driver *udev, uint8_t ep_addr, uint16_t ep_mps,
     \param[out] none
     \retval     none
 */
-uint32_t usbd_ep_clear (usb_core_driver *udev, uint8_t ep_addr)
+uint32_t usbd_ep_clear(usb_core_driver *udev, uint8_t ep_addr)
 {
     usb_transc *transc;
 
@@ -553,7 +556,7 @@ uint32_t usbd_ep_clear (usb_core_driver *udev, uint8_t ep_addr)
     }
 
     /* deactive USB endpoint function */
-    usb_transc_deactivate (udev, transc);
+    usb_transc_deactivate(udev, transc);
 
     return 0;
 }
@@ -571,7 +574,7 @@ uint32_t usbd_ep_clear (usb_core_driver *udev, uint8_t ep_addr)
     \param[out] none
     \retval     none
 */
-uint32_t usbd_ep_recev (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len)
+uint32_t usbd_ep_recev(usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len)
 {
     usb_transc *transc = &udev->dev.transc_out[EP_ID(ep_addr)];
 
@@ -585,7 +588,7 @@ uint32_t usbd_ep_recev (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, u
     }
 
     /* start the transfer */
-    usb_transc_outxfer (udev, transc);
+    usb_transc_outxfer(udev, transc);
 
     return 0;
 }
@@ -602,7 +605,7 @@ uint32_t usbd_ep_recev (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, u
     \param[out] none
     \retval     none
 */
-uint32_t  usbd_ep_send (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len)
+uint32_t  usbd_ep_send(usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, uint16_t len)
 {
     usb_transc *transc = &udev->dev.transc_in[EP_ID(ep_addr)];
 
@@ -616,7 +619,7 @@ uint32_t  usbd_ep_send (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, u
     }
 
     /* start the transfer */
-    usb_transc_inxfer (udev, transc);
+    usb_transc_inxfer(udev, transc);
 
     return 0;
 }
@@ -631,7 +634,7 @@ uint32_t  usbd_ep_send (usb_core_driver *udev, uint8_t ep_addr, uint8_t *pbuf, u
     \param[out] none
     \retval     none
 */
-uint32_t usbd_ep_stall (usb_core_driver *udev, uint8_t ep_addr)
+uint32_t usbd_ep_stall(usb_core_driver *udev, uint8_t ep_addr)
 {
     usb_transc *transc = NULL;
 
@@ -643,7 +646,7 @@ uint32_t usbd_ep_stall (usb_core_driver *udev, uint8_t ep_addr)
 
     transc->ep_stall = 1;
 
-    usb_transc_stall (udev, transc);
+    usb_transc_stall(udev, transc);
 
     return (0);
 }
@@ -658,7 +661,7 @@ uint32_t usbd_ep_stall (usb_core_driver *udev, uint8_t ep_addr)
     \param[out] none
     \retval     none
 */
-uint32_t usbd_ep_stall_clear (usb_core_driver *udev, uint8_t ep_addr)
+uint32_t usbd_ep_stall_clear(usb_core_driver *udev, uint8_t ep_addr)
 {
     usb_transc *transc = NULL;
 
@@ -670,7 +673,7 @@ uint32_t usbd_ep_stall_clear (usb_core_driver *udev, uint8_t ep_addr)
 
     transc->ep_stall = 0;
 
-    usb_transc_clrstall (udev, transc);
+    usb_transc_clrstall(udev, transc);
 
     return (0);
 }
@@ -682,7 +685,7 @@ uint32_t usbd_ep_stall_clear (usb_core_driver *udev, uint8_t ep_addr)
     \param[out] none
     \retval     USB device operation cur_status
 */
-uint16_t  usbd_rxcount_get (usb_core_driver *udev, uint8_t ep_num)
+uint16_t  usbd_rxcount_get(usb_core_driver *udev, uint8_t ep_num)
 {
     return udev->dev.transc_out[ep_num].xfer_count;
 }

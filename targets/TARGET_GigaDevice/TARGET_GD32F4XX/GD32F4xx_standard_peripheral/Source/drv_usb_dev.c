@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -51,7 +51,7 @@ static const uint8_t EP0_MAXLEN[4] = {
     \param[out] none
     \retval     operation status
 */
-usb_status usb_devcore_init (usb_core_driver *udev)
+usb_status usb_devcore_init(usb_core_driver *udev)
 {
     uint32_t i;
 
@@ -77,10 +77,10 @@ usb_status usb_devcore_init (usb_core_driver *udev)
     }
 
     /* flush all Tx FIFOs */
-    usb_txfifo_flush (&udev->regs, 0x10);
+    usb_txfifo_flush(&udev->regs, 0x10);
 
     /* flush entire Rx FIFO */
-    usb_rxfifo_flush (&udev->regs);
+    usb_rxfifo_flush(&udev->regs);
 
     /* clear all pending device interrupts */
     udev->regs.dr->DIEPINTEN = 0U;
@@ -117,7 +117,7 @@ usb_status usb_devcore_init (usb_core_driver *udev)
 
     udev->regs.dr->DIEPINTEN &= ~DIEPINTEN_EPTXFUDEN;
 
-    usb_devint_enable (udev);
+    usb_devint_enable(udev);
 
     return USB_OK;
 }
@@ -144,7 +144,7 @@ usb_status usb_globalint_enable(usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-usb_status usb_devint_enable (usb_core_driver *udev)
+usb_status usb_devint_enable(usb_core_driver *udev)
 {
     udev->regs.gr->GINTEN = 0U;
 
@@ -159,7 +159,7 @@ usb_status usb_devint_enable (usb_core_driver *udev)
         udev->regs.gr->GINTEN |= GINTEN_RXFNEIE;
     }
 
-    udev->regs.gr->GINTEN |= GINTEN_RSTIE | GINTEN_ENUMFIE | GINTEN_IEPIE |\
+    udev->regs.gr->GINTEN |= GINTEN_RSTIE | GINTEN_ENUMFIE | GINTEN_IEPIE | \
                              GINTEN_OEPIE | GINTEN_SOFIE | GINTEN_ISOONCIE | GINTEN_ISOINCIE;
 
 #ifdef VBUS_SENSING_ENABLED
@@ -175,7 +175,7 @@ usb_status usb_devint_enable (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-void usb_dev_disconnect (usb_core_driver *udev)
+void usb_dev_disconnect(usb_core_driver *udev)
 {
     udev->regs.dr->DCTL |= DCTL_SD;
 }
@@ -186,7 +186,7 @@ void usb_dev_disconnect (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-void usb_dev_connect (usb_core_driver *udev)
+void usb_dev_connect(usb_core_driver *udev)
 {
     udev->regs.dr->DCTL &= ~DCTL_SD;
 }
@@ -198,7 +198,7 @@ void usb_dev_connect (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-void usb_devaddr_set (usb_core_driver *udev, uint8_t dev_addr)
+void usb_devaddr_set(usb_core_driver *udev, uint8_t dev_addr)
 {
     udev->regs.dr->DCFG &= ~DCFG_DAR;
     udev->regs.dr->DCFG |= dev_addr << 4;
@@ -211,7 +211,7 @@ void usb_devaddr_set (usb_core_driver *udev, uint8_t dev_addr)
     \param[out] none
     \retval     status
 */
-usb_status usb_transc_active (usb_core_driver *udev, usb_transc *transc)
+usb_status usb_transc_active(usb_core_driver *udev, usb_transc *transc)
 {
     __IO uint32_t *reg_addr = NULL;
 
@@ -249,8 +249,7 @@ usb_status usb_transc_active (usb_core_driver *udev, usb_transc *transc)
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED
     if ((ep_num == 1) && (udev->bp.core == USB_HS_CORE_ID)) {
         udev->regs.dr->DEP1INTEN |= epinten;
-    }
-    else
+    } else
 #endif
     {
         /* enable the interrupts for this endpoint */
@@ -287,8 +286,7 @@ usb_status usb_transc_deactivate(usb_core_driver *udev, usb_transc *transc)
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED
     if ((ep_num == 1) && (udev->bp.core == USB_CORE_HS)) {
         udev->regs.dr->DEP1INTEN &= ~epinten;
-    }
-    else
+    } else
 #endif
     {
         /* disable the interrupts for this endpoint */
@@ -305,7 +303,7 @@ usb_status usb_transc_deactivate(usb_core_driver *udev, usb_transc *transc)
     \param[out] none
     \retval     status
 */
-usb_status usb_transc_inxfer (usb_core_driver *udev, usb_transc *transc)
+usb_status usb_transc_inxfer(usb_core_driver *udev, usb_transc *transc)
 {
     usb_status status = USB_OK;
 
@@ -363,7 +361,7 @@ usb_status usb_transc_inxfer (usb_core_driver *udev, usb_transc *transc)
             udev->regs.dr->DIEPFEINTEN |= 1 << ep_num;
         }
     } else {
-        usb_txfifo_write (&udev->regs, transc->xfer_buf, ep_num, transc->xfer_len);
+        usb_txfifo_write(&udev->regs, transc->xfer_buf, ep_num, transc->xfer_len);
     }
 
     return status;
@@ -376,7 +374,7 @@ usb_status usb_transc_inxfer (usb_core_driver *udev, usb_transc *transc)
     \param[out] none
     \retval     status
 */
-usb_status usb_transc_outxfer (usb_core_driver *udev, usb_transc *transc)
+usb_status usb_transc_outxfer(usb_core_driver *udev, usb_transc *transc)
 {
     usb_status status = USB_OK;
 
@@ -434,7 +432,7 @@ usb_status usb_transc_outxfer (usb_core_driver *udev, usb_transc *transc)
     \param[out] none
     \retval     status
 */
-usb_status usb_transc_stall (usb_core_driver *udev, usb_transc *transc)
+usb_status usb_transc_stall(usb_core_driver *udev, usb_transc *transc)
 {
     __IO uint32_t *reg_addr = NULL;
 
@@ -494,7 +492,7 @@ usb_status usb_transc_clrstall(usb_core_driver *udev, usb_transc *transc)
     \param[out] none
     \retval     none
 */
-uint32_t usb_oepintnum_read (usb_core_driver *udev)
+uint32_t usb_oepintnum_read(usb_core_driver *udev)
 {
     uint32_t value = udev->regs.dr->DAEPINT;
 
@@ -510,7 +508,7 @@ uint32_t usb_oepintnum_read (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-uint32_t usb_oepintr_read (usb_core_driver *udev, uint8_t ep_num)
+uint32_t usb_oepintr_read(usb_core_driver *udev, uint8_t ep_num)
 {
     uint32_t value = udev->regs.er_out[ep_num]->DOEPINTF;
 
@@ -525,12 +523,12 @@ uint32_t usb_oepintr_read (usb_core_driver *udev, uint8_t ep_num)
     \param[out] none
     \retval     none
 */
-uint32_t usb_iepintnum_read (usb_core_driver *udev)
+uint32_t usb_iepintnum_read(usb_core_driver *udev)
 {
     uint32_t value = udev->regs.dr->DAEPINT;
 
     value &= udev->regs.dr->DAEPINTEN;
-    
+
     return value & DAEPINT_IEPITB;
 }
 
@@ -542,7 +540,7 @@ uint32_t usb_iepintnum_read (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-uint32_t usb_iepintr_read (usb_core_driver *udev, uint8_t ep_num)
+uint32_t usb_iepintr_read(usb_core_driver *udev, uint8_t ep_num)
 {
     uint32_t value = 0U, fifoemptymask = 0U, commonintmask = 0U;
 
@@ -563,7 +561,7 @@ uint32_t usb_iepintr_read (usb_core_driver *udev, uint8_t ep_num)
     \param[out] none
     \retval     none
 */
-void usb_ctlep_startout (usb_core_driver *udev)
+void usb_ctlep_startout(usb_core_driver *udev)
 {
     /* set OUT endpoint 0 receive length to 24 bytes, 1 packet and 3 setup packets */
     udev->regs.er_out[0]->DOEPLEN = DOEP0_TLEN(8U * 3U) | DOEP0_PCNT(1U) | DOEP0_STPCNT(3U);
@@ -582,7 +580,7 @@ void usb_ctlep_startout (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_rwkup_set (usb_core_driver *udev)
+void usb_rwkup_set(usb_core_driver *udev)
 {
 //    if (udev->dev.pm.dev_remote_wakeup) {
 //        /* enable remote wakeup signaling */
@@ -596,7 +594,7 @@ void usb_rwkup_set (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_rwkup_reset (usb_core_driver *udev)
+void usb_rwkup_reset(usb_core_driver *udev)
 {
 //    if (udev->dev.pm.dev_remote_wakeup) {
 //        /* disable remote wakeup signaling */
@@ -610,7 +608,7 @@ void usb_rwkup_reset (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_rwkup_active (usb_core_driver *udev)
+void usb_rwkup_active(usb_core_driver *udev)
 {
 //    if (udev->dev.pm.dev_remote_wakeup)  {
 //        if (udev->regs.dr->DSTAT & DSTAT_SPST) {
@@ -633,7 +631,7 @@ void usb_rwkup_active (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_clock_active (usb_core_driver *udev)
+void usb_clock_active(usb_core_driver *udev)
 {
     if (udev->bp.low_power) {
         if (udev->regs.dr->DSTAT & DSTAT_SPST) {
@@ -649,7 +647,7 @@ void usb_clock_active (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_dev_suspend (usb_core_driver *udev)
+void usb_dev_suspend(usb_core_driver *udev)
 {
     __IO uint32_t devstat = udev->regs.dr->DSTAT;
 
@@ -668,7 +666,7 @@ void usb_dev_suspend (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usb_dev_stop (usb_core_driver *udev)
+void usb_dev_stop(usb_core_driver *udev)
 {
     uint32_t i;
 
@@ -686,6 +684,6 @@ void usb_dev_stop (usb_core_driver *udev)
     udev->regs.dr->DAEPINT = 0xFFFFFFFFU;
 
     /* flush the FIFO */
-    usb_rxfifo_flush (&udev->regs);
-    usb_txfifo_flush (&udev->regs, 0x10);
+    usb_rxfifo_flush(&udev->regs);
+    usb_txfifo_flush(&udev->regs, 0x10);
 }

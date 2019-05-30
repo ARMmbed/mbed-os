@@ -10,41 +10,41 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
 #include "gd32f4xx.h"
 #include "drv_usbd_int.h"
 
-static uint32_t usbd_int_epout                 (usb_core_driver *udev);
-static uint32_t usbd_int_epin                  (usb_core_driver *udev);
-static uint32_t usbd_int_rxfifo                (usb_core_driver *udev);
-static uint32_t usbd_int_reset                 (usb_core_driver *udev);
-static uint32_t usbd_int_enumfinish            (usb_core_driver *udev);
-static uint32_t usbd_int_suspend               (usb_core_driver *udev);
+static uint32_t usbd_int_epout(usb_core_driver *udev);
+static uint32_t usbd_int_epin(usb_core_driver *udev);
+static uint32_t usbd_int_rxfifo(usb_core_driver *udev);
+static uint32_t usbd_int_reset(usb_core_driver *udev);
+static uint32_t usbd_int_enumfinish(usb_core_driver *udev);
+static uint32_t usbd_int_suspend(usb_core_driver *udev);
 
-static uint32_t usbd_emptytxfifo_write         (usb_core_driver *udev, uint32_t ep_num);
+static uint32_t usbd_emptytxfifo_write(usb_core_driver *udev, uint32_t ep_num);
 
 static const uint8_t USB_SPEED[4] = {
     [DSTAT_EM_HS_PHY_30MHZ_60MHZ] = USB_SPEED_HIGH,
@@ -61,7 +61,7 @@ static const uint8_t USB_SPEED[4] = {
     \param[out] none
     \retval     operation status
 */
-uint32_t USBD_OTG_EP1OUT_ISR_Handler (usb_core_driver *udev)
+uint32_t USBD_OTG_EP1OUT_ISR_Handler(usb_core_driver *udev)
 {
     uint32_t oepintr = 0U;
     uint32_t oeplen = 0U;
@@ -70,18 +70,16 @@ uint32_t USBD_OTG_EP1OUT_ISR_Handler (usb_core_driver *udev)
     oepintr &= udev->regs.dr->DOEP1INTEN;
 
     /* Transfer complete */
-    if (oepintr & DOEPINTF_TF)
-    {
+    if (oepintr & DOEPINTF_TF) {
         /* Clear the bit in DOEPINTn for this interrupt */
         udev->regs.er_out[1]->DOEPINTF = DOEPINTF_TF;
 
-        if (USB_USE_DMA == udev->bp.transfer_mode)
-        {
+        if (USB_USE_DMA == udev->bp.transfer_mode) {
             oeplen = udev->regs.er_out[1]->DOEPLEN;
 
             /* ToDo : handle more than one single MPS size packet */
             udev->dev.transc_out[1].xfer_count = udev->dev.transc_out[1].usb_transc - \
-                                    oeplen & DEPLEN_TLEN;
+                                                 oeplen & DEPLEN_TLEN;
         }
 
         /* RX COMPLETE */
@@ -97,19 +95,18 @@ uint32_t USBD_OTG_EP1OUT_ISR_Handler (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-uint32_t USBD_OTG_EP1IN_ISR_Handler (usb_core_driver *udev)
+uint32_t USBD_OTG_EP1IN_ISR_Handler(usb_core_driver *udev)
 {
     uint32_t inten, intr, emptyen;
 
     inten = udev->regs.dr->DIEP1INTEN;
     emptyen = udev->regs.dr->DIEPFEINTEN;
 
-    inten |= ((emptyen >> 1 ) & 0x1) << 7;
+    inten |= ((emptyen >> 1) & 0x1) << 7;
 
     intr = udev->regs.er_in[1]->DIEPINTF & inten;
 
-    if (intr & DIEPINTF_TF)
-    {
+    if (intr & DIEPINTF_TF) {
         udev->regs.dr->DIEPFEINTEN &= ~(0x1 << 1);
 
         udev->regs.er_in[1]->DIEPINTF = DIEPINTF_TF;
@@ -118,8 +115,7 @@ uint32_t USBD_OTG_EP1IN_ISR_Handler (usb_core_driver *udev)
         USBD_DCD_INT_fops->DataInStage(udev, 1);
     }
 
-    if (intr & DIEPINTF_TXFE)
-    {
+    if (intr & DIEPINTF_TXFE) {
         DCD_WriteEmptyTxFifo(udev, 1);
 
         udev->regs.er_in[1]->DIEPINTF = DIEPINTF_TXFE;
@@ -137,7 +133,7 @@ uint32_t USBD_OTG_EP1IN_ISR_Handler (usb_core_driver *udev)
     \param[out] none
     \retval     none
 */
-void usbd_isr (usb_core_driver *udev)
+void usbd_isr(usb_core_driver *udev)
 {
     if (HOST_MODE != (udev->regs.gr->GINTF & GINTF_COPM)) {
         uint32_t intr = udev->regs.gr->GINTF & udev->regs.gr->GINTEN;
@@ -149,17 +145,17 @@ void usbd_isr (usb_core_driver *udev)
 
         /* OUT endpoints interrupts */
         if (intr & GINTF_OEPIF) {
-            usbd_int_epout (udev);
+            usbd_int_epout(udev);
         }
 
         /* IN endpoints interrupts */
         if (intr & GINTF_IEPIF) {
-            usbd_int_epin (udev);
+            usbd_int_epin(udev);
         }
 
         /* suspend interrupt */
         if (intr & GINTF_SP) {
-            usbd_int_suspend (udev);
+            usbd_int_suspend(udev);
         }
 
         /* wakeup interrupt */
@@ -185,17 +181,17 @@ void usbd_isr (usb_core_driver *udev)
 
         /* receive FIFO not empty interrupt */
         if (intr & GINTF_RXFNEIF) {
-            usbd_int_rxfifo (udev);
+            usbd_int_rxfifo(udev);
         }
 
         /* USB reset interrupt */
         if (intr & GINTF_RST) {
-            usbd_int_reset (udev);
+            usbd_int_reset(udev);
         }
 
         /* enumeration has been done interrupt */
         if (intr & GINTF_ENUMFIF) {
-            usbd_int_enumfinish (udev);
+            usbd_int_enumfinish(udev);
         }
 
         /* incomplete synchronization IN transfer interrupt*/
@@ -220,7 +216,7 @@ void usbd_isr (usb_core_driver *udev)
 
         /* OTG mode interrupt */
         if (intr & GINTF_OTGIF) {
-            if(udev->regs.gr->GOTGINTF & GOTGINTF_SESEND) {
+            if (udev->regs.gr->GOTGINTF & GOTGINTF_SESEND) {
 
             }
 
@@ -237,14 +233,14 @@ void usbd_isr (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-static uint32_t usbd_int_epout (usb_core_driver *udev)
+static uint32_t usbd_int_epout(usb_core_driver *udev)
 {
     uint32_t epintnum = 0U;
     uint32_t ep_num = 0U;
 
-    for (epintnum = usb_oepintnum_read (udev); epintnum; epintnum >>= 1, ep_num++) {
+    for (epintnum = usb_oepintnum_read(udev); epintnum; epintnum >>= 1, ep_num++) {
         if (epintnum & 0x1) {
-            __IO uint32_t oepintr = usb_oepintr_read (udev, ep_num);
+            __IO uint32_t oepintr = usb_oepintr_read(udev, ep_num);
 
             /* transfer complete interrupt */
             if (oepintr & DOEPINTF_TF) {
@@ -255,11 +251,11 @@ static uint32_t usbd_int_epout (usb_core_driver *udev)
                     __IO uint32_t eplen = udev->regs.er_out[ep_num]->DOEPLEN;
 
                     udev->dev.transc_out[ep_num].xfer_count = udev->dev.transc_out[ep_num].max_len - \
-                                                                eplen & DEPLEN_TLEN;
+                                                              eplen & DEPLEN_TLEN;
                 }
 
                 /* inform upper layer: data ready */
-                usbd_out_transc (udev, ep_num);
+                usbd_out_transc(udev, ep_num);
 
 //                if (USB_USE_DMA == udev->bp.transfer_mode) {
 //                    if ((0U == ep_num) && (USB_CTL_STATUS_OUT == udev->dev.control.ctl_state)) {
@@ -271,7 +267,7 @@ static uint32_t usbd_int_epout (usb_core_driver *udev)
             /* setup phase finished interrupt (control endpoints) */
             if (oepintr & DOEPINTF_STPF) {
                 /* inform the upper layer that a setup packet is available */
-                usbd_setup_transc (udev);
+                usbd_setup_transc(udev);
 
                 udev->regs.er_out[ep_num]->DOEPINTF = DOEPINTF_STPF;
             }
@@ -287,20 +283,20 @@ static uint32_t usbd_int_epout (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-static uint32_t usbd_int_epin (usb_core_driver *udev)
+static uint32_t usbd_int_epin(usb_core_driver *udev)
 {
     uint32_t epintnum = 0U;
     uint32_t ep_num = 0U;
 
-    for (epintnum = usb_iepintnum_read (udev); epintnum; epintnum >>= 1, ep_num++) {
+    for (epintnum = usb_iepintnum_read(udev); epintnum; epintnum >>= 1, ep_num++) {
         if (epintnum & 0x1U) {
-            __IO uint32_t iepintr = usb_iepintr_read (udev, ep_num);
+            __IO uint32_t iepintr = usb_iepintr_read(udev, ep_num);
 
             if (iepintr & DIEPINTF_TF) {
                 udev->regs.er_in[ep_num]->DIEPINTF = DIEPINTF_TF;
 
                 /* data transmission is completed */
-                usbd_in_transc (udev, ep_num);
+                usbd_in_transc(udev, ep_num);
 
 //                if (USB_USE_DMA == udev->bp.transfer_mode) {
 //                    if ((0U == ep_num) && (USB_CTL_STATUS_IN == udev->dev.control.ctl_state)) {
@@ -310,7 +306,7 @@ static uint32_t usbd_int_epin (usb_core_driver *udev)
             }
 
             if (iepintr & DIEPINTF_TXFE) {
-                usbd_emptytxfifo_write (udev, ep_num);
+                usbd_emptytxfifo_write(udev, ep_num);
 
                 udev->regs.er_in[ep_num]->DIEPINTF = DIEPINTF_TXFE;
             }
@@ -326,7 +322,7 @@ static uint32_t usbd_int_epin (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-static uint32_t usbd_int_rxfifo (usb_core_driver *udev)
+static uint32_t usbd_int_rxfifo(usb_core_driver *udev)
 {
     usb_transc *transc = NULL;
 
@@ -352,7 +348,7 @@ static uint32_t usbd_int_rxfifo (usb_core_driver *udev)
 
         case RSTAT_DATA_UPDT:
             if (bcount > 0) {
-                usb_rxfifo_read (&udev->regs, transc->xfer_buf, bcount);
+                usb_rxfifo_read(&udev->regs, transc->xfer_buf, bcount);
 
                 transc->xfer_buf += bcount;
                 transc->xfer_count += bcount;
@@ -370,7 +366,7 @@ static uint32_t usbd_int_rxfifo (usb_core_driver *udev)
         case RSTAT_SETUP_UPDT:
             if ((transc->ep_addr.num == 0) && (bcount == 8) && (data_PID == DPID_DATA0)) {
                 /* copy the setup packet received in FIFO into the setup buffer in RAM */
-                usb_rxfifo_read (&udev->regs, (uint8_t *)udev->dev.setup, bcount);
+                usb_rxfifo_read(&udev->regs, (uint8_t *)udev->dev.setup, bcount);
 
                 transc->xfer_count += bcount;
             }
@@ -392,7 +388,7 @@ static uint32_t usbd_int_rxfifo (usb_core_driver *udev)
     \param[out] none
     \retval     status
 */
-static uint32_t usbd_int_reset (usb_core_driver *udev)
+static uint32_t usbd_int_reset(usb_core_driver *udev)
 {
     uint32_t i;
 
@@ -400,7 +396,7 @@ static uint32_t usbd_int_reset (usb_core_driver *udev)
     udev->regs.dr->DCTL &= ~DCTL_RWKUP;
 
     /* flush the Tx FIFO */
-    usb_txfifo_flush (&udev->regs, 0x10);
+    usb_txfifo_flush(&udev->regs, 0x10);
 
     for (i = 0; i < udev->bp.num_ep; i++) {
         udev->regs.er_in[i]->DIEPINTF = 0xFFU;
@@ -431,7 +427,7 @@ static uint32_t usbd_int_reset (usb_core_driver *udev)
     udev->regs.dr->DCFG &= ~DCFG_DAR;
 
     /* configure endpoint 0 to receive SETUP packets */
-    usb_ctlep_startout (udev);
+    usb_ctlep_startout(udev);
 
     /* clear USB reset interrupt */
     udev->regs.gr->GINTF = GINTF_RST;
@@ -445,7 +441,7 @@ static uint32_t usbd_int_reset (usb_core_driver *udev)
     \param[out] none
     \retval     status
 */
-static uint32_t usbd_int_enumfinish (usb_core_driver *udev)
+static uint32_t usbd_int_enumfinish(usb_core_driver *udev)
 {
     uint8_t enum_speed = (uint8_t)((udev->regs.dr->DSTAT & DSTAT_ES) >> 1U);
 
@@ -479,7 +475,7 @@ static uint32_t usbd_int_enumfinish (usb_core_driver *udev)
     \param[out] none
     \retval     operation status
 */
-static uint32_t usbd_int_suspend (usb_core_driver *udev)
+static uint32_t usbd_int_suspend(usb_core_driver *udev)
 {
     __IO uint8_t low_power = udev->bp.low_power;
     __IO uint8_t suspend = (uint8_t)(udev->regs.dr->DSTAT & DSTAT_SPST);
@@ -511,7 +507,7 @@ static uint32_t usbd_int_suspend (usb_core_driver *udev)
     \param[out] none
     \retval     status
 */
-static uint32_t usbd_emptytxfifo_write (usb_core_driver *udev, uint32_t ep_num)
+static uint32_t usbd_emptytxfifo_write(usb_core_driver *udev, uint32_t ep_num)
 {
     usb_transc *transc = NULL;
 
@@ -530,7 +526,7 @@ static uint32_t usbd_emptytxfifo_write (usb_core_driver *udev, uint32_t ep_num)
     word_count = (len + 3) / 4;
 
     while (((udev->regs.er_in[ep_num]->DIEPTFSTAT & DIEPTFSTAT_IEPTFS) > word_count) && \
-        (transc->xfer_count < transc->xfer_len)) {
+            (transc->xfer_count < transc->xfer_len)) {
         len = transc->xfer_len - transc->xfer_count;
 
         if (len > transc->max_len) {
@@ -541,7 +537,7 @@ static uint32_t usbd_emptytxfifo_write (usb_core_driver *udev, uint32_t ep_num)
         word_count = (len + 3) / 4;
 
         /* write the FIFO */
-        usb_txfifo_write (&udev->regs, transc->xfer_buf, ep_num, len);
+        usb_txfifo_write(&udev->regs, transc->xfer_buf, ep_num, len);
 
         transc->xfer_buf += len;
         transc->xfer_count += len;

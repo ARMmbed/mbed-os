@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -38,7 +38,7 @@ OF SUCH DAMAGE.
 #define __DRV_USB_REGS_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "gd32f4xx.h"
@@ -61,8 +61,7 @@ OF SUCH DAMAGE.
 #define USB_DATA_FIFO_OFFSET          0x1000U       /*!< USB data fifo offset */
 #define USB_DATA_FIFO_SIZE            0x1000U       /*!< USB data fifo size */
 
-typedef enum
-{
+typedef enum {
     USB_CORE_ENUM_HS = 0,                           /*!< USB core type is HS */
     USB_CORE_ENUM_FS = 1                            /*!< USB core type is FS */
 } usb_core_enum;
@@ -80,8 +79,7 @@ enum usb_reg_offset {
     USB_REG_OFFSET_PWRCLKCTL = 0x0E00U,             /*!< power and clock register */
 };
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t GOTGCS;                           /*!< USB global OTG control and status register       000h */
     __IO uint32_t GOTGINTF;                         /*!< USB global OTG interrupt flag register           004h */
     __IO uint32_t GAHBCS;                           /*!< USB global AHB control and status register       008h */
@@ -103,8 +101,7 @@ typedef struct
 } usb_gr;
 
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t HCTL;                             /*!< USB host control register                             400h */
     __IO uint32_t HFT;                              /*!< USB host frame interval register                      404h */
     __IO uint32_t HFINFR;                           /*!< USB host frame information remaining register         408h */
@@ -114,8 +111,7 @@ typedef struct
     __IO uint32_t HACHINTEN;                        /*!< USB host all channels interrupt enable register       418h */
 } usb_hr;
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t HCHCTL;                           /*!< USB host channel control register          500h */
     __IO uint32_t HCHSTCTL;                         /*!< Reserved                                   504h */
     __IO uint32_t HCHINTF;                          /*!< USB host channel interrupt flag register   508h */
@@ -125,8 +121,7 @@ typedef struct
     uint32_t Reserved[2];
 } usb_pr;
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t DCFG;                             /*!< USB device configuration register                           800h */
     __IO uint32_t DCTL;                             /*!< USB device control register                                 804h */
     __IO uint32_t DSTAT;                            /*!< USB device status register                                  808h */
@@ -149,8 +144,7 @@ typedef struct
     __IO uint32_t DOEP1INTEN;                       /*!< USB device OUT endpoint-1 interrupt enable register         884h */
 } usb_dr;
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t DIEPCTL;                          /*!< USB device IN endpoint control register         900h + (EpNum * 20h) + 00h */
     uint32_t Reserved04;                            /*!< Reserved                                        900h + (EpNum * 20h) + 04h */
     __IO uint32_t DIEPINTF;                         /*!< USB device IN endpoint interrupt flag register  900h + (EpNum * 20h) + 08h */
@@ -160,8 +154,7 @@ typedef struct
     __IO uint32_t DIEPTFSTAT;                       /*!< USB device IN endpoint transmit FIFO status register 900h + (EpNum * 20h) + 18h */
 } usb_erin;
 
-typedef struct
-{
+typedef struct {
     __IO uint32_t DOEPCTL;                          /*!< USB device IN endpoint control register         B00h + (EpNum * 20h) + 00h */
     uint32_t Reserved04;                            /*!< Reserved                                        B00h + (EpNum * 20h) + 04h */
     __IO uint32_t DOEPINTF;                         /*!< USB device IN endpoint interrupt flag register  B00h + (EpNum * 20h) + 08h */
@@ -170,8 +163,7 @@ typedef struct
     __IO uint32_t DOEPDMAADDR;                      /*!< Device OUT endpoint-x DMA address register      B00h + (EpNum * 20h) + 0Ch */
 } usb_erout;
 
-typedef struct _usb_regs
-{
+typedef struct _usb_regs {
     usb_gr       *gr;                         /*!< USBFS global registers */
     usb_dr       *dr;                         /*!< Device control and status registers */
     usb_hr       *hr;                         /*!< Host control and status registers */
@@ -180,7 +172,7 @@ typedef struct _usb_regs
     usb_pr       *pr[15];                     /*!< USB Host channel-x control register */
 
     __IO uint32_t     *HPCS;                            /*!< USB host port control and status register */
-    __IO uint32_t     *DFIFO[USBFS_MAX_TX_FIFOS];       
+    __IO uint32_t     *DFIFO[USBFS_MAX_TX_FIFOS];
     __IO uint32_t     *PWRCLKCTL;                       /*!< USB power and clock control register */
 } usb_core_regs;
 
@@ -484,7 +476,7 @@ extern const uint32_t PIPE_DPID[];
 #define DIEPINTEN_EPTXFUDEN       BIT(4)              /*!< endpoint Tx FIFO underrun interrupt enable bit */
 #define DIEPINTEN_CITOEN          BIT(3)              /*!< control In Timeout interrupt enable bit */
 #define DIEPINTEN_EPDISEN         BIT(1)              /*!< endpoint disabled interrupt enable bit */
-#define DIEPINTEN_TFEN            BIT(0)              /*!< transfer finished interrupt enable bit */ 
+#define DIEPINTEN_TFEN            BIT(0)              /*!< transfer finished interrupt enable bit */
 
 /* device OUT endpoint common interrupt enable registers bits definitions */
 #define DOEPINTEN_NYETEN          BIT(14)             /*!< NYET handshake is sent interrupt enable bit */
@@ -671,13 +663,13 @@ enum USB_SPEED {
 
 /* __packed keyword used to decrease the data type alignment to 1-byte */
 #if defined (__CC_ARM)         /* ARM Compiler */
-    #define __packed __packed
+#define __packed __packed
 #elif defined (__ICCARM__)     /* IAR Compiler */
-    #define __packed __packed
+#define __packed __packed
 #elif defined (__GNUC__)       /* GNU Compiler */
-    #define __packed __attribute__((__packed__))
+#define __packed __attribute__((__packed__))
 #elif defined (__TASKING__)    /* TASKING Compiler */
-    #define __packed __unaligned
+#define __packed __unaligned
 #endif /* __CC_ARM */
 
 #ifdef __cplusplus
