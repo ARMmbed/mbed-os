@@ -16,7 +16,7 @@
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
  
-#include <mbed.h>
+#include "mbed.h"
 #include "BlockDevice.h"
 
  
@@ -156,6 +156,12 @@ public:
      *  @return         Size of the underlying device in bytes
      */
     virtual bd_size_t size() const;
+
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string representation of the BlockDevice class type.
+     */
+    virtual const char *get_type() const;
     
 private:
     I2C * _i2c;
