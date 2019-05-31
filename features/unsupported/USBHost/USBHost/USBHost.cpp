@@ -163,6 +163,13 @@ void USBHost::usb_process()
                             devices[i].activeAddress(true);
                             USB_DBG("Address of %p: %d", &devices[i], devices[i].getAddress());
 
+                            // Wait for the device to actually set the address. The Status stage
+                            // of SET ADDRESS happens before the device implements the request.
+                            // According to Universal Serial Bus Specification Revision 2.0 chapter
+                            // 9.2.6.3 Set Address Processing, the device is allowed SetAddress()
+                            // recovery interval of 2 ms.
+                            ThisThread::sleep_for(2);
+
                             // try to read again the device descriptor to check if the device
                             // answers to its new address
                             res = getDeviceDescriptor(&devices[i], buf, 8);
