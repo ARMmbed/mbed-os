@@ -3,11 +3,11 @@
     "config": {
         "max-advertising-sets": {
             "help": "Maximum number of advertising sets.",
-            "value": 4
+            "value": 3
         },
         "max-advertising-reports": {
             "help": "Maximum number of pending legacy or extended advertising reports.",
-            "value": 8
+            "value": 4
         },
         "default-extended-advertising-fragmentation-size": {
             "help": "Default extended advertising data fragmentation size.",
@@ -23,7 +23,7 @@
         },
         "rx-buffers": {
             "help": "Default number of receive buffers.",
-            "value": 8
+            "value": 4
         },
         "phy-coded-support": {
             "help": "Coded PHY supported.",
@@ -39,7 +39,7 @@
         },
         "tx-buffers": {
             "help": "Default number of send buffers",
-            "value": 8
+            "value": 4
         },
         "handle-vendor-specific-hci-commands": {
             "help": "Handle VS HCI commands. Valid values are 0 (ignore) and 1 (handle).",
