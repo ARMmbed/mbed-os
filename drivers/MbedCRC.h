@@ -200,7 +200,7 @@ public:
         switch (_mode) {
 #if DEVICE_CRC
             case HARDWARE:
-                hal_crc_compute_partial((uint8_t *)buffer, size);
+                hal_crc_compute_partial(static_cast<const uint8_t *>(buffer), size);
                 *crc = 0;
                 break;
 #endif
