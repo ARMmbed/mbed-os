@@ -67,11 +67,11 @@ using namespace ble::vendor::cordio;
 #define MBED_CONF_CORDIO_LL_TX_BUFFERS                MBED_CONF_CORDIO_LL_NRF52840_TX_BUFFERS
 #define MBED_CONF_CORDIO_LL_PHY_CODED_SUPPORT         MBED_CONF_CORDIO_LL_NRF52840_PHY_CODED_SUPPORT
 
-#define CORDIO_LL_MEMORY_FOOTPRINT  41906UL
+#define CORDIO_LL_MEMORY_FOOTPRINT  15400UL
 
 #else
 
-#define CORDIO_LL_MEMORY_FOOTPRINT  12768UL
+#define CORDIO_LL_MEMORY_FOOTPRINT  12500UL
 
 #endif
 
@@ -235,9 +235,9 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
 {
     static union {
         #if defined(NRF52840_XXAA)
-        uint8_t buffer[ 17304 ];
+        uint8_t buffer[ 4900 ];
         #else
-        uint8_t buffer[ 8920 ];
+        uint8_t buffer[ 4900 ];
         #endif
         uint64_t align;
     };
@@ -246,8 +246,7 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
             {  32, 16 + 4 },
             {  64, 8 },
             { 128, 4 + MBED_CONF_CORDIO_LL_MAX_ADVERTISING_REPORTS },
-		    { aclBufSize, MBED_CONF_CORDIO_LL_TX_BUFFERS + MBED_CONF_CORDIO_LL_RX_BUFFERS },
-            { 272, 1 }
+		    { aclBufSize, MBED_CONF_CORDIO_LL_TX_BUFFERS + MBED_CONF_CORDIO_LL_RX_BUFFERS }
     };
 
     return buf_pool_desc_t(buffer, pool_desc);
