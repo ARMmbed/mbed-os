@@ -113,7 +113,7 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** two more error status.
 
-  `I2C_ERROR_TIMEOUT` returned by `i2c_write` and `i2c_read` when transminssion timeout occurs.
+  `I2C_ERROR_TIMEOUT` returned by `i2c_write` and `i2c_read` when transmission timeout occurs.
   `I2C_ERROR_ARBITRATION_LOST` returned by `i2c_write` and `i2c_read` and passed in `i2c_async_event_t` when lost the arbitration.
 
 
@@ -163,11 +163,11 @@ The main changes involve removing the slave specific read/write functions and ro
 
 - **Change** the `stop` parameter from the `i2c_transfer_async` from an `uint32_t` to a `bool`.
 
-  The stop parameter indicates whether or not the function should send a `STOP` command after the transfer has complete, there is no reason at all for this to be a `uint32_t`.
+  The stop parameter indicates whether or not the function should send a `STOP` command after the transfer has completed, there is no reason at all for this to be a `uint32_t`.
 
 - **Change** the return type of `i2c_transfer_asynch` to indicate whether or not a transfer has been scheduled or not.
 
-  The function now returns a `bool` indicate if a transfer was scheduled or not, which can occur if the peripheral is already busy.
+  The function now returns a `bool` indicating if a transfer was scheduled or not, which can occur if the peripheral is already busy.
 
 - **Remove** the `i2c_irq_handler_asynch` function from the API.
 
@@ -179,7 +179,7 @@ The main changes involve removing the slave specific read/write functions and ro
 
 - **Remove** the `i2c_active` function from the API.
 
-  The the async callback is now always invoked on async operation  termination (unless cancelled), this status can be tracked from driver layer without any HAL request.
+  The async callback is now always invoked on async operation termination (unless cancelled), this status can be tracked from driver layer without any HAL request.
 
 ### The new API
 
@@ -249,7 +249,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  * @param enabled If 'true' enable clock stretching on the given I2C peripheral,
  *                otherwise disable it.
  */
-void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
+void i2c_set_clock_stretching(i2c_t *obj, bool enabled);
 
 /** Configure the timeout duration in microseconds for blocking transmission
  *
@@ -305,7 +305,7 @@ void i2c_stop(i2c_t *obj);
  *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the peripheral
- *        will perform arbitration automatically when detects collision and
+ *        will perform arbitration automatically when detecting collisions and
  *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
  *        when loses arbitration.
  *
@@ -344,7 +344,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t le
  *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the peripheral
- *        will perform arbitration automatically when detects collision and
+ *        will perform arbitration automatically when detecting collisions and
  *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
  *        when loses arbitration.
  *

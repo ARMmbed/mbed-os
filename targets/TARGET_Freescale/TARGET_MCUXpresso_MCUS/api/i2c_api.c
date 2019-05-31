@@ -171,7 +171,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
   return frequency;
 }
 
-void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
+void i2c_set_clock_stretching(i2c_t *obj, bool enabled)
 {
   struct i2c_s *obj_s = &obj->i2c;
   (void)obj_s;
@@ -284,7 +284,6 @@ static status_t _I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, s
 
     /* Add this to avoid build warning. */
     dummy++;
-    //printf("_I2C_SlaveWriteBlocking timeout1: %u\n", timeout);
 
 #if defined(FSL_FEATURE_I2C_HAS_START_STOP_DETECT) && FSL_FEATURE_I2C_HAS_START_STOP_DETECT
     /* Check start flag. */
@@ -341,7 +340,6 @@ static status_t _I2C_SlaveWriteBlocking(I2C_Type *base, const uint8_t *txBuff, s
     /* Read dummy to release bus. */
     dummy = base->D;
 
-    //printf("_I2C_SlaveWriteBlocking timeout2: %u\n", timeout);
     return result;
 }
 
