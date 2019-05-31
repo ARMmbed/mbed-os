@@ -149,7 +149,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  * @param enabled If 'true' enable clock stretching on the given I2C peripheral,
  *                otherwise disable it.
  */
-void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
+void i2c_set_clock_stretching(i2c_t *obj, bool enabled);
 
 /** Configure the timeout duration in microseconds for blocking transmission
  *
@@ -205,7 +205,7 @@ void i2c_stop(i2c_t *obj);
  *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the peripheral
- *        will perform arbitration automatically when detects collision and
+ *        will perform arbitration automatically when detecting collisions and
  *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
  *        when loses arbitration.
  *
@@ -245,7 +245,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data,
  *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the peripheral
- *        will perform arbitration automatically when detects collision and
+ *        will perform arbitration automatically when detecting collisions and
  *        complete the transfer or return I2C_ERROR_ARBITRATION_LOST
  *        when loses arbitration.
  *

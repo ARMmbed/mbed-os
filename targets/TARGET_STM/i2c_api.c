@@ -544,7 +544,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     return obj_s->hz;
 }
 
-void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
+void i2c_set_clock_stretching(i2c_t *obj, bool enabled)
 {
     struct i2c_s *obj_s = &obj->i2c;
     I2C_HandleTypeDef *handle = &(obj_s->handle);
