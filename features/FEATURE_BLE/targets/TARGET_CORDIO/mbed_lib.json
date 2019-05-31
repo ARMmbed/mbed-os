@@ -24,12 +24,12 @@
         },
         "max-l2cap-channels": {
             "help": "Maximum number of connection oriented channels",
-            "value": 8,
+            "value": 0,
             "macro_name": "L2C_COC_CHAN_MAX"
         },
         "max-l2cap-clients": {
             "help": "Maximum number of connection oriented channel registered clients",
-            "value": 4,
+            "value": 0,
             "macro_name": "L2C_COC_REG_MAX"
         },
         "max-att-writes": {
