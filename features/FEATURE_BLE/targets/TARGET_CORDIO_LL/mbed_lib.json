@@ -30,8 +30,8 @@
             "value": 0
         },
         "extended-advertising-size": {
-            "help": "Maximum extended advertising data (and scan data response) size",
-            "value": 128
+            "help": "Maximum extended advertising data (and scan data response) size, Minimum value is 251",
+            "value": 251
         },
         "max-acl-size": {
             "help": "Maximum ACL buffer size",
