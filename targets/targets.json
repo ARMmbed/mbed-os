@@ -8681,6 +8681,7 @@
             }
         },
         "components_add": ["SPIF"],
+        "components_remove": ["QSPIF"],
         "release_versions": ["5"]
     },
     "__build_tools_metadata__": {
