@@ -225,6 +225,12 @@ public:
      */
     lorawan_status_t add_device_time_request();
 
+    /** Removes device time request sticky command.
+     *
+     * Any already queued request may still be completed. However, no new requests will be made.
+     */
+    virtual void remove_device_time_request();
+
     /** Sets up a particular data rate
      *
      * @param data_rate   The intended data rate, for example DR_0 or DR_1.
@@ -482,13 +488,20 @@ public:
 
     /** Change device class
      *
-     * Change current device class.
+     *  Change current device class.
+     *
+     * **Preconditions to switch to Class B**
+     *   - Stack version must be greater than v1.0.2
+     *   - "lora.class-b" set to true in mbed_app.json
+     *   - Network beacon found (See enable_beacon_acquisition for details)
      *
      * @param    device_class   The device class
+     *
      *
      * @return              LORAWAN_STATUS_OK on success or other negative error code if request failed:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_UNSUPPORTED if requested class is not supported
+     *                      LORAWAN_STATUS_NO_BEACON_FOUND if class B requested and not beacon locked
      */
     lorawan_status_t set_device_class(device_class_t device_class);
 
@@ -557,16 +570,120 @@ public:
      */
     lorawan_status_t cancel_sending(void);
 
-
+    /** Get network provided GPS time
+     *
+     * Network provides a time-stamp for the device synchronization on demand
+     * using GPS time base. The request may originate from Application layer
+     * Clock Synchronization protocol (for v1.0.2), stack level DevTimeReq MAC
+     * command (for v.10.3 and above), or from received network beacons when
+     * beacon tracking is enabled. If the request originated from the application layer,
+     * application is responsible for relaying the information to the stack. In case of
+     * DevTimeReq MAC command or network beacons, the stack will take care of it automatically.
+     *
+     * The API looks up the stored GPS time and the monotonic tick time-stamp taken
+     * at the moment of storing GPS time, and returns GPS time + difference of stored
+     * tick time and current tick time.
+     * If the GPS time was not set by the network yet, the API returns zero.
+     *
+     * @return Current GPS time in milliseconds
+     *         Or 0 if the GPS time is not yet set by the network
+     */
     lorawan_gps_time_t get_current_gps_time(void);
+
+    /** Set GPS time received from the network
+     *
+     * It is important that the caller relays the network provided GPS time (in milliseconds)
+     * as it is without adjustment (for leap seconds or conversions to TAI/UTC etc).
+     * The rationale here is that we are not setting system time here. This time base
+     * is used only for device level synchronization with network.
+     *
+     * @param gps_time   Current GPS time provided by the network (seconds) */
     void set_current_gps_time(lorawan_gps_time_t gps_time);
 
-    virtual lorawan_status_t add_ping_slot_info_request(uint8_t periodicity);
-    virtual void remove_ping_slot_info_request();
-
+    /** Enable network beacon acquisition
+     *
+     * To switch from Class A to Class B, a network beacon must first be received
+     * to align timing with the network.
+     *
+     * Beacons are transmitted synchronously by network gateways every 128 seconds.
+     * In certain regions, the beacon is transmitted on a single channel, while in others it is
+     * transmitted following a frequency hopping pattern. To accelerate beacon discovery, the
+     * application may use the DeviceTimeReq MAC command to set acquire the GPS time.
+     *
+     * When beacon acquisition is enabled and GPS time is not set the stack will open a continuous
+     * receive window, listening on the beacon channel. For regions where the beacon hops frequencies,
+     * the first beacon channel is selected. If the GPS time is set the stack will open a short receive
+     * window at the beacon time.
+     *
+     * The application is notified of acquisition result via an MLME_BEACON_ACQUISITION event.
+     *     If beacon is found the status is set to LORAMAC_EVENT_INFO_STATUS_OK
+     *     If beacon is not found the status is set to LORAMAC_EVENT_INFO_BEACON_NOT_FOUND
+     *
+     * "beacon-acquisition-nb-trials" sets the number of acquistion attempts to run.
+     *  The default number of attempts is 8.
+     *
+     * Once a beacon has been found the device can switch to Class B.
+     *
+     * To stay synchronized to network time, a beacon receive window is opened at every beacon time.
+     * If a beacon is received a BEACON_LOCK event is delivered to the application, otherwise a
+     * BEACON_MISS event is sent.
+     *
+     * In the event of beacon loss, the device will stay in Class B for 120 minutes after receiving
+     * the last beacon. This period is called Class B beacon-less operation. During this time interval
+     * the reception of a beacon will extend Class B operation by 120 minutes. After 120 minutes of
+     * beacon-less Class B operation the device will switch back to Class A and a SWTICH_CLASS_B_TO_A
+     * event will be sent to the application.
+     *
+     * @return          LORAWAN_STATUS_OK if beacon acquisition enabled, or
+     *                  a negative error code on failure
+     */
     virtual lorawan_status_t enable_beacon_acquisition();
+
+    /** Get last received beacon data
+     *
+     * Allows the application to inspect last received beacon frame contents.
+     *
+     * @return    LORAWAN_STATUS_OK if beacon found
+     *            LORAWAN_STATUS_NO_BEACON_FOUND when no beacon found
+     */
     virtual lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
-    virtual void remove_device_time_request();
+
+    /** Set unicast ping slot period
+     *
+     * This API is used by the application to inform the network of its ping slot period.
+     * A PING_SLOT_INFO_SYNCHED event is sent to the application when the request is acknowledged
+     * by the network.  Ping slot period can only be changed when in Class A.
+     *
+     * In Class B mode the device periodically opens receive windows, called ping slots,
+     * that the network can use to send downlinks. The number of ping slots opened
+     * per beacon period (128 seconds) is determined by the configurd ping slot periodicity:
+     *
+     *    Periodicity  Ping Slot Period
+     *    0            Every second
+     *    1            Once every 2 seconds
+     *    2            Once evry 4 seconds
+     *    3            Once every 8 seconds
+     *    4            Once every 16 seconds
+     *    5            Once every 32 seconds
+     *    6            Once every 64 seconds
+     *    7            Once every 128 seconds
+     *
+     * The default ping slot period is 7. To change the default add "lora.ping-slot-periodicity": <PERIOD>
+     * to mbed_app.json.
+     *
+     * The application will need to use this API when the ping slot period is set to a
+     * value different than its configuration known by the network server.
+     *
+     * @return  LORAWAN_STATUS_OK on successfully queuing of the request, or
+     *          a negative error code on failure:
+     */
+    virtual lorawan_status_t add_ping_slot_info_request(uint8_t periodicity);
+
+    /** Stop transmitting ping slot info request
+     *
+     * Any already queued request may still be completed. However, no new requests will be made.
+     */
+    virtual void remove_ping_slot_info_request();
 
 
     /** Provides exclusive access to the stack.
