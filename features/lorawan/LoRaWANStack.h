@@ -396,19 +396,9 @@ public:
      */
     lorawan_status_t stop_sending(void);
 
-    /** Gives access to network provided GPS time
+    /** Gives access to  GPS time
      *
-     * Network provides a time-stamp for the device synchronization on demand
-     * using GPS time base. The request may originate from Application layer
-     * Clock Synchronization protocol (for v1.0.2) or stack level DevTimeReq MAC
-     * command (for v.10.3 and above). If the request originated from the application
-     * layer, application is responsible for relaying the information to the stack.
-     * In case of DevTimeReq MAC command, the stack will take care of it automatically.
-     *
-     * The API looks up the stored GPS time and the monotonic tick time-stamp taken
-     * at the moment of storing GPS time, and returns GPS time + difference of stored
-     * tick time and current tick time.
-     * If the GPS time was not set by the network yet, the API returns zero.
+     * Returns stored gps time + difference in stored and current tick time
      *
      * @return Current GPS time in milliseconds
      *         Or 0 if the GPS time is not yet set by the network
@@ -432,10 +422,6 @@ public:
      */
     void set_current_gps_time(lorawan_gps_time_t gps_time);
 
-    /** Lock resource
-     *
-     * Provides mutual exclusion.
-     */
     /** Send Ping Slot Info Request MAC command.
      *
      * Schedule a Ping Slot Info Request command (PingSlotInfoReq) for
@@ -477,12 +463,24 @@ public:
      */
     lorawan_status_t enable_beacon_acquisition();
 
+    /**
+     * @brief Get the last received beacon contents
+     *
+     * @param beacon
+     * @return LORAWAN_STATUS_OK if beacon received
+     *         LORAWAN_STATUS_NO_BEACON_FOUND if no beacon received
+     */
     lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
 
+    /** Lock resource
+     *
+     * Provides mutual exclusion.
+     */
     void lock(void)
     {
         _loramac.lock();
     }
+
     /** Unlock resource
      *
      * Release resource.
