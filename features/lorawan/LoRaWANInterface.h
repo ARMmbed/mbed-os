@@ -557,6 +557,18 @@ public:
      */
     lorawan_status_t cancel_sending(void);
 
+
+    lorawan_gps_time_t get_current_gps_time(void);
+    void set_current_gps_time(lorawan_gps_time_t gps_time);
+
+    virtual lorawan_status_t add_ping_slot_info_request(uint8_t periodicity);
+    virtual void remove_ping_slot_info_request();
+
+    virtual lorawan_status_t enable_beacon_acquisition();
+    virtual lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
+    virtual void remove_device_time_request();
+
+
     /** Provides exclusive access to the stack.
      *
      * Use only if the stack is being run in it's own separate thread.
