@@ -217,15 +217,21 @@ lorawan_status_t LoRaWANInterface::set_system_time_utc(unsigned int tai_utc_diff
     lorawan_time_t u_time = time(NULL) + UNIX_GPS_EPOCH_DIFF;
     // Adjust for leap seconds since 1980. TAI is always ahead of GPS by 19 seconds
     u_time += (tai_utc_diff - 19);
-    lorawan_time_t cur_gps_time = get_current_gps_time();
+    lorawan_gps_time_t cur_gps_time = get_current_gps_time();
 
     if (cur_gps_time == 0) {
         // GPS time is not set. Application needs to request a clock sync.
         return LORAWAN_STATUS_SERVICE_UNKNOWN;
     }
 
-    u_time += cur_gps_time;
+    // Convert  gps time from millis to seconds
+    uint32_t gps_seconds = cur_gps_time / 1000;
+    uint32_t gps_millis  = cur_gps_time % 1000;
+    if (gps_millis >= 500) {
+        gps_seconds += 1;
+    }
 
+    u_time += gps_seconds;
     set_time(u_time);
 
     time_t now = time(NULL);
