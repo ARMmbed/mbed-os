@@ -69,6 +69,7 @@ typedef struct {
      * Exact operation is implementation specific.
      */
     PinName tcxo;
+
 } rf_ctrls;
 
 /** Radio driver internal state.

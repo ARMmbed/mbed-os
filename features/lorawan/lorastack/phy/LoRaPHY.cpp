@@ -913,7 +913,9 @@ bool LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
 
     get_rx_window_params(t_symbol, max_preamble_len, min_rx_symbols,
                          (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
-                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
+                         &rx_conf_params->window_timeout,
+                         &rx_conf_params->window_timeout_ms,
+                         &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
     return true;
 }
