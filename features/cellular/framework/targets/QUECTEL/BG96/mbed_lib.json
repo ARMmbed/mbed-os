@@ -17,6 +17,18 @@
             "help": "CTS pin for serial connection",
             "value": null
         },
+        "pwr": {
+            "help": "Power control pin",
+            "value": null
+        },
+        "rst": {
+            "help": "Reset control pin",
+            "value": null
+        },
+        "polarity": {
+            "help": "Pin polarity, 1 = Active high, 0 = Active low",
+            "value": null
+        },
         "baudrate" : {
             "help": "Serial connection baud rate",
             "value": 115200
@@ -24,6 +36,14 @@
         "provide-default": {
             "help": "Provide as default CellularDevice [true/false]",
             "value": false
+        }
+    },
+    "target_overrides": {
+        "MTB_STM_L475": {
+            "tx": "SERIAL_TX",
+            "rx": "SERIAL_RX",
+            "pwr": "PE_15",
+            "rst": "PE_9"
         }
     }
 }

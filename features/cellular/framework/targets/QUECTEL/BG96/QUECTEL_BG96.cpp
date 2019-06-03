@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include "rtos/ThisThread.h"
 #include "QUECTEL_BG96.h"
 #include "QUECTEL_BG96_CellularNetwork.h"
 #include "QUECTEL_BG96_CellularStack.h"
@@ -24,12 +25,25 @@
 
 using namespace mbed;
 using namespace events;
+using namespace rtos;
 
 #define CONNECT_DELIM         "\r\n"
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
 #define DEVICE_READY_URC "CPIN:"
+
+#if !defined(MBED_CONF_QUECTEL_BG96_PWR)
+#define MBED_CONF_QUECTEL_BG96_PWR    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_BG96_RST)
+#define MBED_CONF_QUECTEL_BG96_RST    NC
+#endif
+
+#if !defined(MBED_CONF_QUECTEL_BG96_POLARITY)
+#define MBED_CONF_QUECTEL_BG96_POLARITY    1 // active high
+#endif
 
 static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
@@ -49,10 +63,15 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 
-QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
+QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh, PinName pwr, bool active_high, PinName rst)
+    : AT_CellularDevice(fh),
+      _active_high(active_high),
+      _pwr(pwr, !_active_high),
+      _rst(rst, !_active_high)
 {
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
+
 
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
@@ -74,6 +93,96 @@ void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
     _at->set_urc_handler(DEVICE_READY_URC, callback);
 }
 
+nsapi_error_t QUECTEL_BG96::hard_power_on()
+{
+    if (_pwr.is_connected()) {
+        tr_info("Modem power on");
+        ThisThread::sleep_for(250);
+        _pwr = !_active_high;
+        ThisThread::sleep_for(250); // BG96_Hardware_Design_V1.1 says 100 ms, but 250 ms seems to be more robust
+        _pwr = _active_high;
+        ThisThread::sleep_for(500);
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t QUECTEL_BG96::soft_power_on()
+{
+    if (_rst.is_connected()) {
+        tr_info("Reset modem");
+        _rst = !_active_high;
+        ThisThread::sleep_for(100);
+        _rst = _active_high;
+        ThisThread::sleep_for(150 + 460); // RESET_N timeout from BG96_Hardware_Design_V1.1
+        _rst = !_active_high;
+        ThisThread::sleep_for(500);
+
+        // wait for RDY
+        _at->lock();
+        _at->set_at_timeout(10 * 1000);
+        _at->resp_start();
+        _at->set_stop_tag("RDY");
+        bool rdy = _at->consume_to_stop_tag();
+        _at->set_stop_tag(OK);
+        _at->restore_at_timeout();
+        _at->unlock();
+
+        if (!rdy) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t QUECTEL_BG96::hard_power_off()
+{
+    if (_pwr.is_connected()) {
+        tr_info("Modem power off");
+        _pwr = _active_high;
+        ThisThread::sleep_for(650); // from BG96_Hardware_Design_V1.1
+        _pwr = !_active_high;
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t QUECTEL_BG96::init()
+{
+    int retry = 0;
+
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("ATE0"); // echo off
+    _at->cmd_stop_read_resp();
+
+    _at->cmd_start("AT+CMEE=1"); // verbose responses
+    _at->cmd_stop_read_resp();
+
+    if (_at->get_last_error() == NSAPI_ERROR_OK) {
+        do {
+            _at->cmd_start("AT+CFUN=1"); // set full functionality
+            _at->cmd_stop_read_resp();
+
+            // CFUN executed ok
+            if (_at->get_last_error() != NSAPI_ERROR_OK) {
+                // wait some time that modem gets ready for CFUN command, and try again
+                retry++;
+                _at->flush();
+                ThisThread::sleep_for(64); // experimental value
+            } else {
+                // yes continue
+                break;
+            }
+
+            /* code */
+        } while ((retry < 3));
+    }
+
+    return _at->unlock_return_error();
+}
+
 #if MBED_CONF_QUECTEL_BG96_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
@@ -83,7 +192,10 @@ CellularDevice *CellularDevice::get_default_instance()
     tr_debug("QUECTEL_BG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_BG96_RTS, MBED_CONF_QUECTEL_BG96_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_BG96_RTS, MBED_CONF_QUECTEL_BG96_CTS);
 #endif
-    static QUECTEL_BG96 device(&serial);
+    static QUECTEL_BG96 device(&serial,
+                               MBED_CONF_QUECTEL_BG96_PWR,
+                               MBED_CONF_QUECTEL_BG96_POLARITY,
+                               MBED_CONF_QUECTEL_BG96_RST);
     return &device;
 }
 #endif
