@@ -53,6 +53,7 @@
 typedef struct i2c i2c_t;
 
 #if DEVICE_I2C_ASYNCH
+/** Structure describing the status of async transfer */
 typedef struct i2c_async_event {
     uint32_t sent_bytes;
     uint32_t received_bytes;
@@ -60,11 +61,18 @@ typedef struct i2c_async_event {
     bool error;
 } i2c_async_event_t;
 
+/** Asynchronous transfer callback.
+ *
+ *  @param obj       The I2C object
+ *  @param event     Pointer to the event holding async transfer status
+ *  @param ctx       The context pointer
+ *
+ *   @note Callback is invoked when async transfer completes or when error detected.
+ */
 typedef void (*i2c_async_handler_f)(i2c_t *obj, i2c_async_event_t *event, void *ctx);
 #endif
 
-/** I2C HAL structure
- */
+/** I2C HAL structure */
 struct i2c {
     struct i2c_s i2c;        /**< Target specific I2C structure */
 #if DEVICE_I2C_ASYNCH
@@ -75,7 +83,7 @@ struct i2c {
 #endif
 };
 
-/** Error codes */
+/** Transmission error codes */
 enum {
     I2C_ERROR_NO_SLAVE = -1,
     I2C_ERROR_BUS_BUSY = -2,
@@ -308,16 +316,21 @@ const PinMap *i2c_slave_scl_pinmap(void);
  * @{
  */
 
+/** Slave status
+ *
+ *  @note Default status is Idle.
+ */
 typedef enum {
-    NoData         = 0, // Slave has not been addressed.
+    Idle           = 0, // Slave has not been addressed.
     ReadAddressed  = 1, // Master has requested a read from this slave.
     WriteGeneral   = 2, // Master is writing to all slaves.
     WriteAddressed = 3  // Master is writing to this slave.
 } i2c_slave_status_t;
 
 /** Check to see if the I2C slave has been addressed.
+ *
  *  @param obj The I2C object
- *  @return The status - i2c_slave_status_t indicating what mode the peripheral
+ *  @return The status - i2c_slave_status_t indicating what state the peripheral
  *          is configured in.
  */
 i2c_slave_status_t i2c_slave_status(i2c_t *obj);
