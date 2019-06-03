@@ -36,7 +36,7 @@ typedef psa_status_t (*migrate_func_t)(mbed::KVStore *kvstore, const psa_storage
 
 void psa_storage_handle_version(mbed::KVStore *kvstore, const char *version_key, const psa_storage_version_t *version,
                                 migrate_func_t migrate_func);
-psa_status_t psa_storage_set_impl(mbed::KVStore *kvstore, int32_t pid, psa_storage_uid_t uid, uint32_t data_length, const void *p_data, psa_storage_create_flags_t create_flags);
+psa_status_t psa_storage_set_impl(mbed::KVStore *kvstore, int32_t pid, psa_storage_uid_t uid, uint32_t data_length, const void *p_data, uint32_t kv_create_flags);
 psa_status_t psa_storage_get_impl(mbed::KVStore *kvstore, int32_t pid, psa_storage_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
 psa_status_t psa_storage_get_info_impl(mbed::KVStore *kvstore, int32_t pid, psa_storage_uid_t uid, struct psa_storage_info_t *p_info);
 psa_status_t psa_storage_remove_impl(mbed::KVStore *kvstore, int32_t pid, psa_storage_uid_t uid);
