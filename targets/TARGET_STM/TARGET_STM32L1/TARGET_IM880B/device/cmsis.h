@@ -1,4 +1,6 @@
 /* mbed Microcontroller Library
+ *
+ * SPDX-License-Identifier: Apache-2.0
  * A generic CMSIS include header
  *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics

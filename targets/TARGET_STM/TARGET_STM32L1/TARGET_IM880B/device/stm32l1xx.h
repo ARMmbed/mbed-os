@@ -14,7 +14,9 @@
   *                code will be based on direct access to peripheral’s registers 
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
-  *  
+  *
+  *
+  * SPDX-License-Identifier: Apache-2.0
   ******************************************************************************
   * @attention
   *

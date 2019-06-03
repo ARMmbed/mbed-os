@@ -4,7 +4,9 @@
   * @author  MCD Application Team
   * @version V2.2.0
   * @date    01-July-2016
-  * @brief   CMSIS Cortex-M3 Device System Source File for STM32L1xx devices.  
+  * @brief   CMSIS Cortex-M3 Device System Source File for STM32L1xx devices. 
+  *
+  * SPDX-License-Identifier: Apache-2.0  
   ******************************************************************************
   * @attention
   *

@@ -11,6 +11,8 @@
   *           - Peripheral's registers declarations and bits definition
   *           - Macros to access peripheral’s registers hardware
   *
+  *
+  * SPDX-License-Identifier: Apache-2.0
   ******************************************************************************
   * @attention
   *
