@@ -184,7 +184,7 @@ The main changes involve removing the slave specific read/write functions and ro
 ### The new API
 
 ```c++
-/** Error codes */
+/** Transmission error codes */
 enum {
     I2C_ERROR_NO_SLAVE = -1,
     I2C_ERROR_BUS_BUSY = -2,
@@ -361,16 +361,21 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const uint8_t *data, uint32_t le
  */
 int32_t i2c_read(i2c_t *obj, uint16_t address, uint8_t *data, uint32_t length, bool stop);
 
+/** Slave status
+ *
+ *  @note Default status is Idle.
+ */
 typedef enum {
-    NoData         = 0, // Slave has not been addressed.
+    Idle           = 0, // Slave has not been addressed.
     ReadAddressed  = 1, // Master has requested a read from this slave.
     WriteGeneral   = 2, // Master is writing to all slaves.
     WriteAddressed = 3  // Master is writing to this slave.
 } i2c_slave_status_t;
 
 /** Check to see if the I2C slave has been addressed.
+ *
  *  @param obj The I2C object
- *  @return The status - i2c_slave_status_t indicating what mode the peripheral
+ *  @return The status - i2c_slave_status_t indicating what state the peripheral
  *          is configured in.
  */
 i2c_slave_status_t i2c_slave_status(i2c_t *obj);
@@ -384,6 +389,22 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj);
  */
 void i2c_slave_address(i2c_t *obj, uint16_t address);
 
+/** Structure describing the status of async transfer */
+typedef struct i2c_async_event {
+    uint32_t sent_bytes;
+    uint32_t received_bytes;
+    int32_t error_status; // error description I2C_ERROR_XXX
+    bool error;
+} i2c_async_event_t;
+
+/** Asynchronous transfer callback.
+ *
+ *  @param obj       The I2C object
+ *  @param event     Pointer to the event holding async transfer status
+ *  @param ctx       The context pointer
+ *
+ *  @note Callback is invoked when async transfer completes or when error detected.
+ */
 typedef void (*i2c_async_handler_f)(i2c_t *obj, i2c_async_event_t *event, void *ctx);
 
 /** Start I2C asynchronous transfer
@@ -466,7 +487,7 @@ void i2c_abort_async(i2c_t *obj);
   - Must save the handler and context pointers inside the `obj` pointer.
   - The context pointer is passed to the callback on transfer completion.
   - The callback must be invoked on completion unless the transfer is aborted.
-  - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
+  - May handle transfer collisions and loss of arbitration if the platform supports multimaster in hardware and enabled in API.
   - `i2c_async_event_t` must be filled with the number of symbols sent to the bus during transfer.
 - `i2c_abort_async`:
   - Aborts any on-going async transfers.
