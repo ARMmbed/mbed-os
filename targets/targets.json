@@ -1889,7 +1889,6 @@
         },
         "overrides": {
             "deep-sleep-latency": 3,
-            "tickless-from-us-ticker": true,
             "init-us-ticker-at-boot": true
         },
         "device_has": [
@@ -2545,7 +2544,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
         "detect_code": ["0744"],
         "device_has_add": [
             "ANALOGOUT",
@@ -2716,7 +2715,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
         "detect_code": ["0743"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -2758,7 +2757,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true},
         "detect_code": ["0743"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -3061,7 +3060,7 @@
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3112,7 +3111,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG",
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3168,7 +3167,7 @@
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3204,7 +3203,7 @@
             "STM32H743xx",
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0813"],
         "device_has_add": [
@@ -3270,7 +3269,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0780"],
         "device_has_add": [
             "CRC",
@@ -3296,7 +3295,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0790"],
         "device_has_add": [
             "CRC",
@@ -3322,7 +3321,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0715"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3348,13 +3347,13 @@
             },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 0
+                "value": 1
             }
         },
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0760"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3408,7 +3407,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0770"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3442,7 +3441,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0779"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3501,7 +3500,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0765"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -3563,7 +3562,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0827"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -3972,7 +3971,7 @@
         },
         "overrides": {
             "lse_available": 0,
-            "lpticker_delay_ticks": 4
+            "lpticker_delay_ticks": 0
         },
         "device_has_add": [
             "ANALOGOUT",
@@ -4008,7 +4007,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0833"],
         "device_has_add": [
             "ANALOGOUT",
@@ -4092,7 +4091,7 @@
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -4145,7 +4144,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -4165,7 +4164,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": [
@@ -4233,7 +4232,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0820"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -4270,7 +4269,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["1500"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -7737,7 +7736,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0822"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7773,7 +7772,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0823"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7812,7 +7811,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0776"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7851,7 +7850,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0839"],
         "device_has_add": [
 			"CRC",
