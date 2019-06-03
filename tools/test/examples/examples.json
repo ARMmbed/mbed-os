@@ -49,6 +49,14 @@
       "exporters": [],
       "compile" : true,
       "export": true,
+      "test" : false,
+      "baud_rate": 9600,
+      "compare_log": [
+          "mbed-os-example-tls/tests/benchmark.log",
+          "mbed-os-example-tls/tests/tls-client.log",
+          "mbed-os-example-tls/tests/hashing.log",
+          "mbed-os-example-tls/tests/authcrypt.log"
+      ],
       "auto-update" : true
     },
     {
@@ -171,7 +179,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-nvstore/tests/nvstore.log"],
         "auto-update" : true
@@ -301,7 +309,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-filesystem/tests/filesystem.log"],
         "auto-update" : true
@@ -381,7 +389,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-blockdevice/tests/blockdevice.log"],
         "auto-update" : true
@@ -397,7 +405,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
         "auto-update" : true
@@ -429,7 +437,7 @@
         "exporters": [],
         "compile" : true,
         "export": true,
-        "test" : false,
+        "test" : true,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-sd-driver/tests/sd-driver.log"],
         "auto-update" : true
