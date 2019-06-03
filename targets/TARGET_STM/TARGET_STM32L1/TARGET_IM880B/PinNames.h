@@ -127,78 +127,78 @@ typedef enum {
     P_32 = NC,		// GND
 
     // LoRa
-    SPI_RF_RESET      = PA_2,
-    SPI_RF_MOSI       = PA_7,	// SPI1_MOSI
-    SPI_RF_MISO       = PA_6,	// SPI1_MISO
-    SPI_RF_SCK        = PA_5,	// SPI1_CLK
-    SPI_RF_NSS        = PB_0,
+    SPI_RF_RESET = PA_2,
+    SPI_RF_MOSI  = PA_7,	// SPI1_MOSI
+    SPI_RF_MISO  = PA_6,	// SPI1_MISO
+    SPI_RF_SCK   = PA_5,	// SPI1_CLK
+    SPI_RF_NSS   = PB_0,
 	
-    DIO0       = PB_1,		
-    DIO1       = PB_10,
-    DIO2       = PB_11,
-    DIO3       = PB_7,			
-    DIO4       = PB_5,		
-    DIO5       = PB_4,		
+    DIO0 = PB_1,		
+    DIO1 = PB_10,
+    DIO2 = PB_11,
+    DIO3 = PB_7,			
+    DIO4 = PB_5,		
+    DIO5 = PB_4,		
     
     // Antenna tx
-    ANT_CTX_PA  = PA_4,
+    ANT_CTX_PA = PA_4,
     // Antenna rx
-    ANT_CRX_RX  = PC_13,    
+    ANT_CRX_RX = PC_13,    
 
     // ADC internal channels
-    ADC_TEMP 	= 0xF0,
-    ADC_VREF 	= 0xF1,
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
 
     // LED
-    LED1		= PA_3,
-    LED2		= PA_0,
-    LED3		= PA_1,   
-    LED4		= PA_8,
+    LED1 = PA_3,
+    LED2 = PA_0,
+    LED3 = PA_1,   
+    LED4 = PA_8,
 
     //Standardized button name
-    SW1 		= PB_15,
-    BUTTON1 	= SW1,
+    SW1     = PB_15,
+    BUTTON1 = SW1,
 
     // Wake Pin
-    WAKE		= SW1,
+    WAKE = SW1,
 
     // UART 1
-    UART1_TX	= PA_9,
-    UART1_RX	= PA_10,
-    UART1_CTS	= NC,
-    UART1_RTS	= NC,
+    UART1_TX  = PA_9,
+    UART1_RX  = PA_10,
+    UART1_CTS = NC,
+    UART1_RTS = NC,
 
-    UART_TX		= UART1_TX,
-    UART_RX		= UART1_RX,
-    UART_CTS	= UART1_CTS,
-    UART_RTS	= UART1_RTS,
+    UART_TX  = UART1_TX,
+    UART_RX  = UART1_RX,
+    UART_CTS = UART1_CTS,
+    UART_RTS = UART1_RTS,
     
-    STDIO_UART_TX   = UART_TX,
-    STDIO_UART_RX   = UART_RX,
+    STDIO_UART_TX = UART_TX,
+    STDIO_UART_RX = UART_RX,
 
     // DAPLink
-    USBTX		= UART_TX,
-    USBRX		= UART_RX,
-    SWDIO		= NC,
-    SWCLK		= NC,
+    USBTX = UART_TX,
+    USBRX = UART_RX,
+    SWDIO = NC,
+    SWCLK = NC,
 	
     // SPI
-    SPI2_MOSI       = PB_15,
-    SPI2_MISO       = PB_14,
-    SPI2_SCK        = PB_13,
-    SPI2_NSS        = PB_12,
+    SPI2_MOSI = PB_15,
+    SPI2_MISO = PB_14,
+    SPI2_SCK  = PB_13,
+    SPI2_NSS  = PB_12,
 
-    SPI_MOSI        = SPI2_MOSI,
-    SPI_MISO        = SPI2_MISO,
-    SPI_SCK         = SPI2_SCK,
-    SPI_NSS         = SPI2_NSS,
+    SPI_MOSI  = SPI2_MOSI,
+    SPI_MISO  = SPI2_MISO,
+    SPI_SCK   = SPI2_SCK,
+    SPI_NSS   = SPI2_NSS,
 
     // I2C
-    I2C1_SCL        = PB_8,
-    I2C1_SDA        = PB_9,
+    I2C1_SCL = PB_8,
+    I2C1_SDA = PB_9,
 
-    I2C_SCL         = I2C1_SCL,
-    I2C_SDA         = I2C1_SDA
+    I2C_SCL  = I2C1_SCL,
+    I2C_SDA  = I2C1_SDA
 } PinName;
 
 #ifdef __cplusplus
