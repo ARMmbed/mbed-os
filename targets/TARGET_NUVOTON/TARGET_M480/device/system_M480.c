@@ -84,13 +84,5 @@ void SystemInit (void)
     SPIM_DISABLE_CACHE();
     SPIM_ENABLE_CCM();
     while (! SPIM_IS_CCM_EN());
-    
-#ifndef MBED_CONF_TARGET_CTRL01_ENABLE
-#define MBED_CONF_TARGET_CTRL01_ENABLE 1
-#endif
-
-#if (! MBED_CONF_TARGET_CTRL01_ENABLE)
-    M32(0x4000c018) |= 0x00000080;
-#endif
 }
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
