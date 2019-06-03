@@ -1066,7 +1066,7 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj)
 {
     struct i2c_s *obj_s = &obj->i2c;
 
-    i2c_slave_status_t retValue = NoData;
+    i2c_slave_status_t retValue = Idle;
 
     if (obj_s->pending_slave_rx_maxter_tx) {
         retValue = WriteAddressed;
