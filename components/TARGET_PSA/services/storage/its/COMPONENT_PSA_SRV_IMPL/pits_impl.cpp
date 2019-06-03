@@ -87,6 +87,10 @@ psa_status_t psa_its_set_impl(int32_t pid, psa_storage_uid_t uid, uint32_t data_
         its_init();
     }
 
+    if (create_flags & ~PSA_STORAGE_FLAG_WRITE_ONCE) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
     return psa_storage_set_impl(kvstore, pid, uid, data_length, p_data, create_flags);
 }
 
