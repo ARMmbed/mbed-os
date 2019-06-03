@@ -128,13 +128,16 @@ public:
      *
      *  The cancel function is IRQ safe.
      *
-     *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not guarantee that the event will not execute after it
-     *  returns, as the event may have already begun executing.
+     *  If called while the event queue's dispatch loop is active in another thread,
+     *  the cancel function does not guarantee that the event will not execute after it
+     *  returns, as the event may have already begun executing. A call made from
+     *  the same thread as the dispatch loop will always succeed with a valid id.
      *
      *  @param id       Unique id of the event
+     *  @return         true  if event was successfully cancelled
+     *                  false if event was not cancelled (invalid id or executing already begun)
      */
-    void cancel(int id);
+    bool cancel(int id);
 
     /** Query how much time is left for delayed event
      *

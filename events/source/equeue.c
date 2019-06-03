@@ -374,15 +374,18 @@ int equeue_post(equeue_t *q, void (*cb)(void *), void *p)
     return id;
 }
 
-void equeue_cancel(equeue_t *q, int id)
+bool equeue_cancel(equeue_t *q, int id)
 {
     if (!id) {
-        return;
+        return false;
     }
 
     struct equeue_event *e = equeue_unqueue(q, id);
     if (e) {
         equeue_dealloc(q, e + 1);
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -603,7 +606,7 @@ static void equeue_chain_dispatch(void *p)
 static void equeue_chain_update(void *p, int ms)
 {
     struct equeue_chain_context *c = (struct equeue_chain_context *)p;
-    equeue_cancel(c->target, c->id);
+    (void)equeue_cancel(c->target, c->id);
 
     if (ms >= 0) {
         c->id = equeue_call_in(c->target, ms, equeue_chain_dispatch, c->q);
