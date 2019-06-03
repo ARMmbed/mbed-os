@@ -31,6 +31,14 @@ extern "C" {
 #define TEST_TICKS 42UL
 #define DELAY_DELTA_US 2500ULL
 
+/*  Use a specific delta value for deep sleep, as entry/exit adds up extra latency.
+ *  Use deep sleep latency if defined and add 1ms extra delta */
+#if defined MBED_CONF_TARGET_DEEP_SLEEP_LATENCY
+#define DEEP_SLEEP_DELAY_DELTA_US ((MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * 1000ULL) + 1000ULL)
+#else
+#define DEEP_SLEEP_DELAY_DELTA_US 2500ULL
+#endif
+
 using namespace utest::v1;
 
 const us_timestamp_t DELAY_US = 1000000ULL * TEST_TICKS / OS_TICK_FREQ;
@@ -65,6 +73,11 @@ public:
     bool sem_try_acquire(uint32_t millisec)
     {
         return _sem.try_acquire_for(millisec);
+    }
+
+    void sem_acquire()
+    {
+        _sem.acquire();
     }
 };
 
@@ -275,9 +288,8 @@ void test_sleep(void)
     st.schedule_tick(TEST_TICKS);
 
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "Deep sleep should be disallowed");
-    while (!st.sem_try_acquire(0)) {
-        sleep();
-    }
+    st.sem_acquire();
+
     timer.stop();
     sleep_manager_unlock_deep_sleep();
 
@@ -305,7 +317,6 @@ void test_deepsleep(void)
      * so we'll use the wait_ms() function for now.
      */
     wait_ms(10);
-
     // Regular Timer might be disabled during deepsleep.
     LowPowerTimer lptimer;
     SysTimerTest st;
@@ -313,12 +324,10 @@ void test_deepsleep(void)
     lptimer.start();
     st.schedule_tick(TEST_TICKS);
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep_test_check(), "Deep sleep should be allowed");
-    while (!st.sem_try_acquire(0)) {
-        sleep();
-    }
+    st.sem_acquire();
     lptimer.stop();
 
-    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, lptimer.read_high_resolution_us());
+    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_DELAY_DELTA_US, DELAY_US, lptimer.read_high_resolution_us());
 }
 #endif
 #endif
