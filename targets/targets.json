@@ -7879,10 +7879,6 @@
             "usb-device-hsusbd": {
                 "help": "Select high-speed USB device or not",
                 "value": 1
-            },
-            "ctrl01-enable": {
-                "help": "Enable control_01",
-                "value": 0
             }
         },
         "inherits": ["Target"],
