@@ -431,7 +431,7 @@ dns_add_interface_server(u8_t numdns, const char *interface_name, const ip_addr_
   }
   // add new dns server to the list tail
   new_interface_server = mem_malloc(sizeof(struct dns_server_interface));
-  strncpy(new_interface_server->interface_name, interface_name, INTERFACE_NAME_MAX_SIZE);
+  snprintf(new_interface_server->interface_name, INTERFACE_NAME_MAX_SIZE, "%s",interface_name);
   new_interface_server->dns_servers[numdns] = (*dnsserver);
   new_interface_server->next = NULL;
 
