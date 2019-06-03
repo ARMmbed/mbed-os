@@ -92,14 +92,15 @@ public:
      */
     void frequency(int hz);
 
-    /** Configure the timeout duration in milliseconds for blocking transmission
+    /** Configure the timeout duration in microseconds for blocking transmission
     *
-    *  @param timeout    Transmission timeout in milliseconds.
+    *  @param timeout    Transmission timeout in microseconds.
     *
     *  @note If no timeout is set the default timeout is used.
     *        Default timeout value is based on I2C frequency.
-    *        Is computed as twice amount of time it would take
-    *        to send data over I2C
+    *        Byte timeout is computed as triple amount of time it would take
+    *        to send 10bit over I2C and is expressed by the formula:
+    *        byte_timeout = 3 * (1/frequency * 10 * 1000000)
     */
     void timeout(uint32_t timeout);
 
