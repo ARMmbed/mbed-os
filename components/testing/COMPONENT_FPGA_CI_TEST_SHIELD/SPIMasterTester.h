@@ -104,6 +104,20 @@ public:
      */
     uint32_t get_last_clk_edge_to_cs_ns();
 
+    /**
+     * Get SCLK and SIN states on transmission start and stop.
+     *
+     *  @return latched SCLK and SIN states on transmission start and stop.
+     *
+     *  @note Stats are encoded as fallows (bit 0 - LSB):
+     *        - bit 0: start SCLK
+     *        - bit 1: start SIN
+     *        - bit 2: stop SCLK,
+     *        - bit 3: stop SIN,
+     *        - other: unused
+     */
+    uint8_t get_start_stop_stats();
+
 };
 
 #endif
