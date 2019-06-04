@@ -79,7 +79,6 @@ volatile bool sleep_manager_locked = false;
 
 static int LPTICKER_inited = 0;
 static void LPTIM1_IRQHandler(void);
-static void (*irq_handler)(void);
 
 void lp_ticker_init(void)
 {
@@ -211,9 +210,7 @@ static void LPTIM1_IRQHandler(void)
         /* We're already in handler and interrupt might be pending,
          * so clear the flag, to avoid calling irq_handler twice */
         __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
-        if (irq_handler) {
-            irq_handler();
-        }
+        lp_ticker_irq_handler();
     }
 
     /* Compare match interrupt */
@@ -221,9 +218,7 @@ static void LPTIM1_IRQHandler(void)
         if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMPM) != RESET) {
             /* Clear Compare match flag */
             __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
-            if (irq_handler) {
-                irq_handler();
-            }
+            lp_ticker_irq_handler();
         }
     }
 
@@ -265,7 +260,6 @@ uint32_t lp_ticker_read(void)
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     LptimHandle.Instance = LPTIM1;
-    irq_handler = (void (*)(void))lp_ticker_irq_handler;
     core_util_critical_section_enter();
 
     /* Always store the last requested timestamp */
@@ -330,7 +324,6 @@ void lp_ticker_fire_interrupt(void)
     lp_Fired = 1;
     /* In case we fire interrupt now, then cancel pending programing */
     lp_delayed_prog = false;
-    irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_SetPendingIRQ(LPTIM1_IRQn);
     NVIC_EnableIRQ(LPTIM1_IRQn);
     core_util_critical_section_exit();
@@ -351,8 +344,8 @@ void lp_ticker_disable_interrupt(void)
         sleep_manager_unlock_deep_sleep();
         sleep_manager_locked = false;
     }
-    irq_handler = NULL;
     lp_delayed_prog = false;
+    lp_Fired = 0;
     NVIC_DisableIRQ(LPTIM1_IRQn);
     NVIC_ClearPendingIRQ(LPTIM1_IRQn);
     LptimHandle.Instance = LPTIM1;
