@@ -196,7 +196,7 @@ void lp_ticker_init(void)
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
 
     /* Init is called with Interrupts disabled, so the CMPOK interrupt
-     * will not be handler. Let's mark it is now safe to write to LP counter */
+     * will not be handled. Let's mark it is now safe to write to LP counter */
     lp_cmpok = true;
 }
 
@@ -292,8 +292,18 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
                 timestamp = LP_TIMER_WRAP(timestamp + LP_TIMER_SAFE_GUARD);
             }
         }
-        /* Then check if this target timestamp is not in the past, or close to wrap-around */
-        if((timestamp < last_read_counter) && (last_read_counter <= (0xFFFF - LP_TIMER_SAFE_GUARD))) {
+        /* Then check if this target timestamp is not in the past, or close to wrap-around
+         * Let's assume last_read_counter = 0xFFFC, and we want to program timestamp = 0x100
+         * The interrupt will not fire before the CMPOK flag is OK, so there are 2 cases:
+         * in case CMPOK flag is set by HW after or at wrap-around, then this will fire only @0x100
+         * in case CMPOK flag is set before, it will indeed fire early, as for the wrap-around case.
+         * But that will take at least 3 cycles and the interrupt fires at the end of a cycle.
+         * In our case 0xFFFC + 3 => at the transition between 0xFFFF and 0.
+         * If last_read_counter was 0xFFFB, it should be at the transition between 0xFFFE and 0xFFFF.
+         * There might be crossing cases where it would also fire @ 0xFFFE, but by the time we read the counter,
+         * it may already have moved to the next one, so for now we've taken this as margin of error.
+         */
+         if((timestamp < last_read_counter) && (last_read_counter <= (0xFFFF - LP_TIMER_SAFE_GUARD))) {
             /*  Workaround, because limitation */
             __HAL_LPTIM_COMPARE_SET(&LptimHandle, ~0);
         } else {
