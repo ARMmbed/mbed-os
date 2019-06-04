@@ -150,7 +150,6 @@ qspi_status_t fast_mode_disable(Qspi &qspi);
 
 qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi);
 
-bool is_quad_io_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_extended_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_dual_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 bool is_quad_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);

@@ -26,8 +26,6 @@
 #include "flash_configs/flash_configs.h"
 #include "mbed.h"
 
-static qspi_status_t quad_io_enable(Qspi &qspi);
-static qspi_status_t quad_io_disable(Qspi &qspi);
 static qspi_status_t extended_enable(Qspi &qspi);
 static qspi_status_t extended_disable(Qspi &qspi);
 static qspi_status_t dual_enable(Qspi &qspi);
@@ -203,9 +201,7 @@ qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi)
 
 qspi_status_t mode_enable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
 {
-    if (is_quad_io_mode(inst_width, addr_width, data_width)) {
-        return quad_io_enable(qspi);
-    } else if (is_extended_mode(inst_width, addr_width, data_width)) {
+    if (is_extended_mode(inst_width, addr_width, data_width)) {
         return extended_enable(qspi);
     } else if (is_dual_mode(inst_width, addr_width, data_width)) {
         return dual_enable(qspi);
@@ -218,9 +214,7 @@ qspi_status_t mode_enable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_widt
 
 qspi_status_t mode_disable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
 {
-    if (is_quad_io_mode(inst_width, addr_width, data_width)) {
-        return quad_io_disable(qspi);
-    } else if (is_extended_mode(inst_width, addr_width, data_width)) {
+    if (is_extended_mode(inst_width, addr_width, data_width)) {
         return extended_disable(qspi);
     } else if (is_dual_mode(inst_width, addr_width, data_width)) {
         return dual_disable(qspi);
@@ -229,24 +223,6 @@ qspi_status_t mode_disable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_wid
     } else {
         return QSPI_STATUS_OK;
     }
-}
-
-static qspi_status_t quad_io_enable(Qspi &qspi)
-{
-#ifdef QUAD_IO_ENABLE
-    QUAD_IO_ENABLE();
-#else
-    return QSPI_STATUS_OK;
-#endif
-}
-
-static qspi_status_t quad_io_disable(Qspi &qspi)
-{
-#ifdef QUAD_IO_DISABLE
-    QUAD_IO_DISABLE();
-#else
-    return QSPI_STATUS_OK;
-#endif
 }
 
 static qspi_status_t extended_enable(Qspi &qspi)
@@ -320,11 +296,6 @@ qspi_status_t fast_mode_disable(Qspi &qspi)
 #else
     return QSPI_STATUS_OK;
 #endif
-}
-
-bool is_quad_io_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
-{
-    return (inst_width == QSPI_CFG_BUS_SINGLE) && ((addr_width == QSPI_CFG_BUS_QUAD) || (data_width == QSPI_CFG_BUS_QUAD));
 }
 
 bool is_extended_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
