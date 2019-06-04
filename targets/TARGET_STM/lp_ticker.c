@@ -41,8 +41,11 @@
 #include "platform/mbed_critical.h"
 #include <stdbool.h>
 
-#if !defined(LPTICKER_DELAY_TICKS) || (LPTICKER_DELAY_TICKS < 3)
-#warning "lpticker_delay_ticks value should be set to 3"
+/*  lpticker delay is for using C++ Low Power Ticker wrapper,
+ *  which introduces extra delays. We rather want to use the
+ *  low level implementation from this file */
+#if defined(LPTICKER_DELAY_TICKS) && (LPTICKER_DELAY_TICKS > 0)
+#warning "lpticker_delay_ticks usage not recommended"
 #endif
 
 #define LP_TIMER_WRAP(val) (val & 0xFFFF)
