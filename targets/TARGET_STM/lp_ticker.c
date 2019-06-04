@@ -203,8 +203,6 @@ static void LPTIM1_IRQHandler(void)
 {
     core_util_critical_section_enter();
 
-    LptimHandle.Instance = LPTIM1;
-
     if (lp_Fired) {
         lp_Fired = 0;
         /* We're already in handler and interrupt might be pending,
@@ -259,7 +257,6 @@ uint32_t lp_ticker_read(void)
 /*  This function should always be called from critical section */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    LptimHandle.Instance = LPTIM1;
     core_util_critical_section_enter();
 
     /* Always store the last requested timestamp */
@@ -348,7 +345,6 @@ void lp_ticker_disable_interrupt(void)
     lp_Fired = 0;
     NVIC_DisableIRQ(LPTIM1_IRQn);
     NVIC_ClearPendingIRQ(LPTIM1_IRQn);
-    LptimHandle.Instance = LPTIM1;
 
     core_util_critical_section_exit();
 }
@@ -356,7 +352,6 @@ void lp_ticker_disable_interrupt(void)
 void lp_ticker_clear_interrupt(void)
 {
     core_util_critical_section_enter();
-    LptimHandle.Instance = LPTIM1;
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
     NVIC_ClearPendingIRQ(LPTIM1_IRQn);
     core_util_critical_section_exit();
