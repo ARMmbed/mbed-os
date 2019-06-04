@@ -264,9 +264,7 @@ void test_sleep(void)
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
-    while (!sem.try_acquire()) {
-        sleep();
-    }
+    sem.acquire();
     timer.stop();
 
     sleep_manager_unlock_deep_sleep();
@@ -323,9 +321,7 @@ void test_deepsleep(void)
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
-    while (!sem.try_acquire()) {
-        sleep();
-    }
+    sem.acquire();
     timer.stop();
 
     TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());
