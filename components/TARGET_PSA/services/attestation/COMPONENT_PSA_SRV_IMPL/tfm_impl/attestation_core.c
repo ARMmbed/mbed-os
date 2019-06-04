@@ -707,18 +707,36 @@ attest_add_security_lifecycle_claim(struct attest_token_ctx *token_ctx)
         if (res) {
             return PSA_ATTEST_ERR_GENERAL;
         }
-        security_lifecycle = (enum tfm_security_lifecycle_t)slc_value;
+        switch (slc_value) {
+            case TFM_SLC_UNKNOWN:
+                security_lifecycle = TFM_SLC_UNKNOWN;
+                break;
+            case TFM_SLC_ASSEMBLY_AND_TEST:
+                security_lifecycle = TFM_SLC_ASSEMBLY_AND_TEST;
+                break;
+            case TFM_SLC_PSA_ROT_PROVISIONING:
+                security_lifecycle = TFM_SLC_PSA_ROT_PROVISIONING;
+                break;
+            case TFM_SLC_SECURED:
+                security_lifecycle = TFM_SLC_SECURED;
+                break;
+            case TFM_SLC_NON_PSA_ROT_DEBUG:
+                security_lifecycle = TFM_SLC_NON_PSA_ROT_DEBUG;
+                break;
+            case TFM_SLC_RECOVERABLE_PSA_ROT_DEBUG:
+                security_lifecycle = TFM_SLC_RECOVERABLE_PSA_ROT_DEBUG;
+                break;
+            case TFM_SLC_DECOMMISSIONED:
+                security_lifecycle = TFM_SLC_DECOMMISSIONED;
+                break;
+            default:
+                security_lifecycle = TFM_SLC_UNKNOWN;
+        }
     } else {
         /* If not found in boot status then use callback function to get it
          * from runtime SW
          */
         security_lifecycle = tfm_attest_hal_get_security_lifecycle();
-    }
-
-    /* Sanity check */
-    if (security_lifecycle < TFM_SLC_UNKNOWN ||
-        security_lifecycle > TFM_SLC_DECOMMISSIONED) {
-        return PSA_ATTEST_ERR_GENERAL;
     }
 
     attest_token_add_integer(token_ctx,
