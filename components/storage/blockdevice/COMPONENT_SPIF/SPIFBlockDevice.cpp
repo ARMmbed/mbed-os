@@ -213,6 +213,7 @@ int SPIFBlockDevice::init()
     // Dummy And Mode Cycles Back default 0
     _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
+    tr_info("Device size: %llu Kbytes", _device_size_bytes / 1024);
 
     if (_device_size_bytes > (1 << 24)) {
         tr_debug("Size is bigger than 16MB and thus address does not fit in 3 byte, switch to 4 byte address mode");
@@ -676,6 +677,7 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, si
                                 (param_table[5] << 8) |
                                 param_table[4]);
     _device_size_bytes = (density_bits + 1) / 8;
+    tr_debug("Density bits: %ld , device size: %llu bytes", density_bits, _device_size_bytes);
 
     // Set Default read/program/erase Instructions
     _read_instruction = SPIF_READ;
