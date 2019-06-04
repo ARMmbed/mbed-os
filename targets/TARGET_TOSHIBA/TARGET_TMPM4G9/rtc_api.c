@@ -135,9 +135,7 @@ time_t rtc_read(void)
     } while (read_1 != read_2);
     timeinfo.tm_year = (HEX2DEC(read_1)+ diff_year);
 
-    //time_t t = mktime(&timeinfo);  // Convert to time stamp
     time_t t;
-
     if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return 0;
     }
