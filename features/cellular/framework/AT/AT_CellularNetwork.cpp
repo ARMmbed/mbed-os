@@ -216,6 +216,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         if (mode != NWModeAutomatic) {
             return _at.at_cmd_discard("+COPS", "=0");
         }
+        return NSAPI_ERROR_OK;
     } else {
         tr_debug("Manual network registration to %s", plmn);
         if (_op_act != RAT_UNKNOWN) {
@@ -325,7 +326,7 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 
     _at.lock();
 
-    _at.cmd_start_stop("+COPS", "?");
+    _at.cmd_start_stop("+COPS", "=?");
 
     _at.resp_start("+COPS:");
 

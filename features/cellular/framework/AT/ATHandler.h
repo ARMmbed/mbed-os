@@ -281,7 +281,7 @@ public:
      * @param resp_buf_size Response buffer size
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
-     * @return @return last error that happened when parsing AT responses
+     * @return last error that happened when parsing AT responses
      */
     nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
 
@@ -292,7 +292,7 @@ public:
      * @param resp Integer to hold response
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
-     * @return @return last error that happened when parsing AT responses
+     * @return last error that happened when parsing AT responses
      */
     nsapi_error_t at_cmd_int(const char *cmd, const char *cmd_chr, int &resp, const char *format = "", ...);
 
@@ -300,10 +300,9 @@ public:
      * @brief at_cmd_discard Send an AT command and read and discard a response. Locks and unlocks ATHandler for operation
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
-     * @param resp Integer to hold response
      * @param format Format string for variadic arguments to be added to AT command; No separator needed.
      *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
-     * @return @return last error that happened when parsing AT responses
+     * @return last error that happened when parsing AT responses
      */
     nsapi_error_t at_cmd_discard(const char *cmd, const char *cmd_chr, const char *format = "", ...);
 
