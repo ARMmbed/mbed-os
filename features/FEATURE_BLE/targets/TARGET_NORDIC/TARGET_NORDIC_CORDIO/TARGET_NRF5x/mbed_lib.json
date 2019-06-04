@@ -14,6 +14,7 @@
         "INIT_PERIPHERAL",
         "INIT_ENCRYPTED",
         "LHCI_ENABLE_VS=0",
-        "BB_CLK_RATE_HZ=1000000"
+        "BB_CLK_RATE_HZ=1000000",
+        "LL_MAX_PER_SCAN=3"
     ]
 }
