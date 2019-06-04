@@ -8285,7 +8285,7 @@
         "is_disk_virtual": true,
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4G9__"],
-        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
