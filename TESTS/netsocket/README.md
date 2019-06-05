@@ -777,8 +777,7 @@ Verify working of different packet sizes.
 **Test steps:**
 
 1.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 7, <random packet, size = loop index>, <loop index>);`.
-2.  Wait for incomming packet. If timeout happens, retry.
-    sending&receiving, max 3 times.
+2.  Wait for incomming packet. If timeout happens, retry sending&receiving, max 3 times each.
 3.  Verify incomming content was the same that was sent.
 4.  Repeat 1200 times.
 5.  Destroy the socket.
@@ -811,8 +810,7 @@ mode
 2.  Register event handler with `UDPSocket::sigio()`.
 3.  Create another thread that constantly waits signal from sigio() handler, when received try `UDPSocket::recvfrom()`.
 4.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 7, <random packet, size = loop index>, <loop index>);`.
-5.  Wait for incomming packet for one second. If nothing received retry,
-    max 3 times.
+5.  Wait for incomming packet for one second. If nothing received retry, max 3 times each.
 6.  Verify incomming content was the same that was sent.
 7.  Repeat 1200 times.
 8.  Destroy the socket.

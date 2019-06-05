@@ -63,37 +63,45 @@ void UDPSOCKET_ECHOTEST()
     NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(ECHO_SERVER_PORT);
 
-    UDPSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
+    UDPSocket socket;
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, socket.open(NetworkInterface::get_default_instance()));
+    socket.set_timeout(WAIT2RECV_TIMEOUT);
 
     int recvd;
     int sent;
     int packets_sent = 0;
     int packets_recv = 0;
     for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+        recvd = 0;
         int pkt_s = pkt_sizes[s_idx];
 
         fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
         int packets_sent_prev = packets_sent;
 
-        for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
+        for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
             memset(rx_buffer, 0, BUFF_SIZE);
-            sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+            sent = socket.sendto(udp_addr, tx_buffer, pkt_s);
             if (check_oversized_packets(sent, pkt_s)) {
                 TEST_IGNORE_MESSAGE("This device does not handle oversized packets");
             } else if (sent == pkt_s) {
                 packets_sent++;
+                break;
             } else {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
-            recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
-            if (recvd == pkt_s) {
-                break;
-            } else {
-                printf("[Round#%02d - Receiver] error, returned %d\n", s_idx, recvd);
-            }
         }
+
+        for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
+            recvd += socket.recvfrom(NULL, rx_buffer + recvd, pkt_s - recvd);
+            if (recvd < 0) {
+                printf("[Round#%02d - Receiver] error, returned %d\n");
+                continue;
+            } else if (recvd == pkt_s) {
+                break;
+            }
+        };
+
         if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
             packets_recv++;
         }
@@ -107,28 +115,31 @@ void UDPSOCKET_ECHOTEST()
         printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, socket.close());
 }
 
 void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 {
     int expt2recv = *(int *)receive_bytes;
-    int recvd;
+    int recvd = 0;
     for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
-        recvd = sock.recvfrom(NULL, rx_buffer, expt2recv);
-        if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
+        int ret = sock.recvfrom(NULL, rx_buffer + recvd, expt2recv - recvd);
+        if (ret == NSAPI_ERROR_WOULD_BLOCK) {
             if (tc_exec_time.read() >= time_allotted) {
                 break;
             }
             signals.wait_all(SIGNAL_SIGIO_RX, WAIT2RECV_TIMEOUT);
             --retry_cnt;
             continue;
-        } else if (recvd < 0) {
+        } else if (ret < 0) {
             printf("sock.recvfrom returned %d\n", recvd);
             TEST_FAIL();
             break;
-        } else if (recvd == expt2recv) {
-            break;
+        } else {
+            recvd += ret;
+            if (recvd == expt2recv) {
+                break;
+            }
         }
     }
 
