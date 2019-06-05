@@ -18,7 +18,7 @@
   *
   * <h2><center>&copy; COPYRIGHT(c) 2017-2019 STMicroelectronics</center></h2>
   *
-  * SPDX-License-Identifier: Apache-2.0
+  * SPDX-License-Identifier: BSD-3-Clause
   * 
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
