@@ -113,7 +113,7 @@
 
 
 
-#define QUAD_IO_ENABLE()                                                    \
+#define EXTENDED_SPI_ENABLE()                                               \
                                                                             \
     const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
     uint8_t reg_data[reg_size] = { 0 };                                     \
@@ -150,7 +150,7 @@
 
 
 
-#define QUAD_IO_DISABLE()                                                   \
+#define EXTENDED_SPI_DISABLE()                                              \
                                                                             \
     const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
     uint8_t reg_data[reg_size] = { 0 };                                     \
