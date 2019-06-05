@@ -74,7 +74,8 @@ Case cases[] = {
     Case("1 s delay during deepsleep (attach_us)", test_deepsleep<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 #endif
-#if !defined(__ARM_FM)  //FastModels not support time drifting test
+
+#if !defined(SKIP_TIME_DRIFT_TESTS)
     Case("Timing drift (attach)", test_drift<AttachTester<LowPowerTimeout> >),
     Case("Timing drift (attach_us)", test_drift<AttachUSTester<LowPowerTimeout> >),
 #endif
