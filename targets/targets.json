@@ -3640,7 +3640,7 @@
         },
         "release_versions": ["2", "5"],
         "overrides": {"lse_available": 0},
-        "device_name": "STM32F407VE",
+        "device_name": "STM32F407VETx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
