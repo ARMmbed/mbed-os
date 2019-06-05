@@ -204,25 +204,16 @@ class MSDUtils(object):
     @staticmethod
     def _unmount_windows(serial):
         disk_path = MSDUtils._disk_path_windows(serial)
-        tmp_file = tempfile.NamedTemporaryFile(suffix='.ps1', delete=False)
-        try:
-            # create unmount script
-            tmp_file.write('$disk_leter=$args[0]\n')
-            tmp_file.write('$driveEject = New-Object -comObject Shell.Application\n')
-            tmp_file.write('$driveEject.Namespace(17).ParseName($disk_leter).InvokeVerb("Eject")\n')
-            # close to allow open by other process
-            tmp_file.close()
+        cmd_string = r'(New-Object -comObject Shell.Application).Namespace(17).ParseName("{}").InvokeVerb("Eject")'.format(disk_path)
 
-            try_count = 10
-            while try_count:
-                p = subprocess.Popen(["powershell.exe", tmp_file.name + " " + disk_path], stdout=sys.stdout)
-                p.communicate()
-                try_count -= 1
-                if MSDUtils._disk_path_windows(serial) is None:
-                    return True
-                time.sleep(1)
-        finally:
-            os.remove(tmp_file.name)
+        try_count = 10
+        while try_count:
+            p = subprocess.Popen(["powershell.exe", cmd_string], stdout=sys.stdout)
+            p.communicate()
+            try_count -= 1
+            if MSDUtils._disk_path_windows(serial) is None:
+                return True
+            time.sleep(1)
 
         return False
 
