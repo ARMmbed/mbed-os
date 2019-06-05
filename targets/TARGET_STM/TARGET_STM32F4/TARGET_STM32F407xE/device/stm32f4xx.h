@@ -16,8 +16,10 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017-2019 STMicroelectronics</center></h2>
   *
+  * SPDX-License-Identifier: Apache-2.0
+  * 
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
   *   1. Redistributions of source code must retain the above copyright notice,
