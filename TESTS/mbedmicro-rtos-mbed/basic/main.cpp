@@ -19,16 +19,15 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 
+#if defined(SKIP_TIME_DRIFT_TESTS)
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 #if defined(MBED_RTOS_SINGLE_THREAD)
 #error [NOT_SUPPORTED] test not supported
 #endif
 
 #if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
-
-//FastModels not support time drifting test
-#if defined(__ARM_FM)
 #error [NOT_SUPPORTED] test not supported
 #endif
 

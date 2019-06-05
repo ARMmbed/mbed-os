@@ -31,7 +31,7 @@ using namespace utest::v1;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
-#elif defined(__ARM_FM)
+#elif defined(TARGET_ARM_FM)
 #define THREAD_STACK_SIZE   512
 #elif defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define THREAD_STACK_SIZE   512

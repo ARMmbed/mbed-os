@@ -24,7 +24,7 @@
 #include "hal/lp_ticker_api.h"
 
 //FastModels not support timing test
-#if defined(__ARM_FM)
+#if defined(TARGET_ARM_FM)
 #error [NOT_SUPPORTED] test not supported
 #endif
 
