@@ -40,7 +40,7 @@
 #endif
 
 // Increase the idle thread stack size when tickless is enabled
-#if defined(MBED_TICKLESS) && defined(LPTICKER_DELAY_TICKS) && (LPTICKER_DELAY_TICKS > 0)
+#if defined(EXTRA_IDLE_STACK_REQUIRED) || (defined(MBED_TICKLESS) && defined(LPTICKER_DELAY_TICKS) && (LPTICKER_DELAY_TICKS > 0))
 #define EXTRA_IDLE_STACK MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE_TICKLESS_EXTRA
 #else
 #define EXTRA_IDLE_STACK 0
