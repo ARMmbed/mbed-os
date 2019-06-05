@@ -131,6 +131,10 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
 
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
+
+        wait(1);    // In cellular there might still come disconnected messages from the network which are sent to callback.
+        // This would cause this test to fail as next connect is already ongoing. So wait here a while until (hopefully)
+        // all messages also from the network have arrived.
     }
 
     net->attach(NULL);
