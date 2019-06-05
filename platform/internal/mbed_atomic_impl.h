@@ -1089,49 +1089,49 @@ DO_MBED_LOCKED_CAS_ORDERINGS(compare_exchange_weak)
  */
 #define DO_MBED_ATOMIC_LOAD_TEMPLATE(T, fn_suffix)                              \
 template<>                                                                      \
-inline T core_util_atomic_load(const volatile T *valuePtr)                      \
+inline T core_util_atomic_load(const volatile T *valuePtr) noexcept             \
 {                                                                               \
     return core_util_atomic_load_##fn_suffix(valuePtr);                         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load(const T *valuePtr)                               \
+inline T core_util_atomic_load(const T *valuePtr) noexcept                      \
 {                                                                               \
     return core_util_atomic_load_##fn_suffix(valuePtr);                         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order) \
+inline T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order)  noexcept \
 {                                                                               \
     return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) \
+inline T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) noexcept \
 {                                                                               \
     return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
 }
 
 template<typename T>
-inline T *core_util_atomic_load(T *const volatile *valuePtr)
+inline T *core_util_atomic_load(T *const volatile *valuePtr) noexcept
 {
     return (T *) core_util_atomic_load_ptr((void *const volatile *) valuePtr);
 }
 
 template<typename T>
-inline T *core_util_atomic_load(T *const *valuePtr)
+inline T *core_util_atomic_load(T *const *valuePtr) noexcept
 {
     return (T *) core_util_atomic_load_ptr((void *const *) valuePtr);
 }
 
 template<typename T>
-inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order)
+inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_load_explicit_ptr((void *const volatile *) valuePtr, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order)
+inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_load_explicit_ptr((void *const *) valuePtr, order);
 }
@@ -1148,49 +1148,49 @@ DO_MBED_ATOMIC_LOAD_TEMPLATE(bool, bool)
 
 #define DO_MBED_ATOMIC_STORE_TEMPLATE(T, fn_suffix)                             \
 template<>                                                                      \
-inline void core_util_atomic_store(volatile T *valuePtr, T val)                 \
+inline void core_util_atomic_store(volatile T *valuePtr, T val) noexcept        \
 {                                                                               \
     core_util_atomic_store_##fn_suffix(valuePtr, val);                          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store(T *valuePtr, T val)                          \
+inline void core_util_atomic_store(T *valuePtr, T val) noexcept                 \
 {                                                                               \
     core_util_atomic_store_##fn_suffix(valuePtr, val);                          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store_explicit(volatile T *valuePtr, T val, mbed_memory_order order) \
+inline void core_util_atomic_store_explicit(volatile T *valuePtr, T val, mbed_memory_order order) noexcept \
 {                                                                               \
     core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store_explicit(T *valuePtr, T val, mbed_memory_order order) \
+inline void core_util_atomic_store_explicit(T *valuePtr, T val, mbed_memory_order order) noexcept \
 {                                                                               \
     core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
 }
 
 template<typename T>
-inline void core_util_atomic_store(T *volatile *valuePtr, T *val)
+inline void core_util_atomic_store(T *volatile *valuePtr, T *val) noexcept
 {
     core_util_atomic_store_ptr((void *volatile *) valuePtr, val);
 }
 
 template<typename T>
-inline void core_util_atomic_store(T **valuePtr, T *val)
+inline void core_util_atomic_store(T **valuePtr, T *val) noexcept
 {
     core_util_atomic_store_ptr((void **) valuePtr, val);
 }
 
 template<typename T>
-inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *val, mbed_memory_order order)
+inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *val, mbed_memory_order order) noexcept
 {
     core_util_atomic_store_ptr((void *volatile *) valuePtr, val, order);
 }
 
 template<typename T>
-inline void core_util_atomic_store_explicit(T **valuePtr, T *val, mbed_memory_order order)
+inline void core_util_atomic_store_explicit(T **valuePtr, T *val, mbed_memory_order order) noexcept
 {
     core_util_atomic_store_ptr((void **) valuePtr, val, order);
 }
@@ -1207,19 +1207,19 @@ DO_MBED_ATOMIC_STORE_TEMPLATE(bool, bool)
 
 #define DO_MBED_ATOMIC_CAS_TEMPLATE(tname, fname, T, fn_suffix)                             \
 template<> inline                                                                           \
-bool core_util_atomic_##tname(volatile T *ptr, T *expectedCurrentValue, T desiredValue)     \
+bool core_util_atomic_##tname(volatile T *ptr, T *expectedCurrentValue, T desiredValue) noexcept \
 {                                                                                           \
     return core_util_atomic_##fname##_##fn_suffix(ptr, expectedCurrentValue, desiredValue); \
 }
 
 template<typename T>
-inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue)
+inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue) noexcept
 {
     return core_util_atomic_cas_ptr((void *volatile *) ptr, (void **) expectedCurrentValue, desiredValue);
 }
 
 template<typename T>
-inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue)
+inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue) noexcept
 {
     return core_util_atomic_compare_exchange_weak_ptr((void *volatile *) ptr, (void **) expectedCurrentValue, desiredValue);
 }
@@ -1240,63 +1240,63 @@ DO_MBED_ATOMIC_CAS_TEMPLATES(compare_exchange_weak, compare_exchange_weak)
 
 #define DO_MBED_ATOMIC_OP_TEMPLATE(name, T, fn_suffix)                          \
 template<>                                                                      \
-inline T core_util_atomic_##name(volatile T *valuePtr, T arg)                   \
+inline T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept          \
 {                                                                               \
     return core_util_atomic_##name##_##fn_suffix(valuePtr, arg);                \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
 inline T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg,        \
-        mbed_memory_order order)                                                \
+        mbed_memory_order order) noexcept                                       \
 {                                                                               \
     return core_util_atomic_##name##_explicit_##fn_suffix(valuePtr, arg, order); \
 }
 
 
 template<>
-inline bool core_util_atomic_exchange(volatile bool *valuePtr, bool arg)
+inline bool core_util_atomic_exchange(volatile bool *valuePtr, bool arg) noexcept
 {
     return core_util_atomic_exchange_bool(valuePtr, arg);
 }
 
 template<>
-inline bool core_util_atomic_exchange_explicit(volatile bool *valuePtr, bool arg, mbed_memory_order order)
+inline bool core_util_atomic_exchange_explicit(volatile bool *valuePtr, bool arg, mbed_memory_order order) noexcept
 {
     return core_util_atomic_exchange_explicit_bool(valuePtr, arg, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_exchange(T *volatile *valuePtr, T *arg)
+inline T *core_util_atomic_exchange(T *volatile *valuePtr, T *arg) noexcept
 {
     return (T *) core_util_atomic_exchange_ptr((void *volatile *) valuePtr, arg);
 }
 
 template<typename T>
-inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, T *arg, mbed_memory_order order)
+inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, T *arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_add_explicit_ptr((void *volatile *) valuePtr, arg, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_add(T *volatile *valuePtr, ptrdiff_t arg)
+inline T *core_util_atomic_fetch_add(T *volatile *valuePtr, ptrdiff_t arg) noexcept
 {
     return (T *) core_util_atomic_fetch_add_ptr((void *volatile *) valuePtr, arg * sizeof(T));
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_add_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order)
+inline T *core_util_atomic_fetch_add_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_add_explicit_ptr((void *volatile *) valuePtr, arg * sizeof(T), order);
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_sub(T *volatile *valuePtr, ptrdiff_t arg)
+inline T *core_util_atomic_fetch_sub(T *volatile *valuePtr, ptrdiff_t arg) noexcept
 {
     return (T *) core_util_atomic_fetch_sub_ptr((void *volatile *) valuePtr, arg * sizeof(T));
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order)
+inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_sub_explicit_ptr((void *volatile *) valuePtr, arg * sizeof(T), order);
 }
@@ -1316,14 +1316,14 @@ inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t a
 
 #define DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, T, fn_suffix, postname, OP) \
 template<>                                                                      \
-inline T core_util_atomic_##name(volatile T *valuePtr, T arg)                   \
+inline T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept          \
 {                                                                               \
     return core_util_atomic_##postname##_##fn_suffix(valuePtr, arg) OP;         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
 inline T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg,        \
-        mbed_memory_order order)                                                \
+        mbed_memory_order order) noexcept                                       \
 {                                                                               \
     return core_util_atomic_##postname##_explicit_##fn_suffix(valuePtr, arg, order) OP; \
 }
@@ -1344,16 +1344,16 @@ namespace impl {
 // Use custom assembler forms for pre-ops where available, else construct from post-ops
 #if MBED_EXCLUSIVE_ACCESS
 #define DO_MBED_ATOMIC_PRE_OP_TEMPLATES(name, postname, OP) \
-        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg); \
-        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order); \
+        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept; \
+        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order) noexcept; \
         DO_MBED_ATOMIC_OP_TEMPLATE(name, uint8_t, u8) \
         DO_MBED_ATOMIC_OP_TEMPLATE(name, uint16_t, u16) \
         DO_MBED_ATOMIC_OP_TEMPLATE(name, uint32_t, u32) \
         DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint64_t, u64, postname, OP)
 #else
 #define DO_MBED_ATOMIC_PRE_OP_TEMPLATES(name, postname, OP) \
-        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg); \
-        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order); \
+        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept; \
+        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order) noexcept; \
         DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint8_t, u8, postname, OP) \
         DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint16_t, u16, postname, OP) \
         DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint32_t, u32, postname, OP) \
