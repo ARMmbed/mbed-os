@@ -6,9 +6,9 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "cmsis.h"
-#include "rtx_os.h"
+
 #include "cmsis_os2.h"
+
 #include "tfm_api.h"
 #include "tfm_ns_lock.h"
 
@@ -29,14 +29,11 @@ static struct ns_lock_state ns_lock = {.init=false, .id=NULL};
 /**
  * \brief Mutex properties, NS lock
  */
-
-static osRtxMutex_t ns_lock_cb = { 0 };
-
 static const osMutexAttr_t ns_lock_attrib = {
     .name = "ns_lock",
     .attr_bits = osMutexPrioInherit,
-    .cb_mem = &ns_lock_cb,
-    .cb_size = sizeof(ns_lock_cb)
+    .cb_mem = NULL,
+    .cb_size = 0U
 };
 
 /**

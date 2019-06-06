@@ -43,7 +43,7 @@ int32_t tfm_psa_veneer_sanity_check(struct tfm_sfn_req_s *desc_ptr)
             return tfm_core_ns_ipc_request(fn, (int32_t)a, (int32_t)b, \
                 (int32_t)c, (int32_t)d)
 
-__attribute__ ((naked))
+__attribute__ ((naked, section("SFN")))
 static int32_t tfm_core_ipc_request(const struct tfm_sfn_req_s *desc_ptr)
 {
     __ASM volatile("SVC %0           \n"
@@ -99,7 +99,7 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t minor_version)
 __tfm_secure_gateway_attributes__
 psa_status_t tfm_psa_call_veneer(psa_handle_t handle,
                                  const psa_invec *in_vecs,
-                                 psa_outvec *out_vecs)
+                                 const psa_invec *out_vecs)
 {
     TFM_CORE_NS_IPC_REQUEST_VENEER(tfm_svcall_psa_call, handle, in_vecs,
                                    out_vecs, 0);

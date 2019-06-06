@@ -15,6 +15,10 @@
 
 #define SPM_INVALID_PARTITION_IDX     (~0U)
 
+/* Privileged definitions for partition thread mode */
+#define TFM_PARTITION_PRIVILEGED_MODE   1
+#define TFM_PARTITION_UNPRIVILEGED_MODE 0
+
 enum spm_err_t {
     SPM_ERR_OK = 0,
     SPM_ERR_PARTITION_DB_NOT_INIT,
@@ -83,29 +87,7 @@ struct spm_partition_runtime_data_t {
  */
 uint32_t get_partition_idx(uint32_t partition_id);
 
-#if TFM_LVL != 1
-/**
- * \brief Configure isolated sandbox for a partition
- *
- * \param[in] partition_idx     Partition index
- *
- * \return Error code \ref spm_err_t
- *
- * \note This function doesn't check if partition_idx is valid.
- */
-enum spm_err_t tfm_spm_partition_sandbox_config(uint32_t partition_idx);
-
-/**
- * \brief Deconfigure sandbox for a partition
- *
- * \param[in] partition_idx     Partition index
- *
- * \return Error code \ref spm_err_t
- *
- * \note This function doesn't check if partition_idx is valid.
- */
-enum spm_err_t tfm_spm_partition_sandbox_deconfig(uint32_t partition_idx);
-
+#if (TFM_LVL != 1) || defined(TFM_PSA_API)
 /**
  * \brief Get bottom of stack region for a partition
  *
@@ -127,6 +109,30 @@ uint32_t tfm_spm_partition_get_stack_bottom(uint32_t partition_idx);
  * \note This function doesn't check if partition_idx is valid.
  */
 uint32_t tfm_spm_partition_get_stack_top(uint32_t partition_idx);
+#endif
+
+#if (TFM_LVL != 1) && !defined(TFM_PSA_API)
+/**
+ * \brief Configure isolated sandbox for a partition
+ *
+ * \param[in] partition_idx     Partition index
+ *
+ * \return Error code \ref spm_err_t
+ *
+ * \note This function doesn't check if partition_idx is valid.
+ */
+enum spm_err_t tfm_spm_partition_sandbox_config(uint32_t partition_idx);
+
+/**
+ * \brief Deconfigure sandbox for a partition
+ *
+ * \param[in] partition_idx     Partition index
+ *
+ * \return Error code \ref spm_err_t
+ *
+ * \note This function doesn't check if partition_idx is valid.
+ */
+enum spm_err_t tfm_spm_partition_sandbox_deconfig(uint32_t partition_idx);
 
 /**
  * \brief Get the start of the zero-initialised region for a partition
@@ -186,6 +192,17 @@ void tfm_spm_partition_set_stack(uint32_t partition_idx, uint32_t stack_ptr);
 #endif
 
 /**
+ * \brief Get the id of the partition for its index from the db
+ *
+ * \param[in] partition_idx     Partition index
+ *
+ * \return Partition ID for that partition
+ *
+ * \note This function doesn't check if partition_idx is valid.
+ */
+uint32_t tfm_spm_partition_get_partition_id(uint32_t partition_idx);
+
+/**
  * \brief Get the flags associated with a partition
  *
  * \param[in] partition_idx     Partition index
@@ -196,6 +213,7 @@ void tfm_spm_partition_set_stack(uint32_t partition_idx, uint32_t stack_ptr);
  */
 uint32_t tfm_spm_partition_get_flags(uint32_t partition_idx);
 
+#ifndef TFM_PSA_API
 /**
  * \brief Get the current runtime data of a partition
  *
@@ -227,17 +245,6 @@ uint32_t tfm_spm_partition_get_running_partition_idx(void);
  */
 void tfm_spm_partition_store_context(uint32_t partition_idx,
         uint32_t stack_ptr, uint32_t lr);
-
-/**
- * \brief Get the id of the partition for its index from the db
- *
- * \param[in] partition_idx     Partition index
- *
- * \return Partition ID for that partition
- *
- * \note This function doesn't check if partition_idx is valid.
- */
-uint32_t tfm_spm_partition_get_partition_id(uint32_t partition_idx);
 
 /**
  * \brief Set the current state of a partition
@@ -308,13 +315,6 @@ enum spm_err_t tfm_spm_partition_set_iovec(uint32_t partition_idx,
                                            const int32_t *args);
 
 /**
- * \brief Initialize partition database
- *
- * \return Error code \ref spm_err_t
- */
-enum spm_err_t tfm_spm_db_init(void);
-
-/**
  * \brief Execute partition init function
  *
  * \return Error code \ref spm_err_t
@@ -329,5 +329,27 @@ enum spm_err_t tfm_spm_partition_init(void);
  * \note This function doesn't check if partition_idx is valid.
  */
 void tfm_spm_partition_cleanup_context(uint32_t partition_idx);
+#endif /* !defined(TFM_PSA_API) */
+
+/**
+ * \brief Initialize partition database
+ *
+ * \return Error code \ref spm_err_t
+ */
+enum spm_err_t tfm_spm_db_init(void);
+
+/**
+ * \brief Change the privilege mode for partition thread mode.
+ *
+ * \param[in] privileged        Privileged mode,
+ *                                \ref TFM_PARTITION_PRIVILEGED_MODE
+ *                                and \ref TFM_PARTITION_UNPRIVILEGED_MODE
+ *
+ * \note Barrier instructions are not called by this function, and if
+ *       it is called in thread mode, it might be necessary to call
+ *       them after this function returns (just like it is done in
+ *       jump_to_ns_code()).
+ */
+void tfm_spm_partition_change_privilege(uint32_t privileged);
 
 #endif /*__SPM_API_H__ */

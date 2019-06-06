@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -28,7 +28,7 @@
  */
 struct tfm_spm_partition_platform_data_t;
 
-#if TFM_LVL != 1
+#if defined (TFM_PSA_API) || (TFM_LVL != 1)
 /**
  * \brief Holds SPM db fields that define the memory regions used by a
  *        partition.
@@ -147,7 +147,7 @@ uint32_t tfm_spm_hal_get_ns_MSP(void);
 uint32_t tfm_spm_hal_get_ns_entry_point(void);
 
 
-#if TFM_LVL != 1
+#if (TFM_LVL != 1) && !defined(TFM_PSA_API)
 /**
  * \brief Configure the sandbox for a partition.
  *

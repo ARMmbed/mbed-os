@@ -35,6 +35,10 @@
     {
       "src_file": "platform/include/tfm_spm_hal.h",
       "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+    },
+    {
+      "src_file": "secure_fw/ns_callable/tfm_psa_api_veneers.c",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/ns_callable/tfm_psa_api_veneers.c"
     }
   ],
   "folders": [
@@ -67,9 +71,6 @@
     "fb068d2cb4e89cacf0e9f413075bb4b211f1484f",
     "5d41a2aeae71b13f2763bea4e55899646291e0eb",
     "9c1e080e39adc7211c8c2c12cd652da3dc124299",
-    "78ed87028718b1b926d847ff6fc2f91d44e53d6d",
-    "280715f9b74ab29459d81edaf02b39e7a6acb13c",
-    "ea81bf91c90ae23dd9de012bfd7498613be00601",
-    "5342015bb12a486a1c563175a8a7129f0737c925"
+    "280715f9b74ab29459d81edaf02b39e7a6acb13c"
   ]
 }

@@ -11,6 +11,7 @@
 #include "tfm_secure_api.h"
 #include "tfm_internal.h"
 #include "secure_fw/include/tfm_spm_services_api.h"
+#include "spm_api.h"
 
 uint8_t *tfm_scratch_area;
 uint32_t tfm_scratch_area_size;
@@ -18,13 +19,9 @@ nsfptr_t ns_entry;
 
 void jump_to_ns_code(void)
 {
-#if TFM_LVL != 1
+#if TFM_LVL == 3 || ((!defined(TFM_PSA_API)) && (TFM_LVL != 1))
     /* Initialization is done, set thread mode to unprivileged. */
-    CONTROL_Type ctrl;
-
-    ctrl.w = __get_CONTROL();
-    ctrl.b.nPRIV = 1;
-    __set_CONTROL(ctrl.w);
+    tfm_spm_partition_change_privilege(TFM_PARTITION_UNPRIVILEGED_MODE);
 #endif
     /* All changes made to memory will be effective after this point */
     __DSB();
@@ -34,6 +31,7 @@ void jump_to_ns_code(void)
     ns_entry();
 }
 
+#ifndef TFM_PSA_API
 #if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) int32_t tfm_core_sfn_request(
                                            const struct tfm_sfn_req_s *desc_ptr)
@@ -154,6 +152,7 @@ int32_t tfm_core_set_buffer_area(enum tfm_buffer_share_region_e share)
         "BX     lr\n"
         : : "I" (TFM_SVC_SET_SHARE_AREA));
 }
+#endif
 
 __attribute__((naked))
 int32_t tfm_core_get_boot_data(uint8_t major_type,

@@ -11,6 +11,7 @@
 #include "tfm_internal.h"
 #include "tfm_api.h"
 #include "platform/include/tfm_spm_hal.h"
+#include "uart_stdout.h"
 #include "secure_utilities.h"
 #include "secure_fw/spm/spm_api.h"
 #include "secure_fw/include/tfm_spm_services_api.h"
@@ -47,6 +48,7 @@ __asm("  .global __ARM_use_no_argv\n");
 #error Only TFM_LVL 1, 2 and 3 are supported!
 #endif
 
+#ifndef TFM_PSA_API
 /* Macros to pick linker symbols and allow to form the partition data base */
 #define REGION(a, b, c) a##b##c
 #define REGION_NAME(a, b, c) REGION(a, b, c)
@@ -54,6 +56,7 @@ __asm("  .global __ARM_use_no_argv\n");
 
 REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
 REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit);
+#endif
 
 void configure_ns_code(void)
 {
@@ -87,6 +90,7 @@ int32_t tfm_core_init(void)
 
     __enable_irq();
 
+    stdio_init();
     LOG_MSG("Secure image initializing!");
 
 #ifdef TFM_CORE_DEBUG
@@ -106,11 +110,20 @@ int32_t tfm_core_init(void)
     /* Enable secure peripherals interrupts */
     nvic_interrupt_enable();
 
+#ifdef TFM_PSA_API
+    /* FixMe: In case of IPC messaging, scratch area must not be referenced
+     * These variables should be removed when all obsolete references are
+     * removed from the codebase
+     */
+    tfm_scratch_area = NULL;
+    tfm_scratch_area_size = 0;
+#else
     tfm_scratch_area =
         (uint8_t *)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
     tfm_scratch_area_size =
         (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit) -
         (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
+#endif
     return 0;
 }
 
@@ -179,6 +192,7 @@ int main(void)
 
     tfm_spm_hal_setup_isolation_hw();
 
+#ifndef TFM_PSA_API
     tfm_spm_partition_set_state(TFM_SP_CORE_ID, SPM_PARTITION_STATE_RUNNING);
 
     extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
@@ -198,21 +212,25 @@ int main(void)
      */
     tfm_core_set_secure_exception_priorities();
 
-#ifdef TFM_PSA_API
-    tfm_spm_init();
-#endif
+    /* We close the TFM_SP_CORE_ID partition, because its only purpose is
+     * to be able to pass the state checks for the tests started from secure.
+     */
+    tfm_spm_partition_set_state(TFM_SP_CORE_ID, SPM_PARTITION_STATE_CLOSED);
+    tfm_spm_partition_set_state(TFM_SP_NON_SECURE_ID,
+                                SPM_PARTITION_STATE_RUNNING);
 
 #ifdef TFM_CORE_DEBUG
     /* Jumps to non-secure code */
     LOG_MSG("Jumping to non-secure code...");
 #endif
 
-    /* We close the TFM_SP_CORE_ID partition, because its only purpose is
-     * to be able to pass the state checks for the tests started from secure.
-     */
-    tfm_spm_partition_set_state(TFM_SP_CORE_ID, SPM_PARTITION_STATE_CLOSED);
-    tfm_spm_partition_set_state(TFM_SP_NON_SECURE_ID,
-                              SPM_PARTITION_STATE_RUNNING);
-
     jump_to_ns_code();
+#else
+    /*
+     * Prioritise secure exceptions to avoid NS being able to pre-empt
+     * secure SVC or SecureFault. Do it before PSA API initialization.
+     */
+    tfm_core_set_secure_exception_priorities();
+    tfm_spm_init();
+#endif
 }
