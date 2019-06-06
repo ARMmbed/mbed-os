@@ -34,8 +34,8 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !defined(TARGET_K64F)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
 #endif
 
 #if !SECURESTORE_ENABLED
