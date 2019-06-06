@@ -31,6 +31,7 @@
 #if DEVICE_INTERRUPTIN
 
 #include <stdbool.h>
+#include <inttypes.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
 #include "pinmap.h"
@@ -125,7 +126,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             }
         }
     }
-    error("Unexpected Spurious interrupt, index %ld\r\n", irq_index);
+    error("Unexpected Spurious interrupt index %" PRIu32 "\n", irq_index);
 }
 
 
