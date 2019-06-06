@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017-2018 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +38,8 @@
  * only to keep the same name than in the CMSDK RTL and Fast Models Reference
  * Guide.
  */
-#define MAPPABLE_START   0x00000000
-#define MAPPABLE_SIZE    0x00004000  /* 16 KiB */
-#define ZBT_SRAM1_START  (0x00000000 + 0x00004000)
-#define ZBT_SRAM1_SIZE   (0x00400000 - 0x00004000) /* 4 MiB - 16 KiB*/
+#define ZBT_SRAM1_START  0x00000000
+#define ZBT_SRAM1_SIZE   0x00400000 /* 4 MiB */
 
 /* Data memory zones */
 #define ZBT_SRAM2_START  0x20000000
