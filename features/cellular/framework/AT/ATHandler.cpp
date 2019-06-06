@@ -1165,12 +1165,18 @@ void ATHandler::handle_start(const char *cmd, const char *cmd_chr)
     int len = 0;
     memcpy(_cmd_buffer, "AT", 2);
     len += 2;
+    int cmd_char_len = 0;
+    if (cmd_chr) {
+        cmd_char_len = strlen(cmd_chr);
+    }
+    MBED_ASSERT((3 + strlen(cmd) + cmd_char_len) < BUFF_SIZE);
+
     memcpy(_cmd_buffer + len, cmd, strlen(cmd));
     len += strlen(cmd);
 
-    if (cmd_chr && strlen(cmd_chr)) {
-        memcpy(_cmd_buffer + len, cmd_chr, strlen(cmd_chr));
-        len += strlen(cmd_chr);
+    if (cmd_char_len) {
+        memcpy(_cmd_buffer + len, cmd_chr, cmd_char_len);
+        len += cmd_char_len;
     }
     _cmd_buffer[len] = '\0';
     cmd_start(_cmd_buffer);
