@@ -2,7 +2,7 @@
  * MPS2 CMSIS Library
  */
 /*
- * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2019 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,21 +24,19 @@
  * can not be included here. Please make sure that the two definitions match.
  */
 /* Code memory zones */
-define symbol MAPPABLE_START   = 0x00000000;
-define symbol MAPPABLE_SIZE    = 0x00004000; /* 16 KiB */
-define symbol ZBT_SRAM1_START  = (0x00000000 + 0x00004000);
-define symbol ZBT_SRAM1_SIZE   = (0x00400000 - 0x00004000); /* 4 MiB - 16 KiB */
+define symbol ZBT_SRAM1_START = 0x00000000;
+define symbol ZBT_SRAM1_SIZE  = 0x00400000; /* 4 MiB */
 
 /* Data memory zones */
 define symbol ZBT_SRAM2_START = 0x20000000;
-define symbol ZBT_SRAM2_SIZE  = 0x00400000; /* 4 MB */
+define symbol ZBT_SRAM2_SIZE  = 0x00400000; /* 4 MiB */
 
 /* NVIC vector numbers and size. */
 define symbol NVIC_NUM_VECTORS        = (16 + 48);
 define symbol NVIC_VECTORS_SIZE       = (NVIC_NUM_VECTORS * 4);
 
 /*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = MAPPABLE_START;
+define symbol __ICFEDIT_intvec_start__ = ZBT_SRAM1_START;
 
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__    = ZBT_SRAM1_START;

@@ -1,8 +1,9 @@
 #! armcc -E
 ;* MPS2 CMSIS Library
 ;*
-;* Copyright (c) 2006-2018 ARM Limited
+;* Copyright (c) 2006-2019 ARM Limited
 ;* All rights reserved.
+;* SPDX-License-Identifier: Apache-2.0
 ;*
 ;* Redistribution and use in source and binary forms, with or without
 ;* modification, are permitted provided that the following conditions are met:
@@ -48,14 +49,9 @@
 #endif
 
 ; The vector table is loaded at address 0x00000000 in Flash memory region.
-LR_IROM1 MAPPABLE_START MAPPABLE_SIZE  {
-  ER_IROM1 MAPPABLE_START MAPPABLE_SIZE  {
+LR_IROM1 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {    ; load region size_region
+  ER_IROM1 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
-  }
-}
-
-LR_IROM2 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {    ; load region size_region
-  ER_IROM2 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {  ; load address = execution address
    *(InRoot$$Sections)
    *(+RO)
   }
