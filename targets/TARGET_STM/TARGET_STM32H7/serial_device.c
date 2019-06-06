@@ -128,6 +128,13 @@ static void uart8_irq(void)
 }
 #endif
 
+#if defined(LPUART1_BASE)
+static void lpuart1_irq(void)
+{
+    uart_irq(LPUART_1);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -190,6 +197,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case UART_8:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
+            break;
+#endif
+#if defined(LPUART1_BASE)
+        case LPUART_1:
+            irq_n = LPUART1_IRQn;
+            vector = (uint32_t)&lpuart1_irq;
             break;
 #endif
     }
