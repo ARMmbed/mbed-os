@@ -39,6 +39,43 @@
 
 static TIM_HandleTypeDef TimHandle;
 
+/* Convert STM32 Cube HAL channel to LL channel */
+uint32_t TIM_ChannelConvert_HAL2LL(uint32_t channel, pwmout_t *obj)
+{
+#if !defined(PWMOUT_INVERTED_NOT_SUPPORTED)
+    if (obj->inverted) {
+        switch (channel) {
+            case TIM_CHANNEL_1  :
+                return LL_TIM_CHANNEL_CH1N;
+            case TIM_CHANNEL_2  :
+                return LL_TIM_CHANNEL_CH2N;
+            case TIM_CHANNEL_3  :
+                return LL_TIM_CHANNEL_CH3N;
+#if defined(LL_TIM_CHANNEL_CH4N)
+            case TIM_CHANNEL_4  :
+                return LL_TIM_CHANNEL_CH4N;
+#endif
+            default : /* Optional */
+                return 0;
+        }
+    } else
+#endif
+    {
+        switch (channel) {
+            case TIM_CHANNEL_1  :
+                return LL_TIM_CHANNEL_CH1;
+            case TIM_CHANNEL_2  :
+                return LL_TIM_CHANNEL_CH2;
+            case TIM_CHANNEL_3  :
+                return LL_TIM_CHANNEL_CH3;
+            case TIM_CHANNEL_4  :
+                return LL_TIM_CHANNEL_CH4;
+            default : /* Optional */
+                return 0;
+        }
+    }
+}
+
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
@@ -214,10 +251,15 @@ void pwmout_write(pwmout_t *obj, float value)
             return;
     }
 
-    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
-        error("Cannot initialize PWM\n");
+    if (LL_TIM_CC_IsEnabledChannel(TimHandle.Instance, TIM_ChannelConvert_HAL2LL(channel, obj)) == 0) {
+        // If channel is not enabled, proceed to channel configuration
+        if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
+            error("Cannot initialize PWM\n");
+        }
+    } else {
+        // If channel already enabled, only update compare value to avoid glitch
+        __HAL_TIM_SET_COMPARE(&TimHandle, channel, sConfig.Pulse);
     }
-
 #if !defined(PWMOUT_INVERTED_NOT_SUPPORTED)
     if (obj->inverted) {
         HAL_TIMEx_PWMN_Start(&TimHandle, channel);

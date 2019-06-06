@@ -36,6 +36,7 @@
 #include "PinNames.h"
 #include "stm32h7xx_ll_usart.h"
 #include "stm32h7xx_ll_rtc.h"
+#include "stm32h7xx_ll_tim.h"
 
 #ifdef __cplusplus
 extern "C" {
