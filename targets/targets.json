@@ -1212,7 +1212,7 @@
         ],
         "is_disk_virtual": true,
         "public": false,
-        "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
         "device_has": [
@@ -1313,7 +1313,7 @@
         "core": "Cortex-M0+",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
-        "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
@@ -1355,7 +1355,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0250"],
         "device_has": [
@@ -1393,7 +1393,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "FRAMEWORK_5_3_3", "NXP"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0201"],
         "device_has": [
@@ -1489,7 +1489,8 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
+
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
         "device_has": [
@@ -1644,7 +1645,7 @@
             "MCU_K64F"
         ],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0214"],
@@ -1781,7 +1782,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
+        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
         "device_has": [
@@ -1821,7 +1822,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
         "device_has": [
@@ -1933,7 +1934,8 @@
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "MBED_TICKLESS"
         ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
