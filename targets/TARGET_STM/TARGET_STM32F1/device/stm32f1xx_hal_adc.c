@@ -1765,7 +1765,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
       {
         SET_BIT(hadc->Instance->CR2, ADC_CR2_TSVREFE);
         
-        if ((sConfig->Channel == ADC_CHANNEL_TEMPSENSOR))
+        if (sConfig->Channel == ADC_CHANNEL_TEMPSENSOR)
         {
           /* Delay for temperature sensor stabilization time */
           /* Compute number of CPU cycles to wait for */
