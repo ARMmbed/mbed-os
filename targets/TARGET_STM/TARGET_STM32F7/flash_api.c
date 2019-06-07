@@ -281,7 +281,7 @@ static uint32_t GetSectorSize(uint32_t Sector)
   */
 static uint32_t GetSectorBase(uint32_t SectorId)
 {
-    int i = 0;
+    uint32_t i = 0;
     uint32_t address_sector = FLASH_BASE;
 
     for (i = 0; i < SectorId; i++) {
