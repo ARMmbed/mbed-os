@@ -117,8 +117,8 @@
       "targets" : [],
       "toolchains" : [],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "auto-update" : true
     },
     {
@@ -130,9 +130,9 @@
       "targets" : ["K66F", "NUCLEO_F429ZI"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : false,
-      "export": false,
-      "auto-update" : false
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
     },
     {
       "name": "mbed-os-example-cellular",
