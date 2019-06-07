@@ -144,7 +144,7 @@ void test_thread_safety()
     TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
     TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test, 4, &crc));
 
-    Thread t1(osPriorityNormal1, 320);
+    Thread t1(osPriorityNormal1, 380);
     t1.start(callback(test_thread));
     TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test[4], 5, &crc));
     TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
