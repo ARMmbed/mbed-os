@@ -33,6 +33,10 @@ using ble::vendor::cordio::CordioHCITransportDriver;
 
 extern ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver();
 
+#if CORDIO_ZERO_COPY_HCI
+#error [NOT_SUPPORTED] Test not relevant for zero copy hci.
+#endif
+
 namespace ble {
 namespace vendor {
 namespace cordio {
