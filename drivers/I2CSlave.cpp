@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "platform/mbed_assert.h"
 #include "drivers/I2CSlave.h"
 
 #if DEVICE_I2CSLAVE
@@ -33,7 +34,8 @@ I2CSlave::~I2CSlave()
 
 void I2CSlave::frequency(int hz)
 {
-    i2c_frequency(&_i2c, hz);
+    MBED_ASSERT(hz > 0);
+    i2c_frequency(&_i2c, (uint32_t)hz);
 }
 
 void I2CSlave::timeout(uint32_t timeout)
