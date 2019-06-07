@@ -77,12 +77,23 @@
   #define MBED_RAM_SIZE       NS_DATA_SIZE
 #endif
 
+#if !defined(NVIC_INTERRUPT_NUM)
+  #define NVIC_INTERRUPT_NUM     60
+#endif
+
+#if !defined(EXCEPTION_VECT_NUM)
+  #define EXCEPTION_VECT_NUM     16
+#endif
+
+#if !defined(MEMORY_ADDR_SIZE_IN_BYTE)
+  #define MEMORY_ADDR_SIZE_IN_BYTE     4
+#endif
 
 #define  m_interrupts_start            MBED_APP_START
-#define  m_interrupts_size             0x140
+#define  m_interrupts_size             ((NVIC_INTERRUPT_NUM + EXCEPTION_VECT_NUM) * MEMORY_ADDR_SIZE_IN_BYTE)
 
-#define  m_text_start                  MBED_APP_START + 0x140
-#define  m_text_size                   MBED_APP_SIZE - 0x140
+#define  m_text_start                  MBED_APP_START + m_interrupts_size
+#define  m_text_size                   MBED_APP_SIZE - m_interrupts_size
 
 #define  m_interrupts_ram_start        MBED_RAM_START
 #define  m_interrupts_ram_size         __ram_vector_table_size__
@@ -93,13 +104,13 @@
 #define  m_usb_sram_start              0x40100000
 #define  m_usb_sram_size               0x00004000
 
-LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; load region size_region
+LR_IROM1 m_interrupts_start (AlignExpr(m_text_start, 8)+m_text_size-m_interrupts_start) {   ; load region size_region
 
   VECTOR_ROM m_interrupts_start m_interrupts_size { ; load address = execution address
     * (RESET,+FIRST)
   }
 
-  ER_IROM1 m_text_start FIXED m_text_size { ; load address = execution address
+  ER_IROM1 AlignExpr(m_text_start, 8) FIXED m_text_size { ; load address = execution address
     * (InRoot$$Sections)
     .ANY (+RO)
   }

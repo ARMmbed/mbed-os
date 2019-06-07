@@ -57,6 +57,22 @@ __ram_vector_table__ = 1;
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
+#if !defined(NVIC_INTERRUPT_NUM)
+  #define NVIC_INTERRUPT_NUM     60
+#endif
+
+#if !defined(EXCEPTION_VECT_NUM)
+  #define EXCEPTION_VECT_NUM     16
+#endif
+
+#if !defined(MEMORY_ADDR_SIZE_IN_BYTE)
+  #define MEMORY_ADDR_SIZE_IN_BYTE     4
+#endif
+
+#if !defined(MBED_INTERRUPTS_SIZE)
+  #define MBED_INTERRUPTS_SIZE ((NVIC_INTERRUPT_NUM + EXCEPTION_VECT_NUM) * MEMORY_ADDR_SIZE_IN_BYTE)
+#endif
+
 __stack_size__ = MBED_BOOT_STACK_SIZE;
 
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0800;
@@ -64,8 +80,8 @@ M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x200 : 0x0;
 
 MEMORY
 {
-  m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x140
-  m_text                (RX)  : ORIGIN = MBED_APP_START + 0x140, LENGTH = MBED_APP_SIZE - 0x140
+  m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = MBED_INTERRUPTS_SIZE
+  m_text                (RX)  : ORIGIN = MBED_APP_START + MBED_INTERRUPTS_SIZE, LENGTH = MBED_APP_SIZE - MBED_INTERRUPTS_SIZE
   m_data                (RW)  : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
   m_usb_sram            (RW)  : ORIGIN = 0x40100000, LENGTH = 0x00004000
 }
