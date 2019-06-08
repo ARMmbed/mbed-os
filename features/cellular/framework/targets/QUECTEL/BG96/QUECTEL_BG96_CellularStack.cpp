@@ -111,19 +111,41 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 void QUECTEL_BG96_CellularStack::urc_qiurc()
 {
     int sock_id = 0;
-
+    char type[16];
+    CellularSocket *sock = NULL;
     _at.lock();
-    (void) _at.skip_param();
+    _at.read_string(type, sizeof(type));
     sock_id = _at.read_int();
-    _at.unlock();
 
-    for (int i = 0; i < get_max_socket_count(); i++) {
-        CellularSocket *sock = _socket[i];
-        if (sock && sock->id == sock_id) {
-            if (sock->_cb) {
+    for (int i = 0; i < get_max_socket_count(); i++)
+    {
+        CellularSocket *s = _socket[i];
+        if (s && s->id == sock_id)
+        {
+            sock = s;
+            break;
+        }
+    }
+
+    tr_debug("urc_qiurc: %s", type);
+
+    if (strcmp(type, "closed") == 0)
+    {
+        _at.unlock();
+        if (sock)
+        {
+            sock->connected = false;
+            if (sock->_cb)
+            {
                 sock->_cb(sock->_data);
             }
-            break;
+        }
+    }
+    else
+    {
+        _at.unlock();
+        if (sock && sock->_cb) {
+            sock->_cb(sock->_data);
         }
     }
 }
@@ -255,6 +277,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
         return NSAPI_ERROR_PARAMETER;
     }
 
+    if (!socket->connected)
+    {
+        tr_warn("Tries to send while not connected");
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
     int sent_len = 0;
     int sent_len_before = 0;
     int sent_len_after = 0;
@@ -309,6 +337,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
     nsapi_size_or_error_t recv_len = 0;
     int port;
     char ip_address[NSAPI_IP_SIZE + 1];
+
+    if (!socket->connected)
+    {
+        tr_warn("Tries to receive while not connected");
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
 
     _at.cmd_start("AT+QIRD=");
     _at.write_int(socket->id);
