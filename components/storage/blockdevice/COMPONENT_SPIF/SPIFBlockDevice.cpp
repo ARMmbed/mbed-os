@@ -210,7 +210,7 @@ int SPIFBlockDevice::init()
     // Dummy And Mode Cycles Back default 0
     _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
-    tr_info("Device size: %llu Kbytes", _device_size_bytes / 1024);
+    tr_debug("Device size: %llu Kbytes", _device_size_bytes / 1024);
 
 exit_point:
     _mutex->unlock();
