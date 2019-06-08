@@ -214,8 +214,7 @@ int SPIFBlockDevice::init()
     _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
 
-    if (_device_size_bytes > (1 << 24)) // Size is bigger than 16MB and thus address does not fit in 3 byte, switch to 4 byte address mode
-    {
+    if (_device_size_bytes > (1 << 24)) {
         tr_debug("Size is bigger than 16MB and thus address does not fit in 3 byte, switch to 4 byte address mode");
         _spi_send_general_command(SPIF_4BEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
         _address_size = SPIF_ADDR_SIZE_4_BYTES;
