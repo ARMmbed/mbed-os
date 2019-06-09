@@ -1571,7 +1571,18 @@ void operator delete (void *ptr)
 {
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
+
+void operator delete (void *ptr, std::size_t)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
 void operator delete[](void *ptr)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
@@ -1616,7 +1627,17 @@ void operator delete (void *ptr)
     free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
 }
 
+void operator delete (void *ptr, std::size_t)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
 void operator delete[](void *ptr)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
 }
@@ -1655,7 +1676,18 @@ void operator delete (void *ptr)
 {
     free(ptr);
 }
+
+void operator delete (void *ptr, std::size_t)
+{
+    free(ptr);
+}
+
 void operator delete[](void *ptr)
+{
+    free(ptr);
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free(ptr);
 }
