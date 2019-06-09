@@ -457,17 +457,6 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
     _random_static_identity_address = _pal_gap.get_random_address();
 
     _pal_gap.set_event_handler(this);
-
-#if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (is_extended_advertising_available()) {
-        setExtendedAdvertisingParameters(
-            LEGACY_ADVERTISING_HANDLE,
-            AdvertisingParameters()
-        );
-    }
-
-    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -1434,6 +1423,17 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     if (err) {
         return err;
     }
+
+#if defined(TARGET_CORDIO_LL)
+    // TODO: fix advertising set creation in the link layer.
+    // The Cordio link layer implements legacy API on top of extended advertising
+    // and has an issue that no advertising set is created until we set parameters.
+    // As a workaround, set advertising data again to ensure it takes effect.
+    err = setAdvertisingData_(this->_advPayload, this->_scanResponse);
+    if (err) {
+        return err;
+    }
+#endif
 
     err = _pal_gap.advertising_enable(true);
     if (err) {
@@ -3470,7 +3470,19 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     if (_deprecated_scan_api_used) {
         MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");
     }
-    _non_deprecated_scan_api_used = true;
+    if (!_non_deprecated_scan_api_used) {
+        _non_deprecated_scan_api_used = true;
+#if BLE_FEATURE_EXTENDED_ADVERTISING
+        if (const_cast<GenericGap*>(this)->is_extended_advertising_available()) {
+            const_cast<GenericGap*>(this)->setExtendedAdvertisingParameters(
+                LEGACY_ADVERTISING_HANDLE,
+                AdvertisingParameters()
+            );
+        }
+        const_cast<BitArray<MAX_ADVERTISING_SETS>*>(&_existing_sets)->set(LEGACY_ADVERTISING_HANDLE);
+#endif
+    }
+
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
