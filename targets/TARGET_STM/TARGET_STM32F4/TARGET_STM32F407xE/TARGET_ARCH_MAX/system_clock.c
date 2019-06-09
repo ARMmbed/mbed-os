@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
-* Copyright (c) 2006-2017 ARM Limited
+* Copyright (c) 2006-2019 ARM Limited
+*
+* SPDX-License-Identifier: Apache-2.0
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,6 +37,7 @@
 **/
 
 #include "stm32f4xx.h"
+#include "nvic_addr.h"
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
@@ -93,7 +96,7 @@ void SystemInit(void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
 
 }

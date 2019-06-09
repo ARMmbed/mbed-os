@@ -3620,8 +3620,9 @@
         "extra_labels_add": [
             "STM32F4",
             "STM32F407",
-            "STM32F407xG",
-            "STM32F407VG",
+            "STM32F407xx",
+            "STM32F407xE",
+            "STM32F407VE",
             "STM_EMAC"
         ],
         "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "EMAC", "MPU"],
@@ -3639,7 +3640,7 @@
         },
         "release_versions": ["2", "5"],
         "overrides": {"lse_available": 0},
-        "device_name": "STM32F407VG",
+        "device_name": "STM32F407VETx",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
