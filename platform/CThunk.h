@@ -64,8 +64,10 @@ public:
 
     ~CThunk()
     {
-        cthunk_free(_entry);
-        _entry = NULL;
+        if (_entry != NULL) {
+            cthunk_free(_entry);
+            _entry = NULL;
+        }
     }
 
     inline CThunk(T *instance, CCallbackSimple callback)
