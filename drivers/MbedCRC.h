@@ -146,7 +146,7 @@ public:
      *  @param  crc  CRC is the output value
      *  @return  0 on success, negative error code on failure
      */
-    int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc)
+    int32_t compute(const void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         MBED_ASSERT(crc != NULL);
         int32_t status = 0;
@@ -193,14 +193,14 @@ public:
      *  @note: CRC as output in compute_partial is not final CRC value, call `compute_partial_stop`
      *         to get final correct CRC value.
      */
-    int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
+    int32_t compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         int32_t status = 0;
 
         switch (_mode) {
 #if DEVICE_CRC
             case HARDWARE:
-                hal_crc_compute_partial((uint8_t *)buffer, size);
+                hal_crc_compute_partial(static_cast<const uint8_t *>(buffer), size);
                 *crc = 0;
                 break;
 #endif
