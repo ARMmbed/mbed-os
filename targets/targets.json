@@ -7088,6 +7088,7 @@
             "MBED_TICKLESS",
             "MBED_MPU_CUSTOM"
         ],
+        "features": ["BLE"],
         "device_has": [
             "ANALOGIN",
             "FLASH",
@@ -7115,9 +7116,10 @@
             "NRF5x",
             "NRF52",
             "SDK_15_0",
-            "NORDIC_SOFTDEVICE",
-            "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S132_FULL"
+            "CORDIO",
+            "CORDIO_LL",
+            "SOFTDEVICE_NONE",
+            "NORDIC_CORDIO"
         ],
         "config": {
             "lf_clock_src": {
@@ -7213,7 +7215,7 @@
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM"
         ],
-        "features": ["CRYPTOCELL310"],
+        "features": ["CRYPTOCELL310", "BLE"],
         "device_has": [
             "ANALOGIN",
             "FLASH",
@@ -7242,9 +7244,10 @@
             "NRF5x",
             "NRF52",
             "SDK_15_0",
-            "NORDIC_SOFTDEVICE",
-            "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S140_FULL"
+            "CORDIO",
+            "CORDIO_LL",
+            "SOFTDEVICE_NONE",
+            "NORDIC_CORDIO"
         ],
         "config": {
             "lf_clock_src": {
