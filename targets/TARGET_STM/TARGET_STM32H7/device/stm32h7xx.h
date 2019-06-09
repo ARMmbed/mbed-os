@@ -61,8 +61,7 @@
 #if !defined (STM32H743xx) && !defined (STM32H753xx)  && !defined (STM32H750xx) && !defined (STM32H742xx) && \
     !defined (STM32H745xx) && !defined (STM32H755xx)  && !defined (STM32H747xx) && !defined (STM32H757xx)
   /* #define STM32H742xx */   /*!< STM32H742VI, STM32H742ZI, STM32H742AI, STM32H742II, STM32H742BI, STM32H742XI Devices */
-  // MBED PATCH
-  #define STM32H743xx         /*!< STM32H743VI, STM32H743ZI, STM32H743AI, STM32H743II, STM32H743BI, STM32H743XI Devices */
+  /* #define STM32H743xx */   /*!< STM32H743VI, STM32H743ZI, STM32H743AI, STM32H743II, STM32H743BI, STM32H743XI Devices */
   /* #define STM32H753xx */   /*!< STM32H753VI, STM32H753ZI, STM32H753AI, STM32H753II, STM32H753BI, STM32H753XI Devices */
   /* #define STM32H750xx */   /*!< STM32H750V, STM32H750I, STM32H750X Devices */
   /* #define STM32H747xx */   /*!< STM32H747ZI, STM32H747AI, STM32H747II, STM32H747BI, STM32H747XI Devices */
@@ -85,10 +84,8 @@
    In this case, these drivers will not be included and the application code will
    be based on direct access to peripherals registers
    */
-#define USE_HAL_DRIVER // MBED PATCH
+  /*#define USE_HAL_DRIVER */
 #endif /* USE_HAL_DRIVER */
-
-#define USE_FULL_LL_DRIVER // MBED PATCH
 
 /**
   * @brief CMSIS Device version number V1.5.0

@@ -1853,7 +1853,11 @@
         "public": false,
         "extra_labels": ["STM"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": [
+            "USE_HAL_DRIVER",
+            "USE_FULL_LL_DRIVER",
+            "TRANSACTION_QUEUE_SIZE_SPI=2"
+        ],
         "config": {
             "lse_available": {
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
@@ -3170,9 +3174,7 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32H7",
-            "STM32H743",
-            "STM32H743xI",
-            "STM32H743ZI"
+            "STM32H743xI"
         ],
         "config": {
             "d11_configuration": {
@@ -3196,8 +3198,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS",
-            "USE_FULL_LL_DRIVER"
+            "STM32H743xx",
+            "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],
