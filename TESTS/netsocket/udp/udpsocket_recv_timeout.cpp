@@ -38,8 +38,8 @@ static void _sigio_handler(osThreadId id)
 void UDPSOCKET_RECV_TIMEOUT()
 {
     SocketAddress udp_addr;
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
-    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &udp_addr);
+    udp_addr.set_port(ECHO_SERVER_PORT);
 
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};
