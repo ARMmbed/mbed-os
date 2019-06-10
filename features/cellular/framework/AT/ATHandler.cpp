@@ -1179,7 +1179,13 @@ void ATHandler::handle_start(const char *cmd, const char *cmd_chr)
         len += cmd_char_len;
     }
     _cmd_buffer[len] = '\0';
+
+    const bool temp_state = get_debug();
+    set_debug(true);
+
     cmd_start(_cmd_buffer);
+
+    set_debug(temp_state);
 }
 
 void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format, ...)

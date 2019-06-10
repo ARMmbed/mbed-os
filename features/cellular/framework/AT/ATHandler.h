@@ -263,7 +263,7 @@ public:
 
     /**
      * @brief cmd_start_stop Starts an AT command, writes given variadic arguments and stops the command. Use this
-     *        command when you need multiple responses to be handled.
+     *        command when you need multiple response parameters to be handled.
      *        NOTE: Does not lock ATHandler for process!
      *
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
@@ -274,7 +274,7 @@ public:
     void cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format = "", ...);
 
     /**
-     * @brief at_cmd_str Send an AT command and read 1 line string response. Locks and unlocks ATHandler for operation
+     * @brief at_cmd_str Send an AT command and read a single string response. Locks and unlocks ATHandler for operation
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param resp_buf Response buffer
@@ -286,7 +286,7 @@ public:
     nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
 
     /**
-     * @brief at_cmd_int Send an AT command and read 1 line integer response. Locks and unlocks ATHandler for operation
+     * @brief at_cmd_int Send an AT command and read a single integer response. Locks and unlocks ATHandler for operation
      * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
      * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
      * @param resp Integer to hold response
