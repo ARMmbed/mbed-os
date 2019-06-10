@@ -34,6 +34,7 @@ using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
 
+#if DEVICE_LPTICKER
 /* Make sure there are enough ticks to cope with more than SLEEP_DURATION_US sleep
  * without hitting the wrap-around.
  */
@@ -53,6 +54,7 @@ void wraparound_lp_protect(void)
 
     while (get_lp_ticker_data()->interface->read() > (max_count - delta_ticks));
 }
+#endif
 
 void test_lock_unlock()
 {
@@ -82,8 +84,6 @@ void test_lock_eq_ushrt_max()
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
-#if DEVICE_LPTICKER
-#if DEVICE_USTICKER
 utest::v1::status_t testcase_setup(const Case *const source, const size_t index_of_case)
 {
     // Suspend the RTOS kernel scheduler to prevent interference with duration of sleep.
@@ -94,12 +94,11 @@ utest::v1::status_t testcase_setup(const Case *const source, const size_t index_
     // Suspend the low power ticker wrapper to prevent interference with deep sleep lock.
     lp_ticker_wrapper_suspend();
 #endif
+    lp_ticker_init();
 #endif
-
+#if DEVICE_USTICKER
     // Make sure HAL tickers are initialized.
     us_ticker_init();
-#if DEVICE_LPTICKER
-    lp_ticker_init();
 #endif
 
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
@@ -117,6 +116,8 @@ utest::v1::status_t testcase_teardown(const Case *const source, const size_t pas
     return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
 }
 
+#if DEVICE_LPTICKER
+#if DEVICE_USTICKER
 /* This test is based on the fact that the high-speed clocks are turned off
  * in deep sleep mode but remain on in the ordinary sleep mode. Low-speed
  * clocks stay on for both sleep and deep sleep modes.
