@@ -475,6 +475,54 @@ static void ssl_write_ecjpake_kkpp_ext( mbedtls_ssl_context *ssl,
 }
 #endif /* MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED */
 
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)
+static void ssl_write_cid_ext( mbedtls_ssl_context *ssl,
+                               unsigned char *buf,
+                               size_t *olen )
+{
+    unsigned char *p = buf;
+    size_t ext_len;
+    const unsigned char *end = ssl->out_msg + MBEDTLS_SSL_OUT_CONTENT_LEN;
+
+    /*
+     * Quoting draft-ietf-tls-dtls-connection-id-05
+     * https://tools.ietf.org/html/draft-ietf-tls-dtls-connection-id-05
+     *
+     *   struct {
+     *      opaque cid<0..2^8-1>;
+     *   } ConnectionId;
+    */
+
+    *olen = 0;
+    if( ssl->conf->transport != MBEDTLS_SSL_TRANSPORT_DATAGRAM ||
+        ssl->negotiate_cid == MBEDTLS_SSL_CID_DISABLED )
+    {
+        return;
+    }
+    MBEDTLS_SSL_DEBUG_MSG( 3, ( "client hello, adding CID extension" ) );
+
+    /* ssl->own_cid_len is at most MBEDTLS_SSL_CID_IN_LEN_MAX
+     * which is at most 255, so the increment cannot overflow. */
+    if( end < p || (size_t)( end - p ) < (unsigned)( ssl->own_cid_len + 5 ) )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "buffer too small" ) );
+        return;
+    }
+
+    /* Add extension ID + size */
+    *p++ = (unsigned char)( ( MBEDTLS_TLS_EXT_CID >> 8 ) & 0xFF );
+    *p++ = (unsigned char)( ( MBEDTLS_TLS_EXT_CID      ) & 0xFF );
+    ext_len = (size_t) ssl->own_cid_len + 1;
+    *p++ = (unsigned char)( ( ext_len >> 8 ) & 0xFF );
+    *p++ = (unsigned char)( ( ext_len      ) & 0xFF );
+
+    *p++ = (uint8_t) ssl->own_cid_len;
+    memcpy( p, ssl->own_cid, ssl->own_cid_len );
+
+    *olen = ssl->own_cid_len + 5;
+}
+#endif /* MBEDTLS_SSL_DTLS_CONNECTION_ID */
+
 #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
 static void ssl_write_max_fragment_length_ext( mbedtls_ssl_context *ssl,
                                                unsigned char *buf,
@@ -1085,6 +1133,11 @@ static int ssl_write_client_hello( mbedtls_ssl_context *ssl )
     ext_len += olen;
 #endif
 
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)
+    ssl_write_cid_ext( ssl, p + 2 + ext_len, &olen );
+    ext_len += olen;
+#endif /* MBEDTLS_SSL_DTLS_CONNECTION_ID */
+
 #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
     ssl_write_max_fragment_length_ext( ssl, p + 2 + ext_len, &olen );
     ext_len += olen;
@@ -1241,6 +1294,62 @@ static int ssl_parse_truncated_hmac_ext( mbedtls_ssl_context *ssl,
     return( 0 );
 }
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)
+static int ssl_parse_cid_ext( mbedtls_ssl_context *ssl,
+                              const unsigned char *buf,
+                              size_t len )
+{
+    size_t peer_cid_len;
+
+    if( /* CID extension only makes sense in DTLS */
+        ssl->conf->transport != MBEDTLS_SSL_TRANSPORT_DATAGRAM ||
+        /* The server must only send the CID extension if we have offered it. */
+        ssl->negotiate_cid == MBEDTLS_SSL_CID_DISABLED )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "CID extension unexpected" ) );
+        mbedtls_ssl_send_alert_message( ssl, MBEDTLS_SSL_ALERT_LEVEL_FATAL,
+                                     MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE );
+        return( MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO );
+    }
+
+    if( len == 0 )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "CID extension invalid" ) );
+        mbedtls_ssl_send_alert_message( ssl, MBEDTLS_SSL_ALERT_LEVEL_FATAL,
+                                     MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE );
+        return( MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO );
+    }
+
+    peer_cid_len = *buf++;
+    len--;
+
+    if( peer_cid_len > MBEDTLS_SSL_CID_OUT_LEN_MAX )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "CID extension invalid" ) );
+        mbedtls_ssl_send_alert_message( ssl, MBEDTLS_SSL_ALERT_LEVEL_FATAL,
+                                     MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE );
+        return( MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO );
+    }
+
+    if( len != peer_cid_len )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "CID extension invalid" ) );
+        mbedtls_ssl_send_alert_message( ssl, MBEDTLS_SSL_ALERT_LEVEL_FATAL,
+                                     MBEDTLS_SSL_ALERT_MSG_ILLEGAL_PARAMETER );
+        return( MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO );
+    }
+
+    ssl->handshake->cid_in_use = MBEDTLS_SSL_CID_ENABLED;
+    ssl->handshake->peer_cid_len = (uint8_t) peer_cid_len;
+    memcpy( ssl->handshake->peer_cid, buf, peer_cid_len );
+
+    MBEDTLS_SSL_DEBUG_MSG( 3, ( "Use of CID extension negotiated" ) );
+    MBEDTLS_SSL_DEBUG_BUF( 3, "Server CID", buf, peer_cid_len );
+
+    return( 0 );
+}
+#endif /* MBEDTLS_SSL_DTLS_CONNECTION_ID */
 
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
 static int ssl_parse_encrypt_then_mac_ext( mbedtls_ssl_context *ssl,
@@ -1549,14 +1658,14 @@ static int ssl_parse_server_hello( mbedtls_ssl_context *ssl )
 
     MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> parse server hello" ) );
 
-    buf = ssl->in_msg;
-
     if( ( ret = mbedtls_ssl_read_record( ssl, 1 ) ) != 0 )
     {
         /* No alert on a read error. */
         MBEDTLS_SSL_DEBUG_RET( 1, "mbedtls_ssl_read_record", ret );
         return( ret );
     }
+
+    buf = ssl->in_msg;
 
     if( ssl->in_msgtype != MBEDTLS_SSL_MSG_HANDSHAKE )
     {
@@ -1892,6 +2001,20 @@ static int ssl_parse_server_hello( mbedtls_ssl_context *ssl )
 
             break;
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)
+        case MBEDTLS_TLS_EXT_CID:
+            MBEDTLS_SSL_DEBUG_MSG( 3, ( "found CID extension" ) );
+
+            if( ( ret = ssl_parse_cid_ext( ssl,
+                                           ext + 4,
+                                           ext_size ) ) != 0 )
+            {
+                return( ret );
+            }
+
+            break;
+#endif /* MBEDTLS_SSL_DTLS_CONNECTION_ID */
 
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
         case MBEDTLS_TLS_EXT_ENCRYPT_THEN_MAC:
@@ -3171,7 +3294,7 @@ static int ssl_write_client_key_exchange( mbedtls_ssl_context *ssl )
         }
 
         /* Copy ECPoint structure to outgoing message buffer. */
-        ssl->out_msg[header_len] = own_pubkey_ecpoint_len;
+        ssl->out_msg[header_len] = (unsigned char) own_pubkey_ecpoint_len;
         memcpy( ssl->out_msg + header_len + 1,
                 own_pubkey_ecpoint, own_pubkey_ecpoint_len );
         content_len = own_pubkey_ecpoint_len + 1;
