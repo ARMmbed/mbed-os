@@ -367,7 +367,7 @@ void
 dns_setserver(u8_t numdns, const ip_addr_t *dnsserver, struct netif *netif)
 {
 
-  if (netif == NULL || netif_check_default(netif)) {
+  if (netif == NULL ) {
     if (numdns < DNS_MAX_SERVERS) {
       if (dnsserver != NULL) {
         dns_servers[numdns] = (*dnsserver);
@@ -390,17 +390,18 @@ dns_setserver(u8_t numdns, const ip_addr_t *dnsserver, struct netif *netif)
  * @return IP address of the indexed DNS server or "ip_addr_any" if the DNS
  *         server has not been configured.
  */
-const ip_addr_t*
+const ip_addr_t *
 dns_getserver(u8_t numdns, const char *interface_name)
 {
-  if (interface_name == NULL) {
-    if (numdns < DNS_MAX_SERVERS) {
-      return &dns_servers[numdns];
+  if (numdns < DNS_MAX_SERVERS) {
+    const ip_addr_t *dns_addr = dns_get_interface_server(numdns, interface_name);
+    if (dns_addr != IP_ADDR_ANY) {
+      return dns_addr;
     } else {
-      return IP_ADDR_ANY;
+      return &dns_servers[numdns];
     }
   } else {
-    return dns_get_interface_server(numdns, interface_name);
+    return IP_ADDR_ANY;
   }
 }
 

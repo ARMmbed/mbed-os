@@ -94,11 +94,6 @@ static int get_ip_addr_type(const ip_addr_t *ip_addr)
 
 void LWIP::add_dns_addr(struct netif *lwip_netif, const char *interface_name)
 {
-
-    if (!netif_check_default(lwip_netif)) {
-        interface_name = NULL;
-    }
-
     // Check for existing dns address
     for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
         const ip_addr_t *dns_ip_addr = dns_getserver(numdns, interface_name);
