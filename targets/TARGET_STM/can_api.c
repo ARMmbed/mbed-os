@@ -513,6 +513,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 #include "can_device.h" // Specific to STM32 serie
 #include <math.h>
 #include <string.h>
+#include <inttypes.h>
 
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
@@ -743,7 +744,7 @@ int can_frequency(can_t *obj, int f)
                 }
             }
             if (status == 0) {
-                error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR & 0xFFFF0000) >> 16, (can->ESR & 0xFFFF), status);
+                error("can ESR  0x%04" PRIx32 ".%04" PRIx32 " + timeout status %d", (can->ESR & 0xFFFF0000) >> 16, (can->ESR & 0xFFFF), status);
             }
         } else {
             error("can init request timeout\n");

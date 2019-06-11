@@ -1087,7 +1087,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper(RTC_HandleTypeDef *hrtc, RTC_TamperTypeDef
   hrtc->State = HAL_RTC_STATE_BUSY;
 
 #if defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)   
-  if((sTamper->Trigger == RTC_TAMPERTRIGGER_RISINGEDGE))
+  if(sTamper->Trigger == RTC_TAMPERTRIGGER_RISINGEDGE)
   {
     /* Configure the RTC_TAFCR register */
     sTamper->Trigger = RTC_TAMPERTRIGGER_RISINGEDGE;
@@ -1150,7 +1150,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
 
 #if defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)   
   /* Configure the tamper trigger */
-  if((sTamper->Trigger == RTC_TAMPERTRIGGER_RISINGEDGE))
+  if(sTamper->Trigger == RTC_TAMPERTRIGGER_RISINGEDGE)
   {
     sTamper->Trigger = RTC_TAMPERTRIGGER_RISINGEDGE;
   }

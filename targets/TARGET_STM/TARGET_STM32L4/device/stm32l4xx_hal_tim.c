@@ -387,11 +387,11 @@ HAL_StatusTypeDef HAL_TIM_Base_Start_DMA(TIM_HandleTypeDef *htim, uint32_t *pDat
   /* Check the parameters */
   assert_param(IS_TIM_DMA_INSTANCE(htim->Instance));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if((pData == 0 ) && (Length > 0))
     {
@@ -795,11 +795,11 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   /* Check the parameters */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if(((uint32_t)pData == 0 ) && (Length > 0))
     {
@@ -1315,11 +1315,11 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
   /* Check the parameters */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if(((uint32_t)pData == 0 ) && (Length > 0))
     {
@@ -1802,11 +1802,11 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if((pData == 0 ) && (Length > 0))
     {
@@ -2643,11 +2643,11 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Ch
   /* Check the parameters */
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if((((pData1 == 0) || (pData2 == 0) )) && (Length > 0))
     {
@@ -3473,11 +3473,11 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
   assert_param(IS_TIM_DMA_LENGTH(BurstLength));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if((BurstBuffer == 0 ) && (BurstLength > 0))
     {
@@ -3696,11 +3696,11 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
   assert_param(IS_TIM_DMA_LENGTH(BurstLength));
 
-  if((htim->State == HAL_TIM_STATE_BUSY))
+  if(htim->State == HAL_TIM_STATE_BUSY)
   {
      return HAL_BUSY;
   }
-  else if((htim->State == HAL_TIM_STATE_READY))
+  else if(htim->State == HAL_TIM_STATE_READY)
   {
     if((BurstBuffer == 0 ) && (BurstLength > 0))
     {
