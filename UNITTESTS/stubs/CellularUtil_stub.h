@@ -15,11 +15,18 @@
  * limitations under the License.
  */
 
-#include "platform/mbed_assert.h"
-#include <stdio.h>
+#include "CellularUtil.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
-{
-    fprintf(stderr, "mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
-}
+namespace CellularUtil_stub {
+extern int int_value;
+extern uint16_t uint16_value;
+extern char *char_ptr;
+extern int char_pos;
+extern char *char_table[50];
+extern int table_idx;
 
+
+} // namespace mbed_cellular_util

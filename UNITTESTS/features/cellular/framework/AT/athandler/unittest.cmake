@@ -14,8 +14,6 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../features/cellular/framework/AT/ATHandler.cpp
-  ../features/cellular/framework/AT/ATHandler_factory.cpp
-  ../features/cellular/framework/common/CellularUtil.cpp
 )
 
 # Test files
@@ -33,6 +31,7 @@ set(unittest-test-sources
   stubs/Kernel_stub.cpp
   stubs/ThisThread_stub.cpp
   stubs/randLIB_stub.cpp
+  stubs/CellularUtil_stub.cpp
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_CELLULAR_DEBUG_AT=true -DOS_STACK_SIZE=2048")

@@ -612,15 +612,6 @@ private:
     bool check_cmd_send();
     size_t write(const void *data, size_t len);
 
-    /** Copy content of one char buffer to another buffer and sets NULL terminator
-     *
-     *  @param dest                  destination char buffer
-     *  @param src                   source char buffer
-     *  @param src_len               number of bytes to copy
-     *
-     */
-    void set_string(char *dest, const char *src, size_t src_len);
-
     /** Finds occurrence of one char buffer inside another char buffer.
      *
      * @param dest                  destination char buffer

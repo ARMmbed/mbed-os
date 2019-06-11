@@ -23,6 +23,7 @@
 #include "FileHandle_stub.h"
 #include "CellularLog.h"
 #include "mbed_poll_stub.h"
+#include "CellularUtil_stub.h"
 
 #include "Timer_stub.h"
 
@@ -48,6 +49,8 @@ protected:
     void SetUp()
     {
         urc_callback_count = 0;
+        CellularUtil_stub::char_ptr = NULL;
+        CellularUtil_stub::char_pos = 0;
     }
 
     void TearDown()
@@ -62,6 +65,8 @@ TEST_F(TestATHandler, Create)
     FileHandle_stub fh1;
 
     ATHandler *at = new ATHandler(&fh1, que, 0, ",");
+    at->set_default_delimiter();
+    at->use_delimiter(true);
 
     delete at;
 
@@ -774,12 +779,20 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     EXPECT_TRUE(!strncmp(buf4, "1016", 4));
     EXPECT_TRUE(4 == at.read_string(buf4, 4 + 1/*for NULL*/));
     EXPECT_TRUE(!strncmp(buf4, "39AB", 4));
+    at.set_is_filehandle_usable(false);
+    EXPECT_TRUE(-1 == at.read_int());
+    at.set_is_filehandle_usable(true);
+    at.clear_error();
     EXPECT_TRUE(9 == at.read_int());
 
     // *** CRLF part of the string ***
     at.clear_error();
     char table11[] = "\"s\"\r\nOK\r\n\0";
     mbed_poll_stub::int_value = 0;
+    at.set_is_filehandle_usable(false);
+    at.flush();
+    at.set_is_filehandle_usable(true);
+    at.clear_error();
     at.flush();
     filehandle_stub_table = table11;
     filehandle_stub_table_pos = 0;
@@ -840,6 +853,10 @@ TEST_F(TestATHandler, test_ATHandler_read_hex_string)
     char buf1[10];
     // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
+    char resp[] = "hello\0";
+    CellularUtil_stub::char_ptr = resp;
+    CellularUtil_stub::char_pos = 0;
+
     EXPECT_TRUE(5 == at.read_hex_string(buf1, 5));
     EXPECT_TRUE(!strncmp(buf1, "hello", 5));
 
@@ -854,6 +871,7 @@ TEST_F(TestATHandler, test_ATHandler_read_hex_string)
     char buf2[10];
     // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
+    CellularUtil_stub::char_pos = 0;
     EXPECT_TRUE(5 == at.read_hex_string(buf2, 6));
     EXPECT_TRUE(!strncmp(buf2, "hello", 5));
 
@@ -868,6 +886,8 @@ TEST_F(TestATHandler, test_ATHandler_read_hex_string)
     char buf3[6];
     // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
+    CellularUtil_stub::char_pos = 0;
+
     EXPECT_TRUE(2 == at.read_hex_string(buf3, 2 + 1/*get to stop tag match*/));
     EXPECT_TRUE(!strncmp(buf3, "he", 2));
     at.resp_stop();
@@ -883,6 +903,8 @@ TEST_F(TestATHandler, test_ATHandler_read_hex_string)
     char buf4[6];
     // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
+    CellularUtil_stub::char_pos = 0;
+
     EXPECT_TRUE(1 == at.read_hex_string(buf4, 2 + 1/*get to stop tag match*/));
     EXPECT_TRUE(!strncmp(buf4, "h", 1));
 }
@@ -1276,5 +1298,86 @@ TEST_F(TestATHandler, test_ATHandler_get_3gpp_error)
 
     ATHandler at(&fh1, que, 0, ",");
     at.get_3gpp_error();
+}
+
+TEST_F(TestATHandler, test_ATHandler_cmd_start_stop)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler at(&fh1, que, 0, ",");
+    uint8_t byte[] = {1, 2, 3, 4};
+    at.cmd_start_stop("+CREG", "=1,", "%d%s%b", 3, "test", byte, 4);
+}
+
+TEST_F(TestATHandler, test_ATHandler_at_cmd_str)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler at(&fh1, que, 0, ",");
+    uint8_t byte[] = {1, 2, 3, 4};
+    char ret[10];
+
+    char table[] = "ssssssssssssssssssssssssssssOK\r\n\0";
+    filehandle_stub_table = table;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::int_value = 1;
+    fh1.short_value = POLLIN;
+
+    EXPECT_EQ(NSAPI_ERROR_DEVICE_ERROR, at.at_cmd_str("+CREG", "=1,", ret, 10, "%d%s%b", 3, "test", byte, 4));
+}
+
+TEST_F(TestATHandler, test_ATHandler_at_cmd_int)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler at(&fh1, que, 0, ",");
+    uint8_t byte[] = {1, 2, 3, 4};
+    int ret;
+    EXPECT_EQ(NSAPI_ERROR_DEVICE_ERROR, at.at_cmd_int("+CREG", "=1,", ret, "%d%s%b", 3, "test", byte, 4));
+}
+
+TEST_F(TestATHandler, test_ATHandler_at_cmd_discard)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler at(&fh1, que, 0, ",");
+    uint8_t byte[] = {1, 2, 3, 4};
+
+    EXPECT_EQ(NSAPI_ERROR_DEVICE_ERROR, at.at_cmd_discard("+CREG", "=1,", "%d%s%b", 3, "test", byte, 4));
+}
+
+TEST_F(TestATHandler, test_ATHandler_sync)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    mbed_poll_stub::revents_value = 0;
+    ATHandler at(&fh1, que, 0, ",");
+    at.set_is_filehandle_usable(false);
+    EXPECT_EQ(false, at.sync(100));
+    at.set_is_filehandle_usable(true);
+    EXPECT_EQ(false, at.sync(100));
+
+    fh1.size_value = 8;
+    char table[] = "OK\r\n\0";
+    filehandle_stub_table = table;
+
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN + POLLOUT;
+    fh1.size_value = 10;
+    mbed_poll_stub::int_value = 1;
+    filehandle_stub_short_value_counter = 1;
+    fh1.short_value = POLLIN;
+
+    EXPECT_EQ(true, at.sync(100));
 }
 

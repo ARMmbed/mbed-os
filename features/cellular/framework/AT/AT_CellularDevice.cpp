@@ -227,7 +227,7 @@ nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
 {
     // if SIM is already in ready state then settings the PIN
     // will return error so let's check the state before settings the pin.
-    SimState state;
+    SimState state = SimStateUnknown;
     if (get_sim_state(state) == NSAPI_ERROR_OK && state == SimStateReady) {
         return NSAPI_ERROR_OK;
     }
