@@ -54,6 +54,7 @@ private:
     bool _active_high;
     DigitalOut _pwr;
     DigitalOut _rst;
+    void urc_pdpdeact();
 };
 } // namespace mbed
 #endif // QUECTEL_BG96_H_
