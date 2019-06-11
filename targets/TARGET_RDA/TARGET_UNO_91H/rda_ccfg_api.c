@@ -233,6 +233,8 @@ void rda_ccfg_ckrst(void)
     /* Config BUS clock */
     val &= ~(0x01U << 9);
     val |=  (0x00U << 9);  /* 1'b0:40M, 1'b1:80M */
+
+    val |=  (0x01U);        /* clear i2c_wakeup_en */
     wr_rf_usb_reg(0xA4, val, 0);
 }
 
