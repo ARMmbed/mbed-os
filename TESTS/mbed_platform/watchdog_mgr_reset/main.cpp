@@ -80,14 +80,15 @@ void test_simple_reset()
 
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
-    if (send_reset_notification(&current_case, HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_TRUE(mbed_wdog_manager_start());
     // Block interrupts, including the one from the wdog_manager maintenance ticker.
     core_util_critical_section_enter();
-    wait((HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) / 1000.0); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
     // Watchdog reset should have occurred during wait() above;
 
@@ -120,17 +121,18 @@ void test_restart_reset()
     // Block interrupts, including the one from the wdog_manager maintenance ticker.
     core_util_critical_section_enter();
     // Check that stopping the Watchdog Manager prevents a device reset.
-    wait((HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) / 1000.0);
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0);
     core_util_critical_section_exit();
 
-    if (send_reset_notification(&current_case, HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     TEST_ASSERT_TRUE(mbed_wdog_manager_start());
     // Block interrupts, including the one from the wdog_manager maintenance ticker.
     core_util_critical_section_enter();
-    wait((HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) / 1000.0); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
     // Watchdog reset should have occurred during wait() above;
 
@@ -149,16 +151,16 @@ void test_kick_reset()
 
     // Phase 1. -- run the test code.
     TEST_ASSERT_TRUE(mbed_wdog_manager_start());
-    wait((HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) / 1000.0); // Device reset expected.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
-    if (send_reset_notification(&current_case, HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
     // Block interrupts, including the one from the wdog_manager maintenance ticker.
     core_util_critical_section_enter();
-
-    wait((HW_WATCHDOG_TIMEOUT + TIMEOUT_DELTA_MS) / 1000.0); // Device reset expected.
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
     // Watchdog reset should have occurred during wait() above;
 
