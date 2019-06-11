@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include "ns_list.h"
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/NetworkStack.h"
 #include "platform/Callback.h"
 #include "platform/mbed_error.h"
 #include <string.h>
-#include "ns_list.h"
 
 // Default network-interface state
 void NetworkInterface::set_as_default()
