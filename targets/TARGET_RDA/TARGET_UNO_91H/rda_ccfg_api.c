@@ -211,7 +211,7 @@ int rda_ccfg_boot(void)
     }
     /*close usb polling*/
     RDA_GPIO->CTRL &= ~(0x01UL << 12);
-    rda_ccfg_ck();
+    //rda_ccfg_ck();
     /* Set flash clock */
     rda_ccfg_spifck();
     /* Set aon timer clock source */
