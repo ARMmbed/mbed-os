@@ -69,6 +69,8 @@ QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh, PinName pwr, bool active_high, PinNam
       _pwr(pwr, !_active_high),
       _rst(rst, !_active_high)
 {
+    _at->set_urc_handler("+QIURC: \"pdpde",  mbed::Callback<void()>(this, &QUECTEL_BG96::urc_pdpdeact));
+
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
@@ -199,3 +201,16 @@ CellularDevice *CellularDevice::get_default_instance()
     return &device;
 }
 #endif
+
+void QUECTEL_BG96::urc_pdpdeact()
+{
+    _at->lock();
+    _at->skip_param();
+    int cid = _at->read_int();
+    const nsapi_error_t err = _at->unlock_return_error();
+
+    if (err != NSAPI_ERROR_OK) {
+        return;
+    }
+    send_disconnect_to_context(cid);
+}
