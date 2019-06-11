@@ -18,8 +18,11 @@
 #ifndef USBPHYHW_H
 #define USBPHYHW_H
 
-#include "mbed.h"
 #include "USBPhy.h"
+
+#include <string.h>
+#include "platform/mbed_power_mgmt.h"
+
 
 extern "C" {
 #include "nrf_drv_usbd.h"
