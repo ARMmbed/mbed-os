@@ -131,8 +131,8 @@ struct SingletonPtr {
 
     // This is zero initialized when in global scope
     mutable void *_ptr;
-#if __cplusplus >= 201103L
-    // Align data appropriately
+#if __cplusplus >= 201103L && !defined __CC_ARM
+    // Align data appropriately (ARM Compiler 5 does not support alignas in C++11 mode)
     alignas(T) mutable char _data[sizeof(T)];
 #else
     // Force data to be 8 byte aligned
