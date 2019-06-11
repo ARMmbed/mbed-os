@@ -4268,7 +4268,7 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "QSPI", 
+            "QSPI",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -8032,7 +8032,7 @@
     "ARM_FM": {
         "inherits": ["Target"],
         "public": false,
-        "macros": ["__ARM_FM"],
+        "macros": ["SKIP_TIME_DRIFT_TESTS"],
         "extra_labels": ["ARM_FM"]
     },
     "FVP_MPS2": {
