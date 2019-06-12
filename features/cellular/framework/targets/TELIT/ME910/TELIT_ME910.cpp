@@ -115,15 +115,6 @@ nsapi_error_t TELIT_ME910::init()
     _at->cmd_start("AT#PSNT=1");
     _at->cmd_stop_read_resp();
 
-    // AT+CGEREP=2
-    // Set command enables sending of unsolicited result codes in case of certain events
-    // occurring in the module or in the network.
-    // Current setting: buffer unsolicited result codes in the TA when TA-TE link is reserved (e.g.
-    // in on-line data mode) and flush them to the TE when TA-TE link becomes
-    // available; otherwise forward them directly to the TE.
-    _at->cmd_start("AT+CGEREP=2");
-    _at->cmd_stop_read_resp();
-
     // AT+CMER=2
     // Set command enables sending of unsolicited result codes from TA to TE in the case of
     // indicator state changes.
@@ -131,41 +122,6 @@ nsapi_error_t TELIT_ME910::init()
     // reserved (e.g. on-line data mode) and flush them to the TE after
     // reservation; otherwise forward them directly to the TE
     _at->cmd_start("AT+CMER=2");
-    _at->cmd_stop_read_resp();
-
-    // AT+CREG=1
-    // Set command enables the network registration unsolicited result code and selects one of
-    // the two available formats:
-    // short format: +CREG: <stat>
-    // long format: +CREG: <stat>[,<lac>,<ci>[,<AcT>]]
-    // Current setting: enable the network registration unsolicited result code, and selects the
-    // short format
-    _at->cmd_start("AT+CREG=1");
-    _at->cmd_stop_read_resp();
-
-    // AT+CGREG=1
-    // Set command enables/disables the +CGREG: unsolicited result code, and selects one of the
-    // available formats:
-    // short format:
-    // +CGREG:<stat>
-    // long format:
-    // +CGREG:<stat>[,<lac>,<ci>[,<AcT>,<rac>]]
-    // extra long format:
-    // +CGREG:<stat>[,[<lac>],[<ci>],[<AcT>],[<rac>][,,[,[<ActiveTime>],[<PeriodicRAU>],[<GPRSREADYtimer>]]]]
-    // Current setting: enable the network registration unsolicited result code, and selects the
-    // short format
-    _at->cmd_start("AT+CGREG=1");
-    _at->cmd_stop_read_resp();
-
-    // AT+CEREG=1
-    // Set command enables the EPS network registration unsolicited result code (URC) in LTE,
-    // and selects one of the available formats:
-    // short format: +CEREG: <stat>
-    // long format: +CEREG: <stat>[,[<tac>],[<ci>],[<AcT>]]
-    // <tac>, <ci>, and <AcT> are reported by the command only if available.
-    // Current setting: enable the network registration unsolicited result code, and select the short
-    // format
-    _at->cmd_start("AT+CEREG=1");
     _at->cmd_stop_read_resp();
 
     // AT+CMEE=2
