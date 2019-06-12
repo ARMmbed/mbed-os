@@ -302,11 +302,13 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
 {
     CellularSocket *socket = (CellularSocket *)handle;
 
-    MBED_ASSERT(socket->id != -1);
-
     int modem_connect_id = -1;
-    int request_connect_id = socket->id;
     int err = -1;
+
+    int request_connect_id = find_socket_index(socket);
+    // assert here as its a programming error if the socket container doesn't contain
+    // specified handle
+    MBED_ASSERT(request_connect_id != -1);
 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
