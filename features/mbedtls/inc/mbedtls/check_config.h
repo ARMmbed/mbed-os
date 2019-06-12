@@ -541,11 +541,6 @@
 #error "MBEDTLS_PSA_INJECT_ENTROPY defined, but not all prerequisites"
 #endif
 
-#if defined(MBEDTLS_PSA_INJECT_ENTROPY) &&              \
-    !defined(MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
-#error "MBEDTLS_PSA_INJECT_ENTROPY is not compatible with actual entropy sources"
-#endif
-
 #if defined(MBEDTLS_PSA_ITS_FILE_C) && \
     !defined(MBEDTLS_FS_IO)
 #error "MBEDTLS_PSA_ITS_FILE_C defined, but not all prerequisites"
@@ -639,6 +634,23 @@
 #if defined(MBEDTLS_SSL_DTLS_ANTI_REPLAY) &&                              \
     ( !defined(MBEDTLS_SSL_TLS_C) || !defined(MBEDTLS_SSL_PROTO_DTLS) )
 #error "MBEDTLS_SSL_DTLS_ANTI_REPLAY  defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID) &&                              \
+    ( !defined(MBEDTLS_SSL_TLS_C) || !defined(MBEDTLS_SSL_PROTO_DTLS) )
+#error "MBEDTLS_SSL_DTLS_CONNECTION_ID  defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)            &&                 \
+    defined(MBEDTLS_SSL_CID_IN_LEN_MAX) &&                 \
+    MBEDTLS_SSL_CID_IN_LEN_MAX > 255
+#error "MBEDTLS_SSL_CID_IN_LEN_MAX too large (max 255)"
+#endif
+
+#if defined(MBEDTLS_SSL_DTLS_CONNECTION_ID)            &&                  \
+    defined(MBEDTLS_SSL_CID_OUT_LEN_MAX) &&                 \
+    MBEDTLS_SSL_CID_OUT_LEN_MAX > 255
+#error "MBEDTLS_SSL_CID_OUT_LEN_MAX too large (max 255)"
 #endif
 
 #if defined(MBEDTLS_SSL_DTLS_BADMAC_LIMIT) &&                              \
