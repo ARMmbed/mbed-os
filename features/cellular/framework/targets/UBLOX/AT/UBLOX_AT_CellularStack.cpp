@@ -430,10 +430,12 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
 {
     if (socket != NULL) {
-        socket->id       = SOCKET_UNUSED;
+        socket->id = SOCKET_UNUSED;
         socket->pending_bytes = 0;
-        socket->_cb      = NULL;
-        socket->_data    = NULL;
+        socket->closed = true;
+        if (socket->_cb) {
+             socket->_cb(socket->_data);
+        }
     }
 }
 
