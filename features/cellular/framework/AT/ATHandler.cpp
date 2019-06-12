@@ -320,8 +320,8 @@ void ATHandler::process_oob()
                     reset_buffer(); // consume anything that could not be handled
                     break;
                 }
-                _start_time = rtos::Kernel::get_ms_count();
             }
+            _start_time = rtos::Kernel::get_ms_count();
         }
         _at_timeout = timeout;
         tr_debug("AT OoB done");
