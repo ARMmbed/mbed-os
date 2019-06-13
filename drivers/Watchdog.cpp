@@ -20,46 +20,89 @@
 
 namespace mbed {
 
-watchdog_status_t Watchdog::start(const uint32_t timeout)
+Watchdog *Watchdog::_first = NULL;
+
+Watchdog::Watchdog(uint32_t timeout, const char *const str): _name(str)
 {
-    if (timeout == 0) {
-        return WATCHDOG_STATUS_INVALID_ARGUMENT;
-    }
+    _current_count = 0;
+    _is_initialized = false;
+    _next = NULL;
+    _max_timeout = timeout;
+}
 
-    if (timeout > max_timeout()) {
-        return WATCHDOG_STATUS_INVALID_ARGUMENT;
-    }
+void Watchdog::add_to_list()
+{
+    this->_next = _first;
+    _first = this;
+    _is_initialized =  true;
+}
 
-    watchdog_config_t config;
-    config.timeout_ms = timeout;
-
-    return hal_watchdog_init(&config);
+void Watchdog::start()
+{
+    MBED_ASSERT(!_is_initialized);
+    core_util_critical_section_enter();
+    add_to_list();
+    core_util_critical_section_exit();
 }
 
 
 void Watchdog::kick()
 {
-    hal_watchdog_kick();
+    MBED_ASSERT(_is_initialized);
+    core_util_critical_section_enter();
+    _current_count = 0;
+    core_util_critical_section_exit();
 }
 
-
-watchdog_status_t Watchdog::stop()
+void Watchdog::stop()
 {
-    return hal_watchdog_stop();
+    MBED_ASSERT(_is_initialized);
+    core_util_critical_section_enter();
+    remove_from_list();
+    core_util_critical_section_exit();
 }
 
-
-uint32_t Watchdog::reload_value() const
+void Watchdog::remove_from_list()
 {
-    return hal_watchdog_get_reload_value();
+    Watchdog *cur_ptr = _first,
+              *prev_ptr = NULL;
+    while (cur_ptr != NULL) {
+        if (cur_ptr == this) {
+            if (cur_ptr == _first) {
+                prev_ptr = _first;
+                _first = cur_ptr->_next;
+                prev_ptr->_next = NULL;
+            } else {
+                prev_ptr->_next = cur_ptr->_next;
+                cur_ptr->_next = NULL;
+            }
+            _is_initialized = false;
+            break;
+        } else {
+            prev_ptr = cur_ptr;
+            cur_ptr = cur_ptr->_next;
+        }
+    }
 }
 
-
-uint32_t Watchdog::max_timeout()
+void Watchdog::process(uint32_t elapsed_ms)
 {
-    const watchdog_features_t features = hal_watchdog_get_platform_features();
+    Watchdog *cur_ptr =  _first;
+    while (cur_ptr != NULL) {
+        if (cur_ptr->_current_count > cur_ptr->_max_timeout) {
+            system_reset();
+        } else {
+            cur_ptr->_current_count += elapsed_ms;
+        }
+        cur_ptr = cur_ptr->_next;
+    }
+}
 
-    return features.max_timeout;
+Watchdog::~Watchdog()
+{
+    if (_is_initialized) {
+        stop();
+    }
 }
 
 } // namespace mbed

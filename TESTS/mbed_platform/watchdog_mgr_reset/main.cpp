@@ -21,11 +21,11 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "drivers/Watchdog.h"
-#include "Watchdog_reset_tests.h"
+#include "platform/mbed_watchdog_mgr.h"
+#include "watchdog_api.h"
+#include "watchdog_mgr_reset_tests.h"
 #include "mbed.h"
 
-#define TIMEOUT_MS 500UL
 #define TIMEOUT_DELTA_MS 50UL
 
 #define MSG_VALUE_DUMMY "0"
@@ -80,97 +80,27 @@ void test_simple_reset()
 
     // Phase 1. -- run the test code.
     // Init the watchdog and wait for a device reset.
-    Watchdog watchdog;
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    TEST_ASSERT_TRUE(mbed_wdog_manager_start());
+    // Block interrupts, including the one from the wdog_manager maintenance ticker.
+    core_util_critical_section_enter();
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
-    // Watchdog reset should have occurred during wait_ms() above;
+    // Watchdog reset should have occurred during wait() above;
 
-    watchdog.kick(); // Just to buy some time for testsuite failure handling.
+    core_util_critical_section_exit();
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
-
-#if DEVICE_SLEEP
-void test_sleep_reset()
-{
-    // Phase 2. -- verify the test results.
-    if (current_case.received_data != CASE_DATA_INVALID) {
-        TEST_ASSERT_EQUAL(CASE_DATA_PHASE2_OK, current_case.received_data);
-        current_case.received_data = CASE_DATA_INVALID;
-        return;
-    }
-
-    // Phase 1. -- run the test code.
-    Watchdog watchdog;
-    Semaphore sem(0, 1);
-    Timeout timeout;
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    sleep_manager_lock_deep_sleep();
-    timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (TIMEOUT_MS + TIMEOUT_DELTA_MS));
-    if (sleep_manager_can_deep_sleep()) {
-        TEST_ASSERT_MESSAGE(0, "Deepsleep should be disallowed.");
-        return;
-    }
-    while (sem.wait(0) != 1) {
-        sleep(); // Device reset expected.
-    }
-    sleep_manager_unlock_deep_sleep();
-
-    // Watchdog reset should have occurred during sleep() above;
-
-    watchdog.kick(); // Just to buy some time for testsuite failure handling.
-    TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
-}
-
-#if DEVICE_LOWPOWERTIMER
-void test_deepsleep_reset()
-{
-    // Phase 2. -- verify the test results.
-    if (current_case.received_data != CASE_DATA_INVALID) {
-        TEST_ASSERT_EQUAL(CASE_DATA_PHASE2_OK, current_case.received_data);
-        current_case.received_data = CASE_DATA_INVALID;
-        return;
-    }
-
-    // Phase 1. -- run the test code.
-    Watchdog watchdog;
-    Semaphore sem(0, 1);
-    LowPowerTimeout lp_timeout;
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (TIMEOUT_MS + TIMEOUT_DELTA_MS));
-    wait_ms(10); // Wait for the serial buffers to flush.
-    if (!sleep_manager_can_deep_sleep()) {
-        TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
-    }
-    while (sem.wait(0) != 1) {
-        sleep(); // Device reset expected.
-    }
-
-    // Watchdog reset should have occurred during that sleep() above;
-
-    watchdog.kick(); // Just to buy some time for testsuite failure handling.
-    TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
-}
-#endif
-#endif
 
 void test_restart_reset()
 {
-    Watchdog watchdog;
-    if (watchdog.stop() == WATCHDOG_STATUS_NOT_SUPPORTED) {
-        TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
+    watchdog_features_t features = hal_watchdog_get_platform_features();
+    if (!features.disable_watchdog) {
+        TEST_IGNORE_MESSAGE("Disabling Watchdog not supported for this platform");
         return;
     }
 
@@ -182,22 +112,31 @@ void test_restart_reset()
     }
 
     // Phase 1. -- run the test code.
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    wait_ms(TIMEOUT_MS / 2UL);
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.stop());
-    // Check that stopping the watchdog prevents a device reset.
-    wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_DELTA_MS);
+    TEST_ASSERT_TRUE(mbed_wdog_manager_start());
+    // The Watchdog Manager maintenance ticker has a period equal to a half of
+    // Watchdog timeout. Wait shorter than that and stop the Watchdog Manager
+    // before the Watchdog is kicked by the ticker callback.
+    wait((HW_WATCHDOG_TIMEOUT / 4UL) / 1000.0);
+    TEST_ASSERT_TRUE(mbed_wdog_manager_stop());
+    // Block interrupts, including the one from the wdog_manager maintenance ticker.
+    core_util_critical_section_enter();
+    // Check that stopping the Watchdog Manager prevents a device reset.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0);
+    core_util_critical_section_exit();
 
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    TEST_ASSERT_TRUE(mbed_wdog_manager_start());
+    // Block interrupts, including the one from the wdog_manager maintenance ticker.
+    core_util_critical_section_enter();
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during wait() above;
 
-    watchdog.kick(); // Just to buy some time for testsuite failure handling.
+    core_util_critical_section_exit();
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -211,21 +150,21 @@ void test_kick_reset()
     }
 
     // Phase 1. -- run the test code.
-    Watchdog watchdog;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, watchdog.start(TIMEOUT_MS));
-    for (int i = 3; i; i--) {
-        wait_ms(TIMEOUT_MS / 2UL);
-        watchdog.kick();
-    }
-    if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
+    TEST_ASSERT_TRUE(mbed_wdog_manager_start());
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
+
+    if (send_reset_notification(&current_case, 2 * HW_WATCHDOG_TIMEOUT) == false) {
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    wait_ms(TIMEOUT_MS + TIMEOUT_DELTA_MS); // Device reset expected.
+    // Block interrupts, including the one from the wdog_manager maintenance ticker.
+    core_util_critical_section_enter();
+    // Watchdog should fire before twice the timeout value.
+    wait((2 * HW_WATCHDOG_TIMEOUT) / 1000.0); // Device reset expected.
 
-    // Watchdog reset should have occurred during that wait() above;
+    // Watchdog reset should have occurred during wait() above;
 
-    watchdog.kick(); // Just to buy some time for testsuite failure handling.
+    core_util_critical_section_exit();
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
@@ -266,15 +205,9 @@ int testsuite_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Watchdog reset", case_setup, test_simple_reset),
-#if DEVICE_SLEEP
-    Case("Watchdog reset in sleep mode", case_setup, test_sleep_reset),
-#if DEVICE_LOWPOWERTIMER
-    Case("Watchdog reset in deepsleep mode", case_setup, test_deepsleep_reset),
-#endif
-#endif
-    Case("Watchdog started again", case_setup, test_restart_reset),
-    Case("Kicking the watchdog prevents reset", case_setup, test_kick_reset),
+    Case("Watchdog Manager reset", case_setup, test_simple_reset),
+    Case("Watchdog Manager started again", case_setup, test_restart_reset),
+    Case("Watchdog Manager's ticker prevents reset", case_setup, test_kick_reset),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);

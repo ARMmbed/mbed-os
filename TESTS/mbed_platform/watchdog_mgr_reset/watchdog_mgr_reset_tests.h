@@ -16,52 +16,38 @@
  */
 
 /**
- * @addtogroup drivers_watchdog_tests
+ * @addtogroup platform_watchdog_mgr_tests
  * @{
  */
 
-#ifndef MBED_DRIVERS_WATCHDOG_RESET_TESTS_H
-#define MBED_DRIVERS_WATCHDOG_RESET_TESTS_H
+#ifndef MBED_WATCHDOG_MGR_RESET_TESTS_H
+#define MBED_WATCHDOG_MGR_RESET_TESTS_H
 
 #if DEVICE_WATCHDOG
 
-/** Test Watchdog reset
+/** Test Watchdog Manager reset
  *
- * Given a device with a Watchdog started,
- * when the Watchdog timeout expires,
+ * Given a device with a Watchdog Manager started,
+ * when the Watchdog Manager maintenance ticker interrupt is blocked longer
+ * than the Watchdog timeout,
  * then the device is restarted.
  */
 void test_simple_reset();
 
-/** Test Watchdog reset in sleep mode
+/** Test Watchdog Manager reset after Watchdog Manager restart
  *
- * Given a device with a Watchdog started,
- * when the Watchdog timeout expires while the device is in sleep mode,
- * then the device is restarted.
- */
-void test_sleep_reset();
-
-/** Test Watchdog reset in deepsleep mode
- *
- * Given a device with a Watchdog started,
- * when the Watchdog timeout expires while the device is in deepsleep mode,
- * then the device is restarted.
- */
-void test_deepsleep_reset();
-
-/** Test Watchdog reset after Watchdog restart
- *
- * Given a device with a Watchdog started,
- * when the Watchdog is stopped before its timeout expires,
+ * Given a device with a Watchdog Manager started,
+ * when the Watchdog Manager is stopped before its timeout expires,
  * then the device is not restarted.
- * When the Watchdog is started again and its timeout expires,
+ * When the Watchdog Manager is started again and the Watchdog Manager
+ * maintenance ticker interrupt is blocked longer than the Watchdog timeout,
  * then the device is restarted.
  */
 void test_restart_reset();
 
-/** Test Watchdog kick
+/** Test Watchdog Manager kick
  *
- * Given a device with a Watchdog started,
+ * Given a device with a Watchdog Manager started,
  * when the Watchdog is kicked before its timeout expires,
  * then the device restart is prevented.
  * When the Watchdog is *NOT* kicked again before next timeout expires,

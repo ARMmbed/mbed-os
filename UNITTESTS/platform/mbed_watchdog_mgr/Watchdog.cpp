@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef DEVICE_WATCHDOG
 
-/** Resets the processor and most of the sub-system
- *
- * @note Does not affect the debug sub-system
- */
-#ifndef MBED_POWER_MGMT_H
-#define MBED_POWER_MGMT_H
-extern void mock_system_reset();
+#include "Watchdog.h"
 
-MBED_NORETURN static inline void system_reset(void)
+namespace mbed {
+
+Watchdog *Watchdog::_first;
+
+Watchdog::Watchdog(uint32_t timeout, const char *const str): _name(str)
 {
-    mock_system_reset();
+
 }
 
-#endif
+void Watchdog::start()
+{
 
+}
+
+void Watchdog::kick()
+{
+
+}
+
+void Watchdog::stop()
+{
+
+}
+
+void Watchdog::process(uint32_t elapsed_ms)
+{
+
+}
+
+Watchdog::~Watchdog()
+{
+
+}
+
+} // namespace mbed
+
+#endif // DEVICE_WATCHDOG
