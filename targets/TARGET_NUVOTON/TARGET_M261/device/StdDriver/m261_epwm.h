@@ -541,6 +541,11 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 uint32_t EPWM_ConfigCaptureChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32UnitTimeNsec, uint32_t u32CaptureEdge);
 uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32DutyCycle);
+uint32_t EPWM_ConfigOutputChannel2(EPWM_T *epwm,
+                                  uint32_t u32ChannelNum,
+                                  uint32_t u32Frequency,
+                                  uint32_t u32DutyCycle,
+                                  uint32_t u32Frequency2);
 void EPWM_Start(EPWM_T *epwm, uint32_t u32ChannelMask);
 void EPWM_Stop(EPWM_T *epwm, uint32_t u32ChannelMask);
 void EPWM_ForceStop(EPWM_T *epwm, uint32_t u32ChannelMask);
