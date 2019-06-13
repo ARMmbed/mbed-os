@@ -90,7 +90,7 @@ void crypto_init(void)
     }
     core_util_atomic_incr_u16(&crypto_init_counter, 1);
     if (crypto_init_counter == 1) {
-        /* Enable IP clock
+        // Enable IP clock
         SYS_UnlockReg();    // Unlock protected register
         CLK_EnableModuleClock(CRPT_MODULE);
         SYS_LockReg();      // Lock protected register

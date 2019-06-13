@@ -66,23 +66,14 @@ void analogout_init(dac_t *obj, PinName pin)
      *    channels are deactivated.
      */
     if ((! dac_modinit_mask[0]) && (! dac_modinit_mask[1])) {
-        /* Reset IP
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        SYS_ResetModule_S(modinit->rsetidx);
+        // Reset IP
+        SYS_ResetModule(modinit->rsetidx);
         
-        /* Select IP clock source and clock divider
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        CLK_SetModuleClock_S(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+        // Select IP clock source and clock divider
+        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
 
-        /* Enable IP clock
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        CLK_EnableModuleClock_S(modinit->clkidx);
+        // Enable IP clock
+        CLK_EnableModuleClock(modinit->clkidx);
         
         /* The conversion settling time is 8us when 12-bit input code transition from
          * lowest code (0x000) to highest code (0xFFF). */
@@ -134,11 +125,8 @@ void analogout_free(dac_t *obj)
     /* See analogout_init() for reason */
     if ((! dac_modinit_mask[0]) && (! dac_modinit_mask[1])) {
 
-        /* Disable IP clock
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        CLK_DisableModuleClock_S(modinit->clkidx);
+        // Disable IP clock
+        CLK_DisableModuleClock(modinit->clkidx);
     }
 }
 

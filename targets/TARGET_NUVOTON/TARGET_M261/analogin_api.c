@@ -57,23 +57,14 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
     if (! eadc_modinit_mask) {
-        /* Reset module
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        SYS_ResetModule_S(modinit->rsetidx);
+        // Reset module
+        SYS_ResetModule(modinit->rsetidx);
 
-        /* Select IP clock source
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        CLK_SetModuleClock_S(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+        // Select IP clock source
+        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
         
-        /* Enable IP clock
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        CLK_EnableModuleClock_S(modinit->clkidx);
+        // Enable IP clock
+        CLK_EnableModuleClock(modinit->clkidx);
 
         // Set the ADC internal sampling time, input mode as single-end and enable the A/D converter
         EADC_Open(eadc_base, EADC_CTL_DIFFEN_SINGLE_END);
