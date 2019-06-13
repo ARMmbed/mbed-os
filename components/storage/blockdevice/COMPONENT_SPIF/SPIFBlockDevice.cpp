@@ -290,7 +290,7 @@ int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 
         //Send WREN
         if (_set_write_enable() != 0) {
-            tr_error("ERROR: Write Enabe failed\n");
+            tr_error("ERROR: Write Enable failed\n");
             program_failed = true;
             status = SPIF_BD_ERROR_WREN_FAILED;
             goto exit_point;
