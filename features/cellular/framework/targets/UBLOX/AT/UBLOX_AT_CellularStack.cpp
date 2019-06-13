@@ -434,7 +434,7 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
         socket->pending_bytes = 0;
         socket->closed = true;
         if (socket->_cb) {
-             socket->_cb(socket->_data);
+            socket->_cb(socket->_data);
         }
     }
 }
