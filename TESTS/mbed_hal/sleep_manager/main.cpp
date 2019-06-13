@@ -40,8 +40,6 @@ using utest::v1::Harness;
  */
 void wraparound_lp_protect(void)
 {
-    uint32_t time_window;
-
     const uint32_t ticks_now = get_lp_ticker_data()->interface->read();
     const ticker_info_t *p_ticker_info = get_lp_ticker_data()->interface->get_info();
 
