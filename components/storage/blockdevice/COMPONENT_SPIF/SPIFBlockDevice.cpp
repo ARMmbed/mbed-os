@@ -540,8 +540,9 @@ spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const vo
 
 spif_bd_error SPIFBlockDevice::_spi_send_erase_command(int erase_inst, bd_addr_t addr, bd_size_t size)
 {
-    addr = (((int)addr) & 0x00FFF000);
-    _spi_send_general_command(erase_inst, addr, NULL, 0, NULL, 0);
+    bd_addr_t BLOCK_MASK = 0x00FFF000;
+    bd_addr_t erase_addr = (addr & BLOCK_MASK);
+    _spi_send_general_command(erase_inst, erase_addr, NULL, 0, NULL, 0);
     return SPIF_BD_ERROR_OK;
 }
 
