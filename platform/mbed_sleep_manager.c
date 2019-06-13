@@ -45,7 +45,11 @@ static inline us_timestamp_t read_us(void)
     if (NULL == sleep_ticker) {
         sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
     }
-    return ticker_read_us(sleep_ticker);
+    if (sleep_ticker->queue->suspended || !sleep_ticker->queue->initialized) {
+        return sleep_ticker->queue->present_time;
+    } else {
+        return ticker_read_us(sleep_ticker);
+    }
 #else
     return 0;
 #endif
