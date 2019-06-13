@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include "I2CEEBlockDevice.h"
+#include "mbed_wait_api.h"
+using namespace mbed;
 
 #define I2CEE_TIMEOUT 10000
  

@@ -16,9 +16,8 @@
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
  
-#include "mbed.h"
 #include "BlockDevice.h"
-
+#include "I2C.h"
  
 /** BlockDevice for I2C based flash device such as
  *  Microchip's 24LC or ATMEL's AT24C ranges
@@ -81,7 +80,7 @@ public:
      *  @param freq     The frequency of the I2C bus, defaults to 400K.
      */
     I2CEEBlockDevice(
-            I2C * i2c_obj, uint8_t address,
+            mbed::I2C * i2c_obj, uint8_t address,
             bd_size_t size, bd_size_t block=32);
 
     /** Destructor of I2CEEBlockDevice
@@ -164,8 +163,8 @@ public:
     virtual const char *get_type() const;
     
 private:
-    I2C * _i2c;
-    uint32_t _i2c_buffer[sizeof(I2C) / sizeof(uint32_t)];
+    mbed::I2C * _i2c;
+    uint32_t _i2c_buffer[sizeof(mbed::I2C) / sizeof(uint32_t)];
     uint8_t _i2c_addr;
     uint32_t _size;
     uint32_t _block;

@@ -1470,7 +1470,7 @@
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["SD", "FLASHIAP", "I2CEE"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
