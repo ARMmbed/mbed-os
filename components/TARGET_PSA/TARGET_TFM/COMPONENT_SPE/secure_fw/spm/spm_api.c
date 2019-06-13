@@ -112,7 +112,7 @@ enum spm_err_t tfm_spm_db_init(void)
     part_ptr = &(g_spm_partition_db.partitions[
             g_spm_partition_db.partition_count]);
     part_ptr->static_data.partition_id = TFM_SP_NON_SECURE_ID;
-#if TFM_PSA_API
+#ifdef TFM_PSA_API
     part_ptr->static_data.partition_flags = SPM_PART_FLAG_APP_ROT |
                                             SPM_PART_FLAG_IPC;
     part_ptr->static_data.partition_priority = TFM_PRIORITY_LOW;
