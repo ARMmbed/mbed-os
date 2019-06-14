@@ -4,465 +4,1240 @@
       "name": "mbed-os-example-blinky",
       "github": "https://github.com/ARMmbed/mbed-os-example-blinky",
       "mbed": [
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky"
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky"
       ],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : [],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : true,
+      "features": [],
       "baud_rate": 9600,
-      "compare_log": ["mbed-os-example-blinky/tests/blinky.log"],
-      "auto-update" : true
+      "compare_log": [
+        "mbed-os-example-blinky/tests/blinky.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
       "name": "mbed-os-example-blinky-baremetal",
       "github": "https://github.com/ARMmbed/mbed-os-example-blinky-baremetal",
       "mbed": [
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky-baremetal"
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky-baremetal"
       ],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI", "ARCH_PRO", "LPC1768"],
-      "toolchains" : [],
-      "exporters": ["iar", "make_armc5", "make_armc6", "make_gcc_arm", "make_iar"],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [],
+        "exporters": [
+          "iar",
+          "make_armc5",
+          "make_armc6",
+          "make_gcc_arm",
+          "make_iar"
+        ],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI",
+          "ARCH_PRO",
+          "LPC1768"
+        ],
+        "toolchains": [],
+        "exporters": [
+          "iar",
+          "make_armc5",
+          "make_armc6",
+          "make_gcc_arm",
+          "make_iar"
+        ],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI",
+          "ARCH_PRO",
+          "LPC1768"
+        ],
+        "toolchains": [],
+        "exporters": [
+          "iar",
+          "make_armc5",
+          "make_armc6",
+          "make_gcc_arm",
+          "make_iar"
+        ],
+        "compile": true,
+        "export": true
+      }
     },
     {
       "name": "mbed-os-example-tls",
       "github": "https://github.com/ARMmbed/mbed-os-example-tls",
       "mbed": [
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-benchmark",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-tls-client",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-benchmark",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-tls-client",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
       ],
       "test-repo-source": "mbed",
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI"],
-      "toolchains" : ["GCC_ARM", "ARM"],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : false,
+      "features": [],
       "baud_rate": 9600,
       "compare_log": [
-          "mbed-os-example-tls/tests/benchmark.log",
-          "mbed-os-example-tls/tests/tls-client.log",
-          "mbed-os-example-tls/tests/hashing.log",
-          "mbed-os-example-tls/tests/authcrypt.log"
+        "mbed-os-example-tls/tests/benchmark.log",
+        "mbed-os-example-tls/tests/tls-client.log",
+        "mbed-os-example-tls/tests/hashing.log",
+        "mbed-os-example-tls/tests/authcrypt.log"
       ],
-      "auto-update" : true
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [
+          "GCC_ARM",
+          "ARM"
+        ],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": false
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [
+          "GCC_ARM",
+          "ARM"
+        ],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": false
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [
+          "GCC_ARM",
+          "ARM"
+        ],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": false
+      }
     },
     {
       "name": "mbed-os-example-ble",
-      "github":"https://github.com/ARMmbed/mbed-os-example-ble",
+      "github": "https://github.com/ARMmbed/mbed-os-example-ble",
       "mbed": [
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
       ],
       "test-repo-source": "mbed",
-      "features" : ["BLE"],
-      "targets" : ["NRF51_DK", "NRF52_DK", "K66F", "NUCLEO_F401RE"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": false,
-      "auto-update" : true
+      "features": [
+        "BLE"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NRF52840_DK"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": false
+      },
+      "nightly_test": {
+        "targets": [
+          "NRF51_DK",
+          "NRF52_DK",
+          "K66F",
+          "NUCLEO_F401RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": false
+      },
+      "release_test": {
+        "targets": [
+          "NRF51_DK",
+          "NRF52_DK",
+          "K66F",
+          "NUCLEO_F401RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": false
+      }
     },
     {
       "name": "mbed-os-example-sockets",
-      "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
-      "mbed": [
-      ],
+      "github": "https://github.com/ARMmbed/mbed-os-example-sockets",
+      "mbed": [],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI", "NUMAKER_PFM_NUC472", "FVP_MPS2_M3"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : true,
+      "features": [],
       "baud_rate": 9600,
-      "compare_log": ["mbed-os-example-sockets/tests/sockets.log"],
-      "auto-update" : true
+      "compare_log": [
+        "mbed-os-example-sockets/tests/sockets.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "DISCO_F746NG"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI",
+          "NUMAKER_PFM_NUC472",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI",
+          "NUMAKER_PFM_NUC472",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
       "name": "mbed-os-example-tls-socket",
-      "github":"https://github.com/ARMmbed/mbed-os-example-tls-socket",
-      "mbed": [
-      ],
+      "github": "https://github.com/ARMmbed/mbed-os-example-tls-socket",
+      "mbed": [],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K64F", "DISCO_F746NG"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "test" : true,
+      "features": [],
       "baud_rate": 9600,
-      "compare_log": ["mbed-os-example-tls-socket/tests/tls-socket.log"],
-      "auto-update" : true
+      "compare_log": [
+        "mbed-os-example-tls-socket/tests/tls-socket.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "DISCO_F746NG"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "DISCO_F746NG"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
       "name": "mbed-os-example-wifi",
-      "github":"https://github.com/ARMmbed/mbed-os-example-wifi",
-      "mbed": [
-      ],
+      "github": "https://github.com/ARMmbed/mbed-os-example-wifi",
+      "mbed": [],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : [],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": ["NUCLEO_F411RE"],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      }
     },
     {
       "name": "nanostack-border-router",
-      "github":"https://github.com/ARMmbed/nanostack-border-router",
+      "github": "https://github.com/ARMmbed/nanostack-border-router",
       "mbed": [],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "NUCLEO_F429ZI"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      }
     },
     {
       "name": "mbed-os-example-cellular",
-      "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
+      "github": "https://github.com/ARMmbed/mbed-os-example-cellular",
       "mbed": [],
       "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["MTS_DRAGONFLY_F411RE"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-lorawan",
-        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["DISCO_L072CZ_LRWAN1", "MTB_MTS_XDOT", "MTS_MDOT_F411RE"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": false,
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-nvstore",
-        "github":"https://github.com/ARMmbed/mbed-os-example-nvstore",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K66F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-nvstore/tests/nvstore.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-devicekey",
-        "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K66F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-devicekey/tests/devicekey.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-thread-statistics",
-        "github":"https://github.com/ARMmbed/mbed-os-example-thread-statistics",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K66F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-thread-statistics/tests/thread-statistics.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-sys-info",
-        "github":"https://github.com/ARMmbed/mbed-os-example-sys-info",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-sys-info/tests/sys-info.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-cpu-usage",
-        "github":"https://github.com/ARMmbed/mbed-os-example-cpu-usage",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K66F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-cpu-usage/tests/cpu-usage.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-cpu-stats",
-        "github":"https://github.com/ARMmbed/mbed-os-example-cpu-stats",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-cpu-stats/tests/cpu-stats.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-socket-stats",
-        "github":"https://github.com/ARMmbed/mbed-os-example-socket-stats",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K66F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-socket-stats/tests/socket-stats.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-error-handling",
-        "github":"https://github.com/ARMmbed/mbed-os-example-error-handling",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-error-handling/tests/error-handling.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-filesystem",
-        "github":"https://github.com/ARMmbed/mbed-os-example-filesystem",
-        "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-filesystem"
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NRF52840_DK"
         ],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F","K82F"],
-        "toolchains" : [],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-filesystem/tests/filesystem.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-mesh-minimal",
-        "github":"https://github.com/ARMmbed/mbed-os-example-mesh-minimal",
-        "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "MTS_DRAGONFLY_F411RE"
         ],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["DISCO_F469NI", "DISCO_F746NG", "K66F",
-                     "NUCLEO_F429ZI", "NUCLEO_F439ZI", "NUCLEO_F746ZG",
-                     "NUCLEO_F756ZG", "NUCLEO_F767ZI",
-                     "NUMAKER_PFM_NUC472", "UBLOX_EVK_ODIN_W2"],
-        "toolchains" : [],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-bootloader",
-        "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
-        "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-bootloader"
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "MTS_DRAGONFLY_F411RE"
         ],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "NUCLEO_F429ZI", "UBLOX_EVK_ODIN_W2"],
-        "toolchains" : [],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
+        "compile": true,
+        "export": true
+      }
     },
     {
-        "name": "mbed-os-example-mbed-crypto",
-        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-mbed-crypto/tests/mbed-crypto.log"],
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-nfc",
-        "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
-        "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-SmartPoster"
+      "name": "mbed-os-example-lorawan",
+      "github": "https://github.com/ARMmbed/mbed-os-example-lorawan",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "MTS_MDOT_F411RE"
         ],
-        "test-repo-source": "mbed",
-        "features" : [],
-        "targets" : ["NUCLEO_F401RE", "DISCO_L475VG_IOT01A"],
-        "toolchains" : [],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
+        "compile": false,
+        "export": false
+      },
+      "nightly_test": {
+        "targets": [
+          "DISCO_L072CZ_LRWAN1",
+          "MTB_MTS_XDOT",
+          "MTS_MDOT_F411RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": false
+      },
+      "release_test": {
+        "targets": [
+          "DISCO_L072CZ_LRWAN1",
+          "MTB_MTS_XDOT",
+          "MTS_MDOT_F411RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": false
+      }
     },
     {
-        "name": "mbed-os-example-blockdevice",
-        "github":"https://github.com/armmbed/mbed-os-example-blockdevice",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F"],
-        "toolchains" : [],
+      "name": "mbed-os-example-nvstore",
+      "github": "https://github.com/ARMmbed/mbed-os-example-nvstore",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-nvstore/tests/nvstore.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "CY8CKIT_062_WIFI_BT_PSA"
+        ],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
+        "compile": true,
         "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-blockdevice/tests/blockdevice.log"],
-        "auto-update" : true
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
-        "name": "mbed-os-example-kvstore",
-        "github":"https://github.com/ARMmbed/mbed-os-example-kvstore",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "FVP_MPS2_M3"],
-        "toolchains" : [],
+      "name": "mbed-os-example-devicekey",
+      "github": "https://github.com/ARMmbed/mbed-os-example-devicekey",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-devicekey/tests/devicekey.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
+        "compile": true,
         "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-kvstore/tests/kvstore.log"],
-        "auto-update" : true
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
-        "name": "mbed-os-example-crash-reporting",
-        "github":"https://github.com/ARMmbed/mbed-os-example-crash-reporting",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
-        "toolchains" : [],
+      "name": "mbed-os-example-thread-statistics",
+      "github": "https://github.com/ARMmbed/mbed-os-example-thread-statistics",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-thread-statistics/tests/thread-statistics.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "CY8CKIT_062_WIFI_BT_PSA"
+        ],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
+        "compile": true,
         "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-crash-reporting/tests/crash-reporting.log"],
-        "auto-update" : true
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
-        "name": "mbed-os-example-sd-driver",
-        "github":"https://github.com/ARMmbed/mbed-os-example-sd-driver",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F"],
-        "toolchains" : [],
+      "name": "mbed-os-example-sys-info",
+      "github": "https://github.com/ARMmbed/mbed-os-example-sys-info",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-sys-info/tests/sys-info.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F411RE"
+        ],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
+        "compile": true,
         "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-sd-driver/tests/sd-driver.log"],
-        "auto-update" : true
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     },
     {
-        "name": "mbed-os-example-attestation",
-        "github": "https://github.com/ARMmbed/mbed-os-example-attestation",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["CY8CKIT_062_WIFI_BT_PSA",
-                     "K64F",
-                     "K66F",
-                     "NUCLEO_F429ZI",
-                     "UBLOX_ODIN_EVK_W2",
-                     "LPC55S69_NS"
-                    ],
-        "toolchains" : [],
+      "name": "mbed-os-example-cpu-usage",
+      "github": "https://github.com/ARMmbed/mbed-os-example-cpu-usage",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-cpu-usage/tests/cpu-usage.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "LPC55S69_NS"
+        ],
+        "toolchains": [],
         "exporters": [],
-        "compile" : true,
+        "compile": true,
         "export": true,
-        "test" : true,
-        "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
-        "auto-update" : true
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-cpu-stats",
+      "github": "https://github.com/ARMmbed/mbed-os-example-cpu-stats",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-cpu-stats/tests/cpu-stats.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "LPC55S69_NS"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-socket-stats",
+      "github": "https://github.com/ARMmbed/mbed-os-example-socket-stats",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-socket-stats/tests/socket-stats.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F411RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K66F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K66F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-error-handling",
+      "github": "https://github.com/ARMmbed/mbed-os-example-error-handling",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-error-handling/tests/error-handling.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F303RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-filesystem",
+      "github": "https://github.com/ARMmbed/mbed-os-example-filesystem",
+      "mbed": [
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-filesystem"
+      ],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-filesystem/tests/filesystem.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "CY8CKIT_062_WIFI_BT_PSA"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "K82F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "K82F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-mesh-minimal",
+      "github": "https://github.com/ARMmbed/mbed-os-example-mesh-minimal",
+      "mbed": [
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
+      ],
+      "test-repo-source": "github",
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F746ZG"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "DISCO_F469NI",
+          "DISCO_F746NG",
+          "K66F",
+          "NUCLEO_F429ZI",
+          "NUCLEO_F439ZI",
+          "NUCLEO_F746ZG",
+          "NUCLEO_F756ZG",
+          "NUCLEO_F767ZI",
+          "NUMAKER_PFM_NUC472",
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "DISCO_F469NI",
+          "DISCO_F746NG",
+          "K66F",
+          "NUCLEO_F429ZI",
+          "NUCLEO_F439ZI",
+          "NUCLEO_F746ZG",
+          "NUCLEO_F756ZG",
+          "NUCLEO_F767ZI",
+          "NUMAKER_PFM_NUC472",
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      }
+    },
+    {
+      "name": "mbed-os-example-bootloader",
+      "github": "https://github.com/ARMmbed/mbed-os-example-bootloader",
+      "mbed": [
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-bootloader"
+      ],
+      "test-repo-source": "github",
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "NUCLEO_F429ZI",
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "NUCLEO_F429ZI",
+          "UBLOX_EVK_ODIN_W2"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      }
+    },
+    {
+      "name": "mbed-os-example-mbed-crypto",
+      "github": "https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-mbed-crypto/tests/mbed-crypto.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-nfc",
+      "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
+      "mbed": [
+        "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-SmartPoster"
+      ],
+      "test-repo-source": "mbed",
+      "features": [],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "nightly_test": {
+        "targets": [
+          "NUCLEO_F401RE",
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      },
+      "release_test": {
+        "targets": [
+          "NUCLEO_F401RE",
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true
+      }
+    },
+    {
+      "name": "mbed-os-example-blockdevice",
+      "github": "https://github.com/armmbed/mbed-os-example-blockdevice",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-blockdevice/tests/blockdevice.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NUCLEO_F303RE"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-kvstore",
+      "github": "https://github.com/ARMmbed/mbed-os-example-kvstore",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-kvstore/tests/kvstore.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "NRF52840_DK"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "FVP_MPS2_M3"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-crash-reporting",
+      "github": "https://github.com/ARMmbed/mbed-os-example-crash-reporting",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-crash-reporting/tests/crash-reporting.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F",
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F",
+          "DISCO_L475VG_IOT01A"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-sd-driver",
+      "github": "https://github.com/ARMmbed/mbed-os-example-sd-driver",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-sd-driver/tests/sd-driver.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "K64F"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
+    },
+    {
+      "name": "mbed-os-example-attestation",
+      "github": "https://github.com/ARMmbed/mbed-os-example-attestation",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features": [],
+      "baud_rate": 9600,
+      "compare_log": [
+        "mbed-os-example-attestation/tests/attestation.log"
+      ],
+      "auto-update": true,
+      "pull_request_test": {
+        "targets": [
+          "LPC55S69_NS"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "nightly_test": {
+        "targets": [
+          "CY8CKIT_062_WIFI_BT_PSA",
+          "K64F",
+          "K66F",
+          "NUCLEO_F429ZI",
+          "UBLOX_ODIN_EVK_W2",
+          "LPC55S69_NS"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      },
+      "release_test": {
+        "targets": [
+          "CY8CKIT_062_WIFI_BT_PSA",
+          "K64F",
+          "K66F",
+          "NUCLEO_F429ZI",
+          "UBLOX_ODIN_EVK_W2",
+          "LPC55S69_NS"
+        ],
+        "toolchains": [],
+        "exporters": [],
+        "compile": true,
+        "export": true,
+        "test": true
+      }
     }
   ]
 }

@@ -43,11 +43,15 @@ def main():
 
 
     parser = ArgumentParser()
-    parser.add_argument("-c", dest="config", default="examples.json")
+    parser.add_argument("-c", dest="config", default="examples.json",
+                        help="Configuration json file. examples.json as default")
     parser.add_argument("-e", "--example",
                         help=("filter the examples used in the script"),
                         type=argparse_many(lambda x: x),
                         default=[])
+    parser.add_argument("-p", "--test-phase",
+                        help=("Name of test phase which configuration is used. nightly_test is default"),
+                        default="nightly_test")
     subparsers = parser.add_subparsers()
     import_cmd = subparsers.add_parser("import")
     import_cmd.set_defaults(fn=do_import)
@@ -101,16 +105,21 @@ def main():
     config = json.load(open(os.path.join(os.path.dirname(__file__),
                                args.config)))
 
+    # Copy used test phase configuration in root of example from where those wil be used
+    for i in range(len(config['examples'])):
+        for key in list(config['examples'][i][args.test_phase]):
+            config['examples'][i][key] = config['examples'][i][args.test_phase][key]
+
     all_examples = []
     for example in config['examples']:
         all_examples = all_examples + [basename(x['repo']) for x in lib.get_repo_list(example)]
     examples = [x for x in all_examples if x in args.example] if args.example else all_examples
+
     return args.fn(args, config, examples)
 
 
 def do_export(args, config, examples):
     """Do export and build step"""
-    results = {}
     results = lib.export_repos(config, args.ide, args.mcu, examples)
 
     lib.print_summary(results, export=True)
@@ -136,13 +145,13 @@ def do_deploy(_, config, examples):
 
 def do_compile(args, config, examples):
     """Do the compile step"""
-    results = {}
     results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples)
     lib.print_summary(results)
     failures = lib.get_num_failures(results)
     print("Number of failures = %d" % failures)
     return failures 
     
+
 def do_versionning(args, config, examples):
     """ Test update the mbed-os to the version specified by the tag """
     return lib.update_mbedos_version(config, args.tag, examples)
