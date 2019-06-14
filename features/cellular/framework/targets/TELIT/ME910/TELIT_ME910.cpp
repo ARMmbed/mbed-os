@@ -59,6 +59,9 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_AT_CGEREP
 };
 
+//the delay between sending AT commands
+static const uint16_t DEFAULT_DELAY_BETWEEN_AT_COMMANDS = 20;
+
 TELIT_ME910::TELIT_ME910(FileHandle *fh, PinName pwr, bool active_high)
     : AT_CellularDevice(fh),
       _active_high(active_high),

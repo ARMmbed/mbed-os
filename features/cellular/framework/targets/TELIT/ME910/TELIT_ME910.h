@@ -30,9 +30,6 @@
 #include "DigitalOut.h"
 #include "AT_CellularDevice.h"
 
-//the delay between sending AT commands
-#define DEFAULT_DELAY_BETWEEN_AT_COMMANDS 20
-
 namespace mbed {
 
 class TELIT_ME910 : public AT_CellularDevice {
