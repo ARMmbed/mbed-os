@@ -56,6 +56,7 @@ using namespace mbed;
 #define SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE 40
 // Address Length
 #define SPIF_ADDR_SIZE_3_BYTES 3
+#define SPIF_ADDR_SIZE_4_BYTES 4
 // Erase Types Params
 #define SPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE 29
 #define SPIF_BASIC_PARAM_ERASE_TYPE_2_BYTE 31
@@ -88,7 +89,9 @@ enum spif_default_instructions {
     SPIF_RSTEN = 0x66, // Reset Enable
     SPIF_RST = 0x99, // Reset
     SPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
-    SPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register
+    SPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register,
+    SPIF_4BEN = 0xB7, // Enable 4-byte address mode
+    SPIF_4BDIS = 0xE9, // Disable 4-byte address mode
 };
 
 // Mutex is used for some SPI Driver commands that must be done sequentially with no other commands in between
@@ -210,6 +213,12 @@ int SPIFBlockDevice::init()
     // Dummy And Mode Cycles Back default 0
     _dummy_and_mode_cycles = _write_dummy_and_mode_cycles;
     _is_initialized = true;
+
+    if (_device_size_bytes > (1 << 24)) {
+        tr_debug("Size is bigger than 16MB and thus address does not fit in 3 byte, switch to 4 byte address mode");
+        _spi_send_general_command(SPIF_4BEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+        _address_size = SPIF_ADDR_SIZE_4_BYTES;
+    }
 
 exit_point:
     _mutex->unlock();
@@ -540,7 +549,7 @@ spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const vo
 
 spif_bd_error SPIFBlockDevice::_spi_send_erase_command(int erase_inst, bd_addr_t addr, bd_size_t size)
 {
-    addr = (((int)addr) & 0x00FFF000);
+    addr = (((int)addr) & 0xFFFFF000);
     _spi_send_general_command(erase_inst, addr, NULL, 0, NULL, 0);
     return SPIF_BD_ERROR_OK;
 }
