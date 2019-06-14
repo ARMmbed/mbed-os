@@ -98,7 +98,7 @@ MBED_NOINLINE void print_context_info(void)
     //Capture CPUID to get core/cpu info
     mbed_error_printf("\nCPUID: %08" PRIX32, SCB->CPUID);
 
-#if !defined(TARGET_M0) && !defined(TARGET_M0P)
+#if !defined(TARGET_M0) && !defined(TARGET_M0P) && !defined(TARGET_M23)
     //Capture fault information registers to infer the cause of exception
     mbed_error_printf("\nHFSR : %08" PRIX32
                       "\nMMFSR: %08" PRIX32
