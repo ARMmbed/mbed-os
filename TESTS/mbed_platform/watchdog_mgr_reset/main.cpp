@@ -26,8 +26,6 @@
 #include "watchdog_mgr_reset_tests.h"
 #include "mbed.h"
 
-#define TIMEOUT_DELTA_MS 50UL
-
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
 #define CASE_DATA_PHASE2_OK 0xfffffffeUL
@@ -48,11 +46,6 @@ struct testcase_data {
     int start_index;
     uint32_t received_data;
 };
-
-void release_sem(Semaphore *sem)
-{
-    sem->release();
-}
 
 testcase_data current_case;
 
