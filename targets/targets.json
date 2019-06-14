@@ -8028,7 +8028,6 @@
     "ARM_FM": {
         "inherits": ["Target"],
         "public": false,
-        "macros": ["SKIP_TIME_DRIFT_TESTS"],
         "extra_labels": ["ARM_FM"]
     },
     "FVP_MPS2": {
