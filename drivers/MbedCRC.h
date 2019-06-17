@@ -43,9 +43,11 @@ namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
+extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
+
 /** CRC object provides CRC generation through hardware/software
  *
- *  ROM polynomial tables for supported polynomials (:: crc_polynomial_t) will be used for
+ *  ROM polynomial tables for supported polynomials (::crc_polynomial) will be used for
  *  software CRC computation, if ROM tables are not available then CRC is computed runtime
  *  bit by bit for all data input.
  *  @note Synchronization level: Thread safe
@@ -93,9 +95,6 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-
-extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
-
 template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
 class MbedCRC {
 
