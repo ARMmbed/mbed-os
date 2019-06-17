@@ -45,11 +45,19 @@ namespace mbed {
 
 extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
-/** CRC object provides CRC generation through hardware/software
+/** CRC object provides CRC generation through hardware or software
  *
- *  ROM polynomial tables for supported polynomials (::crc_polynomial) will be used for
- *  software CRC computation, if ROM tables are not available then CRC is computed runtime
- *  bit by bit for all data input.
+ *  CRC sums can be generated using three different method: hardware, software ROM tables
+ *  and bitwise computation. The mode used is selected automatically based on required
+ *  polynomial and hardware capabilities. Any polynomial in standard form (`x^3 + x + 1`)
+ *  can be used for computation, but custom ones can affect the performance.
+ *
+ *  First choice is the hardware mode, the supported polynomial are hardware specific and
+ *  you will need to consult your MCU manual to discover them. Next ROM polynomial tables
+ *  are tried (you can find list of supported polynomials here ::crc_polynomial) if selected
+ *  configuration is supported it will accelerate the software computations. If ROM tables
+ *  are not available for selected polynomial then CRC is computed at runtime bit by bit
+ *  for all data input.
  *  @note Synchronization level: Thread safe
  *
  *  @tparam  polynomial CRC polynomial value in hex
