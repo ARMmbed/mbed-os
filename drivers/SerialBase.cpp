@@ -30,17 +30,9 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     _rx_callback(NULL), _tx_asynch_set(false),
     _rx_asynch_set(false),
 #endif
-    _serial(), _baud(baud)
+    _serial(), _baud(baud), _tx(tx), _rx(rx)
 {
-    // No lock needed in the constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
-    serial_init(&_serial, tx, rx);
-    serial_baud(&_serial, _baud);
-    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    init();
 }
 
 void SerialBase::baud(int baudrate)
@@ -161,6 +153,26 @@ void SerialBase:: unlock()
     // Stub
 }
 
+void SerialBase::init(void)
+{
+    lock();
+    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+        _irq[i] = NULL;
+    }
+
+    serial_init(&_serial, _tx, _rx);
+    serial_baud(&_serial, _baud);
+    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    unlock();
+}
+
+void SerialBase::deinit(void)
+{
+    lock();
+    serial_free(&_serial);
+    unlock();
+}
+
 SerialBase::~SerialBase()
 {
     // No lock needed in destructor
@@ -169,6 +181,8 @@ SerialBase::~SerialBase()
     for (int irq = 0; irq < IrqCnt; irq++) {
         attach(NULL, (IrqType)irq);
     }
+
+    deinit();
 }
 
 #if DEVICE_SERIAL_FC

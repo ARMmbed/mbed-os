@@ -162,6 +162,14 @@ protected:
     /** Release exclusive access to this serial port
      */
     virtual void unlock(void);
+
+    /** Initialize serial port
+     */
+    void init(void);
+
+    /** Deinitialize serial port
+     */
+    void deinit(void);
 #endif
 public:
 
@@ -304,6 +312,8 @@ protected:
     serial_t         _serial;
     Callback<void()> _irq[IrqCnt];
     int              _baud;
+    PinName          _rx;
+    PinName          _tx;
 #endif
 };
 
