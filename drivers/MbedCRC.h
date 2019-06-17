@@ -23,7 +23,7 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
-/* This is invalid warning from the compiler for below section of code
+/* This is an invalid warning from the compiler for the below section of code
 if ((width < 8) && (NULL == _crc_table)) {
     p_crc = (uint32_t)(p_crc << (8 - width));
 }
@@ -47,16 +47,16 @@ extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
 /** CRC object provides CRC generation through hardware or software
  *
- *  CRC sums can be generated using three different method: hardware, software ROM tables
+ *  CRC sums can be generated using three different methods: hardware, software ROM tables
  *  and bitwise computation. The mode used is selected automatically based on required
  *  polynomial and hardware capabilities. Any polynomial in standard form (`x^3 + x + 1`)
  *  can be used for computation, but custom ones can affect the performance.
  *
- *  First choice is the hardware mode, the supported polynomial are hardware specific and
- *  you will need to consult your MCU manual to discover them. Next ROM polynomial tables
- *  are tried (you can find list of supported polynomials here ::crc_polynomial) if selected
- *  configuration is supported it will accelerate the software computations. If ROM tables
- *  are not available for selected polynomial then CRC is computed at runtime bit by bit
+ *  First choice is the hardware mode. The supported polynomials are hardware specific, and
+ *  you need to consult your MCU manual to discover them. Next, ROM polynomial tables
+ *  are tried (you can find list of supported polynomials here ::crc_polynomial). If the selected
+ *  configuration is supported, it will accelerate the software computations. If ROM tables
+ *  are not available for the selected polynomial, then CRC is computed at run time bit by bit
  *  for all data input.
  *  @note Synchronization level: Thread safe
  *
