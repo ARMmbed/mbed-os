@@ -136,6 +136,14 @@ The FAT32 filesystem cannot be mounted on a device smaller than 64 kB.
 
 The test can be easily extended to use any block device available in Mbed.
 
+### Windows 8/10: Mass storage tests are failing on test file read
+By default Windows 8 and 10 access and write to removable drives shortly after they are connected. It's caused by drive indexing mechanisms. Because disk used in test has only 64kB its content can be easily corrupted by writing large files, what actually was encountered during test runs.
+
+To prevent Windows from writing to removable drives on connect drive indexing can be turned off with the following procedure:
+- Start the program "gpedit.msc"
+- Navigate to "Computer Configuration \ Administrative Templates \ Windows Components \ Search"
+- Enable the policy "Do not allow locations on removable drives to be added to  libraries."
+
 ### Isochronous endpoints are skipped in loopback tests
 #### Unresolved
 
