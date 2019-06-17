@@ -34,6 +34,11 @@ uint32_t pal_its_function(int type, va_list valist)
     //psa_ps_create_flags_t   ps_create_flags;
     struct psa_its_info_t          *its_p_info;
     //struct psa_eps_info_t          *ps_p_info;
+    /* TODO: Actual size argument is currently not supported by the testing framework.
+     * Changes need to be implemented in the actual tests.
+     * Should be fixed by the next import of the tests.
+     */
+    size_t actual_size;
 
     switch (type)
     {
@@ -48,7 +53,11 @@ uint32_t pal_its_function(int type, va_list valist)
         offset = va_arg(valist, uint32_t);
         data_length = va_arg(valist, uint32_t);
         p_read_data = va_arg(valist, void*);
-        return psa_its_get(uid, offset, data_length, p_read_data);
+        /* TODO: Actual size argument is currently not supported by the testing framework.
+         * Changes need to be implemented in the actual tests.
+         * Should be fixed by the next import of the tests.
+         */
+        return psa_its_get(uid, offset, data_length, p_read_data, &actual_size);
     case PAL_ITS_GET_INFO:
         uid = va_arg(valist, psa_storage_uid_t);
         its_p_info = va_arg(valist, struct psa_its_info_t*);

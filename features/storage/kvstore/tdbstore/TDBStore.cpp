@@ -35,7 +35,8 @@ using namespace mbed;
 
 static const uint32_t delete_flag = (1UL << 31);
 static const uint32_t internal_flags = delete_flag;
-static const uint32_t supported_flags = KVStore::WRITE_ONCE_FLAG;
+// Only write once flag is supported, other two are kept in storage but ignored
+static const uint32_t supported_flags = KVStore::WRITE_ONCE_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
 
 namespace {
 

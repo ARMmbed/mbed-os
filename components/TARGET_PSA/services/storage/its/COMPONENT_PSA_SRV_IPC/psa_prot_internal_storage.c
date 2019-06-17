@@ -20,7 +20,7 @@
 #include "psa/internal_trusted_storage.h"
 #include "psa_manifest/sid.h"
 
-psa_status_t psa_its_set(psa_storage_uid_t uid, uint32_t data_length, const void *p_data, psa_storage_create_flags_t create_flags)
+psa_status_t psa_its_set(psa_storage_uid_t uid, size_t data_length, const void *p_data, psa_storage_create_flags_t create_flags)
 {
     if (!p_data && data_length) {
         return PSA_ERROR_INVALID_ARGUMENT;
@@ -46,9 +46,11 @@ psa_status_t psa_its_set(psa_storage_uid_t uid, uint32_t data_length, const void
     return status;
 }
 
-psa_status_t psa_its_get(psa_storage_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_status_t psa_its_get(psa_storage_uid_t uid, size_t data_offset, size_t data_length, void *p_data, size_t *p_data_length)
 {
-    if (!p_data && data_length) {
+    size_t actual_size = 0;
+
+    if ((!p_data && data_length) || !p_data_length) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
@@ -56,18 +58,20 @@ psa_status_t psa_its_get(psa_storage_uid_t uid, uint32_t data_offset, uint32_t d
         { &uid, sizeof(uid) },
         { &data_offset, sizeof(data_offset) }
     };
-    psa_outvec resp = { p_data, data_length };
+
+    psa_outvec resp[2] = {
+        { p_data, data_length },
+        { &actual_size, sizeof(actual_size) }
+    };
 
     psa_handle_t conn = psa_connect(PSA_ITS_GET, 1);
     if (conn <= PSA_NULL_HANDLE) {
         return PSA_ERROR_STORAGE_FAILURE;
     }
 
-    psa_status_t status = psa_call(conn, msg, 2, &resp, 1);
+    psa_status_t status = psa_call(conn, msg, 2, resp, 2);
 
-    if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ERROR_STORAGE_FAILURE;
-    }
+    *p_data_length = actual_size;
 
     psa_close(conn);
     return status;

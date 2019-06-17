@@ -26,8 +26,8 @@ extern "C"
 {
 #endif
 
-psa_status_t psa_its_set_impl(int32_t pid, psa_storage_uid_t uid, uint32_t data_length, const void *p_data, psa_storage_create_flags_t create_flags);
-psa_status_t psa_its_get_impl(int32_t pid, psa_storage_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
+psa_status_t psa_its_set_impl(int32_t pid, psa_storage_uid_t uid, size_t data_length, const void *p_data, psa_storage_create_flags_t create_flags);
+psa_status_t psa_its_get_impl(int32_t pid, psa_storage_uid_t uid, size_t data_offset, size_t data_length, void *p_data, size_t *p_data_length);
 psa_status_t psa_its_get_info_impl(int32_t pid, psa_storage_uid_t uid, struct psa_storage_info_t *p_info);
 psa_status_t psa_its_remove_impl(int32_t pid, psa_storage_uid_t uid);
 psa_status_t psa_its_reset_impl();
