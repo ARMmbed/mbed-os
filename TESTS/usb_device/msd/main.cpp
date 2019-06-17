@@ -33,6 +33,17 @@
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #endif
 
+
+#define OS_WINDOWS  1
+#define OS_LINUX    2
+#define OS_MAC      3
+
+// Host side unmount was disabled for windows machines.
+// PowerShell execution policies/restrictions cause that
+// on some windows machines unmount is failing
+// To re-enable it comment out below line.
+#define DISABLE_HOST_SIDE_UMOUNT
+
 #ifdef MIN
 #undef MIN
 #endif
@@ -313,19 +324,30 @@ void mount_unmount_test(BlockDevice *bd, FileSystem *fs)
         uint64_t ret_size = atoll(_key);
         TEST_ASSERT_EQUAL_UINT64(get_fs_mount_size(fs), ret_size);
 
-        // unmount msd device on host side
-        greentea_send_kv("unmount", 0);
+#ifdef DISABLE_HOST_SIDE_UMOUNT
+        greentea_send_kv("get_os_type", 0);
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-        TEST_ASSERT_EQUAL_STRING_LOOP("passed", _key, i);
+        int32_t os_type = atoi(_key);
+        if (os_type != OS_WINDOWS) {
+#endif
+            // unmount msd device on host side
+            greentea_send_kv("unmount", 0);
+            greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+            TEST_ASSERT_EQUAL_STRING_LOOP("passed", _key, i);
 
-        // wait for unmount event (set 10s timeout)
-        media_remove_event.wait(10000);
-        if (!usb.media_removed()) {
-            TEST_ASSERT_EQUAL_LOOP(true, usb.media_removed(), i);
+            // wait for unmount event (set 10s timeout)
+            media_remove_event.wait(10000);
+            if (!usb.media_removed()) {
+                TEST_ASSERT_EQUAL_LOOP(true, usb.media_removed(), i);
+            }
+#ifdef DISABLE_HOST_SIDE_UMOUNT
+            // unmount since media_removed doesn't disconnects device side
+            usb.disconnect();
         }
-        // unmount since media_removed doesn't disconnects device side
+#else
+        // unmount
         usb.disconnect();
-
+#endif
         // check if device is detached on host side
         greentea_send_kv("check_if_not_mounted", 0);
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
