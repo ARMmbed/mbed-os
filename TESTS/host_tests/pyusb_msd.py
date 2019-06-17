@@ -127,7 +127,17 @@ class PyusbMSDTest(BaseHostTest):
         else:
             self.report_error("unmount")
 
+    def _callback_os_type(self, key, value, timestamp):
+        system_name = platform.system()
+        if system_name == "Windows":
+            self.send_kv("os_type", 1)
+        elif system_name == "Linux":
+            self.send_kv("os_type", 2)
+        elif system_name == "Darwin":
+            self.send_kv("os_type", 3)
+
     def setup(self):
+        self.register_callback("get_os_type", self._callback_os_type)
         self.register_callback("get_serial_number", self._callback_device_ready)
         self.register_callback('check_if_mounted', self._callback_check_if_mounted)
         self.register_callback('check_if_not_mounted', self._callback_check_if_not_mounted)
