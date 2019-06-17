@@ -649,8 +649,8 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
 
         if (LPC_C_CAN0->CANIF2_ARB2 & CANIFn_ARB2_XTD) {
             msg->format = CANExtended;
-            msg->id = (LPC_C_CAN0->CANIF2_ARB1 & 0x1FFF) << 16;
-            msg->id |= (LPC_C_CAN0->CANIF2_ARB2 & 0x1FFF);
+            msg->id = (LPC_C_CAN0->CANIF2_ARB2 & 0x1FFF) << 16;
+            msg->id |= (LPC_C_CAN0->CANIF2_ARB1 & 0xFFFF);
         } else {
             msg->format = CANStandard;
             msg->id = (LPC_C_CAN0->CANIF2_ARB2 & 0x1FFF) >> 2;
