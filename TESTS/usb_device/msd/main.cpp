@@ -250,13 +250,10 @@ void msd_process(USBMSD *msd)
  */
 void storage_init()
 {
-    if (mbed_heap_size >= MIN_HEAP_SIZE) {
-        FATFileSystem::format(get_heap_block_device());
-        bool result = prepare_storage(get_heap_block_device(), &heap_fs);
-        TEST_ASSERT_MESSAGE(result, "heap storage initialisation failed");
-    } else {
-        utest_printf("Not enough heap memory for HeapBlockDevice creation. Heap block device init skipped!!!\n");
-    }
+    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
+    FATFileSystem::format(get_heap_block_device());
+    bool result = prepare_storage(get_heap_block_device(), &heap_fs);
+    TEST_ASSERT_MESSAGE(result, "heap storage initialisation failed");
 }
 
 /** Test mass storage device mount and unmount
@@ -428,19 +425,13 @@ void mount_unmount_and_data_test(BlockDevice *bd, FileSystem *fs)
 
 void heap_block_device_mount_unmount_test()
 {
-    if (mbed_heap_size < MIN_HEAP_SIZE) {
-        TEST_SKIP_MESSAGE("Not enough heap memory for HeapBlockDevice creation");
-        return;
-    }
+    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
     mount_unmount_test<3>(get_heap_block_device(), &heap_fs);
 }
 
 void heap_block_device_mount_unmount_and_data_test()
 {
-    if (mbed_heap_size < MIN_HEAP_SIZE) {
-        TEST_SKIP_MESSAGE("Not enough heap memory for HeapBlockDevice creation");
-        return;
-    }
+    TEST_ASSERT_MESSAGE(mbed_heap_size >= MIN_HEAP_SIZE, "Not enough heap memory for HeapBlockDevice creation");
     mount_unmount_and_data_test(get_heap_block_device(), &heap_fs);
 }
 
