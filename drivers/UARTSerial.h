@@ -254,6 +254,8 @@ public:
 #endif
 
 private:
+    /** Initialize serial */
+    void init();
 
     void wait_ms(uint32_t millisec);
 

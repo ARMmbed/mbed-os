@@ -374,12 +374,18 @@ int UARTSerial::enable_input(bool enabled)
     core_util_critical_section_enter();
     if (_rx_enabled != enabled) {
         if (enabled) {
+            if (!_tx_enabled) {
+                init();
+            }
             UARTSerial::rx_irq();
             if (!_rxbuf.full()) {
                 enable_rx_irq();
             }
         } else {
             disable_rx_irq();
+            if (!_tx_enabled) {
+                serial_free(&_serial);
+            }
         }
         _rx_enabled = enabled;
     }
@@ -393,18 +399,35 @@ int UARTSerial::enable_output(bool enabled)
     core_util_critical_section_enter();
     if (_tx_enabled != enabled) {
         if (enabled) {
+            if (!_rx_enabled) {
+                init();
+            }
             UARTSerial::tx_irq();
             if (!_txbuf.empty()) {
                 enable_tx_irq();
             }
         } else {
             disable_tx_irq();
+            if (!_rx_enabled) {
+                serial_free(&_serial);
+            }
         }
         _tx_enabled = enabled;
     }
     core_util_critical_section_exit();
 
     return 0;
+}
+
+void UARTSerial::init() {
+    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+        _irq[i] = NULL;
+    }
+
+    serial_init(&_serial, _serial.pin_tx, _serial.pin_rx);
+    serial_baud(&_serial, _baud);
+    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    enable_rx_irq();
 }
 
 void UARTSerial::wait_ms(uint32_t millisec)
