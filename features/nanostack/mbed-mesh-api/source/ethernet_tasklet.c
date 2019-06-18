@@ -335,6 +335,41 @@ int8_t enet_tasklet_network_init(int8_t device_id)
     return tasklet_data_ptr->network_interface_id;
 }
 
+/* For now, to enable to compile without Nanostack interface changes, enables Nanostack PPP
+   interface only if default stack is Nanostack and interface cellular. After Nanostack
+   with updated interface call arm_nwk_interface_ppp_init() is integrated to mbed-os, this
+   flagging can be removed.
+*/
+#define NANOSTACK   0x11991199
+#define CELLULAR    0x22992299
+#if MBED_CONF_NSAPI_DEFAULT_STACK == NANOSTACK && MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == CELLULAR
+#define ENABLE_NANOSTACK_PPP
+#endif
+#undef NANOSTACK
+#undef CELLULAR
+
+int8_t enet_tasklet_ppp_network_init(int8_t device_id)
+{
+#ifdef ENABLE_NANOSTACK_PPP
+    if (tasklet_data_ptr->network_interface_id != -1) {
+        tr_debug("Interface already at active state\n");
+        return tasklet_data_ptr->network_interface_id;
+    }
+    if (!eth_mac_api) {
+        eth_mac_api = ethernet_mac_create(device_id);
+    }
+
+    tasklet_data_ptr->network_interface_id = arm_nwk_interface_ppp_init(eth_mac_api, "ppp0");
+
+    tr_debug("interface ID: %d", tasklet_data_ptr->network_interface_id);
+    arm_nwk_interface_configure_ipv6_bootstrap_set(
+        tasklet_data_ptr->network_interface_id, NET_IPV6_BOOTSTRAP_AUTONOMOUS, NULL);
+    return tasklet_data_ptr->network_interface_id;
+#else
+    return -1;
+#endif
+}
+
 void enet_tasklet_link_state_changed(bool up)
 {
     if (up) {

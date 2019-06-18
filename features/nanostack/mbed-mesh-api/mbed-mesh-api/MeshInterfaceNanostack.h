@@ -34,7 +34,10 @@ public:
 
     void get_mac_address(uint8_t *buf) const
     {
-        interface_phy.get_mac_address(buf);
+        NanostackMACPhy *phy = interface_phy.nanostack_mac_phy();
+        if (phy) {
+            phy->get_mac_address(buf);
+        }
     }
 
     /**
