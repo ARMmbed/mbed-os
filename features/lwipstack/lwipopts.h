@@ -119,17 +119,10 @@
 #define MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE    512
 #endif
 
-// Thread stack size for private PPP thread
-#ifndef MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    768
-#endif
-
 #ifdef LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    LWIP_ALIGN_UP(MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2, 8)
-#define PPP_THREAD_STACK_SIZE       LWIP_ALIGN_UP(MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2, 8)
 #else
 #define DEFAULT_THREAD_STACKSIZE    LWIP_ALIGN_UP(MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE, 8)
-#define PPP_THREAD_STACK_SIZE       LWIP_ALIGN_UP(MBED_CONF_LWIP_PPP_THREAD_STACKSIZE, 8)
 #endif
 
 #define MEMP_NUM_SYS_TIMEOUT        16
@@ -313,11 +306,6 @@
 #define DNS_DEBUG                   LWIP_DBG_OFF
 #define IP6_DEBUG                   LWIP_DBG_OFF
 
-#if MBED_CONF_LWIP_ENABLE_PPP_TRACE
-#define PPP_DEBUG                   LWIP_DBG_ON
-#else
-#define PPP_DEBUG                   LWIP_DBG_OFF
-#endif //MBED_CONF_LWIP_ENABLE_PPP_TRACE
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 
@@ -358,33 +346,40 @@
 #define INTERFACE_NAME_MAX_SIZE NSAPI_INTERFACE_NAME_MAX_SIZE
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
-#if NSAPI_PPP_AVAILABLE
-#define PPP_SUPPORT                    1
-#if MBED_CONF_LWIP_IPV6_ENABLED
-#define PPP_IPV6_SUPPORT               1
-// Disable DAD for PPP
-#define LWIP_IPV6_DUP_DETECT_ATTEMPTS  0
+
+// Enable PPP for now either from lwIP PPP configuration (obsolete) or from PPP service configuration
+#if MBED_CONF_PPP_ENABLED || MBED_CONF_LWIP_PPP_ENABLED
+
+#define PPP_SUPPORT                      1
+
+#if MBED_CONF_PPP_IPV4_ENABLED || MBED_CONF_LWIP_IPV4_ENABLED
+#define LWIP 0x11991199
+#if (MBED_CONF_NSAPI_DEFAULT_STACK == LWIP) && !MBED_CONF_LWIP_IPV4_ENABLED
+#error LWIP: IPv4 PPP enabled but not IPv4
 #endif
-#define CHAP_SUPPORT                   1
-#define PPP_INPROC_IRQ_SAFE            1
-// Save RAM
-#define PAP_SUPPORT                    0
-#define VJ_SUPPORT                     0
-#define PRINTPKT_SUPPORT               0
+#undef LWIP
+#define PPP_IPV4_SUPPORT                 1
+#endif
 
-// Broadcast
-#define IP_SOF_BROADCAST               0
-#define IP_SOF_BROADCAST_RECV          0
+#if MBED_CONF_PPP_IPV6_ENABLED || MBED_CONF_LWIP_IPV6_ENABLED
+#define LWIP 0x11991199
+#if (MBED_CONF_NSAPI_DEFAULT_STACK == LWIP) && !MBED_CONF_LWIP_IPV6_ENABLED
+#error LWIP: IPv6 PPP enabled but not IPv6
+#endif
+#undef LWIP
+#define PPP_IPV6_SUPPORT                 1
+// Later to be dynamic for use for multiple interfaces
+#define LWIP_IPV6_DUP_DETECT_ATTEMPTS    0
+#endif
 
-#define MAXNAMELEN                     64     /* max length of hostname or name for auth */
-#define MAXSECRETLEN                   64
-#endif // NSAPI_PPP_AVAILABLE
+#endif
 
 // Make sure we default these to off, so
 // LWIP doesn't default to on
 #ifndef LWIP_ARP
 #define LWIP_ARP                    0
 #endif
+
 // Checksum-on-copy disabled due to https://savannah.nongnu.org/bugs/?50914
 #define LWIP_CHECKSUM_ON_COPY       0
 
@@ -399,8 +394,9 @@
 #include "lwip_tcp_isn.h"
 #define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
 #ifdef MBEDTLS_MD5_C
-#include "mbedtls/md5.h"
-#define LWIP_USE_EXTERNAL_MBEDTLS 1
+#define LWIP_USE_EXTERNAL_MBEDTLS       1
+#else
+#define LWIP_USE_EXTERNAL_MBEDTLS       0
 #endif
 
 #endif /* LWIPOPTS_H_ */

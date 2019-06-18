@@ -36,10 +36,6 @@
 #include <stddef.h> /* for size_t */
 #include "mbed_toolchain.h"
 
-#if LWIP_USE_EXTERNAL_MBEDTLS
-#include "mbedtls/md5.h"
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -175,9 +171,6 @@ SET_MEMP_SECTION(memp_memory_TCPIP_MSG_INPKT_base);
 SET_MEMP_SECTION(memp_memory_SYS_TIMEOUT_base);
 SET_MEMP_SECTION(memp_memory_TCP_SEG_base);
 SET_MEMP_SECTION(memp_memory_TCPIP_MSG_API_base);
-SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
-SET_MEMP_SECTION(memp_memory_PPPOS_PCB_base);
-SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
 #if defined (__ICCARM__)
 #pragma default_variable_attributes =
 #endif
