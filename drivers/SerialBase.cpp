@@ -155,7 +155,6 @@ void SerialBase:: unlock()
 
 void SerialBase::_init(void)
 {
-    lock();
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
         _irq[i] = NULL;
     }
@@ -163,14 +162,11 @@ void SerialBase::_init(void)
     serial_init(&_serial, _tx, _rx);
     serial_baud(&_serial, _baud);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
-    unlock();
 }
 
 void SerialBase::_deinit(void)
 {
-    lock();
     serial_free(&_serial);
-    unlock();
 }
 
 SerialBase::~SerialBase()
