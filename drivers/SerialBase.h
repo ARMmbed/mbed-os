@@ -165,11 +165,11 @@ protected:
 
     /** Initialize serial port
      */
-    void init(void);
+    void _init(void);
 
     /** Deinitialize serial port
      */
-    void deinit(void);
+    void _deinit(void);
 #endif
 public:
 

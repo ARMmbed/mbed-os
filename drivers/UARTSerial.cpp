@@ -374,7 +374,7 @@ int UARTSerial::enable_input(bool enabled)
     api_lock();
     if (_rx_enabled != enabled) {
         if (enabled && !_tx_enabled) {
-            init();
+            _init();
         }
 
         core_util_critical_section_enter();
@@ -391,7 +391,7 @@ int UARTSerial::enable_input(bool enabled)
         _rx_enabled = enabled;
 
         if (!enabled && !_tx_enabled) {
-            deinit();
+            _deinit();
         }
     }
     api_unlock();
@@ -403,7 +403,7 @@ int UARTSerial::enable_output(bool enabled)
     api_lock();
     if (_tx_enabled != enabled) {
         if (enabled && !_rx_enabled) {
-            init();
+            _init();
         }
 
         core_util_critical_section_enter();
@@ -420,7 +420,7 @@ int UARTSerial::enable_output(bool enabled)
         _tx_enabled = enabled;
 
         if (!enabled && !_rx_enabled) {
-            deinit();
+            _deinit();
         }
     }
     api_unlock();

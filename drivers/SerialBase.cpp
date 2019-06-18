@@ -32,7 +32,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #endif
     _serial(), _baud(baud), _tx(tx), _rx(rx)
 {
-    init();
+    _init();
 }
 
 void SerialBase::baud(int baudrate)
@@ -153,7 +153,7 @@ void SerialBase:: unlock()
     // Stub
 }
 
-void SerialBase::init(void)
+void SerialBase::_init(void)
 {
     lock();
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
@@ -166,7 +166,7 @@ void SerialBase::init(void)
     unlock();
 }
 
-void SerialBase::deinit(void)
+void SerialBase::_deinit(void)
 {
     lock();
     serial_free(&_serial);
@@ -182,7 +182,7 @@ SerialBase::~SerialBase()
         attach(NULL, (IrqType)irq);
     }
 
-    deinit();
+    _deinit();
 }
 
 #if DEVICE_SERIAL_FC
