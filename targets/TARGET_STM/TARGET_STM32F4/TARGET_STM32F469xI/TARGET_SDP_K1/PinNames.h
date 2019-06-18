@@ -318,13 +318,6 @@ typedef enum {
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
     
-    // SPI and I2C pins on Arduino connector
-    SPI_CS      = D10,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    I2C_SDA     = D14,
-    I2C_SCL     = D15,
 
     // Adding these signals for the SDP connector
     SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
