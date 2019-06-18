@@ -192,13 +192,15 @@ bool sleep_manager_can_deep_sleep(void)
 
 bool sleep_manager_can_deep_sleep_test_check()
 {
-    const uint32_t check_time_us = 2000;
-    const ticker_data_t *const ticker = get_us_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < check_time_us) {
+    uint32_t check_time_ns = 2000000;
+
+    while (check_time_ns) {
         if (sleep_manager_can_deep_sleep()) {
             return true;
         }
+
+        wait_ns(100000); // 100 us
+        check_time_ns -= 100000;
     }
     return false;
 }
