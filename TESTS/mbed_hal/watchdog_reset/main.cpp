@@ -25,13 +25,14 @@
 #include "watchdog_reset_tests.h"
 #include "mbed.h"
 
-#define TIMEOUT_MS 500UL
 #if TARGET_NUMAKER_PFM_NANO130
 /* On NUMAKER_PFM_NANO130 target, WDT's clock source is fixed to LIRC, which is more
  * inaccurate than other targets. Enlarge this delta define to pass this test. */
+#define TIMEOUT_MS 500UL
 #define TIMEOUT_DELTA_MS 100UL
 #else
-#define TIMEOUT_DELTA_MS 50UL
+#define TIMEOUT_MS 100UL
+#define TIMEOUT_DELTA_MS 10UL
 #endif
 
 #define MSG_VALUE_DUMMY "0"

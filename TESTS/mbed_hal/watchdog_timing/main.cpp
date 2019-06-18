@@ -50,6 +50,12 @@ testcase_data current_case;
 template<uint32_t timeout_ms, uint32_t delta_ms>
 void test_timing()
 {
+    watchdog_features_t features = hal_watchdog_get_platform_features();
+    if (timeout_ms > features.max_timeout) {
+        TEST_IGNORE_MESSAGE("Requested timeout value not supported for this target -- ignoring test case.");
+        return;
+    }
+
     // Phase 2. -- verify the test results.
     // Verify the heartbeat time span sent by host is within given delta.
     if (current_case.received_data != CASE_DATA_INVALID) {
