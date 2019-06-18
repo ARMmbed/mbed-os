@@ -3237,7 +3237,7 @@
         },
         "components_add": ["SPIF"],
         "detect_code": ["9020"],
-        "device_has_add": ["ANALOGOUT", "CAN", "TRNG", "FLASH", "MPU"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "TRNG", "FLASH", "MPU"],
         "device_has_remove": ["SERIAL_FC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
@@ -4004,6 +4004,7 @@
         "detect_code": ["0833"],
         "device_has_add": [
             "ANALOGOUT",
+            "CRC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
@@ -4024,6 +4025,7 @@
         "detect_code": ["0456"],
         "device_has_add": [
             "ANALOGOUT",
+            "CRC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
@@ -4069,6 +4071,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "EMAC",
             "SERIAL_ASYNCH",
             "TRNG",
@@ -4121,6 +4124,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "EMAC",
             "SERIAL_ASYNCH",
             "TRNG",
@@ -4164,6 +4168,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -4194,6 +4199,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "SERIAL_FC",
             "TRNG",
             "FLASH",
@@ -4229,6 +4235,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -4265,6 +4272,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "SERIAL_FC",
             "TRNG",
             "FLASH",
@@ -4367,6 +4375,7 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
+            "CRC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
