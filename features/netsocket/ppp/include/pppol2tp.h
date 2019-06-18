@@ -32,7 +32,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPPOL2TP_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPPOL2TP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPPOL2TP_H
 #define PPPOL2TP_H
@@ -115,11 +115,11 @@ extern "C" {
 
 /* -- AVP - Host name */
 #define PPPOL2TP_AVPTYPE_HOSTNAME     7 /* Host name */
-#define PPPOL2TP_HOSTNAME        "lwIP" /* FIXME: make it configurable */
+#define PPPOL2TP_HOSTNAME        "ppp"  /* FIXME: make it configurable */
 
 /* -- AVP - Vendor name */
 #define PPPOL2TP_AVPTYPE_VENDORNAME   8 /* Vendor name */
-#define PPPOL2TP_VENDORNAME      "lwIP" /* FIXME: make it configurable */
+#define PPPOL2TP_VENDORNAME      "ppp"  /* FIXME: make it configurable */
 
 /* -- AVP - Assign tunnel ID */
 #define PPPOL2TP_AVPTYPE_TUNNELID     9 /* Assign Tunnel ID */

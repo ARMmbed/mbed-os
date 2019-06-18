@@ -31,7 +31,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && CCP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && CCP_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef CCP_H
 #define CCP_H

@@ -36,7 +36,7 @@
 */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPP_IPV6_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPP_IPV6_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef EUI64_H
 #define EUI64_H
@@ -88,7 +88,7 @@ typedef union
 
 #define eui64_set32(e, l)	do {			\
 				(e).e32[0] = 0;		\
-				(e).e32[1] = lwip_htonl(l);	\
+				(e).e32[1] = ppp_htonl(l);	\
 				} while (0)
 #define eui64_setlo32(e, l)	eui64_set32(e, l)
 

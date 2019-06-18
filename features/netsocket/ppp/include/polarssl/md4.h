@@ -1,4 +1,6 @@
 /**
+ * /@code
+ *
  * \file md4.h
  *
  *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
@@ -31,13 +33,15 @@
  *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * /@endcode
  */
 
 #include "ppp_opts.h"
-#if LWIP_INCLUDED_POLARSSL_MD4
+#if PPP_INCLUDED_POLARSSL_MD4
 
-#ifndef LWIP_INCLUDED_POLARSSL_MD4_H
-#define LWIP_INCLUDED_POLARSSL_MD4_H
+#ifndef PPP_INCLUDED_POLARSSL_MD4_H
+#define PPP_INCLUDED_POLARSSL_MD4_H
 
 /**
  * \brief          MD4 context structure
@@ -92,6 +96,6 @@ void md4( unsigned char *input, int ilen, unsigned char output[16] );
 }
 #endif
 
-#endif /* LWIP_INCLUDED_POLARSSL_MD4_H */
+#endif /* PPP_INCLUDED_POLARSSL_MD4_H */
 
-#endif /* LWIP_INCLUDED_POLARSSL_MD4 */
+#endif /* PPP_INCLUDED_POLARSSL_MD4 */

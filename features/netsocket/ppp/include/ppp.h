@@ -1,4 +1,6 @@
 /*****************************************************************************
+* /@code
+*
 * ppp.h - Network Point to Point Protocol header file.
 *
 * Copyright (c) 2003 by Marc Boucher, Services Informatiques (MBSI) inc.
@@ -29,23 +31,15 @@
 *   Ported to lwIP.
 * 97-11-05 Guy Lancaster <glanca@gesn.com>, Global Election Systems Inc.
 *   Original derived from BSD codes.
+*
+* /@endcode
 *****************************************************************************/
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPP_H
 #define PPP_H
-
-#include "lwip/def.h"
-#include "lwip/stats.h"
-#include "lwip/mem.h"
-#include "lwip/netif.h"
-#include "lwip/sys.h"
-#include "lwip/timeouts.h"
-#if PPP_IPV6_SUPPORT
-#include "lwip/ip6_addr.h"
-#endif /* PPP_IPV6_SUPPORT */
 
 #ifdef __cplusplus
 extern "C" {
@@ -220,9 +214,9 @@ typedef struct ppp_settings_s {
 #if EAP_SUPPORT
   unsigned int  refuse_eap          :1;      /* Don't proceed auth. with EAP */
 #endif /* EAP_SUPPORT */
-#if LWIP_DNS
+#if PPP_DNS
   unsigned int  usepeerdns          :1;      /* Ask peer for DNS adds */
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
   unsigned int  persist             :1;      /* Persist mode, always try to open the connection */
 #if PRINTPKT_SUPPORT
   unsigned int  hide_password       :1;      /* Hide password in dumped packets */
@@ -300,9 +294,9 @@ typedef struct ppp_settings_s {
 struct ppp_addrs {
 #if PPP_IPV4_SUPPORT
   ip4_addr_t our_ipaddr, his_ipaddr, netmask;
-#if LWIP_DNS
+#if PPP_DNS
   ip4_addr_t dns1, dns2;
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 #endif /* PPP_IPV4_SUPPORT */
 #if PPP_IPV6_SUPPORT
   ip6_addr_t our6_ipaddr, his6_ipaddr;
@@ -487,7 +481,7 @@ void ppp_set_auth(ppp_pcb *pcb, u8_t authtype, const char *user, const char *pas
 #define ppp_set_ipcp_ouraddr(ppp, addr) do { ppp->ipcp_wantoptions.ouraddr = ip4_addr_get_u32(addr); \
                                              ppp->ask_for_local = ppp->ipcp_wantoptions.ouraddr != 0; } while(0)
 #define ppp_set_ipcp_hisaddr(ppp, addr) (ppp->ipcp_wantoptions.hisaddr = ip4_addr_get_u32(addr))
-#if LWIP_DNS
+#if PPP_DNS
 /*
  * Set DNS server addresses that are sent if the peer asks for them. This is mostly necessary
  * for PPP server support.
@@ -503,7 +497,7 @@ void ppp_set_auth(ppp_pcb *pcb, u8_t authtype, const char *user, const char *pas
  * Default is false.
  */
 #define ppp_set_usepeerdns(ppp, boolval) (ppp->settings.usepeerdns = boolval)
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 #endif /* PPP_IPV4_SUPPORT */
 
 #if MPPE_SUPPORT
@@ -685,11 +679,11 @@ err_t ppp_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg);
 /* Get the PPP netif interface */
 #define ppp_netif(ppp)               (ppp->netif)
 
-/* Set an lwIP-style status-callback for the selected PPP device */
+/* Set a status-callback for the selected PPP device */
 #define ppp_set_netif_statuscallback(ppp, status_cb)       \
         netif_set_status_callback(ppp->netif, status_cb);
 
-/* Set an lwIP-style link-callback for the selected PPP device */
+/* Set a link-callback for the selected PPP device */
 #define ppp_set_netif_linkcallback(ppp, link_cb)           \
         netif_set_link_callback(ppp->netif, link_cb);
 

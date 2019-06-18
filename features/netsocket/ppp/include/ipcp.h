@@ -43,7 +43,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPP_IPV4_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPP_IPV4_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef IPCP_H
 #define	IPCP_H
@@ -61,10 +61,10 @@ extern "C" {
 #endif /* VJ_SUPPORT */
 #define	CI_ADDR		3
 
-#if LWIP_DNS
+#if PPP_DNS
 #define CI_MS_DNS1      129	/* Primary DNS value */
 #define CI_MS_DNS2      131     /* Secondary DNS value */
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 #if 0 /* UNUSED - WINS */
 #define CI_MS_WINS1     130     /* Primary WINS value */
 #define CI_MS_WINS2     132	/* Secondary WINS value */
@@ -101,15 +101,15 @@ typedef struct ipcp_options {
 #endif /* VJ_SUPPORT */
     unsigned int accept_local           :1; /* accept peer's value for ouraddr */
     unsigned int accept_remote          :1; /* accept peer's value for hisaddr */
-#if LWIP_DNS
+#if PPP_DNS
     unsigned int req_dns1               :1; /* Ask peer to send primary DNS address? */
     unsigned int req_dns2               :1; /* Ask peer to send secondary DNS address? */
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 
     u32_t ouraddr, hisaddr;	/* Addresses in NETWORK BYTE ORDER */
-#if LWIP_DNS
+#if PPP_DNS
     u32_t dnsaddr[2];	/* Primary and secondary MS DNS entries */
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 #if 0 /* UNUSED - WINS */
     u32_t winsaddr[2];	/* Primary and secondary MS WINS entries */
 #endif /* UNUSED - WINS */
@@ -120,9 +120,9 @@ typedef struct ipcp_options {
 #endif /* VJ_SUPPORT */
 } ipcp_options;
 
-#if 0 /* UNUSED, already defined by lwIP */
+#if 0 /* UNUSED, already defined */
 char *ip_ntoa (u32_t);
-#endif /* UNUSED, already defined by lwIP */
+#endif /* UNUSED, already defined */
 
 extern const struct protent ipcp_protent;
 

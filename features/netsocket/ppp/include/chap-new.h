@@ -29,7 +29,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && CHAP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && CHAP_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef CHAP_H
 #define CHAP_H

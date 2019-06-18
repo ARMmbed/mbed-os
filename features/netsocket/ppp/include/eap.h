@@ -21,7 +21,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && EAP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && EAP_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPP_EAP_H
 #define	PPP_EAP_H

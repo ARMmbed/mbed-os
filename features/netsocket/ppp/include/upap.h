@@ -43,7 +43,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PAP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PAP_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef UPAP_H
 #define UPAP_H

@@ -139,7 +139,7 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPP_IPV6_SUPPORT  /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPP_IPV6_SUPPORT  /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef IPV6CP_H
 #define	IPV6CP_H

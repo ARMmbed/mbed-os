@@ -25,16 +25,15 @@
  *
  */
 
-#ifndef LWIP_PPPAPI_H
-#define LWIP_PPPAPI_H
+#ifndef PPPAPI_H
+#define PPPAPI_H
 
 #include "ppp_opts.h"
 
-#if LWIP_PPP_API /* don't build if not configured for use in lwipopts.h */
+#if PPP_API
 
-#include "lwip/sys.h"
-#include "lwip/netif.h"
-#include "lwip/priv/tcpip_priv.h"
+#if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
+
 #include "ppp.h"
 #if PPPOS_SUPPORT
 #include "pppos.h"
@@ -132,6 +131,8 @@ err_t pppapi_ioctl(ppp_pcb *pcb, u8_t cmd, void *arg);
 }
 #endif
 
-#endif /* LWIP_PPP_API */
+#endif /* PPP_SUPPORT */
 
-#endif /* LWIP_PPPAPI_H */
+#endif /* PPP_API */
+
+#endif /* PPPAPI_H */

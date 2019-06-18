@@ -1,4 +1,6 @@
 /*****************************************************************************
+* /@code
+*
 * pppdebug.h - System debugging utilities.
 *
 * Copyright (c) 2003 by Marc Boucher, Services Informatiques (MBSI) inc.
@@ -31,11 +33,12 @@
 * 98-07-29 Guy Lancaster <lancasterg@acm.org>, Global Election Systems Inc.
 *   Original.
 *
+* /@endcode
 *****************************************************************************
 */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPPDEBUG_H
 #define PPPDEBUG_H
@@ -44,26 +47,43 @@
 extern "C" {
 #endif
 
+#if PPP_DEBUG
+#if MBED_CONF_MBED_TRACE_ENABLE
+#include "mbed_trace.h"
+#define TRACE_GROUP "ppp"
+#define PPP_DEBUGF(level, message)   tr_info message
+#else
+#define PPP_DEBUGF(level, message)   printf message
+#endif
+#else
+#define PPP_DEBUGF(level, message)
+#endif
+
+#define PPP_DBG_LEVEL_ALL     0x00
+#define PPP_DBG_LEVEL_WARNING 0x01
+#define PPP_DBG_LEVEL_SERIOUS 0x02
+#define PPP_DBG_LEVEL_SEVERE  0x03
+
 /* Trace levels. */
-#define LOG_CRITICAL  (PPP_DEBUG | LWIP_DBG_LEVEL_SEVERE)
-#define LOG_ERR       (PPP_DEBUG | LWIP_DBG_LEVEL_SEVERE)
-#define LOG_NOTICE    (PPP_DEBUG | LWIP_DBG_LEVEL_WARNING)
-#define LOG_WARNING   (PPP_DEBUG | LWIP_DBG_LEVEL_WARNING)
+#define LOG_CRITICAL  (PPP_DEBUG | PPP_DBG_LEVEL_SEVERE)
+#define LOG_ERR       (PPP_DEBUG | PPP_DBG_LEVEL_SEVERE)
+#define LOG_NOTICE    (PPP_DEBUG | PPP_DBG_LEVEL_WARNING)
+#define LOG_WARNING   (PPP_DEBUG | PPP_DBG_LEVEL_WARNING)
 #define LOG_INFO      (PPP_DEBUG)
 #define LOG_DETAIL    (PPP_DEBUG)
 #define LOG_DEBUG     (PPP_DEBUG)
 
 #if PPP_DEBUG
 
-#define MAINDEBUG(a)    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define SYSDEBUG(a)     LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define FSMDEBUG(a)     LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define LCPDEBUG(a)     LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define IPCPDEBUG(a)    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define IPV6CPDEBUG(a)  LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define UPAPDEBUG(a)    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define CHAPDEBUG(a)    LWIP_DEBUGF(LWIP_DBG_LEVEL_WARNING, a)
-#define PPPDEBUG(a, b)  LWIP_DEBUGF(a, b)
+#define MAINDEBUG(a)    PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define SYSDEBUG(a)     PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define FSMDEBUG(a)     PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define LCPDEBUG(a)     PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define IPCPDEBUG(a)    PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define IPV6CPDEBUG(a)  PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define UPAPDEBUG(a)    PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define CHAPDEBUG(a)    PPP_DEBUGF(PPP_DBG_LEVEL_WARNING, a)
+#define PPPDEBUG(a, b)  PPP_DEBUGF(a, b)
 
 #else /* PPP_DEBUG */
 

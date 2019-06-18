@@ -32,12 +32,10 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPPOS_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPPOS_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPPOS_H
 #define PPPOS_H
-
-#include "lwip/sys.h"
 
 #include "ppp.h"
 #include "vj.h"
@@ -102,7 +100,7 @@ ppp_pcb *pppos_create(struct netif *pppif, pppos_output_cb_fn output_cb,
        ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
 #if !NO_SYS && !PPP_INPROC_IRQ_SAFE
-/* Pass received raw characters to PPPoS to be decoded through lwIP TCPIP thread. */
+/* Pass received raw characters to PPPoS to be decoded through stacks TCPIP thread. */
 err_t pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l);
 #endif /* !NO_SYS && !PPP_INPROC_IRQ_SAFE */
 
@@ -111,8 +109,8 @@ void pppos_input(ppp_pcb *ppp, u8_t* data, int len);
 
 
 /*
- * Functions called from lwIP
- * DO NOT CALL FROM lwIP USER APPLICATION.
+ * Functions called from stack
+ * DO NOT CALL FROM stacks USER APPLICATION.
  */
 #if !NO_SYS && !PPP_INPROC_IRQ_SAFE
 err_t pppos_input_sys(struct pbuf *p, struct netif *inp);

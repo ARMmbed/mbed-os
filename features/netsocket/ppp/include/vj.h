@@ -23,13 +23,10 @@
  */
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT && VJ_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && VJ_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef VJ_H
 #define VJ_H
-
-#include "lwip/ip.h"
-#include "lwip/priv/tcp_priv.h"
 
 #ifdef __cplusplus
 extern "C" {

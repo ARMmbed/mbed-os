@@ -42,6 +42,8 @@
  * $Id: magic.h,v 1.5 2003/06/11 23:56:26 paulus Exp $
  */
 /*****************************************************************************
+* /@code
+*
 * randm.h - Random number generator header file.
 *
 * Copyright (c) 2003 by Marc Boucher, Services Informatiques (MBSI) inc.
@@ -72,10 +74,12 @@
 *   Ported to lwIP.
 * 98-05-29 Guy Lancaster <glanca@gesn.com>, Global Election Systems Inc.
 *   Extracted from avos.
+*
+* /@endcode
 *****************************************************************************/
 
 #include "ppp_opts.h"
-#if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef MAGIC_H
 #define MAGIC_H

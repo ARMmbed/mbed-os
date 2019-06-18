@@ -1,4 +1,6 @@
 /*****************************************************************************
+* /@code
+*
 * ppp.h - Network Point to Point Protocol header file.
 *
 * Copyright (c) 2003 by Marc Boucher, Services Informatiques (MBSI) inc.
@@ -29,13 +31,15 @@
 *   Ported to lwIP.
 * 97-11-05 Guy Lancaster <glanca@gesn.com>, Global Election Systems Inc.
 *   Original derived from BSD codes.
+*
+* /@endcode
 *****************************************************************************/
-#ifndef LWIP_HDR_PPP_IMPL_H
-#define LWIP_HDR_PPP_IMPL_H
+#ifndef PPP_IMPL_H
+#define PPP_IMPL_H
 
 #include "ppp_opts.h"
 
-#if PPP_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifdef PPP_INCLUDE_SETTINGS_HEADER
 #include "ppp_settings.h"
@@ -46,16 +50,59 @@
 #include <string.h>
 #include <stdlib.h> /* strtol() */
 
-#include "lwip/netif.h"
-#include "lwip/def.h"
-#include "lwip/timeouts.h"
-
 #include "ppp.h"
 #include "pppdebug.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+ * Endian conversion macros
+ */
+#ifndef LITTLE_ENDIAN
+#define LITTLE_ENDIAN 1234
+#endif
+
+#ifndef BIG_ENDIAN
+#define BIG_ENDIAN 4321
+#endif
+
+#ifndef BYTE_ORDER
+#define BYTE_ORDER LITTLE_ENDIAN
+#endif
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define ppp_htons(x) ((u16_t)(x))
+#define ppp_ntohs(x) ((u16_t)(x))
+#define ppp_htonl(x) ((u32_t)(x))
+#define ppp_ntohl(x) ((u32_t)(x))
+#define PP_HTONS(x)   ((u16_t)(x))
+#define PP_NTOHS(x)   ((u16_t)(x))
+#define PP_HTONL(x)   ((u32_t)(x))
+#define PP_NTOHL(x)   ((u32_t)(x))
+#else /* BYTE_ORDER != BIG_ENDIAN */
+#ifndef ppp_htons
+u16_t ppp_htons(u16_t x);
+#endif
+#define ppp_ntohs(x) ppp_htons(x)
+
+#ifndef ppp_htonl
+u32_t ppp_htonl(u32_t x);
+#endif
+#define ppp_ntohl(x) ppp_htonl(x)
+
+/* These macros should be calculated by the preprocessor and are used
+   with compile-time constants only (so that there is no little-endian
+   overhead at runtime). */
+#define PP_HTONS(x) ((u16_t)((((x) & (u16_t)0x00ffU) << 8) | (((x) & (u16_t)0xff00U) >> 8)))
+#define PP_NTOHS(x) PP_HTONS(x)
+#define PP_HTONL(x) ((((x) & (u32_t)0x000000ffUL) << 24) | \
+                     (((x) & (u32_t)0x0000ff00UL) <<  8) | \
+                     (((x) & (u32_t)0x00ff0000UL) >>  8) | \
+                     (((x) & (u32_t)0xff000000UL) >> 24))
+#define PP_NTOHL(x) PP_HTONL(x)
+#endif /* BYTE_ORDER == BIG_ENDIAN */
 
 /*
  * Memory used for control packets.
@@ -153,7 +200,7 @@ struct link_callbacks {
   err_t (*free) (ppp_pcb *pcb, void *ctx);
   /* Write a pbuf to a ppp link, only used from PPP functions to send PPP packets. */
   err_t (*write)(ppp_pcb *pcb, void *ctx, struct pbuf *p);
-  /* Send a packet from lwIP core (IPv4 or IPv6) */
+  /* Send a packet from stack core (IPv4 or IPv6) */
   err_t (*netif_output)(ppp_pcb *pcb, void *ctx, struct pbuf *p, u_short protocol);
   /* configure the transmit-side characteristics of the PPP interface */
   void (*send_config)(ppp_pcb *pcb, void *ctx, u32_t accm, int pcomp, int accomp);
@@ -384,7 +431,7 @@ struct pppd_stats {
 
  
 /*
- * Functions called from lwIP core.
+ * Functions called from stack core.
  */
 
 /* initialize the PPP subsystem */
@@ -433,10 +480,10 @@ int cifaddr(ppp_pcb *pcb, u32_t our_adr, u32_t his_adr);
 int sifproxyarp(ppp_pcb *pcb, u32_t his_adr);
 int cifproxyarp(ppp_pcb *pcb, u32_t his_adr);
 #endif /* UNUSED - PROXY ARP */
-#if LWIP_DNS
+#if PPP_DNS
 int sdns(ppp_pcb *pcb, u32_t ns1, u32_t ns2);
 int cdns(ppp_pcb *pcb, u32_t ns1, u32_t ns2);
-#endif /* LWIP_DNS */
+#endif /* PPP_DNS */
 #if VJ_SUPPORT
 int sifvjcomp(ppp_pcb *pcb, int vjcomp, int cidcomp, int maxcid);
 #endif /* VJ_SUPPORT */
@@ -528,13 +575,6 @@ void update_link_stats(int u); /* Get stats at link termination */
 
 #define INCPTR(n, cp)	((cp) += (n))
 #define DECPTR(n, cp)	((cp) -= (n))
-
-/*
- * System dependent definitions for user-level 4.3BSD UNIX implementation.
- */
-#define TIMEOUT(f, a, t)        do { sys_untimeout((f), (a)); sys_timeout((t)*1000, (f), (a)); } while(0)
-#define TIMEOUTMS(f, a, t)      do { sys_untimeout((f), (a)); sys_timeout((t), (f), (a)); } while(0)
-#define UNTIMEOUT(f, a)         sys_untimeout((f), (a))
 
 #define BZERO(s, n)		memset(s, 0, n)
 #define	BCMP(s1, s2, l)		memcmp(s1, s2, l)
@@ -703,12 +743,12 @@ void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len);
  *
  * IPv4 or IPv6 must be enabled, therefore we don't need to take care the authentication
  * and the CCP + ECP case, thus reducing overall complexity.
- * 1 + LWIP_MAX(PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT + CCP_SUPPORT, PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT -1 + PPP_IDLETIMELIMIT + PPP_MAXCONNECT + MAXOCTETS + CCP_SUPPORT)
+ * 1 + PPP_MAX(PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT + CCP_SUPPORT, PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT -1 + PPP_IDLETIMELIMIT + PPP_MAXCONNECT + MAXOCTETS + CCP_SUPPORT)
  *
  * We don't support PPP_IDLETIMELIMIT + PPP_MAXCONNECT + MAXOCTETS features
  * and adding those defines to ppp_opts.h just for having the value always
  * defined to 0 isn't worth it.
- * 1 + LWIP_MAX(PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT + CCP_SUPPORT, PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT -1 + CCP_SUPPORT)
+ * 1 + PPP_MAX(PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT + CCP_SUPPORT, PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT -1 + CCP_SUPPORT)
  *
  * Thus, the following is enough for now.
  * 1 + PPP_IPV4_SUPPORT + PPP_IPV6_SUPPORT + CCP_SUPPORT
@@ -719,4 +759,4 @@ void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len);
 #endif
 
 #endif /* PPP_SUPPORT */
-#endif /* LWIP_HDR_PPP_IMPL_H */
+#endif /* PPP_IMPL_H */

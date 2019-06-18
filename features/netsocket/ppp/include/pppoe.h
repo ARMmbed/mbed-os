@@ -1,4 +1,6 @@
 /*****************************************************************************
+* /@code
+*
 * pppoe.h - PPP Over Ethernet implementation for lwIP.
 *
 * Copyright (c) 2006 by Marc Boucher, Services Informatiques (MBSI) inc.
@@ -26,6 +28,8 @@
 *
 * 06-01-01 Marc Boucher <marc@mbsi.ca>
 *   Ported to lwIP.
+*
+* /@endcode
 *****************************************************************************/
 
 
@@ -68,13 +72,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "ppp_opts.h"
-#if PPP_SUPPORT && PPPOE_SUPPORT /* don't build if not configured for use in lwipopts.h */
+#if PPP_SUPPORT && PPPOE_SUPPORT /* don't build if not configured for use in ppp_opts.h */
 
 #ifndef PPP_OE_H
 #define PPP_OE_H
 
 #include "ppp.h"
-#include "lwip/etharp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -172,8 +175,8 @@ ppp_pcb *pppoe_create(struct netif *pppif,
        ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
 /*
- * Functions called from lwIP
- * DO NOT CALL FROM lwIP USER APPLICATION.
+ * Functions called from stack
+ * DO NOT CALL FROM stack USER APPLICATION.
  */
 void pppoe_disc_input(struct netif *netif, struct pbuf *p);
 void pppoe_data_input(struct netif *netif, struct pbuf *p);

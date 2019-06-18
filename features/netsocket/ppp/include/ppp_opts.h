@@ -25,10 +25,57 @@
  *
  */
 
-#ifndef LWIP_PPP_OPTS_H
-#define LWIP_PPP_OPTS_H
+#ifndef PPP_OPTS_H
+#define PPP_OPTS_H
 
-#include "lwip/opt.h"
+#include "nsapi_types.h"
+
+// Enable PPP for now either from lwIP PPP configuration (obsolete) or from PPP service configuration
+#if MBED_CONF_PPP_ENABLED || MBED_CONF_LWIP_PPP_ENABLED
+
+#define PPP_SUPPORT                      1
+
+// For LWIP stack enable PPP Ipv4/Ipv6 support from LWIP IP version flags
+#define LWIP 0x11991199
+
+#if MBED_CONF_PPP_IPV4_ENABLED || ((MBED_CONF_NSAPI_DEFAULT_STACK == LWIP) && MBED_CONF_LWIP_IPV4_ENABLED)
+#define PPP_IPV4_SUPPORT                 1
+#endif
+
+#if MBED_CONF_PPP_IPV6_ENABLED || ((MBED_CONF_NSAPI_DEFAULT_STACK == LWIP) && MBED_CONF_LWIP_IPV6_ENABLED)
+#define PPP_IPV6_SUPPORT                 1
+#endif
+#undef LWIP
+
+#if MBED_CONF_PPP_ENABLE_TRACE
+// Traces every packet
+#define PPP_TRACE_ENABLE                  1
+#define PPP_TRACE_BUFFER_SIZE             0 //50000
+#endif
+
+#endif
+
+#if PPP_SUPPORT
+
+#define CHAP_SUPPORT                      1
+#define PPP_INPROC_IRQ_SAFE               1
+#define NO_SYS                            1
+// Save RAM
+#define PAP_SUPPORT                       0
+#define VJ_SUPPORT                        0
+#define PRINTPKT_SUPPORT                  0
+
+#define MAXNAMELEN                        64     /* max length of hostname or name for auth */
+#define MAXSECRETLEN                      64
+
+#define PPP_DNS                           1
+
+// Used as maximum size for output buffer, to restrict the memory manager get_pool_alloc_unit()
+#define PBUF_POOL_BUFSIZE                 536 + 40
+
+#endif // PPP_SUPPORT
+
+#include "ppp_service_if.h"
 
 /**
  * PPP_SUPPORT==1: Enable PPP.
@@ -66,10 +113,10 @@
 #endif
 
 /**
- * LWIP_PPP_API==1: Enable PPP API (in pppapi.c)
+ * PPP_API==1: Enable PPP API (in pppapi.c)
  */
-#ifndef LWIP_PPP_API
-#define LWIP_PPP_API                    (PPP_SUPPORT && (NO_SYS == 0))
+#ifndef PPP_API
+#define PPP_API                         0 //(PPP_SUPPORT && (NO_SYS == 0))
 #endif
 
 #if PPP_SUPPORT
@@ -125,12 +172,6 @@
 #define MEMP_NUM_PPP_API_MSG 5
 #endif
 
-/**
- * PPP_DEBUG: Enable debugging for PPP.
- */
-#ifndef PPP_DEBUG
-#define PPP_DEBUG                       LWIP_DBG_OFF
-#endif
 
 /**
  * PPP_INPROC_IRQ_SAFE==1 call pppos_input() using tcpip_callback().
@@ -138,7 +179,7 @@
  * Please read the "PPPoS input path" chapter in the PPP documentation about this option.
  */
 #ifndef PPP_INPROC_IRQ_SAFE
-#define PPP_INPROC_IRQ_SAFE             0
+#define PPP_INPROC_IRQ_SAFE             1
 #endif
 
 /**
@@ -148,20 +189,6 @@
  */
 #ifndef PRINTPKT_SUPPORT
 #define PRINTPKT_SUPPORT                0
-#endif
-
-/**
- * PPP_IPV4_SUPPORT==1: Enable PPP IPv4 support
- */
-#ifndef PPP_IPV4_SUPPORT
-#define PPP_IPV4_SUPPORT                (LWIP_IPV4)
-#endif
-
-/**
- * PPP_IPV6_SUPPORT==1: Enable PPP IPv6 support
- */
-#ifndef PPP_IPV6_SUPPORT
-#define PPP_IPV6_SUPPORT                (LWIP_IPV6)
 #endif
 
 /**
@@ -298,7 +325,7 @@
  * PPP_OUR_NAME: Our name for authentication purposes
  */
 #ifndef PPP_OUR_NAME
-#define PPP_OUR_NAME                    "lwIP"
+#define PPP_OUR_NAME                    "ppp"
 #endif
 #endif /* PPP_SERVER */
 
@@ -326,16 +353,16 @@
  * PolarSSL embedded library
  *
  *
- * lwIP contains some files fetched from the latest BSD release of
+ * PPP contains some files fetched from the latest BSD release of
  * the PolarSSL project (PolarSSL 0.10.1-bsd) for ciphers and encryption
- * methods we need for lwIP PPP support.
+ * methods we need for PPP support.
  *
  * The PolarSSL files were cleaned to contain only the necessary struct
- * fields and functions needed for lwIP.
+ * fields and functions needed for PPP.
  *
  * The PolarSSL API was not changed at all, so if you are already using
  * PolarSSL you can choose to skip the compilation of the included PolarSSL
- * library into lwIP.
+ * library into PPP.
  *
  * If you are not using the embedded copy you must include external
  * libraries into your arch/cc.h port file.
@@ -345,17 +372,17 @@
  */
 
 /**
- * LWIP_USE_EXTERNAL_POLARSSL: Use external PolarSSL library
+ * PPP_USE_EXTERNAL_POLARSSL: Use external PolarSSL library
  */
-#ifndef LWIP_USE_EXTERNAL_POLARSSL
-#define LWIP_USE_EXTERNAL_POLARSSL      0
+#ifndef PPP_USE_EXTERNAL_POLARSSL
+#define PPP_USE_EXTERNAL_POLARSSL      0
 #endif
 
 /**
- * LWIP_USE_EXTERNAL_MBEDTLS: Use external mbed TLS library
+ * PPP_USE_EXTERNAL_MBEDTLS: Use external mbed TLS library
  */
-#ifndef LWIP_USE_EXTERNAL_MBEDTLS
-#define LWIP_USE_EXTERNAL_MBEDTLS       0
+#ifndef PPP_USE_EXTERNAL_MBEDTLS
+#define PPP_USE_EXTERNAL_MBEDTLS       0
 #endif
 
 /*
@@ -391,7 +418,7 @@
 #endif
 
 /**
- * UPAP_DEFTIMEOUT: Timeout (seconds) for retransmitting req
+ * UPAP_DEFTIMEOUT: Timeout (seconds) for re-transmitting req
  */
 #ifndef UPAP_DEFTIMEOUT
 #define UPAP_DEFTIMEOUT                 6
@@ -414,7 +441,7 @@
 #endif /* PPP_SERVER */
 
 /**
- * CHAP_DEFTIMEOUT: Timeout (seconds) for retransmitting req
+ * CHAP_DEFTIMEOUT: Timeout (seconds) for re-transmitting req
  */
 #ifndef CHAP_DEFTIMEOUT
 #define CHAP_DEFTIMEOUT                 6
@@ -429,7 +456,7 @@
 
 #if PPP_SERVER
 /**
- * CHAP_DEFRECHALLENGETIME: If this option is > 0, rechallenge the peer every n seconds
+ * CHAP_DEFRECHALLENGETIME: If this option is > 0, re-challenge the peer every n seconds
  */
 #ifndef CHAP_DEFRECHALLENGETIME
 #define CHAP_DEFRECHALLENGETIME         0
@@ -557,48 +584,45 @@
 /*
  * Build triggers for embedded PolarSSL
  */
-#if !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS
 
 /* CHAP, EAP, L2TP AUTH and MD5 Random require MD5 support */
 #if CHAP_SUPPORT || EAP_SUPPORT || PPPOL2TP_AUTH_SUPPORT || PPP_MD5_RANDM
-#define LWIP_INCLUDED_POLARSSL_MD5      1
+#define PPP_INCLUDED_POLARSSL_MD5      1
 #endif /* CHAP_SUPPORT || EAP_SUPPORT || PPPOL2TP_AUTH_SUPPORT || PPP_MD5_RANDM */
 
 #if MSCHAP_SUPPORT
 
 /* MSCHAP require MD4 support */
-#define LWIP_INCLUDED_POLARSSL_MD4      1
+#define PPP_INCLUDED_POLARSSL_MD4      1
 /* MSCHAP require SHA1 support */
-#define LWIP_INCLUDED_POLARSSL_SHA1     1
+#define PPP_INCLUDED_POLARSSL_SHA1     1
 /* MSCHAP require DES support */
-#define LWIP_INCLUDED_POLARSSL_DES      1
+#define PPP_INCLUDED_POLARSSL_DES      1
 
 /* MS-CHAP support is required for MPPE */
 #if MPPE_SUPPORT
 /* MPPE require ARC4 support */
-#define LWIP_INCLUDED_POLARSSL_ARC4     1
+#define PPP_INCLUDED_POLARSSL_ARC4     1
 #endif /* MPPE_SUPPORT */
 
 #endif /* MSCHAP_SUPPORT */
 
-#endif /* !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS */
-
 /* Default value if unset */
-#ifndef LWIP_INCLUDED_POLARSSL_MD4
-#define LWIP_INCLUDED_POLARSSL_MD4      0
-#endif /* LWIP_INCLUDED_POLARSSL_MD4 */
-#ifndef LWIP_INCLUDED_POLARSSL_MD5
-#define LWIP_INCLUDED_POLARSSL_MD5      0
-#endif /* LWIP_INCLUDED_POLARSSL_MD5 */
-#ifndef LWIP_INCLUDED_POLARSSL_SHA1
-#define LWIP_INCLUDED_POLARSSL_SHA1     0
-#endif /* LWIP_INCLUDED_POLARSSL_SHA1 */
-#ifndef LWIP_INCLUDED_POLARSSL_DES
-#define LWIP_INCLUDED_POLARSSL_DES      0
-#endif /* LWIP_INCLUDED_POLARSSL_DES */
-#ifndef LWIP_INCLUDED_POLARSSL_ARC4
-#define LWIP_INCLUDED_POLARSSL_ARC4     0
-#endif /* LWIP_INCLUDED_POLARSSL_ARC4 */
+#ifndef PPP_INCLUDED_POLARSSL_MD4
+#define PPP_INCLUDED_POLARSSL_MD4      0
+#endif /* PPP_INCLUDED_POLARSSL_MD4 */
+#ifndef PPP_INCLUDED_POLARSSL_MD5
+#define PPP_INCLUDED_POLARSSL_MD5     0
+#endif /* PPP_INCLUDED_POLARSSL_MD5 */
+#ifndef PPP_INCLUDED_POLARSSL_SHA1
+#define PPP_INCLUDED_POLARSSL_SHA1     0
+#endif /* PPP_INCLUDED_POLARSSL_SHA1 */
+#ifndef PPP_INCLUDED_POLARSSL_DES
+#define PPP_INCLUDED_POLARSSL_DES      0
+#endif /* PPP_INCLUDED_POLARSSL_DES */
+#ifndef PPP_INCLUDED_POLARSSL_ARC4
+#define PPP_INCLUDED_POLARSSL_ARC4     0
+#endif /* PPP_INCLUDED_POLARSSL_ARC4 */
 
 #endif /* PPP_SUPPORT */
 
@@ -607,4 +631,4 @@
 #define PPP_NUM_TIMEOUTS                0
 #endif /* PPP_NUM_TIMEOUTS */
 
-#endif /* LWIP_PPP_OPTS_H */
+#endif /* PPP_OPTS_H */
