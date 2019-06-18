@@ -28,7 +28,7 @@
 
 #define SLEEP_DURATION_US 20000ULL
 #define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
-#define DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US 500
+#define DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US 600
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -86,29 +86,31 @@ utest::v1::status_t testcase_setup(const Case *const source, const size_t index_
 {
     // Suspend the RTOS kernel scheduler to prevent interference with duration of sleep.
     osKernelSuspend();
-
 #if DEVICE_LPTICKER
+    ticker_suspend(get_lp_ticker_data());
 #if (LPTICKER_DELAY_TICKS > 0)
     // Suspend the low power ticker wrapper to prevent interference with deep sleep lock.
     lp_ticker_wrapper_suspend();
 #endif
-    lp_ticker_init();
 #endif
-#if DEVICE_USTICKER
+    ticker_suspend(get_us_ticker_data());
     // Make sure HAL tickers are initialized.
     us_ticker_init();
+#if DEVICE_LPTICKER
+    lp_ticker_init();
 #endif
-
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
 utest::v1::status_t testcase_teardown(const Case *const source, const size_t passed, const size_t failed,
                                       const utest::v1::failure_t failure)
 {
+    ticker_resume(get_us_ticker_data());
 #if DEVICE_LPTICKER
 #if (LPTICKER_DELAY_TICKS > 0)
     lp_ticker_wrapper_resume();
 #endif
+    ticker_resume(get_lp_ticker_data());
 #endif
     osKernelResume(0);
     return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
@@ -209,53 +211,88 @@ void test_sleep_auto()
 }
 #endif
 
+#define US_PER_S 1000000
+
+uint32_t diff_us(uint32_t start_ticks, uint32_t stop_ticks, const ticker_info_t *info)
+{
+    uint32_t counter_mask = ((1 << info->bits) - 1);
+
+    uint32_t diff_ticks = ((stop_ticks - start_ticks) & counter_mask);
+
+    return (uint32_t)((uint64_t) diff_ticks * US_PER_S / info->frequency);
+}
+
+uint32_t us_to_ticks(uint32_t us, const ticker_info_t *info)
+{
+    return (uint32_t)((uint32_t) us * info->frequency / US_PER_S);
+}
+
+volatile bool unlock_deep_sleep = false;
+
+void ticker_event_handler_stub(const ticker_data_t *const ticker)
+{
+    if (unlock_deep_sleep) {
+        sleep_manager_unlock_deep_sleep_internal();
+        unlock_deep_sleep = false;
+    }
+}
+
+ticker_irq_handler_type prev_irq_handler;
+
 void test_lock_unlock_test_check()
 {
-    // Make sure HAL tickers are initialized.
-    ticker_read(get_us_ticker_data());
-    ticker_read(get_lp_ticker_data());
+    prev_irq_handler = set_lp_ticker_irq_handler(ticker_event_handler_stub);
 
-    // Use LowPowerTimer instead of Timer to prevent deep sleep lock.
-    LowPowerTimer lp_timer;
-    us_timestamp_t exec_time_unlocked, exec_time_locked;
-    LowPowerTimeout lp_timeout;
+    for (int i = 0; i < 1000; i++) {
 
-    // Deep sleep unlocked:
-    // * sleep_manager_can_deep_sleep() returns true,
-    // * sleep_manager_can_deep_sleep_test_check() returns true instantly.
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
-    lp_timer.start();
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
-    lp_timer.stop();
-    exec_time_unlocked = lp_timer.read_high_resolution_us();
+        wraparound_lp_protect();
 
-    // Deep sleep locked:
-    // * sleep_manager_can_deep_sleep() returns false,
-    // * sleep_manager_can_deep_sleep_test_check() returns false with 2 ms delay.
-    sleep_manager_lock_deep_sleep();
-    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
-    lp_timer.reset();
-    lp_timer.start();
-    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep_test_check());
-    lp_timer.stop();
-    exec_time_locked = lp_timer.read_high_resolution_us();
-    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US,
-                              exec_time_locked - exec_time_unlocked);
+        const ticker_info_t *p_ticker_info = get_lp_ticker_data()->interface->get_info();
 
-    // Deep sleep unlocked with a 1 ms delay:
-    // * sleep_manager_can_deep_sleep() returns false,
-    // * sleep_manager_can_deep_sleep_test_check() returns true with a 1 ms delay,
-    // * sleep_manager_can_deep_sleep() returns true when checked again.
-    lp_timer.reset();
-    lp_timeout.attach_us(mbed::callback(sleep_manager_unlock_deep_sleep_internal),
-                         DEEP_SLEEP_TEST_CHECK_WAIT_US / 2);
-    lp_timer.start();
-    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
-    lp_timer.stop();
-    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US / 2,
-                              lp_timer.read_high_resolution_us());
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+        // Use LowPowerTimer instead of Timer to prevent deep sleep lock.
+        us_timestamp_t exec_time_unlocked, exec_time_locked;
+        uint32_t start, stop;
+
+        // Deep sleep unlocked:
+        // * sleep_manager_can_deep_sleep() returns true,
+        // * sleep_manager_can_deep_sleep_test_check() returns true instantly.
+        TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+        start = lp_ticker_read();
+        TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+        stop = lp_ticker_read();
+        exec_time_unlocked = diff_us(start, stop, p_ticker_info);
+
+        // Deep sleep locked:
+        // * sleep_manager_can_deep_sleep() returns false,
+        // * sleep_manager_can_deep_sleep_test_check() returns false with 2 ms delay.
+        sleep_manager_lock_deep_sleep();
+        TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
+        start = lp_ticker_read();
+        TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep_test_check());
+        stop = lp_ticker_read();
+        exec_time_locked = diff_us(start, stop, p_ticker_info);
+        TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US,
+                                  exec_time_locked - exec_time_unlocked);
+
+        // Deep sleep unlocked with a 1 ms delay:
+        // * sleep_manager_can_deep_sleep() returns false,
+        // * sleep_manager_can_deep_sleep_test_check() returns true with a 1 ms delay,
+        // * sleep_manager_can_deep_sleep() returns true when checked again.
+        unlock_deep_sleep = true;
+        lp_ticker_set_interrupt(lp_ticker_read() + us_to_ticks(DEEP_SLEEP_TEST_CHECK_WAIT_US / 2, p_ticker_info));
+
+        start = lp_ticker_read();
+        // Extra wait after setting interrupt to handle CMPOK
+        wait_ns(100000);
+        TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
+        TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+        stop = lp_ticker_read();
+        TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US / 2,
+                                  diff_us(start, stop, p_ticker_info));
+        TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+    }
+
+    set_lp_ticker_irq_handler(prev_irq_handler);
 }
 #endif
 
@@ -284,7 +321,7 @@ Case cases[] = {
     Case("deep sleep lock/unlock test_check",
          (utest::v1::case_setup_handler_t) testcase_setup,
          test_lock_unlock_test_check,
-         (utest::v1::case_teardown_handler_t) testcase_teardown),
+         (utest::v1::case_teardown_handler_t) testcase_teardown)
 #endif
 };
 
