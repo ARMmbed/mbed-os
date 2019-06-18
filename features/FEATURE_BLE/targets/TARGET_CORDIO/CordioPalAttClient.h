@@ -83,7 +83,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         AttcFindByTypeValueReq(
             connection_handle,
@@ -149,7 +149,7 @@ public:
      */
     ble_error_t read_multiple_request_(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& attribute_handles
+        const Span<const attribute_handle_t>& attribute_handles
     ) {
         AttcReadMultipleReq(
             connection_handle,
@@ -184,7 +184,7 @@ public:
     ble_error_t write_request_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         AttcWriteReq(
             connection_handle,
@@ -201,7 +201,7 @@ public:
     ble_error_t write_command_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         AttcWriteCmd(
             connection_handle,
@@ -218,7 +218,7 @@ public:
     ble_error_t signed_write_command_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         AttcSignedWriteCmd(
             connection_handle,
@@ -250,7 +250,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         AttcPrepareWriteReq(
             connection_handle,
@@ -409,7 +409,7 @@ private:
         {
             return SimpleAttFindInformationResponse(
                 static_cast<SimpleAttFindInformationResponse::Format>(event->pValue[0]),
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue + 1,
                     event->valueLen - 1
                 )
@@ -424,7 +424,7 @@ private:
         static SimpleAttFindByTypeValueResponse convert(const attEvt_t* event)
         {
             return SimpleAttFindByTypeValueResponse(
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )
@@ -440,7 +440,7 @@ private:
         {
             return SimpleAttReadByTypeResponse(
                 event->pValue[0],
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue + 1,
                     event->valueLen - 1
                 )
@@ -455,7 +455,7 @@ private:
         static AttReadResponse convert(const attEvt_t* event)
         {
             return AttReadResponse(
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )
@@ -470,7 +470,7 @@ private:
         static AttReadBlobResponse convert(const attEvt_t* event)
         {
             return AttReadBlobResponse(
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )
@@ -485,7 +485,7 @@ private:
         static AttReadMultipleResponse convert(const attEvt_t* event)
         {
             return AttReadMultipleResponse(
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )
@@ -501,7 +501,7 @@ private:
         {
             return SimpleAttReadByGroupTypeResponse(
                 event->pValue[0],
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue + 1,
                     event->valueLen - 1
                 )
@@ -530,7 +530,7 @@ private:
                 event->handle,
                 to_uint16_t(event->pValue + 2),
                 // FIXME: the stack set the lenght to 0, the data won't be seen ...
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue + 4,
                     event->valueLen
                 )
@@ -556,7 +556,7 @@ private:
         {
             return AttHandleValueNotification(
                 event->handle,
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )
@@ -572,7 +572,7 @@ private:
         {
             return AttHandleValueIndication(
                 event->handle,
-                make_const_ArrayView(
+                make_const_Span(
                     event->pValue,
                     event->valueLen
                 )

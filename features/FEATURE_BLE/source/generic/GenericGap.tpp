@@ -27,7 +27,6 @@
 #include "ble/generic/GenericGap.h"
 
 #include "drivers/Timeout.h"
-#include "platform/Span.h"
 
 #include "ble/pal/Deprecated.h"
 
@@ -1007,7 +1006,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        ArrayView<uint8_t> name(deviceName, *lengthP);
+        Span<uint8_t> name(deviceName, *lengthP);
         err = _gap_service.get_device_name(name);
         if (err) {
             return err;
@@ -1768,7 +1767,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
                     /* NO PERIODIC ADVERTISING */ 0,
                     peer_address_type_t::ANONYMOUS,
                     ble::address_t (),
-                    mbed::Span<const uint8_t>(advertising.data.data(), advertising.data.size())
+                    Span<const uint8_t>(advertising.data.data(), advertising.data.size())
                 )
             );
         }
@@ -2434,7 +2433,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingPayload_(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> payload
+    Span<const uint8_t> payload
 )
 {
     useVersionTwoAPI();
@@ -2450,7 +2449,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingScanResponse_(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> response
+    Span<const uint8_t> response
 )
 {
     useVersionTwoAPI();
@@ -2466,7 +2465,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingData(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> payload,
+    Span<const uint8_t> payload,
     bool minimiseFragmentation,
     bool scan_response
 )
@@ -2562,7 +2561,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         }
 
         // extract the payload
-        mbed::Span<const uint8_t> sub_payload = payload.subspan(
+        Span<const uint8_t> sub_payload = payload.subspan(
             i,
             std::min(hci_length, (end - i))
         );
@@ -2750,7 +2749,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setPeriodicAdvertisingPayload_(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> payload
+    Span<const uint8_t> payload
 )
 {
     useVersionTwoAPI();
@@ -2790,7 +2789,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         }
 
         // extract the payload
-        mbed::Span<const uint8_t> sub_payload = payload.subspan(
+        Span<const uint8_t> sub_payload = payload.subspan(
             i,
             std::min(hci_length, (end - i))
         );
@@ -2973,7 +2972,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
                 periodic_advertising_interval,
                 (ble::peer_address_type_t::type) direct_address_type.value(),
                 (BLEProtocol::AddressBytes_t &) direct_address,
-                mbed::make_Span(data, data_length)
+                make_Span(data, data_length)
             )
         );
     } else {
@@ -3065,7 +3064,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             tx_power,
             rssi,
             data_status,
-            mbed::make_const_Span(data, data_length)
+            make_const_Span(data, data_length)
         )
     );
 }

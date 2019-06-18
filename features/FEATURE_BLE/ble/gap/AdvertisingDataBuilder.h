@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "platform/Span.h"
+#include "ble/BLETypes.h"
 #include "platform/NonCopyable.h"
 
 #include "ble/blecommon.h"

@@ -95,7 +95,7 @@ public:
      * @param count The number of entries present in the resolving list.
      * @param pointer to the first entry of the resolving list.
      */
-    ArrayView<ble_gap_id_key_t> get_resolving_list();
+    Span<ble_gap_id_key_t> get_resolving_list();
 
     ////////////////////////////////////////////////////////////////////////////
     // Pairing

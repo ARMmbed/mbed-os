@@ -183,14 +183,14 @@ public:
      */
     ble_error_t setAdvertisingPayload_(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> payload
+        Span<const uint8_t> payload
     );
 
     /** @copydoc Gap::setAdvertisingScanResponse
      */
     ble_error_t setAdvertisingScanResponse_(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> response
+        Span<const uint8_t> response
     );
 
     /** @copydoc Gap::startAdvertising
@@ -222,7 +222,7 @@ public:
      */
     ble_error_t setPeriodicAdvertisingPayload_(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> payload
+        Span<const uint8_t> payload
     );
 
     /** @copydoc Gap::startPeriodicAdvertising
@@ -626,7 +626,7 @@ public:
 private:
     ble_error_t setAdvertisingData(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> payload,
+        Span<const uint8_t> payload,
         bool minimiseFragmentation,
         bool scan_response
     );

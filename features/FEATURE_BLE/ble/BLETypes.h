@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ble/SafeEnum.h"
-#include "ble/ArrayView.h"
+#include "platform/Span.h"
 #include "ble/gap/Types.h"
 
 /**
@@ -32,6 +32,10 @@
  */
 
 namespace ble {
+
+using mbed::Span;
+using mbed::make_Span;
+using mbed::make_const_Span;
 
 /** Special advertising set handle used for the legacy advertising set. */
 static const advertising_handle_t LEGACY_ADVERTISING_HANDLE = 0x00;
@@ -412,29 +416,29 @@ protected:
 };
 
 /**
- * Construct a fixed size ArrayView from a byte_array_t.
+ * Construct a fixed size Span from a byte_array_t.
  *
- * @param src byte_array_t to create a view from.
+ * @param src byte_array_t to create a Span from.
  *
- * @return An ArrayView to @p src.
+ * @return A Span to @p src.
  */
 template<size_t Size>
-ArrayView<uint8_t, Size> make_ArrayView(byte_array_t<Size>& src)
+Span<uint8_t, Size> make_Span(byte_array_t<Size>& src)
 {
-    return ArrayView<uint8_t, Size>(src.data(), src.size());
+    return Span<uint8_t, Size>(src.data(), src.size());
 }
 
 /**
- * Construct a fixed size ArrayView from a const byte_array_t.
+ * Construct a fixed size Span from a const byte_array_t.
  *
- * @param src byte_array_t to create a view from.
+ * @param src byte_array_t to create a Span from.
  *
- * @return An ArrayView to @p src.
+ * @return A Span to @p src.
  */
 template<size_t Size>
-ArrayView<const uint8_t, Size> make_const_ArrayView(const byte_array_t<Size>& src)
+Span<const uint8_t, Size> make_const_Span(const byte_array_t<Size>& src)
 {
-    return ArrayView<const uint8_t, Size>(src.data(), src.size());
+    return Span<const uint8_t, Size>(src.data(), src.size());
 }
 
 /** 128 bit keys used by paired devices */

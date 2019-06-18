@@ -114,9 +114,9 @@ ble_error_t nRF5xSecurityManager<EventHandler>::initialize_()
 {
 #if defined(MBEDTLS_ECDH_C)
     if (_crypto.generate_keys(
-        make_ArrayView(X),
-        make_ArrayView(Y),
-        make_ArrayView(secret)
+        make_Span(X),
+        make_Span(Y),
+        make_Span(secret)
     )) {
         return BLE_ERROR_NONE;
     }
@@ -216,9 +216,9 @@ ble_error_t nRF5xSecurityManager<EventHandler>::clear_resolving_list_()
 }
 
 template<class EventHandler>
-ArrayView<typename nRF5xSecurityManager<EventHandler>::resolving_list_entry_t>
+Span<typename nRF5xSecurityManager<EventHandler>::resolving_list_entry_t>
 nRF5xSecurityManager<EventHandler>::get_resolving_list() {
-    return ArrayView<resolving_list_entry_t>(
+    return Span<resolving_list_entry_t>(
         resolving_list,
         resolving_list_entry_count
     );
@@ -236,11 +236,11 @@ nRF5xSecurityManager<EventHandler>::resolve_address(const address_t& resolvable_
         // Compute the hash part from the random address part when the irk of
         // the entry is used
         CryptoToolbox::ah(
-            make_const_ArrayView<CryptoToolbox::irk_size_>(entry.peer_irk),
-            make_const_ArrayView<CryptoToolbox::prand_size_>(
+            make_const_Span<CryptoToolbox::irk_size_>(entry.peer_irk),
+            make_const_Span<CryptoToolbox::prand_size_>(
                 resolvable_address.data() + CryptoToolbox::hash_size_
             ),
-            make_ArrayView(hash_generated)
+            make_Span(hash_generated)
         );
 
         // Compare hash generated with the hash present in the address passed as
@@ -953,9 +953,9 @@ bool nRF5xSecurityManager<EventHandler>::sm_handler(const ble_evt_t *evt)
             ble_gap_lesc_dhkey_t shared_secret;
 
             _crypto.generate_shared_secret(
-                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk),
-                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk + key_size),
-                make_const_ArrayView(secret),
+                make_const_Span<key_size>(dhkey_request.p_pk_peer->pk),
+                make_const_Span<key_size>(dhkey_request.p_pk_peer->pk + key_size),
+                make_const_Span(secret),
                 shared_secret.key
             );
 

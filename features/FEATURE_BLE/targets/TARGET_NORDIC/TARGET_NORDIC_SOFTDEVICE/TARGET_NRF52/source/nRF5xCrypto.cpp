@@ -64,9 +64,9 @@ CryptoToolbox::~CryptoToolbox() {
 }
 
 bool CryptoToolbox::generate_keys(
-    ArrayView<uint8_t, lesc_key_size_> X,
-    ArrayView<uint8_t, lesc_key_size_> Y,
-    ArrayView<uint8_t, lesc_key_size_> secret
+    Span<uint8_t, lesc_key_size_> X,
+    Span<uint8_t, lesc_key_size_> Y,
+    Span<uint8_t, lesc_key_size_> secret
 ) {
     mbedtls_mpi secret_key;
     mbedtls_ecp_point public_keys;
@@ -95,10 +95,10 @@ bool CryptoToolbox::generate_keys(
 }
 
 bool CryptoToolbox::generate_shared_secret(
-    const ArrayView<const uint8_t, lesc_key_size_>& peer_X,
-    const ArrayView<const uint8_t, lesc_key_size_>& peer_Y,
-    const ArrayView<const uint8_t, lesc_key_size_>& own_secret,
-    ArrayView<uint8_t, lesc_key_size_> shared_secret
+    const Span<const uint8_t, lesc_key_size_>& peer_X,
+    const Span<const uint8_t, lesc_key_size_>& peer_Y,
+    const Span<const uint8_t, lesc_key_size_>& own_secret,
+    Span<uint8_t, lesc_key_size_> shared_secret
 ) {
     mbedtls_mpi result;
     mbedtls_mpi secret_key;
@@ -134,9 +134,9 @@ bool CryptoToolbox::generate_shared_secret(
 }
 
 bool CryptoToolbox::ah(
-    const ArrayView<const uint8_t, irk_size_>& irk,
-    const ArrayView<const uint8_t, prand_size_>& prand,
-    ArrayView<uint8_t, hash_size_> hash
+    const Span<const uint8_t, irk_size_>& irk,
+    const Span<const uint8_t, prand_size_>& prand,
+    Span<uint8_t, hash_size_> hash
 ) {
     // Note copy then swap operation can be optimized.
 
@@ -164,13 +164,13 @@ bool CryptoToolbox::ah(
 }
 
 
-void CryptoToolbox::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src) {
+void CryptoToolbox::load_mpi(mbedtls_mpi& dest, const Span<const uint8_t, lesc_key_size_>& src) {
     ble::public_key_coord_t src_be = src.data();
     swap_endian(src_be.data(), src_be.size());
     mbedtls_mpi_read_binary(&dest, src_be.data(), src_be.size());
 }
 
-void CryptoToolbox::store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src) {
+void CryptoToolbox::store_mpi(Span<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src) {
     mbedtls_mpi_write_binary(&src, dest.data(), dest.size());
     swap_endian(dest.data(), dest.size());
 }

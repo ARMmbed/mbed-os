@@ -110,7 +110,7 @@ public:
      * @param count The number of entries present in the resolving list.
      * @param pointer to the first entry of the resolving list.
      */
-    ArrayView<resolving_list_entry_t> get_resolving_list();
+    Span<resolving_list_entry_t> get_resolving_list();
 
     /**
      * Try to resolve a private resolvable address.

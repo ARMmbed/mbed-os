@@ -114,9 +114,9 @@ ble_error_t nRF5xSecurityManager<EventHandler>::initialize_()
     // Please do not change or we risk a stack overflow.
     CryptoToolbox* crypto = new CryptoToolbox();
     bool success = crypto->generate_keys(
-        make_ArrayView(X),
-        make_ArrayView(Y),
-        make_ArrayView(secret)
+        make_Span(X),
+        make_Span(Y),
+        make_Span(secret)
     );
     delete crypto;
 
@@ -223,8 +223,8 @@ ble_error_t nRF5xSecurityManager<EventHandler>::clear_resolving_list_()
 }
 
 template <class EventHandler>
-ArrayView<ble_gap_id_key_t> nRF5xSecurityManager<EventHandler>::get_resolving_list() {
-    return ArrayView<ble_gap_id_key_t>(
+Span<ble_gap_id_key_t> nRF5xSecurityManager<EventHandler>::get_resolving_list() {
+    return Span<ble_gap_id_key_t>(
         resolving_list,
         resolving_list_entry_count
     );
@@ -985,9 +985,9 @@ bool nRF5xSecurityManager<EventHandler>::sm_handler(const ble_evt_t *evt)
             // Risk stack overflows if allocated on stack.
             CryptoToolbox* crypto = new CryptoToolbox();
             crypto->generate_shared_secret(
-                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk),
-                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk + key_size),
-                make_const_ArrayView(secret),
+                make_const_Span<key_size>(dhkey_request.p_pk_peer->pk),
+                make_const_Span<key_size>(dhkey_request.p_pk_peer->pk + key_size),
+                ble::make_const_Span(secret),
                 shared_secret.key
             );
             delete crypto;
