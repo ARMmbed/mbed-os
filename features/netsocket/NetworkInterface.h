@@ -36,6 +36,7 @@ class WiFiInterface;
 class MeshInterface;
 class CellularInterface;
 class EMACInterface;
+class PPPInterface;
 
 /** Common interface that is shared between network devices.
  *
@@ -334,6 +335,14 @@ public:
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
      */
     virtual MeshInterface *meshInterface()
+    {
+        return 0;
+    }
+
+    /** Return pointer to a PPPInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
+    virtual PPPInterface *pppInterface()
     {
         return 0;
     }
