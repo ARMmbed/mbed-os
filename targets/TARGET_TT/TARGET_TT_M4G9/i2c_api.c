@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
 #include "mbed_error.h"
-#include "i2c_api.h"
 #include "txz_i2c_api.h"
 #include "PeripheralNames.h"
 #include "pinmap.h"
@@ -209,3 +212,5 @@ const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
 }
+
+#endif  // #if DEVICE_I2C
