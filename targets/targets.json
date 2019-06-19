@@ -2062,7 +2062,8 @@
         "detect_code": ["0236"],
         "device_name": "LPC55S69JBD100",
         "release_versions": ["5"],
-        "program_cycle_s": 10
+        "program_cycle_s": 10,
+        "sectors": [[0,512]]
     },
     "LPC55S69_NS": {
         "inherits": ["NSPE_Target", "LPC55S69"],
