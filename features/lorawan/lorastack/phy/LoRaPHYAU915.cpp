@@ -355,6 +355,8 @@ bool LoRaPHYAU915::rx_config(rx_config_params_t *params)
         // Apply window 1 frequency
         frequency = AU915_FIRST_RX1_CHANNEL
                     + (params->channel % 8) * AU915_STEPWIDTH_RX1_CHANNEL;
+        // Caller may print the frequency to log so update it to match actual frequency
+        params->frequency = frequency;
     }
 
     // Read the physical datarate from the datarates table
