@@ -33,7 +33,8 @@
 #include "rtos/Mutex.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_Thread Thread class

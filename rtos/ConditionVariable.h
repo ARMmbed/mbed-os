@@ -30,10 +30,15 @@
 #include "platform/NonCopyable.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api Public API */
 /** @{*/
 
 struct Waiter;
+/**
+ * \defgroup rtos_ConditionVariable ConditionVariable class
+ * @{
+ */
 
 /** The ConditionVariable class is a synchronization primitive that allows
  *   threads to wait until a particular condition occurs.
@@ -325,7 +330,7 @@ protected:
 #endif // !defined(DOXYGEN_ONLY)
 };
 
-}
-#endif
-
 /** @}*/
+/** @}*/
+} // namespace rtos
+#endif

@@ -30,12 +30,11 @@
 namespace rtos {
 namespace internal {
 
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
+/** @{*/
+
 /**
- * @cond RTOS_INTERNAL
- *
- * @addtogroup rtos
- * @{
- *
  * @defgroup rtos_SysTimer SysTimer class
  * @{
  */
@@ -126,7 +125,6 @@ protected:
 /**
  * @}
  * @}
- * @endcond
  */
 
 }

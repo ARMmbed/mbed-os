@@ -1,6 +1,3 @@
-
-/** \addtogroup rtos */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
  *
@@ -31,6 +28,10 @@
 extern "C" {
 #endif
 
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal Internal API */
+/** @{*/
+
 /**
  * \defgroup rtos_handlers RTOS hook functions
  * @{
@@ -42,12 +43,10 @@ extern "C" {
  */
 void rtos_attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 /** @}*/
+/** @}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
-/** @}*/
-

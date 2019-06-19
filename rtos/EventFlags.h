@@ -30,7 +30,8 @@
 #include "platform/NonCopyable.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_EventFlags EventFlags class

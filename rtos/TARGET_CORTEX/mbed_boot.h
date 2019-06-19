@@ -25,6 +25,10 @@ extern "C" {
 
 #include "mbed_rtx.h"
 
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
+/** @{*/
+
 /**
  * \defgroup boot Boot sequence
  * Boot sequence overview
@@ -158,6 +162,7 @@ void mbed_sdk_init(void);
  */
 void mbed_main(void);
 
+/**@}*/
 /**@}*/
 
 #ifdef __cplusplus

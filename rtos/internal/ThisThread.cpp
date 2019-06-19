@@ -24,7 +24,7 @@
 #include "rtos/ThisThread.h"
 
 #include "rtos/Kernel.h"
-#include "rtos/rtos_idle.h"
+#include "rtos_idle.h"
 #include "platform/mbed_assert.h"
 
 namespace rtos {

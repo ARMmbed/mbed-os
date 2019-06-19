@@ -25,11 +25,12 @@
 #include "cmsis_os2.h"
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
-#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 #include "platform/NonCopyable.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_Queue Queue class

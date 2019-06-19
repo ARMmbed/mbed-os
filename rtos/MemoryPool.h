@@ -29,9 +29,13 @@
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_assert.h"
+#include "Kernel.h"
+
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_MemoryPool MemoryPool class

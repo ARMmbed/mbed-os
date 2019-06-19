@@ -1,6 +1,3 @@
-
-/** \addtogroup rtos */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2012 ARM Limited
  *
@@ -26,11 +23,15 @@
 #define RTOS_IDLE_H
 
 #include "mbed_toolchain.h"
-#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
+/** @{*/
 
 /**
  * \defgroup rtos_Idle Idle hook function
@@ -47,12 +48,10 @@ void rtos_attach_idle_hook(void (*fptr)(void));
 MBED_NORETURN void rtos_idle_loop(void);
 
 /** @}*/
+/** @}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
-/** @}*/
-

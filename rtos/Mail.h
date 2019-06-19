@@ -28,7 +28,6 @@
 #include "Queue.h"
 #include "MemoryPool.h"
 #include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
 #include "mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
@@ -39,7 +38,8 @@ using namespace rtos;
 #endif
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_Mail Mail class

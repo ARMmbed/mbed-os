@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "rtos/rtos_idle.h"
+#include "rtos/internal/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
 #include "TimerEvent.h"
 #include "lp_ticker_api.h"

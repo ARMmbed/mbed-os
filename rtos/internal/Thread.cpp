@@ -21,8 +21,8 @@
  */
 #include "rtos/Thread.h"
 #include "rtos/ThisThread.h"
-#include "rtos/rtos_idle.h"
-#include "rtos/rtos_handlers.h"
+#include "rtos_idle.h"
+#include "rtos_handlers.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_error.h"
 

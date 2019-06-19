@@ -24,16 +24,11 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "mbed_rtos1_types.h"
-#include "mbed_rtos_storage.h"
-#include "platform/Callback.h"
-#include "platform/mbed_toolchain.h"
-#include "platform/NonCopyable.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mutex.h"
+
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_ThisThread ThisThread namespace

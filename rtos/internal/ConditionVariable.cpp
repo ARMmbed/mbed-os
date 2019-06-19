@@ -23,8 +23,8 @@
 #include "rtos/Kernel.h"
 #include "rtos/ThisThread.h"
 
-#include "mbed_error.h"
-#include "mbed_assert.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 
 namespace rtos {
 

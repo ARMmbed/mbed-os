@@ -31,7 +31,8 @@
 #include "mbed_rtos1_types.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 /**
  * \defgroup rtos_RtosTimer RtosTimer class

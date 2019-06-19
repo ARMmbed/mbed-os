@@ -26,7 +26,8 @@
 #include "cmsis_os2.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 
 /** Functions in the Kernel namespace control RTOS kernel information. */
@@ -60,7 +61,6 @@ void attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 
 } // namespace Kernel
 
+/** @}*/
 } // namespace rtos
 #endif
-
-/** @}*/

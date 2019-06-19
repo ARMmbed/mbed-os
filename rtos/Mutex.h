@@ -32,7 +32,8 @@
 #include "platform/mbed_toolchain.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup mbed-os-api */
 /** @{*/
 
 class Mutex;

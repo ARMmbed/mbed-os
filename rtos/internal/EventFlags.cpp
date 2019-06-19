@@ -21,8 +21,8 @@
  */
 #include "rtos/EventFlags.h"
 #include <string.h>
-#include "mbed_error.h"
-#include "mbed_assert.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 
 namespace rtos {
 
