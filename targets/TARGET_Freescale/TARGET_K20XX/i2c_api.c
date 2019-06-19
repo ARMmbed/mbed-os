@@ -16,6 +16,8 @@
 #include "mbed_assert.h"
 #include "i2c_api.h"
 
+#if DEVICE_I2C
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "clk_freqs.h"
@@ -390,3 +392,5 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     obj->i2c->A1 = address & 0xfe;
 }
 #endif
+
+#endif  // #if DEVICE_I2C

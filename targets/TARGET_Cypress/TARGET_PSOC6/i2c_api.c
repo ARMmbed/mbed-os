@@ -16,13 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
+#include "i2c_api.h"
+
+#if DEVICE_I2C
 
 #include "cmsis.h"
-#include "mbed_assert.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
-#include "i2c_api.h"
+
 #include "psoc6_utils.h"
 
 #include "cy_sysclk.h"
@@ -652,3 +655,5 @@ void i2c_abort_asynch(i2c_t *obj_in)
 }
 
 #endif // DEVICE_ASYNCH
+
+#endif  // #if DEVICE_I2C
