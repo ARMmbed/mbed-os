@@ -8070,8 +8070,7 @@
     "FVP_MPS2_M0P": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M0+",
-        "macros_add": ["CMSDK_CM0plus"],
-        "device_has_add": ["MPU"]
+        "macros_add": ["CMSDK_CM0plus"]
     },
     "FVP_MPS2_M3": {
         "inherits": ["FVP_MPS2"],
