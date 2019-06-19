@@ -345,8 +345,8 @@ void mount_unmount_test(BlockDevice *bd, FileSystem *fs)
             usb.disconnect();
         }
 #else
-        // unmount
-        usb.disconnect();
+            // unmount
+            usb.disconnect();
 #endif
         // check if device is detached on host side
         greentea_send_kv("check_if_not_mounted", 0);
