@@ -281,16 +281,16 @@ void test_lock_unlock_test_check()
         // * sleep_manager_can_deep_sleep_test_check() returns true with a 1 ms delay,
         // * sleep_manager_can_deep_sleep() returns true when checked again.
         unlock_deep_sleep = true;
-        lp_ticker_set_interrupt(lp_ticker_read() + us_to_ticks(DEEP_SLEEP_TEST_CHECK_WAIT_US / 2, p_ticker_info));
 
         start = lp_ticker_read();
+        lp_ticker_set_interrupt(lp_ticker_read() + us_to_ticks(DEEP_SLEEP_TEST_CHECK_WAIT_US / 2, p_ticker_info));
         // Extra wait after setting interrupt to handle CMPOK
         wait_ns(100000);
         TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
         TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
         stop = lp_ticker_read();
-        TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US / 2,
-                                  diff_us(start, stop, p_ticker_info));
+        TEST_ASSERT(diff_us(start, stop, p_ticker_info) >= DEEP_SLEEP_TEST_CHECK_WAIT_US / 2);
+        TEST_ASSERT(diff_us(start, stop, p_ticker_info) < DEEP_SLEEP_TEST_CHECK_WAIT_US);
         TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
     }
 
