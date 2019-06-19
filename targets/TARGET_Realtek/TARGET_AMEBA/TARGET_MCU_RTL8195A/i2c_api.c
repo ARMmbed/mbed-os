@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "i2c_api.h"
+
+#if DEVICE_I2C
 
 #include <string.h>
 #include "objects.h"
 #include "PinNames.h"
 #include "hal_i2c.h"
-#include "i2c_api.h"
 
 #if CONFIG_I2C_EN
 
@@ -603,3 +605,4 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 
 #endif // CONFIG_I2C_EN
 
+#endif  // #if DEVICE_I2C

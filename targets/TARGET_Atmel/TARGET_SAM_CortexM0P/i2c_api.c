@@ -16,6 +16,8 @@
 #include "mbed_assert.h"
 #include "i2c_api.h"
 
+#if DEVICE_I2C
+
 #include <math.h>
 
 #include "cmsis.h"
@@ -1013,3 +1015,5 @@ void i2c_abort_asynch(i2c_t *obj)
 }
 
 #endif
+
+#endif  // #if DEVICE_I2C
