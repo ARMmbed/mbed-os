@@ -35,37 +35,27 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAcce
 
     switch (opsAct) {
         case RAT_CATM1:
-            _at.cmd_start("AT+QCFG=\"nwscanseq\",020301");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"nwscanmode\",3,1");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"iotopmode\",0,1");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+QCFG", "=\"nwscanseq\",020301");
+            _at.at_cmd_discard("+QCFG", "=\"nwscanmode\",3,1");
+            _at.at_cmd_discard("+QCFG", "=\"iotopmode\",0,1");
             break;
         case RAT_NB1:
-            _at.cmd_start("AT+QCFG=\"nwscanseq\",030201");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"nwscanmode\",3,1");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"iotopmode\",1,1");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+QCFG", "=\"nwscanseq\",030201");
+            _at.at_cmd_discard("+QCFG", "=\"nwscanmode\",3,1");
+            _at.at_cmd_discard("+QCFG", "=\"iotopmode\",1,1");
             break;
         case RAT_GSM:
         case RAT_GSM_COMPACT:
         case RAT_UTRAN:
         case RAT_EGPRS:
-            _at.cmd_start("AT+QCFG=\"nwscanseq\",010203");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"nwscanmode\",1,1");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+QCFG", "=\"nwscanseq\",010203");
+            _at.at_cmd_discard("+QCFG", "=\"nwscanmode\",1,1");
             break;
         default:
-            _at.cmd_start("AT+QCFG=\"nwscanseq\",020301");
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"nwscanmode\",0,1"); //auto mode
-            _at.cmd_stop_read_resp();
-            _at.cmd_start("AT+QCFG=\"iotopmode\",2,1"); //auto mode
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+QCFG", "=\"nwscanseq\",020301");
+            _at.at_cmd_discard("+QCFG", "=\"nwscanmode\",0,1");
+            _at.at_cmd_discard("+QCFG", "=\"iotopmode\",2,1");
+
             _at.unlock();
             _op_act = RAT_UNKNOWN;
             return NSAPI_ERROR_UNSUPPORTED;
@@ -77,8 +67,7 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAcce
 void QUECTEL_BG96_CellularNetwork::get_context_state_command()
 {
     // read active contexts
-    _at.cmd_start("AT+QIACT?");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+QIACT", "?");
     _at.resp_start("+QIACT:");
 }
 

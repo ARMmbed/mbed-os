@@ -26,17 +26,14 @@
 #ifndef __AT_HANDLER_STUB_H__
 #define __AT_HANDLER_STUB_H__
 
-#define ATHANDLER_REF_COUNT_AT_DESTRUCTOR -909
-
 static const int kRead_string_table_size = 100;
 static const int kRead_int_table_size = 100;
 static const int kResp_stop_count_default = 100;
-// set reference count to -909 to separate it from zero so we can test that ATHandler is really deleted.
-static const int kATHandler_destructor_ref_ount = ATHANDLER_REF_COUNT_AT_DESTRUCTOR;
 static const int kATHandler_urc_table_max_size = 10;
 static const int kATHandler_urc_string_max_size = 16;
 
 namespace ATHandler_stub {
+extern mbed::ATHandler *handler;
 extern nsapi_error_t nsapi_error_value;
 extern uint8_t nsapi_error_ok_counter;
 extern int int_value;

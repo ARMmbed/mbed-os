@@ -25,8 +25,10 @@ using namespace events;
 
 #include "CellularLog.h"
 
-const int DEFAULT_AT_TIMEOUT = 1000; // at default timeout in milliseconds
+const int DEFAULT_AT_TIMEOUT = 1000;
 const uint8_t MAX_RESP_LENGTH = 7;
+
+mbed::ATHandler *ATHandler_stub::handler = NULL;
 
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
@@ -88,8 +90,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _oobs(NULL),
     _max_resp_length(MAX_RESP_LENGTH)
 {
-    ATHandler_stub::ref_count = 1;
-
     ATHandler_stub::process_oob_urc = false;
 }
 
@@ -108,29 +108,21 @@ bool ATHandler::get_debug() const
 
 ATHandler::~ATHandler()
 {
-    ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
-    while (_oobs) {
-        struct oob_t *oob = _oobs;
-        _oobs = oob->next;
-        delete oob;
-    }
 }
 
 void ATHandler::inc_ref_count()
 {
-    _ref_count++;
-    ATHandler_stub::ref_count = _ref_count;
+    ATHandler_stub::ref_count++;
 }
 
 void ATHandler::dec_ref_count()
 {
-    _ref_count--;
-    ATHandler_stub::ref_count = _ref_count;
+    ATHandler_stub::ref_count--;
 }
 
 int ATHandler::get_ref_count()
 {
-    return _ref_count;
+    return ATHandler_stub::ref_count;
 }
 
 FileHandle *ATHandler::get_file_handle()
@@ -145,42 +137,14 @@ void ATHandler::set_file_handle(FileHandle *fh)
 
 bool ATHandler::find_urc_handler(const char *prefix)
 {
-    struct oob_t *oob = _oobs;
-    while (oob) {
-        if (strcmp(prefix, oob->prefix) == 0) {
-            return true;
-        }
-        oob = oob->next;
-    }
-
-    return false;
+    return ATHandler_stub::bool_value;
 }
 
 void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     if (!cb) {
-        remove_urc_handler(urc);
         return;
     }
-
-    if (find_urc_handler(urc)) {
-        return;
-    }
-
-    struct oob_t *oob = new struct oob_t;
-    size_t prefix_len = strlen(urc);
-    if (prefix_len > _oob_string_max_length) {
-        _oob_string_max_length = prefix_len;
-        if (_oob_string_max_length > _max_resp_length) {
-            _max_resp_length = _oob_string_max_length;
-        }
-    }
-
-    oob->prefix = urc;
-    oob->prefix_len = prefix_len;
-    oob->cb = cb;
-    oob->next = _oobs;
-    _oobs = oob;
 
     if (ATHandler_stub::call_immediately) {
         cb();
@@ -189,21 +153,6 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 
 void ATHandler::remove_urc_handler(const char *prefix)
 {
-    struct oob_t *current = _oobs;
-    struct oob_t *prev = NULL;
-    while (current) {
-        if (strcmp(prefix, current->prefix) == 0) {
-            if (prev) {
-                prev->next = current->next;
-            } else {
-                _oobs = current->next;
-            }
-            delete current;
-            break;
-        }
-        prev = current;
-        current = prev->next;
-    }
 }
 
 nsapi_error_t ATHandler::get_last_error() const
@@ -240,16 +189,6 @@ void ATHandler::restore_at_timeout()
 
 void ATHandler::process_oob()
 {
-    if (ATHandler_stub::process_oob_urc) {
-        size_t prefix_len = 0;
-        for (struct oob_t *oob = _oobs; oob; oob = oob->next) {
-            prefix_len = oob->prefix_len;
-            if (!memcmp(oob->prefix, ATHandler_stub::read_string_table[ATHandler_stub::read_string_index], prefix_len)) {
-                oob->cb();
-                break;
-            }
-        }
-    }
 }
 
 void ATHandler::clear_error()
@@ -273,7 +212,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
-
+    buf[0] = '\0';
     if (ATHandler_stub::read_string_index == kRead_string_table_size) {
         if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
             memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value + 1);
@@ -305,7 +244,6 @@ int32_t ATHandler::read_int()
         return ATHandler_stub::int_value;
     }
 
-    //printf("ATHandler_stub::int_count: %d", ATHandler_stub::int_count);
     ATHandler_stub::int_count--;
     if (ATHandler_stub::int_count < kRead_int_table_size && ATHandler_stub::int_count >= 0) {
         return ATHandler_stub::int_valid_count_table[ATHandler_stub::int_count];
@@ -338,20 +276,6 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 
 bool ATHandler::info_resp()
 {
-    //3 counter variables available here now so that in a test
-    //case it is possible to have at least two while loops checking
-    //specified amount of info_resps.
-    //
-    //For example:
-    //while(athandler.info_resp())
-    //{
-    //   resp_info_true_counter responses handled in this loop
-    //}
-    //   resp_info_false_counter set to 1 to break out from the 1st loop
-    //while(athandler.info_resp())
-    //{
-    //   resp_info_true_counter2 responses handled in this loop
-    //}
     if (ATHandler_stub::resp_info_true_counter) {
         ATHandler_stub::resp_info_true_counter--;
         return true;
@@ -430,3 +354,54 @@ void ATHandler::flush()
 {
 
 }
+
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf,
+                                    size_t buf_size, const char *format, ...)
+{
+    read_string(resp_buf, buf_size);
+    return ATHandler_stub::nsapi_error_value;
+}
+
+nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char *cmd_chr, int &resp,
+                                    const char *format, ...)
+{
+    resp = read_int();
+    return ATHandler_stub::nsapi_error_value;
+}
+
+void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format, ...)
+{
+}
+
+nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char *cmd_chr,
+                                        const char *format, ...)
+{
+    return ATHandler_stub::nsapi_error_value;
+}
+
+ATHandler *ATHandler::get_instance(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
+                                   const char *delimiter, uint16_t send_delay, bool debug_on)
+{
+    ATHandler_stub::ref_count++;
+    int a = ATHandler_stub::ref_count;
+    a = 0;
+    return ATHandler_stub::handler;
+}
+
+nsapi_error_t ATHandler::close()
+{
+    ATHandler_stub::ref_count--;
+    return NSAPI_ERROR_OK;
+}
+
+void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_timeout)
+{
+    ATHandler_stub::timeout = timeout_milliseconds;
+    ATHandler_stub::default_timeout = default_timeout;
+}
+
+void ATHandler::set_debug_list(bool debug_on)
+{
+    ATHandler_stub::debug_on = debug_on;
+}
+
