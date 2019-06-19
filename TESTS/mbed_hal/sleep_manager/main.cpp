@@ -28,7 +28,9 @@
 
 #define SLEEP_DURATION_US 20000ULL
 #define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
-#define DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US 600
+// As sleep_manager_can_deep_sleep_test_check() is based on wait_ns
+// and wait_ns can be up to 40% slower, use a 50% delta here.
+#define DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US 1000
 
 using utest::v1::Case;
 using utest::v1::Specification;
