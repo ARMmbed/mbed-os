@@ -47,7 +47,7 @@
 #endif
 
 // Increase the idle thread stack size when debug is enabled
-#if defined(MBED_DEBUG)
+#if defined(MBED_DEBUG) || defined(MBED_ALL_STATS_ENABLED)
 #define EXTRA_IDLE_STACK_DEBUG MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE_DEBUG_EXTRA
 #else
 #define EXTRA_IDLE_STACK_DEBUG 0
