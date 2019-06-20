@@ -21,18 +21,34 @@
 #include "objects.h"
 
 static const PinMap PinMap_UART_TX[] = {
-    {PA1, SERIAL_0, PIN_DATA(1, 1)},
+    {PM1, SERIAL_0, PIN_DATA(1, 1)},
     {PJ2, SERIAL_1, PIN_DATA(2, 1)},
-    {PL1, SERIAL_2, PIN_DATA(2, 1)},
+    {PB2, SERIAL_2, PIN_DATA(1, 1)},
     {NC,  NC,       0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PA2, SERIAL_0, PIN_DATA(1, 0)},
+    {PM2, SERIAL_0, PIN_DATA(1, 0)},
     {PJ1, SERIAL_1, PIN_DATA(2, 0)},
-    {PL0, SERIAL_2, PIN_DATA(2, 0)},
+    {PB3, SERIAL_2, PIN_DATA(1, 0)},
     {NC,  NC,       0}
 };
+
+#if DEVICE_SERIAL_FC
+static const PinMap PinMap_UART_CTS[] = {
+    {PM3, SERIAL_0, PIN_DATA(1, 0)},
+    {PJ3, SERIAL_1, PIN_DATA(1, 0)},
+    {PB4, SERIAL_2, PIN_DATA(1, 0)},
+    {NC,  NC,       0}
+};
+
+static const PinMap PinMap_UART_RTS[] = {
+    {PM4, SERIAL_0, PIN_DATA(1, 1)},
+    {PJ4, SERIAL_1, PIN_DATA(1, 1)},
+    {PB5, SERIAL_2, PIN_DATA(1, 1)},
+    {NC,  NC,       0}
+};
+#endif
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -56,7 +72,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         case SERIAL_0:
             obj->UARTx = TSB_UART0;
             TSB_CG_FSYSENA_IPENA23 = ENABLE;
-            TSB_CG_FSYSENA_IPENA00 = ENABLE;
+            TSB_CG_FSYSENA_IPENA11 = ENABLE;
             break;
         case SERIAL_1:
             obj->UARTx = TSB_UART1;
@@ -67,7 +83,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         case SERIAL_2:
             obj->UARTx = TSB_UART2;
             TSB_CG_FSYSENA_IPENA25 = ENABLE;
-            TSB_CG_FSYSENA_IPENA10 = ENABLE;
+            TSB_CG_FSYSENA_IPENA01 = ENABLE;
             break;
         default:
             error("UART is not available");
@@ -289,6 +305,23 @@ void serial_break_clear(serial_t *obj)
 {
     obj->UARTx->TRANS &= ~(0x08);
 }
+
+#if DEVICE_SERIAL_FC
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
+    UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
+    UARTName uart_name = (UARTName)pinmap_merge(uart_cts, uart_rts);
+    MBED_ASSERT((int)uart_name != NC);
+
+    pinmap_pinout(rxflow, PinMap_UART_RTS);
+    pinmap_pinout(txflow, PinMap_UART_CTS);
+    pin_mode(txflow, PullUp);
+    pin_mode(rxflow, PullUp);
+
+    obj->UARTx->CR0 |= (3U << 9);
+}
+#endif
 
 static void uart_swreset(TSB_UART_TypeDef *UARTx)
 {

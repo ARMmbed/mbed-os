@@ -93,14 +93,26 @@ struct pwmout_s {
 
 struct i2c_s {
     uint32_t         address;
-    IRQn_Type        IRQn;
-    TSB_I2C_TypeDef *i2c;
+    TSB_I2C_TypeDef  *i2c;
+#if DEVICE_I2C_ASYNCH
+    uint32_t         irqn;
+    uint32_t         state;
+    uint32_t         event;
+    uint32_t         stop;
+#endif
 };
 
 struct spi_s {
-    tspi_t  p_obj;
-    SPIName module;
-    uint8_t bits;
+    tspi_t      p_obj;
+    SPIName     module;
+    uint8_t     bits;
+    PinName     Slave_SCK;
+#if DEVICE_SPI_ASYNCH
+    uint32_t    irqn;
+    uint32_t    event;
+    uint32_t    max_size;
+    uint32_t    state;
+#endif
 };
 
 extern const gpio_regtypedef_t GPIO_SFRs[];
