@@ -109,7 +109,7 @@ SECTIONS
         __data_start__ = .;
         *(vtable)
         *(.data*)
-
+        *(.ram_func*)
         . = ALIGN(4);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);

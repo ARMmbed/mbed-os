@@ -13,11 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdbool.h>
 #include "spi_api.h"
 #include "mbed_error.h"
 #include "pinmap.h"
 #include "gpio_include.h"
 #include "txz_tspi.h"
+#define TIMEOUT                         1000
+#define INITIAL_SPI_FREQ                1000000
+
+#if DEVICE_I2C_ASYNCH
+#define SPI_S(obj) (struct spi_s *) (&((obj)->spi))
+#else
+#define SPI_S(obj) (struct spi_s *) (obj)
+#endif
+
+#if DEVICE_SPI_ASYNCH
+static void spi_irq_handler(spi_t *obj);
+static void disable_irq(uint32_t irqn);
+static void clear_irq(uint32_t irqn);
+
+enum {
+    SPI_TRANSFER_STATE_IDLE = 0U,
+    SPI_TRANSFER_STATE_BUSY
+} SPI_TransferState;
+
+typedef struct {
+    IRQn_Type Tx;
+    IRQn_Type Rx;
+    IRQn_Type Error;
+} spi_irq_t;
+
+static const spi_irq_t SPI_CH0_IRQN_TBL[1] = {
+    { INTT0RX_IRQn, INTT0TX_IRQn, INTT0ERR_IRQn }
+};
+
+static const spi_irq_t SPI_CH1_IRQN_TBL[1] = {
+    { INTT1RX_IRQn, INTT1TX_IRQn, INTT1ERR_IRQn }
+};
+
+static const spi_irq_t SPI_CH2_IRQN_TBL[1] = {
+    { INTT2RX_IRQn, INTT2TX_IRQn, INTT2ERR_IRQn }
+};
+
+static const spi_irq_t SPI_CH3_IRQN_TBL[1] = {
+    { INTT3RX_IRQn, INTT3TX_IRQn, INTT3ERR_IRQn }
+};
+
+static const spi_irq_t SPI_CH4_IRQN_TBL[1] = {
+    { INTT4RX_IRQn, INTT4TX_IRQn, INTT4ERR_IRQn }
+};
+#endif
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {PM0, SPI_0, PIN_DATA(3, 1)},
@@ -54,8 +100,18 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {NC,  NC,    0}
 };
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+static const PinMap PinMap_SPISLAVE_SCLK[] = {
+    {PM0, SPI_0, PIN_DATA(3, 0)},
+    {PB2, SPI_1, PIN_DATA(3, 0)},
+    {PT2, SPI_2, PIN_DATA(1, 0)},
+    {PP5, SPI_3, PIN_DATA(1, 0)},
+    {PH4, SPI_4, PIN_DATA(1, 0)},
+    {NC,  NC,    0}
+};
+
+void spi_init(spi_t *t_obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     // Check pin parameters
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -74,26 +130,41 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             obj->p_obj.p_instance  = TSB_TSPI0;
             TSB_CG_FSYSENA_IPENA11 = ENABLE;
             TSB_CG_FSYSENB_IPENB00 = ENABLE;
+#if DEVICE_SPI_ASYNCH
+            obj->irqn = (uint32_t)&SPI_CH0_IRQN_TBL;
+#endif
             break;
         case SPI_1:
             obj->p_obj.p_instance  = TSB_TSPI1;
             TSB_CG_FSYSENA_IPENA01 = ENABLE;
             TSB_CG_FSYSENB_IPENB01 = ENABLE;
+#if DEVICE_SPI_ASYNCH
+            obj->irqn = (uint32_t)&SPI_CH1_IRQN_TBL;
+#endif
             break;
         case SPI_2:
             obj->p_obj.p_instance  = TSB_TSPI2;
             TSB_CG_FSYSENA_IPENA15 = ENABLE;
             TSB_CG_FSYSENB_IPENB02 = ENABLE;
+#if DEVICE_SPI_ASYNCH
+            obj->irqn = (uint32_t)&SPI_CH2_IRQN_TBL;
+#endif
             break;
         case SPI_3:
             obj->p_obj.p_instance  = TSB_TSPI3;
             TSB_CG_FSYSENA_IPENA13 = ENABLE;
             TSB_CG_FSYSENB_IPENB03 = ENABLE;
+#if DEVICE_SPI_ASYNCH
+            obj->irqn = (uint32_t)&SPI_CH3_IRQN_TBL;
+#endif
             break;
         case SPI_4:
             obj->p_obj.p_instance  = TSB_TSPI4;
             TSB_CG_FSYSENA_IPENA07 = ENABLE;
             TSB_CG_FSYSENB_IPENB04 = ENABLE;
+#if DEVICE_SPI_ASYNCH
+            obj->irqn = (uint32_t)&SPI_CH4_IRQN_TBL;
+#endif
             break;
         default:
             error("Cannot found SPI module corresponding with input pins.");
@@ -104,6 +175,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
+    obj->Slave_SCK = sclk;
 
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
@@ -138,7 +210,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->p_obj.init.cnt3.rffllclr = TSPI_RX_BUFF_CLR_DONE;  // receive buffer clear
 
     //baudrate settings
-    spi_frequency(obj, (int)INITIAL_SPI_FREQ);
+    spi_frequency(t_obj, (int)INITIAL_SPI_FREQ);
 
     //Format Control 0 settings
     obj->p_obj.init.fmr0.dir  = TSPI_DATA_DIRECTION_MSB;    // MSB bit first
@@ -166,14 +238,16 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     tspi_init(&obj->p_obj);
 }
 
-void spi_free(spi_t *obj)
+void spi_free(spi_t *t_obj)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     tspi_deinit(&obj->p_obj);
     obj->module = (SPIName)NC;
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave)
+void spi_format(spi_t *t_obj, int bits, int mode, int slave)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     MBED_ASSERT((slave == 0U) || (slave == 1U));   // 0: master mode, 1: slave mode
     MBED_ASSERT((bits >= 8) && (bits <= 32));
 
@@ -192,11 +266,16 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         obj->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_1ST_EDGE;
     }
 
+    if(slave) {
+        pinmap_pinout(obj->Slave_SCK, PinMap_SPISLAVE_SCLK);
+        obj->p_obj.init.cnt1.mstr = TSPI_SLAVE_OPERATION;      // Slave mode operation
+    }
     tspi_init(&obj->p_obj);
 }
 
-void spi_frequency(spi_t *obj, int hz)
+void spi_frequency(spi_t *t_obj, int hz)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     uint8_t  brs      = 0;
     uint8_t  brck     = 0;
     uint16_t prsck    = 1;
@@ -228,8 +307,9 @@ void spi_frequency(spi_t *obj, int hz)
     tspi_init(&obj->p_obj);
 }
 
-int spi_master_write(spi_t *obj, int value)
+int spi_master_write(spi_t *t_obj, int value)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     uint8_t ret_value = 0;
 
     tspi_transmit_t send_obj;
@@ -264,8 +344,9 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_busy(spi_t *obj)
+int spi_busy(spi_t *t_obj)
 {
+    struct spi_s *obj = SPI_S(t_obj);
     int      ret    = 1;
     uint32_t status = 0;
 
@@ -278,8 +359,45 @@ int spi_busy(spi_t *obj)
     return ret;
 }
 
-uint8_t spi_get_module(spi_t *obj)
+int spi_slave_receive(spi_t *t_obj)
 {
+    struct spi_s *obj = SPI_S(t_obj);
+    int ret = 1;
+    uint32_t status;
+
+    tspi_get_status(&obj->p_obj, &status);
+    if((status & (TSPI_RX_REACH_FILL_LEVEL_MASK)) == 0) {
+        ret = 0;
+    }
+    return ret;
+}
+
+int spi_slave_read(spi_t *t_obj)
+{
+    struct spi_s *obj = SPI_S(t_obj);
+    uint8_t ret_value = 0;
+
+    ret_value = obj->p_obj.p_instance->DR & 0xFF;
+
+    // Receive Complete Flag is clear.
+    obj->p_obj.p_instance->SR |=  TSPI_RX_DONE_CLR;
+    obj->p_obj.p_instance->CR1 &= TSPI_TRXE_DISABLE_MASK;
+
+    return ret_value;
+}
+
+void spi_slave_write(spi_t *t_obj, int value)
+{
+    struct spi_s *obj = SPI_S(t_obj);
+
+    // Enable TSPI Transmission Control.
+    obj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
+    obj->p_obj.p_instance->DR  = value & 0xFF;
+}
+
+uint8_t spi_get_module(spi_t *t_obj)
+{
+    struct spi_s *obj = SPI_S(t_obj);
     return (uint8_t)(obj->module);
 }
 
@@ -322,3 +440,167 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+
+#if DEVICE_SPI_ASYNCH
+
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width,
+                         uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    spi_irq_t *p_irqn = (spi_irq_t *)spiobj->irqn;
+    bool use_tx = (tx != NULL && tx_length > 0);
+    bool use_rx = (rx != NULL && rx_length > 0);
+
+    // don't do anything, if the buffers aren't valid
+    if (!use_tx && !use_rx) {
+        return;
+    }
+
+    disable_irq(spiobj->irqn);
+
+    spiobj->p_obj.p_instance->CR1 &= TSPI_TRXE_DISABLE_MASK;
+    spiobj->p_obj.p_instance->SR  |= (TSPI_TX_DONE_CLR | TSPI_RX_DONE_CLR);
+    spiobj->p_obj.p_instance->CR3 |= (TSPI_TX_BUFF_CLR_DONE | TSPI_RX_BUFF_CLR_DONE);
+
+    clear_irq(spiobj->irqn);
+
+    obj->tx_buff.buffer = (void *)tx;
+    obj->tx_buff.length = tx_length;
+    obj->tx_buff.pos    = 0;
+    obj->rx_buff.buffer = (void *)rx;
+    obj->rx_buff.length = rx_length;
+    obj->rx_buff.pos    = 0;
+    spiobj->event       = 0;
+    spiobj->state       = SPI_TRANSFER_STATE_IDLE;
+
+
+    NVIC_SetVector(p_irqn->Error, (uint32_t)handler);
+    NVIC_SetVector(p_irqn->Tx, (uint32_t)handler);
+    NVIC_SetVector(p_irqn->Rx, (uint32_t)handler);
+
+    // Enable Error Interrupt, Receive complete interrupt and Transmit complete interrupt
+    spiobj->p_obj.p_instance->CR2 |= (TSPI_TX_INT_ENABLE | TSPI_RX_INT_ENABLE | TSPI_ERR_INT_ENABLE);
+
+    if (use_tx && use_rx) {
+        spiobj->max_size = tx_length < rx_length ? rx_length:tx_length;
+        spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
+        spiobj->p_obj.p_instance->DR   = ((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF;
+    } else if(use_tx) {
+        spiobj->max_size = tx_length;
+        spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
+        spiobj->p_obj.p_instance->DR   = ((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF;
+    } else if(use_rx) {
+        spiobj->max_size = rx_length;
+        spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
+        spiobj->p_obj.p_instance->DR   = 0xFF;
+    }
+
+    spiobj->state = SPI_TRANSFER_STATE_BUSY;
+    NVIC_EnableIRQ(p_irqn->Error);
+    NVIC_EnableIRQ(p_irqn->Tx);
+    NVIC_EnableIRQ(p_irqn->Rx);
+}
+
+uint32_t spi_irq_handler_asynch(spi_t *obj)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    spi_irq_handler(obj);
+    return ((spiobj->event & SPI_EVENT_ALL)| SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) ;
+}
+
+uint8_t spi_active(spi_t *obj)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    uint8_t ret_val = 0;
+
+    if (spiobj->state != SPI_TRANSFER_STATE_IDLE) {
+        ret_val = 1;
+    }
+
+    return ret_val;
+}
+
+void spi_abort_asynch(spi_t *obj)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+
+    disable_irq(spiobj->irqn);
+    clear_irq(spiobj->irqn);
+    tspi_init(&spiobj->p_obj);
+}
+
+static void spi_irq_handler(spi_t *obj)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+
+    // Check for revceive complete flag.
+    if((spiobj->p_obj.p_instance->SR & TSPI_RX_DONE) &&
+            (spiobj->p_obj.p_instance->SR & TSPI_RX_REACH_FILL_LEVEL_MASK)) {
+        // Check receiver FIFO level
+        uint8_t rlvl = spiobj->p_obj.p_instance->SR & 0xF;
+
+        while((rlvl != 0) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+            ((uint8_t *)obj->rx_buff.buffer)[obj->rx_buff.pos++] = spiobj->p_obj.p_instance->DR & 0xFF;
+            rlvl--;
+        }
+
+        if(obj->rx_buff.pos == spiobj->max_size) {
+            spiobj->state = SPI_TRANSFER_STATE_IDLE;
+        }
+        // Clear rx buffer
+        spiobj->p_obj.p_instance->CR3 |= TSPI_RX_BUFF_CLR_DONE;
+    }
+
+    // Check for transmit completion flag
+    if(spiobj->p_obj.p_instance->SR & TSPI_TX_DONE) {
+        obj->tx_buff.pos++;
+        spiobj->p_obj.p_instance->SR |=  TSPI_RX_DONE_CLR;
+
+        if(obj->tx_buff.pos == (spiobj->max_size)) {
+            spiobj->state = SPI_TRANSFER_STATE_IDLE;
+        }
+
+        if((obj->tx_buff.pos < obj->tx_buff.length) && (obj->tx_buff.pos < spiobj->max_size)) {
+            spiobj->p_obj.p_instance->DR = (((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF);
+        } else if (obj->tx_buff.pos < spiobj->max_size) {
+            spiobj->p_obj.p_instance->DR = 0xFF;
+        }
+    }
+
+    // Check for error flag
+    if(spiobj->p_obj.p_instance->ERR) {
+        spiobj->event = SPI_EVENT_ERROR;
+        spiobj->state = SPI_TRANSFER_STATE_IDLE;
+        disable_irq(spiobj->irqn);
+        spiobj->p_obj.p_instance->SR  |= (TSPI_TX_DONE_CLR | TSPI_RX_DONE_CLR);
+        spiobj->p_obj.p_instance->CR3 |= (TSPI_TX_BUFF_CLR_DONE | TSPI_RX_BUFF_CLR_DONE);
+        clear_irq(spiobj->irqn);
+        return;
+    }
+
+    if(spiobj->state == SPI_TRANSFER_STATE_IDLE) {
+        spiobj->event = SPI_EVENT_COMPLETE;
+        disable_irq(spiobj->irqn);
+        spiobj->p_obj.p_instance->SR  |= (TSPI_TX_DONE_CLR | TSPI_RX_DONE_CLR);
+        spiobj->p_obj.p_instance->CR3 |= (TSPI_TX_BUFF_CLR_DONE | TSPI_RX_BUFF_CLR_DONE);
+        clear_irq(spiobj->irqn);
+    }
+}
+
+static void disable_irq(uint32_t irqn)
+{
+    spi_irq_t *p_irqn = (spi_irq_t *)irqn;
+    NVIC_DisableIRQ(p_irqn->Tx);
+    NVIC_DisableIRQ(p_irqn->Rx);
+    NVIC_DisableIRQ(p_irqn->Error);
+}
+
+static void clear_irq(uint32_t irqn)
+{
+    spi_irq_t *p_irqn = (spi_irq_t *)irqn;
+    NVIC_ClearPendingIRQ(p_irqn->Tx);
+    NVIC_ClearPendingIRQ(p_irqn->Rx);
+    NVIC_ClearPendingIRQ(p_irqn->Error);
+}
+
+#endif
