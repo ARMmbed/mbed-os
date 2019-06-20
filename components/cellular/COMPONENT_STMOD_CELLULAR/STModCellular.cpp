@@ -52,7 +52,8 @@ STModCellular::~STModCellular()
 {
 }
 
-nsapi_error_t STModCellular::soft_power_on() {
+nsapi_error_t STModCellular::soft_power_on()
+{
     tr_debug("STMOD cellular modem power ON\r\n");
 
 #if (MBED_CONF_STMOD_CELLULAR_TYPE == STMOD_UG96)
@@ -106,7 +107,7 @@ nsapi_error_t STModCellular::soft_power_on() {
     _at->restore_at_timeout();
     _at->unlock();
 
-    tr_debug("Modem %sready to receive AT commands", rdy?"":"NOT ");
+    tr_debug("Modem %sready to receive AT commands", rdy ? "" : "NOT ");
 
 #if DEVICE_SERIAL_FC
     if ((MBED_CONF_STMOD_CELLULAR_CTS != NC) && (MBED_CONF_STMOD_CELLULAR_RTS != NC)) {
@@ -145,7 +146,8 @@ nsapi_error_t STModCellular::soft_power_on() {
     return err;
 }
 
-nsapi_error_t STModCellular::soft_power_off() {
+nsapi_error_t STModCellular::soft_power_off()
+{
     _at->cmd_start("AT+QPOWD");
     _at->cmd_stop();
     wait_ms(1000);
