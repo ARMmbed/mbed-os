@@ -24,10 +24,12 @@ class ControlPlane_netif_stub : public ControlPlane_netif {
 public:
     std::list<nsapi_error_t> return_values;
     nsapi_error_t return_value;
+    bool cp_data_received_called;
 
     ControlPlane_netif_stub()
     {
         return_value = 0;
+        cp_data_received_called = false;
     }
 
 protected:
@@ -51,7 +53,10 @@ protected:
         return return_value;
     };
 
-    virtual void data_received() {};
+    virtual void data_received()
+    {
+        cp_data_received_called = true;
+    };
 
     virtual void attach(void (*callback)(void *), void *data) {};
 };

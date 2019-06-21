@@ -54,17 +54,27 @@ public:
     virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
                                             bool active_high, bool cp_req = false, bool nonip_req = false)
     {
-        return NULL;
+        if (_context_list) {
+            return _context_list;
+        }
+        EventQueue que;
+        ATHandler at(serial, que, 0, ",");
+        _context_list = new AT_CellularContext(at, this);
+        return _context_list;
     }
 
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false)
     {
+        if (_context_list) {
+            return _context_list;
+        }
         EventQueue que;
         FileHandle_stub fh1;
         ATHandler at(&fh1, que, 0, ",");
-        _context_list = new AT_CellularContext(at, NULL);
+        _context_list = new AT_CellularContext(at, this);
         return _context_list;
     }
+
     virtual void delete_context(CellularContext *context)
     {
         delete _context_list;
