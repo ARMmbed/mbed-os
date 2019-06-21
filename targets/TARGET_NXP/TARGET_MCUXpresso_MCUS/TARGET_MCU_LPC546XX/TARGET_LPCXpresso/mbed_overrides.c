@@ -135,6 +135,7 @@ void ADC_ClockPower_Configuration(void)
      * The divider would be set when configuring the converter.
      */
     CLOCK_EnableClock(kCLOCK_Adc0); /* SYSCON->AHBCLKCTRL[0] |= SYSCON_AHBCLKCTRL_ADC0_MASK; */
+    RESET_PeripheralReset(kADC0_RST_SHIFT_RSTn);
 }
 
 /* Initialize the external memory. */

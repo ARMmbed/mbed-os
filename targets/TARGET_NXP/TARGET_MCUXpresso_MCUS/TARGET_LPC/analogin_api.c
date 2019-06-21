@@ -49,7 +49,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADC_ClockPower_Configuration();
 
     /* Ensure the ADC clock derived from the system clock is less than 80MHz */
-    clkval = CLOCK_GetFreq(kCLOCK_CoreSysClk);
+    clkval = CLOCK_GetFreq(kCLOCK_BusClk);
     while ((clkval / clkdiv) > MAX_ADC_CLOCK) {
         clkdiv++;
     }
@@ -61,20 +61,20 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     ADC_GetDefaultConfig(&adc_config);
-    adc_config.clockDividerNumber = clkdiv;
+    adc_config.clockDividerNumber = (clkdiv - 1);
 
     ADC_Init(adc_addrs[instance], &adc_config);
     pinmap_pinout(pin, PinMap_ADC);
 
-    /* Clear the DIGIMODE bit */
-    reg = IOCON->PIO[port_number][pin_number] & ~IOCON_PIO_DIGIMODE_MASK;
+    /* Clear the DIGIMODE & MODE bits */
+    reg = IOCON->PIO[port_number][pin_number] & ~(IOCON_PIO_DIGIMODE_MASK | IOCON_PIO_MODE_MASK);
     IOCON->PIO[port_number][pin_number] = reg;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
-    uint32_t channel = obj->adc & 0xF;
+    uint32_t channel = obj->adc & 0xFF;
     adc_conv_seq_config_t adcConvSeqConfigStruct;
     adc_result_info_t adcResultInfoStruct;
 
@@ -93,13 +93,15 @@ uint16_t analogin_read_u16(analogin_t *obj)
     while (!ADC_GetChannelConversionResult(adc_addrs[instance], channel, &adcResultInfoStruct)) {
     }
 
-    return adcResultInfoStruct.result;
+    /* The ADC has 12 bit resolution. We shift in 4 0s */
+    /* from the right to make it a 16 bit number as expected */
+    return adcResultInfoStruct.result << 4;
 }
 
 float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
-    return (float)value * (1.0f / (float)0xFFFF);
+    return (float)value * (1.0f / (float)0xFFF0);
 }
 
 const PinMap *analogin_pinmap()
