@@ -2,6 +2,7 @@
 /** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +27,7 @@
 
 /**
  * \defgroup hal_watchdog Watchdog HAL API
- * @{
- */
-
-/** \file watchdog_api.h
+ * Low-level interface to the Independent Watchdog Timer of a target.
  *
  * This module provides platform independent access to the system watchdog timer
  * which is an embedded peripheral that will reset the system in the case of
@@ -38,12 +36,29 @@
  * The watchdog timer initialises a system timer with a time period specified in
  * the configuration. This timer counts down and triggers a system reset when it
  * wraps. To prevent the system reset the timer must be continually
- * kicked/refreshed by calling hal_watchdog_kick which will reset the countdown
+ * kicked/refreshed by calling ::hal_watchdog_kick which will reset the countdown
  * to the user specified reset value.
  *
- * The Watchdog timer must continue to operate in low power modes. It
- * must count down and trigger a reset from within both sleep and deep sleep
- * modes unless the chip is woken to refresh the timer.
+ * # Defined behavior
+ * * Sleep and debug modes don't stop the watchdog timer from counting down.
+ * * The function ::hal_watchdog_init is safe to call repeatedly. The
+ * function's implementation must not do anything if ::hal_watchdog_init has
+ * already initialized the hardware watchdog timer.
+ * * Maximum supported timeout is `UINT32_MAX` milliseconds; minimum timeout
+ * is 1 millisecond.
+ * * The watchdog should trigger at or after the timeout value.
+ * * The watchdog should trigger before twice the timeout value.
+ *
+ * # Undefined behavior
+ * * Calling any function other than ::hal_watchdog_init or
+ * ::hal_watchdog_get_platform_features before you have initialized the watchdog.
+ *
+ * # Notes
+ * * A software reset may not stop the watchdog timer; the behavior is platform specific.
+ *
+ * @see hal_watchdog_tests
+ *
+ * @{
  */
 
 typedef struct {
