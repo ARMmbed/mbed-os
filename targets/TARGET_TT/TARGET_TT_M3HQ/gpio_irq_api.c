@@ -462,11 +462,6 @@ static uint32_t CheckPinNameIRQSRC(PinName pin)
             return CG_INT_SRC_18;
         case PT1:
             return CG_INT_SRC_19;
-        //Expand:
-        //case PT2:
-        //  return CG_INT_SRC_20;
-        //case PT3:
-        //  return CG_INT_SRC_21;
         default:
             break;
     }
