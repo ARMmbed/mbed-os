@@ -224,15 +224,11 @@ uint32_t diff_us(uint32_t start_ticks, uint32_t stop_ticks, const ticker_info_t 
     return (uint32_t)((uint64_t) diff_ticks * US_PER_S / info->frequency);
 }
 
-uint32_t us_to_ticks(uint32_t us, const ticker_info_t *info)
-{
-    return (uint32_t)((uint32_t) us * info->frequency / US_PER_S);
-}
-
 volatile bool unlock_deep_sleep = false;
 
 void ticker_event_handler_stub(const ticker_data_t *const ticker)
 {
+    lp_ticker_clear_interrupt();
     if (unlock_deep_sleep) {
         sleep_manager_unlock_deep_sleep_internal();
         unlock_deep_sleep = false;
@@ -281,15 +277,19 @@ void test_lock_unlock_test_check()
         // * sleep_manager_can_deep_sleep_test_check() returns true with a 1 ms delay,
         // * sleep_manager_can_deep_sleep() returns true when checked again.
         unlock_deep_sleep = true;
-
+        /*  Let's avoid the Lp ticker wrap-around case */
+        wraparound_lp_protect();
         start = lp_ticker_read();
-        lp_ticker_set_interrupt(lp_ticker_read() + us_to_ticks(DEEP_SLEEP_TEST_CHECK_WAIT_US / 2, p_ticker_info));
+        uint32_t lp_wakeup_ts_raw = start + us_to_ticks(DEEP_SLEEP_TEST_CHECK_WAIT_US / 2, p_ticker_info->frequency);
+        timestamp_t lp_wakeup_ts = overflow_protect(lp_wakeup_ts_raw, p_ticker_info->bits);
+        lp_ticker_set_interrupt(lp_wakeup_ts);
+
         // Extra wait after setting interrupt to handle CMPOK
         wait_ns(100000);
         TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
         TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
         stop = lp_ticker_read();
-        TEST_ASSERT(diff_us(start, stop, p_ticker_info) >= DEEP_SLEEP_TEST_CHECK_WAIT_US / 2);
+        TEST_ASSERT(diff_us(start, stop, p_ticker_info) > 0UL);
         TEST_ASSERT(diff_us(start, stop, p_ticker_info) < DEEP_SLEEP_TEST_CHECK_WAIT_US);
         TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
     }
@@ -300,7 +300,7 @@ void test_lock_unlock_test_check()
 
 utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10, "default_auto");
+    GREENTEA_SETUP(15, "default_auto");
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
 
