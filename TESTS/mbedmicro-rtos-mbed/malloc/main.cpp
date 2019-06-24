@@ -122,7 +122,7 @@ void test_alloc_and_free(void)
     int size = SIZE_INCREMENTS;
     int loop = ALLOC_LOOP;
     while (loop) {
-        data = malloc(size);
+        data = count < ALLOC_ARRAY_SIZE ? malloc(size) : NULL;
         if (NULL != data) {
             array[count++] = data;
             memset((void *)data, 0xdeadbeef, size);
