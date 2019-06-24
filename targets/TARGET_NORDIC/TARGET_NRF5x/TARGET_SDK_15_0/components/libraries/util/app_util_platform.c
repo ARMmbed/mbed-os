@@ -77,7 +77,7 @@ void app_util_critical_region_enter(uint8_t *p_nested)
      *  Retarget nRF SDK to use Mbed critical section API
      */
     //app_util_disable_irq();
-	core_util_critical_section_enter();
+    core_util_critical_section_enter();
 #endif
 
 }
@@ -93,10 +93,10 @@ void app_util_critical_region_exit(uint8_t nested)
     (void) sd_nvic_critical_region_exit(nested);
 #else
     /** Mbed modification
-	 *  Retarget nRF SDK to use Mbed critical section API
-	 */
-	//app_util_enable_irq();
-	core_util_critical_section_exit();
+     *  Retarget nRF SDK to use Mbed critical section API
+     */
+    //app_util_enable_irq();
+    core_util_critical_section_exit();
 #endif
 }
 
