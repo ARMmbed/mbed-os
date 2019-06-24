@@ -20,15 +20,10 @@
 
 using namespace mbed;
 
-const char *QIURC_RECV = "recv";
-const uint8_t QIURC_RECV_LENGTH = 4;
-const char *QIURC_CLOSED = "closed";
-const uint8_t QIURC_CLOSED_LENGTH = 6;
-const uint8_t MAX_QIURC_LENGTH = QIURC_CLOSED_LENGTH;
-
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
 {
-    _at.set_urc_handler("+QIURC:", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc));
+    _at.set_urc_handler("+QIURC: \"recv", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_recv));
+    _at.set_urc_handler("+QIURC: \"close", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_closed));
 }
 
 QUECTEL_BG96_CellularStack::~QUECTEL_BG96_CellularStack()
@@ -97,11 +92,20 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     return NSAPI_ERROR_NO_CONNECTION;
 }
 
-void QUECTEL_BG96_CellularStack::urc_qiurc()
+void QUECTEL_BG96_CellularStack::urc_qiurc_recv()
 {
-    char urc_string[MAX_QIURC_LENGTH + 1];
+    urc_qiurc(URC_RECV);
+}
+
+void QUECTEL_BG96_CellularStack::urc_qiurc_closed()
+{
+    urc_qiurc(URC_CLOSED);
+}
+
+void QUECTEL_BG96_CellularStack::urc_qiurc(urc_type_t urc_type)
+{
     _at.lock();
-    (void)_at.read_string(urc_string, sizeof(urc_string));
+    _at.skip_param();
     const int sock_id = _at.read_int();
     const nsapi_error_t err = _at.unlock_return_error();
 
@@ -109,20 +113,14 @@ void QUECTEL_BG96_CellularStack::urc_qiurc()
         return;
     }
 
-    bool recv = strcmp(urc_string, "recv") == 0;
-    bool closed = strcmp(urc_string, "closed") == 0;
-
     CellularSocket *sock = find_socket(sock_id);
     if (sock) {
-        if (closed) {
-            tr_error("Socket closed %d", sock_id);
+        if (urc_type == URC_CLOSED) {
+            tr_info("Socket closed %d", sock_id);
             sock->closed = true;
         }
-
-        if (recv || closed) {
-            if (sock->_cb) {
-                sock->_cb(sock->_data);
-            }
+        if (sock->_cb) {
+            sock->_cb(sock->_data);
         }
     }
 }
