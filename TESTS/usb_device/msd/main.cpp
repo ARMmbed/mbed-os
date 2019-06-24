@@ -327,7 +327,7 @@ void mount_unmount_test(BlockDevice *bd, FileSystem *fs)
 #ifdef DISABLE_HOST_SIDE_UMOUNT
         greentea_send_kv("get_os_type", 0);
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-        int32_t os_type = atoi(_key);
+        int32_t os_type = atoi(_value);
         if (os_type != OS_WINDOWS) {
 #endif
             // unmount msd device on host side
@@ -340,13 +340,14 @@ void mount_unmount_test(BlockDevice *bd, FileSystem *fs)
             if (!usb.media_removed()) {
                 TEST_ASSERT_EQUAL_LOOP(true, usb.media_removed(), i);
             }
-#ifdef DISABLE_HOST_SIDE_UMOUNT
+
             // unmount since media_removed doesn't disconnects device side
             usb.disconnect();
-        }
-#else
+#ifdef DISABLE_HOST_SIDE_UMOUNT
+        } else {
             // unmount
             usb.disconnect();
+        }
 #endif
         // check if device is detached on host side
         greentea_send_kv("check_if_not_mounted", 0);
