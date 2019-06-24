@@ -2125,8 +2125,7 @@
             "__STARTUP_COPY_MULTIPLE",
             "MBED_MPU_CUSTOM",
             "DAUTH_CHIP_DEFAULT",
-            "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C"
+            "MBEDTLS_PSA_CRYPTO_SPM"
         ],
         "components_add": ["FLASHIAP"],
         "extra_labels_add": [
@@ -5470,7 +5469,6 @@
             "MBED_MPU_CUSTOM",
             "DAUTH_CHIP_DEFAULT",
             "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "MBEDTLS_ENTROPY_NV_SEED"
         ],
         "components_add": ["FLASHIAP"],
@@ -8309,7 +8307,6 @@
         "macros_add": [
             "MBED_TICKLESS",
             "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "PU_ENABLE"
         ],
         "deliver_to_target": "CY8CKIT_062_WIFI_BT_PSA",
