@@ -398,7 +398,7 @@ void test_dispatch0()
     Verifier<T>::verify0(cb);
     cb = static_func0;
     Verifier<T>::verify0(cb);
-    cb.attach(&bound_func0<T>, &thing);
+    cb = {&bound_func0<T>, &thing};
     Verifier<T>::verify0(&cb, &Callback<T()>::call);
     Verifier<T>::verify0(&Callback<T()>::thunk, (void *)&cb);
 }
@@ -422,7 +422,7 @@ void test_dispatch1()
     Verifier<T>::verify1(cb);
     cb = static_func1;
     Verifier<T>::verify1(cb);
-    cb.attach(&bound_func1<T>, &thing);
+    cb = {&bound_func1<T>, &thing};
     Verifier<T>::verify1(&cb, &Callback<T(T)>::call);
     Verifier<T>::verify1(&Callback<T(T)>::thunk, (void *)&cb);
 }
@@ -446,7 +446,7 @@ void test_dispatch2()
     Verifier<T>::verify2(cb);
     cb = static_func2;
     Verifier<T>::verify2(cb);
-    cb.attach(&bound_func2<T>, &thing);
+    cb = {&bound_func2<T>, &thing};
     Verifier<T>::verify2(&cb, &Callback<T(T, T)>::call);
     Verifier<T>::verify2(&Callback<T(T, T)>::thunk, (void *)&cb);
 }
@@ -470,7 +470,7 @@ void test_dispatch3()
     Verifier<T>::verify3(cb);
     cb = static_func3;
     Verifier<T>::verify3(cb);
-    cb.attach(&bound_func3<T>, &thing);
+    cb = {&bound_func3<T>, &thing};
     Verifier<T>::verify3(&cb, &Callback<T(T, T, T)>::call);
     Verifier<T>::verify3(&Callback<T(T, T, T)>::thunk, (void *)&cb);
 }
@@ -494,7 +494,7 @@ void test_dispatch4()
     Verifier<T>::verify4(cb);
     cb = static_func4;
     Verifier<T>::verify4(cb);
-    cb.attach(&bound_func4<T>, &thing);
+    cb = {&bound_func4<T>, &thing};
     Verifier<T>::verify4(&cb, &Callback<T(T, T, T, T)>::call);
     Verifier<T>::verify4(&Callback<T(T, T, T, T)>::thunk, (void *)&cb);
 }
@@ -518,7 +518,7 @@ void test_dispatch5()
     Verifier<T>::verify5(cb);
     cb = static_func5;
     Verifier<T>::verify5(cb);
-    cb.attach(&bound_func5<T>, &thing);
+    cb = {&bound_func5<T>, &thing};
     Verifier<T>::verify5(&cb, &Callback<T(T, T, T, T, T)>::call);
     Verifier<T>::verify5(&Callback<T(T, T, T, T, T)>::thunk, (void *)&cb);
 }
