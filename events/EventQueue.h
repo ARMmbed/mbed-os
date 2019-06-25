@@ -39,6 +39,17 @@ namespace events {
  */
 #define EVENTS_QUEUE_SIZE (32*EVENTS_EVENT_SIZE)
 
+namespace impl {
+/* C++20 type identity */
+template<typename T>
+struct type_identity {
+    using type = T;
+};
+
+template <typename T>
+using type_identity_t = typename type_identity<T>::type;
+}
+
 // Predeclared classes
 template <typename F>
 class Event;
@@ -498,8 +509,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(R (*func)(BoundArgs..., Args...), ContextArgs ...context_args);
+    template <typename R, typename ...BoundArgs, typename ...Args>
+    Event<void(Args...)> event(R (*func)(BoundArgs..., Args...), BoundArgs ...context_args);
     // *INDENT-ON*
 
     /** Creates an event bound to the event queue
@@ -546,8 +557,8 @@ public:
      */
     // AStyle ignore, not handling correctly below
     // *INDENT-OFF*
-    template <typename T, typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(T *obj, R (T::*method)(BoundArgs..., Args...), ContextArgs ...context_args);
+    template <typename T, typename R, typename ...BoundArgs, typename ...Args>
+    Event<void(Args...)> event(T *obj, R (T::*method)(BoundArgs..., Args...), BoundArgs ...context_args);
     // *INDENT-ON*
 
     /** Creates an event bound to the event queue
@@ -585,8 +596,8 @@ public:
      *     }
      *  @endcode
      */
-    template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
-    Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, ContextArgs ...context_args);
+    template <typename R, typename ...BoundArgs, typename ...Args>
+    Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, BoundArgs ...context_args);
 
 #else
 
@@ -650,7 +661,7 @@ public:
      *  @see EventQueue::call
      */
     template <typename T, typename R, typename... ArgTs>
-    int call(T *obj, R(T::*method)(ArgTs...), ArgTs... args)
+    int call(T *obj, R(T::*method)(ArgTs...), impl::type_identity_t<ArgTs>... args)
     {
         return call(mbed::callback(obj, method), args...);
     }
@@ -659,7 +670,7 @@ public:
      *  @see EventQueue::call
      */
     template <typename T, typename R, typename... ArgTs>
-    int call(const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
+    int call(const T *obj, R(T::*method)(ArgTs...) const, impl::type_identity_t<ArgTs>... args)
     {
         return call(mbed::callback(obj, method), args...);
     }
@@ -668,7 +679,7 @@ public:
      *  @see EventQueue::call
      */
     template <typename T, typename R, typename... ArgTs>
-    int call(volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
+    int call(volatile T *obj, R(T::*method)(ArgTs...) volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call(mbed::callback(obj, method), args...);
     }
@@ -677,7 +688,7 @@ public:
      *  @see EventQueue::call
      */
     template <typename T, typename R, typename... ArgTs>
-    int call(const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
+    int call(const volatile T *obj, R(T::*method)(ArgTs...) const volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call(mbed::callback(obj, method), args...);
     }
@@ -726,7 +737,7 @@ public:
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_in(int ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
+    int call_in(int ms, T *obj, R(T::*method)(ArgTs...), impl::type_identity_t<ArgTs>... args)
     {
         return call_in(ms, mbed::callback(obj, method), args...);
     }
@@ -735,7 +746,7 @@ public:
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_in(int ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
+    int call_in(int ms, const T *obj, R(T::*method)(ArgTs...) const, impl::type_identity_t<ArgTs>... args)
     {
         return call_in(ms, mbed::callback(obj, method), args...);
     }
@@ -744,7 +755,7 @@ public:
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_in(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
+    int call_in(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call_in(ms, mbed::callback(obj, method), args...);
     }
@@ -753,7 +764,7 @@ public:
      *  @see EventQueue::call_in
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_in(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
+    int call_in(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call_in(ms, mbed::callback(obj, method), args...);
     }
@@ -806,7 +817,7 @@ public:
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_every(int ms, T *obj, R(T::*method)(ArgTs...), ArgTs... args)
+    int call_every(int ms, T *obj, R(T::*method)(ArgTs...), impl::type_identity_t<ArgTs>... args)
     {
         return call_every(ms, mbed::callback(obj, method), args...);
     }
@@ -815,7 +826,7 @@ public:
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_every(int ms, const T *obj, R(T::*method)(ArgTs...) const, ArgTs... args)
+    int call_every(int ms, const T *obj, R(T::*method)(ArgTs...) const, impl::type_identity_t<ArgTs>... args)
     {
         return call_every(ms, mbed::callback(obj, method), args...);
     }
@@ -824,7 +835,7 @@ public:
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_every(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, ArgTs... args)
+    int call_every(int ms, volatile T *obj, R(T::*method)(ArgTs...) volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call_every(ms, mbed::callback(obj, method), args...);
     }
@@ -833,7 +844,7 @@ public:
      *  @see EventQueue::call_every
      */
     template <typename T, typename R, typename... ArgTs>
-    int call_every(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, ArgTs... args)
+    int call_every(int ms, const volatile T *obj, R(T::*method)(ArgTs...) const volatile, impl::type_identity_t<ArgTs>... args)
     {
         return call_every(ms, mbed::callback(obj, method), args...);
     }
@@ -847,38 +858,38 @@ public:
      *  @param func        Function to execute when the event is dispatched
      *  @return            Event that will dispatch on the specific queue
      */
-    template <typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(R(*func)(BoundArgTs..., ArgTs...), ContextArgTs... context_args);
+    template <typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(R(*func)(BoundArgTs..., ArgTs...), impl::type_identity_t<BoundArgTs>... context_args);
 
     /** Creates an event bound to the event queue
      *  @see EventQueue::event
      */
-    template <typename T, typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(T *obj, R(T::*method)(BoundArgTs..., ArgTs...), ContextArgTs... context_args);
+    template <typename T, typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(T *obj, R(T::*method)(BoundArgTs..., ArgTs...), impl::type_identity_t<BoundArgTs>... context_args);
 
     /** Creates an event bound to the event queue
      *  @see EventQueue::event
      */
-    template <typename T, typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(const T *obj, R(T::*method)(BoundArgTs..., ArgTs...) const, ContextArgTs... context_args);
+    template <typename T, typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(const T *obj, R(T::*method)(BoundArgTs..., ArgTs...) const, impl::type_identity_t<BoundArgTs>... context_args);
 
     /** Creates an event bound to the event queue
      *  @see EventQueue::event
      */
-    template <typename T, typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(volatile T *obj, R(T::*method)(BoundArgTs..., ArgTs...) volatile, ContextArgTs... context_args);
+    template <typename T, typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(volatile T *obj, R(T::*method)(BoundArgTs..., ArgTs...) volatile, impl::type_identity_t<BoundArgTs>... context_args);
 
     /** Creates an event bound to the event queue
      *  @see EventQueue::event
      */
-    template <typename T, typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(const volatile T *obj, R(T::*method)(BoundArgTs..., ArgTs...) const volatile, ContextArgTs... context_args);
+    template <typename T, typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(const volatile T *obj, R(T::*method)(BoundArgTs..., ArgTs...) const volatile, impl::type_identity_t<BoundArgTs>... context_args);
 
     /** Creates an event bound to the event queue
      *  @see EventQueue::event
      */
-    template <typename R, typename... BoundArgTs, typename... ContextArgTs, typename... ArgTs>
-    Event<void(ArgTs...)> event(mbed::Callback<R(BoundArgTs..., ArgTs...)> cb, ContextArgTs... context_args);
+    template <typename R, typename... BoundArgTs, typename... ArgTs>
+    Event<void(ArgTs...)> event(mbed::Callback<R(BoundArgTs..., ArgTs...)> cb, impl::type_identity_t<BoundArgTs>... context_args);
 #endif
 
 protected:
