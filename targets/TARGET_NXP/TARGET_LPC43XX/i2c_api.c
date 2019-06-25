@@ -16,6 +16,9 @@
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
 #include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
@@ -419,3 +422,5 @@ const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
 }
+
+#endif  // #if DEVICE_I2C

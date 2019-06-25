@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "i2c_api.h"
+
+#if DEVICE_I2C
 
 #include "device.h"
 #include "buffer.h"
 #include "dma_api.h"
-#include "i2c_api.h"
 #include "PeripheralPins.h"
 #include "twi.h"
 #include "pdc.h"
@@ -733,3 +735,5 @@ void i2c_abort_asynch(i2c_t *obj)
 }
 
 #endif
+
+#endif  // #if DEVICE_I2C

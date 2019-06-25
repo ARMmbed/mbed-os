@@ -15,6 +15,9 @@
  */
 #include "mbed_assert.h"
 #include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
@@ -399,3 +402,5 @@ const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
 }
+
+#endif  // #if DEVICE_I2C
