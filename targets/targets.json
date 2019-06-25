@@ -3040,6 +3040,7 @@
         },
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER"
         ],
         "supported_form_factors": ["ARDUINO"],
@@ -3091,6 +3092,7 @@
         },
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
@@ -3148,6 +3150,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER"
         ],
         "detect_code": ["0818"],
@@ -3200,6 +3203,7 @@
         },
         "macros_add": [
             "STM32H743xx",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "MBED_TICKLESS"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
@@ -3269,6 +3273,9 @@
             }
         },
         "overrides": { "lpticker_delay_ticks": 0 },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
         "detect_code": ["0780"],
         "device_has_add": [
             "CRC",
@@ -3294,6 +3301,9 @@
                 "value": 1
             }
         },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0790"],
         "device_has_add": [
@@ -3320,6 +3330,9 @@
                 "value": 1
             }
         },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0715"],
         "device_has_add": [
@@ -3350,7 +3363,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0760"],
@@ -3404,7 +3418,7 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS", "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0770"],
@@ -3438,7 +3452,7 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS", "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0779"],
@@ -3503,6 +3517,7 @@
         "detect_code": ["0765"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -3565,6 +3580,7 @@
         "detect_code": ["0827"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "MBED_SPLIT_HEAP"
@@ -3968,7 +3984,11 @@
                 "value": 1
             }
         },
-        "overrides": {
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+            "overrides": {
             "lse_available": 0,
             "lpticker_delay_ticks": 0
         },
@@ -4004,7 +4024,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0833"],
@@ -4071,6 +4092,7 @@
         "detect_code": ["0815"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USB_STM_HAL",
             "USBHOST_OTHER"
         ],
@@ -4124,6 +4146,7 @@
         "detect_code": ["0817"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USB_STM_HAL",
             "USBHOST_OTHER"
         ],
@@ -4168,6 +4191,7 @@
         "detect_code": ["0764"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -4235,6 +4259,7 @@
         "detect_code": ["0820"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -4272,6 +4297,7 @@
         "detect_code": ["1500"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -7733,7 +7759,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0822"],
@@ -7769,7 +7796,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0823"],
@@ -7808,7 +7836,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0776"],
@@ -7847,7 +7876,8 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0839"],
