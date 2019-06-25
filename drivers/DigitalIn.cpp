@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/SPISlave.h"
 
-#if DEVICE_SPISLAVE
+#include "drivers/DigitalIn.h"
+
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 
-SPISlave::SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
-    _spi(),
-    _bits(8),
-    _mode(0),
-    _hz(1000000)
+void DigitalIn::mode(PinMode pull)
 {
-    spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 1);
-    spi_frequency(&_spi, _hz);
-}
-
-void SPISlave::format(int bits, int mode)
-{
-    _bits = bits;
-    _mode = mode;
-    spi_format(&_spi, _bits, _mode, 1);
-}
-
-void SPISlave::frequency(int hz)
-{
-    _hz = hz;
-    spi_frequency(&_spi, _hz);
+    core_util_critical_section_enter();
+    gpio_mode(&gpio, pull);
+    core_util_critical_section_exit();
 }
 
 } // namespace mbed
-
-#endif

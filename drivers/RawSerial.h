@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@
 
 #include "mbed_toolchain.h"
 #include "drivers/SerialBase.h"
-#include "hal/serial_api.h"
 #include "platform/NonCopyable.h"
 #include <cstdarg>
 
@@ -65,7 +64,10 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    RawSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    RawSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) : SerialBase(tx, rx, baud)
+    {
+        // No lock needed in the constructor
+    }
 
     /** Write a char to the serial port
      *
@@ -97,11 +99,17 @@ protected:
 
     /* Acquire exclusive access to this serial port
      */
-    virtual void lock(void);
+    virtual void lock(void)
+    {
+        // No lock used - external synchronization required
+    }
 
     /* Release exclusive access to this serial port
      */
-    virtual void unlock(void);
+    virtual void unlock(void)
+    {
+        // No lock used - external synchronization required
+    }
 #endif
 };
 

@@ -80,7 +80,11 @@ public:
      */
     InterruptIn(PinName pin, PinMode mode);
 
-    virtual ~InterruptIn();
+    virtual ~InterruptIn()
+    {
+        // No lock needed in the destructor
+        gpio_irq_free(&gpio_irq);
+    }
 
     /** Read the input, represented as 0 or 1 (int)
      *
@@ -88,11 +92,19 @@ public:
      *    An integer representing the state of the input pin,
      *    0 for logical 0, 1 for logical 1
      */
-    int read();
+    int read()
+    {
+        // Read only
+        return gpio_read(&gpio);
+    }
 
     /** An operator shorthand for read()
      */
-    operator int();
+    operator int()
+    {
+        // Underlying call is atomic
+        return read();
+    }
 
 
     /** Attach a function to call when a rising edge occurs on the input
@@ -171,7 +183,10 @@ protected:
     Callback<void()> _rise;
     Callback<void()> _fall;
 
-    void irq_init(PinName pin);
+    void irq_init(PinName pin)
+    {
+        gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    }
 #endif
 };
 

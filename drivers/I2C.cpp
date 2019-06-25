@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,16 +129,6 @@ void I2C::stop(void)
     lock();
     i2c_stop(&_i2c);
     unlock();
-}
-
-void I2C::lock()
-{
-    _mutex->lock();
-}
-
-void I2C::unlock()
-{
-    _mutex->unlock();
 }
 
 int I2C::recover(PinName sda, PinName scl)

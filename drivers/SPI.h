@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +40,7 @@
 #include "platform/CThunk.h"
 #include "hal/dma_api.h"
 #include "platform/CircularBuffer.h"
-#include "platform/FunctionPointer.h"
+#include "platform/Callback.h"
 #include "platform/Transaction.h"
 #endif
 
@@ -110,7 +110,18 @@ public:
      *  @param sclk SPI Clock pin.
      *  @param ssel SPI Chip Select pin.
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC) :
+#if DEVICE_SPI_ASYNCH
+       _irq(this),
+#endif
+        _mosi(mosi),
+        _miso(miso),
+        _sclk(sclk),
+        _hw_ssel(ssel),
+        _sw_ssel(NC)
+    {
+        _do_construct();
+    }
 
     /** Create a SPI master connected to the specified pins.
      *
@@ -126,7 +137,18 @@ public:
      *  @param sclk SPI Clock pin.
      *  @param ssel SPI Chip Select pin.
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t);
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t) :
+#if DEVICE_SPI_ASYNCH
+        _irq(this),
+#endif
+        _mosi(mosi),
+        _miso(miso),
+        _sclk(sclk),
+        _hw_ssel(NC),
+        _sw_ssel(ssel, 1)
+    {
+        _do_construct();
+    }
 
     virtual ~SPI();
 
@@ -178,11 +200,17 @@ public:
 
     /** Acquire exclusive access to this SPI bus.
      */
-    virtual void lock(void);
+    virtual void lock(void)
+    {
+        _peripheral->mutex->lock();
+    }
 
     /** Release exclusive access to this SPI bus.
      */
-    virtual void unlock(void);
+    virtual void unlock(void)
+    {
+        _peripheral->mutex->unlock();
+    }
 
     /** Assert the Slave Select line, acquiring exclusive access to this SPI bus.
      *
@@ -239,7 +267,12 @@ public:
 
     /** Clear the queue of transfers.
      */
-    void clear_transfer_buffer();
+    void clear_transfer_buffer()
+    {
+    #if TRANSACTION_QUEUE_SIZE_SPI
+        _peripheral->transaction_buffer->reset();
+    #endif
+    }
 
     /** Clear the queue of transfers and abort the on-going transfer.
      */
@@ -325,7 +358,18 @@ private:
      *
      *  @param data Transaction data.
      */
-    void start_transaction(transaction_t *data);
+    void start_transaction(transaction_t *data)
+    {
+        start_transfer(
+            data->tx_buffer,
+            data->tx_length,
+            data->rx_buffer,
+            data->rx_length,
+            data->width,
+            data->callback,
+            data->event
+        );
+    }
 
     /** Dequeue a transaction and start the transfer if there was one pending.
      */

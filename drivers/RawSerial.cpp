@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 #include "drivers/RawSerial.h"
-#include "platform/mbed_wait_api.h"
 #include <stdio.h>
-#include <cstdarg>
 
 
 #if DEVICE_SERIAL
@@ -25,11 +23,6 @@
 #define STRING_STACK_LIMIT    120
 
 namespace mbed {
-
-RawSerial::RawSerial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud)
-{
-    // No lock needed in the constructor
-}
 
 int RawSerial::getc()
 {
@@ -89,20 +82,6 @@ int RawSerial::vprintf(const char *format, std::va_list arg)
     }
     unlock();
     return len;
-}
-
-/** Acquire exclusive access to this serial port
- */
-void RawSerial::lock()
-{
-    // No lock used - external synchronization required
-}
-
-/** Release exclusive access to this serial port
- */
-void RawSerial::unlock()
-{
-    // No lock used - external synchronization required
 }
 
 } // namespace mbed

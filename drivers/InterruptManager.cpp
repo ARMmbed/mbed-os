@@ -57,12 +57,6 @@ InterruptManager *InterruptManager::get()
     return _instance;
 }
 
-InterruptManager::InterruptManager()
-{
-    // No mutex needed in constructor
-    memset(_chains, 0, NVIC_NUM_VECTORS * sizeof(CallChain *));
-}
-
 void InterruptManager::destroy()
 {
     // Not a good idea to call this unless NO interrupt at all
@@ -125,32 +119,6 @@ bool InterruptManager::remove_handler(pFunctionPointer_t handler, IRQn_Type irq)
     unlock();
 
     return ret;
-}
-
-void InterruptManager::irq_helper()
-{
-    _chains[__get_IPSR()]->call();
-}
-
-int InterruptManager::get_irq_index(IRQn_Type irq)
-{
-    // Pure function - no lock needed
-    return (int)irq + NVIC_USER_IRQ_OFFSET;
-}
-
-void InterruptManager::static_irq_helper()
-{
-    InterruptManager::get()->irq_helper();
-}
-
-void InterruptManager::lock()
-{
-    _mutex.lock();
-}
-
-void InterruptManager::unlock()
-{
-    _mutex.unlock();
 }
 
 } // namespace mbed

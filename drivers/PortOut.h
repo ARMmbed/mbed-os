@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,6 @@
 #if DEVICE_PORTOUT || defined(DOXYGEN_ONLY)
 
 #include "hal/port_api.h"
-#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -60,12 +59,7 @@ public:
      *  @param port Port to connect to (as defined in target's PortNames.h)
      *  @param mask Bitmask defines which port pins are an output (0 - ignore, 1 - include)
      */
-    PortOut(PortName port, int mask = 0xFFFFFFFF)
-    {
-        core_util_critical_section_enter();
-        port_init(&_port, port, mask, PIN_OUTPUT);
-        core_util_critical_section_exit();
-    }
+    PortOut(PortName port, int mask = 0xFFFFFFFF);
 
     /** Write the value to the output port
      *
@@ -89,20 +83,12 @@ public:
     /** A shorthand for write()
      * \sa PortOut::write()
      */
-    PortOut &operator= (int value)
-    {
-        write(value);
-        return *this;
-    }
+    PortOut &operator= (int value);
 
     /** A shorthand for read()
      * \sa PortOut::read()
      */
-    PortOut &operator= (PortOut &rhs)
-    {
-        write(rhs.read());
-        return *this;
-    }
+    PortOut &operator= (PortOut &rhs);
 
     /** A shorthand for read()
      * \sa PortOut::read()

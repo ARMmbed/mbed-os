@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
 
@@ -26,8 +27,7 @@ Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data(
     reset();
 }
 
-Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data),
-    _lock_deepsleep(!data->interface->runs_in_deep_sleep)
+Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
 {
     reset();
 }
@@ -70,11 +70,6 @@ void Timer::stop()
     core_util_critical_section_exit();
 }
 
-int Timer::read_us()
-{
-    return read_high_resolution_us();
-}
-
 float Timer::read()
 {
     return (float)read_high_resolution_us() / 1000000.0f;
@@ -110,11 +105,6 @@ void Timer::reset()
     _start = ticker_read_us(_ticker_data);
     _time = 0;
     core_util_critical_section_exit();
-}
-
-Timer::operator float()
-{
-    return read();
 }
 
 } // namespace mbed

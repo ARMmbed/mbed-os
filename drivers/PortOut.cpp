@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/SPISlave.h"
 
-#if DEVICE_SPISLAVE
+#include "drivers/PortOut.h"
+
+
+#if DEVICE_PORTOUT
+
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 
-SPISlave::SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
-    _spi(),
-    _bits(8),
-    _mode(0),
-    _hz(1000000)
+PortOut::PortOut(PortName port, int mask)
 {
-    spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 1);
-    spi_frequency(&_spi, _hz);
+    core_util_critical_section_enter();
+    port_init(&_port, port, mask, PIN_OUTPUT);
+    core_util_critical_section_exit();
 }
 
-void SPISlave::format(int bits, int mode)
+PortOut &PortOut::operator= (int value)
 {
-    _bits = bits;
-    _mode = mode;
-    spi_format(&_spi, _bits, _mode, 1);
+    write(value);
+    return *this;
 }
 
-void SPISlave::frequency(int hz)
+/** A shorthand for write()
+ * \sa PortOut::write()
+ */
+PortOut &PortOut::operator= (PortOut &rhs)
 {
-    _hz = hz;
-    spi_frequency(&_spi, _hz);
+    write(rhs.read());
+    return *this;
 }
 
 } // namespace mbed
 
-#endif
+#endif // #if DEVICE_PORTOUT

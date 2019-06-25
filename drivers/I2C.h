@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@
 #if DEVICE_I2C_ASYNCH
 #include "platform/CThunk.h"
 #include "hal/dma_api.h"
-#include "platform/FunctionPointer.h"
+#include "platform/Callback.h"
 #endif
 
 namespace mbed {
@@ -164,11 +164,17 @@ public:
 
     /** Acquire exclusive access to this I2C bus
      */
-    virtual void lock(void);
+    virtual void lock(void)
+    {
+        _mutex->lock();
+    }
 
     /** Release exclusive access to this I2C bus
      */
-    virtual void unlock(void);
+    virtual void unlock(void)
+    {
+        _mutex->unlock();
+    }
 
     virtual ~I2C()
     {

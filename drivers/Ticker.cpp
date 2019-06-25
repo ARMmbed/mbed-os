@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,18 @@
 #include "platform/FunctionPointer.h"
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
+
+Ticker::Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true)
+{
+}
+
+// When low power ticker is in use, then do not disable deep sleep.
+Ticker::Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
+{
+}
 
 void Ticker::detach()
 {

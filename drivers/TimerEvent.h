@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 #define MBED_TIMEREVENT_H
 
 #include "hal/ticker_api.h"
-#include "hal/us_ticker_api.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -32,7 +31,12 @@ namespace mbed {
 class TimerEvent : private NonCopyable<TimerEvent> {
 public:
     TimerEvent();
-    TimerEvent(const ticker_data_t *data);
+
+    TimerEvent(const ticker_data_t *data)
+     : event(), _ticker_data(data)
+    {
+        ticker_set_handler(_ticker_data, (&TimerEvent::irq));
+    }
 
     /** The handler registered with the underlying timer interrupt
      *
@@ -42,7 +46,10 @@ public:
 
     /** Destruction removes it...
      */
-    virtual ~TimerEvent();
+    virtual ~TimerEvent()
+    {
+        remove();
+    }
 
 #if !defined(DOXYGEN_ONLY)
 protected:
@@ -61,7 +68,10 @@ protected:
      * from the past the event is scheduled after ticker's overflow.
      * For reference @see convert_timestamp
      */
-    void insert(timestamp_t timestamp);
+    void insert(timestamp_t timestamp)
+    {
+        ticker_insert_event(_ticker_data, &event, timestamp, (uint32_t)this);
+    }
 
     /** Set absolute timestamp of the internal event.
      * @param   timestamp   event's us timestamp
@@ -70,11 +80,17 @@ protected:
      * Do not insert more than one timestamp.
      * The same @a event object is used for every @a insert/insert_absolute call.
      */
-    void insert_absolute(us_timestamp_t timestamp);
+    void insert_absolute(us_timestamp_t timestamp)
+    {
+        ticker_insert_event_us(_ticker_data, &event, timestamp, (uint32_t)this);
+    }
 
     /** Remove timestamp.
      */
-    void remove();
+    void remove()
+    {
+        ticker_remove_event(_ticker_data, &event);
+    }
 
     ticker_event_t event;
 

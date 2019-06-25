@@ -157,11 +157,17 @@ protected:
 
     /** Acquire exclusive access to this serial port
      */
-    virtual void lock(void);
+    virtual void lock(void)
+    {
+        // Stub
+    }
 
     /** Release exclusive access to this serial port
      */
-    virtual void unlock(void);
+    virtual void unlock(void)
+    {
+        // Stub
+    }
 #endif
 public:
 
@@ -288,7 +294,12 @@ protected:
     SerialBase(PinName tx, PinName rx, int baud);
     virtual ~SerialBase();
 
-    int _base_getc();
+    int _base_getc()
+    {
+        // Mutex is already held
+        return serial_getc(&_serial);
+    }
+
     int _base_putc(int c);
 
 #if DEVICE_SERIAL_ASYNCH

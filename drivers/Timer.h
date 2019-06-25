@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@
 #include "platform/platform.h"
 #include "hal/ticker_api.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -86,11 +85,17 @@ public:
      *
      *  @returns    Time passed in microseconds
      */
-    int read_us();
+    int read_us()
+    {
+        return read_high_resolution_us();
+    }
 
     /** An operator shorthand for read()
      */
-    operator float();
+    operator float()
+    {
+        return read();
+    }
 
     /** Get in a high resolution type the time passed in microseconds.
      *  Returns a 64 bit integer.

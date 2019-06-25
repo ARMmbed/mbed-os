@@ -15,37 +15,48 @@
  * limitations under the License.
  */
 
-#include "drivers/AnalogIn.h"
+#include "drivers/AnalogOut.h"
 
-#if DEVICE_ANALOGIN
+#if DEVICE_ANALOGOUT
 
 namespace mbed {
 
-SingletonPtr<PlatformMutex> AnalogIn::_mutex;
-
-AnalogIn::AnalogIn(PinName pin)
+void AnalogOut::write(float value)
 {
     lock();
-    analogin_init(&_adc, pin);
+    analogout_write(&_dac, value);
     unlock();
 }
 
-float AnalogIn::read()
+void AnalogOut::write_u16(unsigned short value)
 {
     lock();
-    float ret = analogin_read(&_adc);
+    analogout_write_u16(&_dac, value);
+    unlock();
+}
+
+float AnalogOut::read()
+{
+    lock();
+    float ret = analogout_read(&_dac);
     unlock();
     return ret;
 }
 
-unsigned short AnalogIn::read_u16()
+AnalogOut &AnalogOut::operator= (float percent)
 {
-    lock();
-    unsigned short ret = analogin_read_u16(&_adc);
-    unlock();
-    return ret;
+    // Underlying write call is thread safe
+    write(percent);
+    return *this;
+}
+
+AnalogOut &AnalogOut::operator= (AnalogOut &rhs)
+{
+    // Underlying write call is thread safe
+    write(rhs.read());
+    return *this;
 }
 
 } // namespace mbed
 
-#endif
+#endif // DEVICE_ANALOGOUT

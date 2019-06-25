@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,32 +28,10 @@
 
 namespace mbed {
 
-UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
-    SerialBase(tx, rx, baud),
-    _blocking(true),
-    _tx_irq_enabled(false),
-    _rx_irq_enabled(false),
-    _tx_enabled(true),
-    _rx_enabled(true),
-    _dcd_irq(NULL)
+UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud), _blocking(true), _tx_irq_enabled(false), _rx_irq_enabled(false), _tx_enabled(true), _rx_enabled(true), _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
     enable_rx_irq();
-}
-
-UARTSerial::~UARTSerial()
-{
-    delete _dcd_irq;
-}
-
-void UARTSerial::dcd_irq()
-{
-    wake();
-}
-
-void UARTSerial::set_baud(int baud)
-{
-    SerialBase::baud(baud);
 }
 
 void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
@@ -86,26 +64,6 @@ void UARTSerial::set_flow_control(Flow type, PinName flow1, PinName flow2)
     api_unlock();
 }
 #endif
-
-int UARTSerial::close()
-{
-    /* Does not let us pass a file descriptor. So how to close ?
-     * Also, does it make sense to close a device type file descriptor*/
-    return 0;
-}
-
-int UARTSerial::isatty()
-{
-    return 1;
-
-}
-
-off_t UARTSerial::seek(off_t offset, int whence)
-{
-    /*XXX lseek can be done theoratically, but is it sane to mark positions on a dynamically growing/shrinking
-     * buffer system (from an interrupt context) */
-    return -ESPIPE;
-}
 
 int UARTSerial::sync()
 {
@@ -277,28 +235,6 @@ short UARTSerial::poll(short events) const
     /*TODO Handle other event types */
 
     return revents;
-}
-
-void UARTSerial::lock()
-{
-    // This is the override for SerialBase.
-    // No lock required as we only use SerialBase from interrupt or from
-    // inside our own critical section.
-}
-
-void UARTSerial::unlock()
-{
-    // This is the override for SerialBase.
-}
-
-void UARTSerial::api_lock(void)
-{
-    _mutex.lock();
-}
-
-void UARTSerial::api_unlock(void)
-{
-    _mutex.unlock();
 }
 
 void UARTSerial::rx_irq(void)

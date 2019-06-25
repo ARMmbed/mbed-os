@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,14 +39,7 @@ class CANMessage : public CAN_Message {
 public:
     /** Creates empty CAN message.
      */
-    CANMessage() : CAN_Message()
-    {
-        len    = 8U;
-        type   = CANData;
-        format = CANStandard;
-        id     = 0U;
-        memset(data, 0, 8);
-    }
+    CANMessage();
 
     /** Creates CAN message with specific content.
      *
@@ -56,14 +49,7 @@ public:
      *  @param _type    Type of Data: Use enum CANType for valid parameter values
      *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
-    CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
-    {
-        len    = _len & 0xF;
-        type   = _type;
-        format = _format;
-        id     = _id;
-        memcpy(data, _data, _len);
-    }
+    CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard);
 
 
     /** Creates CAN message with specific content.
@@ -74,28 +60,14 @@ public:
      *  @param _type    Type of Data: Use enum CANType for valid parameter values
      *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
-    CANMessage(unsigned int _id, const char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
-    {
-        len    = _len & 0xF;
-        type   = _type;
-        format = _format;
-        id     = _id;
-        memcpy(data, _data, _len);
-    }
+    CANMessage(unsigned int _id, const char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard);
 
     /** Creates CAN remote message.
      *
      *  @param _id      Message ID
      *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
-    CANMessage(unsigned int _id, CANFormat _format = CANStandard)
-    {
-        len    = 0;
-        type   = CANRemote;
-        format = _format;
-        id     = _id;
-        memset(data, 0, 8);
-    }
+    CANMessage(unsigned int _id, CANFormat _format = CANStandard);
 };
 
 /** A can bus client, used for communicating with can devices
@@ -313,8 +285,15 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    virtual void lock();
-    virtual void unlock();
+    virtual void lock()
+    {
+        _mutex.lock();
+    }
+    virtual void unlock()
+    {
+        _mutex.unlock();
+    }
+
     can_t               _can;
     Callback<void()>    _irq[IrqCnt];
     PlatformMutex       _mutex;

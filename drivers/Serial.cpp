@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,41 +15,10 @@
  * limitations under the License.
  */
 #include "drivers/Serial.h"
-#include "platform/mbed_wait_api.h"
 
 #if DEVICE_SERIAL
 
 namespace mbed {
-
-Serial::Serial(PinName tx, PinName rx, const char *name, int baud) : SerialBase(tx, rx, baud), Stream(name)
-{
-}
-
-Serial::Serial(PinName tx, PinName rx, int baud): SerialBase(tx, rx, baud), Stream(NULL)
-{
-}
-
-int Serial::_getc()
-{
-    // Mutex is already held
-    return _base_getc();
-}
-
-int Serial::_putc(int c)
-{
-    // Mutex is already held
-    return _base_putc(c);
-}
-
-void Serial::lock()
-{
-    _mutex.lock();
-}
-
-void Serial::unlock()
-{
-    _mutex.unlock();
-}
 
 } // namespace mbed
 

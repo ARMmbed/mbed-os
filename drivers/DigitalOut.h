@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 
 #include "platform/platform.h"
 #include "hal/gpio_api.h"
-#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -111,24 +110,13 @@ public:
      *      led = button;   // Equivalent to led.write(button.read())
      * @endcode
      */
-    DigitalOut &operator= (int value)
-    {
-        // Underlying write is thread safe
-        write(value);
-        return *this;
-    }
+    DigitalOut &operator= (int value);
 
     /** A shorthand for write() using the assignment operator which copies the
      * state from the DigitalOut argument.
      * \sa DigitalOut::write()
      */
-    DigitalOut &operator= (DigitalOut &rhs)
-    {
-        core_util_critical_section_enter();
-        write(rhs.read());
-        core_util_critical_section_exit();
-        return *this;
-    }
+    DigitalOut &operator= (DigitalOut &rhs);
 
     /** A shorthand for read()
      * \sa DigitalOut::read()

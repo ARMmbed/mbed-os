@@ -206,16 +206,6 @@ qspi_status_t QSPI::command_transfer(int instruction, int address, const char *t
     return ret_status;
 }
 
-void QSPI::lock()
-{
-    _mutex->lock();
-}
-
-void QSPI::unlock()
-{
-    _mutex->unlock();
-}
-
 // Note: Private helper function to initialize qspi HAL
 bool QSPI::_initialize()
 {

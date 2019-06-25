@@ -96,20 +96,29 @@ public:
      *  @retval 0 No data waiting.
      *  @retval 1 Data waiting.
      */
-    int receive(void);
+    int receive(void)
+    {
+        return (spi_slave_receive(&_spi));
+    }
 
     /** Retrieve data from receive buffer as slave.
      *
      *  @return The data in the receive buffer.
      */
-    int read(void);
+    int read(void)
+    {
+        return (spi_slave_read(&_spi));
+    }
 
     /** Fill the transmission buffer with the value to be written out
      *  as slave on the next received message from the master.
      *
      *  @param value The data to be transmitted next.
      */
-    void reply(int value);
+    void reply(int value)
+    {
+        spi_slave_write(&_spi, value);
+    }
 
 #if !defined(DOXYGEN_ONLY)
 

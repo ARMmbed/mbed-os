@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/SPISlave.h"
 
-#if DEVICE_SPISLAVE
+#include "drivers/SerialWireOutput.h"
+
+#if defined(DEVICE_ITM)
+
+#include "hal/itm_api.h"
 
 namespace mbed {
 
-SPISlave::SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
-    _spi(),
-    _bits(8),
-    _mode(0),
-    _hz(1000000)
+SerialWireOutput::SerialWireOutput(void)
 {
-    spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 1);
-    spi_frequency(&_spi, _hz);
+    /* Initialize ITM using internal init function. */
+    mbed_itm_init();
 }
 
-void SPISlave::format(int bits, int mode)
+ssize_t SerialWireOutput::write(const void *buffer, size_t size)
 {
-    _bits = bits;
-    _mode = mode;
-    spi_format(&_spi, _bits, _mode, 1);
-}
+    mbed_itm_send_block(ITM_PORT_SWO, buffer, size);
 
-void SPISlave::frequency(int hz)
-{
-    _hz = hz;
-    spi_frequency(&_spi, _hz);
+    return size;
 }
 
 } // namespace mbed
 
-#endif
+#endif // DEVICE_ITM
