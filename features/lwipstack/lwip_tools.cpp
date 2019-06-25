@@ -59,9 +59,10 @@ nsapi_error_t LWIP::err_remap(err_t err)
     }
 }
 
-#if LWIP_IPV4
+
 const ip_addr_t *LWIP::get_ipv4_addr(const struct netif *netif)
 {
+#if LWIP_IPV4
     if (!netif_is_up(netif)) {
         return NULL;
     }
@@ -69,14 +70,13 @@ const ip_addr_t *LWIP::get_ipv4_addr(const struct netif *netif)
     if (!ip4_addr_isany(netif_ip4_addr(netif))) {
         return netif_ip_addr4(netif);
     }
-
+#endif
     return NULL;
 }
-#endif
 
-#if LWIP_IPV6
 const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
 {
+#if LWIP_IPV6
     if (!netif_is_up(netif)) {
         return NULL;
     }
@@ -87,10 +87,9 @@ const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
             return netif_ip_addr6(netif, i);
         }
     }
-
+#endif
     return NULL;
 }
-#endif
 
 bool LWIP::is_local_addr(const ip_addr_t *ip_addr)
 {
