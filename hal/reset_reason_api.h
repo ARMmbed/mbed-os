@@ -28,8 +28,47 @@ extern "C" {
 #endif
 
 /**
- * \defgroup hal_reset_reason Reset Reason HAL API
+ * \defgroup hal_reset_reason ResetReason HAL API
+ * Low-level interface to the ResetReason of a target.
+ *
+ * This module provides a platform-independent method of checking the cause
+ * of the last system reset.
+ *
+ * # Defined behavior
+ * * The function ::hal_reset_reason_clear clears the ResetReason registers
+ * for the next system boot.
+ * * By the time the user calls ::hal_reset_reason_get to read the value,
+ * some other part of the application may have cleared the value. Therefore,
+ * though there may have been a reset reason in the registers when the system
+ * started, the reason may not be available when the user comes to check it.
+ *
+ * # Undefined behavior
+ * * There is no guarantee that the function ::hal_reset_reason_get will
+ * return the same value when you call it repeatedly. Store the value for later
+ * use instead of calling the function repeatedly.
+ * * The function ::hal_reset_reason_clear may not clear the ResetReason
+ * register in time for the next system boot.
+ *
+ * # Notes
+ * * The contents of the targets ResetReason register may be cleared by some
+ * subsystem before it first gets called. This returns a ::RESET_REASON_UNKNOWN
+ * value to the user. To avoid this, the user should call the ResetReason API
+ * as early as possible at boot time.
+ * * If the target doesn't support clearing reset registers,
+ * ::hal_reset_reason_get seems to erroneously return a reset reason even after
+ * clearing.
+ *
  * @{
+ */
+
+/**
+ * \defgroup hal_reset_reason_tests ResetReason HAL tests
+ * Greentea tests for the ResetReason HAL.
+ *
+ * To run the ResetReason HAL tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-reset_reason
+ *
  */
 
 /** Definitions of different reset reasons
@@ -53,10 +92,10 @@ typedef enum {
  *
  * This function must return the contents of the system reset reason registers
  * cast to an appropriate platform independent reset reason. If multiple reset
- * reasons are set this function should return RESET_REASON_MULTIPLE. If the
+ * reasons are set this function should return ::RESET_REASON_MULTIPLE. If the
  * reset reason does not match any existing platform independent value this
- * function should return RESET_REASON_PLATFORM. If no reset reason can be
- * determined this function should return RESET_REASON_UNKNOWN.
+ * function should return ::RESET_REASON_PLATFORM. If no reset reason can be
+ * determined this function should return ::RESET_REASON_UNKNOWN.
  *
  * This function is not idempotent, there is no guarantee that the system
  * reset reason will not be cleared between calls to this function altering the
@@ -65,7 +104,7 @@ typedef enum {
  * Note: Some platforms contain reset reason registers that persist through
  * system resets. If the registers haven't been cleared before calling this
  * function multiple reasons may be set within the registers. If multiple reset
- * reasons are detected this function will return RESET_REASON_MULTIPLE.
+ * reasons are detected this function will return ::RESET_REASON_MULTIPLE.
  *
  * @return enum containing the last reset reason for the board.
  */
