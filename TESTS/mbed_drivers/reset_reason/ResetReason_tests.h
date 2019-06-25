@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 
-/**
- * @addtogroup drivers_reset_reason_tests
- * @{
- */
-
 #ifndef MBED_DRIVERS_RESET_REASON_TESTS_H
 #define MBED_DRIVERS_RESET_REASON_TESTS_H
 
@@ -36,6 +31,3 @@ void test_reset_reason();
 #endif
 
 #endif
-
-/** @}*/
-

@@ -23,15 +23,19 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** ResetReason API. When the system is restarted, the reason for the restart is
- * contained in the system registers at boot time in a platform specific manner,
- * this API provides a generic method of fetching the reason for the restart.
+/** A platform-independent method of checking the cause of the last system reset.
+ *
+ * When the system is restarted, the reason for the restart is contained in
+ * the system registers at boot time in a platform specific manner. This API
+ * provides a generic method of fetching the reason for the restart.
  *
  * @ingroup drivers
  */
 class ResetReason {
 public:
     /** Get the platform-independent reason code for the last system reset.
+     *
+     * @return enum containing the last reset reason for the board.
      *
      *  Example:
      *  @code
@@ -47,11 +51,15 @@ public:
 
     /** Get the platform specific reason code for the last system reset.
      *
-     * Platform specific reasons that are not covered by the reset_reason_t enum
+     * Platform specific reasons that are not covered by the ::reset_reason_t enum
      * will cause the ResetReason::get() function to return
-     * RESET_REASON_PLATFORM. In order to get the actual reason the register
+     * ::RESET_REASON_PLATFORM. In order to get the actual reason the register
      * value must be fetched directly using this function and interpreted in a
      * platform specific manner.
+     *
+     * @return value containing the reset reason register for the given platform.
+     * If the platform contains reset reasons across multiple registers they
+     * will be concatenated here.
      *
      * Example:
      * @code
