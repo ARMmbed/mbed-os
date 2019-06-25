@@ -2074,7 +2074,6 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "MBED_MPU_CUSTOM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "NXP_LPADC"
         ],
         "components_add": ["FLASHIAP"],
@@ -5445,8 +5444,7 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=1",
-            "MBED_MPU_CUSTOM",
-            "MBEDTLS_PSA_CRYPTO_C"
+            "MBED_MPU_CUSTOM"
         ],
         "extra_labels_add": ["MUSCA_A1_NS", "PSA", "TFM"],
         "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
@@ -8331,7 +8329,6 @@
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "device_has_remove": ["CRC"],
-        "macros_add": ["MBEDTLS_PSA_CRYPTO_C"],
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",
