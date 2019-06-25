@@ -48,10 +48,10 @@ TLS_SRC := \
 # (NSPE). Documentation for each folder as follows:
 # COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
 # example PSA Crypto or PSA Secure Time implementations
-TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/TARGET_PSA/COMPONENT_PSA_SRV_IMPL
+TARGET_SRV_IMPL:=$(TARGET_PREFIX)/platform/COMPONENT_PSA_SRV_IMPL
 # COMPONENT_SPE - Include code that compiles ONLY to the SPE image and never
 # compiles to the NSPE image
-TARGET_SPE:=$(TARGET_PREFIX)/platform/TARGET_PSA/COMPONENT_SPE
+TARGET_SPE:=$(TARGET_PREFIX)/platform/COMPONENT_SPE
 # COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
 # compiles to the SPE image
 TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
