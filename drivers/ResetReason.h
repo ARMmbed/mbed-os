@@ -25,15 +25,15 @@ namespace mbed {
 /** \addtogroup drivers */
 /** A platform-independent method of checking the cause of the last system reset.
  *
- * When the system is restarted, the reason for the restart is contained in
- * the system registers at boot time in a platform specific manner. This API
- * provides a generic method of fetching the reason for the restart.
+ * When the system restarts, the reason for the restart is contained in
+ * the system registers at boot time in a platform specific manner.
+ * This API provides a generic method of fetching the reason for the restart.
  *
  * @ingroup drivers
  */
 class ResetReason {
 public:
-    /** Get the platform-independent reason code for the last system reset.
+    /** Get the platform independent reason code for the last system reset.
      *
      * @return enum containing the last reset reason for the board.
      *
