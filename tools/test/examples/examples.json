@@ -138,9 +138,9 @@
       "targets" : ["K66F", "NUCLEO_F429ZI"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
+      "compile" : false,
+      "export": false,
+      "auto-update" : false
     },
     {
       "name": "mbed-os-example-cellular",
@@ -328,9 +328,9 @@
                      "NUMAKER_PFM_NUC472", "UBLOX_EVK_ODIN_W2"],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
+        "compile" : false,
+        "export": false,
+        "auto-update" : false
     },
     {
         "name": "mbed-os-example-bootloader",
