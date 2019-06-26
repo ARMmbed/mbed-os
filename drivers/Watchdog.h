@@ -29,10 +29,10 @@
 namespace mbed {
 
 /** \addtogroup drivers */
-/** A software watchdog gets used by services(wifi,tls etc.,) which needs monitor of non-block periodic behavior or
- *  malfunctions.
- *  Normally one instance of SW Watchdog gets created in HW Watchdog startup to allow access this SW Watchdog,
- *  HW Watchdog periodically calls "process" method of the services to check non-block periodic behavior.
+/** Services that need to monitor nonblocking periodic behavior or
+ *  malfunctions, such as Wi-Fi and TLS, use a software watchdog.
+ *  Normally, one instance of a software watchdog gets created during hardware watchdog startup, so you can access the software watchdog.
+ *  The hardware watchdog periodically calls the "process" method of the services to check nonblocking periodic behavior.
  *
  * Example:
  * @code
@@ -51,56 +51,56 @@ namespace mbed {
 class Watchdog {
 public:
 
-    /** Constructor configured with timeout and name for this software watchdog instance
+    /** Constructor configured with timeout and name for this software watchdog instance.
      *
      */
     Watchdog(uint32_t timeout = 1, const char *const str = NULL);
     ~Watchdog();
 public:
 
-    /** Start an independent watchdog timer with specified parameters
+    /** Start an independent watchdog timer with specified parameters.
      *
-     * Assert for multiple calls of start
+     * Assert for multiple calls of start.
      */
     void start();
 
-    /** Stops the watchdog timer
+    /** This stops the watchdog timer.
      *
-     * Calling this function will attempt to disable any currently running
-     * watchdog timers if supported by the current platform.
+     * Calling this function disables any running
+     * watchdog timers if the platform supports them.
      *
-     * Assert with out called start
+     * Assert without calling start.
      */
     void stop();
 
-    /** Refreshes the watchdog timer.
+    /** This function refreshes the watchdog timer.
      *
-     * This function should be called periodically before the watchdog times out.
-     * Otherwise, the system is reset.
+     * Call this function periodically before the watchdog times out.
+     * Otherwise, the system resets.
      *
-     * If the watchdog timer is not currently running this function does nothing
+     * If the watchdog timer is not running, this function does nothing.
      */
     void kick();
 
-    /** mbed_watchdog_manager(runs by periodic call from ticker) used this API interface
+    /** mbed_watchdog_manager (runs by periodic call from ticker) used this API interface
      *  to go through all the registered user/threads of watchdog.
      *
      *  @param elapsed_ms    completed ticker callback elapsed milliseconds
      *
-     * This function should be called from mbed_watchdog_manager_kick to monitor all the
-     * user/threads alive state.
+     * Call this function from mbed_watchdog_manager_kick to monitor all the
+     * user/threads alive states.
      *
-     * Otherwise, the system is reset.
+     * Otherwise, the system resets.
      */
     static void process(uint32_t elapsed_ms);
 protected :
 
-    /** add_to_list is used to store the registered user into List.
+    /** Use add_to_list to store the registered user in the list.
       * This API is only used to call from start.
       */
     void add_to_list();
 
-    /** Remove from list is used to remove the entry from the list.
+    /** Use remove_from_list to remove the entry from the list.
       * This API is only used to call from stop.
       *
       */
