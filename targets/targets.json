@@ -845,7 +845,8 @@
     },
     "LPC4088": {
         "inherits": ["MCU_LPC4088"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "device_has_remove": ["ETHERNET"]
     },
     "LPC4088_DM": {
         "inherits": ["MCU_LPC4088"],

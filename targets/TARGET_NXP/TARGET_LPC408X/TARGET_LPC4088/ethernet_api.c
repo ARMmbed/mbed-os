@@ -21,6 +21,8 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 
+#if DEVICE_ETHERNET
+
 #define NEW_LOGIC       0
 #define NEW_ETH_BUFFER  0
 
@@ -1006,3 +1008,4 @@ void mbed_mac_address(char *mac) {
 
     memcpy(mac, _macAddr, 6);
 }
+#endif // DEVICE_ETHERNET
