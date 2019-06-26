@@ -30,10 +30,11 @@ extern"C"{
 /** Initializes an instance of class BatteryChargerI2c which is using the STM HAL I2C APIs
  *  This allows longer USB cables or USB ports with lower output voltages to power the board correctly.
  */
-
+#if DEVICE_I2C
 void set_minimum_battery_voltage(void);
 char read_from_i2c(int slave_addr, int reg_addr, int* data_read, i2c_t i2c_obj);
 char write_to_i2c(int slave_addr, int reg_addr,int data_write, i2c_t i2c_obj);
+#endif
 
 #ifdef __cplusplus
 }
