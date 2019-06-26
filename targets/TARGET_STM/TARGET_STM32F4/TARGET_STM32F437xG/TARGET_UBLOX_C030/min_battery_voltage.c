@@ -20,6 +20,7 @@
  * in user defined file as described in documentation
  */
 
+#if DEVICE_I2C
 void HAL_MspInit(void)
 {
     set_minimum_battery_voltage();
@@ -71,3 +72,8 @@ char read_from_i2c(int slave_addr, int reg_addr, int* data_read, i2c_t i2c_obj)
     }
     return ret_code;
 }
+#else
+void HAL_MspInit(void)
+{
+}
+#endif // DEVICE_I2C
