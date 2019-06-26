@@ -5466,7 +5466,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
         "components_add": ["SD"],
-        "device_has_add": ["USBDEVICE", "TRNG", "FLASH", "LPTICKER"],
+        "device_has_add": ["USBDEVICE", "FLASH", "LPTICKER"],
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72103",
