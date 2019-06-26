@@ -1,5 +1,6 @@
 /** \addtogroup hal */
 /** @{*/
+
 /* 
  * Copyright (c) 2018-2019 Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
