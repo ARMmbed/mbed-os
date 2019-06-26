@@ -68,7 +68,11 @@ struct spm_partition_desc_t {
 /* Macros to pick linker symbols and allow to form the partition data base */
 #define REGION(a, b, c) a##b##c
 #define REGION_NAME(a, b, c) REGION(a, b, c)
-#if (TFM_LVL == 1) && !defined(TFM_PSA_API)
+/* Changed from #if (TFM_LVL == 1) && !defined(TFM_PSA_API) to #if (TFM_LVL == 1) to avoid linker error.
+   TF-M build autogenerates region details (code, ro, rw, zi and stack ) using linker scripts. We do not
+   hve that in mbed-os build yet.
+*/
+#if (TFM_LVL == 1)
 #define REGION_DECLARE(a, b, c)
 #else
 #define REGION_DECLARE(a, b, c) extern uint32_t REGION_NAME(a, b, c)
