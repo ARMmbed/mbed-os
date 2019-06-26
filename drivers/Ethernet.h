@@ -56,6 +56,11 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
+MBED_DEPRECATED(
+    "EthInterface is now the preferred way to get an Ethernet object.",
+    "Alternatively, use NetworkInterface to get an instance of an appropriate network"
+    "interface (WiFi or Ethernet)."
+)
 class Ethernet : private NonCopyable<Ethernet> {
 
 public:
