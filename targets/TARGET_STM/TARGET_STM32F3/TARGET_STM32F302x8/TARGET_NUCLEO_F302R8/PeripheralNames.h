@@ -50,6 +50,7 @@ typedef enum {
     UART_3 = (int)USART3_BASE
 } UARTName;
 
+#define DEVICE_SPI_COUNT 2
 typedef enum {
     SPI_2 = (int)SPI2_BASE,
     SPI_3 = (int)SPI3_BASE

@@ -60,6 +60,7 @@ typedef enum {
     DMA_2 = (int)DMA2_BASE
 } DMAName;
 
+#define DEVICE_SPI_COUNT 4
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
     SPI_2 = (int)SPI2_BASE,
