@@ -398,12 +398,9 @@ void INT19_22_IRQHandler(void)
 void INT23_26_IRQHandler(void)
 {
     uint32_t int_num = TSB_IMN->FLG5;
-    if( int_num & BIT22)
-    {
+    if( int_num & BIT22) {
         INT_IRQHandler(PT1, 24);
-    }
-    else if(int_num & BIT21)
-    {
+    } else if(int_num & BIT21) {
         INT_IRQHandler(PT0, 23);
     }
 }
