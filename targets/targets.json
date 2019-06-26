@@ -4541,6 +4541,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_has_remove": ["I2C", "I2CSLAVE", "I2C_ASYNCH"],
         "public": false,
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
