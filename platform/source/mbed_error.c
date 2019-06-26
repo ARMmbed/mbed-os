@@ -575,6 +575,44 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_stats_sys_get(&sys_stats);
     mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%" PRId32 "&core=0x%08" PRIX32 "&comp=%d&ver=%" PRIu32 "&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
 #endif
+
+#if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
+    /** The internal threshold to detect the end of the stack.
+     * The stack is filled with osRtxStackFillPattern at the end.
+     * However, it is possible that the call stack parameters can theoretically have consecutive osRtxStackFillPattern instances.
+     * For the best effort stack end detection, we will consider STACK_END_MARK_CNT consecutive osRtxStackFillPattern instances as the stack end. */
+#define STACK_END_MARK_CNT  3
+#define STACK_DUMP_WIDTH    8
+    mbed_error_printf("\n\nStack Dump:");
+    // Find the stack end.
+    int stack_end_cnt = 0;
+    uint32_t st_end = ctx->thread_current_sp;
+    for (; st_end >= ctx->thread_stack_mem; st_end -= sizeof(int)) {
+        uint32_t st_val = *((uint32_t *)st_end);
+        if (st_val == osRtxStackFillPattern) {
+            stack_end_cnt++;
+        } else {
+            stack_end_cnt = 0;
+        }
+        if (stack_end_cnt >= STACK_END_MARK_CNT) {
+            st_end += (STACK_END_MARK_CNT - 1) * sizeof(int);
+            break;
+        }
+    }
+    for (uint32_t st = st_end; st <= ctx->thread_current_sp; st += sizeof(int) * STACK_DUMP_WIDTH) {
+        mbed_error_printf("\n0x%08" PRIX32 ":", st);
+        for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
+            uint32_t st_cur = st + i * sizeof(int);
+            if (st_cur > ctx->thread_current_sp) {
+                break;
+            }
+            uint32_t st_val = *((uint32_t *)st_cur);
+            mbed_error_printf("0x%08" PRIX32 " ", st_val);
+        }
+    }
+    mbed_error_printf("\n");
+#endif  // MBED_STACK_DUMP_ENABLED
+
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
 #endif //ifndef NDEBUG
