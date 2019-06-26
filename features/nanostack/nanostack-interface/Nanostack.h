@@ -275,7 +275,7 @@ private:
      *  @param func     Callback to be called
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
 
     struct nanostack_callback {
         mbed::Callback<void()> callback;
