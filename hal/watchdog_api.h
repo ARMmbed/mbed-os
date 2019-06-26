@@ -56,11 +56,21 @@
  * # Notes
  * * A software reset may not stop the watchdog timer; the behavior is platform specific.
  *
- * @see hal_watchdog_tests
- *
  * @{
  */
 
+/**
+ * \defgroup hal_watchdog_tests Watchdog HAL tests
+ * Greentea tests for the Watchdog HAL.
+ *
+ * To run the Watchdog HAL tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-watchdog*
+ *
+ */
+
+/** Watchdog configuration.
+ */
 typedef struct {
     /**
     * Refresh value for the watchdog in milliseconds. The maximum value of this
@@ -73,7 +83,8 @@ typedef struct {
     uint32_t timeout_ms;
 } watchdog_config_t;
 
-
+/** Watchdog features.
+ */
 typedef struct {
     /**
      * Maximum timeout value for the watchdog in milliseconds.
@@ -90,10 +101,12 @@ typedef struct {
 } watchdog_features_t;
 
 
+/** Status of a watchdog operation.
+*/
 typedef enum {
-    WATCHDOG_STATUS_OK,
-    WATCHDOG_STATUS_NOT_SUPPORTED,
-    WATCHDOG_STATUS_INVALID_ARGUMENT
+    WATCHDOG_STATUS_OK,                 /**< Operation successful. **/
+    WATCHDOG_STATUS_NOT_SUPPORTED,      /**< Operation not supported. **/
+    WATCHDOG_STATUS_INVALID_ARGUMENT    /**< Invalid argument. **/
 } watchdog_status_t;
 
 #ifdef __cplusplus
@@ -103,14 +116,14 @@ extern "C" {
 /** Initialise and start a watchdog timer with the given configuration.
  *
  * If the watchdog timer is configured and started successfully this
- * function will return WATCHDOG_STATUS_OK.
+ * function will return ::WATCHDOG_STATUS_OK.
  *
  * If the timeout specified is outside the range supported by the platform
- * it will return WATCHDOG_STATUS_INVALID_ARGUMENT.
+ * it will return ::WATCHDOG_STATUS_INVALID_ARGUMENT.
  *
  * @param[in]  config   Configuration settings for the watchdog timer
  *
- * @return WATCHDOG_STATUS_OK if the watchdog is configured correctly and
+ * @return ::WATCHDOG_STATUS_OK if the watchdog is configured correctly and
  *         has started. Otherwise a status indicating the fault.
  */
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config);
@@ -129,9 +142,9 @@ void hal_watchdog_kick(void);
  * Calling this function will attempt to disable any currently running watchdog
  * timers if supported by the current platform
  *
- * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was succesfully
+ * @return Returns ::WATCHDOG_STATUS_OK if the watchdog timer was succesfully
  *         stopped, or if the timer was never started. Returns
- *         WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled on
+ *         ::WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled on
  *         the current platform.
  */
 watchdog_status_t hal_watchdog_stop(void);
