@@ -47,7 +47,6 @@ typedef enum {
 } DACName;
 #endif
 
-#if DEVICE_I2C
 typedef enum {
 #ifdef I2C0_BASE
     I2C_0 = I2C0_BASE,
@@ -59,7 +58,6 @@ typedef enum {
     I2C_2 = I2C2_BASE,
 #endif
 } I2CName;
-#endif
 
 #if DEVICE_PWMOUT
 typedef enum {
