@@ -34,7 +34,7 @@
  * which is an embedded peripheral that will reset the system in the case of
  * system failures or malfunctions.
  *
- * The watchdog timer initialises a system timer with a time period specified in
+ * The watchdog timer initializes a system timer with a time period specified in
  * the configuration. This timer counts down and triggers a system reset when it
  * wraps. To prevent the system reset the timer must be continually
  * kicked/refreshed by calling ::hal_watchdog_kick which will reset the countdown
@@ -77,8 +77,8 @@ typedef struct {
     * Refresh value for the watchdog in milliseconds. The maximum value of this
     * setting is platform dependent, to find the maximum value for the current
     * platform call hal_watchdog_get_features() and check the timeout value
-    * member. The minimum valid value for this setting is 1, attempting to
-    * initialise the watchdog with a timeout of 0ms will return
+    * member. The minimum valid value for this setting is 1. Attempting to
+    * initialize the watchdog with a timeout of 0 ms returns
     * WATCHDOG_STATUS_INVALID_ARGUMENT.
     */
     uint32_t timeout_ms;
@@ -92,11 +92,11 @@ typedef struct {
      */
     uint32_t max_timeout;
     /**
-     * Watchdog configuration can be updated after the watchdog has been started
+     * You can update the watchdog configuration after the watchdog has started.
      */
     bool update_config;
     /**
-     * Watchdog can be stopped after it is started without a reset
+     * You can stop the watchdog after it starts without a reset.
      */
     bool disable_watchdog;
 } watchdog_features_t;
@@ -114,13 +114,13 @@ typedef enum {
 extern "C" {
 #endif
 
-/** Initialise and start a watchdog timer with the given configuration.
+/** Initialize and start a watchdog timer with the given configuration.
  *
- * If the watchdog timer is configured and started successfully this
- * function will return ::WATCHDOG_STATUS_OK.
+ * If the watchdog timer is configured and starts successfully, this
+ * function returns ::WATCHDOG_STATUS_OK.
  *
- * If the timeout specified is outside the range supported by the platform
- * it will return ::WATCHDOG_STATUS_INVALID_ARGUMENT.
+ * If the timeout specified is outside the range supported by the platform,
+ * it returns ::WATCHDOG_STATUS_INVALID_ARGUMENT.
  *
  * @param[in]  config   Configuration settings for the watchdog timer
  *
@@ -131,17 +131,17 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config);
 
 /** Refreshes the watchdog timer.
  *
- * This function should be called periodically before the watchdog times out.
- * Otherwise, the system is reset.
+ * Call this function periodically before the watchdog times out.
+ * Otherwise, the system resets.
  *
- * If a watchdog is not currently running this function does nothing
+ * If a watchdog is not running, this function does nothing.
  */
 void hal_watchdog_kick(void);
 
-/** Stops the watchdog timer
+/** Stops the watchdog timer.
  *
- * Calling this function will attempt to disable any currently running watchdog
- * timers if supported by the current platform
+ * Calling this function disables any running watchdog
+ * timers if the current platform supports them.
  *
  * @return Returns ::WATCHDOG_STATUS_OK if the watchdog timer was succesfully
  *         stopped, or if the timer was never started. Returns
@@ -150,7 +150,7 @@ void hal_watchdog_kick(void);
  */
 watchdog_status_t hal_watchdog_stop(void);
 
-/** Get the watchdog timer refresh value
+/** Get the watchdog timer refresh value.
  *
  * This function returns the configured refresh timeout of the watchdog timer.
  *
@@ -158,7 +158,7 @@ watchdog_status_t hal_watchdog_stop(void);
  */
 uint32_t hal_watchdog_get_reload_value(void);
 
-/** Get information on the current platforms supported watchdog functionality
+/** Get information on the current platforms supported watchdog functionality.
  *
  * @return watchdog_feature_t indicating supported watchdog features on the
  *         current platform
