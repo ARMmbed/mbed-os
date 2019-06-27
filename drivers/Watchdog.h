@@ -20,98 +20,95 @@
 
 #ifdef DEVICE_WATCHDOG
 
-#include <cstdio>
 #include "mbed_error.h"
-#include "platform/mbed_critical.h"
-#include "platform/mbed_power_mgmt.h"
 #include "mbed_assert.h"
+#include "platform/mbed_critical.h"
+#include "watchdog_api.h"
+#include <cstdio>
 
 namespace mbed {
 
 /** \addtogroup drivers */
-/** Services that need to monitor nonblocking periodic behavior or
- *  malfunctions, such as Wi-Fi and TLS, use a software watchdog.
- *  Normally, one instance of a software watchdog gets created during hardware watchdog startup, so you can access the software watchdog.
- *  The hardware watchdog periodically calls the "process" method of the services to check nonblocking periodic behavior.
+/** Hardware system timer that will reset the system in the case of system failures or
+ *  malfunctions.
  *
  * Example:
  * @code
  *
- * Watchdog watchdog(300,"Software Watchdog");
+ * Watchdog watchdog();
  * watchdog.start();
  *
  * while (true) {
- *    watchdog.kick();
- *
  *    // Application code
  * }
  * @endcode
  * @ingroup drivers
  */
-class Watchdog {
+class Watchdog : private NonCopyable<Watchdog>  {
 public:
 
-    /** Constructor configured with timeout and name for this software watchdog instance.
+    /** Constructor configured with timeout
      *
      */
-    Watchdog(uint32_t timeout = 1, const char *const str = NULL);
+    Watchdog();
     ~Watchdog();
 public:
 
-    /** Start an independent watchdog timer with specified parameters.
+    /** Start the watchdog timer
      *
-     * Assert for multiple calls of start.
+     *
+     *  @return status true if the watchdog timer was started
+     *                 successfully. assert if one of the input parameters is out of range for the current platform.
+     *                 false if watchdog timer was not started
      */
-    void start();
+    bool start();
 
-    /** This stops the watchdog timer.
+    /** Stops the watchdog timer
      *
-     * Calling this function disables any running
-     * watchdog timers if the platform supports them.
+     * Calling this function will attempt to disable any currently running
+     * watchdog timers if supported by the current platform.
      *
-     * Assert without calling start.
+     * @return Returns true if the watchdog timer was successfully
+     *         stopped, Returns false if the watchdog cannot be disabled
+     *         on the current platform or if the timer was never started.
      */
-    void stop();
+    bool stop();
 
-    /** This function refreshes the watchdog timer.
+    /** Get the watchdog timer refresh value
      *
-     * Call this function periodically before the watchdog times out.
-     * Otherwise, the system resets.
+     * This function returns the refresh timeout of the watchdog timer.
      *
-     * If the watchdog timer is not running, this function does nothing.
+     * @return Reload value for the watchdog timer in milliseconds.
      */
-    void kick();
+    uint32_t get_timeout() const;
 
-    /** mbed_watchdog_manager (runs by periodic call from ticker) used this API interface
-     *  to go through all the registered user/threads of watchdog.
+    /** Get the maximum refresh value for the current platform in milliseconds
      *
-     *  @param elapsed_ms    completed ticker callback elapsed milliseconds
-     *
-     * Call this function from mbed_watchdog_manager_kick to monitor all the
-     * user/threads alive states.
-     *
-     * Otherwise, the system resets.
+     * @return Maximum refresh value supported by the watchdog for the current
+     *         platform in milliseconds
      */
-    static void process(uint32_t elapsed_ms);
-protected :
+    uint32_t get_max_timeout() const;
 
-    /** Use add_to_list to store the registered user in the list.
-      * This API is only used to call from start.
-      */
-    void add_to_list();
+    /** Check if watchdog is already running
+     *
+     * @return Maximum refresh value supported by the watchdog for the current
+     *         platform in milliseconds
+     */
+    bool is_running() const;
 
-    /** Use remove_from_list to remove the entry from the list.
-      * This API is only used to call from stop.
-      *
-      */
-    void remove_from_list();
 private:
-    uint32_t _max_timeout; //_max_timeout initialized via constructor while creating instance of this class
-    const char *_name; //To store the details of user
-    uint32_t _current_count; //this parameter is used to reset everytime threads/user calls kick
-    bool _is_initialized; //To control start and stop functionality
-    static Watchdog *_first; //List to store the user/threads who called start
-    Watchdog *_next;
+    static void kick();
+    static uint32_t _elapsed_ms;
+    static bool _running;
+#if DEVICE_LPTICKER
+    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
+     */
+    static SingletonPtr<LowPowerTicker> _ticker;
+#else
+    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
+     */
+    static SingletonPtr<Ticker> _ticker;
+#endif
 };
 
 } // namespace mbed

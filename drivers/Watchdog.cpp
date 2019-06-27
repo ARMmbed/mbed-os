@@ -17,92 +17,119 @@
 #ifdef DEVICE_WATCHDOG
 
 #include "Watchdog.h"
+#include "VirtualWatchdog.h"
+
+#define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
 
 namespace mbed {
 
-Watchdog *Watchdog::_first = NULL;
+#if DEVICE_LPTICKER
+    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
+     */
+    SingletonPtr<LowPowerTicker> Watchdog::_ticker;
+#else
+    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
+     */
+    SingletonPtr<Ticker> Watchdog::_ticker;
+#endif
 
-Watchdog::Watchdog(uint32_t timeout, const char *const str): _name(str)
-{
-    _current_count = 0;
-    _is_initialized = false;
-    _next = NULL;
-    _max_timeout = timeout;
-}
+bool Watchdog::_running = false;
+static const uint32_t elapsed_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
 
-void Watchdog::add_to_list()
+Watchdog::Watchdog()
 {
-    this->_next = _first;
-    _first = this;
-    _is_initialized =  true;
-}
-
-void Watchdog::start()
-{
-    MBED_ASSERT(!_is_initialized);
     core_util_critical_section_enter();
-    add_to_list();
-    core_util_critical_section_exit();
-}
-
-
-void Watchdog::kick()
-{
-    MBED_ASSERT(_is_initialized);
-    core_util_critical_section_enter();
-    _current_count = 0;
-    core_util_critical_section_exit();
-}
-
-void Watchdog::stop()
-{
-    MBED_ASSERT(_is_initialized);
-    core_util_critical_section_enter();
-    remove_from_list();
-    core_util_critical_section_exit();
-}
-
-void Watchdog::remove_from_list()
-{
-    Watchdog *cur_ptr = _first,
-              *prev_ptr = NULL;
-    while (cur_ptr != NULL) {
-        if (cur_ptr == this) {
-            if (cur_ptr == _first) {
-                prev_ptr = _first;
-                _first = cur_ptr->_next;
-                prev_ptr->_next = NULL;
-            } else {
-                prev_ptr->_next = cur_ptr->_next;
-                cur_ptr->_next = NULL;
-            }
-            _is_initialized = false;
-            break;
-        } else {
-            prev_ptr = cur_ptr;
-            cur_ptr = cur_ptr->_next;
-        }
+    if (_running) {
+        // error function does not return thus exit critical section and print an error
+        core_util_critical_section_exit();
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_OUT_OF_RESOURCES), "There's already watchdog in the system");
     }
-}
-
-void Watchdog::process(uint32_t elapsed_ms)
-{
-    Watchdog *cur_ptr =  _first;
-    while (cur_ptr != NULL) {
-        if (cur_ptr->_current_count > cur_ptr->_max_timeout) {
-            system_reset();
-        } else {
-            cur_ptr->_current_count += elapsed_ms;
-        }
-        cur_ptr = cur_ptr->_next;
-    }
+    core_util_critical_section_exit();
 }
 
 Watchdog::~Watchdog()
 {
-    if (_is_initialized) {
-        stop();
+    core_util_critical_section_enter();
+    if (_running) {
+        if (stop()) {
+            // some targets might not support stop, thus keep running true in that case
+            _running = false;
+        }
     }
+    core_util_critical_section_exit();
+}
+
+
+bool Watchdog::start()
+{
+    watchdog_status_t sts;
+    MBED_ASSERT(MBED_CONF_TARGET_WATCHDOG_TIMEOUT < get_max_timeout());
+    core_util_critical_section_enter();
+    if (_running) {
+        core_util_critical_section_exit();
+        return false;
+    }
+    watchdog_config_t config;
+    config.timeout_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT;
+    sts = hal_watchdog_init(&config);
+    if (sts == WATCHDOG_STATUS_OK) {
+        _running = true;
+    }
+    core_util_critical_section_exit();
+    if (_running) {
+        us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
+        _ticker->attach_us(callback(&Watchdog::kick), timeout);
+    }
+    return _running;
+}
+
+
+bool Watchdog::stop()
+{
+    watchdog_status_t sts;
+    bool msts = true;
+    core_util_critical_section_enter();
+    if (_running) {
+        sts = hal_watchdog_stop();
+        if (sts != WATCHDOG_STATUS_OK) {
+            msts = false;
+        } else {
+            _ticker->detach();
+            _running = false;
+        }
+
+    } else {
+        msts = false;
+    }
+    core_util_critical_section_exit();
+    return msts;
+}
+
+void Watchdog::kick()
+{
+    core_util_critical_section_enter();
+    hal_watchdog_kick();
+    // VirtualWatchdog will access the watchdog process method to verify
+    // all registered users/threads in alive state */
+    VirtualWatchdog::process(((elapsed_ms <= 0) ? 1 : elapsed_ms));
+    core_util_critical_section_exit();
+}
+
+
+bool Watchdog::is_running() const
+{
+    return _running;
+}
+
+uint32_t Watchdog::get_timeout()
+{
+    return hal_watchdog_get_reload_value();
+}
+
+uint32_t Watchdog::get_max_timeout()
+{
+    const watchdog_features_t features = hal_watchdog_get_platform_features();
+    return features.max_timeout;
 }
 
 } // namespace mbed
