@@ -25,6 +25,7 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_assert.h"
+#include "WatchdogManager.h"
 
 namespace mbed {
 
@@ -94,7 +95,7 @@ public:
      *
      * Otherwise, the system resets.
      */
-    static void process(uint32_t elapsed_ms);
+    static void process();
 protected :
 
     /** Use add_to_list to store the registered user in the list.
