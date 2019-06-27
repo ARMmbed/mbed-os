@@ -127,7 +127,7 @@ static psa_status_t convert_status(int status)
  * \param n[in] number of bits to shift right
  * \return the result
  */
-MBED_FORCEINLINE uint32_t lsr32(uint32_t x, uint32_t n)
+static MBED_FORCEINLINE uint32_t lsr32(uint32_t x, uint32_t n)
 {
     return x >> n;
 }
@@ -140,7 +140,7 @@ MBED_FORCEINLINE uint32_t lsr32(uint32_t x, uint32_t n)
  * \param n[in] number of bits to shift right
  * \return the result
  */
-MBED_FORCEINLINE uint64_t lsr64(uint64_t x, uint32_t n)
+static MBED_FORCEINLINE uint64_t lsr64(uint64_t x, uint32_t n)
 {
     return x >> n;
 }
