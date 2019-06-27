@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef DEVICE_VIRTUAL_WATCHDOG
+#ifdef DEVICE_WATCHDOG
 
 #include "VirtualWatchdog.h"
 #include "Watchdog.h"
@@ -113,4 +113,4 @@ void VirtualWatchdog::process(uint32_t elapsed_ms)
 
 } // namespace mbed
 
-#endif // DEVICE_VIRTUAL_WATCHDOG
+#endif // DEVICE_WATCHDOG
