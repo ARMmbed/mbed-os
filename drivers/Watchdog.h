@@ -24,6 +24,9 @@
 #include "mbed_assert.h"
 #include "platform/mbed_critical.h"
 #include "watchdog_api.h"
+#include "platform/NonCopyable.h"
+#include "platform/SingletonPtr.h"
+#include "drivers/LowPowerTicker.h"
 #include <cstdio>
 
 namespace mbed {
