@@ -17,7 +17,6 @@
 #ifdef DEVICE_WATCHDOG
 
 #include "Watchdog.h"
-#include "VirtualWatchdog.h"
 
 #define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
 
@@ -78,9 +77,6 @@ void Watchdog::kick()
 {
     core_util_critical_section_enter();
     hal_watchdog_kick();
-    // VirtualWatchdog will access the watchdog process method to verify
-    // all registered users/threads in alive state */
-    VirtualWatchdog::process(((elapsed_ms <= 0) ? 1 : elapsed_ms));
     core_util_critical_section_exit();
 }
 
