@@ -16,24 +16,24 @@
  */
 #ifdef DEVICE_WATCHDOG
 
-#include "Watchdog.h"
+#include "drivers/Watchdog.h"
+#include "drivers/WatchdogManager.h"
 
 #define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
 
 namespace mbed {
 
-static const uint32_t elapsed_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
-
-Watchdog::Watchdog() : _running(false)
+Watchdog::Watchdog() : _running(false), _callback(NULL)
 {
 }
 
-~Watchdog::Watchdog()
+Watchdog::~Watchdog()
 {
 }
 
-bool Watchdog::start()
+bool Watchdog::start(Callback<void()> func, uint32_t timeout)
 {
+    _callback = func;
     watchdog_status_t sts;
     MBED_ASSERT(MBED_CONF_TARGET_WATCHDOG_TIMEOUT < get_max_timeout());
     core_util_critical_section_enter();
@@ -49,8 +49,8 @@ bool Watchdog::start()
     }
     core_util_critical_section_exit();
     if (_running) {
-        us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
-        _ticker->attach_us(callback(&Watchdog::get_instance(), &Watchdog::kick), timeout);
+        us_timestamp_t ticker_timeout = (MS_TO_US(((timeout <= 0) ? 1 : timeout)));
+        WatchdogManager::attach(callback(this, &Watchdog::kick), ticker_timeout);
     }
     return _running;
 }
@@ -66,8 +66,9 @@ bool Watchdog::stop()
         if (sts != WATCHDOG_STATUS_OK) {
             msts = false;
         } else {
-            _ticker->detach();
+            WatchdogManager::detach();
             _running = false;
+            _callback = NULL;
         }
 
     } else {
@@ -82,6 +83,9 @@ void Watchdog::kick()
     core_util_critical_section_enter();
     hal_watchdog_kick();
     core_util_critical_section_exit();
+    if (_callback) {
+        _callback();
+    }
 }
 
 
