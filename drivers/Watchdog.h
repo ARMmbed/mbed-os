@@ -33,12 +33,12 @@ namespace mbed {
 
 /** \addtogroup drivers */
 /** Hardware system timer that will reset the system in the case of system failures or
- *  malfunctions.
+ *  malfunctions. There is only one instance in the system.
  *
  * Example:
  * @code
  *
- * Watchdog watchdog();
+ * Watchdog& watchdog = Watchdog::get_instance();
  * watchdog.start();
  *
  * while (true) {
@@ -50,12 +50,17 @@ namespace mbed {
 class Watchdog : private NonCopyable<Watchdog>  {
 public:
 
-    /** Constructor configured with timeout
-     *
-     */
-    Watchdog();
-    ~Watchdog();
-public:
+    /** As Watchdog might not stop ever, there is just one instance - we use single instance.
+      * This ensures we keep Watchdog alive. To operate watchdog, use start/stop methods.
+    */ 
+    static Watchdog &get_instance()
+    {
+        // Use this implementation of singleton (Meyer's) rather than the one that allocates
+        // the instance on the heap because it ensures destruction at program end (preventing warnings
+        // from memory checking tools, such as valgrind).
+        static Watchdog instance;
+        return instance;
+    }
 
     /** Start the watchdog timer
      *
@@ -100,6 +105,9 @@ public:
     bool is_running() const;
 
 private:
+    Watchdog();
+    ~Watchdog();
+
     static void kick();
     static uint32_t _elapsed_ms;
     static bool _running;
