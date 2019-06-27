@@ -21,6 +21,45 @@
 #include "wland_types.h"
 #include "rda_sys_wrapper.h"
 
+typedef enum {
+    WIFI_CONNECTED,
+    WIFI_DISCONNECTED,	
+}WIFI_STATE;
+
+static WIFI_STATE wifi_state = WIFI_DISCONNECTED;
+
+void daemon(void *para)
+{
+    void *main_msgQ = NULL;
+    rda_msg msg;
+    int ret;
+    RDAWiFiInterface *wifi = (RDAWiFiInterface *)para;
+    main_msgQ = rda_mail_create(10, sizeof(unsigned int)*4);
+    wifi->set_msg_queue(main_msgQ);
+    while(1){
+        rda_mail_get(main_msgQ, (void*)&msg, osWaitForever);
+        switch(msg.type)
+        {
+            case MAIN_RECONNECT:
+                printf("wifi disconnect!\r\n");
+                ret = wifi->disconnect();
+                if(ret != 0){
+                    printf("disconnect failed!\r\n");
+                    break;
+                }
+                ret = wifi->reconnect();
+                while(ret != 0){
+                    osDelay(5*1000);
+                    ret = wifi->reconnect();
+                };
+                break;
+            default:
+                printf("unknown msg\r\n");
+                break;
+        }
+    }
+}
+
 nsapi_error_t RDAWiFiInterface::set_channel(uint8_t channel)
 {
     int ret= 0;
@@ -52,7 +91,7 @@ nsapi_error_t RDAWiFiInterface::init()
 {
     if (!_interface) {
         if (!_emac.power_up()) {
-            LWIP_DEBUGF(NETIF_DEBUG,"power up failed!\n");
+            LWIP_DEBUGF(NETIF_DEBUG,("power up failed!\n"));
         }
         nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
@@ -60,6 +99,7 @@ nsapi_error_t RDAWiFiInterface::init()
             return err;
         }
         _interface->attach(_connection_status_cb);
+        rda_thread_new("daemon", daemon, this, DEFAULT_THREAD_STACKSIZE*4, osPriorityNormal);
     }
     return NSAPI_ERROR_OK;
 }
@@ -93,10 +133,17 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
     rda5981_scan_result bss;
     int ret = 0;
 
+    if(wifi_state == WIFI_CONNECTED) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    }
+	
     if (ssid == NULL || ssid[0] == 0) {
         return NSAPI_ERROR_PARAMETER;
     }
-
+	
+    set_credentials(ssid, pass, security);
+    set_channel(channel);
+	
     init();
 
     if(rda5981_check_scan_result_name(ssid) != 0) {
@@ -112,13 +159,13 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
     }
 
     if (find == false) {
-        LWIP_DEBUGF(NETIF_DEBUG,"can not find the ap.\r\n");
-        return NSAPI_ERROR_CONNECTION_TIMEOUT;
+        LWIP_DEBUGF(NETIF_DEBUG,("can not find the ap.\r\n"));
+        return NSAPI_ERROR_NO_SSID;
     }
     bss.channel = 15;
     rda5981_get_scan_result_name(&bss, ssid);
     if ((channel !=0) && (bss.channel != channel)) {
-        LWIP_DEBUGF(NETIF_DEBUG, "invalid channel\r\n");
+        LWIP_DEBUGF(NETIF_DEBUG, ("invalid channel\r\n"));
         return NSAPI_ERROR_CONNECTION_TIMEOUT;
     }
 
@@ -142,6 +189,15 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
           _gateway[0] ? _gateway : 0,
           DEFAULT_STACK,
           _blocking);
+    LWIP_DEBUGF(NETIF_DEBUG,("Interface bringup up status:%d\r\n",ret));
+
+    if( ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IS_CONNECTED ) {
+        ret = NSAPI_ERROR_OK;
+        wifi_state = WIFI_CONNECTED;
+    }
+    else if( ret == NSAPI_ERROR_DHCP_FAILURE) {
+        disconnect();
+    }
 
     return ret;
 }
@@ -156,9 +212,10 @@ nsapi_error_t RDAWiFiInterface::disconnect()
 {
     rda_msg msg;
 
-    if(sta_state < 2) {
+    if(wifi_state == WIFI_DISCONNECTED) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
+    wifi_state = WIFI_DISCONNECTED;
     void* wifi_disconnect_sem = rda_sem_create(0);
     msg.type = WLAND_DISCONNECT;
     msg.arg1 = (unsigned int)wifi_disconnect_sem;
@@ -171,6 +228,81 @@ nsapi_error_t RDAWiFiInterface::disconnect()
 
     return NSAPI_ERROR_NO_CONNECTION;
 }
+
+nsapi_error_t RDAWiFiInterface::reconnect()
+{
+    rda_msg msg;
+    bool find = false;
+    int i = 0;
+    rda5981_scan_result bss;
+    int ret = 0;
+
+    if (_ssid == NULL || _ssid[0] == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    rda5981_del_scan_all_result();
+    if(rda5981_check_scan_result_name(_ssid) != 0) {
+        for (i = 0; i< 5; i++) {
+            rda5981_scan(NULL, 0, 0);
+            if(rda5981_check_scan_result_name(_ssid) == 0) {
+                find = true;
+                break;
+            }
+        }
+    } else {
+        find = true;
+    }
+
+    if (find == false) {
+        LWIP_DEBUGF(NETIF_DEBUG,"can not find the ap.\r\n");
+        return NSAPI_ERROR_CONNECTION_TIMEOUT;
+    }
+    bss.channel = 15;
+    rda5981_get_scan_result_name(&bss, _ssid);
+    if ((_channel !=0) && (bss.channel != _channel)) {
+        LWIP_DEBUGF(NETIF_DEBUG, "invalid channel\r\n");
+        return NSAPI_ERROR_CONNECTION_TIMEOUT;
+    }
+
+    memcpy(gssid, _ssid, strlen(_ssid));
+    if (_pass[0] != 0) {
+        memcpy(gpass, _pass, strlen(_pass));
+    }
+    memset(gbssid, 0, NSAPI_MAC_BYTES);
+    gssid[strlen(_ssid)] = gpass[strlen(_pass)] = '\0';
+
+    msg.type = WLAND_CONNECT;
+    rda_mail_put(wland_msgQ, (void*)&msg, osWaitForever);
+    ret = rda_sem_wait(wifi_auth_sem, 10000);
+    if (ret) {
+        return NSAPI_ERROR_CONNECTION_TIMEOUT;
+    }
+
+    if(_dhcp) {
+        memset(_ip_address, 0, sizeof(_ip_address));
+        memset(_netmask, 0, sizeof(_netmask));
+        memset(_gateway, 0, sizeof(_gateway));
+    }
+
+    ret = _interface->bringup(_dhcp,
+          _ip_address[0] ? _ip_address : 0,
+          _netmask[0] ? _netmask : 0,
+          _gateway[0] ? _gateway : 0,
+          DEFAULT_STACK,
+          _blocking);
+    LWIP_DEBUGF(NETIF_DEBUG,("Interface bringup up status:%d\r\n",ret));
+
+    if( ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IS_CONNECTED ) {
+        ret = NSAPI_ERROR_OK;
+		wifi_state = WIFI_CONNECTED;
+    }
+    else if( ret == NSAPI_ERROR_DHCP_FAILURE) {
+        disconnect();
+    }
+    return ret;
+}
+
 
 nsapi_size_or_error_t RDAWiFiInterface::scan(WiFiAccessPoint *res, nsapi_size_t count)
 {
@@ -218,4 +350,11 @@ nsapi_size_or_error_t RDAWiFiInterface::scan(WiFiAccessPoint *res, nsapi_size_t 
 WiFiInterface *WiFiInterface::get_default_instance() {
     static RDAWiFiInterface wifinet;
     return &wifinet;
+}
+
+nsapi_size_or_error_t RDAWiFiInterface::set_msg_queue(void *queue)
+{
+    //TO_DO: No need for 1st stage since application already control the logic.
+    //rda5981_set_main_queue(queue);
+    return 0;
 }
