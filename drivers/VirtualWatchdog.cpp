@@ -31,7 +31,7 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
     _max_timeout = timeout;
     // start watchdog
      Watchdog& watchdog = Watchdog::get_instance();
-     watchdog.start(&VirtualWatchdog::process, WatchdogManager::elapsed_ms);
+     watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
 }
 
 VirtualWatchdog::~VirtualWatchdog()
@@ -104,7 +104,7 @@ void VirtualWatchdog::process()
         if (cur_ptr->_current_count > cur_ptr->_max_timeout) {
             system_reset();
         } else {
-            cur_ptr->_current_count += WatchdogManager::elapsed_ms;
+            cur_ptr->_current_count += Watchdog::elapsed_ms;
         }
         cur_ptr = cur_ptr->_next;
     }
