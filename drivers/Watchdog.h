@@ -54,7 +54,7 @@ public:
 
     /** As Watchdog might not stop ever, there is just one instance - we use single instance.
       * This ensures we keep Watchdog alive. To operate watchdog, use start/stop methods.
-    */ 
+      */
     static Watchdog &get_instance()
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
@@ -108,7 +108,6 @@ public:
 
     void kick();
 
-
 private:
     Watchdog();
     ~Watchdog();
@@ -125,7 +124,6 @@ private:
      */
     SingletonPtr<Ticker> _ticker;
 #endif
-
 };
 
 } // namespace mbed
