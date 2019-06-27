@@ -25,6 +25,13 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_SerialWireOutput SerialWireOutput class
+ * @{
+ */
 
 class SerialWireOutput : public FileHandle {
 
@@ -63,6 +70,9 @@ public:
         return 0;
     }
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

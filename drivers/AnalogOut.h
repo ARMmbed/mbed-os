@@ -25,7 +25,13 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_AnalogOut AnalogOut class
+ * @{
+ */
 
 /** An analog output, used for setting the voltage on a pin
  *
@@ -48,7 +54,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class AnalogOut {
 
@@ -130,6 +135,9 @@ protected:
     PlatformMutex _mutex;
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

@@ -24,7 +24,13 @@
 #include "hal/i2c_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_I2CSlave I2CSlave class
+ * @{
+ */
 
 /** An I2C Slave, used for communicating with an I2C Master device.
  *
@@ -64,7 +70,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class I2CSlave {
 
@@ -180,6 +185,9 @@ protected:
 
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

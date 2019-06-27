@@ -23,7 +23,13 @@
 #include "hal/pwmout_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_PwmOut PwmOut class
+ * @{
+ */
 
 /** A pulse-width modulation digital output
  *
@@ -46,7 +52,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class PwmOut {
 
@@ -146,6 +151,9 @@ protected:
     bool _deep_sleep_locked;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

@@ -26,7 +26,13 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api Public API */
+/** @{*/
+/**
+ * \defgroup drivers_AnalogIn AnalogIn class
+ * @{
+ */
 
 /** An analog input, used for reading the voltage on a pin
  *
@@ -48,7 +54,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class AnalogIn {
 
@@ -111,7 +116,11 @@ protected:
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
 #endif //!defined(DOXYGEN_ONLY)
+
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

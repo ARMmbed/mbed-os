@@ -19,8 +19,6 @@
 #include "drivers/MbedCRC.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
 
 SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
@@ -74,6 +72,4 @@ MbedCRC<POLY_8BIT_CCITT, 8>::MbedCRC():
     mbed_crc_ctor();
 }
 
-/** @}*/
 } // namespace mbed
-

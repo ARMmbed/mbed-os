@@ -45,7 +45,13 @@
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_SPI SPI class
+ * @{
+ */
 
 struct use_gpio_ssel_t { };
 const use_gpio_ssel_t use_gpio_ssel;
@@ -90,7 +96,6 @@ const use_gpio_ssel_t use_gpio_ssel;
  *     device.unlock();
  * }
  * @endcode
- * @ingroup drivers
  */
 class SPI : private NonCopyable<SPI> {
 
@@ -462,6 +467,9 @@ private:
 
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

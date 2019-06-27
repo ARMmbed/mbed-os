@@ -16,11 +16,9 @@
  */
 
 #include <stdint.h>
-#include "drivers/TableCRC.h"
+#include "drivers/internal/TableCRC.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
 
 extern const uint8_t Table_CRC_7Bit_SD[MBED_CRC_TABLE_SIZE] = {
     0x0,  0x12, 0x24, 0x36, 0x48, 0x5a, 0x6c, 0x7e, 0x90, 0x82, 0xb4, 0xa6, 0xd8, 0xca, 0xfc, 0xee,
@@ -151,6 +149,4 @@ extern const uint32_t Table_CRC_32bit_Rev_ANSI[MBED_OPTIMIZED_CRC_TABLE_SIZE] = 
     0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
 };
 
-
-/** @}*/
 } // namespace mbed

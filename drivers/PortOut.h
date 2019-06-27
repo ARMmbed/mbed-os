@@ -24,7 +24,13 @@
 #include "hal/port_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_PortOut PortOut class
+ * @{
+ */
 /** A multiple pin digital output
  *
  * @note Synchronization level: Interrupt safe
@@ -49,7 +55,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class PortOut {
 public:
@@ -101,6 +106,9 @@ public:
 private:
     port_t _port;
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

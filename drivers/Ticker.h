@@ -17,14 +17,20 @@
 #ifndef MBED_TICKER_H
 #define MBED_TICKER_H
 
-#include "drivers/TimerEvent.h"
+#include "drivers/internal/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Ticker Ticker class
+ * @{
+ */
 
 /** A Ticker is used to call a function at a recurring interval
  *
@@ -60,7 +66,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
@@ -148,6 +153,9 @@ protected:
     bool          _lock_deepsleep;  /**< Flag which indicates if deep sleep should be disabled. */
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

@@ -34,7 +34,13 @@
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_I2C I2C class
+ * @{
+ */
 
 /** An I2C Master, used for communicating with I2C slave devices
  *
@@ -70,7 +76,6 @@ namespace mbed {
  *   }
  * }
  * @endcode
- * @ingroup drivers
  */
 class I2C : private NonCopyable<I2C> {
 
@@ -247,6 +252,9 @@ private:
     int recover(PinName sda, PinName scl);
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

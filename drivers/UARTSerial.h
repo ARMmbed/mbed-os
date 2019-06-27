@@ -23,7 +23,7 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "platform/FileHandle.h"
-#include "SerialBase.h"
+#include "drivers/internal/SerialBase.h"
 #include "InterruptIn.h"
 #include "platform/PlatformMutex.h"
 #include "platform/CircularBuffer.h"
@@ -39,11 +39,16 @@
 
 namespace mbed {
 
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_UARTSerial UARTSerial class
+ * @{
+ */
 
 /** Class providing buffered UART communication functionality using separate circular buffer for send and receive channels
  *
- * @ingroup drivers
  */
 
 class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
@@ -349,6 +354,10 @@ private:
     }
 
 };
+
+/** @}*/
+/** @}*/
+
 } //namespace mbed
 
 #endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)

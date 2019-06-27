@@ -21,12 +21,17 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-internal-api Internal API */
+/** @{*/
+/**
+ * \defgroup drivers_TimerEvent TimerEvent class
+ * @{
+ */
 
 /** Base abstraction for timer interrupts
  *
  * @note Synchronization level: Interrupt safe
- * @ingroup drivers
  */
 class TimerEvent : private NonCopyable<TimerEvent> {
 public:
@@ -97,6 +102,9 @@ protected:
     const ticker_data_t *_ticker_data;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

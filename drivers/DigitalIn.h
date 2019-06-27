@@ -22,7 +22,13 @@
 #include "hal/gpio_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_DigitalIn DigitalIn class
+ * @{
+ */
 
 /** A digital input, used for reading the state of a pin
  *
@@ -46,7 +52,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class DigitalIn {
 
@@ -121,6 +126,9 @@ protected:
     gpio_t gpio;
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

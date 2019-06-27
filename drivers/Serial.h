@@ -22,12 +22,18 @@
 #if DEVICE_SERIAL || defined(DOXYGEN_ONLY)
 
 #include "platform/Stream.h"
-#include "SerialBase.h"
+#include "drivers/internal/SerialBase.h"
 #include "platform/PlatformMutex.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Serial Serial class
+ * @{
+ */
 
 /** A serial port (UART) for communication with other serial devices
  *
@@ -48,7 +54,6 @@ namespace mbed {
  *     pc.printf("Hello World\n");
  * }
  * @endcode
- * @ingroup drivers
  */
 class Serial : public SerialBase, public Stream, private NonCopyable<Serial> {
 
@@ -128,6 +133,9 @@ protected:
     PlatformMutex _mutex;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

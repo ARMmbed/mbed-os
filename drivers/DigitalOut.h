@@ -21,7 +21,13 @@
 #include "hal/gpio_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_DigitalOut DigitalOut class
+ * @{
+ */
 
 /** A digital output, used for setting the state of a pin
  *
@@ -41,7 +47,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class DigitalOut {
 
@@ -137,6 +142,9 @@ protected:
     gpio_t gpio;
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

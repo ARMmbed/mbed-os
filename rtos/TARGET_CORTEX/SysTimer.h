@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 #if MBED_TICKLESS || defined(DOXYGEN_ONLY)
 
 #include "platform/NonCopyable.h"
-#include "drivers/TimerEvent.h"
+#include "drivers/internal/TimerEvent.h"
 
 namespace rtos {
 namespace internal {

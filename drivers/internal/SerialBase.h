@@ -32,13 +32,19 @@
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \defgroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-internal-api Internal API */
+/** @{*/
+/**
+ * \defgroup drivers_SerialBase SerialBase class
+ * @{
+ */
 
 /** A base class for serial port implementations
  * Can't be instantiated directly (use Serial or RawSerial)
  *
  * @note Synchronization level: Set by subclass
- * @ingroup drivers
  */
 class SerialBase : private NonCopyable<SerialBase> {
 
@@ -317,6 +323,9 @@ protected:
     int              _baud;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

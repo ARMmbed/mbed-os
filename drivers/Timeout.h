@@ -21,7 +21,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Timeout Timeout class
+ * @{
+ */
 
 /** A Timeout is used to call a function at a point in the future
  *
@@ -52,7 +58,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class Timeout : public Ticker, private NonCopyable<Timeout> {
 
@@ -61,6 +66,9 @@ protected:
     virtual void handler();
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

@@ -22,12 +22,17 @@
 #include "hal/gpio_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_DigitalInOut DigitalInOut class
+ * @{
+ */
 
 /** A digital input/output, used for setting or reading a bi-directional pin
  *
  * @note Synchronization level: Interrupt safe
- * @ingroup drivers
  */
 class DigitalInOut {
 
@@ -143,6 +148,9 @@ protected:
     gpio_t gpio;
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

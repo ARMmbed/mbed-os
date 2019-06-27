@@ -22,12 +22,18 @@
 #if DEVICE_SERIAL || defined(DOXYGEN_ONLY)
 
 #include "mbed_toolchain.h"
-#include "drivers/SerialBase.h"
+#include "drivers/internal/SerialBase.h"
 #include "platform/NonCopyable.h"
 #include <cstdarg>
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_RawSerial RawSerial class
+ * @{
+ */
 
 /** A serial port (UART) for communication with other serial devices
  * This is a variation of the Serial class that doesn't use streams,
@@ -50,7 +56,6 @@ namespace mbed {
  *     pc.putc('A');
  * }
  * @endcode
- * @ingroup drivers
  */
 class RawSerial: public SerialBase, private NonCopyable<RawSerial> {
 
@@ -112,6 +117,9 @@ protected:
     }
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

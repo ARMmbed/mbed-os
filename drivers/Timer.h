@@ -22,7 +22,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Timer Timer class
+ * @{
+ */
 
 /** A general purpose timer
  *
@@ -46,7 +52,6 @@ namespace mbed {
  *     printf("Toggle the led takes %d us", end - begin);
  * }
  * @endcode
- * @ingroup drivers
  */
 class Timer : private NonCopyable<Timer> {
 
@@ -112,6 +117,9 @@ protected:
     bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
 };
 #endif
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

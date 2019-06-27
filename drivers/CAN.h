@@ -27,12 +27,17 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_CANMessage CANMessage class
+ * @{
+ */
 
 /** CANMessage class
  *
  * @note Synchronization level: Thread safe
- * @ingroup drivers
  */
 class CANMessage : public CAN_Message {
 
@@ -70,8 +75,14 @@ public:
     CANMessage(unsigned int _id, CANFormat _format = CANStandard);
 };
 
+/** @}*/
+
+/**
+ * \defgroup drivers_CAN CAN class
+ * @{
+ */
+
 /** A can bus client, used for communicating with can devices
- * @ingroup drivers
  */
 class CAN : private NonCopyable<CAN> {
 
@@ -299,6 +310,9 @@ protected:
     PlatformMutex       _mutex;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

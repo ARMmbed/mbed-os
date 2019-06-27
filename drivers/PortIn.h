@@ -24,7 +24,13 @@
 #include "hal/port_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_PortIn PortIn class
+ * @{
+ */
 
 /** A multiple pin digital input
  *
@@ -50,7 +56,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class PortIn {
 public:
@@ -88,6 +93,9 @@ public:
 private:
     port_t _port;
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 
