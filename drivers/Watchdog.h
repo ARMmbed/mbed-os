@@ -108,17 +108,17 @@ private:
     Watchdog();
     ~Watchdog();
 
-    static void kick();
-    static uint32_t _elapsed_ms;
-    static bool _running;
+    void kick();
+
+    bool _running;
 #if DEVICE_LPTICKER
     /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
      */
-    static SingletonPtr<LowPowerTicker> _ticker;
+    SingletonPtr<LowPowerTicker> _ticker;
 #else
     /** Create singleton instance of Ticker for watchdog periodic call back of kick.
      */
-    static SingletonPtr<Ticker> _ticker;
+    SingletonPtr<Ticker> _ticker;
 #endif
 };
 
