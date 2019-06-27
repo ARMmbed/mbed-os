@@ -30,8 +30,8 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
     _next = NULL;
     _max_timeout = timeout;
     // start watchdog
-     Watchdog& watchdog = Watchdog::get_instance();
-     watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
+    Watchdog &watchdog = Watchdog::get_instance();
+    watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
 }
 
 VirtualWatchdog::~VirtualWatchdog()
@@ -76,8 +76,7 @@ void VirtualWatchdog::add_to_list()
 
 void VirtualWatchdog::remove_from_list()
 {
-    VirtualWatchdog *cur_ptr = _first,
-              *prev_ptr = NULL;
+    VirtualWatchdog *cur_ptr = _first, *prev_ptr = NULL;
     while (cur_ptr != NULL) {
         if (cur_ptr == this) {
             if (cur_ptr == _first) {
