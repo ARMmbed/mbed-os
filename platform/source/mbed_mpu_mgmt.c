@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include "platform/mbed_mpu_mgmt.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
-#include "hal/mpu_api.h"
 #include <limits.h>
+#include <stdbool.h>
 
 #if DEVICE_MPU && MBED_CONF_PLATFORM_USE_MPU
 

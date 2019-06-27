@@ -1,5 +1,6 @@
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_CThunk CThunk class
@@ -12,7 +13,7 @@
  * - supports an optional context parameter for the called function
  * - ideally suited for class object receiving interrupts (NVIC_SetVector)
  *
- * Copyright (c) 2014-2015 ARM Limited
+ * Copyright (c) 2014-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +40,7 @@
 #ifndef __CTHUNK_H__
 #define __CTHUNK_H__
 
-#include "CThunkBase.h"
+#include "platform/source/CThunkBase.h"
 
 /**
  * Class for created a pointer with data bound to it

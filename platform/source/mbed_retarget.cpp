@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,12 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
-#include "platform/mbed_stats.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_poll.h"
-#include "platform/PlatformMutex.h"
 #include "drivers/UARTSerial.h"
-#include "us_ticker_api.h"
-#include "lp_ticker_api.h"
+#include "hal/us_ticker_api.h"
+#include "hal/lp_ticker_api.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>

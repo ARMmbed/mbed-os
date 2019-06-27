@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@
 #include "platform/mbed_error.h"
 
 
-#include "CThunkBase.h"
+#include "platform/source/CThunkBase.h"
 
 MBED_STATIC_ASSERT(MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX < 256, "MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX must be less than 256");
 MBED_STATIC_ASSERT(MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX > 0, "MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX must be greater than 0");

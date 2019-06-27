@@ -1,7 +1,3 @@
-
-/** \ingroup platform */
-/** \addtogroup platform-public-api */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -19,12 +15,12 @@
  * limitations under the License.
  */
 
-#ifndef MBED_OLD_TOOLCHAIN_H
-#define MBED_OLD_TOOLCHAIN_H
+#include <string.h>
+#include "platform/mbed_assert.h"
 
-#warning toolchain.h has been replaced by mbed_toolchain.h, please update to mbed_toolchain.h [since mbed-os-5.3]
-#include "platform/mbed_toolchain.h"
+#include "platform/mbed_error.h"
 
-#endif
-
-/** @}*/
+MBED_NORETURN void mbed_assert_internal(const char *expr, const char *file, int line)
+{
+    mbed_error(MBED_ERROR_ASSERTION_FAILED, expr, 0, file, line);
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@
 #undef MBED_DEPRECATED_SINCE
 #define MBED_DEPRECATED_SINCE(...)
 
-#include "platform/CallChain.h"
+#include "platform/source/CallChain.h"
 #include "cmsis.h"
 #include "platform/mbed_critical.h"
 
