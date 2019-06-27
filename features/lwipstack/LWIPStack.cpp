@@ -463,6 +463,7 @@ nsapi_size_or_error_t LWIP::socket_send(nsapi_socket_t handle, const void *data,
 
 nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi_size_t size)
 {
+#if LWIP_TCP
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (!s->buf) {
@@ -483,6 +484,9 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
     }
 
     return recv;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAddress &address, const void *data, nsapi_size_t size)
