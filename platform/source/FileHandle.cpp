@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "FileHandle.h"
-#include "platform/mbed_retarget.h"
-#include "platform/mbed_critical.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 

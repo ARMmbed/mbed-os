@@ -1,12 +1,13 @@
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_Assert Assert macros
  * @{
  */
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +25,7 @@
 #ifndef MBED_ASSERT_H
 #define MBED_ASSERT_H
 
-#include "mbed_preprocessor.h"
-#include "mbed_toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,10 @@
 #include <stdarg.h>
 #include "device.h"
 #include "platform/mbed_error.h"
-#include "platform/mbed_toolchain.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_interface.h"
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
-#include "platform/mbed_error_hist.h"
+#include "platform/source/mbed_error_hist.h"
 
 static mbed_error_ctx mbed_error_ctx_log[MBED_CONF_PLATFORM_ERROR_HIST_SIZE] = {0};
 static int error_log_count = -1;

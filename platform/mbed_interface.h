@@ -1,5 +1,6 @@
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_interface Network interface and other utility functions
@@ -7,7 +8,7 @@
  */
 
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +28,7 @@
 
 #include <stdarg.h>
 
-#include "mbed_toolchain.h"
+#include "platform/mbed_toolchain.h"
 #include "device.h"
 
 /* Mbed interface mac address
@@ -58,7 +59,7 @@ extern "C" {
  *
  * mbed Microcontrollers have a built-in interface to provide functionality such as
  * drag-n-drop download, reset, serial-over-usb, and access to the mbed local file
- * system. These functions provide means to control the interface suing semihost
+ * system. These functions provide means to control the interface using semihost
  * calls it supports.
  */
 

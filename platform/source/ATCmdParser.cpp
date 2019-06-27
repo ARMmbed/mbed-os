@@ -402,4 +402,3 @@ bool ATCmdParser::process_oob()
 }
 
 }
-

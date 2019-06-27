@@ -127,4 +127,3 @@ PathType FileBase::getPathType(void)
 }
 
 } // namespace mbed
-

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <string.h>
-#include "platform/mbed_assert.h"
+#include "platform/CriticalSectionLock.h"
 
 #include "platform/mbed_critical.h"
-#include "platform/mbed_error.h"
 
-MBED_NORETURN void mbed_assert_internal(const char *expr, const char *file, int line)
+namespace mbed {
+
+CriticalSectionLock::CriticalSectionLock()
 {
-    mbed_error(MBED_ERROR_ASSERTION_FAILED, expr, 0, file, line);
+    core_util_critical_section_enter();
 }
 
+CriticalSectionLock::~CriticalSectionLock()
+{
+    core_util_critical_section_exit();
+}
+
+void CriticalSectionLock::lock()
+{
+    core_util_critical_section_enter();
+}
+
+void CriticalSectionLock::unlock()
+{
+    core_util_critical_section_exit();
+}
+
+void CriticalSectionLock::enable()
+{
+    core_util_critical_section_enter();
+}
+
+void CriticalSectionLock::disable()
+{
+    core_util_critical_section_exit();
+}
+
+} // namespace mbed

@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,14 @@
 #define MBED_ATCMDPARSER_H
 
 #include <cstdarg>
-#include "Callback.h"
-#include "NonCopyable.h"
-#include "FileHandle.h"
+#include "platform/Callback.h"
+#include "platform/NonCopyable.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api Public API */
 /** @{*/
 /**
  * \defgroup platform_ATCmdParser ATCmdParser class

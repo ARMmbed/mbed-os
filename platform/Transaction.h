@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015 ARM Limited
+ * Copyright (c) 2015-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,10 @@
 #define MBED_TRANSACTION_H
 
 #include "platform/platform.h"
-#include "platform/FunctionPointer.h"
 
 namespace mbed {
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_Transaction Transaction class

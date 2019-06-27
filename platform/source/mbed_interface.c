@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,7 @@
 #include <stdio.h>
 #include "platform/mbed_interface.h"
 
-#include "hal/gpio_api.h"
-#include "platform/mbed_wait_api.h"
 #include "platform/mbed_semihost_api.h"
-#include "platform/mbed_error.h"
-#include "platform/mbed_toolchain.h"
 
 #if DEVICE_SEMIHOST
 
