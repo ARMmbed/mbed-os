@@ -21,6 +21,13 @@
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
 
+/** \ingroup platform */
+/** \addtogroup platform-internal-api */
+/** @{*/
+/**
+ * \defgroup platform_CThunkBase CThunkBase class
+ * @{
+ */
 class CThunkBase {
 protected:
     typedef void (*Trampoline)(CThunkBase *);
@@ -74,5 +81,8 @@ private:
     }
 };
 
-#endif/*__CTHUNK_BASE_H__*/
+/**@}*/
 
+/**@}*/
+
+#endif/*__CTHUNK_BASE_H__*/

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-#include "mbed_power_mgmt.h"
-#include "mbed_interface.h"
-#include "mbed_atomic.h"
-#include "mbed_critical.h"
-#include "mbed_assert.h"
-#include "mbed_error.h"
-#include "mbed_stats.h"
+#include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_interface.h"
+#include "platform/mbed_atomic.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_stats.h"
 
+#include "hal/sleep_api.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 #include "platform/mbed_wait_api.h"
