@@ -26,8 +26,6 @@
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_assert.h"
 
-class Watchdog;
-
 namespace mbed {
 
 /** \addtogroup drivers */
@@ -116,7 +114,6 @@ private:
     bool _is_initialized; //To control start and stop functionality
     static VirtualWatchdog *_first; //List to store the user/threads who called start
     VirtualWatchdog *_next;
-    static Watchdog *_watchdog;
 };
 
 } // namespace mbed
