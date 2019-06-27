@@ -25,7 +25,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_assert.h"
-#include "WatchdogManager.h"
 
 namespace mbed {
 
