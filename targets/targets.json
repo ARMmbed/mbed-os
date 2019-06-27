@@ -2074,7 +2074,6 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "MBED_MPU_CUSTOM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "NXP_LPADC"
         ],
         "components_add": ["FLASHIAP"],
@@ -2125,8 +2124,7 @@
             "__STARTUP_COPY_MULTIPLE",
             "MBED_MPU_CUSTOM",
             "DAUTH_CHIP_DEFAULT",
-            "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C"
+            "MBEDTLS_PSA_CRYPTO_SPM"
         ],
         "components_add": ["FLASHIAP"],
         "extra_labels_add": [
@@ -5455,8 +5453,7 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=1",
-            "MBED_MPU_CUSTOM",
-            "MBEDTLS_PSA_CRYPTO_C"
+            "MBED_MPU_CUSTOM"
         ],
         "extra_labels_add": ["MUSCA_A1_NS", "PSA", "TFM"],
         "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
@@ -5479,7 +5476,6 @@
             "MBED_MPU_CUSTOM",
             "DAUTH_CHIP_DEFAULT",
             "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "MBEDTLS_ENTROPY_NV_SEED"
         ],
         "components_add": ["FLASHIAP"],
@@ -8318,7 +8314,6 @@
         "macros_add": [
             "MBED_TICKLESS",
             "MBEDTLS_PSA_CRYPTO_SPM",
-            "MBEDTLS_PSA_CRYPTO_C",
             "PU_ENABLE"
         ],
         "deliver_to_target": "CY8CKIT_062_WIFI_BT_PSA",
@@ -8343,7 +8338,6 @@
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "device_has_remove": ["CRC"],
-        "macros_add": ["MBEDTLS_PSA_CRYPTO_C"],
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",

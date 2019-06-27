@@ -8,6 +8,12 @@
  * See BSD-3-Clause license in README.md
  */
 
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
 #include "t_cose_crypto.h"
 #include "tfm_plat_defs.h"
 #include "psa/crypto.h"
