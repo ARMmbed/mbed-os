@@ -74,10 +74,11 @@
 #include "drivers/FlashIAP.h"
 #include "drivers/MbedCRC.h"
 #include "drivers/QSPI.h"
+#include "drivers/Watchdog.h"
+#include "drivers/VirtualWatchdog.h"
 
 // mbed Internal components
 #include "drivers/ResetReason.h"
-#include "platform/mbed_watchdog_mgr.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
