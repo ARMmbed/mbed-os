@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,12 @@
 #define MBED_DEEPSLEEPLOCK_H
 
 #include <limits.h>
-#include "platform/mbed_power_mgmt.h"
-#include "platform/mbed_atomic.h"
+#include <stdint.h>
 
 namespace mbed {
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_DeepSleepLock DeepSleepLock functions
@@ -49,44 +49,17 @@ private:
     uint16_t _lock_count;
 
 public:
-    DeepSleepLock(): _lock_count(1)
-    {
-        sleep_manager_lock_deep_sleep();
-    }
+    DeepSleepLock();
 
-    ~DeepSleepLock()
-    {
-        if (_lock_count) {
-            sleep_manager_unlock_deep_sleep();
-        }
-    }
+    ~DeepSleepLock();
 
     /** Mark the start of a locked deep sleep section
      */
-    void lock()
-    {
-        uint16_t count = core_util_atomic_incr_u16(&_lock_count, 1);
-        if (1 == count) {
-            sleep_manager_lock_deep_sleep();
-        }
-        if (0 == count) {
-            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", count);
-        }
-    }
+    void lock();
 
     /** Mark the end of a locked deep sleep section
      */
-    void unlock()
-    {
-        uint16_t count = core_util_atomic_decr_u16(&_lock_count, 1);
-        if (count == 0) {
-            sleep_manager_unlock_deep_sleep();
-        }
-        if (count == USHRT_MAX) {
-            core_util_critical_section_exit();
-            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", count);
-        }
-    }
+    void unlock();
 };
 
 /**@}*/

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2015-2016, ARM Limited, All Rights Reserved
+ * Copyright (c) 2015-2019, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -24,9 +24,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "mbed_toolchain.h"
+#include "platform/mbed_toolchain.h"
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 
 /**

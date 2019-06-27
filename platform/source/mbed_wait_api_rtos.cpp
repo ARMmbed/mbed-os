@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_error.h"
-#include "rtos/ThisThread.h"
 
 void wait(float s)
 {
@@ -64,4 +63,3 @@ void wait_ms(int ms)
 }
 
 #endif // #if MBED_CONF_RTOS_PRESENT
-

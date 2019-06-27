@@ -1,12 +1,13 @@
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_version Version macros
  * @{
  */
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

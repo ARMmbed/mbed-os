@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 #ifndef MBED_CRASH_DATA_INFO_H
 #define MBED_CRASH_DATA_INFO_H
 
-#include "platform/mbed_retarget.h"
-#include "platform/mbed_toolchain.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
+/** \ingroup platform */
+/** \addtogroup platform-internal-api */
+/** @{*/
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$RW_m_crash_data$$ZI$$Base[];
 extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
@@ -43,6 +43,7 @@ extern uint32_t __CRASH_DATA_RAM_END__[];
 #define ERROR_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) bytes for Error Context
 #define FAULT_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + FAULT_CONTEXT_OFFSET)
 #define ERROR_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + ERROR_CONTEXT_OFFSET)
+/**@}*/
 #endif
 
 #ifdef __cplusplus
@@ -50,6 +51,3 @@ extern uint32_t __CRASH_DATA_RAM_END__[];
 #endif
 
 #endif
-
-
-

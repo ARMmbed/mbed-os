@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017-2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "mbed_mktime.h"
+#include "platform/mbed_mktime.h"
 
 /* Time constants. */
 #define SECONDS_BY_MINUTES 60

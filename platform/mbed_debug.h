@@ -1,5 +1,6 @@
 
-/** \addtogroup platform */
+/** \ingroup platform */
+/** \addtogroup platform-public-api */
 /** @{*/
 /**
  * \defgroup platform_debug Debug functions
@@ -7,7 +8,7 @@
  */
 
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +29,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #endif
-#include "mbed_toolchain.h"
+#include "platform/mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {

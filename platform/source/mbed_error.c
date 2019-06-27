@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,11 @@
 #include <stdarg.h>
 #include <string.h>
 #include "device.h"
-#include "platform/mbed_crash_data_offsets.h"
-#include "platform/mbed_retarget.h"
+#include "platform/source/mbed_crash_data_offsets.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
-#include "platform/mbed_error_hist.h"
+#include "platform/source/mbed_error_hist.h"
 #include "platform/mbed_interface.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
@@ -635,4 +634,3 @@ exit:
     return ret;
 }
 #endif
-

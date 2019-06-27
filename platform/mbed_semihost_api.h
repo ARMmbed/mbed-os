@@ -1,6 +1,6 @@
 
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
 #define MBED_SEMIHOST_H
 
 #include "device.h"
-#include "platform/mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {

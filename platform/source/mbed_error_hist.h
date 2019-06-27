@@ -28,6 +28,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \ingroup platform */
+/** \addtogroup platform-internal-api */
+/** @{*/
+
 /*
  * Puts/Adds an error entry into the error history list
  *
@@ -112,6 +117,6 @@ mbed_error_status_t mbed_save_error_hist(const char *path);
 }
 #endif
 
+/**@}*/
+
 #endif
-
-
