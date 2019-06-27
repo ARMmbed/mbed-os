@@ -36,30 +36,6 @@ namespace mbed {
 bool Watchdog::_running = false;
 static const uint32_t elapsed_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
 
-Watchdog::Watchdog()
-{
-    core_util_critical_section_enter();
-    if (_running) {
-        // error function does not return thus exit critical section and print an error
-        core_util_critical_section_exit();
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_OUT_OF_RESOURCES), "There's already watchdog in the system");
-    }
-    core_util_critical_section_exit();
-}
-
-Watchdog::~Watchdog()
-{
-    core_util_critical_section_enter();
-    if (_running) {
-        if (stop()) {
-            // some targets might not support stop, thus keep running true in that case
-            _running = false;
-        }
-    }
-    core_util_critical_section_exit();
-}
-
-
 bool Watchdog::start()
 {
     watchdog_status_t sts;
@@ -121,12 +97,12 @@ bool Watchdog::is_running() const
     return _running;
 }
 
-uint32_t Watchdog::get_timeout()
+uint32_t Watchdog::get_timeout() const
 {
     return hal_watchdog_get_reload_value();
 }
 
-uint32_t Watchdog::get_max_timeout()
+uint32_t Watchdog::get_max_timeout() const
 {
     const watchdog_features_t features = hal_watchdog_get_platform_features();
     return features.max_timeout;

@@ -17,11 +17,11 @@
 #ifdef DEVICE_VIRTUAL_WATCHDOG
 
 #include "VirtualWatchdog.h"
+#include "Watchdog.h"
 
 namespace mbed {
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
-Watchdog VirtualWatchdog::*_watchdog = NULL;
 
 VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
 {
@@ -29,23 +29,16 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
     _is_initialized = false;
     _next = NULL;
     _max_timeout = timeout;
-    // initialize watchdog, just once (driver Watchdog takes care of only one instance there)
-    if (_watchdog == NULL) {
-        _watchdog = new Watchdog();
-        _watchdog.start();
-    }
+    // start watchdog
+     Watchdog& watchdog = Watchdog::get_instance();
+     watchdog.start();
 }
 
 VirtualWatchdog::~VirtualWatchdog()
 {
     if (_is_initialized) {
         stop();
-        // if we are the last VirtualWatchdog in the system, make sure to turn off hw watchdog
-        if (_first == NULL) {
-            _watchdog.stop();
-            delete _watchdog;
-            _watchdog = NULL;
-        }
+        // we do not need to stop hw watchdog, it's ticking by itself
     }
 }
 
