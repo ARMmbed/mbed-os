@@ -50,7 +50,7 @@ bool Watchdog::start(Callback<void()> func, uint32_t timeout)
     core_util_critical_section_exit();
     if (_running) {
         us_timestamp_t ticker_timeout = (MS_TO_US(((timeout <= 0) ? 1 : timeout)));
-        WatchdogManager::attach(callback(this, &Watchdog::kick), ticker_timeout);
+        _ticker->attach(callback(this, &Watchdog::kick), ticker_timeout);
     }
     return _running;
 }
@@ -66,7 +66,7 @@ bool Watchdog::stop()
         if (sts != WATCHDOG_STATUS_OK) {
             msts = false;
         } else {
-            WatchdogManager::detach();
+            _ticker->detach();
             _running = false;
             _callback = NULL;
         }
@@ -83,6 +83,7 @@ void Watchdog::kick()
     core_util_critical_section_enter();
     hal_watchdog_kick();
     core_util_critical_section_exit();
+
     if (_callback) {
         _callback();
     }

@@ -50,6 +50,7 @@ namespace mbed {
  */
 class Watchdog : private NonCopyable<Watchdog>  {
 public:
+    const uint32_t watchdog_timeout = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
 
     /** As Watchdog might not stop ever, there is just one instance - we use single instance.
       * This ensures we keep Watchdog alive. To operate watchdog, use start/stop methods.
@@ -70,7 +71,7 @@ public:
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
      *                 false if watchdog timer was not started
      */
-    bool start(Callback<void()> func = NULL, uint32_t timeout =  WatchdogManager::elapsed_ms);
+    bool start(Callback<void()> func = NULL, uint32_t timeout =  watchdog_timeout);
 
     /** Stops the watchdog timer
      *
@@ -106,12 +107,25 @@ public:
     bool is_running() const;
 
     void kick();
+
+
 private:
     Watchdog();
     ~Watchdog();
 
     bool _running;
     Callback<void()> _callback;
+
+#if DEVICE_LPTICKER
+    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
+     */
+    SingletonPtr<LowPowerTicker> _ticker;
+#else
+    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
+     */
+    SingletonPtr<Ticker> _ticker;
+#endif
+
 };
 
 } // namespace mbed
