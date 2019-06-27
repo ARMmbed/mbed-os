@@ -23,18 +23,11 @@
 
 namespace mbed {
 
-#if DEVICE_LPTICKER
-    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<LowPowerTicker> Watchdog::_ticker;
-#else
-    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<Ticker> Watchdog::_ticker;
-#endif
-
-bool Watchdog::_running = false;
 static const uint32_t elapsed_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
+
+Watchdog::Watchdog() : _running(false)
+{
+}
 
 bool Watchdog::start()
 {
@@ -54,7 +47,7 @@ bool Watchdog::start()
     core_util_critical_section_exit();
     if (_running) {
         us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
-        _ticker->attach_us(callback(&Watchdog::kick), timeout);
+        _ticker->attach_us(callback(&Watchdog::get_instance(), &Watchdog::kick), timeout);
     }
     return _running;
 }
@@ -109,5 +102,6 @@ uint32_t Watchdog::get_max_timeout() const
 }
 
 } // namespace mbed
+
 
 #endif // DEVICE_WATCHDOG
