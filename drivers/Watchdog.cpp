@@ -28,6 +28,10 @@ Watchdog::Watchdog() : _running(false)
 {
 }
 
+~Watchdog::Watchdog()
+{
+}
+
 bool Watchdog::start()
 {
     watchdog_status_t sts;
