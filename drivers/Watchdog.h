@@ -27,6 +27,7 @@
 #include "platform/NonCopyable.h"
 #include "platform/SingletonPtr.h"
 #include "drivers/LowPowerTicker.h"
+#include "drivers/WatchdogManager.h"
 #include <cstdio>
 
 namespace mbed {
@@ -69,7 +70,7 @@ public:
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
      *                 false if watchdog timer was not started
      */
-    bool start();
+    bool start(Callback<void()> func = NULL, uint32_t timeout =  WatchdogManager::elapsed_ms);
 
     /** Stops the watchdog timer
      *
@@ -104,22 +105,13 @@ public:
      */
     bool is_running() const;
 
+    void kick();
 private:
     Watchdog();
     ~Watchdog();
 
-    void kick();
-
     bool _running;
-#if DEVICE_LPTICKER
-    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<LowPowerTicker> _ticker;
-#else
-    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<Ticker> _ticker;
-#endif
+    Callback<void()> _callback;
 };
 
 } // namespace mbed
