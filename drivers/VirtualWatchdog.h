@@ -84,13 +84,10 @@ public:
      */
     void kick();
 
-    /** mbed_watchdog_manager (runs by periodic call from ticker) used this API interface
+    /** Periodic callback method (runs by periodic call from ticker) used this API interface
      *  to go through all the registered user/threads of watchdog.
      *
-     *  @param elapsed_ms    completed ticker callback elapsed milliseconds
-     *
-     * Call this function from mbed_watchdog_manager_kick to monitor all the
-     * user/threads alive states.
+     *  @param elapsed_ms Elapsed milliseconds
      *
      * Otherwise, the system resets.
      */
