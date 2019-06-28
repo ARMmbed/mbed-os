@@ -54,7 +54,7 @@ bool Watchdog::start(Callback<void(uint32_t)> func, uint32_t timeout)
         if (_ticker_timeout == 0) {
             _ticker_timeout = 1;
         }
-        _ticker->attach_us(callback(this, &Watchdog::kick), _ticker_timeout);
+        _ticker->attach_us(callback(this, &Watchdog::timeout_handler), _ticker_timeout);
     }
     return _running;
 }
@@ -87,12 +87,15 @@ void Watchdog::kick()
     core_util_critical_section_enter();
     hal_watchdog_kick();
     core_util_critical_section_exit();
+}
 
+void Watchdog::timeout_handler()
+{
+    kick();
     if (_callback) {
         _callback(_ticker_timeout);
     }
 }
-
 
 bool Watchdog::is_running() const
 {
