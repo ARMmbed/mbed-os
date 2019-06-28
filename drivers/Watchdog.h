@@ -27,7 +27,6 @@
 #include "platform/NonCopyable.h"
 #include "platform/SingletonPtr.h"
 #include "drivers/LowPowerTicker.h"
-#include "drivers/WatchdogManager.h"
 #include <cstdio>
 
 namespace mbed {
@@ -50,7 +49,7 @@ namespace mbed {
  */
 class Watchdog : private NonCopyable<Watchdog>  {
 public:
-    const uint32_t watchdog_timeout = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
+    static const uint32_t watchdog_timeout = MBED_CONF_TARGET_WATCHDOG_TIMEOUT / 2;
 
     /** As Watchdog might not stop ever, there is just one instance - we use single instance.
       * This ensures we keep Watchdog alive. To operate watchdog, use start/stop methods.
