@@ -1,39 +1,21 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016 - 2019, NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_common.h"
 #include "fsl_clock.h"
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.clock"
+#endif
 
 #if (defined(OSC) && !(defined(OSC0)))
 #define OSC0 OSC
@@ -57,10 +39,9 @@
  ******************************************************************************/
 
 /* External XTAL0 (OSC0) clock frequency. */
-uint32_t g_xtal0Freq;
-
+volatile uint32_t g_xtal0Freq;
 /* External XTAL32K clock frequency. */
-uint32_t g_xtal32Freq;
+volatile uint32_t g_xtal32Freq;
 
 /*******************************************************************************
  * Prototypes
@@ -126,6 +107,11 @@ static uint8_t CLOCK_GetOscRangeFromFreq(uint32_t freq)
     return range;
 }
 
+/*!
+ * brief Get the OSC0 external reference clock frequency (OSC0ERCLK).
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetOsc0ErClkFreq(void)
 {
     if (OSC0->CR & OSC_CR_ERCLKEN_MASK)
@@ -140,6 +126,11 @@ uint32_t CLOCK_GetOsc0ErClkFreq(void)
     }
 }
 
+/*!
+ * brief Get the external reference 32K clock frequency (ERCLK32K).
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetEr32kClkFreq(void)
 {
     uint32_t freq;
@@ -164,11 +155,21 @@ uint32_t CLOCK_GetEr32kClkFreq(void)
     return freq;
 }
 
+/*!
+ * brief Get the platform clock frequency.
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetPlatClkFreq(void)
 {
     return CLOCK_GetOutClkFreq() / (SIM_CLKDIV1_OUTDIV1_VAL + 1);
 }
 
+/*!
+ * brief Get the flash clock frequency.
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetFlashClkFreq(void)
 {
     uint32_t freq;
@@ -179,6 +180,11 @@ uint32_t CLOCK_GetFlashClkFreq(void)
     return freq;
 }
 
+/*!
+ * brief Get the bus clock frequency.
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetBusClkFreq(void)
 {
     uint32_t freq;
@@ -189,11 +195,26 @@ uint32_t CLOCK_GetBusClkFreq(void)
     return freq;
 }
 
+/*!
+ * brief Get the core clock or system clock frequency.
+ *
+ * return Clock frequency in Hz.
+ */
 uint32_t CLOCK_GetCoreSysClkFreq(void)
 {
     return CLOCK_GetOutClkFreq() / (SIM_CLKDIV1_OUTDIV1_VAL + 1);
 }
 
+/*!
+ * brief Gets the clock frequency for a specific clock name.
+ *
+ * This function checks the current clock configurations and then calculates
+ * the clock frequency for a specific clock name defined in clock_name_t.
+ * The MCG must be properly configured before using this function.
+ *
+ * param clockName Clock names defined in clock_name_t
+ * return Clock frequency value in Hertz
+ */
 uint32_t CLOCK_GetFreq(clock_name_t clockName)
 {
     uint32_t freq;
@@ -233,12 +254,26 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
     return freq;
 }
 
+/*!
+ * brief Set the clock configure in SIM module.
+ *
+ * This function sets system layer clock settings in SIM module.
+ *
+ * param config Pointer to the configure structure.
+ */
 void CLOCK_SetSimConfig(sim_clock_config_t const *config)
 {
     SIM->CLKDIV1 = config->clkdiv1;
     CLOCK_SetEr32kClock(config->er32kSrc);
 }
 
+/*! brief Enable USB FS clock.
+ *
+ * param src  USB FS clock source.
+ * param freq The frequency specified by src.
+ * retval true The clock is set successfully.
+ * retval false The clock source is invalid to get proper USB FS clock.
+ */
 bool CLOCK_EnableUsbfs0Clock(clock_usb_src_t src, uint32_t freq)
 {
     bool ret = true;
@@ -265,6 +300,14 @@ bool CLOCK_EnableUsbfs0Clock(clock_usb_src_t src, uint32_t freq)
     return ret;
 }
 
+/*!
+ * brief Gets the MCG internal reference clock (MCGIRCLK) frequency.
+ *
+ * This function gets the MCG_Lite internal reference clock frequency in Hz based
+ * on the current MCG register value.
+ *
+ * return The frequency of MCGIRCLK.
+ */
 uint32_t CLOCK_GetInternalRefClkFreq(void)
 {
     uint8_t divider1 = MCG_SC_FCRDIV_VAL;
@@ -273,6 +316,14 @@ uint32_t CLOCK_GetInternalRefClkFreq(void)
     return CLOCK_GetLircClkFreq() >> (divider1 + divider2);
 }
 
+/*
+ * brief Gets the current MCGPCLK frequency.
+ *
+ * This function gets the MCGPCLK frequency in Hz based on the current MCG_Lite
+ * register settings.
+ *
+ * return The frequency of MCGPCLK.
+ */
 uint32_t CLOCK_GetPeriphClkFreq(void)
 {
     /* Check whether the HIRC is enabled. */
@@ -286,6 +337,14 @@ uint32_t CLOCK_GetPeriphClkFreq(void)
     }
 }
 
+/*!
+ * brief Gets the MCG_Lite output clock (MCGOUTCLK) frequency.
+ *
+ * This function gets the MCG_Lite output clock frequency in Hz based on the current
+ * MCG_Lite register value.
+ *
+ * return The frequency of MCGOUTCLK.
+ */
 uint32_t CLOCK_GetOutClkFreq(void)
 {
     uint32_t freq;
@@ -311,6 +370,13 @@ uint32_t CLOCK_GetOutClkFreq(void)
     return freq;
 }
 
+/*!
+ * brief Gets the current MCG_Lite mode.
+ *
+ * This function checks the MCG_Lite registers and determines the current MCG_Lite mode.
+ *
+ * return The current MCG_Lite mode or error code.
+ */
 mcglite_mode_t CLOCK_GetMode(void)
 {
     mcglite_mode_t mode;
@@ -341,6 +407,15 @@ mcglite_mode_t CLOCK_GetMode(void)
     return mode;
 }
 
+/*!
+ * brief Sets the MCG_Lite configuration.
+ *
+ * This function configures the MCG_Lite, includes the output clock source, MCGIRCLK
+ * settings, HIRC settings, and so on. See ref mcglite_config_t for details.
+ *
+ * param  targetConfig Pointer to the target MCG_Lite mode configuration structure.
+ * return Error code.
+ */
 status_t CLOCK_SetMcgliteConfig(mcglite_config_t const *targetConfig)
 {
     assert(targetConfig);
@@ -383,6 +458,13 @@ status_t CLOCK_SetMcgliteConfig(mcglite_config_t const *targetConfig)
     return kStatus_Success;
 }
 
+/*!
+ * brief Initializes the OSC0.
+ *
+ * This function initializes the OSC0 according to the board configuration.
+ *
+ * param  config Pointer to the OSC0 configuration structure.
+ */
 void CLOCK_InitOsc0(osc_config_t const *config)
 {
     uint8_t range = CLOCK_GetOscRangeFromFreq(config->freq);
@@ -401,8 +483,39 @@ void CLOCK_InitOsc0(osc_config_t const *config)
     }
 }
 
+/*!
+ * brief Deinitializes the OSC0.
+ *
+ * This function deinitializes the OSC0.
+ */
 void CLOCK_DeinitOsc0(void)
 {
     OSC0->CR = 0U;
     MCG->C2 &= MCG_C2_IRCS_MASK;
+}
+
+/*!
+ * brief Delay at least for several microseconds.
+ * Please note that, this API will calculate the microsecond period with the maximum devices
+ * supported CPU frequency, so this API will only delay for at least the given microseconds, if precise
+ * delay count was needed, please implement a new timer count to achieve this function.
+ *
+ * param delay_us  Delay time in unit of microsecond.
+ */
+__attribute__((weak)) void SDK_DelayAtLeastUs(uint32_t delay_us)
+{
+    assert(0U != delay_us);
+
+    uint32_t count = (uint32_t)USEC_TO_COUNT(delay_us, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
+
+    /*
+     * Calculate the real delay count depend on the excute instructions cycles,
+     * users can change the divider value to adapt to the real IDE optimise level.
+     */
+    count = (count / 4U);
+
+    for (; count > 0UL; count--)
+    {
+        __NOP();
+    }
 }
