@@ -38,13 +38,15 @@ namespace mbed {
  * Example:
  * @code
  *
- * Watchdog& watchdog = Watchdog::get_instance();
+ * Watchdog &watchdog = Watchdog::get_instance();
  * watchdog.start();
  *
  * while (true) {
  *    // Application code
  * }
  * @endcode
+ *
+ * @note Synchronization level: Interrupt safe
  * @ingroup drivers
  */
 class Watchdog : private NonCopyable<Watchdog>  {
@@ -65,6 +67,10 @@ public:
 
     /** Start the watchdog timer
      *
+     * If watchdog is already running, only callback is being updated (timeout can't be set to watchdog neither ticker).
+     *
+     *  @param func Callback to be invoked after timeout
+     *  @param timeout Ticker timeout to be kicking the watchdog
      *
      *  @return status true if the watchdog timer was started
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
@@ -105,6 +111,10 @@ public:
      */
     bool is_running() const;
 
+    /** Kick watchdog
+     *
+     * This method is useful to control kicking by application
+     */
     void kick();
 
 private:
