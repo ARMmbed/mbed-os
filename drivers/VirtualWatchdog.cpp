@@ -103,14 +103,14 @@ void VirtualWatchdog::remove_from_list()
     }
 }
 
-void VirtualWatchdog::process()
+void VirtualWatchdog::process(uint32_t elapsed_ms)
 {
     VirtualWatchdog *cur_ptr =  _first;
     while (cur_ptr != NULL) {
         if (cur_ptr->_current_count > cur_ptr->_max_timeout) {
             system_reset();
         } else {
-            cur_ptr->_current_count += Watchdog::elapsed_ms;
+            cur_ptr->_current_count += elapsed_ms;
         }
         cur_ptr = cur_ptr->_next;
     }

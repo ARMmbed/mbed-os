@@ -94,7 +94,7 @@ public:
      *
      * Otherwise, the system resets.
      */
-    static void process();
+    static void process(uint32_t elapsed_ms);
 protected :
 
     /** Use add_to_list to store the registered user in the list.
