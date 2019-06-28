@@ -18,11 +18,9 @@
 
 #include "drivers/Watchdog.h"
 
-#define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
-
 namespace mbed {
 
-Watchdog::Watchdog() : _running(false), _callback(NULL)
+Watchdog::Watchdog() : _running(false)
 {
 }
 
@@ -30,13 +28,11 @@ Watchdog::~Watchdog()
 {
 }
 
-bool Watchdog::start(Callback<void(uint32_t)> func, uint32_t timeout)
+bool Watchdog::start(uint32_t timeout)
 {
     MBED_ASSERT(timeout < get_max_timeout());
 
     core_util_critical_section_enter();
-    // we update callback always, to be able to register new hook if needed
-    _callback = func;
     if (_running) {
         core_util_critical_section_exit();
         return false;
@@ -48,14 +44,6 @@ bool Watchdog::start(Callback<void(uint32_t)> func, uint32_t timeout)
         _running = true;
     }
     core_util_critical_section_exit();
-
-    if (_running) {
-        _ticker_timeout = MS_TO_US(timeout / 2);
-        if (_ticker_timeout == 0) {
-            _ticker_timeout = 1;
-        }
-        _ticker->attach_us(callback(this, &Watchdog::timeout_handler), _ticker_timeout);
-    }
     return _running;
 }
 
@@ -70,9 +58,7 @@ bool Watchdog::stop()
         if (sts != WATCHDOG_STATUS_OK) {
             msts = false;
         } else {
-            _ticker->detach();
             _running = false;
-            _callback = NULL;
         }
 
     } else {
@@ -87,14 +73,6 @@ void Watchdog::kick()
     core_util_critical_section_enter();
     hal_watchdog_kick();
     core_util_critical_section_exit();
-}
-
-void Watchdog::timeout_handler()
-{
-    kick();
-    if (_callback) {
-        _callback(_ticker_timeout / 1000);
-    }
 }
 
 bool Watchdog::is_running() const
