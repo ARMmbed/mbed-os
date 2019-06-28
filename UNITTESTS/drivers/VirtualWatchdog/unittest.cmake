@@ -18,7 +18,7 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  drivers/Watchdog/test_virtualwatchdog.cpp  
+  drivers/VirtualWatchdog/test_virtualwatchdog.cpp
   stubs/mbed_critical_stub.c  
 )
 
