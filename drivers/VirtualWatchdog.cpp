@@ -22,6 +22,7 @@
 namespace mbed {
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
+bool _is_hw_watchdog_running = false;
 
 VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
 {
@@ -31,7 +32,13 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
     _max_timeout = timeout;
     // start watchdog
     Watchdog &watchdog = Watchdog::get_instance();
-    watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
+    if (!_is_hw_watchdog_running) {
+        if (watchdog.is_running() == true) {
+            MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, INITIALIZATION_FAILED);
+        }
+        watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
+        _is_hw_watchdog_running = true;
+    }
 }
 
 VirtualWatchdog::~VirtualWatchdog()
