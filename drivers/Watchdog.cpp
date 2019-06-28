@@ -17,7 +17,6 @@
 #ifdef DEVICE_WATCHDOG
 
 #include "drivers/Watchdog.h"
-#include "drivers/WatchdogManager.h"
 
 #define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
 
