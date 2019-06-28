@@ -16,8 +16,8 @@
  */
 #ifdef DEVICE_WATCHDOG
 
-#include "VirtualWatchdog.h"
-#include "Watchdog.h"
+#include "drivers/VirtualWatchdog.h"
+#include "drivers/Watchdog.h"
 
 namespace mbed {
 
