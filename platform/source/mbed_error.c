@@ -587,7 +587,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     // Find the stack end.
     int stack_end_cnt = 0;
     uint32_t st_end = ctx->thread_current_sp;
-    for (; st_end >= ctx->thread_stack_mem; st_end -= sizeof(int)) {
+    for (; st_end <= ctx->thread_stack_mem + ctx->thread_stack_size; st_end += sizeof(int)) {
         uint32_t st_val = *((uint32_t *)st_end);
         if (st_val == osRtxStackFillPattern) {
             stack_end_cnt++;
@@ -595,15 +595,15 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
             stack_end_cnt = 0;
         }
         if (stack_end_cnt >= STACK_END_MARK_CNT) {
-            st_end += (STACK_END_MARK_CNT - 1) * sizeof(int);
+            st_end -= (STACK_END_MARK_CNT - 1) * sizeof(int);
             break;
         }
     }
-    for (uint32_t st = st_end; st <= ctx->thread_current_sp; st += sizeof(int) * STACK_DUMP_WIDTH) {
+    for (uint32_t st = ctx->thread_current_sp; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
         mbed_error_printf("\n0x%08" PRIX32 ":", st);
         for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
             uint32_t st_cur = st + i * sizeof(int);
-            if (st_cur > ctx->thread_current_sp) {
+            if (st_cur > st_end) {
                 break;
             }
             uint32_t st_val = *((uint32_t *)st_cur);
