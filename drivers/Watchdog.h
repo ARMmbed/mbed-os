@@ -20,10 +20,10 @@
 
 #ifdef DEVICE_WATCHDOG
 
-#include "mbed_error.h"
-#include "mbed_assert.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
-#include "watchdog_api.h"
+#include "hal/watchdog_api.h"
 #include "platform/NonCopyable.h"
 #include "platform/SingletonPtr.h"
 #include "drivers/LowPowerTicker.h"
