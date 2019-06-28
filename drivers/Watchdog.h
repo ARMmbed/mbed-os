@@ -69,7 +69,7 @@ public:
      *
      * If watchdog is already running, only callback is being updated (timeout can't be set to watchdog neither ticker).
      *
-     *  @param func Callback to be invoked after timeout
+     *  @param func Callback to be invoked after timeout, it has the argument - time elapsed in milliseconds
      *  @param timeout Ticker timeout to be kicking the watchdog
      *
      *  @return status true if the watchdog timer was started
