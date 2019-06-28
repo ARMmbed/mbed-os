@@ -108,7 +108,7 @@ protected :
       */
     void remove_from_list();
 private:
-    uint32_t _max_timeout; //_max_timeout initialized via constructor while creating instance of this class
+    uint32_t _timeout; //_timeout initialized via constructor while creating instance of this class
     const char *_name; //To store the details of user
     uint32_t _current_count; //this parameter is used to reset everytime threads/user calls kick
     bool _is_initialized; //To control start and stop functionality
