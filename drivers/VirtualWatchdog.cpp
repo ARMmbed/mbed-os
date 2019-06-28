@@ -36,6 +36,7 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
         if (watchdog.is_running() == true) {
             MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, MBED_ERROR_INITIALIZATION_FAILED);
         }
+        // we use default hw timeout provided by config
         watchdog.start(&VirtualWatchdog::process, Watchdog::watchdog_timeout);
         _is_hw_watchdog_running = true;
     }

@@ -55,6 +55,9 @@ public:
 
     /** Constructor configured with timeout and name for this software watchdog instance.
      *
+     * We start hardware watchdog on  the first run. This set-up uses default watchdog timeout set via config value
+     * MBED_CONF_TARGET_WATCHDOG_TIMEOUT.
+     *
      */
     VirtualWatchdog(uint32_t timeout = 1, const char *const str = NULL);
     ~VirtualWatchdog();
