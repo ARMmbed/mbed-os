@@ -1,31 +1,9 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016 - 2019, NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _FSL_CLOCK_H_
@@ -39,14 +17,55 @@
 /*! @file */
 
 /*******************************************************************************
+ * Configurations
+ ******************************************************************************/
+
+/*! @brief Configures whether to check a parameter in a function.
+ *
+ * Some MCG settings must be changed with conditions, for example:
+ *  1. MCGIRCLK settings, such as the source, divider, and the trim value should not change when
+ *     MCGIRCLK is used as a system clock source.
+ *  2. MCG_C7[OSCSEL] should not be changed  when the external reference clock is used
+ *     as a system clock source. For example, in FBE/BLPE/PBE modes.
+ *  3. The users should only switch between the supported clock modes.
+ *
+ * MCG functions check the parameter and MCG status before setting, if not allowed
+ * to change, the functions return error. The parameter checking increases code size,
+ * if code size is a critical requirement, change #MCG_CONFIG_CHECK_PARAM to 0 to
+ * disable parameter checking.
+ */
+#ifndef MCG_CONFIG_CHECK_PARAM
+#define MCG_CONFIG_CHECK_PARAM 0U
+#endif
+
+/*! @brief Configure whether driver controls clock
+ *
+ * When set to 0, peripheral drivers will enable clock in initialize function
+ * and disable clock in de-initialize function. When set to 1, peripheral
+ * driver will not control the clock, application could control the clock out of
+ * the driver.
+ *
+ * @note All drivers share this feature switcher. If it is set to 1, application
+ * should handle clock enable and disable for all drivers.
+ */
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL))
+#define FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL 0
+#endif
+
+/*******************************************************************************
  * Definitions
  ******************************************************************************/
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief CLOCK driver version 2.2.0. */
-#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
+/*! @brief CLOCK driver version 2.3.0. */
+#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 3, 0))
 /*@}*/
+
+/* Definition for delay API in clock driver, users can redefine it to the real application. */
+#ifndef SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY
+#define SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY (120000000UL)
+#endif
 
 /*! @brief External XTAL0 (OSC0) clock frequency.
  *
@@ -54,15 +73,17 @@
  * function CLOCK_SetXtal0Freq to set the value in the clock driver. For example,
  * if XTAL0 is 8 MHz:
  * @code
- * CLOCK_InitOsc0(...); // Set up the OSC0
- * CLOCK_SetXtal0Freq(80000000); // Set the XTAL0 value to the clock driver.
+ * Set up the OSC0
+ * CLOCK_InitOsc0(...);
+ * Set the XTAL0 value to the clock driver.
+ * CLOCK_SetXtal0Freq(80000000);
  * @endcode
  *
  * This is important for the multicore platforms where only one core needs to set up the
  * OSC0 using the CLOCK_InitOsc0. All other cores need to call the CLOCK_SetXtal0Freq
  * to get a valid clock frequency.
  */
-extern uint32_t g_xtal0Freq;
+extern volatile uint32_t g_xtal0Freq;
 
 /*! @brief External XTAL32/EXTAL32/RTC_CLKIN clock frequency.
  *
@@ -73,7 +94,7 @@ extern uint32_t g_xtal0Freq;
  * the clock. All other cores need to call the CLOCK_SetXtal32Freq
  * to get a valid clock frequency.
  */
-extern uint32_t g_xtal32Freq;
+extern volatile uint32_t g_xtal32Freq;
 
 #if (defined(OSC) && !(defined(OSC0)))
 #define OSC0 OSC
@@ -221,10 +242,8 @@ typedef enum _clock_name
     kCLOCK_Osc0ErClk, /*!< OSC0 external reference clock (OSC0ERCLK)                 */
 
     /* ----------------------------- MCG and MCG-Lite clock ---------------------------*/
-    kCLOCK_McgFixedFreqClk,   /*!< MCG fixed frequency clock (MCGFFCLK)                      */
     kCLOCK_McgInternalRefClk, /*!< MCG internal reference clock (MCGIRCLK)                   */
     kCLOCK_McgFllClk,         /*!< MCGFLLCLK                                                 */
-    kCLOCK_McgPeriphClk,      /*!< MCG peripheral clock (MCGPCLK)                            */
 
     /* --------------------------------- Other clock ----------------------------------*/
     kCLOCK_LpoClk, /*!< LPO clock                                                 */
@@ -264,39 +283,39 @@ typedef enum _clock_ip_name
 {
     kCLOCK_IpInvalid = 0U,
 
-    kCLOCK_Cmt0 = CLK_GATE_DEFINE(0x1034U, 2U),
-    kCLOCK_I2c0 = CLK_GATE_DEFINE(0x1034U, 6U),
-    kCLOCK_I2c1 = CLK_GATE_DEFINE(0x1034U, 7U),
-    kCLOCK_Cmp0 = CLK_GATE_DEFINE(0x1034U, 19U),
+    kCLOCK_Cmt0  = CLK_GATE_DEFINE(0x1034U, 2U),
+    kCLOCK_I2c0  = CLK_GATE_DEFINE(0x1034U, 6U),
+    kCLOCK_I2c1  = CLK_GATE_DEFINE(0x1034U, 7U),
+    kCLOCK_Cmp0  = CLK_GATE_DEFINE(0x1034U, 19U),
     kCLOCK_Vref0 = CLK_GATE_DEFINE(0x1034U, 20U),
 
-    kCLOCK_Lptmr0 = CLK_GATE_DEFINE(0x1038U, 0U),
-    kCLOCK_Tsi0 = CLK_GATE_DEFINE(0x1038U, 5U),
-    kCLOCK_PortA = CLK_GATE_DEFINE(0x1038U, 9U),
-    kCLOCK_PortB = CLK_GATE_DEFINE(0x1038U, 10U),
-    kCLOCK_PortC = CLK_GATE_DEFINE(0x1038U, 11U),
+    kCLOCK_Lptmr0  = CLK_GATE_DEFINE(0x1038U, 0U),
+    kCLOCK_Tsi0    = CLK_GATE_DEFINE(0x1038U, 5U),
+    kCLOCK_PortA   = CLK_GATE_DEFINE(0x1038U, 9U),
+    kCLOCK_PortB   = CLK_GATE_DEFINE(0x1038U, 10U),
+    kCLOCK_PortC   = CLK_GATE_DEFINE(0x1038U, 11U),
     kCLOCK_Lpuart0 = CLK_GATE_DEFINE(0x1038U, 20U),
-    kCLOCK_Aesa = CLK_GATE_DEFINE(0x1038U, 24U),
-    kCLOCK_Ltc0 = CLK_GATE_DEFINE(0x1038U, 24U),
-    kCLOCK_Rsim = CLK_GATE_DEFINE(0x1038U, 25U),
-    kCLOCK_Dcdc0 = CLK_GATE_DEFINE(0x1038U, 26U),
-    kCLOCK_Btll = CLK_GATE_DEFINE(0x1038U, 27U),
-    kCLOCK_PhyDig = CLK_GATE_DEFINE(0x1038U, 28U),
-    kCLOCK_ZigBee = CLK_GATE_DEFINE(0x1038U, 29U),
-    kCLOCK_GenFsk = CLK_GATE_DEFINE(0x1038U, 31U),
+    kCLOCK_Aesa    = CLK_GATE_DEFINE(0x1038U, 24U),
+    kCLOCK_Ltc0    = CLK_GATE_DEFINE(0x1038U, 24U),
+    kCLOCK_Rsim    = CLK_GATE_DEFINE(0x1038U, 25U),
+    kCLOCK_Dcdc0   = CLK_GATE_DEFINE(0x1038U, 26U),
+    kCLOCK_Btll    = CLK_GATE_DEFINE(0x1038U, 27U),
+    kCLOCK_PhyDig  = CLK_GATE_DEFINE(0x1038U, 28U),
+    kCLOCK_ZigBee  = CLK_GATE_DEFINE(0x1038U, 29U),
+    kCLOCK_GenFsk  = CLK_GATE_DEFINE(0x1038U, 31U),
 
-    kCLOCK_Ftf0 = CLK_GATE_DEFINE(0x103CU, 0U),
+    kCLOCK_Ftf0    = CLK_GATE_DEFINE(0x103CU, 0U),
     kCLOCK_Dmamux0 = CLK_GATE_DEFINE(0x103CU, 1U),
-    kCLOCK_Trng0 = CLK_GATE_DEFINE(0x103CU, 9U),
-    kCLOCK_Spi0 = CLK_GATE_DEFINE(0x103CU, 12U),
-    kCLOCK_Spi1 = CLK_GATE_DEFINE(0x103CU, 13U),
-    kCLOCK_Pit0 = CLK_GATE_DEFINE(0x103CU, 23U),
-    kCLOCK_Tpm0 = CLK_GATE_DEFINE(0x103CU, 24U),
-    kCLOCK_Tpm1 = CLK_GATE_DEFINE(0x103CU, 25U),
-    kCLOCK_Tpm2 = CLK_GATE_DEFINE(0x103CU, 26U),
-    kCLOCK_Adc0 = CLK_GATE_DEFINE(0x103CU, 27U),
-    kCLOCK_Rtc0 = CLK_GATE_DEFINE(0x103CU, 29U),
-    kCLOCK_Dac0 = CLK_GATE_DEFINE(0x103CU, 31U),
+    kCLOCK_Trng0   = CLK_GATE_DEFINE(0x103CU, 9U),
+    kCLOCK_Spi0    = CLK_GATE_DEFINE(0x103CU, 12U),
+    kCLOCK_Spi1    = CLK_GATE_DEFINE(0x103CU, 13U),
+    kCLOCK_Pit0    = CLK_GATE_DEFINE(0x103CU, 23U),
+    kCLOCK_Tpm0    = CLK_GATE_DEFINE(0x103CU, 24U),
+    kCLOCK_Tpm1    = CLK_GATE_DEFINE(0x103CU, 25U),
+    kCLOCK_Tpm2    = CLK_GATE_DEFINE(0x103CU, 26U),
+    kCLOCK_Adc0    = CLK_GATE_DEFINE(0x103CU, 27U),
+    kCLOCK_Rtc0    = CLK_GATE_DEFINE(0x103CU, 29U),
+    kCLOCK_Dac0    = CLK_GATE_DEFINE(0x103CU, 31U),
 
     kCLOCK_Dma0 = CLK_GATE_DEFINE(0x1040U, 8U),
 } clock_ip_name_t;
@@ -322,18 +341,14 @@ typedef enum _osc_mode
 #endif
     kOSC_ModeOscHighGain = 0U
 #if (defined(MCG_C2_EREFS_MASK) && !(defined(MCG_C2_EREFS0_MASK)))
-                           |
-                           MCG_C2_EREFS_MASK
+                           | MCG_C2_EREFS_MASK
 #else
-                           |
-                           MCG_C2_EREFS0_MASK
+                           | MCG_C2_EREFS0_MASK
 #endif
 #if (defined(MCG_C2_HGO_MASK) && !(defined(MCG_C2_HGO0_MASK)))
-                           |
-                           MCG_C2_HGO_MASK, /*!< Oscillator high gain. */
+                           | MCG_C2_HGO_MASK, /*!< Oscillator high gain. */
 #else
-                           |
-                           MCG_C2_HGO0_MASK, /*!< Oscillator high gain. */
+                           | MCG_C2_HGO0_MASK, /*!< Oscillator high gain. */
 #endif
 } osc_mode_t;
 
@@ -430,13 +445,13 @@ typedef enum _mcg_monitor_mode
 enum _mcg_status
 {
     kStatus_MCG_ModeUnreachable = MAKE_STATUS(kStatusGroup_MCG, 0),       /*!< Can't switch to target mode. */
-    kStatus_MCG_ModeInvalid = MAKE_STATUS(kStatusGroup_MCG, 1),           /*!< Current mode invalid for the specific
+    kStatus_MCG_ModeInvalid     = MAKE_STATUS(kStatusGroup_MCG, 1),       /*!< Current mode invalid for the specific
                                                                                function. */
-    kStatus_MCG_AtmBusClockInvalid = MAKE_STATUS(kStatusGroup_MCG, 2),    /*!< Invalid bus clock for ATM. */
+    kStatus_MCG_AtmBusClockInvalid    = MAKE_STATUS(kStatusGroup_MCG, 2), /*!< Invalid bus clock for ATM. */
     kStatus_MCG_AtmDesiredFreqInvalid = MAKE_STATUS(kStatusGroup_MCG, 3), /*!< Invalid desired frequency for ATM. */
-    kStatus_MCG_AtmIrcUsed = MAKE_STATUS(kStatusGroup_MCG, 4),            /*!< IRC is used when using ATM. */
-    kStatus_MCG_AtmHardwareFail = MAKE_STATUS(kStatusGroup_MCG, 5),       /*!< Hardware fail occurs during ATM. */
-    kStatus_MCG_SourceUsed = MAKE_STATUS(kStatusGroup_MCG, 6)             /*!< Can't change the clock source because
+    kStatus_MCG_AtmIrcUsed            = MAKE_STATUS(kStatusGroup_MCG, 4), /*!< IRC is used when using ATM. */
+    kStatus_MCG_AtmHardwareFail       = MAKE_STATUS(kStatusGroup_MCG, 5), /*!< Hardware fail occurs during ATM. */
+    kStatus_MCG_SourceUsed            = MAKE_STATUS(kStatusGroup_MCG, 6)  /*!< Can't change the clock source because
                                                                                it is in use. */
 };
 
@@ -449,7 +464,7 @@ enum _mcg_status_flags_t
 /*! @brief MCG internal reference clock (MCGIRCLK) enable mode definition. */
 enum _mcg_irclk_enable_mode
 {
-    kMCG_IrclkEnable = MCG_C1_IRCLKEN_MASK,       /*!< MCGIRCLK enable.              */
+    kMCG_IrclkEnable       = MCG_C1_IRCLKEN_MASK, /*!< MCGIRCLK enable.              */
     kMCG_IrclkEnableInStop = MCG_C1_IREFSTEN_MASK /*!< MCGIRCLK enable in stop mode. */
 };
 
@@ -724,7 +739,7 @@ static inline void CLOCK_SetLowPowerEnable(bool enable)
     }
     else
     {
-        MCG->C2 &= ~MCG_C2_LP_MASK;
+        MCG->C2 &= ~(uint8_t)MCG_C2_LP_MASK;
     }
 }
 
@@ -740,8 +755,8 @@ static inline void CLOCK_SetLowPowerEnable(bool enable)
  * @param enableMode MCGIRCLK enable mode, OR'ed value of @ref _mcg_irclk_enable_mode.
  * @param ircs       MCGIRCLK clock source, choose fast or slow.
  * @param fcrdiv     Fast IRC divider setting (\c FCRDIV).
- * @retval kStatus_MCG_SourceUsed Because the internall reference clock is used as a clock source,
- * the confuration should not be changed. Otherwise, a glitch occurs.
+ * @retval kStatus_MCG_SourceUsed Because the internal reference clock is used as a clock source,
+ * the configuration should not be changed. Otherwise, a glitch occurs.
  * @retval kStatus_Success MCGIRCLK configuration finished successfully.
  */
 status_t CLOCK_SetInternalRefClkConfig(uint8_t enableMode, mcg_irc_mode_t ircs, uint8_t fcrdiv);
@@ -755,7 +770,7 @@ status_t CLOCK_SetInternalRefClkConfig(uint8_t enableMode, mcg_irc_mode_t ircs, 
  *
  * @param oscsel MCG external reference clock source, MCG_C7[OSCSEL].
  * @retval kStatus_MCG_SourceUsed Because the external reference clock is used as a clock source,
- * the confuration should not be changed. Otherwise, a glitch occurs.
+ * the configuration should not be changed. Otherwise, a glitch occurs.
  * @retval kStatus_Success External reference clock set successfully.
  */
 status_t CLOCK_SetExternalRefClkConfig(mcg_oscsel_t oscsel);
@@ -769,8 +784,17 @@ status_t CLOCK_SetExternalRefClkConfig(mcg_oscsel_t oscsel);
  */
 static inline void CLOCK_SetFllExtRefDiv(uint8_t frdiv)
 {
-    MCG->C1 = (MCG->C1 & ~MCG_C1_FRDIV_MASK) | MCG_C1_FRDIV(frdiv);
+    MCG->C1 = (uint8_t)((MCG->C1 & ~MCG_C1_FRDIV_MASK) | MCG_C1_FRDIV(frdiv));
 }
+
+/*!
+ * brief Sets the OSC0 clock monitor mode.
+ *
+ * This function sets the OSC0 clock monitor mode. See ref mcg_monitor_mode_t for details.
+ *
+ * param mode Monitor mode to set.
+ */
+void CLOCK_SetOsc0MonitorMode(mcg_monitor_mode_t mode);
 
 /*@}*/
 
@@ -795,20 +819,20 @@ void CLOCK_SetRtcOscMonitorMode(mcg_monitor_mode_t mode);
  *
  * Example:
  * @code
-   // To check the clock lost lock status of OSC0 and PLL0.
-   uint32_t mcgFlags;
-
-   mcgFlags = CLOCK_GetStatusFlags();
-
-   if (mcgFlags & kMCG_Osc0LostFlag)
-   {
-       // OSC0 clock lock lost. Do something.
-   }
-   if (mcgFlags & kMCG_Pll0LostFlag)
-   {
-       // PLL0 clock lock lost. Do something.
-   }
-   @endcode
+ * To check the clock lost lock status of OSC0 and PLL0.
+ * uint32_t mcgFlags;
+ *
+ * mcgFlags = CLOCK_GetStatusFlags();
+ *
+ * if (mcgFlags & kMCG_Osc0LostFlag)
+ * {
+ *     OSC0 clock lock lost. Do something.
+ * }
+ * if (mcgFlags & kMCG_Pll0LostFlag)
+ * {
+ *     PLL0 clock lock lost. Do something.
+ * }
+ * @endcode
  *
  * @return  Logical OR value of the @ref _mcg_status_flags_t.
  */
@@ -822,10 +846,10 @@ uint32_t CLOCK_GetStatusFlags(void);
  *
  * Example:
  * @code
-   // To clear the clock lost lock status flags of OSC0 and PLL0.
-
-   CLOCK_ClearStatusFlags(kMCG_Osc0LostFlag | kMCG_Pll0LostFlag);
-   @endcode
+ * To clear the clock lost lock status flags of OSC0 and PLL0.
+ *
+ * CLOCK_ClearStatusFlags(kMCG_Osc0LostFlag | kMCG_Pll0LostFlag);
+ * @endcode
  *
  * @param mask The status flags to clear. This is a logical OR of members of the
  *             enumeration @ref _mcg_status_flags_t.
@@ -1016,7 +1040,7 @@ status_t CLOCK_SetBlpeMode(void);
  * @brief Switches the MCG to FBE mode from the external mode.
  *
  * This function switches the MCG from external modes (PEE/PBE/BLPE/FEE) to the FBE mode quickly.
- * The external clock is used as the system clock souce and PLL is disabled. However,
+ * The external clock is used as the system clock source and PLL is disabled. However,
  * the FLL settings are not configured. This is a lite function with a small code size, which is useful
  * during the mode switch. For example, to switch from PEE mode to FEI mode:
  *
@@ -1034,7 +1058,7 @@ status_t CLOCK_ExternalModeToFbeModeQuick(void);
  * @brief Switches the MCG to FBI mode from internal modes.
  *
  * This function switches the MCG from internal modes (PEI/PBI/BLPI/FEI) to the FBI mode quickly.
- * The MCGIRCLK is used as the system clock souce and PLL is disabled. However,
+ * The MCGIRCLK is used as the system clock source and PLL is disabled. However,
  * FLL settings are not configured. This is a lite function with a small code size, which is useful
  * during the mode switch. For example, to switch from PEI mode to FEE mode:
  *
@@ -1087,7 +1111,7 @@ status_t CLOCK_BootToFeeMode(
  * @brief Sets the MCG to BLPI mode during system boot up.
  *
  * This function sets the MCG to BLPI mode from the reset mode. It can also be used to
- * set up the MCG during sytem boot up.
+ * set up the MCG during system boot up.
  *
  * @param  fcrdiv Fast IRC divider, FCRDIV.
  * @param  ircs   The internal reference clock to select, IRCS.
@@ -1099,10 +1123,10 @@ status_t CLOCK_BootToFeeMode(
 status_t CLOCK_BootToBlpiMode(uint8_t fcrdiv, mcg_irc_mode_t ircs, uint8_t ircEnableMode);
 
 /*!
- * @brief Sets the MCG to BLPE mode during sytem boot up.
+ * @brief Sets the MCG to BLPE mode during system boot up.
  *
  * This function sets the MCG to BLPE mode from the reset mode. It can also be used to
- * set up the MCG during sytem boot up.
+ * set up the MCG during system boot up.
  *
  * @param  oscsel OSC clock select, MCG_C7[OSCSEL].
  *
@@ -1126,6 +1150,16 @@ status_t CLOCK_BootToBlpeMode(mcg_oscsel_t oscsel);
  * function.
  */
 status_t CLOCK_SetMcgConfig(mcg_config_t const *config);
+
+/*!
+ * @brief Use DWT to delay at least for some time.
+ *  Please note that, this API will calculate the microsecond period with the maximum
+ *  supported CPU frequency, so this API will only delay for at least the given microseconds, if precise
+ *  delay count was needed, please implement a new timer count to achieve this function.
+ *
+ * @param delay_us  Delay time in unit of microsecond.
+ */
+void SDK_DelayAtLeastUs(uint32_t delay_us);
 
 /*@}*/
 
