@@ -22,7 +22,7 @@ using namespace mbed;
 extern bool testcase;
 // AStyle ignored as the definition is not clear due to preprocessor usage
 // *INDENT-OFF*
-class TestMbedVirtualWatchdog : public testing::Test {
+class TestWatchdog : public testing::Test {
 protected:
 
     void SetUp()
@@ -35,33 +35,33 @@ protected:
 };
 // *INDENT-ON*
 
-TEST_F(TestMbedVirtualWatchdog, test_watchdog_start_pass)
+TEST_F(TestWatchdog, test_watchdog_start_pass)
 {
     EXPECT_TRUE(Watchdog::get_instance().start());
 }
 
-TEST_F(TestMbedVirtualWatchdog, test_watchdog_start_fail)
+TEST_F(TestWatchdog, test_watchdog_start_fail)
 {
     EXPECT_FALSE(Watchdog::get_instance().start());
 }
 
-TEST_F(TestMbedVirtualWatchdog, test_watchdog_stop_pass)
+TEST_F(TestWatchdog, test_watchdog_stop_pass)
 {
     EXPECT_TRUE(Watchdog::get_instance().stop());
 }
 
-TEST_F(TestMbedVirtualWatchdog, test_watchdog_stop_fail)
+TEST_F(TestWatchdog, test_watchdog_stop_fail)
 {
     EXPECT_FALSE(Watchdog::get_instance().stop());
 }
 
-TEST_F(TestMbedVirtualWatchdog, test_mbed_wdog_manager_get_max_timeout)
+TEST_F(TestWatchdog, test_watchdog_get_max_timeout)
 {
     EXPECT_EQ(0xFFFFFFFF, Watchdog::get_instance().get_max_timeout());
 }
 
 
-TEST_F(TestMbedVirtualWatchdog, test_mbed_wdog_manager_get_timeout)
+TEST_F(TestWatchdog, test_watchdog_get_timeout)
 {
     EXPECT_EQ(500, Watchdog::get_instance().get_timeout());
 }
