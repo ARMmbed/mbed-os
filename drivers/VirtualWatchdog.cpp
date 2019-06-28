@@ -34,9 +34,9 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
     Watchdog &watchdog = Watchdog::get_instance();
     if (!_is_hw_watchdog_running) {
         if (watchdog.is_running() == true) {
-            MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, INITIALIZATION_FAILED);
+            MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, MBED_ERROR_INITIALIZATION_FAILED);
         }
-        watchdog.start(&VirtualWatchdog::process, Watchdog::elapsed_ms);
+        watchdog.start(&VirtualWatchdog::process, Watchdog::watchdog_timeout);
         _is_hw_watchdog_running = true;
     }
 }

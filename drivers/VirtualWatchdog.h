@@ -21,10 +21,10 @@
 #ifdef DEVICE_WATCHDOG
 
 #include <cstdio>
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 namespace mbed {
 
