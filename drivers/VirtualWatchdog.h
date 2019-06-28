@@ -112,6 +112,7 @@ private:
     const char *_name; //To store the details of user
     uint32_t _current_count; //this parameter is used to reset everytime threads/user calls kick
     bool _is_initialized; //To control start and stop functionality
+    static bool _is_hw_watchdog_running; // track we are the first owner of watchdog
     static VirtualWatchdog *_first; //List to store the user/threads who called start
     VirtualWatchdog *_next;
 };
