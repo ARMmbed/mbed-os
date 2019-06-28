@@ -40,7 +40,9 @@ namespace mbed {
  * watchdog.start();
  *
  * while (true) {
- *    // Application code
+      // kick watchdog regularly within provided timeout 
+      watchdog.kick();
+      // Application code
  * }
  * @endcode
  *
