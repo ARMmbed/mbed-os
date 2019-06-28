@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "cmsis.h"
+#include "hal/us_ticker_api.h"
 
 /* This startup is for mbed 2 baremetal. There is no config for RTOS for mbed 2,
  * therefore we protect this file with MBED_CONF_RTOS_PRESENT
@@ -82,6 +83,9 @@ void _platform_post_stackheap_init(void)
 {
     mbed_copy_nvic();
     mbed_sdk_init();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+    us_ticker_init();
+#endif
 }
 
 #elif defined (__GNUC__)
@@ -92,6 +96,9 @@ void software_init_hook(void)
 {
     mbed_copy_nvic();
     mbed_sdk_init();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+    us_ticker_init();
+#endif
     software_init_hook_rtos();
 }
 
@@ -107,6 +114,9 @@ int __wrap_main(void)
 int __low_level_init(void)
 {
     mbed_copy_nvic();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+    us_ticker_init();
+#endif
     return 1;
 }
 

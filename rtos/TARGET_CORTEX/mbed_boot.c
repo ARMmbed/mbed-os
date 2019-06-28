@@ -58,6 +58,7 @@
 #include <stdlib.h>
 
 #include "cmsis.h"
+#include "hal/us_ticker_api.h"
 #include "mbed_toolchain.h"
 #include "mbed_boot.h"
 #include "mbed_error.h"
@@ -75,6 +76,9 @@ void mbed_init(void)
     mbed_mpu_manager_init();
     mbed_cpy_nvic();
     mbed_sdk_init();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+    us_ticker_init();
+#endif
     mbed_rtos_init();
 }
 
