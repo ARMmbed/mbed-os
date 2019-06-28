@@ -121,6 +121,10 @@ private:
     Watchdog();
     ~Watchdog();
 
+    /** Ticker invokes this handler when it timeouts - kicking watchdog periodically 
+     */
+    void timeout_handler();
+
     bool _running;
     Callback<void(uint32_t)> _callback;
     us_timestamp_t _ticker_timeout;
