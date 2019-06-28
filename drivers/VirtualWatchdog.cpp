@@ -25,9 +25,9 @@
 namespace mbed {
 
 #if DEVICE_LPTICKER
-    SingletonPtr<LowPowerTicker> VirtualWatchdog::_ticker;
+SingletonPtr<LowPowerTicker> VirtualWatchdog::_ticker;
 #else
-    SingletonPtr<Ticker> VirtualWatchdog::_ticker;
+SingletonPtr<Ticker> VirtualWatchdog::_ticker;
 #endif
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
