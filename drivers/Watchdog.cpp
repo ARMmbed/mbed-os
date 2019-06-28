@@ -93,7 +93,7 @@ void Watchdog::timeout_handler()
 {
     kick();
     if (_callback) {
-        _callback(_ticker_timeout);
+        _callback(_ticker_timeout / 1000);
     }
 }
 
