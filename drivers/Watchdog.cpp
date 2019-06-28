@@ -33,21 +33,23 @@ Watchdog::~Watchdog()
 
 bool Watchdog::start(Callback<void()> func, uint32_t timeout)
 {
-    _callback = func;
-    watchdog_status_t sts;
     MBED_ASSERT(MBED_CONF_TARGET_WATCHDOG_TIMEOUT < get_max_timeout());
+
     core_util_critical_section_enter();
+    // we update callback always, to be able to register new hook if needed
+    _callback = func;
     if (_running) {
         core_util_critical_section_exit();
         return false;
     }
     watchdog_config_t config;
     config.timeout_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT;
-    sts = hal_watchdog_init(&config);
+    watchdog_status_t sts = hal_watchdog_init(&config);
     if (sts == WATCHDOG_STATUS_OK) {
         _running = true;
     }
     core_util_critical_section_exit();
+
     if (_running) {
         us_timestamp_t ticker_timeout = (MS_TO_US(((timeout <= 0) ? 1 : timeout)));
         _ticker->attach(callback(this, &Watchdog::kick), ticker_timeout);
