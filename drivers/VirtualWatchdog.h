@@ -59,7 +59,7 @@ public:
      * MBED_CONF_TARGET_WATCHDOG_TIMEOUT.
      *
      */
-    VirtualWatchdog(uint32_t timeout = 1, const char *const str = NULL);
+    VirtualWatchdog(uint32_t timeout = 1000, const char *const str = NULL);
     ~VirtualWatchdog();
 public:
 
