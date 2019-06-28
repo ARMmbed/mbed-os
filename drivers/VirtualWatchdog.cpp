@@ -25,9 +25,9 @@
 namespace mbed {
 
 #if DEVICE_LPTICKER
-    SingletonPtr<LowPowerTicker> _ticker;
+    SingletonPtr<LowPowerTicker> VirtualWatchdog::_ticker;
 #else
-    SingletonPtr<Ticker> _ticker;
+    SingletonPtr<Ticker> VirtualWatchdog::_ticker;
 #endif
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
@@ -121,12 +121,16 @@ void VirtualWatchdog::remove_from_list()
 
 void VirtualWatchdog::process()
 {
+    Watchdog::get_instance().kick();
     VirtualWatchdog *cur_ptr =  _first;
     while (cur_ptr != NULL) {
-        if (cur_ptr->_current_count > cur_ptr->_timeout) {
-            system_reset();
-        } else {
-            cur_ptr->_current_count += US_TO_MS(_ticker_timeout);
+        if (cur_ptr->_is_initialized) {
+            if (cur_ptr->_current_count > cur_ptr->_timeout) {
+                system_reset();
+            } else {
+                cur_ptr->_current_count += US_TO_MS(_ticker_timeout);
+            }
+
         }
         cur_ptr = cur_ptr->_next;
     }
