@@ -19,10 +19,20 @@
 #include "drivers/VirtualWatchdog.h"
 #include "drivers/Watchdog.h"
 
+#define MS_TO_US(x) ((x) * 1000)
+#define US_TO_MS(x) ((x) / 1000)
+
 namespace mbed {
+
+#if DEVICE_LPTICKER
+    SingletonPtr<LowPowerTicker> _ticker;
+#else
+    SingletonPtr<Ticker> _ticker;
+#endif
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
 bool VirtualWatchdog::_is_hw_watchdog_running = false;
+us_timestamp_t VirtualWatchdog::_ticker_timeout = 0;
 
 VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
 {
@@ -37,7 +47,12 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
             MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, MBED_ERROR_INITIALIZATION_FAILED);
         }
         // we use default hw timeout provided by config
-        watchdog.start(&VirtualWatchdog::process, Watchdog::watchdog_timeout);
+        watchdog.start(Watchdog::watchdog_timeout);
+        _ticker_timeout = MS_TO_US(Watchdog::watchdog_timeout / 2);
+        if (_ticker_timeout == 0) {
+            _ticker_timeout = 1;
+        }
+        _ticker->attach_us(callback(this, &VirtualWatchdog::process), _ticker_timeout);
         _is_hw_watchdog_running = true;
     }
 }
@@ -104,14 +119,14 @@ void VirtualWatchdog::remove_from_list()
     }
 }
 
-void VirtualWatchdog::process(uint32_t elapsed_ms)
+void VirtualWatchdog::process()
 {
     VirtualWatchdog *cur_ptr =  _first;
     while (cur_ptr != NULL) {
         if (cur_ptr->_current_count > cur_ptr->_timeout) {
             system_reset();
         } else {
-            cur_ptr->_current_count += elapsed_ms;
+            cur_ptr->_current_count += US_TO_MS(_ticker_timeout);
         }
         cur_ptr = cur_ptr->_next;
     }

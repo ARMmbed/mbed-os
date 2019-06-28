@@ -25,8 +25,6 @@
 #include "platform/mbed_critical.h"
 #include "hal/watchdog_api.h"
 #include "platform/NonCopyable.h"
-#include "platform/SingletonPtr.h"
-#include "drivers/LowPowerTicker.h"
 #include <cstdio>
 
 namespace mbed {
@@ -67,16 +65,13 @@ public:
 
     /** Start the watchdog timer
      *
-     * If watchdog is already running, only callback is being updated (timeout can't be set to watchdog neither ticker).
-     *
-     *  @param func Callback to be invoked after timeout, it has the argument - time elapsed in milliseconds
-     *  @param timeout Ticker timeout to be kicking the watchdog
+     *  @param timeout Watchdog timeout
      *
      *  @return status true if the watchdog timer was started
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
      *                 false if watchdog timer was not started
      */
-    bool start(Callback<void(uint32_t)> func = NULL, uint32_t timeout = watchdog_timeout);
+    bool start(uint32_t timeout = watchdog_timeout);
 
     /** Stops the watchdog timer
      *
@@ -106,14 +101,13 @@ public:
 
     /** Check if watchdog is already running
      *
-     * @return Maximum refresh value supported by the watchdog for the current
-     *         platform in milliseconds
+     * @return true if watchdog is running, false otherwise
      */
     bool is_running() const;
 
     /** Kick watchdog
      *
-     * This method is useful to control kicking by application
+     * This method is useful to control kicking by application in ticker callback periodically
      */
     void kick();
 
@@ -121,23 +115,7 @@ private:
     Watchdog();
     ~Watchdog();
 
-    /** Ticker invokes this handler when it timeouts - kicking watchdog periodically 
-     */
-    void timeout_handler();
-
     bool _running;
-    Callback<void(uint32_t)> _callback;
-    us_timestamp_t _ticker_timeout;
-
-#if DEVICE_LPTICKER
-    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<LowPowerTicker> _ticker;
-#else
-    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
-     */
-    SingletonPtr<Ticker> _ticker;
-#endif
 };
 
 } // namespace mbed

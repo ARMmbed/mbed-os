@@ -25,7 +25,8 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_assert.h"
-
+#include "platform/SingletonPtr.h"
+#include "drivers/LowPowerTicker.h"
 namespace mbed {
 
 /** \addtogroup drivers */
@@ -87,14 +88,6 @@ public:
      */
     void kick();
 
-    /** Periodic callback method (runs by periodic call from ticker) used this API interface
-     *  to go through all the registered user/threads of watchdog.
-     *
-     *  @param elapsed_ms Elapsed milliseconds
-     *
-     * Otherwise, the system resets.
-     */
-    static void process(uint32_t elapsed_ms);
 protected :
 
     /** Use add_to_list to store the registered user in the list.
@@ -107,7 +100,14 @@ protected :
       *
       */
     void remove_from_list();
+
 private:
+    /** Periodic ticker handler to go through all the registered user/threads of watchdog.
+     *
+     * Otherwise, the system resets.
+     */
+    void process();
+
     uint32_t _timeout; //_timeout initialized via constructor while creating instance of this class
     const char *_name; //To store the details of user
     uint32_t _current_count; //this parameter is used to reset everytime threads/user calls kick
@@ -115,6 +115,17 @@ private:
     static bool _is_hw_watchdog_running; // track we are the first owner of watchdog
     static VirtualWatchdog *_first; //List to store the user/threads who called start
     VirtualWatchdog *_next;
+
+#if DEVICE_LPTICKER
+    /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
+     */
+    static SingletonPtr<LowPowerTicker> _ticker;
+#else
+    /** Create singleton instance of Ticker for watchdog periodic call back of kick.
+     */
+    static SingletonPtr<Ticker> _ticker;
+#endif
+    static us_timestamp_t _ticker_timeout;
 };
 
 } // namespace mbed
