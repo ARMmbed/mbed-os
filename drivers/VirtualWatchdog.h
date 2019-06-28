@@ -88,7 +88,7 @@ public:
      */
     void kick();
 
-protected :
+protected:
 
     /** Use add_to_list to store the registered user in the list.
       * This API is only used to call from start.
