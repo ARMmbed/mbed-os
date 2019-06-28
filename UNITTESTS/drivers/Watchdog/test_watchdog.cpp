@@ -16,123 +16,53 @@
  */
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "drivers/VirtualWatchdog.h"
+#include "Watchdog.h"
 
-class TestWatchdog : public testing::Test {
-public:
-    static uint32_t expect_assert_count;
-    static uint32_t expect_reset_count;
+using namespace mbed;
+extern bool testcase;
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
+class TestMbedVirtualWatchdog : public testing::Test {
 protected:
-    virtual void SetUp() {}
-    virtual void TearDown() {}
+
+    void SetUp()
+    {
+    }
+
+    void TearDown()
+    {
+    }
 };
+// *INDENT-ON*
 
-uint32_t TestWatchdog::expect_assert_count = 0;
-uint32_t TestWatchdog::expect_reset_count = 0;
-
-void mbed_assert_internal(const char *expr, const char *file, int line)
+TEST_F(TestMbedVirtualWatchdog, test_watchdog_start_pass)
 {
-    TestWatchdog::expect_assert_count++;
+    EXPECT_TRUE(Watchdog::get_instance().start());
 }
 
-void mock_system_reset()
+TEST_F(TestMbedVirtualWatchdog, test_watchdog_start_fail)
 {
-    TestWatchdog::expect_reset_count++;
+    EXPECT_FALSE(Watchdog::get_instance().start());
 }
 
-TEST_F(TestWatchdog, wdog_constructor)
+TEST_F(TestMbedVirtualWatchdog, test_watchdog_stop_pass)
 {
-    EXPECT_LE(sizeof(mbed::VirtualWatchdog), 1024);
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
+    EXPECT_TRUE(Watchdog::get_instance().stop());
 }
 
-TEST_F(TestWatchdog, wdog_constructor_with_default_value)
+TEST_F(TestMbedVirtualWatchdog, test_watchdog_stop_fail)
 {
-    mbed::VirtualWatchdog watchdog;
+    EXPECT_FALSE(Watchdog::get_instance().stop());
 }
 
-TEST_F(TestWatchdog, wdog_start_pass)
+TEST_F(TestMbedVirtualWatchdog, test_mbed_wdog_manager_get_max_timeout)
 {
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.start();
-    watchdog.stop();
-    EXPECT_EQ(0, TestWatchdog::expect_assert_count);
+    EXPECT_EQ(0xFFFFFFFF, Watchdog::get_instance().get_max_timeout());
 }
 
-TEST_F(TestWatchdog, wdog_kick_pass)
+
+TEST_F(TestMbedVirtualWatchdog, test_mbed_wdog_manager_get_timeout)
 {
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.start();
-    watchdog.kick();
-    watchdog.stop();
-    EXPECT_EQ(0, TestWatchdog::expect_assert_count);
+    EXPECT_EQ(500, Watchdog::get_instance().get_timeout());
 }
 
-TEST_F(TestWatchdog, wdog_stop_fail)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.start();
-    watchdog.stop();
-    watchdog.stop();
-    EXPECT_EQ(1, TestWatchdog::expect_assert_count);
-    TestWatchdog::expect_assert_count = 0;
-}
-TEST_F(TestWatchdog, wdog_kick_fail)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.kick();
-    EXPECT_EQ(1, TestWatchdog::expect_assert_count);
-    TestWatchdog::expect_assert_count = 0;
-}
-
-TEST_F(TestWatchdog, wdog_start_kick_pass)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    mbed::VirtualWatchdog watchdog1(600, "watchdog_unittest_1");
-    mbed::VirtualWatchdog watchdog2(700, "watchdog_unittest_2");
-    watchdog.start();
-    watchdog1.start();
-    watchdog2.start();
-    watchdog1.kick();
-    watchdog.kick();
-    watchdog2.kick();
-    watchdog1.stop();
-    watchdog.stop();
-    watchdog2.stop();
-    EXPECT_EQ(0, TestWatchdog::expect_assert_count);
-    EXPECT_EQ(0, TestWatchdog::expect_reset_count);
-}
-
-TEST_F(TestWatchdog, wdog_start_process_pass)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.start();
-    watchdog.kick();
-    watchdog.stop();
-    EXPECT_EQ(0, TestWatchdog::expect_assert_count);
-    EXPECT_EQ(0, TestWatchdog::expect_reset_count);
-}
-
-TEST_F(TestWatchdog, wdog_start_process_fail)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    mbed::VirtualWatchdog watchdog1(500, "watchdog_unittest-1");
-    watchdog.start();
-    watchdog1.start();
-    watchdog1.kick();
-    watchdog.stop();
-    watchdog1.stop();
-    EXPECT_EQ(0, TestWatchdog::expect_assert_count);
-    EXPECT_EQ(1, TestWatchdog::expect_reset_count);
-    TestWatchdog::expect_reset_count = 0;
-}
-
-TEST_F(TestWatchdog, wdog_start_fail)
-{
-    mbed::VirtualWatchdog watchdog(500, "watchdog_unittest");
-    watchdog.start();
-    watchdog.start();
-    watchdog.stop();
-    EXPECT_EQ(1, TestWatchdog::expect_assert_count);
-    TestWatchdog::expect_assert_count = 0;
-}
