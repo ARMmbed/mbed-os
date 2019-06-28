@@ -127,7 +127,17 @@ class PyusbMSDTest(BaseHostTest):
         else:
             self.report_error("unmount")
 
+    def _callback_os_type(self, key, value, timestamp):
+        system_name = platform.system()
+        if system_name == "Windows":
+            self.send_kv("os_type", 1)
+        elif system_name == "Linux":
+            self.send_kv("os_type", 2)
+        elif system_name == "Darwin":
+            self.send_kv("os_type", 3)
+
     def setup(self):
+        self.register_callback("get_os_type", self._callback_os_type)
         self.register_callback("get_serial_number", self._callback_device_ready)
         self.register_callback('check_if_mounted', self._callback_check_if_mounted)
         self.register_callback('check_if_not_mounted', self._callback_check_if_not_mounted)
@@ -204,25 +214,16 @@ class MSDUtils(object):
     @staticmethod
     def _unmount_windows(serial):
         disk_path = MSDUtils._disk_path_windows(serial)
-        tmp_file = tempfile.NamedTemporaryFile(suffix='.ps1', delete=False)
-        try:
-            # create unmount script
-            tmp_file.write('$disk_leter=$args[0]\n')
-            tmp_file.write('$driveEject = New-Object -comObject Shell.Application\n')
-            tmp_file.write('$driveEject.Namespace(17).ParseName($disk_leter).InvokeVerb("Eject")\n')
-            # close to allow open by other process
-            tmp_file.close()
+        cmd_string = r'(New-Object -comObject Shell.Application).Namespace(17).ParseName("{}").InvokeVerb("Eject")'.format(disk_path)
 
-            try_count = 10
-            while try_count:
-                p = subprocess.Popen(["powershell.exe", tmp_file.name + " " + disk_path], stdout=sys.stdout)
-                p.communicate()
-                try_count -= 1
-                if MSDUtils._disk_path_windows(serial) is None:
-                    return True
-                time.sleep(1)
-        finally:
-            os.remove(tmp_file.name)
+        try_count = 10
+        while try_count:
+            p = subprocess.Popen(["powershell.exe", cmd_string], stdout=sys.stdout)
+            p.communicate()
+            try_count -= 1
+            if MSDUtils._disk_path_windows(serial) is None:
+                return True
+            time.sleep(1)
 
         return False
 
