@@ -26,7 +26,12 @@
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_assert.h"
 #include "platform/SingletonPtr.h"
+
+#if DEVICE_LPTICKER
 #include "drivers/LowPowerTicker.h"
+#else
+#include "drivers/Ticker.h"
+#endif
 namespace mbed {
 
 /** \addtogroup drivers */

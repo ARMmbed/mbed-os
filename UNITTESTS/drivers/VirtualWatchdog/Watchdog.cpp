@@ -16,37 +16,51 @@
  */
 #ifdef DEVICE_WATCHDOG
 
-#include "VirtualWatchdog.h"
+#include "Watchdog.h"
 
 namespace mbed {
 
-VirtualWatchdog *VirtualWatchdog::_first;
+static uint32_t _timeout = 0;
 
-VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
+Watchdog::Watchdog() : _running(false)
 {
-
 }
 
-void VirtualWatchdog::start()
+Watchdog::~Watchdog()
 {
-
 }
 
-void VirtualWatchdog::kick()
+bool Watchdog::start(uint32_t timeout)
 {
-
+    _timeout = timeout;
+    _running = true;
+    return _running;
 }
 
-void VirtualWatchdog::stop()
+bool Watchdog::stop()
 {
-
+    _running = false;
+    return _running;
 }
 
-VirtualWatchdog::~VirtualWatchdog()
+void Watchdog::kick()
 {
+}
 
+bool Watchdog::is_running() const
+{
+    return _running;
+}
+
+uint32_t Watchdog::get_timeout() const
+{
+    return _timeout;
+}
+
+uint32_t Watchdog::get_max_timeout() const
+{
+    return 0xFFFFFFFF;
 }
 
 } // namespace mbed
-
 #endif // DEVICE_WATCHDOG
