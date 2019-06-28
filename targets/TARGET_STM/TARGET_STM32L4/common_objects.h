@@ -35,6 +35,7 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 #include "stm32l4xx_ll_usart.h"
+#include "stm32l4xx_ll_tim.h"
 
 #ifdef __cplusplus
 extern "C" {
