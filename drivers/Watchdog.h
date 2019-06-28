@@ -71,7 +71,7 @@ public:
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
      *                 false if watchdog timer was not started
      */
-    bool start(Callback<void()> func = NULL, uint32_t timeout =  watchdog_timeout);
+    bool start(Callback<void(uint32_t)> func = NULL, uint32_t timeout = watchdog_timeout);
 
     /** Stops the watchdog timer
      *
@@ -113,7 +113,8 @@ private:
     ~Watchdog();
 
     bool _running;
-    Callback<void()> _callback;
+    Callback<void(uint32_t)> _callback;
+    us_timestamp_t _ticker_timeout;
 
 #if DEVICE_LPTICKER
     /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.

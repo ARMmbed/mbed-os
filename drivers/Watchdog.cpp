@@ -31,9 +31,9 @@ Watchdog::~Watchdog()
 {
 }
 
-bool Watchdog::start(Callback<void()> func, uint32_t timeout)
+bool Watchdog::start(Callback<void(uint32_t)> func, uint32_t timeout)
 {
-    MBED_ASSERT(MBED_CONF_TARGET_WATCHDOG_TIMEOUT < get_max_timeout());
+    MBED_ASSERT(timeout < get_max_timeout());
 
     core_util_critical_section_enter();
     // we update callback always, to be able to register new hook if needed
@@ -43,7 +43,7 @@ bool Watchdog::start(Callback<void()> func, uint32_t timeout)
         return false;
     }
     watchdog_config_t config;
-    config.timeout_ms = MBED_CONF_TARGET_WATCHDOG_TIMEOUT;
+    config.timeout_ms = timeout;
     watchdog_status_t sts = hal_watchdog_init(&config);
     if (sts == WATCHDOG_STATUS_OK) {
         _running = true;
@@ -51,8 +51,11 @@ bool Watchdog::start(Callback<void()> func, uint32_t timeout)
     core_util_critical_section_exit();
 
     if (_running) {
-        us_timestamp_t ticker_timeout = (MS_TO_US(((timeout <= 0) ? 1 : timeout)));
-        _ticker->attach(callback(this, &Watchdog::kick), ticker_timeout);
+        _ticker_timeout = MS_TO_US(timeout / 2);
+        if (_ticker_timeout == 0) {
+            _ticker_timeout = 1;
+        }
+        _ticker->attach_us(callback(this, &Watchdog::kick), _ticker_timeout);
     }
     return _running;
 }
@@ -87,7 +90,7 @@ void Watchdog::kick()
     core_util_critical_section_exit();
 
     if (_callback) {
-        _callback();
+        _callback(_ticker_timeout);
     }
 }
 
