@@ -22,7 +22,7 @@
 namespace mbed {
 
 VirtualWatchdog *VirtualWatchdog::_first = NULL;
-bool _is_hw_watchdog_running = false;
+bool VirtualWatchdog::_is_hw_watchdog_running = false;
 
 VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
 {
