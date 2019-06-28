@@ -13,12 +13,12 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../drivers/VirtualWatchdog.cpp
-  
 )
 
 # Test files
 set(unittest-test-sources
   drivers/VirtualWatchdog/test_virtualwatchdog.cpp
+  drivers/VirtualWatchdog/Watchdog.cpp
   stubs/mbed_critical_stub.c  
 )
 

@@ -16,7 +16,7 @@
  */
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "drivers/VirtualWatchdog.h"
+#include "VirtualWatchdog.h"
 
 class TestVirtualWatchdog : public testing::Test {
 public:
