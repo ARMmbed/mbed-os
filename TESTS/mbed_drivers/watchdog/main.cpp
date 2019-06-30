@@ -81,14 +81,14 @@ void wdg_kicking_thread_fun()
 
 void test_max_timeout_is_valid()
 {
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT(watchdog.get_max_timeout() > 1UL);
 }
 
 void test_stop()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     if (!features.disable_watchdog) {
         TEST_ASSERT_FALSE(watchdog.stop());
         TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
@@ -118,7 +118,7 @@ void test_restart()
         return;
     }
 
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     uint32_t max_timeout = watchdog.get_max_timeout();
     uint32_t timeouts[] = {
         max_timeout / 4,
@@ -194,7 +194,7 @@ void test_start()
         TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
         return;
     }
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_TRUE(watchdog.start(timeout_ms));
     uint32_t actual_timeout = watchdog.get_timeout();
     // The watchdog should trigger at, or after the timeout value.
@@ -205,7 +205,7 @@ void test_start()
 
 void test_start_max_timeout()
 {
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     uint32_t max_timeout = watchdog.get_max_timeout();
     TEST_ASSERT_TRUE(watchdog.start(max_timeout));
     // The watchdog should trigger at, or after the timeout value.
