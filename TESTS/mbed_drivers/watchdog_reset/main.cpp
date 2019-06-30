@@ -101,7 +101,7 @@ void test_simple_reset()
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
@@ -131,7 +131,7 @@ void test_sleep_reset()
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
@@ -168,7 +168,7 @@ void test_deepsleep_reset()
         TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
         return;
     }
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
@@ -204,7 +204,7 @@ void test_restart_reset()
     }
 
     // Phase 1. -- run the test code.
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
@@ -241,7 +241,7 @@ void test_kick_reset()
     }
 
     // Phase 1. -- run the test code.
-    Watchdog& watchdog = Watchdog::get_instance();
+    Watchdog &watchdog = Watchdog::get_instance();
     TEST_ASSERT_FALSE(watchdog.is_running());
     TEST_ASSERT_TRUE(watchdog.start(TIMEOUT_MS));
     TEST_ASSERT_TRUE(watchdog.is_running());
