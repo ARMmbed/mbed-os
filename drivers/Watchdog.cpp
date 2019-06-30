@@ -30,7 +30,8 @@ Watchdog::~Watchdog()
 
 bool Watchdog::start(uint32_t timeout)
 {
-    MBED_ASSERT(timeout < get_max_timeout());
+    MBED_ASSERT(timeout <= get_max_timeout());
+    MBED_ASSERT(timeout > 0);
 
     core_util_critical_section_enter();
     if (_running) {
