@@ -295,6 +295,30 @@ protected:
 
     int _base_putc(int c);
 
+    /** Initialize serial port
+     */
+    void _init();
+
+    /** Deinitialize serial port
+     */
+    void _deinit();
+
+    /** Enable serial input
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     */
+    void _enable_input(bool enable = true);
+
+    /** Enable serial output
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     */
+    void _enable_output(bool enable = true);
+
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;
     DMAUsage _tx_usage;
@@ -308,6 +332,10 @@ protected:
     serial_t         _serial;
     Callback<void()> _irq[IrqCnt];
     int              _baud;
+    bool             _rx_enabled;
+    bool             _tx_enabled;
+    const PinName    _tx_pin;
+    const PinName    _rx_pin;
 #endif
 };
 

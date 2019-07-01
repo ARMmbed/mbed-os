@@ -30,7 +30,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     _rx_callback(NULL), _tx_asynch_set(false),
     _rx_asynch_set(false),
 #endif
-    _serial(), _baud(baud)
+    _serial(), _baud(baud), _rx_enabled(true), _tx_enabled(true), _tx_pin(tx), _rx_pin(rx)
 {
     // No lock needed in the constructor
 
@@ -38,9 +38,7 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
         _irq[i] = NULL;
     }
 
-    serial_init(&_serial, tx, rx);
-    serial_baud(&_serial, _baud);
-    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+    _init();
 }
 
 void SerialBase::baud(int baudrate)
@@ -118,6 +116,74 @@ int SerialBase::_base_putc(int c)
     // Mutex is already held
     serial_putc(&_serial, c);
     return c;
+}
+
+void SerialBase::_init()
+{
+    serial_init(&_serial, _tx_pin, _rx_pin);
+    serial_baud(&_serial, _baud);
+    serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
+}
+
+void SerialBase::_deinit()
+{
+    serial_free(&_serial);
+}
+
+void SerialBase::_enable_input(bool enable)
+{
+    if (_rx_enabled != enable) {
+        if(enable && !_tx_enabled) {
+            _init();
+        }
+
+        core_util_critical_section_enter();
+        if (enable) {
+            // Enable rx IRQ if attached (indicated by rx IRQ callback not NULL)
+            if(_irq[RxIrq]) {
+                _irq[RxIrq].call();
+                serial_irq_set(&_serial, (SerialIrq)RxIrq, 1);
+            }
+        } else {
+            // Disable rx IRQ
+            serial_irq_set(&_serial, (SerialIrq)RxIrq, 0);
+        }
+        core_util_critical_section_exit();
+
+        _rx_enabled = enable;
+
+        if (!enable && !_tx_enabled) {
+            _deinit();
+        }
+    }
+}
+
+void SerialBase::_enable_output(bool enable)
+{
+    if (_tx_enabled != enable) {
+        if(enable && !_rx_enabled) {
+            _init();
+        }
+
+        core_util_critical_section_enter();
+        if (enable) {
+            // Enable tx IRQ if attached (indicated by tx IRQ callback not NULL)
+            if(_irq[TxIrq]) {
+                _irq[TxIrq].call();
+                serial_irq_set(&_serial, (SerialIrq)TxIrq, 1);
+            }
+        } else {
+            // Disable tx IRQ
+            serial_irq_set(&_serial, (SerialIrq)TxIrq, 0);
+        }
+        core_util_critical_section_exit();
+
+        _tx_enabled = enable;
+
+        if (!enable && !_rx_enabled) {
+            _deinit();
+        }
+    }
 }
 
 void SerialBase::set_break()
