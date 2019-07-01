@@ -63,6 +63,6 @@ TEST_F(TestWatchdog, test_watchdog_get_max_timeout)
 
 TEST_F(TestWatchdog, test_watchdog_get_timeout)
 {
-    EXPECT_EQ(500, Watchdog::get_instance().get_timeout());
+    EXPECT_EQ(Watchdog::watchdog_timeout, Watchdog::get_instance().get_timeout());
 }
 
