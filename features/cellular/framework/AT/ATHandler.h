@@ -42,7 +42,7 @@ class FileHandle;
 extern const char *OK;
 extern const char *CRLF;
 
-#define BUFF_SIZE 16
+#define BUFF_SIZE 32
 
 /* AT Error types enumeration */
 enum DeviceErrorType {
