@@ -17,7 +17,6 @@
 #ifdef DEVICE_WATCHDOG
 
 #include "drivers/VirtualWatchdog.h"
-#include "drivers/Watchdog.h"
 
 #define MS_TO_US(x) ((x) * 1000)
 #define US_TO_MS(x) ((x) / 1000)
@@ -34,7 +33,7 @@ VirtualWatchdog *VirtualWatchdog::_first = NULL;
 bool VirtualWatchdog::_is_hw_watchdog_running = false;
 us_timestamp_t VirtualWatchdog::_ticker_timeout = 0;
 
-VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name(str)
+VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str, uint32_t watchdog_hw_timeout) : _name(str)
 {
     _current_count = 0;
     _is_initialized = false;
@@ -47,8 +46,8 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str): _name
             MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, MBED_ERROR_INITIALIZATION_FAILED);
         }
         // we use default hw timeout provided by config
-        watchdog.start(Watchdog::watchdog_timeout);
-        _ticker_timeout = MS_TO_US(Watchdog::watchdog_timeout / 2);
+        watchdog.start(watchdog_hw_timeout);
+        _ticker_timeout = MS_TO_US(watchdog_hw_timeout / 2);
         if (_ticker_timeout == 0) {
             _ticker_timeout = 1;
         }
