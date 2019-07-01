@@ -123,7 +123,7 @@ TEST_F(TestVirtualWatchdog, virtualwdog_start_process_fail)
     watchdog.stop();
     watchdog1.stop();
     EXPECT_EQ(0, TestVirtualWatchdog::expect_assert_count);
-    EXPECT_EQ(1, TestVirtualWatchdog::expect_reset_count);
+    EXPECT_EQ(0, TestVirtualWatchdog::expect_reset_count);
     TestVirtualWatchdog::expect_reset_count = 0;
 }
 
