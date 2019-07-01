@@ -61,6 +61,7 @@
 
 int CASE_INDEX_START;
 int CASE_INDEX_CURRENT;
+bool CASE_IGNORED = false;
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -89,6 +90,7 @@ void test_restart_is_possible()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (!features.disable_watchdog) {
+        CASE_IGNORED = true;
         TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
         return;
     }
@@ -100,6 +102,7 @@ void test_stop()
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (!features.disable_watchdog) {
         TEST_ASSERT_EQUAL(WATCHDOG_STATUS_NOT_SUPPORTED, hal_watchdog_stop());
+        CASE_IGNORED = true;
         TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
         return;
     }
@@ -118,6 +121,7 @@ void test_update_config()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (!features.update_config) {
+        CASE_IGNORED = true;
         TEST_IGNORE_MESSAGE("Updating watchdog config not supported for this platform");
         return;
     }
@@ -132,6 +136,7 @@ void test_update_config()
 
     for (size_t i = 0; i < num_timeouts; i++) {
         if (timeouts[i] < WDG_MIN_TIMEOUT_MS) {
+            CASE_IGNORED = true;
             TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
             return;
         }
@@ -149,12 +154,16 @@ void test_update_config()
 utest::v1::status_t case_setup_sync_on_reset(const Case *const source, const size_t index_of_case)
 {
     CASE_INDEX_CURRENT = index_of_case;
+    CASE_IGNORED = false;
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
 utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const size_t passed, const size_t failed,
                                                 const utest::v1::failure_t failure)
 {
+    if (CASE_IGNORED) {
+        return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
+    }
     // Unlock kicking the watchdog during teardown.
     kick_wdg_during_test_teardown.release();
     utest::v1::status_t status = utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
@@ -179,6 +188,9 @@ utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const 
 utest::v1::status_t case_teardown_wdg_stop_or_reset(const Case *const source, const size_t passed, const size_t failed,
                                                     const utest::v1::failure_t failure)
 {
+    if (CASE_IGNORED) {
+        return utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
+    }
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (features.disable_watchdog) {
         hal_watchdog_stop();
@@ -192,6 +204,7 @@ template<uint32_t timeout_ms>
 void test_init()
 {
     if (timeout_ms < WDG_MIN_TIMEOUT_MS) {
+        CASE_IGNORED = true;
         TEST_IGNORE_MESSAGE("Requested timeout value is too short -- ignoring test case.");
         return;
     }
