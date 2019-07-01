@@ -35,6 +35,10 @@
     {
       "src_file": "platform/include/tfm_spm_hal.h",
       "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+    },
+    {
+      "src_file": "secure_fw/ns_callable/tfm_psa_api_veneers.c",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/ns_callable/tfm_psa_api_veneers.c"
     }
   ],
   "folders": [
@@ -64,12 +68,33 @@
     }
   ],
   "commit_sha": [
-    "fb068d2cb4e89cacf0e9f413075bb4b211f1484f",
-    "5d41a2aeae71b13f2763bea4e55899646291e0eb",
-    "9c1e080e39adc7211c8c2c12cd652da3dc124299",
-    "78ed87028718b1b926d847ff6fc2f91d44e53d6d",
-    "280715f9b74ab29459d81edaf02b39e7a6acb13c",
-    "ea81bf91c90ae23dd9de012bfd7498613be00601",
-    "5342015bb12a486a1c563175a8a7129f0737c925"
+    {
+      "sha": "11bff3f3cbfbd3e2c284e884d0066531e6b47d7e",
+      "msg": "TF-M patch: General modifications, Remove un-needed files, Disable printf and uart, Modify include paths, Guard macros from mbed_lib with ifndef"
+    },
+    {
+      "sha": "795e6418d0e73841868b351b605659a05c04e1f6",
+       "msg": "TF-M patch: Fix tfm_ns_lock_init issue (TF-M issue #239), Link to bug tracking: https://developer.trustedfirmware.org/T239"
+    },
+    {
+      "sha": "35938a407133fe0c20c25b6fae2836148d1adfca",
+      "msg": "TF-M patch: Fix service handles not cleared issue (TF-M issue #230), Link to bug tracking: https://developer.trustedfirmware.org/T230"
+    },
+    {
+      "sha": "910a402ce6c96b654cb6ae1a5b679e4f856c5419",
+      "msg": "TF-M patch: Fix tfm_psa_call_venner wrong argument type (TF-M issue #241), Link to bug tracking: https://developer.trustedfirmware.org/T241"
+    },
+    {
+      "sha": "cb748c5608cd68a1dbecde5b3b2c1488c3d0d17b",
+      "msg": "TF-M patch: Change #if TFM_PSA_API to #ifdef TFM_PSA_API to avoid compiler errors as mbed-cli only generates "-D" macros only for "macros" defined in targets.json, TF-M task link: https://developer.trustedfirmware.org/T396"
+    },
+    {
+      "sha": "9a5110561a60ec9f663079a25ec54f7ad0832743",
+      "msg": "TF-M patch: Remove secure_fw/core/tfm_func_api.c which is required only when TFM_PSA_API is not set"
+    },
+    {
+      "sha": "6e899b3cc98c3e1811a160df09abbccddb2fa014",
+      "msg": "TF-M patch/workaround related to (TF-M issue #T240), Link to bug tracking: https://developer.trustedfirmware.org/T240, The issue is fixed by TF-M team. However they autogenerate region details (code, ro, rw, zi and stack ) using linker scripts and in mbed-os we also autogenerate region details but using mix of service definition in json file and other template files."
+    }
   ]
 }

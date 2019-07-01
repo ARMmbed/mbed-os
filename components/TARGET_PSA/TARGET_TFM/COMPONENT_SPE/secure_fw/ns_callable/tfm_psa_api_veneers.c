@@ -43,7 +43,7 @@ int32_t tfm_psa_veneer_sanity_check(struct tfm_sfn_req_s *desc_ptr)
             return tfm_core_ns_ipc_request(fn, (int32_t)a, (int32_t)b, \
                 (int32_t)c, (int32_t)d)
 
-__attribute__ ((naked))
+__attribute__ ((naked, section("SFN")))
 static int32_t tfm_core_ipc_request(const struct tfm_sfn_req_s *desc_ptr)
 {
     __ASM volatile("SVC %0           \n"

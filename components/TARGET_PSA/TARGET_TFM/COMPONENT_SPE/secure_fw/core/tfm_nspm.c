@@ -6,8 +6,13 @@
  */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "secure_utilities.h"
 #include "tfm_api.h"
+#ifdef TFM_PSA_API
+#include "tfm_utils.h"
+#include "tfm_internal.h"
+#endif
 
 #ifndef TFM_MAX_NS_THREAD_COUNT
 #define TFM_MAX_NS_THREAD_COUNT 8
@@ -298,5 +303,22 @@ enum tfm_status_e tfm_register_client_id (int32_t ns_client_id)
 #endif /* PRINT_NSPM_DEBUG */
 
     return TFM_SUCCESS;
+}
+#endif
+
+#ifdef TFM_PSA_API
+__attribute__((section("SFN")))
+psa_status_t tfm_nspm_thread_entry(void)
+{
+#ifdef TFM_CORE_DEBUG
+    /* Jumps to non-secure code */
+    LOG_MSG("Jumping to non-secure code...");
+#endif
+
+    jump_to_ns_code();
+
+    /* Should not run here */
+    TFM_ASSERT(false);
+    return PSA_SUCCESS;
 }
 #endif

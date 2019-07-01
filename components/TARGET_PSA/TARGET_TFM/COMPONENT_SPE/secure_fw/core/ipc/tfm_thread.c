@@ -10,6 +10,8 @@
 #include "tfm_thread.h"
 #include "tfm_utils.h"
 #include "tfm_memory_utils.h"
+#include "tfm_svc.h"
+#include "spm_api.h"
 
 /* Force ZERO in case ZI(bss) clear is missing */
 static struct tfm_thrd_ctx *p_thrd_head = NULL;
@@ -124,75 +126,56 @@ void tfm_thrd_set_status(struct tfm_thrd_ctx *pth, uint32_t new_status)
     update_running_head(&RUNN_HEAD, pth);
 }
 
-/*
- * TEMP WORKAROUND: The caller function who called thread module init needs to
- * be returned. The caller is not a thread. Create a dummy IDLE thread to
- * collect caller context; and schedule back to the caller with this context
- * after all other real threads blocked.
- *
- * This WORKAROUND needs to be removed after IPC NSPM takes place.
- */
-#define DUMMY_IDLE_TAG       0xDEEDDEED
-static uint8_t idle_stack[32] __attribute__((aligned(8)));
-static struct tfm_thrd_ctx idle_thread;
-static struct tfm_thrd_ctx *init_idle_thread(struct tfm_thrd_ctx *pth)
-{
-    /*
-     * IDLE thread is a thread with the lowest priority.
-     * It gets scheduled after all other higher priority threads get blocked.
-     * The entry of IDLE thread is a dummy and has no mean.
-     */
-    tfm_thrd_init(pth, (tfm_thrd_func_t)DUMMY_IDLE_TAG, NULL,
-                  (uint8_t *)&idle_stack[32], (uint8_t *)idle_stack);
-    tfm_thrd_priority(pth, THRD_PRIOR_LOWEST);
-    tfm_thrd_start(pth);
-    return pth;
-}
-
 /* Scheduling won't happen immediately but after the exception returns */
 void tfm_thrd_activate_schedule(void)
 {
-    /*
-     * The current thread can be NULL only when initializing. Create the IDLE
-     * thread and set it as the current thread to collect caller context.
-     */
-    if (CURR_THRD == NULL) {
-        CURR_THRD = init_idle_thread(&idle_thread);
-    }
-
     tfm_trigger_pendsv();
 }
 
+void tfm_thrd_start_scheduler(struct tfm_thrd_ctx *pth)
+{
+    /*
+     * There is no selected thread before scheduler start, assign
+     * a caller provided thread as current thread. This function
+     * should get called only ONCE; further calling triggers assert.
+     */
+    TFM_ASSERT(CURR_THRD == NULL);
+    TFM_ASSERT(pth != NULL);
+
+    CURR_THRD = pth;
+    tfm_thrd_activate_schedule();
+}
+
 /* Remove current thread out of the schedulable list */
-void tfm_thrd_do_exit(void)
+void tfm_svcall_thrd_exit(void)
 {
     CURR_THRD->status = THRD_STAT_DETACH;
     tfm_trigger_pendsv();
+}
+
+__attribute__((section("SFN")))
+void tfm_thrd_exit(void)
+{
+    SVC(TFM_SVC_EXIT_THRD);
+    while (1) {
+        ;
+    }
 }
 
 void tfm_thrd_context_switch(struct tfm_state_context_ext *ctxb,
                              struct tfm_thrd_ctx *prev,
                              struct tfm_thrd_ctx *next)
 {
-    /* Update latest context into the current thread context */
+    TFM_ASSERT(prev != NULL);
+    TFM_ASSERT(next != NULL);
+
+    /*
+     * First, update latest context into the current thread context.
+     * Then, update background context with next thread's context.
+     */
     tfm_memcpy(&prev->state_ctx.ctxb, ctxb, sizeof(*ctxb));
-    /* Update background context with next thread's context */
     tfm_memcpy(ctxb, &next->state_ctx.ctxb, sizeof(next->state_ctx.ctxb));
-    /* Set current thread indicator with next thread */
+
+    /* Update current thread indicator */
     CURR_THRD = next;
-}
-
-/*
- * This function is a reference implementation for PendSV handler in
- * isolation level 1. More jobs (sandboxing e.g.) need to be done while
- * scheduling in other isolation levels.
- */
-void tfm_pendsv_do_schedule(struct tfm_state_context_ext *ctxb)
-{
-    struct tfm_thrd_ctx *pth = tfm_thrd_next_thread();
-
-    /* Swith context if another thread ready to run */
-    if (pth && pth != CURR_THRD) {
-        tfm_thrd_context_switch(ctxb, CURR_THRD, pth);
-    }
 }

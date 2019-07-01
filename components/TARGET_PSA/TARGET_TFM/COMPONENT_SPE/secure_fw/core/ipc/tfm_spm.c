@@ -38,6 +38,8 @@ static struct tfm_spm_ipc_partition_t
 /* Extern SPM variable */
 extern struct spm_partition_db_t g_spm_partition_db;
 
+/* Extern secure lock variable */
+extern int32_t tfm_secure_lock;
 /* Pools */
 TFM_POOL_DECLARE(conn_handle_pool, sizeof(struct tfm_conn_handle_t),
                  TFM_CONN_HANDLE_MAX_NUM);
@@ -433,21 +435,6 @@ tfm_spm_partition_get_thread_info_ext(uint32_t partition_idx)
     return &g_spm_partition_db.partitions[partition_idx].sp_thrd;
 }
 
-static uint32_t tfm_spm_partition_get_stack_size_ext(uint32_t partition_idx)
-{
-    return g_spm_partition_db.partitions[partition_idx].stack_size;
-}
-
-static uint32_t tfm_spm_partition_get_stack_limit_ext(uint32_t partition_idx)
-{
-    return g_spm_partition_db.partitions[partition_idx].stack_limit;
-}
-
-static uint32_t tfm_spm_partition_get_stack_base_ext(uint32_t partition_idx)
-{
-    return tfm_spm_partition_get_stack_limit_ext(partition_idx) + tfm_spm_partition_get_stack_size_ext(partition_idx);
-}
-
 static tfm_thrd_func_t
         tfm_spm_partition_get_init_func_ext(uint32_t partition_idx)
 {
@@ -461,9 +448,9 @@ static uint32_t tfm_spm_partition_get_priority_ext(uint32_t partition_idx)
                     partition_priority;
 }
 
-/* FixMe: This is only valid for TFM LVL 1 now */
 int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller,
-                         enum tfm_memory_access_e access)
+                         enum tfm_memory_access_e access,
+                         uint32_t privileged)
 {
     int32_t err;
 
@@ -481,15 +468,26 @@ int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller,
     }
 
     if (access == TFM_MEMORY_ACCESS_RW) {
-        err = tfm_core_has_write_access_to_region(buffer, len, ns_caller);
+        err = tfm_core_has_write_access_to_region(buffer, len, ns_caller,
+                                                  privileged);
     } else {
-        err = tfm_core_has_read_access_to_region(buffer, len, ns_caller);
+        err = tfm_core_has_read_access_to_region(buffer, len, ns_caller,
+                                                 privileged);
     }
-    if (err == 1) {
+    if (err == TFM_SUCCESS) {
         return IPC_SUCCESS;
     }
 
     return IPC_ERROR_MEMORY_CHECK;
+}
+
+uint32_t tfm_spm_partition_get_privileged_mode(uint32_t partition_idx)
+{
+    if (tfm_spm_partition_get_flags(partition_idx) & SPM_PART_FLAG_PSA_ROT) {
+        return TFM_PARTITION_PRIVILEGED_MODE;
+    } else {
+        return TFM_PARTITION_UNPRIVILEGED_MODE;
+    }
 }
 
 /********************** SPM functions for thread mode ************************/
@@ -499,7 +497,8 @@ void tfm_spm_init(void)
     uint32_t i, num;
     struct tfm_spm_ipc_partition_t *partition;
     struct tfm_spm_service_t *service;
-    struct tfm_thrd_ctx *pth;
+    struct tfm_thrd_ctx *pth, this_thrd;
+    struct spm_partition_desc_t *part;
 
     tfm_pool_init(conn_handle_pool,
                   POOL_BUFFER_SIZE(conn_handle_pool),
@@ -514,10 +513,12 @@ void tfm_spm_init(void)
 
     /* Init partition first for it will be used when init service */
     for (i = 0; i < SPM_MAX_PARTITIONS; i++) {
+        part = &g_spm_partition_db.partitions[i];
+        tfm_spm_hal_configure_default_isolation(part->platform_data);
+        g_spm_ipc_partition[i].index = i;
         if ((tfm_spm_partition_get_flags(i) & SPM_PART_FLAG_IPC) == 0) {
             continue;
         }
-        g_spm_ipc_partition[i].index = i;
         g_spm_ipc_partition[i].id = tfm_spm_partition_get_partition_id(i);
 
         tfm_event_init(&g_spm_ipc_partition[i].signal_evnt);
@@ -531,8 +532,9 @@ void tfm_spm_init(void)
         tfm_thrd_init(pth,
                       tfm_spm_partition_get_init_func_ext(i),
                       NULL,
-                      (uint8_t *)tfm_spm_partition_get_stack_base_ext(i),
-                      (uint8_t *)tfm_spm_partition_get_stack_limit_ext(i));
+                      (uint8_t *)tfm_spm_partition_get_stack_top(i),
+                      (uint8_t *)tfm_spm_partition_get_stack_bottom(i));
+
         pth->prior = tfm_spm_partition_get_priority_ext(i);
 
         /* Kick off */
@@ -559,6 +561,58 @@ void tfm_spm_init(void)
         tfm_list_add_tail(&partition->service_list, &service->list);
     }
 
-    /* All thread inited.... trigger scheduler */
-    tfm_thrd_activate_schedule();
+    /*
+     * All threads initialized, start the scheduler.
+     *
+     * NOTE:
+     * Here is the booting privileged thread mode, and will never
+     * return to this place after scheduler is started. The start
+     * function has to save current runtime context to act as a
+     * 'current thread' to avoid repeating NULL 'current thread'
+     * checking while context switching. This saved context is worthy
+     * of being saved somewhere if there are potential usage purpose.
+     * Let's save this context in a local variable 'this_thrd' at
+     * current since there is no usage for it.
+     * Also set tfm_nspm_thread_entry as pfn for this thread to
+     * use in detecting NS/S thread scheduling changes.
+     */
+    this_thrd.pfn = (tfm_thrd_func_t)tfm_nspm_thread_entry;
+    tfm_thrd_start_scheduler(&this_thrd);
+}
+
+void tfm_pendsv_do_schedule(struct tfm_state_context_ext *ctxb)
+{
+#if TFM_LVL == 2
+    struct spm_partition_desc_t *p_next_partition;
+    uint32_t is_privileged;
+#endif
+    struct tfm_thrd_ctx *pth_next = tfm_thrd_next_thread();
+    struct tfm_thrd_ctx *pth_curr = tfm_thrd_curr_thread();
+
+    if (pth_curr != pth_next) {
+#if TFM_LVL == 2
+        p_next_partition = TFM_GET_CONTAINER_PTR(pth_next,
+                                                 struct spm_partition_desc_t,
+                                                 sp_thrd);
+
+        if (p_next_partition->static_data.partition_flags &
+            SPM_PART_FLAG_PSA_ROT) {
+            is_privileged = TFM_PARTITION_PRIVILEGED_MODE;
+        } else {
+            is_privileged = TFM_PARTITION_UNPRIVILEGED_MODE;
+        }
+
+        tfm_spm_partition_change_privilege(is_privileged);
+#endif
+        /* Increase the secure lock, if we enter secure from non-secure */
+        if ((void *)pth_curr->pfn == (void *)tfm_nspm_thread_entry) {
+            ++tfm_secure_lock;
+        }
+        /* Decrease the secure lock, if we return from secure to non-secure */
+        if ((void *)pth_next->pfn == (void *)tfm_nspm_thread_entry) {
+            --tfm_secure_lock;
+        }
+
+        tfm_thrd_context_switch(ctxb, pth_curr, pth_next);
+    }
 }

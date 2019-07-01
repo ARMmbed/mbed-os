@@ -17,19 +17,10 @@
 
 /* This file contains the ARCH code for ARM V8M */
 
-/*
- * Thread exit zone.
- * This function is set as the return address of thread entry and only
- * privileged thread could return here. Un-privileged thread triggers
- * fault if it tries to jump here and it gets exit by fault handler.
- *
- * The reason of putting this function here is for fault handler checking.
- * Function address could be checked in fault handler to know it is a REAL
- * thread exit or just an exception.
- */
+__attribute__((section("SFN")))
 static void exit_zone(void)
 {
-    tfm_thrd_do_exit();
+    tfm_thrd_exit();
 }
 
 void tfm_initialize_context(struct tfm_state_context *ctx,

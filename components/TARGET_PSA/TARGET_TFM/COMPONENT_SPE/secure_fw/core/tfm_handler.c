@@ -156,6 +156,30 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
         return lr;
     }
     switch (svc_number) {
+#ifdef TFM_PSA_API
+    case TFM_SVC_IPC_REQUEST:
+        tfm_psa_ipc_request_handler(svc_args);
+        break;
+    case TFM_SVC_SCHEDULE:
+    case TFM_SVC_EXIT_THRD:
+    case TFM_SVC_PSA_FRAMEWORK_VERSION:
+    case TFM_SVC_PSA_VERSION:
+    case TFM_SVC_PSA_CONNECT:
+    case TFM_SVC_PSA_CALL:
+    case TFM_SVC_PSA_CLOSE:
+    case TFM_SVC_PSA_WAIT:
+    case TFM_SVC_PSA_GET:
+    case TFM_SVC_PSA_SET_RHANDLE:
+    case TFM_SVC_PSA_READ:
+    case TFM_SVC_PSA_SKIP:
+    case TFM_SVC_PSA_WRITE:
+    case TFM_SVC_PSA_REPLY:
+    case TFM_SVC_PSA_NOTIFY:
+    case TFM_SVC_PSA_CLEAR:
+    case TFM_SVC_PSA_EOI:
+        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args, lr);
+        break;
+#else
     case TFM_SVC_SFN_REQUEST:
         lr = tfm_core_partition_request_svc_handler(svc_args, lr);
         break;
@@ -177,10 +201,6 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
     case TFM_SVC_SET_SHARE_AREA:
         tfm_core_set_buffer_area_handler(svc_args);
         break;
-#ifdef TFM_PSA_API
-    case TFM_SVC_IPC_REQUEST:
-        tfm_psa_ipc_request_handler(svc_args);
-        break;
 #endif
     case TFM_SVC_PRINT:
         printf("\e[1;34m[Sec Thread] %s\e[0m\r\n", (char *)svc_args[0]);
@@ -188,25 +208,6 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
     case TFM_SVC_GET_BOOT_DATA:
         tfm_core_get_boot_data_handler(svc_args);
         break;
-#ifdef TFM_PSA_API
-    case TFM_SVC_PSA_FRAMEWORK_VERSION:
-    case TFM_SVC_PSA_VERSION:
-    case TFM_SVC_PSA_CONNECT:
-    case TFM_SVC_PSA_CALL:
-    case TFM_SVC_PSA_CLOSE:
-    case TFM_SVC_PSA_WAIT:
-    case TFM_SVC_PSA_GET:
-    case TFM_SVC_PSA_SET_RHANDLE:
-    case TFM_SVC_PSA_READ:
-    case TFM_SVC_PSA_SKIP:
-    case TFM_SVC_PSA_WRITE:
-    case TFM_SVC_PSA_REPLY:
-    case TFM_SVC_PSA_NOTIFY:
-    case TFM_SVC_PSA_CLEAR:
-    case TFM_SVC_PSA_EOI:
-        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args, lr);
-        break;
-#endif
     default:
         LOG_MSG("Unknown SVC number requested!");
         break;

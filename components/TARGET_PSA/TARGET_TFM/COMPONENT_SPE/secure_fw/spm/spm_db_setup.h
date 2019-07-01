@@ -38,7 +38,11 @@ struct spm_partition_db_t {
         data.partition_priority = TFM_PRIORITY(priority);                     \
     } while (0)
 
-#if TFM_LVL == 1
+/* Changed from #if (TFM_LVL == 1) && !defined(TFM_PSA_API) to #if (TFM_LVL == 1) to avoid linker error.
+   TF-M build autogenerates region details (code, ro, rw, zi and stack ) using linker scripts. We do not
+   hve that in mbed-os build yet.
+*/
+#if (TFM_LVL == 1)
 #define PARTITION_INIT_MEMORY_DATA(data, partition)
 #else
 #define PARTITION_INIT_MEMORY_DATA(data, partition)                            \
@@ -55,7 +59,6 @@ struct spm_partition_db_t {
         data.stack_top       = PART_REGION_ADDR(partition, _STACK$$ZI$$Limit); \
     } while (0)
 #endif
-
 
 #if TFM_LVL == 1
 #define PARTITION_INIT_RUNTIME_DATA(data, partition)            \
@@ -76,60 +79,60 @@ struct spm_partition_db_t {
     } while (0)
 #endif
 
-#define PARTITION_DECLARE(partition, flag, type, id, priority, part_stack_size)   \
-    do {                                                                     \
-        REGION_DECLARE(Image$$, partition, $$Base);                          \
-        REGION_DECLARE(Image$$, partition, $$Limit);                         \
-        REGION_DECLARE(Image$$, partition, $$RO$$Base);                      \
-        REGION_DECLARE(Image$$, partition, $$RO$$Limit);                     \
-        REGION_DECLARE(Image$$, partition, _DATA$$RW$$Base);                 \
-        REGION_DECLARE(Image$$, partition, _DATA$$RW$$Limit);                \
-        REGION_DECLARE(Image$$, partition, _DATA$$ZI$$Base);                 \
-        REGION_DECLARE(Image$$, partition, _DATA$$ZI$$Limit);                \
-        REGION_DECLARE(Image$$, partition, _STACK$$ZI$$Base);                \
-        REGION_DECLARE(Image$$, partition, _STACK$$ZI$$Limit);               \
-        int32_t flags = flag;                                                \
-        if (tfm_memcmp(type, TFM_PARTITION_TYPE_APP,                         \
-            strlen(TFM_PARTITION_TYPE_APP)) == 0) {                          \
-            flags |= SPM_PART_FLAG_APP_ROT;                                  \
-        } else if (tfm_memcmp(type, TFM_PARTITION_TYPE_PSA,                  \
-                   strlen(TFM_PARTITION_TYPE_PSA)) == 0) {                   \
-            flags |= SPM_PART_FLAG_PSA_ROT | SPM_PART_FLAG_APP_ROT;          \
-        } else {                                                             \
-            return SPM_ERR_INVALID_CONFIG;                                   \
-        }                                                                    \
-        struct spm_partition_desc_t *part_ptr;                               \
-        if (g_spm_partition_db.partition_count >= SPM_MAX_PARTITIONS) {      \
-            return SPM_ERR_INVALID_CONFIG;                                   \
-        }                                                                    \
-        __attribute__((section(".data.partitions_stacks")))                  \
-        static uint8_t partition##_stack[part_stack_size] __attribute__((aligned(8))); \
-        part_ptr = &(g_spm_partition_db.partitions[                          \
-            g_spm_partition_db.partition_count]);                            \
-        part_ptr->stack_limit = (uint32_t)partition##_stack;                 \
-        part_ptr->stack_size = part_stack_size;                              \
-        PARTITION_INIT_STATIC_DATA(part_ptr->static_data, partition, flags,  \
-                                   id, priority);                            \
-        PARTITION_INIT_RUNTIME_DATA(part_ptr->runtime_data, partition);      \
-        PARTITION_INIT_MEMORY_DATA(part_ptr->memory_data, partition);        \
-        ++g_spm_partition_db.partition_count;                                \
+#define PARTITION_DECLARE(partition, flag, type, id, priority, part_stack_size)                     \
+    do {                                                                                            \
+        REGION_DECLARE(Image$$, partition, $$Base);                                                 \
+        REGION_DECLARE(Image$$, partition, $$Limit);                                                \
+        REGION_DECLARE(Image$$, partition, $$RO$$Base);                                             \
+        REGION_DECLARE(Image$$, partition, $$RO$$Limit);                                            \
+        REGION_DECLARE(Image$$, partition, _DATA$$RW$$Base);                                        \
+        REGION_DECLARE(Image$$, partition, _DATA$$RW$$Limit);                                       \
+        REGION_DECLARE(Image$$, partition, _DATA$$ZI$$Base);                                        \
+        REGION_DECLARE(Image$$, partition, _DATA$$ZI$$Limit);                                       \
+        REGION_DECLARE(Image$$, partition, _STACK$$ZI$$Base);                                       \
+        REGION_DECLARE(Image$$, partition, _STACK$$ZI$$Limit);                                      \
+        int32_t flags = flag;                                                                       \
+        if (tfm_memcmp(type, TFM_PARTITION_TYPE_APP,                                                \
+            strlen(TFM_PARTITION_TYPE_APP)) == 0) {                                                 \
+            flags |= SPM_PART_FLAG_APP_ROT;                                                         \
+        } else if (tfm_memcmp(type, TFM_PARTITION_TYPE_PSA,                                         \
+                   strlen(TFM_PARTITION_TYPE_PSA)) == 0) {                                          \
+            flags |= SPM_PART_FLAG_PSA_ROT | SPM_PART_FLAG_APP_ROT;                                 \
+        } else {                                                                                    \
+            return SPM_ERR_INVALID_CONFIG;                                                          \
+        }                                                                                           \
+        struct spm_partition_desc_t *part_ptr;                                                      \
+        if (g_spm_partition_db.partition_count >= SPM_MAX_PARTITIONS) {                             \
+            return SPM_ERR_INVALID_CONFIG;                                                          \
+        }                                                                                           \
+        __attribute__((section(".data.partitions_stacks")))                                         \
+        static uint8_t partition##_stack[part_stack_size] __attribute__((aligned(8)));              \
+        part_ptr = &(g_spm_partition_db.partitions[                                                 \
+            g_spm_partition_db.partition_count]);                                                   \
+        part_ptr->memory_data.stack_bottom = (uint32_t)partition##_stack;                           \
+        part_ptr->memory_data.stack_top = part_ptr->memory_data.stack_bottom + part_stack_size;     \
+        PARTITION_INIT_STATIC_DATA(part_ptr->static_data, partition, flags,                         \
+                                   id, priority);                                                   \
+        PARTITION_INIT_RUNTIME_DATA(part_ptr->runtime_data, partition);                             \
+        PARTITION_INIT_MEMORY_DATA(part_ptr->memory_data, partition);                               \
+        ++g_spm_partition_db.partition_count;                                                       \
     } while (0)
 
-#define PARTITION_ADD_INIT_FUNC(partition, init_func)                     \
-    do {                                                                  \
-        extern int32_t init_func(void);                                   \
-        uint32_t partition_idx = get_partition_idx(partition##_ID);       \
-        struct spm_partition_desc_t *part_ptr =                           \
-            &(g_spm_partition_db.partitions[partition_idx]);              \
-        part_ptr->static_data.partition_init = init_func;                 \
+#define PARTITION_ADD_INIT_FUNC(partition, init_func)                                               \
+    do {                                                                                            \
+        extern int32_t init_func(void);                                                             \
+        uint32_t partition_idx = get_partition_idx(partition##_ID);                                 \
+        struct spm_partition_desc_t *part_ptr =                                                     \
+            &(g_spm_partition_db.partitions[partition_idx]);                                        \
+        part_ptr->static_data.partition_init = init_func;                                           \
     } while (0)
 
-#define PARTITION_ADD_PERIPHERAL(partition, peripheral)                    \
-    do {                                                                   \
-        uint32_t partition_idx = get_partition_idx(partition##_ID);        \
-        struct spm_partition_desc_t *part_ptr =                            \
-            &(g_spm_partition_db.partitions[partition_idx]);               \
-        part_ptr->platform_data = peripheral;                              \
+#define PARTITION_ADD_PERIPHERAL(partition, peripheral)                                             \
+    do {                                                                                            \
+        uint32_t partition_idx = get_partition_idx(partition##_ID);                                 \
+        struct spm_partition_desc_t *part_ptr =                                                     \
+            &(g_spm_partition_db.partitions[partition_idx]);                                        \
+        part_ptr->platform_data = peripheral;                                                       \
     } while (0)
 
 #endif /* __SPM_DB_SETUP_H__ */

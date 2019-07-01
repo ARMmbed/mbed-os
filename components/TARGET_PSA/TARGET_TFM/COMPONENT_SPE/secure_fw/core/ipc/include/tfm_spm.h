@@ -75,6 +75,16 @@ struct tfm_spm_ipc_partition_t {
  */
 uint32_t tfm_spm_partition_get_running_partition_id_ext(void);
 
+/**
+ * \brief                   Get the current partition mode.
+ *
+ * \param[in] partition_idx                 Index of current partition
+ *
+ * \retval TFM_PARTITION_PRIVILEGED_MODE    Privileged mode
+ * \retval TFM_PARTITION_UNPRIVILEGED_MODE  Unprivileged mode
+ */
+uint32_t tfm_spm_partition_get_privileged_mode(uint32_t partition_idx);
+
 /******************** Service handle management functions ********************/
 
 /**
@@ -279,22 +289,38 @@ int32_t tfm_spm_check_client_version(struct tfm_spm_service_t *service,
                                      uint32_t minor_version);
 
 /**
- * \brief                   Check the memory reference is valid.
+ * \brief                      Check the memory reference is valid.
  *
- * \param[in] buffer        Pointer of memory reference
- * \param[in] len           Length of memory reference in bytes
- * \param[in] ns_caller     From non-secure caller
- * \param[in] access        Type of access specified by the
- *                          \ref tfm_memory_access_e
+ * \param[in] buffer           Pointer of memory reference
+ * \param[in] len              Length of memory reference in bytes
+ * \param[in] ns_caller        From non-secure caller
+ * \param[in] access           Type of access specified by the
+ *                             \ref tfm_memory_access_e
+ * \param[in] privileged       Privileged mode or unprivileged mode:
+ *                             \ref TFM_PARTITION_UNPRIVILEGED_MODE
+ *                             \ref TFM_PARTITION_PRIVILEGED_MODE
  *
- * \retval IPC_SUCCESS      Success
- * \retval IPC_ERROR_BAD_PARAMETERS Bad parameters input
- * \retval IPC_ERROR_MEMORY_CHECK Check failed
+ * \retval IPC_SUCCESS               Success
+ * \retval IPC_ERROR_BAD_PARAMETERS  Bad parameters input
+ * \retval IPC_ERROR_MEMORY_CHECK    Check failed
  */
 int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller,
-                         enum tfm_memory_access_e access);
+                         enum tfm_memory_access_e access,
+                         uint32_t privileged);
 
 /* This function should be called before schedule function */
 void tfm_spm_init(void);
+
+/*
+ * PendSV specified function.
+ *
+ * Parameters :
+ *  ctxb        -    State context storage pointer
+ *
+ * Notes:
+ *  This is a staging API. Scheduler should be called in SPM finally and
+ *  this function will be obsoleted later.
+ */
+void tfm_pendsv_do_schedule(struct tfm_state_context_ext *ctxb);
 
 #endif

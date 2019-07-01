@@ -12,6 +12,15 @@
 #include "tfm_api.h"
 #include "flash_layout.h"
 #include "secure_fw/spm/spm_api.h"
+#ifdef TFM_PSA_API
+#include "tfm_internal_defines.h"
+#include "tfm_utils.h"
+#include "psa_service.h"
+#include "tfm_thread.h"
+#include "tfm_wait.h"
+#include "tfm_message_queue.h"
+#include "tfm_spm.h"
+#endif
 
 /*!
  * \def BOOT_DATA_VALID
@@ -60,13 +69,19 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
     uint8_t *buf_start = (uint8_t *)args[1];
     uint16_t buf_size  = (uint16_t)args[2];
     uint8_t *ptr;
-    uint32_t running_partition_idx =
-            tfm_spm_partition_get_running_partition_idx();
     struct tfm_boot_data *boot_data;
     struct shared_data_tlv_entry tlv_entry;
     uintptr_t tlv_end, offset;
+#ifndef TFM_PSA_API
+    uint32_t running_partition_idx =
+                tfm_spm_partition_get_running_partition_idx();
     uint32_t res;
+#else
+    struct tfm_spm_ipc_partition_t *partition = NULL;
+    uint32_t privileged;
+#endif
 
+#ifndef TFM_PSA_API
     /* Make sure that the output pointer points to a memory area that is owned
      * by the partition
      */
@@ -79,6 +94,20 @@ void tfm_core_get_boot_data_handler(uint32_t args[])
         args[0] = TFM_ERROR_INVALID_PARAMETER;
         return;
     }
+#else
+    partition = tfm_spm_get_running_partition();
+    if (!partition) {
+        tfm_panic();
+    }
+    privileged = tfm_spm_partition_get_privileged_mode(partition->index);
+
+    if (tfm_memory_check(buf_start, buf_size, false, TFM_MEMORY_ACCESS_RW,
+        privileged) != IPC_SUCCESS) {
+        /* Not in accessible range, return error */
+        args[0] = TFM_ERROR_INVALID_PARAMETER;
+        return;
+    }
+#endif
 
     /* FixMe: Check whether caller has access right to given tlv_major_type */
 
