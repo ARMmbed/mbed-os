@@ -33,7 +33,7 @@ VirtualWatchdog *VirtualWatchdog::_first = NULL;
 bool VirtualWatchdog::_is_hw_watchdog_running = false;
 us_timestamp_t VirtualWatchdog::_ticker_timeout = 0;
 
-VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str, uint32_t watchdog_hw_timeout) : _name(str)
+VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str) : _name(str)
 {
     _current_count = 0;
     _is_initialized = false;
@@ -45,9 +45,8 @@ VirtualWatchdog::VirtualWatchdog(uint32_t timeout, const char *const str, uint32
         if (watchdog.is_running() == true) {
             MBED_MAKE_ERROR(MBED_MODULE_DRIVER_WATCHDOG, MBED_ERROR_INITIALIZATION_FAILED);
         }
-        // we use default hw timeout provided by config
-        watchdog.start(watchdog_hw_timeout);
-        _ticker_timeout = MS_TO_US(watchdog_hw_timeout / 2);
+        watchdog.start(timeout);
+        _ticker_timeout = MS_TO_US(timeout / 2);
         if (_ticker_timeout == 0) {
             _ticker_timeout = 1;
         }
