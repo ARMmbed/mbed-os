@@ -132,7 +132,7 @@ void wait_us(int us)
  * the hassle of handling multiple toolchains with different assembler
  * syntax.
  */
-MBED_ALIGN(8)
+MBED_ALIGN(16)
 static const uint16_t delay_loop_code[] = {
     0x1E40, // SUBS R0,R0,#1
     0xBF00, // NOP
