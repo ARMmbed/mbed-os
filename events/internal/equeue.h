@@ -1,10 +1,8 @@
 
-/** \addtogroup events */
-/** @{*/
 /*
  * Flexible event queue for dispatching events
  *
- * Copyright (c) 2016 Christopher Haster
+ * Copyright (c) 2016-2019 Christopher Haster
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +24,14 @@ extern "C" {
 #endif
 
 // Platform specific files
-#include "equeue/equeue_platform.h"
+#include "events/internal/equeue_platform.h"
 
 #include <stddef.h>
 #include <stdint.h>
 
+/** \ingroup events */
+/** \addtogroup events-internal-api Internal API */
+/** @{*/
 
 // The minimum size of an event
 // This size is guaranteed to fit events created by event_call
@@ -225,11 +226,10 @@ void equeue_background(equeue_t *queue,
 // platform-specific error code.
 int equeue_chain(equeue_t *queue, equeue_t *target);
 
+/** @}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
-/** @}*/

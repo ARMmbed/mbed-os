@@ -1,5 +1,5 @@
 /* Mbed Microcontroller Library
- * Copyright (c) 2017-2018 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
 
 namespace rtos {
 /** \ingroup rtos */
-/** \addtogroup mbed-os-api Public API */
+/** \addtogroup rtos-public-api RTOS Public API */
 /** @{*/
 
 struct Waiter;

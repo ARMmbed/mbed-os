@@ -1,5 +1,5 @@
-/* events
- * Copyright (c) 2016 ARM Limited
+/*
+ * Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,20 +21,25 @@
 #include "platform/mbed_assert.h"
 
 namespace events {
-/** \addtogroup events */
+/** \ingroup events */
+/** \addtogroup events-public-api Public API */
+/** @{*/
 
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename F>
 class Event;
 
+/**
+ * \defgroup events_Event Event<void()> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <>
 class Event<void()> {
@@ -483,10 +488,16 @@ public:
     }
 };
 
+/** @}*/
+
+/**
+ * \defgroup events_EventA0 Event<void(A0)> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename A0>
 class Event<void(A0)> {
@@ -939,10 +950,16 @@ public:
     }
 };
 
+/** @}*/
+
+/**
+ * \defgroup events_EventA0A1 Event<void(A0, A1)> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename A0, typename A1>
 class Event<void(A0, A1)> {
@@ -1395,10 +1412,16 @@ public:
     }
 };
 
+/** @}*/
+
+/**
+ * \defgroup events_EventA0A1A2 Event<void(A0, A1, A2)> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename A0, typename A1, typename A2>
 class Event<void(A0, A1, A2)> {
@@ -1851,10 +1874,16 @@ public:
     }
 };
 
+/** @}*/
+
+/**
+ * \defgroup events_EventA0A1A2A3 Event<void(A0, A1, A2, A3)> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename A0, typename A1, typename A2, typename A3>
 class Event<void(A0, A1, A2, A3)> {
@@ -2306,12 +2335,20 @@ public:
     {
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3, b4);
     }
+#endif // DOXYGEN_ONLY
 };
+
+/** @}*/
+
+
+/**
+ * \defgroup events_EventA0A1A2A3A4 Event<void(A0, A1, A2, A3, A4)> class
+ * @{
+ */
 
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename A0, typename A1, typename A2, typename A3, typename A4>
 class Event<void(A0, A1, A2, A3, A4)> {
@@ -2764,12 +2801,11 @@ public:
     }
 };
 
-
-/** \addtogroup events */
-/** @{ */
+/** @}*/
 
 // Convenience functions declared here to avoid cyclic
 // dependency between Event and EventQueue
+#if !defined(DOXYGEN_ONLY)
 template <typename R>
 Event<void()> EventQueue::event(R(*func)())
 {
@@ -4065,9 +4101,9 @@ Event<void(A0, A1, A2, A3, A4)> EventQueue::event(mbed::Callback<R(B0, B1, B2, B
 {
     return Event<void(A0, A1, A2, A3, A4)>(this, cb, c0, c1, c2, c3, c4);
 }
-#endif
+#endif // DOXYGEN_ONLY
+
+/** @}*/
 }
 
 #endif
-
-/** @}*/

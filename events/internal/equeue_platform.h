@@ -1,10 +1,7 @@
-
-/** \addtogroup events */
-/** @{*/
 /*
  * System specific implementation
  *
- * Copyright (c) 2016 Christopher Haster
+ * Copyright (c) 2016-2019 Christopher Haster
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +23,10 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+
+/** \ingroup events */
+/** \addtogroup events-internal-api */
+/** @{*/
 
 // Currently supported platforms
 //
@@ -142,11 +143,10 @@ void equeue_sema_destroy(equeue_sema_t *sema);
 void equeue_sema_signal(equeue_sema_t *sema);
 bool equeue_sema_wait(equeue_sema_t *sema, int ms);
 
+/** @}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
-/** @}*/

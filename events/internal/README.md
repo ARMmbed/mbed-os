@@ -207,4 +207,3 @@ comparison with previous runs:
 make prof | tee results.txt
 cat results.txt | make prof
 ```
-

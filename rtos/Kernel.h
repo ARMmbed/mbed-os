@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 
 namespace rtos {
 /** \ingroup rtos */
-/** \addtogroup mbed-os-api */
+/** \addtogroup rtos-public-api */
 /** @{*/
 
 /** Functions in the Kernel namespace control RTOS kernel information. */
