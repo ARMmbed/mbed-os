@@ -37,7 +37,8 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** VirtualWatchdog should be used for applications where you use multiple services requiring watchdog functionality.
- *   Use `Watchdog` driver for simple uses cases like bootloader.
+ *   Use `Watchdog` driver for simple uses cases like bootloader. Do not use both drivers at the same time - VirtualWatchdog will error
+ *   if it is not the only owner of the watchdog.
  *
  *  A system timer that will reset the system in the case of system failures or
  *  malfunctions.
