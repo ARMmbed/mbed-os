@@ -378,9 +378,8 @@ bool AT_CellularContext::get_context()
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
-                // Accept exact matching PDP context type or dual PDP context for IPv4/IPv6 only modems
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
-                        ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
+                // Accept exact matching PDP context type
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type))) {
                     _pdp_type = pdp_type;
                     _cid = cid;
                 }
