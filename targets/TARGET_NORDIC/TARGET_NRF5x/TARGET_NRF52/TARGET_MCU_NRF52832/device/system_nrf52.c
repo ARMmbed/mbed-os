@@ -216,7 +216,7 @@ void SystemInit(void)
     while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
         // Do nothing.
     }
-
+    NRF_NVMC->ICACHECNF=0x01;
     /**
      * Mbed HAL specific code section.
      *
