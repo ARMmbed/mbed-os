@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_US_TICKER_DEFINES_H
+#ifndef MBED_US_TICKER_DEFINES_H_
 #define MBED_US_TICKER_DEFINES_H_
 
 #include "us_ticker_data.h"
