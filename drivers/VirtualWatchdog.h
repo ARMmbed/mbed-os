@@ -26,6 +26,7 @@
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_assert.h"
 #include "platform/SingletonPtr.h"
+#include "drivers/Watchdog.h"
 
 #if DEVICE_LPTICKER
 #include "drivers/LowPowerTicker.h"
@@ -65,11 +66,13 @@ public:
 
     /** Constructor configured with timeout and name for this software watchdog instance.
      *
-     * We start hardware watchdog on  the first run. This set-up uses default watchdog timeout set via config value
-     * MBED_CONF_TARGET_WATCHDOG_TIMEOUT.
+     *  @param timeout Timer timeout
+     *  @param str The name for this watchdog timer
+     *  @param watchdog_hw_timeout The watchdog driver timeout - can be set only once (as soon as watchdog runs, cannot be reconfigured)
      *
      */
-    VirtualWatchdog(uint32_t timeout = 1000, const char *const str = NULL);
+    VirtualWatchdog(uint32_t timeout = 1000, const char *const str = NULL, uint32_t watchdog_hw_timeout = Watchdog::watchdog_timeout);
+
     ~VirtualWatchdog();
 public:
 
