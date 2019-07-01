@@ -57,7 +57,7 @@ namespace mbed {
  *    // Application code
  * }
  * @endcode
- * @ingroup platform
+ * @ingroup drivers
  */
 class VirtualWatchdog {
 public:
@@ -72,7 +72,7 @@ public:
     ~VirtualWatchdog();
 public:
 
-    /** Start an independent watchdog timer with specified parameters.
+    /** Start an independent watchdog timer with specified parameters in the constructor.
      *
      * Assert for multiple calls of start.
      */
