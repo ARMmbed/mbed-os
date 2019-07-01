@@ -66,12 +66,13 @@ public:
 
     /** Constructor configured with timeout and name for this software watchdog instance.
      *
+     * Note, the first instance of VirtualWatchog configures the hardware watchdog peripheral (uses timeout value passed here).
+     *
      *  @param timeout Timer timeout
      *  @param str The name for this watchdog timer
-     *  @param watchdog_hw_timeout The watchdog driver timeout - can be set only once (as soon as watchdog runs, cannot be reconfigured)
      *
      */
-    VirtualWatchdog(uint32_t timeout = 1000, const char *const str = NULL, uint32_t watchdog_hw_timeout = Watchdog::watchdog_timeout);
+    VirtualWatchdog(uint32_t timeout = 1000, const char *const str = NULL);
 
     ~VirtualWatchdog();
 public:
