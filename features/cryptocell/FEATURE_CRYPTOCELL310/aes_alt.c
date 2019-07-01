@@ -111,9 +111,10 @@ void mbedtls_aes_xts_init( mbedtls_aes_xts_context *ctx ){}
 void mbedtls_aes_xts_free( mbedtls_aes_xts_context *ctx ){}
 #endif /* MBEDTLS_CIPHER_MODE_XTS */
 
-int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+static int CC_aes_setkey( mbedtls_aes_context *ctx, const unsigned char *key,
+                          unsigned int keybits, SaSiAesEncryptMode_t cipher_flag )
 {
+
     int ret = 0;
     if ( ctx == NULL )
         return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
@@ -122,7 +123,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
     {
         case 128:
         {
-            ctx->CC_cipherFlag = SASI_AES_ENCRYPT;
+            ctx->CC_cipherFlag = cipher_flag;
             ctx->CC_keySizeInBytes = ( keybits / 8 );
             memcpy( ctx->CC_Key, key, ctx->CC_keySizeInBytes );
         }
@@ -137,32 +138,16 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
     return ( 0 );
 
 }
+int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
+                    unsigned int keybits )
+{
+    return( CC_aes_setkey( ctx, key, keybits, SASI_AES_ENCRYPT ) );
+}
 
 int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits )
 {
-    int ret = 0;
-    if( ctx == NULL )
-        return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
-
-    switch( keybits )
-    {
-        case 128:
-        {
-            ctx->CC_cipherFlag = SASI_AES_DECRYPT;
-            ctx->CC_keySizeInBytes = ( keybits / 8 );
-            memcpy( ctx->CC_Key, key, ctx->CC_keySizeInBytes );
-        }
-        break;
-        case 192:
-        case 256:
-            return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
-        default:
-            return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
-    }
-
-    return( 0 );
-
+    return( CC_aes_setkey( ctx, key, keybits, SASI_AES_DECRYPT ) );
 }
 
 static int CC_aes_cipher( mbedtls_aes_context *ctx,
@@ -237,7 +222,6 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
         return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
 
     return( CC_aes_cipher( ctx, mode, SASI_AES_MODE_ECB, 16, NULL, 0, input, output ) );
-
 }
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
@@ -250,7 +234,6 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
 {
     if( ctx == NULL )
         return ( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
-
 
     if( length % SASI_AES_BLOCK_SIZE_IN_BYTES )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
@@ -317,7 +300,6 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
         {
             goto exit;
         }
-
     }
     *nc_off = ( length % SASI_AES_BLOCK_SIZE_IN_BYTES );
 
@@ -326,4 +308,3 @@ exit:
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 #endif/* MBEDTLS_AES_ALT */
-
