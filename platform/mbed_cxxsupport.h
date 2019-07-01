@@ -86,6 +86,7 @@ using false_type = integral_constant<bool, false>;
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include <functional>
 #endif
 
 /* Add some foundational stuff from C++17 or later or TS into namespace mbed */
@@ -123,6 +124,10 @@ using std::bool_constant;
 template <bool B>
 using bool_constant = std::integral_constant<bool, B>;
 #endif
+
+/* Forward declarations */
+template <typename F, typename... Args>
+struct invoke_result;
 
 } // namespace mbed
 
@@ -167,6 +172,9 @@ struct is_object;
 
 template <typename T>
 struct is_reference;
+
+template <typename T>
+class reference_wrapper;
 
 } // namespace std
 #endif // __CC_ARM
@@ -930,7 +938,15 @@ struct underlying_type : mbed::type_identity<__underlying_type(T)> { };
 template <typename T>
 using underlying_type_t = typename underlying_type<T>::type;
 
-/* result_of not implemented */
+/* result_of */
+template <typename>
+struct result_of;
+
+template <typename F, typename... Args>
+struct result_of<F(Args...)> : mbed::invoke_result<F, Args...> { };
+
+template <typename T>
+using result_of_t = typename result_of<T>::type;
 
 /* addressof */
 template <typename T>
@@ -1216,6 +1232,168 @@ template <typename T>
 void as_const(T &&) = delete;
 #endif
 
+/* C++17 invoke_result, is_invocable, invoke */
+#if __cplusplus >= 201703 || __cpp_lib_is_invocable >= 201703
+/* Library has complete suite - pull it into mbed */
+using std::invoke_result;
+using std::invoke_result_t;
+using std::is_invocable;
+using std::is_nothrow_invocable;
+using std::is_invocable_r;
+using std::is_nothrow_invocable_r;
+using std::invoke;
+#else // __cpp_lib_is_invocable
+namespace impl {
+#if __cpp_lib_invoke >= 201411
+/* Library has just invoke - make it our impl::INVOKE so we can create invoke_result */
+template <typename F, typename... Args>
+using INVOKE = std::invoke<F, Args...>;
+#else // __cpp_lib_invoke
+/* Define our own INVOKE */
+template <typename T>
+struct is_reference_wrapper : std::false_type { };
+
+template <typename T>
+struct is_reference_wrapper<std::reference_wrapper<T>> : std::true_type { };
+
+/* F is pointer to member function, and 1st arg decays to matching class */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+// Noexcept specifications generate compiler errors unpacking args
+//noexcept(noexcept((std::forward<T1>(target).*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     std::is_base_of<Base, std::decay_t<T1>>::value,
+                     decltype((std::forward<T1>(target).*fn)(std::forward<Args>(args)...))>
+{
+    return (std::forward<T1>(target).*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member function, and 1st arg is a reference wrapper  */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+//noexcept(noexcept((std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype((std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...))>
+{
+    return (std::forward<T1>(target).get().*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member function, and 1st arg doesn't match class and isn't reference wrapper - assume pointer */
+template<typename Base, typename F, typename T1, class... Args>
+auto INVOKE(F Base::* fn, T1 &&target, Args &&...args)
+//noexcept(noexcept(((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<std::is_function<F>::value &&
+                     !std::is_base_of<Base, std::decay_t<T1>>::value &&
+                     !is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype(((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...))>
+{
+    return ((*std::forward<T1>(target)).*fn)(std::forward<Args>(args)...);
+}
+/* F is pointer to member object, and only arg decays to matching class */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept(std::forward<T1>(target).*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     std::is_base_of<Base, std::decay_t<T1>>::value,
+                     decltype(std::forward<T1>(target).*obj)>
+{
+    return std::forward<T1>(target).*obj;
+}
+/* F is pointer to member object, and only arg is a reference wrapper */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept(std::forward<T1>(target).get().*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype(std::forward<T1>(target).get().*obj)>
+{
+    return std::forward<T1>(target).get().*obj;
+}
+/* F is pointer to member object, and only arg doesn't match class and isn't reference wrapper - assume pointer */
+template<typename Base, typename F, typename T1>
+auto INVOKE(F Base::* obj, T1 &&target)
+//noexcept(noexcept((*std::forward<T1>(target)).*obj))
+ -> std::enable_if_t<!std::is_function<F>::value &&
+                     !std::is_base_of<Base, std::decay_t<T1>>::value &&
+                     !is_reference_wrapper<std::decay_t<T1>>::value,
+                     decltype((*std::forward<T1>(target)).*obj)>
+{
+    return (*std::forward<T1>(target)).*obj;
+}
+/* F is not a pointer to member */
+template<typename F, typename... Args>
+auto INVOKE(F&& f, Args&&... args)
+//noexcept(noexcept(std::forward<F>(f)(std::forward<Args>(args)...)))
+ -> std::enable_if_t<!std::is_member_pointer<std::decay_t<F>>::value ||
+                      (std::is_member_object_pointer<std::decay_t<F>>::value && sizeof...(args) != 1),
+                     decltype(std::forward<F>(f)(std::forward<Args>(args)...))>
+{
+    return std::forward<F>(f)(std::forward<Args>(args)...);
+}
+#endif // __cpp_lib_invoke
+
+template <typename Void, typename F, typename... Args>
+struct invoke_result { };
+template <typename F, typename... Args> // void_t<decltype(INVOKE)> appears not to work here - why?
+struct invoke_result<decltype(void(INVOKE(std::declval<F>(), std::declval<Args>()...))), F, Args...> :
+    type_identity<decltype(INVOKE(std::declval<F>(), std::declval<Args>()...))> { };
+
+// This would be a lot shorter if we could get the detector idiom to work and use it
+template <typename R, typename InvokeResult, typename = void>
+struct is_invocable_r : std::false_type { };
+template <typename R, typename InvokeResult>
+struct is_invocable_r <R, InvokeResult, void_t<typename InvokeResult::type>> :
+    disjunction<std::is_void<R>, std::is_convertible<typename InvokeResult::type, R>> { };
+
+template <typename R, typename InvokeResult, typename = void>
+struct is_nothrow_invocable_r : std::false_type { };
+template <typename R, typename InvokeResult>
+struct is_nothrow_invocable_r<R, InvokeResult, void_t<typename InvokeResult::type>> :
+    disjunction<std::is_void<R>,
+                     conjunction<std::is_convertible<typename InvokeResult::type, R>,
+                                 std::is_nothrow_constructible<R, typename InvokeResult::type>>> { };
+
+} //namespace impl
+
+template <class F, class... Args>
+struct invoke_result : impl::invoke_result<void, F, Args...> { };
+
+template <class F, class... Args>
+using invoke_result_t = typename invoke_result<F, Args...>::type;
+
+template <class F, class... Args>
+struct is_invocable : impl::is_invocable_r<void, invoke_result<F, Args...>> { };
+
+#if 0 // No exceptions in mbed OS
+template <class F, class... Args>
+struct is_nothrow_invocable : impl::is_nothrow_invocable_r<void, invoke_result<F, Args...>> { };
+#else
+template <class F, class... Args>
+struct is_nothrow_invocable : impl::is_invocable_r<void, invoke_result<F, Args...>> { };
+#endif
+
+template <typename R, typename F, typename... Args>
+struct is_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...>> { };
+
+#if 0 // No exceptions in mbed OS
+template <typename R, typename F, typename... Args>
+struct is_nothrow_invocable_r : conjunction<impl::is_nothrow_invocable_r<R, invoke_result<F>>,
+                                            std::is_convertible<invoke_result_t<F, Args...>, R>> { };
+#else
+template <typename R, typename F, typename... Args>
+struct is_nothrow_invocable_r : impl::is_invocable_r<R, invoke_result<F, Args...>> { };
+#endif
+
+#if __cpp_lib_invoke >= 201411
+using std::invoke;
+#else
+template <typename F, typename... Args>
+invoke_result_t<F, Args...> invoke(F&& f, Args&&... args)
+{
+    return impl::INVOKE(std::forward<F>(f), std::forward<Args>(args)...);
+}
+#endif // __cpp_lib_invoke
+#endif // __cpp_lib_is_invocable
+
 /* C++20 remove_cvref */
 template <typename T>
 struct remove_cvref : type_identity<std::remove_cv_t<std::remove_reference_t<T>>> { };
@@ -1223,6 +1401,112 @@ struct remove_cvref : type_identity<std::remove_cv_t<std::remove_reference_t<T>>
 template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
+/* C++20 unwrap_reference */
+template <typename T>
+struct unwrap_reference : type_identity<T> { };
+template <typename T>
+struct unwrap_reference<std::reference_wrapper<T>> : type_identity<T &> { };
+template <typename T>
+using unwrap_reference_t = typename unwrap_reference<T>::type;
+
+/* C++20 unwrap_ref_decay */
+template <typename T>
+struct unwrap_ref_decay : unwrap_reference<std::decay_t<T>> { };
+template <typename T>
+using unwrap_ref_decay_t = typename unwrap_ref_decay<T>::type;
+
 } // namespace mbed
+
+#ifdef __CC_ARM
+/* More C++11 functional stuff, using mbed::invoke */
+namespace std {
+
+/* mem_fn */
+namespace impl {
+template <typename R, typename T>
+class mem_fn_t {
+    R T::* pm;
+public:
+    mem_fn_t(R T::* pm) : pm(pm) { }
+    template <typename... Args>
+    mbed::invoke_result_t<R T::*, Args...> operator()(Args&&... args) const
+    {
+        return mbed::invoke(pm, std::forward<Args>(args)...);
+    }
+};
+}
+
+template <class R, class T>
+impl::mem_fn_t<R, T> mem_fn(R T::* pm)
+{
+    return impl::mem_fn_t<R, T>(pm);
+}
+
+/* reference_wrapper */
+template <typename T>
+class reference_wrapper {
+    T &FUN(T &x) noexcept { return x; }
+    void FUN(T &&x) = delete;
+    T *ptr;
+public:
+    using type = T;
+#if 0
+    // decltype doesn't seem to work well enough for this revised version
+    template <typename U,
+                typename = enable_if_t<!is_same<reference_wrapper, decay_t<U>>::value &&
+                                       !is_void<decltype(FUN(declval<U>()))>::value>>
+    reference_wrapper(U&& x) //noexcept(noexcept(FUN(declval<U>())))
+        : ptr(addressof(FUN(forward<U>(x)))) { }
+#else
+    reference_wrapper(T &x) noexcept : ptr(addressof(x)) { }
+    reference_wrapper(T &&x) = delete;
+#endif
+
+    reference_wrapper(const reference_wrapper &) noexcept = default;
+    reference_wrapper &operator=(const reference_wrapper &) noexcept = default;
+
+    operator T &() const noexcept { return *ptr; }
+    T &get() const noexcept { return *ptr; }
+
+    template <typename... ArgTypes>
+    mbed::invoke_result_t<T &, ArgTypes...> operator()(ArgTypes&&... args) const
+    {
+        return mbed::invoke(get(), forward<ArgTypes>(args)...);
+    }
+};
+
+/* ref, cref */
+template <typename T>
+reference_wrapper<T> ref(T &t) noexcept
+{
+    return reference_wrapper<T>(t);
+}
+
+template <typename T>
+reference_wrapper<T> ref(reference_wrapper<T> &t) noexcept
+{
+    return ref(t.get());
+}
+
+template <typename T>
+void ref(const T &&) = delete;
+
+template <typename T>
+reference_wrapper<const T> cref(const T &t) noexcept
+{
+    return reference_wrapper<const T>(t);
+}
+
+template <typename T>
+reference_wrapper<const T> cref(reference_wrapper<T> &t) noexcept
+{
+    return cref(t.get());
+}
+
+template <typename T>
+void cref(const T &&) = delete;
+
+} // namespace std
+#endif // _CC_ARM
 
 #endif // MBED_CXXSUPPORT_H
