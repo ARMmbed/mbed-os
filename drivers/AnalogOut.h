@@ -138,7 +138,8 @@ public:
 
     virtual ~AnalogOut()
     {
-        // Do nothing
+        // deinitialize the pin configuration totally. This should allow chaining the definition of the pin
+          analogout_free(&this->_dac);
     }
 
 protected:
