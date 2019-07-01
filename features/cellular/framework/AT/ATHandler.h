@@ -24,8 +24,8 @@
 #include "PlatformMutex.h"
 #include "nsapi_types.h"
 
-#include "PlatformMutex.h"
 #include "Callback.h"
+
 #include <cstdarg>
 
 namespace mbed {
@@ -549,7 +549,7 @@ private:
 
 private:
     //Handles the arguments from given variadic list
-    void handle_args(const char *format, va_list list);
+    void handle_args(const char *format, std::va_list list);
 
     //Starts an AT command based on given parameters
     void handle_start(const char *cmd, const char *cmd_chr);
