@@ -35,34 +35,16 @@ protected:
 };
 // *INDENT-ON*
 
-TEST_F(TestWatchdog, test_watchdog_start_pass)
+TEST_F(TestWatchdog, test_watchdog_start_stop_get_timeout)
 {
-    EXPECT_TRUE(Watchdog::get_instance().start());
-}
-
-TEST_F(TestWatchdog, test_watchdog_start_fail)
-{
-    EXPECT_FALSE(Watchdog::get_instance().start());
-}
-
-TEST_F(TestWatchdog, test_watchdog_stop_pass)
-{
+    EXPECT_TRUE(Watchdog::get_instance().start(500));
+    EXPECT_FALSE(Watchdog::get_instance().start(2000));
     EXPECT_TRUE(Watchdog::get_instance().stop());
-}
-
-TEST_F(TestWatchdog, test_watchdog_stop_fail)
-{
     EXPECT_FALSE(Watchdog::get_instance().stop());
+    EXPECT_EQ(500, Watchdog::get_instance().get_timeout());
 }
 
 TEST_F(TestWatchdog, test_watchdog_get_max_timeout)
 {
     EXPECT_EQ(0xFFFFFFFF, Watchdog::get_instance().get_max_timeout());
 }
-
-
-TEST_F(TestWatchdog, test_watchdog_get_timeout)
-{
-    EXPECT_EQ(Watchdog::watchdog_timeout, Watchdog::get_instance().get_timeout());
-}
-
