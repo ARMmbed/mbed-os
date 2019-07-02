@@ -107,7 +107,7 @@ nsapi_error_t STModCellular::soft_power_on()
     _at->restore_at_timeout();
     _at->unlock();
 
-    tr_debug("Modem %sready to receive AT commands", rdy ? "" : "NOT ");
+    tr_debug("Modem %sready to receive AT commands\r\n", rdy ? "" : "NOT ");
 
 #if DEVICE_SERIAL_FC
     if ((MBED_CONF_STMOD_CELLULAR_CTS != NC) && (MBED_CONF_STMOD_CELLULAR_RTS != NC)) {
@@ -126,9 +126,9 @@ nsapi_error_t STModCellular::soft_power_on()
         _at->unlock();
 
         if (err == NSAPI_ERROR_OK) {
-            tr_debug("Flow control turned ON");
+            tr_debug("Flow control turned ON\r\n");
         } else {
-            tr_error("Failed to enable hw flow control");
+            tr_error("Failed to enable hw flow control\r\n");
         }
     }
 #endif
@@ -164,7 +164,7 @@ CellularDevice *CellularDevice::get_default_instance()
 
     static UARTSerial serial(MBED_CONF_STMOD_CELLULAR_TX, MBED_CONF_STMOD_CELLULAR_RX, MBED_CONF_STMOD_CELLULAR_BAUDRATE);
 #if defined (MBED_CONF_STMOD_CELLULAR_RTS) && defined(MBED_CONF_STMOD_CELLULAR_CTS)
-    tr_debug("STMOD_CELLULAR flow control: RTS %d CTS %d", MBED_CONF_STMOD_CELLULAR_RTS, MBED_CONF_STMOD_CELLULAR_CTS);
+    tr_debug("STMOD_CELLULAR flow control: RTS %d CTS %d\r\n", MBED_CONF_STMOD_CELLULAR_RTS, MBED_CONF_STMOD_CELLULAR_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_STMOD_CELLULAR_RTS, MBED_CONF_STMOD_CELLULAR_CTS);
 #endif
     static STModCellular device(&serial);
