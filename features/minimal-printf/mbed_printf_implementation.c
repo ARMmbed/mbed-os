@@ -155,7 +155,7 @@ typedef enum {
  */
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
-static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
+static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value, bool upper);
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, const void* value);
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character);
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string, size_t precision);
@@ -268,8 +268,9 @@ static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, 
  * @param[in]  length  The length of the buffer.
  * @param      result  The current output location.
  * @param[in]  value   The value to be printed.
+ * @param      upper   Flag to print the hexadecimal in upper or lower case.
  */
-static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value)
+static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value, bool upper)
 {
     bool print_leading_zero = false;
 
@@ -284,8 +285,11 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
             unsigned int nibble_one = (output >> 4);
             unsigned int nibble_two = (output & 0x0F);
 
-            const char int2hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+            const char int2hex_lower[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+                                       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+            const char int2hex_upper[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                                        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+            const char *int2hex = upper ? int2hex_upper : int2hex_lower;
 
             if (print_leading_zero || nibble_one != 0) {
                 mbed_minimal_putchar(buffer, length, result, int2hex[nibble_one]);
@@ -313,7 +317,7 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
     mbed_minimal_putchar(buffer, length, result, 'x');
 
     /* write rest as a regular hexadecimal number */
-    mbed_minimal_formatted_string_hexadecimal(buffer, length, result, (ptrdiff_t) value);
+    mbed_minimal_formatted_string_hexadecimal(buffer, length, result, (ptrdiff_t) value, true);
 }
 
 #if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
@@ -365,6 +369,18 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
     if (!((value > -0.5) && (value < 0.5)))
     {
         decimal++;
+    }
+
+    /* convert precision to unsigned integer */
+    MBED_UNSIGNED_STORAGE precision_in_uint = precision;
+    precision_in_uint /= 10;
+
+    /* ensure that leading zeros are printed if decimal equals 0  */
+    MBED_UNSIGNED_STORAGE val = decimal ? decimal : decimal + 1;
+    while (precision_in_uint > val) {
+        /* print leading zeros */
+        mbed_minimal_putchar(buffer, length, result, '0');
+        precision_in_uint /= 10;
     }
 
     /* write decimal part */
@@ -694,7 +710,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                     }
                     else
                     {
-                        mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value);
+                        mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value, next == 'X');
                     }
                 }
 #if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
