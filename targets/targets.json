@@ -1889,7 +1889,6 @@
         },
         "overrides": {
             "deep-sleep-latency": 3,
-            "tickless-from-us-ticker": true,
             "init-us-ticker-at-boot": true
         },
         "device_has": [
@@ -2545,7 +2544,7 @@
         "macros_add": [
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
         "detect_code": ["0744"],
         "device_has_add": [
             "ANALOGOUT",
@@ -2716,7 +2715,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
         "detect_code": ["0743"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -2758,7 +2757,7 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true},
         "detect_code": ["0743"],
         "macros_add": [
             "MBED_TICKLESS",
@@ -3042,6 +3041,7 @@
         },
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER"
         ],
         "supported_form_factors": ["ARDUINO"],
@@ -3061,7 +3061,7 @@
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3093,6 +3093,7 @@
         },
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
@@ -3112,7 +3113,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG",
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3150,6 +3151,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER"
         ],
         "detect_code": ["0818"],
@@ -3168,7 +3170,7 @@
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3202,9 +3204,10 @@
         },
         "macros_add": [
             "STM32H743xx",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "MBED_TICKLESS"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0813"],
         "device_has_add": [
@@ -3270,7 +3273,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
         "detect_code": ["0780"],
         "device_has_add": [
             "CRC",
@@ -3296,7 +3302,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0790"],
         "device_has_add": [
             "CRC",
@@ -3322,7 +3331,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "macros_add": [
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0715"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3348,13 +3360,14 @@
             },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 0
+                "value": 1
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0760"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3406,9 +3419,9 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS", "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0770"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3440,9 +3453,9 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS", "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0779"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3501,10 +3514,11 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0765"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -3563,10 +3577,11 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0827"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "MBED_SPLIT_HEAP"
@@ -3970,9 +3985,13 @@
                 "value": 1
             }
         },
-        "overrides": {
+        "macros_add": [
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+            "overrides": {
             "lse_available": 0,
-            "lpticker_delay_ticks": 4
+            "lpticker_delay_ticks": 0
         },
         "device_has_add": [
             "ANALOGOUT",
@@ -4006,9 +4025,10 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0833"],
         "device_has_add": [
             "ANALOGOUT",
@@ -4073,6 +4093,7 @@
         "detect_code": ["0815"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USB_STM_HAL",
             "USBHOST_OTHER"
         ],
@@ -4092,7 +4113,7 @@
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -4126,6 +4147,7 @@
         "detect_code": ["0817"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USB_STM_HAL",
             "USBHOST_OTHER"
         ],
@@ -4145,7 +4167,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
-            "lpticker_delay_ticks": 4,
+            "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -4165,11 +4187,12 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -4233,10 +4256,11 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0820"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -4270,10 +4294,11 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["1500"],
         "macros_add": [
             "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED",
             "USBHOST_OTHER",
             "MBED_SPLIT_HEAP"
         ],
@@ -7735,9 +7760,10 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0822"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7771,9 +7797,10 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0823"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7810,9 +7837,10 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0776"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7849,9 +7877,10 @@
             }
         },
         "macros_add": [
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
-        "overrides": { "lpticker_delay_ticks": 4 },
+        "overrides": { "lpticker_delay_ticks": 0 },
         "detect_code": ["0839"],
         "device_has_add": [
 			"CRC",
