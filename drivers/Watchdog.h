@@ -31,7 +31,7 @@ namespace mbed {
 
 /** \addtogroup drivers */
 /** Hardware system timer that will reset the system in the case of system failures or
- *  malfunctions. There is only one instance in the system (for multiple system timers, see VirtualWatchdog driver).
+ *  malfunctions. There is only one instance in the system.
  *
  * Example:
  * @code

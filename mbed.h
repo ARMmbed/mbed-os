@@ -75,7 +75,6 @@
 #include "drivers/MbedCRC.h"
 #include "drivers/QSPI.h"
 #include "drivers/Watchdog.h"
-#include "drivers/VirtualWatchdog.h"
 
 // mbed Internal components
 #include "drivers/ResetReason.h"
