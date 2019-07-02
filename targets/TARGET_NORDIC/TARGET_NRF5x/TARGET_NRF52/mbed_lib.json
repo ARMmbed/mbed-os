@@ -200,6 +200,12 @@
                 "NRF52_ERRATA_20"
             ]
         },
+        "ARDUINO_NANO33BLE": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET",
+                "NRF52_ERRATA_20"
+            ]
+        },
         "MTB_LAIRD_BL654": {
             "target.macros_add": [
                 "CONFIG_GPIO_AS_PINRESET",
