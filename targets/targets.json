@@ -7350,6 +7350,16 @@
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA"
     },
+    "ARDUINO_NANO33BLE": {
+        "inherits": ["MCU_NRF52840"],
+        "release_versions": ["5"],
+        "device_name": "nRF52840_xxAA",
+        "features_add": ["BLE", "STORAGE"],
+        "components_remove": ["QSPIF"],
+        "components_add": ["FLASHIAP"],
+        "device_has_remove": ["QSPI"],
+        "device_has_add": ["FLASH"]
+    },
     "MTB_LAIRD_BL654": {
         "inherits": ["MCU_NRF52840"],
         "release_versions": ["5"],
