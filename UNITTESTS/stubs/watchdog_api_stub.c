@@ -17,8 +17,11 @@
 
 #if DEVICE_WATCHDOG
 
+static uint32_t _timeout = 0;
+
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
+    _timeout = config->timeout_ms;
     return WATCHDOG_STATUS_OK;
 }
 
@@ -34,9 +37,8 @@ watchdog_status_t hal_watchdog_stop(void)
 
 uint32_t hal_watchdog_get_reload_value(void)
 {
-    return (500);
+    return _timeout;
 }
-
 
 watchdog_features_t hal_watchdog_get_platform_features(void)
 {
