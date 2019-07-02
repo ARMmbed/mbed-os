@@ -352,6 +352,7 @@ public:
      */
     void add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
+#if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
     /** Remove event listener from interface.
      *
      * Remove previously added callback from the handler list.
@@ -359,6 +360,7 @@ public:
      *  @param status_cb The callback to unregister.
      */
     void remove_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+#endif
 
     /** Get the connection status.
      *

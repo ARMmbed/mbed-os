@@ -102,8 +102,6 @@ char emac_if_get_trace_level();
 
 void emac_if_trace_to_ascii_hex_dump(const char *prefix, int len, char *data);
 
-void emac_if_link_state_change_cb(void *data, bool up);
-
 unsigned char *emac_if_get_own_addr(void);
 
 int emac_if_get_mtu_size();

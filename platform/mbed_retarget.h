@@ -34,11 +34,8 @@
  */
 #ifndef __error_t_defined
 #define __error_t_defined 1
-#include <errno.h>
-#undef __error_t_defined
-#else
-#include <errno.h>
 #endif
+#include <errno.h>
 
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally

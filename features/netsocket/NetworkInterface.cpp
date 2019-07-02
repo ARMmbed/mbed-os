@@ -141,6 +141,7 @@ void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, int
     attach(mbed::callback(&call_all_event_listeners, this));
 }
 
+#if MBED_CONF_PLATFORM_CALLBACK_COMPARABLE
 void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     iface_eventlist_t *event_list = get_interface_event_list_head();
@@ -152,6 +153,7 @@ void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, 
         }
     }
 }
+#endif
 
 NetworkInterface::~NetworkInterface()
 {
