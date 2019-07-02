@@ -701,12 +701,12 @@ public:
         /**
          * Magnetic flux, weber.
          */
-        BLE_GATT_UNIT_MAGNETIC_FLEX_WEBER = 0x272C,
+        BLE_GATT_UNIT_MAGNETIC_FLUX_WEBER = 0x272C,
 
         /**
          * Magnetic flux density, tesla.
          */
-        BLE_GATT_UNIT_MAGNETIC_FLEX_DENSITY_TESLA = 0x272D,
+        BLE_GATT_UNIT_MAGNETIC_FLUX_DENSITY_TESLA = 0x272D,
 
         /**
          * Inductance, henry.
