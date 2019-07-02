@@ -51,7 +51,6 @@ namespace mbed {
  */
 class Watchdog : private NonCopyable<Watchdog>  {
 public:
-    static const uint32_t watchdog_timeout = 800;
 
     /** As Watchdog might not stop ever, there is just one instance - we use single instance.
       * This ensures we keep Watchdog alive. To operate watchdog, use start/stop methods.
@@ -65,6 +64,16 @@ public:
         return instance;
     }
 
+    /** Start the watchdog timer with the maximum timeout available on a target
+     *
+     *  Timeout is defined as get_max_timeout()
+     *
+     *  @return status true if the watchdog timer was started
+     *                 successfully. assert if one of the input parameters is out of range for the current platform.
+     *                 false if watchdog timer was not started
+     */
+    bool start();
+
     /** Start the watchdog timer
      *
      *  @param timeout Watchdog timeout
@@ -73,7 +82,7 @@ public:
      *                 successfully. assert if one of the input parameters is out of range for the current platform.
      *                 false if watchdog timer was not started
      */
-    bool start(uint32_t timeout = watchdog_timeout);
+    bool start(uint32_t timeout);
 
     /** Stops the watchdog timer
      *
