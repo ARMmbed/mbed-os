@@ -48,6 +48,11 @@ bool Watchdog::start(uint32_t timeout)
     return _running;
 }
 
+bool Watchdog::start()
+{
+
+    return start(get_max_timeout());
+}
 
 bool Watchdog::stop()
 {
