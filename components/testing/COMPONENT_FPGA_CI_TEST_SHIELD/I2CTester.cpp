@@ -62,6 +62,14 @@ uint32_t I2CTester::get_receive_checksum()
     return to_slave_checksum;
 }
 
+uint32_t I2CTester::get_send_checksum()
+{
+    uint32_t from_slave_checksum = 0;
+    MBED_ASSERT(sizeof(from_slave_checksum) == TESTER_I2C_FROM_SLAVE_CHECKSUM_SIZE);
+    read(TESTER_I2C_FROM_SLAVE_CHECKSUM, (uint8_t *)&from_slave_checksum, sizeof(from_slave_checksum));
+    return from_slave_checksum;
+}
+
 uint8_t I2CTester::state_num()
 {
     uint8_t state_num = 0;
