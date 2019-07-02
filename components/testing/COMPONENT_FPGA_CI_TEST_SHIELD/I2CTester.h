@@ -97,6 +97,13 @@ public:
     uint8_t num_dev_addr_matches();
 
     /**
+     * Get the number of times the device address has been sent incorrectly
+     *
+     * @return The number of times the device address has been sent incorrectly
+     */
+    uint8_t num_dev_addr_mismatches();
+
+    /**
      * Set the I2C slave device address
      *
      * @param addr New address for slave device
