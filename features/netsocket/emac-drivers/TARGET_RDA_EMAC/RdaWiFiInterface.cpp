@@ -99,7 +99,7 @@ nsapi_error_t RDAWiFiInterface::init()
             return err;
         }
         _interface->attach(_connection_status_cb);
-        rda_thread_new("daemon", daemon, this, DEFAULT_THREAD_STACKSIZE*4, osPriorityNormal);
+        //rda_thread_new("daemon", daemon, this, DEFAULT_THREAD_STACKSIZE*4, osPriorityNormal);
     }
     return NSAPI_ERROR_OK;
 }
@@ -182,6 +182,8 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
     if (ret) {
         return NSAPI_ERROR_CONNECTION_TIMEOUT;
     }
+	
+	wifi_state = WIFI_CONNECTED;
 
     ret = _interface->bringup(_dhcp,
           _ip_address[0] ? _ip_address : 0,
@@ -193,7 +195,6 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
 
     if( ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IS_CONNECTED ) {
         ret = NSAPI_ERROR_OK;
-        wifi_state = WIFI_CONNECTED;
     }
     else if( ret == NSAPI_ERROR_DHCP_FAILURE) {
         disconnect();
