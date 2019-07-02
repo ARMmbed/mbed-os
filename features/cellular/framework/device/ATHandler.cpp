@@ -291,7 +291,7 @@ void ATHandler::set_is_filehandle_usable(bool usable)
             _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
         } else {
             _fileHandle->set_blocking(true); // set back to default state
-            _fileHandle->sigio(NULL);
+            _fileHandle->sigio(nullptr);
         }
         _is_fh_usable = usable;
     }

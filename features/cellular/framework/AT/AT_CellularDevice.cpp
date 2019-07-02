@@ -53,10 +53,10 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh),
 AT_CellularDevice::~AT_CellularDevice()
 {
     if (get_property(PROPERTY_AT_CGEREP)) {
-        _at->set_urc_handler("+CGEV: NW DEACT", 0);
-        _at->set_urc_handler("+CGEV: ME DEACT", 0);
-        _at->set_urc_handler("+CGEV: NW PDN D", 0);
-        _at->set_urc_handler("+CGEV: ME PDN D", 0);
+        _at->set_urc_handler("+CGEV: NW DEACT", nullptr);
+        _at->set_urc_handler("+CGEV: ME DEACT", nullptr);
+        _at->set_urc_handler("+CGEV: NW PDN D", nullptr);
+        _at->set_urc_handler("+CGEV: ME PDN D", nullptr);
     }
 
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.

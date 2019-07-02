@@ -39,7 +39,7 @@ QUECTEL_BG96_CellularContext::QUECTEL_BG96_CellularContext(ATHandler &at, Cellul
 QUECTEL_BG96_CellularContext::~QUECTEL_BG96_CellularContext()
 {
     if (_nonip_req) {
-        _at.set_urc_handler("+QIND:", 0);
+        _at.set_urc_handler("+QIND:", nullptr);
     }
 }
 

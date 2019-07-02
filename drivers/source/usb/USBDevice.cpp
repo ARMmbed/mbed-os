@@ -1177,7 +1177,7 @@ void USBDevice::endpoint_remove(usb_ep_t endpoint)
         _phy->endpoint_abort(endpoint);
     }
 
-    info->callback = NULL;
+    info->callback = nullptr;
     info->flags = 0;
     info->pending = 0;
     info->max_packet_size = 0;

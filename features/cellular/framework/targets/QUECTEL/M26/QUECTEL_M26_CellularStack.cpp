@@ -39,14 +39,14 @@ QUECTEL_M26_CellularStack::QUECTEL_M26_CellularStack(ATHandler &atHandler, int c
 
 QUECTEL_M26_CellularStack::~QUECTEL_M26_CellularStack()
 {
-    _at.set_urc_handler("5, CLOSED", NULL);
-    _at.set_urc_handler("4, CLOSED", NULL);
-    _at.set_urc_handler("3, CLOSED", NULL);
-    _at.set_urc_handler("2, CLOSED", NULL);
-    _at.set_urc_handler("1, CLOSED", NULL);
-    _at.set_urc_handler("0, CLOSED", NULL);
+    _at.set_urc_handler("5, CLOSED", nullptr);
+    _at.set_urc_handler("4, CLOSED", nullptr);
+    _at.set_urc_handler("3, CLOSED", nullptr);
+    _at.set_urc_handler("2, CLOSED", nullptr);
+    _at.set_urc_handler("1, CLOSED", nullptr);
+    _at.set_urc_handler("0, CLOSED", nullptr);
 
-    _at.set_urc_handler("+QIRDI:", NULL);
+    _at.set_urc_handler("+QIRDI:", nullptr);
 }
 
 nsapi_error_t QUECTEL_M26_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)

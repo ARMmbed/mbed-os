@@ -177,7 +177,7 @@ static const unsigned char gsm_to_ascii[] = {
 
 const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii) / sizeof(gsm_to_ascii[0]);
 
-AT_CellularSMS::AT_CellularSMS(ATHandler &at, AT_CellularDevice &device) : _cb(0), _mode(CellularSMSMmodeText),
+AT_CellularSMS::AT_CellularSMS(ATHandler &at, AT_CellularDevice &device) : _cb(), _mode(CellularSMSMmodeText),
     _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1),
     _sms_info(NULL), _at(at), _device(device)
 {

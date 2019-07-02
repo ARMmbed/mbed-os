@@ -31,7 +31,7 @@ UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid
 
 UBLOX_N2XX_CellularStack::~UBLOX_N2XX_CellularStack()
 {
-    _at.set_urc_handler("+NSONMI:", NULL);
+    _at.set_urc_handler("+NSONMI:", nullptr);
 }
 
 nsapi_error_t UBLOX_N2XX_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)

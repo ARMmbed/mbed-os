@@ -34,21 +34,13 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 {
     // No lock needed in the constructor
 
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
-
     (this->*_init_func)();
 }
 
 SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
 #if DEVICE_SERIAL_ASYNCH
-    _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
-    _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
-    _rx_callback(NULL), _tx_asynch_set(false),
-    _rx_asynch_set(false),
+    _thunk_irq(this),
 #endif
-    _serial(),
     _baud(baud),
     _tx_pin(static_pinmap.tx_pin),
     _rx_pin(static_pinmap.rx_pin),
@@ -56,10 +48,6 @@ SerialBase::SerialBase(const serial_pinmap_t &static_pinmap, int baud) :
     _init_func(&SerialBase::_init_direct)
 {
     // No lock needed in the constructor
-
-    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = NULL;
-    }
 
     (this->*_init_func)();
 }
@@ -118,7 +106,7 @@ void SerialBase::attach(Callback<void()> func, IrqType type)
             if (_irq[type]) {
                 sleep_manager_unlock_deep_sleep();
             }
-            _irq[type] = NULL;
+            _irq[type] = nullptr;
             serial_irq_set(&_serial, (SerialIrq)type, 0);
         }
         core_util_critical_section_exit();
@@ -187,7 +175,7 @@ void SerialBase::enable_input(bool enable)
         core_util_critical_section_enter();
         if (enable) {
             // Enable rx IRQ and lock deep sleep if a rx handler is attached
-            // (indicated by rx IRQ callback not NULL)
+            // (indicated by rx IRQ callback not empty)
             if (_irq[RxIrq]) {
                 _irq[RxIrq].call();
                 sleep_manager_lock_deep_sleep();
@@ -197,7 +185,7 @@ void SerialBase::enable_input(bool enable)
             // Disable rx IRQ
             serial_irq_set(&_serial, (SerialIrq)RxIrq, 0);
             // Unlock deep sleep if a rx handler is attached
-            // (indicated by rx IRQ callback not NULL)
+            // (indicated by rx IRQ callback not empty)
             if (_irq[RxIrq]) {
                 sleep_manager_unlock_deep_sleep();
             }
@@ -224,7 +212,7 @@ void SerialBase::enable_output(bool enable)
         core_util_critical_section_enter();
         if (enable) {
             // Enable tx IRQ and lock deep sleep if a tx handler is attached
-            // (indicated by tx IRQ callback not NULL)
+            // (indicated by tx IRQ callback not empty)
             if (_irq[TxIrq]) {
                 _irq[TxIrq].call();
                 sleep_manager_lock_deep_sleep();
@@ -234,7 +222,7 @@ void SerialBase::enable_output(bool enable)
             // Disable tx IRQ
             serial_irq_set(&_serial, (SerialIrq)TxIrq, 0);
             // Unlock deep sleep if a tx handler is attached
-            // (indicated by tx IRQ callback not NULL)
+            // (indicated by tx IRQ callback not empty)
             if (_irq[TxIrq]) {
                 sleep_manager_unlock_deep_sleep();
             }
@@ -297,7 +285,7 @@ SerialBase::~SerialBase()
 
     // Detaching interrupts releases the sleep lock if it was locked
     for (int irq = 0; irq < IrqCnt; irq++) {
-        attach(NULL, (IrqType)irq);
+        attach(nullptr, (IrqType)irq);
     }
 }
 
@@ -389,7 +377,7 @@ void SerialBase::abort_write(void)
     lock();
     core_util_critical_section_enter();
     if (_tx_asynch_set) {
-        _tx_callback = NULL;
+        _tx_callback = nullptr;
         _tx_asynch_set = false;
         serial_tx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
@@ -403,7 +391,7 @@ void SerialBase::abort_read(void)
     lock();
     core_util_critical_section_enter();
     if (_rx_asynch_set) {
-        _rx_callback = NULL;
+        _rx_callback = nullptr;
         _rx_asynch_set = false;
         serial_rx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
@@ -475,7 +463,7 @@ void SerialBase::interrupt_handler_asynch(void)
     if (_rx_asynch_set && rx_event) {
         event_callback_t cb = _rx_callback;
         _rx_asynch_set = false;
-        _rx_callback = NULL;
+        _rx_callback = nullptr;
         if (cb) {
             cb.call(rx_event);
         }
@@ -486,7 +474,7 @@ void SerialBase::interrupt_handler_asynch(void)
     if (_tx_asynch_set && tx_event) {
         event_callback_t cb = _tx_callback;
         _tx_asynch_set = false;
-        _tx_callback = NULL;
+        _tx_callback = nullptr;
         if (cb) {
             cb.call(tx_event);
         }
