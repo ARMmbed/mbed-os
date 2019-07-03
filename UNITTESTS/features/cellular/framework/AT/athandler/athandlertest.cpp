@@ -570,15 +570,15 @@ TEST_F(TestATHandler, test_ATHandler_read_bytes)
     mbed_poll_stub::int_value = 1;;
 
     // Read 5 bytes
-    EXPECT_TRUE(5 == at.read_bytes(buf, 5));
+    EXPECT_EQ(5, at.read_bytes(buf, 5));
     EXPECT_TRUE(!memcmp(buf, table1, 5));
     // get_char triggered above should have filled in the whole reading buffer(fill_buffer())
-    EXPECT_TRUE(filehandle_stub_table_pos == (strlen(table1) - 1));
+    EXPECT_EQ(filehandle_stub_table_pos, (strlen(table1)));
     // Read another 8 bytes
     EXPECT_TRUE(8 == at.read_bytes(buf, 8) && !memcmp(buf, table1 + 5, 8));
     // Reading more than the 4 bytes left -> ERROR
-    EXPECT_TRUE(-1 == at.read_bytes(buf, 5));
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
+    EXPECT_EQ(-1, at.read_bytes(buf, 5));
+    EXPECT_EQ(NSAPI_ERROR_DEVICE_ERROR, at.get_last_error());
 }
 
 TEST_F(TestATHandler, test_ATHandler_read_string)
