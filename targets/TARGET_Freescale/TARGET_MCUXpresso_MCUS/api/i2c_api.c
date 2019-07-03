@@ -596,6 +596,7 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length, uint8
 
   if (tx_length && rx_length) {
     obj_s->stop = stop;
+    master_xfer.flags |= kI2C_TransferNoStopFlag;
   } else {
     if (!stop) {
       master_xfer.flags |= kI2C_TransferNoStopFlag;
