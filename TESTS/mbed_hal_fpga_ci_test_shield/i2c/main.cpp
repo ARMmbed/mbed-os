@@ -19,8 +19,6 @@
 #error [NOT_SUPPORTED] I2C not supported for this target
 #elif !COMPONENT_FPGA_CI_TEST_SHIELD
 #error [NOT_SUPPORTED] FPGA CI Test Shield is needed to run this test
-#elif !defined(FULL_TEST_SHIELD)
-#error [NOT_SUPPORTED] The I2C test does not run on prototype hardware
 #else
 
 #include "utest/utest.h"
@@ -53,12 +51,15 @@ void test_i2c_init_free(PinName sda, PinName scl)
     i2c_frequency(&obj, 100000);
 }
 
-void i2c_test_all(PinName sda, PinName scl)
+void i2c_test_write(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
     tester.pin_map_set(sda, MbedTester::LogicalPinI2CSda);
     tester.pin_map_set(scl, MbedTester::LogicalPinI2CScl);
+
+    tester.pin_set_pull(sda, MbedTester::PullUp);
+    tester.pin_set_pull(scl, MbedTester::PullUp);
 
     // Initialize mbed I2C pins
     i2c_t i2c;
@@ -90,10 +91,6 @@ void i2c_test_all(PinName sda, PinName scl)
     int num_dev_addr_matches;
     int ack_nack;//0 if NACK was received, 1 if ACK was received, 2 for timeout
 
-    printf("I2C complete write transaction test on sda=%s (%i), scl=%s (%i)\r\n",
-           pinmap_ff_default_pin_to_string(sda), sda,
-           pinmap_ff_default_pin_to_string(scl), scl);
-
     // Reset tester stats and select I2C
     tester.peripherals_reset();
     tester.select_peripheral(MbedTester::PeripheralI2C);
@@ -108,13 +105,13 @@ void i2c_test_all(PinName sda, PinName scl)
     num_acks = 0;
     num_nacks = 0;
     checksum = 0;
-    tester.io_metrics_start();
+
     num_writes = i2c_write(&i2c, I2C_DEV_ADDR, (char *)data_out, TRANSFER_COUNT, true); //transaction ends with a stop condition
     num_acks = num_writes + 1;
     num_starts += 1;
     num_stops += 1;
     num_dev_addr_matches += 1;
-    tester.io_metrics_stop();
+
     for (int i = 0; i < TRANSFER_COUNT; i++) {
         checksum += data_out[i];
     }
@@ -136,11 +133,50 @@ void i2c_test_all(PinName sda, PinName scl)
     TEST_ASSERT_EQUAL(num_writes, tester.num_writes());
     TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
 
-    printf("  Pin combination works\r\n");
+    tester.reset();
+    tester.pin_set_pull(sda, MbedTester::PullNone);
+    tester.pin_set_pull(scl, MbedTester::PullNone);
+}
 
-    printf("I2C complete read transaction test on sda=%s (%i), scl=%s (%i)\r\n",
-           pinmap_ff_default_pin_to_string(sda), sda,
-           pinmap_ff_default_pin_to_string(scl), scl);
+void i2c_test_read(PinName sda, PinName scl)
+{
+    // Remap pins for test
+    tester.reset();
+    tester.pin_map_set(sda, MbedTester::LogicalPinI2CSda);
+    tester.pin_map_set(scl, MbedTester::LogicalPinI2CScl);
+
+    tester.pin_set_pull(sda, MbedTester::PullUp);
+    tester.pin_set_pull(scl, MbedTester::PullUp);
+
+    // Initialize mbed I2C pins
+    i2c_t i2c;
+    memset(&i2c, 0, sizeof(i2c));
+    i2c_init(&i2c, sda, scl);
+    i2c_frequency(&i2c, 100000);
+
+    // Reset tester stats and select I2C
+    tester.peripherals_reset();
+    tester.select_peripheral(I2CTester::PeripheralI2C);
+
+    // Data out and in buffers and initialization
+    uint8_t data_out[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_out[i] = i & 0xFF;
+    }
+    uint8_t data_in[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_in[i] = 0;
+    }
+
+    int num_writes;
+    int num_reads;
+    int num_acks;
+    int num_nacks;
+    int num_starts;
+    int num_stops;
+    uint32_t checksum;
+    int num_dev_addr_matches;
+    int ack_nack;//0 if NACK was received, 1 if ACK was received, 2 for timeout
 
     // Reset tester stats and select I2C
     tester.peripherals_reset();
@@ -156,13 +192,15 @@ void i2c_test_all(PinName sda, PinName scl)
     num_acks = 0;
     num_nacks = 0;
     checksum = 0;
-    tester.io_metrics_start();
+
     num_reads = i2c_read(&i2c, (I2C_DEV_ADDR | 1), (char *)data_in, TRANSFER_COUNT, true); //transaction ends with a stop condition
     num_starts += 1;
     num_stops += 1;
     num_acks += 1;
+    num_acks += TRANSFER_COUNT - 1;
+    num_nacks += 1;
     num_dev_addr_matches += 1;
-    tester.io_metrics_stop();
+
     for (int i = 0; i < TRANSFER_COUNT; i++) {
         checksum += data_in[i];
     }
@@ -175,17 +213,56 @@ void i2c_test_all(PinName sda, PinName scl)
     TEST_ASSERT_EQUAL(num_stops, tester.num_stops());
     TEST_ASSERT_EQUAL(num_acks, tester.num_acks());
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
-    TEST_ASSERT_EQUAL(checksum, tester.get_receive_checksum());
+    TEST_ASSERT_EQUAL(checksum, tester.get_send_checksum());
     TEST_ASSERT_EQUAL(0, tester.state_num());
-    TEST_ASSERT_EQUAL((TRANSFER_COUNT & 0xFF), tester.get_next_from_slave());
+    TEST_ASSERT_EQUAL(((TRANSFER_COUNT + 1) & 0xFF), tester.get_next_from_slave());
     TEST_ASSERT_EQUAL(num_writes, tester.num_writes());
     TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
 
-    printf("  Pin combination works\r\n");
+    tester.reset();
+    tester.pin_set_pull(sda, MbedTester::PullNone);
+    tester.pin_set_pull(scl, MbedTester::PullNone);
+}
 
-    printf("I2C write single bytes test on sda=%s (%i), scl=%s (%i)\r\n",
-           pinmap_ff_default_pin_to_string(sda), sda,
-           pinmap_ff_default_pin_to_string(scl), scl);
+void i2c_test_byte_write(PinName sda, PinName scl)
+{
+    // Remap pins for test
+    tester.reset();
+    tester.pin_map_set(sda, MbedTester::LogicalPinI2CSda);
+    tester.pin_map_set(scl, MbedTester::LogicalPinI2CScl);
+
+    tester.pin_set_pull(sda, MbedTester::PullUp);
+    tester.pin_set_pull(scl, MbedTester::PullUp);
+
+    // Initialize mbed I2C pins
+    i2c_t i2c;
+    memset(&i2c, 0, sizeof(i2c));
+    i2c_init(&i2c, sda, scl);
+    i2c_frequency(&i2c, 100000);
+
+    // Reset tester stats and select I2C
+    tester.peripherals_reset();
+    tester.select_peripheral(I2CTester::PeripheralI2C);
+
+    // Data out and in buffers and initialization
+    uint8_t data_out[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_out[i] = i & 0xFF;
+    }
+    uint8_t data_in[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_in[i] = 0;
+    }
+
+    int num_writes;
+    int num_reads;
+    int num_acks;
+    int num_nacks;
+    int num_starts;
+    int num_stops;
+    uint32_t checksum;
+    int num_dev_addr_matches;
+    int ack_nack;//0 if NACK was received, 1 if ACK was received, 2 for timeout
 
     // Reset tester stats and select I2C
     tester.peripherals_reset();
@@ -201,7 +278,7 @@ void i2c_test_all(PinName sda, PinName scl)
     num_acks = 0;
     num_nacks = 0;
     checksum = 0;
-    tester.io_metrics_start();
+
     i2c_start(&i2c);//start condition
     num_starts += 1;
     i2c_byte_write(&i2c, I2C_DEV_ADDR);//send device address
@@ -221,7 +298,6 @@ void i2c_test_all(PinName sda, PinName scl)
     }
     i2c_stop(&i2c);
     num_stops += 1;
-    tester.io_metrics_stop();
 
     // Verify that the transfer was successful
     TEST_ASSERT_EQUAL(num_dev_addr_matches, tester.num_dev_addr_matches());
@@ -240,11 +316,50 @@ void i2c_test_all(PinName sda, PinName scl)
     TEST_ASSERT_EQUAL(num_writes, tester.num_writes());
     TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
 
-    printf("  Pin combination works\r\n");
+    tester.reset();
+    tester.pin_set_pull(sda, MbedTester::PullNone);
+    tester.pin_set_pull(scl, MbedTester::PullNone);
+}
 
-    printf("I2C read single bytes test on sda=%s (%i), scl=%s (%i)\r\n",
-           pinmap_ff_default_pin_to_string(sda), sda,
-           pinmap_ff_default_pin_to_string(scl), scl);
+void i2c_test_byte_read(PinName sda, PinName scl)
+{
+    // Remap pins for test
+    tester.reset();
+    tester.pin_map_set(sda, MbedTester::LogicalPinI2CSda);
+    tester.pin_map_set(scl, MbedTester::LogicalPinI2CScl);
+
+    tester.pin_set_pull(sda, MbedTester::PullUp);
+    tester.pin_set_pull(scl, MbedTester::PullUp);
+
+    // Initialize mbed I2C pins
+    i2c_t i2c;
+    memset(&i2c, 0, sizeof(i2c));
+    i2c_init(&i2c, sda, scl);
+    i2c_frequency(&i2c, 100000);
+
+    // Reset tester stats and select I2C
+    tester.peripherals_reset();
+    tester.select_peripheral(I2CTester::PeripheralI2C);
+
+    // Data out and in buffers and initialization
+    uint8_t data_out[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_out[i] = i & 0xFF;
+    }
+    uint8_t data_in[TRANSFER_COUNT];
+    for (int i = 0; i < TRANSFER_COUNT; i++) {
+        data_in[i] = 0;
+    }
+
+    int num_writes;
+    int num_reads;
+    int num_acks;
+    int num_nacks;
+    int num_starts;
+    int num_stops;
+    uint32_t checksum;
+    int num_dev_addr_matches;
+    int ack_nack;//0 if NACK was received, 1 if ACK was received, 2 for timeout
 
     // Reset tester stats and select I2C
     tester.peripherals_reset();
@@ -263,7 +378,7 @@ void i2c_test_all(PinName sda, PinName scl)
     num_acks = 0;
     num_nacks = 0;
     checksum = 0;
-    tester.io_metrics_start();
+
     i2c_start(&i2c);//start condition
     num_starts += 1;
     i2c_byte_write(&i2c, (I2C_DEV_ADDR | 1));//send device address for reading
@@ -274,16 +389,17 @@ void i2c_test_all(PinName sda, PinName scl)
             data_in[i] = i2c_byte_read(&i2c, 1);//send NACK
             checksum += data_in[i];
             num_reads += 1;
+            num_nacks += 1;
         } else {
             data_in[i] = i2c_byte_read(&i2c, 0);//send ACK
             checksum += data_in[i];
             num_reads += 1;
+            num_acks += 1;
         }
     }
 
     i2c_stop(&i2c);
     num_stops += 1;
-    tester.io_metrics_stop();
 
     // Verify that the transfer was successful
     TEST_ASSERT_EQUAL(num_dev_addr_matches, tester.num_dev_addr_matches());
@@ -293,23 +409,23 @@ void i2c_test_all(PinName sda, PinName scl)
     TEST_ASSERT_EQUAL(num_stops, tester.num_stops());
     TEST_ASSERT_EQUAL(num_acks, tester.num_acks());
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
-    TEST_ASSERT_EQUAL(checksum, tester.get_receive_checksum());
+    TEST_ASSERT_EQUAL(checksum, tester.get_send_checksum());
     TEST_ASSERT_EQUAL(0, tester.state_num());
-    TEST_ASSERT_EQUAL((TRANSFER_COUNT & 0xFF), tester.get_next_from_slave());
+    TEST_ASSERT_EQUAL(((TRANSFER_COUNT + 2) & 0xFF), tester.get_next_from_slave());
     TEST_ASSERT_EQUAL(num_writes, tester.num_writes());
     TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
 
-    printf("  Pin combination works\r\n");
-
     tester.reset();
+    tester.pin_set_pull(sda, MbedTester::PullNone);
+    tester.pin_set_pull(scl, MbedTester::PullNone);
 }
 
 Case cases[] = {
     Case("i2c - init/free test all pins", all_ports<I2CPort, DefaultFormFactor, test_i2c_init_free>),
-    Case("i2c - test all i2c APIs", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_all>)
-    // Case("i2c - simple write test all peripherals", all_peripherals<I2CPort, DefaultFormFactor, test_i2c_simple_write>),
-    // Case("i2c - simple read test all peripherals",  all_peripherals<I2CPort, DefaultFormFactor, test_i2c_simple_read>),
-    // Case("i2c - XXXXXXX test single pin",           one_peripheral<I2CPort, DefaultFormFactor, test_i2c_XXXXXXX>)
+    Case("i2c - test write i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_write>),
+    Case("i2c - test read i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_read>),
+    Case("i2c - test single byte write i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_byte_write>),
+    Case("i2c - test single byte read i2c API", all_peripherals<I2CPort, DefaultFormFactor, i2c_test_byte_read>)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
