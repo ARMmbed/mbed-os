@@ -7170,7 +7170,6 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
