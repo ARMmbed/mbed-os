@@ -39,7 +39,10 @@ using namespace utest::v1;
 
 #define analogout_debug_printf(...)
 
-#define DELTA_FLOAT                     0.01f    // 1%
+#define DELTA_FLOAT                     0.03f    // 3%
+
+/* Enable for power analysis */
+#define DEBUG 0
 
 const PinList *form_factor = pinmap_ff_default_pins();
 const PinList *restricted = pinmap_restricted_pins();
@@ -90,16 +93,18 @@ void analogout_test(PinName pin)
 
     tester.set_sample_adc(false);//stop ADC sampling on the FPGA
 
+#if DEBUG
     // power analysis
-    // uint64_t sum;
-    // uint32_t samples;
-    // uint64_t cycles;
-    // tester.get_anin_sum_samples_cycles(0, &sum, &samples, &cycles);
-    // printf("ANIN0\r\n");
-    // printf("Sum: %llu\r\n", sum);
-    // printf("Num power samples: %d\r\n", samples);
-    // printf("Num power cycles: %llu\r\n", cycles);
-    // printf("ANIN0 voltage: %.6fV\r\n", tester.get_anin_voltage(0));
+    uint64_t sum;
+    uint32_t samples;
+    uint64_t cycles;
+    tester.get_anin_sum_samples_cycles(0, &sum, &samples, &cycles);
+    printf("ANIN0\r\n");
+    printf("Sum: %llu\r\n", sum);
+    printf("Num power samples: %d\r\n", samples);
+    printf("Num power cycles: %llu\r\n", cycles);
+    printf("ANIN0 voltage: %.6fV\r\n", tester.get_anin_voltage(0));
+#endif
 }
 
 Case cases[] = {
