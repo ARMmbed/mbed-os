@@ -36,6 +36,7 @@ using namespace utest::v1;
 #include "pinmap.h"
 #include "test_utils.h"
 #include "fpga_config.h"
+#include "fpga_spi_master_test.h"
 
 /* Half-duplex mode (3 wires mode) requires additional configuration. FPGA test shield uses
    Mosi pin as data line in Half duplex mode. Select pin which Mbed board uses for data line
@@ -221,13 +222,8 @@ static void spi_async_callback(spi_t *obj, void *ctx, spi_async_event_t *event)
 
 /** Test that the spi-Master can be initialized/de-initialized using all possible
  *  SPI pins.
- *
- * Given board provides SPI-Master support.
- * When SPI-Master is initialized (and then de-initialized) using valid set of SPI pins.
- * Then the operation is successfull.
- *
  */
-void spi_test_init_free(PinName mosi, PinName miso, PinName sclk)
+void fpga_spi_master_test_init_free(PinName mosi, PinName miso, PinName sclk)
 {
     spi_t spi;
     spi_init(&spi, false, mosi, miso, sclk, NC);
@@ -242,13 +238,8 @@ void spi_test_init_free(PinName mosi, PinName miso, PinName sclk)
 
 /** Test that the spi_get_capabilities() indicates that slave mode is unsupported if the given `ssel`
  * pin cannot be managed by hardware.
- *
- * Given board provides SPI support.
- * When `ssel` pin passed to spi_get_capabilities() cannot be managed by hardware.
- * Then capabilities should indicate that slave mode is unsupported.
- *
  */
-void spi_test_capabilities(PinName mosi, PinName miso, PinName sclk)
+void fpga_spi_test_capabilities_ssel(PinName mosi, PinName miso, PinName sclk)
 {
     spi_capabilities_t capabilities;
 
@@ -290,15 +281,8 @@ void spi_test_capabilities(PinName mosi, PinName miso, PinName sclk)
 }
 
 /** Test that the spi_frequency() returns actual SPI frequency.
- *
- * Given board provides SPI-Master support.
- * When specified frequency is selected by means of spi_frequency().
- * Then frequency returned by spi_frequency() is used for the transmission.
- *
- * Additionally we check that spi_format() updates the configuration of the peripheral (format)
- * except the baud rate generator.
  */
-void spi_test_freq(PinName mosi, PinName miso, PinName sclk)
+void fpga_spi_master_test_freq(PinName mosi, PinName miso, PinName sclk)
 {
     spi_t spi;
     uint32_t count = 0;
@@ -372,16 +356,9 @@ void spi_test_freq(PinName mosi, PinName miso, PinName sclk)
 }
 
 /** Test that the SPI-Master transfer can be performed in various configurations.
- *
- * Given board provides SPI-Master support.
- * When SPI transmission is performed using different settings.
- * Then data is successfully transfered.
- *
- * Additionally we check that spi_frequency() updates the baud rate generator
- * leaving other configurations (format) unchanged.
  */
 template<typename T>
-void spi_test_common(const test_config_t *tc_config)
+void fpga_spi_master_test_common(const test_config_t *tc_config)
 {
     spi_t spi;
     spi_capabilities_t capabilities;
@@ -584,21 +561,21 @@ void spi_test_common(const test_config_t *tc_config)
 }
 
 template<SPITester::SpiMode spi_mode, SPITester::SpiBitOrder spi_bit_order, uint32_t sym_size, uint32_t spi_freq, bool auto_ss, test_buffers_t test_buffers, bool sync_mode, SPITester::SpiDuplex duplex>
-void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void fpga_spi_master_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     const test_config_t tc_config = {mosi, miso, sclk, ssel, spi_mode, spi_bit_order, sym_size, spi_freq, auto_ss, test_buffers, sync_mode, duplex};
 
     if (sym_size <= 8) {
-        spi_test_common<uint8_t>(&tc_config);
+        fpga_spi_master_test_common<uint8_t>(&tc_config);
     } else if (sym_size <= 16) {
-        spi_test_common<uint16_t>(&tc_config);
+        fpga_spi_master_test_common<uint16_t>(&tc_config);
     } else {
-        spi_test_common<uint32_t>(&tc_config);
+        fpga_spi_master_test_common<uint32_t>(&tc_config);
     }
 }
 
 template<SPITester::SpiMode spi_mode, SPITester::SpiBitOrder spi_bit_order, uint32_t sym_size, uint32_t spi_freq, bool auto_ss, test_buffers_t test_buffers, bool sync_mode, SPITester::SpiDuplex duplex>
-void spi_test_common_no_ss(PinName mosi, PinName miso, PinName sclk)
+void spi_master_test_common_no_ss(PinName mosi, PinName miso, PinName sclk)
 {
     PinName ss = find_ss_pin(mosi, miso, sclk);
     const test_config_t tc_config = {mosi, miso, sclk, ss, spi_mode, spi_bit_order, sym_size, spi_freq, auto_ss, test_buffers, sync_mode, duplex};
@@ -607,69 +584,69 @@ void spi_test_common_no_ss(PinName mosi, PinName miso, PinName sclk)
 
     if (ss != NC) {
         if (sym_size <= 8) {
-            spi_test_common<uint8_t>(&tc_config);
+            fpga_spi_master_test_common<uint8_t>(&tc_config);
         } else if (sym_size <= 16) {
-            spi_test_common<uint16_t>(&tc_config);
+            fpga_spi_master_test_common<uint16_t>(&tc_config);
         } else {
-            spi_test_common<uint32_t>(&tc_config);
+            fpga_spi_master_test_common<uint32_t>(&tc_config);
         }
     }
 }
 
 Case cases[] = {
     // This will be run for all ports
-    Case("SPI Master - init/free test all pins", all_ports<SPINoCSPort, DefaultFormFactor, spi_test_init_free>),
+    Case("SPI Master - init/free test all pins", all_ports<SPINoCSPort, DefaultFormFactor, fpga_spi_master_test_init_free>),
 
     // This will be run for all peripherals
-    Case("SPI Master/Sync - basic test", all_peripherals<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - basic test", all_peripherals<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - basic test", all_peripherals<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - basic test", all_peripherals<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
 
     // This will be run for single peripheral
-    Case("SPI Master/Sync - mode testing (MODE_1)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode1, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - mode testing (MODE_2)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode2, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - mode testing (MODE_3)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode3, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - bit order testing (LSBFirst)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::LSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - hardware ss handling", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, HW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - freqency testing (FREQ_200KHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_200KHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - freqency testing (FREQ_2MHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_2MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - freqency testing (FREQ_MIN)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MIN, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - freqency testing (FREQ_MAX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MAX, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (4)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 4, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (12)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 12, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (16)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 16, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (20)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 20, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (24)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 24, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (28)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 28, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - symbol size testing (32)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 32, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_UNDEF, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - buffers testing (BUFFERS_RX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_RX_UNDEF, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_GT_RX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_GT_RX, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_LT_RX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_LT_RX, SYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_ONE_SYM)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_ONE_SYM, SYNC, SPITester::FullDuplex> >),
-    //Case("SPI Master/Sync - Half Duplex", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::HalfDuplex> >),
+    Case("SPI Master/Sync - mode testing (MODE_1)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode1, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - mode testing (MODE_2)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode2, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - mode testing (MODE_3)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode3, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - bit order testing (LSBFirst)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::LSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - hardware ss handling", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_master_test_common<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, HW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - freqency testing (FREQ_200KHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_200KHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - freqency testing (FREQ_2MHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_2MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - freqency testing (FREQ_MIN)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MIN, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - freqency testing (FREQ_MAX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MAX, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (4)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 4, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (12)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 12, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (16)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 16, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (20)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 20, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (24)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 24, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (28)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 28, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - symbol size testing (32)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 32, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_UNDEF, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - buffers testing (BUFFERS_RX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_RX_UNDEF, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_GT_RX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_GT_RX, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_LT_RX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_LT_RX, SYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Sync - buffers testing (BUFFERS_TX_ONE_SYM)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_ONE_SYM, SYNC, SPITester::FullDuplex> >),
+    //Case("SPI Master/Sync - Half Duplex", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, SYNC, SPITester::HalfDuplex> >),
 
-    Case("SPI Master/Async - mode testing (MODE_1)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode1, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - mode testing (MODE_2)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode2, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - mode testing (MODE_3)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode3, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - bit order testing (LSBFirst)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::LSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - hardware ss handling", all_peripherals<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, HW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - freqency testing (FREQ_200KHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_200KHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - freqency testing (FREQ_2MHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_2MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - freqency testing (FREQ_MIN)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MIN, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - freqency testing (FREQ_MAX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MAX, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (4)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 4, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (12)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 12, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (16)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 16, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (20)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 20, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (24)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 24, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (28)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 28, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - symbol size testing (32)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 32, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - buffers testing (BUFFERS_TX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_UNDEF, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - buffers testing (BUFFERS_RX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_RX_UNDEF, ASYNC, SPITester::FullDuplex> >),
-    Case("SPI Master/Async - buffers testing (BUFFERS_TX_ONE_SYM)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_ONE_SYM, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - mode testing (MODE_1)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode1, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - mode testing (MODE_2)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode2, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - mode testing (MODE_3)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode3, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - bit order testing (LSBFirst)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::LSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - hardware ss handling", all_peripherals<SPIPort, DefaultFormFactor, fpga_spi_master_test_common<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, HW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - freqency testing (FREQ_200KHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_200KHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - freqency testing (FREQ_2MHZ)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_2MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - freqency testing (FREQ_MIN)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MIN, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - freqency testing (FREQ_MAX)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_MAX, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (4)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 4, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (12)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 12, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (16)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 16, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (20)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 20, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (24)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 24, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (28)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 28, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - symbol size testing (32)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 32, FREQ_1MHZ, SW_SS, BUFFERS_COMMON, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - buffers testing (BUFFERS_TX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_UNDEF, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - buffers testing (BUFFERS_RX_UNDEF)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_RX_UNDEF, ASYNC, SPITester::FullDuplex> >),
+    Case("SPI Master/Async - buffers testing (BUFFERS_TX_ONE_SYM)", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_master_test_common_no_ss<SPITester::Mode0, SPITester::MSBFirst, 8, FREQ_1MHZ, SW_SS, BUFFERS_TX_ONE_SYM, ASYNC, SPITester::FullDuplex> >),
 
-    Case("SPI Master - actual clock freq", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_freq>),
-    Case("get_capabilities(): SS cannot be managed by hardware", one_peripheral<SPINoCSPort, DefaultFormFactor, spi_test_capabilities>),
+    Case("SPI Master - actual clock freq", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_master_test_freq>),
+    Case("get_capabilities(): SS cannot be managed by hardware", one_peripheral<SPINoCSPort, DefaultFormFactor, fpga_spi_test_capabilities_ssel>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
