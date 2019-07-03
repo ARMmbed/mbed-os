@@ -24,7 +24,8 @@
         "asm": [],
         "c": ["-D__ASSERT_MSG", "-std=gnu11"],
         "cxx": ["-fno-rtti", "-std=gnu++14"],
-        "ld": ["--show_full_path", "--legacyalign", "--keep=os_cb_sections"]
+        "ld": ["--show_full_path", "--legacyalign", "--any_contingency",
+               "--keep=os_cb_sections"]
     },
     "ARM": {
         "common": ["-c", "--gnu", "-Ospace", "--split_sections",
@@ -33,7 +34,7 @@
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp11", "--no_rtti", "--no_vla"],
-        "ld": ["--show_full_path",  "--keep=os_cb_sections"]
+        "ld": ["--show_full_path", "--any_contingency", "--keep=os_cb_sections"]
     },
     "uARM": {
         "common": ["-c", "--gnu", "-Ospace", "--split_sections",
