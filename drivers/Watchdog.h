@@ -30,18 +30,18 @@
 namespace mbed {
 
 /** \addtogroup drivers */
-/** A hardware watchdog timer that will reset the system in the case of system
- * failures or malfunctions. If you fail to refresh the Watchdog periodically,
- * it will reset the system after a set period of time.
+/** A hardware watchdog timer that resets the system in the case of system
+ * failures or malfunctions. If you fail to refresh the Watchdog timer periodically,
+ * it resets the system after a set period of time.
  *
- * There is only one instance in the system. Use Watchdog::get_instance to
- * obtain a reference.
+ * There is only one instance of the Watchdog class in the system, which directly maps to the hardware. 
+ * Use Watchdog::get_instance to obtain a reference.
  *
  * Watchdog::start initializes a system timer with a time period specified in
  * @a timeout param. This timer counts down and triggers a system reset
- * when it wraps. To prevent the system reset, the timer must be continually
- * kicked/refreshed by calling Watchdog::kick, which will reset the countdown
- * to the user specified reset value.
+ * when it wraps. To prevent the system reset, you must periodically kick or refresh
+ * the timer by calling Watchdog::kick, which resets the countdown
+ * to the initial value.
  *
  * Example:
  * @code
@@ -63,9 +63,6 @@ public:
 
     /** Get a reference to the single Watchdog instance in the system.
      *
-     * There is only one watchdog peripheral and only one Watchdog instance
-     * to control it.
-     *
      * @return A reference to the single Watchdog instance present in the system.
      */
     static Watchdog &get_instance()
@@ -82,11 +79,11 @@ public:
      *
      * @note The timeout is set to a value returned by Watchdog::get_max_timeout.
      *
-     * If the Watchdog is already running, this function does nothing.
+     * If the Watchdog timer is already running, this function does nothing.
      *
-     * @return true, if the Watchdog timer was started successfully,
-     *         false, if Watchdog timer was not started or if the Watchdog
-     *         is already running.
+     * @return true if the Watchdog timer was started successfully;
+     *         false if the Watchdog timer was not started or if the Watchdog
+     *         timer is already running.
      */
     bool start();
 
@@ -97,20 +94,20 @@ public:
      *
      * @param timeout Watchdog timeout in milliseconds.
      *
-     * @return true, if the Watchdog timer was started successfully,
-     *         false, if Watchdog timer was not started or if the Watchdog
-     *         is already running.
+     * @return true if the Watchdog timer was started successfully;
+     *         false if Watchdog timer was not started or if the Watchdog
+     *         timer is already running.
      */
     bool start(uint32_t timeout);
 
     /** Stop the Watchdog timer.
      *
-     * Calling this function will attempt to disable a running Watchdog
-     * peripheral if supported by the platform.
+     * Calling this function disables a running Watchdog
+     * peripheral if the platform supports it.
      *
-     * @return true, if the Watchdog timer was successfully stopped,
-     *         false, if the Watchdog cannot be disabled on this platform
-     *         or if the Watchdog has not been started.
+     * @return true if the Watchdog timer was successfully stopped;
+     *         false if the Watchdog timer cannot be disabled on this platform
+     *         or if the Watchdog timer has not been started.
      */
     bool stop();
 
@@ -129,19 +126,19 @@ public:
      */
     uint32_t get_max_timeout() const;
 
-    /** Check if the Watchdog is already running.
+    /** Check if the Watchdog timer is already running.
      *
-     * @return true, if the Watchdog is running,
-     *         false, otherwise.
+     * @return true if the Watchdog timer is running and
+     *         false otherwise.
      */
     bool is_running() const;
 
     /** Refresh the Watchdog timer.
      *
      * Call this function periodically before the Watchdog times out.
-     * Otherwise, the system is reset.
+     * Otherwise, the system resets.
      *
-     * If the Watchdog is not running, this function does nothing.
+     * If the Watchdog timer is not running, this function does nothing.
      */
     void kick();
 
