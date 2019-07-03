@@ -76,9 +76,9 @@ public:
     uint32_t get_receive_checksum();
 
     /**
-     * Read a checksum of data read from the tester
+     * Read a checksum the tester calculated for data it has already sent
      *
-     * @return The sum of all bytes read from the tester since reset
+     * @return The sum of all bytes the tester has sent since reset
      */
     uint32_t get_send_checksum();
 
