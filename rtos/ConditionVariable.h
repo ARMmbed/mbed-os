@@ -31,7 +31,7 @@
 
 namespace rtos {
 /** \ingroup rtos */
-/** \addtogroup rtos-public-api RTOS Public API */
+/** \addtogroup rtos-public-api Public API */
 /** @{*/
 
 struct Waiter;
