@@ -424,8 +424,8 @@ static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint3
 
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
-      // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
+      // async transfer ongoing, abort it
+      i2c_abort_async(obj);
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
@@ -494,8 +494,8 @@ int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint3
 
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
-      // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
+      // async transfer ongoing, abort it
+      i2c_abort_async(obj);
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
@@ -642,6 +642,11 @@ void i2c_abort_async(i2c_t *obj)
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]);
+  /* Wait until data transfer complete. */
+  uint16_t _timeout = UINT16_MAX;
+  while ((base->S & kI2C_BusBusyFlag) && (--_timeout))
+  {
+  }
 }
 #endif
 
