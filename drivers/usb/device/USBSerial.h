@@ -122,10 +122,7 @@ public:
      *    1 if there is a character available to read,
      *    0 otherwise
      */
-    int readable()
-    {
-        return available() ? 1 : 0;
-    }
+    int readable();
 
     /** Determine if there is space available to write a character
      *
@@ -133,10 +130,7 @@ public:
      *    1 if there is space to write a character,
      *    0 otherwise
      */
-    int writeable()
-    {
-        return 1;    // always return 1, for write operation is blocking
-    }
+    int writeable();
 
     /**
      *  Attach a member function to call when a packet is received.
@@ -161,44 +155,21 @@ public:
      *
      * @param fptr function pointer
      */
-    void attach(void (*fptr)(void))
-    {
-        USBCDC::lock();
-
-        if (fptr != NULL) {
-            rx = mbed::Callback<void()>(fptr);
-        }
-
-        USBCDC::unlock();
-    }
+    void attach(void (*fptr)(void));
 
     /**
      * Attach a Callback called when a packet is received
      *
      * @param cb Callback to attach
      */
-    void attach(mbed::Callback<void()> &cb)
-    {
-        USBCDC::lock();
-
-        rx = cb;
-
-        USBCDC::unlock();
-    }
+    void attach(mbed::Callback<void()> &cb);
 
     /**
      * Attach a callback to call when serial's settings are changed.
      *
      * @param fptr function pointer
      */
-    void attach(void (*fptr)(int baud, int bits, int parity, int stop))
-    {
-        USBCDC::lock();
-
-        _settings_changed_callback = fptr;
-
-        USBCDC::unlock();
-    }
+    void attach(void (*fptr)(int baud, int bits, int parity, int stop));
 
 protected:
     virtual void data_rx();
