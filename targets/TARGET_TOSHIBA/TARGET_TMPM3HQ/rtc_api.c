@@ -34,17 +34,17 @@
 #define HEX2DEC(val)                    ((val >> 4U) * 10U + val % 16U)  // Hex to Dec conversion macro
 #define DEC2HEX(val)                    ((val / 10U) * 16U + val % 10U)  // Dec to Hex conversion macro
 
-static int flag = 0;
+static int rtc_inited = 0;
 static int diff_year = 100;         //our RTC register only support 2000~2099
 static void external_losc_enable(void);
 
 void rtc_init(void)
 {
-    if (!flag) {
+    if (!rtc_inited) {
         TSB_CG_FSYSENA_IPENA23 = 1;  // Enable Sys Clock for RTC
         external_losc_enable();      // Enable low-speed oscillator
 
-        TSB_RTC->PAGER = 0x00;       //disable clock and alarm
+        TSB_RTC->PAGER = 0x00;       // Disable clock and alarm
 
         while ((TSB_RTC->RESTR & RTCRESTR_RSTTMR_MASK) == RTCRESTR_RSTTMR_R_RUN) {
             // Reset RTC sec counter
@@ -68,24 +68,27 @@ void rtc_init(void)
         TSB_RTC->MINR    = (uint8_t)0x02;     // Set minute value
         TSB_RTC->SECR    = (uint8_t)0x22;     // Set second value
         TSB_RTC->PAGER  |= RTC_CLK_ENABLE;    // Enable Clock
-        flag             = 1;                 // Enable internal flag
+        rtc_inited       = 1;                 // Enable RTC initialzed status
     }
 }
 
 void rtc_free(void)
 {
-    if (flag) {  // Check status of RTC peripheral driver is ENABLE or DISABLE
-        flag = 0;  // Set status of RTC peripheral driver is DISABLE
-    }
+    rtc_inited = 0;  // Set status of RTC peripheral driver as DISABLE
 }
 
 int rtc_isenabled(void)
 {
-    return flag;  // Return a flag that represents status of RTC peripheral driver
+    return rtc_inited;  // Return status of RTC peripheral driver
 }
 
 time_t rtc_read(void)
 {
+    if (!rtc_inited) {
+        // Return invalid time for now!
+        return 0;
+    }
+
     struct tm timeinfo;
     uint8_t read_1 = 0U;
     uint8_t read_2 = 0U;
@@ -143,6 +146,11 @@ time_t rtc_read(void)
 
 void rtc_write(time_t t)
 {
+    if (!rtc_inited) {
+        // Initialize the RTC as not yet initialized
+        rtc_init();
+    }
+
     struct tm timeinfo;
     if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
