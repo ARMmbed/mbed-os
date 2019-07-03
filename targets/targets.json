@@ -1507,6 +1507,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_FC",
             "SERIAL_ASYNCH",
@@ -1517,7 +1518,8 @@
             "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
-            "USBDEVICE"
+            "USBDEVICE",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
@@ -1659,6 +1661,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -1668,7 +1671,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "default_lib": "std",
         "release_versions": ["2", "5"],
@@ -1910,7 +1914,9 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "WATCHDOG",
+            "RESET_REASON"
         ]
     },
     "MIMXRT1050_EVK": {
@@ -3220,7 +3226,8 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "device_has_remove": ["WATCHDOG"]
     },
     "NUCLEO_H743ZI2": {
         "inherits": ["NUCLEO_H743ZI"],
@@ -5831,6 +5838,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -5842,7 +5850,8 @@
             "USTICKER",
             "FLASH",
             "ITM",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5908,6 +5917,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -5918,7 +5928,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "device_name": "EFM32LG990F256",
@@ -5986,6 +5997,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -5996,7 +6008,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6062,6 +6075,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SLEEP",
@@ -6069,7 +6083,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6135,6 +6150,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SLEEP",
@@ -6142,7 +6158,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6208,6 +6225,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -6218,7 +6236,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6307,6 +6326,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -6317,7 +6337,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6377,6 +6398,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -6387,7 +6409,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
@@ -6454,6 +6477,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -6465,7 +6489,8 @@
             "USTICKER",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6542,6 +6567,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
@@ -6553,7 +6579,8 @@
             "USTICKER",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
@@ -6783,6 +6810,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -7405,7 +7433,8 @@
             "CAN",
             "FLASH",
             "EMAC",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -7470,6 +7499,7 @@
             "SPI",
             "TRNG",
             "SPISLAVE",
+            "WATCHDOG",
             "802_15_4_PHY",
             "MPU",
             "USTICKER"
@@ -7532,7 +7562,9 @@
             "SPI_ASYNCH",
             "CAN",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
@@ -7599,7 +7631,9 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "SPI_ASYNCH"
+            "SPI_ASYNCH",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
@@ -7957,7 +7991,9 @@
             "FLASH",
             "CAN",
             "EMAC",
-            "MPU"
+            "MPU",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
@@ -7994,6 +8030,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "I2C",
@@ -8057,6 +8094,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_FC",
             "SPI",
@@ -8228,6 +8266,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "SPI",
@@ -8255,6 +8294,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SPI",
             "I2C",
@@ -8542,6 +8582,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "SPI",
@@ -8725,7 +8766,6 @@
 		"macros": ["__TT_M4G9__"],
 		"supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
 		"device_has": ["USTICKER",
-                   "RESET_REASON",
                    "ANALOGIN",
                    "ANALOGOUT",
                    "SERIAL",

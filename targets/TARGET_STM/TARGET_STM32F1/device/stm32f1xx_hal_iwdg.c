@@ -121,6 +121,7 @@
    higher prescaler (256), and according to HSI variation, we need to wait at
    least 6 cycles so 48 ms. */
 #define HAL_IWDG_DEFAULT_TIMEOUT            48U
+
 /**
   * @}
   */
