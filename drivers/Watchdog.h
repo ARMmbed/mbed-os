@@ -34,7 +34,7 @@ namespace mbed {
  * failures or malfunctions. If you fail to refresh the Watchdog timer periodically,
  * it resets the system after a set period of time.
  *
- * There is only one instance of the Watchdog class in the system, which directly maps to the hardware. 
+ * There is only one instance of the Watchdog class in the system, which directly maps to the hardware.
  * Use Watchdog::get_instance to obtain a reference.
  *
  * Watchdog::start initializes a system timer with a time period specified in
