@@ -187,8 +187,8 @@ public:
     osEvent get(uint32_t millisec = osWaitForever)
     {
         osEvent event;
-        T *data = NULL;
-        osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);
+        T *data = nullptr;
+        osStatus_t res = osMessageQueueGet(_id, &data, nullptr, millisec);
 
         switch (res) {
             case osOK:

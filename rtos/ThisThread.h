@@ -169,13 +169,13 @@ void sleep_until(uint64_t millisec);
 void yield();
 
 /** Get the thread id of the current running thread.
-  @return  thread ID for reference by other functions or NULL in case of error or in ISR context.
+  @return  thread ID for reference by other functions or nullptr in case of error or in ISR context.
   @note You may call this function from ISR context.
 */
 osThreadId_t get_id();
 
 /** Get the thread name of the current running thread.
-  @return  thread name pointer or NULL if thread has no name or in case of error.
+  @return  thread name pointer or nullptr if thread has no name or in case of error.
   @note You cannot call this function from ISR context.
 */
 const char *get_name();

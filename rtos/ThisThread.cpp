@@ -242,12 +242,12 @@ const char *get_name()
 {
 #if MBED_CONF_RTOS_PRESENT
     osThreadId_t id = osThreadGetId();
-    if (id == NULL) {
-        return NULL;
+    if (id == nullptr) {
+        return nullptr;
     }
     return osThreadGetName(id);
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 

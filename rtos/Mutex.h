@@ -177,7 +177,7 @@ public:
 
 private:
 #if MBED_CONF_RTOS_PRESENT
-    void constructor(const char *name = NULL);
+    void constructor(const char *name = nullptr);
     friend class ConditionVariable;
 
     osMutexId_t               _id;

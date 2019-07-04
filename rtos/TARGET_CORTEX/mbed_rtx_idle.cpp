@@ -159,8 +159,8 @@ extern "C" {
 
     void rtos_attach_idle_hook(void (*fptr)(void))
     {
-        //Attach the specified idle hook, or the default idle hook in case of a NULL pointer
-        if (fptr != NULL) {
+        //Attach the specified idle hook, or the default idle hook in case of a null pointer
+        if (fptr != nullptr) {
             idle_hook_fptr = fptr;
         } else {
             idle_hook_fptr = default_idle_hook;

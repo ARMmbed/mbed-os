@@ -47,7 +47,7 @@ void Semaphore::constructor(int32_t count, uint16_t max_count)
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
     _id = osSemaphoreNew(max_count, count, &attr);
-    MBED_ASSERT(_id != NULL);
+    MBED_ASSERT(_id != nullptr);
 #else
     _count = count;
     _max_count = max_count;

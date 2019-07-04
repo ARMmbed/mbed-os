@@ -112,7 +112,7 @@ public:
     ~EventFlags();
 
 private:
-    void constructor(const char *name = NULL);
+    void constructor(const char *name = nullptr);
     uint32_t wait(uint32_t flags, uint32_t opt, uint32_t millisec, bool clear);
 #if MBED_CONF_RTOS_PRESENT
     osEventFlagsId_t                _id;
