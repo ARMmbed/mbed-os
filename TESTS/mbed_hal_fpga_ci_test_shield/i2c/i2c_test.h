@@ -65,7 +65,7 @@ void fpga_i2c_test_blocking_transmission_timeout(PinName sda, PinName scl, uint3
 /** Test blocking transmission when no slave.
  *
  * Given board provides I2C-Master support.
- * When I2C transmission with address of nonexistent slave is performed using 
+ * When I2C transmission with address of nonexistent slave is performed using
  * Then transfer fails returning appropriate error.
  */
 void fpga_i2c_test_transmission_no_slave(PinName sda, PinName scl, uint32_t frequency);
