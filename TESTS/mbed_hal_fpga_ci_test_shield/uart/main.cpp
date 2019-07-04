@@ -314,23 +314,11 @@ Case cases[] = {
     Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1> >),
     Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<38400, 8, ParityNone, 1> >),
     Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1> >), // DISCO_L475VG_IOT01A
-    // data bits
-    /* FIXME not supported: K64F
-    Case("9600, 7O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 7, ParityOdd, 1> >),
-    Case("9600, 7O1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 7, ParityOdd, 1> >),
-    Case("9600, 9N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 9, ParityNone, 1> >),
-    Case("9600, 9N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 9, ParityNone, 1> >),
-    */
+    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1> >),
+    // data bits: not tested (some platforms support 8 bits only)
     // parity
     Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityOdd, 1> >),
-    /* FIXME not supported: NUCLEO_F429ZI, NUCLEO_F746ZG, NUCLEO_F207ZG
-    Case("9600, 8O1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityOdd, 1> >),
-    */
     Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityEven, 1> >),
-    /* FIXME not supported: NUCLEO_F429ZI, NUCLEO_F746ZG, NUCLEO_F207ZG
-    Case("9600, 8E1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityEven, 1> >),
-    */
     // stop bits
     Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 2> >),
     Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2> >),
