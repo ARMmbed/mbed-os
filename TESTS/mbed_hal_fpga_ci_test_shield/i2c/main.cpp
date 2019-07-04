@@ -64,7 +64,7 @@ using namespace utest::v1;
 #define MAKE_7BIT_READ_ADDRESS(addr)    (((I2C_ADDRESS_MASK_7BIT & addr) << 1) | 1)
 #define MAKE_7BIT_WRITE_ADDRESS(addr)   ((I2C_ADDRESS_MASK_7BIT & addr) << 1)
 
-enum TransferType{
+enum TransferType {
     WRITE = 0,
     READ = 1,
     WRITE_READ = 2
@@ -243,7 +243,7 @@ void fpga_i2c_test_blocking_transmission_timeout(PinName sda, PinName scl, uint3
 
     uint8_t data[10] = { 111, 112, 113, 114, 115, 116, 117, 118, 119, 120 };
     const uint32_t data_size = sizeof(data);
-    
+
     ret = i2c_write(&i2c, MAKE_7BIT_WRITE_ADDRESS(I2C_7BIT_ADDRESS), data, data_size, true);
     TEST_ASSERT_EQUAL(data_size, ret);
     num_starts += 1;
@@ -272,7 +272,7 @@ void fpga_i2c_test_blocking_transmission_timeout(PinName sda, PinName scl, uint3
     num_acks += 1; // address match
     num_acks += ret;
     num_dev_addr_matches += 1;
-    
+
     ret = i2c_read(&i2c, MAKE_7BIT_WRITE_ADDRESS(I2C_7BIT_ADDRESS), data, data_size, STOP_EACH);
     TEST_ASSERT_EQUAL(data_size, ret);
     num_starts += 1;
@@ -352,7 +352,7 @@ void fpga_i2c_test_transmission_no_slave(PinName sda, PinName scl, uint32_t freq
 
     uint8_t data[1] = { 123 };
     const uint32_t data_size = sizeof(data);
-    
+
     ret = i2c_write(&i2c, MAKE_7BIT_WRITE_ADDRESS(I2C_7BIT_ADDRESS_MIN), data, data_size, STOP_EACH);
     TEST_ASSERT_EQUAL(I2C_ERROR_NO_SLAVE, ret);
     num_starts += 1;
@@ -408,7 +408,7 @@ void fpga_i2c_test_transmission_no_slave(PinName sda, PinName scl, uint32_t freq
     num_acks += 1; // address match
     num_acks += transfer_status.event.sent_bytes;
     num_dev_addr_matches += 1;
-    
+
     memset(&transfer_status, 0, sizeof(async_status));
     i2c_transfer_async(&i2c, NULL, 0, data, data_size, MAKE_7BIT_SLAVE_ADDRESS(I2C_7BIT_ADDRESS_MIN), STOP_EACH, async_callback, &transfer_status);
     while (!transfer_status.done);
@@ -484,7 +484,7 @@ void fpga_i2c_test_blocking_write_read(PinName sda, PinName scl, uint16_t addr, 
     uint8_t *data_out = new uint8_t[data_size];
     uint8_t *data_in = new uint8_t[data_size];
     srand(ticker_read(get_us_ticker_data()));
-    for(uint32_t i = 0; i < data_size; i++){
+    for (uint32_t i = 0; i < data_size; i++) {
         data_out[i] = (uint8_t)(rand() & 0xFF);
         data_in[i] = 0;
     }
@@ -498,10 +498,10 @@ void fpga_i2c_test_blocking_write_read(PinName sda, PinName scl, uint16_t addr, 
             num_acks += 1; // address match
             num_writes += _num_writes;
             num_acks += _num_writes;
-            for(uint32_t i = 0; i < data_size; i++){
+            for (uint32_t i = 0; i < data_size; i++) {
                 write_checksum += data_out[i];
             }
-        } 
+        }
         if (ttype == WRITE_READ || ttype == READ) {
             int _num_reads  = i2c_read(&i2c, MAKE_7BIT_READ_ADDRESS(addr), data_in, data_size, stop_each);
             TEST_ASSERT_EQUAL(data_size, _num_reads);
@@ -511,7 +511,7 @@ void fpga_i2c_test_blocking_write_read(PinName sda, PinName scl, uint16_t addr, 
             num_acks += data_size - 1;
             num_reads += _num_reads;
             num_nacks += 1; // end of transfer
-            for(uint32_t i = 0; i < data_size; i++){
+            for (uint32_t i = 0; i < data_size; i++) {
                 read_checksum += data_in[i];
             }
         }
@@ -543,15 +543,15 @@ void fpga_i2c_test_blocking_write_read(PinName sda, PinName scl, uint16_t addr, 
 
     if (ttype == WRITE_READ || ttype == WRITE) {
         if (data_size > 3) {
-            TEST_ASSERT_EQUAL(data_out[data_size-4], tester.get_prev_to_slave_4());
+            TEST_ASSERT_EQUAL(data_out[data_size - 4], tester.get_prev_to_slave_4());
         }
         if (data_size > 2) {
-            TEST_ASSERT_EQUAL(data_out[data_size-3], tester.get_prev_to_slave_3());
+            TEST_ASSERT_EQUAL(data_out[data_size - 3], tester.get_prev_to_slave_3());
         }
         if (data_size > 1) {
-            TEST_ASSERT_EQUAL(data_out[data_size-2], tester.get_prev_to_slave_2());
+            TEST_ASSERT_EQUAL(data_out[data_size - 2], tester.get_prev_to_slave_2());
         }
-        TEST_ASSERT_EQUAL(data_out[data_size-1], tester.get_prev_to_slave_1());
+        TEST_ASSERT_EQUAL(data_out[data_size - 1], tester.get_prev_to_slave_1());
     }
     if (ttype == WRITE_READ || ttype == READ) {
         TEST_ASSERT_EQUAL(((data_size * transfer_count + 1) & 0xFF), tester.get_next_from_slave());
@@ -601,7 +601,7 @@ void fpga_i2c_test_async_write_read(PinName sda, PinName scl, uint16_t addr, uin
     uint8_t *data_out = new uint8_t[data_size];
     uint8_t *data_in = new uint8_t[data_size];
     srand(ticker_read(get_us_ticker_data()));
-    for(uint32_t i = 0; i < data_size; i++){
+    for (uint32_t i = 0; i < data_size; i++) {
         data_out[i] = (uint8_t)(rand() & 0xFF);
         data_in[i] = 0;
     }
@@ -642,11 +642,11 @@ void fpga_i2c_test_async_write_read(PinName sda, PinName scl, uint16_t addr, uin
             TEST_ASSERT_EQUAL(data_size, transfer_status.event.received_bytes);
             num_reads += transfer_status.event.received_bytes;
         }
-        
+
         if (stop_each) {
             num_stops += 1;
         }
-        for(uint32_t i = 0; i < data_size; i++){
+        for (uint32_t i = 0; i < data_size; i++) {
             write_checksum += data_out[i];
             read_checksum += data_in[i];
         }
@@ -668,7 +668,7 @@ void fpga_i2c_test_async_write_read(PinName sda, PinName scl, uint16_t addr, uin
         TEST_ASSERT_EQUAL(read_checksum, tester.get_send_checksum());
         TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
     }
-    
+
     TEST_ASSERT_EQUAL(num_writes + num_reads + ((ttype == WRITE_READ) ? 2 : 1) * transfer_count, tester.transfer_count());
     TEST_ASSERT_EQUAL(num_starts, tester.num_starts());
     TEST_ASSERT_EQUAL(num_stops, tester.num_stops());
@@ -677,20 +677,20 @@ void fpga_i2c_test_async_write_read(PinName sda, PinName scl, uint16_t addr, uin
     TEST_ASSERT_EQUAL(0, tester.state_num());
     if (ttype == WRITE_READ || ttype == WRITE) {
         if (data_size > 3) {
-            TEST_ASSERT_EQUAL(data_out[data_size-4], tester.get_prev_to_slave_4());
+            TEST_ASSERT_EQUAL(data_out[data_size - 4], tester.get_prev_to_slave_4());
         }
         if (data_size > 2) {
-            TEST_ASSERT_EQUAL(data_out[data_size-3], tester.get_prev_to_slave_3());
+            TEST_ASSERT_EQUAL(data_out[data_size - 3], tester.get_prev_to_slave_3());
         }
         if (data_size > 1) {
-            TEST_ASSERT_EQUAL(data_out[data_size-2], tester.get_prev_to_slave_2());
+            TEST_ASSERT_EQUAL(data_out[data_size - 2], tester.get_prev_to_slave_2());
         }
-        TEST_ASSERT_EQUAL(data_out[data_size-1], tester.get_prev_to_slave_1());
+        TEST_ASSERT_EQUAL(data_out[data_size - 1], tester.get_prev_to_slave_1());
     }
     if (ttype == WRITE_READ || ttype == READ) {
         TEST_ASSERT_EQUAL(((data_size * transfer_count + 1) & 0xFF), tester.get_next_from_slave());
     }
-    
+
     i2c_free(&i2c);
     delete [] data_out;
     delete [] data_in;
@@ -733,7 +733,7 @@ void fpga_i2c_test_async_abort(PinName sda, PinName scl, uint32_t frequency)
     uint8_t data_in[100];
     const uint32_t data_size = sizeof(data_out);
     srand(ticker_read(get_us_ticker_data()));
-    for(uint32_t i = 0; i < data_size; i++){
+    for (uint32_t i = 0; i < data_size; i++) {
         data_out[i] = (uint8_t)(rand() & 0xFF);
         write_checksum += data_out[i];
         data_in[i] = 0;
@@ -834,7 +834,7 @@ void fpga_i2c_test_async_abort(PinName sda, PinName scl, uint32_t frequency)
     TEST_ASSERT_EQUAL(num_acks, tester.num_acks());
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
     read_checksum = 0;
-    for(uint32_t i = 0; i < data_size; i++){
+    for (uint32_t i = 0; i < data_size; i++) {
         read_checksum += data_in[i];
     }
     TEST_ASSERT_EQUAL(read_checksum, tester.get_send_checksum());
@@ -887,8 +887,8 @@ void fpga_i2c_test_async_abort(PinName sda, PinName scl, uint32_t frequency)
     TEST_ASSERT_EQUAL(num_acks, tester.num_acks());
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
     read_checksum = 0;
-    for(uint32_t i = 0; i < data_size; i++){
-        read_checksum += data_in[i];    
+    for (uint32_t i = 0; i < data_size; i++) {
+        read_checksum += data_in[i];
     }
     TEST_ASSERT_EQUAL(read_checksum, tester.get_send_checksum());
 
@@ -972,7 +972,7 @@ Case cases[] = {
     Case("i2c - test blocking read 1x100 400kHz stop at the end",        all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_read<I2C_7BIT_ADDRESS_MAX, FAST_MODE_FREQ_400kHz, 1,   100, STOP_AT_END> >),
     Case("i2c - test blocking read 100x2 400kHz stop each",              all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_read<I2C_7BIT_ADDRESS_MIN, FAST_MODE_FREQ_400kHz, 100, 5,   STOP_EACH> >),
     Case("i2c - test blocking read 600x1 400kHz stop at the end",        all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_read<I2C_7BIT_ADDRESS_MIN, FAST_MODE_FREQ_400kHz, 600, 1,   STOP_AT_END> >),
-    
+
     Case("i2c - test blocking write/read 1x100 100kHz stop each",        all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_write_read<I2C_7BIT_ADDRESS_MIN, STANDARD_MODE_FREQ_100kHz, 1,   100, STOP_EACH> >),
     Case("i2c - test blocking write/read 1x100 100kHz stop at the end",  all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_write_read<I2C_7BIT_ADDRESS_MAX, STANDARD_MODE_FREQ_100kHz, 1,   100, STOP_AT_END> >),
     Case("i2c - test blocking write/read 100x2 100kHz stop each",        all_peripherals<I2CPort, DefaultFormFactor, test_i2c_blocking_write_read<I2C_7BIT_ADDRESS_MIN, STANDARD_MODE_FREQ_100kHz, 100, 5,   STOP_EACH> >),
