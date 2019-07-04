@@ -55,7 +55,7 @@ int ATHandler_stub::int_count = kRead_int_table_size;
 bool ATHandler_stub::process_oob_urc = false;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
+const char *ATHandler_stub::read_string_table[kRead_string_table_size];
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 
 bool ATHandler_stub::get_debug_flag = false;
