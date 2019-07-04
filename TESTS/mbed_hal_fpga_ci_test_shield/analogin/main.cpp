@@ -72,81 +72,9 @@ void analogin_test(PinName pin)
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
 }
 
-void analogin_full_test(PinName pin)
-{
-    /* Test analog input */
-
-    printf("Testing AnalogIn\r\n");
-
-    // Remap pins for test
-    tester.reset();
-
-    // Reset tester stats and select GPIO
-    tester.peripherals_reset();
-    tester.select_peripheral(MbedTester::PeripheralGPIO);
-
-    analogin_t analogin;
-    analogin_init(&analogin, pin);
-
-    //enable analog MUX
-    tester.set_mux_enable(true);
-
-    //set MUX address
-    tester.set_mux_addr(pin);
-
-    float voltage = 0.0;
-    bool enable = true;
-    uint32_t period = 100;
-    uint32_t duty_cycle = 0;
-    //enable FPGA system PWM
-    tester.set_analog_out(voltage, enable);
-
-    TEST_ASSERT_EQUAL(true, tester.get_pwm_enable());
-    TEST_ASSERT_EQUAL(period, tester.get_pwm_period());
-    TEST_ASSERT_EQUAL(duty_cycle, tester.get_pwm_cycles_high());
-    // test duty cycles 0-100% at 1000ns period
-    for (int i = 0; i < 11; i += 1) {
-        voltage = (float)i * 0.1f;
-        duty_cycle = 10 * i;
-        tester.set_analog_out(voltage, enable);
-        wait_us(10);
-        //read analog input
-        //assert pwm duty_cycle is correct based on set analog voltage
-        TEST_ASSERT_EQUAL(duty_cycle, tester.get_pwm_cycles_high());
-        TEST_ASSERT_FLOAT_WITHIN(DELTA_FLOAT, 0.01f * (float)duty_cycle, analogin_read(&analogin));
-    }
-    tester.set_pwm_enable(false);
-    TEST_ASSERT_EQUAL(false, tester.get_pwm_enable());
-    wait_us(10);
-
-    // assert Mbed pin correctly drives AnalogMuxIn
-    tester.pin_map_set(pin, MbedTester::LogicalPinGPIO0);
-
-    tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, true);
-    TEST_ASSERT_EQUAL(0, tester.sys_pin_read(MbedTester::AnalogMuxIn));
-    wait_us(10);
-    tester.gpio_write(MbedTester::LogicalPinGPIO0, 1, true);
-    TEST_ASSERT_EQUAL(1, tester.sys_pin_read(MbedTester::AnalogMuxIn));
-    wait_us(10);
-    tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, true);
-    TEST_ASSERT_EQUAL(0, tester.sys_pin_read(MbedTester::AnalogMuxIn));
-    wait_us(10);
-    tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
-    wait_us(10);
-    tester.set_mux_enable(false);
-    wait_us(10);
-
-    TEST_ASSERT_EQUAL(1, tester.self_test_control_current());//assert control channel still functioning properly
-}
-
 Case cases[] = {
     // This will be run for all pins
     Case("AnalogIn - init test", all_ports<AnaloginPort, DefaultFormFactor, analogin_init>),
-    // This test case is disabled for now due to hardware issue in the first rev of FPGA Test Shield
-#if 0
-    Case("AnalogIn - full test", all_ports<AnaloginPort, DefaultFormFactor, analogin_full_test>),
-#endif
-
     // This will be run for single pin
     Case("AnalogIn - read test", all_ports<AnaloginPort, DefaultFormFactor, analogin_test>),
 };
