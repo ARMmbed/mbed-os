@@ -19,49 +19,24 @@ Mbed OS provides a set of integration tests to help users identify integration i
 
 ## Execute tests
 
-The integration test requires both the connectivity and and storage device to to configured. Currently we have a pre-configuration file defined in the COMMON folder, and that file covers some of the platform connectivity/storage combinations.  If you have your own platform or you want to define your own configuration, please follow the [configuration guide](#Tests-configuration).
-
-To compile and run the tests inside mbed-os directory, the configuration file need to be passed in the command line: 
+The integration test requires both the connectivity and and storage device to to configured. 
+If a platform have both of them enabled by default. The tests can be compiled and run the tests inside mbed-os directory, the configuration file need to be passed in the command line: 
 
     ```bash
-    $ mbed test -t <toolchain> -m <platform> -n *integraion-* --app-config TESTS\integration\COMMON\mbed_app.json
+    $ mbed test -t <toolchain> -m <platform> -n *integraion-* -DINTEGRATION_TESTS -v
     ```
+If a platform not have default storage or connectivity device and may require extra shield to run the integration test. In this case,  a `target_extended.json` file can be passed in the command line, to configurate the target: 
 
-### table of platforms in the configuration file
-
-
-Platform                        |  Connectivity      | Storage 
---------------------------------| -------------------| --------- 
-Nuvoton NUMAKER-IOT-M487            | Wi-Fi              | SD Card 
-Nuvoton NUMAKER-PFM-M487            | Ethernet           | SD Card 
-Nuvoton NUMAKER-PFM-NUC472          | Ethernet           | SD Card 
-NXP FRDM-K64F                       | Ethernet           | SD Card 
-NXP FRDM-K66F                       | Ethernet           | SD Card 
-Renesas GR-PEACH                    | Ethernet           | SD Card 
-Renesas GR-LYCHEE                   | Wi-Fi              | SD Card
-Sigma Delta Technologies SDT64B     | Ethernet           | SD Card 
-Silicon Labs Giant Gecko 11         | Ethernet           | QSPI 
-Silicon Labs Thunderboard Sense 2   | 15.4 Thread        | SPI Flash
-ST DISCO_L475E_IOT01A               | Wi-Fi              | QSPI 
-ST DISCO_F413H                      | Wi-Fi              | QSPI 
-ST DISCO_F469NI                     | Wi-Fi Shield       | QSPI
-ST DISCO_F746NG                     | Ethernet           | QSPI
-ST DISCO_F769NI                     | Ethernet           | QSPI
-ST DISCO_L496AG                     | Wi-Fi Shield       | QSPI
-ST NUCLEO_F207ZG                    | Ethernet           | SD Card
-ST NUCLEO_F412ZG                    | Wi-Fi Shield       | SD Card
-ST NUCLEO_F429ZI                    | Ethernet           | SD Card
-ST NUCLEO_F767ZI                    | Ethernet           | SD Card
-ST NUCLEO_F746ZG                    | Ethernet           | SD Card
-ST NUCLEO_L476RG                    | Wi-Fi Shield       | SD Card 
-ST NUCLEO_L496ZG                    | Wi-Fi Shield       | SD Card
-ST NUCLEO_L4R5ZI                    | Wi-Fi Shield       | SD Card
-UBlox C030 U201                     | Cellular           | SD Card
-UBlox EVK ODIN W2                   | Wi-Fi              | SD Card
+    ```bash
+    $ mbed test -t <toolchain> -m <platform> -n *integraion-* -DINTEGRATION_TESTS --app-config TESTS\integration\COMMON\target_extended.json -v
+    ```
+Currently we have a pre-configuration file defined in the COMMON folder, and that file covers some of the platform connectivity/storage combinations.  If you have your own platform or you want to define your own configuration, please follow the [configuration guide](#Tests-configuration).
 
 ## Tests configuration
 
-Edit the `mbed_app.json` file, and create a new entry under `target_overrides` with the target name for your device:
+
+
+Edit the `target_extended.json` file, and create a new entry under `target_overrides` with the target name for your device:
 
 - **Connectivity** - Specify the default connectivity type for your target. It's essential with targets that lack default connectivity set in `targets.json` or for targets that support multiple connectivity options. For example:
   

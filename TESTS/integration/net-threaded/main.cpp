@@ -1,6 +1,6 @@
 /*
  * mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -159,9 +159,6 @@ Case cases[] = {
 #if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != CELLULAR
     Case(TEST_NETWORK_TYPE " 2 threads", download_2_threads),
 #endif
-    //Case(TEST_NETWORK_TYPE " 3 threads", download_3_threads),
-    // 4 threads may fail due to http host limits
-    //Case(TEST_NETWORK_TYPE " 4 threads", download_4_threads),
 };
 
 Specification specification(greentea_setup, cases);

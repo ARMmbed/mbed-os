@@ -1,6 +1,6 @@
 /*
  * mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -229,7 +229,6 @@ Case cases[] = {
     Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE "+" TEST_NETWORK_TYPE " 2 threads, dl, 1kb", stress_2_threads),
 #endif
     Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE "+" TEST_NETWORK_TYPE " 3 threads, dl, 256b, 1kb", stress_3_threads),
-    //Case(TEST_BLOCK_DEVICE_TYPE "+" TEST_FILESYSTEM_TYPE "+" TEST_NETWORK_TYPE " 4 threads, dl, 256b, 256b, 256b", stress_4_threads),
 };
 
 Specification specification(greentea_setup, cases);

@@ -1,14 +1,5 @@
 {
     "target_overrides": {
-        "*": {
-            "target.macros_add"                         : ["INTEGRATION_TESTS"]
-        },    
-        "K64F": {
-            "target.components_add"                     : ["SD"]
-        },
-        "K64F": {
-            "target.components_add"                     : ["SD"]
-        },
         "NUCLEO_F412ZG": {
             "target.components_add"                     : ["SD"],
             "sd.SPI_MOSI"                               : "D11",
@@ -111,13 +102,11 @@
         },
         "DISCO_L475VG_IOT01A": {
             "target.macros_remove"                      : ["MBED_TICKLESS"],
-            "target.components_add"                     : ["QSPIF"],
             "target.components_add"                     : ["WIFI_ISM43362"],
             "target.network-default-interface-type"     : "WIFI"
         },
         "DISCO_L496AG": {
             "target.macros_remove"                      : ["MBED_TICKLESS"],
-            "target.components_add"                     : ["QSPIF"],
             "target.components_add"                     : ["WIFI_WIZFI310"],
             "target.network-default-interface-type"     : "WIFI",
             "wizfi310.tx"                               : "PB_6",
@@ -130,12 +119,10 @@
             "wizfi310.provide-default"                  : true
         },
         "DISCO_F413ZH": {
-            "target.components_add"                     : ["QSPIF"],
             "target.components_add"                     : ["WIFI_ISM43362"],
             "target.network-default-interface-type"     : "WIFI"
         },
         "DISCO_F469NI": {
-            "target.components_add"                     : ["QSPIF"],
             "target.components_add"                     : ["WIFI_WIZFI310"],
             "target.network-default-interface-type"     : "WIFI",
             "wizfi310.tx"                               : "D1",
@@ -147,23 +134,13 @@
             "wizfi310.event-queue-size"                 : 1024,
             "wizfi310.provide-default"                  : true
         },
-        "DISCO_F746NG": {
-            "target.components_add"                     : ["QSPIF"],
-            "target.components_remove"                  : ["SD"]
-        },
-        "DISCO_F769NI": {
-            "target.components_add"                     : ["QSPIF"],
-            "target.components_remove"                  : ["SD"]
-        },
         "NUMAKER_PFM_NUC472": {
             "target.components_add"                     : ["NUSD"],
-            "target.network-default-interface-type"     : "ETHERNET",
             "drivers.uart-serial-rxbuf-size"            : 1024,
             "drivers.uart-serial-txbuf-size"            : 1024
         },
         "NUMAKER_PFM_M487": {
             "target.components_add"                     : ["NUSD"],
-            "target.network-default-interface-type"     : "ETHERNET",
             "drivers.uart-serial-rxbuf-size"            : 1024,
             "drivers.uart-serial-txbuf-size"            : 1024
         },
@@ -184,22 +161,14 @@
             "sd.SPI_CS"                                 : "PTB10"
         },
         "GR_LYCHEE": {
-            "target.components_add"                     : ["SD"],
             "target.components_add"                     : ["WIFI_ESP32"],
             "target.network-default-interface-type"     : "WIFI"
         },
         "RZ_A1H": {
-            "target.components_add"                     : ["SD"],
-            "target.macros_add"                         : ["MBEDTLS_TEST_NULL_ENTROPY", "MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES"],
-            "target.network-default-interface-type"     : "ETHERNET"
-        },
-        "UBLOX_EVK_ODIN_W2": {
-            "target.components_add"                     : ["SD"],
-            "target.network-default-interface-type"     : "WIFI"
+            "target.macros_add"                         : ["MBEDTLS_TEST_NULL_ENTROPY", "MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES"]
         },
         "UBLOX_C030_U201": {
             "target.features_add"                       : ["STORAGE", "LWIP"],
-            "target.components_add"                     : ["SD"],
             "target.network-default-interface-type"     : "CELLULAR",
             "lwip.ipv4-enabled"                         : true,
             "lwip.ethernet-enabled"                     : false,
