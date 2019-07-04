@@ -52,6 +52,22 @@ int mbed_vprintf(const char* format, va_list arguments);
  */
 int mbed_vsnprintf(char* buffer, size_t length, const char* format, va_list arguments);
 
+#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+/**
+ * Minimal fprintf
+ *
+ * Prints directly to file stream without using malloc.
+ */
+int mbed_fprintf(FILE* stream, const char *format, ...);
+
+/**
+ * Minimal vfprintf
+ *
+ * Prints directly to file stream without using malloc.
+ */
+int mbed_vfprintf(FILE* stream, const char* format, va_list arguments);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

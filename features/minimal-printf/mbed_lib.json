@@ -9,6 +9,10 @@
             "help": "Enable printing 64 bit integers",
             "value": true
         },
+        "enable-file-stream": {
+            "help": "Enable printing to a FILE stream",
+            "value": true
+        },
         "enable-floating-point": {
             "help": "Enable floating point printing",
             "value": false

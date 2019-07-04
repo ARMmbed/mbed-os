@@ -47,83 +47,116 @@ static control_t test_printf_d(const size_t call_count)
 {
     int result_baseline;
     int result_minimal;
+    int result_file;
 
     /*************************************************************************/
     /*************************************************************************/
     result_minimal = mbed_printf("hhd: %hhd\r\n", SCHAR_MIN);
+    result_file = mbed_fprintf(stderr, "hhd: %hhd\r\n", SCHAR_MIN);
     result_baseline = printf("hhd: %hhd\r\n", SCHAR_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hhd: %hhd\r\n", SCHAR_MAX);
+    result_file = mbed_fprintf(stderr, "hhd: %hhd\r\n", SCHAR_MAX);
     result_baseline = printf("hhd: %hhd\r\n", SCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hd: %hd\r\n", SHRT_MIN);
+    result_file = mbed_fprintf(stderr, "hd: %hd\r\n", SHRT_MIN);
     result_baseline = printf("hd: %hd\r\n", SHRT_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hd: %hd\r\n", SHRT_MAX);
+    result_file = mbed_fprintf(stderr, "hd: %hd\r\n", SHRT_MAX);
     result_baseline = printf("hd: %hd\r\n", SHRT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("d: %d\r\n", INT_MIN);
+    result_file = mbed_fprintf(stderr, "d: %d\r\n", INT_MIN);
     result_baseline = printf("d: %d\r\n", INT_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("d: %d\r\n", INT_MAX);
+    result_file = mbed_fprintf(stderr, "d: %d\r\n", INT_MAX);
     result_baseline = printf("d: %d\r\n", INT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("ld: %ld\r\n", LONG_MIN);
+    result_file = mbed_fprintf(stderr, "ld: %ld\r\n", LONG_MIN);
     result_baseline = printf("ld: %ld\r\n", LONG_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("ld: %ld\r\n", LONG_MAX);
+    result_file = mbed_fprintf(stderr, "ld: %ld\r\n", LONG_MAX);
     result_baseline = printf("ld: %ld\r\n", LONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lld: %lld\r\n", LLONG_MIN);
+    result_file = mbed_fprintf(stderr, "lld: %lld\r\n", LLONG_MIN);
     result_baseline = printf("lld: %lld\r\n", LLONG_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lld: %lld\r\n", LLONG_MAX);
+    result_file = mbed_fprintf(stderr, "lld: %lld\r\n", LLONG_MAX);
     result_baseline = printf("lld: %lld\r\n", LLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("jd: %jd\r\n", INT32_MIN);
+    result_file = mbed_fprintf(stderr, "jd: %jd\r\n", INT32_MIN);
     result_baseline = printf("jd: %jd\r\n", (intmax_t) INT32_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("jd: %jd\r\n", INT32_MAX);
+    result_file = mbed_fprintf(stderr, "jd: %jd\r\n", INT32_MAX);
     result_baseline = printf("jd: %jd\r\n", (intmax_t) INT32_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%zd not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("zd: %zd\r\n", INT32_MIN);
+    result_file = mbed_fprintf(stderr, "zd: %zd\r\n", INT32_MIN);
     result_baseline = printf("zd: %zd\r\n", (ssize_t) INT32_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("zd: %zd\r\n", INT32_MAX);
+    result_file = mbed_fprintf(stderr, "zd: %zd\r\n", INT32_MAX);
     result_baseline = printf("zd: %zd\r\n", (ssize_t) INT32_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%td not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("td: %td\r\n", PTRDIFF_MIN);
+    result_file = mbed_fprintf(stderr, "td: %td\r\n", PTRDIFF_MIN);
     result_baseline = printf("td: %td\r\n", PTRDIFF_MIN);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("td: %td\r\n", PTRDIFF_MAX);
+    result_file = mbed_fprintf(stderr, "td: %td\r\n", PTRDIFF_MAX);
     result_baseline = printf("td: %td\r\n", PTRDIFF_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
     return CaseNext;
@@ -133,83 +166,116 @@ static control_t test_printf_u(const size_t call_count)
 {
     int result_baseline;
     int result_minimal;
+    int result_file;
 
     /*************************************************************************/
     /*************************************************************************/
     result_minimal = mbed_printf("hhu: %hhu\r\n", 0);
+    result_file = mbed_fprintf(stderr, "hhu: %hhu\r\n", 0);
     result_baseline = printf("hhu: %hhu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hhu: %hhu\r\n", UCHAR_MAX);
+    result_file = mbed_fprintf(stderr, "hhu: %hhu\r\n", UCHAR_MAX);
     result_baseline = printf("hhu: %hhu\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hu: %hu\r\n", 0);
+    result_file = mbed_fprintf(stderr, "hu: %hu\r\n", 0);
     result_baseline = printf("hu: %hu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hu: %hu\r\n", USHRT_MAX);
+    result_file = mbed_fprintf(stderr, "hu: %hu\r\n", USHRT_MAX);
     result_baseline = printf("hu: %hu\r\n", USHRT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("u: %u\r\n", 0);
+    result_file = mbed_fprintf(stderr, "u: %u\r\n", 0);
     result_baseline = printf("u: %u\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("u: %u\r\n", UINT_MAX);
+    result_file = mbed_fprintf(stderr, "u: %u\r\n", UINT_MAX);
     result_baseline = printf("u: %u\r\n", UINT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lu: %lu\r\n", 0UL);
+    result_file = mbed_fprintf(stderr, "lu: %lu\r\n", 0UL);
     result_baseline = printf("lu: %lu\r\n", 0UL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lu: %lu\r\n", ULONG_MAX);
+    result_file = mbed_fprintf(stderr, "lu: %lu\r\n", ULONG_MAX);
     result_baseline = printf("lu: %lu\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("llu: %llu\r\n", 0ULL);
+    result_file = mbed_fprintf(stderr, "llu: %llu\r\n", 0ULL);
     result_baseline = printf("llu: %llu\r\n", 0ULL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("llu: %llu\r\n", ULLONG_MAX);
+    result_file = mbed_fprintf(stderr, "llu: %llu\r\n", ULLONG_MAX);
     result_baseline = printf("llu: %llu\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
 #ifdef TARGET_LIKE_MBED
     printf("%%ju not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("ju: %ju\r\n", (uintmax_t) 0);
+    result_file = mbed_fprintf(stderr, "ju: %ju\r\n", (uintmax_t) 0);
     result_baseline = printf("ju: %ju\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("ju: %ju\r\n", UINTMAX_MAX);
+    result_file = mbed_fprintf(stderr, "ju: %ju\r\n", UINTMAX_MAX);
     result_baseline = printf("ju: %ju\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%zu not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("zu: %zu\r\n", 0);
+    result_file = mbed_fprintf(stderr, "zu: %zu\r\n", 0);
     result_baseline = printf("zu: %zu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("zu: %zu\r\n", SIZE_MAX);
+    result_file = mbed_fprintf(stderr, "zu: %zu\r\n", SIZE_MAX);
     result_baseline = printf("zu: %zu\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%tu not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("tu: %tu\r\n", 0);
+    result_file = mbed_fprintf(stderr, "tu: %tu\r\n", 0);
     result_baseline = printf("tu: %tu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("tu: %tu\r\n", UINTPTR_MAX);
+    result_file = mbed_fprintf(stderr, "tu: %tu\r\n", UINTPTR_MAX);
     result_baseline = printf("tu: %tu\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
     return CaseNext;
@@ -219,83 +285,116 @@ static control_t test_printf_x(const size_t call_count)
 {
     int result_baseline;
     int result_minimal;
+    int result_file;
 
     /*************************************************************************/
     /*************************************************************************/
     result_minimal = mbed_printf("hhX: %hhX\r\n", 0);
+    result_file = mbed_fprintf(stderr, "hhX: %hhX\r\n", 0);
     result_baseline = printf("hhX: %hhX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hhX: %hhX\r\n", UCHAR_MAX);
+    result_file = mbed_fprintf(stderr, "hhX: %hhX\r\n", UCHAR_MAX);
     result_baseline = printf("hhX: %hhX\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hX: %hX\r\n", 0);
+    result_file = mbed_fprintf(stderr, "hX: %hX\r\n", 0);
     result_baseline = printf("hX: %hX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("hX: %hX\r\n", USHRT_MAX);
+    result_file = mbed_fprintf(stderr, "hX: %hX\r\n", USHRT_MAX);
     result_baseline = printf("hX: %hX\r\n", USHRT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("X: %X\r\n", 0);
+    result_file = mbed_fprintf(stderr, "X: %X\r\n", 0);
     result_baseline = printf("X: %X\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("X: %X\r\n", UINT_MAX);
+    result_file = mbed_fprintf(stderr, "X: %X\r\n", UINT_MAX);
     result_baseline = printf("X: %X\r\n", UINT_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lX: %lX\r\n", 0UL);
+    result_file = mbed_fprintf(stderr, "lX: %lX\r\n", 0UL);
     result_baseline = printf("lX: %lX\r\n", 0UL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("lX: %lX\r\n", ULONG_MAX);
+    result_file = mbed_fprintf(stderr, "lX: %lX\r\n", ULONG_MAX);
     result_baseline = printf("lX: %lX\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("llX: %llX\r\n", 0ULL);
+    result_file = mbed_fprintf(stderr, "llX: %llX\r\n", 0ULL);
     result_baseline = printf("llX: %llX\r\n", 0ULL);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("llX: %llX\r\n", ULLONG_MAX);
+    result_file = mbed_fprintf(stderr, "llX: %llX\r\n", ULLONG_MAX);
     result_baseline = printf("llX: %llX\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jX not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("jX: %jX\r\n", (uintmax_t) 0);
+    result_file = mbed_fprintf(stderr, "jX: %jX\r\n", (uintmax_t) 0);
     result_baseline = printf("jX: %jX\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("jX: %jX\r\n", UINTMAX_MAX);
+    result_file = mbed_fprintf(stderr, "jX: %jX\r\n", UINTMAX_MAX);
     result_baseline = printf("jX: %jX\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%zX not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("zX: %zX\r\n", 0);
+    result_file = mbed_fprintf(stderr, "zX: %zX\r\n", 0);
     result_baseline = printf("zX: %zX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("zX: %zX\r\n", SIZE_MAX);
+    result_file = mbed_fprintf(stderr, "zX: %zX\r\n", SIZE_MAX);
     result_baseline = printf("zX: %zX\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%tX not supported by mbed\r\n");
 #else
     result_minimal = mbed_printf("tX: %tX\r\n", 0);
+    result_file = mbed_fprintf(stderr, "tX: %tX\r\n", 0);
     result_baseline = printf("tX: %tX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
     result_minimal = mbed_printf("tX: %tX\r\n", UINTPTR_MAX);
+    result_file = mbed_fprintf(stderr, "tX: %tX\r\n", UINTPTR_MAX);
     result_baseline = printf("tX: %tX\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 #endif
 
     result_minimal = mbed_printf("x: %x\r\n", 11259375);

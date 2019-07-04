@@ -12,8 +12,10 @@
         "ld": ["-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r",
                "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r", "-Wl,--wrap,_memalign_r",
                "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",
-               "-Wl,-n", "-Wl,--wrap,printf", "-Wl,--wrap,snprintf",
-               "-Wl,--wrap,sprintf", "-Wl,--wrap,vsnprintf", "-Wl,--wrap,vprintf"]
+               "-Wl,-n",
+               "-Wl,--wrap,printf", "-Wl,--wrap,sprintf", "-Wl,--wrap,snprintf",
+               "-Wl,--wrap,vprintf", "-Wl,--wrap,vsprintf", "-Wl,--wrap,vsnprintf",
+               "-Wl,--wrap,fprintf", "-Wl,--wrap,vfprintf"]
     },
     "ARMC6": {
         "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Oz",

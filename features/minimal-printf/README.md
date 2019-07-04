@@ -2,21 +2,30 @@
 
 Library supports both printf and snprintf in 1252 bytes of flash.
 
-Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored. Floating point is disabled by default.
+Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
+Floating point is disabled by default.
+Printing to a FILE stream is enabled by default.
 
 Supports:
 * %d: signed integer [h, hh, (none), l, ll, z, j, t].
 * %i: signed integer [h, hh, (none), l, ll, z, j, t].
 * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
-* %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
+* %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
 * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
 * %f: floating point (disabled by default).
-* %F: floating point (disabled by default).
-* %g: floating point (disabled by default).
-* %G: floating point (disabled by default).
+* %F: floating point (disabled by default, treated as %f).
+* %g: floating point (disabled by default, treated as %f).
+* %G: floating point (disabled by default, treated as %f).
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).
+
+Unrecognized format specifiers are treated as ordinary characters.
+
+Floating point support:
+* Floating point is disabled by default.
+* All floating points are treated as %f.
+* No support for inf, infinity or nan
 
 To replace the standard implementations of the printf functions with the ones in this library:
 
@@ -28,7 +37,7 @@ To replace the standard implementations of the printf functions with the ones in
 $ mbed compile -t <toolchain> -m <target> --profile mbed-printf/profiles/release.json
 ```
 
-## Enabling floating point, 64 bit integers, new line conversion, and setting baud rate
+## Enabling floating point, FILE stream, 64 bit integers, new line conversion, and setting baud rate
 
 In mbed_app.json:
 
@@ -37,7 +46,8 @@ In mbed_app.json:
         "*": {
             "platform.stdio-baud-rate": 115200,
             "platform.stdio-convert-newlines": false,
-            "minimal-printf.enable-floating-point": false,
+            "minimal-printf.enable-file-stream": true,
+            "minimal-printf.enable-floating-point": true,
             "minimal-printf.set-floating-point-max-decimals": 6,
             "minimal-printf.enable-64-bit": true
         }

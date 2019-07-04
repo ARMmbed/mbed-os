@@ -76,7 +76,7 @@ def buildStep(target, compilerLabel, toolchain) {
                     sh "mbed new ."
 
                     // use default release profile for ARM and IAR.
-                    sh "mbed test -vv --compile -m ${target} -t ${toolchain} -n '*minimal-printf*' --build ci --stats-depth 10"
+                    sh "mbed test -vv --compile -m ${target} -t ${toolchain} -n '*minimal-printf*' --build ci --stats-depth 10 --app-config ./TESTS/minimal-printf/compliance/test_app.json"
 
                     // stash build directory for testins step.
                     stash name: "minimal-printf-greentea-${target}-${toolchain}", includes: "ci/**"

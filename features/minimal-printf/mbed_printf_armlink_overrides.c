@@ -38,7 +38,7 @@ int $Sub$$__2printf(const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
     va_end(arguments);
 
     return result;
@@ -48,7 +48,7 @@ int $Sub$$__2sprintf(char* buffer, const char* format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments);
+    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
     va_end(arguments);
 
     return result;
@@ -58,7 +58,7 @@ int $Sub$$__2snprintf(char* buffer, size_t length, const char* format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, length, format, arguments);
+    int result = mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
     va_end(arguments);
 
     return result;
@@ -68,7 +68,7 @@ int $Sub$$__2vprintf(char* buffer, const char* format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments);
+    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
     va_end(arguments);
 
     return result;
@@ -76,7 +76,7 @@ int $Sub$$__2vprintf(char* buffer, const char* format, ...)
 
 int $Sub$$__2vsnprintf(char* buffer, size_t length, const char* format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(buffer, length, format, arguments);
+    return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
 /**

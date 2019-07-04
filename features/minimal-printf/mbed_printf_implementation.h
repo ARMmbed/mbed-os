@@ -17,4 +17,4 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-int mbed_minimal_formatted_string(char* buffer, size_t length, const char* format, va_list arguments);
+int mbed_minimal_formatted_string(char* buffer, size_t length, const char* format, va_list arguments, FILE* stream);

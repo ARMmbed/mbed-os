@@ -1,0 +1,7 @@
+{
+    "target_overrides": {
+        "*": {
+            "minimal-printf.enable-file-stream": 1
+        }
+    }
+}
