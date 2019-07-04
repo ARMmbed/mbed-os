@@ -16,6 +16,12 @@
 * limitations under the License.
 */
 
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
 #if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
 #error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
 #endif // TARGET_PSA
