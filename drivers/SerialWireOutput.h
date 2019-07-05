@@ -26,7 +26,7 @@
 
 namespace mbed {
 /** \ingroup drivers */
-/** \addtogroup drivers-public-api */
+/** \addtogroup drivers-public-api Internal API */
 /** @{*/
 /**
  * \defgroup drivers_SerialWireOutput SerialWireOutput class

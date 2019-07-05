@@ -22,7 +22,7 @@
 
 namespace mbed {
 /** \ingroup drivers */
-/** \addtogroup drivers-internal-api Internal API */
+/** \addtogroup drivers-public-api */
 /** @{*/
 /**
  * \defgroup drivers_TimerEvent TimerEvent class

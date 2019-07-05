@@ -34,7 +34,7 @@
 namespace mbed {
 /** \defgroup drivers */
 /** \ingroup drivers */
-/** \addtogroup drivers-internal-api Internal API */
+/** \addtogroup drivers-public-api */
 /** @{*/
 /**
  * \defgroup drivers_SerialBase SerialBase class
