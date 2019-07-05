@@ -40,9 +40,10 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE
 
   RW_IRAM1 0x200002D8 (0x10000 - 0x2D8 - Stack_Size)
   {
+    tmpm3hq_fc.o (+RO)
     .ANY (+RW, +ZI)
   }
 
-  ARM_LIB_STACK (0x200002D8+0x10000) EMPTY -Stack_Size { ; stack
+  ARM_LIB_STACK (0x20000000+0x10000) EMPTY -Stack_Size { ; stack
   }
 }
