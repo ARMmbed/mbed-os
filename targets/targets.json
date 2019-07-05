@@ -2861,6 +2861,7 @@
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
+        "components_add": ["FLASHIAP"],
         "macros_add": ["USB_STM_HAL"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
         "detect_code": ["0467"],
