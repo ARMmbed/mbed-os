@@ -126,10 +126,10 @@ static USBPhyHw *instance;
 static uint32_t opStarted;
 
 static const usb_ep_t ISO_EPS[] = {
-        0x03, 0x83,
-        0x06, 0x86,
-        0x09, 0x89,
-        0x0C, 0x8C
+    0x03, 0x83,
+    0x06, 0x86,
+    0x09, 0x89,
+    0x0C, 0x8C
 };
 
 static void SIECommand(uint32_t command)
@@ -171,7 +171,7 @@ static uint8_t SIEgetDeviceStatus(void)
     return SIEReadData(SIE_CMD_GET_DEVICE_STATUS);
 }
 
-void SIEsetAddress(uint8_t address, bool enable=true)
+void SIEsetAddress(uint8_t address, bool enable = true)
 {
     // Write SIE device address register
     SIECommand(SIE_CMD_SET_ADDRESS);

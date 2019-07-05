@@ -33,7 +33,7 @@ public:
 #endif
     }
 
-    virtual ble_error_t get_device_name(ArrayView<uint8_t>& array) {
+    virtual ble_error_t get_device_name(Span<uint8_t>& array) {
 #if BLE_FEATURE_GATT_SERVER
         const uint8_t* name = NULL;
         uint16_t length = 0;

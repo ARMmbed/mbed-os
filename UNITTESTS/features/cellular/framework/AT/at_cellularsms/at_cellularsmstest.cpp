@@ -140,10 +140,24 @@ TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_get_sms)
     ATHandler_stub::int_value = 0;
     EXPECT_TRUE(-1 == sms.get_sms(buf, 16, phone, 21, stamp, 21, &size));
 
+    //In below we are expecting the stub ATHandler info_resp() to respond
+    //twice true, then once false, then again twice true so that the
+    //below message contents would be read in AT_CellularSMS read_sms_from_index().
+    //This is to avoid comparing empty date strings
     ATHandler_stub::resp_info_true_counter = 2;
+    ATHandler_stub::resp_info_false_counter = 1;
+    ATHandler_stub::resp_info_true_counter2 = 2;
     ATHandler_stub::int_value = 11;
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[4] = "";
+    ATHandler_stub::read_string_table[3] = "REC READ";
+    ATHandler_stub::read_string_table[2] = "09/01/12,11:15:00+04";
+    ATHandler_stub::read_string_table[1] = "REC READ";
+    ATHandler_stub::read_string_table[0] = "24/12/12,11:15:00+04";
+
     EXPECT_TRUE(0 == sms.get_sms(buf, 16, phone, 21, stamp, 21, &size));
     //TODO: Should make add_info to happen, before calling get_sms!
+    ATHandler_stub::read_string_index = kRead_string_table_size;
 
     ATHandler_stub::resp_info_true_counter = 2;
     ATHandler_stub::int_value = 11;

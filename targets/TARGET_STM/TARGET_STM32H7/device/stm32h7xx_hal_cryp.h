@@ -119,6 +119,7 @@ typedef struct
 
   __IO uint32_t                     ErrorCode;        /*!< CRYP peripheral error code */
 
+  uint32_t                          Version;          /*!< CRYP1 IP version*/
 
 #if (USE_HAL_CRYP_REGISTER_CALLBACKS == 1)
   void (*InCpltCallback)(struct __CRYP_HandleTypeDef *hcryp);      /*!< CRYP Input FIFO transfer completed callback  */

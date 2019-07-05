@@ -1191,7 +1191,7 @@ static void fhss_receive_frame_callback(const fhss_api_t *api, uint16_t pan_id, 
     }
 }
 
-static uint16_t fhss_get_retry_period_callback(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu)
+static uint32_t fhss_get_retry_period_callback(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu)
 {
     uint16_t retry_period = 0;
     uint16_t random_number = randLIB_get_16bit();

@@ -120,14 +120,38 @@ FileHandle *mbed_target_override_console(int fd);
  * by mbed_target_override_console, else will default to serial - see
  * mbed_target_override_console for more details.
  *
- * Example:
+ * Example using UARTSerial:
  * @code
- * FileHandle* mbed::mbed_override_console(int) {
+ * FileHandle *mbed::mbed_override_console(int) {
  *     static UARTSerial my_serial(D0, D1);
  *     return &my_serial;
  * }
  * @endcode
-
+ *
+ * Example using SingleWireOutput:
+ * @code
+ * FileHandle *mbed::mbed_override_console(int) {
+ *     static SerialWireOutput swo;
+ *     return &swo;
+ * }
+ * @endcode
+ *
+ * Example using arm semihosting:
+ * @code
+ * FileHandle *mbed::mbed_override_console(int fileno) {
+ *    static LocalFileSystem fs("host");
+ *    if (fileno == STDIN_FILENO) {
+ *        static FileHandle *in_terminal;
+ *        static int in_open_result = fs.open(&in_terminal, ":tt", O_RDONLY);
+ *        return in_terminal;
+ *    } else {
+ *        static FileHandle *out_terminal;
+ *        static int out_open_result = fs.open(&out_terminal, ":tt", O_WRONLY);
+ *        return out_terminal;
+ *    }
+ * }
+ * @endcode
+ *
  * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
  * @return  pointer to FileHandle to override normal stream otherwise NULL
  */

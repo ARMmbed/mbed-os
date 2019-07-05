@@ -43,7 +43,9 @@ void ns_hal_init(void *heap, size_t h_size, void (*passed_fptr)(heap_fail_t), me
     }
     platform_critical_init();
     ns_dyn_mem_init(heap, h_size, passed_fptr, info_ptr);
+#ifndef NS_EXCLUDE_HIGHRES_TIMER
     platform_timer_enable();
+#endif
     eventOS_scheduler_init();
 
     // We do not initialise randlib, as it should be done after

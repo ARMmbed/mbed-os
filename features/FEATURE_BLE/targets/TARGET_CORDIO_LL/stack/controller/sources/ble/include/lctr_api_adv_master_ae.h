@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller extended scanning master interface file.
+ * \file
+ * \brief Link layer controller extended scanning master interface file.
  */
 /*************************************************************************************************/
 
@@ -52,13 +53,25 @@ enum
 {
   /* Broadcast events */
   LCTR_CREATE_SYNC_MSG_RESET            = LCTR_MSG_RESET,   /*!< Reset API message. */
-  /* Advertising events */
   LCTR_CREATE_SYNC_MSG_CREATE,          /*!< Create sync create API event. */
   LCTR_CREATE_SYNC_MSG_CANCEL,          /*!< Create sync cancel sync API event. */
+  LCTR_CREATE_SYNC_MSG_FAILED,          /*!< Create sync failed event. */
   LCTR_CREATE_SYNC_MSG_DONE,            /*!< Create sync done event. */
   LCTR_CREATE_SYNC_MSG_TERMINATE,       /*!< Create sync scanning BOD terminate event. */
   LCTR_CREATE_SYNC_MSG_TOTAL            /*!< Total number of Create sync events. */
+};
 
+/*! \brief      Scanner transfer sync task messages for \a LCTR_DISP_TRANFER_SYNC dispatcher. */
+enum
+{
+  /* Broadcast events */
+  LCTR_TRANSFER_SYNC_MSG_RESET      = LCTR_MSG_RESET,                   /*!< Reset API message. */
+  LCTR_TRANSFER_SYNC_MSG_START      = LCTR_CREATE_SYNC_MSG_CREATE,      /*!< Transfer sync start event. */
+  LCTR_TRANSFER_SYNC_MSG_CANCEL     = LCTR_CREATE_SYNC_MSG_CANCEL,      /*!< Transfer sync cancel sync API event. */
+  LCTR_TRANSFER_SYNC_MSG_FAILED     = LCTR_CREATE_SYNC_MSG_FAILED,      /*!< Transfer sync failed event. */
+  LCTR_TRANSFER_SYNC_MSG_DONE       = LCTR_CREATE_SYNC_MSG_DONE,        /*!< Transfer sync done event. */
+  LCTR_TRANSFER_SYNC_MSG_TERMINATE  = LCTR_CREATE_SYNC_MSG_TERMINATE,   /*!< Transfer sync scanning BOD terminate event. */
+  LCTR_TRANSFER_SYNC_MSG_TOTAL      = LCTR_CREATE_SYNC_MSG_TOTAL        /*!< Total number of Transfer sync events. */
 };
 
 /*! \brief      Scanner periodic synchronous task messages for \a LCTR_DISP_PER_SCAN dispatcher. */
@@ -122,6 +135,7 @@ typedef struct
 {
   lctrMsgHdr_t      hdr;                /*!< Message header. */
   uint8_t           filterPolicy;       /*!< Filter Policy. */
+  uint8_t           repDisabled;        /*!< Reporting disabled. */
   uint8_t           advSID;             /*!< Advertising SID. */
   uint8_t           advAddrType;        /*!< Advertiser Address Type. */
   uint64_t          advAddr;            /*!< Advertiser Address. */
@@ -129,11 +143,30 @@ typedef struct
   uint16_t          syncTimeOut;        /*!< Synchronization Timeout. */
 } lctrPerCreateSyncMsg_t;
 
+/*! \brief      Periodic transfer sync message. */
+typedef struct
+{
+  lctrMsgHdr_t      hdr;                /*!< Message header. */
+  uint16_t          id;                 /*!< ID. */
+  uint8_t           bSyncInfo[LL_SYNC_INFO_LEN];    /*!< SyncInfo bytes. */
+  uint16_t          connHandle;         /*!< Connection handle. */
+  uint16_t          ceRef;              /*!< Reference connection event counter. */
+  uint16_t          ceRcvd;             /*!< Connection event counter when LL_PERIODIC_SYNC_IND was received. */
+  uint16_t          lastPECounter;      /*!< Last PA event counter. */
+  uint8_t           advSID;             /*!< Advertising SID. */
+  uint8_t           advAddrType;        /*!< Advertiser Address Type. */
+  uint8_t           scaB;               /*!< Sleep clock accuracy of the device sending LL_PERIODIC_SYNC_IND. */
+  uint8_t           rxPhy;              /*!< PHY used for periodic advertising scan. */
+  uint64_t          advAddr;            /*!< Advertiser Address. */
+  uint16_t          syncConnEvtCounter; /*!< Connection event counter when the contents of the PDU is determined. */
+} lctrPerTransferSyncMsg_t;
+
 /*! \brief      Periodic Advertising message data. */
 typedef union
 {
   lctrMsgHdr_t              hdr;            /*!< Message header. */
   lctrPerCreateSyncMsg_t    createSync;     /*!< Periodic create sync message data. */
+  lctrPerTransferSyncMsg_t  transferSync;   /*!< Periodic transfer sync message data. */
 } LctrPerScanMsg_t;
 
 /**************************************************************************************************
@@ -151,6 +184,7 @@ extern LctrPerScanMsg_t *pLctrMstPerScanMsg;
 void LctrMstExtScanInit(void);
 void LctrMstExtScanDefaults(void);
 void LctrMstPerCreateSyncInit(void);
+void LctrMstPerTransferSyncInit(void);
 void LctrMstPerScanInit(void);
 
 /* Status */
@@ -160,9 +194,17 @@ bool_t LctrMstExtScanValidateParam(void);
 void LctrMstExtScanSetScanPhy(uint8_t scanPhy);
 void LctrMstExtScanClearScanPhy(uint8_t scanPhy);
 void LctrMstExtScanSetParam(uint8_t scanPhy, uint8_t ownAddrType, uint8_t scanFiltPolicy, const LlExtScanParam_t *pParam);
+bool_t LctrMstExtScanIsEnabled(uint8_t scanPhy);
+bool_t LctrMstExtScanIsPrivAddr(uint8_t scanPhy);
 bool_t LctrMstPerIsSyncPending(void);
 bool_t LctrMstPerIsSyncDisabled(void);
 bool_t LctrMstPerIsSync(uint8_t advSID, uint8_t advAddrType, uint64_t advAddr);
+uint8_t lctrMstPerGetNumPerScanCtx(void);
+uint64_t LctrGetPerScanChanMap(uint16_t handle);
+bool_t lctrMstPerIsSyncHandleValid(uint16_t syncHandle);
+void LctrPastInit(void);
+uint8_t LctrPeriodicAdvSyncTransfer(uint16_t connHandle, uint16_t serviceData, uint16_t syncHandle);
+void LctrMstPerSetRcvEnable(uint16_t syncHandle, bool_t enable);
 
 #ifdef __cplusplus
 };

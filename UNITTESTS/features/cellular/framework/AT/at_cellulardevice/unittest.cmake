@@ -19,7 +19,6 @@ set(unittest-includes ${unittest-includes}
 set(unittest-sources
   stubs/randLIB_stub.c
   ../features/cellular/framework/AT/AT_CellularDevice.cpp
-  ../features/cellular/framework/AT/ATHandler_factory.cpp
 )
 
 # Test files
@@ -43,6 +42,7 @@ set(unittest-test-sources
   stubs/UARTSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/CellularStateMachine_stub.cpp
+  stubs/CellularContext_stub.cpp
 )
 
 # defines

@@ -25,10 +25,10 @@
 extern "C" {
 #endif
 
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal_def.h"
 
+#if defined (LTDC)
 
 /** @addtogroup STM32H7xx_HAL_Driver
   * @{
@@ -524,6 +524,8 @@ typedef  void (*pLTDC_CallbackTypeDef)(LTDC_HandleTypeDef *hltdc);  /*!< pointer
   * @}
   */
 
+/* Include LTDC HAL Extension module */
+#include "stm32h7xx_hal_ltdc_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup LTDC_Exported_Functions
@@ -675,6 +677,7 @@ uint32_t              HAL_LTDC_GetError(LTDC_HandleTypeDef *hltdc);
   * @}
   */
 
+#endif /* LTDC */
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "interface/include/psa_client.h"
+#include "psa_client.h"
 
 #define TFM_INVALID_CLIENT_ID 0
 
@@ -35,13 +35,18 @@ extern "C" {
  */
 #define TFM_CLIENT_ID_IS_NS(client_id) ((client_id)<0)
 
+/* Maximum number of input and output vectors */
+#define PSA_MAX_IOVEC    (4)
+
 /* FixMe: sort out DEBUG compile option and limit return value options
  * on external interfaces */
-/* Note:
+/* For secure functions using prorietary signatures
  * TFM will only return values recognized and parsed by TFM core.
  * Service return codes are not automatically passed on to REE.
  * Any non-zero return value is interpreted as an error that may trigger
  * TEE error handling flow.
+ * For secure functions using the veneers in secure_fw/ns_callable/tfm_veneers.c
+ * (iovec API) this limitation does not apply.
  */
 enum tfm_status_e
 {

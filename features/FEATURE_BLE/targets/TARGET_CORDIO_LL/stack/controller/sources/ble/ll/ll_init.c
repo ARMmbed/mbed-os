@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,19 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave initialization implementation file.
+ * \file
+ * \brief Link layer (LL) slave initialization implementation file.
  */
 /*************************************************************************************************/
 
 #include "ll_api.h"
 #include "lctr_api.h"
 #include "lmgr_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
-
-/**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-/*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
-#define LL_IMPL_REV             0x2303
 
 /**************************************************************************************************
   Global Variables
@@ -64,13 +58,15 @@ void LlGetDefaultRunTimeCfg(LlRtCfg_t *pCfg)
   {
     /* Device */
     .compId             = LL_COMP_ID_ARM,
-    .implRev            = LL_IMPL_REV,
+    .implRev            = LL_VER_NUM >> 16,
     .btVer              = LL_VER_BT_CORE_SPEC_4_2,
     /* Advertiser */
     .maxAdvSets         = 0,   /* Disable extended advertising. */
     .maxAdvReports      = 4,
     .maxExtAdvDataLen   = LL_EXT_ADVBU_MAX_LEN,
     .defExtAdvDataFrag  = 64,
+    .auxDelayUsec       = 0,
+    .auxPtrOffsetUsec   = 2,
     /* Scanner */
     .maxScanReqRcvdEvt  = 4,
     .maxExtScanDataLen  = LL_EXT_ADVBU_MAX_LEN,
@@ -81,6 +77,13 @@ void LlGetDefaultRunTimeCfg(LlRtCfg_t *pCfg)
     .maxAclLen          = 27,
     .defTxPwrLvl        = 0,
     .ceJitterUsec       = 0,
+    /* ISO */
+    .numIsoTxBuf        = 0,
+    .numIsoRxBuf        = 0,
+    .maxIsoBufLen       = 0,
+    .maxIsoPduLen       = 0,
+    .maxCis             = 0,  /* Disable CIS. */
+    .subEvtSpaceDelay   = 0,
     /* DTM */
     .dtmRxSyncMs        = 10000,
     /* PHY */
@@ -156,6 +159,7 @@ void LlHandlerInit(wsfHandlerId_t handlerId)
   lmgrCb.numInitEnabled = 0;
   lmgrCb.numWlFilterEnabled = 0;
   lmgrCb.testEnabled = FALSE;
+  lmgrCb.scaMod = 0;
 
   lmgrPersistCb.featuresDefault |= (pLctrRtCfg->phy2mSup) ? LL_FEAT_LE_2M_PHY : 0;
   lmgrPersistCb.featuresDefault |= (pLctrRtCfg->phyCodedSup) ? LL_FEAT_LE_CODED_PHY : 0;
@@ -184,7 +188,7 @@ void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   uint32_t startTime;
   uint32_t endTime;
 
-  startTimeValid = BbDrvGetTimestamp(&startTime);
+  startTimeValid = PalBbGetTimestamp(&startTime);
 
   if (event != 0)
   {
@@ -204,7 +208,7 @@ void LlHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
   }
 
   if (startTimeValid &&
-      BbDrvGetTimestamp(&endTime))
+      PalBbGetTimestamp(&endTime))
   {
     uint32_t durUsec = BB_TICKS_TO_US(endTime - startTime);
     if (llHandlerWatermarkUsec < durUsec)
@@ -304,6 +308,105 @@ void LlGetConnContextSize(uint8_t *pMaxConn, uint16_t *pConnCtxSize)
   }
 
   *pConnCtxSize = lmgrPersistCb.connCtxSize;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get extended scanner context size.
+ *
+ *  \param      pMaxPerScan     Buffer to return the maximum number of extended scanners.
+ *  \param      pPerScanCtxSize Buffer to return the size in bytes of the extended scanner context.
+ *
+ *  Return the advertising set context sizes.
+ */
+/*************************************************************************************************/
+void LlGetExtScanContextSize(uint8_t *pMaxExtScan, uint16_t *pExtScanCtxSize)
+{
+  *pMaxExtScan = LL_MAX_PHYS;
+
+  *pExtScanCtxSize = lmgrPersistCb.extScanCtxSize;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get extended initiator context size.
+ *
+ *  \param      pMaxPerScan     Buffer to return the maximum number of extended initiators.
+ *  \param      pPerScanCtxSize Buffer to return the size in bytes of the extended initiator context.
+ *
+ *  Return the advertising set context sizes.
+ */
+/*************************************************************************************************/
+void LlGetExtInitContextSize(uint8_t *pMaxExtInit, uint16_t *pExtInitCtxSize)
+{
+  *pMaxExtInit = LL_MAX_PHYS;
+
+  *pExtInitCtxSize = lmgrPersistCb.extInitCtxSize;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get periodic scan context size.
+ *
+ *  \param      pMaxPerScan     Buffer to return the maximum number of periodic scanners.
+ *  \param      pPerScanCtxSize Buffer to return the size in bytes of the periodic scanner context.
+ *
+ *  Return the advertising set context sizes.
+ */
+/*************************************************************************************************/
+void LlGetPerScanContextSize(uint8_t *pMaxPerScan, uint16_t *pPerScanCtxSize)
+{
+  *pMaxPerScan = LL_MAX_PER_SCAN;
+
+  *pPerScanCtxSize = lmgrPersistCb.perScanCtxSize;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get CIG context size.
+ *
+ *  \param      pMaxCig         Buffer to return the maximum number of CIG.
+ *  \param      pCigCtxSize     Buffer to return the size in bytes of the CIG context.
+ *
+ *  Return the connection context sizes.
+ */
+/*************************************************************************************************/
+void LlGetCigContextSize(uint8_t *pMaxCig, uint16_t *pCigCtxSize)
+{
+  if (pLctrRtCfg)
+  {
+    *pMaxCig = pLctrRtCfg->maxCig;
+  }
+  else
+  {
+    *pMaxCig = 0;
+  }
+
+  *pCigCtxSize = lmgrPersistCb.cigCtxSize;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Get CIS context size.
+ *
+ *  \param      pMaxCis         Buffer to return the maximum number of CIS.
+ *  \param      pCisCtxSize     Buffer to return the size in bytes of the CIS context.
+ *
+ *  Return the connection context sizes.
+ */
+/*************************************************************************************************/
+void LlGetCisContextSize(uint8_t *pMaxCis, uint16_t *pCisCtxSize)
+{
+  if (pLctrRtCfg)
+  {
+    *pMaxCis = pLctrRtCfg->maxCis;
+  }
+  else
+  {
+    *pMaxCis = 0;
+  }
+
+  *pCisCtxSize = lmgrPersistCb.cisCtxSize;
 }
 
 /*************************************************************************************************/

@@ -29,44 +29,82 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+  #define MBED_APP_START            0x08000000
 #endif
 
+; 1MB FLASH (0x100000)
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x100000
+  #define MBED_APP_SIZE             0x100000
 #endif
 
-#define MBED_RAM_START              0x20000000
-#define MBED_RAM_SIZE               0x00018000
-#define MBED_CRASH_REPORT_RAM_START (MBED_RAM_START)
-#define MBED_CRASH_REPORT_RAM_SIZE  0x100
-#define MBED_RAM0_START  (MBED_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
-#define MBED_RAM0_SIZE   (MBED_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
+; 128KB SRAM (0x20000)
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x20000000
+#endif
+
+; RW data 96k L4-SRAM1
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x18000
+#endif
+
+#if !defined(MBED_RAM2_START)
+#define MBED_RAM2_START             0x10000000
+#endif
+
+; RW data 32k L4-ECC-SRAM2
+#if !defined(MBED_RAM2_SIZE)
+#define MBED_RAM2_SIZE              0x8000
+#endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
+  #define MBED_BOOT_STACK_SIZE      0x400
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+; Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
+#if !defined(VECTOR_SIZE)
+#define VECTOR_SIZE                 0x188
+#endif
 
-; 1MB FLASH (0x100000) + 128KB SRAM (0x20000)
-LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+; Crash report enabled as default
+#if !defined(MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#endif
 
-  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
+;Vectors + Crash report - Fixed at start of RAM2 in sequence
+#define MBED_IRAM2_SIZE             (MBED_RAM2_SIZE - VECTOR_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
+
+#define MBED_CRASH_REPORT_RAM_START (MBED_RAM2_START + VECTOR_SIZE)
+#define MBED_IRAM2_START            (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+
+; Minimum heap should be larger then smallest RAM bank (else can use 
+; that bank for heap) and less then largest RAM bank.
+#define MINIMUM_HEAP                0x12000
+#define RAM_FIXED_SIZE              MBED_BOOT_STACK_SIZE
+
+;Splitting the RW and ZI section in IRAM1 (MBED_RAM_SIZE-MINIMUM_HEAP = 0x6000 available)
+;and IRAM2 (MBED_IRAM2_SIZE = 0x7D78 available)
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+
+  RW_m_crash_data  MBED_CRASH_REPORT_RAM_START  EMPTY  MBED_CRASH_REPORT_RAM_SIZE { ; RW data
   }
-  RW_IRAM1 MBED_RAM0_START MBED_RAM0_SIZE-Stack_Size  { ; RW data 96k L4-SRAM1
-   .ANY (+RW, +Last)
+
+  RW_IRAM1  MBED_RAM_START  (MBED_RAM_SIZE-MINIMUM_HEAP)  {  ; RW data
+   .ANY (+RW +ZI)
   }
- ; Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
-  RW_IRAM2 (0x10000000+0x188) (0x08000-0x188)  {  ; ZI data 32k L4-ECC-SRAM2
-   .ANY (+ZI)
+
+  ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
   }
-  ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
+
+  RW_IRAM2  MBED_IRAM2_START  MBED_IRAM2_SIZE  {
+   .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_STACK (MBED_RAM_START+MBED_RAM_SIZE) EMPTY -MBED_BOOT_STACK_SIZE { ; stack
   }
 }
-

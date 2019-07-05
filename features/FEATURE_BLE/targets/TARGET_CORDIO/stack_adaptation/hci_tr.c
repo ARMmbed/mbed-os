@@ -68,8 +68,12 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
   /* transmit ACL header and data */
   if (hciDrvWrite(HCI_ACL_TYPE, len, pData) == len)
   {
-    /* free buffer */
-    hciCoreTxAclComplete(pContext, pData);
+#if CORDIO_ZERO_COPY_HCI
+      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+#else
+      /* free buffer */
+      WsfMsgFree(pData);
+#endif // CORDIO_ZERO_COPY_HCI
   }
 }
 
@@ -80,7 +84,7 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
  *
  *  \brief  Send a complete HCI command to the transport.
  *
- *  \param  pData    WSF msg buffer containing an HCI command.
+ *  \param  pData WSF msg buffer containing an HCI command. WSF buffer ownership is released by this function.
  *
  *  \return None.
  */
@@ -98,8 +102,12 @@ void hciTrSendCmd(uint8_t *pData)
   /* transmit ACL header and data */
   if (hciDrvWrite(HCI_CMD_TYPE, len, pData) == len)
   {
-    /* free buffer */
-    WsfMsgFree(pData);
+#if CORDIO_ZERO_COPY_HCI
+      /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
+#else
+      /* free buffer */
+      WsfMsgFree(pData);
+#endif // CORDIO_ZERO_COPY_HCI
   }
 }
 

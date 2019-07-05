@@ -141,12 +141,13 @@
 
     *** Callback registration ***
     =============================
-
+    [..]
     The compilation define USE_HAL_SAI_REGISTER_CALLBACKS when set to 1
     allows the user to configure dynamically the driver callbacks.
-    Use functions @ref HAL_SAI_RegisterCallback() to register a user callback.
+    Use functions HAL_SAI_RegisterCallback() to register a user callback.
 
-    Function @ref HAL_SAI_RegisterCallback() allows to register following callbacks:
+    [..]
+    Function HAL_SAI_RegisterCallback() allows to register following callbacks:
       (+) RxCpltCallback     : SAI receive complete.
       (+) RxHalfCpltCallback : SAI receive half complete.
       (+) TxCpltCallback     : SAI transmit complete.
@@ -154,13 +155,16 @@
       (+) ErrorCallback      : SAI error.
       (+) MspInitCallback    : SAI MspInit.
       (+) MspDeInitCallback  : SAI MspDeInit.
+    [..]
     This function takes as parameters the HAL peripheral handle, the callback ID
     and a pointer to the user callback function.
 
-    Use function @ref HAL_SAI_UnRegisterCallback() to reset a callback to the default
+    [..]
+    Use function HAL_SAI_UnRegisterCallback() to reset a callback to the default
     weak (surcharged) function.
-    @ref HAL_SAI_UnRegisterCallback() takes as parameters the HAL peripheral handle,
+    HAL_SAI_UnRegisterCallback() takes as parameters the HAL peripheral handle,
     and the callback ID.
+    [..]
     This function allows to reset following callbacks:
       (+) RxCpltCallback     : SAI receive complete.
       (+) RxHalfCpltCallback : SAI receive half complete.
@@ -170,23 +174,26 @@
       (+) MspInitCallback    : SAI MspInit.
       (+) MspDeInitCallback  : SAI MspDeInit.
 
-    By default, after the @ref HAL_SAI_Init and if the state is HAL_SAI_STATE_RESET
+    [..]
+    By default, after the HAL_SAI_Init and if the state is HAL_SAI_STATE_RESET
     all callbacks are reset to the corresponding legacy weak (surcharged) functions:
-    examples @ref HAL_SAI_RxCpltCallback(), @ref HAL_SAI_ErrorCallback().
+    examples HAL_SAI_RxCpltCallback(), HAL_SAI_ErrorCallback().
     Exception done for MspInit and MspDeInit callbacks that are respectively
-    reset to the legacy weak (surcharged) functions in the @ref HAL_SAI_Init
-    and @ref  HAL_SAI_DeInit only when these callbacks are null (not registered beforehand).
-    If not, MspInit or MspDeInit are not null, the @ref HAL_SAI_Init and @ref HAL_SAI_DeInit
+    reset to the legacy weak (surcharged) functions in the HAL_SAI_Init
+    and HAL_SAI_DeInit only when these callbacks are null (not registered beforehand).
+    If not, MspInit or MspDeInit are not null, the HAL_SAI_Init and HAL_SAI_DeInit
     keep and use the user MspInit/MspDeInit callbacks (registered beforehand).
 
+    [..]
     Callbacks can be registered/unregistered in READY state only.
     Exception done for MspInit/MspDeInit callbacks that can be registered/unregistered
     in READY or RESET state, thus registered (user) MspInit/DeInit callbacks can be used
     during the Init/DeInit.
     In that case first register the MspInit/MspDeInit user callbacks
-    using @ref HAL_SAI_RegisterCallback before calling @ref HAL_SAI_DeInit
-    or @ref HAL_SAI_Init function.
+    using HAL_SAI_RegisterCallback before calling HAL_SAI_DeInit
+    or HAL_SAI_Init function.
 
+    [..]
     When the compilation define USE_HAL_SAI_REGISTER_CALLBACKS is set to 0 or
     not defined, the callback registering feature is not available
     and weak (surcharged) callbacks are used.
@@ -385,7 +392,10 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
   assert_param(IS_SAI_BLOCK_FIRST_BIT(hsai->Init.FirstBit));
   assert_param(IS_SAI_BLOCK_CLOCK_STROBING(hsai->Init.ClockStrobing));
   assert_param(IS_SAI_BLOCK_SYNCHRO(hsai->Init.Synchro));
-
+  if (HAL_GetREVID() >= REV_ID_B) /* STM32H7xx Rev.B and above */
+  {
+    assert_param(IS_SAI_BLOCK_MCK_OUTPUT(hsai->Init.MckOutput));
+  }
   assert_param(IS_SAI_BLOCK_OUTPUT_DRIVE(hsai->Init.OutputDrive));
   assert_param(IS_SAI_BLOCK_NODIVIDER(hsai->Init.NoDivider));
   assert_param(IS_SAI_BLOCK_FIFO_THRESHOLD(hsai->Init.FIFOThreshold));
@@ -551,19 +561,19 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
     }
 
     /* Configure Master Clock Divider using the following formula :
-       - If NOMCK = 1 :
+       - If NODIV = 1 :
          MCKDIV[5:0] = SAI_CK_x / (FS * (FRL + 1))
-       - If NOMCK = 0 :
+       - If NODIV = 0 :
          MCKDIV[5:0] = SAI_CK_x / (FS * (OSR + 1) * 256) */
     if (hsai->Init.NoDivider == SAI_MASTERDIVIDER_DISABLE)
     {
-      /* NOMCK = 1 */
+      /* NODIV = 1 */
       /* (freq x 10) to keep Significant digits */
       tmpval = (freq * 10U) / (hsai->Init.AudioFrequency * hsai->FrameInit.FrameLength);
     }
     else
     {
-      /* NOMCK = 0 */
+      /* NODIV = 0 */
       uint32_t tmposr;
       tmposr = (hsai->Init.MckOverSampling == SAI_MCK_OVERSAMPLING_ENABLE) ? 2U : 1U;
       /* (freq x 10) to keep Significant digits */
@@ -592,17 +602,35 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
 
   /* SAI Block Configuration -------------------------------------------------*/
   /* SAI CR1 Configuration */
-  hsai->Instance->CR1 &= ~(SAI_xCR1_MODE     | SAI_xCR1_PRTCFG  | SAI_xCR1_DS     | \
-                           SAI_xCR1_LSBFIRST | SAI_xCR1_CKSTR   | SAI_xCR1_SYNCEN | \
-                           SAI_xCR1_MONO     | SAI_xCR1_OUTDRIV | SAI_xCR1_DMAEN  | \
-                           SAI_xCR1_NOMCK    | SAI_xCR1_MCKDIV  | SAI_xCR1_OSR);
+  if (HAL_GetREVID() >= REV_ID_B) /* STM32H7xx Rev.B and above */
+  {
+    hsai->Instance->CR1 &= ~(SAI_xCR1_MODE | SAI_xCR1_PRTCFG |  SAI_xCR1_DS |      \
+                             SAI_xCR1_LSBFIRST | SAI_xCR1_CKSTR | SAI_xCR1_SYNCEN | \
+                             SAI_xCR1_MONO | SAI_xCR1_OUTDRIV  | SAI_xCR1_DMAEN |  \
+                             SAI_xCR1_NODIV | SAI_xCR1_MCKDIV | SAI_xCR1_OSR |     \
+                             SAI_xCR1_MCKEN);
 
-  hsai->Instance->CR1 |= (hsai->Init.AudioMode | hsai->Init.Protocol |           \
-                          hsai->Init.DataSize  | hsai->Init.FirstBit |           \
-                          ckstr_bits | syncen_bits |                             \
-                          hsai->Init.MonoStereoMode | hsai->Init.OutputDrive |   \
-                          hsai->Init.NoDivider | (hsai->Init.Mckdiv << 20) |     \
-                          hsai->Init.MckOverSampling);
+    hsai->Instance->CR1 |= (hsai->Init.AudioMode | hsai->Init.Protocol |           \
+                            hsai->Init.DataSize | hsai->Init.FirstBit  |           \
+                            ckstr_bits | syncen_bits |                             \
+                            hsai->Init.MonoStereoMode | hsai->Init.OutputDrive |   \
+                            hsai->Init.NoDivider | (hsai->Init.Mckdiv << 20) |     \
+                            hsai->Init.MckOverSampling | hsai->Init.MckOutput);
+  }
+  else /* STM32H7xx Rev.Y */
+  {
+    hsai->Instance->CR1 &= ~(SAI_xCR1_MODE | SAI_xCR1_PRTCFG |  SAI_xCR1_DS |      \
+                             SAI_xCR1_LSBFIRST | SAI_xCR1_CKSTR | SAI_xCR1_SYNCEN | \
+                             SAI_xCR1_MONO | SAI_xCR1_OUTDRIV  | SAI_xCR1_DMAEN |  \
+                             SAI_xCR1_NODIV | SAI_xCR1_MCKDIV | SAI_xCR1_OSR);
+
+    hsai->Instance->CR1 |= (hsai->Init.AudioMode | hsai->Init.Protocol |           \
+                            hsai->Init.DataSize | hsai->Init.FirstBit  |           \
+                            ckstr_bits | syncen_bits |                             \
+                            hsai->Init.MonoStereoMode | hsai->Init.OutputDrive |   \
+                            hsai->Init.NoDivider | (hsai->Init.Mckdiv << 20) |     \
+                            hsai->Init.MckOverSampling);
+  }
 
   /* SAI CR2 Configuration */
   hsai->Instance->CR2 &= ~(SAI_xCR2_FTH | SAI_xCR2_FFLUSH | SAI_xCR2_COMP | SAI_xCR2_CPL);
@@ -1061,10 +1089,8 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint8_t *pData, uint
           hsai->Instance->CLRFR = 0xFFFFFFFFU;
 
           /* Disable SAI peripheral */
-          if (SAI_Disable(hsai) != HAL_OK)
-          {
-            /* Nothing to do because state update, unlock and error return will be performed later */
-          }
+          /* No need to check return value because state update, unlock and error return will be performed later */
+          (void) SAI_Disable(hsai);
 
           /* Flush the fifo */
           SET_BIT(hsai->Instance->CR2, SAI_xCR2_FFLUSH);
@@ -1174,10 +1200,8 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint8_t *pData, uint1
           hsai->Instance->CLRFR = 0xFFFFFFFFU;
 
           /* Disable SAI peripheral */
-          if (SAI_Disable(hsai) != HAL_OK)
-          {
-            /* Nothing to do because state update, unlock and error return will be performed later */
-          }
+          /* No need to check return value because state update, unlock and error return will be performed later */
+          (void) SAI_Disable(hsai);
 
           /* Flush the fifo */
           SET_BIT(hsai->Instance->CR2, SAI_xCR2_FFLUSH);
@@ -1814,7 +1838,11 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
         if (hsai->hdmarx != NULL)
@@ -1829,17 +1857,19 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
       }
       else
       {
         /* Abort SAI */
-        if (HAL_SAI_Abort(hsai) != HAL_OK)
-        {
-          /* Nothing to do because HAL_SAI_ErrorCallback will be called later */
-        }
+        /* No need to check return value because HAL_SAI_ErrorCallback will be called later */
+        (void) HAL_SAI_Abort(hsai);
 
         /* Set error callback */
 #if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
@@ -1871,7 +1901,11 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
         if (hsai->hdmarx != NULL)
@@ -1886,17 +1920,19 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
       }
       else
       {
         /* Abort SAI */
-        if (HAL_SAI_Abort(hsai) != HAL_OK)
-        {
-          /* Nothing to do because HAL_SAI_ErrorCallback will be called later */
-        }
+        /* No need to check return value because HAL_SAI_ErrorCallback will be called later */
+        (void) HAL_SAI_Abort(hsai);
 
         /* Set error callback */
 #if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
@@ -1928,7 +1964,11 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
         if (hsai->hdmarx != NULL)
@@ -1943,7 +1983,11 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
             hsai->ErrorCode |= HAL_SAI_ERROR_DMA;
 
             /* Call SAI error callback */
+#if (USE_HAL_SAI_REGISTER_CALLBACKS == 1)
+            hsai->ErrorCallback(hsai);
+#else
             HAL_SAI_ErrorCallback(hsai);
+#endif
           }
         }
       }
@@ -2723,10 +2767,8 @@ static void SAI_DMAError(DMA_HandleTypeDef *hdma)
     hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
 
     /* Disable SAI peripheral */
-    if (SAI_Disable(hsai) != HAL_OK)
-    {
-      /* Nothing to do because state will be updated and HAL_SAI_ErrorCallback will be called later */
-    }
+    /* No need to check return value because state will be updated and HAL_SAI_ErrorCallback will be called later */
+    (void) SAI_Disable(hsai);
 
     /* Set the SAI state ready to be able to start again the process */
     hsai->State = HAL_SAI_STATE_READY;
@@ -2763,10 +2805,8 @@ static void SAI_DMAAbort(DMA_HandleTypeDef *hdma)
   if (hsai->ErrorCode != HAL_SAI_ERROR_WCKCFG)
   {
     /* Disable SAI peripheral */
-    if (SAI_Disable(hsai) != HAL_OK)
-    {
-      /* Nothing to do because state will be updated and HAL_SAI_ErrorCallback will be called later */
-    }
+    /* No need to check return value because state will be updated and HAL_SAI_ErrorCallback will be called later */
+    (void) SAI_Disable(hsai);
 
     /* Flush the fifo */
     SET_BIT(hsai->Instance->CR2, SAI_xCR2_FFLUSH);

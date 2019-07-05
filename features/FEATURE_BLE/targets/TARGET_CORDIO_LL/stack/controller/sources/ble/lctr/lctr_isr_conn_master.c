@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection ISR callbacks.
+ * \file
+ * \brief Link layer controller master connection ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -56,7 +57,7 @@ WSF_CT_ASSERT((BB_FIXED_DATA_PKT_LEN == 0) ||
 **************************************************************************************************/
 
 #if (LL_ENABLE_TESTER)
-void LctrProcessRxTxAck(lctrConnCtx_t *pCtx, uint8_t *pRxBuf, uint8_t **pNextRxBuf, bool_t *pTxPduIsAcked);
+extern void LctrProcessRxTxAck(lctrConnCtx_t *pCtx, uint8_t *pRxBuf, uint8_t **pNextRxBuf, bool_t *pTxPduIsAcked);
 #endif
 
 /*************************************************************************************************/
@@ -294,6 +295,11 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
 
   SchRmSetReference(LCTR_GET_CONN_HANDLE(pCtx));
 
+  if (pCtx->checkCisTerm)
+  {
+    (pCtx->checkCisTerm)(LCTR_GET_CONN_HANDLE(pCtx));
+  }
+
   /* Terminate connection */
   if (lctrCheckForLinkTerm(pCtx))
   {
@@ -312,10 +318,9 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
 
       uint16_t ceOffset;
 #if (LL_ENABLE_TESTER)
-      if (llTesterCb.eventCounterOffset)
+      if (llTesterCb.eventCounterOverride == TRUE)
       {
-        ceOffset = pCtx->eventCounter +
-                   llTesterCb.eventCounterOffset + 1;          /* +1 for next CE */
+        ceOffset = llTesterCb.eventCounterOffset + 1;          /* +1 for next CE */
       }
       else
 #endif
@@ -327,24 +332,33 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
       }
       pCtx->connUpd.instant = pCtx->eventCounter + ceOffset;
 
-      uint32_t rsvnOffs[SCH_RM_MAX_RSVN];
-      memset(&rsvnOffs[0], 0, sizeof(rsvnOffs));
-      if (lctrGetConnOffsetsCback)
-      {
-        lctrGetConnOffsetsCback(rsvnOffs, pOp->due);
-      }
-      if (lctrGetPerOffsetsCback)
-      {
-        lctrGetPerOffsetsCback(&rsvnOffs[LL_MAX_CONN], pOp->due);
-      }
       /* Use smallest txWindowOffset (i.e. 0) to minimize data loss. */
-      uint32_t txWinOffsetUsec = SchRmGetOffsetUsec(rsvnOffs, 0, LCTR_GET_CONN_HANDLE(pCtx));
+      uint32_t txWinOffsetUsec = SchRmGetOffsetUsec(0, LCTR_GET_CONN_HANDLE(pCtx), pOp->due);
       pCtx->connUpd.txWinOffset = LCTR_US_TO_CONN_IND(txWinOffsetUsec);
 
       lctrPackConnUpdInd(pPdu, &pCtx->connUpd);
       lctrTxCtrlPduQueue(pCtx, pPdu);
     }
     /* else retry at next lctrMstConnEndOp() event. */
+  }
+
+  if (pCtx->sendPerSync)
+  {
+    pCtx->sendPerSync = FALSE;
+    if (pCtx->perSyncSrc == LCTR_SYNC_SRC_SCAN)
+    {
+      if (lctrSendPerSyncFromScanFn)
+      {
+        lctrSendPerSyncFromScanFn(pCtx);
+      }
+    }
+    else  /* (pCtx->perSyncSrc == LCTR_SYNC_SRC_BCST) */
+    {
+      if (lctrSendPerSyncFromBcstFn)
+      {
+        lctrSendPerSyncFromBcstFn(pCtx);
+      }
+    }
   }
 
   /*** Update for next operation ***/
@@ -375,21 +389,15 @@ void lctrMstConnEndOp(BbOpDesc_t *pOp)
 #if (LL_ENABLE_TESTER)
     if (llTesterCb.connIntervalUs)
     {
-      connInter     = BB_US_TO_BB_TICKS(llTesterCb.connIntervalUs);
-      dueOffsetUsec = llTesterCb.connIntervalUs - BB_TICKS_TO_US(connInter);
+      connInterUsec = (numIntervals * llTesterCb.connIntervalUs) + anchorPointOffsetUsec;
+      connInter     = BB_US_TO_BB_TICKS(connInterUsec);
+      dueOffsetUsec = 0;
     }
 #endif
 
     /* Advance to next interval. */
     pOp->due           = anchorPoint + connInter;
     pOp->dueOffsetUsec = WSF_MAX(dueOffsetUsec, 0);
-#if (LL_ENABLE_TESTER)
-    if (llTesterCb.connIntervalUs)
-    {
-      pOp->due = anchorPoint + BB_US_TO_BB_TICKS(llTesterCb.connIntervalUs);
-      pOp->dueOffsetUsec = 0;
-    }
-#endif
 
     if ((pCtx->llcpActiveProc == LCTR_PROC_CONN_UPD) &&
         (pCtx->eventCounter == pCtx->connUpd.instant))

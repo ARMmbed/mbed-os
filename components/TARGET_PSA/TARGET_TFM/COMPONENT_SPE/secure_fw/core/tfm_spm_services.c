@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -11,20 +11,17 @@
 #include "tfm_secure_api.h"
 #include "tfm_internal.h"
 #include "secure_fw/include/tfm_spm_services_api.h"
+#include "spm_api.h"
 
 uint8_t *tfm_scratch_area;
-int32_t tfm_scratch_area_size;
+uint32_t tfm_scratch_area_size;
 nsfptr_t ns_entry;
 
 void jump_to_ns_code(void)
 {
-#if TFM_LVL != 1
+#if TFM_LVL == 3 || ((!defined(TFM_PSA_API)) && (TFM_LVL != 1))
     /* Initialization is done, set thread mode to unprivileged. */
-    CONTROL_Type ctrl;
-
-    ctrl.w = __get_CONTROL();
-    ctrl.b.nPRIV = 1;
-    __set_CONTROL(ctrl.w);
+    tfm_spm_partition_change_privilege(TFM_PARTITION_UNPRIVILEGED_MODE);
 #endif
     /* All changes made to memory will be effective after this point */
     __DSB();
@@ -34,11 +31,12 @@ void jump_to_ns_code(void)
     ns_entry();
 }
 
+#ifndef TFM_PSA_API
 #if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) int32_t tfm_core_sfn_request(
-                                                 struct tfm_sfn_req_s *desc_ptr)
+                                           const struct tfm_sfn_req_s *desc_ptr)
 {
-    __ASM(
+    __ASM volatile(
           "PUSH   {r4-r12, lr}\n"
           "SVC    %[SVC_REQ]\n"
           "MOV    r4, #0\n"
@@ -58,9 +56,9 @@ __attribute__((naked)) int32_t tfm_core_sfn_request(
 }
 #elif defined(__ARM_ARCH_8M_BASE__)
 __attribute__((naked)) int32_t tfm_core_sfn_request(
-                                                 struct tfm_sfn_req_s *desc_ptr)
+                                           const struct tfm_sfn_req_s *desc_ptr)
 {
-    __ASM(
+    __ASM volatile(
           ".syntax unified\n"
           "PUSH   {lr}\n"
           "PUSH   {r4-r7}\n"
@@ -100,10 +98,11 @@ __attribute__((naked)) int32_t tfm_core_sfn_request(
 #endif
 
 __attribute__((naked))
-int32_t tfm_core_memory_permission_check(
-            void *ptr, uint32_t len, int32_t access)
+int32_t tfm_core_memory_permission_check(const void *ptr,
+                                         uint32_t len,
+                                         int32_t access)
 {
-    __ASM(
+  __ASM volatile(
         "SVC    %0\n"
         "BX     lr\n"
         : : "I" (TFM_SVC_MEMORY_CHECK));
@@ -112,7 +111,7 @@ int32_t tfm_core_memory_permission_check(
 __attribute__((naked))
 int32_t tfm_core_get_caller_client_id(int32_t *caller_client_id)
 {
-    __ASM(
+    __ASM volatile(
         "SVC %0\n"
         "BX LR\n"
         : : "I" (TFM_SVC_GET_CALLER_CLIENT_ID));
@@ -121,7 +120,7 @@ int32_t tfm_core_get_caller_client_id(int32_t *caller_client_id)
 __attribute__((naked))
 int32_t tfm_spm_request_reset_vote(void)
 {
-    __ASM(
+    __ASM volatile(
         "MOVS   R0, %0\n"
         "B      tfm_spm_request\n"
         : : "I" (TFM_SPM_REQUEST_RESET_VOTE));
@@ -130,7 +129,7 @@ int32_t tfm_spm_request_reset_vote(void)
 __attribute__((naked))
 int32_t tfm_spm_request(void)
 {
-    __ASM(
+    __ASM volatile(
         "SVC    %0\n"
         "BX     lr\n"
         : : "I" (TFM_SVC_SPM_REQUEST));
@@ -139,7 +138,7 @@ int32_t tfm_spm_request(void)
 __attribute__((naked))
 int32_t tfm_core_validate_secure_caller(void)
 {
-    __ASM(
+    __ASM volatile(
         "SVC    %0\n"
         "BX     lr\n"
         : : "I" (TFM_SVC_VALIDATE_SECURE_CALLER));
@@ -148,16 +147,19 @@ int32_t tfm_core_validate_secure_caller(void)
 __attribute__((naked))
 int32_t tfm_core_set_buffer_area(enum tfm_buffer_share_region_e share)
 {
-    __ASM(
+    __ASM volatile(
         "SVC    %0\n"
         "BX     lr\n"
         : : "I" (TFM_SVC_SET_SHARE_AREA));
 }
+#endif
 
 __attribute__((naked))
-int32_t tfm_core_get_boot_data(uint8_t major_type, void *ptr, uint32_t len)
+int32_t tfm_core_get_boot_data(uint8_t major_type,
+                               struct tfm_boot_data *boot_status,
+                               uint32_t len)
 {
-    __ASM(
+    __ASM volatile(
         "SVC    %0\n"
         "BX     lr\n"
         : : "I" (TFM_SVC_GET_BOOT_DATA));

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ * \file
+ * \brief HCI command module implementation file.
  */
 /*************************************************************************************************/
 
@@ -182,14 +183,14 @@ bool_t lhciMstExtScanDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
     case HCI_OPCODE_LE_PER_ADV_CREATE_SYNC:
     {
       LlPerAdvCreateSyncCmd_t cmd;
-      BSTREAM_TO_UINT8(cmd.filterPolicy, pBuf);
+      BSTREAM_TO_UINT8(cmd.options, pBuf);
       BSTREAM_TO_UINT8(cmd.advSID, pBuf);
       BSTREAM_TO_UINT8(cmd.advAddrType, pBuf);
       cmd.pAdvAddr = pBuf;
       pBuf += BDA_ADDR_LEN;
       BSTREAM_TO_UINT16(cmd.skip, pBuf);
       BSTREAM_TO_UINT16(cmd.syncTimeOut, pBuf);
-      pBuf++;
+      pBuf++; /* Sync_CTE_Type (Unused) */
       status = LlPeriodicAdvCreateSync(&cmd);
       paramLen = LHCI_LEN_CMD_STATUS_EVT;
       break;

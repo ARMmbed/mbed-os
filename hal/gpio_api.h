@@ -29,6 +29,16 @@ extern "C" {
 
 /**
  * \defgroup hal_gpio GPIO HAL functions
+ *
+ * # Defined behavior
+ * * ::gpio_init and other init functions can be called with NC or a valid PinName for the target - Verified by ::gpio_nc_test
+ * * ::gpio_is_connected can be used to test whether a gpio_t object was initialized with NC - Verified by ::gpio_nc_test
+ *
+ * # Undefined behavior
+ * * Calling any ::gpio_mode, ::gpio_dir, ::gpio_write or ::gpio_read on a gpio_t object that was initialized
+ *   with NC.
+ * * Calling ::gpio_set with NC.
+ *
  * @{
  */
 
@@ -38,43 +48,45 @@ extern "C" {
  * @return The GPIO port mask for this pin
  **/
 uint32_t gpio_set(PinName pin);
-/* Checks if gpio object is connected (pin was not initialized with NC)
- * @param pin The pin to be set as GPIO
- * @return 0 if port is initialized with NC
+
+/** Checks if gpio object is connected (pin was not initialized with NC)
+ * @param obj The GPIO object
+ * @return 0 if object was initialized with NC
+ * @return non-zero if object was initialized with a valid PinName
  **/
 int gpio_is_connected(const gpio_t *obj);
 
 /** Initialize the GPIO pin
  *
  * @param obj The GPIO object to initialize
- * @param pin The GPIO pin to initialize
+ * @param pin The GPIO pin to initialize (may be NC)
  */
 void gpio_init(gpio_t *obj, PinName pin);
 
 /** Set the input pin mode
  *
- * @param obj  The GPIO object
+ * @param obj  The GPIO object (must be connected)
  * @param mode The pin mode to be set
  */
 void gpio_mode(gpio_t *obj, PinMode mode);
 
 /** Set the pin direction
  *
- * @param obj       The GPIO object
+ * @param obj       The GPIO object (must be connected)
  * @param direction The pin direction to be set
  */
 void gpio_dir(gpio_t *obj, PinDirection direction);
 
 /** Set the output value
  *
- * @param obj   The GPIO object
+ * @param obj   The GPIO object (must be connected)
  * @param value The value to be set
  */
 void gpio_write(gpio_t *obj, int value);
 
 /** Read the input value
  *
- * @param obj The GPIO object
+ * @param obj The GPIO object (must be connected)
  * @return An integer value 1 or 0
  */
 int gpio_read(gpio_t *obj);
@@ -85,14 +97,14 @@ int gpio_read(gpio_t *obj);
 /** Init the input pin and set mode to PullDefault
  *
  * @param gpio The GPIO object
- * @param pin  The pin name
+ * @param pin  The pin name (may be NC)
  */
 void gpio_init_in(gpio_t *gpio, PinName pin);
 
 /** Init the input pin and set the mode
  *
  * @param gpio  The GPIO object
- * @param pin   The pin name
+ * @param pin   The pin name (may be NC)
  * @param mode  The pin mode to be set
  */
 void gpio_init_in_ex(gpio_t *gpio, PinName pin, PinMode mode);
@@ -100,7 +112,7 @@ void gpio_init_in_ex(gpio_t *gpio, PinName pin, PinMode mode);
 /** Init the output pin as an output, with predefined output value 0
  *
  * @param gpio The GPIO object
- * @param pin  The pin name
+ * @param pin  The pin name (may be NC)
  * @return     An integer value 1 or 0
  */
 void gpio_init_out(gpio_t *gpio, PinName pin);
@@ -108,7 +120,7 @@ void gpio_init_out(gpio_t *gpio, PinName pin);
 /** Init the pin as an output and set the output value
  *
  * @param gpio  The GPIO object
- * @param pin   The pin name
+ * @param pin   The pin name (may be NC)
  * @param value The value to be set
  */
 void gpio_init_out_ex(gpio_t *gpio, PinName pin, int value);
@@ -116,7 +128,7 @@ void gpio_init_out_ex(gpio_t *gpio, PinName pin, int value);
 /** Init the pin to be in/out
  *
  * @param gpio      The GPIO object
- * @param pin       The pin name
+ * @param pin       The pin name (may be NC)
  * @param direction The pin direction to be set
  * @param mode      The pin mode to be set
  * @param value     The value to be set for an output pin

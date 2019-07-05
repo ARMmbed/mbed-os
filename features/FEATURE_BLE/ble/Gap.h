@@ -1347,13 +1347,15 @@ public:
      * @return The current GAP state of the device.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * This is not meaningful when you use extended advertising; please use
-     * isAdvertisingActive() and getConnectionCount().
+     * This is not meaningful when you use extended advertising; Please replace
+     * getState().advertising with isAdvertisingActive(), and replace
+     * getState().connected with your own record and update during callbacks.
      */
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11.0",
         "Deprecated since addition of extended advertising support. "
-        "Use isAdvertisingActive() and getConnectionCount()."
+        "Replace getState().advertising with isAdvertisingActive()."
+        "Replace getState().connected with your own record and update during callbacks."
     )
     GapState_t getState(void) const;
 
@@ -1436,13 +1438,13 @@ public:
      * Reset the value of the advertising payload advertised.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,
+     * Use setAdvertisingPayload(ble::advertising_handle_t, Span<uint8_t>,
      * bool).
      */
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11.0",
         "Deprecated since addition of extended advertising support. "
-        "Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,"
+        "Use setAdvertisingPayload(ble::advertising_handle_t, Span<uint8_t>,"
         "bool)."
     )
     void clearAdvertisingPayload(void);

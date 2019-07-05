@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief LL HCI event module implementation file.
+ * \file
+ * \brief LL HCI event module implementation file.
  */
 /*************************************************************************************************/
 
@@ -27,6 +28,7 @@
 #include "wsf_msg.h"
 #include "wsf_math.h"
 #include "wsf_trace.h"
+#include "wsf_assert.h"
 #include <string.h>
 
 /**************************************************************************************************
@@ -59,6 +61,8 @@ static uint8_t *lhciAllocExtAdvRptEvt(uint8_t evtCode, uint8_t paramLen)
     pEvtBuf += lhciPackEvtHdr(pEvtBuf, evtCode, paramLen);
   }
 
+  WSF_ASSERT(pEvtBuf);  /* lhciCb.numAdvReport guarantee allocation always succeeds. */
+
   return pEvtBuf;
 }
 
@@ -81,6 +85,8 @@ static uint8_t *lhciAllocPerAdvRptEvt(uint8_t evtCode, uint8_t paramLen)
   {
     pEvtBuf += lhciPackEvtHdr(pEvtBuf, evtCode, paramLen);
   }
+
+  WSF_ASSERT(pEvtBuf);  /* lhciCb.numAdvReport guarantee allocation always succeeds. */
 
   return pEvtBuf;
 }
@@ -212,6 +218,31 @@ static void lhciPackPerAdvSyncLostEvt(uint8_t *pBuf, const LlPerAdvSyncLostInd_t
 {
   UINT8_TO_BSTREAM (pBuf, HCI_LE_PER_ADV_SYNC_LOST_EVT);
   UINT16_TO_BSTREAM(pBuf, pEvt->syncHandle);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Pack a periodic advertising sync transfer received event packet.
+ *
+ *  \param  pBuf        Packed packet buffer.
+ *  \param  pEvt        Periodic advertising sync transfer received event indication.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+static void lhciPackPerSyncTrsfRcvdEvt(uint8_t *pBuf, const LlPerSyncTrsfRcvdInd_t *pEvt)
+{
+  UINT8_TO_BSTREAM (pBuf, HCI_LE_PER_SYNC_TRSF_RCVD_EVT);
+  UINT8_TO_BSTREAM (pBuf, pEvt->status);
+  UINT16_TO_BSTREAM(pBuf, pEvt->connHandle);
+  UINT16_TO_BSTREAM(pBuf, pEvt->serviceData);
+  UINT16_TO_BSTREAM(pBuf, pEvt->syncHandle);
+  UINT8_TO_BSTREAM (pBuf, pEvt->advSID);
+  UINT8_TO_BSTREAM (pBuf, pEvt->addrType);
+  BDA_TO_BSTREAM   (pBuf, pEvt->addr);
+  UINT8_TO_BSTREAM (pBuf, pEvt->advPhy);
+  UINT16_TO_BSTREAM(pBuf, pEvt->perAdvInterval);
+  UINT8_TO_BSTREAM (pBuf, pEvt->advClkAccuracy);
 }
 
 /*************************************************************************************************/
@@ -384,6 +415,20 @@ bool_t lhciMstExtScanEncodeEvtPkt(LlEvt_t *pEvt)
         if ((pEvtBuf = lhciAllocEvt(HCI_LE_META_EVT, HCI_LEN_LE_PER_ADV_SYNC_LOST)) != NULL)
         {
           lhciPackPerAdvSyncLostEvt(pEvtBuf, &pEvt->perAdvSyncLostInd);
+          lhciSendEvt(pEvtBuf);
+          result = TRUE;
+        }
+      }
+      break;
+    }
+    case LL_PER_SYNC_TRSF_RCVD_IND:
+    {
+      if ((lhciCb.leEvtMsk & ((uint64_t)(HCI_EVT_MASK_LE_PER_SYNC_TRSF_RCVT_EVT) << LHCI_BYTE_TO_BITS(2))) &&
+          (lhciCb.evtMsk & ((uint64_t)(HCI_EVT_MASK_LE_META) << LHCI_BYTE_TO_BITS(7))))
+      {
+        if ((pEvtBuf = lhciAllocEvt(HCI_LE_META_EVT, HCI_LEN_LE_PER_SYNC_TRSF_RCVT)) != NULL)
+        {
+          lhciPackPerSyncTrsfRcvdEvt(pEvtBuf, &pEvt->perASyncTrsfRcvdInd);
           lhciSendEvt(pEvtBuf);
           result = TRUE;
         }

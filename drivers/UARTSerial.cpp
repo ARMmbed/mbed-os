@@ -147,7 +147,6 @@ ssize_t UARTSerial::write_unbuffered(const char *buf_ptr, size_t length)
 
     for (size_t data_written = 0; data_written < length; data_written++) {
         SerialBase::_base_putc(*buf_ptr++);
-        data_written++;
     }
 
     return length;

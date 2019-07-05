@@ -122,7 +122,26 @@ void deepsleep_lpticker_test()
 
         lp_ticker_set_interrupt(next_match_timestamp);
 
+        /* On some targets like STM family boards with LPTIM enabled there is a required delay (~100 us) before we are able to
+           reprogram LPTIM_COMPARE register back to back. This is handled by the low level lp ticker wrapper which uses LPTIM_CMPOK interrupt.
+           CMPOK fires when LPTIM_COMPARE register can be safely reprogrammed again. During this period deep-sleep is locked.
+           This means that on these platforms we have additional interrupt (CMPOK) fired always ~100 us after programming lp ticker.
+           Since this interrupt wakes-up the board from the sleep we need to go to sleep after CMPOK is handled. */
+        TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+
         sleep();
+
+        /* On some targets like STM family boards with LPTIM enabled an interrupt is triggered on counter rollover.
+           We need special handling for cases when next_match_timestamp < start_timestamp (interrupt is to be fired after rollover).
+           In such case after first wake-up we need to reset interrupt and go back to sleep waiting for the valid one.
+           NOTE: Above comment (CMPOK) applies also here.*/
+#if MBED_CONF_TARGET_LPTICKER_LPTIM
+        if ((next_match_timestamp < start_timestamp) && lp_ticker_read() < next_match_timestamp) {
+            lp_ticker_set_interrupt(next_match_timestamp);
+            wait_ns(200000);
+            sleep();
+        }
+#endif
 
         const timestamp_t wakeup_timestamp = lp_ticker_read();
 
@@ -154,10 +173,13 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 
-    const unsigned int us_ticks_before_sleep = us_ticker_read();
-
     const timestamp_t wakeup_time = lp_ticker_read() + us_to_ticks(20000, lp_ticker_freq);
     lp_ticker_set_interrupt(wakeup_time);
+
+    /* Wait for CMPOK */
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+
+    const unsigned int us_ticks_before_sleep = us_ticker_read();
 
     sleep();
 

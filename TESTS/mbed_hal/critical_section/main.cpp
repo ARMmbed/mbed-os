@@ -28,12 +28,9 @@ using utest::v1::Case;
 
 bool test_are_interrupts_enabled(void)
 {
-    // NRF5x targets don't disable interrupts when in critical section, instead they mask application interrupts this is due to BLE stack
-    // (BLE to be operational requires some interrupts to be always enabled)
-#if defined(TARGET_NRF52)
-    // check if APP interrupts are masked for NRF52 boards
-    return (((NVIC->ISER[0] & __NRF_NVIC_APP_IRQS_0) != 0) || ((NVIC->ISER[1] & __NRF_NVIC_APP_IRQS_1) != 0));
-#elif defined(TARGET_NRF51)
+    // NRF51 targets don't disable interrupts when in critical section, instead they mask application interrupts.
+    // This is due to SoftDevice BLE stack (BLE to be operational requires some interrupts to be always enabled)
+#if defined(TARGET_NRF51)
     // check if APP interrupts are masked for other NRF51 boards
     return ((NVIC->ISER[0] & __NRF_NVIC_APP_IRQS_0) != 0);
 #else
@@ -72,7 +69,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10, "timing_drift_auto");
+    GREENTEA_SETUP(10, "default_auto");
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
 

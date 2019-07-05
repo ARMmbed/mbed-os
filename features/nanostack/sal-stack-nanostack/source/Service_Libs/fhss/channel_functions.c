@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
+#include "common_functions.h"
 
 #define rot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 
@@ -182,9 +183,9 @@ int32_t dh1cf_get_uc_channel_index(uint16_t slot_number, uint8_t *mac, int16_t n
 {
     int32_t channel_number;
     uint32_t key[3];
-    key[0] = (uint32_t)slot_number;
-    key[1] = mac[4] << 24 | mac[5] << 16 | mac[6] << 8 | mac[7];
-    key[2] = mac[0] << 24 | mac[1] << 16 | mac[2] << 8 | mac[3];
+    key[0] = (uint32_t) slot_number;
+    key[1] = common_read_32_bit(&mac[4]);
+    key[2] = common_read_32_bit(&mac[0]);
     channel_number = dh1cf_hashword(key, 3, 0) % number_of_channels;
     return channel_number;
 }
@@ -193,8 +194,8 @@ int32_t dh1cf_get_bc_channel_index(uint16_t slot_number, uint16_t bsi, int16_t n
 {
     int32_t channel_number;
     uint32_t key[3];
-    key[0] = (uint32_t)slot_number;
-    key[1] = bsi << 16;
+    key[0] = (uint32_t) slot_number;
+    key[1] = (uint32_t) bsi << 16;
     key[2] = 0;
     channel_number = dh1cf_hashword(key, 3, 0) % number_of_channels;
     return channel_number;

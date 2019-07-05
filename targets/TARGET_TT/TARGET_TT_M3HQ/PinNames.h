@@ -62,19 +62,19 @@ typedef enum {
     PV0 = 17 << 3, PV1, PV2, PV3, PV4, PV5, PV6, PV7,
 
     // Other mbed Pin Names
-    LED1 = PK4,
-    LED2 = PK5,
-    LED3 = PK6,
-    LED4 = PK7,
+    LED0 = PK4,
+    LED1 = PK5,
+    LED2 = PK6,
+    LED3 = PK7,
 
     // External data bus Pin Names
-    D0 = PV7,
-    D1 = PV6,
-    D2 = PC4,
-    D3 = PK2,
-    D4 = PC3,
-    D5 = PJ0,
-    D6 = PN0,
+    D0 = PG3,
+    D1 = PG4,
+    D2 = PG5,
+    D3 = PG2,
+    D4 = PG6,
+    D5 = PA0,
+    D6 = PL5,
     D7 = PL6,
     D8 = PT0,
     D9 = PP0,
@@ -85,16 +85,15 @@ typedef enum {
     D14 = PA5,
     D15 = PA4,
 
-    // Analogue out pins
-    A0 = PF2,
-    A1 = PF3,
-    A2 = PF4,
-    A3 = PF5,
-    A4 = PF6,
-    A5 = PF7,
-
     DAC0 = PG0,
     DAC1 = PG1,
+    // Analogue out pins
+    A0 = PF7,
+    A1 = PF6,
+    A2 = PF5,
+    A3 = PF4,
+    A4 = PF3,
+    A5 = PF2,
 
     // DAP_UART
     USBTX = PJ1,
@@ -103,10 +102,11 @@ typedef enum {
     MBEDIF_RXD = USBRX,
 
     // Switches
-    SW1 = PV0,
-    SW2 = PV1,
-    SW3 = PV2,
-    SW4 = PV3,
+    SW1 = PP6,       //DIP switch J7_1
+    SW2 = PP7,       //DIP switch J7_2
+    SW3 = (int)0xFFFFFFFF,        //Reset Button
+    SW4 = PV3,       //Push button S2
+    USER_BUTTON = PV3,
 
     // I2C pins
     SDA = D14,

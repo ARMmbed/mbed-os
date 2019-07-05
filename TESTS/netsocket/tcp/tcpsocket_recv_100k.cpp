@@ -33,7 +33,7 @@ static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(19);
 
     nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
@@ -118,6 +118,7 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
 
 void TCPSOCKET_RECV_100K()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket sock;
     if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();
@@ -172,6 +173,7 @@ static void _sigio_handler(osThreadId id)
 
 void TCPSOCKET_RECV_100K_NONBLOCK()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TCPSocket     sock;
     nsapi_error_t err = _tcpsocket_connect_to_chargen_srv(sock);
 

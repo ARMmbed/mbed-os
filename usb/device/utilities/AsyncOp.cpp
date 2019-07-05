@@ -63,7 +63,7 @@ void AsyncOp::wait(rtos::Mutex *host_mutex, uint32_t milliseconds)
         return;
     }
 
-    if (sem.wait(milliseconds) == 1) {
+    if (sem.try_acquire_for(milliseconds)) {
         // Operation completion signaled semaphore
         return;
     }

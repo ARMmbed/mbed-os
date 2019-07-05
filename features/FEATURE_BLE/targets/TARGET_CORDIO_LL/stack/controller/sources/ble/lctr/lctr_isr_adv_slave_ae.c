@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave extended advertising ISR callbacks.
+ * \file
+ * \brief Link layer controller slave extended advertising ISR callbacks.
  */
 /*************************************************************************************************/
 
@@ -32,6 +33,7 @@
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_msg.h"
+#include "wsf_math.h"
 #include "wsf_trace.h"
 #include "util/bstream.h"
 #include <string.h>
@@ -80,6 +82,7 @@ void lctrSlvTxSetupExtAdvHandler(BbOpDesc_t *pOp, uint32_t advTxTime)
       LL_TRACE_WARN1("AUX Offset does not meet T_MAFS, afsUsec=%u", (auxOffsetUsec - txAdvUsec));
     }
 
+    /* The time pointed by auxPtr is earlier than aux bod due time by auxPtrOffsetUsec. */
     lctrPackAuxPtr(pAdvSet, auxOffsetUsec, pAdvSet->auxChIdx, pAdvSet->pExtAdvAuxPtr);
   }
 }
@@ -100,8 +103,15 @@ uint32_t lctrSlvTxSetupAuxAdvDataHandler(BbOpDesc_t *pOp, bool_t isChainInd)
   BbBleData_t * const pBle = &pAdvSet->auxBleData;
   BbBleSlvAuxAdvEvent_t * const pAuxAdv = &pBle->op.slvAuxAdv;
 
+  if ((isChainInd == TRUE) && (pAdvSet->auxOffsUsec == 0))
+  {
+    /* Tell the caller(BB) there is no more chained packet. */
+    return 0;
+  }
+
   /* Store/use current AuxPtr values. */
-  uint32_t auxOffsUsec = pAdvSet->auxOffsUsec;
+  /* Due time of the aux packet is delayed by auxPtrOffsetUsec from the time specified by auxPtr. */
+  uint32_t auxOffsUsec = pAdvSet->auxOffsUsec + pLctrRtCfg->auxPtrOffsetUsec;
   pBle->chan.chanIdx = pAdvSet->auxChIdx;
 
   if (!isChainInd)
@@ -110,7 +120,6 @@ uint32_t lctrSlvTxSetupAuxAdvDataHandler(BbOpDesc_t *pOp, bool_t isChainInd)
     pAdvSet->advData.txOffs = 0;
 
     /* Compute new AuxPtr values. */
-    pAdvSet->auxChHopInc = lctrComputeHopInc();
     lctrSelectNextAuxChannel(pAdvSet);
     pAuxAdv->txAuxAdvPdu[0].len = lctrPackAuxAdvIndPdu(pAdvSet, pAdvSet->auxAdvHdrBuf, &pAdvSet->advData, FALSE);
 
@@ -210,8 +219,15 @@ uint32_t lctrSlvTxSetupAuxScanRspDataHandler(BbOpDesc_t *pOp, bool_t isChainInd)
   BbBleData_t * const pBle = &pAdvSet->auxBleData;
   BbBleSlvAuxAdvEvent_t * const pAuxAdv = &pBle->op.slvAuxAdv;
 
+  if ((isChainInd == TRUE) && (pAdvSet->auxOffsUsec == 0))
+  {
+    /* Tell the caller(BB) there is no more chained packet. */
+    return 0;
+  }
+
   /* Store/use current AuxPtr values. */
-  uint32_t auxOffsUsec = pAdvSet->auxOffsUsec;
+  /* Due time of the aux packet is delayed by auxPtrOffsetUsec from the time specified by auxPtr. */
+  uint32_t auxOffsUsec = pAdvSet->auxOffsUsec + pLctrRtCfg->auxPtrOffsetUsec;
   pBle->chan.chanIdx = pAdvSet->auxChIdx;
 
   if (!isChainInd)
@@ -379,7 +395,8 @@ bool_t lctrSlvRxAuxConnReqHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
 
   if ((lctrAdvIsrAdvHdr.pduType == LL_PDU_AUX_CONNECT_REQ) &&
       (lctrMsgDispTbl[LCTR_DISP_CONN]) &&
-      (lctrAdvIsrAdvHdr.len == LL_CONN_IND_PDU_LEN))
+      (lctrAdvIsrAdvHdr.len == LL_CONN_IND_PDU_LEN) &&
+      (lctrValidateConnIndPdu(&connInd)))
   {
 
     /*** Extended advertising event filtering. ***/
@@ -428,6 +445,22 @@ bool_t lctrSlvRxAuxConnReqHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
     Bda64ToBstream(pAuxConnRspAdvA, localAddr);
     pAdvSet->rspPduHdr.txAddrRnd = localAddrRand;
 
+#if (LL_ENABLE_TESTER)
+    if (llTesterCb.auxRsp.len)
+    {
+      /* Overriding AUX_CONNECT_RSP from test script. */
+      memcpy(pAuxConnRspAdvA, llTesterCb.auxRsp.buf + LL_ADV_HDR_LEN, llTesterCb.auxRsp.len - LL_ADV_HDR_LEN);  /* Exclude LL_ADV_HDR_LEN */
+
+      uint16_t hdr;
+      uint8_t  *ptr = llTesterCb.auxRsp.buf;
+      BSTREAM_TO_UINT16(hdr, ptr);
+
+      pAdvSet->rspPduHdr.txAddrRnd   = (hdr >> LCTR_ADV_HDR_TX_ADD_SHIFT)   & 0x0001;
+      pAdvSet->rspPduHdr.rxAddrRnd   = (hdr >> LCTR_ADV_HDR_RX_ADD_SHIFT)   & 0x0001;
+
+    }
+#endif
+
     lctrPackAdvbPduHdr(pAdvSet->auxRspHdrBuf, &pAdvSet->rspPduHdr);
 
     /* Stop advertising. */
@@ -444,7 +477,7 @@ bool_t lctrSlvRxAuxConnReqHandler(BbOpDesc_t *pOp, const uint8_t *pReqBuf)
     pAdvSet->connIndEndTs = pAuxAdv->auxReqStartTs +
                             /* N.B.: May round to an earlier time. */
                             BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.rxPhy, pAuxAdv->auxRxPhyOptions,
-                                                                           LL_CONN_IND_PDU_LEN));
+                                                                           LL_ADV_HDR_LEN + LL_CONN_IND_PDU_LEN));
 
     sendRsp = TRUE;
   }
@@ -546,6 +579,55 @@ void lctrSlvRxLegacyReqPostProcessHandler(BbOpDesc_t *pOp, const uint8_t *pReqBu
   }
 }
 
+/*************************************************************************************************/
+/*!
+ *  \brief      Acad handler for post op.
+ *
+ *  \param      pAdvSet     Advertising Set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrSlvAcadHandler(lctrAdvSet_t *pAdvSet)
+{
+  for (uint8_t acadId = 0; acadId < LCTR_ACAD_NUM_ID; acadId++)
+  {
+    lctrAcadParam_t *pData = &pAdvSet->acadParams[acadId];
+
+    if (pData->hdr.state != LCTR_ACAD_STATE_ENABLED)
+    {
+      continue;
+    }
+
+    /* coverity[dead_error_condition] */
+    switch(acadId)
+    {
+      case LCTR_ACAD_ID_CHAN_MAP_UPDATE:
+      {
+        if (pData->chanMapUpdate.instant == pAdvSet->perParam.perEventCounter)
+        {
+          /* Update the channel map. */
+          pAdvSet->perParam.perChanParam.chanMask = pData->chanMapUpdate.chanMask;
+          LmgrBuildRemapTable(&pAdvSet->perParam.perChanParam);
+
+          /* Disable the ACAD. */
+          lctrSlvAcadExecuteSm(pAdvSet, LCTR_ACAD_MSG_CHAN_UPDATE_FINISH);
+
+          /* If the most updated channel map does not match the current mask, start a new update. */
+          if (pAdvSet->perParam.perChanParam.chanMask != pAdvSet->perParam.updChanMask)
+          {
+            lctrSlvAcadExecuteSm(pAdvSet, LCTR_ACAD_MSG_CHAN_UPDATE);
+          }
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+}
+
 /**************************************************************************************************
   Functions: BOD handlers
 **************************************************************************************************/
@@ -592,7 +674,7 @@ void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp)
     {
       /* Ensure all BODs are de-scheduled. */
       bool_t result = SchRemove(&pAdvSet->auxAdvBod);
-      WSF_ASSERT(result);   /* Non-head elements are always removeable. */
+
       (void)result;
     }
     else
@@ -627,7 +709,7 @@ void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp)
       pAdvSet->advData.alt.ext.modified = FALSE;
       memcpy(pAdvSet->advData.pBuf, pAdvSet->advData.alt.ext.buf, pAdvSet->advData.alt.ext.len);
       pAdvSet->advData.len = pAdvSet->advData.alt.ext.len;
-      pAdvSet->advData.did = pAdvSet->advData.alt.ext.did;
+      pAdvSet->param.advDID = pAdvSet->advData.alt.ext.did;
       pAdvSet->advData.fragPref = pAdvSet->advData.alt.ext.fragPref;
 
       /* Advertising offloading to auxiliary channel. */
@@ -648,6 +730,13 @@ void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp)
       pAdvSet->perParam.perAuxStart = FALSE;
       lctrSlvAuxNonConnNonScanBuildOp(pAdvSet);
       pAdvSet->auxBodUsed = TRUE;
+    }
+
+    /* Update Data ID when periodic advertising is enabled or disabled. */
+    if ((pAdvSet->didPerUpdate == TRUE) && (pAdvSet->auxBodUsed == FALSE))
+    {
+      pAdvSet->param.advDID = pAdvSet->advData.alt.ext.did;
+      pAdvSet->didPerUpdate = FALSE;
     }
   }
   else /* (pAdvSet->param.advEventProp & LL_ADV_EVT_PROP_LEGACY_ADV_BIT) */
@@ -749,7 +838,7 @@ void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp)
     }
   }
 
-  SchBleCalcAdvOpDuration(pOp);
+  SchBleCalcAdvOpDuration(pOp, 0);
 
   /*** Reschedule operation ***/
   const uint8_t LEGACY_HIGH_DUTY = (LL_ADV_EVT_PROP_LEGACY_ADV_BIT | LL_ADV_EVT_PROP_HIGH_DUTY_ADV_BIT |
@@ -792,39 +881,49 @@ void lctrSlvExtAdvEndOp(BbOpDesc_t *pOp)
   }
   else
   {
-    bool_t result;
+    uint32_t totalDuration = pOp->minDurUsec;
+    uint32_t prefInterval;
 
-    do
+    if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_ADV_DLY))
     {
-      if (lctrGetOpFlag(LL_OP_MODE_FLAG_ENA_ADV_DLY))
-      {
-        pOp->due += BB_BLE_TO_BB_TICKS(lctrCalcAdvDelay());
-      }
+      pOp->due += BB_BLE_TO_BB_TICKS(lctrCalcAdvDelay());
+    }
 
-      if (pAdvSet->param.priAdvInterMin == pAdvSet->param.priAdvInterMax)
-      {
-        pOp->due += pAdvSet->param.priAdvInterMin;
-        result = SchInsertAtDueTime(pOp, NULL);
-      }
-      else
-      {
-        result = SchInsertEarlyAsPossible(pOp,
-                                          pAdvSet->param.priAdvInterMin,
-                                          pAdvSet->param.priAdvInterMax);
-        if (!result)
-        {
-          pOp->due += pAdvSet->param.priAdvInterMax;
-        }
-      }
+    if (pAdvSet->auxBodUsed)
+    {
+      totalDuration += pAdvSet->auxAdvBod.minDurUsec;
+    }
 
-      if (!result)
-      {
-        LL_TRACE_WARN1("!!! ExtAdv schedule conflict at due=%u", pOp->due);
-        LL_TRACE_WARN1("!!!                             handle=%u", pAdvSet->handle);
-      }
+    /* Pick an interval so that advertising(primary + aux) BOD would take less than half of total bandwidth. */
+    prefInterval = WSF_MAX(BB_US_TO_BB_TICKS(totalDuration * 2), pAdvSet->param.priAdvInterMin);
 
-    } while (!result);
+    if (pAdvSet->advBodAbort)
+    {
+      pAdvSet->advBodAbort = FALSE;
+      (void)SchInsertEarlyAsPossible(pOp, 0, LCTR_SCH_MAX_SPAN);
+    }
+    else
+    {
+      (void)SchInsertEarlyAsPossible(pOp, prefInterval, LCTR_SCH_MAX_SPAN);
+    }
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Abort an extended advertising primary channel operation.
+ *
+ *  \param  pOp     Completed operation.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void lctrSlvExtAdvAbortOp(BbOpDesc_t *pOp)
+{
+  lctrAdvSet_t * const pAdvSet = pOp->pCtx;
+  pAdvSet->advBodAbort = TRUE;
+
+  lctrSlvExtAdvEndOp(pOp);
 }
 
 /*************************************************************************************************/
@@ -867,8 +966,8 @@ void lctrSlvAuxAdvEndOp(BbOpDesc_t *pOp)
     {
       /* Ensure all BODs are de-scheduled. */
       bool_t result = SchRemove(&pAdvSet->advBod);
-      WSF_ASSERT(result);   /* Non-head elements are always removeable. */
-      (void)result;
+
+      (void)result; /* It is possible to fail to remove BOD when BOD is not in the list(scheduling conflict) or there is not enough time to remove the BOD. */
     }
     else
     {
@@ -897,7 +996,7 @@ void lctrSlvAuxAdvEndOp(BbOpDesc_t *pOp)
     pAdvSet->advData.alt.ext.modified = FALSE;
     memcpy(pAdvSet->advData.pBuf, pAdvSet->advData.alt.ext.buf, pAdvSet->advData.alt.ext.len);
     pAdvSet->advData.len = pAdvSet->advData.alt.ext.len;
-    pAdvSet->advData.did = pAdvSet->advData.alt.ext.did;
+    pAdvSet->param.advDID = pAdvSet->advData.alt.ext.did;
     pAdvSet->advData.fragPref = pAdvSet->advData.alt.ext.fragPref;
 
     /* Update superior PDU. */
@@ -917,14 +1016,28 @@ void lctrSlvAuxAdvEndOp(BbOpDesc_t *pOp)
     pAdvSet->scanRspData.alt.ext.modified = FALSE;
     memcpy(pAdvSet->scanRspData.pBuf, pAdvSet->scanRspData.alt.ext.buf, pAdvSet->scanRspData.alt.ext.len);
     pAdvSet->scanRspData.len = pAdvSet->scanRspData.alt.ext.len;
-    pAdvSet->scanRspData.did = pAdvSet->scanRspData.alt.ext.did;
+    pAdvSet->param.advDID = pAdvSet->scanRspData.alt.ext.did;
     pAdvSet->scanRspData.fragPref = pAdvSet->scanRspData.alt.ext.fragPref;
   }
 
+  /* Update Data ID when periodic advertising is enabled or disabled. */
+  if (pAdvSet->didPerUpdate == TRUE)
+  {
+    pAdvSet->param.advDID = pAdvSet->advData.alt.ext.did;
+    pAdvSet->didPerUpdate = FALSE;
+  }
+
   /*** Update operation ***/
+  if (BbBleResListIsRpaUpd(pAdvSet->param.peerAddrType, pAdvSet->param.peerAddr))
+  {
+    /* Update AUX_ADV_IND in case advA or/and tgtA are changed, AUX_ADV_IND for non-conn and non-scan will be updated again if necessary in the lctrSlvTxSetupAuxAdvDataHandler. */
+    BbBleSlvAuxAdvEvent_t * const pAuxAdv = &pBle->op.slvAuxAdv;
 
-  /* Updated in lctrSlvTxSetupAuxAdvDataHandler(). */
-
+    pAdvSet->advData.txOffs = 0;
+    pAuxAdv->txAuxAdvPdu[0].len = lctrPackAuxAdvIndPdu(pAdvSet, pAdvSet->auxAdvHdrBuf, &pAdvSet->advData, FALSE);
+    pAuxAdv->txAuxAdvPdu[1].pBuf = pAdvSet->advData.pBuf;
+    pAuxAdv->txAuxAdvPdu[1].len = pAdvSet->advData.len;
+  }
   /*** Reschedule operation ***/
 
   lctrSlvAuxRescheduleOp(pAdvSet, pOp);
@@ -985,6 +1098,10 @@ void lctrSlvPeriodicAdvEndOp(BbOpDesc_t *pOp)
     pOp->due += pAdvSet->perParam.perAdvInter;
 
     pAdvSet->perParam.perEventCounter++;
+
+    /*** Process ACAD fields if necessary ***/
+    lctrSlvAcadHandler(pAdvSet);
+
     pAdvSet->perParam.perChIdx = lctrPeriodicSelectNextChannel(&pAdvSet->perParam.perChanParam,
                                                                pAdvSet->perParam.perEventCounter);
 
@@ -994,4 +1111,23 @@ void lctrSlvPeriodicAdvEndOp(BbOpDesc_t *pOp)
     }
     LL_TRACE_WARN1("!!! Periodic advertising schedule conflict eventCounter=%u", pAdvSet->perParam.perEventCounter);
   }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Abort an periodic advertising channel operation.
+ *
+ *  \param  pOp     Aborted operation.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void lctrSlvPeriodicAdvAbortOp(BbOpDesc_t *pOp)
+{
+  WSF_ASSERT(pOp->protId == BB_PROT_BLE);
+  WSF_ASSERT(pOp->prot.pBle->chan.opType == BB_BLE_OP_SLV_PER_ADV_EVENT);
+
+  LL_TRACE_WARN1("!!! Periodic advertising BOD aborted, eventCounter=%u", ((lctrAdvSet_t *)pOp->pCtx)->perParam.perEventCounter);
+
+  lctrSlvPeriodicAdvEndOp(pOp);
 }

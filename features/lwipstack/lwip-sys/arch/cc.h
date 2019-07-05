@@ -40,6 +40,9 @@
 #include "mbedtls/md5.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ARM/LPC17xx is little endian only */
 #if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
@@ -110,7 +113,7 @@ MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, cons
 #else // MBED_CONF_LWIP_USE_MBED_TRACE
 #include <stdio.h>
 
-MBED_NORETURN void assert_printf(char *msg, int line, char *file);
+MBED_NORETURN void assert_printf(const char *msg, int line, const char *file);
 
 /* Plaform specific diagnostic output */
 #define LWIP_PLATFORM_DIAG(vars) printf vars
@@ -178,6 +181,10 @@ SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
 #if defined (__ICCARM__)
 #pragma default_variable_attributes =
 #endif
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __CC_H__ */ 

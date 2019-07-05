@@ -88,9 +88,9 @@ public:
      * false otherwise.
      */
     bool generate_keys(
-        ArrayView<uint8_t, lesc_key_size_> X,
-        ArrayView<uint8_t, lesc_key_size_> Y,
-        ArrayView<uint8_t, lesc_key_size_> secret
+        Span<uint8_t, lesc_key_size_> X,
+        Span<uint8_t, lesc_key_size_> Y,
+        Span<uint8_t, lesc_key_size_> secret
     );
 
     /**
@@ -103,10 +103,10 @@ public:
      * false otherwise.
      */
     bool generate_shared_secret(
-        const ArrayView<const uint8_t, lesc_key_size_>& peer_X,
-        const ArrayView<const uint8_t, lesc_key_size_>& peer_Y,
-        const ArrayView<const uint8_t, lesc_key_size_>& own_secret,
-        ArrayView<uint8_t, lesc_key_size_> shared_secret
+        const Span<const uint8_t, lesc_key_size_>& peer_X,
+        const Span<const uint8_t, lesc_key_size_>& peer_Y,
+        const Span<const uint8_t, lesc_key_size_>& own_secret,
+        Span<uint8_t, lesc_key_size_> shared_secret
     );
 
 #endif
@@ -125,17 +125,17 @@ public:
      * @return true in case of success and false otherwise.
      */
     static bool ah(
-        const ArrayView<const uint8_t, irk_size_>& irk,
-        const ArrayView<const uint8_t, prand_size_>& prand,
-        ArrayView<uint8_t, hash_size_> hash
+        const Span<const uint8_t, irk_size_>& irk,
+        const Span<const uint8_t, prand_size_>& prand,
+        Span<uint8_t, hash_size_> hash
     );
 
 private:
 
 #if defined(MBEDTLS_ECDH_C)
-    void load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src);
+    void load_mpi(mbedtls_mpi& dest, const Span<const uint8_t, lesc_key_size_>& src);
 
-    void store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src);
+    void store_mpi(Span<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src);
 #endif
 
     static void swap_endian(uint8_t* buf, size_t len);

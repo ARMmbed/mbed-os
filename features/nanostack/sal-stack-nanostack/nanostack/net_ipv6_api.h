@@ -52,6 +52,40 @@ int8_t arm_nwk_ipv6_frag_mru(uint16_t frag_mru);
 int8_t arm_nwk_ipv6_max_cache_entries(uint16_t max_entries);
 
 /**
+ * \brief Configure destination cache.
+ *
+ * Set destination cache maximum entry count, thresholds where amount of entries is kept during operation and lifetime.
+ *
+ * Note: This must be called before arm_nwk_interface_lowpan_init()
+ *
+ * \param max_entries Maximum number of entries allowed in destination cache at any time.
+ * \param short_term_threshold Amount of cache entries kept in memory in short term. Must be less than max_entries.
+ * \param long_term_threshold Amount of entries kept in memory over long period of time. Must be less than short_term_threshold.
+ * \param lifetime Lifetime of cache entry, must be over 120 seconds
+ *
+ * \return 0 Change OK.
+ * \return <0 Change invalid - unable to change the maximum for cache.
+ */
+int8_t arm_nwk_ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
+
+/**
+ * \brief Configure neighbour cache.
+ *
+ * Set neighbour cache maximum entry count, thresholds where amount of entries is kept during operation and lifetime.
+ *
+ * Note: This must be called before arm_nwk_interface_lowpan_init()
+ *
+ * \param max_entries Maximum number of entries allowed in neighbour cache at any time.
+ * \param short_term_threshold Amount of cache entries kept in memory in short term. Must be less than max_entries.
+ * \param long_term_threshold Amount of entries kept in memory over long period of time. Must be less than short_term_threshold.
+ * \param lifetime Lifetime of cache entry, must be over 120 seconds
+ *
+ * \return 0 Change OK.
+ * \return <0 Change invalid - unable to change the maximum for cache.
+ */
+int8_t arm_nwk_ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
+
+/**
  * \brief Configure automatic flow label calculation.
  *
  * Enable or disable automatic generation of IPv6 flow labels for outgoing

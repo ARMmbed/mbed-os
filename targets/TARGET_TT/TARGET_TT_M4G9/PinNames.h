@@ -60,10 +60,10 @@ typedef enum {
     PY0 = 19  << 3, PY1, PY2, PY3, PY4,
 
     // Other mbed Pin Names
-    LED1 = PE4,
-    LED2 = PE5,
-    LED3 = PE6,
-    LED4 = PE7,
+    LED0 = PE4,
+    LED1 = PE5,
+    LED2 = PE6,
+    LED3 = PE7,
 
     // External data bus Pin Names
     D0 = PJ0,
@@ -101,11 +101,11 @@ typedef enum {
     MBED_CONF_APP_UART0_RX = PE2,
 
     // Switches
+    SW1 = (int)0xFFFFFFFF,        //Reset Button
+    SW2 = PL4,       //Push button S2
+    SW3 = PM0,       //DIP switch J7_1
+    SW4 = PM1,       //DIP switch J7_2
     USER_BUTTON = PL4,
-    SW1 = PL4,
-    SW2 = PL5,
-    SW3 = PV0,
-    SW4 = PV1,
 
     // I2C pins
     SDA = PG2,

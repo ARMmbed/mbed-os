@@ -33,6 +33,3 @@
 #define THREAD_THCI_SUPPORT
 #define HAVE_WS
 #define MLE_TEST
-//#define HAVE_PAE_SUPP
-//#define HAVE_PAE_AUTH
-//#define HAVE_EAPOL_RELAY

@@ -17,7 +17,6 @@
 
 #include <ctype.h>
 #include "nsapi_types.h"
-#include "ATHandler.h"
 #include "events/EventQueue.h"
 #include "ATHandler_stub.h"
 
@@ -26,7 +25,10 @@ using namespace events;
 
 #include "CellularLog.h"
 
-const int DEFAULT_AT_TIMEOUT = 1000; // at default timeout in milliseconds
+const int DEFAULT_AT_TIMEOUT = 1000;
+const uint8_t MAX_RESP_LENGTH = 7;
+
+mbed::ATHandler *ATHandler_stub::handler = NULL;
 
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
@@ -45,6 +47,8 @@ FileHandle_stub *ATHandler_stub::fh_value = NULL;
 device_err_t ATHandler_stub::device_err_value;
 bool ATHandler_stub::call_immediately = false;
 uint8_t ATHandler_stub::resp_info_true_counter = false;
+uint8_t ATHandler_stub::resp_info_true_counter2 = false;
+uint8_t ATHandler_stub::resp_info_false_counter = false;
 uint8_t ATHandler_stub::info_elem_true_counter = false;
 int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
@@ -53,9 +57,6 @@ bool ATHandler_stub::process_oob_urc = false;
 int ATHandler_stub::read_string_index = kRead_string_table_size;
 const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
-int ATHandler_stub::urc_amount = 0;
-mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
-char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {'\0'};
 
 bool ATHandler_stub::get_debug_flag = false;
 uint8_t ATHandler_stub::set_debug_call_count = 0;
@@ -84,17 +85,12 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _nextATHandler(0),
     _fileHandle(fh),
     _queue(queue),
-    _ref_count(1)
+    _ref_count(1),
+    _oob_string_max_length(0),
+    _oobs(NULL),
+    _max_resp_length(MAX_RESP_LENGTH)
 {
-    ATHandler_stub::ref_count = 1;
-
     ATHandler_stub::process_oob_urc = false;
-    ATHandler_stub::urc_amount = 0;
-    int i = 0;
-    while (i < kATHandler_urc_table_max_size) {
-        ATHandler_stub::callback[i] = NULL;
-        ATHandler_stub::urc_string_table[i++] = NULL;
-    }
 }
 
 void ATHandler::set_debug(bool debug_on)
@@ -112,34 +108,21 @@ bool ATHandler::get_debug() const
 
 ATHandler::~ATHandler()
 {
-    ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
-
-    int i = 0;
-    while (i < kATHandler_urc_table_max_size) {
-        if (ATHandler_stub::urc_string_table[i]) {
-            delete [] ATHandler_stub::urc_string_table[i];
-            i++;
-        } else {
-            break;
-        }
-    }
 }
 
 void ATHandler::inc_ref_count()
 {
-    _ref_count++;
-    ATHandler_stub::ref_count = _ref_count;
+    ATHandler_stub::ref_count++;
 }
 
 void ATHandler::dec_ref_count()
 {
-    _ref_count--;
-    ATHandler_stub::ref_count = _ref_count;
+    ATHandler_stub::ref_count--;
 }
 
 int ATHandler::get_ref_count()
 {
-    return _ref_count;
+    return ATHandler_stub::ref_count;
 }
 
 FileHandle *ATHandler::get_file_handle()
@@ -152,20 +135,17 @@ void ATHandler::set_file_handle(FileHandle *fh)
 {
 }
 
+bool ATHandler::find_urc_handler(const char *prefix)
+{
+    return ATHandler_stub::bool_value;
+}
+
 void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
-    if (ATHandler_stub::urc_amount < kATHandler_urc_table_max_size) {
-        ATHandler_stub::callback[ATHandler_stub::urc_amount] = cb;
-        ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount] = new char[kATHandler_urc_string_max_size];
-        if (urc) {
-            int bytes_to_copy = strlen(urc) < kATHandler_urc_string_max_size ? strlen(urc) : kATHandler_urc_string_max_size;
-            memcpy(ATHandler_stub::urc_string_table[ATHandler_stub::urc_amount], urc, bytes_to_copy);
-        }
-        ATHandler_stub::urc_amount++;
-    } else {
-        ATHandler_stub::callback[0] = cb;
-        MBED_ASSERT("ATHandler URC amount limit reached");
+    if (!cb) {
+        return;
     }
+
     if (ATHandler_stub::call_immediately) {
         cb();
     }
@@ -209,20 +189,6 @@ void ATHandler::restore_at_timeout()
 
 void ATHandler::process_oob()
 {
-    if (ATHandler_stub::process_oob_urc) {
-        int i = 0;
-        while (i < ATHandler_stub::urc_amount) {
-            if (ATHandler_stub::read_string_index >= 0) {
-                if (!memcmp(ATHandler_stub::urc_string_table[i],
-                            ATHandler_stub::read_string_table[ATHandler_stub::read_string_index],
-                            strlen(ATHandler_stub::urc_string_table[i]))) {
-                    ATHandler_stub::callback[i]();
-                    break;
-                }
-            }
-            i++;
-        }
-    }
 }
 
 void ATHandler::clear_error()
@@ -246,7 +212,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
-
+    buf[0] = '\0';
     if (ATHandler_stub::read_string_index == kRead_string_table_size) {
         if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
             memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value + 1);
@@ -278,7 +244,6 @@ int32_t ATHandler::read_int()
         return ATHandler_stub::int_value;
     }
 
-    //printf("ATHandler_stub::int_count: %d", ATHandler_stub::int_count);
     ATHandler_stub::int_count--;
     if (ATHandler_stub::int_count < kRead_int_table_size && ATHandler_stub::int_count >= 0) {
         return ATHandler_stub::int_valid_count_table[ATHandler_stub::int_count];
@@ -313,6 +278,14 @@ bool ATHandler::info_resp()
 {
     if (ATHandler_stub::resp_info_true_counter) {
         ATHandler_stub::resp_info_true_counter--;
+        return true;
+    }
+    if (ATHandler_stub::resp_info_false_counter) {
+        ATHandler_stub::resp_info_false_counter--;
+        return false;
+    }
+    if (ATHandler_stub::resp_info_true_counter2) {
+        ATHandler_stub::resp_info_true_counter2--;
         return true;
     }
     return ATHandler_stub::bool_value;
@@ -381,3 +354,54 @@ void ATHandler::flush()
 {
 
 }
+
+nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf,
+                                    size_t buf_size, const char *format, ...)
+{
+    read_string(resp_buf, buf_size);
+    return ATHandler_stub::nsapi_error_value;
+}
+
+nsapi_error_t ATHandler::at_cmd_int(const char *cmd, const char *cmd_chr, int &resp,
+                                    const char *format, ...)
+{
+    resp = read_int();
+    return ATHandler_stub::nsapi_error_value;
+}
+
+void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format, ...)
+{
+}
+
+nsapi_error_t ATHandler::at_cmd_discard(const char *cmd, const char *cmd_chr,
+                                        const char *format, ...)
+{
+    return ATHandler_stub::nsapi_error_value;
+}
+
+ATHandler *ATHandler::get_instance(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
+                                   const char *delimiter, uint16_t send_delay, bool debug_on)
+{
+    ATHandler_stub::ref_count++;
+    int a = ATHandler_stub::ref_count;
+    a = 0;
+    return ATHandler_stub::handler;
+}
+
+nsapi_error_t ATHandler::close()
+{
+    ATHandler_stub::ref_count--;
+    return NSAPI_ERROR_OK;
+}
+
+void ATHandler::set_at_timeout_list(uint32_t timeout_milliseconds, bool default_timeout)
+{
+    ATHandler_stub::timeout = timeout_milliseconds;
+    ATHandler_stub::default_timeout = default_timeout;
+}
+
+void ATHandler::set_debug_list(bool debug_on)
+{
+    ATHandler_stub::debug_on = debug_on;
+}
+

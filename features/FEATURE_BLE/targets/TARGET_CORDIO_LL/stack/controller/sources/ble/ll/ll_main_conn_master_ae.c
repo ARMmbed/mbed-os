@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) master extended control interface implementation file.
+ * \file
+ * \brief Link layer (LL) master extended control interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -31,6 +32,50 @@
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Validate Connection spec parameters
+ *
+ *  \param      pConnSpec
+ *
+ *  \return     TRUE if valid, FALSE otherwise.
+ */
+/*************************************************************************************************/
+static bool_t llValidateConnSpecParams(const LlConnSpec_t *pParam)
+{
+  /* Connection interval. */
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((pParam->connIntervalMin > pParam->connIntervalMax) ||
+       (pParam->connIntervalMax < pParam->connIntervalMin) ||
+       (pParam->connIntervalMax < HCI_CONN_INTERVAL_MIN) ||
+       (pParam->connIntervalMin < HCI_CONN_INTERVAL_MIN) ||
+       (pParam->connIntervalMax > HCI_CONN_INTERVAL_MAX) ||
+       (pParam->connIntervalMin > HCI_CONN_INTERVAL_MAX) ))
+  {
+    return FALSE;
+  }
+
+  /* Connection latency. */
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((pParam->connLatency > HCI_CONN_LATENCY_MAX)))
+  {
+    return FALSE;
+  }
+
+  /* Supervision timeout. */
+  uint32_t supTimeoutMin = ((uint32_t) pParam->connLatency + 1) * LL_CONN_INTERVAL_VAL_TO_US((uint32_t) pParam->connIntervalMax) * 2;
+  uint32_t supTimeoutUs = LL_SUP_TIMEOUT_VAL_TO_US((uint32_t) pParam->supTimeout);
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((supTimeoutUs <= supTimeoutMin) ||
+       (pParam->supTimeout < HCI_SUP_TIMEOUT_MIN) ||
+       (pParam->supTimeout > HCI_SUP_TIMEOUT_MAX)))
+  {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Validate extended initiate parameters.
  *
  *  \param      pParam    Pointer to initiation parameters.
@@ -40,7 +85,7 @@
 /*************************************************************************************************/
 static bool_t llValidateInitiateParams(const LlExtInitParam_t *pParam)
 {
-  const uint8_t filtPolicyMax = ((lmgrCb.features & LL_FEAT_EXT_SCAN_FILT_POLICY) != 0) ? LL_SCAN_FILTER_WL_OR_RES_INIT : LL_SCAN_FILTER_WL_BIT;
+  const uint8_t filtPolicyMax = LL_INIT_FILTER_TOTAL - 1;
   const uint8_t addrTypeMax = ((lmgrCb.features & LL_FEAT_PRIVACY) != 0) ? LL_ADDR_RANDOM_IDENTITY : LL_ADDR_RANDOM;
 
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -97,6 +142,10 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
   const uint8_t validInitPhys = LL_PHYS_LE_1M_BIT | LL_PHYS_LE_2M_BIT | LL_PHYS_LE_CODED_BIT;
   const uint8_t numInitPhyBits = LlMathGetNumBitsSet(pInitParam->initPhys);
 
+  uint8_t supportedPhys = LL_PHYS_LE_1M_BIT;
+  supportedPhys |= (lmgrCb.features & LL_FEAT_LE_2M_PHY) ? LL_PHYS_LE_2M_BIT : 0;
+  supportedPhys |= (lmgrCb.features & LL_FEAT_LE_CODED_PHY) ? LL_PHYS_LE_CODED_BIT : 0;
+
   LL_TRACE_INFO1("### LlApi ###  LlExtCreateConn: initPhys=0x%02x", pInitParam->initPhys);
 
   WSF_ASSERT(pInitParam);   /* not NULL */
@@ -105,6 +154,7 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
       (!LmgrIsExtCommandAllowed() ||
       lmgrCb.numInitEnabled))
   {
+    LL_TRACE_WARN0("Legacy Advertising/Scanning operation enabled; extended commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -112,6 +162,13 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
       ((pInitParam->initPhys & ~validInitPhys) || (pInitParam->initPhys == 0)))
   {
     return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((pInitParam->initPhys & supportedPhys) != pInitParam->initPhys))
+  {
+    LL_TRACE_WARN0("Unsupported PHY bit was set.");
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -124,7 +181,7 @@ uint8_t LlExtCreateConn(const LlExtInitParam_t *pInitParam, const LlExtInitScanP
   {
     for (unsigned int i = 0; i < numInitPhyBits; i++)
     {
-      if (!llValidateInitiateScanParams(&scanParam[i]))
+      if ((!llValidateConnSpecParams(&connSpec[i])) || (!llValidateInitiateScanParams(&scanParam[i])))
       {
         return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
       }

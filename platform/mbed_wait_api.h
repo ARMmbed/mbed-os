@@ -25,6 +25,9 @@
 #ifndef MBED_WAIT_API_H
 #define MBED_WAIT_API_H
 
+#include "platform/mbed_atomic.h"
+#include "device.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -114,6 +117,48 @@ void wait_us(int us);
  *
  */
 void wait_ns(unsigned int ns);
+
+/* Optimize if we know the rate */
+#if DEVICE_USTICKER && defined US_TICKER_PERIOD_NUM
+void _wait_us_ticks(uint32_t ticks);
+void _wait_us_generic(unsigned int us);
+
+/* Further optimization if we know us_ticker is always running */
+#if MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+#define _us_ticker_is_initialized true
+#else
+extern bool _us_ticker_initialized;
+#define _us_ticker_is_initialized core_util_atomic_load_bool(&_us_ticker_initialized)
+#endif
+
+#if US_TICKER_PERIOD_DEN == 1 && (US_TICKER_MASK * US_TICKER_PERIOD_NUM) >= 0xFFFFFFFF
+/* Ticker is wide and slow enough to have full 32-bit range - can always use it directly */
+#define _us_is_small_enough(us) true
+#else
+/* Threshold is determined by specification of us_ticker_api.h - smallest possible
+ * time range for the us_ticker is 16-bit 8MHz, which gives 8192us. This also leaves
+ * headroom for the multiplication in 32 bits.
+ */
+#define _us_is_small_enough(us) ((us) < 8192)
+#endif
+
+/* Speed optimisation for small wait_us. Care taken to preserve binary compatibility */
+inline void _wait_us_inline(unsigned int us)
+{
+    /* Threshold is determined by specification of us_ticker_api.h - smallest possible
+     * time range for the us_ticker is 16-bit 8MHz, which gives 8192us. This also leaves
+     * headroom for the multiplication in 32 bits.
+     */
+    if (_us_is_small_enough(us) && _us_ticker_is_initialized) {
+        const uint32_t ticks = ((us * US_TICKER_PERIOD_DEN) + US_TICKER_PERIOD_NUM - 1) / US_TICKER_PERIOD_NUM;
+        _wait_us_ticks(ticks);
+    } else {
+        _wait_us_generic(us);
+    }
+}
+
+#define wait_us(us) _wait_us_inline(us)
+#endif // Known-rate, initialised timer
 
 #ifdef __cplusplus
 }

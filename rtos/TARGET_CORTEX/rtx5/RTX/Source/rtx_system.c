@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -75,9 +75,7 @@ static uint32_t isr_queue_put (os_object_t *object) {
 /// Get Object from ISR Queue.
 /// \return object or NULL.
 static os_object_t *isr_queue_get (void) {
-#if (EXCLUSIVE_ACCESS == 0)
-  uint32_t     primask = __get_PRIMASK();
-#else
+#if (EXCLUSIVE_ACCESS != 0)
   uint32_t     n;
 #endif
   uint16_t     max;
@@ -97,10 +95,8 @@ static os_object_t *isr_queue_get (void) {
   } else {
     ret = NULL;
   }
-  
-  if (primask == 0U) {
-    __enable_irq();
-  }
+
+  __enable_irq();
 #else
   if (atomic_dec16_nz(&osRtxInfo.isr_queue.cnt) != 0U) {
     n = atomic_inc16_lim(&osRtxInfo.isr_queue.out, max);

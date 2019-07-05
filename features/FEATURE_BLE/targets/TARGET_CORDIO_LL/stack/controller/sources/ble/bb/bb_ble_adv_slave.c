@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,20 +16,23 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Advertising slave BLE baseband porting implementation file.
+ * \file
+ * \brief Advertising slave BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "bb_ble_int.h"
 #include "sch_api.h"
 #include "sch_api_ble.h"
+#include "ll_math.h"
+#include "ll_api.h"
+#include "lmgr_api_adv_slave.h"
 #include <string.h>
 
 /**************************************************************************************************
   Macros
 **************************************************************************************************/
-
 /*! \brief    Event states for advertising operations. */
 enum
 {
@@ -73,13 +76,15 @@ static bool_t bbSetupAdvOp(BbOpDesc_t *pBod, BbBleSlvAdvEvent_t *pAdv, uint8_t s
   /* Compute next channel. */
   do
   {
-    if (bbBleCb.advChIdx >= LL_NUM_CHAN_ADV)
+    if (bbBleCb.numChUsed == LL_NUM_CHAN_ADV)
     {
       /* BOD completed. */
       return TRUE;
     }
 
+    bbBleCb.advChIdx = bbBleCb.advChIdx % LL_NUM_CHAN_ADV;
     pBle->chan.chanIdx = LL_CHAN_ADV_MIN_IDX + bbBleCb.advChIdx;
+    bbBleCb.numChUsed++;
 
     /* Selected channel in channel map; use this channel. */
   } while (!((1 << bbBleCb.advChIdx++) & pAdv->advChMap));
@@ -91,14 +96,14 @@ static bool_t bbSetupAdvOp(BbOpDesc_t *pBod, BbBleSlvAdvEvent_t *pAdv, uint8_t s
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
     }
   }
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   if (firstOpInSet)
   {
@@ -108,14 +113,16 @@ static bool_t bbSetupAdvOp(BbOpDesc_t *pBod, BbBleSlvAdvEvent_t *pAdv, uint8_t s
   {
     if (pAdv->pRxReqBuf)
     {
-      /* Schedule with relative framge gap. */
-      bbBleCb.bbParam.due = BbDrvGetCurrentTime() + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
+      /* Schedule with relative frame gap. */
+      bbBleCb.bbParam.due = PalBbGetCurrentTime(USE_RTC_BB_CLK) + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
     }
     else
     {
       /* Schedule with absolute frame gap. */
-      bbBleCb.bbParam.due += (BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, pAdv->txAdvLen)) +
-                              BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs()));
+      uint32_t  advGap = (BB_US_TO_BB_TICKS(SchBleCalcAdvPktDurationUsec(pBle->chan.txPhy, pBle->chan.initTxPhyOptions, pAdv->txAdvLen)) +
+                          BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs()));
+
+      bbBleCb.bbParam.due += SchBleGetAlignedAuxOffsUsec(advGap);
     }
   }
 
@@ -126,7 +133,7 @@ static bool_t bbSetupAdvOp(BbOpDesc_t *pBod, BbBleSlvAdvEvent_t *pAdv, uint8_t s
     pAdv->txAdvSetupCback(pBod, bbBleCb.bbParam.due);
   }
 
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   if (pAdv->pRxReqBuf)
   {
@@ -136,8 +143,8 @@ static bool_t bbSetupAdvOp(BbOpDesc_t *pBod, BbBleSlvAdvEvent_t *pAdv, uint8_t s
   {
     bbBleClrIfs();    /* non-connectable advertising */
   }
-  BbBleDrvTxBufDesc_t desc = {.pBuf = pAdv->pTxAdvBuf, .len = pAdv->txAdvLen};
-  BbBleDrvTxData(&desc, 1);
+  PalBbBleTxBufDesc_t desc = {.pBuf = pAdv->pTxAdvBuf, .len = pAdv->txAdvLen};
+  PalBbBleTxData(&desc, 1);
 
   /* Tx may fail; no more important statements in the FALSE code path */
 
@@ -181,7 +188,7 @@ static void bbSlvAdvTxCompCback(uint8_t status)
         BB_ISR_MARK(bbAdvStats.rxSetupUsec);
 
         bbBleSetIfs();     /* set up for Tx SCAN_RSP */
-        BbBleDrvRxTifsData(pAdv->pRxReqBuf, BB_REQ_PDU_MAX_LEN);   /* reduce max length requirement */
+        PalBbBleRxTifsData(pAdv->pRxReqBuf, BB_REQ_PDU_MAX_LEN);   /* reduce max length requirement */
       }
       else
       {
@@ -213,7 +220,7 @@ Cleanup:
     switch (status)
     {
       case BB_STATUS_SUCCESS:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -270,8 +277,8 @@ static void bbSlvAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint3
             BB_ISR_MARK(bbAdvStats.txSetupUsec);
 
             bbBleClrIfs();  /* last operation in event */
-            BbBleDrvTxBufDesc_t desc = {.pBuf = pAdv->pTxRspBuf, .len = pAdv->txRspLen};
-            BbBleDrvTxTifsData(&desc, 1);
+            PalBbBleTxBufDesc_t desc = {.pBuf = pAdv->pTxRspBuf, .len = pAdv->txRspLen};
+            PalBbBleTxTifsData(&desc, 1);
           }
           else
           {
@@ -330,7 +337,7 @@ static void bbSlvAdvRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint3
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -360,9 +367,9 @@ static void bbSlvExecuteAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.rxCback       = bbSlvAdvRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = 2 * LL_MAX_TIFS_DEVIATION;
   bbBleCb.bbParam.dueOffsetUsec = 0;
-
-  bbBleCb.advChIdx = 0;
   bbBleCb.evtState = 0;
+  bbBleCb.numChUsed = 0;
+  bbBleCb.advChIdx = pAdv->firstAdvChIdx;
 
   if (bbSetupAdvOp(pBod, pAdv, BB_STATUS_SUCCESS, TRUE))
   {
@@ -382,7 +389,7 @@ static void bbSlvExecuteAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 /*************************************************************************************************/
 static void bbSlvCancelAdvOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
-  BbBleDrvCancelData();
+  PalBbBleCancelData();
 }
 
 /*************************************************************************************************/

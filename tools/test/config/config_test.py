@@ -19,7 +19,9 @@ import os
 import json
 import pytest
 from mock import patch
-from os.path import join, isfile, dirname, abspath
+from hypothesis import given
+from hypothesis.strategies import sampled_from
+from os.path import join, isfile, dirname, abspath, normpath
 from tools.build_api import get_config
 from tools.targets import set_targets_json_location
 from tools.config import (
@@ -93,15 +95,16 @@ def test_config(name):
                 assert sorted(expected_features) == sorted(features)
 
             included_source = [
-                join(test_dir, src) for src in
+                normpath(join(test_dir, src)) for src in
                 expected.get("included_source", [])
             ]
             excluded_source = [
-                join(test_dir, src) for src in
+                normpath(join(test_dir, src)) for src in
                 expected.get("excluded_source", [])
             ]
             for typ in Resources.ALL_FILE_TYPES:
                 for _, path in resources.get_file_refs(typ):
+                    path = normpath(path)
                     if included_source and path in included_source:
                         included_source.remove(path)
                     if excluded_source:
@@ -252,8 +255,8 @@ def test_parameters_and_config_macros_to_macros():
 
 
 @pytest.mark.parametrize("target_start_size", [
-    ("FUTURE_SEQUANA_PSA", 0x10080000, 0x78000),
-    ("FUTURE_SEQUANA_M0_PSA", 0x10000000, 0x80000)
+    ("CY8CKIT_062_WIFI_BT_PSA", 0x10040000, 0xB8000),
+    ("CY8CKIT_062_WIFI_BT_M0_PSA", 0x10000000, 0x40000)
 ])
 def test_PSA_overrides(target_start_size):
     target, start, size = target_start_size

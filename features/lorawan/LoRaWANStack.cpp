@@ -795,6 +795,8 @@ void LoRaWANStack::make_rx_metadata_available(void)
     _rx_metadata.rx_datarate = _loramac.get_mcps_indication()->rx_datarate;
     _rx_metadata.rssi = _loramac.get_mcps_indication()->rssi;
     _rx_metadata.snr = _loramac.get_mcps_indication()->snr;
+    _rx_metadata.channel = _loramac.get_mcps_indication()->channel;
+    _rx_metadata.rx_toa = _loramac.get_mcps_indication()->rx_toa;
 }
 
 bool LoRaWANStack::is_port_valid(const uint8_t port, bool allow_port_0)

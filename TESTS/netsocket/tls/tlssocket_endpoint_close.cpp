@@ -40,7 +40,7 @@ static nsapi_error_t _tlssocket_connect_to_daytime_srv(TLSSocket &sock)
 {
     SocketAddress tls_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tls_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tls_addr);
     tls_addr.set_port(2013);
 
     nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
@@ -54,6 +54,7 @@ static nsapi_error_t _tlssocket_connect_to_daytime_srv(TLSSocket &sock)
 
 void TLSSOCKET_ENDPOINT_CLOSE()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];
     int time_allotted = split2half_rmng_tls_test_time(); // [s]

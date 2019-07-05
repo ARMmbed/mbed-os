@@ -649,16 +649,21 @@ class Config(object):
     @property
     def sectors(self):
         """Return a list of tuples of sector start,size"""
-        cache = Cache(False, False)
-        if self.target.device_name not in cache.index:
-            raise ConfigException("Bootloader not supported on this target: "
-                                  "targets.json `device_name` not found in "
-                                  "arm_pack_manager index.")
-        cmsis_part = cache.index[self.target.device_name]
-        sectors = cmsis_part['sectors']
-        if sectors:
-            return sectors
-        raise ConfigException("No sector info available")
+        try:
+            return self.target.sectors
+        except AttributeError:
+            cache = Cache(False, False)
+            if self.target.device_name not in cache.index:
+                raise ConfigException(
+                    "Bootloader not supported on this target: "
+                    "targets.json `device_name` not found in "
+                    "arm_pack_manager index."
+                )
+            cmsis_part = cache.index[self.target.device_name]
+            sectors = cmsis_part['sectors']
+            if sectors:
+                return sectors
+            raise ConfigException("No sector info available")
 
     def _get_cmsis_part(self):
         if not hasattr(self.target, "device_name"):
@@ -689,26 +694,35 @@ class Config(object):
                 )
             )
 
-    def _get_primary_rom_override(self):
+    def _get_primary_memory_override(self, memory_type):
         mem_start = None
         mem_size = None
-        if hasattr(self.target, "mbed_rom_start"):
-            mem_start = getattr(self.target, "mbed_rom_start")
-        if hasattr(self.target, "mbed_rom_size"):
-            mem_size = getattr(self.target, "mbed_rom_size")
+        if hasattr(self.target, "mbed_{}_start".format(memory_type)):
+            mem_start = getattr(
+                self.target,
+                "mbed_{}_start".format(memory_type)
+            )
+        if hasattr(self.target, "mbed_{}_size".format(memory_type)):
+            mem_size = getattr(self.target, "mbed_{}_size".format(memory_type))
         if (
             self.target.is_PSA_non_secure_target or
             self.target.is_PSA_secure_target
         ):
             config, _ = self.get_config_data()
             if self.target.is_PSA_secure_target:
-                mem_start = config.get("target.secure-rom-start", mem_start).value
-                mem_size = config.get("target.secure-rom-size", mem_size).value
+                mem_start = config.get(
+                    "target.secure-{}-start".format(memory_type), mem_start
+                ).value
+                mem_size = config.get(
+                    "target.secure-{}-size".format(memory_type), mem_size
+                ).value
             elif self.target.is_PSA_non_secure_target:
                 mem_start = config.get(
-                    "target.non-secure-rom-start", mem_start
+                    "target.non-secure-{}-start".format(memory_type), mem_start
                 ).value
-                mem_size = config.get("target.non-secure-rom-size", mem_size).value
+                mem_size = config.get(
+                    "target.non-secure-{}-size".format(memory_type), mem_size
+                ).value
         if mem_start and not isinstance(mem_start, int):
             mem_start = int(mem_start, 0)
         if mem_size and not isinstance(mem_size, int):
@@ -736,73 +750,65 @@ class Config(object):
 
         try:
             cmsis_part = self._get_cmsis_part()
+            present_memories = set(cmsis_part['memories'].keys())
+            valid_memories = set(memory_list).intersection(present_memories)
+
+            memories = self._get_mem_specs(
+                ["read", "write" if active_memory == "RAM" else "execute"],
+                cmsis_part
+            )
+            for memory in valid_memories:
+                mem_start = memories[memory]["start"]
+                mem_size = memories[memory]["size"]
+                if memory in ['IROM1', 'PROGRAM_FLASH']:
+                    start, size = self._get_primary_memory_override("rom")
+                    if start:
+                        mem_start = start
+                    if size:
+                        mem_size = size
+                    memory = 'ROM'
+                elif memory in ['IRAM1', 'SRAM_OC', 'SRAM_UPPER', 'SRAM']:
+                    start, size = self._get_primary_memory_override("ram")
+                    if start:
+                        mem_start = start
+                    if size:
+                        mem_size = size
+                    memory = 'RAM'
+                else:
+                    active_memory_counter += 1
+                    memory = active_memory + str(active_memory_counter)
+
+                if not isinstance(mem_start, int):
+                    mem_start = int(mem_start, 0)
+                if not isinstance(mem_size, int):
+                    mem_size = int(mem_size, 0)
+                available_memories[memory] = [mem_start, mem_size]
+
+            if not available_memories:
+                raise ConfigException(
+                    "Bootloader not supported on this target. "
+                    "No memories found."
+                )
+            return available_memories
         except ConfigException:
             """ If the target doesn't exits in cmsis, but present in targets.json
             with ram and rom start/size defined"""
-            if (
-                getattr(self.target, "mbed_ram_start")
-                and active_memory == 'RAM'
-            ):
-                mem_start = int(getattr(self.target, "mbed_ram_start"), 0)
-                mem_size = int(getattr(self.target, "mbed_ram_size"), 0)
-                available_memories[active_memory] = [mem_start, mem_size]
-                return available_memories
-            elif active_memory == 'ROM':
-                start, size = self._get_primary_rom_override()
-                if not start:
-                    raise ConfigException(
-                        "Bootloader not supported on this target. rom "
-                        "start not found in targets.json."
-                    )
-                if not size:
-                    raise ConfigException(
-                        "Bootloader not supported on this target. rom "
-                        "size not found in targets.json."
-                    )
-                available_memories[active_memory] = [start, size]
-                return available_memories
-            else:
+            start, size = self._get_primary_memory_override(
+                active_memory.lower()
+            )
+            if not start:
                 raise ConfigException(
-                    "Bootloader not supported on this target. ram/rom "
-                    "start/size not found in targets.json."
+                    "Bootloader not supported on this target. {} "
+                    "start not found in targets.json.".format(active_memory)
                 )
+            if not size:
+                raise ConfigException(
+                    "Bootloader not supported on this target. {} "
+                    "size not found in targets.json.".format(active_memory)
+                )
+            available_memories[active_memory] = [start, size]
+            return available_memories
 
-        present_memories = set(cmsis_part['memories'].keys())
-        valid_memories = set(memory_list).intersection(present_memories)
-
-        memories = self._get_mem_specs(
-            ["read", "write" if active_memory == "RAM" else "execute"],
-            cmsis_part
-        )
-        for memory in valid_memories:
-            mem_start = memories[memory]["start"]
-            mem_size = memories[memory]["size"]
-            if memory in ['IROM1', 'PROGRAM_FLASH']:
-                start, size = self._get_primary_rom_override()
-                if start:
-                    mem_start = start
-                if size:
-                    mem_size = size
-                memory = 'ROM'
-            elif memory in ['IRAM1', 'SRAM_OC', 'SRAM_UPPER', 'SRAM']:
-                if (self.has_ram_regions):
-                    continue
-                if getattr(self.target, "mbed_ram_start", False):
-                    mem_start = getattr(self.target, "mbed_ram_start")
-                if getattr(self.target, "mbed_ram_start", False):
-                    mem_size = getattr(self.target, "mbed_ram_size")
-                memory = 'RAM'
-            else:
-                active_memory_counter += 1
-                memory = active_memory + str(active_memory_counter)
-
-            if not isinstance(mem_start, int):
-                mem_start = int(mem_start, 0)
-            if not isinstance(mem_size, int):
-                mem_size = int(mem_size, 0)
-            available_memories[memory] = [mem_start, mem_size]
-
-        return available_memories
 
     @property
     def ram_regions(self):
@@ -974,11 +980,6 @@ class Config(object):
                 yield region._replace(filename=self.target.header_format)
 
         if self.target.restrict_size is not None:
-            new_size = int(self.target.restrict_size, 0)
-            new_size = Config._align_floor(
-                start + new_size, self.sectors
-            ) - start
-
             if self.target.app_offset:
                 start = self._assign_new_offset(
                     rom_start,
@@ -986,6 +987,10 @@ class Config(object):
                     "application",
                     regions
                 )
+            new_size = int(self.target.restrict_size, 0)
+            new_size = Config._align_floor(
+                start + new_size, self.sectors
+            ) - start
 
             yield Region("application", start, new_size, True, None)
             start += new_size

@@ -41,6 +41,7 @@ from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normpath,
                      abspath, exists)
 
+from tools.settings import ROOT
 from .ignore import MbedIgnoreSet, IGNORE_FILENAME
 
 # Support legacy build conventions: the original mbed build system did not have
@@ -269,6 +270,10 @@ class Resources(object):
         if file_type:
             if sep != self._sep:
                 file_name = file_name.replace(sep, self._sep)
+            # Mbed OS projects only use one linker script at a time, so remove
+            # any existing linker script when adding a new one
+            if file_type == FileType.LD_SCRIPT:
+                self._file_refs[file_type].clear()
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def _include_file(self, ref):
@@ -312,6 +317,10 @@ class Resources(object):
             if ref.name.endswith(MBED_LIB_FILENAME)
         )
         self._excluded_libs = all_library_refs - self._libs_filtered
+        if self._collect_ignores:
+            self.ignored_dirs += [
+                dirname(n) or "." for n, _ in self._excluded_libs
+            ]
 
     def _get_from_refs(self, file_type, key):
         return sorted([key(f) for f in self.get_file_refs(file_type)])
@@ -496,7 +505,10 @@ class Resources(object):
                 start_at = index + 1
                 break
         for n in range(start_at, len(components)):
-            parent_name = self._sep.join([into_path] + components[:n])
+            parent_name_parts = components[:n]
+            if into_path:
+                parent_name_parts.insert(0, into_path)
+            parent_name = self._sep.join(parent_name_parts)
             parent_path = join(base_path, *components[:n])
             yield FileRef(parent_name, parent_path)
 
@@ -583,7 +595,45 @@ class Resources(object):
         config.load_resources(self)
         return self
 
-    def filter_spe(self):
-        spe_filter = lambda x: 'COMPONENT_SPE' in x
-        for type in [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC]:
-            self._file_refs[type] = set([f for f in self._file_refs[type] if spe_filter(f.name) or spe_filter(f.path)])
+    def filter(self, res_filter):
+        if res_filter is None:
+            return
+
+        for t in res_filter.file_types:
+            self._file_refs[t] = set(filter(
+                res_filter.predicate, self._file_refs[t]))
+
+
+class ResourceFilter(object):
+    def __init__(self, file_types):
+        self.file_types = file_types
+
+    def predicate(self, ref):
+        raise NotImplemented
+
+
+class SpeOnlyResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return 'COMPONENT_SPE' in ref.name
+
+
+class OsAndSpeResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
+
+    def predicate(self, ref):
+        return ROOT in abspath(ref.name) or 'COMPONENT_SPE' in ref.name
+
+
+class PsaManifestResourceFilter(ResourceFilter):
+    def __init__(self):
+        ResourceFilter.__init__(
+            self, [FileType.JSON])
+
+    def predicate(self, ref):
+        return not ref.name.endswith('_psa.json')

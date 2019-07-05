@@ -46,6 +46,36 @@
 int ws_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
 
 /**
+ * Border router configuration options
+ */
+#define BBR_ULA_C           0x0001 /**< Static ULA prefix created automatically */
+#define BBR_GUA_C           0x0002 /**< Routable prefix is learned from the backbone */
+#define BBR_GUA_ROUTE       0x0004 /**< More specific route is added for GUA prefix */
+#define BBR_GUA_SLAAC       0x0008 /**< Use SLAAC addressing in routable prefix */
+#define BBR_GUA_WAIT        0x0010 /**< Wait backbone availability before starting RPL dodag */
+#define BBR_BB_WAIT         0x0020 /**< Wait backbone availability before starting Wi-SUN network */
+/**
+ * Configure border router features.
+ *
+ * \param interface_id interface ID of the Wi-SUN network
+ * \param options Options configured to Border router
+ *          BBR_ULA_C     Configure Mesh local ULA prefix with SLAAC address  (default)
+ *          BBR_GUA_C     Configure GUA/ULA prefix from backbone to RPL       (default)
+ *          BBR_GUA_ROUTE Add more specific route for GUA                     (default)
+ *          BBR_GUA_SLAAC Use SLAAC address generation in GUA prefix
+ *          BBR_GUA_WAIT  Start RPL root only when GUA is available
+ *          BBR_BB_WAIT   Start Wi-SUN network only when backbone is ready
+ *
+ * By default Wi-SUN network is started and is treated as separate interface even if backbone is not available.
+ *
+ * Default route RPL options when backbone is set up. RPL root is always Grounded
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int ws_bbr_configure(int8_t interface_id, uint16_t options);
+/**
  * Stop backbone Border router.
  *
  * \param interface_id interface ID of the Wi-SUN network

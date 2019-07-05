@@ -20,7 +20,7 @@
 #include "Semaphore.h"
 #include "mbed_assert.h"
 #include "cy_ipc_config.h"
-#include "ipc/cy_ipc_pipe.h"
+#include "cy_ipc_pipe.h"
 #include <stdarg.h>
 #include "platform/SingletonPtr.h"
 
@@ -77,7 +77,7 @@ uint32_t ipcrpc_call(uint32_t call_id, uint32_t args_num, ...)
     MBED_ASSERT(status == CY_IPC_PIPE_SUCCESS);
 
     // Now wait for the response;
-    msg_semaphore->wait();
+    msg_semaphore->acquire();
 
     return message.result;
 }

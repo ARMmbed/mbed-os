@@ -403,6 +403,7 @@ bool test_socket_api_callbacks()
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
     if (0 != coap_connection_handler_open_connection(handler, 22, false, false, true, false)) {
+        free(sckt_data);
         return false;
     }
 
@@ -483,6 +484,7 @@ bool test_security_callbacks()
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
     if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, false)) {
+        free(sckt_data);
         return false;
     }
 

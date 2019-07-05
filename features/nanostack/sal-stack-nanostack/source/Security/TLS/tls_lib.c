@@ -1161,7 +1161,7 @@ buffer_t *tls_client_up(buffer_t *buf, sec_suite_t *tls_suite)
         if (tls_header_ptr) {
             if (tls_header_ptr->type == TLS_HANDSHAKE && (tls_heap != 0)) {
                 tr_debug("Type:Handshake");
-                if ((tls_suite->state == TLS_CHANGE_CHIPHER)) {
+                if (tls_suite->state == TLS_CHANGE_CHIPHER) {
                     if (tls_header_ptr->length < 32) {
                         tr_debug("Too short Chiher Text");
                     } else if ((algo_ok & 0x20) && (tls_suite->state == PRF_CALC)) {
@@ -1477,7 +1477,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
         if (tls_header_ptr) {
             if (tls_header_ptr->type == TLS_HANDSHAKE && (tls_heap != 0)) {
                 tr_debug("Type:Handshake");
-                if ((tls_suite->state == TLS_CHANGE_CHIPHER)) {
+                if (tls_suite->state == TLS_CHANGE_CHIPHER) {
                     if (tls_header_ptr->length < 32) {
                         tr_debug("Too short Chiher Text");
                     } else if ((algo_ok & 0x20) && (tls_suite->state == PRF_CALC)) {

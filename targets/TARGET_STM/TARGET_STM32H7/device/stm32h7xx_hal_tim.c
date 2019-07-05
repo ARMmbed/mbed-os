@@ -98,18 +98,22 @@
     *** Callback registration ***
   =============================================
 
+  [..]
   The compilation define  USE_HAL_TIM_REGISTER_CALLBACKS when set to 1
   allows the user to configure dynamically the driver callbacks.
 
+  [..]
   Use Function @ref HAL_TIM_RegisterCallback() to register a callback.
   @ref HAL_TIM_RegisterCallback() takes as parameters the HAL peripheral handle,
   the Callback ID and a pointer to the user callback function.
 
+  [..]
   Use function @ref HAL_TIM_UnRegisterCallback() to reset a callback to the default
   weak function.
   @ref HAL_TIM_UnRegisterCallback takes as parameters the HAL peripheral handle,
   and the Callback ID.
 
+  [..]
   These functions allow to register/unregister following callbacks:
     (+) Base_MspInitCallback              : TIM Base Msp Init Callback.
     (+) Base_MspDeInitCallback            : TIM Base Msp DeInit Callback.
@@ -140,15 +144,18 @@
     (+) BreakCallback                     : TIM Break Callback.
     (+) Break2Callback                    : TIM Break2 Callback.
 
+  [..]
 By default, after the Init and when the state is HAL_TIM_STATE_RESET
 all interrupt callbacks are set to the corresponding weak functions:
   examples @ref HAL_TIM_TriggerCallback(), @ref HAL_TIM_ErrorCallback().
 
+  [..]
   Exception done for MspInit and MspDeInit functions that are reset to the legacy weak
   functionalities in the Init / DeInit only when these callbacks are null
   (not registered beforehand). If not, MspInit or MspDeInit are not null, the Init / DeInit
     keep and use the user MspInit / MspDeInit callbacks(registered beforehand)
 
+  [..]
     Callbacks can be registered / unregistered in HAL_TIM_STATE_READY state only.
     Exception done MspInit / MspDeInit that can be registered / unregistered
     in HAL_TIM_STATE_READY or HAL_TIM_STATE_RESET state,
@@ -156,13 +163,14 @@ all interrupt callbacks are set to the corresponding weak functions:
   In that case first register the MspInit/MspDeInit user callbacks
       using @ref HAL_TIM_RegisterCallback() before calling DeInit or Init function.
 
+  [..]
       When The compilation define USE_HAL_TIM_REGISTER_CALLBACKS is set to 0 or
       not defined, the callback registration feature is not available and all callbacks
       are set to the corresponding weak functions.
 
   @endverbatim
   ******************************************************************************
-    * @attention
+  * @attention
   *
   * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
   * All rights reserved.</center></h2>
@@ -216,7 +224,7 @@ static void TIM_DMAPeriodElapsedHalfCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMATriggerHalfCplt(DMA_HandleTypeDef *hdma);
 static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
-                                     TIM_SlaveConfigTypeDef *sSlaveConfig);
+                                                  TIM_SlaveConfigTypeDef *sSlaveConfig);
 /**
   * @}
   */
@@ -227,8 +235,8 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   */
 
 /** @defgroup TIM_Exported_Functions_Group1 TIM Time Base functions
- *  @brief    Time Base functions
- *
+  *  @brief    Time Base functions
+  *
 @verbatim
   ==============================================================================
               ##### Time Base functions #####
@@ -482,11 +490,11 @@ HAL_StatusTypeDef HAL_TIM_Base_Start_DMA(TIM_HandleTypeDef *htim, uint32_t *pDat
   /* Check the parameters */
   assert_param(IS_TIM_DMA_INSTANCE(htim->Instance));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((pData == NULL) && (Length > 0U))
     {
@@ -559,8 +567,8 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
   */
 
 /** @defgroup TIM_Exported_Functions_Group2 TIM Output Compare functions
- *  @brief    TIM Output Compare functions
- *
+  *  @brief    TIM Output Compare functions
+  *
 @verbatim
   ==============================================================================
                   ##### TIM Output Compare functions #####
@@ -929,16 +937,16 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
 {
-   uint32_t tmpsmcr;
+  uint32_t tmpsmcr;
 
   /* Check the parameters */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((pData == NULL) && (Length > 0U))
     {
@@ -1136,8 +1144,8 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 
 /** @defgroup TIM_Exported_Functions_Group3 TIM PWM functions
- *  @brief    TIM PWM functions
- *
+  *  @brief    TIM PWM functions
+  *
 @verbatim
   ==============================================================================
                           ##### TIM PWM functions #####
@@ -1513,11 +1521,11 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
   /* Check the parameters */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((pData == NULL) && (Length > 0U))
     {
@@ -1714,8 +1722,8 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   */
 
 /** @defgroup TIM_Exported_Functions_Group4 TIM Input Capture functions
- *  @brief    TIM Input Capture functions
- *
+  *  @brief    TIM Input Capture functions
+  *
 @verbatim
   ==============================================================================
               ##### TIM Input Capture functions #####
@@ -2061,11 +2069,11 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((pData == NULL) && (Length > 0U))
     {
@@ -2249,8 +2257,8 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 
 /** @defgroup TIM_Exported_Functions_Group5 TIM One Pulse functions
- *  @brief    TIM One Pulse functions
- *
+  *  @brief    TIM One Pulse functions
+  *
 @verbatim
   ==============================================================================
                         ##### TIM One Pulse functions #####
@@ -2563,8 +2571,8 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Out
   */
 
 /** @defgroup TIM_Exported_Functions_Group6 TIM Encoder functions
- *  @brief    TIM Encoder functions
- *
+  *  @brief    TIM Encoder functions
+  *
 @verbatim
   ==============================================================================
                           ##### TIM Encoder functions #####
@@ -2966,16 +2974,17 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Chan
   * @param  Length The length of data to be transferred from TIM peripheral to memory.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData1, uint32_t *pData2, uint16_t Length)
+HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData1,
+                                            uint32_t *pData2, uint16_t Length)
 {
   /* Check the parameters */
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((((pData1 == NULL) || (pData2 == NULL))) && (Length > 0U))
     {
@@ -3149,8 +3158,8 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   * @}
   */
 /** @defgroup TIM_Exported_Functions_Group7 TIM IRQ handler management
- *  @brief    TIM IRQ handler management
- *
+  *  @brief    TIM IRQ handler management
+  *
 @verbatim
   ==============================================================================
                         ##### IRQ handler management #####
@@ -3363,8 +3372,8 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
   */
 
 /** @defgroup TIM_Exported_Functions_Group8 TIM Peripheral Control functions
- *  @brief    TIM Peripheral Control functions
- *
+  *  @brief    TIM Peripheral Control functions
+  *
 @verbatim
   ==============================================================================
                    ##### Peripheral Control functions #####
@@ -3740,7 +3749,8 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_OnePulse_InitTypeDef *sConfig, uint32_t OutputChannel,  uint32_t InputChannel)
+HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_OnePulse_InitTypeDef *sConfig,
+                                                 uint32_t OutputChannel,  uint32_t InputChannel)
 {
   TIM_OC_InitTypeDef temp1;
 
@@ -3863,7 +3873,13 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  *            @arg TIM_DMABASE_DCR
+  *            @arg TIM_DMABASE_CCMR3 
+  *            @arg TIM_DMABASE_CCR5 
+  *            @arg TIM_DMABASE_CCR6 
+  *            @arg TIM_DMABASE_AF1  
+  *            @arg TIM_DMABASE_AF2  
+  *            @arg TIM_DMABASE_TISEL
+  *         
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -3876,12 +3892,14 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
   * @param  BurstBuffer The Buffer address.
   * @param  BurstLength DMA Burst length. This parameter can be one value
   *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
+  * @note   This function should be used only when BurstLength is equal to DMA data transfer length.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress, uint32_t BurstRequestSrc,
-                                              uint32_t *BurstBuffer, uint32_t  BurstLength)
+HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
+                                              uint32_t BurstRequestSrc, uint32_t *BurstBuffer, uint32_t  BurstLength)
 {
-  return HAL_TIM_DMABurst_MultiWriteStart(htim, BurstBaseAddress, BurstRequestSrc, BurstBuffer, BurstLength, ((BurstLength) >> 8U) + 1U);
+  return HAL_TIM_DMABurst_MultiWriteStart(htim, BurstBaseAddress, BurstRequestSrc, BurstBuffer, BurstLength,
+                                          ((BurstLength) >> 8U) + 1U);
 }
 
 /**
@@ -3907,7 +3925,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  *            @arg TIM_DMABASE_DCR
+  *            @arg TIM_DMABASE_CCMR3 
+  *            @arg TIM_DMABASE_CCR5 
+  *            @arg TIM_DMABASE_CCR6 
+  *            @arg TIM_DMABASE_AF1  
+  *            @arg TIM_DMABASE_AF2  
+  *            @arg TIM_DMABASE_TISEL
+  *         
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -3924,8 +3948,9 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
   *         between 1 and 0xFFFF.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress, uint32_t BurstRequestSrc,
-                                                   uint32_t *BurstBuffer, uint32_t  BurstLength,  uint32_t  DataLength)
+HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
+                                                   uint32_t BurstRequestSrc, uint32_t *BurstBuffer,
+                                                   uint32_t  BurstLength,  uint32_t  DataLength)
 {
   /* Check the parameters */
   assert_param(IS_TIM_DMABURST_INSTANCE(htim->Instance));
@@ -3934,11 +3959,11 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
   assert_param(IS_TIM_DMA_LENGTH(BurstLength));
   assert_param(IS_TIM_DMA_DATA_LENGTH(DataLength));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((BurstBuffer == NULL) && (BurstLength > 0U))
     {
@@ -3965,7 +3990,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_UPDATE]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -3981,7 +4007,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -3997,7 +4024,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4013,7 +4041,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4029,7 +4058,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4045,7 +4075,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4061,7 +4092,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)BurstBuffer, (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)BurstBuffer,
+                           (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4070,9 +4102,9 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
     default:
       break;
   }
-  /* configure the DMA Burst Mode */
-  htim->Instance->DCR = (BurstBaseAddress | BurstLength);
 
+  /* Configure the DMA Burst Mode */
+  htim->Instance->DCR = (BurstBaseAddress | BurstLength);
   /* Enable the TIM DMA Request */
   __HAL_TIM_ENABLE_DMA(htim, BurstRequestSrc);
 
@@ -4169,7 +4201,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  *            @arg TIM_DMABASE_DCR
+  *            @arg TIM_DMABASE_CCMR3 
+  *            @arg TIM_DMABASE_CCR5 
+  *            @arg TIM_DMABASE_CCR6 
+  *            @arg TIM_DMABASE_AF1  
+  *            @arg TIM_DMABASE_AF2  
+  *            @arg TIM_DMABASE_TISEL
+  *         
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -4182,12 +4220,14 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t B
   * @param  BurstBuffer The Buffer address.
   * @param  BurstLength DMA Burst length. This parameter can be one value
   *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
+  * @note   This function should be used only when BurstLength is equal to DMA data transfer length.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress, uint32_t BurstRequestSrc,
-                                             uint32_t  *BurstBuffer, uint32_t  BurstLength)
+HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
+                                             uint32_t BurstRequestSrc, uint32_t  *BurstBuffer, uint32_t  BurstLength)
 {
-  return HAL_TIM_DMABurst_MultiReadStart(htim, BurstBaseAddress, BurstRequestSrc, BurstBuffer, BurstLength, ((BurstLength) >> 8U) + 1U);
+  return HAL_TIM_DMABurst_MultiReadStart(htim, BurstBaseAddress, BurstRequestSrc, BurstBuffer, BurstLength,
+                                         ((BurstLength) >> 8U) + 1U);
 }
 
 /**
@@ -4213,7 +4253,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  *            @arg TIM_DMABASE_DCR
+  *            @arg TIM_DMABASE_CCMR3 
+  *            @arg TIM_DMABASE_CCR5 
+  *            @arg TIM_DMABASE_CCR6 
+  *            @arg TIM_DMABASE_AF1  
+  *            @arg TIM_DMABASE_AF2  
+  *            @arg TIM_DMABASE_TISEL
+  *         
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -4230,8 +4276,9 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
   *         between 1 and 0xFFFF.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress, uint32_t BurstRequestSrc,
-                                                  uint32_t  *BurstBuffer, uint32_t  BurstLength, uint32_t  DataLength)
+HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
+                                                  uint32_t BurstRequestSrc, uint32_t  *BurstBuffer,
+                                                  uint32_t  BurstLength, uint32_t  DataLength)
 {
   /* Check the parameters */
   assert_param(IS_TIM_DMABURST_INSTANCE(htim->Instance));
@@ -4240,11 +4287,11 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
   assert_param(IS_TIM_DMA_LENGTH(BurstLength));
   assert_param(IS_TIM_DMA_DATA_LENGTH(DataLength));
 
-  if ((htim->State == HAL_TIM_STATE_BUSY))
+  if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
   }
-  else if ((htim->State == HAL_TIM_STATE_READY))
+  else if (htim->State == HAL_TIM_STATE_READY)
   {
     if ((BurstBuffer == NULL) && (BurstLength > 0U))
     {
@@ -4271,7 +4318,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_UPDATE]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4287,7 +4335,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4303,7 +4352,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4319,7 +4369,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4335,7 +4386,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4351,7 +4403,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4367,7 +4420,8 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferErrorCallback = TIM_DMAError ;
 
       /* Enable the DMA stream */
-      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer, DataLength) != HAL_OK)
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
+                           DataLength) != HAL_OK)
       {
         return HAL_ERROR;
       }
@@ -4377,7 +4431,7 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
       break;
   }
 
-  /* configure the DMA Burst Mode */
+  /* Configure the DMA Burst Mode */
   htim->Instance->DCR = (BurstBaseAddress | BurstLength);
 
   /* Enable the TIM DMA Request */
@@ -4545,7 +4599,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       /* When OCRef clear feature is used with ETR source, ETR prescaler must be off */
       if (sClearInputConfig->ClearInputPrescaler != TIM_CLEARINPUTPRESCALER_DIV1)
       {
-          htim->State = HAL_TIM_STATE_READY;
+        htim->State = HAL_TIM_STATE_READY;
         __HAL_UNLOCK(htim);
         return HAL_ERROR;
       }
@@ -4865,9 +4919,9 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro(TIM_HandleTypeDef *htim, TIM_SlaveC
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  if(TIM_SlaveTimer_SetConfig(htim, sSlaveConfig) != HAL_OK)
+  if (TIM_SlaveTimer_SetConfig(htim, sSlaveConfig) != HAL_OK)
   {
-      htim->State = HAL_TIM_STATE_READY;
+    htim->State = HAL_TIM_STATE_READY;
     __HAL_UNLOCK(htim);
     return HAL_ERROR;
   }
@@ -4895,7 +4949,7 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro(TIM_HandleTypeDef *htim, TIM_SlaveC
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
-                                                        TIM_SlaveConfigTypeDef *sSlaveConfig)
+                                                TIM_SlaveConfigTypeDef *sSlaveConfig)
 {
   /* Check the parameters */
   assert_param(IS_TIM_SLAVE_INSTANCE(htim->Instance));
@@ -4906,9 +4960,9 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  if(TIM_SlaveTimer_SetConfig(htim, sSlaveConfig) != HAL_OK)
+  if (TIM_SlaveTimer_SetConfig(htim, sSlaveConfig) != HAL_OK)
   {
-      htim->State = HAL_TIM_STATE_READY;
+    htim->State = HAL_TIM_STATE_READY;
     __HAL_UNLOCK(htim);
     return HAL_ERROR;
   }
@@ -4998,8 +5052,8 @@ uint32_t HAL_TIM_ReadCapturedValue(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 
 /** @defgroup TIM_Exported_Functions_Group9 TIM Callbacks functions
- *  @brief    TIM Callbacks functions
- *
+  *  @brief    TIM Callbacks functions
+  *
 @verbatim
   ==============================================================================
                         ##### TIM Callbacks functions #####
@@ -5203,7 +5257,8 @@ __weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
   *          @param pCallback pointer to the callback function
   *          @retval status
   */
-HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_CallbackIDTypeDef CallbackID, pTIM_CallbackTypeDef pCallback)
+HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_CallbackIDTypeDef CallbackID,
+                                           pTIM_CallbackTypeDef pCallback)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -5663,8 +5718,8 @@ HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Ca
   */
 
 /** @defgroup TIM_Exported_Functions_Group10 TIM Peripheral State functions
- *  @brief   TIM Peripheral State functions
- *
+  *  @brief   TIM Peripheral State functions
+  *
 @verbatim
   ==============================================================================
                         ##### Peripheral State functions #####
@@ -6450,7 +6505,7 @@ static void TIM_OC6_SetConfig(TIM_TypeDef *TIMx,
   * @retval None
   */
 static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
-                                     TIM_SlaveConfigTypeDef *sSlaveConfig)
+                                                  TIM_SlaveConfigTypeDef *sSlaveConfig)
 {
   uint32_t tmpsmcr;
   uint32_t tmpccmr1;

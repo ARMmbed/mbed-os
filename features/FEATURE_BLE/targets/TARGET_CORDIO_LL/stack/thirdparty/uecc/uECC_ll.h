@@ -29,7 +29,7 @@ uECC_asm_fast  - Use GCC inline assembly optimized for maximum speed. */
 #define uECC_asm_small 1
 #define uECC_asm_fast  2
 #ifndef uECC_ASM
-    #ifndef __CC_ARM
+    #if !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && !defined(__ICCARM__) && defined(__GNUC__) /* Only support GCC inline asm for now */
         #define uECC_ASM uECC_asm_fast
     #else // DG: ARMCC 5, unlike GCC, IAR and CLANG, doesn't support GNU-style inline assembly
         #define uECC_ASM uECC_asm_none
@@ -97,7 +97,7 @@ be called before uECC_make_key() or uECC_sign() are used.
 Inputs:
     rng_function - The function that will be used to generate random bytes.
 */
-void uECC_set_rng(uECC_RNG_Function rng_function);
+void uECC_set_rng_ll(uECC_RNG_Function rng_function);
 
 /* uECC_make_key() function.
 Create a public/private key pair.
@@ -111,6 +111,20 @@ Returns 1 if the key pair was generated successfully, 0 if an error occurred.
 void uECC_make_key_start(const uint8_t private_key[uECC_BYTES]);
 int uECC_make_key_continue(void);
 void uECC_make_key_complete(uint8_t public_key[uECC_BYTES*2], uint8_t private_key[uECC_BYTES]);
+
+/* uECC_valid_public_key() function.
+Check to see if a public key is valid.
+
+Note that you are not required to check for a valid public key before using any other uECC
+functions. However, you may wish to avoid spending CPU time computing a shared secret or
+verifying a signature using an invalid public key.
+
+Inputs:
+    public_key - The public key to check.
+
+Returns 1 if the public key is valid, 0 if it is invalid.
+*/
+int uECC_valid_public_key_ll(const uint8_t public_key[uECC_BYTES*2]);
 
 /* uECC_shared_secret() function.
 Compute a shared secret given your secret key and someone else's public key.

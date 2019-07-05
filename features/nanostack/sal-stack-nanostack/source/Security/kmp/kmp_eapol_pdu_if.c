@@ -151,7 +151,7 @@ int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, 
     void *data_pdu = &eapol_kmp_pdu->kmp_data;
 
     kmp_type_e type = kmp_api_type_from_id_get(eapol_kmp_pdu->kmp_id);
-    if (type == INVALID_KMP_TYPE) {
+    if (type == KMP_TYPE_NONE) {
         return -1;
     }
 

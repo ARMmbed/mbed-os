@@ -19,8 +19,8 @@
 #include "device.h"
 #include "mbed_error.h"
 #include "lp_ticker_api.h"
-#include "device/drivers/peripheral/mcwdt/cy_mcwdt.h"
-#include "device/drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_mcwdt.h"
+#include "cy_sysint.h"
 #include "psoc6_utils.h"
 
 #if DEVICE_LPTICKER
@@ -63,8 +63,8 @@ static cy_stc_mcwdt_config_t config = {
 // Interrupt configuration.
 static cy_stc_sysint_t lpt_sysint_config = {
 #if defined(TARGET_MCU_PSOC6_M0)
-    .intrSrc = (IRQn_Type)(-1),
-    .cm0pSrc = CY_M0_CORE_IRQ_CHANNEL_LP_TICKER,
+    .intrSrc = CY_M0_CORE_IRQ_CHANNEL_LP_TICKER,
+    .cm0pSrc = LPT_INTERRUPT_SOURCE,
 #else
     .intrSrc = LPT_INTERRUPT_SOURCE,
 #endif

@@ -693,6 +693,12 @@ protected:
                     confirmationReceivedCallback(attributeHandle);
                 }
                 break;
+
+            case GattServerEvents::GATT_EVENT_DATA_SENT:
+                // Called every time a notification or indication has been sent
+                handleDataSentEvent(1);
+                break;
+
             default:
                 break;
         }

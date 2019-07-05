@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -43,10 +43,11 @@ __asm("  .global __ARM_use_no_argv\n");
 #ifndef TFM_LVL
 #error TFM_LVL is not defined!
 #endif
-#if (TFM_LVL != 1) && (TFM_LVL != 3)
-#error Only TFM_LVL 1 and 3 are supported!
+#if (TFM_LVL != 1) && (TFM_LVL != 2) && (TFM_LVL != 3)
+#error Only TFM_LVL 1, 2 and 3 are supported!
 #endif
 
+#ifndef TFM_PSA_API
 /* Macros to pick linker symbols and allow to form the partition data base */
 #define REGION(a, b, c) a##b##c
 #define REGION_NAME(a, b, c) REGION(a, b, c)
@@ -54,6 +55,7 @@ __asm("  .global __ARM_use_no_argv\n");
 
 REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
 REGION_DECLARE(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit);
+#endif
 
 void configure_ns_code(void)
 {
@@ -106,11 +108,20 @@ int32_t tfm_core_init(void)
     /* Enable secure peripherals interrupts */
     nvic_interrupt_enable();
 
+#ifdef TFM_PSA_API
+    /* FixMe: In case of IPC messaging, scratch area must not be referenced
+     * These variables should be removed when all obsolete references are
+     * removed from the codebase
+     */
+    tfm_scratch_area = NULL;
+    tfm_scratch_area_size = 0;
+#else
     tfm_scratch_area =
         (uint8_t *)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
     tfm_scratch_area_size =
         (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Limit) -
         (uint32_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
+#endif
     return 0;
 }
 
@@ -128,6 +139,23 @@ static int32_t tfm_core_set_secure_exception_priorities(void)
                  (AIRCR & ~SCB_AIRCR_VECTKEY_Msk);
 
     /* FixMe: Explicitly set secure fault and Secure SVC priority to highest */
+
+    /*
+     * Set secure PendSV priority to the lowest in SECURE state.
+     *
+     * IMPORTANT NOTE:
+     *
+     * Although the priority of the secure PendSV must be the lowest possible
+     * among other interrupts in the Secure state, it must be ensured that
+     * PendSV is not preempted nor masked by Non-Secure interrupts to ensure
+     * the integrity of the Secure operation.
+     * When AIRCR.PRIS is set, the Non-Secure execution can act on
+     * FAULTMASK_NS, PRIMASK_NS or BASEPRI_NS register to boost its priority
+     * number up to the value 0x80.
+     * For this reason, set the priority of the PendSV interrupt to the next
+     * priority level configurable on the platform, just below 0x80.
+     */
+    NVIC_SetPriority(PendSV_IRQn, (1 << (__NVIC_PRIO_BITS - 1)) - 1);
 
     return TFM_SUCCESS;
 }
@@ -152,12 +180,17 @@ void tfm_core_spm_request_handler(const struct tfm_exc_stack_t *svc_ctx)
 
 int main(void)
 {
-    tfm_core_init();
+    if (tfm_core_init() != 0) {
+        /* Placeholder for error handling, currently ignored. */
+    }
 
-    tfm_spm_db_init();
+    if (tfm_spm_db_init() != SPM_ERR_OK) {
+        /* Placeholder for error handling, currently ignored. */
+    }
 
     tfm_spm_hal_setup_isolation_hw();
 
+#ifndef TFM_PSA_API
     tfm_spm_partition_set_state(TFM_SP_CORE_ID, SPM_PARTITION_STATE_RUNNING);
 
     extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
@@ -171,26 +204,31 @@ int main(void)
          */
     }
 
-#ifdef TFM_PSA_API
-    tfm_spm_init();
-#endif
-
-#ifdef TFM_CORE_DEBUG
-    /* Jumps to non-secure code */
-    LOG_MSG("Jumping to non-secure code...");
-#endif
+    /*
+     * Prioritise secure exceptions to avoid NS being able to pre-empt
+     * secure SVC or SecureFault. Do it before PSA API initialization.
+     */
+    tfm_core_set_secure_exception_priorities();
 
     /* We close the TFM_SP_CORE_ID partition, because its only purpose is
      * to be able to pass the state checks for the tests started from secure.
      */
     tfm_spm_partition_set_state(TFM_SP_CORE_ID, SPM_PARTITION_STATE_CLOSED);
     tfm_spm_partition_set_state(TFM_SP_NON_SECURE_ID,
-                              SPM_PARTITION_STATE_RUNNING);
+                                SPM_PARTITION_STATE_RUNNING);
 
-    /* Prioritise secure exceptions to avoid NS being able to pre-empt secure
-     * SVC or SecureFault
-     */
-    tfm_core_set_secure_exception_priorities();
+#ifdef TFM_CORE_DEBUG
+    /* Jumps to non-secure code */
+    LOG_MSG("Jumping to non-secure code...");
+#endif
 
     jump_to_ns_code();
+#else
+    /*
+     * Prioritise secure exceptions to avoid NS being able to pre-empt
+     * secure SVC or SecureFault. Do it before PSA API initialization.
+     */
+    tfm_core_set_secure_exception_priorities();
+    tfm_spm_init();
+#endif
 }

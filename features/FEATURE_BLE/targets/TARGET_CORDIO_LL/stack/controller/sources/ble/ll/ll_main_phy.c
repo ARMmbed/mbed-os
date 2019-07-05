@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) PHY features control interface implementation file.
+ * \file
+ * \brief Link layer (LL) PHY features control interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -65,46 +66,61 @@ uint8_t LlReadPhy(uint16_t handle, uint8_t *pTxPhy, uint8_t *pRxPhy)
  *  \param      rxPhys            Preferred receiver PHYs.
  *  \param      phyOptions        PHY options.
  *
- *  \return     TRUE if PHY preferences are valid.
+ *  \return     LL_SUCCESS if PHY preferences are valid, error code otherwise.
  */
 /*************************************************************************************************/
-static bool_t llValidatePhyPreferences(uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys, uint16_t phyOptions)
+static uint8_t llValidatePhyPreferences(uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys, uint16_t phyOptions)
 {
   const uint8_t allPhysMask = LL_ALL_PHY_TX_PREFERENCE_BIT | LL_ALL_PHY_RX_PREFERENCE_BIT;
   const uint8_t phyMask = LL_PHYS_LE_1M_BIT | LL_PHYS_LE_2M_BIT | LL_PHYS_LE_CODED_BIT;
 
-  if (((allPhys & ~allPhysMask) != 0) ||                                      /* no unknown all PHYs preferences */
-      ((txPhys & ~phyMask) != 0) ||                                           /* no unknown Tx PHYs */
-      ((rxPhys & ~phyMask) != 0) ||                                           /* no unknown Rx PHYs */
-     (((allPhys & LL_ALL_PHY_TX_PREFERENCE_BIT) == 0) && (txPhys == 0)) ||    /* at least one Tx PHY if preference */
-     (((allPhys & LL_ALL_PHY_RX_PREFERENCE_BIT) == 0) && (rxPhys == 0)) ||    /* at least one Rx PHY if preference */
-       (phyOptions > LL_PHY_OPTIONS_S8_PREFERRED))                            /* no unknown PHY options */
+  if (((allPhys & ~allPhysMask) != 0) ||                                            /* no unknown all PHYs preferences */
+      ((txPhys & ~phyMask) != 0) ||                                                 /* no unknown Tx PHYs */
+      ((rxPhys & ~phyMask) != 0) ||                                                 /* no unknown Rx PHYs */
+      (phyOptions > LL_PHY_OPTIONS_S8_PREFERRED))                                   /* no unknown PHY options */
+  {
+    /* Error code is unsupported feature because RFU bits of the parameters are considered as valid. */
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+  else if ((BB_SYM_PHY_REQ || lmgrGetOpFlag(LL_OP_MODE_FLAG_REQ_SYM_PHY)) &&
+           (allPhys == LL_ALL_PHY_ALL_PREFERENCES) && (txPhys != rxPhys))
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+  else if ((((allPhys & LL_ALL_PHY_TX_PREFERENCE_BIT) == 0) && (txPhys == 0)) ||    /* at least one Tx PHY if preference */
+           (((allPhys & LL_ALL_PHY_RX_PREFERENCE_BIT) == 0) && (rxPhys == 0)))      /* at least one Rx PHY if preference */
+  {
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Validate if specified PHYs are supported by LL.
+ *
+ *  \param      txPhys            Preferred transmitter PHYs.
+ *  \param      rxPhys            Preferred receiver PHYs.
+ *
+ *  \return     TRUE if all specified PHYs are supported.
+ */
+/*************************************************************************************************/
+static bool_t llValidatePhySupport(uint8_t txPhys, uint8_t rxPhys)
+{
+  if (((lmgrCb.features & LL_FEAT_LE_2M_PHY) == 0) &&
+      ((txPhys & LL_PHYS_LE_2M_BIT) || (rxPhys & LL_PHYS_LE_2M_BIT)))
+  {
+    return FALSE;
+  }
+
+  if (((lmgrCb.features & LL_FEAT_LE_CODED_PHY) == 0) &&
+      ((txPhys & LL_PHYS_LE_CODED_BIT) || (rxPhys & LL_PHYS_LE_CODED_BIT)))
   {
     return FALSE;
   }
 
   return TRUE;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief      Determine supported PHYs.
- *
- *  \return     Supported PHYs.
- */
-/*************************************************************************************************/
-static uint8_t lctrSuppPhys(void)
-{
-  uint8_t phys = LL_PHYS_LE_1M_BIT;
-  if ((lmgrCb.features & LL_FEAT_LE_2M_PHY) != 0)
-  {
-    phys |= LL_PHYS_LE_2M_BIT;
-  }
-  if ((lmgrCb.features & LL_FEAT_LE_CODED_PHY) != 0)
-  {
-    phys |= LL_PHYS_LE_CODED_BIT;
-  }
-  return phys;
 }
 
 /*************************************************************************************************/
@@ -123,16 +139,19 @@ static uint8_t lctrSuppPhys(void)
 /*************************************************************************************************/
 uint8_t LlSetDefaultPhy(uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys)
 {
+  uint8_t status;
+
   LL_TRACE_INFO0("### LlApi ###  LlSetDefaultPhy");
 
-  /* Ignore unsupported PHYs. */
-  txPhys &= lctrSuppPhys();
-  rxPhys &= lctrSuppPhys();
+  if (!llValidatePhySupport(txPhys, rxPhys))
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
 
   if ((LL_API_PARAM_CHECK == 1) &&
-     !llValidatePhyPreferences(allPhys, txPhys, rxPhys, LL_PHY_OPTIONS_NONE))
+      ((status = llValidatePhyPreferences(allPhys, txPhys, rxPhys, LL_PHY_OPTIONS_NONE)) != LL_SUCCESS))
   {
-    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+    return status;
   }
 
   /* Discard Tx or Rx PHYs value without preference. */
@@ -172,29 +191,31 @@ uint8_t LlSetDefaultPhy(uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys)
 uint8_t LlSetPhy(uint16_t handle, uint8_t allPhys, uint8_t txPhys, uint8_t rxPhys, uint16_t phyOptions)
 {
   lctrPhyUpdate_t *pMsg;
+  uint8_t status;
 
   LL_TRACE_INFO1("### LlApi ###  LlSetPhy, handle=%u", handle);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((handle >= pLctrRtCfg->maxConn) ||
+      !LctrIsConnHandleEnabled(handle)))
+  {
+    return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
 
   if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_PHY_UPDATE) == TRUE)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
-  /* Ignore unsupported PHYs. */
-  txPhys &= lctrSuppPhys();
-  rxPhys &= lctrSuppPhys();
-
-  if ((LL_API_PARAM_CHECK == 1) &&
-     !llValidatePhyPreferences(allPhys, txPhys, rxPhys, phyOptions))
+  if (!llValidatePhySupport(txPhys, rxPhys))
   {
-    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
-       ((handle >= pLctrRtCfg->maxConn) ||
-       !LctrIsConnHandleEnabled(handle)))
+      ((status = llValidatePhyPreferences(allPhys, txPhys, rxPhys, phyOptions)) != LL_SUCCESS))
   {
-    return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+    return status;
   }
 
   /* Discard Tx or Rx PHYs value without preference. */

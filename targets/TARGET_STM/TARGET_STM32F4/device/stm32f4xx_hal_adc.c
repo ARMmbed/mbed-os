@@ -1369,7 +1369,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
     /* Enable the TSVREFE channel*/
     tmpADC_Common->CCR |= ADC_CCR_TSVREFE;
     
-    if((sConfig->Channel == ADC_CHANNEL_TEMPSENSOR))
+    if(sConfig->Channel == ADC_CHANNEL_TEMPSENSOR)
     {
       /* Delay for temperature sensor stabilization time */
       /* Compute number of CPU cycles to wait for */

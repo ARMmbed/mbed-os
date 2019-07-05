@@ -17,7 +17,7 @@
 #ifndef NANOSTACK_PHY_MCR20A_H_
 #define NANOSTACK_PHY_MCR20A_H_
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && defined(MBED_CONF_RTOS_PRESENT)
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
 #include "inttypes.h"
 #include "NanostackRfPhy.h"
 #include "DigitalIn.h"

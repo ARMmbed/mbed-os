@@ -18,7 +18,6 @@
 #define STM32_EMAC_H_
 
 #include "EMAC.h"
-#include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
 class RDA5981x_EMAC : public EMAC {

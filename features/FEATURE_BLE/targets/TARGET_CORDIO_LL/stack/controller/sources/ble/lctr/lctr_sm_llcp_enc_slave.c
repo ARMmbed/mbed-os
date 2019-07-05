@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave encryption connection state machine implementation file.
+ * \file
+ * \brief Link layer controller slave encryption connection state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -484,7 +485,8 @@ static uint8_t lctrRemapPingEvent(lctrConnCtx_t *pCtx, uint8_t event)
           {
             break;
           }
-          /* no break: treat UNKNOWN_RSP like LE_PING_RSP */
+          /* treat UNKNOWN_RSP like LE_PING_RSP */
+          /* Fallthrough */
         case LL_PDU_PING_RSP:
           return LCTR_PING_EVENT_RECV_RSP;
 

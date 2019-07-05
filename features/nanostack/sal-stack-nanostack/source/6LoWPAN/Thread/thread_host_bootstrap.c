@@ -897,6 +897,7 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
             parent->shortAddress = scan_result->shortAddress;
             parent->router_id = (scan_result->shortAddress >> 10);
             memcpy(parent->mac64, scan_result->mac64, 8);
+            parent->version = scan_result->version;
             //Check Network Data TLV
             if (networkDataTlv.tlvType == MLE_TYPE_NETWORK_DATA) {
                 thread_bootstrap_network_data_save(cur, &leaderData, networkDataTlv.dataPtr, networkDataTlv.tlvLen);

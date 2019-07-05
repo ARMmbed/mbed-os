@@ -43,7 +43,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#include "nrf_drv_spi.h"
+#include "nrfx_spi.h"
 #include "nrf_twi.h"
 
 #include "nrf_pwm.h"
@@ -90,7 +90,7 @@ struct serial_s {
 struct spi_s {
     int instance;
     PinName cs;
-    nrf_drv_spi_config_t config;
+    nrfx_spi_config_t config;
     bool update;
 
 #if DEVICE_SPI_ASYNCH
@@ -144,11 +144,11 @@ struct flash_s {
 
 #if DEVICE_QSPI
 
-#include "nrf_drv_qspi.h"
+#include "nrfx_qspi.h"
 
 struct qspi_s {
     uint32_t placeholder;
-    //nrf_drv_qspi_config_t config;
+    //nrfx_qspi_config_t config;
 };
 
 #endif

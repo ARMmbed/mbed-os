@@ -1,16 +1,14 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "cmsis.h"
 #include "rtx_os.h"
 #include "cmsis_os2.h"
-
 #include "tfm_api.h"
 #include "tfm_ns_lock.h"
 
@@ -56,11 +54,15 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
     }
 
     /* TFM request protected by NS lock */
-    osMutexAcquire(ns_lock.id,osWaitForever);
+    if (osMutexAcquire(ns_lock.id,osWaitForever) != osOK) {
+        return TFM_ERROR_GENERIC;
+    }
 
     result = fn(arg0, arg1, arg2, arg3);
 
-    osMutexRelease(ns_lock.id);
+    if (osMutexRelease(ns_lock.id) != osOK) {
+        return TFM_ERROR_GENERIC;
+    }
 
     return result;
 }
@@ -68,7 +70,7 @@ uint32_t tfm_ns_lock_dispatch(veneer_fn fn,
 /**
  * \brief NS world, Init NS lock
  */
-uint32_t tfm_ns_lock_init()
+enum tfm_status_e tfm_ns_lock_init()
 {
     if (ns_lock.init == false) {
         ns_lock.id = osMutexNew(&ns_lock_attrib);

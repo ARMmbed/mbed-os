@@ -34,7 +34,7 @@ device_err_t AT_CellularBase::get_device_error() const
     return _at.get_last_device_error();
 }
 
-const intptr_t *AT_CellularBase::_property_array;
+const intptr_t *AT_CellularBase::_property_array = NULL;
 
 void AT_CellularBase::set_cellular_properties(const intptr_t *property_array)
 {
@@ -48,5 +48,9 @@ void AT_CellularBase::set_cellular_properties(const intptr_t *property_array)
 
 intptr_t AT_CellularBase::get_property(CellularProperty key)
 {
-    return _property_array[key];
+    if (_property_array) {
+        return _property_array[key];
+    } else {
+        return NULL;
+    }
 }

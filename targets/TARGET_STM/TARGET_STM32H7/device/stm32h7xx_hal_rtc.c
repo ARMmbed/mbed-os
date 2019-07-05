@@ -1400,8 +1400,10 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
     __HAL_RTC_ALARM_ENABLE_IT(hrtc, RTC_IT_ALRB);
   }
 
+#if !defined(DUAL_CORE)
   /* RTC Alarm Interrupt Configuration: EXTI configuration */
      __HAL_RTC_ALARM_EXTI_ENABLE_IT();
+#endif
 
   __HAL_RTC_ALARM_EXTI_ENABLE_RISING_EDGE();
   /*  Enable the write protection for RTC registers */
@@ -1583,7 +1585,18 @@ void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
 {
 
   /* Clear the EXTI's line Flag for RTC Alarm */
+#if defined(DUAL_CORE)
+  if (HAL_GetCurrentCPUID() == CM7_CPUID)
+  {
     __HAL_RTC_ALARM_EXTI_CLEAR_FLAG();
+  }
+  else
+  {
+    __HAL_RTC_ALARM_EXTID2_CLEAR_FLAG();
+  }
+#else
+    __HAL_RTC_ALARM_EXTI_CLEAR_FLAG();
+#endif
 
   /* Get the AlarmA interrupt source enable status */
   if(__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRA) != 0u)

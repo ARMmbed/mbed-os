@@ -34,8 +34,6 @@ static void test_dns_query_ticker(void)
 
 void SYNCHRONOUS_DNS_CACHE()
 {
-    rtos::Semaphore semaphore;
-
     Ticker ticker;
     ticker.attach_us(&test_dns_query_ticker, 100);
 

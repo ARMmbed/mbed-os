@@ -15,7 +15,7 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *  ******************************************************************************
   */
-#if 1 // MBED PATCH defined(USE_FULL_LL_DRIVER)
+#if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_ll_lptim.h"
@@ -170,7 +170,7 @@ ErrorStatus LL_LPTIM_Init(LPTIM_TypeDef *LPTIMx, LL_LPTIM_InitTypeDef *LPTIM_Ini
   /* The LPTIMx_CFGR register must only be modified when the LPTIM is disabled
      (ENABLE bit is reset to 0).
   */
-  if (LL_LPTIM_IsEnabled(LPTIMx) != 1UL)
+  if (LL_LPTIM_IsEnabled(LPTIMx) == 1UL)
   {
     result = ERROR;
   }

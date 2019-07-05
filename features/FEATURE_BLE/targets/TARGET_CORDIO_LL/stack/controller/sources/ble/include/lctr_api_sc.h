@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller secure connections interface file.
+ * \file
+ * \brief Link layer controller secure connections interface file.
  */
 /*************************************************************************************************/
 
@@ -42,6 +43,8 @@ void LctrScInit(void);
 /* Execution. */
 uint8_t LctrGenerateP256KeyPair(void);
 uint8_t LctrGenerateDhKey(const uint8_t *pPubKey, const uint8_t *pPrivKey);
+uint8_t LctrGenerateDebugDhKey(void);
+uint8_t LctrSetValidatePublicKeyMode(uint8_t validateMode);
 
 /*! \} */    /* LL_LCTR_API_SC */
 

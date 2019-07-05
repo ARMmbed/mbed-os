@@ -83,6 +83,7 @@ typedef struct link_configuration {
     uint8_t version; /**< current protocol version*/
     uint16_t rfChannel; /**< current rf channel*/
     uint8_t securityPolicy; /**< Commission Security Policy*/
+    uint8_t securityPolicyExt; /**< Additional Security Policy byte*/
     uint64_t timestamp;/**< commissioning data set timestamp. [48 bit timestamp seconds]-[15 bit timestamp ticks]-[U bit] */
 } link_configuration_s;
 

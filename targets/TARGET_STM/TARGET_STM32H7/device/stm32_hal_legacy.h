@@ -236,6 +236,11 @@
 #define DAC_WAVEGENERATION_NOISE                        DAC_WAVE_NOISE
 #define DAC_WAVEGENERATION_TRIANGLE                     DAC_WAVE_TRIANGLE
 
+#if defined(STM32L1) || defined(STM32L4) || defined(STM32G0)
+#define HAL_DAC_MSP_INIT_CB_ID       HAL_DAC_MSPINIT_CB_ID
+#define HAL_DAC_MSP_DEINIT_CB_ID     HAL_DAC_MSPDEINIT_CB_ID
+#endif
+
 /**
   * @}
   */
@@ -486,6 +491,7 @@
 #define HAL_SYSCFG_FASTMODEPLUS_I2C1       I2C_FASTMODEPLUS_I2C1
 #define HAL_SYSCFG_FASTMODEPLUS_I2C2       I2C_FASTMODEPLUS_I2C2
 #define HAL_SYSCFG_FASTMODEPLUS_I2C3       I2C_FASTMODEPLUS_I2C3
+
 /**
   * @}
   */
@@ -599,6 +605,7 @@
 #define __HAL_HRTIM_GetClockPrescaler __HAL_HRTIM_GETCLOCKPRESCALER
 #define __HAL_HRTIM_SetCompare        __HAL_HRTIM_SETCOMPARE
 #define __HAL_HRTIM_GetCompare        __HAL_HRTIM_GETCOMPARE
+
 /**
   * @}
   */
@@ -738,6 +745,12 @@
 #define OPAMP_PGACONNECT_VM0                  OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0
 #define OPAMP_PGACONNECT_VM1                  OPAMP_PGA_CONNECT_INVERTINGINPUT_IO1
 
+#if defined(STM32L1) || defined(STM32L4)
+#define HAL_OPAMP_MSP_INIT_CB_ID       HAL_OPAMP_MSPINIT_CB_ID
+#define HAL_OPAMP_MSP_DEINIT_CB_ID     HAL_OPAMP_MSPDEINIT_CB_ID
+#endif
+
+
 /**
   * @}
   */
@@ -753,7 +766,6 @@
 
   #define I2S_FLAG_TXE             I2S_FLAG_TXP
   #define I2S_FLAG_RXNE            I2S_FLAG_RXP
-  #define I2S_FLAG_FRE             I2S_FLAG_TIFRE
 #endif
 
 #if defined(STM32F7)
@@ -969,6 +981,24 @@
 
 #if defined(STM32F3)
 #define IS_TIM_HALL_INTERFACE_INSTANCE   IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE
+#endif
+
+#if defined(STM32H7)
+#define TIM_TIM1_ETR_COMP1_OUT        TIM_TIM1_ETR_COMP1
+#define TIM_TIM1_ETR_COMP2_OUT        TIM_TIM1_ETR_COMP2
+#define TIM_TIM8_ETR_COMP1_OUT        TIM_TIM8_ETR_COMP1
+#define TIM_TIM8_ETR_COMP2_OUT        TIM_TIM8_ETR_COMP2
+#define TIM_TIM2_ETR_COMP1_OUT        TIM_TIM2_ETR_COMP1
+#define TIM_TIM2_ETR_COMP2_OUT        TIM_TIM2_ETR_COMP2
+#define TIM_TIM3_ETR_COMP1_OUT        TIM_TIM3_ETR_COMP1
+#define TIM_TIM1_TI1_COMP1_OUT        TIM_TIM1_TI1_COMP1
+#define TIM_TIM8_TI1_COMP2_OUT        TIM_TIM8_TI1_COMP2
+#define TIM_TIM2_TI4_COMP1_OUT        TIM_TIM2_TI4_COMP1
+#define TIM_TIM2_TI4_COMP2_OUT        TIM_TIM2_TI4_COMP2
+#define TIM_TIM2_TI4_COMP1COMP2_OUT   TIM_TIM2_TI4_COMP1_COMP2
+#define TIM_TIM3_TI1_COMP1_OUT        TIM_TIM3_TI1_COMP1
+#define TIM_TIM3_TI1_COMP2_OUT        TIM_TIM3_TI1_COMP2
+#define TIM_TIM3_TI1_COMP1COMP2_OUT   TIM_TIM3_TI1_COMP1_COMP2
 #endif
 
 /**
@@ -1250,7 +1280,7 @@
 
 #define HAL_I2CFastModePlusConfig(SYSCFG_I2CFastModePlus, cmd) (((cmd)==ENABLE)? HAL_I2CEx_EnableFastModePlus(SYSCFG_I2CFastModePlus): HAL_I2CEx_DisableFastModePlus(SYSCFG_I2CFastModePlus))
 
-#if defined(STM32H7) || defined(STM32G0)
+#if defined(STM32H7) || defined(STM32WB) || defined(STM32G0) || defined(STM32F4) || defined(STM32F7) || defined(STM32L0) || defined(STM32L4)
 #define HAL_I2C_Master_Sequential_Transmit_IT  HAL_I2C_Master_Seq_Transmit_IT
 #define HAL_I2C_Master_Sequential_Receive_IT   HAL_I2C_Master_Seq_Receive_IT
 #define HAL_I2C_Slave_Sequential_Transmit_IT   HAL_I2C_Slave_Seq_Transmit_IT
@@ -1259,7 +1289,18 @@
 #define HAL_I2C_Master_Sequential_Receive_DMA  HAL_I2C_Master_Seq_Receive_DMA
 #define HAL_I2C_Slave_Sequential_Transmit_DMA  HAL_I2C_Slave_Seq_Transmit_DMA
 #define HAL_I2C_Slave_Sequential_Receive_DMA   HAL_I2C_Slave_Seq_Receive_DMA
-#endif /* STM32H7 || STM32G0 */
+#endif /* STM32H7 || STM32WB  || STM32G0 || STM32F4 || STM32F7 || STM32L0 || STM32L4 */
+
+#if defined(STM32F4)
+#define HAL_FMPI2C_Master_Sequential_Transmit_IT  HAL_FMPI2C_Master_Seq_Transmit_IT
+#define HAL_FMPI2C_Master_Sequential_Receive_IT   HAL_FMPI2C_Master_Seq_Receive_IT
+#define HAL_FMPI2C_Slave_Sequential_Transmit_IT   HAL_FMPI2C_Slave_Seq_Transmit_IT
+#define HAL_FMPI2C_Slave_Sequential_Receive_IT    HAL_FMPI2C_Slave_Seq_Receive_IT
+#define HAL_FMPI2C_Master_Sequential_Transmit_DMA HAL_FMPI2C_Master_Seq_Transmit_DMA
+#define HAL_FMPI2C_Master_Sequential_Receive_DMA  HAL_FMPI2C_Master_Seq_Receive_DMA
+#define HAL_FMPI2C_Slave_Sequential_Transmit_DMA  HAL_FMPI2C_Slave_Seq_Transmit_DMA
+#define HAL_FMPI2C_Slave_Sequential_Receive_DMA   HAL_FMPI2C_Slave_Seq_Receive_DMA
+#endif /* STM32F4 */
  /**
   * @}
   */
@@ -1339,7 +1380,7 @@
 #define HAL_TIM_DMAError                                TIM_DMAError
 #define HAL_TIM_DMACaptureCplt                          TIM_DMACaptureCplt
 #define HAL_TIMEx_DMACommutationCplt                    TIMEx_DMACommutationCplt
-#if defined(STM32H7) || defined(STM32G0) || defined(STM32F7) || defined(STM32F4) || defined(STM32L0)
+#if defined(STM32H7) || defined(STM32G0) || defined(STM32F7) || defined(STM32F4) || defined(STM32L0) || defined(STM32L4)
 #define HAL_TIM_SlaveConfigSynchronization              HAL_TIM_SlaveConfigSynchro
 #define HAL_TIM_SlaveConfigSynchronization_IT           HAL_TIM_SlaveConfigSynchro_IT
 #define HAL_TIMEx_CommutationCallback                   HAL_TIMEx_CommutCallback
@@ -2235,6 +2276,20 @@
 #define __QSPI_FORCE_RESET __HAL_RCC_QSPI_FORCE_RESET
 #define __QSPI_RELEASE_RESET __HAL_RCC_QSPI_RELEASE_RESET
 
+#if defined(STM32WB)
+#define __HAL_RCC_QSPI_CLK_DISABLE            __HAL_RCC_QUADSPI_CLK_DISABLE
+#define __HAL_RCC_QSPI_CLK_ENABLE             __HAL_RCC_QUADSPI_CLK_ENABLE
+#define __HAL_RCC_QSPI_CLK_SLEEP_DISABLE      __HAL_RCC_QUADSPI_CLK_SLEEP_DISABLE
+#define __HAL_RCC_QSPI_CLK_SLEEP_ENABLE       __HAL_RCC_QUADSPI_CLK_SLEEP_ENABLE
+#define __HAL_RCC_QSPI_FORCE_RESET            __HAL_RCC_QUADSPI_FORCE_RESET
+#define __HAL_RCC_QSPI_RELEASE_RESET          __HAL_RCC_QUADSPI_RELEASE_RESET
+#define __HAL_RCC_QSPI_IS_CLK_ENABLED         __HAL_RCC_QUADSPI_IS_CLK_ENABLED
+#define __HAL_RCC_QSPI_IS_CLK_DISABLED        __HAL_RCC_QUADSPI_IS_CLK_DISABLED
+#define __HAL_RCC_QSPI_IS_CLK_SLEEP_ENABLED   __HAL_RCC_QUADSPI_IS_CLK_SLEEP_ENABLED
+#define __HAL_RCC_QSPI_IS_CLK_SLEEP_DISABLED  __HAL_RCC_QUADSPI_IS_CLK_SLEEP_DISABLED
+#define QSPI_IRQHandler QUADSPI_IRQHandler
+#endif /* __HAL_RCC_QUADSPI_CLK_ENABLE */
+
 #define __RNG_CLK_DISABLE __HAL_RCC_RNG_CLK_DISABLE
 #define __RNG_CLK_ENABLE __HAL_RCC_RNG_CLK_ENABLE
 #define __RNG_CLK_SLEEP_DISABLE __HAL_RCC_RNG_CLK_SLEEP_DISABLE
@@ -2451,12 +2506,28 @@
 #define __USB_OTG_FS_CLK_DISABLE __HAL_RCC_USB_OTG_FS_CLK_DISABLE
 #define __USB_OTG_FS_CLK_ENABLE __HAL_RCC_USB_OTG_FS_CLK_ENABLE
 #define __USB_RELEASE_RESET __HAL_RCC_USB_RELEASE_RESET
+
+#if defined(STM32H7)
+#define __HAL_RCC_WWDG_CLK_DISABLE   __HAL_RCC_WWDG1_CLK_DISABLE
+#define __HAL_RCC_WWDG_CLK_ENABLE   __HAL_RCC_WWDG1_CLK_ENABLE
+#define __HAL_RCC_WWDG_CLK_SLEEP_DISABLE  __HAL_RCC_WWDG1_CLK_SLEEP_DISABLE
+#define __HAL_RCC_WWDG_CLK_SLEEP_ENABLE  __HAL_RCC_WWDG1_CLK_SLEEP_ENABLE
+
+#define __HAL_RCC_WWDG_FORCE_RESET    ((void)0U)  /* Not available on the STM32H7*/
+#define __HAL_RCC_WWDG_RELEASE_RESET ((void)0U) /* Not available on the STM32H7*/
+
+
+#define  __HAL_RCC_WWDG_IS_CLK_ENABLED    __HAL_RCC_WWDG1_IS_CLK_ENABLED
+#define  __HAL_RCC_WWDG_IS_CLK_DISABLED  __HAL_RCC_WWDG1_IS_CLK_DISABLED
+#endif
+
 #define __WWDG_CLK_DISABLE __HAL_RCC_WWDG_CLK_DISABLE
 #define __WWDG_CLK_ENABLE __HAL_RCC_WWDG_CLK_ENABLE
 #define __WWDG_CLK_SLEEP_DISABLE __HAL_RCC_WWDG_CLK_SLEEP_DISABLE
 #define __WWDG_CLK_SLEEP_ENABLE __HAL_RCC_WWDG_CLK_SLEEP_ENABLE
 #define __WWDG_FORCE_RESET __HAL_RCC_WWDG_FORCE_RESET
 #define __WWDG_RELEASE_RESET __HAL_RCC_WWDG_RELEASE_RESET
+
 #define __TIM21_CLK_ENABLE   __HAL_RCC_TIM21_CLK_ENABLE
 #define __TIM21_CLK_DISABLE   __HAL_RCC_TIM21_CLK_DISABLE
 #define __TIM21_FORCE_RESET   __HAL_RCC_TIM21_FORCE_RESET
@@ -2789,6 +2860,15 @@
 #define __WWDG_IS_CLK_ENABLED       __HAL_RCC_WWDG_IS_CLK_ENABLED
 #define __WWDG_IS_CLK_DISABLED      __HAL_RCC_WWDG_IS_CLK_DISABLED
 
+#if defined(STM32L1)
+#define __HAL_RCC_CRYP_CLK_DISABLE         __HAL_RCC_AES_CLK_DISABLE
+#define __HAL_RCC_CRYP_CLK_ENABLE          __HAL_RCC_AES_CLK_ENABLE
+#define __HAL_RCC_CRYP_CLK_SLEEP_DISABLE   __HAL_RCC_AES_CLK_SLEEP_DISABLE
+#define __HAL_RCC_CRYP_CLK_SLEEP_ENABLE    __HAL_RCC_AES_CLK_SLEEP_ENABLE
+#define __HAL_RCC_CRYP_FORCE_RESET         __HAL_RCC_AES_FORCE_RESET
+#define __HAL_RCC_CRYP_RELEASE_RESET       __HAL_RCC_AES_RELEASE_RESET
+#endif /* STM32L1 */
+
 #if defined(STM32F4)
 #define __HAL_RCC_SDMMC1_FORCE_RESET       __HAL_RCC_SDIO_FORCE_RESET
 #define __HAL_RCC_SDMMC1_RELEASE_RESET     __HAL_RCC_SDIO_RELEASE_RESET
@@ -2905,7 +2985,7 @@
 
 #if defined(STM32L4)
 #define RCC_RTCCLKSOURCE_NO_CLK     RCC_RTCCLKSOURCE_NONE
-#elif defined(STM32G0)
+#elif defined(STM32WB) || defined(STM32G0)
 #else
 #define RCC_RTCCLKSOURCE_NONE       RCC_RTCCLKSOURCE_NO_CLK
 #endif
@@ -3149,7 +3229,7 @@
 #define  SDIO_IRQHandler            SDMMC1_IRQHandler
 #endif
 
-#if defined(STM32F7) || defined(STM32F4) || defined(STM32F2)
+#if defined(STM32F7) || defined(STM32F4) || defined(STM32F2) || defined(STM32L4)
 #define  HAL_SD_CardCIDTypedef       HAL_SD_CardCIDTypeDef
 #define  HAL_SD_CardCSDTypedef       HAL_SD_CardCSDTypeDef
 #define  HAL_SD_CardStatusTypedef    HAL_SD_CardStatusTypeDef
@@ -3403,6 +3483,16 @@
 #define HAL_HRTIM_WaveformCounterStop_IT HAL_HRTIM_WaveformCountStop_IT
 #define HAL_HRTIM_WaveformCounterStop_DMA HAL_HRTIM_WaveformCountStop_DMA
 #define HAL_HRTIM_WaveformCounterStop HAL_HRTIM_WaveformCountStop
+#endif
+/**
+  * @}
+  */
+
+/** @defgroup HAL_QSPI_Aliased_Macros HAL QSPI Aliased Macros maintained for legacy purpose
+  * @{
+  */
+#if defined (STM32L4)
+#define HAL_QPSI_TIMEOUT_DEFAULT_VALUE HAL_QSPI_TIMEOUT_DEFAULT_VALUE
 #endif
 /**
   * @}

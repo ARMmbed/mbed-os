@@ -36,7 +36,9 @@ nsapi_connection_status_t statuses[status_buffer_size];
 
 void status_cb(nsapi_event_t event, intptr_t value)
 {
-    TEST_ASSERT_EQUAL(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, event);
+    if (event != NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        return;
+    }
 
     statuses[status_write_counter] = static_cast<nsapi_connection_status_t>(value);
     status_write_counter++;
@@ -52,7 +54,7 @@ nsapi_connection_status_t wait_status_callback()
     nsapi_connection_status_t status;
 
     while (true) {
-        status_semaphore.wait();
+        status_semaphore.acquire();
 
         status = statuses[status_read_counter];
         status_read_counter++;
@@ -129,6 +131,10 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
 
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
+
+        wait(1);    // In cellular there might still come disconnected messages from the network which are sent to callback.
+        // This would cause this test to fail as next connect is already ongoing. So wait here a while until (hopefully)
+        // all messages also from the network have arrived.
     }
 
     net->attach(NULL);

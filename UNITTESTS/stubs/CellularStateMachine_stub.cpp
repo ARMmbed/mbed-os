@@ -25,8 +25,8 @@ CellularStubState CellularStateMachine_stub::get_current_target_state = STATE_IN
 CellularStubState CellularStateMachine_stub::get_current_current_state = STATE_INIT;
 bool CellularStateMachine_stub::bool_value = false;
 
-CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
-    _cellularDevice(device), _queue(queue)
+CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
+    _cellularDevice(device), _network(nw), _queue(queue)
 {
 }
 
@@ -72,5 +72,18 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
 }
 
 void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
+{
+}
+
+void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+
+}
+
+void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int array_len)
+{
+}
+
+void CellularStateMachine::set_timeout(int timeout)
 {
 }

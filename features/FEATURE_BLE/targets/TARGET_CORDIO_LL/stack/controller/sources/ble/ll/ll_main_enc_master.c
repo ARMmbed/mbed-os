@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave control interface implementation file.
+ * \file
+ * \brief Link layer (LL) slave control interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -49,6 +50,11 @@ uint8_t LlStartEncryption(uint16_t handle, const uint8_t *pRand, uint16_t divers
   LL_TRACE_INFO1("### LlApi ###  LlStartEncryption, handle=%u", handle);
 
   if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_START_ENC) == TRUE)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  if (LctrIsCisEnabled(handle) == TRUE)
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }

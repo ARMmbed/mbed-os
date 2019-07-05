@@ -17,6 +17,7 @@
 #ifndef MBED_CIRCULARBUFFER_H
 #define MBED_CIRCULARBUFFER_H
 
+#include <stdint.h>
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
 

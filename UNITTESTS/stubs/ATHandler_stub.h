@@ -26,17 +26,14 @@
 #ifndef __AT_HANDLER_STUB_H__
 #define __AT_HANDLER_STUB_H__
 
-#define ATHANDLER_REF_COUNT_AT_DESTRUCTOR -909
-
 static const int kRead_string_table_size = 100;
 static const int kRead_int_table_size = 100;
 static const int kResp_stop_count_default = 100;
-// set reference count to -909 to separate it from zero so we can test that ATHandler is really deleted.
-static const int kATHandler_destructor_ref_ount = ATHANDLER_REF_COUNT_AT_DESTRUCTOR;
 static const int kATHandler_urc_table_max_size = 10;
 static const int kATHandler_urc_string_max_size = 16;
 
 namespace ATHandler_stub {
+extern mbed::ATHandler *handler;
 extern nsapi_error_t nsapi_error_value;
 extern uint8_t nsapi_error_ok_counter;
 extern int int_value;
@@ -50,11 +47,12 @@ extern size_t size_value;
 extern size_t return_given_size;
 extern bool bool_value;
 extern uint8_t resp_info_true_counter;
+extern uint8_t resp_info_true_counter2;
+extern uint8_t resp_info_false_counter;
 extern uint8_t info_elem_true_counter;
 extern uint8_t uint8_value;
 extern mbed::FileHandle_stub *fh_value;
 extern mbed::device_err_t device_err_value;
-extern mbed::Callback<void()> callback[kATHandler_urc_table_max_size];
 extern bool call_immediately;
 extern const char *read_string_table[kRead_string_table_size];
 extern int read_string_index;
@@ -62,8 +60,6 @@ extern int int_valid_count_table[kRead_int_table_size];
 extern int int_count;
 extern int resp_stop_success_count;
 extern bool process_oob_urc;
-extern int urc_amount;
-extern char *urc_string_table[kATHandler_urc_table_max_size];
 
 extern bool get_debug_flag;
 bool is_get_debug_run();

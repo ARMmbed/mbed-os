@@ -19,6 +19,7 @@
 #include "Semaphore_stub.h"
 
 int Semaphore_stub::wait_return_value = 0;
+bool Semaphore_stub::acquire_return_value;
 
 namespace rtos {
 
@@ -45,6 +46,26 @@ int32_t Semaphore::wait(uint32_t millisec)
 int32_t Semaphore::wait_until(uint64_t millisec)
 {
     return Semaphore_stub::wait_return_value;
+}
+
+void Semaphore::acquire()
+{
+
+}
+
+bool Semaphore::try_acquire()
+{
+    return Semaphore_stub::acquire_return_value;
+}
+
+bool Semaphore::try_acquire_for(uint32_t millisec)
+{
+    return Semaphore_stub::acquire_return_value;
+}
+
+bool Semaphore::try_acquire_until(uint64_t millisec)
+{
+    return Semaphore_stub::acquire_return_value;
 }
 
 osStatus Semaphore::release(void)

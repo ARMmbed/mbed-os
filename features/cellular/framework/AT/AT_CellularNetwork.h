@@ -111,8 +111,6 @@ protected:
      */
     virtual void get_context_state_command();
 private:
-    //  "NO CARRIER" urc
-    void urc_no_carrier();
     void urc_creg();
     void urc_cereg();
     void urc_cgreg();

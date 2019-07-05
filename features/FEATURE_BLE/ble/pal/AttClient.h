@@ -20,7 +20,6 @@
 #include "ble/common/StaticInterface.h"
 #include "ble/UUID.h"
 #include "ble/BLETypes.h"
-#include "ble/ArrayView.h"
 #include "ble/blecommon.h"
 #include "platform/Callback.h"
 #include "AttServerMessage.h"
@@ -197,7 +196,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return impl()->find_by_type_value_request_(
             connection_handle,
@@ -381,7 +380,7 @@ public:
      */
     ble_error_t read_multiple_request(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& attribute_handles
+        const Span<const attribute_handle_t>& attribute_handles
     ) {
         return impl()->read_multiple_request_(connection_handle, attribute_handles);
     }
@@ -489,7 +488,7 @@ public:
     ble_error_t write_request(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return impl()->write_request_(connection_handle, attribute_handle, value);
     }
@@ -511,7 +510,7 @@ public:
     ble_error_t write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return impl()->write_command_(connection_handle, attribute_handle, value);
     }
@@ -538,7 +537,7 @@ public:
     ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return impl()->signed_write_command_(connection_handle, attribute_handle, value);
     }
@@ -593,7 +592,7 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     ) {
         return impl()->prepare_write_request_(
             connection_handle,

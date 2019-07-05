@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master scanning operation builder implementation file.
+ * \file
+ * \brief Link layer controller master scanning operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -417,7 +418,8 @@ void lctrMstDiscoverBuildOp(void)
 
   /*** Commit operation ***/
 
-  pOp->minDurUsec = pOp->maxDurUsec = LCTR_BLE_TO_US(lctrMstScan.scanParam.scanWindow);
+  pOp->minDurUsec = LCTR_MIN_SCAN_USEC;
+  pOp->maxDurUsec = LCTR_BLE_TO_US(lctrMstScan.scanParam.scanWindow);
 
   lctrMstScan.selfTerm = FALSE;
   lctrMstScan.shutdown = FALSE;
@@ -602,17 +604,16 @@ void lctrAdvRptGenerateLegacyHash(uint64_t *pHash, uint8_t addrType, uint64_t ad
 void lctrAdvRptGenerateExtHash(uint64_t *pHash, uint8_t addrType, uint64_t addr, uint8_t eventType,
                                uint8_t sid, uint16_t did)
 {
-  addrType &= 0x3;      /* 2 valid bits. */
-  eventType &= 0x1F;    /* 5 valid bits; ignore Data Status. */
-  sid &= 0xF;           /* 4 valid bits. */
+  addrType &= 0x3;      /*  2 valid bits. */
+  eventType &= 0x1F;    /*  5 valid bits; ignore Data Status. */
+  sid &= 0xF;           /*  4 valid bits. */
+  did &= 0xFFF;         /* 12 valid bits. */
 
-  /* Fit packet identifier into 8 bits. */
-  uint8_t pktId = did ^ (did >> 4) ^ sid ^ (sid << 4);
-
-  *pHash = addr;                           /* 48 bits. */
-  *pHash |= ((uint64_t)addrType  << 48);   /*  2 bits. */
-  *pHash |= ((uint64_t)eventType << 50);   /*  5 bits. */
-  *pHash |= ((uint64_t)pktId     << 55);   /*  8 bits. */
+  *pHash = addr & 0x1FFFFFFFFFF;            /* 41 LSB bits. */
+  *pHash |= ((uint64_t)addrType   << 41);   /*  2 bits. */
+  *pHash |= ((uint64_t)eventType  << 43);   /*  5 bits. */
+  *pHash |= ((uint64_t)sid        << 48);   /*  4 bits. */
+  *pHash |= ((uint64_t)did        << 52);   /* 12 bits. */
 }
 
 /*************************************************************************************************/
@@ -789,4 +790,29 @@ void lctrAdvReportsDec(void)
   WSF_CS_ENTER();
   lmgrMstScanCb.numAdvReport--;
   WSF_CS_EXIT();
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check whether scan is enabled or not.
+ *
+ *  \return     True if scanner enabled. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstScanIsEnabled(void)
+{
+  return (lctrMstScan.state != LCTR_SCAN_STATE_DISABLED);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check whether private address is used for scanner
+ *
+ *  \return     Returns True if scanner is using private addresses. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstScanIsPrivAddr(void)
+{
+  /* Check for private Addr bit. */
+  return (lctrMstScan.scanParam.ownAddrType & LL_ADDR_RANDOM_BIT);
 }

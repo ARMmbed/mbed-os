@@ -30,12 +30,11 @@
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
 
-#if !DEVICE_USTICKER
+#if defined(SKIP_TIME_DRIFT_TESTS)
 #error [NOT_SUPPORTED] test not supported
 #endif
 
-//FastModels not support time drifting test
-#if defined(__ARM_FM)
+#if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
 #endif
 

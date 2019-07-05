@@ -121,7 +121,7 @@ static RAM_CODE_SEC int32_t read_register(uint8_t cmd, uint8_t * status);
 static RAM_CODE_SEC int32_t data_send(uint32_t bit_width, uint32_t spbssl_level, const uint8_t * buf, int32_t size);
 static RAM_CODE_SEC void spi_mode(void);
 static RAM_CODE_SEC void ex_mode(void);
-static RAM_CODE_SEC void clear_spimd_reg(st_spibsc_spimd_reg_t * regset);
+static RAM_CODE_SEC void clear_spimd_reg(volatile st_spibsc_spimd_reg_t * regset);
 static RAM_CODE_SEC int32_t spibsc_transfer(st_spibsc_spimd_reg_t * regset);
 static RAM_CODE_SEC uint32_t RegRead_32(volatile uint32_t * ioreg, uint32_t shift, uint32_t mask);
 static RAM_CODE_SEC void RegWwrite_32(volatile uint32_t * ioreg, uint32_t write_value, uint32_t shift, uint32_t mask);
@@ -474,7 +474,7 @@ static void ex_mode(void)
     (void)dummy_read_32;
 }
 
-static void clear_spimd_reg(st_spibsc_spimd_reg_t * regset)
+static void clear_spimd_reg(volatile st_spibsc_spimd_reg_t * regset)
 {
     /* ---- command ---- */
     regset->cde    = SPIBSC_OUTPUT_DISABLE;

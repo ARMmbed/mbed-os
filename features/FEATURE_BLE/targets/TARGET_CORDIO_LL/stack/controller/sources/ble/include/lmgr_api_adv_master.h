@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer manager advertising master interface file.
+ * \file
+ * \brief Link layer manager advertising master interface file.
  */
 /*************************************************************************************************/
 
@@ -52,7 +53,6 @@ typedef struct
 typedef struct
 {
   lmgrScanParam_t   scanParam;          /*!< Scan parameters. */
-  uint64_t          chanClass;          /*!< Channel class. */
   uint8_t           scanChanMap;        /*!< Scan channel map. */
   uint8_t           numAdvReport;       /*!< Number of pending advertising reports. */
 } lmgrMstScanCtrlBlk_t;

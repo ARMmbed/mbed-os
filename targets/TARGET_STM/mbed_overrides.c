@@ -28,6 +28,7 @@
 #include "cmsis.h"
 
 int mbed_sdk_inited = 0;
+extern void SetSysClock(void);
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()

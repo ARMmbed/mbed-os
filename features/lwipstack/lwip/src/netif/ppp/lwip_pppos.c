@@ -176,6 +176,7 @@ ppp_pcb *pppos_create(struct netif *pppif, pppos_output_cb_fn output_cb,
 {
   pppos_pcb *pppos;
   ppp_pcb *ppp;
+  LWIP_ASSERT_CORE_LOCKED();
 
   pppos = (pppos_pcb *)LWIP_MEMPOOL_ALLOC(PPPOS_PCB);
   if (pppos == NULL) {
@@ -206,7 +207,9 @@ pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p)
   err_t err;
   LWIP_UNUSED_ARG(ppp);
 
-  /* Grab an output buffer. */
+  /* Grab an output buffer. Using PBUF_POOL here for tx is ok since the pbuf
+     gets freed by 'pppos_output_last' before this function returns and thus
+     cannot starve rx. */
   nb = pbuf_alloc(PBUF_RAW, 0, PBUF_POOL);
   if (nb == NULL) {
     PPPDEBUG(LOG_WARNING, ("pppos_write[%d]: alloc fail\n", ppp->netif->num));
@@ -216,6 +219,9 @@ pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p)
     pbuf_free(p);
     return ERR_MEM;
   }
+
+  /* Set nb->tot_len to actual payload length */
+  nb->tot_len = p->len;
 
   /* If the link has been idle, we'll send a fresh flag character to
    * flush any noise. */
@@ -252,7 +258,9 @@ pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
   err_t err;
   LWIP_UNUSED_ARG(ppp);
 
-  /* Grab an output buffer. */
+  /* Grab an output buffer. Using PBUF_POOL here for tx is ok since the pbuf
+     gets freed by 'pppos_output_last' before this function returns and thus
+     cannot starve rx. */
   nb = pbuf_alloc(PBUF_RAW, 0, PBUF_POOL);
   if (nb == NULL) {
     PPPDEBUG(LOG_WARNING, ("pppos_netif_output[%d]: alloc fail\n", ppp->netif->num));
@@ -261,6 +269,9 @@ pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
     MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
     return ERR_MEM;
   }
+
+  /* Set nb->tot_len to actual payload length */
+  nb->tot_len = pb->tot_len;
 
   /* If the link has been idle, we'll send a fresh flag character to
    * flush any noise. */
@@ -402,6 +413,8 @@ pppos_destroy(ppp_pcb *ppp, void *ctx)
 #if !NO_SYS && !PPP_INPROC_IRQ_SAFE
 /** Pass received raw characters to PPPoS to be decoded through lwIP TCPIP thread.
  *
+ * This is one of the only functions that may be called outside of the TCPIP thread!
+ *
  * @param ppp PPP descriptor index, returned by pppos_create()
  * @param s received data
  * @param l length of received data
@@ -429,6 +442,7 @@ pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
 err_t pppos_input_sys(struct pbuf *p, struct netif *inp) {
   ppp_pcb *ppp = (ppp_pcb*)inp->state;
   struct pbuf *n;
+  LWIP_ASSERT_CORE_LOCKED();
 
   for (n = p; n; n = n->next) {
     pppos_input(ppp, (u8_t*)n->payload, n->len);
@@ -468,6 +482,9 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
   u8_t cur_char;
   u8_t escaped;
   PPPOS_DECL_PROTECT(lev);
+#if !PPP_INPROC_IRQ_SAFE
+  LWIP_ASSERT_CORE_LOCKED();
+#endif
 
   PPPDEBUG(LOG_DEBUG, ("pppos_input[%d]: got %d bytes\n", ppp->netif->num, l));
   while (l-- > 0) {
@@ -541,10 +558,10 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
           pppos->in_tail = NULL;
 #if IP_FORWARD || LWIP_IPV6_FORWARD
           /* hide the room for Ethernet forwarding header */
-          pbuf_header(inp, -(s16_t)(PBUF_LINK_ENCAPSULATION_HLEN + PBUF_LINK_HLEN));
+          pbuf_remove_header(inp, PBUF_LINK_ENCAPSULATION_HLEN + PBUF_LINK_HLEN);
 #endif /* IP_FORWARD || LWIP_IPV6_FORWARD */
 #if PPP_INPROC_IRQ_SAFE
-          if(tcpip_callback_with_block(pppos_input_callback, inp, 0) != ERR_OK) {
+          if(tcpip_try_callback(pppos_input_callback, inp) != ERR_OK) {
             PPPDEBUG(LOG_ERR, ("pppos_input[%d]: tcpip_callback() failed, dropping packet\n", ppp->netif->num));
             pbuf_free(inp);
             LINK_STATS_INC(link.drop);
@@ -599,6 +616,7 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
 
           /* Else assume compressed address and control fields so
            * fall through to get the protocol... */
+          /* Fall through */
         case PDCONTROL:                 /* Process control field. */
           /* If we don't get a valid control code, restart. */
           if (cur_char == PPP_UI) {
@@ -614,7 +632,9 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
             pppos->in_state = PDSTART;
           }
 #endif
-        case PDPROTOCOL1:               /* Process protocol field 1. */
+          /* Fall through */
+
+      case PDPROTOCOL1:               /* Process protocol field 1. */
           /* If the lower bit is set, this is the end of the protocol
            * field. */
           if (cur_char & 1) {
@@ -698,8 +718,8 @@ static void pppos_input_callback(void *arg) {
   ppp_pcb *ppp;
 
   ppp = ((struct pppos_input_header*)pb->payload)->ppp;
-  if(pbuf_header(pb, -(s16_t)sizeof(struct pppos_input_header))) {
-    LWIP_ASSERT("pbuf_header failed\n", 0);
+  if(pbuf_remove_header(pb, sizeof(struct pppos_input_header))) {
+    LWIP_ASSERT("pbuf_remove_header failed\n", 0);
     goto drop;
   }
 

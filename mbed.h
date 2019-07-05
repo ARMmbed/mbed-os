@@ -74,8 +74,10 @@
 #include "drivers/FlashIAP.h"
 #include "drivers/MbedCRC.h"
 #include "drivers/QSPI.h"
+#include "drivers/Watchdog.h"
 
 // mbed Internal components
+#include "drivers/ResetReason.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
@@ -86,6 +88,7 @@
 #include "drivers/InterruptIn.h"
 #include "platform/mbed_wait_api.h"
 #include "hal/sleep_api.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_rtc_time.h"
 #include "platform/mbed_poll.h"

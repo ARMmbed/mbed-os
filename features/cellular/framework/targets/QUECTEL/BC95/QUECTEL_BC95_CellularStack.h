@@ -57,6 +57,7 @@ protected: // AT_CellularStack
 private:
     // URC handlers
     void urc_nsonmi();
+    void urc_nsocli();
 };
 } // namespace mbed
 #endif /* QUECTEL_BC95_CELLULARSTACK_H_ */

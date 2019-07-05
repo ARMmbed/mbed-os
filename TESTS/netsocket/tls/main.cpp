@@ -20,9 +20,6 @@
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
-#ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
-#error [NOT_SUPPORTED] Requires echo-server-discard-port parameter from mbed_app.json
-#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,6 +27,10 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
+
+#ifndef ECHO_SERVER_ADDR
+#error [NOT_SUPPORTED] Requires parameters for echo server
+#endif
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
@@ -106,7 +107,7 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
 {
     SocketAddress tls_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tls_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tls_addr);
     tls_addr.set_port(port);
 
     printf("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
@@ -134,12 +135,23 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
 
 nsapi_error_t tlssocket_connect_to_echo_srv(TLSSocket &sock)
 {
-    return tlssocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_PORT_TLS);
+    return tlssocket_connect_to_srv(sock, ECHO_SERVER_PORT_TLS);
 }
 
 nsapi_error_t tlssocket_connect_to_discard_srv(TLSSocket &sock)
 {
-    return tlssocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS);
+    return tlssocket_connect_to_srv(sock, ECHO_SERVER_DISCARD_PORT_TLS);
+}
+
+bool is_tcp_supported()
+{
+    static bool supported;
+    static bool tested = false;
+    if (!tested) {
+        TCPSocket socket;
+        supported = socket.open(NetworkInterface::get_default_instance()) == NSAPI_ERROR_OK;
+    }
+    return supported;
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)
@@ -177,6 +189,38 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
     return greentea_test_teardown_handler(passed, failed, failure);
 }
 
+utest::v1::status_t greentea_case_setup_handler_tls(const Case *const source, const size_t index_of_case)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tls_stats[j].state);
+    }
+#endif
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t greentea_case_teardown_handler_tls(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+{
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tls_stats[j].state);
+    }
+#endif
+    return greentea_case_teardown_handler(source, passed, failed, failure);
+}
+
+static void test_failure_handler(const failure_t failure)
+{
+    UTEST_LOG_FUNCTION();
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
+        verbose_test_failure_handler(failure);
+        GREENTEA_TESTSUITE_RESULT(false);
+        while (1) ;
+    }
+}
+
 
 Case cases[] = {
     Case("TLSSOCKET_ECHOTEST", TLSSOCKET_ECHOTEST),
@@ -203,7 +247,16 @@ Case cases[] = {
 //    Case("TLSSOCKET_SIMULTANEOUS", TLSSOCKET_SIMULTANEOUS)
 };
 
-Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
+const handlers_t tls_test_case_handlers = {
+    default_greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    test_failure_handler,
+    greentea_case_setup_handler_tls,
+    greentea_case_teardown_handler_tls,
+    greentea_case_failure_continue_handler
+};
+
+Specification specification(greentea_setup, cases, greentea_teardown, tls_test_case_handlers);
 
 int retval;
 void run_test(void)

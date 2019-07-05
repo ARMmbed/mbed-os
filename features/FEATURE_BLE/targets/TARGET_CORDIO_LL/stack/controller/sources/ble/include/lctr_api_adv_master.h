@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller scanning master interface file.
+ * \file
+ * \brief Link layer controller scanning master interface file.
  */
 /*************************************************************************************************/
 
@@ -99,6 +100,10 @@ void LctrMstScanDefaults(void);
 /* Helpers */
 void lctrAdvReportsInc(void);
 void lctrAdvReportsDec(void);
+
+/* Utility */
+bool_t LctrMstScanIsEnabled(void);
+bool_t LctrMstScanIsPrivAddr(void);
 
 /*! \} */    /* LL_LCTR_API_ADV_MST */
 

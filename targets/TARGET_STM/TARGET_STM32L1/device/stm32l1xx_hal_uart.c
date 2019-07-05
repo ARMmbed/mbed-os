@@ -1904,7 +1904,7 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
   if(huart->Init.OverSampling == UART_OVERSAMPLING_8)
   {
     /*------- UART-associated USART registers setting : BRR Configuration ------*/
-    if((huart->Instance == USART1))
+    if(huart->Instance == USART1)
     {
       huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
     }
@@ -1916,7 +1916,7 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
   else
   {
     /*------- UART-associated USART registers setting : BRR Configuration ------*/
-    if((huart->Instance == USART1))
+    if(huart->Instance == USART1)
     {
       huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
     }

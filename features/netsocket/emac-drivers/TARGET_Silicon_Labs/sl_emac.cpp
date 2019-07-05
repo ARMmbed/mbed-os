@@ -124,7 +124,7 @@ void SL_EMAC::power_down()
 
     tr_debug("Link coming down, waiting for TX to be done.");
 
-    tx_sem.wait();
+    tx_sem.acquire();
 
     NVIC_DisableIRQ(ETH_IRQn);
 
@@ -491,8 +491,7 @@ bool SL_EMAC::link_out(emac_mem_buf_t *buf)
     }
 
     /* Wait for previous packet to finish transmitting */
-    int32_t stat = tx_sem.wait(100);
-    if (stat <= 0) {
+    if (!tx_sem.try_acquire_for(100)) {
         tr_warn("TX process didn't complete within 100ms");
         memory_manager->free(buf);
         return false;

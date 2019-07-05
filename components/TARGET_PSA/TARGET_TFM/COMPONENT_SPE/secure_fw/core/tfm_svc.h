@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -23,6 +23,7 @@ typedef enum {
 #ifdef TFM_PSA_API
     TFM_SVC_IPC_REQUEST,
     TFM_SVC_SCHEDULE,
+    TFM_SVC_EXIT_THRD,
     /* PSA Client SVC */
     TFM_SVC_PSA_FRAMEWORK_VERSION,
     TFM_SVC_PSA_VERSION,
@@ -43,6 +44,6 @@ typedef enum {
 #endif
 } tfm_svc_number_t;
 
-#define SVC(code) __ASM("svc %0" : : "I" (code))
+#define SVC(code) __ASM volatile("svc %0" : : "I" (code))
 
 #endif /* __TFM_SVC_H__ */

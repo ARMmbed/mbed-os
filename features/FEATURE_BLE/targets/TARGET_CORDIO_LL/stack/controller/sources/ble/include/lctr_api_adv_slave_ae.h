@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller extended advertising slave interface file.
+ * \file
+ * \brief Link layer controller extended advertising slave interface file.
  */
 /*************************************************************************************************/
 
@@ -61,6 +62,14 @@ enum
   LCTR_PER_ADV_MSG_TOTAL                /*!< Total number of periodic advertising events. */
 };
 
+/*! \brief      Acad dispatcher messages */
+enum
+{
+  LCTR_ACAD_MSG_CHAN_UPDATE,            /* Start a channel map update */
+  LCTR_ACAD_MSG_CHAN_UPDATE_FINISH,     /* Finish a channel map update */
+  LCTR_ACAD_MSG_TOTAL
+};
+
 /**************************************************************************************************
   Data Types
 **************************************************************************************************/
@@ -91,6 +100,7 @@ typedef union
 {
   lctrMsgHdr_t              hdr;        /*!< Message header. */
   LctrPerAdvEnableMsg_t     perEnable;  /*!< Periodic enable message data. */
+  lctrChanMapUpdate_t       chanUpdate; /*!< Channel map update data. */
 } LctrPerAdvMsg_t;
 
 /**************************************************************************************************
@@ -107,6 +117,7 @@ uint8_t LctrIsExtAdvEnableParamValid(uint8_t enable, LlExtAdvEnableParam_t *pEna
 uint8_t LctrIsExtAdvEnableReady(uint8_t handle);
 bool_t LctrIsAdvHandleValid(uint8_t handle);
 uint8_t LctrGetExtAdvTxPowerLevel(uint16_t handle, int8_t *pLevel);
+bool_t LctrIsPerAdvEnabled(uint8_t handle);
 
 /* Control */
 uint8_t LctrGetAdvHandles(uint8_t pHandles[LL_MAX_ADV_SETS]);
@@ -114,6 +125,7 @@ uint8_t LctrSetExtAdvSetRandAddr(uint8_t handle, const uint8_t *pAddr);
 uint8_t LctrGetExtAdvSetRandAddr(uint8_t handle, uint8_t *pAddr);
 uint8_t LctrSetExtAdvParam(uint8_t handle, LlExtAdvParam_t *pExtAdvParam);
 uint8_t LctrSetExtAdvData(uint8_t handle, uint8_t op, uint8_t fragPref, uint8_t len, const uint8_t *pData);
+uint64_t LctrGetPerAdvChanMap(uint8_t handle);
 uint8_t LctrSetExtScanRespData(uint8_t handle, uint8_t op, uint8_t fragPref, uint8_t len, const uint8_t *pData);
 uint8_t LctrRemoveAdvSet(uint8_t handle);
 uint8_t LctrClearAdvSets(void);
@@ -121,6 +133,8 @@ uint8_t LctrSetAuxOffsetDelay(uint8_t handle, uint32_t delayUsec);
 uint8_t LctrSetExtAdvDataFragLen(uint8_t handle, uint8_t fragLen);
 uint8_t LctrSetExtAdvTxPhyOptions(uint8_t handle, uint8_t priPhyOpts, uint8_t secPhyOpts);
 uint8_t LctrSetPeriodicAdvParam(uint8_t handle, LlPerAdvParam_t *pPerAdvParam);
+uint8_t LctrPeriodicAdvSetInfoTransfer(uint16_t connHandle, uint16_t serviceData, uint8_t advHandle);
+uint8_t LctrSetPeriodicAdvSyncTransParams(uint16_t connHandle, uint8_t mode, uint16_t skip, uint16_t syncTimeout, uint8_t cteType);
 void LctrSetPeriodicAdvEnable(uint8_t handle, bool_t enable);
 uint8_t LctrSetPeriodicAdvData(uint8_t handle, uint8_t op, uint8_t len, const uint8_t *pData);
 

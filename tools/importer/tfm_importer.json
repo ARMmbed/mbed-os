@@ -1,77 +1,100 @@
 {
-  "files" : [
+  "files": [
     {
-      "src_file" : "interface/src/tfm_ns_lock_rtx.c",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_ns_lock_rtx.c"
+      "src_file": "interface/src/tfm_ns_lock_rtx.c",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_ns_lock_rtx.c"
     },
     {
-      "src_file" : "interface/src/tfm_psa_ns_api.c",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_psa_ns_api.c"
+      "src_file": "interface/src/tfm_psa_ns_api.c",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_psa_ns_api.c"
     },
     {
-      "src_file" : "interface/include/psa_client.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_client.h"
+      "src_file": "interface/include/psa_client.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/psa_client.h"
     },
     {
-      "src_file" : "interface/include/psa_service.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_service.h"
+      "src_file": "interface/include/psa_service.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/psa_service.h"
     },
     {
-      "src_file" : "interface/include/tfm_api.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_api.h"
+      "src_file": "interface/include/tfm_api.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_api.h"
     },
     {
-      "src_file" : "interface/include/tfm_ns_lock.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_lock.h"
+      "src_file": "interface/include/tfm_ns_lock.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_lock.h"
     },
     {
-      "src_file" : "interface/include/tfm_ns_svc.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_svc.h"
+      "src_file": "interface/include/tfm_ns_svc.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_svc.h"
     },
     {
-      "src_file" : "interface/include/tfm_nspm_svc_handler.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_nspm_svc_handler.h"
+      "src_file": "interface/include/tfm_nspm_svc_handler.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_nspm_svc_handler.h"
     },
     {
-      "src_file" : "platform/include/tfm_spm_hal.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+      "src_file": "platform/include/tfm_spm_hal.h",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+    },
+    {
+      "src_file": "secure_fw/ns_callable/tfm_psa_api_veneers.c",
+      "dest_file": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/ns_callable/tfm_psa_api_veneers.c"
     }
   ],
-  "folders" : [
+  "folders": [
     {
-      "src_folder" : "secure_fw/core",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core"
+      "src_folder": "secure_fw/core",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core"
     },
     {
-      "src_folder" : "secure_fw/core/ipc",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc"
+      "src_folder": "secure_fw/core/ipc",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc"
     },
     {
-      "src_folder" : "secure_fw/core/ipc/include",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc/include"
+      "src_folder": "secure_fw/core/ipc/include",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc/include"
     },
     {
-      "src_folder" : "secure_fw/include",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/include"
+      "src_folder": "secure_fw/include",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/include"
     },
     {
-      "src_folder" : "secure_fw/spm",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/spm"
+      "src_folder": "secure_fw/spm",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/spm"
     },
     {
-      "src_folder" : "bl2/include",
-      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/bl2/include"
+      "src_folder": "bl2/include",
+      "dest_folder": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/bl2/include"
     }
   ],
-  "commit_sha" : [
-    "71cd34df3265d98da5c9b34e4e18ef039d7bef5c",
-    "87f22efcb5ed28fc4dbe6c940057bc6ace3ec00a",
-    "03dbd4bb28113c6ffc05e6884b6b38f52163cb4b",
-    "ea8bff57b14dad0b8d7e09c698ed1a08c532f04b",
-    "8a087a6504a0e2d7e3e48adc6301f16e44ea5957",
-    "749faa6534be5b3067be4c1bcca12681f9587c0e",
-    "7a2c7d7df4d12776689b10e5fa77963f8473193f",
-    "134a169e35154e1faaba9876da1e49972b5312eb"
+  "commit_sha": [
+    {
+      "sha": "11bff3f3cbfbd3e2c284e884d0066531e6b47d7e",
+      "msg": "TF-M patch: General modifications, Remove un-needed files, Disable printf and uart, Modify include paths, Guard macros from mbed_lib with ifndef"
+    },
+    {
+      "sha": "795e6418d0e73841868b351b605659a05c04e1f6",
+       "msg": "TF-M patch: Fix tfm_ns_lock_init issue (TF-M issue #239), Link to bug tracking: https://developer.trustedfirmware.org/T239"
+    },
+    {
+      "sha": "35938a407133fe0c20c25b6fae2836148d1adfca",
+      "msg": "TF-M patch: Fix service handles not cleared issue (TF-M issue #230), Link to bug tracking: https://developer.trustedfirmware.org/T230"
+    },
+    {
+      "sha": "910a402ce6c96b654cb6ae1a5b679e4f856c5419",
+      "msg": "TF-M patch: Fix tfm_psa_call_venner wrong argument type (TF-M issue #241), Link to bug tracking: https://developer.trustedfirmware.org/T241"
+    },
+    {
+      "sha": "cb748c5608cd68a1dbecde5b3b2c1488c3d0d17b",
+      "msg": "TF-M patch: Change #if TFM_PSA_API to #ifdef TFM_PSA_API to avoid compiler errors as mbed-cli only generates "-D" macros only for "macros" defined in targets.json, TF-M task link: https://developer.trustedfirmware.org/T396"
+    },
+    {
+      "sha": "9a5110561a60ec9f663079a25ec54f7ad0832743",
+      "msg": "TF-M patch: Remove secure_fw/core/tfm_func_api.c which is required only when TFM_PSA_API is not set"
+    },
+    {
+      "sha": "6e899b3cc98c3e1811a160df09abbccddb2fa014",
+      "msg": "TF-M patch/workaround related to (TF-M issue #T240), Link to bug tracking: https://developer.trustedfirmware.org/T240, The issue is fixed by TF-M team. However they autogenerate region details (code, ro, rw, zi and stack ) using linker scripts and in mbed-os we also autogenerate region details but using mix of service definition in json file and other template files."
+    }
   ]
 }
-

@@ -861,7 +861,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_re
         new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
 
     if (identity_list_p) {
-        ArrayView<SecurityEntryIdentity_t> identity_list(
+        Span<SecurityEntryIdentity_t> identity_list(
             identity_list_p,
             resolving_list_capacity
         );
@@ -1187,7 +1187,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_security_en
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_list_retrieved(
-    ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
+    Span<SecurityEntryIdentity_t>& identity_list,
     size_t count
 ) {
     typedef advertising_peer_address_type_t address_type_t;

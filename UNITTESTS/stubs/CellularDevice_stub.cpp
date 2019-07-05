@@ -15,19 +15,26 @@
  * limitations under the License.
  */
 
-#include "CellularDevice.h"
 #include "CellularDevice_stub.h"
 #include "events/EventQueue.h"
 #include "CellularUtil.h"
+#include "myCellularDevice.h"
 
 using namespace mbed;
 
 int CellularDevice_stub::connect_counter = -1;
-
+bool CellularDevice_stub::create_in_get_default = false;
+uint16_t CellularDevice_stub::retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+int CellularDevice_stub::retry_array_length = 0;
 
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
-    return NULL;
+    if (CellularDevice_stub::create_in_get_default) {
+        static myCellularDevice dev(NULL);
+        return &dev;
+    } else {
+        return NULL;
+    }
 }
 
 CellularDevice::CellularDevice(FileHandle *fh) :  _network_ref_count(0), _sms_ref_count(0),
@@ -56,6 +63,17 @@ void CellularDevice::set_sim_pin(char const *)
 CellularContext *CellularDevice::get_context_list() const
 {
     return NULL;
+}
+
+void CellularDevice::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+    array_len = CellularDevice_stub::retry_array_length;
+
+    if (CellularDevice_stub::retry_array_length == 0) {
+        timeout = 0;
+    } else {
+        timeout = CellularDevice_stub::retry_timeout_array;
+    }
 }
 
 nsapi_error_t CellularDevice::set_device_ready()

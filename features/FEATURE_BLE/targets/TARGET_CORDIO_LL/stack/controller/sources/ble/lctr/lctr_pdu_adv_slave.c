@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave advertising channel packet implementation file.
+ * \file
+ * \brief Link layer controller slave advertising channel packet implementation file.
  */
 /*************************************************************************************************/
 
@@ -170,12 +171,20 @@ uint8_t lctrPackConnIndPdu(uint8_t *pBuf, const lctrConnInd_t *pPdu)
 
   pBuf += lctrPackConnIndPduAddr(pBuf, pPdu);
 
+  uint16_t interval = pPdu->interval;
+#if (LL_ENABLE_TESTER == TRUE)
+  if (llTesterCb.connIntervalZero == TRUE)
+  {
+    interval = 0;
+  }
+#endif
+
   /* LLData */
   UINT32_TO_BSTREAM(pBuf, pPdu->accessAddr);
   UINT24_TO_BSTREAM(pBuf, pPdu->crcInit);
   UINT8_TO_BSTREAM (pBuf, pPdu->txWinSize);
   UINT16_TO_BSTREAM(pBuf, pPdu->txWinOffset);
-  UINT16_TO_BSTREAM(pBuf, pPdu->interval);
+  UINT16_TO_BSTREAM(pBuf, interval);
   UINT16_TO_BSTREAM(pBuf, pPdu->latency);
   UINT16_TO_BSTREAM(pBuf, pPdu->timeout);
   UINT40_TO_BSTREAM(pBuf, pPdu->chanMask);

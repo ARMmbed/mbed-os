@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master scanning operation builder implementation file.
+ * \file
+ * \brief Link layer controller master scanning operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -80,6 +81,7 @@ static void lctrMstPreInitiateExecHandler(BbOpDesc_t *pOp)
    * before initiate's scan operation sets up its executing duration (i.e. "pre-execute"). */
   lctrMstInit.data.init.firstCeDue = lctrMstConnAdjustOpStart(LCTR_GET_CONN_CTX(lctrMstInit.data.init.connHandle),
                                                               pOp->due,
+                                                              pOp->minDurUsec,
                                                               &lctrMstInit.data.init.connInd);
   lctrMstInit.data.init.connBodLoaded = TRUE;
 }
@@ -168,7 +170,7 @@ void lctrMstInitiateBuildOp(LlConnSpec_t *pConnSpec, uint8_t peerAddrType, uint6
   pConnInd->interval = lctrMstInit.data.init.connInterval;
   pConnInd->latency = pConnSpec->connLatency;
   pConnInd->timeout = pConnSpec->supTimeout;
-  pConnInd->chanMask = lmgrMstScanCb.chanClass;
+  pConnInd->chanMask = lmgrCb.chanClass;
   pConnInd->hopInc = lctrComputeHopInc();
   pConnInd->masterSca = lctrComputeSca();
 
@@ -298,4 +300,30 @@ void LctrMstInitInit(void)
 void LctrMstInitDefaults(void)
 {
   memset(&lctrMstInit, 0, sizeof(lctrMstScan));
+}
+
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check whether init is enabled or not.
+ *
+ *  \return     True if scanner enabled. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstInitIsEnabled(void)
+{
+  return (lctrMstInit.state != LCTR_SCAN_STATE_DISABLED);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Check if private address is being used for scanner
+ *
+ *  \return     Returns True if scanner is using private addresses. False if not.
+ */
+/*************************************************************************************************/
+bool_t LctrMstInitIsPrivAddr(void)
+{
+  /* Check if private address bit is set. */
+  return (lctrMstInit.scanParam.ownAddrType & LL_ADDR_RANDOM_BIT);
 }

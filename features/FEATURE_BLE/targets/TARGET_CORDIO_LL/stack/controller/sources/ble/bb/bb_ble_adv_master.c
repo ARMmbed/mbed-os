@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,13 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Scanning master BLE baseband porting implementation file.
+ * \file
+ * \brief Scanning master BLE baseband porting implementation file.
  */
 /*************************************************************************************************/
 
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "bb_ble_int.h"
 #include "sch_api.h"
 #include "wsf_math.h"
@@ -30,12 +31,6 @@
 /**************************************************************************************************
   Macros
 **************************************************************************************************/
-
-/*! \brief      Guard time at the end of a scan window to the next BOD. Backoff one advertise data exchange. */
-#define BB_SCAN_GUARD_US        (LL_ADV_PKT_MAX_USEC  + LL_BLE_TIFS_US + \
-                                 LL_SCAN_REQ_MAX_USEC + LL_BLE_TIFS_US + \
-                                 LL_SCAN_RSP_MAX_USEC + \
-                                 BbGetSchSetupDelayUs())
 
 /*! \brief    Event states for scan operations. */
 enum
@@ -128,7 +123,7 @@ static bool_t bbContScanOp(BbOpDesc_t *pBod, BbBleMstAdvEvent_t *pScan)
     return TRUE;
   }
 
-  uint32_t curTime = BbDrvGetCurrentTime();
+  uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
   pScan->elapsedUsec += BB_TICKS_TO_US(curTime - bbBleCb.lastScanStart);
   bbBleCb.lastScanStart = curTime;
 
@@ -142,7 +137,7 @@ static bool_t bbContScanOp(BbOpDesc_t *pBod, BbBleMstAdvEvent_t *pScan)
   bbBleCb.bbParam.due = bbBleCb.lastScanStart + BB_US_TO_BB_TICKS(BbGetSchSetupDelayUs());
   bbBleCb.bbParam.dueOffsetUsec = 0;
   bbBleCb.bbParam.rxTimeoutUsec = scanDurUsec;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = BB_EVT_STATE_RX_ADV_IND;
 
@@ -154,7 +149,7 @@ static bool_t bbContScanOp(BbOpDesc_t *pBod, BbBleMstAdvEvent_t *pScan)
   {
     bbBleClrIfs();    /* passive scan */
   }
-  BbBleDrvRxData(pScan->pRxAdvBuf, BB_ADVB_MAX_LEN);
+  PalBbBleRxData(pScan->pRxAdvBuf, BB_ADVB_MAX_LEN);
 
   return FALSE;
 }
@@ -200,7 +195,7 @@ static void bbMstScanTxCompCback(uint8_t status)
             BB_ISR_MARK(bbScanStats.rxSetupUsec);
 
             bbBleClrIfs();      /* last operation in event */
-            BbBleDrvRxTifsData(pScan->pRxRspBuf, BB_ADVB_MAX_LEN);
+            PalBbBleRxTifsData(pScan->pRxRspBuf, BB_ADVB_MAX_LEN);
 
             /* Rx may fail; no more important statements in the !bodComplete code path */
           }
@@ -240,10 +235,11 @@ static void bbMstScanTxCompCback(uint8_t status)
   if (bodCont)
   {
     /* Cancel TIFS timer if active. */
+    /* coverity[dead_error_condition] */
     switch (status)
     {
       case BB_STATUS_SUCCESS:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         /* coverity[dead_error_begin] */
@@ -313,10 +309,10 @@ static void bbMstScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
 
             BB_ISR_MARK(bbScanStats.txSetupUsec);
 
-            BbBleDrvTxBufDesc_t desc = {.pBuf = pScan->pTxReqBuf, .len = pScan->txReqLen};
+            PalBbBleTxBufDesc_t desc = {.pBuf = pScan->pTxReqBuf, .len = pScan->txReqLen};
 
             bbBleSetIfs();
-            BbBleDrvTxTifsData(&desc, 1);
+            PalBbBleTxTifsData(&desc, 1);
 
             /* Tx may fail; no more important statements in the !bodComplete code path */
           }
@@ -425,7 +421,7 @@ static void bbMstScanRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -471,14 +467,14 @@ static void bbMstExecuteScanOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 
   bbBleCb.lastScanStart = pBod->due;
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.txCback       = bbMstScanTxCompCback;
   bbBleCb.bbParam.rxCback       = bbMstScanRxCompCback;
   bbBleCb.bbParam.rxTimeoutUsec = scanDurUsec;
   bbBleCb.bbParam.due           = pBod->due;
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = 0;
 
@@ -490,7 +486,7 @@ static void bbMstExecuteScanOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   {
     bbBleClrIfs();    /* passive scan */
   }
-  BbBleDrvRxData(pScan->pRxAdvBuf, BB_ADVB_MAX_LEN);
+  PalBbBleRxData(pScan->pRxAdvBuf, BB_ADVB_MAX_LEN);
 
   /* Rx may fail; no more important statements in the !bodComplete code path */
 }

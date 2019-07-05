@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include "psa/client.h"
 #include "psa/service.h"
-#include "psa_its_partition.h"
+#include "mbed_spm_partitions.h"
 #include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "mbed_error.h"
 
 #if defined(TARGET_MBED_SPM)
 #include "kv_config.h"
+#else
+int kv_init_storage_config();
 #endif
 
 #ifdef   __cplusplus

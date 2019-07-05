@@ -19,7 +19,7 @@
 #include "ipc_rpc.h"
 #include "rpc_defs.h"
 #include "cy_ipc_config.h"
-#include "ipc/cy_ipc_pipe.h"
+#include "cy_ipc_pipe.h"
 
 #define RPC_GEN     RPC_GEN_IMPLEMENTATION
 #include "rpc_api.h"

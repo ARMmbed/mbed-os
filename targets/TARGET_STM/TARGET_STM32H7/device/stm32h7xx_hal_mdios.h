@@ -387,6 +387,17 @@ typedef  void (*pMDIOS_CallbackTypeDef)(MDIOS_HandleTypeDef * hmdios); /*!< poin
   */
 #define __HAL_MDIOS_WAKEUP_EXTI_ENABLE_IT(__EXTI_LINE__)   (EXTI->IMR2 |= (__EXTI_LINE__))
 
+#if defined(DUAL_CORE)
+/**
+  * @brief Enable the MDIOS WAKEUP Exti Line by Domain2.
+  * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP Exti sources to be enabled.
+  * This parameter can be:
+  *   @arg MDIOS_WAKEUP_EXTI_LINE
+  * @retval None.
+  */
+#define __HAL_MDIOS_WAKEUP_EXTID2_ENABLE_IT(__EXTI_LINE__)   (EXTI->C2IMR2 |= (__EXTI_LINE__))
+
+#endif
 /**
   * @brief checks whether the specified MDIOS WAKEUP Exti interrupt flag is set or not.
   * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP Exti sources to be cleared.
@@ -396,6 +407,16 @@ typedef  void (*pMDIOS_CallbackTypeDef)(MDIOS_HandleTypeDef * hmdios); /*!< poin
   */
 #define __HAL_MDIOS_WAKEUP_EXTI_GET_FLAG(__EXTI_LINE__)  (EXTI->PR2 & (__EXTI_LINE__))
 
+#if defined(DUAL_CORE)
+/**
+  * @brief checks whether the specified MDIOS WAKEUP Exti interrupt flag is set or not.
+  * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP Exti sources to be cleared.
+  * This parameter can be:
+  *   @arg MDIOS_WAKEUP_EXTI_LINE
+  * @retval EXTI MDIOS WAKEUP Line Status.
+  */
+#define __HAL_MDIOS_WAKEUP_EXTID2_GET_FLAG(__EXTI_LINE__)  (EXTI->C2PR2 & (__EXTI_LINE__))
+#endif
 /**
   * @brief Clear the MDIOS WAKEUP Exti flag.
   * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP Exti sources to be cleared.
@@ -405,6 +426,17 @@ typedef  void (*pMDIOS_CallbackTypeDef)(MDIOS_HandleTypeDef * hmdios); /*!< poin
   */
 #define __HAL_MDIOS_WAKEUP_EXTI_CLEAR_FLAG(__EXTI_LINE__) (EXTI->PR2 = (__EXTI_LINE__))
 
+#if defined(DUAL_CORE)
+/**
+  * @brief Clear the MDIOS WAKEUP Exti flag.
+  * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP Exti sources to be cleared.
+  * This parameter can be:
+  *   @arg MDIOS_WAKEUP_EXTI_LINE
+  * @retval None.
+  */
+#define __HAL_MDIOS_WAKEUP_EXTID2_CLEAR_FLAG(__EXTI_LINE__) (EXTI->C2PR2 = (__EXTI_LINE__))
+
+#endif
 /**
   * @brief  enable rising edge interrupt on selected EXTI line.
   * @param  __EXTI_LINE__: specifies the MDIOS WAKEUP EXTI sources to be disabled.

@@ -27,12 +27,13 @@
  * \param key_len key length
  * \param data pointer to data
  * \param data_len data length
- * \param result pointer to result, must be at least 160 bytes
+ * \param result pointer to result
+ * \param result_len in bytes, maximum is 20 bytes
  *
  * \return < 0 failure
  * \return >= 0 success
  *
  */
-int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result);
+int8_t hmac_sha1_calc(const uint8_t *key, uint16_t key_len, const uint8_t *data, uint16_t data_len, uint8_t *result, uint8_t result_len);
 
 #endif /* HMAC_SHA1_ */

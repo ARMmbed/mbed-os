@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave extended advertising operation builder implementation file.
+ * \file
+ * \brief Link layer controller slave extended advertising operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -68,9 +69,9 @@ uint8_t lctrUnpackExtAdvHeader(lctrExtAdvHdr_t *pPdu, uint8_t *pNewFlags, const 
       BSTREAM_TO_BDA64(pPdu->tgtAddr, pBuf);
     }
 
-    if (extHdrFlags & LL_EXT_HDR_SUPP_INFO_BIT)
+    if (extHdrFlags & LL_EXT_HDR_CTE_INFO_BIT)
     {
-      /* Skip unsupported byte. */
+      /* Skip CTEInfo byte. */
       pBuf++;
     }
 
@@ -153,6 +154,7 @@ void lctrUnpackSyncInfo(lctrSyncInfo_t *pSyncInfo, const uint8_t *pBuf)
   BYTES_TO_UINT16(field16, pBuf);
   pSyncInfo->syncOffset   = (field16 >>  0) & 0x1FFF;
   pSyncInfo->offsetUnits  = (field16 >> 13) & 0x1;
+  pSyncInfo->offsetAdjust = (field16 >> 14) & 0x1;
   pBuf +=        2;
 
   BSTREAM_TO_UINT16(pSyncInfo->syncInter, pBuf);

@@ -26,6 +26,7 @@ from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
 from os import linesep, remove, makedirs
+from copy import copy
 from time import time
 from json import load, dump
 from jinja2 import FileSystemLoader
@@ -34,17 +35,18 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    copy_when_different)
+                    copy_when_different, NoValidToolchainException)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources, FileType, FileRef
+from .resources import Resources, FileType, FileRef, PsaManifestResourceFilter
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
-from .toolchains import TOOLCHAIN_CLASSES
+from .toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from .toolchains.arm import ARMC5_MIGRATION_WARNING
 from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
@@ -120,18 +122,76 @@ def add_result_to_report(report, result):
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
 
-def get_toolchain_name(target, toolchain_name):
+def get_valid_toolchain_names(target, toolchain_name):
+    """Return the list of toolchains with which a build should be attempted. This
+    list usually contains one element, however there may be multiple entries if
+    a toolchain is expected to fallback to different versions depending on the
+    environment configuration. If an invalid supported_toolchain configuration
+    is detected, an Exception will be raised.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
     if int(target.build_tools_metadata["version"]) > 0:
-        if toolchain_name == "ARM" or toolchain_name == "ARMC6" :
-            if("ARM" in target.supported_toolchains or "ARMC6" in target.supported_toolchains):
+        all_arm_toolchain_names = ["ARMC6", "ARMC5", "ARM"]
+        arm_st = set(target.supported_toolchains).intersection(
+            set(all_arm_toolchain_names)
+        )
+        if len(arm_st) > 1:
+            raise Exception(
+                "Targets may only specify one of the following in "
+                "supported_toolchains: {}\n"
+                "The following toolchains were present: {}".format(
+                    ", ".join(all_arm_toolchain_names),
+                    ", ".join(arm_st),
+                )
+            )
+        if toolchain_name == "ARM":
+            # The order matters here
+            all_arm_toolchain_names = ["ARMC6", "ARMC5"]
+            if "ARM" in target.supported_toolchains:
+                return all_arm_toolchain_names
+
+            result_list = []
+            for tc_name in all_arm_toolchain_names:
+                if tc_name in target.supported_toolchains:
+                    result_list.append(tc_name)
+            return result_list
+
+    return [toolchain_name]
+
+def get_toolchain_name(target, toolchain_name):
+    """Get the internal toolchain name given the toolchain_name provided by
+    the front-end scripts (usually by the -t/--toolchain argument) and the target
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+
+    Overview of what the current return values should be for the "ARM" family of
+    toolchains (since the behavior is fairly complex). Top row header represents
+    the argument "toolchain_name", Left column header represents the attribute
+    "supported_toolchains" of the "target" argument.
+
+    | supported_toolchains/toolchain_name |+| ARMC5 | ARMC6 | ARM    |
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    | ARMC5                               |+| ARM*  | ARMC6 | ARM    |
+    | ARMC6                               |+| ARM*  | ARMC6 | ARMC6* |
+    | ARM                                 |+| ARM*  | ARMC6 | ARMC6* |
+
+    * Denotes that the input "toolchain_name" changes in the return value
+    """
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name == "ARMC5":
+            return "ARM"
+        elif toolchain_name == "ARM":
+            if set(target.supported_toolchains).intersection(set(["ARMC6", "ARM"])):
                 return "ARMC6"
-            elif ("ARMC5" in target.supported_toolchains):
-                if toolchain_name == "ARM":
-                    return "ARM" #note that returning ARM here means, use ARMC5 toolchain
-                else:
-                    return "ARMC6" #ARMC6 explicitly specified by user, try ARMC6 anyway although the target doesnt explicitly specify ARMC6, as ARMC6 is our default ARM toolchain
         elif toolchain_name == "uARM":
-            if ("ARMC5" in target.supported_toolchains):
+            if "ARMC5" in target.supported_toolchains:
                 return "uARM" #use ARM_MICRO to use AC5+microlib
             else:
                 return "ARMC6" #use AC6+microlib
@@ -143,6 +203,51 @@ def get_toolchain_name(target, toolchain_name):
                 return "uARM"
 
     return toolchain_name
+
+def find_valid_toolchain(target, toolchain):
+    """Given a target and toolchain, get the names for the appropriate
+    toolchain to use. The environment is also checked to see if the corresponding
+    compiler is configured correctl. For the ARM compilers, there is an automatic
+    fallback behavior if "ARM" is the specified toolchain, if the latest compiler
+    (ARMC6) is not available, and the target supports building with both ARMC5
+    and ARMC6. In the case where the environment configuration triggers the fallback
+    to ARMC5, add a warning to the list that is returned in the results.
+
+    Returns:
+    toolchain_name - The name of the toolchain. When "ARM" is supplied as the
+    "toolchain", this be changed to either "ARMC5" or "ARMC6".
+    internal_tc_name - This corresponds to that name of the class that will be
+    used to actually complete the build. This is mostly used for accessing build
+    profiles and just general legacy sections within the code.
+    end_warnings - This is a list of warnings (strings) that were raised during
+    the process of finding toolchain. This is used to warn the user of the ARM
+    fallback mechanism mentioned above.
+
+    Positional arguments:
+    target - Target object (not the string name) of the device we are building for
+    toolchain_name - the string that identifies the build toolchain as supplied by
+    the front-end scripts
+    """
+    end_warnings = []
+    toolchain_names = get_valid_toolchain_names(target, toolchain)
+    last_error = None
+    for index, toolchain_name in enumerate(toolchain_names):
+        internal_tc_name = get_toolchain_name(target, toolchain_name)
+        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
+            end_warnings.append(ARMC5_MIGRATION_WARNING)
+        if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
+            search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
+            last_error = (
+                "Could not find executable for {}.\n"
+                "Currently set search path: {}"
+            ).format(toolchain_name, search_path)
+        else:
+            return toolchain_name, internal_tc_name, end_warnings
+    else:
+        if last_error:
+            e = NoValidToolchainException(last_error)
+            e.end_warnings = end_warnings
+            raise e
 
 def get_config(src_paths, target, toolchain_name=None, app_config=None):
     """Get the configuration object for a target-toolchain combination
@@ -261,12 +366,14 @@ def transform_release_toolchains(target, version):
     """
     if int(target.build_tools_metadata["version"]) > 0:
         if version == '5':
-            if 'ARMC5' in target.supported_toolchains:
-                return ['ARMC5', 'GCC_ARM', 'IAR']
-            else:    
-                return ['ARM', 'ARMC6', 'GCC_ARM', 'IAR']
-        else:
-            return target.supported_toolchains
+            toolchains = copy(target.supported_toolchains)
+
+            if "ARM" in toolchains:
+                toolchains.remove("ARM")
+                toolchains.extend(["ARMC5", "ARMC6"])
+
+            return toolchains
+        return target.supported_toolchains
     else:
         if version == '5':
             return ['ARM', 'GCC_ARM', 'IAR']
@@ -315,8 +422,8 @@ def target_supports_toolchain(target, toolchain_name):
             if(toolchain_name == "ARM"):
                 #we cant find ARM, see if one ARMC5, ARMC6 or uARM listed
                 return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
-            if(toolchain_name == "ARMC6"):
-                #we did not find ARMC6, but check for ARM is listed
+            if(toolchain_name == "ARMC6" or toolchain_name == "ARMC5"):
+                #we did not find ARMC6 or ARMC5, but check if ARM is listed
                 return "ARM" in target.supported_toolchains
         #return False in other cases
         return False
@@ -356,7 +463,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
-    
+
     if not target_supports_toolchain(target, toolchain_name):
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
@@ -364,11 +471,11 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     selected_toolchain_name = get_toolchain_name(target, toolchain_name)
 
-    #If a target supports ARMC6 and we want to build UARM with it, 
+    #If a target supports ARMC6 and we want to build UARM with it,
     #then set the default_toolchain to uARM to link AC6 microlib.
     if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
         target.default_toolchain = "uARM"
-    toolchain_name = selected_toolchain_name     
+    toolchain_name = selected_toolchain_name
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -404,7 +511,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
                   app_config=None, build_profile=None, stats_depth=None,
-                  ignore=None, spe_build=False):
+                  ignore=None, resource_filter=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -432,6 +539,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     build_profile - a dict of flags that will be passed to the compiler
     stats_depth - depth level for memap to display file/dirs
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
     """
     # Convert src_path to a list if needed
     if not isinstance(src_paths, list):
@@ -474,12 +582,13 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, inc_dirs=inc_dirs)
-        if spe_build:
-            resources.filter_spe()
+        resources.filter(resource_filter)
+
         # Change linker script if specified
         if linker_script is not None:
             resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
         if not resources.get_file_refs(FileType.LD_SCRIPT):
+            notify.info("No Linker Script found")
             raise NotSupportedException("No Linker Script found")
 
         # Compile Sources
@@ -492,10 +601,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if into_dir:
             copy_when_different(res[0], into_dir)
             if not extra_artifacts:
-                if (
-                    CORE_ARCH[toolchain.target.core] == 8 and
-                    not toolchain.target.core.endswith("NS")
-                ):
+                if toolchain.target.is_TrustZone_secure_target:
                     cmse_lib = join(dirname(res[0]), "cmse_lib.o")
                     copy_when_different(cmse_lib, into_dir)
             else:
@@ -556,7 +662,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None, ignore=None):
+                  build_profile=None, ignore=None, resource_filter=None):
     """ Build a library
 
     Positional arguments:
@@ -582,6 +688,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
     ignore - list of paths to add to mbedignore
+    resource_filter - can be used for filtering out resources after scan
     """
 
     # Convert src_path to a list if needed
@@ -607,6 +714,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
         build_profile=build_profile, ignore=ignore)
+    toolchain.version_check()
 
     # The first path will give the name to the library
     if name is None:
@@ -641,6 +749,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
     try:
         res = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
+        res.filter(resource_filter)
+        res.filter(PsaManifestResourceFilter())
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib
@@ -781,6 +891,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             src_paths, tmp_path, target, toolchain_name, macros=macros,
             notify=notify, build_profile=build_profile, jobs=jobs, clean=clean,
             ignore=ignore)
+        toolchain.version_check()
 
         notify.info("Building library %s (%s, %s)" %
                     (name.upper(), target.name, toolchain_name))
@@ -871,11 +982,10 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     selected_toolchain_name = get_toolchain_name(target, toolchain_name)
 
-    #If a target supports ARMC6 and we want to build UARM with it, 
+    #If a target supports ARMC6 and we want to build UARM with it,
     #then set the default_toolchain to uARM to link AC6 microlib.
     if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
         target.default_toolchain = "uARM"
-    toolchain_name = selected_toolchain_name
 
     if report is not None:
         start = time()
@@ -890,7 +1000,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
             prep_properties(
                 properties, target.name, toolchain_name, vendor_label)
 
-    if toolchain_name not in target.supported_toolchains:
+    if not target_supports_toolchain(target, toolchain_name):
         supported_toolchains_text = ", ".join(target.supported_toolchains)
         notify.info('The target {} does not support the toolchain {}'.format(
             target.name,
@@ -910,14 +1020,16 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     try:
         # Source and Build Paths
+
         build_toolchain = join(
-            MBED_LIBRARIES, mbed2_obj_path(target.name, toolchain_name))
+            MBED_LIBRARIES, mbed2_obj_path(target.name, selected_toolchain_name)
+        )
         mkdir(build_toolchain)
 
         tmp_path = join(
             MBED_LIBRARIES,
             '.temp',
-            mbed2_obj_path(target.name, toolchain_name)
+            mbed2_obj_path(target.name, selected_toolchain_name)
         )
         mkdir(tmp_path)
 
@@ -925,6 +1037,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         toolchain = prepare_toolchain(
             [""], tmp_path, target, toolchain_name, macros=macros, notify=notify,
             build_profile=build_profile, jobs=jobs, clean=clean, ignore=ignore)
+        toolchain.version_check()
 
         config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
@@ -1035,30 +1148,6 @@ def _lowercase_release_version(release_version):
     except AttributeError:
         return 'all'
 
-def mcu_toolchain_list(release_version='5'):
-    """  Shows list of toolchains
-
-    """
-    release_version = _lowercase_release_version(release_version)
-    version_release_targets = {}
-    version_release_target_names = {}
-
-    for version in RELEASE_VERSIONS:
-        version_release_targets[version] = get_mbed_official_release(version)
-        version_release_target_names[version] = [x[0] for x in
-                                                 version_release_targets[
-                                                     version]]
-
-    if release_version in RELEASE_VERSIONS:
-        release_targets = version_release_targets[release_version]
-    else:
-        release_targets = None
-
-    unique_supported_toolchains = get_unique_supported_toolchains(
-        release_targets)
-    columns = ["mbed OS %s" % x for x in RELEASE_VERSIONS] + unique_supported_toolchains
-    return "\n".join(columns)
-
 
 def mcu_target_list(release_version='5'):
     """  Shows target list
@@ -1118,10 +1207,10 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
     #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
-    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json 
+    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json
     #capture that info in a separate column
     unique_supported_toolchains.append('ARMC5')
-    
+
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
     # All tests status table print

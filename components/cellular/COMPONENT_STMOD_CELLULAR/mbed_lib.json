@@ -1,0 +1,69 @@
+{
+    "name": "stmod_cellular",
+    "config": {
+        "type": {
+            "help": "STMOD+ connected modem can be either STMOD_UG96 or STMOD_BG96",
+            "value": "STMOD_BG96"
+        },
+        "sim_selection": {
+            "help": "Module sim selection. 0 for plastic sim, 1 for esim.",
+            "value": 0
+        },
+        "mdmdtr": {
+            "help": "Modem's Data Terminal Ready. Usually not connected to STMOD+ connector. It needs to be set/overwritten otherwise",
+            "value": "NC"
+        },
+        "simsel0": {
+            "help": "Module sim select pin 0. By default connected to STMOD+ pin 18. It needs to be set/overwritten otherwise",
+            "value": "STMOD_18"
+        },
+        "simsel1": {
+            "help": "Module sim select pin 1. By default connected to STMOD+ pin 8. It needs to be set/overwritten otherwise",
+            "value": "STMOD_8"
+        },
+        "sim_reset": {
+            "help": "Module sim reset pin. Used for sim selection sequence. By default connected to STMOD+ pin 17. It needs to be set/overwritten otherwise",
+            "value": "STMOD_17"
+        },
+        "sim_clk": {
+            "help": "Module sim clock pin. Used for sim selection sequence. By default connected to STMOD+ pin 13. It needs to be set/overwritten otherwise",
+            "value": "STMOD_13"
+        },
+        "sim_data": {
+            "help": "Module sim data pin. Used for sim selection sequence. By default connected to STMOD+ pin 19. It needs to be set/overwritten otherwise",
+            "value": "STMOD_19"
+         },
+         "power": {
+            "help": "Modem's power key. By default connected to STMOD+ pin 9. It needs to be set/overwritten otherwise",
+            "value": "STMOD_9"
+        },
+        "reset": {
+            "help": "Modem's reset. By default connected to STMOD+ pin 12. It needs to be set/overwritten otherwise",
+            "value": "STMOD_12"
+        },
+        "tx": {
+            "help": "TX pin for serial connection. STMOD pin 2 is the default STMOD+ UART TX. It needs to be set/overwritten otherwise",
+            "value": "STMOD_2"
+        },
+        "rx": {
+            "help": "RX pin for serial connection. STMOD pin 3 is the default STMOD+ UART TX. It needs to be set/overwritten otherwise.",
+            "value": "STMOD_3"
+        },
+        "rts": {
+            "help": "RTS pin for serial connection. STMOD pin 4 is the default STMOD+ UART RTS. It needs to be set/overwritten otherwise.",
+            "value": "STMOD_4"
+        },
+        "cts": {
+            "help": "CTS pin for serial connection. STMOD pin 1 is the default STMOD+ UART RTS. It needs to be set/overwritten otherwise.",
+            "value": "STMOD_1"
+        },
+        "baudrate" : {
+            "help": "Serial connection baud rate",
+            "value": 115200
+        },
+        "provide-default": {
+            "help": "Provide as default CellularDevice [true/false]",
+            "value": false
+        }
+    }
+}

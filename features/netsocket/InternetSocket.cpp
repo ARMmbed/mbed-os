@@ -15,6 +15,7 @@
  */
 
 #include "InternetSocket.h"
+#include "platform/mbed_critical.h"
 #include "platform/Callback.h"
 
 using namespace mbed;

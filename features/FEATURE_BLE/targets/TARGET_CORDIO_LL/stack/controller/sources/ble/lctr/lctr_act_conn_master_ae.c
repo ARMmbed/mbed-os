@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ * \file
+ * \brief Link layer controller master connection state machine action routines.
  */
 /*************************************************************************************************/
 
@@ -52,10 +53,10 @@ static uint8_t lctrExtInitSetupConn(lctrExtScanCtx_t *pExtInitCtx, LlConnSpec_t 
   uint32_t interMaxUsec = LCTR_CONN_IND_US(pConnSpec->connIntervalMax);
   uint32_t durUsec = pCtx->localConnDurUsec;
 
-  if (!SchRmAdd(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, durUsec, &connInterUsec))
+  if (!SchRmAdd(LCTR_GET_CONN_HANDLE(pCtx), SCH_RM_PREF_PERFORMANCE, interMinUsec, interMaxUsec, durUsec, &connInterUsec, lctrGetConnRefTime))
   {
     lctrFreeConnCtx(pCtx);
-    return LL_ERROR_CODE_UNACCEPTABLE_CONN_INTERVAL;
+    return LL_ERROR_CODE_CONN_REJ_LIMITED_RESOURCES;
   }
 
   pExtInitCtx->data.init.connHandle = LCTR_GET_CONN_HANDLE(pCtx);

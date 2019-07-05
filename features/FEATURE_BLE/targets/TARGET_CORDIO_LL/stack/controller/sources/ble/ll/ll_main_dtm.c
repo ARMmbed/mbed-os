@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) DTM interface implementation file.
+ * \file
+ * \brief Link layer (LL) DTM interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -28,7 +29,7 @@
 #include "bb_api.h"
 #include "bb_ble_api.h"
 #include "bb_ble_api_op.h"
-#include "bb_ble_drv.h"
+#include "pal_bb_ble.h"
 #include "wsf_buf.h"
 #include "wsf_cs.h"
 #include "wsf_math.h"
@@ -272,7 +273,7 @@ static void llTestTxOpEndCback(BbOpDesc_t *pOp)
 
   llTestCb.rpt.numTx++;
 
-  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt == llTestCb.rpt.numTx))
+  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt <= llTestCb.rpt.numTx))
   {
     /* Auto terminate. */
     LlEndTest(NULL);
@@ -353,7 +354,7 @@ static bool_t llTestTxCb(BbOpDesc_t *pOp, uint8_t status)
   llTestCb.rpt.numTx++;
 
   /* All of the requested packets have been sent. */
-  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt == llTestCb.rpt.numTx))
+  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt <= llTestCb.rpt.numTx))
   {
     return FALSE;
   }
@@ -898,11 +899,16 @@ uint8_t LlEndTest(LlTestReport_t *pRpt)
     return LL_SUCCESS;
   }
 
-  if ((llTestCb.state == LL_TEST_STATE_TX) || (llTestCb.state == LL_TEST_STATE_RX))
+  if (llTestCb.state == LL_TEST_STATE_TX)
   {
     /* Signal termination. */
     llTestCb.state = LL_TEST_STATE_TERM;
+  }
+  else if (llTestCb.state == LL_TEST_STATE_RX)
+  {
+    /* Signal termination. */
     BbCancelBod();
+    llTestCb.state = LL_TEST_STATE_TERM;
   }
   else
   {

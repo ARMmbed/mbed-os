@@ -136,7 +136,7 @@ public:
      */
     ble_error_t read_multiple_characteristic_values_(
         connection_handle_t connection,
-        const ArrayView<const attribute_handle_t>& characteristic_handles
+        const Span<const attribute_handle_t>& characteristic_handles
     );
 
     /**
@@ -145,7 +145,7 @@ public:
     ble_error_t write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     );
 
     /**
@@ -154,7 +154,7 @@ public:
     ble_error_t signed_write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     );
 
     /**
@@ -163,7 +163,7 @@ public:
     ble_error_t write_attribute_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const Span<const uint8_t>& value
     );
 
     /**
@@ -172,7 +172,7 @@ public:
     ble_error_t queue_prepare_write_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const Span<const uint8_t>& value,
         uint16_t offset
     );
 

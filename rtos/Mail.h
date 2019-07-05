@@ -31,6 +31,7 @@
 #include "mbed_rtos_storage.h"
 #include "mbed_rtos1_types.h"
 
+#include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
@@ -90,30 +91,92 @@ public:
         return _queue.full();
     }
 
-    /** Allocate a memory block of type T.
+    /** Allocate a memory block of type T, without blocking.
      *
-     * @param   millisec  Not used.
+     * @param   millisec  Not used (see note).
      *
      * @return  Pointer to memory block that you can fill with mail or NULL in case error.
      *
      * @note You may call this function from ISR context.
+     * @note If blocking is required, use Mail::alloc_for or Mail::alloc_until
      */
-    T *alloc(uint32_t millisec = 0)
+    T *alloc(MBED_UNUSED uint32_t millisec = 0)
     {
         return _pool.alloc();
     }
 
-    /** Allocate a memory block of type T, and set memory block to zero.
+    /** Allocate a memory block of type T, optionally blocking.
      *
-     * @param   millisec  Not used.
+     * @param   millisec  Timeout value, or osWaitForever.
      *
      * @return  Pointer to memory block that you can fill with mail or NULL in case error.
      *
-     * @note You may call this function from ISR context.
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
-    T *calloc(uint32_t millisec = 0)
+    T *alloc_for(uint32_t millisec)
+    {
+        return _pool.alloc_for(millisec);
+    }
+
+    /** Allocate a memory block of type T, blocking.
+     *
+     * @param   millisec  Absolute timeout time, referenced to Kernel::get_ms_count().
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You cannot call this function from ISR context.
+     * @note the underlying RTOS may have a limit to the maximum wait time
+     *   due to internal 32-bit computations, but this is guaranteed to work if the
+     *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+     *   the wait will time out earlier than specified.
+     */
+    T *alloc_until(uint64_t millisec)
+    {
+        return _pool.alloc_until(millisec);
+    }
+
+    /** Allocate a memory block of type T, and set memory block to zero.
+     *
+     * @param   millisec  Not used (see note).
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     * @note If blocking is required, use Mail::calloc_for or Mail::calloc_until
+     */
+    T *calloc(MBED_UNUSED uint32_t millisec = 0)
     {
         return _pool.calloc();
+    }
+
+    /** Allocate a memory block of type T, optionally blocking, and set memory block to zero.
+     *
+     * @param   millisec  Timeout value, or osWaitForever.
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     */
+    T *calloc_for(uint32_t millisec)
+    {
+        return _pool.calloc_for(millisec);
+    }
+
+    /** Allocate a memory block of type T, blocking, and set memory block to zero.
+     *
+     * @param   millisec  Absolute timeout time, referenced to Kernel::get_ms_count().
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You cannot call this function from ISR context.
+     * @note the underlying RTOS may have a limit to the maximum wait time
+     *   due to internal 32-bit computations, but this is guaranteed to work if the
+     *   wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+     *   the wait will time out earlier than specified.
+     */
+    T *calloc_until(uint64_t millisec)
+    {
+        return _pool.calloc_until(millisec);
     }
 
     /** Put a mail in the queue.

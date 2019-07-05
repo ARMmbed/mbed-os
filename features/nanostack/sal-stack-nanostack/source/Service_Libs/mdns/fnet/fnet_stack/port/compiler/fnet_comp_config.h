@@ -1,5 +1,6 @@
 /**************************************************************************
 *
+* Copyright (c) 2019 Arm Limited and affiliates.
 * Copyright 2011-2016 by Andrey Butok. FNET Community.
 * Copyright 2008-2010 by Andrey Butok. Freescale Semiconductor, Inc.
 *
@@ -40,7 +41,8 @@
  *           Current version of the FNET supports the following compiler definitions:
  *            - @c FNET_CFG_COMP_IAR = Used compiler is IAR.
  *            - @c FNET_CFG_COMP_GNUC = Used compiler is GCC.
- *            - @c FNET_CFG_COMP_UV  = Used compiler is Keil uVision.
+ *            - @c FNET_CFG_COMP_CLANG = Used compiler is Keil uVision with Clang.
+ *            - @c FNET_CFG_COMP_UV  = Used compiler is Keil uVision with armcc.
  *            - @c FNET_CFG_COMP_GHS = Used compiler is Green Hills.
  *            - @c FNET_CFG_COMP_DCC = Used compiler is Diab.
  *            - @c FNET_CFG_COMP_CW  = Used compiler is CodeWarrior.
@@ -61,7 +63,10 @@
     /* GHS compiler. */
 #elif (defined(FNET_CFG_COMP_GHS) && FNET_CFG_COMP_GHS)
     #define FNET_COMP_STR       "GHS"
-    /* Keil uVision compiler. */
+    /* Keil uVision compiler with armclang. */
+#elif (defined(FNET_CFG_COMP_CLANG) && FNET_CFG_COMP_CLANG)
+    #define FNET_COMP_STR       "CLANG"
+    /* Keil uVision compiler with armcc. */
 #elif (defined(FNET_CFG_COMP_UV) && FNET_CFG_COMP_UV)
     #define FNET_COMP_STR       "UV"
     /* GNU GCC */
@@ -85,7 +90,11 @@
     #elif defined(__ghs__)
         #define FNET_CFG_COMP_GHS   (1)
         #define FNET_COMP_STR       "GHS"
-        /* Keil uVision compiler. */
+        /* Keil uVision compiler using Clang. */
+    #elif defined(__clang__)
+        #define FNET_CFG_COMP_CLANG (1)
+        #define FNET_COMP_STR       "CLANG"
+        /* Keil uVision compiler using armcc. */
     #elif defined(__CC_ARM)
         #define FNET_CFG_COMP_UV    (1)
         #define FNET_COMP_STR       "UV"
@@ -108,6 +117,9 @@
 #endif
 #ifndef FNET_CFG_COMP_CW
     #define FNET_CFG_COMP_CW    (0)
+#endif
+#ifndef FNET_CFG_COMP_CLANG
+    #define FNET_CFG_COMP_CLANG (0)
 #endif
 #ifndef FNET_CFG_COMP_UV
     #define FNET_CFG_COMP_UV    (0)

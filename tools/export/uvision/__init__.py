@@ -2,16 +2,17 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import normpath, exists, dirname
+from os.path import normpath, exists, dirname, join, abspath, relpath
 import ntpath
 import copy
 from collections import namedtuple
 import shutil
 from subprocess import Popen, PIPE
 import re
+import json
 
 from tools.resources import FileType
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, CORE_ARCH
 from tools.export.exporters import Exporter
 from tools.export.cmsis import DeviceCMSIS
 
@@ -93,7 +94,7 @@ class DeviceUvision(DeviceCMSIS):
             if not info["default"]:
                 continue
             name = info['file_name']
-            name_reg = "\w*/([\w_]+)\.flm"
+            name_reg = "\w*[/\\\\]([\w_]+)\.flm"
             m = re.search(name_reg, name.lower())
             fl_name = m.group(1) if m else None
             name_flag = "-FF" + str(fl_count) + fl_name
@@ -182,7 +183,7 @@ class Uvision(Exporter):
             flags['c_flags'] + flags['cxx_flags'] + flags['common_flags']
         )
         in_template = set(
-            ["--no_vla", "--cpp", "--c99", "-MMD"] + config_option
+            ["--no_vla", "--cpp", "--cpp11", "--c99", "-MMD"] + config_option
         )
 
         def valid_flag(x):
@@ -217,9 +218,12 @@ class Uvision(Exporter):
     @staticmethod
     def format_fpu(core):
         """Generate a core's FPU string"""
-        if core.endswith("FD"):
+        fpu_core_name = core.replace("-NS", "").rstrip("E")
+        if fpu_core_name.endswith("FD"):
             return "FPU3(DFPU)"
-        elif core.endswith("F"):
+        elif fpu_core_name.endswith("F"):
+            if CORE_ARCH[core] == 8:
+                return "FPU3(SFPU)"
             return "FPU2"
         else:
             return ""
@@ -240,23 +244,78 @@ class Uvision(Exporter):
             'include_paths': ';'.join(self.filter_dot(d) for d in
                                       self.resources.inc_dirs),
             'device': DeviceUvision(self.target),
+            'postbuild_step_active': 0,
         }
-        sct_name, sct_path = self.resources.get_file_refs(
-            FileType.LD_SCRIPT)[0]
-        ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
-            sct_path, dirname(sct_name))
-        if ctx['linker_script'] != sct_path:
-            self.generated_files.append(ctx['linker_script'])
-        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
-        if ctx['device'].core.endswith("FD"):
+
+        if self.toolchain.config.has_regions and not self.zip:
+            # Serialize region information
+            export_info = {}
+            restrict_size = getattr(self.toolchain.config.target, "restrict_size")
+            if restrict_size:
+                export_info["target"] = {
+                    "restrict_size": restrict_size
+                }
+
+            binary_path = "BUILD/{}.hex".format(self.project_name)
+            region_list = list(self.toolchain.config.regions)
+            export_info["region_list"] = [
+                r._replace(filename=binary_path) if r.active else r for r in region_list
+            ]
+            # Enable the post build step
+            postbuild_script_path = join(relpath(dirname(__file__)), "postbuild.py")
+            ctx['postbuild_step'] = (
+                'python {} "$K\\" "#L"'.format(postbuild_script_path)
+            )
+            ctx['postbuild_step_active'] = 1
+            ctx['export_info'] = json.dumps(export_info, indent=4)
+
+        sct_file_ref = self.resources.get_file_refs(FileType.LD_SCRIPT)[0]
+        sct_file_ref = self.toolchain.correct_scatter_shebang(
+            sct_file_ref, dirname(sct_file_ref.name)
+        )
+        self.resources.add_file_ref(
+            FileType.LD_SCRIPT, sct_file_ref.name, sct_file_ref.path
+        )
+        ctx['linker_script'] = sct_file_ref.name
+        fpu_included_core_name = ctx['device'].core.replace("-NS", "")
+        ctx['cputype'] = fpu_included_core_name.rstrip("FDE")
+        if fpu_included_core_name.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif ctx['device'].core.endswith("F"):
+        elif fpu_included_core_name.rstrip("E").endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
         ctx['fputype'] = self.format_fpu(ctx['device'].core)
         ctx['armc6'] = int(self.TOOLCHAIN is 'ARMC6')
         ctx['toolchain_name'] = self.TOOLCHAIN_NAME
+
+        std = [flag for flag in self.flags['c_flags'] if flag.startswith("-std=")]
+        if len(std) >= 1:
+            std = std[-1][len('-std='):]
+        else:
+            std = None
+        c_std = {
+            'c89': 1, 'gnu89': 2,
+            'c90': 1, 'gnu90': 2,
+            'c99': 3, 'gnu99': 4,
+            'c11': 5, 'gnu11': 6,
+        }
+        ctx['v6_lang'] = c_std.get(std, 0)
+
+        std = [flag for flag in self.flags['cxx_flags'] if flag.startswith("-std=")]
+        if len(std) >= 1:
+            std = std[-1][len('-std='):]
+        else:
+            std = None
+        cpp_std = {
+            'c++98': 1, 'gnu++98': 2,
+            'c++03': 5, 'gnu++03': 2, # UVision 5.27.1.0 does not support gnu++03 - fall back to gnu++98
+            'c++11': 3, 'gnu++11': 4,
+            'c++14': 6, 'gnu++14': 4, # UVision 5.27.1.0 does not support gnu++14 - should be able to get it as compiler default, but that doesn't work as documented and requests gnu++98. So fall back to gnu++11
+            'c++17': 6, 'gnu++17': 4, # UVision 5.27.1.0 does not support c++17/gnu++17 - fall back to c++14/gnu++11
+        }
+        ctx['v6_lang_p'] = cpp_std.get(std, 0)
+
         ctx.update(self.format_flags())
         self.gen_file(
             'uvision/uvision.tmpl', ctx, self.project_name + ".uvprojx"
@@ -265,10 +324,29 @@ class Uvision(Exporter):
             'uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx"
         )
 
+        if ctx['postbuild_step_active']:
+            self.gen_file(
+                'uvision/debug_init.ini', ctx, 'debug_init.ini'
+            )
+            self.gen_file(
+                'uvision/flash_init.ini', ctx, 'flash_init.ini'
+            )
+            self.gen_file(
+                'uvision/export_info.tmpl', ctx, 'export_info.json'
+            )
+
     @staticmethod
     def clean(project_name):
         os.remove(project_name + ".uvprojx")
         os.remove(project_name + ".uvoptx")
+
+        if exists("export_info.json"):
+            os.remove("export_info.json")
+        if exists("debug_init.ini"):
+            os.remove("debug_init.ini")
+        if exists("flash_init.ini"):
+            os.remove("flash_init.ini")
+
         # legacy .build directory cleaned if exists
         if exists('.build'):
             shutil.rmtree('.build')

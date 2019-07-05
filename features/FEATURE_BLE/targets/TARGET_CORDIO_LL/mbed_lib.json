@@ -1,0 +1,55 @@
+{
+    "name": "cordio-ll",
+    "config": {
+        "max-advertising-sets": {
+            "help": "Maximum number of advertising sets.",
+            "value": 3
+        },
+        "max-advertising-reports": {
+            "help": "Maximum number of pending legacy or extended advertising reports.",
+            "value": 4
+        },
+        "default-extended-advertising-fragmentation-size": {
+            "help": "Default extended advertising data fragmentation size.",
+            "value": 64
+        },
+        "max-scan-request-events": {
+            "help": "Maximum scan request received events.",
+            "value": 4
+        },
+        "phy-2m-support": {
+            "help": "2M PHY supported.",
+            "value": 1
+        },
+        "rx-buffers": {
+            "help": "Default number of receive buffers.",
+            "value": 4
+        },
+        "phy-coded-support": {
+            "help": "Coded PHY supported.",
+            "value": 0
+        },
+        "extended-advertising-size": {
+            "help": "Maximum extended advertising data (and scan data response) size, Minimum value is 251",
+            "value": 251
+        },
+        "max-acl-size": {
+            "help": "Maximum ACL buffer size",
+            "value": 256
+        },
+        "tx-buffers": {
+            "help": "Default number of send buffers",
+            "value": 4
+        },
+        "handle-vendor-specific-hci-commands": {
+            "help": "Handle VS HCI commands. Valid values are 0 (ignore) and 1 (handle).",
+            "value": 0,
+            "macro_name": "LHCI_ENABLE_VS"
+        },
+        "uart-hci": {
+            "help": "Does the board have a UART HCI. Valid values are 0 and 1 (must provide UART through PAL).",
+            "value": 0,
+            "macro_name": "CHCI_TR_UART"
+        }
+    }
+}

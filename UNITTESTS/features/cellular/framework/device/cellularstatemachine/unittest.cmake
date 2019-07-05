@@ -14,7 +14,6 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../features/cellular/framework/device/CellularStateMachine.cpp
-  ../features/cellular/framework/AT/ATHandler_factory.cpp
 )
 
 # Test files
@@ -38,6 +37,7 @@ set(unittest-test-sources
   stubs/Mutex_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/equeue_stub.c
+  stubs/CellularContext_stub.cpp
 )
 
 # defines

@@ -14,6 +14,7 @@
   #define MBED_BOOT_STACK_SIZE      0x400
 #endif
 
+M_CRASH_DATA_RAM_SIZE = 0x100;
 StackSize = MBED_BOOT_STACK_SIZE;
 
 MEMORY
@@ -132,7 +133,19 @@ SECTIONS
         . += __vector_size;
         PROVIDE(__end_vector_table__ = .);
     } > RAM_INTERN
-    
+
+    .crash_data_ram :
+    {
+        . = ALIGN(8);
+        __CRASH_DATA_RAM__ = .;
+        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+        KEEP(*(.keep.crash_data_ram))
+        *(.m_crash_data_ram)     /* This is a user defined section */
+        . += M_CRASH_DATA_RAM_SIZE;
+        . = ALIGN(8);
+        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > RAM_INTERN
+
     .data :
     {
         PROVIDE( __etext = LOADADDR(.data) );

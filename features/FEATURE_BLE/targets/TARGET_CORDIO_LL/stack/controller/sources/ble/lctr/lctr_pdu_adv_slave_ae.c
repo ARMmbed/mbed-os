@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave extended advertising operation builder implementation file.
+ * \file
+ * \brief Link layer controller slave extended advertising operation builder implementation file.
  */
 /*************************************************************************************************/
 
@@ -27,15 +28,13 @@
 #include "sch_api_ble.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
+#include "pal_radio.h"
 #include "util/bstream.h"
 #include <string.h>
 
 /**************************************************************************************************
   Constants
 **************************************************************************************************/
-
-/*! \brief      Maximum value for 30usec offset unit. */
-#define LCTR_30_USEC_OFFS_MAX_USEC      245730
 
 /*! \brief      Assert minimum advertising payload length can contain a legacy length payload. */
 WSF_CT_ASSERT(BB_ADV_PLD_MAX_LEN > (LL_EXT_ADV_HDR_MAX_LEN + LL_ADVBU_MAX_LEN));
@@ -53,6 +52,7 @@ WSF_CT_ASSERT(BB_ADV_PLD_MAX_LEN > (LL_EXT_ADV_HDR_MAX_LEN + LL_ADVBU_MAX_LEN));
 static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
 {
   uint8_t offsUnits;
+  uint8_t offsAdjust = 0;
   uint16_t offs;
   uint32_t offsUsec, tempDue;
   BbOpDesc_t *pAuxOp = &pAdvSet->auxAdvBod;
@@ -73,23 +73,31 @@ static void lctrPackSyncInfo(lctrAdvSet_t *pAdvSet, uint8_t *pSyncInfo)
     tempDue += pAdvSet->perParam.perAdvInter;
   }
 
-  if (offsUsec <= LCTR_30_USEC_OFFS_MAX_USEC)
+  if (offsUsec < LL_30_USEC_OFFS_MAX_USEC)
   {
     offsUnits = LCTR_OFFS_UNITS_30_USEC;
     offs = LL_MATH_DIV_30(offsUsec);
   }
   else
   {
+    if (offsUsec >= LL_SYNC_OFFS_ADJUST_USEC)
+    {
+      offsAdjust = 1;
+      offsUsec -= LL_SYNC_OFFS_ADJUST_USEC;
+    }
+
     offsUnits = LCTR_OFFS_UNITS_300_USEC;
     offs = LL_MATH_DIV_300(offsUsec);
   }
 
   UINT16_TO_BUF(pSyncInfo, offs |                                   /* Sync packet offset. */
-                           (offsUnits << 13));                      /* Offset units. */
+                           (offsUnits << 13) |                      /* Offset units. */
+                           (offsAdjust << 14));                     /* Offset adjust. */
   UINT16_TO_BUF(&pSyncInfo[2],                                      /* Interval. */
                 LCTR_PER_INTER_TO_MS(BB_TICKS_TO_US(pAdvSet->perParam.perAdvInter)));
-  uint64_t temp = (LL_CHAN_DATA_ALL |                               /* All secondary channels are used. */
-                  ((uint64_t)lctrComputeSca() << 37));              /* SCA. */
+  uint64_t temp =
+     ((pAdvSet->perParam.perChanParam.chanMask & LL_CHAN_DATA_ALL) |/* Channel Map. */
+     ((uint64_t)lctrComputeSca() << 37));                           /* SCA. */
   UINT40_TO_BUF(&pSyncInfo[4], temp);
   UINT32_TO_BUF(&pSyncInfo[9], pBle->chan.accAddr);                 /* Access address. */
   UINT24_TO_BUF(&pSyncInfo[13], pBle->chan.crcInit);                /* CRCInit. */
@@ -122,6 +130,15 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
   uint8_t *pAuxPtr = NULL;
 
   uint8_t *pBuf = pPduBuf + LL_ADV_HDR_LEN + LCTR_EXT_HDR_CMN_LEN + LCTR_EXT_HDR_FLAG_LEN;
+
+  /* Check if we need to look for Acads to pack later. */
+  /* Future Acad may include PDUS:
+   * AUX_ADV_IND, AUX_SYNC_IND, AUX_SCAN_RSP */
+  bool_t acadNeeded = FALSE;
+  if (commExtAdvPdu == LCTR_PDU_AUX_SYNC_IND)
+  {
+    acadNeeded = TRUE;
+  }
 
   /* Determine the superior PDU. */
   if (commExtAdvPdu == LCTR_PDU_AUX_CHAIN_IND)
@@ -175,7 +192,7 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
   {
     /* Pack AdvDataInfo */
     extHdrFlags |= LL_EXT_HDR_ADI_BIT;
-    UINT16_TO_BSTREAM(pBuf, (pAdvSet->param.advSID << 12) | ((pAdvSet->advData.did & 0x0FFF) << 0));
+    UINT16_TO_BSTREAM(pBuf, (pAdvSet->param.advSID << 12) | ((pAdvSet->param.advDID & 0x0FFF) << 0));
 
 #if (LL_ENABLE_TESTER == TRUE)
     if ((llTesterCb.extHdr.pduMatchMask & (1 << pPduHdr->pduType)) &&
@@ -193,7 +210,7 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
   {
     syncInfoNeeded = TRUE;
     /* Reserve packet space now, pack later. */
-    availDataLen -= LCTR_SYNC_INFO_LEN;
+    availDataLen -= LL_SYNC_INFO_LEN;
   }
 
   bool_t txPwrNeeded = FALSE;
@@ -207,11 +224,12 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
     availDataLen -= LCTR_TX_POWER_LEN;
   }
 
-  unsigned int remDataLen = 0;
+  uint16_t remDataLen = 0;
   if (pDataBuf)
   {
     remDataLen = pDataBuf->len - pDataBuf->txOffs;
-    if (pDataBuf->fragPref == LL_ADV_DATA_FRAG_ALLOW)
+    if ((optExtHdrFlags & LL_EXT_HDR_AUX_PTR_BIT) &&  /* Allow fragmentation only if AUX_CHAIN_IND is allowed. */
+        (pDataBuf->fragPref == LL_ADV_DATA_FRAG_ALLOW))
     {
       /* Adjust to fragment size. */
       availDataLen = WSF_MIN(pAdvSet->advDataFragLen, availDataLen);
@@ -235,14 +253,14 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
     extHdrFlags |= LL_EXT_HDR_SYNC_INFO_BIT;
     uint8_t *pSyncInfo = pBuf;
     lctrPackSyncInfo(pAdvSet, pSyncInfo);
-    pBuf += LCTR_SYNC_INFO_LEN;
+    pBuf += LL_SYNC_INFO_LEN;
   }
 
   if (txPwrNeeded)
   {
     /* Pack TxPower */
     extHdrFlags |= LL_EXT_HDR_TX_PWR_BIT;
-    int8_t actTxPwr = BbBleRfGetActualTxPower(pAdvSet->bleData.chan.txPower, TRUE);
+    int8_t actTxPwr = PalRadioGetActualTxPower(pAdvSet->bleData.chan.txPower, TRUE);
 #if (LL_ENABLE_TESTER == TRUE)
     if ((llTesterCb.extHdr.pduMatchMask & (1 << pPduHdr->pduType)) &&
         (llTesterCb.extHdr.modifyMask & LL_EXT_HDR_TX_PWR_BIT))
@@ -251,6 +269,18 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
     }
 #endif
     UINT8_TO_BSTREAM(pBuf, (uint8_t)actTxPwr);
+  }
+
+  /* Pack Acad. */
+  if (acadNeeded)
+  {
+    for (uint8_t acadId = 0; acadId < LCTR_ACAD_NUM_ID; acadId++)
+    {
+      if (pAdvSet->acadParams[acadId].hdr.state != LCTR_ACAD_STATE_DISABLED)
+      {
+        pBuf = lctrPackAcad(pAdvSet, commExtAdvPdu, pBuf, &remDataLen, acadId);
+      }
+    }
   }
 
   uint8_t advDataLen = 0;
@@ -299,6 +329,9 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
         WSF_MAX(pAdvSet->auxDelayUsec, pLctrRtCfg->auxDelayUsec);
         pAdvSet->auxOffsUsec = WSF_MIN(pAdvSet->auxOffsUsec, LL_AUX_PTR_MAX_USEC);
 
+        /* Round up auxOffsetUsec if necessary. */
+        pAdvSet->auxOffsUsec = SchBleGetAlignedAuxOffsUsec(pAdvSet->auxOffsUsec);
+
         lctrPackAuxPtr(pAdvSet, pAdvSet->auxOffsUsec, pAdvSet->auxChIdx, pAuxPtr);
       }
       break;
@@ -315,6 +348,9 @@ static uint8_t lctrPackExtAdvHeader(lctrAdvSet_t *pAdvSet, uint8_t manExtHdrFlag
         pAdvSet->auxOffsUsec = SchBleCalcAuxPktDurationUsec(pBle->chan.txPhy, (pBle->chan.tifsTxPhyOptions != BB_PHY_OPTIONS_DEFAULT) ? pBle->chan.tifsTxPhyOptions : pBle->op.slvAuxAdv.auxRxPhyOptions, LL_ADV_HDR_LEN + pPduHdr->len) +
                                WSF_MAX(pAdvSet->auxDelayUsec, pLctrRtCfg->auxDelayUsec);
         pAdvSet->auxOffsUsec = WSF_MIN(pAdvSet->auxOffsUsec, LL_AUX_PTR_MAX_USEC);
+
+        /* Round up auxOffsetUsec if necessary. */
+        pAdvSet->auxOffsUsec = SchBleGetAlignedAuxOffsUsec(pAdvSet->auxOffsUsec);
 
         lctrPackAuxPtr(pAdvSet, pAdvSet->auxOffsUsec, pAdvSet->auxChIdx, pAuxPtr);
       }
@@ -377,7 +413,7 @@ uint8_t lctrPackAdvExtIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t isP
                        ((pAdvSet->advData.len == 0) ? LL_EXT_HDR_TX_PWR_BIT : 0);
 
       /* Pack aux pointer and ADI if periodic advertising is enabled. */
-      if (pAdvSet->perParam.perAdvEnabled == TRUE)
+      if ((pAdvSet->perParam.perAdvEnabled == TRUE) && (pAdvSet->didPerUpdate == FALSE))
       {
         manExtHdrFlags |= LL_EXT_HDR_ADI_BIT;
         manExtHdrFlags |= LL_EXT_HDR_AUX_PTR_BIT;
@@ -387,6 +423,14 @@ uint8_t lctrPackAdvExtIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t isP
       {
         /* Advertising address is mandatory if auxiliary pointer is NULL. */
         manExtHdrFlags |= LL_EXT_HDR_ADV_ADDR_BIT;
+      }
+      else
+      {
+        /* Make AdvA included in AUX_ADV_IND instead of ADV_EXT_IND. */
+        if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA) == TRUE)
+        {
+          optExtHdrFlags &= ~LL_EXT_HDR_ADV_ADDR_BIT;
+        }
       }
       break;
 
@@ -398,7 +442,7 @@ uint8_t lctrPackAdvExtIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t isP
                        ((pAdvSet->param.priAdvPhy == LL_PHY_LE_1M) ? LL_EXT_HDR_TX_PWR_BIT : 0) |
                        ((pAdvSet->advData.len == 0) ? LL_EXT_HDR_TX_PWR_BIT : 0);
       /* Pack aux pointer and ADI if periodic advertising is enabled. */
-      if (pAdvSet->perParam.perAdvEnabled == TRUE)
+      if ((pAdvSet->perParam.perAdvEnabled == TRUE) && (pAdvSet->didPerUpdate == FALSE))
       {
         manExtHdrFlags |= LL_EXT_HDR_ADI_BIT;
         manExtHdrFlags |= LL_EXT_HDR_AUX_PTR_BIT;
@@ -409,6 +453,14 @@ uint8_t lctrPackAdvExtIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t isP
         /* Advertising address and target address are mandatory if auxiliary pointer is NULL. */
         manExtHdrFlags |= LL_EXT_HDR_ADV_ADDR_BIT;
         manExtHdrFlags |= LL_EXT_HDR_TGT_ADDR_BIT;
+      }
+      else
+      {
+        /* Make AdvA included in AUX_ADV_IND instead of ADV_EXT_IND. */
+        if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_SLV_AUX_IND_ADVA) == TRUE)
+        {
+          optExtHdrFlags &= ~LL_EXT_HDR_ADV_ADDR_BIT;
+        }
       }
       break;
 
@@ -431,6 +483,12 @@ uint8_t lctrPackAdvExtIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t isP
     default:
       manExtHdrFlags = 0;
       break;
+  }
+
+  if (manExtHdrFlags & LL_EXT_HDR_AUX_PTR_BIT)
+  {
+    /* No need to include TxPower when auxiliary packet has this field. */
+    optExtHdrFlags &= ~LL_EXT_HDR_TX_PWR_BIT;
   }
 
   /*** Host allowed options ***/
@@ -482,8 +540,9 @@ uint8_t lctrPackAuxAdvIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDat
                        LL_EXT_HDR_AUX_PTR_BIT |
                        LL_EXT_HDR_TX_PWR_BIT;
       /* Pack aux pointer if periodic adv is enabled. */
-      if (pAdvSet->perParam.perAdvEnabled == TRUE)
+      if ((pAdvSet->perParam.perAdvEnabled == TRUE) && (pAdvSet->didPerUpdate == FALSE))
       {
+        /* For synchronization, sync info is applied only after Data ID is updated in ext adv and aux adv is updated. */
         optExtHdrFlags |= LL_EXT_HDR_SYNC_INFO_BIT;
       }
       break;
@@ -494,7 +553,7 @@ uint8_t lctrPackAuxAdvIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDat
                        LL_EXT_HDR_AUX_PTR_BIT |
                        LL_EXT_HDR_TX_PWR_BIT;
       /* Pack aux pointer if periodic adv is enabled. */
-      if (pAdvSet->perParam.perAdvEnabled == TRUE)
+      if ((pAdvSet->perParam.perAdvEnabled == TRUE) && (pAdvSet->didPerUpdate == FALSE))
       {
         optExtHdrFlags |= LL_EXT_HDR_SYNC_INFO_BIT;
       }
@@ -563,7 +622,8 @@ uint8_t lctrPackAuxScanRspPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, bool_t is
 
   /*** Specification defined behavior ***/
 
-  uint8_t manExtHdrFlags = LL_EXT_HDR_ADV_ADDR_BIT;
+  uint8_t manExtHdrFlags = LL_EXT_HDR_ADV_ADDR_BIT |
+                           (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_SLV_AUX_SCAN_RSP_ADI) ? LL_EXT_HDR_ADI_BIT : 0);
   uint8_t optExtHdrFlags = LL_EXT_HDR_AUX_PTR_BIT |
                            LL_EXT_HDR_TX_PWR_BIT;
 
@@ -596,8 +656,13 @@ uint8_t lctrPackAuxChainIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvD
   /*** Specification defined behavior ***/
 
   uint8_t manExtHdrFlags = LL_EXT_HDR_ADI_BIT;
-  uint8_t optExtHdrFlags = LL_EXT_HDR_AUX_PTR_BIT |
-                           LL_ADV_EVT_PROP_TX_PWR_BIT;
+  uint8_t optExtHdrFlags = LL_EXT_HDR_AUX_PTR_BIT;
+
+  /* AUX_CHAIN_IND following AUX_SYNC_IND or AUX_SCAN_RSP should not have ADI field. */
+  if (isPeriodic || (pAdvSet->param.advEventProp & LL_ADV_EVT_PROP_SCAN_ADV_BIT))
+  {
+    manExtHdrFlags &= ~LL_EXT_HDR_ADI_BIT;
+  }
 
   return lctrPackExtAdvHeader(pAdvSet, manExtHdrFlags, optExtHdrFlags,
                               0, &pduHdr, pAdvData,
@@ -652,7 +717,7 @@ void lctrPackAuxPtr(lctrAdvSet_t const *pAdvSet, uint32_t offsUsec, uint8_t chId
   uint8_t offsUnits;
   uint16_t auxOffset;
 
-  if (offsUsec <= LCTR_30_USEC_OFFS_MAX_USEC)
+  if (offsUsec < LL_30_USEC_OFFS_MAX_USEC)
   {
     offsUnits = LCTR_OFFS_UNITS_30_USEC;
     auxOffset = LL_MATH_DIV_30(offsUsec);
@@ -856,4 +921,48 @@ uint8_t lctrPackSyncIndPdu(lctrAdvSet_t *pAdvSet, uint8_t *pPduBuf, lctrAdvDataB
   return lctrPackExtAdvHeader(pAdvSet, manExtHdrFlags, optExtHdrFlags,
                               0, &pduHdr, pAdvData,
                               pPduBuf, LCTR_PDU_AUX_SYNC_IND, isPeriodic);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Pack acad field
+ *
+ *  \param      pAdvSet         Advertising set.
+ *  \param      commExtAdvPdu   Common ext adv pdu.
+ *  \param      pBuf            Packed data buffer.
+ *  \param      pRemLen         Remaining length of ext adv header.
+ *  \param      acadId          Acad Id.
+ *
+ *  \return     Modified pBuf.
+ */
+/*************************************************************************************************/
+uint8_t* lctrPackAcad(lctrAdvSet_t *pAdvSet, uint8_t commExtAdvPdu, uint8_t *pBuf, uint16_t *pRemLen, uint8_t acadId)
+{
+  switch(acadId)
+  {
+    case LCTR_ACAD_ID_CHAN_MAP_UPDATE:
+      {
+        uint8_t len = LL_ACAD_LEN_FIELD_LEN + LL_ACAD_UPDATE_CHANNEL_MAP_LEN;
+
+        if ((commExtAdvPdu != LCTR_PDU_AUX_SYNC_IND) ||
+            (len > *pRemLen))
+        {
+          return pBuf;
+        }
+
+        lctrAcadChanMapUpd_t *pData = &pAdvSet->acadParams[acadId].chanMapUpdate;
+
+        /* Pack Acad */
+        *pRemLen -= len;
+        UINT8_TO_BSTREAM(pBuf, LL_ACAD_UPDATE_CHANNEL_MAP_LEN);
+        UINT8_TO_BSTREAM(pBuf, LL_ACAD_OPCODE_CHANNEL_MAP_UPDATE);
+
+        UINT40_TO_BSTREAM(pBuf, pData->chanMask);
+        UINT16_TO_BSTREAM(pBuf, pData->instant);
+        return pBuf;
+      }
+
+    default:
+      return pBuf;
+  }
 }

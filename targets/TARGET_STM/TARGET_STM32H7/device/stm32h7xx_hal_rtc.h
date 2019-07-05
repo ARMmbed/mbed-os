@@ -27,7 +27,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal_def.h"
-#include "stm32h7xx_ll_rtc.h" // MBED PATCH
 
 /** @addtogroup STM32H7xx_HAL_Driver
   * @{
@@ -618,6 +617,32 @@ typedef  void (*pRTC_CallbackTypeDef)(RTC_HandleTypeDef * hrtc); /*!< pointer to
   */
 #define __HAL_RTC_ALARM_EXTI_DISABLE_EVENT()         (EXTI_D1->EMR1 &= ~(RTC_EXTI_LINE_ALARM_EVENT))
 
+#if defined(DUAL_CORE)
+/**
+  * @brief  Enable interrupt on the RTC Alarm associated D2 Exti line.
+  * @retval None
+  */
+#define __HAL_RTC_ALARM_EXTID2_ENABLE_IT()          (EXTI_D2->IMR1 |= RTC_EXTI_LINE_ALARM_EVENT)
+
+/**
+  * @brief  Disable interrupt on the RTC Alarm associated D2 Exti line.
+  * @retval None
+  */
+#define __HAL_RTC_ALARM_EXTID2_DISABLE_IT()         (EXTI_D2->IMR1 &= ~(RTC_EXTI_LINE_ALARM_EVENT))
+
+/**
+  * @brief  Enable event on the RTC Alarm associated D2 Exti line.
+  * @retval None
+  */
+#define __HAL_RTC_ALARM_EXTID2_ENABLE_EVENT()        (EXTI_D2->EMR1 |= RTC_EXTI_LINE_ALARM_EVENT)
+
+/**
+  * @brief  Disable event on the RTC Alarm associated D2 Exti line.
+  * @retval None
+  */
+#define __HAL_RTC_ALARM_EXTID2_DISABLE_EVENT()       (EXTI_D2->EMR1 &= ~(RTC_EXTI_LINE_ALARM_EVENT))
+
+#endif
 /**
   * @brief  Enable falling edge trigger on the RTC Alarm associated Exti line.
   * @retval None
@@ -670,6 +695,19 @@ typedef  void (*pRTC_CallbackTypeDef)(RTC_HandleTypeDef * hrtc); /*!< pointer to
   */
 #define __HAL_RTC_ALARM_EXTI_CLEAR_FLAG()            (EXTI_D1->PR1 = (RTC_EXTI_LINE_ALARM_EVENT))
 
+#if defined(DUAL_CORE)
+/**
+  * @brief Check whether the RTC Alarm associated D2 Exti line interrupt flag is set or not.
+  * @retval Line Status
+  */
+#define __HAL_RTC_ALARM_EXTID2_GET_FLAG()            (EXTI_D2->PR1 & RTC_EXTI_LINE_ALARM_EVENT)
+
+/**
+  * @brief Clear the RTC Alarm associated D2 Exti line flag.
+  * @retval None
+  */
+#define __HAL_RTC_ALARM_EXTID2_CLEAR_FLAG()          (EXTI_D2->PR1 = (RTC_EXTI_LINE_ALARM_EVENT))
+#endif
 /**
   * @brief Generate a Software interrupt on RTC Alarm associated Exti line.
   * @retval None

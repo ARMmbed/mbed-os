@@ -274,5 +274,25 @@ uint16_t eapol_pdu_key_frame_init(eapol_pdu_t *eapol_pdu, uint16_t data_length, 
 
 }
 
+uint8_t eapol_pdu_key_mask_get(eapol_pdu_t *eapol_pdu)
+{
+    uint8_t key_mask = 0;
+
+    if (eapol_pdu->msg.key.key_information.install) {
+        key_mask |= KEY_INFO_INSTALL;
+    }
+    if (eapol_pdu->msg.key.key_information.key_ack) {
+        key_mask |= KEY_INFO_KEY_ACK;
+    }
+    if (eapol_pdu->msg.key.key_information.key_mic) {
+        key_mask |= KEY_INFO_KEY_MIC;
+    }
+    if (eapol_pdu->msg.key.key_information.secured_key_frame) {
+        key_mask |= KEY_INFO_SECURED_KEY_FRAME;
+    }
+
+    return key_mask;
+}
+
 #endif
 

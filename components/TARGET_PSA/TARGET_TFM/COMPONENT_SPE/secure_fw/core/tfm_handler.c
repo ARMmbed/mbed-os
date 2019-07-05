@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,14 +8,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "cmsis.h"
 #include "secure_utilities.h"
-#include "arm_acle.h"
 #include "tfm_svc.h"
 #include "tfm_secure_api.h"
 #include "region_defs.h"
 #include "tfm_api.h"
 #include "tfm_internal.h"
+#include "tfm_memory_utils.h"
 #ifdef TFM_PSA_API
 #include <stdbool.h>
 #include "tfm_svcalls.h"
@@ -66,9 +65,9 @@ void SecureFault_Handler(void)
 
     /* Only save the context if sp is valid */
     if ((sp >=  S_DATA_START &&
-         sp <=  S_DATA_LIMIT - sizeof(tfm_fault_context) + 1) ||
+         sp <=  (S_DATA_LIMIT - sizeof(tfm_fault_context)) + 1) ||
         (sp >= NS_DATA_START &&
-         sp <= NS_DATA_LIMIT - sizeof(tfm_fault_context) + 1)) {
+         sp <= (NS_DATA_LIMIT - sizeof(tfm_fault_context)) + 1)) {
         tfm_memcpy(&tfm_fault_context,
                    (const void *)sp,
                    sizeof(tfm_fault_context));
@@ -103,7 +102,7 @@ void HardFault_Handler(void)
 #if defined(__ARM_ARCH_8M_MAIN__)
 __attribute__((naked)) void SVC_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
     "TST     lr, #4\n"  /* Check store SP in thread mode to r0 */
     "IT      EQ\n"
     "BXEQ    lr\n"
@@ -116,7 +115,7 @@ __attribute__((naked)) void SVC_Handler(void)
 #elif defined(__ARM_ARCH_8M_BASE__)
 __attribute__((naked)) void SVC_Handler(void)
 {
-    __ASM(
+    __ASM volatile(
     ".syntax unified\n"
     "MOVS    r0, #4\n"  /* Check store SP in thread mode to r0 */
     "MOV     r1, lr\n"
@@ -157,6 +156,30 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
         return lr;
     }
     switch (svc_number) {
+#ifdef TFM_PSA_API
+    case TFM_SVC_IPC_REQUEST:
+        tfm_psa_ipc_request_handler(svc_args);
+        break;
+    case TFM_SVC_SCHEDULE:
+    case TFM_SVC_EXIT_THRD:
+    case TFM_SVC_PSA_FRAMEWORK_VERSION:
+    case TFM_SVC_PSA_VERSION:
+    case TFM_SVC_PSA_CONNECT:
+    case TFM_SVC_PSA_CALL:
+    case TFM_SVC_PSA_CLOSE:
+    case TFM_SVC_PSA_WAIT:
+    case TFM_SVC_PSA_GET:
+    case TFM_SVC_PSA_SET_RHANDLE:
+    case TFM_SVC_PSA_READ:
+    case TFM_SVC_PSA_SKIP:
+    case TFM_SVC_PSA_WRITE:
+    case TFM_SVC_PSA_REPLY:
+    case TFM_SVC_PSA_NOTIFY:
+    case TFM_SVC_PSA_CLEAR:
+    case TFM_SVC_PSA_EOI:
+        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args, lr);
+        break;
+#else
     case TFM_SVC_SFN_REQUEST:
         lr = tfm_core_partition_request_svc_handler(svc_args, lr);
         break;
@@ -178,10 +201,6 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
     case TFM_SVC_SET_SHARE_AREA:
         tfm_core_set_buffer_area_handler(svc_args);
         break;
-#ifdef TFM_PSA_API
-    case TFM_SVC_IPC_REQUEST:
-        tfm_psa_ipc_request_handler(svc_args);
-        break;
 #endif
     case TFM_SVC_PRINT:
         printf("\e[1;34m[Sec Thread] %s\e[0m\r\n", (char *)svc_args[0]);
@@ -189,25 +208,6 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
     case TFM_SVC_GET_BOOT_DATA:
         tfm_core_get_boot_data_handler(svc_args);
         break;
-#ifdef TFM_PSA_API
-    case TFM_SVC_PSA_FRAMEWORK_VERSION:
-    case TFM_SVC_PSA_VERSION:
-    case TFM_SVC_PSA_CONNECT:
-    case TFM_SVC_PSA_CALL:
-    case TFM_SVC_PSA_CLOSE:
-    case TFM_SVC_PSA_WAIT:
-    case TFM_SVC_PSA_GET:
-    case TFM_SVC_PSA_SET_RHANDLE:
-    case TFM_SVC_PSA_READ:
-    case TFM_SVC_PSA_SKIP:
-    case TFM_SVC_PSA_WRITE:
-    case TFM_SVC_PSA_REPLY:
-    case TFM_SVC_PSA_NOTIFY:
-    case TFM_SVC_PSA_CLEAR:
-    case TFM_SVC_PSA_EOI:
-        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args, lr);
-        break;
-#endif
     default:
         LOG_MSG("Unknown SVC number requested!");
         break;

@@ -38,7 +38,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 
 AT_CellularDevice::~AT_CellularDevice()
 {
-    delete _network;
+    close_network();
 }
 
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
@@ -75,6 +75,9 @@ void delete_context(CellularContext *context)
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
+    if (_network) {
+        return _network;
+    }
     _network = new AT_CellularNetwork(*ATHandler::get_instance(fh,
                                                                _queue,
                                                                _default_timeout,
@@ -96,9 +99,12 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 
 void AT_CellularDevice::close_network()
 {
-    delete _network;
-
-    _network = NULL;
+    if (_network) {
+        ATHandler *atHandler = &_network->get_at_handler();
+        delete _network;
+        _network = NULL;
+        release_at_handler(atHandler);
+    }
 }
 
 void AT_CellularDevice::close_sms()
@@ -241,4 +247,8 @@ nsapi_error_t AT_CellularDevice::soft_power_on()
 nsapi_error_t AT_CellularDevice::soft_power_off()
 {
     return NSAPI_ERROR_OK;
+}
+
+void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
+{
 }

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    stm32h7xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @brief   This file provides firmware functions to manage the following 
+  * @brief   This file provides firmware functions to manage the following
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
   *           + Operation functions
@@ -16,7 +16,7 @@
   *             ++ Channels configuration on ADC group injected
   *           + State functions
   *             ++ ADC group injected contexts queue management
-  *          Other functions (generic functions) are available in file 
+  *          Other functions (generic functions) are available in file
   *          "stm32h7xx_hal_adc.c".
   *
   @verbatim
@@ -121,14 +121,14 @@
   *         Calibration prerequisite: ADC must be disabled (execute this
   *         function before HAL_ADC_Start() or after HAL_ADC_Stop() ).
   * @param  hadc       ADC handle
-  * @param  CalibrationMode       Selection of calibration offset or 
+* @param  CalibrationMode       Selection of calibration offset or 
   *         linear calibration offset.
   *           @arg ADC_CALIB_OFFSET       Channel in mode calibration offset
   *           @arg ADC_CALIB_OFFSET_LINEARITY Channel in mode linear calibration offset
   * @param  SingleDiff Selection of single-ended or differential input
   *         This parameter can be one of the following values:
-  *           @arg ADC_SINGLE_ENDED       Channel in mode input single ended
-  *           @arg ADC_DIFFERENTIAL_ENDED Channel in mode input differential ended
+  *           @arg @ref ADC_SINGLE_ENDED       Channel in mode input single ended
+  *           @arg @ref ADC_DIFFERENTIAL_ENDED Channel in mode input differential ended
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t CalibrationMode, uint32_t SingleDiff)
@@ -217,7 +217,7 @@ uint32_t HAL_ADCEx_Calibration_GetValue(ADC_HandleTypeDef* hadc, uint32_t Single
 
 /**
   * @brief  Get the calibration factor from automatic conversion result
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @param  LinearCalib_Buffer: Linear calibration factor
   * @retval HAL state
   */
@@ -236,8 +236,8 @@ HAL_StatusTypeDef HAL_ADCEx_LinearCalibration_GetValue(ADC_HandleTypeDef* hadc, 
   {
    for(cnt = 0UL; cnt < 6UL; cnt++)
     { 
-	  LinearCalib_Buffer[cnt]=LL_ADC_GetCalibrationLinearFactor(hadc->Instance, ADC_CR_LINCALRDYW6 >> cnt);
-	}
+      LinearCalib_Buffer[cnt]=LL_ADC_GetCalibrationLinearFactor(hadc->Instance, ADC_CR_LINCALRDYW6 >> cnt);
+    }
   }
 
   return tmp_hal_status;
@@ -300,7 +300,7 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_SetValue(ADC_HandleTypeDef* hadc, uint32
 
 /**
   * @brief  Set the linear calibration factor
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @param  LinearCalib_Buffer: Linear calibration factor
   * @retval HAL state
   */
@@ -349,7 +349,7 @@ HAL_StatusTypeDef HAL_ADCEx_LinearCalibration_SetValue(ADC_HandleTypeDef *hadc, 
     /* Update ADC state machine to error */
     SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
 
-    /* Set ADC error code to ADC IP internal error */
+    /* Set ADC error code to ADC peripheral internal error */
     SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
 
     return  HAL_ERROR;
@@ -357,7 +357,7 @@ HAL_StatusTypeDef HAL_ADCEx_LinearCalibration_SetValue(ADC_HandleTypeDef *hadc, 
 
   for(cnt = 0UL; cnt < 6UL; cnt++)
   {
- 	LL_ADC_SetCalibrationLinearFactor(hadc->Instance, ADC_CR_LINCALRDYW6 >> cnt, LinearCalib_Buffer[cnt]);
+    LL_ADC_SetCalibrationLinearFactor(hadc->Instance, ADC_CR_LINCALRDYW6 >> cnt, LinearCalib_Buffer[cnt]);
   }
   return HAL_OK;
 }
@@ -1450,10 +1450,10 @@ HAL_StatusTypeDef HAL_ADCEx_RegularStop_DMA(ADC_HandleTypeDef* hadc)
   {
     /* Clear HAL_ADC_STATE_REG_BUSY bit */
     CLEAR_BIT(hadc->State, HAL_ADC_STATE_REG_BUSY);
-  
-	/* Disable ADC DMA (ADC DMA configuration ADC_CFGR_DMACFG is kept) */
+    
+  /* Disable ADC DMA (ADC DMA configuration ADC_CFGR_DMACFG is kept) */
     MODIFY_REG(hadc->Instance->CFGR, ADC_CFGR_DMNGT_0 |ADC_CFGR_DMNGT_1, 0UL);
-
+    
     /* Disable the DMA channel (in case of DMA in circular mode or stop while */
     /* while DMA transfer is on going)                                        */
     tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);
@@ -1729,7 +1729,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   {
     assert_param(IS_ADC_RANGE(ADC_GET_RESOLUTION(hadc), sConfigInjected->InjectedOffset));
   }
-
+  
   /* JDISCEN and JAUTO bits can't be set at the same time  */
   assert_param(!((sConfigInjected->InjectedDiscontinuousConvMode == ENABLE) && (sConfigInjected->AutoInjectedConv == ENABLE))); 
   
@@ -1745,15 +1745,15 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   {
     if (hadc->Instance == ADC1)
     {
-    assert_param(IS_ADC1_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
+      assert_param(IS_ADC1_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
     }
     if (hadc->Instance == ADC2)
     {
-    assert_param(IS_ADC2_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
+      assert_param(IS_ADC2_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
     }
     if (hadc->Instance == ADC3)
     {
-    assert_param(IS_ADC3_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
+      assert_param(IS_ADC3_DIFF_CHANNEL(sConfigInjected->InjectedChannel));
     }
   }
   
@@ -1895,9 +1895,9 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   /*    mode is disabled.                                                     */
   if (LL_ADC_INJ_IsConversionOngoing(hadc->Instance) == 0UL)
   {
-    /* ADC channels preselection */
+  /* ADC channels preselection */
     hadc->Instance->PCSEL |= (1UL << (__LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel) & 0x1FUL));
-
+    
     /* If auto-injected mode is disabled: no constraint                       */
     if (sConfigInjected->AutoInjectedConv == DISABLE)
     {                               
@@ -1964,7 +1964,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     
     if (sConfigInjected->InjecOversamplingMode == ENABLE)
     {
-      assert_param(IS_ADC_OVERSAMPLING_RATIO((uint32_t)sConfigInjected->InjecOversampling.Ratio));
+      assert_param(IS_ADC_OVERSAMPLING_RATIO(sConfigInjected->InjecOversampling.Ratio));
       assert_param(IS_ADC_RIGHT_BIT_SHIFT(sConfigInjected->InjecOversampling.RightBitShift));
       
       /*  JOVSE must be reset in case of triggered regular mode  */
@@ -1993,8 +1993,6 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       /* Set sampling time of the selected ADC channel */
       LL_ADC_SetChannelSamplingTime(hadc->Instance, sConfigInjected->InjectedChannel, sConfigInjected->InjectedSamplingTime);
     
-       /* Set ADC selected offset signed saturation */
-      LL_ADC_SetOffsetSignedSaturation(hadc->Instance, sConfigInjected->InjectedOffsetNumber, (sConfigInjected->InjectedOffsetSignedSaturation == ENABLE) ? LL_ADC_OFFSET_SIGNED_SATURATION_ENABLE : LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);
     /* Configure the offset: offset enable/disable, channel, offset value */
     
     /* Shift the offset with respect to the selected ADC resolution. */
@@ -2006,6 +2004,9 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       /* Set ADC selected offset number */
       LL_ADC_SetOffset(hadc->Instance, sConfigInjected->InjectedOffsetNumber, sConfigInjected->InjectedChannel, tmpOffsetShifted);
        
+      /* Set ADC selected offset signed saturation */
+      LL_ADC_SetOffsetSignedSaturation(hadc->Instance, sConfigInjected->InjectedOffsetNumber, (sConfigInjected->InjectedOffsetSignedSaturation == ENABLE) ? LL_ADC_OFFSET_SIGNED_SATURATION_ENABLE : LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);
+      
     }
     else
     {
@@ -2013,19 +2014,19 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       /* If this is the case, the corresponding offset number is disabled.       */
       if(__LL_ADC_CHANNEL_TO_DECIMAL_NB(LL_ADC_GetOffsetChannel(hadc->Instance, LL_ADC_OFFSET_1)) == __LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel))
       {
-       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_1, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);	
+       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_1, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);
       }
       if(__LL_ADC_CHANNEL_TO_DECIMAL_NB(LL_ADC_GetOffsetChannel(hadc->Instance, LL_ADC_OFFSET_2)) == __LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel))
       {
-       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_2, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);	
+       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_2, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);
       }
       if(__LL_ADC_CHANNEL_TO_DECIMAL_NB(LL_ADC_GetOffsetChannel(hadc->Instance, LL_ADC_OFFSET_3)) == __LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel))
       {
-       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_4, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);	
+       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_4, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);
       }
       if(__LL_ADC_CHANNEL_TO_DECIMAL_NB(LL_ADC_GetOffsetChannel(hadc->Instance, LL_ADC_OFFSET_4)) == __LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel))
       {
-       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_4, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE);	
+       LL_ADC_SetOffset(hadc->Instance, LL_ADC_OFFSET_4, sConfigInjected->InjectedChannel, LL_ADC_OFFSET_SIGNED_SATURATION_DISABLE); 
       }
     }
   
@@ -2045,7 +2046,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     if (sConfigInjected->InjectedSingleDiff == ADC_DIFFERENTIAL_ENDED)
     {
       /* Set sampling time of the selected ADC channel */
-      LL_ADC_SetChannelSamplingTime(hadc->Instance, __LL_ADC_DECIMAL_NB_TO_CHANNEL((__LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfigInjected->InjectedChannel) + 1UL) & 0x1FUL), sConfigInjected->InjectedSamplingTime);
+      LL_ADC_SetChannelSamplingTime(hadc->Instance, (uint32_t)(__LL_ADC_DECIMAL_NB_TO_CHANNEL((__LL_ADC_CHANNEL_TO_DECIMAL_NB((uint32_t)sConfigInjected->InjectedChannel) + 1UL) & 0x1FUL)), sConfigInjected->InjectedSamplingTime);
     }
     
     /* Management of internal measurement channels: Vbat/VrefInt/TempSensor   */
@@ -2187,10 +2188,11 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_
     /* transition from multimode to independent mode).                        */
     if(multimode->Mode != ADC_MODE_INDEPENDENT)
     {
-      MODIFY_REG(tmpADC_Common->CCR, ADC_CCR_DAMDF, multimode->DualModeData);
-      /* Parameters that can be updated only when ADC is disabled:                */
-      /*  - Multimode mode selection                                              */
-      /*  - Multimode delay                                                       */
+    MODIFY_REG(tmpADC_Common->CCR, ADC_CCR_DAMDF, multimode->DualModeData);
+      
+      /* Parameters that can be updated only when ADC is disabled:              */
+      /*  - Multimode mode selection                                            */
+      /*  - Multimode delay                                                     */
       /*    Note: Delay range depends on selected resolution:                   */
       /*      from 1 to 9 clock cycles for 16 bits                              */
       /*      from 1 to 9 clock cycles for 14 bits,                             */

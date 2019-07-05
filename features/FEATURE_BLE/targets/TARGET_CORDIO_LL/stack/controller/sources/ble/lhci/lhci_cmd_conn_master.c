@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,14 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ * \file
+ * \brief HCI command module implementation file.
  */
 /*************************************************************************************************/
 
 #include "lhci_int.h"
 #include "hci_defs.h"
+#include "lctr_api.h"
 #include "ll_api.h"
 #include "ll_defs.h"
 #include "wsf_msg.h"

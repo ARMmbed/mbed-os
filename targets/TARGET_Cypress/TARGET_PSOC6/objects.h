@@ -135,6 +135,16 @@ struct spi_s {
 };
 #endif // DEVICE_SPI
 
+#if DEVICE_QSPI
+#include "cy_smif.h"
+
+struct qspi_s {
+    SMIF_Type *base;
+    cy_stc_smif_context_t context;
+    cy_en_smif_slave_select_t slaveSelect;
+};
+#endif // DEVICE_QSPI
+
 #if DEVICE_I2C
 #include "cy_scb_i2c.h"
 

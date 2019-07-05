@@ -72,7 +72,11 @@
  *  @endcode
  */
 #ifndef MBED_ALIGN
-#if defined(__ICCARM__)
+#if __cplusplus >= 201103 && !defined __CC_ARM
+#define MBED_ALIGN(N) alignas(N)
+#elif __STDC_VERSION__ >= 201112 && !defined __CC_ARM
+#define MBED_ALIGN(N) _Alignas(N)
+#elif defined(__ICCARM__)
 #define MBED_ALIGN(N) _Pragma(MBED_STRINGIFY(data_alignment=N))
 #else
 #define MBED_ALIGN(N) __attribute__((aligned(N)))
@@ -277,11 +281,11 @@
  */
 #ifndef MBED_FORCEINLINE
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
-#define MBED_FORCEINLINE static inline __attribute__((always_inline))
+#define MBED_FORCEINLINE inline __attribute__((always_inline))
 #elif defined(__ICCARM__)
-#define MBED_FORCEINLINE _Pragma("inline=forced") static
+#define MBED_FORCEINLINE _Pragma("inline=forced")
 #else
-#define MBED_FORCEINLINE static inline
+#define MBED_FORCEINLINE inline
 #endif
 #endif
 
@@ -298,7 +302,11 @@
  *  @endcode
  */
 #ifndef MBED_NORETURN
-#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#if __cplusplus >= 201103
+#define MBED_NORETURN [[noreturn]]
+#elif __STDC_VERSION__ >= 201112
+#define MBED_NORETURN _Noreturn
+#elif defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
 #define MBED_NORETURN __attribute__((noreturn))
 #elif defined(__ICCARM__)
 #define MBED_NORETURN __noreturn

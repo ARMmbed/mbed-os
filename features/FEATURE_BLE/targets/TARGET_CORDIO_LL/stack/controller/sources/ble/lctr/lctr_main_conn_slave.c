@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,17 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave connection operation builder implementation file.
+ * \file
+ * \brief Link layer controller slave connection operation builder implementation file.
  */
 /*************************************************************************************************/
 
-#include "ll_defs.h"
 #include "lctr_int_conn.h"
 #include "lctr_int_conn_slave.h"
 #include "lctr_int_adv_slave.h"
 #include "lmgr_api_conn.h"
 #include "sch_api.h"
+#include "sch_api_ble.h"
 #include "bb_ble_api.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
@@ -34,6 +35,21 @@
 #include "wsf_trace.h"
 #include "util/bstream.h"
 #include <string.h>
+
+/**************************************************************************************************
+  Global Variables
+**************************************************************************************************/
+const uint16_t scaPpmTbl[] =
+{
+  500,    /* LL_MCA_500_PPM */
+  250,    /* LL_MCA_250_PPM */
+  150,    /* LL_MCA_150_PPM */
+  100,    /* LL_MCA_100_PPM */
+  75,     /* LL_MCA_75_PPM */
+  50,     /* LL_MCA_50_PPM */
+  30,     /* LL_MCA_30_PPM */
+  20      /* LL_MCA_20_PPM */
+};
 
 /*************************************************************************************************/
 /*!
@@ -119,6 +135,7 @@ static void lctrSlvProcessDataPdu(lctrConnCtx_t *pCtx, uint8_t *pBuf)
 static void lctrSlvConnResetHandler(void)
 {
   BbBleConnSlaveInit();
+  SchRmInit();
   lctrConnDefaults();
   LmgrConnInit();
 }
@@ -181,56 +198,15 @@ static void lctrSlvConnDisp(lctrConnMsg_t *pMsg)
 /*************************************************************************************************/
 uint16_t lctrCalcTotalAccuracy(uint8_t mstScaIdx)
 {
-  const uint16_t mstScaTbl[] =
-  {
-    500,    /* LL_MCA_500_PPM */
-    250,    /* LL_MCA_250_PPM */
-    150,    /* LL_MCA_150_PPM */
-    100,    /* LL_MCA_100_PPM */
-    75,     /* LL_MCA_75_PPM */
-    50,     /* LL_MCA_50_PPM */
-    30,     /* LL_MCA_30_PPM */
-    20      /* LL_MCA_20_PPM */
-  };
-
   const uint16_t clkPpm = BbGetClockAccuracy();
 
-  if (mstScaIdx >= (sizeof(mstScaTbl) / sizeof(mstScaTbl[0])))
+  if (mstScaIdx >= (sizeof(scaPpmTbl) / sizeof(scaPpmTbl[0])))
   {
     /* Cap to highest index. */
     mstScaIdx = LL_MCA_20_PPM;
   }
 
-  return mstScaTbl[mstScaIdx] + clkPpm;
-}
-
-/*************************************************************************************************/
-/*!
- *  \brief  Compute the connection interval window widening delay in microseconds.
- *
- *  \param  pCtx            Connection context.
- *  \param  unsyncTimeUsec  Unsynchronized time in microseconds.
- *
- *  \return Window widening delay in microseconds.
- */
-/*************************************************************************************************/
-uint32_t lctrCalcIntervalWindowWideningUsec(lctrConnCtx_t *pCtx, uint32_t unsyncTimeUsec)
-{
-  if (lctrGetConnOpFlag(pCtx, LL_OP_MODE_FLAG_ENA_WW))
-  {
-    /* Largest unsynchronized time is 1,996 seconds (interval=4s and latency=499) and
-     * largest total accuracy is 1000 ppm. */
-    /* coverity[overflow_before_widen] */
-    uint32_t wwDlyUsec = LL_MATH_DIV_10E6(((uint64_t)unsyncTimeUsec * pCtx->data.slv.totalAcc) +
-                                          999999);     /* round up */
-
-    /* Reduce to 32-bits and always round up to a sleep clock tick. */
-    return wwDlyUsec + pLctrRtCfg->ceJitterUsec + LL_MAX_CE_DEVIATION_USEC;
-  }
-  else
-  {
-    return 0;
-  }
+  return scaPpmTbl[mstScaIdx] + clkPpm;
 }
 
 /*************************************************************************************************/
@@ -298,6 +274,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   pCtx->pingPeriodMs = lctrCalcPingPeriodMs(pCtx, LL_DEF_AUTH_TO_MS);
   /* pCtx->llcpState = LCTR_LLCP_STATE_IDLE; */
   pCtx->llcpActiveProc = LCTR_PROC_INVALID;
+  pCtx->crcInit = pConnInd->crcInit;
 
   /* Initially use fast termination. */
   uint32_t fastTermCnt = txWinOffsetCnt + pConnInd->txWinSize +
@@ -328,7 +305,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   /* pBle->chan.enc.enaEncrypt = FALSE; */  /* cleared in alloc */
   /* pBle->chan.enc.enaDecrypt = FALSE; */
   pBle->chan.enc.enaAuth = TRUE;
-  /* pBle->chan.enc.nonceMode = BB_NONCE_MODE_PKT_CNTR; */  /* cleared in alloc */
+  /* pBle->chan.enc.nonceMode = PAL_BB_NONCE_MODE_PKT_CNTR; */  /* cleared in alloc */
 
   pCtx->txHdr.llid = ~LL_LLID_VS_PDU;     /* reset last PDU LLID */
 
@@ -340,7 +317,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   const uint32_t txWinOffsetUsec = LCTR_CONN_IND_US(txWinOffsetCnt);
   const uint32_t txWinOffset     = BB_US_TO_BB_TICKS(txWinOffsetUsec);
   const uint32_t txWinSizeUsec   = LCTR_CONN_IND_US(pConnInd->txWinSize);
-  const uint32_t wwOffsetUsec    = lctrCalcIntervalWindowWideningUsec(pCtx, txWinOffsetUsec);
+  const uint32_t wwOffsetUsec    = lctrCalcWindowWideningUsec((txWinOffsetUsec + txWinSizeUsec), pCtx->data.slv.totalAcc);
   const uint32_t wwOffset        = BB_US_TO_BB_TICKS(wwOffsetUsec);
   int16_t  dueOffsetUsec         = (txWinOffsetUsec - wwOffsetUsec) - BB_TICKS_TO_US(txWinOffset - wwOffset);
 
@@ -356,7 +333,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
   pOp->protId = BB_PROT_BLE;
   pOp->prot.pBle = pBle;
   pOp->endCback = lctrSlvConnEndOp;
-  pOp->abortCback = lctrSlvConnEndOp;
+  pOp->abortCback = lctrSlvConnAbortOp;
   pOp->pCtx = pCtx;
 
   /*** BLE connection setup ***/
@@ -394,7 +371,7 @@ void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx)
     /* Initial eventCounter starts at 0; equivalent to unsynchronized intervals. */
     uint32_t unsyncTimeUsec = LCTR_CONN_IND_US(pCtx->connInterval * pCtx->eventCounter);
     uint32_t unsyncTime     = BB_US_TO_BB_TICKS(unsyncTimeUsec);
-    uint32_t wwTotalUsec    = lctrCalcIntervalWindowWideningUsec(pCtx, unsyncTimeUsec);
+    uint32_t wwTotalUsec    = lctrCalcWindowWideningUsec(unsyncTimeUsec, pCtx->data.slv.totalAcc);
     uint32_t wwTotal        = BB_US_TO_BB_TICKS(wwTotalUsec);
     dueOffsetUsec           = (unsyncTimeUsec - wwTotalUsec) - BB_TICKS_TO_US(unsyncTime - wwTotal);
 
@@ -462,6 +439,11 @@ void LctrSlvConnInit(void)
   {
     lmgrPersistCb.featuresDefault |=
       LL_FEAT_MIN_NUM_USED_CHAN;
+  }
+  if (pLctrRtCfg->btVer >= LL_VER_BT_CORE_SPEC_5_1)
+  {
+    lmgrPersistCb.featuresDefault |=
+        (LL_FEAT_PAST_SENDER | LL_FEAT_SCA_UPDATE);
   }
 }
 

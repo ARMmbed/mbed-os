@@ -42,7 +42,7 @@ template class ble::interface::Gap<nRF5xGap>;
 
 using ble::pal::vendor::nordic::nRF5xSecurityManager;
 typedef ble::impl::PalSecurityManagerImpl::resolving_list_entry_t resolving_list_entry_t;
-using ble::ArrayView;
+using mbed::Span;
 using ble::pal::advertising_peer_address_type_t;
 using ble::peer_address_type_t;
 
@@ -280,10 +280,10 @@ ble_error_t nRF5xGap::startAdvertising_(const GapAdvertisingParams &params)
 
     if (_privacy_enabled) {
         if (_peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
-            ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
+            Span<resolving_list_entry_t> entries = get_sm().get_resolving_list();
 
             size_t limit = std::min(
-                entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+                (size_t) entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
             );
 
             for (size_t i = 0; i < limit; ++i) {
@@ -348,10 +348,10 @@ ble_error_t nRF5xGap::startRadioScan_(const GapScanningParams &scanningParams)
 
     if (_privacy_enabled) {
         if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
-            ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
+            Span<resolving_list_entry_t> entries = get_sm().get_resolving_list();
 
             size_t limit = std::min(
-                entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+                (size_t) entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
             );
 
             for (size_t i = 0; i < limit; ++i) {
@@ -531,10 +531,10 @@ ble_error_t nRF5xGap::connect(
 
     if (_privacy_enabled) {
         if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
-            ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
+            Span<resolving_list_entry_t> entries = get_sm().get_resolving_list();
 
             size_t limit = std::min(
-                entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+                (size_t) entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
             );
 
             for (size_t i = 0; i < limit; ++i) {

@@ -1,8 +1,277 @@
 HISTORY
+ * These are only the most important changes. For a full list, use git log:
+   http://git.savannah.nongnu.org/cgit/lwip.git
 
 (git master)
 
   * [Enter new changes just after this line - do not remove this line]
+
+(STABLE-2.1.2):
+
+  ++ Bugfixes:
+
+  2018-11-21: Jens Nielsen
+  * netbiosns.c: fix expecting too large packet (bug #55069)
+
+  2018-11-19: Dirk Ziegelmeier
+  * smtp.c: fix compiling with strict C compatibility because of strnlen (bug #55034)
+
+  2018-11-12: Simon Goldschmidt
+  * tcp.c: fix overflow check in tcp_recved triggering invalid assertion (bug #55015)
+
+  2018-11-12: Simon Goldschmidt
+  * tcp.c: fix a bug in sending RST segments (sent from port 0)
+
+(STABLE-2.1.1):
+
+  ++ Bugfixes:
+
+  2018-11-01: Joan Lledó
+  * sockets.c: fix bad assertion in lwip_poll_dec_sockets_used() (bug #54933)
+
+  2018-11-01: Dirk Ziegelmeier
+  * ip4.c: don't send 127.* to default netif (bug #54670)
+
+  2018-10-23: David Girault
+  * altcp_tls_mbedtls.c: fix use-after free (bug #54774)
+
+  2018-10-23: Ognjen Bjelica, Dirk Ziegelmeier
+  * snmp_scalar.c: Avoid NULL pointer dereference (bug #54886)
+
+  2018-10-23: Simon Goldschmidt
+  * Fix missing standard includes in multiple files
+
+  2018-10-17: Ivan Warren
+  * def.h: fix casting htonX and ntohX to u16_t (bug #54850)
+
+  2018-10-12: Simon Goldschmidt
+  * Revert "tcp_abandon: no need to buffer pcb->local_port" (fix that source port was 0 for RST
+    called when aborting a connection)
+
+  2018-10-11: Jonas Rabenstein
+  * tcp.c: tcp_recved: check for overflow and warn about too big values (patch #9699)              
+
+  2018-10-06: Joan Lledó
+  * sockets.c: alloc_socket(): Check for LWIP_SOCKET_POLL when setting select-
+    related variables (patch #9696)
+
+  2018-10-04: Spencer
+  * tcp.c: Update prev pointer when skipping entries in tcp_slowtmr (patch #9694)
+
+  2018-09-27: Martine Lenders
+  * lowpan6.c: Fix IEEE 802.15.4 address setting (bug #54749)
+
+(STABLE-2.1.0):
+
+  ++ New features:
+
+  2018-06-17: Simon Goldschmidt
+  * lwiperf: implemented iPerf client mode
+
+  2018-04-23: Dirk Ziegelmeier
+  * added cmake build files
+
+  2018-03-04: Ray Abram
+  * netbios responder: respond to '*' queries
+
+  2018-02-23: Benjamin Aigner
+  * 6lowpan: add 6lowpan-over-BLE netif (based on existing 6lowpan netif)
+
+  2018-02-22: Simon Goldschmidt
+  * ipv6: add support for stateless DHCPv6 (to get DNS servers in SLAAC nets)
+
+  2018-02-16: Simon Goldschmidt
+  * add raw API http(s) client (with proxy support)
+
+  2018-02-01: Simon Goldschmidt
+  * tcp: add hooks to implement additional socket options
+
+  2018-02-01: Simon Goldschmidt
+  * tcp: add hooks to implement tcp md5 signatures or similar (see contrib/addons for an example)
+
+  2018-01-05: Simon Goldschmidt
+  * Added sys_mbox_trypost_fromisr() and tcpip_callbackmsg_trycallback_fromisr()
+    These can be used to post preallocated messages from an ISR to the tcpip thread
+    (e.g. when using FreeRTOS)
+
+  2018-01-02: Dirk Ziegelmeier
+  * task #14780: Add debug helper asserts to ensure threading/locking requirements are met
+
+  2017-11-21: Simon Goldschmidt
+  * task #14600: tcp_alloc(): kill TF_CLOSEPEND connections before other ESTABLISHED
+
+  2017-11-21: Simon Goldschmidt
+  * makefsdata: added option "-ssi:<filename>" to control SSI tag checking/insertion
+    through a list of filenames, not by checking the file extension at runtime
+
+  2017-11-20: Joel Cunningham
+  * netconn: add LWIP_HOOK_NETCONN_EXTERNAL_RESOLVE to use external DNS resolver (patch #9427)
+
+  2017-11-14: Joel Cunningham
+  * netifapi: Add thread safe ARP cache APIs (task #14724)
+
+  2017-11-06: Axel Lin
+  * TCP: kill existing connections with a LOWER priority than the one currently being opened.
+    Previous implementations also kill existing connections of the SAME priority.
+
+  2017-09-21: Kalle Olavi Niemitalo
+  * sockets: add poll() implementation (patch #9450)
+
+  2017-09-10: Joel Cunningham
+  * sockets: add readv() implementation (task #14610)
+
+  2017-08-04: Simon Goldschmidt
+  * Clean up DHCP a bit: no need keep msg_out and msg_in as members in struct
+    dhcp - they are used in a call stack only (p_out and options_out_len as well)
+
+  2017-08-04: Simon Goldschmidt
+  * pbuf: split pbuf_header(s16_t) into pbuf_add_header(size_t) and
+    pbuf_remove_header(size_t)
+
+  2017-07-20: Douglas
+  * sys: deprecate sys_arch_sem_wait and sys_arch_mbox_fetch returning the
+    time waited rather they are now defined to return != SYS_ARCH_TIMEOUT
+    on success.
+
+  2017-07-03: Jakub Schmidtke
+  * tcp: added support for sending TCP SACKs
+
+  2017-06-20: Joel Cunningham
+  * netconn/netdb: added core locking support to netconn_gethostbyname (task #14523)
+
+  2017-04-25: Simon Goldschmidt
+  * dhcp: added two hooks for adding and parsing user defined DHCP options
+
+  2017-04-25: Joel Cunningham
+  * sockets: added recvmsg for UDP (together with CMSG and IP_PKTINFO) (task #14247)
+
+  2017-04-20: Joel Cunningham
+  * tcp: added Appropriate Byte Counting support (task #14128)
+
+  2017-04-11: Simon Goldschmidt
+  * netconn/sockets: remove fatal error handling, fix asynchronous error handling,
+    ensure data before RST can be received
+
+  2017-03-30: Simon Goldschmidt
+  * added "application layered TCP" connection API (altcp) for seamless integration
+    of TLS or proxy connections
+
+  2017-03-09: Simon Goldschmidt
+  * sockets: add recvmsg for TCP
+
+  2017-03-02: Joel Cunningham
+  * netconn/sockets: vectorize netconn_write for TCP, treating a vectored I/O write
+    atomically in regards to TCP segmentation (patch #8882)
+
+  2017-03-02: Simon Goldschmidt
+  * netconn: added nonblocking accept/recv to netconn API (task #14396)
+
+  2017-02-28: Simon Goldschmidt
+  * Added LWIP_SINGLE_NETIF for small targets with only one netif
+
+  2017-02-10: David van Moolenbroek
+  * Implement UDP and RAW multicast support for IPv6 (core API, not netconn/sockets)
+
+  2017-02-04: David van Moolenbroek
+  * IPv6 scopes support
+
+  2017-01-20: Joel Cunningham
+  * sockets: add interface name/index APIs (task #14314)
+  
+  2017-01-08: David van Moolenbroek
+  * Extensions to RAW API (patch #9208)
+    - Connected RAW PCBs
+    - Add raw_sendto_if_src()
+    - Support IP_HDRINCL socket option
+
+  ++ Bugfixes:
+
+  2018-06-19: Simon Goldschmidt
+  * tcp: fix RTO timer not working if link is down
+
+  2018-06-15: Sylvain Rochet
+  * ppp: multiple smaller bugfixes
+
+  2018-05-17: Simon Goldschmidt
+  * etharp: arp table can now be bigger than 127 entries
+
+  2018-04-25: Jens Nielsen
+  * tftp server: correctly handle retransmissions
+
+  2018-04-18: Simon Goldschmidt
+  sockets: fix race conditions when closing full-duplex sockets
+
+  2018-03-09: Simon Goldschmidt
+  * 6lowpan: fix to work against contiki; added ZigBee encapsulation netif for tests
+
+  2018-02-04: Simon Goldschmidt
+  * sockets: fix inconsistencies on close (inconsistent error codes, double FIN)
+
+  2018-01-05: Dirk Ziegelmeier
+  * Fix bug #52748: the bug in timeouts.c by reimplementing timer logic to use
+    absolute instead of relative timeout values
+
+  2017-12-31: Dirk Ziegelmeier
+  * Fix bug #52704: DHCP and bad OFFER: Stop timeout only if offer is accepted
+
+  2017-11-08: Joel Cunningham
+  * netif: ensure link and admin states are up in issue reports (bug #52353)
+
+  2017-09-12: David Lockyer
+  * select: allocate select_cb from memp for LWIP_MPU_COMPATIBLE = 1 (bug #51990)
+
+  2017-09-11: Simon Goldschmidt
+  * tcp_in.c: fix bug #51937 (leaking tcp_pcbs on passive close with unacked data)
+
+  2017-08-11: Joel Cunningham
+  * lwip_itoa: fix converting the number 0 (previously converted to '\0') (bug #51729)
+
+  2017-08-08: Dirk Ziegelmeier
+  * ip4_route_src: parameter order is reversed: ip4_route_src(dest, src) -> ip4_route_src(src, dest)
+    to make parameter order consistent with other ip*_route*() functions
+    Same also applies to LWIP_HOOK_IP4_ROUTE_SRC() parameter order.
+
+  2017-08-04: Joel Cunningham
+  * tcp: re-work persist timer to fully close window (details in bug #50837)
+
+  2017-07-26: Simon Goldschmidt
+  * snmp_msg.c: fix bug #51578 (SNMP failed to decode some values on non 32bit platforms)
+
+  2017-07-20: Simon Goldschmidt
+  * compatibility headers: moved from 'src/include/posix' to 'src/include/compat/posix',
+    'src/include/compat/stdc' etc.
+
+  2017-05-09: Joel Cunningham
+  * tcp: add zero-window probe timeout (bug #50837)
+
+  2017-04-11: Simon Goldschmidt
+  * sockets.c: task #14420 (Remove sys_sem_signal from inside SYS_ARCH_PROTECT
+    crit section) done for LWIP_TCPIP_CORE_LOCKING==1
+
+  2017-02-24: Simon Goldschmidt
+  * sockets.c: fixed close race conditions in lwip_select (for LWIP_NETCONN_FULLDUPLEX)
+
+  2017-02-24: Simon Goldschmidt
+  * sockets.c: fixed that select ignored invalid/not open sockets in the fd_sets (bug #50392)
+
+  2017-01-11: David van Moolenbroek
+  * Lots of IPv6 related fixes and improvements
+
+(STABLE-2.0.3)
+
+  ++ Bugfixes:
+
+  2017-09-11: Simon Goldschmidt
+  * tcp_in.c: fix bug #51937 (leaking tcp_pcbs on passive close with unacked data)
+
+  2017-08-02: Abroz Bizjak/Simon Goldschmidt
+  * multiple fixes in IPv4 reassembly (leading to corrupted datagrams received)
+  
+  2017-03-30: Simon Goldschmidt
+  * dhcp.c: return ERR_VAL instead of asserting on offset-out-of-pbuf
+
+  2017-03-23: Dirk Ziegelmeier
+  * dhcp.h: fix bug #50618 (dhcp_remove_struct() macro does not work)
 
 (STABLE-2.0.2)
 
@@ -13,10 +282,10 @@ HISTORY
     We now have a #define for a header file name that is #included in every .c
     file that provides hooks.
 
-  ++ Bugfixes:
+  2017-02-10: Simon Goldschmidt
+  * tcp_close does not fail on memory error (instead, FIN is sent from tcp_tmr)
 
-  2017-01-11: David van Moolenbroek
-  * Lots of IPv6 related fixes and improvements
+  ++ Bugfixes:
 
   2017-03-08
   * tcp: do not keep sending SYNs when getting ACKs

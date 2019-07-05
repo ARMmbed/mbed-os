@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave PHY update state machine implementation file.
+ * \file
+ * \brief Link layer controller slave PHY update state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -26,6 +27,7 @@
 #include "lctr_int_conn_master.h"
 #include "lctr_int_conn_slave.h"
 #include "lmgr_api.h"
+#include "wsf_math.h"
 #include "wsf_assert.h"
 #include "wsf_trace.h"
 
@@ -74,6 +76,85 @@ void lctrActStartPhyUpdate(lctrConnCtx_t *pCtx);
 void lctrActFlushArq(lctrConnCtx_t *pCtx);
 
 /**************************************************************************************************
+  Local Functions
+**************************************************************************************************/
+/*************************************************************************************************/
+/*!
+ *  \brief      Update effective data packet time after PHY update procedure completes and notify host.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+static void lctrUpdateDataTime(lctrConnCtx_t *pCtx)
+{
+  uint16_t          maxTxTime = 0;
+  uint16_t          maxRxTime = 0;
+
+  lctrDataLen_t oldEffDataPdu = pCtx->effDataPdu;
+
+  switch (pCtx->bleData.chan.txPhy)
+  {
+    case BB_PHY_BLE_1M:
+      maxTxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_1M(pCtx->effDataPdu.maxTxLen), pCtx->effDataPdu.maxTxTime);
+      break;
+    case BB_PHY_BLE_2M:
+      maxTxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_2M(pCtx->effDataPdu.maxTxLen), pCtx->effDataPdu.maxTxTime);
+      break;
+    case BB_PHY_BLE_CODED:
+      maxTxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_CODED_S8(pCtx->effDataPdu.maxTxLen), pCtx->effDataPdu.maxTxTime);
+      break;
+  }
+
+  switch (pCtx->bleData.chan.rxPhy)
+  {
+    case BB_PHY_BLE_1M:
+      maxRxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_1M(pCtx->effDataPdu.maxRxLen), pCtx->effDataPdu.maxRxTime);
+      break;
+    case BB_PHY_BLE_2M:
+      maxRxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_2M(pCtx->effDataPdu.maxRxLen), pCtx->effDataPdu.maxRxTime);
+      break;
+    case BB_PHY_BLE_CODED:
+      maxRxTime = WSF_MIN(LL_DATA_LEN_TO_TIME_CODED_S8(pCtx->effDataPdu.maxRxLen), pCtx->effDataPdu.maxRxTime);
+      break;
+  }
+
+  pCtx->effDataPdu.maxRxTime = maxRxTime;
+  pCtx->effDataPdu.maxTxTime = maxTxTime;
+
+  /* connEffectiveMaxRxTimeCoded - the greater of 2704 and connEffectiveMaxRxTimeUncoded. */
+  if (pCtx->bleData.chan.rxPhy == BB_PHY_BLE_CODED)
+  {
+    pCtx->effDataPdu.maxRxTime = WSF_MAX(pCtx->effDataPdu.maxRxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+  }
+  else
+  {
+    pCtx->effDataPdu.maxRxTime = WSF_MAX(pCtx->effDataPdu.maxRxTime, LL_MAX_DATA_TIME_MIN);
+  }
+
+  if (pCtx->bleData.chan.txPhy == BB_PHY_BLE_CODED)
+  {
+    pCtx->effDataPdu.maxTxTime = WSF_MAX(pCtx->effDataPdu.maxTxTime, LL_MAX_DATA_TIME_ABS_MIN_CODED);
+  }
+  else
+  {
+    pCtx->effDataPdu.maxTxTime = WSF_MAX(pCtx->effDataPdu.maxTxTime, LL_MAX_DATA_TIME_MIN);
+  }
+
+  if (lmgrCb.features & LL_FEAT_DATA_LEN_EXT)
+  {
+    if ((oldEffDataPdu.maxTxLen  != pCtx->effDataPdu.maxTxLen) ||
+        (oldEffDataPdu.maxRxLen  != pCtx->effDataPdu.maxRxLen) ||
+        (oldEffDataPdu.maxTxTime != pCtx->effDataPdu.maxTxTime) ||
+        (oldEffDataPdu.maxRxTime != pCtx->effDataPdu.maxRxTime))
+    {
+      lctrNotifyHostDataLengthInd(pCtx, LL_SUCCESS);
+    }
+  }
+}
+
+/**************************************************************************************************
   Global Functions
 **************************************************************************************************/
 
@@ -113,6 +194,32 @@ void lctrActPeerRejectPhyReq(lctrConnCtx_t *pCtx)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Notify host of connection update with no change.
+ *
+ *  \param      pCtx    Connection context.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrActNotifyHostPhyUpdateNoChange(lctrConnCtx_t *pCtx)
+{
+  /* Remove packet time restrictions. */
+  lctrRemovePacketTimeRestriction(pCtx);
+
+  if ((pCtx->llcpNotifyMask & (1 << LCTR_PROC_PHY_UPD)))
+  {
+    pCtx->llcpNotifyMask &= ~(1 << LCTR_PROC_PHY_UPD);
+
+    if (pCtx->connEst && (pCtx->state != LCTR_CONN_STATE_TERMINATING))
+    {
+      /* Only send PHY Update event if still connected. */
+      lctrNotifyHostPhyUpdateInd(pCtx, LL_SUCCESS);
+    }
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Notify host of connection update with success status.
  *
  *  \param      pCtx    Connection context.
@@ -128,7 +235,10 @@ void lctrActNotifyHostPhyUpdateSuccess(lctrConnCtx_t *pCtx)
   if (pCtx->llcpNotifyMask & (1 << LCTR_PROC_PHY_UPD))
   {
     pCtx->llcpNotifyMask &= ~(1 << LCTR_PROC_PHY_UPD);
+
     lctrNotifyHostPhyUpdateInd(pCtx, LL_SUCCESS);
+
+    lctrUpdateDataTime(pCtx);
   }
 }
 
@@ -444,7 +554,7 @@ static const lctrActFn_t lctrSlvPhyUpdateActionTbl[LCTR_PU_STATE_TOTAL][LCTR_PU_
     lctrActPeerPhyUpdateReq,                /* LCTR_PU_EVENT_PEER_PHY_UPDATE_IND */
     lctrActPeerPhyReqWithCollision,         /* LCTR_PU_EVENT_PEER_PHY_REQ */
     lctrActPeerRejectPhyReq,                /* LCTR_PU_EVENT_PEER_REJECT */
-    lctrActNotifyHostPhyUpdateSuccess,      /* LCTR_PU_EVENT_INT_PROC_COMP */           /* if no change */
+    lctrActNotifyHostPhyUpdateNoChange,     /* LCTR_PU_EVENT_INT_PROC_COMP */           /* if no change */
     NULL,                                   /* LCTR_PU_EVENT_INT_START_PHY_UPD */       /* should never occur */
     NULL                                    /* LCTR_PU_EVENT_ARQ_FLUSHED */             /* should never occur (not for this SM) */
   },
@@ -708,6 +818,7 @@ static void lctrSlvCheckProcOverride(lctrConnCtx_t *pCtx, uint8_t event)
         case LCTR_PROC_CMN_VER_EXCH:
         case LCTR_PROC_CMN_FEAT_EXCH:
         case LCTR_PROC_CMN_DATA_LEN_UPD:
+        case LCTR_PROC_CMN_REQ_PEER_SCA:
           pCtx->llcpPendMask |= 1 << pCtx->llcpActiveProc;
           pCtx->llcpActiveProc = LCTR_PROC_PHY_UPD;
           pCtx->llcpIsOverridden = TRUE;

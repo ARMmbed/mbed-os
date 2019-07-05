@@ -18,8 +18,11 @@
 
 #include "cmsis_compiler.h"
 #include "ble/BLE.h"
+#include "ble/pal/Deprecated.h"
 
 #if BLE_FEATURE_GATT_SERVER
+
+BLE_DEPRECATED_API_USE_BEGIN()
 
 /**
  * iBeacon Service.
@@ -252,6 +255,8 @@ protected:
  * future release.
  */
 typedef iBeacon iBeaconService;
+
+BLE_DEPRECATED_API_USE_END()
 
 #endif // BLE_FEATURE_GATT_SERVER
 

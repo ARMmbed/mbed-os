@@ -20,6 +20,9 @@
 
 using namespace utest::v1;
 
+#define THREAD_STACK_SIZE 512
+#define TEST_TIMEOUT 50
+
 /* Enum used to select block allocation method. */
 typedef enum {
     ALLOC, CALLOC
@@ -450,6 +453,80 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
     }
 }
 
+/* Test alloc timeout
+ *
+ * Given a pool with one slot for int data
+ * When a thread tries to allocate two blocks with @ TEST_TIMEOUT timeout
+ * Then first operation succeeds immediately and second fails at the correct time.
+ */
+void test_mem_pool_timeout()
+{
+    MemoryPool<int, 1> mem_pool;
+
+    Timer timer;
+    timer.start();
+
+    int *item = mem_pool.alloc_for(TEST_TIMEOUT);
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, 0, timer.read_us());
+
+    item = mem_pool.alloc_for(TEST_TIMEOUT);
+    TEST_ASSERT_NULL(item);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+
+    uint64_t end_time = Kernel::get_ms_count() + TEST_TIMEOUT;
+    item = mem_pool.alloc_until(end_time);
+    TEST_ASSERT_NULL(item);
+    TEST_ASSERT_UINT64_WITHIN(TEST_TIMEOUT * 100, end_time, Kernel::get_ms_count());
+}
+
+namespace {
+struct free_capture {
+    MemoryPool<int, 1> *pool;
+    int *item;
+};
+}
+
+static void free_int_item(free_capture *to_free)
+{
+    ThisThread::sleep_for(TEST_TIMEOUT);
+
+    osStatus status = to_free->pool->free(to_free->item);
+    TEST_ASSERT_EQUAL(osOK, status);
+}
+
+/** Test alloc wait forever
+ *
+ * Given two threads A & B and a pool with one slot for int data
+ * When thread A allocs a block from the pool and tries to alloc a second one with @a osWaitForever timeout
+ * Then thread waits for a block to become free in the pool
+ * When thread B frees the first block from the pool
+ * Then thread A successfully allocs a block from the pool
+ */
+void test_mem_pool_waitforever()
+{
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
+    MemoryPool<int, 1> pool;
+
+    Timer timer;
+    timer.start();
+
+    int *item = pool.alloc_for(osWaitForever);
+    TEST_ASSERT_NOT_NULL(item);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, 0, timer.read_us());
+
+    struct free_capture to_free;
+    to_free.pool = &pool;
+    to_free.item = item;
+    t.start(callback(free_int_item, &to_free));
+
+    item = pool.alloc_for(osWaitForever);
+    TEST_ASSERT_EQUAL(item, to_free.item);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
+
+    t.join();
+}
+
 /* Robustness checks for free() function.
  * Function under test is called with invalid parameters.
  *
@@ -568,6 +645,9 @@ Case cases[] = {
     Case("Test: re-allocation of the last block, complex type.", test_mem_pool_free_realloc_last_complex_wrapper<COMPLEX_TYPE, 3>),
 
     Case("Test: fail (out of free blocks).", test_mem_pool_alloc_fail_wrapper<int, 3>),
+
+    Case("Test: timeout", test_mem_pool_timeout),
+    Case("Test: wait forever", test_mem_pool_waitforever),
 
     Case("Test: free() - robust (free called with invalid param - NULL).", free_block_invalid_parameter_null),
     Case("Test: free() - robust (free called with invalid param).", free_block_invalid_parameter)

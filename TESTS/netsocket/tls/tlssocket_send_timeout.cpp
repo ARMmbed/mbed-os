@@ -28,6 +28,7 @@ using namespace utest::v1;
 
 void TLSSOCKET_SEND_TIMEOUT()
 {
+    SKIP_IF_TCP_UNSUPPORTED();
     TLSSocket sock;
     if (tlssocket_connect_to_discard_srv(sock) != NSAPI_ERROR_OK) {
         TEST_FAIL();

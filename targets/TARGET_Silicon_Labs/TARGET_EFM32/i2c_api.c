@@ -28,7 +28,6 @@
 #if DEVICE_I2C
 
 #include "mbed_assert.h"
-#include "mbed_power_mgmt.h"
 #include "i2c_api.h"
 #include "PeripheralPins.h"
 #include "pinmap_function.h"
@@ -64,6 +63,11 @@ static uint8_t i2c_get_index(i2c_t *obj)
             index = 1;
             break;
 #endif
+#ifdef I2C2
+        case I2C_2:
+            index = 2;
+            break;
+#endif
         default:
             printf("I2C module not available.. Out of bound access.");
             break;
@@ -83,6 +87,11 @@ static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
 #ifdef I2C1
         case I2C_1:
             clock = cmuClock_I2C1;
+            break;
+#endif
+#ifdef I2C2
+        case I2C_2:
+            clock = cmuClock_I2C2;
             break;
 #endif
         default:
@@ -174,6 +183,11 @@ void i2c_enable_interrupt(i2c_t *obj, uint32_t address, uint8_t enable)
 #ifdef I2C1
         case 1:
             irq_number = I2C1_IRQn;
+            break;
+#endif
+#ifdef I2C2
+        case 2:
+            irq_number = I2C2_IRQn;
             break;
 #endif
     }
@@ -466,7 +480,6 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 #include "em_dma.h"
 #include "dma_api_HAL.h"
 #include "dma_api.h"
-#include "sleep_api.h"
 #include "buffer.h"
 
 /** Start i2c asynchronous transfer.
@@ -527,18 +540,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     // Kick off the transfer
     retval = I2C_TransferInit(obj->i2c.i2c, &(obj->i2c.xfer));
 
-    if(retval == i2cTransferInProgress) {
-        sleep_manager_lock_deep_sleep();
-    } else {
-        // something happened, and the transfer did not go through
-        // So, we need to clean up
-
-        // Disable interrupt
-        i2c_enable_interrupt(obj, 0, false);
-
-        // Block until free
-        while(i2c_active(obj));
-    }
+    MBED_ASSERT(retval == i2cTransferInProgress);
 }
 
 /** The asynchronous IRQ handler
@@ -561,23 +563,17 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
 
-            sleep_manager_unlock_deep_sleep();
-
             return I2C_EVENT_TRANSFER_COMPLETE & obj->i2c.events;
         case i2cTransferNack:
             // A NACK has been received while an ACK was expected. This is usually because the slave did not respond to the address.
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
 
-            sleep_manager_unlock_deep_sleep();
-
             return I2C_EVENT_ERROR_NO_SLAVE & obj->i2c.events;
         default:
             // An error situation has arisen.
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
-
-            sleep_manager_unlock_deep_sleep();
 
             // return error
             return I2C_EVENT_ERROR & obj->i2c.events;
@@ -609,8 +605,6 @@ void i2c_abort_asynch(i2c_t *obj)
 
     // Block until free
     while(i2c_active(obj));
-
-    sleep_manager_unlock_deep_sleep();
 }
 
 #endif //DEVICE_I2C ASYNCH

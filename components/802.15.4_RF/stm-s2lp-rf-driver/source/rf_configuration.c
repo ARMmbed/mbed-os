@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+
 #include "nanostack/platform/arm_hal_phy.h"
 #include "rf_configuration.h"
 
@@ -161,9 +164,12 @@ uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, ui
 {
     uint32_t deviation = 0;
     if (modulation_index == MODULATION_INDEX_0_5) {
-        deviation = datarate/4;
+        deviation = datarate / 4;
     } else if (modulation_index == MODULATION_INDEX_1_0) {
-        deviation = datarate/2;
+        deviation = datarate / 2;
     }
     return deviation;
 }
+
+#endif // MBED_CONF_NANOSTACK_CONFIGURATION && DEVICE_SPI && DEVICE_INTERRUPTIN && defined(MBED_CONF_RTOS_PRESENT)
+

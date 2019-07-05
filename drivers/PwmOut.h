@@ -68,6 +68,7 @@ public:
     ~PwmOut()
     {
         core_util_critical_section_enter();
+        pwmout_free(&_pwm);
         unlock_deep_sleep();
         core_util_critical_section_exit();
     }

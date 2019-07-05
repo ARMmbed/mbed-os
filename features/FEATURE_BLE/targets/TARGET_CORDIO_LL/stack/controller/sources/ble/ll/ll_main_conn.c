@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave parameter interface implementation file.
+ * \file
+ * \brief Link layer (LL) slave parameter interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -222,9 +223,11 @@ uint8_t LlSetConnOpFlags(uint16_t handle, uint32_t flags, bool_t enable)
     LL_OP_MODE_FLAG_MST_IGNORE_CP_RSP |
     LL_OP_MODE_FLAG_MST_UNCOND_CP_RSP |
     LL_OP_MODE_FLAG_REQ_SYM_PHY |
+    LL_OP_MODE_FLAG_ENA_SLV_LATENCY_WAKEUP |
     LL_OP_MODE_FLAG_ENA_WW |
     LL_OP_MODE_FLAG_ENA_SLV_LATENCY |
-    LL_OP_MODE_FLAG_ENA_LLCP_TIMER;
+    LL_OP_MODE_FLAG_ENA_LLCP_TIMER |
+    LL_OP_MODE_FLAG_IGNORE_CRC_ERR_TS;
 
   LL_TRACE_INFO2("### LlApi ###  LlSetConnFlags flag=%x enable=%d", flags, enable);
 
@@ -265,20 +268,53 @@ uint8_t LlDisconnect(uint16_t handle, uint8_t reason)
   LL_TRACE_INFO2("### LlApi ###  LlDisconnect, handle=%u, reason=%u", handle, reason);
 
   if ((LL_API_PARAM_CHECK == 1) &&
-       ((handle >= pLctrRtCfg->maxConn) ||
-       !LctrIsConnHandleEnabled(handle)))
+       (handle >= (pLctrRtCfg->maxConn + pLctrRtCfg->maxCis * pLctrRtCfg->maxCig)))
   {
     return LL_ERROR_CODE_UNKNOWN_CONN_ID;
   }
 
-  if ((pMsg = (lctrDisconnect_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+  if ((LL_API_PARAM_CHECK == 1) &&
+      (handle < pLctrRtCfg->maxConn))
   {
-    pMsg->hdr.handle = handle;
-    pMsg->hdr.dispId = LCTR_DISP_CONN;
-    pMsg->hdr.event  = LCTR_CONN_MSG_API_DISCONNECT;
-    pMsg->reason     = reason;
+    /* Handle for ACL is not enabled. */
+    if (!LctrIsConnHandleEnabled(handle))
+    {
+      return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+    }
+  }
 
-    WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+  if (handle < pLctrRtCfg->maxConn)
+  {
+    /* ACL handle */
+    if ((pMsg = (lctrDisconnect_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+    {
+      pMsg->hdr.handle = handle;
+      pMsg->hdr.dispId = LCTR_DISP_CONN;
+      pMsg->hdr.event  = LCTR_CONN_MSG_API_DISCONNECT;
+      pMsg->reason     = reason;
+
+      WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+    }
+  }
+  else
+  {
+    /* CIS handle */
+
+    /* Return error if CIS is not established. */
+    if (LctrIsCisConnHandleEnabled(handle) == FALSE)
+    {
+      return LL_ERROR_CODE_CMD_DISALLOWED;
+    }
+
+    if ((pMsg = (lctrDisconnect_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+    {
+      pMsg->hdr.handle = handle;
+      pMsg->hdr.dispId = LCTR_DISP_CIS;
+      pMsg->hdr.event  = LCTR_CONN_MSG_API_DISCONNECT;
+      pMsg->reason     = reason;
+
+      WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+    }
   }
 
   return LL_SUCCESS;
@@ -305,11 +341,6 @@ uint8_t LlConnUpdate(uint16_t handle, const LlConnSpec_t *pConnSpec)
 
   LL_TRACE_INFO1("### LlApi ###  LlConnUpdate, handle=%u", handle);
 
-  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CONN_UPDATE) == TRUE)
-  {
-    return LL_ERROR_CODE_CMD_DISALLOWED;
-  }
-
   if ((LL_API_PARAM_CHECK == 1) &&
        ((handle >= pLctrRtCfg->maxConn) ||
        !LctrIsConnHandleEnabled(handle)))
@@ -317,9 +348,14 @@ uint8_t LlConnUpdate(uint16_t handle, const LlConnSpec_t *pConnSpec)
     return LL_ERROR_CODE_UNKNOWN_CONN_ID;
   }
 
+  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CONN_UPDATE) == TRUE)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
   if ((LL_API_PARAM_CHECK == 1) &&
       ((LctrGetRole(handle) == LL_ROLE_SLAVE) &&
-       ((LctrGetUsedFeatures(handle) & LL_FEAT_CONN_PARAM_REQ_PROC) == 0)))
+       ((lmgrCb.features & LL_FEAT_CONN_PARAM_REQ_PROC) == 0)))
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -460,16 +496,17 @@ uint8_t LlReadRemoteVerInfo(uint16_t handle)
 
   LL_TRACE_INFO1("### LlApi ###  LlReadRemoteVerInfo, handle=%u", handle);
 
-  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_REMOTE_VERSION) == TRUE)
-  {
-    return LL_ERROR_CODE_CMD_DISALLOWED;
-  }
 
   if ((LL_API_PARAM_CHECK == 1) &&
        ((handle >= pLctrRtCfg->maxConn) ||
        !LctrIsConnHandleEnabled(handle)))
   {
     return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+
+  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_REMOTE_VERSION) == TRUE)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   if ((pMsg = (lctrMsgHdr_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
@@ -502,16 +539,16 @@ uint8_t LlSetDataLen(uint16_t handle, uint16_t txLen, uint16_t txTime)
 {
   LL_TRACE_INFO1("### LlApi ###  LlSetDataLen: handle=%u", handle);
 
-  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_DATA_LEN_CHANGE) == TRUE)
-  {
-    return LL_ERROR_CODE_CMD_DISALLOWED;
-  }
-
   if ((LL_API_PARAM_CHECK == 1) &&
        ((handle >= pLctrRtCfg->maxConn) ||
        !LctrIsConnHandleEnabled(handle)))
   {
     return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+
+  if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_DATA_LEN_CHANGE) == TRUE)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
@@ -558,7 +595,8 @@ void LlReadDefaultDataLen(uint16_t *pMaxTxLen, uint16_t *pMaxTxTime)
 {
   LL_TRACE_INFO0("### LlApi ###  LlReadDefaultDataLen");
 
-  WSF_ASSERT(pMaxTxLen && pMaxTxTime);
+  WSF_ASSERT(pMaxTxLen);
+  WSF_ASSERT(pMaxTxTime);
 
   *pMaxTxLen = lmgrConnCb.maxTxLen;
   *pMaxTxTime = lmgrConnCb.maxTxTime;
@@ -622,7 +660,8 @@ void LlReadMaximumDataLen(uint16_t *pMaxTxLen, uint16_t *pMaxTxTime, uint16_t *p
 {
   LL_TRACE_INFO0("### LlApi ###  LlReadMaximumDataLen");
 
-  WSF_ASSERT(pMaxTxLen && pMaxTxTime);
+  WSF_ASSERT(pMaxTxLen);
+  WSF_ASSERT(pMaxTxTime);
 
   *pMaxTxLen  = WSF_MIN(pLctrRtCfg->maxAclLen, LCTR_MAX_DATA_LEN_MAX);
   *pMaxTxTime = LL_DATA_LEN_TO_TIME_1M(*pMaxTxLen);
@@ -650,7 +689,7 @@ uint8_t LlSetLocalMinUsedChan(uint8_t phys, int8_t pwrThres, uint8_t minUsedCh)
   LL_TRACE_INFO0("### LlApi ###  LlSetLocalMinUsedChan");
 
   if ((LL_API_PARAM_CHECK == 1) &&
-      (pLctrRtCfg->btVer <= LL_VER_BT_CORE_SPEC_4_2))
+      ((lmgrCb.features & LL_FEAT_MIN_NUM_USED_CHAN) == 0))
   {
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
@@ -729,7 +768,7 @@ uint8_t LlGetPeerMinUsedChan(uint16_t handle, uint8_t *pPeerMinUsedChan)
     result = LL_ERROR_CODE_UNKNOWN_CONN_ID;
   }
   else if ((LL_API_PARAM_CHECK == 1) &&
-           ((pLctrRtCfg->btVer <= LL_VER_BT_CORE_SPEC_4_2) ||
+           (((lmgrCb.features & LL_FEAT_MIN_NUM_USED_CHAN) == 0) ||
             (LctrGetRole(handle) != LL_ROLE_MASTER)))
   {
     result = LL_ERROR_CODE_CMD_DISALLOWED;
@@ -845,4 +884,114 @@ uint8_t *LlRecvAclData(void)
 void LlRecvAclDataComplete(uint8_t numBufs)
 {
   LctrRxAclComplete(numBufs);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Used to read the sleep clock accuracy of the peer device.
+ *
+ *  \param      handle          Connection handle.
+ *
+ *  \return     Status error code.
+ */
+/*************************************************************************************************/
+uint8_t LlRequestPeerSca(uint16_t handle)
+{
+  lctrScaReq_t *pMsg;
+
+  LL_TRACE_INFO1("### LlApi ###  LlRequestPeerSca, handle=%u", handle);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+       ((handle >= pLctrRtCfg->maxConn) ||
+       !LctrIsConnHandleEnabled(handle)))
+  {
+    return LL_ERROR_CODE_UNKNOWN_CONN_ID;
+  }
+  else if ((LL_API_PARAM_CHECK == 1) &&
+           ((LctrGetUsedFeatures(handle) & LL_FEAT_SCA_UPDATE) == 0))
+  {
+    return LL_ERROR_CODE_UNSUPPORTED_FEATURE_PARAM_VALUE;
+  }
+
+  if ((pMsg = (lctrScaReq_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+  {
+    pMsg->hdr.handle = handle;
+    pMsg->hdr.dispId = LCTR_DISP_CONN;
+    pMsg->hdr.event  = LCTR_CONN_MSG_API_REQ_PEER_SCA;
+    pMsg->action     = LL_MODIFY_SCA_NO_ACTION;
+
+    WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Modify the sleep clock accuracy
+ *
+ *  \param      action   Increase or decrease the sleep clock accuracy
+ *
+ *  \return     Status error code.
+ */
+/*************************************************************************************************/
+uint8_t LlModifySleepClockAccuracy(uint8_t action)
+{
+  LL_TRACE_INFO1("### LlApi ### LlRequestPeerSca, Action=%u", action);
+
+  uint8_t status = LL_SUCCESS;
+  lctrScaReq_t *pMsg;
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      (action > LL_MODIFY_SCA_LESS_ACCURATE))
+  {
+      return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  if ((status = LctrValidateModifyScaParam(action)) != LL_SUCCESS)
+  {
+    LL_TRACE_WARN1("Modify SCA failed. Status=%u", status);
+  }
+  else /* status = LL_SUCCESS */
+  {
+    /* Update lmgrCb sca for future connections. */
+    switch(action)
+    {
+      case LL_MODIFY_SCA_MORE_ACCURATE:
+        lmgrCb.scaMod++;
+        break;
+      case LL_MODIFY_SCA_LESS_ACCURATE:
+        lmgrCb.scaMod--;
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /* We will send out the request even if we reach the limit,
+   * In case we need to update the connection's sca with the lmgr's sca.
+   */
+  uint16_t handle;
+  for (handle = 0; handle < pLctrRtCfg->maxConn; handle++)
+  {
+    if (LctrIsConnHandleEnabled(handle))
+    {
+      if ((LctrGetUsedFeatures(handle) & LL_FEAT_SCA_UPDATE) == 0)
+      {
+        continue;
+      }
+
+      if ((pMsg = (lctrScaReq_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+      {
+        pMsg->hdr.handle = handle;
+        pMsg->hdr.dispId = LCTR_DISP_CONN;
+        pMsg->hdr.event  = LCTR_CONN_MSG_API_REQ_PEER_SCA;
+        pMsg->action     = action;
+        WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+      }
+    }
+  }
+
+  return status;
 }

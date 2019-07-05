@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief LLCP state machine implementation file.
+ * \file
+ * \brief LLCP state machine implementation file.
  */
 /*************************************************************************************************/
 
@@ -69,9 +70,6 @@ enum
   LCTR_PROC_CMN_ACT_RECV_RSP,   /*!< Receive response action. */
   LCTR_PROC_CMN_ACT_TOTAL       /*!< Total common procedure actions. */
 };
-
-/*! \brief      Call signature of an action handler. */
-typedef void (*lctrLlcpEh_t)(lctrConnCtx_t *pCtx);
 
 /**************************************************************************************************
   Global Variables
@@ -127,6 +125,22 @@ const lctrLlcpEh_t lctrCmnProcTbl[LCTR_PROC_CMN_TOTAL][LCTR_PROC_CMN_ACT_TOTAL] 
     lctrStoreSetMinUsedChan,    /* LCTR_PROC_CMN_ACT_RECV_REQ */
     NULL,                       /* LCTR_PROC_CMN_ACT_SEND_RSP */
     NULL                        /* LCTR_PROC_CMN_ACT_RECV_RSP */
+  },
+  /* LCTR_PROC_CMN_PER_ADV_SYNC_TRSF */
+  {
+    lctrActStorePeriodicSyncTrsf, /* LCTR_PROC_CMN_ACT_API_PARAM */
+    lctrActSendPeriodicSyncInd,   /* LCTR_PROC_CMN_ACT_SEND_REQ */
+    lctrActReceivePeriodicSyncInd,/* LCTR_PROC_CMN_ACT_RECV_REQ */
+    NULL,                         /* LCTR_PROC_CMN_ACT_SEND_RSP */
+    NULL                          /* LCTR_PROC_CMN_ACT_RECV_RSP */
+  },
+  /* LCTR_PROC_CMN_REQ_PEER_SCA */
+  {
+    lctrStoreScaAction,         /* LCTR_PROC_CMN_ACT_API_PARAM */
+    lctrSendPeerScaReq,         /* LCTR_PROC_CMN_ACT_SEND_REQ */
+    lctrStorePeerSca,           /* LCTR_PROC_CMN_ACT_RECV_REQ */
+    lctrSendPeerScaRsp,         /* LCTR_PROC_CMN_ACT_SEND_RSP */
+    lctrStorePeerSca,           /* LCTR_PROC_CMN_ACT_RECV_RSP */
   }
 };
 
@@ -239,9 +253,15 @@ static uint8_t lctrGetCmnProcId(lctrConnCtx_t *pCtx, uint8_t event)
     case LCTR_CONN_MSG_API_SET_MIN_USED_CHAN:
       return LCTR_PROC_CMN_SET_MIN_USED_CHAN;
 
+    case LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF:
+      return LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
+
     case LCTR_CONN_MSG_API_REMOTE_VERSION:
     case LCTR_CONN_LLCP_VERSION_EXCH:
       return LCTR_PROC_CMN_VER_EXCH;
+
+    case LCTR_CONN_MSG_API_REQ_PEER_SCA:
+      return LCTR_PROC_CMN_REQ_PEER_SCA;
 
     case LCTR_CONN_LLCP_TERM:
     case LCTR_CONN_MSG_API_DISCONNECT:
@@ -277,6 +297,13 @@ static uint8_t lctrGetCmnProcId(lctrConnCtx_t *pCtx, uint8_t event)
 
         case LL_PDU_MIN_USED_CHAN_IND:
           return LCTR_PROC_CMN_SET_MIN_USED_CHAN;
+
+        case LL_PDU_PERIODIC_SYNC_IND:
+          return LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
+
+        case LL_PDU_PEER_SCA_REQ:
+        case LL_PDU_PEER_SCA_RSP:
+          return LCTR_PROC_CMN_REQ_PEER_SCA;
 
         case LL_PDU_UNKNOWN_RSP:
           switch (lctrDataPdu.pld.unknownRsp.unknownType)
@@ -347,6 +374,8 @@ static uint8_t lctrRemapCmnProcEvent(lctrConnCtx_t *pCtx, uint8_t event)
     case LCTR_CONN_MSG_API_DISCONNECT:
     case LCTR_CONN_MSG_API_DATA_LEN_CHANGE:
     case LCTR_CONN_MSG_API_SET_MIN_USED_CHAN:
+    case LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF:
+    case LCTR_CONN_MSG_API_REQ_PEER_SCA:
       return LCTR_PROC_CMN_EVT_HOST_START;
 
     case LCTR_CONN_LLCP_FEATURE_EXCH:
@@ -368,17 +397,18 @@ static uint8_t lctrRemapCmnProcEvent(lctrConnCtx_t *pCtx, uint8_t event)
         case LL_PDU_FEATURE_REQ:
         case LL_PDU_SLV_FEATURE_REQ:
         case LL_PDU_LENGTH_REQ:
+        case LL_PDU_PEER_SCA_REQ:
           return LCTR_PROC_CMN_EVT_RECV_REQ;
-
-        case LL_PDU_MIN_USED_CHAN_IND:
-          return LCTR_PROC_CMN_EVT_RECV_IND;
 
         case LL_PDU_TERMINATE_IND:
         case LL_PDU_VERSION_IND:
+        case LL_PDU_MIN_USED_CHAN_IND:
+        case LL_PDU_PERIODIC_SYNC_IND:
           return LCTR_PROC_CMN_EVT_RECV_IND;
 
         case LL_PDU_FEATURE_RSP:
         case LL_PDU_LENGTH_RSP:
+        case LL_PDU_PEER_SCA_RSP:
           return LCTR_PROC_CMN_EVT_RECV_RSP;
 
         case LL_PDU_UNKNOWN_RSP:
@@ -492,6 +522,26 @@ static bool_t lctrFeatureAvail(lctrConnCtx_t *pCtx, uint8_t proc, uint8_t event)
         }
       }
       break;
+    case LCTR_PROC_CMN_PER_ADV_SYNC_TRSF:
+      if ((event == LCTR_PROC_CMN_EVT_HOST_START) &&
+          ((lmgrCb.features & LL_FEAT_PAST_SENDER) == 0))
+      {
+        LL_TRACE_WARN1("Requested LCTR_PROC_CMN_PER_ADV_SYNC_TRSF not available, FeatSet=0x%08x", lmgrCb.features);
+        result = FALSE;
+      }
+      else if (event == LCTR_PROC_CMN_EVT_RECV_REQ)
+      {
+        LL_TRACE_WARN1("Slave cannot receive this LLCP proc=%u", proc);
+        result = FALSE;
+      }
+      break;
+    case LCTR_PROC_CMN_REQ_PEER_SCA:
+      if ((pCtx->usedFeatSet & LL_FEAT_SCA_UPDATE) == 0)
+      {
+        LL_TRACE_WARN1("Requested LCTR_PROC_CMN_REQ_PEER_SCA not available, usedFeatSet=0x%08x", pCtx->usedFeatSet);
+        result = FALSE;
+      }
+      break;
     case LCTR_PROC_CMN_TERM:
     default:
       break;
@@ -564,6 +614,9 @@ static void lctrNotifyHostSuccess(lctrConnCtx_t *pCtx, uint8_t proc)
       break;
     case LCTR_PROC_CMN_DATA_LEN_UPD:
       /* We have already notified the host if the effective lengths changed. */
+      break;
+    case LCTR_PROC_CMN_REQ_PEER_SCA:
+      lctrNotifyHostPeerScaCnf(pCtx);
       break;
     default:
       break;
@@ -656,7 +709,7 @@ bool_t lctrLlcpExecuteCommonSm(lctrConnCtx_t *pCtx, uint8_t event)
         case LCTR_PROC_CMN_EVT_HOST_START:
           pCtx->llcpNotifyMask |= 1 << proc;
           lctrExecAction(pCtx, proc, LCTR_PROC_CMN_ACT_API_PARAM);
-          /* no break */
+          /* Fallthrough */
         case LCTR_PROC_CMN_EVT_INT_START:
           if (lctrFeatureAvail(pCtx, proc, event))
           {
@@ -758,7 +811,7 @@ bool_t lctrLlcpExecuteCommonSm(lctrConnCtx_t *pCtx, uint8_t event)
             }
             break;
           }
-          /* no break */
+          /* Fallthrough */
         case LCTR_PROC_CMN_EVT_RECV_RSP:
           if (proc == pCtx->llcpActiveProc)
           {
@@ -782,7 +835,7 @@ bool_t lctrLlcpExecuteCommonSm(lctrConnCtx_t *pCtx, uint8_t event)
             LL_TRACE_ERR1("Unexpected response packet, expected llcpActiveProc=%u", pCtx->llcpActiveProc);
             break;
           }
-          /* no break */
+          /* Fallthrough */
         case LCTR_PROC_CMN_EVT_PROC_COMP:       /* Completion from CE */
         case LCTR_PROC_CMN_EVT_REJECT:          /* Failed completion */
           if (event == LCTR_PROC_CMN_EVT_REJECT)

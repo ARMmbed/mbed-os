@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave extended advertising action routines.
+ * \file
+ * \brief Link layer controller slave extended advertising action routines.
  */
 /*************************************************************************************************/
 
@@ -33,6 +34,21 @@
 #include "util/bstream.h"
 
 #include <string.h>
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Disable and clean a generic acad parameter
+ *
+ *  \param      pAcadParam  Generic acad parameter type
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+static void lctrSlvAcadDisable(lctrAcadParam_t *pAcadParam)
+{
+  memset(pAcadParam, 0, sizeof(*pAcadParam));
+  pAcadParam->hdr.state = LCTR_ACAD_STATE_DISABLED;
+}
 
 /*************************************************************************************************/
 /*!
@@ -64,13 +80,30 @@ static void lctrExtAdvCleanup(lctrAdvSet_t *pAdvSet)
     pAdv->pRxReqBuf = NULL;
   }
 
-  if (pAdvSet->param.advFiltPolicy & LL_ADV_FILTER_SCAN_WL_BIT)
+  if (pAdvSet->param.advFiltPolicy)
   {
     LmgrDecWhitelistRefCount();
   }
 
   WSF_ASSERT(lmgrCb.numExtAdvEnabled > 0);
   lmgrCb.numExtAdvEnabled--;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Common periodic advertising cleanup.
+ *
+ *  \param      pAdvSet     Advertising set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+static void lctrPeriodicAdvACleanup(lctrAdvSet_t *pAdvSet)
+{
+  BbStop(BB_PROT_BLE);
+
+  SchRmRemove(LCTR_GET_PER_RM_HANDLE(pAdvSet));
+  LmgrDecResetRefCount();
 }
 
 /*************************************************************************************************/
@@ -121,6 +154,43 @@ void lctrExtAdvActStart(lctrAdvSet_t *pAdvSet)
 
 /*************************************************************************************************/
 /*!
+ *  \brief      Start extended advertising internally.
+ *
+ *  \param      pAdvSet     Advertising set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrExtAdvActSelfStart(lctrAdvSet_t *pAdvSet)
+{
+  BbStart(BB_PROT_BLE);
+
+  /* Reset state. */
+  pAdvSet->maxEvents = pLctrSlvExtAdvMsg->enable.maxEvents;
+  pAdvSet->numEvents = 0;
+  pAdvSet->termReason = LL_SUCCESS;
+  pAdvSet->pExtAdvAuxPtr = NULL;
+  pAdvSet->connIndRcvd = FALSE;
+  pAdvSet->shutdown = FALSE;
+  pAdvSet->bodTermCnt = 0;
+
+  uint8_t status;
+  if ((status = lctrSlvExtAdvBuildOp(pAdvSet, pLctrSlvExtAdvMsg->enable.durMs)) != LL_SUCCESS)
+  {
+    // TODO suppress terminate event on failed start
+    LmgrSendExtAdvEnableCnf(pAdvSet->handle, status);
+    lctrSendAdvSetMsg(pAdvSet, LCTR_EXT_ADV_MSG_TERMINATE);
+    return;
+  }
+
+  if (pLctrSlvExtAdvMsg->enable.durMs)
+  {
+    WsfTimerStartMs(&pAdvSet->tmrAdvDur, pLctrSlvExtAdvMsg->enable.durMs);
+  }
+}
+
+/*************************************************************************************************/
+/*!
  *  \brief      Restart extended advertising.
  *
  *  \param      pAdvSet     Advertising set.
@@ -162,6 +232,29 @@ void lctrExtAdvActShutdown(lctrAdvSet_t *pAdvSet)
   /* TODO: Attempt to remove BOD immediately to reduce shutdown time. */
 
   /* Shutdown completes with events generated in BOD end callback. */
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Shutdown active advertising operation due to host reset.
+ *
+ *  \param      pAdvSet     Advertising set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrExtAdvActResetShutdown(lctrAdvSet_t *pAdvSet)
+{
+  /* LCTR_MSG_RESET is broadcasted by hciReset and the processing order between ext ADV SM and periodic ADV SM is not guaranteed. */
+  /* If ext ADV SM runs first, it will purge all info and periodic ADV SM may not run as intended.  */
+  /* So, reset cleanup of periodic advertising has to be done from extended ADV SM. */
+  if (pAdvSet->perParam.perState == LCTR_PER_ADV_STATE_ENABLED)
+  {
+    lctrPeriodicAdvActShutdown(pAdvSet);
+    lctrPeriodicAdvACleanup(pAdvSet);
+  }
+
+  lctrExtAdvActShutdown(pAdvSet);
 }
 
 /*************************************************************************************************/
@@ -232,7 +325,7 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
     BbBleSlvAuxAdvEvent_t * const pAuxAdv = &pAdvSet->auxBleData.op.slvAuxAdv;
 
     uint8_t *pBuf;
-    bool_t startConn = TRUE;
+    bool_t restartAdv = FALSE;
 
     if ((pBuf = pAdv->pRxReqBuf) != NULL)
     {
@@ -241,7 +334,7 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
       /* If peer address was not resolved, attempt to resolve it now. */
       if (!BbBlePduFiltCheck(pBuf, &pBle->pduFilt, TRUE, &pAdv->filtResults))
       {
-        startConn = FALSE;
+        restartAdv = TRUE;
       }
     }
     else if ((pBuf = pAuxAdv->pRxAuxReqBuf) != NULL)
@@ -267,11 +360,13 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
 
       if (!BbBleExtPduFiltCheck(&params, &pBle->pduFilt, TRUE, &pAuxAdv->filtResults))
       {
-        startConn = FALSE;
+        restartAdv = TRUE;
       }
     }
 
-    if (startConn && pBuf)
+    WSF_ASSERT(pBuf);          /* pBuf must not be NULL since conn_ind/aux_conn_req is received. */
+
+    if (restartAdv == FALSE)
     {
       lctrConnEstablish_t *pMsg;
 
@@ -283,6 +378,7 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
         pMsg->hdr.dispId = LCTR_DISP_CONN_IND;
         /* pMsg->hdr.event = 0; */
 
+        /* coverity[var_deref_model] */
         pBuf += lctrUnpackAdvbPduHdr(&hdr, pBuf);
         lctrUnpackConnIndPdu(&pMsg->connInd, pBuf);
 
@@ -316,13 +412,24 @@ void lctrExtAdvActSelfTerm(lctrAdvSet_t *pAdvSet)
       }
       else
       {
-        /* Restart advertising. */
-        lctrSendAdvSetMsg(pAdvSet, LCTR_EXT_ADV_MSG_INT_START);
-
         /* Do not cleanup. Restarting will reuse resources. */
-        /* lctrExtAdvCleanup(pAdvSet); */
-        /* BbStop(BB_PROT_BLE); */
+        restartAdv = TRUE;
       }
+    }
+
+    if (restartAdv == TRUE)
+    {
+      /* Restart advertising. */
+      /* Reuse message. */
+      /* coverity[alias_transfer] */
+      lctrMsgHdr_t *pMsg = (lctrMsgHdr_t *)pBuf - 1;
+
+      pMsg->handle = pAdvSet->handle;
+      pMsg->dispId = LCTR_DISP_EXT_ADV;
+      pMsg->event = LCTR_EXT_ADV_MSG_INT_START;
+      WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+
+      BbStop(BB_PROT_BLE);
     }
   }
 }
@@ -355,6 +462,15 @@ void lctrExtAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
 /*************************************************************************************************/
 void lctrExtAdvActReset(lctrAdvSet_t *pAdvSet)
 {
+  /* LCTR_MSG_RESET is broadcasted by hciReset and the processing order between ext ADV SM and periodic ADV SM is not guaranteed. */
+  /* If ext ADV SM runs first, it will purge all info and periodic ADV SM may not run as intended.  */
+  /* So, reset cleanup of periodic advertising has to be done from extended ADV SM. */
+  if (pAdvSet->perParam.perState == LCTR_PER_ADV_STATE_ENABLED)
+  {
+    lctrPeriodicAdvActShutdown(pAdvSet);
+    lctrPeriodicAdvACleanup(pAdvSet);
+  }
+
   /* Although the AdvSet is freed here, some benign modifications to the context may occurs
    * to complete the SM call path. */
   lctrFreeAdvSet(pAdvSet);
@@ -405,7 +521,7 @@ void lctrExtAdvActDurationExpired(lctrAdvSet_t *pAdvSet)
  *  \return None.
  */
 /*************************************************************************************************/
-void lctrPeriodicBuildRemapTable(lctrChanParam_t *pChanParam)
+void lctrPeriodicBuildRemapTable(lmgrChanParam_t *pChanParam)
 {
   unsigned int chanIdx;
   unsigned int numUsedChan = 0;
@@ -441,8 +557,8 @@ void lctrPeriodicAdvActStart(lctrAdvSet_t *pAdvSet)
   pAdvSet->perParam.shutdown = FALSE;
   pAdvSet->perParam.perAccessAddr = lctrComputeAccessAddr();
   pAdvSet->perParam.perEventCounter = 0;
-  pAdvSet->perParam.perChanParam.chanMask = LL_CHAN_DATA_ALL;
-  lctrPeriodicBuildRemapTable(&pAdvSet->perParam.perChanParam);
+  pAdvSet->perParam.perChanParam.chanMask = lmgrCb.chanClass;
+  LmgrBuildRemapTable(&pAdvSet->perParam.perChanParam);
   pAdvSet->perParam.perChanParam.usedChSel = LL_CH_SEL_2;
   pAdvSet->perParam.perChanParam.chIdentifier = (pAdvSet->perParam.perAccessAddr >> 16) ^
                                                 (pAdvSet->perParam.perAccessAddr >> 0);
@@ -464,7 +580,15 @@ void lctrPeriodicAdvActStart(lctrAdvSet_t *pAdvSet)
     pAdvSet->perParam.perAuxStart = TRUE;
   }
 
+  if (pAdvSet->state == LCTR_EXT_ADV_STATE_ENABLED)
+  {
+    /* The Advertising DID is required to change when a SyncInfo field is added to or removed. */
+    pAdvSet->advData.alt.ext.did = lctrCalcDID(pAdvSet->advData.pBuf, pAdvSet->advData.len);
+    pAdvSet->didPerUpdate = TRUE;
+  }
+
   LmgrSendPeriodicAdvEnableCnf(pAdvSet->handle, LL_SUCCESS);
+  LmgrIncResetRefCount();
 }
 
 /*************************************************************************************************/
@@ -521,10 +645,20 @@ void lctrPeriodicAdvActDisallowAdvCnf(lctrAdvSet_t *pAdvSet)
 /*************************************************************************************************/
 void lctrPeriodicAdvActShutdown(lctrAdvSet_t *pAdvSet)
 {
+  if ((pAdvSet->state == LCTR_EXT_ADV_STATE_ENABLED) && (pAdvSet->perParam.perAdvEnabled == TRUE))
+  {
+    /* The Advertising DID is required to change when a SyncInfo field is added to or removed. */
+    pAdvSet->advData.alt.ext.did = lctrCalcDID(pAdvSet->advData.pBuf, pAdvSet->advData.len);
+    pAdvSet->didPerUpdate = TRUE;
+  }
+
   pAdvSet->perParam.shutdown = TRUE;
   pAdvSet->perParam.perAdvEnabled = FALSE;
   pAdvSet->perParam.perAuxStart = FALSE;
-  /* Shutdown completes with events generated in BOD end callback. */
+
+  /* By removing BOD from scheduler, BOD end callback will be called. */
+  /* Shutdown completes with events generated in BOD end callback.    */
+  SchRemove(&pAdvSet->perParam.perAdvBod);
 }
 
 /*************************************************************************************************/
@@ -538,9 +672,7 @@ void lctrPeriodicAdvActShutdown(lctrAdvSet_t *pAdvSet)
 /*************************************************************************************************/
 void lctrPeriodicAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
 {
-  BbStop(BB_PROT_BLE);
-
-  SchRmRemove(LL_MAX_CONN + LCTR_GET_EXT_ADV_INDEX(pAdvSet));
+  lctrPeriodicAdvACleanup(pAdvSet);
 
   LmgrSendPeriodicAdvEnableCnf(pAdvSet->handle, LL_SUCCESS);
 }
@@ -556,7 +688,44 @@ void lctrPeriodicAdvActAdvTerm(lctrAdvSet_t *pAdvSet)
 /*************************************************************************************************/
 void lctrPeriodicAdvActResetTerm(lctrAdvSet_t *pAdvSet)
 {
-  BbStop(BB_PROT_BLE);
+  lctrPeriodicAdvACleanup(pAdvSet);
+}
 
-  SchRmRemove(LL_MAX_CONN + LCTR_GET_EXT_ADV_INDEX(pAdvSet));
+/*************************************************************************************************/
+/*!
+ *  \brief      Acad channel map start handler
+ *
+ *  \param      pAdvSet     Advertising set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrSlvAcadActChanMapUpdateStart(lctrAdvSet_t *pAdvSet)
+{
+  lctrAcadChanMapUpd_t *pAcadParam = &pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE].chanMapUpdate;
+
+  /* A new channel map update cannot replace a currently running one. */
+  if (pAcadParam->hdr.state == LCTR_ACAD_STATE_ENABLED)
+  {
+    return;
+  }
+
+  pAcadParam->chanMask = pAdvSet->perParam.updChanMask;
+  pAcadParam->instant = pAdvSet->perParam.perEventCounter + LL_MIN_INSTANT;
+  pAcadParam->hdr.len = LL_ACAD_UPDATE_CHANNEL_MAP_LEN;
+  pAcadParam->hdr.state = LCTR_ACAD_STATE_ENABLED;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Acad channel map finish handler
+ *
+ *  \param      pAdvSet     Advertising set.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrSlvAcadActChanMapUpdateFinish(lctrAdvSet_t *pAdvSet)
+{
+  lctrSlvAcadDisable(&pAdvSet->acadParams[LCTR_ACAD_ID_CHAN_MAP_UPDATE]);
 }

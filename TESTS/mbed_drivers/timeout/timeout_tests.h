@@ -78,14 +78,14 @@ void test_single_call(void)
 
     timeout.attach_callback(mbed::callback(sem_callback, &sem), TEST_DELAY_US);
 
-    int32_t sem_slots = sem.wait(0);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    bool acquired = sem.try_acquire();
+    TEST_ASSERT_FALSE(acquired);
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 2);
-    TEST_ASSERT_EQUAL(1, sem_slots);
+    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    TEST_ASSERT_TRUE(acquired);
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 2);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    TEST_ASSERT_FALSE(acquired);
 
     timeout.detach();
 }
@@ -110,12 +110,12 @@ void test_cancel(void)
 
     timeout.attach_callback(mbed::callback(sem_callback, &sem), 2.0f * TEST_DELAY_US);
 
-    int32_t sem_slots = sem.wait(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    bool acquired = sem.try_acquire_for(TEST_DELAY_MS);
+    TEST_ASSERT_FALSE(acquired);
     timeout.detach();
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 2);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    acquired = sem.try_acquire_for(TEST_DELAY_MS + 2);
+    TEST_ASSERT_FALSE(acquired);
 }
 
 /** Template for tests: callback override
@@ -143,14 +143,14 @@ void test_override(void)
 
     timeout.attach_callback(mbed::callback(sem_callback, &sem1), 2.0f * TEST_DELAY_US);
 
-    int32_t sem_slots = sem1.wait(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    bool acquired = sem1.try_acquire_for(TEST_DELAY_MS);
+    TEST_ASSERT_FALSE(acquired);
     timeout.attach_callback(mbed::callback(sem_callback, &sem2), 2.0f * TEST_DELAY_US);
 
-    sem_slots = sem2.wait(2 * TEST_DELAY_MS + 2);
-    TEST_ASSERT_EQUAL(1, sem_slots);
-    sem_slots = sem1.wait(0);
-    TEST_ASSERT_EQUAL(0, sem_slots);
+    acquired = sem2.try_acquire_for(2 * TEST_DELAY_MS + 2);
+    TEST_ASSERT_TRUE(acquired);
+    acquired = sem1.try_acquire();
+    TEST_ASSERT_FALSE(acquired);
 
     timeout.detach();
 }
@@ -196,13 +196,14 @@ void test_multiple(void)
 template<typename T>
 void test_no_wait(void)
 {
-    Semaphore sem(0, 1);
-    T timeout;
-    timeout.attach_callback(mbed::callback(sem_callback, &sem), 0ULL);
-
-    int32_t sem_slots = sem.wait(0);
-    TEST_ASSERT_EQUAL(1, sem_slots);
-    timeout.detach();
+    for (int i = 0; i < 100; i++) {
+        Semaphore sem(0, 1);
+        T timeout;
+        timeout.attach_callback(mbed::callback(sem_callback, &sem), 0ULL);
+        int32_t sem_slots = sem.wait(0);
+        TEST_ASSERT_EQUAL(1, sem_slots);
+        timeout.detach();
+    }
 }
 
 /** Template for tests: accuracy of timeout delay
@@ -227,9 +228,8 @@ void test_delay_accuracy(void)
     timer.start();
     timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
 
-    int32_t sem_slots = sem.wait(osWaitForever);
+    sem.acquire();
     timer.stop();
-    TEST_ASSERT_EQUAL(1, sem_slots);
     TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());
 
     timeout.detach();
@@ -265,9 +265,7 @@ void test_sleep(void)
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
-    while (sem.wait(0) != 1) {
-        sleep();
-    }
+    sem.acquire();
     timer.stop();
 
     sleep_manager_unlock_deep_sleep();
@@ -324,9 +322,7 @@ void test_deepsleep(void)
 
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
-    while (sem.wait(0) != 1) {
-        sleep();
-    }
+    sem.acquire();
     timer.stop();
 
     TEST_ASSERT_UINT64_WITHIN(delta_us, delay_us, timer.read_high_resolution_us());

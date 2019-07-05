@@ -15,7 +15,7 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_assert.h"
 
 namespace mbed {

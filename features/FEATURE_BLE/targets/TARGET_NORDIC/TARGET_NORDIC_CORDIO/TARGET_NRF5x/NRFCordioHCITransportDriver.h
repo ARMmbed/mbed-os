@@ -51,7 +51,8 @@ public:
      * packet, ACL packet or EVT packet. Depending on the type of transport
      * it can prefix the packet itself.
      * @param len Number of bytes to transmit.
-     * @param pData pointer to the data to transmit.
+     * @param pData Pointer to the data to transmit. This is an WSF buffer
+     * and if CORDIO_ZERO_COPY_HCI is enabled we receive ownership.
      *
      * @return The number of bytes which have been transmited.
      */

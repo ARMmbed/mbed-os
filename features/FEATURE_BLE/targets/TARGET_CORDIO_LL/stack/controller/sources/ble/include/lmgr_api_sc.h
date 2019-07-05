@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer manager secure connections interface file.
+ * \file
+ * \brief Link layer manager secure connections interface file.
  */
 /*************************************************************************************************/
 
@@ -41,10 +42,20 @@ extern "C" {
 /*! \brief      Secure connections parameter definition. */
 typedef struct
 {
-  uint8_t   privKey[LL_ECC_KEY_LEN];   /*!< P-256 private key. */
+  uint8_t   privKey[LL_ECC_KEY_LEN];    /*!< P-256 private key. */
   bool_t    eccOpActive;                /*!< An ECC generation operation is active. */
   bool_t    privKeySet;                 /*!< P-256 private key set; do not generate new one. */
+  bool_t    pubKeyValid;                /*!< DHKey won't start to generate unless public key is valid. */
+  uint8_t   validatePubKeyMode;         /*!< Validate public key mode between ALT1 and ALT2. */
 } lmgrScCtrlBlk_t;
+
+/*! \brief      Key validation mode between ALT1 and ALT2. */
+enum
+{
+  KEY_VALIDATE_MODE_ALT2 = 0,           /*!< Return error code 0x12 in command complete event. (Default mode) */
+  KEY_VALIDATE_MODE_ALT1 = 1,           /*!< Return error code 0x12 in command status event. */
+  KEY_VALIDATE_MODE_MAX  = 1            /*!< Key validate mode maximum value. */
+};
 
 /**************************************************************************************************
   Global Variables

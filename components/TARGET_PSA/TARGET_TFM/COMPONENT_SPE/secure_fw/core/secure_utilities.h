@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -8,9 +8,9 @@
 #ifndef __SECURE_UTILITIES_H__
 #define __SECURE_UTILITIES_H__
 
+#include <stdio.h>
 #include "cmsis_compiler.h"
 #include "tfm_svc.h"
-#include "string.h"
 
 #define EXC_RETURN_INDICATOR                    (0xF << 28)
 #define EXC_RETURN_SECURITY_STACK_STATUS_MASK   (0x3 << 5)
@@ -51,9 +51,9 @@ struct tfm_exc_stack_t {
 #endif
 
 #define LOG_MSG_THR(MSG) \
-            __ASM("MOV r0, %0\n" \
-                  "SVC %1\n" \
-                  : : "r" (MSG), "I" (TFM_SVC_PRINT))
+            __ASM volatile("MOV r0, %0\n" \
+                           "SVC %1\n" \
+                           : : "r" (MSG), "I" (TFM_SVC_PRINT))
 
 #define LOG_MSG(MSG) \
             do { \
@@ -96,37 +96,14 @@ __STATIC_INLINE uint32_t __get_active_exc_num(void)
 }
 
 __attribute__ ((always_inline))
-__STATIC_INLINE void __set_CONTROL_SPSEL(int32_t SPSEL)
+__STATIC_INLINE void __set_CONTROL_SPSEL(uint32_t SPSEL)
 {
     CONTROL_Type ctrl;
 
     ctrl.w = __get_CONTROL();
     ctrl.b.SPSEL = SPSEL;
     __set_CONTROL(ctrl.w);
-    __asm("ISB");
-}
-
-/* FIXME: The following functions are wrappers around standard C library
- *        functions: memcpy, memcmp, memset
- *        In long term standard C library might be removed from TF-M project or
- *        replaced with a secure implementation due to security concerns.
- */
-__attribute__ ((always_inline)) __STATIC_INLINE
-void tfm_memcpy(void *dest, const void *src, uint32_t size)
-{
-    memcpy(dest, src, size);
-}
-
-__attribute__ ((always_inline)) __STATIC_INLINE
-int32_t tfm_memcmp(const void * ptr1, const void * ptr2, size_t num)
-{
-    return (memcmp(ptr1, ptr2, num));
-}
-
-__attribute__ ((always_inline)) __STATIC_INLINE
-void * tfm_memset(void * ptr, int value, size_t num)
-{
-    return (memset(ptr, value, num));
+    __ISB();
 }
 
 #endif /* __SECURE_UTILITIES_H__ */

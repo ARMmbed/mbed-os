@@ -62,6 +62,9 @@ struct Qspi {
 #ifdef QSPI_CMD_WRITE_2IO
 #define WRITE_1_2_2     MODE_1_2_2, QSPI_CMD_WRITE_2IO
 #endif
+#ifdef QSPI_CMD_WRITE_1I4O      // Quad page program - command: 0x32
+#define WRITE_1_1_4     MODE_1_1_4, QSPI_CMD_WRITE_1I4O
+#endif
 #ifdef QSPI_CMD_WRITE_4IO
 #define WRITE_1_4_4     MODE_1_4_4, QSPI_CMD_WRITE_4IO
 #endif

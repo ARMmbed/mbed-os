@@ -134,6 +134,16 @@ public:
      */
     uint16_t write(uint8_t type, uint16_t len, uint8_t *pData);
 
+    /**
+     * React to host stack inactivity.
+     *
+     * The host stack invoke this function when it is inactive. It allows a
+     * driver to put its controller to sleep if all the conditions are met.
+     *
+     * Any call to write signals to the driver that the host stack is active.
+     */
+     virtual void on_host_stack_inactivity();
+
 protected:
     /**
      * Return a default set of memory pool that the Cordio stack can use.

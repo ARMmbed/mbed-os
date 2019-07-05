@@ -61,11 +61,13 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     // Store above pin mask, pin name into GPIO object
     obj->pin      = pin;
-    obj->pin_num  = PIN_POS(pin);
-    obj->mask     = gpio_set(pin);
-    obj->port     = (PortName) PIN_PORT(pin);
-    //Enable clock for particular port
-    TSB_CG->FSYSMENB |= (1 << ((obj->port) + 2));
+    if (pin != NC) {
+        obj->pin_num  = PIN_POS(pin);
+        obj->mask     = gpio_set(pin);
+        obj->port     = (PortName) PIN_PORT(pin);
+        //Enable clock for particular port
+        TSB_CG->FSYSMENB |= (1 << ((obj->port) + 2));
+    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)

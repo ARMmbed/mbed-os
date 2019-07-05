@@ -17,18 +17,18 @@
 
 #include <string.h>
 #include "device.h"
-#include "gpio/cy_gpio.h"
-#include "syslib/cy_syslib.h"
-#include "sysclk/cy_sysclk.h"
-#include "systick/cy_systick.h"
-#include "sysanalog/cy_sysanalog.h"
+#include "cy_gpio.h"
+#include "cy_syslib.h"
+#include "cy_sysclk.h"
+#include "cy_systick.h"
+#include "cy_sysanalog.h"
 
 #if FEATURE_BLE
 #include "ble/cy_ble_clk.h"
 #endif // FEATURE_BLE
 
 #define CY_NEED_CYCLOCKSTARTUPERROR 1
-#include "syspm/cy_syspm.h"
+#include "cy_syspm.h"
 
 #include "psoc6_utils.h"
 

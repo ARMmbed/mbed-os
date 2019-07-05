@@ -212,6 +212,12 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     return ERR_OK;
 }
 
+err_t
+sys_mbox_trypost_fromisr(sys_mbox_t *q, void *msg)
+{
+  return sys_mbox_trypost(q, msg);
+}
+
 /*---------------------------------------------------------------------------*
  * Routine:  sys_arch_mbox_fetch
  *---------------------------------------------------------------------------*
@@ -426,6 +432,7 @@ void sys_init(void) {
     lwip_sys_mutex_attr.name = "lwip_sys_mutex";
     lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
+    lwip_sys_mutex_attr.attr_bits = osMutexPrioInherit | osMutexRecursive;
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INITIALIZATION_FAILED), "sys_init error, mutex initialization failed\n");
@@ -605,7 +612,7 @@ MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, cons
     \param[in]    line  Line number in file with error
     \param[in]    file  Filename with error
  */
-MBED_NORETURN void assert_printf(char *msg, int line, char *file) {
+MBED_NORETURN void assert_printf(const char *msg, int line, const char *file) {
     if (msg)
         error("%s:%d in file %s\n", msg, line, file);
     else

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave control interface implementation file.
+ * \file
+ * \brief Link layer (LL) slave control interface implementation file.
  */
 /*************************************************************************************************/
 
@@ -25,6 +26,7 @@
 #include "ll_math.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
+#include "pal_crypto.h"
 #include <string.h>
 
 /*************************************************************************************************/
@@ -43,7 +45,7 @@ uint8_t LlEncrypt(uint8_t *pKey, uint8_t *pData)
 {
   LL_TRACE_INFO0("### LlApi ###  LlEncrypt");
 
-  LlMathAesEcb(pKey, pData, pData);
+  PalCryptoAesEcb(pKey, pData, pData);
 
   return LL_SUCCESS;
 }

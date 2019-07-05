@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master scan action routines.
+ * \file
+ * \brief Link layer controller master scan action routines.
  */
 /*************************************************************************************************/
 
@@ -28,7 +29,7 @@
 #include "wsf_assert.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
-
+#include "bb_ble_api_reslist.h"
 #include "util/bstream.h"
 #include <string.h>
 
@@ -42,7 +43,7 @@
  *  \return     TRUE if successful, FALSE otherwise.
  */
 /*************************************************************************************************/
-static uint8_t lctrPerScanSetup(lctrPerCreateSyncCtrlBlk_t *pPerCreateSync, lctrPerCreateSyncMsg_t *pMsg)
+static uint8_t lctrPerScanSetup(lctrPerCreateSyncCtrlBlk_t *pPerCreateSync, lctrPerCreateSyncMsg_t *pMsg, uint8_t createDispId)
 {
   lctrPerScanCtx_t *pPerScanCtx;
 
@@ -58,6 +59,8 @@ static uint8_t lctrPerScanSetup(lctrPerCreateSyncCtrlBlk_t *pPerCreateSync, lctr
   pPerScanCtx->filtParam.advAddr = pMsg->advAddr;
   pPerScanCtx->skip = pMsg->skip;
   pPerScanCtx->syncTimeOutMs = LCTR_PER_SYNC_TIMEOUT_TO_MS(pMsg->syncTimeOut);
+  pPerScanCtx->createDispId = createDispId;
+  pPerScanCtx->repDisabled = pMsg->repDisabled;
 
   return LL_SUCCESS;
 }
@@ -324,8 +327,8 @@ void lctrCreateSyncActCreate(void)
   lctrPerCreateSync.filtParam.advAddrType = pMsg->advAddrType;
   lctrPerCreateSync.filtParam.advSID = pMsg->advSID;
 
-  lctrPerScanSetup(&lctrPerCreateSync, pMsg);
-  lctrMstPerScanBuildOp(lctrPerCreateSync.pPerScanCtx, pMsg);
+  lctrPerScanSetup(&lctrPerCreateSync, pMsg, LCTR_DISP_PER_CREATE_SYNC);
+  lctrMstPerScanBuildOp(lctrPerCreateSync.pPerScanCtx);
 
   LmgrIncResetRefCount();
 }
@@ -360,12 +363,37 @@ void lctrCreateSyncActCancel(void)
     SchRemove(&lctrPerCreateSync.pPerScanCtx->bod);
   }
 
-  lctrSendCreateSyncMsg(LCTR_CREATE_SYNC_MSG_TERMINATE);
+  lctrPerCreateSync.pPerScanCtx->cancelByHost = TRUE;
+  lctrSendCreateSyncMsg(lctrPerCreateSync.pPerScanCtx, LCTR_CREATE_SYNC_MSG_TERMINATE);
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief      Create sync cancel action function.
+ *  \brief      Create sync failed action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrCreateSyncActFailed(void)
+{
+  if (lctrPerCreateSync.createSyncPending == TRUE)
+  {
+    lctrPerCreateSync.pPerScanCtx->cancelCreateSync = TRUE;
+    lctrPerCreateSync.pPerScanCtx->cancelByHost = FALSE;
+    SchRemove(&lctrPerCreateSync.pPerScanCtx->bod);
+
+    lctrPerCreateSync.createSyncPending = FALSE;
+  }
+
+  /* Pack and notify the host about sync established event with failed status. */
+  lmgrPerAdvSyncEstdInd_t rpt;
+  lctrPerAdvSyncEstRptPack(lctrPerCreateSync.pPerScanCtx, &rpt);
+  LmgrSendSyncEstInd(LL_ERROR_CODE_CONN_FAILED_TO_ESTABLISH, LCTR_GET_PER_SCAN_HANDLE(lctrPerCreateSync.pPerScanCtx), &rpt);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Create sync terminate action function.
  *
  *  \return     None.
  */
@@ -379,9 +407,143 @@ void lctrCreateSyncActTerminate(void)
 
   lctrMstPerScanCleanupOp(lctrPerCreateSync.pPerScanCtx);
 
-  lmgrPerAdvSyncEstdInd_t rpt;
-  memset(&rpt, 0, sizeof(lmgrPerAdvSyncEstdInd_t));
-  LmgrSendSyncEstInd(LL_ERROR_CODE_OP_CANCELLED_BY_HOST, LCTR_GET_PER_SCAN_HANDLE(lctrPerCreateSync.pPerScanCtx), &rpt);
+  if (lctrPerCreateSync.pPerScanCtx->cancelByHost)
+  {
+    lmgrPerAdvSyncEstdInd_t rpt;
+    memset(&rpt, 0, sizeof(lmgrPerAdvSyncEstdInd_t));
+    LmgrSendSyncEstInd(LL_ERROR_CODE_OP_CANCELLED_BY_HOST, LCTR_GET_PER_SCAN_HANDLE(lctrPerCreateSync.pPerScanCtx), &rpt);
+  }
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Transfer sync start action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrTransferSyncActStart(void)
+{
+  lctrPerScanCtx_t *pPerScanCtx;
+
+  lctrPerTransferSyncMsg_t *pMsg  = (lctrPerTransferSyncMsg_t *)pLctrMstPerScanMsg;
+
+  if ((pPerScanCtx = lctrAllocPerScanCtx()) == NULL)
+  {
+    return;
+  }
+
+  BbStart(BB_PROT_BLE);
+
+  lctrPerTransferSync.pPerScanCtx = pPerScanCtx;
+
+  pPerScanCtx->filtParam.filterPolicy = LL_PER_SCAN_FILTER_NONE;    //TODO: to be handled later.
+  pPerScanCtx->filtParam.advSID = pMsg->advSID;
+  pPerScanCtx->filtParam.advAddrType = pMsg->advAddrType;
+  pPerScanCtx->filtParam.advAddr = pMsg->advAddr;
+  pPerScanCtx->rxPhys = pMsg->rxPhy;
+
+  pPerScanCtx->syncTimeOutMs = LCTR_PER_SYNC_TIMEOUT_TO_MS(100);    //TODO: to be handled later.
+  pPerScanCtx->skip = 0;                                            //TODO: to be handled later.
+  pPerScanCtx->createDispId = LCTR_DISP_TRANFER_SYNC;
+
+  /* Decode syncInfo */
+  lctrUnpackSyncInfo(&trsfSyncInfo, pMsg->bSyncInfo);
+  pPerScanCtx->perInter = BB_US_TO_BB_TICKS(LCTR_PER_INTER_TO_US(trsfSyncInfo.syncInter));
+  pPerScanCtx->advSID = pMsg->advSID;
+  pPerScanCtx->advAddrType = pMsg->advAddrType;
+  pPerScanCtx->advAddr = pMsg->advAddr;
+
+  /* Check if received address is resolvable. */
+  if ((pMsg->advAddrType & LL_ADDR_RANDOM_BIT) && BDA64_ADDR_IS_RPA(pMsg->advAddr))
+  {
+    uint64_t peerIdAddr = 0;
+    uint8_t peerIdAddrType = 0;
+
+    if (BbBleResListResolvePeer(pMsg->advAddr, &peerIdAddrType, &peerIdAddr))
+    {
+      pPerScanCtx->advAddrType = peerIdAddrType | LL_ADDR_IDENTITY_BIT;
+      pPerScanCtx->advAddr = peerIdAddr;
+    }
+  }
+
+  LL_TRACE_INFO1("Periodic sync transfer -- syncInfo --, syncOffset=%u", trsfSyncInfo.syncOffset);
+  LL_TRACE_INFO1("                                       offsetUnits=%u", trsfSyncInfo.offsetUnits);
+  LL_TRACE_INFO1("                                       syncInter=%u", trsfSyncInfo.syncInter);
+  LL_TRACE_INFO1("                                       eventCounter=%u", trsfSyncInfo.eventCounter);
+
+  lctrMstPerScanBuildOp(lctrPerTransferSync.pPerScanCtx);
+
+  LmgrIncResetRefCount();
+
+  /* All information is transfered, we can start scanning periodic sync immediately. */
+  lctrPerTransferSync.connHandle = pMsg->connHandle;
+  lctrPerTransferSync.serviceData = pMsg->id;
+  lctrPerTransferSync.ceRef = pMsg->ceRef;
+  lctrPerTransferSync.ceRcvd = pMsg->ceRcvd;
+  lctrPerTransferSync.syncCe = pMsg->syncConnEvtCounter;
+  lctrPerTransferSync.scaB = pMsg->scaB;
+  lctrPerTransferSync.lastPECounter = pMsg->lastPECounter;
+  lctrMstPerScanTransferOpCommit(pMsg->connHandle);
+
+  lctrMstPerScanIsrInit();
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Transfer sync done action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrTransferSyncActDone(void)
+{
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Transfer sync failed action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrTransferSyncActFailed(void)
+{
+  lctrPerTransferSync.pPerScanCtx->cancelCreateSync = TRUE;
+  SchRemove(&lctrPerTransferSync.pPerScanCtx->bod);
+
+  /* Notify the host that controller failed to receive AUX_SYNC_IND within 6 periodic ADV events. */
+  LctrSendPerSyncTrsfRcvdEvt(LL_ERROR_CODE_CONN_FAILED_TO_ESTABLISH, lctrPerTransferSync.pPerScanCtx);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Transfer sync cancel action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrTransferSyncActCancel(void)
+{
+  lctrPerTransferSync.pPerScanCtx->cancelCreateSync = TRUE;
+  SchRemove(&lctrPerTransferSync.pPerScanCtx->bod);
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Transfer sync terminate action function.
+ *
+ *  \return     None.
+ */
+/*************************************************************************************************/
+void lctrTransferSyncActTerminate(void)
+{
+  if (lctrPerTransferSync.pPerScanCtx->cancelCreateSync == TRUE)
+  {
+    lctrPerTransferSync.pPerScanCtx->cancelCreateSync = FALSE;
+  }
+
+  lctrMstPerScanCleanupOp(lctrPerTransferSync.pPerScanCtx);
 }
 
 /*************************************************************************************************/
@@ -395,11 +557,19 @@ void lctrCreateSyncActTerminate(void)
 /*************************************************************************************************/
 void lctrPerScanActSyncEstd(lctrPerScanCtx_t *pPerScanCtx)
 {
-  /* Pack and notify the host about sync established event. */
-  lmgrPerAdvSyncEstdInd_t rpt;
+  if (pPerScanCtx->createDispId == LCTR_DISP_PER_CREATE_SYNC)
+  {
+    /* Pack and notify the host about sync established event. */
+    lmgrPerAdvSyncEstdInd_t rpt;
 
-  lctrPerAdvSyncEstRptPack(pPerScanCtx, &rpt);
-  LmgrSendSyncEstInd(LL_SUCCESS, LCTR_GET_PER_SCAN_HANDLE(pPerScanCtx), &rpt);
+    lctrPerAdvSyncEstRptPack(pPerScanCtx, &rpt);
+    LmgrSendSyncEstInd(LL_SUCCESS, LCTR_GET_PER_SCAN_HANDLE(pPerScanCtx), &rpt);
+  }
+  else if (pPerScanCtx->createDispId == LCTR_DISP_TRANFER_SYNC)
+  {
+    /* Notify the host about periodic sync transfer received event. */
+    LctrSendPerSyncTrsfRcvdEvt(LL_SUCCESS, pPerScanCtx);
+  }
 }
 
 /*************************************************************************************************/
@@ -454,4 +624,36 @@ void lctrPerScanActSyncTimeout(lctrPerScanCtx_t *pPerScanCtx)
   LmgrSendSyncLostInd(LCTR_GET_PER_SCAN_HANDLE(pPerScanCtx));
 
   /* Shutdown completes with events generated in BOD end callback. */
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Process acad that need to be serviced.
+ *
+ *  \param      pMsg     Acad message.
+ *
+ *  \return     None
+ */
+/*************************************************************************************************/
+void lctrPerScanActProcessAcad(lctrAcadMsg_t *pMsg)
+{
+  lctrPerScanCtx_t *pPerScanCtx = LCTR_GET_PER_SCAN_CTX(pMsg->hdr.handle);
+  switch(pMsg->hdr.acadId)
+  {
+    case LCTR_ACAD_ID_CHAN_MAP_UPDATE:
+    {
+      lctrAcadChanMapUpd_t *pData = &pPerScanCtx->acadParams[pMsg->hdr.acadId].chanMapUpdate;
+
+      if ((pData->instant - pMsg->hdr.eventCtr) <= pMsg->hdr.skip)
+      {
+        pPerScanCtx->chanParam.chanMask = pData->chanMask;
+        LmgrBuildRemapTable(&pPerScanCtx->chanParam);
+        pData->hdr.state = LCTR_ACAD_STATE_DISABLED;
+      }
+      break;
+    }
+
+    default:
+      break;
+  }
 }

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include "mbed_error.h"
 #include "pinmap.h"
 #include "gpio_include.h"
@@ -402,3 +405,5 @@ const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
 }
+
+#endif  // #if DEVICE_I2C

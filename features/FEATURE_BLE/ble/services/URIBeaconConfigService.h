@@ -18,6 +18,7 @@
 #define SERVICES_URIBEACONCONFIGSERVICE_H_
 
 #include "ble/BLE.h"
+#include "ble/pal/Deprecated.h"
 
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed.h"
@@ -27,6 +28,8 @@
 
 #if BLE_FEATURE_GATT_SERVER
 #if BLE_ROLE_BROADCASTER
+
+BLE_DEPRECATED_API_USE_BEGIN()
 
 extern const uint8_t UUID_URI_BEACON_SERVICE[UUID::LENGTH_OF_LONG_UUID];
 extern const uint8_t UUID_LOCK_STATE_CHAR[UUID::LENGTH_OF_LONG_UUID];
@@ -482,6 +485,8 @@ public:
         }
     }
 };
+
+BLE_DEPRECATED_API_USE_END()
 
 #endif // BLE_ROLE_BROADCASTER
 #endif // BLE_FEATURE_GATT_SERVER

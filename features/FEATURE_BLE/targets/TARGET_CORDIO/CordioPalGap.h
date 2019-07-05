@@ -366,7 +366,7 @@ private:
                 (received_advertising_type_t::type) scan_report->eventType,
                 (connection_peer_address_type_t::type) scan_report->addrType,
                 scan_report->addr,
-                make_const_ArrayView(scan_report->pData, scan_report->len),
+                make_const_Span(scan_report->pData, scan_report->len),
                 scan_report->rssi
             };
             return CordioGapAdvertisingReportEvent(advertising);

@@ -408,8 +408,9 @@ static int send_to_real_socket(int8_t socket_id, const ns_address_t *address, co
         .msg_iovlen = 1
     };
 
+    uint8_t ancillary_databuffer[NS_CMSG_SPACE(sizeof(ns_in6_pktinfo_t))];
+
     if (memcmp(source_address, ns_in6addr_any, 16)) {
-        uint8_t ancillary_databuffer[NS_CMSG_SPACE(sizeof(ns_in6_pktinfo_t))];
         ns_cmsghdr_t *cmsg;
         ns_in6_pktinfo_t *pktinfo;
 

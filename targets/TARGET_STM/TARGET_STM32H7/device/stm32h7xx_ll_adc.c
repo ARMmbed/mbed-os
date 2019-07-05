@@ -16,7 +16,7 @@
   *
   ******************************************************************************
   */
-#if 1 // MBED PATCH defined(USE_FULL_LL_DRIVER)
+#if defined(USE_FULL_LL_DRIVER)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_ll_adc.h"
@@ -25,7 +25,7 @@
 #ifdef  USE_FULL_ASSERT
   #include "stm32_assert.h"
 #else
-  #define assert_param(expr) ((void)0UL)
+  #define assert_param(expr) ((void)0U)
 #endif
 
 /** @addtogroup STM32H7xx_LL_Driver
@@ -46,7 +46,7 @@
   */
 
 /* Definitions of ADC hardware constraints delays */
-/* Note: Only ADC IP HW delays are defined in ADC LL driver driver,           */
+/* Note: Only ADC peripheral HW delays are defined in ADC LL driver driver,   */
 /*       not timeout values:                                                  */
 /*       Timeout values for ADC operations are dependent to device clock      */
 /*       configuration (system clock versus ADC clock),                       */
@@ -61,8 +61,7 @@
 /*        - ADC clock from synchronous clock with AHB prescaler 512,          */
 /*          APB prescaler 16, ADC prescaler 4.                                */
 /*        - ADC clock from asynchronous clock (PLL) with prescaler 1,         */
-/*          with highest ratio CPU clock frequency vs HSI clock frequency:    */
-/*          CPU clock frequency max 72MHz, PLL freq 72MHz: ratio 1.           */
+/*          with highest ratio CPU clock frequency vs HSI clock frequency     */
 /* Unit: CPU cycles.                                                          */
 #define ADC_CLOCK_RATIO_VS_CPU_HIGHEST          (512UL * 16UL * 4UL)
 #define ADC_TIMEOUT_DISABLE_CPU_CYCLES          (ADC_CLOCK_RATIO_VS_CPU_HIGHEST * 1UL)
@@ -158,6 +157,7 @@
    || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_LPTIM2_OUT)                \
    || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_LPTIM3_OUT)                \
   )
+
 #define IS_LL_ADC_REG_CONTINUOUS_MODE(__REG_CONTINUOUS_MODE__)                 \
   (   ((__REG_CONTINUOUS_MODE__) == LL_ADC_REG_CONV_SINGLE)                    \
    || ((__REG_CONTINUOUS_MODE__) == LL_ADC_REG_CONV_CONTINUOUS)                \
@@ -232,6 +232,7 @@
    || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_LPTIM2_OUT)                \
    || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_LPTIM3_OUT)                \
   )
+
 #define IS_LL_ADC_INJ_TRIG_EXT_EDGE(__INJ_TRIG_EXT_EDGE__)                     \
   (   ((__INJ_TRIG_EXT_EDGE__) == LL_ADC_INJ_TRIG_EXT_RISING)                  \
    || ((__INJ_TRIG_EXT_EDGE__) == LL_ADC_INJ_TRIG_EXT_FALLING)                 \
@@ -348,6 +349,7 @@ ErrorStatus LL_ADC_CommonDeInit(ADC_Common_TypeDef *ADCxy_COMMON)
     /* Release reset of ADC clock (core clock) */
     LL_AHB4_GRP1_ReleaseReset(LL_AHB4_GRP1_PERIPH_ADC3);
   }
+  
   return SUCCESS;
 }
 
@@ -523,6 +525,7 @@ ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
       {
         /* Time-out error */
         status = ERROR;
+        break;
       }
     }
     
@@ -543,6 +546,7 @@ ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
       {
         /* Time-out error */
         status = ERROR;
+        break;
       }
     }
   }
@@ -613,7 +617,7 @@ ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
     SET_BIT(ADCx->CFGR, ADC_CFGR_JQDIS);
 
     /* Reset register CFGR2 */
-	CLEAR_BIT(ADCx->CFGR2,
+    CLEAR_BIT(ADCx->CFGR2,
               (  ADC_CFGR2_LSHIFT  | ADC_CFGR2_OVSR    | ADC_CFGR2_RSHIFT1
                | ADC_CFGR2_RSHIFT4 | ADC_CFGR2_RSHIFT3 | ADC_CFGR2_RSHIFT2
                | ADC_CFGR2_RSHIFT1 | ADC_CFGR2_ROVSM   | ADC_CFGR2_TROVS
@@ -676,7 +680,7 @@ ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
     /* Reset register DR */
     /* Note: bits in access mode read only, no direct reset applicable */
     
-	/* Reset register OFR1 */
+    /* Reset register OFR1 */
     CLEAR_BIT(ADCx->OFR1, ADC_OFR1_OFFSET1 | ADC_OFR1_OFFSET1_CH | ADC_OFR1_SSATE);
     /* Reset register OFR2 */
     CLEAR_BIT(ADCx->OFR2, ADC_OFR2_OFFSET2 | ADC_OFR2_OFFSET2_CH | ADC_OFR2_SSATE);

@@ -17,7 +17,7 @@
 #if DEVICE_FLASH
 
 #include "FlashIAPBlockDevice.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #include "mbed_error.h"
 
 using namespace mbed;
@@ -256,4 +256,14 @@ const char *FlashIAPBlockDevice::get_type() const
     return "FLASHIAP";
 }
 
+bool FlashIAPBlockDevice::is_valid_erase(bd_addr_t addr, bd_size_t size) const
+{
+    /* Calculate address alignment for the full flash */
+    bd_addr_t base_addr = addr + (_base - _flash.get_flash_start());
+
+    return (
+               addr + size <= this->size() &&
+               base_addr % get_erase_size(addr) == 0 &&
+               (base_addr + size) % get_erase_size(addr + size - 1) == 0);
+}
 #endif /* DEVICE_FLASH */

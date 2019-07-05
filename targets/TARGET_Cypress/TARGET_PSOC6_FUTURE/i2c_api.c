@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
+#include "i2c_api.h"
+
+#if DEVICE_I2C
 
 #include "cmsis.h"
-#include "mbed_assert.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
-#include "i2c_api.h"
 #include "psoc6_utils.h"
 
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/gpio/cy_gpio.h"
-#include "drivers/peripheral/scb/cy_scb_i2c.h"
-#include "drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_sysclk.h"
+#include "cy_gpio.h"
+#include "cy_scb_i2c.h"
+#include "cy_sysint.h"
 
 #define I2C_DEFAULT_SPEED               100000
 #define NUM_I2C_PORTS                   8
@@ -566,3 +568,5 @@ void i2c_abort_asynch(i2c_t *obj_in)
 }
 
 #endif // DEVICE_ASYNCH
+
+#endif  // #if DEVICE_I2C

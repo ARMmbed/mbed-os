@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller slave connection interface file.
+ * \file
+ * \brief Internal link layer controller slave connection interface file.
  */
 /*************************************************************************************************/
 
@@ -58,7 +59,6 @@ bool_t lctrSlvCheckEncOverrideCommonParam(lctrConnCtx_t *pCtx);
 bool_t lctrSlvCheckConnUpdInstant(lctrConnCtx_t *pCtx);
 
 /* Builder */
-uint32_t lctrCalcIntervalWindowWideningUsec(lctrConnCtx_t *pCtx, uint32_t unsyncTimeUsec);
 void lctrSlvConnBuildOp(lctrConnCtx_t *pCtx);
 
 /* ISR */
@@ -67,6 +67,7 @@ void lctrSlvConnCleanupOp(BbOpDesc_t *pOp);
 void lctrSlvConnEndOp(BbOpDesc_t *pOp);
 void lctrSlvConnTxCompletion(BbOpDesc_t *pOp, uint8_t status);
 void lctrSlvConnRxCompletion(BbOpDesc_t *pOp, uint8_t *pRxBuf, uint8_t status);
+void lctrSlvConnAbortOp(BbOpDesc_t *pOp);
 
 #ifdef __cplusplus
 };

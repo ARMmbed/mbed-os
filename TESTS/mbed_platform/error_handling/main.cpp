@@ -261,9 +261,9 @@ void test_error_hook()
     }
 
     MBED_WARNING1(MBED_ERROR_INVALID_ARGUMENT, "Test for error hook", 1234);
-    int32_t sem_status = callback_sem.wait(5000);
+    bool acquired = callback_sem.try_acquire_for(5000);
 
-    TEST_ASSERT(sem_status > 0);
+    TEST_ASSERT(acquired);
 }
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)

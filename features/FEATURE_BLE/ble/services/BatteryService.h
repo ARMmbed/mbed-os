@@ -84,7 +84,7 @@ public:
             sizeof(charTable) / sizeof(GattCharacteristic *)
         );
 
-        ble.addService(batteryService);
+        ble.gattServer().addService(batteryService);
     }
 
     /**

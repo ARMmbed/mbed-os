@@ -42,6 +42,11 @@ public:
      */
     device_err_t get_device_error() const;
 
+    /* Supported features by the modem
+     *
+     * NOTE! These are used as index to feature table, so the only allowed modification to this is appending
+     *       to the end (just before PROPERTY_MAX). Do not modify any of the existing fields.
+     */
     enum CellularProperty {
         PROPERTY_C_EREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
         PROPERTY_C_GREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
@@ -58,6 +63,7 @@ public:
         PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?
         PROPERTY_NON_IP_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support Non-IP?
         PROPERTY_AT_CGEREP,         // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
+
         PROPERTY_MAX
     };
 
@@ -67,18 +73,18 @@ public:
      */
     static void set_cellular_properties(const intptr_t *property_array);
 
-protected:
-
-    static const intptr_t *_property_array;
-
-    ATHandler &_at;
-
     /** Get value for the given key.
      *
      *  @param key  key for value to be fetched
      *  @return     property value for the given key. Value type is defined in enum CellularProperty
      */
     static intptr_t get_property(CellularProperty key);
+
+protected:
+
+    static const intptr_t *_property_array;
+
+    ATHandler &_at;
 };
 
 } // namespace mbed

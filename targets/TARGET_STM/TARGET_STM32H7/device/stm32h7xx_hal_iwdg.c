@@ -36,7 +36,8 @@
     (+) Debug mode : When the microcontroller enters debug mode (core halted),
         the IWDG counter either continues to work normally or stops, depending
         on DBG_IWDG_STOP configuration bit in DBG module, accessible through
-        __HAL_DBGMCU_FREEZE_IWDG() and __HAL_DBGMCU_UNFREEZE_IWDG() macros
+        __HAL_DBGMCU_FREEZE_IWDG1() or __HAL_DBGMCU_FREEZE2_IWDG2() and 
+        __HAL_DBGMCU_UnFreeze_IWDG1 or __HAL_DBGMCU_UnFreeze2_IWDG2() macros.
 
     [..] Min-max timeout value @32KHz (LSI): ~125us / ~32.7s
          The IWDG timeout may vary due to LSI frequency dispersion. STM32H7xx
@@ -49,17 +50,17 @@
   [..]
     (#) Use IWDG using HAL_IWDG_Init() function to :
       (+) Enable instance by writing Start keyword in IWDG_KEY register. LSI
-           clock is forced ON and IWDG counter starts downcounting.
-      (+) Enable write access to configuration register: IWDG_PR, IWDG_RLR &
-           IWDG_WINR.
+           clock is forced ON and IWDG counter starts counting down.
+      (+) Enable write access to configuration registers:
+          IWDG_PR, IWDG_RLR and IWDG_WINR.
       (+) Configure the IWDG prescaler and counter reload value. This reload
            value will be loaded in the IWDG counter each time the watchdog is
            reloaded, then the IWDG will start counting down from this value.
-      (+) wait for status flags to be reset
+      (+) Wait for status flags to be reset.
       (+) Depending on window parameter:
         (++) If Window Init parameter is same as Window register value,
              nothing more is done but reload counter value in order to exit
-             function withy exact time base.
+             function with exact time base.
         (++) Else modify Window register. This will automatically reload
              watchdog counter.
 
@@ -167,7 +168,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   assert_param(IS_IWDG_RELOAD(hiwdg->Init.Reload));
   assert_param(IS_IWDG_WINDOW(hiwdg->Init.Window));
 
-  /* Enable IWDG. LSI is turned on automaticaly */
+  /* Enable IWDG. LSI is turned on automatically */
   __HAL_IWDG_START(hiwdg);
 
   /* Enable write access to IWDG_PR, IWDG_RLR and IWDG_WINR registers by writing

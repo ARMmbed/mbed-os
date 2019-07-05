@@ -55,6 +55,7 @@ void UBLOX_AT_CellularStack::UUSORD_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
+        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -75,6 +76,7 @@ void UBLOX_AT_CellularStack::UUSORF_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
+        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -118,7 +120,7 @@ bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int sock_id = 0;
+    int sock_id = SOCKET_UNUSED;
 
     _at.lock();
     if (socket->proto == NSAPI_UDP) {
@@ -146,13 +148,13 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
     // Check for duplicate socket id delivered by modem
     for (int i = 0; i < UBLOX_MAX_SOCKET; i++) {
         CellularSocket *sock = _socket[i];
-        if (sock && sock->created && sock->id == sock_id) {
+        if (sock && sock != socket && sock->id == sock_id) {
             return NSAPI_ERROR_NO_SOCKET;
         }
     }
 
+    socket->started = true;
     socket->id = sock_id;
-    socket->created = true;
 
     return NSAPI_ERROR_OK;
 }
@@ -162,7 +164,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     CellularSocket *socket = (CellularSocket *)handle;
 
     if (socket) {
-        if (!socket->created) {
+        if (socket->id == SOCKET_UNUSED) {
             nsapi_error_t err = create_socket_impl(socket);
             if (err != NSAPI_ERROR_OK) {
                 return err;
@@ -178,9 +180,10 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
     _at.cmd_stop_read_resp();
+    nsapi_error_t err = _at.get_last_error();
     _at.unlock();
 
-    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    if (err == NSAPI_ERROR_OK) {
         socket->remoteAddress = addr;
         socket->connected = true;
         return NSAPI_ERROR_OK;
@@ -192,6 +195,8 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
 nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                  const void *data, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     int sent_len = 0;
     pollfh fhs;
     fhs.fh = _at.get_file_handle();
@@ -261,6 +266,8 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
 nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                    void *buffer, nsapi_size_t size)
 {
+    MBED_ASSERT(socket->id != -1);
+
     nsapi_size_or_error_t nsapi_error_size = NSAPI_ERROR_DEVICE_ERROR;
     bool success = true;
     nsapi_size_t read_blk;
@@ -379,6 +386,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     }
     timer.stop();
 
+    socket->rx_avail = false;
     socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
@@ -426,11 +434,14 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
 {
     if (socket != NULL) {
-        socket->id       = SOCKET_UNUSED;
+        socket->id = SOCKET_UNUSED;
+        socket->started = false;
+        socket->rx_avail = false;
         socket->pending_bytes = 0;
-        socket->_cb      = NULL;
-        socket->_data    = NULL;
-        socket->created  = false;
+        socket->closed = true;
+        if (socket->_cb) {
+            socket->_cb(socket->_data);
+        }
     }
 }
 
@@ -444,7 +455,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
     if (_at.info_resp()) {
         _at.skip_param();
         _at.skip_param();
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE - 1);
+        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE);
         if (len == -1) {
             _ip[0] = '\0';
             _at.unlock();
@@ -454,7 +465,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE - 1);
+            len = _at.read_string(_ip, PDP_IPV6_SIZE);
         }
     }
     _at.resp_stop();

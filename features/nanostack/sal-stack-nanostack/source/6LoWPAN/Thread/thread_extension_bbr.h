@@ -47,7 +47,6 @@ typedef struct thread_pbbr_dua_info {
 } thread_pbbr_dua_info_t;
 
 #if defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)
-
 int8_t thread_extension_bbr_init(int8_t interface_id, int8_t backbone_interface_id);
 void thread_extension_bbr_delete(int8_t interface_id);
 bool thread_extension_bbr_nd_query_process(protocol_interface_info_entry_t *cur, const uint8_t *target_addr, uint16_t rloc);
@@ -58,6 +57,10 @@ int thread_extension_bbr_address_set(int8_t interface_id, const uint8_t *addr_pt
 void thread_extension_bbr_route_update(protocol_interface_info_entry_t *cur);
 int thread_extension_bbr_prefix_set(int8_t interface_id, uint8_t *prefix);
 void thread_extension_bbr_old_partition_data_clean(int8_t interface_id);
+void thread_extension_bbr_status_override_get(uint8_t *dua_status, uint8_t *dua_count, uint8_t *ba_failure_count);
+void thread_extension_bbr_status_override_set(uint8_t dua_status, uint8_t dua_count, uint8_t ba_failure_count);
+void thread_extension_status_override_count_set(uint8_t value);
+void thread_extension_bbr_mcast_fwd_check(int8_t interface_id, bool *multicast_fwd);
 
 
 #else
@@ -72,6 +75,10 @@ void thread_extension_bbr_old_partition_data_clean(int8_t interface_id);
 #define thread_extension_bbr_sequence_number_set(interface_id, seq_number) (-1)
 #define thread_extension_bbr_prefix_set(interface_id, prefix) 0
 #define thread_extension_bbr_old_partition_data_clean(interface_id)
+#define thread_extension_bbr_status_override_get(dua_status, dua_count, ba_failure_count);
+#define thread_extension_bbr_status_override_set(dua_status, dua_count, ba_failure_count);
+#define thread_extension_status_override_count_set(value)
+#define thread_extension_bbr_mcast_fwd_check(interface_id, multicast_fwd)
 #endif
 
 #ifdef __cplusplus

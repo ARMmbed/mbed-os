@@ -30,8 +30,6 @@ namespace mbed {
 
 class CellularDevice;
 
-const int RETRY_ARRAY_SIZE = 10;
-
 /** CellularStateMachine class
  *
  *  Finite State Machine for attaching to cellular network. Used by CellularDevice.
@@ -46,8 +44,9 @@ private:
      *
      * @param device    reference to CellularDevice
      * @param queue     reference to queue used in state transitions
+     * @param nw        reference to CellularNetwork
      */
-    CellularStateMachine(CellularDevice &device, events::EventQueue &queue);
+    CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw);
     ~CellularStateMachine();
 
     /** Cellular connection states
@@ -57,6 +56,7 @@ private:
         STATE_POWER_ON,
         STATE_DEVICE_READY,
         STATE_SIM_PIN,
+        STATE_SIGNAL_QUALITY,
         STATE_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
         STATE_MAX_FSM_STATE
@@ -133,6 +133,7 @@ private:
      */
     void reset();
 private:
+    void get_retry_timeout_array(uint16_t *timeout, int &array_len) const;
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
@@ -144,6 +145,7 @@ private:
     void state_power_on();
     void state_device_ready();
     void state_sim_pin();
+    void state_signal_quality();
     void state_registering();
     void state_attaching();
     void enter_to_state(CellularState state);
@@ -154,6 +156,8 @@ private:
     void device_ready_cb();
     void pre_event(CellularState state);
     bool check_is_target_reached();
+    void send_event_cb(cellular_connection_status_t status);
+    void change_timeout(const int &timeout);
 
     CellularDevice &_cellularDevice;
     CellularState _state;
@@ -162,7 +166,7 @@ private:
 
     Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
-    CellularNetwork *_network;
+    CellularNetwork &_network;
     events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
 
@@ -171,16 +175,26 @@ private:
     int _start_time;
     int _event_timeout;
 
-    uint16_t _retry_timeout_array[RETRY_ARRAY_SIZE];
+    uint16_t _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
     int _retry_array_length;
     int _event_id;
     const char *_plmn;
     bool _command_success;
     bool _is_retry;
     cell_callback_data_t _cb_data;
-    nsapi_event_t _current_event;
+    cellular_connection_status_t _current_event;
     int _status;
     PlatformMutex _mutex;
+
+    // Cellular state timeouts
+    int _state_timeout_power_on;
+    int _state_timeout_sim_pin;
+    int _state_timeout_registration;
+    int _state_timeout_network;
+    int _state_timeout_connect; // timeout for PS attach, PDN connect and socket operations
+    // Change all cellular state timeouts to `timeout`
+    void set_timeout(int timeout);
+    cell_signal_quality_t _signal_quality;
 };
 
 } // namespace

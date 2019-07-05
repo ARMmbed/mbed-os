@@ -5,10 +5,10 @@
  * @defgroup netifapi NETIF API
  * @ingroup sequential_api
  * Thread-safe functions to be called from non-TCPIP threads
- * 
+ *
  * @defgroup netifapi_netif NETIF related
  * @ingroup netifapi
- * To be called from non-TCPIP threads 
+ * To be called from non-TCPIP threads
  */
 
 /*
@@ -42,9 +42,12 @@
 
 #if LWIP_NETIF_API /* don't build if not configured for use in lwipopts.h */
 
+#include "lwip/etharp.h"
 #include "lwip/netifapi.h"
 #include "lwip/memp.h"
 #include "lwip/priv/tcpip_priv.h"
+
+#include <string.h> /* strncpy */
 
 #define NETIFAPI_VAR_REF(name)      API_VAR_REF(name)
 #define NETIFAPI_VAR_DECLARE(name)  API_VAR_DECLARE(struct netifapi_msg, name)
@@ -57,10 +60,10 @@
 static err_t
 netifapi_do_netif_add(struct tcpip_api_call_data *m)
 {
-  /* cast through void* to silence alignment warnings. 
+  /* cast through void* to silence alignment warnings.
    * We know it works because the structs have been instantiated as struct netifapi_msg */
-  struct netifapi_msg *msg = (struct netifapi_msg*)(void*)m;
-  
+  struct netifapi_msg *msg = (struct netifapi_msg *)(void *)m;
+
   if (!netif_add( msg->netif,
 #if LWIP_IPV4
                   API_EXPR_REF(msg->msg.add.ipaddr),
@@ -83,9 +86,9 @@ netifapi_do_netif_add(struct tcpip_api_call_data *m)
 static err_t
 netifapi_do_netif_set_addr(struct tcpip_api_call_data *m)
 {
-  /* cast through void* to silence alignment warnings. 
+  /* cast through void* to silence alignment warnings.
    * We know it works because the structs have been instantiated as struct netifapi_msg */
-  struct netifapi_msg *msg = (struct netifapi_msg*)(void*)m;
+  struct netifapi_msg *msg = (struct netifapi_msg *)(void *)m;
 
   netif_set_addr( msg->netif,
                   API_EXPR_REF(msg->msg.add.ipaddr),
@@ -96,15 +99,46 @@ netifapi_do_netif_set_addr(struct tcpip_api_call_data *m)
 #endif /* LWIP_IPV4 */
 
 /**
+* Call netif_name_to_index() inside the tcpip_thread context.
+*/
+static err_t
+netifapi_do_name_to_index(struct tcpip_api_call_data *m)
+{
+  /* cast through void* to silence alignment warnings.
+   * We know it works because the structs have been instantiated as struct netifapi_msg */
+  struct netifapi_msg *msg = (struct netifapi_msg *)(void *)m;
+
+  msg->msg.ifs.index = netif_name_to_index(msg->msg.ifs.name);
+  return ERR_OK;
+}
+
+/**
+* Call netif_index_to_name() inside the tcpip_thread context.
+*/
+static err_t
+netifapi_do_index_to_name(struct tcpip_api_call_data *m)
+{
+  /* cast through void* to silence alignment warnings.
+   * We know it works because the structs have been instantiated as struct netifapi_msg */
+  struct netifapi_msg *msg = (struct netifapi_msg *)(void *)m;
+
+  if (!netif_index_to_name(msg->msg.ifs.index, msg->msg.ifs.name)) {
+    /* return failure via empty name */
+    msg->msg.ifs.name[0] = '\0';
+  }
+  return ERR_OK;
+}
+
+/**
  * Call the "errtfunc" (or the "voidfunc" if "errtfunc" is NULL) inside the
  * tcpip_thread context.
  */
 static err_t
 netifapi_do_netif_common(struct tcpip_api_call_data *m)
 {
-  /* cast through void* to silence alignment warnings. 
+  /* cast through void* to silence alignment warnings.
    * We know it works because the structs have been instantiated as struct netifapi_msg */
-  struct netifapi_msg *msg = (struct netifapi_msg*)(void*)m;
+  struct netifapi_msg *msg = (struct netifapi_msg *)(void *)m;
 
   if (msg->msg.common.errtfunc != NULL) {
     return msg->msg.common.errtfunc(msg->netif);
@@ -113,6 +147,69 @@ netifapi_do_netif_common(struct tcpip_api_call_data *m)
     return ERR_OK;
   }
 }
+
+#if LWIP_ARP && LWIP_IPV4
+/**
+ * @ingroup netifapi_arp
+ * Add or update an entry in the ARP cache.
+ * For an update, ipaddr is used to find the cache entry.
+ *
+ * @param ipaddr IPv4 address of cache entry
+ * @param ethaddr hardware address mapped to ipaddr
+ * @param type type of ARP cache entry
+ * @return ERR_OK: entry added/updated, else error from err_t
+ */
+err_t
+netifapi_arp_add(const ip4_addr_t *ipaddr, struct eth_addr *ethaddr, enum netifapi_arp_entry type)
+{
+  err_t err;
+
+  /* We only support permanent entries currently */
+  LWIP_UNUSED_ARG(type);
+
+#if ETHARP_SUPPORT_STATIC_ENTRIES && LWIP_TCPIP_CORE_LOCKING
+  LOCK_TCPIP_CORE();
+  err = etharp_add_static_entry(ipaddr, ethaddr);
+  UNLOCK_TCPIP_CORE();
+#else
+  /* @todo add new vars to struct netifapi_msg and create a 'do' func */
+  LWIP_UNUSED_ARG(ipaddr);
+  LWIP_UNUSED_ARG(ethaddr);
+  err = ERR_VAL;
+#endif /* ETHARP_SUPPORT_STATIC_ENTRIES && LWIP_TCPIP_CORE_LOCKING */
+
+  return err;
+}
+
+/**
+ * @ingroup netifapi_arp
+ * Remove an entry in the ARP cache identified by ipaddr
+ *
+ * @param ipaddr IPv4 address of cache entry
+ * @param type type of ARP cache entry
+ * @return ERR_OK: entry removed, else error from err_t
+ */
+err_t
+netifapi_arp_remove(const ip4_addr_t *ipaddr, enum netifapi_arp_entry type)
+{
+  err_t err;
+
+  /* We only support permanent entries currently */
+  LWIP_UNUSED_ARG(type);
+
+#if ETHARP_SUPPORT_STATIC_ENTRIES && LWIP_TCPIP_CORE_LOCKING
+  LOCK_TCPIP_CORE();
+  err = etharp_remove_static_entry(ipaddr);
+  UNLOCK_TCPIP_CORE();
+#else
+  /* @todo add new vars to struct netifapi_msg and create a 'do' func */
+  LWIP_UNUSED_ARG(ipaddr);
+  err = ERR_VAL;
+#endif /* ETHARP_SUPPORT_STATIC_ENTRIES && LWIP_TCPIP_CORE_LOCKING */
+
+  return err;
+}
+#endif /* LWIP_ARP && LWIP_IPV4 */
 
 /**
  * @ingroup netifapi_netif
@@ -204,7 +301,7 @@ netifapi_netif_set_addr(struct netif *netif,
  */
 err_t
 netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
-                       netifapi_errt_fn errtfunc)
+                      netifapi_errt_fn errtfunc)
 {
   err_t err;
   NETIFAPI_VAR_DECLARE(msg);
@@ -214,6 +311,68 @@ netifapi_netif_common(struct netif *netif, netifapi_void_fn voidfunc,
   NETIFAPI_VAR_REF(msg).msg.common.voidfunc = voidfunc;
   NETIFAPI_VAR_REF(msg).msg.common.errtfunc = errtfunc;
   err = tcpip_api_call(netifapi_do_netif_common, &API_VAR_REF(msg).call);
+  NETIFAPI_VAR_FREE(msg);
+  return err;
+}
+
+/**
+* @ingroup netifapi_netif
+* Call netif_name_to_index() in a thread-safe way by running that function inside the
+* tcpip_thread context.
+*
+* @param name the interface name of the netif
+* @param idx output index of the found netif
+*/
+err_t
+netifapi_netif_name_to_index(const char *name, u8_t *idx)
+{
+  err_t err;
+  NETIFAPI_VAR_DECLARE(msg);
+  NETIFAPI_VAR_ALLOC(msg);
+
+  *idx = 0;
+
+#if LWIP_MPU_COMPATIBLE
+  strncpy(NETIFAPI_VAR_REF(msg).msg.ifs.name, name, NETIF_NAMESIZE - 1);
+  NETIFAPI_VAR_REF(msg).msg.ifs.name[NETIF_NAMESIZE - 1] = '\0';
+#else
+  NETIFAPI_VAR_REF(msg).msg.ifs.name = LWIP_CONST_CAST(char *, name);
+#endif /* LWIP_MPU_COMPATIBLE */
+  err = tcpip_api_call(netifapi_do_name_to_index, &API_VAR_REF(msg).call);
+  if (!err) {
+    *idx = NETIFAPI_VAR_REF(msg).msg.ifs.index;
+  }
+  NETIFAPI_VAR_FREE(msg);
+  return err;
+}
+
+/**
+* @ingroup netifapi_netif
+* Call netif_index_to_name() in a thread-safe way by running that function inside the
+* tcpip_thread context.
+*
+* @param idx the interface index of the netif
+* @param name output name of the found netif, empty '\0' string if netif not found.
+*             name should be of at least NETIF_NAMESIZE bytes
+*/
+err_t
+netifapi_netif_index_to_name(u8_t idx, char *name)
+{
+  err_t err;
+  NETIFAPI_VAR_DECLARE(msg);
+  NETIFAPI_VAR_ALLOC(msg);
+
+  NETIFAPI_VAR_REF(msg).msg.ifs.index = idx;
+#if !LWIP_MPU_COMPATIBLE
+  NETIFAPI_VAR_REF(msg).msg.ifs.name = name;
+#endif /* LWIP_MPU_COMPATIBLE */
+  err = tcpip_api_call(netifapi_do_index_to_name, &API_VAR_REF(msg).call);
+#if LWIP_MPU_COMPATIBLE
+  if (!err) {
+    strncpy(name, NETIFAPI_VAR_REF(msg).msg.ifs.name, NETIF_NAMESIZE - 1);
+    name[NETIF_NAMESIZE - 1] = '\0';
+  }
+#endif /* LWIP_MPU_COMPATIBLE */
   NETIFAPI_VAR_FREE(msg);
   return err;
 }

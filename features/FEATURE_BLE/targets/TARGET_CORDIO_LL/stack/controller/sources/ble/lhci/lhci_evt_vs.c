@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Vendor specific HCI event module implementation file.
+ * \file
+ * \brief Vendor specific HCI event module implementation file.
  */
 /*************************************************************************************************/
 
@@ -30,7 +31,7 @@
   Macros
 **************************************************************************************************/
 
-/* Note: ARM Ltd. vendor specific subevent code is 0xFFF0-0xFFFF. */
+/* Note: Arm Ltd. vendor specific subevent code is 0xFFF0-0xFFFF. */
 
 #define LHCI_OPCODE_VS_SUBEVT_TRACE_MSG    0xFFF0         /*!< Trace message event. */
 #define LHCI_OPCODE_VS_SUBEVT_SCAN_REPORT  0xFFF1         /*!< Scan report event. */
@@ -63,22 +64,26 @@ uint8_t LhciPackVsEvt(uint8_t *pBuf, uint16_t vsEvtCode)
  *  \param  pBuf      Message.
  *  \param  len       Message length.
  *
- *  \return None.
+ *  \return TRUE if successful, FALSE otherwise.
  */
 /*************************************************************************************************/
-void LhciVsEncodeTraceMsgEvtPkt(uint8_t *pBuf, uint8_t len)
+bool_t LhciVsEncodeTraceMsgEvtPkt(const uint8_t *pBuf, uint32_t len)
 {
-  uint8_t *pPkt;
   uint8_t *pEvtBuf;
+  uint8_t *pPkt = lhciAllocEvt(HCI_VENDOR_SPEC_EVT, LHCI_LEN_VS_EVT + len);
 
-  if ((pPkt = lhciAllocEvt(HCI_VENDOR_SPEC_EVT, LHCI_LEN_VS_EVT + len)) != NULL)
+  if (pPkt == NULL)
   {
-    pEvtBuf  = pPkt;
-    pEvtBuf += lhciPackVsEvt(pEvtBuf, LHCI_OPCODE_VS_SUBEVT_TRACE_MSG);
-    memcpy(pEvtBuf, pBuf, len);
-
-    lhciSendEvt(pPkt);
+    return FALSE;
   }
+
+  pEvtBuf  = pPkt;
+  pEvtBuf += lhciPackVsEvt(pEvtBuf, LHCI_OPCODE_VS_SUBEVT_TRACE_MSG);
+  memcpy(pEvtBuf, pBuf, len);
+
+  lhciSendEvt(pPkt);
+
+  return TRUE;
 }
 
 /*************************************************************************************************/

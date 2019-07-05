@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ * \file
+ * \brief HCI command module implementation file.
  */
 /*************************************************************************************************/
 
@@ -25,6 +26,7 @@
 #include "ll_api.h"
 #include "ll_defs.h"
 #include "wsf_msg.h"
+#include "wsf_trace.h"
 #include "util/bstream.h"
 #include <string.h>
 
@@ -88,7 +90,7 @@ static uint8_t lhciPackReadPwrLevel(uint8_t *pBuf, uint8_t status, uint16_t hand
  *  \return None.
  */
 /*************************************************************************************************/
-static void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen, uint8_t *pParam, uint16_t handle)
+void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t paramLen, uint8_t *pParam, uint16_t handle)
 {
   uint8_t *pBuf;
   uint8_t *pEvtBuf;
@@ -104,6 +106,9 @@ static void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t p
     /* --- command completion with status only parameter --- */
 
     case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
+    case HCI_OPCODE_LE_SET_PER_ADV_RCV_ENABLE:
+    case HCI_OPCODE_LE_SET_PAST_PARAM:
+    case HCI_OPCODE_LE_SET_DEFAULT_PAST_PARAM:
       lhciPackCmdCompleteEvtStatus(pBuf, status);
       break;
 
@@ -112,6 +117,8 @@ static void lhciConnSendCmdCmplEvt(LhciHdr_t *pCmdHdr, uint8_t status, uint8_t p
     case HCI_OPCODE_LE_REM_CONN_PARAM_REP:
     case HCI_OPCODE_LE_REM_CONN_PARAM_NEG_REP:
     case HCI_OPCODE_LE_SET_DATA_LEN:
+    case HCI_OPCODE_LE_PER_ADV_SYNC_TRANSFER:
+    case HCI_OPCODE_LE_PER_ADV_SET_INFO_TRANSFER:
       pBuf += lhciPackCmdCompleteEvtStatus(pBuf, status);
       UINT16_TO_BSTREAM(pBuf, handle);
       break;
@@ -314,6 +321,14 @@ bool_t lhciConnDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
       status = LlReadRemoteVerInfo(handle);
       paramLen = LHCI_LEN_CMD_STATUS_EVT;
       break;
+    case HCI_OPCODE_LE_REQUEST_PEER_SCA:
+    {
+      BSTREAM_TO_UINT16(handle, pBuf);
+      status = LlRequestPeerSca(handle);
+      paramLen = LHCI_LEN_CMD_STATUS_EVT;
+
+      break;
+    }
 
     /* --- default --- */
 

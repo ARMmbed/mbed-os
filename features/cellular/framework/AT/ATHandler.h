@@ -24,8 +24,9 @@
 #include "PlatformMutex.h"
 #include "nsapi_types.h"
 
-#include "PlatformMutex.h"
 #include "Callback.h"
+
+#include <cstdarg>
 
 namespace mbed {
 
@@ -42,7 +43,7 @@ class FileHandle;
 extern const char *OK;
 extern const char *CRLF;
 
-#define BUFF_SIZE 16
+#define BUFF_SIZE 32
 
 /* AT Error types enumeration */
 enum DeviceErrorType {
@@ -121,7 +122,7 @@ public:
 
     /** Set callback function for URC
      *
-     *  @param prefix   URC text to look for, e.g. "+CMTI:"
+     *  @param prefix   URC text to look for, e.g. "+CMTI:". Maximum length is BUFF_SIZE.
      *  @param callback function to call on prefix, or 0 to remove callback
      */
     void set_urc_handler(const char *prefix, Callback<void()> callback);
@@ -260,6 +261,53 @@ public:
      */
     virtual void cmd_start(const char *cmd);
 
+    /**
+     * @brief cmd_start_stop Starts an AT command, writes given variadic arguments and stops the command. Use this
+     *        command when you need multiple response parameters to be handled.
+     *        NOTE: Does not lock ATHandler for process!
+     *
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     */
+    void cmd_start_stop(const char *cmd, const char *cmd_chr, const char *format = "", ...);
+
+    /**
+     * @brief at_cmd_str Send an AT command and read a single string response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp_buf Response buffer
+     * @param resp_buf_size Response buffer size
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t resp_buf_size, const char *format = "", ...);
+
+    /**
+     * @brief at_cmd_int Send an AT command and read a single integer response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param resp Integer to hold response
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_int(const char *cmd, const char *cmd_chr, int &resp, const char *format = "", ...);
+
+    /**
+     * @brief at_cmd_discard Send an AT command and read and discard a response. Locks and unlocks ATHandler for operation
+     * @param cmd AT command in form +<CMD> (will be used also in response reading, no extra chars allowed)
+     * @param cmd_chr Char to be added to specific AT command: '?', '=' or ''. Will be used as such so '=1' is valid as well.
+     * @param format Format string for variadic arguments to be added to AT command; No separator needed.
+     *        Use %d for integer, %s for string and %b for byte string (requires 2 arguments: string and length)
+     * @return last error that happened when parsing AT responses
+     */
+    nsapi_error_t at_cmd_discard(const char *cmd, const char *cmd_chr, const char *format = "", ...);
+
+public:
+
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
@@ -381,6 +429,10 @@ public:
     /**  Ends all scopes starting from current scope.
      *   Consumes everything until the scope's stop tag is found, then
      *   goes to next scope until response scope is ending.
+     *   URC match is checked during response scope ending,
+     *   for every new line / CRLF.
+     *
+     *
      *   Possible sequence:
      *   element scope -> information response scope -> response scope
      */
@@ -493,6 +545,19 @@ private:
     // time when a command or an URC processing was started
     uint64_t _start_time;
 
+    char _cmd_buffer[BUFF_SIZE];
+
+private:
+    //Handles the arguments from given variadic list
+    void handle_args(const char *format, std::va_list list);
+
+    //Starts an AT command based on given parameters
+    void handle_start(const char *cmd, const char *cmd_chr);
+
+    //Checks that ATHandler does not have a pending error condition and filehandle is usable
+    bool ok_to_proceed();
+
+private:
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
     // Returns a next char or -1 on failure (also sets error flag)
@@ -547,15 +612,6 @@ private:
     bool check_cmd_send();
     size_t write(const void *data, size_t len);
 
-    /** Copy content of one char buffer to another buffer and sets NULL terminator
-     *
-     *  @param dest                  destination char buffer
-     *  @param src                   source char buffer
-     *  @param src_len               number of bytes to copy
-     *
-     */
-    void set_string(char *dest, const char *src, size_t src_len);
-
     /** Finds occurrence of one char buffer inside another char buffer.
      *
      * @param dest                  destination char buffer
@@ -571,7 +627,12 @@ private:
     bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
-    void debug_print(const char *p, int len);
+    enum ATType {
+        AT_ERR,
+        AT_RX,
+        AT_TX
+    };
+    void debug_print(const char *p, int len, ATType type);
 };
 
 } // namespace mbed

@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller connection interface file.
+ * \file
+ * \brief Internal link layer controller connection interface file.
  */
 /*************************************************************************************************/
 
@@ -96,6 +97,23 @@ enum
   LCTR_CMN_STATE_TOTAL                 /*!< Total number of LLCP states. */
 };
 
+/*! \brief      SVT states. */
+enum
+{
+  LCTR_SVT_STATE_IDLE,                 /*!< SVT idle state. */
+  LCTR_SVT_STATE_URGENT,               /*!< SVT urgent state. */
+  LCTR_SVT_STATE_FATAL,                /*!< SVT fatal state. */
+  LCTR_SVT_STATE_TOTAL                 /*!< Total number of SVT state. */
+};
+
+/*! \brief      Periodic sync source. */
+enum
+{
+  LCTR_SYNC_SRC_SCAN,               /*!< Periodic sync info from scanner. */
+  LCTR_SYNC_SRC_BCST,               /*!< Periodic sync info from broadcaster. */
+  LCTR_SYNC_SRC_TOTAL               /*!< Total number of periodic sync source. */
+};
+
 /*! \brief      Common LLCP procedure IDs. */
 enum
 {
@@ -106,6 +124,8 @@ enum
   LCTR_PROC_CMN_VER_EXCH,               /*!< Version exchange procedure. */
   LCTR_PROC_CMN_DATA_LEN_UPD,           /*!< Data length update procedure. */
   LCTR_PROC_CMN_SET_MIN_USED_CHAN,      /*!< Set minimum number of used channels procedure. */
+  LCTR_PROC_CMN_PER_ADV_SYNC_TRSF,      /*!< Periodic advertising sync transfer procedure. */
+  LCTR_PROC_CMN_REQ_PEER_SCA,           /*!< Request peer SCA procedure. */
   LCTR_PROC_CMN_TOTAL,                  /*!< Total number of common procedures. */
 
   /* Custom SM LLCP procedures. */
@@ -115,11 +135,22 @@ enum
   LCTR_PROC_LE_PING,                    /*!< LE Ping procedure. */
   LCTR_PROC_PHY_UPD,                    /*!< PHY update procedure. */
   LCTR_PROC_PHY_UPD_PEER,               /*!< Peer-initiated PHY update procedure. */
+  LCTR_PROC_CIS_EST,                    /*!< CIS establishment procedure. */
+  LCTR_PROC_CIS_EST_PEER,               /*!< Peer-initiated CIS establishment procedure. */
+  LCTR_PROC_CIS_TERM,                   /*!< CIS termination procedure. */
+  LCTR_PROC_CIS_TERM_PEER,              /*!< Peer-initiated CIS termination procedure. */
 
   LCTR_PROC_INVALID = 0xFF              /*!< Invalid ID. */
 
   /* Note: additional procedures without instants can be overridden. */
 };
+
+/*! \brief      Check if CIS is enabled by the CIS handle signature. */
+typedef bool_t (*lctrCheckCisEstCisFn_t)(uint16_t cisHandle);
+/*! \brief      Check for CIS termination signature. */
+typedef bool_t (*lctrCheckTermFn_t)(uint16_t aclHandle);
+/*! \brief      Check if there is a CIS established by the ACL handle signature. */
+typedef bool_t (*lctrCheckCisEstAclFn_t)(uint16_t aclHandle);
 
 /*! \brief      Connection context. */
 typedef struct
@@ -148,6 +179,12 @@ typedef struct
       uint32_t      unsyncedTime;       /*!< Unsynced time in BB tick before connection update. */
       bool_t        initAckRcvd;        /*!< Ack received from master. */
       bool_t        abortSlvLatency;    /*!< If TRUE abort slave latency. */
+
+      uint8_t       consCrcFailed;      /*!< Number of consecutive CRC failures. */
+      bool_t        syncWithMaster;     /*!< Flag indicating synchronize packet received from master. */
+      bool_t        rxFromMaster;       /*!< At least one successful packet received from master. */
+      uint32_t      firstRxStartTs;     /*!< Timestamp of the first received frame regardless of CRC error. */
+
     } slv;                              /*!< Slave connection specific data. */
 
     struct
@@ -173,6 +210,8 @@ typedef struct
                                         /*!< Channel remapping table. */
   uint8_t           usedChSel;          /*!< Used channel selection. */
   uint16_t          chIdentifier;       /*!< Channel identifier. */
+  uint32_t          crcInit;            /*!< CRC initialization value. */
+  uint32_t          accessAddr;         /*!< Connection access address. */
 
   /* Flow control */
   lctrDataPduHdr_t  txHdr;              /*!< Transmit data PDU header. */
@@ -184,11 +223,13 @@ typedef struct
   uint8_t           numRxPend;          /*!< Number of Rx pending buffers. */
   bool_t            emptyPduPend;       /*!< Empty PDU ACK pending. */
   bool_t            emptyPduFirstAtt;   /*!< Empty PDU first attempt. */
+  bool_t            forceStartPdu;      /*!< Next data will be forced to be a start PDU */
 
   /* Supervision */
   uint16_t          supTimeoutMs;       /*!< Supervision timeout in milliseconds. */
   wsfTimer_t        tmrSupTimeout;      /*!< Supervision timer. */
   bool_t            connEst;            /*!< Connection established. */
+  uint8_t           svtState;           /*!< SVT urgency state. */
 
   /* Encryption */
   bool_t            pauseRxData;        /*!< Pause Rx data PDUs. */
@@ -219,6 +260,7 @@ typedef struct
   lctrVerInd_t      remoteVer;          /*!< Peer version data. */
   bool_t            featExchFlag;       /*!< Flag for completed feature exchange. */
   uint64_t          usedFeatSet;        /*!< Used feature set. */
+  uint8_t           peerSca;            /*!< Peer SCA. */
 
   /* Data length */
   lctrDataLen_t     localDataPdu;       /*!< Local Data PDU parameters. */
@@ -236,6 +278,17 @@ typedef struct
   uint8_t           peerMinUsedChan[LL_MAX_PHYS];
                                         /*!< Peer minimum number of used channels for PHYs. */
 
+  /* Periodic sync indication */
+  bool_t            sendPerSync;        /*!< Send LL_PERIODIC_SYNC_IND flag. */
+  uint8_t           perSyncSrc;         /*!< Periodic sync source. */
+  uint16_t          perServiceData;     /*!< ID for periodic sync indication. */
+  uint16_t          perSyncHandle;      /*!< Periodic sync handle. */
+
+  /* PAST(Periodic advertising sync transfer) parameters. */
+  uint8_t           syncMode;           /*!< Sync transfer mode. */
+  uint16_t          syncSkip;           /*!< Sync skip for periodic adv sync transfer. */
+  uint16_t          syncTimeout;        /*!< Sync timeout for periodic adv sync transfer. */
+
   /* LLCP */
   uint8_t           llcpState;          /*!< Current LLCP state. */
   uint8_t           encState;           /*!< Current encryption state. */
@@ -252,9 +305,9 @@ typedef struct
   bool_t            isFirstNonCtrlPdu;  /*!< True if first non-control PDU from master and slave. */
   bool_t            isSlvPhyUpdInstant; /*!< True if slave is in PHY update instant state. */
   uint8_t           llcpActiveProc;     /*!< Current procedure. */
-  uint16_t          llcpNotifyMask;     /*!< Host notification mask. */
-  uint16_t          llcpPendMask;       /*!< Pending LLCP procedures. */
-  uint16_t          llcpIncompMask;     /*!< Incomplete LLCP procedures. */
+  uint32_t          llcpNotifyMask;     /*!< Host notification mask. */
+  uint32_t          llcpPendMask;       /*!< Pending LLCP procedures. */
+  uint32_t          llcpIncompMask;     /*!< Incomplete LLCP procedures. */
   LlConnSpec_t      connUpdSpec;        /*!< Host connection update specification. */
   lctrConnUpdInd_t  connUpd;            /*!< Connection update parameters. */
   lctrConnParam_t   connParam;          /*!< Stored peer connection parameter request or response. */
@@ -262,19 +315,26 @@ typedef struct
   lctrPhy_t         phyReq;             /*!< Stored peer PHY request. */
   lctrPhyUpdInd_t   phyUpd;             /*!< PHY update parameters. */
   wsfTimer_t        tmrProcRsp;         /*!< Procedure response timer. */
+  uint8_t           scaUpdAction;       /*!< Sca update action variable. */
+  int8_t            scaMod;             /*!< Local sca override modifier. */
+
+  /* CIS */
+  uint16_t          llcpCisHandle;      /*!< CIS handle for the LLCP procedure. */
+  lctrCheckTermFn_t checkCisTerm;       /*!< Pointer to the check CIS termination function. */
+  lctrCheckCisEstAclFn_t checkCisEstAcl;/*!< Pointer to the check if CIS is established function. */
 } lctrConnCtx_t;
 
 /*! \brief      Call signature of a cipher block handler. */
-typedef void (*lctrCipherBlkHdlr_t)(BbBleEnc_t *pEnc, uint8_t id, uint8_t dir);
+typedef void (*lctrCipherBlkHdlr_t)(PalCryptoEnc_t *pEnc, uint8_t id, uint8_t dir);
 
 /*! \brief      Call signature of a packet encryption handler. */
-typedef bool_t (*lctrPktEncHdlr_t)(BbBleEnc_t *pEnc, uint8_t *pHdr, uint8_t *pBuf, uint8_t *pMic);
+typedef bool_t (*lctrPktEncHdlr_t)(PalCryptoEnc_t *pEnc, uint8_t *pHdr, uint8_t *pBuf, uint8_t *pMic);
 
 /*! \brief      Call signature of a packet decryption handler. */
-typedef bool_t (*lctrPktDecHdlr_t)(BbBleEnc_t *pEnc, uint8_t *pBuf);
+typedef bool_t (*lctrPktDecHdlr_t)(PalCryptoEnc_t *pEnc, uint8_t *pBuf);
 
 /*! \brief      Call signature of a set packet count handler. */
-typedef void (*lctrPktCntHdlr_t)(BbBleEnc_t *pEnc, uint64_t pktCnt);
+typedef void (*lctrPktCntHdlr_t)(PalCryptoEnc_t *pEnc, uint64_t pktCnt);
 
 /*! \brief      Call signature of a LLCP state machine handler. */
 typedef bool_t (*LctrLlcpHdlr_t)(lctrConnCtx_t *pCtx, uint8_t event);
@@ -285,6 +345,9 @@ typedef void (*lctrCtrlPduHdlr_t)(lctrConnCtx_t *pCtx, uint8_t *pBuf);
 /*! \brief      Call signature of a Channel state machine handler. */
 typedef uint8_t (*LctrChSelHdlr_t)(lctrConnCtx_t *pCtx, uint16_t numSkip);
 
+/*! \brief      Call signature of an action handler. */
+typedef void (*lctrLlcpEh_t)(lctrConnCtx_t *pCtx);
+
 /*! \brief      LLCP state machine handlers. */
 enum
 {
@@ -292,6 +355,8 @@ enum
   LCTR_LLCP_SM_PING,                    /*!< Ping state machine. */
   LCTR_LLCP_SM_CONN_UPD,                /*!< Connection update state machine. */
   LCTR_LLCP_SM_PHY_UPD,                 /*!< PHY update state machine. */
+  LCTR_LLCP_SM_CIS_EST,                 /*!< CIS establishment state machine. */
+  LCTR_LLCP_SM_CIS_TERM,                /*!< CIS termination state machine. */
   LCTR_LLCP_SM_CMN,                     /*!< Common LLCP state machine. */
   LCTR_LLCP_SM_TOTAL                    /*!< Total number of LLCP state machine. */
 };
@@ -311,6 +376,12 @@ extern lctrConnMsg_t *pLctrConnMsg;
 extern const LctrVsHandlers_t *pLctrVsHdlrs;
 extern lctrCtrlPduHdlr_t lctrCtrlPduHdlr;
 extern LctrChSelHdlr_t lctrChSelHdlr[LCTR_CH_SEL_MAX];
+extern lctrCheckCisEstCisFn_t  lctrCheckCisEstCisFn;
+extern lctrLlcpEh_t lctrSendPerSyncFromScanFn;
+extern lctrLlcpEh_t lctrSendPerSyncFromBcstFn;
+extern lctrLlcpEh_t lctrStorePeriodicSyncTrsfFn;
+extern lctrLlcpEh_t lctrSendPeriodicSyncIndFn;
+extern lctrLlcpEh_t lctrReceivePeriodicSyncIndFn;
 
 /**************************************************************************************************
   Function Declarations
@@ -384,6 +455,23 @@ void lctrNotifyHostDataLengthInd(lctrConnCtx_t *pCtx, uint8_t status);
 void lctrSendSetMinUsedChanInd(lctrConnCtx_t *pCtx);
 void lctrStoreSetMinUsedChan(lctrConnCtx_t *pCtx);
 
+/* Send periodic sync indication actions */
+void lctrActStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx);
+void lctrActSendPeriodicSyncInd(lctrConnCtx_t *pCtx);
+void lctrActReceivePeriodicSyncInd(lctrConnCtx_t *pCtx);
+void lctrStorePeriodicSyncTrsf(lctrConnCtx_t *pCtx);
+void lctrSendPeriodicSyncInd(lctrConnCtx_t *pCtx);
+void lctrReceivePeriodicSyncInd(lctrConnCtx_t *pCtx);
+void lctrSendPerSyncFromScan(lctrConnCtx_t *pCtx);
+void lctrSendPerSyncFromBcst(lctrConnCtx_t *pCtx);
+
+/* Request peer SCA actions */
+void lctrStoreScaAction(lctrConnCtx_t *pCtx);
+void lctrSendPeerScaReq(lctrConnCtx_t *pCtx);
+void lctrSendPeerScaRsp(lctrConnCtx_t *pCtx);
+void lctrStorePeerSca(lctrConnCtx_t *pCtx);
+void lctrNotifyHostPeerScaCnf(lctrConnCtx_t *pCtx);
+
 /* Unknown/Unsupported */
 void lctrSendUnknownRsp(lctrConnCtx_t *pCtx);
 void lctrSendRejectInd(lctrConnCtx_t *pCtx, uint8_t reason, bool_t forceRejectExtInd);
@@ -394,7 +482,7 @@ uint16_t lctrTxInitMem(uint8_t *pFreeMem, uint32_t freeMemSize);
 uint8_t *lctrTxCtrlPduAlloc(uint8_t pduLen);
 void lctrTxDataPduQueue(lctrConnCtx_t *pCtx, uint16_t fragLen, lctrAclHdr_t *pAclHdr, uint8_t *pAclBuf);
 void lctrTxCtrlPduQueue(lctrConnCtx_t *pCtx, uint8_t *pBuf);
-uint8_t lctrTxQueuePeek(lctrConnCtx_t *pCtx, BbBleDrvTxBufDesc_t *bbDescs, bool_t *pMd);
+uint8_t lctrTxQueuePeek(lctrConnCtx_t *pCtx, PalBbBleTxBufDesc_t *bbDescs, bool_t *pMd);
 bool_t lctrTxQueuePop(lctrConnCtx_t *pCtx);
 void lctrTxQueuePopCleanup(lctrConnCtx_t *pCtx);
 uint8_t lctrTxQueueClear(lctrConnCtx_t *pCtx);
@@ -441,26 +529,10 @@ void lctrSendConnMsg(lctrConnCtx_t *pCtx, uint8_t event);
 bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDurUsec);
 uint32_t lctrCalcPingPeriodMs(lctrConnCtx_t *pCtx, uint32_t authTimeoutMs);
 uint8_t lctrComputeSca(void);
+uint32_t lctrConnGetAnchorPoint(lctrConnCtx_t *pCtx, uint16_t ceCounter);
 
 /* Reservation */
-void lctrGetConnOffsets(uint32_t rsvnOffs[], uint32_t refTime);
-
-/*************************************************************************************************/
-/*!
- *  \brief  Check for a queue depth of 1 element.
- *
- *  \param  pArqQ       Queue.
- *
- *  \return TRUE if ARQ only has 1 element, FALSE otherwise.
- *
- *  \note   Checks without resource protection. This routine is only intended to be used in task
- *          context.
- */
-/*************************************************************************************************/
-static inline bool_t lctrIsQueueDepthOne(wsfQueue_t *pArqQ)
-{
-  return pArqQ->pHead == pArqQ->pTail;
-}
+uint32_t lctrGetConnRefTime(uint8_t connHandle, uint32_t *pDurUsec);
 
 /*************************************************************************************************/
 /*!
@@ -563,10 +635,10 @@ static inline void lctrIncPacketCounterTx(lctrConnCtx_t *pCtx)
 {
   if (lctrSetEncryptPktCountHdlr)
   {
-    BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+    PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
     if ((pEnc->enaEncrypt) &&
-        (pEnc->nonceMode == BB_NONCE_MODE_PKT_CNTR))
+        (pEnc->nonceMode == PAL_BB_NONCE_MODE_PKT_CNTR))
     {
       pCtx->txPktCounter++;
     }
@@ -586,10 +658,10 @@ static inline void lctrIncPacketCounterRx(lctrConnCtx_t *pCtx)
 {
   if (lctrSetEncryptPktCountHdlr)
   {
-    BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+    PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
     if ((pEnc->enaEncrypt) &&
-        (pEnc->nonceMode == BB_NONCE_MODE_PKT_CNTR))
+        (pEnc->nonceMode == PAL_BB_NONCE_MODE_PKT_CNTR))
     {
       pCtx->rxPktCounter++;
     }
@@ -609,7 +681,7 @@ static inline void lctrSetBbPacketCounterTx(lctrConnCtx_t *pCtx)
 {
   if (lctrSetEncryptPktCountHdlr)
   {
-    BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+    PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
     if (!pEnc->enaEncrypt)
     {
@@ -618,10 +690,10 @@ static inline void lctrSetBbPacketCounterTx(lctrConnCtx_t *pCtx)
 
     switch (pEnc->nonceMode)
     {
-      case BB_NONCE_MODE_PKT_CNTR:
+      case PAL_BB_NONCE_MODE_PKT_CNTR:
         lctrSetEncryptPktCountHdlr(pEnc, pCtx->txPktCounter);
         break;
-      case BB_NONCE_MODE_EVT_CNTR:
+      case PAL_BB_NONCE_MODE_EVT_CNTR:
         lctrSetEncryptPktCountHdlr(pEnc, pCtx->eventCounter);
         break;
       default:
@@ -643,7 +715,7 @@ static inline void lctrSetBbPacketCounterRx(lctrConnCtx_t *pCtx)
 {
   if (lctrSetDecryptPktCountHdlr)
   {
-    BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+    PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
     if (!pEnc->enaDecrypt)
     {
@@ -652,10 +724,10 @@ static inline void lctrSetBbPacketCounterRx(lctrConnCtx_t *pCtx)
 
     switch (pEnc->nonceMode)
     {
-      case BB_NONCE_MODE_PKT_CNTR:
+      case PAL_BB_NONCE_MODE_PKT_CNTR:
         lctrSetDecryptPktCountHdlr(pEnc, pCtx->rxPktCounter);
         break;
-      case BB_NONCE_MODE_EVT_CNTR:
+      case PAL_BB_NONCE_MODE_EVT_CNTR:
         lctrSetDecryptPktCountHdlr(pEnc, pCtx->eventCounter);
         break;
       default:
@@ -847,6 +919,12 @@ static inline uint8_t lctrGetProcId(uint8_t event)
 
     case LCTR_CONN_MSG_API_DATA_LEN_CHANGE:
       return LCTR_PROC_CMN_DATA_LEN_UPD;
+
+    case LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF:
+      return LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
+
+    case LCTR_CONN_MSG_API_REQ_PEER_SCA:
+      return LCTR_PROC_CMN_REQ_PEER_SCA;
 
     case LCTR_CONN_MSG_API_CONN_UPDATE:
       return LCTR_PROC_CONN_UPD;

@@ -19,6 +19,7 @@
 
 /* -------------------------------------- Includes ----------------------------------- */
 
+#include "spm_api.h"
 #include "cy_sysint.h"
 #include "spm_internal.h"
 

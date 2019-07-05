@@ -18,11 +18,11 @@ import re
 import os
 import json
 from collections import namedtuple
-from tools.targets import TARGET_MAP
 from os.path import join, exists
 from os import makedirs, remove
 import shutil
 from copy import deepcopy
+from tools.targets import TARGET_MAP
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
 
@@ -38,19 +38,22 @@ class Eclipse(Makefile):
     """Generic Eclipse project. Intended to be subclassed by classes that
     specify a type of Makefile.
     """
-    def get_target_config(self, ctx, configuration):
+    def get_target_config(self, configuration):
         """Retrieve info from cdt_definitions.json"""
-        tgt = deepcopy(TARGET_MAP[self.target])
-        defaults = deepcopy(_CONFIGS_OPTIONS['default'])
+        defaults = _CONFIGS_OPTIONS['default']
         eclipse_config = deepcopy(defaults['generic'])
         if configuration in defaults:
             eclipse_config.update(defaults[configuration])
 
+        # Get target-specific options. Use labels to find alias
+        # for target. This allows to define options within inheritance path
         target_specific = _CONFIGS_OPTIONS['targets']
-        if tgt.name in target_specific:
-            eclipse_config.update(target_specific[tgt.name]['generic'])
-            if configuration in target_specific[tgt.name]:
-                eclipse_config.update(target_specific[tgt.name][configuration])
+        for target_alias in self.toolchain.target.labels:
+            if target_alias in target_specific:
+                eclipse_config.update(target_specific[target_alias]['generic'])
+                if configuration in target_specific[target_alias]:
+                    eclipse_config.update(target_specific[target_alias][configuration])
+                break
 
         return eclipse_config
 
@@ -63,7 +66,7 @@ class Eclipse(Makefile):
         starting_dot = re.compile(r'(^[.]/|^[.]$)')
         ctx = {
             'name': self.project_name,
-            'elf_location': join('BUILD',self.project_name)+'.elf',
+            'elf_location': join('BUILD', self.project_name)+'.elf',
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
             'target': self.target,
@@ -74,11 +77,11 @@ class Eclipse(Makefile):
         launch_cfgs = {}
         for launch_name in supported_launches:
             launch = deepcopy(ctx)
-            launch.update({'device': self.get_target_config(ctx, launch_name)})
+            launch.update({'device': self.get_target_config(launch_name)})
             launch_cfgs[launch_name] = launch
             
-        if not exists(join(self.export_dir,'eclipse-extras')):
-            makedirs(join(self.export_dir,'eclipse-extras'))
+        if not exists(join(self.export_dir, 'eclipse-extras')):
+            makedirs(join(self.export_dir, 'eclipse-extras'))
 
         for launch_name, ctx in launch_cfgs.items():
             # Generate launch configurations for former GNU ARM Eclipse plug-in
@@ -95,7 +98,7 @@ class Eclipse(Makefile):
                                                                         conf=launch_name)))
 
         self.gen_file('cdt/necessary_software.tmpl', ctx,
-                      join('eclipse-extras','necessary_software.p2f'))
+                      join('eclipse-extras', 'necessary_software.p2f'))
 
         self.gen_file('cdt/.cproject.tmpl', ctx, '.cproject')
         self.gen_file('cdt/.project.tmpl', ctx, '.project')
@@ -119,7 +122,7 @@ class EclipseArmc5(Eclipse, Armc5):
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
         if int(target.build_tools_metadata["version"]) > 0:
-            return "ARMC5" in target.supported_toolchains;
+            return "ARMC5" in target.supported_toolchains
         else:
             return True
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -177,7 +177,7 @@ static void osRtxMessageQueuePostProcess (os_message_t *msg) {
     msg->id = osRtxIdInvalid;
     (void)osRtxMemoryPoolFree(&mq->mp_info, msg);
     // Check if Thread is waiting to send a Message
-    if ((mq->thread_list != NULL) && (mq->thread_list->state == osRtxThreadWaitingMessagePut)) {
+    if (mq->thread_list != NULL) {
       // Try to allocate memory
       //lint -e{9079} "conversion from pointer to void to pointer to other type" [MISRA Note 5]
       msg0 = osRtxMemoryPoolAlloc(&mq->mp_info);
@@ -494,7 +494,7 @@ static osStatus_t svcRtxMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr
     msg->id = osRtxIdInvalid;
     (void)osRtxMemoryPoolFree(&mq->mp_info, msg);
     // Check if Thread is waiting to send a Message
-    if ((mq->thread_list != NULL) && (mq->thread_list->state == osRtxThreadWaitingMessagePut)) {
+    if (mq->thread_list != NULL) {
       // Try to allocate memory
       //lint -e{9079} "conversion from pointer to void to pointer to other type" [MISRA Note 5]
       msg = osRtxMemoryPoolAlloc(&mq->mp_info);
@@ -544,7 +544,7 @@ static osStatus_t svcRtxMessageQueueGet (osMessageQueueId_t mq_id, void *msg_ptr
 }
 
 /// Get maximum number of messages in a Message Queue.
-/// \note API identical to osMessageGetCapacity
+/// \note API identical to osMessageQueueGetCapacity
 static uint32_t svcRtxMessageQueueGetCapacity (osMessageQueueId_t mq_id) {
   os_message_queue_t *mq = osRtxMessageQueueId(mq_id);
 
@@ -561,7 +561,7 @@ static uint32_t svcRtxMessageQueueGetCapacity (osMessageQueueId_t mq_id) {
 }
 
 /// Get maximum message size in a Memory Pool.
-/// \note API identical to osMessageGetMsgSize
+/// \note API identical to osMessageQueueGetMsgSize
 static uint32_t svcRtxMessageQueueGetMsgSize (osMessageQueueId_t mq_id) {
   os_message_queue_t *mq = osRtxMessageQueueId(mq_id);
 
@@ -578,7 +578,7 @@ static uint32_t svcRtxMessageQueueGetMsgSize (osMessageQueueId_t mq_id) {
 }
 
 /// Get number of queued messages in a Message Queue.
-/// \note API identical to osMessageGetCount
+/// \note API identical to osMessageQueueGetCount
 static uint32_t svcRtxMessageQueueGetCount (osMessageQueueId_t mq_id) {
   os_message_queue_t *mq = osRtxMessageQueueId(mq_id);
 
@@ -595,7 +595,7 @@ static uint32_t svcRtxMessageQueueGetCount (osMessageQueueId_t mq_id) {
 }
 
 /// Get number of available slots for messages in a Message Queue.
-/// \note API identical to osMessageGetSpace
+/// \note API identical to osMessageQueueGetSpace
 static uint32_t svcRtxMessageQueueGetSpace (osMessageQueueId_t mq_id) {
   os_message_queue_t *mq = osRtxMessageQueueId(mq_id);
 

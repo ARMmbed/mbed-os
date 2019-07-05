@@ -1,0 +1,25 @@
+{
+    "name": "cordio-ll-nrf52840",
+    "config": {
+        "phy-coded-support": {
+            "help": "Coded PHY supported.",
+            "value": 1
+        },
+        "extended-advertising-size": {
+            "help": "Maximum extended advertising data (and scan data response) size",
+            "value": 512
+        },
+        "max-acl-size": {
+            "help": "Maximum ACL buffer size",
+            "value": 256
+        },
+        "tx-buffers": {
+            "help": "Default number of send buffers",
+            "value": 4
+        },
+        "cryptocell310-acceleration": {
+            "help": "Should the link layer use the Crypto Cell 310 to offload encryption.",
+            "value": 1
+        }
+    }
+}

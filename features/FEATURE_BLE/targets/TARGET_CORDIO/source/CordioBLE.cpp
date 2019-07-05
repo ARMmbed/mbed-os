@@ -510,7 +510,7 @@ void BLE::stack_setup()
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
 
-    HciSetMaxRxAclLen(100);
+    HciSetMaxRxAclLen(MBED_CONF_CORDIO_RX_ACL_BUFFER_SIZE);
 
     DmRegister(BLE::device_manager_cb);
 #if BLE_FEATURE_CONNECTABLE
@@ -555,7 +555,7 @@ void BLE::callDispatcher()
 
     wsfOsDispatcher();
 
-    static Timeout nextTimeout;
+    static LowPowerTimeout nextTimeout;
     CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
@@ -564,6 +564,9 @@ void BLE::callDispatcher()
         timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
         if (pTimerRunning) {
             nextTimeout.attach_us(timeoutCallback, nextTimestamp);
+        } else {
+            critical_section.disable();
+            _hci_driver->on_host_stack_inactivity();
         }
     }
 }

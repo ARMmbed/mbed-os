@@ -82,7 +82,7 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
 
     // Wait for callback(s) to complete
     for (unsigned int i = 0; i < count; i++) {
-        semaphore.wait();
+        semaphore.acquire();
     }
 
     // Print result

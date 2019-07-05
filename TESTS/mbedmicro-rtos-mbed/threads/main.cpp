@@ -34,9 +34,9 @@
 #define PARALLEL_THREAD_STACK_SIZE 512
 #elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(__ARM_FM)
+#elif defined(TARGET_ARM_FM)
 #define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(TARGET_FUTURE_SEQUANA_PSA) || defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
+#elif defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define PARALLEL_THREAD_STACK_SIZE   512
 #else
 #define PARALLEL_THREAD_STACK_SIZE 384
@@ -647,7 +647,7 @@ void test_mutex()
 
 void test_semaphore_thread(Semaphore *sem)
 {
-    sem->wait();
+    sem->acquire();
 }
 
 /** Testing thread states: wait semaphore

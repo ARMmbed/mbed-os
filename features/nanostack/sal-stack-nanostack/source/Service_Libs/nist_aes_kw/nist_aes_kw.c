@@ -20,9 +20,17 @@
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
-#if defined(HAVE_WS) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
+
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+#if defined(MBEDTLS_NIST_KW_C) && defined(HAVE_WS) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
 #include "mbedtls/nist_kw.h"
 #endif
+
 #include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
 
 #ifdef HAVE_WS
@@ -31,7 +39,7 @@
 
 int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, const uint8_t *input, size_t input_len, uint8_t *output, size_t *output_len)
 {
-#if defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH)
+#if defined(MBEDTLS_NIST_KW_C) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
 
     int8_t ret_val = 0;
     mbedtls_nist_kw_context ctx;

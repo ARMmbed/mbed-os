@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal BLE baseband interface file.
+ * \file
+ * \brief Internal BLE baseband interface file.
  */
 /*************************************************************************************************/
 
@@ -25,8 +26,8 @@
 
 #include "bb_ble_api.h"
 #include "bb_ble_api_op.h"
-#include "bb_ble_drv.h"
-#include "bb_drv.h"
+#include "pal_bb_ble.h"
+#include "pal_bb.h"
 #include "ll_defs.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
@@ -44,10 +45,10 @@ extern "C" {
 #define BB_ADVB_MAX_LEN         WSF_MAX(BB_FIXED_ADVB_PKT_LEN, LL_ADVB_MAX_LEN)
 
 /*! \brief      Mark the start of an ISR. */
-#define BB_ISR_START()          bbIsrStartTime = BbDrvGetCurrentTime()
+#define BB_ISR_START()          bbIsrStartTime = PalBbGetCurrentTime(USE_RTC_BB_CLK)
 
 /*! \brief      Mark the ISR duration, recording the high watermark. */
-#define BB_ISR_MARK(x)          x = WSF_MAX(x, BB_TICKS_TO_US(BbDrvGetCurrentTime() - bbIsrStartTime))
+#define BB_ISR_MARK(x)          x = WSF_MAX(x, BB_TICKS_TO_US(PalBbGetCurrentTime(USE_RTC_BB_CLK) - bbIsrStartTime))
 
 /**************************************************************************************************
   Data Types
@@ -67,18 +68,23 @@ typedef struct
 
   uint8_t evtState;                     /*!< Action state of the currently operating BOD. */
   uint8_t advChIdx;                     /*!< Current advertising channel index. */
+  uint8_t numChUsed;                    /*!< Total number of channels visited. */
   uint32_t lastScanStart;               /*!< Last scan start time. */
 
-  BbBleDrvDataParam_t bbParam;          /*!< Baseband data parameters. */
+  PalBbBleDataParam_t bbParam;          /*!< Baseband data parameters. */
 
   uint16_t rxDataLen;                   /*!< Receive data buffer length. */
   uint8_t *pRxDataBuf;                  /*!< Current Rx data buffer. */
+
+  uint16_t rxCisDataLen;                /*!< Receive CIS data buffer length. */
+  uint8_t *pRxCisDataBuf;               /*!< Current Rx CIS data buffer. */
 } bbBleCtrlBlk_t;
 
 /**************************************************************************************************
   Global Variables
 **************************************************************************************************/
 
+/* BB BLE Control Block. */
 extern bbBleCtrlBlk_t bbBleCb;
 
 /* ISR start time. */
@@ -112,8 +118,8 @@ void bbBleRegisterOp(uint8_t opType, bbBleExecOpFn_t execOpCback, bbBleExecOpFn_
 /*************************************************************************************************/
 static inline void bbBleClrIfs(void)
 {
-  BbBleDrvOpParam_t opParams = { .ifsSetup = FALSE, .ifsUsec = 0 };
-  BbBleDrvSetOpParams(&opParams);
+  PalBbBleOpParam_t opParams = { .ifsSetup = FALSE, .ifsUsec = 0 };
+  PalBbBleSetOpParams(&opParams);
 }
 
 /*************************************************************************************************/
@@ -127,8 +133,8 @@ static inline void bbBleClrIfs(void)
 /*************************************************************************************************/
 static inline void bbBleSetIfs(void)
 {
-  BbBleDrvOpParam_t opParams = { .ifsSetup = TRUE, .ifsUsec = LL_BLE_TIFS_US };
-  BbBleDrvSetOpParams(&opParams);
+  PalBbBleOpParam_t opParams = { .ifsSetup = TRUE, .ifsUsec = LL_BLE_TIFS_US };
+  PalBbBleSetOpParams(&opParams);
 }
 
 #endif /* BB_BLE_INT_H */

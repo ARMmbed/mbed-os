@@ -11,9 +11,6 @@
         }
     },
     "target_overrides": {
-        "FUTURE_SEQUANA_M0_PSA": {
-            "storage_type": "TDB_INTERNAL"
-        },
         "CY8CKIT_062_WIFI_BT_M0_PSA": {
             "storage_type": "TDB_INTERNAL"
         },
@@ -30,6 +27,9 @@
             "storage_type": "TDB_INTERNAL"
         },
         "LPC55S69_S": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "ARM_MUSCA_A1_S": {
             "storage_type": "TDB_INTERNAL"
         }
     }

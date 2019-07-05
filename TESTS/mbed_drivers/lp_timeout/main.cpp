@@ -75,8 +75,10 @@ Case cases[] = {
          greentea_failure_handler),
 #endif
 
+#if !defined(SKIP_TIME_DRIFT_TESTS)
     Case("Timing drift (attach)", test_drift<AttachTester<LowPowerTimeout> >),
     Case("Timing drift (attach_us)", test_drift<AttachUSTester<LowPowerTimeout> >),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

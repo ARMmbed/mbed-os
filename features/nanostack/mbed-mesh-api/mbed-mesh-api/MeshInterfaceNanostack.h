@@ -17,6 +17,7 @@
 #ifndef MESHINTERFACENANOSTACK_H
 #define MESHINTERFACENANOSTACK_H
 
+#include "Semaphore.h"
 #include "MeshInterface.h"
 #include "NanostackRfPhy.h"
 #include "Nanostack.h"
@@ -63,6 +64,7 @@ protected:
     int8_t interface_id;
     int8_t _device_id;
     rtos::Semaphore connect_semaphore;
+    rtos::Semaphore disconnect_semaphore;
 
     mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     nsapi_connection_status_t _connect_status;

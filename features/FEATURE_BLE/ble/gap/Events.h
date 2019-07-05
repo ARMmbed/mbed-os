@@ -19,7 +19,6 @@
 
 #include "ble/blecommon.h"
 #include "ble/BLETypes.h"
-#include "platform/Span.h"
 
 namespace ble {
 

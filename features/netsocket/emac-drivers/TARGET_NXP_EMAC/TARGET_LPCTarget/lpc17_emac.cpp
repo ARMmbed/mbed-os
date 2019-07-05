@@ -541,7 +541,7 @@ bool LPC17_EMAC::link_out(emac_mem_buf_t *p)
     /* Wait until enough descriptors are available for the transfer. */
     /* THIS WILL BLOCK UNTIL THERE ARE ENOUGH DESCRIPTORS AVAILABLE */
     for (int32_t count = 0; count < dn; count++) {
-        xTXDCountSem.wait();
+        xTXDCountSem.acquire();
     }
 
     MBED_ASSERT(dn <= lpc_tx_ready());
@@ -655,7 +655,7 @@ void LPC17_EMAC::packet_tx(void* pvParameters)
 
     while (1) {
         /* Wait for transmit cleanup task to wakeup */
-        lpc17_emac->TxCleanSem.wait();
+        lpc17_emac->TxCleanSem.acquire();
 
         /* Error handling for TX underruns. This should never happen unless
            something is holding the bus or the clocks are going too slow. It

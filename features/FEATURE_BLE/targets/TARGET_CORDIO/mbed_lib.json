@@ -24,12 +24,12 @@
         },
         "max-l2cap-channels": {
             "help": "Maximum number of connection oriented channels",
-            "value": 8,
+            "value": 1,
             "macro_name": "L2C_COC_CHAN_MAX"
         },
         "max-l2cap-clients": {
             "help": "Maximum number of connection oriented channel registered clients",
-            "value": 4,
+            "value": 1,
             "macro_name": "L2C_COC_REG_MAX"
         },
         "max-att-writes": {
@@ -48,8 +48,12 @@
             "macro_name": "SMP_DB_MAX_DEVICES"
         },
         "desired-att-mtu": {
-            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive).",
+            "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive). The effective ATT_MTU is limited by rx-acl-buffer-size (minus 4 bytes for the header).",
             "value": 23
+        },
+        "rx-acl-buffer-size": {
+            "help": "Size of the buffer holding the reassembled complete ACL packet. This will limit the effective ATT_MTU (to its value minus 4 bytes for the header). The size of the buffer must be small enough to be allocated from the existing cordio pool. If this value is increased you may need to adjust the memory pool.",
+            "value": 70
         },
         "max-prepared-writes": {
             "help": "Number of queued prepare writes supported by server.",

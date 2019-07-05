@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,15 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Generic baseband driver implementation file.
+ * \file
+ * \brief Generic baseband driver implementation file.
  */
 /*************************************************************************************************/
 
 #include <string.h>
 #include "bb_api.h"
 #include "bb_int.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 
 /**************************************************************************************************
   Globals
@@ -75,7 +76,7 @@ void BbInit(void)
 {
   WSF_ASSERT(pBbRtCfg);
 
-  BbDrvInit();
+  PalBbInit();
 
   memset(&bbCb, 0, sizeof(bbCb));
 }
@@ -115,6 +116,7 @@ static void bbProtStart(uint8_t protId)
   /* Protocol now started. */
   bbCb.protStarted   = TRUE;
   bbCb.protIdStarted = protId;
+  PalBbSetProtId(protId);
 }
 
 /*************************************************************************************************/
@@ -137,7 +139,7 @@ void BbStart(uint8_t protId)
   if (!bbCb.protStarted)
   {
     /* Enable generic BB. */
-    BbDrvEnable();
+    PalBbEnable();
 
     /* Enable protocol-specific BB. */
     bbProtStart(protId);
@@ -191,7 +193,7 @@ void BbStop(uint8_t protId)
     bbProtStop(protId);
 
     /* Disable generic BB. */
-    BbDrvDisable();
+    PalBbDisable();
   }
 }
 
@@ -219,7 +221,7 @@ void BbExecuteBod(BbOpDesc_t *pBod)
   /* Enable generic BB. */
   if (!bbCb.protStarted)
   {
-    BbDrvEnable();
+    PalBbEnable();
   }
 
   /* Switch protocols if necessary. */
@@ -230,9 +232,6 @@ void BbExecuteBod(BbOpDesc_t *pBod)
   }
   if (!bbCb.protStarted)
   {
-    /* TODO: Removed this assert as it prevents background BOD. Seems unnecessary? */
-    /* WSF_ASSERT(bbCb.prot[pBod->protId].startCnt > 0); */
-
     /* Enable protocol-specific BB. */
     bbProtStart(pBod->protId);
   }
@@ -285,12 +284,13 @@ BbOpDesc_t *BbGetCurrentBod(void)
 
 /*************************************************************************************************/
 /*!
- *  \brief      Cancel current executing BOD.
+ *  \brief      Set termination flag of current executing BOD.
  *
  *  \return     None.
  *
  *  \note       This function is expected to be called during the execution context of the
- *              current executing BOD, typically in the related ISRs.
+ *              current executing BOD, typically in the related ISRs. In the end, termination
+ *              flag will help to decide if BbTerminateBod() should be called.
  */
 /*************************************************************************************************/
 void BbSetBodTerminateFlag(void)

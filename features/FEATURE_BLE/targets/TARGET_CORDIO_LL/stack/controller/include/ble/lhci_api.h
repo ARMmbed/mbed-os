@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer HCI subsystem API.
+ * \file
+ * \brief Link layer HCI subsystem API.
  */
 /*************************************************************************************************/
 
@@ -63,10 +64,17 @@ void LhciConnMasterInit(void);
 void LhciExtConnMasterInit(void);
 void LhciScInit(void);
 void LhciPhyInit(void);
+void LhciPastInit(void);
 void LhciChannelSelection2Init(void);
+void LhciCisMasterInit(void);
+void LhciCisSlaveInit(void);
+void LhciIsoInit(void);
 void LhciVsExtInit(lhciCmdHandler_t decodeCmd);
 void LhciHandlerInit(wsfHandlerId_t handlerId);
 void LhciHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
+void LhciIsoHandlerInit(wsfHandlerId_t handlerId);
+void LhciIsoHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
+void LhciSetDefaultHciSupCmd(uint8_t *pBuf);
 #if (LL_ENABLE_TESTER)
 void LhciTesterInit(void);
 #endif
@@ -81,7 +89,7 @@ bool_t LhciIsEventPending(void);
 uint8_t LhciPackEvtHdr(uint8_t *pBuf, uint8_t evtCode, uint8_t paramLen);
 
 /* Event processing */
-void LhciVsEncodeTraceMsgEvtPkt(uint8_t *pBuf, uint8_t len);
+bool_t LhciVsEncodeTraceMsgEvtPkt(const uint8_t *pBuf, uint32_t len);
 
 #ifdef __cplusplus
 };

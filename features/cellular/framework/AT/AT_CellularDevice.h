@@ -140,6 +140,14 @@ public:
     int _default_timeout;
     bool _modem_debug_on;
     ATHandler *_at;
+
+protected:
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+    void send_disconnect_to_context(int cid);
+
+private:
+    void urc_nw_deact();
+    void urc_pdn_deact();
 };
 
 } // namespace mbed

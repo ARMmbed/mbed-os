@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief LL HCI event module implementation file.
+ * \file
+ * \brief LL HCI event module implementation file.
  */
 /*************************************************************************************************/
 
@@ -65,7 +66,7 @@ static uint8_t lhciPackGenerateDhKeyCmplEvt(uint8_t *pBuf, const LlGenerateDhKey
   const uint8_t len = HCI_LEN_LE_GEN_DHKEY_CMPL;
 
   UINT8_TO_BSTREAM (pBuf, HCI_LE_GENERATE_DHKEY_CMPL_EVT);
-  UINT8_TO_BSTREAM (pBuf, LL_SUCCESS);
+  UINT8_TO_BSTREAM (pBuf, pEvt->status);
   memcpy(pBuf, pEvt->dhKey, sizeof(pEvt->dhKey));
 
   return len;

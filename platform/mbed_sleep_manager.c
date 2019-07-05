@@ -17,6 +17,7 @@
 
 #include "mbed_power_mgmt.h"
 #include "mbed_interface.h"
+#include "mbed_atomic.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
@@ -25,7 +26,6 @@
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 
-#include <limits.h>
 #include <stdio.h>
 
 #if DEVICE_SLEEP
@@ -173,40 +173,34 @@ void sleep_tracker_unlock(const char *const filename, int line)
 
 void sleep_manager_lock_deep_sleep_internal(void)
 {
-    core_util_critical_section_enter();
-    if (deep_sleep_lock == USHRT_MAX) {
-        core_util_critical_section_exit();
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", deep_sleep_lock);
+    if (core_util_atomic_incr_u16(&deep_sleep_lock, 1) == 0) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> 0xFFFF)", deep_sleep_lock);
     }
-    core_util_atomic_incr_u16(&deep_sleep_lock, 1);
-    core_util_critical_section_exit();
 }
 
 void sleep_manager_unlock_deep_sleep_internal(void)
 {
-    core_util_critical_section_enter();
-    if (deep_sleep_lock == 0) {
-        core_util_critical_section_exit();
+    if (core_util_atomic_decr_u16(&deep_sleep_lock, 1) == 0xFFFF) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", deep_sleep_lock);
     }
-    core_util_atomic_decr_u16(&deep_sleep_lock, 1);
-    core_util_critical_section_exit();
 }
 
 bool sleep_manager_can_deep_sleep(void)
 {
-    return deep_sleep_lock == 0 ? true : false;
+    return core_util_atomic_load_u16(&deep_sleep_lock) == 0;
 }
 
 bool sleep_manager_can_deep_sleep_test_check()
 {
-    const uint32_t check_time_us = 2000;
-    const ticker_data_t *const ticker = get_us_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < check_time_us) {
+    uint32_t check_time_ns = 2000000;
+
+    while (check_time_ns) {
         if (sleep_manager_can_deep_sleep()) {
             return true;
         }
+
+        wait_ns(100000); // 100 us
+        check_time_ns -= 100000;
     }
     return false;
 }

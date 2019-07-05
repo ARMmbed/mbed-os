@@ -18,15 +18,16 @@
 #ifndef EAPOL_HELPER_H_
 #define EAPOL_HELPER_H_
 
-#define EAPOL_PROTOCOL_VERSION 3
-#define EAPOL_EAP_TYPE 0
-#define EAPOL_KEY_TYPE 3
-#define EAPOL_KEY_NONCE_LEN 32
-#define EAPOL_KEY_MIC_LEN 16
+#define EAPOL_PROTOCOL_VERSION      3
+#define EAPOL_EAP_TYPE              0
+#define EAPOL_KEY_TYPE              3
+#define EAPOL_KEY_NONCE_LEN         32
+#define EAPOL_KEY_MIC_LEN           16
+#define EAPOL_KEY_LEN               16
 
-#define EAPOL_BASE_LENGTH 4 //Protocol version 1 byte, Packet type 1 byte, packet length 2 byte
+#define EAPOL_BASE_LENGTH           4 //Protocol version 1 byte, Packet type 1 byte, packet length 2 byte
 
-#define EAPOL_KEY_FRAME_BASE_SIZE 95
+#define EAPOL_KEY_FRAME_BASE_SIZE   95
 
 struct eap_header_t;
 
@@ -95,5 +96,19 @@ uint16_t eapol_pdu_eap_frame_init(eapol_pdu_t *eapol_pdu, uint8_t eap_code, uint
 uint16_t eapol_pdu_key_frame_init(eapol_pdu_t *eapol_pdu, uint16_t data_length, uint8_t *data_ptr);
 
 void eapol_write_key_packet_mic(uint8_t *eapol_pdu, uint8_t *mic);
+
+#define KEY_INFO_INSTALL              0x01
+#define KEY_INFO_KEY_ACK              0x02
+#define KEY_INFO_KEY_MIC              0x04
+#define KEY_INFO_SECURED_KEY_FRAME    0x08
+
+/**
+ * eapol_pdu_key_mask_get gets masked EAPOL-Key message bits
+ *
+ * \param eapol_pdu EAPOL PDU
+ *
+ * \return mask
+ */
+uint8_t eapol_pdu_key_mask_get(eapol_pdu_t *eapol_pdu);
 
 #endif /* EAPOL_HELPER_H_ */

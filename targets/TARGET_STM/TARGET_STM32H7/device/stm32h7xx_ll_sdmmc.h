@@ -6,7 +6,8 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
   * the "License"; You may not use this file except in compliance with the
@@ -283,6 +284,7 @@ typedef struct
 #define SDMMC_STD_CAPACITY                 ((uint32_t)0x00000000U)
 #define SDMMC_CHECK_PATTERN                ((uint32_t)0x000001AAU)
 #define SD_SWITCH_1_8V_CAPACITY            ((uint32_t)0x01000000U)
+#define SDMMC_DDR50_SWITCH_PATTERN         ((uint32_t)0x80FFFF04U)
 #define SDMMC_SDR104_SWITCH_PATTERN        ((uint32_t)0x80FF1F03U)
 #define SDMMC_SDR50_SWITCH_PATTERN         ((uint32_t)0x80FF1F02U)
 #define SDMMC_SDR25_SWITCH_PATTERN         ((uint32_t)0x80FFFF01U)
@@ -362,11 +364,14 @@ typedef struct
 #define SDMMC_SPEED_MODE_DEFAULT               ((uint32_t)0x00000001U)
 #define SDMMC_SPEED_MODE_HIGH                  ((uint32_t)0x00000002U)
 #define SDMMC_SPEED_MODE_ULTRA                 ((uint32_t)0x00000003U)
+#define SDMMC_SPEED_MODE_DDR                   ((uint32_t)0x00000004U)
 
 #define IS_SDMMC_SPEED_MODE(MODE) (((MODE) == SDMMC_SPEED_MODE_AUTO) || \
                                 ((MODE) == SDMMC_SPEED_MODE_DEFAULT) || \
                                 ((MODE) == SDMMC_SPEED_MODE_HIGH) || \
-                                ((MODE) == SDMMC_SPEED_MODE_ULTRA))
+                                ((MODE) == SDMMC_SPEED_MODE_ULTRA) || \
+                                ((MODE) == SDMMC_SPEED_MODE_DDR))
+
 /**
   * @}
   */

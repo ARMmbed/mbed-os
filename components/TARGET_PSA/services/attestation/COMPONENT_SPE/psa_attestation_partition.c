@@ -20,11 +20,12 @@
 #include "psa/client.h"
 #include "psa/service.h"
 
-#include "psa_attest_srv_partition.h"
+#include "mbed_spm_partitions.h"
 #include "psa_initial_attestation_api.h"
 #include "psa_attest_inject_key.h"
 #include "psa_inject_attestation_key_impl.h"
 #include "attestation.h"
+#include <stdlib.h>
 #include <string.h>
 #include "psa/crypto.h"
 

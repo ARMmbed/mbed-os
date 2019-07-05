@@ -94,11 +94,6 @@ static int get_ip_addr_type(const ip_addr_t *ip_addr)
 
 void LWIP::add_dns_addr(struct netif *lwip_netif, const char *interface_name)
 {
-
-    if (!netif_check_default(lwip_netif)) {
-        interface_name = NULL;
-    }
-
     // Check for existing dns address
     for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
         const ip_addr_t *dns_ip_addr = dns_getserver(numdns, interface_name);
@@ -467,7 +462,7 @@ nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetwo
 #if LWIP_IPV4
                    0, 0, 0,
 #endif
-                   interface, &LWIP::Interface::l3ip_if_init, ip_input)) {
+                   interface, &LWIP::Interface::l3ip_if_init, tcpip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 

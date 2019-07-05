@@ -42,10 +42,10 @@
 #define ENDPOINT_NON_ISO        (USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT)
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_NON_ISO,
-        MAX_PACKET_ISO
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_NON_ISO,
+    MAX_PACKET_ISO
 };
 
 uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
@@ -53,8 +53,7 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
     uint32_t len;
     if (fifo == 0) {
         len = hpcd->Instance->DIEPTXF0_HNPTXFSIZ >> 16;
-    }
-    else {
+    } else {
         len =  hpcd->Instance->DIEPTXF[fifo - 1] >> 16;
     }
     return len * 4;
@@ -62,7 +61,7 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
 
 void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
     if (priv->sof_enabled) {
         priv->events->sof((USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8);
@@ -72,7 +71,7 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 /*  this call at device reception completion on a Out Enpoint  */
 void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     uint8_t endpoint = LOG_OUT_TO_EP(epnum);
     priv->epComplete[EP_TO_IDX(endpoint)] = 1;
     /* -2 endpoint 0 In out are not in call back list */
@@ -86,7 +85,7 @@ void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 /*  this is call at device transmission completion on In endpoint */
 void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     uint8_t endpoint = LOG_IN_TO_EP(epnum);
     priv->epComplete[EP_TO_IDX(endpoint)] = 1;
     /*  -2 endpoint 0 In out are not in call back list */
@@ -99,19 +98,19 @@ void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 /*  This is call at device set up reception  */
 void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->ep0_setup();
 }
 
 void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->suspend(1);
 }
 
 void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBPhyHw *priv=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->suspend(0);
 }
 
@@ -127,15 +126,15 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBPhyHw *obj=((USBPhyHw *)(hpcd->pData));
+    USBPhyHw *obj = ((USBPhyHw *)(hpcd->pData));
     unsigned int i;
-    for(i=0;i<hpcd->Init.dev_endpoints;i++) {
-        obj->epComplete[2*i]=0;
-        HAL_PCD_EP_Close(hpcd,IDX_TO_EP(2*i));
-        HAL_PCD_EP_Flush(hpcd,IDX_TO_EP(2*i));
-        obj->epComplete[2*i+1]=0;
-        HAL_PCD_EP_Close(hpcd,IDX_TO_EP(2*i+1));
-        HAL_PCD_EP_Flush(hpcd,IDX_TO_EP(2*i+1));
+    for (i = 0; i < hpcd->Init.dev_endpoints; i++) {
+        obj->epComplete[2 * i] = 0;
+        HAL_PCD_EP_Close(hpcd, IDX_TO_EP(2 * i));
+        HAL_PCD_EP_Flush(hpcd, IDX_TO_EP(2 * i));
+        obj->epComplete[2 * i + 1] = 0;
+        HAL_PCD_EP_Close(hpcd, IDX_TO_EP(2 * i + 1));
+        HAL_PCD_EP_Flush(hpcd, IDX_TO_EP(2 * i + 1));
 
     }
     obj->endpoint_add(EP0IN, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
@@ -299,7 +298,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     // Configure PCD and FIFOs
-    hpcd.pData = (void*)this;
+    hpcd.pData = (void *)this;
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_PCD_Init(&hpcd);
 
@@ -427,7 +426,7 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
         size = MAX_PACKET_SIZE_SETUP;
     }
     memcpy(buffer,  hpcd.Setup, size);
-    memset(hpcd.Setup,0,MAX_PACKET_SIZE_SETUP);
+    memset(hpcd.Setup, 0, MAX_PACKET_SIZE_SETUP);
 }
 
 void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
@@ -435,7 +434,7 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
     HAL_StatusTypeDef ret;
     epComplete[EP_TO_IDX(EP0OUT)] = 2;
     ret = HAL_PCD_EP_Receive(&hpcd, EP0OUT, data, size > MAX_PACKET_SIZE_EP0 ? MAX_PACKET_SIZE_EP0 : size);
-    MBED_ASSERT(ret!=HAL_BUSY);
+    MBED_ASSERT(ret != HAL_BUSY);
 }
 
 uint32_t USBPhyHw::ep0_read_result()
@@ -466,12 +465,12 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
      * fifos when endpoints are added or removed causes tests to fail.
      */
     if (endpoint & 0x80) {
-        len = HAL_PCDEx_GetTxFiFo(&hpcd,endpoint & 0x7f);
+        len = HAL_PCDEx_GetTxFiFo(&hpcd, endpoint & 0x7f);
         MBED_ASSERT(len >= max_packet);
     }
     HAL_StatusTypeDef ret = HAL_PCD_EP_Open(&hpcd, endpoint, max_packet, type);
-    MBED_ASSERT(ret!=HAL_BUSY);
-    return (ret == HAL_OK) ? true:false;
+    MBED_ASSERT(ret != HAL_BUSY);
+    return (ret == HAL_OK) ? true : false;
 }
 
 void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
@@ -484,33 +483,33 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 {
     HAL_StatusTypeDef ret;
     ret = HAL_PCD_EP_SetStall(&hpcd, endpoint);
-    MBED_ASSERT(ret!=HAL_BUSY);
+    MBED_ASSERT(ret != HAL_BUSY);
 }
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
     HAL_StatusTypeDef ret;
     ret = HAL_PCD_EP_ClrStall(&hpcd, endpoint);
-    MBED_ASSERT(ret!=HAL_BUSY);
+    MBED_ASSERT(ret != HAL_BUSY);
 }
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
     // clean reception end flag before requesting reception
     HAL_StatusTypeDef ret = HAL_PCD_EP_Receive(&hpcd, endpoint, data, size);
-    MBED_ASSERT(ret!=HAL_BUSY);
+    MBED_ASSERT(ret != HAL_BUSY);
     return true;
 }
 
 uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
-    if (epComplete[EP_TO_IDX(endpoint)]==0) {
+    if (epComplete[EP_TO_IDX(endpoint)] == 0) {
         /*  no reception possible !!! */
         return 0;
-    } else if ((epComplete[EP_TO_IDX(endpoint)]!=1)) {
+    } else if ((epComplete[EP_TO_IDX(endpoint)] != 1)) {
         return 0;
     }
-    epComplete[EP_TO_IDX(endpoint)]= 0;
+    epComplete[EP_TO_IDX(endpoint)] = 0;
     return HAL_PCD_EP_GetRxCount(&hpcd, endpoint);;
 }
 
@@ -520,9 +519,11 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
     // clean transmission end flag before requesting transmission
     epComplete[EP_TO_IDX(endpoint)] = 2;
     ret = HAL_PCD_EP_Transmit(&hpcd, endpoint, data, size);
-    MBED_ASSERT(ret!=HAL_BUSY);
+    MBED_ASSERT(ret != HAL_BUSY);
     // update the status
-    if (ret != HAL_OK) return false;
+    if (ret != HAL_OK) {
+        return false;
+    }
     // fix me return is too simple
     return true;
 }
@@ -530,7 +531,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
     HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
-    MBED_ASSERT(ret==HAL_OK);
+    MBED_ASSERT(ret == HAL_OK);
 }
 
 void USBPhyHw::process()
@@ -541,7 +542,8 @@ void USBPhyHw::process()
     NVIC_EnableIRQ(USBHAL_IRQn);
 }
 
-void USBPhyHw::_usbisr(void) {
+void USBPhyHw::_usbisr(void)
+{
     NVIC_DisableIRQ(USBHAL_IRQn);
     instance->events->start_process();
 }

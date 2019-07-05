@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -22,5 +22,16 @@ void tfm_nspm_configure_clients(void);
  *         returned in case of error.
  */
 int32_t tfm_nspm_get_current_client_id(void);
+
+#ifdef TFM_PSA_API
+/**
+ * \brief NSPM thread main entry function
+ *
+ * \return  PSA_SUCCESS indicates failed.
+ *
+ * Note: This function should not return back.
+ */
+psa_status_t tfm_nspm_thread_entry(void);
+#endif
 
 #endif /* __TFM_NSPM_H__ */

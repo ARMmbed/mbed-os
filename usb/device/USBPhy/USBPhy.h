@@ -283,7 +283,7 @@ public:
      * Finish a read on the given endpoint
      *
      * @param endpoint Endpoint to check
-     * @return true if data was read false otherwise
+     * @return The number of bytes received
      */
     virtual uint32_t endpoint_read_result(usb_ep_t endpoint) = 0;
 

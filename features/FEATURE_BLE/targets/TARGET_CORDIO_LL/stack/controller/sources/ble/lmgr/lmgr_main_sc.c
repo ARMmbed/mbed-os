@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link manager secure connections implementation file.
+ * \file
+ * \brief Link manager secure connections implementation file.
  */
 /*************************************************************************************************/
 
@@ -42,4 +43,5 @@ void LmgrScInit(void)
 {
   lmgrScCb.eccOpActive = FALSE;
   lmgrScCb.privKeySet = FALSE;
+  lmgrScCb.pubKeyValid = FALSE;
 }

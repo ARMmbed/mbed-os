@@ -37,6 +37,7 @@
 
 extern void save_timer_ctx(void);
 extern void restore_timer_ctx(void);
+extern void SetSysClock(void);
 
 /*  Wait loop - assuming tick is 1 us */
 static void wait_loop(uint32_t timeout)
@@ -145,7 +146,12 @@ void hal_sleep(void)
 extern int serial_is_tx_ongoing(void);
 extern int mbed_sdk_inited;
 
-void hal_deepsleep(void)
+/*  Most of STM32 targets can have the same generic deep sleep
+ *  function, but a few targets might need very specific sleep
+ *  mode management, so this function is defined as WEAK.
+ *  Check for alternative hal_deepsleep specific implementation
+ *  in targets folders in case of doubt */
+__WEAK void hal_deepsleep(void)
 {
     /*  WORKAROUND:
      *  MBED serial driver does not handle deepsleep lock
@@ -206,6 +212,7 @@ void hal_deepsleep(void)
      *  HW Flag. At least this ensures proper operation out of
      *  deep sleep */
     wait_loop(500);
+
 
     restore_timer_ctx();
 

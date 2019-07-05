@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Multi-protocol scheduler interface file.
+ * \file
+ * \brief Multi-protocol scheduler interface file.
  */
 /*************************************************************************************************/
 
@@ -50,6 +51,7 @@ uint16_t SchStatsGetHandlerWatermarkUsec(void);
 
 /* Control */
 void SchHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg);
+void SchLoadHandler(void);
 
 /* List maintenance */
 void SchInsertNextAvailable(BbOpDesc_t *pBod);
@@ -58,9 +60,7 @@ bool_t SchInsertEarlyAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max);
 bool_t SchInsertLateAsPossible(BbOpDesc_t *pBod, uint32_t min, uint32_t max);
 bool_t SchRemove(BbOpDesc_t *pBod);
 void SchReload(BbOpDesc_t *pBod);
-void SchRemoveBackground(void);
-void SchInsertBackground(BbOpDesc_t *pBod);
-void SchTerminateBackground(void);
+bool_t SchIsBodCancellable(BbOpDesc_t *pBod);
 
 #ifdef __cplusplus
 };

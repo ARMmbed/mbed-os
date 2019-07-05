@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <new>
 #include "platform/mbed_assert.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #endif
@@ -131,8 +131,8 @@ struct SingletonPtr {
 
     // This is zero initialized when in global scope
     mutable void *_ptr;
-#if __cplusplus >= 201103L
-    // Align data appropriately
+#if __cplusplus >= 201103L && !defined __CC_ARM
+    // Align data appropriately (ARM Compiler 5 does not support alignas in C++11 mode)
     alignas(T) mutable char _data[sizeof(T)];
 #else
     // Force data to be 8 byte aligned

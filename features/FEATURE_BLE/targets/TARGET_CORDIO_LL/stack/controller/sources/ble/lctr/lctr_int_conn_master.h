@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Internal link layer controller master connection interface file.
+ * \file
+ * \brief Internal link layer controller master connection interface file.
  */
 /*************************************************************************************************/
 
@@ -74,7 +75,7 @@ void lctrMstSetEstablishConn(lctrConnCtx_t *pCtx);
 void lctrMstReloadDataPdu(lctrConnCtx_t *pCtx);
 
 /* Helper */
-uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, lctrConnInd_t *pConnInd);
+uint32_t lctrMstConnAdjustOpStart(lctrConnCtx_t *pCtx, uint32_t scanRefTime, uint32_t scanMinDurUsec, lctrConnInd_t *pConnInd);
 
 #ifdef __cplusplus
 };

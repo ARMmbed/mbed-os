@@ -18,6 +18,12 @@
 #ifndef WS_PAE_NVM_DATA_H_
 #define WS_PAE_NVM_DATA_H_
 
+/*
+ * Port access entity non-volatile memory (NVM) data module. Module is used
+ * to create and parse PAE NVM data TLVs.
+ *
+ */
+
 /**
  * ws_pae_nvm_store_nw_info_tlv_create create NVM network info TLV
  *

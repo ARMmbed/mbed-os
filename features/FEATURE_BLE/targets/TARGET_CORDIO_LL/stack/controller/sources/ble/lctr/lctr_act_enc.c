@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2019 Arm Limited
+/* Copyright (c) 2019 Arm Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,8 @@
 
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave encryption action routines.
+ * \file
+ * \brief Link layer controller slave encryption action routines.
  */
 /*************************************************************************************************/
 
@@ -26,6 +27,7 @@
 #include "wsf_msg.h"
 #include "wsf_trace.h"
 #include "util/bstream.h"
+#include "pal_crypto.h"
 #include <string.h>
 
 /*************************************************************************************************/
@@ -144,10 +146,10 @@ void lctrGenerateSlvVectors(lctrConnCtx_t *pCtx)
   memcpy(pCtx->iv, lctrDataPdu.pld.encReq.iv_m + LCTR_IV_M_OFFS,  LL_IV_LEN / 2);
 
   /* Generate slave part of IV. */
-  BbBleDrvRand(pCtx->iv + LCTR_IV_S_OFFS, LL_IV_LEN / 2);
+  PalCryptoGenerateRandomNumber(pCtx->iv + LCTR_IV_S_OFFS, LL_IV_LEN / 2);
 
   /* Generate slave part of SKD. */
-  BbBleDrvRand(pCtx->skd + LCTR_SKD_S_OFFS, LL_SKD_LEN / 2);
+  PalCryptoGenerateRandomNumber(pCtx->skd + LCTR_SKD_S_OFFS, LL_SKD_LEN / 2);
 }
 
 /*************************************************************************************************/
@@ -189,14 +191,15 @@ void lctrStoreLtkNegRepTerminateReason(lctrConnCtx_t *pCtx)
 /*************************************************************************************************/
 void lctrCalcSessionKey(lctrConnCtx_t *pCtx)
 {
-  BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+  PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
   /* Use AES to transform LTK to session key using session key diversifier as seed. */
-  LlMathAesEcb(pCtx->ltk, pEnc->sk, pCtx->skd);
+  PalCryptoAesEcb(pCtx->ltk, pEnc->sk, pCtx->skd);
 
   WSF_ASSERT(lctrInitCipherBlkHdlr);
   memcpy(pEnc->iv, pCtx->iv, sizeof(pEnc->iv));
   uint8_t dir = (pCtx->role == LL_ROLE_MASTER) ? 1 : 0;     /* master = 1; slave = 0 */
+  pEnc->type = PAL_BB_TYPE_ACL;
   lctrInitCipherBlkHdlr(pEnc, LCTR_GET_CONN_HANDLE(pCtx), dir);
 }
 
@@ -455,7 +458,7 @@ void lctrEncNotifyHostLtkReqInd(lctrConnCtx_t *pCtx)
 void lctrNotifyEncChangeInd(lctrConnCtx_t *pCtx, uint8_t status)
 {
   const uint16_t handle = LCTR_GET_CONN_HANDLE(pCtx);
-  BbBleEnc_t * const pEnc = &pCtx->bleData.chan.enc;
+  PalCryptoEnc_t * const pEnc = &pCtx->bleData.chan.enc;
 
   LlEncChangeInd_t evt =
   {
