@@ -17,6 +17,8 @@
 
 #if !COMPONENT_FPGA_CI_TEST_SHIELD
 #error [NOT_SUPPORTED] FPGA CI Test Shield is needed to run this test
+#elif !TARGET_FF_ARDUINO
+#error [NOT_SUPPORTED] Test not supported for this form factor
 #else
 
 #include "utest/utest.h"
