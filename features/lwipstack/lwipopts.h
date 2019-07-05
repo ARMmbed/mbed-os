@@ -226,12 +226,12 @@
 // Number of non-pool pbufs.
 // Each requires 92 bytes of RAM.
 #ifndef MEMP_NUM_PBUF
-#define MEMP_NUM_PBUF               8
+#define MEMP_NUM_PBUF               256
 #endif
 
 // Each netbuf requires 64 bytes of RAM.
 #ifndef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF             8
+#define MEMP_NUM_NETBUF             256
 #endif
 
 // One netconn is needed for each UDPSocket, TCPSocket or TCPServer.
