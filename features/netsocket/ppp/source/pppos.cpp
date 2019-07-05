@@ -194,7 +194,6 @@ pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p)
       pool_bufsize = PBUF_POOL_BUFSIZE;
   }
   nb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, pool_bufsize, PPP_BUF_POOL);
-  //nb = pbuf_alloc(PBUF_RAW, 0, PBUF_POOL);
 
   if (nb == NULL || nb->len != nb->tot_len) {
     PPPDEBUG(LOG_WARNING, ("pppos_write[%d]: alloc fail\n", ppp->netif->num));
@@ -234,7 +233,6 @@ pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p)
   }
 
   ppp_memory_buffer_free(p);
-  //pbuf_free(p);
   return err;
 }
 
@@ -256,7 +254,6 @@ pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
       pool_bufsize = PBUF_POOL_BUFSIZE;
   }
   nb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, pool_bufsize, PPP_BUF_POOL);
-  // nb = pbuf_alloc(PBUF_RAW, 0, PBUF_POOL);
 
   if (nb == NULL || nb->len != nb->tot_len) {
     PPPDEBUG(LOG_WARNING, ("pppos_netif_output[%d]: alloc fail\n", ppp->netif->num));
@@ -423,7 +420,6 @@ pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
   err_t err;
 
   p = ppp_memory_buffer_allocate(ppp->netif->memory_manager, l, PPP_BUF_POOL);
-  //p = pbuf_alloc(PBUF_RAW, l, PBUF_POOL);
   if (!p) {
     return ERR_MEM;
   }
@@ -433,7 +429,6 @@ pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
   err = tcpip_inpkt(p, ppp_netif(ppp), pppos_input_sys);
   if (err != ERR_OK) {
      ppp_memory_buffer_free(p);
-     //pbuf_free(p);
   }
   return err;
 }
@@ -447,7 +442,6 @@ err_t pppos_input_sys(struct pbuf *p, struct netif *inp) {
     pppos_input(ppp, (u8_t*)n->payload, n->len);
   }
   ppp_memory_buffer_free(p);
-  //pbuf_free(p);
   return ERR_OK;
 }
 #endif /* !NO_SYS && !PPP_INPROC_IRQ_SAFE */
@@ -565,7 +559,6 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
           if (ppp_call_callback(ppp->netif->service_ptr, pppos_input_callback, inp) != ERR_OK) {
               PPPDEBUG(LOG_ERR, ("pppos_input[%d]: tcpip_callback() failed, dropping packet\n", ppp->netif->num));
               ppp_memory_buffer_free(inp);
-              //pbuf_free(inp);
               LINK_STATS_INC(link.drop);
               MIB2_STATS_NETIF_INC(ppp->netif, ifindiscards);
           }
@@ -677,8 +670,6 @@ pppos_input(ppp_pcb *ppp, u8_t *s, int l)
 #endif /* IP_FORWARD || PPP_IPV6_FORWARD */
             u16_t pool_bufsize = ppp_memory_buffer_pool_alloc_unit_get(ppp->netif->memory_manager);
             pbuf *next_pbuf = ppp_memory_buffer_allocate(ppp->netif->memory_manager, pool_bufsize, PPP_BUF_POOL);
-
-            //next_pbuf = pbuf_alloc(PBUF_RAW, pbuf_alloc_len, PBUF_POOL);
             if (next_pbuf == NULL || next_pbuf->len != next_pbuf->tot_len) {
               /* No free buffers.  Drop the input packet and let the
                * higher layers deal with it.  Continue processing
@@ -739,7 +730,6 @@ drop:
   LINK_STATS_INC(link.drop);
   MIB2_STATS_NETIF_INC(ppp->netif, ifindiscards);
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
 }
 #endif /* PPP_INPROC_IRQ_SAFE */
 
@@ -894,7 +884,6 @@ pppos_output_last(pppos_pcb *pppos, err_t err, struct pbuf *nb, u16_t *fcs)
   MIB2_STATS_NETIF_INC(ppp->netif, ifoutucastpkts);
   LINK_STATS_INC(link.xmit);
   ppp_memory_buffer_free(nb);
-  //pbuf_free(nb);
   return ERR_OK;
 
 failed:
@@ -903,7 +892,6 @@ failed:
   LINK_STATS_INC(link.drop);
   MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
   ppp_memory_buffer_free(nb);
-  //pbuf_free(nb);
   return err;
 }
 

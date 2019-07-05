@@ -200,7 +200,6 @@ mppe_compress(ppp_pcb *pcb, ppp_mppe_state *state, struct pbuf **pb, u16_t proto
 	 * the whole packet before encryption.
 	 */
 	np = ppp_memory_buffer_allocate(pcb->netif->memory_manager, MPPE_OVHD + sizeof(protocol) + (*pb)->tot_len, PPP_BUF_HEAP);
-	//np = pbuf_alloc(PBUF_RAW, MPPE_OVHD + sizeof(protocol) + (*pb)->tot_len, PBUF_RAM);
 	if (!np) {
 		return ERR_MEM;
 	}
@@ -210,7 +209,6 @@ mppe_compress(ppp_pcb *pcb, ppp_mppe_state *state, struct pbuf **pb, u16_t proto
 
 	if ((err = pbuf_copy(np, *pb)) != ERR_OK) {
 	    ppp_memory_buffer_free(np);
-	    //pbuf_free(np);
 		return err;
 	}
 

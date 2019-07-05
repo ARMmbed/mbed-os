@@ -553,7 +553,6 @@ static err_t ppp_netif_output(struct netif *netif, struct pbuf *pb, u16_t protoc
     /* if VJ compressor returned a new allocated pbuf, free it */
     if (fpb) {
       ppp_memory_buffer_free(fpb);
-      //pbuf_free(fpb);
     }
     /* mppe_compress() returns a new allocated pbuf, indicate we should free
      * our duplicated pbuf later */
@@ -578,7 +577,6 @@ err_rte_drop:
 err:
   if (fpb) {
     ppp_memory_buffer_free(fpb);
-    //pbuf_free(fpb);
   }
   return err;
 }
@@ -955,7 +953,6 @@ drop:
 
 out:
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
 }
 
 /*

@@ -252,12 +252,10 @@ static void eap_send_failure(ppp_pcb *pcb) {
 	u_char *outp;
 
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + EAP_HEADERLEN), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + EAP_HEADERLEN), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -285,12 +283,10 @@ static void eap_send_success(ppp_pcb *pcb) {
 	u_char *outp;
 
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + EAP_HEADERLEN), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + EAP_HEADERLEN), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -688,12 +684,10 @@ static void eap_send_request(ppp_pcb *pcb) {
 	}
 
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_CTRL_PBUF_MAX_SIZE), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_CTRL_PBUF_MAX_SIZE), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -1025,12 +1019,10 @@ static void eap_send_response(ppp_pcb *pcb, u_char id, u_char typenum, const u_c
 
 	msglen = EAP_HEADERLEN + sizeof (u_char) + lenstr;
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + msglen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + msglen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -1061,12 +1053,10 @@ static void eap_chap_response(ppp_pcb *pcb, u_char id, u_char *hash, const char 
 	msglen = EAP_HEADERLEN + 2 * sizeof (u_char) + MD5_SIGNATURE_SIZE +
 	    namelen;
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + msglen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + msglen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -1108,12 +1098,10 @@ int lenstr;
 
 	msglen = EAP_HEADERLEN + 2 * sizeof (u_char) + lenstr;
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + msglen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + msglen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -1152,12 +1140,10 @@ u_char *str;
 	msglen = EAP_HEADERLEN + 2 * sizeof (u_char) + sizeof (u32_t) +
 	    SHA_DIGESTSIZE;
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + msglen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + msglen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -1185,12 +1171,10 @@ static void eap_send_nak(ppp_pcb *pcb, u_char id, u_char type) {
 
 	msglen = EAP_HEADERLEN + 2 * sizeof (u_char);
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN + msglen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN + msglen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 		ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 

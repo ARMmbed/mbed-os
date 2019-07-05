@@ -534,12 +534,10 @@ static void upap_sauthreq(ppp_pcb *pcb) {
     outlen = UPAP_HEADERLEN + 2 * sizeof (u_char) +
 	pcb->upap.us_userlen + pcb->upap.us_passwdlen;
     p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN +outlen), PPP_BUF_HEAP);
-    //p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN +outlen), PPP_CTRL_PBUF_TYPE);
     if(NULL == p)
         return;
     if(p->tot_len != p->len) {
         ppp_memory_buffer_free(p);
-        //pbuf_free(p);
         return;
     }
 
@@ -573,12 +571,10 @@ static void upap_sresp(ppp_pcb *pcb, u_char code, u_char id, const char *msg, in
 
     outlen = UPAP_HEADERLEN + sizeof (u_char) + msglen;
     p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN +outlen), PPP_BUF_HEAP);
-    //p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN +outlen), PPP_CTRL_PBUF_TYPE);
     if(NULL == p)
         return;
     if(p->tot_len != p->len) {
         ppp_memory_buffer_free(p);
-        //pbuf_free(p);
         return;
     }
 

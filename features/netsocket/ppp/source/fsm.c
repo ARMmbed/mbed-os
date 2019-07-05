@@ -736,12 +736,10 @@ static void fsm_sconfreq(fsm *f, int retransmit) {
 	cilen = 0;
 
     p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, cilen + HEADERLEN + PPP_HDRLEN, PPP_BUF_HEAP);
-    //p = pbuf_alloc(PBUF_RAW, (u16_t)(cilen + HEADERLEN + PPP_HDRLEN), PPP_CTRL_PBUF_TYPE);
     if(NULL == p)
         return;
     if(p->tot_len != p->len) {
         ppp_memory_buffer_free(p);
-        //pbuf_free(p);
         return;
     }
 
@@ -782,13 +780,11 @@ void fsm_sdata(fsm *f, u_char code, u_char id, const u_char *data, int datalen) 
     outlen = datalen + HEADERLEN;
 
     p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(outlen + PPP_HDRLEN), PPP_BUF_HEAP);
-    //p = pbuf_alloc(PBUF_RAW, (u16_t)(outlen + PPP_HDRLEN), PPP_CTRL_PBUF_TYPE);
 
     if(NULL == p)
         return;
     if(p->tot_len != p->len) {
         ppp_memory_buffer_free(p);
-        //pbuf_free(p);
         return;
     }
     outp = (u_char*)p->payload;

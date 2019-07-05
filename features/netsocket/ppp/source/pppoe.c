@@ -207,13 +207,11 @@ static err_t pppoe_write(ppp_pcb *ppp, void *ctx, struct pbuf *p) {
   pbuf_remove_header(p, 2);
 
   ph = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN), PPP_BUF_HEAP);
-  //ph = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN), PBUF_RAM);
   if(!ph) {
     LINK_STATS_INC(link.memerr);
     LINK_STATS_INC(link.proterr);
     MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
     ppp_memory_buffer_free(p);
-    //pbuf_free(p);
     return ERR_MEM;
   }
 
@@ -250,7 +248,6 @@ static err_t pppoe_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_short
 
   /* @todo: try to use pbuf_header() here! */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, PPPOE_HEADERLEN + sizeof(protocol), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, PPPOE_HEADERLEN + sizeof(protocol), PBUF_RAM);
   if(!pb) {
     LINK_STATS_INC(link.memerr);
     LINK_STATS_INC(link.proterr);
@@ -388,7 +385,6 @@ pppoe_disc_input(struct netif *netif, struct pbuf *pb)
   /* don't do anything if there is not a single PPPoE instance */
   if (pppoe_softc_list == NULL) {
     ppp_memory_buffer_free(pb);
-    //pbuf_free(pb);
     return;
   }
 
@@ -642,7 +638,6 @@ breakbreak:;
 
 done:
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
   return;
 }
 
@@ -713,7 +708,6 @@ pppoe_data_input(struct netif *netif, struct pbuf *pb)
 
 drop:
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
 }
 
 static err_t
@@ -729,7 +723,6 @@ pppoe_output(struct pppoe_softc *sc, struct pbuf *pb)
     PPPDEBUG(LOG_ERR, ("pppoe: %c%c%"U16_F": pppoe_output: could not allocate room for Ethernet header\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
     LINK_STATS_INC(link.lenerr);
     ppp_memory_buffer_free(pb);
-    //pbuf_free(pb);
     return ERR_BUF;
   }
   ethhdr = (struct eth_hdr *)pb->payload;
@@ -747,7 +740,6 @@ pppoe_output(struct pppoe_softc *sc, struct pbuf *pb)
   res = sc->sc_ethif->linkoutput(sc->sc_ethif, pb);
 
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
 
   return res;
 }
@@ -779,7 +771,6 @@ pppoe_send_padi(struct pppoe_softc *sc)
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN + len), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN + len), PBUF_RAM);
   if (!pb) {
     return ERR_MEM;
   }
@@ -1001,7 +992,6 @@ pppoe_send_padr(struct pppoe_softc *sc)
   PPP_ASSERT("sizeof(struct eth_hdr) + PPPOE_HEADERLEN + len <= 0xffff",
     sizeof(struct eth_hdr) + PPPOE_HEADERLEN + len <= 0xffff);
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN + len), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN + len), PBUF_RAM);
   if (!pb) {
     return ERR_MEM;
   }
@@ -1042,7 +1032,6 @@ pppoe_send_padt(struct netif *outgoing_if, u_int session, const u8_t *dest)
   u8_t *p;
 
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN), PBUF_RAM);
   if (!pb) {
     return ERR_MEM;
   }
@@ -1052,7 +1041,6 @@ pppoe_send_padt(struct netif *outgoing_if, u_int session, const u8_t *dest)
     PPPDEBUG(LOG_ERR, ("pppoe: pppoe_send_padt: could not allocate room for PPPoE header\n"));
     LINK_STATS_INC(link.lenerr);
     ppp_memory_buffer_free(pb);
-    //pbuf_free(pb);
     return ERR_BUF;
   }
   ethhdr = (struct eth_hdr *)pb->payload;
@@ -1066,7 +1054,6 @@ pppoe_send_padt(struct netif *outgoing_if, u_int session, const u8_t *dest)
   res = outgoing_if->linkoutput(outgoing_if, pb);
 
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
 
   return res;
 }
@@ -1086,7 +1073,6 @@ pppoe_send_pado(struct pppoe_softc *sc)
   /* include hunique */
   len += 2 + 2 + sc->sc_hunique_len;
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN + len), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN + len), PBUF_RAM);
   if (!pb) {
     return ERR_MEM;
   }
@@ -1120,7 +1106,6 @@ pppoe_send_pads(struct pppoe_softc *sc)
     len += l1;
   }
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOE_HEADERLEN + len), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_LINK, (u16_t)(PPPOE_HEADERLEN + len), PBUF_RAM);
   if (!pb) {
     return ERR_MEM;
   }
@@ -1156,7 +1141,6 @@ pppoe_xmit(struct pppoe_softc *sc, struct pbuf *pb)
     PPPDEBUG(LOG_ERR, ("pppoe: %c%c%"U16_F": pppoe_xmit: could not allocate room for PPPoE header\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num));
     LINK_STATS_INC(link.lenerr);
     ppp_memory_buffer_free(pb);
-    //pbuf_free(pb);
     return ERR_BUF;
   }
 

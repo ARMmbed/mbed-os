@@ -633,10 +633,8 @@ vj_uncompress_tcp(struct pbuf **nb, struct vjcompress *comp)
      * forwarded (to Ethernet for example).
      */
     np = ppp_memory_buffer_allocate(pcb->netif->memory_manager, n0->len + cs->cs_hlen, PPP_BUF_POOL);
-    //np = pbuf_alloc(PBUF_LINK, n0->len + cs->cs_hlen, PBUF_POOL);
 #else /* IP_FORWARD */
     np = ppp_memory_buffer_allocate(pcb->netif->memory_manager, n0->len + cs->cs_hlen, PPP_BUF_POOL);
-    //np = pbuf_alloc(PBUF_RAW, n0->len + cs->cs_hlen, PBUF_POOL);
 #endif /* IP_FORWARD */
     if(!np) {
       PPPDEBUG(LOG_WARNING, ("vj_uncompress_tcp: realign failed\n"));
@@ -656,7 +654,6 @@ vj_uncompress_tcp(struct pbuf **nb, struct vjcompress *comp)
       pbuf_dechain(n0);
     }
     ppp_memory_buffer_free(n0);
-    //pbuf_free(n0);
     n0 = np;
   }
 
@@ -665,7 +662,6 @@ vj_uncompress_tcp(struct pbuf **nb, struct vjcompress *comp)
 
     PPP_ASSERT("vj_uncompress_tcp: cs->cs_hlen <= PBUF_POOL_BUFSIZE", cs->cs_hlen <= PBUF_POOL_BUFSIZE);
     np = ppp_memory_buffer_allocate(pcb->netif->memory_manager, cs->cs_hlen, PPP_BUF_POOL);
-    //np = pbuf_alloc(PBUF_RAW, cs->cs_hlen, PBUF_POOL);
     if(!np) {
       PPPDEBUG(LOG_WARNING, ("vj_uncompress_tcp: prepend failed\n"));
       goto bad;

@@ -237,12 +237,10 @@ static void chap_timeout(void *arg) {
 	}
 
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(pcb->chap_server.challenge_pktlen), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(pcb->chap_server.challenge_pktlen), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 	    ppp_memory_buffer_free(p);
-	    //pbuf_free(p);
 		return;
 	}
 	MEMCPY(p->payload, pcb->chap_server.challenge, pcb->chap_server.challenge_pktlen);
@@ -348,12 +346,10 @@ static void  chap_handle_response(ppp_pcb *pcb, int id,
 	mlen = strlen(message);
 	len = CHAP_HDRLEN + mlen;
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(PPP_HDRLEN +len), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_HDRLEN +len), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 	    ppp_memory_buffer_free(p);
-		//pbuf_free(p);
 		return;
 	}
 
@@ -446,12 +442,10 @@ static void chap_respond(ppp_pcb *pcb, int id,
 	char secret[MAXSECRETLEN+1];
 
 	p = ppp_memory_buffer_allocate(pcb->netif->memory_manager, (u16_t)(RESP_MAX_PKTLEN), PPP_BUF_HEAP);
-	//p = pbuf_alloc(PBUF_RAW, (u16_t)(RESP_MAX_PKTLEN), PPP_CTRL_PBUF_TYPE);
 	if(NULL == p)
 		return;
 	if(p->tot_len != p->len) {
 	    ppp_memory_buffer_free(p);
-	    //pbuf_free(p);
 		return;
 	}
 

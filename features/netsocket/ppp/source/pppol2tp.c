@@ -167,13 +167,11 @@ static err_t pppol2tp_write(ppp_pcb *ppp, void *ctx, struct pbuf *p) {
 #endif /* MIB2_STATS */
 
   ph = ppp_memory_buffer_allocate(ppp->netif->memory_manager, (u16_t)(PPPOL2TP_OUTPUT_DATA_HEADER_LEN), PPP_BUF_HEAP);
-  //ph = pbuf_alloc(PBUF_TRANSPORT, (u16_t)(PPPOL2TP_OUTPUT_DATA_HEADER_LEN), PBUF_RAM);
   if(!ph) {
     LINK_STATS_INC(link.memerr);
     LINK_STATS_INC(link.proterr);
     MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
     ppp_memory_buffer_free(p);
-    //pbuf_free(p);
     return ERR_MEM;
   }
 
@@ -210,7 +208,6 @@ static err_t pppol2tp_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_sh
 
   /* @todo: try to use pbuf_header() here! */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, PPPOL2TP_OUTPUT_DATA_HEADER_LEN + sizeof(protocol), PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, PPPOL2TP_OUTPUT_DATA_HEADER_LEN + sizeof(protocol), PBUF_RAM);
   if(!pb) {
     LINK_STATS_INC(link.memerr);
     LINK_STATS_INC(link.proterr);
@@ -477,7 +474,6 @@ packet_too_short:
   PPPDEBUG(LOG_DEBUG, ("pppol2tp: packet too short: %d\n", p->len));
 free_and_return:
   ppp_memory_buffer_free(p);
-  //pbuf_free(p);
 }
 
 /* L2TP Control packet entry point */
@@ -821,7 +817,6 @@ static err_t pppol2tp_send_sccrq(pppol2tp_pcb *l2tp) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -917,7 +912,6 @@ static err_t pppol2tp_send_scccn(pppol2tp_pcb *l2tp, u16_t ns) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -965,7 +959,6 @@ static err_t pppol2tp_send_icrq(pppol2tp_pcb *l2tp, u16_t ns) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -1014,7 +1007,6 @@ static err_t pppol2tp_send_iccn(pppol2tp_pcb *l2tp, u16_t ns) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -1062,7 +1054,6 @@ static err_t pppol2tp_send_zlb(pppol2tp_pcb *l2tp, u16_t ns, u16_t nr) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -1092,7 +1083,6 @@ static err_t pppol2tp_send_stopccn(pppol2tp_pcb *l2tp, u16_t ns) {
 
   /* allocate a buffer */
   pb = ppp_memory_buffer_allocate(ppp->netif->memory_manager, len, PPP_BUF_HEAP);
-  //pb = pbuf_alloc(PBUF_TRANSPORT, len, PBUF_RAM);
   if (pb == NULL) {
     return ERR_MEM;
   }
@@ -1138,7 +1128,6 @@ static err_t pppol2tp_xmit(pppol2tp_pcb *l2tp, struct pbuf *pb) {
     PPPDEBUG(LOG_ERR, ("pppol2tp: pppol2tp_pcb: could not allocate room for L2TP header\n"));
     LINK_STATS_INC(link.lenerr);
     ppp_memory_buffer_free(pb);
-    //pbuf_free(pb);
     return ERR_BUF;
   }
 
@@ -1158,7 +1147,6 @@ static err_t pppol2tp_udp_send(pppol2tp_pcb *l2tp, struct pbuf *pb) {
     err = udp_sendto(l2tp->udp, pb, &l2tp->remote_ip, l2tp->tunnel_port);
   }
   ppp_memory_buffer_free(pb);
-  //pbuf_free(pb);
   return err;
 }
 

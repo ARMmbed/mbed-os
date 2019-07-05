@@ -1846,12 +1846,10 @@ static int lcp_reqci(fsm *f, u_char *inp, int *lenp, int reject_if_disagree) {
     next = inp;
 
     nakp = ppp_memory_buffer_allocate(pcb->netif->memory_manager, PPP_CTRL_PBUF_MAX_SIZE, PPP_BUF_HEAP);
-    //nakp = pbuf_alloc(PBUF_RAW, (u16_t)(PPP_CTRL_PBUF_MAX_SIZE), PPP_CTRL_PBUF_TYPE);
     if(NULL == nakp)
         return 0;
     if(nakp->tot_len != nakp->len) {
         ppp_memory_buffer_free(nakp);
-        //pbuf_free(nakp);
         return 0;
     }
 
@@ -2285,7 +2283,6 @@ endswitch:
     }
 
     ppp_memory_buffer_free(nakp);
-    //pbuf_free(nakp);
     LCPDEBUG(("lcp_reqci: returning CONF%s.", CODENAME(rc)));
     return (rc);			/* Return final code */
 }
