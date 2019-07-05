@@ -210,14 +210,6 @@ SECTIONS
     __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
   } > m_data
 
-  .heap_0 :
-  {
-    . = ALIGN(8);
-    __mbed_sbrk_start_0 = .;
-    . += (ORIGIN(m_data) + LENGTH(m_data) - .);
-    __mbed_krbs_start_0 = .;
-  } > m_data
-
   __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
   __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
 
@@ -231,6 +223,14 @@ SECTIONS
     KEEP(*(.jcr*))
     . = ALIGN(8);
     __data_end__ = .;        /* define a global symbol at data end */
+  } > m_data
+
+  .heap_0 :
+  {
+    . = ALIGN(8);
+    __mbed_sbrk_start_0 = .;
+    . += (ORIGIN(m_data) + LENGTH(m_data) - .);
+    __mbed_krbs_start_0 = .;
   } > m_data
 
   __DATA_END = __DATA_ROM + (__data_end__ - __data_start__);
