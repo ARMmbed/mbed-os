@@ -1,0 +1,7 @@
+{
+    "GCC_ARM": {
+        "ld": ["-Wl,--wrap,printf", "-Wl,--wrap,sprintf", "-Wl,--wrap,snprintf",
+               "-Wl,--wrap,vprintf", "-Wl,--wrap,vsprintf", "-Wl,--wrap,vsnprintf",
+               "-Wl,--wrap,fprintf", "-Wl,--wrap,vfprintf"]
+    }
+}

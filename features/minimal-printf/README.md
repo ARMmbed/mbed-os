@@ -3,7 +3,7 @@
 Library supports both printf and snprintf in 1252 bytes of flash.
 
 Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
-Floating point is disabled by default.
+Floating point is enabled by default.
 Printing to a FILE stream is enabled by default.
 
 Supports:
@@ -23,19 +23,10 @@ Supports:
 Unrecognized format specifiers are treated as ordinary characters.
 
 Floating point support:
-* Floating point is disabled by default.
+* Floating point is enabled by default.
 * All floating points are treated as %f.
 * No support for inf, infinity or nan
 
-To replace the standard implementations of the printf functions with the ones in this library:
-
-* Add the library to your project.
-* Compile with mbed-cli using one of the custom profiles in the `profiles/` subdirectory. For
-  example, to compile in release mode:
-
-```
-$ mbed compile -t <toolchain> -m <target> --profile mbed-printf/profiles/release.json
-```
 
 ## Enabling floating point, FILE stream, 64 bit integers, new line conversion, and setting baud rate
 
@@ -44,8 +35,6 @@ In mbed_app.json:
 ```
     "target_overrides": {
         "*": {
-            "platform.stdio-baud-rate": 115200,
-            "platform.stdio-convert-newlines": false,
             "minimal-printf.enable-file-stream": true,
             "minimal-printf.enable-floating-point": true,
             "minimal-printf.set-floating-point-max-decimals": 6,

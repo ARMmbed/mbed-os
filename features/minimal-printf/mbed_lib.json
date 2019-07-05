@@ -15,7 +15,7 @@
         },
         "enable-floating-point": {
             "help": "Enable floating point printing",
-            "value": false
+            "value": true
         },
         "set-floating-point-max-decimals": {
             "help": "Maximum number of decimals to be printed",
