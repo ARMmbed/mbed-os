@@ -5,7 +5,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
-        "components": ["PSA_SRV_IMPL", "PSA_SRV_EMUL", "NSPE"],
+        "components": ["PSA_SRV_IMPL", "PSA_SRV_EMUL", "NSPE", "FPGA_CI_TEST_SHIELD"],
         "is_disk_virtual": false,
         "macros": [],
         "device_has": [],
