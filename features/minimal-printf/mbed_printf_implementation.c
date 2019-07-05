@@ -389,7 +389,7 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
     MBED_UNSIGNED_STORAGE val = decimal ? decimal : decimal + 1;
     while (precision_in_uint > val) {
         /* print leading zeros */
-        mbed_minimal_putchar(buffer, length, result, '0');
+        mbed_minimal_putchar(buffer, length, result, '0', stream);
         precision_in_uint /= 10;
     }
 
