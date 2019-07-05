@@ -7442,6 +7442,7 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET",
+            "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
     },
@@ -7572,6 +7573,7 @@
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
         "overrides": {
+            "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
     },
@@ -7639,6 +7641,7 @@
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
         "overrides": {
+            "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
     },
@@ -8000,6 +8003,7 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET",
+            "deep-sleep-latency": 1,
             "tickless-from-us-ticker": true
         }
     },
@@ -8210,6 +8214,7 @@
             }
         },
         "overrides": {
+            "deep-sleep-latency": 1,
             "mpu-rom-end": "0x1fffffff"
         },
         "inherits": ["Target"],
