@@ -38,7 +38,7 @@ public:
     TimerEvent();
 
     TimerEvent(const ticker_data_t *data)
-     : event(), _ticker_data(data)
+        : event(), _ticker_data(data)
     {
         ticker_set_handler(_ticker_data, (&TimerEvent::irq));
     }

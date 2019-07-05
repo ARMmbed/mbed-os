@@ -117,7 +117,7 @@ public:
      */
     SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC) :
 #if DEVICE_SPI_ASYNCH
-       _irq(this),
+        _irq(this),
 #endif
         _mosi(mosi),
         _miso(miso),
@@ -274,9 +274,9 @@ public:
      */
     void clear_transfer_buffer()
     {
-    #if TRANSACTION_QUEUE_SIZE_SPI
+#if TRANSACTION_QUEUE_SIZE_SPI
         _peripheral->transaction_buffer->reset();
-    #endif
+#endif
     }
 
     /** Clear the queue of transfers and abort the on-going transfer.

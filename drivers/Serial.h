@@ -87,7 +87,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
-    Serial(PinName tx, PinName rx,int baud) : SerialBase(tx, rx, baud), Stream(NULL)
+    Serial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud), Stream(NULL)
     {
     }
 
