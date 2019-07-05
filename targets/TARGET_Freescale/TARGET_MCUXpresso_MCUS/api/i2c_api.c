@@ -376,11 +376,12 @@ void master_callback(I2C_Type *base, i2c_master_handle_t *handle, status_t statu
     case kStatus_Success:
       obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
       break;
-
     case kStatus_I2C_ArbitrationLost:
       obj_s->event = I2C_EVENT_ARBITRATION_LOST;
       break;
-
+    case kStatus_I2C_Addr_Nak:
+      obj_s->event = I2C_EVENT_ERROR_NO_SLAVE;
+      break;
     default:
       obj_s->event = I2C_EVENT_ERROR;
       break;
@@ -424,14 +425,16 @@ static int i2c_master_block_read(i2c_t *obj, uint16_t address, void *data, uint3
 
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
-      // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
+      // async transfer ongoing, abort it
+      i2c_abort_async(obj);
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
     return length;
   } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
     return I2C_ERROR_ARBITRATION_LOST;
+  } else if (obj_s->event == I2C_EVENT_ERROR_NO_SLAVE) {
+    return I2C_ERROR_NO_SLAVE;
   }
   return 0;
 }
@@ -494,14 +497,16 @@ int i2c_master_block_write(i2c_t *obj, uint16_t address, const void *data, uint3
 
   if (timeout == 0) {
     if ((obj_s->event == 0)) {
-      // async transfer angoing
-      I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]); // issues stop signal
+      // async transfer ongoing, abort it
+      i2c_abort_async(obj);
     }
     return I2C_ERROR_TIMEOUT;
   } else if (obj_s->event == I2C_EVENT_TRANSFER_COMPLETE) {
     return length;
   } else if (obj_s->event == I2C_EVENT_ARBITRATION_LOST) {
     return I2C_ERROR_ARBITRATION_LOST;
+  } else if (obj_s->event == I2C_EVENT_ERROR_NO_SLAVE) {
+    return I2C_ERROR_NO_SLAVE;
   }
   return 0;
 }
@@ -576,6 +581,12 @@ void async_transfer_callback(I2C_Type *base, i2c_master_handle_t *handle, status
     case kStatus_I2C_ArbitrationLost:
       event.error_status = I2C_ERROR_ARBITRATION_LOST;
       break;
+    case kStatus_I2C_Timeout:
+      event.error_status = I2C_ERROR_TIMEOUT;
+      break;
+    case kStatus_I2C_Addr_Nak:
+      event.error_status = I2C_ERROR_NO_SLAVE;
+      break;
   }
   obj->handler(obj, &event, obj->ctx);
 }
@@ -596,6 +607,7 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length, uint8
 
   if (tx_length && rx_length) {
     obj_s->stop = stop;
+    master_xfer.flags |= kI2C_TransferNoStopFlag;
   } else {
     if (!stop) {
       master_xfer.flags |= kI2C_TransferNoStopFlag;
@@ -642,6 +654,11 @@ void i2c_abort_async(i2c_t *obj)
   I2C_Type *base = i2c_addrs[obj_s->instance];
 
   I2C_MasterTransferAbort(base, &i2cHandle[obj_s->instance]);
+  /* Wait until data transfer complete. */
+  uint16_t _timeout = UINT16_MAX;
+  while ((base->S & kI2C_BusBusyFlag) && (--_timeout))
+  {
+  }
 }
 #endif
 
