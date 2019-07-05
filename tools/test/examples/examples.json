@@ -135,7 +135,7 @@
       "mbed": [],
       "test-repo-source": "github",
       "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI"],
+      "targets" : ["K66F"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
