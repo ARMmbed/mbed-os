@@ -43,6 +43,7 @@ const PinMap PinMap_GPIO_IRQ[] = {
     {PV2, GPIO_IRQ_17_18, PIN_DATA(0, 0)},
     {PH4, GPIO_IRQ_19_22, PIN_DATA(0, 0)},
     {PT0, GPIO_IRQ_23_26, PIN_DATA(0, 0)},
+    {PT1, GPIO_IRQ_23_26, PIN_DATA(0, 0)},
     {PG2, GPIO_IRQ_27_28, PIN_DATA(0, 0)},
     {PT7, GPIO_IRQ_29, PIN_DATA(0, 0)},
     {PU0, GPIO_IRQ_30_31, PIN_DATA(0, 0)},
@@ -54,6 +55,7 @@ static gpio_irq_handler hal_irq_handler[CHANNEL_NUM] = {NULL};
 static void SetSTBYReleaseINTSrc(cg_intsrc, cg_intactivestate, FunctionalState );
 cg_intactivestate CurrentState;
 static void INT_IRQHandler(PinName pin, uint32_t index);
+static uint32_t CheckPinNameIRQSRC(PinName pin);
 
 // Initialize gpio IRQ pin
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
@@ -138,7 +140,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             obj->irq_src = CG_INT_SRC_14;
             break;
         case GPIO_IRQ_23_26:
-            obj->irq_src = CG_INT_SRC_18;
+            obj->irq_src = CheckPinNameIRQSRC(pin);
             break;
         case GPIO_IRQ_27_28:
             obj->irq_src = CG_INT_SRC_1C;
@@ -391,9 +393,16 @@ void INT19_22_IRQHandler(void)
     INT_IRQHandler(PH4, 19);
 }
 
+#define BIT22 (0x1 << 22)
+#define BIT21 (0x1 << 21)
 void INT23_26_IRQHandler(void)
 {
-    INT_IRQHandler(PT0, 23);
+    uint32_t int_num = TSB_IMN->FLG5;
+    if( int_num & BIT22) {
+        INT_IRQHandler(PT1, 24);
+    } else if(int_num & BIT21) {
+        INT_IRQHandler(PT0, 23);
+    }
 }
 
 void INT27_28_IRQHandler(void)
@@ -434,4 +443,24 @@ static void SetSTBYReleaseINTSrc(cg_intsrc intsource, cg_intactivestate ActiveSt
     {
         __IO uint8_t imc = *p_imc;
     }
+}
+
+/**
+ * @brief Return INTSRC for gpio INT that enable more than one pin.
+ * @param  pin PinName.
+ * @return  GPIO IRQn_Type .
+ * @note You can expand func CheckPinNameIRQSRC if need to add other GPIO INT.
+ */
+static uint32_t CheckPinNameIRQSRC(PinName pin)
+{
+    switch(pin)
+    {
+        case PT0:
+            return CG_INT_SRC_18;
+        case PT1:
+            return CG_INT_SRC_19;
+        default:
+            break;
+    }
+    return -1;
 }
