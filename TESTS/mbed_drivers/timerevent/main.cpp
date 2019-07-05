@@ -21,7 +21,7 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#include "drivers/internal/TimerEvent.h"
+#include "drivers/source/TimerEvent.h"
 #include "hal/ticker_api.h"
 #include "rtos.h"
 

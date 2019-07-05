@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-#include "rtos/internal/rtos_idle.h"
+#include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
-#include "drivers/internal/TimerEvent.h"
+#include "drivers/source/TimerEvent.h"
 #include "lp_ticker_api.h"
 #include "us_ticker_api.h"
 #include "mbed_critical.h"

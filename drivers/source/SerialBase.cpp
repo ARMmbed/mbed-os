@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/internal/SerialBase.h"
+#include "drivers/source/SerialBase.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"

@@ -22,7 +22,7 @@
 #if DEVICE_SERIAL || defined(DOXYGEN_ONLY)
 
 #include "platform/Stream.h"
-#include "drivers/internal/SerialBase.h"
+#include "drivers/source/SerialBase.h"
 #include "platform/PlatformMutex.h"
 #include "platform/NonCopyable.h"
 

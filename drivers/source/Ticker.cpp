@@ -16,7 +16,7 @@
  */
 #include "drivers/Ticker.h"
 
-#include "drivers/internal/TimerEvent.h"
+#include "drivers/source/TimerEvent.h"
 #include "platform/FunctionPointer.h"
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
