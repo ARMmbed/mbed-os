@@ -374,6 +374,8 @@ bool LoRaPHYUS915::rx_config(rx_config_params_t *config)
     if (config->rx_slot == RX_SLOT_WIN_1) {
         // Apply window 1 frequency
         frequency = US915_FIRST_RX1_CHANNEL + (config->channel % 8) * US915_STEPWIDTH_RX1_CHANNEL;
+        // Caller may print the frequency to log so update it to match actual frequency
+        config->frequency = frequency;
     }
 
     // Read the physical datarate from the datarates table
