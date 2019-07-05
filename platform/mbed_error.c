@@ -125,6 +125,8 @@ WEAK MBED_NORETURN void error(const char *format, ...)
         va_start(arg, format);
         mbed_error_vprintf(format, arg);
         va_end(arg);
+        // Add a newline to prevent any line buffering
+        mbed_error_puts("\n");
 #endif
     }
 
