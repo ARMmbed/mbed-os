@@ -37,7 +37,7 @@
 #ifdef MBED_CONF_APP_BASICS_TEST_FILENAME
 #include MBED_CONF_APP_BASICS_TEST_FILENAME
 #else
-#include "alice.h"
+#include "sample.h"
 #endif
 
 #ifndef MBED_CONF_APP_TESTS_FS_SIZE

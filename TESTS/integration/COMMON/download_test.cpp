@@ -38,7 +38,7 @@ const char dl_host[] = "armmbed.github.io";
 #ifdef MBED_CONF_DOWNLOAD_TEST_URL_PATH
 const char dl_path[] = MBED_CONF_DOWNLOAD_TEST_URL_PATH;
 #else
-const char dl_path[] = "/mbed-test-files/alice.txt";
+const char dl_path[] = "/mbed-test-files/sample.txt";
 #endif
 
 const char req_template[] = "GET %s HTTP/1.1\nHost: %s\n\n";

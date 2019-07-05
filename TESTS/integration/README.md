@@ -23,14 +23,15 @@ The integration test requires both the connectivity and and storage device to to
 If a platform have both of them enabled by default. The tests can be compiled and run the tests inside mbed-os directory, the configuration file need to be passed in the command line: 
 
     ```bash
-    $ mbed test -t <toolchain> -m <platform> -n *integraion-* -DINTEGRATION_TESTS -v
+    $ mbed test -t <toolchain> -m <platform> -n *integration-* -DINTEGRATION_TESTS -v
     ```
-If a platform not have default storage or connectivity device and may require extra shield to run the integration test. In this case,  a `target_extended.json` file can be passed in the command line, to configurate the target: 
+If a platform not have default storage or connectivity device and may require extra shield to run the integration test. In this case,  a `target_extended.json` file can be passed in the command line, to configurate the target:
 
     ```bash
-    $ mbed test -t <toolchain> -m <platform> -n *integraion-* -DINTEGRATION_TESTS --app-config TESTS\integration\COMMON\target_extended.json -v
+    $ mbed test -t <toolchain> -m <platform> -n *integration-* -DINTEGRATION_TESTS --app-config TESTS\integration\COMMON\target_extended.json -v
     ```
-Currently we have a pre-configuration file defined in the COMMON folder, and that file covers some of the platform connectivity/storage combinations.  If you have your own platform or you want to define your own configuration, please follow the [configuration guide](#Tests-configuration).
+Currently we have a pre-configuration file defined in the COMMON folder, and that file covers some of the platform connectivity/storage combinations. Yet this pre-configuration file might contains some compoments drivers that not included in the mbed-os. ( e.g. `WIFI_WIZFI310` and `NUSD` ), we'd expect user to add those drivers manually. If you have your own platform or you want to define your own configuration, please follow the [configuration guide](#Tests-configuration). 
+
 
 ## Tests configuration
 
