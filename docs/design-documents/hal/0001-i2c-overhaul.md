@@ -498,8 +498,8 @@ void i2c_abort_async(i2c_t *obj);
 - Calling any `I2C` function before calling `i2c_init` or after calling `i2c_free`.
 - Initialising the `I2C` peripheral with invalid `SDA` and `SCL` pins.
 - Initialising the peripheral in slave mode if slave mode is not supported, indicated by `i2c_get_capabilities`.
-- Operating the peripheral in slave mode without first specifying and address using `i2c_address`
-- Setting an address using `i2c_address` after initialising the peripheral in master mode.
+- Operating the peripheral in slave mode without first specifying and address using `i2c_slave_address`
+- Setting an address using `i2c_slave_address` after initialising the peripheral in master mode.
 - Setting an address to an `I2C` reserved value.
 - Setting an address larger than the 7-bit supported maximum if 10-bit addressing is not supported.
 - Setting an address larger than the 10-bit supported maximum.
