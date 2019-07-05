@@ -662,8 +662,8 @@ ip4_reass(struct pbuf *p)
     }
 
     /* release the sources allocate for the fragment queue entry */
-    if (ipr_prev != NULL) {
-      ip_reass_dequeue_datagram(ipr, ipr_prev);
+    if (reassdatagrams != NULL) {
+      ip_reass_dequeue_datagram(ipr, reassdatagrams);
     }
     /* and adjust the number of pbufs currently queued for reassembly. */
     clen = pbuf_clen(p);
