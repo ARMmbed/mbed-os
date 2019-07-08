@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des_v1.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code fro the API for the DES method
@@ -173,7 +173,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
     uint32_t i;
     cy_en_crypto_status_t status = CY_CRYPTO_SUCCESS;
 
-    cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)REG_CRYPTO_MEM_BUFF(base);
+    cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)Cy_Crypto_Core_GetVuMemoryAddress(base);
 
     /* Check weak keys */
     for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
@@ -232,7 +232,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Tdes(CRYPTO_Type *base,
     uint32_t i;
     cy_en_crypto_status_t status = CY_CRYPTO_SUCCESS;
 
-    cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)REG_CRYPTO_MEM_BUFF(base);
+    cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)Cy_Crypto_Core_GetVuMemoryAddress(base);
 
     /* Check weak keys */
     for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)

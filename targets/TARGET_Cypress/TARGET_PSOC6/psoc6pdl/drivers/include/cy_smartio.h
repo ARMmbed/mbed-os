@@ -602,7 +602,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetDataReg(SMARTIO_PRT_Type* base, uint8_t dat
 * Bypass/Route state of 8 io<->chip channels (bits [7:0]): 1=bypass, 0=routed.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetChBypass
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetChBypass
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_SmartIO_GetChBypass(SMARTIO_PRT_Type* base)
@@ -624,7 +624,7 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetChBypass(SMARTIO_PRT_Type* base)
 * Clock source
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetClock
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetClock
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_clksrc_t Cy_SmartIO_GetClock(SMARTIO_PRT_Type* base)
@@ -658,7 +658,7 @@ __STATIC_INLINE cy_en_smartio_clksrc_t Cy_SmartIO_GetClock(SMARTIO_PRT_Type* bas
 * Sync mode of 8 I/O terminals (bits [7:0]): 1=sync, 0=no sync.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetIoSync
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetIoSync
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_SmartIO_GetIoSync(SMARTIO_PRT_Type* base)
@@ -692,7 +692,7 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetIoSync(SMARTIO_PRT_Type* base)
 * Sync mode of 8 chip-side terminals (bits [7:0]): 1=sync, 0=no sync.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetChipSync
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetChipSync
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_SmartIO_GetChipSync(SMARTIO_PRT_Type* base)
@@ -723,7 +723,7 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetChipSync(SMARTIO_PRT_Type* base)
 * LUT opcode
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetLutOpcode
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetLutOpcode
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_lutopc_t Cy_SmartIO_GetLutOpcode(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum)
@@ -760,7 +760,7 @@ __STATIC_INLINE cy_en_smartio_lutopc_t Cy_SmartIO_GetLutOpcode(SMARTIO_PRT_Type*
 * Bitfield [7:0] mapping of the 3:1 LUT
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetLutMap
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetLutMap
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_SmartIO_GetLutMap(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum)
@@ -791,7 +791,7 @@ __STATIC_INLINE uint8_t Cy_SmartIO_GetLutMap(SMARTIO_PRT_Type* base, cy_en_smart
 * Data unit input trigger source
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetDuData
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetDuData
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_dudata_t Cy_SmartIO_GetDuData(SMARTIO_PRT_Type* base, cy_en_smartio_datanum_t dataNum)
@@ -815,7 +815,7 @@ __STATIC_INLINE cy_en_smartio_dudata_t Cy_SmartIO_GetDuData(SMARTIO_PRT_Type* ba
 * Data unit opcode
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetDuOpc
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetDuOpc
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_duopc_t Cy_SmartIO_GetDuOpc(SMARTIO_PRT_Type* base)
@@ -837,7 +837,7 @@ __STATIC_INLINE cy_en_smartio_duopc_t Cy_SmartIO_GetDuOpc(SMARTIO_PRT_Type* base
 * Data unit operand bit-width
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetDuSize
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetDuSize
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_smartio_dusize_t Cy_SmartIO_GetDuSize(SMARTIO_PRT_Type* base)
@@ -859,7 +859,7 @@ __STATIC_INLINE cy_en_smartio_dusize_t Cy_SmartIO_GetDuSize(SMARTIO_PRT_Type* ba
 * DATA register value
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetDataReg
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetDataReg
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_SmartIO_GetDataReg(SMARTIO_PRT_Type* base)

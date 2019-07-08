@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.h
-* \version 2.20
+* \version 2.30
 *
 * Provides EZI2C API declarations of the SCB driver.
 *
@@ -225,97 +225,6 @@
 * For proper operation, when the EZI2C slave is configured to be a wakeup 
 * source from Deep Sleep mode, the \ref Cy_SCB_EZI2C_DeepSleepCallback must 
 * be copied and modified. Refer to the function description to get the details.
-*
-********************************************************************************
-* \section group_scb_ezi2c_more_information More Information
-********************************************************************************
-* For more information on the SCB peripheral, refer to the technical reference
-* manual (TRM).
-*
-********************************************************************************
-* \section group_scb_ezi2c_MISRA MISRA-C Compliance
-********************************************************************************
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA Rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>The functions \ref Cy_SCB_EZI2C_DeepSleepCallback and
-*         \ref Cy_SCB_EZI2C_HibernateCallback are callback of
-*         \ref cy_en_syspm_status_t type. The cast operation safety in these
-*         functions becomes the user's responsibility because pointers are
-*         initialized when callback is registered in SysPm driver.</td>
-*   </tr>
-*   <tr>
-*     <td>14.1</td>
-*     <td>R</td>
-*     <td>There shall be no unreachable code.</td>
-*     <td>The SCB block parameters can be a constant false or true depending on
-*         the selected device and cause code to be unreachable.</td>
-*   </tr>
-*   <tr>
-*     <td>14.2</td>
-*     <td>R</td>
-*     <td>All non-null statements shall either: a) have at least one side-effect
-*         however executed, or b) cause control flow to change.</td>
-*     <td>The unused function parameters are cast to void. This statement
-*         has no side-effect and is used to suppress a compiler warning.</td>
-*   </tr>
-*   <tr>
-*     <td>14.7</td>
-*     <td>R</td>
-*     <td>A function shall have a single point of exit at the end of the
-*         function.</td>
-*     <td>The functions can return from several points. This is done to improve
-*         code clarity when returning error status code if input parameter
-*         validation fails.</td>
-*   </tr>
-* </table>
-*
-* \section group_scb_ezi2c_changelog Changelog
-* <table class="doxtable">
-*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
-*   <tr>
-*     <td rowspan="2">2.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
-*         source directory and the single include directory.
-*     </td>
-*     <td>Driver library directory-structure simplification.</td>
-*   </tr>
-*   <tr>
-*     <td>Added register access layer. Use register access macros instead
-*         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
-*         not need to be recompiled for each supported part number.</td>
-*   </tr>
-*   <tr>
-*     <td>2.10</td>
-*     <td>None.</td>
-*     <td>SCB I2C driver updated.</td>
-*   </tr>
-*   <tr>
-*     <td rowspan="2"> 2.0</td>
-*     <td>Added parameters validation for public API.</td>
-*     <td></td>
-*   </tr>
-*   <tr>
-*     <td>Replaced variables that have limited range of values with enumerated
-*         types.</td>
-*     <td></td>
-*   </tr>
-*   <tr>
-*     <td>1.0</td>
-*     <td>Initial version.</td>
-*     <td></td>
-*   </tr>
-* </table>
 *
 * \defgroup group_scb_ezi2c_macros Macros
 * \defgroup group_scb_ezi2c_functions Functions

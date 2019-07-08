@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v2.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides constant and parameters for the API for the AES method
@@ -39,10 +39,13 @@ void Cy_Crypto_Core_V2_Aes_LoadEncKey(CRYPTO_Type *base,
 void Cy_Crypto_Core_V2_Aes_LoadDecKey(CRYPTO_Type *base,
                                       cy_stc_crypto_aes_state_t const *aesState);
 
+cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Free(CRYPTO_Type *base, cy_stc_crypto_aes_state_t *aesState);
+
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Init(CRYPTO_Type *base,
                                                  uint8_t const *key,
                                                  cy_en_crypto_aes_key_length_t keyLength,
-                                                 cy_stc_crypto_aes_state_t *aesState);
+                                                 cy_stc_crypto_aes_state_t *aesState,
+                                                 cy_stc_crypto_aes_buffers_t *aesBuffers);
 
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ecb(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
@@ -53,7 +56,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ecb(CRYPTO_Type *base,
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState);
@@ -61,7 +64,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState);

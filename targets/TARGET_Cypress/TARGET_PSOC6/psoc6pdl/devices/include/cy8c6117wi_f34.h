@@ -5,7 +5,7 @@
 * CY8C6117WI-F34 device header
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -286,7 +286,7 @@ typedef enum {
 #define CY_IP_MXS40PASS_INSTANCES       1u
 #define CY_IP_MXS40PASS_VERSION         1u
 #define CY_IP_MXS40PASS_SAR             1u
-#define CY_IP_MXS40PASS_SAR_INSTANCES   16u
+#define CY_IP_MXS40PASS_SAR_INSTANCES   1u
 #define CY_IP_MXS40PASS_SAR_VERSION     1u
 #define CY_IP_MXS40PASS_CTDAC           1u
 #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u
@@ -317,7 +317,7 @@ typedef enum {
 #include "gpio_psoc6_01_124_bga.h"
 
 #define CY_DEVICE_PSOC6ABLE2
-#define CY_SILICON_ID                   0xE2182100UL
+#define CY_SILICON_ID                   0xE2492100UL
 #define CY_HF_CLK_MAX_FREQ              50000000UL
 
 #define CPUSS_FLASHC_PA_SIZE_LOG2       0x7UL

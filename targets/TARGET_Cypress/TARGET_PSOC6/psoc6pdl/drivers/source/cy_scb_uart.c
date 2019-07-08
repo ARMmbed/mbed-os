@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_uart.c
-* \version 2.20
+* \version 2.30
 *
 * Provides UART API implementation of the SCB driver.
 *
@@ -1131,6 +1131,17 @@ void Cy_SCB_UART_Interrupt(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
 
             Cy_SCB_ClearRxInterrupt(base, CY_SCB_RX_INTR_LEVEL);
         }
+
+        if (0UL != (CY_SCB_RX_INTR_NOT_EMPTY & Cy_SCB_GetRxInterruptStatusMasked(base)))
+        {
+            if (NULL != context->cbEvents)
+            {
+                context->cbEvents(CY_SCB_UART_RECEIVE_NOT_EMTPY);
+            }
+
+            Cy_SCB_ClearRxInterrupt(base, CY_SCB_RX_INTR_NOT_EMPTY);
+        }
+
     }
 
     if (0UL != (CY_SCB_TX_INTR & Cy_SCB_GetInterruptCause(base)))
@@ -1171,6 +1182,17 @@ void Cy_SCB_UART_Interrupt(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
                 context->cbEvents(CY_SCB_UART_TRANSMIT_DONE_EVENT);
             }
         }
+
+        if (0UL != (CY_SCB_UART_TX_EMPTY & Cy_SCB_GetTxInterruptStatusMasked(base)))
+        {
+            if (NULL != context->cbEvents)
+            {
+                context->cbEvents(CY_SCB_UART_TRANSMIT_EMTPY);
+            }
+
+			Cy_SCB_ClearTxInterrupt(base, CY_SCB_UART_TX_EMPTY);
+        }
+
     }
 }
 

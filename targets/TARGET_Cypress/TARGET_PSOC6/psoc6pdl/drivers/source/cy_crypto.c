@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  Provides API implementation of the Cypress PDL Crypto driver.
@@ -869,9 +869,112 @@ cy_en_crypto_status_t Cy_Crypto_Rsa_Verify(cy_en_crypto_rsa_ver_result_t *verRes
 }
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
 
+cy_en_crypto_status_t Cy_Crypto_ECDSA_SignHash(const uint8_t *hash,
+                                        uint32_t hashlen,
+                                        uint8_t *sig,
+                                        const cy_stc_crypto_ecc_key *key,
+                                        const uint8_t *messageKey,
+                                        cy_stc_crypto_context_ecc_t *cfContext)
+{
+    cy_en_crypto_status_t err = CY_CRYPTO_NOT_INITIALIZED;
+
+    if (clientContext != NULL)
+    {
+        clientContext->instr = CY_CRYPTO_INSTR_ECDSA_SIGN;
+        clientContext->xdata = cfContext;
+
+        cfContext->datalen = hashlen;
+        cfContext->src0 = hash;
+        cfContext->dst0 = sig;
+        cfContext->key  = key;
+        cfContext->src1 = messageKey;
+
+        err = Cy_Crypto_Client_Send();
+    }
+    return (err);
+}
+
+cy_en_crypto_status_t Cy_Crypto_ECDSA_VerifyHash(const uint8_t *sig,
+                                        const uint8_t *hash,
+                                        uint32_t hashlen,
+                                        uint8_t *stat,
+                                        const cy_stc_crypto_ecc_key *key,
+                                        cy_stc_crypto_context_ecc_t *cfContext)
+{
+    cy_en_crypto_status_t err = CY_CRYPTO_NOT_INITIALIZED;
+
+    if (clientContext != NULL)
+    {
+        clientContext->instr = CY_CRYPTO_INSTR_ECDSA_VER;
+        clientContext->xdata = cfContext;
+
+        cfContext->datalen = hashlen;
+        cfContext->src0 = hash;
+        cfContext->src1 = sig;
+        cfContext->dst0 = stat;
+        cfContext->key  = key;
+
+        err = Cy_Crypto_Client_Send();
+    }
+    return (err);
+}
+
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 
-void Cy_Crypto_Rsa_InvertEndianness(void *inArrPtr, uint32_t byteSize)
+cy_en_crypto_status_t Cy_Crypto_SetMemBufAddress(uint32_t const *newMembufAddress,
+                                           uint32_t newMembufSize,
+                                           cy_stc_crypto_context_str_t *cfContext)
+{
+    cy_en_crypto_status_t err = CY_CRYPTO_NOT_INITIALIZED;
+
+    if (clientContext != NULL)
+    {
+        clientContext->instr = CY_CRYPTO_INSTR_MEMBUF_SET;
+        clientContext->xdata = cfContext;
+
+        cfContext->src0 = newMembufAddress;
+        cfContext->dataSize = newMembufSize;
+
+        err = Cy_Crypto_Client_Send();
+    }
+    return (err);
+}
+
+cy_en_crypto_status_t Cy_Crypto_GetMemBufAddress(uint32_t **membufAddress,
+                                           cy_stc_crypto_context_str_t *cfContext)
+{
+    cy_en_crypto_status_t err = CY_CRYPTO_NOT_INITIALIZED;
+
+    if (clientContext != NULL)
+    {
+        clientContext->instr = CY_CRYPTO_INSTR_MEMBUF_ADDR;
+        clientContext->xdata = cfContext;
+
+        cfContext->dst = (void *)membufAddress;
+
+        err = Cy_Crypto_Client_Send();
+    }
+    return (err);
+}
+
+cy_en_crypto_status_t Cy_Crypto_GetMemBufSize(uint32_t *membufSize,
+                                           cy_stc_crypto_context_str_t *cfContext)
+{
+    cy_en_crypto_status_t err = CY_CRYPTO_NOT_INITIALIZED;
+
+    if (clientContext != NULL)
+    {
+        clientContext->instr = CY_CRYPTO_INSTR_MEMBUF_SIZE;
+        clientContext->xdata = cfContext;
+
+        cfContext->dst = (void *)membufSize;
+
+        err = Cy_Crypto_Client_Send();
+    }
+    return (err);
+}
+
+void Cy_Crypto_InvertEndianness(void *inArrPtr, uint32_t byteSize)
 {
     int32_t limit;
     int32_t i;

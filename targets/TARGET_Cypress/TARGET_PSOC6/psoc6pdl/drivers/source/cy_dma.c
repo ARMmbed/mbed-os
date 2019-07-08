@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dma.c
-* \version 2.10
+* \version 2.20
 *
 * \brief
 * The source code file for the DMA driver.
@@ -42,7 +42,7 @@
 * \return The status /ref cy_en_dma_status_t.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Crc_Init
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Crc_Init
 *
 *******************************************************************************/
 cy_en_dma_status_t Cy_DMA_Crc_Init(DW_Type * base, cy_stc_dma_crc_config_t const * crcConfig)
@@ -85,7 +85,7 @@ cy_en_dma_status_t Cy_DMA_Crc_Init(DW_Type * base, cy_stc_dma_crc_config_t const
 * The status /ref cy_en_dma_status_t.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Enable
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Enable
 *
 *******************************************************************************/
 cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, const cy_stc_dma_descriptor_config_t * config)
@@ -200,7 +200,7 @@ cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, 
 * The descriptor structure instance declared by the user/component.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Descriptor_Deinit
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_Deinit
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_DeInit(cy_stc_dma_descriptor_t * descriptor)
@@ -234,7 +234,7 @@ void Cy_DMA_Descriptor_DeInit(cy_stc_dma_descriptor_t * descriptor)
 * The status /ref cy_en_dma_status_t.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Enable
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Enable
 *
 *******************************************************************************/
 cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_dma_channel_config_t const * channelConfig)
@@ -244,7 +244,7 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
     if ((NULL != base) &&
         (NULL != channelConfig) && 
         (NULL != channelConfig->descriptor) &&
-        (CY_DMA_IS_CH_NR_VALID(channel)))
+        (CY_DMA_IS_CH_NR_VALID(base, channel)))
     {
         CY_ASSERT_L2(CY_DMA_IS_PRIORITY_VALID(channelConfig->priority));
         
@@ -277,12 +277,12 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
 * A channel number.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Disable
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Disable
 *
 *******************************************************************************/
 void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 {
-    CY_ASSERT_L1(CY_DMA_IS_CH_NR_VALID(channel));
+    CY_ASSERT_L1(CY_DMA_IS_CH_NR_VALID(base, channel));
     
     DW_CH_CTL(base, channel) = 0UL;
     DW_CH_IDX(base, channel) = 0UL;
@@ -309,7 +309,7 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 * The pointer to the next descriptor.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Descriptor_SetterFunctions
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_t const * nextDescriptor)
@@ -354,7 +354,7 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 * The pointer to the next descriptor.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Descriptor_GetterFunctions
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_GetterFunctions
 *
 *******************************************************************************/
 cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descriptor_t const * descriptor)
@@ -408,7 +408,7 @@ cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descrip
 * The descriptor type \ref cy_en_dma_descriptor_type_t.
 *
 * \funcusage 
-* \snippet dma\2.10\snippet\main.c snippet_Cy_DMA_Descriptor_SetterFunctions
+* \snippet dma/snippet/main.c snippet_Cy_DMA_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMA_Descriptor_SetDescriptorType(cy_stc_dma_descriptor_t * descriptor, cy_en_dma_descriptor_type_t descriptorType)

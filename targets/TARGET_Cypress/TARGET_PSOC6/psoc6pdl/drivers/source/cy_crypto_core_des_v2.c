@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des_v2.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code fro the API for the DES method

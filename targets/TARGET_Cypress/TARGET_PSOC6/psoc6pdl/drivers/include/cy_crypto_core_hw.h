@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the headers to the API for the utils
@@ -108,10 +108,10 @@
 #define REG_CRYPTO_DEV_KEY_CTL0(base)      (((CRYPTO_V2_Type*)(base))->DEV_KEY_CTL0)
 #define REG_CRYPTO_DEV_KEY_CTL1(base)      (((CRYPTO_V2_Type*)(base))->DEV_KEY_CTL1)
 
-/* The CRYPTO internal-memory buffer-size in bytes. */
-#define CY_CRYPTO_MEM_BUFF_SIZE            ((cy_device->cryptoMemSize) * 4u)
 /* The CRYPTO internal-memory buffer-size in 32-bit words. */
 #define CY_CRYPTO_MEM_BUFF_SIZE_U32        (cy_device->cryptoMemSize)
+/* The CRYPTO internal-memory buffer-size in bytes. */
+#define CY_CRYPTO_MEM_BUFF_SIZE            (CY_CRYPTO_MEM_BUFF_SIZE_U32 * 4u)
 
 /* Device Crypto IP descriptor type */
 typedef struct
@@ -206,8 +206,13 @@ extern const cy_stc_cryptoIP_t  *cy_cryptoIP;
                                                     CRYPTO_INTR_MASKED_TR_AP_DETECT_ERROR_Msk | \
                                                     CRYPTO_INTR_MASKED_TR_RC_DETECT_ERROR_Msk))
 
+#define CY_CRYPTO_INSTR_FIFODEPTH          (8u)
 #define CY_CRYPTO_V1_DATA_FIFODEPTH        (8u)
 #define CY_CRYPTO_V2_DATA_FIFODEPTH        (16u)
+
+#define CY_CRYPTO_INSTR_SINGLE             (1u)
+#define CY_CRYPTO_INSTR_DOUBLE             (2u)
+#define CY_CRYPTO_INSTR_TRIPLE             (3u)
 
 #define CY_CRYPTO_MIN(a,b)                 (((a) < (b)) ? (a) : (b))
 #define CY_CRYPTO_MAX(a,b)                 (((a) > (b)) ? (a) : (b))
@@ -220,12 +225,16 @@ typedef enum
 
 /** \endcond */
 
+void Cy_Crypto_Core_HwInit(void);
+
+void Cy_Crypto_Core_ClearVuRegisters(CRYPTO_Type *base);
+
+void Cy_Crypto_Core_Vu_RunInstr(CRYPTO_Type *base, bool blockingMode, uint32_t instr, uint32_t params);
+
 /**
 * \addtogroup group_crypto_lld_hw_functions
 * \{
 */
-
-void Cy_Crypto_Core_HwInit(void);
 
 cy_en_crypto_status_t Cy_Crypto_Core_Enable(CRYPTO_Type *base);
 
@@ -233,7 +242,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_Disable(CRYPTO_Type *base);
 
 cy_en_crypto_status_t Cy_Crypto_Core_GetLibInfo(cy_en_crypto_lib_info_t *libInfo);
 
-void Cy_Crypto_Core_ClearVuRegisters(CRYPTO_Type *base);
+cy_en_crypto_status_t Cy_Crypto_Core_SetVuMemoryAddress(CRYPTO_Type *base, uint32_t const *vuMemoryAddr, uint32_t vuMemorySize);
+
+__STATIC_INLINE uint32_t * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base);
+
+uint32_t Cy_Crypto_Core_GetVuMemorySize(CRYPTO_Type *base);
 
 void Cy_Crypto_Core_InvertEndianness(void *inArrPtr, uint32_t byteSize);
 
@@ -265,9 +278,6 @@ __STATIC_INLINE bool Cy_Crypto_Core_IsEnabled(CRYPTO_Type *base)
 ****************************************************************************//**
 *
 * Returns the total available number of instructions in the instruction FIFO.
-* The value of this field ranges:
-* - from 0 to  8 for MXCRYPTO_ver1 IP block and
-* - from 0 to 16 for MXCRYPTO_ver2 IP block
 *
 * \param base
 * The pointer to the CRYPTO instance.
@@ -275,7 +285,7 @@ __STATIC_INLINE bool Cy_Crypto_Core_IsEnabled(CRYPTO_Type *base)
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_Crypto_Core_GetFIFODepth(CRYPTO_Type *base)
 {
-    return (cy_device->cryptoVersion == 1u) ? (CY_CRYPTO_V1_DATA_FIFODEPTH) : (CY_CRYPTO_V2_DATA_FIFODEPTH);
+    return (CY_CRYPTO_INSTR_FIFODEPTH);
 }
 
 /*******************************************************************************
@@ -292,6 +302,27 @@ __STATIC_INLINE uint8_t Cy_Crypto_Core_GetFIFODepth(CRYPTO_Type *base)
 __STATIC_INLINE uint8_t Cy_Crypto_Core_GetFIFOUsed(CRYPTO_Type *base)
 {
     return((uint8_t)_FLD2VAL(CRYPTO_INSTR_FF_STATUS_USED, REG_CRYPTO_INSTR_FF_STATUS(base)));
+}
+
+/*******************************************************************************
+* Function Name: Cy_Crypto_Core_WaitForInstrFifoAvailable
+*****************************************************************************//**
+*
+* Waits until number of entries in the instruction FIFO is less than
+* specified number.
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+* \param instr
+* The number of needed available space in the instruction FIFO.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_Crypto_Core_WaitForInstrFifoAvailable(CRYPTO_Type *base, uint32_t instr)
+{
+    while((uint32_t)(_FLD2VAL(CRYPTO_INSTR_FF_STATUS_USED, REG_CRYPTO_INSTR_FF_STATUS(base))) >= (CY_CRYPTO_INSTR_FIFODEPTH - instr))
+    {
+    }
 }
 
 /*******************************************************************************
@@ -328,6 +359,33 @@ __STATIC_INLINE void Cy_Crypto_Core_WaitForReady(CRYPTO_Type *base)
 {
     while(REG_CRYPTO_STATUS(base) != 0u)
     {
+    }
+}
+
+/*******************************************************************************
+* Function Name: Cy_Crypto_Wait_Vu_ForComplete
+****************************************************************************//**
+*
+* Waits until VU instruction will be completed
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+*******************************************************************************/
+__STATIC_INLINE void Cy_Crypto_Core_Vu_WaitForComplete(CRYPTO_Type *base)
+{
+    /* Wait until the VU instruction is complete */
+    if (CY_CRYPTO_V1)
+    {
+        while (0uL != _FLD2VAL(CRYPTO_STATUS_VU_BUSY, REG_CRYPTO_STATUS(base)))
+        {
+        }
+    }
+    else
+    {
+        while (0uL != REG_CRYPTO_STATUS(base))
+        {
+        }
     }
 }
 
@@ -440,7 +498,27 @@ __STATIC_INLINE void  Cy_Crypto_Core_ClearInterrupt(CRYPTO_Type *base, uint32_t 
     (void) REG_CRYPTO_INTR(base);
 }
 
+/*******************************************************************************
+* Function Name: Cy_Crypto_Core_GetVuMemoryAddress
+****************************************************************************//**
+*
+* Gets Crypto memory buffer address
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+* \return
+* Current Crypto MEM_BUFF location address or NULL if Crypto IP is not enabled.
+*
+*******************************************************************************/
+__STATIC_INLINE uint32_t * Cy_Crypto_Core_GetVuMemoryAddress(CRYPTO_Type *base)
+{
+    return (cy_cryptoIP != NULL) ? (uint32_t *)REG_CRYPTO_VU_CTL1(base) : (uint32_t *)NULL;
+}
+
+
 /** \} group_crypto_lld_hw_functions */
+
 
 #endif /* CY_IP_MXCRYPTO */
 

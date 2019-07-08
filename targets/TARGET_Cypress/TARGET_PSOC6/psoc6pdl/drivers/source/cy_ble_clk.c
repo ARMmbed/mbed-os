@@ -1,6 +1,6 @@
  /***************************************************************************//**
 * \file cy_ble_clk.c
-* \version 3.10
+* \version 3.20
 *
 * \brief
 *  This driver provides the source code for API BLE ECO clock.
@@ -27,6 +27,7 @@
 #include "cy_gpio.h"
 #include "cy_syspm.h"
 #include "cy_ble_clk.h"
+#include "cy_sysclk.h"
 
 #if defined(CY_IP_MXBLESS)
 
@@ -50,6 +51,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
 *******************************************************************************/
 
 /** \cond INTERNAL */
+
 #define CY_BLE_PORT2_CFG_VAL                                 (0x66666666u)
 #define CY_BLE_PORT3_CFG_VAL                                 (0x66EEE666u)
 #define CY_BLE_PORT4_CFG_VAL                                 (0x6666E666u)
@@ -201,7 +203,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
 *  CY_BLE_ECO_HARDWARE_ERROR   | The RCB or BLE ECO operation failed.
 *
 *  \funcusage 
-*  \snippet bleclk\3.0\snippet\main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
+*  \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
 *
 *  \sideeffect
 *   The I/O pins will be automatically unfrozen coming out of Hibernate when
@@ -411,6 +413,7 @@ void Cy_BLE_EcoReset(void)
 {
     /* Initiate Soft Reset */
     BLE_BLESS_LL_CLK_EN |= BLE_BLESS_LL_CLK_EN_BLESS_RESET_Msk;
+    altHfFreq = 0UL; /* Reset the BLE ECO frequency */
 }
 
 
@@ -782,7 +785,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
             temp |= (uint16_t)(CY_BLE_MXD_RADIO_CLK_BUF_AMP_32M_LARGE << CY_BLE_RF_DCXO_BUF_CFG_REG_BUF_AMP_SEL_SHIFT);
 
             /* Update cy_BleEcoClockFreqHz for the proper Cy_SysLib_Delay functionality */
-            cy_BleEcoClockFreqHz = CY_BLE_DEFAULT_ECO_CLK_FREQ_32MHZ / (1UL << (uint16_t)sysClkDiv);
+            altHfFreq = CY_BLE_DEFAULT_ECO_CLK_FREQ_32MHZ / (1UL << (uint16_t)sysClkDiv);
         }
         else
         {
@@ -799,7 +802,7 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
             temp |= (uint16_t)(CY_BLE_MXD_RADIO_CLK_BUF_AMP_16M_LARGE << CY_BLE_RF_DCXO_BUF_CFG_REG_BUF_AMP_SEL_SHIFT);
 
             /* Update cy_BleEcoClockFreqHz for the proper Cy_SysLib_Delay functionality */
-            cy_BleEcoClockFreqHz = CY_BLE_DEFAULT_ECO_CLK_FREQ_16MHZ / (1UL << (uint16_t)sysClkDiv);
+            altHfFreq = CY_BLE_DEFAULT_ECO_CLK_FREQ_16MHZ / (1UL << (uint16_t)sysClkDiv);
         }
 
         temp |= (uint16_t)(blerdDivider << CY_BLE_RF_DCXO_BUF_CFG_REG_CLK_DIV_SHIFT);

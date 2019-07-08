@@ -47,7 +47,7 @@
 * The status /ref cy_en_dmac_status_t.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Enable
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
 cy_en_dmac_status_t Cy_DMAC_Descriptor_Init(cy_stc_dmac_descriptor_t * descriptor, const cy_stc_dmac_descriptor_config_t * config)
@@ -130,7 +130,7 @@ cy_en_dmac_status_t Cy_DMAC_Descriptor_Init(cy_stc_dmac_descriptor_t * descripto
 * The descriptor structure instance.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_Deinit
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_Deinit
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_DeInit(cy_stc_dmac_descriptor_t * descriptor)
@@ -166,7 +166,7 @@ void Cy_DMAC_Descriptor_DeInit(cy_stc_dmac_descriptor_t * descriptor)
 * The status /ref cy_en_dmac_status_t.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Enable
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Enable
 *
 *******************************************************************************/
 cy_en_dmac_status_t Cy_DMAC_Channel_Init(DMAC_Type * base, uint32_t channel, cy_stc_dmac_channel_config_t const * config)
@@ -204,7 +204,7 @@ cy_en_dmac_status_t Cy_DMAC_Channel_Init(DMAC_Type * base, uint32_t channel, cy_
 * A channel number.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Disable
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Disable
 *
 *******************************************************************************/
 void Cy_DMAC_Channel_DeInit(DMAC_Type * base, uint32_t channel)
@@ -241,7 +241,7 @@ void Cy_DMAC_Channel_DeInit(DMAC_Type * base, uint32_t channel)
 *  is specified by the data transfer size /ref cy_en_dmac_data_size_t.
 *
 * \funcusage
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
 *
 *******************************************************************************/
 uint32_t Cy_DMAC_Descriptor_GetXloopDataCount(cy_stc_dmac_descriptor_t const * descriptor)
@@ -287,7 +287,7 @@ uint32_t Cy_DMAC_Descriptor_GetXloopDataCount(cy_stc_dmac_descriptor_t const * d
 * For all the rest of the descriptors (except single transfer), the valid range is 1...65536.
 *
 * \funcusage
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_SetXloopDataCount(cy_stc_dmac_descriptor_t * descriptor, uint32_t xCount)
@@ -331,7 +331,7 @@ void Cy_DMAC_Descriptor_SetXloopDataCount(cy_stc_dmac_descriptor_t * descriptor,
 * The pointer to the next descriptor.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor, cy_stc_dmac_descriptor_t const * nextDescriptor)
@@ -385,7 +385,7 @@ void Cy_DMAC_Descriptor_SetNextDescriptor(cy_stc_dmac_descriptor_t * descriptor,
 * The pointer to the next descriptor.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_GetterFunctions
 *
 *******************************************************************************/
 cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_descriptor_t const * descriptor)
@@ -442,7 +442,7 @@ cy_stc_dmac_descriptor_t * Cy_DMAC_Descriptor_GetNextDescriptor(cy_stc_dmac_desc
 * The descriptor type \ref cy_en_dmac_descriptor_type_t.
 *
 * \funcusage 
-* \snippet dmac\1.0\snippet\main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
+* \snippet dmac/snippet/main.c snippet_Cy_DMAC_Descriptor_SetterFunctions
 *
 *******************************************************************************/
 void Cy_DMAC_Descriptor_SetDescriptorType(cy_stc_dmac_descriptor_t * descriptor, cy_en_dmac_descriptor_type_t descriptorType)
