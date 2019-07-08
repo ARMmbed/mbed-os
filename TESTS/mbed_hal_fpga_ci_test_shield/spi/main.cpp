@@ -69,7 +69,7 @@ void spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName ssel)
     spi_free(&spi);
 }
 
-void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t freqency)
+void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency)
 {
     uint32_t sym_mask = ((1 << sym_size) - 1);
 
@@ -84,7 +84,7 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
 
     spi_init(&spi, mosi, miso, sclk, ssel);
     spi_format(&spi, sym_size, spi_mode, 0);
-    spi_frequency(&spi, freqency);
+    spi_frequency(&spi, frequency);
 
     // Configure spi_slave module
     tester.set_mode(spi_mode);
@@ -160,10 +160,10 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
     tester.reset();
 }
 
-template<SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t freqency>
+template<SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency>
 void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size, transfer_type, freqency);
+    spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size, transfer_type, frequency);
 }
 
 Case cases[] = {
