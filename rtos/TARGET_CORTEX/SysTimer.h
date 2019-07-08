@@ -25,7 +25,7 @@
 #if MBED_TICKLESS || defined(DOXYGEN_ONLY)
 
 #include "platform/NonCopyable.h"
-#include "drivers/source/TimerEvent.h"
+#include "drivers/TimerEvent.h"
 
 namespace rtos {
 namespace internal {
