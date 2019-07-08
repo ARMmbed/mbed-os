@@ -8366,14 +8366,22 @@
         "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
-    "CY8CKIT_062_WIFI_BT_M0": {
-        "inherits": ["MCU_PSOC6_M0"],
-        "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["CY8CKIT_062_WIFI_BT"],
-        "macros_add": ["CY8C6247BZI_D54"],
-        "detect_code": ["1900"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
+    "CY8CMOD_062_4343W": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "device_has_remove": ["ANALOGOUT"],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CM0P_SLEEP",
+            "WHD",
+            "4343W",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C624ABZI_D44"],
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
         }
     },
     "CY8CKIT_062_WIFI_BT": {
@@ -8398,24 +8406,6 @@
         },
         "program_cycle_s": 10
     },
-    "CY8CMOD_062_4343W": {
-        "inherits": ["MCU_PSOC6_M4"],
-        "features": ["BLE"],
-        "device_has_remove": ["ANALOGOUT"],
-        "extra_labels_add": [
-            "PSOC6_02",
-            "CM0P_SLEEP",
-            "WHD",
-            "4343W",
-            "CYW43XXX",
-            "CORDIO"
-        ],
-        "macros_add": ["CY8C624ABZI_D44"],
-        "public": false,
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        }
-    },
     "CY8CPROTO_062_4343W": {
         "inherits": ["CY8CMOD_062_4343W"],
         "detect_code": ["1901"],
@@ -8437,36 +8427,6 @@
         },
         "sectors": [[268443648, 512]],
         "bootloader_supported": true
-    },
-    "CY8CKIT_062_4343W": {
-        "inherits": ["MCU_PSOC6_M4"],
-        "features": ["BLE"],
-        "supported_form_factors": ["ARDUINO"],
-        "device_has_remove": ["ANALOGOUT"],
-        "extra_labels_add": [
-            "PSOC6_02",
-            "CM0P_SLEEP",
-            "WHD",
-            "4343W",
-            "CYW43XXX",
-            "CORDIO"
-        ],
-        "macros_add": ["CY8C624ABZI_D44"],
-        "detect_code": ["1905"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        }
-    },
-    "CYW943012P6EVB_01_M0": {
-        "inherits": ["MCU_PSOC6_M0"],
-        "extra_labels_add": ["CYW943012P6EVB_01"],
-        "macros_add": ["CY8C6247BZI_D54"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
     },
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
