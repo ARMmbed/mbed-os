@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.40
+* \version 2.50
 *
 * \brief Device system header file.
 *
@@ -318,6 +318,11 @@
 *       <th>Version</th>
 *       <th>Changes</th>
 *       <th>Reason for Change</th>
+*   </tr>
+*   <tr>
+*       <td>2.50</td>
+*       <td>Updated assembler files, C files, linker scripts.</td>
+*       <td>Dynamic allocated HEAP size for Arm Compiler 6, IAR 8.</td>
 *   </tr>
 *   <tr>
 *       <td>2.40</td>
