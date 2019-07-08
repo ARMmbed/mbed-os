@@ -1,5 +1,6 @@
 /* WHD SoftAP implementation of SoftAPInterface
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +18,7 @@
 #ifndef WHD_SOFTAP_INTERFACE_H
 #define WHD_SOFTAP_INTERFACE_H
 
-#include "mbed.h"
-#include "EthernetInterface.h"
+#include "netsocket/EMACInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "whd_emac.h"
 
@@ -26,11 +26,10 @@
 /**
  * Vendor IE details
  */
-typedef struct
-{
+typedef struct {
     uint8_t         oui[WIFI_IE_OUI_LENGTH];     /**< Unique identifier for the IE */
     uint8_t         subtype;                     /**< Sub-type of the IE */
-    void*           data;                        /**< Pointer to IE data */
+    void           *data;                        /**< Pointer to IE data */
     uint16_t        length;                      /**< IE data length */
     uint16_t        which_packets;               /**< Mask of the packet in which this IE details to be included */
 } whd_custom_ie_info_t;
@@ -40,14 +39,13 @@ typedef struct
 /** WhdSoftAPInterface class
  *  Implementation of the SoftAPInterface for the Whd
  */
-class WhdSoftAPInterface : public EMACInterface
-{
+class WhdSoftAPInterface : public EMACInterface {
 public:
-    /** Construct SoftAP interface 
+    /** Construct SoftAP interface
      *  @return  pointer to default WhdSoftAPInterface instance
      */
     WhdSoftAPInterface(WHD_EMAC &emac = WHD_EMAC::get_instance(WHD_AP_ROLE),
-            OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
+                       OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     /** Get the default WhdSoftAPInterface instance.
      *  @return  pointer to default WhdSoftAPInterface instance
@@ -79,7 +77,7 @@ public:
      *                  see @a nsapi_error
      */
     int start(const char *ssid, const char *pass, nsapi_security_t security, uint8_t channel,
-                       bool start_dhcp_server = true, const whd_custom_ie_info_t* ie_info = NULL);
+              bool start_dhcp_server = true, const whd_custom_ie_info_t *ie_info = NULL);
 
     /**
      * Remove Wi-Fi custom IE
@@ -89,7 +87,7 @@ public:
      *  @return          0 on success, or error code on failure
      *                  see @a nsapi_error
      */
-    int remove_custom_ie(const whd_custom_ie_info_t* ie_info);
+    int remove_custom_ie(const whd_custom_ie_info_t *ie_info);
 
     /** Stop the Software Access Point
      *
@@ -97,7 +95,7 @@ public:
      *                  see @a nsapi_error
      */
     int stop(void);
-    
+
     /**
      * Gets information about associated clients.
      *
@@ -109,7 +107,7 @@ public:
      *  @return          0 on success, or error code on failure
      *                  see @a nsapi_error
      */
-    int get_associated_client_list(void* client_list_buffer, uint16_t buffer_length);
+    int get_associated_client_list(void *client_list_buffer, uint16_t buffer_length);
 
 
     /**
@@ -132,7 +130,7 @@ public:
 
 
 protected:
-    WHD_EMAC& _whd_emac;
+    WHD_EMAC &_whd_emac;
 };
 
 #endif

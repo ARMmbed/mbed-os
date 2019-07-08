@@ -7,7 +7,7 @@
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,7 @@ extern "C"
 
 typedef whd_buffer_t    whd_eapol_packet_t;
 
-typedef void (*eapol_packet_handler_t) (whd_interface_t interface, whd_buffer_t buffer);
+typedef void (*eapol_packet_handler_t)(whd_interface_t interface, whd_buffer_t buffer);
 
 /******************************************************
  *                    Structures
@@ -56,8 +56,8 @@ typedef void (*eapol_packet_handler_t) (whd_interface_t interface, whd_buffer_t 
 /******************************************************
  *               Function Declarations
  ******************************************************/
-whd_result_t emac_register_eapol_packet_handler  ( eapol_packet_handler_t eapol_packet_handler );
-void         emac_unregister_eapol_packet_handler( void );
+whd_result_t emac_register_eapol_packet_handler(eapol_packet_handler_t eapol_packet_handler);
+void         emac_unregister_eapol_packet_handler(void);
 
 #ifdef __cplusplus
 }     /* extern "C" */
