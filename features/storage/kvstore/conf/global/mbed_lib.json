@@ -11,9 +11,6 @@
         }
     },
     "target_overrides": {
-        "CY8CKIT_062_WIFI_BT_M0_PSA": {
-            "storage_type": "TDB_INTERNAL"
-        },
         "K66F": {
             "storage_type": "TDB_INTERNAL"
         },
