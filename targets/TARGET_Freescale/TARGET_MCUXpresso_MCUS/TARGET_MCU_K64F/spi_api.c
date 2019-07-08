@@ -333,8 +333,10 @@ void spi_get_capabilities(SPIName name, PinName ssel, bool slave, spi_capabiliti
         cap->support_slave_mode = false;
         cap->half_duplex = false;
         cap->hw_cs_handle = true;
-        cap->clk_modes = (1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE) |
-                         (1 << SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE);
+        /* Clock Polarity High is disabled since after setting such format spi master still keeps CLK line low.
+           Because of that if CS is not handled by hardware (CS is set manually before calling spi_transfer()) CLK line has invalid
+           state (low) which is inconsistent with SPI standard. */
+        cap->clk_modes = ((1 << SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE) | (1 << SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE));
         cap->bit_order = (1 << SPI_BIT_ORDERING_MSB_FIRST) | (1 << SPI_BIT_ORDERING_LSB_FIRST);
         cap->async_mode = true;
         cap->slave_delay_between_symbols_ns = 0;

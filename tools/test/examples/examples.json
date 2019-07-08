@@ -130,19 +130,6 @@
       "auto-update" : true
     },
     {
-      "name": "nanostack-border-router",
-      "github":"https://github.com/ARMmbed/nanostack-border-router",
-      "mbed": [],
-      "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K66F", "NUCLEO_F429ZI"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
-    },
-    {
       "name": "mbed-os-example-cellular",
       "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
       "mbed": [],

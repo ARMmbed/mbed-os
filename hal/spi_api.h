@@ -37,71 +37,71 @@
 extern "C" {
 #endif
 
-/*
+/**
  * \defgroup hal_spi Serial Peripheral Interface
  * ## Behaviours
  * ### Defined Behaviours
  *
- * - `spi_get_module()` returns the `SPIName` unique identifier to the peripheral associated to this SPI channel.
- * - `spi_get_capabilities()` fills the given `spi_capabilities_t` instance
- * - `spi_get_capabilities()` should consider the `ssel` pin when evaluation the `support_slave_mode` capability.
- *   If the given `ssel` pin cannot be managed by hardware in slave mode, `support_slave_mode` should be false.
- * - At least a symbol width of 8bit must be supported.
- * - The supported frequency range must include the range [0.2..2] MHz.
- * - The shortest part of the duty cycle must not be shorter than 50% of the expected period.
- * - `spi_init()` initializes the pins leaving the configuration registers unchanged.
+ * - `spi_get_module()` returns the `SPIName` unique identifier to the peripheral associated to this SPI channel - Verified by ::spi_test_get_module()
+ * - `spi_get_capabilities()` fills the given `spi_capabilities_t` instance - Verified by ::spi_test_get_capabilities()
+ * - `spi_get_capabilities()` should consider the `ssel` pin when evaluation the `support_slave_mode` capability
+ *   If the given `ssel` pin cannot be managed by hardware in slave mode, `support_slave_mode` should be false - Verified by ::spi_test_get_capabilities() and ::fpga_spi_test_capabilities_ssel()
+ * - At least a symbol width of 8bit must be supported - Verified by ::spi_test_get_capabilities()
+ * - The supported frequency range must include the range [0.2..2] MHz - Verified by ::spi_test_get_capabilities()
+ * - The shortest part of the duty cycle must not be shorter than 50% of the expected period - Verified by ::fpga_spi_master_test_freq()
+ * - `spi_init()` initializes the pins leaving the configuration registers unchanged - Not testable.
  * - `spi_init()` if `is_slave` is false:
- *     - if `ssel` is `NC` the hal implementation ignores this pin.
- *     - if `ssel` is not `NC` then the hal implementation owns the pin and its management.
- * - When managed by the hal implementation, `ssel` is always considered active low.
- * - When managed by the hal implementation, ssel must be asserted for the whole duration of the spi transmission.
- * - When managed by the hal implementation, the delay from the chip select assert to the first clock edge must be at least half spi clock period.
- * - When managed by the hal implementation, the delay from the last clock edge to the chip select de-assert to must be at least half spi clock period.
- * - If hardware can not handle all ssel related requirements, then device capabilities should indicate that ssel cannot be managed by hardware.
- * - When the hardware supports the half-duplex (3-wire) mode, if `miso` (exclusive) or `mosi` is missing in any function that expects pins, the bus is assumed to be half-duplex.
- * - `spi_free()` resets the pins to their default state.
- * - `spi_free()` disables the peripheral clock.
- * - `spi_format()` sets :
- *   - the number of bits per symbol
+ *     - if `ssel` is `NC` the hal implementation ignores this pin - Verified by ::spi_test_init_free(), ::fpga_spi_master_test_init_free() and ::fpga_spi_master_test_common()
+ *     - if `ssel` is not `NC` then the hal implementation owns the pin and its management - Verified by ::spi_test_init_free(), ::fpga_spi_master_test_init_free() and ::fpga_spi_master_test_common()
+ * - When managed by the hal implementation, `ssel` is always considered active low - Verified by ::fpga_spi_master_test_common()
+ * - When managed by the hal implementation, ssel must be asserted for the whole duration of the spi transmission - Verified by ::fpga_spi_master_test_common()
+ * - When managed by the hal implementation, the delay from the chip select assert to the first clock edge must be at least half spi clock period - Verified by ::fpga_spi_master_test_common()
+ * - When managed by the hal implementation, the delay from the last clock edge to the chip select de-assert to must be at least half spi clock period - Verified by ::fpga_spi_master_test_common()
+ * - If hardware can not handle all ssel related requirements, then device capabilities should indicate that ssel cannot be managed by hardware - Not testable
+ * - When the hardware supports the half-duplex (3-wire) mode, if `miso` (exclusive) or `mosi` is missing in any function that expects pins, the bus is assumed to be half-duplex - Verified by ::spi_test_init_free(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_free()` resets the pins to their default state - Verified by ::spi_test_init_free(), ::fpga_spi_master_test_init_free() and ::fpga_spi_slave_test_init_free()
+ * - `spi_free()` disables the peripheral clock - Not testable
+ * - `spi_format()` sets:
+ *   - the number of bits per symbol - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  *   - the mode :
- *     0. Clock idle state is *low*, data are sampled when the clock becomes *active* (polarity = 0, phase = 0)
- *     1. Clock idle state is *low*, data are sampled when the clock becomes *inactive* (polarity = 0, phase = 1)
- *     2. Clock idle state is *high*, data are sampled when the clock becomes *active* (polarity = 1, phase = 0)
- *     3. Clock idle state is *high*, data are sampled when the clock becomes *inactive* (polarity = 1, phase = 1)
- *   - the bit ordering (lsb/msb first).
- * - `spi_format()` updates the configuration of the peripheral except the baud rate generator.
- * - `spi_frequency()` sets the frequency to use during the transfer.
- * - `spi_frequency()` returns the actual frequency that will be used.
- * - `spi_frequency()` updates the baud rate generator leaving other configurations unchanged.
+ *     0. Clock idle state is *low*, data are sampled when the clock becomes *active* (polarity = 0, phase = 0) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     1. Clock idle state is *low*, data are sampled when the clock becomes *inactive* (polarity = 0, phase = 1) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     2. Clock idle state is *high*, data are sampled when the clock becomes *active* (polarity = 1, phase = 0) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     3. Clock idle state is *high*, data are sampled when the clock becomes *inactive* (polarity = 1, phase = 1) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *   - the bit ordering (lsb/msb first) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_format()` updates the configuration of the peripheral except the baud rate generator - Verified by ::spi_test_set_format(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_frequency()` sets the frequency to use during the transfer - Verified by ::spi_test_set_frequency(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_frequency()` returns the actual frequency that will be used - Verified by ::spi_test_set_frequency() and ::fpga_spi_master_test_freq()
+ * - `spi_frequency()` updates the baud rate generator leaving other configurations unchanged - Verified by ::fpga_spi_master_test_common()
  * - `spi_transfer()` :
- *   - writes `tx_len` symbols to the bus.
- *   - reads `rx_len` symbols from the bus.
- *   - if `rx` is NULL then inputs are discarded.
- *   - if `tx` is NULL then `fill_symbol` is used instead.
- *   - returns the number of symbol clocked on the bus during this transfer.
+ *   - writes `tx_len` symbols to the bus - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *   - reads `rx_len` symbols from the bus - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *   - if `rx` is NULL then inputs are discarded - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *   - if `tx` is NULL then `fill_symbol` is used instead - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *   - returns the number of symbol clocked on the bus during this transfer - Verified by ::spi_test_transfer_master_fill_sym(), ::spi_test_transfer_master(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  *   - expects symbols types to be the closest stdint type bigger or equal to its size following the platform's endianness.
  *     e.g.:
- *     - 7bits => uint8_t
- *     - 15bits => uint16_t
- *     - 16bits => uint16_t
- *     - 17bits => uint32_t
+ *     - 7bits => uint8_t  - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     - 15bits => uint16_t  - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     - 16bits => uint16_t  - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     - 17bits => uint32_t  - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  *   - In Full-duplex mode :
- *     - if `rx_len` > `tx_len` then it sends `(rx_len-tx_len)` additional `fill_symbol` to the bus.
+ *     - if `rx_len` > `tx_len` then it sends `(rx_len-tx_len)` additional `fill_symbol` to the bus - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  *   - In Half-duplex mode :
- *     - as master, `spi_transfer()` sends `tx_len` symbols and then reads `rx_len` symbols.
- *     - as slave, `spi_transfer()` receives `rx_len` symbols and then sends `tx_len` symbols.
- * - `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously with the following exceptions:
+ *     - as master, `spi_transfer()` sends `tx_len` symbols and then reads `rx_len` symbols - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ *     - as slave, `spi_transfer()` receives `rx_len` symbols and then sends `tx_len` symbols - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously with the following exceptions: - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  *   - in async mode only transfers of the same size are allowed (tx size must be equal to rx size)
- *   - async mode only supports full-duplex mode.
- * - `spi_transter_async()` returns immediately with a boolean indicating whether the transfer was successfully scheduled or not.
- * - The callback given to `spi_transfer_async()` is invoked when the transfer completes (with a success or an error).
- * - `spi_transfer_async()` saves the handler and the `ctx` pointer.
- * - The `ctx` is passed to the callback on transfer completion.
+ *   - async mode only supports full-duplex mode
+ * - `spi_transter_async()` returns immediately with a boolean indicating whether the transfer was successfully scheduled or not - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - The callback given to `spi_transfer_async()` is invoked when the transfer completes (with a success or an error) - Verified by ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_transfer_async()` saves the handler and the `ctx` pointer - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - The `ctx` is passed to the callback on transfer completion - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
  * - Unless if the transfer is aborted, the callback is invoked on completion. The completion maybe when all symbols have been transmitted
- *   or when in slave mode the master de-asserts the chip select.
- * - The `spi_transfer_async()` function may use the `DMAUsage` hint to select the appropriate async algorithm.
- * - The `spi_async_event_t` must be filled with the number of symbol clocked on the bus during this transfer and a boolean value indicated if an error has occurred.
- * - `spi_transfer_async_abort()` aborts an on-going async transfer.
+ *   or when in slave mode the master de-asserts the chip select - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - The `spi_transfer_async()` function may use the `DMAUsage` hint to select the appropriate async algorithm - Verified by ::spi_test_transfer_master_async()
+ * - The `spi_async_event_t` must be filled with the number of symbol clocked on the bus during this transfer and a boolean value indicated if an error has occurred - Verified by ::spi_test_transfer_master_async(), ::fpga_spi_master_test_common() and ::fpga_spi_slave_test_common()
+ * - `spi_transfer_async_abort()` aborts an on-going async transfer - Verified by ::spi_test_transfer_master_async_abort()
  *
  * ### Undefined Behaviours
  * - Calling `spi_init()` multiple times on the same `spi_t` without `spi_free()`'ing it first.
@@ -123,6 +123,17 @@ extern "C" {
  * - In half-duplex mode, any mechanism (if any is present) to detect or prevent collision is implementation defined.
  * - Initiating any transfer after `spi_init()` but before both the frequency and format have been set with `spi_frequency()` and `spi_format()`
  */
+
+/**
+ * \defgroup hal_spi_tests spi hal tests
+ * The SPI tests to check the implementation against the defined behavior.
+ *
+ * To run the spi hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-spi, tests-mbed_hal_fpga_ci_test_shield-spi*
+ *
+ */
+
 typedef struct spi_s spi_t;
 
 /**

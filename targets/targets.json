@@ -8547,7 +8547,6 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
         "release_versions": ["5"]
     },

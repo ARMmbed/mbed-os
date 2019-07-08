@@ -38,7 +38,7 @@ extern "C" {
  *
  *  @note `mosi` or `miso` pin can be undefined (but not both). `mclk` must be defined.
  */
-void test_get_module();
+void spi_test_get_module();
 
 /** Test that spi_get_capabilities() fills the given spi_capabilities_t instance with capabilities
  *  of the specified SPI peripheral.
@@ -52,7 +52,7 @@ void test_get_module();
  *        support_slave_mode capability.
  *
  */
-void test_get_capabilities();
+void spi_test_get_capabilities();
 
 /** Test that spi_init() successfully initializes the pins and spi_free() can successfully
  *  reset the pins to their default state.
@@ -63,7 +63,7 @@ void test_get_capabilities();
  *  Then both operations are successfully performed.
  *
  */
-void test_init_free();
+void spi_test_init_free();
 
 /** Test that spi_format() sets/updates the transmission format of the SPI peripheral.
  *
@@ -72,19 +72,19 @@ void test_init_free();
  *  Then function is executed successfully.
  *
  */
-void test_set_format();
+void spi_test_set_format();
 
-/** Test that test_set_frequency() sets the frequency used during the SPI transfer.
+/** Test that spi_test_set_frequency() sets the frequency used during the SPI transfer.
  *
  *  Given is platform with SPI support.
- *  When test_set_frequency() is called and valid frequency is specified.
+ *  When spi_test_set_frequency() is called and valid frequency is specified.
  *  Then function is executed successfully and actual frequency which will be used during the transfer is returned.
  *
  *  @note Frequency can be only set by SPI peripheral operating in master mode.
  *  @note Frequency must be in range specified by the capabilities of the SPI peripheral.
  *
  */
-void test_set_frequency();
+void spi_test_set_frequency();
 
 /** Test that spi_transfer() can successfully perform transfer in master mode
  *  (TX/RX buffers are defined and have the same sizes) and returns the number of
@@ -96,7 +96,7 @@ void test_set_frequency();
  *  Then function is executed successfully and returns number of symbols clocked on the bus during this transfer.
  *
  */
-void test_transfer_master();
+void spi_test_transfer_master();
 
 /** Test that spi_transfer() can successfully perform transfer in master mode
  *  (TX/RX buffers are undefined or have different sizes) and returns the number of
@@ -108,7 +108,7 @@ void test_transfer_master();
  *  Then function is executed successfully and returns number of symbols clocked on the bus during this transfer.
  *
  */
-void test_transfer_master_fill_sym();
+void spi_test_transfer_master_fill_sym();
 
 /** Test that spi_transfer_async() can successfully perform asynchronous transfer
  *  in master mode.
@@ -119,7 +119,7 @@ void test_transfer_master_fill_sym();
  *       when the transfer completes (passing the operation status).
  *
  */
-void test_transfer_master_async();
+void spi_test_transfer_master_async();
 
 /** Test that spi_transfer_async_abort() can successfully abort an on-going async transfer.
  *
@@ -130,7 +130,7 @@ void test_transfer_master_async();
  *       the status which indicates that the transfer has been aborted.
  *
  */
-void test_transfer_master_async_abort();
+void spi_test_transfer_master_async_abort();
 
 /**@}*/
 

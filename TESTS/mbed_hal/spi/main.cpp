@@ -176,7 +176,7 @@ static void async_handler(spi_t *obj, void *ctx, spi_async_event_t *event)
 
 /* Test that spi_get_module() returns the SPIName - unique identifier to the peripheral associated
  * to this SPI channel. */
-void test_get_module()
+void spi_test_get_module()
 {
     SPIName spi_name;
 
@@ -193,7 +193,7 @@ void test_get_module()
 
 /* Test that spi_get_capabilities() fills the given spi_capabilities_t instance with capabilities
  * of the specified SPI peripheral. */
-void test_get_capabilities()
+void spi_test_get_capabilities()
 {
     spi_capabilities_t capabilities;
 
@@ -229,7 +229,7 @@ void test_get_capabilities()
 
 /* Test that spi_init() successfully initializes the pins and spi_free() can successfully
  * reset the pins to their default state. */
-void test_init_free()
+void spi_test_init_free()
 {
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
@@ -295,7 +295,7 @@ void test_init_free()
 }
 
 /* Test that spi_format() sets/updates the transmission format of the SPI peripheral. */
-void test_set_format()
+void spi_test_set_format()
 {
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
@@ -343,8 +343,8 @@ void test_set_format()
     TEST_ASSERT_TRUE(true);
 }
 
-/* Test that test_set_frequency() sets the frequency used during the SPI transfer. */
-void test_set_frequency()
+/* Test that spi_test_set_frequency() sets the frequency used during the SPI transfer. */
+void spi_test_set_frequency()
 {
     spi_t spi_obj = { 0 };
     uint32_t real_freq;
@@ -372,7 +372,7 @@ void test_set_frequency()
 /* Test that spi_transfer() can successfully perform transfer in master mode
  *  (TX/RX buffers are defined and have the same sizes) and returns the number of
  *  symbols clocked on the bus during this transfer. */
-void test_transfer_master()
+void spi_test_transfer_master()
 {
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
@@ -420,7 +420,7 @@ void test_transfer_master()
 /* Test that spi_transfer() can successfully perform transfer in master mode
  * (TX/RX buffers are undefined or have different sizes) and returns the number of
  * symbols clocked on the bus during this transfer. */
-void test_transfer_master_fill_sym()
+void spi_test_transfer_master_fill_sym()
 {
     spi_t spi_obj = { 0 };
     spi_capabilities_t capabilities = { 0 };
@@ -457,7 +457,7 @@ void test_transfer_master_fill_sym()
 #ifdef DEVICE_SPI_ASYNCH
 /* Test that spi_transfer_async() can successfully perform asynchronous transfer
  * in master mode. */
-void test_transfer_master_async()
+void spi_test_transfer_master_async()
 {
     spi_t spi_obj = {0};
     spi_capabilities_t capabilities = {0};
@@ -521,7 +521,7 @@ void test_transfer_master_async()
 }
 
 /* Test that spi_transfer_async_abort() can successfully abort an on-going async transfer. */
-void test_transfer_master_async_abort()
+void spi_test_transfer_master_async_abort()
 {
     spi_t spi_obj = {0};
     spi_capabilities_t capabilities = {0};
@@ -615,16 +615,16 @@ utest::v1::status_t greentea_failure_handler_abort(const Case *const source, con
 }
 
 Case cases[] = {
-    Case("SPI - get module name test", test_get_module, greentea_failure_handler),
-    Case("SPI - get capabilities test", test_get_capabilities, greentea_failure_handler),
-    Case("SPI - init, free test", test_init_free, greentea_failure_handler),
-    Case("SPI - set format test", test_set_format, greentea_failure_handler),
-    Case("SPI - set frequency test", test_set_frequency, greentea_failure_handler),
-    Case("SPI - master transfer test", test_transfer_master, greentea_failure_handler),
-    Case("SPI - fill symbol test", test_transfer_master_fill_sym, greentea_failure_handler),
+    Case("SPI - get module name test", spi_test_get_module, greentea_failure_handler),
+    Case("SPI - get capabilities test", spi_test_get_capabilities, greentea_failure_handler),
+    Case("SPI - init, free test", spi_test_init_free, greentea_failure_handler),
+    Case("SPI - set format test", spi_test_set_format, greentea_failure_handler),
+    Case("SPI - set frequency test", spi_test_set_frequency, greentea_failure_handler),
+    Case("SPI - master transfer test", spi_test_transfer_master, greentea_failure_handler),
+    Case("SPI - fill symbol test", spi_test_transfer_master_fill_sym, greentea_failure_handler),
 #ifdef DEVICE_SPI_ASYNCH
-    Case("SPI - master transfer async test", test_transfer_master_async, greentea_failure_handler),
-    Case("SPI - master transfer async abort test", test_transfer_master_async_abort, greentea_failure_handler),
+    Case("SPI - master transfer async test", spi_test_transfer_master_async, greentea_failure_handler),
+    Case("SPI - master transfer async abort test", spi_test_transfer_master_async_abort, greentea_failure_handler),
 #endif
 };
 
