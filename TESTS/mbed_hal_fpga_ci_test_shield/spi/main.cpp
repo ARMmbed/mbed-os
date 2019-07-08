@@ -147,7 +147,7 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
 #endif
 
         default:
-            TEST_ASSERT_TRUE(false);
+            TEST_ASSERT_MESSAGE(0, "Unsupported transfer type.");
             break;
 
     }
