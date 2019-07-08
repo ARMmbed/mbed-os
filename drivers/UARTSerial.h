@@ -24,7 +24,7 @@
 
 #include "platform/FileHandle.h"
 #include "drivers/SerialBase.h"
-#include "InterruptIn.h"
+#include "drivers/InterruptIn.h"
 #include "platform/PlatformMutex.h"
 #include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"

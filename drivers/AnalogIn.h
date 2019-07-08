@@ -108,6 +108,7 @@ protected:
     {
         _mutex->lock();
     }
+
     virtual void unlock()
     {
         _mutex->unlock();
