@@ -89,7 +89,7 @@ static int init_cc( mbedtls_cmac_context_t *cmac_ctx )
     int ret = 0;
     SaSiAesUserKeyData_t CC_KeyData;
     if( SaSi_AesInit( &cmac_ctx->CC_Context, SASI_AES_ENCRYPT,
-                      SASI_AES_MODE_CMAC, SASI_AES_PADDING_NONE) != 0 )
+                      SASI_AES_MODE_CMAC, SASI_AES_PADDING_NONE ) != 0 )
     {
         return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
     }
@@ -114,7 +114,7 @@ exit:
 int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
                                 const unsigned char *input, size_t ilen )
 {
-    mbedtls_cmac_context_t* cmac_ctx;
+    mbedtls_cmac_context_t *cmac_ctx;
     int ret = 0;
     size_t block_size;
 
@@ -153,7 +153,7 @@ int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
 
         /*
          * Process the unproccessed data, in case it reached a full AES block,
-         * and there is there is still input data.
+         * and there is still input data.
          */
         if( cmac_ctx->unprocessed_len == SASI_AES_BLOCK_SIZE_IN_BYTES && ilen > 0 )
         {
@@ -169,16 +169,16 @@ int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
 
     if( ilen > 0 )
     {
-        const size_t size_to_store = ( ilen % SASI_AES_BLOCK_SIZE_IN_BYTES == 0) ?
+        const size_t size_to_store = ( ilen % SASI_AES_BLOCK_SIZE_IN_BYTES == 0 ) ?
                                      SASI_AES_BLOCK_SIZE_IN_BYTES : ilen % SASI_AES_BLOCK_SIZE_IN_BYTES;
-        memcpy( &cmac_ctx->unprocessed_block[0],
-                           input + ilen - size_to_store,
-                           size_to_store );
+        memcpy( cmac_ctx->unprocessed_block,
+                input + ilen - size_to_store,
+                size_to_store );
         cmac_ctx->unprocessed_len = size_to_store;
         ilen -= size_to_store;
         if( ilen > 0 )
         {
-            if( SaSi_AesBlock( &cmac_ctx->CC_Context, ( uint8_t * )input,
+            if( SaSi_AesBlock( &cmac_ctx->CC_Context, (uint8_t *)input,
                                ilen, NULL ) != 0 )
             {
                 ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
@@ -200,7 +200,7 @@ exit:
 int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
                                 unsigned char *output )
 {
-    mbedtls_cmac_context_t* cmac_ctx;
+    mbedtls_cmac_context_t *cmac_ctx;
     int ret = 0;
     size_t olen = SASI_AES_BLOCK_SIZE_IN_BYTES;
 
@@ -236,7 +236,7 @@ exit:
 
 int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
 {
-    mbedtls_cmac_context_t* cmac_ctx;
+    mbedtls_cmac_context_t *cmac_ctx;
 
     if( ctx == NULL || ctx->cipher_info == NULL || ctx->cmac_ctx == NULL )
         return( MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA );
@@ -251,28 +251,6 @@ int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
     return( 0 );
 }
 
-/**
- * \brief               This function calculates the full generic CMAC
- *                      on the input buffer with the provided key.
- *
- *                      The function allocates the context, performs the
- *                      calculation, and frees the context.
- *
- *                      The CMAC result is calculated as
- *                      output = generic CMAC(cmac key, input buffer).
- *
- *
- * \param cipher_info   The cipher information.
- * \param key           The CMAC key.
- * \param keylen        The length of the CMAC key in bits.
- * \param input         The buffer holding the input data.
- * \param ilen          The length of the input data.
- * \param output        The buffer for the generic CMAC result.
- *
- * \return              \c 0 on success.
- * \return              #MBEDTLS_ERR_MD_BAD_INPUT_DATA
- *                      if parameter verification fails.
- */
 int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
                          const unsigned char *key, size_t keylen,
                          const unsigned char *input, size_t ilen,
