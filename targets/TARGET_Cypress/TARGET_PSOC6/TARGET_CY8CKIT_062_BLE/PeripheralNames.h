@@ -38,6 +38,7 @@ typedef enum {
     UART_7 = (int)SCB7_BASE,
 } UARTName;
 
+#define DEVICE_SPI_COUNT CY_IP_MXSCB_INSTANCES
 
 typedef enum {
     SPI_0 = (int)SCB0_BASE,

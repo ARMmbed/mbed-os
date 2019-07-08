@@ -23,262 +23,116 @@
 #include "cmsis.h"
 #include "PinNamesTypes.h"
 #include "PortNames.h"
+#include "cyhal_pin_package.h"
+#include "cyhal_utils.h"
 
-// PinName[15-0] = Port[15-8] + Pin[7-0]
-typedef enum {
-    P0_0    = (Port0 << 8) + 0x00,
-    P0_1    = (Port0 << 8) + 0x01,
-    P0_2    = (Port0 << 8) + 0x02,
-    P0_3    = (Port0 << 8) + 0x03,
-    P0_4    = (Port0 << 8) + 0x04,
-    P0_5    = (Port0 << 8) + 0x05,
-    P0_6    = (Port0 << 8) + 0x06,
-    P0_7    = (Port0 << 8) + 0x07,
+typedef cyhal_gpio_t PinName;
 
-    P1_0    = (Port1 << 8) + 0x00,
-    P1_1    = (Port1 << 8) + 0x01,
-    P1_2    = (Port1 << 8) + 0x02,
-    P1_3    = (Port1 << 8) + 0x03,
-    P1_4    = (Port1 << 8) + 0x04,
-    P1_5    = (Port1 << 8) + 0x05,
-    P1_6    = (Port1 << 8) + 0x06,
-    P1_7    = (Port1 << 8) + 0x07,
+// Arduino connector namings
+#define A0 P10_0
+#define A1 P10_1
+#define A2 P10_2
+#define A3 P10_3
+#define A4 P10_4
+#define A5 P10_5
 
-    P2_0    = (Port2 << 8) + 0x00,
-    P2_1    = (Port2 << 8) + 0x01,
-    P2_2    = (Port2 << 8) + 0x02,
-    P2_3    = (Port2 << 8) + 0x03,
-    P2_4    = (Port2 << 8) + 0x04,
-    P2_5    = (Port2 << 8) + 0x05,
-    P2_6    = (Port2 << 8) + 0x06,
-    P2_7    = (Port2 << 8) + 0x07,
+#define D0 P5_0
+#define D1 P5_1
+#define D2 P5_2
+#define D3 P5_3
+#define D4 P5_4
+#define D5 P5_5
+#define D6 P5_6
+#define D7 P0_2
+#define D8 P13_0
+#define D9 P13_1
+#define D10 P12_3
+#define D11 P12_0
+#define D12 P12_1
+#define D13 P12_2
+#define D14 P6_1
+#define D15 P6_0
 
-    P3_0    = (Port3 << 8) + 0x00,
-    P3_1    = (Port3 << 8) + 0x01,
-    P3_2    = (Port3 << 8) + 0x02,
-    P3_3    = (Port3 << 8) + 0x03,
-    P3_4    = (Port3 << 8) + 0x04,
-    P3_5    = (Port3 << 8) + 0x05,
-    P3_6    = (Port3 << 8) + 0x06,
-    P3_7    = (Port3 << 8) + 0x07,
+// Generic signal names
 
-    P4_0    = (Port4 << 8) + 0x00,
-    P4_1    = (Port4 << 8) + 0x01,
-    P4_2    = (Port4 << 8) + 0x02,
-    P4_3    = (Port4 << 8) + 0x03,
-    P4_4    = (Port4 << 8) + 0x04,
-    P4_5    = (Port4 << 8) + 0x05,
-    P4_6    = (Port4 << 8) + 0x06,
-    P4_7    = (Port4 << 8) + 0x07,
+#define I2C_SCL P6_0
+#define I2C_SDA P6_1
 
-    P5_0    = (Port5 << 8) + 0x00,
-    P5_1    = (Port5 << 8) + 0x01,
-    P5_2    = (Port5 << 8) + 0x02,
-    P5_3    = (Port5 << 8) + 0x03,
-    P5_4    = (Port5 << 8) + 0x04,
-    P5_5    = (Port5 << 8) + 0x05,
-    P5_6    = (Port5 << 8) + 0x06,
-    P5_7    = (Port5 << 8) + 0x07,
+#define SPI_MOSI P12_0
+#define SPI_MISO P12_1
+#define SPI_CLK P12_2
+#define SPI_CS P12_4
 
-    P6_0    = (Port6 << 8) + 0x00,
-    P6_1    = (Port6 << 8) + 0x01,
-    P6_2    = (Port6 << 8) + 0x02,
-    P6_3    = (Port6 << 8) + 0x03,
-    P6_4    = (Port6 << 8) + 0x04,
-    P6_5    = (Port6 << 8) + 0x05,
-    P6_6    = (Port6 << 8) + 0x06,
-    P6_7    = (Port6 << 8) + 0x07,
+#define UART_RX P5_0
+#define UART_TX P5_1
+#define UART_RTS P5_2
+#define UART_CTS P5_3
 
-    P7_0    = (Port7 << 8) + 0x00,
-    P7_1    = (Port7 << 8) + 0x01,
-    P7_2    = (Port7 << 8) + 0x02,
-    P7_3    = (Port7 << 8) + 0x03,
-    P7_4    = (Port7 << 8) + 0x04,
-    P7_5    = (Port7 << 8) + 0x05,
-    P7_6    = (Port7 << 8) + 0x06,
-    P7_7    = (Port7 << 8) + 0x07,
+#define BT_UART_RX P3_0
+#define BT_UART_TX P3_1
+#define BT_UART_CTS P3_3
+#define BT_UART_RTS P3_2
 
-    P8_0    = (Port8 << 8) + 0x00,
-    P8_1    = (Port8 << 8) + 0x01,
-    P8_2    = (Port8 << 8) + 0x02,
-    P8_3    = (Port8 << 8) + 0x03,
-    P8_4    = (Port8 << 8) + 0x04,
-    P8_5    = (Port8 << 8) + 0x05,
-    P8_6    = (Port8 << 8) + 0x06,
-    P8_7    = (Port8 << 8) + 0x07,
-
-    P9_0    = (Port9 << 8) + 0x00,
-    P9_1    = (Port9 << 8) + 0x01,
-    P9_2    = (Port9 << 8) + 0x02,
-    P9_3    = (Port9 << 8) + 0x03,
-    P9_4    = (Port9 << 8) + 0x04,
-    P9_5    = (Port9 << 8) + 0x05,
-    P9_6    = (Port9 << 8) + 0x06,
-    P9_7    = (Port9 << 8) + 0x07,
-
-    P10_0   = (Port10 << 8) + 0x00,
-    P10_1   = (Port10 << 8) + 0x01,
-    P10_2   = (Port10 << 8) + 0x02,
-    P10_3   = (Port10 << 8) + 0x03,
-    P10_4   = (Port10 << 8) + 0x04,
-    P10_5   = (Port10 << 8) + 0x05,
-    P10_6   = (Port10 << 8) + 0x06,
-    P10_7   = (Port10 << 8) + 0x07,
-
-    P11_0   = (Port11 << 8) + 0x00,
-    P11_1   = (Port11 << 8) + 0x01,
-    P11_2   = (Port11 << 8) + 0x02,
-    P11_3   = (Port11 << 8) + 0x03,
-    P11_4   = (Port11 << 8) + 0x04,
-    P11_5   = (Port11 << 8) + 0x05,
-    P11_6   = (Port11 << 8) + 0x06,
-    P11_7   = (Port11 << 8) + 0x07,
-
-    P12_0   = (Port12 << 8) + 0x00,
-    P12_1   = (Port12 << 8) + 0x01,
-    P12_2   = (Port12 << 8) + 0x02,
-    P12_3   = (Port12 << 8) + 0x03,
-    P12_4   = (Port12 << 8) + 0x04,
-    P12_5   = (Port12 << 8) + 0x05,
-    P12_6   = (Port12 << 8) + 0x06,
-    P12_7   = (Port12 << 8) + 0x07,
-
-    P13_0   = (Port13 << 8) + 0x00,
-    P13_1   = (Port13 << 8) + 0x01,
-    P13_2   = (Port13 << 8) + 0x02,
-    P13_3   = (Port13 << 8) + 0x03,
-    P13_4   = (Port13 << 8) + 0x04,
-    P13_5   = (Port13 << 8) + 0x05,
-    P13_6   = (Port13 << 8) + 0x06,
-    P13_7   = (Port13 << 8) + 0x07,
-
-    // Not connected
-    NC = (int)0xFFFFFFFF,
-
-    // Arduino connector namings
-    A0          = P10_0,
-    A1          = P10_1,
-    A2          = P10_2,
-    A3          = P10_3,
-    A4          = P10_4,
-    A5          = P10_5,
-
-    D0          = P5_0,
-    D1          = P5_1,
-    D2          = P5_2,
-    D3          = P5_3,
-    D4          = P5_4,
-    D5          = P5_5,
-    D6          = P5_6,
-    D7          = P0_2,
-    D8          = P13_0,
-    D9          = P13_1,
-    D10         = P12_3,
-    D11         = P12_0,
-    D12         = P12_1,
-    D13         = P12_2,
-    D14         = P6_1,
-    D15         = P6_0,
-
-    // Generic signal names
-
-    I2C_SCL     = P6_0,
-    I2C_SDA     = P6_1,
-
-    SPI_MOSI    = P12_0,
-    SPI_MISO    = P12_1,
-    SPI_CLK     = P12_2,
-    SPI_CS      = P12_4,
-
-    UART_RX     = P5_0,
-    UART_TX     = P5_1,
-    UART_RTS    = P5_2,
-    UART_CTS    = P5_3,
-
-    BT_UART_RX  = P3_0,
-    BT_UART_TX  = P3_1,
-    BT_UART_CTS = P3_3,
-    BT_UART_RTS = P3_2,
-
-    BT_PIN_POWER       = P3_4,
-    BT_PIN_HOST_WAKE   = P3_5,
-    BT_PIN_DEVICE_WAKE = P4_0,
-    // Reset pin unavailable
+#define BT_PIN_POWER P3_4
+#define BT_PIN_HOST_WAKE P3_5
+#define BT_PIN_DEVICE_WAKE P4_0
+// Reset pin unavailable
 
 
-    SWITCH2     = P0_4,
-    LED1        = P0_3,
-    LED2        = P1_1,
-    LED3        = P11_1,
-    LED4        = P1_5,
-    LED5        = P13_7,
+#define SWITCH2 P0_4
+#define LED1 P0_3
+#define LED2 P1_1
+#define LED3 P11_1
+#define LED4 P1_5
+#define LED5 P13_7
 
-    LED_RED     = LED1,
-    LED_BLUE    = LED3,
-    LED_GREEN   = LED2,
+#define LED_RED LED1
+#define LED_BLUE LED3
+#define LED_GREEN LED2
 
-    USER_BUTTON = SWITCH2,
-    BUTTON1     = USER_BUTTON,
+#define USER_BUTTON SWITCH2
+#define BUTTON1 USER_BUTTON
 
-    QSPI_CLK        = P11_7,
-    QSPI_IO_0       = P11_6,
-    QSPI_IO_1       = P11_5,
-    QSPI_IO_2       = P11_4,
-    QSPI_IO_3       = P11_3,
-    QSPI_SEL        = P11_2,
-    
-    QSPI_FLASH1_IO0 = QSPI_IO_0,
-    QSPI_FLASH1_IO1 = QSPI_IO_1,
-    QSPI_FLASH1_IO2 = QSPI_IO_2,
-    QSPI_FLASH1_IO3 = QSPI_IO_3,
-    QSPI_FLASH1_SCK = QSPI_CLK,
-    QSPI_FLASH1_CSN = QSPI_SEL,
+#define QSPI_CLK P11_7
+#define QSPI_IO_0 P11_6
+#define QSPI_IO_1 P11_5
+#define QSPI_IO_2 P11_4
+#define QSPI_IO_3 P11_3
+#define QSPI_SEL P11_2
 
-    // Standardized interfaces names
-    STDIO_UART_TX   = UART_TX,
-    STDIO_UART_RX   = UART_RX,
-    STDIO_UART_CTS  = UART_CTS,
-    STDIO_UART_RTS  = UART_RTS,
+#define QSPI_FLASH1_IO0 QSPI_IO_0
+#define QSPI_FLASH1_IO1 QSPI_IO_1
+#define QSPI_FLASH1_IO2 QSPI_IO_2
+#define QSPI_FLASH1_IO3 QSPI_IO_3
+#define QSPI_FLASH1_SCK QSPI_CLK
+#define QSPI_FLASH1_CSN QSPI_SEL
 
-    CY_STDIO_UART_RX    = STDIO_UART_RX,
-    CY_STDIO_UART_TX    = STDIO_UART_TX,
-    CY_STDIO_UART_CTS   = STDIO_UART_CTS,
-    CY_STDIO_UART_RTS   = STDIO_UART_RTS,
+// Standardized interfaces names
+#define STDIO_UART_TX UART_TX
+#define STDIO_UART_RX UART_RX
+#define STDIO_UART_CTS UART_CTS
+#define STDIO_UART_RTS UART_RTS
 
-    CY_BT_UART_RX       = BT_UART_RX,
-    CY_BT_UART_TX       = BT_UART_TX,
-    CY_BT_UART_CTS      = BT_UART_CTS,
-    CY_BT_UART_RTS      = BT_UART_RTS,
+#define CY_STDIO_UART_RX STDIO_UART_RX
+#define CY_STDIO_UART_TX STDIO_UART_TX
+#define CY_STDIO_UART_CTS STDIO_UART_CTS
+#define CY_STDIO_UART_RTS STDIO_UART_RTS
 
-    CY_BT_PIN_POWER       = BT_PIN_POWER,
-    CY_BT_PIN_HOST_WAKE   = BT_PIN_HOST_WAKE,
-    CY_BT_PIN_DEVICE_WAKE = BT_PIN_DEVICE_WAKE,
+#define CY_BT_UART_RX BT_UART_RX
+#define CY_BT_UART_TX BT_UART_TX
+#define CY_BT_UART_CTS BT_UART_CTS
+#define CY_BT_UART_RTS BT_UART_RTS
+
+#define CY_BT_PIN_POWER BT_PIN_POWER
+#define CY_BT_PIN_HOST_WAKE BT_PIN_HOST_WAKE
+#define CY_BT_PIN_DEVICE_WAKE BT_PIN_DEVICE_WAKE
 
 
-    USBTX   = UART_TX,
-    USBRX   = UART_RX,
+#define USBTX UART_TX
+#define USBRX UART_RX
 
-    CY_WIFI_HOST_WAKE     = P2_7,
+#define CY_WIFI_HOST_WAKE P2_7
 
-    AOUT    = P9_6
-} PinName;
-
-// PinName[15-0] = Port[15-8] + Pin[4-0]
-static inline unsigned CY_PIN(PinName pin)
-{
-    return pin & 0x07;
-}
-
-static inline unsigned CY_PORT(PinName pin)
-{
-    return (pin >> 8) & 0xFF;
-}
-
-// Because MBED pin mapping API does not allow to map multiple instances of the PWM
-// to be mapped to the same pin, we create special pin names to force 32-bit PWM unit
-// usage instead of standard 16-bit PWM.
-
-#define PWM32(pin)      CY_PIN_FORCE_PWM_32(pin)
-
+#define AOUT P9_6
 
 #endif

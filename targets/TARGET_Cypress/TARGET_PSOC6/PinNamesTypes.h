@@ -20,66 +20,26 @@
 #define MBED_PINNAMESTYPES_H
 
 #include "cmsis.h"
+#include "cyhal_gpio.h"
+
+#define PullNone CYHAL_GPIO_DRIVE_STRONG
+#define PullDefault CYHAL_GPIO_DRIVE_ANALOG
+#define PullDown CYHAL_GPIO_DRIVE_PULLDOWN
+#define PullUp CYHAL_GPIO_DRIVE_PULLUP
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
     PIN_INPUT = 0,
     PIN_OUTPUT
 } PinDirection;
 
-typedef enum {
-    PullNone           = 0,
-    PullUp             = 1,
-    PullDown           = 2,
-    OpenDrainDriveLow  = 3,
-    OpenDrainDriveHigh = 4,
-    OpenDrain          = OpenDrainDriveLow,
-    PushPull           = 5,
-    AnalogMode         = 6,
-    PullDefault        = PullNone
-} PinMode;
+typedef cyhal_gpio_drive_mode_t PinMode;
 
-typedef struct {
-    en_hsiom_sel_t  hsiom       : 8;
-    en_clk_dst_t    clock       : 8;
-    PinMode         mode        : 4;
-    PinDirection    dir         : 1;
-} PinFunction;
-
-// Encode pin function.
-// Output function
-#define CY_PIN_FUNCTION(hsiom, clock, mode, dir)    (int)(((dir) << 20) | ((mode) << 16) | ((clock) << 8) | (hsiom))
-#define CY_PIN_OUT_FUNCTION(hsiom, clock)           CY_PIN_FUNCTION(hsiom, clock, PushPull, PIN_OUTPUT)
-#define CY_PIN_OD_FUNCTION(hsiom, clock)            CY_PIN_FUNCTION(hsiom, clock, OpenDrain, PIN_OUTPUT)
-#define CY_PIN_IN_FUNCTION(hsiom, clock)            CY_PIN_FUNCTION(hsiom, clock, PullDefault, PIN_INPUT)
-#define CY_PIN_PULLUP_FUNCTION(hsiom, clock)        CY_PIN_FUNCTION(hsiom, clock, PullUp, PIN_INPUT)
-#define CY_PIN_ANALOG_FUNCTION(clock)               CY_PIN_FUNCTION(HSIOM_SEL_GPIO, clock, AnalogMode, 0)
-
-// Create unique name to force 32-bit PWM usage on a pin.
-#define CY_PIN_FORCE_PWM_32(pin)        ((uint32_t)(pin) + 0x8000)
-
-static inline en_hsiom_sel_t CY_PIN_HSIOM(int function)
-{
-    return (en_hsiom_sel_t)(function & 0xFF);
+#ifdef __cplusplus
 }
-
-static inline en_clk_dst_t CY_PIN_CLOCK(int function)
-{
-    return (en_clk_dst_t)((function >> 8) & 0xFF);
-}
-
-static inline PinMode CY_PIN_MODE(int function)
-{
-    return (PinMode)((function >> 16) & 0x0F);
-}
-
-static inline PinDirection CY_PIN_DIRECTION(int function)
-{
-    return (PinDirection)((function >> 20) & 1);
-}
-
-static inline int CY_PERIPHERAL_BASE(int peripheral)
-{
-    return peripheral & 0xffff0000;
-}
+#endif
 
 #endif
