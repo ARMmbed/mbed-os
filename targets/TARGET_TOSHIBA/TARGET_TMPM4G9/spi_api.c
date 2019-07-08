@@ -624,3 +624,4 @@ static inline void state_idle(struct spi_s *obj_s)
 }
 
 #endif //DEVICE_SPI_ASYNCH
+#endif //DEVICE_SPI
