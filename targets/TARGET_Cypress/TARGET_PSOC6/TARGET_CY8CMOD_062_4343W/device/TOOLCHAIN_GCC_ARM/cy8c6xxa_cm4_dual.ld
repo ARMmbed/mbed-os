@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xxa_cm4_dual.ld
-* \version 2.40
+* \version 2.50
 *
 * Linker file for the GNU C compiler.
 *

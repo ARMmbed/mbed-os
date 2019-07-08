@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xxa_cm4_dual.icf
-* \version 2.40
+* \version 2.50
 *
 * Linker file for the IAR compiler.
 *
@@ -154,8 +154,9 @@ if (!isdefinedsymbol(__STACK_SIZE)) {
   define symbol __ICFEDIT_size_cstack__ = __STACK_SIZE;
 }
 
+/* Defines the minimum heap size. The actual heap size will be expanded to the end of the stack region */
 if (!isdefinedsymbol(__HEAP_SIZE)) {
-    define symbol __ICFEDIT_size_heap__ = 0x20000;
+    define symbol __ICFEDIT_size_heap__ = 0x400;
 } else {
   define symbol __ICFEDIT_size_heap__ = __HEAP_SIZE;
 }
@@ -183,7 +184,7 @@ define block RAM_BSS {readwrite section .bss};
 define block RAM with fixed order {block RAM_DATA, block RAM_OTHER, block RAM_NOINIT, block RAM_BSS};
 
 define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__ { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__ { };
+define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__ { };
 
 define block CM0P_RO with size = FLASH_CM0P_SIZE  { readonly section .cy_m0p_image };
 define block RO     {first section .intvec, readonly};

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xx7_cm0plus.icf
-* \version 2.40
+* \version 2.50
 *
 * Linker file for the IAR compiler.
 *
@@ -163,8 +163,10 @@ if (!isdefinedsymbol(__STACK_SIZE)) {
   define symbol __ICFEDIT_size_cstack__ = __STACK_SIZE;
 }
 define symbol __ICFEDIT_size_proc_stack__ = 0x0;
+
+/* Defines the minimum heap size. The actual heap size will be expanded to the end of the stack region */
 if (!isdefinedsymbol(__HEAP_SIZE)) {
-    define symbol __ICFEDIT_size_heap__ = 0x4000;
+    define symbol __ICFEDIT_size_heap__ = 0x400;
 } else {
   define symbol __ICFEDIT_size_heap__ = __HEAP_SIZE;
 }
@@ -191,7 +193,7 @@ define block RAM_BSS {readwrite section .bss};
 define block RAM with fixed order {block RAM_DATA, block RAM_OTHER, block RAM_NOINIT, block RAM_BSS};
 define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__     { };
 define block PROC_STACK with alignment = 8, size = __ICFEDIT_size_proc_stack__ { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__       { };
+define block HEAP with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__ { };
 define block HSTACK {block HEAP, block PROC_STACK, last block CSTACK};
 define block RO     {first section .intvec, readonly};
 
