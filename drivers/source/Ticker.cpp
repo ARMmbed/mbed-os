@@ -24,12 +24,12 @@
 
 namespace mbed {
 
-Ticker::Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true)
+inline Ticker::Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true)
 {
 }
 
 // When low power ticker is in use, then do not disable deep sleep.
-Ticker::Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
+inline Ticker::Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
 {
 }
 

@@ -31,21 +31,6 @@ PortOut::PortOut(PortName port, int mask)
     core_util_critical_section_exit();
 }
 
-PortOut &PortOut::operator= (int value)
-{
-    write(value);
-    return *this;
-}
-
-/** A shorthand for write()
- * \sa PortOut::write()
- */
-PortOut &PortOut::operator= (PortOut &rhs)
-{
-    write(rhs.read());
-    return *this;
-}
-
 } // namespace mbed
 
 #endif // #if DEVICE_PORTOUT

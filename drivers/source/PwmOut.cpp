@@ -98,20 +98,6 @@ void PwmOut::pulsewidth_us(int us)
     core_util_critical_section_exit();
 }
 
-PwmOut &PwmOut::operator= (float value)
-{
-    // Underlying call is thread safe
-    write(value);
-    return *this;
-}
-
-PwmOut &PwmOut::operator= (PwmOut &rhs)
-{
-    // Underlying call is thread safe
-    write(rhs.read());
-    return *this;
-}
-
 void PwmOut::lock_deep_sleep()
 {
     if (_deep_sleep_locked == false) {

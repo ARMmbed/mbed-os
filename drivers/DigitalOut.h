@@ -115,7 +115,12 @@ public:
      *      led = button;   // Equivalent to led.write(button.read())
      * @endcode
      */
-    DigitalOut &operator= (int value);
+    DigitalOut &operator= (int value)
+    {
+        // Underlying write is thread safe
+        write(value);
+        return *this;
+    }
 
     /** A shorthand for write() using the assignment operator which copies the
      * state from the DigitalOut argument.

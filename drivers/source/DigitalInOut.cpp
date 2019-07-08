@@ -42,13 +42,6 @@ void DigitalInOut::mode(PinMode pull)
     core_util_critical_section_exit();
 }
 
-DigitalInOut &DigitalInOut::operator= (int value)
-{
-    // Underlying write is thread safe
-    write(value);
-    return *this;
-}
-
 DigitalInOut &DigitalInOut::operator= (DigitalInOut &rhs)
 {
     core_util_critical_section_enter();

@@ -123,12 +123,22 @@ public:
     /** A operator shorthand for write()
      *  \sa PwmOut::write()
      */
-    PwmOut &operator= (float value);
+    PwmOut &operator= (float value)
+    {
+        // Underlying call is thread safe
+        write(value);
+        return *this;
+    }
 
     /** A operator shorthand for write()
      * \sa PwmOut::write()
      */
-    PwmOut &operator= (PwmOut &rhs);
+    PwmOut &operator= (PwmOut &rhs)
+    {
+        // Underlying call is thread safe
+        write(rhs.read());
+        return *this;
+    }
 
     /** An operator shorthand for read()
      * \sa PwmOut::read()

@@ -22,42 +22,6 @@
 
 namespace mbed {
 
-CANMessage::CANMessage() : CAN_Message()
-{
-    len    = 8U;
-    type   = CANData;
-    format = CANStandard;
-    id     = 0U;
-    memset(data, 0, 8);
-}
-
-CANMessage::CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len, CANType _type, CANFormat _format)
-{
-    len    = _len & 0xF;
-    type   = _type;
-    format = _format;
-    id     = _id;
-    memcpy(data, _data, _len);
-}
-
-CANMessage::CANMessage(unsigned int _id, const char *_data, unsigned char _len, CANType _type, CANFormat _format)
-{
-    len    = _len & 0xF;
-    type   = _type;
-    format = _format;
-    id     = _id;
-    memcpy(data, _data, _len);
-}
-
-CANMessage::CANMessage(unsigned int _id, CANFormat _format)
-{
-    len    = 0;
-    type   = CANRemote;
-    format = _format;
-    id     = _id;
-    memset(data, 0, 8);
-}
-
 CAN::CAN(PinName rd, PinName td) : _can(), _irq()
 {
     // No lock needed in constructor

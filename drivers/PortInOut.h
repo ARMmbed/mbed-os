@@ -82,12 +82,20 @@ public:
     /** A shorthand for write()
      * \sa PortInOut::write()
      */
-    PortInOut &operator= (int value);
+    PortInOut &operator= (int value)
+    {
+        write(value);
+        return *this;
+    }
 
     /** A shorthand for write()
      * \sa PortInOut::write()
      */
-    PortInOut &operator= (PortInOut &rhs);
+    PortInOut &operator= (PortInOut &rhs)
+    {
+        write(rhs.read());
+        return *this;
+    }
 
     /** A shorthand for read()
      * \sa PortInOut::read()

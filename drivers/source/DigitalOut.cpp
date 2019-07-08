@@ -21,13 +21,6 @@
 
 namespace mbed {
 
-DigitalOut &DigitalOut::operator= (int value)
-{
-    // Underlying write is thread safe
-    write(value);
-    return *this;
-}
-
 DigitalOut &DigitalOut::operator= (DigitalOut &rhs)
 {
     core_util_critical_section_enter();

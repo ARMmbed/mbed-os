@@ -52,21 +52,6 @@ void PortInOut::mode(PinMode mode)
     core_util_critical_section_exit();
 }
 
-PortInOut &PortInOut::operator= (int value)
-{
-    write(value);
-    return *this;
-}
-
-/** A shorthand for write()
- * \sa PortInOut::write()
- */
-PortInOut &PortInOut::operator= (PortInOut &rhs)
-{
-    write(rhs.read());
-    return *this;
-}
-
 } // namespace mbed
 
 #endif // #if DEVICE_PORTINOUT

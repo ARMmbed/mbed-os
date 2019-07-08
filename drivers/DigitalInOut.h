@@ -119,7 +119,12 @@ public:
      *      inout = button;     // Equivalent to inout.write(button.read())
      * @endcode
      */
-    DigitalInOut &operator= (int value);
+    DigitalInOut &operator= (int value)
+    {
+        // Underlying write is thread safe
+        write(value);
+        return *this;
+    }
 
     /**A shorthand for write() using the assignment operator which copies the
      * state from the DigitalInOut argument.
