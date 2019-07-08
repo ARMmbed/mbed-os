@@ -66,6 +66,9 @@ void gpio_inout_test()
 {
     for (int i = 0; i < form_factor->count; i++) {
         const PinName test_pin = form_factor->pins[i];
+        if (test_pin == NC) {
+            continue;
+        }
         if (pinmap_list_has_pin(restricted, test_pin)) {
             printf("Skipping gpio pin %s (%i)\r\n", pinmap_ff_default_pin_to_string(test_pin), test_pin);
             continue;
