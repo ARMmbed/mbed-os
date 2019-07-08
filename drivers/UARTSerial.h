@@ -23,7 +23,7 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "platform/FileHandle.h"
-#include "drivers/source/SerialBase.h"
+#include "drivers/SerialBase.h"
 #include "InterruptIn.h"
 #include "platform/PlatformMutex.h"
 #include "platform/CircularBuffer.h"

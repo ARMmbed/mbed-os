@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "drivers/source/SerialBase.h"
+#include "drivers/SerialBase.h"
 
 namespace mbed {
 
