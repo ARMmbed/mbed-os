@@ -225,6 +225,14 @@ SECTIONS
     __data_end__ = .;        /* define a global symbol at data end */
   } > m_data
 
+  .heap_0 :
+  {
+    . = ALIGN(8);
+    __mbed_sbrk_start_0 = .;
+    . += (ORIGIN(m_data) + LENGTH(m_data) - .);
+    __mbed_krbs_start_0 = .;
+  } > m_data
+
   __DATA_END = __DATA_ROM + (__data_end__ - __data_start__);
   text_end = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
@@ -249,8 +257,10 @@ SECTIONS
     . = ALIGN(8);
     __end__ = .;
     PROVIDE(end = .);
+    __mbed_sbrk_start = .;
     __HeapBase = .;
     . = ORIGIN(m_data_2) + LENGTH(m_data_2) - STACK_SIZE;
+    __mbed_krbs_start = .;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data_2
