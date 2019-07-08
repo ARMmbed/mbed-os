@@ -51,37 +51,28 @@ int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
             return( MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA );
     }
 
-    /* Allocated and initialise in the cipher context memory for the CMAC
-     * context
-     */
-    cmac_ctx = mbedtls_calloc( 1, sizeof( mbedtls_cmac_context_t ) );
-    if( cmac_ctx == NULL )
-        return( MBEDTLS_ERR_CIPHER_ALLOC_FAILED );
-
 
     switch( keybits )
     {
         case 128:
-        {
+            /* Allocated and initialise in the cipher context memory for the CMAC
+             * context
+             */
+            cmac_ctx = mbedtls_calloc( 1, sizeof( mbedtls_cmac_context_t ) );
+            if( cmac_ctx == NULL )
+                return( MBEDTLS_ERR_CIPHER_ALLOC_FAILED );
             cmac_ctx->CC_keySizeInBytes = ( keybits / 8 );
             memcpy( cmac_ctx->CC_Key, key, cmac_ctx->CC_keySizeInBytes );
-        }
         break;
         case 192:
         case 256:
-        {
-            mbedtls_free( cmac_ctx );
             return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
-        }
         default:
-        {
-            mbedtls_free( cmac_ctx );
             return( MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA );
-        }
     }
 
     ctx->cmac_ctx = cmac_ctx;
-    return 0;
+    return( 0 );
 }
 
 static int init_cc( mbedtls_cmac_context_t *cmac_ctx )
@@ -190,9 +181,9 @@ int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
 exit:
     if( ret != 0 )
     {
+        SaSi_AesFree( &cmac_ctx->CC_Context );
         mbedtls_platform_zeroize( cmac_ctx, sizeof( *cmac_ctx ) );
         mbedtls_free( cmac_ctx );
-        SaSi_AesFree( &cmac_ctx->CC_Context );
     }
     return( ret );
 }
@@ -275,22 +266,23 @@ int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
 
     if( ( ret = init_cc( ctx.cmac_ctx ) ) != 0 )
     {
-        goto exit;
+        goto clear_cc;
     }
 
     if( SaSi_AesFinish( &ctx.cmac_ctx->CC_Context, ilen, ( uint8_t * ) input,
                         ilen, output, &olen ) != 0 )
    {
        ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
-       goto exit;
+       goto clear_cc;
    }
 
-
-exit:
+clear_cc:
     if( SaSi_AesFree( &ctx.cmac_ctx->CC_Context ) != 0 && ret == 0 )
     {
         ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
     }
+
+exit:
     mbedtls_cipher_free( &ctx );
 
     return( ret );
