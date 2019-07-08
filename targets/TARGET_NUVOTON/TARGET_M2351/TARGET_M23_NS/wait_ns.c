@@ -17,6 +17,7 @@
  */
 
 #include "cmsis.h"
+#include "platform/mbed_mpu_mgmt.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_wait_api.h"
 
@@ -36,7 +37,7 @@
 // Cortex-M0+, M3, M4 and M23 take 5 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 2
 #define LOOP_SCALER 5000
 
-MBED_ALIGN(8)
+MBED_ALIGN(16)
 static uint16_t delay_loop_code[] = {
     0x1E40, // SUBS R0,R0,#1
     0xBF00, // NOP
@@ -46,7 +47,7 @@ static uint16_t delay_loop_code[] = {
 };
 
 /* Take the address of the code, set LSB to indicate Thumb, and cast to void() function pointer */
-#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code | 1))
+#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code + 1))
 
 void wait_ns(unsigned int ns)
 {
