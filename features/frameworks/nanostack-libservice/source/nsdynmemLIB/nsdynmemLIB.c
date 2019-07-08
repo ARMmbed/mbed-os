@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -33,10 +33,13 @@ typedef struct {
 
 typedef int ns_mem_word_size_t; // internal signed heap block size type
 
+// Amount of memory regions
+#define REGION_COUNT 3
+
 /* struct for book keeping variables */
 struct ns_mem_book {
-    ns_mem_word_size_t     *heap_main;
-    ns_mem_word_size_t     *heap_main_end;
+    ns_mem_word_size_t     *heap_main[REGION_COUNT];
+    ns_mem_word_size_t     *heap_main_end[REGION_COUNT];
     mem_stat_t *mem_stat_info_ptr;
     void (*heap_failure_callback)(heap_fail_t);
     NS_LIST_HEAD(hole_t, link) holes_list;
@@ -68,12 +71,47 @@ static void heap_failure(ns_mem_book_t *book, heap_fail_t reason)
     }
 }
 
-#endif
+static int ns_dyn_mem_region_find(ns_mem_book_t *book, ns_mem_word_size_t *block_ptr, ns_mem_word_size_t size)
+{
+    int index;
+    for (index = 0; index < REGION_COUNT; index++) {
+        if (book->heap_main[index] != 0) {
+            if ((block_ptr >= book->heap_main[index]) &&
+                    (block_ptr < book->heap_main_end[index]) &&
+                    ((block_ptr + size) < book->heap_main_end[index])) {
+                return index;
+            }
+        }
+    }
+
+    return -1;
+}
+
+static int ns_dyn_mem_region_save(ns_mem_book_t *book, ns_mem_word_size_t *region_start_ptr, ns_mem_word_size_t region_size)
+{
+    for (int i = 1; i < REGION_COUNT; i++) {
+        if (book->heap_main[i] == 0) {
+            book->heap_main[i] = region_start_ptr;
+            book->heap_main_end[i] = book->heap_main[i] + region_size;
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+
+#endif //STANDARD_MALLOC
 
 void ns_dyn_mem_init(void *heap, ns_mem_heap_size_t h_size,
                      void (*passed_fptr)(heap_fail_t), mem_stat_t *info_ptr)
 {
     default_book = ns_mem_init(heap, h_size, passed_fptr, info_ptr);
+}
+
+int ns_dyn_mem_region_add(void *region_ptr, ns_mem_heap_size_t region_size)
+{
+    return ns_mem_region_add(default_book, region_ptr, region_size);
 }
 
 const mem_stat_t *ns_dyn_mem_get_mem_stat(void)
@@ -84,7 +122,6 @@ const mem_stat_t *ns_dyn_mem_get_mem_stat(void)
     return NULL;
 #endif
 }
-
 
 ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
                            void (*passed_fptr)(heap_fail_t),
@@ -107,19 +144,23 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
     if (temp_int) {
         h_size -= (sizeof(ns_mem_word_size_t) - temp_int);
     }
+
     book = heap;
-    book->heap_main = (ns_mem_word_size_t *) & (book[1]); // SET Heap Pointer
+    memset(book->heap_main, 0, REGION_COUNT * sizeof(ns_mem_word_size_t *));
+    memset(book->heap_main_end, 0, REGION_COUNT * sizeof(ns_mem_word_size_t *));
+
+    book->heap_main[0] = (ns_mem_word_size_t *) & (book[1]); // SET Heap Pointer
     book->heap_size = h_size - sizeof(ns_mem_book_t); //Set Heap Size
     temp_int = (book->heap_size / sizeof(ns_mem_word_size_t));
     temp_int -= 2;
-    ptr = book->heap_main;
+    ptr = book->heap_main[0];
     *ptr = -(temp_int);
     ptr += (temp_int + 1);
     *ptr = -(temp_int);
-    book->heap_main_end = ptr;
+    book->heap_main_end[0] = ptr;
 
     ns_list_init(&book->holes_list);
-    ns_list_add_to_start(&book->holes_list, hole_from_block_start(book->heap_main));
+    ns_list_add_to_start(&book->holes_list, hole_from_block_start(book->heap_main[0]));
 
     book->mem_stat_info_ptr = info_ptr;
     //RESET Memory by Hea Len
@@ -133,6 +174,81 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
     book->heap_failure_callback = passed_fptr;
 
     return book;
+}
+
+int ns_mem_region_add(ns_mem_book_t *book, void *region_ptr, ns_mem_heap_size_t region_size)
+{
+#ifndef STANDARD_MALLOC
+    if (!book || !region_ptr || region_size < 3 * sizeof(ns_mem_word_size_t)) {
+        return -1;
+    }
+
+    ns_mem_word_size_t *block_ptr;
+    ns_mem_word_size_t temp_int;
+
+    /* Do memory alignment */
+    temp_int = ((uintptr_t)region_ptr % sizeof(ns_mem_word_size_t));
+    if (temp_int) {
+        region_ptr = (uint8_t *) region_ptr + (sizeof(ns_mem_word_size_t) - temp_int);
+        region_size -= (sizeof(ns_mem_word_size_t) - temp_int);
+    }
+
+    /* Make correction for total length */
+    temp_int = (region_size % sizeof(ns_mem_word_size_t));
+    if (temp_int) {
+        region_size -= (sizeof(ns_mem_word_size_t) - temp_int);
+    }
+
+    // Create hole from new heap memory
+    temp_int = (region_size / sizeof(ns_mem_word_size_t));
+    temp_int -= 2;
+    block_ptr = region_ptr;
+    *block_ptr = -(temp_int);
+    block_ptr += (temp_int + 1);    // now block_ptr points to end of block
+    *block_ptr = -(temp_int);
+
+    // find place for the new hole from the holes list
+    hole_t *hole_to_add = hole_from_block_start(region_ptr);
+    hole_t *previous_hole = NULL;
+    ns_list_foreach(hole_t, hole_in_list_ptr, &book->holes_list) {
+        if (hole_in_list_ptr < hole_to_add) {
+            previous_hole = hole_in_list_ptr;
+        } else if (hole_in_list_ptr == hole_to_add) {
+            // trying to add memory block that is already in the list!
+            return -2;
+        }
+    }
+
+    // save region
+    if (ns_dyn_mem_region_save(book, region_ptr, (region_size / (sizeof(ns_mem_word_size_t))) - 1) != 0) {
+        return -3;
+    }
+
+    // Add new hole to the list
+    if (previous_hole) {
+        ns_list_add_after(&book->holes_list, previous_hole, hole_to_add);
+    } else {
+        ns_list_add_to_start(&book->holes_list, hole_to_add);
+    }
+
+    // adjust total heap size with new hole
+    book->heap_size += region_size;
+
+    if (book->mem_stat_info_ptr) {
+        book->mem_stat_info_ptr->heap_sector_size = book->heap_size;
+    }
+
+    // adjust temporary allocation limits to match new heap
+    book->temporary_alloc_heap_limit = book->heap_size / 100 * (100 - TEMPORARY_ALLOC_FREE_HEAP_THRESHOLD);
+
+    return 0;
+#else
+    (void) book;
+    (void) region_ptr;
+    (void) region_size;
+
+    return -1;
+#endif
 }
 
 const mem_stat_t *ns_mem_get_mem_stat(ns_mem_book_t *heap)
@@ -211,7 +327,7 @@ static void dev_stat_update(mem_stat_t *mem_stat_info_ptr, mem_stat_update_t typ
 
 static ns_mem_word_size_t convert_allocation_size(ns_mem_book_t *book, ns_mem_block_size_t requested_bytes)
 {
-    if (book->heap_main == 0) {
+    if (book->heap_main[0] == 0) {
         heap_failure(book, NS_DYN_MEM_HEAP_SECTOR_UNITIALIZED);
     } else if (requested_bytes < 1) {
         heap_failure(book, NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID);
@@ -329,7 +445,6 @@ done:
         if (block_ptr) {
             //Update Allocate OK
             dev_stat_update(book->mem_stat_info_ptr, DEV_HEAP_ALLOC_OK, (data_size + 2) * sizeof(ns_mem_word_size_t));
-
         } else {
             //Update Allocate Fail, second parameter is used for stats
             dev_stat_update(book->mem_stat_info_ptr, DEV_HEAP_ALLOC_FAIL, 0);
@@ -381,12 +496,25 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
     hole_t *existing_end = NULL;
     ns_mem_word_size_t *start = cur_block;
     ns_mem_word_size_t *end = cur_block + data_size + 1;
+    ns_mem_word_size_t *region_start;
+    ns_mem_word_size_t *region_end;
+
+    int region_index = ns_dyn_mem_region_find(book, cur_block, data_size);
+    if (region_index >= 0) {
+        region_start = book->heap_main[region_index];
+        region_end = book->heap_main_end[region_index];
+    } else {
+        heap_failure(book, NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
+        // can't find region for the block, return
+        return;
+    }
+
     //invalidate current block
     *start = -data_size;
     *end = -data_size;
     ns_mem_word_size_t merged_data_size = data_size;
 
-    if (start != book->heap_main) {
+    if (start != region_start) {
         if (*(start - 1) < 0) {
             ns_mem_word_size_t *block_end = start - 1;
             ns_mem_word_size_t block_size = 1 + (-*block_end) + 1;
@@ -401,7 +529,7 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
         }
     }
 
-    if (end != book->heap_main_end) {
+    if (end != region_end) {
         if (*(end + 1) < 0) {
             ns_mem_word_size_t *block_start = end + 1;
             ns_mem_word_size_t block_size = 1 + (-*block_start) + 1;
@@ -457,6 +585,16 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
 }
 #endif
 
+static bool pointer_address_validate(ns_mem_book_t *book, ns_mem_word_size_t *ptr, ns_mem_word_size_t size)
+{
+
+    if (ns_dyn_mem_region_find(book, ptr, size) >= 0) {
+        return true;
+    }
+
+    return false;
+}
+
 void ns_mem_free(ns_mem_book_t *book, void *block)
 {
 #ifndef STANDARD_MALLOC
@@ -472,9 +610,7 @@ void ns_mem_free(ns_mem_book_t *book, void *block)
     ptr --;
     //Read Current Size
     size = *ptr;
-    if (ptr < book->heap_main || ptr >= book->heap_main_end) {
-        heap_failure(book, NS_DYN_MEM_POINTER_NOT_VALID);
-    } else if ((ptr + size) >= book->heap_main_end) {
+    if (!pointer_address_validate(book, ptr, size)) {
         heap_failure(book, NS_DYN_MEM_POINTER_NOT_VALID);
     } else if (size < 0) {
         heap_failure(book, NS_DYN_MEM_DOUBLE_FREE);
@@ -489,6 +625,7 @@ void ns_mem_free(ns_mem_book_t *book, void *block)
             }
         }
     }
+
     platform_exit_critical();
 #else
     platform_enter_critical();
