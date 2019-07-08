@@ -32,6 +32,8 @@ void hal_deepsleep(void)
 {
 #if DEVICE_LPTICKER
     Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+#else
+    Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
 #endif /* DEVICE_LPTICKER */
 }
 
