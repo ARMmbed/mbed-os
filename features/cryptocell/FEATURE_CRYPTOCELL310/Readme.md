@@ -25,4 +25,14 @@ To port your CC 310 driver to Mbed OS on your specific target, do the following:
 1. Add your CC setup code:
 	* Implement `crypto_platform_setup()` and `crypto_platform_terminate()` to enable CC on your platform, in case you have board-specific setup functionality, required for CC setup. You MUST call 'SaSi_LibInit()` and 'SaSi_LibFini()' respectively in these functions.
 	* Define `crypto_platform_ctx` in `crypto_device_platform.h` in a way that suits your implementation.
- 
+
+## Enabling optional alternative drivers
+
+There are three additional modules that have alternative implementation support, which are not enabled by default.
+The reason is to allow backwards compatability, as these modules don't have full functionality, and return `MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED` for some features.
+The modules are:
+* `AES` which only supports 128 bit key size, in opposed to previous suipport for all key sizes.
+* `CMAC` which only supports AES 128 bit key size, in opposed to previous supporting DES and all key sizes.
+* `SHA512` which only supports SHA512, in opposed to previously supporting SHA384 as well.
+
+In order to enable these modules, you should define `MBEDTLS_AES_ALT`, `MBEDTLS_CMAC_ALT` and `MBEDTLS_SHA512_ALT` respectively, either in `mbed_app.json` or in your `MBEDTLS_USER_CONFIG_FILE` to have hardware accelerated module with reduced RAM size, on the expense of full functionality.
