@@ -3227,8 +3227,7 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
-        "bootloader_supported": true,
-        "device_has_remove": ["WATCHDOG"]
+        "bootloader_supported": true
     },
     "NUCLEO_H743ZI2": {
         "inherits": ["NUCLEO_H743ZI"],
