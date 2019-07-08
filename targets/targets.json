@@ -8818,6 +8818,7 @@
             }
         },
         "overrides": {
+            "mpu-rom-end": "0x1fffffff",
             "tickless-from-us-ticker": true
         },
         "inherits": ["Target"],
