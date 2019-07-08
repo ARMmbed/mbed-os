@@ -24,192 +24,192 @@
 
 #include "cycfg_pins.h"
 
-const cy_stc_gpio_pin_config_t WCO_IN_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WCO_IN_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = WCO_IN_HSIOM,
+	.hsiom = CYBSP_WCO_IN_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t WCO_OUT_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = WCO_OUT_HSIOM,
+	.hsiom = CYBSP_WCO_OUT_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t LED_RED_config = 
+const cy_stc_gpio_pin_config_t CYBSP_LED_RED_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = LED_RED_HSIOM,
+	.hsiom = CYBSP_LED_RED_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SW2_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BTN2_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_PULLUP,
-	.hsiom = SW2_HSIOM,
+	.hsiom = CYBSP_BTN2_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t LED_BLUE_config = 
+const cy_stc_gpio_pin_config_t CYBSP_LED_BLUE_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = LED_BLUE_HSIOM,
+	.hsiom = CYBSP_LED_BLUE_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_SS0_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_SS_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = QSPI_SS0_HSIOM,
+	.hsiom = CYBSP_QSPI_SS_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA3_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_D3_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = QSPI_DATA3_HSIOM,
+	.hsiom = CYBSP_QSPI_D3_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA2_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_D2_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = QSPI_DATA2_HSIOM,
+	.hsiom = CYBSP_QSPI_D2_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA1_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_D1_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = QSPI_DATA1_HSIOM,
+	.hsiom = CYBSP_QSPI_D1_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_DATA0_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_D0_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = QSPI_DATA0_HSIOM,
+	.hsiom = CYBSP_QSPI_D0_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t QSPI_SPI_CLOCK_config = 
+const cy_stc_gpio_pin_config_t CYBSP_QSPI_SCK_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = QSPI_SPI_CLOCK_HSIOM,
+	.hsiom = CYBSP_QSPI_SCK_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t LED9_config = 
+const cy_stc_gpio_pin_config_t CYBSP_LED9_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = LED9_HSIOM,
+	.hsiom = CYBSP_LED9_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
@@ -225,7 +225,7 @@ const cy_stc_gpio_pin_config_t ioss_0_port_14_pin_0_config =
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
@@ -241,551 +241,567 @@ const cy_stc_gpio_pin_config_t ioss_0_port_14_pin_1_config =
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_TX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_TX_HSIOM,
+	.hsiom = CYBSP_CSD_TX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t LED_GREEN_config = 
+const cy_stc_gpio_pin_config_t CYBSP_LED_GREEN_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = LED_GREEN_HSIOM,
+	.hsiom = CYBSP_LED_GREEN_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t LED8_config = 
+const cy_stc_gpio_pin_config_t CYBSP_LED8_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = LED8_HSIOM,
+	.hsiom = CYBSP_LED8_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_DAT0_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_D0_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = SDHC0_DAT0_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_D0_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_DAT1_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_D1_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = SDHC0_DAT1_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_D1_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_DAT2_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_D2_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = SDHC0_DAT2_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_D2_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_DAT3_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_D3_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = SDHC0_DAT3_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_D3_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_CMD_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_CMD_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG,
-	.hsiom = SDHC0_CMD_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_CMD_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SDHC0_CLK_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_SDIO_CLK_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = SDHC0_CLK_HSIOM,
+	.hsiom = CYBSP_WIFI_SDIO_CLK_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t ENABLE_WIFI_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_WL_REG_ON_config = 
 {
 	.outVal = 0,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = ENABLE_WIFI_HSIOM,
+	.hsiom = CYBSP_WIFI_WL_REG_ON_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_UART_RX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_HOST_WAKE_config = 
+{
+	.outVal = 0,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_WIFI_HOST_WAKE_HSIOM,
+	.intEdge = CY_GPIO_INTR_DISABLE,
+	.intMask = 0UL,
+	.vtrip = CY_GPIO_VTRIP_CMOS,
+	.slewRate = CY_GPIO_SLEW_FAST,
+	.driveSel = CY_GPIO_DRIVE_1_2,
+	.vregEn = 0UL,
+	.ibufMode = 0UL,
+	.vtripSel = 0UL,
+	.vrefSel = 0UL,
+	.vohSel = 0UL,
+};
+const cy_stc_gpio_pin_config_t CYBSP_BT_UART_RX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = BT_UART_RX_HSIOM,
+	.hsiom = CYBSP_BT_UART_RX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_UART_TX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_UART_TX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = BT_UART_TX_HSIOM,
+	.hsiom = CYBSP_BT_UART_TX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_UART_RTS_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_UART_RTS_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = BT_UART_RTS_HSIOM,
+	.hsiom = CYBSP_BT_UART_RTS_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_UART_CTS_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_UART_CTS_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = BT_UART_CTS_HSIOM,
+	.hsiom = CYBSP_BT_UART_CTS_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_POWER_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_POWER_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_OD_DRIVESHIGH_IN_OFF,
-	.hsiom = BT_POWER_HSIOM,
+	.hsiom = CYBSP_BT_POWER_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_HOST_WAKE_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config = 
 {
 	.outVal = 0,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = BT_HOST_WAKE_HSIOM,
+	.hsiom = CYBSP_BT_HOST_WAKE_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t BT_DEVICE_WAKE_config = 
+const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config = 
 {
 	.outVal = 0,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = BT_DEVICE_WAKE_HSIOM,
+	.hsiom = CYBSP_BT_DEVICE_WAKE_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t UART_RX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_RX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = UART_RX_HSIOM,
+	.hsiom = CYBSP_DEBUG_UART_RX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t UART_TX_config = 
+const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_TX_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = UART_TX_HSIOM,
+	.hsiom = CYBSP_DEBUG_UART_TX_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t EZI2C_SCL_config = 
+const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SCL_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = EZI2C_SCL_HSIOM,
+	.hsiom = CYBSP_EZI2C_SCL_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t EZI2C_SDA_config = 
+const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SDA_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_OD_DRIVESLOW,
-	.hsiom = EZI2C_SDA_HSIOM,
+	.hsiom = CYBSP_EZI2C_SDA_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SWO_config = 
+const cy_stc_gpio_pin_config_t CYBSP_SWO_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = SWO_HSIOM,
+	.hsiom = CYBSP_SWO_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SWDIO_config = 
+const cy_stc_gpio_pin_config_t CYBSP_SWDIO_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_PULLUP,
-	.hsiom = SWDIO_HSIOM,
+	.hsiom = CYBSP_SWDIO_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t SWDCK_config = 
+const cy_stc_gpio_pin_config_t CYBSP_SWDCK_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_PULLDOWN,
-	.hsiom = SWDCK_HSIOM,
+	.hsiom = CYBSP_SWDCK_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CINA_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CINA_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CINA_HSIOM,
+	.hsiom = CYBSP_CINA_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CINB_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CINB_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CINB_HSIOM,
+	.hsiom = CYBSP_CINB_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CMOD_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CMOD_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CMOD_HSIOM,
+	.hsiom = CYBSP_CMOD_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_BTN0_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_BTN0_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_BTN0_HSIOM,
+	.hsiom = CYBSP_CSD_BTN0_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_BTN1_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_BTN1_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_BTN1_HSIOM,
+	.hsiom = CYBSP_CSD_BTN1_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_SLD0_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD0_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_SLD0_HSIOM,
+	.hsiom = CYBSP_CSD_SLD0_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_SLD1_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD1_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_SLD1_HSIOM,
+	.hsiom = CYBSP_CSD_SLD1_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_SLD2_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD2_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_SLD2_HSIOM,
+	.hsiom = CYBSP_CSD_SLD2_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_SLD3_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD3_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_SLD3_HSIOM,
+	.hsiom = CYBSP_CSD_SLD3_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CSD_SLD4_config = 
+const cy_stc_gpio_pin_config_t CYBSP_CSD_SLD4_config = 
 {
 	.outVal = 1,
 	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CSD_SLD4_HSIOM,
+	.hsiom = CYBSP_CSD_SLD4_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
@@ -796,80 +812,82 @@ const cy_stc_gpio_pin_config_t CSD_SLD4_config =
 
 void init_cycfg_pins(void)
 {
-	Cy_GPIO_Pin_Init(WCO_IN_PORT, WCO_IN_PIN, &WCO_IN_config);
+	Cy_GPIO_Pin_Init(CYBSP_WCO_IN_PORT, CYBSP_WCO_IN_PIN, &CYBSP_WCO_IN_config);
 
-	Cy_GPIO_Pin_Init(WCO_OUT_PORT, WCO_OUT_PIN, &WCO_OUT_config);
+	Cy_GPIO_Pin_Init(CYBSP_WCO_OUT_PORT, CYBSP_WCO_OUT_PIN, &CYBSP_WCO_OUT_config);
 
-	Cy_GPIO_Pin_Init(LED_RED_PORT, LED_RED_PIN, &LED_RED_config);
+	Cy_GPIO_Pin_Init(CYBSP_LED_RED_PORT, CYBSP_LED_RED_PIN, &CYBSP_LED_RED_config);
 
-	Cy_GPIO_Pin_Init(SW2_PORT, SW2_PIN, &SW2_config);
+	Cy_GPIO_Pin_Init(CYBSP_BTN2_PORT, CYBSP_BTN2_PIN, &CYBSP_BTN2_config);
 
-	Cy_GPIO_Pin_Init(LED_BLUE_PORT, LED_BLUE_PIN, &LED_BLUE_config);
+	Cy_GPIO_Pin_Init(CYBSP_LED_BLUE_PORT, CYBSP_LED_BLUE_PIN, &CYBSP_LED_BLUE_config);
 
-	Cy_GPIO_Pin_Init(QSPI_SS0_PORT, QSPI_SS0_PIN, &QSPI_SS0_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_SS_PORT, CYBSP_QSPI_SS_PIN, &CYBSP_QSPI_SS_config);
 
-	Cy_GPIO_Pin_Init(QSPI_DATA3_PORT, QSPI_DATA3_PIN, &QSPI_DATA3_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_D3_PORT, CYBSP_QSPI_D3_PIN, &CYBSP_QSPI_D3_config);
 
-	Cy_GPIO_Pin_Init(QSPI_DATA2_PORT, QSPI_DATA2_PIN, &QSPI_DATA2_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_D2_PORT, CYBSP_QSPI_D2_PIN, &CYBSP_QSPI_D2_config);
 
-	Cy_GPIO_Pin_Init(QSPI_DATA1_PORT, QSPI_DATA1_PIN, &QSPI_DATA1_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_D1_PORT, CYBSP_QSPI_D1_PIN, &CYBSP_QSPI_D1_config);
 
-	Cy_GPIO_Pin_Init(QSPI_DATA0_PORT, QSPI_DATA0_PIN, &QSPI_DATA0_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_D0_PORT, CYBSP_QSPI_D0_PIN, &CYBSP_QSPI_D0_config);
 
-	Cy_GPIO_Pin_Init(QSPI_SPI_CLOCK_PORT, QSPI_SPI_CLOCK_PIN, &QSPI_SPI_CLOCK_config);
+	Cy_GPIO_Pin_Init(CYBSP_QSPI_SCK_PORT, CYBSP_QSPI_SCK_PIN, &CYBSP_QSPI_SCK_config);
 
-	Cy_GPIO_Pin_Init(LED9_PORT, LED9_PIN, &LED9_config);
+	Cy_GPIO_Pin_Init(CYBSP_LED9_PORT, CYBSP_LED9_PIN, &CYBSP_LED9_config);
 
 	Cy_GPIO_Pin_Init(ioss_0_port_14_pin_0_PORT, ioss_0_port_14_pin_0_PIN, &ioss_0_port_14_pin_0_config);
 
 	Cy_GPIO_Pin_Init(ioss_0_port_14_pin_1_PORT, ioss_0_port_14_pin_1_PIN, &ioss_0_port_14_pin_1_config);
 
 
-	Cy_GPIO_Pin_Init(LED_GREEN_PORT, LED_GREEN_PIN, &LED_GREEN_config);
+	Cy_GPIO_Pin_Init(CYBSP_LED_GREEN_PORT, CYBSP_LED_GREEN_PIN, &CYBSP_LED_GREEN_config);
 
-	Cy_GPIO_Pin_Init(LED8_PORT, LED8_PIN, &LED8_config);
+	Cy_GPIO_Pin_Init(CYBSP_LED8_PORT, CYBSP_LED8_PIN, &CYBSP_LED8_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_DAT0_PORT, SDHC0_DAT0_PIN, &SDHC0_DAT0_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_D0_PORT, CYBSP_WIFI_SDIO_D0_PIN, &CYBSP_WIFI_SDIO_D0_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_DAT1_PORT, SDHC0_DAT1_PIN, &SDHC0_DAT1_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_D1_PORT, CYBSP_WIFI_SDIO_D1_PIN, &CYBSP_WIFI_SDIO_D1_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_DAT2_PORT, SDHC0_DAT2_PIN, &SDHC0_DAT2_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_D2_PORT, CYBSP_WIFI_SDIO_D2_PIN, &CYBSP_WIFI_SDIO_D2_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_DAT3_PORT, SDHC0_DAT3_PIN, &SDHC0_DAT3_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_D3_PORT, CYBSP_WIFI_SDIO_D3_PIN, &CYBSP_WIFI_SDIO_D3_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_CMD_PORT, SDHC0_CMD_PIN, &SDHC0_CMD_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_CMD_PORT, CYBSP_WIFI_SDIO_CMD_PIN, &CYBSP_WIFI_SDIO_CMD_config);
 
-	Cy_GPIO_Pin_Init(SDHC0_CLK_PORT, SDHC0_CLK_PIN, &SDHC0_CLK_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_SDIO_CLK_PORT, CYBSP_WIFI_SDIO_CLK_PIN, &CYBSP_WIFI_SDIO_CLK_config);
 
-	Cy_GPIO_Pin_Init(ENABLE_WIFI_PORT, ENABLE_WIFI_PIN, &ENABLE_WIFI_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_WL_REG_ON_PORT, CYBSP_WIFI_WL_REG_ON_PIN, &CYBSP_WIFI_WL_REG_ON_config);
 
-	Cy_GPIO_Pin_Init(BT_UART_RX_PORT, BT_UART_RX_PIN, &BT_UART_RX_config);
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_HOST_WAKE_PORT, CYBSP_WIFI_HOST_WAKE_PIN, &CYBSP_WIFI_HOST_WAKE_config);
 
-	Cy_GPIO_Pin_Init(BT_UART_TX_PORT, BT_UART_TX_PIN, &BT_UART_TX_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_UART_RX_PORT, CYBSP_BT_UART_RX_PIN, &CYBSP_BT_UART_RX_config);
 
-	Cy_GPIO_Pin_Init(BT_UART_RTS_PORT, BT_UART_RTS_PIN, &BT_UART_RTS_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_UART_TX_PORT, CYBSP_BT_UART_TX_PIN, &CYBSP_BT_UART_TX_config);
 
-	Cy_GPIO_Pin_Init(BT_UART_CTS_PORT, BT_UART_CTS_PIN, &BT_UART_CTS_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_UART_RTS_PORT, CYBSP_BT_UART_RTS_PIN, &CYBSP_BT_UART_RTS_config);
 
-	Cy_GPIO_Pin_Init(BT_POWER_PORT, BT_POWER_PIN, &BT_POWER_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_UART_CTS_PORT, CYBSP_BT_UART_CTS_PIN, &CYBSP_BT_UART_CTS_config);
 
-	Cy_GPIO_Pin_Init(BT_HOST_WAKE_PORT, BT_HOST_WAKE_PIN, &BT_HOST_WAKE_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_POWER_PORT, CYBSP_BT_POWER_PIN, &CYBSP_BT_POWER_config);
 
-	Cy_GPIO_Pin_Init(BT_DEVICE_WAKE_PORT, BT_DEVICE_WAKE_PIN, &BT_DEVICE_WAKE_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_HOST_WAKE_PORT, CYBSP_BT_HOST_WAKE_PIN, &CYBSP_BT_HOST_WAKE_config);
 
-	Cy_GPIO_Pin_Init(UART_RX_PORT, UART_RX_PIN, &UART_RX_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_DEVICE_WAKE_PORT, CYBSP_BT_DEVICE_WAKE_PIN, &CYBSP_BT_DEVICE_WAKE_config);
 
-	Cy_GPIO_Pin_Init(UART_TX_PORT, UART_TX_PIN, &UART_TX_config);
+	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_RX_PORT, CYBSP_DEBUG_UART_RX_PIN, &CYBSP_DEBUG_UART_RX_config);
 
-	Cy_GPIO_Pin_Init(EZI2C_SCL_PORT, EZI2C_SCL_PIN, &EZI2C_SCL_config);
+	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_TX_PORT, CYBSP_DEBUG_UART_TX_PIN, &CYBSP_DEBUG_UART_TX_config);
 
-	Cy_GPIO_Pin_Init(EZI2C_SDA_PORT, EZI2C_SDA_PIN, &EZI2C_SDA_config);
+	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);
 
-	Cy_GPIO_Pin_Init(SWO_PORT, SWO_PIN, &SWO_config);
+	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SDA_PORT, CYBSP_EZI2C_SDA_PIN, &CYBSP_EZI2C_SDA_config);
 
-	Cy_GPIO_Pin_Init(SWDIO_PORT, SWDIO_PIN, &SWDIO_config);
+	Cy_GPIO_Pin_Init(CYBSP_SWO_PORT, CYBSP_SWO_PIN, &CYBSP_SWO_config);
 
-	Cy_GPIO_Pin_Init(SWDCK_PORT, SWDCK_PIN, &SWDCK_config);
+	Cy_GPIO_Pin_Init(CYBSP_SWDIO_PORT, CYBSP_SWDIO_PIN, &CYBSP_SWDIO_config);
+
+	Cy_GPIO_Pin_Init(CYBSP_SWDCK_PORT, CYBSP_SWDCK_PIN, &CYBSP_SWDCK_config);
 
 
 
