@@ -8318,39 +8318,40 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
-        "macros": ["MBED_MPU_CUSTOM"],
+        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
         "device_has": [
-            "USTICKER",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "CRC",
+            "FLASH",
+            "I2C",
+            "I2C_ASYNCH",
+            "I2CSLAVE",
             "INTERRUPTIN",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC",
+            "LPTICKER",
             "PORTIN",
             "PORTOUT",
             "PORTINOUT",
-            "RTC",
             "PWMOUT",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "I2C_ASYNCH",
-            "QSPI",
+            "RTC",
+            "SERIAL",
+            "SERIAL_FC",
+            "SERIAL_ASYNCH",
+            "SLEEP",
             "SPI",
             "SPI_ASYNCH",
+            "SPISLAVE",
             "STDIO_MESSAGES",
-            "LPTICKER",
-            "SLEEP",
-            "FLASH",
             "TRNG",
-            "CRC"
+            "USTICKER"
         ],
         "release_versions": ["5"],
         "extra_labels": ["Cypress", "PSOC6"],
-        "components_add": ["SOFTFP"],
+        "components_add": ["SOFTFP", "RTX"],
         "public": false
     },
     "MCU_PSOC6_M0": {
@@ -8369,7 +8370,7 @@
         "inherits": ["MCU_PSOC6_M0"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["CY8CKIT_062_WIFI_BT"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54"],
         "detect_code": ["1900"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8377,7 +8378,6 @@
     },
     "CY8CKIT_062_WIFI_BT": {
         "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["QSPIF"],
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
@@ -8388,7 +8388,7 @@
             "CYW4343X",
             "CORDIO"
         ],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "SEMAPHORE"],
         "detect_code": ["1900"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8460,7 +8460,7 @@
             "CYW4343X",
             "CORDIO"
         ],
-        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C624ABZI_D44"],
         "public": false,
         "overrides": {
             "network-default-interface-type": "WIFI"
@@ -8468,7 +8468,6 @@
     },
     "CY8CPROTO_062_4343W": {
         "inherits": ["CY8CMOD_062_4343W"],
-        "components_add": ["QSPIF"],
         "detect_code": ["1901"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8476,13 +8475,12 @@
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
             "CM0P_SLEEP"
         ],
-        "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["1902"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8503,7 +8501,7 @@
             "CYW4343X",
             "CORDIO"
         ],
-        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C624ABZI_D44"],
         "detect_code": ["1905"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8515,7 +8513,7 @@
     "CYW943012P6EVB_01_M0": {
         "inherits": ["MCU_PSOC6_M0"],
         "extra_labels_add": ["CYW943012P6EVB_01"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
@@ -8531,7 +8529,7 @@
             "CYW43012",
             "CORDIO"
         ],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "SEMAPHORE"],
         "detect_code": ["1906"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
