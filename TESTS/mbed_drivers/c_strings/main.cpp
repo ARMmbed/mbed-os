@@ -28,7 +28,7 @@ static char buffer[256] = {0};
 #define CLEAN_BUFFER memset(::buffer, 0x00, sizeof(::buffer))
 #define NEGATIVE_INTEGERS -32768,-3214,-999,-100,-1,0,-1,-4231,-999,-4123,-32760,-99999
 #define POSITIVE_INTEGERS 32768,3214,999,100,1,0,1,4231,999,4123,32760,99999
-#define FLOATS  0.002,0.92430,15.91320,791.77368,6208.2,25719.4952,426815.982588,6429271.046,42468024.93,212006462.910
+#define FLOATS  0.002,0.92430,15.91320,791.77368,6208.2,25719.4952,426815.982588,6429271.046,42468024.93,212006462.910,6579.048
 
 using namespace utest::v1;
 
@@ -47,7 +47,7 @@ void test_case_c_string_u_d()
     TEST_ASSERT_EQUAL_STRING("32768 3214 999 100 1 0 1 4231 999 4123 32760 99999", buffer);
 }
 
-void test_case_c_string_x_E()
+void test_case_c_string_x_X()
 {
     CLEAN_BUFFER;
     sprintf(buffer, "%x %X %x %X %x %X %x %X %x %X %x %X", POSITIVE_INTEGERS);
@@ -57,22 +57,22 @@ void test_case_c_string_x_E()
 void test_case_c_string_f_f()
 {
     CLEAN_BUFFER;
-    sprintf(buffer, "%f %f %f %f %f %f %f %f %f %f", FLOATS);
-    TEST_ASSERT_EQUAL_STRING("0.002000 0.924300 15.913200 791.773680 6208.200000 25719.495200 426815.982588 6429271.046000 42468024.930000 212006462.910000", buffer);
+    sprintf(buffer, "%f %f %f %f %f %f %f %f %f %f %f", FLOATS);
+    TEST_ASSERT_EQUAL_STRING("0.002000 0.924300 15.913200 791.773680 6208.200000 25719.495200 426815.982588 6429271.046000 42468024.930000 212006462.910000 6579.048000", buffer);
 }
 
 void test_case_c_string_g_g()
 {
     CLEAN_BUFFER;
-    sprintf(buffer, "%g %g %g %g %g %g %g %g %g %g", FLOATS);
-    TEST_ASSERT_EQUAL_STRING("0.002 0.9243 15.9132 791.774 6208.2 25719.5 426816 6.42927e+06 4.2468e+07 2.12006e+08", buffer);
+    sprintf(buffer, "%g %g %g %g %g %g %g %g %g %g %g", FLOATS);
+    TEST_ASSERT_EQUAL_STRING("0.002 0.9243 15.9132 791.774 6208.2 25719.5 426816 6.42927e+06 4.2468e+07 2.12006e+08 6579.05", buffer);
 }
 
 void test_case_c_string_e_E()
 {
     CLEAN_BUFFER;
-    sprintf(buffer, "%e %E %e %E %e %E %e %E %e %E", FLOATS);
-    TEST_ASSERT_EQUAL_STRING("2.000000e-03 9.243000E-01 1.591320e+01 7.917737E+02 6.208200e+03 2.571950E+04 4.268160e+05 6.429271E+06 4.246802e+07 2.120065E+08", buffer);
+    sprintf(buffer, "%e %E %e %E %e %E %e %E %e %E %e", FLOATS);
+    TEST_ASSERT_EQUAL_STRING("2.000000e-03 9.243000E-01 1.591320e+01 7.917737E+02 6.208200e+03 2.571950E+04 4.268160e+05 6.429271E+06 4.246802e+07 2.120065E+08 6.579048e+03", buffer);
 }
 
 void test_case_c_string_strtok()
@@ -112,10 +112,12 @@ Case cases[] = {
     Case("C strings: strpbrk", test_case_c_string_strpbrk, greentea_failure_handler),
     Case("C strings: %i %d integer formatting", test_case_c_string_i_d, greentea_failure_handler),
     Case("C strings: %u %d integer formatting", test_case_c_string_u_d, greentea_failure_handler),
-    Case("C strings: %x %E integer formatting", test_case_c_string_x_E, greentea_failure_handler),
+    Case("C strings: %x %E integer formatting", test_case_c_string_x_X, greentea_failure_handler),
     Case("C strings: %f %f float formatting", test_case_c_string_f_f, greentea_failure_handler),
+#ifndef MBED_MINIMAL_PRINTF
     Case("C strings: %e %E float formatting", test_case_c_string_e_E, greentea_failure_handler),
     Case("C strings: %g %g float formatting", test_case_c_string_g_g, greentea_failure_handler),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
