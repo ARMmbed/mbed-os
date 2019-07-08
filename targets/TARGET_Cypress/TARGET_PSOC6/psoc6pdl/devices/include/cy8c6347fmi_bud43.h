@@ -5,7 +5,7 @@
 * CY8C6347FMI-BUD43 device header
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -517,7 +517,7 @@ typedef enum {
 #define CY_IP_MXS40PASS_INSTANCES       1u
 #define CY_IP_MXS40PASS_VERSION         1u
 #define CY_IP_MXS40PASS_SAR             1u
-#define CY_IP_MXS40PASS_SAR_INSTANCES   16u
+#define CY_IP_MXS40PASS_SAR_INSTANCES   1u
 #define CY_IP_MXS40PASS_SAR_VERSION     1u
 #define CY_IP_MXS40PASS_CTDAC           1u
 #define CY_IP_MXS40PASS_CTDAC_INSTANCES 1u

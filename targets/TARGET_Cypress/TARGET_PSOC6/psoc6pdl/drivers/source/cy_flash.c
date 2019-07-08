@@ -803,7 +803,7 @@ cy_en_flashdrv_status_t Cy_Flash_EraseSector(uint32_t sectorAddr)
 * user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
 * function.
 *
-* \param rowAddr Address of the flash row number. 
+* \param sectorAddr Address of the flash row number. 
 * The Read-while-Write violation occurs when the flash read operation is
 * initiated in the same flash sector where the flash erase operation is
 * performing. Refer to the device datasheet for the details.
@@ -861,7 +861,7 @@ cy_en_flashdrv_status_t Cy_Flash_StartEraseSector(uint32_t sectorAddr)
 * detect circuits should be configured to generate an interrupt instead of a
 * reset. Otherwise, portions of flash may undergo unexpected changes.
 *
-* \param rowAddr Address of the flash row number. 
+* \param subSectorAddr Address of the flash row number. 
 * The Read-while-Write violation occurs when the flash read operation is
 * initiated in the same flash sector where the flash write operation is
 * performing. Refer to the device datasheet for the details.
@@ -916,7 +916,7 @@ cy_en_flashdrv_status_t Cy_Flash_EraseSubsector(uint32_t subSectorAddr)
 * user must clear the flash cache with the Cy_SysLib_ClearFlashCacheAndBuffer()
 * function.
 *
-* \param rowAddr Address of the flash row number. 
+* \param subSectorAddr Address of the flash row number. 
 * The Read-while-Write violation occurs when the flash read operation is
 * initiated in the same flash sector where the flash erase operation is
 * performing. Refer to the device datasheet for the details.
@@ -1282,7 +1282,7 @@ cy_en_flashdrv_status_t Cy_Flash_RowChecksum (uint32_t rowAddr, uint32_t* checks
             {
                 result = CY_FLASH_DRV_SUCCESS;
 
-                if (1u == cy_device->ipcVersion)
+                if (CY_IPC_V1)
                 {
                     *checksumPtr = flashContext.opcode & CY_FLASH_RESULT_MASK;
                 }

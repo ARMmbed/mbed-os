@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sd_host.h
-* \version 1.10
+* \version 1.20
 *
 *  This file provides constants and parameter values for 
 *  the SD Host Controller driver.
@@ -107,12 +107,12 @@
 * register must be configured to connect the block to the pins. Also, the SD Host 
 * pins must be configured in Strong Drive, Input buffer on:
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_CFG_PINS
+* \snippet sd_host/snippet/main.c SD_HOST_CFG_PINS
 *
 * \subsection group_sd_host_clock Assign Clock Source
 * The SD Host is sourced from the CLK_HF clock. The clock must be set to 100 MHz:
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_CFG_ASSIGN_CLOCK
+* \snippet sd_host/snippet/main.c SD_HOST_CFG_ASSIGN_CLOCK
 *
 * \subsection group_sd_host_intr Configure Interrupt (Optional)
 * The user can set up the interrupt for SD Host operation. 
@@ -126,8 +126,8 @@
 * To clear the interrupt statuses, use \ref Cy_SD_Host_ClearNormalInterruptStatus 
 * and \ref Cy_SD_Host_ClearErrorInterruptStatus.
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_INTR_A
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_INTR_B
+* \snippet sd_host/snippet/main.c SD_HOST_INTR_A
+* \snippet sd_host/snippet/main.c SD_HOST_INTR_B
 *
 * \subsection group_sd_host_config Configure SD Host
 * To set up the SD Host driver, provide the configuration parameters in the
@@ -138,8 +138,8 @@
 * function providing a pointer to the filled \ref cy_stc_sd_host_init_config_t
 * structure and allocated \ref cy_stc_sd_host_context_t.
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_CONTEXT
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_CFG
+* \snippet sd_host/snippet/main.c SD_HOST_CONTEXT
+* \snippet sd_host/snippet/main.c SD_HOST_CFG
 * 
 * The SD, eMMC or SDIO card can be configured using the \ref Cy_SD_Host_InitCard
 * function as a pointer to the filled \ref cy_stc_sd_host_sd_card_config_t
@@ -149,7 +149,7 @@
 * Finally, enable the card operation calling 
 * \ref Cy_SD_Host_InitCard.
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_ENABLE_CARD_INIT
+* \snippet sd_host/snippet/main.c SD_HOST_ENABLE_CARD_INIT
 *
 * \section group_sd_host_use_cases Common Use Cases
 *
@@ -167,7 +167,7 @@
 * the user should check the further data-transaction complete event.
 * The example below shows sending and reading data in DMA mode.
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_WRITE_READ_ADMA2
+* \snippet sd_host/snippet/main.c SD_HOST_WRITE_READ_ADMA2
 *
 * \subsubsection group_sd_host_master_ll Use Low-Level Functions
 * Call \ref Cy_SD_Host_InitDataTransfer to initialize the SD block  
@@ -179,7 +179,7 @@
 * ADMA3 mode requires calling \ref Cy_SD_Host_InitDataTransfer to 
 * initialize the DMA transaction. The ADMA3 mode example is shown below.
 *
-* \snippet sd_host\1.0\snippet\main.c SD_HOST_WRITE_READ_ADMA3
+* \snippet sd_host/snippet/main.c SD_HOST_WRITE_READ_ADMA3
 *
 * \subsection group_sd_host_emmc_card_mode eMMC Card Operation
 * eMMC cards use the same API for writing and reading data.
@@ -245,11 +245,44 @@
 * a detailed description of the registers.
 *
 * \section group_sd_host_MISRA MISRA-C Compliance
-* The SD Host driver does not have any driver-specific deviations.
+* <table class="doxtable">
+*   <tr>
+*     <th>MISRA Rule</th>
+*     <th>Rule Class (Required/Advisory)</th>
+*     <th>Rule Description</th>
+*     <th>Description of Deviation(s)</th>
+*   </tr>
+*   <tr>
+*     <td>11.4</td>
+*     <td>A</td>
+*     <td>A cast should not be performed between a pointer to object type and
+*         a different pointer to object type.</td>
+*     <td>
+*         The function \ref Cy_SD_Host_DeepSleepCallback is the callback of
+*         the \ref cy_en_syspm_status_t type. The cast operation safety in these
+*         functions becomes the user's responsibility because pointers are
+*         initialized when the callback is registered in the SysPm driver.</td>
+*   </tr>
+*   <tr>
+*     <td>20.3</td>
+*     <td>R</td>
+*     <td>The validity of values passed to library functions shall be checked.</td>
+*     <td>This violation is not caused by code changes, i.e. is not a regression.</td>
+*   </tr>
+* </table>
 *
 * \section group_sd_host_Changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="2"> 1.20</td>
+*     <td>Documentation of the MISRA rule violation.</td>
+*     <td>MISRA compliance.</td>
+*   </tr>
+*   <tr>
+*     <td>Added the Cy_SD_Host_DeepSleepCallback() function.</td>
+*     <td>Driver maintenance.</td>
+*   </tr>
 *   <tr>
 *     <td>1.10</td>
 *     <td>The PLL and CLK disable sequence in \ref Cy_SD_Host_DisableSdClk()
@@ -333,6 +366,7 @@
 #include "cy_device.h"
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
+#include "cy_syspm.h"
 
 #if defined(CY_IP_MXSDHC)
 
@@ -355,7 +389,7 @@ extern "C"
 #define CY_SD_HOST_DRV_VERSION_MAJOR       1
 
 /** Driver minor version */
-#define CY_SD_HOST_DRV_VERSION_MINOR       10
+#define CY_SD_HOST_DRV_VERSION_MINOR       20
 
 /******************************************************************************
 * API Constants
@@ -1477,6 +1511,8 @@ cy_en_sd_host_status_t Cy_SD_Host_GetScr(SDHC_Type *base,
 uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base);
 bool Cy_SD_Host_IsCardConnected(SDHC_Type const *base);
 void Cy_SD_Host_SoftwareReset(SDHC_Type *base, cy_en_sd_host_reset_t reset);
+cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, 
+                                                  cy_en_syspm_callback_mode_t mode);
 
 /** \} group_sd_host_low_level_functions */
 

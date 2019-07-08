@@ -57,6 +57,7 @@
 #include "cy_scb_spi.h"
 #include "cy_scb_uart.h"
 #include "cy_sd_host.h"
+#include "cy_seglcd.h"
 #include "cy_smartio.h"
 #include "cy_smif.h"
 #include "cy_smif_memslot.h"

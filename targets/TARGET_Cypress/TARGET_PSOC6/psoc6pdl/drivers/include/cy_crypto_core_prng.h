@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_prng.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides provides constant and parameters for the API of the PRNG
@@ -80,7 +80,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Prng_Init(CRYPTO_Type *base
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Prng_Init(base, lfsr32InitState, lfsr31InitState, lfsr29InitState);
     }
@@ -117,7 +117,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Prng(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Prng(base, max, randomNum);
     }

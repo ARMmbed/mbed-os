@@ -101,7 +101,7 @@
 * The LED blinks twice after device reset and goes into Hibernate mode.
 * When the voltage on the positive input great than the local reference 
 * voltage (0.45V - 0.75V) the device wakes up and LED begins blinking.
-* \snippet lpcomp\1.20\snippet\main.c LP_COMP_CFG_HIBERNATE
+* \snippet lpcomp/snippet/main.c LP_COMP_CFG_HIBERNATE
 *
 * \section group_lpcomp_more_information More Information
 *

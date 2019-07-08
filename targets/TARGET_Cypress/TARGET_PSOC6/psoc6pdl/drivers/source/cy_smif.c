@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.c
-* \version 1.20.1
+* \version 1.30
 *
 * \brief
 *  This file provides the source code for the SMIF driver APIs.
@@ -53,13 +53,12 @@ extern "C" {
 * \param config
 * Passes a configuration structure that configures the SMIF block for operation.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param timeout
 * A timeout in microseconds for blocking APIs in use.
 *
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
 *
 * \note Make sure that the interrupts are initialized and disabled.
 *
@@ -381,10 +380,6 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 * \param base
 * Holds the base address of the SMIF block registers.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param txBuffer
 * The pointer to the data to be transferred. If this pointer is a NULL, then the
 * function does not enable the interrupt. This use case is typically used when 
@@ -407,10 +402,13 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 * The callback executed at the end of a transmission. NULL interpreted as no
 * callback.
 *
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
+*
 * \return A status of a transmission.
 *       - \ref CY_SMIF_SUCCESS
 *       - \ref CY_SMIF_CMD_FIFO_FULL
-*       - \ref CY_SMIF_BAD_PARAM
 *
 *******************************************************************************/
 cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
@@ -421,38 +419,36 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
                             cy_stc_smif_context_t *context)
 {
     /* The return variable */
-    cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
+    cy_en_smif_status_t result = CY_SMIF_CMD_FIFO_FULL;
     
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(transferWidth));
+    CY_ASSERT_L2(CY_SMIF_BUF_SIZE_VALID(size));
 
-    if(size > 0U)
+    /* Check if there are enough free entries in TX_CMD_FIFO */
+    if  (Cy_SMIF_GetCmdFifoStatus(base) < CY_SMIF_TX_CMD_FIFO_STATUS_RANGE)
     {
-        result = CY_SMIF_CMD_FIFO_FULL;
-        /* Check if there are enough free entries in TX_CMD_FIFO */
-        if  (Cy_SMIF_GetCmdFifoStatus(base) < CY_SMIF_TX_CMD_FIFO_STATUS_RANGE)
+        /* Enter the transmitting mode */
+        SMIF_TX_CMD_FIFO_WR(base) =
+            _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_TX_COUNT_MODE) |
+            _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t)transferWidth)    |
+            _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TX_COUNT, (size - 1UL));
+
+        if (NULL != txBuffer)
         {
-            /* Enter the transmitting mode */
-            SMIF_TX_CMD_FIFO_WR(base) =
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_TX_COUNT_MODE) |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t)transferWidth)    |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TX_COUNT, ((uint32_t)(size - 1U)));
+            /* Move the parameters to the global variables */
+            context->txBufferAddress = (uint8_t*)txBuffer;
+            context->txBufferSize = size;
+            context->txBufferCounter = size;
+            context->txCmpltCb = TxCmpltCb;
+            context->transferStatus = (uint32_t) CY_SMIF_SEND_BUSY;
 
-            if (NULL != txBuffer)
-            {
-                /* Move the parameters to the global variables */
-                context->txBufferAddress = (uint8_t*)txBuffer;
-                context->txBufferSize = size;
-                context->txBufferCounter = size;
-                context->txCmpltCb = TxCmpltCb;
-                context->transferStatus = (uint32_t) CY_SMIF_SEND_BUSY;
-
-                /* Enable the TR_TX_REQ interrupt */
-                Cy_SMIF_SetInterruptMask(base,
-                Cy_SMIF_GetInterruptMask(base) | SMIF_INTR_TR_TX_REQ_Msk);
-            }
-            result = CY_SMIF_SUCCESS;
+            /* Enable the TR_TX_REQ interrupt */
+            Cy_SMIF_SetInterruptMask(base,
+                                     Cy_SMIF_GetInterruptMask(base) | 
+                                     SMIF_INTR_TR_TX_REQ_Msk);
         }
+        result = CY_SMIF_SUCCESS;
     }
 
     return (result);
@@ -475,10 +471,6 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
 * \param base
 * Holds the base address of the SMIF block registers.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param txBuffer
 * The pointer to the data to be transferred. If this pointer is a NULL, then the
 * function does not fill TX_FIFO. The user would handle the FIFO management in a
@@ -494,6 +486,10 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
 *
 * \param transferWidth
 * The width of transfer \ref cy_en_smif_txfr_width_t.
+*
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
 *
 * \return A status of a transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -524,7 +520,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
             SMIF_TX_CMD_FIFO_WR(base) =
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_TX_COUNT_MODE) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t)transferWidth)    |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TX_COUNT, ((uint32_t)(size - 1U)));
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TX_COUNT, (size - 1UL));
 
             result = CY_SMIF_SUCCESS;
 
@@ -577,10 +573,6 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 * \param base
 * Holds the base address of the SMIF block registers.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param rxBuffer
 * The pointer to the variable where the receive data is stored. If this pointer
 * is a NULL, then the function does not enable the interrupt. This use case is 
@@ -602,6 +594,10 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 * \param RxCmpltCb
 * The callback executed at the end of a reception. NULL interpreted as no
 * callback.
+*
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
 *
 * \return A status of a reception.
 *       - \ref CY_SMIF_SUCCESS
@@ -634,7 +630,7 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
             SMIF_TX_CMD_FIFO_WR(base) =
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_RX_COUNT_MODE) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t)transferWidth)    |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_RX_COUNT, ((uint32_t)(size - 1U)));
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_RX_COUNT, (size - 1UL));
 
             if (NULL != rxBuffer)
             {
@@ -674,10 +670,6 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
 * \param base
 * Holds the base address of the SMIF block registers.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param rxBuffer
 * The pointer to the variable where the receive data is stored. If this pointer
 * is a NULL, then the function does not enable the interrupt. This use case is
@@ -695,6 +687,10 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
 *
 * \param transferWidth
 * The width of transfer \ref cy_en_smif_txfr_width_t.
+*
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
 *
 * \return A status of a reception.
 *       - \ref CY_SMIF_SUCCESS
@@ -727,12 +723,11 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveDataBlocking(SMIF_Type *base,
             SMIF_TX_CMD_FIFO_WR(base) =
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_RX_COUNT_MODE) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t)transferWidth)    |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_RX_COUNT, ((uint32_t)(size - 1U)));
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_RX_COUNT, (size - 1UL));
             result = CY_SMIF_SUCCESS;
 
             if (NULL != rxBuffer)
             {
-
                 uint32_t timeoutUnits = context->timeout;
                 cy_stc_smif_context_t contextLoc;
 
@@ -791,7 +786,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
             /* Send the dummy bytes */
             SMIF_TX_CMD_FIFO_WR(base) =
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, CY_SMIF_CMD_FIFO_DUMMY_COUNT_MODE) |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_DUMMY, ((uint32_t)(cycles-1U)));
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_DUMMY, (cycles-1UL));
 
             result = CY_SMIF_SUCCESS;
         }
@@ -892,10 +887,6 @@ void Cy_SMIF_Enable(SMIF_Type *base, cy_stc_smif_context_t *context)
 * \param base
 * Holds the base address of the SMIF block registers.
 *
-* \param context
-* Passes a configuration structure that contains the transfer parameters of the
-* SMIF block.
-*
 * \param address
 * The address that gets encrypted is a masked 16-byte block address. The 32-bit
 * address with the last 4 bits masked is placed as the last 4 bytes in the
@@ -917,10 +908,17 @@ void Cy_SMIF_Enable(SMIF_Type *base, cy_stc_smif_context_t *context)
 * \param size
 * Provides a size of the array.
 *
+* \param context
+* Passes a configuration structure that contains the transfer parameters of the
+* SMIF block.
+*
 * \return A status of the command transmit.
 *       - \ref CY_SMIF_SUCCESS
 *       - \ref CY_SMIF_EXCEED_TIMEOUT
 *       - \ref CY_SMIF_BAD_PARAM
+*
+* \funcusage 
+* \snippet smif/snippet/main.c snippet_Cy_SMIF_Encrypt
 *
 *******************************************************************************/
 cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,

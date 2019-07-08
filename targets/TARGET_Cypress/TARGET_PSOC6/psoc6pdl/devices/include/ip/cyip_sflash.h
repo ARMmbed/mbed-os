@@ -5,7 +5,7 @@
 * SFLASH IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -45,10 +45,7 @@ typedef struct {
   __IOM uint16_t SILICON_ID;                    /*!< 0x00000002 Indicates Silicon ID of the device */
    __IM uint32_t RESERVED1[2];
   __IOM uint16_t FAMILY_ID;                     /*!< 0x0000000C Indicates Family ID of the device */
-  __IOM uint8_t  FB_HARDFAULT;                  /*!< 0x0000000E Flash boot Hard fault */
-   __IM uint8_t  RESERVED2;
-  __IOM uint32_t FLASHC_GEOMETRY;               /*!< 0x00000010 Contains Flash Memory Geomerty structure, Format and data shall
-                                                                be equal to FLASHC_GEOMETRY MMIO register */
+   __IM uint16_t RESERVED2[3];
   __IOM uint32_t CPUSS_WOUNDING;                /*!< 0x00000014 CPUSS Wounding */
    __IM uint32_t RESERVED3[378];
   __IOM uint8_t  DIE_LOT[3];                    /*!< 0x00000600 Lot Number (3 bytes) */
@@ -116,11 +113,11 @@ typedef struct {
   __IOM uint32_t TOC1_MAGIC_NUMBER;             /*!< 0x00007804 Magic number(0x01211219) */
   __IOM uint32_t TOC1_FHASH_OBJECTS;            /*!< 0x00007808 Number of objects starting from offset 0xC to be verified for
                                                                 FACTORY_HASH */
-  __IOM uint32_t TOC1_SFLASH_GENERAL_TRIM_ADDR; /*!< 0x0000780C Address of trims stored in SFLASH */
+  __IOM uint32_t TOC1_GENERAL_TRIM_ADDR_UNUSED; /*!< 0x0000780C Unused (Address is Hardcoded in ROM) */
   __IOM uint32_t TOC1_UNIQUE_ID_ADDR;           /*!< 0x00007810 Address of Unique ID stored in SFLASH */
   __IOM uint32_t TOC1_FB_OBJECT_ADDR;           /*!< 0x00007814 Addresss of FLASH Boot(FB) object that include FLASH patch also */
-  __IOM uint32_t TOC1_SYSCALL_TABLE_ADDR;       /*!< 0x00007818 Address of SYSCALL_TABLE entry in SFLASH */
-  __IOM uint32_t TOC1_BOOT_PROTECTION_ADDR;     /*!< 0x0000781C Address of boot protection object */
+  __IOM uint32_t TOC1_SYSCALL_TABLE_ADDR_UNUSED; /*!< 0x00007818 Unused (Address is Hardcoded in ROM) */
+  __IOM uint32_t TOC1_OBJECT_ADDR_UNUSED;       /*!< 0x0000781C Unused (Address is Hardcoded in ROM) */
    __IM uint32_t RESERVED16[119];
   __IOM uint32_t TOC1_CRC_ADDR;                 /*!< 0x000079FC Upper 2 bytes contain CRC16-CCITT and lower 2 bytes are 0 */
   __IOM uint32_t RTOC1_OBJECT_SIZE;             /*!< 0x00007A00 Redundant Object size in bytes for CRC calculation starting
@@ -128,12 +125,13 @@ typedef struct {
   __IOM uint32_t RTOC1_MAGIC_NUMBER;            /*!< 0x00007A04 Redundant Magic number(0x01211219) */
   __IOM uint32_t RTOC1_FHASH_OBJECTS;           /*!< 0x00007A08 Redundant Number of objects starting from offset 0xC to be
                                                                 verified for FACTORY_HASH */
-  __IOM uint32_t RTOC1_SFLASH_GENERAL_TRIM_ADDR; /*!< 0x00007A0C Redundant Address of trims stored in SFLASH */
+  __IOM uint32_t RTOC1_GENERAL_TRIM_ADDR_UNUSED; /*!< 0x00007A0C Redundant Unused (Address is Hardcoded in ROM) */
   __IOM uint32_t RTOC1_UNIQUE_ID_ADDR;          /*!< 0x00007A10 Redundant Address of Unique ID stored in SFLASH */
   __IOM uint32_t RTOC1_FB_OBJECT_ADDR;          /*!< 0x00007A14 Redundant Addresss of FLASH Boot(FB) object that include FLASH
                                                                 patch also */
-  __IOM uint32_t RTOC1_SYSCALL_TABLE_ADDR;      /*!< 0x00007A18 Redundant Address of SYSCALL_TABLE entry in SFLASH */
-   __IM uint32_t RESERVED17[120];
+  __IOM uint32_t RTOC1_SYSCALL_TABLE_ADDR_UNUSED; /*!< 0x00007A18 Redundant Unused (Address is Hardcoded in ROM) */
+  __IOM uint32_t RTOC1_OBJECT_ADDR_UNUSED;      /*!< 0x00007A1C Redundant Unused (Address is Hardcoded in ROM) */
+   __IM uint32_t RESERVED17[119];
   __IOM uint32_t RTOC1_CRC_ADDR;                /*!< 0x00007BFC Redundant CRC,Upper 2 bytes contain CRC16-CCITT and lower 2
                                                                 bytes are 0 */
   __IOM uint32_t TOC2_OBJECT_SIZE;              /*!< 0x00007C00 Object size in bytes for CRC calculation starting from offset
@@ -153,8 +151,7 @@ typedef struct {
                                                                 SECURE_HASH(SHASH) */
   __IOM uint32_t TOC2_SIGNATURE_VERIF_KEY;      /*!< 0x00007C24 Address of signature verification key (0 if none).The object is
                                                                 signature specific key. It is the public key in case of RSA */
-   __IM uint32_t RESERVED18[115];
-  __IOM uint32_t TOC2_FB_HARDFAULT;             /*!< 0x00007DF4 TOC2 Flash Boot Hard fault */
+   __IM uint32_t RESERVED18[116];
   __IOM uint32_t TOC2_FLAGS;                    /*!< 0x00007DF8 TOC2_FLAGS */
   __IOM uint32_t TOC2_CRC_ADDR;                 /*!< 0x00007DFC CRC,Upper 2 bytes contain CRC16-CCITT and lower 2 bytes are 0 */
   __IOM uint32_t RTOC2_OBJECT_SIZE;             /*!< 0x00007E00 Redundant Object size in bytes for CRC calculation starting
@@ -191,12 +188,6 @@ typedef struct {
 /* SFLASH.FAMILY_ID */
 #define SFLASH_FAMILY_ID_FAMILY_ID_Pos          0UL
 #define SFLASH_FAMILY_ID_FAMILY_ID_Msk          0xFFFFUL
-/* SFLASH.FB_HARDFAULT */
-#define SFLASH_FB_HARDFAULT_FB_HARDFAULT_Pos    0UL
-#define SFLASH_FB_HARDFAULT_FB_HARDFAULT_Msk    0xFFUL
-/* SFLASH.FLASHC_GEOMETRY */
-#define SFLASH_FLASHC_GEOMETRY_FLASHC_GEOMETRY_Pos 0UL
-#define SFLASH_FLASHC_GEOMETRY_FLASHC_GEOMETRY_Msk 0xFFFFFFFFUL
 /* SFLASH.CPUSS_WOUNDING */
 #define SFLASH_CPUSS_WOUNDING_CPUSS_WOUNDING_Pos 0UL
 #define SFLASH_CPUSS_WOUNDING_CPUSS_WOUNDING_Msk 0xFFFFFFFFUL
@@ -377,21 +368,21 @@ typedef struct {
 /* SFLASH.TOC1_FHASH_OBJECTS */
 #define SFLASH_TOC1_FHASH_OBJECTS_DATA32_Pos    0UL
 #define SFLASH_TOC1_FHASH_OBJECTS_DATA32_Msk    0xFFFFFFFFUL
-/* SFLASH.TOC1_SFLASH_GENERAL_TRIM_ADDR */
-#define SFLASH_TOC1_SFLASH_GENERAL_TRIM_ADDR_DATA32_Pos 0UL
-#define SFLASH_TOC1_SFLASH_GENERAL_TRIM_ADDR_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.TOC1_GENERAL_TRIM_ADDR_UNUSED */
+#define SFLASH_TOC1_GENERAL_TRIM_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_TOC1_GENERAL_TRIM_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
 /* SFLASH.TOC1_UNIQUE_ID_ADDR */
 #define SFLASH_TOC1_UNIQUE_ID_ADDR_DATA32_Pos   0UL
 #define SFLASH_TOC1_UNIQUE_ID_ADDR_DATA32_Msk   0xFFFFFFFFUL
 /* SFLASH.TOC1_FB_OBJECT_ADDR */
 #define SFLASH_TOC1_FB_OBJECT_ADDR_DATA32_Pos   0UL
 #define SFLASH_TOC1_FB_OBJECT_ADDR_DATA32_Msk   0xFFFFFFFFUL
-/* SFLASH.TOC1_SYSCALL_TABLE_ADDR */
-#define SFLASH_TOC1_SYSCALL_TABLE_ADDR_DATA32_Pos 0UL
-#define SFLASH_TOC1_SYSCALL_TABLE_ADDR_DATA32_Msk 0xFFFFFFFFUL
-/* SFLASH.TOC1_BOOT_PROTECTION_ADDR */
-#define SFLASH_TOC1_BOOT_PROTECTION_ADDR_DATA32_Pos 0UL
-#define SFLASH_TOC1_BOOT_PROTECTION_ADDR_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.TOC1_SYSCALL_TABLE_ADDR_UNUSED */
+#define SFLASH_TOC1_SYSCALL_TABLE_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_TOC1_SYSCALL_TABLE_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.TOC1_OBJECT_ADDR_UNUSED */
+#define SFLASH_TOC1_OBJECT_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_TOC1_OBJECT_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
 /* SFLASH.TOC1_CRC_ADDR */
 #define SFLASH_TOC1_CRC_ADDR_DATA32_Pos         0UL
 #define SFLASH_TOC1_CRC_ADDR_DATA32_Msk         0xFFFFFFFFUL
@@ -404,18 +395,21 @@ typedef struct {
 /* SFLASH.RTOC1_FHASH_OBJECTS */
 #define SFLASH_RTOC1_FHASH_OBJECTS_DATA32_Pos   0UL
 #define SFLASH_RTOC1_FHASH_OBJECTS_DATA32_Msk   0xFFFFFFFFUL
-/* SFLASH.RTOC1_SFLASH_GENERAL_TRIM_ADDR */
-#define SFLASH_RTOC1_SFLASH_GENERAL_TRIM_ADDR_DATA32_Pos 0UL
-#define SFLASH_RTOC1_SFLASH_GENERAL_TRIM_ADDR_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.RTOC1_GENERAL_TRIM_ADDR_UNUSED */
+#define SFLASH_RTOC1_GENERAL_TRIM_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_RTOC1_GENERAL_TRIM_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
 /* SFLASH.RTOC1_UNIQUE_ID_ADDR */
 #define SFLASH_RTOC1_UNIQUE_ID_ADDR_DATA32_Pos  0UL
 #define SFLASH_RTOC1_UNIQUE_ID_ADDR_DATA32_Msk  0xFFFFFFFFUL
 /* SFLASH.RTOC1_FB_OBJECT_ADDR */
 #define SFLASH_RTOC1_FB_OBJECT_ADDR_DATA32_Pos  0UL
 #define SFLASH_RTOC1_FB_OBJECT_ADDR_DATA32_Msk  0xFFFFFFFFUL
-/* SFLASH.RTOC1_SYSCALL_TABLE_ADDR */
-#define SFLASH_RTOC1_SYSCALL_TABLE_ADDR_DATA32_Pos 0UL
-#define SFLASH_RTOC1_SYSCALL_TABLE_ADDR_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.RTOC1_SYSCALL_TABLE_ADDR_UNUSED */
+#define SFLASH_RTOC1_SYSCALL_TABLE_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_RTOC1_SYSCALL_TABLE_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.RTOC1_OBJECT_ADDR_UNUSED */
+#define SFLASH_RTOC1_OBJECT_ADDR_UNUSED_DATA32_Pos 0UL
+#define SFLASH_RTOC1_OBJECT_ADDR_UNUSED_DATA32_Msk 0xFFFFFFFFUL
 /* SFLASH.RTOC1_CRC_ADDR */
 #define SFLASH_RTOC1_CRC_ADDR_DATA32_Pos        0UL
 #define SFLASH_RTOC1_CRC_ADDR_DATA32_Msk        0xFFFFFFFFUL
@@ -449,9 +443,6 @@ typedef struct {
 /* SFLASH.TOC2_SIGNATURE_VERIF_KEY */
 #define SFLASH_TOC2_SIGNATURE_VERIF_KEY_DATA32_Pos 0UL
 #define SFLASH_TOC2_SIGNATURE_VERIF_KEY_DATA32_Msk 0xFFFFFFFFUL
-/* SFLASH.TOC2_FB_HARDFAULT */
-#define SFLASH_TOC2_FB_HARDFAULT_DATA32_Pos     0UL
-#define SFLASH_TOC2_FB_HARDFAULT_DATA32_Msk     0xFFFFFFFFUL
 /* SFLASH.TOC2_FLAGS */
 #define SFLASH_TOC2_FLAGS_CLOCK_CONFIG_Pos      0UL
 #define SFLASH_TOC2_FLAGS_CLOCK_CONFIG_Msk      0x3UL

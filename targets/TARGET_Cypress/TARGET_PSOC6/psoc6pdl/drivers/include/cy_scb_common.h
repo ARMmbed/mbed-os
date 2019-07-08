@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.20
+* \version 2.30
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -42,6 +42,251 @@
 * \} */
 
 /**
+* \addtogroup group_scb
+* \{
+*
+********************************************************************************
+* \section group_scb_more_information More Information
+********************************************************************************
+* For more information on the SCB peripheral, refer to the technical reference
+* manual (TRM).
+*	
+*******************************************************************************
+* \section group_scb_common_MISRA MISRA-C Compliance
+*******************************************************************************
+* <table class="doxtable">
+*   <tr>
+*     <th>MISRA rule</th>
+*     <th>Rule Class (Required/Advisory)</th>
+*     <th>Rule Description</th>
+*     <th>Description of Deviation(s)</th>
+*   </tr>
+*   <tr>
+*     <td>11.4</td>
+*     <td>A</td>
+*     <td>A cast should not be performed between a pointer to object type and
+*         a different pointer to object type.</td>
+*     <td>
+*         * The pointer to the buffer memory is void to allow handling of
+*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits).
+*         The cast operation is safe because the configuration is verified
+*         before operation is performed.
+*         * The functions \ref Cy_SCB_I2C_DeepSleepCallback and
+*         \ref Cy_SCB_I2C_HibernateCallback are callback of
+*         \ref cy_en_syspm_status_t type. The cast operation safety in these
+*         functions becomes the user's responsibility because pointers are
+*         initialized when callback is registered in SysPm driver.
+*         * The functions \ref Cy_SCB_EZI2C_DeepSleepCallback and
+*         \ref Cy_SCB_EZI2C_HibernateCallback are callback of
+*         \ref cy_en_syspm_status_t type. The cast operation safety in these
+*         functions becomes the user's responsibility because pointers are
+*         initialized when callback is registered in SysPm driver.
+*         * The functions \ref Cy_SCB_UART_DeepSleepCallback and
+*         \ref Cy_SCB_UART_HibernateCallback are callback of
+*         \ref cy_en_syspm_status_t type. The cast operation safety in these
+*         functions becomes the user's responsibility because pointers are
+*         initialized when callback is registered in SysPm driver.
+*         * The functions \ref Cy_SCB_SPI_DeepSleepCallback and
+*         \ref Cy_SCB_SPI_HibernateCallback are callback of
+*         \ref cy_en_syspm_status_t type. The cast operation safety in these
+*         functions becomes the user's responsibility because pointers are
+*         initialized when callback is registered in SysPm driver.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>14.1</td>
+*     <td>R</td>
+*     <td>There shall be no unreachable code.</td>
+*     <td>The SCB block parameters can be a constant false or true depends on
+*         the selected device and cause code to be unreachable.</td>
+*   </tr>
+*   <tr>
+*     <td>14.2</td>
+*     <td>R</td>
+*     <td>All non-null statements shall either: a) have at least one side-effect
+*         however executed, or b) cause control flow to change.</td>
+*     <td>The unused function parameters are cast to void. This statement
+*         has no side-effect and is used to suppress a compiler warning.</td>
+*   </tr>
+*   <tr>
+*     <td>14.7</td>
+*     <td>R</td>
+*     <td>A function shall have a single point of exit at the end of the
+*         function.</td>
+*     <td>The functions can return from several points. This is done to improve
+*         code clarity when returning error status code if input parameters
+*         validation fails.</td>
+*   </tr>
+*   <tr>
+*     <td>13.7</td>
+*     <td>R</td>
+*     <td>Boolean operations whose results are invariant shall not be
+*         permitted.</td>
+*     <td>
+*         * The SCB block parameters can be a constant false or true depends on
+*         the selected device and cause this violation.
+*         * The same condition check is executed before and after callback is
+*         called because after the callback returns, the condition might be not
+*         true any more.</td>
+*   </tr>
+* </table>
+*
+*******************************************************************************
+* \section group_scb_common_changelog Changelog
+*******************************************************************************
+* <table class="doxtable">
+*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="5">2.30</td>
+*     <td>Fixed MISRA violation.</td>
+*     <td>MISRA compliance.</td>
+*   </tr>
+*   <tr>
+*     <td>Changed values CY_SCB_SPI_CPHA0_CPOL1 and CY_SCB_SPI_CPHA1_CPOL0 in enum \ref cy_en_scb_spi_sclk_mode_t.</td>
+*     <td>The incorrect values in \ref cy_en_scb_spi_sclk_mode_t caused incorrect initialization of the combination of
+*         phases and polarity: "CHPA = 0, CPOL = 1" and "CHPA = 1, CPOL = 0".
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>Added new CY_SCB_UART_RECEIVE_NOT_EMTPY and CY_SCB_UART_TRANSMIT_EMTPY callback events \ref group_scb_uart_macros_callback_events.</td>
+*     <td>Extended the driver callback events to support the MBED-OS.</td>
+*   </tr>
+*	<tr>
+*     <td>Merged SCB changelogs for each mode into one changelog.</td>
+*     <td>Changelog optimization.</td>
+*   </tr>
+*	<tr>
+*     <td>Merged SCB MISRA-C Compliance sections for each mode into one section.</td>
+*     <td>To optimize the SCB MISRA-C Compliance sections.</td>
+*   </tr>
+*   <tr>
+*     <td> 2.20.1</td>
+*     <td>Documentation of the MISRA rule violation.</td>
+*     <td>MISRA compliance.</td>
+*   </tr>
+*   <tr>
+*     <td rowspan="4">2.20</td>
+*     <td>Flattened the organization of the driver source code into the single 
+*         source directory and the single include directory.
+*     </td>
+*     <td>Driver library directory-structure simplification.</td>
+*   </tr>
+*   <tr>
+*     <td>Added register access layer. Use register access macros instead
+*         of direct register access using dereferenced pointers.</td>
+*     <td>Makes register access device-independent, so that the PDL does 
+*         not need to be recompiled for each supported part number.</td>
+*   </tr>
+*   <tr>
+*     <td>Added the enableDigitalFilter, highPhaseDutyCycle and lowPhaseDutyCycle 
+*         fields to the \ref cy_stc_scb_i2c_config_t configuration structure.
+*     </td>
+*     <td>Added the I2C master data rate configuration using the configuration structure.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td>Fixed the \ref Cy_SCB_I2C_SetDataRate function to properly configure data rates 
+*         greater than 400 kbps in Master and Master-Slave modes. \n
+*         Added verification that clk_scb is within the valid range for the desired data rate.
+*     </td>     
+*     <td>The analog filter was enabled for all data rates in Master and Master-Slave modes. 
+*         This prevents reaching the maximum supported data rate of 1000 kbps which requires a digital filter.
+*     </td>
+*   </tr>
+*   <tr>
+*     <td rowspan="4"> 2.10</td>
+*     <td>Fixed the ReStart condition generation sequence for a write
+*         transaction in the \ref Cy_SCB_I2C_MasterWrite function.</td>
+*     <td>The driver can notify about a zero length write transaction completion 
+*         before the address byte is sent if the \ref Cy_SCB_I2C_MasterWrite 
+*         function execution was interrupted between setting the restart 
+*         generation command and writing the address byte into the TX FIFO.</td>
+*   </tr>
+*   <tr>
+*     <td>Added the slave- and master-specific interrupt functions:
+*         \ref Cy_SCB_I2C_SlaveInterrupt and \ref Cy_SCB_I2C_MasterInterrupt.
+*     </td>
+*     <td>Improved the interrupt configuration options for the I2C slave and
+*         master mode configurations.</td>
+*   </tr>
+*   <tr>
+*     <td>Updated the Start condition generation sequence in the \ref 
+*         Cy_SCB_I2C_MasterWrite and \ref Cy_SCB_I2C_MasterRead.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Updated the ReStart condition generation sequence for a write
+*         transaction in the \ref Cy_SCB_I2C_MasterSendReStart function.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td rowspan="9"> 2.0</td>
+*     <td>Added parameters validation for public API.
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Fixed functions which return interrupt status to return only defined
+*         set of interrupt statuses.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Added missing "cy_cb_" to the callback function type names.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Replaced variables that have limited range of values with enumerated
+*         types.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Added function \ref Cy_SCB_UART_SendBreakBlocking for break condition
+*         generation.</td>
+*     <td></td>
+*   </tr>
+*   <tr>
+*     <td>Fixed low power callbacks \ref Cy_SCB_UART_DeepSleepCallback and
+*         \ref Cy_SCB_UART_HibernateCallback to prevent the device from entering
+*         low power mode when RX FIFO is not empty.</td>
+*     <td>The callbacks allowed entering device into low power mode when RX FIFO
+*         had data.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed SPI callback notification when error event occurred.</td>
+*     <td>The SPI callback passed incorrect event value if error event occurred.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed the \ref Cy_SCB_I2C_MasterSendReStart function to properly 
+*         generate the ReStart condition when the previous transaction was 
+*         a write.</td>
+*     <td>The master interpreted the address byte written into the TX FIFO as a
+*         data byte and continued a write transaction. The ReStart condition was
+*         generated after the master completed transferring the data byte.
+*         The SCL line was stretched by the master waiting for the address byte
+*         to be written into the TX FIFO after the ReStart condition generation.
+*         The following timeout detection released the bus from the master
+*         control.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed the slave operation after the address byte was NACKed by the
+*         firmware.</td>
+*     <td>The observed slave operation failure depends on whether Level 2 assert
+*         is enabled or not. Enabled: the device stuck in the fault handler due
+*         to the assert assignment in the \ref Cy_SCB_I2C_Interrupt. Disabled: 
+*         the slave sets the transaction completion status and notifies on the 
+*         transaction completion event after the address was NACKed. The failure
+*         is observed only when the slave is configured to accept an address in 
+*         the RX FIFO.</td>
+*   </tr>
+*   <tr>
+*     <td>1.0</td>
+*     <td>Initial version.</td>
+*     <td></td>
+*   </tr>
+* </table>
+*/
+
+/** \} group_scb */
+/**
 * \addtogroup group_scb_common
 * \{
 *
@@ -63,74 +308,6 @@
 * \section group_scb_common_configuration Configuration Considerations
 ********************************************************************************
 * This is not a driver and it does not require configuration.
-*
-*******************************************************************************
-* \section group_scb_common_more_information More Information
-*******************************************************************************
-* Refer to the SCB chapter of the technical reference manual (TRM).
-*
-*******************************************************************************
-* \section group_scb_common_MISRA MISRA-C Compliance
-*******************************************************************************
-* <table class="doxtable">
-*   <tr>
-*     <th>MISRA rule</th>
-*     <th>Rule Class (Required/Advisory)</th>
-*     <th>Rule Description</th>
-*     <th>Description of Deviation(s)</th>
-*   </tr>
-*   <tr>
-*     <td>11.4</td>
-*     <td>A</td>
-*     <td>A cast should not be performed between a pointer to object type and
-*         a different pointer to object type.</td>
-*     <td>The pointer to the buffer memory is void to allow handling of
-*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits).
-*         The cast operation is safe because the configuration is verified
-*         before operation is performed.
-*         </td>
-*   </tr>
-* </table>
-*
-*******************************************************************************
-* \section group_scb_common_changelog Changelog
-*******************************************************************************
-* <table class="doxtable">
-*   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
-*   <tr>
-*     <td rowspan="2">2.20</td>
-*     <td>Flattened the organization of the driver source code into the single 
-*         source directory and the single include directory.
-*     </td>
-*     <td>Driver library directory-structure simplification.</td>
-*   </tr>
-*   <tr>
-*     <td>Added register access layer. Use register access macros instead
-*         of direct register access using dereferenced pointers.</td>
-*     <td>Makes register access device-independent, so that the PDL does 
-*         not need to be recompiled for each supported part number.</td>
-*   </tr>
-*   <tr>
-*     <td>2.10</td>
-*     <td>None.</td>
-*     <td>SCB I2C driver updated.</td>
-*   </tr>
-*   <tr>
-*     <td rowspan="2"> 2.0</td>
-*     <td>Added parameters validation for public API.
-*     <td></td>
-*   </tr>
-*   <tr>
-*     <td>Fixed functions which return interrupt status to return only defined
-*         set of interrupt statuses.</td>
-*     <td></td>
-*   </tr>
-*   <tr>
-*     <td>1.0</td>
-*     <td>Initial version.</td>
-*     <td></td>
-*   </tr>
-* </table>
 *
 * \defgroup group_scb_common_macros Macros
 * \defgroup group_scb_common_functions Functions
@@ -261,7 +438,7 @@ __STATIC_INLINE uint32_t Cy_SCB_GetRxFifoLevel   (CySCB_Type const *base);
 #define CY_SCB_DRV_VERSION_MAJOR    (2)
 
 /** Driver minor version */
-#define CY_SCB_DRV_VERSION_MINOR    (20)
+#define CY_SCB_DRV_VERSION_MINOR    (30)
 
 /** SCB driver identifier */
 #define CY_SCB_ID           CY_PDL_DRV_ID(0x2AU)

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif_memslot.h
-* \version 1.20.1
+* \version 1.30
 *
 * \brief
 *  This file provides the constants and parameter values for the memory-level
@@ -34,6 +34,8 @@
 #include "cy_syslib.h"
 #include "cy_device_headers.h"
 #include "cy_smif.h"
+
+#ifdef CY_IP_MXSMIF
 
 #if defined(__cplusplus)
 extern "C" {
@@ -104,7 +106,9 @@ extern "C" {
 *            SFDP constants
 ****************************************/
 #define CY_SMIF_SFDP_ADDRESS_LENGTH                 (0x03U)                 /**< The length of the SFDP address */
-#define CY_SMIF_SFDP_LENGTH                         (0xFFU)                 /**< The length of the SFDP */
+#define CY_SMIF_SFDP_PARAM_HEADER_LENGTH            (0x8U)                  /**< The length of the Parameter header */
+#define CY_SMIF_SFDP_PARAMETER_TABLE_LENGTH         (0x64U)                 /**< The length of the Parameter table */
+#define CY_SMIF_SFDP_LENGTH                         (CY_SMIF_SFDP_PARAMETER_TABLE_LENGTH) /**< The length of the SFDP */
 #define CY_SMIF_SFDP_SING_BYTE_00                   (0x00U)                 /**< The SFDP Signature byte 0x00. Should be "S" */
 #define CY_SMIF_SFDP_SING_BYTE_01                   (0x01U)                 /**< The SFDP Signature byte 0x01. Should be "F" */
 #define CY_SMIF_SFDP_SING_BYTE_02                   (0x02U)                 /**< The SFDP Signature byte 0x02. Should be "D" */
@@ -167,6 +171,10 @@ extern "C" {
 #define CY_SMIF_SFDP_QE_BIT_7_OF_SR_2               (0x80UL)                /**< The QE is bit 7 of the status register 2 */
 #define CY_SMIF_SFDP_BFPT_BYTE_02                   (0x02U)                 /**< The byte 0x02 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_04                   (0x04U)                 /**< The byte 0x04 of the JEDEC Basic Flash Parameter Table */
+#define CY_SMIF_SFDP_BFPT_BYTE_05                   (0x05U)                 /**< The byte 0x05 of the JEDEC Basic Flash Parameter Table */
+#define CY_SMIF_SFDP_BFPT_BYTE_06                   (0x06U)                 /**< The byte 0x06 of the JEDEC Basic Flash Parameter Table:
+                                                                             * number of Parameter Headers (zero based, 05h = 6 parameters)
+                                                                             */
 #define CY_SMIF_SFDP_BFPT_BYTE_08                   (0x08U)                 /**< The byte 0x08 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_09                   (0x09U)                 /**< The byte 0x09 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_0A                   (0x0AU)                 /**< The byte 0x0A of the JEDEC Basic Flash Parameter Table */
@@ -177,6 +185,7 @@ extern "C" {
 #define CY_SMIF_SFDP_BFPT_BYTE_0F                   (0x0FU)                 /**< The byte 0x0F of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_1C                   (0x1CU)                 /**< The byte 0x1C of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_1D                   (0x1DU)                 /**< The byte 0x1D of the JEDEC Basic Flash Parameter Table */
+#define CY_SMIF_SFDP_BFPT_BYTE_23                   (0x23U)                 /**< The byte 0x23 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_28                   (0x28U)                 /**< The byte 0x28 of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_BYTE_3A                   (0x3AU)                 /**< The byte 0x3A of the JEDEC Basic Flash Parameter Table */
 #define CY_SMIF_SFDP_BFPT_ERASE_BYTE                (36U)                   /**< The byte 36 of the JEDEC Basic Flash Parameter Table */
@@ -248,14 +257,7 @@ extern "C" {
 
 /** \cond INTERNAL */
 
-#define CY_SMIF_BYTES_IN_WORD                   (4U)
-#define CY_SMIF_BITS_IN_BYTE                    (8U)
-#define CY_SMIF_BITS_IN_BYTE_ABOVE_4GB          (3U)                        /** density of memory above 4GBit stored as poser of 2 */
 
-
-#define CY_SMIF_MEM_ADDR_VALID(addr, size)  (0U == ((addr)%(size)))   /* This address must be a multiple of the SMIF XIP memory size */
-#define CY_SMIF_MEM_MAPPED_SIZE_VALID(size) (((size) >= 0x10000U) && (0U == ((size)&((size)-1U))) ) /* must be a power of 2 and greater or equal than 64 KB */
-#define CY_SMIF_MEM_ADDR_SIZE_VALID(addrSize)   ((0U < (addrSize)) && ((addrSize) <= 4U))
 
 /** \endcond*/
 /** \} group_smif_macros_sfdp */
@@ -291,7 +293,12 @@ typedef struct
 {
     uint32_t numOfAddrBytes;                    /**< This specifies the number of address bytes used by the 
                                                  * memory slave device, valid values 1-4 */
-    uint32_t memSize;                           /**< The size of the memory */
+    uint32_t memSize;                           /**< The memory size: For densities of 2 gigabits or less - the size in bytes;
+                                                 * For densities 4 gigabits and above - bit-31 is set to 1b to define that
+                                                 * this memory is 4 gigabits and above; and other 30:0 bits define N where 
+                                                 * the density is computed as 2^N bytes. 
+                                                 * For example, 0x80000021 corresponds to 2^30 = 1 gigabyte.
+                                                 */
     cy_stc_smif_mem_cmd_t* readCmd;             /**< This specifies the Read command */
     cy_stc_smif_mem_cmd_t* writeEnCmd;          /**< This specifies the Write Enable command */
     cy_stc_smif_mem_cmd_t* writeDisCmd;         /**< This specifies the Write Disable command */
@@ -427,6 +434,8 @@ cy_en_smif_status_t    Cy_SMIF_Memslot_SfdpDetect(SMIF_Type *base,
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXSMIF */
 
 #endif /* (CY_SMIF_MEMORYSLOT_H) */
 

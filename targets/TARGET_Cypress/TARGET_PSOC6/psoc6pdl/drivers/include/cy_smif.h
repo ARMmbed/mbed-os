@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.h
-* \version 1.20.1
+* \version 1.30
 *
 * Provides an API declaration of the Cypress SMIF driver.
 *
@@ -33,7 +33,7 @@
 *
 * SMIF: Serial Memory Interface: This IP block implements an SPI-based
 * communication interface for interfacing external memory devices to PSoC. The SMIF
-* supports Octal-SPI, Dual Quad-SPI, Quad-SPI, DSPI, and SPI.
+* supports Octal-SPI, Dual Quad-SPI, Quad-SPI, Dual-SPI, and SPI.
 *
 * Features
 *   - Standard SPI Master interface
@@ -43,16 +43,15 @@
 *   memory devices
 *   - eXecute-In-Place (XIP) operation mode for both read and write accesses
 *   with 4KB XIP read cache and on-the-fly encryption and decryption
-*   - Supports external serial memory initialization via Serial Flash
-*   Discoverable Parameters (SFDP) standard
-*   - Support for SPI clock frequencies up to 80 MHz
-*
+*   - Supports external serial memory initialization via 
+*   <a href="https://www.jedec.org/standards-documents/docs/jesd216b" target="_blank">
+*   Serial Flash Discoverable Parameters (SFDP)</a> standard
 *
 * The primary usage model for the SMIF is that of an external memory interface.
 * The SMIF is capable of interfacing with different types of memory, up to four
 * types.
 *
-* \b SMIF driver is divided in next layers
+* \b SMIF driver is divided into three layers
 *   - cy_smif.h API
 *   - cy_smif_memslot.h API
 *   - SMIF configuration structures
@@ -63,9 +62,9 @@
 *
 * The memory slot API has functions to implement the basic memory operations such as 
 * program, read, erase etc. These functions are implemented using the memory 
-* parameters in the memory device configuration data structure. The memory-slot
-* initialization API initializes all the memory slots based on the settings in the
-* array.
+* parameters in the memory device configuration data structure. The 
+* Cy_SMIF_Memslot_Init() API initializes all the memory slots based on the settings
+* in the array.
 *
 * \image html smif_1_0_p01_layers.png
 *
@@ -212,6 +211,34 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td rowspan="5">1.30</td>
+*     <td>The CY_SMIF_CMD_FIFO_WR_RX_COUNT_Msk value is changed to 0x0000FFFFUL.</td>
+*     <td rowspan="4">Driver maintenance.</td>
+*   </tr>
+*   <tr>
+*     <td>Added the check of the size parameter in the Cy_SMIF_TransmitData() function.</td>
+*   </tr>
+*   <tr>
+*     <td>Added conditional check for presence of the SMIF hardware IP.</td>
+*   </tr>
+*   <tr>
+*     <td>Fixed the wrong erase command in the SFDP protocol for devices with Erase Type 3.</td>
+*   </tr>
+*   <tr>
+*     <td>Updated the General Description section with minor changes.
+*         Updated the ordering of the parameters descriptions for some functions.
+*         Added the text saying that the Cy_SMIF_Memslot_Init() function is applicable 
+*      to use the external memory as memory-mapped to PSoC (XIP mode).
+*         Added the snippet for the Cy_SMIF_Encrypt() function to show how to use this function.
+*         Added below the picture in the Low-Level Functions section the sequence of PDL
+*      functions required in a Read or Write transaction.
+*         Added the text below the picture about the address.
+*         Updated DUMMY COUNT in this picture.
+*         Added checking of the size parameter in the Cy_SMIF_TransmitData() function.
+*     </td>
+*     <td>Documentation improvement.</td>
+*   </tr>
+*   <tr>
 *     <td>1.20.1</td>
 *     <td>Added upper limit to size parameter in several functions.</td>
 *     <td>Documentation improvement.</td>
@@ -281,6 +308,14 @@
 *
 *  \image html smif_1_0_p03_rw_cmd.png
 *
+* The sequence of the PDL functions required in a read or write transaction is:
+* Cy_SMIF_TransmitCommand() -> 
+* Cy_SMIF_SendDummyCycles() -> 
+* Cy_SMIF_ReceiveData()/Cy_SMIF_TransmitData() -> 
+* Cy_SMIF_BusyCheck().
+* The address is sent as part of the Cy_SMIF_TransmitCommand() function. 
+* No separate function call is required. 
+*
 * \}
 * \defgroup group_smif_mem_slot_functions Memory Slot Functions
 * \defgroup group_smif_functions_syspm_callback  Low Power Callback
@@ -328,14 +363,14 @@ extern "C" {
 #define CY_SMIF_DRV_VERSION_MAJOR       1
 
 /** The driver minor version */
-#define CY_SMIF_DRV_VERSION_MINOR       20
+#define CY_SMIF_DRV_VERSION_MINOR       30
 
 /** One microsecond timeout for Cy_SMIF_TimeoutRun() */
-#define CY_SMIF_WAIT_1_UNIT        (1U)
+#define CY_SMIF_WAIT_1_UNIT             (1U)
 
 /** The SMIF driver ID, reported as part of an unsuccessful API return status
  * \ref cy_en_smif_status_t */
-#define CY_SMIF_ID CY_PDL_DRV_ID(0x2CU)
+#define CY_SMIF_ID                      CY_PDL_DRV_ID(0x2CU)
 
 
 /**
@@ -350,7 +385,7 @@ extern "C" {
 /** Enable TX_DATA_FIFO_OVERFLOW interrupt see TRM for details */
 #define CY_SMIF_TX_DATA_FIFO_OVERFLOW           (SMIF_INTR_TX_DATA_FIFO_OVERFLOW_Msk)
 /** Enable TX_CMD_FIFO_OVERFLOW interrupt see TRM for details */
-#define CY_SMIF_TX_COMMAND_FIFO_OVERFLOW         (SMIF_INTR_TX_CMD_FIFO_OVERFLOW_Msk)
+#define CY_SMIF_TX_COMMAND_FIFO_OVERFLOW        (SMIF_INTR_TX_CMD_FIFO_OVERFLOW_Msk)
 /** Enable TR_TX_REQ interrupt see TRM for details */
 #define CY_SMIF_TX_DATA_FIFO_LEVEL_TRIGGER      (SMIF_INTR_TR_TX_REQ_Msk)
 /** Enable TR_RX_REQ interrupt see TRM for details */
@@ -360,48 +395,48 @@ extern "C" {
 
 /** \cond INTERNAL */
 
-#define CY_SMIF_CMD_FIFO_TX_MODE           (0UL)
-#define CY_SMIF_CMD_FIFO_TX_COUNT_MODE     (1UL)
-#define CY_SMIF_CMD_FIFO_RX_COUNT_MODE     (2UL)
-#define CY_SMIF_CMD_FIFO_DUMMY_COUNT_MODE  (3UL)
+#define CY_SMIF_CMD_FIFO_TX_MODE            (0UL)
+#define CY_SMIF_CMD_FIFO_TX_COUNT_MODE      (1UL)
+#define CY_SMIF_CMD_FIFO_RX_COUNT_MODE      (2UL)
+#define CY_SMIF_CMD_FIFO_DUMMY_COUNT_MODE   (3UL)
 
-#define CY_SMIF_TX_CMD_FIFO_STATUS_RANGE   (4U)
-#define CY_SMIF_TX_DATA_FIFO_STATUS_RANGE  (8U)
-#define CY_SMIF_RX_DATA_FIFO_STATUS_RANGE  (8U)
+#define CY_SMIF_TX_CMD_FIFO_STATUS_RANGE    (4U)
+#define CY_SMIF_TX_DATA_FIFO_STATUS_RANGE   (8U)
+#define CY_SMIF_RX_DATA_FIFO_STATUS_RANGE   (8U)
 
-#define CY_SMIF_ONE_BYTE                   (1U)
-#define CY_SMIF_TWO_BYTES                  (2U)
-#define CY_SMIF_THREE_BYTES                (3U)
-#define CY_SMIF_FOUR_BYTES                 (4U)
-#define CY_SMIF_FIVE_BYTES                 (5U)
-#define CY_SMIF_SIX_BYTES                  (6U)
-#define CY_SMIF_SEVEN_BYTES                (7U)
-#define CY_SMIF_EIGHT_BYTES                (8U)
+#define CY_SMIF_ONE_BYTE                    (1U)
+#define CY_SMIF_TWO_BYTES                   (2U)
+#define CY_SMIF_THREE_BYTES                 (3U)
+#define CY_SMIF_FOUR_BYTES                  (4U)
+#define CY_SMIF_FIVE_BYTES                  (5U)
+#define CY_SMIF_SIX_BYTES                   (6U)
+#define CY_SMIF_SEVEN_BYTES                 (7U)
+#define CY_SMIF_EIGHT_BYTES                 (8U)
 
-#define CY_SMIF_CRYPTO_FIRST_WORD          (0U)
-#define CY_SMIF_CRYPTO_SECOND_WORD         (4U)
-#define CY_SMIF_CRYPTO_THIRD_WORD          (8U)
-#define CY_SMIF_CRYPTO_FOURTH_WORD         (12U)
+#define CY_SMIF_CRYPTO_FIRST_WORD           (0U)
+#define CY_SMIF_CRYPTO_SECOND_WORD          (4U)
+#define CY_SMIF_CRYPTO_THIRD_WORD           (8U)
+#define CY_SMIF_CRYPTO_FOURTH_WORD          (12U)
 
-#define CY_SMIF_CRYPTO_START               (1UL)
-#define CY_SMIF_CRYPTO_COMPLETED           (0UL)
-#define CY_SMIF_CRYPTO_ADDR_MASK           (0xFFFFFFF0UL)
-#define CY_SMIF_AES128_BYTES               (16U)
+#define CY_SMIF_CRYPTO_START                (1UL)
+#define CY_SMIF_CRYPTO_COMPLETED            (0UL)
+#define CY_SMIF_CRYPTO_ADDR_MASK            (0xFFFFFFF0UL)
+#define CY_SMIF_AES128_BYTES                (16U)
 
-#define CY_SMIF_CTL_REG_DEFAULT  (0x00000300U) /* 3 - [13:12] CLOCK_IF_RX_SEL  */
+#define CY_SMIF_CTL_REG_DEFAULT             (0x00000300U) /* 3 - [13:12] CLOCK_IF_RX_SEL  */
 
-#define CY_SMIF_SFDP_FAIL           (0x08U)
-#define CY_SMIF_SFDP_FAIL_SS0_POS   (0x00U)
-#define CY_SMIF_SFDP_FAIL_SS1_POS   (0x01U)
-#define CY_SMIF_SFDP_FAIL_SS2_POS   (0x02U)
-#define CY_SMIF_SFDP_FAIL_SS3_POS   (0x03U)
+#define CY_SMIF_SFDP_FAIL                   (0x08U)
+#define CY_SMIF_SFDP_FAIL_SS0_POS           (0x00U)
+#define CY_SMIF_SFDP_FAIL_SS1_POS           (0x01U)
+#define CY_SMIF_SFDP_FAIL_SS2_POS           (0x02U)
+#define CY_SMIF_SFDP_FAIL_SS3_POS           (0x03U)
 
-#define CY_SMIF_MAX_DESELECT_DELAY      (7U)
-#define CY_SMIF_MAX_TX_TR_LEVEL         (8U)
-#define CY_SMIF_MAX_RX_TR_LEVEL         (8U)
+#define CY_SMIF_MAX_DESELECT_DELAY          (7U)
+#define CY_SMIF_MAX_TX_TR_LEVEL             (8U)
+#define CY_SMIF_MAX_RX_TR_LEVEL             (8U)
 
-#define CY_SMIF_MODE_VALID(mode)    ((CY_SMIF_NORMAL == (cy_en_smif_mode_t)(mode)) || \
-                                     (CY_SMIF_MEMORY == (cy_en_smif_mode_t)(mode)))
+#define CY_SMIF_MODE_VALID(mode)            ((CY_SMIF_NORMAL == (cy_en_smif_mode_t)(mode)) || \
+                                             (CY_SMIF_MEMORY == (cy_en_smif_mode_t)(mode)))
 #define CY_SMIF_BLOCK_EVENT_VALID(event)    ((CY_SMIF_BUS_ERROR == (cy_en_smif_error_event_t)(event)) || \
                                              (CY_SMIF_WAIT_STATES == (cy_en_smif_error_event_t)(event)))
 #define CY_SMIF_CLOCK_SEL_VALID(clkSel)     ((CY_SMIF_SEL_INTERNAL_CLK == (cy_en_smif_clk_select_t)(clkSel)) || \
@@ -409,24 +444,27 @@ extern "C" {
                                              (CY_SMIF_SEL_FEEDBACK_CLK == (cy_en_smif_clk_select_t)(clkSel)) || \
                                              (CY_SMIF_SEL_INV_FEEDBACK_CLK == (cy_en_smif_clk_select_t)(clkSel)))
                                              
-#define CY_SMIF_DESELECT_DELAY_VALID(delay)     ((delay) <= CY_SMIF_MAX_DESELECT_DELAY)
-#define CY_SMIF_SLAVE_SEL_VALID(ss)     ((CY_SMIF_SLAVE_SELECT_0 == (ss)) || \
-                                         (CY_SMIF_SLAVE_SELECT_1 == (ss)) || \
-                                         (CY_SMIF_SLAVE_SELECT_2 == (ss)) || \
-                                         (CY_SMIF_SLAVE_SELECT_3 == (ss)))
-#define CY_SMIF_DATA_SEL_VALID(ss)     ((CY_SMIF_DATA_SEL0 == (ss)) || \
-                                         (CY_SMIF_DATA_SEL1 == (ss)) || \
-                                         (CY_SMIF_DATA_SEL2 == (ss)) || \
-                                         (CY_SMIF_DATA_SEL3 == (ss)))
-#define CY_SMIF_TXFR_WIDTH_VALID(width)    ((CY_SMIF_WIDTH_SINGLE == (width)) || \
-                                            (CY_SMIF_WIDTH_DUAL == (width))   || \
-                                            (CY_SMIF_WIDTH_QUAD == (width))   || \
-                                            (CY_SMIF_WIDTH_OCTAL == (width))  || \
-                                            (CY_SMIF_WIDTH_NA == (width)))
-#define CY_SMIF_CMD_PARAM_VALID(param, paramSize)     (((paramSize) > 0U)? (NULL != (param)) : (true))
+#define CY_SMIF_DESELECT_DELAY_VALID(delay) ((delay) <= CY_SMIF_MAX_DESELECT_DELAY)
+#define CY_SMIF_SLAVE_SEL_VALID(ss)         ((CY_SMIF_SLAVE_SELECT_0 == (ss)) || \
+                                             (CY_SMIF_SLAVE_SELECT_1 == (ss)) || \
+                                             (CY_SMIF_SLAVE_SELECT_2 == (ss)) || \
+                                             (CY_SMIF_SLAVE_SELECT_3 == (ss)))
+#define CY_SMIF_DATA_SEL_VALID(ss)          ((CY_SMIF_DATA_SEL0 == (ss)) || \
+                                             (CY_SMIF_DATA_SEL1 == (ss)) || \
+                                             (CY_SMIF_DATA_SEL2 == (ss)) || \
+                                             (CY_SMIF_DATA_SEL3 == (ss)))
+#define CY_SMIF_TXFR_WIDTH_VALID(width)     ((CY_SMIF_WIDTH_SINGLE == (width)) || \
+                                             (CY_SMIF_WIDTH_DUAL == (width))   || \
+                                             (CY_SMIF_WIDTH_QUAD == (width))   || \
+                                             (CY_SMIF_WIDTH_OCTAL == (width))  || \
+                                             (CY_SMIF_WIDTH_NA == (width)))
+#define CY_SMIF_CMD_PARAM_VALID(param, paramSize)  (((paramSize) > 0U)? (NULL != (param)) : (true))
 
-#define CY_SMIF_WIDTH_NA_VALID(paramWidth, paramSize)     (((paramSize) > 0U)? \
-                                                           (CY_SMIF_WIDTH_NA != (paramWidth)) : (true))
+#define CY_SMIF_WIDTH_NA_VALID(paramWidth, paramSize)   (((paramSize) > 0U)? \
+                                                         (CY_SMIF_WIDTH_NA != (paramWidth)) : (true))
+                                                           
+#define CY_SMIF_BUFFER_SIZE_MAX             (65536UL) 
+#define CY_SMIF_BUF_SIZE_VALID(size)        (((CY_SMIF_BUFFER_SIZE_MAX) >= (size)) && ((0UL) < (size)))
 
 /***************************************
 *        Command FIFO Register
@@ -461,7 +499,7 @@ extern "C" {
 #define CY_SMIF_CMD_FIFO_WR_DUMMY_Msk           (0x0000FFFFUL)   /* DATA[15:0]      Dummy count          */
 #define CY_SMIF_CMD_FIFO_WR_TX_COUNT_Msk        (0x0000FFFFUL)   /* DATA[15:0]      TX count             */
 #define CY_SMIF_CMD_FIFO_WR_TX_COUNT_Pos        (0UL)            /* [0]             TX count             */
-#define CY_SMIF_CMD_FIFO_WR_RX_COUNT_Msk        (0x0003FFFFUL)   /* DATA[17:0]      RX count             */
+#define CY_SMIF_CMD_FIFO_WR_RX_COUNT_Msk        (0x0000FFFFUL)   /* DATA[15:0]      RX count             */
 #define CY_SMIF_CMD_FIFO_WR_RX_COUNT_Pos        (0UL)            /* [0]             RX count             */
 
 /** \endcond*/
@@ -1341,8 +1379,8 @@ __STATIC_INLINE void Cy_SMIF_PopRxFifo(SMIF_Type *baseaddr, cy_stc_smif_context_
 * The byte array to pack.
 *
 * \param fourBytes
-*  - The True pack is for a 32-bit value.
-*  - The False pack is for a 16-bit value.
+*  - True: The pack is for a 32-bit value.
+*  - False: The pack is for a 16-bit value.
 *
 * \return
 *  The 4-byte value packed from the byte array.

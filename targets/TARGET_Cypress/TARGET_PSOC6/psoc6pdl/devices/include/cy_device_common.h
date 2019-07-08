@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device_common.h
-* \version 2.30
+* \version 2.40
 *
 * \brief
 * This file provides types and IP block definitions common for all PSoC 6
@@ -177,6 +177,7 @@ typedef enum
 #define CY_IP_MXCRYPTO                  1u
 #define CY_IP_MXBLESS                   1u
 #define CY_IP_MXSDHC                    1u
+#define CY_IP_MXTTCANFD                 1u
 #define CY_IP_MXAUDIOSS                 1u
 #define CY_IP_MXLPCOMP                  1u
 #define CY_IP_MXS40PASS                 1u
@@ -189,6 +190,7 @@ typedef enum
 #define CY_IP_MXEFUSE                   1u
 #define CY_IP_MXUDB                     1u
 #define CY_IP_MXPROFILE                 1u
+
 
 /*******************************************************************************
 *              Include IP Block Definitions
@@ -238,6 +240,7 @@ typedef enum
 #include "ip/cyip_pass.h"
 #include "ip/cyip_i2s.h"
 #include "ip/cyip_pdm.h"
+#include "ip/cyip_canfd.h"
 
 /*******************************************************************************
 *            IP Type Definitions
@@ -321,6 +324,9 @@ typedef PASS_AREF_V1_Type PASS_AREF_Type;
 typedef PASS_V1_Type PASS_Type;
 typedef PDM_V1_Type PDM_Type;
 typedef I2S_V1_Type I2S_Type;
+typedef CANFD_V1_Type CANFD_Type;
+typedef CANFD_CH_V1_Type CANFD_CH_Type;
+typedef CANFD_CH_M_TTCAN_V1_Type CANFD_CH_M_TTCAN_Type;
 
 /*******************************************************************************
 *             Symbols with External Linkage
