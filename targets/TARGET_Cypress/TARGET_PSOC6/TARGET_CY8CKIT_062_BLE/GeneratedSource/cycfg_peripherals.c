@@ -28,7 +28,7 @@ cy_stc_csd_context_t cy_csd_0_context =
 {
 	.lockKey = CY_CSD_NONE_KEY,
 };
-const cy_stc_scb_ezi2c_config_t CSD_COMM_config = 
+const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config = 
 {
 	.numberOfAddresses = CY_SCB_EZI2C_ONE_ADDRESS,
 	.slaveAddress1 = 8U,
@@ -36,16 +36,16 @@ const cy_stc_scb_ezi2c_config_t CSD_COMM_config =
 	.subAddressSize = CY_SCB_EZI2C_SUB_ADDR16_BITS,
 	.enableWakeFromSleep = false,
 };
-const cy_stc_scb_uart_config_t KITPROG_UART_config = 
+const cy_stc_scb_uart_config_t CYBSP_DEBUG_UART_config = 
 {
 	.uartMode = CY_SCB_UART_STANDARD,
 	.enableMutliProcessorMode = false,
 	.smartCardRetryOnNack = false,
 	.irdaInvertRx = false,
 	.irdaEnableLowPowerReceiver = false,
-	.oversample = 12,
+	.oversample = 8,
 	.enableMsbFirst = false,
-	.dataWidth = 9UL,
+	.dataWidth = 8UL,
 	.parity = CY_SCB_UART_PARITY_NONE,
 	.stopBits = CY_SCB_UART_STOP_BITS_1,
 	.enableInputFilter = false,
@@ -64,14 +64,14 @@ const cy_stc_scb_uart_config_t KITPROG_UART_config =
 	.txFifoTriggerLevel = 63UL,
 	.txFifoIntEnableMask = 0UL,
 };
-const cy_stc_smif_config_t QSPI_config = 
+const cy_stc_smif_config_t CYBSP_QSPI_config = 
 {
 	.mode = (uint32_t)CY_SMIF_NORMAL,
-	.deselectDelay = QSPI_DESELECT_DELAY,
+	.deselectDelay = CYBSP_QSPI_DESELECT_DELAY,
 	.rxClockSel = (uint32_t)CY_SMIF_SEL_INV_INTERNAL_CLK,
 	.blockEvent = (uint32_t)CY_SMIF_BUS_ERROR,
 };
-const cy_stc_mcwdt_config_t MCWDT0_config = 
+const cy_stc_mcwdt_config_t CYBSP_MCWDT0_config = 
 {
 	.c0Match = 32768U,
 	.c1Match = 32768U,
@@ -84,7 +84,7 @@ const cy_stc_mcwdt_config_t MCWDT0_config =
 	.c0c1Cascade = true,
 	.c1c2Cascade = false,
 };
-const cy_stc_rtc_config_t RTC_config = 
+const cy_stc_rtc_config_t CYBSP_RTC_config = 
 {
 	.sec = 0U,
 	.min = 0U,
