@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.c
-* \version 2.20
+* \version 2.30
 *
 * Provides I2C API implementation of the SCB driver.
 *
@@ -77,9 +77,6 @@ static uint32_t WaitOneUnit(uint32_t *timeout);
 *******************************************************************************/
 cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t const *config, cy_stc_scb_i2c_context_t *context)
 {
-    /* Enable digital filter for only for master modes */
-    bool enableDigFilter = (CY_SCB_I2C_SLAVE != config->i2cMode) && (config->enableDigitalFilter);
-
     /* Input parameters verification */
     if ((NULL == base) || (NULL == config) || (NULL == context))
     {
@@ -102,13 +99,18 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_Init(CySCB_Type *base, cy_stc_scb_i2c_config_t
                          _VAL2FLD(SCB_I2C_CTRL_HIGH_PHASE_OVS, (config->highPhaseDutyCycle - 1U)) |
                          _VAL2FLD(SCB_I2C_CTRL_LOW_PHASE_OVS,  (config->lowPhaseDutyCycle - 1U))  |
                          _VAL2FLD(CY_SCB_I2C_CTRL_MODE, (uint32_t) config->i2cMode);
+    
+    {
+        /* Enable digital filter for only for master modes */
+        bool enableDigFilter = (CY_SCB_I2C_SLAVE != config->i2cMode) && (config->enableDigitalFilter);
+    
+        /* Configure the RX direction */
+        SCB_RX_CTRL(base)      = _BOOL2FLD(SCB_RX_CTRL_MEDIAN, enableDigFilter) |
+                                 CY_SCB_I2C_RX_CTRL;
 
-    /* Configure the RX direction */
-    SCB_RX_CTRL(base)      = _BOOL2FLD(SCB_RX_CTRL_MEDIAN, enableDigFilter) |
-                             CY_SCB_I2C_RX_CTRL;
-
-    /* Configure an analog filter */
-    SCB_I2C_CFG(base) = (enableDigFilter) ? CY_SCB_I2C_DISABLE_ANALOG_FITLER : CY_SCB_I2C_ENABLE_ANALOG_FITLER;
+        /* Configure an analog filter */
+        SCB_I2C_CFG(base) = (enableDigFilter) ? CY_SCB_I2C_DISABLE_ANALOG_FITLER : CY_SCB_I2C_ENABLE_ANALOG_FITLER;
+    }
 
     SCB_RX_FIFO_CTRL(base) = (config->useRxFifo ? (CY_SCB_I2C_FIFO_SIZE - 1UL) : 0UL);
 

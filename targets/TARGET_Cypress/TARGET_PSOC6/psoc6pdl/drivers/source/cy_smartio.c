@@ -45,7 +45,7 @@ extern "C" {
 * Status of the initialization operation
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_Init
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_Init
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_Init(SMARTIO_PRT_Type* base, const cy_stc_smartio_config_t* config)
@@ -160,7 +160,7 @@ cy_en_smartio_status_t Cy_SmartIO_Init(SMARTIO_PRT_Type* base, const cy_stc_smar
 * Pointer to the Smart I/O base address
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_Deinit
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_Deinit
 *
 *******************************************************************************/
 void Cy_SmartIO_Deinit(SMARTIO_PRT_Type* base)
@@ -191,7 +191,7 @@ void Cy_SmartIO_Deinit(SMARTIO_PRT_Type* base)
 * Pointer to the Smart I/O base address
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_Enable
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_Enable
 *
 *******************************************************************************/
 void Cy_SmartIO_Enable(SMARTIO_PRT_Type* base)
@@ -215,7 +215,7 @@ void Cy_SmartIO_Enable(SMARTIO_PRT_Type* base)
 * Pointer to the Smart I/O base address
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_Disable
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_Disable
 *
 *******************************************************************************/
 void Cy_SmartIO_Disable(SMARTIO_PRT_Type* base)
@@ -259,7 +259,7 @@ void Cy_SmartIO_Disable(SMARTIO_PRT_Type* base)
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetChBypass
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetChBypass
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetChBypass(SMARTIO_PRT_Type* base, uint8_t bypassMask)
@@ -296,7 +296,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetChBypass(SMARTIO_PRT_Type* base, uint8_t by
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetClock
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetClock
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetClock(SMARTIO_PRT_Type* base, cy_en_smartio_clksrc_t clkSrc)
@@ -345,7 +345,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetClock(SMARTIO_PRT_Type* base, cy_en_smartio
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetIoSync
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetIoSync
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetIoSync(SMARTIO_PRT_Type* base, uint8_t ioSyncEn)
@@ -394,7 +394,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetIoSync(SMARTIO_PRT_Type* base, uint8_t ioSy
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetChipSync
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetChipSync
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetChipSync(SMARTIO_PRT_Type* base, uint8_t chipSyncEn)
@@ -438,7 +438,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetChipSync(SMARTIO_PRT_Type* base, uint8_t ch
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_HoldOverride
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_HoldOverride
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_HoldOverride(SMARTIO_PRT_Type* base, bool hldOvr)
@@ -476,7 +476,7 @@ cy_en_smartio_status_t Cy_SmartIO_HoldOverride(SMARTIO_PRT_Type* base, bool hldO
 * LUT input trigger source
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetLutTr
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetLutTr
 *
 *******************************************************************************/
 cy_en_smartio_luttr_t Cy_SmartIO_GetLutTr(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum, cy_en_smartio_trnum_t trNum)
@@ -535,7 +535,7 @@ cy_en_smartio_luttr_t Cy_SmartIO_GetLutTr(SMARTIO_PRT_Type* base, cy_en_smartio_
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetLutTr
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetLutTr
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetLutTr(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum, cy_en_smartio_trnum_t trNum, cy_en_smartio_luttr_t trSrc)
@@ -599,7 +599,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetLutTr(SMARTIO_PRT_Type* base, cy_en_smartio
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetLutTrAll
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetLutTrAll
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetLutTrAll(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum, cy_en_smartio_luttr_t trSrc)
@@ -645,7 +645,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetLutTrAll(SMARTIO_PRT_Type* base, cy_en_smar
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetLutOpcode
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetLutOpcode
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetLutOpcode(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum, cy_en_smartio_lutopc_t opcode)
@@ -697,7 +697,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetLutOpcode(SMARTIO_PRT_Type* base, cy_en_sma
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetLutMap
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetLutMap
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetLutMap(SMARTIO_PRT_Type* base, cy_en_smartio_lutnum_t lutNum, uint8_t lutMap)
@@ -732,7 +732,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetLutMap(SMARTIO_PRT_Type* base, cy_en_smarti
 * Data unit input trigger source
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_GetDuTr
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_GetDuTr
 *
 *******************************************************************************/
 cy_en_smartio_dutr_t Cy_SmartIO_GetDuTr(SMARTIO_PRT_Type* base, cy_en_smartio_trnum_t trNum)
@@ -788,7 +788,7 @@ cy_en_smartio_dutr_t Cy_SmartIO_GetDuTr(SMARTIO_PRT_Type* base, cy_en_smartio_tr
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetDuTr
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetDuTr
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetDuTr(SMARTIO_PRT_Type* base, cy_en_smartio_trnum_t trNum, cy_en_smartio_dutr_t trSrc)
@@ -849,7 +849,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetDuTr(SMARTIO_PRT_Type* base, cy_en_smartio_
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetDuTrAll
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetDuTrAll
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetDuTrAll(SMARTIO_PRT_Type* base, cy_en_smartio_dutr_t trSrc)
@@ -895,7 +895,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetDuTrAll(SMARTIO_PRT_Type* base, cy_en_smart
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetDuData
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetDuData
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetDuData(SMARTIO_PRT_Type* base, cy_en_smartio_datanum_t dataNum, cy_en_smartio_dudata_t dataSrc)
@@ -943,7 +943,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetDuData(SMARTIO_PRT_Type* base, cy_en_smarti
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetDuOperation
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetDuOperation
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetDuOperation(SMARTIO_PRT_Type* base, cy_en_smartio_duopc_t opcode, cy_en_smartio_dusize_t size)
@@ -979,7 +979,7 @@ cy_en_smartio_status_t Cy_SmartIO_SetDuOperation(SMARTIO_PRT_Type* base, cy_en_s
 * \note The Smart I/O block must be disabled before calling this function.
 *
 * \funcusage
-* \snippet smartio/1.0/snippet/main.c snippet_Cy_SmartIO_SetDataReg
+* \snippet smartio/snippet/main.c snippet_Cy_SmartIO_SetDataReg
 *
 *******************************************************************************/
 cy_en_smartio_status_t Cy_SmartIO_SetDataReg(SMARTIO_PRT_Type* base, uint8_t dataReg)

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hmac_v1.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the HMAC method
@@ -310,7 +310,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Hmac(CRYPTO_Type *base,
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
 
     /* Allocating internal variables into the CRYPTO SRAM Buffer */
-    cy_stc_crypto_hmac_buffers_t  *hmacBuffers = (cy_stc_crypto_hmac_buffers_t *)(REG_CRYPTO_MEM_BUFF(base));
+    cy_stc_crypto_hmac_buffers_t  *hmacBuffers = (cy_stc_crypto_hmac_buffers_t *)(Cy_Crypto_Core_GetVuMemoryAddress(base));
 
     cy_stc_crypto_v1_hmac_state_t *hmacStateTmp = &hmacBuffers->hmacState;
     cy_stc_crypto_sha_state_t      hashStateLoc = { 0 };

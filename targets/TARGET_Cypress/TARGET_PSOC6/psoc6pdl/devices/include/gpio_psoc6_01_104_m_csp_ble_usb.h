@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO header for 104-M-CSP-BLE-USB package
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright

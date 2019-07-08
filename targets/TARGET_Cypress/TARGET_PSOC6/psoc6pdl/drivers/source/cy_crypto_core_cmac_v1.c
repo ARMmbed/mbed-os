@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v1.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the CMAC method
@@ -283,15 +283,16 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Cmac(CRYPTO_Type *base,
                                           uint8_t *cmac,
                                           cy_stc_crypto_aes_state_t *aesState)
 {
+    cy_stc_crypto_aes_buffers_t  *aesBuffers = (cy_stc_crypto_aes_buffers_t *)(Cy_Crypto_Core_GetVuMemoryAddress(base));
     cy_stc_crypto_cmac_buffers_t *cmacBuffers =
-        (cy_stc_crypto_cmac_buffers_t *)((uint8_t*)REG_CRYPTO_MEM_BUFF(base) + sizeof(cy_stc_crypto_aes_buffers_t));
+        (cy_stc_crypto_cmac_buffers_t *)((uint8_t*)aesBuffers + sizeof(cy_stc_crypto_aes_buffers_t));
 
     uint32_t *myBlock = (uint32_t*)(&cmacBuffers->block0);
     uint32_t *myTemp  = (uint32_t*)(&cmacBuffers->block1);
     uint32_t *myK     = (uint32_t*)(&cmacBuffers->k);
     cy_stc_crypto_v1_cmac_state_t *myCmacState = &cmacBuffers->cmacState;
 
-    (void)Cy_Crypto_Core_V1_Aes_Init(base, key, keyLength, aesState);
+    (void)Cy_Crypto_Core_V1_Aes_Init(base, key, keyLength, aesState, aesBuffers);
 
     Cy_Crypto_Core_V1_Cmac_Init  (myCmacState, myTemp, myBlock, myK);
     Cy_Crypto_Core_V1_Cmac_Start (base, aesState, myCmacState);

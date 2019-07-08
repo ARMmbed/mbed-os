@@ -5,7 +5,7 @@
 * SCB IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -59,53 +59,51 @@ typedef struct {
   __IOM uint32_t I2C_M_CMD;                     /*!< 0x00000068 I2C master command */
   __IOM uint32_t I2C_S_CMD;                     /*!< 0x0000006C I2C slave command */
   __IOM uint32_t I2C_CFG;                       /*!< 0x00000070 I2C configuration */
-   __IM uint32_t RESERVED3[35];
-  __IOM uint32_t DDFT_CTRL;                     /*!< 0x00000100 Digital DfT control */
-   __IM uint32_t RESERVED4[63];
+   __IM uint32_t RESERVED3[99];
   __IOM uint32_t TX_CTRL;                       /*!< 0x00000200 Transmitter control */
   __IOM uint32_t TX_FIFO_CTRL;                  /*!< 0x00000204 Transmitter FIFO control */
    __IM uint32_t TX_FIFO_STATUS;                /*!< 0x00000208 Transmitter FIFO status */
-   __IM uint32_t RESERVED5[13];
+   __IM uint32_t RESERVED4[13];
    __OM uint32_t TX_FIFO_WR;                    /*!< 0x00000240 Transmitter FIFO write */
-   __IM uint32_t RESERVED6[47];
+   __IM uint32_t RESERVED5[47];
   __IOM uint32_t RX_CTRL;                       /*!< 0x00000300 Receiver control */
   __IOM uint32_t RX_FIFO_CTRL;                  /*!< 0x00000304 Receiver FIFO control */
    __IM uint32_t RX_FIFO_STATUS;                /*!< 0x00000308 Receiver FIFO status */
-   __IM uint32_t RESERVED7;
+   __IM uint32_t RESERVED6;
   __IOM uint32_t RX_MATCH;                      /*!< 0x00000310 Slave address and mask */
-   __IM uint32_t RESERVED8[11];
+   __IM uint32_t RESERVED7[11];
    __IM uint32_t RX_FIFO_RD;                    /*!< 0x00000340 Receiver FIFO read */
    __IM uint32_t RX_FIFO_RD_SILENT;             /*!< 0x00000344 Receiver FIFO read silent */
-   __IM uint32_t RESERVED9[46];
+   __IM uint32_t RESERVED8[46];
   __IOM uint32_t EZ_DATA[512];                  /*!< 0x00000400 Memory buffer */
-   __IM uint32_t RESERVED10[128];
+   __IM uint32_t RESERVED9[128];
    __IM uint32_t INTR_CAUSE;                    /*!< 0x00000E00 Active clocked interrupt signal */
-   __IM uint32_t RESERVED11[31];
+   __IM uint32_t RESERVED10[31];
   __IOM uint32_t INTR_I2C_EC;                   /*!< 0x00000E80 Externally clocked I2C interrupt request */
-   __IM uint32_t RESERVED12;
+   __IM uint32_t RESERVED11;
   __IOM uint32_t INTR_I2C_EC_MASK;              /*!< 0x00000E88 Externally clocked I2C interrupt mask */
    __IM uint32_t INTR_I2C_EC_MASKED;            /*!< 0x00000E8C Externally clocked I2C interrupt masked */
-   __IM uint32_t RESERVED13[12];
+   __IM uint32_t RESERVED12[12];
   __IOM uint32_t INTR_SPI_EC;                   /*!< 0x00000EC0 Externally clocked SPI interrupt request */
-   __IM uint32_t RESERVED14;
+   __IM uint32_t RESERVED13;
   __IOM uint32_t INTR_SPI_EC_MASK;              /*!< 0x00000EC8 Externally clocked SPI interrupt mask */
    __IM uint32_t INTR_SPI_EC_MASKED;            /*!< 0x00000ECC Externally clocked SPI interrupt masked */
-   __IM uint32_t RESERVED15[12];
+   __IM uint32_t RESERVED14[12];
   __IOM uint32_t INTR_M;                        /*!< 0x00000F00 Master interrupt request */
   __IOM uint32_t INTR_M_SET;                    /*!< 0x00000F04 Master interrupt set request */
   __IOM uint32_t INTR_M_MASK;                   /*!< 0x00000F08 Master interrupt mask */
    __IM uint32_t INTR_M_MASKED;                 /*!< 0x00000F0C Master interrupt masked request */
-   __IM uint32_t RESERVED16[12];
+   __IM uint32_t RESERVED15[12];
   __IOM uint32_t INTR_S;                        /*!< 0x00000F40 Slave interrupt request */
   __IOM uint32_t INTR_S_SET;                    /*!< 0x00000F44 Slave interrupt set request */
   __IOM uint32_t INTR_S_MASK;                   /*!< 0x00000F48 Slave interrupt mask */
    __IM uint32_t INTR_S_MASKED;                 /*!< 0x00000F4C Slave interrupt masked request */
-   __IM uint32_t RESERVED17[12];
+   __IM uint32_t RESERVED16[12];
   __IOM uint32_t INTR_TX;                       /*!< 0x00000F80 Transmitter interrupt request */
   __IOM uint32_t INTR_TX_SET;                   /*!< 0x00000F84 Transmitter interrupt set request */
   __IOM uint32_t INTR_TX_MASK;                  /*!< 0x00000F88 Transmitter interrupt mask */
    __IM uint32_t INTR_TX_MASKED;                /*!< 0x00000F8C Transmitter interrupt masked request */
-   __IM uint32_t RESERVED18[12];
+   __IM uint32_t RESERVED17[12];
   __IOM uint32_t INTR_RX;                       /*!< 0x00000FC0 Receiver interrupt request */
   __IOM uint32_t INTR_RX_SET;                   /*!< 0x00000FC4 Receiver interrupt set request */
   __IOM uint32_t INTR_RX_MASK;                  /*!< 0x00000FC8 Receiver interrupt mask */
@@ -307,15 +305,6 @@ typedef struct {
 #define SCB_I2C_CFG_SDA_OUT_FILT2_TRIM_Msk      0x300000UL
 #define SCB_I2C_CFG_SDA_OUT_FILT_SEL_Pos        28UL
 #define SCB_I2C_CFG_SDA_OUT_FILT_SEL_Msk        0x30000000UL
-/* SCB.DDFT_CTRL */
-#define SCB_DDFT_CTRL_DDFT_IN0_SEL_Pos          0UL
-#define SCB_DDFT_CTRL_DDFT_IN0_SEL_Msk          0x1UL
-#define SCB_DDFT_CTRL_DDFT_IN1_SEL_Pos          4UL
-#define SCB_DDFT_CTRL_DDFT_IN1_SEL_Msk          0x10UL
-#define SCB_DDFT_CTRL_DDFT_OUT0_SEL_Pos         16UL
-#define SCB_DDFT_CTRL_DDFT_OUT0_SEL_Msk         0x70000UL
-#define SCB_DDFT_CTRL_DDFT_OUT1_SEL_Pos         20UL
-#define SCB_DDFT_CTRL_DDFT_OUT1_SEL_Msk         0x700000UL
 /* SCB.TX_CTRL */
 #define SCB_TX_CTRL_DATA_WIDTH_Pos              0UL
 #define SCB_TX_CTRL_DATA_WIDTH_Msk              0xFUL

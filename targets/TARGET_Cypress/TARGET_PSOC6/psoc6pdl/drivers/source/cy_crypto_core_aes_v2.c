@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v2.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
@@ -58,7 +58,7 @@ void Cy_Crypto_Core_V2_Aes_LoadEncKey(CRYPTO_Type *base,
     /* Set the key mode: 128, 192 or 256 Bit */
     uint32_t keySize = CY_CRYPTO_AES_128_KEY_SIZE + ((uint32_t)aesState->keyLength * 8u);
 
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, aesState->key, keySize);
+    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (uint8_t *)aesState->buffers->key, keySize);
     Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_KEY0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_AES_128_KEY_SIZE);
 
     keySize -= CY_CRYPTO_AES_128_KEY_SIZE;
@@ -67,6 +67,8 @@ void Cy_Crypto_Core_V2_Aes_LoadEncKey(CRYPTO_Type *base,
     {
         Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_KEY1, CY_CRYPTO_V2_RB_FF_LOAD0, keySize);
     }
+
+    REG_CRYPTO_AES_CTL(base) = (uint32_t)(_VAL2FLD(CRYPTO_AES_CTL_KEY_SIZE, aesState->keyLength));
 
     Cy_Crypto_Core_WaitForReady(base);
 }
@@ -108,6 +110,31 @@ void Cy_Crypto_Core_V2_Aes_LoadDecKey(CRYPTO_Type *base,
 }
 
 /*******************************************************************************
+* Function Name: Cy_Crypto_Core_V2_Aes_Free
+****************************************************************************//**
+*
+* Clears AES operation context.
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+* \param aesState
+* The pointer to the AES state structure allocated by the user. The user
+* must not modify anything in this structure.
+*
+* \return
+* \ref cy_en_crypto_status_t
+*
+*******************************************************************************/
+cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Free(CRYPTO_Type *base, cy_stc_crypto_aes_state_t *aesState)
+{
+    Cy_Crypto_Core_V2_MemSet(base, (void *)aesState->buffers, 0u, sizeof(cy_stc_crypto_aes_buffers_t));
+    Cy_Crypto_Core_V2_MemSet(base, (void *)aesState, 0u, sizeof(cy_stc_crypto_aes_state_t));
+
+    return (CY_CRYPTO_SUCCESS);
+}
+
+/*******************************************************************************
 * Function Name: Cy_Crypto_Core_V2_Aes_Init
 ****************************************************************************//**
 *
@@ -126,6 +153,9 @@ void Cy_Crypto_Core_V2_Aes_LoadDecKey(CRYPTO_Type *base,
 * The pointer to the AES state structure allocated by the user. The user
 * must not modify anything in this structure.
 *
+* \param aesBuffers
+* The pointer to the memory buffers storage.
+*
 * \return
 * \ref cy_en_crypto_status_t
 *
@@ -133,18 +163,22 @@ void Cy_Crypto_Core_V2_Aes_LoadDecKey(CRYPTO_Type *base,
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Init(CRYPTO_Type *base,
                                                  uint8_t const *key,
                                                  cy_en_crypto_aes_key_length_t keyLength,
-                                                 cy_stc_crypto_aes_state_t *aesState)
+                                                 cy_stc_crypto_aes_state_t *aesState,
+                                                 cy_stc_crypto_aes_buffers_t *aesBuffers)
 {
     CY_ASSERT_L1(NULL != key);
     CY_ASSERT_L1(NULL != aesState);
+    CY_ASSERT_L1(NULL != aesBuffers);
     CY_ASSERT_L3(CY_CRYPTO_IS_KEYLENGTH_VALID(keyLength));
+
+    uint16_t keySize = CY_CRYPTO_AES_128_KEY_SIZE + ((uint16_t)keyLength * 8u);
 
     Cy_Crypto_Core_V2_MemSet(base, aesState, 0u, sizeof(cy_stc_crypto_aes_state_t));
 
-    aesState->key = (uint8_t *)key;
+    aesState->buffers = (cy_stc_crypto_aes_buffers_t*) aesBuffers;
     aesState->keyLength = keyLength;
 
-    REG_CRYPTO_AES_CTL(base) = (uint32_t)(_VAL2FLD(CRYPTO_AES_CTL_KEY_SIZE, aesState->keyLength));
+    Cy_Crypto_Core_V2_MemCpy(base, aesState->buffers->key, key, keySize);
 
     return (CY_CRYPTO_SUCCESS);
 }
@@ -235,12 +269,13 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ecb(CRYPTO_Type *base,
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
                                             cy_en_crypto_dir_mode_t dirMode,
                                             uint32_t srcSize,
-                                            uint8_t const *ivPtr,
+                                            uint8_t *ivPtr,
                                             uint8_t *dst,
                                             uint8_t const *src,
                                             cy_stc_crypto_aes_state_t *aesState)
 {
     uint32_t size = srcSize;
+    uint32_t ivBlockId = CY_CRYPTO_V2_RB_BLOCK1;
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SIZE_NOT_X16;
 
     /* Check whether the data size is multiple of CY_CRYPTO_AES_BLOCK_SIZE */
@@ -257,12 +292,15 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
 
         if (CY_CRYPTO_ENCRYPT == dirMode)
         {
+            ivBlockId = CY_CRYPTO_V2_RB_BLOCK1;
+
+            /* Load the Initialization Vector to the local buffer */
             Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_AES_BLOCK_SIZE);
 
             while (size != 0U)
             {
-                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD0,
-                                                 CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_AES_BLOCK_SIZE);
+                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_BLOCK0,
+                                                 CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_AES_BLOCK_SIZE);
                 Cy_Crypto_Core_V2_RunAes(base);
                 Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_AES_BLOCK_SIZE);
 
@@ -271,24 +309,35 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
         }
         else
         {
+            ivBlockId = CY_CRYPTO_V2_RB_BLOCK2;
+
+            /* Load the Initialization Vector to the temporary buffer */
             Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK2, CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_AES_BLOCK_SIZE);
 
             while (size != 0U)
             {
                 Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_AES_BLOCK_SIZE);
                 Cy_Crypto_Core_V2_RunAesInv(base);
-                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_BLOCK1,
-                                                 CY_CRYPTO_V2_RB_BLOCK2, CY_CRYPTO_AES_BLOCK_SIZE);
+                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE,
+                                                 CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_V2_RB_BLOCK2, CY_CRYPTO_AES_BLOCK_SIZE);
+
+                /* temporary cipher block */
                 Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK2, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_AES_BLOCK_SIZE);
 
                 size -= CY_CRYPTO_AES_BLOCK_SIZE;
             }
         }
 
+        Cy_Crypto_Core_V2_Sync(base);
+
+        /* Copy the local Initialization Vector to the external Initialization Vector */
+        Cy_Crypto_Core_V2_FFStart (base, CY_CRYPTO_V2_RB_FF_STORE, ivPtr, CY_CRYPTO_AES_BLOCK_SIZE);
+        Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, ivBlockId, CY_CRYPTO_AES_BLOCK_SIZE);
+
+        Cy_Crypto_Core_V2_Sync(base);
+
         tmpResult = CY_CRYPTO_SUCCESS;
     }
-
-    Cy_Crypto_Core_WaitForReady(base);
 
     return (tmpResult);
 }
@@ -329,7 +378,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cbc(CRYPTO_Type *base,
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
                                              cy_en_crypto_dir_mode_t dirMode,
                                              uint32_t srcSize,
-                                             uint8_t const *ivPtr,
+                                             uint8_t *ivPtr,
                                              uint8_t *dst,
                                              uint8_t const *src,
                                              cy_stc_crypto_aes_state_t *aesState)
@@ -343,6 +392,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
     {
         Cy_Crypto_Core_V2_Aes_LoadEncKey(base, aesState);
 
+        /* Load the Initialization Vector to the src buffer */
         Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, ivPtr, CY_CRYPTO_AES_BLOCK_SIZE);
         Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_AES_BLOCK_SIZE);
 
@@ -354,8 +404,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
             while (size != 0U)
             {
                 Cy_Crypto_Core_V2_RunAes(base);
-                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD0,
-                                                 CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_AES_BLOCK_SIZE);
+                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_BLOCK0,
+                                                 CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_AES_BLOCK_SIZE);
                 Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_AES_BLOCK_SIZE);
 
                 size -= CY_CRYPTO_AES_BLOCK_SIZE;
@@ -367,17 +417,23 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
             {
                 Cy_Crypto_Core_V2_RunAes(base);
                 Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_AES_BLOCK_SIZE);
-                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_BLOCK1,
-                                                 CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_AES_BLOCK_SIZE);
+                Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE,
+                                                 CY_CRYPTO_V2_RB_BLOCK1, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_AES_BLOCK_SIZE);
 
                 size -= CY_CRYPTO_AES_BLOCK_SIZE;
             }
         }
 
+        Cy_Crypto_Core_V2_Sync(base);
+
+        /* Copy the local Initialization Vector to the external Initialization Vector */
+        Cy_Crypto_Core_V2_FFStart (base, CY_CRYPTO_V2_RB_FF_STORE, ivPtr, CY_CRYPTO_AES_BLOCK_SIZE);
+        Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_AES_BLOCK_SIZE);
+
+        Cy_Crypto_Core_V2_Sync(base);
+
         tmpResult = CY_CRYPTO_SUCCESS;
     }
-
-    Cy_Crypto_Core_WaitForReady(base);
 
     return (tmpResult);
 }
@@ -399,7 +455,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Cfb(CRYPTO_Type *base,
 * current cipher stream.
 *
 * \param ivPtr
-* The 128-bit nonce and counter (16 bytes).
+* The 128-bit initial vector that contains a 64-bit nonce and 64-bit counter.
 *
 * \param streamBlock
 * The saved stream-block for resuming. Is over-written by the function.
@@ -428,21 +484,21 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
                                             uint8_t const *src,
                                             cy_stc_crypto_aes_state_t *aesState)
 {
-    uint32_t blockCounter[4];
+    uint32_t blockCounter[CY_CRYPTO_AES_BLOCK_SIZE_U32] = { 0UL };
     uint64_t counter;
     uint32_t cnt;
     uint32_t i;
 
-    blockCounter[ 0] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 3], ivPtr[ 2], ivPtr[ 1], ivPtr[0]);
-    blockCounter[ 1] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 7], ivPtr[ 6], ivPtr[ 5], ivPtr[4]);
-    blockCounter[ 2] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[11], ivPtr[10], ivPtr[ 9], ivPtr[8]);
+    blockCounter[ 0] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 3], ivPtr[ 2], ivPtr[ 1], ivPtr[ 0]);
+    blockCounter[ 1] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 7], ivPtr[ 6], ivPtr[ 5], ivPtr[ 4]);
+    blockCounter[ 2] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[11], ivPtr[10], ivPtr[ 9], ivPtr[ 8]);
     blockCounter[ 3] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[15], ivPtr[14], ivPtr[13], ivPtr[12]);
 
     counter = CY_SWAP_ENDIAN64(*(uint64_t*)(blockCounter + CY_CRYPTO_AES_CTR_CNT_POS));
 
     Cy_Crypto_Core_V2_Aes_LoadEncKey(base, aesState);
 
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t *) &blockCounter,  CY_CRYPTO_AES_BLOCK_SIZE);
+    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t *) &blockCounter, CY_CRYPTO_AES_BLOCK_SIZE);
     Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_BLOCK0,   CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_AES_BLOCK_SIZE);
 
     /* CTR counter is placed into last 4 bytes of the Nonce block */

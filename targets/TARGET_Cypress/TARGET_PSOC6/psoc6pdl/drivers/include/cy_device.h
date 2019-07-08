@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.h
-* \version 1.10
+* \version 2.0
 *
 * This file specifies the structure for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -22,6 +22,31 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+/**
+* \section group_device_MISRA MISRA-C Compliance
+* <table class="doxtable">
+*   <tr>
+*     <th>MISRA Rule</th>
+*     <th>Rule Class (Required/Advisory)</th>
+*     <th>Rule Description</th>
+*     <th>Description of Deviation(s)</th>
+*   </tr>
+*   <tr>
+*     <td>10.1</td>
+*     <td>R</td>
+*     <td>The value of an expression of integer type shall not be implicitly converted to a different underlying type
+*         under some circumstances.</td>
+*     <td>An operand of essentially enum type is being converted to unsigned type as a result of an arithmetic or
+*         conditional operation. The conversion does not have any unintended effect.</td>
+*   </tr>
+*   <tr>
+*     <td>20.6</td>
+*     <td>R</td>
+*     <td>The macro offsetof, in library <stddef.h>, shall not be used.</td>
+*     <td>The only HW block register offsets are defined using this macro.</td>
+*   </tr>
+* </table>
+*/
 
 #ifndef CY_DEVICE_H_
 #define CY_DEVICE_H_
@@ -55,7 +80,9 @@
 #include "ip/cyip_i2s.h"
 #include "ip/cyip_pdm.h"
 #include "ip/cyip_lcd.h"
+#include "ip/cyip_lcd_v2.h"
 #include "ip/cyip_sdhc.h"
+#include "ip/cyip_canfd.h"
 #include "ip/cyip_smartio.h"
 
 /* Device descriptor type */
@@ -73,21 +100,19 @@ typedef struct
     uint32_t ipcBase;
     uint32_t cryptoBase;
 
-    /* IP block versions */
+    /* IP block versions: [7:4] major, [3:0] minor */
     uint8_t  cpussVersion;
     uint8_t  cryptoVersion;
     uint8_t  dwVersion;
-    uint8_t  flashcVersion;
-    uint8_t  gpioVersion;
-    uint8_t  hsiomVersion;
     uint8_t  ipcVersion;
     uint8_t  periVersion;
-    uint8_t  protVersion;
+    uint8_t  srssVersion;
 
     /* Parameters */
     uint8_t  cpussIpcNr;
     uint8_t  cpussIpcIrqNr;
-    uint8_t  cpussDwChNr;
+    uint8_t  cpussDw0ChNr;
+    uint8_t  cpussDw1ChNr;
     uint8_t  cpussFlashPaSize;
     int16_t  cpussIpc0Irq;
     int16_t  cpussFmIrq;
@@ -189,7 +214,10 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *               Register Access Helper Macros
 *******************************************************************************/
 
-#define CY_CRYPTO_HW_V1                     (1U == cy_device->cryptoVersion) /* true if the mxcrypto version is 1 */
+#define CY_CRYPTO_V1                        (0x20U > cy_device->cryptoVersion) /* true if the mxcrypto version is 1.x */
+
+#define CY_SRSS_V1_3                        (0x13U == cy_device->srssVersion)
+#define CY_SRSS_MFO_PRESENT                 (CY_SRSS_V1_3)
 
 #define CY_SRSS_NUM_CLKPATH                 ((uint32_t)(cy_device->srssNumClkpath))
 #define CY_SRSS_NUM_PLL                     ((uint32_t)(cy_device->srssNumPll))
@@ -222,6 +250,8 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define SRSS_CLK_ECO_CONFIG                 (((SRSS_V1_Type *) SRSS)->CLK_ECO_CONFIG)
 #define SRSS_CLK_ECO_STATUS                 (((SRSS_V1_Type *) SRSS)->CLK_ECO_STATUS)
 #define SRSS_CLK_PILO_CONFIG                (((SRSS_V1_Type *) SRSS)->CLK_PILO_CONFIG)
+#define SRSS_CLK_MF_SELECT                  (((SRSS_V1_Type *) SRSS)->CLK_MF_SELECT)  /* for CY_SRSS_V1_3 only */
+#define SRSS_CLK_MFO_CONFIG                 (((SRSS_V1_Type *) SRSS)->CLK_MFO_CONFIG) /* for CY_SRSS_V1_3 only */
 #define SRSS_CLK_FLL_CONFIG                 (((SRSS_V1_Type *) SRSS)->CLK_FLL_CONFIG)
 #define SRSS_CLK_FLL_CONFIG2                (((SRSS_V1_Type *) SRSS)->CLK_FLL_CONFIG2)
 #define SRSS_CLK_FLL_CONFIG3                (((SRSS_V1_Type *) SRSS)->CLK_FLL_CONFIG3)
@@ -265,6 +295,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define BACKUP_INTR_MASK                    (((BACKUP_V1_Type *) BACKUP)->INTR_MASK)
 #define BACKUP_INTR_MASKED                  (((BACKUP_V1_Type *) BACKUP)->INTR_MASKED)
 #define BACKUP_RESET                        (((BACKUP_V1_Type *) BACKUP)->RESET)
+
 
 /*******************************************************************************
 *                FLASHC
@@ -317,7 +348,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *                CPUSS
 *******************************************************************************/
 
-#define CY_CPUSS_V1                         (1U == cy_device->cpussVersion)
+#define CY_CPUSS_V1                         (0x20U > cy_device->cpussVersion)
 
 #define CY_CPUSS_NOT_CONNECTED_IRQN         ((uint32_t)(cy_device->cpussNotConnectedIrq))
 #define CY_CPUSS_DISCONNECTED_IRQN          ((cy_en_intr_t)CY_CPUSS_NOT_CONNECTED_IRQN)
@@ -593,9 +624,11 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *                DW
 *******************************************************************************/
 
-#define CY_DW_V1                            (1U == cy_device->dwVersion)
-#define CY_DW_CRC                           (1U < cy_device->dwVersion)
-#define CY_DW_CH_NR                         (cy_device->cpussDwChNr)
+#define CY_DW_V1                            (0x20U > cy_device->dwVersion)
+#define CY_DW_CRC                           (0x20U <= cy_device->dwVersion)
+#define CY_DW0_BASE                         ((DW_Type*) 0x40280000UL)
+#define CY_DW0_CH_NR                        (cy_device->cpussDw0ChNr)
+#define CY_DW1_CH_NR                        (cy_device->cpussDw1ChNr)
 
 #define CY_DW_CH_CTL_PRIO_Pos               ((uint32_t)(cy_device->dwChCtlPrioPos))
 #define CY_DW_CH_CTL_PRIO_Msk               ((uint32_t)(0x3UL << CY_DW_CH_CTL_PRIO_Pos))
@@ -651,7 +684,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *******************************************************************************/
 #define CY_PERI_BASE                        ((PERI_V1_Type *) cy_device->periBase)
 
-#define CY_PERI_V1                          (1U == cy_device->periVersion) /* true if the mxperi version is 1 */
+#define CY_PERI_V1                          (0x20U > cy_device->periVersion) /* true if the mxperi version is 1.x */
 #define CY_PERI_V2_TR_GR_SIZE               (sizeof(PERI_TR_GR_V2_Type))
 #define CY_PERI_TR_CTL_NUM                  (cy_device->periTrGrSize / sizeof(uint32_t))
 #define CY_PERI_TR_CTL_SEL_Pos              (0UL)
@@ -827,8 +860,10 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 *                LCD
 *******************************************************************************/
 
-#define LCD_OCTET_NUM                       (8U) /* number of octets */
-#define LCD_COM_NUM                         (8U) /* maximum number of commons */
+#define LCD_OCTET_NUM                       (8U) /* LCD_NUMPORTS - number of octets supporting up to 4 COMs */
+#define LCD_OCTET_NUM_8                     (8U) /* LCD_NUMPORTS8 - number of octets supporting up to 8 COMs */
+#define LCD_OCTET_NUM_16                    (0U) /* LCD_NUMPORTS16 - number of octets supporting up to 16 COMs */
+#define LCD_COM_NUM                         (8U) /* LCD_CHIP_TOP_COM_NR - maximum number of commons */
 
 #define LCD_ID(base)                        (((LCD_V1_Type*)(base))->ID)
 #define LCD_CONTROL(base)                   (((LCD_V1_Type*)(base))->CONTROL)
@@ -842,6 +877,8 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 /*******************************************************************************
 *                IPC
 *******************************************************************************/
+
+#define CY_IPC_V1                              (0x20u > cy_device->ipcVersion) /* true if the IPC version is 1.x */
 
 #define REG_IPC_STRUCT_ACQUIRE(base)           (((IPC_STRUCT_V1_Type*)(base))->ACQUIRE)
 #define REG_IPC_STRUCT_RELEASE(base)           (((IPC_STRUCT_V1_Type*)(base))->RELEASE)
@@ -864,7 +901,7 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define CY_IPC_CHAN_SYSCALL_CM0             (0U)  /* System calls for the CM0 processor */
 #define CY_IPC_CHAN_SYSCALL_CM4             (1U)  /* System calls for the 1st non-CM0 processor */
 #define CY_IPC_CHAN_SYSCALL_DAP             (2UL) /* System calls for the DAP */
-#define CY_IPC_CHAN_SEMA                    (4UL) /* IPC data channel for the Semaphores */
+#define CY_IPC_CHAN_SEMA                    (3UL) /* IPC data channel for the Semaphores */
 #define CY_IPC_CHAN_CYPIPE_EP0              (5UL) /* IPC data channel for CYPIPE EP0 */
 #define CY_IPC_CHAN_CYPIPE_EP1              (6UL) /* IPC data channel for CYPIPE EP1 */
 #define CY_IPC_CHAN_DDFT                    (7UL) /* IPC data channel for DDFT */

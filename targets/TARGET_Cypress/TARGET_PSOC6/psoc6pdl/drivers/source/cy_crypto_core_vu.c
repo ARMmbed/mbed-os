@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_vu.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the Vector Unit helpers
@@ -46,25 +46,23 @@ void Cy_Crypto_Core_Vu_SetMemValue(CRYPTO_Type *base, uint32_t dstReg, uint8_t c
 
     Cy_Crypto_Core_Vu_WaitForComplete(base);
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         CY_CRYPTO_VU_SAVE_REG(base, CY_CRYPTO_VU_HW_REG0, &reg0_data);
         CY_CRYPTO_VU_SAVE_REG(base, CY_CRYPTO_VU_HW_REG1, &reg1_data);
     }
 
     /* Copy value to Crypto SRAM */
-    uint16_t byteSize = (uint16_t)((size / 8u) & 0xFFFFu);
-    if ((size % 8u) != 0u)
-    {
-        ++byteSize;
-    }
+    uint16_t byteSize = (uint16_t)CY_CRYPTO_BYTE_SIZE_OF_BITS(size);
+    uint32_t destAddr = (uint32_t)Cy_Crypto_Core_Vu_RegMemPointer(base, dstReg);
 
     CY_ASSERT_L1(size <= Cy_Crypto_Core_Vu_RegBitSizeRead(base, dstReg));
+    CY_ASSERT_L1( ((destAddr + byteSize) - 1u) < ((uint32_t)Cy_Crypto_Core_GetVuMemoryAddress(base) + Cy_Crypto_Core_GetVuMemorySize(base)));
 
-    CY_ASSERT_L1( (((uint32_t)Cy_Crypto_Core_Vu_RegMemPointer(base, dstReg) + byteSize) - 1u) < ((uint32_t)REG_CRYPTO_MEM_BUFF(base) + CY_CRYPTO_MEM_BUFF_SIZE));
-    Cy_Crypto_Core_MemCpy(base, (void*)Cy_Crypto_Core_Vu_RegMemPointer(base, dstReg), (const void*)src, byteSize);
+    Cy_Crypto_Core_MemSet(base, (void*)destAddr, 0u, (uint16_t)CY_CRYPTO_WORD_SIZE_OF_BITS(size) * 4u);
+    Cy_Crypto_Core_MemCpy(base, (void*)destAddr, (const void*)src, byteSize);
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         CY_CRYPTO_VU_RESTORE_REG(base, CY_CRYPTO_VU_HW_REG0, reg0_data);
         CY_CRYPTO_VU_RESTORE_REG(base, CY_CRYPTO_VU_HW_REG1, reg1_data);
@@ -78,25 +76,22 @@ void Cy_Crypto_Core_Vu_GetMemValue(CRYPTO_Type *base, uint8_t *dst, uint32_t src
 
     Cy_Crypto_Core_Vu_WaitForComplete(base);
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         CY_CRYPTO_VU_SAVE_REG(base, CY_CRYPTO_VU_HW_REG0, &reg0_data);
         CY_CRYPTO_VU_SAVE_REG(base, CY_CRYPTO_VU_HW_REG1, &reg1_data);
     }
 
     /* Copy value from Crypto SRAM */
-    uint16_t byteSize = (uint16_t)((size / 8u) & 0xFFFFu);
-    if ((size % 8u) != 0u)
-    {
-        ++byteSize;
-    }
+    uint16_t byteSize = (uint16_t)CY_CRYPTO_BYTE_SIZE_OF_BITS(size);
+    uint32_t dataAddr = (uint32_t)Cy_Crypto_Core_Vu_RegMemPointer(base, srcReg);
 
     CY_ASSERT_L1(size <= Cy_Crypto_Core_Vu_RegBitSizeRead(base, srcReg));
-    CY_ASSERT_L1((((uint32_t)Cy_Crypto_Core_Vu_RegMemPointer(base, srcReg) + byteSize) - 1u) < ((uint32_t)REG_CRYPTO_MEM_BUFF(base) + CY_CRYPTO_MEM_BUFF_SIZE) );
+    CY_ASSERT_L1( ((dataAddr + byteSize) - 1u) < ((uint32_t)Cy_Crypto_Core_GetVuMemoryAddress(base) + Cy_Crypto_Core_GetVuMemorySize(base)));
 
-    Cy_Crypto_Core_MemCpy(base, (void*)dst, (void*)Cy_Crypto_Core_Vu_RegMemPointer(base, srcReg), byteSize);
+    Cy_Crypto_Core_MemCpy(base, (void*)dst, (void*)dataAddr, byteSize);
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         CY_CRYPTO_VU_RESTORE_REG(base, CY_CRYPTO_VU_HW_REG0, reg0_data);
         CY_CRYPTO_VU_RESTORE_REG(base, CY_CRYPTO_VU_HW_REG1, reg1_data);
@@ -105,9 +100,6 @@ void Cy_Crypto_Core_Vu_GetMemValue(CRYPTO_Type *base, uint8_t *dst, uint32_t src
 
 cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base)
 {
-    /* Set the stack pointer to the Crypto buff size, in words */
-    CY_CRYPTO_VU_SET_REG(base, CY_CRYPTO_VU_HW_REG15, CY_CRYPTO_MEM_BUFF_SIZE_U32, 1u);
-
     /* Clear whole register file */
     Cy_Crypto_Core_ClearVuRegisters(base);
 
@@ -129,7 +121,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base)
     /* AES */
     REG_CRYPTO_AES_CTL(base)      = 0u;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         REG_CRYPTO_CRC_LFSR_CTL(base) = 0u;
         REG_CRYPTO_SHA_CTL(base)  = 0u;
@@ -145,7 +137,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base)
         Cy_Crypto_Core_V2_RBClear(base);
     }
 
-    Cy_Crypto_Core_MemSet(base, (void *)REG_CRYPTO_MEM_BUFF(base), 0u, (uint16_t)CY_CRYPTO_MEM_BUFF_SIZE);
+    Cy_Crypto_Core_MemSet(base, (void *)Cy_Crypto_Core_GetVuMemoryAddress(base), 0u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
 
     return (CY_CRYPTO_SUCCESS);
 }
@@ -208,6 +200,13 @@ bool Cy_Crypto_Core_Vu_IsRegLess(CRYPTO_Type *base, uint32_t srcReg0, uint32_t s
     }
 
     return tmpResult;
+}
+
+void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg)
+{
+    uint32_t  byteSize = CY_CRYPTO_BYTE_SIZE_OF_BITS(Cy_Crypto_Core_Vu_RegBitSizeRead(base, srcReg));
+    uint32_t *dataAddr = Cy_Crypto_Core_Vu_RegMemPointer(base, srcReg);
+    Cy_Crypto_Core_InvertEndianness(dataAddr, byteSize);
 }
 
 

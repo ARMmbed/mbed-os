@@ -56,7 +56,7 @@
 * }
 * \endcode
 * And can be used like this:
-* \snippet sysint\1.20\snippet\main.c snippet_Cy_SysInt_flashVT
+* \snippet sysint/snippet/main.c snippet_Cy_SysInt_flashVT
 * Using this method avoids the need for a RAM vector table. However in this scenario, 
 * interrupt handler re-location at run-time is not possible, unless the vector table is
 * relocated to RAM.
@@ -424,7 +424,7 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn);
 * Hence modification of the NMI source is strongly discouraged for this core.
 *
 * \funcusage
-* \snippet sysint\1.20\snippet\main.c snippet_Cy_SysInt_SetNmiSource
+* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetNmiSource
 *
 *******************************************************************************/
 #if (!CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
@@ -465,7 +465,7 @@ __STATIC_INLINE void Cy_SysInt_SetNmiSource(cy_en_sysint_nmi_t nmiNum, cy_en_int
 * based on the selected core.
 *
 * \funcusage
-* \snippet sysint\1.20\snippet\main.c snippet_Cy_SysInt_SetNmiSource
+* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetNmiSource
 *
 *******************************************************************************/
 #if (!CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
@@ -501,7 +501,7 @@ __STATIC_INLINE cy_en_intr_t Cy_SysInt_GetNmiSource(cy_en_sysint_nmi_t nmiNum)
 * Interrupt source
 *
 * \funcusage
-* \snippet sysint\1.20\snippet\main.c snippet_Cy_SysInt_SoftwareTrig
+* \snippet sysint/snippet/main.c snippet_Cy_SysInt_SoftwareTrig
 *
 * \note Only privileged software can enable unprivileged access to the
 * Software Trigger Interrupt Register (STIR).

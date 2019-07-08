@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_csd.c
-* \version 1.0.1
+* \version 1.10
 *
 * The source file of the CSD driver.
 *
@@ -22,14 +22,13 @@
 * limitations under the License.
 *******************************************************************************/
 
+
 #include <stdint.h>
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
 #include "cy_csd.h"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+#if defined(CY_IP_MXCSDV2)
 
 
 /**
@@ -305,6 +304,8 @@ uint32_t Cy_CSD_GetVrefTrim(uint32_t referenceVoltage)
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXCSDV2 */
 
 
 /* [] END OF FILE */

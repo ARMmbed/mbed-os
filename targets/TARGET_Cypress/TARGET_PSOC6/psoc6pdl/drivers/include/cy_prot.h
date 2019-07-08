@@ -152,7 +152,7 @@
 * and bit 3 - the valid field for CM0_PC3_HANDLER.
 *
 * The example of using of the single entry point mechanism is shown below.
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ProtectionContext
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ProtectionContext
 *
 * \section group_prot_access_evaluation Access Evaluation
 *
@@ -1083,7 +1083,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* ba
 *  CY_PROT_INVALID_STATE | Function was called on the unsupported PERI IP version
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisableSmpuStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisableSmpuStruct
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_prot_status_t Cy_Prot_DisableSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
@@ -1127,7 +1127,7 @@ __STATIC_INLINE cy_en_prot_status_t Cy_Prot_DisableSmpuStruct(PROT_SMPU_SMPU_STR
 *  CY_PROT_INVALID_STATE | Function was called on the unsupported PERI IP version
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuProgStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuProgStruct
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_prot_status_t Cy_Prot_DisablePpuProgStruct(PERI_PPU_PR_Type* base)

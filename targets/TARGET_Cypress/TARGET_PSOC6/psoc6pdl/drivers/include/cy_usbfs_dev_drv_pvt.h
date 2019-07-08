@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_pvt.h
-* \version 1.10
+* \version 2.0
 *
 * Provides API declarations of the USBFS driver.
 *
@@ -210,7 +210,7 @@ __STATIC_INLINE uint32_t GetEndpointInactiveMode(uint32_t mode)
 
     case CY_USBFS_DEV_DRV_EP_CR_ISO_OUT:
     case CY_USBFS_DEV_DRV_EP_CR_ISO_IN:
-        /* Ignore traffic to endpoint. Wait for endpoint load or enable. */
+        /* Ignore traffic to endpoint. Wait for endpoint load or enable */
         mode = CY_USBFS_DEV_DRV_EP_CR_DISABLE;
         mode = CY_USBFS_DEV_DRV_EP_CR_DISABLE;
         break;

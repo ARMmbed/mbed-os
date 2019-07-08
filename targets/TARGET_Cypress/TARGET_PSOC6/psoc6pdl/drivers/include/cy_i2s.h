@@ -70,7 +70,7 @@
 * frame. Only clearing RX FIFO is enough.
 *
 * For example:
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_Init
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_Init
 * 
 * If you use a DMA, the DMA channel should be previously configured. The I2S interrupts 
 * (if applicable) can be enabled by calling \ref Cy_I2S_SetInterruptMask.
@@ -556,7 +556,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetInterruptStatusMasked(I2S_Type const * base);
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_EnableTx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_EnableTx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_EnableTx(I2S_Type * base)
@@ -574,7 +574,7 @@ __STATIC_INLINE void Cy_I2S_EnableTx(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_PauseTx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_PauseTx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_PauseTx(I2S_Type * base)
@@ -592,7 +592,7 @@ __STATIC_INLINE void Cy_I2S_PauseTx(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ResumeTx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ResumeTx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_ResumeTx(I2S_Type * base)
@@ -613,7 +613,7 @@ __STATIC_INLINE void Cy_I2S_ResumeTx(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_DisableTx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_DisableTx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_DisableTx(I2S_Type * base)
@@ -635,7 +635,7 @@ __STATIC_INLINE void Cy_I2S_DisableTx(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_EnableRx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_EnableRx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_EnableRx(I2S_Type * base)
@@ -656,7 +656,7 @@ __STATIC_INLINE void Cy_I2S_EnableRx(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_DisableRx
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_DisableRx
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_DisableRx(I2S_Type * base)
@@ -676,7 +676,7 @@ __STATIC_INLINE void Cy_I2S_DisableRx(I2S_Type * base)
 * \return The current state \ref group_i2s_macros_current_state.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetCurrentState
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetCurrentState
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetCurrentState(I2S_Type const * base)
@@ -694,7 +694,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetCurrentState(I2S_Type const * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ClearTxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ClearTxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_ClearTxFifo(I2S_Type * base)
@@ -716,7 +716,7 @@ __STATIC_INLINE void Cy_I2S_ClearTxFifo(I2S_Type * base)
 * \return The current number of used words in the TX FIFO.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetNumInTxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetNumInTxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetNumInTxFifo(I2S_Type const * base)
@@ -736,7 +736,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetNumInTxFifo(I2S_Type const * base)
 * \param data Data to be written to the TX FIFO.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_WriteTxData
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_WriteTxData
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_WriteTxData(I2S_Type * base, uint32_t data)
@@ -756,7 +756,7 @@ __STATIC_INLINE void Cy_I2S_WriteTxData(I2S_Type * base, uint32_t data)
 * \return The current TX Read pointer value.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetTxReadPointer
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetTxReadPointer
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_I2S_GetTxReadPointer(I2S_Type const * base)
@@ -776,7 +776,7 @@ __STATIC_INLINE uint8_t Cy_I2S_GetTxReadPointer(I2S_Type const * base)
 * \return The current TX Write pointer value.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetTxWritePointer
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetTxWritePointer
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_I2S_GetTxWritePointer(I2S_Type const * base)
@@ -794,7 +794,7 @@ __STATIC_INLINE uint8_t Cy_I2S_GetTxWritePointer(I2S_Type const * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_FreezeTxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_FreezeTxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_FreezeTxFifo(I2S_Type * base)
@@ -812,7 +812,7 @@ __STATIC_INLINE void Cy_I2S_FreezeTxFifo(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_UnfreezeTxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_UnfreezeTxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_UnfreezeTxFifo(I2S_Type * base)
@@ -830,7 +830,7 @@ __STATIC_INLINE void Cy_I2S_UnfreezeTxFifo(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ClearRxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ClearRxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_ClearRxFifo(I2S_Type * base)
@@ -852,7 +852,7 @@ __STATIC_INLINE void Cy_I2S_ClearRxFifo(I2S_Type * base)
 * \return The current number of used words in rge RX FIFO.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetNumInRxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetNumInRxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetNumInRxFifo(I2S_Type const * base)
@@ -872,7 +872,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetNumInRxFifo(I2S_Type const * base)
 * \return The read data.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ReadRxData
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ReadRxData
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_ReadRxData(I2S_Type const * base)
@@ -893,7 +893,7 @@ __STATIC_INLINE uint32_t Cy_I2S_ReadRxData(I2S_Type const * base)
 * \return The read data.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ReadRxDataSilent
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ReadRxDataSilent
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_ReadRxDataSilent(I2S_Type const * base)
@@ -913,7 +913,7 @@ __STATIC_INLINE uint32_t Cy_I2S_ReadRxDataSilent(I2S_Type const * base)
 * \return The current RX Read pointer value.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetRxReadPointer
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetRxReadPointer
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_I2S_GetRxReadPointer(I2S_Type const * base)
@@ -933,7 +933,7 @@ __STATIC_INLINE uint8_t Cy_I2S_GetRxReadPointer(I2S_Type const * base)
 * \return The current RX Write pointer value.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetRxWritePointer
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetRxWritePointer
 *
 *******************************************************************************/
 __STATIC_INLINE uint8_t Cy_I2S_GetRxWritePointer(I2S_Type const * base)
@@ -951,7 +951,7 @@ __STATIC_INLINE uint8_t Cy_I2S_GetRxWritePointer(I2S_Type const * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_FreezeRxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_FreezeRxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_FreezeRxFifo(I2S_Type * base)
@@ -969,7 +969,7 @@ __STATIC_INLINE void Cy_I2S_FreezeRxFifo(I2S_Type * base)
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_UnfreezeRxFifo
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_UnfreezeRxFifo
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_UnfreezeRxFifo(I2S_Type * base)
@@ -989,7 +989,7 @@ __STATIC_INLINE void Cy_I2S_UnfreezeRxFifo(I2S_Type * base)
 * \return The interrupt bit mask \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetInterruptStatus
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetInterruptStatus
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetInterruptStatus(I2S_Type const * base)
@@ -1009,7 +1009,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetInterruptStatus(I2S_Type const * base)
 * \param interrupt Interrupt bit mask \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ClearInterrupt
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ClearInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_ClearInterrupt(I2S_Type * base, uint32_t interrupt)
@@ -1031,7 +1031,7 @@ __STATIC_INLINE void Cy_I2S_ClearInterrupt(I2S_Type * base, uint32_t interrupt)
 * \param interrupt Interrupt bit mask \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_SetInterrupt
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_SetInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_SetInterrupt(I2S_Type * base, uint32_t interrupt)
@@ -1052,7 +1052,7 @@ __STATIC_INLINE void Cy_I2S_SetInterrupt(I2S_Type * base, uint32_t interrupt)
 * \return The interrupt bit mask \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_GetInterruptMask
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_GetInterruptMask
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetInterruptMask(I2S_Type const * base)
@@ -1072,7 +1072,7 @@ __STATIC_INLINE uint32_t Cy_I2S_GetInterruptMask(I2S_Type const * base)
 * \param interrupt Interrupt bit mask \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_SetInterruptMask
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_SetInterruptMask
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_I2S_SetInterruptMask(I2S_Type * base, uint32_t interrupt)
@@ -1093,7 +1093,7 @@ __STATIC_INLINE void Cy_I2S_SetInterruptMask(I2S_Type * base, uint32_t interrupt
 * \return The interrupt bit mask(s) \ref group_i2s_macros_interrupt_masks.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_ClearInterrupt
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_ClearInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_I2S_GetInterruptStatusMasked(I2S_Type const * base)

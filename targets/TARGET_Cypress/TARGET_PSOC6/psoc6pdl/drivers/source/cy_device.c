@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.c
-* \version 1.10
+* \version 2.0
 *
 * This file provides the definitions for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -49,21 +49,19 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* ipcBase                   */ 0x40230000UL,
     /* cryptoBase                */ 0x40110000UL,
 
-    /* IP block versions */
-    /* cpussVersion              */ 1U,
-    /* cryptoVersion             */ 1U,
-    /* dwVersion                 */ 1U,
-    /* flashcVersion             */ 1U,
-    /* gpioVersion               */ 1U,
-    /* hsiomVersion              */ 1U,
-    /* ipcVersion                */ 1U,
-    /* periVersion               */ 1U,
-    /* protVersion               */ 1U,
+    /* IP block versions [7:4] major, [3:0] minor */
+    /* cpussVersion              */ 0x10U,
+    /* cryptoVersion             */ 0x10U,
+    /* dwVersion                 */ 0x10U,
+    /* ipcVersion                */ 0x10U,
+    /* periVersion               */ 0x10U, 
+    /* srssVersion               */ 0x10U,
 
     /* Parameters  */
     /* cpussIpcNr                */ 16U,
     /* cpussIpcIrqNr             */ 16U,
-    /* cpussDwChNr               */ 16U,
+    /* cpussDw0ChNr              */ 16U,
+    /* cpussDw1ChNr              */ 16U,
     /* cpussFlashPaSize          */ 128U,
     /* cpussIpc0Irq              */ 25,
     /* cpussFmIrq                */ 85,
@@ -93,7 +91,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* Peripheral register offsets */
 
     /* DW registers */
-    /* dwChOffset                */ offsetof(DW_V1_Type, CH_STRUCT),
+    /* dwChOffset                */ (uint16_t)offsetof(DW_V1_Type, CH_STRUCT),
     /* dwChSize                  */ sizeof(DW_CH_STRUCT_V1_Type),
     /* dwChCtlPrioPos            */ (uint8_t)DW_CH_STRUCT_CH_CTL_PRIO_Pos,
     /* dwChCtlPreemptablePos     */ (uint8_t)DW_CH_STRUCT_CH_CTL_PREEMPTABLE_Pos,
@@ -101,27 +99,27 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_01 =
     /* dwStatusChIdxMsk          */ DW_STATUS_CH_IDX_Msk,
 
     /* PERI registers */
-    /* periTrCmdOffset           */ offsetof(PERI_V1_Type, TR_CMD),
-    /* periTrCmdGrSelMsk         */ PERI_TR_CMD_GROUP_SEL_Msk,
-    /* periTrGrOffset            */ offsetof(PERI_V1_Type, TR_GR),
+    /* periTrCmdOffset           */ (uint16_t)offsetof(PERI_V1_Type, TR_CMD),
+    /* periTrCmdGrSelMsk         */ (uint16_t)PERI_TR_CMD_GROUP_SEL_Msk,
+    /* periTrGrOffset            */ (uint16_t)offsetof(PERI_V1_Type, TR_GR),
     /* periTrGrSize              */ sizeof(PERI_TR_GR_V1_Type),
 
-    /* periDivCmdDivSelMsk       */ PERI_DIV_CMD_DIV_SEL_Msk,
-    /* periDivCmdTypeSelPos      */ PERI_DIV_CMD_TYPE_SEL_Pos,
-    /* periDivCmdPaDivSelPos     */ PERI_DIV_CMD_PA_DIV_SEL_Pos,
-    /* periDivCmdPaTypeSelPos    */ PERI_DIV_CMD_PA_TYPE_SEL_Pos,
+    /* periDivCmdDivSelMsk       */ (uint8_t)PERI_DIV_CMD_DIV_SEL_Msk,
+    /* periDivCmdTypeSelPos      */ (uint8_t)PERI_DIV_CMD_TYPE_SEL_Pos,
+    /* periDivCmdPaDivSelPos     */ (uint8_t)PERI_DIV_CMD_PA_DIV_SEL_Pos,
+    /* periDivCmdPaTypeSelPos    */ (uint8_t)PERI_DIV_CMD_PA_TYPE_SEL_Pos,
 
-    /* periDiv8CtlOffset         */ offsetof(PERI_V1_Type, DIV_8_CTL),
-    /* periDiv16CtlOffset        */ offsetof(PERI_V1_Type, DIV_16_CTL),
-    /* periDiv16_5CtlOffset      */ offsetof(PERI_V1_Type, DIV_16_5_CTL),
-    /* periDiv24_5CtlOffset      */ offsetof(PERI_V1_Type, DIV_24_5_CTL),
+    /* periDiv8CtlOffset         */ (uint16_t)offsetof(PERI_V1_Type, DIV_8_CTL),
+    /* periDiv16CtlOffset        */ (uint16_t)offsetof(PERI_V1_Type, DIV_16_CTL),
+    /* periDiv16_5CtlOffset      */ (uint16_t)offsetof(PERI_V1_Type, DIV_16_5_CTL),
+    /* periDiv24_5CtlOffset      */ (uint16_t)offsetof(PERI_V1_Type, DIV_24_5_CTL),
 
     /* GPIO registers */
-    /* gpioPrtIntrCfgOffset      */ offsetof(GPIO_PRT_V1_Type, INTR_CFG),
-    /* gpioPrtCfgOffset          */ offsetof(GPIO_PRT_V1_Type, CFG),
-    /* gpioPrtCfgInOffset        */ offsetof(GPIO_PRT_V1_Type, CFG_IN),
-    /* gpioPrtCfgOutOffset       */ offsetof(GPIO_PRT_V1_Type, CFG_OUT),
-    /* gpioPrtCfgSioOffset       */ offsetof(GPIO_PRT_V1_Type, CFG_SIO),
+    /* gpioPrtIntrCfgOffset      */ (uint8_t)offsetof(GPIO_PRT_V1_Type, INTR_CFG),
+    /* gpioPrtCfgOffset          */ (uint8_t)offsetof(GPIO_PRT_V1_Type, CFG),
+    /* gpioPrtCfgInOffset        */ (uint8_t)offsetof(GPIO_PRT_V1_Type, CFG_IN),
+    /* gpioPrtCfgOutOffset       */ (uint8_t)offsetof(GPIO_PRT_V1_Type, CFG_OUT),
+    /* gpioPrtCfgSioOffset       */ (uint8_t)offsetof(GPIO_PRT_V1_Type, CFG_SIO),
 
     /* CPUSS registers  */
     /* cpussCm0ClockCtlOffset    */ offsetof(CPUSS_V1_Type, CM0_CLOCK_CTL),
@@ -159,21 +157,19 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* ipcBase                   */ 0x40220000UL,
     /* cryptoBase                */ 0x40100000UL,
 
-    /* IP block versions */
-    /* cpussVersion              */ 2U,
-    /* cryptoVersion             */ 2U,
-    /* dwVersion                 */ 2U,
-    /* flashcVersion             */ 2U,
-    /* gpioVersion               */ 2U,
-    /* hsiomVersion              */ 2U,
-    /* ipcVersion                */ 2U,
-    /* periVersion               */ 2U,
-    /* protVersion               */ 2U,
+    /* IP block versions [7:4] major, [3:0] minor */
+    /* cpussVersion              */ 0x20U,
+    /* cryptoVersion             */ 0x20U,
+    /* dwVersion                 */ 0x20U,
+    /* ipcVersion                */ 0x20U,
+    /* periVersion               */ 0x20U,
+    /* srssVersion               */ 0x10U,
 
     /* Parameters */
     /* cpussIpcNr                */ 16U,
     /* cpussIpcIrqNr             */ 16U,
-    /* cpussDwChNr               */ 29U,
+    /* cpussDw0ChNr              */ 29U,
+    /* cpussDw1ChNr              */ 29U,
     /* cpussFlashPaSize          */ 128U,
     /* cpussIpc0Irq              */ 23,
     /* cpussFmIrq                */ 117,
@@ -203,7 +199,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* Peripheral register offsets */
 
     /* DW registers */
-    /* dwChOffset                */ offsetof(DW_V2_Type, CH_STRUCT),
+    /* dwChOffset                */ (uint16_t)offsetof(DW_V2_Type, CH_STRUCT),
     /* dwChSize                  */ sizeof(DW_CH_STRUCT_V2_Type),
     /* dwChCtlPrioPos            */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PRIO_Pos,
     /* dwChCtlPreemptablePos     */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PREEMPTABLE_Pos,
@@ -211,9 +207,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* dwStatusChIdxMsk          */ DW_V2_STATUS_CH_IDX_Msk,
 
     /* PERI registers  */
-    /* periTrCmdOffset           */ offsetof(PERI_V2_Type, TR_CMD),
-    /* periTrCmdGrSelMsk         */ PERI_V2_TR_CMD_GROUP_SEL_Msk,
-    /* periTrGrOffset            */ offsetof(PERI_V2_Type, TR_GR),
+    /* periTrCmdOffset           */ (uint16_t)offsetof(PERI_V2_Type, TR_CMD),
+    /* periTrCmdGrSelMsk         */ (uint16_t)PERI_V2_TR_CMD_GROUP_SEL_Msk,
+    /* periTrGrOffset            */ (uint16_t)offsetof(PERI_V2_Type, TR_GR),
     /* periTrGrSize              */ sizeof(PERI_TR_GR_V2_Type),
 
     /* periDivCmdDivSelMsk       */ (uint8_t)PERI_V2_DIV_CMD_DIV_SEL_Msk,
@@ -221,17 +217,17 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_02 =
     /* periDivCmdPaDivSelPos     */ (uint8_t)PERI_V2_DIV_CMD_PA_DIV_SEL_Pos,
     /* periDivCmdPaTypeSelPos    */ (uint8_t)PERI_V2_DIV_CMD_PA_TYPE_SEL_Pos,
 
-    /* periDiv8CtlOffset         */ offsetof(PERI_V2_Type, DIV_8_CTL),
-    /* periDiv16CtlOffset        */ offsetof(PERI_V2_Type, DIV_16_CTL),
-    /* periDiv16_5CtlOffset      */ offsetof(PERI_V2_Type, DIV_16_5_CTL),
-    /* periDiv24_5CtlOffset      */ offsetof(PERI_V2_Type, DIV_24_5_CTL),
+    /* periDiv8CtlOffset         */ (uint16_t)offsetof(PERI_V2_Type, DIV_8_CTL),
+    /* periDiv16CtlOffset        */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_CTL),
+    /* periDiv16_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_5_CTL),
+    /* periDiv24_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_24_5_CTL),
 
     /* GPIO registers  */
-    /* gpioPrtIntrCfgOffset      */ offsetof(GPIO_PRT_V2_Type, INTR_CFG),
-    /* gpioPrtCfgOffset          */ offsetof(GPIO_PRT_V2_Type, CFG),
-    /* gpioPrtCfgInOffset        */ offsetof(GPIO_PRT_V2_Type, CFG_IN),
-    /* gpioPrtCfgOutOffset       */ offsetof(GPIO_PRT_V2_Type, CFG_OUT),
-    /* gpioPrtCfgSioOffset       */ offsetof(GPIO_PRT_V2_Type, CFG_SIO),
+    /* gpioPrtIntrCfgOffset      */ (uint8_t)offsetof(GPIO_PRT_V2_Type, INTR_CFG),
+    /* gpioPrtCfgOffset          */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG),
+    /* gpioPrtCfgInOffset        */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_IN),
+    /* gpioPrtCfgOutOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_OUT),
+    /* gpioPrtCfgSioOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_SIO),
 
     /* CPUSS registers */
     /* cpussCm0ClockCtlOffset    */ offsetof(CPUSS_V2_Type, CM0_CLOCK_CTL),
@@ -268,21 +264,19 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* ipcBase                   */ 0x40220000UL,
     /* cryptoBase                */ 0x40100000UL,
 
-    /* IP block versions */
-    /* cpussVersion              */ 2U,
-    /* cryptoVersion             */ 2U,
-    /* dwVersion                 */ 2U,
-    /* flashcVersion             */ 2U,
-    /* gpioVersion               */ 2U,
-    /* hsiomVersion              */ 2U,
-    /* ipcVersion                */ 2U,
-    /* periVersion               */ 2U,
-    /* protVersion               */ 2U,
+    /* IP block versions [7:4] major, [3:0] minor */
+    /* cpussVersion              */ 0x20U,
+    /* cryptoVersion             */ 0x20U,
+    /* dwVersion                 */ 0x20U,
+    /* ipcVersion                */ 0x20U,
+    /* periVersion               */ 0x20U,
+    /* srssVersion               */ 0x13U,
 
     /* Parameters */
     /* cpussIpcNr                */ 16U,
     /* cpussIpcIrqNr             */ 16U,
-    /* cpussDwChNr               */ 22U,
+    /* cpussDw0ChNr              */ 29U,
+    /* cpussDw1ChNr              */ 32U,
     /* cpussFlashPaSize          */ 128U,
     /* cpussIpc0Irq              */ 23,
     /* cpussFmIrq                */ 117,
@@ -312,7 +306,7 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* Peripheral register offsets */
 
     /* DW registers */
-    /* dwChOffset                */ offsetof(DW_V2_Type, CH_STRUCT),
+    /* dwChOffset                */ (uint16_t)offsetof(DW_V2_Type, CH_STRUCT),
     /* dwChSize                  */ sizeof(DW_CH_STRUCT_V2_Type),
     /* dwChCtlPrioPos            */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PRIO_Pos,
     /* dwChCtlPreemptablePos     */ (uint8_t)DW_CH_STRUCT_V2_CH_CTL_PREEMPTABLE_Pos,
@@ -320,9 +314,9 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* dwStatusChIdxMsk          */ DW_V2_STATUS_CH_IDX_Msk,
 
     /* PERI registers  */
-    /* periTrCmdOffset           */ offsetof(PERI_V2_Type, TR_CMD),
-    /* periTrCmdGrSelMsk         */ PERI_V2_TR_CMD_GROUP_SEL_Msk,
-    /* periTrGrOffset            */ offsetof(PERI_V2_Type, TR_GR),
+    /* periTrCmdOffset           */ (uint16_t)offsetof(PERI_V2_Type, TR_CMD),
+    /* periTrCmdGrSelMsk         */ (uint16_t)PERI_V2_TR_CMD_GROUP_SEL_Msk,
+    /* periTrGrOffset            */ (uint16_t)offsetof(PERI_V2_Type, TR_GR),
     /* periTrGrSize              */ sizeof(PERI_TR_GR_V2_Type),
 
     /* periDivCmdDivSelMsk       */ (uint8_t)PERI_V2_DIV_CMD_DIV_SEL_Msk,
@@ -330,17 +324,17 @@ const cy_stc_device_t cy_deviceIpBlockCfgPSoC6_03 =
     /* periDivCmdPaDivSelPos     */ (uint8_t)PERI_V2_DIV_CMD_PA_DIV_SEL_Pos,
     /* periDivCmdPaTypeSelPos    */ (uint8_t)PERI_V2_DIV_CMD_PA_TYPE_SEL_Pos,
 
-    /* periDiv8CtlOffset         */ offsetof(PERI_V2_Type, DIV_8_CTL),
-    /* periDiv16CtlOffset        */ offsetof(PERI_V2_Type, DIV_16_CTL),
-    /* periDiv16_5CtlOffset      */ offsetof(PERI_V2_Type, DIV_16_5_CTL),
-    /* periDiv24_5CtlOffset      */ offsetof(PERI_V2_Type, DIV_24_5_CTL),
+    /* periDiv8CtlOffset         */ (uint16_t)offsetof(PERI_V2_Type, DIV_8_CTL),
+    /* periDiv16CtlOffset        */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_CTL),
+    /* periDiv16_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_16_5_CTL),
+    /* periDiv24_5CtlOffset      */ (uint16_t)offsetof(PERI_V2_Type, DIV_24_5_CTL),
 
     /* GPIO registers  */
-    /* gpioPrtIntrCfgOffset      */ offsetof(GPIO_PRT_V2_Type, INTR_CFG),
-    /* gpioPrtCfgOffset          */ offsetof(GPIO_PRT_V2_Type, CFG),
-    /* gpioPrtCfgInOffset        */ offsetof(GPIO_PRT_V2_Type, CFG_IN),
-    /* gpioPrtCfgOutOffset       */ offsetof(GPIO_PRT_V2_Type, CFG_OUT),
-    /* gpioPrtCfgSioOffset       */ offsetof(GPIO_PRT_V2_Type, CFG_SIO),
+    /* gpioPrtIntrCfgOffset      */ (uint8_t)offsetof(GPIO_PRT_V2_Type, INTR_CFG),
+    /* gpioPrtCfgOffset          */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG),
+    /* gpioPrtCfgInOffset        */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_IN),
+    /* gpioPrtCfgOutOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_OUT),
+    /* gpioPrtCfgSioOffset       */ (uint8_t)offsetof(GPIO_PRT_V2_Type, CFG_SIO),
 
     /* CPUSS registers */
     /* cpussCm0ClockCtlOffset    */ offsetof(CPUSS_V2_Type, CM0_CLOCK_CTL),

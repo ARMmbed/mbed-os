@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.10
+* \version 1.20
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -4819,6 +4819,87 @@ uint32_t Cy_SD_Host_GetPresentState(SDHC_Type const *base)
     ret = SDHC_CORE_PSTATE_REG(base);
 
     return ret;
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SD_Host_DeepSleepCallback
+****************************************************************************//**
+*
+* This function handles the transition of the SD Host into and out of
+* Deep Sleep mode. It disables SD CLK before going to Deep Sleep mode and 
+* enables SD CLK after wake up from Deep Sleep mode.
+* If the DAT line is active, or a read (write) transfer is being executed on 
+* the bus, the device cannot enter Deep Sleep mode.
+*
+* This function must be called during execution of \ref Cy_SysPm_CpuEnterDeepSleep.
+* To do it, register this function as a callback before calling
+* \ref Cy_SysPm_CpuEnterDeepSleep : specify \ref CY_SYSPM_DEEPSLEEP as the callback
+* type and call \ref Cy_SysPm_RegisterCallback.
+*
+* \param callbackParams
+* The pointer to the callback parameters structure
+* \ref cy_stc_syspm_callback_params_t.
+*
+* \param mode
+* Callback mode, see \ref cy_en_syspm_callback_mode_t
+*
+* \return
+* \ref cy_en_syspm_status_t
+*
+*******************************************************************************/
+cy_en_syspm_status_t Cy_SD_Host_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, 
+                                                  cy_en_syspm_callback_mode_t mode)
+{
+    cy_en_syspm_status_t ret = CY_SYSPM_FAIL;
+    SDHC_Type *locBase = (SDHC_Type *) (callbackParams->base);
+
+    switch(mode)
+    {
+        case CY_SYSPM_CHECK_READY:
+        {   
+            /* Check DAT Line Active */
+            uint32_t pState = Cy_SD_Host_GetPresentState(locBase);
+            if ((CY_SD_HOST_DAT_LINE_ACTIVE != (pState & CY_SD_HOST_DAT_LINE_ACTIVE)) &&
+                (CY_SD_HOST_CMD_CMD_INHIBIT_DAT != (pState & CY_SD_HOST_CMD_CMD_INHIBIT_DAT)))
+            {
+                ret = CY_SYSPM_SUCCESS;
+            }       
+        }
+        break;
+
+        case CY_SYSPM_CHECK_FAIL:
+        {
+            ret = CY_SYSPM_SUCCESS;
+        }
+        break;
+
+        case CY_SYSPM_BEFORE_TRANSITION:
+        {
+            /* Disable SD CLK before going to Deep Sleep mode */
+            Cy_SD_Host_DisableSdClk(locBase);
+
+            ret = CY_SYSPM_SUCCESS;
+        }
+        break;
+
+        case CY_SYSPM_AFTER_TRANSITION:
+        {
+            /* Enable SD CLK after wake up from Deep Sleep mode */
+            Cy_SD_Host_EnableSdClk(locBase);
+            
+            /* Wait for the stable CLK */
+            Cy_SysLib_Delay(CY_SD_HOST_CLK_RAMP_UP_TIME_MS);
+
+            ret = CY_SYSPM_SUCCESS;
+        }
+        break;
+
+        default:
+            break;
+    }
+
+    return (ret);
 }
 
 #if defined(__cplusplus)

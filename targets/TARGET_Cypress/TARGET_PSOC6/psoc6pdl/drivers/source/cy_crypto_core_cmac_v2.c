@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v2.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the CMAC method
@@ -260,19 +260,18 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
                                           cy_stc_crypto_aes_state_t *aesState)
 {
     /* Allocate space for the structure which stores the CMAC context */
-    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData = { 0 };
-    cy_stc_crypto_v2_cmac_buffers_t *cmacBuffers = &cmacBuffersData;
+    cy_stc_crypto_aes_buffers_t      aesBuffersData  = {{ 0 }};
+    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData = {{ 0 }};
+    cy_stc_crypto_v2_cmac_buffers_t *cmacBuffers  = &cmacBuffersData;
+    cy_stc_crypto_v2_cmac_state_t   *cmacStateLoc = &cmacBuffers->cmacState;
 
-    uint8_t *myK = cmacBuffers->k;
-    cy_stc_crypto_v2_cmac_state_t *myCmacState = &cmacBuffers->cmacState;
-
-    (void)Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState);
+    (void)Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState, &aesBuffersData);
     Cy_Crypto_Core_V2_Aes_LoadEncKey(base, aesState);
 
-    Cy_Crypto_Core_V2_Cmac_Init  (myCmacState, myK);
-    Cy_Crypto_Core_V2_Cmac_Start (base, myCmacState);
-    Cy_Crypto_Core_V2_Cmac_Update(base, myCmacState, message, messageSize);
-    Cy_Crypto_Core_V2_Cmac_Finish(base, myCmacState, cmac);
+    Cy_Crypto_Core_V2_Cmac_Init  (cmacStateLoc, cmacBuffers->k);
+    Cy_Crypto_Core_V2_Cmac_Start (base, cmacStateLoc);
+    Cy_Crypto_Core_V2_Cmac_Update(base, cmacStateLoc, message, messageSize);
+    Cy_Crypto_Core_V2_Cmac_Finish(base, cmacStateLoc, cmac);
 
     return (CY_CRYPTO_SUCCESS);
 }

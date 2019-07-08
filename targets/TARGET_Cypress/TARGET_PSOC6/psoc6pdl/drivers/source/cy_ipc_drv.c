@@ -50,7 +50,7 @@
 *                       function call.
 *
 * \funcusage
-* \snippet IPC_sut_01.cydsn/main_cm4.c snippet_Cy_IPC_Drv_ReadMsgPtr
+* \snippet ipc/snippet/main.c snippet_Cy_IPC_Drv_ReadMsgPtr
 *
 *******************************************************************************/
 cy_en_ipcdrv_status_t Cy_IPC_Drv_LockRelease (IPC_STRUCT_Type* base, uint32_t releaseEventIntr)
@@ -101,7 +101,7 @@ cy_en_ipcdrv_status_t Cy_IPC_Drv_LockRelease (IPC_STRUCT_Type* base, uint32_t re
 *   \retval CY_IPC_DRV_ERROR: The IPC channel is unavailable because it is already locked.
 *
 * \funcusage
-* \snippet IPC_sut_01.cydsn/main_cm4.c snippet_Cy_IPC_Drv_SendMsgWord
+* \snippet ipc/snippet/main.c snippet_Cy_IPC_Drv_SendMsgWord
 *
 *******************************************************************************/
 cy_en_ipcdrv_status_t  Cy_IPC_Drv_SendMsgWord (IPC_STRUCT_Type* base, uint32_t notifyEventIntr, uint32_t message)
@@ -153,7 +153,7 @@ cy_en_ipcdrv_status_t  Cy_IPC_Drv_SendMsgWord (IPC_STRUCT_Type* base, uint32_t n
 *                       may be invalid.
 *
 * \funcusage
-* \snippet IPC_sut_01.cydsn/main_cm4.c snippet_Cy_IPC_Drv_ReadMsgWord
+* \snippet ipc/snippet/main.c snippet_Cy_IPC_Drv_ReadMsgWord
 *
 *******************************************************************************/
 cy_en_ipcdrv_status_t  Cy_IPC_Drv_ReadMsgWord (IPC_STRUCT_Type const * base, uint32_t * message)
