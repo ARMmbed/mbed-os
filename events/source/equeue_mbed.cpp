@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "platform/mbed_critical.h"
+#include "platform/mbed_power_mgmt.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
