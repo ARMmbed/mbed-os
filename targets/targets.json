@@ -8398,56 +8398,6 @@
         },
         "program_cycle_s": 10
     },
-    "CY8CKIT_062_WIFI_BT_M0_PSA": {
-        "inherits": ["SPE_Target", "CY8CKIT_062_WIFI_BT_M0"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "macros_add": [
-            "MBED_TICKLESS",
-            "MBEDTLS_PSA_CRYPTO_SPM",
-            "PU_ENABLE"
-        ],
-        "deliver_to_target": "CY8CKIT_062_WIFI_BT_PSA",
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_062_WIFI_BT_PSA/prebuilt",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x40000",
-            "non-secure-rom-start": "0x10040000",
-            "non-secure-rom-size": "0xB8000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37500",
-            "shared-ram-start": "0x08047500",
-            "shared-ram-size": "0x100",
-            "public-ram-start": "0x08047600",
-            "public-ram-size": "0x200"
-        }
-    },
-    "CY8CKIT_062_WIFI_BT_PSA": {
-        "inherits": ["NSPE_Target", "CY8CKIT_062_WIFI_BT"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "extra_labels_remove": ["CM0P_SLEEP"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "device_has_remove": ["CRC"],
-        "hex_filename": "psa_release_1.0.hex",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x40000",
-            "non-secure-rom-start": "0x10040000",
-            "non-secure-rom-size": "0xB8000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37500",
-            "shared-ram-start": "0x08047500",
-            "shared-ram-size": "0x100",
-            "public-ram-start": "0x08047600",
-            "public-ram-size": "0x200"
-        },
-        "sectors": [[268435456, 512]],
-        "bootloader_supported": true
-    },
     "CY8CMOD_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
