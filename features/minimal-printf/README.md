@@ -27,8 +27,17 @@ Floating point support:
 * All floating points are treated as %f.
 * No support for inf, infinity or nan
 
+## Usage
 
-## Enabling floating point, FILE stream, 64 bit integers, new line conversion, and setting baud rate
+To replace the standard implementation of the printf functions with the ones in this library:
+
+Compile with mbed-cli using the custom `mprintf` profile. For example, to compile in release mode:
+
+```
+$ mbed compile -t <toolchain> -m <target> --profile release --profile mprintf
+```
+
+## Enabling FILE stream, floating point and 64 bit integers
 
 In mbed_app.json:
 
