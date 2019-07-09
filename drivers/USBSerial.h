@@ -158,6 +158,16 @@ public:
         USBCDC::unlock();
     }
 
+    int readable()
+    {
+        return available() ? 1 : 0;
+    }
+
+    int writeable()
+    {
+        return 1;    // always return 1, for write operation is blocking
+    }
+
     /**
      * Attach a callback called when a packet is received
      *

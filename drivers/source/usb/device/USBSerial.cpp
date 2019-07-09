@@ -91,16 +91,6 @@ bool USBSerial::connected()
     return _terminal_connected;
 }
 
-int readable()
-{
-    return available() ? 1 : 0;
-}
-
-int writeable()
-{
-    return 1;    // always return 1, for write operation is blocking
-}
-
 void attach(void (*fptr)(void))
 {
     USBCDC::lock();
