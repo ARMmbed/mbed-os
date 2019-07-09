@@ -70,10 +70,10 @@ namespace mbed {
 class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
 public:
-    Ticker();
+    inline Ticker();
 
     // When low power ticker is in use, then do not disable deep sleep.
-    Ticker(const ticker_data_t *data);
+    inline Ticker(const ticker_data_t *data);
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *

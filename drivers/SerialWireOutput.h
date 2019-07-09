@@ -37,9 +37,9 @@ class SerialWireOutput : public FileHandle {
 
 public:
 
-    SerialWireOutput(void);
+    inline SerialWireOutput(void);
 
-    virtual ssize_t write(const void *buffer, size_t size);
+    inline virtual ssize_t write(const void *buffer, size_t size);
 
     virtual ssize_t read(void *buffer, size_t size)
     {

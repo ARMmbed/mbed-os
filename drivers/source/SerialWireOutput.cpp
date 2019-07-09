@@ -23,13 +23,13 @@
 
 namespace mbed {
 
-inline SerialWireOutput::SerialWireOutput(void)
+SerialWireOutput::SerialWireOutput(void)
 {
     /* Initialize ITM using internal init function. */
     mbed_itm_init();
 }
 
-inline ssize_t SerialWireOutput::write(const void *buffer, size_t size)
+ssize_t SerialWireOutput::write(const void *buffer, size_t size)
 {
     mbed_itm_send_block(ITM_PORT_SWO, buffer, size);
 
