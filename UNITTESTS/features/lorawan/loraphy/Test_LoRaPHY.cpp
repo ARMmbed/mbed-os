@@ -388,6 +388,9 @@ TEST_F(Test_LoRaPHY, get_next_ADR)
 TEST_F(Test_LoRaPHY, rx_config)
 {
     my_radio radio;
+    radio.uint8_value = RF_IDLE;
+    radio.bool_value = true;
+
     object->set_radio_instance(radio);
     uint8_t list;
     object->get_phy_params().datarates.table = &list;
