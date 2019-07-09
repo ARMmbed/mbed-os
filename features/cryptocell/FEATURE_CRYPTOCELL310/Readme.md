@@ -31,7 +31,7 @@ To port your CC 310 driver to Mbed OS on your specific target, do the following:
 There are three additional modules that have alternative implementation support, which are not enabled by default.
 The reason is to allow backwards compatability, as these modules don't have full functionality, and return `MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED` for some features.
 The modules are:
-* `AES` which only supports 128 bit key size, in opposed to previous suipport for all key sizes.
+* `AES` which only supports 128 bit key size, in opposed to previous support for all key sizes.
 * `CMAC` which only supports AES 128 bit key size, in opposed to previous supporting DES and all key sizes.
 * `SHA512` which only supports SHA512, in opposed to previously supporting SHA384 as well.
 
