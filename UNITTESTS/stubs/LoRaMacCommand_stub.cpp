@@ -72,11 +72,11 @@ bool LoRaMacCommand::has_sticky_mac_cmd() const
 }
 
 lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, uint8_t mac_index,
-        uint8_t commands_size, uint8_t snr,
-        lora_mac_system_params_t &mac_sys_params,
-        LoRaPHY &lora_phy,
-        mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler,
-        rx_slot_t rx_slot)
+                                                      uint8_t commands_size, uint8_t snr,
+                                                      lora_mac_system_params_t &mac_sys_params,
+                                                      LoRaPHY &lora_phy,
+                                                      mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler,
+                                                      rx_slot_t rx_slot)
 
 {
     return LoRaMacCommand_stub::status_value;
