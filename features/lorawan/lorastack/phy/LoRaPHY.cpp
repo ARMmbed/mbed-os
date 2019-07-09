@@ -1624,6 +1624,10 @@ bool LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t dev_addr,
 
 uint32_t LoRaPHY::get_rx1_frequency(uint8_t channel)
 {
+    // Use alternate RX1 frequency if it is set
+    if (phy_params.channels.channel_list[channel].rx1_frequency != 0) {
+        return phy_params.channels.channel_list[channel].rx1_frequency;
+    }
     return phy_params.channels.channel_list[channel].frequency;
 }
 
