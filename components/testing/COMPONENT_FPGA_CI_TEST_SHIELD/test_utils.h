@@ -511,6 +511,7 @@ typedef Port<1, AnalogoutMaps, DefaultFormFactor, TF1> AnalogoutPort;
 #endif
 
 #if DEVICE_SERIAL
+#if DEVICE_SERIAL_FC
 struct UARTMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -520,6 +521,7 @@ const PinMap *UARTMaps::maps[] = { serial_tx_pinmap(), serial_rx_pinmap(), seria
 const char *const UARTMaps::pin_type_names[] = { "TX", "RX", "CLS", "RTS" };
 const char *const UARTMaps::name = "UART";
 typedef Port<4, UARTMaps, DefaultFormFactor, TF4> UARTPort;
+#endif
 
 struct UARTNoFCMaps {
     static const PinMap *maps[];
