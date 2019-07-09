@@ -366,6 +366,7 @@ void i2c_test_byte_read(PinName sda, PinName scl)
     // Reset tester stats and select I2C
     tester.peripherals_reset();
     tester.select_peripheral(MbedTester::PeripheralI2C);
+    tester.set_next_from_slave(0);
     for (int i = 0; i < TRANSFER_COUNT; i++) {
         data_in[i] = 0;
     }
@@ -413,7 +414,7 @@ void i2c_test_byte_read(PinName sda, PinName scl)
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
     TEST_ASSERT_EQUAL(checksum, tester.get_send_checksum());
     TEST_ASSERT_EQUAL(0, tester.state_num());
-    TEST_ASSERT_EQUAL(((TRANSFER_COUNT + 2) & 0xFF), tester.get_next_from_slave());
+    TEST_ASSERT_EQUAL(((TRANSFER_COUNT) & 0xFF), tester.get_next_from_slave());
     TEST_ASSERT_EQUAL(num_writes, tester.num_writes());
     TEST_ASSERT_EQUAL(num_reads, tester.num_reads());
 
