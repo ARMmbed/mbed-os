@@ -305,3 +305,36 @@ void LoRaWANStack::process_idle_state(lorawan_status_t &op_status)
 void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
 {
 }
+
+void LoRaWANStack::remove_device_time_request(void)
+{
+}
+
+lorawan_gps_time_t LoRaWANStack::get_current_gps_time()
+{
+    return _loramac.get_gps_time();
+}
+
+void LoRaWANStack::set_current_gps_time(lorawan_gps_time_t gps_time)
+{
+    _loramac.set_gps_time(gps_time);
+}
+
+lorawan_status_t LoRaWANStack::add_ping_slot_info_request(uint8_t periodicity)
+{
+    return LORAWAN_STATUS_OK;
+}
+
+void LoRaWANStack::remove_ping_slot_info_request()
+{
+}
+
+lorawan_status_t LoRaWANStack::enable_beacon_acquisition()
+{
+    return LORAWAN_STATUS_OK;
+}
+
+lorawan_status_t LoRaWANStack::get_last_rx_beacon(loramac_beacon_t &beacon)
+{
+    return LORAWAN_STATUS_NO_BEACON_FOUND;
+}
