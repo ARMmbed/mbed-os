@@ -22,6 +22,7 @@
 
 lorawan_time_t LoRaWANTimer_stub::time_value = 0;
 bool LoRaWANTimer_stub::call_cb_immediately = false;
+lorawan_gps_time_t LoRaWANTimer_stub::gps_time = 0;
 
 LoRaWANTimeHandler::LoRaWANTimeHandler()
     : _queue(NULL)
@@ -61,4 +62,14 @@ void LoRaWANTimeHandler::start(timer_event_t &obj, const uint32_t timeout)
 void LoRaWANTimeHandler::stop(timer_event_t &obj)
 {
     obj.timer_id = 0;
+}
+
+void LoRaWANTimeHandler::set_gps_time(lorawan_gps_time_t gps_time)
+{
+    LoRaWANTimer_stub::gps_time = gps_time;
+}
+
+lorawan_gps_time_t LoRaWANTimeHandler::get_gps_time(void)
+{
+    return LoRaWANTimer_stub::gps_time;
 }
