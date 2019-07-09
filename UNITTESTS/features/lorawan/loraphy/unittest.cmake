@@ -21,6 +21,7 @@ set(TEST_SUITE_NAME "lorawan_LoRaPHY")
 # Source files
 set(unittest-sources
   ../features/lorawan/lorastack/phy/LoRaPHY.cpp
+  ../features/lorawan/LoRaRadio.cpp
 )
 
 # Add test specific include paths
@@ -45,5 +46,6 @@ set(unittest-test-flags
   -DMBED_CONF_LORA_NB_TRIALS=2
   -DMBED_CONF_LORA_REJOIN_DEFAULT_MAX_TIME=3600
   -DMBED_CONF_LORA_REJOIN_DEFAULT_MAX_COUNT=10
+  -DMBED_CONF_LORA_BEACON_PREAMBLE_LENGTH=7
 )
 
