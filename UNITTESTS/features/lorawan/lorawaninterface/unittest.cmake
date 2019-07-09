@@ -42,6 +42,7 @@ set(unittest-test-sources
   stubs/LoRaMacCommand_stub.cpp
   stubs/LoRaPHYEU868_stub.cpp
   stubs/Mutex_stub.cpp
+  stubs/mbed_rtc_time_stub.cpp
 )
 
 # defines
