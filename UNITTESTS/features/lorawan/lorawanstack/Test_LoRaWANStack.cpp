@@ -602,9 +602,6 @@ TEST_F(Test_LoRaWANStack, set_device_class)
     EventQueue queue;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize_mac_layer(&queue));
 
-    LoRaMac_stub::status_value = LORAWAN_STATUS_OK;
-    EXPECT_TRUE(LORAWAN_STATUS_UNSUPPORTED == object->set_device_class(CLASS_B));
-
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_device_class(CLASS_A));
 }
 
