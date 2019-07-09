@@ -990,6 +990,12 @@ class mbedToolchain:
                 self.ld.append(define_string)
                 self.flags["ld"].append(define_string)
 
+        if "XIP_ENABLE" in self.target.macros :
+                define_string = self.make_ld_define(
+                    "XIP_ENABLE", 1)
+                self.ld.append(define_string)
+                self.flags["ld"].append(define_string)
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data

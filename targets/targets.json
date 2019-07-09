@@ -8579,6 +8579,7 @@
             "SERIAL_FC",
             "SERIAL_ASYNCH",
             "SLEEP",
+            "QSPI",
             "SPI",
             "SPI_ASYNCH",
             "SPISLAVE",

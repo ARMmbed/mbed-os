@@ -31,6 +31,9 @@
 void mailbox_init(void);
 #endif
 
+#if defined(XIP_ENABLE)
+extern void qspi_xip_start();
+#endif
 
 #if (defined(CY_CFG_PWR_SYS_IDLE_MODE) && (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE))
 /*******************************************************************************
@@ -99,6 +102,9 @@ void mbed_sdk_init(void)
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
+#endif
+#if defined(XIP_ENABLE)
+    qspi_xip_start();
 #endif
 
 #if defined (CY_CFG_PWR_SYS_IDLE_MODE)
