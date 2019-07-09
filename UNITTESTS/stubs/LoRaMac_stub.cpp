@@ -121,14 +121,14 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
 }
 
 void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
-        uint16_t size,
-        uint8_t fopts_len,
-        uint32_t address,
-        uint32_t downlink_counter,
-        seq_counter_type_t cnt_type,
-        int16_t rssi,
-        int8_t snr,
-        Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
+                                            uint16_t size,
+                                            uint8_t fopts_len,
+                                            uint32_t address,
+                                            uint32_t downlink_counter,
+                                            seq_counter_type_t cnt_type,
+                                            int16_t rssi,
+                                            int8_t snr,
+                                            Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (LoRaMac_stub::mlme_conf_ptr) {
         confirm_handler(*LoRaMac_stub::mlme_conf_ptr);
@@ -342,7 +342,7 @@ device_class_t LoRaMac::get_device_class() const
 }
 
 lorawan_status_t LoRaMac::set_device_class(const device_class_t &device_class,
-        mbed::Callback<void(void)>rx2_would_be_closure_handler)
+                                           mbed::Callback<void(void)>rx2_would_be_closure_handler)
 {
     return LoRaMac_stub::status_value;
 }
@@ -524,7 +524,7 @@ lorawan_status_t LoRaMac::add_ping_slot_info_req()
 }
 
 lorawan_status_t LoRaMac::enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
-        const loramac_beacon_t *)>beacon_event_cb)
+                                                                        const loramac_beacon_t *)>beacon_event_cb)
 {
     return LoRaMac_stub::status_value;
 }
