@@ -18,6 +18,7 @@
 #include "fsl_emc.h"
 #include "fsl_power.h"
 #include "fsl_flashiap.h"
+#include "hal/pinmap.h"
 
 #define CRC16
 #include "crc.h"
@@ -184,5 +185,19 @@ uint32_t qspi_get_freq(void)
     CLOCK_AttachClk(kFRO_HF_to_SPIFI_CLK);
 
     return CLOCK_GetFroHfFreq();
+}
+
+const PinList *pinmap_restricted_pins()
+{
+    /* D6 pin is used by the LCD
+       A4 pin is used by the accelerometer */
+    static const PinName pins[] = {
+        D6, A4
+    };
+    static const PinList pin_list = {
+        sizeof(pins) / sizeof(pins[0]),
+        pins
+    };
+    return &pin_list;
 }
 
