@@ -7407,7 +7407,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=4"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -7536,7 +7536,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["LPTICKER_DELAY_TICKS=4"],
         "progen": { "target": "numaker-pfm-m453" },
         "device_has": [
             "USTICKER",
@@ -7608,7 +7608,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_FAULT_HANDLER_DISABLED",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=4"
         ],
         "device_has": [
             "USTICKER",
@@ -7964,7 +7964,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=4"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -8185,7 +8185,7 @@
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED",
             "MBED_TZ_DEFAULT_ACCESS=1",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=4"
         ],
         "trustzone": true,
         "is_disk_virtual": true,
