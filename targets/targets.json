@@ -8791,7 +8791,7 @@
         ],
         "macros_add": [
             "MBED_FAULT_HANDLER_DISABLED",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=4"
         ],
         "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
         "config": {
