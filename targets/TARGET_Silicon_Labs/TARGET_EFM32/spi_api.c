@@ -274,6 +274,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
     spi_enable(obj, true);
 }
 
+void spi_free(spi_t *obj)
+{
+    spi_enable(obj, false);
+    USART_Reset(obj->spi.spi);
+}
+
 void spi_enable_event(spi_t *obj, uint32_t event, uint8_t enable)
 {
     if(enable) obj->spi.event |= event;
@@ -1434,7 +1440,9 @@ const PinMap *spi_master_miso_pinmap()
 
 const PinMap *spi_master_clk_pinmap()
 {
-    return PinMap_SPI_CLK;
+    // We don't currently support hardware CS in master mode.
+    static const PinMap PinMap_SPI_CLK_mod[] = {NC ,  NC   , NC};
+    return PinMap_SPI_CLK_mod;
 }
 
 const PinMap *spi_master_cs_pinmap()
