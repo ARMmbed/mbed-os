@@ -22,26 +22,34 @@
 #include "Stream.h"
 #include "Callback.h"
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
 /**
-* USBSerial example
-*
-* @code
-* #include "mbed.h"
-* #include "USBSerial.h"
-*
-* //Virtual serial port over USB
-* USBSerial serial;
-*
-* int main(void) {
-*
-*    while(1)
-*    {
-*        serial.printf("I am a virtual serial port\n");
-*        wait(1);
-*    }
-* }
-* @endcode
-*/
+ * \defgroup drivers_USBSerial USBSerial class
+ * @{
+ */
+
+ /**
+ * USBSerial example
+ *
+ * @code
+ * #include "mbed.h"
+ * #include "USBSerial.h"
+ *
+ * //Virtual serial port over USB
+ * USBSerial serial;
+ *
+ * int main(void) {
+ *
+ *    while(1)
+ *    {
+ *        serial.printf("I am a virtual serial port\n");
+ *        wait(1);
+ *    }
+ * }
+ * @endcode
+ */
 class USBSerial: public USBCDC, public mbed::Stream {
 public:
 
@@ -186,5 +194,8 @@ private:
     mbed::Callback<void()> rx;
     void (*_settings_changed_callback)(int baud, int bits, int parity, int stop);
 };
+
+/** @}*/
+/** @}*/
 
 #endif

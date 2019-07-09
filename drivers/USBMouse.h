@@ -49,6 +49,14 @@ enum MOUSE_TYPE {
     REL_MOUSE,
 };
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBMouse USBMouse class
+ * @{
+ */
+
 /**
  *
  * USBMouse example
@@ -231,5 +239,8 @@ private:
 
     bool mouse_send(int8_t x, int8_t y, uint8_t buttons, int8_t z);
 };
+
+/** @}*/
+/** @}*/
 
 #endif

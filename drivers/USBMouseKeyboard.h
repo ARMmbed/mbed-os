@@ -28,6 +28,14 @@
 #include "USBHID.h"
 #include "PlatformMutex.h"
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBMouseKeyboard USBMouseKeyboard class
+ * @{
+ */
+
 /**
  * USBMouseKeyboard example
  * @code
@@ -242,5 +250,8 @@ private:
     //dummy otherwise it doesn't compile (we must define all methods of an abstract class)
     virtual int _getc();
 };
+
+/** @}*/
+/** @}*/
 
 #endif

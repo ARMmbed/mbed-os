@@ -29,6 +29,14 @@
 
 #include "USBDevice.h"
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBMSD USBMSD class
+ * @{
+ */
+
 /**
  * USBMSD class: generic class in order to use all kinds of blocks storage chip
  *
@@ -303,5 +311,8 @@ private:
     void msd_reset();
     void fail();
 };
+
+/** @}*/
+/** @}*/
 
 #endif

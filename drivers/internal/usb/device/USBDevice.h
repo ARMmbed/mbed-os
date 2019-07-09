@@ -23,23 +23,18 @@
 #include "USBPhy.h"
 #include "mbed_critical.h"
 
+/** \ingroup drivers */
+/** \addtogroup drivers-internal-api */
+/** @{*/
 /**
- * \defgroup usb_device USB Device
- *
- */
-
-/**
- * \defgroup usb_device_core Core
- *
- * @ingroup usb_device
+ * \defgroup drivers_USBDevice USBDevice class
+ * @{
  */
 
 /**
  * Core USB Device driver
  *
  * USB driver which wraps and provides synchronization for a USBPhy object.
- *
- * @ingroup usb_device_core
  */
 class USBDevice: public  USBPhyEvents {
 public:
@@ -616,5 +611,8 @@ private:
     uint8_t _current_alternate;
     uint32_t _locked;
 };
+
+/** @}*/
+/** @}*/
 
 #endif

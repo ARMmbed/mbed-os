@@ -25,7 +25,13 @@
 #include "USBHID_Types.h"
 #include "OperationList.h"
 
-
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBHID USBHID class
+ * @{
+ */
 
 /**
  * USBHID example
@@ -267,5 +273,8 @@ private:
 
 
 };
+
+/** @}*/
+/** @}*/
 
 #endif

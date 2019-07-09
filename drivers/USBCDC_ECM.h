@@ -38,6 +38,14 @@
 #define PACKET_TYPE_BROADCAST       (1<<3)
 #define PACKET_TYPE_MULTICAST       (1<<4)
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBCDC_ECM USBCDC_ECM class
+ * @{
+ */
+
 class USBCDC_ECM: public USBDevice {
 public:
 
@@ -266,5 +274,8 @@ private:
     bool _write_bulk(uint8_t *buffer, uint32_t size);
     void _notify_connect();
 };
+
+/** @}*/
+/** @}*/
 
 #endif

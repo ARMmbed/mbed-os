@@ -74,6 +74,14 @@ enum FUNCTION_KEY {
     UP_ARROW,           /* Up arrow */
 };
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBKeyboard USBKeyboard class
+ * @{
+ */
+
 /**
  * USBKeyboard example
  * @code
@@ -208,5 +216,8 @@ private:
     PlatformMutex _mutex;
 
 };
+
+/** @}*/
+/** @}*/
 
 #endif

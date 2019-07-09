@@ -28,6 +28,14 @@
 #include "ByteBuffer.h"
 #include "rtos/EventFlags.h"
 
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_USBAudio USBAudio class
+ * @{
+ */
+
 /**
 * USBAudio example
 *
@@ -372,5 +380,8 @@ private:
     uint8_t _control_receive[2];
 
 };
+
+/** @}*/
+/** @}*/
 
 #endif
