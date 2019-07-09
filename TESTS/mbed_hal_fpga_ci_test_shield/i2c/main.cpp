@@ -30,6 +30,7 @@
 #include "pinmap.h"
 #include "test_utils.h"
 #include "I2CTester.h"
+#include "i2c_test.h"
 
 
 using namespace utest::v1;

@@ -52,7 +52,7 @@ void fpga_i2c_test_init_free(PinName sda, PinName scl);
  *
  *  @note Frequency must be in range specified by the capabilities of the I2C peripheral.
  */
-void fpga_i2c_test_frequency(PinName sda, PinName scl)
+void fpga_i2c_test_frequency(PinName sda, PinName scl);
 
 /** Test blocking transmission timeout.
  *

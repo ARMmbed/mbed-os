@@ -1,6 +1,3 @@
-
-/** \addtogroup hal */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -17,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** \addtogroup hal */
+/** @{*/
+
 #ifndef MBED_I2C_API_H
 #define MBED_I2C_API_H
 
@@ -31,6 +32,75 @@
 #include <stdbool.h>
 
 #if DEVICE_I2C
+
+/**
+ * \defgroup hal_i2c I2C hal
+ *
+ * The I2C hal provides a low level interface to the I2C interface of a target.
+ *
+ * # Defined behaviour
+ * * The function ::i2c_init initialises the peripheral pins specified in the input parameters,
+ * initialises the peripheral in master mode if `is_slave` is false,
+ * initialises the peripheral in slave mode if `is_slave` is true and `supports_slave_mode` is true  - Verified by test ::fpga_i2c_test_init_free.
+ * * The function ::i2c_free resets the pins used to initialise the peripheral to their default state,
+ * disables the peripheral clock - Verified by test ::fpga_i2c_test_init_free.
+ * * The function ::i2c_get_capabilities fills the contents of the `i2c_capabilities_t` parameter - Verified by test ::fpga_i2c_test_get_capabilities.
+ * * The function ::i2c_frequency sets the frequency to use for the transfer, returns the actual frequency that will be used,
+ * must leave all other configuration unchanged - Verified by test ::fpga_i2c_test_frequency.
+ * * The function ::i2c_timeout sets the transmision timeout to use for the following blocking transfers,
+ * if the timeout is not set the default timeout is used,
+ * default timeout value is based on I2C frequency. Is computed as triple amount of time it would take to send data over I2C - Verified by test ::fpga_i2c_test_blocking_transmission_timeout.
+ * * The function ::i2c_write writes `length` number of symbols to the bus, returns the number of symbols sent to the bus,
+ * returns an error code if transfer fails, generates a stop condition on the bus at the end of the transfer if `stop` parameter is true,
+ * handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware,
+ * the transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the transfer takes longer than the configured timeout duration - Verified by test ::fpga_i2c_test_blocking_write_read.
+ * * The function ::i2c_read reads `length` symbols from the bus, returns the number of symbols received from the bus,
+ * returns an error code if transfer fails, generates a stop condition on the bus at the end of the transfer if `stop` parameter is true,
+ * handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware,
+ * the transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the transfer takes longer than the configured timeout duration - Verified by test ::fpga_i2c_test_blocking_write_read.
+ * * The function ::i2c_start generates I2C START condition on the bus in master mode, does nothing if called when the peripheral is configured in slave mode - not tested.
+ * * The function ::i2c_stop generates I2C STOP condition on the bus in master mode, does nothing if called when the peripheral is configured in slave mode
+ * - Verified by test ::fpga_i2c_test_blocking_write_read ::fpga_i2c_test_async_write_read.
+ * * The function ::i2c_slave_status indicates which mode the peripheral has been addressed in, Returns not addressed when called in master mode - not tested.
+ * * The function ::i2c_slave_address sets the address of the peripheral to the `address` parameter, does nothing if called in master mode - not tested.
+ * * The function ::i2c_transfer_async returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not,
+ * the callback given to `i2c_transfer_async` is invoked when the transfer finishes or error occurs,
+ * must save the handler and context pointers inside the `obj` pointer, the context pointer is passed to the callback on transfer completion,
+ * the callback must be invoked on completion unless the transfer is aborted, the callback must be invoked on completion unless the transfer is aborted,
+ * may handle transfer collisions and loss of arbitration if the platform supports multimaster in hardware and enabled in API,
+ * `i2c_async_event_t` must be filled with the number of symbols sent to the bus during transfer - Verified by test ::fpga_i2c_test_async_write_read.
+ * * The function ::i2c_abort_async Aborts any on-going async transfers - Verified by test ::fpga_i2c_test_async_abort.
+ *
+ * # Undefined behaviours
+ *
+ * * Use of a `null` pointer as an argument to any function.
+ * * Calling any `I2C` function before calling ::i2c_init or after calling ::i2c_free.
+ * * Initialising the `I2C` peripheral with invalid `SDA` and `SCL` pins.
+ * * Initialising the peripheral in slave mode if slave mode is not supported, indicated by ::i2c_get_capabilities.
+ * * Operating the peripheral in slave mode without first specifying and address using ::i2c_slave_address.
+ * * Setting an address using i2c_slave_address after initialising the peripheral in master mode.
+ * * Setting an address to an `I2C` reserved value.
+ * * Setting an address larger than the 7-bit supported maximum if 10-bit addressing is not supported.
+ * * Setting an address larger than the 10-bit supported maximum.
+ * * Setting a frequency outside the supported range given by ::i2c_get_capabilities.
+ * * Using the device in a multimaster configuration when `supports_multimaster_mode` is false.
+ * * Specifying an invalid address when calling any `read` or `write` functions.
+ * * Setting the length of the transfer or receive buffers to larger than the buffers are.
+ * * Passing an invalid pointer as `handler` to ::i2c_transfer_async.
+ * * Calling ::i2c_abort_async when no transfer is currently in progress.
+ *
+ * @{
+ */
+
+/**
+ * \defgroup hal_i2c_tests I2C hal tests
+ * The I2C test validate proper implementation of the I2C hal.
+ *
+ * To run the I2C hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-i2c
+ */
+
 
 /**
  * @defgroup hal_I2CEvents I2C Events Macros
