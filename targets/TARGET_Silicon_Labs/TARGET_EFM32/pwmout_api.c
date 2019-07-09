@@ -342,13 +342,13 @@ void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    uint16_t width_cycles = (uint16_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000;
+    uint16_t width_cycles = (uint16_t) (((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    uint16_t width_cycles = (uint16_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * us) / 1000000;
+    uint16_t width_cycles = (uint16_t) (((uint64_t)(REFERENCE_FREQUENCY >> pwm_prescaler_div) * (uint64_t)us) / 1000000UL);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
