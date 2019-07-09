@@ -181,12 +181,12 @@
 /*!
  * Beacon frequency
  */
-#define IN865_BEACON_CHANNEL_FREQ                   866500000
+#define IN865_BEACON_CHANNEL_FREQ                   866550000
 
 /*!
  * Ping slot default frequency
  */
-#define IN865_PING_CHANNEL_FREQ                     866500000
+#define IN865_PING_CHANNEL_FREQ                     866550000
 
 /*!
  * Size of RFU1 field
