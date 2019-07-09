@@ -44,7 +44,6 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #define BEACON_PREAMBLE_LENGTH   10.0f
 #define BEACON_COMMON_FRAME_SIZE 15
-#define BEACON_BANDWIDTH         500000
 #define BEACON_CODING_RATE       1
 #define BEACON_CRC_ON            false
 #define BEACON_FIXED_LEN         true
@@ -1637,16 +1636,19 @@ uint32_t LoRaPHY::compute_beacon_time_on_air()
 {
     uint8_t beacon_length;
     uint8_t phy_dr;
+    uint32_t bw;
 
     beacon_length = BEACON_COMMON_FRAME_SIZE + phy_params.beacon.rfu1_size +
                     phy_params.beacon.rfu2_size;
 
     // Read the physical datarate from the datarates table
     phy_dr = ((uint8_t *)phy_params.datarates.table)[phy_params.beacon.datarate];
+    // Read beacon datarate bandwidth from the bandwidths table
+    bw = ((uint32_t *)phy_params.bandwidths.table)[phy_params.beacon.datarate];
 
     return _radio->lora_time_on_air(BEACON_PREAMBLE_LENGTH,
                                     phy_dr,
-                                    BEACON_BANDWIDTH,
+                                    bw,
                                     BEACON_CODING_RATE,
                                     BEACON_CRC_ON,
                                     BEACON_FIXED_LEN,
