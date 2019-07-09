@@ -68,7 +68,7 @@ using utest::v1::Harness;
 
 using namespace mbed;
 
-Thread wdg_kicking_thread;
+Thread wdg_kicking_thread(osPriorityNormal, 768);
 Semaphore kick_wdg_during_test_teardown(0, 1);
 
 void wdg_kicking_thread_fun()
