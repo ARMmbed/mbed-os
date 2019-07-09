@@ -52,6 +52,7 @@ struct analogin_s {
 struct i2c_s {
     uint32_t instance;
     uint8_t next_repeated_start;
+    uint8_t issue_start;
 };
 
 struct spi_s {

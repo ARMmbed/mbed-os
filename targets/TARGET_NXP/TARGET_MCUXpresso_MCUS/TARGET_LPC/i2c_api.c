@@ -32,6 +32,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
     obj->next_repeated_start = 0;
+    obj->issue_start = 0;
     MBED_ASSERT((int)obj->instance != NC);
 
     i2c_master_config_t master_config;
@@ -92,23 +93,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 int i2c_start(i2c_t *obj)
 {
-    I2C_Type *base = i2c_addrs[obj->instance];
-    uint32_t status;
-
-    do {
-        status = I2C_GetStatusFlags(base);
-    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
-
-    /* Clear controller state. */
-    I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK);
-
-    /* Start the transfer */
-    base->MSTDAT = 0;
-    base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
-
-    do {
-        status = I2C_GetStatusFlags(base);
-    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
+    obj->issue_start = 1;
 
     return 0;
 }
@@ -130,6 +115,8 @@ int i2c_stop(i2c_t *obj)
     do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
+
+    obj->issue_start = 0;
 
     return 0;
 }
@@ -236,12 +223,24 @@ int i2c_byte_write(i2c_t *obj, int data)
     // write the data
     base->MSTDAT = data;
 
-    base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
-
     do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
+    /* Clear controller state. */
+    I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK);
+
+    if (obj->issue_start) {
+        base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
+        /* Clear the flag */
+        obj->issue_start = 0;
+    } else {
+        base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
+    }
+
+    do {
+        status = I2C_GetStatusFlags(base);
+    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
     /* Check if arbitration lost */
     if (status & I2C_STAT_MSTARBLOSS_MASK) {
