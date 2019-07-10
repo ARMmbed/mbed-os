@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "equeue.h"
+#include "events/internal/equeue.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <setjmp.h>
