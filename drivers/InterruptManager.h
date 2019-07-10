@@ -174,23 +174,12 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 private:
-    InterruptManager()
-    {
-        // No mutex needed in constructor
-        memset(_chains, 0, NVIC_NUM_VECTORS * sizeof(CallChain *));
-    }
+    InterruptManager();
 
     ~InterruptManager();
 
-    void lock()
-    {
-        _mutex.lock();
-    }
-
-    void unlock()
-    {
-        _mutex.unlock();
-    }
+    void lock();
+    void unlock();
 
     template<typename T>
     pFunctionPointer_t add_common(T *tptr, void (T::*mptr)(void), IRQn_Type irq, bool front = false)
@@ -209,21 +198,10 @@ private:
 
     pFunctionPointer_t add_common(void (*function)(void), IRQn_Type irq, bool front = false);
     bool must_replace_vector(IRQn_Type irq);
-    int get_irq_index(IRQn_Type irq)
-    {
-        // Pure function - no lock needed
-        return (int)irq + NVIC_USER_IRQ_OFFSET;
-    }
-
-    void irq_helper()
-    {
-        _chains[__get_IPSR()]->call();
-    }
+    int get_irq_index(IRQn_Type irq);
+    void irq_helper();
     void add_helper(void (*function)(void), IRQn_Type irq, bool front = false);
-    static void static_irq_helper()
-    {
-        InterruptManager::get()->irq_helper();
-    }
+    static void static_irq_helper();
 
     CallChain *_chains[NVIC_NUM_VECTORS];
     static InterruptManager *_instance;

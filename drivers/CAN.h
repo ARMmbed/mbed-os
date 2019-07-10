@@ -324,14 +324,8 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    virtual void lock()
-    {
-        _mutex.lock();
-    }
-    virtual void unlock()
-    {
-        _mutex.unlock();
-    }
+    virtual void lock();
+    virtual void unlock();
 
     can_t               _can;
     Callback<void()>    _irq[IrqCnt];

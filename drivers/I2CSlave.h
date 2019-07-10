@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,10 +92,7 @@ public:
      *
      *  @param hz The bus frequency in Hertz.
      */
-    void frequency(int hz)
-    {
-        i2c_frequency(&_i2c, hz);
-    }
+    void frequency(int hz);
 
     /** Check if this I2C Slave has been addressed.
      *
@@ -105,10 +102,7 @@ public:
      *  @retval WriteAddressed  The master is writing to this slave.
      *  @retval WriteGeneral    The master is writing to all slave.
      */
-    int receive(void)
-    {
-        return i2c_slave_receive(&_i2c);
-    }
+    int receive(void);
 
     /** Read specified number of bytes from an I2C master.
      *
@@ -119,19 +113,13 @@ public:
      *  @retval 0       If the number of bytes read is equal to length requested.
      *  @retval nonzero On error or if the number of bytes read is less than requested.
      */
-    int read(char *data, int length)
-    {
-        return i2c_slave_read(&_i2c, data, length) != length;
-    }
+    int read(char *data, int length);
 
     /** Read a single byte from an I2C master.
      *
      *  @return The byte read.
      */
-    int read(void)
-    {
-        return i2c_byte_read(&_i2c, 0);
-    }
+    int read(void);
 
     /** Write to an I2C master.
      *
@@ -142,10 +130,7 @@ public:
      *  @retval 0       If written all bytes successfully.
      *  @retval nonzero On error or if the number of bytes written is less than requested.
      */
-    int write(const char *data, int length)
-    {
-        return i2c_slave_write(&_i2c, data, length) != length;
-    }
+    int write(const char *data, int length);
 
     /** Write a single byte to an I2C master.
      *
@@ -156,10 +141,7 @@ public:
      *  @retval 1 If an ACK is received.
      *  @retval 2 On timeout.
      */
-    int write(int data)
-    {
-        return i2c_byte_write(&_i2c, data);
-    }
+    int write(int data);
 
     /** Set the I2C slave address.
      *
@@ -172,10 +154,7 @@ public:
 
     /** Reset the I2C slave back into the known ready receiving state.
      */
-    void stop(void)
-    {
-        i2c_stop(&_i2c);
-    }
+    void stop(void);
 
 #if !defined(DOXYGEN_ONLY)
 

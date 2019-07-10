@@ -73,9 +73,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
-    Serial(PinName tx, PinName rx, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE) : SerialBase(tx, rx, baud), Stream(name)
-    {
-    }
+    Serial(PinName tx, PinName rx, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
@@ -87,9 +85,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
-    Serial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud), Stream(NULL)
-    {
-    }
+    Serial(PinName tx, PinName rx, int baud);
 
     /* Stream gives us a FileHandle with non-functional poll()/readable()/writable. Pass through
      * the calls from the SerialBase instead for backwards compatibility. This problem is
@@ -110,25 +106,10 @@ public:
 
 #if !(DOXYGEN_ONLY)
 protected:
-    virtual int _getc()
-    {
-        // Mutex is already held
-        return _base_getc();
-    }
-    virtual int _putc(int c)
-    {
-        // Mutex is already held
-        return _base_putc(c);
-    }
-    virtual void lock()
-    {
-        _mutex.lock();
-    }
-    virtual void unlock()
-    {
-        _mutex.unlock();
-    }
-
+    virtual int _getc();
+    virtual int _putc(int c);
+    virtual void lock();
+    virtual void unlock();
 
     PlatformMutex _mutex;
 #endif

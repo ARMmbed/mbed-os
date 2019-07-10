@@ -61,10 +61,7 @@ public:
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      */
     UARTSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    virtual ~UARTSerial()
-    {
-        delete _dcd_irq;
-    }
+    virtual ~UARTSerial();
 
     /** Equivalent to POSIX poll(). Derived from FileHandle.
      *  Provides a mechanism to multiplex input/output over a set of file handles.
@@ -109,12 +106,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int close()
-    {
-        /* Does not let us pass a file descriptor. So how to close ?
-        * Also, does it make sense to close a device type file descriptor*/
-        return 0;
-    }
+    virtual int close();
 
     /** Check if the file in an interactive terminal device
      *
@@ -122,10 +114,7 @@ public:
      *  @return         False if the file is not a terminal
      *  @return         Negative error code on failure
      */
-    virtual int isatty()
-    {
-        return 1;
-    }
+    virtual int isatty();
 
     /** Move the file position to a given offset from from a given location
      *
@@ -139,12 +128,7 @@ public:
      *      SEEK_END to start from end of file
      *  @return         The new offset of the file, negative error code on failure
      */
-    virtual off_t seek(off_t offset, int whence)
-    {
-        /*XXX lseek can be done theoratically, but is it sane to mark positions on a dynamically growing/shrinking
-        * buffer system (from an interrupt context) */
-        return -ESPIPE;
-    }
+    virtual off_t seek(off_t offset, int whence);
 
     /** Flush any buffers associated with the file
      *
@@ -235,10 +219,7 @@ public:
      *
      *  @param baud   The baud rate
      */
-    void set_baud(int baud)
-    {
-        SerialBase::baud(baud);
-    }
+    void set_baud(int baud);
 
     // Expose private SerialBase::Parity as UARTSerial::Parity
     using SerialBase::Parity;
@@ -281,30 +262,16 @@ private:
     void wait_ms(uint32_t millisec);
 
     /** SerialBase lock override */
-    virtual void lock(void)
-    {
-        // This is the override for SerialBase.
-        // No lock required as we only use SerialBase from interrupt or from
-        // inside our own critical section.
-    }
+    virtual void lock(void);
 
     /** SerialBase unlock override */
-    virtual void unlock(void)
-    {
-        // This is the override for SerialBase.
-    }
+    virtual void unlock(void);
 
     /** Acquire mutex */
-    virtual void api_lock(void)
-    {
-        _mutex.lock();
-    }
+    virtual void api_lock(void);
 
     /** Release mutex */
-    virtual void api_unlock(void)
-    {
-        _mutex.unlock();
-    }
+    virtual void api_unlock(void);
 
     /** Unbuffered write - invoked when write called from critical section */
     ssize_t write_unbuffered(const char *buf_ptr, size_t length);
@@ -348,10 +315,7 @@ private:
 
     void wake(void);
 
-    void dcd_irq(void)
-    {
-        wake();
-    }
+    void dcd_irq(void);
 
 };
 

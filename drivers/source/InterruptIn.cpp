@@ -24,7 +24,10 @@ namespace mbed {
 //       compatibility.
 //       If not for that, we could simplify by having only the 2-param
 //       constructor, with a default value for the PinMode.
-InterruptIn::InterruptIn(PinName pin) : gpio(), gpio_irq(), _rise(NULL), _fall(NULL)
+InterruptIn::InterruptIn(PinName pin) : gpio(),
+    gpio_irq(),
+    _rise(NULL),
+    _fall(NULL)
 {
     // No lock needed in the constructor
     irq_init(pin);
@@ -40,6 +43,23 @@ InterruptIn::InterruptIn(PinName pin, PinMode mode) :
     // No lock needed in the constructor
     irq_init(pin);
     gpio_init_in_ex(&gpio, pin, mode);
+}
+
+void InterruptIn::irq_init(PinName pin)
+{
+    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+}
+
+InterruptIn::~InterruptIn()
+{
+    // No lock needed in the destructor
+    gpio_irq_free(&gpio_irq);
+}
+
+int InterruptIn::read()
+{
+    // Read only
+    return gpio_read(&gpio);
 }
 
 void InterruptIn::mode(PinMode pull)
@@ -106,6 +126,12 @@ void InterruptIn::disable_irq()
     core_util_critical_section_enter();
     gpio_irq_disable(&gpio_irq);
     core_util_critical_section_exit();
+}
+
+InterruptIn::operator int()
+{
+    // Underlying call is atomic
+    return read();
 }
 
 } // namespace mbed

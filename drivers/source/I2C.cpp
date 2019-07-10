@@ -131,6 +131,16 @@ void I2C::stop(void)
     unlock();
 }
 
+void I2C::lock()
+{
+    _mutex->lock();
+}
+
+void I2C::unlock()
+{
+    _mutex->unlock();
+}
+
 int I2C::recover(PinName sda, PinName scl)
 {
     DigitalInOut pin_sda(sda, PIN_INPUT, PullNone, 1);

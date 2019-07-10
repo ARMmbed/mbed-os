@@ -66,6 +66,7 @@ int SerialBase::readable()
     return ret;
 }
 
+
 int SerialBase::writeable()
 {
     lock();
@@ -106,6 +107,12 @@ void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type)
     }
 }
 
+int SerialBase::_base_getc()
+{
+    // Mutex is already held
+    return serial_getc(&_serial);
+}
+
 int SerialBase::_base_putc(int c)
 {
     // Mutex is already held
@@ -142,6 +149,16 @@ void SerialBase::send_break()
     wait_us(18000000 / _baud);
     serial_break_clear(&_serial);
     unlock();
+}
+
+void SerialBase::lock()
+{
+    // Stub
+}
+
+void SerialBase:: unlock()
+{
+    // Stub
 }
 
 SerialBase::~SerialBase()
@@ -277,6 +294,7 @@ int SerialBase::read(uint8_t *buffer, int length, const event_callback_t &callba
     return result;
 }
 
+
 int SerialBase::read(uint16_t *buffer, int length, const event_callback_t &callback, int event, unsigned char char_match)
 {
     int result = 0;
@@ -289,6 +307,7 @@ int SerialBase::read(uint16_t *buffer, int length, const event_callback_t &callb
     unlock();
     return result;
 }
+
 
 void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match)
 {

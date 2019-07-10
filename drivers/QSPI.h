@@ -192,17 +192,11 @@ public:
 protected:
     /** Acquire exclusive access to this SPI bus
      */
-    virtual void lock(void)
-    {
-        _mutex->lock();
-    }
+    virtual void lock(void);
 
     /** Release exclusive access to this SPI bus
      */
-    virtual void unlock(void)
-    {
-        _mutex->unlock();
-    }
+    virtual void unlock(void);
 
     qspi_t _qspi;
 

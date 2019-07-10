@@ -46,6 +46,16 @@ static inline bool is_aligned(uint32_t number, uint32_t alignment)
     }
 }
 
+FlashIAP::FlashIAP()
+{
+
+}
+
+FlashIAP::~FlashIAP()
+{
+
+}
+
 int FlashIAP::init()
 {
     int ret = 0;
@@ -206,6 +216,31 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
     return ret;
 }
 
-} // namespace mbed
+uint32_t FlashIAP::get_page_size() const
+{
+    return flash_get_page_size(&_flash);
+}
+
+uint32_t FlashIAP::get_sector_size(uint32_t addr) const
+{
+    return flash_get_sector_size(&_flash, addr);
+}
+
+uint32_t FlashIAP::get_flash_start() const
+{
+    return flash_get_start_address(&_flash);
+}
+
+uint32_t FlashIAP::get_flash_size() const
+{
+    return flash_get_size(&_flash);
+}
+
+uint8_t FlashIAP::get_erase_value() const
+{
+    return flash_get_erase_value(&_flash);
+}
+
+}
 
 #endif

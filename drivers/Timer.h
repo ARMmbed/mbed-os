@@ -90,17 +90,11 @@ public:
      *
      *  @returns    Time passed in microseconds
      */
-    int read_us()
-    {
-        return read_high_resolution_us();
-    }
+    int read_us();
 
     /** An operator shorthand for read()
      */
-    operator float()
-    {
-        return read();
-    }
+    operator float();
 
     /** Get in a high resolution type the time passed in microseconds.
      *  Returns a 64 bit integer.

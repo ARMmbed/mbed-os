@@ -63,15 +63,8 @@ namespace mbed {
  */
 class FlashIAP : private NonCopyable<FlashIAP> {
 public:
-    FlashIAP()
-    {
-
-    }
-
-    ~FlashIAP()
-    {
-
-    }
+    FlashIAP();
+    ~FlashIAP();
 
     /** Initialize a flash IAP device
      *
@@ -126,48 +119,33 @@ public:
      *  @param addr Address of or inside the sector to query
      *  @return Size of a sector in bytes or MBED_FLASH_INVALID_SIZE if not mapped
      */
-    uint32_t get_sector_size(uint32_t addr) const
-    {
-        return flash_get_sector_size(&_flash, addr);
-    }
+    uint32_t get_sector_size(uint32_t addr) const;
 
     /** Get the flash start address
      *
      *  @return Flash start address
      */
-    uint32_t get_flash_start() const
-    {
-        return flash_get_start_address(&_flash);
-    }
+    uint32_t get_flash_start() const;
 
     /** Get the flash size
      *
      *  @return Flash size
      */
-    uint32_t get_flash_size() const
-    {
-        return flash_get_size(&_flash);
-    }
+    uint32_t get_flash_size() const;
 
     /** Get the program page size
      *
      *  The page size defines the writable page size
      *  @return Size of a program page in bytes
      */
-    uint32_t get_page_size() const
-    {
-        return flash_get_page_size(&_flash);
-    }
+    uint32_t get_page_size() const;
 
     /** Get the flash erase value
      *
      *  Get the value we read after erase operation
      *  @return flash erase value
      */
-    uint8_t get_erase_value() const
-    {
-        return flash_get_erase_value(&_flash);
-    }
+    uint8_t get_erase_value() const;
 
 #if !defined(DOXYGEN_ONLY)
 private:

@@ -44,6 +44,21 @@ void SPISlave::frequency(int hz)
     spi_frequency(&_spi, _hz);
 }
 
+int SPISlave::receive(void)
+{
+    return (spi_slave_receive(&_spi));
+}
+
+ int SPISlave::read(void)
+{
+    return (spi_slave_read(&_spi));
+}
+
+void SPISlave::reply(int value)
+{
+    spi_slave_write(&_spi, value);
+}
+
 } // namespace mbed
 
 #endif

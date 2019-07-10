@@ -28,6 +28,32 @@ namespace mbed {
 SPI::spi_peripheral_s SPI::_peripherals[SPI_PERIPHERALS_USED];
 int SPI::_peripherals_used;
 
+SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
+#if DEVICE_SPI_ASYNCH
+    _irq(this),
+#endif
+    _mosi(mosi),
+    _miso(miso),
+    _sclk(sclk),
+    _hw_ssel(ssel),
+    _sw_ssel(NC)
+{
+    _do_construct();
+}
+
+SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t) :
+#if DEVICE_SPI_ASYNCH
+    _irq(this),
+#endif
+    _mosi(mosi),
+    _miso(miso),
+    _sclk(sclk),
+    _hw_ssel(NC),
+    _sw_ssel(ssel, 1)
+{
+    _do_construct();
+}
+
 void SPI::_do_construct()
 {
     // No lock needed in the constructor
@@ -162,6 +188,11 @@ void SPI::_set_ssel(int val)
     }
 }
 
+void SPI::lock()
+{
+    _peripheral->mutex->lock();
+}
+
 void SPI::select()
 {
     lock();
@@ -169,6 +200,11 @@ void SPI::select()
         _acquire();
         _set_ssel(0);
     }
+}
+
+void SPI::unlock()
+{
+    _peripheral->mutex->unlock();
 }
 
 void SPI::deselect()
@@ -204,6 +240,13 @@ void SPI::abort_transfer()
     unlock_deep_sleep();
 #if TRANSACTION_QUEUE_SIZE_SPI
     dequeue_transaction();
+#endif
+}
+
+void SPI::clear_transfer_buffer()
+{
+#if TRANSACTION_QUEUE_SIZE_SPI
+    _peripheral->transaction_buffer->reset();
 #endif
 }
 
@@ -278,6 +321,11 @@ void SPI::unlock_deep_sleep()
 }
 
 #if TRANSACTION_QUEUE_SIZE_SPI
+
+void SPI::start_transaction(transaction_t *data)
+{
+    start_transfer(data->tx_buffer, data->tx_length, data->rx_buffer, data->rx_length, data->width, data->callback, data->event);
+}
 
 void SPI::dequeue_transaction()
 {

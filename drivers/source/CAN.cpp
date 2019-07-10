@@ -157,6 +157,16 @@ void CAN::_irq_handler(uint32_t id, CanIrqType type)
     }
 }
 
+void CAN::lock()
+{
+    _mutex.lock();
+}
+
+void CAN::unlock()
+{
+    _mutex.unlock();
+}
+
 } // namespace mbed
 
 #endif
