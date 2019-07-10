@@ -19,9 +19,12 @@
 #include <stdlib.h>
 
 #include "LoRaWANStack.h"
+#include "LoRaWANStack_stub.h"
 
 using namespace mbed;
 using namespace events;
+
+lorawan_gps_time_t LoRaWANStack_stub::gps_time_value = 0;
 
 /*****************************************************************************
  * Constructor                                                               *
@@ -312,12 +315,11 @@ void LoRaWANStack::remove_device_time_request(void)
 
 lorawan_gps_time_t LoRaWANStack::get_current_gps_time()
 {
-    return _loramac.get_gps_time();
+    return LoRaWANStack_stub::gps_time_value;
 }
 
 void LoRaWANStack::set_current_gps_time(lorawan_gps_time_t gps_time)
 {
-    _loramac.set_gps_time(gps_time);
 }
 
 lorawan_status_t LoRaWANStack::add_ping_slot_info_request(uint8_t periodicity)

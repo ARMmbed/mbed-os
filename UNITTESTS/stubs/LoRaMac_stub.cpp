@@ -37,6 +37,7 @@ loramac_mlme_indication_t *LoRaMac_stub::mlme_ind_ptr = NULL;
 device_class_t LoRaMac_stub::dev_class_value = CLASS_A;
 mbed::Callback<void(void)> LoRaMac_stub::_scheduling_failure_handler = NULL;
 LoRaWANTimeHandler *LoRaMac_stub::time_handler_ptr = NULL;
+lorawan_gps_time_t LoRaMac_stub::gps_time_value = 0;
 
 LoRaMac::LoRaMac()
     : _lora_time(),
@@ -510,12 +511,11 @@ lorawan_status_t LoRaMac::rejoin(join_req_type_t rejoin_type, bool is_forced, ui
 
 lorawan_gps_time_t LoRaMac::get_gps_time(void)
 {
-    return _lora_time.get_gps_time();
+    return LoRaMac_stub::gps_time_value;
 }
 
 void LoRaMac::set_gps_time(lorawan_gps_time_t gps_time)
 {
-    _lora_time.set_gps_time(gps_time);
 }
 
 lorawan_status_t LoRaMac::add_ping_slot_info_req()
