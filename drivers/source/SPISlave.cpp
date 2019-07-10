@@ -49,7 +49,7 @@ int SPISlave::receive(void)
     return (spi_slave_receive(&_spi));
 }
 
- int SPISlave::read(void)
+int SPISlave::read(void)
 {
     return (spi_slave_read(&_spi));
 }

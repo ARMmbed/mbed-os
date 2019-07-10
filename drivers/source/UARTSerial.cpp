@@ -46,12 +46,12 @@ UARTSerial::~UARTSerial()
     delete _dcd_irq;
 }
 
- void UARTSerial::dcd_irq()
+void UARTSerial::dcd_irq()
 {
     wake();
 }
 
- void UARTSerial::set_baud(int baud)
+void UARTSerial::set_baud(int baud)
 {
     SerialBase::baud(baud);
 }
@@ -94,7 +94,7 @@ int UARTSerial::close()
     return 0;
 }
 
- int UARTSerial::isatty()
+int UARTSerial::isatty()
 {
     return 1;
 
