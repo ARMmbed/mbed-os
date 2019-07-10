@@ -8701,6 +8701,21 @@
         "sectors": [[268443648, 512]],
         "bootloader_supported": true
     },
+    "CY8CPROTO_064_SB": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": ["PSOC6_01"],
+        "macros_add": ["CYB06447BZI_D54",
+                       "PSOC6_DYNSRM_DISABLE=1",
+                       "CY_CFG_SYSCLK_WCO_ENABLED=1",
+                       "SEMAPHORE"],
+        "detect_code": ["1907"],
+        "forced_reset_timeout": 5,
+        "reset_method": "default",
+        "post_binary_hook": {
+            "function": "PSOC6Code.sign_image"
+        }
+    },
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
