@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
+#include "eventOS_scheduler.h"
+
+#include "ns_event_loop_mutex.h"
+
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "mbed_assert.h"
 #include "cmsis.h"
 #include "cmsis_os2.h"
 #include "mbed_rtos_storage.h"
 #include "ns_trace.h"
 
-#include "eventOS_scheduler.h"
-
-#include "ns_event_loop_mutex.h"
 
 #define TRACE_GROUP "evlm"
 
@@ -67,3 +69,23 @@ void ns_event_loop_mutex_init(void)
     MBED_ASSERT(event_mutex_id != NULL);
 }
 
+#else
+
+void eventOS_scheduler_mutex_wait(void)
+{
+}
+
+void eventOS_scheduler_mutex_release(void)
+{
+}
+
+uint8_t eventOS_scheduler_mutex_is_owner(void)
+{
+    return 1;
+}
+
+void ns_event_loop_mutex_init(void)
+{
+}
+
+#endif // MBED_CONF_RTOS_PRESENT

@@ -22,6 +22,7 @@
 #ifndef EVENT_FLAG_H
 #define EVENT_FLAG_H
 
+#include <cstddef>
 #include <stdint.h>
 #include "rtos/mbed_rtos_types.h"
 #include "rtos/mbed_rtos1_types.h"
