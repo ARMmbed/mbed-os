@@ -27,14 +27,32 @@ reset_reason_t hal_reset_reason_get(void)
     }
 #endif
 
+#ifdef RCC_FLAG_LPWR1RST
+    if ((__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR1RST))||(__HAL_RCC_GET_FLAG(RCC_FLAG_LPWR2RST))) {
+        return RESET_REASON_WAKE_LOW_POWER;
+    }
+#endif
+
 #ifdef RCC_FLAG_WWDGRST
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST)) {
         return RESET_REASON_WATCHDOG;
     }
 #endif
 
+#ifdef RCC_FLAG_WWDG1RST
+    if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDG1RST)) {
+        return RESET_REASON_WATCHDOG;
+    }
+#endif
+
 #ifdef RCC_FLAG_IWDGRST
     if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)) {
+        return RESET_REASON_WATCHDOG;
+    }
+#endif
+
+#ifdef RCC_FLAG_IWDG1RST
+    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDG1RST)) {
         return RESET_REASON_WATCHDOG;
     }
 #endif
@@ -69,7 +87,11 @@ reset_reason_t hal_reset_reason_get(void)
 
 uint32_t hal_reset_reason_get_raw(void)
 {
+#if TARGET_STM32H7
+    return RCC->RSR;
+#else /* TARGET_STM32H7 */
     return RCC->CSR;
+#endif /* TARGET_STM32H7 */
 }
 
 

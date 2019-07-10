@@ -19,6 +19,8 @@
 #error [NOT_SUPPORTED] SPI not supported for this target
 #elif !COMPONENT_FPGA_CI_TEST_SHIELD
 #error [NOT_SUPPORTED] FPGA CI Test Shield is needed to run this test
+#elif !defined(TARGET_FF_ARDUINO) && !defined(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+#error [NOT_SUPPORTED] Test not supported for this form factor
 #else
 
 #include "utest/utest.h"
@@ -32,23 +34,45 @@ using namespace utest::v1;
 #include "pinmap.h"
 #include "test_utils.h"
 
+typedef enum {
+    TRANSFER_SPI_MASTER_WRITE_SYNC,
+    TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC,
+    TRANSFER_SPI_MASTER_TRANSFER_ASYNC
+} transfer_type_t;
+
+#define FREQ_500_KHZ 500000
+#define FREQ_1_MHZ 1000000
+#define FREQ_2_MHZ 2000000
 
 const int TRANSFER_COUNT = 300;
 SPIMasterTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
 
+spi_t spi;
+static volatile bool async_trasfer_done;
+
+#if DEVICE_SPI_ASYNCH
+void spi_async_handler()
+{
+    int event = spi_irq_handler_asynch(&spi);
+
+    if (event == SPI_EVENT_COMPLETE) {
+        async_trasfer_done = true;
+    }
+}
+#endif
 
 void spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    spi_t spi;
     spi_init(&spi, mosi, miso, sclk, ssel);
     spi_format(&spi, 8, SPITester::Mode0, 0);
     spi_frequency(&spi, 1000000);
     spi_free(&spi);
 }
 
-void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size)
+void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency)
 {
     uint32_t sym_mask = ((1 << sym_size) - 1);
+
     // Remap pins for test
     tester.reset();
     tester.pin_map_set(mosi, MbedTester::LogicalPinSPIMosi);
@@ -57,10 +81,10 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
     tester.pin_map_set(ssel, MbedTester::LogicalPinSPISsel);
 
     // Initialize mbed SPI pins
-    spi_t spi;
+
     spi_init(&spi, mosi, miso, sclk, ssel);
     spi_format(&spi, sym_size, spi_mode, 0);
-    spi_frequency(&spi, 1000000);
+    spi_frequency(&spi, frequency);
 
     // Configure spi_slave module
     tester.set_mode(spi_mode);
@@ -71,13 +95,61 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
     tester.peripherals_reset();
     tester.select_peripheral(SPITester::PeripheralSPI);
 
-    // Send and receive test data
     uint32_t checksum = 0;
-    for (int i = 0; i < TRANSFER_COUNT; i++) {
-        uint32_t data = spi_master_write(&spi, (0 - i) & sym_mask);
-        TEST_ASSERT_EQUAL(i & sym_mask, data);
+    int result = 0;
+    uint8_t tx_buf[TRANSFER_COUNT] = {0};
+    uint8_t rx_buf[TRANSFER_COUNT] = {0};
 
-        checksum += (0 - i) & sym_mask;
+    // Send and receive test data
+    switch (transfer_type) {
+        case TRANSFER_SPI_MASTER_WRITE_SYNC:
+            for (int i = 0; i < TRANSFER_COUNT; i++) {
+                uint32_t data = spi_master_write(&spi, (0 - i) & sym_mask);
+                TEST_ASSERT_EQUAL(i & sym_mask, data);
+
+                checksum += (0 - i) & sym_mask;
+            }
+            break;
+
+        case TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC:
+            for (int i = 0; i < TRANSFER_COUNT; i++) {
+                tx_buf[i] = (0 - i) & sym_mask;
+                checksum += (0 - i) & sym_mask;
+                rx_buf[i] = 0xAA;
+            }
+
+            result = spi_master_block_write(&spi, (const char *)tx_buf, TRANSFER_COUNT, (char *)rx_buf, TRANSFER_COUNT, 0xF5);
+
+            for (int i = 0; i < TRANSFER_COUNT; i++) {
+                TEST_ASSERT_EQUAL(i & sym_mask, rx_buf[i]);
+            }
+            TEST_ASSERT_EQUAL(TRANSFER_COUNT, result);
+            break;
+
+#if DEVICE_SPI_ASYNCH
+        case TRANSFER_SPI_MASTER_TRANSFER_ASYNC:
+            for (int i = 0; i < TRANSFER_COUNT; i++) {
+                tx_buf[i] = (0 - i) & sym_mask;
+                checksum += (0 - i) & sym_mask;
+                rx_buf[i] = 0xAA;
+            }
+
+            async_trasfer_done = false;
+
+            spi_master_transfer(&spi, tx_buf, TRANSFER_COUNT, rx_buf, TRANSFER_COUNT, 8, (uint32_t)spi_async_handler, 0, DMA_USAGE_NEVER);
+            while (!async_trasfer_done);
+
+            for (int i = 0; i < TRANSFER_COUNT; i++) {
+                TEST_ASSERT_EQUAL(i & sym_mask, rx_buf[i]);
+            }
+
+            break;
+#endif
+
+        default:
+            TEST_ASSERT_MESSAGE(0, "Unsupported transfer type.");
+            break;
+
     }
 
     // Verify that the transfer was successful
@@ -88,10 +160,10 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
     tester.reset();
 }
 
-template<SPITester::SpiMode spi_mode, uint32_t sym_size>
+template<SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency>
 void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size);
+    spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size, transfer_type, frequency);
 }
 
 Case cases[] = {
@@ -99,16 +171,25 @@ Case cases[] = {
     Case("SPI - init/free test all pins", all_ports<SPIPort, DefaultFormFactor, spi_test_init_free>),
 
     // This will be run for all peripherals
-    Case("SPI - basic test", all_peripherals<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8> >),
+    Case("SPI - basic test", all_peripherals<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
 
     // This will be run for single pin configuration
-    Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode1, 8> >),
-    Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode2, 8> >),
-    Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode3, 8> >),
+    Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode1, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
 
-    Case("SPI - symbol size testing (4)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 4> >),
-    Case("SPI - symbol size testing (12)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 12> >),
-    Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 16> >)
+    Case("SPI - symbol size testing (4)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 4, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - symbol size testing (12)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 12, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+
+    Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ> >),
+    Case("SPI - frequency testing (2 MHz)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_2_MHZ> >),
+
+    Case("SPI - block write", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ> >),
+
+#if DEVICE_SPI_ASYNCH
+    Case("SPI - async mode", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ> >)
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

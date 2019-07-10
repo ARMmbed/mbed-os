@@ -3227,8 +3227,7 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
-        "bootloader_supported": true,
-        "device_has_remove": ["WATCHDOG"]
+        "bootloader_supported": true
     },
     "NUCLEO_H743ZI2": {
         "inherits": ["NUCLEO_H743ZI"],
@@ -8759,6 +8758,20 @@
         "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
         "release_versions": ["5"]
+    },
+    "IM880B": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT", "MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
+        "macros_add": ["HSE_VALUE=16000000"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CBxxA"
     },
     "__build_tools_metadata__": {
         "version": "1",

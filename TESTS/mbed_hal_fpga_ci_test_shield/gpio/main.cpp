@@ -17,6 +17,8 @@
 
 #if !COMPONENT_FPGA_CI_TEST_SHIELD
 #error [NOT_SUPPORTED] FPGA CI Test Shield is needed to run this test
+#elif !defined(TARGET_FF_ARDUINO) && !defined(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+#error [NOT_SUPPORTED] Test not supported for this form factor
 #else
 
 #include "utest/utest.h"
@@ -66,6 +68,9 @@ void gpio_inout_test()
 {
     for (int i = 0; i < form_factor->count; i++) {
         const PinName test_pin = form_factor->pins[i];
+        if (test_pin == NC) {
+            continue;
+        }
         if (pinmap_list_has_pin(restricted, test_pin)) {
             printf("Skipping gpio pin %s (%i)\r\n", pinmap_ff_default_pin_to_string(test_pin), test_pin);
             continue;
