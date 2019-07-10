@@ -37,10 +37,24 @@ using namespace mbed;
 #if MBED_CONF_RTOS_API_PRESENT
 
 #include "rtos/Kernel.h"
+#include "platform/mbed_os_timer.h"
 
 unsigned equeue_tick()
 {
-    return rtos::Kernel::get_ms_count();
+    // It is not safe to call get_ms_count from ISRs, both
+    // because documentation says so, and because it will give
+    // a stale value from the RTOS if the interrupt has woken
+    // us out of sleep - the RTOS will not have updated its
+    // ticks yet.
+    if (core_util_is_isr_active()) {
+        // And the documentation further says that this
+        // should not be called from critical sections, for
+        // performance reasons, but I don't have a good
+        // current alternative!
+        return mbed::internal::os_timer->get_time() / 1000;
+    } else {
+        return rtos::Kernel::get_ms_count();
+    }
 }
 
 #else
