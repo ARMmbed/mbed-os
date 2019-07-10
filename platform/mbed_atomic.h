@@ -880,7 +880,7 @@ MBED_FORCEINLINE uint64_t core_util_atomic_fetch_xor_explicit_u64(volatile uint6
 #ifdef __cplusplus
 } // extern "C"
 
-#include "mbed_cxxsupport.h"
+#include <mstd_type_traits>
 
 // For each operation, two overloaded templates:
 // * one for non-pointer types, which has implementations based on the
@@ -900,65 +900,65 @@ template<typename T> T core_util_atomic_load(const volatile T *valuePtr) noexcep
 /** \copydoc core_util_atomic_load_u8 */
 template<typename T> T core_util_atomic_load(const T *valuePtr) noexcept;
 /** \copydoc core_util_atomic_store_u8 */
-template<typename T> void core_util_atomic_store(volatile T *valuePtr, mbed::type_identity_t<T> desiredValue) noexcept;
+template<typename T> void core_util_atomic_store(volatile T *valuePtr, mstd::type_identity_t<T> desiredValue) noexcept;
 /** \copydoc core_util_atomic_store_u8 */
-template<typename T> void core_util_atomic_store(T *valuePtr, mbed::type_identity_t<T> desiredValue) noexcept;
+template<typename T> void core_util_atomic_store(T *valuePtr, mstd::type_identity_t<T> desiredValue) noexcept;
 /** \copydoc core_util_atomic_exchange_u8 */
-template<typename T> T core_util_atomic_exchange(volatile T *ptr, mbed::type_identity_t<T> desiredValue) noexcept;
+template<typename T> T core_util_atomic_exchange(volatile T *ptr, mstd::type_identity_t<T> desiredValue) noexcept;
 /** \copydoc core_util_atomic_cas_u8 */
-template<typename T> bool core_util_atomic_compare_exchange_strong(volatile T *ptr, mbed::type_identity_t<T> *expectedCurrentValue, mbed::type_identity_t<T> desiredValue) noexcept;
+template<typename T> bool core_util_atomic_compare_exchange_strong(volatile T *ptr, mstd::type_identity_t<T> *expectedCurrentValue, mstd::type_identity_t<T> desiredValue) noexcept;
 /** \copydoc core_util_atomic_compare_exchange_weak_u8 */
-template<typename T> bool core_util_atomic_compare_exchange_weak(volatile T *ptr, mbed::type_identity_t<T> *expectedCurrentValue, mbed::type_identity_t<T> desiredValue) noexcept;
+template<typename T> bool core_util_atomic_compare_exchange_weak(volatile T *ptr, mstd::type_identity_t<T> *expectedCurrentValue, mstd::type_identity_t<T> desiredValue) noexcept;
 /** \copydoc core_util_fetch_add_u8 */
-template<typename T> T core_util_atomic_fetch_add(volatile T *valuePtr, mbed::type_identity_t<T> arg) noexcept;
+template<typename T> T core_util_atomic_fetch_add(volatile T *valuePtr, mstd::type_identity_t<T> arg) noexcept;
 /** \copydoc core_util_fetch_sub_u8 */
-template<typename T> T core_util_atomic_fetch_sub(volatile T *valuePtr, mbed::type_identity_t<T> arg) noexcept;
+template<typename T> T core_util_atomic_fetch_sub(volatile T *valuePtr, mstd::type_identity_t<T> arg) noexcept;
 /** \copydoc core_util_fetch_and_u8 */
-template<typename T> T core_util_atomic_fetch_and(volatile T *valuePtr, mbed::type_identity_t<T> arg) noexcept;
+template<typename T> T core_util_atomic_fetch_and(volatile T *valuePtr, mstd::type_identity_t<T> arg) noexcept;
 /** \copydoc core_util_fetch_or_u8 */
-template<typename T> T core_util_atomic_fetch_or(volatile T *valuePtr, mbed::type_identity_t<T> arg) noexcept;
+template<typename T> T core_util_atomic_fetch_or(volatile T *valuePtr, mstd::type_identity_t<T> arg) noexcept;
 /** \copydoc core_util_fetch_xor_u8 */
-template<typename T> T core_util_atomic_fetch_xor(volatile T *valuePtr, mbed::type_identity_t<T> arg) noexcept;
+template<typename T> T core_util_atomic_fetch_xor(volatile T *valuePtr, mstd::type_identity_t<T> arg) noexcept;
 
 /** \copydoc core_util_atomic_load_explicit_u8 */
 template<typename T> T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_load_explicit_u8 */
 template<typename T> T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_store_explicit_u8 */
-template<typename T> void core_util_atomic_store_explicit(volatile T *valuePtr, mbed::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
+template<typename T> void core_util_atomic_store_explicit(volatile T *valuePtr, mstd::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_store_explicit_u8 */
-template<typename T> void core_util_atomic_store_explicit(T *valuePtr, mbed::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
+template<typename T> void core_util_atomic_store_explicit(T *valuePtr, mstd::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_exchange_explicit_u8 */
-template<typename T> T core_util_atomic_exchange_explicit(volatile T *ptr, mbed::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_exchange_explicit(volatile T *ptr, mstd::type_identity_t<T> desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_cas_explicit_u8 */
-template<typename T> bool core_util_atomic_compare_exchange_strong_explicit(volatile T *ptr, mbed::type_identity_t<T> *expectedCurrentValue, mbed::type_identity_t<T> desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
+template<typename T> bool core_util_atomic_compare_exchange_strong_explicit(volatile T *ptr, mstd::type_identity_t<T> *expectedCurrentValue, mstd::type_identity_t<T> desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
 /** \copydoc core_util_atomic_compare_exchange_weak_explicit_u8 */
-template<typename T> bool core_util_atomic_compare_exchange_weak_explicit(volatile T *ptr, mbed::type_identity_t<T> *expectedCurrentValue, mbed::type_identity_t<T> desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
+template<typename T> bool core_util_atomic_compare_exchange_weak_explicit(volatile T *ptr, mstd::type_identity_t<T> *expectedCurrentValue, mstd::type_identity_t<T> desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
 /** \copydoc core_util_fetch_add_explicit_u8 */
-template<typename T> T core_util_atomic_fetch_add_explicit(volatile T *valuePtr, mbed::type_identity_t<T> arg, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_fetch_add_explicit(volatile T *valuePtr, mstd::type_identity_t<T> arg, mbed_memory_order order) noexcept;
 /** \copydoc core_util_fetch_sub_explicit_u8 */
-template<typename T> T core_util_atomic_fetch_sub_explicit(volatile T *valuePtr, mbed::type_identity_t<T> arg, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_fetch_sub_explicit(volatile T *valuePtr, mstd::type_identity_t<T> arg, mbed_memory_order order) noexcept;
 /** \copydoc core_util_fetch_and_explicit_u8 */
-template<typename T> T core_util_atomic_fetch_and_explicit(volatile T *valuePtr, mbed::type_identity_t<T> arg, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_fetch_and_explicit(volatile T *valuePtr, mstd::type_identity_t<T> arg, mbed_memory_order order) noexcept;
 /** \copydoc core_util_fetch_or_explicit_u8 */
-template<typename T> T core_util_atomic_fetch_or_explicit(volatile T *valuePtr, mbed::type_identity_t<T> arg, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_fetch_or_explicit(volatile T *valuePtr, mstd::type_identity_t<T> arg, mbed_memory_order order) noexcept;
 /** \copydoc core_util_fetch_xor_explicit_u8 */
-template<typename T> T core_util_atomic_fetch_xor_explicit(volatile T *valuePtr, mbed::type_identity_t<T> arg, mbed_memory_order order) noexcept;
+template<typename T> T core_util_atomic_fetch_xor_explicit(volatile T *valuePtr, mstd::type_identity_t<T> arg, mbed_memory_order order) noexcept;
 
 /** \copydoc core_util_atomic_load_ptr */
 template<typename T> inline T *core_util_atomic_load(T *const volatile *valuePtr) noexcept;
 /** \copydoc core_util_atomic_load_ptr */
 template<typename T> inline T *core_util_atomic_load(T *const *valuePtr) noexcept;
 /** \copydoc core_util_atomic_store_ptr */
-template<typename T> inline void core_util_atomic_store(T *volatile *valuePtr, mbed::type_identity_t<T> *desiredValue) noexcept;
+template<typename T> inline void core_util_atomic_store(T *volatile *valuePtr, mstd::type_identity_t<T> *desiredValue) noexcept;
 /** \copydoc core_util_atomic_store_ptr */
-template<typename T> inline void core_util_atomic_store(T **valuePtr, mbed::type_identity_t<T> *desiredValue) noexcept;
+template<typename T> inline void core_util_atomic_store(T **valuePtr, mstd::type_identity_t<T> *desiredValue) noexcept;
 /** \copydoc core_util_atomic_exchange_ptr */
-template<typename T> inline T *core_util_atomic_exchange(T *volatile *valuePtr, mbed::type_identity_t<T> *desiredValue) noexcept;
+template<typename T> inline T *core_util_atomic_exchange(T *volatile *valuePtr, mstd::type_identity_t<T> *desiredValue) noexcept;
 /** \copydoc core_util_atomic_cas_ptr */
-template<typename T> inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, mbed::type_identity_t<T> **expectedCurrentValue, mbed::type_identity_t<T> *desiredValue) noexcept;
+template<typename T> inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, mstd::type_identity_t<T> **expectedCurrentValue, mstd::type_identity_t<T> *desiredValue) noexcept;
 /** \copydoc core_util_atomic_compare_exchange_weak_ptr */
-template<typename T> inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, mbed::type_identity_t<T> **expectedCurrentValue, mbed::type_identity_t<T> *desiredValue) noexcept;
+template<typename T> inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, mstd::type_identity_t<T> **expectedCurrentValue, mstd::type_identity_t<T> *desiredValue) noexcept;
 /** \copydoc core_util_fetch_add_ptr */
 template<typename T> inline T *core_util_atomic_fetch_add(T *volatile *valuePtr, ptrdiff_t arg) noexcept;
 /** \copydoc core_util_fetch_sub_ptr */
@@ -969,15 +969,15 @@ template<typename T> inline T *core_util_atomic_load_explicit(T *const volatile 
 /** \copydoc core_util_atomic_load_explicit_ptr */
 template<typename T> inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_store_explicit_ptr */
-template<typename T> inline void core_util_atomic_store_explicit(T *volatile *valuePtr, mbed::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
+template<typename T> inline void core_util_atomic_store_explicit(T *volatile *valuePtr, mstd::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_store_explicit_ptr */
-template<typename T> inline void core_util_atomic_store_explicit(T **valuePtr, mbed::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
+template<typename T> inline void core_util_atomic_store_explicit(T **valuePtr, mstd::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_exchange_explicit_ptr */
-template<typename T> inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, mbed::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
+template<typename T> inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, mstd::type_identity_t<T> *desiredValue, mbed_memory_order order) noexcept;
 /** \copydoc core_util_atomic_cas_explicit_ptr */
-template<typename T> inline bool core_util_atomic_compare_exchange_strong_explicit(T *volatile *ptr, mbed::type_identity_t<T> **expectedCurrentValue, mbed::type_identity_t<T> *desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
+template<typename T> inline bool core_util_atomic_compare_exchange_strong_explicit(T *volatile *ptr, mstd::type_identity_t<T> **expectedCurrentValue, mstd::type_identity_t<T> *desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
 /** \copydoc core_util_atomic_compare_exchange_weak_explicit_ptr */
-template<typename T> inline bool core_util_atomic_compare_exchange_weak_explicit(T *volatile *ptr, mbed::type_identity_t<T> **expectedCurrentValue, mbed::type_identity_t<T> *desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
+template<typename T> inline bool core_util_atomic_compare_exchange_weak_explicit(T *volatile *ptr, mstd::type_identity_t<T> **expectedCurrentValue, mstd::type_identity_t<T> *desiredValue, mbed_memory_order success, mbed_memory_order failure) noexcept;
 /** \copydoc core_util_fetch_add_explicit_ptr */
 template<typename T> inline T *core_util_atomic_fetch_add_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order) noexcept;
 /** \copydoc core_util_fetch_sub_explicit_ptr */

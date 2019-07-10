@@ -20,11 +20,12 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <memory>
+#include <mstd_memory>
+#include <mstd_type_traits>
+#include <mstd_utility>
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_cxxsupport.h"
 #include "platform/CriticalSectionLock.h"
 
 /*
@@ -141,16 +142,16 @@ template<typename N>
 struct atomic_container_is_lock_free;
 
 template<>
-struct atomic_container_is_lock_free<uint8_t> : mbed::bool_constant<bool(MBED_ATOMIC_CHAR_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint8_t> : mstd::bool_constant<bool(MBED_ATOMIC_CHAR_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint16_t> : mbed::bool_constant<bool(MBED_ATOMIC_SHORT_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint16_t> : mstd::bool_constant<bool(MBED_ATOMIC_SHORT_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint32_t> : mbed::bool_constant<bool(MBED_ATOMIC_INT_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint32_t> : mstd::bool_constant<bool(MBED_ATOMIC_INT_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint64_t> : mbed::bool_constant<bool(MBED_ATOMIC_LLONG_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint64_t> : mstd::bool_constant<bool(MBED_ATOMIC_LLONG_LOCK_FREE)> { };
 
 template<typename T>
 using atomic_is_lock_free = atomic_container_is_lock_free<atomic_container_t<T>>;
@@ -702,15 +703,15 @@ struct AtomicWithBitwise : public AtomicWithAdd<T, A> {
  */
 // *INDENT-OFF*
 template<typename T, typename = void>
-struct AtomicSelector : mbed::type_identity<AtomicBaseRaw<T>> { };
+struct AtomicSelector : mstd::type_identity<AtomicBaseRaw<T>> { };
 
 template<typename T>
 struct AtomicSelector<T, std::enable_if_t<std::is_same<bool, T>::value>>
-                        : mbed::type_identity<AtomicBaseInt<T>> { };
+                        : mstd::type_identity<AtomicBaseInt<T>> { };
 
 template<typename T>
 struct AtomicSelector<T, std::enable_if_t<std::is_integral<T>::value && !std::is_same<bool, T>::value>>
-                        : mbed::type_identity<AtomicWithBitwise<T>> { };
+                        : mstd::type_identity<AtomicWithBitwise<T>> { };
 // *INDENT-ON*
 
 template<typename T>

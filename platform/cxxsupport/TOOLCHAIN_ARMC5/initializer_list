@@ -1,0 +1,76 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __initializer_list
+#define __initializer_list
+
+#include <cstddef>
+
+namespace std {
+
+// [support.initlist]
+template <class _TypeE>
+struct initializer_list {
+    using value_type = _TypeE;
+    using reference = const _TypeE &;
+    using const_reference = const _TypeE &;
+    using size_type = size_t;
+    using iterator = const _TypeE *;
+    using const_iterator = const _TypeE *;
+
+    // [support.initlist.cons]
+    constexpr initializer_list() noexcept : _C_ptr(nullptr), _C_count(0)
+    {
+    }
+    constexpr initializer_list(const _TypeE *p, size_type n) noexcept : _C_ptr(p), _C_count(n)
+    {
+    }
+    // [support.initlist.access]
+    constexpr const _TypeE *begin() const noexcept
+    {
+        return _C_ptr;
+    }
+    constexpr const _TypeE *end() const noexcept
+    {
+        return _C_ptr + _C_count;
+    }
+    constexpr size_t size() const noexcept
+    {
+        return _C_count;
+    }
+private:
+    const _TypeE *_C_ptr;
+    size_t _C_count;
+};
+
+// [support.initlist.range]
+template <class _TypeE>
+constexpr const _TypeE *begin(initializer_list<_TypeE> il) noexcept
+{
+    return il.begin();
+}
+
+template <class _TypeE>
+constexpr const _TypeE *end(initializer_list<_TypeE> il) noexcept
+{
+    return il.end();
+}
+
+
+} // namespace std
+
+#endif /* __initializer_list */
+
