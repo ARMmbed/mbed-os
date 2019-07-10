@@ -16,7 +16,7 @@
  */
 
 #include <stdint.h>
-#include "drivers/source/TableCRC.h"
+#include "drivers/internal/TableCRC.h"
 
 namespace mbed {
 

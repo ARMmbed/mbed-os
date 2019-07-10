@@ -17,7 +17,7 @@
 #ifndef MBED_CRC_API_H
 #define MBED_CRC_API_H
 
-#include "drivers/source/TableCRC.h"
+#include "drivers/internal/TableCRC.h"
 #include "hal/crc_api.h"
 #include "platform/mbed_assert.h"
 #include "platform/SingletonPtr.h"

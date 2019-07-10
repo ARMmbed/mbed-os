@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 // Platform specific files
-#include "events/source/equeue_platform.h"
+#include "events/internal/equeue_platform.h"
 
 #include <stddef.h>
 #include <stdint.h>

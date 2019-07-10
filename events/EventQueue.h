@@ -18,7 +18,7 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include "events/source/equeue.h"
+#include "events/internal/equeue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include <cstddef>
