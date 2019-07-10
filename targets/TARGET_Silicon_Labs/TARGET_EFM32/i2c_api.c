@@ -119,6 +119,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     /* Initializing the I2C */
     /* Using default settings */
+    i2c_reset(obj);
     I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
     I2C_Init(obj->i2c.i2c, &i2cInit);
 
@@ -315,6 +316,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
 void i2c_reset(i2c_t *obj)
 {
+    i2c_enable_interrupt(obj, 0, false);
+    i2c_enable(obj, false);
     /* EMLib function */
     I2C_Reset(obj->i2c.i2c);
 }
