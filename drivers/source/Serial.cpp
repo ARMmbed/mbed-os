@@ -45,7 +45,7 @@ void Serial::lock()
     _mutex.lock();
 }
 
-void Serial::lock()
+void Serial::unlock()
 {
     _mutex.unlock();
 }
