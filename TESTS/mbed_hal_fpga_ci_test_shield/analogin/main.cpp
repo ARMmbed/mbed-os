@@ -36,8 +36,8 @@ using namespace utest::v1;
 
 #define analogin_debug_printf(...)
 
-#define DELTA_FLOAT                     0.03f    // 3%
-#define DELTA_U16                       1965     // 3%
+#define DELTA_FLOAT                     0.05f    // 5%
+#define DELTA_U16                       3277     // 5%
 
 const PinList *form_factor = pinmap_ff_default_pins();
 const PinList *restricted = pinmap_restricted_pins();
