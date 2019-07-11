@@ -17,7 +17,7 @@
 #ifndef MBED_TICKER_H
 #define MBED_TICKER_H
 
-#include "drivers/TimerEvent.h"
+#include "drivers/internal/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
