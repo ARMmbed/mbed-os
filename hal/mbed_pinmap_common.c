@@ -178,3 +178,12 @@ bool pinmap_list_has_pin(const PinList *list, PinName pin)
     return false;
 }
 
+bool pinmap_list_has_peripheral(const PeripheralList *list, int peripheral)
+{
+    for (uint32_t i = 0; i < list->count; i++) {
+        if (list->peripheral[i] == peripheral) {
+            return true;
+        }
+    }
+    return false;
+}
