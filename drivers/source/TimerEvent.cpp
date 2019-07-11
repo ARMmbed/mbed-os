@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/TimerEvent.h"
+#include "drivers/internal/TimerEvent.h"
 
 #include <stddef.h>
 #include "hal/us_ticker_api.h"

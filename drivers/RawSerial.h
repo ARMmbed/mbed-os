@@ -22,7 +22,7 @@
 #if DEVICE_SERIAL || defined(DOXYGEN_ONLY)
 
 #include "mbed_toolchain.h"
-#include "drivers/SerialBase.h"
+#include "drivers/internal/SerialBase.h"
 #include "platform/NonCopyable.h"
 #include <cstdarg>
 

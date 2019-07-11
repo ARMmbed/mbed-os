@@ -22,7 +22,7 @@
 
 #include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
-#include "drivers/TimerEvent.h"
+#include "drivers/internal/TimerEvent.h"
 #include "lp_ticker_api.h"
 #include "us_ticker_api.h"
 #include "mbed_critical.h"
