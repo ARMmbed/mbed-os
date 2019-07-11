@@ -16,6 +16,7 @@
  */
 
 #include "stdint.h"
+#include "USBCDC.h"
 #include "USBSerial.h"
 #include "usb_phy_api.h"
 
