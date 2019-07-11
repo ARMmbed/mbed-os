@@ -99,12 +99,22 @@ public:
     /** An operator shorthand for write()
      * \sa AnalogOut::write()
      */
-    AnalogOut &operator= (float percent);
+    AnalogOut &operator= (float percent)
+    {
+        // Underlying write call is thread safe
+        write(percent);
+        return *this;
+    }
 
     /** An operator shorthand for write()
      * \sa AnalogOut::write()
      */
-    AnalogOut &operator= (AnalogOut &rhs);
+    AnalogOut &operator= (AnalogOut &rhs)
+    {
+        // Underlying write call is thread safe
+        write(rhs.read());
+        return *this;
+    }
 
     /** An operator shorthand for read()
      * \sa AnalogOut::read()

@@ -43,20 +43,6 @@ float AnalogOut::read()
     return ret;
 }
 
-AnalogOut &AnalogOut::operator= (float percent)
-{
-    // Underlying write call is thread safe
-    write(percent);
-    return *this;
-}
-
-AnalogOut &AnalogOut::operator= (AnalogOut &rhs)
-{
-    // Underlying write call is thread safe
-    write(rhs.read());
-    return *this;
-}
-
 } // namespace mbed
 
 #endif // DEVICE_ANALOGOUT
