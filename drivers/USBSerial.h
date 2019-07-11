@@ -130,7 +130,10 @@ public:
      *    1 if there is a character available to read,
      *    0 otherwise
      */
-    int readable();
+    int readable()
+    {
+        return available() ? 1 : 0;
+    }
 
     /** Determine if there is space available to write a character
      *
@@ -138,7 +141,10 @@ public:
      *    1 if there is space to write a character,
      *    0 otherwise
      */
-    int writeable();
+    int writeable()
+    {
+        return 1;    // always return 1, for write operation is blocking
+    }
 
     /**
      *  Attach a member function to call when a packet is received.
@@ -156,16 +162,6 @@ public:
         }
 
         USBCDC::unlock();
-    }
-
-    int readable()
-    {
-        return available() ? 1 : 0;
-    }
-
-    int writeable()
-    {
-        return 1;    // always return 1, for write operation is blocking
     }
 
     /**
