@@ -169,21 +169,44 @@ public:
      *
      * @param fptr function pointer
      */
-    void attach(void (*fptr)(void));
+     void attach(void (*fptr)(void))
+     {
+         USBCDC::lock();
+
+         if (fptr != NULL) {
+             rx = mbed::Callback<void()>(fptr);
+         }
+
+         USBCDC::unlock();
+     }
 
     /**
      * Attach a Callback called when a packet is received
      *
      * @param cb Callback to attach
      */
-    void attach(mbed::Callback<void()> &cb);
+     void attach(mbed::Callback<void()> &cb)
+     {
+         USBCDC::lock();
+
+         rx = cb;
+
+         USBCDC::unlock();
+     }
 
     /**
      * Attach a callback to call when serial's settings are changed.
      *
      * @param fptr function pointer
      */
-    void attach(void (*fptr)(int baud, int bits, int parity, int stop));
+     void attach(void (*fptr)(int baud, int bits, int parity, int stop))
+     {
+         USBCDC::lock();
+
+         _settings_changed_callback = fptr;
+
+         USBCDC::unlock();
+     }
 
 protected:
     virtual void data_rx();
