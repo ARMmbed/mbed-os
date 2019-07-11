@@ -90,32 +90,3 @@ bool USBSerial::connected()
 {
     return _terminal_connected;
 }
-
-void attach(void (*fptr)(void))
-{
-    USBCDC::lock();
-
-    if (fptr != NULL) {
-        rx = mbed::Callback<void()>(fptr);
-    }
-
-    USBCDC::unlock();
-}
-
-void attach(mbed::Callback<void()> &cb)
-{
-    USBCDC::lock();
-
-    rx = cb;
-
-    USBCDC::unlock();
-}
-
-void attach(void (*fptr)(int baud, int bits, int parity, int stop))
-{
-    USBCDC::lock();
-
-    _settings_changed_callback = fptr;
-
-    USBCDC::unlock();
-}
