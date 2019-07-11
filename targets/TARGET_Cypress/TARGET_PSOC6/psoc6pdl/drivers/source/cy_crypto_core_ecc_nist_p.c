@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only,
@@ -27,6 +27,8 @@
 #include "cy_crypto_core_ecc_nist_p.h"
 #include "cy_crypto_core_ecc.h"
 #include "cy_crypto_core_vu.h"
+
+#if defined(CY_IP_MXCRYPTO)
 
 /*******************************************************************************
 * Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only, Co-Z arithmetic
@@ -221,8 +223,8 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P224(CRYPTO_Type *base, uint32_t z, uin
    CY_CRYPTO_VU_COND_CMP_SUB (base, CY_CRYPTO_VU_COND_CC, my_z, VR_P);  /* C    = (z >= VR_P) */
    CY_CRYPTO_VU_COND_SUB (base, CY_CRYPTO_VU_COND_CS, my_z, my_z, VR_P);    /* z = z - p, if C==1 (Carry is set) */
 
-
    CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(t1) | CY_CRYPTO_VU_REG_BIT(t2) | CY_CRYPTO_VU_REG_BIT(t3));
+
    CY_CRYPTO_VU_POP_REG (base);
 }
 
@@ -411,7 +413,6 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P256(CRYPTO_Type *base, uint32_t z, uin
     CY_CRYPTO_VU_ADD (base, my_z, my_z, t2);    /* z = z + t7..t0 */
     CY_CRYPTO_VU_COND_CMP_SUB (base, CY_CRYPTO_VU_COND_CC, my_z, VR_P);     /* C = (z >= VR_P) */
     CY_CRYPTO_VU_COND_SUB (base, CY_CRYPTO_VU_COND_CS, my_z, my_z, VR_P);   /* z = z - p, if C==1 (Carry is set) */
-
 
     CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(t0) | CY_CRYPTO_VU_REG_BIT(t1) |
                                  CY_CRYPTO_VU_REG_BIT(t2) | CY_CRYPTO_VU_REG_BIT(t3) | CY_CRYPTO_VU_REG_BIT(t4));
@@ -612,10 +613,9 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
     CY_CRYPTO_VU_COND_CMP_SUB (base, CY_CRYPTO_VU_COND_CC, my_z, VR_P);     /* C = (t2 >= VR_P) */
     CY_CRYPTO_VU_COND_SUB (base, CY_CRYPTO_VU_COND_CS, my_z, my_z, VR_P);   /* t2 = t2 - p, if C==1 (Carry is set) */
 
-
     CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(t0));
-    CY_CRYPTO_VU_POP_REG (base);
 
+    CY_CRYPTO_VU_POP_REG (base);
 }
 
 
@@ -716,7 +716,6 @@ static void Cy_Crypto_Core_EC_SM_MUL_Red_P192(CRYPTO_Type *base, uint32_t z, uin
    CY_CRYPTO_VU_LSL (base, hi, hi, sh64);       /* hi = hi << 64 = hi*2^{64} */
 
    CY_CRYPTO_VU_ADD (base, partial, partial, hi);   /* partial = hi*(2^{64}+1) + lo */
-
 
    /* Step 3: 2nd round of shift-multiply */
    CY_CRYPTO_VU_LSR (base, hi, partial, sh192); /* hi = partial >> CURVE_SIZE = partial[383:192] */
@@ -916,10 +915,10 @@ static void Cy_Crypto_Core_EC_SM_MUL_Red_P256(CRYPTO_Type *base, uint32_t z, uin
 
     /* Step 11: Final reduction (compare to P-256 and reduce if necessary, based on CARRY flag) */
     CY_CRYPTO_VU_CMP_SUB (base, my_z, VR_P);            /* C = (z >= VR_P) */
-    CY_CRYPTO_VU_COND_SUB (base, CY_CRYPTO_VU_COND_CS, my_z, my_z, VR_P);
+    CY_CRYPTO_VU_COND_SUB(base, CY_CRYPTO_VU_COND_CS, my_z, my_z, VR_P);
 
-    CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(partial) | CY_CRYPTO_VU_REG_BIT(hi) | CY_CRYPTO_VU_REG_BIT(coeff));
-    CY_CRYPTO_VU_POP_REG (base);
+    CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(partial) | CY_CRYPTO_VU_REG_BIT(hi) | CY_CRYPTO_VU_REG_BIT(coeff));
+    CY_CRYPTO_VU_POP_REG(base);
 }
 
 
@@ -1269,14 +1268,14 @@ void Cy_Crypto_Core_EC_MulMod( CRYPTO_Type *base,
     CY_CRYPTO_VU_ALLOC_MEM (base, ab_double, 2u * size);
 
     CY_CRYPTO_VU_UMUL (base, ab_double, my_a, my_b);
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     /* Modular Reduction: Barrett reduction or curve-specific or shift-multiply */
     Cy_Crypto_Core_EC_MulRed(base, my_z, ab_double, size);
 
-
     CY_CRYPTO_VU_FREE_MEM (base, CY_CRYPTO_VU_REG_BIT(ab_double));
-    CY_CRYPTO_VU_POP_REG (base);
 
+    CY_CRYPTO_VU_POP_REG (base);
 }
 
 
@@ -1331,7 +1330,6 @@ void Cy_Crypto_Core_EC_SubMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32
    CY_CRYPTO_VU_SUB (base, z, a, b);       /* C = (a >= b) */
    CY_CRYPTO_VU_COND_ADD (base, CY_CRYPTO_VU_COND_CC, z, z, VR_P);
 }
-
 
 
 /*******************************************************************************
@@ -1460,8 +1458,6 @@ void Cy_Crypto_Core_EC_DivMod( CRYPTO_Type *base,
 
         CY_CRYPTO_VU_TST (base, my_b);
         status2 = Cy_Crypto_Core_Vu_StatusRead(base);
-
-        Cy_Crypto_Core_WaitForReady(base);
 
         zero    = status0 & CY_CRYPTO_VU_STATUS_ZERO_BIT;  /* a == b */
         carry   = status0 & CY_CRYPTO_VU_STATUS_CARRY_BIT; /* a >= b */
@@ -1825,11 +1821,11 @@ void Cy_Crypto_Core_JacobianEcScalarMul(CRYPTO_Type *base, uint32_t s_x, uint32_
     /* Operation. */
     CY_CRYPTO_VU_SET_TO_ZERO (base, clr);
     CY_CRYPTO_VU_CLSAME (base, t, my_d, clr);
+
     CY_CRYPTO_VU_LSL (base, my_d, my_d, t); /* Get rid of leading '0's */
 
-    Cy_Crypto_Core_Vu_WaitForComplete(base);
-
     clsame = Cy_Crypto_Core_Vu_RegDataPtrRead (base, t);
+
     CY_CRYPTO_VU_LSL1 (base, my_d, my_d); /* Get rid of leading '1' */
 
     /* Binary left-to-right algorithm
@@ -1967,22 +1963,22 @@ void Cy_Crypto_Core_EC_NistP_PointMul(CRYPTO_Type *base, uint32_t p_x, uint32_t 
 * The pointer to a Crypto instance.
 *
 * \param curveID
-* Register index for affine X coordinate of base point.
+* See \ref cy_en_crypto_ecc_curve_id_t.
 *
 * \param ecpGX
-* Register index for affine Y coordinate of base point.
+* Register index for affine X coordinate of base point.
 *
 * \param ecpGY
-* Register index for multiplication value.
+* Register index for affine Y coordinate of base point.
 *
 * \param ecpD
-* Register index for order value.
+* Register index for multiplication value.
 *
 * \param ecpQX
-* Register index for order value.
+* Register index for affine X coordinate of result point.
 *
 * \param ecpQY
-* Register index for order value.
+* Register index for affine Y coordinate of result point.
 *
 * \return status code. See \ref cy_en_crypto_status_t.
 *
@@ -2068,6 +2064,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_EC_NistP_PointMultiplication(CRYPTO_Type *b
 
     return myStatus;
 }
+
+#endif /* CY_IP_MXCRYPTO */
 
 
 /* [] END OF FILE */

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.30
+* \version 2.40
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -159,6 +159,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.40</td>
+*     <td>Added new macros CY_SYSLIB_DIV_ROUND and CY_SYSLIB_DIV_ROUNDUP to easy perform integer division with rounding.</td>
+*     <td>Improve PDL code base.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">2.30</td>
 *     <td>Updated implementation of the Cy_SysLib_AsmInfiniteLoop() function to be compatible with ARMC6.</td>
 *     <td>Provided support for the ARM Compiler 6.</td>
@@ -168,7 +173,7 @@
 *     <td>Documentation update and clarification.</td>
 *   </tr>
 *	<tr>
-*     <td>Added new macroses CY_RAMFUNC_BEGIN and CY_RAMFUNC_END for convenient placement function in RAM for all supported compilers.</td>
+*     <td>Added new macros CY_RAMFUNC_BEGIN and CY_RAMFUNC_END for convenient placement function in RAM for all supported compilers.</td>
 *     <td>Improve user experience.</td>
 *   </tr>
 *   <tr>
@@ -453,7 +458,7 @@ typedef enum
 #define CY_SYSLIB_DRV_VERSION_MAJOR    2
 
 /** The driver minor version */
-#define CY_SYSLIB_DRV_VERSION_MINOR    30
+#define CY_SYSLIB_DRV_VERSION_MINOR    40
 
 
 /*******************************************************************************
@@ -879,6 +884,28 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 *
 *******************************************************************************/
 #define _FLD2BOOL(field, value) (((value) & (field ## _Msk)) != 0UL)
+
+
+/*******************************************************************************
+* Macro Name: CY_SYSLIB_DIV_ROUND
+****************************************************************************//**
+*
+*  Calculates a / b with rounding to the nearest integer,
+*  a and b must have the same sign.
+*
+*******************************************************************************/
+#define CY_SYSLIB_DIV_ROUND(a, b) (((a) + ((b) / 2U)) / (b))
+
+
+/*******************************************************************************
+* Macro Name: CY_SYSLIB_DIV_ROUNDUP
+****************************************************************************//**
+*
+*  Calculates a / b with rounding up if remainder != 0,
+*  both a and b must be positive.
+*
+*******************************************************************************/
+#define CY_SYSLIB_DIV_ROUNDUP(a, b) ((((a) - 1U) / (b)) + 1U)
 
 
 /******************************************************************************

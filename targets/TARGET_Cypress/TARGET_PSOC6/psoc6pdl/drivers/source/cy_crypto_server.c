@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_server.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for Crypto Server
@@ -41,6 +41,7 @@
 #include "cy_crypto_core_crc.h"
 #include "cy_crypto_core_des.h"
 #include "cy_crypto_core_hw.h"
+#include "cy_crypto_core_ecc.h"
 #include <stdbool.h>
 #include <string.h>
 
@@ -145,7 +146,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Base(cy_stc_crypto_config_t const *
         NULL, /* Cy_Crypto_Core_RsaVerify, */
     };
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_V1)
     {
         cy_CryptoFunctionTable = &cryptoV1BaseFuncs;
     }
@@ -211,7 +212,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Extra(cy_stc_crypto_config_t const 
         NULL, /* Cy_Crypto_Core_RsaVerify, */
     };
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_V1)
     {
         cy_CryptoFunctionTable = &cryptoV1ExtraFuncs;
     }
@@ -277,7 +278,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Full(cy_stc_crypto_config_t const *
         &Cy_Crypto_Core_Rsa_Verify,
     };
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_V1)
     {
         cy_CryptoFunctionTable = &cryptoV1FullFuncs;
     }
@@ -435,6 +436,30 @@ void Cy_Crypto_Server_Process(void)
                          myData->resp = Cy_Crypto_Core_GetLibInfo((cy_en_crypto_lib_info_t*)myData->xdata);
                         break;
 
+                    /* MEM_BUFF memory management */
+                    case CY_CRYPTO_INSTR_MEMBUF_SET:
+                        {
+                            cy_stc_crypto_context_str_t *cfContext = myData->xdata;
+                            myData->resp = Cy_Crypto_Core_SetVuMemoryAddress(CY_CRYPTO_BASE, cfContext->src0, cfContext->dataSize);
+                        }
+                        break;
+
+                    case CY_CRYPTO_INSTR_MEMBUF_ADDR:
+                        {
+                            cy_stc_crypto_context_str_t *cfContext = myData->xdata;
+                            *(uint32_t *)(cfContext->dst) = (uint32_t)Cy_Crypto_Core_GetVuMemoryAddress(CY_CRYPTO_BASE);
+                            myData->resp = CY_CRYPTO_SUCCESS;
+                        }
+                        break;
+
+                    case CY_CRYPTO_INSTR_MEMBUF_SIZE:
+                        {
+                            cy_stc_crypto_context_str_t *cfContext = myData->xdata;
+                            *(uint32_t *)(cfContext->dst) = Cy_Crypto_Core_GetVuMemorySize(CY_CRYPTO_BASE);
+                            myData->resp = CY_CRYPTO_SUCCESS;
+                        }
+                        break;
+
                     case CY_CRYPTO_INSTR_PRNG_INIT:
                         if (NULL != cy_CryptoFunctionTable->prngInitFunc)
                         {
@@ -468,7 +493,7 @@ void Cy_Crypto_Server_Process(void)
                             cy_stc_crypto_context_aes_t *cfContext = (cy_stc_crypto_context_aes_t *)myData->xdata;
                             myData->resp =
                                 (cy_CryptoFunctionTable->aesInitFunc)(CY_CRYPTO_BASE,
-                                    (uint8_t*)cfContext->key, cfContext->keyLength, &cfContext->aesState);
+                                    (uint8_t*)cfContext->key, cfContext->keyLength, &cfContext->aesState, (cy_stc_crypto_aes_buffers_t *)(Cy_Crypto_Core_GetVuMemoryAddress(CY_CRYPTO_BASE)));
                         }
                         break;
 
@@ -585,7 +610,7 @@ void Cy_Crypto_Server_Process(void)
                         if (NULL != cy_CryptoFunctionTable->memCmpFunc)
                         {
                             cy_stc_crypto_context_str_t *cfContext = myData->xdata;
-                            *(uint32_t* )(cfContext->dst) =
+                            *(uint32_t *)(cfContext->dst) =
                                 (cy_CryptoFunctionTable->memCmpFunc)(CY_CRYPTO_BASE,
                                     cfContext->src0, cfContext->src1, (uint16_t)cfContext->dataSize);
                             myData->resp = CY_CRYPTO_SUCCESS;
@@ -662,6 +687,24 @@ void Cy_Crypto_Server_Process(void)
                             myData->resp = (cy_CryptoFunctionTable->rsaVerifyFunc)(CY_CRYPTO_BASE,
                                 cfContext->verResult, cfContext->digestType, (uint8_t const *)cfContext->hash,
                                 (uint8_t const *)cfContext->decryptedSignature, cfContext->decryptedSignatureLength);
+                        }
+                        break;
+
+                    case CY_CRYPTO_INSTR_ECDSA_SIGN:
+                        {
+                            cy_stc_crypto_context_ecc_t *cfContext = myData->xdata;
+                            myData->resp = Cy_Crypto_Core_ECC_SignHash(CY_CRYPTO_BASE,
+                                cfContext->src0, cfContext->datalen, cfContext->dst0,
+                                cfContext->key, cfContext->src1);
+                        }
+                        break;
+
+                    case CY_CRYPTO_INSTR_ECDSA_VER:
+                        {
+                            cy_stc_crypto_context_ecc_t *cfContext = myData->xdata;
+                            myData->resp = Cy_Crypto_Core_ECC_VerifyHash(CY_CRYPTO_BASE,
+                                cfContext->src1, cfContext->src0, cfContext->datalen,
+                                cfContext->dst0, cfContext->key);
                         }
                         break;
 

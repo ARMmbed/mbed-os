@@ -8317,39 +8317,40 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
-        "macros": ["MBED_MPU_CUSTOM"],
+        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
         "device_has": [
-            "USTICKER",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "CRC",
+            "FLASH",
+            "I2C",
+            "I2C_ASYNCH",
+            "I2CSLAVE",
             "INTERRUPTIN",
-            "SERIAL",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC",
+            "LPTICKER",
             "PORTIN",
             "PORTOUT",
             "PORTINOUT",
-            "RTC",
             "PWMOUT",
-            "ANALOGIN",
-            "ANALOGOUT",
-            "I2C",
-            "I2C_ASYNCH",
-            "QSPI",
+            "RTC",
+            "SERIAL",
+            "SERIAL_FC",
+            "SERIAL_ASYNCH",
+            "SLEEP",
             "SPI",
             "SPI_ASYNCH",
+            "SPISLAVE",
             "STDIO_MESSAGES",
-            "LPTICKER",
-            "SLEEP",
-            "FLASH",
             "TRNG",
-            "CRC"
+            "USTICKER"
         ],
         "release_versions": ["5"],
         "extra_labels": ["Cypress", "PSOC6"],
-        "components_add": ["SOFTFP"],
+        "components_add": ["SOFTFP", "RTX"],
         "public": false
     },
     "MCU_PSOC6_M0": {
@@ -8364,25 +8365,38 @@
         "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
-    "CY8CKIT_062_WIFI_BT_M0": {
-        "inherits": ["MCU_PSOC6_M0"],
-        "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["CY8CKIT_062_WIFI_BT"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
-        "detect_code": ["1900"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
+    "CY8CMOD_062_4343W": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "device_has_remove": ["ANALOGOUT"],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CM0P_SLEEP",
+            "WHD",
+            "4343W",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C624ABZI_D44"],
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
         }
     },
     "CY8CKIT_062_WIFI_BT": {
         "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["QSPIF"],
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "CM0P_SLEEP",
+            "WHD",
+            "4343W",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "SEMAPHORE"],
         "detect_code": ["1900"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8391,120 +8405,41 @@
         },
         "program_cycle_s": 10
     },
-    "CY8CKIT_062_WIFI_BT_M0_PSA": {
-        "inherits": ["SPE_Target", "CY8CKIT_062_WIFI_BT_M0"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "macros_add": [
-            "MBED_TICKLESS",
-            "MBEDTLS_PSA_CRYPTO_SPM",
-            "PU_ENABLE"
-        ],
-        "deliver_to_target": "CY8CKIT_062_WIFI_BT_PSA",
-        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6/TARGET_CY8CKIT_062_WIFI_BT_PSA/prebuilt",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x40000",
-            "non-secure-rom-start": "0x10040000",
-            "non-secure-rom-size": "0xB8000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37500",
-            "shared-ram-start": "0x08047500",
-            "shared-ram-size": "0x100",
-            "public-ram-start": "0x08047600",
-            "public-ram-size": "0x200"
-        }
-    },
-    "CY8CKIT_062_WIFI_BT_PSA": {
-        "inherits": ["NSPE_Target", "CY8CKIT_062_WIFI_BT"],
-        "extra_labels_add": ["PSA", "MBED_SPM"],
-        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "device_has_remove": ["CRC"],
-        "hex_filename": "psa_release_1.0.hex",
-        "overrides": {
-            "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x40000",
-            "non-secure-rom-start": "0x10040000",
-            "non-secure-rom-size": "0xB8000",
-            "secure-ram-start": "0x08000000",
-            "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37500",
-            "shared-ram-start": "0x08047500",
-            "shared-ram-size": "0x100",
-            "public-ram-start": "0x08047600",
-            "public-ram-size": "0x200"
-        },
-        "sectors": [[268435456, 512]],
-        "bootloader_supported": true
-    },
-    "CY8CMOD_062_4343W": {
-        "inherits": ["MCU_PSOC6_M4"],
-        "features": ["BLE"],
-        "device_has_remove": ["ANALOGOUT"],
-        "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
-        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
-        "public": false,
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        }
-    },
     "CY8CPROTO_062_4343W": {
         "inherits": ["CY8CMOD_062_4343W"],
-        "components_add": ["QSPIF"],
         "detect_code": ["1901"],
-        "hex_filename": "psoc6_02_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["PSOC6_01"],
-        "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "CM0P_SLEEP"
+        ],
+        "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["1902"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
         "sectors": [[268443648, 512]],
         "bootloader_supported": true
     },
-    "CY8CKIT_062_4343W": {
-        "inherits": ["MCU_PSOC6_M4"],
-        "features": ["BLE"],
-        "supported_form_factors": ["ARDUINO"],
-        "device_has_remove": ["ANALOGOUT"],
-        "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
-        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
-        "detect_code": ["1905"],
-        "hex_filename": "psoc6_02_cm0p_sleep.hex",
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        },
-        "overrides": {
-            "network-default-interface-type": "WIFI"
-        }
-    },
-    "CYW943012P6EVB_01_M0": {
-        "inherits": ["MCU_PSOC6_M0"],
-        "extra_labels_add": ["CYW943012P6EVB_01"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
-        "post_binary_hook": {
-            "function": "PSOC6Code.complete"
-        }
-    },
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
-        "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW43012", "CORDIO"],
-        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "CM0P_SLEEP",
+            "WHD",
+            "43012",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C6247BZI_D54", "CYHAL_UDB_SDIO", "SEMAPHORE"],
         "detect_code": ["1906"],
-        "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8517,7 +8452,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "FUTURE_SEQUANA"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "QSPI"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "post_binary_hook": {
@@ -8546,7 +8481,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "CORDIO"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "QSPI"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",

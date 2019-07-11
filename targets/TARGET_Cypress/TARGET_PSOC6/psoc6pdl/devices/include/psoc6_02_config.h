@@ -5,7 +5,7 @@
 * PSoC6_02 device configuration header
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -1444,86 +1444,86 @@ typedef enum
 /* Trigger Output Group 0 - SCB PDMA0 Triggers (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_0_SCB0_TX_TO_PDMA0_TR_IN16 = 0x40001000u, /* cpuss.dw0_tr_in[16] */
-    TRIG_OUT_1TO1_0_SCB0_RX_TO_PDMA0_TR_IN17 = 0x40001001u, /* cpuss.dw0_tr_in[17] */
-    TRIG_OUT_1TO1_0_SCB1_TX_TO_PDMA0_TR_IN18 = 0x40001002u, /* cpuss.dw0_tr_in[18] */
-    TRIG_OUT_1TO1_0_SCB1_RX_TO_PDMA0_TR_IN19 = 0x40001003u, /* cpuss.dw0_tr_in[19] */
-    TRIG_OUT_1TO1_0_SCB2_TX_TO_PDMA0_TR_IN20 = 0x40001004u, /* cpuss.dw0_tr_in[20] */
-    TRIG_OUT_1TO1_0_SCB2_RX_TO_PDMA0_TR_IN21 = 0x40001005u, /* cpuss.dw0_tr_in[21] */
-    TRIG_OUT_1TO1_0_SCB3_TX_TO_PDMA0_TR_IN22 = 0x40001006u, /* cpuss.dw0_tr_in[22] */
-    TRIG_OUT_1TO1_0_SCB3_RX_TO_PDMA0_TR_IN23 = 0x40001007u, /* cpuss.dw0_tr_in[23] */
-    TRIG_OUT_1TO1_0_SCB4_TX_TO_PDMA0_TR_IN24 = 0x40001008u, /* cpuss.dw0_tr_in[24] */
-    TRIG_OUT_1TO1_0_SCB4_RX_TO_PDMA0_TR_IN25 = 0x40001009u, /* cpuss.dw0_tr_in[25] */
-    TRIG_OUT_1TO1_0_SCB5_TX_TO_PDMA0_TR_IN26 = 0x4000100Au, /* cpuss.dw0_tr_in[26] */
-    TRIG_OUT_1TO1_0_SCB5_RX_TO_PDMA0_TR_IN27 = 0x4000100Bu /* cpuss.dw0_tr_in[27] */
+    TRIG_OUT_1TO1_0_SCB0_TX_TO_PDMA0_TR_IN16 = 0x40001000u, /* From scb[0].tr_tx_req to cpuss.dw0_tr_in[16] */
+    TRIG_OUT_1TO1_0_SCB0_RX_TO_PDMA0_TR_IN17 = 0x40001001u, /* From scb[0].tr_rx_req to cpuss.dw0_tr_in[17] */
+    TRIG_OUT_1TO1_0_SCB1_TX_TO_PDMA0_TR_IN18 = 0x40001002u, /* From scb[1].tr_tx_req to cpuss.dw0_tr_in[18] */
+    TRIG_OUT_1TO1_0_SCB1_RX_TO_PDMA0_TR_IN19 = 0x40001003u, /* From scb[1].tr_rx_req to cpuss.dw0_tr_in[19] */
+    TRIG_OUT_1TO1_0_SCB2_TX_TO_PDMA0_TR_IN20 = 0x40001004u, /* From scb[2].tr_tx_req to cpuss.dw0_tr_in[20] */
+    TRIG_OUT_1TO1_0_SCB2_RX_TO_PDMA0_TR_IN21 = 0x40001005u, /* From scb[2].tr_rx_req to cpuss.dw0_tr_in[21] */
+    TRIG_OUT_1TO1_0_SCB3_TX_TO_PDMA0_TR_IN22 = 0x40001006u, /* From scb[3].tr_tx_req to cpuss.dw0_tr_in[22] */
+    TRIG_OUT_1TO1_0_SCB3_RX_TO_PDMA0_TR_IN23 = 0x40001007u, /* From scb[3].tr_rx_req to cpuss.dw0_tr_in[23] */
+    TRIG_OUT_1TO1_0_SCB4_TX_TO_PDMA0_TR_IN24 = 0x40001008u, /* From scb[4].tr_tx_req to cpuss.dw0_tr_in[24] */
+    TRIG_OUT_1TO1_0_SCB4_RX_TO_PDMA0_TR_IN25 = 0x40001009u, /* From scb[4].tr_rx_req to cpuss.dw0_tr_in[25] */
+    TRIG_OUT_1TO1_0_SCB5_TX_TO_PDMA0_TR_IN26 = 0x4000100Au, /* From scb[5].tr_tx_req to cpuss.dw0_tr_in[26] */
+    TRIG_OUT_1TO1_0_SCB5_RX_TO_PDMA0_TR_IN27 = 0x4000100Bu /* From scb[5].tr_rx_req to cpuss.dw0_tr_in[27] */
 } en_trig_output_1to1_scb_pdma0_tr_t;
 
 /* Trigger Output Group 1 - SCB PDMA1 Triggers (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_1_SCB6_TX_TO_PDMA1_TR_IN8 = 0x40001100u, /* cpuss.dw1_tr_in[8] */
-    TRIG_OUT_1TO1_1_SCB6_RX_TO_PDMA1_TR_IN9 = 0x40001101u, /* cpuss.dw1_tr_in[9] */
-    TRIG_OUT_1TO1_1_SCB7_TX_TO_PDMA1_TR_IN10 = 0x40001102u, /* cpuss.dw1_tr_in[10] */
-    TRIG_OUT_1TO1_1_SCB7_RX_TO_PDMA1_TR_IN11 = 0x40001103u, /* cpuss.dw1_tr_in[11] */
-    TRIG_OUT_1TO1_1_SCB8_TX_TO_PDMA1_TR_IN12 = 0x40001104u, /* cpuss.dw1_tr_in[12] */
-    TRIG_OUT_1TO1_1_SCB8_RX_TO_PDMA1_TR_IN13 = 0x40001105u, /* cpuss.dw1_tr_in[13] */
-    TRIG_OUT_1TO1_1_SCB9_TX_TO_PDMA1_TR_IN14 = 0x40001106u, /* cpuss.dw1_tr_in[14] */
-    TRIG_OUT_1TO1_1_SCB9_RX_TO_PDMA1_TR_IN15 = 0x40001107u, /* cpuss.dw1_tr_in[15] */
-    TRIG_OUT_1TO1_1_SCB10_TX_TO_PDMA1_TR_IN16 = 0x40001108u, /* cpuss.dw1_tr_in[16] */
-    TRIG_OUT_1TO1_1_SCB10_RX_TO_PDMA1_TR_IN17 = 0x40001109u, /* cpuss.dw1_tr_in[17] */
-    TRIG_OUT_1TO1_1_SCB11_TX_TO_PDMA1_TR_IN18 = 0x4000110Au, /* cpuss.dw1_tr_in[18] */
-    TRIG_OUT_1TO1_1_SCB11_RX_TO_PDMA1_TR_IN19 = 0x4000110Bu, /* cpuss.dw1_tr_in[19] */
-    TRIG_OUT_1TO1_1_SCB12_TX_TO_PDMA1_TR_IN20 = 0x4000110Cu, /* cpuss.dw1_tr_in[20] */
-    TRIG_OUT_1TO1_1_SCB12_RX_TO_PDMA1_TR_IN21 = 0x4000110Du /* cpuss.dw1_tr_in[21] */
+    TRIG_OUT_1TO1_1_SCB6_TX_TO_PDMA1_TR_IN8 = 0x40001100u, /* From scb[6].tr_tx_req to cpuss.dw1_tr_in[8] */
+    TRIG_OUT_1TO1_1_SCB6_RX_TO_PDMA1_TR_IN9 = 0x40001101u, /* From scb[6].tr_rx_req to cpuss.dw1_tr_in[9] */
+    TRIG_OUT_1TO1_1_SCB7_TX_TO_PDMA1_TR_IN10 = 0x40001102u, /* From scb[7].tr_tx_req to cpuss.dw1_tr_in[10] */
+    TRIG_OUT_1TO1_1_SCB7_RX_TO_PDMA1_TR_IN11 = 0x40001103u, /* From scb[7].tr_rx_req to cpuss.dw1_tr_in[11] */
+    TRIG_OUT_1TO1_1_SCB8_TX_TO_PDMA1_TR_IN12 = 0x40001104u, /* From scb[8].tr_tx_req to cpuss.dw1_tr_in[12] */
+    TRIG_OUT_1TO1_1_SCB8_RX_TO_PDMA1_TR_IN13 = 0x40001105u, /* From scb[8].tr_rx_req to cpuss.dw1_tr_in[13] */
+    TRIG_OUT_1TO1_1_SCB9_TX_TO_PDMA1_TR_IN14 = 0x40001106u, /* From scb[9].tr_tx_req to cpuss.dw1_tr_in[14] */
+    TRIG_OUT_1TO1_1_SCB9_RX_TO_PDMA1_TR_IN15 = 0x40001107u, /* From scb[9].tr_rx_req to cpuss.dw1_tr_in[15] */
+    TRIG_OUT_1TO1_1_SCB10_TX_TO_PDMA1_TR_IN16 = 0x40001108u, /* From scb[10].tr_tx_req to cpuss.dw1_tr_in[16] */
+    TRIG_OUT_1TO1_1_SCB10_RX_TO_PDMA1_TR_IN17 = 0x40001109u, /* From scb[10].tr_rx_req to cpuss.dw1_tr_in[17] */
+    TRIG_OUT_1TO1_1_SCB11_TX_TO_PDMA1_TR_IN18 = 0x4000110Au, /* From scb[11].tr_tx_req to cpuss.dw1_tr_in[18] */
+    TRIG_OUT_1TO1_1_SCB11_RX_TO_PDMA1_TR_IN19 = 0x4000110Bu, /* From scb[11].tr_rx_req to cpuss.dw1_tr_in[19] */
+    TRIG_OUT_1TO1_1_SCB12_TX_TO_PDMA1_TR_IN20 = 0x4000110Cu, /* From scb[12].tr_tx_req to cpuss.dw1_tr_in[20] */
+    TRIG_OUT_1TO1_1_SCB12_RX_TO_PDMA1_TR_IN21 = 0x4000110Du /* From scb[12].tr_rx_req to cpuss.dw1_tr_in[21] */
 } en_trig_output_1to1_scb_pdma1_tr_t;
 
 /* Trigger Output Group 2 - PASS to PDMA0 direct connect (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_2_PASS_SAR_DONE_TO_PDMA0_TR_IN28 = 0x40001200u /* cpuss.dw0_tr_in[28] */
+    TRIG_OUT_1TO1_2_PASS_SAR_DONE_TO_PDMA0_TR_IN28 = 0x40001200u /* From pass.tr_sar_out to cpuss.dw0_tr_in[28] */
 } en_trig_output_1to1_sar_to_pdma0_t;
 
 /* Trigger Output Group 3 -  (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_3_SMIF_TX_TO_PDMA1_TR_IN22 = 0x40001300u, /* cpuss.dw1_tr_in[22] */
-    TRIG_OUT_1TO1_3_SMIF_RX_TO_PDMA1_TR_IN23 = 0x40001301u /* cpuss.dw1_tr_in[23] */
+    TRIG_OUT_1TO1_3_SMIF_TX_TO_PDMA1_TR_IN22 = 0x40001300u, /* From smif.tr_tx_req to cpuss.dw1_tr_in[22] */
+    TRIG_OUT_1TO1_3_SMIF_RX_TO_PDMA1_TR_IN23 = 0x40001301u /* From smif.tr_rx_req to cpuss.dw1_tr_in[23] */
 } en_trig_output_1to1_smif_to_pdma1_t;
 
 /* Trigger Output Group 4 - I2S and PDM PDMA triggers (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_4_I2S0_TX_TO_PDMA1_TR_IN24 = 0x40001400u, /* cpuss.dw1_tr_in[24] */
-    TRIG_OUT_1TO1_4_I2S0_RX_TO_PDMA1_TR_IN25 = 0x40001401u, /* cpuss.dw1_tr_in[25] */
-    TRIG_OUT_1TO1_4_PDM0_RX_TO_PDMA1_TR_IN26 = 0x40001402u, /* cpuss.dw1_tr_in[26] */
-    TRIG_OUT_1TO1_4_I2S1_TX_TO_PDMA1_TR_IN27 = 0x40001403u, /* cpuss.dw1_tr_in[27] */
-    TRIG_OUT_1TO1_4_I2S1_RX_TO_PDMA1_TR_IN28 = 0x40001404u /* cpuss.dw1_tr_in[28] */
+    TRIG_OUT_1TO1_4_I2S0_TX_TO_PDMA1_TR_IN24 = 0x40001400u, /* From audioss[0].tr_i2s_tx_req to cpuss.dw1_tr_in[24] */
+    TRIG_OUT_1TO1_4_I2S0_RX_TO_PDMA1_TR_IN25 = 0x40001401u, /* From audioss[0].tr_i2s_rx_req to cpuss.dw1_tr_in[25] */
+    TRIG_OUT_1TO1_4_PDM0_RX_TO_PDMA1_TR_IN26 = 0x40001402u, /* From audioss[0].tr_pdm_rx_req to cpuss.dw1_tr_in[26] */
+    TRIG_OUT_1TO1_4_I2S1_TX_TO_PDMA1_TR_IN27 = 0x40001403u, /* From audioss[1].tr_i2s_tx_req to cpuss.dw1_tr_in[27] */
+    TRIG_OUT_1TO1_4_I2S1_RX_TO_PDMA1_TR_IN28 = 0x40001404u /* From audioss[1].tr_i2s_rx_req to cpuss.dw1_tr_in[28] */
 } en_trig_output_1to1_audioss_pdma1_tr_t;
 
 /* Trigger Output Group 5 - USB PDMA0 Triggers (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_5_USB_DMA0_TO_PDMA0_TR_IN8 = 0x40001500u, /* cpuss.dw0_tr_in[8] */
-    TRIG_OUT_1TO1_5_USB_DMA1_TO_PDMA0_TR_IN9 = 0x40001501u, /* cpuss.dw0_tr_in[9] */
-    TRIG_OUT_1TO1_5_USB_DMA2_TO_PDMA0_TR_IN10 = 0x40001502u, /* cpuss.dw0_tr_in[10] */
-    TRIG_OUT_1TO1_5_USB_DMA3_TO_PDMA0_TR_IN11 = 0x40001503u, /* cpuss.dw0_tr_in[11] */
-    TRIG_OUT_1TO1_5_USB_DMA4_TO_PDMA0_TR_IN12 = 0x40001504u, /* cpuss.dw0_tr_in[12] */
-    TRIG_OUT_1TO1_5_USB_DMA5_TO_PDMA0_TR_IN13 = 0x40001505u, /* cpuss.dw0_tr_in[13] */
-    TRIG_OUT_1TO1_5_USB_DMA6_TO_PDMA0_TR_IN14 = 0x40001506u, /* cpuss.dw0_tr_in[14] */
-    TRIG_OUT_1TO1_5_USB_DMA7_TO_PDMA0_TR_IN15 = 0x40001507u /* cpuss.dw0_tr_in[15] */
+    TRIG_OUT_1TO1_5_USB_DMA0_TO_PDMA0_TR_IN8 = 0x40001500u, /* From usb.dma_req[0] to cpuss.dw0_tr_in[8] */
+    TRIG_OUT_1TO1_5_USB_DMA1_TO_PDMA0_TR_IN9 = 0x40001501u, /* From usb.dma_req[1] to cpuss.dw0_tr_in[9] */
+    TRIG_OUT_1TO1_5_USB_DMA2_TO_PDMA0_TR_IN10 = 0x40001502u, /* From usb.dma_req[2] to cpuss.dw0_tr_in[10] */
+    TRIG_OUT_1TO1_5_USB_DMA3_TO_PDMA0_TR_IN11 = 0x40001503u, /* From usb.dma_req[3] to cpuss.dw0_tr_in[11] */
+    TRIG_OUT_1TO1_5_USB_DMA4_TO_PDMA0_TR_IN12 = 0x40001504u, /* From usb.dma_req[4] to cpuss.dw0_tr_in[12] */
+    TRIG_OUT_1TO1_5_USB_DMA5_TO_PDMA0_TR_IN13 = 0x40001505u, /* From usb.dma_req[5] to cpuss.dw0_tr_in[13] */
+    TRIG_OUT_1TO1_5_USB_DMA6_TO_PDMA0_TR_IN14 = 0x40001506u, /* From usb.dma_req[6] to cpuss.dw0_tr_in[14] */
+    TRIG_OUT_1TO1_5_USB_DMA7_TO_PDMA0_TR_IN15 = 0x40001507u /* From usb.dma_req[7] to cpuss.dw0_tr_in[15] */
 } en_trig_output_1to1_usb_pdma0_tr_t;
 
 /* Trigger Output Group 6 - USB PDMA0 Acknowledge Triggers (OneToOne) */
 typedef enum
 {
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT8_TO_USB_ACK0 = 0x40001600u, /* usb.dma_burstend[0] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT9_TO_USB_ACK1 = 0x40001601u, /* usb.dma_burstend[1] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT10_TO_USB_ACK2 = 0x40001602u, /* usb.dma_burstend[2] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT11_TO_USB_ACK3 = 0x40001603u, /* usb.dma_burstend[3] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT12_TO_USB_ACK4 = 0x40001604u, /* usb.dma_burstend[4] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT13_TO_USB_ACK5 = 0x40001605u, /* usb.dma_burstend[5] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT14_TO_USB_ACK6 = 0x40001606u, /* usb.dma_burstend[6] */
-    TRIG_OUT_1TO1_6_PDMA0_TR_OUT15_TO_USB_ACK7 = 0x40001607u /* usb.dma_burstend[7] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT8_TO_USB_ACK0 = 0x40001600u, /* From cpuss.dw0_tr_out[8] to usb.dma_burstend[0] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT9_TO_USB_ACK1 = 0x40001601u, /* From cpuss.dw0_tr_out[9] to usb.dma_burstend[1] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT10_TO_USB_ACK2 = 0x40001602u, /* From cpuss.dw0_tr_out[10] to usb.dma_burstend[2] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT11_TO_USB_ACK3 = 0x40001603u, /* From cpuss.dw0_tr_out[11] to usb.dma_burstend[3] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT12_TO_USB_ACK4 = 0x40001604u, /* From cpuss.dw0_tr_out[12] to usb.dma_burstend[4] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT13_TO_USB_ACK5 = 0x40001605u, /* From cpuss.dw0_tr_out[13] to usb.dma_burstend[5] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT14_TO_USB_ACK6 = 0x40001606u, /* From cpuss.dw0_tr_out[14] to usb.dma_burstend[6] */
+    TRIG_OUT_1TO1_6_PDMA0_TR_OUT15_TO_USB_ACK7 = 0x40001607u /* From cpuss.dw0_tr_out[15] to usb.dma_burstend[7] */
 } en_trig_output_1to1_usb_pdma0_ack_tr_t;
 
 /* Level or edge detection setting for a trigger mux */

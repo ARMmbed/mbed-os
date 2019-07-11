@@ -26,9 +26,9 @@
 
 void init_cycfg_all(void)
 {
+	init_cycfg_system();
 	init_cycfg_clocks();
+	init_cycfg_routing();
 	init_cycfg_peripherals();
 	init_cycfg_pins();
-	init_cycfg_platform();
-	init_cycfg_routing();
 }

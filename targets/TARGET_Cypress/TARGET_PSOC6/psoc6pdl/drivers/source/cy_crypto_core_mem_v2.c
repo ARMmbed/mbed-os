@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_mem_v2.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the PRNG
@@ -56,21 +56,24 @@
 *******************************************************************************/
 void Cy_Crypto_Core_V2_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uint16_t size)
 {
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src, (uint32_t)size);
-    Cy_Crypto_Core_V2_FFStart   (base, CY_CRYPTO_V2_RB_FF_STORE, (const uint8_t*)dst, (uint32_t)size);
-
-    while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+    if (size != 0U)
     {
-        Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_DATA_FIFODEPTH);
-        size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
-    }
+        Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src, (uint32_t)size);
+        Cy_Crypto_Core_V2_FFStart   (base, CY_CRYPTO_V2_RB_FF_STORE, (const uint8_t*)dst, (uint32_t)size);
 
-    if (size != 0u)
-    {
-        Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0, (uint32_t)size);
-    }
+        while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+        {
+            Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_DATA_FIFODEPTH);
+            size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        }
 
-    Cy_Crypto_Core_V2_Sync(base);
+        if (size != 0u)
+        {
+            Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0, (uint32_t)size);
+        }
+
+        Cy_Crypto_Core_V2_Sync(base);
+    }
 }
 
 /*******************************************************************************
@@ -95,20 +98,23 @@ void Cy_Crypto_Core_V2_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uin
 *******************************************************************************/
 void Cy_Crypto_Core_V2_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16_t size)
 {
-    Cy_Crypto_Core_V2_FFStart(base, CY_CRYPTO_V2_RB_FF_STORE, dst, (uint32_t)size);
-
-    while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+    if (size != 0U)
     {
-        Cy_Crypto_Core_V2_BlockSet(base, CY_CRYPTO_V2_RB_FF_STORE, data, CY_CRYPTO_V2_DATA_FIFODEPTH);
-        size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
-    }
+        Cy_Crypto_Core_V2_FFStart(base, CY_CRYPTO_V2_RB_FF_STORE, dst, (uint32_t)size);
 
-    if (size != 0u)
-    {
-        Cy_Crypto_Core_V2_BlockSet(base, CY_CRYPTO_V2_RB_FF_STORE, data, (uint32_t)size);
-    }
+        while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+        {
+            Cy_Crypto_Core_V2_BlockSet(base, CY_CRYPTO_V2_RB_FF_STORE, data, CY_CRYPTO_V2_DATA_FIFODEPTH);
+            size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        }
 
-    Cy_Crypto_Core_V2_Sync(base);
+        if (size != 0u)
+        {
+            Cy_Crypto_Core_V2_BlockSet(base, CY_CRYPTO_V2_RB_FF_STORE, data, (uint32_t)size);
+        }
+
+        Cy_Crypto_Core_V2_Sync(base);
+    }
 }
 
 /*******************************************************************************
@@ -136,25 +142,32 @@ void Cy_Crypto_Core_V2_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16
 *******************************************************************************/
 uint32_t Cy_Crypto_Core_V2_MemCmp(CRYPTO_Type *base, void const *src0, void const *src1, uint16_t size)
 {
-    REG_CRYPTO_RESULT(base) = 0ul;
+    uint32_t memResult = 1U;
 
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src0, (uint32_t)size);
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t*)src1, (uint32_t)size);
-
-    while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+    if (size != 0U)
     {
-        Cy_Crypto_Core_V2_BlockCmp(base, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_V2_DATA_FIFODEPTH);
-        size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        REG_CRYPTO_RESULT(base) = 0ul;
+
+        Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src0, (uint32_t)size);
+        Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t*)src1, (uint32_t)size);
+
+        while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+        {
+            Cy_Crypto_Core_V2_BlockCmp(base, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_V2_DATA_FIFODEPTH);
+            size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        }
+
+        if (size != 0u)
+        {
+            Cy_Crypto_Core_V2_BlockCmp(base, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_FF_LOAD1, (uint32_t)size);
+        }
+
+        Cy_Crypto_Core_V2_Sync(base);
+
+        memResult = (uint32_t)(REG_CRYPTO_RESULT(base));
     }
 
-    if (size != 0u)
-    {
-        Cy_Crypto_Core_V2_BlockCmp(base, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_V2_RB_FF_LOAD1, (uint32_t)size);
-    }
-
-    Cy_Crypto_Core_V2_Sync(base);
-
-    return((uint32_t)(REG_CRYPTO_RESULT(base)));
+    return memResult;
 }
 
 /*******************************************************************************
@@ -184,25 +197,28 @@ uint32_t Cy_Crypto_Core_V2_MemCmp(CRYPTO_Type *base, void const *src0, void cons
 void Cy_Crypto_Core_V2_MemXor(CRYPTO_Type *base,
                                void* dst, void const *src0, void const *src1, uint16_t size)
 {
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src0, (uint32_t)size);
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t*)src1, (uint32_t)size);
-    Cy_Crypto_Core_V2_FFStart   (base, CY_CRYPTO_V2_RB_FF_STORE, dst, (uint32_t)size);
-
-    while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+    if (size != 0U)
     {
-        Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0,
-                                         CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_V2_DATA_FIFODEPTH);
+        Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, (const uint8_t*)src0, (uint32_t)size);
+        Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD1, (const uint8_t*)src1, (uint32_t)size);
+        Cy_Crypto_Core_V2_FFStart   (base, CY_CRYPTO_V2_RB_FF_STORE, dst, (uint32_t)size);
 
-        size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        while (size >= CY_CRYPTO_V2_DATA_FIFODEPTH)
+        {
+            Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0,
+                                             CY_CRYPTO_V2_RB_FF_LOAD1, CY_CRYPTO_V2_DATA_FIFODEPTH);
+
+            size -= CY_CRYPTO_V2_DATA_FIFODEPTH;
+        }
+
+        if (size != 0u)
+        {
+            Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0,
+                                             CY_CRYPTO_V2_RB_FF_LOAD1, (uint32_t)size);
+        }
+
+        Cy_Crypto_Core_V2_Sync(base);
     }
-
-    if (size != 0u)
-    {
-        Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_FF_STORE, CY_CRYPTO_V2_RB_FF_LOAD0,
-                                         CY_CRYPTO_V2_RB_FF_LOAD1, (uint32_t)size);
-    }
-
-    Cy_Crypto_Core_V2_Sync(base);
 }
 
 

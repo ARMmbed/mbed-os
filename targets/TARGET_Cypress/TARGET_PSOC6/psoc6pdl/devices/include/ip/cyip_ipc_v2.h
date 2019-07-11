@@ -5,7 +5,7 @@
 * IPC IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright

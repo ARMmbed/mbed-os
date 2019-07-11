@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hmac_v2.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the HMAC method
@@ -55,8 +55,8 @@ typedef struct
     uint8_t ipad[CY_CRYPTO_HMAC_MAX_PAD_SIZE];
     uint8_t opad[CY_CRYPTO_HMAC_MAX_PAD_SIZE];
     uint8_t m0Key[CY_CRYPTO_SHA_MAX_BLOCK_SIZE];
+    cy_stc_crypto_v2_sha512_buffers_t shaBuffers;
     cy_stc_crypto_v2_hmac_state_t hmacState;
-    cy_stc_crypto_sha_state_t  hashState;
 } cy_stc_crypto_v2_hmac_buffers_t;
 
 /* Static fubctions declarations */
@@ -306,8 +306,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Hmac(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
 
-    /* Allocating internal variables into the CRYPTO SRAM Buffer */
-    cy_stc_crypto_v2_hmac_buffers_t  hmacBuffersData = { 0 };
+    /* Allocating internal variables into the RAM */
+    cy_stc_crypto_v2_hmac_buffers_t  hmacBuffersData = {{ 0 }};
     cy_stc_crypto_v2_hmac_buffers_t *hmacBuffers = &hmacBuffersData;
 
     cy_stc_crypto_v2_hmac_state_t   *hmacStateTmp = &hmacBuffers->hmacState;
@@ -317,8 +317,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Hmac(CRYPTO_Type *base,
     uint8_t *opadTmp      = (uint8_t*)&hmacBuffers->opad;
     uint8_t *m0KeyTmp     = (uint8_t*)&hmacBuffers->m0Key;
 
-    /* No any buffers needed for Crypto_ver2 IP block */
-    tmpResult = Cy_Crypto_Core_V2_Sha_Init(base, &hashStateLoc, mode, NULL);
+    tmpResult = Cy_Crypto_Core_V2_Sha_Init(base, &hashStateLoc, mode, &hmacBuffers->shaBuffers);
 
     if (CY_CRYPTO_SUCCESS == tmpResult)
     {

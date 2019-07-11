@@ -2,7 +2,7 @@
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
  * Copyright (c) 2016 u-blox
- * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,11 +21,7 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_CY8CKIT_062_4343W)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x08002000 + 0x000FD800)  /* Ram origin + length */
-#endif
-#elif defined(TARGET_CY8CKIT_062_BLE)
+#if defined(TARGET_CY8CKIT_062_BLE)
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x08002000 + 0x00045800)  /* Ram origin + length */
 #endif

@@ -5,7 +5,7 @@
 * CPUSS IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -100,9 +100,11 @@ typedef struct {
   __IOM uint32_t PROTECTION;                    /*!< 0x00000500 Protection status */
    __IM uint32_t RESERVED23[7];
   __IOM uint32_t CM0_NMI_CTL;                   /*!< 0x00000520 CM0+ NMI control */
-   __IM uint32_t RESERVED24[31];
+   __IM uint32_t RESERVED24[7];
+  __IOM uint32_t AP_CTL;                        /*!< 0x00000540 Access port control */
+   __IM uint32_t RESERVED25[23];
    __IM uint32_t MBIST_STAT;                    /*!< 0x000005A0 Memory BIST status */
-   __IM uint32_t RESERVED25[14999];
+   __IM uint32_t RESERVED26[14999];
   __IOM uint32_t TRIM_ROM_CTL;                  /*!< 0x0000F000 ROM trim control */
   __IOM uint32_t TRIM_RAM_CTL;                  /*!< 0x0000F004 RAM trim control */
 } CPUSS_V1_Type;                                /*!< Size = 61448 (0xF008) */
@@ -312,6 +314,19 @@ typedef struct {
 /* CPUSS.CM0_NMI_CTL */
 #define CPUSS_CM0_NMI_CTL_MUX0_SEL_Pos          0UL
 #define CPUSS_CM0_NMI_CTL_MUX0_SEL_Msk          0xFFUL
+/* CPUSS.AP_CTL */
+#define CPUSS_AP_CTL_CM0_ENABLE_Pos             0UL
+#define CPUSS_AP_CTL_CM0_ENABLE_Msk             0x1UL
+#define CPUSS_AP_CTL_CM4_ENABLE_Pos             1UL
+#define CPUSS_AP_CTL_CM4_ENABLE_Msk             0x2UL
+#define CPUSS_AP_CTL_SYS_ENABLE_Pos             2UL
+#define CPUSS_AP_CTL_SYS_ENABLE_Msk             0x4UL
+#define CPUSS_AP_CTL_CM0_DISABLE_Pos            16UL
+#define CPUSS_AP_CTL_CM0_DISABLE_Msk            0x10000UL
+#define CPUSS_AP_CTL_CM4_DISABLE_Pos            17UL
+#define CPUSS_AP_CTL_CM4_DISABLE_Msk            0x20000UL
+#define CPUSS_AP_CTL_SYS_DISABLE_Pos            18UL
+#define CPUSS_AP_CTL_SYS_DISABLE_Msk            0x40000UL
 /* CPUSS.MBIST_STAT */
 #define CPUSS_MBIST_STAT_SFP_READY_Pos          0UL
 #define CPUSS_MBIST_STAT_SFP_READY_Msk          0x1UL

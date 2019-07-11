@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO header for 124-BGA-SIP package
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright

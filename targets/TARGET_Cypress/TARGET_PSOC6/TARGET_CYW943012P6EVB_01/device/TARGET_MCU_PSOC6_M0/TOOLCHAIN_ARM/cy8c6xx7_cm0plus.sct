@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm0plus.scat
-;* \version 2.40
+;* \version 2.50
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -86,7 +86,7 @@
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define STACK_SIZE MBED_BOOT_STACK_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
@@ -193,7 +193,7 @@ LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
     }
     
     ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE -Stack_Size
+    ARM_LIB_STACK RAM_START+RAM_SIZE -STACK_SIZE
     {
         * (STACK)
     }

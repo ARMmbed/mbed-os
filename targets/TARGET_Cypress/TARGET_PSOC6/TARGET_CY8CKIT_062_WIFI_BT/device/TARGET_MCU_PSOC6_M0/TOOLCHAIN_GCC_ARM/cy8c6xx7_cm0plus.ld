@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xx7_cm0plus.ld
-* \version 2.40
+* \version 2.50
 *
 * Linker file for the GNU C compiler.
 *

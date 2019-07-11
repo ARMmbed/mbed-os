@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_mem_v1.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API for the PRNG
@@ -58,22 +58,25 @@
 *******************************************************************************/
 void Cy_Crypto_Core_V1_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uint16_t size)
 {
-    /* Prepare data in the register file for next instruction */
-    Cy_Crypto_SetReg3Instr(base,
-                           (uint32_t)src,
-                           (uint32_t)dst,
-                           (uint32_t)size);
-
-    /* Issue the STR_MEMCPY instruction */
-    Cy_Crypto_Run3ParamInstr(base,
-                             CY_CRYPTO_V1_STR_MEMCPY_OPC,
-                             CY_CRYPTO_RSRC0_SHIFT,
-                             CY_CRYPTO_RSRC4_SHIFT,
-                             CY_CRYPTO_RSRC8_SHIFT);
-
-    /* Wait until the STR instruction is complete */
-    while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+    if (size != 0U)
     {
+        /* Prepare data in the register file for next instruction */
+        Cy_Crypto_SetReg3Instr(base,
+                               (uint32_t)src,
+                               (uint32_t)dst,
+                               (uint32_t)size);
+
+        /* Issue the STR_MEMCPY instruction */
+        Cy_Crypto_Run3ParamInstr(base,
+                                 CY_CRYPTO_V1_STR_MEMCPY_OPC,
+                                 CY_CRYPTO_RSRC0_SHIFT,
+                                 CY_CRYPTO_RSRC4_SHIFT,
+                                 CY_CRYPTO_RSRC8_SHIFT);
+
+        /* Wait until the STR instruction is complete */
+        while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+        {
+        }
     }
 }
 
@@ -99,21 +102,24 @@ void Cy_Crypto_Core_V1_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uin
 *******************************************************************************/
 void Cy_Crypto_Core_V1_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16_t size)
 {
-    Cy_Crypto_SetReg3Instr(base,
-                           (uint32_t)dst,
-                           (uint32_t)size,
-                           (uint32_t)data);
-
-    /* Issue the STR_MEMSET instruction */
-    Cy_Crypto_Run3ParamInstr(base,
-                             CY_CRYPTO_V1_STR_MEMSET_OPC,
-                             CY_CRYPTO_RSRC0_SHIFT,
-                             CY_CRYPTO_RSRC8_SHIFT,
-                             CY_CRYPTO_RSRC12_SHIFT);
-
-    /* Wait until the STR instruction is complete */
-    while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+    if (size != 0U)
     {
+        Cy_Crypto_SetReg3Instr(base,
+                               (uint32_t)dst,
+                               (uint32_t)size,
+                               (uint32_t)data);
+
+        /* Issue the STR_MEMSET instruction */
+        Cy_Crypto_Run3ParamInstr(base,
+                                 CY_CRYPTO_V1_STR_MEMSET_OPC,
+                                 CY_CRYPTO_RSRC0_SHIFT,
+                                 CY_CRYPTO_RSRC8_SHIFT,
+                                 CY_CRYPTO_RSRC12_SHIFT);
+
+        /* Wait until the STR instruction is complete */
+        while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+        {
+        }
     }
 }
 
@@ -142,24 +148,31 @@ void Cy_Crypto_Core_V1_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16
 *******************************************************************************/
 uint32_t Cy_Crypto_Core_V1_MemCmp(CRYPTO_Type *base, void const *src0, void const *src1, uint16_t size)
 {
-    Cy_Crypto_SetReg3Instr(base,
-                           (uint32_t)src0,
-                           (uint32_t)src1,
-                           (uint32_t)size);
+    uint32_t memResult = 1U;
 
-    /* Issue the STR_MEMCMP instruction */
-    Cy_Crypto_Run3ParamInstr(base,
-                             CY_CRYPTO_V1_STR_MEMCMP_OPC,
-                             CY_CRYPTO_RSRC0_SHIFT,
-                             CY_CRYPTO_RSRC4_SHIFT,
-                             CY_CRYPTO_RSRC8_SHIFT);
-
-    /* Wait until the STR instruction is complete */
-    while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+    if (size != 0U)
     {
+        Cy_Crypto_SetReg3Instr(base,
+                               (uint32_t)src0,
+                               (uint32_t)src1,
+                               (uint32_t)size);
+
+        /* Issue the STR_MEMCMP instruction */
+        Cy_Crypto_Run3ParamInstr(base,
+                                 CY_CRYPTO_V1_STR_MEMCMP_OPC,
+                                 CY_CRYPTO_RSRC0_SHIFT,
+                                 CY_CRYPTO_RSRC4_SHIFT,
+                                 CY_CRYPTO_RSRC8_SHIFT);
+
+        /* Wait until the STR instruction is complete */
+        while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+        {
+        }
+
+        memResult = (uint32_t)(REG_CRYPTO_STR_RESULT(base));
     }
 
-    return((uint32_t)(REG_CRYPTO_STR_RESULT(base)));
+    return memResult;
 }
 
 /*******************************************************************************
@@ -189,23 +202,26 @@ uint32_t Cy_Crypto_Core_V1_MemCmp(CRYPTO_Type *base, void const *src0, void cons
 void Cy_Crypto_Core_V1_MemXor(CRYPTO_Type *base,
                               void* dst, void const *src0, void const *src1, uint16_t size)
 {
-    Cy_Crypto_SetReg4Instr(base,
-                           (uint32_t)src0,
-                           (uint32_t)src1,
-                           (uint32_t)size,
-                           (uint32_t)dst);
-
-    /* Issue the STR_MEMXOR instruction */
-    Cy_Crypto_Run4ParamInstr(base,
-                             CY_CRYPTO_V1_STR_MEMXOR_OPC,
-                             CY_CRYPTO_RSRC0_SHIFT,
-                             CY_CRYPTO_RSRC4_SHIFT,
-                             CY_CRYPTO_RSRC8_SHIFT,
-                             CY_CRYPTO_RSRC12_SHIFT);
-
-    /* Wait until the STR instruction is complete */
-    while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+    if (size != 0U)
     {
+        Cy_Crypto_SetReg4Instr(base,
+                               (uint32_t)src0,
+                               (uint32_t)src1,
+                               (uint32_t)size,
+                               (uint32_t)dst);
+
+        /* Issue the STR_MEMXOR instruction */
+        Cy_Crypto_Run4ParamInstr(base,
+                                 CY_CRYPTO_V1_STR_MEMXOR_OPC,
+                                 CY_CRYPTO_RSRC0_SHIFT,
+                                 CY_CRYPTO_RSRC4_SHIFT,
+                                 CY_CRYPTO_RSRC8_SHIFT,
+                                 CY_CRYPTO_RSRC12_SHIFT);
+
+        /* Wait until the STR instruction is complete */
+        while (0uL != _FLD2VAL(CRYPTO_STATUS_STR_BUSY, REG_CRYPTO_STATUS(base)))
+        {
+        }
     }
 }
 

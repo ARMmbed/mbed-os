@@ -92,7 +92,7 @@
 * - CY_TRIGMUX_BAD_PARAM: Some parameter is invalid.
 *
 * \funcusage
-* \snippet trigmux\1.20\snippet\main.c snippet_Cy_TrigMux_Connect
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Connect
 *  
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, bool invert, en_trig_type_t trigType)
@@ -151,7 +151,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, boo
 * - CY_TRIGMUX_BAD_PARAM: Some parameter is invalid.
 *
 * \funcusage
-* \snippet trigmux\1.20\snippet\main.c snippet_Cy_TrigMux_Select
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Select
 *  
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Select(uint32_t outTrig, bool invert, en_trig_type_t trigType)
@@ -201,7 +201,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Select(uint32_t outTrig, bool invert, en_trig_
 * - CY_TRIGMUX_BAD_PARAM: Some parameter is invalid.
 *
 * \funcusage
-* \snippet trigmux\1.20\snippet\main.c snippet_Cy_TrigMux_Deselect
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_Deselect
 *  
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
@@ -251,7 +251,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Deselect(uint32_t outTrig)
 * - CY_TRIGMUX_BAD_PARAM: The outTrig parameter is invalid.
 *
 * \funcusage
-* \snippet trigmux\1.20\snippet\main.c snippet_Cy_TrigMux_SetDebugFreeze
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_SetDebugFreeze
 *  
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
@@ -322,7 +322,7 @@ cy_en_trigmux_status_t Cy_TrigMux_SetDebugFreeze(uint32_t outTrig, bool enable)
 * - CY_TRIGMUX_BAD_PARAM: Some parameter is invalid.
 *
 * \funcusage
-* \snippet trigmux\1.20\snippet\main.c snippet_Cy_TrigMux_SwTrigger
+* \snippet trigmux/snippet/main.c snippet_Cy_TrigMux_SwTrigger
 *
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)

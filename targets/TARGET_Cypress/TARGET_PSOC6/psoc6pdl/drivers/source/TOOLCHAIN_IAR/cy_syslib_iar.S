@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib_iar.s
-* \version 2.20
+* \version 2.40
 *
 * \brief Assembly routines for IAR Embedded Workbench IDE.
 *
