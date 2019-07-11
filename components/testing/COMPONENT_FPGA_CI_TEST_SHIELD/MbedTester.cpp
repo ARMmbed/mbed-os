@@ -536,8 +536,6 @@ static bool _firmware_header_valid(BlockDevice &flash, bool &valid)
 static bool _firmware_get_active_bank(BlockDevice &flash, bool &second_bank_active)
 {
     uint8_t buf[sizeof(SYNC_WORD)];
-    size_t pos = 0;
-    size_t read_size;
 
     if (flash.read(buf, FLASH_SECTOR_SIZE - sizeof(SYNC_WORD), sizeof(SYNC_WORD)) != BD_ERROR_OK) {
         return false;
@@ -708,7 +706,7 @@ bool MbedTester::firmware_dump(mbed::FileHandle *dest, mbed::Callback<void(uint8
             return false;
         }
         ssize_t write_size = dest->write(buf, read_size);
-        if (write_size != read_size) {
+        if ((uint32_t)write_size != read_size) {
             sys_pin_mode_disabled();
             return false;
         }
@@ -761,7 +759,7 @@ bool MbedTester::firmware_dump_all(mbed::FileHandle *dest, mbed::Callback<void(u
             return false;
         }
         ssize_t write_size = dest->write(buf, read_size);
-        if (write_size != read_size) {
+        if ((uint32_t)write_size != read_size) {
             sys_pin_mode_disabled();
             return false;
         }
@@ -1154,7 +1152,7 @@ uint8_t MbedTester::io_expander_read_index(int index, IOExpanderReg reg_type)
     }
 
     int read_success = io_expander_i2c_read(i2c_index, dev_addr, reg, read_byte, 1);
-    // MBED_ASSERT(read_success == 0);
+    MBED_ASSERT(read_success == 0);
     uint8_t bit = (read_byte[0] & (1 << reg_bit)) >> reg_bit;
     return bit;
 }
@@ -1489,7 +1487,7 @@ uint8_t MbedTester::io_expander_read_bb(PinName pin, IOExpanderReg reg_type)
     }
 
     int read_success = io_expander_i2c_read_bb(sda, scl, dev_addr, reg, read_byte, 1);
-    // MBED_ASSERT(read_success == 0);
+    MBED_ASSERT(read_success == 0);
     uint8_t bit = (read_byte[0] & (1 << reg_bit)) >> reg_bit;
     return bit;
 }
