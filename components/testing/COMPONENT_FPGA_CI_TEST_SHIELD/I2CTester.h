@@ -61,10 +61,10 @@ public:
     uint16_t num_nacks();
 
     /**
-     * Read the number of transfers which have occurred, not including the device address byte
+     * Read the number of transfers which have occurred
      *
      * @return The number of I2C transfers that have completed since
-     *         i2c was reset, not including the device address byte
+     *         i2c was reset, including the device address byte.
      */
     uint16_t transfer_count();
 
@@ -74,6 +74,13 @@ public:
      * @return The sum of all bytes sent to the tester since reset
      */
     uint32_t get_receive_checksum();
+
+    /**
+     * Read a checksum the tester calculated for data it has already sent
+     *
+     * @return The sum of all bytes the tester has sent since reset
+     */
+    uint32_t get_send_checksum();
 
     /**
      * Get the I2C slave state number
@@ -88,6 +95,13 @@ public:
      * @return The number of times the device address has been sent correctly
      */
     uint8_t num_dev_addr_matches();
+
+    /**
+     * Get the number of times the device address has been sent incorrectly
+     *
+     * @return The number of times the device address has been sent incorrectly
+     */
+    uint8_t num_dev_addr_mismatches();
 
     /**
      * Set the I2C slave device address
@@ -153,7 +167,7 @@ public:
     uint8_t get_next_from_slave();
 
     /**
-     * Read the number of writes which have occurred, not including the device address byte
+     * Read the number of writes which have occurred
      *
      * @return The number of I2C writes that have completed since
      *         i2c was reset, not including the device address byte
@@ -164,7 +178,7 @@ public:
      * Read the number of reads which have occurred
      *
      * @return The number of I2C reads that have completed since
-     *         i2c was reset
+     *         i2c was reset, not including the device address byte
      */
     uint16_t num_reads();
 

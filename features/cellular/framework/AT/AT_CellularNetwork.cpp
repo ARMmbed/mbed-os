@@ -293,6 +293,7 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
 
 nsapi_error_t AT_CellularNetwork::detach()
 {
+    _at.lock();
     tr_debug("Network detach");
     _at.at_cmd_discard("+CGATT", "=0");
 

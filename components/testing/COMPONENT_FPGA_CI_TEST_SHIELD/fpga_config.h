@@ -192,3 +192,7 @@
 #define TESTER_I2C_NEXT_FROM_SLAVE                    (0x015 + 0x00105000)
 #define TESTER_I2C_NUM_WRITES                         (0x016 + 0x00105000)
 #define TESTER_I2C_NUM_READS                          (0x018 + 0x00105000)
+#define TESTER_I2C_FROM_SLAVE_CHECKSUM                (0x01A + 0x00105000)
+#define TESTER_I2C_FROM_SLAVE_CHECKSUM_SIZE           4
+#define TESTER_I2C_NUMBER_DEV_ADDR_MISMATCHES         (0x01E + 0x00105000)
+#define TESTER_I2C_NUMBER_DEV_ADDR_MISMATCHES_SIZE    1

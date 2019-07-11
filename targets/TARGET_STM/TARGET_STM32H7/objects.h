@@ -170,6 +170,9 @@ struct can_s {
 #define RCC_LPUART1CLKSOURCE_PCLK1  RCC_LPUART1CLKSOURCE_PLL2
 #define RCC_LPUART1CLKSOURCE_SYSCLK RCC_LPUART1CLKSOURCE_D3PCLK1
 
+/* watchdog_api.c */
+#define IWDG IWDG1
+
 #ifdef __cplusplus
 }
 #endif

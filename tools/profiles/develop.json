@@ -24,19 +24,20 @@
         "asm": [],
         "c": ["-D__ASSERT_MSG", "-std=gnu11"],
         "cxx": ["-fno-rtti", "-std=gnu++14"],
-        "ld": ["--show_full_path", "--legacyalign", "--keep=os_cb_sections"]
+        "ld": ["--show_full_path", "--legacyalign", "--any_contingency",
+               "--keep=os_cb_sections"]
     },
     "ARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O3", "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp11", "--no_rtti", "--no_vla"],
-        "ld": ["--show_full_path", "--keep=os_cb_sections"]
+        "ld": ["--show_full_path", "--any_contingency", "--keep=os_cb_sections"]
     },
     "uARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O3", "-D__MICROLIB",
                    "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD",
@@ -49,7 +50,7 @@
     "IAR": {
         "common": [
             "--no_wrap_diagnostics", "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh", "--enable_restrict",
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Ohz", "--enable_restrict",
              "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": [],
         "c": ["--vla", "--diag_suppress=Pe546"],

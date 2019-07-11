@@ -124,8 +124,14 @@ do {                                                     \
  *  };
  *  @endcode
  */
-#define MBED_STRUCT_STATIC_ASSERT(expr, msg) int : (expr) ? 0 : -1
-
+#if defined(__cplusplus) && (__cplusplus >= 201103L || __cpp_static_assert >= 200410L)
+#define MBED_STRUCT_STATIC_ASSERT(expr, msg) static_assert(expr, msg)
+#elif !defined(__cplusplus) && __STDC_VERSION__ >= 201112L
+#define MBED_STRUCT_STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
+#else
+#include <stdbool.h>
+#define MBED_STRUCT_STATIC_ASSERT(expr, msg) bool : (expr) ? 0 : -1
+#endif
 
 #endif
 

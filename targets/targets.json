@@ -1489,7 +1489,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
         "device_has": [
@@ -1781,7 +1781,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
         "device_has": [
@@ -2861,6 +2861,7 @@
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
+        "components_add": ["FLASHIAP"],
         "macros_add": ["USB_STM_HAL"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
         "detect_code": ["0467"],
@@ -3226,8 +3227,7 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
-        "bootloader_supported": true,
-        "device_has_remove": ["WATCHDOG"]
+        "bootloader_supported": true
     },
     "NUCLEO_H743ZI2": {
         "inherits": ["NUCLEO_H743ZI"],
@@ -8296,9 +8296,14 @@
             "PWMOUT",
             "RESET_REASON",
             "SERIAL",
+            "SERIAL_FC",
             "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
             "I2C",
             "I2CSLAVE",
+            "I2C_ASYNCH",
+            "RTC",
             "STDIO_MESSAGES",
             "FLASH",
             "SLEEP",
@@ -8577,18 +8582,25 @@
             "USTICKER",
             "ANALOGIN",
             "ANALOGOUT",
+            "CRC",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
             "RESET_REASON",
+            "RTC",
             "SERIAL",
+            "SERIAL_FC",
             "SLEEP",
             "SPI",
+            "SPI_ASYNCH",
+            "SPISLAVE",
             "I2C",
+            "I2C_ASYNCH",
             "I2CSLAVE",
             "STDIO_MESSAGES",
+            "FLASH",
             "MPU"
         ],
         "device_name": "TMPM3HQFDFG",
@@ -8693,11 +8705,16 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RTC",
             "SERIAL",
+            "SERIAL_FC",
             "SLEEP",
             "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
             "I2C",
             "I2CSLAVE",
+            "I2C_ASYNCH",
             "STDIO_MESSAGES",
             "MPU"
         ],
@@ -8806,6 +8823,20 @@
         "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
         "release_versions": ["5"]
+    },
+    "IM880B": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT", "MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
+        "macros_add": ["HSE_VALUE=16000000"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CBxxA"
     },
     "__build_tools_metadata__": {
         "version": "1",
