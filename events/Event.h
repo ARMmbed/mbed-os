@@ -1,5 +1,5 @@
-/* events
- * Copyright (c) 2016 ARM Limited
+/*
+ * Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,20 +21,25 @@
 #include "platform/mbed_assert.h"
 
 namespace events {
-/** \addtogroup events */
+/** \ingroup events */
+/** \addtogroup events-public-api Public API */
+/** @{*/
 
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename F>
 class Event;
 
+/**
+ * \defgroup events_Event Event<void()> class
+ * @{
+ */
+
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
- * @ingroup events
  */
 template <typename... ArgTs>
 class Event<void(ArgTs...)> {
@@ -389,9 +394,8 @@ public:
         Event(q, mbed::callback(obj, method), b0, b1, b2, b3, b4) { }
 };
 
+/** @}*/
 
-/** \addtogroup events */
-/** @{ */
 
 // Convenience functions declared here to avoid cyclic
 // dependency between Event and EventQueue
@@ -610,8 +614,7 @@ Event<void(ArgTs...)> EventQueue::event(mbed::Callback<R(B0, B1, B2, B3, B4, Arg
 {
     return Event<void(ArgTs...)>(this, cb, c0, c1, c2, c3, c4);
 }
-}
-
-#endif
 
 /** @}*/
+}
+#endif

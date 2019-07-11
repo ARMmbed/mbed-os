@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,10 @@ extern "C" {
 #endif
 
 #include "mbed_rtx.h"
+
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
+/** @{*/
 
 /**
  * \defgroup boot Boot sequence
@@ -158,6 +162,7 @@ void mbed_sdk_init(void);
  */
 void mbed_main(void);
 
+/**@}*/
 /**@}*/
 
 #ifdef __cplusplus

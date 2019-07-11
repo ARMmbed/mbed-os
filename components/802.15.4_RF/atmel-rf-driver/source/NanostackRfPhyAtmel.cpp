@@ -32,6 +32,7 @@
 #include "SPI.h"
 #include "inttypes.h"
 #include "Timeout.h"
+#include "platform/mbed_error.h"
 
 #define TRACE_GROUP "AtRF"
 

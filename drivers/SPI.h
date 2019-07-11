@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,12 +40,18 @@
 #include "platform/CThunk.h"
 #include "hal/dma_api.h"
 #include "platform/CircularBuffer.h"
-#include "platform/FunctionPointer.h"
+#include "platform/Callback.h"
 #include "platform/Transaction.h"
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_SPI SPI class
+ * @{
+ */
 
 struct use_gpio_ssel_t { };
 const use_gpio_ssel_t use_gpio_ssel;
@@ -90,7 +96,6 @@ const use_gpio_ssel_t use_gpio_ssel;
  *     device.unlock();
  * }
  * @endcode
- * @ingroup drivers
  */
 class SPI : private NonCopyable<SPI> {
 
@@ -418,6 +423,9 @@ private:
 
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

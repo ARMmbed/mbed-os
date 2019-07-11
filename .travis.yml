@@ -227,9 +227,9 @@ matrix:
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
-        - make -C ${EVENTS}/equeue test
+        - make -C ${EVENTS}/source test
         # Run profiling tests
-        - make -C ${EVENTS}/equeue prof | tee prof
+        - make -C ${EVENTS}/source prof | tee prof
       after_success:
         # Update status, comparing with master if possible.
         - |

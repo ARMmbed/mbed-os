@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,11 +30,17 @@
 #if DEVICE_I2C_ASYNCH
 #include "platform/CThunk.h"
 #include "hal/dma_api.h"
-#include "platform/FunctionPointer.h"
+#include "platform/Callback.h"
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_I2C I2C class
+ * @{
+ */
 
 /** An I2C Master, used for communicating with I2C slave devices
  *
@@ -70,7 +76,6 @@ namespace mbed {
  *   }
  * }
  * @endcode
- * @ingroup drivers
  */
 class I2C : private NonCopyable<I2C> {
 
@@ -241,6 +246,9 @@ private:
     int recover(PinName sda, PinName scl);
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

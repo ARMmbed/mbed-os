@@ -1,5 +1,5 @@
-/* events
- * Copyright (c) 2016 ARM Limited
+/*
+ * Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,16 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include "equeue/equeue.h"
+#include "events/internal/equeue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include <cstddef>
 #include <new>
 
 namespace events {
-/** \addtogroup events */
+/** \ingroup events */
+/** \addtogroup events-public-api */
+/** @{*/
 
 /** EVENTS_EVENT_SIZE
  *  Minimum size of an event
@@ -43,11 +45,14 @@ namespace events {
 template <typename F>
 class Event;
 
+/**
+ * \defgroup events_EventQueue EventQueue class
+ * @{
+ */
 
 /** EventQueue
  *
  *  Flexible event queue for dispatching events
- * @ingroup events
  */
 class EventQueue : private mbed::NonCopyable<EventQueue> {
 public:
@@ -1186,7 +1191,9 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
+/** @}*/
+/** @}*/
+
 }
 
 #endif
-
