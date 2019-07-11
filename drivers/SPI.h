@@ -345,15 +345,21 @@ protected:
     enum SPIName { GlobalSPI };
 #endif
 
+    // All members of spi_peripheral_s must be initialized to make the structure
+    // constant-initialized, and hence able to be omitted by the linker,
+    // as SingletonPtr now relies on C++ constant-initialization. (Previously it
+    // worked through C++ zero-initialization). And all the constants should be zero
+    // to ensure it stays in the actual zero-init part of the image if used, avoiding
+    // an initialized-data cost.
     struct spi_peripheral_s {
         /* Internal SPI name identifying the resources. */
-        SPIName name;
+        SPIName name = SPIName(0);
         /* Internal SPI object handling the resources' state. */
-        spi_t spi;
+        spi_t spi{};
         /* Used by lock and unlock for thread safety */
         SingletonPtr<PlatformMutex> mutex;
         /* Current user of the SPI */
-        SPI *owner;
+        SPI *owner = nullptr;
 #if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
         /* Queue of pending transfers */
         SingletonPtr<CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> > transaction_buffer;
