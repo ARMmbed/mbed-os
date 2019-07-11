@@ -115,6 +115,11 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
                              FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
             }
+            if (pinmap_list_has_peripheral(pinmap_restricted_peripherals(), port.peripheral)) {
+                utest_printf("Skipping %s peripheral %i with pin %s (%i)\r\n", pin_type,
+                             port.peripheral, FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
+                continue;
+            }
             // skipp pin searching if single pin port type
             if (PortType::pin_count > 1) {
                 find_port_pins<PortType, FormFactorType>(port);

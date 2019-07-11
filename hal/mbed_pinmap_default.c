@@ -77,3 +77,12 @@ MBED_WEAK const PinList *pinmap_restricted_pins()
     return &pin_list;
 }
 
+//*** Default restricted peripherals ***
+MBED_WEAK const PeripheralList *pinmap_restricted_peripherals()
+{
+    static const PeripheralList peripheral_list = {
+        0,
+        0
+    };
+    return &peripheral_list;
+}
