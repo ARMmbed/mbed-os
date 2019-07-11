@@ -4,7 +4,7 @@ CC = gcc
 AR = ar
 SIZE = size
 
-SRC += $(wildcard *.c)  $(wildcard ../internal/*.c)
+SRC += $(wildcard *.c)
 OBJ := $(SRC:.c=.o)
 DEP := $(SRC:.c=.d)
 ASM := $(SRC:.c=.s)
@@ -17,7 +17,7 @@ endif
 ifdef WORD
 CFLAGS += -m$(WORD)
 endif
-CFLAGS += -I. -I.. -I../..
+CFLAGS += -I. -I..
 CFLAGS += -std=c99
 CFLAGS += -Wall
 CFLAGS += -D_XOPEN_SOURCE=600
