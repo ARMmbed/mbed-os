@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,9 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "platform/FileHandle.h"
-#include "SerialBase.h"
-#include "InterruptIn.h"
+#include "drivers/SerialBase.h"
+#include "drivers/InterruptIn.h"
 #include "platform/PlatformMutex.h"
-#include "hal/serial_api.h"
 #include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 
@@ -40,11 +39,16 @@
 
 namespace mbed {
 
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_UARTSerial UARTSerial class
+ * @{
+ */
 
 /** Class providing buffered UART communication functionality using separate circular buffer for send and receive channels
  *
- * @ingroup drivers
  */
 
 class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
@@ -312,6 +316,10 @@ private:
     void dcd_irq(void);
 
 };
+
+/** @}*/
+/** @}*/
+
 } //namespace mbed
 
 #endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)

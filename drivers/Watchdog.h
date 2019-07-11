@@ -28,8 +28,9 @@
 #include <cstdio>
 
 namespace mbed {
-
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
 /** A hardware watchdog timer that resets the system in the case of system
  * failures or malfunctions. If you fail to refresh the Watchdog timer periodically,
  * it resets the system after a set period of time.
@@ -57,6 +58,10 @@ namespace mbed {
  *
  * @note Synchronization level: Interrupt safe
  * @ingroup drivers
+ */
+/**
+ * \defgroup drivers_Watchdog Watchdog class
+ * @{
  */
 class Watchdog : private NonCopyable<Watchdog>  {
 public:
@@ -148,6 +153,9 @@ private:
 
     bool _running;
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

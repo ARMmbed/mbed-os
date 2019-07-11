@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "rtos/rtos_idle.h"
+#include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_os_timer.h"
 #include "TimerEvent.h"

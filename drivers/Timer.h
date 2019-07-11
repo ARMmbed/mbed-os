@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +20,15 @@
 #include "platform/platform.h"
 #include "hal/ticker_api.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Timer Timer class
+ * @{
+ */
 
 /** A general purpose timer
  *
@@ -47,7 +52,6 @@ namespace mbed {
  *     printf("Toggle the led takes %d us", end - begin);
  * }
  * @endcode
- * @ingroup drivers
  */
 class Timer : private NonCopyable<Timer> {
 
@@ -107,6 +111,9 @@ protected:
     bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
 };
 #endif
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

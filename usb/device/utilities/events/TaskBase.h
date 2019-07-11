@@ -27,7 +27,9 @@ class Semaphore;
 }
 
 namespace events {
-/** \addtogroup events */
+/** \ingroup events */
+/** \addtogroup events-internal-api */
+/** @{*/
 
 
 class TaskQueue;
@@ -35,7 +37,6 @@ class TaskQueue;
 /** TaskBase
  *
  *  Representation of a caller allocated task
- * @ingroup events
  */
 class TaskBase : public LinkEntry {
 public:
@@ -158,8 +159,8 @@ private:
     void _wake_check();
 };
 
+/** @}*/
+
 }
 
 #endif
-
-/** @}*/

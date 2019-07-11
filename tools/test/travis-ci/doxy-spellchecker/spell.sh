@@ -20,6 +20,7 @@ while read file; do
     # matched.
     start_tokens=(  "/@code"
                     "/addtogroup"
+                    "ingroup"
                     "defgroup"
                     "<"
                     "()"
@@ -28,12 +29,14 @@ while read file; do
     formats=(   'strip_between'
                 'strip_between'
                 'strip_line'
+                'strip_line'
                 'strip_between_sameline'
                 'strip_token'
             )
 
     end_tokens=(    "/@endcode"
                     "/\*"
+                    ""
                     ""
                     ">"
                     ""
