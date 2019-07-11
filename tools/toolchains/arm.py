@@ -559,12 +559,15 @@ class ARMC6(ARM_STD):
         elif core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-        elif core == "Cortex-M7F" or core.startswith("Cortex-M33F"):
+        elif core == "Cortex-M7F":
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
         elif core == "Cortex-M7FD":
             self.flags['common'].append("-mfpu=fpv5-d16")
             self.flags['common'].append("-mfloat-abi=hard")
+        elif core.startswith("Cortex-M33F"):
+            self.cpu.append("-mfpu=fp-armv8")
+            self.cpu.append("-mfloat-abi=hard")
 
         asm_ld_cpu = {
             "Cortex-M0+": "Cortex-M0plus",
