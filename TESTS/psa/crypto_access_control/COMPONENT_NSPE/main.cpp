@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#include "psa/crypto.h"
+
 #if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)) || (!defined(COMPONENT_PSA_SRV_IPC)))
 #error [NOT_SUPPORTED] These tests can run only on SPM-enabled targets and where Mbed Crypto is ON - skipping.
 #endif
@@ -24,7 +26,6 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#include "psa/crypto.h"
 #include "entropy.h"
 #include "entropy_poll.h"
 #include "test_partition_proxy.h"
