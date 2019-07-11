@@ -27,13 +27,11 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-
-#include "mbed.h"
 #include "i2c_api.h"
 #include "pinmap.h"
 #include "test_utils.h"
 #include "I2CTester.h"
-
+#include "i2c_fpga_test.h"
 
 using namespace utest::v1;
 
@@ -45,7 +43,7 @@ const int TRANSFER_COUNT = 300;
 
 I2CTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
 
-void test_i2c_init_free(PinName sda, PinName scl)
+void fpga_test_i2c_init_free(PinName sda, PinName scl)
 {
     i2c_t obj = {};
     memset(&obj, 0, sizeof(obj));
@@ -66,7 +64,7 @@ void test_i2c_init_free(PinName sda, PinName scl)
     gpio_set(scl);
 }
 
-void i2c_test_write(PinName sda, PinName scl)
+void fpga_i2c_test_write(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -153,7 +151,7 @@ void i2c_test_write(PinName sda, PinName scl)
     tester.pin_set_pull(scl, MbedTester::PullNone);
 }
 
-void i2c_test_read(PinName sda, PinName scl)
+void fpga_i2c_test_read(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -239,7 +237,7 @@ void i2c_test_read(PinName sda, PinName scl)
     tester.pin_set_pull(scl, MbedTester::PullNone);
 }
 
-void i2c_test_byte_write(PinName sda, PinName scl)
+void fpga_i2c_test_byte_write(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -336,7 +334,7 @@ void i2c_test_byte_write(PinName sda, PinName scl)
     tester.pin_set_pull(scl, MbedTester::PullNone);
 }
 
-void i2c_test_byte_read(PinName sda, PinName scl)
+void fpga_i2c_test_byte_read(PinName sda, PinName scl)
 {
     // Remap pins for test
     tester.reset();
@@ -437,11 +435,11 @@ void i2c_test_byte_read(PinName sda, PinName scl)
 }
 
 Case cases[] = {
-    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, test_i2c_init_free>),
-    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_write>),
-    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_read>),
-    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_write>),
-    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, i2c_test_byte_read>)
+    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, fpga_test_i2c_init_free>),
+    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_write>),
+    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_read>),
+    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_write>),
+    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_read>)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

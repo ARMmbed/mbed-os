@@ -25,12 +25,12 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-
-using namespace utest::v1;
-
 #include "MbedTester.h"
 #include "pinmap.h"
 #include "test_utils.h"
+#include "gpio_fpga_test.h"
+
+using namespace utest::v1;
 
 // This delay is used when reading a floating input that has an internal pull-up
 // or pull-down resistor. The voltage response is much slower when the input
@@ -45,7 +45,7 @@ MbedTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins(
  * when basic input and output operations are performed,
  * then all operations succeed.
  */
-void test_basic_input_output(PinName pin)
+void fpga_test_basic_input_output(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -128,7 +128,7 @@ void test_basic_input_output(PinName pin)
  * when additional parameters are passed to the input init function,
  * then the GPIO is correctly initialized as an input.
  */
-void test_explicit_input(PinName pin)
+void fpga_test_explicit_input(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
@@ -180,7 +180,7 @@ void test_explicit_input(PinName pin)
  * when additional parameters are passed to the output init function,
  * then the GPIO is correctly initialized as an output.
  */
-void test_explicit_output(PinName pin)
+void fpga_test_explicit_output(PinName pin)
 {
     // Reset everything and set all tester pins to hi-Z.
     tester.reset();
