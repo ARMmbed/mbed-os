@@ -26,31 +26,48 @@
 extern "C" {
 #endif
 
-/** \addtogroup rtos */
+#include "rtx_os.h"
+#include "mbed_rtx_conf.h"
+
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
 /** @{*/
 
-/** @brief RTOS primitives storage types for RTX
-
+/** \defgroup rtos_storage RTOS primitives storage types for RTX
  Types defined in this file should be utilized, when the direct RTOS C API usage is required, to provide backing memory
  for internal RTX data. Allocated object should be wrapped in attribute struct and passed to os*New call, for details
  see CMSIS-RTOS2 documentation.
 
- @note
  This file breaks abstraction layers and uses RTX internal types, but it limits the contamination to single, RTOS
  implementation specific, header file, therefore limiting scope of possible changes.
- */
+  @{
+*/
 
-#include "rtx_os.h"
-#include "mbed_rtx_conf.h"
-
+/** RTX Mutex storage */
 typedef osRtxMutex_t mbed_rtos_storage_mutex_t;
+
+/** RTX Semaphore storage */
 typedef osRtxSemaphore_t mbed_rtos_storage_semaphore_t;
+
+/** RTX Thread storage */
 typedef osRtxThread_t mbed_rtos_storage_thread_t;
+
+/** RTX Memory Pool storage */
 typedef osRtxMemoryPool_t mbed_rtos_storage_mem_pool_t;
+
+/** RTX Message Queue storage */
 typedef osRtxMessageQueue_t mbed_rtos_storage_msg_queue_t;
+
+/** RTX Event Flags storage */
 typedef osRtxEventFlags_t mbed_rtos_storage_event_flags_t;
+
+/** RTX Message storage */
 typedef osRtxMessage_t mbed_rtos_storage_message_t;
+
+/** RTX Timer storage */
 typedef osRtxTimer_t mbed_rtos_storage_timer_t;
+/** @}*/
+/** @}*/
 
 #define MBED_RTOS_STORAGE_MEM_POOL_MEM_SIZE(block_count, block_size) \
   osRtxMemoryPoolMemSize(block_count, block_size)
@@ -60,5 +77,3 @@ typedef osRtxTimer_t mbed_rtos_storage_timer_t;
 #endif
 
 #endif
-
-/** @}*/

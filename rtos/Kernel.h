@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,8 @@
 #include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup rtos-public-api */
 /** @{*/
 
 /** Functions in the Kernel namespace control RTOS kernel information. */
@@ -60,7 +61,6 @@ void attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 
 } // namespace Kernel
 
+/** @}*/
 } // namespace rtos
 #endif
-
-/** @}*/

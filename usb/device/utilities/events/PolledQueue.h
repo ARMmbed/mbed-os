@@ -22,14 +22,14 @@
 #include "platform/Callback.h"
 #include "LinkedList.h"
 namespace events {
-/** \addtogroup events */
-
+/** \ingroup events */
+/** \addtogroup events-internal-api */
+/** @{*/
 
 /** PolledQueue
  *
  * This class is an implementation of TaskQueue which is
  * processed synchronously by calls to dispatch.
- * @ingroup events
  */
 class PolledQueue: public TaskQueue {
 public:
@@ -67,6 +67,7 @@ protected:
 
 };
 
+/** @}*/
+
 }
 #endif
-

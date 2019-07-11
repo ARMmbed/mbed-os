@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,8 @@
 #include "mbed_error.h"
 #include "mbed_interface.h"
 #include "RTX_Config.h"
-#include "rtos/rtos_handlers.h"
-#include "rtos/rtos_idle.h"
+#include "rtos/source/rtos_handlers.h"
+#include "rtos/source/rtos_idle.h"
 
 #ifdef RTE_Compiler_EventRecorder
 #include "EventRecorder.h"              // Keil::Compiler:Event Recorder

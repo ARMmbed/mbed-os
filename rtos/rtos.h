@@ -42,8 +42,6 @@
 using namespace rtos;
 #endif
 
-#include "platform/mbed_version.h"
-
 #endif
 
 /** @}*/
