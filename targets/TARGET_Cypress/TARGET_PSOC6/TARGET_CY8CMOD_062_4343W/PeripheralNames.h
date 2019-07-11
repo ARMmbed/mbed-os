@@ -114,8 +114,8 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    SMIF_0 = (int)SMIF0_BASE,
-} SMIFName;
+    QSPI_0,
+} QSPIName;
 
 #ifdef __cplusplus
 }

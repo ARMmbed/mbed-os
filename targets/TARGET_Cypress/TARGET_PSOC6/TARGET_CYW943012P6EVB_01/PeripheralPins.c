@@ -436,30 +436,28 @@ const PinMap PinMap_DAC[] = {
 #endif // DEVICE_ANALOGIN
 
 #if DEVICE_QSPI
-const PinMap PinMap_QSPI_SCLK[] = {          // does not use PERI clock, uses HFCLK2
-    {P11_7, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_7_SMIF_SPI_CLK, 0)},
-    {NC,    NC,    0}
+const PinMap PinMap_QSPI_SCLK[] = {
+    {P11_7, QSPI_0, CY_GPIO_CFG_CREATE(P11_7_SMIF_SPI_CLK, CY_GPIO_DM_STRONG_IN_OFF)},
+    {NC, NC, 0},
 };
-
-// Ensure that the spi_data pins are defined in the order 0 to 7
-const PinMap PinMap_QSPI_DATA[] = {          // does not use PERI clock, uses HFCLK2
-    {P11_6, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_6_SMIF_SPI_DATA0, 0)}, // spi_data0
-    {P11_5, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_5_SMIF_SPI_DATA1, 0)}, // spi_data1
-    {P11_4, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_4_SMIF_SPI_DATA2, 0)}, // spi_data2
-    {P11_3, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_3_SMIF_SPI_DATA3, 0)}, // spi_data3
-    {P12_0, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P12_0_SMIF_SPI_DATA4, 0)}, // spi_data4
-    {P12_1, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P12_1_SMIF_SPI_DATA5, 0)}, // spi_data5
-    {P12_2, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P12_2_SMIF_SPI_DATA6, 0)}, // spi_data6
-    {P12_3, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P12_3_SMIF_SPI_DATA7, 0)}, // spi_data7
-    {NC,    NC,    0}
-};    
-
-// Ensure that the spi_select pins are defined in the order 0 to 3
-const PinMap PinMap_QSPI_SSEL[] = {          // does not use PERI clock, uses HFCLK2
-    {P11_2, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_2_SMIF_SPI_SELECT0, 0)}, // spi_select0
-    {P11_1, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_1_SMIF_SPI_SELECT1, 0)}, // spi_select1
-    {P11_0, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_0_SMIF_SPI_SELECT2, 0)}, // spi_select2
-    {P12_4, SMIF_0, CYHAL_PIN_OUT_FUNCTION(P12_4_SMIF_SPI_SELECT3, 0)}, // spi_select3
-    {NC,    NC,    0}
+const PinMap PinMap_QSPI_SSEL[] = {
+    {P11_2, QSPI_0, CY_GPIO_CFG_CREATE(P11_2_SMIF_SPI_SELECT0, CY_GPIO_DM_STRONG_IN_OFF)},
+    {NC, NC, 0},
+};
+const PinMap PinMap_QSPI_DATA0[] = {
+    {P11_6, QSPI_0, CY_GPIO_CFG_CREATE(P11_6_SMIF_SPI_DATA0, CY_GPIO_DM_STRONG)},
+    {NC, NC, 0},
+};
+const PinMap PinMap_QSPI_DATA1[] = {
+    {P11_5, QSPI_0, CY_GPIO_CFG_CREATE(P11_5_SMIF_SPI_DATA1, CY_GPIO_DM_STRONG)},
+    {NC, NC, 0},
+};
+const PinMap PinMap_QSPI_DATA2[] = {
+    {P11_4, QSPI_0, CY_GPIO_CFG_CREATE(P11_4_SMIF_SPI_DATA2, CY_GPIO_DM_STRONG)},
+    {NC, NC, 0},
+};
+const PinMap PinMap_QSPI_DATA3[] = {
+    {P11_3, QSPI_0, CY_GPIO_CFG_CREATE(P11_3_SMIF_SPI_DATA3, CY_GPIO_DM_STRONG)},
+    {NC, NC, 0},
 };
 #endif // DEVICE_QSPI
