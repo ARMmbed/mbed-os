@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,11 @@
 namespace rtos {
 namespace internal {
 
+/** \ingroup rtos */
+/** \addtogroup mbed-os-internal */
+/** @{*/
+
 /**
- * @cond RTOS_INTERNAL
- *
- * @addtogroup rtos
- * @{
- *
  * @defgroup rtos_SysTimer SysTimer class
  * @{
  */
@@ -126,7 +125,6 @@ protected:
 /**
  * @}
  * @}
- * @endcond
  */
 
 }

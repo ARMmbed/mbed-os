@@ -2,7 +2,7 @@
 /** \addtogroup hal */
 /** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,8 @@
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "drivers/Timeout.h"
+
+#include "platform/mbed_critical.h"
 
 
 class LowPowerTickerWrapper {

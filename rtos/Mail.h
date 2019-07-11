@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@
 #include "Queue.h"
 #include "MemoryPool.h"
 #include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
 #include "mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
@@ -39,7 +38,8 @@ using namespace rtos;
 #endif
 
 namespace rtos {
-/** \addtogroup rtos */
+/** \ingroup rtos */
+/** \addtogroup rtos-public-api */
 /** @{*/
 /**
  * \defgroup rtos_Mail Mail class
@@ -237,6 +237,3 @@ private:
 }
 
 #endif
-
-
-

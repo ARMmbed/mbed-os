@@ -17,7 +17,7 @@
 #ifndef MBED_CRC_API_H
 #define MBED_CRC_API_H
 
-#include "drivers/TableCRC.h"
+#include "drivers/internal/TableCRC.h"
 #include "hal/crc_api.h"
 #include "platform/mbed_assert.h"
 #include "platform/SingletonPtr.h"
@@ -40,8 +40,13 @@ but we check for ( width < 8) before performing shift, so it should not be an is
 #endif
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
 /** @{*/
+/**
+ * \defgroup drivers_MbedCRC MbedCRC class
+ * @{
+ */
 
 extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
 
@@ -101,7 +106,6 @@ extern SingletonPtr<PlatformMutex> mbed_crc_mutex;
  *      return 0;
  *  }
  * @endcode
- * @ingroup drivers
  */
 template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
 class MbedCRC {
@@ -565,6 +569,8 @@ private:
 #endif
 
 /** @}*/
+/** @}*/
+
 } // namespace mbed
 
 #endif

@@ -24,7 +24,9 @@
 #include "platform/Callback.h"
 
 namespace events {
-/** \addtogroup events */
+/** \ingroup events */
+/** \addtogroup events-internal-api */
+/** @{*/
 
 
 template<typename F, typename A1 = void, typename A2 = void, typename A3 = void, typename A4 = void, typename A5 = void>
@@ -583,7 +585,6 @@ private:
 /** Task
  *
  *  Representation of a postable task
- * @ingroup events
  */
 template <typename R, typename A0, typename A1>
 class Task<R(A0, A1)>: public TaskBase {
@@ -647,8 +648,8 @@ private:
     All _args;
 };
 
-}
-
 /** @}*/
+
+}
 
 #endif

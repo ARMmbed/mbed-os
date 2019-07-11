@@ -29,32 +29,67 @@ extern "C" {
 #endif
 
 // Connection constants
-
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_init(void);
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 void ethernet_free(void);
 
 // write size bytes from data to ethernet buffer
 // return num bytes written
 // or -1 if size is too big
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_write(const char *data, int size);
 
 // send ethernet write buffer, returning the packet size sent
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_send(void);
 
 // receive from ethernet buffer, returning packet size, or 0 if no packet
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_receive(void);
 
 // read size bytes in to data, return actual num bytes read (0..size)
 // if data == NULL, throw the bytes away
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_read(char *data, int size);
 
 // get the ethernet address
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 void ethernet_address(char *mac);
 
 // see if the link is up
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 int ethernet_link(void);
 
 // force link settings
+MBED_DEPRECATED(
+    "Ethernet drivers are provided by a class derived from `EMAC` attached to"
+    " either lwIP or Nanostack."
+)
 void ethernet_set_link(int speed, int duplex);
 
 #ifdef __cplusplus

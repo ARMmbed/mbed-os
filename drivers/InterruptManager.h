@@ -24,7 +24,13 @@
 #include <string.h>
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_InterruptManager InterruptManager class
+ * @{
+ */
 
 /** Use this singleton if you need to chain interrupt handlers.
  *  @deprecated Do not use this class. This class is not part of the public API of mbed-os and is being removed in the future.
@@ -54,7 +60,6 @@ namespace mbed {
  *     InterruptManager::get()->add_handler(handler, TIMER3_IRQn);
  * }
  * @endcode
- * @ingroup drivers
  */
 class InterruptManager : private NonCopyable<InterruptManager> {
 public:
@@ -170,6 +175,7 @@ public:
 #if !defined(DOXYGEN_ONLY)
 private:
     InterruptManager();
+
     ~InterruptManager();
 
     void lock();
@@ -202,6 +208,9 @@ private:
     PlatformMutex _mutex;
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

@@ -30,7 +30,13 @@
 
 namespace mbed {
 
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_QSPI QSPI class
+ * @{
+ */
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
  *
@@ -69,7 +75,6 @@ namespace mbed {
  *
  * }
  * @endcode
- * @ingroup drivers
  */
 class QSPI : private NonCopyable<QSPI> {
 
@@ -224,6 +229,9 @@ private:
     inline void _build_qspi_command(int instruction, int address, int alt);
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

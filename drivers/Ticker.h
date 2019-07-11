@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,12 +21,16 @@
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_power_mgmt.h"
 #include "hal/lp_ticker_api.h"
-#include "platform/mbed_critical.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Ticker Ticker class
+ * @{
+ */
 
 /** A Ticker is used to call a function at a recurring interval
  *
@@ -62,19 +66,14 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
 public:
-    Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true)
-    {
-    }
+    Ticker();
 
     // When low power ticker is in use, then do not disable deep sleep.
-    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
-    {
-    }
+    Ticker(const ticker_data_t *data);
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *
@@ -154,6 +153,9 @@ protected:
     bool          _lock_deepsleep;  /**< Flag which indicates if deep sleep should be disabled. */
 #endif
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

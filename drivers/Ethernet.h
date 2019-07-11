@@ -23,7 +23,13 @@
 #if DEVICE_ETHERNET || defined(DOXYGEN_ONLY)
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_Ethernet Ethernet class
+ * @{
+ */
 
 /** An ethernet interface, to use with the ethernet pins.
  *
@@ -54,9 +60,13 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
-class Ethernet : private NonCopyable<Ethernet> {
+class
+    MBED_DEPRECATED(
+        "EthInterface is now the preferred way to get an Ethernet object. "
+        "Alternatively, use NetworkInterface to get an instance of an appropriate network "
+        "interface (WiFi or Ethernet)."
+    ) Ethernet : private NonCopyable<Ethernet> {
 
 public:
 
@@ -169,6 +179,9 @@ public:
      */
     void set_link(Mode mode);
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 

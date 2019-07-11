@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +20,15 @@
 #include "platform/platform.h"
 
 #include "hal/gpio_api.h"
-#include "platform/mbed_critical.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_DigitalIn DigitalIn class
+ * @{
+ */
 
 /** A digital input, used for reading the state of a pin
  *
@@ -47,7 +52,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class DigitalIn {
 
@@ -72,6 +76,7 @@ public:
         // No lock needed in the constructor
         gpio_init_in_ex(&gpio, pin, mode);
     }
+
     /** Read the input, represented as 0 or 1 (int)
      *
      *  @returns
@@ -88,12 +93,7 @@ public:
      *
      *  @param pull PullUp, PullDown, PullNone, OpenDrain
      */
-    void mode(PinMode pull)
-    {
-        core_util_critical_section_enter();
-        gpio_mode(&gpio, pull);
-        core_util_critical_section_exit();
-    }
+    void mode(PinMode pull);
 
     /** Return the output setting, represented as 0 or 1 (int)
      *
@@ -126,6 +126,9 @@ protected:
     gpio_t gpio;
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 
