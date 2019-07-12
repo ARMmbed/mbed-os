@@ -107,7 +107,7 @@ void lp_ticker_info_test()
 
     TEST_ASSERT(p_ticker_info->frequency >= 4000);
     TEST_ASSERT(p_ticker_info->frequency <= 64000);
-    TEST_ASSERT(p_ticker_info->bits >= 12);
+    TEST_ASSERT(p_ticker_info->bits >= 12 && p_ticker_info->bits <= 32);
 }
 
 #if DEVICE_SLEEP

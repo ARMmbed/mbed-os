@@ -164,6 +164,18 @@
             "SPI_MOSI": "D11",
             "SPI_MISO": "D12",
             "SPI_CLK": "D13",
+            "SPI_CS": "D9"
+        },
+        "NUCLEO_F207ZG": {
+             "SPI_MOSI": "PC_12",
+             "SPI_MISO": "PC_11",
+             "SPI_CLK":  "PC_10",
+             "SPI_CS":   "PA_15"
+        },
+        "CC3220SF_LAUNCHXL": {
+            "SPI_MOSI": "D11",
+            "SPI_MISO": "D12",
+            "SPI_CLK": "D13",
             "SPI_CS": "D10"
         }
     }
