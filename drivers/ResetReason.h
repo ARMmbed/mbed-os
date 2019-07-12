@@ -22,14 +22,19 @@
 #include "reset_reason_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \ingroup drivers */
+/** \addtogroup drivers-public-api */
+/** @{*/
+/**
+ * \defgroup drivers_ResetReason ResetReason class
+ * @{
+ */
 /** A platform-independent method of checking the cause of the last system reset.
  *
  * When the system restarts, the reason for the restart is contained in
  * the system registers at boot time in a platform specific manner.
  * This API provides a generic method of fetching the reason for the restart.
  *
- * @ingroup drivers
  */
 class ResetReason {
 public:
@@ -70,6 +75,9 @@ public:
      */
     static uint32_t get_raw();
 };
+
+/** @}*/
+/** @}*/
 
 } // namespace mbed
 
