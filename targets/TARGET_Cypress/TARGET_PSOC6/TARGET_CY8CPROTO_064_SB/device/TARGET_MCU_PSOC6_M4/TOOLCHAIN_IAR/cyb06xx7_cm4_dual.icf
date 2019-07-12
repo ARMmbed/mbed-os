@@ -181,7 +181,7 @@ define block RAM_BSS {readwrite section .bss};
 define block RAM with fixed order {block RAM_DATA, block RAM_OTHER, block RAM_NOINIT, block RAM_BSS};
 
 define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__ { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__ { };
+define block HEAP       with expanding size, alignment = 8, minimum size = __ICFEDIT_size_heap__ { };
 
 define block RO     {first section .intvec, readonly};
 
@@ -191,8 +191,8 @@ do not initialize  { section .noinit, section .intvec_ram };
 
 /*-Placement-*/
 
-/* Flash */
-place at start of IROM1_region  { block RO };
+/* Flash - Cortex-M4 application image */
+place in          IROM1_region  { block RO };
 ".cy_app_signature" : place at address (__ICFEDIT_region_IROM1_end__ - 0x200) { section .cy_app_signature };
 
 /* Emulated EEPROM Flash area */
