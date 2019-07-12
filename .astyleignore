@@ -20,6 +20,7 @@
 ^features/storage/filesystem/littlefs/littlefs/
 ^features/unsupported/
 ^hal/storage_abstraction
+^platform/cxxsupport
 ^rtos/TARGET_CORTEX/rtx4
 ^rtos/TARGET_CORTEX/rtx5
 ^targets
