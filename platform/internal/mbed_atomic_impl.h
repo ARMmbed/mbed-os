@@ -132,14 +132,49 @@ extern "C" {
 #endif
 
 #ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M)       \
+    __asm {                                                     \
+        LDREX##M    newValue, [valuePtr]                      ; \
+        OP          newValue, arg                             ; \
+        STREX##M    fail, newValue, [valuePtr]                  \
+    }
+#elif defined __clang__ || defined __GNUC__
+#define DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M)       \
+    __asm volatile (                                            \
+        "LDREX"#M "\t%[newValue], %[value]\n\t"                 \
+        #OP       "\t%[newValue], %[arg]\n\t"                   \
+        "STREX"#M "\t%[fail], %[newValue], %[value]\n\t"        \
+      : [newValue] "=&" MBED_DOP_REG (newValue),                \
+        [fail] "=&r" (fail),                                    \
+        [value] "+Q" (*valuePtr)                                \
+      : [arg] Constants MBED_DOP_REG (arg)                      \
+      : "cc"                                                    \
+    )
+#elif defined __ICCARM__
+/* In IAR "r" means low register if Thumbv1 (there's no way to specify any register...) */
+/* IAR does not support "ADDS reg, reg", so write as 3-operand */
+#define DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M)       \
+    asm volatile (                                              \
+        "LDREX"#M "\t%[newValue], [%[valuePtr]]\n"              \
+        #OP       "\t%[newValue], %[newValue], %[arg]\n"        \
+        "STREX"#M "\t%[fail], %[newValue], [%[valuePtr]]\n"     \
+      : [newValue] "=&r" (newValue),                            \
+        [fail] "=&r" (fail)                                     \
+      : [valuePtr] "r" (valuePtr),                              \
+        [arg] "r" (arg)                                         \
+      : "memory", "cc"                                          \
+    )
+#endif
+
+#ifdef __CC_ARM
+#define DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M)       \
     __asm {                                                     \
         LDREX##M    oldValue, [valuePtr]                      ; \
         OP          newValue, oldValue, arg                   ; \
         STREX##M    fail, newValue, [valuePtr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
-#define DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M)       \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
         "LDREX"#M "\t%[oldValue], %[value]\n\t"                 \
@@ -154,7 +189,7 @@ extern "C" {
     )
 #elif defined __ICCARM__
 /* In IAR "r" means low register if Thumbv1 (there's no way to specify any register...) */
-#define DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M)       \
     asm volatile (                                              \
         "LDREX"#M "\t%[oldValue], [%[valuePtr]]\n"              \
         #OP       "\t%[newValue], %[oldValue], %[arg]\n"        \
@@ -172,7 +207,7 @@ extern "C" {
  * are only 2-operand versions of the instructions.
  */
 #ifdef __CC_ARM
-#define DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M)       \
     __asm {                                                     \
         LDREX##M    oldValue, [valuePtr]                      ; \
         MOV         newValue, oldValue                        ; \
@@ -180,7 +215,7 @@ extern "C" {
         STREX##M    fail, newValue, [valuePtr]                  \
     }
 #elif defined __clang__ || defined __GNUC__
-#define DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M)       \
     __asm volatile (                                            \
         ".syntax unified\n\t"                                   \
         "LDREX"#M "\t%[oldValue], %[value]\n\t"                 \
@@ -195,7 +230,7 @@ extern "C" {
       : "cc"                                                    \
     )
 #elif defined __ICCARM__
-#define DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M)              \
+#define DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M)       \
     asm volatile (                                              \
         "LDREX"#M "\t%[oldValue], [%[valuePtr]]\n"              \
         "MOV"     "\t%[newValue], %[oldValue]\n"                \
@@ -444,17 +479,41 @@ MBED_FORCEINLINE bool core_util_atomic_cas_explicit_##fn_suffix(volatile T *ptr,
 }
 
 
-#define DO_MBED_LOCKFREE_2OP(name, OP, Constants, retValue, T, fn_suffix, M)    \
+#define DO_MBED_LOCKFREE_NEWVAL_2OP(name, OP, Constants, T, fn_suffix, M)       \
+inline T core_util_atomic_##name##_##fn_suffix(volatile T *valuePtr, T arg)     \
+{                                                                               \
+    uint32_t fail, newValue;                                                    \
+    MBED_BARRIER();                                                             \
+    do {                                                                        \
+        DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M);                      \
+    } while (fail);                                                             \
+    MBED_BARRIER();                                                             \
+    return (T) newValue;                                                        \
+}                                                                               \
+                                                                                \
+MBED_FORCEINLINE T core_util_atomic_##name##_explicit_##fn_suffix(              \
+        volatile T *valuePtr, T arg, mbed_memory_order order)                   \
+{                                                                               \
+    uint32_t fail, newValue;                                                    \
+    MBED_RELEASE_BARRIER(order);                                                \
+    do {                                                                        \
+        DO_MBED_LOCKFREE_NEWVAL_2OP_ASM(OP, Constants, M);                      \
+    } while (fail);                                                             \
+    MBED_ACQUIRE_BARRIER(order);                                                \
+    return (T) newValue;                                                        \
+}                                                                               \
+
+#define DO_MBED_LOCKFREE_OLDVAL_2OP(name, OP, Constants, T, fn_suffix, M)       \
 inline T core_util_atomic_##name##_##fn_suffix(volatile T *valuePtr, T arg)     \
 {                                                                               \
     T oldValue;                                                                 \
     uint32_t fail, newValue;                                                    \
     MBED_BARRIER();                                                             \
     do {                                                                        \
-        DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M);                             \
+        DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M);                      \
     } while (fail);                                                             \
     MBED_BARRIER();                                                             \
-    return (T) retValue;                                                        \
+    return oldValue;                                                            \
 }                                                                               \
                                                                                 \
 MBED_FORCEINLINE T core_util_atomic_##name##_explicit_##fn_suffix(              \
@@ -464,22 +523,22 @@ MBED_FORCEINLINE T core_util_atomic_##name##_explicit_##fn_suffix(              
     uint32_t fail, newValue;                                                    \
     MBED_RELEASE_BARRIER(order);                                                \
     do {                                                                        \
-        DO_MBED_LOCKFREE_2OP_ASM(OP, Constants, M);                             \
+        DO_MBED_LOCKFREE_OLDVAL_2OP_ASM(OP, Constants, M);                      \
     } while (fail);                                                             \
     MBED_ACQUIRE_BARRIER(order);                                                \
-    return (T) retValue;                                                        \
+    return oldValue;                                                            \
 }                                                                               \
 
-#define DO_MBED_LOCKFREE_3OP(name, OP, Constants, retValue, T, fn_suffix, M)    \
+#define DO_MBED_LOCKFREE_OLDVAL_3OP(name, OP, Constants, T, fn_suffix, M)       \
 inline T core_util_atomic_##name##_##fn_suffix(volatile T *valuePtr, T arg) {   \
     T oldValue;                                                                 \
     uint32_t fail, newValue;                                                    \
     MBED_BARRIER();                                                             \
     do {                                                                        \
-        DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M);                             \
+        DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M);                      \
     } while (fail);                                                             \
     MBED_BARRIER();                                                             \
-    return (T) retValue;                                                        \
+    return oldValue;                                                            \
 }                                                                               \
                                                                                 \
 MBED_FORCEINLINE T core_util_atomic_##name##_explicit_##fn_suffix(              \
@@ -489,10 +548,10 @@ MBED_FORCEINLINE T core_util_atomic_##name##_explicit_##fn_suffix(              
     uint32_t fail, newValue;                                                    \
     MBED_RELEASE_BARRIER(order);                                                \
     do {                                                                        \
-        DO_MBED_LOCKFREE_3OP_ASM(OP, Constants, M);                             \
+        DO_MBED_LOCKFREE_OLDVAL_3OP_ASM(OP, Constants, M);                      \
     } while (fail);                                                             \
     MBED_ACQUIRE_BARRIER(order);                                                \
-    return (T) retValue;                                                        \
+    return oldValue;                                                            \
 }                                                                               \
 
 inline bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *valuePtr)
@@ -526,15 +585,20 @@ MBED_FORCEINLINE bool core_util_atomic_flag_test_and_set_explicit(volatile core_
     DO_MBED_LOCKFREE_EXCHG_OP(uint16_t, u16, H) \
     DO_MBED_LOCKFREE_EXCHG_OP(uint32_t, u32,  )
 
-#define DO_MBED_LOCKFREE_3OPS(name, OP, Constants, retValue) \
-    DO_MBED_LOCKFREE_3OP(name, OP, Constants, retValue, uint8_t,  u8,  B) \
-    DO_MBED_LOCKFREE_3OP(name, OP, Constants, retValue, uint16_t, u16, H) \
-    DO_MBED_LOCKFREE_3OP(name, OP, Constants, retValue, uint32_t, u32,  )
+#define DO_MBED_LOCKFREE_NEWVAL_2OPS(name, OP, Constants) \
+    DO_MBED_LOCKFREE_NEWVAL_2OP(name, OP, Constants, uint8_t,  u8,  B) \
+    DO_MBED_LOCKFREE_NEWVAL_2OP(name, OP, Constants, uint16_t, u16, H) \
+    DO_MBED_LOCKFREE_NEWVAL_2OP(name, OP, Constants, uint32_t, u32,  )
 
-#define DO_MBED_LOCKFREE_2OPS(name, OP, Constants, retValue) \
-    DO_MBED_LOCKFREE_2OP(name, OP, Constants, retValue, uint8_t,  u8,  B) \
-    DO_MBED_LOCKFREE_2OP(name, OP, Constants, retValue, uint16_t, u16, H) \
-    DO_MBED_LOCKFREE_2OP(name, OP, Constants, retValue, uint32_t, u32,  )
+#define DO_MBED_LOCKFREE_OLDVAL_3OPS(name, OP, Constants) \
+    DO_MBED_LOCKFREE_OLDVAL_3OP(name, OP, Constants, uint8_t,  u8,  B) \
+    DO_MBED_LOCKFREE_OLDVAL_3OP(name, OP, Constants, uint16_t, u16, H) \
+    DO_MBED_LOCKFREE_OLDVAL_3OP(name, OP, Constants, uint32_t, u32,  )
+
+#define DO_MBED_LOCKFREE_OLDVAL_2OPS(name, OP, Constants) \
+    DO_MBED_LOCKFREE_OLDVAL_2OP(name, OP, Constants, uint8_t,  u8,  B) \
+    DO_MBED_LOCKFREE_OLDVAL_2OP(name, OP, Constants, uint16_t, u16, H) \
+    DO_MBED_LOCKFREE_OLDVAL_2OP(name, OP, Constants, uint32_t, u32,  )
 
 #define DO_MBED_LOCKFREE_CAS_STRONG_OPS() \
     DO_MBED_LOCKFREE_CAS_STRONG_OP(uint8_t,  u8,  B) \
@@ -546,6 +610,11 @@ MBED_FORCEINLINE bool core_util_atomic_flag_test_and_set_explicit(volatile core_
     DO_MBED_LOCKFREE_CAS_WEAK_OP(uint16_t, u16, H) \
     DO_MBED_LOCKFREE_CAS_WEAK_OP(uint32_t, u32,  )
 
+// Note that these macros define a number of functions that are
+// not in mbed_atomic.h, like core_util_atomic_and_fetch_u16.
+// These are not documented via the doxygen in mbed_atomic.h, so
+// for now should be regarded as internal only. They are used by the
+// Atomic<T> template as an optimisation though.
 
 // We always use the "S" form of operations - avoids yet another
 // possible unneeded distinction between Thumbv1 and Thumbv2, and
@@ -559,33 +628,42 @@ MBED_FORCEINLINE bool core_util_atomic_flag_test_and_set_explicit(volatile core_
 // of the 16-bit forms. Shame we can't specify "don't care"
 // for the "S", or get the GNU multi-alternative to
 // choose ADDS/ADD appropriately.
-DO_MBED_LOCKFREE_3OPS(incr,      ADDS, "IL", newValue)
-DO_MBED_LOCKFREE_3OPS(decr,      SUBS, "IL", newValue)
 
-DO_MBED_LOCKFREE_3OPS(fetch_add, ADDS, "IL", oldValue)
-DO_MBED_LOCKFREE_3OPS(fetch_sub, SUBS, "IL", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_add, ADDS, "IL")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(incr,      ADDS, "IL")
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_sub, SUBS, "IL")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(decr,      SUBS, "IL")
 // K constraint is inverted 12-bit modified immediate constant
 // (relying on assembler substituting BIC for AND)
-DO_MBED_LOCKFREE_3OPS(fetch_and, ANDS, "IK", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_and, ANDS, "IK")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(and_fetch, ANDS, "IK")
 #if MBED_EXCLUSIVE_ACCESS_ARM
 // ARM does not have ORN instruction, so take plain immediates.
-DO_MBED_LOCKFREE_3OPS(fetch_or,  ORRS, "I", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_or,  ORRS, "I")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(or_fetch,  ORRS, "I")
 #else
 // Thumb-2 has ORN instruction, and assembler substitutes ORN for ORR.
-DO_MBED_LOCKFREE_3OPS(fetch_or,  ORRS, "IK", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_or,  ORRS, "IK")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(or_fetch,  ORRS, "IK")
 #endif
 // I constraint is 12-bit modified immediate operand
-DO_MBED_LOCKFREE_3OPS(fetch_xor, EORS, "I", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_xor, EORS, "I")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(xor_fetch, EORS, "I")
 #else // MBED_EXCLUSIVE_ACCESS_THUMB1
+// I constraint is 0-255; J is -255 to -1, suitable for
+// 2-op ADD/SUB (relying on assembler to swap ADD/SUB)
 // L constraint is -7 to +7, suitable for 3-op ADD/SUB
 // (relying on assembler to swap ADD/SUB)
-DO_MBED_LOCKFREE_3OPS(incr,      ADDS, "L", newValue)
-DO_MBED_LOCKFREE_3OPS(decr,      SUBS, "L", newValue)
-DO_MBED_LOCKFREE_3OPS(fetch_add, ADDS, "L", oldValue)
-DO_MBED_LOCKFREE_3OPS(fetch_sub, SUBS, "L", oldValue)
-DO_MBED_LOCKFREE_2OPS(fetch_and, ANDS, "", oldValue)
-DO_MBED_LOCKFREE_2OPS(fetch_or,  ORRS, "", oldValue)
-DO_MBED_LOCKFREE_2OPS(fetch_xor, EORS, "", oldValue)
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_add, ADDS, "L")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(incr,      ADDS, "IJ")
+DO_MBED_LOCKFREE_OLDVAL_3OPS(fetch_sub, SUBS, "L")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(decr,      SUBS, "IJ")
+DO_MBED_LOCKFREE_OLDVAL_2OPS(fetch_and, ANDS, "")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(and_fetch, ANDS, "")
+DO_MBED_LOCKFREE_OLDVAL_2OPS(fetch_or,  ORRS, "")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(or_fetch,  ORRS, "")
+DO_MBED_LOCKFREE_OLDVAL_2OPS(fetch_xor, EORS, "")
+DO_MBED_LOCKFREE_NEWVAL_2OPS(xor_fetch, EORS, "")
 #endif
 
 DO_MBED_LOCKFREE_EXCHG_OPS()
@@ -1011,49 +1089,49 @@ DO_MBED_LOCKED_CAS_ORDERINGS(compare_exchange_weak)
  */
 #define DO_MBED_ATOMIC_LOAD_TEMPLATE(T, fn_suffix)                              \
 template<>                                                                      \
-inline T core_util_atomic_load(const volatile T *valuePtr)                      \
+inline T core_util_atomic_load(const volatile T *valuePtr) noexcept             \
 {                                                                               \
     return core_util_atomic_load_##fn_suffix(valuePtr);                         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load(const T *valuePtr)                               \
+inline T core_util_atomic_load(const T *valuePtr) noexcept                      \
 {                                                                               \
     return core_util_atomic_load_##fn_suffix(valuePtr);                         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order) \
+inline T core_util_atomic_load_explicit(const volatile T *valuePtr, mbed_memory_order order)  noexcept \
 {                                                                               \
     return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) \
+inline T core_util_atomic_load_explicit(const T *valuePtr, mbed_memory_order order) noexcept \
 {                                                                               \
     return core_util_atomic_load_explicit_##fn_suffix(valuePtr, order);         \
 }
 
 template<typename T>
-inline T *core_util_atomic_load(T *const volatile *valuePtr)
+inline T *core_util_atomic_load(T *const volatile *valuePtr) noexcept
 {
     return (T *) core_util_atomic_load_ptr((void *const volatile *) valuePtr);
 }
 
 template<typename T>
-inline T *core_util_atomic_load(T *const *valuePtr)
+inline T *core_util_atomic_load(T *const *valuePtr) noexcept
 {
     return (T *) core_util_atomic_load_ptr((void *const *) valuePtr);
 }
 
 template<typename T>
-inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order)
+inline T *core_util_atomic_load_explicit(T *const volatile *valuePtr, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_load_explicit_ptr((void *const volatile *) valuePtr, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order)
+inline T *core_util_atomic_load_explicit(T *const *valuePtr, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_load_explicit_ptr((void *const *) valuePtr, order);
 }
@@ -1070,49 +1148,49 @@ DO_MBED_ATOMIC_LOAD_TEMPLATE(bool, bool)
 
 #define DO_MBED_ATOMIC_STORE_TEMPLATE(T, fn_suffix)                             \
 template<>                                                                      \
-inline void core_util_atomic_store(volatile T *valuePtr, T val)                 \
+inline void core_util_atomic_store(volatile T *valuePtr, T val) noexcept        \
 {                                                                               \
     core_util_atomic_store_##fn_suffix(valuePtr, val);                          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store(T *valuePtr, T val)                          \
+inline void core_util_atomic_store(T *valuePtr, T val) noexcept                 \
 {                                                                               \
     core_util_atomic_store_##fn_suffix(valuePtr, val);                          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store_explicit(volatile T *valuePtr, T val, mbed_memory_order order) \
+inline void core_util_atomic_store_explicit(volatile T *valuePtr, T val, mbed_memory_order order) noexcept \
 {                                                                               \
     core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
-inline void core_util_atomic_store_explicit(T *valuePtr, T val, mbed_memory_order order) \
+inline void core_util_atomic_store_explicit(T *valuePtr, T val, mbed_memory_order order) noexcept \
 {                                                                               \
     core_util_atomic_store_explicit_##fn_suffix(valuePtr, val, order);          \
 }
 
 template<typename T>
-inline void core_util_atomic_store(T *volatile *valuePtr, T *val)
+inline void core_util_atomic_store(T *volatile *valuePtr, T *val) noexcept
 {
     core_util_atomic_store_ptr((void *volatile *) valuePtr, val);
 }
 
 template<typename T>
-inline void core_util_atomic_store(T **valuePtr, T *val)
+inline void core_util_atomic_store(T **valuePtr, T *val) noexcept
 {
     core_util_atomic_store_ptr((void **) valuePtr, val);
 }
 
 template<typename T>
-inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *val, mbed_memory_order order)
+inline void core_util_atomic_store_explicit(T *volatile *valuePtr, T *val, mbed_memory_order order) noexcept
 {
     core_util_atomic_store_ptr((void *volatile *) valuePtr, val, order);
 }
 
 template<typename T>
-inline void core_util_atomic_store_explicit(T **valuePtr, T *val, mbed_memory_order order)
+inline void core_util_atomic_store_explicit(T **valuePtr, T *val, mbed_memory_order order) noexcept
 {
     core_util_atomic_store_ptr((void **) valuePtr, val, order);
 }
@@ -1129,19 +1207,19 @@ DO_MBED_ATOMIC_STORE_TEMPLATE(bool, bool)
 
 #define DO_MBED_ATOMIC_CAS_TEMPLATE(tname, fname, T, fn_suffix)                             \
 template<> inline                                                                           \
-bool core_util_atomic_##tname(volatile T *ptr, T *expectedCurrentValue, T desiredValue)     \
+bool core_util_atomic_##tname(volatile T *ptr, T *expectedCurrentValue, T desiredValue) noexcept \
 {                                                                                           \
     return core_util_atomic_##fname##_##fn_suffix(ptr, expectedCurrentValue, desiredValue); \
 }
 
 template<typename T>
-inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue)
+inline bool core_util_atomic_compare_exchange_strong(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue) noexcept
 {
     return core_util_atomic_cas_ptr((void *volatile *) ptr, (void **) expectedCurrentValue, desiredValue);
 }
 
 template<typename T>
-inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue)
+inline bool core_util_atomic_compare_exchange_weak(T *volatile *ptr, T **expectedCurrentValue, T *desiredValue) noexcept
 {
     return core_util_atomic_compare_exchange_weak_ptr((void *volatile *) ptr, (void **) expectedCurrentValue, desiredValue);
 }
@@ -1162,63 +1240,63 @@ DO_MBED_ATOMIC_CAS_TEMPLATES(compare_exchange_weak, compare_exchange_weak)
 
 #define DO_MBED_ATOMIC_OP_TEMPLATE(name, T, fn_suffix)                          \
 template<>                                                                      \
-inline T core_util_atomic_##name(volatile T *valuePtr, T arg)                   \
+inline T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept          \
 {                                                                               \
     return core_util_atomic_##name##_##fn_suffix(valuePtr, arg);                \
 }                                                                               \
                                                                                 \
 template<>                                                                      \
 inline T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg,        \
-        mbed_memory_order order)                                                \
+        mbed_memory_order order) noexcept                                       \
 {                                                                               \
     return core_util_atomic_##name##_explicit_##fn_suffix(valuePtr, arg, order); \
 }
 
 
 template<>
-inline bool core_util_atomic_exchange(volatile bool *valuePtr, bool arg)
+inline bool core_util_atomic_exchange(volatile bool *valuePtr, bool arg) noexcept
 {
     return core_util_atomic_exchange_bool(valuePtr, arg);
 }
 
 template<>
-inline bool core_util_atomic_exchange_explicit(volatile bool *valuePtr, bool arg, mbed_memory_order order)
+inline bool core_util_atomic_exchange_explicit(volatile bool *valuePtr, bool arg, mbed_memory_order order) noexcept
 {
     return core_util_atomic_exchange_explicit_bool(valuePtr, arg, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_exchange(T *volatile *valuePtr, T *arg)
+inline T *core_util_atomic_exchange(T *volatile *valuePtr, T *arg) noexcept
 {
     return (T *) core_util_atomic_exchange_ptr((void *volatile *) valuePtr, arg);
 }
 
 template<typename T>
-inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, T *arg, mbed_memory_order order)
+inline T *core_util_atomic_exchange_explicit(T *volatile *valuePtr, T *arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_add_explicit_ptr((void *volatile *) valuePtr, arg, order);
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_add(T *volatile *valuePtr, ptrdiff_t arg)
+inline T *core_util_atomic_fetch_add(T *volatile *valuePtr, ptrdiff_t arg) noexcept
 {
     return (T *) core_util_atomic_fetch_add_ptr((void *volatile *) valuePtr, arg * sizeof(T));
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_add_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order)
+inline T *core_util_atomic_fetch_add_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_add_explicit_ptr((void *volatile *) valuePtr, arg * sizeof(T), order);
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_sub(T *volatile *valuePtr, ptrdiff_t arg)
+inline T *core_util_atomic_fetch_sub(T *volatile *valuePtr, ptrdiff_t arg) noexcept
 {
     return (T *) core_util_atomic_fetch_sub_ptr((void *volatile *) valuePtr, arg * sizeof(T));
 }
 
 template<typename T>
-inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order)
+inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t arg, mbed_memory_order order) noexcept
 {
     return (T *) core_util_atomic_fetch_sub_explicit_ptr((void *volatile *) valuePtr, arg * sizeof(T), order);
 }
@@ -1236,6 +1314,20 @@ inline T *core_util_atomic_fetch_sub_explicit(T *volatile *valuePtr, ptrdiff_t a
         DO_MBED_ATOMIC_OP_TEMPLATE(name, int32_t,  s32) \
         DO_MBED_ATOMIC_OP_TEMPLATE(name, int64_t,  s64)
 
+#define DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, T, fn_suffix, postname, OP) \
+template<>                                                                      \
+inline T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept          \
+{                                                                               \
+    return core_util_atomic_##postname##_##fn_suffix(valuePtr, arg) OP;         \
+}                                                                               \
+                                                                                \
+template<>                                                                      \
+inline T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg,        \
+        mbed_memory_order order) noexcept                                       \
+{                                                                               \
+    return core_util_atomic_##postname##_explicit_##fn_suffix(valuePtr, arg, order) OP; \
+}
+
 DO_MBED_ATOMIC_OP_U_TEMPLATES(exchange)
 DO_MBED_ATOMIC_OP_S_TEMPLATES(exchange)
 DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_add)
@@ -1246,25 +1338,61 @@ DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_and)
 DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_or)
 DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_xor)
 
+namespace mbed {
+namespace impl {
+
+// Use custom assembler forms for pre-ops where available, else construct from post-ops
+#if MBED_EXCLUSIVE_ACCESS
+#define DO_MBED_ATOMIC_PRE_OP_TEMPLATES(name, postname, OP) \
+        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept; \
+        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order) noexcept; \
+        DO_MBED_ATOMIC_OP_TEMPLATE(name, uint8_t, u8) \
+        DO_MBED_ATOMIC_OP_TEMPLATE(name, uint16_t, u16) \
+        DO_MBED_ATOMIC_OP_TEMPLATE(name, uint32_t, u32) \
+        DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint64_t, u64, postname, OP)
+#else
+#define DO_MBED_ATOMIC_PRE_OP_TEMPLATES(name, postname, OP) \
+        template<typename T> T core_util_atomic_##name(volatile T *valuePtr, T arg) noexcept; \
+        template<typename T> T core_util_atomic_##name##_explicit(volatile T *valuePtr, T arg, mbed_memory_order order) noexcept; \
+        DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint8_t, u8, postname, OP) \
+        DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint16_t, u16, postname, OP) \
+        DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint32_t, u32, postname, OP) \
+        DO_MBED_ATOMIC_MANUAL_PRE_OP_TEMPLATE(name, uint64_t, u64, postname, OP)
+#endif
+
+// *INDENT-OFF*
+DO_MBED_ATOMIC_PRE_OP_TEMPLATES(incr,      fetch_add, + arg)
+DO_MBED_ATOMIC_PRE_OP_TEMPLATES(decr,      fetch_sub, - arg)
+DO_MBED_ATOMIC_PRE_OP_TEMPLATES(and_fetch, fetch_and, & arg)
+DO_MBED_ATOMIC_PRE_OP_TEMPLATES(or_fetch,  fetch_or,  | arg)
+DO_MBED_ATOMIC_PRE_OP_TEMPLATES(xor_fetch, fetch_xor, ^ arg)
+// *INDENT-ON*
+
+}
+}
+
 #endif // __cplusplus
 
 #undef MBED_DOP_REG
 #undef MBED_CMP_IMM
 #undef MBED_SUB3_IMM
 #undef DO_MBED_LOCKFREE_EXCHG_ASM
-#undef DO_MBED_LOCKFREE_3OP_ASM
-#undef DO_MBED_LOCKFREE_2OP_ASM
+#undef DO_MBED_LOCKFREE_NEWVAL_2OP_ASM
+#undef DO_MBED_LOCKFREE_OLDVAL_3OP_ASM
+#undef DO_MBED_LOCKFREE_OLDVAL_2OP_ASM
 #undef DO_MBED_LOCKFREE_CAS_WEAK_ASM
 #undef DO_MBED_LOCKFREE_CAS_STRONG_ASM
 #undef DO_MBED_LOCKFREE_LOADSTORE
 #undef DO_MBED_LOCKFREE_EXCHG_OP
 #undef DO_MBED_LOCKFREE_CAS_WEAK_OP
 #undef DO_MBED_LOCKFREE_CAS_STRONG_OP
-#undef DO_MBED_LOCKFREE_2OP
-#undef DO_MBED_LOCKFREE_3OP
+#undef DO_MBED_LOCKFREE_NEWVAL_2OP
+#undef DO_MBED_LOCKFREE_OLDVAL_2OP
+#undef DO_MBED_LOCKFREE_OLDVAL_3OP
 #undef DO_MBED_LOCKFREE_EXCHG_OPS
-#undef DO_MBED_LOCKFREE_2OPS
-#undef DO_MBED_LOCKFREE_3OPS
+#undef DO_MBED_LOCKFREE_NEWVAL_2OPS
+#undef DO_MBED_LOCKFREE_OLDVAL_2OPS
+#undef DO_MBED_LOCKFREE_OLDVAL_3OPS
 #undef DO_MBED_LOCKFREE_CAS_WEAK_OPS
 #undef DO_MBED_LOCKFREE_CAS_STRONG_OPS
 #undef DO_MBED_SIGNED_CAS_OP

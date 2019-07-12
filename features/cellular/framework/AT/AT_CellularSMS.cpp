@@ -41,7 +41,7 @@ const uint8_t SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE = 153;
 #define NVAM '?' // Not Valid ascii, ISO-8859-1 mark
 
 // mapping table from 7-bit GSM to ascii (ISO-8859-1)
-static const char gsm_to_ascii[] = {
+static const unsigned char gsm_to_ascii[] = {
     64,     // 0
     163,    // 1
     36,     // 2
@@ -1153,7 +1153,7 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char *str, uint16_t len, c
     char *gsm_str = new char[len];
     for (uint16_t y = 0; y < len; y++) {
         for (int x = 0; x < GSM_TO_ASCII_TABLE_SIZE; x++) {
-            if (gsm_to_ascii[x] == str[y]) {
+            if (gsm_to_ascii[x] == static_cast<unsigned char>(str[y])) {
                 gsm_str[y] = x;
             }
         }
