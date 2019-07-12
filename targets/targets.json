@@ -8546,7 +8546,7 @@
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "components_add": ["FLASHIAP"],
+        "components_add": ["FLASHIAP", "BSP_DESIGN_MODUS"],
         "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
