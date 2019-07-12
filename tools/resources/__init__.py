@@ -524,8 +524,10 @@ class Resources(object):
             return
 
         _, ext = splitext(file_path)
-
-        file_type = self._EXT.get(ext.lower())
+        if ext == "" and "cxxsupport" in fake_path:
+            file_type = FileType.HEADER
+        else:
+            file_type = self._EXT.get(ext.lower())
         self.add_file_ref(file_type, fake_path, file_path)
         if file_type == FileType.HEADER:
             for name, path in self._all_parents(file_path, base_path, into_path):
