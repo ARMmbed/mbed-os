@@ -1338,7 +1338,7 @@ DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_and)
 DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_or)
 DO_MBED_ATOMIC_OP_U_TEMPLATES(fetch_xor)
 
-namespace mbed {
+namespace mstd {
 namespace impl {
 
 // Use custom assembler forms for pre-ops where available, else construct from post-ops
