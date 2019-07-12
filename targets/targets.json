@@ -8366,7 +8366,6 @@
     },
     "CY8CMOD_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
-        "components_add": ["QSPIF"],
         "features": ["BLE"],
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
