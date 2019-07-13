@@ -666,7 +666,8 @@ class mbedToolchain:
         res = "{}.{}".format(join(self.build_dir, name), ext)
         merge_region_list(
             region_list, res, self.notify,
-            restrict_size=self.config.target.restrict_size
+            restrict_size=self.config.target.restrict_size,
+            pad_to_restrict_size=True
         )
         update_regions = [
             r for r in region_list if r.name in UPDATE_WHITELIST

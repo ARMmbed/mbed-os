@@ -107,7 +107,8 @@ def merge_region_list(
         destination,
         notify,
         padding=b'\xFF',
-        restrict_size=None
+        restrict_size=None,
+        pad_to_restrict_size=False
 ):
     """Merge the region_list into a single image
 
@@ -116,6 +117,7 @@ def merge_region_list(
     destination - file name to write all regions to
     padding - bytes to fill gaps with
     restrict_size - check to ensure a region fits within the given size
+    pad_to_restrict_size - fill with padding up to restrict_size
     """
     merged = IntelHex()
     _, format = splitext(destination)
@@ -168,6 +170,9 @@ def merge_region_list(
             pad_size = start - begin
             merged.puts(begin, padding * pad_size)
             begin = stop + 1
+        if restrict_size is not None and pad_to_restrict_size:
+            pad_size = int(restrict_size, 0) - begin
+            merged.puts(begin, padding * pad_size)
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
