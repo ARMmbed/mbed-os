@@ -8554,7 +8554,7 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
-        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3"],
+        "macros": ["MBED_MPU_CUSTOM", "MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
