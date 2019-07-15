@@ -55,6 +55,7 @@ void UBLOX_AT_CellularStack::UUSORD_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
+        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -75,6 +76,7 @@ void UBLOX_AT_CellularStack::UUSORF_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
+        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -151,6 +153,7 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
         }
     }
 
+    socket->started = true;
     socket->id = sock_id;
 
     return NSAPI_ERROR_OK;
@@ -161,7 +164,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     CellularSocket *socket = (CellularSocket *)handle;
 
     if (socket) {
-        if (socket->id != SOCKET_UNUSED) {
+        if (socket->id == SOCKET_UNUSED) {
             nsapi_error_t err = create_socket_impl(socket);
             if (err != NSAPI_ERROR_OK) {
                 return err;
@@ -177,9 +180,10 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
     _at.cmd_stop_read_resp();
+    nsapi_error_t err = _at.get_last_error();
     _at.unlock();
 
-    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    if (err == NSAPI_ERROR_OK) {
         socket->remoteAddress = addr;
         socket->connected = true;
         return NSAPI_ERROR_OK;
@@ -382,6 +386,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     }
     timer.stop();
 
+    socket->rx_avail = false;
     socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
@@ -429,10 +434,14 @@ UBLOX_AT_CellularStack::CellularSocket *UBLOX_AT_CellularStack::find_socket(int 
 void UBLOX_AT_CellularStack::clear_socket(CellularSocket *socket)
 {
     if (socket != NULL) {
-        socket->id       = SOCKET_UNUSED;
+        socket->id = SOCKET_UNUSED;
+        socket->started = false;
+        socket->rx_avail = false;
         socket->pending_bytes = 0;
-        socket->_cb      = NULL;
-        socket->_data    = NULL;
+        socket->closed = true;
+        if (socket->_cb) {
+            socket->_cb(socket->_data);
+        }
     }
 }
 

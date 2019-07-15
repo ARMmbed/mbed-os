@@ -769,7 +769,7 @@ static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP
 
 int main()
 {
-    GREENTEA_SETUP(3000, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
 
     // We want to replicate our test cases to different types
     size_t num_cases = sizeof(template_cases) / sizeof(template_case_t);

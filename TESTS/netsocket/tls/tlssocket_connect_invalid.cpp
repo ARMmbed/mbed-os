@@ -33,12 +33,12 @@ void TLSSOCKET_CONNECT_INVALID()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
 
-    TEST_ASSERT(sock.connect(NULL, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS) < 0);
-    TEST_ASSERT(sock.connect("", MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS) < 0);
+    TEST_ASSERT(sock.connect(NULL, ECHO_SERVER_DISCARD_PORT_TLS) < 0);
+    TEST_ASSERT(sock.connect("", ECHO_SERVER_DISCARD_PORT_TLS) < 0);
     TEST_ASSERT(sock.connect("", 0) < 0);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK,
-                      sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS));
+                      sock.connect(ECHO_SERVER_ADDR, ECHO_SERVER_DISCARD_PORT_TLS));
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

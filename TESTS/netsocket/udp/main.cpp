@@ -20,9 +20,6 @@
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
-#ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
-#error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,6 +27,10 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "udp_tests.h"
+
+#ifndef ECHO_SERVER_ADDR
+#error [NOT_SUPPORTED] Requires parameters for echo server
+#endif
 
 using namespace utest::v1;
 

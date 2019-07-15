@@ -62,6 +62,14 @@ uint32_t I2CTester::get_receive_checksum()
     return to_slave_checksum;
 }
 
+uint32_t I2CTester::get_send_checksum()
+{
+    uint32_t from_slave_checksum = 0;
+    MBED_ASSERT(sizeof(from_slave_checksum) == TESTER_I2C_FROM_SLAVE_CHECKSUM_SIZE);
+    read(TESTER_I2C_FROM_SLAVE_CHECKSUM, (uint8_t *)&from_slave_checksum, sizeof(from_slave_checksum));
+    return from_slave_checksum;
+}
+
 uint8_t I2CTester::state_num()
 {
     uint8_t state_num = 0;
@@ -71,9 +79,16 @@ uint8_t I2CTester::state_num()
 
 uint8_t I2CTester::num_dev_addr_matches()
 {
-    uint8_t num_correct = 0;
-    read(TESTER_I2C_NUMBER_DEV_ADDR_MATCHES, &num_correct, sizeof(num_correct));
-    return num_correct;
+    uint8_t num_dev_addr_matches = 0;
+    read(TESTER_I2C_NUMBER_DEV_ADDR_MATCHES, &num_dev_addr_matches, sizeof(num_dev_addr_matches));
+    return num_dev_addr_matches;
+}
+
+uint8_t I2CTester::num_dev_addr_mismatches()
+{
+    uint8_t num_dev_addr_mismatches = 0;
+    read(TESTER_I2C_NUMBER_DEV_ADDR_MISMATCHES, &num_dev_addr_mismatches, sizeof(num_dev_addr_mismatches));
+    return num_dev_addr_mismatches;
 }
 
 void I2CTester::set_device_address(uint16_t addr)

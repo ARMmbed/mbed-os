@@ -20,9 +20,6 @@
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
-#ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
-#error [NOT_SUPPORTED] Requires echo-server-discard-port parameter from mbed_app.json
-#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,6 +27,10 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
+
+#ifndef ECHO_SERVER_ADDR
+#error [NOT_SUPPORTED] Requires parameters for echo server
+#endif
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
@@ -106,7 +107,7 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
 {
     SocketAddress tls_addr;
 
-    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tls_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(ECHO_SERVER_ADDR, &tls_addr);
     tls_addr.set_port(port);
 
     printf("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
@@ -134,12 +135,12 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
 
 nsapi_error_t tlssocket_connect_to_echo_srv(TLSSocket &sock)
 {
-    return tlssocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_PORT_TLS);
+    return tlssocket_connect_to_srv(sock, ECHO_SERVER_PORT_TLS);
 }
 
 nsapi_error_t tlssocket_connect_to_discard_srv(TLSSocket &sock)
 {
-    return tlssocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS);
+    return tlssocket_connect_to_srv(sock, ECHO_SERVER_DISCARD_PORT_TLS);
 }
 
 bool is_tcp_supported()

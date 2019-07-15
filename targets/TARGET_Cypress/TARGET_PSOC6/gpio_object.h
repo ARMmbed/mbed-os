@@ -1,7 +1,7 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
- * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,21 +23,28 @@
 #include "mbed_assert.h"
 #include "PinNamesTypes.h"
 #include "PinNames.h"
-
-#include "cy_gpio.h"
+#include "cyhal_gpio_impl.h"
+#include "cyhal_pin_package.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_s {
-    GPIO_PRT_Type *port;
-    PinName pin;
-    PinDirection dir;
-    PinMode mode;
+typedef struct {
+    cyhal_gpio_t pin;
+} gpio_t;
+
+struct gpio_irq_s {
+    cyhal_gpio_t pin;
+    void *handler;
+    uint32_t id;
+    cyhal_gpio_irq_event_t mask;
 };
 
-typedef struct gpio_s   gpio_t;
+struct port_s {
+    GPIO_PRT_Type *port;
+    uint8_t mask;
+};
 
 /** Set the output value
  *
@@ -46,9 +53,8 @@ typedef struct gpio_s   gpio_t;
  */
 static inline void gpio_write(gpio_t *obj, int value)
 {
-    MBED_ASSERT(obj->pin != NC);
-
-    Cy_GPIO_Write(obj->port, CY_PIN(obj->pin), value);
+    MBED_ASSERT(obj->pin != CYHAL_NC_PIN_VALUE);
+    cyhal_gpio_write(obj->pin, value != 0);
 }
 
 /** Read the input value
@@ -58,14 +64,13 @@ static inline void gpio_write(gpio_t *obj, int value)
  */
 static inline int gpio_read(gpio_t *obj)
 {
-    MBED_ASSERT(obj->pin != NC);
-
-    return Cy_GPIO_Read(obj->port, CY_PIN(obj->pin));
+    MBED_ASSERT(obj->pin != CYHAL_NC_PIN_VALUE);
+    return cyhal_gpio_read(obj->pin);
 }
 
 static inline int gpio_is_connected(const gpio_t *obj)
 {
-    return obj->pin != NC;
+    return obj->pin != CYHAL_NC_PIN_VALUE;
 }
 
 /** Get the pin name from the port's pin number
@@ -74,9 +79,9 @@ static inline int gpio_is_connected(const gpio_t *obj)
  * @param pin_n The pin number within the specified port
  * @return The pin name for the port's pin number
  */
-inline PinName port_pin(PortName port, int pin_n)
+static inline PinName port_pin(PortName port, int pin_n)
 {
-    return (PinName)((port << 8) + pin_n);
+    return (PinName)CYHAL_GET_GPIO(port, pin_n);
 }
 
 

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_trng.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides provides constant and parameters
@@ -79,7 +79,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Trng(CRYPTO_Type *base,
                                              uint32_t *randomNum)
 {
     cy_en_crypto_status_t tmpResult;
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Trng(base, GAROPol, FIROPol, max, randomNum);
     }

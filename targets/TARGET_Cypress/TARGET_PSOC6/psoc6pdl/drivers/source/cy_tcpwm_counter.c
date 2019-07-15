@@ -50,8 +50,8 @@ extern "C" {
 * \return error / status code. See \ref cy_en_tcpwm_status_t.
 *
 * \funcusage
-* \snippet tcpwm\1.10\counter\snippet\main.c snippet_Cy_TCPWM_Counter_Config
-* \snippet tcpwm\1.10\counter\snippet\main.c snippet_Cy_TCPWM_Counter_Init
+* \snippet tcpwm/counter/snippet/main.c snippet_Cy_TCPWM_Counter_Config
+* \snippet tcpwm/counter/snippet/main.c snippet_Cy_TCPWM_Counter_Init
 *
 *******************************************************************************/
 cy_en_tcpwm_status_t Cy_TCPWM_Counter_Init(TCPWM_Type *base, uint32_t cntNum, 
@@ -129,7 +129,7 @@ cy_en_tcpwm_status_t Cy_TCPWM_Counter_Init(TCPWM_Type *base, uint32_t cntNum,
 * The pointer to configuration structure. See \ref cy_stc_tcpwm_counter_config_t.
 *
 * \funcusage
-* \snippet tcpwm\1.10\counter\snippet\main.c snippet_Cy_TCPWM_Counter_DeInit
+* \snippet tcpwm/counter/snippet/main.c snippet_Cy_TCPWM_Counter_DeInit
 *
 *******************************************************************************/
 void Cy_TCPWM_Counter_DeInit(TCPWM_Type *base, uint32_t cntNum, cy_stc_tcpwm_counter_config_t const *config)

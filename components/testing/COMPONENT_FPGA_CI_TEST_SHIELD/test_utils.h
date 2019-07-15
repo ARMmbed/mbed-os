@@ -234,7 +234,7 @@ void test_all_peripherals(std::list<PortType> &matched_ports, std::list<PortType
  * - FormFactorType - The form factor to test on
  * - f - The test function to run.
  *
- * This function is calls the test function multiple times with
+ * This function calls the test function multiple times with
  * the appropriate combinations of pins.
  */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
@@ -255,7 +255,7 @@ void all_ports()
  * - FormFactorType - The form factor to test on
  * - f - The test function to run.
  *
- * This function is calls the test function once for each peripheral
+ * This function calls the test function once for each peripheral
  * of the given type.
  */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>
@@ -280,7 +280,7 @@ void all_peripherals()
  * - FormFactorType - The form factor to test on
  * - f - The test function to run.
  *
- * This function is calls the test function once for one peripheral
+ * This function calls the test function once for one peripheral
  * of the given type.
  */
 template<typename PortType, typename FormFactorType, typename PortType::TestFunctionType f>

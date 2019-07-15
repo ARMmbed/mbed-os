@@ -4,6 +4,8 @@ components/libraries
 
 # Modifications
 
+ * Modified util/app_util_platform.c to retarget critical section enter/exit calls to Mbed's HAL API so they both share the same nested critical regions counter. This only applies in builds without `SOFTDEVICE_PRESENT` defined.
+
 Only essential folders have been copied over.
 
 Removed:

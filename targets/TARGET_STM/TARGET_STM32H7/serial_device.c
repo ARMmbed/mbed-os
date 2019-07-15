@@ -53,12 +53,12 @@ static void uart_irq(UARTName uart_name)
         UART_HandleTypeDef *huart = &uart_handlers[id];
         if (serial_irq_ids[id] != 0) {
             if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET && __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE)) {
                     irq_handler(serial_irq_ids[id], TxIrq);
                 }
             }
             if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET && __HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE)) {
                     irq_handler(serial_irq_ids[id], RxIrq);
                     /* Flag has been cleared when reading the content */
                 }
@@ -128,6 +128,13 @@ static void uart8_irq(void)
 }
 #endif
 
+#if defined(LPUART1_BASE)
+static void lpuart1_irq(void)
+{
+    uart_irq(LPUART_1);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -190,6 +197,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case UART_8:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
+            break;
+#endif
+#if defined(LPUART1_BASE)
+        case LPUART_1:
+            irq_n = LPUART1_IRQn;
+            vector = (uint32_t)&lpuart1_irq;
             break;
 #endif
     }

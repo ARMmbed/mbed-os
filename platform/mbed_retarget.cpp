@@ -483,6 +483,9 @@ extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
     if (!mbed_sdk_inited) {
         mbed_copy_nvic();
         mbed_sdk_init();
+#if DEVICE_USTICKER && MBED_CONF_TARGET_INIT_US_TICKER_AT_BOOT
+        us_ticker_init();
+#endif
         mbed_sdk_inited = 1;
     }
 #endif
@@ -1571,7 +1574,18 @@ void operator delete (void *ptr)
 {
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
+
+void operator delete (void *ptr, std::size_t)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
 void operator delete[](void *ptr)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
@@ -1616,7 +1630,17 @@ void operator delete (void *ptr)
     free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
 }
 
+void operator delete (void *ptr, std::size_t)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
 void operator delete[](void *ptr)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
 }
@@ -1655,7 +1679,18 @@ void operator delete (void *ptr)
 {
     free(ptr);
 }
+
+void operator delete (void *ptr, std::size_t)
+{
+    free(ptr);
+}
+
 void operator delete[](void *ptr)
+{
+    free(ptr);
+}
+
+void operator delete[](void *ptr, std::size_t)
 {
     free(ptr);
 }

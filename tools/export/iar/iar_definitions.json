@@ -129,6 +129,9 @@
     "STM32L151CC": {
         "OGChipSelectEditMenu": "STM32L151CC\tST STM32L151CC"
     },
+    "STM32L151CBxxA": {
+        "OGChipSelectEditMenu": "STM32L151CB-A\tST STM32L151CB-A"
+    },
     "STM32L152RE": {
         "OGChipSelectEditMenu": "STM32L152xE\tST STM32L152xE"
     },
@@ -364,5 +367,8 @@
         "IlinkOverrideProgramEntryLabel": 1,
         "IlinkProgramEntryLabel": "Reset_Handler",
         "TrustZone": 1
+    },
+    "STM32H743ZI": {
+        "OGChipSelectEditMenu": "STM32H743ZI\tST STM32H743ZI"
     }
 }

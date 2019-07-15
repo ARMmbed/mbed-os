@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm4_dual.scat
-;* \version 2.40
+;* \version 2.50
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -43,7 +43,7 @@
 ;******************************************************************************/
 
 #if !defined(MBED_ROM_START)
-  #define MBED_ROM_START    0x10002000
+  #define MBED_ROM_START    0x10000000
 #endif
 
 ;* MBED_APP_START is being  used by the bootloader build script and
@@ -55,7 +55,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x000FE000
+  #define MBED_ROM_SIZE     0x00100000
 #endif
 
 ;* MBED_APP_SIZE is being  used by the bootloader build script and
@@ -78,7 +78,7 @@
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
-#define Stack_Size MBED_BOOT_STACK_SIZE
+#define STACK_SIZE MBED_BOOT_STACK_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
@@ -133,8 +133,26 @@
 #define EFUSE_START             0x90700000
 #define EFUSE_SIZE              0x100000
 
+; Size and start address of the Cortex-M0+ application image
+#define FLASH_CM0P_SIZE         0x2000
+#define FLASH_CM0P_START        FLASH_START
 
-LR_IROM1 FLASH_START FLASH_SIZE
+; Size and start address of the Cortex-M4 application image
+#define FLASH_CM4_SIZE          (FLASH_SIZE - FLASH_CM0P_SIZE)
+#define FLASH_CM4_START         (FLASH_CM0P_START + FLASH_CM0P_SIZE)
+
+
+; Cortex-M0+ application image
+LR_IROM FLASH_CM0P_START FLASH_CM0P_SIZE
+{
+    .cy_m0p_image +0 FLASH_CM0P_SIZE
+    {
+        * (.cy_m0p_image)
+    }
+}
+
+; Cortex-M4 application image
+LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
 {
     ER_FLASH_VECTORS +0
     {
@@ -172,7 +190,7 @@ LR_IROM1 FLASH_START FLASH_SIZE
     }
     
     ; Stack region growing down
-    ARM_LIB_STACK RAM_START+RAM_SIZE -Stack_Size 
+    ARM_LIB_STACK RAM_START+RAM_SIZE -STACK_SIZE 
     {
         * (STACK)
     }

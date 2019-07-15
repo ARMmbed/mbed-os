@@ -43,7 +43,7 @@
 * \return error / status code. See \ref cy_en_i2s_status_t.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_Init
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_Init
 *
 *******************************************************************************/
 cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * config)
@@ -193,7 +193,7 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
 * \param base The pointer to the I2S instance address.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_DeInit
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_DeInit
 *
 *******************************************************************************/
 void Cy_I2S_DeInit(I2S_Type * base)
@@ -235,7 +235,7 @@ void Cy_I2S_DeInit(I2S_Type * base)
 * *context element of the \ref cy_stc_syspm_callback_params_t structure.
 *
 * \funcusage
-* \snippet i2s\2.10\snippet\main.c snippet_Cy_I2S_DeepSleepCallback
+* \snippet i2s/snippet/main.c snippet_Cy_I2S_DeepSleepCallback
 *
 *******************************************************************************/
 cy_en_syspm_status_t Cy_I2S_DeepSleepCallback (cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)

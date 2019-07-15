@@ -5,7 +5,7 @@
 * PSoC6_02 device GPIO header for 128-TQFP package
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright

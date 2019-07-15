@@ -102,7 +102,10 @@ typedef enum {
     MBEDIF_RXD = USBRX,
 
     // Switches
-    SW2 = PV3,
+    SW1 = PP6,       //DIP switch J7_1
+    SW2 = PP7,       //DIP switch J7_2
+    SW3 = (int)0xFFFFFFFF,        //Reset Button
+    SW4 = PV3,       //Push button S2
     USER_BUTTON = PV3,
 
     // I2C pins

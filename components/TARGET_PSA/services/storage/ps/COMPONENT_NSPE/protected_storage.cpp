@@ -39,6 +39,7 @@ extern "C"
 #define PSA_PS_GLOBAL_PID        1
 
 static KVStore *kvstore = NULL;
+static uint32_t def_kvstore_flags = 0;
 
 MBED_WEAK psa_status_t ps_version_migrate(KVStore *kvstore,
                                           const psa_storage_version_t *old_version, const psa_storage_version_t *new_version)
@@ -61,10 +62,16 @@ static void ps_init(void)
     KVMap &kv_map = KVMap::get_instance();
     psa_storage_version_t version = {PSA_PS_API_VERSION_MAJOR, PSA_PS_API_VERSION_MINOR};
     kvstore = kv_map.get_main_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
-    if (!kvstore) {
+    KVStore *int_kvstore = kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));;
+    if (!kvstore || !int_kvstore) {
         // Can only happen due to system misconfiguration.
         // Thus considered as unrecoverable error for runtime.
         error("Failed getting kvstore instance\n");
+    }
+
+    def_kvstore_flags = 0;
+    if (kvstore != int_kvstore) {
+        def_kvstore_flags = KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
     }
 
     psa_storage_handle_version(kvstore, PS_VERSION_KEY, &version, ps_version_migrate);
@@ -83,7 +90,16 @@ psa_status_t psa_ps_set(psa_storage_uid_t uid, uint32_t data_length, const void 
         ps_init();
     }
 
-    return psa_storage_set_impl(kvstore, PSA_PS_GLOBAL_PID, uid, data_length, p_data, create_flags);
+    if (create_flags & ~PSA_STORAGE_FLAG_WRITE_ONCE) {
+        return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    uint32_t kv_create_flags = def_kvstore_flags;
+    if (create_flags & PSA_STORAGE_FLAG_WRITE_ONCE) {
+        kv_create_flags |= KVStore::WRITE_ONCE_FLAG;
+    }
+
+    return psa_storage_set_impl(kvstore, PSA_PS_GLOBAL_PID, uid, data_length, p_data, kv_create_flags);
 }
 
 psa_status_t psa_ps_get(psa_storage_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)

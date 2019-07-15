@@ -11,10 +11,6 @@
         }
     },
     "target_overrides": {
-        "CY8CKIT_062_WIFI_BT_M0_PSA": {
-            "internal_size": "0x8000",
-            "internal_base_address": "0x10038000"
-        },
         "LPC55S69_S": {
             "internal_size": "0x8000",
             "internal_base_address": "0x00028000"
@@ -22,6 +18,10 @@
        "ARM_MUSCA_A1_S": {
             "internal_size": "0x8000",
             "internal_base_address": "0x00420000"
+        },
+        "FVP_MPS2": {
+            "internal_size": "0x200000",
+            "internal_base_address": "0x00200000"
         }
     }
 }

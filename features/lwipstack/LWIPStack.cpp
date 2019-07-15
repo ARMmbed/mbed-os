@@ -34,6 +34,7 @@
 #include "lwip/dns.h"
 #include "lwip/udp.h"
 #include "lwip/raw.h"
+#include "lwip/netif.h"
 #include "lwip/lwip_errno.h"
 #include "lwip-sys/arch/sys_arch.h"
 
@@ -341,7 +342,7 @@ nsapi_error_t LWIP::socket_close(nsapi_socket_t handle)
         _event_flag.wait_any(TCP_CLOSED_FLAG, TCP_CLOSE_TIMEOUT);
     }
 #endif
-    netbuf_delete(s->buf);
+    pbuf_free(s->buf);
     err_t err = netconn_delete(s->conn);
     arena_dealloc(s);
     return err_remap(err);
@@ -462,10 +463,11 @@ nsapi_size_or_error_t LWIP::socket_send(nsapi_socket_t handle, const void *data,
 
 nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi_size_t size)
 {
+#if LWIP_TCP
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (!s->buf) {
-        err_t err = netconn_recv(s->conn, &s->buf);
+        err_t err = netconn_recv_tcp_pbuf(s->conn, &s->buf);
         s->offset = 0;
 
         if (err != ERR_OK) {
@@ -473,15 +475,18 @@ nsapi_size_or_error_t LWIP::socket_recv(nsapi_socket_t handle, void *data, nsapi
         }
     }
 
-    u16_t recv = netbuf_copy_partial(s->buf, data, (u16_t)size, s->offset);
+    u16_t recv = pbuf_copy_partial(s->buf, data, (u16_t)size, s->offset);
     s->offset += recv;
 
-    if (s->offset >= netbuf_len(s->buf)) {
-        netbuf_delete(s->buf);
+    if (s->offset >= s->buf->tot_len) {
+        pbuf_free(s->buf);
         s->buf = 0;
     }
 
     return recv;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAddress &address, const void *data, nsapi_size_t size)
@@ -493,7 +498,16 @@ nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAdd
     if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
-
+    struct netif *netif_ = netif_get_by_index(s->conn->pcb.ip->netif_idx);
+    if (!netif_) {
+        netif_ = &default_interface->netif;
+    }
+    if (netif_) {
+        if ((addr.version == NSAPI_IPv4 && !get_ipv4_addr(netif_)) ||
+                (addr.version == NSAPI_IPv6 && !get_ipv6_addr(netif_))) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
     struct netbuf *buf = netbuf_new();
 
     err_t err = netbuf_ref(buf, data, (u16_t)size);

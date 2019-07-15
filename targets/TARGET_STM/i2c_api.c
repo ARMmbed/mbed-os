@@ -35,6 +35,7 @@
 
 #if DEVICE_I2C
 
+#include <string.h>
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"

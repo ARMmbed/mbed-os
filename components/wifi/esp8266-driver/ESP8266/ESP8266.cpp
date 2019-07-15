@@ -460,7 +460,15 @@ int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned
     _scan_r.limit = limit;
     _scan_r.cnt = 0;
 
-    if (!(_parser.send("AT+CWLAP=,,,%u,%u,%u", (mode == SCANMODE_ACTIVE ? 0 : 1), t_min, t_max) && _parser.recv("OK\n"))) {
+    bool ret_parse_send = true;
+
+    if (FW_AT_LEAST_VERSION(_at_v.major, _at_v.minor, _at_v.patch, 0, ESP8266_AT_VERSION_WIFI_SCAN_CHANGE)) {
+        ret_parse_send = _parser.send("AT+CWLAP=,,,%u,%u,%u", (mode == SCANMODE_ACTIVE ? 0 : 1), t_min, t_max);
+    } else {
+        ret_parse_send = _parser.send("AT+CWLAP");
+    }
+
+    if (!(ret_parse_send && _parser.recv("OK\n"))) {
         tr_warning("scan(): AP info parsing aborted");
         // Lets be happy about partial success and not return NSAPI_ERROR_DEVICE_ERROR
         if (!_scan_r.cnt) {
@@ -1225,6 +1233,10 @@ nsapi_connection_status_t ESP8266::connection_status() const
 
 bool ESP8266::set_country_code_policy(bool track_ap, const char *country_code, int channel_start, int channels)
 {
+    if (!(FW_AT_LEAST_VERSION(_at_v.major, _at_v.minor, _at_v.patch, 0, ESP8266_AT_VERSION_WIFI_SCAN_CHANGE))) {
+        return true;
+    }
+
     int t_ap = track_ap ? 0 : 1;
 
     _smutex.lock();

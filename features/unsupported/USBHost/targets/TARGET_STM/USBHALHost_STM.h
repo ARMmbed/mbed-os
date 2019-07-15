@@ -122,10 +122,14 @@ static gpio_t gpio_powerpin;
 
 void usb_vbus(uint8_t state)
 {
-    if (state == 0) {
-        gpio_write(&gpio_powerpin, USB_POWER_OFF);
+    if (gpio_powerpin.reg_set && gpio_powerpin.reg_clr) {
+        if (state == 0) {
+            gpio_write(&gpio_powerpin, USB_POWER_OFF);
+        } else {
+            gpio_write(&gpio_powerpin, USB_POWER_ON);
+        }
     } else {
-        gpio_write(&gpio_powerpin, USB_POWER_ON);
+        /* The board does not have GPIO pin to control usb supply */
     }
     wait(0.2);
 }

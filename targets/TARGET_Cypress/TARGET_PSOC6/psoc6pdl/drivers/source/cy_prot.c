@@ -92,7 +92,7 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 *   CY_PROT_FAILURE      | The resource is locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigBusMaster
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigBusMaster
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool privileged, bool secure, uint32_t pcMask)
@@ -158,7 +158,7 @@ cy_en_prot_status_t Cy_Prot_ConfigBusMaster(en_prot_master_t busMaster, bool pri
 *   CY_PROT_FAILURE      | The resource is locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_SetActivePC
+* \snippet prot/snippet/main.c snippet_Cy_Prot_SetActivePC
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
@@ -191,7 +191,7 @@ cy_en_prot_status_t Cy_Prot_SetActivePC(en_prot_master_t busMaster, uint32_t pc)
 * Active protection context of the master \ref cy_en_prot_pc_t.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_SetActivePC
+* \snippet prot/snippet/main.c snippet_Cy_Prot_SetActivePC
 *
 *******************************************************************************/
 uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
@@ -230,7 +230,7 @@ uint32_t Cy_Prot_GetActivePC(en_prot_master_t busMaster)
 *   CY_PROT_FAILURE      | Configuration failed due to a protection violation.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigMpuStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigMpuStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigMpuStruct(PROT_MPU_MPU_STRUCT_Type* base, const cy_stc_mpu_cfg_t* config)
@@ -279,7 +279,7 @@ cy_en_prot_status_t Cy_Prot_ConfigMpuStruct(PROT_MPU_MPU_STRUCT_Type* base, cons
 *   CY_PROT_FAILURE      | The MPU struct is disabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnableMpuStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnableMpuStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
@@ -317,7 +317,7 @@ cy_en_prot_status_t Cy_Prot_EnableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
 *   CY_PROT_FAILURE      | The MPU struct is enabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisableMpuStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisableMpuStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
@@ -367,7 +367,7 @@ cy_en_prot_status_t Cy_Prot_DisableMpuStruct(PROT_MPU_MPU_STRUCT_Type* base)
 *   CY_PROT_BAD_PARAM    | An incorrect/invalid parameter was passed.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigSmpuMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigSmpuMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* base, const cy_stc_smpu_cfg_t* config)
@@ -438,7 +438,7 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 *   CY_PROT_BAD_PARAM    | An incorrect/invalid parameter was passed.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigSmpuSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigSmpuSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* base, const cy_stc_smpu_cfg_t* config)
@@ -501,7 +501,7 @@ cy_en_prot_status_t Cy_Prot_ConfigSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 *   CY_PROT_FAILURE      | The Master PU struct is disabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnableSmpuMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnableSmpuMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
@@ -541,7 +541,7 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 *   CY_PROT_FAILURE      | The Master PU struct is enabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisableSmpuMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisableSmpuMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
@@ -581,7 +581,7 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuMasterStruct(PROT_SMPU_SMPU_STRUCT_Type* 
 *   CY_PROT_FAILURE      | The Slave PU struct is disabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnableSmpuSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnableSmpuSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
@@ -621,7 +621,7 @@ cy_en_prot_status_t Cy_Prot_EnableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* ba
 *   CY_PROT_FAILURE      | The Slave PU struct is enabled and possibly locked.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisableSmpuSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisableSmpuSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* base)
@@ -681,7 +681,7 @@ cy_en_prot_status_t Cy_Prot_DisableSmpuSlaveStruct(PROT_SMPU_SMPU_STRUCT_Type* b
 * CY_PROT_UNAVAILABLE   | The requested structure in use or there were no unused structures.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_GetSmpuStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_GetSmpuStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_GetSmpuStruct(PROT_SMPU_SMPU_STRUCT_Type** base, 
@@ -921,7 +921,7 @@ static cy_en_prot_status_t Prot_ConfigPpuAtt(volatile uint32_t * reg, uint16_t p
 * \note PC0 accesses are read-only and are always enabled. 
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuProgMasterAtt
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgMasterAtt
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask, 
@@ -1041,7 +1041,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAddr(PERI_MS_PPU_PR_Type* base, ui
 * \note PC0 accesses are read-only and are always enabled. 
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuProgSlaveAtt
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgSlaveAtt
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveAtt(PERI_MS_PPU_PR_Type* base, uint16_t pcMask, 
@@ -1127,7 +1127,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuProgSlaveRegion
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuProgSlaveRegion
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
@@ -1200,7 +1200,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveRegion(PERI_MS_PPU_PR_Type* base)
 * \note PC0 accesses are read-only and are always enabled. 
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedMasterAtt
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedMasterAtt
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, uint16_t pcMask,
@@ -1260,7 +1260,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedMasterAtt(PERI_MS_PPU_FX_Type* base, u
 * \note PC0 accesses are read-only and are always enabled. 
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlaveAtt
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlaveAtt
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, uint16_t pcMask, 
@@ -1309,7 +1309,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlaveAtt(PERI_MS_PPU_FX_Type* base, ui
 *  CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuProgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterStruct(PERI_PPU_PR_Type* base, const cy_stc_ppu_prog_cfg_t* config)
@@ -1386,7 +1386,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgMasterStruct(PERI_PPU_PR_Type* base, co
 *  CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuProgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuProgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, const cy_stc_ppu_prog_cfg_t* config)
@@ -1460,7 +1460,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuProgSlaveStruct(PERI_PPU_PR_Type* base, con
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuProgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuProgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
@@ -1505,7 +1505,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuProgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuProgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
@@ -1549,7 +1549,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgMasterStruct(PERI_PPU_PR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuProgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuProgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
@@ -1594,7 +1594,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuProgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuProgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
@@ -1660,7 +1660,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuProgSlaveStruct(PERI_PPU_PR_Type* base)
 * CY_PROT_INVALID_STATE | Function was called on unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_GetPpuProgStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_GetPpuProgStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot_req_mode_t reqMode, uint32_t ppuProgIndex)
@@ -1785,7 +1785,7 @@ cy_en_prot_status_t Cy_Prot_GetPpuProgStruct(PERI_PPU_PR_Type** base, cy_en_prot
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedGrMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedGrMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrMasterStruct(PERI_PPU_GR_Type* base, const cy_stc_ppu_gr_cfg_t* config)
@@ -1867,7 +1867,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrMasterStruct(PERI_PPU_GR_Type* base,
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedGrSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedGrSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base, const cy_stc_ppu_gr_cfg_t* config)
@@ -1936,7 +1936,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base, 
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedGrMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedGrMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
@@ -1981,7 +1981,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedGrMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedGrMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base)
@@ -2025,7 +2025,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrMasterStruct(PERI_PPU_GR_Type* base
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedGrSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedGrSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
@@ -2070,7 +2070,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedGrSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedGrSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
@@ -2124,7 +2124,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedGrSlaveStruct(PERI_PPU_GR_Type* base)
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* base, const cy_stc_ppu_sl_cfg_t* config)
@@ -2205,7 +2205,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedSlSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* base, const cy_stc_ppu_sl_cfg_t* config)
@@ -2274,7 +2274,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedSlMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedSlMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* base)
@@ -2319,7 +2319,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* ba
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedSlMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedSlMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* base)
@@ -2363,7 +2363,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlMasterStruct(PERI_GR_PPU_SL_Type* b
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedSlSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedSlSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* base)
@@ -2408,7 +2408,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* bas
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedSlSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedSlSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* base)
@@ -2462,7 +2462,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedSlSlaveStruct(PERI_GR_PPU_SL_Type* ba
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedRgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedRgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* base, const cy_stc_ppu_rg_cfg_t* config)
@@ -2543,7 +2543,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedRgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_ConfigPpuFixedRgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* base, const cy_stc_ppu_rg_cfg_t* config)
@@ -2612,7 +2612,7 @@ cy_en_prot_status_t Cy_Prot_ConfigPpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedRgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedRgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* base)
@@ -2655,7 +2655,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* ba
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedRgMasterStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedRgMasterStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* base)
@@ -2697,7 +2697,7 @@ cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgMasterStruct(PERI_GR_PPU_RG_Type* b
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_EnablePpuFixedRgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_EnablePpuFixedRgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* base)
@@ -2740,7 +2740,7 @@ cy_en_prot_status_t Cy_Prot_EnablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* bas
 *   CY_PROT_INVALID_STATE | The function was called on the device with an unsupported PERI HW version.
 *
 * \funcusage
-* \snippet prot/1.20/snippet/main.c snippet_Cy_Prot_DisablePpuFixedRgSlaveStruct
+* \snippet prot/snippet/main.c snippet_Cy_Prot_DisablePpuFixedRgSlaveStruct
 *
 *******************************************************************************/
 cy_en_prot_status_t Cy_Prot_DisablePpuFixedRgSlaveStruct(PERI_GR_PPU_RG_Type* base)

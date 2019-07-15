@@ -290,8 +290,9 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
 {
     if (socket->proto == NSAPI_UDP) {
         const int ip_version = address.get_ip_version();
-        if ((ip_version == NSAPI_IPv4 && _stack_type != IPV4_STACK) ||
-                (ip_version == NSAPI_IPv6 && _stack_type != IPV6_STACK)) {
+        if (_stack_type != IPV4V6_STACK &&
+                ((ip_version == NSAPI_IPv4 && _stack_type != IPV4_STACK) ||
+                 (ip_version == NSAPI_IPv6 && _stack_type != IPV6_STACK))) {
             tr_warn("No IP route for %s", address.get_ip_address());
             return NSAPI_ERROR_NO_SOCKET;
         }

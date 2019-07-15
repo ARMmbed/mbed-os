@@ -5,7 +5,7 @@
 * SRSS IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -92,35 +92,38 @@ typedef struct {
    __IM uint32_t CLK_ECO_STATUS;                /*!< 0x00000530 ECO Status Register */
    __IM uint32_t RESERVED7[2];
   __IOM uint32_t CLK_PILO_CONFIG;               /*!< 0x0000053C Precision ILO Configuration Register */
-   __IM uint32_t RESERVED8[16];
+   __IM uint32_t RESERVED8;
+  __IOM uint32_t CLK_MF_SELECT;                 /*!< 0x00000544 Medium Frequency Clock Select Register */
+  __IOM uint32_t CLK_MFO_CONFIG;                /*!< 0x00000548 MFO Configuration Register */
+   __IM uint32_t RESERVED9[13];
   __IOM uint32_t CLK_FLL_CONFIG;                /*!< 0x00000580 FLL Configuration Register */
   __IOM uint32_t CLK_FLL_CONFIG2;               /*!< 0x00000584 FLL Configuration Register 2 */
   __IOM uint32_t CLK_FLL_CONFIG3;               /*!< 0x00000588 FLL Configuration Register 3 */
   __IOM uint32_t CLK_FLL_CONFIG4;               /*!< 0x0000058C FLL Configuration Register 4 */
   __IOM uint32_t CLK_FLL_STATUS;                /*!< 0x00000590 FLL Status Register */
-   __IM uint32_t RESERVED9[27];
+   __IM uint32_t RESERVED10[27];
   __IOM uint32_t CLK_PLL_CONFIG[15];            /*!< 0x00000600 PLL Configuration Register */
-   __IM uint32_t RESERVED10;
+   __IM uint32_t RESERVED11;
   __IOM uint32_t CLK_PLL_STATUS[15];            /*!< 0x00000640 PLL Status Register */
-   __IM uint32_t RESERVED11[33];
+   __IM uint32_t RESERVED12[33];
   __IOM uint32_t SRSS_INTR;                     /*!< 0x00000700 SRSS Interrupt Register */
   __IOM uint32_t SRSS_INTR_SET;                 /*!< 0x00000704 SRSS Interrupt Set Register */
   __IOM uint32_t SRSS_INTR_MASK;                /*!< 0x00000708 SRSS Interrupt Mask Register */
    __IM uint32_t SRSS_INTR_MASKED;              /*!< 0x0000070C SRSS Interrupt Masked Register */
   __IOM uint32_t SRSS_INTR_CFG;                 /*!< 0x00000710 SRSS Interrupt Configuration Register */
-   __IM uint32_t RESERVED12[59];
+   __IM uint32_t RESERVED13[59];
   __IOM uint32_t RES_CAUSE;                     /*!< 0x00000800 Reset Cause Observation Register */
   __IOM uint32_t RES_CAUSE2;                    /*!< 0x00000804 Reset Cause Observation Register 2 */
-   __IM uint32_t RESERVED13[7614];
+   __IM uint32_t RESERVED14[7614];
   __IOM uint32_t PWR_TRIM_REF_CTL;              /*!< 0x00007F00 Reference Trim Register */
   __IOM uint32_t PWR_TRIM_BODOVP_CTL;           /*!< 0x00007F04 BOD/OVP Trim Register */
   __IOM uint32_t CLK_TRIM_CCO_CTL;              /*!< 0x00007F08 CCO Trim Register */
   __IOM uint32_t CLK_TRIM_CCO_CTL2;             /*!< 0x00007F0C CCO Trim Register 2 */
-   __IM uint32_t RESERVED14[8];
+   __IM uint32_t RESERVED15[8];
   __IOM uint32_t PWR_TRIM_WAKE_CTL;             /*!< 0x00007F30 Wakeup Trim Register */
-   __IM uint32_t RESERVED15[8183];
+   __IM uint32_t RESERVED16[8183];
   __IOM uint32_t PWR_TRIM_LVD_CTL;              /*!< 0x0000FF10 LVD Trim Register */
-   __IM uint32_t RESERVED16;
+   __IM uint32_t RESERVED17;
   __IOM uint32_t CLK_TRIM_ILO_CTL;              /*!< 0x0000FF18 ILO Trim Register */
   __IOM uint32_t PWR_TRIM_PWRSYS_CTL;           /*!< 0x0000FF1C Power System Trim Register */
   __IOM uint32_t CLK_TRIM_ECO_CTL;              /*!< 0x0000FF20 ECO Trim Register */
@@ -390,6 +393,18 @@ typedef struct {
 #define SRSS_CLK_PILO_CONFIG_PILO_RESET_N_Msk   0x40000000UL
 #define SRSS_CLK_PILO_CONFIG_PILO_EN_Pos        31UL
 #define SRSS_CLK_PILO_CONFIG_PILO_EN_Msk        0x80000000UL
+/* SRSS.CLK_MF_SELECT */
+#define SRSS_CLK_MF_SELECT_MFCLK_SEL_Pos        0UL
+#define SRSS_CLK_MF_SELECT_MFCLK_SEL_Msk        0x7UL
+#define SRSS_CLK_MF_SELECT_MFCLK_DIV_Pos        8UL
+#define SRSS_CLK_MF_SELECT_MFCLK_DIV_Msk        0xFF00UL
+#define SRSS_CLK_MF_SELECT_ENABLE_Pos           31UL
+#define SRSS_CLK_MF_SELECT_ENABLE_Msk           0x80000000UL
+/* SRSS.CLK_MFO_CONFIG */
+#define SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Pos    30UL
+#define SRSS_CLK_MFO_CONFIG_DPSLP_ENABLE_Msk    0x40000000UL
+#define SRSS_CLK_MFO_CONFIG_ENABLE_Pos          31UL
+#define SRSS_CLK_MFO_CONFIG_ENABLE_Msk          0x80000000UL
 /* SRSS.CLK_FLL_CONFIG */
 #define SRSS_CLK_FLL_CONFIG_FLL_MULT_Pos        0UL
 #define SRSS_CLK_FLL_CONFIG_FLL_MULT_Msk        0x3FFFFUL

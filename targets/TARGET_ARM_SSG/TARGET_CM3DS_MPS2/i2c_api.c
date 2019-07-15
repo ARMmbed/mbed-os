@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include "cmsis.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
@@ -291,3 +294,5 @@ const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
 }
+
+#endif  // #if DEVICE_I2C

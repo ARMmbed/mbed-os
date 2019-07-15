@@ -24,13 +24,11 @@
 
 #include "cycfg_peripherals.h"
 
-#define PWM_INPUT_DISABLED 0x7U
-
 cy_stc_csd_context_t cy_csd_0_context = 
 {
 	.lockKey = CY_CSD_NONE_KEY,
 };
-const cy_stc_scb_uart_config_t BT_UART_config = 
+const cy_stc_scb_uart_config_t CYBSP_BT_UART_config = 
 {
 	.uartMode = CY_SCB_UART_STANDARD,
 	.enableMutliProcessorMode = false,
@@ -58,7 +56,7 @@ const cy_stc_scb_uart_config_t BT_UART_config =
 	.txFifoTriggerLevel = 63UL,
 	.txFifoIntEnableMask = 0UL,
 };
-const cy_stc_scb_ezi2c_config_t CSD_COMM_config = 
+const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config = 
 {
 	.numberOfAddresses = CY_SCB_EZI2C_ONE_ADDRESS,
 	.slaveAddress1 = 8U,
@@ -66,7 +64,7 @@ const cy_stc_scb_ezi2c_config_t CSD_COMM_config =
 	.subAddressSize = CY_SCB_EZI2C_SUB_ADDR16_BITS,
 	.enableWakeFromSleep = false,
 };
-const cy_stc_scb_uart_config_t KITPROG_UART_config = 
+const cy_stc_scb_uart_config_t CYBSP_DEBUG_UART_config = 
 {
 	.uartMode = CY_SCB_UART_STANDARD,
 	.enableMutliProcessorMode = false,
@@ -94,31 +92,31 @@ const cy_stc_scb_uart_config_t KITPROG_UART_config =
 	.txFifoTriggerLevel = 63UL,
 	.txFifoIntEnableMask = 0UL,
 };
-cy_en_sd_host_card_capacity_t RADIO_cardCapacity = CY_SD_HOST_SDSC;
-cy_en_sd_host_card_type_t RADIO_cardType = CY_SD_HOST_NOT_EMMC;
-uint32_t RADIO_rca = 0u;
-const cy_stc_sd_host_init_config_t RADIO_config = 
+cy_en_sd_host_card_capacity_t CYBSP_RADIO_cardCapacity = CY_SD_HOST_SDSC;
+cy_en_sd_host_card_type_t CYBSP_RADIO_cardType = CY_SD_HOST_NOT_EMMC;
+uint32_t CYBSP_RADIO_rca = 0u;
+const cy_stc_sd_host_init_config_t CYBSP_RADIO_config = 
 {
 	.emmc = false,
 	.dmaType = CY_SD_HOST_DMA_SDMA,
 	.enableLedControl = false,
 };
-cy_stc_sd_host_sd_card_config_t RADIO_card_cfg = 
+cy_stc_sd_host_sd_card_config_t CYBSP_RADIO_card_cfg = 
 {
 	.lowVoltageSignaling = false,
 	.busWidth = CY_SD_HOST_BUS_WIDTH_4_BIT,
-	.cardType = &RADIO_cardType,
-	.rca = &RADIO_rca,
-	.cardCapacity = &RADIO_cardCapacity,
+	.cardType = &CYBSP_RADIO_cardType,
+	.rca = &CYBSP_RADIO_rca,
+	.cardCapacity = &CYBSP_RADIO_cardCapacity,
 };
-const cy_stc_smif_config_t QSPI_config = 
+const cy_stc_smif_config_t CYBSP_QSPI_config = 
 {
 	.mode = (uint32_t)CY_SMIF_NORMAL,
-	.deselectDelay = QSPI_DESELECT_DELAY,
+	.deselectDelay = CYBSP_QSPI_DESELECT_DELAY,
 	.rxClockSel = (uint32_t)CY_SMIF_SEL_INV_INTERNAL_CLK,
 	.blockEvent = (uint32_t)CY_SMIF_BUS_ERROR,
 };
-const cy_stc_mcwdt_config_t MCWDT0_config = 
+const cy_stc_mcwdt_config_t CYBSP_MCWDT0_config = 
 {
 	.c0Match = 32768U,
 	.c1Match = 32768U,
@@ -131,7 +129,7 @@ const cy_stc_mcwdt_config_t MCWDT0_config =
 	.c0c1Cascade = true,
 	.c1c2Cascade = false,
 };
-const cy_stc_rtc_config_t RTC_config = 
+const cy_stc_rtc_config_t CYBSP_RTC_config = 
 {
 	.sec = 0U,
 	.min = 0U,
@@ -142,34 +140,6 @@ const cy_stc_rtc_config_t RTC_config =
 	.date = 1U,
 	.month = CY_RTC_JANUARY,
 	.year = 0U,
-};
-const cy_stc_tcpwm_pwm_config_t PWM_config = 
-{
-	.pwmMode = CY_TCPWM_PWM_MODE_PWM,
-	.clockPrescaler = CY_TCPWM_PWM_PRESCALER_DIVBY_1,
-	.pwmAlignment = CY_TCPWM_PWM_LEFT_ALIGN,
-	.deadTimeClocks = 0,
-	.runMode = CY_TCPWM_PWM_CONTINUOUS,
-	.period0 = 32000,
-	.period1 = 32768,
-	.enablePeriodSwap = false,
-	.compare0 = 16384,
-	.compare1 = 16384,
-	.enableCompareSwap = false,
-	.interruptSources = CY_TCPWM_INT_NONE,
-	.invertPWMOut = CY_TCPWM_PWM_INVERT_DISABLE,
-	.invertPWMOutN = CY_TCPWM_PWM_INVERT_DISABLE,
-	.killMode = CY_TCPWM_PWM_STOP_ON_KILL,
-	.swapInputMode = PWM_INPUT_DISABLED & 0x3U,
-	.swapInput = CY_TCPWM_INPUT_0,
-	.reloadInputMode = PWM_INPUT_DISABLED & 0x3U,
-	.reloadInput = CY_TCPWM_INPUT_0,
-	.startInputMode = PWM_INPUT_DISABLED & 0x3U,
-	.startInput = CY_TCPWM_INPUT_0,
-	.killInputMode = PWM_INPUT_DISABLED & 0x3U,
-	.killInput = CY_TCPWM_INPUT_0,
-	.countInputMode = PWM_INPUT_DISABLED & 0x3U,
-	.countInput = CY_TCPWM_INPUT_1,
 };
 
 
@@ -182,6 +152,4 @@ void init_cycfg_peripherals(void)
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB3_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
 
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB5_CLOCK, CY_SYSCLK_DIV_8_BIT, 2U);
-
-	Cy_SysClk_PeriphAssignDivider(PCLK_TCPWM0_CLOCKS1, CY_SYSCLK_DIV_8_BIT, 3U);
 }

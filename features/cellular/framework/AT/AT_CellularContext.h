@@ -118,6 +118,7 @@ private:
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
     void ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt ciot_opt);
     virtual void do_connect_with_retry();
+    void do_disconnect();
 private:
     bool _is_connected;
     ContextOperation  _current_op;

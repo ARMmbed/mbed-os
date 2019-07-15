@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io.c
-* \version 1.10
+* \version 2.0
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
@@ -35,10 +35,15 @@ extern "C" {
 *                        Internal Constants
 *******************************************************************************/
 
+/* The time to wait (in milliseconds) for completion of a BULK or INTERRUPT transfer (max packet 64 bytes).
+* The transfer takes 48.5 us = (1/ 12) * (32 (IN/OUT) + (64 * 8 + 32) (DATA) + 16 (ACK) + 6 (EOPs)), used 50 us.
+*/
+#define WAIT_TRANSFER_COMPLETE     (50U)
+
 /* Dedicated IN and OUT endpoints buffer: 32 bytes (2^5) */
 #define ENDPOINTS_BUFFER_SIZE   (0x55UL)
 
-/* Number of bytes transferred by 1 Y-loop */
+/* The number of bytes transferred by 1 Y-loop */
 #define DMA_YLOOP_INCREMENT     (32UL)
 
 /* All arbiter interrupt sources */
@@ -73,7 +78,7 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 * Function Name: DisableEndpoint
 ****************************************************************************//**
 *
-* Disables endpoint operation.
+* Disables the endpoint operation.
 *
 * \param base
 * The pointer to the USBFS instance.
@@ -90,7 +95,7 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 *******************************************************************************/
 static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_dev_drv_context_t *context)
 {
-    /* Disable endpoint SIE mode and set appropriate state */
+    /* Disables endpoint SIE mode and sets the appropriate state */
     Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, CY_USBFS_DEV_DRV_EP_CR_DISABLE);
     context->epPool[endpoint].state = CY_USB_DEV_EP_DISABLED;
 }
@@ -100,8 +105,9 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 * Function Name: Cy_USBFS_Dev_Drv_ConfigDevice
 ****************************************************************************//**
 *
-* Set basic device configuration (clears previous configuration). 
-* Call this function before configuring endpoints for operation.
+* Sets the basic device configuration (clears previous configuration). 
+* Call this function after the endpoints were configured to complete the
+* device configuration.
 *
 * \param base
 * The pointer to the USBFS instance.
@@ -115,49 +121,26 @@ static void DisableEndpoint(USBFS_Type *base, uint32_t endpoint, cy_stc_usbfs_de
 *******************************************************************************/
 void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_context_t *context)
 {
-    uint32_t endpoint;
-
-    /* Clear buffer pointer */
-    context->curBufAddr = 0U;
-
-    /* Disable SIE and Arbiter interrupts */
-    USBFS_DEV_SIE_EP_INT_EN(base) = 0UL;
-    USBFS_DEV_ARB_INT_EN(base)    = 0UL;
-
-    /* Prepare endpoints for configuration */
-    for (endpoint = 0U; endpoint <  CY_USBFS_DEV_DRV_NUM_EPS_MAX; ++endpoint)
-    {
-        /* Disable endpoint operation */
-        DisableEndpoint(base, endpoint, context);
-
-        /* Set default arbiter configuration */
-        Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
-                                                         USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));
-    }
-
     if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU != context->mode)
     {
-        uint32_t regVal = _VAL2FLD(USBFS_USBDEV_ARB_CFG_DMA_CFG, context->mode);
+        uint32_t autoMemMask = 0U;
 
         if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO == context->mode)
         {
-            regVal |=  USBFS_USBDEV_ARB_CFG_AUTO_MEM_Msk;
-        }
-
-        /* Allow re-configuration: clear configuration complete bit */
-        USBFS_DEV_ARB_CFG(base) = regVal;
-        (void) USBFS_DEV_ARB_CFG(base);
-
-        if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO == context->mode)
-        {
-            /* Reset configuration registers */
-            USBFS_DEV_EP_ACTIVE(base) = 0UL;
-            USBFS_DEV_EP_TYPE(base)   = CY_USBFS_DEV_DRV_WRITE_ODD(0UL);
-
+            autoMemMask = USBFS_USBDEV_ARB_CFG_AUTO_MEM_Msk;
+            
             /* Configure DMA burst size */
-            USBFS_DEV_BUF_SIZE(base)    = ENDPOINTS_BUFFER_SIZE;
             USBFS_DEV_DMA_THRES16(base) = DMA_YLOOP_INCREMENT;
+            USBFS_DEV_BUF_SIZE(base)    = ENDPOINTS_BUFFER_SIZE;
+
+            /* USBFS_DEV_EP_ACTIVE and USBFS_DEV_EP_TYPE are set when endpoint is added */
         }
+
+        /* The configuration completes: Generates a rising edge for the USBDEV_ARB_CFG.CFG_CMP bit */
+        USBFS_DEV_ARB_CFG(base)  = _VAL2FLD(USBFS_USBDEV_ARB_CFG_DMA_CFG, context->mode) |
+                                   autoMemMask;
+        USBFS_DEV_ARB_CFG(base) |= USBFS_USBDEV_ARB_CFG_CFG_CMP_Msk;
+        (void) USBFS_DEV_ARB_CFG(base);
     }
 }
 
@@ -166,8 +149,10 @@ void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_contex
 * Function Name: Cy_USBFS_Dev_Drv_UnConfigureDevice
 ****************************************************************************//**
 *
-* Clear device configuration. 
-* Call this function if endpoints configuration fail.
+* Clears device configuration. 
+* Call this function before setting a configuration or a configuration failure
+* to set the configuration into the default state.
+* Alternately, call \ref Cy_USBFS_Dev_Drv_RemoveEndpoint for each active endpoint.
 *
 * \param base
 * The pointer to the USBFS instance.
@@ -183,6 +168,16 @@ void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_c
 {
     uint32_t endpoint;
 
+    /* Clears the buffer pointer */
+    context->curBufAddr = 0U;
+    
+    /* Removes all active endpoints */
+    context->activeEpMask = 0U;
+
+    /* Disables the SIE and Arbiter interrupts */
+    USBFS_DEV_SIE_EP_INT_EN(base) = 0UL;
+    USBFS_DEV_ARB_INT_EN(base)    = 0UL;
+
     /* Clear endpoints configuration */
     for (endpoint = 0U; endpoint <  CY_USBFS_DEV_DRV_NUM_EPS_MAX; ++endpoint)
     {
@@ -193,42 +188,16 @@ void Cy_USBFS_Dev_Drv_UnConfigureDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_c
 
 
 /*******************************************************************************
-* Function Name: Cy_USBFS_Dev_Drv_ConfigDeviceComplete
-****************************************************************************//**
-*
-* Locks device configuration before following operation.
-*
-* \param base
-* The pointer to the USBFS instance.
-*
-* \param context
-* The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
-* modify anything in this structure.
-*
-*******************************************************************************/
-void Cy_USBFS_Dev_Drv_ConfigDeviceComplete(USBFS_Type *base, cy_stc_usbfs_dev_drv_context_t const *context)
-{
-    if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU != context->mode)
-    {
-        /* Configuration complete: set configuration complete bit (generate rising edge) */
-        USBFS_DEV_ARB_CFG(base) |= USBFS_USBDEV_ARB_CFG_CFG_CMP_Msk;
-    }
-}
-
-
-/*******************************************************************************
 * Function Name: GetEndpointBuffer
 ****************************************************************************//**
 *
-* Returns start position in the allocated buffer for data endpoint.
+* Returns a start position in the allocated buffer for the data endpoint.
 *
 * \param size
-* Data endpoint buffer size.
+* The data endpoint buffer size.
 *
 * \param idx
-* Start position of the allocated endpoint buffer.
+* The start position of the allocated endpoint buffer.
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
@@ -237,7 +206,7 @@ void Cy_USBFS_Dev_Drv_ConfigDeviceComplete(USBFS_Type *base, cy_stc_usbfs_dev_dr
 * modify anything in this structure.
 *
 * \return
-* Status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
+* The status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
 *
 *******************************************************************************/
 cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_stc_usbfs_dev_drv_context_t *context)
@@ -251,14 +220,14 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
                 CY_USBFS_DEV_DRV_HW_BUFFER_SIZE : 
                 context->epSharedBufSize;
 
-    /* Get next buffer address. Note the end buffer size must be even for 16-bit access */
+    /* Gets a next buffer address. Note: the end buffer size must be even for the 16-bit access. */
     nextBufAddr  = (context->curBufAddr + size);
     nextBufAddr += (context->useReg16) ? (size & 0x01U) : 0U;
 
-    /* Check whether there is enough space in the buffer */
+    /* Checks whether there is enough space in the buffer. */
     if (nextBufAddr <= bufSize)
     {
-        /* Update pointers */
+        /* Updates the pointers */
         *idx = context->curBufAddr;
         context->curBufAddr = (uint16_t) nextBufAddr;
 
@@ -273,15 +242,18 @@ cy_en_usbfs_dev_drv_status_t GetEndpointBuffer(uint32_t size, uint32_t *idx, cy_
 * Function Name: RestoreEndpointHwBuffer
 ****************************************************************************//**
 *
-* Restores endpoint active configuration for 
+* Restores the endpoint active configuration for 
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU and 
 * \ref CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA modes.
 *
 * \param base
 * The pointer to the USBFS instance.
 *
-* \param endpoint
-* The OUT data endpoint number.
+* \param mode
+* Endpoints management mode.
+* 
+* \param endpointData
+* The pointer to the endpoint data structure.
 *
 * \param context
 * The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
@@ -297,35 +269,39 @@ void RestoreEndpointHwBuffer(USBFS_Type *base,
     bool inDirection  = IS_EP_DIR_IN(endpointData->address);
     uint32_t endpoint = EPADDR2PHY(endpointData->address);
 
-    /* Clear state: MEM_DATA is not non-retention */
+    /* Clears the  state: MEM_DATA is not non-retention */
     endpointData->state = CY_USB_DEV_EP_IDLE;
 
-    /* Set Arbiter read and write pointers */
+    /* Sets the Arbiter read and write pointers */
     Cy_USBFS_Dev_Drv_SetArbWriteAddr(base, endpoint, (uint32_t) endpointData->startBuf);
     Cy_USBFS_Dev_Drv_SetArbReadAddr (base, endpoint, (uint32_t) endpointData->startBuf);
 
-    /* Enable endpoint Arbiter interrupt sources */
+    /* Enables the endpoint Arbiter interrupt sources */
     if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA == mode)
     {
-        /* Enable Arbiter interrupt sources for endpoint */
+        /* Enables the Arbiter interrupt sources for endpoint */
         Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint, (inDirection ?
                                                                 IN_ENDPOINT_ARB_INTR_SOURCES_DMA :
                                                                 OUT_ENDPOINT_ARB_INTR_SOURCES_DMA));
 
-        /* Enable Arbiter interrupt for endpoint */
+        /* Enables the Arbiter interrupt for endpoint */
         Cy_USBFS_Dev_Drv_EnableArbEpInterrupt(base, endpoint);
 
-        /* Enable DMA channel */
+        /* Enables the DMA channel */
          Cy_DMA_Channel_Enable(endpointData->base, endpointData->chNum);
     }
     else
     {
-        /* Enable error interrupt triggered by SIE */
+        /* Enables the error interrupt triggered by SIE */
         Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint, ENDPOINT_ARB_INTR_SOURCES_CPU);
     }
 
-    /* Enable SIE interrupt for endpoint */
-    Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);
+    /* Enables the SIE interrupt for the endpoint */
+    Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);  
+
+    /* Sets an arbiter configuration */
+    Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
+                                                     USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));  
 
     /* Set endpoint mode to not respond to host */
     Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, GetEndpointInactiveMode((uint32_t) endpointData->sieMode));
@@ -353,7 +329,7 @@ void RestoreEndpointHwBuffer(USBFS_Type *base,
 * modify anything in this structure.
 *
 * \return
-* Status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
+* The status code of the function execution \ref cy_en_usbfs_dev_drv_status_t.
 *
 *******************************************************************************/
 cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
@@ -362,33 +338,33 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
 {
     uint32_t endpoint = EPADDR2PHY(config->endpointAddr);
 
-    /* Get pointer to endpoint data */
+    /* Gets a pointer to the endpoint data */
     cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData = &context->epPool[endpoint]; 
 
-    /* Get buffer for endpoint using hardware buffer */
+    /* Gets a buffer for the endpoint using the hardware buffer */
     if (config->allocBuffer)
     {
         uint32_t bufOffset;
 
-        /* Get buffer for endpoint */
+        /* Gets a buffer for the endpoint */
         cy_en_usbfs_dev_drv_status_t retStatus = GetEndpointBuffer((uint32_t) config->bufferSize, &bufOffset, context);
         if (CY_USBFS_DEV_DRV_SUCCESS != retStatus)
         {
             return retStatus;
         }
 
-        /* Set Arbiter read and write pointers */
+        /* Sets the Arbiter read and write pointers */
         endpointData->startBuf = (uint16_t) bufOffset;
         Cy_USBFS_Dev_Drv_SetArbWriteAddr(base, endpoint, bufOffset);
         Cy_USBFS_Dev_Drv_SetArbReadAddr (base, endpoint, bufOffset);
     }
 
-    /* Enable endpoint for the operation */
+    /* Enables the endpoint for the operation */
     if (config->enableEndpoint)
     {
         bool inDirection = IS_EP_DIR_IN(config->endpointAddr);
 
-        /* Configure endpoint */
+        /* Configures the endpoint */
         endpointData->state   = CY_USB_DEV_EP_IDLE;
         endpointData->address = config->endpointAddr;
         endpointData->toggle  = 0U;
@@ -396,8 +372,12 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
         endpointData->sieMode = GetEndpointActiveMode(inDirection, config->attributes);
         endpointData->isPending = false;
 
-        /* Flush IN endpoint buffer to discard loaded data. 
-        * It happens when: alternate settings change is requested and IN 
+        /* Sets an arbiter configuration (clears DMA requests) */
+        Cy_USBFS_Dev_Drv_SetArbEpConfig(base, endpoint, (USBFS_USBDEV_ARB_EP1_CFG_CRC_BYPASS_Msk |
+                                                         USBFS_USBDEV_ARB_EP1_CFG_RESET_PTR_Msk));
+
+        /* Flushes the IN endpoint buffer to discard the loaded data. 
+        * It happens when: an alternate settings change is requested and the IN 
         * endpoint buffer is full (not read by the Host).
         */
         if (inDirection)
@@ -405,34 +385,34 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
             Cy_USBFS_Dev_Drv_FlushInBuffer(base, endpoint);
         }
 
-        /* Enable endpoint arbiter interrupt sources */
+        /* Enables the endpoint arbiter interrupt sources */
         if (CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA == context->mode)
         {
-            /* Configure DMA based on endpoint direction */
+            /* Configures the DMA based on the endpoint direction */
             cy_en_usbfs_dev_drv_status_t retStatus = DmaEndpointInit(base, context->mode, context->useReg16, &context->epPool[endpoint]);
             if (CY_USBFS_DEV_DRV_SUCCESS != retStatus)
             {
                 return retStatus;
             }
 
-            /* Enable arbiter interrupt sources for endpoint */
+            /* Enables the arbiter interrupt sources for the endpoint */
             Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint, (inDirection ?
                                                                     IN_ENDPOINT_ARB_INTR_SOURCES_DMA :
                                                                     OUT_ENDPOINT_ARB_INTR_SOURCES_DMA));
 
-            /* Enable arbiter interrupt for endpoint */
+            /* Enables the arbiter interrupt for the endpoint */
             Cy_USBFS_Dev_Drv_EnableArbEpInterrupt(base, endpoint);
         }
         else
         {
-            /* Enable error interrupt triggered by SIE */
+            /* Enables the error interrupt triggered by SIE */
             Cy_USBFS_Dev_Drv_SetArbEpInterruptMask(base, endpoint, ENDPOINT_ARB_INTR_SOURCES_CPU);
         }
 
-        /* Enable SIE interrupt for endpoint */
+        /* Enables the SIE interrupt for the endpoint */
         Cy_USBFS_Dev_Drv_EnableSieEpInterrupt(base, endpoint);
 
-        /* Set endpoint mode to not respond to host */
+        /* Sets endpoint mode to not respond to the host */
         Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, GetEndpointInactiveMode((uint32_t) endpointData->sieMode));
     }
 
@@ -444,7 +424,7 @@ cy_en_usbfs_dev_drv_status_t AddEndpointHwBuffer(USBFS_Type *base,
 * Function Name: Cy_USBFS_Dev_Drv_RemoveEndpoint
 ****************************************************************************//**
 *
-* Removes data endpoint (release hardware resources allocated by data endpoint).
+* Removes a data endpoint (release hardware resources allocated by data endpoint).
 *
 * \param base
 * The pointer to the USBFS instance.
@@ -466,7 +446,15 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_RemoveEndpoint(USBFS_Type *base,
                                                              uint32_t    endpointAddr,
                                                              cy_stc_usbfs_dev_drv_context_t *context)
 {
-    uint32_t endpoint = EPADDR2PHY(endpointAddr);
+    uint32_t endpoint = EPADDR2EP(endpointAddr);
+
+    /* Checks if the endpoint is supported by the driver */
+    if (false == IS_EP_VALID(endpoint))
+    {
+        return CY_USBFS_DEV_DRV_BAD_PARAM;
+    }
+
+    endpoint = EP2PHY(endpoint);
 
     /* Disable endpoint operation */
     DisableEndpoint(base, endpoint, context);
@@ -478,6 +466,12 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_RemoveEndpoint(USBFS_Type *base,
     /* Clear SIE and Arbiter interrupt for endpoint */
     Cy_USBFS_Dev_Drv_ClearSieEpInterrupt(base, endpoint);
     Cy_USBFS_Dev_Drv_ClearArbEpInterrupt(base, endpoint, ENDPOINT_ARB_INTR_SOURCES_ALL);
+
+    /* Removes the active endpoint */
+    context->activeEpMask &= (uint8_t) ~EP2MASK(endpont);
+
+    /* Clear abort mask for endpoint */
+    context->epAbortMask &= (uint8_t) ~EP2MASK(endpoint);
 
     return CY_USBFS_DEV_DRV_SUCCESS;
 }
@@ -521,7 +515,10 @@ void Cy_USBFS_Dev_Drv_EnableOutEndpoint(USBFS_Type *base,
     /* Get pointer to endpoint data */
     cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData = &context->epPool[endpoint];
 
-    /* Clear transfer complete notification */
+    /* Clear abort mask for the endpoint (there is no transfer during abort) */
+    context->epAbortMask &= (uint8_t) ~EP2MASK(endpoint);
+    
+    /* Endpoint pending: Waits for the host write data after exiting this function */
     endpointData->state = CY_USB_DEV_EP_PENDING;
 
     /* Arm endpoint: Host is allowed to write data */
@@ -574,7 +571,10 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
         return CY_USBFS_DEV_DRV_BAD_PARAM;
     }
 
-    /* Clear transfer completion notification */
+    /* Clear abort mask for the endpoint (there is no transfer during abort) */
+    context->epAbortMask &= (uint8_t) ~EP2MASK(endpoint);
+
+    /* Endpoint pending: Waits for the host read data after exiting this function */
     endpointData->state = CY_USB_DEV_EP_PENDING;
 
     /* Set count and data toggle */
@@ -598,7 +598,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
             size = GET_SIZE16(size);
 
             /* Copy data from the user buffer into the hardware buffer */
-            for (idx = 0u; idx < size; ++idx)
+            for (idx = 0U; idx < size; ++idx)
             {
                 Cy_USBFS_Dev_Drv_WriteData16(base, endpoint, ptr[idx]);
             }
@@ -607,7 +607,7 @@ cy_en_usbfs_dev_drv_status_t LoadInEndpointCpu(USBFS_Type   *base,
         {
 
             /* Copy data from the user buffer into the hardware buffer */
-            for (idx = 0u; idx < size; ++idx)
+            for (idx = 0U; idx < size; ++idx)
             {
                 Cy_USBFS_Dev_Drv_WriteData(base, endpoint, buffer[idx]);
             }
@@ -719,12 +719,13 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
 * Function Name: Cy_USBFS_Dev_Drv_Abort
 ****************************************************************************//**
 *
-* Starts abort operation for data endpoint. 
-* If this function returns \ref CY_USB_DEV_EP_PENDING state, the firmware must 
-* wait for 1 millisecond to allow the USB Host to complete a possible on-going transfer. 
-* After this time is passed, call \ref Cy_USBFS_Dev_Drv_GetEndpointState to 
-* define endpoint state. If endpoint is still pending, call
-* \ref Cy_USBFS_Dev_Drv_AbortComplete to complete abort operation.
+* Abort operation for data endpoint.
+* If there is any bus activity after the abort operation requested, the function
+* waits for its completion or a timeout. A timeout is the time to transfer the 
+* bulk or an interrupt packet of the maximum playload size. If this bus activity is
+* a transfer to the aborting endpoint, the received data is lost and the endpoint
+* transfer completion callbacks are not invoked.
+* After the function returns a new read or write, the endpoint operation can be submitted.
 *
 * \param base
 * The pointer to the USBFS instance.
@@ -742,120 +743,144 @@ cy_en_usbfs_dev_drv_status_t ReadOutEndpointCpu(USBFS_Type *base,
 * Data endpoint state \ref cy_en_usb_dev_ep_state_t after abort was applied.
 *
 * \note
-* This abort operation is not supported for ISOC endpoints because 
-* these endpoints do not have handshake and are always accessible to the 
-* USB Host. Therefore, abort can cause unexpected behavior.
+* - This abort operation is not supported for the ISOC endpoints because
+*   these endpoints do not have a handshake and are always accessible to the
+*   USB Host. Therefore, an abort can cause unexpected behavior.
+* - The function uses the critical section to protect from the endpoint transfer
+*   complete interrupt.
 *
 *******************************************************************************/
-cy_en_usb_dev_ep_state_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
-                                                 uint32_t   endpoint,
-                                                 cy_stc_usbfs_dev_drv_context_t const *context)
-{
-    cy_en_usb_dev_ep_state_t epState = CY_USB_DEV_EP_INVALID;
-
-    CY_ASSERT_L1(CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint));
-
-    endpoint = EP2PHY(endpoint);
-
-    /* Get endpoint state */
-    epState = context->epPool[endpoint].state;
-
-    switch(Cy_USBFS_Dev_Drv_GetSieEpMode(base, endpoint))
-    {
-        case CY_USBFS_DEV_DRV_EP_CR_ISO_OUT:
-        case CY_USBFS_DEV_DRV_EP_CR_ISO_IN:
-            /* ISOC endpoint do not support abort operation */
-            epState = CY_USB_DEV_EP_INVALID;
-        break;
-
-        case CY_USBFS_DEV_DRV_EP_CR_ACK_OUT:
-            /* State must be CY_USB_DEV_EP_PENDING */
-            Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, CY_USBFS_DEV_DRV_EP_CR_NAK_OUT);
-        break;
-        
-        case CY_USBFS_DEV_DRV_EP_CR_ACK_IN:
-            /* State must be CY_USB_DEV_EP_PENDING */
-            Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, CY_USBFS_DEV_DRV_EP_CR_NAK_IN);
-        break;
-
-        case CY_USBFS_DEV_DRV_EP_CR_NAK_OUT:
-        case CY_USBFS_DEV_DRV_EP_CR_NAK_IN:
-            /* State must be CY_USB_DEV_EP_COMPLETED or CY_USB_DEV_EP_IDLE */
-        break;
-
-        default:
-            epState = CY_USB_DEV_EP_INVALID;
-        break;
-    }
-
-    return (epState);
-}
-
-
-/*******************************************************************************
-* Function Name: Cy_USBFS_Dev_Drv_AbortComplete
-****************************************************************************//**
-*
-* Completes abort operation for data endpoint when endpoint is still in pending 
-* state. Find the details of the abort procedure in the \ref Cy_USBFS_Dev_Drv_Abort
-* function description.
-*
-* \param base
-* The pointer to the USBFS instance.
-*
-* \param endpoint
-* The data endpoint number.
-*
-* \param context
-* The pointer to the context structure \ref cy_stc_usbfs_dev_drv_context_t
-* allocated by the user. The structure is used during the USBFS Device 
-* operation for internal configuration and data retention. The user must not 
-* modify anything in this structure.
-*
-*******************************************************************************/
-cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_AbortComplete(USBFS_Type *base,
-                                                            uint32_t   endpoint,
-                                                            cy_stc_usbfs_dev_drv_context_t *context)
+cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_Abort(USBFS_Type *base,
+                                                    uint32_t   endpoint,
+                                                    cy_stc_usbfs_dev_drv_context_t *context)
 {
     cy_en_usbfs_dev_drv_status_t retStatus = CY_USBFS_DEV_DRV_BAD_PARAM;
-    bool inDirection;
+    cy_stc_usbfs_dev_drv_endpoint_data_t *endpointData;
+    bool flushBuffer = true;
+    uint32_t intrState;
 
-    endpoint = EP2PHY(endpoint);
-    inDirection = IS_EP_DIR_IN(context->epPool[endpoint].address);
-    
-    /* Initialize pointers to functions that work with data endpoint */
-    switch(context->mode)
+    /* Checks if the endpoint is supported by the driver */
+    if (false == IS_EP_VALID(endpoint))
     {
-        case CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU:
-        case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA:
-        {
-            /* IN endpoint: flush buffer to discard loaded data. 
-            *  OUT endpoint: leave written data in the buffer.
-            */
-            if (inDirection)
-            {
-                Cy_USBFS_Dev_Drv_FlushInBuffer(base, endpoint);
-            }
-
-            retStatus = CY_USBFS_DEV_DRV_SUCCESS;
-        }
-        break;
-
-        case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO:
-        {
-            /* IN endpoint: flush buffer to discard loaded data. 
-            *  OUT endpoint: wait for DMA complete if transfer was started.
-            */
-            retStatus = DynamicEndpointReConfiguration(base, inDirection, endpoint);
-        }
-        break;
-
-        default:
-            break;
+        return retStatus;
     }
 
-    /* Abort operation was successful: set endpoint idle state */
-    context->epPool[endpoint].state = CY_USB_DEV_EP_IDLE;
+    endpoint = EP2PHY(endpoint);
+    endpointData = &context->epPool[endpoint];
+
+    /* Locks from the context modification by the endpoint completion interrupt */
+    intrState = Cy_SysLib_EnterCriticalSection();
+
+    /* Checks whether the endpoint is configured */
+    if (CY_USB_DEV_EP_DISABLED == endpointData->state)
+    {
+        return retStatus;
+    }
+    else if (CY_USB_DEV_EP_STALLED == endpointData->state)
+    {
+        /* Aborts a pending transfer if the endpoint is stalled */
+        context->epAbortMask |= (uint8_t) EP2MASK(endpoint);
+        endpointData->isPending = false;
+    }
+    else if (CY_USB_DEV_EP_PENDING == endpointData->state)
+    {
+        bool isocEp = false;
+
+        /* Sets an abort mask to discard the completion events */
+        context->epAbortMask |= (uint8_t) EP2MASK(endpoint);
+        endpointData->state   = CY_USB_DEV_EP_IDLE;
+        
+        /* Clears the bus busy activity */
+        (void) Cy_USBFS_Dev_Drv_CheckActivity(base);
+
+        if (endpointData->sieMode == CY_USBFS_DEV_DRV_EP_CR_ACK_IN)
+        {
+            Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, CY_USBFS_DEV_DRV_EP_CR_NAK_IN);
+        }
+        else if (endpointData->sieMode == CY_USBFS_DEV_DRV_EP_CR_ACK_OUT)
+        {
+            Cy_USBFS_Dev_Drv_SetSieEpMode(base, endpoint, CY_USBFS_DEV_DRV_EP_CR_NAK_OUT);
+        }
+        else
+        {
+            /* Does not wait for the ISOC endpoint */
+            isocEp = true;
+        }
+        
+        if (false == isocEp)
+        {
+            /* If there is a bus activity, it could be a transfer to the aborted endpoint */
+            if (Cy_USBFS_Dev_Drv_CheckActivity(base))
+            {
+                /* Releases the lock */
+                Cy_SysLib_ExitCriticalSection(intrState);
+
+                uint32_t timeout = WAIT_TRANSFER_COMPLETE;
+
+                /* Waits for BULK or INTERRUPT transfer completion or a NACK interrupt */
+                while ( (timeout != 0U) &&
+                        (0U != (context->epAbortMask & EP2MASK(endpoint))) )
+                {
+                    if (false == Cy_USBFS_Dev_Drv_CheckActivity(base))
+                    {
+                        break;
+                    }
+
+                    Cy_SysLib_DelayUs(1U);
+                    --timeout;
+                }
+            }
+        }
+
+        /* The abort mask is cleared in the endpoint completion interrupt OR 
+        *  on a following call of the endpoint Remove, LoadIn or EnableOut function.
+        */
+    }
+    else
+    {
+        /* Does nothing for all other states: CY_USB_DEV_EP_IDLE or CY_USB_DEV_EP_COMPLETED */
+        flushBuffer = false;
+        retStatus = CY_USBFS_DEV_DRV_SUCCESS;
+    }
+    
+    /* Releases the lock */
+    Cy_SysLib_ExitCriticalSection(intrState);
+
+    if (flushBuffer)
+    {
+        bool inDirection = IS_EP_DIR_IN(endpointData->address);
+        
+        /* Initializes the pointers to functions that work with the data endpoint */
+        switch(context->mode)
+        {
+            case CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU:
+            case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA:
+            {
+                /* IN endpoint: Flushes the buffer to discard the loaded data. 
+                *  OUT endpoint: Leaves the written data in the buffer.
+                */
+                if (inDirection)
+                {
+                    Cy_USBFS_Dev_Drv_FlushInBuffer(base, endpoint);
+                }
+
+                retStatus = CY_USBFS_DEV_DRV_SUCCESS;
+            }
+            break;
+
+            case CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO:
+            {
+                /* IN endpoint: Flushes the buffer to discard the loaded data. 
+                *  OUT endpoint: Waits for DMA to complete if a transfer has been started.
+                */
+                retStatus = DynamicEndpointReConfiguration(base, inDirection, endpoint);
+            }
+            break;
+
+            default:
+                break;
+        }
+    }
 
     return retStatus;
 }
@@ -903,7 +928,6 @@ cy_en_usbfs_dev_drv_status_t Cy_USBFS_Dev_Drv_StallEndpoint(USBFS_Type *base,
     {
         return CY_USBFS_DEV_DRV_BAD_PARAM;
     }
-
 
     /* Store current endpoint state to restore it after Stall clear */
     endpointData->isPending = (CY_USB_DEV_EP_PENDING == endpointData->state);

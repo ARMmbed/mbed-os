@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw_v2.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides constants and function prototypes
@@ -147,7 +147,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFStart(CRYPTO_Type *base,
                                             uint32_t ff_idx, const uint8_t* p_mem, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 3u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 3u))
     {
     }
 
@@ -161,7 +161,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFContinue(CRYPTO_Type *base,
                                                uint32_t ff_idx, const uint8_t* p_mem, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 3u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 3u))
     {
     }
 
@@ -177,7 +177,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFContinue(CRYPTO_Type *base,
 __STATIC_INLINE void Cy_Crypto_Core_V2_FFStop(CRYPTO_Type *base, uint32_t ff_idx)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -189,7 +189,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockMov(CRYPTO_Type *base,
                                             uint32_t dst_idx, uint32_t src_idx, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -203,7 +203,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockMov_Reflect(CRYPTO_Type *base,
                                             uint32_t dst_idx, uint32_t src_idx, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -218,7 +218,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockSet(CRYPTO_Type *base,
                                             uint32_t dst_idx, uint8_t data, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -232,7 +232,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockCmp(CRYPTO_Type *base,
                                             uint32_t src0_idx, uint32_t src1_idx, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -246,7 +246,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockXor(CRYPTO_Type *base,
                                             uint32_t dst_idx, uint32_t src0_idx, uint32_t src1_idx, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -260,7 +260,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockXor(CRYPTO_Type *base,
 __STATIC_INLINE void Cy_Crypto_Core_V2_BlockGcm(CRYPTO_Type *base)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -270,7 +270,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockGcm(CRYPTO_Type *base)
 __STATIC_INLINE void Cy_Crypto_Core_V2_Run(CRYPTO_Type *base, uint32_t opc)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -280,7 +280,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_Run(CRYPTO_Type *base, uint32_t opc)
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBClear(CRYPTO_Type *base)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -290,7 +290,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBClear(CRYPTO_Type *base)
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBSwap(CRYPTO_Type *base)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -300,7 +300,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBSwap(CRYPTO_Type *base)
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBXor(CRYPTO_Type *base, uint32_t offset, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -312,7 +312,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBXor(CRYPTO_Type *base, uint32_t offset,
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBStore(CRYPTO_Type *base, uint32_t offset, uint32_t size)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -323,7 +323,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBStore(CRYPTO_Type *base, uint32_t offse
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBSetByte(CRYPTO_Type *base, uint32_t offset, uint8_t  byte)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -335,7 +335,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBSetByte(CRYPTO_Type *base, uint32_t off
 __STATIC_INLINE void Cy_Crypto_Core_V2_RunAes(CRYPTO_Type *base)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -345,7 +345,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RunAes(CRYPTO_Type *base)
 __STATIC_INLINE void Cy_Crypto_Core_V2_RunAesInv(CRYPTO_Type *base)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 
@@ -355,7 +355,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RunAesInv(CRYPTO_Type *base)
 __STATIC_INLINE void Cy_Crypto_Core_V2_RunChacha(CRYPTO_Type *base, uint8_t roundNum)
 {
     /* Check whether FIFO has enough space for 1 instruction */
-    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_V2_DATA_FIFODEPTH - 1u))
+    while(Cy_Crypto_Core_GetFIFOUsed(base) >= (CY_CRYPTO_INSTR_FIFODEPTH - 1u))
     {
     }
 

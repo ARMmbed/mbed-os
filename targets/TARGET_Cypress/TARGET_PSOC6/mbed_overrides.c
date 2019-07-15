@@ -1,6 +1,6 @@
 /*
  * mbed Microcontroller Library
- * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,30 @@
  */
 
 #include "device.h"
-#include "psoc6_utils.h"
 #include "cycfg.h"
+#include "cyhal_hwmgr.h"
+#include "cybsp_api_core.h"
+#include "mbed_power_mgmt.h"
+#include "rtos_idle.h"
 
 #if defined(COMPONENT_SPM_MAILBOX)
 void mailbox_init(void);
+#endif
+
+
+#if (defined(CY_CFG_PWR_SYS_IDLE_MODE) && (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE))
+/*******************************************************************************
+* Function Name: active_idle_hook
+****************************************************************************//**
+*
+* Empty idle hook function to prevent the system entering sleep mode
+* automatically any time the system is idle.
+*
+*******************************************************************************/
+static void active_idle_hook(void)
+{
+    /* Do nothing, so the rtos_idle_loop() performs while(1) */
+}
 #endif
 
 /*******************************************************************************
@@ -34,22 +53,53 @@ void mailbox_init(void);
 *******************************************************************************/
 void mbed_sdk_init(void)
 {
-    /* Initialize shared resource manager */
-    cy_srm_initialize();
+#if (CY_CPU_CORTEX_M0P && !defined(COMPONENT_SPM_MAILBOX))
+    /* Disable global interrupts */
+    __disable_irq();
+#endif
 
     /* Initialize system and clocks. */
     /* Placed here as it must be done after proper LIBC initialization. */
     SystemInit();
 
+    /* Initialize hardware resource manager */
+    cyhal_hwmgr_init();
+
 #if defined(COMPONENT_SPM_MAILBOX)
     mailbox_init();
 #endif
 
-#if (!CY_CPU_CORTEX_M0P)
+#if (CY_CPU_CORTEX_M0P)
+#if defined(COMPONENT_SPE)
     /* Set up the device based on configurator selections */
     init_cycfg_all();
+#endif
+
+#if !defined(COMPONENT_SPM_MAILBOX)
+    /* Enable global interrupts */
+    __enable_irq();
+#endif
+#else
+#if !defined(TARGET_PSA)
+    /* Set up the device based on configurator selections */
+    cybsp_init();
+#endif
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
+#endif
+
+#if defined (CY_CFG_PWR_SYS_IDLE_MODE)
+    /* Configure the lowest power state the system is allowed to enter
+    * based on the System Idle Power Mode parameter value in the Device
+    * Configurator. The default value is system deep sleep.
+    */
+#if (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE)
+    rtos_attach_idle_hook(&active_idle_hook);
+#elif (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP)
+    sleep_manager_lock_deep_sleep();
+#else
+    /* Deep sleep is default state */
+#endif
 #endif
 }

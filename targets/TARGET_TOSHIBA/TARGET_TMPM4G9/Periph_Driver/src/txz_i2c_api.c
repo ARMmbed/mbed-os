@@ -237,7 +237,6 @@ __STATIC_INLINE void set_port_ch1(i2c_port_t sda, i2c_port_t scl);
 __STATIC_INLINE void set_port_ch2(i2c_port_t sda, i2c_port_t scl);
 __STATIC_INLINE void set_port_ch3(i2c_port_t sda, i2c_port_t scl);
 __STATIC_INLINE void set_port_ch4(i2c_port_t sda, i2c_port_t scl);
-__STATIC_INLINE uint32_t set_i2c(uint8_t ch, uint32_t *p_irqn);
 __STATIC_INLINE void reset_asynch(_i2c_t *p_obj);
 __STATIC_INLINE int32_t wait_status(_i2c_t *p_obj);
 static void i2c_irq_handler(_i2c_t *p_obj);
@@ -574,7 +573,7 @@ __STATIC_INLINE void set_port_ch4(i2c_port_t sda, i2c_port_t scl)
   * @note      -
   */
 /*--------------------------------------------------*/
-__STATIC_INLINE uint32_t set_i2c(uint8_t ch, uint32_t *p_irqn)
+uint32_t set_i2c(uint8_t ch, uint32_t *p_irqn)
 {   
     uint32_t instance = 0;
 
@@ -725,7 +724,7 @@ static void i2c_irq_handler(_i2c_t *p_obj)
             }
             else
             {
-                if (p_obj->tx_buff.pos < p_obj->tx_buff.length)
+                if ((p_obj->tx_buff.pos < p_obj->tx_buff.length) || (p_obj->tx_buff.length == 0))
                 {
                     if (p_obj->tx_buff.pos == 0)
                     {
@@ -740,16 +739,7 @@ static void i2c_irq_handler(_i2c_t *p_obj)
                 }
                 else if (p_obj->rx_buff.length != 0)
                 {
-                    if (p_obj->tx_buff.pos == 0)
-                    {
-                        p_obj->info.asynch.event = (I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE);
-                        p_obj->info.asynch.state = I2C_TRANSFER_STATE_IDLE;
-                    }
-                    else
-                    {
-                        p_obj->info.asynch.event = (I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK);
-                        p_obj->info.asynch.state = I2C_TRANSFER_STATE_IDLE;
-                    }
+                    I2C_start_condition(&p_obj->i2c, (p_obj->info.asynch.address | 1U));
                 }
                 else
                 {
@@ -1470,35 +1460,32 @@ TXZ_Result i2c_transfer_asynch_t(_i2c_t *p_obj, uint8_t *p_tx, int32_t tx_length
 
     if (p_obj->info.asynch.state == I2C_TRANSFER_STATE_IDLE)
     {
-        if (((p_tx != I2C_NULL) && (tx_length > 0)) || ((p_rx != I2C_NULL) && (rx_length > 0)))
+        reset_asynch(p_obj);
+        I2C_clear_int_status(&p_obj->i2c);
+        clear_irq(p_obj->info.irqn);
+        p_obj->info.asynch.address = (uint32_t)address;
+        p_obj->info.asynch.event = 0;
+        p_obj->info.asynch.stop = (uint32_t)stop;
+        p_obj->tx_buff.p_buffer = p_tx;
+        p_obj->tx_buff.length = (uint32_t)tx_length;
+        p_obj->tx_buff.pos = 0;
+        p_obj->rx_buff.p_buffer = p_rx;
+        p_obj->rx_buff.length = (uint32_t)rx_length;
+        p_obj->rx_buff.pos = 0;
+        p_obj->info.asynch.state = I2C_TRANSFER_STATE_BUSY;
+        I2C_enable_interrupt(&p_obj->i2c);
+        if ((tx_length == 0) && (rx_length != 0))
         {
-            reset_asynch(p_obj);
-            I2C_clear_int_status(&p_obj->i2c);
-            clear_irq(p_obj->info.irqn);
-            p_obj->info.asynch.address = (uint32_t)address;
-            p_obj->info.asynch.event = 0;
-            p_obj->info.asynch.stop = (uint32_t)stop;
-            p_obj->tx_buff.p_buffer = p_tx;
-            p_obj->tx_buff.length = (uint32_t)tx_length;
-            p_obj->tx_buff.pos = 0;
-            p_obj->rx_buff.p_buffer = p_rx;
-            p_obj->rx_buff.length = (uint32_t)rx_length;
-            p_obj->rx_buff.pos = 0;
-            p_obj->info.asynch.state = I2C_TRANSFER_STATE_BUSY;
-            I2C_enable_interrupt(&p_obj->i2c);
-            if ((tx_length == 0) && (rx_length != 0))
-            {
-                I2C_start_condition(&p_obj->i2c, (uint32_t)((uint32_t)address | 1U));
-            }
-            else
-            {
-                I2C_start_condition(&p_obj->i2c, (uint32_t)address);
-            }
-            p_obj->info.bus_free = 0;
-            p_obj->info.start = 0;
-            enable_irq(p_obj->info.irqn);
-            result = TXZ_SUCCESS;
+            I2C_start_condition(&p_obj->i2c, (uint32_t)((uint32_t)address | 1U));
         }
+        else
+        {
+            I2C_start_condition(&p_obj->i2c, (uint32_t)address);
+        }
+        p_obj->info.bus_free = 0;
+        p_obj->info.start = 0;
+        enable_irq(p_obj->info.irqn);
+        result = TXZ_SUCCESS;
     }
     return (result);
 }

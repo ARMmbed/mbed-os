@@ -59,6 +59,7 @@ AT_CellularContext::~AT_CellularContext()
 {
     tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
 
+    _is_blocking = true;
     (void)disconnect();
 
     if (_nw) {
@@ -384,9 +385,8 @@ bool AT_CellularContext::get_context()
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
-                // Accept exact matching PDP context type or dual PDP context for IPv4/IPv6 only modems
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
-                        ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
+                // Accept exact matching PDP context type
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type))) {
                     _pdp_type = pdp_type;
                     _cid = cid;
                 }
@@ -659,15 +659,14 @@ void AT_CellularContext::ppp_disconnected()
 
 #endif //#if NSAPI_PPP_AVAILABLE
 
-nsapi_error_t AT_CellularContext::disconnect()
+void AT_CellularContext::do_disconnect()
 {
-    tr_info("CellularContext disconnect()");
     if (!_nw || !_is_connected) {
         if (_new_context_set) {
             delete_current_context();
         }
         _cid = -1;
-        return NSAPI_ERROR_NO_CONNECTION;
+        _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
     }
 
     // set false here so callbacks know that we are not connected and so should not send DISCONNECTED
@@ -703,8 +702,22 @@ nsapi_error_t AT_CellularContext::disconnect()
         delete_current_context();
     }
     _cid = -1;
+    _cb_data.error = _at.unlock_return_error();
+}
 
-    return _at.unlock_return_error();
+nsapi_error_t AT_CellularContext::disconnect()
+{
+    tr_info("CellularContext disconnect()");
+    if (_is_blocking) {
+        do_disconnect();
+        return _cb_data.error;
+    } else {
+        int event_id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_disconnect);
+        if (event_id == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        return NSAPI_ERROR_OK;
+    }
 }
 
 void AT_CellularContext::deactivate_ip_context()

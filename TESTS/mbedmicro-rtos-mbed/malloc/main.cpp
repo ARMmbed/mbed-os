@@ -39,7 +39,7 @@ volatile bool thread_should_continue = true;
 #define THREAD_STACK_SIZE   512
 #elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #define THREAD_STACK_SIZE   512
-#elif defined(__ARM_FM)
+#elif defined(TARGET_ARM_FM)
 #define THREAD_STACK_SIZE   512
 #elif defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define THREAD_STACK_SIZE   512
@@ -122,7 +122,7 @@ void test_alloc_and_free(void)
     int size = SIZE_INCREMENTS;
     int loop = ALLOC_LOOP;
     while (loop) {
-        data = malloc(size);
+        data = count < ALLOC_ARRAY_SIZE ? malloc(size) : NULL;
         if (NULL != data) {
             array[count++] = data;
             memset((void *)data, 0xdeadbeef, size);
@@ -211,7 +211,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(test_timeout, "timing_drift_auto");
+    GREENTEA_SETUP(test_timeout, "default_auto");
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
 

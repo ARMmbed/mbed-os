@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "i2c_api.h"
+
+#if DEVICE_I2C
+
 #include "mbed_assert.h"
 #include "dma_api.h"
-#include "i2c_api.h"
 #include "cmsis.h"
 #include "PeripheralPins.h"
 #include "r_typedefs.h"
@@ -1155,3 +1158,4 @@ void i2c_abort_asynch(i2c_t *obj)
 }
 
 #endif
+#endif  // #if DEVICE_I2C

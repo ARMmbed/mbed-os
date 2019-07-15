@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides constants and function prototypes
@@ -36,6 +36,33 @@
 #include "cy_syslib.h"
 
 /** \cond INTERNAL */
+
+typedef struct
+{
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
+    uint32_t block[CY_CRYPTO_SHA1_BLOCK_SIZE / 4u];
+
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
+    uint32_t hash[CY_CRYPTO_SHA1_HASH_SIZE / 4u];
+} cy_stc_crypto_v2_sha1_buffers_t;
+
+typedef struct
+{
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
+    uint32_t block[CY_CRYPTO_SHA256_BLOCK_SIZE / 4u];
+
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
+    uint32_t hash[CY_CRYPTO_SHA256_HASH_SIZE / 4u];
+} cy_stc_crypto_v2_sha256_buffers_t;
+
+typedef struct
+{
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
+    uint32_t block[CY_CRYPTO_SHA512_BLOCK_SIZE / 4u];
+
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
+    uint32_t hash[CY_CRYPTO_SHA512_HASH_SIZE / 4u];
+} cy_stc_crypto_v2_sha512_buffers_t;
 
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
                                 cy_stc_crypto_sha_state_t *hashState,

@@ -167,7 +167,7 @@ bool CellularStateMachine::open_sim()
 
     if (sim_ready) {
         _cb_data.error = _network.set_registration(_plmn);
-        tr_debug("STM: set_registration: %d, plmn: %s", _cb_data.error, _plmn);
+        tr_debug("STM: set_registration: %d, plmn: %s", _cb_data.error, _plmn ? _plmn : "NULL");
         if (_cb_data.error) {
             return false;
         }

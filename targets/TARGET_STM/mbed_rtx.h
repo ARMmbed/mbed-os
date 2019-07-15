@@ -91,12 +91,13 @@
 #elif (defined(TARGET_STM32F207ZG) ||\
        defined(TARGET_STM32F405RG) ||\
        defined(TARGET_STM32F407VG) ||\
+       defined(TARGET_STM32F407VE) ||\
        defined(TARGET_STM32F411RE) ||\
        defined(TARGET_STM32F446RE) ||\
        defined(TARGET_STM32F446VE) ||\
        defined(TARGET_STM32F446ZE) ||\
-       defined(TARGET_STM32H743ZI) ||\
-       defined(TARGET_STM32H753ZI))
+       defined(TARGET_STM32H743xI) ||\
+       defined(TARGET_STM32H753xI))
 #define INITIAL_SP              (0x20020000UL)
 
 #elif (defined(TARGET_STM32F429ZI) ||\

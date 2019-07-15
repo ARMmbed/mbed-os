@@ -264,7 +264,7 @@ nsapi_error_t TLSSocketWrapper::continue_handshake()
     tr_info("TLS connection established");
 #endif
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C) && defined(FEA_TRACE_SUPPORT)
     /* Prints the server certificate and verify it. */
     const size_t buf_size = 1024;
     char *buf = new char[buf_size];

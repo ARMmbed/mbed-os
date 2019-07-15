@@ -19,12 +19,13 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_wait_api.h"
 
+#include "hal/lp_ticker_api.h"
+#include "hal/us_ticker_api.h"
+#include "hal/ticker_api.h"
+
 // This implementation of the wait functions will be compiled only
 // if the RTOS is not present.
 #ifndef MBED_CONF_RTOS_PRESENT
-
-#include "hal/lp_ticker_api.h"
-#include "hal/us_ticker_api.h"
 
 void wait(float s)
 {
@@ -42,24 +43,55 @@ void wait_ms(int ms)
 #endif
 }
 
+#endif // #ifndef MBED_CONF_RTOS_PRESENT
+
+// This wait_us is used by both RTOS and non-RTOS builds
+/*  The actual time delay may be 1 less usec */
+
+#if DEVICE_USTICKER
+
+#if defined US_TICKER_PERIOD_NUM
+/* Real definition for binary compatibility with binaries not using the new macro */
+void (wait_us)(int us)
+{
+    wait_us(us);
+}
+
+/* External definition for the inline function */
+extern void _wait_us_inline(unsigned int us);
+
+void _wait_us_ticks(uint32_t ticks)
+{
+    const uint32_t start = us_ticker_read();
+    while (((us_ticker_read() - start) & US_TICKER_MASK) < ticks);
+}
+
+void _wait_us_generic(unsigned int us)
+#else
+void wait_us(int us)
+#endif
+{
+    // Generic version using full ticker, allowing for initialization, scaling and widening of timer
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    const uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)us);
+}
+
+#else // DEVICE_USTICKER
+
+// fallback to wait_ns for targets without usticker
 void wait_us(int us)
 {
-#if DEVICE_USTICKER
-    const ticker_data_t *const ticker = get_us_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)us);
-#else // fallback to wait_ns for targets without usticker
-    while (us > 1000) {
-        us -= 1000;
-        wait_ns(1000000);
+    while (us > 1024) {
+        us -= 1024;
+        wait_ns(1024000);
     }
     if (us > 0) {
         wait_ns(us * 1000);
     }
-#endif // DEVICE_USTICKER
 }
 
-#endif // #ifndef MBED_CONF_RTOS_PRESENT
+#endif // DEVICE_USTICKER
 
 // This wait_ns is used by both RTOS and non-RTOS builds
 
@@ -100,7 +132,7 @@ void wait_us(int us)
  * the hassle of handling multiple toolchains with different assembler
  * syntax.
  */
-MBED_ALIGN(8)
+MBED_ALIGN(16)
 static const uint16_t delay_loop_code[] = {
     0x1E40, // SUBS R0,R0,#1
     0xBF00, // NOP
@@ -110,7 +142,7 @@ static const uint16_t delay_loop_code[] = {
 };
 
 /* Take the address of the code, set LSB to indicate Thumb, and cast to void() function pointer */
-#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code | 1))
+#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code + 1))
 
 void wait_ns(unsigned int ns)
 {

@@ -5,7 +5,7 @@
 * CY8C68237FM-BLE device header
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright

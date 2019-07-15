@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes.h
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides constant and parameters for the API for the AES method
@@ -35,11 +35,13 @@
 
 #include "cy_crypto_core_aes_v1.h"
 #include "cy_crypto_core_aes_v2.h"
+#include "cy_crypto_core_hw.h"
 
 typedef cy_en_crypto_status_t (*cy_crypto_aes_init_func_t)(CRYPTO_Type *base,
                                                  uint8_t const *key,
                                                  cy_en_crypto_aes_key_length_t keyLength,
-                                                 cy_stc_crypto_aes_state_t *aesState);
+                                                 cy_stc_crypto_aes_state_t *aesState,
+                                                 cy_stc_crypto_aes_buffers_t *aesBuffers);
 
 typedef cy_en_crypto_status_t (*cy_crypto_aes_ecb_func_t)(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
@@ -50,7 +52,7 @@ typedef cy_en_crypto_status_t (*cy_crypto_aes_ecb_func_t)(CRYPTO_Type *base,
 typedef cy_en_crypto_status_t (*cy_crypto_aes_cbc_func_t)(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState);
@@ -58,7 +60,7 @@ typedef cy_en_crypto_status_t (*cy_crypto_aes_cbc_func_t)(CRYPTO_Type *base,
 typedef cy_en_crypto_status_t (*cy_crypto_aes_cfb_func_t)(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState);
@@ -107,13 +109,95 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Init(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    cy_stc_crypto_aes_buffers_t *aesBuffers = (cy_stc_crypto_aes_buffers_t *)Cy_Crypto_Core_GetVuMemoryAddress(base);
+
+    if (CY_CRYPTO_V1)
     {
-        tmpResult = Cy_Crypto_Core_V1_Aes_Init(base, key, keyLength, aesState);
+        tmpResult = Cy_Crypto_Core_V1_Aes_Init(base, key, keyLength, aesState, aesBuffers);
     }
     else
     {
-        tmpResult = Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState);
+        tmpResult = Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState, aesBuffers);
+    }
+
+    return tmpResult;
+}
+
+/*******************************************************************************
+* Function Name: Cy_Crypto_Core_Aes_InitContext
+****************************************************************************//**
+*
+* Initializes AES mode of operation and prepares an inverse key.
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+* \param key
+* The pointer to the encryption/decryption key.
+*
+* \param keyLength
+* \ref cy_en_crypto_aes_key_length_t
+*
+* \param aesState
+* The pointer to the AES state structure allocated by the user. The user
+* must not modify anything in this structure.
+*
+* \param aesBuffers
+* The pointer to the memory buffers storage.
+*
+* \return
+* \ref cy_en_crypto_status_t
+*
+*******************************************************************************/
+__STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_InitContext(CRYPTO_Type *base,
+                                                 uint8_t const *key,
+                                                 cy_en_crypto_aes_key_length_t keyLength,
+                                                 cy_stc_crypto_aes_state_t *aesState,
+                                                 cy_stc_crypto_aes_buffers_t *aesBuffers)
+{
+    cy_en_crypto_status_t tmpResult;
+
+    if (CY_CRYPTO_V1)
+    {
+        tmpResult = Cy_Crypto_Core_V1_Aes_Init(base, key, keyLength, aesState, aesBuffers);
+    }
+    else
+    {
+        tmpResult = Cy_Crypto_Core_V2_Aes_Init(base, key, keyLength, aesState, aesBuffers);
+    }
+
+    return tmpResult;
+}
+
+/*******************************************************************************
+* Function Name: Cy_Crypto_Core_Aes_Free
+****************************************************************************//**
+*
+* Clears AES operation context.
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+* \param aesState
+* The pointer to the AES state structure allocated by the user. The user
+* must not modify anything in this structure.
+*
+* \return
+* \ref cy_en_crypto_status_t
+*
+*******************************************************************************/
+__STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Free(CRYPTO_Type *base,
+                                                 cy_stc_crypto_aes_state_t *aesState)
+{
+    cy_en_crypto_status_t tmpResult;
+
+    if (CY_CRYPTO_V1)
+    {
+        tmpResult = Cy_Crypto_Core_V1_Aes_Free(base, aesState);
+    }
+    else
+    {
+        tmpResult = Cy_Crypto_Core_V2_Aes_Free(base, aesState);
     }
 
     return tmpResult;
@@ -154,7 +238,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Ecb(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Aes_Ecb(base, dirMode, dst, src, aesState);
     }
@@ -203,14 +287,14 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Ecb(CRYPTO_Type *base,
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Cbc(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState)
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Aes_Cbc(base, dirMode, srcSize, ivPtr, dst, src, aesState);
     }
@@ -259,14 +343,14 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Cbc(CRYPTO_Type *base,
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Cfb(CRYPTO_Type *base,
                                                 cy_en_crypto_dir_mode_t dirMode,
                                                 uint32_t srcSize,
-                                                uint8_t const *ivPtr,
+                                                uint8_t *ivPtr,
                                                 uint8_t *dst,
                                                 uint8_t const *src,
                                                 cy_stc_crypto_aes_state_t *aesState)
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Aes_Cfb(base, dirMode, srcSize, ivPtr, dst, src, aesState);
     }
@@ -295,7 +379,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Cfb(CRYPTO_Type *base,
 * current cipher stream.
 *
 * \param ivPtr
-* The 128-bit nonce and counter.
+* The 128-bit initial vector that contains a 64-bit nonce and 64-bit counter.
 *
 * \param streamBlock
 * The saved stream-block for resuming. Is over-written by the function.
@@ -325,7 +409,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Aes_Ctr(CRYPTO_Type *base,
 {
     cy_en_crypto_status_t tmpResult;
 
-    if (CY_CRYPTO_HW_V1)
+    if (CY_CRYPTO_V1)
     {
         tmpResult = Cy_Crypto_Core_V1_Aes_Ctr(base, srcSize, srcOffset, ivPtr, streamBlock, dst, src, aesState);
     }

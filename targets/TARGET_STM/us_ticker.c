@@ -20,6 +20,7 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 #include "us_ticker_data.h"
+#include "us_ticker_defines.h"
 
 TIM_HandleTypeDef TimMasterHandle;
 
@@ -212,9 +213,10 @@ void us_ticker_init(void)
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 }
 
-uint32_t us_ticker_read()
+uint32_t (us_ticker_read)()
 {
-    return TIM_MST->CNT;
+    /* Invoke the macro */
+    return us_ticker_read();
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ble_clk.h
-* \version 3.10
+* \version 3.20
 * 
 * The header file of the BLE ECO clock driver.
 *
@@ -41,7 +41,7 @@
 * To configure the BLE ECO clock, call Cy_BLE_EcoConfigure(). 
 *
 * The following code shows how to configure the BLE ECO clock:
-* \snippet bleclk\3.0\snippet\main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
+* \snippet bleclk/snippet/main.c BLE ECO clock API: Cy_BLE_EcoConfigure()
 *
 * \section group_ble_clk_more_information More Information
 * See the BLE chapter of the device technical reference manual (TRM).
@@ -69,6 +69,11 @@
 * \section group_ble_clk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
+*   <tr>
+*     <td>3.20</td>
+*     <td>Updated the Cy_BLE_EcoConfigure(): it stores the ECO frequency for possible frequency calculation by the Cy_SysClk_ClkHfGetFrequency().</td>
+*     <td>API enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>3.10</td>
 *     <td>Updated the Cy_BLE_EcoConfigure() use case, when the voltageReg parameter is CY_BLE_ECO_VOLTAGE_REG_BLESSLDO
@@ -117,7 +122,7 @@ extern "C" {
 #define CY_BLE_CLK_DRV_VERSION_MAJOR    (3)
 
 /** Driver minor version */
-#define CY_BLE_CLK_DRV_VERSION_MINOR    (0)
+#define CY_BLE_CLK_DRV_VERSION_MINOR    (20)
 
 /** Driver ID */
 #define CY_BLE_CLK_ID                   (0x05UL << 18U)

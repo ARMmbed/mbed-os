@@ -29,6 +29,11 @@ namespace mbed {
 #define BG96_MAX_SEND_SIZE 1460
 #define BG96_SOCKET_BIND_FAIL 556
 
+typedef enum {
+    URC_RECV,
+    URC_CLOSED,
+} urc_type_t;
+
 class QUECTEL_BG96_CellularStack : public AT_CellularStack {
 public:
     QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
@@ -60,8 +65,12 @@ protected: // AT_CellularStack
                                                        void *buffer, nsapi_size_t size);
 
 private:
-    // URC handlers
-    void urc_qiurc();
+    // URC handler
+    void urc_qiurc(urc_type_t urc_type);
+    // URC handler for socket data being received
+    void urc_qiurc_recv();
+    // URC handler for socket being closed
+    void urc_qiurc_closed();
 
     void handle_open_socket_response(int &modem_connect_id, int &err);
 };

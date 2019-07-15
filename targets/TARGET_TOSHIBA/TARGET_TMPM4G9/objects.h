@@ -46,13 +46,23 @@ struct dac_s {
     TSB_DA_TypeDef *DACx;
 };
 
+typedef struct {
+    uint32_t BaudRate;
+    uint32_t DataBits;
+    uint32_t StopBits;
+    uint32_t Parity;
+    uint32_t Mode;
+    uint32_t FlowCtrl;
+} FUART_InitTypeDef;
+
 struct serial_s {
     uint32_t index;
     uint32_t mode;
+    uint8_t  is_using_fuart;
     TSB_UART_TypeDef *UARTx;
     TSB_FURT_TypeDef *FUARTx;
     uart_boudrate_t   boud_obj;
-    fuart_boudrate_t  fboud_obj;
+    FUART_InitTypeDef fuart_config;
 };
 
 struct pwmout_s {
@@ -66,9 +76,17 @@ struct pwmout_s {
 };
 
 struct spi_s {
-    uint8_t bits;
-    tspi_t  p_obj;
-    SPIName module;
+    uint8_t   bits;
+    tspi_t    p_obj;
+    SPIName   module;
+    PinName   clk_pin;
+    IRQn_Type rxirqn;
+    IRQn_Type txirqn;
+    IRQn_Type errirqn;
+#ifdef DEVICE_SPI_ASYNCH
+    uint32_t  event_mask;
+    uint8_t   state;
+#endif
 };
 
 struct gpio_irq_s {
@@ -91,9 +109,13 @@ struct analogin_s {
 };
 
 struct i2c_s {
-    int      address;
-    uint32_t index;
-    _i2c_t   my_i2c;
+    uint8_t   is_master;
+    uint32_t  index;
+    IRQn_Type irqn;
+    _i2c_t    my_i2c;
+#if DEVICE_I2C_ASYNCH
+    uint32_t  event_mask;
+#endif
 };
 
 #include "gpio_object.h"

@@ -45,6 +45,6 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
     .ANY (+RW, +ZI)
   }
 
-  ARM_LIB_STACK (0x20000320+0x30000) EMPTY -Stack_Size { ; stack
+  ARM_LIB_STACK (0x20000000+0x30000) EMPTY -Stack_Size { ; stack
   }
 }

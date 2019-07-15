@@ -19,7 +19,7 @@
             "value": 4096
          },
          "idle-thread-stack-size-tickless-extra": {
-            "help": "Additional size to add to the idle thread when tickless is enabled and LPTICKER_DELAY_TICKS is used",
+            "help": "Additional size to add to the idle thread when a specific target or application implementation requires it or in case tickless is enabled and LPTICKER_DELAY_TICKS is used",
             "value": 256
          },
          "idle-thread-stack-size-debug-extra": {
@@ -49,6 +49,9 @@
 	    },
 	    "MCU_NRF51_UNIFIED": {
 	        "target.boot-stack-size": "0x800"
-	    }
+	    },
+        "NUVOTON": {
+            "idle-thread-stack-size-debug-extra": 512
+        }
     }
 }

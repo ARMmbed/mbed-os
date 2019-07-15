@@ -35,18 +35,18 @@
             },
             "linux": {
                 "MIMode": "gdb",
-                "MIDebuggerPath": "/usr/bin/arm-none-eabi-gdb",
+                "MIDebuggerPath": "arm-none-eabi-gdb",
                 "debugServerPath": "pyocd-gdbserver"
             },
             "osx": {
                 "MIMode": "gdb",
-                "MIDebuggerPath": "/usr/local/bin/arm-none-eabi-gdb",
+                "MIDebuggerPath": "arm-none-eabi-gdb",
                 "debugServerPath": "pyocd-gdbserver"
             },
             "windows": {
                 "preLaunchTask": "make.exe",
                 "MIMode": "gdb",
-                "MIDebuggerPath": "C:\\Program Files (x86)\\GNU Tools ARM Embedded\\6 2017-q1-update\\bin\\arm-none-eabi-gdb.exe",
+                "MIDebuggerPath": "arm-none-eabi-gdb.exe",
                 "debugServerPath": "pyocd-gdbserver.exe",
                 "setupCommands": [
                     { "text": "-environment-cd ${workspaceRoot}\\BUILD" },

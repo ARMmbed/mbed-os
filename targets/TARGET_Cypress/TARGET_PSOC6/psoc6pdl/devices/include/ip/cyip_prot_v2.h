@@ -5,7 +5,7 @@
 * PROT IP definitions
 *
 * \note
-* Generator version: 1.4.0.1232
+* Generator version: 1.5.0.1274
 *
 ********************************************************************************
 * \copyright
@@ -91,7 +91,7 @@ typedef struct {
   */
 typedef struct {
   __IOM uint32_t MS_CTL;                        /*!< 0x00000000 Master control */
-   __IM uint32_t RESERVED[127];
+   __IM uint32_t MS_CTL_READ_MIR[127];          /*!< 0x00000004 Master control read mirror */
         PROT_MPU_MPU_STRUCT_V2_Type MPU_STRUCT[16]; /*!< 0x00000200 MPU structure */
 } PROT_MPU_V2_Type;                             /*!< Size = 1024 (0x400) */
 
@@ -375,6 +375,11 @@ typedef struct {
 #define PROT_MPU_V2_MS_CTL_PC_Msk               0xFUL
 #define PROT_MPU_V2_MS_CTL_PC_SAVED_Pos         16UL
 #define PROT_MPU_V2_MS_CTL_PC_SAVED_Msk         0xF0000UL
+/* PROT_MPU.MS_CTL_READ_MIR */
+#define PROT_MPU_V2_MS_CTL_READ_MIR_PC_Pos      0UL
+#define PROT_MPU_V2_MS_CTL_READ_MIR_PC_Msk      0xFUL
+#define PROT_MPU_V2_MS_CTL_READ_MIR_PC_SAVED_Pos 16UL
+#define PROT_MPU_V2_MS_CTL_READ_MIR_PC_SAVED_Msk 0xF0000UL
 
 
 #endif /* _CYIP_PROT_V2_H_ */

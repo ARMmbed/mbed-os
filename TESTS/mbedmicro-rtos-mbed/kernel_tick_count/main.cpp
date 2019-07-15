@@ -107,7 +107,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10, "timing_drift_auto");
+    GREENTEA_SETUP(10, "default_auto");
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
 

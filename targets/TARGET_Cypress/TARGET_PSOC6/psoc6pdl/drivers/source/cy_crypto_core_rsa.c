@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_rsa.c
-* \version 2.20
+* \version 2.30
 *
 * \brief
 *  This file provides the source code to the API to calculate
@@ -348,7 +348,7 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
 
     while (1)
     {
-        Cy_Crypto_Core_WaitForReady(base);
+        Cy_Crypto_Core_Vu_WaitForComplete(base);
 
         CY_CRYPTO_VU_TST(base, ra);
 
@@ -589,7 +589,7 @@ static void Cy_Crypto_Core_Rsa_MontMul(CRYPTO_Type *base,
     CY_CRYPTO_VU_LSL          (base, t,  t,    sh);
 
     CY_CRYPTO_VU_MOV_REG_TO_STATUS (base, status);
-    Cy_Crypto_Core_WaitForReady(base);
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     CY_CRYPTO_VU_XOR (base, tDouble, uDouble, t);
     CY_CRYPTO_VU_COND_SWAP_REG (base, CY_CRYPTO_VU_COND_CS, uDouble, tDouble);
@@ -681,7 +681,6 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
     CY_CRYPTO_VU_ALLOC_MEM(base, temp,      size);
 
     Cy_Crypto_Core_Rsa_MontTransform(base, xBar, myX, barrett, myN, size);
-    Cy_Crypto_Core_WaitForReady(base);
 
     CY_CRYPTO_VU_MOV(base, temp, myE);
     CY_CRYPTO_VU_SET_TO_ZERO(base, myReg0);
@@ -689,7 +688,7 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
     CY_CRYPTO_VU_CLSAME(base, REG, temp, myReg0);
 
     /* This is needed, otherwise clsame is wrong */
-    Cy_Crypto_Core_WaitForReady(base);
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     clsame = Cy_Crypto_Core_Vu_RegDataPtrRead(base, REG);
 
@@ -709,21 +708,21 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
         {
             /* myY = myY * xBar */
             Cy_Crypto_Core_Rsa_MontMul(base, myY, myY, xBar, nPrime, myN, size);
-            Cy_Crypto_Core_WaitForReady(base);
+            Cy_Crypto_Core_Vu_WaitForComplete(base);
 
             /* xBar = xBar ^ 2 */
             Cy_Crypto_Core_Rsa_MontMul(base, xBar, xBar, xBar, nPrime, myN, size);
-            Cy_Crypto_Core_WaitForReady(base);
+            Cy_Crypto_Core_Vu_WaitForComplete(base);
         }
         else
         {
             /* xBar = myY * xBar */
             Cy_Crypto_Core_Rsa_MontMul(base, xBar, myY, xBar, nPrime, myN, size);
-            Cy_Crypto_Core_WaitForReady(base);
+            Cy_Crypto_Core_Vu_WaitForComplete(base);
 
             /* myY = myY ^ 2 */
             Cy_Crypto_Core_Rsa_MontMul(base, myY, myY, myY, nPrime, myN, size);
-            Cy_Crypto_Core_WaitForReady(base);
+            Cy_Crypto_Core_Vu_WaitForComplete(base);
         }
     }
 
@@ -733,6 +732,8 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
 
     CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(myReg0) | CY_CRYPTO_VU_REG_BIT(xBar) | CY_CRYPTO_VU_REG_BIT(temp));
     CY_CRYPTO_VU_POP_REG(base);
+
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 }
 
 /**
@@ -794,8 +795,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
     uint32_t rBarReg             = 11u;
 
 
-    /* Clear all Crypto SRAM before operations */
-    Cy_Crypto_Core_MemSet(base, (void*)REG_CRYPTO_MEM_BUFF(base), 0x00u, (uint16_t)(cy_device->cryptoMemSize * 4u));
+    /* Clear all Crypto Buffer before operations */
+    Cy_Crypto_Core_MemSet(base, (void*)Cy_Crypto_Core_GetVuMemoryAddress(base), 0x00u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
 
     CY_CRYPTO_VU_ALLOC_MEM(base, yReg,             nBitLength);
     CY_CRYPTO_VU_ALLOC_MEM(base, xReg,             nBitLength);
@@ -813,7 +814,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
     if (barretCoef == NULL)
     {
         Cy_Crypto_Core_Rsa_BarrettGetU(base, barrettReg, modReg, nBitLength);
-        Cy_Crypto_Core_WaitForReady(base);
+        Cy_Crypto_Core_Vu_WaitForComplete(base);
     }
     else
     {
@@ -825,7 +826,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
         /* inverseModuloReg used here as temp variable */
         CY_CRYPTO_VU_SET_TO_ONE(base, inverseModuloReg);
         Cy_Crypto_Core_Rsa_MontTransform(base, rBarReg, inverseModuloReg, barrettReg, modReg, nBitLength);
-        Cy_Crypto_Core_WaitForReady(base);
+        Cy_Crypto_Core_Vu_WaitForComplete(base);
     }
     else
     {
@@ -835,7 +836,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
     if (inverseModulo == NULL)
     {
         Cy_Crypto_Core_Rsa_MontCoeff(base, inverseModuloReg, modReg, nBitLength);
-        Cy_Crypto_Core_WaitForReady(base);
+        Cy_Crypto_Core_Vu_WaitForComplete(base);
     }
     else
     {
@@ -861,6 +862,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
                                 CY_CRYPTO_VU_REG_BIT(eReg) | CY_CRYPTO_VU_REG_BIT(modReg) |
                                 CY_CRYPTO_VU_REG_BIT(inverseModuloReg) |
                                 CY_CRYPTO_VU_REG_BIT(barrettReg) | CY_CRYPTO_VU_REG_BIT(rBarReg));
+
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     return (tmpResult);
 }
@@ -903,8 +906,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
     uint32_t rBarReg             = 14u;
 
 
-    /* Clear all Crypto SRAM before operations */
-    Cy_Crypto_Core_MemSet(base, (void*)REG_CRYPTO_MEM_BUFF(base), 0x00u, (uint16_t)(cy_device->cryptoMemSize * 4u));
+    /* Clear all Crypto Buffer before operations */
+    Cy_Crypto_Core_MemSet(base, (void*)Cy_Crypto_Core_GetVuMemoryAddress(base), 0x00u, (uint16_t)Cy_Crypto_Core_GetVuMemorySize(base));
 
     CY_CRYPTO_VU_ALLOC_MEM(base, modReg,           nBitLength);
     CY_CRYPTO_VU_ALLOC_MEM(base, barrettReg,       nBitLength + 1u);
@@ -915,7 +918,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
     Cy_Crypto_Core_Vu_SetMemValue(base, modReg, nPtr, nBitLength);
 
     Cy_Crypto_Core_Rsa_BarrettGetU(base, barrettReg, modReg, nBitLength);
-    Cy_Crypto_Core_WaitForReady(base);
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     /* Copy calculated Barrett coefficient */
     Cy_Crypto_Core_Vu_GetMemValue(base, barretCoef, barrettReg, nBitLength + 1u);
@@ -923,18 +926,19 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
     /* inverseModuloReg used here as temp variable */
     CY_CRYPTO_VU_SET_TO_ONE(base, inverseModuloReg);
     Cy_Crypto_Core_Rsa_MontTransform(base, rBarReg, inverseModuloReg, barrettReg, modReg, nBitLength);
-    Cy_Crypto_Core_WaitForReady(base);
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     /* Copy calculated r-bar = (1 << size) mod modulo */
     Cy_Crypto_Core_Vu_GetMemValue(base, rBar, rBarReg, nBitLength);
 
     Cy_Crypto_Core_Rsa_MontCoeff(base, inverseModuloReg, modReg, nBitLength);
-    Cy_Crypto_Core_WaitForReady(base);
 
     /* Copy calculated inverse modulo */
     Cy_Crypto_Core_Vu_GetMemValue(base, inverseModulo, inverseModuloReg, nBitLength);
 
     CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(modReg) | CY_CRYPTO_VU_REG_BIT(inverseModuloReg) | CY_CRYPTO_VU_REG_BIT(barrettReg) | CY_CRYPTO_VU_REG_BIT(rBarReg));
+
+    Cy_Crypto_Core_Vu_WaitForComplete(base);
 
     return (tmpResult);
 }

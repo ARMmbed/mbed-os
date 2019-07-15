@@ -344,7 +344,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 {
 /* MBED */
   if ((hhcd->hc[ch_num].ep_is_in != direction)) {
-    if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL)){
+    if (hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL){
       /*  reconfigure the endpoint !!! from tx -> rx, and rx ->tx  */
       USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
       if (direction)

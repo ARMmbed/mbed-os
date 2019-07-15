@@ -63,6 +63,11 @@ static uint8_t i2c_get_index(i2c_t *obj)
             index = 1;
             break;
 #endif
+#ifdef I2C2
+        case I2C_2:
+            index = 2;
+            break;
+#endif
         default:
             printf("I2C module not available.. Out of bound access.");
             break;
@@ -82,6 +87,11 @@ static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
 #ifdef I2C1
         case I2C_1:
             clock = cmuClock_I2C1;
+            break;
+#endif
+#ifdef I2C2
+        case I2C_2:
+            clock = cmuClock_I2C2;
             break;
 #endif
         default:
@@ -109,6 +119,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     /* Initializing the I2C */
     /* Using default settings */
+    i2c_reset(obj);
     I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
     I2C_Init(obj->i2c.i2c, &i2cInit);
 
@@ -173,6 +184,11 @@ void i2c_enable_interrupt(i2c_t *obj, uint32_t address, uint8_t enable)
 #ifdef I2C1
         case 1:
             irq_number = I2C1_IRQn;
+            break;
+#endif
+#ifdef I2C2
+        case 2:
+            irq_number = I2C2_IRQn;
             break;
 #endif
     }
@@ -300,6 +316,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
 void i2c_reset(i2c_t *obj)
 {
+    i2c_enable_interrupt(obj, 0, false);
+    i2c_enable(obj, false);
     /* EMLib function */
     I2C_Reset(obj->i2c.i2c);
 }

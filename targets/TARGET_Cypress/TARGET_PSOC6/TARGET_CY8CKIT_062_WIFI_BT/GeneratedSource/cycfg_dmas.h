@@ -32,15 +32,19 @@
 extern "C" {
 #endif
 
+#define cpuss_0_dw0_0_chan_0_ENABLED 1U
 #define cpuss_0_dw0_0_chan_0_HW DW0
 #define cpuss_0_dw0_0_chan_0_CHANNEL 0
 #define cpuss_0_dw0_0_chan_0_IRQ cpuss_interrupts_dw0_0_IRQn
+#define cpuss_0_dw0_0_chan_1_ENABLED 1U
 #define cpuss_0_dw0_0_chan_1_HW DW0
 #define cpuss_0_dw0_0_chan_1_CHANNEL 1
 #define cpuss_0_dw0_0_chan_1_IRQ cpuss_interrupts_dw0_1_IRQn
+#define cpuss_0_dw1_0_chan_1_ENABLED 1U
 #define cpuss_0_dw1_0_chan_1_HW DW1
 #define cpuss_0_dw1_0_chan_1_CHANNEL 1
 #define cpuss_0_dw1_0_chan_1_IRQ cpuss_interrupts_dw1_1_IRQn
+#define cpuss_0_dw1_0_chan_3_ENABLED 1U
 #define cpuss_0_dw1_0_chan_3_HW DW1
 #define cpuss_0_dw1_0_chan_3_CHANNEL 3
 #define cpuss_0_dw1_0_chan_3_IRQ cpuss_interrupts_dw1_3_IRQn
