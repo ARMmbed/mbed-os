@@ -8557,6 +8557,7 @@
             "INTERRUPTIN",
             "EMAC",
             "SERIAL",
+            "SERIAL_FC",
             "STDIO_MESSAGES",
             "PWMOUT",
             "SPI",

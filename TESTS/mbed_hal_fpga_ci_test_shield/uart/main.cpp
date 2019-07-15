@@ -118,11 +118,13 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
     serial_init(&serial, tx, rx);
     serial_baud(&serial, baudrate);
     serial_format(&serial, data_bits, parity, stop_bits);
+#if DEVICE_SERIAL_FC
     if (use_flow_control) {
         serial_set_flow_control(&serial, FlowControlRTSCTS, rts, cts);
     } else {
         serial_set_flow_control(&serial, FlowControlNone, NC, NC);
     }
+#endif
 
     // Reset tester stats and select UART
     tester.peripherals_reset();
@@ -277,9 +279,11 @@ void test_init_free(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
     serial_init(&serial, tx, rx);
     serial_baud(&serial, 9600);
     serial_format(&serial, 8, ParityNone, 1);
+#if DEVICE_SERIAL_FC
     if (use_flow_control) {
         serial_set_flow_control(&serial, FlowControlRTSCTS, rts, cts);
     }
+#endif
     serial_free(&serial);
 }
 
@@ -302,28 +306,38 @@ void test_common_no_fc(PinName tx, PinName rx)
 
 Case cases[] = {
     // Every set of pins from every peripheral.
-    Case("init/free, FC on", all_ports<UARTPort, DefaultFormFactor, test_init_free>),
     Case("init/free, FC off", all_ports<UARTNoFCPort, DefaultFormFactor, test_init_free_no_fc>),
 
     // One set of pins from every peripheral.
-    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1> >),
     Case("basic, 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 1> >),
 
     // One set of pins from one peripheral.
     // baudrate
-    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<19200, 8, ParityNone, 1> >),
     Case("19200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<19200, 8, ParityNone, 1> >),
-    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1> >),
     Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<38400, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1> >),
     Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1> >),
+    // stop bits
+    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2> >),
+
+#if DEVICE_SERIAL_FC
+    // Every set of pins from every peripheral.
+    Case("init/free, FC on", all_ports<UARTPort, DefaultFormFactor, test_init_free>),
+
+    // One set of pins from every peripheral.
+    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1> >),
+
+    // One set of pins from one peripheral.
+    // baudrate
+    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<19200, 8, ParityNone, 1> >),
+    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1> >),
+    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1> >),
     // data bits: not tested (some platforms support 8 bits only)
     // parity
     Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityOdd, 1> >),
     Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityEven, 1> >),
     // stop bits
     Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 2> >),
-    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2> >),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
