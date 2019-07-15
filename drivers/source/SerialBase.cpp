@@ -133,14 +133,14 @@ void SerialBase::_deinit()
 void SerialBase::_enable_input(bool enable)
 {
     if (_rx_enabled != enable) {
-        if(enable && !_tx_enabled) {
+        if (enable && !_tx_enabled) {
             _init();
         }
 
         core_util_critical_section_enter();
         if (enable) {
             // Enable rx IRQ if attached (indicated by rx IRQ callback not NULL)
-            if(_irq[RxIrq]) {
+            if (_irq[RxIrq]) {
                 _irq[RxIrq].call();
                 serial_irq_set(&_serial, (SerialIrq)RxIrq, 1);
             }
@@ -161,14 +161,14 @@ void SerialBase::_enable_input(bool enable)
 void SerialBase::_enable_output(bool enable)
 {
     if (_tx_enabled != enable) {
-        if(enable && !_rx_enabled) {
+        if (enable && !_rx_enabled) {
             _init();
         }
 
         core_util_critical_section_enter();
         if (enable) {
             // Enable tx IRQ if attached (indicated by tx IRQ callback not NULL)
-            if(_irq[TxIrq]) {
+            if (_irq[TxIrq]) {
                 _irq[TxIrq].call();
                 serial_irq_set(&_serial, (SerialIrq)TxIrq, 1);
             }
