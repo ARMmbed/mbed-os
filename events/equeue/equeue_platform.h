@@ -64,6 +64,7 @@ extern "C" {
 // limited by the accuracy of this tick.
 //
 // Must intentionally overflow to 0 after 2^32-1
+void equeue_tick_init(void);
 unsigned equeue_tick(void);
 
 

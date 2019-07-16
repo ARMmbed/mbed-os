@@ -39,8 +39,16 @@ using namespace mbed;
 #include "rtos/Kernel.h"
 #include "platform/mbed_os_timer.h"
 
+void equeue_tick_init()
+{
+#if defined MBED_TICKLESS || !MBED_CONF_RTOS_PRESENT
+    mbed::internal::init_os_timer();
+#endif
+}
+
 unsigned equeue_tick()
 {
+#if defined MBED_TICKLESS || !MBED_CONF_RTOS_PRESENT
     // It is not safe to call get_ms_count from ISRs, both
     // because documentation says so, and because it will give
     // a stale value from the RTOS if the interrupt has woken
@@ -55,6 +63,14 @@ unsigned equeue_tick()
     } else {
         return rtos::Kernel::get_ms_count();
     }
+#else
+    // And this is the legacy behaviour - if running in
+    // non-tickless mode, this works fine, despite Mbed OS
+    // documentation saying no. (Most recent CMSIS-RTOS
+    // permits `ososKernelGetTickCount` from IRQ, and our
+    // `rtos::Kernel` wrapper copes too).
+    return rtos::Kernel::get_ms_count();
+#endif
 }
 
 #else
@@ -70,7 +86,6 @@ unsigned equeue_tick()
 #define ALIAS_TIMEOUT    Timeout
 #endif
 
-static bool equeue_tick_inited = false;
 static volatile unsigned equeue_minutes = 0;
 static unsigned equeue_timer[
      (sizeof(ALIAS_TIMER) + sizeof(unsigned) - 1) / sizeof(unsigned)];
@@ -83,7 +98,7 @@ static void equeue_tick_update()
     reinterpret_cast<ALIAS_TIMER *>(equeue_timer)->reset();
 }
 
-static void equeue_tick_init()
+void equeue_tick_init()
 {
     MBED_STATIC_ASSERT(sizeof(equeue_timer) >= sizeof(ALIAS_TIMER),
                        "The equeue_timer buffer must fit the class Timer");
@@ -95,16 +110,10 @@ static void equeue_tick_init()
     equeue_minutes = 0;
     timer->start();
     ticker->attach_us(equeue_tick_update, 1000 << 16);
-
-    equeue_tick_inited = true;
 }
 
 unsigned equeue_tick()
 {
-    if (!equeue_tick_inited) {
-        equeue_tick_init();
-    }
-
     unsigned minutes;
     unsigned ms;
 

@@ -80,6 +80,7 @@ int equeue_create_inplace(equeue_t *q, size_t size, void *buffer)
     q->slab.data = q->buffer;
 
     q->queue = 0;
+    equeue_tick_init();
     q->tick = equeue_tick();
     q->generation = 0;
     q->break_requested = false;
