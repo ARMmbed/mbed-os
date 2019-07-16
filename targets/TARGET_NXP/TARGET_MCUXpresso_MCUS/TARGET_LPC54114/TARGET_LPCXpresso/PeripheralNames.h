@@ -94,7 +94,7 @@ typedef enum {
     ADC0_SE11 = 11,
 } ADCName;
 
-
+#define SSELNUM_SHIFT    16
 typedef enum {
     SPI_0 = Flexcomm3,
     SPI_1 = Flexcomm5

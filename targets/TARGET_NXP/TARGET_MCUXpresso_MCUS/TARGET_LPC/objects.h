@@ -58,6 +58,7 @@ struct i2c_s {
 struct spi_s {
     uint32_t instance;
     uint8_t bits;
+    uint8_t ssel_num;
 };
 
 #if DEVICE_FLASH && !defined(TARGET_FLASH_CMSIS_ALGO)
