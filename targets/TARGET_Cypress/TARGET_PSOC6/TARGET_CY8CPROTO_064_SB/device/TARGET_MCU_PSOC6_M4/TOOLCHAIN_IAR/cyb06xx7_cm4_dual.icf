@@ -66,11 +66,11 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
 }
 
 if (!isdefinedsymbol(MBED_RAM_START)) {
-  define symbol MBED_RAM_START = 0x08002000;
+  define symbol MBED_RAM_START = 0x08000000;
 }
 
 if (!isdefinedsymbol(MBED_RAM_SIZE)) {
-  define symbol MBED_RAM_SIZE = 0x0001E000;
+  define symbol MBED_RAM_SIZE = 0x00020000;
 }
 
 if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {

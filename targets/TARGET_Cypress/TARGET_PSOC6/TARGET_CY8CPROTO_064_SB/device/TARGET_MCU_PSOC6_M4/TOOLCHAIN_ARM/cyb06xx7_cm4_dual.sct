@@ -67,11 +67,11 @@
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08002000
+  #define MBED_RAM_START    0x08000000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x0001E000
+  #define MBED_RAM_SIZE     0x00020000
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -133,23 +133,9 @@
 #define EFUSE_START             0x90700000
 #define EFUSE_SIZE              0x100000
 
-; Size and start address of the Cortex-M0+ application image
-#define FLASH_CM0P_SIZE         0x40000
-#define FLASH_CM0P_START        (FLASH_START + FLASH_SIZE - FLASH_CM0P_SIZE)
-
 ; Size and start address of the Cortex-M4 application image
-#define FLASH_CM4_SIZE          (FLASH_SIZE - FLASH_CM0P_SIZE)
+#define FLASH_CM4_SIZE          FLASH_SIZE
 #define FLASH_CM4_START         FLASH_START
-
-
-; Cortex-M0+ application image
-LR_IROM FLASH_CM0P_START FLASH_CM0P_SIZE
-{
-    .cy_m0p_image +0 FLASH_CM0P_SIZE
-    {
-        * (.cy_m0p_image)
-    }
-}
 
 ; Cortex-M4 application image
 LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
@@ -184,13 +170,15 @@ LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
     }
 
     ; Application heap area (HEAP)
-    ARM_LIB_HEAP  +0 EMPTY ((RAM_START+RAM_SIZE)-AlignExpr(ImageLimit(RW_IRAM1), 8)-STACK_SIZE)
+    ARM_LIB_HEAP  +0
     { 
+        * (HEAP) 
     }
     
     ; Stack region growing down
-    ARM_LIB_STACK (RAM_START+RAM_SIZE) EMPTY -STACK_SIZE
+    ARM_LIB_STACK RAM_START+RAM_SIZE -STACK_SIZE 
     {
+        * (STACK)
     }
 
     ; Used for the digital signature of the secure application and the

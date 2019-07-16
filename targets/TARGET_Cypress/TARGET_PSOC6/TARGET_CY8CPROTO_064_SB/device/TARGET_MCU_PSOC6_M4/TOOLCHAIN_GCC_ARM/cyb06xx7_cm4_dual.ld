@@ -65,11 +65,11 @@ ENTRY(Reset_Handler)
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08002000
+  #define MBED_RAM_START    0x08000000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x0001E000
+  #define MBED_RAM_SIZE     0x00020000
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -118,11 +118,8 @@ MEMORY
     efuse             (r)     : ORIGIN = 0x90700000, LENGTH = 0x100000     /*   1 MB */
 }
 
-/* Size and start address of the Cortex-M0+ application image */
-FLASH_CM0P_SIZE  = 0x40000;
-FLASH_CM0P_START = ORIGIN(flash) + LENGTH(flash) - FLASH_CM0P_SIZE;
 /* Size and start address of the Cortex-M4 application image */
-FLASH_CM4_SIZE   = LENGTH(flash) - FLASH_CM0P_SIZE;
+FLASH_CM4_SIZE   = LENGTH(flash);
 FLASH_CM4_START  = ORIGIN(flash);
 
 /* Library configurations */
@@ -164,15 +161,6 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 SECTIONS
 {
-     /* Cortex-M0+ application image */
-    .cy_m0p_image FLASH_CM0P_START :
-    {
-        . = ALIGN(4);
-        __cy_m0p_code_start = . ;
-        KEEP(*(.cy_m0p_image))
-        __cy_m0p_code_end = . ;
-    } > flash
-
     /* Cortex-M4 application image */
     .text FLASH_CM4_START :
     {
