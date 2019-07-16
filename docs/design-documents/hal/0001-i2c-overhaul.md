@@ -90,7 +90,11 @@ List of drivers and examples currently using the I2C interface:
 
   Enables or disables clock stretching for the I2C peripheral when in slave mode.
 
-- **Add** an `i2c_timeout` function to the API.
+- **Add** `i2c_set_clock_stretching` function to the API.
+
+  Enables or disables clock stretching for the I2C peripheral when in slave mode
+
+- **Add** `i2c_timeout` function to the API.
 
   Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable. Adding this function allows this to be set to a specific period before failing the transfer with a timeout error. Calling this function replaces the default timeout value. The default timeout value is based on I2C frequency and is computed as triple the amount of time it takes to send data over I2C. The timeout value should count the additional time needed by arbitration and clock stretching if any of these can happen.
 
