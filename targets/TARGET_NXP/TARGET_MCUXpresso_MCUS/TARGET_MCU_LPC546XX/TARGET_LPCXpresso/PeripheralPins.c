@@ -107,7 +107,7 @@ const PinMap PinMap_SPI_MISO[] = {
 const PinMap PinMap_SPI_SSEL[] = {
     {P0_1,  SPI_0, 2},
     {P3_30, SPI_1, 1},
-    {P4_6,  SPI_1, 2},
+    {P4_6,  SPI_1, ((1 << SSELNUM_SHIFT) | 2)},
     {NC  ,  NC   , 0}
 };
 

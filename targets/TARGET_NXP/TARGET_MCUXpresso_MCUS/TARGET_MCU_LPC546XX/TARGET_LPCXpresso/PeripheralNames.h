@@ -100,6 +100,7 @@ typedef enum {
     CAN_1 = 1
 } CANName;
 
+#define SSELNUM_SHIFT    16
 typedef enum {
     SPI_0 = Flexcomm3,
     SPI_1 = Flexcomm9
