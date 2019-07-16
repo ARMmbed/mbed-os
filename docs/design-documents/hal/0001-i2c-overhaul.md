@@ -87,6 +87,10 @@ List of drivers and examples currently using the I2C interface:
 
   All new HAL APIs must provide a free function to act as a destructor so that the resources used by the i2c instance can be reused. This is useful for OOP functionality in the platform API, and potentially reducing power consumption through the freeing of resources.
 
+- **Add** `i2c_set_clock_stretching` function to the API.
+
+  Enables or disables clock stretching for the I2C peripheral when in slave mode
+
 - **Add** `i2c_timeout` function to the API.
 
   Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable, adding this function will allow this to be set to a specific period before failing the transfer with a timeout error. Calling this function will replace default timeout value. Default timeout value is based on I2C frequency and is computed as triple amount of time it would take to send data over I2C. The timeout value should count the additional time needed by arbitration and clock stretching if any of these can happen
@@ -451,6 +455,9 @@ void i2c_abort_async(i2c_t *obj);
   - Returns the actual frequency that will be used.
   - Sets the frequency to use for the transfer.
   - Must leave all other configuration unchanged.
+- `i2c_set_clock_stretching`:
+  - Enables or disables clock stretching for the peripheral when in slave mode.
+  - Does nothing when called in master mode.
 - `i2c_timeout`:
   - Sets the transmision timeout to use for the following blocking transfers.
   - If the timeout is not set the default timeout is used.
