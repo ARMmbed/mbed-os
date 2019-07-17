@@ -20,6 +20,9 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
+/************GPIO***************/
+extern const PinMap PinMap_GPIO[];
+
 /************RTC***************/
 extern const PinMap PinMap_RTC[];
 

@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "device.h"
+#include "pinmap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -134,6 +135,18 @@ void gpio_init_out_ex(gpio_t *gpio, PinName pin, int value);
  * @param value     The value to be set for an output pin
  */
 void gpio_init_inout(gpio_t *gpio, PinName pin, PinDirection direction, PinMode mode, int value);
+
+/** Get the pins that support all GPIO tests
+ *
+ * Return a PinMap array of pins that support GPIO. The
+ * array is terminated with {NC, NC, 0}.
+ *
+ * Targets should override the weak implementation of this
+ * function to provide the actual pinmap for GPIO testing.
+ *
+ * @return PinMap array
+ */
+const PinMap *gpio_pinmap(void);
 
 /**@}*/
 

@@ -16,6 +16,47 @@
 
 #include "PeripheralPins.h"
 
+/************GPIO***************/
+const PinMap PinMap_GPIO[] = {
+    {PTA0, GPIO_X, 1},
+    {PTA1, GPIO_X, 1},
+    {PTA2, GPIO_X, 1},
+    {PTA3, GPIO_X, 1},
+    {PTA4, GPIO_X, 1},
+    {PTA18, GPIO_X, 1},
+    {PTA19, GPIO_X, 1},
+
+    {PTC4, GPIO_X, 1},
+    {PTC5, GPIO_X, 1},
+    {PTC6, GPIO_X, 1},
+    {PTC7, GPIO_X, 1},
+
+    {PTD1, GPIO_X, 1},
+    {PTD2, GPIO_X, 1},
+    {PTD3, GPIO_X, 1},
+    {PTD4, GPIO_X, 1},
+    {PTD5, GPIO_X, 1},
+    {PTD6, GPIO_X, 1},
+    {PTD7, GPIO_X, 1},
+
+    {PTE0, GPIO_X, 1},
+    {PTE1, GPIO_X, 1},
+    {PTE2, GPIO_X, 1},
+    {PTE3, GPIO_X, 1},
+    {PTE4, GPIO_X, 1},
+    {PTE16, GPIO_X, 1},
+    {PTE17, GPIO_X, 1},
+    {PTE18, GPIO_X, 1},
+    {PTE19, GPIO_X, 1},
+
+    {NC   , NC    , 0}
+};
+
+const PinMap *gpio_pinmap()
+{
+    return PinMap_GPIO;
+}
+
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
