@@ -165,6 +165,12 @@
             "SPI_MISO": "D12",
             "SPI_CLK": "D13",
             "SPI_CS": "D10"
+        },
+        "CC3220SF_LAUNCHXL": {
+            "SPI_MOSI": "D11",
+            "SPI_MISO": "D12",
+            "SPI_CLK": "D13",
+            "SPI_CS": "D10"
         }
     }
 }
