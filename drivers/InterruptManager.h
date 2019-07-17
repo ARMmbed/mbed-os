@@ -18,7 +18,7 @@
 #define MBED_INTERRUPTMANAGER_H
 
 #include "cmsis.h"
-#include "platform/source/CallChain.h"
+#include "platform/CallChain.h"
 #include "platform/PlatformMutex.h"
 #include "platform/NonCopyable.h"
 #include <string.h>
