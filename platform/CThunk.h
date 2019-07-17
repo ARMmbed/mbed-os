@@ -39,7 +39,7 @@
 #ifndef __CTHUNK_H__
 #define __CTHUNK_H__
 
-#include "platform/CThunkBase.h"
+#include "platform/source/CThunkBase.h"
 
 /**
  * Class for created a pointer with data bound to it
@@ -47,7 +47,7 @@
  * @note Synchronization level: Not protected
  */
 template<class T>
-class CThunk: public CThunkBase {
+class CThunk: private CThunkBase {
 public:
     typedef void (T::*CCallbackSimple)(void);
     typedef void (T::*CCallback)(void *context);
