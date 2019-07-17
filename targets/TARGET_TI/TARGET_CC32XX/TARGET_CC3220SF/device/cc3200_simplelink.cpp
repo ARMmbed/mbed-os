@@ -378,7 +378,7 @@ int CC3200_SIMPLELINK::scan(WiFiAccessPoint *res, unsigned count)
         while(triggeredScanTrials < MAX_SCAN_ATTEMPTS)
         {
             /* We wait for one second for the NWP to complete the initiated scan and collect results */
-            wait(1);
+            wait_ms(1000);
 
             /* Collect results form one-shot scans.*/
             ret = sl_WlanGetNetworkList(0, entries_count, netEntries);

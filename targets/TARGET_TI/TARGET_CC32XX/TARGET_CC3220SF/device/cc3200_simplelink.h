@@ -17,6 +17,7 @@
 
 #ifndef CC3200_SIMPLELINK_H
 #define CC3200_SIMPLELINK_H
+#include "mbed.h"
 #include <assert.h>
 #include "nsapi_types.h"
 #include "nsapi.h"
@@ -318,7 +319,7 @@ private:
     bool _fail;
     bool _closed;
     nsapi_connection_status_t _connection_status;
-    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     char _connected_ssid[SL_WLAN_SSID_MAX_LENGTH+1]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
     int _connected_channel;
     SlWlanNetworkEntry_t netEntries[MAX_SCAN_ENTRIES];

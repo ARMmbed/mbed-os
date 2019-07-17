@@ -48,17 +48,7 @@ extern "C" {
 #define TICKER_100_TICKS 100
 #define TICKER_500_TICKS 500
 
-
 #define MAX_FUNC_EXEC_TIME_US 30
-
-/* On CC3220SF, each write/read register access takes 800us. This is HW limitation, per TI,
- * http://e2e.ti.com/support/wireless_connectivity/simplelink_wifi_cc31xx_cc32xx/f/968/p/714873/2635552#2635552
- */
-#ifdef TARGET_TI
-#define TI_MAX_SET_INTERRUPT_EXEC_TIME_US      3400
-#define TI_MAX_DISABLE_INTERRUPT_EXEC_TIME_US  2000
-#endif
-
 #define DELTA_FUNC_EXEC_TIME_US 5
 #define NUM_OF_CALLS 100
 
