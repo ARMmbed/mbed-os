@@ -21,7 +21,7 @@
 #undef MBED_DEPRECATED_SINCE
 #define MBED_DEPRECATED_SINCE(...)
 
-#include "platform/CallChain.h"
+#include "platform/internal/CallChain.h"
 #include "cmsis.h"
 #include "platform/mbed_critical.h"
 
