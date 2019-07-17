@@ -23,15 +23,10 @@
 
 /* Override wait_ns to provide more accurate implementation
  *
- * At high HCLK rate, M2351 cannot provide zero-wait-state flash performance. Besides,
- * cache is off for non-secure land (for internal reason). To fix it, borrowing from
- * mbed-os/platform/mbed_wait_api_no_rtos.c wait_ns, we locate 'delay_loop_code' from
- * flash to SRAM to achieve zero-wait-state performance.
- *
- * NOTE1: With MPU, RAM is marked non-executable. We must mark RAM executable for
- *        running 'delay_loop_code' in SRAM.
- * NOTE2: Cache is on for secure land. This override is necessary only for non-secure
- *        land.
+ * NOTE1: NANO100 series doesn't support cache and so cannot provide zero-wait
+ *        state flash performance.
+ * NOTE2: NANO100 series doesn't support MPU. The mbed_mpu_manager...() MPU functions
+ *        are dummy.
  */
 
 // Cortex-M0+, M3, M4 and M23 take 5 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 2
