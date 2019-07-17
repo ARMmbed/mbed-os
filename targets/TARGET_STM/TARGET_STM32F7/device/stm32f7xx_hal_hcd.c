@@ -969,6 +969,7 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
       tmpreg |= USB_OTG_HCCHAR_CHENA;
       USBx_HC(chnum)->HCCHAR = tmpreg;
+      reactivate = 1;
     }
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
     // MBED: changed
