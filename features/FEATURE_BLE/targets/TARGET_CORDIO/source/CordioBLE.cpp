@@ -80,7 +80,7 @@ extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
  * This function will signal to the user code by calling signalEventsToProcess.
  * It is registered and called into the Wsf Stack.
  */
-extern "C" void wsf_mbed_ble_signal_event(void)
+extern "C" MBED_WEAK void wsf_mbed_ble_signal_event(void)
 {
     ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
 }
