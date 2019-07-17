@@ -66,5 +66,10 @@
     "TB_SENSE_1": {
         "default_test_configuration": "NO_NETWORK",
         "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
+    },
+    "CC3220SF": {
+        "nsapi.socket-stats-enable": true,
+        "default_test_configuration": "CC3220SF_WIFI",
+        "test_configurations": ["CC3220SF_WIFI"]
     }
 }
