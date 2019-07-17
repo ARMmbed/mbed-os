@@ -559,7 +559,7 @@ int serial_irq_handler_asynch(serial_t *obj)
 
     volatile int return_event = 0;
     uint8_t *buf = (uint8_t *)(obj->rx_buff.buffer);
-    uint8_t i = 0;
+    size_t i = 0;
 
     // TX PART:
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
