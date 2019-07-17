@@ -38,6 +38,11 @@ typedef struct {
     const PinName *pins;
 } PinList;
 
+typedef struct {
+    uint32_t count;
+    const int *peripheral;
+} PeripheralList;
+
 void pin_function(PinName pin, int function);
 void pin_mode(PinName pin, PinMode mode);
 
@@ -124,6 +129,15 @@ bool pinmap_find_peripheral_pins(const PinList *whitelist, const PinList *blackl
 bool pinmap_list_has_pin(const PinList *list, PinName pin);
 
 /**
+ * Check if the peripheral is in the list
+ *
+ * @param list peripheral list to check
+ * @param peripheral peripheral to check for in the list
+ * @return true if the peripheral is in the list, false otherwise
+ */
+bool pinmap_list_has_peripheral(const PeripheralList *list, int peripheral);
+
+/**
  * Get the pin list of pins to avoid during testing
  *
  * The restricted pin list is used to indicate to testing
@@ -138,6 +152,31 @@ bool pinmap_list_has_pin(const PinList *list, PinName pin);
  * @return Pointer to a pin list of pins to avoid
  */
 const PinList *pinmap_restricted_pins(void);
+
+/**
+ * Get the pin list of peripherals to avoid during testing
+ *
+ * The restricted peripheral list is used to indicate to testing
+ * that a peripheral should be skipped due to some caveat about it.
+ * For example, using the USB serial port during tests will interfere
+ * with the test runner and should be avoided.
+ *
+ * Targets should override the weak implementation of this
+ * function if they have peripherals which should be
+ * skipped during testing.
+ *
+ * @note Some targets use the same value for multiple
+ * different types of peripherals. For example SPI 0
+ * and UART 0 may both be identified by the peripheral
+ * value 0. If your target does this then do not
+ * use this function to skip peripherals, as this will
+ * unintentionally cause all peripherals with that value
+ * to be skipped. Instead these entries should be removed
+ * from the peripheral PinMap itself.
+ *
+ * @return Pointer to a peripheral list of peripheral to avoid
+ */
+const PeripheralList *pinmap_restricted_peripherals(void);
 
 #ifdef TARGET_FF_ARDUINO
 
