@@ -25,11 +25,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "Queue.h"
-#include "MemoryPool.h"
-#include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
-#include "mbed_rtos1_types.h"
+#include "rtos/Queue.h"
+#include "rtos/MemoryPool.h"
+#include "rtos/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_storage.h"
+#include "rtos/mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
@@ -37,6 +37,8 @@
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace rtos;
 #endif
+
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -95,7 +97,7 @@ public:
      *
      * @param   millisec  Not used (see note).
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context.
      * @note If blocking is required, use Mail::alloc_for or Mail::alloc_until
@@ -109,7 +111,7 @@ public:
      *
      * @param   millisec  Timeout value, or osWaitForever.
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
@@ -122,7 +124,7 @@ public:
      *
      * @param   millisec  Absolute timeout time, referenced to Kernel::get_ms_count().
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You cannot call this function from ISR context.
      * @note the underlying RTOS may have a limit to the maximum wait time
@@ -139,7 +141,7 @@ public:
      *
      * @param   millisec  Not used (see note).
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      * @note If blocking is required, use Mail::calloc_for or Mail::calloc_until
@@ -153,7 +155,7 @@ public:
      *
      * @param   millisec  Timeout value, or osWaitForever.
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
@@ -166,7 +168,7 @@ public:
      *
      * @param   millisec  Absolute timeout time, referenced to Kernel::get_ms_count().
      *
-     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or nullptr in case error.
      *
      * @note You cannot call this function from ISR context.
      * @note the underlying RTOS may have a limit to the maximum wait time
@@ -238,5 +240,5 @@ private:
 
 #endif
 
-
+#endif
 

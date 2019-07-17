@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_thread.h"
 #include "gpio_api.h"
 #include "ublox_low_level_api.h"
 
@@ -39,12 +40,10 @@ void ublox_mdm_init(void)
     // led should be off
     gpio_init_out_ex(&gpio, LED,       0);
     
-    // Can't use wait_ms() as RTOS isn't initialised yet
-    //wait_ms(50); // when USB cable is inserted the interface chip issues
+    // Can't use thread_sleep_for() as RTOS isn't initialised yet
+    //thread_sleep_for(50); // when USB cable is inserted the interface chip issues
     // Here's the code from the non-RTOS version
-    us_ticker_init();
-    uint32_t start = us_ticker_read();
-    while ((us_ticker_read() - start) < 50000);
+    wait_us(50000);
 }
 
 // For forwards compatibility
@@ -61,7 +60,7 @@ void ublox_mdm_powerOn(int usb)
     if (!modemOn) { // enable modem
         modemOn = true;
         gpio_init_out_ex(&gpio, MDMEN, 1);        // LDOEN:  1=on
-        wait_ms(1);                   // wait until supply switched off
+        thread_sleep_for(1);                      // wait until supply switched off
         // now we can safely enable the level shifters
         gpio_init_out_ex(&gpio, MDMLVLOE, 0);      // LVLEN:  0=enabled (uart/gpio)
         if (gpsOn) {
@@ -97,7 +96,7 @@ void ublox_gps_powerOn(void)
         gpsOn = true;
         // switch on power supply
         gpio_init_out_ex(&gpio, GPSEN, 1);          // LDOEN: 1=on
-        wait_ms(1);                     // wait until supply switched off
+        thread_sleep_for(1);                        // wait until supply switched off
         if (modemOn) {
             gpio_init_out_ex(&gpio, MDMILVLOE, 1);  // ILVLEN: 1=enabled (i2c)
         }

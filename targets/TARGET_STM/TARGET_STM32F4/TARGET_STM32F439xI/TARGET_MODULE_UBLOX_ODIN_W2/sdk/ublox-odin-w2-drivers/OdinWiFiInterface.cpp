@@ -1081,7 +1081,7 @@ void OdinWiFiInterface::handle_user_scan(user_scan_s *user_scan)
     cbRTSL_Status status = cbSTATUS_ERROR;
     for(int i = 0; (i < 10) && (status != cbSTATUS_OK); i++) {
         if(i > 0) {
-            wait_ms(500);
+            rtos::ThisThread::sleep_for(500);
         }
 
         cbMAIN_driverLock();

@@ -661,8 +661,8 @@ int DataFlashBlockDevice::_sync(void)
             break;
             /* wait the typical write period before trying again */
         } else {
-            DEBUG_PRINTF("wait_ms: %d\r\n", DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
-            wait_ms(DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
+            DEBUG_PRINTF("sleep_for: %d\r\n", DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
+            rtos::ThisThread::sleep_for(DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
         }
     }
 

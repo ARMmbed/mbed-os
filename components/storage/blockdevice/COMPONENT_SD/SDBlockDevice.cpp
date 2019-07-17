@@ -139,8 +139,8 @@
 #if DEVICE_SPI
 
 #include "SDBlockDevice.h"
+#include "rtos/ThisThread.h"
 #include "platform/mbed_debug.h"
-#include "platform/mbed_wait_api.h"
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
@@ -872,7 +872,7 @@ uint32_t SDBlockDevice::_go_idle_state()
         if (R1_IDLE_STATE == response) {
             break;
         }
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
     }
     return response;
 }

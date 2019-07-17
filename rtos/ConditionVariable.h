@@ -23,11 +23,13 @@
 #define CONDITIONVARIABLE_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "rtos/mbed_rtos_types.h"
 #include "rtos/Mutex.h"
 #include "rtos/Semaphore.h"
 
 #include "platform/NonCopyable.h"
+
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -326,6 +328,8 @@ protected:
 };
 
 }
+#endif
+
 #endif
 
 /** @}*/

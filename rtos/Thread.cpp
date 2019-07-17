@@ -26,6 +26,8 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_error.h"
 
+#if MBED_CONF_RTOS_PRESENT
+
 #define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
 MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
 MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
@@ -50,7 +52,7 @@ void Thread::constructor(uint32_t tz_module, osPriority priority,
     const uint32_t aligned_size = ALIGN_DOWN(stack_size - offset, 8);
 
     _tid = 0;
-    _dynamic_stack = (stack_mem == NULL);
+    _dynamic_stack = (stack_mem == nullptr);
     _finished = false;
     memset(&_attr, 0, sizeof(_attr));
     _attr.priority = priority;
@@ -94,9 +96,9 @@ osStatus Thread::start(mbed::Callback<void()> task)
         return osErrorParameter;
     }
 
-    if (_attr.stack_mem == NULL) {
+    if (_attr.stack_mem == nullptr) {
         _attr.stack_mem = new uint32_t[_attr.stack_size / sizeof(uint32_t)];
-        MBED_ASSERT(_attr.stack_mem != NULL);
+        MBED_ASSERT(_attr.stack_mem != nullptr);
     }
 
     //Fill the stack with a magic word for maximum usage checking
@@ -109,10 +111,10 @@ osStatus Thread::start(mbed::Callback<void()> task)
     _attr.cb_mem = &_obj_mem;
     _task = task;
     _tid = osThreadNew(Thread::_thunk, this, &_attr);
-    if (_tid == NULL) {
+    if (_tid == nullptr) {
         if (_dynamic_stack) {
-            delete[](uint32_t *)(_attr.stack_mem);
-            _attr.stack_mem = (uint32_t *)NULL;
+            delete[] _attr.stack_mem;
+            _attr.stack_mem = nullptr;
         }
         _mutex.unlock();
         _join_sem.release();
@@ -128,12 +130,12 @@ osStatus Thread::terminate()
     osStatus_t ret = osOK;
     _mutex.lock();
 
-    // Set the Thread's tid to NULL and
+    // Set the Thread's tid to nullptr and
     // release the semaphore before terminating
     // since this thread could be terminating itself
     osThreadId_t local_id = _tid;
     _join_sem.release();
-    _tid = (osThreadId_t)NULL;
+    _tid = nullptr;
     if (!_finished) {
         _finished = true;
         // if local_id == 0 Thread was not started in first place
@@ -154,7 +156,7 @@ osStatus Thread::join()
     // terminated or has been terminated. Once the mutex has
     // been locked it is ensured that the thread is deleted.
     _mutex.lock();
-    MBED_ASSERT(NULL == _tid);
+    MBED_ASSERT(nullptr == _tid);
     _mutex.unlock();
 
     // Release sem so any other threads joining this thread wake up
@@ -202,7 +204,7 @@ Thread::State Thread::get_state() const
 
     _mutex.lock();
 
-    if (_tid != NULL) {
+    if (_tid != nullptr) {
 #if defined(MBED_OS_BACKEND_RTX5)
         state = _obj_mem.state;
 #else
@@ -267,7 +269,7 @@ uint32_t Thread::stack_size() const
     uint32_t size = 0;
     _mutex.lock();
 
-    if (_tid != NULL) {
+    if (_tid != nullptr) {
         size = osThreadGetStackSize(_tid);
     }
 
@@ -281,7 +283,7 @@ uint32_t Thread::free_stack() const
     _mutex.lock();
 
 #if defined(MBED_OS_BACKEND_RTX5)
-    if (_tid != NULL) {
+    if (_tid != nullptr) {
         mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
@@ -297,7 +299,7 @@ uint32_t Thread::used_stack() const
     _mutex.lock();
 
 #if defined(MBED_OS_BACKEND_RTX5)
-    if (_tid != NULL) {
+    if (_tid != nullptr) {
         mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         size = ((uint32_t)thread->stack_mem + thread->stack_size) - thread->sp;
     }
@@ -312,7 +314,7 @@ uint32_t Thread::max_stack() const
     uint32_t size = 0;
     _mutex.lock();
 
-    if (_tid != NULL) {
+    if (_tid != nullptr) {
 #if defined(MBED_OS_BACKEND_RTX5)
         mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         uint32_t high_mark = 0;
@@ -415,8 +417,8 @@ Thread::~Thread()
     // terminate is thread safe
     terminate();
     if (_dynamic_stack) {
-        delete[](uint32_t *)(_attr.stack_mem);
-        _attr.stack_mem = (uint32_t *)NULL;
+        delete[] _attr.stack_mem;
+        _attr.stack_mem = nullptr;
     }
 }
 
@@ -425,10 +427,12 @@ void Thread::_thunk(void *thread_ptr)
     Thread *t = (Thread *)thread_ptr;
     t->_task();
     t->_mutex.lock();
-    t->_tid = (osThreadId)NULL;
+    t->_tid = nullptr;
     t->_finished = true;
     t->_join_sem.release();
     // rtos will release the mutex automatically
 }
 
 }
+
+#endif

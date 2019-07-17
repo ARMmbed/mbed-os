@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+/* mbed Microcontroller Library
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __MUTEX_H__
-#define __MUTEX_H__
+#ifndef MBED_RTOS_STORAGE_H
+#define MBED_RTOS_STORAGE_H
 
-#include <inttypes.h>
-#include "mbed_rtos_types.h"
-#include "mbed_rtos1_types.h"
+#if MBED_CONF_RTOS_PRESENT || defined(UNITTEST)
 
-namespace rtos {
-
-class Mutex {
-public:
-    Mutex();
-
-    Mutex(const char *name);
-
-    osStatus lock(uint32_t millisec = osWaitForever);
-
-    bool trylock();
-
-    bool trylock_for(uint32_t millisec);
-
-    bool trylock_until(uint64_t millisec);
-
-    osStatus unlock();
-
-    osThreadId_t get_owner();
-
-    ~Mutex();
-};
-
-}
+#include "mbed_rtx_storage.h"
 
 #endif
+
+#endif
+
+/** @}*/

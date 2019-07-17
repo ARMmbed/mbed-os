@@ -20,7 +20,7 @@
 
 #include "cellular/onboard_modem_api.h"
 #include "gpio_api.h"
-#include "platform/mbed_wait_api.h"
+#include "platform/mbed_thread.h"
 #include "PinNames.h"
 
 #define WAIT_AFTER_POWR_CHANGED	(1000)	// [msec.]
@@ -32,7 +32,7 @@ static void press_power_button(int time_ms)
     gpio_t gpio;
 
     gpio_init_out_ex(&gpio, PWRKEY, 1);
-    wait_ms(time_ms);
+    thread_sleep_for(time_ms);
     gpio_write(&gpio, 0);
 }
 
@@ -50,7 +50,7 @@ void onboard_modem_init()
     // Main UART Interface
     gpio_init_out_ex(&gpio, MDMDTR, 0);
 
-    wait_ms(WAIT_AFTER_POWR_CHANGED);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
 }
 
 void onboard_modem_deinit()
@@ -59,7 +59,7 @@ void onboard_modem_deinit()
 
     // Power supply OFF
     gpio_init_out_ex(&gpio, M_POWR, 0);
-    wait_ms(WAIT_AFTER_POWR_CHANGED);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
 }
 
 void onboard_modem_power_up()
@@ -68,10 +68,10 @@ void onboard_modem_power_up()
 
     // Power supply ON
     gpio_init_out_ex(&gpio, M_POWR, 1);
-    wait_ms(WAIT_AFTER_POWR_CHANGED);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
 
     // Turn on
-    wait_ms(100);
+    thread_sleep_for(100);
     press_power_button(200);
 }
 
@@ -81,7 +81,7 @@ void onboard_modem_power_down()
 
     // Power supply OFF
     gpio_init_out_ex(&gpio, M_POWR, 0);
-    wait_ms(WAIT_AFTER_POWR_CHANGED);
+    thread_sleep_for(WAIT_AFTER_POWR_CHANGED);
 }
 #endif //MODEM_ON_BOARD
 

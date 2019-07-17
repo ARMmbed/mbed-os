@@ -18,6 +18,7 @@
 #include "MbedTester.h"
 #include "fpga_config.h"
 #include "BlockDevice.h"
+#include "rtos/ThisThread.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_error.h"
 #include "drivers/MbedCRC.h"
@@ -1731,7 +1732,7 @@ uint8_t MbedTester::get_pwm_cycles_high()
 
 uint16_t MbedTester::get_analogmuxin_measurement()
 {
-    wait_ms(1);//wait for value to stabalize
+    rtos::ThisThread::sleep_for(1);//wait for value to stabalize
     //take snapshot of conversion value to make safe for reading
     set_snapshot();
     uint16_t an_mux_analogin_measurement = 0;

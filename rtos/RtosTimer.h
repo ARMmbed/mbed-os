@@ -23,12 +23,14 @@
 #define RTOS_TIMER_H
 
 #include <stdint.h>
-#include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
+#include "rtos/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_storage.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "platform/mbed_toolchain.h"
-#include "mbed_rtos1_types.h"
+#include "rtos/mbed_rtos1_types.h"
+
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -60,7 +62,7 @@ namespace rtos {
  RtosTimer timer(&blink);
  int main() {
      timer.start(1000); // call blink every 1s
-     wait_ms(5000);
+     ThisThread::sleep_for(5000);
      timer.stop(); // stop after 5s
  }
  @endcode
@@ -89,7 +91,7 @@ public:
     /** Create timer.
       @param   func      function to be executed by this timer.
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behavior. (default: osTimerPeriodic)
-      @param   argument  argument to the timer call back function. (default: NULL)
+      @param   argument  argument to the timer call back function. (default: nullptr)
       @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
@@ -100,7 +102,7 @@ public:
                           "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
     MBED_DEPRECATED_SINCE("mbed-os-5.2",
                           "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
-    RtosTimer(void (*func)(void const *argument), os_timer_type type = osTimerPeriodic, void *argument = NULL)
+    RtosTimer(void (*func)(void const *argument), os_timer_type type = osTimerPeriodic, void *argument = nullptr)
     {
         constructor(mbed::callback((void (*)(void *))func, argument), type);
     }
@@ -188,4 +190,4 @@ private:
 
 #endif
 
-
+#endif

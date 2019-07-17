@@ -23,7 +23,7 @@
 #define KERNEL_H
 
 #include <stdint.h>
-#include "cmsis_os2.h"
+#include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */

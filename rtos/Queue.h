@@ -22,11 +22,13 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "cmsis_os2.h"
-#include "mbed_rtos1_types.h"
-#include "mbed_rtos_storage.h"
+#include "rtos/mbed_rtos_types.h"
+#include "rtos/mbed_rtos1_types.h"
+#include "rtos/mbed_rtos_storage.h"
 #include "platform/mbed_error.h"
 #include "platform/NonCopyable.h"
+
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -185,8 +187,8 @@ public:
     osEvent get(uint32_t millisec = osWaitForever)
     {
         osEvent event;
-        T *data = NULL;
-        osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);
+        T *data = nullptr;
+        osStatus_t res = osMessageQueueGet(_id, &data, nullptr, millisec);
 
         switch (res) {
             case osOK:
@@ -218,5 +220,7 @@ private:
 /** @}*/
 
 } // namespace rtos
+
+#endif
 
 #endif // QUEUE_H

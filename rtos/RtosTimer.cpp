@@ -26,6 +26,8 @@
 
 #include <string.h>
 
+#if MBED_CONF_RTOS_PRESENT
+
 namespace rtos {
 
 void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type)
@@ -54,3 +56,5 @@ RtosTimer::~RtosTimer()
 }
 
 }
+
+#endif

@@ -81,5 +81,5 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     delete[] data;
 
-    wait(5.0);
+    ThisThread::sleep_for(5000);
 }

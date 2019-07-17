@@ -16,7 +16,7 @@
 
 #include "QSPIFBlockDevice.h"
 #include <string.h>
-#include "mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 
 #ifndef MBED_CONF_MBED_TRACE_ENABLE
 #define MBED_CONF_MBED_TRACE_ENABLE        0
@@ -1146,7 +1146,7 @@ bool QSPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
         retries++;
         //Read the Status Register from device
         memset(status_value, 0xFF, QSPI_MAX_STATUS_REGISTER_SIZE);

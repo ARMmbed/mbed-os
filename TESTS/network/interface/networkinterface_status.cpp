@@ -153,7 +153,7 @@ void NETWORKINTERFACE_STATUS_GET()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
         while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
-            wait(0.5);
+            ThisThread::sleep_for(500);
         }
 
         err = net->disconnect();

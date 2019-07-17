@@ -22,6 +22,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "cmsis.h"
 #include "platform/mbed_critical.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
@@ -33,11 +34,43 @@
 using namespace mbed;
 
 // Ticker operations
-#if MBED_CONF_RTOS_PRESENT
+#if MBED_CONF_RTOS_API_PRESENT
+
+#include "rtos/Kernel.h"
+#include "platform/mbed_os_timer.h"
+
+void equeue_tick_init()
+{
+#if defined MBED_TICKLESS || !MBED_CONF_RTOS_PRESENT
+    mbed::internal::init_os_timer();
+#endif
+}
 
 unsigned equeue_tick()
 {
-    return osKernelGetTickCount();
+#if defined MBED_TICKLESS || !MBED_CONF_RTOS_PRESENT
+    // It is not safe to call get_ms_count from ISRs, both
+    // because documentation says so, and because it will give
+    // a stale value from the RTOS if the interrupt has woken
+    // us out of sleep - the RTOS will not have updated its
+    // ticks yet.
+    if (core_util_is_isr_active()) {
+        // And the documentation further says that this
+        // should not be called from critical sections, for
+        // performance reasons, but I don't have a good
+        // current alternative!
+        return mbed::internal::os_timer->get_time() / 1000;
+    } else {
+        return rtos::Kernel::get_ms_count();
+    }
+#else
+    // And this is the legacy behaviour - if running in
+    // non-tickless mode, this works fine, despite Mbed OS
+    // documentation saying no. (Most recent CMSIS-RTOS
+    // permits `ososKernelGetTickCount` from IRQ, and our
+    // `rtos::Kernel` wrapper copes too).
+    return rtos::Kernel::get_ms_count();
+#endif
 }
 
 #else
@@ -53,7 +86,6 @@ unsigned equeue_tick()
 #define ALIAS_TIMEOUT    Timeout
 #endif
 
-static bool equeue_tick_inited = false;
 static volatile unsigned equeue_minutes = 0;
 static unsigned equeue_timer[
      (sizeof(ALIAS_TIMER) + sizeof(unsigned) - 1) / sizeof(unsigned)];
@@ -66,7 +98,7 @@ static void equeue_tick_update()
     reinterpret_cast<ALIAS_TIMER *>(equeue_timer)->reset();
 }
 
-static void equeue_tick_init()
+void equeue_tick_init()
 {
     MBED_STATIC_ASSERT(sizeof(equeue_timer) >= sizeof(ALIAS_TIMER),
                        "The equeue_timer buffer must fit the class Timer");
@@ -78,16 +110,10 @@ static void equeue_tick_init()
     equeue_minutes = 0;
     timer->start();
     ticker->attach_us(equeue_tick_update, 1000 << 16);
-
-    equeue_tick_inited = true;
 }
 
 unsigned equeue_tick()
 {
-    if (!equeue_tick_inited) {
-        equeue_tick_init();
-    }
-
     unsigned minutes;
     unsigned ms;
 
@@ -120,27 +146,28 @@ void equeue_mutex_unlock(equeue_mutex_t *m)
 
 
 // Semaphore operations
-#ifdef MBED_CONF_RTOS_PRESENT
+#ifdef MBED_CONF_RTOS_API_PRESENT
+
+#include "rtos/EventFlags.h"
+
+MBED_STATIC_ASSERT(sizeof(equeue_sema_t) == sizeof(rtos::EventFlags), "equeue_sema_t / rtos::EventFlags mismatch");
 
 int equeue_sema_create(equeue_sema_t *s)
 {
-    osEventFlagsAttr_t attr;
-    memset(&attr, 0, sizeof(attr));
-    attr.cb_mem = &s->mem;
-    attr.cb_size = sizeof(s->mem);
-
-    s->id = osEventFlagsNew(&attr);
-    return !s->id ? -1 : 0;
+    new (s) rtos::EventFlags("equeue");
+    return 0;
 }
 
 void equeue_sema_destroy(equeue_sema_t *s)
 {
-    osEventFlagsDelete(s->id);
+    rtos::EventFlags *ef = reinterpret_cast<rtos::EventFlags *>(s);
+    ef->~EventFlags();
 }
 
 void equeue_sema_signal(equeue_sema_t *s)
 {
-    osEventFlagsSet(s->id, 1);
+    rtos::EventFlags *ef = reinterpret_cast<rtos::EventFlags *>(s);
+    ef->set(1);
 }
 
 bool equeue_sema_wait(equeue_sema_t *s, int ms)
@@ -149,7 +176,8 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms)
         ms = osWaitForever;
     }
 
-    return (osEventFlagsWait(s->id, 1, osFlagsWaitAny, ms) == 1);
+    rtos::EventFlags *ef = reinterpret_cast<rtos::EventFlags *>(s);
+    return ef->wait_any(1, ms) == 1;
 }
 
 #else
@@ -157,7 +185,7 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms)
 // Semaphore operations
 int equeue_sema_create(equeue_sema_t *s)
 {
-    *s = false;
+    *s = 0;
     return 0;
 }
 
@@ -177,23 +205,21 @@ static void equeue_sema_timeout(equeue_sema_t *s)
 
 bool equeue_sema_wait(equeue_sema_t *s, int ms)
 {
-    int signal = 0;
     ALIAS_TIMEOUT timeout;
-    if (ms == 0) {
-        return false;
-    } else if (ms > 0) {
+    if (ms > 0) {
         timeout.attach_us(callback(equeue_sema_timeout, s), (us_timestamp_t)ms * 1000);
     }
 
     core_util_critical_section_enter();
-    while (!*s) {
+    while (!*s && ms != 0) {
         sleep();
         core_util_critical_section_exit();
+        __ISB();
         core_util_critical_section_enter();
     }
 
-    signal = *s;
-    *s = false;
+    int signal = *s;
+    *s = 0;
     core_util_critical_section_exit();
 
     return (signal > 0);

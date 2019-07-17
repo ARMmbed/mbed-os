@@ -25,6 +25,7 @@
 #ifndef MBED_WAIT_API_H
 #define MBED_WAIT_API_H
 
+#include "platform/mbed_toolchain.h"
 #include "platform/mbed_atomic.h"
 #include "device.h"
 
@@ -62,7 +63,16 @@ extern "C" {
  *    If the RTOS is present, this function spins to get the exact number of microseconds for
  *    microsecond precision up to 10 milliseconds. If delay is larger than 10 milliseconds and not in ISR, it is the same as
  *    `wait_ms`. We recommend `wait_us` and `wait_ms` over `wait`.
+ *
+ *  @deprecated
+ *    'wait' is deprecated in favor of explicit sleep functions. To sleep, 'wait' should be replaced by
+ *    'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call
+ *    'wait_us'. 'wait_us' is safe to call from ISR context.
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.14",
+                      "'wait' is deprecated in favor of explicit sleep functions. To sleep, 'wait' should be replaced by "
+                      "'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call "
+                      "'wait_us'. 'wait_us' is safe to call from ISR context.")
 void wait(float s);
 
 /** Waits a number of milliseconds.
@@ -72,7 +82,16 @@ void wait(float s);
  *  @note
  *    If the RTOS is present, it calls ThisThread::sleep_for(), which is same as CMSIS osDelay().
  *    You can't call this from interrupts, and it doesn't lock hardware sleep.
+ *
+ *  @deprecated
+ *    'wait_ms' is deprecated in favor of explicit sleep functions. To sleep, 'wait_ms' should be replaced by
+ *    'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call
+ *    'wait_us'. 'wait_us' is safe to call from ISR context.
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.14",
+                      "'wait_ms' is deprecated in favor of explicit sleep functions. To sleep, 'wait_ms' should be replaced by "
+                      "'ThisThread::sleep_for' (C++) or 'thread_sleep_for' (C). If you wish to wait (without sleeping), call "
+                      "'wait_us'. 'wait_us' is safe to call from ISR context.")
 void wait_ms(int ms);
 
 /** Waits a number of microseconds.
@@ -82,7 +101,7 @@ void wait_ms(int ms);
  *  @note
  *    This function always spins to get the exact number of microseconds.
  *    This will affect power and multithread performance. Therefore, spinning for
- *    millisecond wait is not recommended, and wait_ms() should
+ *    millisecond wait is not recommended, and ThisThread::sleep_for should
  *    be used instead.
  *
  *  @note You may call this function from ISR context, but large delays may

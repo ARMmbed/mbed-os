@@ -130,11 +130,6 @@ int UARTSerial::enable_output(bool enabled)
     return 0;
 }
 
-void UARTSerial::wait_ms(uint32_t millisec)
-{
-
-}
-
 void UARTSerial::set_flow_control(mbed::SerialBase::Flow, PinName, PinName)
 {
 

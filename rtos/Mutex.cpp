@@ -26,9 +26,11 @@
 #include "mbed_error.h"
 #include "mbed_assert.h"
 
+#if MBED_CONF_RTOS_PRESENT
+
 namespace rtos {
 
-Mutex::Mutex(): _count(0)
+Mutex::Mutex()
 {
     constructor();
 }
@@ -40,6 +42,7 @@ Mutex::Mutex(const char *name)
 
 void Mutex::constructor(const char *name)
 {
+    _count = 0;
     osMutexAttr_t attr =
     { 0 };
     attr.name = name ? name : "application_unnamed_mutex";
@@ -147,3 +150,5 @@ Mutex::~Mutex()
 }
 
 }
+
+#endif

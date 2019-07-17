@@ -45,7 +45,7 @@ void UDPSOCKET_SENDTO_REPEAT()
                 break;
             }
             oom_earlier = true;
-            wait(1);
+            ThisThread::sleep_for(1000);
             continue;
         }
         oom_earlier = false;

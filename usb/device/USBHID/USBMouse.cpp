@@ -17,9 +17,8 @@
 
 #include "stdint.h"
 #include "USBMouse.h"
-#include "PlatformMutex.h"
+#include "ThisThread.h"
 #include "usb_phy_api.h"
-#include "mbed_wait_api.h"
 
 
 USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
@@ -157,7 +156,7 @@ bool USBMouse::double_click()
         _mutex.unlock();
         return false;
     }
-    wait(0.1);
+    rtos::ThisThread::sleep_for(100);
     bool ret = click(MOUSE_LEFT);
 
     _mutex.unlock();
@@ -172,7 +171,7 @@ bool USBMouse::click(uint8_t button)
         _mutex.unlock();
         return false;
     }
-    wait(0.01);
+    rtos::ThisThread::sleep_for(10);
     bool ret = update(0, 0, 0, 0);
 
     _mutex.unlock();

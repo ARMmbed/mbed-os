@@ -228,7 +228,7 @@ void test_error_logging_multithread()
         errThread[i] = new Thread(osPriorityNormal1, THREAD_STACK_SIZE, NULL, NULL);
         errThread[i]->start(callback(err_thread_func, &error_status[i]));
     }
-    wait(2.0);
+    ThisThread::sleep_for(2000);
     for (i = 0; i < NUM_TEST_THREADS; i++) {
         errThread[i]->join();
     }

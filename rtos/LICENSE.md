@@ -3,12 +3,9 @@ as can be found: LICENSE-apache-2.0.txt.
 
 Files licensed under MIT:
 
-- TARGET_CORTEX/mbed_rtos1_types.h
 - TARGET_CORTEX/mbed_rtos_storage.h
 - TARGET_CORTEX/mbed_rtx_conf.h
 - TARGET_CORTEX/mbed_rtx_idle.cpp
-- TARGET_CORTEX/SysTimer.h
-- TARGET_CORTEX/SysTimer.cpp
 - ConditionVariable.cpp
 - ConditionVariable.h
 - EventFlags.cpp

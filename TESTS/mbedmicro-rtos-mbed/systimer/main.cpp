@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_TICKLESS
-#error [NOT_SUPPORTED] Tickless mode not supported for this target.
-#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -26,9 +23,10 @@
 extern "C" {
 #include "rtx_lib.h"
 }
-#include "rtos/TARGET_CORTEX/SysTimer.h"
+#include "platform/SysTimer.h"
 
-#define TEST_TICKS 42UL
+#define TEST_TICKS 42
+#define TEST_TICK_US (TEST_TICKS * 1000)
 #define DELAY_DELTA_US 2500ULL
 
 /*  Use a specific delta value for deep sleep, as entry/exit adds up extra latency.
@@ -40,29 +38,29 @@ extern "C" {
 #endif
 
 using namespace utest::v1;
+using mbed::internal::SysTimer;
 
-const us_timestamp_t DELAY_US = 1000000ULL * TEST_TICKS / OS_TICK_FREQ;
+const us_timestamp_t DELAY_US = TEST_TICK_US;
 
-// Override the handler() -- the SysTick interrupt must not be set as pending by the test code.
-class SysTimerTest: public rtos::internal::SysTimer {
+// The SysTick interrupt must not be set as pending by the test code.
+template <uint32_t US_IN_TICK>
+class SysTimerTest: public SysTimer<US_IN_TICK, false> {
 private:
     Semaphore _sem;
     virtual void handler()
     {
-        core_util_critical_section_enter();
-        _increment_tick();
-        core_util_critical_section_exit();
         _sem.release();
+        SysTimer<US_IN_TICK, false>::handler();
     }
 
 public:
     SysTimerTest() :
-        SysTimer(), _sem(0, 1)
+        SysTimer<US_IN_TICK, false>(), _sem(0, 1)
     {
     }
 
     SysTimerTest(const ticker_data_t *data) :
-        SysTimer(data), _sem(0, 1)
+        SysTimer<US_IN_TICK, false>(data), _sem(0, 1)
     {
     }
 
@@ -153,7 +151,7 @@ void mock_ticker_reset()
  */
 void test_created_with_zero_tick_count(void)
 {
-    SysTimerTest st;
+    SysTimerTest<1000> st;
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
 }
 
@@ -164,26 +162,27 @@ void test_created_with_zero_tick_count(void)
  * Then the tick count is not updated
  * When @a suspend and @a resume methods are called again after a delay
  * Then the tick count is updated
- *     and the number of ticks incremented is equal TEST_TICKS - 1
+ *     and the number of ticks incremented is equal TEST_TICKS
  * When @a suspend and @a resume methods are called again without a delay
  * Then the tick count is not updated
  */
 void test_update_tick(void)
 {
     mock_ticker_reset();
-    SysTimerTest st(&mock_ticker_data);
-    st.suspend(TEST_TICKS * 2);
-    TEST_ASSERT_EQUAL_UINT32(0, st.resume());
+    SysTimerTest<1000> st(&mock_ticker_data);
+    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
+    st.cancel_wake();
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
 
-    st.suspend(TEST_TICKS * 2);
+    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
     mock_ticker_timestamp = DELAY_US;
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.resume());
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.get_tick());
+    st.cancel_wake();
+    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.update_and_get_tick());
+    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.get_tick());
 
-    st.suspend(TEST_TICKS * 2);
-    TEST_ASSERT_EQUAL_UINT32(0, st.resume());
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.get_tick());
+    st.set_wake_time(st.get_tick() + TEST_TICKS * 2);
+    st.cancel_wake();
+    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS, st.get_tick());
 }
 
 /** Test get_time returns correct time
@@ -195,7 +194,7 @@ void test_update_tick(void)
 void test_get_time(void)
 {
     mock_ticker_reset();
-    SysTimerTest st(&mock_ticker_data);
+    SysTimerTest<1000> st(&mock_ticker_data);
     us_timestamp_t t1 = st.get_time();
 
     mock_ticker_timestamp = DELAY_US;
@@ -212,9 +211,9 @@ void test_get_time(void)
  */
 void test_cancel_tick(void)
 {
-    SysTimerTest st;
+    SysTimerTest<TEST_TICK_US> st;
     st.cancel_tick();
-    st.schedule_tick(TEST_TICKS);
+    st.start_tick();
 
     st.cancel_tick();
     bool acquired = st.sem_try_acquire((DELAY_US + DELAY_DELTA_US) / 1000ULL);
@@ -222,50 +221,41 @@ void test_cancel_tick(void)
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
 }
 
-/** Test schedule zero
- *
- * Given a SysTimer
- * When a tick is scheduled with delta = 0 ticks
- * Then the handler is called instantly
- */
-void test_schedule_zero(void)
-{
-    SysTimerTest st;
-
-    st.schedule_tick(0UL);
-    bool acquired = st.sem_try_acquire(0);
-    TEST_ASSERT_TRUE(acquired);
-}
-
-/** Test handler called once
+/** Test handler called twice
  *
  * Given a SysTimer with a tick scheduled with delta = TEST_TICKS
  * When the handler is called
  * Then the tick count is incremented by 1
  *     and elapsed time is equal 1000000ULL * TEST_TICKS / OS_TICK_FREQ;
  * When more time elapses
- * Then the handler is not called again
+ * Repeat a second time.
  */
-void test_handler_called_once(void)
+void test_handler_called_twice(void)
 {
-    SysTimerTest st;
-    st.schedule_tick(TEST_TICKS);
+    SysTimerTest<TEST_TICK_US> st;
     us_timestamp_t t1 = st.get_time();
     bool acquired = st.sem_try_acquire(0);
     TEST_ASSERT_FALSE(acquired);
 
+    st.start_tick();
     // Wait in a busy loop to prevent entering sleep or deepsleep modes.
-    while (!acquired) {
+    do {
         acquired = st.sem_try_acquire(0);
-    }
+    } while (!acquired);
     us_timestamp_t t2 = st.get_time();
     TEST_ASSERT_TRUE(acquired);
     TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, t2 - t1);
 
-    acquired = st.sem_try_acquire((DELAY_US + DELAY_DELTA_US) / 1000ULL);
-    TEST_ASSERT_FALSE(acquired);
-    TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
+    // Wait in a busy loop to prevent entering sleep or deepsleep modes.
+    do {
+        acquired = st.sem_try_acquire(0);
+    } while (!acquired);
+    t2 = st.get_time();
+    TEST_ASSERT_TRUE(acquired);
+    TEST_ASSERT_EQUAL_UINT32(2, st.get_tick());
+    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US * 2, t2 - t1);
+    st.cancel_tick();
 }
 
 #if DEVICE_SLEEP
@@ -281,16 +271,17 @@ void test_handler_called_once(void)
 void test_sleep(void)
 {
     Timer timer;
-    SysTimerTest st;
+    SysTimerTest<TEST_TICK_US> st;
 
     sleep_manager_lock_deep_sleep();
     timer.start();
-    st.schedule_tick(TEST_TICKS);
+    st.start_tick();
 
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "Deep sleep should be disallowed");
     st.sem_acquire();
 
     timer.stop();
+    st.cancel_tick();
     sleep_manager_unlock_deep_sleep();
 
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
@@ -319,13 +310,14 @@ void test_deepsleep(void)
     wait_ms(10);
     // Regular Timer might be disabled during deepsleep.
     LowPowerTimer lptimer;
-    SysTimerTest st;
+    SysTimerTest<TEST_TICK_US> st;
 
     lptimer.start();
-    st.schedule_tick(TEST_TICKS);
+    st.start_tick();
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep_test_check(), "Deep sleep should be allowed");
     st.sem_acquire();
     lptimer.stop();
+    st.cancel_tick();
 
     TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_DELAY_DELTA_US, DELAY_US, lptimer.read_high_resolution_us());
 }
@@ -334,7 +326,7 @@ void test_deepsleep(void)
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(5, "default_auto");
+    GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
@@ -343,8 +335,7 @@ Case cases[] = {
     Case("Tick count is updated correctly", test_update_tick),
     Case("Time is updated correctly", test_get_time),
     Case("Tick can be cancelled", test_cancel_tick),
-    Case("Schedule zero ticks", test_schedule_zero),
-    Case("Handler called once", test_handler_called_once),
+    Case("Handler called twice", test_handler_called_twice),
 #if DEVICE_SLEEP
     Case("Wake up from sleep", test_sleep),
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER

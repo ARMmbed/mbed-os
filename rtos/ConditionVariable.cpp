@@ -26,14 +26,16 @@
 #include "mbed_error.h"
 #include "mbed_assert.h"
 
+#if MBED_CONF_RTOS_PRESENT
+
 namespace rtos {
 
-ConditionVariable::Waiter::Waiter(): sem(0), prev(NULL), next(NULL), in_list(false)
+ConditionVariable::Waiter::Waiter(): sem(0), prev(nullptr), next(nullptr), in_list(false)
 {
     // No initialization to do
 }
 
-ConditionVariable::ConditionVariable(Mutex &mutex): _mutex(mutex), _wait_list(NULL)
+ConditionVariable::ConditionVariable(Mutex &mutex): _mutex(mutex), _wait_list(nullptr)
 {
     // No initialization to do
 }
@@ -84,7 +86,7 @@ bool ConditionVariable::wait_until(uint64_t millisec)
 void ConditionVariable::notify_one()
 {
     MBED_ASSERT(_mutex.get_owner() == ThisThread::get_id());
-    if (_wait_list != NULL) {
+    if (_wait_list != nullptr) {
         _wait_list->sem.release();
         _remove_wait_list(&_wait_list, _wait_list);
     }
@@ -93,7 +95,7 @@ void ConditionVariable::notify_one()
 void ConditionVariable::notify_all()
 {
     MBED_ASSERT(_mutex.get_owner() == ThisThread::get_id());
-    while (_wait_list != NULL) {
+    while (_wait_list != nullptr) {
         _wait_list->sem.release();
         _remove_wait_list(&_wait_list, _wait_list);
     }
@@ -101,7 +103,7 @@ void ConditionVariable::notify_all()
 
 void ConditionVariable::_add_wait_list(Waiter **wait_list, Waiter *waiter)
 {
-    if (NULL == *wait_list) {
+    if (nullptr == *wait_list) {
         // Nothing in the list so add it directly.
         // Update prev and next pointer to reference self
         *wait_list = waiter;
@@ -135,18 +137,20 @@ void ConditionVariable::_remove_wait_list(Waiter **wait_list, Waiter *waiter)
 
     if (*wait_list == waiter) {
         // This was the last element in the list
-        *wait_list = NULL;
+        *wait_list = nullptr;
     }
 
     // Invalidate pointers
-    waiter->next = NULL;
-    waiter->prev = NULL;
+    waiter->next = nullptr;
+    waiter->prev = nullptr;
     waiter->in_list = false;
 }
 
 ConditionVariable::~ConditionVariable()
 {
-    MBED_ASSERT(NULL == _wait_list);
+    MBED_ASSERT(nullptr == _wait_list);
 }
 
 }
+
+#endif

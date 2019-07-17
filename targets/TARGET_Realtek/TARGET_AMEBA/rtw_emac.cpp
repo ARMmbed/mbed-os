@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include "mbed_assert.h"
 #include "mbed_events.h"
-#include "mbed_wait_api.h"
 
 #include "rtw_emac.h"
 #include "EMACMemoryManager.h"
@@ -123,7 +122,7 @@ bool RTW_EMAC::link_out(emac_mem_buf_t *buf)
 bool RTW_EMAC::power_up()
 {
     wifi_on(RTW_MODE_STA);
-    wait_ms(1000);
+    rtos::ThisThread::sleep_for(1000);
     wlan_emac_link_change(true);
     return true;
 }

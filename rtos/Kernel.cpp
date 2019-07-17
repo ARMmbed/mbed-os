@@ -20,16 +20,23 @@
  * SOFTWARE.
  */
 
-#include "cmsis_os2.h"
 #include "rtos/Kernel.h"
 #include "rtos/rtos_idle.h"
 #include "rtos/rtos_handlers.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_os_timer.h"
+
+#if !MBED_CONF_RTOS_PRESENT
+/* If the RTOS is not present, we call mbed_thread.cpp to do the work */
+/* If the RTOS is present, mbed_thread.cpp calls us to do the work */
+#include "platform/mbed_thread.h"
+#endif
 
 namespace rtos {
 
 uint64_t Kernel::get_ms_count()
 {
+#if MBED_CONF_RTOS_PRESENT
     // CMSIS-RTOS 2.1.0 and 2.1.1 differ in the time type. We assume
     // our header at least matches the implementation, so we don't try looking
     // at the run-time version report. (There's no compile-time version report)
@@ -61,8 +68,12 @@ uint64_t Kernel::get_ms_count()
         core_util_critical_section_exit();
         return ret;
     }
+#else
+    return ::get_ms_count();
+#endif
 }
 
+#if MBED_CONF_RTOS_PRESENT
 void Kernel::attach_idle_hook(void (*fptr)(void))
 {
     rtos_attach_idle_hook(fptr);
@@ -72,5 +83,6 @@ void Kernel::attach_thread_terminate_hook(void (*fptr)(osThreadId_t id))
 {
     rtos_attach_thread_terminate_hook(fptr);
 }
+#endif
 
 }

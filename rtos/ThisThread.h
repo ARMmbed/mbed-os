@@ -23,14 +23,7 @@
 #define THIS_THREAD_H
 
 #include <stdint.h>
-#include "cmsis_os2.h"
-#include "mbed_rtos1_types.h"
-#include "mbed_rtos_storage.h"
-#include "platform/Callback.h"
-#include "platform/mbed_toolchain.h"
-#include "platform/NonCopyable.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mutex.h"
+#include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -154,6 +147,7 @@ uint32_t flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear = tr
 /** Sleep for a specified time period in millisec:
   @param   millisec  time delay value
   @note You cannot call this function from ISR context.
+  @note The equivalent functionality is accessible in C via thread_sleep_for.
 */
 void sleep_for(uint32_t millisec);
 
@@ -163,6 +157,7 @@ void sleep_for(uint32_t millisec);
   @note You cannot call this function from ISR context.
   @note if millisec is equal to or lower than the current tick count, this
         returns immediately.
+  @note The equivalent functionality is accessible in C via thread_sleep_until.
 */
 void sleep_until(uint64_t millisec);
 
@@ -174,13 +169,13 @@ void sleep_until(uint64_t millisec);
 void yield();
 
 /** Get the thread id of the current running thread.
-  @return  thread ID for reference by other functions or NULL in case of error or in ISR context.
+  @return  thread ID for reference by other functions or nullptr in case of error or in ISR context.
   @note You may call this function from ISR context.
 */
 osThreadId_t get_id();
 
 /** Get the thread name of the current running thread.
-  @return  thread name pointer or NULL if thread has no name or in case of error.
+  @return  thread name pointer or nullptr if thread has no name or in case of error.
   @note You cannot call this function from ISR context.
 */
 const char *get_name();
@@ -188,6 +183,19 @@ const char *get_name();
 };
 /** @}*/
 /** @}*/
+
+namespace internal {
+struct flags_check_capture {
+    uint32_t *flags;
+    uint32_t options;
+    uint32_t flags_wanted;
+    uint32_t result;
+    bool match;
+};
+
+bool non_rtos_check_flags(void *handle);
+
+}
 }
 #endif
 

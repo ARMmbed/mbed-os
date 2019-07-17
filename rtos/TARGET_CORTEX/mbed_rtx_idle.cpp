@@ -22,9 +22,8 @@
 
 #include "rtos/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_os_timer.h"
 #include "TimerEvent.h"
-#include "lp_ticker_api.h"
-#include "us_ticker_api.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #include <new>
@@ -34,7 +33,8 @@
 extern "C" {
 #include "rtx_lib.h"
 
-    using namespace mbed;
+    using mbed::internal::os_timer;
+    using mbed::internal::OsTimer;
 
 #ifdef MBED_TICKLESS
 
@@ -46,26 +46,39 @@ extern "C" {
 #error Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false
 #endif
 
-#include "rtos/TARGET_CORTEX/SysTimer.h"
+    // Setup OS Tick timer to generate periodic RTOS Kernel Ticks
+    int32_t OS_Tick_Setup(uint32_t freq, IRQHandler_t handler)
+    {
+        MBED_ASSERT(freq == 1000);
 
-    static rtos::internal::SysTimer *os_timer;
-    static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
+#ifdef TARGET_CORTEX_A
+        IRQn_ID_t irq = OsTimer::get_irq_number();
+
+        IRQ_SetPriority(irq, 0xFF);
+        IRQ_SetHandler(irq, handler);
+        IRQ_EnableIRQ(irq);
+#else
+        IRQn_Type irq = OsTimer::get_irq_number();
+
+        NVIC_SetPriority(irq, 0xFF);
+#ifdef NVIC_RAM_VECTOR_ADDRESS
+        NVIC_SetVector(irq, (uint32_t)handler);
+#else
+        MBED_ASSERT(handler == (IRQHandler_t)NVIC_GetVector(irq));
+#endif
+        if (irq >= 0) {
+            NVIC_EnableIRQ(irq);
+        }
+#endif
+
+        return 0;
+    }
 
     // Enable System Timer.
     void OS_Tick_Enable(void)
     {
-        // Do not use SingletonPtr since this relies on the RTOS
-        if (NULL == os_timer) {
-#if MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
-            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_us_ticker_data());
-#else
-            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_lp_ticker_data());
-#endif
-            os_timer->setup_irq();
-        }
-
         // set to fire interrupt on next tick
-        os_timer->schedule_tick();
+        mbed::internal::init_os_timer()->start_tick();
     }
 
     // Disable System Timer.
@@ -77,25 +90,33 @@ extern "C" {
     // Acknowledge System Timer IRQ.
     void OS_Tick_AcknowledgeIRQ(void)
     {
-
+        os_timer->acknowledge_tick();
     }
 
     // Get System Timer count.
     uint32_t OS_Tick_GetCount(void)
     {
-        return os_timer->get_time() & 0xFFFFFFFF;
+        return (uint32_t) os_timer->get_time_since_tick();
     }
 
     // Get OS Tick IRQ number.
     int32_t  OS_Tick_GetIRQn(void)
     {
-        return -1;
+        return os_timer->get_irq_number();
     }
 
     // Get OS Tick overflow status.
     uint32_t OS_Tick_GetOverflow(void)
     {
+        // No need to indicate overflow - we let OS_Tick_GetCount overflow above
+        // OS_Tick_GetInterval.
         return 0;
+    }
+
+    // Get OS Tick timer clock frequency
+    uint32_t OS_Tick_GetClock(void)
+    {
+        return 1000000;
     }
 
     // Get OS Tick interval.
@@ -104,39 +125,19 @@ extern "C" {
         return 1000;
     }
 
+    static bool rtos_event_pending(void *)
+    {
+        return core_util_atomic_load_u8(&osRtxInfo.kernel.pendSV);
+    }
+
     static void default_idle_hook(void)
     {
         uint32_t ticks_to_sleep = osKernelSuspend();
-        const bool block_deep_sleep = MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER ||
-                                      (ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY);
-
-        if (block_deep_sleep) {
-            sleep_manager_lock_deep_sleep();
-        } else {
-            ticks_to_sleep -= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
-        }
-        os_timer->suspend(ticks_to_sleep);
-
-        bool event_pending = false;
-        while (!os_timer->suspend_time_passed() && !event_pending) {
-
-            core_util_critical_section_enter();
-            if (osRtxInfo.kernel.pendSV) {
-                event_pending = true;
-            } else {
-                sleep();
-            }
-            core_util_critical_section_exit();
-
-            // Ensure interrupts get a chance to fire
-            __ISB();
-        }
-
-        if (block_deep_sleep) {
-            sleep_manager_unlock_deep_sleep();
-        }
-
-        osKernelResume(os_timer->resume());
+        // osKernelSuspend will call OS_Tick_Disable, cancelling the tick, which frees
+        // up the os timer for the timed sleep
+        uint64_t ticks_slept = mbed::internal::do_timed_sleep_relative(ticks_to_sleep, rtos_event_pending);
+        MBED_ASSERT(ticks_slept < osWaitForever);
+        osKernelResume((uint32_t) ticks_slept);
     }
 
 
@@ -158,8 +159,8 @@ extern "C" {
 
     void rtos_attach_idle_hook(void (*fptr)(void))
     {
-        //Attach the specified idle hook, or the default idle hook in case of a NULL pointer
-        if (fptr != NULL) {
+        //Attach the specified idle hook, or the default idle hook in case of a null pointer
+        if (fptr != nullptr) {
             idle_hook_fptr = fptr;
         } else {
             idle_hook_fptr = default_idle_hook;
