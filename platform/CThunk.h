@@ -1,4 +1,3 @@
-
 /** \ingroup platform */
 /** \addtogroup platform-public-api */
 /** @{*/
@@ -40,7 +39,7 @@
 #ifndef __CTHUNK_H__
 #define __CTHUNK_H__
 
-#include "platform/source/CThunkBase.h"
+#include "platform/CThunkBase.h"
 
 /**
  * Class for created a pointer with data bound to it
