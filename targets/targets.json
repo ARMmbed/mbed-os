@@ -8400,6 +8400,10 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x10002000",
+        "mbed_rom_size": "0xFE000",
+        "sectors": [[268435456, 512]],                            
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
@@ -8410,7 +8414,11 @@
         "detect_code": ["1901"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
-        }
+        },
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x10002000",
+        "mbed_rom_size": "0x1FE000",
+        "sectors": [[268435456, 512]]                    
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
