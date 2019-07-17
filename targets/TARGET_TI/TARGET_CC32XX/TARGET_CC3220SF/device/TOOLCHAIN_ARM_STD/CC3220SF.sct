@@ -1,0 +1,104 @@
+#! armcc -E
+
+/* Device specific values */
+#define ROM_START       0x01000000
+#define ROM_SIZE        0x100000
+#define FLASH_HDR_START ROM_START
+#define FLASH_HDR_SIZE  0x800
+#define RAM_START       0x20000000
+#define RAM_SIZE        0x40000
+#define VECTORS         195   /* This value must match NVIC_NUM_VECTORS */
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE    (((VECTORS * 4) + 7) & ~7)
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+#if defined(MBED_APP_START)
+    /* 
+     * There're two cases if MBED_APP_START is defined.
+     * Case 1: MBED_APP_START is defined as ROM_START, this happens when restrict_size is turned on, most likely for bootloader build.
+     *         In this build, include FLASH_HDR region.
+     */
+    #define FLASH_HDR_INCLUDED 1
+
+    #if MBED_APP_START == ROM_START
+        #if defined(MBED_APP_SIZE)
+            #define ROM_EXEC_START  (ROM_START + FLASH_HDR_SIZE)
+            #define ROM_EXEC_SIZE (MBED_APP_SIZE - FLASH_HDR_SIZE)
+        #endif
+    #else
+    /*
+     * Case 2: MBED_APP_START is defined as a value greater than ROM_START, this is most likely a build other than the bootloader. E.g., the MCC build.
+     *         In this build, exclude FLASH_HDR region. This workarounds an issue in managed boodloader MCC build where the jump address and stack pointer point to the cookie area
+     */
+        #undef FLASH_HDR_INCLUDED
+        #define FLASH_HDR_INCLUDED 0
+        #define ROM_EXEC_START  MBED_APP_START
+        #if defined(MBED_APP_SIZE)
+            #define ROM_EXEC_SIZE MBED_APP_SIZE
+        #else
+            #define ROM_EXEC_SIZE (ROM_SIZE- (MBED_APP_START - ROM_START))
+        #endif
+     #endif
+#else
+    /* 
+     * MBED_APP_START is not defined. This is most likely a bootloader build, or other apps that do not require boodloader.
+     * In this build, include FLASH_HDR region
+     */
+     #define FLASH_HDR_INCLUDED 1
+     #define ROM_EXEC_START (ROM_START + FLASH_HDR_SIZE)
+     #if defined(MBED_APP_SIZE)
+         #define ROM_EXEC_SIZE (MBED_APP_SIZE - FLASH_HDR_SIZE)
+     #else
+         #define ROM_EXEC_SIZE (ROM_SIZE - FLASH_HDR_SIZE)
+     #endif
+#endif
+
+
+#if FLASH_HDR_INCLUDED == 1
+;#warning include cookie
+LR_IROM1 ROM_START ROM_SIZE  {
+
+  ER_FLASH FLASH_HDR_START FLASH_HDR_SIZE {
+      *(signature_section, +Last)
+  }
+
+  ER_IROM1 ROM_EXEC_START FIXED {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+  }
+
+  ;RW_IRAM1 (RAM_START + VECTORS_SIZE) (RAM_SIZE - VECTORS_SIZE)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x308) (0x00040000-0x308)  {  ; RW data
+    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_STACK (RAM_START+RAM_SIZE) EMPTY -Stack_Size { ; stack
+  }
+}
+#else
+;#warning exclude cookie
+LR_IROM1 ROM_EXEC_START ROM_EXEC_SIZE  {
+
+  ER_IROM1 ROM_EXEC_START ROM_EXEC_SIZE {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+  }
+
+  ;RW_IRAM1 (RAM_START + VECTORS_SIZE) (RAM_SIZE - VECTORS_SIZE)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x308) (0x00040000-0x308)  {  ; RW data
+    .ANY (+RW +ZI)
+  }
+
+  ARM_LIB_STACK (RAM_START + RAM_SIZE) EMPTY -Stack_Size { ; stack
+  }
+}
+#endif
+
