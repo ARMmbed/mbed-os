@@ -21,7 +21,7 @@
 #include "platform/mbed_error.h"
 
 
-#include "platform/source/CThunkBase.h"
+#include "platform/CThunkBase.h"
 
 MBED_STATIC_ASSERT(MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX < 256, "MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX must be less than 256");
 MBED_STATIC_ASSERT(MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX > 0, "MBED_CONF_PLATFORM_CTHUNK_COUNT_MAX must be greater than 0");
