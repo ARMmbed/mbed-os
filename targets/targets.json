@@ -8381,6 +8381,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
+            "USBDEVICE",
             "USTICKER"
         ],
         "release_versions": ["5"],
@@ -8457,6 +8458,7 @@
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
+        "device_has_remove": ["USBDEVICE"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
