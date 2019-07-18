@@ -26,6 +26,7 @@
 #include "usb_phy_api.h"
 #include "USBCDC.h"
 #include "USBSerial.h"
+#include "hal/us_ticker_api.h"
 
 #define USB_CDC_VID 0x1f00
 #define USB_CDC_PID 0x2013

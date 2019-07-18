@@ -27,6 +27,7 @@
 #include "USBHID.h"
 #include "USBMouse.h"
 #include "USBKeyboard.h"
+#include "hal/us_ticker_api.h"
 
 // Reuse the VID & PID from basic USB test.
 #define USB_HID_VID 0x0d28
