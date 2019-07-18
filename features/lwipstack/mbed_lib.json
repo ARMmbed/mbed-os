@@ -217,6 +217,20 @@
             "pbuf-pool-size": 48,
             "mem-size": 65536
         },
+        "CY8CKIT_062S2_43012": {
+           "tcpip-thread-stacksize": 8192,
+           "default-thread-stacksize": 640,
+           "ppp-thread-stacksize": 896,
+           "memp-num-tcp-seg": 24,
+           "tcp-socket-max": 10,
+           "udp-socket-max":10,
+           "socket-max":18,
+           "tcp-mss": 1540,
+           "tcp-snd-buf": "(6 * TCP_MSS)",
+           "tcp-wnd": "(TCP_MSS * 6)",
+           "pbuf-pool-size": 96,
+           "mem-size": 92610
+        },
         "MIMXRT1050_EVK": {
             "mem-size": 36560
         },
