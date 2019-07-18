@@ -111,31 +111,36 @@ nsapi_error_t QUECTEL_BG96::hard_power_on()
 
 nsapi_error_t QUECTEL_BG96::soft_power_on()
 {
-    if (_rst.is_connected()) {
-        tr_info("Reset modem");
-        _rst = !_active_high;
-        ThisThread::sleep_for(100);
-        _rst = _active_high;
-        ThisThread::sleep_for(150 + 460); // RESET_N timeout from BG96_Hardware_Design_V1.1
-        _rst = !_active_high;
-        ThisThread::sleep_for(500);
-
-        // wait for RDY
-        _at->lock();
-        _at->set_at_timeout(10 * 1000);
-        _at->resp_start();
-        _at->set_stop_tag("RDY");
-        bool rdy = _at->consume_to_stop_tag();
-        _at->set_stop_tag(OK);
-        _at->restore_at_timeout();
-        _at->unlock();
-
-        if (!rdy) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
+    if (!_rst.is_connected()) {
+        return NSAPI_ERROR_OK;
     }
 
-    return NSAPI_ERROR_OK;
+    tr_info("Reset modem");
+    _rst = !_active_high;
+    ThisThread::sleep_for(100);
+    _rst = _active_high;
+    ThisThread::sleep_for(150 + 460); // RESET_N timeout from BG96_Hardware_Design_V1.1
+    _rst = !_active_high;
+    ThisThread::sleep_for(500);
+
+    // wait for RDY
+    _at->lock();
+    _at->set_at_timeout(10 * 1000);
+    _at->resp_start();
+    _at->set_stop_tag("RDY");
+    bool rdy = _at->consume_to_stop_tag();
+    _at->set_stop_tag(OK);
+    _at->restore_at_timeout();
+
+    if (!rdy) {
+        // check if modem was silently powered on
+        _at->clear_error();
+        _at->set_at_timeout(100);
+        _at->cmd_start("AT");
+        _at->cmd_stop_read_resp();
+        _at->restore_at_timeout();
+    }
+    return _at->unlock_return_error();
 }
 
 nsapi_error_t QUECTEL_BG96::hard_power_off()
@@ -162,25 +167,21 @@ nsapi_error_t QUECTEL_BG96::init()
     _at->cmd_start("AT+CMEE=1"); // verbose responses
     _at->cmd_stop_read_resp();
 
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
-        do {
-            _at->cmd_start("AT+CFUN=1"); // set full functionality
-            _at->cmd_stop_read_resp();
-
-            // CFUN executed ok
-            if (_at->get_last_error() != NSAPI_ERROR_OK) {
-                // wait some time that modem gets ready for CFUN command, and try again
-                retry++;
-                _at->flush();
-                ThisThread::sleep_for(64); // experimental value
-            } else {
-                // yes continue
-                break;
-            }
-
-            /* code */
-        } while ((retry < 3));
+    if (_at->get_last_error() != NSAPI_ERROR_OK) {
+        return _at->unlock_return_error();
     }
+
+    do {
+        _at->clear_error();
+        _at->cmd_start("AT+CFUN=1"); // set full functionality
+        _at->cmd_stop_read_resp();
+        if (_at->get_last_error() == NSAPI_ERROR_OK) {
+            break;
+        }
+        // wait some time that modem gets ready for CFUN command, and try again
+        retry++;
+        ThisThread::sleep_for(64); // experimental value
+    } while (retry < 3);
 
     return _at->unlock_return_error();
 }
