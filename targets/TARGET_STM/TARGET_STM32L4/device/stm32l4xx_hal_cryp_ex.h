@@ -6,32 +6,16 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L4xx_HAL_CRYP_EX_H
@@ -41,8 +25,7 @@
  extern "C" {
 #endif
 
-#if defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L462xx) || defined(STM32L485xx) || defined(STM32L486xx) || defined(STM32L4A6xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
-   
+#if defined(AES)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -53,9 +36,9 @@
 
 /** @addtogroup CRYPEx
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
@@ -72,7 +55,7 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
 
 /**
   * @}
-  */ 
+  */
 
 /** @addtogroup CRYPEx_Exported_Functions_Group2
   * @{
@@ -90,7 +73,7 @@ HAL_StatusTypeDef HAL_CRYPEx_AES_Auth_DMA(CRYP_HandleTypeDef *hcryp, uint8_t *pI
 
 /**
   * @}
-  */ 
+  */
 
 /** @addtogroup CRYPEx_Exported_Functions_Group3
   * @{
@@ -109,13 +92,13 @@ void HAL_CRYPEx_ProcessSuspend(CRYP_HandleTypeDef *hcryp);
 
 /**
   * @}
-  */  
-  
+  */
+
 
 /**
   * @}
-  */ 
-  
+  */
+
 /* Private functions -----------------------------------------------------------*/
 /** @addtogroup CRYPEx_Private_Functions CRYPEx Private Functions
   * @{
@@ -125,18 +108,18 @@ HAL_StatusTypeDef CRYP_AES_Auth_IT(CRYP_HandleTypeDef *hcryp);
 /**
   * @}
   */
-  
+
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
-#endif /* defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L462xx) || defined(STM32L485xx) || defined(STM32L486xx) || defined(STM32L4A6xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx) */     
-  
+  */
+
+#endif /* AES */
+
 #ifdef __cplusplus
 }
 #endif

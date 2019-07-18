@@ -33,7 +33,6 @@
 **/
 
 #include "stm32l4xx.h"
-#include "nvic_addr.h"
 #include "mbed_error.h"
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
@@ -62,47 +61,6 @@ uint8_t SetSysClock_PLL_HSI(void);
 #if ((CLOCK_SOURCE) & USE_PLL_MSI)
 uint8_t SetSysClock_PLL_MSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_MSI) */
-
-
-/**
-  * @brief  Setup the microcontroller system.
-  * @param  None
-  * @retval None
-  */
-
-void SystemInit(void)
-{
-    /* FPU settings ------------------------------------------------------------*/
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
-    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
-#endif
-    /* Reset the RCC clock configuration to the default reset state ------------*/
-    /* Set MSION bit */
-    RCC->CR |= RCC_CR_MSION;
-
-    /* Reset CFGR register */
-    RCC->CFGR = 0x00000000;
-
-    /* Reset HSEON, CSSON , HSION, and PLLON bits */
-    RCC->CR &= (uint32_t)0xEAF6FFFF;
-
-    /* Reset PLLCFGR register */
-    RCC->PLLCFGR = 0x00001000;
-
-    /* Reset HSEBYP bit */
-    RCC->CR &= (uint32_t)0xFFFBFFFF;
-
-    /* Disable all interrupts */
-    RCC->CIER = 0x00000000;
-
-    /* Configure the Vector Table location add offset address ------------------*/
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
-#endif
-
-}
 
 
 /**

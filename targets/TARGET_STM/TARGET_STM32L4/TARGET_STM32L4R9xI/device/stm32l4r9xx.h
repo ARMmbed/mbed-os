@@ -1615,7 +1615,7 @@ typedef struct
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
 #define I2C3                ((I2C_TypeDef *) I2C3_BASE)
 #define CRS                 ((CRS_TypeDef *) CRS_BASE)
-//#define CAN                 ((CAN_TypeDef *) CAN1_BASE) // MBED FIX : already defined in mbed API
+// #define CAN                 ((CAN_TypeDef *) CAN1_BASE) // MBED
 #define CAN1                ((CAN_TypeDef *) CAN1_BASE)
 #define I2C4                ((I2C_TypeDef *) I2C4_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
@@ -7208,9 +7208,9 @@ typedef struct
 #define DFSDM_FLTISR_JEOCF              DFSDM_FLTISR_JEOCF_Msk                 /*!< End of injected conversion flag */
 
 /*****************  Bit definition for DFSDM_FLTICR register *******************/
-#define DFSDM_FLTICR_CLRSCSDF_Pos        (24U)
-#define DFSDM_FLTICR_CLRSCSDF_Msk        (0xFFUL << DFSDM_FLTICR_CLRSCSDF_Pos)   /*!< 0xFF000000 */
-#define DFSDM_FLTICR_CLRSCSDF            DFSDM_FLTICR_CLRSCSDF_Msk               /*!< CLRSCSDF[7:0] Clear the short circuit detector flag */
+#define DFSDM_FLTICR_CLRSCDF_Pos        (24U)
+#define DFSDM_FLTICR_CLRSCDF_Msk        (0xFFUL << DFSDM_FLTICR_CLRSCDF_Pos)   /*!< 0xFF000000 */
+#define DFSDM_FLTICR_CLRSCDF            DFSDM_FLTICR_CLRSCDF_Msk               /*!< CLRSCDF[7:0] Clear the short circuit detector flag */
 #define DFSDM_FLTICR_CLRCKABF_Pos       (16U)
 #define DFSDM_FLTICR_CLRCKABF_Msk       (0xFFUL << DFSDM_FLTICR_CLRCKABF_Pos)  /*!< 0x00FF0000 */
 #define DFSDM_FLTICR_CLRCKABF           DFSDM_FLTICR_CLRCKABF_Msk              /*!< CLRCKABF[7:0] Clear the clock absence flag */
@@ -21161,10 +21161,6 @@ typedef struct
 #define USART_CR1_TXEIE_TXFNFIE_Pos   (7U)
 #define USART_CR1_TXEIE_TXFNFIE_Msk   (0x1UL << USART_CR1_TXEIE_TXFNFIE_Pos)   /*!< 0x00000080 */
 #define USART_CR1_TXEIE_TXFNFIE       USART_CR1_TXEIE_TXFNFIE_Msk              /*!< TXE/TXFIFO not full Interrupt Enable */
-//+ MBED
-#define USART_CR1_RXNEIE              USART_CR1_RXNEIE_RXFNEIE_Pos             /*!< RXNE Interrupt Enable */
-#define USART_CR1_TXEIE               USART_CR1_TXEIE_TXFNFIE_Msk              /*!< TXE Interrupt Enable */
-//- MBED
 #define USART_CR1_PEIE_Pos            (8U)
 #define USART_CR1_PEIE_Msk            (0x1UL << USART_CR1_PEIE_Pos)            /*!< 0x00000100 */
 #define USART_CR1_PEIE                USART_CR1_PEIE_Msk                       /*!< PE Interrupt Enable */
@@ -21356,11 +21352,6 @@ typedef struct
 #define USART_CR3_WUFIE_Pos           (22U)
 #define USART_CR3_WUFIE_Msk           (0x1UL << USART_CR3_WUFIE_Pos)           /*!< 0x00400000 */
 #define USART_CR3_WUFIE               USART_CR3_WUFIE_Msk                      /*!< Wake Up Interrupt Enable */
-/* MBED */
-#define USART_CR3_UCESM_Pos           (23U)
-#define USART_CR3_UCESM_Msk           (0x1U << USART_CR3_UCESM_Pos)            /*!< 0x00800000 */
-#define USART_CR3_UCESM               USART_CR3_UCESM_Msk                      /*!< Clock Enable in Stop mode */ 
-/* MBED */
 #define USART_CR3_TXFTIE_Pos          (23U)
 #define USART_CR3_TXFTIE_Msk          (0x1UL << USART_CR3_TXFTIE_Pos)          /*!< 0x02000000 */
 #define USART_CR3_TXFTIE              USART_CR3_TXFTIE_Msk                     /*!< TXFIFO threshold interrupt enable */
