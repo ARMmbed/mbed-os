@@ -23,15 +23,14 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {P0_23, ADC0_SE0,  0},
-    {P0_10, ADC0_SE1,  0},
-    {P0_31, ADC0_SE3,  0},
-    {P1_8,  ADC0_SE4,  0},
-    {P2_0,  ADC0_SE5,  0},
-    {P2_13, ADC0_SE6,  0},
-    {P2_11, ADC0_SE7,  0},
-    {P0_16, ADC0_SE8,  0},
-    {NC   , NC      ,  0}
+    {P0_23, ADC0_SE0,    0},
+    {P0_10, ADC0_SE1,    0},
+    {P0_31, ADC0_SE3,    0},
+    {P1_8,  ADC0_SE4,    0},
+    {P2_0,  ADC0_SE5,    0},
+    {P2_13, ADC0_SE6,    0},
+    {P2_11, ADC0_SE7,    0},
+    {NC   , NC      ,    0}
 };
 
 /************CAN***************/
