@@ -21,6 +21,7 @@
 #include "lp_ticker_api_tests.h"
 #include "hal/lp_ticker_api.h"
 #include "hal/mbed_lp_ticker_wrapper.h"
+#include "hal/us_ticker_api.h"
 
 #if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Low power timer not supported for this target
