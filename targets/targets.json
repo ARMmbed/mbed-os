@@ -8382,6 +8382,24 @@
             "network-default-interface-type": "WIFI"
         }
     },
+    "CY8CMOD_062S2_43012": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "device_has_remove": ["ANALOGOUT"],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CM0P_SLEEP",
+            "WHD",
+            "43012",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
+    },
     "CY8CKIT_062_WIFI_BT": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
@@ -8407,6 +8425,14 @@
     "CY8CPROTO_062_4343W": {
         "inherits": ["CY8CMOD_062_4343W"],
         "detect_code": ["1901"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
+    "CY8CKIT_062S2_43012": {
+        "inherits": ["CY8CMOD_062S2_43012"],
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["190B"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         }
