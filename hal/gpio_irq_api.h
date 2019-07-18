@@ -21,6 +21,7 @@
 #define MBED_GPIO_IRQ_API_H
 
 #include "device.h"
+#include "pinmap.h"
 
 #if DEVICE_INTERRUPTIN
 
@@ -84,6 +85,18 @@ void gpio_irq_enable(gpio_irq_t *obj);
  * @param obj The GPIO object
  */
 void gpio_irq_disable(gpio_irq_t *obj);
+
+/** Get the pins that support all GPIO IRQ tests
+ *
+ * Return a PinMap array of pins that support GPIO IRQ.
+ * The array is terminated with {NC, NC, 0}.
+ *
+ * Targets should override the weak implementation of this
+ * function to provide the actual pinmap for GPIO IRQ testing.
+ *
+ * @return PinMap array
+ */
+const PinMap *gpio_irq_pinmap(void);
 
 /**@}*/
 
