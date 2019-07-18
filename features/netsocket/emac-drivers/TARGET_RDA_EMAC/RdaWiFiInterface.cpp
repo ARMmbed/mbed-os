@@ -146,6 +146,9 @@ nsapi_error_t RDAWiFiInterface::connect(const char *ssid, const char *pass,
 	
     init();
 
+    //reset all scan result to avoid any previous stored SSID/PW/CHANNEL
+    rda5981_del_scan_all_result();
+    rda5981_scan(NULL,0,0);
     if(rda5981_check_scan_result_name(ssid) != 0) {
         for (i = 0; i< 5; i++) {
             rda5981_scan(NULL, 0, 0);
