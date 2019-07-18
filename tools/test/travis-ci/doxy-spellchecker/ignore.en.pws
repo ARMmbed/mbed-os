@@ -99,4 +99,5 @@ TCPSocket
 UDPSocket
 Socket
 unregister
+deinit
 _doxy_
