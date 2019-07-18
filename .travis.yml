@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+# Copyright (c) 2013-2019 Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -222,7 +222,7 @@ matrix:
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
         - |
-          rm -r rtos usb features/cellular features/netsocket features/nanostack \
+          rm -r rtos drivers/source/usb features/cellular features/netsocket features/nanostack \
             features/lwipstack features/frameworks/greentea-client \
             features/frameworks/utest features/frameworks/unity components BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
