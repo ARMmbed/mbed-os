@@ -103,7 +103,6 @@ void CellularStateMachine::stop()
 {
     tr_debug("CellularStateMachine stop");
     if (_queue_thread) {
-        _queue.break_dispatch();
         _queue_thread->terminate();
         delete _queue_thread;
         _queue_thread = NULL;
@@ -366,6 +365,9 @@ void CellularStateMachine::state_device_ready()
                 _status = 0;
                 enter_to_state(STATE_SIM_PIN);
             }
+        } else {
+            _status = 0;
+            enter_to_state(STATE_INIT);
         }
     }
     if (_cb_data.error != NSAPI_ERROR_OK) {
@@ -546,7 +548,7 @@ bool CellularStateMachine::get_current_status(CellularStateMachine::CellularStat
 void CellularStateMachine::event()
 {
     // Don't send Signal quality when in signal quality state or it can confuse callback functions when running retry logic
-    if (_state != STATE_SIGNAL_QUALITY) {
+    if (_state > STATE_SIGNAL_QUALITY) {
         _cb_data.error = _network.get_signal_quality(_signal_quality.rssi, &_signal_quality.ber);
         _cb_data.data = &_signal_quality;
 
@@ -624,14 +626,20 @@ void CellularStateMachine::event()
 
 nsapi_error_t CellularStateMachine::start_dispatch()
 {
-    MBED_ASSERT(!_queue_thread);
-
-    _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
-    if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
-        report_failure("Failed to start thread.");
-        stop();
-        return NSAPI_ERROR_NO_MEMORY;
+    if (!_queue_thread) {
+        _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
+        _event_id = STM_STOPPED;
     }
+
+    if (_event_id == STM_STOPPED) {
+        if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
+            report_failure("Failed to start thread.");
+            stop();
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    _event_id = -1;
 
     return NSAPI_ERROR_OK;
 }
