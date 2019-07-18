@@ -435,6 +435,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 
     SPI_ENABLE_SYNC(spi_base);
 
+    // Initialize total SPI transfer frames
+    obj->spi.txrx_rmn = NU_MAX(tx_length, rx_length);
+
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         // Interrupt way
         spi_master_write_asynch(obj, NU_SPI_FIFO_DEPTH / 2);
@@ -714,17 +717,13 @@ static uint32_t spi_event_check(spi_t *obj)
 static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
 {
     uint32_t n_words = 0;
-    uint32_t tx_rmn = obj->tx_buff.length - obj->tx_buff.pos;
-    uint32_t rx_rmn = obj->rx_buff.length - obj->rx_buff.pos;
-    uint32_t max_tx = NU_MAX(tx_rmn, rx_rmn);
-    max_tx = NU_MIN(max_tx, tx_limit);
     uint8_t data_width = spi_get_data_width(obj);
     uint8_t bytes_per_word = (data_width + 7) / 8;
     uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer) + bytes_per_word * obj->tx_buff.pos;
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
     
-    while ((n_words < max_tx) && spi_writeable(obj)) {
+    while (obj->spi.txrx_rmn && spi_writeable(obj)) {
         if (spi_is_tx_complete(obj)) {
             // Transmit dummy as transmit buffer is empty
             M32(TX) = 0;
@@ -748,6 +747,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
             obj->tx_buff.pos ++;
         }
         n_words ++;
+        obj->spi.txrx_rmn --;
     }
 
     //Return the number of words that have been sent
@@ -768,16 +768,13 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
 static uint32_t spi_master_read_asynch(spi_t *obj)
 {
     uint32_t n_words = 0;
-    uint32_t tx_rmn = obj->tx_buff.length - obj->tx_buff.pos;
-    uint32_t rx_rmn = obj->rx_buff.length - obj->rx_buff.pos;
-    uint32_t max_rx = NU_MAX(tx_rmn, rx_rmn);
     uint8_t data_width = spi_get_data_width(obj);
     uint8_t bytes_per_word = (data_width + 7) / 8;
     uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer) + bytes_per_word * obj->rx_buff.pos;
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
     
-    while ((n_words < max_rx) && spi_readable(obj)) {
+    while (spi_readable(obj)) {
         if (spi_is_rx_complete(obj)) {
             // Disregard as receive buffer is full
             M32(RX);

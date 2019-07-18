@@ -85,6 +85,7 @@ struct spi_s {
     int         dma_chn_id_tx;
     int         dma_chn_id_rx;
     uint32_t    event;
+    uint32_t    txrx_rmn;       // Track tx/rx frames remaining in interrupt way
     uint32_t    hdlr_async;
 };
 

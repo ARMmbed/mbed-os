@@ -78,16 +78,13 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-    
-    //void        (*vec)(void);
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage;
     int         dma_chn_id_tx;
     int         dma_chn_id_rx;
     uint32_t    event;
-    //void        (*irq_handler_tx_async)(void);
-    //void        (*irq_handler_rx_async)(void);
+    uint32_t    txrx_rmn;       // Track tx/rx frames remaining in interrupt way
 };
 
 struct i2c_s {
