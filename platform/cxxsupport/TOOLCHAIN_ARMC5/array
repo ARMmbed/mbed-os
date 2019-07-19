@@ -160,8 +160,44 @@ struct array {
     }
 };
 
+template <typename _TypeT, size_t _Size>
+bool operator==(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return equal(__x.begin(), __x.end(), __y.begin());
+}
+
+template <typename _TypeT, size_t _Size>
+bool operator!=(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return !(__x == __y);
+}
+
+template <typename _TypeT, size_t _Size>
+bool operator<(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return lexicographical_compare(__x.begin(), __x.end(), __y.begin(), __y.end());
+}
+
+template <typename _TypeT, size_t _Size>
+bool operator>(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return __y < __x;
+}
+
+template <typename _TypeT, size_t _Size>
+bool operator<=(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return !(__x > __y);
+}
+
+template <typename _TypeT, size_t _Size>
+bool operator>=(const array<_TypeT, _Size> &__x, const array<_TypeT, _Size> &__y)
+{
+    return !(__x < __y);
+}
+
 // [array.special]
-template <class _TypeT, size_t _Size>
+template <typename _TypeT, size_t _Size>
 void swap(array<_TypeT, _Size> &__x, array<_TypeT, _Size> &__y)
 {
     __x.swap(__y);
