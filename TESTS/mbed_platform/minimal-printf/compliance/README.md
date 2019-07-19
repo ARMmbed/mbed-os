@@ -8,4 +8,4 @@ You can use the following command to run tests:
 
 `mbed test -m K64F -t GCC_ARM -n *printf* -v -c`
 
-Do not use --profile mprintf so minimal-printf is not compared with itself.
+Do not use --profile minimal-printf so minimal-printf is not compared with itself.

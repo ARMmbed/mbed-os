@@ -1,4 +1,4 @@
 {
   "name": "bare-metal",
-  "requires": ["platform", "drivers", "minimal-printf"]
+  "requires": ["platform", "drivers"]
 }

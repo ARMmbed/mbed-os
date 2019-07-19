@@ -23,6 +23,8 @@
  * to resolve dependencies and correctly remove unused functions.
  */
 
+#ifdef MBED_MINIMAL_PRINTF
+
 #if defined(TOOLCHAIN_ARM)
 
 #include "mbed_printf_implementation.h"
@@ -44,7 +46,7 @@ int $Sub$$__2printf(const char *format, ...)
     return result;
 }
 
-int $Sub$$__2sprintf(char* buffer, const char* format, ...)
+int $Sub$$__2sprintf(char *buffer, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -54,7 +56,7 @@ int $Sub$$__2sprintf(char* buffer, const char* format, ...)
     return result;
 }
 
-int $Sub$$__2snprintf(char* buffer, size_t length, const char* format, ...)
+int $Sub$$__2snprintf(char *buffer, size_t length, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -64,7 +66,7 @@ int $Sub$$__2snprintf(char* buffer, size_t length, const char* format, ...)
     return result;
 }
 
-int $Sub$$__2vprintf(char* buffer, const char* format, ...)
+int $Sub$$__2vprintf(char *buffer, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -74,7 +76,7 @@ int $Sub$$__2vprintf(char* buffer, const char* format, ...)
     return result;
 }
 
-int $Sub$$__2vsnprintf(char* buffer, size_t length, const char* format, va_list arguments)
+int $Sub$$__2vsnprintf(char *buffer, size_t length, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
@@ -369,3 +371,5 @@ int $Sub$$_printf_x(const char *format, ...)
 }
 
 #endif
+
+#endif // MBED_MINIMAL_PRINTF

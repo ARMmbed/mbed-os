@@ -1,7 +1,7 @@
 {
     "target_overrides": {
         "*": {
-            "minimal-printf.enable-file-stream": 1
+            "platform.minimal-printf-enable-file-stream": 1
         }
     }
 }
