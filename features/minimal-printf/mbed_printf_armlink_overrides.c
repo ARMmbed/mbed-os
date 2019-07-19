@@ -23,6 +23,8 @@
  * to resolve dependencies and correctly remove unused functions.
  */
 
+#ifdef MBED_MINIMAL_PRINTF
+
 #if defined(TOOLCHAIN_ARM)
 
 #include "mbed_printf_implementation.h"
@@ -369,3 +371,5 @@ int $Sub$$_printf_x(const char *format, ...)
 }
 
 #endif
+
+#endif // MBED_MINIMAL_PRINTF

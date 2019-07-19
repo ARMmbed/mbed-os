@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifdef MBED_MINIMAL_PRINTF
+
 #include "mbed_printf_implementation.h"
 
 #include <limits.h>
+
 
 int mbed_printf(const char *format, ...)
 {
@@ -64,3 +67,5 @@ int mbed_vfprintf(FILE* stream, const char* format, va_list arguments)
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
 }
 #endif
+
+#endif // MBED_MINIMAL_PRINTF
