@@ -30,7 +30,7 @@ struct reverse_iterator;
 template <typename _TypeT, size_t _Size>
 struct array {
     // [array.overview]
-    _TypeT _C_elem[_Size];
+    _TypeT _C_elem[_Size != 0 ? _Size : 1];
 
     using value_type = _TypeT;
     using size_type = size_t;
