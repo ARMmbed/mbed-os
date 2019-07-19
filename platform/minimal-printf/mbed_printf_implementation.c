@@ -32,7 +32,7 @@
 #define CONSOLE_OUTPUT_SWO      2
 #define mbed_console_concat_(x) CONSOLE_OUTPUT_##x
 #define mbed_console_concat(x) mbed_console_concat_(x)
-#define CONSOLE_OUTPUT mbed_console_concat(MBED_CONF_MINIMAL_PRINTF_CONSOLE_OUTPUT)
+#define CONSOLE_OUTPUT mbed_console_concat(MBED_CONF_PLATFORM_MINIMAL_PRINTF_CONSOLE_OUTPUT)
 
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
 static char mbed_stdio_out_prev = 0;
@@ -88,23 +88,23 @@ static void init_serial()
 /***************************/
 #else
 /* Linux implementation is for debug only */
-#define MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 1
-#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
-#define MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT 1
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 1
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT 1
 #define MBED_INITIALIZE_PRINT(x) { ; }
 #define MBED_PRINT_CHARACTER(x) { printf("%c", x); }
 #endif
 
-#ifndef MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
-#define MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 0
+#ifndef MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 0
 #endif
 
-#ifndef MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS
-#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
+#ifndef MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
 #endif
 
-#ifndef MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
-#define MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT 1
+#ifndef MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT
+#define MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT 1
 #endif
 
 /**
@@ -115,7 +115,7 @@ static void init_serial()
 #if INTPTR_MAX == INT32_MAX
 #define MBED_SIGNED_NATIVE_TYPE int32_t
 #define MBED_UNSIGNED_NATIVE_TYPE uint32_t
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT
 #define MBED_SIGNED_STORAGE int64_t
 #define MBED_UNSIGNED_STORAGE uint64_t
 #else
@@ -185,7 +185,7 @@ static void mbed_minimal_putchar(char *buffer, size_t length, int* result, char 
             }
             else
             {
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
                 if (stream)
                 {
                     fputc(data, (FILE*) stream);
@@ -332,7 +332,7 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
     mbed_minimal_formatted_string_hexadecimal(buffer, length, result, (ptrdiff_t) value, stream, true);
 }
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
 /**
  * @brief      Write double.
  *
@@ -355,7 +355,7 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
     /* get decimal part */
     double precision = 1.0;
 
-    for (size_t index = 0; index < MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS; index++)
+    for (size_t index = 0; index < MBED_CONF_PLATFORM_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS; index++)
     {
         precision *= 10;
     }
@@ -613,7 +613,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 {
                     MBED_SIGNED_STORAGE value = 0;
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT
                     /* if 64 bit is enabled and the integer types are larger than the native type */
                     if (((length_modifier == LENGTH_LL)   && (sizeof(long long int) > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
                         ((length_modifier == LENGTH_L)    && (sizeof(long int)      > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
@@ -666,7 +666,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 {
                     MBED_UNSIGNED_STORAGE value = 0;
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_64_BIT
                     /* if 64 bit is enabled and the integer types are larger than the native type */
                     if (((length_modifier == LENGTH_LL)   && (sizeof(unsigned long long int) > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
                         ((length_modifier == LENGTH_L)    && (sizeof(unsigned long int)      > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
@@ -725,7 +725,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                         mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value, stream, next == 'X');
                     }
                 }
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
                 /* treat all floating points the same */
                 else if ((next == 'f') || (next == 'F') || (next == 'g') || (next == 'G'))
                 {

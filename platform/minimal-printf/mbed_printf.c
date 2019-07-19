@@ -51,7 +51,7 @@ int mbed_vsnprintf(char* buffer, size_t length, const char* format, va_list argu
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 int mbed_fprintf(FILE* stream, const char *format, ...)
 {
     va_list arguments;

@@ -721,7 +721,7 @@ static control_t test_snprintf_x(const size_t call_count)
     return CaseNext;
 }
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
 static control_t test_printf_f(const size_t call_count)
 {
     int result_baseline;
@@ -902,7 +902,7 @@ Case cases[] = {
     Case("snprintf %u", test_snprintf_u),
     Case("printf %x", test_printf_x),
     Case("snprintf %x", test_snprintf_x),
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
     Case("printf %f", test_printf_f),
     Case("snprintf %f", test_snprintf_f),
 #endif

@@ -28,7 +28,7 @@
 #define SUB_VPRINTF      __wrap_vprintf
 #define SUB_VSPRINTF     __wrap_vsprintf
 #define SUB_VSNPRINTF    __wrap_vsnprintf
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 #define SUB_FPRINTF      __wrap_fprintf
 #define SUB_VFPRINTF     __wrap_vfprintf
 #endif
@@ -45,7 +45,7 @@
 #define SUB_VSPRINTF     $Sub$$vsprintf
 #define SUPER_VSNPRINTF  $Super$$vsnprintf
 #define SUB_VSNPRINTF    $Sub$$vsnprintf
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 #define SUB_FPRINTF      $Sub$$fprintf
 #define SUB_VFPRINTF     $Sub$$vfprintf
 #endif
@@ -62,7 +62,7 @@
 #define SUB_VSPRINTF     $Sub$$vsprintf
 #define SUPER_VSNPRINTF  $Super$$vsnprintf
 #define SUB_VSNPRINTF    $Sub$$vsnprintf
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 #define SUB_FPRINTF      $Sub$$fprintf
 #define SUB_VFPRINTF     $Sub$$vfprintf
 #endif
@@ -113,7 +113,7 @@ int SUB_VSNPRINTF(char* buffer, size_t length, const char* format, va_list argum
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FILE_STREAM
+#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 int SUB_FPRINTF(FILE* stream, const char* format, ...)
 {
     va_list arguments;

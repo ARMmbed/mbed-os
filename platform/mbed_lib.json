@@ -127,6 +127,26 @@
         "use-mpu": {
             "help": "Use the MPU if available to fault execution from RAM and writes to ROM. Can be disabled to reduce image size.",
             "value": true
+        },
+        "minimal-printf-console-output": {
+            "help": "Console output when using mprintf profile. Options: UART, SWO",
+            "value": "UART"
+        },
+        "minimal-printf-enable-64-bit": {
+            "help": "Enable printing 64 bit integers when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-enable-file-stream": {
+            "help": "Enable printing to a FILE stream when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-enable-floating-point": {
+            "help": "Enable floating point printing when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-set-floating-point-max-decimals": {
+            "help": "Maximum number of decimals to be printed",
+            "value": 6
         }
     },
     "target_overrides": {

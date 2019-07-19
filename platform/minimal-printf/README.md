@@ -12,10 +12,10 @@ Supports:
 * %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
 * %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., ff).
 * %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
-* %f: floating point (disabled by default).
-* %F: floating point (disabled by default, treated as %f).
-* %g: floating point (disabled by default, treated as %f).
-* %G: floating point (disabled by default, treated as %f).
+* %f: floating point (enabled by default).
+* %F: floating point (enabled by default, treated as %f).
+* %g: floating point (enabled by default, treated as %f).
+* %G: floating point (enabled by default, treated as %f).
 * %c: character.
 * %s: string.
 * %p: pointer (e.g. 0x00123456).
@@ -44,10 +44,10 @@ In mbed_app.json:
 ```
     "target_overrides": {
         "*": {
-            "minimal-printf.enable-file-stream": true,
-            "minimal-printf.enable-floating-point": true,
-            "minimal-printf.set-floating-point-max-decimals": 6,
-            "minimal-printf.enable-64-bit": true
+            "platform.minimal-printf-enable-file-stream": true,
+            "platform.minimal-printf-enable-floating-point": true,
+            "platform.minimal-printf-set-floating-point-max-decimals": 6,
+            "platform.minimal-printf-enable-64-bit": true
         }
     }
 ```
