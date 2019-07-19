@@ -19,8 +19,10 @@
 
 #include <initializer_list> // required by standard
 
+#include <_move.h>
 #include <cstddef> // size_t, ptrdiff_t
 #include <algorithm> // fill and swap_ranges
+#include <type_traits> // integral_constant
 
 namespace std {
 template <typename>
@@ -201,6 +203,47 @@ template <typename _TypeT, size_t _Size>
 void swap(array<_TypeT, _Size> &__x, array<_TypeT, _Size> &__y)
 {
     __x.swap(__y);
+}
+
+// [array.tuple]
+template <typename>
+struct tuple_size;
+
+template <typename _TypeT, size_t _Size>
+struct tuple_size<array<_TypeT, _Size>> : integral_constant<size_t, _Size> { };
+
+template <size_t, typename>
+struct tuple_element;
+
+template <size_t _Idx, typename _TypeT, size_t _Size>
+struct tuple_element<_Idx, array<_TypeT, _Size>> : type_identity<_TypeT> {
+    static_assert(_Idx < _Size, "array index out of bounds");
+};
+
+template <size_t _Idx, typename _TypeT, size_t _Size>
+constexpr _TypeT &get(array<_TypeT, _Size> &__a) noexcept
+{
+    static_assert(_Idx < _Size, "array index out of bounds");
+    return __a._C_elem[_Idx];
+}
+
+template <size_t _Idx, typename _TypeT, size_t _Size>
+_TypeT &&get(array<_TypeT, _Size> &&__a) noexcept
+{
+    return std::move(get<_Idx>(__a));
+}
+
+template <size_t _Idx, typename _TypeT, size_t _Size>
+constexpr const _TypeT &get(const array<_TypeT, _Size> &__a) noexcept
+{
+    static_assert(_Idx < _Size, "array index out of bounds");
+    return __a._C_elem[_Idx];
+}
+
+template <size_t _Idx, typename _TypeT, size_t _Size>
+const _TypeT &&get(const array<_TypeT, _Size> &&__a) noexcept
+{
+    return std::move(get<_Idx>(__a));
 }
 
 } // namespace std
