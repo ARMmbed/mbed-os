@@ -18,6 +18,8 @@
 #include "unity/unity.h"
 #include "utest/utest.h"
 
+#include <mstd_atomic>
+
 #if !MBED_CONF_RTOS_PRESENT
 #error [NOT_SUPPORTED] test not supported
 #endif
@@ -27,6 +29,8 @@
 using utest::v1::Case;
 
 namespace {
+
+using mstd::atomic;
 
 /* Lock-free operations will be much faster - keep runtime down */
 #define ADD_UNLOCKED_ITERATIONS (SystemCoreClock / 1000)
@@ -53,7 +57,7 @@ struct add_release_incrementer {
     static void op(A *ptr)
     {
         for (long i = add_iterations(*ptr); i > 0; i--) {
-            ptr->fetch_add(1, mbed::memory_order_release);
+            ptr->fetch_add(1, mstd::memory_order_release);
         }
     }
 };
@@ -120,8 +124,8 @@ void test_atomic_add()
 {
     struct  {
         volatile T nonatomic1;
-        Atomic<T> atomic1;
-        volatile Atomic<T> atomic2; // use volatile just to exercise the templates' volatile methods
+        atomic<T> atomic1;
+        volatile atomic<T> atomic2; // use volatile just to exercise the templates' volatile methods
         volatile T nonatomic2;
     } data = { 0, { 0 }, { 1 }, 0 }; // test initialisation
 
@@ -201,17 +205,17 @@ void struct_incrementer_b(A *data)
 template<typename T, size_t N>
 void test_atomic_struct()
 {
-    TEST_ASSERT_EQUAL(N, sizeof(Atomic<T>));
+    TEST_ASSERT_EQUAL(N, sizeof(atomic<T>));
 
     // Small structures don't have value constructor implemented;
-    Atomic<T> data;
+    atomic<T> data;
     atomic_init(&data, T{0, 0, 0});
 
     Thread t1(osPriorityNormal, THREAD_STACK);
     Thread t2(osPriorityNormal, THREAD_STACK);
 
-    TEST_ASSERT_EQUAL(osOK, t1.start(callback(struct_incrementer_a<Atomic<T> >, &data)));
-    TEST_ASSERT_EQUAL(osOK, t2.start(callback(struct_incrementer_b<Atomic<T> >, &data)));
+    TEST_ASSERT_EQUAL(osOK, t1.start(callback(struct_incrementer_a<atomic<T> >, &data)));
+    TEST_ASSERT_EQUAL(osOK, t2.start(callback(struct_incrementer_b<atomic<T> >, &data)));
 
     for (long i = add_iterations(data); i > 0; i--) {
         T curval = data, newval;

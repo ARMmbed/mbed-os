@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-#ifndef MBED_ATOMIC_H
-#define MBED_ATOMIC_H
+#ifndef MSTD_ATOMIC_
+#define MSTD_ATOMIC_
 
 #include <stddef.h>
 #include <stdint.h>
-#include <memory>
+#include <mstd_memory>
+#include <mstd_type_traits>
+#include <mstd_utility>
 #include "platform/mbed_assert.h"
 #include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_cxxsupport.h"
 #include "platform/CriticalSectionLock.h"
 
 /*
- * Atomic template and types are designed to be as close as possible to C++11
+ * mstd::atomic template and types are designed to be as close as possible to C++11
  * std::atomic. Key differences:
  *
  * - Operations are specified as atomic with respect to interrupts as well as
@@ -42,34 +43,34 @@
  */
 
 #ifndef MBED_EXCLUSIVE_ACCESS
-#define MBED_ATOMIC_BOOL_LOCK_FREE      0
-#define MBED_ATOMIC_CHAR_LOCK_FREE      0
-#define MBED_ATOMIC_CHAR16_T_LOCK_FREE  0
-#define MBED_ATOMIC_CHAR32_T_LOCK_FREE  0
-#define MBED_ATOMIC_WCHAR_T_LOCK_FREE   0
-#define MBED_ATOMIC_SHORT_LOCK_FREE     0
-#define MBED_ATOMIC_INT_LOCK_FREE       0
-#define MBED_ATOMIC_LONG_LOCK_FREE      0
-#define MBED_ATOMIC_LLONG_LOCK_FREE     0
-#define MBED_ATOMIC_POINTER_LOCK_FREE   0
+#define MSTD_ATOMIC_BOOL_LOCK_FREE      0
+#define MSTD_ATOMIC_CHAR_LOCK_FREE      0
+#define MSTD_ATOMIC_CHAR16_T_LOCK_FREE  0
+#define MSTD_ATOMIC_CHAR32_T_LOCK_FREE  0
+#define MSTD_ATOMIC_WCHAR_T_LOCK_FREE   0
+#define MSTD_ATOMIC_SHORT_LOCK_FREE     0
+#define MSTD_ATOMIC_INT_LOCK_FREE       0
+#define MSTD_ATOMIC_LONG_LOCK_FREE      0
+#define MSTD_ATOMIC_LLONG_LOCK_FREE     0
+#define MSTD_ATOMIC_POINTER_LOCK_FREE   0
 #else
-#define MBED_ATOMIC_BOOL_LOCK_FREE      2
-#define MBED_ATOMIC_CHAR_LOCK_FREE      2
-#define MBED_ATOMIC_CHAR16_T_LOCK_FREE  2
-#define MBED_ATOMIC_CHAR32_T_LOCK_FREE  2
-#define MBED_ATOMIC_WCHAR_T_LOCK_FREE   2
-#define MBED_ATOMIC_SHORT_LOCK_FREE     2
-#define MBED_ATOMIC_INT_LOCK_FREE       2
-#define MBED_ATOMIC_LONG_LOCK_FREE      2
-#define MBED_ATOMIC_LLONG_LOCK_FREE     0
-#define MBED_ATOMIC_POINTER_LOCK_FREE   2
+#define MSTD_ATOMIC_BOOL_LOCK_FREE      2
+#define MSTD_ATOMIC_CHAR_LOCK_FREE      2
+#define MSTD_ATOMIC_CHAR16_T_LOCK_FREE  2
+#define MSTD_ATOMIC_CHAR32_T_LOCK_FREE  2
+#define MSTD_ATOMIC_WCHAR_T_LOCK_FREE   2
+#define MSTD_ATOMIC_SHORT_LOCK_FREE     2
+#define MSTD_ATOMIC_INT_LOCK_FREE       2
+#define MSTD_ATOMIC_LONG_LOCK_FREE      2
+#define MSTD_ATOMIC_LLONG_LOCK_FREE     0
+#define MSTD_ATOMIC_POINTER_LOCK_FREE   2
 #endif
 
-namespace mbed {
+namespace mstd {
 
 /** Atomic template
  *
- * `mbed::Atomic<T>` is intended to work as per C++14 `std::atomic<T>`. `T` must be a
+ * `mstd::atomic<T>` is intended to work as per C++14 `std::atomic<T>`. `T` must be a
  * _TriviallyCopyable_, _CopyConstructible_ and _CopyAssignable_ type.
  * - All standard methods of `std::atomic` are supplied:
  *   + For any `T`: `load`, `store`, `exchange`, `compare_exchange_weak`,
@@ -84,15 +85,15 @@ namespace mbed {
  *   otherwise critical sections are used.
  * - If used with large objects, interrupt latency may be impacted.
  * - Valid initialisation forms are:
- *   + `Atomic<int> foo;` (zero initialized if static or thread-local, else value indeterminate)
+ *   + `atomic<int> foo;` (zero initialized if static or thread-local, else value indeterminate)
  *   + `atomic_init(&foo, 2);` (initialize a default-initialized variable, once only, not atomic)
- *   + `Atomic<int> foo(2);` (value initialization)
- *   + `Atomic<int> foo = { 2 };` (also legal C11 with _Atomic int)
- *   + `Atomic<int> foo = 2;` (C++17 or later only - also legal C11 with _Atomic int)
+ *   + `atomic<int> foo(2);` (value initialization)
+ *   + `atomic<int> foo = { 2 };` (also legal C11 with _Atomic int)
+ *   + `atomic<int> foo = 2;` (C++17 or later only - also legal C11 with _Atomic int)
  *   Note that the lack of a copy constructor limits the simple-looking assignment initialization
  *   to C++17 or later only.
  * - The value constructor is not available for small custom types.
- * - `MBED_ATOMIC_XXX_LOCK_FREE` replaces `ATOMIC_XXX_LOCK_FREE` - "locking" forms
+ * - `MSTD_ATOMIC_XXX_LOCK_FREE` replaces `ATOMIC_XXX_LOCK_FREE` - "locking" forms
  *   take a critical section, non-locking do not.
  * - For `bool`, integer types and pointers, storage is compatible with the
  *   plain types. If necessary, they can be substituted as plain types for C
@@ -100,7 +101,7 @@ namespace mbed {
  *   @code
  *       struct foo {
  *       #ifdef __cplusplus
- *          mbed::atomic_uint32_t counter; // Use C++ templates from C++ code
+ *          mstd::atomic_uint32_t counter; // Use C++ templates from C++ code
  *       #else
  *          uint32_t counter;  // Could use core_util_atomic_xxx_u32 from C code, or just have this for structure layout.
  *       #endif
@@ -108,9 +109,9 @@ namespace mbed {
  *   @endcode
  */
 template<typename T>
-class Atomic;
+class atomic;
 
-/* Pull C enum from mbed_critical.h into mbed namespace */
+/* Pull C enum from mbed_critical.h into mstd namespace */
 using memory_order = ::mbed_memory_order;
 constexpr memory_order memory_order_relaxed = mbed_memory_order_relaxed;
 constexpr memory_order memory_order_consume = mbed_memory_order_consume;
@@ -126,12 +127,12 @@ namespace impl {
  */
 // *INDENT-OFF*
 template<typename T>
-using atomic_container = std::conditional  <sizeof(T) <= sizeof(uint8_t),  uint8_t,
-                         std::conditional_t<sizeof(T) <= sizeof(uint16_t), uint16_t,
-                         std::conditional_t<sizeof(T) <= sizeof(uint32_t), uint32_t,
-                         std::conditional_t<sizeof(T) <= sizeof(uint64_t), uint64_t,
-                                                                           T
-                                           >>>>;
+using atomic_container = conditional  <sizeof(T) <= sizeof(uint8_t),  uint8_t,
+                         conditional_t<sizeof(T) <= sizeof(uint16_t), uint16_t,
+                         conditional_t<sizeof(T) <= sizeof(uint32_t), uint32_t,
+                         conditional_t<sizeof(T) <= sizeof(uint64_t), uint64_t,
+                                                                      T
+                                      >>>>;
 // *INDENT-ON*
 
 template<typename T>
@@ -141,16 +142,16 @@ template<typename N>
 struct atomic_container_is_lock_free;
 
 template<>
-struct atomic_container_is_lock_free<uint8_t> : mbed::bool_constant<bool(MBED_ATOMIC_CHAR_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint8_t> : bool_constant<bool(MSTD_ATOMIC_CHAR_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint16_t> : mbed::bool_constant<bool(MBED_ATOMIC_SHORT_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint16_t> : bool_constant<bool(MSTD_ATOMIC_SHORT_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint32_t> : mbed::bool_constant<bool(MBED_ATOMIC_INT_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint32_t> : bool_constant<bool(MSTD_ATOMIC_INT_LOCK_FREE)> { };
 
 template<>
-struct atomic_container_is_lock_free<uint64_t> : mbed::bool_constant<bool(MBED_ATOMIC_LLONG_LOCK_FREE)> { };
+struct atomic_container_is_lock_free<uint64_t> : bool_constant<bool(MSTD_ATOMIC_LLONG_LOCK_FREE)> { };
 
 template<typename T>
 using atomic_is_lock_free = atomic_container_is_lock_free<atomic_container_t<T>>;
@@ -570,7 +571,7 @@ protected:
 
 /* Template for an integer or pointer Atomic, including increment and
  * decrement functionality. If StrideT is void, then the increment and
- * decrement operators are ill-formed, as desired for Atomic<void *>.
+ * decrement operators are ill-formed, as desired for atomic<void *>.
  */
 template<typename T, typename DiffT = T, typename StrideT = char, typename A = atomic_container_t<T>>
 struct AtomicWithAdd : public AtomicBaseInt<T, A> {
@@ -702,15 +703,15 @@ struct AtomicWithBitwise : public AtomicWithAdd<T, A> {
  */
 // *INDENT-OFF*
 template<typename T, typename = void>
-struct AtomicSelector : mbed::type_identity<AtomicBaseRaw<T>> { };
+struct AtomicSelector : type_identity<AtomicBaseRaw<T>> { };
 
 template<typename T>
-struct AtomicSelector<T, std::enable_if_t<std::is_same<bool, T>::value>>
-                        : mbed::type_identity<AtomicBaseInt<T>> { };
+struct AtomicSelector<T, enable_if_t<is_same<bool, T>::value>>
+                        : type_identity<AtomicBaseInt<T>> { };
 
 template<typename T>
-struct AtomicSelector<T, std::enable_if_t<std::is_integral<T>::value && !std::is_same<bool, T>::value>>
-                        : mbed::type_identity<AtomicWithBitwise<T>> { };
+struct AtomicSelector<T, enable_if_t<is_integral<T>::value && !is_same<bool, T>::value>>
+                        : type_identity<AtomicWithBitwise<T>> { };
 // *INDENT-ON*
 
 template<typename T>
@@ -719,23 +720,23 @@ using Atomic = typename AtomicSelector<T>::type;
 } // namespace impl
 
 template<typename T>
-void atomic_init(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept;
+void atomic_init(volatile atomic<T> *obj, typename atomic<T>::value_type desired) noexcept;
 
 template<typename T>
-void atomic_init(Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept;
+void atomic_init(atomic<T> *obj, typename atomic<T>::value_type desired) noexcept;
 
 /* Base template - let impl::Atomic<T> dispatch to raw, base integer or integer-with-bitwise */
 template<typename T>
-struct Atomic : public impl::Atomic<T> {
+struct atomic : public impl::Atomic<T> {
     // Constraints from LWG 3012
-    static_assert(std::is_trivially_copyable<T>::value, "Atomic types must be TriviallyCopyable");
-    static_assert(std::is_copy_constructible<T>::value, "Atomic types must be CopyConstructible");
-    static_assert(std::is_move_constructible<T>::value, "Atomic types must be MoveConstructible");
-    static_assert(std::is_copy_assignable<T>::value, "Atomic types must be CopyAssignable");
-    static_assert(std::is_move_assignable<T>::value, "Atomic types must be MoveAssignable");
-    Atomic() noexcept = default;
-    Atomic(const Atomic &) = delete;
-    constexpr Atomic(T v) noexcept : impl::Atomic<T>(std::move(v))
+    static_assert(is_trivially_copyable<T>::value, "Atomic types must be TriviallyCopyable");
+    static_assert(is_copy_constructible<T>::value, "Atomic types must be CopyConstructible");
+    static_assert(is_move_constructible<T>::value, "Atomic types must be MoveConstructible");
+    static_assert(is_copy_assignable<T>::value, "Atomic types must be CopyAssignable");
+    static_assert(is_move_assignable<T>::value, "Atomic types must be MoveAssignable");
+    atomic() noexcept = default;
+    atomic(const atomic &) = delete;
+    constexpr atomic(T v) noexcept : impl::Atomic<T>(std::move(v))
     {
     }
     operator T() const volatile noexcept
@@ -756,10 +757,10 @@ struct Atomic : public impl::Atomic<T> {
         this->store(desired);
         return desired;
     }
-    Atomic &operator=(const Atomic &) = delete;
+    atomic &operator=(const atomic &) = delete;
 private:
-    friend void atomic_init<>(volatile Atomic *obj, typename Atomic::value_type desired) noexcept;
-    friend void atomic_init<>(Atomic *obj, typename Atomic::value_type desired) noexcept;
+    friend void atomic_init<>(volatile atomic *obj, typename atomic::value_type desired) noexcept;
+    friend void atomic_init<>(atomic *obj, typename atomic::value_type desired) noexcept;
 };
 
 
@@ -769,10 +770,10 @@ private:
  * "aptr.load()->member" to use it to access a structure. *aptr is fine though.
  */
 template<typename T>
-struct Atomic<T *> : public impl::AtomicWithAdd<T *, ptrdiff_t, T> {
-    Atomic() noexcept = default;
-    Atomic(const Atomic &) = delete;
-    constexpr Atomic(T *v) noexcept : impl::AtomicWithAdd<T *, ptrdiff_t, T>(v)
+struct atomic<T *> : public impl::AtomicWithAdd<T *, ptrdiff_t, T> {
+    atomic() noexcept = default;
+    atomic(const atomic &) = delete;
+    constexpr atomic(T *v) noexcept : impl::AtomicWithAdd<T *, ptrdiff_t, T>(v)
     {
     }
     operator T *() const volatile noexcept
@@ -793,190 +794,190 @@ struct Atomic<T *> : public impl::AtomicWithAdd<T *, ptrdiff_t, T> {
         this->store(desired);
         return desired;
     }
-    Atomic &operator=(const Atomic &) = delete;
+    atomic &operator=(const atomic &) = delete;
 private:
-    friend void atomic_init<>(volatile Atomic *obj, typename Atomic::value_type desired) noexcept;
-    friend void atomic_init<>(Atomic *obj, typename Atomic::value_type desired) noexcept;
+    friend void atomic_init<>(volatile atomic *obj, typename atomic::value_type desired) noexcept;
+    friend void atomic_init<>(atomic *obj, typename atomic::value_type desired) noexcept;
 };
 
-using atomic_bool           = Atomic<bool>;
-using atomic_char           = Atomic<char>;
-using atomic_schar          = Atomic<signed char>;
-using atomic_uchar          = Atomic<unsigned char>;
-using atomic_char16_t       = Atomic<char16_t>;
-using atomic_char32_t       = Atomic<char32_t>;
-using atomic_wchar_t        = Atomic<wchar_t>;
-using atomic_short          = Atomic<short>;
-using atomic_ushort         = Atomic<unsigned short>;
-using atomic_int            = Atomic<int>;
-using atomic_uint           = Atomic<unsigned int>;
-using atomic_long           = Atomic<long>;
-using atomic_ulong          = Atomic<unsigned long>;
-using atomic_llong          = Atomic<long long>;
-using atomic_ullong         = Atomic<unsigned long long>;
-using atomic_int8_t         = Atomic<int8_t>;
-using atomic_uint8_t        = Atomic<uint8_t>;
-using atomic_int16_t        = Atomic<int16_t>;
-using atomic_uint16_t       = Atomic<uint16_t>;
-using atomic_int32_t        = Atomic<int32_t>;
-using atomic_uint32_t       = Atomic<uint32_t>;
-using atomic_int64_t        = Atomic<int64_t>;
-using atomic_uint64_t       = Atomic<uint64_t>;
-using atomic_int_least8_t   = Atomic<int_least8_t>;
-using atomic_uint_least8_t  = Atomic<uint_least8_t>;
-using atomic_int_least16_t  = Atomic<int_least16_t>;
-using atomic_uint_least16_t = Atomic<uint_least16_t>;
-using atomic_int_least32_t  = Atomic<int_least32_t>;
-using atomic_uint_least32_t = Atomic<uint_least32_t>;
-using atomic_int_least64_t  = Atomic<int_least64_t>;
-using atomic_uint_least64_t = Atomic<uint_least64_t>;
-using atomic_int_fast8_t    = Atomic<int_fast8_t>;
-using atomic_uint_fast8_t   = Atomic<uint_fast8_t>;
-using atomic_int_fast16_t   = Atomic<int_fast16_t>;
-using atomic_uint_fast16_t  = Atomic<uint_fast16_t>;
-using atomic_int_fast32_t   = Atomic<int_fast32_t>;
-using atomic_uint_fast32_t  = Atomic<uint_fast32_t>;
-using atomic_int_fast64_t   = Atomic<int_fast64_t>;
-using atomic_uint_fast64_t  = Atomic<uint_fast64_t>;
-using atomic_intptr_t       = Atomic<intptr_t>;
-using atomic_uintptr_t      = Atomic<uintptr_t>;
-using atomic_size_t         = Atomic<size_t>;
-using atomic_ptrdiff_t      = Atomic<ptrdiff_t>;
-using atomic_intmax_t       = Atomic<intmax_t>;
-using atomic_uintmax_t      = Atomic<uintmax_t>;
+using atomic_bool           = atomic<bool>;
+using atomic_char           = atomic<char>;
+using atomic_schar          = atomic<signed char>;
+using atomic_uchar          = atomic<unsigned char>;
+using atomic_char16_t       = atomic<char16_t>;
+using atomic_char32_t       = atomic<char32_t>;
+using atomic_wchar_t        = atomic<wchar_t>;
+using atomic_short          = atomic<short>;
+using atomic_ushort         = atomic<unsigned short>;
+using atomic_int            = atomic<int>;
+using atomic_uint           = atomic<unsigned int>;
+using atomic_long           = atomic<long>;
+using atomic_ulong          = atomic<unsigned long>;
+using atomic_llong          = atomic<long long>;
+using atomic_ullong         = atomic<unsigned long long>;
+using atomic_int8_t         = atomic<int8_t>;
+using atomic_uint8_t        = atomic<uint8_t>;
+using atomic_int16_t        = atomic<int16_t>;
+using atomic_uint16_t       = atomic<uint16_t>;
+using atomic_int32_t        = atomic<int32_t>;
+using atomic_uint32_t       = atomic<uint32_t>;
+using atomic_int64_t        = atomic<int64_t>;
+using atomic_uint64_t       = atomic<uint64_t>;
+using atomic_int_least8_t   = atomic<int_least8_t>;
+using atomic_uint_least8_t  = atomic<uint_least8_t>;
+using atomic_int_least16_t  = atomic<int_least16_t>;
+using atomic_uint_least16_t = atomic<uint_least16_t>;
+using atomic_int_least32_t  = atomic<int_least32_t>;
+using atomic_uint_least32_t = atomic<uint_least32_t>;
+using atomic_int_least64_t  = atomic<int_least64_t>;
+using atomic_uint_least64_t = atomic<uint_least64_t>;
+using atomic_int_fast8_t    = atomic<int_fast8_t>;
+using atomic_uint_fast8_t   = atomic<uint_fast8_t>;
+using atomic_int_fast16_t   = atomic<int_fast16_t>;
+using atomic_uint_fast16_t  = atomic<uint_fast16_t>;
+using atomic_int_fast32_t   = atomic<int_fast32_t>;
+using atomic_uint_fast32_t  = atomic<uint_fast32_t>;
+using atomic_int_fast64_t   = atomic<int_fast64_t>;
+using atomic_uint_fast64_t  = atomic<uint_fast64_t>;
+using atomic_intptr_t       = atomic<intptr_t>;
+using atomic_uintptr_t      = atomic<uintptr_t>;
+using atomic_size_t         = atomic<size_t>;
+using atomic_ptrdiff_t      = atomic<ptrdiff_t>;
+using atomic_intmax_t       = atomic<intmax_t>;
+using atomic_uintmax_t      = atomic<uintmax_t>;
 
 template<typename T>
-void atomic_init(Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+void atomic_init(atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     obj->init(desired);
 }
 
 template<typename T>
-void atomic_init(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+void atomic_init(volatile atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     obj->init(desired);
 }
 
 template<typename T>
-bool atomic_is_lock_free(const Atomic<T> *obj) noexcept
+bool atomic_is_lock_free(const atomic<T> *obj) noexcept
 {
     return obj->is_lock_free();
 }
 
 template<typename T>
-bool atomic_is_lock_free(const volatile Atomic<T> *obj) noexcept
+bool atomic_is_lock_free(const volatile atomic<T> *obj) noexcept
 {
     return obj->is_lock_free();
 }
 
 template<typename T>
-void atomic_store(Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+void atomic_store(atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     obj->store(desired);
 }
 
 template<typename T>
-void atomic_store(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+void atomic_store(volatile atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     obj->store(desired);
 }
 
 template<typename T>
-void atomic_store_explicit(Atomic<T> *obj, typename Atomic<T>::value_type desired, memory_order order) noexcept
+void atomic_store_explicit(atomic<T> *obj, typename atomic<T>::value_type desired, memory_order order) noexcept
 {
     obj->store(desired, order);
 }
 
 template<typename T>
-void atomic_store_explicit(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired, memory_order order) noexcept
+void atomic_store_explicit(volatile atomic<T> *obj, typename atomic<T>::value_type desired, memory_order order) noexcept
 {
     obj->store(desired, order);
 }
 
 template<typename T>
-T atomic_load(const Atomic<T> *obj) noexcept
+T atomic_load(const atomic<T> *obj) noexcept
 {
     return obj->load();
 }
 
 template<typename T>
-T atomic_load(const volatile Atomic<T> *obj) noexcept
+T atomic_load(const volatile atomic<T> *obj) noexcept
 {
     return obj->load();
 }
 
 template<typename T>
-T atomic_load_explicit(const Atomic<T> *obj, memory_order order) noexcept
+T atomic_load_explicit(const atomic<T> *obj, memory_order order) noexcept
 {
     return obj->load(order);
 }
 
 template<typename T>
-T atomic_load_explicit(const volatile Atomic<T> *obj, memory_order order) noexcept
+T atomic_load_explicit(const volatile atomic<T> *obj, memory_order order) noexcept
 {
     return obj->load(order);
 }
 
 template<typename T>
-T atomic_exchange(Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+T atomic_exchange(atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     return obj->exchange(desired);
 }
 
 template<typename T>
-T atomic_exchange(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired) noexcept
+T atomic_exchange(volatile atomic<T> *obj, typename atomic<T>::value_type desired) noexcept
 {
     return obj->exchange(desired);
 }
 
 template<typename T>
-T atomic_exchange_explicit(Atomic<T> *obj, typename Atomic<T>::value_type desired, memory_order order) noexcept
+T atomic_exchange_explicit(atomic<T> *obj, typename atomic<T>::value_type desired, memory_order order) noexcept
 {
     return obj->exchange(desired, order);
 }
 
 template<typename T>
-T atomic_exchange_explicit(volatile Atomic<T> *obj, typename Atomic<T>::value_type desired, memory_order order) noexcept
+T atomic_exchange_explicit(volatile atomic<T> *obj, typename atomic<T>::value_type desired, memory_order order) noexcept
 {
     return obj->exchange(desired, order);
 }
 
 template<typename T>
-bool atomic_compare_exchange_weak(Atomic<T> *obj,
-                                  typename Atomic<T>::value_type *currentExpected,
-                                  typename Atomic<T>::value_type desired) noexcept
+bool atomic_compare_exchange_weak(atomic<T> *obj,
+                                  typename atomic<T>::value_type *currentExpected,
+                                  typename atomic<T>::value_type desired) noexcept
 {
     return obj->compare_exchange_weak(obj, *currentExpected, desired);
 }
 
 template<typename T>
-bool atomic_compare_exchange_weak(volatile Atomic<T> *obj,
-                                  typename Atomic<T>::value_type *currentExpected,
-                                  typename Atomic<T>::value_type desired) noexcept
+bool atomic_compare_exchange_weak(volatile atomic<T> *obj,
+                                  typename atomic<T>::value_type *currentExpected,
+                                  typename atomic<T>::value_type desired) noexcept
 {
     return obj->compare_exchange_weak(obj, *currentExpected, desired);
 }
 
 template<typename T>
-bool atomic_compare_exchange_strong(Atomic<T> *obj,
-                                    typename Atomic<T>::value_type *currentExpected,
-                                    typename Atomic<T>::value_type desired) noexcept
+bool atomic_compare_exchange_strong(atomic<T> *obj,
+                                    typename atomic<T>::value_type *currentExpected,
+                                    typename atomic<T>::value_type desired) noexcept
 {
     return obj->compare_exchange_strong(obj, *currentExpected, desired);
 }
 
 template<typename T>
-bool atomic_compare_exchange_strong(volatile Atomic<T> *obj,
-                                    typename Atomic<T>::value_type *currentExpected,
-                                    typename Atomic<T>::value_type desired) noexcept
+bool atomic_compare_exchange_strong(volatile atomic<T> *obj,
+                                    typename atomic<T>::value_type *currentExpected,
+                                    typename atomic<T>::value_type desired) noexcept
 {
     return obj->compare_exchange_strong(obj, *currentExpected, desired);
 }
 
 template<typename T>
-bool atomic_compare_exchange_weak_explicit(Atomic<T> *obj,
-                                           typename Atomic<T>::value_type *currentExpected,
-                                           typename Atomic<T>::value_type desired,
+bool atomic_compare_exchange_weak_explicit(atomic<T> *obj,
+                                           typename atomic<T>::value_type *currentExpected,
+                                           typename atomic<T>::value_type desired,
                                            memory_order success,
                                            memory_order failure) noexcept
 {
@@ -984,9 +985,9 @@ bool atomic_compare_exchange_weak_explicit(Atomic<T> *obj,
 }
 
 template<typename T>
-bool atomic_compare_exchange_weak_explicit(volatile Atomic<T> *obj,
-                                           typename Atomic<T>::value_type *currentExpected,
-                                           typename Atomic<T>::value_type desired,
+bool atomic_compare_exchange_weak_explicit(volatile atomic<T> *obj,
+                                           typename atomic<T>::value_type *currentExpected,
+                                           typename atomic<T>::value_type desired,
                                            memory_order success,
                                            memory_order failure) noexcept
 {
@@ -994,9 +995,9 @@ bool atomic_compare_exchange_weak_explicit(volatile Atomic<T> *obj,
 }
 
 template<typename T>
-bool atomic_compare_exchange_strong_explicit(Atomic<T> *obj,
-                                             typename Atomic<T>::value_type *currentExpected,
-                                             typename Atomic<T>::value_type desired,
+bool atomic_compare_exchange_strong_explicit(atomic<T> *obj,
+                                             typename atomic<T>::value_type *currentExpected,
+                                             typename atomic<T>::value_type desired,
                                              memory_order success,
                                              memory_order failure) noexcept
 {
@@ -1004,9 +1005,9 @@ bool atomic_compare_exchange_strong_explicit(Atomic<T> *obj,
 }
 
 template<typename T>
-bool atomic_compare_exchange_strong_explicit(volatile Atomic<T> *obj,
-                                             typename Atomic<T>::value_type *currentExpected,
-                                             typename Atomic<T>::value_type desired,
+bool atomic_compare_exchange_strong_explicit(volatile atomic<T> *obj,
+                                             typename atomic<T>::value_type *currentExpected,
+                                             typename atomic<T>::value_type desired,
                                              memory_order success,
                                              memory_order failure) noexcept
 {
@@ -1014,121 +1015,121 @@ bool atomic_compare_exchange_strong_explicit(volatile Atomic<T> *obj,
 }
 
 template<typename T>
-T atomic_fetch_add(Atomic<T> *obj, typename Atomic<T>::difference_type arg) noexcept
+T atomic_fetch_add(atomic<T> *obj, typename atomic<T>::difference_type arg) noexcept
 {
     return obj->fetch_add(arg);
 }
 
 template<typename T>
-T atomic_fetch_add(volatile Atomic<T> *obj, typename Atomic<T>::difference_type arg) noexcept
+T atomic_fetch_add(volatile atomic<T> *obj, typename atomic<T>::difference_type arg) noexcept
 {
     return obj->fetch_add(arg);
 }
 
 template<typename T>
-T atomic_fetch_add_explicit(Atomic<T> *obj, typename Atomic<T>::difference_type arg, memory_order order) noexcept
+T atomic_fetch_add_explicit(atomic<T> *obj, typename atomic<T>::difference_type arg, memory_order order) noexcept
 {
     return obj->fetch_add(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_add_explicit(volatile Atomic<T> *obj, typename Atomic<T>::difference_type arg, memory_order order) noexcept
+T atomic_fetch_add_explicit(volatile atomic<T> *obj, typename atomic<T>::difference_type arg, memory_order order) noexcept
 {
     return obj->fetch_add(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_sub(Atomic<T> *obj, typename Atomic<T>::difference_type arg) noexcept
+T atomic_fetch_sub(atomic<T> *obj, typename atomic<T>::difference_type arg) noexcept
 {
     return obj->fetch_sub(arg);
 }
 
 template<typename T>
-T atomic_fetch_sub(volatile Atomic<T> *obj, typename Atomic<T>::difference_type arg) noexcept
+T atomic_fetch_sub(volatile atomic<T> *obj, typename atomic<T>::difference_type arg) noexcept
 {
     return obj->fetch_sub(arg);
 }
 
 template<typename T>
-T atomic_fetch_sub_explicit(Atomic<T> *obj, typename Atomic<T>::difference_type arg, memory_order order) noexcept
+T atomic_fetch_sub_explicit(atomic<T> *obj, typename atomic<T>::difference_type arg, memory_order order) noexcept
 {
     return obj->fetch_sub(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_sub_explicit(volatile Atomic<T> *obj, typename Atomic<T>::difference_type arg, memory_order order) noexcept
+T atomic_fetch_sub_explicit(volatile atomic<T> *obj, typename atomic<T>::difference_type arg, memory_order order) noexcept
 {
     return obj->fetch_sub(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_and(Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_and(atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_and(arg);
 }
 
 template<typename T>
-T atomic_fetch_and(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_and(volatile atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_and(arg);
 }
 
 template<typename T>
-T atomic_fetch_and_explicit(Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_and_explicit(atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_and(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_and_explicit(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_and_explicit(volatile atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_and(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_or(Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_or(atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_or(arg);
 }
 
 template<typename T>
-T atomic_fetch_or(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_or(volatile atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_or(arg);
 }
 
 template<typename T>
-T atomic_fetch_or_explicit(Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_or_explicit(atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_or(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_or_explicit(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_or_explicit(volatile atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_or(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_xor(Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_xor(atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_xor(arg);
 }
 
 template<typename T>
-T atomic_fetch_xor(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg) noexcept
+T atomic_fetch_xor(volatile atomic<T> *obj, typename atomic<T>::value_type arg) noexcept
 {
     return obj->fetch_xor(arg);
 }
 
 template<typename T>
-T atomic_fetch_xor_explicit(Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_xor_explicit(atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_xor(arg, order);
 }
 
 template<typename T>
-T atomic_fetch_xor_explicit(volatile Atomic<T> *obj, typename Atomic<T>::value_type arg, memory_order order) noexcept
+T atomic_fetch_xor_explicit(volatile atomic<T> *obj, typename atomic<T>::value_type arg, memory_order order) noexcept
 {
     return obj->fetch_xor(arg, order);
 }
@@ -1206,7 +1207,7 @@ MBED_FORCEINLINE void atomic_flag_clear_explicit(atomic_flag *flag, memory_order
     flag->clear(order);
 }
 
-#define MBED_ATOMIC_FLAG_INIT { CORE_UTIL_ATOMIC_FLAG_INIT }
+#define MSTD_ATOMIC_FLAG_INIT { CORE_UTIL_ATOMIC_FLAG_INIT }
 
 template<typename T>
 T kill_dependency(T y) noexcept
@@ -1231,6 +1232,6 @@ MBED_FORCEINLINE void atomic_thread_fence(memory_order order) noexcept
 
 /**@}*/
 
-} // namespace mbed
+} // namespace mstd
 
 #endif

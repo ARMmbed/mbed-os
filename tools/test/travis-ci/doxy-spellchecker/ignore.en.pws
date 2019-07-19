@@ -46,7 +46,9 @@ retval
 dequeue
 assertation
 destructor
+destructors
 constructor
+constructors
 ctor
 dtor
 dereference
@@ -71,6 +73,7 @@ deasserted
 getter
 setter
 preallocated
+excludable
 ascii
 IPv
 param

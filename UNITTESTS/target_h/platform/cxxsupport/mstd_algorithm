@@ -1,0 +1,110 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef MSTD_ALGORITHM_
+#define MSTD_ALGORITHM_
+
+/* <mstd_algorithm>
+ *
+ * - provides <algorithm>
+ * - For ARM C 5, standard C++11/14 features:
+ *   - std::min, std::max for std::initializer_list
+ *   - std::all_of, std::any_of, std::none_of
+ *   - std::find_if_not
+ *   - std::equal (2-range forms)
+ *   - std::copy_n, std::move, std::move_backward
+ *   - mstd::min, mstd::max constexpr replacements
+ */
+
+#include <algorithm>
+
+namespace mstd {
+using std::min;
+using std::max;
+using std::minmax;
+using std::initializer_list;
+using std::all_of;
+using std::any_of;
+using std::none_of;
+using std::for_each;
+using std::find;
+using std::find_if;
+using std::find_if_not;
+using std::find_end;
+using std::find_first_of;
+using std::adjacent_find;
+using std::count;
+using std::count_if;
+using std::mismatch;
+using std::equal;
+using std::search;
+using std::search_n;
+using std::copy;
+using std::copy_n;
+using std::copy_if;
+using std::move;
+using std::move_backward;
+using std::swap_ranges;
+using std::iter_swap;
+using std::transform;
+using std::replace;
+using std::replace_if;
+using std::replace_copy;
+using std::replace_copy_if;
+using std::fill;
+using std::fill_n;
+using std::generate;
+using std::generate_n;
+using std::remove;
+using std::remove_if;
+using std::remove_copy;
+using std::remove_copy_if;
+using std::unique;
+using std::unique_copy;
+using std::reverse;
+using std::reverse_copy;
+using std::rotate;
+using std::rotate_copy;
+using std::partition;
+using std::stable_partition;
+using std::sort;
+using std::stable_sort;
+using std::partial_sort;
+using std::partial_sort_copy;
+using std::nth_element;
+using std::lower_bound;
+using std::upper_bound;
+using std::equal_range;
+using std::binary_search;
+using std::merge;
+using std::inplace_merge;
+using std::includes;
+using std::set_union;
+using std::set_intersection;
+using std::set_difference;
+using std::set_symmetric_difference;
+using std::push_heap;
+using std::pop_heap;
+using std::make_heap;
+using std::sort_heap;
+using std::min_element;
+using std::max_element;
+using std::lexicographical_compare;
+using std::next_permutation;
+using std::prev_permutation;
+}
+
+#endif // MSTD_ALGORITHM_
