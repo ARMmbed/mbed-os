@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL
+
 #include <ctype.h>
 #include <cstdio>
 #include <string.h>
@@ -780,3 +782,5 @@ static int HandleKV(char *out_key,
     getNextToken(0, 0);
     return 0;
 }
+
+#endif
