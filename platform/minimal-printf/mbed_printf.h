@@ -38,21 +38,21 @@ int mbed_printf(const char *format, ...);
  *
  * Prints directly to buffer without using malloc.
  */
-int mbed_snprintf(char* buffer, size_t length, const char* format, ...);
+int mbed_snprintf(char *buffer, size_t length, const char *format, ...);
 
 /**
  * Minimal printf
  *
  * Prints directly to stdio/UART without using malloc.
  */
-int mbed_vprintf(const char* format, va_list arguments);
+int mbed_vprintf(const char *format, va_list arguments);
 
 /**
  * Minimal snprintf
  *
  * Prints directly to buffer without using malloc.
  */
-int mbed_vsnprintf(char* buffer, size_t length, const char* format, va_list arguments);
+int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list arguments);
 
 #if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 /**
@@ -60,14 +60,14 @@ int mbed_vsnprintf(char* buffer, size_t length, const char* format, va_list argu
  *
  * Prints directly to file stream without using malloc.
  */
-int mbed_fprintf(FILE* stream, const char *format, ...);
+int mbed_fprintf(FILE *stream, const char *format, ...);
 
 /**
  * Minimal vfprintf
  *
  * Prints directly to file stream without using malloc.
  */
-int mbed_vfprintf(FILE* stream, const char* format, va_list arguments);
+int mbed_vfprintf(FILE *stream, const char *format, va_list arguments);
 #endif
 
 #ifdef __cplusplus

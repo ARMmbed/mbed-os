@@ -1,10 +1,9 @@
 # Minimal printf and snprintf
 
+
 Library supports both printf and snprintf in 1252 bytes of flash.
 
 Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
-Floating point is enabled by default.
-Printing to a FILE stream is enabled by default.
 
 Supports:
 * %d: signed integer [h, hh, (none), l, ll, z, j, t].
@@ -22,12 +21,62 @@ Supports:
 
 Unrecognized format specifiers are treated as ordinary characters.
 
-Floating point support:
-* Floating point is enabled by default.
+Floating point limitations:
 * All floating points are treated as %f.
 * No support for inf, infinity or nan
 
+## Configuration
+
+
+Minimal printf is configured by the following parameters defined in `platform/mbed_lib.json`:
+
+```
+{
+    "name": "platform",
+    "config": {
+       "minimal-printf-console-output": {
+            "help": "Console output when using mprintf profile. Options: UART, SWO",
+            "value": "UART"
+        },
+        "minimal-printf-enable-64-bit": {
+            "help": "Enable printing 64 bit integers when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-enable-file-stream": {
+            "help": "Enable printing to a FILE stream when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-enable-floating-point": {
+            "help": "Enable floating point printing when using mprintf profile",
+            "value": true
+        },
+        "minimal-printf-set-floating-point-max-decimals": {
+            "help": "Maximum number of decimals to be printed",
+            "value": 6
+        }
+   }
+}
+```
+
+By default, 64 bit integers, floating point  and FILE stream printing are enabled.
+
+If your target does not require some options then you can override the default configuration in your application `mbed_app.json` and achieve further memory optimisation (see next section for size comparison numbers).
+
+In mbed_app.json:
+
+```
+    "target_overrides": {
+        "*": {
+            "platform.minimal-printf-enable-file-stream": false,
+            "platform.minimal-printf-enable-floating-point": false,
+            "platform.minimal-printf-set-floating-point-max-decimals": 6,
+            "platform.minimal-printf-enable-64-bit": false
+        }
+    }
+```
+
 ## Usage
+
 
 To replace the standard implementation of the printf functions with the ones in this library:
 
@@ -37,79 +86,73 @@ Compile with mbed-cli using the custom `mprintf` profile. For example, to compil
 $ mbed compile -t <toolchain> -m <target> --profile release --profile mprintf
 ```
 
-## Enabling FILE stream, floating point and 64 bit integers
-
-In mbed_app.json:
-
-```
-    "target_overrides": {
-        "*": {
-            "platform.minimal-printf-enable-file-stream": true,
-            "platform.minimal-printf-enable-floating-point": true,
-            "platform.minimal-printf-set-floating-point-max-decimals": 6,
-            "platform.minimal-printf-enable-64-bit": true
-        }
-    }
-```
-
-
 ## Size comparison
 
-Example application compiled with minimal mbed OS (no RTOS) using this .mbedignore:
 
-```
-mbed-os/rtos/*
-mbed-os/features/FEATURE_LWIP/*
-mbed-os/features/FEATURE_CLIENT/*
-mbed-os/features/FEATURE_COMMON_PAL/*
-mbed-os/features/FEATURE_UVISOR/*
-mbed-os/features/frameworks/*
-mbed-os/features/net/*
-mbed-os/features/netsocket/*
-mbed-os/features/storage/*
-mbed-os/events/*
-```
+### Blinky application
 
-### Example application
-```
-#include "mbed.h"
-#include "mbed_printf.h"
-#include <limits.h>
+https://github.com/ARMmbed/mbed-os-example-blinky application compiled with the different toolchains.
 
-int main()
-{
-    char buffer[1000];
-    int result;
+Blinky application size on K64F/GCC_ARM
 
-    double pi = 3.14159265359;
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM    |
+| -           | -           | -              | -               | -      | -      |
+| mbed-printf |             |                |                 | 30,944 | 12,096 |
+| mbed-printf |             |                | X               | 31,084 | 12,096 |
+| mbed-printf |             | X              | X               | 33,824 | 12,096 |
+| mbed-printf | X           | X              | X               | 34,304 | 12,096 |
+| std printf  | X           | X              | X               | 54,158 | 12,112 |
 
-#if 0
-    result = printf("hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh", pi);
-    printf("results: %d\r\n", result);
+Blinky application size on K64F/ARMC6
 
-    result = snprintf(buffer, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
-    printf("%s\r\n", buffer);
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM   |
+| -           | -           | -              | -               | -      | -     |
+| mbed-printf |             |                |                 | 31,543 | xxxxx |
+| mbed-printf |             |                | X               | 31,691 | xxxxx |
+| mbed-printf |             | X              | X               | 34,515 | xxxxx |
+| mbed-printf | X           | X              | X               | 34,647 | xxxxx |
+| std printf  | X           | X              | X               | 37,458 | xxxxx |
 
-    printf("results: %d\r\n", result);
+Blinky application size on K64F/IAR
 
-#else
-    result = mbed_printf("hello world %ld %llu %02X %p %s %2.5f %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh", pi);
-    mbed_printf("results: %d\r\n", result);
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM    |
+| -           | -           | -              | -               | -      | -      |
+| mbed-printf |             |                |                 | 28,713 | 8,546  |
+| mbed-printf |             |                | X               | 28,853 | 8,546  |
+| mbed-printf |             | X              | X               | 30,661 | 8,546  |
+| mbed-printf | X           | X              | X               | 32,047 | 8,594  |
+| std printf  | X           | X              | X               | 35,055 | 8,462  |
 
-    result = mbed_snprintf(buffer, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
-    mbed_printf("%s\r\n", buffer);
+### Blinky bare metal application
 
-    mbed_printf("results: %d\r\n", result);
-#endif
-}
-```
+https://github.com/ARMmbed/mbed-os-example-blinky-baremetal application compiled with the different toolchains.
 
-### Full application size on K64F/GCC
+Blinky application size on K64F/GCC_ARM
 
-|             | Floating point | 64 bit integers | Flash | RAM  |
-| -           | -              | -               | -     | -    |
-| mbed-printf |                |                 | 7772  | 2752 |
-| mbed-printf |                | X               | 8708  | 2752 |
-| mbed-printf | X              |                 | 10368 | 2752 |
-| mbed-printf | X              | X               | 11360 | 2752 |
-| std printf  | X              | X               | 37354 | 5364 |
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM   |
+| -           | -           | -              | -               | -      | -     |
+| mbed-printf |             |                |                 | 17,168 | 5,880 |
+| mbed-printf |             |                | X               | 17,308 | 5,880 |
+| mbed-printf |             | X              | X               | 20,044 | 5,880 |
+| mbed-printf | X           | X              | X               | 22,560 | 5,880 |
+| std printf  | X           | X              | X               | 35,244 | 5,864 |
+
+Blinky application size on K64F/ARMC6
+
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM   |
+| -           | -           | -              | -               | -      | -     |
+| mbed-printf |             |                |                 | 19,496 | xxxxx |
+| mbed-printf |             |                | X               | 19,644 | xxxxx |
+| mbed-printf |             | X              | X               | 22,468 | xxxxx |
+| mbed-printf | X           | X              | X               | 23,060 | xxxxx |
+| std printf  | X           | X              | X               | 25,393 | xxxxx |
+
+Blinky application size on K64F/IAR
+
+|             | File stream | Floating point | 64 bit integers | Flash  | RAM    |
+| -           | -           | -              | -               | -      | -      |
+| mbed-printf |             |                |                 | 13,007 | 1,413  |
+| mbed-printf |             |                | X               | 13,147 | 1,413  |
+| mbed-printf |             | X              | X               | 14,955 | 1,413  |
+| mbed-printf | X           | X              | X               | 21,757 | 1,929  |
+| std printf  | X           | X              | X               | 17,991 | 1,281  |

@@ -78,7 +78,7 @@ int SUB_PRINTF(const char *format, ...)
     return result;
 }
 
-int SUB_SPRINTF(char* buffer, const char* format, ...)
+int SUB_SPRINTF(char *buffer, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -88,7 +88,7 @@ int SUB_SPRINTF(char* buffer, const char* format, ...)
     return result;
 }
 
-int SUB_SNPRINTF(char* buffer, size_t length, const char* format, ...)
+int SUB_SNPRINTF(char *buffer, size_t length, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -98,23 +98,23 @@ int SUB_SNPRINTF(char* buffer, size_t length, const char* format, ...)
     return result;
 }
 
-int SUB_VPRINTF(const char* format, va_list arguments)
+int SUB_VPRINTF(const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
 }
 
-int SUB_VSPRINTF(char* buffer, const char* format, va_list arguments)
+int SUB_VSPRINTF(char *buffer, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
 }
 
-int SUB_VSNPRINTF(char* buffer, size_t length, const char* format, va_list arguments)
+int SUB_VSNPRINTF(char *buffer, size_t length, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
 #if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
-int SUB_FPRINTF(FILE* stream, const char* format, ...)
+int SUB_FPRINTF(FILE *stream, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
@@ -124,7 +124,7 @@ int SUB_FPRINTF(FILE* stream, const char* format, ...)
     return result;
 }
 
-int SUB_VFPRINTF(FILE* stream, const char* format, va_list arguments)
+int SUB_VFPRINTF(FILE *stream, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
 }
