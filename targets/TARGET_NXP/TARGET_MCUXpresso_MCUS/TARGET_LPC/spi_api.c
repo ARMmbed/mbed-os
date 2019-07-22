@@ -42,6 +42,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     obj->instance = pinmap_merge(spi_data, spi_cntl);
     MBED_ASSERT((int)obj->instance != NC);
+    obj->ssel_num = 0;
 
     switch (obj->instance) {
         case 0:
@@ -96,6 +97,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
+        obj->ssel_num = pinmap_function(ssel, PinMap_SPI_SSEL) >> SSELNUM_SHIFT;
     }
 }
 
@@ -128,6 +130,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         master_config.polarity = (mode & 0x2) ? kSPI_ClockPolarityActiveLow : kSPI_ClockPolarityActiveHigh;
         master_config.phase = (mode & 0x1) ? kSPI_ClockPhaseSecondEdge : kSPI_ClockPhaseFirstEdge;
         master_config.direction = kSPI_MsbFirst;
+        master_config.sselNum = obj->ssel_num;
         if (baud_rate > 0) {
             master_config.baudRate_Bps = baud_rate;
         }
