@@ -891,7 +891,7 @@ static control_t test_snprintf_buffer_overflow_llx(const size_t call_count)
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30*60, "default_auto");
+    GREENTEA_SETUP(30 * 60, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
