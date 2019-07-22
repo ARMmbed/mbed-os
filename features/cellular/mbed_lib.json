@@ -20,6 +20,10 @@
         "control-plane-opt": {
             "help": "Enables control plane CIoT EPS optimization",
             "value": false
+        },
+        "offload-dns-queries" : {
+            "help": "Use modem IP stack for DNS queries, null or numeric simultaneous queries",
+            "value": null
         }
     }
 }
