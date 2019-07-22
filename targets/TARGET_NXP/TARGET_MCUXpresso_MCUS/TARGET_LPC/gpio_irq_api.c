@@ -67,6 +67,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         return -1;
     }
 
+    obj->pin = pin & 0x1F;
+    obj->port = pin / 32;
+
+    if (obj->port >= INTERRUPT_PORTS) {
+        return -1;
+    }
+
     irq_handler = handler;
 
     for (i = 0; i < NUMBER_OF_GPIO_INTS; i++) {
@@ -79,13 +86,6 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     }
 
     if (!found_free_channel) {
-        return -1;
-    }
-
-    obj->pin = pin & 0x1F;
-    obj->port = pin / 32;
-
-    if (obj->port >= INTERRUPT_PORTS) {
         return -1;
     }
 
@@ -139,7 +139,26 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             }
         }
     } else {
-        PINT_PinInterruptConfig(PINT, (pint_pin_int_t)obj->ch, kPINT_PinIntEnableNone, NULL);
+        if (event == IRQ_RISE) {
+            /* Checking if falling edge interrupt is already enabled on this pin */
+            if (PINT->IENF & (1U << obj->ch)) {
+                /* Leave falling edge interrupt enabled */
+                PINT_PinInterruptConfig(PINT, (pint_pin_int_t)obj->ch, kPINT_PinIntEnableFallEdge, pint_intr_callback);
+            } else {
+                /* Both rising and falling edge interrupt are disabled */
+                PINT_PinInterruptConfig(PINT, (pint_pin_int_t)obj->ch, kPINT_PinIntEnableNone, pint_intr_callback);
+            }
+        } else {
+            /* Checking if rising edge interrupt is already enabled on this pin */
+            if (PINT->IENR & (1U << obj->ch)) {
+                /* Leave rising edge interrupt enabled */
+                PINT_PinInterruptConfig(PINT, (pint_pin_int_t)obj->ch, kPINT_PinIntEnableRiseEdge, pint_intr_callback);
+            } else {
+                /* Both rising and falling edge interrupt are disabled */
+                PINT_PinInterruptConfig(PINT, (pint_pin_int_t)obj->ch, kPINT_PinIntEnableNone, pint_intr_callback);
+            }
+        }
+
     }
 }
 
