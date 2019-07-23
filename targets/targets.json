@@ -8479,7 +8479,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "FUTURE_SEQUANA"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "post_binary_hook": {
@@ -8508,7 +8508,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "CORDIO"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",
