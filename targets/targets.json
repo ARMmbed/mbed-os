@@ -8782,17 +8782,18 @@
     "CC32XX": {
         "inherits": ["TI"],
         "public": false,
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "release_versions": ["5"]
     },
     "CC3220SF": {
         "inherits": ["CC32XX"],
+        "public": false,
         "macros": ["MBED_MPU_CUSTOM"],
         "core": "Cortex-M4",
         "device_name": "CC3220SF"
     },
     "CC3220SF_LAUNCHXL": {
         "inherits": ["CC3220SF"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "components_add": ["SD", "FLASHIAP"],
         "device_has": ["USTICKER",
             "SERIAL",

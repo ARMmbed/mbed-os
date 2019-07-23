@@ -62,6 +62,7 @@ const PinMap PinMap_GPIO[] = {
 };
 
 /************PWM***************/
+#if DEVICE_PWMOUT
 const PinMap PinMap_PWM[] = {
     {PIN_01, PWM_1, 3},
     {PIN_02, PWM_2, 3},
@@ -69,9 +70,12 @@ const PinMap PinMap_PWM[] = {
     {PIN_19, PWM_4, 8},
     {PIN_21, PWM_5, 9},
     {PIN_64, PWM_6, 3},
+    {NC, NC, 0}
 };
+#endif
 
 /************UART***************/
+#if DEVICE_SERIAL
 const PinMap PinMap_UART_TX[] = {
     {PIN_01, UART_1, 7},
     {PIN_03, UART_0, 7},
@@ -97,7 +101,7 @@ const PinMap PinMap_UART_RX[] = {
     {PIN_59, UART_1, 6},
     {NC, NC, 0}
 };
-
+#if DEVICE_SERIAL_FC
 const PinMap PinMap_UART_RTS[] = {
     {PIN_50, UART_0, 3},
     {PIN_50, UART_1, 10},
@@ -114,3 +118,42 @@ const PinMap PinMap_UART_CTS[] = {
     {PIN_61, UART_1, 3},
     {NC, NC, 0}
 };
+#endif
+#endif
+
+#if DEVICE_ANALOGIN
+const PinMap PinMap_ADC[] = {
+    {PIN_57, ADC0_0, 0},
+    {PIN_58, ADC0_1, 0},
+    {PIN_59, ADC0_2, 0},
+    {PIN_60, ADC0_3, 0},
+    {NC, NC, 0}
+};
+#endif
+
+#if DEVICE_SPI
+/************SPI***************/
+const PinMap PinMap_SPI_SCLK[] = {
+    {PIN_05, GSPI, 7},
+    {PIN_45, GSPI, 7},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_SPI_MOSI[] = {
+    {PIN_07, GSPI, 7},
+    {PIN_52, GSPI, 7},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+    {PIN_06, GSPI, 7},
+    {PIN_53, GSPI, 7},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_SPI_SSEL[] = {
+    {PIN_08, GSPI, 7},
+    {PIN_50, GSPI, 7},
+    {NC, NC, 0}
+};
+#endif

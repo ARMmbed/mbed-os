@@ -179,3 +179,8 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
 
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

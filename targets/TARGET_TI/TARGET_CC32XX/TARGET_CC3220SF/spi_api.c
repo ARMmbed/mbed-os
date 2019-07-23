@@ -25,6 +25,7 @@
 #include "ti/devices/cc32xx/driverlib/rom_map.h"
 #include "ti/devices/cc32xx/driverlib/ti_spi_driverlib.h"
 #include "ti/devices/cc32xx/driverlib/prcm.h"
+#include "PeripheralPins.h"
 
 #define PIN_MODE_SPI 7
 #define SPI_WL_MASK  0xF80
@@ -54,6 +55,26 @@ static void spi_configure_driver_instance(spi_t *obj)
         spi_inst->clock_update = false;
         SPIEnable(spi_inst->baseAddr);
     }
+}
+
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
 }
 
 /** Initialize the SPI peripheral
