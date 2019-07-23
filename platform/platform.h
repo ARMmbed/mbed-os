@@ -1,6 +1,4 @@
 
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -32,5 +30,3 @@
 #include "PeripheralNames.h"
 
 #endif
-
-/** @}*/

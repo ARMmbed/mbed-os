@@ -1,5 +1,3 @@
-/** \addtogroup events */
-/** @{*/
 /* Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -25,13 +23,14 @@
 
 #include "events/mbed_shared_queues.h"
 
+/** \ingroup mbed-os-internal */
+/** \addtogroup events-internal-api */
+/** @{*/
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace events;
 #endif
-
-#endif
-
-
-#endif
-
 /** @}*/
+
+#endif
+
+#endif

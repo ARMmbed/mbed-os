@@ -24,11 +24,9 @@
 #include <string.h>
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_InterruptManager InterruptManager class
+ * \ingroup drivers-public-api-interrupt
  * @{
  */
 
@@ -209,7 +207,6 @@ private:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

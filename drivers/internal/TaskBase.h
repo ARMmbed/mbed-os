@@ -27,12 +27,14 @@ class Semaphore;
 }
 
 namespace events {
-/** \ingroup events */
-/** \addtogroup events-internal-api */
-/** @{*/
-
 
 class TaskQueue;
+
+/**
+ * \defgroup events_TaskBase TaskBase class
+ * \ingroup events-internal-api
+ * @{
+ */
 
 /** TaskBase
  *

@@ -28,8 +28,8 @@ namespace mbed {
 typedef Callback<void()> *pFunctionPointer_t;
 class CallChainLink;
 
-/** \ingroup platform */
-/** \addtogroup platform-internal-api Internal API */
+/** \ingroup mbed-os-internal */
+/** \addtogroup platform-internal-api Platform */
 /** @{*/
 /**
  * \defgroup platform_CallChain CallChain class

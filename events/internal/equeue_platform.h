@@ -25,9 +25,11 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-/** \ingroup events */
-/** \addtogroup events-internal-api */
-/** @{*/
+/**
+ * \addtogroup events-internal-api Events
+ * \ingroup mbed-os-internal
+ * @{
+ */
 
 // Currently supported platforms
 //

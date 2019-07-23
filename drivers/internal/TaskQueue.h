@@ -25,11 +25,12 @@
 #define MBED_MAX_TASK_SIZE  32
 
 namespace events {
-/** \ingroup events */
-/** \addtogroup events-internal-api */
-/** @{*/
 
-
+/**
+ * \defgroup events_TaskQueue TaskQueue class
+ * \ingroup events-internal-api
+ * @{
+ */
 
 /** TaskQueue
  *

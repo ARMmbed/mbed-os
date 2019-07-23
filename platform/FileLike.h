@@ -22,13 +22,12 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup platform */
-/** \addtogroup platform-public-api */
-/** @{*/
 /**
  * \defgroup platform_FileLike FileLike class
+ * \ingroup platform-public-api-file
  * @{
  */
+
 /** Class FileLike
  *
  *  A file-like object is one that can be opened with fopen by
@@ -45,8 +44,6 @@ public:
     FileLike(const char *name = NULL) : FileBase(name, FilePathType) {}
     virtual ~FileLike() {}
 };
-
-/**@}*/
 
 /**@}*/
 

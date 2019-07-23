@@ -18,16 +18,17 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include "events/internal/equeue.h"
+#include "events/equeue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include <cstddef>
 #include <new>
 
 namespace events {
-/** \ingroup events */
-/** \addtogroup events-public-api */
-/** @{*/
+/**
+ * \addtogroup events-public-api
+ * @{
+ */
 
 /** EVENTS_EVENT_SIZE
  *  Minimum size of an event

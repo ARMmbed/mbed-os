@@ -28,7 +28,7 @@
 #include <cstdio>
 
 namespace mbed {
-/** \ingroup drivers */
+/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
 /**

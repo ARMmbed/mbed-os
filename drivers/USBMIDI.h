@@ -30,11 +30,9 @@
 
 #define DEFAULT_CONFIGURATION (1)
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBMIDI USBMIDI class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -190,7 +188,6 @@ private:
     bool _next_message();
 };
 
-/** @}*/
 /** @}*/
 
 #endif

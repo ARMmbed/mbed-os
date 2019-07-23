@@ -21,11 +21,13 @@
 #include "LinkEntry.h"
 #include "LinkedListBase.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
+/** \defgroup drivers-internal-api-list List
+ * \ingroup drivers-internal-api
+ */
+
 /**
  * \defgroup drivers_LinkedList LinkedList class
+ * \ingroup drivers-internal-api-list
  * @{
  */
 template<class T>
@@ -65,7 +67,6 @@ public:
     }
 };
 
-/** @}*/
 /** @}*/
 
 #endif

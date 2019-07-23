@@ -32,12 +32,9 @@
 #endif
 
 namespace mbed {
-/** \defgroup drivers */
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_SerialBase SerialBase class
+ * \ingroup drivers-public-api-uart
  * @{
  */
 
@@ -314,7 +311,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

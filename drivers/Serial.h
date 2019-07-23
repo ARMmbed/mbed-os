@@ -27,11 +27,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_Serial Serial class
+ * \ingroup drivers-public-api-uart
  * @{
  */
 
@@ -115,7 +113,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

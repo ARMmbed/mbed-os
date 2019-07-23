@@ -21,7 +21,6 @@
 #include "Callback.h"
 
 namespace mbed {
-/** \addtogroup drivers */
 
 /** mock Low Power Ticker
  *

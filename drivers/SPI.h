@@ -45,11 +45,9 @@
 #endif
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_SPI SPI class
+ * \addtogroup drivers_SPI SPI class
+ * \ingroup drivers-public-api-spi
  * @{
  */
 
@@ -424,7 +422,6 @@ private:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

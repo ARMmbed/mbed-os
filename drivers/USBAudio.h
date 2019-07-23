@@ -28,11 +28,13 @@
 #include "ByteBuffer.h"
 #include "rtos/EventFlags.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
+/** \defgroup drivers-public-api-usb USB
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_USBAudio USBAudio class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -382,7 +384,6 @@ private:
 
 };
 
-/** @}*/
 /** @}*/
 
 #endif

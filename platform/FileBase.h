@@ -31,13 +31,16 @@ typedef enum {
     FileSystemPathType
 } PathType;
 
-/** \ingroup platform */
-/** \addtogroup platform-public-api */
-/** @{*/
+/** \defgroup platform-public-api-file File
+ * \ingroup platform-public-api
+ */
+
 /**
  * \defgroup platform_FileBase FileBase class
+ * \ingroup platform-public-api-file
  * @{
  */
+
 /** Class FileBase
  *
  */
@@ -65,8 +68,6 @@ private:
     const char *const _name;
     const PathType _path_type;
 };
-
-/**@}*/
 
 /**@}*/
 

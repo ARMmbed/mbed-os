@@ -26,11 +26,19 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api Public API */
-/** @{*/
+/** \defgroup mbed-os-public Public API */
+
+/** \addtogroup drivers-public-api Drivers
+ * \ingroup mbed-os-public
+ */
+
+/** \defgroup drivers-public-api-gpio GPIO
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_AnalogIn AnalogIn class
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 
@@ -120,7 +128,6 @@ protected:
 
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed
