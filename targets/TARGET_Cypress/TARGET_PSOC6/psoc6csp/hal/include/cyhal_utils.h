@@ -68,6 +68,17 @@ extern "C" {
 * \{
 */
 
+/** Calculate the peri clock divider value that need to be set to reach frequency closest to the input frequency
+ * 
+ * @param[in] frequency The desired frequency
+ * @param[in] frac_bits The number of fractional bits that the divider has
+ * @return The calculate divider value to set, NOTE a divider value of x divide the frequency by (x+1)
+ */
+static inline uint32_t cyhal_divider_value(uint32_t frequency, uint32_t frac_bits)
+{
+    return ((cy_PeriClkFreqHz * (1 << frac_bits)) + (frequency / 2)) / frequency - 1;
+}
+
 /** Converts the provided gpio pin to a resource instance object
  *
  * @param[in] pin  The pin to get a resource object for

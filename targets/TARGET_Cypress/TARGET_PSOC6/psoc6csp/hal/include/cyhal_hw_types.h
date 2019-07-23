@@ -350,7 +350,7 @@ typedef struct {
     uint16_t                    pending;
     void                        *rx_buffer;
     uint32_t                    rx_buffer_size;
-    void                        *tx_buffer;
+    const void                  *tx_buffer;
     uint32_t                    tx_buffer_size;
     bool                        is_async;
 #else
