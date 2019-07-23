@@ -736,6 +736,9 @@ int SecureStore::init()
     int ret = MBED_SUCCESS;
 
     MBED_ASSERT(!(scratch_buf_size % enc_block_size));
+    if (scratch_buf_size % enc_block_size) {
+        return MBED_SYSTEM_ERROR_BASE;
+    }
 
     _mutex.lock();
 #if defined(MBEDTLS_PLATFORM_C)
