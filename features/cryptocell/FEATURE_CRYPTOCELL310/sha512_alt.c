@@ -26,7 +26,6 @@
 void mbedtls_sha512_init( mbedtls_sha512_context *ctx )
 {
     memset( ctx, 0, sizeof( mbedtls_sha512_context ) );
-
 }
 
 void mbedtls_sha512_free( mbedtls_sha512_context *ctx )
@@ -83,4 +82,3 @@ int mbedtls_sha512_finish_ret( mbedtls_sha512_context *ctx,
         return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 }
 #endif //MBEDTLS_SHA512_ALT
-
