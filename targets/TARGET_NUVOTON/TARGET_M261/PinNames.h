@@ -97,7 +97,7 @@ typedef enum {
     D2 = PC_4,
     D3 = PC_5,
     D4 = PC_3,
-    D5 = PB_2,
+    D5 = PC_2,
     D6 = PA_7,
     D7 = PA_6,
     D8 = PA_5,
