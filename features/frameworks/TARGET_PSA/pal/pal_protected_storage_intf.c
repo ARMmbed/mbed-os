@@ -28,6 +28,7 @@ uint32_t pal_ps_function(int type, va_list valist)
 {
 #if PSA_PROTECTED_STORAGE_IMPLEMENTED
     uint32_t                    uid, data_length, offset;
+    size_t                      actual_length;
     const void                  *p_write_data;
     void                        *p_read_data;
     psa_storage_create_flags_t  ps_create_flags;
@@ -46,7 +47,7 @@ uint32_t pal_ps_function(int type, va_list valist)
         offset = va_arg(valist, uint32_t);
         data_length = va_arg(valist, uint32_t);
         p_read_data = va_arg(valist, void*);
-        return psa_ps_get(uid, offset, data_length, p_read_data);
+        return psa_ps_get(uid, offset, data_length, p_read_data, &actual_length);
     case PAL_PS_GET_INFO:
         uid = va_arg(valist, psa_storage_uid_t);
         ps_p_info = va_arg(valist, struct psa_ps_info_t*);

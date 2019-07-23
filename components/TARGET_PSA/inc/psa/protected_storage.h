@@ -54,7 +54,7 @@ extern "C" {
  * \retval      PSA_ERROR_GENERIC_ERROR         The operation failed because of an unspecified internal failure
  */
 psa_status_t psa_ps_set(psa_storage_uid_t uid,
-                        uint32_t data_length,
+                        size_t data_length,
                         const void *p_data,
                         psa_storage_create_flags_t create_flags);
 
@@ -65,22 +65,24 @@ psa_status_t psa_ps_set(psa_storage_uid_t uid,
  * \param[in] data_offset       The offset within the data associated with the `uid` to start retrieving data
  * \param[in] data_length       The amount of data to read (and the minimum allocated size of the `p_data` buffer)
  * \param[out] p_data           The buffer where the data will be placed upon successful completion
+ * \param[out] p_data_length    The actual amount of data returned
  *
  * \return      A status indicating the success/failure of the operation
  *
  * \retval      PSA_SUCCESS                  The operation completed successfully
  * \retval      PSA_ERROR_INVALID_ARGUMENT   The operation failed because one or more of the given arguments were invalid (null pointer, wrong flags etc.)
  * \retval      PSA_ERROR_DOES_NOT_EXIST     The operation failed because the provided uid value was not found in the storage
- * \retval      PSA_ERROR_BUFFER_TOO_SMALL   The operation failed because the data associated with provided uid is not the same size as `data_size`
+ * \retval      PSA_ERROR_BUFFER_TOO_SMALL   The operation failed because the data associated with provided uid does not fit `data_size`
  * \retval      PSA_ERROR_STORAGE_FAILURE    The operation failed because the physical storage has failed (Fatal error)
  * \retval      PSA_ERROR_GENERIC_ERROR      The operation failed because of an unspecified internal failure
  * \retval      PSA_ERROR_DATA_CORRUPT       The operation failed because of an authentication failure when attempting to get the key
  * \retval      PSA_ERROR_INVALID_SIGNATURE  The operation failed because the data associated with the UID failed authentication
  */
 psa_status_t psa_ps_get(psa_storage_uid_t uid,
-                        uint32_t data_offset,
-                        uint32_t data_length,
-                        void *p_data);
+                        size_t data_offset,
+                        size_t data_length,
+                        void *p_data,
+                        size_t *p_data_length);
 
 /**
  * \brief Retrieve the metadata about the provided uid
@@ -149,7 +151,7 @@ psa_status_t psa_ps_remove(psa_storage_uid_t uid);
  * \retval PSA_ERROR_GENERIC_ERROR          The operation has failed due to an unspecified error
  */
 psa_status_t psa_ps_create(psa_storage_uid_t uid,
-                           uint32_t size,
+                           size_t size,
                            psa_storage_create_flags_t create_flags);
 
 /**
@@ -179,8 +181,8 @@ psa_status_t psa_ps_create(psa_storage_uid_t uid,
  * \retval PSA_ERROR_INVALID_SIGNATURE      The operation failed because the existing data failed authentication (MAC check failed)
  */
 psa_status_t psa_ps_set_extended(psa_storage_uid_t uid,
-                                 uint32_t data_offset,
-                                 uint32_t data_length,
+                                 size_t data_offset,
+                                 size_t data_length,
                                  const void *p_data);
 
 /**

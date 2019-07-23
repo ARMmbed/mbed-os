@@ -33,8 +33,10 @@ extern "C" {
  */
 typedef uint32_t psa_storage_create_flags_t;
 
-#define PSA_STORAGE_FLAG_NONE        0         /**< No flags to pass */
-#define PSA_STORAGE_FLAG_WRITE_ONCE (1 << 0) /**< The data associated with the uid will not be able to be modified or deleted. Intended to be used to set bits in `psa_storage_create_flags_t`*/
+#define PSA_STORAGE_FLAG_NONE                 0         /**< No flags to pass */
+#define PSA_STORAGE_FLAG_WRITE_ONCE           (1 << 0)  /**< The data associated with the uid will not be able to be modified or deleted. Intended to be used to set bits in `psa_storage_create_flags_t`*/
+#define PSA_STORAGE_FLAG_NO_CONFIDENTIALITY   (1 << 1)  /**< The data associated with the uid is public and therefore does not require confidentiality. It therefore only needs to be integrity protected */
+#define PSA_STORAGE_FLAG_NO_REPLAY_PROTECTION (1 << 2)  /**< The data associated with the uid does not require replay protection. This may permit faster storage - but it permits an attecker with physical access to revert to an earlier version of the data.   */
 
 /** \brief A type for UIDs used for identifying data
  */
@@ -44,7 +46,8 @@ typedef uint64_t psa_storage_uid_t;
  * \brief A container for metadata associated with a specific uid
  */
 struct psa_storage_info_t {
-    uint32_t size;                  /**< The size of the data associated with a uid **/
+    size_t capacity;              /**< The allocated capacity of the storage associated with a UID **/
+    size_t size;                  /**< The size of the data associated with a uid **/
     psa_storage_create_flags_t flags;    /**< The flags set when the uid was created **/
 };
 

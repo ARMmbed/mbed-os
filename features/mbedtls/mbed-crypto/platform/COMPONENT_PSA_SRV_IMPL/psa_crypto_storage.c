@@ -95,13 +95,15 @@ static psa_status_t psa_crypto_storage_load( const psa_key_file_id_t key,
 {
     psa_status_t status;
     psa_storage_uid_t data_identifier = psa_its_identifier_of_slot( key );
+    size_t actual_size;
+
     struct psa_storage_info_t data_identifier_info;
 
     status = psa_its_get_info( data_identifier, &data_identifier_info );
     if( status  != PSA_SUCCESS )
         return( status );
 
-    status = psa_its_get( data_identifier, 0, (uint32_t) data_size, data );
+    status = psa_its_get( data_identifier, 0, (uint32_t) data_size, data, &actual_size );
 
     return( status );
 }

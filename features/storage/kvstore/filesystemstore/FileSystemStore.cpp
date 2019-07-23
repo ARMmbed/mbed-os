@@ -34,7 +34,9 @@
 
 #define FSST_DEFAULT_FOLDER_PATH "kvstore" //default FileSystemStore folder path on fs
 
-static const uint32_t supported_flags = mbed::KVStore::WRITE_ONCE_FLAG;
+// Only write once flag is supported, other two are kept in storage but ignored
+static const uint32_t supported_flags = mbed::KVStore::WRITE_ONCE_FLAG | mbed::KVStore::REQUIRE_CONFIDENTIALITY_FLAG |
+                                        mbed::KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
 
 using namespace mbed;
 
