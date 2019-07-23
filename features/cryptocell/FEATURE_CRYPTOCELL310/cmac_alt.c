@@ -28,6 +28,33 @@
 #include "ssi_aes_defs.h"
 #include <string.h>
 
+static int init_cc( mbedtls_cmac_context_t *cmac_ctx )
+{
+    int ret = 0;
+    SaSiAesUserKeyData_t CC_KeyData;
+    if( SaSi_AesInit( &cmac_ctx->CC_Context, SASI_AES_ENCRYPT,
+                      SASI_AES_MODE_CMAC, SASI_AES_PADDING_NONE ) != 0 )
+    {
+        return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+    }
+
+    CC_KeyData.pKey = cmac_ctx->CC_Key;
+    CC_KeyData.keySize = cmac_ctx->CC_keySizeInBytes;
+
+    if( SaSi_AesSetKey( &cmac_ctx->CC_Context, SASI_AES_USER_KEY,
+                        &CC_KeyData, sizeof( CC_KeyData ) ) != 0 )
+    {
+        ret =  MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+        goto exit;
+    }
+
+    cmac_ctx->is_cc_initiated = 1;
+
+exit:
+    return( ret );
+
+}
+
 int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
                                 const unsigned char *key, size_t keybits )
 {
@@ -72,34 +99,7 @@ int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
     }
 
     ctx->cmac_ctx = cmac_ctx;
-    return( 0 );
-}
-
-static int init_cc( mbedtls_cmac_context_t *cmac_ctx )
-{
-    int ret = 0;
-    SaSiAesUserKeyData_t CC_KeyData;
-    if( SaSi_AesInit( &cmac_ctx->CC_Context, SASI_AES_ENCRYPT,
-                      SASI_AES_MODE_CMAC, SASI_AES_PADDING_NONE ) != 0 )
-    {
-        return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
-    }
-
-    CC_KeyData.pKey = cmac_ctx->CC_Key;
-    CC_KeyData.keySize = cmac_ctx->CC_keySizeInBytes;
-
-    if( SaSi_AesSetKey( &cmac_ctx->CC_Context, SASI_AES_USER_KEY,
-                        &CC_KeyData, sizeof( CC_KeyData ) ) != 0 )
-    {
-        ret =  MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
-        goto exit;
-    }
-
-    cmac_ctx->is_cc_initiated = 1;
-
-exit:
-    return( ret );
-    
+    return( init_cc( cmac_ctx ) );
 }
 
 int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
@@ -122,13 +122,6 @@ int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
         return( MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA );
 
     cmac_ctx = ctx->cmac_ctx;
-
-    if( cmac_ctx->is_cc_initiated == 0 )
-    {
-        ret = init_cc( cmac_ctx );
-        if( ret != 0 )
-            goto exit;
-    }
 
     /* Is there data still to process from the last call?
      */
@@ -201,13 +194,6 @@ int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
 
     cmac_ctx = ctx->cmac_ctx;
 
-    if( cmac_ctx->is_cc_initiated == 0 )
-    {
-        ret = init_cc( cmac_ctx );
-        if( ret != 0 )
-            goto exit;
-    }
-
     if( ( ret = SaSi_AesFinish( &cmac_ctx->CC_Context, cmac_ctx->unprocessed_len,
                                 cmac_ctx->unprocessed_block,
                                 cmac_ctx->unprocessed_len, output, &olen ) ) != 0 )
@@ -217,7 +203,8 @@ int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
     }
 
 exit:
-    if( SaSi_AesFree( &cmac_ctx->CC_Context ) != 0 && ret == 0 )
+    if( cmac_ctx->is_cc_initiated == 1  &&
+        SaSi_AesFree( &cmac_ctx->CC_Context ) != 0 && ret == 0 )
     {
         ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
     }
@@ -227,6 +214,7 @@ exit:
 
 int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
 {
+    int ret = 0;
     mbedtls_cmac_context_t *cmac_ctx;
 
     if( ctx == NULL || ctx->cipher_info == NULL || ctx->cmac_ctx == NULL )
@@ -239,7 +227,11 @@ int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
     mbedtls_platform_zeroize( cmac_ctx->unprocessed_block,
                               sizeof( cmac_ctx->unprocessed_block ) );
 
-    return( 0 );
+    if( cmac_ctx->is_cc_initiated == 1  &&
+        SaSi_AesFree( &cmac_ctx->CC_Context ) != 0 )
+        return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+
+    return( init_cc( cmac_ctx ) );
 }
 
 int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
@@ -264,10 +256,6 @@ int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
     if( ret != 0 )
         goto exit;
 
-    if( ( ret = init_cc( ctx.cmac_ctx ) ) != 0 )
-    {
-        goto clear_cc;
-    }
 
     if( SaSi_AesFinish( &ctx.cmac_ctx->CC_Context, ilen, ( uint8_t * ) input,
                         ilen, output, &olen ) != 0 )
@@ -277,7 +265,8 @@ int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
    }
 
 clear_cc:
-    if( SaSi_AesFree( &ctx.cmac_ctx->CC_Context ) != 0 && ret == 0 )
+    if( ctx.cmac_ctx->is_cc_initiated == 1  &&
+        SaSi_AesFree( &ctx.cmac_ctx->CC_Context ) != 0 && ret == 0 )
     {
         ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
     }
