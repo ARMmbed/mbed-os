@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#ifdef MBED_MINIMAL_PRINTF
-
 #include "mbed_printf_implementation.h"
 
 #include <stdbool.h>
@@ -725,4 +723,3 @@ int mbed_minimal_formatted_string(char *buffer, size_t length, const char *forma
     return result;
 }
 
-#endif // MBED_MINIMAL_PRINTF

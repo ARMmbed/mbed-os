@@ -17,8 +17,6 @@
 #ifndef MBED_PRINTF_H
 #define MBED_PRINTF_H
 
-#ifdef MBED_MINIMAL_PRINTF
-
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -74,5 +72,4 @@ int mbed_vfprintf(FILE *stream, const char *format, va_list arguments);
 }
 #endif
 
-#endif // MBED_MINIMAL_PRINTF
 #endif // MBED_PRINTF_H

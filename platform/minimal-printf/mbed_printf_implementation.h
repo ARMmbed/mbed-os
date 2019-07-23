@@ -17,12 +17,8 @@
 #ifndef MBED_PRINTF_IMPLEMENTATION_H
 #define MBED_PRINTF_IMPLEMENTATION_H
 
-#ifdef MBED_MINIMAL_PRINTF
-
 #include <stdio.h>
 #include <stdarg.h>
 
 int mbed_minimal_formatted_string(char *buffer, size_t length, const char *format, va_list arguments, FILE *stream);
 #endif
-
-#endif // MBED_PRINTF_IMPLEMENTATION_H
