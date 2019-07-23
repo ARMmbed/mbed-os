@@ -441,6 +441,7 @@ const char *const GPIOMaps::name = "GPIO";
 typedef Port<1, GPIOMaps, DefaultFormFactor, TF1> GPIOPort;
 
 #if DEVICE_INTERRUPTIN
+#include "gpio_irq_api.h"
 struct GPIOIRQMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
