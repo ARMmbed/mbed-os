@@ -689,13 +689,6 @@ static uint32_t cyhal_uart_baud_perdif(uint32_t desired_baud, uint32_t actual_ba
     return perdif;
 }
 
-static uint32_t cyhal_divider_value(uint32_t frequency)
-{
-    CY_ASSERT(frequency != 0);
-    /* UARTs use peripheral clock */
-    return (((cy_PeriClkFreqHz) + (frequency / 2)) / frequency) - 1;
-}
-
 static uint8_t cyhal_uart_best_oversample(uint32_t baudrate)
 {
     uint8_t differences[UART_OVERSAMPLE_MAX + 1];
@@ -704,7 +697,7 @@ static uint8_t cyhal_uart_best_oversample(uint32_t baudrate)
 
     for(index = UART_OVERSAMPLE_MIN; index < UART_OVERSAMPLE_MAX + 1; index++)
     {
-        divider = cyhal_divider_value(baudrate * index);
+        divider = cyhal_divider_value(baudrate * index, 0);
         differences[index] = cyhal_uart_baud_perdif(baudrate, cyhal_uart_actual_baud(divider, index));
     }
 
@@ -736,7 +729,7 @@ cy_rslt_t cyhal_uart_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actual
     oversample_value = cyhal_uart_best_oversample(baudrate);
     obj->config.oversample = oversample_value;
 
-    divider = cyhal_divider_value(baudrate * oversample_value);
+    divider = cyhal_divider_value(baudrate * oversample_value, 0);
 
     /* Set baud rate */
     if ((obj->clock.div_type == CY_SYSCLK_DIV_16_5_BIT) || (obj->clock.div_type == CY_SYSCLK_DIV_24_5_BIT)) 
