@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-struct mbedtls_cmac_context_t
+typedef struct mbedtls_cmac_context_t
 {
     SaSiAesUserContext_t CC_Context;
     uint8_t CC_Key[SASI_AES_KEY_MAX_SIZE_IN_BYTES];
@@ -40,7 +40,7 @@ struct mbedtls_cmac_context_t
     size_t              unprocessed_len;
     
     int                 is_cc_initiated;
-};
+} mbedtls_cmac_context_t;
 
 #ifdef __cplusplus
 }
