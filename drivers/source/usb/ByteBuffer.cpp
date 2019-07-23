@@ -149,4 +149,3 @@ bool ByteBuffer::empty()
 {
     return _head == _tail;
 }
-

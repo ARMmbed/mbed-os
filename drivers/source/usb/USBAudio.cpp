@@ -998,4 +998,3 @@ void USBAudio::_send_isr()
         _tx_done.call(Transfer);
     }
 }
-
