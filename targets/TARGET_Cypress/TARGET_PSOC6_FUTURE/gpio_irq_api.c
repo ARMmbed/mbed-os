@@ -49,7 +49,7 @@ static void gpio_irq_dispatcher(uint32_t port_id)
             MBED_ASSERT(obj);
             Cy_GPIO_ClearInterrupt(port, pin);
             event = (obj->mode == IRQ_FALL)? IRQ_FALL : IRQ_RISE;
-            obj->handler(obj->id_arg, event);
+            ((gpio_irq_handler) obj->handler)(obj->id_arg, event);
         }
     }
 }
@@ -202,7 +202,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             MBED_ASSERT("Invalid pin ID!");
             return (-1);
         }
-        obj->handler = handler;
+        obj->handler = (uint32_t) handler;
         obj->id_arg = id;
         return gpio_irq_setup_channel(obj);
     } else {
