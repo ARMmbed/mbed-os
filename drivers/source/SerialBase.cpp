@@ -130,8 +130,9 @@ void SerialBase::_deinit()
     serial_free(&_serial);
 }
 
-void SerialBase::_enable_input(bool enable)
+void SerialBase::enable_input(bool enable)
 {
+    lock();
     if (_rx_enabled != enable) {
         if (enable && !_tx_enabled) {
             _init();
@@ -156,10 +157,12 @@ void SerialBase::_enable_input(bool enable)
             _deinit();
         }
     }
+    unlock();
 }
 
-void SerialBase::_enable_output(bool enable)
+void SerialBase::enable_output(bool enable)
 {
+    lock();
     if (_tx_enabled != enable) {
         if (enable && !_rx_enabled) {
             _init();
@@ -184,6 +187,7 @@ void SerialBase::_enable_output(bool enable)
             _deinit();
         }
     }
+    unlock();
 }
 
 void SerialBase::set_break()

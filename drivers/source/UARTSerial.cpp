@@ -367,7 +367,7 @@ void UARTSerial::disable_tx_irq()
 int UARTSerial::enable_input(bool enabled)
 {
     api_lock();
-    _enable_input(enabled);
+    SerialBase::enable_input(enabled);
     api_unlock();
 
     return 0;
@@ -376,7 +376,7 @@ int UARTSerial::enable_input(bool enabled)
 int UARTSerial::enable_output(bool enabled)
 {
     api_lock();
-    _enable_input(enabled);
+    SerialBase::enable_input(enabled);
     api_unlock();
 
     return 0;

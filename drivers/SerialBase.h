@@ -155,6 +155,30 @@ public:
      */
     void send_break();
 
+    /** Enable serial input
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     * 
+     * On reinitialisation rx interrupts will be enabled if a 
+     * rx handler is attached. The rx handler is called once
+     * during reinitialisation.
+     */
+    void enable_input(bool enable = true);
+
+    /** Enable serial output
+     *
+     * If both serial input and serial output are disabled, the
+     * peripheral is freed. If either serial input or serial
+     * output is re-enabled, the peripheral is reinitialized.
+     * 
+     * On reinitialisation tx interrupts will be enabled if a 
+     * tx handler is attached. The tx handler is called once
+     * during reinitialisation.
+     */
+    void enable_output(bool enable = true);
+
 #if !defined(DOXYGEN_ONLY)
 protected:
 
@@ -302,22 +326,6 @@ protected:
     /** Deinitialize serial port
      */
     void _deinit();
-
-    /** Enable serial input
-     *
-     * If both serial input and serial output are disabled, the
-     * peripheral is freed. If either serial input or serial
-     * output is re-enabled, the peripheral is reinitialized.
-     */
-    void _enable_input(bool enable = true);
-
-    /** Enable serial output
-     *
-     * If both serial input and serial output are disabled, the
-     * peripheral is freed. If either serial input or serial
-     * output is re-enabled, the peripheral is reinitialized.
-     */
-    void _enable_output(bool enable = true);
 
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;
