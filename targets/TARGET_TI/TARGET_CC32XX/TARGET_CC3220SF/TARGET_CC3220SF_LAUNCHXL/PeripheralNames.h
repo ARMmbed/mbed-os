@@ -43,6 +43,10 @@ typedef enum {
     PWM_6
 } PWMName;
 
+typedef enum {
+    GSPI = 0
+} SPIName;
+
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_0

@@ -24,12 +24,31 @@
 extern const PinMap PinMap_GPIO[];
 
 /************PWM****************/
+#if DEVICE_PWMOUT
 extern const PinMap PinMap_PWM[];
+#endif
 
 /************UART***************/
+#if DEVICE_SERIAL
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
-extern const PinMap PinMap_UART_CTS[];
+#if DEVICE_SERIAL_FC
 extern const PinMap PinMap_UART_RTS[];
+extern const PinMap PinMap_UART_CTS[];
+#endif
+#endif
+
+/************ADC***************/
+#if DEVICE_ANALOGIN
+extern const PinMap PinMap_ADC[];
+#endif
+
+/************SPI***************/
+#if DEVICE_SPI
+extern const PinMap PinMap_SPI_MOSI[];
+extern const PinMap PinMap_SPI_MISO[];
+extern const PinMap PinMap_SPI_SCLK[];
+extern const PinMap PinMap_SPI_SSEL[];
+#endif
 
 #endif
