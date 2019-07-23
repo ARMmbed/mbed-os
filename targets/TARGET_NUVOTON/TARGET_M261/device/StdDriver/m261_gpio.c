@@ -80,10 +80,10 @@ void GPIO_SetMode(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 void GPIO_EnableInt(GPIO_T *port, uint32_t u32Pin, uint32_t u32IntAttribs)
 {
     /* Configure interrupt mode of specified pin */
-    port->INTTYPE = (port->INTTYPE & ~(1ul << u32Pin)) | (((u32IntAttribs >> 24) & 0xFFUL) << u32Pin);
+    port->INTTYPE |= (((u32IntAttribs >> 24) & 0xFFUL) << u32Pin);
 
     /* Enable interrupt function of specified pin */
-    port->INTEN = (port->INTEN & ~(0x00010001ul << u32Pin)) | ((u32IntAttribs & 0xFFFFFFUL) << u32Pin);
+    port->INTEN |= ((u32IntAttribs & 0xFFFFFFUL) << u32Pin);
 }
 
 
