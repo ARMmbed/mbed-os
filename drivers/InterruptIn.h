@@ -30,7 +30,7 @@
 
 namespace mbed {
 /** \defgroup drivers-public-api-interrupt Interrupt
- * \ingroup drivers-public-api 
+ * \ingroup drivers-public-api
  */
 
 /**
