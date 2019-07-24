@@ -17,6 +17,7 @@
 #include "utest/utest.h"
 
 #include "hal/qspi_api.h"
+#include "hal/us_ticker_api.h"
 #include "qspi_test_utils.h"
 
 #include "unity/unity.h"
