@@ -21,6 +21,7 @@
 #define MBED_ETHERNET_API_H
 
 #include "device.h"
+#include "platform/mbed_toolchain.h"
 
 #if DEVICE_ETHERNET
 
