@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-/** \ingroup platform */
+/** \ingroup mbed-os-internal */
 /** \addtogroup platform-internal-api */
 /** @{*/
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))

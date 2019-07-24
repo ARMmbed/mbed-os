@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include "platform/mbed_toolchain.h"
 
-/** \ingroup platform */
+/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 

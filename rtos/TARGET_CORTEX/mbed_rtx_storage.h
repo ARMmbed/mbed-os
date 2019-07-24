@@ -29,8 +29,8 @@ extern "C" {
 #include "rtx_os.h"
 #include "mbed_rtx_conf.h"
 
-/** \ingroup rtos */
-/** \addtogroup mbed-os-internal */
+/** \ingroup mbed-os-internal */
+/** \addtogroup rtos-internal-api */
 /** @{*/
 
 /** \defgroup rtos_storage RTOS primitives storage types for RTX

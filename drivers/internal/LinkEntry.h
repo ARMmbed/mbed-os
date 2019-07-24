@@ -20,11 +20,9 @@
 
 #include <cstddef>
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
 /**
  * \defgroup drivers_LinkEntry LinkEntry class
+ * \ingroup drivers-internal-api-list
  * @{
  */
 class LinkEntry {
@@ -39,7 +37,6 @@ private:
     LinkEntry *_next;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

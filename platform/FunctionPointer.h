@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 namespace mbed {
-/** \ingroup platform */
+/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 /**

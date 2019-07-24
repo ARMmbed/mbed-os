@@ -25,11 +25,15 @@
 #include "LinkEntry.h"
 #include "OperationListBase.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
+/** \defgroup mbed-os-internal Internal API */
+
+/** \addtogroup drivers-internal-api Drivers
+ * \ingroup mbed-os-internal
+ */
+
 /**
  * \defgroup drivers_AsyncOp AsyncOp class
+ * \ingroup drivers-internal-api
  * @{
  */
 class AsyncOp: public LinkEntry {
@@ -116,7 +120,6 @@ private:
     static void _host_unlock(rtos::Mutex *host_mutex);
 };
 
-/** @}*/
 /** @}*/
 
 #endif

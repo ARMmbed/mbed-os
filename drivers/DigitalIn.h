@@ -22,11 +22,9 @@
 #include "hal/gpio_api.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_DigitalIn DigitalIn class
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 
@@ -127,7 +125,6 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

@@ -21,9 +21,10 @@
 #include <stdint.h>
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api Internal API */
-/** @{*/
+/** \addtogroup drivers-internal-api
+ * \ingroup mbed-os-internal
+ * @{
+ */
 
 #define MBED_CRC_TABLE_SIZE             256
 #define MBED_OPTIMIZED_CRC_TABLE_SIZE   16

@@ -29,9 +29,10 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-/** \ingroup events */
-/** \addtogroup events-internal-api Internal API */
-/** @{*/
+/**
+ * \addtogroup events-public-api
+ * @{
+ */
 
 // The minimum size of an event
 // This size is guaranteed to fit events created by event_call

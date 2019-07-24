@@ -21,11 +21,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_TimerEvent TimerEvent class
+ * \addtogroup drivers_TimerEvent TimerEvent class
+ * \ingroup drivers-public-api-ticker
  * @{
  */
 
@@ -86,7 +84,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

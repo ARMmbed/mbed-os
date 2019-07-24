@@ -23,7 +23,7 @@
 #if DEVICE_ETHERNET || defined(DOXYGEN_ONLY)
 
 namespace mbed {
-/** \ingroup drivers */
+/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
 /**

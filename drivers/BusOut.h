@@ -22,11 +22,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_BusOut BusOut class
+ * \ingroup drivers-public-api-bus
  * @{
  */
 
@@ -130,7 +128,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

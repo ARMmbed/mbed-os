@@ -26,11 +26,9 @@
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_LowPowerTimer LowPowerTimer class
+ * \addtogroup drivers_LowPowerTimer LowPowerTimer class
+ * \ingroup drivers-public-api-ticker
  * @{
  */
 
@@ -47,7 +45,6 @@ public:
 
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed
