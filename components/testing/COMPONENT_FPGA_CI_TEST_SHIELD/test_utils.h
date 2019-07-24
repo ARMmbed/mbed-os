@@ -430,6 +430,16 @@ public:
  * pin set to use for testing.
  */
 
+struct GPIOMaps {
+    static const PinMap *maps[];
+    static const char *const pin_type_names[];
+    static const char *const name;
+};
+const PinMap *GPIOMaps::maps[] = { gpio_pinmap() };
+const char *const GPIOMaps::pin_type_names[] = { "IO" };
+const char *const GPIOMaps::name = "GPIO";
+typedef Port<1, GPIOMaps, DefaultFormFactor, TF1> GPIOPort;
+
 #if DEVICE_SPI
 #include "spi_api.h"
 struct SPIMaps {
