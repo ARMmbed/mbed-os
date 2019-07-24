@@ -27,11 +27,9 @@
 
 class AsyncOp;
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBCDC USBCDC class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -232,7 +230,6 @@ protected:
     uint32_t _rx_size;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

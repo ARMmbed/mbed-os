@@ -25,8 +25,8 @@ extern "C" {
 
 #include "mbed_rtx.h"
 
-/** \ingroup rtos */
-/** \addtogroup mbed-os-internal */
+/** \ingroup mbed-os-internal */
+/** \addtogroup rtos-internal-api */
 /** @{*/
 
 /**

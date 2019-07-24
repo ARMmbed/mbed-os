@@ -29,8 +29,8 @@ extern "C" {
 #endif
 
 
-/** \ingroup rtos */
-/** \addtogroup rtos-internal-api Internal API */
+/** \ingroup mbed-os-internal */
+/** \addtogroup rtos-internal-api */
 /** @{*/
 
 /**

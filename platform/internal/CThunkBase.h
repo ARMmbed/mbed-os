@@ -21,7 +21,7 @@
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
 
-/** \ingroup platform */
+/** \ingroup mbed-os-internal */
 /** \addtogroup platform-internal-api */
 /** @{*/
 /**

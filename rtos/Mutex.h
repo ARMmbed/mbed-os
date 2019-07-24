@@ -32,7 +32,7 @@
 #include "platform/mbed_toolchain.h"
 
 namespace rtos {
-/** \ingroup rtos */
+/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
 

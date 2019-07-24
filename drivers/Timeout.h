@@ -21,11 +21,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_Timeout Timeout class
+ * \addtogroup drivers_Timeout Timeout class
+ * \ingroup drivers-public-api-ticker
  * @{
  */
 
@@ -67,7 +65,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

@@ -24,11 +24,9 @@
 #include "hal/port_api.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_PortInOut PortInOut class
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 
@@ -109,7 +107,6 @@ private:
     port_t _port;
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

@@ -79,7 +79,7 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #include <time.h>
 
-/** \ingroup platform */
+/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 /**

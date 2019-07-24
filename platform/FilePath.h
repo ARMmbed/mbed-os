@@ -23,19 +23,18 @@
 #include "platform/FileLike.h"
 
 namespace mbed {
-/** \ingroup platform */
-/** \addtogroup platform-public-api */
-/** @{*/
+
+class FileSystem;
+
 /**
  * \defgroup platform_FilePath FilePath class
+ * \ingroup platform-public-api-file
  * @{
  */
 
-class FileSystem;
 /** Class FilePath
  *
  */
-
 class FilePath {
 public:
     /** Constructor FilePath
@@ -57,8 +56,6 @@ private:
     const char *file_name;
     FileBase *fb;
 };
-
-/**@}*/
 
 /**@}*/
 

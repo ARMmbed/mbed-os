@@ -28,8 +28,8 @@
 
 namespace mbed {
 
-/** \ingroup platform */
-/** \addtogroup platform-public-api Public API */
+/** \ingroup mbed-os-public */
+/** \addtogroup platform-public-api Platform */
 /** @{*/
 /**
  * \defgroup platform_ATCmdParser ATCmdParser class

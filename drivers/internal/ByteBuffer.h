@@ -20,11 +20,9 @@
 
 #include <stdint.h>
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
 /**
  * \defgroup drivers_ByteBuffer ByteBuffer class
+ * \ingroup drivers-internal-api
  * @{
  */
 class ByteBuffer {
@@ -123,7 +121,6 @@ private:
     uint8_t *_buf;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

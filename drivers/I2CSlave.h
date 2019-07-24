@@ -24,11 +24,9 @@
 #include "hal/i2c_api.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_I2CSlave I2CSlave class
+ * \addtogroup drivers_I2CSlave I2CSlave class
+ * \ingroup drivers-public-api-i2c
  * @{
  */
 
@@ -165,7 +163,6 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

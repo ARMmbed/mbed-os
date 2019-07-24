@@ -27,11 +27,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
+/** \defgroup drivers-public-api-can CAN
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_CANMessage CANMessage class
+ * \ingroup drivers-public-api-can
  * @{
  */
 
@@ -107,6 +109,7 @@ public:
 
 /**
  * \defgroup drivers_CAN CAN class
+ * \ingroup drivers-public-api-can
  * @{
  */
 
@@ -333,7 +336,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

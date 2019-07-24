@@ -28,11 +28,9 @@
 #include "USBHID.h"
 #include "PlatformMutex.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBMouseKeyboard USBMouseKeyboard class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -251,7 +249,6 @@ private:
     virtual int _getc();
 };
 
-/** @}*/
 /** @}*/
 
 #endif

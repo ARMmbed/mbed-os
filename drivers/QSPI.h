@@ -29,12 +29,13 @@
 #define ONE_MHZ     1000000
 
 namespace mbed {
+/** \defgroup drivers-public-api-spi SPI
+ * \ingroup drivers-public-api
+ */
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_QSPI QSPI class
+ * \ingroup drivers-public-api-spi
  * @{
  */
 
@@ -230,7 +231,6 @@ private:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

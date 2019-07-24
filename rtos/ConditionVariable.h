@@ -32,8 +32,8 @@
 #if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
-/** \ingroup rtos */
-/** \addtogroup rtos-public-api Public API */
+/** \ingroup mbed-os-public */
+/** \addtogroup rtos-public-api RTOS */
 /** @{*/
 
 struct Waiter;
