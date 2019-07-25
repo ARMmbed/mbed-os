@@ -12,7 +12,7 @@ set(unittest-includes ${unittest-includes}
 
 # Source files
 set(unittest-sources
-  ../drivers/Watchdog.cpp
+  ../drivers/source/Watchdog.cpp
 )
 
 # Test files
