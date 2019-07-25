@@ -19,7 +19,7 @@
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
-#endif
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -199,3 +199,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))

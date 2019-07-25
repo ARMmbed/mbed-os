@@ -17,7 +17,7 @@
 
 #ifndef COMPONENT_FLASHIAP
 #error [NOT_SUPPORTED] Target must have internal FlashIAP for this test
-#endif
+#else
 
 #include "mbed.h"
 #include <stdio.h>
@@ -360,3 +360,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // COMPONENT_FLASHIAP

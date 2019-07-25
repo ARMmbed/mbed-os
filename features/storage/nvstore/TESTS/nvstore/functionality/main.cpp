@@ -29,7 +29,7 @@
 
 #if !NVSTORE_ENABLED
 #error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -697,3 +697,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !NVSTORE_ENABLED

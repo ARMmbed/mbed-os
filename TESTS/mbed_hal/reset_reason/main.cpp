@@ -16,7 +16,7 @@
  */
 #if !DEVICE_RESET_REASON
 #error [NOT_SUPPORTED] Reset reason API not supported for this target
-#endif
+#else
 
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -148,3 +148,5 @@ int main()
     test_reset_reason(); // The result of this test suite is reported by the host side.
     GREENTEA_TESTSUITE_RESULT(0); // Fail on any error.
 }
+
+#endif //!DEVICE_RESET_REASON

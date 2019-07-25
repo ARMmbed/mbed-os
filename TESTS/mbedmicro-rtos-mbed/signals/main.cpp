@@ -20,13 +20,9 @@
 
 using utest::v1::Case;
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define TEST_STACK_SIZE   512
 #define MAX_FLAG_POS 30
@@ -396,3 +392,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

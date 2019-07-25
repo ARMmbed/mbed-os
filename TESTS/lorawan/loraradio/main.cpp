@@ -36,6 +36,7 @@
 #error [NOT_SUPPORTED] Requires parameters from application config file.
 #endif
 
+#if (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
 
 using namespace utest::v1;
 using namespace mbed;
@@ -281,3 +282,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)

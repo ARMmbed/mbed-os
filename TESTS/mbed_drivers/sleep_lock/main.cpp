@@ -17,7 +17,7 @@
 
 #if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] Sleep not supported for this target
-#endif
+#else
 
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -132,3 +132,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_SLEEP

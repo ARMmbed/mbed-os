@@ -16,7 +16,7 @@
 
 #if !DEVICE_RTC
 #error [NOT_SUPPORTED] RTC API not supported for this target
-#endif
+#else
 
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -258,3 +258,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_RTC

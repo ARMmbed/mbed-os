@@ -27,7 +27,7 @@ using namespace utest::v1;
 // TODO HACK, replace with available ram/heap property
 #if defined(TARGET_MTB_MTS_XDOT)
 #error [NOT_SUPPORTED] Insufficient heap for heap block device tests
-#endif
+#else
 
 #define BLOCK_COUNT 16
 #define BLOCK_SIZE 512
@@ -250,3 +250,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // defined(TARGET_MTB_MTS_XDOT)

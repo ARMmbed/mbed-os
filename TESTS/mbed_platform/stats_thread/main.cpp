@@ -23,7 +23,7 @@
 
 #if !defined(MBED_THREAD_STATS_ENABLED)
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -174,3 +174,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !defined(MBED_THREAD_STATS_ENABLED)

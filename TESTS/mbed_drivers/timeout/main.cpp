@@ -21,7 +21,7 @@
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] usticker not supported for this target.
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -87,3 +87,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_USTICKER

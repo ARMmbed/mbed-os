@@ -26,7 +26,7 @@
 
 #ifndef MBED_MEM_TRACING_ENABLED
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 using utest::v1::Case;
 
@@ -427,3 +427,5 @@ int main()
 
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // MBED_MEM_TRACING_ENABLED

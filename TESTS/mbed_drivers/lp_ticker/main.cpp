@@ -21,7 +21,7 @@
 
 #if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Low power ticker not supported for this target
-#endif
+#else
 
 using utest::v1::Case;
 
@@ -228,3 +228,5 @@ int main()
 {
     utest::v1::Harness::run(specification);
 }
+
+#endif // !DEVICE_LPTICKER

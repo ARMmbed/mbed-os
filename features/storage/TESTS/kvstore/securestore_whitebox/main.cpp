@@ -34,13 +34,9 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
-#endif
-
-#if !SECURESTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore & SecureStore need to be enabled for this test
-#endif
+#if (!defined(TARGET_K64F) && !defined(TARGET_ARM_FM)) || !SECURESTORE_ENABLED
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels. KVStore & SecureStore need to be enabled for this test
+#else
 
 using namespace mbed;
 
@@ -534,3 +530,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // (!defined(TARGET_K64F) && !defined(TARGET_ARM_FM)) || !SECURESTORE_ENABLED

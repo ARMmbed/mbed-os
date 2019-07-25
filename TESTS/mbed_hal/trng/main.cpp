@@ -48,7 +48,7 @@
 
 #if !DEVICE_TRNG
 #error [NOT_SUPPORTED] TRNG API not supported for this target
-#endif
+#else
 
 #define MSG_VALUE_DUMMY                 "0"
 #define MSG_VALUE_LEN                   64
@@ -284,5 +284,5 @@ int main()
     return ret;
 }
 
-
+#endif // !DEVICE_TRNG
 

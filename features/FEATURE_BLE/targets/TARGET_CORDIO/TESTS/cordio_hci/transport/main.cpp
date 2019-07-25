@@ -35,7 +35,7 @@ extern ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver();
 
 #if CORDIO_ZERO_COPY_HCI
 #error [NOT_SUPPORTED] Test not relevant for zero copy hci.
-#endif
+#else
 
 namespace ble {
 namespace vendor {
@@ -270,3 +270,4 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 int main() {
     return !Harness::run(specification);
 }
+#endif // CORDIO_ZERO_COPY_HCI

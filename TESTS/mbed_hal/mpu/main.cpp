@@ -26,7 +26,7 @@
 
 #if !DEVICE_MPU
 #error [NOT_SUPPORTED] MPU API not supported for this target
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -197,3 +197,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_MPU
