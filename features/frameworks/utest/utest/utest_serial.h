@@ -19,6 +19,8 @@
  ****************************************************************************
  */
 
+#if DEVICE_SERIAL
+
 #ifndef UTEST_SERIAL_H
 #define UTEST_SERIAL_H
 
@@ -29,3 +31,5 @@
 #endif // UTEST_SERIAL_H
 
 /** @}*/
+
+#endif
