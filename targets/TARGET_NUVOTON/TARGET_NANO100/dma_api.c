@@ -55,12 +55,12 @@ void dma_init(void)
     dma_chn_mask = ~NU_PDMA_CH_Msk;
     memset(dma_chn_arr, 0x00, sizeof (dma_chn_arr));
     
-    // Reset this module
-    SYS_ResetModule(dma_modinit.rsetidx);
-    
     // Enable IP clock
     CLK_EnableModuleClock(dma_modinit.clkidx);
-    
+
+    // Reset this module
+    SYS_ResetModule(dma_modinit.rsetidx);
+
     PDMA_Open(0);
     
     NVIC_SetVector(dma_modinit.irq_n, (uint32_t) dma_modinit.var);

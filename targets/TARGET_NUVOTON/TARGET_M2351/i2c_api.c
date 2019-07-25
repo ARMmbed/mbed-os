@@ -102,11 +102,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
-    /* Reset module
-     *
-     * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-     */
-    SYS_ResetModule_S(modinit->rsetidx);
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pinmap_pinout(scl, PinMap_I2C_SCL);
 
     /* Select IP clock source
      *
@@ -114,8 +111,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
      */
     CLK_EnableModuleClock_S(modinit->clkidx);
 
-    pinmap_pinout(sda, PinMap_I2C_SDA);
-    pinmap_pinout(scl, PinMap_I2C_SCL);
+    /* Reset module
+     *
+     * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+     */
+    SYS_ResetModule_S(modinit->rsetidx);
 
 #if DEVICE_I2C_ASYNCH
     obj->i2c.dma_usage = DMA_USAGE_NEVER;

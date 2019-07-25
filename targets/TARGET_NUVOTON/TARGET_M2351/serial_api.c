@@ -200,11 +200,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
 
     if (! var->ref_cnt) {
-        /* Reset module
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        SYS_ResetModule_S(modinit->rsetidx);
+        pinmap_pinout(tx, PinMap_UART_TX);
+        pinmap_pinout(rx, PinMap_UART_RX);
 
         /* Select IP clock source
          *
@@ -218,8 +215,11 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
          */
         CLK_EnableModuleClock_S(modinit->clkidx);
 
-        pinmap_pinout(tx, PinMap_UART_TX);
-        pinmap_pinout(rx, PinMap_UART_RX);
+        /* Reset module
+         *
+         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+         */
+        SYS_ResetModule_S(modinit->rsetidx);
 
         // Configure baudrate
         int baudrate = 9600;

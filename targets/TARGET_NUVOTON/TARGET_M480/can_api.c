@@ -59,22 +59,23 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->can);
 
+    pinmap_pinout(td, PinMap_CAN_TD);
+    pinmap_pinout(rd, PinMap_CAN_RD);
+
+    // Enable IP clock
+    CLK_EnableModuleClock(modinit->clkidx);
+
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
 
     NVIC_DisableIRQ(CAN0_IRQn);
-    NVIC_DisableIRQ(CAN1_IRQn);
-
-    // Enable IP clock
-    CLK_EnableModuleClock(modinit->clkidx);
+    NVIC_DisableIRQ(CAN1_IRQn);    
 
     if(obj->can == CAN_1) {
         obj->index = 1;
     } else
         obj->index = 0;
 
-    pinmap_pinout(td, PinMap_CAN_TD);
-    pinmap_pinout(rd, PinMap_CAN_RD);
 #if 0
     /* TBD: For M487 mbed Board Transmitter Setting (RS Pin) */
     GPIO_SetMode(PA, BIT2| BIT3, GPIO_MODE_OUTPUT);

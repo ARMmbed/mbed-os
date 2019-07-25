@@ -53,6 +53,9 @@ void analogout_init(dac_t *obj, PinName pin)
     uint32_t chn =  NU_MODSUBINDEX(obj->dac);
     MBED_ASSERT(chn < NU_DACCHN_MAXNUM);
 
+    /* Wire pinout */
+    pinmap_pinout(pin, PinMap_DAC);
+
     DAC_T *dac_base = (DAC_T *) NU_MODBASE(obj->dac);
 
     /* Module-level setup from here */
@@ -66,12 +69,6 @@ void analogout_init(dac_t *obj, PinName pin)
      *    channels are deactivated.
      */
     if ((! dac_modinit_mask[0]) && (! dac_modinit_mask[1])) {
-        /* Reset IP
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        SYS_ResetModule_S(modinit->rsetidx);
-        
         /* Select IP clock source and clock divider
          *
          * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
@@ -83,7 +80,13 @@ void analogout_init(dac_t *obj, PinName pin)
          * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
          */
         CLK_EnableModuleClock_S(modinit->clkidx);
-        
+
+        /* Reset IP
+         *
+         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+         */
+        SYS_ResetModule_S(modinit->rsetidx);
+
         /* The conversion settling time is 8us when 12-bit input code transition from
          * lowest code (0x000) to highest code (0xFFF). */
         DAC_SetDelayTime(dac_base, 8);
@@ -98,8 +101,7 @@ void analogout_init(dac_t *obj, PinName pin)
     /* Set the software trigger, enable DAC event trigger mode and enable D/A converter */
     DAC_Open(dac_base, chn, DAC_SOFTWARE_TRIGGER);
         
-    /* Wire pinout */
-    pinmap_pinout(pin, PinMap_DAC);
+    
 
     /* Mark channel allocated */
     dac_modinit_mask[modidx] |= 1 << chn;
