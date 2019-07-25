@@ -70,9 +70,11 @@ typedef enum {
     ParityForced0 = 4
 } SerialParity;
 
+/** Serial interrupt sources
+ */
 typedef enum {
-    RxIrq,
-    TxIrq
+    RxIrq,      /**< Receive Data Register Full */
+    TxIrq       /**< Transmit Data Register Empty */
 } SerialIrq;
 
 typedef enum {
@@ -109,61 +111,95 @@ extern "C" {
 /**
  * \defgroup hal_GeneralSerial Serial Configuration Functions
  *
- * # Defined behaviour
- * * ::serial_init initializes the serial peripheral
+ * # Defined behavior
+ * * ::serial_init initializes the serial peripheral.
  * * ::serial_init sets the default parameters for serial peripheral
- * * ::serial_init configures its specified pins
- * * ::serial_free releases the serial peripheral
+        ^^^ FIXME, are the defaults given, or platform specific?
+            Set to 9600, 8N1? Use MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE?
+
+ * * ::serial_init configures its specified pins.
+ * * ::serial_free releases the serial peripheral.
  * * ::serial_baud configures the baud rate
+ *      ^^^ FIXME, are any baudrates mandatory?
+
  * * ::serial_format configures the transmission format (number of bits, parity and the number of stop bits)
- * * ::serial_irq_handler registers the interrupt handler which will be invoked when the interrupt fires
- * * ::serial_irq_set enables or disables serial irq (RX or TX)
- * * ::serial_getc returns the character from serial buffer
- * * ::serial_getc is a blocking call (waits for the character)
- * * ::serial_putc sends a character
- * * ::serial_putc is a blocking call (waits for a peripheral to be available)
- * * ::serial_readable returns non-zero value if a character can be read, 0 if nothing to read
- * * ::serial_writable returns non-zero value if a character can be written, 0 otherwise
+        ^^^ FIXME, which values are mandatory?
+            Any other than 8N1?
+
+ * * ::serial_irq_handler registers the interrupt handler which will be invoked when the interrupt fires.
+ * * ::serial_irq_set enables or disables the serial RX or TX IRQ.
+ * * If `RxIrq` is enabled by ::serial_irq_set, ::serial_irq_handler will be invoked whenever
+ * Receive Data Register Full IRQ is generated.
+ * * If `TxIrq` is enabled by ::serial_irq_set, ::serial_irq_handler will be invoked whenever
+ * Transmit Data Register Empty IRQ is generated.
+ * * If the interrupt condition holds true, when the interrupt is enabled with ::serial_irq_set,
+ * the ::serial_irq_handler is called instantly.
+ * * ::serial_getc returns the character from serial buffer.
+ * * ::serial_getc is a blocking call (waits for the character).
+ * * ::serial_putc sends a character.
+ * * ::serial_putc is a blocking call (waits for a peripheral to be available).
+ * * ::serial_readable returns non-zero value if a character can be read, 0 otherwise.
+ * * ::serial_writable returns non-zero value if a character can be written, 0 otherwise.
  * * ::serial_clear clears the serial peripheral
- * * ::serial_break_set sets the break signal
- * * ::serial_pinout_tx configures the TX pin for UART function
- * * ::serial_set_flow_control configures serial flow control
- * * ::serial_set_flow_control sets flow control in the hardware if a serial peripheral supports it, otherwise software emulation is used
- * * ::serial_tx_asynch starts the serial asynchronous transfer
- * * ::serial_tx_asynch writes `tx_length` bytes from the `tx` to the bus
- * * The callback given to ::serial_tx_asynch is invoked when the transfer completes
- * * ::serial_tx_asynch specifies the logical OR of events to be registered
- * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm
- * * ::serial_rx_asynch starts the serial asynchronous transfer
- * * ::serial_rx_asynch reads `rx_length` bytes to the `rx`buffer
- * * The callback given to ::serial_rx_asynch is invoked when the transfer completes
- * * ::serial_tx_asynch specifies the logical OR of events to be registered
- * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm
- * * ::serial_tx_asynch specifies the character in range 0-254 to be matched
- * * ::serial_tx_active returns non-zero if the TX transaction is ongoing, 0 otherwise
- * * ::serial_rx_active returns non-zero if the RX transaction is ongoing, 0 otherwise
- * * ::serial_irq_handler_asynch returns event flags if an RX transfer termination condition was met, otherwise returns 0
- * * ::serial_tx_abort_asynch aborts the ongoing TX transaction
- * * ::serial_tx_abort_asynch disables the enabled interupt for TX
- * * ::serial_tx_abort_asynch flushes the TX hardware buffer if TX FIFO is used
- * * ::serial_rx_abort_asynch aborts the ongoing RX transaction
- * * ::serial_rx_abort_asynch disables the enabled interupt for RX
- * * ::serial_rx_abort_asynch flushes the TX hardware buffer if RX FIFO is used
+        ^^^ FIXME, what does that actually mean?
+            Reset both RX and TX FIFOs (and shift registers)?
+
+ * * ::serial_break_set sets the break signal.
+ * * ::serial_break_clear clears the break signal.
+ * * ::serial_pinout_tx configures the TX pin as an output (to be used in half-duplex mode).
+ * * ::serial_set_flow_control configures serial flow control.
+ * * ::serial_set_flow_control sets flow control in the hardware if a serial peripheral supports it,
+ * otherwise software emulation is used.
+ * * ::serial_tx_asynch starts the serial asynchronous transfer.
+ * * ::serial_tx_asynch writes `tx_length` bytes from the `tx` to the bus.
+ * * ::serial_tx_asynch ignores the `tx_width` argument
+        ^^^ FIXME, is this valid; does deprecated == ignored?
+
+ * * The callback given to ::serial_tx_asynch is invoked when the transfer completes.
+ * * ::serial_tx_asynch specifies the logical OR of events to be registered.
+ * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.
+ * * ::serial_rx_asynch starts the serial asynchronous transfer.
+ * * ::serial_rx_asynch reads `rx_length` bytes to the `rx` buffer.
+ * * ::serial_rx_asynch ignores the `rx_width` argument
+        ^^^ FIXME, is this valid; does deprecated == ignored?
+
+ * * The callback given to ::serial_rx_asynch is invoked when the transfer completes.
+ * * ::serial_rx_asynch specifies the logical OR of events to be registered.
+ * * The ::serial_rx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.
+ * * ::serial_rx_asynch specifies a character in range 0-254 to be matched, 255 is a reserved value.
+ * * If SERIAL_EVENT_RX_CHARACTER_MATCH event is not registered, the `char_match` is ignored.
+ * * The SERIAL_EVENT_RX_CHARACTER_MATCH event is set in the callback when SERIAL_EVENT_RX_CHARACTER_MATCH event is
+ * registered AND `char_match` is present in the received data.
+ * * ::serial_tx_active returns non-zero if the TX transaction is ongoing, 0 otherwise.
+ * * ::serial_rx_active returns non-zero if the RX transaction is ongoing, 0 otherwise.
+ * * ::serial_irq_handler_asynch returns event flags if a transfer termination condition was met, otherwise returns 0.
+ * * ::serial_irq_handler_asynch takes no longer than one packet transfer time (packet_bits / baudrate) to execute.
+ * * ::serial_tx_abort_asynch aborts the ongoing TX transaction.
+ * * ::serial_tx_abort_asynch disables the enabled interupt for TX.
+ * * ::serial_tx_abort_asynch flushes the TX hardware buffer if TX FIFO is used.
+ * * ::serial_rx_abort_asynch aborts the ongoing RX transaction.
+ * * ::serial_rx_abort_asynch disables the enabled interupt for RX.
+ * * ::serial_rx_abort_asynch flushes the TX hardware buffer if RX FIFO is used.
+ * * Correct operation guaranteed when interrupt latency is shorter than one packet transfer time (packet_bits / baudrate)
+ * if the flow control is not used.
+ * * Correct operation guaranteed regardless of interrupt latency if the flow control is used.
  *
- * # Undefined behaviour
- *
- * * Calling ::serial_init multiple times on the same `serial_t` without ::serial_free
- * * Passing invalid pin to ::serial_init, ::serial_pinout_tx
- * * Calling any function other than ::serial_init on a non-initialized or freed `serial_t`
- * * Passing an invalid pointer as `obj` to any function
- * * Passing an invalid pointer as `handler` to ::serial_irq_handler, ::serial_tx_asynch, ::serial_rx_asynch
- * * Calling ::spi_abort while no async transfer is being processed (no transfer or a synchronous transfer)
+ * # Undefined behavior
+ * * Calling ::serial_init multiple times on the same `serial_t` without ::serial_free.
+ * * Passing invalid pin to ::serial_init, ::serial_pinout_tx.
+ * * Calling any function other than ::serial_init on am uninitialized or freed `serial_t`.
+ * * Passing an invalid pointer as `obj` to any function.
+ * * Passing an invalid pointer as `handler` to ::serial_irq_handler, ::serial_tx_asynch, ::serial_rx_asynch.
+ * * Calling ::serial_tx_abort while no async TX transfer is being processed.
+ * * Calling ::serial_rx_abort while no async RX transfer is being processed.
+ * * Devices behavior is undefined when the interrupt latency is longer than one packet transfer time
+ * (packet_bits / baudrate) if the flow control is not used.
  * @{
  */
 
 /**
  * \defgroup hal_GeneralSerial_tests Serial hal tests
- * The Serial HAL tests ensure driver conformance to defined behaviour.
+ * The Serial HAL tests ensure driver conformance to defined behavior.
  *
  * To run the Serial hal tests use the command:
  *
@@ -353,7 +389,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
  * @param rx_width   Deprecated argument
  * @param handler    The serial handler
  * @param event      The logical OR of events to be registered
- * @param handler    The serial handler
  * @param char_match A character in range 0-254 to be matched
  * @param hint       A suggestion for how to use DMA with this transfer
  */
