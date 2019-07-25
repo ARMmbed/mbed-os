@@ -84,6 +84,61 @@ class BuildApiTests(unittest.TestCase):
         assert any('percent' in msg and msg['percent'] == 100.0
                    for msg in notify.messages if msg)
 
+    @patch('tools.toolchains.arm.ARM_STD.parse_dependencies',
+           return_value=["foo"])
+    @patch('tools.toolchains.mbedToolchain.need_update',
+           side_effect=[i % 2 for i in range(3000)])
+    @patch('os.mkdir')
+    @patch('tools.toolchains.mbedToolchain.dump_build_profile')
+    @patch('tools.utils.run_cmd', return_value=(b'', b'', 0))
+    def test_compile_legacy_sources_always_complete_build(self, *_):
+        """Test that compile_legacy_sources() completes."""
+        notify = MockNotifier()
+        toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
+                                      self.toolchain_name, notify=notify)
+
+        res = Resources(MockNotifier()).scan_with_toolchain(
+            self.src_paths, toolchain)
+
+        toolchain.RESPONSE_FILES=False
+        toolchain.config_processed = True
+        toolchain.config_file = "junk"
+        toolchain.compile_legacy_sources(res)
+
+        assert any('percent' in msg and msg['percent'] == 100.0
+                   for msg in notify.messages if msg)
+
+    @patch('tools.toolchains.arm.ARM_STD.parse_dependencies',
+           return_value=["foo"])
+    @patch('tools.toolchains.mbedToolchain.need_update',
+           side_effect=[i % 2 for i in range(3000)])
+    @patch('os.mkdir')
+    @patch('tools.toolchains.mbedToolchain.dump_build_profile')
+    @patch('tools.utils.run_cmd', return_value=(b'', b'', 0))
+    def test_dirs_exclusion_from_build(self, *_):
+        """Test that dirs can be excluded from the build."""
+        notify = MockNotifier()
+        toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
+                                      self.toolchain_name, notify=notify)
+
+        res = Resources(MockNotifier()).scan_with_toolchain(
+            self.src_paths, toolchain)
+
+        toolchain.RESPONSE_FILES=False
+        toolchain.config_processed = True
+        toolchain.config_file = "junk"
+        exclude_dirs = ['platform/','rtos/', 'targets/']
+
+        toolchain.compile_legacy_sources(
+            res, inc_dirs=None, exclude_dirs = exclude_dirs
+        )
+        assert all(
+            exclude_dir not in msg
+            for msg in notify.messages
+            if msg
+            for exclude_dir in exclude_dirs
+        )
+
 
     @patch('tools.build_api.Config')
     def test_prepare_toolchain_app_config(self, mock_config_init):

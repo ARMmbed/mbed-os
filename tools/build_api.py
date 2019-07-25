@@ -1075,7 +1075,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         # Build Things
         notify.info("Building library %s (%s, %s)" %
                     ('MBED', target.name, toolchain_name))
-        objects = toolchain.compile_sources(
+        objects = toolchain.compile_legacy_sources(
             mbed_resources, incdirs, exclude_paths
         )
         separate_objects = []
