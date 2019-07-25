@@ -33,7 +33,7 @@ using namespace utest::v1;
 
 #ifndef MBED_TEST_BLOCKDEVICE
 #error [NOT_SUPPORTED] Non-volatile block device required
-#endif
+#else
 
 #ifndef MBED_TEST_BLOCKDEVICE_DECL
 #define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
@@ -405,3 +405,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // MBED_TEST_BLOCKDEVICE

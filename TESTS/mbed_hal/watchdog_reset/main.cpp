@@ -16,7 +16,7 @@
  */
 #if !DEVICE_WATCHDOG
 #error [NOT_SUPPORTED] Watchdog not supported for this target
-#endif
+#else
 
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
@@ -305,3 +305,5 @@ int main()
     // Harness will start with a test case index provided by host script.
     return !Harness::run(specification);
 }
+
+#endif // !DEVICE_WATCHDOG

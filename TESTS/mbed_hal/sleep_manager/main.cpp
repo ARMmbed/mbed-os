@@ -24,7 +24,7 @@
 
 #if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define SLEEP_DURATION_US 20000ULL
 #define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
@@ -333,3 +333,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !DEVICE_SLEEP

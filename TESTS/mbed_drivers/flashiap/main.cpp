@@ -17,7 +17,7 @@
 
 #if !DEVICE_FLASH
 #error [NOT_SUPPORTED] Flash API not supported for this target
-#endif
+#else
 
 #include "utest/utest.h"
 #include "utest/utest_serial.h"
@@ -328,3 +328,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_FLASH

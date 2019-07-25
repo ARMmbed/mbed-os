@@ -18,7 +18,7 @@
 
 #ifndef TARGET_PSA
 #error [NOT_SUPPORTED] ITS/PS tests can run only on PSA-enabled targets.
-#endif // TARGET_PSA
+#else
 
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -196,3 +196,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // TARGET_PSA

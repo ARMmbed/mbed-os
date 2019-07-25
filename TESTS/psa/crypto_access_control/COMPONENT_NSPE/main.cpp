@@ -19,7 +19,7 @@
 
 #if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)) || (!defined(COMPONENT_PSA_SRV_IPC)))
 #error [NOT_SUPPORTED] These tests can run only on SPM-enabled targets and where Mbed Crypto is ON - skipping.
-#endif
+#else
 
 #include <stdio.h>
 #include "mbed.h"
@@ -594,3 +594,5 @@ int main(void)
 {
     return !Harness::run(specification);
 }
+
+#endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)) || (!defined(COMPONENT_PSA_SRV_IPC)))

@@ -27,7 +27,7 @@ using namespace utest::v1;
 
 #ifndef MBED_EXTENDED_TESTS
 #error [NOT_SUPPORTED] Filesystem tests not supported by default
-#endif
+#else
 
 static const int mem_alloc_threshold = 32 * 1024;
 
@@ -189,3 +189,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // MBED_EXTENDED_TESTS

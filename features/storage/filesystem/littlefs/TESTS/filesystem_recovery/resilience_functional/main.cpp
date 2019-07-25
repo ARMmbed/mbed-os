@@ -30,7 +30,7 @@ using namespace utest::v1;
 // test configuration
 #ifndef MBED_TEST_BLOCKDEVICE
 #error [NOT_SUPPORTED] Non-volatile block device required for resilience_functional tests
-#endif
+#else
 
 #ifndef MBED_TEST_BLOCKDEVICE_DECL
 #define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
@@ -117,3 +117,5 @@ int main()
 
     GREENTEA_TESTSUITE_RESULT(CMD_STATUS_PASS == cmd_status);
 }
+
+#endif // MBED_TEST_BLOCKDEVICE

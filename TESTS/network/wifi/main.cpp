@@ -19,7 +19,7 @@
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
 #error [NOT_SUPPORTED] No network configuration found for this target.
-#endif
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -28,25 +28,24 @@
 #include "wifi_tests.h"
 
 // Test for parameters
-#if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
-#if !defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID) &&    \
+   (!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
     !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
     !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
     !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL
+    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for secure connections)
-#endif
-#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+#else
 
-#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-#if !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
+#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) &&  \
+    !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
     !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
     !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
     !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for unsecure connections)
-#endif
-#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#else
+
 
 using namespace utest::v1;
 
@@ -93,3 +92,18 @@ int main()
 {
     return !Harness::run(specification);
 }
+#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) &&  \
+    !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
+    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+    !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
+    !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && \
+   (!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
+    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+    !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
+    !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
+    !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
+    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
+    
+#endif //!defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI

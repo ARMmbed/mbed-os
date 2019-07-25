@@ -26,7 +26,7 @@
 //FastModels not support timing test
 #if defined(TARGET_ARM_FM)
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -99,3 +99,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // defined(TARGET_ARM_FM)

@@ -40,7 +40,7 @@
 
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
-#endif
+#else
 
 
 using namespace utest::v1;
@@ -658,3 +658,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
