@@ -38,11 +38,9 @@
 #define PACKET_TYPE_BROADCAST       (1<<3)
 #define PACKET_TYPE_MULTICAST       (1<<4)
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBCDC_ECM USBCDC_ECM class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -275,7 +273,6 @@ private:
     void _notify_connect();
 };
 
-/** @}*/
 /** @}*/
 
 #endif

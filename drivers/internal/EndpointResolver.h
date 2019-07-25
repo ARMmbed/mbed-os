@@ -21,6 +21,12 @@
 #include "USBPhy.h"
 
 /**
+ * \defgroup drivers_EndpointResolver EndpointResolver class
+ * \ingroup drivers-internal-api
+ * @{
+ */
+
+/**
  * Utility class for resolving endpoints
  *
  * This class is intended to make the process of
@@ -29,14 +35,6 @@
  * to check if the device has enough resources for the
  * given configuration.
  *
- */
-
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
-/**
- * \defgroup drivers_EndpointResolver EndpointResolver class
- * @{
  */
 class EndpointResolver {
 public:
@@ -96,7 +94,6 @@ private:
     bool _valid;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

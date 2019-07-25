@@ -40,11 +40,10 @@
 
 #define CABLE_NUM (0<<4)
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
+
 /**
  * \defgroup drivers_MIDIMessage MIDIMessage class
+ * \ingroup drivers-internal-api
  * @{
  */
 
@@ -480,7 +479,6 @@ public:
     uint16_t length;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

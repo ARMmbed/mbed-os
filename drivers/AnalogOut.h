@@ -25,11 +25,11 @@
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \ingroup drivers */
 /** \addtogroup drivers-public-api */
-/** @{*/
+
 /**
  * \defgroup drivers_AnalogOut AnalogOut class
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 
@@ -147,7 +147,6 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

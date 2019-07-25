@@ -29,11 +29,9 @@
 
 #include "USBDevice.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBMSD USBMSD class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -312,7 +310,6 @@ private:
     void fail();
 };
 
-/** @}*/
 /** @}*/
 
 #endif

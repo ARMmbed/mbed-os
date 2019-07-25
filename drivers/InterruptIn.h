@@ -29,11 +29,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
+/** \defgroup drivers-public-api-interrupt Interrupt
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_InterruptIn InterruptIn class
+ * \ingroup drivers-public-api-interrupt
  * @{
  */
 
@@ -180,7 +182,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

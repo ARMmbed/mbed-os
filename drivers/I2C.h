@@ -34,11 +34,13 @@
 #endif
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
+/** \defgroup drivers-public-api-i2c I2C
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_I2C I2C class
+ * \ingroup drivers-public-api-i2c
  * @{
  */
 
@@ -247,7 +249,6 @@ private:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "events/internal/equeue.h"
+#include "events/equeue.h"
 
 #include <stdlib.h>
 #include <stdint.h>

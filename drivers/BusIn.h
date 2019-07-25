@@ -23,11 +23,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
+/** \defgroup drivers-public-api-bus Bus
+ * \ingroup drivers-public-api
+ */
+
 /**
  * \defgroup drivers_BusIn BusIn class
+ * \ingroup drivers-public-api-bus
  * @{
  */
 
@@ -130,7 +132,6 @@ private:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

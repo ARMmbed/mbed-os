@@ -20,11 +20,9 @@
 
 #include "LinkEntry.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
 /**
  * \defgroup drivers_LinkedListBase LinkedListBase class
+ * \ingroup drivers-internal-api-list
  * @{
  */
 class LinkedListBase {
@@ -65,7 +63,6 @@ private:
     LinkEntry *_tail;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

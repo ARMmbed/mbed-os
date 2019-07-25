@@ -24,9 +24,10 @@
 #include "platform/Callback.h"
 
 namespace events {
-/** \ingroup events */
-/** \addtogroup events-internal-api */
-/** @{*/
+/** \addtogroup events-internal-api
+ * \ingroup mbed-os-internal
+ * @{
+ */
 
 
 template<typename F, typename A1 = void, typename A2 = void, typename A3 = void, typename A4 = void, typename A5 = void>

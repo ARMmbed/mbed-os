@@ -26,11 +26,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
- * \defgroup drivers_LowPowerTimeout LowPowerTimeout class
+ * \addtogroup drivers_LowPowerTimeout LowPowerTimeout class
+ * \ingroup drivers-public-api-ticker
  * @{
  */
 
@@ -48,7 +46,6 @@ private:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

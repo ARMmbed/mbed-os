@@ -23,11 +23,9 @@
 #include "hal/pwmout_api.h"
 
 namespace mbed {
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_PwmOut PwmOut class
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 
@@ -162,7 +160,6 @@ protected:
 #endif
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

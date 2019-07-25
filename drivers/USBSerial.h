@@ -22,11 +22,9 @@
 #include "Stream.h"
 #include "Callback.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_USBSerial USBSerial class
+ * \ingroup drivers-public-api-usb
  * @{
  */
 
@@ -224,7 +222,6 @@ private:
     void (*_settings_changed_callback)(int baud, int bits, int parity, int stop);
 };
 
-/** @}*/
 /** @}*/
 
 #endif
