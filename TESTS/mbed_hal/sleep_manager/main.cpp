@@ -19,6 +19,7 @@
 #include <limits.h>
 #include "mbed.h"
 #include "mbed_lp_ticker_wrapper.h"
+#include "hal/us_ticker_api.h"
 #include "../sleep/sleep_test_utils.h"
 #include "sleep_manager_api_tests.h"
 
