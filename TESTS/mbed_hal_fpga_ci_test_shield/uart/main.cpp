@@ -27,6 +27,8 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
+#include "platform/mbed_critical.h"
+
 using namespace utest::v1;
 
 #include <stdlib.h>

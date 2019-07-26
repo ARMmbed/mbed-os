@@ -397,14 +397,27 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def compile_sources(self, resources, inc_dirs=None):
+    def compile_sources(self, resources, inc_dirs=None, exclude_paths=None):
         # Web IDE progress bar for project build
         files_to_compile = (
             resources.get_file_refs(FileType.ASM_SRC) +
             resources.get_file_refs(FileType.C_SRC) +
             resources.get_file_refs(FileType.CPP_SRC)
         )
-        self.to_be_compiled = len(files_to_compile)
+        # Remove files from paths to be excluded from the build and create
+        # a compilation queue.
+        compile_queue = (
+            files_to_compile
+            if not exclude_paths
+            else [
+                file_to_compile
+                for exclude_path in exclude_paths
+                for file_to_compile in files_to_compile
+                if exclude_path not in file_to_compile.path
+            ]
+        )
+
+        self.to_be_compiled = len(compile_queue)
         self.compiled = 0
 
         self.notify.cc_verbose("Macros: " + ' '.join([
@@ -434,8 +447,8 @@ class mbedToolchain:
         self.dump_build_profile()
 
         # Sort compile queue for consistency
-        files_to_compile.sort()
-        for source in files_to_compile:
+        compile_queue.sort()
+        for source in compile_queue:
             object = self.relative_object_path(self.build_dir, source)
 
             # Queue mode (multiprocessing)
