@@ -757,10 +757,7 @@ void AT_CellularContext::check_and_deactivate_context()
     }
 
     if (_new_context_set) {
-        _at.clear_error();
-        _at.cmd_start("AT+CGDCONT=");
-        _at.write_int(_cid);
-        _at.cmd_stop_read_resp();
+        delete_current_context();
     }
 
     _at.restore_at_timeout();

@@ -149,14 +149,12 @@ SECTIONS
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-        . = ALIGN(8);
     } > FLASH
 
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-        . = ALIGN(8);
     } > FLASH
     __exidx_end = .;
 

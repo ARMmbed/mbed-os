@@ -2,6 +2,7 @@
 *.cpp     text
 *.h       text
 *.s       text
+*.S       text
 *.sct     text
 *.ld      text
 *.txt     text

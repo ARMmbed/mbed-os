@@ -122,6 +122,8 @@ void pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_prc, pw
             break;
     }
 
+    wait(PERIOD_FLOAT(period_ms));
+
     tester.io_metrics_start();
 
     wait(NUM_OF_PERIODS * PERIOD_FLOAT(period_ms));

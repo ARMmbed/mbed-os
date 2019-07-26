@@ -115,6 +115,11 @@ void find_ports(std::list<PortType> &matched_ports, std::list<PortType> &not_mat
                              FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
                 continue;
             }
+            if (pinmap_list_has_peripheral(pinmap_restricted_peripherals(), port.peripheral)) {
+                utest_printf("Skipping %s peripheral %i with pin %s (%i)\r\n", pin_type,
+                             port.peripheral, FormFactorType::pin_to_string(port.pins[i]), port.pins[i]);
+                continue;
+            }
             // skipp pin searching if single pin port type
             if (PortType::pin_count > 1) {
                 find_port_pins<PortType, FormFactorType>(port);
@@ -511,6 +516,7 @@ typedef Port<1, AnalogoutMaps, DefaultFormFactor, TF1> AnalogoutPort;
 #endif
 
 #if DEVICE_SERIAL
+#if DEVICE_SERIAL_FC
 struct UARTMaps {
     static const PinMap *maps[];
     static const char *const pin_type_names[];
@@ -520,6 +526,7 @@ const PinMap *UARTMaps::maps[] = { serial_tx_pinmap(), serial_rx_pinmap(), seria
 const char *const UARTMaps::pin_type_names[] = { "TX", "RX", "CLS", "RTS" };
 const char *const UARTMaps::name = "UART";
 typedef Port<4, UARTMaps, DefaultFormFactor, TF4> UARTPort;
+#endif
 
 struct UARTNoFCMaps {
     static const PinMap *maps[];

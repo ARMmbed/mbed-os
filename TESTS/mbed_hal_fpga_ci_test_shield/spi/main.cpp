@@ -55,7 +55,7 @@ void spi_async_handler()
 {
     int event = spi_irq_handler_asynch(&spi);
 
-    if (event == SPI_EVENT_COMPLETE) {
+    if (event & SPI_EVENT_COMPLETE) {
         async_trasfer_done = true;
     }
 }
@@ -136,7 +136,7 @@ void spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPI
 
             async_trasfer_done = false;
 
-            spi_master_transfer(&spi, tx_buf, TRANSFER_COUNT, rx_buf, TRANSFER_COUNT, 8, (uint32_t)spi_async_handler, 0, DMA_USAGE_NEVER);
+            spi_master_transfer(&spi, tx_buf, TRANSFER_COUNT, rx_buf, TRANSFER_COUNT, 8, (uint32_t)spi_async_handler, SPI_EVENT_COMPLETE, DMA_USAGE_NEVER);
             while (!async_trasfer_done);
 
             for (int i = 0; i < TRANSFER_COUNT; i++) {

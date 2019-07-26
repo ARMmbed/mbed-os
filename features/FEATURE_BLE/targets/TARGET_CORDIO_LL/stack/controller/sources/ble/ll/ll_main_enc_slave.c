@@ -26,7 +26,7 @@
 #include "ll_math.h"
 #include "wsf_msg.h"
 #include "wsf_trace.h"
-#include "pal_crypto.h"
+#include "stack/platform/include/pal_crypto.h"
 #include <string.h>
 
 /*************************************************************************************************/
