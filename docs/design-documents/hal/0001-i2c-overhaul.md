@@ -50,7 +50,7 @@ Additionally, since the original implementations were added for the API, a large
 
 - `i2c_master_transfer` takes a `uint32_t` instead of a function pointer type for its `handler` argument.
 
-- `i2c_slave_receive` should return an enumeration of the slave mode. Currently, it returns one of four integers, depending on what mode the peripheral is in. This is much more suited to an enumeration.
+- `i2c_slave_receive` should return an enumeration of the slave mode. Currently, it returns one of four integers. Depending on what mode the peripheral is in, this is much more suited to an enumeration.
 
 - The behavior of the `stop` parameter in `i2c_write`  is not consistent across platforms.
 
@@ -90,11 +90,7 @@ List of drivers and examples currently using the I2C interface:
 
   Enables or disables clock stretching for the I2C peripheral when in slave mode.
 
-- **Add** `i2c_set_clock_stretching` function to the API.
-
-  Enables or disables clock stretching for the I2C peripheral when in slave mode.
-
-- **Add** `i2c_timeout` function to the API.
+- **Add** an `i2c_timeout` function to the API.
 
   Sets the transmision timeout to use for the following blocking transfers. This timeout duration is not currently configurable. Adding this function allows this to be set to a specific period before failing the transfer with a timeout error. Calling this function replaces the default timeout value. The default timeout value is based on I2C frequency and is computed as triple the amount of time it takes to send data over I2C. The timeout value should count the additional time needed by arbitration and clock stretching if any of these can happen.
 
@@ -112,7 +108,7 @@ List of drivers and examples currently using the I2C interface:
 
 - **Add** a return value to the `i2c_frequency` which indicates the frequency that the peripheral was configured to.
 
-  The frequency requested may not be supported by the I2C peripheral, the peripheral will select the nearest supported frequency instead (but not greater then requested), the selected frequency will be returned to inform the caller of the difference.
+  The frequency requested may not be supported by the I2C peripheral. The peripheral selects the nearest supported frequency instead (but not greater then requested), and the selected frequency is returned to inform the caller of the difference.
 
 - **Change** the `stop` parameter for the transfer function from an `int` value to a `bool` value.
 
@@ -147,11 +143,11 @@ The main changes involve the removal of the single byte read/write functions and
 
 ### Slave API changes
 
-The main changes involve removing the slave specific read/write functions and rolling them into the normal read/write functions, removing most of the slave configuration which can be handled at construction by the `init` function.
+The main changes involve removing the slave specific read/write functions and rolling them into the normal read/write functions, removing most of the slave configuration, which the `init` function can handle at construction.
 
-- **Remove** the `i2c_slave_mode` function, add an `is_slave` parameter to the `i2c_init` function.
+- **Remove** the `i2c_slave_mode` function, and add an `is_slave` parameter to the `i2c_init` function.
 
-  The decision to initialize the peripheral in master or slave mode should be decided at construction time. This simplifies the API as it removes the need for two separate functions to initialize slave mode `i2c_slave_mode` and `i2c_slave_address`.
+  The decision to initialize the peripheral in master or slave mode should be decided at construction time. This simplifies the API because it removes the need for two separate functions to initialize slave mode `i2c_slave_mode` and `i2c_slave_address`.
 
 - **Remove** the I2C slave specific transfer functions: `i2c_slave_read`, `i2c_slave_write`.
 
@@ -177,7 +173,7 @@ The main changes involve removing the slave specific read/write functions and ro
 
 - **Remove** the `i2c_irq_handler_asynch` function from the API.
 
-  The event is now passed as an argument to the callback, this method is no longer required.
+  The event is now passed as an argument to the callback. This method is no longer required.
 
 - **Remove** the `event` parameter from the `i2c_transfer_async` function.
 
@@ -185,7 +181,7 @@ The main changes involve removing the slave specific read/write functions and ro
 
 - **Remove** the `i2c_active` function from the API.
 
-  The async callback is now always invoked on async operation termination (unless canceled), this status can be tracked from driver layer without any HAL request.
+  The async callback is now always invoked on async operation termination (unless canceled). This status can be tracked from driver layer without any HAL request.
 
 ### The new API
 
@@ -440,9 +436,9 @@ bool i2c_transfer_async(i2c_t *obj, const uint8_t *tx, uint32_t tx_length,
 void i2c_abort_async(i2c_t *obj);
 ```
 
-## Behaviours
+## Behaviors
 
-### Defined behaviour
+### Defined behavior
 
 - `i2c_init`:
   - Initializes the peripheral pins specified in the input parameters.
@@ -463,7 +459,7 @@ void i2c_abort_async(i2c_t *obj);
 - `i2c_timeout`:
   - Sets the transmission timeout to use for the following blocking transfers.
   - If the timeout is not set, the default timeout is used.
-  - The default timeout value is based on I2C frequency. It's computed as triple the amount of time it would take to send data over I2C
+  - The default timeout value is based on I2C frequency. It's computed as triple the amount of time it would take to send data over I2C.
 - `i2c_write`:
   - Writes `length` number of symbols to the bus.
   - Returns the number of symbols sent to the bus.
@@ -501,13 +497,13 @@ void i2c_abort_async(i2c_t *obj);
 - `i2c_abort_async`:
   - Aborts any ongoing async transfers.
 
-### Undefined behaviour
+### Undefined behavior
 
 - Use of a `null` pointer as an argument to any function.
 - Calling any `I2C` function before calling `i2c_init` or after calling `i2c_free`.
 - Initializing the `I2C` peripheral with invalid `SDA` and `SCL` pins.
 - Initializing the peripheral in slave mode if slave mode is not supported, indicated by `i2c_get_capabilities`.
-- Operating the peripheral in slave mode without first specifying an address using `i2c_slave_address`
+- Operating the peripheral in slave mode without first specifying an address using `i2c_slave_address`.
 - Setting an address using `i2c_slave_address` after initializing the peripheral in master mode.
 - Setting an address to an `I2C` reserved value.
 - Setting an address larger than the 7-bit supported maximum if 10-bit addressing is not supported.
