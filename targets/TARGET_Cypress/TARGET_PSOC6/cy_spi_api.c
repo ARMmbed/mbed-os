@@ -112,7 +112,9 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     if (CY_RSLT_SUCCESS != cyhal_spi_init(&(spi->hal_spi), mosi, miso, sclk, ssel, NULL, (uint8_t)bits, hal_mode, slave != 0)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_init");
     }
-    spi_frequency(obj, hz);
+    if (spi->hz != 0) {
+        spi_frequency(obj, hz);
+    }
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -127,11 +129,14 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spi = cy_get_spi(obj);
-    uint8_t received;
-    if (CY_RSLT_SUCCESS != cyhal_spi_transfer(&(spi->hal_spi), (const uint8_t *)value, 1, &received, 1, 0)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_transfer");
+    uint32_t received;
+    if (CY_RSLT_SUCCESS != cyhal_spi_write(&(spi->hal_spi), (uint32_t)value)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_write");
     }
-    return received;
+    if (CY_RSLT_SUCCESS != cyhal_spi_read(&(spi->hal_spi), &received)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_read");
+    }
+    return (int)received;
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
