@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +15,19 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#include "cmsis.h"
 
-#include <stdint.h>
+// Bit-Band base addresses of the 10 GPIO ports
+__IO uint8_t *gpio_bitband_base[10] = {
+    &BITBAND_PERI(P1->IN, 0), &BITBAND_PERI(P2->IN, 0),
+    &BITBAND_PERI(P3->IN, 0), &BITBAND_PERI(P4->IN, 0),
+    &BITBAND_PERI(P5->IN, 0), &BITBAND_PERI(P6->IN, 0),
+    &BITBAND_PERI(P7->IN, 0), &BITBAND_PERI(P8->IN, 0),
+    &BITBAND_PERI(P9->IN, 0), &BITBAND_PERI(P10->IN, 0)
+};
 
-#ifndef INITIAL_SP
-
-#if defined(TARGET_CC3220SF)
-#define INITIAL_SP  (0x20040000UL)
-
-#elif defined(TARGET_MSP432P401R)
-#define INITIAL_SP  (0x20010000UL)
-
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
-#endif
-
-#endif // INITIAL_SP
-
-#endif // MBED_MBED_RTX_H
+// Standard base addresses of the 10 ports
+__I uint8_t *port_base[10] = {
+    &P1->IN, &P2->IN, &P3->IN, &P4->IN, &P5->IN,
+    &P6->IN, &P7->IN, &P8->IN, &P9->IN, &P10->IN
+};

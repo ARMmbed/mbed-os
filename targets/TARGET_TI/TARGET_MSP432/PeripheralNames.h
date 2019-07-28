@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +15,26 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#include <stdint.h>
+/* mbed-os internally uses integer values
+ * for peripheral names. Instead of defining
+ * enums with new names, we simply reuse the
+ * macros for the base addresses of the
+ * peripheral units, which are defined in
+ * msp.h and are self-explanatory (see
+ * PeripheralPins.c).
+ * So the name types are simply typedefs
+ * to integers...
+ */
 
-#ifndef INITIAL_SP
+#define DEVICE_SPI_COUNT 4
 
-#if defined(TARGET_CC3220SF)
-#define INITIAL_SP  (0x20040000UL)
+typedef uint32_t ADCName;
+typedef uint32_t UARTName;
+typedef uint32_t I2CName;
+typedef uint32_t SPIName;
+typedef uint32_t PWMName;
 
-#elif defined(TARGET_MSP432P401R)
-#define INITIAL_SP  (0x20010000UL)
-
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
-
-#endif // INITIAL_SP
-
-#endif // MBED_MBED_RTX_H

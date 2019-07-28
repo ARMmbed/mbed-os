@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +15,17 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#include <stdint.h>
+// CORE:            16 vectors
+// MCU Peripherals: 41 vectors
+// Total:           57 vectors = 228 bytes to be reserved in RAM
 
-#ifndef INITIAL_SP
+// For MSP432 we do not copy the IRQ vectors to save some bytes in RAM.
+// Remember to change the linker script if the below lines are uncommented!
 
-#if defined(TARGET_CC3220SF)
-#define INITIAL_SP  (0x20040000UL)
+//#define NVIC_NUM_VECTORS 57
+//#define NVIC_RAM_VECTOR_ADDRESS 0x20000000 // Copy irq vectors to start of RAM
 
-#elif defined(TARGET_MSP432P401R)
-#define INITIAL_SP  (0x20010000UL)
-
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
-
-#endif // INITIAL_SP
-
-#endif // MBED_MBED_RTX_H
