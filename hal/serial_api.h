@@ -112,20 +112,14 @@ extern "C" {
  * \defgroup hal_GeneralSerial Serial Configuration Functions
  *
  * # Defined behavior
- * * ::serial_init initializes the serial peripheral.
- * * ::serial_init sets the default parameters for serial peripheral
-        ^^^ FIXME, are the defaults given, or platform specific?
-            Set to 9600, 8N1? Use MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE?
-
- * * ::serial_init configures its specified pins.
- * * ::serial_free releases the serial peripheral.
+ * * ::serial_init initializes the ::serial_t
+ * * ::serial_init sets the default parameters for serial peripheral (9600 bps, 8N1 format)
+ * * ::serial_init configures the specified pins
+ * * ::serial_free releases the serial peripheral
  * * ::serial_baud configures the baud rate
- *      ^^^ FIXME, are any baudrates mandatory?
-
+ * * at least 9600 bps the baud rate  must be supported
  * * ::serial_format configures the transmission format (number of bits, parity and the number of stop bits)
-        ^^^ FIXME, which values are mandatory?
-            Any other than 8N1?
-
+ * * at least 8N1 format must be supported
  * * ::serial_irq_handler registers the interrupt handler which will be invoked when the interrupt fires.
  * * ::serial_irq_set enables or disables the serial RX or TX IRQ.
  * * If `RxIrq` is enabled by ::serial_irq_set, ::serial_irq_handler will be invoked whenever
@@ -140,10 +134,7 @@ extern "C" {
  * * ::serial_putc is a blocking call (waits for a peripheral to be available).
  * * ::serial_readable returns non-zero value if a character can be read, 0 otherwise.
  * * ::serial_writable returns non-zero value if a character can be written, 0 otherwise.
- * * ::serial_clear clears the serial peripheral
-        ^^^ FIXME, what does that actually mean?
-            Reset both RX and TX FIFOs (and shift registers)?
-
+ * * ::serial_clear clears the ::serial_t RX/TX buffers
  * * ::serial_break_set sets the break signal.
  * * ::serial_break_clear clears the break signal.
  * * ::serial_pinout_tx configures the TX pin as an output (to be used in half-duplex mode).
@@ -152,17 +143,13 @@ extern "C" {
  * otherwise software emulation is used.
  * * ::serial_tx_asynch starts the serial asynchronous transfer.
  * * ::serial_tx_asynch writes `tx_length` bytes from the `tx` to the bus.
- * * ::serial_tx_asynch ignores the `tx_width` argument
-        ^^^ FIXME, is this valid; does deprecated == ignored?
-
+ * * ::serial_tx_asynch must support 8 bits words
  * * The callback given to ::serial_tx_asynch is invoked when the transfer completes.
  * * ::serial_tx_asynch specifies the logical OR of events to be registered.
  * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.
  * * ::serial_rx_asynch starts the serial asynchronous transfer.
  * * ::serial_rx_asynch reads `rx_length` bytes to the `rx` buffer.
- * * ::serial_rx_asynch ignores the `rx_width` argument
-        ^^^ FIXME, is this valid; does deprecated == ignored?
-
+ * * ::serial_rx_asynch must support 8 bits words
  * * The callback given to ::serial_rx_asynch is invoked when the transfer completes.
  * * ::serial_rx_asynch specifies the logical OR of events to be registered.
  * * The ::serial_rx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.

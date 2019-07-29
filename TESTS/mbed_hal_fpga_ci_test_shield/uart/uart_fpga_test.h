@@ -21,7 +21,7 @@
 #ifndef MBED_FPGA_UART_TEST_H
 #define MBED_FPGA_UART_TEST_H
 
-#if DEVICE_UART
+#if DEVICE_SERIAL
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +35,7 @@ extern "C" {
  * Then the operation is successfull.
  *
  */
-void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts, PinName rts);
+void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC);
 
 /** Test that the uart can be initialized/de-initialized using all possible
  *  uart pins (flow control disabled).
@@ -46,9 +46,6 @@ void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts, PinName rts);
  *
  */
 void fpga_uart_init_free_test_no_fc(PinName tx, PinName rx);
-{
-    fpga_uart_init_free_test(tx, rx);
-}
 
 /** Test that the uart transfer can be performed in various configurations (flow control enabled).
  *
@@ -57,7 +54,7 @@ void fpga_uart_init_free_test_no_fc(PinName tx, PinName rx);
  * Then data is successfully transfered.
  *
  */
-void fpga_uart_test_common(PinName tx, PinName rx, PinName cts, PinName rts);
+void fpga_uart_test_common(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC);
 
 /** Test that the uart transfer can be performed in various configurations (flow control disabled).
  *
@@ -68,6 +65,8 @@ void fpga_uart_test_common(PinName tx, PinName rx, PinName cts, PinName rts);
  */
 void fpga_uart_test_common_no_fc(PinName tx, PinName rx);
 
+/* Common test function. */
+static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC);
 
 /**@}*/
 
