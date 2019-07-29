@@ -7221,6 +7221,38 @@
         ],
         "device_has_remove": ["ITM"]
     },
+    "RIOT_MICRO_MODULE": {
+        "inherits": ["MCU_NRF52832"],
+        "release_versions": ["5"],
+        "public": false,
+        "config": {
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as opposed to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD"
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART"
+            }
+        },
+        "overrides": {
+            "network-default-interface-type": "CELLULAR"
+        },
+        "bootloader_supported": false
+    },
+    "RM6100": {
+        "inherits": ["RIOT_MICRO_MODULE"],
+        "device_name": "nRF52832_xxAA"
+    },
+    "RM7100": {
+        "inherits": ["RIOT_MICRO_MODULE"],
+        "macros_add": [
+            "CONFIG_NFCT_PINS_AS_GPIOS"
+        ],
+        "device_name": "nRF52832_xxAA"
+    },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
