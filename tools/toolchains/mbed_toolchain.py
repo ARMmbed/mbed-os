@@ -413,7 +413,8 @@ class mbedToolchain:
         """Compile source files."""
         return self._compile_sources(resources, inc_dirs=inc_dirs)
 
-    def _exclude_files_from_build(self, files_to_compile, exclude_dirs):
+    @staticmethod
+    def _exclude_files_from_build(files_to_compile, exclude_dirs):
         """Remove files from dirs to be excluded for the build."""
         return [
             file_to_compile
@@ -431,11 +432,11 @@ class mbedToolchain:
             resources.get_file_refs(FileType.C_SRC) +
             resources.get_file_refs(FileType.CPP_SRC)
         )
-        compilation_queue = (
-            files_to_compile
-            if not exclude_dirs
-            else self._exclude_files_from_build(files_to_compile, exclude_dirs)
-        )
+        if exclude_dirs:
+            compilation_queue = self._exclude_files_from_build(files_to_compile, exclude_dirs)
+        else:
+            compilation_queue = files_to_compile
+
         self.to_be_compiled = len(compilation_queue)
         self.compiled = 0
 
