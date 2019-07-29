@@ -32,10 +32,28 @@
 #include "pinmap.h"
 #include "tmpm46b_ssp.h"
 
+#define TMPM46B_SPI_2_FMAX              20000000
+#define TMPM46B_SPI_FMAX                10000000
+#define SPI_TRANSFER_STATE_IDLE         (0U)
+#define SPI_TRANSFER_STATE_BUSY         (1U)
+
+#if DEVICE_SPI_ASYNCH
+#define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
+#else
+#define SPI_S(obj)    (( struct spi_s *)(obj))
+#endif
+
 static const PinMap PinMap_SPI_SCLK[] = {
     {PK4, SPI_0, PIN_DATA(2, 1)},
     {PF3, SPI_1, PIN_DATA(5, 1)},
     {PD3, SPI_2, PIN_DATA(1, 1)},
+    {NC,  NC,    0}
+};
+
+static const PinMap PinMap_SPI_SLAVE_SCLK[] = {
+    {PK4, SPI_0, PIN_DATA(2, 0)},
+    {PF3, SPI_1, PIN_DATA(5, 0)},
+    {PD3, SPI_2, PIN_DATA(1, 0)},
     {NC,  NC,    0}
 };
 
@@ -54,17 +72,19 @@ static const PinMap PinMap_SPI_MISO[] = {
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {PK1, SPI_0, PIN_DATA(2, 1)},
-    {PF6, SPI_1, PIN_DATA(5, 1)},
-    {PD0, SPI_2, PIN_DATA(1, 1)},
+    {PK1, SPI_0, PIN_DATA(2, 2)},
+    {PF6, SPI_1, PIN_DATA(5, 2)},
+    {PD0, SPI_2, PIN_DATA(1, 2)},
     {NC,  NC,    0}
 };
 
-#define TMPM46B_SPI_2_FMAX    20000000
-#define TMPM46B_SPI_FMAX      10000000
+#if DEVICE_SPI_ASYNCH
+static inline void state_idle(struct spi_s *obj_s);
+#endif
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
+    struct spi_s *obj_s = SPI_S(obj);
     SSP_InitTypeDef config;
 
     // Check pin parameters
@@ -75,24 +95,32 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
     SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
 
-    obj->module = (SPIName)pinmap_merge(spi_data, spi_sclk);
-    obj->module = (SPIName)pinmap_merge(spi_data, spi_cntl);
-    MBED_ASSERT((int)obj->module!= NC);
+    obj_s->module = (SPIName)pinmap_merge(spi_data, spi_sclk);
+    obj_s->module = (SPIName)pinmap_merge(spi_data, spi_cntl);
+    MBED_ASSERT((int)obj_s->module!= NC);
+
+    obj_s->clk_pin = sclk;
+#if DEVICE_SPI_ASYNCH
+    obj_s->state = SPI_TRANSFER_STATE_IDLE;
+#endif
 
     // Identify SPI module to use
-    switch ((int)obj->module) {
+    switch ((int)obj_s->module) {
         case SPI_0:
-            obj->spi = TSB_SSP0;
+            obj_s->irqn = INTSSP0_IRQn;
+            obj_s->spi = TSB_SSP0;
             break;
         case SPI_1:
-            obj->spi = TSB_SSP1;
+            obj_s->irqn = INTSSP1_IRQn;
+            obj_s->spi = TSB_SSP1;
             break;
         case SPI_2:
-            obj->spi = TSB_SSP2;
+            obj_s->irqn = INTSSP2_IRQn;
+            obj_s->spi = TSB_SSP2;
             break;
         default:
-            obj->spi= NULL;
-            obj->module = (SPIName)NC;
+            obj_s->spi= NULL;
+            obj_s->module = (SPIName)NC;
             error("Cannot found SPI module corresponding with input pins.");
             break;
     }
@@ -117,33 +145,40 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     config.ClkPhase = SSP_PHASE_FIRST_EDGE;
     config.DataSize = 0x08;
 
-    obj->bits = config.DataSize;
+    obj_s->bits = config.DataSize;
     config.Mode = SSP_MASTER;
-    SSP_Init(obj->spi, &config);
+    SSP_Init(obj_s->spi, &config);
 
     // Disable all interrupt
 
-    SSP_SetINTConfig(obj->spi, SSP_INTCFG_NONE);
-    SSP_Enable(obj->spi);
+    SSP_SetINTConfig(obj_s->spi, SSP_INTCFG_NONE);
+    SSP_Enable(obj_s->spi);
 }
 
 void spi_free(spi_t *obj)
 {
-    SSP_Disable(obj->spi);
-    obj->spi = NULL;
-    obj->module = (SPIName)NC;
+    struct spi_s *obj_s = SPI_S(obj);
+    SSP_Disable(obj_s->spi);
+    obj_s->spi = NULL;
+    obj_s->module = (SPIName)NC;
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
+    struct spi_s *obj_s = SPI_S(obj);
     TSB_SSP_TypeDef* spi;
-    MBED_ASSERT(slave == SSP_MASTER);   // Master mode only
+    MBED_ASSERT((slave == SSP_MASTER) || (slave == SSP_SLAVE));
 
-    spi = obj->spi;
+    spi = obj_s->spi;
 
     SSP_Disable(spi);
 
-    obj->bits = bits;
+    if (slave) {
+        pinmap_pinout(obj_s->clk_pin, PinMap_SPI_SLAVE_SCLK);
+        SSP_SetMSMode(spi, SSP_SLAVE);
+    }
+
+    obj_s->bits = bits;
 
     SSP_SetDataSize(spi, bits);
     SSP_SetClkPolarity(spi, (SSP_ClkPolarity)(mode & 0x1));
@@ -154,6 +189,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
+    struct spi_s *obj_s = SPI_S(obj);
     TSB_SSP_TypeDef* spi;
 
     // Search Freq data
@@ -174,13 +210,13 @@ void spi_frequency(spi_t *obj, int hz)
     */
     MBED_ASSERT((SystemCoreClock / 65024) <= (uint32_t)hz);
 
-    if (obj->module == SPI_2) {
+    if (obj_s->module == SPI_2) {
         MBED_ASSERT(hz <= TMPM46B_SPI_2_FMAX);
     } else {
         MBED_ASSERT(hz <= TMPM46B_SPI_FMAX); // Default value of SPI_0, SPI_1, SPI_2
     }
 
-    spi = obj->spi;
+    spi = obj_s->spi;
     fr_gear = SystemCoreClock / hz;
     if (fr_gear < 48) {
         cur_cpsdvsr = fr_gear;
@@ -239,9 +275,10 @@ static void spi_clear_FIFOs(TSB_SSP_TypeDef *spi)
 
 int spi_master_write(spi_t *obj, int value)
 {
+    struct spi_s *obj_s = SPI_S(obj);
     TSB_SSP_TypeDef* spi;
 
-    spi = obj->spi;
+    spi = obj_s->spi;
     // Clear all data in transmit FIFO and receive FIFO
     spi_clear_FIFOs(spi);
     // Transmit data
@@ -270,16 +307,64 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
+int spi_slave_receive(spi_t *obj)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    SSP_FIFOState rx_buf_state;
+    TSB_SSP_TypeDef* spi;
+
+    spi = obj_s->spi;
+
+    rx_buf_state = SSP_GetFIFOState(spi, SSP_RX);
+
+    if ((rx_buf_state == SSP_FIFO_NORMAL) || (rx_buf_state == SSP_FIFO_FULL)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+int spi_slave_read(spi_t *obj)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    uint8_t ret_value = 0;
+    TSB_SSP_TypeDef* spi;
+
+    spi = obj_s->spi;
+
+    ret_value = SSP_GetRxData(spi);
+
+    SSP_Disable(spi);
+
+    return ret_value;
+}
+
+void spi_slave_write(spi_t *obj, int value)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    TSB_SSP_TypeDef* spi;
+
+    spi = obj_s->spi;
+
+    SSP_SetTxData(spi, value);
+
+    SSP_Enable(spi);
+}
 int spi_busy(spi_t *obj)
 {
+    struct spi_s *obj_s = SPI_S(obj);
     WorkState state;
-    state = SSP_GetWorkState(obj->spi);
+
+    state = SSP_GetWorkState(obj_s->spi);
+
     return (state == BUSY);
 }
 
 uint8_t spi_get_module(spi_t *obj)
 {
-    return (uint8_t)(obj->module);
+    struct spi_s *obj_s = SPI_S(obj);
+
+    return (uint8_t)(obj_s->module);
 }
 
 const PinMap *spi_master_mosi_pinmap()
@@ -321,3 +406,154 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+
+#ifdef DEVICE_SPI_ASYNCH
+
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width,
+                         uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    TSB_SSP_TypeDef* spi;
+
+    spi = obj_s->spi;
+
+    obj_s->event_mask = event | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+
+    // check which use-case we have
+    bool use_tx = (tx != NULL && tx_length > 0);
+    bool use_rx = (rx != NULL && rx_length > 0);
+
+    // don't do anything, if the buffers aren't valid
+    if (!use_tx && !use_rx) {
+        return;
+    }
+
+    // copy the buffers to the SPI object
+    obj->tx_buff.buffer = (void *) tx;
+    obj->tx_buff.length = tx ? tx_length : 0;
+    obj->tx_buff.pos = 0;
+
+    obj->rx_buff.buffer = rx;
+    obj->rx_buff.length = rx ? rx_length : 0;
+    obj->rx_buff.pos = 0;
+
+    NVIC_SetVector(obj_s->irqn, (uint32_t)handler);       //receive interrupt
+    NVIC_ClearPendingIRQ(obj_s->irqn);
+
+    obj_s->state = SPI_TRANSFER_STATE_BUSY;
+
+    SSP_SetINTConfig(spi, SSP_INTCFG_ALL);
+
+    if (use_tx) {
+        // Transmit first byte to enter into handler
+        SSP_SetTxData(spi, *(uint8_t *)(tx));
+        obj->tx_buff.pos++;
+    } else if (use_rx) {
+        //if RX only then transmit one dummy byte to enter into handler
+        SSP_SetTxData(spi, 0xFF);
+    }
+
+    SSP_Enable(spi);
+    NVIC_EnableIRQ(obj_s->irqn);
+}
+
+uint32_t spi_irq_handler_asynch(spi_t *obj)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    TSB_SSP_TypeDef* spi;
+    int event = 0;
+    SSP_INTState state = { 0U };
+
+    spi = obj_s->spi;
+
+    if (obj_s->state != SPI_TRANSFER_STATE_BUSY) {
+        event = SPI_EVENT_ERROR | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+        state_idle(obj_s);
+        return (event & obj_s->event_mask);
+    }
+
+    state = SSP_GetPostEnableINTState(spi);
+
+    if (state.Bit.TimeOut || state.Bit.Rx) {
+
+        if (obj->rx_buff.pos < obj->rx_buff.length) {
+            *((uint8_t *)obj->rx_buff.buffer + obj->rx_buff.pos) = (uint8_t)SSP_GetRxData(spi);
+            obj->rx_buff.pos++;
+
+            if ((obj->tx_buff.pos == obj->tx_buff.length) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+                // transmit complete but receive pending - dummy write
+                SSP_SetTxData(spi, 0xFF);
+            }
+
+        } else {
+            //Receive complete - dummy read
+            uint8_t dummy = (uint8_t)SSP_GetRxData(spi);
+            (void)dummy;
+        }
+    }
+
+    if (state.Bit.Tx) {
+
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
+            SSP_SetTxData(spi, (*((uint8_t *)obj->tx_buff.buffer + obj->tx_buff.pos) & 0xFF));
+            obj->tx_buff.pos++;
+
+        } else if (obj->rx_buff.pos == obj->rx_buff.length) {
+            // Tx and Rx complete
+            event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            state_idle(obj_s);
+        }
+    }
+
+    if (state.Bit.OverRun) {
+        SSP_ClearINTFlag(spi, SSP_INTCFG_ALL);
+        event = SPI_EVENT_ERROR | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+        state_idle(obj_s);
+    }
+
+    return (event & obj_s->event_mask);
+}
+
+uint8_t spi_active(spi_t *obj)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+
+    return (obj_s->state != SPI_TRANSFER_STATE_IDLE);
+}
+
+void spi_abort_asynch(spi_t *obj)
+{
+    struct spi_s *obj_s = SPI_S(obj);
+    SSP_InitTypeDef config;
+
+    state_idle(obj_s);
+
+    config.FrameFormat = SSP_FORMAT_SPI;
+
+    // bit_rate = Fsys / (clk_prescale * (clk_rate + 1))
+    config.PreScale = 48;
+    config.ClkRate = 0;
+
+    config.ClkPolarity = SSP_POLARITY_LOW;
+    config.ClkPhase = SSP_PHASE_FIRST_EDGE;
+    config.DataSize = obj_s->bits;
+
+    config.Mode = SSP_MASTER;
+
+    SSP_Init(obj_s->spi, &config);
+    SSP_Enable(obj_s->spi);
+}
+
+static inline void state_idle(struct spi_s *obj_s)
+{
+    NVIC_DisableIRQ(obj_s->irqn);
+    NVIC_ClearPendingIRQ(obj_s->irqn);
+    obj_s->state = SPI_TRANSFER_STATE_IDLE;
+
+    //clean-up
+    spi_clear_FIFOs(obj_s->spi);
+    SSP_Disable(obj_s->spi);
+    SSP_ClearINTFlag(obj_s->spi, SSP_INTCFG_ALL);
+}
+
+#endif //DEVICE_SPI_ASYNCH

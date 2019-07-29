@@ -37,9 +37,9 @@ static gpio_irq_handler hal_irq_handler[CHANNEL_NUM] = {NULL};
 
 static void INT_IRQHandler(PinName pin, GPIO_IRQName irq_id, uint32_t index)
 {
-    uint32_t val;
+    uint32_t  val;
     GPIO_Port port;
-    uint32_t mask;
+    uint32_t  mask;
 
     port = (GPIO_Port)(pin >> 3);
     mask = 0x01 << (pin & 0x07);
