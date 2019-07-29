@@ -440,6 +440,19 @@ const char *const GPIOMaps::pin_type_names[] = { "IO" };
 const char *const GPIOMaps::name = "GPIO";
 typedef Port<1, GPIOMaps, DefaultFormFactor, TF1> GPIOPort;
 
+#if DEVICE_INTERRUPTIN
+#include "gpio_irq_api.h"
+struct GPIOIRQMaps {
+    static const PinMap *maps[];
+    static const char *const pin_type_names[];
+    static const char *const name;
+};
+const PinMap *GPIOIRQMaps::maps[] = { gpio_irq_pinmap() };
+const char *const GPIOIRQMaps::pin_type_names[] = { "IRQ_IN" };
+const char *const GPIOIRQMaps::name = "GPIO_IRQ";
+typedef Port<1, GPIOIRQMaps, DefaultFormFactor, TF1> GPIOIRQPort;
+#endif
+
 #if DEVICE_SPI
 #include "spi_api.h"
 struct SPIMaps {

@@ -23,7 +23,6 @@
 #include "PinNames.h"
 #include "PortNames.h"
 
-#include "gpio_irq_api.h"
 #include "gpio_object.h"
 #include "cy_sysclk.h"
 #include "cy_syspm.h"
@@ -37,8 +36,8 @@ struct gpio_irq_s {
     GPIO_PRT_Type*      port;
     uint32_t            port_id;
     uint32_t            pin;
-    gpio_irq_event      mode;
-    gpio_irq_handler    handler;
+    uint32_t            mode;
+    uint32_t            handler;
     uint32_t            id_arg;
 #if defined (TARGET_MCU_PSOC6_M0)
     cy_en_intr_t        cm0p_irq_src;

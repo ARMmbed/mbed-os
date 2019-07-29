@@ -30,32 +30,38 @@
 
 using namespace utest::v1;
 
-#include "mbed.h"
 #include "MbedTester.h"
 #include "pinmap.h"
+#include "test_utils.h"
 
-static uint32_t call_counter;
+MbedTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
+
+static volatile uint32_t call_counter;
 void test_gpio_irq_handler(uint32_t id, gpio_irq_event event)
 {
     call_counter++;
 }
 
-const PinList *form_factor = pinmap_ff_default_pins();
-const PinList *restricted = pinmap_restricted_pins();
-MbedTester tester(form_factor, restricted);
-
 #define WAIT() wait_us(10)
-
 
 void gpio_irq_test(PinName pin)
 {
+    // Reset everything and set all tester pins to hi-Z.
+    tester.reset();
+
+    // Map pins for test.
+    tester.pin_map_set(pin, MbedTester::LogicalPinGPIO0);
+
+    // Select GPIO0.
+    tester.select_peripheral(MbedTester::PeripheralGPIO);
+
     gpio_t gpio;
     // configure pin as input
     gpio_init_in(&gpio, pin);
 
     gpio_irq_t gpio_irq;
     uint32_t id = 123;
-    gpio_irq_init(&gpio_irq, pin, test_gpio_irq_handler, id);
+    TEST_ASSERT_EQUAL(0, gpio_irq_init(&gpio_irq, pin, test_gpio_irq_handler, id));
 
     gpio_irq_set(&gpio_irq, IRQ_RISE, true);
     gpio_irq_enable(&gpio_irq);
@@ -241,51 +247,26 @@ void gpio_irq_test(PinName pin)
     WAIT();
     TEST_ASSERT_EQUAL(2, call_counter);
 
-
     gpio_irq_free(&gpio_irq);
 }
 
-
-void gpio_irq_test()
+void init_free_test(PinName pin)
 {
-    for (uint32_t i = 0; i < form_factor->count; i++) {
-        const PinName test_pin = form_factor->pins[i];
-        if (test_pin == NC) {
-            continue;
-        }
-        if (pinmap_list_has_pin(restricted, test_pin)) {
-            printf("Skipping gpio pin %s (%i)\r\n", pinmap_ff_default_pin_to_string(test_pin), test_pin);
-            continue;
-        }
-        tester.pin_map_reset();
-        tester.pin_map_set(test_pin, MbedTester::LogicalPinGPIO0);
-
-        printf("GPIO irq test on pin %3s (%3i)\r\n", pinmap_ff_default_pin_to_string(test_pin), test_pin);
-        gpio_irq_test(test_pin);
-    }
-}
-
-utest::v1::status_t setup(const Case *const source, const size_t index_of_case)
-{
-    tester.reset();
-    tester.select_peripheral(MbedTester::PeripheralGPIO);
-
-    return greentea_case_setup_handler(source, index_of_case);
-}
-
-utest::v1::status_t teardown(const Case *const source, const size_t passed, const size_t failed,
-                             const failure_t reason)
-{
-    return greentea_case_teardown_handler(source, passed, failed, reason);
+    gpio_t gpio;
+    gpio_irq_t gpio_irq;
+    gpio_init_in(&gpio, pin);
+    TEST_ASSERT_EQUAL(0, gpio_irq_init(&gpio_irq, pin, test_gpio_irq_handler, 123));
+    gpio_irq_free(&gpio_irq);
 }
 
 Case cases[] = {
-    Case("GPIO - irq test", setup, gpio_irq_test, teardown)
+    Case("init/free", all_ports<GPIOIRQPort, DefaultFormFactor, init_free_test>),
+    Case("rising & falling edge", all_ports<GPIOIRQPort, DefaultFormFactor, gpio_irq_test>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
