@@ -21,11 +21,11 @@
 
 void pin_function(PinName pin, int function)
 {
-    uint32_t port = 0;
-    uint8_t bit = 0;
-    uint8_t i = 0;
-    uint8_t func = 0;
-    uint8_t dir = 0;
+    uint32_t port   = 0;
+    uint8_t bit     = 0;
+    uint8_t i       = 0;
+    uint8_t func    = 0;
+    uint8_t dir     = 0;
 
     // Assert that pin is valid
     MBED_ASSERT(pin != NC);
@@ -71,8 +71,8 @@ void pin_function(PinName pin, int function)
 
 void pin_mode(PinName pin, PinMode mode)
 {
-    uint32_t port = 0;
-    uint8_t bit = 0;
+    uint32_t port   = 0;
+    uint8_t bit     = 0;
 
     // Assert that pin is valid
     MBED_ASSERT(pin != NC);

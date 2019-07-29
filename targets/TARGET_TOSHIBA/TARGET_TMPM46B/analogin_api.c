@@ -76,7 +76,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     // Start ADC conversion
     ADC_Start(TSB_AD);
     // Wait until AD conversion complete
-    while(ADC_GetConvertState(TSB_AD).Bit.NormalComplete != 1) {
+    while (ADC_GetConvertState(TSB_AD).Bit.NormalComplete != 1) {
         // Do nothing
     }
     wait_us(30);

@@ -138,12 +138,12 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t *obj, int us)
 {
-    float seconds = 0;
-    uint32_t cycles = 0;
-    int ClkDiv = 0;
-    int i = 0;
-    float duty_cycle = 0;
-    uint32_t clk_freq = 0;
+    float seconds       = 0;
+    uint32_t cycles     = 0;
+    int ClkDiv          = 0;
+    int i               = 0;
+    float duty_cycle    = 0;
+    uint32_t clk_freq   = 0;
 
     seconds = (float)((us) / 1000000.0f);
     obj->period = seconds;
@@ -204,8 +204,8 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    float seconds = 0;
-    float value = 0;
+    float seconds   = 0;
+    float value     = 0;
 
     seconds = (float)(us / 1000000.0f);
     value = (((seconds / obj->period) * 100.0f) / 100.0f);

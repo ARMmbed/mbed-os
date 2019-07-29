@@ -16,7 +16,8 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#define DEVICE_ID_LENGTH    32
+#define TRANSACTION_QUEUE_SIZE_SPI 	4
+#define DEVICE_ID_LENGTH            32
 
 #include "objects.h"
 #include <stddef.h>
