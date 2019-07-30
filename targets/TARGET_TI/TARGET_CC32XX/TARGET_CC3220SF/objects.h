@@ -40,8 +40,8 @@ struct gpio_irq_s {
     uint32_t        port;
     PinName         pin;
     uint32_t        ch;
-    unsigned long pin_mask;
-    unsigned long irq_offset;
+    unsigned long   pin_mask;
+    unsigned long   irq_offset;
 };
 
 struct port_s {
@@ -52,7 +52,9 @@ struct port_s {
 };
 
 struct pwmout_s {
-    uint32_t        pwmPin;
+    uint32_t        period_us;
+    float           duty_percent;
+    void *          handle;
     PWMName         pwm;
 };
 

@@ -588,7 +588,7 @@ void CC3220SFInterface::_socket_background_thread()
             }
             _mutex.unlock();
         }
-        wait_ms(READ_THREAD_SLEEP_MS);
+        ThisThread::sleep_for(READ_THREAD_SLEEP_MS);
     }
 }
 

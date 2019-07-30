@@ -378,7 +378,7 @@ int CC3200_SIMPLELINK::scan(WiFiAccessPoint *res, unsigned count)
         while(triggeredScanTrials < MAX_SCAN_ATTEMPTS)
         {
             /* We wait for one second for the NWP to complete the initiated scan and collect results */
-            wait_ms(1000);
+            ThisThread::sleep_for(1000);
 
             /* Collect results form one-shot scans.*/
             ret = sl_WlanGetNetworkList(0, entries_count, netEntries);
@@ -663,7 +663,7 @@ nsapi_error_t CC3200_SIMPLELINK::connect_socket(uint32_t sd, const SocketAddress
         {
             if (status == SL_ERROR_BSD_EALREADY && 1 == nonBlocking)
             {
-                wait_ms(1);
+                ThisThread::sleep_for(1);
                 continue;
             }
             else if (status < 0)
@@ -711,7 +711,7 @@ int CC3200_SIMPLELINK::sendto_socket(uint32_t sd, const void * buf, uint32_t buf
         status = sl_SendTo(sd, buf, bufLen, 0, sa, addrSize);
         if (status == SL_ERROR_BSD_EAGAIN && 1 == SOCKET_IS_NON_BLOCKING)
         {
-            wait_ms(1);
+            ThisThread::sleep_for(1);
             continue;
         }
         else if (status < 0)
@@ -733,7 +733,7 @@ int32_t CC3200_SIMPLELINK::send(int sd, const void *data, uint32_t size)
         status = sl_Send(sd, data, size, 0);
         if (status == SL_ERROR_BSD_EAGAIN && 1 == SOCKET_IS_NON_BLOCKING)
         {
-            wait_ms(1);
+            ThisThread::sleep_for(1);
             continue;
         }
         else if (status < 0)
