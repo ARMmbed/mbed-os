@@ -126,6 +126,9 @@ typedef enum {
     LED4    = LED1,     // No real LED. Just for passing ATS.
 
     /* Button naming */
+    
+    /* Force PinName to 32-bit required by NU_PINNAME_BIND(...) */
+    FORCE_ENUM_PINNAME_32BIT = 0x7FFFFFFF,
 
 } PinName;
 
