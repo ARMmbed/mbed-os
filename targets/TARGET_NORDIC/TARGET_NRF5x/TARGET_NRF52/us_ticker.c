@@ -141,6 +141,7 @@ void us_ticker_clear_interrupt(void)
 void us_ticker_free(void)
 {
     nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_STOP);
+    nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_SHUTDOWN);
     nrf_timer_int_disable(NRF_TIMER1, nrf_timer_compare_int_get(NRF_TIMER_CC_CHANNEL0));
     NVIC_DisableIRQ(TIMER1_IRQn);
     us_ticker_initialized = false;
