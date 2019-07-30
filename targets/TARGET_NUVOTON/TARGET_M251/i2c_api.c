@@ -98,14 +98,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
-    // Reset this module
-    SYS_ResetModule(modinit->rsetidx);
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pinmap_pinout(scl, PinMap_I2C_SCL);
 
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    pinmap_pinout(sda, PinMap_I2C_SDA);
-    pinmap_pinout(scl, PinMap_I2C_SCL);
+    // Reset this module
+    SYS_ResetModule(modinit->rsetidx);
 
 #if DEVICE_I2C_ASYNCH
     obj->i2c.dma_usage = DMA_USAGE_NEVER;

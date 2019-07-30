@@ -70,11 +70,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->pwm);
 
-    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
-    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-    }
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_PWM);
 
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
 
@@ -86,8 +83,11 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         CLK_EnableModuleClock(modinit->clkidx);
     }
 
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_PWM);
+    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
+    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
+    }
 
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
