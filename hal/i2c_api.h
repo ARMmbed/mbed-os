@@ -72,8 +72,7 @@ extern "C" {
  * \defgroup hal_GeneralI2C I2C Configuration Functions
  *
  * # Defined behavior
- * * ::i2c_init initialize the I2C peripheral
- * * ::i2c_init sets the default parameters for I2C peripheral
+ * * ::i2c_init initializes i2c_t control structure
  * * ::i2c_init configures the pins used by I2C
  * * ::i2c_frequency configure the I2C frequency
  * * ::i2c_start sends START command

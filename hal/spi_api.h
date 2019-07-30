@@ -61,10 +61,8 @@ extern "C" {
  * \defgroup hal_GeneralSPI SPI Configuration Functions
  *
  * # Defined behavior
- * * ::spi_init initialize the SPI peripheral
+ * * ::spi_init initializes the spi_t control structure
  * * ::spi_init configures the pins used by SPI
- * * ::spi_init sets a default format and frequency
- * * ::spi_init enables the peripheral
  * * ::spi_free returns the pins owned by the SPI object to their reset state
  * * ::spi_format sets the number of bits per frame
  * * ::spi_format configures clock polarity and phase

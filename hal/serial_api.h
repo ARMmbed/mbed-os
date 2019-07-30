@@ -143,13 +143,13 @@ extern "C" {
  * otherwise software emulation is used.
  * * ::serial_tx_asynch starts the serial asynchronous transfer.
  * * ::serial_tx_asynch writes `tx_length` bytes from the `tx` to the bus.
- * * ::serial_tx_asynch must support 8 bits words
+ * * ::serial_tx_asynch must support 8 data bits
  * * The callback given to ::serial_tx_asynch is invoked when the transfer completes.
  * * ::serial_tx_asynch specifies the logical OR of events to be registered.
  * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.
  * * ::serial_rx_asynch starts the serial asynchronous transfer.
  * * ::serial_rx_asynch reads `rx_length` bytes to the `rx` buffer.
- * * ::serial_rx_asynch must support 8 bits words
+ * * ::serial_rx_asynch must support 8 data bits
  * * The callback given to ::serial_rx_asynch is invoked when the transfer completes.
  * * ::serial_rx_asynch specifies the logical OR of events to be registered.
  * * The ::serial_rx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm.

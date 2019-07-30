@@ -37,7 +37,7 @@ typedef struct pwmout_s pwmout_t;
  * \defgroup hal_pwmout Pwmout hal functions
  *
  * # Defined behavior
- * * ::pwmout_init initializes the pwm out peripheral and configures the pin
+ * * ::pwmout_init initializes the pwmout_t control structure
  * * ::pwmout_free deinitializes the pwmout object
  * * ::pwmout_write sets the output duty-cycle in range <0.0f, 1.0f>
  * * ::pwmout_read returns the current float-point output duty-cycle in range <0.0f, 1.0f>
@@ -47,6 +47,9 @@ typedef struct pwmout_s pwmout_t;
  * * ::pwmout_pulsewidth sets the PWM pulsewidth specified in seconds, keeping the period the same
  * * ::pwmout_pulsewidth_ms sets the PWM pulsewidth specified in miliseconds, keeping the period the same
  * * ::pwmout_pulsewidth_us sets the PWM pulsewidth specified in microseconds, keeping the period the same
+ * * The accuracy of the PWM is +/- 10%
+ * * The PWM operations ::pwmout_write, ::pwmout_read, ::pwmout_read, ::pwmout_period_ms, ::pwmout_period_us
+ *   ::pwmout_pulsewidth, ::pwmout_pulsewidth_ms, ::pwmout_pulsewidth_us take less than 20us to complete
  *
  * # Undefined behavior
  * * Calling other function before ::pwmout_init

@@ -44,6 +44,7 @@ extern "C" {
  * * ::gpio_init_out inits the pin as an output, with predefined output value 0
  * * ::gpio_init_out_ex inits the pin as an output and sets the output value
  * * ::gpio_init_inout inits the pin to be input/output and set pin mode and value
+ * * The GPIO operations ::gpio_write, ::gpio_read take less than 20us to complete
  *
  * # Undefined behavior
  * * Calling any ::gpio_mode, ::gpio_dir, ::gpio_write or ::gpio_read on a gpio_t object that was initialized

@@ -37,9 +37,11 @@ typedef struct analogin_s analogin_t;
  * \defgroup hal_analogin Analogin hal functions
  *
  * # Defined behaviour
- * * The function ::analogin_init initializes the analogin peripheral
- * * The function ::analogin_read reads the input voltage, represented as a float in the range [0.0, 1.0]
- * * The function ::analogin_read_u16 reads the value from analogin pin, represented as an unsigned 16bit value
+ * * The function ::analogin_init initializes the analogin_t control structure
+ * * The function ::analogin_read reads the input voltage, represented as a float in the range [0.0 (GND), 1.0 (VCC)]
+ * * The function ::analogin_read_u16 reads the value from analogin pin, represented as an unsigned 16bit value [0.0 (GND), MAX_UINT16 (VCC)]
+ * * The accuracy of the ADC is +/- 10%
+ * * The ADC operations ::analogin_read, ::analogin_read_u16 take less than 20us to complete
  *
  * # Undefined behaviour
  *
