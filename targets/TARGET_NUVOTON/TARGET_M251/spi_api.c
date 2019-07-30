@@ -120,18 +120,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
-    // Reset this module
-    SYS_ResetModule(modinit->rsetidx);
+    pinmap_pinout(mosi, PinMap_SPI_MOSI);
+    pinmap_pinout(miso, PinMap_SPI_MISO);
+    pinmap_pinout(sclk, PinMap_SPI_SCLK);
+    pinmap_pinout(ssel, PinMap_SPI_SSEL);
 
     // Select IP clock source
     CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    // Reset this module
+    SYS_ResetModule(modinit->rsetidx);
 
     obj->spi.pin_mosi = mosi;
     obj->spi.pin_miso = miso;

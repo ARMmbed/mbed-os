@@ -55,18 +55,21 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->adc);
 
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_ADC);
+
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
 
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
     if (! eadc_modinit_mask) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-
         // Select clock source
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
 
         // Enable clock
         CLK_EnableModuleClock(modinit->clkidx);
+
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
 
         /* Configure EADC_module to be ready to convert
          * M251 doesn't support 'input mode' feature. Configure it to 0. */
@@ -74,9 +77,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
-
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_ADC);
 
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
     EADC_ConfigSampleModule(eadc_base, chn, EADC_SOFTWARE_TRIGGER, chn);
