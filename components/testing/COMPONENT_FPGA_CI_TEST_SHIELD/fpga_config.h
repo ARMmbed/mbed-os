@@ -196,3 +196,11 @@
 #define TESTER_I2C_FROM_SLAVE_CHECKSUM_SIZE           4
 #define TESTER_I2C_NUMBER_DEV_ADDR_MISMATCHES         (0x01E + 0x00105000)
 #define TESTER_I2C_NUMBER_DEV_ADDR_MISMATCHES_SIZE    1
+#define TESTER_TIMER_COUNTER                          0x00107000
+#define TESTER_TIMER_COUNTER_SIZE                     8
+#define TESTER_TIMER_CDC_VALUE                        0x00107008
+#define TESTER_TIMER_CDC_VALUE_SIZE                   8
+#define TESTER_TIMER_MODE                             0x00107010
+#define TESTER_TIMER_MODE_SIZE                        1
+#define TESTER_TIMER_RESET_REQUEST                    0x00107011
+#define TESTER_TIMER_RESET_REQUEST_SIZE               1

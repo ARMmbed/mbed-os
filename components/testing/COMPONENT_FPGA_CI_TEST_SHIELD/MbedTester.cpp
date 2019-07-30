@@ -2265,6 +2265,106 @@ bool MbedTester::_find_control_indexes(PhysicalIndex &clk_out, PhysicalIndex &mo
     return false;
 }
 
+void MbedTester::timer_init()
+{
+    PinName timer_ctrl_pins[2];
+    int sel_pin_idx = 0;
+
+    for (int i = 0; i < _form_factor.count(); i++) {
+        if (_exclude_pins.has_pin(_form_factor.get(i)) == false) {
+            timer_ctrl_pins[sel_pin_idx] = _form_factor.get(i);
+            sel_pin_idx++;
+        }
+
+        if (sel_pin_idx == 2) {
+            break;
+        }
+    }
+
+    mbed_tester_printf("Timer pins start=%s (%i) delay_pending=%s (%i)\r\n", pinmap_ff_default_pin_to_string(timer_ctrl_pins[0]), timer_ctrl_pins[0], pinmap_ff_default_pin_to_string(timer_ctrl_pins[1]), timer_ctrl_pins[1]);
+
+    _timer_start = new  mbed::DigitalInOut(timer_ctrl_pins[0], PIN_OUTPUT, ::PullNone, 0);
+    _timer_delay_pending = new  mbed::DigitalInOut(timer_ctrl_pins[1], PIN_INPUT, ::PullNone, 0);
+
+    pin_map_set(timer_ctrl_pins[0], MbedTester::LogicalPinGPIO0);
+    pin_map_set(timer_ctrl_pins[1], MbedTester::LogicalPinGPIO1);
+}
+
+void MbedTester::timer_reset()
+{
+    uint8_t request = 1;
+    write(TESTER_TIMER_RESET_REQUEST, (uint8_t *)&request, TESTER_TIMER_RESET_REQUEST_SIZE);
+}
+
+void MbedTester::timer_set_mode(TimerMode mode)
+{
+    write(TESTER_TIMER_MODE, (uint8_t *)&mode, TESTER_TIMER_MODE_SIZE);
+
+    if (mode == TimerModeTimer) {
+        const uint32_t delay_ticks = 0;
+        write(TESTER_TIMER_CDC_VALUE, (uint8_t *)&delay_ticks, TESTER_TIMER_CDC_VALUE_SIZE);
+    }
+}
+
+void MbedTester::timer_delay()
+{
+    *_timer_start = 1;
+    while (*_timer_delay_pending == 1);
+    *_timer_start = 0;
+}
+
+void MbedTester::timer_set_delay_ns(uint64_t delay_ns)
+{
+    const uint64_t delay_ticks = (delay_ns / 10); // FPGA freq: 100 MHz ==> 1 tick == 10 ns
+
+    write(TESTER_TIMER_CDC_VALUE, (uint8_t *)&delay_ticks, TESTER_TIMER_CDC_VALUE_SIZE);
+}
+
+void MbedTester::timer_set_delay_us(uint32_t delay_us)
+{
+    timer_set_delay_ns((uint64_t)delay_us * 1000);
+}
+
+void MbedTester::timer_set_delay_ms(uint32_t delay_ms)
+{
+    timer_set_delay_ns((uint64_t)delay_ms * 1000000);
+}
+
+void MbedTester::timer_start()
+{
+    *_timer_start = 1;
+}
+
+void MbedTester::timer_stop()
+{
+    *_timer_start = 0;
+}
+
+uint64_t MbedTester::timer_read_ns()
+{
+    uint64_t counter_val = 0;
+    read(TESTER_TIMER_COUNTER, (uint8_t *)&counter_val, TESTER_TIMER_COUNTER_SIZE);
+
+    return (counter_val * 10);
+}
+
+uint32_t MbedTester::timer_read_us()
+{
+    return (timer_read_ns() / 1000);
+}
+
+uint32_t MbedTester::timer_read_ms()
+{
+    return (timer_read_ns() / 1000000);
+}
+
+void MbedTester::timer_free()
+{
+    delete _timer_start;
+    delete _timer_delay_pending;
+    pin_map_reset();
+}
+
 void MbedTester::_setup_control_pins()
 {
     _clk = new  mbed::DigitalInOut(_form_factor.get(_clk_index), PIN_OUTPUT, ::PullNone, 0);

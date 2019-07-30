@@ -135,7 +135,17 @@ public:
         PeripheralSPI = 2,
         PeripheralUART = 4,
         PeripheralI2C = 5,
-        PeripheralSPISlave = 6
+        PeripheralSPISlave = 6,
+        PeripheralTimer = 7
+    };
+
+    /*
+     * These are the peripherals internal to the FPGA. A peripheral can be
+     * selected by calling MbedTester::select_peripheral.
+     */
+    enum TimerMode {
+        TimerModeTimer = 0,
+        TimerModeCountDownTimer = 1
     };
 
     /**
@@ -844,6 +854,90 @@ public:
      */
     bool self_test_control_current();
 
+    /**
+     * Init the FPGA timer
+     *
+     * Timer requires two pins which are determined automatically.
+     * One output pin is used to start stop timer.
+     * Second input pin indicates that programed FPGA timeout has elapsed.
+     *
+     */
+    void timer_init();
+
+    /**
+     * Set FPGA Timer mode
+     *
+     * @mode Timer Mode
+     *       TimerModeTimer: Timer - use to measure elapsed time
+     *       TimerModeCountDownTimer: Count Down Timer - use to perform FPGA delay
+     */
+    void timer_set_mode(TimerMode mode);
+
+    /**
+     * Set FPGA Count Down Timer delay (ns)
+     *
+     * @delay_ns delay [ns]
+     */
+    void timer_set_delay_ns(uint64_t delay_ns);
+
+    /**
+     * Set FPGA Count Down Timer delay (us)
+     *
+     * @delay_ns delay [us]
+     */
+    void timer_set_delay_us(uint32_t delay_us);
+
+    /**
+     * Set FPGA Count Down Timer delay (ms)
+     *
+     * @delay_ns delay [ms]
+     */
+    void timer_set_delay_ms(uint32_t delay_ms);
+
+    /**
+     * Execute programed FPGA Count Down Timer delay
+     *
+     */
+    void timer_delay();
+
+    /**
+     * Start the FPGA timer
+     */
+    void timer_start();
+
+    /**
+     * Stop the FPGA timer
+     */
+    void timer_stop();
+
+    /**
+     * Reset the FPGA timer
+     */
+    void timer_reset();
+
+    /** Get the time passed in milliseconds
+     *
+     *  @returns Time passed in milliseconds
+     */
+    uint32_t timer_read_ms();
+
+    /** Get the time passed in microseconds
+     *
+     *  @returns Time passed in microseconds
+     */
+    uint32_t timer_read_us();
+
+    /** Get the time passed in nanoseconds
+     *
+     *  @returns Time passed in nanoseconds
+     */
+    uint64_t timer_read_ns();
+
+    /** Deinit the FPGA timer
+     *
+     */
+    void timer_free();
+
 private:
 
     /*
@@ -912,6 +1006,8 @@ private:
     mbed::DigitalInOut *_mosi;
     mbed::DigitalInOut *_miso;
     mbed::DigitalInOut *_aux;
+    mbed::DigitalInOut *_timer_start;
+    mbed::DigitalInOut *_timer_delay_pending;
     /*
      * Used to reset IO expander chips only once the first time
      * any IO expander is accessed as well as during an io_exp_test
