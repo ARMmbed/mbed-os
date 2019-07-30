@@ -68,7 +68,7 @@ nsapi_error_t UBLOX_N2XX::init()
 {
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT"); // echo off
+    _at->cmd_start("AT");
     _at->cmd_stop_read_resp();
 
     _at->cmd_start("AT+CMEE=1"); // verbose responses

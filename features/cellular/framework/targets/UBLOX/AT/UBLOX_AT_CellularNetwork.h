@@ -18,7 +18,11 @@
 #ifndef UBLOX_AT_CELLULAR_NETWORK_H_
 #define UBLOX_AT_CELLULAR_NETWORK_H_
 
+#include "CellularLog.h"
+#include "drivers/Timer.h"
+#include "mbed_wait_api.h"
 #include "AT_CellularNetwork.h"
+#include "AT_CellularContext.h"
 
 namespace mbed {
 
@@ -26,6 +30,8 @@ class UBLOX_AT_CellularNetwork : public AT_CellularNetwork {
 public:
     UBLOX_AT_CellularNetwork(ATHandler &atHandler);
     virtual ~UBLOX_AT_CellularNetwork();
+
+    nsapi_error_t ubx_reboot();
 
 protected:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
