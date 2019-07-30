@@ -20,8 +20,8 @@ from collections import namedtuple
 from mock import patch, MagicMock
 from tools.build_api import prepare_toolchain, build_project, build_library
 from tools.regions import merge_region_list
-from tools.resources import Resources, FileType
-from tools.toolchains import TOOLCHAINS
+from tools.resources import Resources, FileRef
+from tools.toolchains import TOOLCHAINS, mbedToolchain
 from tools.notifier.mock import MockNotifier
 from tools.config import Region, Config, ConfigException
 from tools.utils import ToolException
@@ -108,35 +108,29 @@ class BuildApiTests(unittest.TestCase):
         assert any('percent' in msg and msg['percent'] == 100.0
                    for msg in notify.messages if msg)
 
-    def test_dirs_exclusion_from_file_to_compile(self, *_):
+    def test_dirs_exclusion_from_file_to_compile(self):
         """Test that dirs can be excluded from the build."""
-        notify = MockNotifier()
-        toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
-                                      self.toolchain_name, notify=notify)
-
-        res = Resources(MockNotifier()).scan_with_toolchain(
-            self.src_paths, toolchain)
-
-        toolchain.RESPONSE_FILES=False
-        toolchain.config_processed = True
-        toolchain.config_file = "junk"
-        exclude_dirs = ['platform/','drivers/', 'targets/']
-
-        files_to_compile = (
-            res.get_file_refs(FileType.ASM_SRC) +
-            res.get_file_refs(FileType.C_SRC) +
-            res.get_file_refs(FileType.CPP_SRC)
-        )
-        compilation_queue = toolchain._exclude_files_from_build(
+        files_to_compile = [
+            FileRef(
+                name="platform/TARGET_CORTEX_M/TOOLCHAIN_ARM/except.S",
+                path="./platform/TARGET_CORTEX_M/TOOLCHAIN_ARM/except.S",
+            ),
+            FileRef(
+                name="rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/targets_irq_cm4f.S",
+                path="./rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/targets_irq_cm4f.S",
+            ),
+        ]
+        exclude_dirs = ["platform/", "drivers/", "targets/"]
+        expected_compilation_queue = [
+            FileRef(
+                name="rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/targets_irq_cm4f.S",
+                path="./rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_ARM/TARGET_RTOS_M4_M7/targets_irq_cm4f.S",
+            )
+        ]
+        compilation_queue = mbedToolchain._exclude_files_from_build(
             files_to_compile, exclude_dirs
         )
-
-        assert(len(compilation_queue) < len(files_to_compile))
-        assert all(
-            exclude_dir not in file_to_compile.path
-            for file_to_compile in compilation_queue
-            for exclude_dir in exclude_dirs
-        )
+        self.assertEqual(compilation_queue, expected_compilation_queue)
 
     @patch('tools.build_api.Config')
     def test_prepare_toolchain_app_config(self, mock_config_init):
