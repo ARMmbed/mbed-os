@@ -196,13 +196,6 @@ static IRQn_Type serial_irq_allocate_channel(serial_obj_t *obj)
 #endif // M0
 }
 
-static void serial_irq_release_channel(IRQn_Type channel, uint32_t serial_id)
-{
-#if defined (TARGET_MCU_PSOC6_M0)
-    cy_m0_nvic_release_channel(channel, CY_SERIAL_IRQN_ID + serial_id);
-#endif //M0
-}
-
 static int serial_irq_setup_channel(serial_obj_t *obj)
 {
     cy_stc_sysint_t irq_config;
@@ -228,6 +221,23 @@ static int serial_irq_setup_channel(serial_obj_t *obj)
         NVIC_EnableIRQ(irqn);
     }
     return 0;
+}
+
+static void serial_irq_release_channel(serial_obj_t *obj)
+{
+    irq_info_t *info = &irq_info[obj->serial_id];
+
+    if (info->irqn != unconnected_IRQn) {
+        MBED_ASSERT(info->serial_obj == obj);
+        NVIC_DisableIRQ(info->irqn);
+    
+#if defined (TARGET_MCU_PSOC6_M0)
+        cy_m0_nvic_release_channel(info->irqn, CY_SERIAL_IRQN_ID + obj->serial_id);
+#endif //M0
+        info->irqn = unconnected_IRQn;
+        info->serial_obj = NULL;
+        info->handler = NULL;
+    }
 }
 
 /*
@@ -292,6 +302,12 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
     return status;
 }
 
+static void serial_deinit_clock(serial_obj_t *obj)
+{
+    Cy_SysClk_PeriphDisableDivider(obj->div_type, obj->div_num);
+    cy_clk_free_divider(obj->div_type, obj->div_num);
+}
+
 /*
  * Initializes i/o pins for UART tx/rx.
  */
@@ -328,6 +344,21 @@ static void serial_init_flow_pins(serial_obj_t *obj)
     }
 }
 
+static void serial_deinit_pins(serial_obj_t *obj)
+{
+    if (obj->pin_tx != NC) {
+        pin_function(obj->pin_tx, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_INPUT));
+    }
+    if (obj->pin_rx != NC) {
+        pin_function(obj->pin_rx, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_INPUT));
+    }
+    if (obj->pin_rts != NC) {
+        pin_function(obj->pin_rts, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_INPUT));
+    }
+    if (obj->pin_cts != NC) {
+        pin_function(obj->pin_cts, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_INPUT));
+    }
+}
 
 /*
  * Initializes and enables UART/SCB.
@@ -444,6 +475,24 @@ void serial_init(serial_t *obj_in, PinName tx, PinName rx)
             error("Serial pinout mismatch. Requested pins Rx and Tx can't be used for the same Serial communication.");
         }
     }
+}
+
+void serial_free(serial_t *obj_in)
+{
+    serial_obj_t *obj = OBJ_P(obj_in);
+    bool is_stdio = (obj->pin_tx == CY_STDIO_UART_TX) || (obj->pin_rx == CY_STDIO_UART_RX);
+
+    if (is_stdio && stdio_uart_inited) {
+        /* stdio_uart just can't be released */
+        return;
+    }
+
+    Cy_SCB_UART_Disable(obj->base, NULL);
+    Cy_SysPm_UnregisterCallback(&obj->pm_callback_handler);
+    serial_irq_release_channel(obj);
+    serial_deinit_pins(obj);
+    Cy_SCB_UART_DeInit(obj->base);
+    serial_deinit_clock(obj);
 }
 
 void serial_baud(serial_t *obj_in, int baudrate)
