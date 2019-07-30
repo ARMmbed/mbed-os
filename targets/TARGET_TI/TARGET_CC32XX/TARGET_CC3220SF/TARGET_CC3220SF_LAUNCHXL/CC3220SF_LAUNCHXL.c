@@ -216,6 +216,70 @@ const SPI_Config SPI_config[CC3220SF_LAUNCHXL_SPICOUNT] = {
 const uint_least8_t SPI_count = CC3220SF_LAUNCHXL_SPICOUNT;
 
 /*
+ *  =============================== PWM ===============================
+ */
+#include <ti/drivers/PWM.h>
+#include <ti/drivers/pwm/PWMTimerCC32XX.h>
+
+PWMTimerCC32XX_Object pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWMCOUNT];
+
+const PWMTimerCC32XX_HWAttrsV2 pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWMCOUNT] = {
+    {    /* CC3220SF_LAUNCHXL_PWM6 */
+        .pwmPin = PWMTimerCC32XX_PIN_01
+    },
+    {    /* CC3220SF_LAUNCHXL_PWM7 */
+        .pwmPin = PWMTimerCC32XX_PIN_02
+    },
+    {    /* CC3220SF_LAUNCHXL_PWM0 */
+        .pwmPin = PWMTimerCC32XX_PIN_17
+    },
+    {    /* CC3220SF_LAUNCHXL_PWM3 */
+        .pwmPin = PWMTimerCC32XX_PIN_19
+    },
+    {    /* CC3220SF_LAUNCHXL_PWM2 */
+        .pwmPin = PWMTimerCC32XX_PIN_21
+    },
+    {    /* CC3220SF_LAUNCHXL_PWM5 */
+        .pwmPin = PWMTimerCC32XX_PIN_64
+    },
+};
+
+const PWM_Config PWM_config[CC3220SF_LAUNCHXL_PWMCOUNT] = {
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM6],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM6]
+    },
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM7],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM7]
+    },
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM0],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM0]
+    },
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM3],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM3]
+    },
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM2],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM2]
+    },
+    {
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
+        .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM5],
+        .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM5]
+    }
+};
+
+const uint_least8_t PWM_count = CC3220SF_LAUNCHXL_PWMCOUNT;
+
+/*
  *  =============================== DMA ===============================
  */
 #include <ti/drivers/dma/UDMACC32XX.h>
