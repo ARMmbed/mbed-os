@@ -144,10 +144,25 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 /* parse and store event parameters */
                 BdaCpy(hciCoreCb.bdAddr, pMsg);
 
+                ble::address_t static_address;
+
+                if (get_random_static_address(static_address)) {
+                    // note: will send the HCI command to send the random address
+                    cordio::BLE::deviceInstance().getGap().setAddress(
+                        BLEProtocol::AddressType::RANDOM_STATIC,
+                        static_address.data()
+                    );
+                } else {
+                    /* send next command in sequence */
+                    HciLeReadBufSizeCmd();
+                }
+                break;
+            }
+
+            case HCI_OPCODE_LE_SET_RAND_ADDR:
                 /* send next command in sequence */
                 HciLeReadBufSizeCmd();
                 break;
-            }
 
             case HCI_OPCODE_LE_READ_BUF_SIZE:
                 /* parse and store event parameters */

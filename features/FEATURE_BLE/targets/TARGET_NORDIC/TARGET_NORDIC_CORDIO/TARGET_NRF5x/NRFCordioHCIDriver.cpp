@@ -361,16 +361,15 @@ void NRFCordioHCIDriver::start_reset_sequence()
 
 bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
 {
-    /* address cannot have all bits set to 1 */
-    bool no_binary_zeros = true;
-    while (no_binary_zeros) {
-        for (uint8_t i = 0; i < 6; i++) {
-            if (LlGetRandNum(&address[i]) != LL_SUCCESS) return false;
-            /* Make static address (Vol C, Part 3, section 10.8.1) */
-            if (i == 5) address[5] |= 0xC0;
-            if (address[i] != 0xff) no_binary_zeros = false;
-        }
-    }
+    address[0] = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 0);
+    address[1] = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 8);
+    address[2] = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 16);
+    address[3] = (uint8_t)(NRF_FICR->DEVICEADDR[0] >> 24);
+    address[4] = (uint8_t)(NRF_FICR->DEVICEADDR[1] >> 0);
+    address[5] = (uint8_t)(NRF_FICR->DEVICEADDR[1] >> 8);
+
+    /* Make static address (Vol C, Part 3, section 10.8.1) */
+    address[5] |= 0xC0;
 
     return true;
 }
