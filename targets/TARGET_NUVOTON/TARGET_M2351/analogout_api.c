@@ -53,6 +53,8 @@ void analogout_init(dac_t *obj, PinName pin)
     uint32_t chn =  NU_MODSUBINDEX(obj->dac);
     MBED_ASSERT(chn < NU_DACCHN_MAXNUM);
 
+    obj->pin = pin;
+
     /* Wire pinout */
     pinmap_pinout(pin, PinMap_DAC);
 
@@ -127,7 +129,7 @@ void analogout_free(dac_t *obj)
 
     /* Mark channel free */
     dac_modinit_mask[modidx] &= ~(1 << chn);
-    
+
     /* Close channel */
     DAC_Close(dac_base, chn);
 
@@ -142,6 +144,10 @@ void analogout_free(dac_t *obj)
          */
         CLK_DisableModuleClock_S(modinit->clkidx);
     }
+
+    /* Free up pin */
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 void analogout_write(dac_t *obj, float value)

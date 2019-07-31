@@ -50,7 +50,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT((ADCName) modinit->modname == obj->adc);
-    
+
+    obj->pin = pin;
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_ADC);
 

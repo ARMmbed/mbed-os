@@ -42,26 +42,32 @@ struct port_s {
 
 struct analogin_s {
     ADCName adc;
+    PinName pin;
 };
 
 struct dac_s {
     DACName dac;
+    PinName pin;
 };
 
 struct serial_s {
     UARTName uart;
-    
+    PinName pin_tx;
+    PinName pin_rx;
+    PinName pin_rts;
+    PinName pin_cts;
+
     uint32_t baudrate;
     uint32_t databits;
     uint32_t parity;
     uint32_t stopbits;
-    
+
     void        (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
     uint32_t    irq_en;
     uint32_t    inten_msk;
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage_tx;
     DMAUsage    dma_usage_rx;
@@ -78,7 +84,7 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-    
+
     // Async transfer related fields
     DMAUsage    dma_usage;
     int         dma_chn_id_tx;
@@ -90,6 +96,8 @@ struct spi_s {
 
 struct i2c_s {
     I2CName     i2c;
+    PinName     pin_sda;
+    PinName     pin_scl;
     int         slaveaddr_state;
     
     uint32_t    tran_ctrl;
@@ -108,6 +116,7 @@ struct i2c_s {
 
 struct pwmout_s {
     PWMName pwm;
+    PinName pin;
     uint32_t period_us;
     uint32_t pulsewidth_us;
 };
