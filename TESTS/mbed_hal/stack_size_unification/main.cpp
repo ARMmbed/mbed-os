@@ -75,4 +75,4 @@ int main()
     return !Harness::run(specification);
 }
 
-#else // TARGET_RENESAS
+#endif // TARGET_RENESAS
