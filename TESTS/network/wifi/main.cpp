@@ -93,17 +93,17 @@ int main()
     return !Harness::run(specification);
 }
 #endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID) &&  \
-    !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
-    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-    !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
-    !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+!defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
+!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+!defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
+!defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && \
-   (!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
-    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
-    !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
-    !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
-    !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
-    
+(!defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
+!defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+!defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
+!defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
+!defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
+!defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL)
+
 #endif //!defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI

@@ -460,4 +460,4 @@ int main(void)
 {
     return !Harness::run(specification);
 }
- #endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))

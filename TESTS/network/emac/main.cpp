@@ -84,13 +84,13 @@ int main()
 }
 
 #endif // (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI) && \
-            !defined(TARGET_UBLOX_EVK_ODIN_W2)      && \
-            !defined(TARGET_REALTEK_RTL8195AM)      && \
-            !defined(TARGET_MTB_ADV_WISE_1530)      && \
-            !defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
-            !defined(TARGET_MTB_MXCHIP_EMW3166)     && \
-            !defined(TARGET_MTB_UBLOX_ODIN_W2)      && \
-            !defined(TARGET_UNO_91H)
+!defined(TARGET_UBLOX_EVK_ODIN_W2)      && \
+!defined(TARGET_REALTEK_RTL8195AM)      && \
+!defined(TARGET_MTB_ADV_WISE_1530)      && \
+!defined(TARGET_MTB_USI_WM_BN_BM_22)    && \
+!defined(TARGET_MTB_MXCHIP_EMW3166)     && \
+!defined(TARGET_MTB_UBLOX_ODIN_W2)      && \
+!defined(TARGET_UNO_91H)
 
 #endif // MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != ETHERNET && MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
 #endif // !defined(MBED_CONF_APP_ECHO_SERVER) || !defined(MBED_CONF_APP_ECHO_SERVER_TRACE) || !defined(MBED_CONF_APP_WIFI_SCAN)
