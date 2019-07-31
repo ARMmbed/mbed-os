@@ -332,5 +332,5 @@ FileSystem *KVMap::get_external_filesystem_instance(const char *name)
     return ret != MBED_SUCCESS ? NULL : kv_config->external_fs;
 }
 
-}
+} // namespace mbed
 
