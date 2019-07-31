@@ -26,7 +26,7 @@
 namespace mbed {
 /**
  * \defgroup drivers_InterruptManager InterruptManager class
- * \ingroup drivers-public-api-interrupt
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 

@@ -22,6 +22,11 @@
 
 class AsyncOp;
 
+/**
+ * \defgroup drivers_OperationListBase OperationListBase class
+ * \ingroup drivers-internal-api-usb
+ * @{
+ */
 class OperationListBase {
 public:
 
@@ -92,5 +97,7 @@ private:
 
     LinkedListBase _list;
 };
+
+/** @}*/
 
 #endif

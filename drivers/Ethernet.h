@@ -17,6 +17,7 @@
 #ifndef MBED_ETHERNET_H
 #define MBED_ETHERNET_H
 
+#warning Ethernet.h has been replaced by EthInterface.h, please update to EthInterface.h (or NetworkInterface.h to get an instance of an appropriate network interface (WiFi or Ethernet))
 #include "platform/platform.h"
 #include "platform/NonCopyable.h"
 
@@ -33,6 +34,11 @@ namespace mbed {
 
 /** An ethernet interface, to use with the ethernet pins.
  *
+ * @warning
+ * EthInterface is now the preferred way to get an Ethernet object.
+ * Alternatively, use NetworkInterface to get an instance of an appropriate network
+ * interface (WiFi or Ethernet).
+ * 
  * @note Synchronization level: Not protected
  *
  * Example:

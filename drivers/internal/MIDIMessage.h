@@ -43,7 +43,7 @@
 
 /**
  * \defgroup drivers_MIDIMessage MIDIMessage class
- * \ingroup drivers-internal-api
+ * \ingroup drivers-internal-usb
  * @{
  */
 

@@ -21,6 +21,11 @@
 #include "OperationListBase.h"
 #include "AsyncOp.h"
 
+/**
+ * \defgroup drivers_OperationList OperationList class
+ * \ingroup drivers-internal-api-usb
+ * @{
+ */
 template<class T>
 class OperationList: public OperationListBase {
 public:
@@ -83,5 +88,7 @@ public:
     }
 
 };
+
+/** @}*/
 
 #endif

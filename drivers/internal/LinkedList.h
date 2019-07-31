@@ -21,13 +21,9 @@
 #include "LinkEntry.h"
 #include "LinkedListBase.h"
 
-/** \defgroup drivers-internal-api-list List
- * \ingroup drivers-internal-api
- */
-
 /**
  * \defgroup drivers_LinkedList LinkedList class
- * \ingroup drivers-internal-api-list
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 template<class T>
