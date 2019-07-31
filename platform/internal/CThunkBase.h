@@ -18,14 +18,16 @@
 #ifndef __CTHUNK_BASE_H__
 #define __CTHUNK_BASE_H__
 
+/** \addtogroup platform-internal-api Platform
+ * \ingroup mbed-os-internal
+ */
+
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
 
-/** \ingroup mbed-os-internal */
-/** \addtogroup platform-internal-api */
-/** @{*/
 /**
  * \defgroup platform_CThunkBase CThunkBase class
+ * \ingroup platform-internal-api
  * @{
  */
 class CThunkBase {
@@ -80,8 +82,6 @@ private:
         _thunk_storage[N]->_trampoline(_thunk_storage[N]);
     }
 };
-
-/**@}*/
 
 /**@}*/
 
