@@ -177,8 +177,8 @@ void palCfgLoadBdAddress(uint8_t *pDevAddr)
   unsigned int devAddrLen = 6;
 
   /* Load address from nRF configuration. */
-  uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
-                     (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+  uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEID[0]) <<  0) |
+                     (((uint64_t)NRF_FICR->DEVICEID[1]) << 32);
 
   unsigned int i = 0;
   while (i < devAddrLen)
@@ -202,8 +202,8 @@ void palCfgLoadExtMac154Address(uint8_t *pDevAddr)
   unsigned int devAddrLen = 8;
 
   /* Load address from nRF configuration. */
-  uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
-                     (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+  uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEID[0]) <<  0) |
+                     (((uint64_t)NRF_FICR->DEVICEID[1]) << 32);
 
   unsigned int i = 0;
   while (i < devAddrLen)
