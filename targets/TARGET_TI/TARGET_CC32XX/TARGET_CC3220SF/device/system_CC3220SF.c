@@ -62,3 +62,12 @@ void SystemInit (void)
     SCB->VTOR = (uint32_t) &__Vectors;
     CC3220SF_LAUNCHXL_initGeneral();
 }
+
+/*
+ *  ======== ClockP_getCpuFreq ========
+ */
+void ClockP_getCpuFreq(ClockP_FreqHz *freq)
+{
+    freq->lo = (uint32_t)SystemCoreClock;
+    freq->hi = 0;
+}

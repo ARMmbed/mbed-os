@@ -32,6 +32,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "ti/drivers/net/wifi/wlan.h"
+#include "ti/drivers/dpl/ClockP.h"
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 

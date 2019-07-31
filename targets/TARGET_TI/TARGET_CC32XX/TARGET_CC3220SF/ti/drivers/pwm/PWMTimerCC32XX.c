@@ -152,8 +152,6 @@ static const uint32_t gpioPinIndexes[8] = {
 #define PinConfigPinMode(config)       (((config) >> 8) & 0xF)
 #define PinConfigPin(config)           (((config) >> 0) & 0x3F)
 
-extern uint32_t SystemCoreClock;
-
 /*
  *  ======== getDutyCounts ========
  */
@@ -163,10 +161,7 @@ static uint32_t getDutyCounts(PWM_Duty_Units dutyUnits, uint32_t dutyValue,
     uint32_t      duty = 0;
     ClockP_FreqHz freq;
 
-    freq.hi = 0;
-    freq.lo = SystemCoreClock;
-
-    //ClockP_getCpuFreq(&freq);
+    ClockP_getCpuFreq(&freq);
 
     switch (dutyUnits) {
         case PWM_DUTY_COUNTS:
@@ -199,10 +194,7 @@ static uint32_t getPeriodCounts(PWM_Period_Units periodUnits,
     uint32_t      period = 0;
     ClockP_FreqHz freq;
 
-    freq.hi = 0;
-    freq.lo = SystemCoreClock;
-
-    //ClockP_getCpuFreq(&freq);
+    ClockP_getCpuFreq(&freq);
 
     switch (periodUnits) {
         case PWM_PERIOD_COUNTS:
