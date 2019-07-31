@@ -31,7 +31,7 @@ using namespace utest::v1;
 using ble::vendor::cordio::CordioHCIDriver;
 using ble::vendor::cordio::CordioHCITransportDriver;
 
-extern ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver();
+extern ble::vendor::cordio::CordioHCIDriver &ble_cordio_get_hci_driver();
 
 #if CORDIO_ZERO_COPY_HCI
 #error [NOT_SUPPORTED] Test not relevant for zero copy hci.
@@ -42,15 +42,18 @@ namespace vendor {
 namespace cordio {
 
 struct CordioHCIHook {
-    static CordioHCIDriver& get_driver() {
+    static CordioHCIDriver &get_driver()
+    {
         return ble_cordio_get_hci_driver();
     }
 
-    static CordioHCITransportDriver& get_transport_driver() {
+    static CordioHCITransportDriver &get_transport_driver()
+    {
         return get_driver()._transport_driver;
     }
 
-    static void set_data_received_handler(void (*handler)(uint8_t*, uint8_t)) {
+    static void set_data_received_handler(void (*handler)(uint8_t *, uint8_t))
+    {
         get_transport_driver().set_data_received_handler(handler);
     }
 };
@@ -75,22 +78,24 @@ static const uint32_t WAITING_FLAGS =
 
 static rtos::EventFlags event_channel;
 
-static void signal_flag(uint32_t flag) {
+static void signal_flag(uint32_t flag)
+{
     if (!(event_channel.get() & flag)) {
         event_channel.set(flag);
     }
 }
 
-uint32_t wait_for_event() {
+uint32_t wait_for_event()
+{
     // clear reception flags
     uint32_t flags = event_channel.get();
     event_channel.clear(flags & ~RESET_RECEIVED_FLAG);
 
     return event_channel.wait_any(
-        WAITING_FLAGS,
-        /* timeout */ RESET_COMMAND_TIMEOUT,
-        /* clear */ false
-    );
+               WAITING_FLAGS,
+               /* timeout */ RESET_COMMAND_TIMEOUT,
+               /* clear */ false
+           );
 }
 
 //
@@ -104,7 +109,8 @@ uint32_t wait_for_event() {
 #define RESET_PACKET_LENGTH (1 + HCI_EVT_HDR_LEN + RESET_PARAMETER_LENGTH)
 #define RESET_STATUS_INDEX 6
 
-static bool is_reset_event(const uint8_t* data, uint16_t len) {
+static bool is_reset_event(const uint8_t *data, uint16_t len)
+{
     if (len != RESET_PACKET_LENGTH) {
         return false;
     }
@@ -135,7 +141,8 @@ static bool is_reset_event(const uint8_t* data, uint16_t len) {
     return true;
 }
 
-static void hci_driver_rx_reset_handler(uint8_t* data, uint8_t len) {
+static void hci_driver_rx_reset_handler(uint8_t *data, uint8_t len)
+{
     enum packet_state_t {
         WAITING_FOR_PACKET_TYPE,
         WAITING_FOR_HEADER_COMPLETE,
@@ -166,19 +173,20 @@ static void hci_driver_rx_reset_handler(uint8_t* data, uint8_t len) {
 
             case WAITING_FOR_HEADER_COMPLETE:
             case WAITING_FOR_DATA_COMPLETE: {
-                uint16_t step = std::min((uint16_t) len, (uint16_t) (packet_length - position));
+                uint16_t step = std::min((uint16_t) len, (uint16_t)(packet_length - position));
                 memcpy(packet + position, data, step);
-                position+= step;
+                position += step;
                 data += step;
                 len -= step;
 
                 if (reception_state == WAITING_FOR_HEADER_COMPLETE &&
-                    position == packet_length
-                ) {
+                        position == packet_length
+                   ) {
                     reception_state = WAITING_FOR_DATA_COMPLETE;
                     packet_length += packet[HCI_EVT_HDR_LEN];
                 }
-            }   break;
+            }
+            break;
 
 
             // dead end; we never exit from the error state; just asignal it again.
@@ -192,7 +200,7 @@ static void hci_driver_rx_reset_handler(uint8_t* data, uint8_t len) {
         }
 
         bool packet_complete = (reception_state == WAITING_FOR_DATA_COMPLETE) &&
-            (position == packet_length);
+                               (position == packet_length);
 
         if (packet_complete) {
             if (is_reset_event(packet, packet_length)) {
@@ -217,9 +225,10 @@ static uint8_t reset_cmd[] = {
     0 // parameter length
 };
 
-void test_reset_command() {
-    CordioHCIDriver& driver = CordioHCIHook::get_driver();
-    CordioHCITransportDriver& transport_driver = CordioHCIHook::get_transport_driver();
+void test_reset_command()
+{
+    CordioHCIDriver &driver = CordioHCIHook::get_driver();
+    CordioHCITransportDriver &transport_driver = CordioHCIHook::get_transport_driver();
 
     driver.initialize();
 
@@ -235,9 +244,10 @@ void test_reset_command() {
 
 #define EXPECTED_CONSECUTIVE_RESET   10
 
-void test_multiple_reset_command() {
-    CordioHCIDriver& driver = CordioHCIHook::get_driver();
-    CordioHCITransportDriver& transport_driver = CordioHCIHook::get_transport_driver();
+void test_multiple_reset_command()
+{
+    CordioHCIDriver &driver = CordioHCIHook::get_driver();
+    CordioHCITransportDriver &transport_driver = CordioHCIHook::get_transport_driver();
 
     driver.initialize();
 
@@ -260,14 +270,16 @@ Case cases[] = {
     Case("Test multiple reset commands", test_multiple_reset_command)
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 #endif // CORDIO_ZERO_COPY_HCI
