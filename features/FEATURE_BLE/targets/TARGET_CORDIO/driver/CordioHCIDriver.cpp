@@ -144,13 +144,6 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 /* parse and store event parameters */
                 BdaCpy(hciCoreCb.bdAddr, pMsg);
 
-                ble::address_t dummy;
-                /* public address cannot be set so this does not create an HCI command */
-                cordio::BLE::deviceInstance().getGap().setAddress(
-                    BLEProtocol::AddressType::PUBLIC,
-                    dummy
-                );
-
                 /* send next command in sequence */
                 HciLeReadBufSizeCmd();
                 break;
