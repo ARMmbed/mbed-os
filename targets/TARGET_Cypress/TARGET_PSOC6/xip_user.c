@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#ifdef XIP_ENABLE
+#if MBED_CONF_TARGET_XIP_ENABLE
 #include "cy_smif.h"
 #include "cy_smif_memslot.h"
 #include "cycfg_qspi_memslot.h"

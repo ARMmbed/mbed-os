@@ -31,7 +31,7 @@
 void mailbox_init(void);
 #endif
 
-#if defined(XIP_ENABLE)
+#if MBED_CONF_TARGET_XIP_ENABLE
 extern void qspi_xip_start();
 #endif
 
@@ -103,7 +103,7 @@ void mbed_sdk_init(void)
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
 #endif
-#if defined(XIP_ENABLE)
+#if MBED_CONF_TARGET_XIP_ENABLE
     qspi_xip_start();
 #endif
 
