@@ -790,7 +790,6 @@ private:
     pal::GenericAccessService &_gap_service;
     PalSecurityManager &_pal_sm;
     BLEProtocol::AddressType_t _address_type;
-    ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;

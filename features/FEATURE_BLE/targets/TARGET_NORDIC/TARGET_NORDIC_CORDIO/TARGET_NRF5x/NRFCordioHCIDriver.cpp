@@ -361,9 +361,16 @@ void NRFCordioHCIDriver::start_reset_sequence()
 
 bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
 {
-    PalCfgLoadData(PAL_CFG_ID_BD_ADDR, address.data(), sizeof(bdAddr_t));
-
-    MBED_ASSERT((address[5] & 0xC0) == 0xC0);
+    /* address cannot have all bits set to 1 */
+    bool no_binary_zeros = true;
+    while (no_binary_zeros) {
+        for (uint8_t i = 0; i < 6; i++) {
+            if (LlGetRandNum(&address[i]) != LL_SUCCESS) return false;
+            /* Make static address (Vol C, Part 3, section 10.8.1) */
+            if (i == 5) address[5] |= 0xC0;
+            if (address[i] != 0xff) no_binary_zeros = false;
+        }
+    }
 
     return true;
 }

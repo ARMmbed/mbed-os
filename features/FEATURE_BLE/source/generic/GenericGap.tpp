@@ -477,7 +477,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 {
     switch (type) {
         case LegacyAddressType::PUBLIC:
-            // The public address cannot be set, just set the type to public
             _address_type = type;
             return BLE_ERROR_NONE;
 
@@ -494,7 +493,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             }
 
             _address_type = type;
-            _address = ble::address_t(address);
             _random_static_identity_address = ble::address_t(address);
             return BLE_ERROR_NONE;
         }
@@ -2156,7 +2154,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     }
 
     _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
-    _address = address;
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
