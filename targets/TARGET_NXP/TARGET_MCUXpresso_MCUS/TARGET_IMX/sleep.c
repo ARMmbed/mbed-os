@@ -19,6 +19,7 @@
 
 extern void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode);
 extern void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode);
+extern void serial_wait_tx_complete(uint32_t uart_index);
 
 
 void hal_sleep(void)
@@ -35,6 +36,9 @@ void hal_sleep(void)
 void hal_deepsleep(void)
 {
     vPortPRE_SLEEP_PROCESSING(kCLOCK_ModeStop);
+
+    /* Wait till debug UART is done transmitting */
+    serial_wait_tx_complete(STDIO_UART);
 
     __DSB();
     __WFI();
