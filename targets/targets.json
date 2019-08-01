@@ -1212,7 +1212,7 @@
         ],
         "is_disk_virtual": true,
         "public": false,
-        "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
         "device_has": [
@@ -1248,7 +1248,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M0+",
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
-        "macros": ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "supported_form_factors": ["ARDUINO"],
         "is_disk_virtual": true,
@@ -1280,7 +1280,7 @@
         "core": "Cortex-M0+",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
-        "macros": ["CPU_MKL43Z256VLH4", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKL43Z256VLH4", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0262"],
@@ -1313,7 +1313,7 @@
         "core": "Cortex-M0+",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
-        "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
@@ -1355,7 +1355,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0250"],
         "device_has": [
@@ -1393,7 +1393,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "FRAMEWORK_5_3_3", "NXP"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0201"],
         "device_has": [
@@ -1438,7 +1438,7 @@
         ],
         "is_disk_virtual": true,
         "public": false,
-        "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "device_has": [
             "USTICKER",
@@ -1489,7 +1489,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
         "device_has": [
@@ -1612,7 +1612,7 @@
             "MCU_K64F"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F", "MBED_TICKLESS"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -1644,7 +1644,7 @@
             "MCU_K64F"
         ],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0214"],
@@ -1699,7 +1699,7 @@
             "KSDK2_MCUS",
             "MCU_K64F"
         ],
-        "macros_add": ["CPU_MK64FN1M0VMD12", "TARGET_K64F"],
+        "macros_add": ["CPU_MK64FN1M0VMD12", "TARGET_K64F", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "mbed_rom_start": "0x00014000",
         "mbed_rom_size": "0xEC000",
@@ -1739,7 +1739,7 @@
             "KSDK2_MCUS",
             "KW41Z"
         ],
-        "macros_add": ["CPU_MKW41Z512VHT4"],
+        "macros_add": ["CPU_MKW41Z512VHT4", "MBED_TICKLESS"],
         "is_disk_virtual": true,
         "mbed_rom_start": "0x00004000",
         "mbed_rom_size": "0x7C000",
@@ -1781,7 +1781,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
+        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
         "device_has": [
@@ -1821,7 +1821,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED", "MBED_TICKLESS"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
         "device_has": [
@@ -1864,7 +1864,8 @@
         "macros": [
             "USE_HAL_DRIVER",
             "USE_FULL_LL_DRIVER",
-            "TRANSACTION_QUEUE_SIZE_SPI=2"
+            "TRANSACTION_QUEUE_SIZE_SPI=2",
+            "MBED_TICKLESS"
         ],
         "config": {
             "lse_available": {
@@ -1933,7 +1934,8 @@
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "MBED_TICKLESS"
         ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
@@ -2353,7 +2355,7 @@
             }
         },
         "detect_code": ["0835"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "MBED_TICKLESS"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -5203,6 +5205,7 @@
                 "macro_name": "STDIO_UART"
             }
         },
+        "macros_add": ["MBED_TICKLESS"],
         "overrides": {
             "uart_hwfc": 0
         }
@@ -5470,6 +5473,7 @@
             "USTICKER",
             "MPU"
         ],
+        "macros_add": ["MBED_TICKLESS"],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt",
@@ -5495,7 +5499,8 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "LPTICKER_DELAY_TICKS=1",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "MBED_TICKLESS"
         ],
         "extra_labels_add": ["MUSCA_A1_NS", "PSA", "TFM"],
         "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
@@ -5673,7 +5678,8 @@
             "__SYSTEM_HFX=96000000",
             "TARGET=MAX32620",
             "TARGET_REV=0x4332",
-            "OPEN_DRAIN_LEDS"
+            "OPEN_DRAIN_LEDS",
+            "MBED_TICKLESS"
         ],
         "extra_labels": ["Maxim", "MAX32620C"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
@@ -5703,7 +5709,8 @@
             "__SYSTEM_HFX=96000000",
             "TARGET=MAX32620",
             "TARGET_REV=0x4332",
-            "OPEN_DRAIN_LEDS"
+            "OPEN_DRAIN_LEDS",
+            "MBED_TICKLESS"
         ],
         "detect_code": ["3101"],
         "extra_labels": ["Maxim", "MAX32620C"],
@@ -5730,7 +5737,7 @@
     "MAX32625_BASE": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["TARGET=MAX32625", "TARGET_REV=0x4132", "OPEN_DRAIN_LEDS"],
+        "macros": ["TARGET=MAX32625", "TARGET_REV=0x4132", "OPEN_DRAIN_LEDS", "MBED_TICKLESS"],
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
@@ -5853,6 +5860,7 @@
             "MPU",
             "WATCHDOG"
         ],
+        "macros_add": ["MBED_TICKLESS"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -7072,6 +7080,7 @@
             "SPI_ASYNCH",
             "SPISLAVE"
         ],
+        "macros_add": ["MBED_TICKLESS"],
         "release_versions": ["2", "5"],
         "device_name": "nRF51822_xxAA"
     },
@@ -7120,6 +7129,7 @@
             "SPI_ASYNCH",
             "SPISLAVE"
         ],
+        "macros_add": ["MBED_TICKLESS"],
         "release_versions": ["2", "5"]
     },
     "OSHCHIP": {
@@ -7141,6 +7151,7 @@
             "SPI",
             "SPISLAVE"
         ],
+        "macros_add": ["MBED_TICKLESS"],
         "device_name": "nRF51822_xxAC"
     },
     "MCU_NRF52832": {
@@ -7204,6 +7215,7 @@
                 "value": 0
             }
         },
+        "macros_add": ["MBED_TICKLESS"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -7281,7 +7293,8 @@
             "MBED_TICKLESS",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "WSF_MAX_HANDLERS=10",
-            "MBED_MPU_CUSTOM"
+            "MBED_MPU_CUSTOM",
+            "MBED_TICKLESS"
         ],
         "features": ["CRYPTOCELL310", "BLE"],
         "device_has": [
@@ -7407,7 +7420,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3", "MBED_TICKLESS"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -7536,7 +7549,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["LPTICKER_DELAY_TICKS=3", "MBED_TICKLESS"],
         "progen": { "target": "numaker-pfm-m453" },
         "device_has": [
             "USTICKER",
@@ -7608,7 +7621,8 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_FAULT_HANDLER_DISABLED",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=3",
+            "MBED_TICKLESS"
         ],
         "device_has": [
             "USTICKER",
@@ -7999,7 +8013,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3", "MBED_TICKLESS"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -8173,6 +8187,7 @@
             "TSC",
             "USTICKER"
         ],
+        "macros": ["MBED_TICKLESS"],
         "release_versions": ["5"],
         "components_add": ["LAN91C111", "FLASHIAP"],
         "overrides": {
@@ -8220,7 +8235,8 @@
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED",
             "MBED_TZ_DEFAULT_ACCESS=1",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=3",
+            "MBED_TICKLESS"
         ],
         "trustzone": true,
         "is_disk_virtual": true,
@@ -8352,7 +8368,7 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
-        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3"],
+        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3", "MBED_TICKLESS"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
@@ -8413,7 +8429,7 @@
             "CYW43XXX",
             "CORDIO"
         ],
-        "macros_add": ["CY8C624ABZI_D44"],
+        "macros_add": ["CY8C624ABZI_D44", "MBED_TICKLESS"],
         "public": false,
         "overrides": {
             "network-default-interface-type": "WIFI"
@@ -8457,7 +8473,7 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x10002000",
         "mbed_rom_size": "0xFE000",
-        "sectors": [[268435456, 512]],                            
+        "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
@@ -8472,7 +8488,7 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x10002000",
         "mbed_rom_size": "0x1FE000",
-        "sectors": [[268435456, 512]]                    
+        "sectors": [[268435456, 512]]
     },
     "CY8CKIT_062S2_43012": {
         "inherits": ["CY8CMOD_062S2_43012"],
