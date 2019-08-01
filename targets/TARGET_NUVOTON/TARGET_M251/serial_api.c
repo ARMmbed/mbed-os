@@ -156,10 +156,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
 
-    if (! var->ref_cnt) {
-        pinmap_pinout(tx, PinMap_UART_TX);
-        pinmap_pinout(rx, PinMap_UART_RX);
+    obj->serial.pin_tx = tx;
+    obj->serial.pin_rx = rx;
+    obj->serial.pin_rts = NC;
+    obj->serial.pin_cts = NC;
+    
+    pinmap_pinout(tx, PinMap_UART_TX);
+    pinmap_pinout(rx, PinMap_UART_RX);
 
+    if (! var->ref_cnt) {
         // Select IP clock source
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
         // Enable IP clock
@@ -259,6 +264,16 @@ void serial_free(serial_t *obj)
         int i = modinit - uart_modinit_tab;
         uart_modinit_mask &= ~(1 << i);
     }
+
+    // Free up pins
+    gpio_set(obj->serial.pin_tx);
+    gpio_set(obj->serial.pin_rx);
+    gpio_set(obj->serial.pin_rts);
+    gpio_set(obj->serial.pin_cts);
+    obj->serial.pin_tx = NC;
+    obj->serial.pin_rx = NC;
+    obj->serial.pin_rts = NC;
+    obj->serial.pin_cts = NC;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -304,6 +319,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
+
+    // Free up old rts/cts pins when they are different from new ones
+    if (obj->serial.pin_rts != rxflow) {
+        gpio_set(obj->serial.pin_rts);
+        obj->serial.pin_rts = rxflow;
+    }
+    if (obj->serial.pin_cts != txflow) {
+        gpio_set(obj->serial.pin_cts);
+        obj->serial.pin_cts = txflow;
+    }
 
     if (rxflow != NC) {
         // Check if RTS pin matches.

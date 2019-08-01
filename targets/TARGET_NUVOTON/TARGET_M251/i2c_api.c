@@ -99,6 +99,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
+    obj->i2c.pin_sda = sda;
+    obj->i2c.pin_scl = scl;
+
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
 
