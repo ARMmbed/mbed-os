@@ -75,12 +75,16 @@ class
 
 public:
 
-    /** Initialize the ethernet interface.
+    /**
+     * @deprecated
+     * Initialize the ethernet interface.
      */
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     Ethernet();
 
-    /** Powers the hardware down.
+    /**
+     * @deprecated
+     * Powers the hardware down.
      */
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual ~Ethernet();
@@ -93,7 +97,9 @@ public:
         FullDuplex100
     };
 
-    /** Writes into an outgoing ethernet packet.
+    /**
+     * @deprecated
+     *  Writes into an outgoing ethernet packet.
      *
      *  It will append size bytes of data to the previously written bytes.
      *
@@ -106,7 +112,9 @@ public:
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int write(const char *data, int size);
 
-    /** Send an outgoing ethernet packet.
+    /**
+     * @deprecated
+     *  Send an outgoing ethernet packet.
      *
      *  After filling in the data in an ethernet packet it must be send.
      *  Send will provide a new packet to write to.
@@ -118,7 +126,9 @@ public:
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int send();
 
-    /** Receives an arrived ethernet packet.
+    /**
+     * @deprecated
+     *  Receives an arrived ethernet packet.
      *
      *  Receiving an ethernet packet will drop the last received ethernet packet
      *  and make a new ethernet packet ready to read.
@@ -131,7 +141,9 @@ public:
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int receive();
 
-    /** Read from an received ethernet packet.
+    /**
+     * @deprecated
+     *  Read from an received ethernet packet.
      *
      *  After receive returned a number bigger than 0 it is
      *  possible to read bytes from this packet.
@@ -147,14 +159,18 @@ public:
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int read(char *data, int size);
 
-    /** Gives the ethernet address of the mbed.
+    /**
+     * @deprecated
+     *  Gives the ethernet address of the mbed.
      *
      *  @param mac Must be a pointer to a 6 byte char array to copy the ethernet address in.
      */
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void address(char *mac);
 
-    /** Returns if an ethernet link is present or not. It takes a while after Ethernet initialization to show up.
+    /**
+     * @deprecated
+     *  Returns if an ethernet link is present or not. It takes a while after Ethernet initialization to show up.
      *
      *  @returns
      *   0 if no ethernet link is present,
@@ -180,7 +196,9 @@ public:
     MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int link();
 
-    /** Sets the speed and duplex parameters of an ethernet link
+    /**
+     * @deprecated
+     *  Sets the speed and duplex parameters of an ethernet link
      *
      * - AutoNegotiate      Auto negotiate speed and duplex
      * - HalfDuplex10       10 Mbit, half duplex
