@@ -120,6 +120,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
+    obj->spi.pin_mosi = mosi;
+    obj->spi.pin_miso = miso;
+    obj->spi.pin_sclk = sclk;
+    obj->spi.pin_ssel = ssel;
+
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
@@ -132,12 +137,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
-
-    obj->spi.pin_mosi = mosi;
-    obj->spi.pin_miso = miso;
-    obj->spi.pin_sclk = sclk;
-    obj->spi.pin_ssel = ssel;
-
 
 #if DEVICE_SPI_ASYNCH
     obj->spi.dma_usage = DMA_USAGE_NEVER;
@@ -184,6 +183,16 @@ void spi_free(spi_t *obj)
     // Mark this module to be deinited.
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask &= ~(1 << i);
+    
+    // Free up pins
+    gpio_set(obj->spi.pin_mosi);
+    gpio_set(obj->spi.pin_miso);
+    gpio_set(obj->spi.pin_sclk);
+    gpio_set(obj->spi.pin_ssel);
+    obj->spi.pin_mosi = NC;
+    obj->spi.pin_miso = NC;
+    obj->spi.pin_sclk = NC;
+    obj->spi.pin_ssel = NC;
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
