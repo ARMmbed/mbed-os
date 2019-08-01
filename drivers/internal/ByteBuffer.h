@@ -22,7 +22,7 @@
 
 /**
  * \defgroup drivers_ByteBuffer ByteBuffer class
- * \ingroup drivers-internal-api
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 class ByteBuffer {

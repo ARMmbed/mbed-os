@@ -22,7 +22,7 @@
 
 /**
  * \defgroup drivers_EndpointResolver EndpointResolver class
- * \ingroup drivers-internal-api
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 

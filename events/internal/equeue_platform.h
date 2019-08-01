@@ -25,12 +25,6 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-/**
- * \addtogroup events-internal-api Events
- * \ingroup mbed-os-internal
- * @{
- */
-
 // Currently supported platforms
 //
 // Uncomment to select a supported platform or reimplement this file
@@ -152,8 +146,6 @@ int equeue_sema_create(equeue_sema_t *sema);
 void equeue_sema_destroy(equeue_sema_t *sema);
 void equeue_sema_signal(equeue_sema_t *sema);
 bool equeue_sema_wait(equeue_sema_t *sema, int ms);
-
-/** @}*/
 
 #ifdef __cplusplus
 }

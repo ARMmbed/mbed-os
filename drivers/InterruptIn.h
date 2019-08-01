@@ -29,13 +29,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \defgroup drivers-public-api-interrupt Interrupt
- * \ingroup drivers-public-api
- */
-
 /**
  * \defgroup drivers_InterruptIn InterruptIn class
- * \ingroup drivers-public-api-interrupt
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 

@@ -23,11 +23,9 @@
 #include "USBPhy.h"
 #include "mbed_critical.h"
 
-/** \ingroup drivers */
-/** \addtogroup drivers-internal-api */
-/** @{*/
 /**
  * \defgroup drivers_USBDevice USBDevice class
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 
@@ -612,7 +610,6 @@ private:
     uint32_t _locked;
 };
 
-/** @}*/
 /** @}*/
 
 #endif

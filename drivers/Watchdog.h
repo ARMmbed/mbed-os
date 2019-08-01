@@ -28,11 +28,9 @@
 #include <cstdio>
 
 namespace mbed {
-/** \ingroup mbed-os-public */
-/** \addtogroup drivers-public-api */
-/** @{*/
 /**
  * \defgroup drivers_Watchdog Watchdog class
+ * \ingroup drivers-public-api
  * @{
  */
 
@@ -154,7 +152,6 @@ private:
     bool _running;
 };
 
-/** @}*/
 /** @}*/
 
 } // namespace mbed

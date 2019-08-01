@@ -24,7 +24,7 @@
 namespace mbed {
 /**
  * \defgroup drivers_BusInOut BusInOut class
- * \ingroup drivers-public-api-bus
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 

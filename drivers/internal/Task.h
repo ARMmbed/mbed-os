@@ -24,8 +24,7 @@
 #include "platform/Callback.h"
 
 namespace events {
-/** \addtogroup events-internal-api
- * \ingroup mbed-os-internal
+/** \addtogroup drivers-internal-api-usb
  * @{
  */
 
