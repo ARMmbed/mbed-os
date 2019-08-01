@@ -352,9 +352,6 @@ AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_pro
 
 bool AT_CellularContext::get_context()
 {
-    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
-    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
-
     _at.cmd_start_stop("+CGDCONT", "?");
     _at.resp_start("+CGDCONT:");
     _cid = -1;
@@ -407,23 +404,19 @@ bool AT_CellularContext::get_context()
 
 bool AT_CellularContext::set_new_context(int cid)
 {
-    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
-    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
-    bool modem_supports_nonip = get_property(PROPERTY_NON_IP_PDP_TYPE);
-
     char pdp_type_str[8 + 1] = {0};
     pdp_type_t pdp_type = IPV4_PDP_TYPE;
 
-    if (_nonip_req && _cp_in_use && modem_supports_nonip) {
+    if (_nonip_req && _cp_in_use && get_property(PROPERTY_NON_IP_PDP_TYPE)) {
         strncpy(pdp_type_str, "Non-IP", sizeof(pdp_type_str));
         pdp_type = NON_IP_PDP_TYPE;
-    } else if (modem_supports_ipv6 && modem_supports_ipv4) {
+    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE)) {
         strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
         pdp_type = IPV4V6_PDP_TYPE;
-    } else if (modem_supports_ipv6) {
+    } else if (get_property(PROPERTY_IPV6_PDP_TYPE)) {
         strncpy(pdp_type_str, "IPV6", sizeof(pdp_type_str));
         pdp_type = IPV6_PDP_TYPE;
-    } else if (modem_supports_ipv4) {
+    } else if (get_property(PROPERTY_IPV4_PDP_TYPE)) {
         strncpy(pdp_type_str, "IP", sizeof(pdp_type_str));
         pdp_type = IPV4_PDP_TYPE;
     } else {
