@@ -31,9 +31,13 @@
  * \ingroup mbed-os-internal
  */
 
+/** \defgroup drivers-internal-api-usb USB
+ * \ingroup drivers-internal-api
+ */
+
 /**
  * \defgroup drivers_AsyncOp AsyncOp class
- * \ingroup drivers-internal-api
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 class AsyncOp: public LinkEntry {

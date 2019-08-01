@@ -27,8 +27,8 @@
 namespace events {
 
 /**
- * \defgroup events_TaskQueue TaskQueue class
- * \ingroup events-internal-api
+ * \defgroup drivers_TaskQueue TaskQueue class
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 

@@ -23,8 +23,7 @@
 
 #include "events/mbed_shared_queues.h"
 
-/** \ingroup mbed-os-internal */
-/** \addtogroup events-internal-api */
+/** \addtogroup events-public-api */
 /** @{*/
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace events;

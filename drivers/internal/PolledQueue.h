@@ -22,15 +22,9 @@
 #include "platform/Callback.h"
 #include "LinkedList.h"
 namespace events {
-/** \addtogroup events-internal-api Events
- * \ingroup mbed-os-internal
- * @{
- */
-
-
 /**
- * \defgroup events_PolledQueue PolledQueue class
- * \ingroup events-internal-api
+ * \defgroup drivers_PolledQueue PolledQueue class
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 
@@ -75,7 +69,6 @@ protected:
 
 };
 
-/** @}*/
 /** @}*/
 
 }

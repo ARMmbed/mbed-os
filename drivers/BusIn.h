@@ -23,13 +23,9 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \defgroup drivers-public-api-bus Bus
- * \ingroup drivers-public-api
- */
-
 /**
  * \defgroup drivers_BusIn BusIn class
- * \ingroup drivers-public-api-bus
+ * \ingroup drivers-public-api-gpio
  * @{
  */
 

@@ -22,7 +22,7 @@
 
 /**
  * \defgroup drivers_LinkedListBase LinkedListBase class
- * \ingroup drivers-internal-api-list
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 class LinkedListBase {

@@ -33,6 +33,11 @@ namespace mbed {
 
 /** An ethernet interface, to use with the ethernet pins.
  *
+ * @deprecated
+ * EthInterface is now the preferred way to get an Ethernet object.
+ * Alternatively, use NetworkInterface to get an instance of an appropriate network
+ * interface (WiFi or Ethernet).
+ *
  * @note Synchronization level: Not protected
  *
  * Example:
@@ -72,10 +77,12 @@ public:
 
     /** Initialize the ethernet interface.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     Ethernet();
 
     /** Powers the hardware down.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     virtual ~Ethernet();
 
     enum Mode {
@@ -96,6 +103,7 @@ public:
      *  @returns
      *   The number of written bytes.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int write(const char *data, int size);
 
     /** Send an outgoing ethernet packet.
@@ -107,6 +115,7 @@ public:
      *    0 if the sending was failed,
      *    or the size of the packet successfully sent.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int send();
 
     /** Receives an arrived ethernet packet.
@@ -119,6 +128,7 @@ public:
      *    0 if no ethernet packet is arrived,
      *    or the size of the arrived packet.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int receive();
 
     /** Read from an received ethernet packet.
@@ -134,12 +144,14 @@ public:
      *  Each time read will start reading after the last read byte before.
      *
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int read(char *data, int size);
 
     /** Gives the ethernet address of the mbed.
      *
      *  @param mac Must be a pointer to a 6 byte char array to copy the ethernet address in.
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void address(char *mac);
 
     /** Returns if an ethernet link is present or not. It takes a while after Ethernet initialization to show up.
@@ -165,6 +177,7 @@ public:
      * }
      * @endcode
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int link();
 
     /** Sets the speed and duplex parameters of an ethernet link
@@ -177,6 +190,7 @@ public:
      *
      *  @param mode the speed and duplex mode to set the link to:
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     void set_link(Mode mode);
 };
 

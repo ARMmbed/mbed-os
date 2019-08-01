@@ -31,8 +31,8 @@ namespace events {
 class TaskQueue;
 
 /**
- * \defgroup events_TaskBase TaskBase class
- * \ingroup events-internal-api
+ * \defgroup drivers_TaskBase TaskBase class
+ * \ingroup drivers-internal-api-usb
  * @{
  */
 
