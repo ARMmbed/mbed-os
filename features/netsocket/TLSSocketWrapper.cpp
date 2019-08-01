@@ -398,6 +398,9 @@ nsapi_size_or_error_t TLSSocketWrapper::recv(void *data, nsapi_size_t size)
 
 nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *data, nsapi_size_t size)
 {
+    if (address) {
+        getpeername(address);
+    }
     return recv(data, size);
 }
 
