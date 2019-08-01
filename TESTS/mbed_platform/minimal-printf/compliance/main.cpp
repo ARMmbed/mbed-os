@@ -17,7 +17,7 @@
 #ifdef TARGET_LIKE_MBED
 #include "mbed.h"
 #endif
-#include "platform/minimal-printf/mbed_printf.h"
+#include "mbed_printf.h"
 
 #include "utest/utest.h"
 #include "unity/unity.h"
