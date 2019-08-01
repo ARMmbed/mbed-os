@@ -107,6 +107,17 @@ public:
         return osMessageQueueGetSpace(_id) == 0;
     }
 
+    /** Get number of queued messages in the queue.
+     *
+     * @return Number of items in the queue
+     *
+     * @note You may call this function from ISR context.
+     */
+    uint32_t count() const
+    {
+        return osMessageQueueGetCount(_id);
+    }
+
     /** Inserts the given element to the end of the queue.
      *
      * This function puts the message pointed to by `data` into the queue. The
