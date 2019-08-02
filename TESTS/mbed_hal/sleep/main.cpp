@@ -16,7 +16,7 @@
 
 #if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] sleep not supported for this target
-#endif
+#else
 
 #include "mbed.h"
 
@@ -260,3 +260,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_SLEEP

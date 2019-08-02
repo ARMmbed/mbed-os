@@ -16,7 +16,7 @@
 
 #if !DEVICE_RTC
 #error [NOT_SUPPORTED] RTC API not supported for this target
-#endif
+#else
 
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -100,3 +100,5 @@ int main()
 {
     rtc_reset_test();
 }
+
+#endif // !DEVICE_RTC

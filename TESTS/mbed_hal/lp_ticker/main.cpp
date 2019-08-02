@@ -24,7 +24,7 @@
 
 #if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Low power timer not supported for this target
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -204,3 +204,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !DEVICE_LPTICKER

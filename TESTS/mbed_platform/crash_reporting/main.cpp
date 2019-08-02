@@ -21,7 +21,7 @@
 
 #if !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
 #error [NOT_SUPPORTED] crash_reporting test not supported
-#endif
+#else
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32
@@ -78,3 +78,5 @@ int main(void)
 
     return 0;
 }
+
+#endif // !MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED

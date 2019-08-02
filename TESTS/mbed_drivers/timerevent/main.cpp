@@ -15,7 +15,7 @@
  */
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] usticker not supported for this target.
-#endif
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -26,10 +26,6 @@
 #include "rtos.h"
 
 using namespace utest::v1;
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
 
 #define TEST_DELAY_US 50000ULL
 #define DELTA         2
@@ -246,3 +242,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !DEVICE_USTICKER

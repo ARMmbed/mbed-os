@@ -68,7 +68,9 @@ using namespace utest::v1;
  *      <<< lines removed >>>
  */
 
-#if DEVICE_SPI && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
+#if !(DEVICE_SPI && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED)))
+#error [NOT_SUPPORTED] DEVICE_SPI need to be enabled for this test. SDcard need to be installed for this test.
+#else
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
 #define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/" FSFAT_FOPEN_TEST_MOUNT_PT_NAME
@@ -1553,54 +1555,6 @@ control_t fsfat_fopen_test_16(const size_t call_count)
     return CaseNext;
 }
 
-
-#else
-
-#define FSFAT_FOPEN_TEST_00      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_03      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_04      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_05      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_06      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_07      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_08      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_09      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_10      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_11      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_12      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_13      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_14      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_15      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_16      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_17      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_18      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_19      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_20      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_21      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_22      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_23      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_24      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_25      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_26      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_27      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_28      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_29      fsfat_fopen_test_dummy
-#define FSFAT_FOPEN_TEST_30      fsfat_fopen_test_dummy
-
-/** @brief  fsfat_fopen_test_dummy    Dummy test case for testing when platform doesnt have an SDCard installed.
- *
- * @return success always
- */
-static control_t fsfat_fopen_test_dummy()
-{
-    printf("Null test\n");
-    return CaseNext;
-}
-
-#endif
-
-
 /// @cond FSFAT_DOXYGEN_DISABLE
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -1641,3 +1595,4 @@ int main()
     return !Harness::run(specification);
 }
 /// @endcond
+#endif // !(DEVICE_SPI && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED)))

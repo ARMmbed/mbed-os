@@ -22,7 +22,7 @@
 
 #if !MBED_CONF_RTOS_PRESENT
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define THREAD_STACK 512
 
@@ -279,3 +279,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif // !MBED_CONF_RTOS_PRESENT

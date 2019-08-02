@@ -16,7 +16,7 @@
 
 #if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Low power timer not supported for this target
-#endif
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -93,3 +93,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_LPTICKER

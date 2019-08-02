@@ -22,13 +22,9 @@
 #include "SingletonPtr.h"
 #include <stdio.h>
 
-#ifdef MBED_RTOS_SINGLE_THREAD
-#error [NOT_SUPPORTED] test not supported for single threaded enviroment
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
+#error [NOT_SUPPORTED] Test not supported for single threaded enviroment. UsTicker need to be enabled for this test.
+#else
 
 using namespace utest::v1;
 
@@ -135,3 +131,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

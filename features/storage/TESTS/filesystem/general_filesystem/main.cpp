@@ -30,6 +30,7 @@
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
 
+#if COMPONENT_SPIF || COMPONENT_SD
 using namespace utest::v1;
 using namespace mbed;
 
@@ -2105,3 +2106,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // COMPONENT_SPIF || COMPONENT_SD

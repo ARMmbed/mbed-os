@@ -16,7 +16,7 @@
 
 #if !DEVICE_QSPI
 #error [NOT_SUPPORTED] QSPI not supported for this target
-#endif
+#else
 
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -30,7 +30,7 @@
 
 #if !defined(QSPI_FLASH_CHIP_STRING)
 #error [NOT_SUPPORTED] QSPI test not supported for this target
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -602,3 +602,5 @@ int main()
     Harness::run(specification);
 }
 
+#endif // !defined(QSPI_FLASH_CHIP_STRING)
+#endif // !DEVICE_QSPI
