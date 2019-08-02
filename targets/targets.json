@@ -2333,6 +2333,7 @@
             "FLASH"
         ],
         "device_has_remove": ["LPTICKER"],
+        "macros_remove": ["MBED_TICKLESS"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
     },
@@ -2355,7 +2356,7 @@
             }
         },
         "detect_code": ["0835"],
-        "macros_add": ["USBHOST_OTHER", "MBED_TICKLESS"],
+        "macros_add": ["USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2366,6 +2367,7 @@
             "MPU",
             "USBDEVICE"
         ],
+        "macros_remove": ["MBED_TICKLESS"],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F207ZG",
@@ -3503,6 +3505,7 @@
         ],
         "device_has_remove": ["LPTICKER"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_SPLIT_HEAP"],
+        "macros_remove": ["MBED_TICKLESS"],
         "device_name": "STM32L443RC",
         "detect_code": ["0458"],
         "bootloader_supported": true
@@ -3640,6 +3643,7 @@
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
+        "macros_remove": ["MBED_TICKLESS"],
         "release_versions": ["5"],
         "device_name": "STM32L486RG",
         "bootloader_supported": true,
@@ -3665,6 +3669,7 @@
             "SERIAL_FC"
         ],
         "macros_add": ["USB_STM_HAL"],
+        "macros_remove": ["MBED_TICKLESS"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI | USE_PLL_MSI",
@@ -3975,6 +3980,7 @@
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
+        "macros_remove": ["MBED_TICKLESS"],
         "device_name": "STM32F469NI",
         "release_versions": ["5"],
         "detect_code": ["0604"]
@@ -4069,6 +4075,7 @@
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
+        "macros_remove": ["MBED_TICKLESS"],
         "release_versions": ["5"],
         "device_name": "STM32L082CZ"
     },
@@ -7622,7 +7629,6 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=3",
-            "MBED_TICKLESS"
         ],
         "device_has": [
             "USTICKER",
