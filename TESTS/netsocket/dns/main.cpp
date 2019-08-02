@@ -70,13 +70,13 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
     for (unsigned int i = 0; i < op_count; i++) {
         data[i].semaphore = &semaphore;
         nsapi_error_t err = net->gethostbyname_async(hosts[i], mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data[i]));
-        TEST_ASSERT(err >= 0 || err == NSAPI_ERROR_NO_MEMORY);
+        TEST_ASSERT(err >= 0 || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_BUSY);
         if (err >= 0) {
             // Callback will be called
             count++;
         } else {
             // No memory to initiate DNS query, callback will not be called
-            data[i].result = NSAPI_ERROR_NO_MEMORY;
+            data[i].result = err;
         }
     }
 
@@ -87,7 +87,7 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
 
     // Print result
     for (unsigned int i = 0; i < op_count; i++) {
-        TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
+        TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_BUSY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
         if (data[i].result == NSAPI_ERROR_OK) {
             (*exp_ok)++;
             printf("DNS: query \"%s\" => \"%s\"\n",
@@ -101,6 +101,9 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
         } else if (data[i].result == NSAPI_ERROR_NO_MEMORY) {
             (*exp_no_mem)++;
             printf("DNS: query \"%s\" => no memory\n", hosts[i]);
+        } else if (data[i].result == NSAPI_ERROR_BUSY) {
+            (*exp_no_mem)++;
+            printf("DNS: query \"%s\" => busy\n", hosts[i]);
         }
     }
 
@@ -135,9 +138,12 @@ void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_cou
         } else if (err == NSAPI_ERROR_NO_MEMORY) {
             (*exp_no_mem)++;
             printf("DNS: query \"%s\" => no memory\n", hosts[i]);
+        } else if (err == NSAPI_ERROR_BUSY) {
+            (*exp_no_mem)++;
+            printf("DNS: query \"%s\" => busy\n", hosts[i]);
         } else {
             printf("DNS: query \"%s\" => %d, unexpected answer\n", hosts[i], err);
-            TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
+            TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_BUSY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
         }
     }
 }
@@ -181,12 +187,18 @@ Case cases[] = {
     Case("ASYNCHRONOUS_DNS", ASYNCHRONOUS_DNS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS", ASYNCHRONOUS_DNS_SIMULTANEOUS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE", ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE),
+#ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     Case("ASYNCHRONOUS_DNS_CACHE", ASYNCHRONOUS_DNS_CACHE),
+#endif
+#if !defined MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES || MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES > MBED_CONF_APP_DNS_TEST_HOSTS_NUM
     Case("ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC", ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC),
+#endif
     Case("ASYNCHRONOUS_DNS_CANCEL", ASYNCHRONOUS_DNS_CANCEL),
+#ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     Case("ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE", ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE),
     Case("ASYNCHRONOUS_DNS_INVALID_HOST", ASYNCHRONOUS_DNS_INVALID_HOST),
     Case("ASYNCHRONOUS_DNS_TIMEOUTS", ASYNCHRONOUS_DNS_TIMEOUTS),
+#endif
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT",  ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT),
     Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
     Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),

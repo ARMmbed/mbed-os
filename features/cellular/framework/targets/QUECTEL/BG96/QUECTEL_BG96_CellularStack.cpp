@@ -21,9 +21,15 @@
 using namespace mbed;
 
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    , _dns_callback(NULL), _dns_version(NSAPI_UNSPEC)
+#endif
 {
     _at.set_urc_handler("+QIURC: \"recv", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_recv));
     _at.set_urc_handler("+QIURC: \"close", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_closed));
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+    _at.set_urc_handler("+QIURC: \"dnsgip\",", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_dnsgip));
+#endif
 }
 
 QUECTEL_BG96_CellularStack::~QUECTEL_BG96_CellularStack()
@@ -101,6 +107,41 @@ void QUECTEL_BG96_CellularStack::urc_qiurc_closed()
 {
     urc_qiurc(URC_CLOSED);
 }
+
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+bool QUECTEL_BG96_CellularStack::read_dnsgip(SocketAddress &address, nsapi_version_t _dns_version)
+{
+    if (_at.read_int() == 0) {
+        int count = _at.read_int();
+        _at.skip_param();
+        for (; count > 0; count--) {
+            _at.resp_start("+QIURC: \"dnsgip\",");
+            char ipAddress[NSAPI_IP_SIZE];
+            _at.read_string(ipAddress, sizeof(ipAddress));
+            if (address.set_ip_address(ipAddress)) {
+                if (_dns_version == NSAPI_UNSPEC || _dns_version == address.get_ip_version()) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void QUECTEL_BG96_CellularStack::urc_qiurc_dnsgip()
+{
+    if (!_dns_callback) {
+        return;
+    }
+    SocketAddress address;
+    if (read_dnsgip(address, _dns_version)) {
+        _dns_callback(NSAPI_ERROR_OK, &address);
+    } else {
+        _dns_callback(NSAPI_ERROR_DNS_FAILURE, NULL);
+    }
+    _dns_callback = NULL;
+}
+#endif
 
 void QUECTEL_BG96_CellularStack::urc_qiurc(urc_type_t urc_type)
 {
@@ -299,3 +340,64 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
 
     return recv_len;
 }
+
+#ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
+nsapi_error_t QUECTEL_BG96_CellularStack::gethostbyname(const char *host, SocketAddress *address,
+                                                        nsapi_version_t version, const char *interface_name)
+{
+    (void) interface_name;
+    MBED_ASSERT(host);
+    MBED_ASSERT(address);
+
+    _at.lock();
+
+    if (_dns_callback) {
+        _at.unlock();
+        return NSAPI_ERROR_BUSY;
+    }
+
+    if (!address->set_ip_address(host)) {
+        _at.set_at_timeout(60 * 1000); // from BG96_TCP/IP_AT_Commands_Manual_V1.0
+        _at.at_cmd_discard("+QIDNSGIP", "=", "%d%s", _cid, host);
+        _at.resp_start("+QIURC: \"dnsgip\",");
+        _at.restore_at_timeout();
+        if (!read_dnsgip(*address, version)) {
+            _at.unlock();
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+    }
+
+    return _at.unlock_return_error();
+}
+
+nsapi_value_or_error_t QUECTEL_BG96_CellularStack::gethostbyname_async(const char *host, hostbyname_cb_t callback,
+                                                                       nsapi_version_t version, const char *interface_name)
+{
+    (void) interface_name;
+    MBED_ASSERT(host);
+    MBED_ASSERT(callback);
+
+    _at.lock();
+
+    if (_dns_callback) {
+        _at.unlock();
+        return NSAPI_ERROR_BUSY;
+    }
+
+    _at.at_cmd_discard("+QIDNSGIP", "=", "%d%s", _cid, host);
+    if (!_at.get_last_error()) {
+        _dns_callback = callback;
+        _dns_version = version;
+    }
+
+    return _at.unlock_return_error() ? NSAPI_ERROR_DNS_FAILURE : NSAPI_ERROR_OK;
+}
+
+nsapi_error_t QUECTEL_BG96_CellularStack::gethostbyname_async_cancel(int id)
+{
+    _at.lock();
+    _dns_callback = NULL;
+    _at.unlock();
+    return NSAPI_ERROR_OK;
+}
+#endif
