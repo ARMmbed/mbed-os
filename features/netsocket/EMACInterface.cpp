@@ -95,6 +95,15 @@ const char *EMACInterface::get_ip_address()
     return NULL;
 }
 
+nsapi_error_t EMACInterface::get_ipv6_link_local_address(SocketAddress *address)
+{
+    if (_interface) {
+        return _interface->get_ipv6_link_local_address(address);
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
 const char *EMACInterface::get_netmask()
 {
     if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {

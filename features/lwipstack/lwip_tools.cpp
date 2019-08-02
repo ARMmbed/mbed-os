@@ -79,6 +79,23 @@ const ip_addr_t *LWIP::get_ipv4_addr(const struct netif *netif)
     return NULL;
 }
 
+const ip_addr_t *LWIP::get_ipv6_link_local_addr(const struct netif *netif)
+{
+#if LWIP_IPV6
+    if (!netif_is_up(netif)) {
+        return NULL;
+    }
+
+    for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+        if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
+                ip6_addr_islinklocal(netif_ip6_addr(netif, i))) {
+            return netif_ip_addr6(netif, i);
+        }
+    }
+#endif
+    return NULL;
+}
+
 const ip_addr_t *LWIP::get_ipv6_addr(const struct netif *netif)
 {
 #if LWIP_IPV6

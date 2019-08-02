@@ -119,6 +119,16 @@ public:
 
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen) = 0;
 
+        /** Copies IPv6 link local address of the network interface in SocketAddress format
+         *
+         *  @address        SocketAddress representation of the link local IPv6 address
+         *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+         */
+        virtual nsapi_error_t get_ipv6_link_local_address(SocketAddress *address)
+        {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+
         /** Copies IP address of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
