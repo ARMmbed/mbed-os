@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include "mbed_power_mgmt.h"
 #include "common_functions.h"
 #include "platform/arm_hal_interrupt.h"
 #include "platform/arm_hal_phy.h"
@@ -87,8 +88,9 @@ static uint8_t MAC64_addr[8];
 
 static xcvrState_t mPhySeqState;
 static uint8_t rf_mac_handle;
-volatile uint8_t rf_ed_value = 0;
-static bool rf_ack_pending_state = false;
+static volatile uint8_t rf_ed_value = 0;
+static volatile bool rf_ack_pending_state = false;
+static volatile bool sleep_blocked = false;
 
 static NanostackRfPhyKw41z *rf = NULL;
 
@@ -155,6 +157,11 @@ static int8_t rf_device_register(void)
 static void rf_device_unregister(void)
 {
     arm_net_phy_unregister(rf_radio_driver_id);
+
+    if (sleep_blocked) {
+        sleep_manager_unlock_deep_sleep();
+        sleep_blocked = false;
+    }
 }
 
 /*
@@ -209,15 +216,28 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
         /*Reset PHY driver and set to idle*/
         case PHY_INTERFACE_RESET:
             rf_abort();
+            if (sleep_blocked) {
+                sleep_manager_unlock_deep_sleep();
+                sleep_blocked = false;
+            }
             break;
         /*Disable PHY Interface driver*/
         case PHY_INTERFACE_DOWN:
             rf_abort();
+            if (sleep_blocked) {
+                sleep_manager_unlock_deep_sleep();
+                sleep_blocked = false;
+            }
             break;
         /*Enable PHY Interface driver*/
         case PHY_INTERFACE_UP:
             if (PhyPlmeSetCurrentChannelRequest(rf_channel, 0)) {
                 return 1;
+            }
+            if (!sleep_blocked) {
+                /* Disable enter to deep sleep when transfer active */
+                sleep_manager_lock_deep_sleep();
+                sleep_blocked = true;
             }
             rf_receive();
             break;
@@ -226,6 +246,11 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
             if (PhyPlmeSetCurrentChannelRequest(rf_channel, 0)) {
                 return 1;
             }
+            if (!sleep_blocked) {
+                /* Disable enter to deep sleep when transfer active */
+                sleep_manager_lock_deep_sleep();
+                sleep_blocked = true;
+            }
             rf_abort();
             rf_mac_ed_state_enable();
             break;
@@ -233,6 +258,11 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
             rf_promiscuous(1);
             if (PhyPlmeSetCurrentChannelRequest(rf_channel, 0)) {
                 return 1;
+            }
+            if (!sleep_blocked) {
+                /* Disable enter to deep sleep when transfer active */
+                sleep_manager_lock_deep_sleep();
+                sleep_blocked = true;
             }
             rf_receive();
             break;
