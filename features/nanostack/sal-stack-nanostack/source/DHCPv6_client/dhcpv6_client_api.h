@@ -100,7 +100,7 @@ void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uin
 
 void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16]);
 
-int dhcp_client_server_address_update(int8_t interface, uint8_t prefix[static 16], uint8_t server_address[static 16]);
+int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16]);
 
 
 

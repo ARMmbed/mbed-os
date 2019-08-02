@@ -118,6 +118,8 @@ int ws_management_network_size_set(
 
     if (network_size == NETWORK_SIZE_LARGE) {
         ws_common_network_size_configure(cur, 5000);
+    } else if (network_size == NETWORK_SIZE_MEDIUM) {
+        ws_common_network_size_configure(cur, 200);
     } else {
         ws_common_network_size_configure(cur, 10);
     }

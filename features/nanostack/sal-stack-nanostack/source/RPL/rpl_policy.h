@@ -54,5 +54,7 @@ uint_fast8_t rpl_policy_mrhof_parent_set_size(const rpl_domain_t *domain);
 uint16_t rpl_policy_mrhof_max_link_metric(const rpl_domain_t *domain);
 uint16_t rpl_policy_mrhof_parent_switch_threshold(const rpl_domain_t *domain);
 uint16_t rpl_policy_mrhof_max_rank_stretch_for_extra_parents(const rpl_domain_t *domain);
+bool rpl_policy_parent_confirmation_requested(void);
+void rpl_policy_set_parent_confirmation_request(bool confirmation_requested);
 
 #endif /* RPL_POLICY_H_ */

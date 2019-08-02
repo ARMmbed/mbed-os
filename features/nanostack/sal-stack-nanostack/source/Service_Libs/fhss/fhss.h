@@ -97,7 +97,6 @@ struct fhss_bs {
     uint16_t channel_list_counter;
     uint16_t synch_panid;
     uint32_t synch_interval;
-    struct fhss_statistics *fhss_stats_ptr;
     struct fhss_beacon_info *fhss_beacon_info_store;
     struct fhss_configuration fhss_configuration;
     struct fhss_synch_configuration synch_configuration;

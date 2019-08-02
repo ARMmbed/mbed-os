@@ -828,6 +828,8 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     }
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
+    } else {
+        tr_warn("dhcp service socket_sendto %s", trace_ipv6(msg_tr_ptr->addr.address));
     }
 }
 bool dhcp_service_timer_tick(uint16_t ticks)

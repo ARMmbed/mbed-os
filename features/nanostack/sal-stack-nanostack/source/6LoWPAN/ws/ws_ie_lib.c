@@ -111,10 +111,10 @@ uint8_t *ws_wh_fc_write(uint8_t *ptr, uint8_t flow_ctrl)
     return ptr;
 }
 
-uint8_t *ws_wh_rsl_write(uint8_t *ptr, int8_t rssi)
+uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
 {
     ptr = ws_wh_header_base_write(ptr, 1, WH_IE_RSL_TYPE);
-    *ptr++ = rssi;
+    *ptr++ = rsl;
     return ptr;
 }
 

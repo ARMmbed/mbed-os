@@ -97,6 +97,11 @@ static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int l
 #endif
 
 #ifdef MBEDTLS_PLATFORM_MEMORY
+// Disable for now
+//#define TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
+#endif
+
+#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
 static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
 static void tls_sec_prot_lib_mem_free(void *ptr);
 #endif
@@ -105,9 +110,8 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 {
     const char *pers = "ws_tls";
 
-#ifdef MBEDTLS_PLATFORM_MEMORY
-    // Disable for now
-    //mbedtls_platform_set_calloc_free(tls_sec_prot_lib_mem_calloc, tls_sec_prot_lib_mem_free);
+#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
+    mbedtls_platform_set_calloc_free(tls_sec_prot_lib_mem_calloc, tls_sec_prot_lib_mem_free);
 #endif
 
 
@@ -497,7 +501,7 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     return (0);
 }
 
-#ifdef MBEDTLS_PLATFORM_MEMORY
+#ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
 static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size)
 {
     void *mem_ptr = ns_dyn_mem_temporary_alloc(count * size);

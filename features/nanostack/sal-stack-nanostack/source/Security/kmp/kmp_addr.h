@@ -26,18 +26,9 @@ typedef enum {
 typedef struct {
     uint8_t type;
     uint8_t eui_64[8];
+    address_t relay_address;
+    uint16_t port;
 } kmp_addr_t;
-
-/**
- * kmp_address_create creates address
- *
- * \param type address type
- * \param eui_64 EUI-64
- *
- * \return address
- *
- */
-kmp_addr_t *kmp_address_create(kmp_addr_e type, const uint8_t *eui_64);
 
 /**
  * kmp_address_init initializes address
@@ -49,13 +40,6 @@ kmp_addr_t *kmp_address_create(kmp_addr_e type, const uint8_t *eui_64);
  */
 void kmp_address_init(kmp_addr_e type, kmp_addr_t *addr, const uint8_t *eui_64);
 
-/**
- * kmp_address_delete deletes address
- *
- * \param addr address
- *
- */
-void kmp_address_delete(kmp_addr_t *addr);
 
 /**
  * kmp_address_eui_64_get get EUI-64
@@ -77,15 +61,6 @@ const uint8_t *kmp_address_eui_64_get(const kmp_addr_t *addr);
  */
 const uint8_t *kmp_address_ip_get(const kmp_addr_t *addr);
 
-/**
- * kmp_address_port_get get port
- *
- * \param addr address
- *
- * \return port
- *
- */
-uint16_t kmp_address_port_get(const kmp_addr_t *addr);
 
 /**
  * kmp_address_eui_64_set set EUI-64
@@ -98,30 +73,6 @@ uint16_t kmp_address_port_get(const kmp_addr_t *addr);
  *
  */
 int8_t kmp_address_eui_64_set(kmp_addr_t *addr, const uint8_t *eui64);
-
-/**
- * kmp_address_ip_set set IP address
- *
- * \param addr address
- * \param ip_addr IP address
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_address_ip_set(kmp_addr_t *addr, const uint8_t *ip_addr);
-
-/**
- * kmp_address_port_set set port address
- *
- * \param addr address
- * \param port port
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_address_port_set(kmp_addr_t *addr, const uint16_t port);
 
 /**
  * kmp_address_copy copies address

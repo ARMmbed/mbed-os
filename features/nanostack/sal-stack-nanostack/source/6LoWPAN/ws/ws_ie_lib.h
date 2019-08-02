@@ -36,7 +36,7 @@ typedef struct ws_wp_network_name {
 uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type);
 uint8_t *ws_wh_bt_write(uint8_t *ptr);
 uint8_t *ws_wh_fc_write(uint8_t *ptr, uint8_t flow_ctrl);
-uint8_t *ws_wh_rsl_write(uint8_t *ptr, int8_t rssi);
+uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl);
 uint8_t *ws_wh_vh_write(uint8_t *ptr, uint8_t *vendor_header, uint8_t vendor_header_length);
 uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64);
 

@@ -27,7 +27,12 @@
 // tag + length
 #define NVM_TLV_FIXED_LEN               4
 
-typedef struct {
+// file names
+#define NW_INFO_FILE_NAME               "pae_nw_info"
+#define KEYS_FILE_NAME                  "pae_keys"
+#define FRAME_COUNTER_FILE_NAME         "pae_frame_counter"
+
+typedef struct nvm_tlv_entry {
     ns_list_link_t link;                /**< Link */
     uint16_t tag;                       /**< Unique tag */
     uint16_t len;                       /**< Number of the bytes after the length field */

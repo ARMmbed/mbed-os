@@ -96,7 +96,7 @@ void dhcp_client_delete(int8_t interface)
 {
     protocol_interface_info_entry_t *cur = NULL;
     dhcpv6_client_server_data_t *srv_data_ptr;
-
+    uint8_t temporary_address[16];
     dhcp_service_delete(dhcp_client.service_instance);
 
 
@@ -110,9 +110,11 @@ void dhcp_client_delete(int8_t interface)
         srv_data_ptr = libdhcpv6_nonTemporal_entry_get_by_instance(dhcp_client.libDhcp_instance);
         if (srv_data_ptr != NULL) {
             tr_debug("Free DHCPv6 Client\n");
+            memcpy(temporary_address, srv_data_ptr->iaNontemporalAddress.addressPrefix, 16);
             dhcp_service_req_remove(srv_data_ptr->transActionId);// remove all pending retransmissions
-            addr_delete(cur, srv_data_ptr->iaNontemporalAddress.addressPrefix);
             libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
+            addr_delete(cur, temporary_address);
+
         }
     } while (srv_data_ptr != NULL);
     dhcp_client.service_instance = 0;
@@ -234,6 +236,9 @@ int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16
                         dhcpv6_renew(protocol_stack_interface_info_get_by_id(interface), NULL, ADDR_CALLBACK_TIMER);
                     }
                     return 0;
+                } else if (dhcp_client_server_address_update(interface, prefix, dhcp_addr) == 0) {
+                    //DHCP server address OK
+                    return 0;
                 }
             }
             return -1;
@@ -302,7 +307,7 @@ int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16
     return 0;
 }
 
-int dhcp_client_server_address_update(int8_t interface, uint8_t prefix[static 16], uint8_t server_address[static 16])
+int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16])
 {
     dhcpv6_client_server_data_t *srv_data_ptr = NULL;
 
@@ -446,6 +451,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         // Default retry values are modified from specification update to message
         dhcp_service_set_retry_timers(srv_data_ptr->transActionId, dhcp_client.sol_timeout, dhcp_client.sol_max_rt, dhcp_client.sol_max_rc);
     }
+    tr_error("DHCP renew send OK");
 }
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr)

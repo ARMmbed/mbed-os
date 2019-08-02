@@ -24,6 +24,7 @@
 #include "Service_Libs/fhss/fhss.h"
 #include "Service_Libs/fhss/fhss_common.h"
 #include "Service_Libs/fhss/fhss_ws.h"
+#include "Service_Libs/fhss/fhss_statistics.h"
 #include "ns_trace.h"
 
 #define TRACE_GROUP "fhss"
@@ -137,4 +138,13 @@ int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count
         return -1;
     }
     return fhss_ws_set_hop_count(fhss_structure, hop_count);
+}
+
+int ns_fhss_statistics_start(const fhss_api_t *fhss_api, fhss_statistics_t *fhss_statistics)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure) {
+        return -1;
+    }
+    return fhss_statistics_start(fhss_structure, fhss_statistics);
 }

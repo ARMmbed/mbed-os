@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FHSS_STATISTICS_H_
-#define FHSS_STATISTICS_H_
 
-typedef enum {
-    STATS_FHSS_DRIFT_COMP,
-    STATS_FHSS_HOP_COUNT,
-    STATS_FHSS_SYNCH_INTERVAL,
-    STATS_FHSS_AVG_SYNCH_FIX,
-    STATS_FHSS_SYNCH_LOST,
-    STATS_FHSS_UNKNOWN_NEIGHBOR,
-    STATS_FHSS_CHANNEL_RETRY
-} fhss_stats_type_t;
+/**
+ * \file ns_monitor.h
+ * \brief Utility functions concerning IPv6 stack monitoring.
+ *
+ * Module can monitor nanostack heap usage and release memory if heap usage is too high.
+ * Mmeory monitoring can work if memory statistics are enabled in nsdynmemLIB.
+ *
+ */
 
-void fhss_stats_update(fhss_structure_t *fhss_structure, fhss_stats_type_t type, uint32_t update_val);
-int fhss_statistics_start(fhss_structure_t *fhss_structure, fhss_statistics_t *fhss_statistics);
+#ifndef _NS_MONITOR_H
+#define _NS_MONITOR_H
 
-#endif /* FHSS_STATISTICS_H_ */
+int ns_monitor_init(void);
+
+int ns_monitor_clear(void);
+
+void ns_monitor_timer(uint16_t seconds);
+
+int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical);
+
+#endif // _NS_MONITOR_H
+

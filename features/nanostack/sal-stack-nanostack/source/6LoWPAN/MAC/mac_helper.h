@@ -115,7 +115,7 @@ int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr
 
 int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr);
 
-void mac_helper_devicetable_remove(struct mac_api_s *mac_api, uint8_t attribute_index);
+void mac_helper_devicetable_remove(struct mac_api_s *mac_api, uint8_t attribute_index, uint8_t *mac64);
 
 void mac_helper_device_description_write(struct protocol_interface_info_entry *cur, mlme_device_descriptor_t *device_desc, uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt);
 
