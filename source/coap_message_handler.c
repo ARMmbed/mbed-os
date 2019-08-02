@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -192,14 +192,16 @@ static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_
     coap_transaction_t *this = NULL;
     (void)param;
 
+    if (!resp_ptr || !address_ptr) {
+        return -1;
+    }
+
+    tr_warn("transaction was not handled %d", resp_ptr->msg_id);
+
     if (resp_ptr->coap_status == COAP_STATUS_BUILDER_BLOCK_SENDING_DONE) {
         return 0;
     }
 
-    tr_warn("transaction was not handled %d", resp_ptr->msg_id);
-    if (!resp_ptr || !address_ptr) {
-        return -1;
-    }
     if (resp_ptr->token_ptr) {
         this = transaction_find_client_by_token(resp_ptr->token_ptr, resp_ptr->token_len, address_ptr->addr_ptr, address_ptr->port);
     }
