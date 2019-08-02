@@ -129,7 +129,7 @@ void overflow_protect()
         return;
     }
 
-    while (intf->read() > ticks_now);
+    while (intf->read() >= ticks_now);
 }
 
 void ticker_event_handler_stub(const ticker_data_t *const ticker)
