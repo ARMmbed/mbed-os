@@ -54,7 +54,8 @@ public:
     enum AuthenticationType {
         NOAUTH = 0,
         PAP,
-        CHAP
+        CHAP,
+        AUTOMATIC
     };
 
     /*  whether the additional exception reports are allowed to be sent when the maximum uplink rate is reached */

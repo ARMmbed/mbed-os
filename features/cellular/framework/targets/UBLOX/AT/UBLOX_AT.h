@@ -27,7 +27,11 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
+#include "APN_db.h"
 #include "AT_CellularDevice.h"
+#include "AT_CellularContext.h"
+#include "UBLOX_AT_CellularNetwork.h"
+#include "UBLOX_AT_CellularContext.h"
 
 namespace mbed {
 
@@ -40,6 +44,32 @@ protected: // AT_CellularDevice
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);
+
+    virtual nsapi_error_t init();
+
+private:
+
+    UBLOX_AT_CellularContext *ubx_context;
+
+    /** Length of IMSI buffer.
+     */
+    static const int MAX_IMSI_LENGTH = 15;
+
+    const char *apn;
+    const char *uname;
+    const char *pwd;
+
+    /** The type of authentication to use.
+     */
+    CellularContext::AuthenticationType auth;
+
+    nsapi_error_t config_authentication_parameters();
+
+    nsapi_error_t set_authentication_parameters(const char *apn, const char *username, const char *password, CellularContext::AuthenticationType auth);
+
+    /** Read IMSI of modem.
+     */
+    nsapi_error_t get_imsi(char *imsi);
 };
 
 } // namespace mbed

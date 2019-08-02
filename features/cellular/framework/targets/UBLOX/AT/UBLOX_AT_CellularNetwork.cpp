@@ -34,35 +34,74 @@ UBLOX_AT_CellularNetwork::~UBLOX_AT_CellularNetwork()
 nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     nsapi_error_t ret = NSAPI_ERROR_OK;
+    CellularNetwork::AttachStatus status;
 
+    get_attach(status);
+    if (status == Attached) {
+        tr_debug("RAT should only be set in detached state");
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    _at.lock();
     switch (opRat) {
-#if defined(TARGET_UBLOX_C030_U201) || defined(TARGET_UBLOX_C027)
-        case RAT_GSM:
-        case RAT_GSM_COMPACT:
-            break;
         case RAT_EGPRS:
+#if defined (TARGET_UBLOX_C030_R412M)
+            _at.cmd_start("AT+URAT=9,8");
+            _at.cmd_stop_read_resp();
             break;
-#elif defined(TARGET_UBLOX_C030_U201)
+#endif
+#if defined(TARGET_UBLOX_C030_U201)
+        case RAT_GSM:
+            _at.cmd_start("AT+URAT=0,0");
+            _at.cmd_stop_read_resp();
+            break;
         case RAT_UTRAN:
-            break;
         case RAT_HSDPA:
-            break;
         case RAT_HSUPA:
-            break;
         case RAT_HSDPA_HSUPA:
+            _at.cmd_start("AT+URAT=2,2");
+            _at.cmd_stop_read_resp();
             break;
 #elif defined(TARGET_UBLOX_C030_R41XM)
         case RAT_CATM1:
+            _at.cmd_start("AT+URAT=7,8");
+            _at.cmd_stop_read_resp();
             break;
-#elif defined(TARGET_UBLOX_C030_R41XM) || defined(TARGET_UBLOX_C030_N211)
         case RAT_NB1:
+            _at.cmd_start("AT+URAT=8,7");
+            _at.cmd_stop_read_resp();
             break;
 #endif
-        default: {
+        default:
             _op_act = RAT_UNKNOWN;
             ret = NSAPI_ERROR_UNSUPPORTED;
-        }
+            break;
     }
+    _at.unlock();
+    ubx_reboot();
 
     return (ret);
+}
+
+nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
+{
+    _at.lock();
+    _at.cmd_start("AT+CFUN=15");
+    _at.cmd_stop_read_resp();
+
+    Timer t1;
+    t1.start();
+    while (!(t1.read() >= 30)) {
+        _at.cmd_start("ATE0"); // echo off
+        _at.cmd_stop_read_resp();
+        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+            break;
+        } else {
+            _at.clear_error();
+            wait_ms(1000);
+        }
+    }
+    t1.stop();
+    _at.unlock();
+    return _at.get_last_error();
 }
