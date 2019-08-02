@@ -126,7 +126,7 @@ static void mac_sec_mib_key_device_description_remove_from_list(mlme_key_descrip
             *prev = *cur;
         } else if (cur->DeviceDescriptorHandle == device_descriptor_handle) {
             removed_entry = true;
-            tr_debug("Remove user %u from key", device_descriptor_handle);
+            //tr_debug("Remove user %u from key", device_descriptor_handle);
         }
         prev = cur;
         cur++;
@@ -244,10 +244,10 @@ int8_t mac_sec_mib_device_description_set(uint8_t atribute_index, mlme_device_de
     if (memcmp(device_ptr->ExtAddress, device_descriptor->ExtAddress, 8)) {
         //Remove last handles key user's
         mac_sec_mib_device_description_remove(rf_mac_setup, atribute_index);
-        tr_debug("Over write %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_ptr->ShortAddress, trace_array(device_ptr->ExtAddress, 8), device_ptr->FrameCounter);
+        //tr_debug("Over write %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_ptr->ShortAddress, trace_array(device_ptr->ExtAddress, 8), device_ptr->FrameCounter);
     }
 
-    tr_debug("Set %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_descriptor->ShortAddress, trace_array(device_descriptor->ExtAddress, 8), device_descriptor->FrameCounter);
+    //tr_debug("Set %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_descriptor->ShortAddress, trace_array(device_descriptor->ExtAddress, 8), device_descriptor->FrameCounter);
 
     *device_ptr = *device_descriptor;
     return 0;
@@ -485,7 +485,7 @@ void mac_sec_mib_device_description_blacklist(protocol_interface_rf_mac_setup_s 
     for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
         descriptor = mac_sec_mib_key_device_description_discover_from_list(&rf_mac_setup->key_description_table[i], device_handle);
         if (descriptor) {
-            tr_debug("Black listed device %u lookup%s", device_handle, trace_array(rf_mac_setup->key_description_table[i].Key, 16));
+            tr_debug("Black listed device %u", device_handle);
             descriptor->Blacklisted = true;
         }
 

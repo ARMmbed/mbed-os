@@ -100,7 +100,6 @@ bool blacklist_reject(const uint8_t *ll64_address)
             tr_debug("blacklist full reject");
             return true;
         } else {
-            tr_debug("blacklist not found %s", trace_array(ll64_address + 8, 8));
             return false;
         }
     }
@@ -144,7 +143,6 @@ void blacklist_update(const uint8_t *ll64_address, bool success)
             }
             /* TTL is blacklist entry lifetime + from 1.0 to 1.5 * interval */
             blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + randLIB_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
-            tr_debug("Blacklist updated, ttl=%"PRIu16, blacklist_entry->ttl);
         } else {
             tr_debug("Blacklist add");
             blacklist_entry_add(ll64_address + 8);

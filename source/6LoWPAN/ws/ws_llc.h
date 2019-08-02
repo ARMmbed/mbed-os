@@ -99,11 +99,12 @@ typedef void ws_asynch_confirm(struct protocol_interface_info_entry *interface, 
  * @param mac_64 Neighbor 64-bit address
  * @param neighbor_buffer Buffer where neighbor infor is buffered
  * @param request_new true if is possible to allocate new entry
+ * @param multicast true if packet is multicast
  *
  * @return true when neighbor info is available
  * @return false when no neighbor info
  */
-typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new);
+typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast);
 
 /**
  * @brief ws_llc_create ws LLC module create

@@ -27,6 +27,7 @@
 #include "6LoWPAN/ws/ws_common.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
+#include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/blacklist/blacklist.h"
 #include "ws_management_api.h"
@@ -35,7 +36,9 @@
 #ifdef HAVE_WS
 #define TRACE_GROUP "wscm"
 
-int8_t DEVICE_MIN_SENS = -93;
+// estimated sensitivity -93 dbm converted to Wi-SUN RSL range
+// This provides a range of -174 (0) to +80 (254) dBm
+uint8_t DEVICE_MIN_SENS = 174 - 93;
 
 #define TRICKLE_IMIN_60_SECS (60 * 10)
 #define TRICKLE_IMIN_30_SECS (30 * 10)
@@ -50,7 +53,7 @@ static const trickle_params_t trickle_params_pan_discovery_large = {
 
 static const trickle_params_t trickle_params_pan_discovery_medium = {
     .Imin = TRICKLE_IMIN_30_SECS,           /* 30 second; ticks are 1s */
-    .Imax = TRICKLE_IMIN_30_SECS << 3,      /* 240 seconds 4 min*/
+    .Imax = TRICKLE_IMIN_30_SECS << 5,      /* 960 seconds 16 min*/
                                  .k = 1,    /* 1 */
                                  .TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE
 };
@@ -274,8 +277,8 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_3;
     cur->ws_info->hopping_schdule.operating_class = 2;
     ws_common_regulatory_domain_config(cur);
-    cur->ws_info->network_size_config = NETWORK_SIZE_AUTOMATIC;
-    ws_common_network_size_configure(cur, 10); // defaults to small network size
+    cur->ws_info->network_size_config = NETWORK_SIZE_MEDIUM;
+    ws_common_network_size_configure(cur, 200); // defaults to medium network size
 
     // Set defaults for the device. user can modify these.
     cur->ws_info->fhss_uc_fixed_channel = 0xffff;
@@ -314,17 +317,17 @@ void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint
         cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_medium;
         // Something in between
         // imin: 15 (32s)
-        // doublings:3 (262s)
-        // redundancy; 7
-        ws_bbr_rpl_config(15, 3, 7);
+        // doublings:5 (960s)
+        // redundancy; 10
+        ws_bbr_rpl_config(15, 5, 10);
     } else {
         // Configure the Wi-SUN discovery trickle parameters
         cur->ws_info->trickle_params_pan_discovery = trickle_params_pan_discovery_large;
         // Wi-SUN Large network parameters
         // imin: 19 (524s, 9 min)
         // doublings:1 (1048s, 17 min)
-        // redundancy; 1 Really heavy redundancy
-        ws_bbr_rpl_config(19, 1, 1);
+        // redundancy; 10 May need some tuning still
+        ws_bbr_rpl_config(19, 1, 10);
     }
     return;
 }
@@ -394,6 +397,58 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interfa
     }
     tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
     return true;
+}
+
+bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
+{
+    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_address_discover(mac_neighbor_info(interface), eui64, ADDR_802_15_4_LONG);
+    if (!neighbour) {
+        return false;
+    }
+    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbour->index);
+    ws_neighbor->negative_aro_send = true;
+    neighbour->lifetime = WS_NEIGHBOR_NOT_TRUSTED_LINK_MIN_TIMEOUT; //Remove anyway if Packet is freed before MAC push
+    return true;
+}
+
+void ws_common_etx_validate(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neigh)
+{
+    etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, neigh->index);
+
+    if (neigh->nud_active || !neigh->trusted_device || !etx_entry || etx_entry->etx_samples) {
+        return; //Do not trig Second NS if Active NUD already, not trusted or ETX samples already done
+    }
+
+    ws_bootstrap_etx_accelerate(interface, neigh);
+}
+
+uint32_t ws_common_version_lifetime_get(uint8_t config)
+{
+    uint32_t lifetime;
+    if (config == NETWORK_SIZE_SMALL) {
+        lifetime = PAN_VERSION_SMALL_NETWORK_LIFETIME;
+    } else if (config == NETWORK_SIZE_MEDIUM) {
+        lifetime = PAN_VERSION_MEDIUM_NETWORK_LIFETIME;
+    } else {
+        lifetime = PAN_VERSION_LARGE_NETWORK_LIFETIME;
+    }
+
+    return lifetime;
+
+}
+
+uint32_t ws_common_version_timeout_get(uint8_t config)
+{
+    uint32_t lifetime;
+    if (config == NETWORK_SIZE_SMALL) {
+        lifetime = PAN_VERSION_SMALL_NETWORK_TIMEOUT;
+    } else if (config == NETWORK_SIZE_MEDIUM) {
+        lifetime = PAN_VERSION_MEDIUM_NETWORK_TIMEOUT;
+    } else {
+        lifetime = PAN_VERSION_LARGE_NETWORK_TIMEOUT;
+    }
+
+    return lifetime;
 }
 
 

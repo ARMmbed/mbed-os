@@ -74,6 +74,8 @@ static void mac_pd_data_confirm_failure_handle(protocol_interface_rf_mac_setup_s
 
 static int8_t mac_tasklet_event_handler = -1;
 
+static uint32_t ns_dyn_mem_rate_limiting_threshold = 0xFFFFFFFF;
+
 /**
  * Get PHY time stamp.
  *
@@ -233,7 +235,6 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
 
     if (!rf_mac_setup->macUpState || rf_mac_setup->scan_active) {
         status = MLME_TRX_OFF;
-        tr_debug("Drop MAC tx packet when mac disabled");
         goto verify_status;
     }
 
@@ -614,11 +615,6 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
     ccm_ptr.data_ptr = (mcps_mac_payload_pointer_get(b) + openPayloadLength);
     ccm_ptr.data_len = b->mac_payload_length - openPayloadLength;
     if (ccm_process_run(&ccm_ptr) != 0) {
-        tr_warning("MIC Fail adata %s", trace_array(ccm_ptr.adata_ptr, ccm_ptr.adata_len));
-        tr_warning("Nonce %s", trace_array(ccm_ptr.exp_nonce, 13));
-        if (openPayloadLength) {
-            tr_warning("%s", tr_array(ccm_ptr.data_ptr,  ccm_ptr.data_len));
-        }
         return MLME_SECURITY_FAIL;
     }
 
@@ -660,7 +656,6 @@ static void mcps_comm_status_indication_generate(uint8_t status, mac_pre_parsed_
 static int8_t mac_data_interface_host_accept_data(mcps_data_ind_t *data_ind, protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     if ((data_ind->DstAddrMode == MAC_ADDR_MODE_16_BIT) && (data_ind->DstAddr[0] == 0xff && data_ind->DstAddr[1] == 0xff)) {
-        tr_debug("Drop Multicast packet");
         return -1;
     }
 
@@ -686,6 +681,7 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
 {
     int8_t retval = -1;
     uint8_t status;
+
     //allocate Data ind primitiv and parse packet to that
     mcps_data_ind_t *data_ind = ns_dyn_mem_temporary_alloc(sizeof(mcps_data_ind_t));
 
@@ -720,7 +716,6 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     }
 
     if (!mac_payload_information_elements_parse(buf)) {
-        tr_debug("Drop by Paylod IE");
         goto DROP_PACKET;
     }
     data_ind->msduLength = buf->mac_payload_length;
@@ -738,7 +733,6 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
 
         if (buf->fcf_dsn.frameVersion == MAC_FRAME_VERSION_2015) {
             if (!rf_mac_setup->mac_extension_enabled) {
-                tr_debug("No Ext reg");
                 goto DROP_PACKET;
             }
             mcps_data_ie_list_t ie_list;
@@ -900,7 +894,6 @@ static void mac_data_interface_parse_beacon(mac_pre_parsed_frame_t *buf, protoco
     }
 
     if (!mac_payload_information_elements_parse(buf)) {
-        tr_debug("Drop by Paylod IE");
         return;
     }
 
@@ -921,7 +914,6 @@ static void mac_data_interface_parse_beacon(mac_pre_parsed_frame_t *buf, protoco
         if (len < gts_field_length) {
             return;
         }
-//        gts_info = ptr;
         len -= gts_field_length;
         ptr += gts_field_length;
     }
@@ -976,7 +968,6 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
 {
     protocol_interface_rf_mac_setup_s *rf_mac_setup = buf->mac_class_ptr;
     if (!rf_mac_setup) {
-        tr_debug("Drop by no mac class");
         mcps_sap_pre_parsed_frame_buffer_free(buf);
         return;
     }
@@ -1081,13 +1072,11 @@ static int8_t mac_ack_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inter
     if (buf->fcf_dsn.securityEnabled) {
         uint8_t status = mac_data_interface_decrypt_packet(buf, &key);
         if (status != MLME_SUCCESS) {
-            tr_debug("ACK Decrypt fail");
             return -1;
         }
     }
 
     if (buf->mac_payload_length && !mac_payload_information_elements_parse(buf)) {
-        tr_debug("Drop ACK by Paylod IE");
         return -1;
     }
 
@@ -2068,6 +2057,12 @@ void mcps_sap_pre_parsed_frame_buffer_free(mac_pre_parsed_frame_t *buf)
 
 mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length)
 {
+    // check that system has enough space to handle the new packet
+    const mem_stat_t *ns_dyn_mem_stat = ns_dyn_mem_get_mem_stat();
+    if (ns_dyn_mem_stat && ns_dyn_mem_stat->heap_sector_allocated_bytes > ns_dyn_mem_rate_limiting_threshold) {
+        return NULL;
+    }
+
     mac_pre_parsed_frame_t *buffer = ns_dyn_mem_temporary_alloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
 
     if (buffer) {
@@ -2075,6 +2070,7 @@ mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data
         buffer->frameLength = frame_length;
         memcpy(mac_header_message_start_pointer(buffer), data_ptr, frame_length);
     }
+
     return buffer;
 }
 
@@ -2297,4 +2293,16 @@ uint8_t mcps_sap_purge_reg_handler(protocol_interface_rf_mac_setup_s *rf_mac_set
     }
 
     return confirmation.status;
+}
+
+int mcps_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage)
+{
+    const mem_stat_t *ns_dyn_mem_stat = ns_dyn_mem_get_mem_stat();
+
+    if (ns_dyn_mem_stat && free_heap_percentage < 100) {
+        ns_dyn_mem_rate_limiting_threshold = ns_dyn_mem_stat->heap_sector_size / 100 * (100 - free_heap_percentage);
+        return 0;
+    }
+
+    return -1;
 }

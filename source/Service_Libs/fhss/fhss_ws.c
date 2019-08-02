@@ -20,6 +20,7 @@
 #include "fhss_config.h"
 #include "fhss.h"
 #include "fhss_common.h"
+#include "fhss_statistics.h"
 #include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
@@ -143,7 +144,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
     fhss_struct->fhss_event_timer = eventOS_callback_timer_register(fhss_event_timer_cb);
     fhss_struct->ws->fhss_configuration = *fhss_configuration;
     fhss_struct->number_of_channels = channel_count;
-    fhss_struct->own_hop = 0xff;
+    fhss_ws_set_hop_count(fhss_struct, 0xff);
     fhss_struct->rx_channel = fhss_configuration->unicast_fixed_channel;
     fhss_struct->ws->min_synch_interval = DEFAULT_MIN_SYNCH_INTERVAL;
     fhss_set_txrx_slot_length(fhss_struct);
@@ -472,6 +473,7 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
         fhss_ws_neighbor_timing_info_t *neighbor_timing_info = fhss_structure->ws->get_neighbor_info(api, destination_address);
         if (!neighbor_timing_info) {
+            fhss_stats_update(fhss_structure, STATS_FHSS_UNKNOWN_NEIGHBOR, 1);
             return -2;
         }
         // TODO: WS bootstrap has to store neighbors number of channels
@@ -687,6 +689,7 @@ static bool fhss_ws_data_tx_fail_callback(const fhss_api_t *api, uint8_t handle,
         // Create new failure handle and return true to retransmit
         fhss_failed_handle_add(fhss_structure, handle, fhss_structure->rx_channel);
     }
+    fhss_stats_update(fhss_structure, STATS_FHSS_CHANNEL_RETRY, 1);
     return true;
 }
 
@@ -858,9 +861,11 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
                 drift_per_ms_tmp = -MAX_DRIFT_COMPENSATION_STEP;
             }
             fhss_structure->ws->drift_per_millisecond_ns += drift_per_ms_tmp;
+            fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval));
         }
         tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu32" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
+    fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));
     return 0;
 }
 
@@ -915,6 +920,8 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
 int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_count)
 {
     fhss_structure->own_hop = hop_count;
+    fhss_stats_update(fhss_structure, STATS_FHSS_HOP_COUNT, fhss_structure->own_hop);
     return 0;
 }
+
 #endif // HAVE_WS

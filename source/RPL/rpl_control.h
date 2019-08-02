@@ -147,10 +147,13 @@ void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callba
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16]);
-void rpl_control_register_address(struct protocol_interface_info_entry *interface, if_address_entry_t *addr);
-void rpl_control_address_register_done(struct buffer *buf, uint8_t status);
-bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
+bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], bool selected);
+uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_entry  *interface, bool parent_list);
 void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
+/* Parent link confirmation API extension */
+void rpl_control_request_parent_link_confirmation(bool requested);
+void rpl_control_register_address(struct protocol_interface_info_entry *interface, const uint8_t addr[16]);
+void rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
 
 /* Configure and return the routing lookup predicate for a specified RPL instance ID */
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);
@@ -172,7 +175,7 @@ uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 #define rpl_control_slow_timer(seconds) ((void) 0)
 #define rpl_control_remove_domain_from_interface(cur) ((void) 0)
 #define rpl_control_register_address(interface, addr) ((void) 0)
-#define rpl_control_address_register_done NULL
+#define rpl_control_address_register_done(interface, ll_addr, status) ((void) 0)
 
 #endif /* HAVE_RPL */
 

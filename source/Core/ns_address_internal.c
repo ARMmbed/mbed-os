@@ -865,7 +865,6 @@ void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
             }
 #endif
         } else {
-            addr->addr_reg_done = 0;
             addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FHSS_STATISTICS_H_
-#define FHSS_STATISTICS_H_
+
+#ifndef WS_STATS_H_
+#define WS_STATS_H_
+
+#ifdef HAVE_WS
 
 typedef enum {
-    STATS_FHSS_DRIFT_COMP,
-    STATS_FHSS_HOP_COUNT,
-    STATS_FHSS_SYNCH_INTERVAL,
-    STATS_FHSS_AVG_SYNCH_FIX,
-    STATS_FHSS_SYNCH_LOST,
-    STATS_FHSS_UNKNOWN_NEIGHBOR,
-    STATS_FHSS_CHANNEL_RETRY
-} fhss_stats_type_t;
+    STATS_WS_ASYNCH_TX,
+    STATS_WS_ASYNCH_RX
+} ws_stats_type_t;
 
-void fhss_stats_update(fhss_structure_t *fhss_structure, fhss_stats_type_t type, uint32_t update_val);
-int fhss_statistics_start(fhss_structure_t *fhss_structure, fhss_statistics_t *fhss_statistics);
+void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val);
 
-#endif /* FHSS_STATISTICS_H_ */
+#endif // HAVE_WS
+
+#endif // WS_STATS_H_

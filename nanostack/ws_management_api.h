@@ -77,6 +77,7 @@ extern "C" {
 
 #define NETWORK_SIZE_AUTOMATIC 0x00
 #define NETWORK_SIZE_SMALL 0x01
+#define NETWORK_SIZE_MEDIUM 0x08
 #define NETWORK_SIZE_LARGE 0x10
 
 
@@ -84,6 +85,16 @@ extern "C" {
  *
  */
 #define WS_MANAGEMENT_API_VER_2
+
+/**
+ * \brief Struct ws_statistics defines the Wi-SUN statistics storage structure.
+ */
+typedef struct ws_statistics {
+    /** Asynch TX counter */
+    uint32_t asynch_tx_count;
+    /** Asynch RX counter */
+    uint32_t asynch_rx_count;
+} ws_statistics_t;
 
 /**
  * Initialize Wi-SUN stack.
@@ -254,6 +265,30 @@ int ws_management_fhss_broadcast_channel_function_configure(
     uint16_t fixed_channel,
     uint8_t dwell_interval,
     uint32_t broadcast_interval);
+
+/**
+ * Start collecting Wi-SUN statistics.
+ *
+ * \param interface_id Network interface ID.
+ * \param stats_ptr Pointer to stored statistics.
+ *
+ * \return 0 Success.
+ * \return <0 Failure.
+ */
+int ws_statistics_start(
+    int8_t interface_id,
+    ws_statistics_t *stats_ptr);
+
+/**
+ * Stop collecting Wi-SUN statistics.
+ *
+ * \param interface_id Network interface ID.
+ *
+ * \return 0 Success.
+ * \return <0 Failure.
+ */
+int ws_statistics_stop(
+    int8_t interface_id);
 
 #ifdef __cplusplus
 }

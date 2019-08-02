@@ -33,65 +33,15 @@
 
 #define TRACE_GROUP "kmar"
 
-#define KMP_ADDR_DYN_ALLOC        0x80
-#define KMP_ADDR_TYPE_MASK        0x0F
-
-typedef struct {
-    uint8_t type;
-    uint8_t eui_64[8];
-    address_t ip_addr;
-    uint16_t port;
-} kmp_eui_64_ip_addr_t;
-
-kmp_addr_t *kmp_address_create(kmp_addr_e type, const uint8_t *eui_64)
-{
-    uint8_t size;
-    if (type == KMP_ADDR_EUI_64) {
-        size = sizeof(kmp_addr_t);
-    } else if (type == KMP_ADDR_EUI_64_AND_IP) {
-        size = sizeof(kmp_eui_64_ip_addr_t);
-    } else {
-        return 0;
-    }
-
-    kmp_addr_t *addr = ns_dyn_mem_alloc(size);
-    if (!addr) {
-        return 0;
-    }
-
-    kmp_address_init(type, addr, eui_64);
-
-    addr->type |= KMP_ADDR_DYN_ALLOC;
-
-    return addr;
-}
-
 void kmp_address_init(kmp_addr_e type, kmp_addr_t *addr, const uint8_t *eui_64)
 {
-    uint8_t size;
-    if (type == KMP_ADDR_EUI_64) {
-        size = sizeof(kmp_addr_t);
-    } else if (type == KMP_ADDR_EUI_64_AND_IP) {
-        size = sizeof(kmp_eui_64_ip_addr_t);
-    } else {
-        return;
-    }
-
-    kmp_addr_t *kmp_addr = addr;
-
-    memset(addr, 0, size);
-    kmp_addr->type = type;
+    memset(addr, 0, sizeof(kmp_addr_t));
+    addr->type = type;
     if (eui_64) {
-        memcpy(kmp_addr->eui_64, eui_64, 8);
+        memcpy(addr->eui_64, eui_64, 8);
     }
 }
 
-void kmp_address_delete(kmp_addr_t *addr)
-{
-    if (addr && (addr->type & KMP_ADDR_DYN_ALLOC)) {
-        ns_dyn_mem_free(addr);
-    }
-}
 
 const uint8_t *kmp_address_eui_64_get(const kmp_addr_t *addr)
 {
@@ -104,20 +54,11 @@ const uint8_t *kmp_address_eui_64_get(const kmp_addr_t *addr)
 
 const uint8_t *kmp_address_ip_get(const kmp_addr_t *addr)
 {
-    if (!addr || (addr->type & KMP_ADDR_TYPE_MASK) != KMP_ADDR_EUI_64_AND_IP) {
+    if (!addr || addr->type != KMP_ADDR_EUI_64_AND_IP) {
         return NULL;
     }
 
-    return ((kmp_eui_64_ip_addr_t *)addr)->ip_addr;
-}
-
-uint16_t kmp_address_port_get(const kmp_addr_t *addr)
-{
-    if (!addr || (addr->type & KMP_ADDR_TYPE_MASK) != KMP_ADDR_EUI_64_AND_IP) {
-        return 0;
-    }
-
-    return ((kmp_eui_64_ip_addr_t *)addr)->port;
+    return addr->relay_address;
 }
 
 int8_t kmp_address_eui_64_set(kmp_addr_t *addr, const uint8_t *eui64)
@@ -130,26 +71,6 @@ int8_t kmp_address_eui_64_set(kmp_addr_t *addr, const uint8_t *eui64)
     return 0;
 }
 
-int8_t kmp_address_ip_set(kmp_addr_t *addr, const uint8_t *ip_addr)
-{
-    if (!addr || !ip_addr || (addr->type & KMP_ADDR_TYPE_MASK) != KMP_ADDR_EUI_64_AND_IP) {
-        return -1;
-    }
-
-    memcpy(((kmp_eui_64_ip_addr_t *)addr)->ip_addr, ip_addr, sizeof(address_t));
-    return 0;
-}
-
-int8_t kmp_address_port_set(kmp_addr_t *addr, const uint16_t port)
-{
-    if (!addr || (addr->type & KMP_ADDR_TYPE_MASK) != KMP_ADDR_EUI_64_AND_IP) {
-        return -1;
-    }
-
-    ((kmp_eui_64_ip_addr_t *)addr)->port = port;
-    return 0;
-}
-
 int8_t kmp_address_copy(kmp_addr_t *to_addr, const kmp_addr_t *from_addr)
 {
     if (!to_addr || !from_addr) {
@@ -158,16 +79,13 @@ int8_t kmp_address_copy(kmp_addr_t *to_addr, const kmp_addr_t *from_addr)
 
     memcpy(to_addr->eui_64, from_addr->eui_64, 8);
 
-    kmp_eui_64_ip_addr_t *to_ip_addr = (kmp_eui_64_ip_addr_t *) to_addr;
-    kmp_eui_64_ip_addr_t *from_ip_addr = (kmp_eui_64_ip_addr_t *) from_addr;
-
-    if ((to_ip_addr->type & KMP_ADDR_TYPE_MASK) == KMP_ADDR_EUI_64_AND_IP
-            && (from_ip_addr->type & KMP_ADDR_TYPE_MASK) == KMP_ADDR_EUI_64_AND_IP) {
-        memcpy(to_ip_addr->ip_addr, from_ip_addr->ip_addr, sizeof(address_t));
-        to_ip_addr->port = from_ip_addr->port;
-    } else if ((to_ip_addr->type & KMP_ADDR_TYPE_MASK) == KMP_ADDR_EUI_64_AND_IP) {
-        memset(to_ip_addr->ip_addr, 0, sizeof(address_t));
-        to_ip_addr->port = 0;
+    if (to_addr->type == KMP_ADDR_EUI_64_AND_IP
+            && from_addr->type == KMP_ADDR_EUI_64_AND_IP) {
+        memcpy(to_addr->relay_address, from_addr->relay_address, sizeof(address_t));
+        to_addr->port = from_addr->port;
+    } else if (to_addr->type == KMP_ADDR_EUI_64_AND_IP) {
+        memset(to_addr->relay_address, 0, sizeof(address_t));
+        to_addr->port = 0;
     }
 
     return 0;
