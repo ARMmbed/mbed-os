@@ -93,6 +93,12 @@ const char *NetworkStack::get_ip_address()
 {
     return NULL;
 }
+
+nsapi_error_t NetworkStack::get_ipv6_link_local_address(SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 const char *NetworkStack::get_ip_address_if(const char *interface_name)
 {
     return NULL;
