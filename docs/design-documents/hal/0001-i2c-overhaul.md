@@ -50,7 +50,7 @@ Additionally, since the original implementations were added for the API, a large
 
 - `i2c_master_transfer` takes a `uint32_t` instead of a function pointer type for its `handler` argument.
 
-- `i2c_slave_receive` should return an enumeration of the slave mode. Currently, it returns one of four integers. Depending on what mode the peripheral is in, this is much more suited to an enumeration.
+- `i2c_slave_receive` should return an enumeration of the slave mode. Currently, it returns one of four integers, depending on what mode the peripheral is in. This is much more suited to an enumeration.
 
 - The behavior of the `stop` parameter in `i2c_write`  is not consistent across platforms.
 
