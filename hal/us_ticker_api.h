@@ -32,7 +32,8 @@ extern "C" {
  * Low level interface to the microsecond ticker of a target
  *
  * # Defined behavior
- * * Has a reported frequency between 250KHz and 8MHz - Verified by test ::us_ticker_info_test
+ * * Has a reported frequency between 250KHz and 8MHz for counters which are less than 32 bits wide - Verified by test ::us_ticker_info_test
+ * * Has a reported frequency up to 100MHz for counters which are 32 bits wide - Verified by test ::us_ticker_info_test
  * * Has a counter that is at least 16 bits wide - Verified by test ::us_ticker_info_test
  * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
  *
