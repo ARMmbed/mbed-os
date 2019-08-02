@@ -32,7 +32,17 @@ void us_ticker_info_test()
     const ticker_info_t *p_ticker_info = us_ticker_get_info();
 
     TEST_ASSERT(p_ticker_info->frequency >= 250000);
-    TEST_ASSERT(p_ticker_info->frequency <= 8000000);
+
+    switch (p_ticker_info->bits) {
+        case 32:
+            TEST_ASSERT(p_ticker_info->frequency <= 100000000);
+            break;
+
+        default:
+            TEST_ASSERT(p_ticker_info->frequency <= 8000000);
+            break;
+    }
+
     TEST_ASSERT(p_ticker_info->bits >= 16);
 
 #ifdef US_TICKER_PERIOD_NUM
