@@ -125,6 +125,11 @@ public:
         return NSAPI_ERROR_OK;
     }
 
+    virtual nsapi_error_t restart()
+    {
+        return NSAPI_ERROR_OK;
+    }
+
     virtual nsapi_error_t shutdown()
     {
         return NSAPI_ERROR_OK;

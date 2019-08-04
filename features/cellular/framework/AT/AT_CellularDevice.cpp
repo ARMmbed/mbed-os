@@ -318,6 +318,25 @@ void AT_CellularDevice::delete_context(CellularContext *context)
     release_at_handler(at);
 }
 
+nsapi_error_t AT_CellularDevice::restart()
+{
+    tr_debug("Restart cellular device and try to reconnect");
+
+    shutdown();
+    soft_power_off();
+    hard_power_off();
+
+    AT_CellularContext *curr = _context_list;
+    while (curr) {
+        nsapi_error_t error = curr->connect();
+        if (error != NSAPI_ERROR_OK) {
+            return error;
+        }
+        curr = (AT_CellularContext *)curr->_next;
+    }
+    return NSAPI_ERROR_OK;
+}
+
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
     if (!_network) {

@@ -59,6 +59,8 @@ public:
 
     virtual void delete_context(CellularContext *context);
 
+    virtual nsapi_error_t restart();
+
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);
 
     virtual CellularSMS *open_sms(FileHandle *fh = NULL);

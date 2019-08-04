@@ -207,6 +207,11 @@ public:
      */
     virtual void delete_context(CellularContext *context) = 0;
 
+    /** Restart the cellular device and its state machine and tries to reconnect.
+     *
+     */
+    virtual nsapi_error_t restart() = 0;
+
     /** Stop the current operation. Operations: set_device_ready, set_sim_ready, register_to_network, attach_to_network
      *
      */

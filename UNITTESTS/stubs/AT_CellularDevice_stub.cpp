@@ -134,6 +134,11 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 {
 }
 
+nsapi_error_t AT_CellularDevice::restart()
+{
+    return NSAPI_ERROR_OK;
+}
+
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
     _network = new AT_CellularNetwork(at);
