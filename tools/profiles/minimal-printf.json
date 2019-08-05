@@ -12,7 +12,7 @@
         "common": ["-DMBED_MINIMAL_PRINTF"]
     },
     "uARM": {
-        "common": ["-DMBED_MINIMAL_PRINTF", "-fno-builtin-printf"]
+        "common": ["-DMBED_MINIMAL_PRINTF"]
     },
     "IAR": {
         "common": ["-DMBED_MINIMAL_PRINTF"]
