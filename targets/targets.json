@@ -7628,7 +7628,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_FAULT_HANDLER_DISABLED",
-            "LPTICKER_DELAY_TICKS=3",
+            "LPTICKER_DELAY_TICKS=3"
         ],
         "device_has": [
             "USTICKER",
