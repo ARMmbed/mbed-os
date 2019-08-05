@@ -191,7 +191,7 @@ typedef enum {
     QSPI1_CSN = P0_17,
 
     /* Agora-specific pins */
-
+#ifdef EP_AGORA_HW_REV_1_0
     // Battery
     PIN_NAME_BATTERY                = P0_2,
     PIN_NAME_BATTERY_MONITOR_ENABLE = P1_11,
@@ -302,6 +302,119 @@ typedef enum {
     STDIO_UART_CTS = NC,
     STDIO_UART_RTS = NC,
     MDMRI = NC
+#else
+    // Battery
+    PIN_NAME_BATTERY                = P0_2,
+    PIN_NAME_BATTERY_MONITOR_ENABLE = P1_11,
+
+    // Board ID
+    PIN_NAME_BOARD_ID               = P0_3,
+    PIN_NAME_BOARD_ID_DISABLE       = P1_6,
+
+    // NFC
+    PIN_NAME_NFC1                   = P0_9,
+    PIN_NAME_NFC2                   = P0_10,
+
+    // DEBUG UART
+    PIN_NAME_DEBUG_RX               = P0_16,
+    PIN_NAME_DEBUG_TX               = P0_13,
+
+    // LoRa
+    PIN_NAME_LORA_SSN               = P1_9,
+    PIN_NAME_LORA_MOSI              = P0_11,
+    PIN_NAME_LORA_MISO              = P0_12,
+    PIN_NAME_LORA_SCLK              = P0_7,
+    PIN_NAME_LORA_RESETN            = P1_10,
+    PIN_NAME_LORA_DIO0              = P1_7,
+    PIN_NAME_LORA_DIO1              = P1_12,
+    PIN_NAME_LORA_DIO2              = P1_13,
+    PIN_NAME_LORA_DIO3              = P1_14,
+    PIN_NAME_LORA_DIO4              = P1_15,
+
+    // Cell
+    PIN_NAME_CELL_POWER_ENABLE      = P0_28,
+    PIN_NAME_CELL_ON_OFF            = P0_30,
+    PIN_NAME_CELL_HW_SHUTDOWN       = P0_24,
+    PIN_NAME_CELL_RX                = P1_1,
+    PIN_NAME_CELL_TX                = P1_2,
+    PIN_NAME_CELL_DTR               = P1_4,
+    PIN_NAME_CELL_DSR               = P1_3,
+    PIN_NAME_CELL_DCD               = P0_15,
+    PIN_NAME_CELL_RTS               = P0_14,
+    PIN_NAME_CELL_CTS               = P1_8,
+    PIN_NAME_CELL_PWRMON            = P1_15,
+
+    // Sensors (I2C)
+    PIN_NAME_SENSOR_POWER_ENABLE    = P0_31,
+    PIN_NAME_SDA                    = P0_26,
+    PIN_NAME_SCL                    = P0_27,
+
+    // Sensor interrupts
+    PIN_NAME_INT_ACCEL              = P1_5,
+    PIN_NAME_INT_LIGHT_TOF          = P0_4,
+
+    // Microphone (I2S)
+    PIN_NAME_I2S_SD                 = P0_25,
+    PIN_NAME_I2S_SCK                = P0_6,
+    PIN_NAME_I2S_WS                 = P0_8,
+
+    // QSPI
+    PIN_NAME_QSPI_IO0               = P0_20,
+    PIN_NAME_QSPI_IO1               = P0_21,
+    PIN_NAME_QSPI_IO2               = P0_22,
+    PIN_NAME_QSPI_IO3               = P0_23,
+    PIN_NAME_QSPI_CSN               = P0_17,
+    PIN_NAME_QSPI_CLK               = P0_19,
+
+    // Miscellaneous I/O
+    PIN_NAME_PUSH_BUTTON            = P0_29,
+    PIN_NAME_LED_RED                = P0_5,
+    PIN_NAME_BT840_RESETN           = P0_18,
+    PIN_NAME_BT840_SWO              = P1_0,
+
+    /* mbed pins */
+
+    // used by mbed for default serial out on printf statements
+    RX_PIN_NUMBER = PIN_NAME_DEBUG_RX,
+    TX_PIN_NUMBER = PIN_NAME_DEBUG_TX,
+    USBRX = PIN_NAME_DEBUG_RX,
+    USBTX = PIN_NAME_DEBUG_TX,
+    STDIO_UART_RX = PIN_NAME_DEBUG_RX,
+    STDIO_UART_TX = PIN_NAME_DEBUG_TX,
+
+    MDMTXD = PIN_NAME_CELL_TX,
+    MDMRXD = PIN_NAME_CELL_RX,
+    MDMCTS = PIN_NAME_CELL_CTS,
+    MDMDCD = PIN_NAME_CELL_DCD,
+    MDMDSR = PIN_NAME_CELL_DSR,
+    MDMDTR = PIN_NAME_CELL_DTR,
+    MDMRTS = PIN_NAME_CELL_RTS,
+
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = PIN_NAME_QSPI_IO0,
+    QSPI_FLASH1_IO1 = PIN_NAME_QSPI_IO1,
+    QSPI_FLASH1_IO2 = PIN_NAME_QSPI_IO2,
+    QSPI_FLASH1_IO3 = PIN_NAME_QSPI_IO3,
+    QSPI_FLASH1_SCK = PIN_NAME_QSPI_CLK,
+    QSPI_FLASH1_CSN = PIN_NAME_QSPI_CSN,
+
+    SPI_MOSI    = PIN_NAME_QSPI_IO0,
+    SPI_MISO    = PIN_NAME_QSPI_IO1,
+    SPI_SCK     = PIN_NAME_QSPI_CLK,
+    SPI_CS      = PIN_NAME_QSPI_CSN,
+
+    // LED
+    LED1 = PIN_NAME_LED_RED,
+    LED2 = LED1,
+
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
+    // Compiler complains unless these are specified
+    STDIO_UART_CTS = NC,
+    STDIO_UART_RTS = NC,
+    MDMRI = NC
+#endif
 } PinName;
 
 typedef enum {
