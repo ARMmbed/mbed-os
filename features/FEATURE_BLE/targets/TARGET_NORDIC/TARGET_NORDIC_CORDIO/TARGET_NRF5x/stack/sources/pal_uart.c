@@ -21,7 +21,7 @@
  */
 /*************************************************************************************************/
 
-#include "pal_uart.h"
+#include "stack/platform/include/pal_uart.h"
 #include "sdk_config.h"
 #include "nrfx_uarte.h"
 #include "boards.h"

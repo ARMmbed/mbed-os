@@ -24,7 +24,7 @@
 #ifndef AUDIOBOARD_H
 #define AUDIOBOARD_H
 
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 #include "nrf_gpio.h"
 
 #ifdef __cplusplus
