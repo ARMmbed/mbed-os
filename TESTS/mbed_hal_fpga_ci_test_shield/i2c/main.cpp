@@ -135,12 +135,17 @@ void i2c_test_write(PinName sda, PinName scl, uint32_t frequency, uint16_t addre
     }
 
     // Verify that the transfer was successful
-    TEST_ASSERT_EQUAL(num_dev_addr_matches, tester.num_dev_addr_matches());
+
+    // According to the I2C specification Repeated Start should be send only when direction changed or slave address changed.
+    // Some implementations sends Repeated Start even if the transfer direcion and slave address doesn't changed.
+    // To handle this below conditions has been relaxed, 'TEST_ASSERT_EQUAL(expected, actual)' changed to 'TEST_ASSERT(actual >= expected_min && actual <= expected_max)'.
+    // Following values checks were affected: num_dev_addr_matches, transfer_count, num_starts, num_acks.
+    TEST_ASSERT((tester.num_dev_addr_matches() >= num_dev_addr_matches) && (tester.num_dev_addr_matches() <= count));
     TEST_ASSERT_EQUAL(size * count, num_writes_total);
-    TEST_ASSERT_EQUAL(num_writes_total + num_dev_addr_matches, tester.transfer_count());
-    TEST_ASSERT_EQUAL(num_starts, tester.num_starts());
+    TEST_ASSERT((tester.transfer_count() >= num_writes_total + num_dev_addr_matches) && (tester.transfer_count() <= num_writes_total + count));
+    TEST_ASSERT((tester.num_starts() >= num_starts) && (tester.num_starts() <= count));
     TEST_ASSERT_EQUAL(num_stops, tester.num_stops());
-    TEST_ASSERT_EQUAL(num_acks, tester.num_acks());
+    TEST_ASSERT((tester.num_acks() >= num_acks) && (tester.num_acks() <= num_writes_total + count));
     TEST_ASSERT_EQUAL(num_nacks, tester.num_nacks());
     TEST_ASSERT_EQUAL(checksum, tester.get_receive_checksum());
     TEST_ASSERT_EQUAL(0, tester.state_num());
