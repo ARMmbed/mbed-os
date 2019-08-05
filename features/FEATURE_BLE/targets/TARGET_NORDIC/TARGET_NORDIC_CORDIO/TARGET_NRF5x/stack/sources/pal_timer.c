@@ -34,7 +34,7 @@
  */
 
 #include "nrf.h"
-#include "pal_timer.h"
+#include "stack/platform/include/pal_timer.h"
 #include "nrf_gpio.h"
 
 /**************************************************************************************************

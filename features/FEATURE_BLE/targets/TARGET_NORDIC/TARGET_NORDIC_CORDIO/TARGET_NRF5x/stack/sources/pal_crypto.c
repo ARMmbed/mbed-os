@@ -21,8 +21,8 @@
  */
 /*************************************************************************************************/
 
-#include "pal_types.h"
-#include "pal_bb_ble.h"
+#include "stack/platform/include/pal_types.h"
+#include "stack/platform/include/pal_bb_ble.h"
 #if defined(NRF52840_XXAA) && defined(FEATURE_CRYPTOCELL310) && MBED_CONF_CORDIO_LL_NRF52840_CRYPTOCELL310_ACCELERATION
 #include "crys_rsa_kg.h"
 #include "crys_dh.h"
