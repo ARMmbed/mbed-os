@@ -178,8 +178,6 @@ Case cases[] = {
     Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
 
-    Case("SPI - symbol size testing (4)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 4, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-    Case("SPI - symbol size testing (12)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 12, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
 
     Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ> >),
