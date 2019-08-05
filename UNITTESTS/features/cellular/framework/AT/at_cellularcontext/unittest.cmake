@@ -42,4 +42,6 @@ set(unittest-test-sources
   stubs/UARTSerial_stub.cpp
   stubs/SerialBase_stub.cpp
   stubs/CellularContext_stub.cpp
+  stubs/CellularUtil_stub.cpp
+  stubs/SocketAddress_stub.cpp
 )

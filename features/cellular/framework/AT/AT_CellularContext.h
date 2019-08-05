@@ -36,6 +36,7 @@ public:
     virtual nsapi_error_t set_blocking(bool blocking);
     virtual NetworkStack *get_stack();
     virtual const char *get_ip_address();
+    virtual char *get_interface_name(char *interface_name);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_error_t connect();
     virtual nsapi_error_t disconnect();
