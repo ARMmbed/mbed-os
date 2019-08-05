@@ -104,6 +104,10 @@
             "help": "Maximum timeout (ms) for TCP close handshaking timeout",
             "value": 1000
         },
+        "tcpip-thread-priority": {
+            "help": "Priority of lwip TCPIP thread",
+            "value": "osPriorityNormal"
+        },
         "pbuf-pool-size": {
             "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
             "value": null
