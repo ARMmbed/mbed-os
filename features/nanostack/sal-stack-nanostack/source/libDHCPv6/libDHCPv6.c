@@ -208,7 +208,7 @@ dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_entry_get_by_transactionId(ui
 dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_entry_get_by_prefix(int8_t interfaceId, uint8_t *prefix)
 {
     ns_list_foreach(dhcpv6_client_server_data_t, cur, &dhcpv6_client_nonTemporal_list) {
-        if ((cur->interfaceId == interfaceId)) {
+        if (cur->interfaceId == interfaceId) {
             if (memcmp(cur->iaNontemporalAddress.addressPrefix, prefix, 8) == 0) {
                 return cur;
             }

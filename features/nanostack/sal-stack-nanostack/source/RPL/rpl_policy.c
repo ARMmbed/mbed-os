@@ -34,6 +34,8 @@
 
 #define TRACE_GROUP "RPLy"
 
+static bool rpl_policy_parent_confirmation_req = false;
+
 /* TODO - application API to control when to join new instances / DODAGs
  *
  * Eg, allow application to ignore local DODAGs, or specify known instance IDs,
@@ -316,6 +318,17 @@ uint16_t rpl_policy_mrhof_parent_switch_threshold(const rpl_domain_t *domain)
     (void)domain;
 
     return 192;
+}
+
+void rpl_policy_set_parent_confirmation_request(bool confirmation_requested)
+{
+    rpl_policy_parent_confirmation_req = confirmation_requested;
+}
+
+
+bool rpl_policy_parent_confirmation_requested(void)
+{
+    return rpl_policy_parent_confirmation_req;
 }
 
 

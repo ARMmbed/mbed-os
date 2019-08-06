@@ -76,6 +76,14 @@ extern int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_w
  */
 extern int ns_fhss_delete(fhss_api_t *fhss_api);
 
+/**
+ * @brief Starts collecting FHSS statistics.
+ * @param fhss_api FHSS instance.
+ * @param fhss_statistics Pointer to stored statistics.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_fhss_statistics_start(const fhss_api_t *fhss_api, fhss_statistics_t *fhss_statistics);
+
 
 #ifdef __cplusplus
 }

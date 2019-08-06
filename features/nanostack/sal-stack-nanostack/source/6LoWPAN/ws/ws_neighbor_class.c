@@ -134,13 +134,22 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t
     ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs_ie->broadcast_schedule_identifier;
 }
 
-uint8_t ws_neighbor_class_rssi_from_dbm_calculate(int8_t dbm_heard)
+void ws_neighbor_class_rf_sensitivity_calculate(uint8_t rsl_heard)
 {
-    if (DEVICE_MIN_SENS > dbm_heard) {
+    if (DEVICE_MIN_SENS > rsl_heard) {
         // We are hearing packet with lower than min_sens dynamically learn the sensitivity
-        DEVICE_MIN_SENS = dbm_heard;
+        DEVICE_MIN_SENS = rsl_heard;
     }
-    return dbm_heard - DEVICE_MIN_SENS;
+}
+
+uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
+{
+    /* RSL MUST be calculated as the received signal level relative to standard
+     * thermal noise (290oK) at 1 Hz bandwidth or 174 dBm.
+     * This provides a range of -174 (0) to +80 (254) dBm.
+     */
+
+    return dbm_heard + 174;
 }
 
 static void ws_neighbor_class_parent_set_analyze(ws_neighbor_class_entry_t *ws_neighbor)
@@ -151,24 +160,26 @@ static void ws_neighbor_class_parent_set_analyze(ws_neighbor_class_entry_t *ws_n
         return;
     }
 
-    if (ws_neighbor_class_rsl_in_get(ws_neighbor) < (CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS) &&
-            ws_neighbor_class_rsl_out_get(ws_neighbor) < (CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
+    if (ws_neighbor_class_rsl_in_get(ws_neighbor) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS) &&
+            ws_neighbor_class_rsl_out_get(ws_neighbor) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
         ws_neighbor->candidate_parent = false;
     }
 
-    if (ws_neighbor_class_rsl_in_get(ws_neighbor) > (CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-            ws_neighbor_class_rsl_out_get(ws_neighbor) > (CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
+    if (ws_neighbor_class_rsl_in_get(ws_neighbor) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
+            ws_neighbor_class_rsl_out_get(ws_neighbor) > (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
         ws_neighbor->candidate_parent = true;
     }
 }
 
 void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, int8_t dbm_heard)
 {
-    uint8_t rssi = ws_neighbor_class_rssi_from_dbm_calculate(dbm_heard);
+    uint8_t rsl = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
+    // Calculate minimum sensitivity from heard packets.
+    ws_neighbor_class_rf_sensitivity_calculate(rsl);
     if (ws_neighbor->rsl_in == RSL_UNITITIALIZED) {
-        ws_neighbor->rsl_in = rssi << WS_RSL_SCALING;
+        ws_neighbor->rsl_in = rsl << WS_RSL_SCALING;
     }
-    ws_neighbor->rsl_in = ws_neighbor->rsl_in + rssi - (ws_neighbor->rsl_in >> WS_RSL_SCALING);
+    ws_neighbor->rsl_in = ws_neighbor->rsl_in + rsl - (ws_neighbor->rsl_in >> WS_RSL_SCALING);
     ws_neighbor_class_parent_set_analyze(ws_neighbor);
     return;
 }

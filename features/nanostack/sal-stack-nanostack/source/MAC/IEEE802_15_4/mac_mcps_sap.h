@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,5 +215,7 @@ uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_ma
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 
 int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload);
+
+int mcps_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage);
 
 #endif /* MAC_IEEE802_15_4_MAC_MCPS_SAP_H_ */

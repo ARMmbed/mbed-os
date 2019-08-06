@@ -2015,7 +2015,7 @@ void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mac_neigh
     thread_routing_remove_link(cur, neighbour->mac16);
     thread_router_bootstrap_reset_child_info(cur, neighbour);
     protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbour->mac64);
-    mac_helper_devicetable_remove(cur->mac_api, neighbour->index);
+    mac_helper_devicetable_remove(cur->mac_api, neighbour->index, neighbour->mac64);
     thread_neighbor_class_entry_remove(&cur->thread_info->neighbor_class, neighbour->index);
 }
 

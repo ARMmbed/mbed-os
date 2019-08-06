@@ -272,7 +272,7 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
     const uint8_t pmk_string_val[] = {"PMK Name"};
     const uint8_t pmk_string_val_len = sizeof(pmk_string_val) - 1;
 
-    const uint8_t data_len = pmk_string_val_len + EUI64_LEN + EUI64_LEN;
+    uint8_t data_len = pmk_string_val_len + EUI64_LEN + EUI64_LEN;
     uint8_t data[data_len];
     uint8_t *ptr = data;
     memcpy(ptr, pmk_string_val, pmk_string_val_len);
@@ -294,7 +294,7 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
     const uint8_t ptk_string_val[] = {"PTK Name"};
     const uint8_t ptk_string_val_len = sizeof(ptk_string_val) - 1;
 
-    const uint8_t data_len = ptk_string_val_len + EUI64_LEN + EUI64_LEN;
+    uint8_t data_len = ptk_string_val_len + EUI64_LEN + EUI64_LEN;
     uint8_t data[data_len];
     uint8_t *ptr = data;
     memcpy(ptr, ptk_string_val, ptk_string_val_len);

@@ -37,7 +37,9 @@
  * Minimum interval at which a Border Router shall increment its PAN Version value.
  */
 
-#define PAN_VERSION_LIFETIME 240
+#define PAN_VERSION_SMALL_NETWORK_LIFETIME 4*60
+#define PAN_VERSION_MEDIUM_NETWORK_LIFETIME 15*60
+#define PAN_VERSION_LARGE_NETWORK_LIFETIME 30*60 //30min
 
 #define RPL_VERSION_LIFETIME 5*3600
 
@@ -50,7 +52,11 @@
  *
  */
 
-#define PAN_VERSION_TIMEOUT 1920
+#define PAN_VERSION_SMALL_NETWORK_TIMEOUT 32*60
+
+#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 64*60
+
+#define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
 
 /* Routing Cost Weighting factor
  */
@@ -68,7 +74,7 @@
  *
  * Default value for us is -93
  */
-extern int8_t DEVICE_MIN_SENS;
+extern uint8_t DEVICE_MIN_SENS;
 
 /* Candidate parent Threshold
  */
@@ -96,7 +102,7 @@ extern int8_t DEVICE_MIN_SENS;
  *
  */
 #define WS_DHCP_SOLICIT_TIMEOUT         60
-#define WS_DHCP_SOLICIT_MAX_RT          3600
+#define WS_DHCP_SOLICIT_MAX_RT          900
 #define WS_DHCP_SOLICIT_MAX_RC          0
 
 
@@ -120,5 +126,11 @@ extern int8_t DEVICE_MIN_SENS;
 #define WS_BLACKLIST_PURGE_NBR            3
 #define WS_BLACKLIST_PURGE_TIMER_TIMEOUT 60
 
+/*
+ * MAC frame counter NVM storing configuration
+ */
+#define FRAME_COUNTER_STORE_INTERVAL     60   // Time interval (on seconds) between frame counter store operations
+#define FRAME_COUNTER_INCREMENT          1000 // How much frame counter is incremented on start up
+#define FRAME_COUNTER_STORE_THRESHOLD    800  // How much frame counter must increment before it is stored
 
 #endif /* WS_CONFIG_H_ */

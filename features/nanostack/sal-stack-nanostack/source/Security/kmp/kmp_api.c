@@ -251,10 +251,10 @@ static void kmp_sec_prot_eui64_addr_get(sec_prot_t *prot, uint8_t *local_eui64, 
     kmp->service->addr_get(kmp->service, kmp, &local_addr, &remote_addr);
 
     if (local_eui64) {
-        memcpy(local_eui64, kmp_address_eui_64_get(&local_addr), 8);
+        memcpy(local_eui64, local_addr.eui_64, 8);
     }
     if (remote_eui64) {
-        memcpy(remote_eui64, kmp_address_eui_64_get(&remote_addr), 8);
+        memcpy(remote_eui64, remote_addr.eui_64, 8);
     }
 }
 

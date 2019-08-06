@@ -24,23 +24,35 @@
 
 void fhss_stats_update(fhss_structure_t *fhss_structure, fhss_stats_type_t type, uint32_t update_val)
 {
-    if (fhss_structure->bs->fhss_stats_ptr) {
+    if (fhss_structure->fhss_stats_ptr) {
         switch (type) {
             case STATS_FHSS_DRIFT_COMP:
-                fhss_structure->bs->fhss_stats_ptr->fhss_drift_compensation = update_val;
+                fhss_structure->fhss_stats_ptr->fhss_drift_compensation = update_val;
                 break;
             case STATS_FHSS_HOP_COUNT:
-                fhss_structure->bs->fhss_stats_ptr->fhss_hop_count = update_val;
+                fhss_structure->fhss_stats_ptr->fhss_hop_count = update_val;
                 break;
             case STATS_FHSS_SYNCH_INTERVAL:
-                fhss_structure->bs->fhss_stats_ptr->fhss_synch_interval = update_val;
+                fhss_structure->fhss_stats_ptr->fhss_synch_interval = update_val;
                 break;
             case STATS_FHSS_AVG_SYNCH_FIX:
-                fhss_structure->bs->fhss_stats_ptr->fhss_prev_avg_synch_fix = update_val;
+                fhss_structure->fhss_stats_ptr->fhss_prev_avg_synch_fix = update_val;
                 break;
             case STATS_FHSS_SYNCH_LOST:
-                fhss_structure->bs->fhss_stats_ptr->fhss_synch_lost += update_val;
+                fhss_structure->fhss_stats_ptr->fhss_synch_lost += update_val;
+                break;
+            case STATS_FHSS_UNKNOWN_NEIGHBOR:
+                fhss_structure->fhss_stats_ptr->fhss_unknown_neighbor += update_val;
+                break;
+            case STATS_FHSS_CHANNEL_RETRY:
+                fhss_structure->fhss_stats_ptr->fhss_channel_retry += update_val;
                 break;
         }
     }
+}
+
+int fhss_statistics_start(fhss_structure_t *fhss_structure, fhss_statistics_t *fhss_statistics)
+{
+    fhss_structure->fhss_stats_ptr = fhss_statistics;
+    return 0;
 }

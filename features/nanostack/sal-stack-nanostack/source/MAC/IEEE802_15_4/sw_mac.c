@@ -699,3 +699,19 @@ void sw_mac_stats_update(protocol_interface_rf_mac_setup_s *setup, mac_stats_typ
         }
     }
 }
+
+uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
+{
+    if (!mac_api) {
+        return 0;
+    }
+
+    // Get a pointer to MAC setup structure
+    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_mac_api(mac_api);
+    if (!mac_setup) {
+        return 0;
+    }
+    uint32_t time_stamp_buffer;
+    mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&time_stamp_buffer);
+    return time_stamp_buffer;
+}

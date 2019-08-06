@@ -989,6 +989,7 @@ void tls_server_finnish_handle_start(sec_suite_t *tls_suite)
 #ifdef PANA_SERVER_API
 static buffer_t *tls_verify_handler(uint8_t certi_rx, tls_header_t *tls_header_ptr, buffer_t *buf, sec_suite_t *tls_suite)
 {
+    (void) certi_rx;
     tls_heap_t *tls_heap = tls_suite->tls_session->tls_heap;
     tls_heap->client_verify_buf_len = tls_header_ptr->length;
     if (tls_heap->client_verify_buf) {

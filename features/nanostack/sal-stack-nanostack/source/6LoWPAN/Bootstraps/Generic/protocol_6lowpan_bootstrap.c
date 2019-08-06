@@ -1605,7 +1605,7 @@ static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entr
         protocol_6lowpan_release_short_link_address_from_neighcache(cur_interface, entry_ptr->mac16);
         protocol_6lowpan_release_long_link_address_from_neighcache(cur_interface, entry_ptr->mac64);
     }
-    mac_helper_devicetable_remove(cur_interface->mac_api, entry_ptr->index);
+    mac_helper_devicetable_remove(cur_interface->mac_api, entry_ptr->index, entry_ptr->mac64);
     //Removes ETX neighbor
     etx_neighbor_remove(cur_interface->id, entry_ptr->index);
     //Remove MLE frame counter info

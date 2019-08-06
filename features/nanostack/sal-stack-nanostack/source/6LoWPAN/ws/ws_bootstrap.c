@@ -53,6 +53,7 @@
 #include "6LoWPAN/ws/ws_llc.h"
 #include "6LoWPAN/ws/ws_neighbor_class.h"
 #include "6LoWPAN/ws/ws_ie_lib.h"
+#include "6LoWPAN/ws/ws_stats.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -80,7 +81,7 @@ static void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp
 static bool ws_bootstrap_state_discovery(struct protocol_interface_info_entry *cur);
 static int8_t ws_bootsrap_event_trig(ws_bootsrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 
-static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new);
+static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast);
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
@@ -90,16 +91,25 @@ static void ws_bootstrap_nw_key_set(protocol_interface_info_entry_t *cur, uint8_
 static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint8_t slot);
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(protocol_interface_info_entry_t *cur, uint32_t counter);
+static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *cur, uint32_t *counter);
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, bool success);
 static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry_t *cur, void *neighbor);
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
+static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
     WS_PARENT_HARD_SYNCH,      /**< Synch FHSS with latest synch information*/
     WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/
 } ws_parent_synch_e;
+
+static void ws_bootsrap_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
+{
+    memcpy(ll_address, ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(ll_address + 8, mac64, 8);
+    ll_address[8] ^= 2;
+}
 
 mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct protocol_interface_info_entry *interface, const uint8_t *src64)
 
@@ -123,11 +133,11 @@ mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct protocol_interf
     return neighbor;
 }
 
-static void ws_bootstrap_neighbor_delete(struct protocol_interface_info_entry *interface, uint8_t attribute_index)
+static void ws_bootstrap_neighbor_delete(struct protocol_interface_info_entry *interface, mac_neighbor_table_entry_t *entry_ptr)
 {
-    mac_helper_devicetable_remove(interface->mac_api, attribute_index);
-    etx_neighbor_remove(interface->id, attribute_index);
-    ws_neighbor_class_entry_remove(&interface->ws_info->neighbor_storage, attribute_index);
+    mac_helper_devicetable_remove(interface->mac_api, entry_ptr->index, entry_ptr->mac64);
+    etx_neighbor_remove(interface->id, entry_ptr->index);
+    ws_neighbor_class_entry_remove(&interface->ws_info->neighbor_storage, entry_ptr->index);
 }
 
 static void ws_bootstrap_neighbor_list_clean(struct protocol_interface_info_entry *interface)
@@ -144,8 +154,9 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
     }
     if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
         //Trig Address Registartion only when Bootstrap is ready
-        if (interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE || addr->source == ADDR_SOURCE_DHCP) {
-            ws_bootsrap_event_trig(WS_ADDRESS_ADDED, interface->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, (void *)addr);
+        if (interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE && addr->source != ADDR_SOURCE_DHCP) {
+            tr_debug("Address registration %s", trace_ipv6(addr->address));
+            rpl_control_register_address(interface, addr->address);
         }
         if (addr_ipv6_scope(addr->address, interface) > IPV6_SCOPE_LINK_LOCAL) {
             // at least ula address available inside mesh.
@@ -155,6 +166,12 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
     } else if (reason == ADDR_CALLBACK_DELETED) {
         // What to do?
         // Go through address list and check if there is global address still available
+        if (addr->source == ADDR_SOURCE_DHCP) {
+            //Deprecate dhcpv address
+            uint8_t address[16];
+            memcpy(address, addr->address, 16);
+            dhcp_client_global_address_delete(interface->id, NULL, address);
+        }
         //Discover prefix policy
         addr_policy_remove_by_label(WS_NON_PREFFRED_LABEL);
 
@@ -167,12 +184,10 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
             }
         }
     } else if (reason == ADDR_CALLBACK_TIMER) {
-        tr_debug("Address Re registration %s", trace_ipv6(addr->address));
-
-        if (!interface->ws_info->address_registration_event_active) {
-            interface->ws_info->address_registration_event_active = true;
-            tr_info("Register ARO");
-            ws_bootsrap_event_trig(WS_ADDRESS_ADDED, interface->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+        if (addr->source != ADDR_SOURCE_DHCP) {
+            tr_debug("Address Re registration %s", trace_ipv6(addr->address));
+            //Register
+            rpl_control_register_address(interface, addr->address);
         }
     }
 }
@@ -304,9 +319,7 @@ static bool ws_nud_message_build(protocol_interface_info_entry_t *cur, mac_neigh
 {
     //Send NS
     uint8_t ll_target[16];
-    memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(ll_target + 8, neighbor->mac64, 8);
-    ll_target[8] ^= 2;
+    ws_bootsrap_create_ll_address(ll_target, neighbor->mac64);
     tr_info("NUD generate NS %u", neighbor->index);
     buffer_t *buffer = icmpv6_build_ns(cur, ll_target, NULL, true, false, NULL);
     if (buffer) {
@@ -321,6 +334,8 @@ void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
     //Convert TICKS to real milliseconds
     if (ticks > 0xffff / 100) {
         ticks = 0xffff;
+    } else if (ticks == 0) {
+        ticks = 1;
     } else {
         ticks *= 100;
     }
@@ -649,10 +664,7 @@ uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr
         if (!ws_neighbour || !etx_entry || etx_entry->etx_samples < 1 /*||
                 !ws_neighbour->candidate_parent*/) {
             // if RSL value is not good enough candidate parent flag is removed and device not accepted as parent
-            //tr_debug("ws_etx_read not valid parent");
-            if (etx_entry && etx_entry->etx_samples) {
-                tr_debug("ws_etx_read not valid %u RSL IN(%u), %u RSL out(%u)", ws_neighbor_class_rsl_in_get(ws_neighbour), ws_neighbour->rsl_in, ws_neighbor_class_rsl_out_get(ws_neighbour), ws_neighbour->rsl_out);
-            }
+            tr_debug("ws_etx_read not valid params");
             return 0xffff;
         }
 
@@ -680,6 +692,21 @@ uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr
     //tr_debug("ws_etx_read etx:%d", etx);
     return etx;
 }
+bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *entry,  bool unicast, uint8_t seq)
+{
+    (void)cur;
+    (void)seq;
+
+    if (unicast) {
+        // Unicast NS is OK
+        return false;
+    }
+    // Fail the resolution
+    tr_warn("Link address lost for %s", trace_ipv6(entry->ip_address));
+    ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, entry);
+    // True means we skip the message sending
+    return true;
+}
 
 static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
 {
@@ -698,8 +725,6 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
         return -3;
     }
 
-    //Enable Power bootup timer setup
-    cur->ws_info->power_up_setup = true;
     // Save FHSS api
     cur->ws_info->fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
 
@@ -725,6 +750,9 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     /* Disable NUD Probes */
     cur->ipv6_neighbour_cache.send_nud_probes = false;
     cur->ipv6_neighbour_cache.probe_avoided_routers = true;
+    /*Replace NS handler to disable multicast address queries */
+    cur->if_ns_transmit = ws_bootstrap_nd_ns_transmit;
+
     dhcp_client_init(cur->id);
     dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
     dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC);
@@ -833,17 +861,18 @@ static void ws_bootstrap_pan_advertisement_analyse_active(struct protocol_interf
      *
      * A consistent transmission is defined as a PAN Advertisement received by a node with PAN ID and
      * NETNAME-IE / Network Name matching that of the receiving node, and with a PAN-IE / Routing Cost
-     * the same or better than (less than or equal to) that of the receiving node.
+     * the same or worse than (bigger than or equal to) that of the receiving node.
      *
      * Inconsistent:
-     * PAN Advertisement solicit
+     *
+     * Received Routing Cost is smaller than stored one
      *
      * A PAN Advertisement received by a node with PAN ID and NETNAME-IE / Network name matching
-     * that of the receiving node, and PAN-IE / Routing Cost worse than (greater than) that of the receiving node.
+     * that of the receiving node, and PAN-IE / Routing Cost better than (smaller than) that of the receiving node.
      *
      */
 
-    if (pan_information->routing_cost <= cur->ws_info->pan_information.routing_cost) {
+    if (pan_information->routing_cost >= cur->ws_info->pan_information.routing_cost) {
         trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
     } else {
         trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
@@ -897,7 +926,7 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
     // Save route cost for all neighbours
     llc_neighbour_req_t neighbor_info;
     neighbor_info.neighbor = NULL;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, false)) {
         neighbor_info.ws_neighbor->routing_cost = pan_information.routing_cost;
     }
 
@@ -911,13 +940,13 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
         if (memcmp(cur->ws_info->parent_info.addr, ADDR_UNSPECIFIED, 8) != 0) {
 
             // if we dont have higher than threshold signal only signal level decides parent
-            if (ws_neighbor_class_rssi_from_dbm_calculate(cur->ws_info->parent_info.signal_dbm) < (CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
-                    ws_neighbor_class_rssi_from_dbm_calculate(data->signal_dbm) > ws_neighbor_class_rssi_from_dbm_calculate(cur->ws_info->parent_info.signal_dbm)) {
+            if (ws_neighbor_class_rsl_from_dbm_calculate(cur->ws_info->parent_info.signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS) &&
+                    ws_neighbor_class_rsl_from_dbm_calculate(data->signal_dbm) > ws_neighbor_class_rsl_from_dbm_calculate(cur->ws_info->parent_info.signal_dbm)) {
                 // automatically select the best quality link from the below threshold
                 goto parent_selected;
             }
             // Drop if signal quality is not good enough
-            if (ws_neighbor_class_rssi_from_dbm_calculate(data->signal_dbm) < (CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
+            if (ws_neighbor_class_rsl_from_dbm_calculate(data->signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
                 tr_info("EAPOL target dropped Link quality too low");
                 return;
             }
@@ -935,14 +964,6 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
                     cur->ws_info->parent_info.signal_dbm > data->signal_dbm) {
                 tr_info("EAPOL target dropped Lower link quality %u < %u current", data->signal_dbm, cur->ws_info->parent_info.signal_dbm);
                 return;
-            }
-
-        } else {
-            // First advertise heard
-
-            if (ws_neighbor_class_rssi_from_dbm_calculate(data->signal_dbm) < (CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERISIS)) {
-                // First neighbor is too low we need to wait one extra trickle
-                cur->bootsrap_state_machine_cnt += cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
             }
         }
 
@@ -974,8 +995,10 @@ parent_selected:
 
     // Learn latest network information
     if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && neighbor_info.neighbor) {
+        uint8_t ll_address[16];
+        ws_bootsrap_create_ll_address(ll_address, neighbor_info.neighbor->mac64);
 
-        if (neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+        if (rpl_control_is_dodag_parent(cur, ll_address, true)) {
             cur->ws_info->pan_information.pan_size = pan_information.pan_size;
             cur->ws_info->pan_information.routing_cost = pan_information.routing_cost;
             cur->ws_info->pan_information.rpl_routing_method = pan_information.rpl_routing_method;
@@ -1055,23 +1078,34 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
         return;
     }
     llc_neighbour_req_t neighbor_info;
-    if (!ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, true)) {
-        return;
+    bool neighbour_pointer_valid;
+
+    if (cur->ws_info->configuration_learned || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        //If we are border router or learned configuration we only update already learned neighbours.
+        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, true);
+
+    } else {
+        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, true, true);
+        if (!neighbour_pointer_valid) {
+            return;
+        }
     }
 
-    etx_lqi_dbm_update(cur->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
-    //Update Neighbor Broadcast and Unicast Parameters
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp);
-    ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us);
-    ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
-    ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+    if (neighbour_pointer_valid) {
+        etx_lqi_dbm_update(cur->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
+        //Update Neighbor Broadcast and Unicast Parameters
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us);
+        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
+        ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+    }
 
     if (cur->ws_info->configuration_learned) {
         tr_info("PAN Config analyse own:%d, heard:%d", cur->ws_info->pan_information.pan_version, pan_version);
         if (cur->ws_info->pan_information.pan_version == pan_version) {
             // Same version heard so it is consistent
             trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
-            if (neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_SOFT_SYNCH);
             }
             // no need to process more
@@ -1079,7 +1113,7 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
         } else  {
             // received version is different so we need to reset the trickle
             trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
-            if (neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_HARD_SYNCH);
             }
             if (common_serial_number_greater_16(cur->ws_info->pan_information.pan_version, pan_version)) {
@@ -1100,7 +1134,7 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
     tr_info("Updated PAN configuration own:%d, heard:%d", cur->ws_info->pan_information.pan_version, pan_version);
 
     // restart PAN version timer
-    cur->ws_info->pan_version_timeout_timer = PAN_VERSION_TIMEOUT;
+    cur->ws_info->pan_version_timeout_timer = ws_common_version_timeout_get(cur->ws_info->network_size_config);
     cur->ws_info->pan_information.pan_version = pan_version;
 
     ws_pae_controller_gtk_hash_update(cur, gtkhash_ptr);
@@ -1138,7 +1172,7 @@ static void ws_bootstrap_pan_config_solicit_analyse(struct protocol_interface_in
      */
 
     llc_neighbour_req_t neighbor_info;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, false)) {
         etx_lqi_dbm_update(cur->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp);
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us);
@@ -1220,7 +1254,7 @@ static void ws_bootstrap_asynch_ind(struct protocol_interface_info_entry *cur, c
         default:
             return;
     }
-
+    ws_stats_update(cur, STATS_WS_ASYNCH_RX, 1);
     //UTT-IE and US-IE are mandatory for all Asynch Messages
     ws_utt_ie_t ws_utt;
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_utt)) {
@@ -1273,9 +1307,21 @@ static void ws_bootstrap_asynch_ind(struct protocol_interface_info_entry *cur, c
 
 static void ws_bootstrap_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
 {
+    ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
     (void)interface;
     (void)asynch_message;
 }
+
+uint32_t ws_time_from_last_unicast_traffic(uint32_t current_time_stamp, ws_neighbor_class_entry_t *ws_neighbor)
+{
+    uint32_t time_from_last_unicast_shedule = current_time_stamp;
+
+    //Time from last RX unicast in us
+    time_from_last_unicast_shedule -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+    time_from_last_unicast_shedule /= 1000000; //Convert to seconds
+    return time_from_last_unicast_shedule;
+}
+
 static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_entry *interface)
 {
     uint8_t ll_target[16];
@@ -1286,11 +1332,19 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
     }
     memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
 
+    uint32_t current_time_stamp = ns_sw_mac_read_current_timestamp(interface->mac_api);
+
     mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
+        ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, cur->index);
 
         if (cur->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             //This is our primary parent we cannot delete
+            continue;
+        }
+
+        if (cur->nud_active || ws_neighbor->accelerated_etx_probe || ws_neighbor->negative_aro_send) {
+            //If NUD process is active do not trig
             continue;
         }
 
@@ -1309,20 +1363,35 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
             memcpy(ll_target + 8, cur->mac64, 8);
             ll_target[8] ^= 2;
 
-            if (rpl_control_is_dodag_parent(interface, ll_target)) {
+            if (rpl_control_is_dodag_parent(interface, ll_target, true)) {
                 // Possible parent is limited to 3 by default?
                 continue;
             }
         }
 
+        uint32_t link_min_timeout;
+        //Read current timestamp
+        uint32_t time_from_last_unicast_shedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
 
 
         if (cur->trusted_device) {
-            neighbor_entry_ptr = cur;
+            link_min_timeout = WS_NEIGHBOR_TRUSTED_LINK_MIN_TIMEOUT;
         } else {
-            if (cur->link_lifetime - cur->lifetime > WS_NEIGHBOR_NOT_TRUSTED_LINK_TIMEOUT) {
-                //Accept only Enough Old not trusted Device
+
+            link_min_timeout = WS_NEIGHBOR_NOT_TRUSTED_LINK_MIN_TIMEOUT;
+        }
+
+        if (time_from_last_unicast_shedule > link_min_timeout || !ws_neighbor->unicast_data_rx) {
+            //Accept only Enough Old Device
+            if (!neighbor_entry_ptr) {
+                //Accept first compare
                 neighbor_entry_ptr = cur;
+            } else {
+                uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_entry_ptr->index));
+                if (compare_neigh_time < time_from_last_unicast_shedule)  {
+                    //Accept older RX timeout allways
+                    neighbor_entry_ptr = cur;
+                }
             }
         }
     }
@@ -1333,7 +1402,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
 
 }
 
-static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new)
+static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast)
 {
     neighbor_buffer->neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), mac_64, ADDR_802_15_4_LONG);
     if (neighbor_buffer->neighbor) {
@@ -1346,15 +1415,34 @@ static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_en
     if (!request_new) {
         return false;
     }
-    uint8_t ll_target[16];
-    memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(ll_target + 8, mac_64, 8);
-    ll_target[8] ^= 2;
 
+    uint8_t ll_target[16];
+    ws_bootsrap_create_ll_address(ll_target, mac_64);
 
     if (blacklist_reject(ll_target)) {
         // Rejected by blacklist
         return false;
+    }
+
+    if (multicast) {
+        //for multicast neighbour we must limit if we have already enough information
+        if (interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+            //Border router never allocate neighbors by multicast
+            return false;
+        }
+
+        uint16_t parent_candidate_size = rpl_control_parent_candidate_list_size(interface, false);
+
+        //if we have enough candidates at list do not accept new multicast neighbours
+        if (parent_candidate_size >= 4) {
+            return false;
+        }
+
+        parent_candidate_size = rpl_control_parent_candidate_list_size(interface, true);
+        //If we have already enough parent selected Candidates count is bigger tahn 4
+        if (parent_candidate_size >= 2) {
+            return false;
+        }
     }
 
     ws_bootstrap_neighbor_table_clean(interface);
@@ -1394,7 +1482,7 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
     //NUD Process Clear Here
     ws_nud_entry_remove(cur, entry_ptr);
 
-    ws_bootstrap_neighbor_delete(cur, entry_ptr->index);
+    ws_bootstrap_neighbor_delete(cur, entry_ptr);
 }
 
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
@@ -1406,7 +1494,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, entry_ptr->index);
     etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
 
-    if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry) {
+    if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || ws_neighbor->negative_aro_send) {
         return false;
     }
 
@@ -1426,17 +1514,37 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         //ETX Sample 0: random 1-8
         //ETX Sample 1: random 2-16
         //ETX Sample 2: random 4-32
-        uint32_t probe_period = WS_PROBE_INIT_BASE_SECONDS << etx_entry->etx_samples;
-        uint32_t time_block = 1 << etx_entry->etx_samples;
-        if (time_from_start >= probe_period) {
-            tr_debug("Link Probe test %u Sample trig", etx_entry->etx_samples);
+        if (etx_entry->etx_samples == 0 && ws_neighbor->accelerated_etx_probe) {
+            //Accept quick Probe for init ETX
             activate_nud = true;
-        } else if (time_from_start > time_block) {
-            uint16_t switch_prob = randLIB_get_random_in_range(0, probe_period - 1);
-            //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
-            if (switch_prob < 2) {
-                tr_debug("Link Probe test with jitter %"PRIu32", sample %u", time_from_start, etx_entry->etx_samples);
+        } else {
+            if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+                if (etx_entry->etx_samples || !ws_neighbor->unicast_data_rx) {
+                    //Border router just need 1 sample for ETX
+                    return false;
+                }
+            } else {
+                uint8_t ll_address[16];
+                ws_bootsrap_create_ll_address(ll_address, entry_ptr->mac64);
+                if (!rpl_control_is_dodag_parent(cur, ll_address, false)) {
+                    if (etx_entry->etx_samples || !ws_neighbor->unicast_data_rx) {
+                        return 0;
+                    }
+                }
+            }
+
+            uint32_t probe_period = WS_PROBE_INIT_BASE_SECONDS << etx_entry->etx_samples;
+            uint32_t time_block = 1 << etx_entry->etx_samples;
+            if (time_from_start >= probe_period) {
+                //tr_debug("Link Probe test %u Sample trig", etx_entry->etx_samples);
                 activate_nud = true;
+            } else if (time_from_start > time_block) {
+                uint16_t switch_prob = randLIB_get_random_in_range(0, probe_period - 1);
+                //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
+                if (switch_prob < 2) {
+                    //tr_debug("Link Probe test with jitter %"PRIu32", sample %u", time_from_start, etx_entry->etx_samples);
+                    activate_nud = true;
+                }
             }
         }
     }
@@ -1450,6 +1558,10 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         return false;
     }
     entry->neighbor_info = entry_ptr;
+    if (ws_neighbor->accelerated_etx_probe) {
+        ws_neighbor->accelerated_etx_probe = false;
+        entry->timer = 1;
+    }
 
     if (etx_entry->etx_samples >= WS_NEIGBOR_ETX_SAMPLE_MAX) {
         entry->nud_process = true;
@@ -1554,7 +1666,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_pan_version_increment) < 0) {
+    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read, &ws_bootstrap_pan_version_increment) < 0) {
         ret_val =  -4;
         goto init_fail;
     }
@@ -1778,11 +1890,8 @@ static void ws_set_fhss_hop(protocol_interface_info_entry_t *cur)
 
 static void ws_address_registration_update(protocol_interface_info_entry_t *interface)
 {
-    if (!interface->ws_info->address_registration_event_active) {
-        interface->ws_info->address_registration_event_active = true;
-        tr_info("RPL parent update ... register ARO");
-        ws_bootsrap_event_trig(WS_ADDRESS_ADDED, interface->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
-    }
+    rpl_control_register_address(interface, NULL);
+    tr_info("RPL parent update ... register ARO");
 }
 
 static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
@@ -1835,7 +1944,13 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
     (void)prefix;
     (void)interface;
     //TODO add handler for negative status
-    tr_debug("DHCPv6 %s status %u", trace_ipv6(dhcp_addr), register_status);
+    tr_debug("DHCPv6 %s status %u with link %s", trace_ipv6(prefix), register_status, trace_ipv6(dhcp_addr));
+    if (register_status) {
+        protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
+        if (cur) {
+            rpl_control_register_address(cur, prefix);
+        }
+    }
 }
 
 
@@ -1907,6 +2022,7 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
     rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, cur);
     // If i am router I Do this
     rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
+    rpl_control_request_parent_link_confirmation(true);
 
     cur->ws_info->rpl_state = 0xff; // Set invalid state and learn from event
 }
@@ -1966,16 +2082,6 @@ static void ws_bootstrap_start_discovery(protocol_interface_info_entry_t *cur)
     // New network scan started old addresses not assumed valid anymore
     ws_bootstrap_ip_stack_addr_clear(cur);
 
-    // Reset advertisement solicit trickle to start discovering network
-    cur->ws_info->trickle_pas_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
-    if (cur->ws_info->power_up_setup) {
-        cur->ws_info->power_up_setup = false;
-        tr_debug("PAS init I %u and t %u", cur->ws_info->trickle_pan_advertisement_solicit.I, cur->ws_info->trickle_pan_advertisement_solicit.t);
-    } else {
-        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
-    }
-
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) != INTERFACE_NWK_BOOTSRAP_ACTIVE) {
         // we have sent bootstrap ready event and now
         // restarted discovery so bootstrap down event is sent
@@ -1983,8 +2089,24 @@ static void ws_bootstrap_start_discovery(protocol_interface_info_entry_t *cur)
         ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
     }
 
-    // Discovery statemachine is checkked after two trickle interval
-    cur->bootsrap_state_machine_cnt = 2 * cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
+    // Start advertisement solicit trickle and calculate when we are checking the status
+    cur->ws_info->trickle_pas_running = true;
+    if (cur->ws_info->trickle_pan_advertisement_solicit.I != cur->ws_info->trickle_params_pan_discovery.Imin) {
+        // Trickle not reseted so starting a new interval
+        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+    }
+
+    // Discovery statemachine is checkked after we have sent the Solicit
+    uint16_t time_to_solicit = 0;
+    if (cur->ws_info->trickle_pan_advertisement_solicit.t > cur->ws_info->trickle_pan_advertisement_solicit.now) {
+        time_to_solicit = cur->ws_info->trickle_pan_advertisement_solicit.t - cur->ws_info->trickle_pan_advertisement_solicit.now;
+    }
+
+    tr_debug("Disc params imin %u, imax %u, expirations %u, k %u PAS Trickle I %u t %u, now %u, c %u",
+             cur->ws_info->trickle_params_pan_discovery.Imin, cur->ws_info->trickle_params_pan_discovery.Imax, cur->ws_info->trickle_params_pan_discovery.TimerExpirations, cur->ws_info->trickle_params_pan_discovery.k,
+             cur->ws_info->trickle_pan_advertisement_solicit.I, cur->ws_info->trickle_pan_advertisement_solicit.t, cur->ws_info->trickle_pan_advertisement_solicit.now, cur->ws_info->trickle_pan_advertisement_solicit.c);
+
+    cur->bootsrap_state_machine_cnt = time_to_solicit + cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_8bit() % 50;
 }
 
 // Start authentication
@@ -2024,6 +2146,12 @@ static void ws_bootstrap_nw_frame_counter_set(protocol_interface_info_entry_t *c
     mac_helper_link_frame_counter_set(cur->id, counter);
 }
 
+static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *cur, uint32_t *counter)
+{
+    // Read frame counter
+    mac_helper_link_frame_counter_read(cur->id, counter);
+}
+
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, bool success)
 {
     if (success) {
@@ -2032,6 +2160,8 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
     } else {
         tr_debug("authentication failed");
         // What else to do to start over again...
+        // Trickle is reseted when entering to discovery from state 2
+        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
         ws_bootstrap_event_discovery_start(cur);
     }
 }
@@ -2244,17 +2374,6 @@ static void ws_bootstrap_pan_config(protocol_interface_info_entry_t *cur)
     ws_llc_asynch_request(cur, &async_req);
 }
 
-static bool ws_bootstrap_address_registration_ongoing(protocol_interface_info_entry_t *cur)
-{
-    ns_list_foreach(if_address_entry_t, addr, &cur->ip_addresses) {
-        if (addr->addr_reg_pend != 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static void ws_bootstrap_event_handler(arm_event_s *event)
 {
     ws_bootsrap_event_type_e event_type;
@@ -2301,7 +2420,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
 
                 uint8_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
                 ws_llc_set_gtkhash(cur, gtkhash);
-                cur->ws_info->pan_version_timer = PAN_VERSION_LIFETIME;
+                cur->ws_info->pan_version_timer = ws_common_version_lifetime_get(cur->ws_info->network_size_config);
 
                 // Set default parameters for FHSS when starting a discovery
                 ws_fhss_border_router_configure(cur);
@@ -2378,12 +2497,7 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
             ws_bootstrap_advertise_start(cur);
             ws_bootstrap_state_change(cur, ER_BOOTSRAP_DONE);
             break;
-        case WS_ADDRESS_ADDED:
-            cur->ws_info->address_registration_event_active = false;
-            if (!ws_bootstrap_address_registration_ongoing(cur)) {
-                rpl_control_register_address(cur, (if_address_entry_t *) event->data_ptr);
-            }
-            break;
+
         default:
             tr_err("Invalid event received");
             break;
@@ -2407,7 +2521,7 @@ void ws_bootstrap_network_scan_process(protocol_interface_info_entry_t *cur)
 
     // Add EAPOL neighbour
     llc_neighbour_req_t neighbor_info;
-    if (!ws_bootstrap_neighbor_info_request(cur, cur->ws_info->parent_info.addr, &neighbor_info, true)) {
+    if (!ws_bootstrap_neighbor_info_request(cur, cur->ws_info->parent_info.addr, &neighbor_info, true, false)) {
         return;
     }
 
@@ -2515,9 +2629,6 @@ void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             break;
         case ER_PANA_AUTH:
             tr_info("authentication start");
-            // only advert sol stopped as we might be doing re authentication
-            cur->ws_info->trickle_pas_running = false;
-            //Add Test ecurity key and security level's
             // Advertisements stopped during the EAPOL
             cur->ws_info->trickle_pa_running = false;
             cur->ws_info->trickle_pc_running = false;
@@ -2557,6 +2668,8 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
             // Remove network keys from MAC
             ws_pae_controller_nw_keys_remove(cur);
 
+            // Trickle is reseted when entering to discovery from state 3
+            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
             ws_bootstrap_event_discovery_start(cur);
             return;
         }
@@ -2601,9 +2714,7 @@ void ws_primary_parent_update(protocol_interface_info_entry_t *interface, mac_ne
         neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor->index);
         ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
         uint8_t link_local_address[16];
-        memcpy(link_local_address, ADDR_LINK_LOCAL_PREFIX, 8);
-        memcpy(link_local_address + 8, neighbor->mac64, 8);
-        link_local_address[8] ^= 2;
+        ws_bootsrap_create_ll_address(link_local_address, neighbor->mac64);
         dhcp_client_server_address_update(interface->id, NULL, link_local_address);
 
         ws_secondary_parent_update(interface);
@@ -2615,11 +2726,30 @@ void ws_secondary_parent_update(protocol_interface_info_entry_t *interface)
     if (interface->ws_info) {
         ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
             if (!addr_is_ipv6_link_local(address->address)) {
-                address->addr_reg_done = 0;
                 ws_address_registration_update(interface);
             }
         }
     }
+}
+
+void ws_bootstrap_etx_accelerate(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neigh)
+{
+    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neigh->index);
+    //Enable Faster ETX probing
+    ws_neighbor->accelerated_etx_probe = true;
+    //Move Neighbor to first to for accelerate Process
+    mac_neighbor_table_t *table_class = mac_neighbor_info(interface);
+    ns_list_remove(&table_class->neighbour_list, neigh);
+    ns_list_add_to_start(&table_class->neighbour_list, neigh);
+    //Try to Generate Active NUD Immediately
+    if (!ws_neighbor_entry_nud_notify(neigh, interface)) {
+        return;//Return if NUD active is full
+    }
+    table_class->active_nud_process++;
+    neigh->nud_active = true;
+    //Push NS to send
+    ws_nud_active_timer(interface, 0);
+
 }
 
 #endif //HAVE_WS

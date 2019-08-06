@@ -866,7 +866,7 @@ int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr)
     return 0;
 }
 
-void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index)
+void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, uint8_t *mac64)
 {
     if (!mac_api) {
         return;
@@ -880,7 +880,7 @@ void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index)
     set_req.attr_index = attribute_index;
     set_req.value_pointer = (void *)&device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
-    tr_debug("unRegister Device");
+    tr_debug("Unregister Device %u, mac64: %s", attribute_index, trace_array(mac64, 8));
     mac_api->mlme_req(mac_api, MLME_SET, &set_req);
 }
 
@@ -910,7 +910,7 @@ void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, pro
     set_req.attr_index = attribute_index;
     set_req.value_pointer = (void *)device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
-    tr_debug("Register Device");
+    tr_debug("Register Device %u, mac16 %x mac64: %s, %"PRIu32, attribute_index, device_desc->ShortAddress, trace_array(device_desc->ExtAddress, 8), device_desc->FrameCounter);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
 }
 

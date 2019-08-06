@@ -18,6 +18,10 @@
 #ifndef _NS_FILE_SYSTEM_H_
 #define _NS_FILE_SYSTEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \file ns_file_system.h
  * \brief Nanostack file system API.
@@ -35,9 +39,7 @@
  * \return 0 in success, negative value in case of error.
  *
  */
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 int ns_file_system_set_root_path(const char *root_path);
 
 /**
@@ -47,6 +49,7 @@ int ns_file_system_set_root_path(const char *root_path);
  *
  */
 char *ns_file_system_get_root_path(void);
+
 #ifdef __cplusplus
 }
 #endif

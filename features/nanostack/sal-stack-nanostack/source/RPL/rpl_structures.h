@@ -52,6 +52,7 @@ struct rpl_neighbour {
     bool was_dodag_parent: 1;               // Was a DODAG parent (used only during parent selection)
     bool have_global_address: 1;            // Global address known
     bool considered: 1;                     // Have considered at least once for parent selection
+    bool confirmed: 1;                      // Confirmed
     unsigned dodag_pref: 4;                 // Preference indication for DODAG parents (0=best)
     uint8_t dao_path_control;               // Path control bit assignments for DAO parent
     uint8_t old_dao_path_control;
@@ -136,6 +137,7 @@ struct rpl_dao_target {
     uint8_t prefix_len;
     uint8_t path_sequence;
     uint8_t path_control;
+    uint8_t response_wait_time;
     int8_t interface_id;
     uint32_t lifetime;                  /* Seconds */
     uint32_t descriptor;                /* Target descriptor */
@@ -146,6 +148,8 @@ struct rpl_dao_target {
     bool descriptor_present: 1;         /* Target descriptor specified */
     bool need_seq_inc: 1;
     bool connected: 1;                  /* We know this target has a path to the root */
+    bool trig_confirmation_state: 1;         /* Enable confirmation to parent's */
+    bool active_confirmation_state: 1;
     union {
 #ifdef HAVE_RPL_ROOT
         rpl_dao_root_t root;            /* Info specific to a non-storing root */
@@ -175,12 +179,14 @@ struct rpl_instance {
     bool dio_not_consistent: 1;                     /* Something changed - not consistent this period */
     bool dao_in_transit: 1;                         /* If we have a DAO in transit */
     bool requested_dao_ack: 1;                      /* If we requested an ACK (so we retry if no ACK, rather than assuming success) */
+    bool pending_neighbour_confirmation: 1;         /* if we have not finished address registration state to parent */
     uint8_t poison_count;
     uint8_t repair_dis_count;
     uint16_t repair_dis_timer;
     uint32_t last_dao_trigger_time;
     uint16_t srh_error_count;                       /* SRH errors since last DAO trigger */
     NS_LIST_HEAD(rpl_dodag_t, link) dodags;         /* List of DODAGs */
+    rpl_neighbour_t *wait_response;
     rpl_neighbour_list_t candidate_neighbours;      /* Candidate neighbour set */
     // rpl_neighbour_list_t old_neighbours;            /* Old neighbours (without a live DODAG version) */
     rpl_dodag_version_t *current_dodag_version;     /* Pointer to DODAG version we are a member of (if any) */

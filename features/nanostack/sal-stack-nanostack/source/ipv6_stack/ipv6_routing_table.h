@@ -73,7 +73,7 @@ typedef enum ipv6_route_src {
     ROUTE_RPL_DAO,      /* Explicitly advertised in DAO, Storing mode */
     ROUTE_RPL_DAO_SR,   /* Explicitly advertised in DAO, Root Source Routes in Non-Storing mode */
     ROUTE_RPL_SRH,      /* Not in routing table - used in buffers to represent on-link inferred from SRH */
-    ROUTE_RPL_ROOT,     /* Implicit route to DODAG route */
+    ROUTE_RPL_ROOT,     /* Implicit route to DODAG root */
     ROUTE_RPL_INSTANCE, /* Implicit instance-specific default upward route (not for general search) */
     ROUTE_RPL_FWD_ERROR, /* Not in routing table - used in buffers to represent Forwarding-Error bounce */
     ROUTE_MULTICAST,    /* Not in routing table - used to represent multicast interface selection */
@@ -222,6 +222,7 @@ void ipv6_destination_cache_timer(uint8_t ticks);
 #ifdef HAVE_IPV6_ND
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address);
 #endif
+void ipv6_destination_cache_forced_gc(bool full_gc);
 
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */
 /* On-link prefixes have the on_link flag set and next_hop is unset */

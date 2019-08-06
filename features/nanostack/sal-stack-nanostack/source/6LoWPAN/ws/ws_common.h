@@ -73,13 +73,11 @@ typedef struct ws_info_s {
     uint32_t pan_version_timer;            /**< border router version udate timeout */
     uint32_t pan_version_timeout_timer;    /**< routers will fallback to previous state after this */
     uint8_t gtkhash[32];
-    bool address_registration_event_active : 1;
     bool configuration_learned: 1;
     bool trickle_pas_running: 1;
     bool trickle_pa_running: 1;
     bool trickle_pcs_running: 1;
     bool trickle_pc_running: 1;
-    bool power_up_setup: 1;
     // default fhss parameters for this device
     uint8_t fhss_uc_dwell_interval;
     uint8_t fhss_bc_dwell_interval;
@@ -94,6 +92,7 @@ typedef struct ws_info_s {
     ws_nud_table_list_t free_nud_entries;
     struct ws_pan_information_s pan_information;
     ws_hopping_schedule_t hopping_schdule;
+    struct ws_statistics *stored_stats_ptr;
     struct ws_neighbor_class_s neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     struct fhss_api *fhss_api;
@@ -123,6 +122,15 @@ void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8
 
 bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64);
 
+void ws_common_etx_validate(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neigh);
+
+bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
+
+
+uint32_t ws_common_version_lifetime_get(uint8_t config);
+
+uint32_t ws_common_version_timeout_get(uint8_t config);
+
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
@@ -132,6 +140,8 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, co
 #define ws_common_neighbor_remove(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
 #define ws_common_allow_child_registration(cur, eui64) (false)
+#define ws_common_etx_validate(interface, neigh) ((void) 0)
+#define ws_common_negative_aro_mark(interface, eui64)(false)
 
 
 #endif //HAVE_WS

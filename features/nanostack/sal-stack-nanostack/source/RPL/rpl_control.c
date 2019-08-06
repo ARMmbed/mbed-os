@@ -171,68 +171,85 @@ void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16])
     }
 }
 
-static if_address_entry_t *rpl_instance_reg_addr_get(protocol_interface_info_entry_t *interface)
+void rpl_control_request_parent_link_confirmation(bool requested)
 {
-    ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-        if (!address->addr_reg_done && !addr_is_ipv6_link_local(address->address)) {
-            return address;
-        }
-    }
-
-    return NULL;
+    rpl_policy_set_parent_confirmation_request(requested);
 }
 
 /* Send address registration to either specified address, or to non-registered address */
-void rpl_control_register_address(protocol_interface_info_entry_t *interface, if_address_entry_t *addr)
+void rpl_control_register_address(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
 {
-    if_address_entry_t *reg_addr = addr;
-
-    if (!reg_addr) {
-        reg_addr = rpl_instance_reg_addr_get(interface);
-
-        if (!reg_addr) {
-            return;
-        }
+    if (!rpl_policy_parent_confirmation_requested()) {
+        return;
     }
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        rpl_instance_send_address_registration(interface, instance, reg_addr);
+        rpl_instance_send_address_registration(instance, addr);
     }
 }
 
-void rpl_control_address_register_done(struct buffer *buf, uint8_t status)
+void rpl_control_address_register_done(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint8_t status)
 {
-    ns_list_foreach(if_address_entry_t, addr, &buf->interface->ip_addresses) {
+    if (!interface->rpl_domain) {
+        return;
+    }
+    if (!rpl_policy_parent_confirmation_requested()) {
+        return;
+    }
 
-        /* Optimize, ll addresses are not registered anyway.. */
-        if (addr_is_ipv6_link_local(addr->address) || !addr->addr_reg_pend) {
-            continue;
-        }
-
-        ns_list_foreach(struct rpl_instance, instance, &buf->interface->rpl_domain->instances) {
-            if (rpl_instance_address_registration_done(buf->interface, instance, addr, status)) {
-                return;
-            }
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
+        if (neighbour) {
+            rpl_instance_address_registration_done(interface, instance, neighbour, status);
         }
     }
 }
 
-bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], bool selected)
 {
+    if (!interface->rpl_domain) {
+        return false;
+    }
     // go through instances and parents and check if they match the address.
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        if (rpl_instance_address_is_parent(instance, ll_addr)) {
+        if (rpl_instance_address_is_parent(instance, ll_addr, selected)) {
             return true;
         }
     }
     return false;
 }
+
+uint16_t rpl_control_parent_candidate_list_size(protocol_interface_info_entry_t *interface, bool parent_list)
+{
+    if (!interface->rpl_domain) {
+        return 0;
+    }
+
+    uint16_t parent_list_size = 0;
+
+    // go through instances and parents and check if they match the address.
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        uint16_t current_size = rpl_instance_address_candidate_count(instance, parent_list);
+        if (current_size > parent_list_size) {
+            parent_list_size = current_size;
+        }
+    }
+    return parent_list_size;
+}
+
+
 void rpl_control_neighbor_delete(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
 {
+    if (!interface->rpl_domain) {
+        return;
+    }
     // go through instances and delete address.
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        rpl_instance_neighbor_delete(instance, ll_addr);
+
+        rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
+        if (neighbour) {
+            rpl_delete_neighbour(instance, neighbour);
+        }
     }
-    return;
 }
 
 /* Address changes need to trigger DAO target re-evaluation */
@@ -686,13 +703,12 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         uint32_t preferred = common_read_32_bit(ptr + 8);
         const uint8_t *prefix = ptr + 16;
 
-        if (!pref_parent || neighbour == pref_parent) {
+        if (rpl_upward_accept_prefix_update(dodag, neighbour, pref_parent)) {
 
             /* Store prefixes for possible forwarding */
             /* XXX if leaf - don't bother? Or do we want to remember them for
              * when we switch DODAG, as mentioned above?
              */
-
             prefix_entry_t *prefix_entry = rpl_dodag_update_dio_prefix(dodag, prefix, prefix_len, flags, valid, preferred, false, true);
             if (prefix_entry && pref_parent) {
                 rpl_control_process_prefix_option(prefix_entry, cur);
@@ -840,7 +856,6 @@ static void rpl_control_dao_trigger_request(rpl_instance_t *instance, rpl_dodag_
 static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf)
 {
     if (!rpl_control_options_well_formed_in_buffer(buf, 24)) {
-        tr_error("DIO format");
 malformed:
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
@@ -993,7 +1008,7 @@ malformed:
 
 
     rpl_control_process_prefix_options(cur, instance, dodag, neighbour, ptr, buffer_data_end(buf));
-    rpl_dodag_update_implicit_system_routes(dodag, neighbour);
+    //rpl_dodag_update_implicit_system_routes(dodag, neighbour);
     rpl_control_process_route_options(instance, dodag, version, neighbour, rank, ptr, buffer_data_end(buf));
 
     //rpl_control_process_metric_containers(neighbour, ptr, buffer_data_end(buf))
@@ -1137,7 +1152,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
         } else {
             prefix->options &= ~ PIO_R;
 
-            if (rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING && prefix->lifetime != 0) {
+            if (rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING && (prefix->lifetime != 0 || !(prefix->options & PIO_A))) {
                 continue;
             }
         }
@@ -1175,7 +1190,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
     ns_list_foreach_safe(prefix_entry_t, prefix, prefixes) {
         /* See equivalent checks in length calculation above */
         if ((prefix->options & (PIO_L | RPL_PIO_PUBLISHED)) == PIO_L ||
-                (!(prefix->options & PIO_R) && rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING && prefix->lifetime != 0)) {
+                (!(prefix->options & PIO_R) && rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING && (prefix->lifetime != 0 || !(prefix->options & PIO_A)))) {
             continue;
         }
 
@@ -1252,7 +1267,6 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
 static buffer_t *rpl_control_dis_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
 {
     if (!rpl_control_options_well_formed_in_buffer(buf, 2)) {
-        tr_error("DIS format");
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
     }
@@ -1380,7 +1394,6 @@ static buffer_t *rpl_control_dao_ack_handler(protocol_interface_info_entry_t *cu
 
     if (buffer_data_length(buf) < 4) {
 format_error:
-        tr_error("DAO-ACK format");
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
     }
@@ -1464,7 +1477,6 @@ static buffer_t *rpl_control_dao_handler(protocol_interface_info_entry_t *cur, r
 {
     if (buffer_data_length(buf) < 4) {
 format_error:
-        tr_error("DAO format");
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
     }
