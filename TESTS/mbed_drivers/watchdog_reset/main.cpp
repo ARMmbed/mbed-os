@@ -26,7 +26,21 @@
 #include "mbed.h"
 
 #define TIMEOUT_MS 100UL
-#define KICK_ADVANCE_MS 10UL
+
+/* This value is used to calculate the time to kick the watchdog.
+ * Given the watchdog timeout is set to TIMEOUT_MS, the kick will be performed
+ * with a delay of (TIMEOUT_MS - KICK_ADVANCE_MS), after the init.
+ *
+ * It is common for the watchdog peripheral to use a low precision clock source,
+ * e.g. the LSI RC acts as a clock source for the IWDG on ST targets.
+ * According to the ST spec, the 37 kHz LSI is guaranteed to have a frequency
+ * around 37-38 kHz, but the actual frequency range guaranteed by the production
+ * tests is 26 kHz up to 56 kHz.
+ * Bearing that in mind, a 100 ms timeout value may actually last as long as 142 ms
+ * and as short as 66 ms.
+ * The value of 35 ms is used to cover the worst case scenario (66 ms).
+ */
+#define KICK_ADVANCE_MS 35UL
 
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
