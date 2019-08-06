@@ -34,6 +34,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "qspi_device.h"
+#include "platform/mbed_critical.h"
 
 /* Look-up table entry indices */
 #define LUT1_SEQ_INDEX   0   // Pre-defined read sequence
@@ -267,6 +268,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
+    core_util_critical_section_enter();
     /* Prepare the write command */
     qspi_prepare_command(obj, command, data, to_write, NULL, 0);
 
@@ -295,6 +297,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
     if (to_write) {
         QSPI_WriteBlocking(base, (uint32_t *)data_send, to_write);
     }
+    core_util_critical_section_exit();
 
     while (QSPI_GetStatusFlags(base) & (kQSPI_Busy | kQSPI_IPAccess)) {
     }
