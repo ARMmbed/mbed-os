@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,28 @@ int8_t wisun_tasklet_network_init(int8_t device_id);
  * \return < 0 in case of errors
  */
 int8_t wisun_tasklet_disconnect(bool send_cb);
+
+/*
+ * \brief Set Wi-SUN network name
+ *
+ * \param nwk_interface_id to use for networking
+ * \param network_name_ptr Address of the new network name. Can't be NULL.
+ * \return 0 if network name stored successfully
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_ptr);
+
+/*
+ * \brief Set Wi-SUN network regulatory domain
+ *
+ * \param nwk_interface_id to use for networking
+ * \param regulatory_domain
+ * \param operating_class
+ * \param operating_mode
+ * \return 0 if regulatory domain is set successfully.
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_regulatory_domain_set(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode);
 
 #ifdef __cplusplus
 }

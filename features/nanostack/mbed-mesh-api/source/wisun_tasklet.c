@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2018-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -68,11 +68,20 @@ typedef struct {
     int8_t network_interface_id;
 } wisun_tasklet_data_str_t;
 
+typedef struct {
+    char *network_name;
+    uint8_t regulatory_domain;
+    uint8_t rd_operating_class;
+    uint8_t rd_operating_mode;
+} wisun_network_settings_t;
+
+#define WS_NA 0xff  // Not applicable value
 
 /* Tasklet data */
 static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
+static wisun_network_settings_t wisun_settings_str = {NULL, WS_NA, WS_NA, WS_NA};
 static mac_api_t *mac_api = NULL;
-static char *network_name = MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME;
+
 extern fhss_timer_t fhss_functions;
 
 /* private function prototypes */
@@ -201,7 +210,7 @@ static void wisun_tasklet_parse_network_event(arm_event_s *event)
  */
 static void wisun_tasklet_configure_and_connect_to_network(void)
 {
-    int8_t status;
+    int status;
     fhss_timer_t *fhss_timer_ptr = &fhss_functions;
 
     wisun_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
@@ -212,10 +221,28 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
         wisun_tasklet_data_ptr->operating_mode,
         wisun_tasklet_data_ptr->operating_mode_extension);
 
-    ws_management_node_init(wisun_tasklet_data_ptr->network_interface_id,
-                            MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
-                            network_name,
-                            fhss_timer_ptr);
+    status = ws_management_node_init(wisun_tasklet_data_ptr->network_interface_id,
+                                     MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
+                                     wisun_settings_str.network_name,
+                                     fhss_timer_ptr);
+    if (status < 0) {
+        tr_error("Failed to initialize WS");
+        return;
+    }
+
+    if (wisun_settings_str.regulatory_domain != WS_NA ||
+            wisun_settings_str.rd_operating_class != WS_NA ||
+            wisun_settings_str.rd_operating_mode != WS_NA) {
+        status = ws_management_regulatory_domain_set(wisun_tasklet_data_ptr->network_interface_id,
+                                                     wisun_settings_str.regulatory_domain,
+                                                     wisun_settings_str.rd_operating_class,
+                                                     wisun_settings_str.rd_operating_mode);
+
+        if (status < 0) {
+            tr_error("Failed to set regulatory domain!");
+            return;
+        }
+    }
 
 #if defined(MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER)
     arm_certificate_chain_entry_s chain_info;
@@ -267,7 +294,7 @@ int8_t wisun_tasklet_get_router_ip_address(char *address, int8_t len)
 
 int8_t wisun_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
 {
-    int8_t re_connecting = true;
+    bool re_connecting = true;
     int8_t tasklet_id = wisun_tasklet_data_ptr->tasklet;
 
     if (wisun_tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
@@ -318,7 +345,8 @@ int8_t wisun_tasklet_disconnect(bool send_cb)
 void wisun_tasklet_init(void)
 {
     if (wisun_tasklet_data_ptr == NULL) {
-        wisun_tasklet_data_ptr = ns_dyn_mem_alloc(sizeof(wisun_tasklet_data_str_t));
+        wisun_tasklet_data_ptr = (wisun_tasklet_data_str_t *)ns_dyn_mem_alloc(sizeof(wisun_tasklet_data_str_t));
+        // allocation not validated, in case of failure execution stops here
         memset(wisun_tasklet_data_ptr, 0, sizeof(wisun_tasklet_data_str_t));
         wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_CREATED;
         wisun_tasklet_data_ptr->network_interface_id = INVALID_INTERFACE_ID;
@@ -336,5 +364,54 @@ int8_t wisun_tasklet_network_init(int8_t device_id)
     if (!mac_api) {
         mac_api = ns_sw_mac_create(device_id, &storage_sizes);
     }
+
+    if (!wisun_settings_str.network_name) {
+        // No network name set by API, use network name from configuration
+        int wisun_network_name_len = sizeof(MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME);
+        wisun_settings_str.network_name = (char *)ns_dyn_mem_alloc(wisun_network_name_len);
+        if (!wisun_settings_str.network_name) {
+            return -3;
+        }
+        strncpy(wisun_settings_str.network_name, MBED_CONF_MBED_MESH_API_WISUN_NETWORK_NAME, wisun_network_name_len);
+    }
+
     return arm_nwk_interface_lowpan_init(mac_api, INTERFACE_NAME);
+}
+
+int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_ptr)
+{
+    if (!network_name_ptr || strlen(network_name_ptr) > 32) {
+        return -1;
+    }
+
+    // save the network name to have support for disconnect/connect
+    ns_dyn_mem_free(wisun_settings_str.network_name);
+    wisun_settings_str.network_name = (char *)ns_dyn_mem_alloc(strlen(network_name_ptr) + 1);
+    if (!wisun_settings_str.network_name) {
+        return -2;
+    }
+
+    strcpy(wisun_settings_str.network_name, network_name_ptr);
+
+    if (wisun_tasklet_data_ptr && wisun_tasklet_data_ptr->tasklet_state == TASKLET_STATE_BOOTSTRAP_READY) {
+        // interface is up, try to change name dynamically
+        return ws_management_network_name_set(nwk_interface_id, wisun_settings_str.network_name);
+    }
+
+    return 0;
+}
+
+int wisun_tasklet_regulatory_domain_set(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
+{
+    int status = 0;
+
+    wisun_settings_str.regulatory_domain = regulatory_domain;
+    wisun_settings_str.rd_operating_class = operating_class;
+    wisun_settings_str.rd_operating_mode = operating_mode;
+
+    if (wisun_tasklet_data_ptr && wisun_tasklet_data_ptr->tasklet_state == TASKLET_STATE_BOOTSTRAP_READY) {
+        status = ws_management_regulatory_domain_set(nwk_interface_id, regulatory_domain, operating_class, operating_mode);
+    }
+
+    return status;
 }

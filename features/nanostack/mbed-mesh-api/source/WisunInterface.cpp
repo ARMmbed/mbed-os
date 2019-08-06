@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2018-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -169,6 +169,30 @@ char *Nanostack::WisunInterface::get_gateway(char *buf, nsapi_size_t buflen)
 bool WisunInterface::getRouterIpAddress(char *address, int8_t len)
 {
     return _interface->get_gateway(address, len);
+}
+
+mesh_error_t WisunInterface::network_name_set(char *network_name)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+
+    int status = wisun_tasklet_network_name_set(get_interface_id(), network_name);
+    if (status != 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+
+    return ret_val;
+}
+
+mesh_error_t WisunInterface::network_regulatory_domain_set(uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
+{
+    mesh_error_t ret_val = MESH_ERROR_NONE;
+
+    int status = wisun_tasklet_regulatory_domain_set(get_interface_id(), regulatory_domain, operating_class, operating_mode);
+    if (status != 0) {
+        ret_val = MESH_ERROR_UNKNOWN;
+    }
+
+    return ret_val;
 }
 
 #define WISUN 0x2345
