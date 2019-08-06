@@ -282,6 +282,7 @@ extern "C" DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 FATFileSystem::FATFileSystem(const char *name, BlockDevice *bd)
     : FileSystem(name), _id(-1)
 {
+    _fs = { 0 };
     if (bd) {
         mount(bd);
     }

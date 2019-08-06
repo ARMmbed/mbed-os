@@ -127,6 +127,12 @@ TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     _master_record_size(0), _is_initialized(false), _active_area(0), _active_area_version(0), _size(0),
     _prog_size(0), _work_buf(0), _key_buf(0), _variant_bd_erase_unit_size(false), _inc_set_handle(0)
 {
+    for (int i = 0; i < _num_areas; i++) {
+        _area_params[i] = { 0 };
+    }
+    for (int i = 0; i < _max_open_iterators; i++) {
+        _iterator_table[i] = { 0 };
+    }
 }
 
 TDBStore::~TDBStore()
@@ -391,8 +397,8 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
                         uint32_t create_flags)
 {
     int ret;
-    uint32_t offset;
-    uint32_t hash, ram_table_ind;
+    uint32_t offset = 0;
+    uint32_t hash = 0, ram_table_ind = 0;
     inc_set_handle_t *ih;
     bool need_gc = false;
 
