@@ -192,10 +192,8 @@ int i2c_byte_read(i2c_t *obj, int last)
         base->C1 |= I2C_C1_TXAK_MASK; // NACK
     }
 
-    data = (base->D & 0xFF);
-
-    /* Change direction to Tx to avoid extra clocks. */
-    base->C1 |= I2C_C1_TX_MASK;
+    /* Read dummy to release the bus. */
+    data = base->D;
 
     /* Wait until data transfer complete. */
     while (!(base->S & kI2C_IntPendingFlag))
@@ -204,6 +202,11 @@ int i2c_byte_read(i2c_t *obj, int last)
 
     /* Clear the IICIF flag. */
     base->S = kI2C_IntPendingFlag;
+
+    /* Change direction to Tx to avoid extra clocks. */
+    base->C1 |= I2C_C1_TX_MASK;
+
+    data = (base->D & 0xFF);
 
     return data;
 }
