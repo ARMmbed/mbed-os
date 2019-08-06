@@ -487,7 +487,8 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
         return 0;
     } else {
         // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
-        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING)) {
+        // Do not update CCA count when CCA_OK is received, PHY_LINK_TX_SUCCESS will update it
+        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING) && (status != PHY_LINK_CCA_OK)) {
             /* For PHY_LINK_TX_SUCCESS and PHY_LINK_CCA_FAIL cca_retry must always be > 0.
              * PHY_LINK_TX_FAIL either happened during transmission or when waiting Ack -> we must use the CCA count given by PHY.
              */

@@ -183,6 +183,12 @@ typedef struct fhss_statistics {
 
     /** FHSS synchronization lost counter. */
     uint32_t fhss_synch_lost;
+
+    /** FHSS TX to unknown neighbour counter. */
+    uint32_t fhss_unknown_neighbor;
+
+    /** FHSS channel retry counter. */
+    uint32_t fhss_channel_retry;
 } fhss_statistics_t;
 
 /**

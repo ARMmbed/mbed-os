@@ -24,6 +24,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "Core/include/ns_socket.h"
+#include "Core/include/ns_monitor.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "NWK_INTERFACE/Include/protocol_timer.h"
 #include "platform/arm_hal_interrupt.h"
@@ -175,6 +176,7 @@ void protocol_root_tasklet(arm_event_t *event)
     switch (event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
             tr_debug("NS Root task Init");
+            ns_monitor_init();
             break;
 
         case ARM_IN_PROTOCOL_TIMER_EVENT: {
@@ -306,8 +308,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ws_pae_controller_slow_timer(seconds);
 #endif
         protocol_6lowpan_mle_timer(seconds);
-        /* This limit bad behaviour device's MLE link reject generation */
-
+        ns_monitor_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
     }
@@ -387,7 +388,6 @@ void protocol_core_init(void)
     protocol_core_timer_info.core_security_ticks_counter = SEC_LIB_X_100MS_COUNTER;
 
     protocol_timer_start(PROTOCOL_TIMER_STACK_TIM, protocol_core_cb, 100);
-
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
@@ -1140,9 +1140,9 @@ int8_t protocol_interface_address_compare(const uint8_t *addr)
     return -1;
 }
 
-static bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *interface, const uint8_t *prefix, uint8_t prefix_len)
+bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len)
 {
-    ns_list_foreach(if_address_entry_t, adr, &interface->ip_addresses) {
+    ns_list_foreach(if_address_entry_t, adr, &cur->ip_addresses) {
         if (bitsequal(adr->address, prefix, prefix_len)) {
             /* Prefix  stil used at list so stop checking */
             return true;

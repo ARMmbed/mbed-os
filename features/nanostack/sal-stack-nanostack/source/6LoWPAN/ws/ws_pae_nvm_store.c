@@ -193,6 +193,10 @@ static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_list_t *tlv_l
     fclose(fp);
 
     if (failure) {
+        ns_list_foreach_safe(nvm_tlv_entry_t, entry, tlv_list) {
+            ns_list_remove(tlv_list, entry);
+            ns_dyn_mem_free(entry);
+        }
         tr_error("NVM read error %s", file_name);
         return PAE_NVM_FILE_READ_ERROR;
     } else {

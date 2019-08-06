@@ -855,8 +855,14 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
          */
         mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
 
-        if (entry && !entry->ffd_device) {
-            rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
+        if (entry) {
+            if (ws_info(cur_interface)) {
+                ws_common_etx_validate(cur_interface, entry);
+            }
+
+            if (!entry->ffd_device) {
+                rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
+            }
         }
         protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
 

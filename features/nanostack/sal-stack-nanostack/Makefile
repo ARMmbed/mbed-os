@@ -65,6 +65,7 @@ $(TESTDIRS):
 
 $(CLEANTESTDIRS):
 	@make -C $(@:clean-%=%) clean
+	@rm -fr results
 
 .PHONY: release
 release:

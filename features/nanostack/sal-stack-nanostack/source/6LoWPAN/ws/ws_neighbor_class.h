@@ -32,6 +32,9 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_timing_info_stored: 1;
     bool broadcast_shedule_info_stored: 1;
     bool synch_done : 1;
+    bool accelerated_etx_probe : 1;
+    bool negative_aro_send : 1;
+    bool unicast_data_rx : 1;
 } ws_neighbor_class_entry_t;
 
 /**
@@ -134,15 +137,26 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie);
 
 /**
- * ws_neighbor_class_rssi_from_dbm_calculate
+ * ws_neighbor_class_rf_sensitivity_calculate
  *
- * Calculates rssi value from dbm heard taking into account min sensitivity of radio
- * dynamically adjusts min sensitivity if value is not properly set
+ * Calculates minimum heard RSL value from all packets.
+ * This will dynamically adjusts min sensitivity if value is not properly set
+ *
+ * \param rsl_heard; rsl_heard heard from Radio
+ *
+ */
+void ws_neighbor_class_rf_sensitivity_calculate(uint8_t rsl_heard);
+
+/**
+ * ws_neighbor_class_rsl_from_dbm_calculate
+ *
+ * Calculates rsl value from dbm heard.
+ * This provides a range of -174 (0) to +80 (254) dBm.
  *
  * \param dbm_heard; dbm heard from the neighbour
  *
  */
-uint8_t ws_neighbor_class_rssi_from_dbm_calculate(int8_t dbm_heard);
+uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard);
 
 /** Helper macros to read RSL values from neighbour class.
  *

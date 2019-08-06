@@ -33,7 +33,7 @@ typedef NS_LIST_HEAD(kmp_entry_t, link) kmp_list_t;
 
 typedef struct {
     kmp_list_t kmp_list;               /**< Ongoing KMP negotiations */
-    kmp_addr_t *addr;                  /**< EUI-64 (Relay IP address, Relay port) */
+    kmp_addr_t addr;                  /**< EUI-64 (Relay IP address, Relay port) */
     sec_prot_keys_t sec_keys;          /**< Security keys */
     uint32_t ticks;                    /**< Ticks */
     uint16_t retry_ticks;              /**< Retry ticks */

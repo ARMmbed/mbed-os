@@ -39,6 +39,7 @@ SRCS += \
 	source/6LoWPAN/ws/ws_eapol_auth_relay.c \
 	source/6LoWPAN/ws/ws_eapol_relay_lib.c \
 	source/6LoWPAN/ws/ws_eapol_pdu.c \
+	source/6LoWPAN/ws/ws_stats.c \
 	source/BorderRouter/border_router.c \
 	source/Common_Protocols/icmpv6.c \
 	source/Common_Protocols/icmpv6_prefix.c \
@@ -51,6 +52,7 @@ SRCS += \
 	source/Common_Protocols/tcp.c \
 	source/Common_Protocols/udp.c \
 	source/Core/ns_address_internal.c \
+	source/Core/ns_monitor.c \
 	source/Core/buffer_dyn.c \
 	source/Core/sockbuf.c \
 	source/Core/ns_socket.c \
@@ -195,6 +197,7 @@ SRCS += \
 	source/Service_Libs/utils/ns_crc.c \
 	source/Service_Libs/utils/isqrt.c \
 	source/Service_Libs/utils/ns_file_system.c \
+	source/Service_Libs/utils/ns_conf.c \
 	source/Service_Libs/mdns/ns_mdns_api.c \
 	source/Service_Libs/mdns/ns_fnet_port.c \
 	source/Service_Libs/mdns/ns_fnet_events.c \

@@ -148,7 +148,6 @@ uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_inter
 
     /* If the Ack we sent for the Data Request didn't have frame pending set, we shouldn't transmit - child may have slept */
     if (!buf->ack_pendinfg_status) {
-        //tr_debug("Drop by pending");
         if (mac_ptr->indirect_pd_data_request_queue) {
             tr_error("Wrongly dropped");
         }

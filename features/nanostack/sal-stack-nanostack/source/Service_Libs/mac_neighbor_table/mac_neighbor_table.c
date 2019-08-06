@@ -26,8 +26,6 @@
 #include "Core/include/ns_address_internal.h"
 #include "platform/topo_trace.h"
 
-#define TRACE_GROUP "mnei"
-
 mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)
 {
     mac_neighbor_table_t *table_class = ns_dyn_mem_alloc(sizeof(mac_neighbor_table_t) + sizeof(mac_neighbor_table_entry_t) * table_size);
@@ -111,11 +109,9 @@ void mac_neighbor_table_neighbor_timeout_update(mac_neighbor_table_t *table_clas
             if (table_class->user_nud_notify_cb(cur, table_class->table_user_identifier)) {
                 table_class->active_nud_process++;
                 cur->nud_active = true;
-                tr_debug("Nud started index %u : %"PRIu32" time ", cur->index, cur->lifetime);
             }
 
         } else {
-            tr_debug("Node index %u time out ", cur->index);
             neighbor_table_class_remove_entry(table_class, cur);
         }
     }
@@ -176,7 +172,6 @@ void mac_neighbor_table_neighbor_refresh(mac_neighbor_table_t *table_class, mac_
     neighbor_entry->lifetime = life_time;
     neighbor_entry->link_lifetime = life_time;
     if (neighbor_entry->nud_active) {
-        tr_debug("Node index NUD response %u : %"PRIu32" time ", neighbor_entry->index, neighbor_entry->lifetime);
         neighbor_entry->nud_active = false;
         table_class->active_nud_process--;
     }

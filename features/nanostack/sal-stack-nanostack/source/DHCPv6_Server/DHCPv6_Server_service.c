@@ -147,6 +147,11 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                     replyPacket.T1 = dhcp_ia_non_temporal_params.T1;
                     replyPacket.iaId = dhcp_ia_non_temporal_params.iaId;
                     replyPacket.transaction_ID = msg_tr_id;
+
+                    uint16_t duid_length = libdhcpv6_duid_option_size(replyPacket.clientDUID.linkType);
+                    duid_length -= 8;
+                    tr_debug("Response dhcp sol %s clientDUID", trace_array(replyPacket.clientDUID.linkID, duid_length));
+
                     //Check First Current list
                     if (DHCPv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, true) == 0) {
                         //Respond

@@ -303,9 +303,15 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
 {
     uint_fast16_t count = 0;
     ipv6_neighbour_t *entry = NULL;
+    ipv6_neighbour_t *garbage_possible_entry = NULL;
 
     ns_list_foreach(ipv6_neighbour_t, cur, &cache->list) {
-        count++;
+
+        if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
+            garbage_possible_entry = cur;
+            count++;
+        }
+
         if (addr_ipv6_equal(cur->ip_address, address)) {
             if (cur != ns_list_get_first(&cache->list)) {
                 ns_list_remove(&cache->list, cur);
@@ -315,9 +321,9 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
         }
     }
 
-    if (count >= neighbour_cache_config.max_entries) {
-        entry = ns_list_get_last(&cache->list);
-        ipv6_neighbour_entry_remove(cache, entry);
+    if (count >= neighbour_cache_config.max_entries && garbage_possible_entry) {
+        //Remove Last storaged IP_NEIGHBOUR_GARBAGE_COLLECTIBLE type entry
+        ipv6_neighbour_entry_remove(cache, garbage_possible_entry);
     }
 
     // Allocate new - note we have a basic size, plus enough for the LL address,
@@ -1065,6 +1071,23 @@ void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_a
     tr_debug("New next hop: %s", trace_ipv6(redirect_addr));
 }
 #endif
+
+void ipv6_destination_cache_forced_gc(bool full_gc)
+{
+    int gc_count = ns_list_count(&ipv6_destination_cache);
+
+    /* Minimize size of destination cache:
+     * - keep absolutely minimum number of entries if not full gc
+     * - clear all entries in case of full gc
+     **/
+    ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
+        if (entry->lifetime == 0 || gc_count > destination_cache_config.long_term_entries || full_gc) {
+            ns_list_remove(&ipv6_destination_cache, entry);
+            ipv6_destination_release(entry);
+            gc_count--;
+        }
+    }
+}
 
 static void ipv6_destination_release(ipv6_destination_t *dest)
 {

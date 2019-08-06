@@ -48,6 +48,7 @@ struct fhss_structure {
     struct fhss_ws *ws;
     struct fhss_timer platform_functions;
     struct fhss_callback callbacks;
+    struct fhss_statistics *fhss_stats_ptr;
     fhss_failed_tx_list_t fhss_failed_tx_list;
     uint8_t synch_parent[8];
 };
