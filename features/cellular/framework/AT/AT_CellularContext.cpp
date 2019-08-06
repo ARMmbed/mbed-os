@@ -977,14 +977,14 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
                 tr_info("cellular_callback: PPP mode and NSAPI_STATUS_DISCONNECTED");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
+                _is_connected = false;
             }
         }
 #else
-#if MBED_CONF_MBED_TRACE_ENABLE
         if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
             tr_info("cb: CellularContext disconnected");
+            _is_connected = false;
         }
-#endif // MBED_CONF_MBED_TRACE_ENABLE
 #endif // NSAPI_PPP_AVAILABLE
         // forward status change events to application, call_network_cb will make sure that only changed event are forwarded
         call_network_cb((nsapi_connection_status_t)ptr);

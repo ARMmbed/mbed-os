@@ -229,6 +229,9 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularC
 
 nsapi_error_t CellularDevice::shutdown()
 {
+    if (_state_machine) {
+        _state_machine->stop();
+    }
     CellularContext *curr = get_context_list();
     while (curr) {
         curr->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
