@@ -28,7 +28,7 @@ static inline uint32_t align_down(bd_size_t val, bd_size_t size)
 }
 
 BufferedBlockDevice::BufferedBlockDevice(BlockDevice *bd)
-    : _bd(bd), _bd_program_size(0), _bd_read_size(0), _write_cache_addr(0), _write_cache_valid(false),
+    : _bd(bd), _bd_program_size(0), _bd_read_size(0), _bd_size(0), _write_cache_addr(0), _write_cache_valid(false),
       _write_cache(0), _read_buf(0), _init_ref_count(0), _is_initialized(false)
 {
 }

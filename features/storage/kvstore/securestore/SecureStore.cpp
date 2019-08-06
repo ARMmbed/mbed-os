@@ -109,7 +109,7 @@ int encrypt_decrypt_start(mbedtls_aes_context &enc_aes_ctx, uint8_t *iv, const c
 int encrypt_decrypt_data(mbedtls_aes_context &enc_aes_ctx, const uint8_t *in_buf,
                          uint8_t *out_buf, uint32_t chunk_size, uint8_t *ctr_buf, size_t &aes_offs)
 {
-    uint8_t stream_block[enc_block_size];
+    uint8_t stream_block[enc_block_size] = { 0 };
 
     return mbedtls_aes_crypt_ctr(&enc_aes_ctx, chunk_size, &aes_offs, ctr_buf,
                                  stream_block, in_buf, out_buf);

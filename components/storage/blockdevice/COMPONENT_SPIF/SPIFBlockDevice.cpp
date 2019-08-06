@@ -107,7 +107,8 @@ static unsigned int local_math_power(int base, int exp);
 //***********************
 SPIFBlockDevice::SPIFBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
-    : _spi(mosi, miso, sclk), _cs(csel), _device_size_bytes(0), _is_initialized(false), _init_ref_count(0)
+    : _spi(mosi, miso, sclk), _cs(csel), _read_instruction(0), _prog_instruction(0), _erase_instruction(0),
+      _erase4k_inst(0), _page_size_bytes(0), _device_size_bytes(0), _init_ref_count(0), _is_initialized(false)
 {
     _address_size = SPIF_ADDR_SIZE_3_BYTES;
     // Initial SFDP read tables are read with 8 dummy cycles
@@ -205,7 +206,7 @@ int SPIFBlockDevice::init()
     _region_high_boundary[0] = _device_size_bytes - 1;
 
     if ((sector_map_table_addr != 0) && (0 != sector_map_table_size)) {
-        debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", sector_map_table_addr,
+        debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: init - Parsing Sector Map Table - addr: 0x%" PRIx32 "h, Size: %d", sector_map_table_addr,
                  sector_map_table_size);
         if (0 != _sfdp_parse_sector_map_table(sector_map_table_addr, sector_map_table_size)) {
             tr_error("init - Parse Sector Map Table Failed");
@@ -296,7 +297,7 @@ int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
     uint32_t offset = 0;
     uint32_t chunk = 0;
 
-    debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: program - Buff: 0x%lxh, addr: %llu, size: %llu", (uint32_t)buffer, addr, size);
+    debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: program - Buff: 0x%" PRIx32 "h, addr: %llu, size: %llu", (uint32_t)buffer, addr, size);
 
     while (size > 0) {
 
@@ -352,6 +353,10 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     int status = SPIF_BD_ERROR_OK;
     // Find region of erased address
     int region = _utils_find_addr_region(addr);
+    if (region < 0) {
+        tr_error("no region found for address %llu", addr);
+        return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
+    }
     // Erase Types of selected region
     uint8_t bitfield = _region_erase_types_bitfield[region];
 
@@ -377,7 +382,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         offset = addr % _erase_type_size_arr[type];
         chunk = ((offset + size) < _erase_type_size_arr[type]) ? size : (_erase_type_size_arr[type] - offset);
 
-        debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
+        debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %" PRIu32 " , ",
                  addr, size, cur_erase_inst, chunk);
         debug_if(MBED_CONF_SPIF_DRIVER_DEBUG, "DEBUG: erase - Region: %d, Type:%d",
                  region, type);
@@ -439,7 +444,7 @@ bd_size_t SPIFBlockDevice::get_erase_size() const
 }
 
 // Find minimal erase size supported by the region to which the address belongs to
-bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr)
+bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     // Find region of current address
     int region = _utils_find_addr_region(addr);
@@ -693,7 +698,7 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, si
                                 (param_table[5] << 8) |
                                 param_table[4]);
     _device_size_bytes = (density_bits + 1) / 8;
-    tr_debug("Density bits: %ld , device size: %llu bytes", density_bits, _device_size_bytes);
+    tr_debug("Density bits: %" PRIu32 " , device size: %llu bytes", density_bits, _device_size_bytes);
 
     // Set Default read/program/erase Instructions
     _read_instruction = SPIF_READ;
@@ -998,7 +1003,7 @@ int SPIFBlockDevice::_set_write_enable()
 /*********************************************/
 /************* Utility Functions *************/
 /*********************************************/
-int SPIFBlockDevice::_utils_find_addr_region(bd_size_t offset)
+int SPIFBlockDevice::_utils_find_addr_region(bd_size_t offset) const
 {
     //Find the region to which the given offset belong to
     if ((offset > _device_size_bytes) || (_regions_count == 0)) {
