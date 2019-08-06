@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "I2CEEBlockDevice.h"
-#include "mbed_wait_api.h"
+#include "rtos/ThisThread.h"
 using namespace mbed;
 
 #define I2CEE_TIMEOUT 10000
@@ -124,7 +124,7 @@ int I2CEEBlockDevice::_sync()
             return 0;
         }
 
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
     }
 
     return BD_ERROR_DEVICE_ERROR;
