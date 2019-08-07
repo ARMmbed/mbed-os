@@ -21,9 +21,8 @@
  */
 /*************************************************************************************************/
 
-#include "pal_types.h"
-#include "pal_bb.h"
-#include "pal_bb.h"
+#include "stack/platform/include/pal_types.h"
+#include "stack/platform/include/pal_bb.h"
 #include "nrf.h"
 #include "nrf_timer.h"
 #include <string.h>

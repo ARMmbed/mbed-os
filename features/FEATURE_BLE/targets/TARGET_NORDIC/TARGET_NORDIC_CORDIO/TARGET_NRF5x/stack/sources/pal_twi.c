@@ -22,7 +22,7 @@
 /*************************************************************************************************/
 
 #include <string.h>
-#include "pal_twi.h"
+#include "stack/platform/include/pal_twi.h"
 #include "nrfx_twim.h"
 #include "nrf_twim.h"
 #include "app_util_platform.h"
