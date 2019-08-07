@@ -287,3 +287,8 @@ void AT_CellularContext::do_connect_with_retry()
 {
 
 }
+
+char *AT_CellularContext::get_interface_name(char *interface_name)
+{
+    return NULL;
+}
