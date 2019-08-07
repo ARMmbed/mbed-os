@@ -21,7 +21,7 @@
 
 // mbed Includes
 #include "mbed_assert.h"
-#include "rtos/rtos_idle.h"
+#include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_critical.h"
 
@@ -368,7 +368,7 @@ bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
     return true;
 }
 
-ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() { 
+ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
     static NRFCordioHCITransportDriver transport_driver;
 
     static NRFCordioHCIDriver hci_driver(

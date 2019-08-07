@@ -23,12 +23,15 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/**
+ * \defgroup drivers_BusIn BusIn class
+ * \ingroup drivers-public-api-gpio
+ * @{
+ */
 
 /** A digital input bus, used for reading the state of a collection of pins
  *
  * @note Synchronization level: Thread safe
- * @ingroup drivers
  */
 class BusIn : private NonCopyable<BusIn> {
 
@@ -124,6 +127,8 @@ private:
     virtual void unlock();
 #endif
 };
+
+/** @}*/
 
 } // namespace mbed
 

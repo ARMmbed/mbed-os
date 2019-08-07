@@ -1068,10 +1068,16 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
         incdirs = cmsis_res.inc_dirs + hal_res.inc_dirs + library_incdirs
 
+        # Exclude USB related source files from Mbed OS 2 build as they contain
+        # references to RTOS API which is also not included.
+        exclude_paths = [join(MBED_DRIVERS, "source", "usb")]
+
         # Build Things
         notify.info("Building library %s (%s, %s)" %
                     ('MBED', target.name, toolchain_name))
-        objects = toolchain.compile_sources(mbed_resources, incdirs)
+        objects = toolchain.compile_legacy_sources(
+            mbed_resources, incdirs, exclude_paths
+        )
         separate_objects = []
 
         for obj in objects:

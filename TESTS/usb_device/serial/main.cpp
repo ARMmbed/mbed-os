@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018-2019, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -26,6 +26,7 @@
 #include "usb_phy_api.h"
 #include "USBCDC.h"
 #include "USBSerial.h"
+#include "hal/us_ticker_api.h"
 
 #define USB_CDC_VID 0x1f00
 #define USB_CDC_PID 0x2013

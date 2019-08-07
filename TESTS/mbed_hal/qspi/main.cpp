@@ -26,6 +26,7 @@
 
 #include "mbed.h"
 #include "qspi_api.h"
+#include "hal/us_ticker_api.h"
 
 
 #if !defined(QSPI_FLASH_CHIP_STRING)

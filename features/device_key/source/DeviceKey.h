@@ -32,7 +32,11 @@
 #if (DEVICEKEY_ENABLED) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup device-security Device Key
+ * \ingroup mbed-os-public
+ * @{
+ */
+
 
 #define DEVICE_KEY_16BYTE 16
 #define DEVICE_KEY_32BYTE 32
@@ -56,9 +60,13 @@ enum DeviceKeyStatus {
 /** Use this singleton if you need to derive a new key from the device root of trust.
  *
  * @note Synchronization level: Thread safe
- * @ingroup drivers
+ * @ingroup device-key
  */
-
+/**
+ * \defgroup device-security_DeviceKey DeviceKey class
+ * \addtogroup device-security
+ * @{
+ */
 class DeviceKey : private mbed::NonCopyable<DeviceKey> {
 public:
 
@@ -143,6 +151,8 @@ private:
     int generate_key_by_random(uint32_t *output, size_t size);
 
 };
+
+/** @}*/
 /** @}*/
 
 }

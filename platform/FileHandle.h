@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,16 +20,16 @@
 typedef int FILEHANDLE;
 
 #include <cstdio>
-#include "Callback.h"
+#include "platform/Callback.h"
 #include "platform/mbed_poll.h"
 #include "platform/platform.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
+
 /**
  * \defgroup platform_FileHandle FileHandle functions
+ * \ingroup platform-public-api-file
  * @{
  */
 
@@ -318,9 +318,6 @@ public:
 };
 
 /**@}*/
-
-/**@}*/
-
 
 } // namespace mbed
 

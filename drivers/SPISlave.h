@@ -25,7 +25,11 @@
 #include "hal/spi_api.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/**
+ * \defgroup drivers_SPISlave SPISlave class
+ * \ingroup drivers-public-api-spi
+ * @{
+ */
 
 /** A SPI slave, used for communicating with a SPI master device.
  *
@@ -51,7 +55,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class SPISlave : private NonCopyable<SPISlave> {
 
@@ -126,6 +129,8 @@ protected:
 
 #endif //!defined(DOXYGEN_ONLY)
 };
+
+/** @}*/
 
 } // namespace mbed
 

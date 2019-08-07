@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +19,14 @@
 
 #include "platform/platform.h"
 
-#include "platform/FileBase.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
  * \defgroup platform_FileSystemHandle FileSystemHandle functions
+ * \ingroup platform-public-api-file
  * @{
  */
 
@@ -104,8 +102,6 @@ public:
      */
     virtual int statvfs(const char *path, struct statvfs *buf);
 };
-/**@}*/
-
 /**@}*/
 
 } // namespace mbed

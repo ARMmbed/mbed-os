@@ -498,7 +498,7 @@
 /* Host L1 Control Register 1 */
 /* HL1CTRL1 */
 #define USB_L1STATUS            (0x0006u)   /* b2-1: L1 request completion state */
-#define USB_L1REQ               (0x0001u)   /* b0: L1 changes request bit 
+#define USB_L1REQ               (0x0001u)   /* b0: L1 changes request bit
  */
 
 /* Host L1 Control Register 2 */

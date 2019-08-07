@@ -26,12 +26,15 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/**
+ * \addtogroup drivers_LowPowerTimeout LowPowerTimeout class
+ * \ingroup drivers-public-api-ticker
+ * @{
+ */
 
 /** Low Power Timout
  *
  * @note Synchronization level: Interrupt safe
- * @ingroup drivers
  */
 class LowPowerTimeout : public LowPowerTicker, private NonCopyable<LowPowerTimeout> {
 #if !defined(DOXYGEN_ONLY)
@@ -43,7 +46,9 @@ private:
 #endif
 };
 
-}
+/** @}*/
+
+} // namespace mbed
 
 #endif
 

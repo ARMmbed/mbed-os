@@ -22,10 +22,13 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/**
+ * \defgroup drivers_BusOut BusOut class
+ * \ingroup drivers-public-api-gpio
+ * @{
+ */
 
 /** A digital output bus, used for setting the state of a collection of pins
- * @ingroup drivers
  */
 class BusOut : private NonCopyable<BusOut> {
 
@@ -124,6 +127,8 @@ protected:
     PlatformMutex _mutex;
 #endif
 };
+
+/** @}*/
 
 } // namespace mbed
 

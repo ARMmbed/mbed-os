@@ -395,16 +395,49 @@ class mbedToolchain:
         cmd_list = (c.replace("\\", "/") for c in objects if c)
         return self.make_option_file(list(cmd_list), ".archive_files.txt")
 
+    def compile_legacy_sources(
+        self, resources, inc_dirs=None, exclude_dirs=None
+    ):
+        """Compile source files with option to exclude some directories.
+
+        This method only exists to not break API compatibility and provide a
+        way to exclude directories for Mbed OS 2 builds.
+        """
+        return self._compile_sources(
+            resources, inc_dirs=inc_dirs, exclude_dirs=exclude_dirs
+        )
+
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def compile_sources(self, resources, inc_dirs=None):
+        """Compile source files."""
+        return self._compile_sources(resources, inc_dirs=inc_dirs)
+
+    @staticmethod
+    def _exclude_files_from_build(files_to_compile, exclude_dirs):
+        """Remove files from dirs to be excluded for the build."""
+        return [
+            file_to_compile
+            for file_to_compile in files_to_compile
+            if all(
+                exclude_dir not in file_to_compile.path
+                for exclude_dir in exclude_dirs
+            )
+        ]
+
+    def _compile_sources(self, resources, inc_dirs=None, exclude_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = (
             resources.get_file_refs(FileType.ASM_SRC) +
             resources.get_file_refs(FileType.C_SRC) +
             resources.get_file_refs(FileType.CPP_SRC)
         )
-        self.to_be_compiled = len(files_to_compile)
+        if exclude_dirs:
+            compilation_queue = self._exclude_files_from_build(files_to_compile, exclude_dirs)
+        else:
+            compilation_queue = files_to_compile
+
+        self.to_be_compiled = len(compilation_queue)
         self.compiled = 0
 
         self.notify.cc_verbose("Macros: " + ' '.join([
@@ -434,8 +467,8 @@ class mbedToolchain:
         self.dump_build_profile()
 
         # Sort compile queue for consistency
-        files_to_compile.sort()
-        for source in files_to_compile:
+        compilation_queue.sort()
+        for source in compilation_queue:
             object = self.relative_object_path(self.build_dir, source)
 
             # Queue mode (multiprocessing)

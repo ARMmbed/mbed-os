@@ -23,6 +23,7 @@
 #include <string.h>
 #include "rtos.h"
 #include "mbed_interface.h"
+#include "platform/mbed_error.h"
 
 using namespace mbed;
 using namespace rtos;

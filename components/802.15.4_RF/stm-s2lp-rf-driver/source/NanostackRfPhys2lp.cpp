@@ -29,6 +29,7 @@
 #include "Timeout.h"
 #include "Thread.h"
 #include "mbed_wait_api.h"
+#include "platform/mbed_error.h"
 
 using namespace mbed;
 using namespace rtos;

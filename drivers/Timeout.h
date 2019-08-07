@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,13 @@
 
 #include "drivers/Ticker.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/**
+ * \addtogroup drivers_Timeout Timeout class
+ * \ingroup drivers-public-api-ticker
+ * @{
+ */
 
 /** A Timeout is used to call a function at a point in the future
  *
@@ -53,7 +56,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class Timeout : public Ticker, private NonCopyable<Timeout> {
 
@@ -62,6 +64,8 @@ protected:
     virtual void handler();
 #endif
 };
+
+/** @}*/
 
 } // namespace mbed
 
