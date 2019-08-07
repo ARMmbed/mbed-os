@@ -1,6 +1,7 @@
+#### Version of Python required is 3.7+
+
 This directory contains tools and scripts for generating keys, preparing provisioning packets and execution of provisioning.
 These files are relevant to CY8CPROTO_064_SB or CY8CPROTO_064_SB_M0_PSA, CY8CPROTO_064_SB_PSA targets.
-Version of Python required is 3.7+
 
 **_NOTE_:** Detailed description about Secure Boot tools availabe on this link https://www.cypress.com/secureboot-sdk-user-guide
 
@@ -80,7 +81,7 @@ Secure Boot enabled targets support image upgrades, if specified by policy. Ther
 
 The upgrade images types are determined by the following policy setting (firmware sections):
 
-- **_"smif_id":_** 0, - should be set to 2 if AUGUST_CYW43012 target is used, 1 - if CY8CPROTO_064_SB, 0 - SMIF disabled
+- **_"smif_id":_** should be set to 1 for CY8CPROTO_064_SB onboard SMIF, default is 0 - SMIF disabled
 - **_"upgrade":_** true/false, - should be set to *true* if UPGRADE supported, *false* - if disabled
 - **_"encrypt":_** true/false, - should be set to *true* if encrypted UPGRADE supported, *false* - if disabled
 - **_"encrypt_key_id":_** 1, - should remain unchanged, means that Device Key will be used in ECDH/HKDF protocol
