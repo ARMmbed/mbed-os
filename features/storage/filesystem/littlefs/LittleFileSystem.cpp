@@ -149,6 +149,9 @@ LittleFileSystem::LittleFileSystem(const char *name, BlockDevice *bd,
     , _prog_size(prog_size)
     , _block_size(block_size)
     , _lookahead(lookahead)
+    , _lfs()
+    , _config()
+    , _bd(NULL)
 {
     if (bd) {
         mount(bd);

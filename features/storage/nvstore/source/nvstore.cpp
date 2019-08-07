@@ -148,6 +148,9 @@ NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_key
     _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
     _min_prog_size(0), _page_buf(0)
 {
+    for (int i = 0; i < NVSTORE_NUM_AREAS; i++) {
+        _flash_area_params[i] = { 0 };
+    }
 }
 
 NVStore::~NVStore()
@@ -859,7 +862,9 @@ int NVStore::init()
     if (!_flash) {
         return NVSTORE_OS_ERROR;
     }
-    _flash->init();
+    if (_flash->init() < 0) {
+        return NVSTORE_OS_ERROR;
+    }
 
     _min_prog_size = std::max(_flash->get_page_size(), (uint32_t)sizeof(nvstore_record_header_t));
     if (_min_prog_size > sizeof(nvstore_record_header_t)) {
