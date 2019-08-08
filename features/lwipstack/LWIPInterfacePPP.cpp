@@ -105,12 +105,16 @@ void LWIP::Interface::ppp_state_change(bool up)
             }
 
             unsigned char dns_index = 0;
-
+            // If default interface set default DNS addresses, otherwise interface specific
+            struct netif *dns_netif = &netif;
+            if (netif_check_default(&netif)) {
+                dns_netif = NULL;
+            }
             for (unsigned char index = 0; index < 2; index++) {
                 ip_addr_t dns_server;
                 const nsapi_addr_t *ipv4_dns_server = LWIP::Interface::ppp->get_dns_server(index);
                 if (ipv4_dns_server && convert_mbed_addr_to_lwip(&dns_server, ipv4_dns_server)) {
-                    dns_setserver(dns_index++, &dns_server, &netif);
+                    dns_setserver(dns_index++, &dns_server, dns_netif);
                 }
             }
         }
