@@ -50,7 +50,7 @@ public:
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t network_name_set(char *network_name);
+    mesh_error_t set_network_name(char *network_name);
 
     /**
      * \brief Set Wi-SUN network regulatory domain, operating class and operating mode.
@@ -61,13 +61,68 @@ public:
      *
      * Function overwrites parameters defined by Mbed OS configuration.
      *
-     * \param regulatory_domain Values defined in Wi-SUN PHY-specification
-     * \param operating_class Values defined in Wi-SUN PHY-specification
-     * \param operating_mode Values defined in Wi-SUN PHY-specification
+     * \param regulatory_domain Values defined in Wi-SUN PHY-specification. Use 0xff to use leave parameter unchanged.
+     * \param operating_class Values defined in Wi-SUN PHY-specification.  Use 0xff to use leave parameter unchanged.
+     * \param operating_mode Values defined in Wi-SUN PHY-specification. Use 0xff to use leave parameter unchanged.
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_UNKNOWN in case of failure.
      * */
-    mesh_error_t network_regulatory_domain_set(uint8_t regulatory_domain = 0xff, uint8_t operating_class = 0xff, uint8_t operating_mode = 0xff);
+    mesh_error_t set_network_regulatory_domain(uint8_t regulatory_domain = 0xff, uint8_t operating_class = 0xff, uint8_t operating_mode = 0xff);
+
+    /**
+     * \brief Set own certificate and private key reference to the Wi-SUN network.
+     *
+     * Function can be called several times if intermediate certificates are used. Then each call to the function
+     * adds a certificate reference to own certificate chain. Certificates are in bottom up order i.e. the top certificate is given last.
+     *
+     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function will not copy certificate or key, therefore addresses must remain valid.
+     *
+     * \param cert Certificate address.
+     * \param cert_len Certificate length in bytes.
+     * \param cert_key Certificate key address.
+     * \param cert_key_len Certificate key length in bytes.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_STATE if method is called after calling connect().
+     * \return MESH_ERROR_MEMORY in case of memory allocation failure.
+     * */
+    mesh_error_t set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key = NULL, uint16_t cert_key_len = 0);
+
+    /**
+     * \brief Remove own certificates from the Wi-SUN network.
+     *
+     * Function must be called before connecting the device i.e before first call to connect() method.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_STATE if method is called after calling connect().
+     * */
+    mesh_error_t remove_own_certificates(void);
+
+    /**
+     * \brief Set trusted certificate reference to the Wi-SUN network.
+     *
+     * Function can be called several times. Certificates are in bottom up order i.e. the top certificate is given last.
+     *
+     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function will not copy certificate, therefore addresses must remain valid.
+     *
+     * \param cert Certificate address.
+     * \param cert_len Certificate length in bytes.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_STATE if method is called after calling connect().
+     * \return MESH_ERROR_MEMORY in case of memory allocation failure.
+     * */
+    mesh_error_t set_trusted_certificate(uint8_t *cert, uint16_t cert_len);
+
+    /**
+     * \brief Remove trusted certificates from the Wi-SUN network.
+     *
+     * Function must be called before connecting the device i.e before first call to connect() method.
+     *
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_STATE if method is called after calling connect().
+     * */
+    mesh_error_t remove_trusted_certificates(void);
 
     /**
      * \brief Get router IP address

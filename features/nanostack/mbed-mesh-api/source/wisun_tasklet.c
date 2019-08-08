@@ -27,6 +27,8 @@
 #include "multicast_api.h"
 #include "mac_api.h"
 #include "sw_mac.h"
+#include "ns_list.h"
+#include "net_interface.h"
 #include "ws_management_api.h" //ws_management_node_init
 #ifdef MBED_CONF_MBED_MESH_API_CERTIFICATE_HEADER
 #if !defined(MBED_CONF_MBED_MESH_API_ROOT_CERTIFICATE) || !defined(MBED_CONF_MBED_MESH_API_OWN_CERTIFICATE) || \
@@ -75,10 +77,24 @@ typedef struct {
     uint8_t rd_operating_mode;
 } wisun_network_settings_t;
 
+typedef struct {
+    arm_certificate_entry_s arm_cert_entry;
+    ns_list_link_t      link; /*!< List link entry */
+} wisun_certificate_entry_t;
+
+typedef NS_LIST_HEAD(wisun_certificate_entry_t, link) cert_list_t;
+typedef struct {
+    cert_list_t own_certificates_list;
+    cert_list_t trusted_certificates_list;
+    bool remove_own_certificates: 1;
+    bool remove_trusted_certificates: 1;
+} wisun_certificates_t;
+
 #define WS_NA 0xff  // Not applicable value
 
 /* Tasklet data */
 static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
+static wisun_certificates_t *wisun_certificates_ptr = NULL;
 static wisun_network_settings_t wisun_settings_str = {NULL, WS_NA, WS_NA, WS_NA};
 static mac_api_t *mac_api = NULL;
 
@@ -89,6 +105,9 @@ static void wisun_tasklet_main(arm_event_s *event);
 static void wisun_tasklet_network_state_changed(mesh_connection_status_t status);
 static void wisun_tasklet_parse_network_event(arm_event_s *event);
 static void wisun_tasklet_configure_and_connect_to_network(void);
+static void wisun_tasklet_clear_stored_certificates(void) ;
+static int wisun_tasklet_store_certificate_data(const uint8_t *cert, uint16_t cert_len, const uint8_t *cert_key, uint16_t cert_key_len, bool remove_own, bool remove_trusted, bool trusted_cert);
+static int wisun_tasklet_add_stored_certificates(void) ;
 
 /*
  * \brief A function which will be eventually called by NanoStack OS when ever the OS has an event to deliver.
@@ -221,6 +240,11 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
         wisun_tasklet_data_ptr->operating_mode,
         wisun_tasklet_data_ptr->operating_mode_extension);
 
+    if (wisun_tasklet_add_stored_certificates() != 0) {
+        tr_error("Can't set Wi-SUN certificates");
+        return;
+    }
+
     status = ws_management_node_init(wisun_tasklet_data_ptr->network_interface_id,
                                      MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
                                      wisun_settings_str.network_name,
@@ -276,6 +300,118 @@ static void wisun_tasklet_network_state_changed(mesh_connection_status_t status)
     if (wisun_tasklet_data_ptr->mesh_api_cb) {
         (wisun_tasklet_data_ptr->mesh_api_cb)(status);
     }
+}
+
+static int wisun_tasklet_store_certificate_data(const uint8_t *cert, uint16_t cert_len, const uint8_t *cert_key, uint16_t cert_key_len, bool remove_own, bool remove_trusted, bool trusted_cert)
+{
+    if (wisun_certificates_ptr == NULL) {
+        wisun_certificates_ptr = (wisun_certificates_t *)ns_dyn_mem_alloc(sizeof(wisun_certificates_t));
+        if (!wisun_certificates_ptr) {
+            return -1;
+        }
+        ns_list_init(&wisun_certificates_ptr->own_certificates_list);
+        ns_list_init(&wisun_certificates_ptr->trusted_certificates_list);
+        wisun_certificates_ptr->remove_own_certificates = false;
+        wisun_certificates_ptr->remove_trusted_certificates = false;
+    }
+
+    if (remove_own) {
+        wisun_certificates_ptr->remove_own_certificates = true;
+        return 0;
+    }
+
+    if (remove_trusted) {
+        wisun_certificates_ptr->remove_trusted_certificates = true;
+        return 0;
+    }
+
+    wisun_certificate_entry_t *ws_cert_entry_store = (wisun_certificate_entry_t *)ns_dyn_mem_alloc(sizeof(wisun_certificate_entry_t));
+    if (!ws_cert_entry_store) {
+        wisun_tasklet_clear_stored_certificates();
+        return -1;
+    }
+
+    ws_cert_entry_store->arm_cert_entry.cert = cert;
+    ws_cert_entry_store->arm_cert_entry.cert_len = cert_len;
+
+    if (cert_key) {
+        ws_cert_entry_store->arm_cert_entry.key = cert_key;
+        ws_cert_entry_store->arm_cert_entry.key_len = cert_key_len;
+    } else {
+        ws_cert_entry_store->arm_cert_entry.key = NULL;
+        ws_cert_entry_store->arm_cert_entry.key_len = 0;
+    }
+
+    if (trusted_cert) {
+        ns_list_add_to_end(&wisun_certificates_ptr->trusted_certificates_list, ws_cert_entry_store);
+    } else {
+        ns_list_add_to_end(&wisun_certificates_ptr->own_certificates_list, ws_cert_entry_store);
+    }
+
+    return 0;
+}
+
+static void wisun_tasklet_clear_stored_certificates(void)
+{
+    if (!wisun_certificates_ptr) {
+        return;
+    }
+
+    ns_list_foreach_safe(wisun_certificate_entry_t, trusted_cert_entry, &wisun_certificates_ptr->trusted_certificates_list) {
+        ns_list_remove(&wisun_certificates_ptr->trusted_certificates_list, trusted_cert_entry);
+        ns_dyn_mem_free(trusted_cert_entry);
+    }
+
+    ns_list_foreach_safe(wisun_certificate_entry_t, own_cert_entry, &wisun_certificates_ptr->own_certificates_list) {
+        ns_list_remove(&wisun_certificates_ptr->own_certificates_list, own_cert_entry);
+        ns_dyn_mem_free(own_cert_entry);
+    }
+
+    ns_dyn_mem_free(wisun_certificates_ptr);
+    wisun_certificates_ptr = NULL;
+}
+
+static int wisun_tasklet_add_stored_certificates(void)
+{
+    int8_t status = 0;
+
+    if (wisun_certificates_ptr == NULL) {
+        // certificates not updated
+        return 0;
+    }
+
+    if (wisun_certificates_ptr->remove_own_certificates) {
+        status = arm_network_own_certificates_remove();
+        if (status != 0) {
+            goto CERTIFICATE_SET_END;
+        }
+    }
+
+    if (wisun_certificates_ptr->remove_trusted_certificates) {
+        status = arm_network_trusted_certificates_remove();
+        if (status != 0) {
+            goto CERTIFICATE_SET_END;
+        }
+    }
+
+    ns_list_foreach(wisun_certificate_entry_t, cert_entry, &wisun_certificates_ptr->trusted_certificates_list) {
+        status = arm_network_trusted_certificate_add(&cert_entry->arm_cert_entry);
+        if (status != 0) {
+            goto CERTIFICATE_SET_END;
+        }
+    }
+
+    ns_list_foreach(wisun_certificate_entry_t, cert_entry, &wisun_certificates_ptr->own_certificates_list) {
+        status = arm_network_own_certificate_add(&cert_entry->arm_cert_entry);
+        if (status != 0) {
+            goto CERTIFICATE_SET_END;
+        }
+    }
+
+CERTIFICATE_SET_END:
+    wisun_tasklet_clear_stored_certificates();
+
+    return status;
 }
 
 /* Public functions */
@@ -378,7 +514,7 @@ int8_t wisun_tasklet_network_init(int8_t device_id)
     return arm_nwk_interface_lowpan_init(mac_api, INTERFACE_NAME);
 }
 
-int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_ptr)
+int wisun_tasklet_set_network_name(int8_t nwk_interface_id, char *network_name_ptr)
 {
     if (!network_name_ptr || strlen(network_name_ptr) > 32) {
         return -1;
@@ -401,7 +537,7 @@ int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_p
     return 0;
 }
 
-int wisun_tasklet_regulatory_domain_set(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
+int wisun_tasklet_set_regulatory_domain(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode)
 {
     int status = 0;
 
@@ -414,4 +550,47 @@ int wisun_tasklet_regulatory_domain_set(int8_t nwk_interface_id, uint8_t regulat
     }
 
     return status;
+}
+
+int wisun_tasklet_set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key, uint16_t cert_key_len)
+{
+    if (wisun_tasklet_data_ptr) {
+        // this API can be only used before first connect()
+        tr_err("Already connected");
+        return -2;
+    }
+
+    return wisun_tasklet_store_certificate_data(cert, cert_len, cert_key, cert_key_len, false, false, false);
+}
+
+int wisun_tasklet_remove_own_certificates(void)
+{
+    if (wisun_tasklet_data_ptr) {
+        // this API can be only used before first connect()
+        tr_err("Already connected");
+        return -2;
+    }
+
+    return wisun_tasklet_store_certificate_data(NULL, 0, NULL, 0, true, false, false);
+}
+
+int wisun_tasklet_remove_trusted_certificates(void)
+{
+    if (wisun_tasklet_data_ptr) {
+        // this API can be only used before first connect()
+        tr_err("Already connected");
+        return -2;
+    }
+
+    return wisun_tasklet_store_certificate_data(NULL, 0, NULL, 0, false, true, false);
+}
+
+int wisun_tasklet_set_trusted_certificate(uint8_t *cert, uint16_t cert_len)
+{
+    if (wisun_tasklet_data_ptr) {
+        // this API can be only used before first connect()
+        tr_err("Already connected");
+        return -2;
+    }
+    return wisun_tasklet_store_certificate_data(cert, cert_len, NULL, 0, false, false, true);
 }

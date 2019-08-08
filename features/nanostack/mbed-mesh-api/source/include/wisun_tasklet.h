@@ -64,6 +64,9 @@ void wisun_tasklet_init(void);
  *
  * \param device_id registered physical device
  * \return interface ID that can be used to communication with this interface
+ * \return -1 in case of MAC initialization fails
+ * \return -2 in case of error in parameters
+ * \return -3 in case of memory allocation error
  */
 int8_t wisun_tasklet_network_init(int8_t device_id);
 
@@ -84,7 +87,7 @@ int8_t wisun_tasklet_disconnect(bool send_cb);
  * \return 0 if network name stored successfully
  * \return < 0 in case of errors
  */
-int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_ptr);
+int wisun_tasklet_set_network_name(int8_t nwk_interface_id, char *network_name_ptr);
 
 /*
  * \brief Set Wi-SUN network regulatory domain
@@ -96,7 +99,45 @@ int wisun_tasklet_network_name_set(int8_t nwk_interface_id, char *network_name_p
  * \return 0 if regulatory domain is set successfully.
  * \return < 0 in case of errors
  */
-int wisun_tasklet_regulatory_domain_set(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode);
+int wisun_tasklet_set_regulatory_domain(int8_t nwk_interface_id, uint8_t regulatory_domain, uint8_t operating_class, uint8_t operating_mode);
+
+/*
+ * \brief Set own certificate to Wi-SUN network
+ *
+ * \param cert to use for networking
+ * \param cert_len
+ * \param cert_key
+ * \param cert_key_len
+ * \return 0 if certificate stored successfully
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_set_own_certificate(uint8_t *cert, uint16_t cert_len, uint8_t *cert_key, uint16_t cert_key_len);
+
+/*
+ * \brief Remove own certificate from Wi-SUN network
+ *
+  * \return 0 if certificates removed successfully
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_remove_own_certificates(void);
+
+/*
+ * \brief Set trusted certificate to Wi-SUN network
+ *
+ * \param cert to use for networking
+ * \param cert_len
+ * \return 0 if certificate stored successfully
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_set_trusted_certificate(uint8_t *cert, uint16_t cert_len);
+
+/*
+ * \brief Remove trusted certificate from Wi-SUN network
+ *
+  * \return 0 if certificates removed successfully
+ * \return < 0 in case of errors
+ */
+int wisun_tasklet_remove_trusted_certificates(void);
 
 #ifdef __cplusplus
 }
