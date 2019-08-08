@@ -49,7 +49,6 @@ void UBLOX_AT_CellularContext::do_connect()
 {
     _at.lock();
     _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
-    CellularNetwork::RadioAccessTechnology rat = read_radio_technology();
 
     // Attempt to establish a connection
 #ifndef TARGET_UBLOX_C030_R41XM
@@ -59,6 +58,7 @@ void UBLOX_AT_CellularContext::do_connect()
     _is_context_activated = true;
     _cb_data.error = NSAPI_ERROR_OK;
 #elif TARGET_UBLOX_C030_R412M
+    CellularNetwork::RadioAccessTechnology rat = read_radio_technology();
     if (rat == CellularNetwork::RadioAccessTechnology::RAT_EGPRS) {
         if (!_is_context_active) {
             _at.set_at_timeout(150 * 1000);
@@ -345,6 +345,7 @@ CellularContext::AuthenticationType UBLOX_AT_CellularContext::get_auth()
     return _authentication_type;
 }
 
+#ifdef TARGET_UBLOX_C030_R412M
 CellularNetwork::RadioAccessTechnology UBLOX_AT_CellularContext::read_radio_technology()
 {
     int act;
@@ -382,5 +383,6 @@ CellularNetwork::RadioAccessTechnology UBLOX_AT_CellularContext::read_radio_tech
 
     return rat;
 }
+#endif // #ifdef TARGET_UBLOX_C030_R412M
 
 } /* namespace mbed */

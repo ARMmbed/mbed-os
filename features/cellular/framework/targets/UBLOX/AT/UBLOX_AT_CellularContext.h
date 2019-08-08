@@ -45,9 +45,9 @@ public:
     /** Get the next set of credentials from the database.
      */
     void get_next_credentials(char **config);
-
+#ifdef TARGET_UBLOX_C030_R412M
     CellularNetwork::RadioAccessTechnology read_radio_technology(void);
-
+#endif
 protected:
     virtual NetworkStack *get_stack();
 
