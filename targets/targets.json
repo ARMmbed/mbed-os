@@ -8852,6 +8852,7 @@
         "detect_code": ["1309"],
         "release_versions": ["2", "5"],
         "device_name": "M252KG6AE",
+        "sectors": [[0,512]],
         "bootloader_supported": true
     },
     "TMPM3H6": {
