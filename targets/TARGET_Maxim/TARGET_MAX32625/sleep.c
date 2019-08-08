@@ -36,7 +36,7 @@
 
 void hal_sleep(void)
 {
-    LP_EnterLP2();
+    LP_EnterLP1();
 }
 
 // Low-power stop mode
