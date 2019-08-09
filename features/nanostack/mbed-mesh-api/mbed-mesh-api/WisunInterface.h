@@ -75,7 +75,7 @@ public:
      * Function can be called several times if intermediate certificates are used. Then each call to the function
      * adds a certificate reference to own certificate chain. Certificates are in bottom up order i.e. the top certificate is given last.
      *
-     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function must be called before connecting the device i.e before call to connect() method.
      * Function will not copy certificate or key, therefore addresses must remain valid.
      *
      * \param cert Certificate address.
@@ -91,7 +91,7 @@ public:
     /**
      * \brief Remove own certificates from the Wi-SUN network.
      *
-     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function must be called before connecting the device i.e before call to connect() method.
      *
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_STATE if method is called after calling connect().
@@ -103,7 +103,7 @@ public:
      *
      * Function can be called several times. Certificates are in bottom up order i.e. the top certificate is given last.
      *
-     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function must be called before connecting the device i.e before call to connect() method.
      * Function will not copy certificate, therefore addresses must remain valid.
      *
      * \param cert Certificate address.
@@ -117,7 +117,7 @@ public:
     /**
      * \brief Remove trusted certificates from the Wi-SUN network.
      *
-     * Function must be called before connecting the device i.e before first call to connect() method.
+     * Function must be called before connecting the device i.e before call to connect() method.
      *
      * \return MESH_ERROR_NONE on success.
      * \return MESH_ERROR_STATE if method is called after calling connect().

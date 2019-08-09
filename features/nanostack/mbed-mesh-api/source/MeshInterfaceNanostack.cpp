@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -215,6 +215,19 @@ nsapi_error_t InterfaceNanostack::set_blocking(bool blocking)
 {
     _blocking = blocking;
     return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t InterfaceNanostack::set_file_system_root_path(const char *root_path)
+{
+    int status = mesh_system_set_file_system_root_path(root_path);
+
+    if (status == 0) {
+        return MESH_ERROR_NONE;
+    } else if (status == -2) {
+        return MESH_ERROR_MEMORY;
+    }
+
+    return MESH_ERROR_UNKNOWN;
 }
 
 #if !DEVICE_802_15_4_PHY

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2019 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include "include/mesh_system.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "ns_file_system.h"
 // For tracing we need to define flag, have include and define group
 #define HAVE_DEBUG 1
 #include "ns_trace.h"
@@ -76,4 +77,9 @@ void mesh_system_send_connect_event(uint8_t receiver)
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
     eventOS_event_send(&event);
+}
+
+int mesh_system_set_file_system_root_path(const char *root_path)
+{
+    return ns_file_system_set_root_path(root_path);
 }
