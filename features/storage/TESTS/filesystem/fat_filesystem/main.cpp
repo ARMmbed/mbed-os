@@ -82,6 +82,10 @@ void test_read_write()
     err = file.close();
     TEST_ASSERT_EQUAL(0, err);
 
+    struct stat st;
+    err = fs.stat("test_read_write.dat", &st);
+    TEST_ASSERT_EQUAL(TEST_SIZE, st.st_size);
+
     err = file.open(&fs, "test_read_write.dat", O_RDONLY);
     TEST_ASSERT_EQUAL(0, err);
     size = file.read(buffer, TEST_SIZE);
