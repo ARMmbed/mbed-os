@@ -1,0 +1,20 @@
+{
+    "name": "qca400x",
+    "macros": [
+        "A_LITTLE_ENDIAN"
+    ],
+    "config": {
+        "debug": {
+            "help": "Enable debug logs. [true/false]",
+            "value": false
+        },
+        "provide-default": {
+            "help": "Provide default WifiInterface. [true/false]",
+            "value": false
+        },
+        "connector-type": {
+            "help": "Configuration for which board is used. [ARDUINO/MIKROE]",
+            "value": "MIKROE"
+        }
+    }
+}

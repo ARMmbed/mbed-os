@@ -3147,7 +3147,8 @@
             "MBED_TICKLESS"
         ],
         "components_add": [
-            "FLASHIAP"
+            "FLASHIAP",
+            "QCA400X_WIFI"
         ],
         "extra_labels_add": [
             "M33_NS",
@@ -3190,6 +3191,9 @@
         },
         "OUTPUT_EXT": "hex",
         "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type" : "WIFI"
+        },
         "detect_code": [
             "0236"
         ]
