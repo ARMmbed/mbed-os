@@ -84,6 +84,15 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk);
  */
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel);
 
+/** Initialize the SPI peripheral
+ *
+ * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
+ * @param[out] obj  The SPI object to initialize
+ * @param[in]  explicit_pinmap pointer to strucure which holds static pinmap
+ */
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap);
+
+
 /** Release a SPI object
  *
  * TODO: spi_free is currently unimplemented
