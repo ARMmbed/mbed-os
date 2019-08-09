@@ -172,9 +172,8 @@ pdp_type_t AT_CellularContext::string_to_pdp_type(const char *pdp_type)
 }
 
 // PDP Context handling
-nsapi_error_t AT_CellularContext::delete_current_context()
+void AT_CellularContext::delete_current_context()
 {
-    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularContext::do_user_authentication()
