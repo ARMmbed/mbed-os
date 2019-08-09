@@ -517,15 +517,12 @@ int FATFileSystem::stat(const char *path, struct stat *st)
         return fat_error_remap(res);
     }
 
-    /* ARMCC doesnt support stat(), and these symbols are not defined by the toolchain. */
-#ifdef TOOLCHAIN_GCC
     st->st_size = f.fsize;
     st->st_mode = 0;
     st->st_mode |= (f.fattrib & AM_DIR) ? S_IFDIR : S_IFREG;
     st->st_mode |= (f.fattrib & AM_RDO) ?
                    (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
                    (S_IRWXU | S_IRWXG | S_IRWXO);
-#endif /* TOOLCHAIN_GCC */
     unlock();
 
     return 0;
