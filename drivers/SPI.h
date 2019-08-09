@@ -131,6 +131,33 @@ public:
      */
     SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t);
 
+    /** Create a SPI master connected to the specified pins.
+     *
+     *  @note This constructor passes the SSEL pin selection to the target HAL.
+     *  Not all targets support SSEL, so this cannot be relied on in portable code.
+     *  Portable code should use the alternative constructor that uses GPIO
+     *  for SSEL.
+     *
+     *  @note You can specify mosi or miso as NC if not used.
+     *
+     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     */
+    SPI(const spi_pinmap_t &explicit_pinmap);
+
+    /** Create a SPI master connected to the specified pins.
+     *
+     *  @note This constructor manipulates the SSEL pin as a GPIO output
+     *  using a DigitalOut object. This should work on any target, and permits
+     *  the use of select() and deselect() methods to keep the pin asserted
+     *  between transfers.
+     *
+     *  @note You can specify mosi or miso as NC if not used.
+     *
+     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param ssel SPI Chip Select pin.
+     */
+    SPI(const spi_pinmap_t &explicit_pinmap, PinName ssel);
+
     virtual ~SPI();
 
     /** Configure the data transmission format.
@@ -408,6 +435,12 @@ protected:
     char _write_fill;
     /* Select count to handle re-entrant selection */
     int8_t _select_count;
+    /* Static pinmap data */
+    const spi_pinmap_t *_explicit_pinmap;
+    /* SPI peripheral name */
+    SPIName _peripheral_name;
+    /* Pointer to spi init function */
+    void (*_init_func)(SPI*);
 
 private:
     void _do_construct();
@@ -424,6 +457,10 @@ private:
     /** Allocate an entry in the static _peripherals table.
      */
     static spi_peripheral_s *_alloc();
+
+    static void _do_init(SPI *obj);
+    static void _do_init_direct(SPI *obj);
+
 
 #endif //!defined(DOXYGEN_ONLY)
 };
