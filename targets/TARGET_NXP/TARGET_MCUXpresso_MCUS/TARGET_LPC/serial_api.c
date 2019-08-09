@@ -345,8 +345,15 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
+    USART_Type *base = uart_addrs[obj->index];
+
     while (!serial_writable(obj));
-    USART_WriteByte(uart_addrs[obj->index], (uint8_t)c);
+    USART_WriteByte(base, (uint8_t)c);
+
+    /* Wait to finish transfer */
+    while (!(base->STAT & USART_STAT_TXIDLE_MASK))
+    {
+    }
 }
 
 int serial_readable(serial_t *obj)
