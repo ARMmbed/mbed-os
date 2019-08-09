@@ -215,7 +215,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-								{% if opts['c']['compiler.std'] %}
+								{% if opts['c'].get('compiler.std') %}
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.std.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.std" value="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.std.{{opts['c']['compiler.std']}}" valueType="enumerated"/>
 								{% endif %}
 								{% if opts['c']['otheroptimizations'] != '' %}
@@ -263,7 +263,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-								{% if opts['cpp']['compiler.std'] %}
+								{% if opts['cpp'].get('compiler.std') %}
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.{{opts['cpp']['compiler.std']}}" valueType="enumerated"/>
 								{% endif %}
 
