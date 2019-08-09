@@ -8,36 +8,20 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_CONF_H
-#define __STM32L4xx_HAL_CONF_H
+#ifndef STM32L4xx_HAL_CONF_H
+#define STM32L4xx_HAL_CONF_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -65,21 +49,22 @@
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_DMA2D_MODULE_ENABLED
 #define HAL_DSI_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED
 #define HAL_FIREWALL_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_GFXMMU_MODULE_ENABLED
+#define HAL_GPIO_MODULE_ENABLED
 #define HAL_HASH_MODULE_ENABLED
 #define HAL_HCD_MODULE_ENABLED
-#define HAL_NAND_MODULE_ENABLED
-#define HAL_NOR_MODULE_ENABLED
-#define HAL_SRAM_MODULE_ENABLED
-#define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_IRDA_MODULE_ENABLED
 #define HAL_IWDG_MODULE_ENABLED
 #define HAL_LCD_MODULE_ENABLED
 #define HAL_LPTIM_MODULE_ENABLED
 #define HAL_LTDC_MODULE_ENABLED
+#define HAL_MMC_MODULE_ENABLED
+#define HAL_NAND_MODULE_ENABLED
+#define HAL_NOR_MODULE_ENABLED
 #define HAL_OPAMP_MODULE_ENABLED
 #define HAL_OSPI_MODULE_ENABLED
 #define HAL_PCD_MODULE_ENABLED
@@ -93,6 +78,7 @@
 #define HAL_SMARTCARD_MODULE_ENABLED
 #define HAL_SMBUS_MODULE_ENABLED
 #define HAL_SPI_MODULE_ENABLED
+#define HAL_SRAM_MODULE_ENABLED
 #define HAL_SWPMI_MODULE_ENABLED
 #define HAL_TIM_MODULE_ENABLED
 #define HAL_TSC_MODULE_ENABLED
@@ -108,11 +94,11 @@
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
 #if !defined  (HSE_VALUE)
-  #define HSE_VALUE    ((uint32_t)8000000U) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    8000000U /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)200U)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    100U   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -120,7 +106,7 @@
   *        This value is the default MSI range value after Reset.
   */
 #if !defined  (MSI_VALUE)
-  #define MSI_VALUE    ((uint32_t)4000000U) /*!< Value of the Internal oscillator in Hz*/
+  #define MSI_VALUE    4000000U /*!< Value of the Internal oscillator in Hz*/
 #endif /* MSI_VALUE */
 
 /**
@@ -129,7 +115,7 @@
   *        (when HSI is used as system clock source, directly or through the PLL).
   */
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE    ((uint32_t)16000000U) /*!< Value of the Internal oscillator in Hz*/
+  #define HSI_VALUE    16000000U /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
 
 /**
@@ -140,7 +126,7 @@
   *        which is subject to manufacturing process variations.
   */
 #if !defined  (HSI48_VALUE) 
-  #define HSI48_VALUE   ((uint32_t)48000000U) /*!< Value of the Internal High Speed oscillator for USB FS/SDMMC/RNG in Hz.
+  #define HSI48_VALUE   48000000U             /*!< Value of the Internal High Speed oscillator for USB FS/SDMMC/RNG in Hz.
                                                The real value my vary depending on manufacturing process variations.*/
 #endif /* HSI48_VALUE */
 
@@ -148,8 +134,8 @@
   * @brief Internal Low Speed oscillator (LSI) value.
   */
 #if !defined  (LSI_VALUE) 
-  #define LSI_VALUE  (32000U)      /*!< LSI Typical Value in Hz*/
-#endif /* LSI_VALUE */                       /*!< Value of the Internal Low Speed oscillator in Hz
+  #define LSI_VALUE  32000U                 /*!< LSI Typical Value in Hz*/
+#endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
                                               The real value may vary depending on the variations
                                               in voltage and temperature.*/
 /**
@@ -157,11 +143,11 @@
   *        This value is used by the UART, RTC HAL module to compute the system frequency
   */
 #if !defined  (LSE_VALUE)
-  #define LSE_VALUE    ((uint32_t)32768U) /*!< Value of the External oscillator in Hz*/
+  #define LSE_VALUE    32768U /*!< Value of the External oscillator in Hz*/
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)
-  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000U)  /*!< Time out for LSE start up, in ms */
+  #define LSE_STARTUP_TIMEOUT    5000U  /*!< Time out for LSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -170,7 +156,7 @@
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI1_CLOCK_VALUE)
-  #define EXTERNAL_SAI1_CLOCK_VALUE    ((uint32_t)48000U) /*!< Value of the SAI1 External clock source in Hz*/
+  #define EXTERNAL_SAI1_CLOCK_VALUE    48000U /*!< Value of the SAI1 External clock source in Hz*/
 #endif /* EXTERNAL_SAI1_CLOCK_VALUE */
 
 /**
@@ -179,7 +165,7 @@
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI2_CLOCK_VALUE)
-  #define EXTERNAL_SAI2_CLOCK_VALUE    ((uint32_t)48000U) /*!< Value of the SAI2 External clock source in Hz*/
+  #define EXTERNAL_SAI2_CLOCK_VALUE    48000U /*!< Value of the SAI2 External clock source in Hz*/
 #endif /* EXTERNAL_SAI2_CLOCK_VALUE */
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
@@ -189,8 +175,8 @@
 /**
   * @brief This is the HAL system configuration section
   */
-#define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)0x0FU) /*!< tick interrupt priority */
+#define  VDD_VALUE                    3300U /*!< Value of VDD in mv */
+#define  TICK_INT_PRIORITY            0x0FU /*!< tick interrupt priority */
 #define  USE_RTOS                     0U
 #define  PREFETCH_ENABLE              0U
 #define  INSTRUCTION_CACHE_ENABLE     1U
@@ -202,6 +188,51 @@
   *        HAL drivers code
   */
 /* #define USE_FULL_ASSERT               1U */
+
+/* ################## Register callback feature configuration ############### */
+/**
+  * @brief Set below the peripheral configuration  to "1U" to add the support
+  *        of HAL callback registration/deregistration feature for the HAL
+  *        driver(s). This allows user application to provide specific callback
+  *        functions thanks to HAL_PPP_RegisterCallback() rather than overwriting
+  *        the default weak callback functions (see each stm32l4xx_hal_ppp.h file
+  *        for possible callback identifiers defined in HAL_PPP_CallbackIDTypeDef
+  *        for each PPP peripheral).
+  */
+#define USE_HAL_ADC_REGISTER_CALLBACKS        0U
+#define USE_HAL_CAN_REGISTER_CALLBACKS        0U
+#define USE_HAL_COMP_REGISTER_CALLBACKS       0U
+#define USE_HAL_CRYP_REGISTER_CALLBACKS       0U
+#define USE_HAL_DAC_REGISTER_CALLBACKS        0U
+#define USE_HAL_DCMI_REGISTER_CALLBACKS       0U
+#define USE_HAL_DFSDM_REGISTER_CALLBACKS      0U
+#define USE_HAL_DMA2D_REGISTER_CALLBACKS      0U
+#define USE_HAL_DSI_REGISTER_CALLBACKS        0U
+#define USE_HAL_GFXMMU_REGISTER_CALLBACKS     0U
+#define USE_HAL_HASH_REGISTER_CALLBACKS       0U
+#define USE_HAL_HCD_REGISTER_CALLBACKS        0U
+#define USE_HAL_I2C_REGISTER_CALLBACKS        0U
+#define USE_HAL_IRDA_REGISTER_CALLBACKS       0U
+#define USE_HAL_LPTIM_REGISTER_CALLBACKS      0U
+#define USE_HAL_LTDC_REGISTER_CALLBACKS       0U
+#define USE_HAL_MMC_REGISTER_CALLBACKS        0U
+#define USE_HAL_OPAMP_REGISTER_CALLBACKS      0U
+#define USE_HAL_OSPI_REGISTER_CALLBACKS       0U
+#define USE_HAL_PCD_REGISTER_CALLBACKS        0U
+#define USE_HAL_QSPI_REGISTER_CALLBACKS       0U
+#define USE_HAL_RNG_REGISTER_CALLBACKS        0U
+#define USE_HAL_RTC_REGISTER_CALLBACKS        0U
+#define USE_HAL_SAI_REGISTER_CALLBACKS        0U
+#define USE_HAL_SD_REGISTER_CALLBACKS         0U
+#define USE_HAL_SMARTCARD_REGISTER_CALLBACKS  0U
+#define USE_HAL_SMBUS_REGISTER_CALLBACKS      0U
+#define USE_HAL_SPI_REGISTER_CALLBACKS        0U
+#define USE_HAL_SWPMI_REGISTER_CALLBACKS      0U
+#define USE_HAL_TIM_REGISTER_CALLBACKS        0U
+#define USE_HAL_TSC_REGISTER_CALLBACKS        0U
+#define USE_HAL_UART_REGISTER_CALLBACKS       0U
+#define USE_HAL_USART_REGISTER_CALLBACKS      0U
+#define USE_HAL_WWDG_REGISTER_CALLBACKS       0U
 
 /* ################## SPI peripheral configuration ########################## */
 
@@ -277,6 +308,14 @@
   #include "stm32l4xx_hal_dsi.h"
 #endif /* HAL_DSI_MODULE_ENABLED */
 
+#ifdef HAL_EXTI_MODULE_ENABLED
+  #include "stm32l4xx_hal_exti.h"
+#endif /* HAL_EXTI_MODULE_ENABLED */
+
+#ifdef HAL_GFXMMU_MODULE_ENABLED
+  #include "stm32l4xx_hal_gfxmmu.h"
+#endif /* HAL_GFXMMU_MODULE_ENABLED */
+
 #ifdef HAL_FIREWALL_MODULE_ENABLED
   #include "stm32l4xx_hal_firewall.h"
 #endif /* HAL_FIREWALL_MODULE_ENABLED */
@@ -289,21 +328,17 @@
   #include "stm32l4xx_hal_hash.h"
 #endif /* HAL_HASH_MODULE_ENABLED */
 
-#ifdef HAL_SRAM_MODULE_ENABLED
-  #include "stm32l4xx_hal_sram.h"
-#endif /* HAL_SRAM_MODULE_ENABLED */
-
-#ifdef HAL_NOR_MODULE_ENABLED
-  #include "stm32l4xx_hal_nor.h"
-#endif /* HAL_NOR_MODULE_ENABLED */
-
-#ifdef HAL_NAND_MODULE_ENABLED
-  #include "stm32l4xx_hal_nand.h"
-#endif /* HAL_NAND_MODULE_ENABLED */
+#ifdef HAL_HCD_MODULE_ENABLED
+  #include "stm32l4xx_hal_hcd.h"
+#endif /* HAL_HCD_MODULE_ENABLED */
 
 #ifdef HAL_I2C_MODULE_ENABLED
   #include "stm32l4xx_hal_i2c.h"
 #endif /* HAL_I2C_MODULE_ENABLED */
+
+#ifdef HAL_IRDA_MODULE_ENABLED
+  #include "stm32l4xx_hal_irda.h"
+#endif /* HAL_IRDA_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
   #include "stm32l4xx_hal_iwdg.h"
@@ -321,6 +356,18 @@
   #include "stm32l4xx_hal_ltdc.h"
 #endif /* HAL_LTDC_MODULE_ENABLED */
 
+#ifdef HAL_MMC_MODULE_ENABLED
+  #include "stm32l4xx_hal_mmc.h"
+#endif /* HAL_MMC_MODULE_ENABLED */
+
+#ifdef HAL_NAND_MODULE_ENABLED
+  #include "stm32l4xx_hal_nand.h"
+#endif /* HAL_NAND_MODULE_ENABLED */
+
+#ifdef HAL_NOR_MODULE_ENABLED
+  #include "stm32l4xx_hal_nor.h"
+#endif /* HAL_NOR_MODULE_ENABLED */
+
 #ifdef HAL_OPAMP_MODULE_ENABLED
   #include "stm32l4xx_hal_opamp.h"
 #endif /* HAL_OPAMP_MODULE_ENABLED */
@@ -328,6 +375,10 @@
 #ifdef HAL_OSPI_MODULE_ENABLED
   #include "stm32l4xx_hal_ospi.h"
 #endif /* HAL_OSPI_MODULE_ENABLED */
+
+#ifdef HAL_PCD_MODULE_ENABLED
+  #include "stm32l4xx_hal_pcd.h"
+#endif /* HAL_PCD_MODULE_ENABLED */
 
 #ifdef HAL_PWR_MODULE_ENABLED
   #include "stm32l4xx_hal_pwr.h"
@@ -353,6 +404,10 @@
   #include "stm32l4xx_hal_sd.h"
 #endif /* HAL_SD_MODULE_ENABLED */
 
+#ifdef HAL_SMARTCARD_MODULE_ENABLED
+  #include "stm32l4xx_hal_smartcard.h"
+#endif /* HAL_SMARTCARD_MODULE_ENABLED */
+
 #ifdef HAL_SMBUS_MODULE_ENABLED
   #include "stm32l4xx_hal_smbus.h"
 #endif /* HAL_SMBUS_MODULE_ENABLED */
@@ -360,6 +415,10 @@
 #ifdef HAL_SPI_MODULE_ENABLED
   #include "stm32l4xx_hal_spi.h"
 #endif /* HAL_SPI_MODULE_ENABLED */
+
+#ifdef HAL_SRAM_MODULE_ENABLED
+  #include "stm32l4xx_hal_sram.h"
+#endif /* HAL_SRAM_MODULE_ENABLED */
 
 #ifdef HAL_SWPMI_MODULE_ENABLED
   #include "stm32l4xx_hal_swpmi.h"
@@ -381,29 +440,9 @@
   #include "stm32l4xx_hal_usart.h"
 #endif /* HAL_USART_MODULE_ENABLED */
 
-#ifdef HAL_IRDA_MODULE_ENABLED
-  #include "stm32l4xx_hal_irda.h"
-#endif /* HAL_IRDA_MODULE_ENABLED */
-
-#ifdef HAL_SMARTCARD_MODULE_ENABLED
-  #include "stm32l4xx_hal_smartcard.h"
-#endif /* HAL_SMARTCARD_MODULE_ENABLED */
-
 #ifdef HAL_WWDG_MODULE_ENABLED
   #include "stm32l4xx_hal_wwdg.h"
 #endif /* HAL_WWDG_MODULE_ENABLED */
-
-#ifdef HAL_PCD_MODULE_ENABLED
-  #include "stm32l4xx_hal_pcd.h"
-#endif /* HAL_PCD_MODULE_ENABLED */
-
-#ifdef HAL_HCD_MODULE_ENABLED
-  #include "stm32l4xx_hal_hcd.h"
-#endif /* HAL_HCD_MODULE_ENABLED */
-
-#ifdef HAL_GFXMMU_MODULE_ENABLED
-  #include "stm32l4xx_hal_gfxmmu.h"
-#endif /* HAL_GFXMMU_MODULE_ENABLED */
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
@@ -417,7 +456,7 @@
 }
 #endif
 
-#endif /* __STM32L4xx_HAL_CONF_H */
+#endif /* STM32L4xx_HAL_CONF_H */
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

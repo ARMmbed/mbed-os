@@ -180,6 +180,8 @@ void lp_ticker_init(void)
 #if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT)
     /* EXTI lines are not configured by default */
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT();
+#endif
+#if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE)
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
 #endif
 
@@ -279,8 +281,8 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
          *  not less than few ticks away (LP_TIMER_SAFE_GUARD). So let's make sure it'
          *  s at least current tick + LP_TIMER_SAFE_GUARD */
         for(uint8_t i = 0; i < LP_TIMER_SAFE_GUARD; i++) {
-            if (LP_TIMER_WRAP(last_read_counter  + i) == timestamp) {
-                timestamp = LP_TIMER_WRAP(timestamp + LP_TIMER_SAFE_GUARD);
+            if (LP_TIMER_WRAP((last_read_counter + i)) == timestamp) {
+                timestamp = LP_TIMER_WRAP((timestamp + LP_TIMER_SAFE_GUARD));
             }
         }
         /* Then check if this target timestamp is not in the past, or close to wrap-around

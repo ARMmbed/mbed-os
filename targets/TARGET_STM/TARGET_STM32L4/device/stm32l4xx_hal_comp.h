@@ -6,42 +6,24 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_COMP_H
-#define __STM32L4xx_HAL_COMP_H
+#ifndef STM32L4xx_HAL_COMP_H
+#define STM32L4xx_HAL_COMP_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
-
-#if defined (COMP1) || defined (COMP2)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -50,29 +32,32 @@
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
   */
+#if defined (COMP1) || defined (COMP2)
 
 /** @addtogroup COMP
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /** @defgroup COMP_Exported_Types COMP Exported Types
   * @{
   */
 
-/** 
-  * @brief  COMP Init structure definition  
+/**
+  * @brief  COMP Init structure definition
   */
 typedef struct
 {
 
+#if defined(COMP2)
   uint32_t WindowMode;         /*!< Set window mode of a pair of comparators instances
                                     (2 consecutive instances odd and even COMP<x> and COMP<x+1>).
                                     Note: HAL COMP driver allows to set window mode from any COMP instance of the pair of COMP instances composing window mode.
                                     This parameter can be a value of @ref COMP_WindowMode */
+#endif /* COMP2 */
 
   uint32_t Mode;               /*!< Set comparator operating mode to adjust power and speed.
-                                    Note: For the characteritics of comparator power modes
+                                    Note: For the characteristics of comparator power modes
                                           (propagation delay and power consumption), refer to device datasheet.
                                     This parameter can be a value of @ref COMP_PowerMode */
 
@@ -94,7 +79,7 @@ typedef struct
   uint32_t TriggerMode;        /*!< Set the comparator output triggering External Interrupt Line (EXTI).
                                     This parameter can be a value of @ref COMP_EXTI_TriggerMode */
 
-}COMP_InitTypeDef;
+} COMP_InitTypeDef;
 
 /**
   * @brief  HAL COMP state machine: HAL COMP states definition
@@ -108,18 +93,46 @@ typedef enum
   HAL_COMP_STATE_READY_LOCKED      = (HAL_COMP_STATE_READY | COMP_STATE_BITFIELD_LOCK), /*!< COMP initialized but configuration is locked         */
   HAL_COMP_STATE_BUSY              = 0x02U,                                             /*!< COMP is running                                      */
   HAL_COMP_STATE_BUSY_LOCKED       = (HAL_COMP_STATE_BUSY | COMP_STATE_BITFIELD_LOCK)   /*!< COMP is running and configuration is locked          */
-}HAL_COMP_StateTypeDef;
+} HAL_COMP_StateTypeDef;
 
-/** 
+/**
   * @brief  COMP Handle Structure definition
   */
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+typedef struct __COMP_HandleTypeDef
+#else
 typedef struct
+#endif
 {
   COMP_TypeDef       *Instance;       /*!< Register base address    */
   COMP_InitTypeDef   Init;            /*!< COMP required parameters */
   HAL_LockTypeDef    Lock;            /*!< Locking object           */
   __IO HAL_COMP_StateTypeDef  State;  /*!< COMP communication state */
+  __IO uint32_t      ErrorCode;       /*!< COMP error code */
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+  void (* TriggerCallback)(struct __COMP_HandleTypeDef *hcomp);   /*!< COMP trigger callback */
+  void (* MspInitCallback)(struct __COMP_HandleTypeDef *hcomp);   /*!< COMP Msp Init callback */
+  void (* MspDeInitCallback)(struct __COMP_HandleTypeDef *hcomp); /*!< COMP Msp DeInit callback */
+#endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
 } COMP_HandleTypeDef;
+
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+/**
+  * @brief  HAL COMP Callback ID enumeration definition
+  */
+typedef enum
+{
+  HAL_COMP_TRIGGER_CB_ID                = 0x00U,  /*!< COMP trigger callback ID */
+  HAL_COMP_MSPINIT_CB_ID                = 0x01U,  /*!< COMP Msp Init callback ID */
+  HAL_COMP_MSPDEINIT_CB_ID              = 0x02U   /*!< COMP Msp DeInit callback ID */
+} HAL_COMP_CallbackIDTypeDef;
+
+/**
+  * @brief  HAL COMP Callback pointer definition
+  */
+typedef  void (*pCOMP_CallbackTypeDef)(COMP_HandleTypeDef *hcomp); /*!< pointer to a COMP callback function */
+
+#endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
 
 /**
   * @}
@@ -130,22 +143,35 @@ typedef struct
   * @{
   */
 
-/** @defgroup COMP_WindowMode COMP Window Mode
+/** @defgroup COMP_Error_Code COMP Error Code
   * @{
   */
-#define COMP_WINDOWMODE_DISABLE                 (0x00000000U)          /*!< Window mode disable: Comparators instances pair COMP1 and COMP2 are independent */
-#define COMP_WINDOWMODE_COMP1_INPUT_PLUS_COMMON (COMP_CSR_WINMODE)     /*!< Window mode enable: Comparators instances pair COMP1 and COMP2 have their input plus connected together. The common input is COMP1 input plus (COMP2 input plus is no more accessible). */
+#define HAL_COMP_ERROR_NONE             (0x00UL)  /*!< No error */
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+#define HAL_COMP_ERROR_INVALID_CALLBACK (0x01UL)  /*!< Invalid Callback error */
+#endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
 /**
   * @}
   */
 
+#if defined(COMP2)
+/** @defgroup COMP_WindowMode COMP Window Mode
+  * @{
+  */
+#define COMP_WINDOWMODE_DISABLE                 (0x00000000UL)         /*!< Window mode disable: Comparators instances pair COMP1 and COMP2 are independent */
+#define COMP_WINDOWMODE_COMP1_INPUT_PLUS_COMMON (COMP_CSR_WINMODE)     /*!< Window mode enable: Comparators instances pair COMP1 and COMP2 have their input plus connected together. The common input is COMP1 input plus (COMP2 input plus is no more accessible). */
+/**
+  * @}
+  */
+#endif
+
 /** @defgroup COMP_PowerMode COMP power mode
   * @{
   */
-/* Note: For the characteritics of comparator power modes                     */
+/* Note: For the characteristics of comparator power modes                    */
 /*       (propagation delay and power consumption),                           */
 /*       refer to device datasheet.                                           */
-#define COMP_POWERMODE_HIGHSPEED       (0x00000000U)          /*!< High Speed */
+#define COMP_POWERMODE_HIGHSPEED       (0x00000000UL)         /*!< High Speed */
 #define COMP_POWERMODE_MEDIUMSPEED     (COMP_CSR_PWRMODE_0)   /*!< Medium Speed */
 #define COMP_POWERMODE_ULTRALOWPOWER   (COMP_CSR_PWRMODE)     /*!< Ultra-low power mode */
 /**
@@ -155,7 +181,7 @@ typedef struct
 /** @defgroup COMP_InputPlus COMP input plus (non-inverting input)
   * @{
   */
-#define COMP_INPUT_PLUS_IO1            (0x00000000U)          /*!< Comparator input plus connected to IO1 (pin PC5 for COMP1, pin PB4 for COMP2) */
+#define COMP_INPUT_PLUS_IO1            (0x00000000UL)         /*!< Comparator input plus connected to IO1 (pin PC5 for COMP1, pin PB4 for COMP2) */
 #define COMP_INPUT_PLUS_IO2            (COMP_CSR_INPSEL_0)    /*!< Comparator input plus connected to IO2 (pin PB2 for COMP1, pin PB6 for COMP2) */
 #if defined(COMP_CSR_INPSEL_1)
 #define COMP_INPUT_PLUS_IO3            (COMP_CSR_INPSEL_1)    /*!< Comparator input plus connected to IO3 (pin PA1 for COMP1, pin PA3 for COMP2) */
@@ -189,7 +215,7 @@ typedef struct
 /** @defgroup COMP_Hysteresis COMP hysteresis
   * @{
   */
-#define COMP_HYSTERESIS_NONE           (0x00000000U)                        /*!< No hysteresis */
+#define COMP_HYSTERESIS_NONE           (0x00000000UL)                       /*!< No hysteresis */
 #define COMP_HYSTERESIS_LOW            (                  COMP_CSR_HYST_0)  /*!< Hysteresis level low */
 #define COMP_HYSTERESIS_MEDIUM         (COMP_CSR_HYST_1                  )  /*!< Hysteresis level medium */
 #define COMP_HYSTERESIS_HIGH           (COMP_CSR_HYST_1 | COMP_CSR_HYST_0)  /*!< Hysteresis level high */
@@ -200,7 +226,7 @@ typedef struct
 /** @defgroup COMP_OutputPolarity COMP output Polarity
   * @{
   */
-#define COMP_OUTPUTPOL_NONINVERTED     (0x00000000U)          /*!< COMP output level is not inverted (comparator output is high when the input plus is at a higher voltage than the input minus) */
+#define COMP_OUTPUTPOL_NONINVERTED     (0x00000000UL)         /*!< COMP output level is not inverted (comparator output is high when the input plus is at a higher voltage than the input minus) */
 #define COMP_OUTPUTPOL_INVERTED        (COMP_CSR_POLARITY)    /*!< COMP output level is inverted     (comparator output is low  when the input plus is at a higher voltage than the input minus) */
 /**
   * @}
@@ -209,7 +235,7 @@ typedef struct
 /** @defgroup COMP_BlankingSrce  COMP blanking source
   * @{
   */
-#define COMP_BLANKINGSRC_NONE            (0x00000000U)           /*!<Comparator output without blanking */
+#define COMP_BLANKINGSRC_NONE            (0x00000000UL)          /*!<Comparator output without blanking */
 #define COMP_BLANKINGSRC_TIM1_OC5_COMP1  (COMP_CSR_BLANKING_0)   /*!< Comparator output blanking source TIM1 OC5 (specific to COMP instance: COMP1) */
 #define COMP_BLANKINGSRC_TIM2_OC3_COMP1  (COMP_CSR_BLANKING_1)   /*!< Comparator output blanking source TIM2 OC3 (specific to COMP instance: COMP1) */
 #define COMP_BLANKINGSRC_TIM3_OC3_COMP1  (COMP_CSR_BLANKING_2)   /*!< Comparator output blanking source TIM3 OC3 (specific to COMP instance: COMP1) */
@@ -229,10 +255,10 @@ typedef struct
 
 /* When output polarity is not inverted, comparator output is low when
    the input plus is at a lower voltage than the input minus */
-#define COMP_OUTPUT_LEVEL_LOW              (0x00000000U)
+#define COMP_OUTPUT_LEVEL_LOW              (0x00000000UL)
 /* When output polarity is not inverted, comparator output is high when
    the input plus is at a higher voltage than the input minus */
-#define COMP_OUTPUT_LEVEL_HIGH             (0x00000001U)
+#define COMP_OUTPUT_LEVEL_HIGH             (0x00000001UL)
 /**
   * @}
   */
@@ -240,7 +266,7 @@ typedef struct
 /** @defgroup COMP_EXTI_TriggerMode COMP output to EXTI
   * @{
   */
-#define COMP_TRIGGERMODE_NONE                 (0x00000000U)                                             /*!< Comparator output triggering no External Interrupt Line */
+#define COMP_TRIGGERMODE_NONE                 (0x00000000UL)                                            /*!< Comparator output triggering no External Interrupt Line */
 #define COMP_TRIGGERMODE_IT_RISING            (COMP_EXTI_IT | COMP_EXTI_RISING)                         /*!< Comparator output triggering External Interrupt Line event with interruption, on rising edge */
 #define COMP_TRIGGERMODE_IT_FALLING           (COMP_EXTI_IT | COMP_EXTI_FALLING)                        /*!< Comparator output triggering External Interrupt Line event with interruption, on falling edge */
 #define COMP_TRIGGERMODE_IT_RISING_FALLING    (COMP_EXTI_IT | COMP_EXTI_RISING | COMP_EXTI_FALLING)     /*!< Comparator output triggering External Interrupt Line event with interruption, on both rising and falling edges */
@@ -268,7 +294,22 @@ typedef struct
   * @param  __HANDLE__  COMP handle
   * @retval None
   */
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+#define __HAL_COMP_RESET_HANDLE_STATE(__HANDLE__) do{                                                  \
+                                                      (__HANDLE__)->State = HAL_COMP_STATE_RESET;      \
+                                                      (__HANDLE__)->MspInitCallback = NULL;            \
+                                                      (__HANDLE__)->MspDeInitCallback = NULL;          \
+                                                    } while(0)
+#else
 #define __HAL_COMP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_COMP_STATE_RESET)
+#endif
+
+/**
+  * @brief Clear COMP error code (set it to no error code "HAL_COMP_ERROR_NONE").
+  * @param __HANDLE__ COMP handle
+  * @retval None
+  */
+#define COMP_CLEAR_ERRORCODE(__HANDLE__) ((__HANDLE__)->ErrorCode = HAL_COMP_ERROR_NONE)
 
 /**
   * @brief  Enable the specified comparator.
@@ -346,7 +387,7 @@ typedef struct
 /**
   * @brief  Disable the COMP1 EXTI line rising & falling edge trigger.
   * @retval None
-  */                                         
+  */
 #define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_FALLING_EDGE()  do { \
                                                                LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP1); \
                                                                LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP1); \
@@ -394,6 +435,7 @@ typedef struct
   */
 #define __HAL_COMP_COMP1_EXTI_CLEAR_FLAG()            LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP1)
 
+#if defined(COMP2)
 /**
   * @brief  Enable the COMP2 EXTI line rising edge trigger.
   * @retval None
@@ -478,6 +520,7 @@ typedef struct
   */
 #define __HAL_COMP_COMP2_EXTI_CLEAR_FLAG()            LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2)
 
+#endif /* COMP2 */
 /**
   * @}
   */
@@ -497,7 +540,9 @@ typedef struct
   * @{
   */
 #define COMP_EXTI_LINE_COMP1           (LL_EXTI_LINE_21)  /*!< EXTI line 21 connected to COMP1 output */
+#if defined(COMP2)
 #define COMP_EXTI_LINE_COMP2           (LL_EXTI_LINE_22)  /*!< EXTI line 22 connected to COMP2 output */
+#endif /* COMP2 */
 /**
   * @}
   */
@@ -505,10 +550,10 @@ typedef struct
 /** @defgroup COMP_ExtiLine COMP EXTI Lines
   * @{
   */
-#define COMP_EXTI_IT                        (0x01U)  /*!< EXTI line event with interruption */
-#define COMP_EXTI_EVENT                     (0x02U)  /*!< EXTI line event only (without interruption) */
-#define COMP_EXTI_RISING                    (0x10U)  /*!< EXTI line event on rising edge */
-#define COMP_EXTI_FALLING                   (0x20U)  /*!< EXTI line event on falling edge */
+#define COMP_EXTI_IT                        (0x00000001UL)  /*!< EXTI line event with interruption */
+#define COMP_EXTI_EVENT                     (0x00000002UL)  /*!< EXTI line event only (without interruption) */
+#define COMP_EXTI_RISING                    (0x00000010UL)  /*!< EXTI line event on rising edge */
+#define COMP_EXTI_FALLING                   (0x00000020UL)  /*!< EXTI line event on falling edge */
 /**
   * @}
   */
@@ -522,7 +567,7 @@ typedef struct
   * @{
   */
 
-/** @defgroup COMP_GET_EXTI_LINE COMP private macros to get EXTI line associated with comparators 
+/** @defgroup COMP_GET_EXTI_LINE COMP private macros to get EXTI line associated with comparators
   * @{
   */
 /**
@@ -530,8 +575,12 @@ typedef struct
   * @param  __INSTANCE__  specifies the COMP instance.
   * @retval value of @ref COMP_ExtiLine
   */
-#define COMP_GET_EXTI_LINE(__INSTANCE__)    (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 \
-                                            : COMP_EXTI_LINE_COMP2)
+#if defined(COMP2)
+#define COMP_GET_EXTI_LINE(__INSTANCE__)    (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1  \
+                                             : COMP_EXTI_LINE_COMP2)
+#else
+#define COMP_GET_EXTI_LINE(__INSTANCE__)    COMP_EXTI_LINE_COMP1
+#endif /* COMP2 */
 /**
   * @}
   */
@@ -539,8 +588,10 @@ typedef struct
 /** @defgroup COMP_IS_COMP_Definitions COMP private macros to check input parameters
   * @{
   */
+#if defined(COMP2)
 #define IS_COMP_WINDOWMODE(__WINDOWMODE__)  (((__WINDOWMODE__) == COMP_WINDOWMODE_DISABLE)                || \
                                              ((__WINDOWMODE__) == COMP_WINDOWMODE_COMP1_INPUT_PLUS_COMMON)  )
+#endif
 
 #define IS_COMP_POWERMODE(__POWERMODE__)    (((__POWERMODE__) == COMP_POWERMODE_HIGHSPEED)    || \
                                              ((__POWERMODE__) == COMP_POWERMODE_MEDIUMSPEED)  || \
@@ -609,6 +660,7 @@ typedef struct
 #define IS_COMP_OUTPUTPOL(__POL__)          (((__POL__) == COMP_OUTPUTPOL_NONINVERTED) || \
                                              ((__POL__) == COMP_OUTPUTPOL_INVERTED))
 
+#if defined(COMP2)
 #define IS_COMP_BLANKINGSRCE(__OUTPUT_BLANKING_SOURCE__)                    \
   (   ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)               \
    || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM1_OC5_COMP1)     \
@@ -618,7 +670,24 @@ typedef struct
    || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM8_OC5_COMP2)     \
    || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM15_OC1_COMP2)    \
   )
+#else
+#if defined(TIM3)
+#define IS_COMP_BLANKINGSRCE(__OUTPUT_BLANKING_SOURCE__)                    \
+  (   ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)               \
+   || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM1_OC5_COMP1)     \
+   || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM2_OC3_COMP1)     \
+   || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM3_OC3_COMP1)     \
+  )
+#else
+#define IS_COMP_BLANKINGSRCE(__OUTPUT_BLANKING_SOURCE__)                    \
+  (   ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)               \
+   || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM1_OC5_COMP1)     \
+   || ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM2_OC3_COMP1)     \
+  )
+#endif /* TIM3 */
+#endif /* COMP2 */
 
+#if defined(COMP2)
 #define IS_COMP_BLANKINGSRC_INSTANCE(__INSTANCE__, __OUTPUT_BLANKING_SOURCE__)  \
    ((((__INSTANCE__) == COMP1) &&                                               \
     (((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)            ||      \
@@ -631,7 +700,22 @@ typedef struct
       ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM3_OC4_COMP2) ||      \
       ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM8_OC5_COMP2) ||      \
       ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM15_OC1_COMP2))))
-
+#else
+#if defined(TIM3)
+     #define IS_COMP_BLANKINGSRC_INSTANCE(__INSTANCE__, __OUTPUT_BLANKING_SOURCE__)  \
+    (((__INSTANCE__) == COMP1) &&                                               \
+    (((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)            ||      \
+     ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM1_OC5_COMP1)  ||      \
+     ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM2_OC3_COMP1)  ||      \
+     ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM3_OC3_COMP1)))
+#else
+     #define IS_COMP_BLANKINGSRC_INSTANCE(__INSTANCE__, __OUTPUT_BLANKING_SOURCE__)  \
+    (((__INSTANCE__) == COMP1) &&                                               \
+    (((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_NONE)            ||      \
+     ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM1_OC5_COMP1)  ||      \
+     ((__OUTPUT_BLANKING_SOURCE__) == COMP_BLANKINGSRC_TIM2_OC3_COMP1)  ))
+#endif /* TIM3 */
+#endif /* COMP2 */
 
 #define IS_COMP_TRIGGERMODE(__MODE__)       (((__MODE__) == COMP_TRIGGERMODE_NONE)                 || \
                                              ((__MODE__) == COMP_TRIGGERMODE_IT_RISING)            || \
@@ -664,9 +748,16 @@ typedef struct
 
 /* Initialization and de-initialization functions  **********************************/
 HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp);
-HAL_StatusTypeDef HAL_COMP_DeInit (COMP_HandleTypeDef *hcomp);
+HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp);
 void              HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp);
+
+#if (USE_HAL_COMP_REGISTER_CALLBACKS == 1)
+/* Callbacks Register/UnRegister functions  ***********************************/
+HAL_StatusTypeDef HAL_COMP_RegisterCallback(COMP_HandleTypeDef *hcomp, HAL_COMP_CallbackIDTypeDef CallbackID,
+                                            pCOMP_CallbackTypeDef pCallback);
+HAL_StatusTypeDef HAL_COMP_UnRegisterCallback(COMP_HandleTypeDef *hcomp, HAL_COMP_CallbackIDTypeDef CallbackID);
+#endif /* USE_HAL_COMP_REGISTER_CALLBACKS */
 /**
   * @}
   */
@@ -699,6 +790,7 @@ void              HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp);
   * @{
   */
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
+uint32_t              HAL_COMP_GetError(COMP_HandleTypeDef *hcomp);
 /**
   * @}
   */
@@ -710,7 +802,7 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 /**
   * @}
   */
-
+#endif /* COMP1 || COMP2 */
 /**
   * @}
   */
@@ -719,8 +811,6 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 }
 #endif
 
-#endif /* COMP1 || COMP2 */
-
-#endif /* __STM32L4xx_HAL_COMP_H */
+#endif /* STM32L4xx_HAL_COMP_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

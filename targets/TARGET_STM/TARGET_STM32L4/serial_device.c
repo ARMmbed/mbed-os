@@ -189,13 +189,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
             // Check if TxIrq is disabled too
-            if ((huart->Instance->CR1 & USART_CR1_TXEIE) == 0) {
+            if (LL_LPUART_IsEnabledIT_TXE(huart->Instance) == 0) {
                 all_disabled = 1;
             }
         } else { // TxIrq
             __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
             // Check if RxIrq is disabled too
-            if ((huart->Instance->CR1 & USART_CR1_RXNEIE) == 0) {
+            if (LL_LPUART_IsEnabledIT_RXNE(huart->Instance) == 0) {
                 all_disabled = 1;
             }
         }
