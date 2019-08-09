@@ -43,6 +43,12 @@ typedef struct {
     const int *peripheral;
 } PeripheralList;
 
+typedef struct {
+    int peripheral;    // Explicitly specified peripheral
+    PinName *pin;;     // Pointer to array which contains pins
+    int *function;     // Pointer to array which contains pins functions
+} explicit_pinmap_t;
+
 void pin_function(PinName pin, int function);
 void pin_mode(PinName pin, PinMode mode);
 
