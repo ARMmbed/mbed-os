@@ -29,12 +29,12 @@
  * AES-CFB128 buffer encryption/decryption
  */
 int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       size_t *iv_off,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+                              int mode,
+                              size_t length,
+                              size_t *iv_off,
+                              unsigned char iv[16],
+                              const unsigned char *input,
+                              unsigned char *output )
 {
     return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 }
@@ -43,11 +43,11 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
  * AES-CFB8 buffer encryption/decryption
  */
 int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+                            int mode,
+                            size_t length,
+                            unsigned char iv[16],
+                            const unsigned char *input,
+                            unsigned char *output )
 {
     return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 }
@@ -82,11 +82,11 @@ int mbedtls_aes_crypt_xts( mbedtls_aes_xts_context *ctx,
 
 #if defined(MBEDTLS_CIPHER_MODE_OFB)
 int mbedtls_aes_crypt_ofb( mbedtls_aes_context *ctx,
-                       size_t length,
-                       size_t *iv_off,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output );
+                           size_t length,
+                           size_t *iv_off,
+                           unsigned char iv[16],
+                           const unsigned char *input,
+                           unsigned char *output );
 {
     return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 }
@@ -114,9 +114,8 @@ void mbedtls_aes_xts_free( mbedtls_aes_xts_context *ctx ){}
 static int CC_aes_setkey( mbedtls_aes_context *ctx, const unsigned char *key,
                           unsigned int keybits, SaSiAesEncryptMode_t cipher_flag )
 {
-
     int ret = 0;
-    if ( ctx == NULL )
+    if( ctx == NULL )
         return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
 
     switch( keybits )
@@ -135,17 +134,16 @@ static int CC_aes_setkey( mbedtls_aes_context *ctx, const unsigned char *key,
             return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
-    return ( 0 );
-
+    return( 0 );
 }
 int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                            unsigned int keybits )
 {
     return( CC_aes_setkey( ctx, key, keybits, SASI_AES_ENCRYPT ) );
 }
 
 int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                            unsigned int keybits )
 {
     return( CC_aes_setkey( ctx, key, keybits, SASI_AES_DECRYPT ) );
 }
@@ -177,17 +175,17 @@ static int CC_aes_cipher( mbedtls_aes_context *ctx,
     if( iv )
     {
         if( iv_len != SASI_AES_IV_SIZE_IN_BYTES )
-            return MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH;
+            return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
-        ret = SaSi_AesSetIv ( &ctx->CC_Context, iv );
+        ret = SaSi_AesSetIv( &ctx->CC_Context, iv );
         if( ret != 0 )
-            return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+            return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
      }
 
      ret = SaSi_AesFinish( &ctx->CC_Context, length,
                            ( unsigned char* )input, length, output, &length );
      if( ret != 0 )
-         return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+         return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 
      /* update the IV for next block
       * For CTR mode, update the nonce only if the current length is a full AES block length
@@ -199,20 +197,20 @@ static int CC_aes_cipher( mbedtls_aes_context *ctx,
      {
           ret = SaSi_AesGetIv( &ctx->CC_Context, iv );
           if( ret != 0 )
-              return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+              return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
       }
 
       ret = SaSi_AesFree( &ctx->CC_Context );
-      if ( ret != 0 )
-          return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+      if( ret != 0 )
+          return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 
-      return ( 0 );
+      return( 0 );
 }
 
 int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
-                    int mode,
-                    const unsigned char input[16],
-                    unsigned char output[16] )
+                           int mode,
+                           const unsigned char input[16],
+                           unsigned char output[16] )
 {
     if( ctx == NULL )
         return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
@@ -233,7 +231,7 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                            unsigned char *output )
 {
     if( ctx == NULL )
-        return ( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
+        return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
 
     if( length % SASI_AES_BLOCK_SIZE_IN_BYTES )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
@@ -262,7 +260,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     if( ctx == NULL )
         return( MBEDTLS_ERR_AES_BAD_INPUT_DATA );
 
-    if ( *nc_off )
+    if( *nc_off )
     {
         /* handle corner case where we are resuming a previous encryption,
          * and we are resuming within current cipher stream(stream_block) */
@@ -304,7 +302,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     *nc_off = ( length % SASI_AES_BLOCK_SIZE_IN_BYTES );
 
 exit:
-    return ret;
+    return( ret );
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 #endif/* MBEDTLS_AES_ALT */
