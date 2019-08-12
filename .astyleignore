@@ -21,8 +21,8 @@
 ^features/unsupported/
 ^hal/storage_abstraction
 ^platform/cxxsupport
-^rtos/TARGET_CORTEX/rtx4
-^rtos/TARGET_CORTEX/rtx5
+^rtos/source/TARGET_CORTEX/rtx4
+^rtos/source/TARGET_CORTEX/rtx5
 ^targets
 ^TESTS/mbed_hal/trng/pithy
 ^TESTS/mbed_hal/trng/pithy
