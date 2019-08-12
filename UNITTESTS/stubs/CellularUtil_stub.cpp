@@ -28,6 +28,7 @@ int CellularUtil_stub::char_pos = 0;
 char *CellularUtil_stub::char_table[50] = {};
 int CellularUtil_stub::table_idx = 0;
 
+using namespace mbed;
 namespace mbed_cellular_util {
 
 #define MAX_STRING_LEN 200
@@ -122,6 +123,11 @@ int char_str_to_hex_str(const char *str, uint16_t len, char *buf, bool omit_lead
 uint16_t get_dynamic_ip_port()
 {
     return CellularUtil_stub::uint16_value;
+}
+
+pdp_type_t string_to_pdp_type(const char *pdp_type)
+{
+    return IPV4V6_PDP_TYPE;
 }
 
 } // namespace mbed_cellular_util

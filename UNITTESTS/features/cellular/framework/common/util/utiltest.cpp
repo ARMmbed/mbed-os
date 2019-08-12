@@ -18,6 +18,7 @@
 #include <string.h>
 #include "CellularUtil.h"
 
+using namespace mbed;
 using namespace mbed_cellular_util;
 
 // AStyle ignored as the definition is not clear due to preprocessor usage
@@ -213,5 +214,23 @@ TEST_F(Testutil, int_to_hex_str)
 
     EXPECT_TRUE(buf[0] == '6');
     EXPECT_TRUE(buf[1] == '4');
+}
+
+TEST_F(Testutil, string_to_pdp_type)
+{
+    pdp_type_t type = string_to_pdp_type("IPV4V6");
+    ASSERT_EQ(type, IPV4V6_PDP_TYPE);
+
+    type = string_to_pdp_type("IPV6");
+    ASSERT_EQ(type, IPV6_PDP_TYPE);
+
+    type = string_to_pdp_type("IP");
+    ASSERT_EQ(type, IPV4_PDP_TYPE);
+
+    type = string_to_pdp_type("Non-IP");
+    ASSERT_EQ(type, NON_IP_PDP_TYPE);
+
+    type = string_to_pdp_type("diipadaapa");
+    ASSERT_EQ(type, DEFAULT_PDP_TYPE);
 }
 

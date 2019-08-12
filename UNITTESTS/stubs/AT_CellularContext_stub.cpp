@@ -166,11 +166,6 @@ AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_pro
     return prop;
 }
 
-pdp_type_t AT_CellularContext::string_to_pdp_type(const char *pdp_type)
-{
-    return IPV4V6_PDP_TYPE;
-}
-
 // PDP Context handling
 nsapi_error_t AT_CellularContext::delete_current_context()
 {

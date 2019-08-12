@@ -19,6 +19,8 @@
 
 #include "Semaphore.h"
 
+using namespace mbed_cellular_util;
+
 namespace mbed {
 
 TELIT_ME910_CellularContext::TELIT_ME910_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :

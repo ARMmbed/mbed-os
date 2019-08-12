@@ -20,7 +20,6 @@
 #include "AT_CellularStack.h"
 #include "AT_CellularDevice.h"
 #include "CellularLog.h"
-#include "CellularUtil.h"
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
 #endif // #if DEVICE_SERIAL
@@ -289,23 +288,6 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
     _apn = apn;
     _uname = uname;
     _pwd = pwd;
-}
-
-pdp_type_t AT_CellularContext::string_to_pdp_type(const char *pdp_type_str)
-{
-    pdp_type_t pdp_type = DEFAULT_PDP_TYPE;
-    int len = strlen(pdp_type_str);
-
-    if (len == 6 && memcmp(pdp_type_str, "IPV4V6", len) == 0) {
-        pdp_type = IPV4V6_PDP_TYPE;
-    } else if (len == 4 && memcmp(pdp_type_str, "IPV6", len) == 0) {
-        pdp_type = IPV6_PDP_TYPE;
-    } else if (len == 2 && memcmp(pdp_type_str, "IP", len) == 0) {
-        pdp_type = IPV4_PDP_TYPE;
-    } else if (len == 6 && memcmp(pdp_type_str, "Non-IP", len) == 0) {
-        pdp_type = NON_IP_PDP_TYPE;
-    }
-    return pdp_type;
 }
 
 // PDP Context handling

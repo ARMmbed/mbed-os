@@ -19,6 +19,7 @@
 
 #include "CellularInterface.h"
 #include "CellularDevice.h"
+#include "CellularUtil.h"
 #include "ControlPlane_netif.h"
 #include "PinNames.h"
 
@@ -28,14 +29,6 @@
  */
 
 namespace mbed {
-
-typedef enum pdp_type {
-    DEFAULT_PDP_TYPE = DEFAULT_STACK,
-    IPV4_PDP_TYPE = IPV4_STACK,
-    IPV6_PDP_TYPE = IPV6_STACK,
-    IPV4V6_PDP_TYPE = IPV4V6_STACK,
-    NON_IP_PDP_TYPE
-} pdp_type_t;
 
 /**
  * @addtogroup cellular

@@ -101,7 +101,6 @@ protected:
     virtual void set_disconnect();
     virtual void deactivate_context();
     virtual bool get_context();
-    pdp_type_t string_to_pdp_type(const char *pdp_type);
     AT_CellularBase::CellularProperty pdp_type_t_to_cellular_property(pdp_type_t pdp_type);
     bool set_new_context(int cid);
 private:
