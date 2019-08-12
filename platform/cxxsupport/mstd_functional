@@ -474,7 +474,7 @@ public:
 }
 
 template <typename F>
-impl::not_fn_t<F> not_fn_t(F&& f)
+impl::not_fn_t<F> not_fn(F&& f)
 {
     return impl::not_fn_t<F>(std::forward<F>(f));
 }
