@@ -90,6 +90,8 @@ CellularDevice *CellularDevice::get_default_instance()
 
 nsapi_error_t UBLOX_AT::init()
 {
+    setup_at_handler();
+
     _at->lock();
     _at->flush();
     _at->cmd_start("AT");

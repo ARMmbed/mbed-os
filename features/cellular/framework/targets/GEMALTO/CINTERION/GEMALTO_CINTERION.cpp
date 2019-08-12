@@ -78,6 +78,8 @@ nsapi_error_t GEMALTO_CINTERION::init()
     }
     tr_info("Cinterion model %s (%d)", model, _module);
 
+    set_at_urcs();
+
     return NSAPI_ERROR_OK;
 }
 

@@ -44,13 +44,6 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
     MBED_ASSERT(fh);
     _at = get_at_handler(fh);
     MBED_ASSERT(_at);
-
-    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
-        _at->set_urc_handler("+CGEV: NW DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
-        _at->set_urc_handler("+CGEV: ME DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
-        _at->set_urc_handler("+CGEV: NW PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
-        _at->set_urc_handler("+CGEV: ME PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
-    }
 }
 
 AT_CellularDevice::~AT_CellularDevice()
@@ -82,6 +75,29 @@ AT_CellularDevice::~AT_CellularDevice()
     }
 
     release_at_handler(_at);
+}
+
+void AT_CellularDevice::set_at_urcs_impl()
+{
+}
+
+void AT_CellularDevice::set_at_urcs()
+{
+    if (AT_CellularBase::get_property(AT_CellularBase::PROPERTY_AT_CGEREP)) {
+        _at->set_urc_handler("+CGEV: NW DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
+        _at->set_urc_handler("+CGEV: ME DEACT", callback(this, &AT_CellularDevice::urc_nw_deact));
+        _at->set_urc_handler("+CGEV: NW PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
+        _at->set_urc_handler("+CGEV: ME PDN D", callback(this, &AT_CellularDevice::urc_pdn_deact));
+    }
+
+    set_at_urcs_impl();
+}
+
+void AT_CellularDevice::setup_at_handler()
+{
+    set_at_urcs();
+
+    _at->set_send_delay(get_send_delay());
 }
 
 void AT_CellularDevice::urc_nw_deact()
@@ -424,6 +440,8 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
 nsapi_error_t AT_CellularDevice::init()
 {
+    setup_at_handler();
+
     _at->lock();
     _at->flush();
     _at->at_cmd_discard("E0", "");

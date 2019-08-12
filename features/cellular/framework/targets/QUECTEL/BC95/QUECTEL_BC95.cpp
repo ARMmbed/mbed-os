@@ -85,6 +85,8 @@ AT_CellularInformation *QUECTEL_BC95::open_information_impl(ATHandler &at)
 
 nsapi_error_t QUECTEL_BC95::init()
 {
+    setup_at_handler();
+
     _at->lock();
     _at->flush();
     _at->cmd_start("AT");

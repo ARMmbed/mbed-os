@@ -144,6 +144,13 @@ public:
 protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
     void send_disconnect_to_context(int cid);
+    // Sets commonly used URCs
+    void set_at_urcs();
+    // To be used for setting target specific URCs
+    virtual void set_at_urcs_impl();
+    // Sets up parameters for AT handler, for now only the send delay and URCs.
+    // This kind of routine is needed for initialisation routines that are virtual and therefore cannot be called from constructor.
+    void setup_at_handler();
 
 private:
     void urc_nw_deact();

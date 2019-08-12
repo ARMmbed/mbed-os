@@ -39,8 +39,12 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 UBLOX_N2XX::UBLOX_N2XX(FileHandle *fh): AT_CellularDevice(fh)
 {
     AT_CellularBase::set_cellular_properties(cellular_properties);
-    _at->set_urc_handler("+NPIN:", mbed::Callback<void()>(this, &UBLOX_N2XX::NPIN_URC));
     memset(simstr, 0, sizeof(simstr));
+}
+
+void UBLOX_N2XX::set_at_urcs_impl()
+{
+    _at->set_urc_handler("+NPIN:", mbed::Callback<void()>(this, &UBLOX_N2XX::NPIN_URC));
 }
 
 UBLOX_N2XX::~UBLOX_N2XX()
@@ -66,6 +70,8 @@ AT_CellularSMS *UBLOX_N2XX::open_sms_impl(ATHandler &at)
 
 nsapi_error_t UBLOX_N2XX::init()
 {
+    setup_at_handler();
+
     _at->lock();
     _at->flush();
     _at->cmd_start("AT");

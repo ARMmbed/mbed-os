@@ -405,3 +405,7 @@ void ATHandler::set_debug_list(bool debug_on)
     ATHandler_stub::debug_on = debug_on;
 }
 
+void ATHandler::set_send_delay(uint16_t send_delay)
+{
+}
+
