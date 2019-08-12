@@ -16,7 +16,7 @@ Omissions are:
 User code should normally be able to include C++14 headers and get
 most expected functionality. (But bear in mind that many C++ library
 features like streams and STL containers are quite heavy and may
-not be appropriate for small embnedded use).
+not be appropriate for small embedded use).
 
 However, ARM C 5 has only C++11 language support (at least a large subset), and
 no C++11/14 library. For the headers that are totally new in C++11,
