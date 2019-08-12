@@ -58,11 +58,11 @@
  * returns an error code if the transfer fails, generates a stop condition on the bus at the end of the transfer if `stop` parameter is true
  * and handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
  * The transfer times out and returns `I2C_ERROR_TIMEOUT ` if the transfer takes longer than the configured timeout duration - Verified by test ::fpga_i2c_test_blocking_write_read.
- * * The function ::i2c_start generates I2C START condition on the bus in master mode and does nothing if called when the peripheral is configured in slave mode - not tested.
+ * * The function ::i2c_start generates I2C START condition on the bus in master mode and does nothing if called when the peripheral is configured in slave mode.
  * * The function ::i2c_stop generates I2C STOP condition on the bus in master mode and does nothing if called when the peripheral is configured in slave mode
  * - Verified by test ::fpga_i2c_test_blocking_write_read ::fpga_i2c_test_async_write_read.
- * * The function ::i2c_slave_status indicates which mode the peripheral has been addressed in and returns not addressed when called in master mode - not tested.
- * * The function ::i2c_slave_address sets the address of the peripheral to the `address` parameter and does nothing if called in master mode - not tested.
+ * * The function ::i2c_slave_status indicates which mode the peripheral has been addressed in and returns not addressed when called in master mode.
+ * * The function ::i2c_slave_address sets the address of the peripheral to the `address` parameter and does nothing if called in master mode.
  * * The function ::i2c_transfer_async returns immediately with a `bool` indicating whether the transfer was successfully scheduled.
  * The callback given to `i2c_transfer_async` is invoked when the transfer finishes or an error occurs and
  * must save the handler and context pointers inside the `obj` pointer. The context pointer is passed to the callback on transfer completion.
