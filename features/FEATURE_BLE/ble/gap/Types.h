@@ -183,13 +183,19 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
          */
         CONNECTABLE_DIRECTED_LOW_DUTY = 0x04,
 
+        /**
+         * Device is connectable, but not scannable and doesn't expect connection from a specific peer.
+         */
+        CONNECTABLE_NON_SCANNABLE_UNDIRECTED = 0x05,
+
 #if !defined(DOXYGEN_ONLY)
         // used by the PAL; naming in line with the the spec.
         ADV_IND = 0x00,
         ADV_DIRECT_IND = 0x01,
         ADV_SCAN_IND = 0x02,
         ADV_NONCONN_IND = 0x03,
-        ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04
+        ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04,
+        ADV_NONSCAN_IND = 0x05
 #endif
     };
 
