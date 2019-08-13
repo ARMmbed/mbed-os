@@ -43,6 +43,5 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
   RW_IRAM4 0x40038000 0x0800  {  ; RW data, CAN RAM
    .ANY (CANRAM)
-   .ANY4 (+RW +ZI)
   }
 }
