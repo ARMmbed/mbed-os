@@ -537,7 +537,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
     ATHandler_stub::read_string_index = 2;
     ASSERT_EQ(ctx1.connect(),  NSAPI_ERROR_OK);
 
-    ASSERT_EQ(network_cb_count, 5);
+    ASSERT_EQ(network_cb_count, 4);
 
     ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
     ATHandler_stub::resp_info_true_counter = 1;
@@ -704,7 +704,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_async)
     data.status_data = CellularNetwork::Attached;
     ctx1.cellular_callback((nsapi_event_t)CellularAttachNetwork, (intptr_t)&data);
 
-    ASSERT_EQ(network_cb_count, 5);
+    ASSERT_EQ(network_cb_count, 4);
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_IS_CONNECTED);
     EXPECT_TRUE(ctx1.is_connected() == true);
     ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_NO_MEMORY);

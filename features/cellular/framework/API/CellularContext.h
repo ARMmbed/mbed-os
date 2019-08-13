@@ -344,6 +344,11 @@ protected: // Device specific implementations might need these so protected
      */
     virtual void do_connect();
 
+    /** After we have connected successfully we must check that we have a valid IP address.
+     *  Some modems/networks don't give IP address right after connect so we must poll it for a while.
+     */
+    void validate_ip_address();
+
     // member variables needed in target override methods
     NetworkStack *_stack; // must be pointer because of PPP
     pdp_type_t _pdp_type;
@@ -368,6 +373,10 @@ protected: // Device specific implementations might need these so protected
     CellularDevice *_device;
     CellularNetwork *_nw;
     bool _is_blocking;
+    // flag indicating if Non-IP context was requested to be setup
+    bool _nonip_req;
+    // tells if CCIOTOPTI received green from network for CP optimization use
+    bool _cp_in_use;
 };
 
 /**
