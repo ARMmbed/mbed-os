@@ -175,7 +175,7 @@ TEST_F(TestAT_CellularStack, test_AT_CellularStack_get_ip_address)
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
-    EXPECT_EQ(strlen(st.get_ip_address()), 0);
+    EXPECT_TRUE(st.get_ip_address() == NULL);
 
     char table[] = "1.2.3.4.5.65.7.8.9.10.11\0";
     ATHandler_stub::ssize_value = -1;

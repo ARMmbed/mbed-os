@@ -28,4 +28,5 @@ set(unittest-test-sources
   stubs/NetworkStack_stub.cpp
   stubs/SocketAddress_stub.cpp
   stubs/mbed_assert_stub.c
+  stubs/ThisThread_stub.cpp
 )
