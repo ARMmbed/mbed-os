@@ -291,8 +291,11 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
     // there might be need for padding so some more space
     totalPDULength += 2;
 
-    // message 7-bit padded and it will be converted to hex so it will take twice as much space
-    totalPDULength += (message_length - (message_length / 8)) * 2;
+    // 8-bit message, converted to hex so it will take twice as much space
+    totalPDULength += message_length * 2;
+
+    // terminating nullbyte, because callers use strlen() to find out PDU size
+    totalPDULength += 1;
 
     char *pdu = new char[totalPDULength];
     memset(pdu, 0, totalPDULength);
