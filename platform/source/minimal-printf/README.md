@@ -83,7 +83,7 @@ To replace the standard implementation of the printf functions with the ones in 
 Compile with mbed-cli using the custom `minimal-printf` profile. For example, to compile in release mode:
 
 ```
-$ mbed compile -t <toolchain> -m <target> --profile release --profile minimal-printf
+$ mbed compile -t <toolchain> -m <target> --profile release --profile mbed-os/tools/profiles/extensions/minimal-printf.json
 ```
 
 ## Size comparison
