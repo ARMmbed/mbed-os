@@ -624,7 +624,8 @@
             "STDIO_MESSAGES",
             "FLASH",
             "MPU",
-            "USBDEVICE"
+            "USBDEVICE",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
