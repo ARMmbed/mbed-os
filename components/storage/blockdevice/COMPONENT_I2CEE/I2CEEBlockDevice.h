@@ -55,8 +55,7 @@
  *  }
  *  @endcode
  */
-class I2CEEBlockDevice : public BlockDevice
-{
+class I2CEEBlockDevice : public BlockDevice {
 public:
     /** Constructor to create an I2CEEBlockDevice on I2C pins
      *
