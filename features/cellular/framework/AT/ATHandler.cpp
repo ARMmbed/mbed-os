@@ -722,7 +722,22 @@ int32_t ATHandler::read_int()
         return -1;
     }
 
-    return std::strtol(buff, NULL, 10);
+    errno = 0;
+    char *endptr;
+    long result = std::strtol(buff, &endptr, 10);
+    if ((result == LONG_MIN || result == LONG_MAX) && errno == ERANGE) {
+        return -1; // overflow/underflow
+    }
+    if (result < 0) {
+        return -1; // negative values are unsupported
+    }
+    if (*buff == '\0') {
+        return -1; // empty string
+    }
+    if (*endptr != '\0') {
+        return -1; // trailing garbage
+    }
+    return (int32_t) result;
 }
 
 void ATHandler::set_delimiter(char delimiter)
