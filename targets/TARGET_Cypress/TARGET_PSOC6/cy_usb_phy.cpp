@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "USBPhyHw.h"
+#include "cy_usb_phy_hw.h"
 #include "mbed_assert.h"
 
 #if defined(DEVICE_USBDEVICE)
