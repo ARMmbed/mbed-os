@@ -912,7 +912,7 @@ class mbedToolchain:
                     "s" if len(regions) > 1 else "",
                     ", ".join(r.name for r in regions)
                 ))
-                self._add_all_regions(regions, None)
+                self._add_all_regions(regions, "MBED_RAM")
             except ConfigException:
                 pass
 
