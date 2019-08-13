@@ -15,10 +15,10 @@
  */
 #ifndef MBED_I2CEEPROM_BLOCK_DEVICE_H
 #define MBED_I2CEEPROM_BLOCK_DEVICE_H
- 
+
 #include "BlockDevice.h"
 #include "I2C.h"
- 
+
 /** BlockDevice for I2C based flash device such as
  *  Microchip's 24LC or ATMEL's AT24C ranges
  *
@@ -26,36 +26,37 @@
  *  // Here's an example using a 24LC256 on a GR PEACH
  *  #include "mbed.h"
  *  #include "I2CEEBlockDevice.h"
- *  
+ *
  *  // Create EEPROM device on I2C bus with 32kbytes of memory
  *  I2CEEBlockDevice i2cee(D14, D15, 0xa0, 32*1024);
- *  
+ *
  *  int main() {
  *      printf("i2cee test\n");
- *  
+ *
  *      // Initialize the device and print the memory layout
  *      i2cee.init();
  *      printf("i2cee size: %llu\n",         i2cee.size());
  *      printf("i2cee read size: %llu\n",    i2cee.get_read_size());
  *      printf("i2cee program size: %llu\n", i2cee.get_program_size());
  *      printf("i2cee erase size: %llu\n",   i2cee.get_erase_size());
- *  
+ *
  *      // Write "Hello World!" to the first block
  *      char *buffer = (char*)malloc(i2cee.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
  *      i2cee.erase(0, i2cee.get_erase_size());
  *      i2cee.program(buffer, 0, i2cee.get_erase_size());
- *  
+ *
  *      // Read back what was stored
  *      i2cee.read(buffer, 0, i2cee.get_erase_size());
  *      printf("%s", buffer);
- *  
+ *
  *      // Deinitialize the device
  *      i2cee.deinit();
  *  }
  *  @endcode
  */
-class I2CEEBlockDevice : public BlockDevice {
+class I2CEEBlockDevice : public BlockDevice
+{
 public:
     /** Constructor to create an I2CEEBlockDevice on I2C pins
      *
@@ -67,21 +68,21 @@ public:
      *  @param freq     The frequency of the I2C bus, defaults to 400K.
      */
     I2CEEBlockDevice(
-            PinName sda, PinName scl, uint8_t address,
-            bd_size_t size, bd_size_t block=32,
-            int bus_speed=400000);  
+        PinName sda, PinName scl, uint8_t address,
+        bd_size_t size, bd_size_t block = 32,
+        int bus_speed = 400000);
 
-     /** Constructor to create an I2CEEBlockDevice on I2C pins
-     *
-     *  @param i2c      The I2C instance pointer
-     *  @param addr     The 8bit I2C address of the chip, common range 0xa0 - 0xae.
-     *  @param size     The size of the device in bytes
-     *  @param block    The page size of the device in bytes, defaults to 32bytes
-     *  @param freq     The frequency of the I2C bus, defaults to 400K.
-     */
+    /** Constructor to create an I2CEEBlockDevice on I2C pins
+    *
+    *  @param i2c      The I2C instance pointer
+    *  @param addr     The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+    *  @param size     The size of the device in bytes
+    *  @param block    The page size of the device in bytes, defaults to 32bytes
+    *  @param freq     The frequency of the I2C bus, defaults to 400K.
+    */
     I2CEEBlockDevice(
-            mbed::I2C * i2c_obj, uint8_t address,
-            bd_size_t size, bd_size_t block=32);
+        mbed::I2C *i2c_obj, uint8_t address,
+        bd_size_t size, bd_size_t block = 32);
 
     /** Destructor of I2CEEBlockDevice
      */
@@ -161,9 +162,9 @@ public:
      *  @return         A string representation of the BlockDevice class type.
      */
     virtual const char *get_type() const;
-    
+
 private:
-    mbed::I2C * _i2c;
+    mbed::I2C *_i2c;
     uint32_t _i2c_buffer[sizeof(mbed::I2C) / sizeof(uint32_t)];
     uint8_t _i2c_addr;
     uint32_t _size;
@@ -171,6 +172,6 @@ private:
 
     int _sync();
 };
- 
+
 
 #endif  /* MBED_SD_BLOCK_DEVICE_H */
