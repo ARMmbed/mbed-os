@@ -143,7 +143,7 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     }
 
     if ((ssi_idx == 0) && (ssi_pinmux == SSI0_MUX_TO_GPIOE)) {
-            DBG_SSI_WARN(ANSI_COLOR_MAGENTA"SPI0 Pin may conflict with JTAG\r\n"ANSI_COLOR_RESET);        
+            DBG_SSI_WARN(ANSI_COLOR_MAGENTA"SPI0 Pin may conflict with JTAG\r\n"ANSI_COLOR_RESET);
     }
 
     //TODO: Implement default setting structure.
@@ -152,7 +152,7 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
 
     if(HalSsiInit(pHalSsiAdaptor) != HAL_OK){
         DBG_SSI_ERR(ANSI_COLOR_RED"spi_init(): SPI %x init fails.\n"ANSI_COLOR_RESET,pHalSsiAdaptor->Index);
-        return;        
+        return;
     }
 
     pHalSsiAdaptor->TxCompCallback = spi_tx_done_callback;
@@ -173,9 +173,15 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
 #endif
 }
 
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Explicit pin config not supported
+    MBED_ASSERT(false);
+}
+
 void spi_free (spi_t *obj)
 {
-    PHAL_SSI_ADAPTOR pHalSsiAdaptor;    
+    PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     pHalSsiAdaptor = &obj->spi_adp;
     HalSsiDeInit(pHalSsiAdaptor);
 
@@ -188,7 +194,7 @@ void spi_free (spi_t *obj)
 
     if (obj->dma_en & SPI_DMA_TX_EN) {
         HalSsiTxGdmaDeInit(pHalSsiAdaptor);
-    }    
+    }
     obj->dma_en = 0;
 #endif
 }
@@ -369,7 +375,7 @@ void spi_bus_tx_done_callback(VOID *obj)
     if (spi_obj->bus_tx_done_handler) {
         handler = (spi_irq_handler)spi_obj->bus_tx_done_handler;
         handler(spi_obj->bus_tx_done_irq_id, (SpiIrq)0);
-    }    
+    }
 }
 
 void spi_tx_done_callback(VOID *obj)
@@ -437,4 +443,3 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SSI_SSEL;
 }
-
