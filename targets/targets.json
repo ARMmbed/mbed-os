@@ -675,7 +675,9 @@
             "FLASH",
             "MPU",
             "USBDEVICE",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
@@ -725,7 +727,9 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
@@ -763,7 +767,9 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "device_name": "LPC1768"
     },
