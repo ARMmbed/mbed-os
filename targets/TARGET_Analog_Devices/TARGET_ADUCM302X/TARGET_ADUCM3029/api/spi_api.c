@@ -75,6 +75,91 @@ int adi_spi_memtype = 1;
 #endif
 #endif
 
+/** Initialize the SPI peripheral
+ *
+ * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
+ * @param[out] obj  The SPI object to initialize
+ * @param[in]  explicit_pinmap pointer to strucure which holds static pinmap
+ */
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // determine the SPI to use
+    ADI_SPI_HANDLE      *pSPI_Handle;
+    uint32_t            *SPI_Mem;
+    ADI_SPI_RESULT      SPI_Return = ADI_SPI_SUCCESS;
+    uint32_t            nDeviceNum = 0;
+    ADI_SPI_CHIP_SELECT spi_cs = ADI_SPI_CS_NONE;
+
+
+#if defined(BUILD_SPI_MI_DYNAMIC)
+    if (explicit_pinmap->pin[0] == SPI0_MOSI) {
+        nDeviceNum = SPI_0;
+    } else if (explicit_pinmap->pin[0] == SPI1_MOSI) {
+        nDeviceNum = SPI_1;
+    } else if (explicit_pinmap->pin[0] == SPI2_MOSI) {
+        nDeviceNum = SPI_2;
+    }
+    pSPI_Handle = &obj->SPI_Handle;
+    obj->pSPI_Handle = pSPI_Handle;
+    SPI_Mem = obj->SPI_Mem;
+#else
+    if (explicit_pinmap->pin[0] == SPI0_MOSI) {
+        nDeviceNum = SPI_0;
+        pSPI_Handle = &spi_Handle0;
+        SPI_Mem = &spi_Mem0[0];
+    } else if (explicit_pinmap->pin[0] == SPI1_MOSI) {
+        nDeviceNum = SPI_1;
+        pSPI_Handle = &spi_Handle1;
+        SPI_Mem = &spi_Mem1[0];
+    } else if (explicit_pinmap->pin[0] == SPI2_MOSI) {
+        nDeviceNum = SPI_2;
+        pSPI_Handle = &spi_Handle2;
+        SPI_Mem = &spi_Mem2[0];
+    }
+    obj->pSPI_Handle    = pSPI_Handle;
+#endif
+
+
+    obj->instance = explicit_pinmap->peripheral;
+    MBED_ASSERT((int)obj->instance != NC);
+
+    // pin out the spi pins
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+    pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+    pin_mode(explicit_pinmap->pin[1], PullNone);
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    if (explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
+    }
+
+    SystemCoreClockUpdate();
+    SPI_Return = adi_spi_Open(nDeviceNum, SPI_Mem, ADI_SPI_MEMORY_SIZE, pSPI_Handle);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
+
+    if (explicit_pinmap->pin[3] != NC) {
+        if ( (explicit_pinmap->pin[3] == SPI0_CS0) || (explicit_pinmap->pin[3] == SPI1_CS0) || (explicit_pinmap->pin[3] == SPI2_CS0)) {
+            spi_cs = ADI_SPI_CS0;
+        } else if ( (explicit_pinmap->pin[3] == SPI0_CS1) || (explicit_pinmap->pin[3] == SPI1_CS1) || (explicit_pinmap->pin[3] == SPI2_CS1)) {
+            spi_cs = ADI_SPI_CS1;
+        } else if ( (explicit_pinmap->pin[3] == SPI0_CS2) || (explicit_pinmap->pin[3] == SPI1_CS2) || (explicit_pinmap->pin[3] == SPI2_CS2)) {
+            spi_cs = ADI_SPI_CS2;
+        } else if ( (explicit_pinmap->pin[3] == SPI0_CS3) || (explicit_pinmap->pin[3] == SPI1_CS3) || (explicit_pinmap->pin[3] == SPI2_CS3)) {
+            spi_cs = ADI_SPI_CS3;
+        }
+
+        SPI_Return = adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
+        if (SPI_Return) {
+            obj->error = SPI_EVENT_ERROR;
+            return;
+        }
+    }
+}
 
 
 /** Initialize the SPI peripheral
@@ -95,77 +180,20 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
-    ADI_SPI_HANDLE      *pSPI_Handle;
-    uint32_t            *SPI_Mem;
-    ADI_SPI_RESULT      SPI_Return = ADI_SPI_SUCCESS;
-    uint32_t            nDeviceNum = 0;
-    ADI_SPI_CHIP_SELECT spi_cs = ADI_SPI_CS_NONE;
 
-
-#if defined(BUILD_SPI_MI_DYNAMIC)
-    if (mosi == SPI0_MOSI) {
-        nDeviceNum = SPI_0;
-    } else if (mosi == SPI1_MOSI) {
-        nDeviceNum = SPI_1;
-    } else if (mosi == SPI2_MOSI) {
-        nDeviceNum = SPI_2;
-    }
-    pSPI_Handle = &obj->SPI_Handle;
-    obj->pSPI_Handle = pSPI_Handle;
-    SPI_Mem = obj->SPI_Mem;
-#else
-    if (mosi == SPI0_MOSI) {
-        nDeviceNum = SPI_0;
-        pSPI_Handle = &spi_Handle0;
-        SPI_Mem = &spi_Mem0[0];
-    } else if (mosi == SPI1_MOSI) {
-        nDeviceNum = SPI_1;
-        pSPI_Handle = &spi_Handle1;
-        SPI_Mem = &spi_Mem1[0];
-    } else if (mosi == SPI2_MOSI) {
-        nDeviceNum = SPI_2;
-        pSPI_Handle = &spi_Handle2;
-        SPI_Mem = &spi_Mem2[0];
-    }
-    obj->pSPI_Handle    = pSPI_Handle;
-#endif
-
-
-    obj->instance = pinmap_merge(spi_data, spi_cntl);
-    MBED_ASSERT((int)obj->instance != NC);
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
 
     // pin out the spi pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    if (ssel != NC) {
-        pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    }
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
 
-    SystemCoreClockUpdate();
-    SPI_Return = adi_spi_Open(nDeviceNum, SPI_Mem, ADI_SPI_MEMORY_SIZE, pSPI_Handle);
-    if (SPI_Return) {
-        obj->error = SPI_EVENT_ERROR;
-        return;
-    }
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
 
-    if (ssel != NC) {
-        if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
-            spi_cs = ADI_SPI_CS0;
-        } else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
-            spi_cs = ADI_SPI_CS1;
-        } else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
-            spi_cs = ADI_SPI_CS2;
-        } else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
-            spi_cs = ADI_SPI_CS3;
-        }
-
-        SPI_Return = adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
-        if (SPI_Return) {
-            obj->error = SPI_EVENT_ERROR;
-            return;
-        }
-    }
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 
