@@ -7,11 +7,11 @@
  * $Rev:  0.1 $
  * $Date: 02-05-2016 $
  ******************************************************************************
- * Copyright 2016 Semiconductor Components Industries LLC (d/b/a “ON Semiconductor”).
+ * Copyright 2016 Semiconductor Components Industries LLC (d/b/a ï¿½ON Semiconductorï¿½).
  * All rights reserved.  This software and/or documentation is licensed by ON Semiconductor
  * under limited terms and conditions.  The terms and conditions pertaining to the software
  * and/or documentation are available at http://www.onsemi.com/site/pdf/ONSEMI_T&C.pdf
- * (“ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Software”) and
+ * (ï¿½ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Softwareï¿½) and
  * if applicable the software license agreement.  Do not use this software and/or
  * documentation unless you have carefully read and you agree to the limited terms and
  * conditions.  By using this software and/or documentation, you agree to the limited
@@ -41,14 +41,113 @@
 #include "crossbar.h"
 #include "clock.h"
 #include "cmsis_nvic.h"
+#include "pad.h"
 
 
 #define SPI_FREQ_MAX 4000000
 
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    uint32_t clockDivisor;
+
+    obj->membase      = (SpiIpc7207Reg_pt)explicit_pinmap->peripheral;
+    MBED_ASSERT((int)obj->membase != NC);
+
+    /* Check device to be activated */
+    if(obj->membase == SPI1REG) {
+        /* SPI 1 selected */
+        CLOCK_ENABLE(CLOCK_SPI);         /* Enable clock */
+    } else {
+        /* SPI 2 selected */
+        CLOCK_ENABLE(CLOCK_SPI2);        /* Enable clock */
+    }
+
+    CLOCK_ENABLE(CLOCK_CROSSB);
+    /* Cross bar setting: Map GPIOs to SPI */
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+
+    /* Configure GPIO Direction  */
+    CLOCK_ENABLE(CLOCK_GPIO);
+    GPIOREG->W_OUT |= ((True << explicit_pinmap->pin[2]) | (True << explicit_pinmap->pin[0]) | (True << explicit_pinmap->pin[3]));    /* Set pins as output */
+    GPIOREG->W_IN  |= (True << explicit_pinmap->pin[1]);    /* Set pin as input */
+
+    /* Pad settings */
+    CLOCK_ENABLE(CLOCK_PAD);
+    pin_mode(explicit_pinmap->pin[2], PushPullPullDown);
+    pin_mode(explicit_pinmap->pin[0], PushPullPullDown);
+
+    /* PAD drive strength */
+    PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (explicit_pinmap->pin[2] * PAD_REG_ADRS_BYTE_SIZE));
+    padRegOffset->PADIO0.BITS.POWER = True; /* sclk: Drive strength */
+    padRegOffset->PADIO1.BITS.POWER = True; /* mosi: Drive strength */
+    if(explicit_pinmap->pin[1] != NC) {
+        pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+        pin_mode(explicit_pinmap->pin[1], PullNone);
+        pin_mode(explicit_pinmap->pin[1], OpenDrainNoPull);      /* Pad setting */
+        padRegOffset->PADIO2.BITS.POWER = True;  /* miso: Drive strength */
+    }
+    if(explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
+        pin_mode(explicit_pinmap->pin[3], PushPullPullUp);               /* Pad setting */
+        padRegOffset->PADIO3.BITS.POWER      = True;                     /* ssel: Drive strength */
+        SPI1REG->SLAVE_SELECT.BITS.SS_ENABLE = SPI_SLAVE_SELECT_NORM_BEHAVE; /* Slave select: Normal behavior */
+    }
+    CLOCK_DISABLE(CLOCK_PAD);
+    CLOCK_DISABLE(CLOCK_GPIO);
+    CLOCK_DISABLE(CLOCK_CROSSB);
+
+    /* disable/reset the spi port: Clear control register*/
+    obj->membase->CONTROL.WORD = False;
+
+    /* set default baud rate to 1MHz */
+    clockDivisor         = ((fClockGetPeriphClockfrequency() / SPI_DEFAULT_SPEED) >> True) - True;
+    obj->membase->FDIV   = clockDivisor;
+
+    /* set tx/rx fifos watermarks */ /* TODO water mark level 1 byte ?*/
+    obj->membase->TX_WATERMARK = True;
+    obj->membase->RX_WATERMARK = True;
+
+    /* DIsable and clear IRQs */ /* TODO sync api, do not need irq ?*/
+    obj->membase->IRQ_ENABLE = False;
+    obj->membase->IRQ_CLEAR  = SPI_BYTE_MASK; /* Clear all */
+
+    /* configure slave select */
+    obj->membase->SLAVE_SELECT.WORD = SPI_SLAVE_SELECT_DEFAULT;
+    obj->membase->SLAVE_SELECT_POLARITY = False;
+
+    /* Configure control register parameters: 8 bits, master, CPOL = 0, Idle low. CPHA = 0, First transmit occurs before first edge of SCLK. MSB first. Sample incoming data on opposite edge of SCLK from when outgoing data is driven. enable the spi port */
+    obj->membase->CONTROL.WORD = SPI_DEFAULT_CONFIG;
+}
+
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    fSpiInit(obj, mosi, miso, sclk, ssel);
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
+
 void spi_free(spi_t *obj)
 {
     fSpiClose(obj);
