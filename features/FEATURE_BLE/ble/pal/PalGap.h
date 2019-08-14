@@ -655,7 +655,7 @@ public:
         periodic_advertising_interval_t periodic_advertising_max,
         bool advertise_power
     ) {
-        return impl()->set_periodic_advertising_parameters(
+        return impl()->set_periodic_advertising_parameters_(
             advertising_handle,
             periodic_advertising_min,
             periodic_advertising_max,
