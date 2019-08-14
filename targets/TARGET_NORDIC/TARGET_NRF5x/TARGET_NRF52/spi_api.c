@@ -128,6 +128,12 @@ static void spi_configure_driver_instance(spi_t *obj)
     }
 }
 
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // NRF targets do not use pinmaps
+    MBED_ASSERT(false);
+}
+
 /** Initialize the SPI peripheral
  *
  * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
