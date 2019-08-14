@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@
 
 static bool         rtc_inited  = false;
 
-const ticker_info_t* lp_ticker_get_info()
+const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
-           RTC_FREQ,         // 32KHz
-           RTC_BITS          // 32 bit counter
+        RTC_FREQ,         // 32KHz
+        RTC_BITS          // 32 bit counter
     };
     return &info;
 }
@@ -47,7 +47,7 @@ const ticker_info_t* lp_ticker_get_info()
 void lp_ticker_init()
 {
     if (PRCMRTCInUseGet() == true)
-    // When RTC is in use, slow clock counter can't be accessed
+        // When RTC is in use, slow clock counter can't be accessed
     {
         return;
     }
@@ -103,8 +103,7 @@ timestamp_t lp_ticker_read()
 {
     // Read forever until reaching two of the same
     volatile unsigned long long read_previous, read_current;
-    do
-    {
+    do {
         read_previous = PRCMSlowClkCtrFastGet();
         read_current = PRCMSlowClkCtrFastGet();
     } while (read_previous != read_current);

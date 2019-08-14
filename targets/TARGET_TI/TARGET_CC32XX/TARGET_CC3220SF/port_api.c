@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 #include "gpio_api.h"
 #include "PeripheralPins.h"
 
-#include <ti/devices/cc32xx/inc/hw_types.h>
-#include <ti/devices/cc32xx/driverlib/pin.h>
-#include <ti/devices/cc32xx/driverlib/gpio.h>
-#include <ti/devices/cc32xx/inc/hw_ints.h>
-#include <ti/devices/cc32xx/driverlib/prcm.h>
+#include "ti/devices/cc32xx/inc/hw_types.h"
+#include "ti/devices/cc32xx/driverlib/pin.h"
+#include "ti/devices/cc32xx/driverlib/gpio.h"
+#include "ti/devices/cc32xx/inc/hw_ints.h"
+#include "ti/devices/cc32xx/driverlib/prcm.h"
 
 #define NUM_PORTS            4
 #define NUM_PINS_PER_PORT    8
@@ -51,27 +51,41 @@ const uint16_t PortPinTypes[] = {
     (uint16_t)PIN_TYPE_ANALOG // Revisit this, PIN_TYPE_ANALOG gets truncated to 16b
 };
 
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     int gpio_num = (port * 8) + pin_n;
     PinName pin = (PinName)pinTable[gpio_num];
     return pin;
 }
 
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
+{
     obj->port = port;
     obj->mask = mask;
 
-    switch(port) {
-        case Port0: obj->baseAddr = CC3220SF_GPIOA0_BASE; obj->peripheralId = PRCM_GPIOA0; break;
-        case Port1: obj->baseAddr = CC3220SF_GPIOA1_BASE; obj->peripheralId = PRCM_GPIOA1; break;
-        case Port2: obj->baseAddr = CC3220SF_GPIOA2_BASE; obj->peripheralId = PRCM_GPIOA2; break;
-        case Port3: obj->baseAddr = CC3220SF_GPIOA3_BASE; obj->peripheralId = PRCM_GPIOA3; break;
+    switch (port) {
+        case Port0:
+            obj->baseAddr = CC3220SF_GPIOA0_BASE;
+            obj->peripheralId = PRCM_GPIOA0;
+            break;
+        case Port1:
+            obj->baseAddr = CC3220SF_GPIOA1_BASE;
+            obj->peripheralId = PRCM_GPIOA1;
+            break;
+        case Port2:
+            obj->baseAddr = CC3220SF_GPIOA2_BASE;
+            obj->peripheralId = PRCM_GPIOA2;
+            break;
+        case Port3:
+            obj->baseAddr = CC3220SF_GPIOA3_BASE;
+            obj->peripheralId = PRCM_GPIOA3;
+            break;
     }
 
     // initialize GPIO PORT clock
     PRCMPeripheralClkEnable(obj->peripheralId, PRCM_RUN_MODE_CLK | PRCM_SLP_MODE_CLK);
     // wait for GPIO clock to settle
-    while(!PRCMPeripheralStatusGet(obj->peripheralId));
+    while (!PRCMPeripheralStatusGet(obj->peripheralId));
 
     for (int i = 0; i < 8; i++) {
         if (obj->mask & (1 << i)) {
@@ -84,7 +98,8 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir) {
     port_dir(obj, dir);
 }
 
-void port_mode(port_t *obj, PinMode mode) {
+void port_mode(port_t *obj, PinMode mode)
+{
     for (int i = 0; i < 8; i++) {
         if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
@@ -92,17 +107,24 @@ void port_mode(port_t *obj, PinMode mode) {
     }
 }
 
-void port_dir(port_t *obj, PinDirection dir) {
+void port_dir(port_t *obj, PinDirection dir)
+{
     switch (dir) {
-        case PIN_INPUT: GPIODirModeSet(obj->baseAddr, obj->mask, GPIO_DIR_MODE_IN); break;
-        case PIN_OUTPUT: GPIODirModeSet(obj->baseAddr, obj->mask, GPIO_DIR_MODE_OUT); break;
+        case PIN_INPUT:
+            GPIODirModeSet(obj->baseAddr, obj->mask, GPIO_DIR_MODE_IN);
+            break;
+        case PIN_OUTPUT:
+            GPIODirModeSet(obj->baseAddr, obj->mask, GPIO_DIR_MODE_OUT);
+            break;
     }
 }
 
-void port_write(port_t *obj, int value) {
+void port_write(port_t *obj, int value)
+{
     GPIOPinWrite(obj->baseAddr, obj->mask, value);
 }
 
-int port_read(port_t *obj) {
+int port_read(port_t *obj)
+{
     return (int)(GPIOPinRead(obj->baseAddr, obj->mask));
 }

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#include <ti/drivers/pwm/PWMTimerCC32XX.h>
-#include <ti/drivers/PWM.h>
-#include <CC3220SF_LAUNCHXL.h>
+#include "ti/drivers/pwm/PWMTimerCC32XX.h"
+#include "ti/drivers/PWM.h"
+#include "CC3220SF_LAUNCHXL.h"
 
 extern const PWM_Config PWM_config[];
 
-void pwmout_init(pwmout_t* obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
     PWM_Params pwmParams;
     int        pwmIndex = CC3220SF_LAUNCHXL_PWMCOUNT;
 
@@ -35,7 +36,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
     obj->pwm = pwm;
 
-    switch(pin) {
+    switch (pin) {
         case PIN_01:
             pwmIndex = CC3220SF_LAUNCHXL_PWM6;
             break;
@@ -61,7 +62,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
             break;
 
         default:
-            while(1);
+            while (1);
     }
 
     obj->handle = (void *)&PWM_config[pwmIndex];
@@ -72,55 +73,60 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->duty_percent = PWM_DEFAULT_DUTY_PERCENT;
     obj->period_us = PWM_DEFAULT_PERIOD_US;
 
-    if (PWM_open(pwmIndex, &pwmParams))
-    {
+    if (PWM_open(pwmIndex, &pwmParams)) {
         PWM_start((PWM_Handle)obj->handle);
-    }
-    else
-    {
-        while(1);
+    } else {
+        while (1);
     }
 }
 
-void pwmout_free(pwmout_t* obj) {
+void pwmout_free(pwmout_t *obj)
+{
     PWM_stop((PWM_Handle)obj->handle);
     PWM_close((PWM_Handle)obj->handle);
 }
 
-void pwmout_write(pwmout_t* obj, float value) {
-    PWM_setDuty((PWM_Handle)obj->handle, value*100);
+void pwmout_write(pwmout_t *obj, float value)
+{
+    PWM_setDuty((PWM_Handle)obj->handle, value * 100);
     obj->duty_percent = value;
 }
 
-float pwmout_read(pwmout_t* obj) {
+float pwmout_read(pwmout_t *obj)
+{
     return (obj->duty_percent);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
     pwmout_period_us(obj, seconds * 1000 * 1000);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
     pwmout_period_us(obj, ms * 1000);
 }
 
 // Set the PWM period, keeping the duty cycle the same.
-void pwmout_period_us(pwmout_t* obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
     PWM_setPeriod((PWM_Handle)obj->handle, us);
     obj->period_us = us;
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    if (obj->period_us)
-    {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
+    if (obj->period_us) {
         float value = (float)us / (float)obj->period_us;
         pwmout_write(obj, value);
     }
