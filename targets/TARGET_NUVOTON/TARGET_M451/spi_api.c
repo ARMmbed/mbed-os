@@ -82,7 +82,7 @@ __STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
     if (spi_base->CTL & SPI_CTL_SPIEN_Msk) {
         // NOTE: SPI H/W may get out of state without the busy check.
         while (SPI_IS_BUSY(spi_base));
-    
+
         SPI_DISABLE(spi_base);
     }
     while (spi_base->STATUS & SPI_STATUS_SPIENSTS_Msk);
@@ -116,15 +116,9 @@ static const struct nu_modinit_s spi_modinit_tab[] = {
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-    // Determine which SPI_x the pins are used for
-    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
-    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
-    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
-    obj->spi.spi = (SPIName) pinmap_merge(spi_data, spi_cntl);
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    obj->spi.spi = (SPIName) explicit_pinmap->peripheral;
     MBED_ASSERT((int)obj->spi.spi != NC);
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
@@ -139,15 +133,21 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+    pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+    pin_mode(explicit_pinmap->pin[1], PullNone);
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    if (explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
+    }
 
-    obj->spi.pin_mosi = mosi;
-    obj->spi.pin_miso = miso;
-    obj->spi.pin_sclk = sclk;
-    obj->spi.pin_ssel = ssel;
+    obj->spi.pin_mosi = explicit_pinmap->pin[0];
+    obj->spi.pin_miso = explicit_pinmap->pin[1];
+    obj->spi.pin_sclk = explicit_pinmap->pin[2];
+    obj->spi.pin_ssel = explicit_pinmap->pin[3];
 
 
 #if DEVICE_SPI_ASYNCH
@@ -155,7 +155,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.event = 0;
     obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
     obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
-    
+
     /* NOTE: We use vector to judge if asynchronous transfer is on-going (spi_active).
      *       At initial time, asynchronous transfer is not on-going and so vector must
      *       be cleared to zero for correct judgement. */
@@ -165,6 +165,31 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Mark this module to be inited.
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask |= 1 << i;
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj)
@@ -399,8 +424,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
             0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx, 
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32, 
+        PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx,
+            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
             tx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_tx,
             (uint32_t) tx,  // NOTE:
@@ -409,7 +434,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             PDMA_SAR_INC,   // Source address incremental
             (uint32_t) &spi_base->TX,   // Destination address
             PDMA_DAR_FIX);  // Destination address fixed
-        PDMA_SetBurstType(obj->spi.dma_chn_id_tx, 
+        PDMA_SetBurstType(obj->spi.dma_chn_id_tx,
             PDMA_REQ_SINGLE,    // Single mode
             0); // Burst size
         PDMA_EnableInt(obj->spi.dma_chn_id_tx,
@@ -423,17 +448,17 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
             0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx, 
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32, 
+        PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx,
+            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
             rx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_rx,
             (uint32_t) &spi_base->RX,   // Source address
             PDMA_SAR_FIX,   // Source address fixed
-            (uint32_t) rx,  // NOTE: 
+            (uint32_t) rx,  // NOTE:
                             // NUC472: End of destination address
                             // M451: Start of destination address
             PDMA_DAR_INC);  // Destination address incremental
-        PDMA_SetBurstType(obj->spi.dma_chn_id_rx, 
+        PDMA_SetBurstType(obj->spi.dma_chn_id_rx,
             PDMA_REQ_SINGLE,    // Single mode
             0); // Burst size
         PDMA_EnableInt(obj->spi.dma_chn_id_rx,
@@ -460,7 +485,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
          * H/W spec: In SPI Master mode with full duplex transfer, if both TX and RX PDMA functions are
          *           enabled, RX PDMA function cannot be enabled prior to TX PDMA function. User can enable
          *           TX PDMA function firstly or enable both functions simultaneously.
-         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is 
+         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is
          * subject to overflow by TX DMA.
          *
          * With the above conflicts, we enable PDMA TX/RX functions simultaneously.

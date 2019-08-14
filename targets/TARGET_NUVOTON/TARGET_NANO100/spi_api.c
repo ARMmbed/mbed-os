@@ -102,7 +102,7 @@ __STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
     if (spi_base->CTL & SPI_CTL_FIFOM_Msk) {
         SPI_DisableFIFO(spi_base);
     }
-    
+
     /* NOTE: SPI H/W may get out of state without the busy check */
     while (SPI_IS_BUSY(spi_base));
 }
@@ -131,27 +131,13 @@ static const struct nu_modinit_s spi_modinit_tab[] = {
     {SPI_0, SPI0_MODULE, CLK_CLKSEL2_SPI0_S_HCLK, MODULE_NoMsk, SPI0_RST, SPI0_IRQn, &spi0_var},
     {SPI_1, SPI1_MODULE, CLK_CLKSEL2_SPI1_S_HCLK, MODULE_NoMsk, SPI1_RST, SPI1_IRQn, &spi1_var},
     {SPI_2, SPI2_MODULE, CLK_CLKSEL2_SPI2_S_HCLK, MODULE_NoMsk, SPI2_RST, SPI2_IRQn, &spi2_var},
-    
+
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-    // Determine which SPI_x the pins are used for
-    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
-    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
-    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
-    // NOTE:
-    // NANO130: Support two-port SPI MOSI/MISO 0/1
-    if (NU_MODBASE(spi_data) == NU_MODBASE(spi_cntl)) {
-        // NOTE: spi_data has subindex(port) encoded but spi_cntl hasn't.
-        obj->spi.spi = (SPIName) spi_data;
-    }
-    else {
-        obj->spi.spi = (SPIName) NC;
-    }
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    obj->spi.spi = (SPIName) explicit_pinmap->peripheral;
     MBED_ASSERT((int)obj->spi.spi != NC);
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
@@ -166,15 +152,21 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
 
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+    pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+    pin_mode(explicit_pinmap->pin[1], PullNone);
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    if (explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
+    }
 
-    obj->spi.pin_mosi = mosi;
-    obj->spi.pin_miso = miso;
-    obj->spi.pin_sclk = sclk;
-    obj->spi.pin_ssel = ssel;
+    obj->spi.pin_mosi = explicit_pinmap->pin[0];
+    obj->spi.pin_miso = explicit_pinmap->pin[1];
+    obj->spi.pin_sclk = explicit_pinmap->pin[2];
+    obj->spi.pin_ssel = explicit_pinmap->pin[3];
 
 
 #if DEVICE_SPI_ASYNCH
@@ -182,7 +174,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.event = 0;
     obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
     obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
-    
+
     /* NOTE: We use vector to judge if asynchronous transfer is on-going (spi_active).
      *       At initial time, asynchronous transfer is not on-going and so vector must
      *       be cleared to zero for correct judgement. */
@@ -193,6 +185,39 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Mark this module to be inited.
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask |= 1 << i;
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral;
+
+    if (NU_MODBASE(spi_data) == NU_MODBASE(spi_cntl)) {
+        // NOTE: spi_data has subindex(port) encoded but spi_cntl hasn't.
+        peripheral = (int) spi_data;
+    }
+    else {
+        peripheral = (int) NC;
+    }
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj)
@@ -249,7 +274,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
                 case 0:
                     SPI_EnableAutoSS(spi_base, SPI_SS0, SPI_SS0_ACTIVE_LOW);
                     break;
-                    
+
                 case 1:
                     SPI_EnableAutoSS(spi_base, SPI_SS1, SPI_SS1_ACTIVE_LOW);
                     break;
@@ -274,7 +299,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         // NANO130: Configure slave select signal to edge-trigger rather than level-trigger
         spi_base->SSR |= SPI_SSR_SS_LTRIG_Msk;
     }
-    
+
     /* NOTE: M451's/M480's/M2351's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk).
      *       We cannot use SPI_CTL_SPIEN_Msk for judgement of spi_active().
      *       Judge with vector instead. */
@@ -283,7 +308,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     SPI_DISABLE_SYNC(spi_base);
 
     SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
@@ -444,15 +469,15 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
         MBED_ASSERT(modinit != NULL);
         MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
-        
+
         // Configure tx DMA
         dma_enable(obj->spi.dma_chn_id_tx, 1);                  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_tx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
             0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx, 
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32, 
+        PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx,
+            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
             tx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_tx,
             (uint32_t) tx,  // NOTE:
@@ -466,20 +491,20 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_tx, (uint32_t) spi_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
-        
+
         // Configure rx DMA
         dma_enable(obj->spi.dma_chn_id_rx, 1);              // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_rx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
             0); // Scatter-gather descriptor address
-        PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx, 
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32, 
+        PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx,
+            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
             rx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_rx,
             NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->RX0 : (uint32_t) &spi_base->RX1,  // Source address
             PDMA_SAR_FIX,   // Source address fixed
-            (uint32_t) rx,  // NOTE: 
+            (uint32_t) rx,  // NOTE:
                             // NUC472: End of destination address
                             // M451: Start of destination address
                             // NANO130: Start of destination address
@@ -510,7 +535,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
          * H/W spec: In SPI Master mode with full duplex transfer, if both TX and RX PDMA functions are
          *           enabled, RX PDMA function cannot be enabled prior to TX PDMA function. User can enable
          *           TX PDMA function firstly or enable both functions simultaneously.
-         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is 
+         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is
          * subject to overflow by TX DMA.
          *
          * With the above conflicts, we enable PDMA TX/RX functions simultaneously.
@@ -537,7 +562,7 @@ void spi_abort_asynch(spi_t *obj)
         if (spi_base->STATUS & SPI_STATUS_RX_OVER_RUN_Msk) {
             spi_base->STATUS = SPI_STATUS_RX_OVER_RUN_Msk;
         }
-        
+
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_IER_TD_IE_Msk);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
@@ -590,7 +615,7 @@ uint8_t spi_active(spi_t *obj)
 
     /* Vector will be cleared when asynchronous transfer is finished or aborted.
        Use it to judge if asynchronous transfer is on-going. */
-    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */ 
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
     return obj->spi.hdlr_async ? 1 : 0;
 }
 
@@ -639,9 +664,9 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
-    
+
     struct nu_spi_var *var = (struct nu_spi_var *) modinit->var;
-    
+
     if (enable) {
         var->obj = obj;
         obj->spi.hdlr_async = handler;
@@ -657,9 +682,9 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 }
 
 static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable, uint32_t mask)
-{   
+{
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     // NOTE:
     // NANO130: SPI_IE_MASK/SPI_STATUS_INTSTS_Msk are for unit transfer IE/EF. Don't get confused.
     if (enable) {
@@ -699,7 +724,7 @@ static uint32_t spi_event_check(spi_t *obj)
         spi_base->STATUS = SPI_STATUS_TIME_OUT_STS_Msk;
         // Not using this IF. Just clear it.
     }
-    
+
     return event;
 }
 
@@ -722,7 +747,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
     uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer) + bytes_per_word * obj->tx_buff.pos;
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
-    
+
     while ((n_words < max_tx) && spi_writeable(obj)) {
         if (spi_is_tx_complete(obj)) {
             // Transmit dummy as transmit buffer is empty
@@ -775,7 +800,7 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
     uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer) + bytes_per_word * obj->rx_buff.pos;
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
-    
+
     while ((n_words < max_rx) && spi_readable(obj)) {
         if (spi_is_rx_complete(obj)) {
             // Disregard as receive buffer is full
@@ -845,7 +870,7 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 }
 
 static uint8_t spi_get_data_width(spi_t *obj)
-{    
+{
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
 
     uint32_t data_width = ((spi_base->CTL & SPI_CTL_TX_BIT_LEN_Msk) >> SPI_CTL_TX_BIT_LEN_Pos);
