@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library 
+/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) 2015 WIZnet Co.,Ltd. All rights reserved.
  * All rights reserved.
@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
- 
+
 #include "mbed_assert.h"
 #include <math.h>
 
@@ -40,41 +40,64 @@
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-    // determine the SPI to use
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    obj->spi = (SSP_TypeDef*)pinmap_merge(spi_data, spi_cntl);
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    obj->spi = (SSP_TypeDef*)explicit_pinmap->peripheral;
     MBED_ASSERT((int)obj->spi != NC);
-    
+
     // enable power and clocking
     switch ((int)obj->spi) {
         case SPI_0: CRG->SSPCLK_SSR   = CRG_SSPCLK_SSR_MCLK; break; //PLL output clock
         case SPI_1: CRG->SSPCLK_SSR   = CRG_SSPCLK_SSR_MCLK; break;
     }
-    
+
     // set default format and frequency
-    if (ssel == NC) {
+    if (explicit_pinmap->pin[3] == NC) {
         spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
     } else {
         spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
     }
     spi_frequency(obj, 1000000);
-    
+
     // enable the ssp channel
     ssp_enable(obj);
 
     // pin out the spi pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    if (ssel != NC) {
-        pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+    pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+    pin_mode(explicit_pinmap->pin[1], PullNone);
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    if (explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
     }
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj) {}
@@ -82,15 +105,15 @@ void spi_free(spi_t *obj) {}
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     ssp_disable(obj);
     MBED_ASSERT(((bits >= 4) && (bits <= 16)) && (mode >= 0 && mode <= 3));
-    
+
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;
-    
+
     // set it up
     int DSS = bits - 1;            // DSS (data select size)
     int SPO = (polarity) ? 1 : 0;  // SPO - clock out polarity
     int SPH = (phase) ? 1 : 0;     // SPH - clock out phase
-    
+
     int FRF = 0;                   // FRF (frame format) = SPI
     uint32_t tmp = obj->spi->CR0;
     tmp &= ~(0xFFFF);
@@ -99,45 +122,45 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
         | SPO << 6
         | SPH << 7;
     obj->spi->CR0 = tmp;
-    
+
     tmp = obj->spi->CR1;
     tmp &= ~(0xD);
     tmp |= 0 << 0                   // LBM - loop back mode - off
         | ((slave) ? 1 : 0) << 2   // MS - master slave mode, 1 = slave
         | 0 << 3;                  // SOD - slave output disable - na
     obj->spi->CR1 = tmp;
-    
+
     ssp_enable(obj);
 }
 
 void spi_frequency(spi_t *obj, int hz) {
     ssp_disable(obj);
-    
+
     // setup the spi clock diveder to /1
     switch ((int)obj->spi) {
         case SPI_0:
-            CRG->SSPCLK_PVSR  = CRG_SSPCLK_PVSR_DIV1; //1/1 (bypass) 
+            CRG->SSPCLK_PVSR  = CRG_SSPCLK_PVSR_DIV1; //1/1 (bypass)
             break;
         case SPI_1:
             CRG->SSPCLK_PVSR  = CRG_SSPCLK_PVSR_DIV1; //1/1 (bypass)
             break;
     }
-    
-    uint32_t HCLK = SystemCoreClock; 
-    
+
+    uint32_t HCLK = SystemCoreClock;
+
     int prescaler;
-    
+
     for (prescaler = 2; prescaler <= 254; prescaler += 2) {
         int prescale_hz = HCLK / prescaler;
-        
+
         // calculate the divider
         int divider = floor(((float)prescale_hz / (float)hz) + 0.5f);
-        
+
         // check we can support the divider
         if (divider < 256) {
             // prescaler
             obj->spi->CPSR = prescaler;
-            
+
             // divider
             obj->spi->CR0 &= ~(0xFFFF << 8);
             obj->spi->CR0 |= (divider - 1) << 8;
@@ -254,4 +277,3 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
-
