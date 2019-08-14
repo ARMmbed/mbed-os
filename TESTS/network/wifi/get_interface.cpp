@@ -19,10 +19,10 @@
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
 #error [NOT_SUPPORTED] No network configuration found for this target.
-#endif
+#else
 #if !defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
+#else
 
 #include "mbed.h"
 #include "WiFiInterface.h"
@@ -40,3 +40,5 @@ WiFiInterface *get_interface()
 
     return interface;
 }
+#endif //!defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#endif //!defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI

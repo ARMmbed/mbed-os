@@ -35,6 +35,7 @@
 
 #define PAE_NVM_NW_INFO_TAG              1
 #define PAE_NVM_KEYS_TAG                 2
+#define PAE_NVM_FRAME_COUNTER_TAG        3
 
 // pan_id (2) + network name (33) + (GTK set (1) + GTK lifetime (4) + GTK (16)) * 4
 #define PAE_NVM_NW_INFO_LEN              2 + 33 + (1 + 4 + GTK_LEN) * GTK_NUM
@@ -42,12 +43,17 @@
 // PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK (48)
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + PMK_LEN + 8 + 1 + PTK_LEN
 
-nvm_tlv_entry_t *ws_pae_nvm_store_nw_info_tlv_create(uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
+// GTK hash (8), frame counter (4), index (1)
+#define PAE_NVM_FRAME_COUNTER_LEN        8 + 4 + 1
+
+nvm_tlv_entry_t *ws_pae_buffer_allocate(void)
 {
-    nvm_tlv_entry_t *tlv_entry = ns_dyn_mem_temporary_alloc(sizeof(nvm_tlv_entry_t) + PAE_NVM_NW_INFO_LEN);
-    if (!tlv_entry) {
-        return NULL;
-    }
+    //Allocate worts case buffer
+    return ns_dyn_mem_temporary_alloc(sizeof(nvm_tlv_entry_t) + PAE_NVM_NW_INFO_LEN);
+}
+
+void ws_pae_nvm_store_nw_info_tlv_create(nvm_tlv_entry_t *tlv_entry, uint16_t pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
+{
 
     tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
     tlv_entry->len = PAE_NVM_NW_INFO_LEN;
@@ -78,7 +84,6 @@ nvm_tlv_entry_t *ws_pae_nvm_store_nw_info_tlv_create(uint16_t pan_id, char *nw_n
 
     tr_debug("NVM NW_INFO write PAN ID %i name: %s", pan_id, nw_name);
 
-    return tlv_entry;
 }
 
 int8_t ws_pae_nvm_store_nw_info_tlv_read(nvm_tlv_entry_t *tlv_entry, uint16_t *pan_id, char *nw_name, sec_prot_gtk_keys_t *gtks)
@@ -117,13 +122,8 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nvm_tlv_entry_t *tlv_entry, uint16_t *p
     return 0;
 }
 
-nvm_tlv_entry_t *ws_pae_nvm_store_keys_tlv_create(sec_prot_keys_t *sec_keys)
+void ws_pae_nvm_store_keys_tlv_create(nvm_tlv_entry_t *tlv_entry, sec_prot_keys_t *sec_keys)
 {
-    nvm_tlv_entry_t *tlv_entry = ns_dyn_mem_temporary_alloc(sizeof(nvm_tlv_entry_t) + PAE_NVM_KEYS_LEN);
-    if (!tlv_entry) {
-        return NULL;
-    }
-
     tlv_entry->tag = PAE_NVM_KEYS_TAG;
     tlv_entry->len = PAE_NVM_KEYS_LEN;
 
@@ -164,7 +164,6 @@ nvm_tlv_entry_t *ws_pae_nvm_store_keys_tlv_create(sec_prot_keys_t *sec_keys)
 
     tr_debug("NVM KEYS write");
 
-    return tlv_entry;
 }
 
 int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_entry_t *tlv_entry, sec_prot_keys_t *sec_keys)
@@ -205,6 +204,45 @@ int8_t ws_pae_nvm_store_keys_tlv_read(nvm_tlv_entry_t *tlv_entry, sec_prot_keys_
     sec_prot_keys_updated_reset(sec_keys);
 
     tr_debug("NVM KEYS read");
+
+    return 0;
+}
+
+void ws_pae_nvm_store_frame_counter_tlv_create(nvm_tlv_entry_t *tlv_entry, uint8_t index, uint8_t *hash, uint32_t frame_counter)
+{
+
+    tlv_entry->tag = PAE_NVM_FRAME_COUNTER_TAG;
+    tlv_entry->len = PAE_NVM_FRAME_COUNTER_LEN;
+
+    uint8_t *tlv = ((uint8_t *) &tlv_entry->tag) + NVM_TLV_FIXED_LEN;
+
+    memcpy(tlv, hash, GTK_HASH_LEN);
+    tlv += GTK_HASH_LEN;
+    tlv = common_write_32_bit(frame_counter, tlv);
+    *tlv = index;
+
+    tr_debug("NVM FRAME COUNTER write");
+}
+
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(nvm_tlv_entry_t *tlv_entry, uint8_t *index, uint8_t *hash, uint32_t *frame_counter)
+{
+    if (!tlv_entry || !frame_counter) {
+        return -1;
+    }
+
+    if (tlv_entry->tag != PAE_NVM_FRAME_COUNTER_TAG || tlv_entry->len != PAE_NVM_FRAME_COUNTER_LEN) {
+        return -1;
+    }
+
+    uint8_t *tlv = ((uint8_t *) &tlv_entry->tag) + NVM_TLV_FIXED_LEN;
+
+    memcpy(hash, tlv, GTK_HASH_LEN);
+    tlv += GTK_HASH_LEN;
+    *frame_counter = common_read_32_bit(tlv);
+    tlv += 4;
+    *index = *tlv;
+
+    tr_debug("NVM FRAME COUNTER read");
 
     return 0;
 }

@@ -189,4 +189,17 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
     return -1;
 }
 
+int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
+{
+    (void) interface_id;
+    (void) stats_ptr;
+    return -1;
+}
+
+int ws_statistics_stop(int8_t interface_id)
+{
+    (void) interface_id;
+    return -1;
+}
+
 #endif // no HAVE_WS

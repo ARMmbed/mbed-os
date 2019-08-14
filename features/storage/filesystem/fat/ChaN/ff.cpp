@@ -2719,7 +2719,7 @@ void get_fileinfo (
 		if (wc == 0) { di = 0; break; }		/* Buffer overflow? */
 		di += wc;
 #else					/* ANSI/OEM output */
-		fno->altname[di++] = (TCHAR)wc;	/* Store it without any conversion */
+		if (di <= FF_SFN_BUF) fno->altname[di++] = (TCHAR)wc;	/* Store it without any conversion */
 #endif
 	}
 	fno->altname[di] = 0;	/* Terminate the SFN  (null string means SFN is invalid) */
@@ -4938,7 +4938,7 @@ FRESULT f_mkdir (
 					res = sync_fs(fs);
 				}
 			} else {
-				remove_chain(&dj.obj, dcl, 0);		/* Could not register, remove cluster chain */
+				res = remove_chain(&dj.obj, dcl, 0);    /* Could not register, remove cluster chain */
 			}
 		}
 		FREE_NAMBUF();
@@ -4967,7 +4967,8 @@ FRESULT f_rename (
 	DEF_NAMBUF
 
 
-	get_ldnumber(&path_new);						/* Snip the drive number of new name off */
+	int vol = get_ldnumber(&path_new);              /* Snip the drive number of new name off */
+    if (vol < 0) return FR_INVALID_DRIVE;
 	res = find_volume(&path_old, &fs, FA_WRITE);	/* Get logical drive of the old object */
 	if (res == FR_OK) {
 		djo.obj.fs = fs;

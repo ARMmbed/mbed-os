@@ -238,6 +238,16 @@ const char *AT_CellularContext::get_ip_address()
 #endif
 }
 
+char *AT_CellularContext::get_interface_name(char *interface_name)
+{
+    if (_cid < 0) {
+        return NULL;
+    }
+    MBED_ASSERT(interface_name);
+    sprintf(interface_name, "ce%02d", _cid);
+    return interface_name;
+}
+
 void AT_CellularContext::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _status_cb = status_cb;
@@ -469,7 +479,30 @@ nsapi_error_t AT_CellularContext::do_activate_context()
 
 nsapi_error_t AT_CellularContext::activate_ip_context()
 {
-    return find_and_activate_context();
+    nsapi_error_t ret = find_and_activate_context();
+#if !NSAPI_PPP_AVAILABLE
+    if (ret == NSAPI_ERROR_OK) {
+        pdpContextList_t params_list;
+        if (get_pdpcontext_params(params_list) == NSAPI_ERROR_OK) {
+            pdpcontext_params_t *pdp = params_list.get_head();
+            while (pdp) {
+                SocketAddress addr;
+                if (addr.set_ip_address(pdp->dns_secondary_addr)) {
+                    tr_info("DNS secondary %s", pdp->dns_secondary_addr);
+                    char ifn[5]; // "ce" + two digit _cid + zero
+                    add_dns_server(addr, get_interface_name(ifn));
+                }
+                if (addr.set_ip_address(pdp->dns_primary_addr)) {
+                    tr_info("DNS primary %s", pdp->dns_primary_addr);
+                    char ifn[5]; // "ce" + two digit _cid + zero
+                    add_dns_server(addr, get_interface_name(ifn));
+                }
+                pdp = pdp->next;
+            }
+        }
+    }
+#endif
+    return ret;
 }
 
 nsapi_error_t AT_CellularContext::activate_non_ip_context()

@@ -131,6 +131,13 @@ static bool dns_timer_running = false;
 // DNS server configuration
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name)
 {
+    // check if addr was already added
+    for (int i = 0; i < DNS_SERVERS_SIZE; i++) {
+        if (memcmp(&addr, &dns_servers[i], sizeof(nsapi_addr_t)) == 0) {
+            return NSAPI_ERROR_OK;
+        }
+    }
+
     memmove(&dns_servers[1], &dns_servers[0],
             (DNS_SERVERS_SIZE - 1)*sizeof(nsapi_addr_t));
 
@@ -717,7 +724,7 @@ nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const
 
     if (!dns_timer_running) {
         if (nsapi_dns_call_in(query->call_in_cb, DNS_TIMER_TIMEOUT, mbed::callback(nsapi_dns_query_async_timeout)) != NSAPI_ERROR_OK) {
-            delete query->host;
+            delete[] query->host;
             delete query;
             dns_mutex->unlock();
             return NSAPI_ERROR_NO_MEMORY;

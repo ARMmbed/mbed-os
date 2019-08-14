@@ -43,13 +43,12 @@
  *
  */
 
-#include "pal_types.h"
-#include "pal_bb.h"
-#include "pal_rtc.h"
-#include "pal_bb.h"
-#include "pal_led.h"
-#include "pal_bb_ble.h"
-#include "pal_radio.h"
+#include "stack/platform/include/pal_types.h"
+#include "stack/platform/include/pal_bb.h"
+#include "stack/platform/include/pal_rtc.h"
+#include "stack/platform/include/pal_led.h"
+#include "stack/platform/include/pal_bb_ble.h"
+#include "stack/platform/include/pal_radio.h"
 #include "ll_defs.h"
 #include "boards.h"
 #include "nrf.h"

@@ -232,7 +232,6 @@ uint8_t mac_mlme_beacon_req_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
         buf->fcf_dsn.DstPanPresents = true;
         buf->fcf_dsn.SrcPanPresents = false;
 
-        tr_debug("BEA REQ tx");
         mcps_sap_pd_req_queue_write(rf_ptr, buf);
         return 1;
     }
@@ -843,7 +842,6 @@ static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     channel = mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list, true);
     if (channel > 0xff || rf_mac_setup->mac_mlme_scan_resp->ResultListSize == MLME_MAC_RES_SIZE_MAX) {
         resp->status = MLME_SUCCESS;
-        tr_debug("Scan Complete..Halt MAC");
         platform_enter_critical();
         mac_mlme_mac_radio_disabled(rf_mac_setup);
         if (resp->ResultListSize == 0 && rf_mac_setup->scan_type == MAC_ACTIVE_SCAN) {
@@ -855,7 +853,6 @@ static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         platform_exit_critical();
         //Scan Confirmation
         mac_generic_event_trig(MAC_MLME_SCAN_CONFIRM_HANDLER, rf_mac_setup, false);
-        tr_debug("Trig confirm");
         rf_mac_setup->scan_active = false;
     } else {
         mac_mlme_scan_init((uint8_t) channel, rf_mac_setup);
@@ -987,7 +984,6 @@ static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s 
     rf_mac_setup->scan_active = false;
     if (rf_mac_setup->mac_mlme_scan_resp) {
         mlme_scan_conf_t *r = rf_mac_setup->mac_mlme_scan_resp;
-        tr_debug("%02x", r->ResultListSize);
         if (r->ED_values) {
             ns_dyn_mem_free(r->ED_values);
             r->ED_values = NULL;
@@ -995,12 +991,10 @@ static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s 
         uint8_t i = 0;
         while (i < r->ResultListSize) {
             if (r->PAN_values[i]) {
-                tr_debug("Free PAN result");
                 ns_dyn_mem_free(r->PAN_values[i]);
             }
             i++;
         }
-        tr_debug("Free Response");
         ns_dyn_mem_free(rf_mac_setup->mac_mlme_scan_resp);
         rf_mac_setup->mac_mlme_scan_resp = NULL;
     }
@@ -1399,11 +1393,6 @@ static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf
 
 static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf)
 {
-    if (conf->ScanType == MAC_ACTIVE_SCAN) {
-        tr_debug("Active Scan Result");
-    } else if (conf->ScanType == MAC_ED_SCAN_TYPE) {
-        tr_debug("ED Scan Result");
-    }
     if (rf_ptr->tun_extension_rf_driver) {
         virtual_data_req_t scan_conf;
         uint8_t buf_temp[2];

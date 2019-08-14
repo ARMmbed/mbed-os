@@ -15,15 +15,11 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_NSAPI_PRESENT)
-#error [NOT_SUPPORTED] A json configuration file is needed. Skipping this build.
-#endif
+#if !defined(MBED_CONF_NSAPI_PRESENT) || !defined(MBED_CONF_APP_CELLULAR_SIM_PIN)
+#error [NOT_SUPPORTED] A json configuration file is needed & SIM pin code is needed. Skipping this build.
+#else
 
 #include "CellularUtil.h" // for CELLULAR_ helper macros
-
-#ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
-#error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
-#endif
 
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -218,3 +214,4 @@ int main()
 #endif
     return ret;
 }
+#endif // !defined(MBED_CONF_NSAPI_PRESENT) || !defined(MBED_CONF_APP_CELLULAR_SIM_PIN)

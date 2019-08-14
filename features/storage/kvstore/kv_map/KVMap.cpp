@@ -65,7 +65,7 @@ int KVMap::attach(const char *partition_name, kvstore_config_t *kv_config)
         goto exit;
     }
 
-    kv_partition_name = new char[strlen(partition_name + 1)];
+    kv_partition_name = new char[strlen(partition_name) + 1];
     strcpy(kv_partition_name, partition_name);
     _kv_map_table[_kv_num_attached_kvs].partition_name = kv_partition_name;
     _kv_map_table[_kv_num_attached_kvs].kv_config = kv_config;
@@ -251,10 +251,7 @@ KVStore *KVMap::get_internal_kv_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->internal_store;
@@ -269,10 +266,7 @@ KVStore *KVMap::get_external_kv_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->external_store;
@@ -287,10 +281,7 @@ KVStore *KVMap::get_main_kv_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->kvstore_main_instance;
@@ -305,10 +296,7 @@ BlockDevice *KVMap::get_internal_blockdevice_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->internal_bd;
@@ -323,10 +311,7 @@ BlockDevice *KVMap::get_external_blockdevice_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->external_bd;
@@ -341,14 +326,11 @@ FileSystem *KVMap::get_external_filesystem_instance(const char *name)
     size_t key_index = 0;
 
     int ret = config_lookup(name, &kv_config, &key_index);
-    if (ret != MBED_SUCCESS) {
-        goto exit;
-    }
-exit:
+
     _mutex->unlock();
 
     return ret != MBED_SUCCESS ? NULL : kv_config->external_fs;
 }
 
-}
+} // namespace mbed
 

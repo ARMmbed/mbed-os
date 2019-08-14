@@ -74,9 +74,6 @@ void nu_countdown_free(struct nu_countdown_ctx_s *ctx);
  */
 void nu_busy_wait_us(uint32_t us);
 
-/* Delay 4 cycles per round by hand-counting instruction cycles */
-void nu_delay_cycle_x4(uint32_t rounds);  
-
 #ifdef __cplusplus
 }
 #endif

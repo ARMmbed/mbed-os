@@ -20,7 +20,7 @@
 
 #if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
 #error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
-#endif // TARGET_PSA
+#else
 
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -112,3 +112,5 @@ int main()
 #endif
     return !Harness::run(specification);
 }
+
+#endif // ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))

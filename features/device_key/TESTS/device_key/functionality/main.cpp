@@ -29,7 +29,7 @@ using namespace mbed;
 
 #if !DEVICEKEY_ENABLED
 #error [NOT_SUPPORTED] DeviceKey needs to be enabled for this test
-#endif
+#else
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32
@@ -499,3 +499,4 @@ int main()
     return ret;
 }
 
+#endif // !DEVICEKEY_ENABLED

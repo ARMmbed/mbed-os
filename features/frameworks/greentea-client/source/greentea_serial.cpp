@@ -1,5 +1,7 @@
 #include "greentea-client/greentea_serial.h"
 
+#if DEVICE_SERIAL
+
 /**
  * Macros for setting console flow control.
  */
@@ -21,3 +23,5 @@ GreenteaSerial::GreenteaSerial() : mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATF
     set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
 #endif
 }
+
+#endif

@@ -1037,10 +1037,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
     cur = buf->interface;
 
-    if (buf->options.ll_security_bypass_rx) {
-        tr_debug("ICMP: Drop by EP");
-        goto drop;
-    }
+
 
     if (data_len < 4) {
         //tr_debug("Ic1");
@@ -1050,6 +1047,13 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
     buf->options.type = *dptr++;
     buf->options.code = *dptr++;
+
+    if (buf->options.ll_security_bypass_rx) {
+        if (!ws_info(buf->interface) || !(buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL && buf->options.code == ICMPV6_CODE_RPL_DIS)) {
+            //tr_debug("ICMP: Drop by EP");
+            goto drop;
+        }
+    }
 
     /* Check FCS first */
     if (buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6)) {
@@ -1369,6 +1373,21 @@ void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
 
 }
 
+static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
+{
+    uint8_t ll_address[16];
+    if (buf->dst_sa.addr_type == ADDR_IPV6) {
+        /*Full IPv6 address*/
+        memcpy(ll_address, buf->dst_sa.address, 16);
+    } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
+        // Build link local address from long MAC address
+        memcpy(ll_address, ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(ll_address + 8, &buf->dst_sa.address[2], 8);
+        ll_address[8] ^= 2;
+    }
+    rpl_control_address_register_done(buf->interface, ll_address, status);
+}
+
 buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
@@ -1444,7 +1463,7 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
         /* If ARO Success sending is omitted, MAC ACK is used instead */
         /* Setting callback for receiving ACK from adaptation layer */
         if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success) {
-            buf->ack_receive_cb = rpl_control_address_register_done;
+            buf->ack_receive_cb = icmpv6_aro_cb;
         }
     }
     if (unicast && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
@@ -1677,6 +1696,10 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     }
     if (ws_info(cur) && aro && aro->status != ARO_SUCCESS) {
         /*If Aro failed we will kill the neigbour after we have succeeded in sending message*/
+        if (!ws_common_negative_aro_mark(cur, aro->eui64)) {
+            tr_debug("Neighbour removed for negative response send");
+            return buffer_free(buf);
+        }
         buf->ack_receive_cb = ack_remove_neighbour_cb;
     }
 

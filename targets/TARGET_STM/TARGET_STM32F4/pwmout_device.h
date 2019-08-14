@@ -54,4 +54,8 @@ extern const pwm_apb_map_t pwm_apb_map_table[];
 
 #endif // DEVICE_PWMOUT
 
+#ifdef __cplusplus
+}
+#endif
+    
 #endif

@@ -22,7 +22,7 @@
 
 #if !DEVICE_CRC
 #error [NOT_SUPPORTED] CRC not supported for this target
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -280,3 +280,5 @@ int main()
 
     Harness::run(specification);
 }
+
+#endif // !DEVICE_CRC

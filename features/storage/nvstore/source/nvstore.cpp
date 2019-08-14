@@ -145,9 +145,12 @@ static uint32_t crc32(uint32_t init_crc, uint32_t data_size, uint8_t *data_buf)
 }
 
 NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_keys(NVSTORE_MAX_KEYS),
-    _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
-    _min_prog_size(0), _page_buf(0)
+    _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash_area_params{},
+    _flash(0), _min_prog_size(0), _page_buf(0)
 {
+    for (int i = 0; i < NVSTORE_NUM_AREAS; i++) {
+        _flash_area_params[i] = { 0 };
+    }
 }
 
 NVStore::~NVStore()

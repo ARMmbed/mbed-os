@@ -31,7 +31,7 @@ using namespace mbed;
 
 #if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
 #error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
-#endif
+#else
 
 static const char   data[] = "data";
 static const char   key[] = "key";
@@ -855,3 +855,5 @@ int main()
 
     return !Harness::run(specification);
 }
+
+#endif // !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)

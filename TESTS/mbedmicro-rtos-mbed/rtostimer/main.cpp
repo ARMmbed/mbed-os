@@ -28,11 +28,11 @@ using namespace utest::v1;
 
 #if RESTART_DELAY_MS >= DELAY_MS
 #error invalid RESTART_DELAY_MS value
-#endif
+#else
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 class Stopwatch: public Timer {
 private:
@@ -357,3 +357,6 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !DEVICE_USTICKER
+#endif // RESTART_DELAY_MS >= DELAY_MS

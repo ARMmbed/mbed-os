@@ -22,10 +22,10 @@
 /*************************************************************************************************/
 
 #include "nrf.h"
-#include "pal_bb.h"
-#include "pal_rtc.h"
-#include "pal_sys.h"
-#include "pal_led.h"
+#include "stack/platform/include/pal_bb.h"
+#include "stack/platform/include/pal_rtc.h"
+#include "stack/platform/include/pal_sys.h"
+#include "stack/platform/include/pal_led.h"
 #include "platform/mbed_power_mgmt.h"
 
 #include <string.h>

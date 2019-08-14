@@ -21,9 +21,9 @@
  */
 /*************************************************************************************************/
 
-#include "pal_led.h"
+#include "stack/platform/include/pal_led.h"
 #include "boards.h"
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 
 /**************************************************************************************************
   Macros

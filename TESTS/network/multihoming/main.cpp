@@ -19,15 +19,15 @@
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
-#endif
+#else
 #ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
+#else
 
 #if !defined(DEVICE_EMAC) || \
     (!defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID))
 #error [NOT_SUPPORTED] Both Wifi and Ethernet devices are required for multihoming tests.
-#endif
+#else
 
 #define STRING_VERIFY(str) (str != NULL ? str : "not supported")
 
@@ -164,3 +164,7 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !defined(DEVICE_EMAC) || (!defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID))
+#endif // MBED_CONF_APP_ECHO_SERVER_ADDR
+#endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))

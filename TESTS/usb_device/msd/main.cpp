@@ -31,7 +31,7 @@
 
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
-#endif
+#else
 
 
 #define OS_WINDOWS  1
@@ -480,3 +480,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE

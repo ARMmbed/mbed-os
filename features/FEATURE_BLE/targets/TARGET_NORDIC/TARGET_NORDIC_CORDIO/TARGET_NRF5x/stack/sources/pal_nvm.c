@@ -22,7 +22,7 @@
 /*************************************************************************************************/
 
 #include <string.h>
-#include "pal_nvm.h"
+#include "stack/platform/include/pal_nvm.h"
 #include "sdk_config.h"
 #if defined(NRF52840_XXAA)
 #include "nrfx_qspi.h"

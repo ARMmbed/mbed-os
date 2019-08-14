@@ -924,7 +924,7 @@ int lfs_mkdir(lfs_t *lfs, const char *path) {
     // build up new directory
     lfs_alloc_ack(lfs);
 
-    lfs_dir_t dir;
+    lfs_dir_t dir = { 0 };
     err = lfs_dir_alloc(lfs, &dir);
     if (err) {
         return err;
@@ -2106,7 +2106,7 @@ int lfs_format(lfs_t *lfs, const struct lfs_config *cfg) {
     lfs_alloc_ack(lfs);
 
     // create superblock dir
-    lfs_dir_t superdir;
+    lfs_dir_t superdir = { 0 };
     err = lfs_dir_alloc(lfs, &superdir);
     if (err) {
         goto cleanup;

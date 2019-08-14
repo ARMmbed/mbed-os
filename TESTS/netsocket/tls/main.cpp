@@ -19,7 +19,7 @@
 #if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
     (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
-#endif
+#else
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
@@ -30,7 +30,7 @@
 
 #ifndef ECHO_SERVER_ADDR
 #error [NOT_SUPPORTED] Requires parameters for echo server
-#endif
+#else
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
@@ -276,3 +276,6 @@ int main()
 #else
 #error [NOT_SUPPORTED] This device does not support SSL library
 #endif // defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
+
+#endif // ECHO_SERVER_ADDR
+#endif // !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))

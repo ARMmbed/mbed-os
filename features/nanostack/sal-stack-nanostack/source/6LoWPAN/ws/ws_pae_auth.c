@@ -332,7 +332,7 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
         sec_prot_keys_pmk_delete(&supp->sec_keys);
         sec_prot_keys_ptk_delete(&supp->sec_keys);
         supp->access_revoked = true;
-        tr_info("Access revoked; keys removed, eui-64: %s", trace_array(kmp_address_eui_64_get(supp->addr), 8));
+        tr_info("Access revoked; keys removed, eui-64: %s", trace_array(supp->addr.eui_64, 8));
         return 0;
     }
 
@@ -340,7 +340,7 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
     supp = ws_pae_lib_supp_list_entry_eui_64_get(&pae_auth->inactive_supp_list, eui_64);
     if (supp) {
         // Deletes supplicant
-        tr_info("Access revoked; deleted, eui-64: %s", trace_array(kmp_address_eui_64_get(supp->addr), 8));
+        tr_info("Access revoked; deleted, eui-64: %s", trace_array(supp->addr.eui_64, 8));
         ws_pae_lib_supp_list_remove(&pae_auth->inactive_supp_list, supp);
         return 0;
     }
@@ -720,8 +720,8 @@ static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *
 
     // Get supplicant address
     supp_entry_t *entry = kmp_api_data_get(kmp);
-    if (entry && entry->addr) {
-        kmp_address_copy(remote_addr, entry->addr);
+    if (entry) {
+        kmp_address_copy(remote_addr, &entry->addr);
     }
 }
 
@@ -767,7 +767,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
         sec_prot_keys_ptk_eui_64_write(&supp_entry->sec_keys, kmp_address_eui_64_get(addr));
     } else {
         // Updates relay address
-        kmp_address_copy(supp_entry->addr, addr);
+        kmp_address_copy(&supp_entry->addr, addr);
     }
 
     // Increases waiting time for supplicant authentication
@@ -788,7 +788,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 
     kmp_api_data_set(kmp, supp_entry);
     // Sets address to KMP
-    kmp_api_addr_set(kmp, supp_entry->addr);
+    kmp_api_addr_set(kmp, &supp_entry->addr);
 
     // Sets security keys to KMP
     kmp_api_sec_keys_set(kmp, &supp_entry->sec_keys);
@@ -862,6 +862,11 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
     if (next_type == KMP_TYPE_NONE) {
         // All done
         return;
+    } else {
+        if (ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, next_type) != NULL) {
+            tr_info("KMP already ongoing; ignored, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+            return;
+        }
     }
 
     // Increases waiting time for supplicant authentication
@@ -877,7 +882,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
         uint16_t ongoing_eap_tls_cnt = ws_pae_lib_supp_list_kmp_count(&pae_auth->active_supp_list, IEEE_802_1X_MKA);
         if (ongoing_eap_tls_cnt >= MAX_SIMULTANEOUS_EAP_TLS_NEGOTIATIONS) {
             supp_entry->retry_ticks = EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT;
-            tr_info("EAP-TLS max ongoing reached, count %i, delayed: eui-64: %s", ongoing_eap_tls_cnt, trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+            tr_info("EAP-TLS max ongoing reached, count %i, delayed: eui-64: %s", ongoing_eap_tls_cnt, trace_array(supp_entry->addr.eui_64, 8));
             return;
         }
     }
@@ -902,7 +907,7 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
         }
     }
 
-    kmp_api_create_request(new_kmp, next_type, supp_entry->addr, &supp_entry->sec_keys);
+    kmp_api_create_request(new_kmp, next_type, &supp_entry->addr, &supp_entry->sec_keys);
 }
 
 static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry)
@@ -915,11 +920,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry)
         sec_keys->ptk_mismatch = true;
         // start EAP-TLS towards supplicant
         next_type = IEEE_802_1X_MKA;
-        tr_info("PAE start EAP-TLS, eui-64: %s", trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+        tr_info("PAE start EAP-TLS, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     } else if (sec_keys->ptk_mismatch) {
         // start 4WH towards supplicant
         next_type = IEEE_802_11_4WH;
-        tr_info("PAE start 4WH, eui-64: %s", trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+        tr_info("PAE start 4WH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     }
 
     int8_t gtk_index = -1;
@@ -937,14 +942,14 @@ static kmp_type_e ws_pae_auth_next_protocol_get(supp_entry_t *supp_entry)
         if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
             // Update just GTK
             next_type = IEEE_802_11_GKH;
-            tr_info("PAE start GKH, eui-64: %s", trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+            tr_info("PAE start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
         }
 
-        tr_info("PAE update GTK index: %i, eui-64: %s", gtk_index, trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+        tr_info("PAE update GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
     }
 
     if (next_type == KMP_TYPE_NONE) {
-        tr_info("PAE authenticated, eui-64: %s", trace_array(kmp_address_eui_64_get(supp_entry->addr), 8));
+        tr_info("PAE authenticated, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     }
 
     return next_type;
@@ -1004,7 +1009,7 @@ static void ws_pae_auth_kmp_api_finished(kmp_api_t *kmp)
     ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, kmp);
 
     if (retry_supp) {
-        tr_info("PAE next KMP trigger, eui-64: %s", trace_array(kmp_address_eui_64_get(retry_supp->addr), 8));
+        tr_info("PAE next KMP trigger, eui-64: %s", trace_array(retry_supp->addr.eui_64, 8));
         ws_pae_auth_next_kmp_trigger(pae_auth, retry_supp);
     }
 

@@ -170,7 +170,7 @@ public:
      *  @return         Size of minimal erase sector size, in given address region, in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr);
+    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr) const;
 
     /** Get the value of storage byte after it was erased
      *
@@ -227,7 +227,7 @@ private:
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belongs to
-    int _utils_find_addr_region(bd_size_t offset);
+    int _utils_find_addr_region(bd_size_t offset) const;
 
     // Iterate on all supported Erase Types of the Region to which the offset belongs to.
     // Iterates from highest type to lowest

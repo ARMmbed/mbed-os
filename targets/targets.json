@@ -8345,6 +8345,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
+            "USBDEVICE",
             "USTICKER"
         ],
         "release_versions": ["5"],
@@ -8382,6 +8383,24 @@
             "network-default-interface-type": "WIFI"
         }
     },
+    "CY8CMOD_062S2_43012": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "device_has_remove": ["ANALOGOUT"],
+        "extra_labels_add": [
+            "PSOC6_02",
+            "CM0P_SLEEP",
+            "WHD",
+            "43012",
+            "CYW43XXX",
+            "CORDIO"
+        ],
+        "macros_add": ["CY8C624ABZI_D44", "CYBSP_WIFI_CAPABLE"],
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
+    },
     "CY8CKIT_062_WIFI_BT": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
@@ -8399,6 +8418,10 @@
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x10000000",
+        "mbed_rom_size": "0x100000",
+        "sectors": [[268435456, 512]],                            
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
@@ -8409,10 +8432,23 @@
         "detect_code": ["1901"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
+        },
+        "bootloader_supported": true,
+        "mbed_rom_start": "0x10000000",
+        "mbed_rom_size": "0x200000",
+        "sectors": [[268435456, 512]]                    
+    },
+    "CY8CKIT_062S2_43012": {
+        "inherits": ["CY8CMOD_062S2_43012"],
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["190B"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
         }
     },
     "CY8CKIT_062_BLE": {
         "inherits": ["MCU_PSOC6_M4"],
+        "device_has_remove": ["USBDEVICE"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
@@ -8451,7 +8487,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "FUTURE_SEQUANA"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "post_binary_hook": {
@@ -8480,7 +8516,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "CORDIO"],
         "extra_labels_remove": ["PSOC6"],
-        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE"],
+        "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",

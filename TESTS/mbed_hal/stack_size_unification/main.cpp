@@ -22,7 +22,7 @@
 
 #ifdef TARGET_RENESAS
 #error [NOT_SUPPORTED] Cortex-A target not supported for this test
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -74,3 +74,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // TARGET_RENESAS

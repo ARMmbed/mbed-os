@@ -16,7 +16,7 @@
  */
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
-#endif
+#else
 
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
@@ -382,3 +382,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE

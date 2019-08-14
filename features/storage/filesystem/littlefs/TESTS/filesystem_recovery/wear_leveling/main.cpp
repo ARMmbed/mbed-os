@@ -27,7 +27,7 @@ using namespace utest::v1;
 // test configuration
 #ifndef MBED_TEST_SIM_BLOCKDEVICE
 #error [NOT_SUPPORTED] Simulation block device required for wear leveling tests
-#endif
+#else
 
 #ifndef MBED_TEST_SIM_BLOCKDEVICE_DECL
 #define MBED_TEST_SIM_BLOCKDEVICE_DECL MBED_TEST_SIM_BLOCKDEVICE bd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
@@ -118,3 +118,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // MBED_TEST_SIM_BLOCKDEVICE

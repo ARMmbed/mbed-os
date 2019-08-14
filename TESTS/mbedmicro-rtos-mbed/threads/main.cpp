@@ -21,13 +21,9 @@
 #include "SynchronizedIntegral.h"
 #include "LockGuard.h"
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
+#if defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 #define THREAD_STACK_SIZE 512
 #if defined(__CORTEX_A9)
@@ -854,3 +850,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // defined(MBED_RTOS_SINGLE_THREAD) || !DEVICE_USTICKER

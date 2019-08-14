@@ -25,7 +25,7 @@
 
 #if !MBED_CONF_NFCEEPROM
 #error [NOT_SUPPORTED] NFC EEPROM not supported for this target
-#endif
+#else
 
 using namespace utest::v1;
 using namespace mbed::nfc;
@@ -497,3 +497,5 @@ int main()
 {
     return !Harness::run(specification);
 }
+
+#endif // !MBED_CONF_NFCEEPROM

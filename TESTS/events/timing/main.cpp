@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 // Test delay
 #ifndef TEST_EVENTS_TIMING_TIME
@@ -148,3 +148,4 @@ int main()
     return !Harness::run(specification);
 }
 
+#endif // !DEVICE_USTICKER

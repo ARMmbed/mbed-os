@@ -19,13 +19,9 @@
 #include "mbed.h"
 #include "sleep_manager_api_racecondition_tests.h"
 
-#if !DEVICE_SLEEP
+#if !DEVICE_SLEEP || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
-#endif
-
-#if !DEVICE_USTICKER
-#error [NOT_SUPPORTED] test not supported
-#endif
+#else
 
 using namespace utest::v1;
 
@@ -105,3 +101,5 @@ int main()
 {
     Harness::run(specification);
 }
+
+#endif // !DEVICE_SLEEP || !DEVICE_USTICKER
