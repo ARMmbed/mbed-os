@@ -152,6 +152,8 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
         /**
          * Device is connectable, scannable and doesn't expect connection from a
          * specific peer.
+         * @note Cannot carry extended advertising payload, only legacy PDUs.
+         * Use CONNECTABLE_NON_SCANNABLE_UNDIRECTED for non-legacy payload.
          *
          * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
          */
@@ -185,6 +187,8 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
 
         /**
          * Device is connectable, but not scannable and doesn't expect connection from a specific peer.
+         * @note Only for use with extended advertising payload, will not allow legacy PDUs
+         * (use CONNECTABLE_UNDIRECTED for legacy PDU).
          */
         CONNECTABLE_NON_SCANNABLE_UNDIRECTED = 0x05,
 
