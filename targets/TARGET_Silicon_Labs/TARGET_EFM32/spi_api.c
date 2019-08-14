@@ -136,19 +136,19 @@ static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef dat
     USART_InitSync(obj->spi.spi, &init);
 }
 
-void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
+void spi_enable(spi_t *obj, uint8_t enable)
 {
-    SPIName spi_mosi = (SPIName) pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName) pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_clk = (SPIName) pinmap_peripheral(clk, PinMap_SPI_CLK);
-    SPIName spi_cs = (SPIName) pinmap_peripheral(cs, PinMap_SPI_CS);
-    SPIName spi_data = (SPIName) pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_ctrl = (SPIName) pinmap_merge(spi_clk, spi_cs);
+    USART_Enable(obj->spi.spi, (enable ? usartEnable : usartDisable));
+}
 
-    obj->spi.spi = (USART_TypeDef *) pinmap_merge(spi_data, spi_ctrl);
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    CMU_ClockEnable(cmuClock_HFPER, true);
+
+    obj->spi.spi = (USART_TypeDef *) explicit_pinmap->peripheral;
     MBED_ASSERT((unsigned int) obj->spi.spi != NC);
 
-    if (cs != NC) { /* Slave mode */
+    if (explicit_pinmap->pin[3] != NC) { /* Slave mode */
         obj->spi.master = false;
     } else {
         obj->spi.master = true;
@@ -156,10 +156,10 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
 
 #if defined(_SILICON_LABS_32B_PLATFORM_1)
     // On P1, we need to ensure all pins are on same location
-    uint32_t loc_mosi = pin_location(mosi, PinMap_SPI_MOSI);
-    uint32_t loc_miso = pin_location(miso, PinMap_SPI_MISO);
-    uint32_t loc_clk = pin_location(clk, PinMap_SPI_CLK);
-    uint32_t loc_cs = pin_location(cs, PinMap_SPI_CS);
+    uint32_t loc_mosi = explicit_pinmap->function[0];
+    uint32_t loc_miso = explicit_pinmap->function[1];
+    uint32_t loc_clk = explicit_pinmap->function[2];
+    uint32_t loc_cs = explicit_pinmap->function[3];
     uint32_t loc_data = pinmap_merge(loc_mosi, loc_miso);
     uint32_t loc_ctrl = pinmap_merge(loc_clk, loc_cs);
     obj->spi.location = pinmap_merge(loc_data, loc_ctrl);
@@ -167,53 +167,29 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
 #endif
 
     obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-}
 
-void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, PinName clk, PinName cs)
-{
-    if (enable) {
-        if (obj->spi.master) { /* Master mode */
-            /* Either mosi or miso can be NC */
-            if (mosi != NC) {
-                pin_mode(mosi, PushPull);
-            }
-            if (miso != NC) {
-                pin_mode(miso, Input);
-            }
-            pin_mode(clk, PushPull);
-            /* Don't set cs pin, since we toggle it manually */
-        } else { /* Slave mode */
-            if (mosi != NC) {
-                pin_mode(mosi, Input);
-            }
-            if (miso != NC) {
-                pin_mode(miso, PushPull);
-            }
-            pin_mode(clk, Input);
-            pin_mode(cs, Input);
+    CMU_ClockEnable(spi_get_clock_tree(obj), true);
+    usart_init(obj, 100000, usartDatabits8, true, usartClockMode0);
+
+    if (obj->spi.master) { /* Master mode */
+        /* Either mosi or miso can be NC */
+        if (explicit_pinmap->pin[0] != NC) {
+            pin_mode(explicit_pinmap->pin[0], PushPull);
         }
-    } else {
-        // TODO_LP return PinMode to the previous state
-        if (obj->spi.master) { /* Master mode */
-            /* Either mosi or miso can be NC */
-            if (mosi != NC) {
-                pin_mode(mosi, Disabled);
-            }
-            if (miso != NC) {
-                pin_mode(miso, Disabled);
-            }
-            pin_mode(clk, Disabled);
-            /* Don't set cs pin, since we toggle it manually */
-        } else { /* Slave mode */
-            if (mosi != NC) {
-                pin_mode(mosi, Disabled);
-            }
-            if (miso != NC) {
-                pin_mode(miso, Disabled);
-            }
-            pin_mode(clk, Disabled);
-            pin_mode(cs, Disabled);
+        if (explicit_pinmap->pin[1] != NC) {
+            pin_mode(explicit_pinmap->pin[1], Input);
         }
+        pin_mode(explicit_pinmap->pin[2], PushPull);
+        /* Don't set cs pin, since we toggle it manually */
+    } else { /* Slave mode */
+        if (explicit_pinmap->pin[0] != NC) {
+            pin_mode(explicit_pinmap->pin[0], Input);
+        }
+        if (explicit_pinmap->pin[1] != NC) {
+            pin_mode(explicit_pinmap->pin[1], PushPull);
+        }
+        pin_mode(explicit_pinmap->pin[2], Input);
+        pin_mode(explicit_pinmap->pin[3], Input);
     }
 
     /* Enabling pins and setting location */
@@ -221,33 +197,33 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     uint32_t route = USART_ROUTEPEN_CLKPEN;
 
     obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CLKLOC_MASK;
-    obj->spi.spi->ROUTELOC0 |= pin_location(clk, PinMap_SPI_CLK)<<_USART_ROUTELOC0_CLKLOC_SHIFT;
-    if (mosi != NC) {
+    obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[2], PinMap_SPI_CLK)<<_USART_ROUTELOC0_CLKLOC_SHIFT;
+    if (explicit_pinmap->pin[0] != NC) {
         route |= USART_ROUTEPEN_TXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_TXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_TXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[0], PinMap_SPI_MOSI)<<_USART_ROUTELOC0_TXLOC_SHIFT;
     }
-    if (miso != NC) {
+    if (explicit_pinmap->pin[1] != NC) {
         route |= USART_ROUTEPEN_RXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_RXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(miso, PinMap_SPI_MISO)<<_USART_ROUTELOC0_RXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[1], PinMap_SPI_MISO)<<_USART_ROUTELOC0_RXLOC_SHIFT;
     }
     if (!obj->spi.master) {
         route |= USART_ROUTEPEN_CSPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CSLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(cs, PinMap_SPI_CS)<<_USART_ROUTELOC0_CSLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[3], PinMap_SPI_CS)<<_USART_ROUTELOC0_CSLOC_SHIFT;
     }
     obj->spi.location = obj->spi.spi->ROUTELOC0;
     obj->spi.route = route;
     obj->spi.spi->ROUTEPEN = route;
-}
+
 #else
     uint32_t route = USART_ROUTE_CLKPEN;
 
-    if (mosi != NC) {
+    if (explicit_pinmap->pin[0] != NC) {
         route |= USART_ROUTE_TXPEN;
     }
-    if (miso != NC) {
+    if (explicit_pinmap->pin[1] != NC) {
         route |= USART_ROUTE_RXPEN;
     }
     if (!obj->spi.master) {
@@ -256,22 +232,35 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     route |= obj->spi.location << _USART_ROUTE_LOCATION_SHIFT;
     obj->spi.spi->ROUTE = route;
     obj->spi.route = route;
-}
+
 #endif
-void spi_enable(spi_t *obj, uint8_t enable)
-{
-    USART_Enable(obj->spi.spi, (enable ? usartEnable : usartDisable));
+
+    spi_enable(obj, true);
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    CMU_ClockEnable(cmuClock_HFPER, true);
-    spi_preinit(obj, mosi, miso, clk, cs);
-    CMU_ClockEnable(spi_get_clock_tree(obj), true);
-    usart_init(obj, 100000, usartDatabits8, true, usartClockMode0);
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_CLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_CS);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
 
-    spi_enable_pins(obj, true, mosi, miso, clk, cs);
-    spi_enable(obj, true);
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_CLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_CS);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj)
