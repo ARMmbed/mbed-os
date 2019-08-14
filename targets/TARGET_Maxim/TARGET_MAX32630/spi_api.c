@@ -40,25 +40,9 @@
 #include "PeripheralPins.h"
 
 //******************************************************************************
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
-    // Make sure pins are pointing to the same SPI instance
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl;
-
-    // Control is SCK and optionaly SS
-    if ((SPIName)spi_ssel != (SPIName)NC) {
-        spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    } else {
-        spi_cntl = spi_sclk;
-    }
-
-    SPIName spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
+    SPIName spi = (SPIName)explicit_pinmap->peripheral;
 
     MBED_ASSERT((SPIName)spi != (SPIName)NC);
 
@@ -67,14 +51,14 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     // Merge pin function requests for use with CMSIS init func
     ioman_req_t io_req;
     pin_function_t *pin_func;
-    pin_func = (pin_function_t *)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    pin_func = (pin_function_t *)explicit_pinmap->function[0];
     io_req.value  = pin_func->req_val;
-    pin_func = (pin_function_t *)pinmap_find_function(miso, PinMap_SPI_MISO);
+    pin_func = (pin_function_t *)explicit_pinmap->function[1];
     io_req.value |= pin_func->req_val;
-    pin_func = (pin_function_t *)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    pin_func = (pin_function_t *)explicit_pinmap->function[2];
     io_req.value |= pin_func->req_val;
-    if ((SPIName)spi_ssel != (SPIName)NC) {
-        pin_func = (pin_function_t *)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+    if ((SPIName)explicit_pinmap->pin[3] != (SPIName)NC) {
+        pin_func = (pin_function_t *)explicit_pinmap->function[3];
         io_req.value |= pin_func->req_val;
     }
 
@@ -94,6 +78,31 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SPIM_Init(obj->spi, &spim_cfg, &sys_cfg);
 
     obj->index = MXC_SPIM_GET_IDX(obj->spi);
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 //******************************************************************************

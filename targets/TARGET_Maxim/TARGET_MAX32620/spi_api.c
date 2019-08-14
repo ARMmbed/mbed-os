@@ -55,30 +55,9 @@ static struct spi_s *state[MXC_CFG_SPI_INSTANCES] = {NULL};
 #endif
 
 //******************************************************************************
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
-    // Make sure pins are pointing to the same SPI instance
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl;
-
-    // Give the application the option to manually control Slave Select
-    if ((SPIName)spi_ssel != (SPIName)NC) {
-        spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-        // Slave select is currently limited to slave select zero. If others are
-        // to be supported a function to map PinName to a value suitable for use
-        // in mstr_cfg.slave_sel will be required.
-        obj->spi.ssel = 0;
-    } else {
-        spi_cntl = spi_sclk;
-        obj->spi.ssel = -1;
-    }
-
-    SPIName spi = (SPIName)pinmap_merge(spi_data, spi_cntl);
+    SPIName spi = (SPIName)explicit_pinmap->peripheral;
 
     MBED_ASSERT((SPIName)spi != (SPIName)NC);
 
@@ -90,10 +69,16 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.fifo = MXC_SPI_GET_SPI_FIFO(obj->spi.index);
 
     // Configure the pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    pinmap_pinout(ssel, PinMap_SPI_SSEL);
+    pin_function(explicit_pinmap->pin[0], explicit_pinmap->function[0]);
+    pin_mode(explicit_pinmap->pin[0], PullNone);
+    pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
+    pin_mode(explicit_pinmap->pin[1], PullNone);
+    pin_function(explicit_pinmap->pin[2], explicit_pinmap->function[2]);
+    pin_mode(explicit_pinmap->pin[2], PullNone);
+    if (explicit_pinmap->pin[3] != NC) {
+        pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
+        pin_mode(explicit_pinmap->pin[3], PullNone);
+    }
 
 #if DEVICE_SPI_ASYNCH
     // Configure default page size; size is known to async interface
@@ -105,8 +90,33 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
                               MXC_F_SPI_GEN_CTRL_TX_FIFO_EN |
                               MXC_F_SPI_GEN_CTRL_RX_FIFO_EN );
 
-    obj->spi.sclk = sclk;       // save the sclk PinName in the object as a key for Quad SPI pin mapping lookup
+    obj->spi.sclk = explicit_pinmap->pin[2];       // save the sclk PinName in the object as a key for Quad SPI pin mapping lookup
     spi_master_width(obj, 0);   // default this for Single SPI communications
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
 }
 
 //******************************************************************************
