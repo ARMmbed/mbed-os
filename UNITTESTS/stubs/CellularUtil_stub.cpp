@@ -110,6 +110,11 @@ int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
     return 1;
 }
 
+void hex_to_char(const char *hex, char &buf)
+{
+    buf = CellularUtil_stub::char_ptr[CellularUtil_stub::char_pos++];
+}
+
 void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt)
 {
 

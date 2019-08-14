@@ -105,6 +105,13 @@ int hex_str_to_int(const char *hex_string, int hex_string_length);
  */
 int hex_str_to_char_str(const char *str, uint16_t len, char *buf);
 
+/** Converts the given hex string to char
+ *
+ *  @param str A hex value that is converted to char
+ *  @param buf A char variable where result conversion is stored
+ */
+void hex_to_char(const char *hex, char &buf);
+
 /** Converts the given uint to binary string. Fills the given str starting from [0] with the number of bits defined by bit_cnt
  *  For example uint_to_binary_string(9, str, 10) would fill str "0000001001"
  *  For example uint_to_binary_string(9, str, 3) would fill str "001"

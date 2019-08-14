@@ -478,6 +478,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
             _at.resp_start("+QISACK:");
             sent_len_before = _at.read_int();
             sent_acked = _at.read_int();
+            (void)sent_acked;
             sent_nacked = _at.read_int();
             _at.resp_stop();
 

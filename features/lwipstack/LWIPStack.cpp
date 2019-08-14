@@ -162,6 +162,7 @@ void LWIP::tcpip_init_irq(void *eh)
 LWIP::LWIP()
 {
     default_interface = NULL;
+    tcpip_thread_id = NULL;
 
     // Seed lwip random
     lwip_seed_random();
@@ -208,7 +209,9 @@ nsapi_error_t LWIP::add_dns_server(const SocketAddress &address, const char *int
     const ip_addr_t *ip_addr_move;
     ip_addr_t ip_addr;
 
-    convert_mbed_addr_to_lwip(&ip_addr, &addr);
+    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
 
     if (ip_addr_isany(&ip_addr)) {
         return NSAPI_ERROR_NO_ADDRESS;

@@ -49,12 +49,14 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _parser(&_serial),
       _packets(0),
       _packets_end(&_packets),
+      _sock_active_id(-1),
       _heap_usage(0),
       _connect_error(0),
       _disconnect(false),
       _fail(false),
       _sock_already(false),
       _closed(false),
+      _error(false),
       _busy(false),
       _reset_check(_rmutex),
       _reset_done(false),
@@ -97,6 +99,10 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
         _sock_i[i].tcp_data_avbl = 0;
         _sock_i[i].tcp_data_rcvd = 0;
     }
+
+    _scan_r.res = NULL;
+    _scan_r.limit = 0;
+    _scan_r.cnt = 0;
 }
 
 bool ESP8266::at_available()
@@ -328,8 +334,8 @@ nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
-    _parser.send("AT+CWJAP_CUR=\"%s\",\"%s\"", ap, passPhrase);
-    if (!_parser.recv("OK\n")) {
+    bool res = _parser.send("AT+CWJAP_CUR=\"%s\",\"%s\"", ap, passPhrase);
+    if (!res || !_parser.recv("OK\n")) {
         if (_fail) {
             if (_connect_error == 1) {
                 ret = NSAPI_ERROR_CONNECTION_TIMEOUT;

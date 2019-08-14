@@ -271,13 +271,20 @@ int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 {
     int strcount = 0;
     for (int i = 0; i + 1 < len; i += 2) {
-        int upper = hex_str_to_int(str + i, 1);
-        int lower = hex_str_to_int(str + i + 1, 1);
-        buf[strcount] = ((upper << 4) & 0xF0) | (lower & 0x0F);
+        char tmp;
+        hex_to_char(str + i, tmp);
+        buf[strcount] = tmp;
         strcount++;
     }
 
     return strcount;
+}
+
+void hex_to_char(const char *hex, char &buf)
+{
+    int upper = hex_str_to_int(hex, 1);
+    int lower = hex_str_to_int(hex + 1, 1);
+    buf = ((upper << 4) & 0xF0) | (lower & 0x0F);
 }
 
 void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt)
