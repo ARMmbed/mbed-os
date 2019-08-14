@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,17 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#include <ti/devices/cc32xx/inc/hw_types.h>
-#include <ti/devices/cc32xx/driverlib/pin.h>
-#include <ti/devices/cc32xx/driverlib/gpio.h>
-#include <ti/devices/cc32xx/inc/hw_ints.h>
-#include <ti/devices/cc32xx/driverlib/prcm.h>
+#include "ti/devices/cc32xx/inc/hw_types.h"
+#include "ti/devices/cc32xx/driverlib/pin.h"
+#include "ti/devices/cc32xx/driverlib/gpio.h"
+#include "ti/devices/cc32xx/inc/hw_ints.h"
+#include "ti/devices/cc32xx/driverlib/prcm.h"
 
 
 uint32_t gpio_set(PinName pin)
 {
     pin_function(pin, 0);
-	return (1);
+    return (1);
 }
 
 // function to initialise the gpio pin
@@ -37,17 +37,17 @@ uint32_t gpio_set(PinName pin)
 void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     unsigned long gpio_base = (unsigned long)pinmap_peripheral(pin, PinMap_GPIO);
     obj->baseAddr = gpio_base;
-    obj->pin_mask = 1<<(pinmap_find_function(pin, PinMap_GPIO)%8);
+    obj->pin_mask = 1 << (pinmap_find_function(pin, PinMap_GPIO) % 8);
 
     // determine PRCM GPIO CLOCK index
     unsigned short prcm_peripheral = 0;
-    switch (gpio_base)
-    {
+    switch (gpio_base) {
         case CC3220SF_GPIOA0_BASE:
             prcm_peripheral = PRCM_GPIOA0;
             break;
@@ -68,7 +68,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     PRCMPeripheralClkEnable(prcm_peripheral, PRCM_RUN_MODE_CLK | PRCM_SLP_MODE_CLK);
 
     // wait for GPIO clock to settle
-    while(!PRCMPeripheralStatusGet(prcm_peripheral));
+    while (!PRCMPeripheralStatusGet(prcm_peripheral));
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
@@ -77,7 +77,6 @@ void gpio_mode(gpio_t *obj, PinMode mode)
     //set the pin mux to be GPIO which is PIN MODE 0
     pin_mode(obj->pin, mode);
     PinModeSet(obj->pin, PIN_MODE_0);
-    
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
@@ -93,7 +92,7 @@ int gpio_is_connected(const gpio_t *obj)
 
 void gpio_write(gpio_t *obj, int value)
 {
-    GPIOPinWrite(obj->baseAddr, obj->pin_mask, value*obj->pin_mask);
+    GPIOPinWrite(obj->baseAddr, obj->pin_mask, value * obj->pin_mask);
 }
 
 int gpio_read(gpio_t *obj)

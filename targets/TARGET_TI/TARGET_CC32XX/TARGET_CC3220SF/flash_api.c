@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #if DEVICE_FLASH
 
 #include "stdbool.h"
@@ -45,17 +45,14 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
     return FlashProgram((unsigned long *)data, (unsigned long)address,
-            (unsigned long)size);
+                        (unsigned long)size);
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if ((address >= CC3200_FLASH_START_ADDRESS) && address < (CC3200_FLASH_START_ADDRESS + CC3200_FLASH_SIZE))
-    {
+    if ((address >= CC3200_FLASH_START_ADDRESS) && address < (CC3200_FLASH_START_ADDRESS + CC3200_FLASH_SIZE)) {
         return CC3200_FLASH_SECTOR_SIZE;
-    }
-    else
-    {
+    } else {
         return MBED_FLASH_INVALID_SIZE;
     }
 }

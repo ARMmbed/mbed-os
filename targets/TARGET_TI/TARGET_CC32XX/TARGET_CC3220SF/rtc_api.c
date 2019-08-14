@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,36 @@
 #include "ti/devices/cc32xx/inc/hw_types.h"
 #include "ti/devices/cc32xx/driverlib/prcm.h"
 
-void rtc_init(void) {
+void rtc_init(void)
+{
     static bool rtc_initialized = false;
-    if (!rtc_initialized)
-    {
-        if (!PRCMRTCInUseGet())
-        {
+    if (!rtc_initialized) {
+        if (!PRCMRTCInUseGet()) {
             PRCMRTCInUseSet();
         }
         rtc_initialized = true;
     }
 }
 
-void rtc_free(void) {
+void rtc_free(void)
+{
 }
 
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     return PRCMRTCInUseGet();
 }
 
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
     unsigned long ulSecs = 0;
     unsigned short usMsec = 0;
     PRCMRTCGet(&ulSecs, &usMsec);
     return ulSecs;
 }
 
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
     PRCMRTCSet(t, 0);
 }
 #endif

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ struct port_s {
 struct pwmout_s {
     uint32_t        period_us;
     float           duty_percent;
-    void *          handle;
+    void           *handle;
     PWMName         pwm;
 };
 
@@ -71,7 +71,7 @@ struct serial_s {
     UART_PAR        parityType;      /* Parity bit type for UART */
 };
 
-struct analogin_s{
+struct analogin_s {
     PinName pin;
     unsigned long adc_ch;
 };

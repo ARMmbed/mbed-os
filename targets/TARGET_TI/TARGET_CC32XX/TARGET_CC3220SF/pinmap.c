@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
-#include <ti/devices/cc32xx/inc/hw_types.h>
-#include <ti/devices/cc32xx/inc/hw_memmap.h>
-#include <ti/devices/cc32xx/inc/hw_ocp_shared.h>
-#include <ti/devices/cc32xx/driverlib/pin.h>
+#include "ti/devices/cc32xx/inc/hw_types.h"
+#include "ti/devices/cc32xx/inc/hw_memmap.h"
+#include "ti/devices/cc32xx/inc/hw_ocp_shared.h"
+#include "ti/devices/cc32xx/driverlib/pin.h"
 
 /**
  * Configure pin (mode, speed, output type and pull-up/pull-down)
@@ -36,14 +36,30 @@ void pin_function(PinName pin, int function)
 void pin_mode(PinName pin, PinMode mode)
 {
     MBED_ASSERT(pin != (PinName)NC);
-    switch(mode) {
-        case PullNone: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD); break;
-        case PullUp: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD_PU); break;
-        case PullDown: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD_PD); break;
-        case OpenDrain: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD); break;
-        case OpenDrainPullUp: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD_PU); break;
-        case OpenDrainPullDown: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD_PD); break;
-        case Analog: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_ANALOG); break;
-        default: PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD); break;
+    switch (mode) {
+        case PullNone:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD);
+            break;
+        case PullUp:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD_PU);
+            break;
+        case PullDown:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD_PD);
+            break;
+        case OpenDrain:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD);
+            break;
+        case OpenDrainPullUp:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD_PU);
+            break;
+        case OpenDrainPullDown:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_OD_PD);
+            break;
+        case Analog:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_ANALOG);
+            break;
+        default:
+            PinConfigSet(pin, PIN_STRENGTH_2MA, PIN_TYPE_STD);
+            break;
     }
 }

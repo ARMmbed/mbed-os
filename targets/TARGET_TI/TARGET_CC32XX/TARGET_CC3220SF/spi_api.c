@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ static void spi_configure_driver_instance(spi_t *obj)
     struct spi_s *spi_inst = obj;
 #endif
 
-    if (spi_inst->clock_update)
-    {
+    if (spi_inst->clock_update) {
         SPIReset(spi_inst->baseAddr);
         SPIConfigSetExpClk(spi_inst->baseAddr, spi_inst->clock_config.ulSPIClk,
                            spi_inst->clock_config.ulBitRate, spi_inst->clock_config.ulMode,
@@ -100,12 +99,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     spi_inst->clock_config.ulConfig = SPI_4PIN_MODE;
     spi_inst->clock_config.ulConfig |= SPI_HW_CTRL_CS;
     spi_inst->clock_config.ulConfig |= SPI_CS_ACTIVELOW;
-    if (ssel == NC)
-    {
+    if (ssel == NC) {
         spi_inst->cs_control_gpio = true;
-    }
-    else
-    {
+    } else {
         spi_inst->cs_control_gpio = false;
     }
     spi_inst->clock_config.ulConfig |= SPI_TURBO_OFF;
@@ -120,8 +116,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     MAP_PinTypeSPI((unsigned long) mosi & 0xff, (unsigned long) PIN_MODE_SPI);
     MAP_PinTypeSPI((unsigned long) miso & 0xff, (unsigned long) PIN_MODE_SPI);
     MAP_PinTypeSPI((unsigned long) sclk & 0xff, (unsigned long) PIN_MODE_SPI);
-    if (ssel != NC)
-    {
+    if (ssel != NC) {
         MAP_PinTypeSPI((unsigned long) ssel & 0xff, (unsigned long) PIN_MODE_SPI);
     }
     spi_inst->clock_update = true;
@@ -163,8 +158,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 #else
     struct spi_s *spi_inst = obj;
 #endif
-    if ((uint32_t)bits != spi_inst->word_length)
-    {
+    if ((uint32_t)bits != spi_inst->word_length) {
         spi_inst->word_length = bits;
         spi_inst->clock_update = true;
     }
@@ -180,30 +174,26 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     /* Convert Mbed HAL mode to TI mode. */
 
-    if(mode == 0) {
-        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_0)
-        {
+    if (mode == 0) {
+        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_0) {
             spi_inst->clock_update = true;
         }
         spi_inst->clock_config.ulSubMode = SPI_SUB_MODE_0;
-    } else if(mode == 1) {
-        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_1)
-        {
+    } else if (mode == 1) {
+        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_1) {
             spi_inst->clock_update = true;
         }
         spi_inst->clock_config.ulSubMode = SPI_SUB_MODE_1;
-    } else if(mode == 2) {
-        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_2)
-        {
+    } else if (mode == 2) {
+        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_2) {
             spi_inst->clock_update = true;
         }
         spi_inst->clock_config.ulSubMode = SPI_SUB_MODE_2;
-    } else if(mode == 3) {
-        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_3)
-        {
+    } else if (mode == 3) {
+        if (spi_inst->clock_config.ulSubMode != SPI_SUB_MODE_3) {
             spi_inst->clock_update = true;
         }
-        spi_inst->clock_config.ulSubMode= SPI_SUB_MODE_3;
+        spi_inst->clock_config.ulSubMode = SPI_SUB_MODE_3;
     }
     spi_configure_driver_instance(spi_inst);
 }
@@ -224,8 +214,7 @@ void spi_frequency(spi_t *obj, int hz)
 #endif
 
     spi_inst->clock_config.ulSPIClk = PRCMPeripheralClockGet(PRCM_GSPI);
-    if (spi_inst->clock_config.ulBitRate != (uint32_t)hz)
-    {
+    if (spi_inst->clock_config.ulBitRate != (uint32_t)hz) {
         spi_inst->clock_update = true;
         spi_inst->clock_config.ulBitRate = hz;
     }
@@ -251,15 +240,13 @@ int spi_master_write(spi_t *obj, int value)
     /* Configure peripheral if necessary. */
     spi_configure_driver_instance(obj);
 
-    if (!spi_inst->cs_control_gpio)
-    {
+    if (!spi_inst->cs_control_gpio) {
         SPICSEnable(spi_inst->baseAddr);
     }
     /* Transfer a data word. */
     SPIDataPut(spi_inst->baseAddr, value);
     SPIDataGet(spi_inst->baseAddr, (unsigned long *)&data_read);
-    if (!spi_inst->cs_control_gpio)
-    {
+    if (!spi_inst->cs_control_gpio) {
         SPICSDisable(spi_inst->baseAddr);
     }
     return data_read & ((1 << spi_inst->word_length) - 1);
@@ -294,18 +281,12 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     /* Configure peripheral if necessary. */
     spi_configure_driver_instance(obj);
 
-    if (tx_length >= rx_length)
-    {
-        if (spi_inst->word_length == 16)
-        {
+    if (tx_length >= rx_length) {
+        if (spi_inst->word_length == 16) {
             spi_words = (tx_length >> 1);
-        }
-        else if (spi_inst->word_length == 32)
-        {
+        } else if (spi_inst->word_length == 32) {
             spi_words = (tx_length >> 2);
-        }
-        else if (spi_inst->word_length == 8)
-        {
+        } else if (spi_inst->word_length == 8) {
             spi_words = tx_length;
         }
 
@@ -314,40 +295,30 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
                     (unsigned char *)rx_temp, (unsigned long) spi_words,
                     SPI_CS_ENABLE | SPI_CS_DISABLE);
         // Copy the desired data from temp_rx
-        for (i = 0; i < rx_length; i ++)
-        {
+        for (i = 0; i < rx_length; i ++) {
             rx_buffer[i] = rx_temp[i];
         }
         free(rx_temp);
         return (tx_length);
-    }
-    else // tx_length < rx_length
+    } else // tx_length < rx_length
         // Copy the data from tx_buffer to a temp buffer and fill the the rest of the tx_buffer with write_fill)
     {
-        if (spi_inst->word_length == 16)
-        {
+        if (spi_inst->word_length == 16) {
             spi_words = (rx_length >> 1);
-        }
-        else if (spi_inst->word_length == 32)
-        {
+        } else if (spi_inst->word_length == 32) {
             spi_words = (rx_length >> 2);
-        }
-        else if (spi_inst->word_length == 8)
-        {
+        } else if (spi_inst->word_length == 8) {
             spi_words = rx_length;
         }
 
         unsigned char *tx_temp = malloc(rx_length);
-        for (i = 0; i < tx_length; i ++)
-        {
+        for (i = 0; i < tx_length; i ++) {
             tx_temp[i] = tx_buffer[i];
         }
-        for (i = tx_length; i < rx_length; i ++)
-        {
+        for (i = tx_length; i < rx_length; i ++) {
             tx_temp[i] = write_fill;
         }
-        if (!spi_inst->cs_control_gpio)
-        {
+        if (!spi_inst->cs_control_gpio) {
             cs_flags = SPI_CS_ENABLE | SPI_CS_DISABLE;
         }
         SPITransfer(spi_inst->baseAddr, (unsigned char *)tx_temp,
