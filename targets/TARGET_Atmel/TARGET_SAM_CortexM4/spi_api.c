@@ -181,6 +181,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.is_slave=0;
 }
 
+/** Initialize the SPI peripheral
+ *
+ * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
+ * @param[out] obj  The SPI object to initialize
+ * @param[in]  explicit_pinmap pointer to strucure which holds static pinmap
+ */
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Not supported
+    MBED_ASSERT(false);
+}
+
 /** Release a SPI object
  *
  * TODO: spi_free is currently unimplemented
@@ -499,12 +511,12 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
         if(obj->spi.event | SPI_EVENT_COMPLETE)
             event |=SPI_EVENT_COMPLETE;
     }
-	
+
     if((obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)) {
 	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_RXBUFF | SPI_IDR_MODF | SPI_IDR_OVRES);
 	    if(obj->spi.event | SPI_EVENT_COMPLETE)
 	    event |=SPI_EVENT_COMPLETE;
-    }	
+    }
 
     if(obj->spi.spi_base->SPI_SR & SPI_SR_MODF) {
         if(obj->spi.event | SPI_EVENT_ERROR)
