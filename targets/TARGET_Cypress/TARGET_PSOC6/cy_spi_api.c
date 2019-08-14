@@ -81,6 +81,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     cyhal_spi_register_irq(&(spi->hal_spi), &cy_spi_irq_handler_internal, obj);
 }
 
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Not supported
+    MBED_ASSERT(false);
+}
+
 void spi_free(spi_t *obj)
 {
     struct spi_s *spi = cy_get_spi(obj);

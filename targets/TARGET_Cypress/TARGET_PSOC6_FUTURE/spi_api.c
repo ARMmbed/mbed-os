@@ -278,36 +278,32 @@ static cy_en_syspm_status_t spi_pm_callback(cy_stc_syspm_callback_params_t *call
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 
 
-void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void spi_init_direct(spi_t *obj_in, explicit_pinmap_t *explicit_pinmap)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
     uint32_t spi = (uint32_t)NC;
     en_clk_dst_t clock;
 
-    if (mosi != NC) {
-        spi = pinmap_merge(spi, pinmap_peripheral(mosi, PinMap_SPI_MOSI));
-        clock = CY_PIN_CLOCK(pinmap_function(mosi, PinMap_SPI_MOSI));
+    if (explicit_pinmap->pin[0] != NC) {
+        clock = CY_PIN_CLOCK(explicit_pinmap->function[0]);
     }
-    if (miso != NC) {
-        spi = pinmap_merge(spi, pinmap_peripheral(miso, PinMap_SPI_MISO));
-        clock = CY_PIN_CLOCK(pinmap_function(miso, PinMap_SPI_MISO));
+    if (explicit_pinmap->pin[1] != NC) {
+        clock = CY_PIN_CLOCK(explicit_pinmap->function[1]);
     }
-    if (sclk != NC) {
-        spi = pinmap_merge(spi, pinmap_peripheral(sclk, PinMap_SPI_SCLK));
-        clock = CY_PIN_CLOCK(pinmap_function(sclk, PinMap_SPI_SCLK));
+    if (explicit_pinmap->pin[2] != NC) {
+        clock = CY_PIN_CLOCK(explicit_pinmap->function[2]);
     }
-    if (ssel != NC) {
-        spi = pinmap_merge(spi, pinmap_peripheral(ssel, PinMap_SPI_SSEL));
-        clock = CY_PIN_CLOCK(pinmap_function(ssel, PinMap_SPI_SSEL));
+    if (explicit_pinmap->pin[3] != NC) {
+        clock = CY_PIN_CLOCK(explicit_pinmap->function[3]);
     }
 
     if (spi != (uint32_t)NC) {
-        obj->base = (CySCB_Type*)spi;
+        obj->base = (CySCB_Type*) explicit_pinmap->peripheral;
         obj->spi_id = ((SPIName)spi - SPI_0) / (SPI_1 - SPI_0);
-        obj->pin_mosi = mosi;
-        obj->pin_miso = miso;
-        obj->pin_sclk = sclk;
-        obj->pin_ssel = ssel;
+        obj->pin_mosi = explicit_pinmap->pin[0];
+        obj->pin_miso = explicit_pinmap->pin[1];
+        obj->pin_sclk = explicit_pinmap->pin[2];
+        obj->pin_ssel = explicit_pinmap->pin[3];
         obj->data_bits = 8;
         obj->clock = clock;
         obj->div_num = CY_INVALID_DIVIDER;
@@ -339,6 +335,30 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
     }
 }
 
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    int pins_function[] = {mosi_function, miso_function, sclk_function, ssel_function};
+    PinName pins[] = {mosi, miso, sclk, ssel};
+    explicit_pinmap_t explicit_spi_pinmap = {peripheral, pins, pins_function};
+
+    spi_init_direct(obj, &explicit_spi_pinmap);
+}
 
 void spi_free(spi_t *obj_in)
 {
