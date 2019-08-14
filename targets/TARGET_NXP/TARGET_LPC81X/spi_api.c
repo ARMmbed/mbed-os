@@ -86,31 +86,31 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
     obj->spi_n = spi_n;
     spi_used |= (1 << spi_n);
-    
+
     obj->spi = (spi_n) ? (LPC_SPI_TypeDef *)(LPC_SPI1_BASE) : (LPC_SPI_TypeDef *)(LPC_SPI0_BASE);
-    
+
     const SWM_Map *swm;
     uint32_t regVal;
-    
+
     swm = &SWM_SPI_SCLK[obj->spi_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
     LPC_SWM->PINASSIGN[swm->n] = regVal |  (sclk   << swm->offset);
-    
+
     swm = &SWM_SPI_MOSI[obj->spi_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
     LPC_SWM->PINASSIGN[swm->n] = regVal |  (mosi   << swm->offset);
-    
+
     swm = &SWM_SPI_MISO[obj->spi_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
     LPC_SWM->PINASSIGN[swm->n] = regVal |  (miso   << swm->offset);
-    
+
     swm = &SWM_SPI_SSEL[obj->spi_n];
     regVal = LPC_SWM->PINASSIGN[swm->n] & ~(0xFF << swm->offset);
     LPC_SWM->PINASSIGN[swm->n] = regVal |  (ssel   << swm->offset);
-    
+
     // clear interrupts
     obj->spi->INTENCLR = 0x3f;
-    
+
     // enable power and clocking
     switch (obj->spi_n) {
         case 0:
@@ -126,39 +126,51 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
+/** Initialize the SPI peripheral
+ *
+ * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
+ * @param[out] obj  The SPI object to initialize
+ * @param[in]  explicit_pinmap pointer to strucure which holds static pinmap
+ */
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Not supported
+    MBED_ASSERT(false);
+}
+
 void spi_free(spi_t *obj) {}
 
 void spi_format(spi_t *obj, int bits, int mode, int slave) {
     MBED_ASSERT(((bits >= 1) && (bits <= 16)) && ((mode >= 0) && (mode <= 3)));
     ssp_disable(obj);
-    
+
     int polarity = (mode & 0x2) ? 1 : 0;
     int phase = (mode & 0x1) ? 1 : 0;
-    
+
     // set it up
     int DSS = bits - 1;            // DSS (data select size)
     int SPO = (polarity) ? 1 : 0;  // SPO - clock out polarity
     int SPH = (phase) ? 1 : 0;     // SPH - clock out phase
-    
+
     uint32_t tmp = obj->spi->CFG;
     tmp &= ~((1 << 2) | (1 << 4) | (1 << 5));
     tmp |= (SPH << 4) | (SPO << 5) | ((slave ? 0 : 1) << 2);
     obj->spi->CFG = tmp;
-    
+
     // select frame length
     tmp = obj->spi->TXDATCTL;
     tmp &= ~(0xf << 24);
     tmp |= (DSS << 24);
     obj->spi->TXDATCTL = tmp;
-    
+
     ssp_enable(obj);
 }
 
 void spi_frequency(spi_t *obj, int hz) {
     ssp_disable(obj);
-    
+
     uint32_t PCLK = SystemCoreClock;
-    
+
     obj->spi->DIV = PCLK/hz - 1;
     obj->spi->DLY = 0;
     ssp_enable(obj);

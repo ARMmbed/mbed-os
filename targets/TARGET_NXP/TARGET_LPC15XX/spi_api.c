@@ -243,6 +243,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     LPC_SYSCON->PRESETCTRL1    &= ~(0x1 << (obj->spi_n + 9));
 }
 
+/** Initialize the SPI peripheral
+ *
+ * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
+ * @param[out] obj  The SPI object to initialize
+ * @param[in]  explicit_pinmap pointer to strucure which holds static pinmap
+ */
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Not supported
+    MBED_ASSERT(false);
+}
+
 void spi_free(spi_t *obj)
 {
 }

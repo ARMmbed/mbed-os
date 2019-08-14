@@ -141,6 +141,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi->DLY = 2;             // 2 SPI clock times pre-delay
 }
 
+void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
+{
+    // Not supported
+    MBED_ASSERT(false);
+}
+
 void spi_free(spi_t *obj)
 {
 }
