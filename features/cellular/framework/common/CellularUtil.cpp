@@ -25,7 +25,7 @@
 #define RANDOM_PORT_NUMBER_COUNT (RANDOM_PORT_NUMBER_END - RANDOM_PORT_NUMBER_START + 1)
 #define RANDOM_PORT_NUMBER_MAX_STEP 100
 
-
+using namespace mbed;
 namespace mbed_cellular_util {
 
 void convert_ipv6(char *ip)
@@ -353,6 +353,23 @@ uint16_t get_dynamic_ip_port()
     port_counter %= RANDOM_PORT_NUMBER_COUNT;
 
     return (RANDOM_PORT_NUMBER_START + port_counter);
+}
+
+pdp_type_t string_to_pdp_type(const char *pdp_type_str)
+{
+    pdp_type_t pdp_type = DEFAULT_PDP_TYPE;
+    int len = strlen(pdp_type_str);
+
+    if (len == 6 && memcmp(pdp_type_str, "IPV4V6", len) == 0) {
+        pdp_type = IPV4V6_PDP_TYPE;
+    } else if (len == 4 && memcmp(pdp_type_str, "IPV6", len) == 0) {
+        pdp_type = IPV6_PDP_TYPE;
+    } else if (len == 2 && memcmp(pdp_type_str, "IP", len) == 0) {
+        pdp_type = IPV4_PDP_TYPE;
+    } else if (len == 6 && memcmp(pdp_type_str, "Non-IP", len) == 0) {
+        pdp_type = NON_IP_PDP_TYPE;
+    }
+    return pdp_type;
 }
 
 } // namespace mbed_cellular_util
