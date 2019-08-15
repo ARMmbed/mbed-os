@@ -5,7 +5,7 @@
                    "-fmessage-length=0", "-fno-exceptions",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD", "-fno-delete-null-pointer-checks",
-                   "-fomit-frame-pointer", "-O0", "-g3", "-DMBED_DEBUG",
+                   "-fomit-frame-pointer", "-Og", "-g3", "-DMBED_DEBUG",
                    "-DMBED_TRAP_ERRORS_ENABLED=1"],
         "asm": ["-x", "assembler-with-cpp"],
         "c": ["-std=gnu11"],
@@ -30,7 +30,7 @@
                "--any_contingency", "--keep=os_cb_sections"]
     },
     "ARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O0", "-g", "-DMBED_DEBUG",
                    "-DMBED_TRAP_ERRORS_ENABLED=1"],
@@ -40,7 +40,7 @@
         "ld": ["--show_full_path", "--any_contingency", "--keep=os_cb_sections"]
     },
     "uARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O0", "-D__MICROLIB", "-g",
                    "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD", "-DMBED_DEBUG",
@@ -53,7 +53,7 @@
     "IAR": {
         "common": [
             "--no_wrap_diagnostics",  "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082,Pe540", "-On", "-r", "-DMBED_DEBUG",
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082,Pe540", "-Ol", "-r", "-DMBED_DEBUG",
             "-DMBED_TRAP_ERRORS_ENABLED=1", "--enable_restrict"],
         "asm": [],
         "c": ["--vla", "--diag_suppress=Pe546"],
