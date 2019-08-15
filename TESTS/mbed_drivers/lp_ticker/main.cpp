@@ -143,7 +143,7 @@ void test_detach(void)
     LowPowerTicker ticker;
     bool ret;
     const s_timestamp_t ticker_time_s = 1;
-    const uint32_t wait_time_ms = 500;
+    const uint32_t wait_time_ms = 5000;
     Semaphore sem(0, 1);
 
     ticker.attach_s(callback(sem_release, &sem), ticker_time_s);
