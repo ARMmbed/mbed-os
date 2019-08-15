@@ -4,6 +4,7 @@
 Library supports both printf and snprintf in 1252 bytes of flash.
 
 Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored.
+There is no error handling if a writing error occurs.
 
 Supports:
 * %d: signed integer [h, hh, (none), l, ll, z, j, t].
@@ -30,20 +31,12 @@ Floating point limitations:
 
 Minimal printf is configured by the following parameters defined in `platform/mbed_lib.json`:
 
-```
+```json
 {
     "name": "platform",
     "config": {
-       "minimal-printf-console-output": {
-            "help": "Console output when using minimal-printf profile. Options: UART, SWO",
-            "value": "UART"
-        },
         "minimal-printf-enable-64-bit": {
             "help": "Enable printing 64 bit integers when using minimal-printf profile",
-            "value": true
-        },
-        "minimal-printf-enable-file-stream": {
-            "help": "Enable printing to a FILE stream when using minimal-printf profile",
             "value": true
         },
         "minimal-printf-enable-floating-point": {
@@ -64,10 +57,9 @@ If your target does not require some options then you can override the default c
 
 In mbed_app.json:
 
-```
+```json
     "target_overrides": {
         "*": {
-            "platform.minimal-printf-enable-file-stream": false,
             "platform.minimal-printf-enable-floating-point": false,
             "platform.minimal-printf-set-floating-point-max-decimals": 6,
             "platform.minimal-printf-enable-64-bit": false
