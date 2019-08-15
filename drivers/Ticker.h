@@ -78,9 +78,9 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(Callback<void()> func, float t)
+    void attach(Callback<void()> func, const s_timestamp_t t)
     {
-        attach_us(func, t * 1000000.0f);
+        attach_us(func, SECONDS_TO_MICROSECONDS(t));
     }
 
     /** Attach a member function to be called by the Ticker, specifying the interval in seconds
@@ -96,10 +96,10 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
                           "The attach function does not support cv-qualifiers. Replaced by "
                           "attach(callback(obj, method), t).")
-    void attach(T *obj, M method, float t)
-    {
-        attach(callback(obj, method), t);
-    }
+   void attach(T *obj, M method, float t)
+   {
+       attach(callback(obj, method), (s_timestamp_t)t);
+   }
 
     /** Attach a function to be called by the Ticker, specifying the interval in microseconds
      *

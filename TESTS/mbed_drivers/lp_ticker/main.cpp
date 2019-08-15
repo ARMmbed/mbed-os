@@ -142,7 +142,7 @@ void test_detach(void)
 {
     LowPowerTicker ticker;
     bool ret;
-    const float ticker_time_s = 0.1f;
+    const s_timestamp_t ticker_time_s = 1;
     const uint32_t wait_time_ms = 500;
     Semaphore sem(0, 1);
 
@@ -171,7 +171,7 @@ void test_attach_time(void)
 
     gtimer.reset();
     gtimer.start();
-    ticker.attach(callback(stop_gtimer_set_flag), ((float)DELAY_US) / 1000000.0f);
+    ticker.attach(callback(stop_gtimer_set_flag), MICROSECONDS_TO_SECONDS(DELAY_US));
     while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
