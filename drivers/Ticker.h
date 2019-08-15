@@ -83,6 +83,12 @@ public:
         attach_us(func, SECONDS_TO_MICROSECONDS(t));
     }
 
+    MBED_DEPRECATED("This function has been deprecated, use attach(Callback<void()> func, const s_timestamp_t t)")
+    void attach(Callback<void()> func, float t)
+    {
+        attach_us(func, t * 1000000.0f);
+    }
+
     /** Attach a member function to be called by the Ticker, specifying the interval in seconds
      *
      *  @param obj pointer to the object to call the member function on
