@@ -100,4 +100,13 @@ UDPSocket
 Socket
 unregister
 deinit
+auth
+pppapi
+pbuf
+nak
+reqs
+xmit
+pppd
+pppdebug
+ppp
 _doxy_

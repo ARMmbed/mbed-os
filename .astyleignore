@@ -16,6 +16,9 @@
 ^features/nanostack/sal-stack-nanostack
 ^features/nanostack/targets
 ^features/netsocket/emac-drivers
+^features/netsocket/ppp/include
+^features/netsocket/ppp/polarssl
+^features/netsocket/ppp/source
 ^features/storage/filesystem/fat/ChaN
 ^features/storage/filesystem/littlefs/littlefs/
 ^features/unsupported/
