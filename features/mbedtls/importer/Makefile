@@ -41,67 +41,6 @@ MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
-CRYPTO_SRC := \
-	$(TARGET_SRC)/aes.c \
-	$(TARGET_SRC)/aesni.c \
-	$(TARGET_SRC)/arc4.c \
-	$(TARGET_SRC)/aria.c \
-	$(TARGET_SRC)/asn1parse.c \
-	$(TARGET_SRC)/asn1write.c \
-	$(TARGET_SRC)/base64.c \
-	$(TARGET_SRC)/bignum.c \
-	$(TARGET_SRC)/blowfish.c \
-	$(TARGET_SRC)/camellia.c \
-	$(TARGET_SRC)/ccm.c \
-	$(TARGET_SRC)/chacha20.c \
-	$(TARGET_SRC)/chachapoly.c \
-	$(TARGET_SRC)/cipher.c \
-	$(TARGET_SRC)/cipher_wrap.c \
-	$(TARGET_SRC)/cmac.c \
-	$(TARGET_SRC)/ctr_drbg.c \
-	$(TARGET_SRC)/des.c \
-	$(TARGET_SRC)/dhm.c \
-	$(TARGET_SRC)/ecdh.c \
-	$(TARGET_SRC)/ecdsa.c \
-	$(TARGET_SRC)/ecjpake.c \
-	$(TARGET_SRC)/ecp.c \
-	$(TARGET_SRC)/ecp_curves.c \
-	$(TARGET_SRC)/entropy.c \
-	$(TARGET_SRC)/entropy_poll.c \
-	$(TARGET_SRC)/gcm.c \
-	$(TARGET_SRC)/havege.c \
-	$(TARGET_SRC)/hkdf.c \
-	$(TARGET_SRC)/hmac_drbg.c \
-	$(TARGET_SRC)/md.c \
-	$(TARGET_SRC)/md2.c \
-	$(TARGET_SRC)/md4.c \
-	$(TARGET_SRC)/md5.c \
-	$(TARGET_SRC)/md_wrap.c \
-	$(TARGET_SRC)/memory_buffer_alloc.c \
-	$(TARGET_SRC)/nist_kw.c \
-	$(TARGET_SRC)/oid.c \
-	$(TARGET_SRC)/padlock.c \
-	$(TARGET_SRC)/pem.c \
-	$(TARGET_SRC)/pk.c \
-	$(TARGET_SRC)/pk_wrap.c \
-	$(TARGET_SRC)/pkcs12.c \
-	$(TARGET_SRC)/pkcs5.c \
-	$(TARGET_SRC)/pkparse.c \
-	$(TARGET_SRC)/pkwrite.c \
-	$(TARGET_SRC)/platform.c \
-	$(TARGET_SRC)/platform_util.c \
-	$(TARGET_SRC)/poly1305.c \
-	$(TARGET_SRC)/ripemd160.c \
-	$(TARGET_SRC)/rsa_internal.c \
-	$(TARGET_SRC)/rsa.c \
-	$(TARGET_SRC)/sha1.c \
-	$(TARGET_SRC)/sha256.c \
-	$(TARGET_SRC)/sha512.c \
-	$(TARGET_SRC)/threading.c \
-	$(TARGET_SRC)/timing.c \
-	$(TARGET_SRC)/xtea.c \
-	# end
-
 .PHONY: all deploy deploy-tests rsync mbedtls clean update
 
 all: mbedtls
@@ -113,9 +52,6 @@ rsync:
 	# Copying mbed TLS into mbed library...
 	rm -rf $(TARGET_SRC)
 	rsync -a --exclude='*.txt' $(MBED_TLS_DIR)/library/ $(TARGET_SRC)
-	#
-	# Remove files that duplicate Mbed Crypto
-	rm -rf $(CRYPTO_SRC)
 	#
 	# Copying mbed TLS headers to mbed includes...
 	rm -rf $(TARGET_INC)
