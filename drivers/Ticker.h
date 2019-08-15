@@ -23,6 +23,21 @@
 #include "platform/NonCopyable.h"
 #include "hal/lp_ticker_api.h"
 
+/**
+ * Number of microseconds in a second
+ */
+#define MICROSECONDS_IN_SECOND  (us_timestamp_t)1000000
+
+/**
+ * Converts seconds to microseconds
+ */
+#define SECONDS_TO_MICROSECONDS(SECONDS)   (us_timestamp_t)(MICROSECONDS_IN_SECOND * SECONDS)
+
+/**
+ * Converts microseconds to seconds
+ */
+#define MICROSECONDS_TO_SECONDS(MICROSECONDS) (s_timestamp_t)(MICROSECONDS / MICROSECONDS_IN_SECOND)
+
 namespace mbed {
 /**
  * \addtogroup drivers_Ticker Ticker class

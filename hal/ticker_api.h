@@ -25,21 +25,6 @@
 #include "device.h"
 
 /**
- * Number of microseconds in a second
- */
-#define MICROSECONDS_IN_SECOND  (us_timestamp_t)1000000
-
-/**
- * Converts seconds to microseconds
- */
-#define SECONDS_TO_MICROSECONDS(SECONDS)   (us_timestamp_t)(MICROSECONDS_IN_SECOND * SECONDS)
-
-/**
- * Converts microseconds to seconds
- */
-#define MICROSECONDS_TO_SECONDS(MICROSECONDS) (s_timestamp_t)(MICROSECONDS / MICROSECONDS_IN_SECOND)
-
-/**
  * Legacy format representing a timestamp in us.
  * Given it is modeled as a 32 bit integer, this type can represent timestamp
  * up to 4294 seconds (71 minutes).
