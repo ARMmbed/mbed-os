@@ -41,7 +41,7 @@ class IAR(Exporter):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        return _supported(target, _GUI_OPTIONS.keys())
+        return _supported(target, list(_GUI_OPTIONS))
 
 
     def iar_groups(self, grouped_src):
@@ -92,7 +92,7 @@ class IAR(Exporter):
             "IlinkProgramEntryLabel": "__iar_program_start",
         }
         iar_defaults.update(device_info)
-        IARdevice = namedtuple('IARdevice', iar_defaults.keys())
+        IARdevice = namedtuple('IARdevice', list(iar_defaults))
         return IARdevice(**iar_defaults)
 
     def format_file(self, file):

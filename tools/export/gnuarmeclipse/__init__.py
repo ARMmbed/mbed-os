@@ -368,15 +368,15 @@ class GNUARMEclipse(Exporter):
     # -------------------------------------------------------------------------
 
     def dump_tree(self, nodes, depth=0):
-        for k in nodes.keys():
+        for k in list(nodes):
             node = nodes[k]
             parent_name = node['parent'][
-                'name'] if 'parent' in node.keys() else ''
+                'name'] if 'parent' in list(node) else ''
             if len(node['children'].keys()) != 0:
                 self.dump_tree(node['children'], depth + 1)
 
     def dump_paths(self, nodes, depth=0):
-        for k in nodes.keys():
+        for k in list(nodes):
             node = nodes[k]
             parts = []
             while True:

@@ -331,7 +331,7 @@ class Exporter(object):
 
     @classmethod
     def all_supported_targets(cls):
-        return [t for t in TARGET_MAP.keys() if cls.is_target_supported(t)]
+        return [t for t in list(TARGET_MAP) if cls.is_target_supported(t)]
 
     @staticmethod
     def filter_dot(str):

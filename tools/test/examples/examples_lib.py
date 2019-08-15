@@ -41,7 +41,7 @@ from tools.toolchains import TOOLCHAINS
 from tools.utils import write_json_to_file
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
-SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() + EXPORTER_ALIASES.keys()
+SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
                   if exp != "cmsis" and exp != "zip"]
 
 
