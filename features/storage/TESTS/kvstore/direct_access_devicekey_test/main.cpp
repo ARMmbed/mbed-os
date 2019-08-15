@@ -53,11 +53,12 @@ static inline uint32_t align_down(uint64_t val, uint64_t size)
 int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_size, bool is_conf_tdb_internal,
                                    uint32_t *tdb_start_address, uint32_t *tdb_end_address)
 {
-    uint32_t bd_final_size = conf_size;;
+    uint32_t bd_final_size = conf_size;
     uint32_t flash_end_address;
     uint32_t flash_start_address;
     uint32_t aligned_start_address;
     FlashIAP flash;
+    static const int STORE_SECTORS = 2;
 
     int ret = flash.init();
     if (ret != 0) {
@@ -92,34 +93,19 @@ int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_si
             }
         }
     } else {
-        if (is_conf_tdb_internal == true) {
-            aligned_start_address = flash_first_writable_sector_address;
-            bd_size_t spare_size_for_app = 0;
-            bd_addr_t curr_addr = aligned_start_address;
-            int spare_sectors_for_app = 2;
-            int min_sectors_for_storage = 2;
-            for (int i = 0; i < spare_sectors_for_app + min_sectors_for_storage - 1; i++) {
-                bd_size_t sector_size = flash.get_sector_size(curr_addr);
-                curr_addr += sector_size;
-                if (curr_addr >= flash_end_address) {
-                    spare_size_for_app = 0;
-                    break;
-                }
+        // Assumption is that last two sectors are reserved for the TDBStore
+        aligned_start_address = flash.get_flash_start() + flash.get_flash_size();
 
-                if (i < spare_sectors_for_app) {
-                    spare_size_for_app += sector_size;
-                }
-            }
-            aligned_start_address += spare_size_for_app;
-            bd_final_size = (flash_end_address - aligned_start_address);
-        } else {
-            aligned_start_address = flash_end_address - (flash.get_sector_size(flash_end_address - 1) * 2);
-            if (aligned_start_address < flash_first_writable_sector_address) {
-                flash.deinit();
-                return -2;
-            }
-            bd_final_size = (flash_end_address - aligned_start_address);
+        for (int i = STORE_SECTORS; i; i--) {
+            bd_size_t sector_size = flash.get_sector_size(aligned_start_address - 1);
+            aligned_start_address -= sector_size;
         }
+
+        if (aligned_start_address < flash_first_writable_sector_address) {
+            flash.deinit();
+            return -2;
+        }
+        bd_final_size = (flash_end_address - aligned_start_address);
     }
 
     (*tdb_start_address) = aligned_start_address;
