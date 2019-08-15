@@ -291,7 +291,7 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
 }
 
 // PDP Context handling
-nsapi_error_t AT_CellularContext::delete_current_context()
+void AT_CellularContext::delete_current_context()
 {
     tr_info("Delete context %d", _cid);
     _at.clear_error();
@@ -303,7 +303,8 @@ nsapi_error_t AT_CellularContext::delete_current_context()
         _new_context_set = false;
     }
 
-    return _at.get_last_error();
+    // there is nothing we can do if deleting of context fails. No point reporting an error (for example disconnect).
+    _at.clear_error();
 }
 
 nsapi_error_t AT_CellularContext::do_user_authentication()

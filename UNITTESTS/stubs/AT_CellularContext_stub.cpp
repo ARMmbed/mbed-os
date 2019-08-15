@@ -167,9 +167,8 @@ AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_pro
 }
 
 // PDP Context handling
-nsapi_error_t AT_CellularContext::delete_current_context()
+void AT_CellularContext::delete_current_context()
 {
-    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularContext::do_user_authentication()
