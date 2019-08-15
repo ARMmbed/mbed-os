@@ -117,10 +117,10 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
                           "The attach function does not support cv-qualifiers. Replaced by "
                           "attach(callback(obj, method), t).")
-   void attach(T *obj, M method, float t)
-   {
-       attach(callback(obj, method), (s_timestamp_t)t);
-   }
+    void attach(T *obj, M method, float t)
+    {
+        attach(callback(obj, method), (s_timestamp_t)t);
+    }
 
     /** Attach a function to be called by the Ticker, specifying the interval in microseconds
      *
