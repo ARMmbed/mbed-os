@@ -183,7 +183,7 @@ void NFCController::scheduler_process(bool hw_interrupt)
     // Process stack events
     uint32_t timeout = nfc_scheduler_iteration(_scheduler, hw_interrupt ? EVENT_HW_INTERRUPT : EVENT_NONE);
 
-    _timeout.attach(callback(this, &NFCController::on_timeout), (s_timestamp_t)timeout);
+    _timeout.attach_s(callback(this, &NFCController::on_timeout), timeout);
 }
 
 void NFCController::on_hw_interrupt()

@@ -93,12 +93,12 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(Callback<void()> func, const s_timestamp_t t)
+    void attach_s(Callback<void()> func, const s_timestamp_t t)
     {
         attach_us(func, SECONDS_TO_MICROSECONDS(t));
     }
 
-    MBED_DEPRECATED("This function has been deprecated, use attach(Callback<void()> func, const s_timestamp_t t)")
+    MBED_DEPRECATED("This function has been deprecated, use attach_s(Callback<void()> func, const s_timestamp_t t)")
     void attach(Callback<void()> func, float t)
     {
         attach_us(func, t * 1000000.0f);
