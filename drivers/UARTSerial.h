@@ -126,6 +126,14 @@ public:
      */
     virtual off_t seek(off_t offset, int whence);
 
+    /*get the available characters in the rx buffer
+     * @return  bytes available in RX buffer
+     */
+    virtual off_t size()
+    {
+        return this->_rxbuf.size();
+    }
+    
     /** Flush any buffers associated with the file
      *
      *  @return         0 on success, negative error code on failure
@@ -233,18 +241,6 @@ public:
      *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
     void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
-
-    /** get the available characters in the RX ringbuffer*/
-    const uint32_t get_rx_buffer_size()
-    {
-        return this->_rxbuf.size();
-    }
-
-    /** get the available characters in the TX ringbuffer*/
-    const uint32_t get_tx_buffer_size()
-    {
-        return this->_txbuf.size();
-    }
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
