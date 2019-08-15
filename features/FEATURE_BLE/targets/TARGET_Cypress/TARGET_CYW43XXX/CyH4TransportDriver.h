@@ -25,7 +25,6 @@
 #include "CordioHCITransportDriver.h"
 #include "drivers/DigitalInOut.h"
 
-
 namespace ble {
 namespace vendor {
 namespace cypress_ble {
@@ -41,12 +40,14 @@ public:
      * Initialize the transport driver.
      *
      */
-	CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name);
+	CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name,
+                            uint8_t host_wake_irq = 0, uint8_t dev_wake_irq = 0);
+        CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud);
 
     /**
      * Destructor
      */
-    virtual ~CyH4TransportDriver() { }
+    virtual ~CyH4TransportDriver();
 
     /**
      * @see CordioHCITransportDriver::initialize
@@ -65,7 +66,10 @@ public:
 
     void bt_host_wake_irq_handler();
 
-private:
+    bool get_enabled_powersave();
+    uint8_t get_host_wake_irq_event();
+    uint8_t get_dev_wake_irq_event();
+
 private:
     void on_controller_irq();
     void assert_bt_dev_wake();
@@ -80,13 +84,28 @@ private:
     PinName rts;
     PinName bt_host_wake_name;
     PinName bt_device_wake_name;
+
     DigitalInOut bt_host_wake;
     DigitalInOut bt_device_wake;
+
+    bool     enabled_powersave;
+    uint8_t  host_wake_irq_event;
+    uint8_t  dev_wake_irq_event;
+
+    bool     holding_deep_sleep_lock;
+
 };
 
 } // namespace cypress
 } // namespace vendor
 } // namespace ble
 
+#define DEF_BT_BAUD_RATE    (115200)
+
+#define WAKE_EVENT_ACTIVE_HIGH ( 1 )      /* Interrupt Rising Edge  */
+#define WAKE_EVENT_ACTIVE_LOW  ( 0 )      /* Interrupt Falling Edge */
+
+ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transport_driver();
+ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_driver();
 #endif
 #endif /* CY_H4TRANSPORT_DRIVER_H_ */
