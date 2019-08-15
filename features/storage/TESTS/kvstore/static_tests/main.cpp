@@ -34,7 +34,8 @@ static const size_t buffer_size = 20;
 static const int    num_of_threads = 3;
 static const char   num_of_keys = 3;
 
-static const int heap_alloc_threshold_size = 4096;
+/* Forked 3 threads plus misc, so minimum (4 * OS_STACK_SIZE) heap are required. */
+static const int heap_alloc_threshold_size = 4 * OS_STACK_SIZE;
 
 static const char *keys[] = {"key1", "key2", "key3"};
 
