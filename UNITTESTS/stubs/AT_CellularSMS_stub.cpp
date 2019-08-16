@@ -71,7 +71,8 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
+nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode,
+                                         CellularSMSEncoding encoding)
 {
     return NSAPI_ERROR_OK;
 }
