@@ -55,7 +55,8 @@ void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
 
 void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
 {
-    SHA1_VALIDATE( ctx != NULL );
+    if (ctx == NULL)
+        return;
 
     cy_hw_sha_free(ctx, sizeof( mbedtls_sha1_context ));
 }
@@ -87,6 +88,9 @@ int mbedtls_sha1_update_ret( mbedtls_sha1_context *ctx,
 {
     SHA1_VALIDATE_RET( ctx != NULL );
     SHA1_VALIDATE_RET( ilen == 0 || input != NULL );
+
+    if (ilen == 0)
+        return;
 
     return cy_hw_sha_update(&ctx->obj, &ctx->hashState, input, ilen);
 }
