@@ -734,9 +734,6 @@ int32_t ATHandler::read_int()
     if (*buff == '\0') {
         return -1; // empty string
     }
-    if (*endptr != '\0') {
-        return -1; // trailing garbage
-    }
     return (int32_t) result;
 }
 
