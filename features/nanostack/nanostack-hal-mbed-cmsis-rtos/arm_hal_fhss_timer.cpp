@@ -77,7 +77,6 @@ static fhss_timeout_s *allocate_timeout(void)
 {
     for (int i = 0; i < NUMBER_OF_SIMULTANEOUS_TIMEOUTS; i++) {
         if (fhss_timeout[i].fhss_timer_callback == NULL) {
-            memset(&fhss_timeout[i], 0, sizeof(fhss_timeout_s));
             return &fhss_timeout[i];
         }
     }
