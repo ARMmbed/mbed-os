@@ -38,11 +38,6 @@ typedef uint32_t timestamp_t;
  */
 typedef uint64_t us_timestamp_t;
 
-/**
- * A second timestamp stored in a 64 bit integer.
- */
-typedef uint64_t s_timestamp_t;
-
 /** Ticker's event structure
  */
 typedef struct ticker_event_s {

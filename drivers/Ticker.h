@@ -23,21 +23,6 @@
 #include "platform/NonCopyable.h"
 #include "hal/lp_ticker_api.h"
 
-/**
- * Number of microseconds in a second
- */
-#define MICROSECONDS_IN_SECOND  (us_timestamp_t)1000000
-
-/**
- * Converts seconds to microseconds
- */
-#define SECONDS_TO_MICROSECONDS(SECONDS)   (us_timestamp_t)(MICROSECONDS_IN_SECOND * SECONDS)
-
-/**
- * Converts microseconds to seconds
- */
-#define MICROSECONDS_TO_SECONDS(MICROSECONDS) (s_timestamp_t)(MICROSECONDS / MICROSECONDS_IN_SECOND)
-
 namespace mbed {
 /**
  * \addtogroup drivers_Ticker Ticker class
@@ -89,17 +74,12 @@ public:
     Ticker(const ticker_data_t *data);
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
-     *
+     *  The method must be inlined to convert to not use floating-point operations
+     *  given attach_us() expects an integer value for the callback interval.
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach_s(Callback<void()> func, const s_timestamp_t t)
-    {
-        attach_us(func, SECONDS_TO_MICROSECONDS(t));
-    }
-
-    MBED_DEPRECATED("This function has been deprecated, use attach_s(Callback<void()> func, const s_timestamp_t t)")
-    void attach(Callback<void()> func, float t)
+    MBED_FORCEINLINE void attach(Callback<void()> func, float t)
     {
         attach_us(func, t * 1000000.0f);
     }
@@ -119,7 +99,7 @@ public:
                           "attach(callback(obj, method), t).")
     void attach(T *obj, M method, float t)
     {
-        attach_s(callback(obj, method), (s_timestamp_t)t);
+        attach(callback(obj, method), t);
     }
 
     /** Attach a function to be called by the Ticker, specifying the interval in microseconds
