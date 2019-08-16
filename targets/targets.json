@@ -7826,7 +7826,8 @@
             "SERIAL",
             "SPI",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "USTICKER"
         ],
         "public": false,
         "supported_toolchains": ["GCC_ARM", "ARM"],
