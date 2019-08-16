@@ -8812,7 +8812,6 @@
             "PWMOUT",
             "RTC",
             "SERIAL",
-            "SERIAL_FC",
             "SLEEP",
             "SPI",
             "SPISLAVE",
