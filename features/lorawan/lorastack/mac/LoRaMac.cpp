@@ -738,6 +738,15 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             break;
 
         default:
+            //  This can happen e.g. if we happen to receive uplink of another device
+            //  during the receive window. Block RX2 window since it can overlap with
+            //  QOS TX and cause a mess.
+            tr_debug("RX unexpected mtype %u", mac_hdr.bits.mtype);
+            if (get_current_slot() == RX_SLOT_WIN_1) {
+                _lora_time.stop(_params.timers.rx_window2_timer);
+            }
+            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+            _mcps_indication.pending = false;
             break;
     }
 }
