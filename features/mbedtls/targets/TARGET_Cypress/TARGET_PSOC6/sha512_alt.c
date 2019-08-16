@@ -88,9 +88,9 @@ int mbedtls_sha512_update_ret( mbedtls_sha512_context *ctx, const unsigned char 
 {
     SHA512_VALIDATE_RET( ctx != NULL );
     SHA512_VALIDATE_RET( ilen == 0 || input != NULL );
-    
+
     if (ilen == 0)
-        return;
+        return (0);
 
     return cy_hw_sha_update(&ctx->obj, &ctx->hashState, input, ilen);
 }
