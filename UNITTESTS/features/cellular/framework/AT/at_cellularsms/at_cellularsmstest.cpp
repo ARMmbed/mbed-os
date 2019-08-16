@@ -137,7 +137,7 @@ TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_get_sms)
     EXPECT_TRUE(NSAPI_ERROR_PARAMETER == sms.get_sms(NULL, 16, phone, 21, stamp, 21, &size));
 
     ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::int_value = 0;
+    ATHandler_stub::int_value = -1;
     EXPECT_TRUE(-1 == sms.get_sms(buf, 16, phone, 21, stamp, 21, &size));
 
     //In below we are expecting the stub ATHandler info_resp() to respond
