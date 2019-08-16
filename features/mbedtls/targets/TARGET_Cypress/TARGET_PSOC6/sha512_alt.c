@@ -54,7 +54,8 @@ void mbedtls_sha512_init( mbedtls_sha512_context *ctx )
 
 void mbedtls_sha512_free( mbedtls_sha512_context *ctx )
 {
-    SHA512_VALIDATE( ctx != NULL );
+    if (ctx == NULL)
+        return;
 
     cy_hw_sha_free(ctx, sizeof( mbedtls_sha512_context ));
 }
@@ -87,6 +88,9 @@ int mbedtls_sha512_update_ret( mbedtls_sha512_context *ctx, const unsigned char 
 {
     SHA512_VALIDATE_RET( ctx != NULL );
     SHA512_VALIDATE_RET( ilen == 0 || input != NULL );
+    
+    if (ilen == 0)
+        return;
 
     return cy_hw_sha_update(&ctx->obj, &ctx->hashState, input, ilen);
 }
