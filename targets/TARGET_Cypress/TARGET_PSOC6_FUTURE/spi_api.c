@@ -110,7 +110,7 @@ static int spi_irq_setup_channel(spi_obj_t *obj)
         irq_config.cm0pSrc = obj->cm0p_irq_src;
 #endif
         if (Cy_SysInt_Init(&irq_config, (cy_israddress)(obj->handler)) != CY_SYSINT_SUCCESS) {
-            return(-1);
+            return (-1);
         }
 
         obj->irqn = irqn;
@@ -127,7 +127,7 @@ static int allocate_divider(spi_obj_t *obj)
         obj->div_type = CY_SYSCLK_DIV_16_BIT;
         obj->div_num = cy_clk_allocate_divider(CY_SYSCLK_DIV_16_BIT);
     }
-    return (obj->div_num == CY_INVALID_DIVIDER)? -1 : 0;
+    return (obj->div_num == CY_INVALID_DIVIDER) ? -1 : 0;
 }
 
 static void free_divider(spi_obj_t *obj)
@@ -155,7 +155,7 @@ static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
     }
 
     // Set up proper frequency; round up the divider so the frequency is not higher than specified.
-    div_value = (CY_CLK_PERICLK_FREQ_HZ + frequency *(SPI_OVERSAMPLE - 1)) / frequency / SPI_OVERSAMPLE;
+    div_value = (CY_CLK_PERICLK_FREQ_HZ + frequency * (SPI_OVERSAMPLE - 1)) / frequency / SPI_OVERSAMPLE;
     obj->clk_frequency = CY_CLK_PERICLK_FREQ_HZ / div_value / SPI_OVERSAMPLE;
     // Delay (in us) required for serialized read operation == 1.5 clocks, min 1us.
     obj->clk_delay = (1500000UL - 1 + obj->clk_frequency) / obj->clk_frequency;
@@ -298,7 +298,7 @@ void spi_init_direct(spi_t *obj_in, explicit_pinmap_t *explicit_pinmap)
     }
 
     if (spi != (uint32_t)NC) {
-        obj->base = (CySCB_Type*) explicit_pinmap->peripheral;
+        obj->base = (CySCB_Type *) explicit_pinmap->peripheral;
         obj->spi_id = ((SPIName)spi - SPI_0) / (SPI_1 - SPI_0);
         obj->pin_mosi = explicit_pinmap->pin[0];
         obj->pin_miso = explicit_pinmap->pin[1];
@@ -366,7 +366,7 @@ void spi_free(spi_t *obj_in)
 
     spi_default_pins(obj);
     Cy_SCB_SPI_Disable(obj->base, &obj->context);
-    Cy_SCB_SPI_DeInit (obj->base);
+    Cy_SCB_SPI_DeInit(obj->base);
 
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
     Cy_SysPm_UnregisterCallback(&obj->pm_callback_handler);
@@ -405,8 +405,10 @@ void spi_free(spi_t *obj_in)
 void spi_format(spi_t *obj_in, int bits, int mode, int slave)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
-    cy_en_scb_spi_mode_t new_mode = slave? CY_SCB_SPI_SLAVE : CY_SCB_SPI_MASTER;
-    if ((bits < 4) || (bits > 16)) return;
+    cy_en_scb_spi_mode_t new_mode = slave ? CY_SCB_SPI_SLAVE : CY_SCB_SPI_MASTER;
+    if ((bits < 4) || (bits > 16)) {
+        return;
+    }
     spi_default_pins(obj);
     Cy_SCB_SPI_Disable(obj->base, &obj->context);
     obj->data_bits = bits;
@@ -465,7 +467,7 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
     // Make sure no leftovers from previous transactions.
     Cy_SCB_SPI_ClearRxFifo(obj->base);
     // Calculate transaction length,
-    trans_length = (tx_length > rx_length)? tx_length : rx_length;
+    trans_length = (tx_length > rx_length) ? tx_length : rx_length;
     // get first byte to transmit.
     if (tx_count < tx_length) {
         tx_byte = *tx_buffer++;
@@ -632,28 +634,28 @@ void spi_master_transfer(spi_t *obj_in,
             // I) write + read, II) write only
             obj->pending = PENDING_TX_RX;
             obj->rx_buffer = NULL;
-            obj->tx_buffer = (bit_width == 8)?
-                             (void*)(((uint8_t*)tx) + rx_length) :
-                             (void*)(((uint16_t*)tx) + rx_length);
+            obj->tx_buffer = (bit_width == 8) ?
+                             (void *)(((uint8_t *)tx) + rx_length) :
+                             (void *)(((uint16_t *)tx) + rx_length);
             obj->tx_buffer_size = tx_length - rx_length;
-            Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, rx_length, &obj->context);
+            Cy_SCB_SPI_Transfer(obj->base, (void *)tx, rx, rx_length, &obj->context);
         } else {
             // I) write only.
             obj->pending = PENDING_TX;
             obj->rx_buffer = NULL;
             obj->tx_buffer = NULL;
-            Cy_SCB_SPI_Transfer(obj->base, (void*)tx, NULL, tx_length, &obj->context);
+            Cy_SCB_SPI_Transfer(obj->base, (void *)tx, NULL, tx_length, &obj->context);
         }
     } else if (rx_length > tx_length) {
         if (tx_length > 0) {
             // I) write + read, II) read only
             obj->pending = PENDING_TX_RX;
-            obj->rx_buffer = (bit_width == 8)?
-                             (void*)(((uint8_t*)rx) + tx_length) :
-                             (void*)(((uint16_t*)rx) + tx_length);
+            obj->rx_buffer = (bit_width == 8) ?
+                             (void *)(((uint8_t *)rx) + tx_length) :
+                             (void *)(((uint16_t *)rx) + tx_length);
             obj->rx_buffer_size = rx_length - tx_length;
             obj->tx_buffer = NULL;
-            Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, tx_length, &obj->context);
+            Cy_SCB_SPI_Transfer(obj->base, (void *)tx, rx, tx_length, &obj->context);
         } else {
             // I) read only.
             obj->pending = PENDING_RX;
@@ -667,7 +669,7 @@ void spi_master_transfer(spi_t *obj_in,
         obj->pending = PENDING_TX_RX;
         obj->rx_buffer = NULL;
         obj->tx_buffer = NULL;
-        Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, tx_length, &obj->context);
+        Cy_SCB_SPI_Transfer(obj->base, (void *)tx, rx, tx_length, &obj->context);
     }
 }
 

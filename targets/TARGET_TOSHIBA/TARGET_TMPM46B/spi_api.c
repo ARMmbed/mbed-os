@@ -68,7 +68,7 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     SSP_InitTypeDef config;
 
     obj->module = explicit_pinmap->peripheral;
-    MBED_ASSERT((int)obj->module!= NC);
+    MBED_ASSERT((int)obj->module != NC);
 
     // Identify SPI module to use
     switch ((int)obj->module) {
@@ -82,7 +82,7 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
             obj->spi = TSB_SSP2;
             break;
         default:
-            obj->spi= NULL;
+            obj->spi = NULL;
             obj->module = (SPIName)NC;
             error("Cannot found SPI module corresponding with input pins.");
             break;
@@ -155,7 +155,7 @@ void spi_free(spi_t *obj)
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    TSB_SSP_TypeDef* spi;
+    TSB_SSP_TypeDef *spi;
     MBED_ASSERT(slave == SSP_MASTER);   // Master mode only
 
     spi = obj->spi;
@@ -173,7 +173,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
-    TSB_SSP_TypeDef* spi;
+    TSB_SSP_TypeDef *spi;
 
     // Search Freq data
     int fr_gear = 1;
@@ -258,7 +258,7 @@ static void spi_clear_FIFOs(TSB_SSP_TypeDef *spi)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    TSB_SSP_TypeDef* spi;
+    TSB_SSP_TypeDef *spi;
 
     spi = obj->spi;
     // Clear all data in transmit FIFO and receive FIFO

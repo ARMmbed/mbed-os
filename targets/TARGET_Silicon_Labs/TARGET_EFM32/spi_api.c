@@ -120,7 +120,7 @@ uint8_t spi_get_module(spi_t *obj)
     return spi_get_index(obj);
 }
 
-static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef databits, bool master, USART_ClockMode_TypeDef clockMode )
+static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef databits, bool master, USART_ClockMode_TypeDef clockMode)
 {
     USART_InitSync_TypeDef init = USART_INITSYNC_DEFAULT;
     init.enable = usartDisable;
@@ -197,21 +197,21 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     uint32_t route = USART_ROUTEPEN_CLKPEN;
 
     obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CLKLOC_MASK;
-    obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[2], PinMap_SPI_CLK)<<_USART_ROUTELOC0_CLKLOC_SHIFT;
+    obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[2], PinMap_SPI_CLK) << _USART_ROUTELOC0_CLKLOC_SHIFT;
     if (explicit_pinmap->pin[0] != NC) {
         route |= USART_ROUTEPEN_TXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_TXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[0], PinMap_SPI_MOSI)<<_USART_ROUTELOC0_TXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[0], PinMap_SPI_MOSI) << _USART_ROUTELOC0_TXLOC_SHIFT;
     }
     if (explicit_pinmap->pin[1] != NC) {
         route |= USART_ROUTEPEN_RXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_RXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[1], PinMap_SPI_MISO)<<_USART_ROUTELOC0_RXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[1], PinMap_SPI_MISO) << _USART_ROUTELOC0_RXLOC_SHIFT;
     }
     if (!obj->spi.master) {
         route |= USART_ROUTEPEN_CSPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CSLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[3], PinMap_SPI_CS)<<_USART_ROUTELOC0_CSLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(explicit_pinmap->pin[3], PinMap_SPI_CS) << _USART_ROUTELOC0_CSLOC_SHIFT;
     }
     obj->spi.location = obj->spi.spi->ROUTELOC0;
     obj->spi.route = route;
@@ -271,8 +271,11 @@ void spi_free(spi_t *obj)
 
 void spi_enable_event(spi_t *obj, uint32_t event, uint8_t enable)
 {
-    if(enable) obj->spi.event |= event;
-    else obj->spi.event &= ~event;
+    if (enable) {
+        obj->spi.event |= event;
+    } else {
+        obj->spi.event &= ~event;
+    }
 }
 
 /****************************************************************************
@@ -342,7 +345,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     MBED_ASSERT(bits >= 4 && bits <= 16);
     obj->spi.bits = bits;
     /* 0x01 = usartDatabits4, etc, up to 0x0D = usartDatabits16 */
-    USART_Databits_TypeDef databits = (USART_Databits_TypeDef) (bits - 3);
+    USART_Databits_TypeDef databits = (USART_Databits_TypeDef)(bits - 3);
 
     USART_ClockMode_TypeDef clockMode;
     MBED_ASSERT(mode >= 0 && mode <= 3);
@@ -376,7 +379,9 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 #endif
     obj->spi.spi->IEN = iflags;
 
-    if(enabled) spi_enable(obj, enabled);
+    if (enabled) {
+        spi_enable(obj, enabled);
+    }
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -425,7 +430,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -476,15 +482,15 @@ void spi_irq_handler(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    switch(obj->spi.dmaOptionsTX.dmaUsageState) {
+    switch (obj->spi.dmaOptionsTX.dmaUsageState) {
         case DMA_USAGE_TEMPORARY_ALLOCATED:
             return true;
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active */
 #ifdef LDMA_PRESENT
-            return(LDMAx_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || LDMAx_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
+            return (LDMAx_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || LDMAx_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #else
-            return(DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
+            return (DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #endif
         default:
             /* Check whether interrupt for spi is enabled */
@@ -506,9 +512,9 @@ void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, ui
     obj->tx_buff.width = bit_width;
     obj->rx_buff.width = bit_width;
 
-    if((obj->spi.bits == 9) && (tx != 0)) {
+    if ((obj->spi.bits == 9) && (tx != 0)) {
         // Make sure we don't have inadvertent non-zero bits outside 9-bit frames which could trigger unwanted operation
-        for(i = 0; i < (tx_length / 2); i++) {
+        for (i = 0; i < (tx_length / 2); i++) {
             tx_ptr[i] &= 0x1FF;
         }
     }
@@ -522,13 +528,13 @@ static void spi_buffer_tx_write(spi_t *obj)
     if (!obj->tx_buff.buffer) {
         data = SPI_FILL_WORD;
     } else if (obj->tx_buff.width == 32) {
-        uint32_t * tx = (uint32_t *)obj->tx_buff.buffer;
+        uint32_t *tx = (uint32_t *)obj->tx_buff.buffer;
         data = tx[obj->tx_buff.pos];
     } else if (obj->tx_buff.width == 16) {
-        uint16_t * tx = (uint16_t *)obj->tx_buff.buffer;
+        uint16_t *tx = (uint16_t *)obj->tx_buff.buffer;
         data = tx[obj->tx_buff.pos];
     } else {
-        uint8_t * tx = (uint8_t *)obj->tx_buff.buffer;
+        uint8_t *tx = (uint8_t *)obj->tx_buff.buffer;
         data = tx[obj->tx_buff.pos];
     }
     obj->tx_buff.pos++;
@@ -560,13 +566,13 @@ static void spi_buffer_rx_read(spi_t *obj)
         // If there is room in the buffer, store the data
         if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
             if (obj->rx_buff.width == 32) {
-                uint32_t * rx = (uint32_t *)(obj->rx_buff.buffer);
+                uint32_t *rx = (uint32_t *)(obj->rx_buff.buffer);
                 rx[obj->rx_buff.pos] = data;
             } else if (obj->rx_buff.width == 16) {
-                uint16_t * rx = (uint16_t *)(obj->rx_buff.buffer);
+                uint16_t *rx = (uint16_t *)(obj->rx_buff.buffer);
                 rx[obj->rx_buff.pos] = data;
             } else {
-                uint8_t * rx = (uint8_t *)(obj->rx_buff.buffer);
+                uint8_t *rx = (uint8_t *)(obj->rx_buff.buffer);
                 rx[obj->rx_buff.pos] = data;
             }
             obj->rx_buff.pos++;
@@ -602,12 +608,12 @@ int spi_master_read_asynch(spi_t *obj)
 
 uint8_t spi_buffer_rx_empty(spi_t *obj)
 {
-    return (obj->rx_buff.pos >= obj->rx_buff.length ? true : false );
+    return (obj->rx_buff.pos >= obj->rx_buff.length ? true : false);
 }
 
 uint8_t spi_buffer_tx_empty(spi_t *obj)
 {
-    return (obj->tx_buff.pos >= obj->tx_buff.length ? true : false );
+    return (obj->tx_buff.pos >= obj->tx_buff.length ? true : false);
 }
 
 //TODO_LP implement slave
@@ -640,7 +646,7 @@ uint32_t spi_event_check(spi_t *obj)
         event |= SPI_EVENT_COMPLETE;
     }
 
-    if(quit == true) {
+    if (quit == true) {
         event |= SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
     }
 
@@ -751,7 +757,7 @@ static void serial_dmaTransferComplete(unsigned int channel, bool primary, void 
         ((DMACallback)user)();
     }
 }
-static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
+static void spi_master_dma_channel_setup(spi_t *obj, void *callback)
 {
     obj->spi.dmaOptionsRX.dmaCallback.userPtr = callback;
 }
@@ -764,7 +770,7 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
 * The channel numbers are fetched from the SPI instance, so this function
 * should only be called when those channels have actually been allocated.
 ******************************************/
-static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
+static void spi_master_dma_channel_setup(spi_t *obj, void *callback)
 {
     DMA_CfgChannel_TypeDef  rxChnlCfg;
     DMA_CfgChannel_TypeDef  txChnlCfg;
@@ -841,15 +847,15 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
 *   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
 ******************************************/
 #ifdef LDMA_PRESENT
-static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int tx_length, int rx_length)
+static void spi_activate_dma(spi_t *obj, void *rxdata, const void *txdata, int tx_length, int rx_length)
 {
     LDMA_PeripheralSignal_t dma_periph;
 
-    if(rxdata) {
+    if (rxdata) {
         volatile const void *source_addr;
         /* Select RX source address. 9 bit frame length requires to use extended register.
            10 bit and larger frame requires to use RXDOUBLE register. */
-        switch((int)obj->spi.spi) {
+        switch ((int)obj->spi.spi) {
 #ifdef USART0
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_RXDATAV;
@@ -882,7 +888,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 #endif
             default:
                 EFM_ASSERT(0);
-                while(1);
+                while (1);
                 break;
         }
 
@@ -897,7 +903,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
 
-        if(obj->spi.bits >= 9){
+        if (obj->spi.bits >= 9) {
             desc.xfer.size = ldmaCtrlSizeHalf;
         }
 
@@ -917,7 +923,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
             desc.xfer.dstInc = ldmaCtrlDstIncOne;
         }
 
-        LDMAx_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
+        LDMAx_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
 
     volatile void *target_addr;
@@ -933,7 +939,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
             break;
         default:
             EFM_ASSERT(0);
-            while(1);
+            while (1);
             break;
     }
 
@@ -948,7 +954,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
     /*  Check the transmit length, and split long transfers to smaller ones */
     int max_length = 1024;
 #ifdef _LDMA_CH_CTRL_XFERCNT_MASK
-    max_length = (_LDMA_CH_CTRL_XFERCNT_MASK>>_LDMA_CH_CTRL_XFERCNT_SHIFT)+1;
+    max_length = (_LDMA_CH_CTRL_XFERCNT_MASK >> _LDMA_CH_CTRL_XFERCNT_SHIFT) + 1;
 #endif
     if (tx_length > max_length) {
         tx_length = max_length;
@@ -983,7 +989,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
     }
 
     // Kick off DMA TX
-    LDMAx_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsTX.dmaCallback.userPtr);
+    LDMAx_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, obj->spi.dmaOptionsTX.dmaCallback.userPtr);
 }
 
 #else
@@ -997,7 +1003,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 *   * tx_length: how many bytes will get sent.
 *   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
 ******************************************/
-static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int tx_length, int rx_length)
+static void spi_activate_dma(spi_t *obj, void *rxdata, const void *txdata, int tx_length, int rx_length)
 {
     /* DMA descriptors */
     DMA_CfgDescr_TypeDef rxDescrCfg;
@@ -1033,7 +1039,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         rxDescrCfg.hprot = 0;
         DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
 
-        void * rx_reg;
+        void *rx_reg;
         if (obj->spi.bits > 9) {
             rx_reg = (void *)&obj->spi.spi->RXDOUBLE;
         } else if (obj->spi.bits == 9) {
@@ -1071,7 +1077,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
     txDescrCfg.hprot = 0;
     DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-    void * tx_reg;
+    void *tx_reg;
     if (obj->spi.bits > 9) {
         tx_reg = (void *)&obj->spi.spi->TXDOUBLE;
     } else if (obj->spi.bits == 9) {
@@ -1106,7 +1112,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 *                 If the previous transfer has kept the channel, that channel will continue to get used.
 *
 ********************************************************************/
-void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
+void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void *cb, DMAUsage hint)
 {
     /* Init DMA here to include it in the power figure */
     dma_init();
@@ -1159,16 +1165,21 @@ void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int t
  */
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    if( spi_active(obj) ) return;
+    if (spi_active(obj)) {
+        return;
+    }
 
     /* update fill word if on 9-bit frame size */
-    if(obj->spi.bits == 9) fill_word = SPI_FILL_WORD & 0x1FF;
-    else fill_word = SPI_FILL_WORD;
+    if (obj->spi.bits == 9) {
+        fill_word = SPI_FILL_WORD & 0x1FF;
+    } else {
+        fill_word = SPI_FILL_WORD;
+    }
 
     /* check corner case */
-    if(tx_length == 0) {
+    if (tx_length == 0) {
         tx_length = rx_length;
-        tx = (void*) 0;
+        tx = (void *) 0;
     }
 
     /* First, set the buffer */
@@ -1179,7 +1190,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, event, true);
 
     /* And kick off the transfer */
-    spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
+    spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void *)handler, hint);
 }
 
 
@@ -1194,14 +1205,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 *
 ********************************************************************/
 #ifdef LDMA_PRESENT
-uint32_t spi_irq_handler_asynch(spi_t* obj)
+uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         /* DMA implementation */
         /* If there is still data in the TX buffer, setup a new transfer. */
         if (obj->tx_buff.pos < obj->tx_buff.length) {
             /* Find position and remaining length without modifying tx_buff. */
-            void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
+            void *tx_pointer = (char *)obj->tx_buff.buffer + obj->tx_buff.pos;
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
@@ -1213,11 +1224,13 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         if (LDMAx_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
             /* Check if we need to kick off TX transfer again to force more incoming data. */
             if (LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel) && (obj->tx_buff.pos < obj->rx_buff.length)) {
-                void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
+                void *tx_pointer = (char *)obj->tx_buff.buffer + obj->tx_buff.pos;
                 uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
                 /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
                 spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
-            } else return 0;
+            } else {
+                return 0;
+            }
         }
         /* If there is still a TX transfer ongoing (tx_length > rx_length), wait for it to finish */
         if (!LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel)) {
@@ -1231,7 +1244,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         }
 
         /* Wait transmit to complete, before user code is indicated*/
-        while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
+        while (!(obj->spi.spi->STATUS & USART_STATUS_TXC));
         /* return to CPP land to say we're finished */
         return SPI_EVENT_COMPLETE;
     } else {
@@ -1257,7 +1270,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
     }
 }
 #else
-uint32_t spi_irq_handler_asynch(spi_t* obj)
+uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
 
     /* Determine whether the current scenario is DMA or IRQ, and act accordingly */
@@ -1273,7 +1286,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                 return 0;
             }
             /* Find position and remaining length without modifying tx_buff. */
-            void * tx_pointer;
+            void *tx_pointer;
             if (obj->tx_buff.width == 32) {
                 tx_pointer = ((uint32_t *)obj->tx_buff.buffer) + obj->tx_buff.pos;
             } else if (obj->tx_buff.width == 16) {
@@ -1284,7 +1297,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
             /* Refresh RX transfer too if it exists */
-            void * rx_pointer = NULL;
+            void *rx_pointer = NULL;
             if (obj->rx_buff.pos < obj->rx_buff.length) {
                 if (obj->rx_buff.width == 32) {
                     rx_pointer = ((uint32_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
@@ -1297,7 +1310,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             uint32_t rx_length = obj->rx_buff.length - obj->rx_buff.pos;
 
             /* Wait for the previous transfer to complete. */
-            while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
+            while (!(obj->spi.spi->STATUS & USART_STATUS_TXC));
 
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
             spi_activate_dma(obj, rx_pointer, tx_pointer, tx_length, rx_length);
@@ -1325,7 +1338,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                 txDescrCfg.hprot = 0;
                 DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-                void * tx_reg;
+                void *tx_reg;
                 if (obj->spi.bits > 9) {
                     tx_reg = (void *)&obj->spi.spi->TXDOUBLE;
                 } else if (obj->spi.bits == 9) {
@@ -1355,7 +1368,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         }
 
         /* Wait for transmit to complete, before user code is indicated */
-        while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
+        while (!(obj->spi.spi->STATUS & USART_STATUS_TXC));
 
         /* return to CPP land to say we're finished */
         return SPI_EVENT_COMPLETE;
@@ -1375,7 +1388,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             spi_enable_interrupt(obj, (uint32_t)NULL, false);
 
             /* Wait for transmit to complete, before user code is indicated */
-            while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
+            while (!(obj->spi.spi->STATUS & USART_STATUS_TXC));
 
             /* Return the event back to userland */
             return event;
@@ -1392,7 +1405,9 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 void spi_abort_asynch(spi_t *obj)
 {
     // If we're not currently transferring, then there's nothing to do here
-    if(spi_active(obj) != 0) return;
+    if (spi_active(obj) != 0) {
+        return;
+    }
 
     // Determine whether we're running DMA or interrupt
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
@@ -1430,7 +1445,7 @@ const PinMap *spi_master_miso_pinmap()
 const PinMap *spi_master_clk_pinmap()
 {
     // We don't currently support hardware CS in master mode.
-    static const PinMap PinMap_SPI_CLK_mod[] = {NC ,  NC   , NC};
+    static const PinMap PinMap_SPI_CLK_mod[] = {NC,  NC, NC};
     return PinMap_SPI_CLK_mod;
 }
 

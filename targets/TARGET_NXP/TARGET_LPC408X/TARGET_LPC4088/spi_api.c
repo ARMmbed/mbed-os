@@ -21,7 +21,7 @@
 #include "mbed_error.h"
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {P0_7 , SPI_1, 2},
+    {P0_7, SPI_1, 2},
     {P0_15, SPI_0, 2},
     {P1_0,  SPI_2, 4},
     {P1_19, SPI_1, 5},
@@ -30,11 +30,11 @@ static const PinMap PinMap_SPI_SCLK[] = {
     {P2_22, SPI_0, 2},
     {P4_20, SPI_1, 3},
     {P5_2,  SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {P0_9 , SPI_1, 2},
+    {P0_9, SPI_1, 2},
     {P0_13, SPI_1, 2},
     {P0_18, SPI_0, 2},
     {P1_1,  SPI_2, 4},
@@ -43,11 +43,11 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {P2_27, SPI_0, 2},
     {P4_23, SPI_1, 3},
     {P5_0,  SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {P0_8 , SPI_1, 2},
+    {P0_8, SPI_1, 2},
     {P0_12, SPI_1, 2},
     {P0_17, SPI_0, 2},
     {P1_4,  SPI_2, 4},
@@ -56,11 +56,11 @@ static const PinMap PinMap_SPI_MISO[] = {
     {P2_26, SPI_0, 2},
     {P4_22, SPI_1, 3},
     {P5_1,  SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {P0_6 , SPI_1, 2},
+    {P0_6, SPI_1, 2},
     {P0_14, SPI_1, 2},
     {P0_16, SPI_0, 2},
     {P1_8,  SPI_2, 4},
@@ -70,7 +70,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {P2_23, SPI_0, 2},
     {P4_21, SPI_1, 3},
     {P5_3,  SPI_2, 2},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static inline int ssp_disable(spi_t *obj);
@@ -78,14 +78,20 @@ static inline int ssp_enable(spi_t *obj);
 
 void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
-    obj->spi = (LPC_SSP_TypeDef*)explicit_pinmap->peripheral;
+    obj->spi = (LPC_SSP_TypeDef *)explicit_pinmap->peripheral;
     MBED_ASSERT((int)obj->spi != NC);
 
     // enable power and clocking
     switch ((int)obj->spi) {
-        case SPI_0: LPC_SC->PCONP |= 1 << 21; break;
-        case SPI_1: LPC_SC->PCONP |= 1 << 10; break;
-        case SPI_2: LPC_SC->PCONP |= 1 << 20; break;
+        case SPI_0:
+            LPC_SC->PCONP |= 1 << 21;
+            break;
+        case SPI_1:
+            LPC_SC->PCONP |= 1 << 10;
+            break;
+        case SPI_2:
+            LPC_SC->PCONP |= 1 << 20;
+            break;
     }
 
     // pin out the spi pins
@@ -128,7 +134,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 void spi_free(spi_t *obj) {}
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     MBED_ASSERT(((bits >= 4) && (bits <= 16)) && ((mode >= 0) && (mode <= 3)));
     ssp_disable(obj);
 
@@ -144,21 +151,22 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     uint32_t tmp = obj->spi->CR0;
     tmp &= ~(0x00FF);              // Clear DSS, FRF, CPOL and CPHA [7:0]
     tmp |= DSS << 0
-        | FRF << 4
-        | SPO << 6
-        | SPH << 7;
+           | FRF << 4
+           | SPO << 6
+           | SPH << 7;
     obj->spi->CR0 = tmp;
 
     tmp = obj->spi->CR1;
     tmp &= ~(0xD);
     tmp |= 0 << 0                   // LBM - loop back mode - off
-        | ((slave) ? 1 : 0) << 2   // MS - master slave mode, 1 = slave
-        | 0 << 3;                  // SOD - slave output disable - na
+           | ((slave) ? 1 : 0) << 2   // MS - master slave mode, 1 = slave
+           | 0 << 3;                  // SOD - slave output disable - na
     obj->spi->CR1 = tmp;
     ssp_enable(obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     ssp_disable(obj);
 
     uint32_t PCLK = PeripheralClock;
@@ -186,43 +194,52 @@ void spi_frequency(spi_t *obj, int hz) {
     error("Couldn't setup requested SPI frequency");
 }
 
-static inline int ssp_disable(spi_t *obj) {
+static inline int ssp_disable(spi_t *obj)
+{
     return obj->spi->CR1 &= ~(1 << 1);
 }
 
-static inline int ssp_enable(spi_t *obj) {
+static inline int ssp_enable(spi_t *obj)
+{
     return obj->spi->CR1 |= (1 << 1);
 }
 
-static inline int ssp_readable(spi_t *obj) {
+static inline int ssp_readable(spi_t *obj)
+{
     return obj->spi->SR & (1 << 2);
 }
 
-static inline int ssp_writeable(spi_t *obj) {
+static inline int ssp_writeable(spi_t *obj)
+{
     return obj->spi->SR & (1 << 1);
 }
 
-static inline void ssp_write(spi_t *obj, int value) {
+static inline void ssp_write(spi_t *obj, int value)
+{
     while (!ssp_writeable(obj));
     obj->spi->DR = value;
 }
 
-static inline int ssp_read(spi_t *obj) {
+static inline int ssp_read(spi_t *obj)
+{
     while (!ssp_readable(obj));
     return obj->spi->DR;
 }
 
-static inline int ssp_busy(spi_t *obj) {
+static inline int ssp_busy(spi_t *obj)
+{
     return (obj->spi->SR & (1 << 4)) ? (1) : (0);
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     ssp_write(obj, value);
     return ssp_read(obj);
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -236,20 +253,24 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     return obj->spi->DR;
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     while (ssp_writeable(obj) == 0) ;
     obj->spi->DR = value;
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return ssp_busy(obj);
 }
 

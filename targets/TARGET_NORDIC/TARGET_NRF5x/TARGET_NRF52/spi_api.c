@@ -105,7 +105,7 @@ static void spi_configure_driver_instance(spi_t *obj)
 
         /* Clean up and uninitialize peripheral if already initialized. */
         if (nordic_nrf5_spi_initialized[instance]) {
-             nrfx_spi_uninit(&nordic_nrf5_spi_instance[instance]);
+            nrfx_spi_uninit(&nordic_nrf5_spi_instance[instance]);
         }
 
 #if DEVICE_SPI_ASYNCH
@@ -197,7 +197,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         /* Register interrupt handlers in driver with the NVIC. */
         NVIC_SetVector(SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn, (uint32_t) SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler);
         NVIC_SetVector(SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn, (uint32_t) SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler);
-        NVIC_SetVector(SPIM2_SPIS2_SPI2_IRQn,                  (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler);
+        NVIC_SetVector(SPIM2_SPIS2_SPI2_IRQn, (uint32_t) SPIM2_SPIS2_SPI2_IRQHandler);
     }
 }
 
@@ -253,13 +253,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     nrf_spi_mode_t new_mode = NRF_SPI_MODE_0;
 
     /* Convert Mbed HAL mode to Nordic mode. */
-    if(mode == 0) {
+    if (mode == 0) {
         new_mode = NRF_SPI_MODE_0;
-    } else if(mode == 1) {
+    } else if (mode == 1) {
         new_mode = NRF_SPI_MODE_1;
-    } else if(mode == 2) {
+    } else if (mode == 2) {
         new_mode = NRF_SPI_MODE_2;
-    } else if(mode == 3) {
+    } else if (mode == 3) {
         new_mode = NRF_SPI_MODE_3;
     }
 
@@ -357,8 +357,9 @@ int spi_master_write(spi_t *obj, int value)
     desc.rx_length = 1;
     ret = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance], &desc, 0);
 
-    if (ret != NRFX_SUCCESS)
+    if (ret != NRFX_SUCCESS) {
         DEBUG_PRINTF("%d error returned from nrf_spi_xfer\n\r");
+    }
 
     /* Manually set chip select pin if defined. */
     if (spi_inst->cs != NC) {
@@ -427,17 +428,17 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         int tx_actual_length = (tx_length > 255) ? 255 : tx_length;
 
         /* Set tx buffer pointer. Set to NULL if no data is going to be transmitted. */
-        const uint8_t * tx_actual_buffer = (tx_actual_length > 0) ?
-                                           (const uint8_t *)(tx_buffer + tx_offset) :
-                                           NULL;
+        const uint8_t *tx_actual_buffer = (tx_actual_length > 0) ?
+                                          (const uint8_t *)(tx_buffer + tx_offset) :
+                                          NULL;
 
         /* Check if rx_length is larger than 255 and if so, limit to 255. */
         int rx_actual_length = (rx_length > 255) ? 255 : rx_length;
 
         /* Set rx buffer pointer. Set to NULL if no data is going to be received. */
-        uint8_t * rx_actual_buffer = (rx_actual_length > 0) ?
-                                     (uint8_t *)(rx_buffer + rx_offset) :
-                                     NULL;
+        uint8_t *rx_actual_buffer = (rx_actual_length > 0) ?
+                                    (uint8_t *)(rx_buffer + rx_offset) :
+                                    NULL;
 
         /* Blocking transfer. */
         desc.p_tx_buffer = tx_actual_buffer;
@@ -445,7 +446,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         desc.tx_length = tx_actual_length;
         desc.rx_length = rx_actual_length;
         result = nrfx_spi_xfer(&nordic_nrf5_spi_instance[instance],
-                            &desc, 0);
+                               &desc, 0);
 
         /* Update loop variables. */
         tx_length -= tx_actual_length;
@@ -602,7 +603,7 @@ static ret_code_t spi_master_transfer_async_continue(spi_t *obj)
     desc.rx_length = rx_length;
 
     ret_code_t result = nrfx_spi_xfer(&nordic_nrf5_spi_instance[obj->spi.instance],
-                                            &desc, 0);
+                                      &desc, 0);
     return result;
 }
 
@@ -668,7 +669,7 @@ static void nordic_nrf5_spi_event_handler(nrfx_spi_evt_t const *p_event, void *p
             callback();
         }
 
-    /* Transfer failed, signal error if mask is set. */
+        /* Transfer failed, signal error if mask is set. */
     } else if (signal_error) {
 
         /* Signal error if event mask matches and event handler is set. */
@@ -727,7 +728,7 @@ void spi_master_transfer(spi_t *obj,
     struct buffer_s *buffer_pointer;
 
     buffer_pointer = &obj->tx_buff;
-    buffer_pointer->buffer = (void*) tx;
+    buffer_pointer->buffer = (void *) tx;
     buffer_pointer->length = tx_length;
     buffer_pointer->pos    = 0;
     buffer_pointer->width  = 8;

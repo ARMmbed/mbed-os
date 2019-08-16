@@ -215,7 +215,7 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp);
+    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp);
 
     init_spi(obj);
 }
@@ -363,7 +363,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp;
+    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp;
     pin_mode(spiobj->pin_sclk, pull);
 
     init_spi(obj);

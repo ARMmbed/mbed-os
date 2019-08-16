@@ -97,7 +97,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 void spi_free(spi_t *obj) {}
 
-void spi_format(spi_t *obj, int bits, int mode, int slave) {
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
     int      DSS;      // DSS (data select size)
     int      polarity  = (mode & 0x2) ? 1 : 0;
     int      phase     = (mode & 0x1) ? 1 : 0;
@@ -147,14 +148,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     obj->spi.spi->SPCMD0 = wk_spcmd0;
     obj->spi.spi->SPDCR   = splw;
     if (slave) {
-        obj->spi.spi->SPCR &=~(1 << 3);  // MSTR to 0
+        obj->spi.spi->SPCR &= ~(1 << 3); // MSTR to 0
     } else {
         obj->spi.spi->SPCR |= (1 << 3);  // MSTR to 1
     }
     spi_enable(obj);
 }
 
-void spi_frequency(spi_t *obj, int hz) {
+void spi_frequency(spi_t *obj, int hz)
+{
     uint32_t  pclk_base;
     uint32_t  div;
     uint32_t  brdv = 0;
@@ -196,23 +198,28 @@ void spi_frequency(spi_t *obj, int hz) {
     spi_enable(obj);
 }
 
-static inline void spi_disable(spi_t *obj) {
+static inline void spi_disable(spi_t *obj)
+{
     obj->spi.spi->SPCR &= ~(1 << 6);       // SPE to 0
 }
 
-static inline void spi_enable(spi_t *obj) {
-    obj->spi.spi->SPCR |=  (1 << 6);       // SPE to 1
+static inline void spi_enable(spi_t *obj)
+{
+    obj->spi.spi->SPCR |= (1 << 6);        // SPE to 1
 }
 
-static inline int spi_readable(spi_t *obj) {
+static inline int spi_readable(spi_t *obj)
+{
     return obj->spi.spi->SPSR & (1 << 7);  // SPRF
 }
 
-static inline int spi_tend(spi_t *obj) {
+static inline int spi_tend(spi_t *obj)
+{
     return obj->spi.spi->SPSR & (1 << 6);  // TEND
 }
 
-static inline void spi_write(spi_t *obj, int value) {
+static inline void spi_write(spi_t *obj, int value)
+{
     if (obj->spi.bits == 8) {
         obj->spi.spi->SPDR.UINT8[0]  = (uint8_t)value;
     } else if (obj->spi.bits == 16) {
@@ -222,7 +229,8 @@ static inline void spi_write(spi_t *obj, int value) {
     }
 }
 
-static inline int spi_read(spi_t *obj) {
+static inline int spi_read(spi_t *obj)
+{
     int read_data;
 
     if (obj->spi.bits == 8) {
@@ -236,14 +244,16 @@ static inline int spi_read(spi_t *obj) {
     return read_data;
 }
 
-int spi_master_write(spi_t *obj, int value) {
+int spi_master_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
-    while(!spi_tend(obj));
+    while (!spi_tend(obj));
     return spi_read(obj);
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -257,19 +267,23 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
 }
 
-int spi_slave_read(spi_t *obj) {
+int spi_slave_read(spi_t *obj)
+{
     return spi_read(obj);
 }
 
-void spi_slave_write(spi_t *obj, int value) {
+void spi_slave_write(spi_t *obj, int value)
+{
     spi_write(obj, value);
 }
 
-int spi_busy(spi_t *obj) {
+int spi_busy(spi_t *obj)
+{
     return 0;
 }
 
@@ -411,34 +425,44 @@ static void spi_err_irq(IRQn_Type irq_num, uint32_t index)
     }
 }
 
-static void spi0_rx_irq(void) {
+static void spi0_rx_irq(void)
+{
     spi_rx_irq(RSPISPRI0_IRQn, 0);
 }
-static void spi0_er_irq(void) {
+static void spi0_er_irq(void)
+{
     spi_err_irq(RSPISPEI0_IRQn, 0);
 }
-static void spi1_rx_irq(void) {
+static void spi1_rx_irq(void)
+{
     spi_rx_irq(RSPISPRI1_IRQn, 1);
 }
-static void spi1_er_irq(void) {
+static void spi1_er_irq(void)
+{
     spi_err_irq(RSPISPEI1_IRQn, 1);
 }
-static void spi2_rx_irq(void) {
+static void spi2_rx_irq(void)
+{
     spi_rx_irq(RSPISPRI2_IRQn, 2);
 }
-static void spi2_er_irq(void) {
+static void spi2_er_irq(void)
+{
     spi_err_irq(RSPISPEI2_IRQn, 2);
 }
-static void spi3_rx_irq(void) {
+static void spi3_rx_irq(void)
+{
     spi_rx_irq(RSPISPRI3_IRQn, 3);
 }
-static void spi3_er_irq(void) {
+static void spi3_er_irq(void)
+{
     spi_err_irq(RSPISPEI3_IRQn, 3);
 }
-static void spi4_rx_irq(void) {
+static void spi4_rx_irq(void)
+{
     spi_rx_irq(RSPISPRI4_IRQn, 4);
 }
-static void spi4_er_irq(void) {
+static void spi4_er_irq(void)
+{
     spi_err_irq(RSPISPEI4_IRQn, 4);
 }
 

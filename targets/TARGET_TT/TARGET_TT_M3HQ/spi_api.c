@@ -69,7 +69,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
 
 void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
 
     obj->module = (SPIName)explicit_pinmap->peripheral;
     spi = obj->spi;
@@ -167,7 +167,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
 void spi_free(spi_t *obj)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
 
     spi = obj->spi;
     spi->CR0 |= TSPI_DISABLE;
@@ -176,7 +176,7 @@ void spi_free(spi_t *obj)
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
 
     obj->bits = bits;
     spi = obj->spi;
@@ -195,7 +195,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
 void spi_frequency(spi_t *obj, int hz)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
     int clk_div = 1;
     uint32_t clocks = ((SystemCoreClock / 2) / hz);
     obj->spi->CR0 |= TSPI_DISABLE;
@@ -219,18 +219,18 @@ void spi_frequency(spi_t *obj, int hz)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
     MBED_ASSERT(obj != NULL);
     spi = obj->spi;
     spi->CR3 |= TSPI_TX_BUFF_CLR_DONE; // FIFO Cear
     // Check if the TSPI is already enabled
-    if((spi->CR0 & TSPI_ENABLE) != TSPI_ENABLE) {
+    if ((spi->CR0 & TSPI_ENABLE) != TSPI_ENABLE) {
         spi->CR0 |=  TSPI_ENABLE;
     }
     // Enable TSPI Transmission Control
     spi->CR1 |= TSPI_TRXE_ENABLE;
     // Check the current fill level
-    if(((spi->SR & TSPI_TX_REACH_FILL_LEVEL_MASK) >> 16) <= 7) {
+    if (((spi->SR & TSPI_TX_REACH_FILL_LEVEL_MASK) >> 16) <= 7) {
         do {
             spi->DR = (value & TSPI_DR_8BIT_MASK);
             // check complete transmit
@@ -238,20 +238,20 @@ int spi_master_write(spi_t *obj, int value)
         spi->CR3 |= TSPI_TX_BUFF_CLR_DONE;
         spi->CR1 &= TSPI_TRXE_DISABLE_MASK;
     }
-    if((spi->CR1 & TSPI_Transfer_Mode_MASK) == TSPI_RX_ONLY) {
+    if ((spi->CR1 & TSPI_Transfer_Mode_MASK) == TSPI_RX_ONLY) {
         // Enable TSPI Transmission Control
         spi->CR1 |= TSPI_TRXE_ENABLE;
     }
     // Check if the TSPI is already enabled
-    if((spi->CR0 & TSPI_ENABLE) != TSPI_ENABLE) {
+    if ((spi->CR0 & TSPI_ENABLE) != TSPI_ENABLE) {
         // Enable TSPI Transmission Control
         spi->CR0 |=  TSPI_ENABLE;
     }
     value = 0;
     // Wait until Receive Complete Flag is set to receive data
-    if((spi->SR & TSPI_RX_DONE_FLAG) ==  TSPI_RX_DONE) {
+    if ((spi->SR & TSPI_RX_DONE_FLAG) ==  TSPI_RX_DONE) {
         // Check the remain data exist
-        if((spi->SR & TSPI_RX_REACH_FILL_LEVEL_MASK) != 0) {
+        if ((spi->SR & TSPI_RX_REACH_FILL_LEVEL_MASK) != 0) {
             value = (spi->DR & TSPI_DR_8BIT_MASK);
         }
         spi->SR |=  TSPI_RX_DONE_CLR; // Receive Complete Flag is clear
@@ -279,11 +279,11 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 
 int spi_busy(spi_t *obj)
 {
-    TSB_TSPI_TypeDef* spi;
+    TSB_TSPI_TypeDef *spi;
     uint8_t result = 0;
 
     spi = obj->spi;
-    if( (spi->SR & (1<<7)) || (spi->SR & (1<<23))) {
+    if ((spi->SR & (1 << 7)) || (spi->SR & (1 << 23))) {
         result = 1;
     } else {
         result = 0;

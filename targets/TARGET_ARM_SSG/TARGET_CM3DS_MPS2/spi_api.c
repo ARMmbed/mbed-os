@@ -177,7 +177,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     struct spi_pl022_ctrl_cfg_t ctrl_cfg;
 
     if (!(bits >= SPI_BITS_MIN_VALUE && bits <= SPI_BITS_MAX_VALUE) ||
-        (mode & ~SPI_MODE_MAX_VALUE_MSK)) {
+            (mode & ~SPI_MODE_MAX_VALUE_MSK)) {
         error("SPI format error");
         return;
     }
@@ -197,7 +197,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     ctrl_cfg.frame_format = (uint8_t) frame_format;
     ctrl_cfg.word_size = (uint8_t) bits;
     ctrl_cfg.spi_mode =
-                  slave ? SPI_PL022_SLAVE_SELECT : SPI_PL022_MASTER_SELECT;
+        slave ? SPI_PL022_SLAVE_SELECT : SPI_PL022_MASTER_SELECT;
 
     if (spi_pl022_set_ctrl_cfg(obj->spi, &ctrl_cfg) != 0) {
         error("SPI configuration failed");
@@ -223,11 +223,11 @@ int spi_master_write(spi_t *obj, int value)
     int32_t rx_data = 0;
     uint32_t size = 1;
 
-    if(obj->spi->data->ctrl_cfg.word_size > 8) {
+    if (obj->spi->data->ctrl_cfg.word_size > 8) {
         size = 2;
     }
 
-    if (spi_pl022_txrx_blocking(obj->spi, &value, &size, &rx_data, &size) ) {
+    if (spi_pl022_txrx_blocking(obj->spi, &value, &size, &rx_data, &size)) {
         return 0;
     }
 
@@ -237,8 +237,8 @@ int spi_master_write(spi_t *obj, int value)
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
                            char *rx_buffer, int rx_length, char write_fill)
 {
-    if (spi_pl022_txrx_blocking(obj->spi, tx_buffer, (uint32_t*)&tx_length,
-                                          rx_buffer, (uint32_t*)&rx_length)) {
+    if (spi_pl022_txrx_blocking(obj->spi, tx_buffer, (uint32_t *)&tx_length,
+                                rx_buffer, (uint32_t *)&rx_length)) {
         return 0;
     }
 
@@ -250,7 +250,7 @@ int spi_slave_receive(spi_t *obj)
     int32_t status = spi_pl022_get_status(obj->spi);
     /* Rx FIFO not empty and device not busy */
     int32_t ret = ((status & SPI_PL022_SSPSR_RNE_MSK) &&
-                        !(status & SPI_PL022_SSPSR_BSY_MSK));
+                   !(status & SPI_PL022_SSPSR_BSY_MSK));
     return ret;
 }
 
@@ -274,7 +274,7 @@ uint8_t spi_get_module(spi_t *obj)
 
 int spi_slave_read(spi_t *obj)
 {
-    while(spi_slave_receive(obj) == 0) {};
+    while (spi_slave_receive(obj) == 0) {};
     return spi_pl022_slave_read(obj->spi);
 }
 

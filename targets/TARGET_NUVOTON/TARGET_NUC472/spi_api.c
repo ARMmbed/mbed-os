@@ -78,10 +78,10 @@ static struct nu_spi_var spi3_var = {
  */
 __STATIC_INLINE void SPI_ENABLE_SYNC(SPI_T *spi_base)
 {
-    if (! (spi_base->CTL & SPI_CTL_SPIEN_Msk)) {
+    if (!(spi_base->CTL & SPI_CTL_SPIEN_Msk)) {
         SPI_ENABLE(spi_base);
     }
-    while (! (spi_base->STATUS & SPI_STATUS_SPIENSTS_Msk));
+    while (!(spi_base->STATUS & SPI_STATUS_SPIENSTS_Msk));
 }
 __STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
 {
@@ -106,8 +106,8 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 static uint8_t spi_get_data_width(spi_t *obj);
 static int spi_is_tx_complete(spi_t *obj);
 static int spi_is_rx_complete(spi_t *obj);
-static int spi_writeable(spi_t * obj);
-static int spi_readable(spi_t * obj);
+static int spi_writeable(spi_t *obj);
+static int spi_readable(spi_t *obj);
 static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma);
 static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma);
 #endif
@@ -236,10 +236,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
-        slave ? SPI_SLAVE : SPI_MASTER,
-        (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
-        bits,
-        SPI_GetBusClock(spi_base));
+             slave ? SPI_SLAVE : SPI_MASTER,
+             (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
+             bits,
+             SPI_GetBusClock(spi_base));
     // NOTE: Hardcode to be MSB first.
     SPI_SET_MSB_FIRST(spi_base);
 
@@ -249,12 +249,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             // Configure SS as low active.
             SPI_EnableAutoSS(spi_base, SPI_SS0, SPI_SS_ACTIVE_LOW);
             // NOTE: In NUC472 series, all SPI SS pins are SS0, so we can hardcode SS0 here.
-        }
-        else {
+        } else {
             SPI_DisableAutoSS(spi_base);
         }
-    }
-    else {
+    } else {
         // Slave
         // Configure SS as low active.
         spi_base->SSCTL &= ~SPI_SSCTL_SSACTPOL_Msk;
@@ -284,7 +282,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_ENABLE_SYNC(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     SPI_WRITE_TX(spi_base, value);
 
     // Wait for rx buffer full
@@ -297,7 +295,8 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -380,7 +379,7 @@ void spi_slave_write(spi_t *obj, int value)
     SPI_ENABLE_SYNC(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     SPI_WRITE_TX(spi_base, value);
 }
 #endif
@@ -398,7 +397,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // (1) No DMA support for non-8 multiple data width.
     // (2) tx length >= rx length. Otherwise, as tx DMA is done, no bus activity for remaining rx.
     if ((data_width % 8) ||
-        (tx_length < rx_length)) {
+            (tx_length < rx_length)) {
         obj->spi.dma_usage = DMA_USAGE_NEVER;
         dma_channel_free(obj->spi.dma_chn_id_tx);
         obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
@@ -428,44 +427,44 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // Configure tx DMA
         pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_tx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_tx,
-            ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
-            0,  // Scatter-gather disabled
-            0); // Scatter-gather descriptor address
+                             ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
+                             0,  // Scatter-gather disabled
+                             0); // Scatter-gather descriptor address
         PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx,
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
-            tx_length);
+                            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
+                            tx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_tx,
-            ((uint32_t) tx) + (data_width / 8) * tx_length,   // NOTE: End of source address
-            PDMA_SAR_INC,   // Source address incremental
-            (uint32_t) &spi_base->TX,   // Destination address
-            PDMA_DAR_FIX);  // Destination address fixed
+                             ((uint32_t) tx) + (data_width / 8) * tx_length,   // NOTE: End of source address
+                             PDMA_SAR_INC,   // Source address incremental
+                             (uint32_t) &spi_base->TX,   // Destination address
+                             PDMA_DAR_FIX);  // Destination address fixed
         PDMA_SetBurstType(obj->spi.dma_chn_id_tx,
-            PDMA_REQ_SINGLE,    // Single mode
-            0); // Burst size
+                          PDMA_REQ_SINGLE,    // Single mode
+                          0); // Burst size
         PDMA_EnableInt(obj->spi.dma_chn_id_tx,
-            0); // Interrupt type. No use here
+                       0); // Interrupt type. No use here
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_tx, (uint32_t) spi_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
 
         // Configure rx DMA
         pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_rx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_rx,
-            ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
-            0,  // Scatter-gather disabled
-            0); // Scatter-gather descriptor address
+                             ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
+                             0,  // Scatter-gather disabled
+                             0); // Scatter-gather descriptor address
         PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx,
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
-            rx_length);
+                            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
+                            rx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_rx,
-            (uint32_t) &spi_base->RX,   // Source address
-            PDMA_SAR_FIX,   // Source address fixed
-            ((uint32_t) rx) + (data_width / 8) * rx_length,   // NOTE: End of destination address
-            PDMA_DAR_INC);  // Destination address incremental
+                             (uint32_t) &spi_base->RX,   // Source address
+                             PDMA_SAR_FIX,   // Source address fixed
+                             ((uint32_t) rx) + (data_width / 8) * rx_length,   // NOTE: End of destination address
+                             PDMA_DAR_INC);  // Destination address incremental
         PDMA_SetBurstType(obj->spi.dma_chn_id_rx,
-            PDMA_REQ_SINGLE,    // Single mode
-            0); // Burst size
+                          PDMA_REQ_SINGLE,    // Single mode
+                          0); // Burst size
         PDMA_EnableInt(obj->spi.dma_chn_id_rx,
-            0); // Interrupt type. No use here
+                       0); // Interrupt type. No use here
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_rx, (uint32_t) spi_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
 
@@ -572,13 +571,13 @@ uint8_t spi_active(spi_t *obj)
     return vec ? 1 : 0;
 }
 
-static int spi_writeable(spi_t * obj)
+static int spi_writeable(spi_t *obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
     return (! SPI_GET_TX_FIFO_FULL_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
-static int spi_readable(spi_t * obj)
+static int spi_readable(spi_t *obj)
 {
     return ! SPI_GET_RX_FIFO_EMPTY_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi)));
 }
@@ -601,8 +600,7 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
     if (enable) {
         NVIC_SetVector(modinit->irq_n, handler);
         NVIC_EnableIRQ(modinit->irq_n);
-    }
-    else {
+    } else {
         NVIC_DisableIRQ(modinit->irq_n);
         NVIC_SetVector(modinit->irq_n, 0);
     }
@@ -617,8 +615,7 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable)
 
         // Enable tx/rx FIFO threshold interrupt
         SPI_EnableInt(spi_base, SPI_FIFO_RXTHIEN_MASK | SPI_FIFO_TXTHIEN_MASK);
-    }
-    else {
+    } else {
         SPI_DisableInt(spi_base, SPI_FIFO_RXTHIEN_MASK | SPI_FIFO_TXTHIEN_MASK);
     }
 }
@@ -683,8 +680,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
         if (spi_is_tx_complete(obj)) {
             // Transmit dummy as transmit buffer is empty
             SPI_WRITE_TX(spi_base, 0);
-        }
-        else {
+        } else {
             switch (bytes_per_word) {
                 case 4:
                     SPI_WRITE_TX(spi_base, nu_get32_le(tx));
@@ -735,8 +731,7 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
         if (spi_is_rx_complete(obj)) {
             // Disregard as receive buffer is full
             SPI_READ_RX(spi_base);
-        }
-        else {
+        } else {
             switch (bytes_per_word) {
                 case 4: {
                     uint32_t val = SPI_READ_RX(spi_base);

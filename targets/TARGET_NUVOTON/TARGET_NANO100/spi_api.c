@@ -35,8 +35,8 @@
 #define NU_SPI_FIFO_DEPTH   8
 
 struct nu_spi_var {
-    spi_t *     obj;
-    void        (*vec)(void);
+    spi_t      *obj;
+    void (*vec)(void);
 #if DEVICE_SPI_ASYNCH
     uint8_t     pdma_perp_tx;
     uint8_t     pdma_perp_rx;
@@ -92,7 +92,7 @@ static struct nu_spi_var spi2_var = {
 __STATIC_INLINE void SPI_ENABLE_SYNC(SPI_T *spi_base)
 {
     /* NOTE: On NANO130, FIFO mode defaults to disabled. */
-    if (! (spi_base->CTL & SPI_CTL_FIFOM_Msk)) {
+    if (!(spi_base->CTL & SPI_CTL_FIFOM_Msk)) {
         SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
     }
 }
@@ -119,8 +119,8 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 static uint8_t spi_get_data_width(spi_t *obj);
 static int spi_is_tx_complete(spi_t *obj);
 static int spi_is_rx_complete(spi_t *obj);
-static int spi_writeable(spi_t * obj);
-static int spi_readable(spi_t * obj);
+static int spi_writeable(spi_t *obj);
+static int spi_readable(spi_t *obj);
 static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma);
 static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma);
 #endif
@@ -202,8 +202,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (NU_MODBASE(spi_data) == NU_MODBASE(spi_cntl)) {
         // NOTE: spi_data has subindex(port) encoded but spi_cntl hasn't.
         peripheral = (int) spi_data;
-    }
-    else {
+    } else {
         peripheral = (int) NC;
     }
 
@@ -259,10 +258,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
-        slave ? SPI_SLAVE : SPI_MASTER,
-        (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
-        bits,
-        SPI_GetBusClock(spi_base));
+             slave ? SPI_SLAVE : SPI_MASTER,
+             (mode == 0) ? SPI_MODE_0 : (mode == 1) ? SPI_MODE_1 : (mode == 2) ? SPI_MODE_2 : SPI_MODE_3,
+             bits,
+             SPI_GetBusClock(spi_base));
     // NOTE: Hardcode to be MSB first.
     SPI_SET_MSB_FIRST(spi_base);
 
@@ -279,12 +278,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
                     SPI_EnableAutoSS(spi_base, SPI_SS1, SPI_SS1_ACTIVE_LOW);
                     break;
             }
-        }
-        else {
+        } else {
             SPI_DisableAutoSS(spi_base);
         }
-    }
-    else {
+    } else {
         // Slave
         // Configure SS as low active.
         switch (NU_MODSUBINDEX(obj->spi.spi)) {
@@ -326,7 +323,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_ENABLE_SYNC(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
     M32(TX) = value;
 
@@ -426,7 +423,7 @@ void spi_slave_write(spi_t *obj, int value)
     SPI_ENABLE_SYNC(spi_base);
 
     // Wait for tx buffer empty
-    while(! spi_writeable(obj));
+    while (! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
     M32(TX) = value;
 }
@@ -445,7 +442,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // (1) No DMA support for non-8 multiple data width.
     // (2) tx length >= rx length. Otherwise, as tx DMA is done, no bus activity for remaining rx.
     if ((data_width % 8) ||
-        (tx_length < rx_length)) {
+            (tx_length < rx_length)) {
         obj->spi.dma_usage = DMA_USAGE_NEVER;
         dma_channel_free(obj->spi.dma_chn_id_tx);
         obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
@@ -473,44 +470,44 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // Configure tx DMA
         dma_enable(obj->spi.dma_chn_id_tx, 1);                  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_tx,
-            ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
-            0,  // Scatter-gather disabled
-            0); // Scatter-gather descriptor address
+                             ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
+                             0,  // Scatter-gather disabled
+                             0); // Scatter-gather descriptor address
         PDMA_SetTransferCnt(obj->spi.dma_chn_id_tx,
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
-            tx_length);
+                            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
+                            tx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_tx,
-            (uint32_t) tx,  // NOTE:
-                            // NUC472: End of source address
-                            // M451: Start of source address
-                            // NANO130: Start of destination address
-            PDMA_SAR_INC,   // Source address incremental
-            NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->TX0 : (uint32_t) &spi_base->TX1,  // Destination address
-            PDMA_DAR_FIX);  // Destination address fixed
+                             (uint32_t) tx,  // NOTE:
+                             // NUC472: End of source address
+                             // M451: Start of source address
+                             // NANO130: Start of destination address
+                             PDMA_SAR_INC,   // Source address incremental
+                             NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->TX0 : (uint32_t) &spi_base->TX1,  // Destination address
+                             PDMA_DAR_FIX);  // Destination address fixed
         PDMA_EnableInt(obj->spi.dma_chn_id_tx,
-            PDMA_IER_TD_IE_Msk);    // Interrupt type
+                       PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_tx, (uint32_t) spi_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
 
         // Configure rx DMA
         dma_enable(obj->spi.dma_chn_id_rx, 1);              // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_rx,
-            ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
-            0,  // Scatter-gather disabled
-            0); // Scatter-gather descriptor address
+                             ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
+                             0,  // Scatter-gather disabled
+                             0); // Scatter-gather descriptor address
         PDMA_SetTransferCnt(obj->spi.dma_chn_id_rx,
-            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
-            rx_length);
+                            (data_width == 8) ? PDMA_WIDTH_8 : (data_width == 16) ? PDMA_WIDTH_16 : PDMA_WIDTH_32,
+                            rx_length);
         PDMA_SetTransferAddr(obj->spi.dma_chn_id_rx,
-            NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->RX0 : (uint32_t) &spi_base->RX1,  // Source address
-            PDMA_SAR_FIX,   // Source address fixed
-            (uint32_t) rx,  // NOTE:
-                            // NUC472: End of destination address
-                            // M451: Start of destination address
-                            // NANO130: Start of destination address
-            PDMA_DAR_INC);  // Destination address incremental
+                             NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->RX0 : (uint32_t) &spi_base->RX1,  // Source address
+                             PDMA_SAR_FIX,   // Source address fixed
+                             (uint32_t) rx,  // NOTE:
+                             // NUC472: End of destination address
+                             // M451: Start of destination address
+                             // NANO130: Start of destination address
+                             PDMA_DAR_INC);  // Destination address incremental
         PDMA_EnableInt(obj->spi.dma_chn_id_rx,
-            PDMA_IER_TD_IE_Msk);    // Interrupt type
+                       PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_rx, (uint32_t) spi_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
 
@@ -639,13 +636,13 @@ static void spi_irq(spi_t *obj)
     }
 }
 
-static int spi_writeable(spi_t * obj)
+static int spi_writeable(spi_t *obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
     return (! SPI_GET_TX_FIFO_FULL_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
-static int spi_readable(spi_t * obj)
+static int spi_readable(spi_t *obj)
 {
     return ! SPI_GET_RX_FIFO_EMPTY_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi)));
 }
@@ -672,8 +669,7 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
         obj->spi.hdlr_async = handler;
         /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
         NVIC_EnableIRQ(modinit->irq_n);
-    }
-    else {
+    } else {
         NVIC_DisableIRQ(modinit->irq_n);
         /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
         var->obj = NULL;
@@ -690,8 +686,7 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable, uint32_t mas
     if (enable) {
         // Enable tx/rx FIFO threshold interrupt
         SPI_EnableInt(spi_base, mask);
-    }
-    else {
+    } else {
         SPI_DisableInt(spi_base, mask);
     }
 }
@@ -752,8 +747,7 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
         if (spi_is_tx_complete(obj)) {
             // Transmit dummy as transmit buffer is empty
             M32(TX) = 0;
-        }
-        else {
+        } else {
             switch (bytes_per_word) {
                 case 4:
                     M32(TX) = nu_get32_le(tx);
@@ -805,8 +799,7 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
         if (spi_is_rx_complete(obj)) {
             // Disregard as receive buffer is full
             M32(RX);
-        }
-        else {
+        } else {
             switch (bytes_per_word) {
                 case 4: {
                     uint32_t val = M32(RX);

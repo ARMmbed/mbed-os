@@ -104,7 +104,7 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     struct spi_s *obj_s = SPI_S(obj);
 
     obj_s->module = (SPIName)explicit_pinmap->peripheral;
-    MBED_ASSERT((int)obj_s->module!= NC);
+    MBED_ASSERT((int)obj_s->module != NC);
 
     obj_s->clk_pin = explicit_pinmap->pin[2];
 #if DEVICE_SPI_ASYNCH
@@ -315,18 +315,18 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     obj_s->bits = bits;
     obj_s->p_obj.init.fmr0.fl = (bits << 24);
 
-    if(slave) {
+    if (slave) {
         pinmap_pinout(obj_s->clk_pin, PinMap_SPI_SLAVE_SCLK);
         obj_s->p_obj.init.cnt1.mstr =  TSPI_SLAVE_OPERATION;   // slave mode operation
     }
 
-    if((mode >> 1) & 0x1) {
+    if ((mode >> 1) & 0x1) {
         obj_s->p_obj.init.fmr0.ckpol = TSPI_SERIAL_CK_IDLE_HI;
     } else {
         obj_s->p_obj.init.fmr0.ckpol = TSPI_SERIAL_CK_IDLE_LOW;
     }
 
-    if(mode & 0x1) {
+    if (mode & 0x1) {
         obj_s->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_2ND_EDGE;
     } else {
         obj_s->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_1ST_EDGE;
@@ -352,11 +352,11 @@ void spi_frequency(spi_t *obj, int hz)
     for (prsck = 1; prsck <= 512; prsck *= 2) {
         fx = ((uint64_t)tmpvar / prsck);
         for (brs = 1; brs <= 16; brs++) {
-            fscl = fx /brs;
+            fscl = fx / brs;
             if ((fscl <= (uint64_t)hz) && (fscl > tmp_fscl)) {
                 tmp_fscl = fscl;
                 obj_s->p_obj.init.brd.brck = (brck << 4);
-                if(brs == 16) {
+                if (brs == 16) {
                     obj_s->p_obj.init.brd.brs = 0;
                 } else {
                     obj_s->p_obj.init.brd.brs = brs;
@@ -409,7 +409,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 int spi_slave_receive(spi_t *obj)
 {
     struct spi_s *obj_s = SPI_S(obj);
-    if((obj_s->p_obj.p_instance->SR & 0x0F) != 0) {
+    if ((obj_s->p_obj.p_instance->SR & 0x0F) != 0) {
         return 1;
     }
 
@@ -430,7 +430,7 @@ int spi_slave_read(spi_t *obj)
 void spi_slave_write(spi_t *obj, int value)
 {
     struct spi_s *obj_s = SPI_S(obj);
-    if((obj_s->p_obj.p_instance->CR1 & TSPI_TX_ONLY) != TSPI_TX_ONLY) { //Enable TX if not Enabled
+    if ((obj_s->p_obj.p_instance->CR1 & TSPI_TX_ONLY) != TSPI_TX_ONLY) { //Enable TX if not Enabled
         obj_s->p_obj.p_instance->CR1 |= TSPI_TX_ONLY;
     }
 
@@ -538,14 +538,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj_s->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
 
     // Enable Interrupt bit in SPI peripheral -  Enabled in init()
-    if(use_tx) {
+    if (use_tx) {
         // Transmit first byte to enter into handler
         p_obj->p_instance->DR = *(uint8_t *)(tx);
         obj->tx_buff.pos++;
         NVIC_EnableIRQ(obj_s->txirqn);
     }
     if (use_rx) {
-        if(!use_tx) {
+        if (!use_tx) {
             //if RX only then transmit one dummy byte to enter into handler
             p_obj->p_instance->DR = 0xFF;
         }
@@ -567,13 +567,13 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
         return (event & obj_s->event_mask);
     }
 
-    if((p_obj->p_instance->SR & TSPI_RX_DONE_FLAG) == TSPI_RX_DONE) {
+    if ((p_obj->p_instance->SR & TSPI_RX_DONE_FLAG) == TSPI_RX_DONE) {
 
-        if(obj->rx_buff.pos < obj->rx_buff.length) {
+        if (obj->rx_buff.pos < obj->rx_buff.length) {
             *((uint8_t *)obj->rx_buff.buffer + obj->rx_buff.pos) = (p_obj->p_instance->DR & 0xFF);
             obj->rx_buff.pos++;
 
-            if((obj->tx_buff.pos == obj->tx_buff.length) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+            if ((obj->tx_buff.pos == obj->tx_buff.length) && (obj->rx_buff.pos < obj->rx_buff.length)) {
                 // transmit complete but receive pending - dummy write
                 p_obj->p_instance->DR = 0xFF;
             }
@@ -583,11 +583,11 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
             uint8_t dummy = p_obj->p_instance->DR;
         }
     }
-    if((p_obj->p_instance->SR & TSPI_TX_DONE_FLAG) == TSPI_TX_DONE) {
+    if ((p_obj->p_instance->SR & TSPI_TX_DONE_FLAG) == TSPI_TX_DONE) {
 
         p_obj->p_instance->SR |= TSPI_TX_DONE_CLR;
 
-        if(obj->tx_buff.pos < obj->tx_buff.length) {
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
             p_obj->p_instance->DR = *((uint8_t *)obj->tx_buff.buffer + obj->tx_buff.pos) & 0xFF;
             obj->tx_buff.pos++;
 
@@ -599,8 +599,8 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
     }
 
     err = p_obj->p_instance->ERR;
-    if(err != 0) {
-        p_obj->p_instance->ERR = (TSPI_TRGERR_ERR | TSPI_UNDERRUN_ERR |TSPI_OVERRUN_ERR | TSPI_PARITY_ERR );
+    if (err != 0) {
+        p_obj->p_instance->ERR = (TSPI_TRGERR_ERR | TSPI_UNDERRUN_ERR | TSPI_OVERRUN_ERR | TSPI_PARITY_ERR);
         event = SPI_EVENT_ERROR | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
         state_idle(obj_s);
     }
@@ -637,7 +637,7 @@ static inline void state_idle(struct spi_s *obj_s)
     obj_s->p_obj.p_instance->CR1 &= TSPI_TRXE_DISABLE_MASK;
     obj_s->p_obj.p_instance->SR   = (TSPI_TX_DONE_CLR | TSPI_RX_DONE_CLR);
     obj_s->p_obj.p_instance->CR3  = (TSPI_TX_BUFF_CLR_DONE | TSPI_RX_BUFF_CLR_DONE);
-    obj_s->p_obj.p_instance->ERR  = (TSPI_TRGERR_ERR | TSPI_UNDERRUN_ERR |TSPI_OVERRUN_ERR | TSPI_PARITY_ERR );
+    obj_s->p_obj.p_instance->ERR  = (TSPI_TRGERR_ERR | TSPI_UNDERRUN_ERR | TSPI_OVERRUN_ERR | TSPI_PARITY_ERR);
 }
 
 #endif //DEVICE_SPI_ASYNCH

@@ -23,9 +23,8 @@
 #include "pinmap.h"
 
 /*------------- Wlan Monitor (WLANMON) ---------------------------------------*/
-typedef struct
-{
-  __IO uint32_t PHYSEL_3_0;             /* 0x00 : PHY select register 0 - 3   */
+typedef struct {
+    __IO uint32_t PHYSEL_3_0;             /* 0x00 : PHY select register 0 - 3   */
 } RDA_WLANMON_TypeDef;
 
 /*
@@ -46,7 +45,7 @@ typedef struct
 static const PinMap PinMap_SPI_SCLK[] = {
     {PB_4, SPI_0, 4},
     {PD_0, SPI_0, 1},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
@@ -54,7 +53,7 @@ static const PinMap PinMap_SPI_MOSI[] = {
     {PC_0, SPI_0, 6},
     {PD_2, SPI_0, 1},
     {PB_3, SPI_0, 2},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
@@ -62,7 +61,7 @@ static const PinMap PinMap_SPI_MISO[] = {
     {PC_1, SPI_0, 6},
     {PD_3, SPI_0, 1},
     {PB_8, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
@@ -70,7 +69,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {PB_5, SPI_0, 4},
     {PA_0, SPI_0, 3},
     {PA_1, SPI_0, 3},
-    {NC  , NC   , 0}
+    {NC, NC, 0}
 };
 
 /*
@@ -87,11 +86,11 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
     uint32_t reg_val;
 
-    obj->spi = (RDA_SPI_TypeDef*)explicit_pinmap->peripheral;
+    obj->spi = (RDA_SPI_TypeDef *)explicit_pinmap->peripheral;
     MBED_ASSERT((int)obj->spi != NC);
 
     /* Enable power and clocking */
-    SPI_CLKGATE_REG |=  (0x01UL << 18);
+    SPI_CLKGATE_REG |= (0x01UL << 18);
 
     /* Select 4-wire SPI mode */
     SPI_MODESEL_REG &= ~(0x01UL << 14);
@@ -101,12 +100,12 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 
 #if ENABLE_RDA_SPI_MODE
     /* RDA SPI mode */
-    reg_val |=  (0x01UL << 2);
+    reg_val |= (0x01UL << 2);
 #else  /* ENABLE_RDA_SPI_MODE */
     /* Normal SPI mode */
     reg_val &= ~(0x01UL << 2);
     /* Set read flag */
-    reg_val |=  (0x01UL << 3);
+    reg_val |= (0x01UL << 3);
 #endif /* ENABLE_RDA_SPI_MODE */
 
     /* Set core cfg for mosi, miso */
@@ -122,9 +121,9 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
         SPI_MODESEL_REG &= ~(0x0FUL);
         SPI_PINSEL_REG1 &= ~(0x3FUL << 24);
         SPI_PINSEL_REG2 &= ~(0x0FUL << 12);
-        SPI_MODESEL_REG |=  (0x0BUL);
-        SPI_PINSEL_REG1 |=  (0x02UL << 24);
-        SPI_PINSEL_REG2 |=  (0x01UL << 12);
+        SPI_MODESEL_REG |= (0x0BUL);
+        SPI_PINSEL_REG1 |= (0x02UL << 24);
+        SPI_PINSEL_REG2 |= (0x01UL << 12);
     }
     if (PB_8 == explicit_pinmap->pin[1]) {
         SPI_PINSEL_REG0 &= ~(0x01UL << 11);
@@ -248,8 +247,9 @@ static inline int spi_pin_cs_num(PinName ssel)
 {
     int idx = 0;
     while (PinMap_SPI_SSEL[idx].pin != NC) {
-        if (PinMap_SPI_SSEL[idx].pin == ssel)
+        if (PinMap_SPI_SSEL[idx].pin == ssel) {
             return idx;
+        }
         idx++;
     }
     return (int)NC;

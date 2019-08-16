@@ -38,7 +38,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _hw_ssel(ssel),
     _sw_ssel(NC),
     _explicit_pinmap(NULL),
-    _init_func((void*)spi_init)
+    _init_func((void *)spi_init)
 {
     // Need backwards compatibility with HALs not providing API
 #ifdef DEVICE_SPI_COUNT
@@ -60,7 +60,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t
     _hw_ssel(NC),
     _sw_ssel(ssel, 1),
     _explicit_pinmap(NULL),
-    _init_func((void*)spi_init)
+    _init_func((void *)spi_init)
 {
     // Need backwards compatibility with HALs not providing API
 #ifdef DEVICE_SPI_COUNT
@@ -82,7 +82,7 @@ SPI::SPI(explicit_pinmap_t *explicit_pinmap) :
     _sw_ssel(NC),
     _explicit_pinmap(explicit_pinmap),
     _peripheral_name((SPIName)explicit_pinmap->peripheral),
-    _init_func((void*)spi_init_direct)
+    _init_func((void *)spi_init_direct)
 
 {
     MBED_ASSERT(explicit_pinmap != NULL);
@@ -100,7 +100,7 @@ SPI::SPI(use_gpio_ssel_t, explicit_pinmap_t *explicit_pinmap) :
     _sw_ssel(explicit_pinmap->pin[3], 1),
     _explicit_pinmap(explicit_pinmap),
     _peripheral_name((SPIName)explicit_pinmap->peripheral),
-    _init_func((void*)spi_init_direct)
+    _init_func((void *)spi_init_direct)
 {
     MBED_ASSERT(explicit_pinmap != NULL);
     _do_construct();
@@ -204,11 +204,11 @@ void SPI::_acquire()
 {
     if (_peripheral->owner != this) {
         if (_explicit_pinmap) {
-            typedef void (*p_spi_init_t)(spi_t*, explicit_pinmap_t*);
+            typedef void (*p_spi_init_t)(spi_t *, explicit_pinmap_t *);
             p_spi_init_t p_spi_init = (p_spi_init_t)_init_func;
             p_spi_init(&_peripheral->spi, _explicit_pinmap);
         } else {
-            typedef void (*p_spi_init_t)(spi_t*, PinName, PinName, PinName, PinName);
+            typedef void (*p_spi_init_t)(spi_t *, PinName, PinName, PinName, PinName);
             p_spi_init_t p_spi_init = (p_spi_init_t)_init_func;
             p_spi_init(&_peripheral->spi, _mosi, _miso, _sclk, _hw_ssel);
         }

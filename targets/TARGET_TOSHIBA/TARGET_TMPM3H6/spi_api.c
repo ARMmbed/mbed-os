@@ -89,7 +89,7 @@ void spi_init_direct(spi_t *t_obj, explicit_pinmap_t *explicit_pinmap)
     struct spi_s *obj = SPI_S(t_obj);
 
     obj->module = (SPIName)explicit_pinmap->peripheral;
-    MBED_ASSERT((int)obj->module!= NC);
+    MBED_ASSERT((int)obj->module != NC);
 
     // Identify SPI module to use
     switch ((int)obj->module) {
@@ -239,7 +239,7 @@ void spi_format(spi_t *t_obj, int bits, int mode, int slave)
         obj->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_1ST_EDGE;
     }
 
-    if(slave) {
+    if (slave) {
         pinmap_pinout(obj->Slave_SCK, PinMap_SPISLAVE_SCLK);
         obj->p_obj.init.cnt1.mstr = TSPI_SLAVE_OPERATION;      // Slave mode operation
     }
@@ -264,7 +264,7 @@ void spi_frequency(spi_t *t_obj, int hz)
     for (prsck = 1; prsck <= 512; prsck *= 2) {
         fx = ((uint64_t)tmpvar / prsck);
         for (brs = 1; brs <= 16; brs++) {
-            fscl = fx /brs;
+            fscl = fx / brs;
             if ((fscl <= (uint64_t)hz) && (fscl > tmp_fscl)) {
                 tmp_fscl = fscl;
                 obj->p_obj.init.brd.brck = (brck << 4);
@@ -324,7 +324,7 @@ int spi_slave_receive(spi_t *t_obj)
     uint32_t status;
 
     tspi_get_status(&obj->p_obj, &status);
-    if((status & (TSPI_RX_REACH_FILL_LEVEL_MASK)) == 0) {
+    if ((status & (TSPI_RX_REACH_FILL_LEVEL_MASK)) == 0) {
         ret = 0;
     }
 
@@ -455,14 +455,14 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spiobj->p_obj.p_instance->CR2 |= (TSPI_TX_INT_ENABLE | TSPI_RX_INT_ENABLE | TSPI_ERR_INT_ENABLE);
 
     if (use_tx && use_rx) {
-        spiobj->max_size = tx_length < rx_length ? rx_length:tx_length;
+        spiobj->max_size = tx_length < rx_length ? rx_length : tx_length;
         spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
         spiobj->p_obj.p_instance->DR = ((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF;
-    } else if(use_tx) {
+    } else if (use_tx) {
         spiobj->max_size = tx_length;
         spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
         spiobj->p_obj.p_instance->DR = ((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF;
-    } else if(use_rx) {
+    } else if (use_rx) {
         spiobj->max_size = rx_length;
         spiobj->p_obj.p_instance->CR1 |= TSPI_TRXE_ENABLE;
         spiobj->p_obj.p_instance->DR = 0xFF;
@@ -478,7 +478,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     struct spi_s *spiobj = SPI_S(obj);
     spi_irq_handler(obj);
-    return ((spiobj->event & SPI_EVENT_ALL)| SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) ;
+    return ((spiobj->event & SPI_EVENT_ALL) | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) ;
 }
 
 uint8_t spi_active(spi_t *obj)
@@ -507,17 +507,17 @@ static void spi_irq_handler(spi_t *obj)
     struct spi_s *spiobj = SPI_S(obj);
 
     // Check for revceive complete flag.
-    if((spiobj->p_obj.p_instance->SR & TSPI_RX_DONE) &&
+    if ((spiobj->p_obj.p_instance->SR & TSPI_RX_DONE) &&
             (spiobj->p_obj.p_instance->SR & TSPI_RX_REACH_FILL_LEVEL_MASK)) {
         // Check receiver FIFO level
         uint8_t rlvl = spiobj->p_obj.p_instance->SR & 0xF;
 
-        while((rlvl != 0) && (obj->rx_buff.pos < obj->rx_buff.length)) {
+        while ((rlvl != 0) && (obj->rx_buff.pos < obj->rx_buff.length)) {
             ((uint8_t *)obj->rx_buff.buffer)[obj->rx_buff.pos++] = spiobj->p_obj.p_instance->DR & 0xFF;
             rlvl--;
         }
 
-        if(obj->rx_buff.pos == spiobj->max_size) {
+        if (obj->rx_buff.pos == spiobj->max_size) {
             spiobj->state = SPI_TRANSFER_STATE_IDLE;
         }
         // Clear rx buffer
@@ -525,15 +525,15 @@ static void spi_irq_handler(spi_t *obj)
     }
 
     // Check for transmit completion flag
-    if(spiobj->p_obj.p_instance->SR & TSPI_TX_DONE) {
+    if (spiobj->p_obj.p_instance->SR & TSPI_TX_DONE) {
         obj->tx_buff.pos++;
         spiobj->p_obj.p_instance->SR |=  TSPI_RX_DONE_CLR;
 
-        if(obj->tx_buff.pos == (spiobj->max_size)) {
+        if (obj->tx_buff.pos == (spiobj->max_size)) {
             spiobj->state = SPI_TRANSFER_STATE_IDLE;
         }
 
-        if((obj->tx_buff.pos < obj->tx_buff.length) && (obj->tx_buff.pos < spiobj->max_size)) {
+        if ((obj->tx_buff.pos < obj->tx_buff.length) && (obj->tx_buff.pos < spiobj->max_size)) {
             spiobj->p_obj.p_instance->DR = (((uint8_t *)obj->tx_buff.buffer)[obj->tx_buff.pos] & 0xFF);
         } else if (obj->tx_buff.pos < spiobj->max_size) {
             spiobj->p_obj.p_instance->DR = 0xFF;
@@ -541,7 +541,7 @@ static void spi_irq_handler(spi_t *obj)
     }
 
     // Check for error flag
-    if(spiobj->p_obj.p_instance->ERR) {
+    if (spiobj->p_obj.p_instance->ERR) {
         spiobj->event = SPI_EVENT_ERROR;
         spiobj->state = SPI_TRANSFER_STATE_IDLE;
         disable_irq(spiobj->irqn);
@@ -551,7 +551,7 @@ static void spi_irq_handler(spi_t *obj)
         return;
     }
 
-    if(spiobj->state == SPI_TRANSFER_STATE_IDLE) {
+    if (spiobj->state == SPI_TRANSFER_STATE_IDLE) {
         spiobj->event = SPI_EVENT_COMPLETE;
         disable_irq(spiobj->irqn);
         spiobj->p_obj.p_instance->SR  |= (TSPI_TX_DONE_CLR | TSPI_RX_DONE_CLR);

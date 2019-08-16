@@ -122,7 +122,7 @@ void spi_frequency(spi_t *obj, int hz)
     LPSPI_Enable(spibase, true);
 }
 
-static inline int spi_readable(spi_t * obj)
+static inline int spi_readable(spi_t *obj)
 {
     return (LPSPI_GetStatusFlags(spi_address[obj->instance]) & kLPSPI_RxDataReadyFlag);
 }
@@ -143,17 +143,18 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     // Default write is done in each and every call, in future can create HAL API instead
     LPSPI_SetDummyData(spi_address[obj->instance], write_fill);
 
-    LPSPI_MasterTransferBlocking(spi_address[obj->instance], &(lpspi_transfer_t){
-          .txData = (uint8_t *)tx_buffer,
-          .rxData = (uint8_t *)rx_buffer,
-          .dataSize = total,
-          .configFlags = kLPSPI_MasterPcs0 | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap,
+    LPSPI_MasterTransferBlocking(spi_address[obj->instance], &(lpspi_transfer_t) {
+        .txData = (uint8_t *)tx_buffer,
+        .rxData = (uint8_t *)rx_buffer,
+        .dataSize = total,
+        .configFlags = kLPSPI_MasterPcs0 | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap,
     });
 
     return total;
@@ -180,8 +181,7 @@ void spi_slave_write(spi_t *obj, int value)
     LPSPI_WriteData(spi_address[obj->instance], (uint32_t)value);
 
     /* Transfer is not complete until transfer complete flag sets */
-    while (!(LPSPI_GetStatusFlags(spi_address[obj->instance]) & kLPSPI_FrameCompleteFlag))
-    {
+    while (!(LPSPI_GetStatusFlags(spi_address[obj->instance]) & kLPSPI_FrameCompleteFlag)) {
     }
 
     LPSPI_ClearStatusFlags(spi_address[obj->instance], kLPSPI_FrameCompleteFlag);

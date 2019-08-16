@@ -54,7 +54,7 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     MBED_ASSERT((int)obj->membase != NC);
 
     /* Check device to be activated */
-    if(obj->membase == SPI1REG) {
+    if (obj->membase == SPI1REG) {
         /* SPI 1 selected */
         CLOCK_ENABLE(CLOCK_SPI);         /* Enable clock */
     } else {
@@ -80,16 +80,16 @@ void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
     pin_mode(explicit_pinmap->pin[0], PushPullPullDown);
 
     /* PAD drive strength */
-    PadReg_t *padRegOffset = (PadReg_t*)(PADREG_BASE + (explicit_pinmap->pin[2] * PAD_REG_ADRS_BYTE_SIZE));
+    PadReg_t *padRegOffset = (PadReg_t *)(PADREG_BASE + (explicit_pinmap->pin[2] * PAD_REG_ADRS_BYTE_SIZE));
     padRegOffset->PADIO0.BITS.POWER = True; /* sclk: Drive strength */
     padRegOffset->PADIO1.BITS.POWER = True; /* mosi: Drive strength */
-    if(explicit_pinmap->pin[1] != NC) {
+    if (explicit_pinmap->pin[1] != NC) {
         pin_function(explicit_pinmap->pin[1], explicit_pinmap->function[1]);
         pin_mode(explicit_pinmap->pin[1], PullNone);
         pin_mode(explicit_pinmap->pin[1], OpenDrainNoPull);      /* Pad setting */
         padRegOffset->PADIO2.BITS.POWER = True;  /* miso: Drive strength */
     }
-    if(explicit_pinmap->pin[3] != NC) {
+    if (explicit_pinmap->pin[3] != NC) {
         pin_function(explicit_pinmap->pin[3], explicit_pinmap->function[3]);
         pin_mode(explicit_pinmap->pin[3], PullNone);
         pin_mode(explicit_pinmap->pin[3], PushPullPullUp);               /* Pad setting */
@@ -157,21 +157,21 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     /* Clear word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
     obj->membase->CONTROL.WORD &= ~(uint32_t)((True << SPI_WORD_WIDTH_BIT_POS) |
-                                    (True << SPI_SLAVE_MASTER_BIT_POS) |
-                                    (True << SPI_CPOL_BIT_POS) |
-                                    (True << SPI_CPHA_BIT_POS));
+                                              (True << SPI_SLAVE_MASTER_BIT_POS) |
+                                              (True << SPI_CPOL_BIT_POS) |
+                                              (True << SPI_CPHA_BIT_POS));
 
     /* Configure word width | Slave/Master | CPOL | CPHA | MSB first bits in control register */
     obj->membase->CONTROL.WORD |= (uint32_t)(((bits >> 0x4) << SPI_WORD_WIDTH_BIT_POS) |
-                                              (!slave << SPI_SLAVE_MASTER_BIT_POS) |
-                                              ((mode >> 0x1) << SPI_CPOL_BIT_POS) |
-                                              ((mode & 0x1) << SPI_CPHA_BIT_POS));
+                                             (!slave << SPI_SLAVE_MASTER_BIT_POS) |
+                                             ((mode >> 0x1) << SPI_CPOL_BIT_POS) |
+                                             ((mode & 0x1) << SPI_CPHA_BIT_POS));
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
     /* If the frequency is outside the allowable range, set it to the max */
-    if(hz > SPI_FREQ_MAX) {
+    if (hz > SPI_FREQ_MAX) {
         hz = SPI_FREQ_MAX;
     }
     obj->membase->FDIV = ((fClockGetPeriphClockfrequency() / hz) >> 1) - 1;
@@ -179,11 +179,12 @@ void spi_frequency(spi_t *obj, int hz)
 
 int  spi_master_write(spi_t *obj, int value)
 {
-    return(fSpiWriteB(obj, value));
+    return (fSpiWriteB(obj, value));
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
+                           char *rx_buffer, int rx_length, char write_fill)
+{
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     for (int i = 0; i < total; i++) {
@@ -199,14 +200,14 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 
 int  spi_busy(spi_t *obj)
 {
-    return(obj->membase->STATUS.BITS.XFER_IP);
+    return (obj->membase->STATUS.BITS.XFER_IP);
 }
 
 uint8_t spi_get_module(spi_t *obj)
 {
-    if(obj->membase == SPI1REG) {
+    if (obj->membase == SPI1REG) {
         return 0; /* UART #1 */
-    } else if(obj->membase == SPI2REG) {
+    } else if (obj->membase == SPI2REG) {
         return 1; /* UART #2 */
     } else {
         return 2; /* Invalid address */
@@ -215,7 +216,7 @@ uint8_t spi_get_module(spi_t *obj)
 
 int  spi_slave_receive(spi_t *obj)
 {
-    if(obj->membase->STATUS.BITS.RX_EMPTY != True){ /* if receive status is not empty */
+    if (obj->membase->STATUS.BITS.RX_EMPTY != True) { /* if receive status is not empty */
         return True;    /* Byte available to read */
     }
     return False; /* Byte not available to read */
@@ -232,7 +233,7 @@ int  spi_slave_read(spi_t *obj)
 
 void spi_slave_write(spi_t *obj, int value)
 {
-    while((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
+    while ((obj->membase->STATUS.BITS.TX_FULL == True) && (obj->membase->STATUS.BITS.RX_FULL == True)); /* Wait till Tx/Rx status is full */
     obj->membase->TX_DATA = value;
 }
 
@@ -285,10 +286,10 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     int ndata = 0;
     uint16_t *tx_ptr = (uint16_t *) tx;
 
-    if(obj->spi->CONTROL.BITS.WORD_WIDTH == 0) {
+    if (obj->spi->CONTROL.BITS.WORD_WIDTH == 0) {
         /* Word size 8 bits */
         WORD_WIDTH_MASK = 0xFF;
-    } else if(obj->spi->CONTROL.BITS.WORD_WIDTH == 1) {
+    } else if (obj->spi->CONTROL.BITS.WORD_WIDTH == 1) {
         /* Word size 16 bits */
         WORD_WIDTH_MASK = 0xFFFF;
     } else {
@@ -297,9 +298,9 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     }
 
     //frame size
-    if(tx_length == 0) {
+    if (tx_length == 0) {
         tx_length = rx_length;
-        tx = (void*) 0;
+        tx = (void *) 0;
     }
     //set tx rx buffer
     obj->tx_buff.buffer = (void *)tx;
@@ -312,9 +313,9 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     obj->rx_buff.width = bit_width;
 
 
-    if((obj->spi.bits == 9) && (tx != 0)) {
+    if ((obj->spi.bits == 9) && (tx != 0)) {
         // Make sure we don't have inadvertent non-zero bits outside 9-bit frames which could trigger unwanted operation
-        for(i = 0; i < (tx_length / 2); i++) {
+        for (i = 0; i < (tx_length / 2); i++) {
             tx_ptr[i] &= 0x1FF;
         }
     }
@@ -330,7 +331,7 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
 
     //write async
 
-    if ( && ) {
+    if (&&) {
 
     }
     while ((obj->tx_buff.pos < obj->tx_buff.length) &&

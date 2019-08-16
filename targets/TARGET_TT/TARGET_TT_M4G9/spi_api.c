@@ -65,7 +65,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
 void spi_init_direct(spi_t *obj, explicit_pinmap_t *explicit_pinmap)
 {
     obj->module = (SPIName)explicit_pinmap->peripheral;
-    MBED_ASSERT((int)obj->module!= NC);
+    MBED_ASSERT((int)obj->module != NC);
 
     // Identify SPI module to use
     switch ((int)obj->module) {
@@ -223,13 +223,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     obj->bits = bits;
     obj->p_obj.init.fmr0.fl = (bits << 24);
 
-    if((mode >> 1) & 0x1) {
+    if ((mode >> 1) & 0x1) {
         obj->p_obj.init.fmr0.ckpol = TSPI_SERIAL_CK_IDLE_HI;
     } else {
         obj->p_obj.init.fmr0.ckpol = TSPI_SERIAL_CK_IDLE_LOW;
     }
 
-    if(mode & 0x1) {
+    if (mode & 0x1) {
         obj->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_2ND_EDGE;
     } else {
         obj->p_obj.init.fmr0.ckpha = TSPI_SERIAL_CK_1ST_EDGE;
@@ -250,11 +250,11 @@ void spi_frequency(spi_t *obj, int hz)
     for (prsck = 1; prsck <= 512; prsck *= 2) {
         fx = ((uint64_t)tmpvar / prsck);
         for (brs = 1; brs <= 16; brs++) {
-            fscl = fx /brs;
+            fscl = fx / brs;
             if ((fscl <= (uint64_t)hz) && (fscl > tmp_fscl)) {
                 tmp_fscl = fscl;
                 obj->p_obj.init.brd.brck = (brck << 4);
-                if(brs == 16) {
+                if (brs == 16) {
                     obj->p_obj.init.brd.brs = 0;
                 } else {
                     obj->p_obj.init.brd.brs = brs;
@@ -308,7 +308,7 @@ int spi_busy(spi_t *obj)
     int ret = 1;
     uint32_t status;
     tspi_get_status(&obj->p_obj, &status);
-    if((status & (TSPI_TX_FLAG_ACTIVE | TSPI_RX_FLAG_ACTIVE)) == 0) {
+    if ((status & (TSPI_TX_FLAG_ACTIVE | TSPI_RX_FLAG_ACTIVE)) == 0) {
         ret = 0;
     }
 
