@@ -15,6 +15,7 @@
  */
 
 #include "WisunInterface.h"
+#include "NanostackRfPhy.h"
 #include "include/wisun_tasklet.h"
 #include "callback_handler.h"
 #include "NanostackLockGuard.h"
