@@ -29,11 +29,11 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
                                 size_t *public_key_data_length)
 {
     psa_status_t status = PSA_SUCCESS;
-    size_t key_data_bits = 0;
-    psa_key_handle_t handle = 1;
+    size_t key_data_bits = ECDSA_P256_KEY_SIZE_IN_BYTES * 8;
+    psa_key_handle_t handle = 0;
     psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_PERSISTENT;
-    psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT | PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
     psa_key_type_t public_type;
     size_t bits;
@@ -42,19 +42,14 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
 
 #if defined(MBEDTLS_ECP_C)
 
-    status = psa_create_key(lifetime, key_id, &handle);
-    if (status != PSA_SUCCESS) {
-        return (status);
-    }
+    psa_set_key_usage_flags(&attributes, usage);
+    psa_set_key_algorithm(&attributes, PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256));
+    psa_set_key_type(&attributes, type);
+    psa_set_key_bits(&attributes, key_data_bits);
+    psa_set_key_lifetime(&attributes, lifetime);
+    psa_set_key_id(&attributes, key_id);
 
-    psa_key_policy_init();
-    psa_key_policy_set_usage(&policy, usage, PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256));
-    status = psa_set_key_policy(handle, (const psa_key_policy_t *)&policy);
-    if (status != PSA_SUCCESS) {
-        return (status);
-    }
-
-    if (! PSA_KEY_TYPE_IS_ECC_KEYPAIR(type)) {
+    if (! PSA_KEY_TYPE_IS_ECC_KEY_PAIR(type)) {
         return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
@@ -63,25 +58,27 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
             status = PSA_ERROR_INVALID_ARGUMENT;
             goto exit;
         }
-        status = psa_import_key(handle, type, key_data, key_data_length);
+        status = psa_import_key(&attributes, key_data, key_data_length, &handle);
         if (status != PSA_SUCCESS) {
             goto exit;
         }
     } else {
         /* generating key pair */
         key_data_bits = ECDSA_P256_KEY_SIZE_IN_BYTES * 8;
-        status = psa_generate_key(handle, type, key_data_bits, NULL, 0);
+        status = psa_generate_key(&attributes, &handle);
         if (status != PSA_SUCCESS) {
             goto exit;
         }
     }
 
-    status = psa_get_key_information(handle, &type_key, &bits);
+    status = psa_get_key_attributes(handle, &attributes);
     if (status != PSA_SUCCESS) {
         goto exit;
     }
 
-    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type_key);
+    type_key = psa_get_key_type(&attributes);
+    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(type_key);
+    bits = psa_get_key_bits(&attributes);
     exported_size = PSA_KEY_EXPORT_MAX_SIZE(public_type, bits);
 
     status = psa_export_public_key(handle,

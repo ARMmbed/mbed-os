@@ -8,14 +8,6 @@
   "heap_size": "0x400",
   "services": [
     {
-      "name": "CRYPTO_CREATE_PERSISTENT_KEY",
-      "identifier": "0x00000200",
-      "signal": "CRYPTO_CREATE_PERSISTENT_KEY_MSK",
-      "non_secure_clients": true,
-      "minor_version": 1,
-      "minor_policy": "RELAXED"
-    },
-    {
         "name": "CRYPTO_GENERATE_KEY",
         "identifier": "0x00000201",
         "signal": "CRYPTO_GENERATE_KEY_MSK",
@@ -24,9 +16,9 @@
         "minor_policy": "RELAXED"
     },
     {
-        "name": "CRYPTO_OPEN_PERSISTENT_KEY",
+        "name": "CRYPTO_OPEN_KEY",
         "identifier": "0x00000202",
-        "signal": "CRYPTO_OPEN_PERSISTENT_KEY_MSK",
+        "signal": "CRYPTO_OPEN_KEY_MSK",
         "non_secure_clients": true,
         "minor_version": 1,
         "minor_policy": "RELAXED"
@@ -40,14 +32,6 @@
         "minor_policy": "RELAXED"
     },
     {
-        "name": "CRYPTO_SET_KEY_POLICY",
-        "identifier": "0x00000204",
-        "signal": "CRYPTO_SET_KEY_POLICY_MSK",
-        "non_secure_clients": true,
-        "minor_version": 1,
-        "minor_policy": "RELAXED"
-    },
-    {
         "name": "CRYPTO_DESTROY_KEY",
         "identifier": "0x00000205",
         "signal": "CRYPTO_DESTROY_KEY_MSK",
@@ -56,17 +40,9 @@
         "minor_policy": "RELAXED"
     },
     {
-        "name": "CRYPTO_GET_KEY_INFO",
+        "name": "CRYPTO_GET_KEY_ATTRIBUTES",
         "identifier": "0x00000206",
-        "signal": "CRYPTO_GET_KEY_INFO_MSK",
-        "non_secure_clients": true,
-        "minor_version": 1,
-        "minor_policy": "RELAXED"
-    },
-    {
-        "name": "CRYPTO_GET_KEY_POLICY",
-        "identifier": "0x00000207",
-        "signal": "CRYPTO_GET_KEY_POLICY_MSK",
+        "signal": "CRYPTO_GET_KEY_ATTRIBUTES_MSK",
         "non_secure_clients": true,
         "minor_version": 1,
         "minor_policy": "RELAXED"

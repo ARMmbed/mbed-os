@@ -50,9 +50,8 @@ static const uint8_t public_key_data[] = {
 
 static void psa_attestation_destroy_key_for_test()
 {
-    const psa_key_id_t key_id = TEST_KEY_ID_VALUE;
     psa_key_handle_t handle = 0;
-    psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    psa_open_key(TEST_KEY_ID_VALUE, &handle);
     psa_destroy_key(handle);
 }
 
@@ -63,11 +62,11 @@ static void psa_attestation_inject_key_for_test(void)
 
     psa_attestation_destroy_key_for_test();
     psa_attestation_inject_key(private_key_data,
-                                sizeof(private_key_data),
-                                PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_SECP256R1),
-                                exported,
-                                sizeof(exported),
-                                &exported_length);
+                               sizeof(private_key_data),
+                               PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP256R1),
+                               exported,
+                               sizeof(exported),
+                               &exported_length);
 }
 
 
