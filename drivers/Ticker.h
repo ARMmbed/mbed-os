@@ -74,12 +74,16 @@ public:
     Ticker(const ticker_data_t *data);
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
-     *  The method must be inlined to convert to not use floating-point operations
-     *  given attach_us() expects an integer value for the callback interval.
+     *
+     *  The method forwards its arguments to attach_us() rather than copying them which
+     *  may not be trivial depending on the callback copied.
+     *  The function is forcibly inlined to not use floating-point operations. This is
+     *  possible given attach_us() expects an integer value for the callback interval.
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    MBED_FORCEINLINE void attach(Callback<void()> func, float t)
+    template <typename F, typename T>
+    MBED_FORCEINLINE void attach(F&& func, T&& t)
     {
         attach_us(func, t * 1000000.0f);
     }
