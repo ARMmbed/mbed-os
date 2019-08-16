@@ -245,8 +245,11 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
     return _at.at_cmd_discard("+CSDH", "=", "%d", show_header);
 }
 
-nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
+nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode,
+                                         CellularSMSEncoding encoding)
 {
+    _use_8bit_encoding = (encoding == CellularSMSEncoding8Bit);
+
     _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
     _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 
