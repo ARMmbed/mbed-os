@@ -21,6 +21,12 @@
 #include "pinmap.h"
 #include "gpio_include.h"
 
+#if DEVICE_I2C_ASYNCH
+#define I2C_S(obj) (struct i2c_s *) (&((obj)->i2c))
+#else
+#define I2C_S(obj) (struct i2c_s *) (obj)
+#endif
+
 static const PinMap PinMap_I2C_SDA[] = {
     {PC1, I2C_0, PIN_DATA(1, 2)},
     {PA5, I2C_1, PIN_DATA(1, 2)},
@@ -56,7 +62,9 @@ static void i2c_start_bit(i2c_t *obj);
 // Initialize the I2C peripheral. It sets the default parameters for I2C
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    MBED_ASSERT(obj != NULL);
+    struct i2c_s *obj_s = I2C_S(obj);
+    MBED_ASSERT(obj_s != NULL);
+
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     I2CName i2c_name = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
@@ -66,21 +74,21 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         case I2C_0:
             TSB_CG_FSYSENB_IPENB11 = ENABLE;
             TSB_CG_FSYSENA_IPENA02 = ENABLE;
-            obj->i2c = TSB_I2C0;
+            obj_s->i2c = TSB_I2C0;
             break;
         case I2C_1:
             TSB_CG_FSYSENB_IPENB12 = ENABLE;
             TSB_CG_FSYSENA_IPENA00 = ENABLE;
-            obj->i2c = TSB_I2C1;
+            obj_s->i2c = TSB_I2C1;
             break;
         case I2C_2:
             TSB_CG_FSYSENB_IPENB13 = ENABLE;
             TSB_CG_FSYSENA_IPENA10 = ENABLE;
-            obj->i2c = TSB_I2C2;
+            obj_s->i2c = TSB_I2C2;
         case I2C_3:
             TSB_CG_FSYSENB_IPENB14 = ENABLE;
             TSB_CG_FSYSENA_IPENA15 = ENABLE;
-            obj->i2c = TSB_I2C3;
+            obj_s->i2c = TSB_I2C3;
             break;
         default:
             error("I2C is not available");
@@ -97,15 +105,16 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     i2c_reset(obj);
     i2c_frequency(obj, 100000);
-    obj->i2c->CR2 = (I2CxCR2_I2CM_ENABLE | I2CxCR2_TRX | I2CxCR2_PIN_CLEAR |
+    obj_s->i2c->CR2 = (I2CxCR2_I2CM_ENABLE | I2CxCR2_TRX | I2CxCR2_PIN_CLEAR |
                      I2CxCR2_INIT);
-    obj->i2c->OP  = I2CxOP_INIT;
-    obj->i2c->IE  = I2CxIE_CLEAR;
+    obj_s->i2c->OP  = I2CxOP_INIT;
+    obj_s->i2c->IE  = I2CxIE_CLEAR;
 }
 
 // Configure the I2C frequency
 void i2c_frequency(i2c_t *obj, int hz)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     uint64_t sck, tmp_sck;
     uint64_t prsck, tmp_prsck;
     uint64_t fscl, tmp_fscl;
@@ -134,8 +143,8 @@ void i2c_frequency(i2c_t *obj, int hz)
         clk.prsck = (tmp_prsck < 32) ? (uint32_t)(tmp_prsck - 1) : 0;
     }
 
-    obj->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
-    obj->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
+    obj_s->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
+    obj_s->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
 }
 
 int i2c_start(i2c_t *obj)
@@ -146,10 +155,11 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     uint32_t timeout = I2C_TIMEOUT;
 
-    obj->i2c->CR2 = I2CxCR2_STOP_CONDITION;
-    while ((obj->i2c->SR & I2CxSR_BB) == I2CxSR_BB) {
+    obj_s->i2c->CR2 = I2CxCR2_STOP_CONDITION;
+    while ((obj_s->i2c->SR & I2CxSR_BB) == I2CxSR_BB) {
         if (timeout == 0)
             break;
         timeout--;
@@ -159,8 +169,9 @@ int i2c_stop(i2c_t *obj)
 
 void i2c_reset(i2c_t *obj)
 {
-    obj->i2c->CR2 = I2CxCR2_SWRES_10;
-    obj->i2c->CR2 = I2CxCR2_SWRES_01;
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->i2c->CR2 = I2CxCR2_SWRES_10;
+    obj_s->i2c->CR2 = I2CxCR2_SWRES_01;
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
@@ -218,41 +229,43 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
 int i2c_byte_read(i2c_t *obj, int last)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     int32_t result;
 
-    obj->i2c->ST = I2CxST_CLEAR;
+    obj_s->i2c->ST = I2CxST_CLEAR;
     if (last) {
-        obj->i2c->OP |= I2CxOP_MFACK;
+        obj_s->i2c->OP |= I2CxOP_MFACK;
     } else {
-        obj->i2c->OP &= ~I2CxOP_MFACK;
+        obj_s->i2c->OP &= ~I2CxOP_MFACK;
     }
-    obj->i2c->DBR = (0 & I2CxDBR_DB_MASK);
+    obj_s->i2c->DBR = (0 & I2CxDBR_DB_MASK);
     if (wait_status(obj) < 0) {
         result = -1;
     } else {
-        result = (int32_t)(obj->i2c->DBR & I2CxDBR_DB_MASK);
+        result = (int32_t)(obj_s->i2c->DBR & I2CxDBR_DB_MASK);
     }
     return (result);
 }
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     int32_t result;
 
-    obj->i2c->ST = I2CxST_CLEAR;
+    obj_s->i2c->ST = I2CxST_CLEAR;
     if (start_flag == 1) {
-        obj->i2c->DBR = (data & I2CxDBR_DB_MASK);
+        obj_s->i2c->DBR = (data & I2CxDBR_DB_MASK);
         i2c_start_bit(obj);
         start_flag = 0;
     } else {
-        obj->i2c->DBR = (data & I2CxDBR_DB_MASK);
+        obj_s->i2c->DBR = (data & I2CxDBR_DB_MASK);
     }
 
     if (wait_status(obj) < 0) {
         return (-1);
     }
 
-    if (!((obj->i2c->SR & I2CxSR_LRB) == I2CxSR_LRB)) {
+    if (!((obj_s->i2c->SR & I2CxSR_LRB) == I2CxSR_LRB)) {
         result = 1;
     } else {
         result = 0;
@@ -262,21 +275,23 @@ int i2c_byte_write(i2c_t *obj, int data)
 
 static void i2c_start_bit(i2c_t *obj)  // Send START command
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     uint32_t opreg;
-    opreg = obj->i2c->OP;
+    opreg = obj_s->i2c->OP;
     opreg &= ~(I2CxOP_RSTA | I2CxOP_SREN);
-    if ((obj->i2c->SR & I2CxSR_BB)) {
+    if ((obj_s->i2c->SR & I2CxSR_BB)) {
         opreg |= I2CxOP_SREN;
     }
-    obj->i2c->OP = opreg;
-    obj->i2c->CR2 |= I2CxCR2_START_CONDITION;
+    obj_s->i2c->OP = opreg;
+    obj_s->i2c->CR2 |= I2CxCR2_START_CONDITION;
 }
 
 static int32_t wait_status(i2c_t *p_obj)
 {
+    struct i2c_s *p_obj_s = I2C_S(p_obj);
     volatile int32_t timeout;
     timeout = I2C_TIMEOUT;
-    while (!((p_obj->i2c->ST & I2CxST_I2C) == I2CxST_I2C)) {
+    while (!((p_obj_s->i2c->ST & I2CxST_I2C) == I2CxST_I2C)) {
         if ((timeout--) == 0) {
             return (-1);
         }
@@ -286,32 +301,34 @@ static int32_t wait_status(i2c_t *p_obj)
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     if (enable_slave) {
-        obj->i2c->OP  = I2CxOP_SLAVE_INIT;
-        obj->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
-        obj->i2c->CR2 = (I2CxCR2_INIT | I2CxCR2_PIN_CLEAR);
-        obj->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
-        obj->i2c->AR  = (obj->address & I2CAR_SA_MASK);
-        obj->i2c->IE  = I2CxIE_INTI2C;
+        obj_s->i2c->OP  = I2CxOP_SLAVE_INIT;
+        obj_s->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
+        obj_s->i2c->CR2 = (I2CxCR2_INIT | I2CxCR2_PIN_CLEAR);
+        obj_s->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
+        obj_s->i2c->AR  = (obj_s->address & I2CAR_SA_MASK);
+        obj_s->i2c->IE  = I2CxIE_INTI2C;
     } else {
         i2c_reset(obj);
-        obj->i2c->CR2 = (I2CxCR2_I2CM_ENABLE | I2CxCR2_TRX | I2CxCR2_PIN_CLEAR |
+        obj_s->i2c->CR2 = (I2CxCR2_I2CM_ENABLE | I2CxCR2_TRX | I2CxCR2_PIN_CLEAR |
                          I2CxCR2_INIT);
-        obj->i2c->OP  = I2CxOP_INIT;
-        obj->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
-        obj->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
-        NVIC_DisableIRQ(obj->IRQn);
-        NVIC_ClearPendingIRQ(obj->IRQn);
-        obj->i2c->ST = I2CxST_CLEAR;
+        obj_s->i2c->OP  = I2CxOP_INIT;
+        obj_s->i2c->CR1 = (I2CxCR1_ACK | clk.sck);
+        obj_s->i2c->PRS = (I2CxPRS_PRCK & clk.prsck);
+        NVIC_DisableIRQ(obj_s->IRQn);
+        NVIC_ClearPendingIRQ(obj_s->IRQn);
+        obj_s->i2c->ST = I2CxST_CLEAR;
     }
 }
 
 int i2c_slave_receive(i2c_t *obj)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     int32_t result = I2C_NO_DATA;
 
-    if ((obj->i2c->ST & I2CxST_I2C) && (obj->i2c->OP & I2CxOP_SAST)) {
-        if ((obj->i2c->SR & I2CxSR_TRX) == I2CxSR_TRX) {
+    if ((obj_s->i2c->ST & I2CxST_I2C) && (obj_s->i2c->OP & I2CxOP_SAST)) {
+        if ((obj_s->i2c->SR & I2CxSR_TRX) == I2CxSR_TRX) {
             result = I2C_READ_ADDRESSED;
         } else {
             result = I2C_WRITE_ADDRESSED;
@@ -322,11 +339,12 @@ int i2c_slave_receive(i2c_t *obj)
 
 int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     int32_t count = 0;
 
     while (count < length) {
         int32_t pdata = i2c_byte_read(obj, ((count < (length - 1)) ? 0 : 1));
-        if ((obj->i2c->SR & I2CxSR_TRX)) {
+        if ((obj_s->i2c->SR & I2CxSR_TRX)) {
             return (count);
         } else {
             if (pdata < 0) {
@@ -354,7 +372,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length)
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 {
-    obj->address = address & I2CAR_SA_MASK;
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->address = address & I2CAR_SA_MASK;
     i2c_slave_mode(obj,1);
 }
 
