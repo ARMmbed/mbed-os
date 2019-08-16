@@ -399,7 +399,7 @@
 #include "lwip_tcp_isn.h"
 #define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
 #ifdef MBEDTLS_MD5_C
-#include "mbedtls/inc/mbedtls/md5.h"
+#include "mbedtls/md5.h"
 #define LWIP_USE_EXTERNAL_MBEDTLS 1
 #endif
 
