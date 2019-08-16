@@ -90,7 +90,7 @@ int mbedtls_sha1_update_ret( mbedtls_sha1_context *ctx,
     SHA1_VALIDATE_RET( ilen == 0 || input != NULL );
 
     if (ilen == 0)
-        return;
+        return (0);
 
     return cy_hw_sha_update(&ctx->obj, &ctx->hashState, input, ilen);
 }

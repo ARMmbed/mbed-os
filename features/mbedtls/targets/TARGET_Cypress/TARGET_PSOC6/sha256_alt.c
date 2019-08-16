@@ -90,8 +90,8 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char 
     SHA256_VALIDATE_RET( ilen == 0 || input != NULL );
 
     if (ilen == 0)
-        return;
-    
+        return (0);
+
     return cy_hw_sha_update(&ctx->obj, &ctx->hashState, (uint8_t *)input, ilen);
 }
 
