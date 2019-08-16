@@ -82,10 +82,10 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    template <typename F, typename T>
-    MBED_FORCEINLINE void attach(F&& func, T&& t)
+    template <typename F>
+    MBED_FORCEINLINE void attach(F &&func, float t)
     {
-        attach_us(func, t * 1000000.0f);
+        attach_us(std::forward<F>(func), t * 1000000.0f);
     }
 
     /** Attach a member function to be called by the Ticker, specifying the interval in seconds
