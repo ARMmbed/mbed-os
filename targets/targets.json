@@ -1976,7 +1976,11 @@
             "LPC"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_LPC54114J256BD64_cm4", "FSL_RTOS_MBED"],
+        "macros": [
+            "CPU_LPC54114J256BD64_cm4",
+            "FSL_RTOS_MBED",
+            "MBED_TICKLESS"
+        ],
         "inherits": ["Target"],
         "detect_code": ["1054"],
         "device_has": [
@@ -1997,6 +2001,10 @@
             "FLASH",
             "MPU"
         ],
+        "overrides": {
+            "tickless-from-us-ticker": true,
+            "init-us-ticker-at-boot": true
+        },
         "release_versions": ["2", "5"],
         "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
         "device_name": "LPC54114J256BD64"
@@ -2012,7 +2020,11 @@
         ],
         "is_disk_virtual": true,
         "public": false,
-        "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
+        "macros": [
+            "CPU_LPC54628J512ET180",
+            "FSL_RTOS_MBED",
+            "MBED_TICKLESS"
+        ],
         "inherits": ["Target"],
         "device_has": [
             "USTICKER",
@@ -2035,6 +2047,10 @@
             "QSPI",
             "MPU"
         ],
+        "overrides": {
+            "tickless-from-us-ticker": true,
+            "init-us-ticker-at-boot": true
+        },
         "device_name": "LPC54628J512ET180",
         "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
         "overrides": {
@@ -2084,7 +2100,8 @@
             "MBED_FAULT_HANDLER_DISABLED",
             "CMSIS_NVIC_VIRTUAL",
             "MBED_MPU_CUSTOM",
-            "NXP_LPADC"
+            "NXP_LPADC",
+            "MBED_TICKLESS"
         ],
         "components_add": ["FLASHIAP"],
         "extra_labels_add": [
@@ -2120,7 +2137,9 @@
             "secure-rom-start": "0x10000000",
             "secure-rom-size": "0x28000",
             "secure-ram-start": "0x30000000",
-            "secure-ram-size": "0x22000"
+            "secure-ram-size": "0x22000",
+            "tickless-from-us-ticker": true,
+            "init-us-ticker-at-boot": true
         },
         "OUTPUT_EXT": "hex",
         "bootloader_supported": true
@@ -8560,7 +8579,7 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x10000000",
         "mbed_rom_size": "0x100000",
-        "sectors": [[268435456, 512]],                            
+        "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
         },
@@ -8575,7 +8594,7 @@
         "bootloader_supported": true,
         "mbed_rom_start": "0x10000000",
         "mbed_rom_size": "0x200000",
-        "sectors": [[268435456, 512]]                    
+        "sectors": [[268435456, 512]]
     },
     "CY8CKIT_062S2_43012": {
         "inherits": ["CY8CMOD_062S2_43012"],
