@@ -32,6 +32,7 @@
 #define NUMBER_OF_SIMULTANEOUS_TIMEOUTS  2
 #endif //NUMBER_OF_SIMULTANEOUS_TIMEOUTS
 
+namespace {
 using namespace mbed;
 using namespace events;
 
@@ -168,6 +169,7 @@ static uint32_t platform_fhss_timestamp_read(const fhss_api_t *api)
     (void)api;
     return read_current_time();
 }
+} // anonymous namespace
 
 fhss_timer_t fhss_functions = {
     .fhss_timer_start = platform_fhss_timer_start,
