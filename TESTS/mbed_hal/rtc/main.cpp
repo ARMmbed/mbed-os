@@ -42,7 +42,7 @@ static const uint32_t TOLERANCE_ACCURACY_US = (DELAY_10S *US_PER_SEC / ACCURACY_
 #if DEVICE_LPTICKER
 volatile bool expired;
 
-void callback(void)
+void set_flag_true(void)
 {
     expired = true;
 }
@@ -72,7 +72,7 @@ void rtc_sleep_test_support(bool deepsleep_mode)
 
     rtc_write(start);
 
-    timeout.attach(callback, DELAY_4S);
+    timeout.attach(set_flag_true, DELAY_4S);
 
     TEST_ASSERT(sleep_manager_can_deep_sleep_test_check() == deepsleep_mode);
 
