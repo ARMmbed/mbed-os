@@ -336,6 +336,20 @@ typedef struct
     psa_key_attributes_flag_t flags;
 } psa_core_key_attributes_t;
 
+/* The server must be able to interpret the attributes as specified by the
+ * client. The server works with the psa_key_id_t encoding the key owner, but
+ * the client works with the psa_key_id_t not containing the key owner (pure
+ * psa_app_key_id_t. */
+typedef struct
+{
+    psa_key_type_t type;
+    psa_key_lifetime_t lifetime;
+    psa_app_key_id_t id;
+    psa_key_policy_t policy;
+    psa_key_bits_t bits;
+    uint16_t flags;
+} psa_client_core_key_attributes_t;
+
 #define PSA_CORE_KEY_ATTRIBUTES_INIT {0, 0, PSA_KEY_ID_INIT, PSA_KEY_POLICY_INIT, 0, 0}
 
 struct psa_key_attributes_s
@@ -353,11 +367,43 @@ struct psa_key_attributes_s
 #else
 #define PSA_KEY_ATTRIBUTES_INIT {PSA_CORE_KEY_ATTRIBUTES_INIT, NULL, 0}
 #endif
+typedef struct psa_client_key_attributes_s
+{
+    psa_client_core_key_attributes_t core;
+    void *domain_parameters;
+    size_t domain_parameters_size;
+} psa_client_key_attributes_t;
 
 static inline struct psa_key_attributes_s psa_key_attributes_init( void )
 {
     const struct psa_key_attributes_s v = PSA_KEY_ATTRIBUTES_INIT;
     return( v );
+}
+
+static void psa_core_attributes_to_client(
+    const psa_core_key_attributes_t *server,
+    psa_client_core_key_attributes_t *client)
+{
+    client->type = server->type;
+    client->lifetime = server->lifetime;
+    client->id = server->id.key_id;
+    client->policy = server->policy;
+    client->bits = server->bits;
+    client->flags = server->flags;
+}
+
+static void psa_core_attributes_to_server(
+    const psa_client_core_key_attributes_t *client,
+    psa_key_owner_id_t owner,
+    psa_core_key_attributes_t *server)
+{
+    server->type = client->type;
+    server->lifetime = client->lifetime;
+    server->id.key_id = client->id;
+    server->id.owner = owner;
+    server->policy = client->policy;
+    server->bits = client->bits;
+    server->flags = client->flags;
 }
 
 static inline void psa_set_key_id(psa_key_attributes_t *attributes,
