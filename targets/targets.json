@@ -8948,6 +8948,45 @@
         "release_versions": ["5"],
         "device_name": "STM32L151CBxxA"
     },
+    "TI": {
+        "inherits": ["Target"],
+        "public": false,
+        "extra_labels": ["TI"]
+    },
+    "CC32XX": {
+        "inherits": ["TI"],
+        "public": false,
+        "release_versions": ["5"]
+    },
+    "CC3220SF": {
+        "inherits": ["CC32XX"],
+        "public": false,
+        "macros": ["MBED_MPU_CUSTOM"],
+        "core": "Cortex-M4",
+        "device_name": "CC3220SF"
+    },
+    "CC3220SF_LAUNCHXL": {
+        "inherits": ["CC3220SF"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "components_add": ["SD", "FLASHIAP"],
+        "device_has": ["USTICKER",
+            "SERIAL",
+            "SERIAL_FC",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "INTERRUPTIN",
+            "SPI",
+            "ANALOGIN",
+            "FLASH",
+            "TRNG",
+            "RTC"],
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false

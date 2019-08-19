@@ -1,0 +1,100 @@
+/* Device specific values */
+
+define symbol ROM_START       = 0x01000000;
+define symbol ROM_SIZE        = 0x100000;
+define symbol FLASH_HDR_START = ROM_START;
+define symbol FLASH_HDR_SIZE  = 0x800;
+define symbol RAM_START       = 0x20000000;
+define symbol RAM_SIZE        = 0x40000;
+define symbol VECTORS         = 195; /* This value must match NVIC_NUM_VECTORS */
+
+/* Common - Do not change */
+
+if (isdefinedsymbol(MBED_APP_START)) {
+    /* 
+     * There're two cases if MBED_APP_START is defined.
+     * Case 1: MBED_APP_START is defined as ROM_START, this happens when restrict_size is turned on, most likely for bootloader build.
+     *         In this build, include FLASH_HDR region.
+     */
+    if (MBED_APP_START == ROM_START) {
+        define symbol FLASH_HDR_INCLUDED = 1;
+        if (isdefinedsymbol(MBED_APP_SIZE)) {
+            define symbol ROM_EXEC_START = (ROM_START + FLASH_HDR_SIZE);
+            define symbol ROM_EXEC_SIZE = (MBED_APP_SIZE - FLASH_HDR_SIZE);
+        }
+    }
+    else {
+    /*
+     * Case 2: MBED_APP_START is defined as a value greater than ROM_START, this is most likely a build other than the bootloader. E.g., the MCC build.
+     *         In this build, exclude FLASH_HDR region. This workarounds an issue in managed boodloader MCC build where the jump address and stack pointer point to the cookie area
+     */
+        define symbol FLASH_HDR_INCLUDED = 0;
+        define symbol ROM_EXEC_START = MBED_APP_START;
+        if (isdefinedsymbol(MBED_APP_SIZE)) {
+            define symbol ROM_EXEC_SIZE= MBED_APP_SIZE;
+        }
+        else {
+            define symbol ROM_EXEC_SIZE = (ROM_SIZE- (MBED_APP_START - ROM_START));
+        }
+     }
+}
+else {
+    /* 
+     * MBED_APP_START is not defined. This is most likely a bootloader build, or other apps that do not require boodloader.
+     * In this build, include FLASH_HDR region
+     */
+    define symbol FLASH_HDR_INCLUDED = 1;
+    define symbol ROM_EXEC_START = (ROM_START + FLASH_HDR_SIZE);
+    if (isdefinedsymbol (MBED_APP_SIZE)) {
+        define symbol ROM_EXEC_SIZE = (MBED_APP_SIZE - FLASH_HDR_SIZE);
+    }
+    else {
+        define symbol ROM_EXEC_SIZE = (ROM_SIZE - FLASH_HDR_SIZE);
+    }
+}
+
+
+/* Round up VECTORS_SIZE to 8 bytes */
+define symbol VECTORS_SIZE = ((VECTORS * 4) + 7) & ~7;
+
+/* boot stack size*/
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+/* Place the boot stack at the top of the RAM */
+define symbol CSTACK_START  = (RAM_START + RAM_SIZE - MBED_BOOT_STACK_SIZE);
+define symbol CSTACK_SIZE = MBED_BOOT_STACK_SIZE;
+
+/* The rest of RAM */
+define symbol RAM_REGION_START = (RAM_START + VECTORS_SIZE);
+define symbol RAM_REGION_SIZE = (RAM_SIZE - VECTORS_SIZE - MBED_BOOT_STACK_SIZE);
+
+define memory mem with size = 4G;
+/* ROM regions */
+define region FLASH_HDR_region = mem:[from FLASH_HDR_START size FLASH_HDR_SIZE];
+define region FLASH_region = mem:[from ROM_EXEC_START size ROM_EXEC_SIZE];
+
+/* RAM regions */
+define region RAM_region = mem:[from RAM_REGION_START size RAM_REGION_SIZE];
+define region CSTACK_region = mem:[from CSTACK_START size CSTACK_SIZE];
+
+if (FLASH_HDR_INCLUDED == 1) {
+    keep {section .dbghdr};
+    place in FLASH_HDR_region { readonly section .dbghdr };
+}
+
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem: ROM_EXEC_START { readonly section .intvec };
+
+place in FLASH_region   { readonly };
+
+define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+place in CSTACK_region  { block CSTACK };
+
+define symbol __size_heap__   = 0x10000;
+define block HEAP      with expanding size, alignment = 8, minimum size = __size_heap__     { };
+place in RAM_region     { block HEAP, readwrite, zeroinit };
+
