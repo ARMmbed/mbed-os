@@ -168,7 +168,6 @@
         "RZ_A1_EMAC": {
             "tcpip-thread-stacksize": 1328,
             "default-thread-stacksize": 640,
-            "ppp-thread-stacksize": 896,
             "memp-num-tcp-seg": 32,
             "tcp-mss": 1440,
             "tcp-snd-buf": "(8 * TCP_MSS)",
@@ -179,7 +178,6 @@
         "CYW943012P6EVB_01": {
             "tcpip-thread-stacksize": 8192,
             "default-thread-stacksize": 640,
-            "ppp-thread-stacksize": 896,
             "memp-num-tcp-seg": 24,
             "tcp-socket-max": 10,
             "udp-socket-max":10,
@@ -193,7 +191,6 @@
         "CY8CPROTO_062_4343W": {
             "tcpip-thread-stacksize": 8192,
             "default-thread-stacksize": 640,
-            "ppp-thread-stacksize": 896,
             "memp-num-tcp-seg": 24,
             "tcp-socket-max": 10,
             "udp-socket-max":10,
@@ -207,7 +204,6 @@
         "CY8CKIT_062_WIFI_BT": {
             "tcpip-thread-stacksize": 8192,
             "default-thread-stacksize": 640,
-            "ppp-thread-stacksize": 896,
             "memp-num-tcp-seg": 48,
             "tcp-socket-max": 10,
             "udp-socket-max":10,
@@ -221,7 +217,6 @@
         "CY8CKIT_062S2_43012": {
            "tcpip-thread-stacksize": 8192,
            "default-thread-stacksize": 640,
-           "ppp-thread-stacksize": 896,
            "memp-num-tcp-seg": 24,
            "tcp-socket-max": 10,
            "udp-socket-max":10,

@@ -339,14 +339,6 @@ public:
         return 0;
     }
 
-    /** Return pointer to a PPPInterface.
-     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
-     */
-    virtual PPPInterface *pppInterface()
-    {
-        return 0;
-    }
-
     /** Return pointer to a CellularInterface.
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
      * @deprecated CellularBase migrated to CellularInterface - use cellularInterface()
