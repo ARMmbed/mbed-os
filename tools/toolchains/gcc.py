@@ -247,7 +247,7 @@ class GCC(mbedToolchain):
         if mem_map:
             preproc_output = join(dirname(output), ".link_script.ld")
             cmd = (
-                self.preproc + [mem_map] + self.ld[1:] + ["-o", preproc_output]
+                self.preproc + [mem_map] + self.ld[1:] + ["-o", preproc_output] +
                 self.get_compile_options(self.get_symbols(), [])
             )
             self.notify.cc_verbose("Preproc: %s" % ' '.join(cmd))
