@@ -307,6 +307,7 @@ TEST_F(TestTLSSocketWrapper, recv_from)
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     SocketAddress b;
     EXPECT_EQ(wrapper->recvfrom(&b, dataBuf, dataSize), NSAPI_ERROR_OK);
+    EXPECT_EQ(a, b);
 }
 
 TEST_F(TestTLSSocketWrapper, recv_from_null)
