@@ -29,7 +29,6 @@
 #define ITS_TEST 1
 #endif
 
-#include "pal_crypto_config.h"
 #include "internal_trusted_storage.h"
 
 /* typedef's */
