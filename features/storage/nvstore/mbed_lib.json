@@ -3,7 +3,7 @@
     "config": {
         "enabled": {
             "macro_name": "NVSTORE_ENABLED",
-            "value": true,
+            "value": false,
             "help": "Enabled"
         },
         "max_keys": {
