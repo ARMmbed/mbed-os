@@ -95,10 +95,6 @@ typedef enum {
 #define PSA_VERSION_NONE            (0)
 #endif
 
-#ifndef PSA_SUCCESS
-#define PSA_SUCCESS                 (0)
-typedef int32_t psa_status_t;
-#endif
 typedef int32_t psa_handle_t;
 
 #ifndef PSA_NULL_HANDLE
