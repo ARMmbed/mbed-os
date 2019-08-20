@@ -69,6 +69,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->pwm);
 
+    obj->pin = pin;
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
 
@@ -119,6 +121,10 @@ void pwmout_free(pwmout_t* obj)
     // Mark this module to be deinited.
     int i = modinit - pwm_modinit_tab;
     pwm_modinit_mask &= ~(1 << i);
+
+    // Free up pins
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 void pwmout_write(pwmout_t* obj, float value)

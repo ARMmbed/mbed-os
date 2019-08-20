@@ -54,6 +54,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->adc);
 
+    obj->pin = pin;
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_ADC);
 
