@@ -47,6 +47,12 @@
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
 #  endif
+#elif defined(TARGET_STM32H7)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  else
+#     define ETHMEM_SECTION __attribute__((section(".ethusbram")))
+#  endif
 #else
 #define ETHMEM_SECTION
 #endif
