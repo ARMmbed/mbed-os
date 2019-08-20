@@ -1044,7 +1044,7 @@ nsapi_error_t AT_CellularSMS::list_messages()
             (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
         }
 
-        if (index > 0) {
+        if (index >= 0) {
             add_info(info, index, part_number);
         } else {
             delete info;
