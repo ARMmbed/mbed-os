@@ -17,6 +17,7 @@
 #ifndef MBED_TICKER_H
 #define MBED_TICKER_H
 
+#include <mstd_utility>
 #include "drivers/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
@@ -75,12 +76,17 @@ public:
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *
+     *  The method forwards its arguments to attach_us() rather than copying them which
+     *  may not be trivial depending on the callback copied.
+     *  The function is forcibly inlined to not use floating-point operations. This is
+     *  possible given attach_us() expects an integer value for the callback interval.
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(Callback<void()> func, float t)
+    template <typename F>
+    MBED_FORCEINLINE void attach(F &&func, float t)
     {
-        attach_us(func, t * 1000000.0f);
+        attach_us(std::forward<F>(func), t * 1000000.0f);
     }
 
     /** Attach a member function to be called by the Ticker, specifying the interval in seconds
