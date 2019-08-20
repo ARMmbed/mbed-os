@@ -2592,7 +2592,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE)); // MBED patch
+    hi2c->XferOptions = XferOptions;
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If size > MAX_NBYTE_SIZE, use reload mode */
@@ -2666,7 +2666,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE)); // MBED patch
+    hi2c->XferOptions = XferOptions;
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If hi2c->XferCount > MAX_NBYTE_SIZE, use reload mode */
