@@ -86,8 +86,9 @@ static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable);
 static int serial_is_rx_complete(serial_t *obj);
 
 static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch);
-static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 #endif
+
+static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 
 bool serial_can_deep_sleep(void);
 
@@ -519,7 +520,8 @@ static void uart_irq(serial_t *obj)
     if (uart_base->INTSTS & (UART_INTSTS_RDAINT_Msk | UART_INTSTS_RXTOINT_Msk)) {
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next read.
         UART_DISABLE_INT(uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-        if (obj->serial.irq_handler) {
+        if (obj->serial.irq_handler && serial_is_irq_en(obj, RxIrq)) {
+            // Call irq_handler() only when RxIrq is enabled
             ((uart_irq_handler) obj->serial.irq_handler)(obj->serial.irq_id, RxIrq);
         }
     }
@@ -527,7 +529,8 @@ static void uart_irq(serial_t *obj)
     if (uart_base->INTSTS & UART_INTSTS_THREINT_Msk) {
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next write.
         UART_DISABLE_INT(uart_base, UART_INTEN_THREIEN_Msk);
-        if (obj->serial.irq_handler) {
+        if (obj->serial.irq_handler && serial_is_irq_en(obj, TxIrq)) {
+            // Call irq_handler() only when TxIrq is enabled
             ((uart_irq_handler) obj->serial.irq_handler)(obj->serial.irq_id, TxIrq);
         }
     }
@@ -1167,6 +1170,8 @@ static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch)
     }
 }
 
+#endif  // #if DEVICE_SERIAL_ASYNCH
+
 static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
 {
     int inten_msk = 0;
@@ -1182,8 +1187,6 @@ static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
 
     return !! inten_msk;
 }
-
-#endif  // #if DEVICE_SERIAL_ASYNCH
 
 bool serial_can_deep_sleep(void)
 {
