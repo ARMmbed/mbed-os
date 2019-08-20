@@ -89,23 +89,14 @@ namespace std {
 // [refwrap]
 template <typename T>
 class reference_wrapper {
-    T &FUN(T &x) noexcept { return x; }
-    void FUN(T &&x) = delete;
     T *ptr;
 public:
     using type = T;
     // [refwrap.const]
-#if 0
-    // decltype doesn't seem to work well enough for this revised version
-    template <typename U,
-                typename = enable_if_t<!is_same<reference_wrapper, decay_t<U>>::value &&
-                                       !is_void<decltype(FUN(declval<U>()))>::value>>
-    reference_wrapper(U&& x) //noexcept(noexcept(FUN(declval<U>())))
-        : ptr(addressof(FUN(forward<U>(x)))) { }
-#else
+    // LWG 2993 version of constructor does not seem to work in ARM C 5, so stick with
+    // this original version.
     reference_wrapper(T &x) noexcept : ptr(addressof(x)) { }
     reference_wrapper(T &&x) = delete;
-#endif
 
     reference_wrapper(const reference_wrapper &) noexcept = default;
     // [refwrap.assign]
@@ -483,7 +474,7 @@ public:
 }
 
 template <typename F>
-impl::not_fn_t<F> not_fn_t(F&& f)
+impl::not_fn_t<F> not_fn(F&& f)
 {
     return impl::not_fn_t<F>(std::forward<F>(f));
 }
