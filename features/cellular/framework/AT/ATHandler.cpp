@@ -698,7 +698,7 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
         } else {
             hexbuf[read_idx % 2] = c;
             if (read_idx % 2 == 1) {
-                hex_str_to_char_str(hexbuf, 2, buf + buf_idx);
+                hex_to_char(hexbuf, *(buf + buf_idx));
             }
         }
     }
@@ -923,7 +923,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 
     while (!get_last_error()) {
 
-        match(CRLF, CRLF_LENGTH);
+        (void)match(CRLF, CRLF_LENGTH);
 
         if (match(OK, OK_LENGTH)) {
             set_scope(RespType);
@@ -1281,6 +1281,7 @@ void ATHandler::cmd_start_stop(const char *cmd, const char *cmd_chr, const char 
 
 nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *resp_buf, size_t buf_size, const char *format, ...)
 {
+    MBED_ASSERT(strlen(cmd) < BUFF_SIZE);
     lock();
 
     handle_start(cmd, cmd_chr);

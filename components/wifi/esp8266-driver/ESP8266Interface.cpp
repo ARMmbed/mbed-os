@@ -94,6 +94,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _if_blocking(true),
       _if_connected(_cmutex),
       _initialized(false),
+      _connect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
@@ -298,7 +299,7 @@ int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_
         if (pass_length >= ESP8266_PASSPHRASE_MIN_LENGTH
                 && pass_length <= ESP8266_PASSPHRASE_MAX_LENGTH) {
             memset(ap_pass, 0, sizeof(ap_pass));
-            strncpy(ap_pass, pass, sizeof(ap_pass));
+            strncpy(ap_pass, pass, ESP8266_PASSPHRASE_MAX_LENGTH);
         } else {
             return NSAPI_ERROR_PARAMETER;
         }

@@ -188,7 +188,7 @@ void AT_CellularSMS::cmt_urc()
 {
     tr_debug("CMT_URC called");
     //+CMT: <oa>,[<alpha>],<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data>
-    _at.consume_to_stop_tag();
+    (void)_at.consume_to_stop_tag();
     // call user defined callback function
     if (_cb) {
         _cb();
@@ -1205,7 +1205,7 @@ uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char *str, int len, char 
     char tmp1;
 
     if (padding_bits) {
-        hex_str_to_char_str(str, 2, &tmp);
+        hex_to_char(str, tmp);
         buf[decodedCount] = gsm_to_ascii[(tmp >> padding_bits) & 0x7F];
         strCount++;
         decodedCount++;
@@ -1213,19 +1213,19 @@ uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char *str, int len, char 
 
     while (strCount < len) {
         shift = (strCount - padding_bits) % 7;
-        hex_str_to_char_str(str + strCount * 2, 2, &tmp);
+        hex_to_char(str + strCount * 2, tmp);
         if (shift == 0) {
             buf[decodedCount] = gsm_to_ascii[tmp & 0x7F];
         } else if (shift == 6) {
-            hex_str_to_char_str(str + (strCount - 1) * 2, 2, &tmp1);
+            hex_to_char(str + (strCount - 1) * 2, tmp1);
             buf[decodedCount] = gsm_to_ascii[(((tmp1 >> 2)) | (tmp << 6)) & 0x7F];
             if (decodedCount + 1 < msg_len) {
-                hex_str_to_char_str(str + strCount * 2, 2, &tmp);
+                hex_to_char(str + strCount * 2, tmp);
                 decodedCount++;
                 buf[decodedCount] = gsm_to_ascii[(tmp >> 1) & 0x7F];
             }
         } else {
-            hex_str_to_char_str(str + (strCount - 1) * 2, 2, &tmp1);
+            hex_to_char(str + (strCount - 1) * 2, tmp1);
             buf[decodedCount] = gsm_to_ascii[(((tmp1 >> (8 - shift))) | ((tmp << shift))) & 0x7F];
         }
 
