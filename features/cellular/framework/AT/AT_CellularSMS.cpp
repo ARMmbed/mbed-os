@@ -274,6 +274,10 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
                                  uint8_t msg_part_number, uint8_t &header_size)
 {
     int totalPDULength = 0;
+    const bool is_number_international = (phone_number[0] == '+');
+    if (is_number_international) {
+        ++phone_number;
+    }
     int number_len = strlen(phone_number);
 
     totalPDULength += number_len;
@@ -313,7 +317,11 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
     int_to_hex_str(number_len, pdu + x);
     x += 2;
     // Type of the Destination Phone Number
-    pdu[x++] = '8';
+    if (is_number_international) {
+        pdu[x++] = '9'; // international
+    } else {
+        pdu[x++] = '8'; // unknown
+    }
     pdu[x++] = '1';
 
     // phone number as reverse nibble encoded
@@ -405,12 +413,11 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
     _at.lock();
 
     int write_size = 0;
-    int remove_plus_sign = (phone_number[0] == '+') ? 1 : 0;
 
     ThisThread::sleep_for(_sim_wait_time);
 
     if (_mode == CellularSMSMmodeText) {
-        _at.cmd_start_stop("+CMGS", "=", "%s", phone_number + remove_plus_sign);
+        _at.cmd_start_stop("+CMGS", "=", "%s", phone_number);
 
         ThisThread::sleep_for(_sim_wait_time);
         _at.resp_start("> ", true);
@@ -463,7 +470,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const c
                 pdu_len = remaining_len > concatenated_sms_length ? concatenated_sms_length : remaining_len;
             }
 
-            pdu_str = create_pdu(phone_number + remove_plus_sign, message + i * concatenated_sms_length, pdu_len,
+            pdu_str = create_pdu(phone_number, message + i * concatenated_sms_length, pdu_len,
                                  sms_count, i + 1, header_len);
             if (!pdu_str) {
                 _at.unlock();
