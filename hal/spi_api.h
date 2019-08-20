@@ -51,6 +51,18 @@ typedef struct {
  */
 typedef struct spi_s spi_t;
 
+typedef struct {
+    const int peripheral;
+    const PinName mosi_pin;
+    const int mosi_function;
+    const PinName miso_pin;
+    const int miso_function;
+    const PinName sclk_pin;
+    const int sclk_function;
+    const PinName ssel_pin;
+    const int ssel_function;
+} spi_pinmap_t;
+
 #endif
 
 #ifdef __cplusplus
