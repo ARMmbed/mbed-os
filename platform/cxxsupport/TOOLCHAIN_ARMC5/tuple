@@ -1,0 +1,734 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* class tuple implementation based on Sashsa Goldstein's series
+ * "Implementing std::tuple from The Ground Up".
+ *
+ * http://blogs.microsoft.co.il/sasha/2015/01/12/implementing-tuple-part-1/
+ *
+ * tuple_cat based on Peter Dimov's article "Simple C++11 metaprogramming",
+ * which in turn is based on work by Eric Niebler and Stephan T. Lavavej.
+ *
+ * https://www.boost.org/doc/libs/develop/libs/mp11/doc/html/simple_cxx11_metaprogramming.html
+ *
+ * As ARM C 5 can't do constexpr std::move or std::forward, there's no way
+ * tuple can be constexpr either, so this is a C++11 implementation, not C++14.
+ *
+ * Allocators are not supported.
+ */
+#ifndef __tuple
+#define __tuple
+
+#include <mstd_utility>
+#include <type_traits>
+
+namespace std
+{
+
+template <typename... T>
+struct tuple;
+
+template <size_t I, class T>
+struct tuple_element;
+
+// ARM C 5 (incorrectly? doesn't allow duplicate using - utility has already done this (for pair)
+//template <size_t I, class T>
+//using tuple_element_t = typename tuple_element<I, T>::type;
+
+template <size_t I, typename Type0, typename... TypeN>
+struct tuple_element<I, tuple<Type0, TypeN...>> : tuple_element<I-1, tuple<TypeN...>> { };
+
+template <typename Type0, typename... TypeN>
+struct tuple_element<0, tuple<Type0, TypeN...>> : type_identity<Type0> { };
+
+template <size_t I, typename T>
+struct tuple_element<I, const T> : type_identity<add_const_t<tuple_element_t<I,T>>> { };
+
+template <size_t I, class T>
+struct tuple_element<I, volatile T> : type_identity<add_volatile_t<tuple_element_t<I,T>>> { };
+
+template <size_t I, class T>
+struct tuple_element<I, const volatile T> : type_identity<add_cv_t<tuple_element_t<I,T>>> { };
+
+template <size_t I, typename... T>
+tuple_element_t<I, tuple<T...>> &get(tuple<T...> &t) noexcept;
+
+template <size_t I, typename... T>
+tuple_element_t<I, tuple<T...>> &&get(tuple<T...> &&t) noexcept;
+
+template <size_t I, typename... T>
+const tuple_element_t<I, tuple<T...>> &get(const tuple<T...> &t) noexcept;
+
+template <size_t I, typename... T>
+const tuple_element_t<I, tuple<T...>> &&get(const tuple<T...> &&t) noexcept;
+
+namespace impl {
+
+/* Tuple element container - tuple has these as multiple base classes */
+template <size_t, typename T>
+struct tuple_elem {
+    constexpr tuple_elem() : value() { } // tuple default constructor value-initializes elements
+    explicit tuple_elem(const T &val) : value(val) { }
+    template <typename U, typename = enable_if_t<is_constructible<T,U&&>::value>>
+    explicit tuple_elem(U&& val) : value(std::forward<U>(val)) { }
+    /* Copy and move constructors and assignments implicitly defined (only way to get default move in ARMC5) */
+    tuple_elem &operator=(const T &val) { value = val; return *this; }
+    template <typename U, typename = enable_if_t<is_assignable<T &,U &&>::value>>
+    tuple_elem &operator=(U&& val) { value = std::forward<U>(val); return *this; }
+    void swap(T &other) { using namespace std; std::swap(value, other); }
+    T value;
+};
+
+template <typename Seq, typename... T>
+class tuple_base;
+
+/* C++17 form - conditional explicit idiom from N4387 */
+template <size_t... Is, typename... Types>
+struct tuple_base<index_sequence<Is...>, Types...> : tuple_elem<Is, Types>... {
+private:
+    template <typename... UTypes>
+    struct we_are_convertible_from : conjunction<is_convertible<UTypes,Types>...> { };
+
+    template <typename... UTypes>
+    struct we_are_constructible_from : conjunction<is_constructible<Types,UTypes>...> { };
+
+    void ignore(int...) { }
+public:
+    /* Default constructor, 0 args */
+    constexpr tuple_base() : tuple_elem<Is,Types>()... { }
+    /* Direct constructor, 1+ args */
+    template <typename Dummy=int, // enable_if will hard error if it doesn't depend on an immediate template parameter
+        enable_if_t<sizeof(Dummy) && sizeof...(Types) >= 1 &&
+                         conjunction<is_copy_constructible<Types>...>::value, bool> = false>
+    explicit tuple_base(const Types &...args) : tuple_elem<Is, Types>(args)... { }
+    /* Converting constructor, 1+ args */
+    template <typename... UTypes,
+        enable_if_t<sizeof...(Types) == sizeof...(UTypes) && sizeof...(Types) >= 1 &&
+                         conjunction<is_constructible<Types,UTypes&&>...>::value, bool> = true>
+    explicit tuple_base(UTypes &&...args) : tuple_elem<Is, Types>(std::forward<UTypes>(args))... { }
+    /* Converting copy constructor */
+    template <typename... UTypes,
+        enable_if_t<
+               conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                           is_constructible<Types,const UTypes&>...,
+                           disjunction<bool_constant<sizeof...(Types) != 1>,
+                                           conjunction<negation<we_are_convertible_from<const tuple<UTypes> &...>>,
+                                                       negation<conjunction<is_constructible<Types, const tuple<UTypes> &>...>>,
+                                                       negation<conjunction<is_same<Types, UTypes>...>>
+                                                      >
+                                      >
+                          >::value, bool> = true>
+    explicit tuple_base(const tuple<UTypes...> &other) : tuple_elem<Is, Types>(get<Is>(other))... { }
+    /* Converting move constructor */
+    template <typename... UTypes,
+        enable_if_t<
+               conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                           is_constructible<Types,const UTypes&&>...,
+                           disjunction<bool_constant<sizeof...(Types) != 1>,
+                                           conjunction<negation<we_are_convertible_from<tuple<UTypes>...>>,
+                                                       negation<conjunction<is_constructible<Types, tuple<UTypes>>...>>,
+                                                       negation<conjunction<is_same<Types, UTypes>...>>
+                                                      >
+                                      >
+                          >::value, bool> = true>
+    explicit tuple_base(tuple<UTypes...> &&other) : tuple_elem<Is, Types>(std::forward<UTypes>(get<Is>(other)))... { }
+    /* Converting pair copy constructor */
+    template <typename U1, typename U2,
+        enable_if_t<
+               conjunction<bool_constant<sizeof...(Types) == 2>,
+                           we_are_constructible_from<const U1 &, const U2 &>
+                          >::value, bool> = true>
+    explicit tuple_base(const pair<U1,U2> &pair) :
+        tuple_base(pair.first, pair.second) { }
+    /* Converting pair move constructor */
+    template <typename U1, typename U2,
+        enable_if_t<
+               conjunction<bool_constant<sizeof...(Types) == 2>,
+                           we_are_constructible_from<U1 &&, U2 &&>
+                          >::value, bool> = true>
+    explicit tuple_base(pair<U1,U2> &&pair) :
+        tuple_elem<0, tuple_element_t<0, tuple<Types...>>>(std::forward<U1>(pair.first)),
+        tuple_elem<1, tuple_element_t<1, tuple<Types...>>>(std::forward<U2>(pair.second)) { }
+
+    /* Copy and move constructors and assignments implicitly defined (only way to get default move in ARMC5) */
+
+    template <size_t In, typename Tn, typename U>
+    int do_copy1(const U &other) {
+        impl::tuple_elem<In, Tn> &e = *this;
+        e = other;
+        return 0;
+    }
+
+    template <size_t In, typename Tn, typename U>
+    int do_move1(U &&other) {
+        impl::tuple_elem<In, Tn> &e = *this;
+        e = std::move(other);
+        return 0;
+    }
+
+    template <typename... UTypes >
+    tuple_base &operator=(const tuple<UTypes...> &other) {
+        ignore(do_copy1<Is, Types>(get<Is>(other))...);
+        return *this;
+    }
+
+    template <size_t Ihead, size_t... Irest, typename... UTypes>
+    void do_move(tuple<UTypes...> &&other) {
+        impl::tuple_elem<Ihead, tuple_element_t<Ihead, tuple<Types...>>> &e = *this;
+        e = std::forward<tuple_element_t<Ihead, tuple<UTypes...>>>(get<Ihead>(other));
+        do_move<Irest...>(std::forward<tuple<UTypes...>>(other));
+    }
+
+    template <typename... UTypes>
+    tuple_base &operator=(tuple<UTypes...> &&other) {
+        ignore(do_move1<Is, Types>(std::forward<UTypes>(get<Is>(other)))...);
+        return *this;
+    }
+
+    template <typename U1, typename U2>
+    tuple_base &operator=(const pair<U1,U2> &pair) {
+        do_copy1<0, tuple_element_t<0, tuple<Types...>>>(pair.first);
+        do_copy1<1, tuple_element_t<1, tuple<Types...>>>(pair.second);
+        return *this;
+    }
+
+    template <typename U1, typename U2>
+    tuple_base &operator=(pair<U1,U2> &&pair) {
+        do_move1<0, tuple_element_t<0, tuple<Types...>>>(std::forward<U1>(pair.first));
+        do_move1<1, tuple_element_t<1, tuple<Types...>>>(std::forward<U2>(pair.second));
+        return *this;
+    }
+
+    template <size_t In, typename Tn>
+    int do_swap1(Tn &other) {
+        impl::tuple_elem<In, Tn> &e = *this;
+        using std::swap;
+        swap(e.value, other);
+        return 0;
+    }
+
+    void swap(tuple<Types...> &other) {
+        ignore(do_swap1<Is, Types>(get<Is>(other))...);
+    }
+};
+
+}
+template <typename... Types>
+struct tuple : impl::tuple_base<make_index_sequence<sizeof...(Types)>, Types...> {
+private:
+    using base_type = impl::tuple_base<make_index_sequence<sizeof...(Types)>, Types...>;
+    // Need this deferred so not evaluated in conjunction<size == 2, is_pair_assignable>
+    // when size < 2
+    template <typename U1, typename U2>
+    struct is_pair_assignable : conjunction<is_assignable<tuple_element_t<0, tuple> &, U1>,
+                                            is_assignable<tuple_element_t<1, tuple> &, U2>> { };
+    template <typename... UTypes>
+    struct we_are_convertible_from : conjunction<is_convertible<UTypes,Types>...> { };
+
+    template <typename... UTypes>
+    struct we_are_constructible_from : conjunction<is_constructible<Types,UTypes>...> { };
+public:
+    /* This would be simpler if ARM C 5 supported inheriting constructors,
+     * but as it doesn't, we need to repeat stuff here and in tuple_base.
+     */
+
+    /* C++17 form - conditional explicit idiom from N4387 */
+    /* Default constructor, 0 args */
+    template <typename Dummy = int, // enable_if will hard error if it doesn't depend on an immediate template parameter
+        enable_if_t<sizeof(Dummy) &&
+                    conjunction<is_default_constructible<Types>...>::value, bool> = false>
+    constexpr tuple() : base_type() { }
+    /* Direct constructor, 1+ args */
+    template <typename Dummy=int, // enable_if will hard error if it doesn't depend on an immediate template parameter
+        enable_if_t<sizeof(Dummy) && sizeof...(Types) >= 1 &&
+                    conjunction<is_copy_constructible<Types>...>::value &&
+                    we_are_convertible_from<const Types&...>::value, bool> = false>
+    tuple(const Types &...args) : base_type(args...) { }
+    template <typename Dummy=int, // enable_if will hard error if it doesn't depend on an immediate template parameter
+        enable_if_t<sizeof(Dummy) && sizeof...(Types) >= 1 &&
+                    conjunction<is_copy_constructible<Types>...>::value &&
+                    !we_are_convertible_from<const Types&...>::value, bool> = true>
+    explicit tuple(const Types &...args) : base_type(args...) { }
+    /* Converting constructor, 1+ args */
+    template <typename... UTypes,
+        enable_if_t<sizeof...(Types) == sizeof...(UTypes) && sizeof...(Types) >= 1 &&
+                    conjunction<is_constructible<Types,UTypes&&>...>::value &&
+                    conjunction<is_convertible<UTypes&&,Types>...>::value/*we_are_convertible_from<UTypes&&...>::value*/, bool> = false>
+    tuple(UTypes &&...args) : base_type(std::forward<UTypes>(args)...) { }
+    template <typename... UTypes,
+        enable_if_t<sizeof...(Types) == sizeof...(UTypes) && sizeof...(Types) >= 1 &&
+                    conjunction<is_constructible<Types,UTypes&&>...>::value &&
+                    !conjunction<is_convertible<UTypes&&,Types>...>::value/*we_are_convertible_from<UTypes&&...>::value*/, bool> = true>
+    explicit tuple(UTypes &&...args) : base_type(std::forward<UTypes>(args)...) { }
+    /* Converting copy constructor */
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                        is_constructible<Types,const UTypes&>...,
+                        disjunction<bool_constant<sizeof...(Types) != 1>,
+                                    conjunction<negation<we_are_convertible_from<const tuple<UTypes> &...>>,
+                                                negation<conjunction<is_constructible<Types, const tuple<UTypes> &>...>>,
+                                                negation<conjunction<is_same<Types, UTypes>...>>
+                                               >
+                                   >,
+                        conjunction<is_convertible<const UTypes&, Types>...>
+                       >::value, bool> = false>
+    tuple(const tuple<UTypes...> &other) : base_type(other) { }
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                        is_constructible<Types,const UTypes&>...,
+                        disjunction<bool_constant<sizeof...(Types) != 1>,
+                                    conjunction<negation<we_are_convertible_from<const tuple<UTypes> &...>>,
+                                                negation<conjunction<is_constructible<Types, const tuple<UTypes> &>...>>,
+                                                negation<conjunction<is_same<Types, UTypes>...>>
+                                               >
+                                   >,
+                        negation<conjunction<is_convertible<const UTypes&, Types>...>>
+                       >::value, bool> = true>
+    explicit tuple(const tuple<UTypes...> &other) : base_type(other) { }
+    /* Converting move constructor */
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                        is_constructible<Types,const UTypes&&>...,
+                        disjunction<bool_constant<sizeof...(Types) != 1>,
+                                    conjunction<negation<we_are_convertible_from<tuple<UTypes>...>>,
+                                                negation<conjunction<is_constructible<Types, tuple<UTypes>>...>>,
+                                                negation<conjunction<is_same<Types, UTypes>...>>
+                                               >
+                                   >,
+                           conjunction<is_convertible<UTypes&&, Types>...>
+                          >::value, bool> = false>
+    tuple(tuple<UTypes...> &&other) : base_type(std::forward<tuple<UTypes...>>(other)) { }
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == sizeof...(UTypes)>,
+                        is_constructible<Types,const UTypes&&>...,
+                        disjunction<bool_constant<sizeof...(Types) != 1>,
+                                    conjunction<negation<we_are_convertible_from<tuple<UTypes>...>>,
+                                                negation<conjunction<is_constructible<Types, tuple<UTypes>>...>>,
+                                                negation<conjunction<is_same<Types, UTypes>...>>
+                                               >
+                                   >,
+                        negation<conjunction<is_convertible<UTypes&&, Types>...>>
+                       >::value, bool> = true>
+    explicit tuple(tuple<UTypes...> &&other) : base_type(std::forward<tuple<UTypes...>>(other)) { }
+    /* Converting pair copy constructor */
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        we_are_constructible_from<const U1 &, const U2 &>,
+                        we_are_convertible_from<const U1 &, const U2 &>
+                       >::value, bool> = false>
+    tuple(const pair<U1,U2> &p) : base_type(p) { }
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        we_are_constructible_from<const U1 &, const U2 &>,
+                        negation<we_are_convertible_from<const U1 &, const U2 &>>
+                       >::value, bool> = true>
+    explicit tuple(const pair<U1,U2> &p) : base_type(p) { }
+    /* Converting pair move constructor */
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        we_are_constructible_from<U1 &&, U2 &&>,
+                        we_are_convertible_from<U1 &&, U2 &&>
+                       >::value, bool> = false>
+    tuple(pair<U1,U2> &&p) : base_type(std::forward<pair<U1,U2>>(p)) { }
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        we_are_constructible_from<U1 &&, U2 &&>,
+                        negation<we_are_convertible_from<U1 &&, U2 &&>>
+                       >::value, bool> = true>
+    explicit tuple(pair<U1,U2> &&p) : base_type(std::forward<pair<U1,U2>>(p)) { }
+
+    /* Copy and move constructors and assignments implicitly defined (only way to get default move in ARMC5) */
+
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(UTypes) == sizeof...(Types)>,
+                        conjunction<is_assignable<Types &, const UTypes &>...>>::value, int> = 0>
+    tuple &operator=(const tuple<UTypes...> &other) {
+        *static_cast<base_type *>(this) = other;
+        return *this;
+    }
+
+    template <typename... UTypes,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(UTypes) == sizeof...(Types)>,
+                        conjunction<is_assignable<Types &, UTypes &&>...>>::value, int> = 0>
+    tuple &operator=(tuple<UTypes...> &&other) {
+        *static_cast<base_type *>(this) = std::move(other);
+        return *this;
+    }
+
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        is_pair_assignable<const U1 &, const U2 &>>::value, int> = 0>
+    tuple &operator=(const pair<U1,U2> &pair) {
+        *static_cast<base_type *>(this) = pair;
+        return *this;
+    }
+
+    template <typename U1, typename U2,
+        enable_if_t<
+            conjunction<bool_constant<sizeof...(Types) == 2>,
+                        is_pair_assignable<U1 &&, U2 &&>>::value, int> = 0>
+    tuple &operator=(pair<U1,U2> &&pair) {
+        *static_cast<base_type *>(this) = std::move(pair);
+        return *this;
+    }
+};
+
+
+
+namespace impl
+{
+template <typename T, typename... Us>
+struct type_count : integral_constant<size_t, 0> { };
+
+template <typename T, typename U0, typename... UN>
+struct type_count<T, U0, UN...> : integral_constant<size_t, is_same<T, U0>::value + type_count<T, UN...>::value> { };
+
+template <typename T, size_t I, typename... Us>
+struct type_find : integral_constant<size_t, size_t(-1)> { };
+
+template <typename T, size_t I, typename U0, typename... UN>
+struct type_find<T, I, U0, UN...> : conditional_t<is_same<T, U0>::value, integral_constant<size_t, I>,  type_find<T, I + 1, UN...>> { };
+}
+
+
+template <class T>
+struct tuple_size;
+
+template <typename... Types>
+struct tuple_size<tuple<Types...>> : integral_constant<size_t, sizeof...(Types)> { };
+
+template <class T>
+struct tuple_size<const T> : integral_constant<size_t, tuple_size<T>::value> { };
+
+template <class T>
+struct tuple_size<volatile T> : integral_constant<size_t, tuple_size<T>::value> { };
+
+template <class T>
+struct tuple_size<const volatile T> : integral_constant<size_t, tuple_size<T>::value> { };
+
+template <size_t I, typename... T>
+tuple_element_t<I, tuple<T...>> &get(tuple<T...> &t) noexcept
+{
+    impl::tuple_elem<I, tuple_element_t<I, tuple<T...>>> &e = t;
+    return e.value;
+}
+
+template <size_t I, typename... T>
+tuple_element_t<I, tuple<T...>> &&get(tuple<T...> &&t) noexcept
+{
+    impl::tuple_elem<I, tuple_element_t<I, tuple<T...>>> &&e = std::move(t);
+    return std::forward<tuple_element_t<I, tuple<T...>>>(e.value);
+}
+
+template <size_t I, typename... T>
+const tuple_element_t<I, tuple<T...>> &get(const tuple<T...> &t) noexcept
+{
+    const impl::tuple_elem<I, tuple_element_t<I, tuple<T...>>> &e = t;
+    return e.value;
+}
+
+template <size_t I, typename... T>
+const tuple_element_t<I, tuple<T...>> &&get(const tuple<T...> &&t) noexcept
+{
+    const impl::tuple_elem<I, tuple_element_t<I, tuple<T...>>> &&e = std::move(t);
+    return std::forward<tuple_element_t<I, tuple<T...>>>(e.value);
+}
+
+template <typename T, typename... Types>
+T &get(tuple<Types...> &t) noexcept
+{
+    static_assert(impl::type_count<T, Types...>::value == 1, "not exactly 1 matching type in tuple");
+    return get<impl::type_find<T, 0, Types...>::value>(t);
+}
+
+namespace impl{
+template <typename T>
+struct unwrap_ref_wrapper : type_identity<T> { };
+
+template <typename T>
+struct unwrap_ref_wrapper<reference_wrapper<T>> : type_identity<T &> { };
+
+template <typename T>
+struct tuple_decay : unwrap_ref_wrapper<decay_t<T>> { };
+
+template <typename T>
+using tuple_decay_t = typename tuple_decay<T>::type;
+}
+
+template <typename... Types>
+tuple<impl::tuple_decay_t<Types>...> make_tuple(Types&&... args)
+{
+    return tuple<impl::tuple_decay_t<Types>...>(std::forward<Types>(args)...);
+}
+
+template <typename... Types>
+tuple<Types&&...> forward_as_tuple(Types&&... args) noexcept
+{
+    return tuple<Types&&...>(std::forward<Types>(args)...);
+}
+
+namespace impl {
+struct ignore {
+    template <typename T>
+    constexpr const ignore &operator=(const T &) const { return *this; }
+};
+}
+
+const impl::ignore ignore;
+
+template <typename... Types>
+tuple<Types &...> tie(Types &... args) noexcept
+{
+    return tuple<Types &...>(args...);
+}
+
+namespace impl
+{
+template <size_t I, size_t N, typename T, typename U>
+struct tuple_cmp
+{
+    static bool equal(const T &t, const U &u)
+    {
+        return get<I>(t) == get<I>(u) ? tuple_cmp<I + 1, N, T, U>::equal(t, u) : false;
+    }
+
+    static bool less(const T &t, const U &u)
+    {
+        return get<I>(t) < get<I>(u) ? true :
+               get<I>(u) < get<I>(t) ? false :
+                                       tuple_cmp<I + 1, N, T, U>::less(t, u);
+    }
+};
+
+template <size_t N, typename T, typename U>
+struct tuple_cmp<N, N, T, U>
+{
+    static bool equal(const T &t, const U &u)
+    {
+        return true;
+    }
+
+    static bool less(const T &t, const U &u)
+    {
+        return false;
+    }
+};
+
+}
+
+template <typename... TTypes, typename... UTypes>
+bool operator==(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    static_assert(sizeof...(TTypes) == sizeof...(UTypes), "tuple size mismatch");
+    return impl::tuple_cmp<0, sizeof...(TTypes), tuple<TTypes...>, tuple<UTypes...>>::equal(t, u);
+}
+
+template <typename... TTypes, typename... UTypes>
+bool operator<(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    static_assert(sizeof...(TTypes) == sizeof...(UTypes), "tuple size mismatch");
+    return impl::tuple_cmp<0, sizeof...(TTypes), tuple<TTypes...>, tuple<UTypes...>>::less(t, u);
+}
+
+template <typename... TTypes, typename... UTypes>
+bool operator!=(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    return !(t == u);
+}
+
+template <typename... TTypes, typename... UTypes>
+bool operator>(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    return u < t;
+}
+
+template <typename... TTypes, typename... UTypes>
+bool operator<=(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    return !(u < t);
+}
+template <typename... TTypes, typename... UTypes>
+bool operator>=(const tuple<TTypes...> &t, const tuple<UTypes...> &u)
+{
+    return !(t < u);
+}
+
+template <typename... Types>
+void swap(tuple<Types...> &x, tuple<Types...> &y)
+{
+    x.swap(y);
+}
+
+// Start deep meta-programming for tuple_cat
+
+namespace impl {
+
+// List of types Ts...
+template <typename... Ts>
+struct mp_list { };
+
+// Given A<...>, B, produce B<...>
+template <class A, template <typename...> class B>
+struct _mp_rename;
+
+template <template <typename...> class A, typename... Ts, template <typename...> class B>
+struct _mp_rename<A<Ts...>, B> : type_identity<B<Ts...>> { };
+
+template <class A, template <typename...> class B>
+using mp_rename = typename _mp_rename<A, B>::type;
+
+// Or, looking at it another way, given <Fun, List<...>>, produce Fun<...>
+template <template <typename...> class Fun, class List>
+using mp_apply = mp_rename<List, Fun>;
+
+// Return the length of its arguments, as an integral_constant
+template <typename... Ts>
+using mp_length = integral_constant<std::size_t, sizeof...(Ts)>;
+
+// Return size of a list, such as mp_list, as an integral_constant
+template <class List>
+using mp_size = mp_apply<mp_length, List>;
+
+// Given <List<A,B,C>, D, E, F>, produce <List<D,E,F,A,B,C>>
+template <class List, typename... Ts>
+struct _mp_push_front;
+
+template <template <typename...> class List, typename... Us, typename... Ts>
+struct _mp_push_front<List<Us...>, Ts...> : type_identity<List<Ts..., Us...>> { };
+
+template <class List, typename... Ts>
+using mp_push_front = typename _mp_push_front<List, Ts...>::type;
+
+// Given <Fun, List<A,B,C>>, produce List<Fun<A>, Fun<B>, Fun<C>>
+// Or given <Fun, List1<A,B,C>, List2<D,E,F>>, produce List1<Fun<A,D>, Fun<B,E>, Fun<C,F>>
+template <template <typename...> class Fun, class... List>
+struct _mp_transform;
+
+template <template <typename...> class Fun,
+    template <typename...> class List,
+    typename... Ts>
+struct _mp_transform<Fun, List<Ts...>> : type_identity<List<Fun<Ts>...>> { };
+
+template <template <typename...> class Fun,
+    template <typename...> class List1,
+    template <typename...> class List2,
+    typename... T1, typename... T2>
+struct _mp_transform<Fun, List1<T1...>, List2<T2...>> : type_identity<List1<Fun<T1,T2>...>> { };
+
+template <template <typename...> class Fun, class... List>
+using mp_transform = typename _mp_transform<Fun, List...>::type;
+
+// Given <List1<A,B,C>, List2<D,E,F>, List3<G>, ...>, produce List1<A,B,C,D,E,F>
+template <class... List>
+struct _mp_append;
+
+template <class... List>
+using mp_append = typename _mp_append<List...>::type;
+
+template <>
+struct _mp_append<> : type_identity<mp_list<>> { };
+
+template <template <typename...> class List, typename... Ts>
+struct _mp_append<List<Ts...>> : type_identity<List<Ts...>> { };
+
+template <
+    template <typename...> class List1, typename... T1,
+    template <typename...> class List2, typename... T2,
+    class... Rest>
+struct _mp_append<List1<T1...>, List2<T2...>, Rest...> : type_identity<mp_append<List1<T1..., T2...>, Rest...>> { };
+
+// mp_constant<T>::apply(any arguments) is an alias for T.
+template <class T>
+struct mp_constant
+{
+    template <typename...>
+    using apply = T;
+};
+
+// Given a list, replace all elements with V
+template <class List, typename V>
+using mp_fill = mp_transform<mp_constant<V>::template apply, List>;
+
+// Given an integer_sequence<T,x,y,z...> , produce a mp_list of integral_constants: mp_list<ic<T,x>,ic<T,y>,ic<T,z>...>
+template <class Seq>
+struct _mp_from_sequence;
+template <template <typename U, U...> class S, class T, T... Is>
+struct _mp_from_sequence<S<T, Is...>> : type_identity<mp_list<integral_constant<T, Is>...>> { };
+
+template <class Seq>
+using mp_from_sequence = typename _mp_from_sequence<Seq>::type;
+
+// Given an integral constant N, produce the mp_list of integral constants from 0 to N-1.
+template <class N>
+using mp_iota = mp_from_sequence<make_index_sequence<N::value>>;
+
+// Given a list, produce a series of indexing integers
+template <class List>
+using mp_index_sequence_for = mp_iota<mp_size<List>>;
+
+// Given the lists Is=<0,0,0,1,1>, Ks=<0,1,2,0,1>
+// and a tuple of tuples tuple<tuple<a,b,c>, tuple<d,e>>
+// use the indexes to do get<Ks>(get<Is>)..., ie
+// get<0>(get<0>), _get<1>(get<0>), get<2>(get<0>), get<0>(get<1>), get<1>(get<1>)
+// thus extracting a,b,c,d,e in order, producing tuple<a,b,c,d,e>
+template <typename Ret, typename... Is, typename... Ks, typename Tuples>
+Ret tuple_cat_(mp_list<Is...>, mp_list<Ks...>, Tuples tpls)
+{
+    return Ret{get<Ks::value>(get<Is::value>(std::forward<Tuples>(tpls)))...};
+}
+
+} // namespace impl
+
+// Compute the indexing arrays for the above concatenation.
+// Illustrating steps with parameters tuple<a,b,c>, tuple<d,e>
+template <typename... Tuples,
+    typename Res = impl::mp_append<tuple<>, remove_cvref_t<Tuples>...>>
+Res tuple_cat(Tuples&&... tpls)
+{
+    // mp_list<tuple<a,b,c>,tuple<d,e>>
+    using tuple_list = impl::mp_list<remove_cvref_t<Tuples>...>;
+    // mp_list<0,1>
+    using tuple_index = impl::mp_from_sequence<make_index_sequence<sizeof...(Tuples)>>;
+    // mp_list<tuple<0,0,0>,tuple<1,1>>
+    using filled = impl::mp_transform<impl::mp_fill, tuple_list, tuple_index>;
+    // tuple<0,0,0,1,1>
+    using joined_fills = impl::mp_apply<impl::mp_append, filled>;
+    // mp_list<0,0,0,1,1>
+    using inner = impl::mp_rename<joined_fills, impl::mp_list>;
+
+    // mp_list<mp_list<0,1,2>,mp_list<0,1>>
+    using indexed = impl::mp_transform<impl::mp_index_sequence_for, tuple_list>;
+    // mp_list<0,1,2,0,1>
+    using outer = impl::mp_apply<impl::mp_append, indexed>;
+
+    return impl::tuple_cat_<Res>(inner(), outer(), std::forward_as_tuple(std::forward<Tuples>(tpls)...));
+}
+
+} // namespace std
+
+#endif /* __tuple */
