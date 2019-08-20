@@ -210,6 +210,12 @@ public:
      */
     bool sync(int timeout_ms);
 
+    /** Sets the delay to be applied before sending any AT command.
+     *
+     *  @param send_delay the minimum delay in ms between the end of last response and the beginning of a new command
+     */
+    void set_send_delay(uint16_t send_delay);
+
 protected:
     void event();
 #ifdef AT_HANDLER_MUTEX

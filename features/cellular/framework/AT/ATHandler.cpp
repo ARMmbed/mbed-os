@@ -1545,3 +1545,8 @@ bool ATHandler::sync(int timeout_ms)
     unlock();
     return false;
 }
+
+void ATHandler::set_send_delay(uint16_t send_delay)
+{
+    _at_send_delay = send_delay;
+}

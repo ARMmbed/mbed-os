@@ -52,6 +52,7 @@ protected: // AT_CellularDevice
 
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
+    virtual void set_at_urcs_impl();
 
 public: // NetworkInterface
 

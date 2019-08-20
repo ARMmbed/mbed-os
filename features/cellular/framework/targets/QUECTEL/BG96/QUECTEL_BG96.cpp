@@ -69,11 +69,13 @@ QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh, PinName pwr, bool active_high, PinNam
       _pwr(pwr, !_active_high),
       _rst(rst, !_active_high)
 {
-    _at->set_urc_handler("+QIURC: \"pdpde",  mbed::Callback<void()>(this, &QUECTEL_BG96::urc_pdpdeact));
-
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
+void QUECTEL_BG96::set_at_urcs_impl()
+{
+    _at->set_urc_handler("+QIURC: \"pdpde",  mbed::Callback<void()>(this, &QUECTEL_BG96::urc_pdpdeact));
+}
 
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
@@ -157,6 +159,8 @@ nsapi_error_t QUECTEL_BG96::hard_power_off()
 
 nsapi_error_t QUECTEL_BG96::init()
 {
+    setup_at_handler();
+
     int retry = 0;
 
     _at->lock();

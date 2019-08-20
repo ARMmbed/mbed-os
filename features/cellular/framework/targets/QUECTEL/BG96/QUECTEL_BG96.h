@@ -45,6 +45,7 @@ protected: // AT_CellularDevice
     virtual nsapi_error_t hard_power_off();
     virtual nsapi_error_t soft_power_on();
     virtual nsapi_error_t init();
+    virtual void set_at_urcs_impl();
 
 public:
     void handle_urc(FileHandle *fh);
