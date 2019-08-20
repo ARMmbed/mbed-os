@@ -18,8 +18,12 @@ M_CRASH_DATA_RAM_SIZE = 0x100;
 
 MEMORY
 { 
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx)  : ORIGIN = 0x20000298, LENGTH = 128K - 0x298
+  FLASH (rx)     : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  DTCMRAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 128K
+  RAM (xrw)      : ORIGIN = 0x24000298, LENGTH = 512K - 0x298  /* end = 0x24080000 */
+  RAM_D2 (xrw)   : ORIGIN = 0x30000000, LENGTH = 288K
+  RAM_D3 (xrw)   : ORIGIN = 0x38000000, LENGTH = 64K
+  ITCMRAM (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -180,4 +184,19 @@ SECTIONS
 
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+    .lwip_sec (NOLOAD) : {
+        . = ABSOLUTE(0x30040000);
+        *(.RxDecripSection) 
+        
+        . = ABSOLUTE(0x30040100);
+        *(.TxDecripSection)
+        
+        . = ABSOLUTE(0x30040400);
+        *(.RxArraySection) 
+
+        . = ABSOLUTE(0x30044000);
+        *(.ethusbram) 
+
+    } >RAM_D2 AT> FLASH
 }
