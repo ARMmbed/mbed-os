@@ -64,6 +64,10 @@ void test_basic_input_output(PinName pin)
     gpio_init(&gpio, pin);
     TEST_ASSERT_NOT_EQUAL(0, gpio_is_connected(&gpio));
 
+    // Some targets don't support input pull mode.
+#if !defined(TARGET_NANO100) &&         \
+    !defined(TARGET_NUC472) &&          \
+    !defined(TARGET_M451)
     // Test GPIO used as an input.
     gpio_dir(&gpio, PIN_INPUT);
 
@@ -105,6 +109,7 @@ void test_basic_input_output(PinName pin)
     TEST_ASSERT_EQUAL_INT(0, gpio_read(&gpio));
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 1, true);
     TEST_ASSERT_EQUAL_INT(1, gpio_read(&gpio));
+#endif
 
     // Test GPIO used as an output.
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 0, false);
@@ -221,7 +226,12 @@ void test_explicit_output(PinName pin)
 
 Case cases[] = {
     Case("generic init, input & output", all_ports<GPIOPort, DefaultFormFactor, test_basic_input_output>),
+    // Some targets don't support input pull mode.
+#if !defined(TARGET_NANO100) &&         \
+    !defined(TARGET_NUC472) &&          \
+    !defined(TARGET_M451)
     Case("explicit init, input", all_ports<GPIOPort, DefaultFormFactor, test_explicit_input>),
+#endif
     Case("explicit init, output", all_ports<GPIOPort, DefaultFormFactor, test_explicit_output>),
 };
 
