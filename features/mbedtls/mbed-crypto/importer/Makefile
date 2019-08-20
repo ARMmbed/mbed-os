@@ -59,6 +59,7 @@ TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 # Mbed Crypto source directory - hidden from mbed via TARGET_IGNORE
 CRYPTO_DIR:=TARGET_IGNORE/mbed-crypto
 CRYPTO_API:=$(CRYPTO_DIR)/include/psa
+OLD_CRYPTO_API:=$(CRYPTO_DIR)/include/mbedtls
 CRYPTO_GIT_CFG=$(CRYPTO_DIR)/.git/config
 
 
@@ -72,6 +73,15 @@ rsync:
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
 	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_INC)/
+	# Copy legacy Mbed TLS crypto headers, excluding headers duplicated in
+	# Mbed TLS.
+	rsync -a --delete \
+	    --exclude='check_config.h' \
+	    --exclude='compat-1.3.h' \
+	    --exclude='config.h' \
+	    --exclude='error.h' \
+	    --exclude='version.h' \
+	    $(OLD_CRYPTO_API) $(TARGET_INC)/
 	#
 	# Copying licenses
 	cp $(CRYPTO_DIR)/LICENSE $(TARGET_PREFIX)/

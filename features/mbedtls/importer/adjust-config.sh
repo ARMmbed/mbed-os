@@ -57,7 +57,7 @@ add_code                                                                        
     "#else\n"
 
 add_code                                                                                                       \
-    "#include \"check_config.h\"\n"                                                                            \
+    "#include \"mbedtls\/check_config.h\"\n"                                                                   \
     "\n"                                                                                                       \
     "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY && !MBEDTLS_ENTROPY_NV_SEED *\/\n" \
     "\n"                                                                                                       \
