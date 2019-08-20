@@ -496,7 +496,7 @@
         "device_name": "LPC11U37FBD64/501"
     },
     "ARCH_GPRS": {
-        "supported_form_factors": ["ARDUINO"],
+        "supported_form_factors": [],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX", "LPC11U37_501"],
