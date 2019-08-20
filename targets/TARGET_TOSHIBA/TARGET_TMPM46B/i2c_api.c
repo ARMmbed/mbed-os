@@ -21,8 +21,34 @@
 #include "PeripheralNames.h"
 #include "pinmap.h"
 #include "tmpm46b_i2c.h"
+#include "mbed_wait_api.h"
 #include <string.h>
 #include <stdlib.h>
+
+#define SBI_I2C_SEND                                0x00
+#define SBI_I2C_RECEIVE                             0x01
+#define I2C_TRANSFER_STATE_IDLE                     (0x0U)
+#define I2C_TRANSFER_STATE_BUSY                     (0x1U)
+#define I2C_ACK                                     (1)
+#define I2C_NO_DATA                                 (0)
+#define I2C_READ_ADDRESSED                          (1)
+#define I2C_WRITE_ADDRESSED                         (3)
+#define I2C_TIMEOUT                                 (100000)
+#define I2CCR2_REPEATED_START_CONDITION             ((uint32_t)0x00000018)
+
+#if DEVICE_I2C_ASYNCH
+#define I2C_S(obj) (struct i2c_s *) (&(obj->i2c))
+#else
+#define I2C_S(obj) (struct i2c_s *) (obj)
+#endif
+
+static inline void repeated_start(struct i2c_s *obj_s);
+static int32_t wait_status(i2c_t *obj);
+static void I2C_Start_Condition(struct i2c_s *p_obj, uint32_t data);
+
+#if DEVICE_I2C_ASYNCH
+static inline void state_idle(struct i2c_s *obj_s);
+#endif
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PK2, I2C_0, PIN_DATA(3, 2)},
@@ -38,80 +64,61 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,  NC,    0}
 };
 
-#define SBI_I2C_SEND              0x00
-#define SBI_I2C_RECEIVE           0x01
-#define MAX_NUM_I2C               3
-#define DELAY_MS_MULTIPLIER       5500
-
-struct i2c_xfer {
-    int32_t count;
-    int32_t len;
-    void *done;
-    char *buf;
-};
-
 // Clock setting structure definition
 typedef struct {
     uint32_t sck;
     uint32_t prsck;
 } I2C_clock_setting_t;
 
-static void DelayMS(uint32_t delay)
-{
-    volatile uint32_t VarI;
-    for (VarI = 0; VarI < delay * DELAY_MS_MULTIPLIER; VarI++);
-}
-
 static const uint32_t I2C_SCK_DIVIDER_TBL[8] = {
     20, 24, 32, 48, 80, 144, 272, 528
 };  // SCK Divider value table
 
+static int32_t start_flag = 0;
+static I2C_State status;
 static I2C_clock_setting_t clk;
 static I2C_InitTypeDef myi2c;
-static int32_t start_flag = 1;
-static struct i2c_xfer xfer[MAX_NUM_I2C];
-static TSB_I2C_TypeDef *i2c_lut[MAX_NUM_I2C] = {TSB_I2C0, TSB_I2C1, TSB_I2C2};
-static char *gI2C_TxData = NULL;
-static char *gI2C_LTxData = NULL;
-static uint8_t send_byte = 0;
-static uint8_t byte_func = 0;
 
 // Initialize the I2C peripheral. It sets the default parameters for I2C
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    struct i2c_s *obj_s = I2C_S(obj);
     MBED_ASSERT(obj != NULL);
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     I2CName i2c_name = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)i2c_name != NC);
 
-    switch(i2c_name) {
+    switch (i2c_name) {
         case I2C_0:
             CG_SetFcPeriphB(CG_FC_PERIPH_I2C0, ENABLE);
             CG_SetFcPeriphA(CG_FC_PERIPH_PORTK, ENABLE);
-            obj->i2c = TSB_I2C0;
-            obj->index = 0;
-            obj->IRQn = INTI2C0_IRQn;
+            obj_s->i2c = TSB_I2C0;
+            obj_s->index = 0;
+            obj_s->IRQn = INTI2C0_IRQn;
             break;
         case I2C_1:
             CG_SetFcPeriphB(CG_FC_PERIPH_I2C1, ENABLE);
             CG_SetFcPeriphA(CG_FC_PERIPH_PORTF, ENABLE);
-            obj->i2c = TSB_I2C1;
-            obj->index = 1;
-            obj->IRQn = INTI2C1_IRQn;
+            obj_s->i2c = TSB_I2C1;
+            obj_s->index = 1;
+            obj_s->IRQn = INTI2C1_IRQn;
             break;
         case I2C_2:
             CG_SetFcPeriphB(CG_FC_PERIPH_I2C2, ENABLE);
             CG_SetFcPeriphA(CG_FC_PERIPH_PORTH, ENABLE);
-            obj->i2c = TSB_I2C2;
-            obj->index = 2;
-            obj->IRQn = INTI2C2_IRQn;
+            obj_s->i2c = TSB_I2C2;
+            obj_s->index = 2;
+            obj_s->IRQn = INTI2C2_IRQn;
             break;
         default:
             error("I2C is not available");
             break;
     }
 
+#if DEVICE_I2C_ASYNCH
+    obj_s->state = I2C_TRANSFER_STATE_IDLE;
+#endif
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pin_mode(sda, OpenDrain);
     pin_mode(sda, PullUp);
@@ -120,6 +127,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     pin_mode(scl, OpenDrain);
     pin_mode(scl, PullUp);
 
+    NVIC_DisableIRQ(obj_s->IRQn);
     i2c_reset(obj);
     i2c_frequency(obj, 100000);
 }
@@ -127,13 +135,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 // Configure the I2C frequency
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    uint32_t sck = 0;
-    uint32_t tmp_sck = 0;
-    uint32_t prsck = 1;
-    uint32_t tmp_prsck = 1;
-    uint32_t fscl = 0;
-    uint32_t tmp_fscl = 0;
-    uint64_t fx;
+    struct i2c_s *obj_s = I2C_S(obj);
+    uint32_t sck        = 0;
+    uint32_t tmp_sck    = 0;
+    uint32_t prsck      = 1;
+    uint32_t tmp_prsck  = 1;
+    uint32_t fscl       = 0;
+    uint32_t tmp_fscl   = 0;
+    uint64_t fx         = 0;
 
     if (hz <= 400000) { // Maximum 400khz clock frequency supported by  M46B
         for (prsck = 1; prsck <= 32; prsck++) {
@@ -161,10 +170,9 @@ void i2c_frequency(i2c_t *obj, int hz)
     myi2c.I2CClkDiv = clk.sck;
     myi2c.PrescalerClkDiv = clk.prsck;
 
-    I2C_SWReset(obj->i2c);
-    I2C_Init(obj->i2c, &myi2c);
-    NVIC_EnableIRQ(obj->IRQn);
-    I2C_SetINTReq(obj->i2c, ENABLE);
+    I2C_SWReset(obj_s->i2c);
+    I2C_Init(obj_s->i2c, &myi2c);
+    NVIC_DisableIRQ(obj_s->IRQn);
 }
 
 int i2c_start(i2c_t *obj)
@@ -175,187 +183,389 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
-    I2C_GenerateStop(obj->i2c);
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_GenerateStop(obj_s->i2c);
     return 0;
 }
 
 void i2c_reset(i2c_t *obj)
 {
-    I2C_SWReset(obj->i2c);
-}
-
-static void wait_i2c_bus_free(i2c_t *obj)
-{
-    I2C_State status;
-
-    do {
-        status = I2C_GetState(obj->i2c);
-    } while (status.Bit.BusState);
+    struct i2c_s *obj_s = I2C_S(obj);
+    I2C_SWReset(obj_s->i2c);
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 {
-    TSB_I2C_TypeDef *sbi = obj->i2c;
-    uint32_t i2c_num = 0;
-    obj->address = address;
+    int32_t result = 0;
+    int32_t count  = 0;
 
-    i2c_num = obj->index;
+    if (length > 0) {
+        start_flag = 1;  // Start Condition
+        if (i2c_byte_write(obj, (int32_t)((uint32_t)address | 1U)) == I2C_ACK) {
+            while (count < length) {
+                int32_t pdata = i2c_byte_read(obj, ((count < (length - 1)) ? 0 : 1));
+                if (pdata < 0) {
+                    break;
+                }
+                data[count++] = (uint8_t)pdata;
+            }
+            result = count;
+        } else {
+            stop = 1;
+            result = I2C_ERROR_NO_SLAVE;
+        }
 
-    // receive data
-    xfer[i2c_num].count = 0;
-    xfer[i2c_num].len = length;
-    xfer[i2c_num].buf = data;
-
-    I2C_SetSendData(sbi, address | SBI_I2C_RECEIVE);
-    I2C_GenerateStart(sbi);
-
-    wait_i2c_bus_free(obj);
-    return (xfer[i2c_num].count - 1);
+        if (stop) {  // Stop Condition
+            i2c_stop(obj);
+        }
+    }
+    return (result);
 }
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
-    int8_t i = 0;
-    TSB_I2C_TypeDef *sbi = obj->i2c;
-    uint32_t i2c_num = 0;
-    obj->address = address;
+    int32_t result = 0;
+    int32_t count  = 0;
 
-    i2c_num = obj->index;
-    gI2C_TxData = (char *)calloc(length, sizeof(int8_t));
-    if (gI2C_TxData == NULL) {
-        error("Insufficient memory");
-        return 0;
+    start_flag = 1; // Start Condition
+    if (i2c_byte_write(obj, address) == I2C_ACK) {
+        while (count < length) {
+            if (i2c_byte_write(obj, (int32_t)data[count++]) < I2C_ACK) {
+                break;
+            }
+        }
+        result = count;
+    } else {
+        stop = 1;
+        result = I2C_ERROR_NO_SLAVE;
     }
 
-    for (i = 0; i < length; i++) {
-        gI2C_TxData[i] = data[i];
+    if (stop) {  // Stop Condition
+        i2c_stop(obj);
     }
-    // receive data
-    xfer[i2c_num].count = 0;
-    xfer[i2c_num].len = length;
-    xfer[i2c_num].buf = gI2C_TxData;
-
-    I2C_SetSendData(sbi, address | SBI_I2C_SEND);
-    I2C_GenerateStart(sbi);  // Start condition
-
-    wait_i2c_bus_free(obj);
-    free(gI2C_TxData);
-    DelayMS(8);
-    if (((xfer[i2c_num].count - 1) == 0) && (byte_func == 1)) {
-        send_byte = 1;
-        i2c_byte_write(obj, 0x00);
-        xfer[i2c_num].count = 1;
-        byte_func = 0;
-    }
-    return (xfer[i2c_num].count - 1);
+    return (result);
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
 {
-    char i2c_ret = 0;
-    i2c_read(obj, obj->address, &i2c_ret, 1, last);
-    return i2c_ret;
+    struct i2c_s *obj_s = I2C_S(obj);
+
+    int32_t result;
+
+    I2C_ClearINTOutput(obj_s->i2c);
+
+    if (last) {
+        I2C_SetACK(obj_s->i2c, DISABLE);
+    } else {
+        I2C_SetACK(obj_s->i2c, ENABLE);
+    }
+    I2C_SetSendData(obj_s->i2c, 0x00);
+
+    if (wait_status(obj) < 0) {
+        result = -1;
+    } else {
+        result = (int32_t)I2C_GetReceiveData(obj_s->i2c);
+    }
+    return (result);
 }
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    uint32_t wb = 1;
-    static size_t counter = 1;
+    struct i2c_s *obj_s = I2C_S(obj);
 
-    byte_func = 1;
-    if (start_flag == 0 && send_byte == 0) {
-        gI2C_LTxData = (char *)realloc(gI2C_LTxData, counter++);
-        if (gI2C_LTxData == NULL) {
-            error("Insufficient memory");
-            return 0;
-        }
-        gI2C_LTxData[counter - 2] = data;
-    }
+    int32_t result;
 
-    if (send_byte == 1) {
-        wb = i2c_write(obj, obj->address, gI2C_LTxData, (counter - 1), 0);
-        start_flag = 1;
-        send_byte = 0;
-        byte_func = 0;
-        counter = 1;
-        return wb;
+    I2C_ClearINTOutput(obj_s->i2c);
+
+    if (start_flag == 1) {
+        I2C_Start_Condition(obj_s, (uint32_t)data);
+        start_flag = 0;
     } else {
-        if (start_flag == 1) {
-            obj->address = data;
-            start_flag = 0;
-        } else {
-            // Store the number of written bytes
-            wb = i2c_write(obj, obj->address, (char*)&data, 1, 0);
-        }
-        if (wb == 1)
-            return 1;
-        else
-            return 0;
+        I2C_SetSendData(obj_s->i2c, (uint32_t)data);
     }
+
+    if (wait_status(obj) < 0) {
+        return (-1);
+    }
+
+    status = I2C_GetState(obj_s->i2c);
+    if (!status.Bit.LastRxBit) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+    return (result);
 }
 
-static void i2c_irq_handler(int i2c_num)
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
-    uint32_t tmp = 0U;
-    TSB_I2C_TypeDef *sbi = i2c_lut[i2c_num];
-    I2C_State sbi_sr;
+    i2c_reset(obj);
+    struct i2c_s *obj_s = I2C_S(obj);
 
-    sbi_sr = I2C_GetState(sbi);
+    obj_s->myi2c.I2CDataLen = I2C_DATA_LEN_8;
+    obj_s->myi2c.I2CACKState = ENABLE;
+    obj_s->myi2c.I2CClkDiv = clk.sck;
+    obj_s->myi2c.PrescalerClkDiv = clk.prsck;
 
-    // we don't support slave mode
-    if (!sbi_sr.Bit.MasterSlave)
-        return;
+    if (enable_slave) {
+        obj_s->myi2c.I2CSelfAddr = obj_s->address;
+        I2C_SetINTReq(obj_s->i2c, ENABLE);
+    } else {
+        obj_s->myi2c.I2CSelfAddr = 0xE0;
+        NVIC_DisableIRQ(obj_s->IRQn);
+        I2C_ClearINTOutput(obj_s->i2c);
+    }
+    I2C_Init(obj_s->i2c, &obj_s->myi2c);
+}
 
-    if (sbi_sr.Bit.TRx) { // Tx mode
-        if (sbi_sr.Bit.LastRxBit) { // LRB=1: the receiver requires no further data.
-            I2C_GenerateStop(sbi);
-        } else { // LRB=0: the receiver requires further data.
-            if (xfer[i2c_num].count < xfer[i2c_num].len) {
-                I2C_SetSendData(sbi, xfer[i2c_num].buf[xfer[i2c_num].count]); // Send next data
-            } else if (xfer[i2c_num].count == xfer[i2c_num].len) { // I2C data send finished.
-                I2C_GenerateStop(sbi);
-            } else {
-                // Do nothing
-            }
-            xfer[i2c_num].count++;
-        }
-    } else { // Rx Mode
-        if (xfer[i2c_num].count > xfer[i2c_num].len) {
-            I2C_GenerateStop(sbi);
-            I2C_SetACK(sbi, ENABLE);
+int i2c_slave_receive(i2c_t *obj)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    int32_t result = I2C_NO_DATA;
+
+    if  ((I2C_GetINTStatus(obj_s->i2c)) && (I2C_GetSlaveAddrMatchState(obj_s->i2c))) {
+        status = I2C_GetState(obj_s->i2c);
+        if (!status.Bit.TRx) {
+            result = I2C_WRITE_ADDRESSED;
         } else {
-            if (xfer[i2c_num].count == xfer[i2c_num].len) { // Rx last data
-                I2C_SetBitNum(sbi, I2C_DATA_LEN_1);
-            } else if (xfer[i2c_num].count == (xfer[i2c_num].len - 1)) { // Rx the data second to last
-                // Not generate ACK for next data Rx end.
-                I2C_SetACK(sbi, DISABLE);
+            result = I2C_READ_ADDRESSED;
+        }
+    }
+    return (result);
+}
+
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    int32_t count = 0;
+
+    while (count < length) {
+        int32_t pdata = i2c_byte_read(obj, 0);
+        status = I2C_GetState(obj_s->i2c);
+        if (status.Bit.TRx) {
+            return (count);
+        } else {
+            if (pdata < 0) {
+                break;
+            }
+            data[count++] = (uint8_t)pdata;
+        }
+    }
+    i2c_slave_mode(obj, 1);
+    return (count);
+}
+
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
+    int32_t count = 0;
+
+    while (count < length) {
+        if (i2c_byte_write(obj, (int32_t)data[count++]) < I2C_ACK) {
+            break;
+        }
+    }
+    i2c_slave_mode(obj, 1);
+    return (count);
+}
+
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->address = address & 0xFE;
+    i2c_slave_mode(obj, 1);
+}
+
+
+#if DEVICE_I2C_ASYNCH
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address,
+                         uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    obj_s->event_mask = event;
+    obj_s->stop = stop;
+    obj_s->address = address;
+
+    // copy the buffers to the I2C object
+    obj->tx_buff.buffer = (void *) tx;
+    obj->tx_buff.length = tx ? tx_length : 0;
+    obj->tx_buff.pos = 0;
+
+    obj->rx_buff.buffer = rx;
+    obj->rx_buff.length = rx ? rx_length : 0;
+    obj->rx_buff.pos = 0;
+
+    obj_s->state = I2C_TRANSFER_STATE_BUSY;
+    I2C_SetINTReq(obj_s->i2c, ENABLE);
+    NVIC_ClearPendingIRQ(obj_s->IRQn);
+    NVIC_SetVector(obj_s->IRQn, (uint32_t)handler);
+    NVIC_EnableIRQ(obj_s->IRQn);
+
+    if ((tx_length == 0) && (rx_length != 0)) {
+        I2C_SetSendData(obj_s->i2c, address | SBI_I2C_RECEIVE);
+    } else {
+        I2C_SetSendData(obj_s->i2c, address | SBI_I2C_SEND);
+    }
+    I2C_GenerateStart(obj_s->i2c);
+}
+
+uint32_t i2c_irq_handler_asynch(i2c_t *obj)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    uint32_t tmp_read = 0U;
+    uint32_t event = 0;
+    I2C_State flag_state;
+
+    flag_state = I2C_GetState(obj_s->i2c);
+
+    if ((!flag_state.Bit.MasterSlave) || (obj_s->state != I2C_TRANSFER_STATE_BUSY)) {
+        I2C_GenerateStop(obj_s->i2c);
+        event = I2C_EVENT_ERROR;
+        state_idle(obj_s);
+        return (event & obj_s->event_mask);
+    }
+
+    if (flag_state.Bit.TRx) { // Transmit
+
+        if (flag_state.Bit.LastRxBit) { // NACK Recieved
+            I2C_GenerateStop(obj_s->i2c);
+
+            if (obj->tx_buff.pos == 0) {
+                I2C_GenerateStop(obj_s->i2c);
+                event = (I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE);
+                state_idle(obj_s);
+
+            } else {
+                I2C_GenerateStop(obj_s->i2c);
+                event = (I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK);
+                state_idle(obj_s);
+            }
+
+        } else { // ACK Received
+
+            if (obj->tx_buff.pos < obj->tx_buff.length) {
+                I2C_SetSendData(obj_s->i2c, (*((uint8_t *)obj->tx_buff.buffer + obj->tx_buff.pos) & 0xFF)); // Send next data
+                obj->tx_buff.pos++;
+
+            } else if (obj->rx_buff.length != 0) { // Transmit complete Receive Pending
+                repeated_start(obj_s);
+                I2C_SetSendData(obj_s->i2c, obj_s->address | SBI_I2C_RECEIVE);
+
+            } else { // Transmit complete and NO data to Receive
+                I2C_GenerateStop(obj_s->i2c);
+                event = I2C_EVENT_TRANSFER_COMPLETE;
+                state_idle(obj_s);
+            }
+        }
+    } else { // Receive
+
+        if (obj->rx_buff.pos > obj->rx_buff.length) {
+            I2C_GenerateStop(obj_s->i2c);
+            event = I2C_EVENT_TRANSFER_COMPLETE;
+            state_idle(obj_s);
+            I2C_SetACK(obj_s->i2c, ENABLE);
+
+        } else {
+
+            if (obj->rx_buff.pos == obj->rx_buff.length) {
+                I2C_SetBitNum(obj_s->i2c, I2C_DATA_LEN_1);
+
+            } else if (obj->rx_buff.pos == (obj->rx_buff.length - 1)) {
+                I2C_SetACK(obj_s->i2c, DISABLE);
+
             } else {
                 // Do nothing
             }
-            tmp = I2C_GetReceiveData(sbi);
-            if (xfer[i2c_num].count > 0) {
-                xfer[i2c_num].buf[xfer[i2c_num].count - 1U] = tmp;
+
+            tmp_read = I2C_GetReceiveData(obj_s->i2c);
+
+            if (obj->rx_buff.pos > 0) {
+                *((uint8_t *)obj->rx_buff.buffer + (obj->rx_buff.pos - 1)) = tmp_read;
             } else {
                 // first read is dummy read
             }
-            xfer[i2c_num].count++;
+            obj->rx_buff.pos++;
         }
     }
+
+    return (event & obj_s->event_mask);
 }
 
-void INTI2C0_IRQHandler(void)
+uint8_t i2c_active(i2c_t *obj)
 {
-    i2c_irq_handler(0);
+    struct i2c_s *obj_s = I2C_S(obj);
+
+    return (obj_s->state != I2C_TRANSFER_STATE_IDLE);
 }
 
-void INTI2C1_IRQHandler(void)
+void i2c_abort_asynch(i2c_t *obj)
 {
-    i2c_irq_handler(1);
+    struct i2c_s *obj_s = I2C_S(obj);
+
+    I2C_ClearINTReq(obj_s->i2c);
+    NVIC_ClearPendingIRQ(obj_s->IRQn);
+    I2C_GenerateStop(obj_s->i2c);
+    state_idle(obj_s);
+    I2C_SWReset(obj_s->i2c);
+    I2C_Init(obj_s->i2c, &obj_s->myi2c);
 }
 
-void INTI2C2_IRQHandler(void)
+static inline void state_idle(struct i2c_s *obj_s)
 {
-    i2c_irq_handler(2);
+    I2C_State flag_state;
+
+    obj_s->state = I2C_TRANSFER_STATE_IDLE;
+    NVIC_DisableIRQ(obj_s->IRQn);
+    I2C_SetINTReq(obj_s->i2c, DISABLE);
+    // wait until bus state releases after stop condition
+    do {
+        flag_state = I2C_GetState(obj_s->i2c);
+    } while (flag_state.Bit.BusState);
+    // To satisfy the setup time of restart, at least 4.7µs wait must be created by software (Ref. TRM pg. 561)
+    wait_us(5);
+}
+
+#endif //DEVICE_I2C_ASYNCH
+
+static int32_t wait_status(i2c_t *obj)
+{
+    struct i2c_s *obj_s = I2C_S(obj);
+    volatile int32_t timeout = I2C_TIMEOUT;
+
+    while (I2C_GetINTStatus(obj_s->i2c) == DISABLE) {
+        if ((timeout--) == 0) {
+            return (-1);
+        }
+    }
+    return (0);
+}
+
+static inline void repeated_start(struct i2c_s *obj_s)
+{
+    I2C_State flag_state;
+
+    obj_s->i2c->CR2 = I2CCR2_REPEATED_START_CONDITION;
+    // wait until bus state releases
+    do {
+        flag_state = I2C_GetState(obj_s->i2c);
+    } while (flag_state.Bit.BusState);
+    // Checks that no other device is pulling the SCL pin to "Low".
+    do {
+        flag_state = I2C_GetState(obj_s->i2c);
+    } while (!flag_state.Bit.LastRxBit);
+
+    I2C_GenerateStart(obj_s->i2c);
+}
+
+static void I2C_Start_Condition(struct i2c_s *p_obj, uint32_t data)
+{
+    status = I2C_GetState(p_obj->i2c);
+    if (status.Bit.BusState) {
+        repeated_start(p_obj);
+        I2C_SetSendData(p_obj->i2c, (uint32_t)data);
+    } else {
+        I2C_SetSendData(p_obj->i2c, (uint32_t)data);
+        I2C_GenerateStart(p_obj->i2c);
+    }
 }
 
 const PinMap *i2c_master_sda_pinmap()

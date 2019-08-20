@@ -89,8 +89,8 @@ void port_dir(port_t *obj, PinDirection dir)
 
 void port_write(port_t *obj, int value)
 {
-    uint8_t port_data = 0;
-    uint8_t data = 0;
+    uint8_t port_data   = 0;
+    uint8_t data        = 0;
 
     // Assert that port is valid
     MBED_ASSERT(obj->port <= PortL);
@@ -105,8 +105,8 @@ void port_write(port_t *obj, int value)
 
 int port_read(port_t *obj)
 {
-    uint8_t port_data = 0;
-    uint8_t data = 0;
+    uint8_t port_data   = 0;
+    uint8_t data        = 0;
 
     // Assert that port is valid
     MBED_ASSERT(obj->port <= PortL);

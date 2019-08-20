@@ -69,7 +69,7 @@ reset_reason_t hal_reset_reason_get(void)
 static uint8_t set_bit_count(uint32_t reg)
 {
     uint8_t count = 0;
-    int8_t index = 0;
+    uint8_t index = 0;
 
     for (index = 0; index < (sizeof(uint32_t) * 8); index++) {
         if ((reg & (1 << index)) && index != 1) {
@@ -89,6 +89,8 @@ static uint8_t bit_pos(uint32_t reg)
             return bit_no;
         }
     }
+
+    return 0;
 }
 
 #endif // DEVICE_RESET_REASON
