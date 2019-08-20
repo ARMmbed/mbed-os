@@ -54,6 +54,7 @@ void ADC_ClockPower_Configuration(void)
 
     /* Disable LDOGPADC power down */
     POWER_DisablePD(kPDRUNCFG_PD_LDOGPADC);
+    RESET_PeripheralReset(kADC0_RST_SHIFT_RSTn);
 }
 
 void sdio_clock_setup(void)
