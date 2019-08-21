@@ -2719,7 +2719,7 @@ void get_fileinfo (
 		if (wc == 0) { di = 0; break; }		/* Buffer overflow? */
 		di += wc;
 #else					/* ANSI/OEM output */
-		if (di <= FF_SFN_BUF) fno->altname[di++] = (TCHAR)wc;	/* Store it without any conversion */
+		if (di < FF_SFN_BUF) fno->altname[di++] = (TCHAR)wc;	/* Store it without any conversion */
 #endif
 	}
 	fno->altname[di] = 0;	/* Terminate the SFN  (null string means SFN is invalid) */
