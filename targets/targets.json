@@ -3222,8 +3222,7 @@
         "macros_add": [
             "STM32H743xx",
             "EXTRA_IDLE_STACK_REQUIRED",
-            "MBED_TICKLESS",
-            "ETH_IP_VERSION_V2"
+            "MBED_TICKLESS"
         ],
         "overrides": {
             "lpticker_delay_ticks": 0,
