@@ -15,6 +15,9 @@
 # limitations under the License.
 
 from .assemble import Assembly
+from .imgtool_lib import keys
+from .imgtool_lib import image
+from .imgtool_lib import version
 
 __all__ = [
     'Assembly'
