@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <string.h>
 #include "QUECTEL/BG96/QUECTEL_BG96_CellularStack.h"
 #include "CellularLog.h"
 
@@ -60,8 +61,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
+        char ipdot[NSAPI_IP_SIZE];
+        ip2dot(address, ipdot);
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
-                           address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
+                           ipdot, address.get_port(), socket->localAddress.get_port(), 0);
 
         handle_open_socket_response(modem_connect_id, err);
 
@@ -74,7 +77,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
             _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
-                               address.get_ip_address(), address.get_port(), socket->localAddress.get_port(), 0);
+                               ipdot, address.get_port(), socket->localAddress.get_port(), 0);
 
             handle_open_socket_response(modem_connect_id, err);
         }
@@ -228,8 +231,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             handle_open_socket_response(modem_connect_id, err);
         }
     } else if (socket->proto == NSAPI_UDP && socket->connected) {
+        char ipdot[NSAPI_IP_SIZE];
+        ip2dot(socket->remoteAddress, ipdot);
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
-                           socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
+                           ipdot, socket->remoteAddress.get_port());
 
         handle_open_socket_response(modem_connect_id, err);
 
@@ -241,7 +246,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             socket_close_impl(modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
-                               socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
+                               ipdot, socket->remoteAddress.get_port());
 
             handle_open_socket_response(modem_connect_id, err);
         }
@@ -277,8 +282,10 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
 
     // Send
     if (socket->proto == NSAPI_UDP) {
+        char ipdot[NSAPI_IP_SIZE];
+        ip2dot(address, ipdot);
         _at.cmd_start_stop("+QISEND", "=", "%d%d%s%d", socket->id, size,
-                           address.get_ip_address(), address.get_port());
+                           ipdot, address.get_port());
     } else {
         _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, size);
     }
@@ -401,3 +408,21 @@ nsapi_error_t QUECTEL_BG96_CellularStack::gethostbyname_async_cancel(int id)
     return NSAPI_ERROR_OK;
 }
 #endif
+
+void QUECTEL_BG96_CellularStack::ip2dot(const SocketAddress &ip, char *dot)
+{
+    if (ip.get_ip_version() == NSAPI_IPv6) {
+        const uint8_t *bytes = (uint8_t *)ip.get_ip_bytes();
+        char *p = dot;
+        for (int i = 0; i < NSAPI_IPv6_BYTES; i += 2) {
+            if (i != 0) {
+                *dot++ = ':';
+            }
+            dot += sprintf(dot, "%x", (*(bytes + i) << 8 | *(bytes + i + 1)));
+        }
+    } else if (ip.get_ip_version() == NSAPI_IPv4) {
+        strcpy(dot, ip.get_ip_address());
+    } else {
+        *dot = '\0';
+    }
+}
