@@ -34,7 +34,7 @@ typedef struct psa_spm_hash_clone_s {
 } psa_spm_hash_clone_t;
 
 // ---------------------------------- Globals ----------------------------------
-static int psa_spm_init_refence_counter = 0;
+static int psa_spm_init_count = 0;
 
 /* maximal memory allocation for reading large hash or mac input buffers.
 the data will be read in chunks of size */
@@ -138,8 +138,8 @@ static void psa_crypto_init_operation(void)
         case PSA_IPC_CALL: {
             status = psa_crypto_init();
             if (status == PSA_SUCCESS) {
-                ++psa_spm_init_refence_counter;
-                if (psa_spm_init_refence_counter == 1) {
+                ++psa_spm_init_count;
+                if (psa_spm_init_count == 1) {
                     memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
                     psa_crypto_access_control_init();
                 }
@@ -175,11 +175,11 @@ static void psa_crypto_free_operation(void)
             /** perform crypto_free iff the number of init-s
              * is equal to the number of free-s
              */
-            if (psa_spm_init_refence_counter > 0) {
-                --psa_spm_init_refence_counter;
+            if (psa_spm_init_count > 0) {
+                --psa_spm_init_count;
             }
 
-            if (psa_spm_init_refence_counter == 0) {
+            if (psa_spm_init_count == 0) {
                 memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
                 psa_crypto_access_control_destroy();
                 mbedtls_psa_crypto_free();
