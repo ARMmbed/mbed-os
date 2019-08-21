@@ -44,7 +44,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#if !defined(PSA_ITS_STORAGE_PREFIX)
 #define PSA_ITS_STORAGE_PREFIX ""
+#endif
 
 #define PSA_ITS_STORAGE_FILENAME_PATTERN "%08lx%08lx"
 #define PSA_ITS_STORAGE_SUFFIX ".psa_its"
@@ -173,6 +175,8 @@ psa_status_t psa_its_get( psa_storage_uid_t uid,
     if( n != data_length )
         goto exit;
     status = PSA_SUCCESS;
+    if( p_data_length != NULL )
+        *p_data_length = n;
 
 exit:
     if( stream != NULL )
