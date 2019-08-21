@@ -21,6 +21,7 @@ extern "C" {
 #define psa_destroy_key  psa_sec_destroy_key
 #define psa_export_key  psa_sec_export_key
 #define psa_export_public_key  psa_sec_export_public_key
+#define psa_copy_key psa_sec_copy_key
 #define psa_hash_compute  psa_sec_hash_compute
 #define psa_hash_compare  psa_sec_hash_compare
 #define psa_hash_setup  psa_sec_hash_setup

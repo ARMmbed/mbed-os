@@ -253,6 +253,22 @@ psa_status_t psa_export_public_key(psa_key_handle_t handle,
     return (status);
 }
 
+psa_status_t psa_copy_key(psa_key_handle_t source_handle,
+                          const psa_key_attributes_t *attributes,
+                          psa_key_handle_t *target_handle)
+{
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func   = PSA_COPY_KEY,
+        .handle = source_handle,
+    };
+
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
+
+    psa_outvec out_vec = { target_handle, sizeof(*target_handle) };
+
+    return ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, &out_vec, 1);
+}
+
 psa_status_t psa_hash_compute(psa_algorithm_t alg,
                               const uint8_t *input,
                               size_t input_length,

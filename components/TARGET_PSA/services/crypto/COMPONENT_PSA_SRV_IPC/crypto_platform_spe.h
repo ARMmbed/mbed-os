@@ -47,6 +47,7 @@ typedef enum psa_sec_function_s {
     PSA_DESTROY_KEY,
     PSA_EXPORT_KEY,
     PSA_EXPORT_PUBLIC_KEY,
+    PSA_COPY_KEY,
     PSA_HASH_COMPUTE,
     PSA_HASH_COMPARE,
     PSA_HASH_SETUP,

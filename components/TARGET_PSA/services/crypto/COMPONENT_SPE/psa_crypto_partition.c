@@ -1986,6 +1986,26 @@ static void psa_key_management_operation(void)
                     break;
                 }
 
+                case PSA_COPY_KEY: {
+                    psa_key_handle_t target_handle;
+                    psa_key_attributes_t attributes;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle, partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    /* Read in attributes. */
+                    read_attributes(msg.handle, msg.client_id, &attributes);
+
+                    status = psa_copy_key(psa_key_mng.handle, &attributes, &target_handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(target_handle, partition_id);
+                        psa_write(msg.handle, 0, &target_handle, sizeof(target_handle));
+                    }
+                    break;
+                }
+
                 case PSA_GENERATE_KEY: {
                     psa_key_attributes_t attributes;
                     psa_key_handle_t handle;
