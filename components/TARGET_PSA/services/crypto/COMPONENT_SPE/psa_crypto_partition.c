@@ -1137,26 +1137,6 @@ static void psa_key_management_operation(void)
             partition_id = msg.client_id;
 
             switch (psa_key_mng.func) {
-                case PSA_GET_KEY_LIFETIME: {
-                    size_t lifetime_length = msg.out_size[0];
-                    psa_key_lifetime_t lifetime;
-
-                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
-                                                                       partition_id)) {
-                        status = PSA_ERROR_INVALID_HANDLE;
-                        break;
-                    }
-
-                    status = psa_get_key_lifetime(psa_key_mng.handle,
-                                                  &lifetime);
-                    if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0,
-                                  &lifetime, lifetime_length);
-                    }
-
-                    break;
-                }
-
                 case PSA_SET_KEY_POLICY: {
                     size_t policy_length = msg.in_size[1];
                     psa_key_policy_t policy;
@@ -1190,6 +1170,92 @@ static void psa_key_management_operation(void)
                     status = psa_get_key_policy(psa_key_mng.handle, &policy);
                     if (status == PSA_SUCCESS) {
                         psa_write(msg.handle, 0, &policy, policy_size);
+                    }
+
+                    break;
+                }
+
+                case PSA_GET_KEY_LIFETIME: {
+                    size_t lifetime_length = msg.out_size[0];
+                    psa_key_lifetime_t lifetime;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    status = psa_get_key_lifetime(psa_key_mng.handle,
+                                                  &lifetime);
+                    if (status == PSA_SUCCESS) {
+                        psa_write(msg.handle, 0,
+                                  &lifetime, lifetime_length);
+                    }
+
+                    break;
+                }
+
+                case PSA_ALLOCATE_KEY: {
+                    status = psa_allocate_key(&psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
+                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
+                    }
+                    break;
+                }
+
+                case PSA_OPEN_KEY: {
+                    psa_key_id_t id;
+                    id.owner = msg.client_id;
+
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
+                    if (bytes_read != msg.in_size[1]) {
+                        SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
+                    }
+
+                    status = psa_open_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
+                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
+                    }
+                    break;
+                }
+
+                case PSA_CREATE_KEY: {
+                    psa_key_id_t id;
+                    id.owner = msg.client_id;
+
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
+                    if (bytes_read != msg.in_size[1]) {
+                        SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
+                    }
+
+                    status = psa_create_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
+                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
+                    }
+                    break;
+                }
+
+                case PSA_CLOSE_KEY: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    status = psa_close_key(psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_unregister_handle(psa_key_mng.handle);
                     }
 
                     break;
@@ -1350,72 +1416,6 @@ static void psa_key_management_operation(void)
                                               bits,
                                               parameter, parameter_size);
                     mbedtls_free(parameter);
-                    break;
-                }
-
-                case PSA_ALLOCATE_KEY: {
-                    status = psa_allocate_key(&psa_key_mng.handle);
-                    if (status == PSA_SUCCESS) {
-                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
-                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
-                    }
-                    break;
-                }
-
-                case PSA_CREATE_KEY: {
-                    psa_key_id_t id;
-                    id.owner = msg.client_id;
-
-                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
-                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
-                    }
-
-                    status = psa_create_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
-                    if (status == PSA_SUCCESS) {
-                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
-                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
-                    }
-                    break;
-                }
-
-                case PSA_OPEN_KEY: {
-                    psa_key_id_t id;
-                    id.owner = msg.client_id;
-
-                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
-                    if (bytes_read != msg.in_size[1]) {
-                        SPM_PANIC("SPM read length mismatch");
-                    }
-
-                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
-                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
-                    }
-
-                    status = psa_open_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
-                    if (status == PSA_SUCCESS) {
-                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
-                        psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
-                    }
-                    break;
-                }
-
-                case PSA_CLOSE_KEY: {
-                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
-                                                                       partition_id)) {
-                        status = PSA_ERROR_INVALID_HANDLE;
-                        break;
-                    }
-
-                    status = psa_close_key(psa_key_mng.handle);
-                    if (status == PSA_SUCCESS) {
-                        psa_crypto_access_control_unregister_handle(psa_key_mng.handle);
-                    }
-
                     break;
                 }
 
