@@ -937,7 +937,7 @@ void USBDevice::out(usb_ep_t endpoint)
     MBED_ASSERT(info->pending >= 1);
     info->pending -= 1;
     if (info->callback) {
-        (this->*(info->callback))();
+        info->callback();
     }
 }
 
@@ -955,7 +955,7 @@ void USBDevice::in(usb_ep_t endpoint)
     MBED_ASSERT(info->pending >= 1);
     info->pending -= 1;
     if (info->callback) {
-        (this->*(info->callback))();
+        info->callback();
     }
 }
 
@@ -1051,7 +1051,7 @@ void USBDevice::sof_disable()
     unlock();
 }
 
-bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep_type_t type, ep_cb_t callback)
+bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep_type_t type, mbed::Callback<void()> callback)
 {
     lock();
 
