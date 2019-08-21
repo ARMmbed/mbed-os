@@ -1225,7 +1225,7 @@ void ATHandler::handle_args(const char *format, std::va_list list)
 {
     while (*format != '\0') {
         if (*format == 'd') {
-            int i = va_arg(list, int);
+            int32_t i = va_arg(list, int32_t);
             write_int(i);
         } else if (*format == 's') {
             char *str = (char *)va_arg(list, char *);
