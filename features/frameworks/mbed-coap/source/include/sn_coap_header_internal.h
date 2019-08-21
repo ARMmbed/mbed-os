@@ -58,7 +58,7 @@ extern "C" {
  * \brief This structure is returned by sn_coap_exec() for sending
  */
 typedef struct sn_nsdl_transmit_ {
-    sn_nsdl_addr_s         *dst_addr_ptr;
+    sn_nsdl_addr_s          dst_addr_ptr;
 
     sn_nsdl_capab_e         protocol;
 
@@ -69,7 +69,7 @@ typedef struct sn_nsdl_transmit_ {
 /* * * * * * * * * * * * * * * * * * * * * * */
 /* * * * EXTERNAL FUNCTION PROTOTYPES  * * * */
 /* * * * * * * * * * * * * * * * * * * * * * */
-extern int8_t           sn_coap_header_validity_check(sn_coap_hdr_s *src_coap_msg_ptr, coap_version_e coap_version);
+extern int8_t           sn_coap_header_validity_check(const sn_coap_hdr_s *src_coap_msg_ptr, coap_version_e coap_version);
 
 #endif /* SN_COAP_HEADER_INTERNAL_H_ */
 

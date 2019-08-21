@@ -44,7 +44,7 @@
  * \return Return value is status of validity check. In ok cases 0 and in
  *         failure cases -1
  */
-int8_t sn_coap_header_validity_check(sn_coap_hdr_s *src_coap_msg_ptr, coap_version_e coap_version)
+int8_t sn_coap_header_validity_check(const sn_coap_hdr_s *src_coap_msg_ptr, coap_version_e coap_version)
 {
     /* * Check validity of CoAP Version * */
     if (coap_version != COAP_VERSION_1) {
