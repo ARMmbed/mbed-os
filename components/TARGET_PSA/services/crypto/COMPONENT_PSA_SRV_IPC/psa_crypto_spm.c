@@ -115,12 +115,12 @@ psa_algorithm_t psa_key_policy_get_algorithm(const psa_key_policy_t *policy)
     return (policy->alg);
 }
 
-psa_status_t psa_set_key_policy(psa_key_handle_t key_handle,
+psa_status_t psa_set_key_policy(psa_key_handle_t handle,
                                 const psa_key_policy_t *policy)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_SET_KEY_POLICY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -134,12 +134,12 @@ psa_status_t psa_set_key_policy(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_get_key_policy(psa_key_handle_t key_handle,
+psa_status_t psa_get_key_policy(psa_key_handle_t handle,
                                 psa_key_policy_t *policy)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_GET_KEY_POLICY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -152,12 +152,12 @@ psa_status_t psa_get_key_policy(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_get_key_lifetime(psa_key_handle_t key_handle,
+psa_status_t psa_get_key_lifetime(psa_key_handle_t handle,
                                   psa_key_lifetime_t *lifetime)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_GET_KEY_LIFETIME,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -170,18 +170,18 @@ psa_status_t psa_get_key_lifetime(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_allocate_key(psa_key_handle_t *key_handle)
+psa_status_t psa_allocate_key(psa_key_handle_t *handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_ALLOCATE_KEY,
-        .handle     = *key_handle,
+        .handle     = *handle,
         .lifetime   = 0,
         .type       = 0
     };
 
     psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
 
-    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+    psa_outvec out_vec = { handle, sizeof(*handle) };
 
     psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, &out_vec, 1);
     return (status);
@@ -189,11 +189,11 @@ psa_status_t psa_allocate_key(psa_key_handle_t *key_handle)
 
 psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
                           psa_key_id_t id,
-                          psa_key_handle_t *key_handle)
+                          psa_key_handle_t *handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_OPEN_KEY,
-        .handle     = *key_handle,
+        .handle     = *handle,
         .lifetime   = lifetime,
         .type       = 0
     };
@@ -203,7 +203,7 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
         { &id, sizeof(id) }
     };
 
-    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+    psa_outvec out_vec = { handle, sizeof(*handle) };
 
     psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, &out_vec, 1);
     return (status);
@@ -211,11 +211,11 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
 
 psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
                             psa_key_id_t id,
-                            psa_key_handle_t *key_handle)
+                            psa_key_handle_t *handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_CREATE_KEY,
-        .handle     = *key_handle,
+        .handle     = *handle,
         .lifetime   = lifetime,
         .type       = 0
     };
@@ -225,17 +225,17 @@ psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
         { &id, sizeof(id) }
     };
 
-    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+    psa_outvec out_vec = { handle, sizeof(*handle) };
 
     psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, &out_vec, 1);
     return (status);
 }
 
-psa_status_t psa_close_key(psa_key_handle_t key_handle)
+psa_status_t psa_close_key(psa_key_handle_t handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_CLOSE_KEY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -246,14 +246,14 @@ psa_status_t psa_close_key(psa_key_handle_t key_handle)
     return (status);
 }
 
-psa_status_t psa_import_key(psa_key_handle_t key_handle,
+psa_status_t psa_import_key(psa_key_handle_t handle,
                             psa_key_type_t type,
                             const uint8_t *data,
                             size_t data_length)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_IMPORT_KEY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = type
     };
@@ -267,11 +267,11 @@ psa_status_t psa_import_key(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_destroy_key(psa_key_handle_t key_handle)
+psa_status_t psa_destroy_key(psa_key_handle_t handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_DESTROY_KEY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -282,13 +282,13 @@ psa_status_t psa_destroy_key(psa_key_handle_t key_handle)
     return (status);
 }
 
-psa_status_t psa_get_key_information(psa_key_handle_t key_handle,
+psa_status_t psa_get_key_information(psa_key_handle_t handle,
                                      psa_key_type_t *type,
                                      size_t *bits)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_GET_KEY_INFORMATION,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -304,7 +304,7 @@ psa_status_t psa_get_key_information(psa_key_handle_t key_handle,
     return (status);
 }
 
-static psa_status_t psa_export_key_common(psa_key_handle_t key_handle,
+static psa_status_t psa_export_key_common(psa_key_handle_t handle,
                                           uint8_t *data,
                                           size_t data_size,
                                           size_t *data_length,
@@ -312,7 +312,7 @@ static psa_status_t psa_export_key_common(psa_key_handle_t key_handle,
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = func,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = 0
     };
@@ -328,22 +328,22 @@ static psa_status_t psa_export_key_common(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_export_key(psa_key_handle_t key_handle,
+psa_status_t psa_export_key(psa_key_handle_t handle,
                             uint8_t *data,
                             size_t data_size,
                             size_t *data_length)
 {
-    psa_status_t status = psa_export_key_common(key_handle, data, data_size,
+    psa_status_t status = psa_export_key_common(handle, data, data_size,
                                                 data_length, PSA_EXPORT_KEY);
     return (status);
 }
 
-psa_status_t psa_export_public_key(psa_key_handle_t key_handle,
+psa_status_t psa_export_public_key(psa_key_handle_t handle,
                                    uint8_t *data,
                                    size_t data_size,
                                    size_t *data_length)
 {
-    psa_status_t status = psa_export_key_common(key_handle, data, data_size,
+    psa_status_t status = psa_export_key_common(handle, data, data_size,
                                                 data_length,
                                                 PSA_EXPORT_PUBLIC_KEY);
     return (status);
@@ -504,7 +504,7 @@ exit:
 }
 
 static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
-                                  psa_key_handle_t key_handle,
+                                  psa_key_handle_t handle,
                                   psa_algorithm_t alg,
                                   psa_sec_function_t func)
 {
@@ -514,7 +514,7 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
 
     psa_crypto_ipc_t psa_crypto_ipc = {
         .func   = func,
-        .handle = key_handle,
+        .handle = handle,
         .alg    = alg
     };
 
@@ -532,18 +532,18 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
 }
 
 psa_status_t psa_mac_sign_setup(psa_mac_operation_t *operation,
-                                psa_key_handle_t key_handle,
+                                psa_key_handle_t handle,
                                 psa_algorithm_t alg)
 {
-    psa_status_t status = psa_mac_setup(operation, key_handle, alg, PSA_MAC_SIGN_SETUP);
+    psa_status_t status = psa_mac_setup(operation, handle, alg, PSA_MAC_SIGN_SETUP);
     return (status);
 }
 
 psa_status_t psa_mac_verify_setup(psa_mac_operation_t *operation,
-                                  psa_key_handle_t key_handle,
+                                  psa_key_handle_t handle,
                                   psa_algorithm_t alg)
 {
-    psa_status_t status = psa_mac_setup(operation, key_handle, alg, PSA_MAC_VERIFY_SETUP);
+    psa_status_t status = psa_mac_setup(operation, handle, alg, PSA_MAC_VERIFY_SETUP);
     return (status);
 }
 
@@ -633,7 +633,7 @@ psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
 }
 
 static psa_status_t psa_cipher_setup(psa_cipher_operation_t *operation,
-                                     psa_key_handle_t key_handle,
+                                     psa_key_handle_t handle,
                                      psa_algorithm_t alg,
                                      psa_sec_function_t func)
 {
@@ -643,7 +643,7 @@ static psa_status_t psa_cipher_setup(psa_cipher_operation_t *operation,
 
     psa_crypto_ipc_t psa_crypto_ipc = {
         .func = func,
-        .handle = key_handle,
+        .handle = handle,
         .alg = alg
     };
 
@@ -661,18 +661,18 @@ static psa_status_t psa_cipher_setup(psa_cipher_operation_t *operation,
 }
 
 psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
-                                      psa_key_handle_t key_handle,
+                                      psa_key_handle_t handle,
                                       psa_algorithm_t alg)
 {
-    psa_status_t status = psa_cipher_setup(operation, key_handle, alg, PSA_CIPHER_ENCRYPT_SETUP);
+    psa_status_t status = psa_cipher_setup(operation, handle, alg, PSA_CIPHER_ENCRYPT_SETUP);
     return (status);
 }
 
 psa_status_t psa_cipher_decrypt_setup(psa_cipher_operation_t *operation,
-                                      psa_key_handle_t key_handle,
+                                      psa_key_handle_t handle,
                                       psa_algorithm_t alg)
 {
-    psa_status_t status = psa_cipher_setup(operation, key_handle, alg, PSA_CIPHER_DECRYPT_SETUP);
+    psa_status_t status = psa_cipher_setup(operation, handle, alg, PSA_CIPHER_DECRYPT_SETUP);
     return (status);
 }
 
@@ -793,7 +793,7 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
     return (status);
 }
 
-psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
+psa_status_t psa_aead_encrypt(psa_key_handle_t handle,
                               psa_algorithm_t alg,
                               const uint8_t *nonce,
                               size_t nonce_length,
@@ -816,7 +816,7 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
 
     psa_crypto_ipc_aead_t psa_crypto_ipc = {
         .func                   = PSA_AEAD_ENCRYPT,
-        .handle                 = key_handle,
+        .handle                 = handle,
         .alg                    = alg,
         .nonce_size             = nonce_length,
         .additional_data_length = additional_data_length,
@@ -844,7 +844,7 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
+psa_status_t psa_aead_decrypt(psa_key_handle_t handle,
                               psa_algorithm_t alg,
                               const uint8_t *nonce,
                               size_t nonce_length,
@@ -867,7 +867,7 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
 
     psa_crypto_ipc_aead_t psa_crypto_ipc = {
         .func                   = PSA_AEAD_DECRYPT,
-        .handle                 = key_handle,
+        .handle                 = handle,
         .alg                    = alg,
         .nonce_size             = nonce_length,
         .additional_data_length = additional_data_length,
@@ -895,7 +895,7 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
+psa_status_t psa_asymmetric_sign(psa_key_handle_t handle,
                                  psa_algorithm_t alg,
                                  const uint8_t *hash,
                                  size_t hash_length,
@@ -905,7 +905,7 @@ psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
 {
     psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
         .func           = PSA_ASYMMETRIC_SIGN,
-        .handle         = key_handle,
+        .handle         = handle,
         .alg            = alg,
         .input_length   = 0,
         .salt_length    = 0
@@ -925,7 +925,7 @@ psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
     return (status);
 }
 
-psa_status_t psa_asymmetric_verify(psa_key_handle_t key_handle,
+psa_status_t psa_asymmetric_verify(psa_key_handle_t handle,
                                    psa_algorithm_t alg,
                                    const uint8_t *hash,
                                    size_t hash_length,
@@ -934,7 +934,7 @@ psa_status_t psa_asymmetric_verify(psa_key_handle_t key_handle,
 {
     psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
         .func           = PSA_ASYMMETRIC_VERIFY,
-        .handle         = key_handle,
+        .handle         = handle,
         .alg            = alg,
         .input_length   = 0,
         .salt_length    = 0
@@ -951,7 +951,7 @@ psa_status_t psa_asymmetric_verify(psa_key_handle_t key_handle,
 }
 
 static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
-                                             psa_key_handle_t key_handle,
+                                             psa_key_handle_t handle,
                                              psa_algorithm_t alg,
                                              const uint8_t *input,
                                              size_t input_length,
@@ -968,7 +968,7 @@ static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
 
     psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
         .func           = func,
-        .handle         = key_handle,
+        .handle         = handle,
         .alg            = alg,
         .input_length   = input_length,
         .salt_length    = salt_length
@@ -993,7 +993,7 @@ static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
     return (status);
 }
 
-psa_status_t psa_asymmetric_encrypt(psa_key_handle_t key_handle,
+psa_status_t psa_asymmetric_encrypt(psa_key_handle_t handle,
                                     psa_algorithm_t alg,
                                     const uint8_t *input,
                                     size_t input_length,
@@ -1004,14 +1004,14 @@ psa_status_t psa_asymmetric_encrypt(psa_key_handle_t key_handle,
                                     size_t *output_length)
 {
     psa_status_t status = psa_asymmetric_operation(PSA_ASYMMETRIC_ENCRYPT,
-                                                   key_handle,
+                                                   handle,
                                                    alg, input, input_length,
                                                    salt, salt_length, output,
                                                    output_size, output_length);
     return (status);
 }
 
-psa_status_t psa_asymmetric_decrypt(psa_key_handle_t key_handle,
+psa_status_t psa_asymmetric_decrypt(psa_key_handle_t handle,
                                     psa_algorithm_t alg,
                                     const uint8_t *input,
                                     size_t input_length,
@@ -1022,7 +1022,7 @@ psa_status_t psa_asymmetric_decrypt(psa_key_handle_t key_handle,
                                     size_t *output_length)
 {
     psa_status_t status = psa_asymmetric_operation(PSA_ASYMMETRIC_DECRYPT,
-                                                   key_handle,
+                                                   handle,
                                                    alg, input, input_length,
                                                    salt, salt_length, output,
                                                    output_size, output_length);
@@ -1070,14 +1070,14 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
     return (status);
 }
 
-psa_status_t psa_generator_import_key(psa_key_handle_t key_handle,
+psa_status_t psa_generator_import_key(psa_key_handle_t handle,
                                       psa_key_type_t type,
                                       size_t bits,
                                       psa_crypto_generator_t *generator)
 {
     psa_crypto_derivation_ipc_t psa_crypto_ipc = {
         .func       = PSA_GENERATOR_IMPORT_KEY,
-        .handle     = key_handle,
+        .handle     = handle,
         .alg        = 0,
         .capacity   = 0
     };
@@ -1112,7 +1112,7 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
 }
 
 psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
-                                psa_key_handle_t key_handle,
+                                psa_key_handle_t handle,
                                 psa_algorithm_t alg,
                                 const uint8_t *salt,
                                 size_t salt_length,
@@ -1126,7 +1126,7 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
 
     psa_crypto_derivation_ipc_t psa_crypto_ipc = {
         .func       = PSA_KEY_DERIVATION,
-        .handle     = key_handle,
+        .handle     = handle,
         .alg        = alg,
         .capacity   = capacity
     };
@@ -1190,7 +1190,7 @@ psa_status_t psa_generate_random(uint8_t *output,
     return (status);
 }
 
-psa_status_t psa_generate_key(psa_key_handle_t key_handle,
+psa_status_t psa_generate_key(psa_key_handle_t handle,
                               psa_key_type_t type,
                               size_t bits,
                               const void *parameters,
@@ -1202,7 +1202,7 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
 
     psa_key_mng_ipc_t psa_key_mng_ipc = {
         .func       = PSA_GENERATE_KEY,
-        .handle     = key_handle,
+        .handle     = handle,
         .lifetime   = 0,
         .type       = type
     };

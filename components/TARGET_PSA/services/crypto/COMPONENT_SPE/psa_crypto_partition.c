@@ -1262,29 +1262,29 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_IMPORT_KEY: {
-                    size_t key_length = msg.in_size[1];
-                    uint8_t *key = NULL;
+                    size_t data_length = msg.in_size[1];
+                    uint8_t *data = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle, partition_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
 
-                    if (key_length > 0) {
-                        key = mbedtls_calloc(1, key_length);
-                        if (key == NULL) {
+                    if (data_length > 0) {
+                        data = mbedtls_calloc(1, data_length);
+                        if (data == NULL) {
                             status = PSA_ERROR_INSUFFICIENT_MEMORY;
                             break;
                         }
                     }
 
-                    bytes_read = psa_read(msg.handle, 1, key, key_length);
-                    if (bytes_read != key_length) {
+                    bytes_read = psa_read(msg.handle, 1, data, data_length);
+                    if (bytes_read != data_length) {
                         SPM_PANIC("SPM read length mismatch");
                     }
 
-                    status = psa_import_key(psa_key_mng.handle, psa_key_mng.type, key, key_length);
-                    mbedtls_free(key);
+                    status = psa_import_key(psa_key_mng.handle, psa_key_mng.type, data, data_length);
+                    mbedtls_free(data);
                     break;
                 }
 
@@ -1325,58 +1325,58 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_EXPORT_KEY: {
-                    size_t key_length = msg.out_size[0];
+                    size_t data_size = msg.out_size[0];
                     size_t data_length;
-                    uint8_t *key = NULL;
+                    uint8_t *data = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle, partition_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
 
-                    if (key_length > 0) {
-                        key = mbedtls_calloc(1, key_length);
-                        if (key == NULL) {
+                    if (data_size > 0) {
+                        data = mbedtls_calloc(1, data_size);
+                        if (data == NULL) {
                             status = PSA_ERROR_INSUFFICIENT_MEMORY;
                             break;
                         }
                     }
 
-                    status = psa_export_key(psa_key_mng.handle, key, key_length, &data_length);
+                    status = psa_export_key(psa_key_mng.handle, data, data_size, &data_length);
                     if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, key, data_length);
+                        psa_write(msg.handle, 0, data, data_length);
                     }
                     psa_write(msg.handle, 1, &data_length, sizeof(size_t));
 
-                    mbedtls_free(key);
+                    mbedtls_free(data);
                     break;
                 }
 
                 case PSA_EXPORT_PUBLIC_KEY: {
-                    size_t key_length = msg.out_size[0];
+                    size_t data_size = msg.out_size[0];
                     size_t data_length;
-                    uint8_t *key = NULL;
+                    uint8_t *data = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle, partition_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
 
-                    if (key_length > 0) {
-                        key = mbedtls_calloc(1, key_length);
-                        if (key == NULL) {
+                    if (data_size > 0) {
+                        data = mbedtls_calloc(1, data_size);
+                        if (data == NULL) {
                             status = PSA_ERROR_INSUFFICIENT_MEMORY;
                             break;
                         }
                     }
 
-                    status = psa_export_public_key(psa_key_mng.handle, key, key_length, &data_length);
+                    status = psa_export_public_key(psa_key_mng.handle, data, data_size, &data_length);
                     if (status == PSA_SUCCESS) {
-                        psa_write(msg.handle, 0, key, data_length);
+                        psa_write(msg.handle, 0, data, data_length);
                     }
                     psa_write(msg.handle, 1, &data_length, sizeof(size_t));
 
-                    mbedtls_free(key);
+                    mbedtls_free(data);
                     break;
                 }
 
