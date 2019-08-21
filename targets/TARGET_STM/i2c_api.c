@@ -40,6 +40,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
+#include "mbed_error.h"
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -760,7 +761,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
-
+#if defined(I2C_IP_VERSION_V1)
     // Trick to remove compiler warning "left and right operands are identical" in some cases
     uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
     uint32_t op2 = I2C_LAST_FRAME;
@@ -778,6 +779,18 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
             obj_s->XferOperation = I2C_NEXT_FRAME;
         }
     }
+#elif defined(I2C_IP_VERSION_V2)
+    if ((obj_s->XferOperation == I2C_FIRST_FRAME) || (obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) || (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop) {
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        } else {
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+        }
+    } else {
+        // should not happend
+        error("I2C: abnormal case should not happend");
+    }
+#endif
 
     obj_s->event = 0;
 
@@ -818,6 +831,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
+#if defined(I2C_IP_VERSION_V1)
     // Trick to remove compiler warning "left and right operands are identical" in some cases
     uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
     uint32_t op2 = I2C_LAST_FRAME;
@@ -835,6 +849,18 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             obj_s->XferOperation = I2C_NEXT_FRAME;
         }
     }
+#elif defined(I2C_IP_VERSION_V2)
+    if ((obj_s->XferOperation == I2C_FIRST_FRAME) || (obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) || (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        if (stop) {
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        } else {
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+        }
+    } else {
+        // should not happend
+        error("I2C: abnormal case should not happend");
+    }
+#endif
 
     obj_s->event = 0;
 
@@ -874,11 +900,19 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 #if DEVICE_I2C_ASYNCH
     /* Handle potential Tx/Rx use case */
     if ((obj->tx_buff.length) && (obj->rx_buff.length)) {
+#if defined(I2C_IP_VERSION_V1)
         if (obj_s->stop) {
             obj_s->XferOperation = I2C_LAST_FRAME;
         } else {
             obj_s->XferOperation = I2C_NEXT_FRAME;
         }
+#elif defined(I2C_IP_VERSION_V2)
+        if (obj_s->stop) {
+            obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+        } else {
+            obj_s->XferOperation = I2C_FIRST_FRAME;
+        }
+#endif
 
         HAL_I2C_Master_Sequential_Receive_IT(hi2c, obj_s->address, (uint8_t *)obj->rx_buff.buffer, obj->rx_buff.length, obj_s->XferOperation);
     } else
@@ -1143,6 +1177,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
+#if defined(I2C_IP_VERSION_V1)
         // Trick to remove compiler warning "left and right operands are identical" in some cases
         uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
         uint32_t op2 = I2C_LAST_FRAME;
@@ -1160,7 +1195,18 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
                 obj_s->XferOperation = I2C_NEXT_FRAME;
             }
         }
-
+#elif defined(I2C_IP_VERSION_V2)
+        if ((obj_s->XferOperation == I2C_FIRST_FRAME) || (obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) || (obj_s->XferOperation == I2C_LAST_FRAME)) {
+            if (stop) {
+                obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+            } else {
+                obj_s->XferOperation = I2C_FIRST_FRAME;
+            }
+        } else {
+            // should not happend
+            error("I2C: abnormal case should not happend");
+        }
+#endif
         if (tx_length > 0) {
             HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, obj_s->XferOperation);
         }
@@ -1169,6 +1215,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
         }
     } else if (tx_length && rx_length) {
         /* Two steps operation, don't modify XferOperation, keep it for next step */
+#if defined(I2C_IP_VERSION_V1)
         // Trick to remove compiler warning "left and right operands are identical" in some cases
         uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
         uint32_t op2 = I2C_LAST_FRAME;
@@ -1178,6 +1225,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
                    (obj_s->XferOperation == I2C_NEXT_FRAME)) {
             HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_NEXT_FRAME);
         }
+#elif defined(I2C_IP_VERSION_V2)
+        HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *)tx, tx_length, I2C_FIRST_FRAME);
+#endif
     }
 }
 
