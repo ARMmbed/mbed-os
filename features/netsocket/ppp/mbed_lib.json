@@ -1,0 +1,52 @@
+{
+    "name": "ppp",
+    "macros": ["NSAPI_PPP_AVAILABLE=(MBED_CONF_PPP_ENABLED || MBED_CONF_LWIP_PPP_ENABLED)"],    
+    "config": {
+        "enabled": {
+            "help": "Enable support for PPP interfaces",
+            "value": false
+        },
+        "ipv4-enabled": {
+            "help": "Enable support for ipv4 PPP interface",
+            "value": true
+        },
+        "ipv6-enabled": {
+            "help": "Enable support for ipv6 PPP interface",
+            "value": false
+        },
+        "debug": {
+            "help": "Enable debug traces for PPP",
+            "value": false,
+            "macro_name": "PPP_DEBUG"
+        },
+        "enable-trace": {
+            "help": "Enable PPP packet traces (traces every outbound and inbound packet)",
+            "value": false
+        },
+        "thread-stacksize": {
+            "help": "Thread stack size for PPP",
+            "value": 816
+        },
+        "mbed-event-queue": {
+            "help": "Use mbed event queue instead of PPP thread",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "RZ_A1_EMAC": {
+            "thread-stacksize": 896
+        },
+        "CYW943012P6EVB_01": {
+            "thread-stacksize": 896
+        },
+        "CY8CPROTO_062_4343W": {
+            "thread-stacksize": 896
+        },
+        "CY8CKIT_062_WIFI_BT": {
+            "thread-stacksize": 896
+        },
+        "CY8CKIT_062S2_43012": {
+            "thread-stacksize": 896
+        }
+    }
+}

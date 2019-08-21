@@ -22,6 +22,7 @@
 #include "NetworkStack.h"
 #include "EMAC.h"
 #include "L3IP.h"
+#include "PPP.h"
 
 /**
  * mbed OS API for onboard IP stack abstraction
@@ -165,9 +166,19 @@ public:
         return NSAPI_ERROR_OK;
     };
 
+    virtual nsapi_error_t add_ppp_interface(PPP &ppp, bool default_if, Interface **interface_out)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    };
+
     virtual nsapi_error_t remove_l3ip_interface(Interface **interface_out)
     {
         return NSAPI_ERROR_OK;
+    };
+
+    virtual nsapi_error_t remove_ppp_interface(Interface **interface_out)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
     };
 
     virtual void set_default_interface(OnboardNetworkStack::Interface *interface)

@@ -51,11 +51,6 @@
 
 #include <string.h>
 
-#include "netif/ppp/ppp_opts.h"
-#if PPPOE_SUPPORT
-#include "netif/ppp/pppoe.h"
-#endif /* PPPOE_SUPPORT */
-
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
 #endif

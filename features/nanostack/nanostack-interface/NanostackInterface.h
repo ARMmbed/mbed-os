@@ -23,6 +23,7 @@
 #include "LoWPANNDInterface.h"
 #include "ThreadInterface.h"
 #include "NanostackEthernetInterface.h"
+#include "NanostackPPPInterface.h"
 #include "MeshInterfaceNanostack.h"
 #include "WisunInterface.h"
 #endif /* NANOSTACK_INTERFACE_H_ */

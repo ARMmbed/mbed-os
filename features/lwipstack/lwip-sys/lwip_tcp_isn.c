@@ -75,22 +75,34 @@
 #include "lwip/sys.h"
 #include <string.h>
 
-/* pull in md5 of ppp? */
-#if !PPP_SUPPORT
-#undef   PPP_SUPPORT
-#define  PPP_SUPPORT  1
-#define  PPP_FAKED_ON 1
-#endif
+#if !LWIP_USE_EXTERNAL_MBEDTLS
 
-#include "netif/ppp/ppp_opts.h"
-#include "netif/ppp/ppp.h"
-#include "netif/ppp/pppcrypt.h"
+#include "polarssl/md5.h"
 
-#if PPP_FAKED_ON && !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS
-#undef  LWIP_INCLUDED_POLARSSL_MD5
-#define LWIP_INCLUDED_POLARSSL_MD5 1
-#include "netif/ppp/polarssl/lwip_md5.c"
-#endif
+#define MD5_context md5_context
+#define MD5_init(context)
+#define MD5_starts md5_starts
+#define MD5_update md5_update
+#define MD5_finish md5_finish
+#define MD5_free(context)
+
+#endif /* !LWIP_USE_EXTERNAL_MBEDTLS */
+
+/*
+ * Map hashes and ciphers functions to mbed TLS
+ */
+#if LWIP_USE_EXTERNAL_MBEDTLS
+
+#include "mbedtls/md5.h"
+
+#define MD5_context mbedtls_md5_context
+#define MD5_init mbedtls_md5_init
+#define MD5_starts mbedtls_md5_starts
+#define MD5_update mbedtls_md5_update
+#define MD5_finish mbedtls_md5_finish
+#define MD5_free mbedtls_md5_free
+
+#endif /* LWIP_USE_EXTERNAL_MBEDTLS */
 
 static u8_t input[64];
 static u32_t base_time;
@@ -127,7 +139,7 @@ u32_t
 lwip_hook_tcp_isn(const void *local_ip_ptr, u16_t local_port,
         const void *remote_ip_ptr, u16_t remote_port)
 {
-  lwip_md5_context ctx;
+  MD5_context ctx;
   u8_t output[16];
   u32_t isn;
   const ip_addr_t *local_ip = local_ip_ptr;
@@ -176,13 +188,12 @@ lwip_hook_tcp_isn(const void *local_ip_ptr, u16_t local_port,
   input[35] = remote_port & 0xff;
 
   /* The secret and padding are already filled in. */
-
   /* Generate the hash, using MD5. */
-  lwip_md5_init(&ctx);
-  lwip_md5_starts(&ctx);
-  lwip_md5_update(&ctx, input, sizeof(input));
-  lwip_md5_finish(&ctx, output);
-  lwip_md5_free(&ctx);
+  MD5_init(&ctx);
+  MD5_starts(&ctx);
+  MD5_update(&ctx, input, sizeof(input));
+  MD5_finish(&ctx, output);
+  MD5_free(&ctx);
 
   /* Arbitrarily take the first 32 bits from the generated hash. */
   MEMCPY(&isn, output, sizeof(isn));

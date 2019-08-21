@@ -36,6 +36,7 @@ class WiFiInterface;
 class MeshInterface;
 class CellularInterface;
 class EMACInterface;
+class PPPInterface;
 
 /** Common interface that is shared between network devices.
  *

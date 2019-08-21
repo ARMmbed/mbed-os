@@ -95,6 +95,7 @@ typedef enum phy_link_type_e {
     PHY_LINK_15_4_SUBGHZ_TYPE,      /**< Standard 802.15.4 subGHz radio 868 /915MHz. */
     PHY_LINK_TUN,                   /**< Tunnel interface for Linux TUN, RF network driver over serial bus or just basic application to application data flow. */
     PHY_LINK_SLIP,                  /**< Generic SLIP driver which just forward SLIP payload */
+    PHY_LINK_PPP,                   /**< PPP interface */
 } phy_link_type_e;
 
 /** Data layers */
