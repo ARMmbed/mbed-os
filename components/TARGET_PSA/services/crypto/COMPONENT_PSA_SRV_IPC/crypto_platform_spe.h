@@ -40,7 +40,6 @@
 /** \brief psa_s_function_t enum defines for all the available functions in PSA Crypto. */
 typedef enum psa_sec_function_s {
     PSA_CRYPTO_INVALID,
-    PSA_CRYPTO_INIT,
     PSA_IMPORT_KEY,
     PSA_ALLOCATE_KEY,
     PSA_CREATE_KEY,
