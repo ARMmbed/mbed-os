@@ -774,6 +774,8 @@ int _storage_config_TDB_EXTERNAL()
     return MBED_ERROR_UNSUPPORTED;
 #endif
 
+#ifdef MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS
+
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
 
@@ -842,6 +844,9 @@ int _storage_config_TDB_EXTERNAL()
     kvstore_config.flags_mask = ~(0);
 
     return _storage_config_tdb_external_common();
+#else
+    return MBED_ERROR_CONFIG_UNSUPPORTED;
+#endif
 }
 
 int _storage_config_TDB_EXTERNAL_NO_RBP()
@@ -849,6 +854,8 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
 #if !SECURESTORE_ENABLED
     return MBED_ERROR_UNSUPPORTED;
 #endif
+
+#ifdef MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS
     bd_size_t size = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_SIZE;
     bd_addr_t address = MBED_CONF_STORAGE_TDB_EXTERNAL_NO_RBP_EXTERNAL_BASE_ADDRESS;
 
@@ -879,6 +886,9 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
     kvstore_config.flags_mask = ~(KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
 
     return _storage_config_tdb_external_common();
+#else
+    return MBED_ERROR_CONFIG_UNSUPPORTED;
+#endif
 }
 
 int _storage_config_tdb_external_common()
@@ -938,6 +948,7 @@ int _storage_config_FILESYSTEM()
     return MBED_ERROR_UNSUPPORTED;
 #endif
 
+#ifdef MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS
     filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_FOLDER_PATH);
 
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
@@ -1017,6 +1028,9 @@ int _storage_config_FILESYSTEM()
     kvstore_config.flags_mask = ~(0);
 
     return _storage_config_filesystem_common();
+#else
+    return MBED_ERROR_CONFIG_UNSUPPORTED;
+#endif
 }
 
 int _storage_config_FILESYSTEM_NO_RBP()
@@ -1025,6 +1039,7 @@ int _storage_config_FILESYSTEM_NO_RBP()
     return MBED_ERROR_UNSUPPORTED;
 #endif
 
+#ifdef MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS
     filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH);
 
     bd_size_t size = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE;
@@ -1059,6 +1074,9 @@ int _storage_config_FILESYSTEM_NO_RBP()
     kvstore_config.flags_mask = ~(KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
 
     return _storage_config_filesystem_common();
+#else
+    return MBED_ERROR_CONFIG_UNSUPPORTED;
+#endif
 }
 
 int _storage_config_filesystem_common()
