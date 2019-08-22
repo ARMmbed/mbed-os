@@ -19,7 +19,7 @@ Mbed OS provides a set of integration tests to help users identify integration i
 
 ## Execute tests
 
-The integration test requires both the connectivity and and storage device to configured. 
+The integration test requires both the connectivity and storage device to configured. 
 If a platform has both of them enabled by default ( in `targets.json`), then the tests can be compiled and run from inside the mbed-os directory:: 
 
     ```
