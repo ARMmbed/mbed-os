@@ -1242,6 +1242,7 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
+            "USBDEVICE",
             "FLASH"
         ],
         "device_name": "MK22DN512xxx5"
