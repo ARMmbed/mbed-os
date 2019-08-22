@@ -36,6 +36,7 @@ using namespace mbed;
 #define UINT64_MAX -1
 #endif
 #define QSPI_NO_ADDRESS_COMMAND UINT64_MAX
+#define QSPI_ALT_DEFAULT_VALUE  0
 // Status Register Bits
 #define QSPIF_STATUS_BIT_WIP        0x1 //Write In Progress
 #define QSPIF_STATUS_BIT_WEL        0x2 // Write Enable Latch
@@ -168,11 +169,11 @@ int QSPIFBlockDevice::init()
     _inst_width = QSPI_CFG_BUS_SINGLE;
     _address_width = QSPI_CFG_BUS_SINGLE;
     _address_size = QSPI_CFG_ADDR_SIZE_24;
+    _alt_size = 0;
+    _dummy_cycles = 0;
     _data_width = QSPI_CFG_BUS_SINGLE;
-    _dummy_and_mode_cycles = 0;
     _write_register_inst = QSPIF_WRSR;
     _read_register_inst = QSPIF_RDSR;
-
 
     if (QSPI_STATUS_OK != _qspi_set_frequency(_freq)) {
         tr_error("QSPI Set Frequency Failed");
@@ -302,15 +303,15 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     _mutex.lock();
 
     // Configure Bus for Reading
-    _qspi_configure_format(_inst_width, _address_width, _address_size, QSPI_CFG_BUS_SINGLE,
-                           0, _data_width, _dummy_and_mode_cycles);
+    _qspi_configure_format(_inst_width, _address_width, _address_size, _address_width, // Alt width == address width
+                           _alt_size, _data_width, _dummy_cycles);
 
     if (QSPI_STATUS_OK != _qspi_send_read_command(_read_instruction, buffer, addr, size)) {
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         tr_error("Read Command failed");
     }
 
-    // All commands other than Read use default 1-1-1 Bus mode (Program/Erase are constrained by flash memory performance less than that of the bus)
+    // All commands other than Read use default 1-1-1 Bus mode (Program/Erase are constrained by flash memory performance more than bus performance)
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
                            0, QSPI_CFG_BUS_SINGLE, 0);
 
@@ -1024,8 +1025,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
                 read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE];
                 set_quad_enable = true;
                 is_qpi_mode = true;
-                _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] >> 5)
-                                         + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] & 0x1F);
+                _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] & 0x1F;
+                uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_444_READ_INST_BYTE - 1] >> 5;
+                _alt_size = mode_cycles * 4;
                 tr_debug("Read Bus Mode set to 4-4-4, Instruction: 0x%xh", _read_instruction);
                 //_inst_width = QSPI_CFG_BUS_QUAD;
                 _address_width = QSPI_CFG_BUS_QUAD;
@@ -1038,9 +1040,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
             //  Fast Read 1-4-4 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE];
             set_quad_enable = true;
-            // dummy cycles + mode cycles = Dummy Cycles
-            _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE - 1] & 0x1F);
+            _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE - 1] & 0x1F;
+            uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_144_READ_INST_BYTE - 1] >> 5;
+            _alt_size = mode_cycles * 4;
             _address_width = QSPI_CFG_BUS_QUAD;
             _data_width = QSPI_CFG_BUS_QUAD;
             tr_debug("Read Bus Mode set to 1-4-4, Instruction: 0x%xh", _read_instruction);
@@ -1051,8 +1053,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
             //  Fast Read 1-1-4 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE];
             set_quad_enable = true;
-            _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE - 1] & 0x1F);
+            _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE - 1] & 0x1F;
+            uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_114_READ_INST_BYTE - 1] >> 5;
+            _alt_size = mode_cycles;
             _data_width = QSPI_CFG_BUS_QUAD;
             tr_debug("Read Bus Mode set to 1-1-4, Instruction: 0x%xh", _read_instruction);
             break;
@@ -1061,8 +1064,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
         if (examined_byte & 0x01) {
             //  Fast Read 2-2-2 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE];
-            _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] & 0x1F);
+            _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] & 0x1F;
+            uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] >> 5;
+            _alt_size = mode_cycles * 2;
             _address_width = QSPI_CFG_BUS_DUAL;
             _data_width = QSPI_CFG_BUS_DUAL;
             tr_debug("Read Bus Mode set to 2-2-2, Instruction: 0x%xh", _read_instruction);
@@ -1073,8 +1077,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
         if (examined_byte & 0x10) {
             //  Fast Read 1-2-2 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE];
-            _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] & 0x1F);
+            _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] & 0x1F;
+            uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_122_READ_INST_BYTE - 1] >> 5;
+            _alt_size = mode_cycles * 2;
             _address_width = QSPI_CFG_BUS_DUAL;
             _data_width = QSPI_CFG_BUS_DUAL;
             tr_debug("Read Bus Mode set to 1-2-2, Instruction: 0x%xh", _read_instruction);
@@ -1083,8 +1088,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
         if (examined_byte & 0x01) {
             // Fast Read 1-1-2 Supported
             read_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE];
-            _dummy_and_mode_cycles = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] >> 5)
-                                     + (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] & 0x1F);
+            _dummy_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] & 0x1F;
+            uint8_t mode_cycles = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_112_READ_INST_BYTE - 1] >> 5;
+            _alt_size = mode_cycles;
             _data_width = QSPI_CFG_BUS_DUAL;
             tr_debug("Read Bus Mode set to 1-1-2, Instruction: 0x%xh", _read_instruction);
             break;
@@ -1322,7 +1328,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(unsigned int read_inst, 
     // Send Read command to device driver
     size_t buf_len = size;
 
-    if (_qspi.read(read_inst, -1, (unsigned int)addr, (char *)buffer, &buf_len) != QSPI_STATUS_OK) {
+    if (_qspi.read(read_inst, (_alt_size == 0) ? -1 : QSPI_ALT_DEFAULT_VALUE, (unsigned int)addr, (char *)buffer, &buf_len) != QSPI_STATUS_OK) {
         tr_error("Read failed");
         return QSPI_STATUS_ERROR;
     }
