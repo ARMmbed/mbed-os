@@ -1290,6 +1290,7 @@
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "macros": ["CPU_MKL43Z256VLH4", "FSL_RTOS_MBED"],
+        "components_add": ["FLASHIAP"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0262"],
