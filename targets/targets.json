@@ -1854,6 +1854,7 @@
             "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "QSPI"
         ],
         "release_versions": ["2", "5"],

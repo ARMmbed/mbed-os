@@ -17,7 +17,7 @@
 #if defined(DEVICE_USBDEVICE) && DEVICE_USBDEVICE && \
     (defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | \
      defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | \
-     defined(TARGET_K64F) | defined(TARGET_K22F) | \
+     defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_K82F) | \
      defined(TARGET_TEENSY3_1))
 
 #if defined(TARGET_KSDK2_MCUS)
@@ -134,7 +134,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     SYSMPU->CESR = 0;
 #endif
 
-#if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
+#if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F) || defined(TARGET_K82F)
     // enable USBFS clock
     CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcIrc48M, 48000000U);
 #else
