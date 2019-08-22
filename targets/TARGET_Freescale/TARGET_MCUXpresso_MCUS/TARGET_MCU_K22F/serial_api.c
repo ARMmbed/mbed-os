@@ -302,4 +302,14 @@ const PinMap *serial_rts_pinmap()
     return PinMap_UART_RTS;
 }
 
+void serial_wait_tx_complete(uint32_t uart_index)
+{
+    UART_Type *base = uart_addrs[uart_index];
+
+    /* Wait till data is flushed out of transmit buffer */
+    while (!(kUART_TransmissionCompleteFlag & UART_GetStatusFlags((UART_Type *)base)))
+    {
+    }
+}
+
 #endif

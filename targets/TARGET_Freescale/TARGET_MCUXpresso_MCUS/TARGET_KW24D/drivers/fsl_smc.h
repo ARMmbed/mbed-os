@@ -1,31 +1,9 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _FSL_SMC_H_
@@ -36,15 +14,14 @@
 /*! @addtogroup smc */
 /*! @{ */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief SMC driver version 2.0.2. */
-#define FSL_SMC_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
+/*! @brief SMC driver version 2.0.5. */
+#define FSL_SMC_DRIVER_VERSION (MAKE_VERSION(2, 0, 5))
 /*@}*/
 
 /*!
@@ -53,29 +30,25 @@
 typedef enum _smc_power_mode_protection
 {
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
-    kSMC_AllowPowerModeVlls = SMC_PMPROT_AVLLS_MASK, /*!< Allow Very-Low-Leakage Stop Mode. */
+    kSMC_AllowPowerModeVlls = SMC_PMPROT_AVLLS_MASK, /*!< Allow Very-low-leakage Stop Mode. */
 #endif
 #if (defined(FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE)
-    kSMC_AllowPowerModeLls = SMC_PMPROT_ALLS_MASK, /*!< Allow Low-Leakage Stop Mode.      */
+    kSMC_AllowPowerModeLls = SMC_PMPROT_ALLS_MASK, /*!< Allow Low-leakage Stop Mode.      */
 #endif                                             /* FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE */
-    kSMC_AllowPowerModeVlp = SMC_PMPROT_AVLP_MASK, /*!< Allow Very-Low-Power Mode.        */
+    kSMC_AllowPowerModeVlp = SMC_PMPROT_AVLP_MASK, /*!< Allow Very-Low-power Mode.        */
 #if (defined(FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE) && FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE)
-    kSMC_AllowPowerModeHsrun = SMC_PMPROT_AHSRUN_MASK, /*!< Allow High Speed Run mode.        */
+    kSMC_AllowPowerModeHsrun = SMC_PMPROT_AHSRUN_MASK, /*!< Allow High-speed Run mode.        */
 #endif                                                 /* FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE */
     kSMC_AllowPowerModeAll = (0U
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
-                              |
-                              SMC_PMPROT_AVLLS_MASK
+                              | SMC_PMPROT_AVLLS_MASK
 #endif
 #if (defined(FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE)
-                              |
-                              SMC_PMPROT_ALLS_MASK
+                              | SMC_PMPROT_ALLS_MASK
 #endif /* FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE */
-                              |
-                              SMC_PMPROT_AVLP_MASK
+                              | SMC_PMPROT_AVLP_MASK
 #if (defined(FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE) && FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE)
-                              |
-                              kSMC_AllowPowerModeHsrun
+                              | kSMC_AllowPowerModeHsrun
 #endif                          /* FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE */
                               ) /*!< Allow all power mode.              */
 } smc_power_mode_protection_t;
@@ -85,7 +58,7 @@ typedef enum _smc_power_mode_protection
  */
 typedef enum _smc_power_state
 {
-    kSMC_PowerStateRun = 0x01U << 0U,  /*!< 0000_0001 - Current power mode is RUN   */
+    kSMC_PowerStateRun  = 0x01U << 0U, /*!< 0000_0001 - Current power mode is RUN   */
     kSMC_PowerStateStop = 0x01U << 1U, /*!< 0000_0010 - Current power mode is STOP  */
     kSMC_PowerStateVlpr = 0x01U << 2U, /*!< 0000_0100 - Current power mode is VLPR  */
     kSMC_PowerStateVlpw = 0x01U << 3U, /*!< 0000_1000 - Current power mode is VLPW  */
@@ -106,10 +79,10 @@ typedef enum _smc_power_state
  */
 typedef enum _smc_run_mode
 {
-    kSMC_RunNormal = 0U, /*!< normal RUN mode.             */
-    kSMC_RunVlpr = 2U,   /*!< Very-Low-Power RUN mode.     */
+    kSMC_RunNormal = 0U, /*!< Normal RUN mode.             */
+    kSMC_RunVlpr   = 2U, /*!< Very-low-power RUN mode.     */
 #if (defined(FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE) && FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE)
-    kSMC_Hsrun = 3U /*!< High Speed Run mode (HSRUN). */
+    kSMC_Hsrun = 3U /*!< High-speed Run mode (HSRUN). */
 #endif              /* FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE */
 } smc_run_mode_t;
 
@@ -119,12 +92,12 @@ typedef enum _smc_run_mode
 typedef enum _smc_stop_mode
 {
     kSMC_StopNormal = 0U, /*!< Normal STOP mode.           */
-    kSMC_StopVlps = 2U,   /*!< Very-Low-Power STOP mode.   */
+    kSMC_StopVlps   = 2U, /*!< Very-low-power STOP mode.   */
 #if (defined(FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE)
-    kSMC_StopLls = 3U, /*!< Low-Leakage Stop mode.      */
+    kSMC_StopLls = 3U, /*!< Low-leakage Stop mode.      */
 #endif                 /* FSL_FEATURE_SMC_HAS_LOW_LEAKAGE_STOP_MODE */
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
-    kSMC_StopVlls = 4U /*!< Very-Low-Leakage Stop mode. */
+    kSMC_StopVlls = 4U /*!< Very-low-leakage Stop mode. */
 #endif
 } smc_stop_mode_t;
 
@@ -148,13 +121,13 @@ typedef enum _smc_stop_submode
  */
 typedef enum _smc_partial_stop_mode
 {
-    kSMC_PartialStop = 0U,  /*!< STOP - Normal Stop mode*/
+    kSMC_PartialStop  = 0U, /*!< STOP - Normal Stop mode*/
     kSMC_PartialStop1 = 1U, /*!< Partial Stop with both system and bus clocks disabled*/
     kSMC_PartialStop2 = 2U, /*!< Partial Stop with system clock disabled and bus clock enabled*/
 } smc_partial_stop_option_t;
 
 /*!
- * @brief SMC configuration status
+ * @brief SMC configuration status.
  */
 enum _smc_status
 {
@@ -189,7 +162,7 @@ typedef struct _smc_param
 #if (defined(FSL_FEATURE_SMC_HAS_LLS_SUBMODE) && FSL_FEATURE_SMC_HAS_LLS_SUBMODE) || \
     (defined(FSL_FEATURE_SMC_HAS_LPOPO) && FSL_FEATURE_SMC_HAS_LPOPO)
 /*!
- * @brief SMC Low-Leakage Stop power mode config
+ * @brief SMC Low-Leakage Stop power mode configuration.
  */
 typedef struct _smc_power_mode_lls_config
 {
@@ -204,7 +177,7 @@ typedef struct _smc_power_mode_lls_config
 
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
 /*!
- * @brief SMC Very Low-Leakage Stop power mode config
+ * @brief SMC Very Low-Leakage Stop power mode configuration.
  */
 typedef struct _smc_power_mode_vlls_config
 {
@@ -241,10 +214,10 @@ extern "C" {
  * @brief Gets the SMC version ID.
  *
  * This function gets the SMC version ID, including major version number,
- * minor version number and feature specification number.
+ * minor version number, and feature specification number.
  *
  * @param base SMC peripheral base address.
- * @param versionId     Pointer to version ID structure.
+ * @param versionId     Pointer to the version ID structure.
  */
 static inline void SMC_GetVersionId(SMC_Type *base, smc_version_id_t *versionId)
 {
@@ -256,10 +229,10 @@ static inline void SMC_GetVersionId(SMC_Type *base, smc_version_id_t *versionId)
 /*!
  * @brief Gets the SMC parameter.
  *
- * This function gets the SMC parameter, including the enabled power mdoes.
+ * This function gets the SMC parameter including the enabled power mdoes.
  *
  * @param base SMC peripheral base address.
- * @param param         Pointer to SMC param structure.
+ * @param param         Pointer to the SMC param structure.
  */
 void SMC_GetParam(SMC_Type *base, smc_param_t *param);
 #endif
@@ -273,7 +246,7 @@ void SMC_GetParam(SMC_Type *base, smc_param_t *param);
  * system level initialization stage. See the reference manual for details.
  * This register can only write once after the power reset.
  *
- * The allowed modes are passed as bit map, for example, to allow LLS and VLLS,
+ * The allowed modes are passed as bit map. For example, to allow LLS and VLLS,
  * use SMC_SetPowerModeProtection(kSMC_AllowPowerModeVlls | kSMC_AllowPowerModeVlps).
  * To allow all modes, use SMC_SetPowerModeProtection(kSMC_AllowPowerModeAll).
  *
@@ -288,13 +261,13 @@ static inline void SMC_SetPowerModeProtection(SMC_Type *base, uint8_t allowedMod
 /*!
  * @brief Gets the current power mode status.
  *
- * This function  returns the current power mode stat. Once application
- * switches the power mode, it should always check the stat to check whether it
- * runs into the specified mode or not. An application  should  check
+ * This function  returns the current power mode status. After the application
+ * switches the power mode, it should always check the status to check whether it
+ * runs into the specified mode or not. The application  should  check
  * this mode before switching to a different mode. The system  requires that
  * only certain modes can switch to other specific modes. See the
  * reference manual for details and the smc_power_state_t for information about
- * the power stat.
+ * the power status.
  *
  * @param base SMC peripheral base address.
  * @return Current power mode status.
@@ -305,7 +278,37 @@ static inline smc_power_state_t SMC_GetPowerModeState(SMC_Type *base)
 }
 
 /*!
- * @brief Configure the system to RUN power mode.
+ * @brief Prepares to enter stop modes.
+ *
+ * This function should be called before entering STOP/VLPS/LLS/VLLS modes.
+ */
+void SMC_PreEnterStopModes(void);
+
+/*!
+ * @brief Recovers after wake up from stop modes.
+ *
+ * This function should be called after wake up from STOP/VLPS/LLS/VLLS modes.
+ * It is used with @ref SMC_PreEnterStopModes.
+ */
+void SMC_PostExitStopModes(void);
+
+/*!
+ * @brief Prepares to enter wait modes.
+ *
+ * This function should be called before entering WAIT/VLPW modes.
+ */
+void SMC_PreEnterWaitModes(void);
+
+/*!
+ * @brief Recovers after wake up from stop modes.
+ *
+ * This function should be called after wake up from WAIT/VLPW modes.
+ * It is used with @ref SMC_PreEnterWaitModes.
+ */
+void SMC_PostExitWaitModes(void);
+
+/*!
+ * @brief Configures the system to RUN power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -314,7 +317,7 @@ status_t SMC_SetPowerModeRun(SMC_Type *base);
 
 #if (defined(FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE) && FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE)
 /*!
- * @brief Configure the system to HSRUN power mode.
+ * @brief Configures the system to HSRUN power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -323,7 +326,7 @@ status_t SMC_SetPowerModeHsrun(SMC_Type *base);
 #endif /* FSL_FEATURE_SMC_HAS_HIGH_SPEED_RUN_MODE */
 
 /*!
- * @brief Configure the system to WAIT power mode.
+ * @brief Configures the system to WAIT power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -331,7 +334,7 @@ status_t SMC_SetPowerModeHsrun(SMC_Type *base);
 status_t SMC_SetPowerModeWait(SMC_Type *base);
 
 /*!
- * @brief Configure the system to Stop power mode.
+ * @brief Configures the system to Stop power mode.
  *
  * @param base SMC peripheral base address.
  * @param  option Partial Stop mode option.
@@ -341,7 +344,7 @@ status_t SMC_SetPowerModeStop(SMC_Type *base, smc_partial_stop_option_t option);
 
 #if (defined(FSL_FEATURE_SMC_HAS_LPWUI) && FSL_FEATURE_SMC_HAS_LPWUI)
 /*!
- * @brief Configure the system to VLPR power mode.
+ * @brief Configures the system to VLPR power mode.
  *
  * @param base SMC peripheral base address.
  * @param  wakeupMode Enter Normal Run mode if true, else stay in VLPR mode.
@@ -350,7 +353,7 @@ status_t SMC_SetPowerModeStop(SMC_Type *base, smc_partial_stop_option_t option);
 status_t SMC_SetPowerModeVlpr(SMC_Type *base, bool wakeupMode);
 #else
 /*!
- * @brief Configure the system to VLPR power mode.
+ * @brief Configures the system to VLPR power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -359,7 +362,7 @@ status_t SMC_SetPowerModeVlpr(SMC_Type *base);
 #endif /* FSL_FEATURE_SMC_HAS_LPWUI */
 
 /*!
- * @brief Configure the system to VLPW power mode.
+ * @brief Configures the system to VLPW power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -367,7 +370,7 @@ status_t SMC_SetPowerModeVlpr(SMC_Type *base);
 status_t SMC_SetPowerModeVlpw(SMC_Type *base);
 
 /*!
- * @brief Configure the system to VLPS power mode.
+ * @brief Configures the system to VLPS power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -378,7 +381,7 @@ status_t SMC_SetPowerModeVlps(SMC_Type *base);
 #if ((defined(FSL_FEATURE_SMC_HAS_LLS_SUBMODE) && FSL_FEATURE_SMC_HAS_LLS_SUBMODE) || \
      (defined(FSL_FEATURE_SMC_HAS_LPOPO) && FSL_FEATURE_SMC_HAS_LPOPO))
 /*!
- * @brief Configure the system to LLS power mode.
+ * @brief Configures the system to LLS power mode.
  *
  * @param base SMC peripheral base address.
  * @param  config The LLS power mode configuration structure
@@ -387,7 +390,7 @@ status_t SMC_SetPowerModeVlps(SMC_Type *base);
 status_t SMC_SetPowerModeLls(SMC_Type *base, const smc_power_mode_lls_config_t *config);
 #else
 /*!
- * @brief Configure the system to LLS power mode.
+ * @brief Configures the system to LLS power mode.
  *
  * @param base SMC peripheral base address.
  * @return SMC configuration error code.
@@ -398,7 +401,7 @@ status_t SMC_SetPowerModeLls(SMC_Type *base);
 
 #if (defined(FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE) && FSL_FEATURE_SMC_HAS_VERY_LOW_LEAKAGE_STOP_MODE)
 /*!
- * @brief Configure the system to VLLS power mode.
+ * @brief Configures the system to VLLS power mode.
  *
  * @param base SMC peripheral base address.
  * @param  config The VLLS power mode configuration structure.
