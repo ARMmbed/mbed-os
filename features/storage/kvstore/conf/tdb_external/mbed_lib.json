@@ -1,5 +1,4 @@
 {
-
     "name": "storage_tdb_external",
     "config": {
         "rbp_internal_size": {
@@ -21,6 +20,11 @@
         "external_base_address": {
             "help": "The default will set start address to address 0",
             "value": "0"
+        }
+    },
+    "target_overrides": {
+        "MCU_PSOC6": {
+            "rbp_internal_size": "7168"
         }
     }
 }
