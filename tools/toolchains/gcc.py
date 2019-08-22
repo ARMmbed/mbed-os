@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext, dirname, exists
+from os.path import join, basename, splitext, dirname, exists, isabs
 from os import getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
@@ -194,6 +194,10 @@ class GCC(mbedToolchain):
         return ["-MD", "-MF", dep_path]
 
     def get_config_option(self, config_header):
+        # If an absolute path is returned (which can happen with exports from the online compiler) strip
+        # off the path (as it will be relative to the filer) and use the parent directory.
+        if isabs(config_header):
+            config_header = join("..", basename(config_header))
         return ['-include', config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
