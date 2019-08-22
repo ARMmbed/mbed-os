@@ -18,6 +18,7 @@
 #include "AT_CellularStack.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
+#include "ThisThread.h"
 
 using namespace mbed_cellular_util;
 using namespace mbed;
@@ -54,41 +55,31 @@ int AT_CellularStack::find_socket_index(nsapi_socket_t handle)
 
 /** NetworkStack
  */
-
 const char *AT_CellularStack::get_ip_address()
 {
     _at.lock();
 
     _at.cmd_start_stop("+CGPADDR", "=", "%d", _cid);
-
     _at.resp_start("+CGPADDR:");
 
+    int len = -1;
     if (_at.info_resp()) {
-
         _at.skip_param();
 
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE);
-        if (len == -1) {
-            _ip[0] = '\0';
-            _at.resp_stop();
-            _at.unlock();
-            // no IPV4 address, return
-            return NULL;
-        }
+        len = _at.read_string(_ip, PDP_IPV6_SIZE);
 
-        // in case stack type is not IPV4 only, try to look also for IPV6 address
-        if (_stack_type != IPV4_STACK) {
+        if (len != -1 && _stack_type != IPV4_STACK) {
+            // in case stack type is not IPV4 only, try to look also for IPV6 address
             (void)_at.read_string(_ip, PDP_IPV6_SIZE);
         }
     }
-
     _at.resp_stop();
     _at.unlock();
 
     // we have at least IPV4 address
     convert_ipv6(_ip);
 
-    return _ip;
+    return len != -1 ? _ip : NULL;
 }
 
 nsapi_error_t AT_CellularStack::socket_stack_init()

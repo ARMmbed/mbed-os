@@ -62,7 +62,7 @@ CellularContext::CellularContext() : _next(0), _stack(0), _pdp_type(DEFAULT_PDP_
     _authentication_type(CellularContext::CHAP), _connect_status(NSAPI_STATUS_DISCONNECTED), _status_cb(0),
     _cid(-1), _new_context_set(false), _is_context_active(false), _is_context_activated(false),
     _apn(0), _uname(0), _pwd(0), _dcd_pin(NC), _active_high(false), _cp_netif(0), _retry_array_length(0),
-    _retry_count(0), _device(0), _nw(0), _is_blocking(true)
+    _retry_count(0), _device(0), _nw(0), _is_blocking(true), _nonip_req(false), _cp_in_use(false)
 {
     memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
 }
@@ -87,6 +87,28 @@ void CellularContext::set_authentication_type(AuthenticationType type)
     _authentication_type = type;
 }
 
+void CellularContext::validate_ip_address()
+{
+    const int IP_MAX_TRIES = 10; // maximum of 2 seconds as we wait 200ms between tries
+    const int IP_WAIT_INTERVAL = 200; // 200 ms between retries
+    const char *ip = NULL;
+    int i = 0;
+
+    while (1) {
+        ip = get_ip_address();
+        if (ip || i >= IP_MAX_TRIES) {
+            if (ip == NULL) {
+                tr_warning("Connected but no local ip address");
+            } else {
+                tr_info("Cellular local IP: %s", ip);
+            }
+            break;
+        }
+        rtos::ThisThread::sleep_for(IP_WAIT_INTERVAL);
+        i++;
+    }
+}
+
 void CellularContext::do_connect_with_retry()
 {
     if (_cb_data.final_try) {
@@ -97,6 +119,12 @@ void CellularContext::do_connect_with_retry()
     }
     do_connect();
     if (_cb_data.error == NSAPI_ERROR_OK) {
+        // Some modems don't get the ip address right after connect so we must
+        // validate it but even if we don't get ip we still send NSAPI_STATUS_GLOBAL_UP
+        if (!_nonip_req && !_cp_in_use) { // don't validate if non-ip case
+            validate_ip_address();
+        }
+        call_network_cb(NSAPI_STATUS_GLOBAL_UP);
         return;
     }
 

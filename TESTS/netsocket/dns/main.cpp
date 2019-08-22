@@ -160,7 +160,7 @@ static void net_bringup()
     net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: IP address is '%s'\n", net->get_ip_address());
+    printf("MBED: IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
 }
 
 static void net_bringdown()
