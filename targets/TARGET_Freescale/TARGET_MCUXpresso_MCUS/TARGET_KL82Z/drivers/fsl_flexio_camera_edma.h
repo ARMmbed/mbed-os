@@ -39,7 +39,6 @@
  * @{
  */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -47,21 +46,22 @@
 /*! @brief Forward declaration of the handle typedef. */
 typedef struct _flexio_camera_edma_handle flexio_camera_edma_handle_t;
 
-/*! @brief CAMERA transfer callback function. */
+/*! @brief Camera transfer callback function. */
 typedef void (*flexio_camera_edma_transfer_callback_t)(FLEXIO_CAMERA_Type *base,
                                                        flexio_camera_edma_handle_t *handle,
                                                        status_t status,
                                                        void *userData);
 
 /*!
-* @brief CAMERA eDMA handle
+* @brief Camera eDMA handle
 */
 struct _flexio_camera_edma_handle
 {
     flexio_camera_edma_transfer_callback_t callback; /*!< Callback function. */
-    void *userData;                                  /*!< CAMERA callback function parameter.*/
+    void *userData;                                  /*!< Camera callback function parameter.*/
     size_t rxSize;                                   /*!< Total bytes to be received. */
     edma_handle_t *rxEdmaHandle;                     /*!< The eDMA RX channel used. */
+    uint8_t nbytes;                                  /*!< eDMA minor byte transfer count initially configured. */
     volatile uint8_t rxState;                        /*!< RX transfer state */
 };
 
@@ -79,15 +79,15 @@ extern "C" {
  */
 
 /*!
- * @brief Initializes the camera handle, which is used in transactional functions.
+ * @brief Initializes the Camera handle, which is used in transactional functions.
  *
- * @param base pointer to FLEXIO_CAMERA_Type.
+ * @param base Pointer to the FLEXIO_CAMERA_Type.
  * @param handle Pointer to flexio_camera_edma_handle_t structure.
  * @param callback The callback function.
  * @param userData The parameter of the callback function.
  * @param rxEdmaHandle User requested DMA handle for RX DMA transfer.
  * @retval kStatus_Success Successfully create the handle.
- * @retval kStatus_OutOfRange The FlexIO camera eDMA type/handle table out of range.
+ * @retval kStatus_OutOfRange The FlexIO Camera eDMA type/handle table out of range.
  */
 status_t FLEXIO_CAMERA_TransferCreateHandleEDMA(FLEXIO_CAMERA_Type *base,
                                                 flexio_camera_edma_handle_t *handle,
@@ -103,7 +103,7 @@ status_t FLEXIO_CAMERA_TransferCreateHandleEDMA(FLEXIO_CAMERA_Type *base,
  *
  * @param base Pointer to the FLEXIO_CAMERA_Type.
  * @param handle Pointer to the flexio_camera_edma_handle_t structure.
- * @param xfer CAMERA eDMA transfer structure, see #flexio_camera_transfer_t.
+ * @param xfer Camera eDMA transfer structure, see #flexio_camera_transfer_t.
  * @retval kStatus_Success if succeeded, others failed.
  * @retval kStatus_CAMERA_RxBusy Previous transfer on going.
  */
