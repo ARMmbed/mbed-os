@@ -175,7 +175,7 @@
             "pbuf-pool-size": 16,
             "mem-size": 51200
         },
-        "CYW943012P6EVB_01": {
+        "MCU_PSOC6": {
             "tcpip-thread-stacksize": 8192,
             "default-thread-stacksize": 640,
             "memp-num-tcp-seg": 24,
@@ -185,47 +185,8 @@
             "tcp-mss": 1540,
             "tcp-snd-buf": "(6 * TCP_MSS)",
             "tcp-wnd": "(TCP_MSS * 6)",
-            "pbuf-pool-size": 48,
+            "pbuf-pool-size": 14,
             "mem-size": 65536
-        },
-        "CY8CPROTO_062_4343W": {
-            "tcpip-thread-stacksize": 8192,
-            "default-thread-stacksize": 640,
-            "memp-num-tcp-seg": 24,
-            "tcp-socket-max": 10,
-            "udp-socket-max":10,
-            "socket-max":18,
-            "tcp-mss": 1540,
-            "tcp-snd-buf": "(6 * TCP_MSS)",
-            "tcp-wnd": "(TCP_MSS * 6)",
-            "pbuf-pool-size": 96,
-            "mem-size": 92610
-        },
-        "CY8CKIT_062_WIFI_BT": {
-            "tcpip-thread-stacksize": 8192,
-            "default-thread-stacksize": 640,
-            "memp-num-tcp-seg": 48,
-            "tcp-socket-max": 10,
-            "udp-socket-max":10,
-            "socket-max":18,
-            "tcp-mss": 1540,
-            "tcp-snd-buf": "(6 * TCP_MSS)",
-            "tcp-wnd": "(TCP_MSS * 6)",
-            "pbuf-pool-size": 48,
-            "mem-size": 65536
-        },
-        "CY8CKIT_062S2_43012": {
-           "tcpip-thread-stacksize": 8192,
-           "default-thread-stacksize": 640,
-           "memp-num-tcp-seg": 24,
-           "tcp-socket-max": 10,
-           "udp-socket-max":10,
-           "socket-max":18,
-           "tcp-mss": 1540,
-           "tcp-snd-buf": "(6 * TCP_MSS)",
-           "tcp-wnd": "(TCP_MSS * 6)",
-           "pbuf-pool-size": 96,
-           "mem-size": 92610
         },
         "MIMXRT1050_EVK": {
             "mem-size": 36560
