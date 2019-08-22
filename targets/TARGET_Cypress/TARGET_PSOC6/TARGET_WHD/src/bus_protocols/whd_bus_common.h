@@ -27,6 +27,7 @@ extern "C" {
 struct whd_bus_common_info;
 
 void whd_bus_common_info_init(whd_driver_t whd_driver);
+void whd_bus_common_info_deinit(whd_driver_t whd_driver);
 
 /* Configure delayed sleep of bus.
  * A high number will mean a longer delay before sleep after the last operation (higher performance)

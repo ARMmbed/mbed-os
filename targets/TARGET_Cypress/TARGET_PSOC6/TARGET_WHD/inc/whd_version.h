@@ -1,3 +1,3 @@
-#define WHD_VERSION "1b9fceb7"
+#define WHD_VERSION "v1.30.0-rc1-4-g9bd856ef-dirty"
 #define WHD_BRANCH "master"
-#define WHD_DATE "2019-07-03 16:07:52 +0530"
+#define WHD_DATE "2019-08-23 15:56:34 +0800"

@@ -66,6 +66,7 @@ extern "C" {
 typedef struct whd_ap_int_info
 {
     whd_bool_t ap_is_up;
+    whd_bool_t is_waiting_event;
     cy_semaphore_t whd_wifi_sleep_flag;
 
 } whd_ap_int_info_t;
