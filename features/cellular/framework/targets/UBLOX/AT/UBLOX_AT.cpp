@@ -96,34 +96,20 @@ nsapi_error_t UBLOX_AT::init()
     _at->flush();
     _at->cmd_start("AT");
     _at->cmd_stop_read_resp();
+    _at->unlock();
 
 #ifdef TARGET_UBLOX_C027
-    _at->cmd_start("AT+CFUN=0");
-    _at->cmd_stop_read_resp();
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
-        _at->cmd_start("ATE0"); // echo off
-        _at->cmd_stop_read_resp();
-        _at->cmd_start("AT+CMEE=1"); // verbose responses
-        _at->cmd_stop_read_resp();
-        config_authentication_parameters();
-        _at->cmd_start("AT+CFUN=1"); // set full functionality
-        _at->cmd_stop_read_resp();
-    }
+    _at->at_cmd_discard("+CFUN", "=0");
 #else
-    _at->cmd_start("AT+CFUN=4");
-    _at->cmd_stop_read_resp();
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
-        _at->cmd_start("ATE0"); // echo off
-        _at->cmd_stop_read_resp();
-        _at->cmd_start("AT+CMEE=1"); // verbose responses
-        _at->cmd_stop_read_resp();
-        config_authentication_parameters();
-        _at->cmd_start("AT+CFUN=1"); // set full functionality
-        _at->cmd_stop_read_resp();
-    }
+    _at->at_cmd_discard("+CFUN", "=4");
 #endif
-
-    return _at->unlock_return_error();
+    if (_at->get_last_error() == NSAPI_ERROR_OK) {
+        _at->at_cmd_discard("E0", ""); // echo off
+        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
+        config_authentication_parameters();
+        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+    }
+    return _at->get_last_error();
 }
 
 nsapi_error_t UBLOX_AT::config_authentication_parameters()
@@ -158,45 +144,19 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
 {
     int modem_security = ubx_context->nsapi_security_to_modem_security(auth);
 
-    _at->cmd_start("AT+CGDCONT=1,\"IP\",");
-    _at->write_string(apn);
-    _at->cmd_stop();
-    _at->resp_start();
-    _at->resp_stop();
+    _at->at_cmd_discard("+CGDCONT", "=", "%d""%s""%s", 1, "IP", apn);
 
     if (_at->get_last_error() == NSAPI_ERROR_OK) {
 #ifdef TARGET_UBLOX_C030_R41XM
         if (modem_security == CellularContext::CHAP) {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->write_string(password);
-            _at->write_string(username);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            _at->at_cmd_discard("+UAUTHREQ", "=", "%d""%d""%s""%s", 1, modem_security, password, username);
         } else if (modem_security == CellularContext::NOAUTH) {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            _at->at_cmd_discard("+UAUTHREQ", "=", "%d""%d", 1, modem_security);
         } else {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->write_string(username);
-            _at->write_string(password);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            _at->at_cmd_discard("+UAUTHREQ", "=", "%d""%d""%s""%s", 1, modem_security, username, password);
         }
 #else
-        _at->cmd_start("AT+UAUTHREQ=1,");
-        _at->write_int(modem_security);
-        _at->write_string(username);
-        _at->write_string(password);
-        _at->cmd_stop();
-        _at->resp_start();
-        _at->resp_stop();
+        _at->at_cmd_discard("+UAUTHREQ", "=", "%d""%d""%s""%s", 1, modem_security, username, password);
 #endif
     }
 
@@ -206,8 +166,7 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
 nsapi_error_t UBLOX_AT::get_imsi(char *imsi)
 {
     _at->lock();
-    _at->cmd_start("AT+CIMI");
-    _at->cmd_stop();
+    _at->cmd_start_stop("+CIMI", "");
     _at->resp_start();
     _at->read_string(imsi, MAX_IMSI_LENGTH + 1);
     _at->resp_stop();

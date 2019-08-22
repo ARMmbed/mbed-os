@@ -47,7 +47,6 @@ NetworkStack *UBLOX_AT_CellularContext::get_stack()
 
 void UBLOX_AT_CellularContext::do_connect()
 {
-    _at.lock();
     _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
 
     // Attempt to establish a connection
@@ -62,20 +61,19 @@ void UBLOX_AT_CellularContext::do_connect()
     if (rat == CellularNetwork::RadioAccessTechnology::RAT_EGPRS) {
         if (!_is_context_active) {
             _at.set_at_timeout(150 * 1000);
-            _at.cmd_start("AT+CGACT=1,1");
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.at_cmd_discard("+CGACT", "=", "%d""%d", 1, 1);
 
-            _at.cmd_start("AT+CGACT?");
-            _at.cmd_stop();
+            _at.lock();
+            _at.cmd_start_stop("+CGACT", "?");
             _at.resp_start("+CGACT:");
             _at.skip_param(1);
             _is_context_activated = _at.read_int();
             _at.resp_stop();
             _at.restore_at_timeout();
+            _at.unlock();
             if (_is_context_activated == true) {
                 _cid = 1;
+                _new_context_set = true;
                 _is_context_active = true;
                 _cb_data.error = NSAPI_ERROR_OK;
             }
@@ -95,7 +93,6 @@ void UBLOX_AT_CellularContext::do_connect()
     } else {
         _connect_status = NSAPI_STATUS_GLOBAL_UP;
     }
-    _at.unlock();
 
     if (_status_cb) {
         _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
@@ -117,12 +114,13 @@ nsapi_error_t UBLOX_AT_CellularContext::define_context()
         return err;
     }
 
-    _at.cmd_start("AT+UPSND=" PROFILE ",8");
-    _at.cmd_stop();
+    _at.lock();
+    _at.cmd_start_stop("+UPSND", "=", "%d""%d", PROFILE, 8);
     _at.resp_start("+UPSND:");
     _at.skip_param(2);
     active = _at.read_int();
     _at.resp_stop();
+    _at.unlock();
 
     if (active == 0) {
         // If the caller hasn't entered an APN, try to find it
@@ -164,70 +162,42 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
     // Set up the APN
     if (apn) {
         success = false;
-        _at.cmd_start("AT+UPSD=" PROFILE ",1,");
-        _at.write_string(apn);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("+UPSD", "=", "%d""%d""%s", PROFILE, 1, apn) == NSAPI_ERROR_OK) {
             success = true;
         }
     }
     // Set up the UserName
     if (success && username) {
         success = false;
-        _at.cmd_start("AT+UPSD=" PROFILE ",2,");
-        _at.write_string(username);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("+UPSD", "=", "%d""%d""%s", PROFILE, 2, username) == NSAPI_ERROR_OK) {
             success = true;
         }
     }
     // Set up the Password
     if (success && password) {
         success = false;
-        _at.cmd_start("AT+UPSD=" PROFILE ",3,");
-        _at.write_string(password);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("+UPSD", "=", "%d""%d""%s", PROFILE, 3, password) == NSAPI_ERROR_OK) {
             success = true;
         }
     }
 
     if (success) {
-        _at.cmd_start("AT+UPSD=" PROFILE ",7,\"0.0.0.0\"");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+UPSD", "=", "%d""%d""%s", PROFILE, 7, "0.0.0.0");
 
-        _at.cmd_start("AT+UPSD=" PROFILE ",6,");
-        _at.write_int(nsapi_security_to_modem_security(auth));
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+UPSD", "=", "%d""%d""%d", PROFILE, 6, nsapi_security_to_modem_security(auth));
 
         if (_at.get_last_error() == NSAPI_ERROR_OK) {
             // Activate, wait upto 30 seconds for the connection to be made
             _at.set_at_timeout(30000);
-            _at.cmd_start("AT+UPSDA=" PROFILE ",3");
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.at_cmd_discard("+UPSDA", "=", "%d""%d", PROFILE, 3);
             _at.restore_at_timeout();
 
+            _at.lock();
             if (_at.get_last_error() == NSAPI_ERROR_OK) {
                 Timer t1;
                 t1.start();
                 while (!(t1.read() >= 180)) {
-                    _at.cmd_start("AT+UPSND=" PROFILE ",8");
-                    _at.cmd_stop();
+                    _at.cmd_start_stop("+UPSND", "=", "%d""%d", PROFILE, 8);
                     _at.resp_start("+UPSND:");
                     _at.skip_param(2);
                     _at.read_int() ? activated = true : activated = false;
@@ -240,6 +210,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                 }
                 t1.stop();
             }
+            _at.unlock();
         }
     }
 
@@ -285,12 +256,7 @@ bool UBLOX_AT_CellularContext::disconnect_modem_stack()
     bool success = false;
 
     if (get_ip_address() != NULL) {
-        _at.cmd_start("AT+UPSDA=" PROFILE ",4");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("+UPSDA", "=", "%d""%d", PROFILE, 4) == NSAPI_ERROR_OK) {
             success = true;
         }
     }
@@ -301,8 +267,7 @@ bool UBLOX_AT_CellularContext::disconnect_modem_stack()
 nsapi_error_t UBLOX_AT_CellularContext::get_imsi(char *imsi)
 {
     _at.lock();
-    _at.cmd_start("AT+CIMI");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+CIMI", "");
     _at.resp_start();
     _at.read_string(imsi, MAX_IMSI_LENGTH + 1);
     _at.resp_stop();
@@ -351,11 +316,7 @@ CellularNetwork::RadioAccessTechnology UBLOX_AT_CellularContext::read_radio_tech
     int act;
     CellularNetwork::RadioAccessTechnology rat;
 
-    _at.cmd_start("AT+URAT?");
-    _at.cmd_stop();
-    _at.resp_start("+URAT:");
-    act = _at.read_int();
-    _at.resp_stop();
+    _at.at_cmd_int("+URAT", "?", act);
 
     switch (act) {
         case 0:

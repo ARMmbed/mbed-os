@@ -42,34 +42,28 @@ nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTe
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    _at.lock();
     switch (opRat) {
         case RAT_EGPRS:
 #if defined (TARGET_UBLOX_C030_R412M)
-            _at.cmd_start("AT+URAT=9,8");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+URAT", "=", "%d""%d", 9, 8);
             break;
 #endif
 #if defined(TARGET_UBLOX_C030_U201)
         case RAT_GSM:
-            _at.cmd_start("AT+URAT=0,0");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+URAT", "=", "%d""%d", 0, 0);
             break;
         case RAT_UTRAN:
         case RAT_HSDPA:
         case RAT_HSUPA:
         case RAT_HSDPA_HSUPA:
-            _at.cmd_start("AT+URAT=2,2");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+URAT", "=", "%d""%d", 2, 2);
             break;
 #elif defined(TARGET_UBLOX_C030_R41XM)
         case RAT_CATM1:
-            _at.cmd_start("AT+URAT=7,8");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+URAT", "=", "%d""%d", 7, 8);
             break;
         case RAT_NB1:
-            _at.cmd_start("AT+URAT=8,7");
-            _at.cmd_stop_read_resp();
+            _at.at_cmd_discard("+URAT", "=", "%d""%d", 8, 7);
             break;
 #endif
         default:
@@ -77,7 +71,6 @@ nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTe
             ret = NSAPI_ERROR_UNSUPPORTED;
             break;
     }
-    _at.unlock();
     ubx_reboot();
 
     return (ret);
@@ -85,16 +78,12 @@ nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTe
 
 nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
 {
-    _at.lock();
-    _at.cmd_start("AT+CFUN=15");
-    _at.cmd_stop_read_resp();
+    _at.at_cmd_discard("+CFUN", "=15");
 
     Timer t1;
     t1.start();
     while (!(t1.read() >= 30)) {
-        _at.cmd_start("ATE0"); // echo off
-        _at.cmd_stop_read_resp();
-        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        if (_at.at_cmd_discard("E0", "") == NSAPI_ERROR_OK) { // echo off
             break;
         } else {
             _at.clear_error();
@@ -102,6 +91,5 @@ nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
         }
     }
     t1.stop();
-    _at.unlock();
     return _at.get_last_error();
 }

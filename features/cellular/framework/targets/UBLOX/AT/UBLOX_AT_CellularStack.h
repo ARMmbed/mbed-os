@@ -22,7 +22,6 @@
 #include "rtos/ThisThread.h"
 #include "drivers/Timer.h"
 
-
 namespace mbed {
 
 class UBLOX_AT_CellularStack : public AT_CellularStack {
@@ -45,7 +44,7 @@ protected: // AT_CellularStack
 
     /** The profile to use (on board the modem).
      */
-#define PROFILE "0"
+#define PROFILE 0
 
     /** Socket "unused" value.
      */
