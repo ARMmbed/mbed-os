@@ -53,7 +53,7 @@ enum _qspi_edma_tansfer_states
  ******************************************************************************/
 
 /*<! Private handle only used for internally. */
-static qspi_edma_private_handle_t s_edmaPrivateHandle[FSL_FEATURE_SOC_QuadSPI_COUNT];
+static qspi_edma_private_handle_t s_edmaPrivateHandle[FSL_FEATURE_SOC_QuadSPI_COUNT][2];
 
 /*******************************************************************************
  * Prototypes
@@ -144,8 +144,8 @@ void QSPI_TransferTxCreateHandleEDMA(QuadSPI_Type *base,
 
     uint32_t instance = QSPI_GetInstance(base);
 
-    s_edmaPrivateHandle[instance].base = base;
-    s_edmaPrivateHandle[instance].handle = handle;
+    s_edmaPrivateHandle[instance][0].base = base;
+    s_edmaPrivateHandle[instance][0].handle = handle;
 
     memset(handle, 0, sizeof(*handle));
 
@@ -159,7 +159,7 @@ void QSPI_TransferTxCreateHandleEDMA(QuadSPI_Type *base,
     handle->count = base->TBCT + 1;
 
     /* Configure TX edma callback */
-    EDMA_SetCallback(handle->dmaHandle, QSPI_SendEDMACallback, &s_edmaPrivateHandle[instance]);
+    EDMA_SetCallback(handle->dmaHandle, QSPI_SendEDMACallback, &s_edmaPrivateHandle[instance][0]);
 }
 
 void QSPI_TransferRxCreateHandleEDMA(QuadSPI_Type *base,
@@ -172,8 +172,8 @@ void QSPI_TransferRxCreateHandleEDMA(QuadSPI_Type *base,
 
     uint32_t instance = QSPI_GetInstance(base);
 
-    s_edmaPrivateHandle[instance].base = base;
-    s_edmaPrivateHandle[instance].handle = handle;
+    s_edmaPrivateHandle[instance][1].base = base;
+    s_edmaPrivateHandle[instance][1].handle = handle;
 
     memset(handle, 0, sizeof(*handle));
 
@@ -187,7 +187,7 @@ void QSPI_TransferRxCreateHandleEDMA(QuadSPI_Type *base,
     handle->count = (base->RBCT & QuadSPI_RBCT_WMRK_MASK) + 1;
 
     /* Configure RX edma callback */
-    EDMA_SetCallback(handle->dmaHandle, QSPI_ReceiveEDMACallback, &s_edmaPrivateHandle[instance]);
+    EDMA_SetCallback(handle->dmaHandle, QSPI_ReceiveEDMACallback, &s_edmaPrivateHandle[instance][1]);
 }
 
 status_t QSPI_TransferSendEDMA(QuadSPI_Type *base, qspi_edma_handle_t *handle, qspi_transfer_t *xfer)
@@ -210,6 +210,9 @@ status_t QSPI_TransferSendEDMA(QuadSPI_Type *base, qspi_edma_handle_t *handle, q
         EDMA_PrepareTransfer(&xferConfig, xfer->data, sizeof(uint32_t), (void *)QSPI_GetTxDataRegisterAddress(base),
                              sizeof(uint32_t), (sizeof(uint32_t) * handle->count), xfer->dataSize,
                              kEDMA_MemoryToPeripheral);
+
+        /* Store the initially configured eDMA minor byte transfer count into the QSPI handle */
+        handle->nbytes = (sizeof(uint32_t) * handle->count);
 
         /* Submit transfer. */
         EDMA_SubmitTransfer(handle->dmaHandle, &xferConfig);
@@ -243,10 +246,13 @@ status_t QSPI_TransferReceiveEDMA(QuadSPI_Type *base, qspi_edma_handle_t *handle
         /* Prepare transfer. */
         EDMA_PrepareTransfer(&xferConfig, (void *)QSPI_GetRxDataRegisterAddress(base), sizeof(uint32_t), xfer->data,
                              sizeof(uint32_t), (sizeof(uint32_t) * handle->count), xfer->dataSize,
-                             kEDMA_PeripheralToMemory);
+                             kEDMA_MemoryToMemory);
 
+        /* Store the initially configured eDMA minor byte transfer count into the QSPI handle */
+        handle->nbytes = (sizeof(uint32_t) * handle->count);
         /* Submit transfer. */
         EDMA_SubmitTransfer(handle->dmaHandle, &xferConfig);
+        handle->dmaHandle->base->TCD[handle->dmaHandle->channel].ATTR |= DMA_ATTR_SMOD(0x5U);
         EDMA_StartTransfer(handle->dmaHandle);
 
         /* Enable QSPI TX EDMA. */
@@ -296,7 +302,9 @@ status_t QSPI_TransferGetSendCountEDMA(QuadSPI_Type *base, qspi_edma_handle_t *h
     }
     else
     {
-        *count = (handle->transferSize - EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel));
+        *count = (handle->transferSize -
+                  (uint32_t)handle->nbytes *
+                      EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
     }
 
     return status;
@@ -314,7 +322,9 @@ status_t QSPI_TransferGetReceiveCountEDMA(QuadSPI_Type *base, qspi_edma_handle_t
     }
     else
     {
-        *count = (handle->transferSize - EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel));
+        *count = (handle->transferSize -
+                  (uint32_t)handle->nbytes *
+                      EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel));
     }
 
     return status;
