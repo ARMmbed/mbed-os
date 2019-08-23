@@ -225,6 +225,9 @@ status_t FLEXIO_I2S_TransferSendEDMA(FLEXIO_I2S_Type *base,
     EDMA_PrepareTransfer(&config, xfer->data, handle->bytesPerFrame, (void *)destAddr, handle->bytesPerFrame,
                          handle->bytesPerFrame, xfer->dataSize, kEDMA_MemoryToPeripheral);
 
+    /* Store the initially configured eDMA minor byte transfer count into the FLEXIO I2S handle */
+    handle->nbytes = handle->bytesPerFrame;
+
     EDMA_SubmitTransfer(handle->dmaHandle, &config);
 
     /* Start DMA transfer */
@@ -271,6 +274,9 @@ status_t FLEXIO_I2S_TransferReceiveEDMA(FLEXIO_I2S_Type *base,
     /* Prepare edma configure */
     EDMA_PrepareTransfer(&config, (void *)srcAddr, handle->bytesPerFrame, xfer->data, handle->bytesPerFrame,
                          handle->bytesPerFrame, xfer->dataSize, kEDMA_PeripheralToMemory);
+
+    /* Store the initially configured eDMA minor byte transfer count into the FLEXIO I2S handle */
+    handle->nbytes = handle->bytesPerFrame;
 
     EDMA_SubmitTransfer(handle->dmaHandle, &config);
 
@@ -327,7 +333,8 @@ status_t FLEXIO_I2S_TransferGetSendCountEDMA(FLEXIO_I2S_Type *base, flexio_i2s_e
     else
     {
         *count = handle->transferSize[handle->queueDriver] -
-                 EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
+                 (uint32_t)handle->nbytes *
+                     EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
 
     return status;
@@ -346,7 +353,8 @@ status_t FLEXIO_I2S_TransferGetReceiveCountEDMA(FLEXIO_I2S_Type *base, flexio_i2
     else
     {
         *count = handle->transferSize[handle->queueDriver] -
-                 EDMA_GetRemainingBytes(handle->dmaHandle->base, handle->dmaHandle->channel);
+                 (uint32_t)handle->nbytes *
+                     EDMA_GetRemainingMajorLoopCount(handle->dmaHandle->base, handle->dmaHandle->channel);
     }
 
     return status;
