@@ -9039,6 +9039,7 @@
             "FLASH_CMSIS_ALGO"
         ],
         "macros": [
+            "MBED_FAULT_HANDLER_DISABLED",
             "LPTICKER_DELAY_TICKS=3"
         ],
         "is_disk_virtual": true,
