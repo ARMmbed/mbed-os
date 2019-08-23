@@ -33,7 +33,6 @@
 
 #define TRACE_GROUP  "ESPA" // ESP8266 AT layer
 
-#define ESP8266_DEFAULT_BAUD_RATE   115200
 #define ESP8266_ALL_SOCKET_IDS      -1
 
 using namespace mbed;
@@ -43,7 +42,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _at_v(-1, -1, -1),
       _tcp_passive(false),
       _callback(0),
-      _serial(tx, rx, ESP8266_DEFAULT_BAUD_RATE),
+      _serial(tx, rx, MBED_CONF_ESP8266_SERIAL_BAUDRATE),
       _serial_rts(rts),
       _serial_cts(cts),
       _parser(&_serial),
@@ -62,7 +61,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _reset_done(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
-    _serial.set_baud(ESP8266_DEFAULT_BAUD_RATE);
+    _serial.set_baud(MBED_CONF_ESP8266_SERIAL_BAUDRATE);
     _parser.debug_on(debug);
     _parser.set_delimiter("\r\n");
     _parser.oob("+IPD", callback(this, &ESP8266::_oob_packet_hdlr));
@@ -185,7 +184,7 @@ bool ESP8266::stop_uart_hw_flow_ctrl(void)
         _serial.set_flow_control(SerialBase::Disabled, _serial_rts, _serial_cts);
 
         // Stop ESP8266's flow control
-        done = _parser.send("AT+UART_CUR=%u,8,1,0,0", ESP8266_DEFAULT_BAUD_RATE)
+        done = _parser.send("AT+UART_CUR=%u,8,1,0,0", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
                && _parser.recv("OK\n");
     }
 
@@ -201,7 +200,7 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
     _smutex.lock();
     if (_serial_rts != NC && _serial_cts != NC) {
         // Start ESP8266's flow control
-        done = _parser.send("AT+UART_CUR=%u,8,1,0,3", ESP8266_DEFAULT_BAUD_RATE)
+        done = _parser.send("AT+UART_CUR=%u,8,1,0,3", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
                && _parser.recv("OK\n");
 
         if (done) {
@@ -213,12 +212,12 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
         _serial.set_flow_control(SerialBase::RTS, _serial_rts, NC);
 
         // Enable ESP8266's CTS pin
-        done = _parser.send("AT+UART_CUR=%u,8,1,0,2", ESP8266_DEFAULT_BAUD_RATE)
+        done = _parser.send("AT+UART_CUR=%u,8,1,0,2", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
                && _parser.recv("OK\n");
 
     } else if (_serial_cts != NC) {
         // Enable ESP8266's RTS pin
-        done = _parser.send("AT+UART_CUR=%u,8,1,0,1", ESP8266_DEFAULT_BAUD_RATE)
+        done = _parser.send("AT+UART_CUR=%u,8,1,0,1", MBED_CONF_ESP8266_SERIAL_BAUDRATE)
                && _parser.recv("OK\n");
 
         if (done) {
