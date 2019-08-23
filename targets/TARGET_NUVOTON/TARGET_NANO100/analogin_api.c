@@ -50,7 +50,12 @@ void analogin_init(analogin_t *obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT((ADCName) modinit->modname == obj->adc);
-    
+
+    obj->pin = pin;
+
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_ADC);
+
     ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
     
@@ -62,20 +67,21 @@ void analogin_init(analogin_t *obj, PinName pin)
     
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
     if (! adc_modinit_mask) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-        
         // Select clock source of paired channels
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
-        
+
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
+
         // Set operation mode and enable channel N
         ADC_Open(ADC, ADC_INPUT_MODE_SINGLE_END, ADC_OPERATION_MODE_SINGLE_CYCLE, 1 << chn);
-        
+
         // Set reference voltage to AVDD
         ADC_SET_REF_VOLTAGE(ADC, ADC_REFSEL_POWER);
-        
+
         // Power on ADC
         ADC_POWER_ON(ADC);
     } else {
@@ -86,9 +92,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     adc_modinit_mask |= 1 << chn;
     
     adc_busy_flag = 0;
-    
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_ADC);
 }
 
 void analogin_deinit(PinName pin)

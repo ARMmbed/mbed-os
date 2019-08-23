@@ -52,29 +52,32 @@ void analogin_init(analogin_t *obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->adc);
-    
+
+    obj->pin = pin;
+
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_ADC);
+
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
-    
+
     // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
     if (! eadc_modinit_mask) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-        
         // Select clock source of paired channels
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
-        
+
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
+
         // Set the ADC internal sampling time, input mode as single-end and enable the A/D converter
         EADC_Open(eadc_base, EADC_CTL_DIFFEN_SINGLE_END);
         EADC_SetInternalSampleTime(eadc_base, 6);
     }
-    
+
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
-    
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_ADC);
-    
+
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
     EADC_ConfigSampleModule(eadc_base, chn, EADC_SOFTWARE_TRIGGER, chn);
     

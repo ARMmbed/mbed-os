@@ -7627,6 +7627,7 @@
         "extra_labels": [
             "NUVOTON",
             "M451",
+            "M45xG_M45xE",
             "NUMAKER_PFM_M453",
             "FLASH_CMSIS_ALGO"
         ],

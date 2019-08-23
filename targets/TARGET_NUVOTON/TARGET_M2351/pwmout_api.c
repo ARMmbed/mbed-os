@@ -68,16 +68,10 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == (int) obj->pwm);
 
-    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
-    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
-        /* Reset module
-         *
-         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-         */
-        SYS_ResetModule_S(modinit->rsetidx);
-    }
+    obj->pin = pin;
 
-    uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_PWM);
 
     // NOTE: Channels 0/1/2/3/4/5 share a clock source.
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0x3F) == 0) {
@@ -94,8 +88,16 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         CLK_EnableModuleClock_S(modinit->clkidx);
     }
 
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_PWM);
+    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
+    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
+        /* Reset module
+         *
+         * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+         */
+        SYS_ResetModule_S(modinit->rsetidx);
+    }
+
+    uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
 
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
@@ -132,6 +134,10 @@ void pwmout_free(pwmout_t* obj)
     // Mark this module to be deinited.
     int i = modinit - pwm_modinit_tab;
     pwm_modinit_mask &= ~(1 << i);
+
+    // Free up pins
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 void pwmout_write(pwmout_t* obj, float value)

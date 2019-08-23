@@ -69,17 +69,17 @@ void dma_init(void)
     dma_chn_mask = ~NU_PDMA_CH_Msk;
     memset(dma_chn_arr, 0x00, sizeof (dma_chn_arr));
 
-    /* Reset module
-     *
-     * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
-     */
-    SYS_ResetModule_S(dma_modinit.rsetidx);
-
     /* Enable IP clock
      *
      * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
      */
     CLK_EnableModuleClock_S(dma_modinit.clkidx);
+
+    /* Reset module
+     *
+     * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
+     */
+    SYS_ResetModule_S(dma_modinit.rsetidx);
 
     /* Check security state of PDMA0/1 match the partition policy above. */
     PDMA_T *pdma_base = dma_modbase();
