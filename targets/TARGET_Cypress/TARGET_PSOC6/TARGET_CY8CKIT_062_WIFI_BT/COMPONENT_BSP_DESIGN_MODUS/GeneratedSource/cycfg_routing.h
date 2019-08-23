@@ -42,19 +42,11 @@ void init_cycfg_routing(void);
 #define ioss_0_port_11_pin_7_HSIOM P11_7_SMIF_SPI_CLK
 #define ioss_0_port_14_pin_0_AUX USBDP_USB_USB_DP_PAD
 #define ioss_0_port_14_pin_1_AUX USBDM_USB_USB_DM_PAD
-#define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_AMUXB
-#define ioss_0_port_2_pin_0_HSIOM P2_0_DSI_DSI
-#define ioss_0_port_2_pin_1_HSIOM P2_1_DSI_DSI
-#define ioss_0_port_2_pin_2_HSIOM P2_2_DSI_DSI
-#define ioss_0_port_2_pin_3_HSIOM P2_3_DSI_DSI
-#define ioss_0_port_2_pin_4_HSIOM P2_4_DSI_DSI
-#define ioss_0_port_2_pin_5_HSIOM P2_5_DSI_GPIO
+#define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_3_pin_0_HSIOM P3_0_SCB2_UART_RX
 #define ioss_0_port_3_pin_1_HSIOM P3_1_SCB2_UART_TX
 #define ioss_0_port_3_pin_2_HSIOM P3_2_SCB2_UART_RTS
 #define ioss_0_port_3_pin_3_HSIOM P3_3_SCB2_UART_CTS
-#define ioss_0_port_5_pin_0_HSIOM P5_0_SCB5_UART_RX
-#define ioss_0_port_5_pin_1_HSIOM P5_1_SCB5_UART_TX
 #define ioss_0_port_6_pin_0_HSIOM P6_0_SCB3_I2C_SCL
 #define ioss_0_port_6_pin_1_HSIOM P6_1_SCB3_I2C_SDA
 #define ioss_0_port_6_pin_4_HSIOM P6_4_CPUSS_SWJ_SWO_TDO
@@ -63,26 +55,13 @@ void init_cycfg_routing(void);
 #define ioss_0_port_7_pin_1_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_7_pin_2_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_7_pin_7_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_1_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_2_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_3_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXA
-#define ioss_0_port_8_pin_6_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_4_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_5_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_8_pin_6_HSIOM HSIOM_SEL_AMUXA
 #define ioss_0_port_8_pin_7_HSIOM HSIOM_SEL_AMUXB
-
-#define CYBSP_SDIO_out_p_116_TRIGGER_IN_0 TRIG14_IN_UDB_TR_UDB0
-#define CYBSP_SDIO_out_p_116_TRIGGER_IN_1 TRIG1_IN_TR_GROUP14_OUTPUT0
-#define CYBSP_SDIO_out_p_117_TRIGGER_IN_0 TRIG0_IN_TR_GROUP14_OUTPUT4
-#define CYBSP_SDIO_out_p_117_TRIGGER_IN_1 TRIG14_IN_UDB_TR_UDB1
-#define CYBSP_SDIO_out_p_119_TRIGGER_IN_0 TRIG0_IN_TR_GROUP14_OUTPUT3
-#define CYBSP_SDIO_out_p_119_TRIGGER_IN_1 TRIG14_IN_UDB_TR_UDB3
-#define CYBSP_SDIO_out_p_123_TRIGGER_IN_0 TRIG14_IN_UDB_TR_UDB7
-#define CYBSP_SDIO_out_p_123_TRIGGER_IN_1 TRIG1_IN_TR_GROUP14_OUTPUT1
-#define cpuss_0_dw0_0_chan_0_tr_in_0_TRIGGER_OUT TRIG0_OUT_CPUSS_DW0_TR_IN0
-#define cpuss_0_dw0_0_chan_1_tr_in_0_TRIGGER_OUT TRIG0_OUT_CPUSS_DW0_TR_IN1
-#define cpuss_0_dw1_0_chan_1_tr_in_0_TRIGGER_OUT TRIG1_OUT_CPUSS_DW1_TR_IN1
-#define cpuss_0_dw1_0_chan_3_tr_in_0_TRIGGER_OUT TRIG1_OUT_CPUSS_DW1_TR_IN3
 
 #if defined(__cplusplus)
 }

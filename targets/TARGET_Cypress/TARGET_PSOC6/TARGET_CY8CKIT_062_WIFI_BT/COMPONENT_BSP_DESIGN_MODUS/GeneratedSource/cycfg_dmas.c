@@ -62,6 +62,14 @@ const cy_stc_dma_channel_config_t cpuss_0_dw0_0_chan_0_channelConfig =
 	.enable = false,
 	.bufferable = false,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t cpuss_0_dw0_0_chan_0_obj = 
+	{
+		.type = CYHAL_RSC_DMA,
+		.block_num = 0U,
+		.channel_num = cpuss_0_dw0_0_chan_0_CHANNEL,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_dma_descriptor_config_t cpuss_0_dw0_0_chan_1_Descriptor_0_config = 
 {
 	.retrigger = CY_DMA_RETRIG_16CYC,
@@ -100,6 +108,14 @@ const cy_stc_dma_channel_config_t cpuss_0_dw0_0_chan_1_channelConfig =
 	.enable = false,
 	.bufferable = false,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t cpuss_0_dw0_0_chan_1_obj = 
+	{
+		.type = CYHAL_RSC_DMA,
+		.block_num = 0U,
+		.channel_num = cpuss_0_dw0_0_chan_1_CHANNEL,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_dma_descriptor_config_t cpuss_0_dw1_0_chan_1_Descriptor_0_config = 
 {
 	.retrigger = CY_DMA_RETRIG_4CYC,
@@ -138,6 +154,14 @@ const cy_stc_dma_channel_config_t cpuss_0_dw1_0_chan_1_channelConfig =
 	.enable = false,
 	.bufferable = false,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t cpuss_0_dw1_0_chan_1_obj = 
+	{
+		.type = CYHAL_RSC_DMA,
+		.block_num = 1U,
+		.channel_num = cpuss_0_dw1_0_chan_1_CHANNEL,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_dma_descriptor_config_t cpuss_0_dw1_0_chan_3_Descriptor_0_config = 
 {
 	.retrigger = CY_DMA_RETRIG_IM,
@@ -176,4 +200,31 @@ const cy_stc_dma_channel_config_t cpuss_0_dw1_0_chan_3_channelConfig =
 	.enable = false,
 	.bufferable = false,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t cpuss_0_dw1_0_chan_3_obj = 
+	{
+		.type = CYHAL_RSC_DMA,
+		.block_num = 1U,
+		.channel_num = cpuss_0_dw1_0_chan_3_CHANNEL,
+	};
+#endif //defined (CY_USING_HAL)
 
+
+void init_cycfg_dmas(void)
+{
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&cpuss_0_dw0_0_chan_0_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&cpuss_0_dw0_0_chan_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&cpuss_0_dw1_0_chan_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&cpuss_0_dw1_0_chan_3_obj);
+#endif //defined (CY_USING_HAL)
+}
