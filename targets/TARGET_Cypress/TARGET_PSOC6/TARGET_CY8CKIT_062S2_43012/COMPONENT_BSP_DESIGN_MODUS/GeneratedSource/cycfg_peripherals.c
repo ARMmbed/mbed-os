@@ -56,6 +56,14 @@ const cy_stc_scb_uart_config_t CYBSP_BT_UART_config =
 	.txFifoTriggerLevel = 63UL,
 	.txFifoIntEnableMask = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_BT_UART_obj = 
+	{
+		.type = CYHAL_RSC_SCB,
+		.block_num = 2U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config = 
 {
 	.numberOfAddresses = CY_SCB_EZI2C_ONE_ADDRESS,
@@ -64,51 +72,14 @@ const cy_stc_scb_ezi2c_config_t CYBSP_CSD_COMM_config =
 	.subAddressSize = CY_SCB_EZI2C_SUB_ADDR16_BITS,
 	.enableWakeFromSleep = false,
 };
-const cy_stc_scb_uart_config_t CYBSP_DEBUG_UART_config = 
-{
-	.uartMode = CY_SCB_UART_STANDARD,
-	.enableMutliProcessorMode = false,
-	.smartCardRetryOnNack = false,
-	.irdaInvertRx = false,
-	.irdaEnableLowPowerReceiver = false,
-	.oversample = 12,
-	.enableMsbFirst = false,
-	.dataWidth = 9UL,
-	.parity = CY_SCB_UART_PARITY_NONE,
-	.stopBits = CY_SCB_UART_STOP_BITS_1,
-	.enableInputFilter = false,
-	.breakWidth = 11UL,
-	.dropOnFrameError = false,
-	.dropOnParityError = false,
-	.receiverAddress = 0x0UL,
-	.receiverAddressMask = 0x0UL,
-	.acceptAddrInFifo = false,
-	.enableCts = true,
-	.ctsPolarity = CY_SCB_UART_ACTIVE_HIGH,
-	.rtsRxFifoLevel = 63,
-	.rtsPolarity = CY_SCB_UART_ACTIVE_LOW,
-	.rxFifoTriggerLevel = 63UL,
-	.rxFifoIntEnableMask = 0UL,
-	.txFifoTriggerLevel = 63UL,
-	.txFifoIntEnableMask = 0UL,
-};
-cy_en_sd_host_card_capacity_t CYBSP_RADIO_cardCapacity = CY_SD_HOST_SDSC;
-cy_en_sd_host_card_type_t CYBSP_RADIO_cardType = CY_SD_HOST_NOT_EMMC;
-uint32_t CYBSP_RADIO_rca = 0u;
-const cy_stc_sd_host_init_config_t CYBSP_RADIO_config = 
-{
-	.emmc = false,
-	.dmaType = CY_SD_HOST_DMA_SDMA,
-	.enableLedControl = false,
-};
-cy_stc_sd_host_sd_card_config_t CYBSP_RADIO_card_cfg = 
-{
-	.lowVoltageSignaling = false,
-	.busWidth = CY_SD_HOST_BUS_WIDTH_4_BIT,
-	.cardType = &CYBSP_RADIO_cardType,
-	.rca = &CYBSP_RADIO_rca,
-	.cardCapacity = &CYBSP_RADIO_cardCapacity,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_CSD_COMM_obj = 
+	{
+		.type = CYHAL_RSC_SCB,
+		.block_num = 3U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_smif_config_t CYBSP_QSPI_config = 
 {
 	.mode = (uint32_t)CY_SMIF_NORMAL,
@@ -116,6 +87,14 @@ const cy_stc_smif_config_t CYBSP_QSPI_config =
 	.rxClockSel = (uint32_t)CY_SMIF_SEL_INV_INTERNAL_CLK,
 	.blockEvent = (uint32_t)CY_SMIF_BUS_ERROR,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_obj = 
+	{
+		.type = CYHAL_RSC_SMIF,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_mcwdt_config_t CYBSP_MCWDT_config = 
 {
 	.c0Match = 32768U,
@@ -129,6 +108,14 @@ const cy_stc_mcwdt_config_t CYBSP_MCWDT_config =
 	.c0c1Cascade = true,
 	.c1c2Cascade = false,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_MCWDT_obj = 
+	{
+		.type = CYHAL_RSC_LPTIMER,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_rtc_config_t CYBSP_RTC_config = 
 {
 	.sec = 0U,
@@ -141,6 +128,14 @@ const cy_stc_rtc_config_t CYBSP_RTC_config =
 	.month = CY_RTC_JANUARY,
 	.year = 0U,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_RTC_obj = 
+	{
+		.type = CYHAL_RSC_RTC,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 
 
 void init_cycfg_peripherals(void)
@@ -148,8 +143,24 @@ void init_cycfg_peripherals(void)
 	Cy_SysClk_PeriphAssignDivider(PCLK_CSD_CLOCK, CY_SYSCLK_DIV_8_BIT, 0U);
 
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB2_CLOCK, CY_SYSCLK_DIV_16_BIT, 1U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_BT_UART_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_SysClk_PeriphAssignDivider(PCLK_SCB3_CLOCK, CY_SYSCLK_DIV_8_BIT, 1U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_CSD_COMM_obj);
+#endif //defined (CY_USING_HAL)
 
-	Cy_SysClk_PeriphAssignDivider(PCLK_SCB5_CLOCK, CY_SYSCLK_DIV_16_BIT, 0U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_MCWDT_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_RTC_obj);
+#endif //defined (CY_USING_HAL)
 }

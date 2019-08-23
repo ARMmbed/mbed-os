@@ -29,6 +29,9 @@
 #include "cy_sysclk.h"
 #include "cy_systick.h"
 #include "cy_gpio.h"
+#if defined (CY_USING_HAL)
+	#include "cyhal_hwmgr.h"
+#endif //defined (CY_USING_HAL)
 #include "cy_syspm.h"
 
 #if defined(__cplusplus)
@@ -70,7 +73,7 @@ extern "C" {
 #define CY_CFG_PWR_MODE_ACTIVE 0x04UL
 #define CY_CFG_PWR_MODE_SLEEP 0x08UL
 #define CY_CFG_PWR_MODE_DEEPSLEEP 0x10UL
-#define CY_CFG_PWR_SYS_IDLE_MODE CY_CFG_PWR_MODE_SLEEP
+#define CY_CFG_PWR_SYS_IDLE_MODE CY_CFG_PWR_MODE_DEEPSLEEP
 #define CY_CFG_PWR_SYS_ACTIVE_MODE CY_CFG_PWR_MODE_LP
 #define CY_CFG_PWR_DEEPSLEEP_LATENCY 0UL
 #define CY_CFG_PWR_USING_LDO 1
@@ -80,6 +83,22 @@ extern "C" {
 #define CY_CFG_PWR_VDD_NS_MV 3300
 #define CY_CFG_PWR_VDDIO0_MV 3300
 #define CY_CFG_PWR_VDDIO1_MV 3300
+
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_3_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_4_obj;
+#endif //defined (CY_USING_HAL)
 
 void init_cycfg_system(void);
 

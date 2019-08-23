@@ -27,6 +27,9 @@
 
 #include "cycfg_notices.h"
 #include "cy_sysclk.h"
+#if defined (CY_USING_HAL)
+	#include "cyhal_hwmgr.h"
+#endif //defined (CY_USING_HAL)
 #include "cy_gpio.h"
 #include "cy_syspm.h"
 
@@ -43,6 +46,8 @@ extern "C" {
 #define CY_CFG_SYSCLK_CLKHF0 0UL
 #define srss_0_clock_0_hfclk_2_ENABLED 1U
 #define CY_CFG_SYSCLK_CLKHF2 2UL
+#define srss_0_clock_0_hfclk_3_ENABLED 1U
+#define CY_CFG_SYSCLK_CLKHF3 3UL
 #define srss_0_clock_0_hfclk_4_ENABLED 1U
 #define CY_CFG_SYSCLK_CLKHF4 4UL
 #define srss_0_clock_0_ilo_0_ENABLED 1U
@@ -56,6 +61,7 @@ extern "C" {
 #define srss_0_clock_0_pathmux_4_ENABLED 1U
 #define srss_0_clock_0_pathmux_5_ENABLED 1U
 #define srss_0_clock_0_periclk_0_ENABLED 1U
+#define srss_0_clock_0_pll_1_ENABLED 1U
 #define srss_0_clock_0_slowclk_0_ENABLED 1U
 #define srss_0_clock_0_wco_0_ENABLED 1U
 #define srss_0_power_0_ENABLED 1U
@@ -74,6 +80,25 @@ extern "C" {
 #define CY_CFG_PWR_VDD_NS_MV 3300
 #define CY_CFG_PWR_VDDIO0_MV 3300
 #define CY_CFG_PWR_VDDIO1_MV 3300
+
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_3_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_4_obj;
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t srss_0_clock_0_pathmux_5_obj;
+#endif //defined (CY_USING_HAL)
 
 void init_cycfg_system(void);
 

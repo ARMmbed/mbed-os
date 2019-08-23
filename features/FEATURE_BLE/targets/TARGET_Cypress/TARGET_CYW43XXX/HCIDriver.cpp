@@ -422,13 +422,13 @@ private:
 
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
     static ble::vendor::cypress_ble::CyH4TransportDriver transport_driver(
-        /* TX */ CY_BT_UART_TX, /* RX */ CY_BT_UART_RX,
-        /* cts */ CY_BT_UART_CTS, /* rts */ CY_BT_UART_RTS, 115200,
-		CY_BT_PIN_HOST_WAKE, CY_BT_PIN_DEVICE_WAKE
+        /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
+        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, 115200,
+		CYBSP_BT_HOST_WAKE, CYBSP_BT_DEVICE_WAKE
     );
     static ble::vendor::cypress::HCIDriver hci_driver(
         transport_driver,
-        /* bt_power */ CY_BT_PIN_POWER
+        /* bt_power */ CYBSP_BT_POWER
     );
     return hci_driver;
 }

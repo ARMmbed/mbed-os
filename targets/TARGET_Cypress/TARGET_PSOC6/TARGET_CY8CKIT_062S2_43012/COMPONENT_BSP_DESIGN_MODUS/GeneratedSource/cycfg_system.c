@@ -39,6 +39,9 @@
 #define CY_CFG_SYSCLK_CLKHF2_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF2_FREQ_MHZ 50UL
 #define CY_CFG_SYSCLK_CLKHF2_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
+#define CY_CFG_SYSCLK_CLKHF3_ENABLED 1
+#define CY_CFG_SYSCLK_CLKHF3_FREQ_MHZ 48UL
+#define CY_CFG_SYSCLK_CLKHF3_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH2
 #define CY_CFG_SYSCLK_CLKHF4_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF4_FREQ_MHZ 100UL
 #define CY_CFG_SYSCLK_CLKHF4_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
@@ -49,11 +52,20 @@
 #define CY_CFG_SYSCLK_CLKPATH0_SOURCE CY_SYSCLK_CLKPATH_IN_IMO
 #define CY_CFG_SYSCLK_CLKPATH1_ENABLED 1
 #define CY_CFG_SYSCLK_CLKPATH1_SOURCE CY_SYSCLK_CLKPATH_IN_IMO
+#define CY_CFG_SYSCLK_CLKPATH2_ENABLED 1
+#define CY_CFG_SYSCLK_CLKPATH2_SOURCE CY_SYSCLK_CLKPATH_IN_IMO
 #define CY_CFG_SYSCLK_CLKPERI_ENABLED 1
 #define CY_CFG_SYSCLK_PLL0_ENABLED 1
+#define CY_CFG_SYSCLK_PLL1_ENABLED 1
 #define CY_CFG_SYSCLK_CLKSLOW_ENABLED 1
 #define CY_CFG_SYSCLK_CLKTIMER_ENABLED 1
 #define CY_CFG_SYSCLK_WCO_ENABLED 1
+#define CY_CFG_PWR_ENABLED 1
+#define CY_CFG_PWR_INIT 1
+#define CY_CFG_PWR_USING_PMIC 0
+#define CY_CFG_PWR_VBACKUP_USING_VDDD 1
+#define CY_CFG_PWR_LDO_VOLTAGE CY_SYSPM_LDO_VOLTAGE_LP
+#define CY_CFG_PWR_USING_ULP 0
 
 static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig = 
 {
@@ -68,11 +80,43 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
 	.cco_Freq = 355U,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 1U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 2U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_0_pllConfig = 
 {
 	.feedbackDiv = 36,
 	.referenceDiv = 1,
 	.outputDiv = 2,
+	.lfMode = false,
+	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_AUTO,
+};
+static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_1_pllConfig = 
+{
+	.feedbackDiv = 30,
+	.referenceDiv = 1,
+	.outputDiv = 5,
 	.lfMode = false,
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_AUTO,
 };
@@ -116,6 +160,12 @@ __STATIC_INLINE void Cy_SysClk_ClkHf2Init()
     Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF2, CY_SYSCLK_CLKHF_DIVIDE_BY_2);
     Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF2);
 }
+__STATIC_INLINE void Cy_SysClk_ClkHf3Init()
+{
+    Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF3, CY_CFG_SYSCLK_CLKHF3_CLKPATH);
+    Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF3, CY_SYSCLK_CLKHF_NO_DIVIDE);
+    Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF3);
+}
 __STATIC_INLINE void Cy_SysClk_ClkHf4Init()
 {
     Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF4, CY_CFG_SYSCLK_CLKHF4_CLKPATH);
@@ -141,6 +191,10 @@ __STATIC_INLINE void Cy_SysClk_ClkPath1Init()
 {
     Cy_SysClk_ClkPathSetSource(1U, CY_CFG_SYSCLK_CLKPATH1_SOURCE);
 }
+__STATIC_INLINE void Cy_SysClk_ClkPath2Init()
+{
+    Cy_SysClk_ClkPathSetSource(2U, CY_CFG_SYSCLK_CLKPATH2_SOURCE);
+}
 __STATIC_INLINE void Cy_SysClk_ClkPeriInit()
 {
     Cy_SysClk_ClkPeriSetDivider(1U);
@@ -152,6 +206,17 @@ __STATIC_INLINE void Cy_SysClk_Pll0Init()
         cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
     }
     if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(1U, 10000u))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
+}
+__STATIC_INLINE void Cy_SysClk_Pll1Init()
+{
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllManualConfigure(2U, &srss_0_clock_0_pll_1_pllConfig))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(2U, 10000u))
     {
         cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
     }
@@ -175,6 +240,35 @@ __STATIC_INLINE void Cy_SysClk_WcoInit()
     {
         cycfg_ClockStartupError(CY_CFG_SYSCLK_WCO_ERROR);
     }
+}
+__STATIC_INLINE void init_cycfg_power(void)
+{
+     /* Reset the Backup domain on POR, XRES, BOD only if Backup domain is supplied by VDDD */
+     #if (CY_CFG_PWR_VBACKUP_USING_VDDD)
+     if (0u == Cy_SysLib_GetResetReason() /* POR, XRES, or BOD */)
+     {
+         Cy_SysLib_ResetBackupDomain();
+         Cy_SysClk_IloDisable();
+         Cy_SysClk_IloInit();
+     }
+     #else /* Dedicated Supply */
+     Cy_SysPm_BackupSetSupply(CY_SYSPM_VDDBACKUP_VBACKUP);
+     #endif /* CY_CFG_PWR_VBACKUP_USING_VDDD */
+
+     /* Configure core regulator */
+     #if CY_CFG_PWR_USING_LDO
+     Cy_SysPm_LdoSetVoltage(CY_SYSPM_LDO_VOLTAGE_LP);
+     Cy_SysPm_LdoSetMode(CY_SYSPM_LDO_MODE_NORMAL);
+     #else
+     Cy_SysPm_BuckEnable(CY_SYSPM_BUCK_OUT1_VOLTAGE_LP);
+     #endif /* CY_CFG_PWR_USING_LDO */
+     /* Configure PMIC */
+     Cy_SysPm_UnlockPmic();
+     #if CY_CFG_PWR_USING_PMIC
+     Cy_SysPm_PmicEnableOutput();
+     #else
+     Cy_SysPm_PmicDisableOutput();
+     #endif /* CY_CFG_PWR_USING_PMIC */
 }
 
 
@@ -461,4 +555,16 @@ void init_cycfg_system(void)
 	
 	/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */
 	SystemCoreClockUpdate();
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
+#endif //defined (CY_USING_HAL)
 }

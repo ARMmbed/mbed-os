@@ -32,6 +32,7 @@
 #define CY_CFG_SYSCLK_CLKALTSYSTICK_ENABLED 1
 #define CY_CFG_SYSCLK_CLKBAK_ENABLED 1
 #define CY_CFG_SYSCLK_ECO_ENABLED 1
+#define CY_CFG_SYSCLK_ECO_FREQ 24000000UL
 #define CY_CFG_SYSCLK_CLKFAST_ENABLED 1
 #define CY_CFG_SYSCLK_FLL_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF0_ENABLED 1
@@ -84,6 +85,46 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
 	.cco_Freq = 355U,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 1U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 2U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_3_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 3U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_4_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 4U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_0_pllConfig = 
 {
 	.feedbackDiv = 30,
@@ -108,13 +149,13 @@ __STATIC_INLINE void Cy_SysClk_ClkBakInit()
 }
 __STATIC_INLINE void Cy_SysClk_EcoInit()
 {
-    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT12, 6, 0x00u, 0x00u, HSIOM_SEL_GPIO);
-    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT12, 7, 0x00u, 0x00u, HSIOM_SEL_GPIO);
-    if (CY_SYSCLK_BAD_PARAM == Cy_SysClk_EcoConfigure(24000000U, 18U, 50U, 100U))
+    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT12, 6, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);
+    (void)Cy_GPIO_Pin_FastInit(GPIO_PRT12, 7, CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);
+    if (CY_SYSCLK_BAD_PARAM == Cy_SysClk_EcoConfigure(CY_CFG_SYSCLK_ECO_FREQ, 18UL, 50UL, 100UL))
     {
         cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);
     }
-    if (CY_SYSCLK_TIMEOUT == Cy_SysClk_EcoEnable(3000u))
+    if (CY_SYSCLK_TIMEOUT == Cy_SysClk_EcoEnable(3000UL))
     {
         cycfg_ClockStartupError(CY_CFG_SYSCLK_ECO_ERROR);
     }
@@ -537,4 +578,24 @@ void init_cycfg_system(void)
 	
 	/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */
 	SystemCoreClockUpdate();
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_3_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_4_obj);
+#endif //defined (CY_USING_HAL)
 }

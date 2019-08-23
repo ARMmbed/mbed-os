@@ -38,6 +38,9 @@
 #define CY_CFG_SYSCLK_CLKHF2_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF2_FREQ_MHZ 50UL
 #define CY_CFG_SYSCLK_CLKHF2_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
+#define CY_CFG_SYSCLK_CLKHF3_ENABLED 1
+#define CY_CFG_SYSCLK_CLKHF3_FREQ_MHZ 48UL
+#define CY_CFG_SYSCLK_CLKHF3_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH2
 #define CY_CFG_SYSCLK_CLKHF4_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF4_FREQ_MHZ 100UL
 #define CY_CFG_SYSCLK_CLKHF4_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
@@ -57,6 +60,7 @@
 #define CY_CFG_SYSCLK_CLKPATH5_ENABLED 1
 #define CY_CFG_SYSCLK_CLKPATH5_SOURCE CY_SYSCLK_CLKPATH_IN_IMO
 #define CY_CFG_SYSCLK_CLKPERI_ENABLED 1
+#define CY_CFG_SYSCLK_PLL1_ENABLED 1
 #define CY_CFG_SYSCLK_CLKSLOW_ENABLED 1
 #define CY_CFG_SYSCLK_WCO_ENABLED 1
 #define CY_CFG_PWR_ENABLED 1
@@ -78,6 +82,62 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.settlingCount = 8U,
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
 	.cco_Freq = 355U,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 1U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 2U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_3_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 3U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_4_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 4U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_5_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 5U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_1_pllConfig = 
+{
+	.feedbackDiv = 30,
+	.referenceDiv = 1,
+	.outputDiv = 5,
+	.lfMode = false,
+	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_AUTO,
 };
 
 __WEAK void cycfg_ClockStartupError(uint32_t error)
@@ -114,6 +174,12 @@ __STATIC_INLINE void Cy_SysClk_ClkHf2Init()
     Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF2, CY_CFG_SYSCLK_CLKHF2_CLKPATH);
     Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF2, CY_SYSCLK_CLKHF_DIVIDE_BY_2);
     Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF2);
+}
+__STATIC_INLINE void Cy_SysClk_ClkHf3Init()
+{
+    Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF3, CY_CFG_SYSCLK_CLKHF3_CLKPATH);
+    Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF3, CY_SYSCLK_CLKHF_NO_DIVIDE);
+    Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF3);
 }
 __STATIC_INLINE void Cy_SysClk_ClkHf4Init()
 {
@@ -159,6 +225,17 @@ __STATIC_INLINE void Cy_SysClk_ClkPath5Init()
 __STATIC_INLINE void Cy_SysClk_ClkPeriInit()
 {
     Cy_SysClk_ClkPeriSetDivider(1U);
+}
+__STATIC_INLINE void Cy_SysClk_Pll1Init()
+{
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllManualConfigure(2U, &srss_0_clock_0_pll_1_pllConfig))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(2U, 10000u))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
 }
 __STATIC_INLINE void Cy_SysClk_ClkSlowInit()
 {
@@ -487,4 +564,28 @@ void init_cycfg_system(void)
 	
 	/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */
 	SystemCoreClockUpdate();
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_3_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_4_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_5_obj);
+#endif //defined (CY_USING_HAL)
 }
