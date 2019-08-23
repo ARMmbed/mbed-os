@@ -19,7 +19,7 @@
 #define USBKEYBOARD_H
 
 #include "USBHID.h"
-#include "Stream.h"
+#include "platform/Stream.h"
 #include "PlatformMutex.h"
 
 /* Modifiers, left keys then right keys. */

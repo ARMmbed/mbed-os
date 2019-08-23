@@ -24,7 +24,7 @@
 
 #include "USBMouse.h"
 #include "USBKeyboard.h"
-#include "Stream.h"
+#include "platform/Stream.h"
 #include "USBHID.h"
 #include "PlatformMutex.h"
 
