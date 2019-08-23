@@ -5,7 +5,7 @@
 * PSoC6_02 device GPIO HAL header for 68-QFN package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -114,7 +114,7 @@ typedef struct
 {
     cyhal_gpio_t                  pin;  //!< The GPIO pin
     const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_cfg_t              cfg;  //!< The DriveMode and HSIOM configuration value
+    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */
@@ -127,6 +127,8 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_ws[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sck[3];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sdo[2];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_ws[2];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp0[1];
@@ -154,19 +156,27 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_rx[11];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_scb_uart_tx[11];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_cmd[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_dat_3to0[4];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_dat_7to4[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_detect_n[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_emmc_reset_n[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_if_pwr_en[2];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_mech_write_prot[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_clk_card[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_io_volt_sel[2];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_led_ctrl[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_clk[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data2[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data3[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data4[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data5[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data6[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data7[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select3[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[50];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line_compl[52];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dm_pad[1];

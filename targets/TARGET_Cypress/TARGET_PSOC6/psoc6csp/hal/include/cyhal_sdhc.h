@@ -49,6 +49,16 @@ extern "C" {
 #endif
 
 /**
+* \addtogroup group_hal_sdhc_macros
+* \{
+*/
+
+#define CYHAL_SDHC_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 0)) /**< Pin related Error. >*/
+
+/** \} group_hal_sdhc_macros */
+
+
+/**
 * \addtogroup group_hal_sdhc_enums
 * \{
 */
@@ -83,9 +93,20 @@ typedef enum {
     CYHAL_SDHC_CQE_EVENT, //!> This status is set if Command Queuing/Crypto event has occurred
     CYHAL_SDHC_ERR_INTERRUPT, //!> If any of the bits in the Error Interrupt Status register are set
     CYHAL_SDHC_ALL_INTERRUPTS, //!> Is used to enable/disable all interrupts
-} cyhal_sdhc_irq_event_t;
+} cyhal_sdhc_event_t;
 
 /** \} group_hal_sdhc_enums */
+
+
+/**
+* \addtogroup group_hal_sdhc_macros
+* \{
+*/
+
+#define CYHAL_SDHC_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 0)) /**< Pin related Error. >*/
+
+/** \} group_hal_sdhc_macros */
+
 
 /**
 * \addtogroup group_hal_sdhc_data_structures
@@ -93,13 +114,14 @@ typedef enum {
 */
 
 /** Handler for SDHC interrupts */
-typedef void (*cyhal_sdhc_irq_handler_t)(void *handler_arg, cyhal_sdhc_irq_event_t event);
+typedef void (*cyhal_sdhc_event_callback_t)(void *callback_arg, cyhal_sdhc_event_t event);
 
 /** Defines configuration options for the SDHC block */
 typedef struct
 {
     bool                 enableLedControl; //!< Drive one IO to indicate when the card is being accessed
     bool                 lowVoltageSignaling; //!< Whether 1.8V signaling is supported
+    bool                 isEmmc;   //!< true if eMMC card, other way false
     uint8_t              busWidth; //!< The desired bus width
 } cyhal_sdhc_config_t;
 
@@ -114,6 +136,7 @@ typedef struct
 /** Initialize the SDHC peripheral
  *
  * @param[out] obj               The SDHC object
+ * @param[in]  config            The card configuration object
  * @param[out] clk               The pin connected to the clk signal
  * @param[in]  cmd               The pin connected to the command signal
  * @param[in]  data0             The pin connected to the data0 signal
@@ -133,22 +156,23 @@ typedef struct
  * @return The status of the init request
  */
 cy_rslt_t cyhal_sdhc_init(cyhal_sdhc_t *obj,
-                   cyhal_gpio_t cmd,
-                   cyhal_gpio_t clk,
-                   cyhal_gpio_t data0,
-                   cyhal_gpio_t data1,
-                   cyhal_gpio_t data2,
-                   cyhal_gpio_t data3,
-                   cyhal_gpio_t data4,
-                   cyhal_gpio_t data5,
-                   cyhal_gpio_t data6,
-                   cyhal_gpio_t data7,
-                   cyhal_gpio_t cardDetect,
-                   cyhal_gpio_t ioVoltSel,
-                   cyhal_gpio_t cardIfPwrEn,
-                   cyhal_gpio_t cardMechWriteProt,
-                   cyhal_gpio_t ledCtrl,
-                   cyhal_gpio_t cardEmmcReset);
+                          const cyhal_sdhc_config_t *config,
+                          cyhal_gpio_t cmd,
+                          cyhal_gpio_t clk,
+                          cyhal_gpio_t data0,
+                          cyhal_gpio_t data1,
+                          cyhal_gpio_t data2,
+                          cyhal_gpio_t data3,
+                          cyhal_gpio_t data4,
+                          cyhal_gpio_t data5,
+                          cyhal_gpio_t data6,
+                          cyhal_gpio_t data7,
+                          cyhal_gpio_t cardDetect,
+                          cyhal_gpio_t ioVoltSel,
+                          cyhal_gpio_t cardIfPwrEn,
+                          cyhal_gpio_t cardMechWriteProt,
+                          cyhal_gpio_t ledCtrl,
+                          cyhal_gpio_t cardEmmcReset);
 
 /** Release the SDHC peripheral, not currently invoked. It requires further
  *  resource management.
@@ -156,14 +180,6 @@ cy_rslt_t cyhal_sdhc_init(cyhal_sdhc_t *obj,
  * @param[in,out] obj The SDHC object
  */
 void cyhal_sdhc_free(cyhal_sdhc_t *obj);
-
-/** Configure the SDHC block.
- *
- * @param[in,out] obj    The SDHC object
- * @param[in]     config The card configuration object
- * @return The status of the configure request
- */
-cy_rslt_t cyhal_sdhc_configure(cyhal_sdhc_t *obj, const cyhal_sdhc_config_t *config);
 
 /** Attempts to read data over the SDHC peripheral.
  *
@@ -228,26 +244,31 @@ bool cyhal_sdhc_is_busy(const cyhal_sdhc_t *obj);
  */
 cy_rslt_t cyhal_sdhc_abort_async(const cyhal_sdhc_t *obj);
 
-/** The SDHC interrupt handler registration
+/** The SDHC callback handler registration
  *
- * @param[in] obj         The SDHC object
- * @param[in] handler     The callback handler which will be invoked when the interrupt fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] obj          The SDHC object
+ * @param[in] callback     The callback handler which will be invoked when the interrupt fires
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
-void cyhal_sdhc_register_irq(cyhal_sdhc_t *obj, cyhal_sdhc_irq_handler_t handler, void *handler_arg);
+void cyhal_sdhc_register_callback(cyhal_sdhc_t *obj, cyhal_sdhc_event_callback_t callback, void *callback_arg);
 
-/** Configure SDHC interrupt enablement.
+/** Configure SDHC event enablement.
  *
- * @param[in] obj      The SDHC object
- * @param[in] event    The SDHC IRQ type
- * @param[in] enable   True to turn on interrupts, False to turn off
+ * @param[in] obj           The SDHC object
+ * @param[in] event         The SDHC event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_sdhc_irq_enable(cyhal_sdhc_t *obj, cyhal_sdhc_irq_event_t event, bool enable);
+void cyhal_sdhc_enable_event(cyhal_sdhc_t *obj, cyhal_sdhc_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_sdhc_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_SDHC_IMPL_HEADER
+#include CYHAL_SDHC_IMPL_HEADER
+#endif /* CYHAL_SDHC_IMPL_HEADER */
 
 /** \} group_hal_sdhc */

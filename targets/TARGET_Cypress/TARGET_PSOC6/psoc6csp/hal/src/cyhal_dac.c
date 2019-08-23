@@ -1,5 +1,5 @@
 /***************************************************************************/ /**
-* \file cyhal_adc.c
+* \file cyhal_dac.c
 *
 * \brief
 * Provides a high level interface for interacting with the Cypress Digital/Analog converter.
@@ -30,6 +30,8 @@
 #include "cyhal_analog_common.h"
 #include "cyhal_dac.h"
 #include "cyhal_gpio.h"
+#include "cyhal_hwmgr.h"
+#include "cyhal_interconnect.h"
 #include "cyhal_utils.h"
 #include "cy_pdl.h"
 
@@ -80,52 +82,55 @@ const cy_stc_ctdac_config_t CYHAL_CTDAC_DEFAULT_CONFIG =
 *******************************************************************************/
 cy_rslt_t cyhal_dac_init(cyhal_dac_t *obj, cyhal_gpio_t pin)
 {
-    if (NULL == obj || CYHAL_NC_PIN_VALUE == pin)
-        return CYHAL_DAC_RSLT_BAD_ARGUMENT;
+    CY_ASSERT(NULL != obj);
 
-    obj->resource.type = CYHAL_RSC_INVALID;
-    obj->base = NULL;
-    obj->pin = CYHAL_NC_PIN_VALUE;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    cy_rslt_t result;
+    if (CYHAL_NC_PIN_VALUE == pin)
+        result = CYHAL_DAC_RSLT_BAD_ARGUMENT;
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        obj->resource.type = CYHAL_RSC_INVALID;
+        obj->base = NULL;
+        obj->pin = CYHAL_NC_PIN_VALUE;
+    }
+
     const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_ctdac_voutsw);
     if (NULL == map)
-        return CYHAL_DAC_RSLT_BAD_ARGUMENT;
+        result =  CYHAL_DAC_RSLT_BAD_ARGUMENT;
 
-    cyhal_resource_inst_t dac_inst = *map->inst;
-    if (CY_RSLT_SUCCESS != (result = cyhal_hwmgr_reserve(&dac_inst)))
-        return result;
-
-    obj->resource = dac_inst;
-
-    obj->base = cyhal_ctdac_base[dac_inst.block_num];
-
-    // We don't need any special configuration of the pin, so just reserve it
-    cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
-    if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_reserve(&pinRsc)))
-        obj->pin = pin;
-
-    if (CY_RSLT_SUCCESS == result &&
-        !cyhal_hwmgr_is_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num))
+    cyhal_resource_inst_t dac_inst;
+    if (CY_RSLT_SUCCESS == result)
     {
-        cy_en_ctdac_status_t ctdac_rslt = Cy_CTDAC_Init(obj->base, &CYHAL_CTDAC_DEFAULT_CONFIG);
-        if(ctdac_rslt == CY_CTDAC_SUCCESS)
-        {
-            result = cyhal_hwmgr_set_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
-        }
-        else
-        {
-            if(ctdac_rslt == CY_CTDAC_BAD_PARAM)
-                result = CYHAL_DAC_RSLT_BAD_ARGUMENT;
-            else
-                result = CYHAL_DAC_RSLT_FAILED_INIT;
-        }
+        dac_inst = *map->inst;
+        result = cyhal_hwmgr_reserve(&dac_inst);
+    }
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        obj->resource = dac_inst;
+
+        obj->base = cyhal_ctdac_base[dac_inst.block_num];
+
+        // We don't need any special configuration of the pin, so just reserve it
+        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
+        if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_reserve(&pinRsc)))
+            obj->pin = pin;
+    }
+
+    if (CY_RSLT_SUCCESS == result)
+        result = cyhal_connect_pin(map);
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = (cy_rslt_t)Cy_CTDAC_Init(obj->base, &CYHAL_CTDAC_DEFAULT_CONFIG);
     }
 
     if (result == CY_RSLT_SUCCESS)
     {
-        Cy_CTDAC_Enable(obj->base);
         cyhal_analog_init();
+        Cy_CTDAC_Enable(obj->base);
     }
     else
     {
@@ -142,7 +147,6 @@ void cyhal_dac_free(cyhal_dac_t *obj)
         cyhal_analog_free();
 
         cyhal_hwmgr_free(&obj->resource);
-        cyhal_hwmgr_set_unconfigured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
 
         if(obj->pin != CYHAL_NC_PIN_VALUE)
         {

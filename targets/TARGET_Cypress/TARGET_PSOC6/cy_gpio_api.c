@@ -29,6 +29,22 @@
 extern "C" {
 #endif
 
+void apply_config(gpio_t *obj)
+{
+    MBED_ASSERT(obj->pin != CYHAL_NC_PIN_VALUE);
+
+    cy_rslt_t rslt;
+    if (CY_RSLT_SUCCESS != (rslt = cyhal_gpio_configure(obj->pin, obj->direction, obj->drive_mode))) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_GPIO, CY_RSLT_GET_CODE(rslt)), "cyhal_gpio_configure failed");
+    }
+
+    if (obj->drive_mode == PullUp) {
+        gpio_write(obj, 1);
+    } else if (obj->drive_mode == PullDown) {
+        gpio_write(obj, 0);
+    }
+}
+
 uint32_t gpio_set(PinName pin)
 {
     // unimplemented (appears to be unused)
@@ -40,7 +56,9 @@ void gpio_init(gpio_t *obj, PinName pin)
     obj->pin = pin;
     if (pin != CYHAL_NC_PIN_VALUE) {
         cy_rslt_t rslt;
-        if (CY_RSLT_SUCCESS != (rslt = cyhal_gpio_init(obj->pin, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_ANALOG, false))) {
+        obj->direction = CYHAL_GPIO_DIR_INPUT;
+        obj->drive_mode = CYHAL_GPIO_DRIVE_NONE;
+        if (CY_RSLT_SUCCESS != (rslt = cyhal_gpio_init(obj->pin, obj->direction, obj->drive_mode, false))) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_GPIO, CY_RSLT_GET_CODE(rslt)), "cyhal_gpio_init failed");
         }
     }
@@ -48,28 +66,25 @@ void gpio_init(gpio_t *obj, PinName pin)
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-    MBED_ASSERT(obj->pin != CYHAL_NC_PIN_VALUE);
-    cy_rslt_t rslt;
-    if (CY_RSLT_SUCCESS != (rslt = cyhal_gpio_drivemode(obj->pin, mode))) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_GPIO, CY_RSLT_GET_CODE(rslt)), "cyhal_gpio_mode failed");
-    }
-    if (mode == PullUp) {
-        gpio_write(obj, 1);
-    } else if (mode == PullDown) {
-        gpio_write(obj, 0);
-    }
+    obj->drive_mode = mode;
+    apply_config(obj);
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     if (direction == PIN_INPUT) {
-        cyhal_gpio_direction(obj->pin, CYHAL_GPIO_DIR_INPUT);
-        gpio_mode(obj, CYHAL_GPIO_DRIVE_ANALOG);
+        obj->direction = CYHAL_GPIO_DIR_INPUT;
+        if (obj->drive_mode == CYHAL_GPIO_DRIVE_STRONG) {
+            obj->drive_mode = CYHAL_GPIO_DRIVE_NONE;
+        }
     } else if (direction == PIN_OUTPUT) {
         // mbed reads from input buffer instead of DR even for output pins so always leave input buffer enabled
-        cyhal_gpio_direction(obj->pin, CYHAL_GPIO_DIR_BIDIRECTIONAL);
-        gpio_mode(obj, CYHAL_GPIO_DRIVE_STRONG);
+        obj->direction = CYHAL_GPIO_DIR_BIDIRECTIONAL;
+        if (obj->drive_mode == CYHAL_GPIO_DRIVE_NONE || obj->drive_mode == CYHAL_GPIO_DRIVE_ANALOG) {
+            obj->drive_mode = CYHAL_GPIO_DRIVE_STRONG;
+        }
     }
+    apply_config(obj);
 }
 
 #ifdef __cplusplus

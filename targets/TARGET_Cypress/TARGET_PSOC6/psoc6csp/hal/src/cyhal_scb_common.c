@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file cyhal_scb_types.h
+* \file cyhal_scb_common.c
 *
 * \brief
 * Provides a struct definitions for configuration resources in the SCB (UART, I2C, SPI).
-* 
+*
 ********************************************************************************
 * \copyright
 * Copyright 2018-2019 Cypress Semiconductor Corporation
@@ -26,7 +26,12 @@
 
 #ifdef CY_IP_MXSCB
 
-CySCB_Type* CY_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES] =
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+CySCB_Type* CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES] =
 {
 #ifdef SCB0
     SCB0,
@@ -78,7 +83,7 @@ CySCB_Type* CY_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES] =
 #endif
 };
 
-IRQn_Type CY_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES] =
+IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES] =
 {
 #ifdef SCB0
     scb_0_interrupt_IRQn,
@@ -129,5 +134,85 @@ IRQn_Type CY_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES] =
     scb_15_interrupt_IRQn,
 #endif
 };
+
+void *cyhal_scb_config_structs[CY_IP_MXSCB_INSTANCES];
+
+uint8_t cyhal_scb_get_block_from_irqn(IRQn_Type irqn) {
+    switch (irqn)
+    {
+#if (CY_CPU_CORTEX_M4)
+#if (CY_IP_MXSCB_INSTANCES > 0)
+    case scb_0_interrupt_IRQn: return 0;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 1)
+    case scb_1_interrupt_IRQn: return 1;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 2)
+    case scb_2_interrupt_IRQn: return 2;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 3)
+    case scb_3_interrupt_IRQn: return 3;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 4)
+    case scb_4_interrupt_IRQn: return 4;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 5)
+    case scb_5_interrupt_IRQn: return 5;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 6)
+    case scb_6_interrupt_IRQn: return 6;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 7)
+    case scb_7_interrupt_IRQn: return 7;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 8)
+    case scb_8_interrupt_IRQn: return 8;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 9)
+    case scb_9_interrupt_IRQn: return 9;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 10)
+    case scb_10_interrupt_IRQn: return 10;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 11)
+    case scb_11_interrupt_IRQn: return 11;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 12)
+    case scb_12_interrupt_IRQn: return 12;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 13)
+    case scb_13_interrupt_IRQn: return 13;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 14)
+    case scb_14_interrupt_IRQn: return 14;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 15)
+    case scb_15_interrupt_IRQn: return 15;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 16)
+    case scb_16_interrupt_IRQn: return 16;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 17)
+    case scb_17_interrupt_IRQn: return 17;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 18)
+    case scb_18_interrupt_IRQn: return 18;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 19)
+    case scb_19_interrupt_IRQn: return 19;
+#endif
+#if (CY_IP_MXSCB_INSTANCES > 20)
+#error "Unhandled scb count"
+#endif
+#endif /* (CY_CPU_CORTEX_M4) */
+    default:
+        CY_ASSERT(false); // Should never be called with a non-SCB IRQn
+        return 0;
+    }
+}
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXSCB */

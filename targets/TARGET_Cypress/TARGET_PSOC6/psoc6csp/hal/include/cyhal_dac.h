@@ -43,7 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_hwmgr.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -67,7 +67,7 @@ extern "C" {
 * \{
 */
 
-/** Initialize the dac peripheral
+/** Initialize the DAC peripheral
  *
  * Configures the pin used by dac.
  * @param[in] obj The dac object to initialize
@@ -91,10 +91,10 @@ void cyhal_dac_free(cyhal_dac_t *obj);
  */
 void cyhal_dac_write(const cyhal_dac_t *obj, uint16_t value);
 
-/** Read the current DAC output voltage setting, as a normalized unsigned 
+/** Read the current DAC output voltage setting, as a normalized unsigned
  * 16-bit value (where 0 is the lowest value the DAC can output and 0xFFFF
  * is the highest).
- * Note: Depending on the precision of the underlying hardware, this may not 
+ * Note: Depending on the precision of the underlying hardware, this may not
  * precisely match the most recent value passed in to cyhal_dac_write.
  *
  * @param[in]  obj        The dac object
@@ -107,5 +107,9 @@ uint16_t cyhal_dac_read(cyhal_dac_t *obj);
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_DAC_IMPL_HEADER
+#include CYHAL_DAC_IMPL_HEADER
+#endif /* CYHAL_DAC_IMPL_HEADER */
 
 /** \} group_hal_dac */

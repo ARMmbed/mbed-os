@@ -28,6 +28,7 @@
 
 #include "cmsis.h"
 #include "objects.h"
+#include "cycfg.h"
 
 /*
  * Board clocks.

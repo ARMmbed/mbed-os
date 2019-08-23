@@ -19,7 +19,6 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "cyhal_crc.h"
-#include "cyhal_crc_impl.h"
 
 #if DEVICE_CRC
 

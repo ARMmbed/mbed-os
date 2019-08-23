@@ -5,7 +5,7 @@
 * PSoC6_02 device GPIO HAL header for 68-QFN package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -131,6 +131,16 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sdo[2] = {
 const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_ws[2] = {
     {P9_2, &CYHAL_I2S_0, CYHAL_PIN_OUT_FUNCTION(P9_2_AUDIOSS0_TX_WS)},
     {P11_2, &CYHAL_I2S_1, CYHAL_PIN_OUT_FUNCTION(P11_2_AUDIOSS1_TX_WS)},
+};
+
+/* Connections for: lpcomp_dsi_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: lpcomp_dsi_comp1 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: lpcomp_inn_comp0 */
@@ -434,9 +444,19 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_dat_3to0[4] = {
     {P2_3, &CYHAL_SDHC_0, CYHAL_PIN_OUT_BUF_FUNCTION(P2_3_SDHC0_CARD_DAT_3TO03)},
 };
 
+/* Connections for: sdhc_card_dat_7to4 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_dat_7to4[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: sdhc_card_detect_n */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_detect_n[1] = {
     {P2_6, &CYHAL_SDHC_0, CYHAL_PIN_IN_FUNCTION(P2_6_SDHC0_CARD_DETECT_N)},
+};
+
+/* Connections for: sdhc_card_emmc_reset_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_emmc_reset_n[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: sdhc_card_if_pwr_en */
@@ -459,6 +479,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_clk_card[1] = {
 const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_io_volt_sel[2] = {
     {P3_0, &CYHAL_SDHC_0, CYHAL_PIN_OUT_FUNCTION(P3_0_SDHC0_IO_VOLT_SEL)},
     {P12_7, &CYHAL_SDHC_1, CYHAL_PIN_OUT_FUNCTION(P12_7_SDHC1_IO_VOLT_SEL)},
+};
+
+/* Connections for: sdhc_led_ctrl */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_led_ctrl[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: smif_spi_clk */
@@ -486,6 +511,26 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data3[1] = {
     {P11_3, &CYHAL_SMIF_0, CYHAL_PIN_OUT_BUF_FUNCTION(P11_3_SMIF_SPI_DATA3)},
 };
 
+/* Connections for: smif_spi_data4 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data4[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data5 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data5[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data6 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data6[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data7 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data7[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: smif_spi_select0 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select0[1] = {
     {P11_2, &CYHAL_SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_2_SMIF_SPI_SELECT0)},
@@ -499,6 +544,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select1[1] = {
 /* Connections for: smif_spi_select2 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1] = {
     {P11_0, &CYHAL_SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_0_SMIF_SPI_SELECT2)},
+};
+
+/* Connections for: smif_spi_select3 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select3[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: tcpwm_line */

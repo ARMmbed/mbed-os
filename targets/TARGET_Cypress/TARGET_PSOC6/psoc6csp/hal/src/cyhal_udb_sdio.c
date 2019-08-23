@@ -27,13 +27,17 @@
 
 #if defined(CYHAL_UDB_SDIO)
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #include <stdlib.h>
 #include "SDIO_HOST_cfg.h"
 #include "cyhal_utils.h"
 #include "cyhal_sdio.h"
 #include "cyhal_gpio.h"
 #include "cyhal_interconnect.h"
-#include "cyhal_implementation.h"
 
 /* Not connected pin define */
 #define SDIO_PINS_NC    ((cyhal_gpio_t) CYHAL_NC_PIN_VALUE)
@@ -51,6 +55,21 @@
 
 /* The 1 byte transition mode define */
 #define CY_HAL_SDIO_1B        (1u)
+
+/* Mask which indicates interface change */
+#define CYHAL_SDIO_INTERFACE_CHANGE_MASK    ((uint32_t) ((uint32_t) CYHAL_SDIO_GOING_DOWN) | ((uint32_t) CYHAL_SDIO_COMING_UP))
+
+#if !defined(CYHAL_SDIO_DS_CB_ORDER)
+    /* The order value for SDIO Deep Sleep callback */
+    #define CYHAL_SDIO_DS_CB_ORDER        (0u)
+ #endif  /* !defined(CYHAL_SDIO_DS_CB_ORDER) */
+
+/* Callback pointers */
+static cyhal_sdio_event_callback_t cyhal_sdio_callback = NULL;
+static cyhal_sdio_t *cyhal_sdio_config_struct = NULL;
+static void *cyhal_sdio_callback_args = NULL;
+static bool deep_sleep_pending = false;
+static bool op_pending = false;
 
 /*******************************************************************************
 *       (Internal) Configuration structures for SDIO pins
@@ -106,28 +125,22 @@ const cy_stc_gpio_pin_config_t pin_clk_config =
     .vohSel = 0UL,
 };
 
-/* Callback pointers */
-static cyhal_sdio_irq_handler_t cyhal_sdio_callback = NULL;
-static cyhal_sdio_t *cyhal_sdio_config_struct = NULL;
-static void *cyhal_sdio_callback_args = NULL;
-
+/*******************************************************************************
+*       Internal functions
+*******************************************************************************/
+static void cyhal_free_pins(cyhal_sdio_t *obj);
 
 /*******************************************************************************
 *       Dispatcher Interrupt Callbacks Service Routine
 *******************************************************************************/
 static void cyhal_sdio_interrupts_dispatcher_IRQHandler(void)
 {
+    /* Only CYHAL_SDIO_CARD_INTERRUPT event can be registered and executed */
     if ((cyhal_sdio_callback != NULL) && (cyhal_sdio_config_struct->irq_cause != 0U))
     {
-        (void)(cyhal_sdio_callback)(cyhal_sdio_callback_args, (cyhal_sdio_irq_event_t) cyhal_sdio_config_struct->irq_cause);
+        (void)(cyhal_sdio_callback)(cyhal_sdio_callback_args, CYHAL_SDIO_CARD_INTERRUPT);
     }
 }
-
-
-/*******************************************************************************
-*       Internal functions
-*******************************************************************************/
-static void cyhal_free_pins(cyhal_sdio_t *obj);
 
 static void cyhal_free_pins(cyhal_sdio_t *obj)
 {
@@ -180,8 +193,8 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
 {
     CY_ASSERT(NULL != obj);
 
-    /* If something go wrong, any resource not marked as invalid will be freed.
-    *  Explicitly marked not allocated resources as invalid to prevent freeing
+    /* If something goes wrong, any resource not marked as invalid will be freed.
+    *  We explicitly mark unallocated resources as invalid to prevent freeing
     *  them.
     *
     *  Before we reserve UDB at all we need try to reserve clock divider, then
@@ -326,7 +339,7 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             Cy_GPIO_Pin_Init(CYHAL_GET_PORTADDR(data3), CYHAL_GET_PIN(data3), &pin_data_config);
         }
     }
-    
+
     /* Reserve UDB SDIO */
     if (retVal == CY_RSLT_SUCCESS)
     {
@@ -341,18 +354,18 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             obj->resource.block_num = udbRsc.block_num;
             obj->resource.channel_num = udbRsc.channel_num;
 
-            /* Set default interrupt priority of 7 (lowest possible priority) */
-            cy_stc_sysint_t irqCfg = {udb_interrupts_0_IRQn, 7};
+            /* Set default interrupt priority to default value */
+            cy_stc_sysint_t irqCfg = { udb_interrupts_0_IRQn, CYHAL_ISR_PRIORITY_DEFAULT };
             Cy_SysInt_Init(&irqCfg, &SDIO_IRQ);
             NVIC_EnableIRQ(udb_interrupts_0_IRQn);
 
             /* Setup write DMA interrupt handler */
-            cy_stc_sysint_t irqDma1_1 = {cpuss_interrupts_dw1_1_IRQn, 7};
+            cy_stc_sysint_t irqDma1_1 = { cpuss_interrupts_dw1_1_IRQn, CYHAL_ISR_PRIORITY_DEFAULT };
             Cy_SysInt_Init(&irqDma1_1, &SDIO_WRITE_DMA_IRQ);
             NVIC_EnableIRQ(cpuss_interrupts_dw1_1_IRQn);
 
             /* Setup read DMA interrupt handler */
-            cy_stc_sysint_t irqDma1_3 = {cpuss_interrupts_dw1_3_IRQn, 7};
+            cy_stc_sysint_t irqDma1_3 = { cpuss_interrupts_dw1_3_IRQn, CYHAL_ISR_PRIORITY_DEFAULT };
             Cy_SysInt_Init(&irqDma1_3, &SDIO_READ_DMA_IRQ);
             NVIC_EnableIRQ(cpuss_interrupts_dw1_3_IRQn);
 
@@ -376,10 +389,9 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             obj->frequencyhal_hz = CY_HAL_SDIO_DEF_FREQ;
             obj->block_size   = CY_HAL_SDIO_64B;
 
-            /* Initialize interrupt cause */
+            /* Initialize interrupt cause and events */
             obj->irq_cause = 0u;
-
-            retVal = cyhal_hwmgr_set_configured(udbRsc.type, udbRsc.block_num, udbRsc.channel_num);
+            obj->events = 0u;
         }
     }
 
@@ -395,9 +407,14 @@ void cyhal_sdio_free(cyhal_sdio_t *obj)
 {
     CY_ASSERT(NULL != obj);
 
+    NVIC_DisableIRQ(udb_interrupts_0_IRQn);
+    NVIC_DisableIRQ(cpuss_interrupts_dw1_1_IRQn);
+    NVIC_DisableIRQ(cpuss_interrupts_dw1_3_IRQn);
+
     cyhal_free_pins(obj);
     cyhal_free_clocks(obj);
     cyhal_free_dmas(obj);
+    cyhal_hwmgr_free(&(obj->resource));
 }
 
 cy_rslt_t cyhal_sdio_configure(cyhal_sdio_t *obj, const cyhal_sdio_cfg_t *config)
@@ -410,7 +427,7 @@ cy_rslt_t cyhal_sdio_configure(cyhal_sdio_t *obj, const cyhal_sdio_cfg_t *config
         SDIO_SetSdClkFrequency(config->frequencyhal_hz);
         obj->frequencyhal_hz = config->frequencyhal_hz;
     }
-    
+
     /* Do not change block size if requested value is zero */
     if (config->block_size != 0)
     {
@@ -420,7 +437,6 @@ cy_rslt_t cyhal_sdio_configure(cyhal_sdio_t *obj, const cyhal_sdio_cfg_t *config
 
     return CY_RSLT_SUCCESS;
 }
-
 cy_rslt_t cyhal_sdio_send_cmd(const cyhal_sdio_t *obj, cyhal_transfer_t direction, cyhal_sdio_command_t command, uint32_t argument, uint32_t* response)
 {
     CY_ASSERT(NULL != obj);
@@ -513,9 +529,10 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
 cy_rslt_t cyhal_sdio_transfer_async(cyhal_sdio_t *obj, cyhal_transfer_t direction, uint32_t argument, const uint32_t* data, uint16_t length)
 {
     /* UDB SDIO implementation does not support async transfers */
-    
+
+    CY_ASSERT(NULL != obj);
     /* Just add check to suppress warning about unused arguments */
-    if ((NULL == obj) && (data == NULL) && (length == 0) && (argument == 0) && (direction == ((cyhal_transfer_t) 0x3)))
+    if ((data == NULL) && (length == 0) && (argument == 0) && (direction == ((cyhal_transfer_t) 0x3)))
     {
         return CYHAL_SDIO_RSLT_ERR_BAD_PARAM;
     }
@@ -526,7 +543,7 @@ cy_rslt_t cyhal_sdio_transfer_async(cyhal_sdio_t *obj, cyhal_transfer_t directio
 bool cyhal_sdio_is_busy(const cyhal_sdio_t *obj)
 {
     /* UDB SDIO does not support async transfers */
-    return true;
+    return false;
 }
 
 cy_rslt_t cyhal_sdio_abort_async(const cyhal_sdio_t *obj)
@@ -536,14 +553,14 @@ cy_rslt_t cyhal_sdio_abort_async(const cyhal_sdio_t *obj)
     return CY_RSLT_SUCCESS;
 }
 
-void cyhal_sdio_register_irq(cyhal_sdio_t *obj, cyhal_sdio_irq_handler_t handler, void *handler_arg)
+void cyhal_sdio_register_callback(cyhal_sdio_t *obj, cyhal_sdio_event_callback_t callback, void *callback_arg)
 {
     cyhal_sdio_config_struct = obj;
-    cyhal_sdio_callback = handler;
-    cyhal_sdio_callback_args = handler_arg;
+    cyhal_sdio_callback      = callback;
+    cyhal_sdio_callback_args = callback_arg;
 }
 
-void cyhal_sdio_irq_enable(cyhal_sdio_t *obj, cyhal_sdio_irq_event_t event, bool enable)
+void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_t intrPriority, bool enable)
 {
     /* Only CYHAL_SDIO_CARD_INTERRUPT event can be registered */
     if (event == CYHAL_SDIO_CARD_INTERRUPT)
@@ -556,7 +573,7 @@ void cyhal_sdio_irq_enable(cyhal_sdio_t *obj, cyhal_sdio_irq_event_t event, bool
             {
                 cyhal_sdio_config_struct->irq_cause = event;
             }
-            
+
             SDIO_EnableChipInt();
         }
         else
@@ -571,6 +588,27 @@ void cyhal_sdio_irq_enable(cyhal_sdio_t *obj, cyhal_sdio_irq_event_t event, bool
             SDIO_DisableChipInt();
         }
     }
+
+    /* Enable/disable non-interrupt based event */
+    if (0u != ((uint32_t) event & CYHAL_SDIO_INTERFACE_CHANGE_MASK))
+    {
+        if (enable)
+        {
+            obj->events |= (uint32_t) event;
+        }
+        else
+        {
+            obj->events &= (uint32_t) ~((uint32_t) event);
+        }
+
+        cyhal_sdio_config_struct->events = obj->events;
+    }
+
+    NVIC_SetPriority(udb_interrupts_0_IRQn, intrPriority);
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* defined(CYHAL_UDB_SDIO) */

@@ -45,6 +45,9 @@ extern "C" {
 /** Simple macro to supress the unused parameter warning by casting to void. */
 #define CY_UNUSED_PARAMETER(x) ( (void)(x) )
 
+/** Halt the processor in the debug state
+ * @return
+ */
 static inline uint32_t CY_HALT()
 {
     __asm("    bkpt    1");

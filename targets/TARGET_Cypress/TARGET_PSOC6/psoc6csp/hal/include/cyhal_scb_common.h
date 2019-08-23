@@ -22,20 +22,72 @@
 * limitations under the License.
 *******************************************************************************/
 
+/**
+ * \addtogroup group_hal_scb_common PSoC 6 SCB Common Functionality
+ * \ingroup group_hal_psoc6
+ * \{
+ * Code shared between the SCB resources (UART, I2C, and SPI).
+ *
+ * \defgroup group_hal_scb_common_macros Macros
+ * \defgroup group_hal_scb_common_constants Constants
+ * \defgroup group_hal_scb_common_functions Functions
+ * \defgroup group_hal_scb_common_data_structures Data Structures
+ * \defgroup group_hal_scb_common_enums Enumerated Types
+ */
+
 #pragma once
 
 #include "cy_device.h"
 #include "cy_pdl.h"
+#include "cyhal_utils.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/**
+ * \addtogroup group_hal_scb_common_constants
+ * \{
+ */
+
 /** The start address of the SCB blocks */
-extern CySCB_Type* CY_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
+extern CySCB_Type* CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
 /** The interrupt number of the SCB blocks. */
-extern IRQn_Type CY_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
+extern IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
+
+/** The configuration structs for the resource in use on each SCB block (e.g. cyhal_i2c_t) */
+extern void *cyhal_scb_config_structs[CY_IP_MXSCB_INSTANCES];
+
+/** \} group_hal_scb_common_constants */
+
+
+/**
+ * \addtogroup group_hal_scb_common_functions
+ * \{
+ */
+
+/** Get the SCB block corresponding to an IRQn.
+ *
+ * @param[in] irqn The IRQn to get the corresponding block from
+ * @return         The corresponding SCB block
+ */
+uint8_t cyhal_scb_get_block_from_irqn(IRQn_Type irqn);
+
+/** Get the SCB object corresponding to the currently running ISR.
+ *
+ * @return A pointer to the SCB object corresponding to the currently running ISR.
+ */
+__STATIC_INLINE void *cyhal_scb_get_irq_obj(void)
+{
+    IRQn_Type irqn = CYHAL_GET_CURRENT_IRQN();
+    uint8_t block = cyhal_scb_get_block_from_irqn(irqn);
+    return cyhal_scb_config_structs[block];
+}
+
+/** \} group_hal_scb_common_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+/** \} group_hal_scb_common */

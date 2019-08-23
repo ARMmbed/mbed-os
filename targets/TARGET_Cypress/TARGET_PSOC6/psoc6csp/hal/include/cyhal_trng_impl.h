@@ -38,6 +38,7 @@ extern "C" {
 
 #define MAX_TRNG_BIT_SIZE               (32UL)
 
+// This helper function mirrors the definition of cyhal_trng_generate
 static inline uint32_t cyhal_trng_generate_internal(const cyhal_trng_t *obj)
 {
     CY_ASSERT(NULL != obj);

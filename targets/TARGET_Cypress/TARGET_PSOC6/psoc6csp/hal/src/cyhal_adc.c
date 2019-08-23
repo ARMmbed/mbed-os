@@ -30,6 +30,8 @@
 #include "cyhal_adc.h"
 #include "cyhal_analog_common.h"
 #include "cyhal_gpio.h"
+#include "cyhal_hwmgr.h"
+#include "cyhal_interconnect.h"
 #include "cyhal_utils.h"
 
 #if defined(CY_IP_MXS40PASS_SAR_INSTANCES)
@@ -39,7 +41,7 @@ extern "C"
 {
 #endif
 
-static SAR_Type *const cyhal_sar_base[] = 
+static SAR_Type *const cyhal_sar_base[] =
 {
 #if (CY_IP_MXS40PASS_SAR_INSTANCES == 1)
     SAR,
@@ -49,7 +51,7 @@ static SAR_Type *const cyhal_sar_base[] =
 #endif
 };
 
-static const en_clk_dst_t cyhal_sar_clock[] = 
+static const en_clk_dst_t cyhal_sar_clock[] =
 {
 #if (CY_IP_MXS40PASS_SAR_INSTANCES == 1)
     PCLK_PASS_CLOCK_SAR,
@@ -60,7 +62,7 @@ static const en_clk_dst_t cyhal_sar_clock[] =
 };
 
 #define CYHAL_SAR_DEFAULT_CTRL ((uint32_t)CY_SAR_VREF_PWR_100 | (uint32_t)CY_SAR_VREF_SEL_BGR \
-                                | (uint32_t)CY_SAR_BYPASS_CAP_DISABLE | (uint32_t)CY_SAR_NEG_SEL_VSSA_KELVIN \
+                                | (uint32_t)CY_SAR_BYPASS_CAP_DISABLE | (uint32_t)CY_SAR_NEG_SEL_VREF \
                                 | (uint32_t)CY_SAR_CTRL_NEGVREF_HW | (uint32_t)CY_SAR_CTRL_COMP_DLY_12 \
                                 | (uint32_t)CY_SAR_COMP_PWR_100 | (uint32_t)CY_SAR_DEEPSLEEP_SARMUX_OFF \
                                 | (uint32_t)CY_SAR_SARSEQ_SWITCH_ENABLE)
@@ -142,29 +144,29 @@ static uint32_t cyhal_adc_get_fw_switch_control(cyhal_gpio_t gpio, bool is_vplus
     return (uint32_t)(is_vplus ? vplus_lookup[pin] : vminus_lookup[pin]);
 }
 
-static uint32_t cyhal_adc_get_pin_addr(cyhal_gpio_t gpio, bool is_vplus)
+static uint8_t cyhal_adc_get_pin_addr(cyhal_gpio_t gpio, bool is_vplus)
 {
-    static const cy_en_sar_chan_config_pos_pin_addr_t vplus_lookup[] = 
+    static const cy_en_sar_chan_config_pos_pin_addr_t vplus_lookup[] =
     {
-        CY_SAR_CHAN_POS_PIN_ADDR_0, 
-        CY_SAR_CHAN_POS_PIN_ADDR_1, 
-        CY_SAR_CHAN_POS_PIN_ADDR_2, 
-        CY_SAR_CHAN_POS_PIN_ADDR_3, 
-        CY_SAR_CHAN_POS_PIN_ADDR_4, 
-        CY_SAR_CHAN_POS_PIN_ADDR_5, 
-        CY_SAR_CHAN_POS_PIN_ADDR_6, 
+        CY_SAR_CHAN_POS_PIN_ADDR_0,
+        CY_SAR_CHAN_POS_PIN_ADDR_1,
+        CY_SAR_CHAN_POS_PIN_ADDR_2,
+        CY_SAR_CHAN_POS_PIN_ADDR_3,
+        CY_SAR_CHAN_POS_PIN_ADDR_4,
+        CY_SAR_CHAN_POS_PIN_ADDR_5,
+        CY_SAR_CHAN_POS_PIN_ADDR_6,
         CY_SAR_CHAN_POS_PIN_ADDR_7
     };
 
-    static const cy_en_sar_chan_config_neg_pin_addr_t vminus_lookup[] = 
+    static const cy_en_sar_chan_config_neg_pin_addr_t vminus_lookup[] =
     {
-        CY_SAR_CHAN_NEG_PIN_ADDR_0, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_1, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_2, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_3, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_4, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_5, 
-        CY_SAR_CHAN_NEG_PIN_ADDR_6, 
+        CY_SAR_CHAN_NEG_PIN_ADDR_0,
+        CY_SAR_CHAN_NEG_PIN_ADDR_1,
+        CY_SAR_CHAN_NEG_PIN_ADDR_2,
+        CY_SAR_CHAN_NEG_PIN_ADDR_3,
+        CY_SAR_CHAN_NEG_PIN_ADDR_4,
+        CY_SAR_CHAN_NEG_PIN_ADDR_5,
+        CY_SAR_CHAN_NEG_PIN_ADDR_6,
         CY_SAR_CHAN_NEG_PIN_ADDR_7
     };
     uint8_t pin = CYHAL_GET_PIN(gpio);
@@ -179,72 +181,82 @@ cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
 {
     const uint32_t DESIRED_DIVIDER = 8000000u; // 8 MHz. Required range is 1.7 - 18
 
-    if (NULL == obj || CYHAL_NC_PIN_VALUE == pin)
-        return CYHAL_ADC_RSLT_BAD_ARGUMENT;
+    CY_ASSERT(NULL != obj);
 
-    memset(obj, 0, sizeof(cyhal_adc_t));
-    obj->base = NULL;
-    obj->channel_used = 0;
-    obj->clock.div_num = CYHAL_RSC_INVALID;
-    obj->resource.type = CYHAL_RSC_INVALID;
-    obj->dedicated_clock = false;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
 
-    cy_rslt_t result;
-    const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_sarmux_pads);
-    if (NULL == map)
-        return CYHAL_ADC_RSLT_BAD_ARGUMENT;
+    if (CYHAL_NC_PIN_VALUE == pin)    
+        result = CYHAL_ADC_RSLT_BAD_ARGUMENT;
 
-    cyhal_resource_inst_t adc_inst = *map->inst;
-    if (CY_RSLT_SUCCESS != (result = cyhal_hwmgr_reserve(&adc_inst)))
-        return result;
-
-    obj->resource = adc_inst;
-
-    obj->base = cyhal_sar_base[adc_inst.block_num];
-    en_clk_dst_t pclk = (en_clk_dst_t)(cyhal_sar_clock[adc_inst.block_num]);
-    if (NULL != clk)
+    if (CY_RSLT_SUCCESS == result)
     {
-        obj->clock = *clk;
+        memset(obj, 0, sizeof(cyhal_adc_t));
+        obj->base = NULL;
+        obj->channel_used = 0;
+        obj->clock.div_num = CYHAL_RSC_INVALID;
+        obj->resource.type = CYHAL_RSC_INVALID;
         obj->dedicated_clock = false;
     }
-    else if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false)))
+
+    const cyhal_resource_pin_mapping_t *map = CY_UTILS_GET_RESOURCE(pin, cyhal_pin_map_pass_sarmux_pads);
+    if (NULL == map)
+        result = CYHAL_ADC_RSLT_BAD_ARGUMENT;
+
+    cyhal_resource_inst_t adc_inst;
+    if (CY_RSLT_SUCCESS == result)
     {
-        obj->dedicated_clock = true;
+        adc_inst = *map->inst;
+        result = cyhal_hwmgr_reserve(&adc_inst);
     }
 
-    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, obj->clock.div_type, obj->clock.div_num))
-        result = CYHAL_ADC_RSLT_FAILED_CLOCK;
-
-    if(obj->dedicated_clock)
+    en_clk_dst_t pclk;
+    if (CY_RSLT_SUCCESS == result)
     {
-        uint32_t div = cy_PeriClkFreqHz / DESIRED_DIVIDER;
-        if (0 == div ||
-            CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
-            CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num))
+        obj->resource = adc_inst;
+
+        obj->base = cyhal_sar_base[adc_inst.block_num];
+        pclk = (en_clk_dst_t)(cyhal_sar_clock[adc_inst.block_num]);
+        if (NULL != clk)
         {
+            obj->clock = *clk;
+            obj->dedicated_clock = false;
+        }
+        else if (CY_RSLT_SUCCESS == (result = cyhal_hwmgr_allocate_clock(&(obj->clock), CY_SYSCLK_DIV_16_BIT, false)))
+        {
+            obj->dedicated_clock = true;
+        }
+    }
+
+    if (CY_RSLT_SUCCESS == result)
+    {    
+        if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, obj->clock.div_type, obj->clock.div_num))
             result = CYHAL_ADC_RSLT_FAILED_CLOCK;
+    }
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        if(obj->dedicated_clock)
+        {
+            uint32_t div = cy_PeriClkFreqHz / DESIRED_DIVIDER;
+            if (0 == div ||
+                CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
+                CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num))
+            {
+                result = CYHAL_ADC_RSLT_FAILED_CLOCK;
+            }
         }
     }
 
-    if (CY_RSLT_SUCCESS == result &&
-        !cyhal_hwmgr_is_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num))
+    if (CY_RSLT_SUCCESS == result)
     {
-        cy_en_sar_status_t sar_rslt = Cy_SAR_Init(obj->base, &CYHAL_SAR_DEFAULT_CONFIG);
-        if(sar_rslt == CY_SAR_SUCCESS)
-        {
-            result = cyhal_hwmgr_set_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
-        }
-        else
-        {
-            result = CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_ADC, CY_RSLT_GET_CODE(sar_rslt));
-        }
+        result = (cy_rslt_t)Cy_SAR_Init(obj->base, &CYHAL_SAR_DEFAULT_CONFIG);
     }
 
     if (result == CY_RSLT_SUCCESS)
     {
         Cy_SAR_SetVssaSarSeqCtrl(obj->base, CY_SAR_SWITCH_SEQ_CTRL_ENABLE);
         Cy_SAR_SetVssaVminusSwitch(obj->base, CY_SAR_SWITCH_CLOSE);
-    
+
         cyhal_analog_init();
         Cy_SAR_Enable(obj->base);
     }
@@ -272,7 +284,6 @@ void cyhal_adc_free(cyhal_adc_t *obj)
         cyhal_analog_free();
 
         cyhal_hwmgr_free(&obj->resource);
-        cyhal_hwmgr_set_unconfigured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
 
         obj->base = NULL;
     }
@@ -282,7 +293,9 @@ void cyhal_adc_free(cyhal_adc_t *obj)
 *******************************************************************************/
 cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyhal_gpio_t pin)
 {
-    if (NULL == obj || NULL == adc || CYHAL_NC_PIN_VALUE == pin)
+    CY_ASSERT(obj != NULL);
+    CY_ASSERT(adc != NULL);
+    if (CYHAL_NC_PIN_VALUE == pin)
         return CYHAL_ADC_RSLT_BAD_ARGUMENT;
 
     // Check for invalid pin or pin belonging to a different SAR
@@ -293,11 +306,13 @@ cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyh
     memset(obj, 0, sizeof(cyhal_adc_channel_t));
     cy_rslt_t result;
 
-    // We don't need any special configuration of the pin, so just reserve it
     cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
     if (CY_RSLT_SUCCESS != (result = cyhal_hwmgr_reserve(&pinRsc)))
         return result;
     obj->pin = pin;
+
+    if (CY_RSLT_SUCCESS == result)
+        result = cyhal_connect_pin(map);
 
     // Find the first available channel
     uint8_t chosen_channel = __CLZ(__RBIT(~adc->channel_used));

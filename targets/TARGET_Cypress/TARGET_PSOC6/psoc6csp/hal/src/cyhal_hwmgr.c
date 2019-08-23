@@ -24,8 +24,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cyhal_implementation.h"
+#include "cyhal_hwmgr.h"
+#include "cyhal_system.h"
 #include "cmsis_compiler.h"
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 /*******************************************************************************
 *       Defines
@@ -49,7 +55,7 @@
     #if (CY_IP_MXTTCANFD_INSTANCES == 0)
         #define CY_CHANNEL_COUNT_CAN (0u)
     #elif (CY_IP_MXTTCANFD_INSTANCES == 1)
-        #define CY_CHANNEL_COUNT_CAN (CANFD0_CAN_NR)
+        #define CY_CHANNEL_COUNT_CAN (CANFD_CAN_NR)
     #elif (CY_IP_MXTTCANFD_INSTANCES == 2)
         #define CY_CHANNEL_COUNT_CAN (CANFD0_CAN_NR + CANFD1_CAN_NR)
     #elif (CY_IP_MXTTCANFD_INSTANCES == 3)
@@ -86,11 +92,11 @@
 #define CY_CHANNEL_COUNT_CLOCK  (PERI_DIV_8_NR + PERI_DIV_16_NR + PERI_DIV_16_5_NR + PERI_DIV_24_5_NR)
 
 #if defined(CY_IP_MXCRYPTO_INSTANCES)
-    #define CY_BLOCK_COUNT_CRC      CY_IP_MXCRYPTO_INSTANCES
+    #define CY_BLOCK_COUNT_CRYPTO      CY_IP_MXCRYPTO_INSTANCES
 #elif defined(CPUSS_CRYPTO_PRESENT)
-    #define CY_BLOCK_COUNT_CRC      1
+    #define CY_BLOCK_COUNT_CRYPTO      1
 #else
-    #define CY_BLOCK_COUNT_CRC      0
+    #define CY_BLOCK_COUNT_CRYPTO      0
 #endif
 
 #ifdef CY_IP_MXS40PASS_CTDAC_INSTANCES
@@ -106,6 +112,9 @@
 
     #define CY_BLOCK_COUNT_DMA      3
     #define CY_CHANNEL_COUNT_DMA    (CPUSS_DW0_CH_NR + CPUSS_DW1_CH_NR + CPUSS_DMAC_CH_NR)
+#else
+    #define CY_BLOCK_COUNT_DMA      0
+    #define CY_CHANNEL_COUNT_DMA    0
 #endif
 
 #ifdef IOSS_GPIO_GPIO_PORT_NR
@@ -150,14 +159,6 @@
     #define CY_BLOCK_COUNT_QSPI CY_IP_MXSMIF_INSTANCES
 #else
     #define CY_BLOCK_COUNT_QSPI 0
-#endif
-
-#if defined(CY_IP_MXCRYPTO_INSTANCES)
-    #define CY_BLOCK_COUNT_RNG      CY_IP_MXCRYPTO_INSTANCES
-#elif defined(CPUSS_CRYPTO_PRESENT)
-    #define CY_BLOCK_COUNT_RNG      1
-#else
-    #define CY_BLOCK_COUNT_RNG      0
 #endif
 
 #ifdef CY_IP_MXS40SRSS_RTC_INSTANCES
@@ -224,9 +225,9 @@
 #endif
 
 #ifdef CY_IP_MXS40SRSS_MCWDT_INSTANCES
-    #define CY_BLOCK_COUNT_WDT      CY_IP_MXS40SRSS_MCWDT_INSTANCES
+    #define CY_BLOCK_COUNT_MCWDT      CY_IP_MXS40SRSS_MCWDT_INSTANCES
 #else
-    #define CY_BLOCK_COUNT_WDT      0
+    #define CY_BLOCK_COUNT_MCWDT      0
 #endif
 
 
@@ -252,9 +253,9 @@
 #define CY_SIZE_CLK_PATH   (CY_BLOCK_COUNT_CLK_PATH)
 #define CY_OFFSET_CLOCK    (CY_OFFSET_CLK_PATH + CY_SIZE_CLK_PATH)
 #define CY_SIZE_CLOCK      CY_CHANNEL_COUNT_CLOCK
-#define CY_OFFSET_CRC      (CY_OFFSET_CLOCK + CY_SIZE_CLOCK)
-#define CY_SIZE_CRC        CY_BLOCK_COUNT_CRC
-#define CY_OFFSET_DAC      (CY_OFFSET_CRC + CY_SIZE_CRC)
+#define CY_OFFSET_CRYPTO   (CY_OFFSET_CLOCK + CY_SIZE_CLOCK)
+#define CY_SIZE_CRYPTO     CY_BLOCK_COUNT_CRYPTO
+#define CY_OFFSET_DAC      (CY_OFFSET_CRYPTO + CY_SIZE_CRYPTO)
 #define CY_SIZE_DAC        CY_BLOCK_COUNT_DAC
 #define CY_OFFSET_DMA      (CY_OFFSET_DAC + CY_SIZE_DAC)
 #define CY_SIZE_DMA        CY_CHANNEL_COUNT_DMA
@@ -267,16 +268,14 @@
 #define CY_OFFSET_LPCOMP   (CY_OFFSET_LCD + CY_SIZE_LCD)
 #define CY_SIZE_LPCOMP     CY_BLOCK_COUNT_LPCOMP
 #define CY_OFFSET_LPTIMER  (CY_OFFSET_LPCOMP + CY_SIZE_LPCOMP)
-#define CY_SIZE_LPTIMER    CY_BLOCK_COUNT_WDT
+#define CY_SIZE_LPTIMER    CY_BLOCK_COUNT_MCWDT
 #define CY_OFFSET_OPAMP    (CY_OFFSET_LPTIMER + CY_SIZE_LPTIMER)
 #define CY_SIZE_OPAMP      CY_BLOCK_COUNT_OPAMP
 #define CY_OFFSET_PDMPCM   (CY_OFFSET_OPAMP + CY_SIZE_OPAMP)
 #define CY_SIZE_PDMPCM     CY_BLOCK_COUNT_PDMPCM
 #define CY_OFFSET_QSPI     (CY_OFFSET_PDMPCM + CY_SIZE_PDMPCM)
 #define CY_SIZE_QSPI       CY_BLOCK_COUNT_QSPI
-#define CY_OFFSET_RNG      (CY_OFFSET_QSPI + CY_SIZE_QSPI)
-#define CY_SIZE_RNG        CY_BLOCK_COUNT_RNG
-#define CY_OFFSET_RTC      (CY_OFFSET_RNG + CY_SIZE_RNG)
+#define CY_OFFSET_RTC      (CY_OFFSET_QSPI + CY_SIZE_QSPI)
 #define CY_SIZE_RTC        CY_BLOCK_COUNT_RTC
 #define CY_OFFSET_SCB      (CY_OFFSET_RTC + CY_SIZE_RTC)
 #define CY_SIZE_SCB        CY_BLOCK_COUNT_SCB
@@ -401,7 +400,6 @@ static const uint8_t cyhal_block_offsets_tcpwm[] =
 };
 
 static uint8_t cyhal_used[(CY_TOTAL_ALLOCATABLE_ITEMS + 7) / 8] = {0};
-static uint8_t cyhal_configured[(CY_TOTAL_ALLOCATABLE_ITEMS + 7) / 8] = {0};
 
 /** Array of pin to resource mappings, provided by the BSP. Must be terminated with a CYHAL_RSC_INVALID entry */
 extern cyhal_resource_pin_mapping_t* cyhal_resource_pin_mapping;
@@ -414,7 +412,7 @@ static const uint16_t cyhal_resource_offsets[] =
     CY_OFFSET_CAN,
     CY_OFFSET_CLK_PATH,
     CY_OFFSET_CLOCK,
-    CY_OFFSET_CRC,
+    CY_OFFSET_CRYPTO,
     CY_OFFSET_DAC,
     CY_OFFSET_DMA,
     CY_OFFSET_GPIO,
@@ -425,7 +423,6 @@ static const uint16_t cyhal_resource_offsets[] =
     CY_OFFSET_OPAMP,
     CY_OFFSET_PDMPCM,
     CY_OFFSET_QSPI,
-    CY_OFFSET_RNG,
     CY_OFFSET_RTC,
     CY_OFFSET_SCB,
     CY_OFFSET_SDHC,
@@ -445,9 +442,9 @@ static const uint32_t cyhal_has_channels =
  * This function is designed to verify that the number of valid resources in the cyhal_resource_t
  * enum and the number entries in the cyhal_resource_offsets array are identical. Any mismatch
  * between the two will lead to runtime failures. This will produce a divide by 0 error if they
- * get of of sync. 
+ * get of of sync.
  * NOTE: This function should never be called, it is only for a compile time error check
- * NOTE: The Supress is to temporaraly disable the IAR warning about an uncalled function 
+ * NOTE: The Supress is to temporaraly disable the IAR warning about an uncalled function
  */
 static inline void check_array_size() __attribute__ ((deprecated));
 #if __ICCARM__
@@ -715,27 +712,6 @@ cy_rslt_t cyhal_hwmgr_allocate_dma(cyhal_resource_inst_t* obj)
     return cyhal_hwmgr_allocate(CYHAL_RSC_DMA, obj);
 }
 
-cy_rslt_t cyhal_hwmgr_set_configured(cyhal_resource_t type, uint8_t block, uint8_t channel)
-{
-    uint32_t state = cyhal_system_critical_section_enter();
-    cy_rslt_t status = cyhal_set_bit(cyhal_configured, type, block, channel);
-    cyhal_system_critical_section_exit(state);
-    return status;
+#if defined(__cplusplus)
 }
-
-cy_rslt_t cyhal_hwmgr_set_unconfigured(cyhal_resource_t type, uint8_t block, uint8_t channel)
-{
-    uint32_t state = cyhal_system_critical_section_enter();
-    cy_rslt_t status = cyhal_clear_bit(cyhal_configured, type, block, channel);
-    cyhal_system_critical_section_exit(state);
-    return status;
-}
-
-bool cyhal_hwmgr_is_configured(cyhal_resource_t type, uint8_t block, uint8_t channel)
-{
-    // This doesn't modify anything, so no need for a critical section
-    bool isConfigured = false;
-    cy_rslt_t status = cyhal_is_set(cyhal_configured, type, block, channel, &isConfigured);
-    CY_ASSERT(CY_RSLT_SUCCESS == status);
-    return isConfigured;
-}
+#endif

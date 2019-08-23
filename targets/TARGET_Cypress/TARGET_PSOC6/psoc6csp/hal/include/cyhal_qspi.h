@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -58,26 +59,26 @@ extern "C" {
  * Some parts of commands provide variable bus width
  */
 typedef enum cyhal_qspi_bus_width {
-    CYHAL_QSPI_CFG_BUS_SINGLE,
-    CYHAL_QSPI_CFG_BUS_DUAL,
-    CYHAL_QSPI_CFG_BUS_QUAD,
-    CYHAL_QSPI_CFG_BUS_OCTAL
+    CYHAL_QSPI_CFG_BUS_SINGLE                       = 1,
+    CYHAL_QSPI_CFG_BUS_DUAL                         = 2,
+    CYHAL_QSPI_CFG_BUS_QUAD                         = 4,
+    CYHAL_QSPI_CFG_BUS_OCTAL                        = 8,
 } cyhal_qspi_bus_width_t;
 
 /** Size in bits */
 typedef enum cyhal_qspi_size {
-    CYHAL_QSPI_CFG_SIZE_8,
-    CYHAL_QSPI_CFG_SIZE_16,
-    CYHAL_QSPI_CFG_SIZE_24,
-    CYHAL_QSPI_CFG_SIZE_32
+    CYHAL_QSPI_CFG_SIZE_8                           = 8,
+    CYHAL_QSPI_CFG_SIZE_16                          = 16,
+    CYHAL_QSPI_CFG_SIZE_24                          = 24,
+    CYHAL_QSPI_CFG_SIZE_32                          = 32,
 } cyhal_qspi_size_t;
 
 /** QSPI interrupt triggers */
 typedef enum {
-    CYHAL_QSPI_IRQ_NONE                             = 0,            /**< Disable all interrupts. >*/
+    CYHAL_QSPI_EVENT_NONE                           = 0,            /**< No event >*/
     CYHAL_QSPI_IRQ_TRANSMIT_DONE                    = 1 << 0,       /**< Async transmit done. >*/
     CYHAL_QSPI_IRQ_RECEIVE_DONE                     = 1 << 1,       /**< Async receive done. >*/
-} cyhal_qspi_irq_event_t;
+} cyhal_qspi_event_t;
 
 /** \} group_hal_qspi_enums */
 
@@ -113,19 +114,19 @@ typedef struct cyhal_qspi_command {
         bool disabled;                                  /**< Address phase skipped if disabled is set to true >*/
     }  address;
     struct {
-        cyhal_qspi_bus_width_t bus_width;               /**< Bus width for alternative  >*/
-        cyhal_qspi_size_t size;                         /**< Alternative size >*/
-        uint32_t value;                                 /**< Alternative value >*/
-        bool disabled;                                  /**< Alternative phase skipped if disabled is set to true >*/
-    } alt;
+        cyhal_qspi_bus_width_t bus_width;               /**< Bus width for mode bits  >*/
+        cyhal_qspi_size_t size;                         /**< Mode bits size >*/
+        uint32_t value;                                 /**< Mode bits value >*/
+        bool disabled;                                  /**< Mode bits phase skipped if disabled is set to true >*/
+    } mode_bits;
     uint8_t dummy_count;                                /**< Dummy cycles count >*/
     struct {
         cyhal_qspi_bus_width_t bus_width;               /**< Bus width for data >*/
     } data;
 } cyhal_qspi_command_t;
 
-/** Handler for QSPI interrupts */
-typedef void (*cyhal_qspi_irq_handler_t)(void *handler_arg, cyhal_qspi_irq_event_t event);
+/** Handler for QSPI callbacks */
+typedef void (*cyhal_qspi_event_callback_t)(void *callback_arg, cyhal_qspi_event_t event);
 
 /** \} group_hal_qspi_data_structures */
 
@@ -137,7 +138,7 @@ typedef void (*cyhal_qspi_irq_handler_t)(void *handler_arg, cyhal_qspi_irq_event
 
 /** Initialize QSPI peripheral.
  *
- * It should initialize QSPI pins (io0-io3, sclk and ssel), set frequency, clock polarity and phase mode.
+ * It should initialize QSPI pins (io0-io7, sclk and ssel), set frequency, clock polarity and phase mode.
  *  The clock for the peripheral should be enabled
  *
  * @param[out] obj  QSPI object
@@ -173,13 +174,13 @@ void cyhal_qspi_free(cyhal_qspi_t *obj);
  *
  * Actual frequency may differ from the desired frequency due to available dividers and the bus clock
  * Configures the QSPI peripheral's baud rate
- * @param[in] obj The SPI object to configure
+ * @param[in] obj The QSPI object to configure
  * @param[in] hz  The baud rate in Hz
- * @return The status of the frequency request
+ * @return The status of the set_frequency request
  */
-cy_rslt_t cyhal_qspi_frequency(cyhal_qspi_t *obj, uint32_t hz);
+cy_rslt_t cyhal_qspi_set_frequency(cyhal_qspi_t *obj, uint32_t hz);
 
-/** Receive a command and block of data
+/** Receive a command and block of data, synchronously.
  *
  * @param[in]     obj QSPI object
  * @param[in]     command QSPI command
@@ -189,7 +190,9 @@ cy_rslt_t cyhal_qspi_frequency(cyhal_qspi_t *obj, uint32_t hz);
  */
 cy_rslt_t cyhal_qspi_read(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, void *data, size_t *length);
 
-/** Receive a command and block of data in asynchronous mode. Require __enable_irq() call in order to work.
+/** Receive a command and block of data in asynchronous mode. This requires __enable_irq() to have been called
+ * in order to work. To receive a notification when the read is complete, enable and register a callback
+ * using cyhal_qspi_irq_enable and cyhal_qspi_register_irq.
  *
  * @param[in]     obj QSPI object
  * @param[in]     command QSPI command
@@ -199,7 +202,7 @@ cy_rslt_t cyhal_qspi_read(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command
  */
 cy_rslt_t cyhal_qspi_read_async(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, void *data, size_t *length);
 
-/** Send a command and block of data
+/** Send a command and block of data, synchronously.
  *
  * @param[in]     obj     QSPI object
  * @param[in]     command QSPI command
@@ -209,7 +212,9 @@ cy_rslt_t cyhal_qspi_read_async(cyhal_qspi_t *obj, const cyhal_qspi_command_t *c
  */
 cy_rslt_t cyhal_qspi_write(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, const void *data, size_t *length);
 
-/** Send a command and block of data in asynchronous mode. Require __enable_irq() call in order to work.
+/** Send a command and block of data in asynchronous mode. This requires __enable_irq() to have been called
+ * in order to work. To receive a notification when the read is complete, enable and register a callback
+ * using cyhal_qspi_irq_enable and cyhal_qspi_register_irq.
  *
  * @param[in]     obj     QSPI object
  * @param[in]     command QSPI command
@@ -234,26 +239,31 @@ cy_rslt_t cyhal_qspi_transfer(
     size_t rx_size
 );
 
-/** The QSPI interrupt handler registration
+/** The QSPI event handler registration
  *
  * @param[in] obj         The QSPI object
- * @param[in] handler     The callback handler which will be invoked when the interrupt fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] callback     The callback handler which will be invoked when the interrupt fires
+ * @param[in] callback_arg Generic argument that will be provided to the handler when called
  */
-void cyhal_qspi_register_irq(cyhal_qspi_t *obj, cyhal_qspi_irq_handler_t handler, void *handler_arg);
+void cyhal_qspi_register_callback(cyhal_qspi_t *obj, cyhal_qspi_event_callback_t callback, void *callback_arg);
 
 /** Configure QSPI interrupt enablement.
  *
- * @param[in] obj      The QSPI object
- * @param[in] event    The QSPI IRQ type
- * @param[in] enable   True to turn on interrupts, False to turn off
+ * @param[in] obj           The QSPI object
+ * @param[in] event         The QSPI event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_qspi_irq_enable(cyhal_qspi_t *obj, cyhal_qspi_irq_event_t event, bool enable);
+void cyhal_qspi_enable_event(cyhal_qspi_t *obj, cyhal_qspi_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_qspi_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_QSPI_IMPL_HEADER
+#include CYHAL_QSPI_IMPL_HEADER
+#endif /* CYHAL_QSPI_IMPL_HEADER */
 
 /** \} group_hal_qspi */

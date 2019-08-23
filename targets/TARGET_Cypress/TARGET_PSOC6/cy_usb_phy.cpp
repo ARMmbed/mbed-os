@@ -94,7 +94,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     out_event_mask = 0;
 
     // Configure interrupt and hook interrupt handler
-    cyhal_usb_dev_register_irq(hal_obj, (cyhal_usb_dev_irq_handler_t)&_usbisr);
+    cyhal_usb_dev_register_irq_callback(hal_obj, (cyhal_usb_dev_irq_callback_t)&_usbisr);
     cyhal_usb_dev_irq_enable(hal_obj, true);
 }
 
@@ -196,12 +196,12 @@ void USBPhyHw::disconnect()
 
 void USBPhyHw::configure()
 {
-    cyhal_usb_dev_configure(&obj);
+    cyhal_usb_dev_set_configured(&obj);
 }
 
 void USBPhyHw::unconfigure()
 {
-    cyhal_usb_dev_unconfigure(&obj);
+    cyhal_usb_dev_set_unconfigured(&obj);
 }
 
 void USBPhyHw::sof_enable()

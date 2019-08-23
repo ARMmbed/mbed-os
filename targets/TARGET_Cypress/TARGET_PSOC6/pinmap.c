@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
 #include "pinmap.h"
-#include "mbed_error.h"
 #include "cy_gpio.h"
+#include "cyhal_gpio.h"
+#include "cyhal_utils.h"
 
 void pin_function(PinName pin, int function)
 {

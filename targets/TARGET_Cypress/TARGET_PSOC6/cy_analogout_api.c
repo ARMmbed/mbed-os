@@ -40,8 +40,8 @@ void analogout_free(dac_t *obj)
 
 void analogout_write(dac_t *obj, float value)
 {
-    MBED_ASSERT(value >= 0.0 && value <= 100.0f);
-    analogout_write_u16(obj, (uint16_t)(value * 0.01f * UINT16_MAX));
+    MBED_ASSERT(value >= 0.0 && value <= 1.0f);
+    analogout_write_u16(obj, (uint16_t)(value * UINT16_MAX));
 }
 
 void analogout_write_u16(dac_t *obj, uint16_t value)
@@ -51,7 +51,7 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
 
 float analogout_read(dac_t *obj)
 {
-    return 100.0f / UINT16_MAX * analogout_read_u16(obj);
+    return analogout_read_u16(obj) / UINT16_MAX;
 }
 
 uint16_t analogout_read_u16(dac_t *obj)
