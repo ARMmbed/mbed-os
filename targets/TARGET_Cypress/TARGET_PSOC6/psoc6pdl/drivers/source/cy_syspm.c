@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 4.20
+* \version 4.30
 *
 * This driver provides the source code for API power management.
 *
@@ -2911,6 +2911,9 @@ void Cy_SysPm_RestoreRegisters(cy_stc_syspm_backup_regs_t const *regs)
 #endif
 static bool EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 {
+    /* Store the address of the IPC7 acquire register into the RAM */
+    volatile uint32_t *ipcAcquire = ((uint32_t *) (&REG_IPC_STRUCT_ACQUIRE(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT))));
+    
     /* Store the address of the Deep Sleep indicator into the RAM */
     volatile uint32_t *delayDoneFlag = &FLASHC_BIST_DATA_0;
 
@@ -3004,7 +3007,7 @@ static bool EnterDeepSleepRam(cy_en_syspm_waitfor_t waitFor)
 #endif /* (CY_CPU_CORTEX_M4) */
 
     /* Acquire the IPC to prevent changing of the shared resources at the same time */
-    while (0U == _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, REG_IPC_STRUCT_ACQUIRE(CY_IPC_STRUCT_PTR(CY_IPC_CHAN_DDFT))))
+    while (0U == _FLD2VAL(IPC_STRUCT_ACQUIRE_SUCCESS, (*ipcAcquire)))
     {
         /* Wait until the IPC structure is released by another CPU */
     }

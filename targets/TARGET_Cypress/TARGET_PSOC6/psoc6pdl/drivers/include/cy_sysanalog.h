@@ -396,7 +396,7 @@ __STATIC_INLINE void Cy_SysAnalog_IztatSelect(cy_en_sysanalog_iztat_source_t izt
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_DEINIT
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_DEINIT
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_DeInit(void)
@@ -422,7 +422,7 @@ __STATIC_INLINE void Cy_SysAnalog_DeInit(void)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_GET_INTR_CAUSE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_GET_INTR_CAUSE
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCause(void)
@@ -452,7 +452,7 @@ __STATIC_INLINE uint32_t Cy_SysAnalog_GetIntrCause(void)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_SET_DEEPSLEEP_MODE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_SET_DEEPSLEEP_MODE
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_SetDeepSleepMode(cy_en_sysanalog_deep_sleep_t deepSleep)
@@ -474,7 +474,7 @@ __STATIC_INLINE void Cy_SysAnalog_SetDeepSleepMode(cy_en_sysanalog_deep_sleep_t 
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_GET_DEEPSLEEP_MODE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_GET_DEEPSLEEP_MODE
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_sysanalog_deep_sleep_t Cy_SysAnalog_GetDeepSleepMode(void)
@@ -492,7 +492,7 @@ __STATIC_INLINE cy_en_sysanalog_deep_sleep_t Cy_SysAnalog_GetDeepSleepMode(void)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_ENABLE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_ENABLE
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_Enable(void)
@@ -510,7 +510,7 @@ __STATIC_INLINE void Cy_SysAnalog_Enable(void)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_DISABLE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_DISABLE
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_Disable(void)
@@ -536,7 +536,7 @@ __STATIC_INLINE void Cy_SysAnalog_Disable(void)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_SET_AREF_MODE
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_SET_AREF_MODE
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_SetArefMode(cy_en_sysanalog_startup_t startup)
@@ -565,7 +565,7 @@ __STATIC_INLINE void Cy_SysAnalog_SetArefMode(cy_en_sysanalog_startup_t startup)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_VREF_SELECT
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_VREF_SELECT
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_VrefSelect(cy_en_sysanalog_vref_source_t vref)
@@ -593,7 +593,7 @@ __STATIC_INLINE void Cy_SysAnalog_VrefSelect(cy_en_sysanalog_vref_source_t vref)
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_IZTAT_SELECT
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_IZTAT_SELECT
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_SysAnalog_IztatSelect(cy_en_sysanalog_iztat_source_t iztat)

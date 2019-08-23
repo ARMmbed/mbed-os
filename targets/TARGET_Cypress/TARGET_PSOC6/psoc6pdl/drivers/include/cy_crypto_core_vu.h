@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the headers to the API for the utils
@@ -31,12 +31,15 @@
 
 #if defined(CY_IP_MXCRYPTO)
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if (CPUSS_CRYPTO_VU == 1)
 
 #include "cy_crypto_core_hw.h"
 #include "cy_crypto_core_hw_vu.h"
 #include <string.h>
-
 
 /**
 * \addtogroup group_crypto_lld_vu_functions
@@ -328,6 +331,10 @@ void Cy_Crypto_Core_VU_RegInvertEndianness(CRYPTO_Type *base, uint32_t srcReg);
 /** \} group_crypto_lld_vu_functions */
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

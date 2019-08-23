@@ -79,7 +79,7 @@
 * - Port output data set register
 * - Port output data clear register
 *
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c Cy_GPIO_Snippet
+* \snippet gpio/snippet/main.c Cy_GPIO_Snippet
 *
 * \section group_gpio_more_information More Information
 *
@@ -646,7 +646,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause3(void);
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetHSIOM
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetHSIOM
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_hsiom_sel_t value)
@@ -691,7 +691,7 @@ __STATIC_INLINE void Cy_GPIO_SetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum, en_h
 * HSIOM input selection
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetHSIOM
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetHSIOM
 *
 *******************************************************************************/
 __STATIC_INLINE en_hsiom_sel_t Cy_GPIO_GetHSIOM(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -735,7 +735,7 @@ __STATIC_INLINE en_hsiom_sel_t Cy_GPIO_GetHSIOM(GPIO_PRT_Type* base, uint32_t pi
 * Base address of the port register structure
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_PortToAddr
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_PortToAddr
 *
 *******************************************************************************/
 __STATIC_INLINE GPIO_PRT_Type* Cy_GPIO_PortToAddr(uint32_t portNum)
@@ -779,7 +779,7 @@ __STATIC_INLINE GPIO_PRT_Type* Cy_GPIO_PortToAddr(uint32_t portNum)
 * Logic level present on the pin
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Read
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Read
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_Read(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -809,7 +809,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_Read(GPIO_PRT_Type* base, uint32_t pinNum)
 * Logic level to drive out on the pin
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Write
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Write
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_Write(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -845,7 +845,7 @@ __STATIC_INLINE void Cy_GPIO_Write(GPIO_PRT_Type* base, uint32_t pinNum, uint32_
 * Logic level on the pin output driver
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_ReadOut
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_ReadOut
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_ReadOut(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -872,7 +872,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_ReadOut(GPIO_PRT_Type* base, uint32_t pinNum)
 * Position of the pin bit-field within the port register
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Set
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Set
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_Set(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -899,7 +899,7 @@ __STATIC_INLINE void Cy_GPIO_Set(GPIO_PRT_Type* base, uint32_t pinNum)
 * Position of the pin bit-field within the port register
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Clr
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Clr
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_Clr(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -927,7 +927,7 @@ __STATIC_INLINE void Cy_GPIO_Clr(GPIO_PRT_Type* base, uint32_t pinNum)
 * Position of the pin bit-field within the port register
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Inv
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Inv
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_Inv(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -963,7 +963,7 @@ __STATIC_INLINE void Cy_GPIO_Inv(GPIO_PRT_Type* base, uint32_t pinNum)
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetDrivemode
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDrivemode
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -996,7 +996,7 @@ __STATIC_INLINE void Cy_GPIO_SetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum, 
 * Pin drive mode. Options are detailed in \ref group_gpio_driveModes macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetDrivemode
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDrivemode
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetDrivemode(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1027,7 +1027,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetDrivemode(GPIO_PRT_Type* base, uint32_t pinN
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVtrip
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtrip
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetVtrip(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1058,7 +1058,7 @@ __STATIC_INLINE void Cy_GPIO_SetVtrip(GPIO_PRT_Type* base, uint32_t pinNum, uint
 * Pin voltage threshold mode. Options are detailed in \ref group_gpio_vtrip macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVtrip
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtrip
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetVtrip(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1093,7 +1093,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVtrip(GPIO_PRT_Type* base, uint32_t pinNum)
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetSlewRate
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSlewRate
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1124,7 +1124,7 @@ __STATIC_INLINE void Cy_GPIO_SetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum, u
 * Pin slew rate. Options are detailed in \ref group_gpio_slewRate macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetSlewRate
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSlewRate
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetSlewRate(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1155,7 +1155,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetSlewRate(GPIO_PRT_Type* base, uint32_t pinNu
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetDriveSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDriveSel
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1188,7 +1188,7 @@ __STATIC_INLINE void Cy_GPIO_SetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum, u
 * Pin drive strength. Options are detailed in \ref group_gpio_driveStrength macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetDriveSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetDriveSel
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1228,7 +1228,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetDriveSel(GPIO_PRT_Type* base, uint32_t pinNu
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVregEn
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVregEn
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetVregEn(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1263,7 +1263,7 @@ __STATIC_INLINE void Cy_GPIO_SetVregEn(GPIO_PRT_Type* base, uint32_t pinNum, uin
 * SIO pair output buffer regulator mode. Options are detailed in \ref group_gpio_sioVreg macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVregEn
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVregEn
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetVregEn(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1296,7 +1296,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVregEn(GPIO_PRT_Type* base, uint32_t pinNum)
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetIbufMode
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetIbufMode
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1331,7 +1331,7 @@ __STATIC_INLINE void Cy_GPIO_SetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum, u
 * SIO pair input buffer mode. Options are detailed in \ref group_gpio_sioIbuf macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetIbufMode
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetIbufMode
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetIbufMode(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1364,7 +1364,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetIbufMode(GPIO_PRT_Type* base, uint32_t pinNu
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVtripSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtripSel
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1399,7 +1399,7 @@ __STATIC_INLINE void Cy_GPIO_SetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum, u
 * SIO pair input buffer trip point. Options are detailed in \ref group_gpio_sioVtrip macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVtripSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVtripSel
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetVtripSel(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1432,7 +1432,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVtripSel(GPIO_PRT_Type* base, uint32_t pinNu
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVrefSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVrefSel
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1467,7 +1467,7 @@ __STATIC_INLINE void Cy_GPIO_SetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum, ui
 * SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVref macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVrefSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVrefSel
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1503,7 +1503,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVrefSel(GPIO_PRT_Type* base, uint32_t pinNum
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVohSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVohSel
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetVohSel(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1538,7 +1538,7 @@ __STATIC_INLINE void Cy_GPIO_SetVohSel(GPIO_PRT_Type* base, uint32_t pinNum, uin
 * SIO pair reference voltage. Options are detailed in \ref group_gpio_sioVoh macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetVohSel
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetVohSel
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1577,7 +1577,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetVohSel(GPIO_PRT_Type* base, uint32_t pinNum)
 * 1 = Pin interrupt condition detected
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_GetInterruptStatus
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_GetInterruptStatus
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1602,7 +1602,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatus(GPIO_PRT_Type* base, uint32_
 * Bit position 8 is the routed pin through the port glitch filter.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_ClearInterrupt
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_ClearInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1641,7 +1641,7 @@ __STATIC_INLINE void Cy_GPIO_ClearInterrupt(GPIO_PRT_Type* base, uint32_t pinNum
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetInterruptMask
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptMask
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1677,7 +1677,7 @@ __STATIC_INLINE void Cy_GPIO_SetInterruptMask(GPIO_PRT_Type* base, uint32_t pinN
 * 1 = Pin interrupt masked and forwarded to CPU interrupt controller
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetInterruptMask
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptMask
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptMask(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1710,7 +1710,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptMask(GPIO_PRT_Type* base, uint32_t 
 * 1 = Pin interrupt detected and forwarded to CPU interrupt controller
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_GetInterruptStatusMasked
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_GetInterruptStatusMasked
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatusMasked(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1735,7 +1735,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptStatusMasked(GPIO_PRT_Type* base, u
 * Bit position 8 is the routed pin through the port glitch filter.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetSwInterrupt
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetSwInterrupt
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetSwInterrupt(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1767,7 +1767,7 @@ __STATIC_INLINE void Cy_GPIO_SetSwInterrupt(GPIO_PRT_Type* base, uint32_t pinNum
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetInterruptEdge
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptEdge
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t value)
@@ -1801,7 +1801,7 @@ __STATIC_INLINE void Cy_GPIO_SetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinN
 * Pin interrupt mode. Options are detailed in \ref group_gpio_interruptTrigger macros
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetInterruptEdge
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetInterruptEdge
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptEdge(GPIO_PRT_Type* base, uint32_t pinNum)
@@ -1838,7 +1838,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptEdge(GPIO_PRT_Type* base, uint32_t 
 * it cannot be routed directly to other peripherals in hardware.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetFilter
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetFilter
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_GPIO_SetFilter(GPIO_PRT_Type* base, uint32_t value)
@@ -1871,7 +1871,7 @@ __STATIC_INLINE void Cy_GPIO_SetFilter(GPIO_PRT_Type* base, uint32_t value)
 * The number of the port pin routed to the port filter (0...7)
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_SetFilter
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_SetFilter
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetFilter(GPIO_PRT_Type* base)
@@ -1891,7 +1891,7 @@ __STATIC_INLINE uint32_t Cy_GPIO_GetFilter(GPIO_PRT_Type* base)
 * 1 = Interrupt detected on port
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_GetInterruptCause0
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_GetInterruptCause0
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_GPIO_GetInterruptCause0(void)

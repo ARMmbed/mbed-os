@@ -50,7 +50,7 @@
 * the \ref Cy_LVD_SetInterruptMask function.
 *
 * For example:
-* \snippet lvd_1_0_sut_00.cydsn/main_cm4.c Cy_LVD_Snippet
+* \snippet lvd/snippet/main.c Cy_LVD_Snippet
 *
 * Note that the LVD circuit is available only in Low Power and Ultra Low Power 
 * modes. If an LVD is required in Deep Sleep mode, then the device

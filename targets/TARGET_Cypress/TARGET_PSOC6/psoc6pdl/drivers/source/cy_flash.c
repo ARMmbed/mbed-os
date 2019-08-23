@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.c
-* \version 3.30
+* \version 3.30.1
 *
 * \brief
 * Provides the public functions for the API for the PSoC 6 Flash Driver.
@@ -29,6 +29,7 @@
 #include "cy_ipc_sema.h"
 #include "cy_ipc_pipe.h"
 #include "cy_device.h"
+#include "cy_syslib.h"
 
 
 /***************************************
@@ -264,12 +265,9 @@ static volatile cy_stc_flash_context_t flashContext;
     * This is the interrupt service routine for the pipe notifications.
     *
     *******************************************************************************/
-
-    #if defined (__ICCARM__)
-        #pragma diag_suppress=Ta023
-        __ramfunc
-    #else
-        CY_SECTION(".cy_ramfunc") CY_NOINLINE
+    CY_RAMFUNC_BEGIN
+    #if !defined (__ICCARM__)
+        CY_NOINLINE
     #endif
     static void Cy_Flash_NotifyHandler(uint32_t * msgPtr)
     {
@@ -304,9 +302,7 @@ static volatile cy_stc_flash_context_t flashContext;
             Cy_SysLib_ExitCriticalSection(intr);
         }
     }
-    #if defined (__ICCARM__)
-        #pragma diag_default=Ta023
-    #endif
+    CY_RAMFUNC_END
 #endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 
 
@@ -357,11 +353,9 @@ void Cy_Flash_Init(void)
 * see \ref cy_en_flashdrv_status_t.
 *
 *******************************************************************************/
-#if defined (__ICCARM__)
-    #pragma diag_suppress=Ta023
-    __ramfunc
-#else
-    CY_SECTION(".cy_ramfunc") CY_NOINLINE
+CY_RAMFUNC_BEGIN
+#if !defined (__ICCARM__)
+    CY_NOINLINE
 #endif
 static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microseconds)
 {
@@ -501,9 +495,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 
     return (result);
 }
-#if defined (__ICCARM__)
-    #pragma diag_default=Ta023
-#endif
+CY_RAMFUNC_END
 
 
 #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
@@ -517,11 +509,9 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
     * Delay time in microseconds in range 0-65535 us.
     *
     *******************************************************************************/
-    #if defined (__ICCARM__)
-        #pragma diag_suppress=Ta023
-        __ramfunc
-    #else
-        CY_SECTION(".cy_ramfunc") CY_NOINLINE
+    CY_RAMFUNC_BEGIN
+    #if !defined (__ICCARM__)
+        CY_NOINLINE
     #endif
     static void Cy_Flash_RAMDelay(uint32_t microseconds)
     {
@@ -555,9 +545,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
             }
         }
     }
-    #if defined (__ICCARM__)
-        #pragma diag_default=Ta023
-    #endif
+    CY_RAMFUNC_END
 
     #if (CY_CPU_CORTEX_M4)
 
@@ -580,11 +568,9 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
         * flash operations resume phase.
         *
         *******************************************************************************/
-        #if defined (__ICCARM__)
-            #pragma diag_suppress=Ta023
-            __ramfunc
-        #else
-            CY_SECTION(".cy_ramfunc") CY_NOINLINE
+        CY_RAMFUNC_BEGIN
+        #if !defined (__ICCARM__)
+            CY_NOINLINE
         #endif
         void Cy_Flash_ResumeIrqHandler(void)
         {
@@ -613,9 +599,7 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 
             Cy_SysLib_ExitCriticalSection(intr);
         }
-        #if defined (__ICCARM__)
-            #pragma diag_default=Ta023
-        #endif
+        CY_RAMFUNC_END
     #endif /* (CY_CPU_CORTEX_M4) */
 #endif /* !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED) */
 

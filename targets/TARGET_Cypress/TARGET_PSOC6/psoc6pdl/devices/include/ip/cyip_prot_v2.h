@@ -5,7 +5,7 @@
 * PROT IP definitions
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1287
 *
 ********************************************************************************
 * \copyright

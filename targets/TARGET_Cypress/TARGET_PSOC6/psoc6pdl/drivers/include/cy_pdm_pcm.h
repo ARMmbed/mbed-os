@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pdm_pcm.h
-* \version 2.20
+* \version 2.20.1
 *
 * The header file of the PDM_PCM driver.
 *
@@ -114,6 +114,11 @@
 * \section group_pdm_pcm_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.20.1</td>
+*     <td>Snippet updated.</td>
+*     <td>Old snippet outdated.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">2.20</td>
 *     <td>Flattened the organization of the driver source code into the single 

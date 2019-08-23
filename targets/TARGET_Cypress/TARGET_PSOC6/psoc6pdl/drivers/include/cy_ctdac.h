@@ -233,13 +233,13 @@
 * The following code snippet demonstrates how to implement a routine to handle the interrupt.
 * The routine gets called when any CTDAC on the device generates an interrupt.
 *
-* \snippet ctdac_sut_01.cydsn/main_cm0p.c SNIPPET_CTDAC_ISR
+* \snippet ctdac/snippet/main.c SNIPPET_CTDAC_ISR
 *
 * The following code snippet demonstrates how to configure and enable the interrupt.
 *
-* \snippet ctdac_sut_01.cydsn/main_cm0p.c SNIPPET_CTDAC_INTR_SETUP
+* \snippet ctdac/snippet/main.c SNIPPET_CTDAC_INTR_SETUP
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_DMA_TRIGGER
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_DMA_TRIGGER
 *
 * \section group_ctdac_deglitch Deglitch
 *
@@ -784,7 +784,7 @@ __STATIC_INLINE void Cy_CTDAC_Disable(CTDAC_Type *base)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_VALUE
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_VALUE
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_SetValue(CTDAC_Type *base, int32_t value)
@@ -817,7 +817,7 @@ __STATIC_INLINE void Cy_CTDAC_SetValue(CTDAC_Type *base, int32_t value)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_VALUE_BUFFERED
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_VALUE_BUFFERED
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_SetValueBuffered(CTDAC_Type *base, int32_t value)
@@ -878,7 +878,7 @@ __STATIC_INLINE uint32_t Cy_CTDAC_GetAnalogSwitch(const CTDAC_Type *base)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_SWITCH_CO6
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_SWITCH_CO6
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_SetSwitchCO6(CTDAC_Type *base, cy_en_ctdac_switch_state_t state)
@@ -899,7 +899,7 @@ __STATIC_INLINE void Cy_CTDAC_SetSwitchCO6(CTDAC_Type *base, cy_en_ctdac_switch_
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_OPEN_ALL_SWITCHES
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_OPEN_ALL_SWITCHES
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_OpenAllSwitches(CTDAC_Type *base)
@@ -933,7 +933,7 @@ __STATIC_INLINE void Cy_CTDAC_OpenAllSwitches(CTDAC_Type *base)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm0p.c SNIPPET_CTDAC_GET_INTERRUPT_STATUS
+* \snippet ctdac/snippet/main.c SNIPPET_CTDAC_GET_INTERRUPT_STATUS
 *
 *******************************************************************************/
 __STATIC_INLINE  uint32_t Cy_CTDAC_GetInterruptStatus(const CTDAC_Type *base)
@@ -1010,7 +1010,7 @@ __STATIC_INLINE void Cy_CTDAC_SetInterrupt(CTDAC_Type *base)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm0p.c SNIPPET_CTDAC_SET_INTERRUPT_MASK
+* \snippet ctdac/snippet/main.c SNIPPET_CTDAC_SET_INTERRUPT_MASK
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTDAC_SetInterruptMask(CTDAC_Type *base, uint32_t mask)

@@ -5,7 +5,7 @@
 * PSoC6_02 device configuration header
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1286
 *
 ********************************************************************************
 * \copyright

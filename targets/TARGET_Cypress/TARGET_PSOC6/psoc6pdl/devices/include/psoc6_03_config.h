@@ -5,7 +5,7 @@
 * PSoC6_03 device configuration header
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1287
 *
 ********************************************************************************
 * \copyright
@@ -1368,7 +1368,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR0_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR0_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR0_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR0_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1412,7 +1412,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR2_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR2_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR2_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR2_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1434,7 +1434,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR3_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR3_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR3_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR3_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1478,7 +1478,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR5_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR5_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR5_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR5_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1500,7 +1500,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR6_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR6_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR6_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR6_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1522,7 +1522,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR7_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR7_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR7_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR7_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1544,7 +1544,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR8_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR8_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR8_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR8_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1566,7 +1566,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR9_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR9_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR9_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR9_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1588,7 +1588,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR10_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR10_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR10_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR10_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1610,7 +1610,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR11_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR11_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR11_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR11_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */
@@ -1632,7 +1632,7 @@ typedef PASS_V1_Type PASS_Type;
 /* Indicates port is an SIO port (i.e. both GPIO and SIO registers present) */
 #define IOSS_GPIO_GPIO_PORT_NR12_GPIO_PRT_SIO 0u
 /* Indicates port is a GPIO port including the "AUTO" input threshold */
-#define IOSS_GPIO_GPIO_PORT_NR12_GPIO_PRT_AUTOLVL 0u
+#define IOSS_GPIO_GPIO_PORT_NR12_GPIO_PRT_AUTOLVL 1u
 /* Indicates that pin #0 exists for this port with slew control feature */
 #define IOSS_GPIO_GPIO_PORT_NR12_GPIO_PRT_SLOW_IO0 1u
 /* Indicates that pin #1 exists for this port with slew control feature */

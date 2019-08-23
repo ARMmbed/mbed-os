@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_rsa.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides provides constant and parameters
@@ -31,9 +31,11 @@
 
 #if defined(CY_IP_MXCRYPTO)
 
-#if (CPUSS_CRYPTO_VU == 1)
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
-#include "cy_syslib.h"
+#if (CPUSS_CRYPTO_VU == 1)
 
 typedef cy_en_crypto_status_t (*cy_crypto_rsa_proc_func_t)(CRYPTO_Type *base,
                                               cy_stc_crypto_rsa_pub_key_t const *key,
@@ -69,6 +71,9 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
                             uint8_t const *decryptedSignature,
                             uint32_t decryptedSignatureLength);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

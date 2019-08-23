@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<View xml_version="1" xmlns="http://cypress.com/xsd/cystudiouddviewarch_v1">
+  <Connectivity location="connectivity" />
+  <Wounding location="chipresourcewoundings.xml" />
+  <!--Uncomment line below if we want port shapes-->
+  <!--PortResourceType value="ioss[0].port[%1$d]" /-->
+  <PinResourceType value="ioss[0].port[%1$d].pin[%2$d]" />
+  <HasUserControllableMcu value="true" />
+  <Profiles>
+    <Profile displayName="System" diagramType="CLOCKS" fileName="system" evalPriority="1" displayPriority="4" description="System configuration" resources="srss(\[\d+\])?\.(clock|power)(\[\d+\])?.*|cpuss(\[\d+\])?\.dap(\[\d+\])?" />
+    <Profile displayName="DMA" fileName="dmas" evalPriority="3" displayPriority="6" description="DMA configuration" resources="cpuss(\[\d+\])?\.(dw|dmac).*" />
+    <Profile displayName="Peripheral-Clocks" fileName="clocks" evalPriority="2" displayPriority="5" description="Clock configuration" resources="peri(\[\d+\])?\.div_.*" />
+    <Profile displayName="Pins" diagramType="PACKAGE" fileName="pins" evalPriority="6" displayPriority="2" description="Pin configuration" resources="ioss[\[\.].*" />
+    <Profile displayName="Peripherals" fileName="peripherals" evalPriority="5" displayPriority="1" description="Peripheral Hardware Block configuration" resources=".*" />
+    <!--This won't match any HW locations because it is after the catchall (.*). This is on purpose and needed to specify display order/code gen order for Analog/routing.-->
+    <Profile purpose="ROUTING" displayName="Analog-Routing" diagramType="ANALOG" fileName="routing" evalPriority="4" displayPriority="3" description="Establishes all necessary connections between hardware elements." resources="NONE" />
+  </Profiles>
+</View>

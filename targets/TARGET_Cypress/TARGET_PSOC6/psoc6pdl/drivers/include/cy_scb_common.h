@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_common.h
-* \version 2.30
+* \version 2.30.1
 *
 * Provides common API declarations of the SCB driver.
 *
@@ -136,6 +136,11 @@
 *******************************************************************************
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.30.1</td>
+*     <td>Added header guards CY_IP_MXSCB.</td>
+*     <td>To enable the PDL compilation with wounded out IP blocks.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="5">2.30</td>
 *     <td>Fixed MISRA violation.</td>

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.c
-* \version 2.0
+* \version 2.10
 *
 * Provides general API implementation of the USBFS driver.
 *
@@ -615,9 +615,13 @@ static void EndpointTransferComplete(USBFS_Type *base, uint32_t endpoint,
             /* Checks the data toggle bit of current transfer (exclude ISOC endpoints) */
             if (false == IS_EP_ISOC(endpointData->sieMode))
             {
+                /* This may fail only for OUT endpoints */
                 if (endpointData->toggle == Cy_USBFS_Dev_Drv_GetSieEpToggle(base, endpoint))
                 {
                     errorType |= CY_USBFS_DEV_ENDPOINT_SAME_DATA_TOGGLE;
+
+                    /* Restores the data toggle to recover it in the next OUT transfer */
+                    endpointData->toggle ^= (uint8_t) USBFS_USBDEV_SIE_EP_DATA_TOGGLE_Msk;
                 }
             }
 

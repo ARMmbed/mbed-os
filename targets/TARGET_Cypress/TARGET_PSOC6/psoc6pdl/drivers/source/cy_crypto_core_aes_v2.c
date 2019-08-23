@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_aes_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code fro the API for the AES method
@@ -25,14 +25,19 @@
 
 
 #include "cy_crypto_core_aes_v2.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#if (CPUSS_CRYPTO_AES == 1)
+
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_crypto_core_mem_v2.h"
 #include "cy_syslib.h"
 #include <string.h>
-
-#if defined(CY_IP_MXCRYPTO)
-
-#if (CPUSS_CRYPTO_AES == 1)
 
 #define CY_CRYPTO_IS_KEYLENGTH_VALID(keyLength) ((CY_CRYPTO_KEY_AES_128 == (keyLength)) || \
                                                  (CY_CRYPTO_KEY_AES_192 == (keyLength)) || \
@@ -488,6 +493,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
     uint64_t counter;
     uint32_t cnt;
     uint32_t i;
+    
+    (void)streamBlock; /* Suppress warning */
 
     blockCounter[ 0] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 3], ivPtr[ 2], ivPtr[ 1], ivPtr[ 0]);
     blockCounter[ 1] = (uint32_t) CY_CRYPTO_MERGE_BYTES(ivPtr[ 7], ivPtr[ 6], ivPtr[ 5], ivPtr[ 4]);
@@ -541,6 +548,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Aes_Ctr(CRYPTO_Type *base,
 }
 
 #endif /* #if (CPUSS_CRYPTO_AES == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

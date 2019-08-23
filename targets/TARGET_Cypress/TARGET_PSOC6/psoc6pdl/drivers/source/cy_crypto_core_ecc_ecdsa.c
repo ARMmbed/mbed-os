@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_ecdsa.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC ECDSA
@@ -25,11 +25,16 @@
 
 
 #include "cy_crypto_core_ecc.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include "cy_crypto_core_ecc_nist_p.h"
 #include "cy_crypto_core_mem.h"
 #include "cy_crypto_core_vu.h"
-
-#if defined(CY_IP_MXCRYPTO)
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_ECC_SignHash
@@ -185,7 +190,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
 
                         /* (e + d*r)/k mod n */
                         CY_CRYPTO_VU_ALLOC_MEM (base, dividend, bitsize);
-						
+
                         CY_CRYPTO_VU_MOV(base, dividend, p_s);
                         Cy_Crypto_Core_Vu_WaitForComplete(base);
 
@@ -431,6 +436,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
 
     return (tmpResult);
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.c
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * Provides API implementation of the eFuse driver.
@@ -25,6 +25,8 @@
 
 #include "cy_efuse.h"
 #include "cy_ipc_drv.h"
+
+#ifdef CY_IP_MXEFUSE
 
 /** \cond INTERNAL */
 #define CY_EFUSE_OPCODE_SUCCESS             (0xA0000000UL)    /**< The command completed with no errors */
@@ -71,7 +73,7 @@ static cy_en_efuse_status_t ProcessOpcode(void);
 * \funcusage
 * The example below shows how to read device life-cycle register bits in
 * PSoC 6:
-* \snippet eFuse_v1_0_sut_00.cydsn/main_cm0p.c SNIPPET_EFUSE_READ_BIT
+* \snippet efuse/snippet/main.c SNIPPET_EFUSE_READ_BIT
 *
 *******************************************************************************/
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
@@ -128,7 +130,7 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 * \funcusage
 * The example below shows how to read a device life-cycle stage register in
 * PSoC 6:
-* \snippet eFuse_v1_0_sut_00.cydsn/main_cm0p.c SNIPPET_EFUSE_READ_LIFECYCLE
+* \snippet efuse/snippet/main.c SNIPPET_EFUSE_READ_LIFECYCLE
 *
 *******************************************************************************/
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseByte(uint32_t offset, uint8_t *byteVal)
@@ -233,5 +235,6 @@ static cy_en_efuse_status_t ProcessOpcode(void)
     return (result);
 }
 
+#endif /* #ifdef CY_IP_MXEFUSE */
 
 /* [] END OF FILE */

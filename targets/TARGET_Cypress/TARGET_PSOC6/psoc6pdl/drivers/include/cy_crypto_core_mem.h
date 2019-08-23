@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_mem.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the headers for the memory management API
@@ -30,6 +30,10 @@
 #include "cy_crypto_common.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_crypto_core_mem_v2.h"
@@ -190,6 +194,10 @@ __STATIC_INLINE void Cy_Crypto_Core_MemXor(CRYPTO_Type *base, void* dst,
 }
 
 /** \} group_crypto_lld_mem_functions */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

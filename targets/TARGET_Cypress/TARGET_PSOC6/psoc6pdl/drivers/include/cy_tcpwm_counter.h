@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_counter.h
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * The header file of the TCPWM Timer Counter driver.
@@ -22,11 +22,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 #if !defined(CY_TCPWM_COUNTER_H)
 #define CY_TCPWM_COUNTER_H
 
 #include "cy_tcpwm.h"
+
+#ifdef CY_IP_MXTCPWM
 
 #if defined(__cplusplus)
 extern "C" {
@@ -535,7 +536,8 @@ __STATIC_INLINE uint32_t Cy_TCPWM_Counter_GetPeriod(TCPWM_Type const *base, uint
 }
 #endif
 
-#endif /* CY_TCPWM_COUNTER_H */
+#endif /* CY_IP_MXTCPWM */
 
+#endif /* CY_TCPWM_COUNTER_H */
 
 /* [] END OF FILE */

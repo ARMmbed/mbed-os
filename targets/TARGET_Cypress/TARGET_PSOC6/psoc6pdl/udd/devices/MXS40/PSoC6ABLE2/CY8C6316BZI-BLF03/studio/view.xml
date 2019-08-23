@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Parameters xml_version="1" xmlns="http://cypress.com/xsd/cydatawounding_v1">
+  <Param name="PartNumber" value="CY8C6316BZI-BLF03" />
+  <Param name="PartAvailability" value="Active" />
+  <Param name="DeviceDie" value="PSoC6ABLE2" />
+  <Param name="Silicon_Revision" value="PRODUCTION" />
+  <Param name="Package" value="116-BGA-BLE" />
+  <Param name="DeviceSeries" value="PSoC 63" />
+  <Param name="Cores_REMOVED" value="CortexM0p" />
+  <Param name="Speed_MHz" value="50" />
+  <Param name="Flash_KB" value="512" />
+  <Param name="SRAM_KB" value="128" />
+  <Param name="Bluetooth" value="5" />
+  <Param name="UDB_Count" value="0" />
+  <Param name="Preconfigured_Blocks" value="NA" />
+  <Param name="SAR12_Count" value="1" />
+  <Param name="SAR12_REMOVED" value="NA" />
+  <Param name="SAR12Sample_ksps" value="1000" />
+  <Param name="OpAmp_Count" value="0" />
+  <Param name="OpAmp_Removed" value="0;1" />
+  <Param name="LPComp_Count" value="2" />
+  <Param name="LPComp_REMOVED" value="NA" />
+  <Param name="DAC8_Count" value="2" />
+  <Param name="DAC8_removed" value="NA" />
+  <Param name="DAC12_Count" value="1" />
+  <Param name="DAC12_removed" value="NA" />
+  <Param name="SampleHold_COUNT " value="0" />
+  <Param name="SampleHold_REMOVED" value="0" />
+  <Param name="SCB_Count" value="9" />
+  <Param name="SCB_removed" value="NA" />
+  <Param name="TimerCounterPWM_Count" value="32" />
+  <Param name="TimerCounterPWM_removed" value="NA" />
+  <Param name="USB_Type" value="NA" />
+  <Param name="CapSense" value="N" />
+  <Param name="TMG" value="N" />
+  <Param name="CapSenseADC" value="N" />
+  <Param name="SMIF" value="Y" />
+  <Param name="Crypto" value="N" />
+  <Param name="I2s" value="Y" />
+  <Param name="DirDriveLCD" value="Y" />
+  <Param name="DMAchannels_count" value="32" />
+  <Param name="IO_Count" value="78" />
+  <Param name="Power_Modes" value="ULP" />
+  <Param name="Vddmin_volts" value="1.7" />
+  <Param name="Vddmax_volts" value="3.6" />
+  <Param name="TempMin_Celsius" value="-40" />
+  <Param name="TempMax_Celsius" value="85" />
+  <Param name="Automotive_qualified" value="No (Industrial Grade Only)" />
+  <Param name="SiliconID" value="0xE2212100" />
+  <Param name="Module" value="No" />
+  <Param name="REQUIRED_KITS" value="None" />
+  <Param name="Next_Best_Alt_Part" value="None" />
+  <Param name="DATASHEET" value="http://www.cypress.com/documentation/datasheets/psoc-6-mcu-psoc-63-ble-datasheet-programmable-system-chip-psoc?source=search&amp;cat=technical_documents" />
+  <Param name="EDITING_SUPPORT" value="Schematic" />
+  <Param name="PROJECT_TEMPLATE" value="P6_BLF03.zip" />
+</Parameters>

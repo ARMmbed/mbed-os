@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_rtc.h
-* \version 2.20
+* \version 2.20.1
 *
 * This file provides constants and parameter values for the APIs for the 
 * Real-Time Clock (RTC).
@@ -228,6 +228,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.20.1</td>
+*     <td>Modified header guard CY_IP_MXS40SRSS_RTC.</td>
+*     <td>To enable the PDL compilation with wounded out IP blocks.</td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">2.20</td>
 *     <td>Flattened the organization of the driver source code into the single 
 *         source directory and the single include directory.
@@ -303,9 +308,7 @@
 #include "cy_syslib.h"
 #include "cy_syspm.h"
 
-#ifndef CY_IP_MXS40SRSS_RTC
-    #error "The RTC driver is not supported on this device"
-#endif
+#ifdef CY_IP_MXS40SRSS_RTC
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1314,6 +1317,8 @@ __STATIC_INLINE void Cy_RTC_SyncToRtcAhbAlarm(uint32_t alarmTimeBcd, uint32_t al
 #if defined(__cplusplus)
 }
 #endif
+
+#endif /* CY_IP_MXS40SRSS_RTC */
 
 #endif /* CY_RTC_H */
 

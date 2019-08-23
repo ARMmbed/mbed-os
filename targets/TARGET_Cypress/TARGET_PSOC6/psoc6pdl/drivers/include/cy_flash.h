@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.30
+* \version 3.30.1
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -254,6 +254,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="1">3.30.1</td>
+*     <td>Used the CY_RAMFUNC_BEGIN and CY_RAMFUNC_END macros that allocate the function in RAM instead of using the CY_SECTION(".cy_ramfunc") macros.</td>
+*     <td>Removed the code duplication.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="3">3.30</td>
 *     <td>Moved ipcWaitMessageStc structure to the RAM section called ".cy_sharedmem".</td>

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_crc_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code for CRC API
@@ -24,16 +24,18 @@
 *******************************************************************************/
 
 
-#include "cy_crypto_common.h"
 #include "cy_crypto_core_crc_v2.h"
-#include "cy_crypto_core_hw_v2.h"
-#include "cy_syslib.h"
-
 
 #if defined(CY_IP_MXCRYPTO)
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if (CPUSS_CRYPTO_CRC == 1)
 
+#include "cy_crypto_core_hw_v2.h"
+#include "cy_syslib.h"
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V2_Crc_Init
@@ -376,6 +378,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Crc_Calc(CRYPTO_Type *base,
 }
 
 #endif /* #if (CPUSS_CRYPTO_CRC == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

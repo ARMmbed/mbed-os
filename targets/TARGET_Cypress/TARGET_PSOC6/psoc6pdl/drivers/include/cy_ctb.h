@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.h
-* \version 1.10
+* \version 1.10.1
 *
 * Header file for the CTB driver
 *
@@ -91,7 +91,7 @@
 * have not been configured during initialization, call \ref Cy_CTB_SetAnalogSwitch to
 * make the input and output connections.
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_ANALOG_SWITCH
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_ANALOG_SWITCH
 *
 * As shown in the CTB switch diagram, the 10x output of OA0 and OA1 have dedicated
 * connections to Pin 2 and Pin 3, respectively, of the CTB port. If different output
@@ -111,7 +111,7 @@
 *
 * The comparator output can be routed to a pin or other components using HSIOM or trigger muxes.
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_COMP_OUT_ROUTING
+* \snippet ctb/snippet/main.c SNIPPET_COMP_OUT_ROUTING
 *
 * \subsection group_ctb_comparator_handling_interrupts Handling interrupts
 *
@@ -122,11 +122,11 @@
 * The following code snippet demonstrates how to implement a routine to handle the interrupt.
 * The routine gets called when any comparator on the device generates an interrupt.
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_COMP_ISR
+* \snippet ctb/snippet/main.c SNIPPET_COMP_ISR
 *
 * The following code snippet demonstrates how to configure and enable the interrupt.
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_COMP_INTR_SETUP
+* \snippet ctb/snippet/main.c SNIPPET_COMP_INTR_SETUP
 *
 * \section group_ctb_opamp_range Opamp Input and Output Range
 *
@@ -184,7 +184,7 @@
 *       - \ref Cy_SysClk_ClkPumpSetDivider
 *       - \ref Cy_SysClk_ClkPumpEnable
 *
-*      \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_SRSS
+*      \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_SRSS
 *
 *   -# One of the Peri Clock dividers
 *
@@ -194,7 +194,7 @@
 *       - \ref Cy_SysClk_PeriphSetDivider
 *       - \ref Cy_SysClk_PeriphEnableDivider
 *
-*      \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_PERI
+*      \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_PERI
 *
 * When the charge pump is enabled, the clock frequency should be set as follows:
 *
@@ -286,6 +286,11 @@
 * \section group_ctb_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.1</td>
+*     <td>Added header guard CY_IP_MXS40PASS to the source file.</td>
+*     <td>To enable the PDL compilation with wounded out IP blocks.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
 *     <td>Flattened the organization of the driver source code into the single 
@@ -1149,7 +1154,7 @@ __STATIC_INLINE void Cy_CTB_Disable(CTBM_Type *base)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_OPEN_ALL_SWITCHES
+* \snippet ctb/snippet/main.c CTB_SNIPPET_OPEN_ALL_SWITCHES
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_OpenAllSwitches(CTBM_Type *base)
@@ -1185,7 +1190,7 @@ __STATIC_INLINE void Cy_CTB_OpenAllSwitches(CTBM_Type *base)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_ENABLE_SAR_SEQ_CTRL
+* \snippet ctb/snippet/main.c CTB_SNIPPET_ENABLE_SAR_SEQ_CTRL
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_EnableSarSeqCtrl(CTBM_Type *base, cy_en_ctb_switch_sar_seq_t switchMask)
@@ -1212,7 +1217,7 @@ __STATIC_INLINE void Cy_CTB_EnableSarSeqCtrl(CTBM_Type *base, cy_en_ctb_switch_s
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_DISABLE_SAR_SEQ_CTRL
+* \snippet ctb/snippet/main.c CTB_SNIPPET_DISABLE_SAR_SEQ_CTRL
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_DisableSarSeqCtrl(CTBM_Type *base, cy_en_ctb_switch_sar_seq_t switchMask)
@@ -1251,7 +1256,7 @@ __STATIC_INLINE void Cy_CTB_DisableSarSeqCtrl(CTBM_Type *base, cy_en_ctb_switch_
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_COMP_GETINTERRUPTSTATUS
+* \snippet ctb/snippet/main.c SNIPPET_COMP_GETINTERRUPTSTATUS
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_CTB_GetInterruptStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum)
@@ -1329,7 +1334,7 @@ __STATIC_INLINE void Cy_CTB_SetInterrupt(CTBM_Type *base, cy_en_ctb_opamp_sel_t 
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_INTERRUPT_MASK
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_INTERRUPT_MASK
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_SetInterruptMask(CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum)
@@ -1363,7 +1368,7 @@ __STATIC_INLINE void Cy_CTB_SetInterruptMask(CTBM_Type *base, cy_en_ctb_opamp_se
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_GET_INTERRUPT_MASK
+* \snippet ctb/snippet/main.c CTB_SNIPPET_GET_INTERRUPT_MASK
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_CTB_GetInterruptMask(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum)
@@ -1421,7 +1426,7 @@ __STATIC_INLINE uint32_t Cy_CTB_GetInterruptStatusMasked(const CTBM_Type *base, 
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_IPTAT_LEVEL
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_IPTAT_LEVEL
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_SetIptatLevel(cy_en_ctb_iptat_t iptat)
@@ -1460,11 +1465,11 @@ __STATIC_INLINE void Cy_CTB_SetIptatLevel(cy_en_ctb_iptat_t iptat)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_SRSS
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_SRSS
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_PERI
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CLK_PUMP_SOURCE_PERI
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_SetClkPumpSource(cy_en_ctb_clk_pump_source_t clkPump)
@@ -1501,7 +1506,7 @@ __STATIC_INLINE void Cy_CTB_SetClkPumpSource(cy_en_ctb_clk_pump_source_t clkPump
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_ENABLE_REDIRECT
+* \snippet ctb/snippet/main.c CTB_SNIPPET_ENABLE_REDIRECT
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_CTB_EnableRedirect(void)

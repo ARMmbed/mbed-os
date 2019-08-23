@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hmac_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the HMAC method
@@ -24,18 +24,21 @@
 *******************************************************************************/
 
 
-#include "cy_crypto_common.h"
 #include "cy_crypto_core_hmac_v2.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#if (CPUSS_CRYPTO_SHA == 1)
+
 #include "cy_crypto_core_sha_v2.h"
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_crypto_core_mem_v2.h"
 #include "cy_syslib.h"
 #include <string.h>
-
-#if defined(CY_IP_MXCRYPTO)
-
-#if (CPUSS_CRYPTO_SHA == 1)
-
 
 #define CY_CRYPTO_HMAC_IPAD               (0x36u)
 #define CY_CRYPTO_HMAC_0PAD               (0x5Cu)
@@ -307,7 +310,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Hmac(CRYPTO_Type *base,
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
 
     /* Allocating internal variables into the RAM */
-    cy_stc_crypto_v2_hmac_buffers_t  hmacBuffersData = {{ 0 }};
+    cy_stc_crypto_v2_hmac_buffers_t  hmacBuffersData = {{ 0 }, { 0 }, { 0 }, {{ 0 }, { 0 }}, {NULL, NULL, NULL}};
     cy_stc_crypto_v2_hmac_buffers_t *hmacBuffers = &hmacBuffersData;
 
     cy_stc_crypto_v2_hmac_state_t   *hmacStateTmp = &hmacBuffers->hmacState;
@@ -331,8 +334,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Hmac(CRYPTO_Type *base,
     return (tmpResult);
 }
 
-
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

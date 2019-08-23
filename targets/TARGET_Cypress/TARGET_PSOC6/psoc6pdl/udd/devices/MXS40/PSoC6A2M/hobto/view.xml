@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Files xml_version="1" xmlns="http://cypress.com/xsd/cyhobtoviewdie_v1">
+  <Cores>
+    <Core type="CortexM0p" count="1" />
+    <Core type="CortexM4" count="1" />
+  </Cores>
+  <Clocks file="clocks" />
+  <DSIs file="dsi" />
+  <Interrupts file="interrupts" />
+  <IPs file="ipblocks" />
+  <Pins file="pins" />
+  <Triggers file="triggers" />
+  <AmuxBus file="amuxbus" />
+</Files>

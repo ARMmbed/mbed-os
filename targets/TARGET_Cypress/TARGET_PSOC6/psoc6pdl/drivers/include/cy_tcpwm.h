@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm.h
-* \version 1.10
+* \version 1.10.1
 *
 * The header file of the TCPWM driver.
 *
@@ -197,6 +197,11 @@
 * \section group_tcpwm_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10.1</td>
+*     <td>Added header guards CY_IP_MXTCPWM.</td>
+*     <td>To enable the PDL compilation with wounded out IP blocks.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="2">1.10</td>
 *     <td>Flattened the organization of the driver source code into the single 

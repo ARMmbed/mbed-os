@@ -393,7 +393,7 @@ __STATIC_INLINE uint32_t Cy_Profile_IsProfiling(void);
 * can be used as its handler.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_Init
+* \snippet profile/snippet/main.c snippet_Cy_Profile_Init
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_Profile_Init(void)
@@ -416,7 +416,7 @@ __STATIC_INLINE void Cy_Profile_Init(void)
 * disabled separately.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_DeInit
+* \snippet profile/snippet/main.c snippet_Cy_Profile_DeInit
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_Profile_DeInit(void)
@@ -437,7 +437,7 @@ __STATIC_INLINE void Cy_Profile_DeInit(void)
 * \note The profile interrupt should be disabled before calling this function.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_StopProfiling
+* \snippet profile/snippet/main.c snippet_Cy_Profile_StopProfiling
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_Profile_StopProfiling(void)
@@ -455,7 +455,7 @@ __STATIC_INLINE void Cy_Profile_StopProfiling(void)
 * \return 0 = profiling is not active; 1 = profiling is active
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_IsProfiling
+* \snippet profile/snippet/main.c snippet_Cy_Profile_IsProfiling
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_Profile_IsProfiling(void)
@@ -485,7 +485,7 @@ cy_en_profile_status_t Cy_Profile_DisableCounter(cy_stc_profile_ctr_ptr_t ctrAdd
 * Clears all hardware counters to 0.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_ClearCounters
+* \snippet profile/snippet/main.c snippet_Cy_Profile_ClearCounters
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_Profile_ClearCounters(void)
