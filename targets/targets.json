@@ -1314,6 +1314,7 @@
             "SPI",
             "SPISLAVE",
             "STDIO_MESSAGES",
+            "USBDEVICE",
             "FLASH"
         ],
         "release_versions": ["2", "5"],
