@@ -208,10 +208,11 @@ void add_mem_usage(_list *pmem_table, void *ptr, int size, int *used_num, int fl
 		return;
 	}
 	else{
-		if(flag == MEM_MONITOR_FLAG_WPAS)
+		if(flag == MEM_MONITOR_FLAG_WPAS) {
 			DBG_INFO("Alloc memory at %p with size of %d", ptr, size);
-		else
+		} else {
 			DBG_INFO("Alloc memory at %p with size of %d", ptr, size);
+                }
 	}
 #if CONFIG_MEM_MONITOR & MEM_MONITOR_LEAK
 	mem_entry = (struct mem_entry *) _rtw_malloc(sizeof(struct mem_entry));
