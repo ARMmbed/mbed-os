@@ -1,77 +1,9 @@
 #### Version of Python required is 3.7+
 
-This directory contains tools and scripts for generating keys, preparing provisioning packets and execution of provisioning.
-These files are relevant to CY8CPROTO_064_SB or CY8CPROTO_064_SB_M0_PSA, CY8CPROTO_064_SB_PSA targets.
+This directory contains scripts for adding signatures .
+These files are relevant to CY8CPROTO_064_SB target.
 
-**_NOTE_:** Detailed description about Secure Boot tools availabe on this link https://www.cypress.com/secureboot-sdk-user-guide
-
-# DEVICE PROVISIONING
-
-## 1.   Generate new keys by executing the following commands from ./keys:
-
-    *Create keys for image signing:*
-
-    python keygen.py -k 8 --jwk USERAPP_CM4_KEY.json --pem-priv USERAPP_CM4_KEY_PRIV.pem
-
-    *Create key for image encryption:*
-
-    python keygen.py --aes aes.key
-
-        
-**_NOTE_:** DO NOT COMMIT any new keys to repository.
-
-## 2.   Create provisioning packets:
-Use *provisioning_packet.py* from ./prepare folder.
-
-Options:
-
-    --oem <filename>            OEM key file.
-    --hsm <filename>            HSM key file.
-    --cyboot <filename>         Cypress Bootloader image certificate.
-    --cyauth <filename>         Provisioning authorization certificate.
-    --policy <filename>         Policy file.
-    --out <directory_path>      Output directory.
-    --ckey <filename>           Customer key that will be used for image signing. Use the option multiple times to specify multiple keys.
-    --devcert <filename>        Chain of trust certificate. Use the option multiple times to specify multiple certificates.
-
-* To create packet for CY8CPROTO_064_SB target using single-stage policy (CM4 only):
-    
-        python provisioning_packet.py --policy policy_single_stage_CM4.json --out ../packet --cyboot ../prebuild/CyBootloader_Release/CypressBootloader_CM0p.jwt --ckey ../keys/USERAPP_CM4_KEY.json --devcert example_cert.pem
-        
-* To use external memory (via SMIF) as staging(upgrade) area (slot_1) of NSPE (CM4) image use policy file with corresponding name:
-
-        python provisioning_packet.py --policy policy_single_stage_CM4_smif.json --out ../packet --cyboot ../prebuild/CyBootloader_Release/CypressBootloader_CM0p.jwt --ckey ../keys/USERAPP_CM4_KEY.json --devcert example_cert.pem
-        
-    The certificate in above examples is signed with OEM key from ./prebuild folder.
-        
-Prebuild folder contains CyBootloader_WithLogs and CyBootloader_Release with corresponding *.hex and *.jwt files.
-  * WithLogs prints execution results to terminal.
-  * Release does not print to terminal and boots up silently.
-
-**_NOTE:_** CypressBootloader_CM0p.jwt and CypressBootloader_CM0p.hex must be used in pair from the same directory in provisioning packet generation (.packets/prov_cmd.jwt) and provisioning procedure itself.
-
-## 3. Run entrance exam
-
-        python entrance_exam_runner.py
-
-## 4.   Perform provisioning:
-**_ATTENTION:_** Proceed to **UPGRADE IMAGES** section first if UPGRADE image is needed.
-
-Execute *provision_device_runner.py*.
-The script will run with the default arguments if no arguments specified.
-
-Default arguments can be overridden with a custom:
-
-    --prov-jwt <filename>       Path to provisioning JWT file (packet which contains all data necessary for provisioning, including policy, authorization packets and keys)
-    --hex <filename>            Path to Cypress Bootloader HEX binary file
-    --pubkey-json <filename>    File where to save public key in JSON format
-    --pubkey-pem <filename>     File where to save public key in PEM format
-
-*Example:*
-    
-    python provision_device_runner.py --prov-jwt packet/prov_cmd.jwt --hex prebuild/CyBootloader_Release/CypressBootloader_CM0p.hex --pubkey-json keys/dev_pub_key.json --pubkey-pem keys/dev_pub_key.pem
-    
-**_NOTE:_** PSoC6 supply voltage of 2.5V is required to perform provisioning.
+**_NOTE_:**  Before starting work with Cypress Secure Boot enabled target please read User Guide https://www.cypress.com/secureboot-sdk-user-guide
 
 ## UPGRADE IMAGES
 
@@ -87,9 +19,9 @@ The upgrade images types are determined by the following policy setting (firmwar
 - **_"encrypt_key_id":_** 1, - should remain unchanged, means that Device Key will be used in ECDH/HKDF protocol
 
 Requirements:
-- Policy with **_smif.json** from prepare/ folder should be used.
+- Policy with **_smif.json** from policy/ folder should be used.
 For encrypted image:
-- aes.key generated, as described in **DEVICE_PROVISIONING - 1**
+- aes.key generated, as described in user guide
 - dev_pub_key.pem must be placed in keys/ folder (this key is generated in provisioning procedure)
 - secure_image_parameters.json file in the target directory must contain valid keys' paths
 
@@ -110,7 +42,7 @@ Encrypted UPGRADE image:
         "encrypt": true,
         "encrypt_key_id": 1,
 
-Modified policy file should be used for provisioning the device, as described in paragraph 4.
+Modified policy file should be used for provisioning the device, as described in User Guide.
 
 Now mbed-os application or test can be built as described in section **TESTS**. Images for UPGRADE are generated at build time, according to policy.
 
@@ -140,11 +72,3 @@ The generic HEX file (for example one that is produced by mbed-os build system) 
 
         Run commands:
         mbed test --compile -m CY8CPROTO_064_SB -t GCC_ARM -n tests-mbed* -v
-
-# TROUBLESHOOTING:
-
-1. In case of messages like "unable to find device" execute "mbedls -m 1907:CY8CPROTO_064_SB", then check with "mbedls" if device is detected as CY8CPROTO_064_SB with code 1907.
-2. Keys, from ./keys folder is used for signing images by default, these keys should be used for provisioning.
-3. Consider using CyBootloader from CyBootloader_WithLogs folder. It produces logs, which are useful to understand whether CyBootloader works correctly.
-4. When running application with SMIF and _smif.json policy the field "smif_id" should be set to 1 for CY8CPROTO_064_SB.
-5. Low frequency quartz (32768 Hz) oscillator have to be soldered on CY8CPROTO_064_SB (not present in stock version of board).

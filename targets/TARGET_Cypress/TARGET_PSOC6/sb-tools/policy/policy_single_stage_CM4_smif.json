@@ -90,7 +90,7 @@
                 "id": 4,
                 "monotonic": 0,
                 "smif_id": 1,
-                "upgrade": true,
+                "upgrade": false,
                 "encrypt": false,
                 "encrypt_key_id": 1,
                 "upgrade_auth": [

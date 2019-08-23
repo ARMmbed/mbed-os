@@ -56,4 +56,3 @@ The Python modules used by Mbed tools are used under the following licenses:
 - [psutil](https://pypi.org/project/psutil/) - BSD
 - [click](https://pypi.org/project/click/) - BSD-3-Clause
 - [cryptography](https://pypi.org/project/cryptography/) - BSD, Apache-2.0
-- [jwcrypto](https://pypi.org/project/jwcrypto/) - LGPLv3+

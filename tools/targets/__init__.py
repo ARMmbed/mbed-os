@@ -677,15 +677,11 @@ class PSOC6Code:
 
     @staticmethod
     def sign_image(t_self, resources, elf, binf):
+        """
+        Calls sign_image function to add signature to Secure Boot binary file.
+        """        
         from tools.targets.PSOC6 import sign_image as psoc6_sign_image
-        if hasattr(t_self.target, "hex_filename"):
-            hex_filename = t_self.target.hex_filename
-            # Completing main image involves merging M0 image.            
-            from tools.targets.PSOC6 import find_cm0_image
-            m0hexf = find_cm0_image(t_self, resources, elf, binf, hex_filename)
-            psoc6_sign_image(t_self, elf, binf, m0hexf)
-        else:
-            psoc6_sign_image(t_self, elf, binf)
+        psoc6_sign_image(t_self, binf)
 
 class ArmMuscaA1Code:
     """Musca-A1 Hooks"""

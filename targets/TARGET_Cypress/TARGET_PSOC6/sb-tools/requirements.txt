@@ -1,7 +1,0 @@
-# To install next python modules, please execute command:
-# python -m pip install -r requirements.txt
-
-cryptography>=2.4.2
-Click>=7.0
-intelhex>=2.2.1
-jwcrypto>=0.6.0
