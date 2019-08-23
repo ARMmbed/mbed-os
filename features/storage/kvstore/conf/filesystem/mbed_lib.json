@@ -33,6 +33,10 @@
             "help": "Path for the working directory where the FileSystemStore stores the data",
             "value": "kvstore"
         }
+    },
+    "target_overrides": {
+        "MCU_PSOC6": {
+            "rbp_internal_size": 7168
+        }
     }
 }
-
