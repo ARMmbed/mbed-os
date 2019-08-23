@@ -35,7 +35,6 @@
 
 /**
 * \defgroup group_udb_sdio UDB_SDIO
-* \ingroup group_bsp
 * \{
 *  SDIO - Secure Digital Input Output Is a standard for communicating with various
     external devices such as Wifi and bluetooth devices. 
@@ -272,6 +271,7 @@ void                SDIO_SetSdClkFrequency(uint32_t u32SdClkFreqHz);
 void                SDIO_Reset(void);
 void                SDIO_EnableChipInt(void);
 void                SDIO_DisableChipInt(void);
+void                SDIO_Free(void);
 
 /*Low Level Functions*/
 void                SDIO_SendCommand(stc_sdio_cmd_config_t *pstcCmdConfig);
@@ -292,6 +292,8 @@ void                SDIO_READ_DMA_IRQ(void);
 void                SDIO_WRITE_DMA_IRQ(void);
 
 void                SDIO_Crc7Init(void);
+
+cy_en_syspm_status_t SDIO_DeepSleepCallback(cy_stc_syspm_callback_params_t *params, cy_en_syspm_callback_mode_t mode);
 
 /** \endcond */
 
