@@ -82,7 +82,7 @@ public:
     virtual void do_initialize()
     {
         bt_power = 1;
-        wait_ms(500);
+        rtos::ThisThread::sleep_for(500);
     }
 
     virtual void do_terminate() { }
@@ -295,7 +295,7 @@ private:
         service_pack_next = &HCIDriver::terminate_service_pack_transfert;;
         service_pack_index = 0;
         service_pack_transfered = false;
-        wait_ms(1000);
+        rtos::ThisThread::sleep_for(1000);
         send_service_pack_command();
     }
 
