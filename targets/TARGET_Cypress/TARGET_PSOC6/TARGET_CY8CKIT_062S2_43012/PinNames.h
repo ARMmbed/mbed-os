@@ -20,39 +20,8 @@
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
-#include "cmsis.h"
 #include "PinNamesTypes.h"
-#include "PortNames.h"
 #include "cyhal_pin_package.h"
-#include "cyhal_utils.h"
-
-typedef cyhal_gpio_t PinName;
-
-// Arduino connector namings
-#define A0 P10_0
-#define A1 P10_1
-#define A2 P10_2
-#define A3 P10_3
-#define A4 P10_4
-#define A5 P10_5
-
-#define D0 P5_0
-#define D1 P5_1
-#define D2 P5_2
-#define D3 P5_3
-#define D4 P5_4
-#define D5 P5_5
-#define D6 P5_6
-#define D7 P0_2
-#define D8 P13_0
-#define D9 P13_1
-#define D10 P12_3
-#define D11 P12_0
-#define D12 P12_1
-#define D13 P12_2
-#define D14 P6_1
-#define D15 P6_0
-
 
 // Generic signal names
 
@@ -64,46 +33,23 @@ typedef cyhal_gpio_t PinName;
 #define UART_RTS P5_2
 #define UART_CTS P5_3
 
-#define SPI_MOSI P12_0
-#define SPI_MISO P12_1
-#define SPI_CLK P12_2
-#define SPI_CS P12_4
-
-#define UART_RX P5_0
-#define UART_TX P5_1
-#define UART_RTS P5_2
-#define UART_CTS P5_3
-
-#define BT_UART_RX P3_0
-#define BT_UART_TX P3_1
-#define BT_UART_CTS P3_3
-#define BT_UART_RTS P3_2
-
-#define BT_PIN_POWER P3_4
-#define BT_PIN_HOST_WAKE P3_5
-#define BT_PIN_DEVICE_WAKE P4_0
-// Reset pin unavailable
-
-#define SWITCH2 P0_4
-#define LED1 P13_7
-#define LED2 NC
-#define LED3 NC
-#define LED4 NC
+#define LED1 P1_1
+#define LED2 P0_5
+#define LED3 P7_3
+#define LED4 P1_5
+#define LED5 P11_1
 #define LED_RED LED1
+#define LED_GREEN LED2
+#define LED_BLUE LED3
 
+// Reset pin unavailable
+#define SWITCH2 P0_4
+#define SWITCH4 P1_4
 #define USER_BUTTON SWITCH2
 #define BUTTON1 USER_BUTTON
+#define BUTTON2 SWITCH4
 
-#define PDM_DATA P10_5
-#define PDM_CLK P10_4
-#define THERM_OUT_1 P10_1
-#define THERM_OUT_2 P10_2
-#define THERM_OUT THERM_OUT_1
-#define THERM_VDD P10_3
-#define THERM_GND P10_0
-
-#define CARD_DETECT_1 P13_5
-#define CARD_DETECT_2 P12_1
+#define CARD_DETECT_1 P13_7
 #define CARD_DETECT CARD_DETECT_1
 #define SD_CMD P12_4
 #define SD_CLK P12_5
@@ -132,23 +78,7 @@ typedef cyhal_gpio_t PinName;
 #define STDIO_UART_CTS UART_CTS
 #define STDIO_UART_RTS UART_RTS
 
-#define CY_STDIO_UART_RX STDIO_UART_RX
-#define CY_STDIO_UART_TX STDIO_UART_TX
-#define CY_STDIO_UART_CTS STDIO_UART_CTS
-#define CY_STDIO_UART_RTS STDIO_UART_RTS
-
-#define CY_BT_UART_RX BT_UART_RX
-#define CY_BT_UART_TX BT_UART_TX
-#define CY_BT_UART_CTS BT_UART_CTS
-#define CY_BT_UART_RTS BT_UART_RTS
-
-#define CY_BT_PIN_POWER BT_PIN_POWER
-#define CY_BT_PIN_HOST_WAKE BT_PIN_HOST_WAKE
-#define CY_BT_PIN_DEVICE_WAKE BT_PIN_DEVICE_WAKE
-
 #define USBTX UART_TX
 #define USBRX UART_RX
-
-#define CY_WIFI_HOST_WAKE P2_7
 
 #endif
