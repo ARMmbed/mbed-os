@@ -245,8 +245,11 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
     return _at.at_cmd_discard("+CSDH", "=", "%d", show_header);
 }
 
-nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
+nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode,
+                                         CellularSMSEncoding encoding)
 {
+    _use_8bit_encoding = (encoding == CellularSMSEncoding8Bit);
+
     _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
     _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 
@@ -292,8 +295,11 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
     // there might be need for padding so some more space
     totalPDULength += 2;
 
-    // message 7-bit padded and it will be converted to hex so it will take twice as much space
-    totalPDULength += (message_length - (message_length / 8)) * 2;
+    // 8-bit message, converted to hex so it will take twice as much space
+    totalPDULength += message_length * 2;
+
+    // terminating nullbyte, because callers use strlen() to find out PDU size
+    totalPDULength += 1;
 
     char *pdu = new char[totalPDULength];
     memset(pdu, 0, totalPDULength);
