@@ -78,6 +78,7 @@
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
+; Size of the stack section at the end of CM4 SRAM
 #define STACK_SIZE MBED_BOOT_STACK_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.
@@ -95,6 +96,9 @@
 ; Flash
 #define FLASH_START             MBED_APP_START
 #define FLASH_SIZE              MBED_APP_SIZE
+
+; Size of the Cortex-M0+ application flash image
+#define FLASH_CM0P_SIZE         0x2000
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
@@ -133,17 +137,9 @@
 #define EFUSE_START             0x90700000
 #define EFUSE_SIZE              0x100000
 
-; Size and start address of the Cortex-M0+ application image
-#define FLASH_CM0P_SIZE         0x2000
-#define FLASH_CM0P_START        FLASH_START
 
-; Size and start address of the Cortex-M4 application image
-#define FLASH_CM4_SIZE          (FLASH_SIZE - FLASH_CM0P_SIZE)
-#define FLASH_CM4_START         (FLASH_CM0P_START + FLASH_CM0P_SIZE)
-
-
-; Cortex-M0+ application image
-LR_IROM FLASH_CM0P_START FLASH_CM0P_SIZE
+; Cortex-M0+ application flash image area
+LR_IROM FLASH_START FLASH_CM0P_SIZE
 {
     .cy_m0p_image +0 FLASH_CM0P_SIZE
     {
@@ -151,8 +147,8 @@ LR_IROM FLASH_CM0P_START FLASH_CM0P_SIZE
     }
 }
 
-; Cortex-M4 application image
-LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
+; Cortex-M4 application flash area
+LR_IROM1 (FLASH_START + FLASH_CM0P_SIZE) (FLASH_SIZE - FLASH_CM0P_SIZE)
 {
     ER_FLASH_VECTORS +0
     {

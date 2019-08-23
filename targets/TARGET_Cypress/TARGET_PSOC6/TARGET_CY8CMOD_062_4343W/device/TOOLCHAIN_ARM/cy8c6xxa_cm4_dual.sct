@@ -3,7 +3,7 @@
 ; to pass a scatter file through a C preprocessor.
 
 ;*******************************************************************************
-;* \file cy8c6xxa_cm4_dual.scat
+;* \file cy8c6xxa_cm4_dual.sct
 ;* \version 2.50
 ;*
 ;* Linker file for the ARMCC.
@@ -173,7 +173,7 @@ LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
     RW_RAM_DATA +0
     {
         * (.cy_ramfunc)
-        .ANY (+RW, +ZI)
+        * (+RW, +ZI)
     }
 
     ; Place variables in the section that should not be initialized during the
