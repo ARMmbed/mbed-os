@@ -46,8 +46,9 @@
 
 
 // Commands for writing (page programming)
+// Only single/octal mode supported with this memory
+// So only single 1-1-1 mode in this QSPI config
 #define QSPI_CMD_WRITE_1IO                      0x02    // 1-1-1 mode
-//#define QSPI_CMD_WRITE_4IO                      0x02    // Only single/octal mode supported
 // write operations max time [us] (datasheet max time + 15%)
 #define QSPI_PAGE_PROG_MAX_TIME                 11500   // 10ms
 
@@ -56,19 +57,13 @@
 #define QSPI_SECTOR_COUNT                       2048
 
 // Commands for reading
+// Only single/octal mode supported with this memory
+// So only single 1-1-1 mode in this QSPI config
 #define QSPI_CMD_READ_1IO_FAST                  0x0B   // 1-1-1 mode
-#define QSPI_CMD_READ_1IO                       0x03   /// Only single/octal mode supported
-//#define QSPI_CMD_READ_2IO                       0x03   // Only single/octal mode supported
-//#define QSPI_CMD_READ_1I2O                      0x03   // Only single/octal mode supported
-//#define QSPI_CMD_READ_4IO                       0x03   // Only single/octal mode supported
-//#define QSPI_CMD_READ_1I4O                      0x03   // Only single/octal mode supported
+#define QSPI_CMD_READ_1IO                       0x03   // 1-1-1 mode
 
 #define QSPI_READ_1IO_DUMMY_CYCLE               0
 #define QSPI_READ_FAST_DUMMY_CYCLE              8
-//#define QSPI_READ_2IO_DUMMY_CYCLE               0 // Only single/octal mode supported
-//#define QSPI_READ_1I2O_DUMMY_CYCLE              0 // Only single/octal mode supported
-//#define QSPI_READ_4IO_DUMMY_CYCLE               0 // Only single/octal mode supported
-//#define QSPI_READ_1I4O_DUMMY_CYCLE              0 // Only single/octal mode supported
 
 // Commands for erasing
 #define QSPI_CMD_ERASE_SECTOR                   0x20    // 4kB
