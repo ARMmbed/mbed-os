@@ -1208,6 +1208,7 @@
     "MCU_K22F512": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "components_add": ["FLASHIAP"],
         "extra_labels": [
             "Freescale",
             "MCUXpresso_MCUS",
