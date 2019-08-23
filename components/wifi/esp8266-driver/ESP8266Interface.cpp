@@ -143,7 +143,12 @@ ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOu
 void ESP8266Interface::ResetPin::rst_assert()
 {
     if (_rst_pin.is_connected()) {
+#if defined(TARGET_NUMAKER_PFM_M2351_CM)
+        // For M2351, _rst_pin is power control pin. This is to power off the module.
+        _rst_pin = 1;
+#else
         _rst_pin = 0;
+#endif
         tr_debug("HW reset asserted");
     }
 }
@@ -151,8 +156,13 @@ void ESP8266Interface::ResetPin::rst_assert()
 void ESP8266Interface::ResetPin::rst_deassert()
 {
     if (_rst_pin.is_connected()) {
+#if defined(TARGET_NUMAKER_PFM_M2351_CM)
+        // For M2351, _rst_pin is power control pin. This is to power on the module.
+        _rst_pin = 0;
+#else
         // Notice that Pin7 CH_EN cannot be left floating if used as reset
         _rst_pin = 1;
+ #endif
         tr_debug("HW reset deasserted");
     }
 }
