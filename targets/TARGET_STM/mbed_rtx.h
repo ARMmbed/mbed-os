@@ -36,6 +36,9 @@
 #define INITIAL_SP              (0x20018000UL)
 #endif /* toolchains */
 
+#elif (defined(TARGET_STM32H747xI) && defined(CORE_CM4))
+#define INITIAL_SP              (0x10008000UL)
+
 #elif (defined(TARGET_STM32F051R8) ||\
        defined(TARGET_STM32F100RB) ||\
        defined(TARGET_STM32L031K6) ||\
@@ -97,7 +100,8 @@
        defined(TARGET_STM32F446VE) ||\
        defined(TARGET_STM32F446ZE) ||\
        defined(TARGET_STM32H743xI) ||\
-       defined(TARGET_STM32H753xI))
+       defined(TARGET_STM32H753xI) ||\
+       defined(TARGET_STM32H747xI))
 #define INITIAL_SP              (0x20020000UL)
 
 #elif (defined(TARGET_STM32F429ZI) ||\
