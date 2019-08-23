@@ -137,11 +137,7 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
     _at.lock();
 
     /*AT+QIFGCNT=0*/
-    _at.cmd_start("AT+QIFGCNT=");
-    _at.write_int(0); /* Set the Context 0 as the foreground context.*/
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.at_cmd_discard("+QIFGCNT", "=", "%d", 0);
 
     ret_val = _at.get_last_error();
     if (ret_val != NSAPI_ERROR_OK) {
@@ -149,17 +145,12 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 #if 0
-    /*AT+QICSGP=1*/
-    _at.cmd_start("AT+QICSGP=");
-    _at.write_int(1); /* mode: 0-CSD, 1-GPRS */
-    _at.write_string(_apn);
     if (_pwd && _uname) {
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
+        _at.at_cmd_discard("+QICSGP", "=", "%d%s%s%s", 1, _apn, _uname, _pwd);
+    } else {
+        _at.at_cmd_discard("+QICSGP", "=", "%d%s", 1, _apn);
     }
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+
 #endif
     ret_val = _at.get_last_error();
     if (ret_val != NSAPI_ERROR_OK) {
@@ -168,19 +159,15 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
     }
 
     /*AT+QIMODE=0 Set transparent mode*/
-    _at.cmd_start("AT+QIMODE?");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+QIMODE", "?");
+
     _at.resp_start("+QIMODE:");
     if (_at.info_resp()) {
         tcpip_mode = _at.read_int();
     }
     _at.resp_stop();
     if (tcpip_mode) {
-        _at.cmd_start("AT+QIMOD=");
-        _at.write_int(0); /* 0-Disable, 1-Enable */
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+QIMODE", "=", "%d", 0);
     }
     ret_val = _at.get_last_error();
     if (ret_val != NSAPI_ERROR_OK) {
@@ -189,19 +176,15 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
     }
 
     /*AT+QIMUX=1*/
-    _at.cmd_start("AT+QIMUX?");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+QIMUX", "?");
+
     _at.resp_start("+QIMUX:");
     if (_at.info_resp()) {
         mux_mode = _at.read_int();
     }
     _at.resp_stop();
     if (!mux_mode) {
-        _at.cmd_start("AT+QIMUX=");
-        _at.write_int(1); /* 0-Disable, 1-Enable */
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+QIMUX", "=", "%d", 1);
     }
     ret_val = _at.get_last_error();
     if (ret_val != NSAPI_ERROR_OK) {
@@ -210,19 +193,15 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_stack_init()
     }
 
     /*AT+QINDI=2*/
-    _at.cmd_start("AT+QINDI?");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+QINDI", "?");
+
     _at.resp_start();
     if (_at.info_resp()) {
         cache_mode = _at.read_int();
     }
     _at.resp_stop();
     if (cache_mode != 2) {
-        _at.cmd_start("AT+QINDI=");
-        _at.write_int(2); /* 0-Disable, 1-Single Cache, 2-Multi Cache */
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+QINDI", "=", "%d", 2);
     }
 
     ret_val = _at.get_last_error();
@@ -251,13 +230,7 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_close_impl(int sock_id)
 {
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:", __FUNCTION__, __LINE__);
 
-    _at.cmd_start("AT+QICLOSE=");
-    _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-
-    return _at.get_last_error();
+    return _at.at_cmd_discard("+QICLOSE", "=", "%d", sock_id);
 }
 
 void QUECTEL_M26_CellularStack::handle_open_socket_response(int &modem_connect_id, int &err)
@@ -312,28 +285,16 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start("AT+QIOPEN=");
-        _at.write_int(request_connect_id);
-        _at.write_string("TCP");
-        _at.write_string(address.get_ip_address());
-        _at.write_int(address.get_port());
-        _at.cmd_stop();
+        _at.cmd_start_stop("+QIOPEN", "=", "%d%s%s%d", request_connect_id, "TCP",
+                           address.get_ip_address(), address.get_port());;
 
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
-            _at.cmd_start("AT+QICLOSE=");
-            _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
 
-            _at.cmd_start("AT+QIOPEN=");
-            _at.write_int(request_connect_id);
-            _at.write_string("TCP");
-            _at.write_string(address.get_ip_address());
-            _at.write_int(address.get_port());
-            _at.cmd_stop();
+            _at.cmd_start_stop("+QIOPEN", "=", "%d%s%s%d", request_connect_id, "TCP",
+                               address.get_ip_address(), address.get_port());
 
             handle_open_socket_response(modem_connect_id, err);
         }
@@ -341,11 +302,7 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_connect(nsapi_socket_t handle, c
 
     // If opened successfully BUT not requested one, close it
     if (!err && (modem_connect_id != request_connect_id)) {
-        _at.cmd_start("AT+QICLOSE=");
-        _at.write_int(modem_connect_id);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
     }
 
     nsapi_error_t ret_val = _at.get_last_error();
@@ -391,40 +348,24 @@ nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *sock
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d,%d]", __FUNCTION__, __LINE__, socket->proto, socket->connected);
 
     if (socket->connected) {
-        _at.cmd_start("AT+QIOPEN=");
-        _at.write_int(request_connect_id);
-        _at.write_string((socket->proto == NSAPI_TCP) ? "TCP" : "UDP");
-        _at.write_string(socket->remoteAddress.get_ip_address());
-        _at.write_int(socket->remoteAddress.get_port());
-        _at.cmd_stop();
+        _at.cmd_start_stop("+QIOPEN", "=", "%d%s%s%d", request_connect_id, (socket->proto == NSAPI_TCP) ? "TCP" : "UDP",
+                           socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
 
         handle_open_socket_response(modem_connect_id, err);
 
         /* Close and retry if socket create fail */
         if ((_at.get_last_error() != NSAPI_ERROR_OK) || err) {
-            _at.cmd_start("AT+QICLOSE=");
-            _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
 
-            _at.cmd_start("AT+QIOPEN=");
-            _at.write_int(request_connect_id);
-            _at.write_string((socket->proto == NSAPI_TCP) ? "TCP" : "UDP");
-            _at.write_string(socket->remoteAddress.get_ip_address());
-            _at.write_int(socket->remoteAddress.get_port());
-            _at.cmd_stop();
+            _at.cmd_start_stop("+QIOPEN", "=", "%d%s%s%d", request_connect_id, (socket->proto == NSAPI_TCP) ? "TCP" : "UDP",
+                               socket->remoteAddress.get_ip_address(), socket->remoteAddress.get_port());
 
             handle_open_socket_response(modem_connect_id, err);
         }
 
         /* If opened successfully BUT not requested one, close it */
         if (!err && (modem_connect_id != request_connect_id)) {
-            _at.cmd_start("AT+QICLOSE=");
-            _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
         }
 
         ret_val = _at.get_last_error();
@@ -472,9 +413,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
         bool ready_to_send = false;
         uint64_t start_time = rtos::Kernel::get_ms_count();
         while (!ready_to_send && start_time < rtos::Kernel::get_ms_count() + SOCKET_SEND_READY_TIMEOUT) {
-            _at.cmd_start("AT+QISACK=");
-            _at.write_int(socket->id);
-            _at.cmd_stop();
+            _at.cmd_start_stop("+QISACK", "=", "%d", socket->id);
             _at.resp_start("+QISACK:");
             sent_len_before = _at.read_int();
             sent_acked = _at.read_int();
@@ -494,10 +433,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
         }
     }
 
-    _at.cmd_start("AT+QISEND=");
-    _at.write_int(socket->id);
-    _at.write_int(sent_len);
-    _at.cmd_stop();
+    _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, sent_len);
 
     _at.resp_start(">");
     _at.write_bytes((uint8_t *)data, sent_len);
@@ -510,9 +446,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
     }
 
     if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start("AT+QISACK=");
-        _at.write_int(socket->id);
-        _at.cmd_stop();
+        _at.cmd_start_stop("+QISACK", "=", "%d", socket->id);
 
         _at.resp_start("+QISACK:");
         sent_len_after = _at.read_int();
@@ -555,12 +489,8 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSo
     nsapi_size_t len = 0;
     for (; len < size;) {
         unsigned int read_len = (size - len > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size - len;
-        _at.cmd_start("AT+QIRD=");
-        _at.write_int(0); /* at+qifgcnt 0-1 */
-        _at.write_int(1); /* 1-Client, 2-Server */
-        _at.write_int(socket->id);
-        _at.write_int(read_len);
-        _at.cmd_stop();
+
+        _at.cmd_start_stop("+QIRD", "=", "%d%d%d%d", 0, 1, socket->id, read_len);
 
         nsapi_size_t recv_len = 0;
         _at.resp_start("+QIRD:");

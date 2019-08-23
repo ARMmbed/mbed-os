@@ -136,8 +136,7 @@ nsapi_error_t QUECTEL_BG96::soft_power_on()
         // check if modem was silently powered on
         _at->clear_error();
         _at->set_at_timeout(100);
-        _at->cmd_start("AT");
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("", ""); //Send AT
         _at->restore_at_timeout();
     }
     return _at->unlock_return_error();
@@ -161,11 +160,9 @@ nsapi_error_t QUECTEL_BG96::init()
 
     _at->lock();
     _at->flush();
-    _at->cmd_start("ATE0"); // echo off
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("E0", ""); // echo off
 
-    _at->cmd_start("AT+CMEE=1"); // verbose responses
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
 
     if (_at->get_last_error() != NSAPI_ERROR_OK) {
         return _at->unlock_return_error();
@@ -173,8 +170,7 @@ nsapi_error_t QUECTEL_BG96::init()
 
     do {
         _at->clear_error();
-        _at->cmd_start("AT+CFUN=1"); // set full functionality
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
         if (_at->get_last_error() == NSAPI_ERROR_OK) {
             break;
         }

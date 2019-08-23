@@ -92,32 +92,24 @@ nsapi_error_t UBLOX_AT::init()
 {
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("", "");
 
 #ifdef TARGET_UBLOX_C027
-    _at->cmd_start("AT+CFUN=0");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CFUN", "=0");
+
     if (_at->get_last_error() == NSAPI_ERROR_OK) {
-        _at->cmd_start("ATE0"); // echo off
-        _at->cmd_stop_read_resp();
-        _at->cmd_start("AT+CMEE=1"); // verbose responses
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("E0", ""); // echo off
+        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
         config_authentication_parameters();
-        _at->cmd_start("AT+CFUN=1"); // set full functionality
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
 #else
-    _at->cmd_start("AT+CFUN=4");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CFUN", "=4");
     if (_at->get_last_error() == NSAPI_ERROR_OK) {
-        _at->cmd_start("ATE0"); // echo off
-        _at->cmd_stop_read_resp();
-        _at->cmd_start("AT+CMEE=1"); // verbose responses
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("E0", ""); // echo off
+        _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
         config_authentication_parameters();
-        _at->cmd_start("AT+CFUN=1"); // set full functionality
-        _at->cmd_stop_read_resp();
+        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
 #endif
 
@@ -156,59 +148,27 @@ nsapi_error_t UBLOX_AT::set_authentication_parameters(const char *apn,
 {
     int modem_security = ubx_context->nsapi_security_to_modem_security(auth);
 
-    _at->cmd_start("AT+CGDCONT=1,\"IP\",");
-    _at->write_string(apn);
-    _at->cmd_stop();
-    _at->resp_start();
-    _at->resp_stop();
+    nsapi_error_t err = _at->at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, "IP", apn);
 
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
+    if (err == NSAPI_ERROR_OK) {
 #ifdef TARGET_UBLOX_C030_R41XM
         if (modem_security == CellularContext::CHAP) {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->write_string(password);
-            _at->write_string(username);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, password, username);
         } else if (modem_security == CellularContext::NOAUTH) {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d", 1, modem_security);
         } else {
-            _at->cmd_start("AT+UAUTHREQ=1,");
-            _at->write_int(modem_security);
-            _at->write_string(username);
-            _at->write_string(password);
-            _at->cmd_stop();
-            _at->resp_start();
-            _at->resp_stop();
+            err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
         }
 #else
-        _at->cmd_start("AT+UAUTHREQ=1,");
-        _at->write_int(modem_security);
-        _at->write_string(username);
-        _at->write_string(password);
-        _at->cmd_stop();
-        _at->resp_start();
-        _at->resp_stop();
+        err = _at->at_cmd_discard("+UAUTHREQ", "=", "%d%d%s%s", 1, modem_security, username, password);
 #endif
     }
 
-    return _at->get_last_error();
+    return err;
 }
 
 nsapi_error_t UBLOX_AT::get_imsi(char *imsi)
 {
-    _at->lock();
-    _at->cmd_start("AT+CIMI");
-    _at->cmd_stop();
-    _at->resp_start();
-    _at->read_string(imsi, MAX_IMSI_LENGTH + 1);
-    _at->resp_stop();
-
-    return _at->unlock_return_error();
+    //Special case: Command put in cmd_chr to make a 1 liner
+    return _at->at_cmd_str("", "+CIMI", imsi, MAX_IMSI_LENGTH + 1);
 }
