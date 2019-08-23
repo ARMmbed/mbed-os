@@ -164,6 +164,11 @@ typedef enum {
     I2C_SDA    = PF_0,
     I2C_SCL    = PF_1,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     SPI0_MOSI  = PE_14,
     SPI0_MISO  = PE_13,
     SPI0_SCK   = PE_12,
