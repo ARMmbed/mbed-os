@@ -107,20 +107,20 @@ SECTIONS
     } > SRAM2
     __etext = .;
 
-    __data_start__ = .;
-
     .data.sram1 :
     {
-        . = ALIGN(8);
+        . = ALIGN(4);
+        __data_start__ = .;
         __sram_data_start__ = .;
         *rtl8195a_crypto*.o (.data*)
         *mbedtls*.o (.data*)
+        __data_end__ = .;
         __sram_data_end__ = .;
     } > SRAM1
 
     .data.sram2 :
     {
-        __sdram_data_start__ = .;
+        __dram_data_start__ = .;
         *(vtable)
         *(.data*)
         *(.sdram.data*)
@@ -145,12 +145,8 @@ SECTIONS
         KEEP(*(.fini_array))
         PROVIDE (__fini_array_end = .);
 
-        . = ALIGN(8);
-
-        __sdram_data_end__ = .;
-        /* All data end */
+        __dram_data_end__ = .;
     } > SRAM2
-    __data_end__ = .;
     __image2_end__ = .;
 
     .ARM.extab :
@@ -167,6 +163,7 @@ SECTIONS
 
     .bss.sram1 (NOLOAD) :
     {
+        __bss_start__ = .;
         __bss_sram_start__ = .;
         *rtl8195a_crypto*.o (.bss* COMMON)
         *mbedtls*.o (.bss* COMMON)
@@ -174,17 +171,16 @@ SECTIONS
         *lib_peripheral_mbed_gcc.a: (.bss* COMMON)
         *mbed_boot*.o (.bss* COMMON)
         __bss_sram_end__ = .;
+        __bss_end__ = .;
     } > SRAM1
 
     .bss.sram2 (NOLOAD) :
     {
-        __bss_start__ = .;
         __bss_dram_start__ = .;
         *(.bss*)
         *(COMMON)
         *(.bdsram.data*)
         __bss_dram_end__ = .;
-        __bss_end__ = .;
     } > SRAM2
 
     .bf_data :
@@ -199,7 +195,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
-    . = ORIGIN(SRAM1) + LENGTH(SRAM1) - StackSize;
+        . = ORIGIN(SRAM1) + LENGTH(SRAM1) - StackSize;
         __HeapLimit = .;
     } > SRAM1
     
@@ -219,7 +215,7 @@ SECTIONS
     {
         __StackLimit = .;
         *(.stack)
-    . += StackSize - (. - __StackLimit);
+        . += StackSize - (. - __StackLimit);
     } > SRAM1
 
     /* Set stack top to end of RAM, and stack limit move down by
@@ -227,6 +223,9 @@ SECTIONS
     __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
     __StackLimit = __StackTop - StackSize;
     PROVIDE(__stack = __StackTop);
+
+    /* Check if reserved stack size is too small */
+    ASSERT(StackSize >= SIZEOF(.stack_dummy), "reserved stack size is too small")
 
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM exceeds ram limit")
