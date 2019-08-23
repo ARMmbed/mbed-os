@@ -106,7 +106,7 @@ void CyH4TransportDriver::initialize()
        if (bt_device_wake_name != NC)
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
-    wait_ms(500);
+    rtos::ThisThread::sleep_for(500);
 }
 
 void CyH4TransportDriver::terminate() {  }
