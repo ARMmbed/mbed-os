@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
+
 #ifndef WHD_SOFTAP_INTERFACE_H
 #define WHD_SOFTAP_INTERFACE_H
 
 #include "netsocket/EMACInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "whd_emac.h"
-
+#include "CyDhcpServer.h"
+#include <memory>
 
 /**
  * Vendor IE details
@@ -132,6 +134,7 @@ public:
 
 protected:
     WHD_EMAC &_whd_emac;
+    std::unique_ptr<CyDhcpServer> _dhcp_server;
 };
 
 #endif

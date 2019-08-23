@@ -155,6 +155,13 @@ int WhdSoftAPInterface::start(const char *ssid, const char *pass, nsapi_security
     if (err != NSAPI_ERROR_OK) {
         printf("bringup() ERROR: %d\n", err);
     }
+
+    if (start_dhcp_server) {
+        _dhcp_server = std::make_unique<CyDhcpServer>(get_stack(), this);
+        if (CY_RSLT_SUCCESS != _dhcp_server->start()) {
+            err = NSAPI_ERROR_DHCP_FAILURE;
+        }
+    }
     return err;
 }
 
@@ -162,6 +169,10 @@ int WhdSoftAPInterface::start(const char *ssid, const char *pass, nsapi_security
 
 int WhdSoftAPInterface::stop(void)
 {
+    if (_dhcp_server && CY_RSLT_SUCCESS != _dhcp_server->stop()) {
+        return NSAPI_ERROR_DHCP_FAILURE;
+    }
+    _dhcp_server.reset();
     return whd_wifi_stop_ap(_whd_emac.ifp);
 }
 
