@@ -614,7 +614,7 @@ int TDBStore::set_finalize(set_handle_t handle)
         goto end;
     }
 
-    // Writes may fail without returning a failure (specially in flash components). Reread the record
+    // Writes may fail without returning a failure (especially in flash components). Reread the record
     // to ensure write success (this won't read the data anywhere - just use the CRC calculation).
     ret = read_record(_active_area, ih->bd_base_offset, 0, 0, (uint32_t) -1,
                       actual_data_size, 0, false, false, false, false,
@@ -1061,7 +1061,7 @@ int TDBStore::init()
         // (this will do nothing if already erased)
         if (ret == MBED_ERROR_INVALID_DATA_DETECTED) {
             if (check_erase_before_write(area, _master_record_offset, _master_record_size, true)) {
-                MBED_ERROR(MBED_ERROR_READ_FAILED, "TDBSTORE: Unable reset area at init");
+                MBED_ERROR(MBED_ERROR_READ_FAILED, "TDBSTORE: Unable to reset area at init");
             }
             area_state[area] = TDBSTORE_AREA_STATE_EMPTY;
             continue;

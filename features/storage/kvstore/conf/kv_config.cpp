@@ -388,7 +388,7 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
         }
 
         if (size == 0) {
-            //The block device will have all space form start address to the end of the flash
+            //The block device will have all space from start address to the end of the flash
             size = (flash_end_address - start_address);
 
             static FlashIAPBlockDevice bd(start_address, size);
