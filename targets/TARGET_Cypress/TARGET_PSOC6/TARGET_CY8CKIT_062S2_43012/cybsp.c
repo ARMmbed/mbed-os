@@ -34,10 +34,15 @@ extern "C" {
 
 cy_rslt_t cybsp_init(void)
 {
-    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_rslt_t result;
 
+    result = cyhal_hwmgr_init();
     init_cycfg_system();
-    result = cybsp_register_sysclk_pm_callback();
+
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cybsp_register_sysclk_pm_callback();
+    }
 
 #ifndef __MBED__
     if (CY_RSLT_SUCCESS == result)
@@ -69,7 +74,7 @@ cy_rslt_t cybsp_init(void)
             result = cybsp_retarget_init();
         }
     }
-#endif
+#endif /* __MBED__ */
 
 #if defined(CYBSP_WIFI_CAPABLE)
     /* Initialize SDIO interface.
@@ -81,10 +86,10 @@ cy_rslt_t cybsp_init(void)
        *    CYBSP_WIFI_SDIO_CMD, CYBSP_WIFI_SDIO_CLK and CYBSP_WIFI_WL_REG_ON */
         result = cybsp_wifi_sdio_init();
     }
-#endif
-    
+#endif /* defined(CYBSP_WIFI_CAPABLE) */
+
     /* CYHAL_HWMGR_RSLT_ERR_INUSE error code could be returned if any needed for BSP resource was reserved by
-    *   user previously. Please review the Device Configurator (design.modus) and the BSP reservation list 
+    *   user previously. Please review the Device Configurator (design.modus) and the BSP reservation list
     *   (cyreservedresources.list) to make sure no resources are reserved by both. */
     return result;
 }

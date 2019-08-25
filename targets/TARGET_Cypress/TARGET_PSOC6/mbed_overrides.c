@@ -62,9 +62,6 @@ void mbed_sdk_init(void)
     /* Placed here as it must be done after proper LIBC initialization. */
     SystemInit();
 
-    /* Initialize hardware resource manager */
-    cyhal_hwmgr_init();
-
 #if defined(COMPONENT_SPM_MAILBOX)
     mailbox_init();
 #endif
