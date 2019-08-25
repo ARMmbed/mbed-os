@@ -135,6 +135,7 @@ void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_g
 /**
  * \brief Registers a power management callback that prepares the clock system
  *  for entering deep sleep mode and restore the clocks upon wakeup from deep sleep.
+ *  NOTE: This is called automatically as part of \ref cybsp_init
  * \returns CY_RSLT_SUCCESS if the callback is sucessfully registered, if there is
  *          a problem registering the callback it returns CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK.
  */
