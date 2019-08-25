@@ -23,6 +23,9 @@
 #include "mbed_power_mgmt.h"
 #include "rtos_idle.h"
 #include "us_ticker_api.h"
+#if defined(CYBSP_ENABLE_FLASH_STORAGE)
+#include "cybsp_serial_flash.h"
+#endif /* defined(CYBSP_ENABLE_FLASH_STORAGE) */
 
 #if defined(COMPONENT_SPM_MAILBOX)
 void mailbox_init(void);
@@ -87,6 +90,12 @@ void mbed_sdk_init(void)
      */
     us_ticker_init();
 #endif
+
+#if defined(CYBSP_ENABLE_FLASH_STORAGE)
+    /* The linker script allows storing data in external memory, if needed, enable access to that memory. */
+    cybsp_serial_flash_init();
+    cybsp_serial_flash_enable_xip(true);
+#endif /* defined(CYBSP_ENABLE_FLASH_STORAGE) */
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
