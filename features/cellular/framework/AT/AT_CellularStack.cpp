@@ -156,7 +156,7 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
 
     struct CellularSocket *socket = (struct CellularSocket *)handle;
     if (!socket) {
-        return err;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     int sock_id = socket->id;
 
@@ -192,7 +192,7 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
 {
     struct CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (addr) {
@@ -220,14 +220,14 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
 
 nsapi_error_t AT_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
 {
-    return NSAPI_ERROR_UNSUPPORTED;;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     socket->remoteAddress = addr;
     socket->connected = true;
@@ -237,14 +237,17 @@ nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const Sock
 
 nsapi_error_t AT_CellularStack::socket_accept(void *server, void **socket, SocketAddress *addr)
 {
-    return NSAPI_ERROR_UNSUPPORTED;;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
 {
     CellularSocket *socket = (CellularSocket *)handle;
-    if (!socket || !socket->connected) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    if (!socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+    if (!socket->connected) {
+        return NSAPI_ERROR_NO_CONNECTION;
     }
     return socket_sendto(handle, socket->remoteAddress, data, size);
 }
@@ -253,7 +256,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (socket->closed && !socket->rx_avail) {
@@ -319,7 +322,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 {
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     if (socket->closed) {
