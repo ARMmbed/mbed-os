@@ -446,6 +446,9 @@ struct advertising_event_properties_t {
                 break;
             case advertising_type_t::ADV_NONCONN_IND:
                 break;
+            case advertising_type_t::ADV_NONSCAN_IND:
+                connectable = true;
+                break;
         }
     }
 

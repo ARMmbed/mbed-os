@@ -31,7 +31,10 @@ extern "C" {
  *
  * Given ticker is available.
  * When ticker information data is obtained.
- * Then ticker information indicate that frequency between 250KHz and 8MHz and the counter is at least 16 bits wide.
+ * Then ticker information indicate that:
+ * - counter frequency is between 250KHz and 8MHz for counters which are less than 32 bits wide
+ * - counter frequency is up to 100MHz for counters which are 32 bits wide
+ * - the counter is at least 16 bits wide.
  */
 void us_ticker_info_test(void);
 

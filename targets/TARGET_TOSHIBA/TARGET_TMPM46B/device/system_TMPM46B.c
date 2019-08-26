@@ -317,13 +317,11 @@ void SystemInit(void)
     volatile uint32_t oscf = 0U;
     uint32_t wdte = 0U;
 
-#if defined ( __CC_ARM  )/*Enable FPU for Keil*/
-  #if (__FPU_USED == 1)                        /* __FPU_USED is defined in core_cm4.h */
+#if (__FPU_USED == 1)                        /* __FPU_USED is defined in core_cm4.h */
     /* enable FPU if available and used */
     SCB->CPACR |= ((3UL << 10*2) |             /* set CP10 Full Access                */
                    (3UL << 11*2)  );           /* set CP11 Full Access                */
-  #endif
-#endif 
+#endif
 
 #if (WD_SETUP)                  /* Watchdog Setup */
     while (TSB_WD->FLG != 0U) {

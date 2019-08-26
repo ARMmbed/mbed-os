@@ -39,7 +39,7 @@
 // Convert Prescaler_divider bits (PR) of Prescaler_register (IWDG_PR) and a timeout value [ms]
 // to Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR)
 #define PR_TIMEOUT_MS2RL(PR_BITS, TIMEOUT_MS) \
-	((TIMEOUT_MS) * (LSI_VALUE) / (PR2PRESCALER_DIV(PR_BITS)) / 1000UL)
+	(((TIMEOUT_MS) * (LSI_VALUE) / (PR2PRESCALER_DIV(PR_BITS)) + 999UL) / 1000UL)
 
 #define MAX_TIMEOUT_MS_UINT64 PR_RL2UINT64_TIMEOUT_MS(MAX_IWDG_PR, MAX_IWDG_RL)
 #if (MAX_TIMEOUT_MS_UINT64 > UINT32_MAX)

@@ -1,5 +1,14 @@
 # Change Log
 
+## [v4.8.1(https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.1)
+- Store ACK's also into duplicate info list.
+- ROM size optimization. Flash size has gone down ~1100 bytes.
+
+**Closed issues:**
+-  IOTCLT-3592 - Client does not handle Duplicate ACK messages during blockwise registration correctly
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.8.0...v4.8.1)
+
 ## [v4.8.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.0) 
 - Make `sn_coap_protocol_linked_list_duplication_info_remove` API to public. User might want to delete some messages from the duplicate list.
 - Enable support for unified client configuration.

@@ -1,5 +1,6 @@
-/* Copyright (c) 2017 ARM Limited
- * SPDX-License-Identifier: Apache-2.0
+/* CC3220SF_Init.h
+ *
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef __CC3220SF_INIT_H
+#define __CC3220SF_INIT_H
 
-#ifndef STM32XX_EMAC_CONFIG_H__
-#define STM32XX_EMAC_CONFIG_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define THREAD_STACKSIZE              512
+int CC3220SF_initSimplelink(void);
 
-#endif // #define STM32XX_EMAC_CONFIG_H__
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __CC3220SF_INIT_H */

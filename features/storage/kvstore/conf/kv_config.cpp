@@ -267,51 +267,48 @@ FileSystem *_get_filesystem_default(const char *mount)
 }
 
 //Calculates the start address of FLASHIAP block device for TDB_INTERNAL profile.
-//If possible, the address will start 2 sectors after the end of code sector allowing
-//some space for an application update.
+//Last two sectors to have a predictable location for the TDBStore
 int _get_flashiap_bd_default_addresses_tdb_internal(bd_addr_t *start_address, bd_size_t *size)
 {
+    int ret = MBED_SUCCESS;
+
 #if COMPONENT_FLASHIAP
 
     FlashIAP flash;
+    static const int STORE_SECTORS = 2;
 
-    if (*start_address != 0 || *size != 0) {
+    if (*start_address || *size) {
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    //If default values are set, we should get the maximum available size of internal bd.
     if (flash.init() != 0) {
         return MBED_ERROR_FAILED_OPERATION;
     }
 
-    *start_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+    // Lets work from end of the flash backwards
+    bd_addr_t curr_addr = flash.get_flash_start() + flash.get_flash_size();
 
-    // Give the application a couple of spare sectors to grow (if there are such)
-    bd_size_t spare_size_for_app = 0;
-    bd_addr_t curr_addr = *start_address;
-    bd_addr_t flash_end_address = flash.get_flash_start() + flash.get_flash_size();
-
-    int spare_sectors_for_app = 2;
-    int min_sectors_for_storage = 2;
-    for (int i = 0; i < spare_sectors_for_app + min_sectors_for_storage - 1; i++) {
-        bd_size_t sector_size = flash.get_sector_size(curr_addr);
-        curr_addr += sector_size;
-        if (curr_addr >= flash_end_address) {
-            spare_size_for_app = 0;
-            break;
-        }
-
-        if (i < spare_sectors_for_app) {
-            spare_size_for_app += sector_size;
-        }
+    for (int i = STORE_SECTORS; i; i--) {
+        bd_size_t sector_size = flash.get_sector_size(curr_addr - 1);
+        curr_addr -= sector_size;
     }
-    *start_address += spare_size_for_app;
+
+    // Store- and application-sectors mustn't overlap
+    uint32_t first_wrtbl_sector_addr =
+        (uint32_t)(align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)));
+
+    MBED_ASSERT(curr_addr >= first_wrtbl_sector_addr);
+    if (curr_addr < first_wrtbl_sector_addr) {
+        ret = MBED_ERROR_MEDIA_FULL;
+    } else {
+        *start_address = curr_addr;
+    }
 
     flash.deinit();
 
 #endif
 
-    return MBED_SUCCESS;
+    return ret;
 }
 
 //Calculates address and size for FLASHIAP block device in TDB_EXTERNAL and FILESYSTEM profiles.
@@ -697,11 +694,13 @@ int _storage_config_TDB_INTERNAL()
 #if COMPONENT_FLASHIAP
     bd_size_t internal_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
+    int ret;
 
     if (internal_size == 0 && internal_start_address == 0) {
         //Calculate the block device size and start address in case default values are used.
-        if (_get_flashiap_bd_default_addresses_tdb_internal(&internal_start_address, &internal_size) != MBED_SUCCESS) {
-            return MBED_ERROR_FAILED_OPERATION;
+        ret = _get_flashiap_bd_default_addresses_tdb_internal(&internal_start_address, &internal_size);
+        if (ret != MBED_SUCCESS) {
+            return ret;
         }
     }
 
@@ -713,7 +712,7 @@ int _storage_config_TDB_INTERNAL()
     }
 
 
-    int ret = kvstore_config.internal_bd->init();
+    ret = kvstore_config.internal_bd->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init internal BlockDevice.");
         return MBED_ERROR_FAILED_OPERATION;

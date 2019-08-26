@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -39,7 +39,6 @@
  * @{
  */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -65,6 +64,8 @@ struct _lpuart_edma_handle
 
     edma_handle_t *txEdmaHandle; /*!< The eDMA TX channel used. */
     edma_handle_t *rxEdmaHandle; /*!< The eDMA RX channel used. */
+
+    uint8_t nbytes; /*!< eDMA minor byte transfer count initially configured. */
 
     volatile uint8_t txState; /*!< TX transfer state. */
     volatile uint8_t rxState; /*!< RX transfer state */
@@ -93,11 +94,11 @@ extern "C" {
  * @param rxEdmaHandle User requested DMA handle for RX DMA transfer.
  */
 void LPUART_TransferCreateHandleEDMA(LPUART_Type *base,
-                             lpuart_edma_handle_t *handle,
-                             lpuart_edma_transfer_callback_t callback,
-                             void *userData,
-                             edma_handle_t *txEdmaHandle,
-                             edma_handle_t *rxEdmaHandle);
+                                     lpuart_edma_handle_t *handle,
+                                     lpuart_edma_transfer_callback_t callback,
+                                     void *userData,
+                                     edma_handle_t *txEdmaHandle,
+                                     edma_handle_t *rxEdmaHandle);
 
 /*!
  * @brief Sends data using eDMA.
@@ -150,9 +151,9 @@ void LPUART_TransferAbortSendEDMA(LPUART_Type *base, lpuart_edma_handle_t *handl
 void LPUART_TransferAbortReceiveEDMA(LPUART_Type *base, lpuart_edma_handle_t *handle);
 
 /*!
- * @brief Get the number of bytes that have been written to LPUART TX register.
+ * @brief Gets the number of bytes written to the LPUART TX register.
  *
- * This function gets the number of bytes that have been written to LPUART TX
+ * This function gets the number of bytes written to the LPUART TX
  * register by DMA.
  *
  * @param base LPUART peripheral base address.
@@ -165,9 +166,9 @@ void LPUART_TransferAbortReceiveEDMA(LPUART_Type *base, lpuart_edma_handle_t *ha
 status_t LPUART_TransferGetSendCountEDMA(LPUART_Type *base, lpuart_edma_handle_t *handle, uint32_t *count);
 
 /*!
- * @brief Get the number of bytes that have been received.
+ * @brief Gets the number of received bytes.
  *
- * This function gets the number of bytes that have been received.
+ * This function gets the number of received bytes.
  *
  * @param base LPUART peripheral base address.
  * @param handle LPUART handle pointer.

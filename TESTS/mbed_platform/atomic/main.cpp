@@ -145,7 +145,7 @@ void test_atomic_add()
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
     return utest::v1::verbose_test_setup_handler(number_of_cases);
 }
 

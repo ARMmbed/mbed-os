@@ -77,9 +77,15 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     pinmap_pinout(pin, PinMap_ADC);
 
+    /* Need to ensure the pin is in input mode */
+    gpio_init(&gpio, pin);
+    gpio_dir(&gpio, PIN_INPUT);
+
     reg = IOCON->PIO[port_number][pin_number];
-    /* Clear the DIGIMODE bit */
-    reg &= ~IOCON_PIO_DIGIMODE_MASK;
+
+    /* Clear the MODE & DIGIMODE bit */
+    reg &= ~(IOCON_PIO_DIGIMODE_MASK | IOCON_PIO_MODE_MASK);
+
     /* For pins PIO0_9, PIO0_11, PIO0_12, PIO0_15, PIO0_18, PIO0_31, PIO1_0 and
        PIO1_9, leave ASW bit at '0' in the related IOCON register. */
     if (((port_number == 0) && ((pin_number == 9) || (pin_number == 11) || (pin_number == 12) ||
@@ -91,11 +97,8 @@ void analogin_init(analogin_t *obj, PinName pin)
         /* Enable Analog Switch Input control */
         reg |= IOCON_PIO_ASW_MASK;
     }
-    IOCON->PIO[port_number][pin_number] = reg;
 
-    /* Need to ensure the pin is in input mode */
-    gpio_init(&gpio, pin);
-    gpio_dir(&gpio, PIN_INPUT);
+    IOCON->PIO[port_number][pin_number] = reg;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
@@ -110,16 +113,30 @@ uint16_t analogin_read_u16(analogin_t *obj)
     memset(&mLpadcCommandConfigStruct, 0, sizeof(mLpadcCommandConfigStruct));
     memset(&mLpadcResultConfigStruct, 0, sizeof(mLpadcResultConfigStruct));
 
+#if (defined(FSL_FEATURE_LPADC_FIFO_COUNT) && (FSL_FEATURE_LPADC_FIFO_COUNT == 2))
+    LPADC_DoResetFIFO0(adc_addrs[instance]);
+    LPADC_DoResetFIFO1(adc_addrs[instance]);
+#else
+    LPADC_DoResetFIFO(adc_addrs[instance]);
+#endif /* FSL_FEATURE_LPADC_FIFO_COUNT */
+
     /* Set conversion CMD configuration. */
     LPADC_GetDefaultConvCommandConfig(&mLpadcCommandConfigStruct);
+
+    /* Check if we should use the B channel */
+    if (obj->adc >> ADC_B_CHANNEL_SHIFT) {
+        mLpadcCommandConfigStruct.sampleChannelMode = kLPADC_SampleChannelSingleEndSideB;
+    }
+
     mLpadcCommandConfigStruct.channelNumber = channel;
+    mLpadcCommandConfigStruct.conversionResoultuionMode = kLPADC_ConversionResolutionStandard;
     LPADC_SetConvCommandConfig(adc_addrs[instance], LPADC_USER_CMDID, &mLpadcCommandConfigStruct);
 
     /* Set trigger configuration. */
     LPADC_GetDefaultConvTriggerConfig(&mLpadcTriggerConfigStruct);
     mLpadcTriggerConfigStruct.targetCommandId = LPADC_USER_CMDID;
     mLpadcTriggerConfigStruct.enableHardwareTrigger = false;
-    LPADC_SetConvTriggerConfig(adc_addrs[instance], 0U, &mLpadcTriggerConfigStruct); /* Configurate the trigger0. */
+    LPADC_SetConvTriggerConfig(adc_addrs[instance], 0U, &mLpadcTriggerConfigStruct); /* Configure the trigger0. */
 
     LPADC_DoSoftwareTrigger(adc_addrs[instance], 1U); /* 1U is trigger0 mask. */
 
@@ -131,13 +148,13 @@ uint16_t analogin_read_u16(analogin_t *obj)
     }
 #endif /* FSL_FEATURE_LPADC_FIFO_COUNT */
 
-    return ((mLpadcResultConfigStruct.convValue) >> 3U);
+    return (mLpadcResultConfigStruct.convValue << 1);
 }
 
 float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
-    return (float)value * (1.0f / (float)0xFFFF);
+    return (float)value * (1.0f / (float)0xFFF0);
 }
 
 const PinMap *analogin_pinmap()

@@ -17,6 +17,11 @@
 #include "cmsis.h"
 #include "fsl_smc.h"
 #include "fsl_clock_config.h"
+#include "pinmap.h"
+#include "fsl_port.h"
+#include "PeripheralPins.h"
+
+extern void serial_wait_tx_complete(uint32_t uart_index);
 
 void hal_sleep(void)
 {
@@ -25,50 +30,35 @@ void hal_sleep(void)
     SMC_SetPowerModeWait(SMC);
 }
 
-static void PreEnterStopModes(void)
-{
-    flash_prefetch_speculation_status_t speculationStatus =
-    {
-        kFLASH_prefetchSpeculationOptionDisable, /* Disable instruction speculation.*/
-        kFLASH_prefetchSpeculationOptionDisable, /* Disable data speculation.*/
-    };
-
-    __ISB();
-
-    /*
-     * Before enter stop modes, the flash cache prefetch should be disabled.
-     * Otherwise the prefetch might be interrupted by stop, then the data and
-     * and instruction from flash are wrong.
-     */
-    FLASH_PflashSetPrefetchSpeculation(&speculationStatus);
-}
-
-static void PostExitStopModes(void)
-{
-    flash_prefetch_speculation_status_t speculationStatus =
-    {
-        kFLASH_prefetchSpeculationOptionEnable, /* Enable instruction speculation.*/
-        kFLASH_prefetchSpeculationOptionEnable, /* Enable data speculation.*/
-    };
-
-    FLASH_PflashSetPrefetchSpeculation(&speculationStatus);
-
-    __ISB();
-}
-
 void hal_deepsleep(void)
 {
+    uint32_t pin_func;
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
 #if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)
-    mcg_mode_t mode = CLOCK_GetMode();
+    smc_power_state_t original_power_state;
+
+    original_power_state = SMC_GetPowerModeState(SMC);
 #endif // FSL_FEATURE_MCG_HAS_PLL
 #endif // FSL_FEATURE_SOC_MCG_COUNT
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
-    PreEnterStopModes();
+    /* Wait till debug UART is done transmitting */
+    serial_wait_tx_complete(STDIO_UART);
+
+    /*
+     * Set pin for current leakage.
+     * Debug console RX pin: Set to pinmux to disable.
+     * Debug console TX pin: Don't need to change.
+     */
+    pin_function(STDIO_UART_RX, (int)kPORT_PinDisabledOrAnalog);
+
+    SMC_PreEnterStopModes();
     SMC_SetPowerModeVlps(SMC);
-    PostExitStopModes();
+    SMC_PostExitStopModes();
+
+    pin_func = pinmap_find_function(STDIO_UART_RX, PinMap_UART_RX);
+    pin_function(STDIO_UART_RX, pin_func);
 
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
 #if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)
@@ -76,8 +66,12 @@ void hal_deepsleep(void)
      * If enter stop modes when MCG in PEE mode, then after wakeup, the MCG is in PBE mode,
      * need to enter PEE mode manually.
      */
-    if (mode == kMCG_ModePEE) {
-        BOARD_BootClockRUN();
+    if (original_power_state == kSMC_PowerStateRun) {
+        /* Wait for PLL lock. */
+        while (!(kMCG_Pll0LockFlag & CLOCK_GetStatusFlags()))
+        {
+        }
+        CLOCK_SetPeeMode();
     }
 #endif // FSL_FEATURE_MCG_HAS_PLL
 #endif // FSL_FEATURE_SOC_MCG_COUNT

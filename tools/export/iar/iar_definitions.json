@@ -370,5 +370,11 @@
     },
     "STM32H743ZI": {
         "OGChipSelectEditMenu": "STM32H743ZI\tST STM32H743ZI"
+    },
+    "CC3220SF": {
+        "OGChipSelectEditMenu": "CC3220SF\tTexasInstruments CC3220SF",
+        "CoreVariant": 39,
+        "GFPUCoreSlave": 39,
+        "GBECoreSlave": 39
     }
 }

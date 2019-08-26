@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "cmsis.h"
+#include "mbed_power_mgmt.h"
 #include "pinmap.h"
 #include "fsl_uart.h"
 #include "peripheral_clock_defines.h"
@@ -543,6 +544,9 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     /* Start the transfer */
     serial_send_asynch(obj);
 
+    /* Can't enter deep sleep as long as UART transmit is active */
+    sleep_manager_lock_deep_sleep();
+
     return 0;
 }
 
@@ -608,6 +612,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 
     /* Start the transfer */
     serial_receive_asynch(obj);
+
+    /* Can't enter deep sleep as long as UART transfer is active */
+    sleep_manager_lock_deep_sleep();
 }
 
 uint8_t serial_tx_active(serial_t *obj)
@@ -640,11 +647,15 @@ int serial_irq_handler_asynch(serial_t *obj)
         if ((obj->serial.txstate != kUART_TxIdle)  && (obj->serial.uart_dma_handle.txState == kUART_TxIdle)) {
             obj->serial.txstate = kUART_TxIdle;
             status |= SERIAL_EVENT_TX_COMPLETE;
+            /* Transmit is complete, re-enable entry to deep sleep mode */
+            sleep_manager_unlock_deep_sleep();
         }
 
         if ((obj->serial.rxstate != kUART_RxIdle) && (obj->serial.uart_dma_handle.rxState == kUART_RxIdle)) {
             obj->serial.rxstate = kUART_RxIdle;
             status |= SERIAL_EVENT_RX_COMPLETE;
+            /* Receive is complete, re-enable entry to deep sleep mode */
+            sleep_manager_unlock_deep_sleep();
         }
 
         /* Release the dma channels if they were opportunistically allocated */
@@ -661,11 +672,15 @@ int serial_irq_handler_asynch(serial_t *obj)
         if ((obj->serial.txstate != kUART_TxIdle) && (obj->serial.uart_transfer_handle.txState == kUART_TxIdle)) {
             obj->serial.txstate = kUART_TxIdle;
             status |= SERIAL_EVENT_TX_COMPLETE;
+            /* Transmit is complete, re-enable entry to deep sleep mode */
+            sleep_manager_unlock_deep_sleep();
         }
 
         if ((obj->serial.rxstate != kUART_RxIdle) && (obj->serial.uart_transfer_handle.rxState == kUART_RxIdle)) {
             obj->serial.rxstate = kUART_RxIdle;
             status |= SERIAL_EVENT_RX_COMPLETE;
+            /* Receive is complete, re-enable entry to deep sleep mode */
+            sleep_manager_unlock_deep_sleep();
         }
     }
 #if 0
@@ -697,6 +712,11 @@ int serial_irq_handler_asynch(serial_t *obj)
 
 void serial_tx_abort_asynch(serial_t *obj)
 {
+    // If we're not currently transferring, then there's nothing to do here
+    if (serial_tx_active(obj) == 0) {
+        return;
+    }
+
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED || obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_TransferAbortSendEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle);
         /* Release the dma channels if they were opportunistically allocated */
@@ -711,10 +731,20 @@ void serial_tx_abort_asynch(serial_t *obj)
     } else {
         UART_TransferAbortSend(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle);
     }
+
+    obj->serial.txstate = kUART_TxIdle;
+
+    /* Re-enable entry to deep sleep mode */
+    sleep_manager_unlock_deep_sleep();
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
+    // If we're not currently transferring, then there's nothing to do here
+    if (serial_rx_active(obj) == 0) {
+        return;
+    }
+
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED || obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_TransferAbortReceiveEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle);
         /* Release the dma channels if they were opportunistically allocated */
@@ -728,6 +758,21 @@ void serial_rx_abort_asynch(serial_t *obj)
         }
     } else {
         UART_TransferAbortReceive(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle);
+    }
+
+    obj->serial.rxstate = kUART_RxIdle;
+
+    /* Re-enable entry to deep sleep mode */
+    sleep_manager_unlock_deep_sleep();
+}
+
+void serial_wait_tx_complete(uint32_t uart_index)
+{
+    UART_Type *base = uart_addrs[uart_index];
+
+    /* Wait till data is flushed out of transmit buffer */
+    while (!(kUART_TransmissionCompleteFlag & UART_GetStatusFlags((UART_Type *)base)))
+    {
     }
 }
 

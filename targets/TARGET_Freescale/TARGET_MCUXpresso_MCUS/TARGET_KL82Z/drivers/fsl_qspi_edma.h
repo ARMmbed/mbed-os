@@ -39,7 +39,6 @@
  * @{
  */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -54,6 +53,7 @@ struct _qspi_edma_handle
 {
     edma_handle_t *dmaHandle;      /*!< eDMA handler for QSPI send */
     size_t transferSize;           /*!< Bytes need to transfer. */
+    uint8_t nbytes;                /*!< eDMA minor byte transfer count initially configured. */
     uint8_t count;                 /*!< The transfer data count in a DMA request */
     uint32_t state;                /*!< Internal state for QSPI eDMA transfer */
     qspi_edma_callback_t callback; /*!< Callback for users while transfer finish or error occurred */

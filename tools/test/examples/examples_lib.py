@@ -41,7 +41,7 @@ from tools.toolchains import TOOLCHAINS
 from tools.utils import write_json_to_file
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
-SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() + EXPORTER_ALIASES.keys()
+SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
                   if exp != "cmsis" and exp != "zip"]
 
 
@@ -58,7 +58,7 @@ def print_list(lst):
 
 
 def print_category(results, index, message):
-    summary = [example for key, summ in results.items()
+    summary = [example for key, summ in list(results.items())
                for example in summ[index]]
     if all(len(s) == 0 for s in summary):
         return
@@ -256,7 +256,7 @@ def get_num_failures(results, export=False):
     """
     num_failures = 0
 
-    for key, val in results.items():
+    for key, val in list(results.items()):
         num_failures = num_failures + len(val[3])
         if export:
             num_failures += len(val[4])
@@ -384,7 +384,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
         successes = []
         compiled = True
         pass_status = True
-        if example.has_key('test') and example['test'] and example.has_key('baud_rate') and example.has_key('compare_log'):
+        if 'test' in example and example['test'] and 'baud_rate' in example and 'compare_log'in example:
             test_example = True
         else:
             test_example = False
@@ -408,6 +408,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                     proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                     std_out, std_err = proc.communicate()
+                    std_out = std_out.decode('utf-8')
                     print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
                     
                     if test_example:
@@ -427,7 +428,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                         if test_example:
                             test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
                             if image:
-                                if not test_json['builds'].has_key(test_group):
+                                if not test_group in test_json['builds']:
                                     test_json['builds'][test_group] = {
                                         "platform":target ,
                                         "toolchain": toolchain ,

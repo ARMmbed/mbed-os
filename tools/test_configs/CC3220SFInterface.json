@@ -1,0 +1,22 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add"               : ["STORAGE"],
+            "target.components_add"             : ["SD"],
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-security"       : "WPA_WPA2",
+            "nsapi.default-wifi-ssid"           : "\"SSID\"",
+            "nsapi.default-wifi-password"       : "\"PASSWORD\""
+        }
+    }
+}

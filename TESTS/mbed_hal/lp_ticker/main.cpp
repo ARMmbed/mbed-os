@@ -85,7 +85,7 @@ void overflow_protect()
         return;
     }
 
-    while (lp_ticker_read() > ticks_now);
+    while (lp_ticker_read() >= ticks_now);
 }
 
 void ticker_event_handler_stub(const ticker_data_t *const ticker)

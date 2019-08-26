@@ -230,6 +230,13 @@ typedef enum {
     p30 = P0_1,
 
 
+    I2C_SCL2 = P0_27,
+    I2C_SDA2 = P0_26,
+    I2C_SCL7 = P1_30,
+    I2C_SDA7 = P1_29,
+    I2C_SCL  = I2C_SCL2,
+    I2C_SDA  = I2C_SDA2,
+
 
     // Not connected
     NC = (int)0xFFFFFFFF

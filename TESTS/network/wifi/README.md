@@ -62,15 +62,16 @@ Please refer to the following table for priorities of test cases. Priorities are
 | 9   | WIFI_CONNECT_PARAMS_CHANNEL             |                            | SHOULD   |
 | 10  | WIFI_CONNECT_PARAMS_CHANNEL_FAIL        |                            | SHOULD   |
 | 11  | WIFI_CONNECT                            |                            | MUST     |
-| 12  | WIFI_CONNECT_SECURE                     | With security type:        |          |
+| 12  | WIFI_CONNECT_NONBLOCK                   |                            | SHOULD   |
+| 13  | WIFI_CONNECT_SECURE                     | With security type:        |          |
 |     |                                         | NSAPI_SECURITY_WEP         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA         | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA2        | SHOULD   |
 |     |                                         | NSAPI_SECURITY_WPA_WPA2    | MUST     |
-| 13  | WIFI_CONNECT_SECURE_FAIL                |                            | MUST     |
-| 14  | WIFI_CONNECT_DISCONNECT_REPEAT          |                            | MUST     |
-| 15  | WIFI_SCAN_NULL                          |                            | SHOULD   |
-| 16  | WIFI_SCAN                               |                            | SHOULD   |
+| 14  | WIFI_CONNECT_SECURE_FAIL                |                            | MUST     |
+| 15  | WIFI_CONNECT_DISCONNECT_REPEAT          |                            | MUST     |
+| 16  | WIFI_SCAN_NULL                          |                            | SHOULD   |
+| 17  | WIFI_SCAN                               |                            | SHOULD   |
 
 Building test binaries
 ----------------------
@@ -372,7 +373,7 @@ Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for 
 2.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
 3.  `Call WiFiInterface::connect()`.
 4.  `disconnect()`.
-5.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, "")`.
+5.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, "")`.
 6.  `Call WiFiInterface::connect()`.
 7.  `disconnect()`.
 8.  Trash the memory storing SSID.
@@ -383,6 +384,33 @@ Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for 
 **Expected result:**
 
 `connect()` calls return `NSAPI_ERROR_OK`.
+
+### WIFI_CONNECT_NONBLOCK
+
+**Description:**
+
+Test `WiFiInterface::connect()` and `WiFiInterface::disconnect()` in non-blocking mode. It checks that driver can connect and disconnect in nonblocking mode. 
+
+**Preconditions:**
+
+1.  Test enviroment is set up as specified in the "Test Environment" chapter.
+
+**Test steps:**
+
+1.  Initialize the driver.
+2.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`.
+3.  `Call WiFiInterface::connect()`.
+4.  `Call WiFiInterface::set_blocking(false)`
+5.  `Call WiFiInterface::get_connection_status()`
+6.  `disconnect()`
+7.  `Call WiFiInterface::get_connection_status()`
+8.  `Call WiFiInterface::set_blocking(true)`
+
+**Expected result:**
+
+ In case of drivers which do not support asynchronous mode `set_blocking(false)` call returns `NSAPI_ERROR_UNSUPPORTED` and skips test case, otherwise:
+`connect()` call returns  `NSAPI_ERROR_OK`. To confirm connection `get_connection_status()` calls return `NSAPI_STATUS_GLOBAL_UP` or `NSAPI_STATUS_LOCAL_UP`.
+`disconnect()` call returns `NSAPI_ERROR_OK`. To confirm disconnection `get_connection_status()` calls return `NSAPI_STATUS_DISCONNECTED`.
 
 ### WIFI_CONNECT_SECURE
 

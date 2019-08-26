@@ -28,7 +28,7 @@ static Result ESG_Config(void)
         if (ESG_GetIntStatus() == DISABLE) {
             // Set the latch timing & output timing
             if ((ESG_SetLatchTiming(ESG_LATCH_TIMING_1) == SUCCESS) &&
-                (ESG_SetFintiming(Fintming) == SUCCESS)) {
+                    (ESG_SetFintiming(Fintming) == SUCCESS)) {
                 ret = SUCCESS;
             }
         }
@@ -67,7 +67,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
     if (!obj->trng_init) {
         error("TRNG is not Initialised");
-        return FAIL; // fail i.e. -1 
+        return FAIL; // fail i.e. -1
     }
 
     while (ESG_GetIntStatus() == DISABLE) {
@@ -76,7 +76,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     // Interrupt clearing
     ret = ESG_ClrInt();
     if (ret == ERROR) {
-        return FAIL; // fail i.e. -1 
+        return FAIL; // fail i.e. -1
     }
     // Get the calculation result
     ESG_GetResult((uint32_t*)random); //512-bit entropy

@@ -244,8 +244,6 @@ FunctionalState ESG_GetIntStatus(void)
   */
 void ESG_IPReset(void)
 {
-    uint32_t iprst3 = 0U;
-
     /* Disable write protection state of SRSTIPRST */
     TSB_SRST->PROTECT = SRST_PROTECT_DISABLE;
 

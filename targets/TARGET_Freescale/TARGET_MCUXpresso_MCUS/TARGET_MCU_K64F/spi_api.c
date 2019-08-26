@@ -23,6 +23,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "mbed_power_mgmt.h"
 #include "fsl_dspi.h"
 #include "peripheral_clock_defines.h"
 #include "dma_reqs.h"
@@ -369,6 +370,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     /* Start the transfer */
     if (spi_master_transfer_asynch(obj) != kStatus_Success) {
         obj->spi.status = kDSPI_Idle;
+    } else {
+        // Can't enter deep sleep as long as SPI transfer is active
+        sleep_manager_lock_deep_sleep();
     }
 }
 
@@ -428,11 +432,17 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
             }
             obj->spi.status = kDSPI_Idle;
 
+            // SPI transfer done, can enter deep sleep
+            sleep_manager_unlock_deep_sleep();
+
             return SPI_EVENT_COMPLETE;
         }
     } else {
         /* Interrupt implementation */
         obj->spi.status = kDSPI_Idle;
+
+        // SPI transfer done, can enter deep sleep
+        sleep_manager_unlock_deep_sleep();
 
         return SPI_EVENT_COMPLETE;
     }
@@ -462,6 +472,9 @@ void spi_abort_asynch(spi_t *obj)
     }
 
     obj->spi.status = kDSPI_Idle;
+
+    // SPI transfer done, can enter deep sleep
+    sleep_manager_unlock_deep_sleep();
 }
 
 uint8_t spi_active(spi_t *obj)
