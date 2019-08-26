@@ -33,10 +33,10 @@ extern "C" {
 
 cy_rslt_t cybsp_init(void)
 {
-	init_cycfg_system();
-
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
+    init_cycfg_system();
+    result = cybsp_register_sysclk_pm_callback();
 
 #ifndef __MBED__
     if (CY_RSLT_SUCCESS == result)
