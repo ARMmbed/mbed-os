@@ -154,21 +154,18 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     current_error_ctx.error_status = error_status;
     current_error_ctx.error_value = error_value;
     if (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
-        error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
-        error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
-        error_status == MBED_ERROR_HARDFAULT_EXCEPTION)
-    {
+            error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_HARDFAULT_EXCEPTION) {
 #if defined(__CORTEX_M)
-        mbed_fault_context_t *mfc = (mbed_fault_context_t*)error_value;
+        mbed_fault_context_t *mfc = (mbed_fault_context_t *)error_value;
         current_error_ctx.error_address = (uint32_t)mfc->PC_reg;
         current_error_ctx.thread_current_sp = (uint32_t)mfc->SP_reg;
         // Note that the RTX thread itself is same even under fault exception handlers.
 #else
 #warning Please implement non Cortex-M handler for those error cases.
 #endif
-    }
-    else
-    {
+    } else {
         current_error_ctx.error_address = (uint32_t)caller;
         current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
     }
