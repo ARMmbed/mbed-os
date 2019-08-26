@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_cy8ckit_062_wifi_bt.c
+* \file CY8CKIT-062-WIFI-BT/cybsp.c
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include "cybsp_cy8ckit_062_wifi_bt.h"
+#include "cybsp.h"
 #include "cyhal_utils.h"
 #include "cyhal_implementation.h"
 #include "cycfg.h"

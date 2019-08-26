@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file cybsp_cy8ckit_062_wifi_bt.h
+* \file CY8CKIT-062-BLE/cybsp.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CKIT-062-WIFI-BT pioneer kit.
+* CY8CKIT-062-BLE pioneer kit.
 *
 ********************************************************************************
 * \copyright
@@ -24,12 +24,11 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_bsp_cy8ckit_062_wifi_bt CY8CKIT-062-WIFI-BT
+* \addtogroup group_bsp_cy8ckit_062_ble CY8CKIT-062-BLE
 * \ingroup group_bsp
 * \{
-* The PSoC 6 WiFi-BT Pioneer Kit is a low-cost hardware platform
-* that enables design and debug of the PSoC 62 MCU (CY8C6247BZI-D54)
-* and the Murata LBEE5KL1DX Module (CYW4343W WiFi + Bluetooth Combo Chip).
+* The PSoC 6 BLE Pioneer Kit is a low-cost hardware platform
+* that enables design and debug of the PSoC 63 MCU (CY8C6347BZI-BLD53).
 *
 * <div class="category">Kit Features:</div>
 * <ul>
@@ -41,22 +40,19 @@
 *
 * <div class="category">Kit Contents:</div>
 * <ul>
-* <li>CY8CKIT-062-WIFI-BT evaluation board</li>
-* <li>TFT display shield with a 2.4" TFT display, light sensor, 6-axis motion sensor, and digital microphone</li>
+* <li>CY8CKIT-062-BLE evaluation board</li>
+* <li>E-Ink display shield with an ultra-low-power 2.7" E-ink display, thermistor, 6-axis motion sensor, and digital microphone</li>
 * <li>USB cable</li>
 * </ul>
 *
-* \defgroup group_bsp_cy8ckit_062_wifi_bt_macros Macros
-* \defgroup group_bsp_cy8ckit_062_wifi_bt_functions Functions
-* \defgroup group_bsp_cy8ckit_062_wifi_bt_enums Enumerated Types
+* \defgroup group_bsp_cy8ckit_062_ble_macros Macros
+* \defgroup group_bsp_cy8ckit_062_ble_functions Functions
+* \defgroup group_bsp_cy8ckit_062_ble_enums Enumerated Types
 */
 
 #pragma once
 
 #include "cybsp_api_core.h"
-#ifdef MBED
-#include "cybsp_api_wifi.h"
-#endif /* MBED */
 
 #if defined(__cplusplus)
 extern "C" {
@@ -67,7 +63,7 @@ extern "C" {
 // HAL HW configuration data
 extern cyhal_qspi_t cybsp_qspi;
 extern cyhal_uart_t cybsp_bt_uart;
-extern cyhal_uart_t cybsp_debug_uart;
+extern cyhal_uart_t cybsp_uart;
 extern cyhal_i2c_t cybsp_i2c;
 extern cyhal_rtc_t cybsp_rtc;
 
@@ -77,4 +73,4 @@ extern cyhal_rtc_t cybsp_rtc;
 }
 #endif
 
-/** \} group_bsp_cy8ckit_062_wifi_bt */
+/** \} group_bsp_cy8ckit_062_ble */
