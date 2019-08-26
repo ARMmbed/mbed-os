@@ -400,8 +400,19 @@ cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint
 cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
     uint8_t mem_addr_buf[2];
-    mem_addr_buf[0] = (uint8_t)(mem_addr >> 8);
-    mem_addr_buf[1] = (uint8_t)mem_addr;
+    if (mem_addr_size == 1)
+    {
+        mem_addr_buf[0] = (uint8_t)mem_addr;
+    }
+    else if (mem_addr_size == 2)
+    {
+        mem_addr_buf[0] = (uint8_t)(mem_addr >> 8);
+        mem_addr_buf[1] = (uint8_t)mem_addr;
+    }
+    else
+    {
+        return CYHAL_I2C_RSLT_ERR_INVALID_ADDRESS_SIZE;
+    }
 
     cy_rslt_t status = cyhal_i2c_master_write(obj, address, mem_addr_buf, mem_addr_size, timeout, false);
     
@@ -427,8 +438,19 @@ cy_rslt_t cyhal_i2c_master_mem_write(cyhal_i2c_t *obj, uint16_t address, uint16_
 cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t mem_addr, uint16_t mem_addr_size, uint8_t *data, uint16_t size, uint32_t timeout)
 {
     uint8_t mem_addr_buf[2];
-    mem_addr_buf[0] = (uint8_t)(mem_addr >> 8);
-    mem_addr_buf[1] = (uint8_t)mem_addr;
+    if (mem_addr_size == 1)
+    {
+        mem_addr_buf[0] = (uint8_t)mem_addr;
+    }
+    else if (mem_addr_size == 2)
+    {
+        mem_addr_buf[0] = (uint8_t)(mem_addr >> 8);
+        mem_addr_buf[1] = (uint8_t)mem_addr;
+    }
+    else
+    {
+        return CYHAL_I2C_RSLT_ERR_INVALID_ADDRESS_SIZE;
+    }
 
     cy_rslt_t status = cyhal_i2c_master_write(obj, address, mem_addr_buf, mem_addr_size, timeout, false);
     if (status == CY_RSLT_SUCCESS)
