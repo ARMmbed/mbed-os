@@ -19,8 +19,12 @@
 #define WHD_DHCP_SERVER_H
 
 #include "cy_result.h"
+#include "cy_syslib.h"
 #include "cynetwork_utils.h"
-#include "mbed.h"
+#include "UDPSocket.h"
+#include "netsocket/NetworkInterface.h"
+#include "netsocket/NetworkStack.h"
+#include "rtos.h"
 
 /* DHCP data structure */
 typedef struct {
