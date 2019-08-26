@@ -209,7 +209,7 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->msg_code = 333;
     nsdynmemlib_stub.returnCounter = 1;
 
-    if (-1 != coap_message_handler_coap_msg_process(handle, 0, buf, 61131, 22, ns_in6addr_any, NULL, 0, process_cb)) {
+    if (-1 != coap_message_handler_coap_msg_process(handle, 0, 61131, buf, 22, ns_in6addr_any, NULL, 0, process_cb)) {
         goto exit;
     }
 

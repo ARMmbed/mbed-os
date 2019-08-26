@@ -544,7 +544,6 @@ endif
 	/usr/share/cpputest/scripts/filterGcov.sh $(GCOV_OUTPUT) $(GCOV_ERROR) $(GCOV_REPORT) $(TEST_OUTPUT)
 	$(SILENCE)cat $(GCOV_REPORT)
 	$(SILENCE)mkdir -p gcov
-	$(SILENCE)mv *.gcov gcov
 	$(SILENCE)mv gcov_* gcov
 	@echo "See gcov directory for details"
 
