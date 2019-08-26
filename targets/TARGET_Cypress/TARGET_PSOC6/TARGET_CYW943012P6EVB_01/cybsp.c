@@ -39,32 +39,33 @@ cy_rslt_t cybsp_init(void)
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
 #ifndef __MBED__
-    /* Initialize User LEDs */
-    result |= cybsp_led_init(CYBSP_USER_LED1);
-    result |= cybsp_led_init(CYBSP_USER_LED2);
-    result |= cybsp_led_init(CYBSP_USER_LED3);
-    /* Initialize User Buttons */
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
+    if (CY_RSLT_SUCCESS == result)
+    {
+        /* Initialize User LEDs */
+        result |= cybsp_led_init(CYBSP_USER_LED1);
+        result |= cybsp_led_init(CYBSP_USER_LED2);
+        result |= cybsp_led_init(CYBSP_USER_LED3);
+        /* Initialize User Buttons */
+        result |= cybsp_btn_init(CYBSP_USER_BTN1);
 
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
+        CY_ASSERT(CY_RSLT_SUCCESS == result);
+
+        /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
+        if (CY_RSLT_SUCCESS == result)
+        {
+            result = cybsp_retarget_init();
+        }
+    }
 #endif
 
 #if defined(CYBSP_WIFI_CAPABLE)
     /* Initialize UDB SDIO interface. This must be done before any other HAL API attempts to allocate clocks or DMA
        instances. The UDB SDIO interface uses specific instances which are reserved as part of this call.
-       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init(). This is typically done
+       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically done
        when starting up WiFi. */
     if (CY_RSLT_SUCCESS == result)
     {
-        result = cybsp_sdio_init();
-    }
-#endif
-
-#if defined(CYBSP_RETARGET_ENABLED)
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
-    if (CY_RSLT_SUCCESS == result)
-    {
-        result = cybsp_retarget_init();
+        result = cybsp_wifi_sdio_init();
     }
 #endif
 

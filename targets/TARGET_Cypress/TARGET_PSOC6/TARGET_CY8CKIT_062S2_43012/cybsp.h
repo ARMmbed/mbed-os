@@ -55,9 +55,10 @@
 #pragma once
 
 #include "cybsp_api_core.h"
-#ifdef __MBED__
-#include "cybsp_api_wifi.h"
-#else 
+#if defined(CYBSP_WIFI_CAPABLE)
+#include "cybsp_wifi_sdio.h"
+#endif
+#ifndef __MBED__
 #include "cybsp_retarget.h"
 #include "cybsp_serial_flash.h"
 #endif /* __MBED__ */

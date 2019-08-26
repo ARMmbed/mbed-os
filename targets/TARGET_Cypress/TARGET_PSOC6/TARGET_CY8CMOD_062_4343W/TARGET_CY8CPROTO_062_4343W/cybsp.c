@@ -39,18 +39,29 @@ cy_rslt_t cybsp_init(void)
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
 #ifndef __MBED__
-    /* Initialize User LEDs */
-    result |= cybsp_led_init(CYBSP_USER_LED1);
-    /* Initialize User Buttons */
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
-#endif
-
-#if defined(CYBSP_RETARGET_ENABLED)
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
     if (CY_RSLT_SUCCESS == result)
     {
-        result = cybsp_retarget_init();
+        /* Initialize User LEDs */
+        result |= cybsp_led_init(CYBSP_USER_LED1);
+        /* Initialize User Buttons */
+        result |= cybsp_btn_init(CYBSP_USER_BTN1);
+        CY_ASSERT(CY_RSLT_SUCCESS == result);
+
+        /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
+        if (CY_RSLT_SUCCESS == result)
+        {
+            result = cybsp_retarget_init();
+        }
+    }
+#endif
+
+#if defined(CYBSP_WIFI_CAPABLE)
+    /* Initialize SDIO interface.
+       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically done
+       when starting up WiFi. */
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cybsp_wifi_sdio_init();
     }
 #endif
 

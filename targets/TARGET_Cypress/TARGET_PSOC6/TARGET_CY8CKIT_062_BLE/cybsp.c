@@ -38,24 +38,25 @@ cy_rslt_t cybsp_init(void)
 
     cy_rslt_t result = CY_RSLT_SUCCESS;
 
+
 #ifndef __MBED__
-    /* Initialize User LEDs */
-    result |= cybsp_led_init(CYBSP_USER_LED1);
-    result |= cybsp_led_init(CYBSP_USER_LED2);
-    result |= cybsp_led_init(CYBSP_USER_LED3);
-    result |= cybsp_led_init(CYBSP_USER_LED4);
-    result |= cybsp_led_init(CYBSP_USER_LED5);
-    /* Initialize User Buttons */
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
-
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
-#endif
-
-#if defined(CYBSP_RETARGET_ENABLED)
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
     if (CY_RSLT_SUCCESS == result)
     {
-        result = cybsp_retarget_init();
+        /* Initialize User LEDs */
+        result |= cybsp_led_init(CYBSP_USER_LED1);
+        result |= cybsp_led_init(CYBSP_USER_LED2);
+        result |= cybsp_led_init(CYBSP_USER_LED3);
+        result |= cybsp_led_init(CYBSP_USER_LED4);
+        result |= cybsp_led_init(CYBSP_USER_LED5);
+        /* Initialize User Buttons */
+        result |= cybsp_btn_init(CYBSP_USER_BTN1);
+        CY_ASSERT(CY_RSLT_SUCCESS == result);
+
+        /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
+        if (CY_RSLT_SUCCESS == result)
+        {
+            result = cybsp_retarget_init();
+        }
     }
 #endif
 

@@ -21,14 +21,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-#if defined(TARGET_WHD)
+#if defined(CYBSP_WIFI_CAPABLE)
 
-#include "cybsp_api_wifi.h"
+#include "cybsp_types.h"
+#include "cybsp_wifi.h"
 #include "cy_network_buffer.h"
 #include "cmsis_os2.h"
 #include "whd_types.h"
 #include "cyhal.h"
-#include "cyhal_implementation.h"
+#include "cybsp_wifi_sdio.h"
+#include "cycfg.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -239,21 +241,8 @@ static cy_rslt_t init_sdio_bus(void)
     return result;
 }
 
-cy_rslt_t cybsp_sdio_init(void)
+cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
 {
-    cy_rslt_t result = cyhal_sdio_init(&sdio_obj, CYBSP_WIFI_SDIO_CMD, CYBSP_WIFI_SDIO_CLK, CYBSP_WIFI_SDIO_D0, CYBSP_WIFI_SDIO_D1, CYBSP_WIFI_SDIO_D2, CYBSP_WIFI_SDIO_D3);
-    sdio_initialized = (result == CY_RSLT_SUCCESS);
-    return result;
-}
-
-cy_rslt_t cybsp_wifi_init(void)
-{
-    cy_rslt_t result = init_sdio_whd();
-    if(result != CY_RSLT_SUCCESS)
-    {
-        return result;
-    }
-
     whd_init_config_t whd_init_config;
     whd_init_config.thread_stack_size = (uint32_t) THREAD_STACK_SIZE;
     whd_init_config.thread_stack_start = (uint8_t *)malloc(THREAD_STACK_SIZE);
@@ -265,26 +254,21 @@ cy_rslt_t cybsp_wifi_init(void)
     {
         result = init_sdio_bus();
     }
-    else
-    {
-        result = CYBSP_RSLT_WIFI_INIT_FAILED;
-    }
-
-    if (result != CY_RSLT_SUCCESS)
-    {
-        deinit_sdio_whd();
-    }
-
     return result;
 }
 
-whd_driver_t* cybsp_get_wifi_driver(void)
+cy_rslt_t cybsp_wifi_init_secondary(whd_interface_t* interface, whd_mac_t* mac_address)
 {
-    return &whd_drv;
+    return whd_add_secondary_interface(whd_drv, mac_address, interface);
+}
+
+whd_driver_t cybsp_get_wifi_driver(void)
+{
+    return whd_drv;
 }
 
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* defined(TARGET_WHD) */
+#endif /* defined(CYBSP_WIFI_CAPABLE) */

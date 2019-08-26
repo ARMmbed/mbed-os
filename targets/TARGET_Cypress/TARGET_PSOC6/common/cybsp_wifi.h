@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_api_wifi.h
+* \file cybsp_wifi.h
 *
 * \brief
 * Basic abstraction layer for dealing with boards containing a Cypress MCU. This
@@ -25,19 +25,18 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_abstraction_board_wifi Board Wifi abstraction
-* \ingroup group_abstraction
+* \addtogroup group_bsp_wifi WiFi
 * \{
 * Basic abstraction layer for dealing with boards containing a Cypress MCU. This
 * API provides convenience methods for initializing and manipulating different
 * hardware found on the board.
 *
-* \defgroup group_abstraction_board_wifi_macros Macros
-* \defgroup group_abstraction_board_wifi_functions Functions
+* \defgroup group_bsp_wifi_macros Macros
+* \defgroup group_bsp_wifi_functions Functions
 */
 #pragma once
 
-#include "cybsp_api_core.h"
+#include "cy_result.h"
 #include "whd_wifi_api.h"
 
 #if defined(__cplusplus)
@@ -45,50 +44,50 @@ extern "C" {
 #endif
 
 /**
-* \addtogroup group_abstraction_board_wifi_macros
+* \addtogroup group_bsp_wifi_macros
 * \{
 */
-
-/** Indicates that the wifi driver is available and can be used. */
-#define CYBSP_WIFI_CAPABLE 1
 
 /** Initialization of the wifi driver failed. */
 #define CYBSP_RSLT_WIFI_INIT_FAILED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 4))
-/** SDIO enumeration failed. */
-#define CYBSP_RSLT_WIFI_SDIO_ENUM_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 5))
 
-/** \} group_abstraction_board_wifi_macros */
+/** \} group_bsp_board_macros */
 
 /**
-* \addtogroup group_abstraction_board_wifi_functions
+* \addtogroup group_bsp_wifi_functions
 * \{
 */
 
-/** Initializes the SDIO interface on the board. This only needs to be called if the
- * SDIO interface needs to be initialized before the general wifi interface. If not
- * called directly, it will automatically be called by cybsp_wifi_init().
- *
+/** Initializes the primary interface for the wifi driver on the board. This function does the following
+ * 1) Initializes the wifi driver.
+ * 2) Turns on the WIFI chip.
+ * 
+ * @param[out] interface Interface to be initialized 
  * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
  */
-cy_rslt_t cybsp_sdio_init(void);
+cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface);
 
-/** Initializes the wifi chip on the board.
- *
+/** This function initializes and adds a secondary interface to the wifi driver.
+ *  @note This function does not initialize the wifi driver or turn on the wifi chip.
+ * That is required to be done by the primary interface
+ * 
+ * @param[out] interface Interface to be initialized
+ * @param[in] mac_address Mac address for secondary interface
  * @return CY_RSLT_SUCCESS for successful initialization or error if initialization failed.
  */
-cy_rslt_t cybsp_wifi_init(void);
+cy_rslt_t cybsp_wifi_init_secondary(whd_interface_t* interface, whd_mac_t* mac_address);
 
 /** Gets the wifi driver instance initialized by the driver. This should only be called
- * after the interface is initialized by cybsp_wifi_init().
+ * after the interface is initialized by cybsp_wifi_init_primary().
  *
  * @return Wifi driver instance pointer.
  */
-whd_driver_t* cybsp_get_wifi_driver(void);
+whd_driver_t cybsp_get_wifi_driver(void);
 
-/** \} group_abstraction_board_wifi_functions */
+/** \} group_bsp_wifi_functions */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-/** \} group_abstraction_board_wifi */
+/** \} group_bsp_wifi */
