@@ -71,6 +71,13 @@ typedef struct pwmout_s pwmout_t;
 /** Initialize the pwm out peripheral and configure the pin
  *
  * @param obj The pwmout object to initialize
+ * @param pinmap pointer to strucure which holds static pinmap
+ */
+void pwmout_init_direct(pwmout_t* obj, const PinMap *pinmap);
+
+/** Initialize the pwm out peripheral and configure the pin
+ *
+ * @param obj The pwmout object to initialize
  * @param pin The pwmout pin to initialize
  */
 void pwmout_init(pwmout_t *obj, PinName pin);
