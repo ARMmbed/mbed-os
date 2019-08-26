@@ -26,6 +26,10 @@
             "options": [0, 1],
             "value": 0
         },
+        "rst-assert-time-us": {
+            "help": "Assert time of reset for the modem in us.",
+            "value": 2000
+        },
         "debug": {
             "help": "Enable debug logs. [true/false]",
             "value": false
