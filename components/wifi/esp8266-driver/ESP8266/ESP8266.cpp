@@ -450,9 +450,9 @@ int8_t ESP8266::rssi()
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
     if (!(_parser.send("AT+CWLAP=\"\",\"%s\",", bssid)
-          && _parser.recv("OK\n"))) {
+            && _parser.recv("OK\n"))) {
         rssi = 0;
-    } else if(_scan_r.cnt == 1) {
+    } else if (_scan_r.cnt == 1) {
         //All OK so read and return rssi
         rssi = ap[0].get_rssi();
     }
