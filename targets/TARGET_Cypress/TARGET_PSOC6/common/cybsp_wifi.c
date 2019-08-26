@@ -26,7 +26,7 @@
 #include "cybsp_types.h"
 #include "cybsp_wifi.h"
 #include "cy_network_buffer.h"
-#include "cmsis_os2.h"
+#include "cyabs_rtos.h"
 #include "whd_types.h"
 #include "cyhal.h"
 #include "cybsp_wifi_sdio.h"
@@ -37,11 +37,9 @@ extern "C" {
 #endif
 
 #define THREAD_STACK_SIZE   	    5120
-#define THREAD_PRIORITY   	        osPriorityHigh
+#define THREAD_PRIORITY   	        CY_RTOS_PRIORITY_HIGH
 #define COUNTRY                     WHD_COUNTRY_AUSTRALIA
 #define DEFAULT_OOB_PIN		        0
-#define WLAN_INTR_PRIORITY	        1
-#define WLAN_POWER_UP_DELAY_MS      250
 
 #define SDIO_ENUMERATION_TRIES      500
 #define SDIO_RETRY_DELAY_MS         1
@@ -52,63 +50,39 @@ extern "C" {
 #endif/* !defined(CY_WIFI_OOB_INTR_PRIORITY) */
 
 /* Determine whether to use the SDIO oob interrupt.
- * When CY_SDIO_BUS_NEEDS_OOB_INTR is defined,
- * use its value to determine enable status; otherwise,
- * default to enable.  Use CY_WIFI_HOST_WAKE_SW_FORCE
- * to force the enable status.
+ * Use CY_WIFI_HOST_WAKE_SW_FORCE to force the enable status.
  */
 #if !defined(CY_WIFI_HOST_WAKE_SW_FORCE)
-
-#if !defined(CY_SDIO_BUS_NEEDS_OOB_INTR)
-#define CY_SDIO_BUS_USE_OOB_INTR (1u)
+    #define CY_SDIO_BUS_USE_OOB_INTR (1u)
 #else
-#define CY_SDIO_BUS_USE_OOB_INTR CY_SDIO_BUS_NEEDS_OOB_INTR
-#endif /* !defined(CY_SDIO_BUS_NEEDS_OOB_INTR) */
-
-#else
-
-#define CY_SDIO_BUS_USE_OOB_INTR CY_WIFI_HOST_WAKE_SW_FORCE
-
+    #define CY_SDIO_BUS_USE_OOB_INTR CY_WIFI_HOST_WAKE_SW_FORCE
 #endif /* defined(CY_WIFI_HOST_WAKE_SW_FORCE) */
 
-/* Define the host-wake configuration.
- * Choose the configurator settings over the HAL.
- */
 #if (CY_SDIO_BUS_USE_OOB_INTR != 0)
-
-/* Prefer configurator declarations over HAL */
-
-#if defined(CYCFG_WIFI_HOST_WAKE_GPIO)
-#define CY_WIFI_HOST_WAKE_GPIO CYCFG_WIFI_HOST_WAKE_GPIO
+    /* Setup configuration based on configurator or BSP, where configurator has precedence. */
+    #if defined(CYCFG_WIFI_HOST_WAKE_ENABLED)
+        #define CY_WIFI_HOST_WAKE_GPIO CYCFG_WIFI_HOST_WAKE_GPIO
+        #define CY_WIFI_HOST_WAKE_IRQ_EVENT CYCFG_WIFI_HOST_WAKE_IRQ_EVENT
+    #else
+        /* Setup host-wake pin */
+        #if defined(CYBSP_WIFI_HOST_WAKE)
+            #define CY_WIFI_HOST_WAKE_GPIO CYBSP_WIFI_HOST_WAKE
+        #else
+            #error "CYBSP_WIFI_HOST_WAKE must be defined"
+        #endif
+        /* Setup host-wake irq */
+        #if defined(CYBSP_WIFI_HOST_WAKE_IRQ_EVENT)
+            #define CY_WIFI_HOST_WAKE_IRQ_EVENT CYBSP_WIFI_HOST_WAKE_IRQ_EVENT
+        #else
+            #error "CYBSP_WIFI_HOST_WAKE_IRQ_EVENT must be defined"
+        #endif
+    #endif
 #else
-#define CY_WIFI_HOST_WAKE_GPIO CYBSP_WIFI_HOST_WAKE
-#endif
-
-#if defined(CYCFG_WIFI_HOST_WAKE_GPIO_DM)
-#define CY_WIFI_HOST_WAKE_GPIO_DM CYCFG_WIFI_HOST_WAKE_GPIO_DM
-#else
-#define CY_WIFI_HOST_WAKE_GPIO_DM CYBSP_WIFI_HOST_WAKE_GPIO_DM
-#endif
-
-#if defined(CYCFG_WIFI_HOST_WAKE_IRQ_EVENT)
-#define CY_WIFI_HOST_WAKE_IRQ_EVENT CYCFG_WIFI_HOST_WAKE_IRQ_EVENT
-#else
-#define CY_WIFI_HOST_WAKE_IRQ_EVENT CYBSP_WIFI_HOST_WAKE_IRQ_EVENT
-#endif
-
-#else
-
-/* Dummy macro declarations to appease compiler */
-#define CY_WIFI_HOST_WAKE_GPIO 0
-#define CY_WIFI_HOST_WAKE_GPIO_DM 0
-#define CY_WIFI_HOST_WAKE_IRQ_EVENT 0
-
+    #define CY_WIFI_HOST_WAKE_GPIO CYHAL_NC_PIN_VALUE
+    #define CY_WIFI_HOST_WAKE_IRQ_EVENT 0
 #endif /* (CY_SDIO_BUS_USE_OOB_INTR != 0) */
 
-whd_driver_t whd_drv;
-bool sdio_initialized = false;
-cyhal_sdio_t sdio_obj;
-
+static whd_driver_t whd_drv;
 static whd_buffer_funcs_t buffer_ops =
 {
     .whd_host_buffer_get = cy_host_buffer_get,
@@ -142,7 +116,6 @@ static cy_rslt_t sdio_try_send_cmd(const cyhal_sdio_t *sdio_object, cyhal_transf
         loop_count++;
     }
     while(result != CY_RSLT_SUCCESS && loop_count <= SDIO_BUS_LEVEL_MAX_RETRIES);
-
     return result;
 }
 
@@ -179,42 +152,10 @@ static cy_rslt_t cybsp_sdio_enumerate(const cyhal_sdio_t *sdio_object)
     return result;
 }
 
-static cy_rslt_t init_sdio_whd(void)
-{
-    /* WiFi into reset */
-    cy_rslt_t result = cyhal_gpio_init(CYBSP_WIFI_WL_REG_ON, CYHAL_GPIO_DIR_OUTPUT, CY_GPIO_DM_PULLUP, 0);
-
-    if(result == CY_RSLT_SUCCESS)
-    {
-        /* Init SDIO Host */
-        if (!sdio_initialized)
-        {
-            result = cybsp_sdio_init();
-        }
-        if(result == CY_RSLT_SUCCESS)
-        {
-            /* WiFi out of reset */
-            cyhal_gpio_write(CYBSP_WIFI_WL_REG_ON, true);
-            Cy_SysLib_Delay(WLAN_POWER_UP_DELAY_MS);
-        }
-        else
-        {
-            cyhal_gpio_free(CYBSP_WIFI_WL_REG_ON);
-        }
-    }
-    return result;
-}
-
-static void deinit_sdio_whd(void)
-{
-    cyhal_sdio_free(&sdio_obj);
-    cyhal_gpio_free(CYBSP_WIFI_WL_REG_ON);
-    sdio_initialized = false;
-}
-
 static cy_rslt_t init_sdio_bus(void)
 {
-    cy_rslt_t result = cybsp_sdio_enumerate(&sdio_obj);
+    cyhal_sdio_t* sdio_p = cybsp_get_wifi_sdio_obj();
+    cy_rslt_t result = cybsp_sdio_enumerate(sdio_p);
     if(result == CY_RSLT_SUCCESS)
     {
         whd_sdio_config_t whd_sdio_config;
@@ -231,12 +172,12 @@ static cy_rslt_t init_sdio_bus(void)
         whd_sdio_config.sdio_1bit_mode = WHD_FALSE;
         whd_sdio_config.high_speed_sdio_clock = WHD_FALSE;
         whd_sdio_config.oob_config = oob_config;
-        whd_bus_sdio_attach(whd_drv, &whd_sdio_config, &sdio_obj);
+        whd_bus_sdio_attach(whd_drv, &whd_sdio_config, sdio_p);
 
         /* Increase frequency to 25 MHz for better performance */
         config.frequencyhal_hz = 25000000;
         config.block_size = 0;
-        cyhal_sdio_configure(&sdio_obj, &config);
+        cyhal_sdio_configure(sdio_p, &config);
     }
     return result;
 }
@@ -244,15 +185,19 @@ static cy_rslt_t init_sdio_bus(void)
 cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
 {
     whd_init_config_t whd_init_config;
-    whd_init_config.thread_stack_size = (uint32_t) THREAD_STACK_SIZE;
+    whd_init_config.thread_stack_size = (uint32_t)THREAD_STACK_SIZE;
     whd_init_config.thread_stack_start = (uint8_t *)malloc(THREAD_STACK_SIZE);
-    whd_init_config.thread_priority = (uint32_t) THREAD_PRIORITY;
+    whd_init_config.thread_priority =  (uint32_t)THREAD_PRIORITY;
     whd_init_config.country = COUNTRY;
 
-    uint32_t ret = whd_init(&whd_drv, &whd_init_config, &resource_ops, &buffer_ops, &netif_ops);
-    if(ret == WHD_SUCCESS)
+    cy_rslt_t result = whd_init(&whd_drv, &whd_init_config, &resource_ops, &buffer_ops, &netif_ops);
+    if(result == CY_RSLT_SUCCESS)
     {
         result = init_sdio_bus();
+        if(result == CY_RSLT_SUCCESS)
+        {
+            result = whd_wifi_on(whd_drv, interface);
+        }
     }
     return result;
 }
