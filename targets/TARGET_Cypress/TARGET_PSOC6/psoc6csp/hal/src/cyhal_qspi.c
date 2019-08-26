@@ -598,8 +598,8 @@ cy_rslt_t cyhal_qspi_init(
                         result = CYHAL_QSPI_RSLT_ERR_PIN;
                     }
                 }
-                break;
 #endif
+                break;
             case CY_SMIF_DATA_SEL1:
                 if (max_width >= CYHAL_QSPI_CFG_BUS_DUAL)
                 {
