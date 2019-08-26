@@ -344,6 +344,9 @@ protected:
     bool             _tx_enabled;
     const PinName    _tx_pin;
     const PinName    _rx_pin;
+    Flow             _flow_type;
+    PinName          _flow1;
+    PinName          _flow2;
 #endif
 };
 

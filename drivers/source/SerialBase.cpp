@@ -30,7 +30,15 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     _rx_callback(NULL), _tx_asynch_set(false),
     _rx_asynch_set(false),
 #endif
-    _serial(), _baud(baud), _rx_enabled(true), _tx_enabled(true), _tx_pin(tx), _rx_pin(rx)
+    _serial(), 
+    _baud(baud), 
+    _rx_enabled(true), 
+    _tx_enabled(true), 
+    _tx_pin(tx), 
+    _rx_pin(rx),
+    _flow_type(Disabled),
+    _flow1(NC),
+    _flow2(NC)
 {
     // No lock needed in the constructor
 
@@ -121,6 +129,7 @@ int SerialBase::_base_putc(int c)
 void SerialBase::_init()
 {
     serial_init(&_serial, _tx_pin, _rx_pin);
+    set_flow_control(_flow_type, _flow1, _flow2);
     serial_baud(&_serial, _baud);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
