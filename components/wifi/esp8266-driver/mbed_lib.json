@@ -67,6 +67,15 @@
         "NUCLEO_F411RE": {
             "tx": "D8",
             "rx": "D2"
+        },
+        "NUMAKER_PFM_M2351_CM": {
+            "tx"                    : "PD_1",
+            "rx"                    : "PD_0",
+            "rst"                   : "PD_7",
+            "rts"                   : "PD_3",
+            "cts"                   : "PD_2",
+            "rst-pin-polarity"      : 1,
+            "rst-assert-time-us"    : 3000
         }
     }
 }
