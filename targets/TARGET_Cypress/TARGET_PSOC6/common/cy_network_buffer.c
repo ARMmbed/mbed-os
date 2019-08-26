@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_network_buffer.h
+* \file cy_network_buffer.c
 *
 * \brief
 * Basic set of APIs for dealing with network packet buffers. This is used by WHD

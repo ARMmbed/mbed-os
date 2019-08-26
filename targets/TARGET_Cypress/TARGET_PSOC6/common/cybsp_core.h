@@ -47,17 +47,17 @@ extern "C" {
 #endif
 
 /**
-* \addtogroup group_abstraction_board_macros
+* \addtogroup group_bsp_core_macros
 * \{
 */
 
 /** Failed to configure sysclk power management callback */
 #define CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK  (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 0))
 
-/** \} group_abstraction_board_macros */
+/** \} group_bsp_core_macros */
 
 /**
-* \addtogroup group_abstraction_board_functions
+* \addtogroup group_bsp_core_functions
 * \{
 */
 
@@ -140,10 +140,10 @@ void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_g
  */
 cy_rslt_t cybsp_register_sysclk_pm_callback(void);
 
-/** \} group_abstraction_board_functions */
+/** \} group_bsp_core_functions */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-/** \} group_abstraction_board */
+/** \} group_bsp_core */

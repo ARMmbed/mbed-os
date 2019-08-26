@@ -24,12 +24,11 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_abstraction_buffer Buffer management abstraction
-* \ingroup group_abstraction
+* \addtogroup group_bsp_network_buffer Buffer management
 * \{
 * Basic set of APIs for dealing with network packet buffers
 *
-* \defgroup group_abstraction_buffer_functions Functions
+* \defgroup group_bsp_network_buffer_functions Functions
 */
 
 #pragma once
@@ -48,7 +47,7 @@ extern "C" {
 
 
 /**
-* \addtogroup group_abstraction_buffer_functions
+* \addtogroup group_bsp_network_buffer_functions
 * \{
 */
 
@@ -171,7 +170,7 @@ whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_rem
  */
 void cy_network_process_ethernet_data(whd_interface_t interface, whd_buffer_t buffer);
 
-/** \} group_abstraction_buffer_functions */
+/** \} group_bsp_network_buffer_functions */
 
 #ifdef __cplusplus
 }
@@ -179,4 +178,4 @@ void cy_network_process_ethernet_data(whd_interface_t interface, whd_buffer_t bu
 
 #endif /* defined(TARGET_WHD) */
 
-/** \} group_abstraction_buffer */
+/** \} group_bsp_network_buffer */

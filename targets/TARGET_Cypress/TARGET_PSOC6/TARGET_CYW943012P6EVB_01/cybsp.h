@@ -23,33 +23,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_bsp_cyw943012p6evb_01 CYW943012P6EVB-01
-* \ingroup group_bsp
-* \{
-* The PSoC 6 CYW943012P6EVB-01 board is a low-cost hardware platform that
-* enables design and debug of the PSoC 62 MCU (CY8C6247BZI-D54) and the 
-* Murata LBEE59B1LV Module (CYW43012 WiFi + Bluetooth Combo Chip).
-*
-* <div class="category">Kit Features:</div>
-* <ul>
-* <li>BLE v5.0</li>
-* <li>Serial memory interface</li>
-* <li>PDM-PCM digital microphone interface</li>
-* <li>Industry-leading CapSense</li>
-* </ul>
-*
-* <div class="category">Kit Contents:</div>
-* <ul>
-* <li>CYW943012P6EVB-01 evaluation board</li>
-* <li>USB cable</li>
-* </ul>
-*
-* \defgroup group_bsp_cyw943012p6evb_01_macros Macros
-* \defgroup group_bsp_cyw943012p6evb_01_functions Functions
-* \defgroup group_bsp_cyw943012p6evb_01_enums Enumerated Types
-*/
-
 #pragma once
 
 #include "cybsp_types.h"
@@ -66,11 +39,6 @@
 extern "C" {
 #endif
 
-/** \cond INTERNAL */
-/** \endcond */
-
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cyw943012p6evb_01 */
