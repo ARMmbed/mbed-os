@@ -598,8 +598,6 @@ int i2c_stop(i2c_t *obj)
         return 0;
     }
 #endif
-    // Disable reload mode
-    handle->Instance->CR2 &= (uint32_t)~I2C_CR2_RELOAD;
 
     // Ensure the transmission is started before sending a stop
     if ((handle->Instance->CR2 & (uint32_t)I2C_CR2_RD_WRN) == 0) {
@@ -612,7 +610,7 @@ int i2c_stop(i2c_t *obj)
     }
 
     // Generate the STOP condition
-    handle->Instance->CR2 |= I2C_CR2_STOP;
+    handle->Instance->CR2 = I2C_CR2_STOP;
 
     timeout = FLAG_TIMEOUT;
     while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_STOPF)) {
@@ -665,9 +663,16 @@ int i2c_byte_read(i2c_t *obj, int last)
         }
     }
 
-    /* Enable reload mode as we don't know how many bytes will be sent */
-    /* and set transfer size to 1 */
-    tmpreg |= I2C_CR2_RELOAD | (I2C_CR2_NBYTES & (1 << 16));
+    if (last) {
+        /* Disable Address Acknowledge */
+        tmpreg = tmpreg & (~I2C_CR2_RELOAD);
+        tmpreg |= I2C_CR2_NACK | (I2C_CR2_NBYTES & (1 << 16));
+    } else {
+        /* Enable reload mode as we don't know how many bytes will be sent */
+        /* and set transfer size to 1 */
+        tmpreg |= I2C_CR2_RELOAD | (I2C_CR2_NBYTES & (1 << 16));
+    }
+
     /* Set the prepared configuration */
     handle->Instance->CR2 = tmpreg;
 
@@ -680,11 +685,6 @@ int i2c_byte_read(i2c_t *obj, int last)
 
     /* Then Get Byte */
     data = handle->Instance->RXDR;
-
-    if (last) {
-        /* Disable Address Acknowledge */
-        handle->Instance->CR2 |= I2C_CR2_NACK;
-    }
 
     return data;
 }
