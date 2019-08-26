@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file cybsp_cy8cproto_062_4343w.c
+* \file CYW943012P6EVB-01/cybsp.c
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CPROTO-062-4343W prototyping kit.
+* CYW943012P6EVB-01 kit.
 *
 ********************************************************************************
 * \copyright
@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include "cybsp_cy8cproto_062_4343w.h"
+#include "cybsp.h"
 #include "cyhal_implementation.h"
 #include "cycfg.h"
 
@@ -41,9 +41,23 @@ cy_rslt_t cybsp_init(void)
 #ifndef __MBED__
     /* Initialize User LEDs */
     result |= cybsp_led_init(CYBSP_USER_LED1);
+    result |= cybsp_led_init(CYBSP_USER_LED2);
+    result |= cybsp_led_init(CYBSP_USER_LED3);
     /* Initialize User Buttons */
     result |= cybsp_btn_init(CYBSP_USER_BTN1);
+
     CY_ASSERT(CY_RSLT_SUCCESS == result);
+#endif
+
+#if defined(CYBSP_WIFI_CAPABLE)
+    /* Initialize UDB SDIO interface. This must be done before any other HAL API attempts to allocate clocks or DMA
+       instances. The UDB SDIO interface uses specific instances which are reserved as part of this call.
+       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init(). This is typically done
+       when starting up WiFi. */
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cybsp_sdio_init();
+    }
 #endif
 
 #if defined(CYBSP_RETARGET_ENABLED)

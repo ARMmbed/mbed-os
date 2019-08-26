@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_cy8ckit_062_ble.c
+* \file CY8CKIT-062-BLE/cybsp.c
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include "cybsp_cy8ckit_062_ble.h"
+#include "cybsp.h"
 #include "cyhal_implementation.h"
 #include "cycfg.h"
 

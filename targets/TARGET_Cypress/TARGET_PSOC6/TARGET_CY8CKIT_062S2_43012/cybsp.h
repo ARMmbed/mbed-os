@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file CY8CKIT-062S2-43012/cybsp_cy8ckit_062s2_43012.h
+* \file CY8CKIT-062S2-43012/cybsp.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress

@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file CY8CKIT-062S2-43012/cybsp_cy8ckit_062s2_43012.c
+* \file CYW943012P6EVB-01/cybsp.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CKIT-062S2-43012 pioneer kit.
+* CYW943012P6EVB-01 kit.
 *
 ********************************************************************************
 * \copyright
@@ -23,45 +23,50 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdlib.h>
-#include "cybsp_cy8ckit_062s2_43012.h"
-#include "cyhal_utils.h"
-#include "cyhal_implementation.h"
-#include "cycfg.h"
+/**
+* \addtogroup group_bsp_cyw943012p6evb_01 CYW943012P6EVB-01
+* \ingroup group_bsp
+* \{
+* The PSoC 6 CYW943012P6EVB-01 board is a low-cost hardware platform that
+* enables design and debug of the PSoC 62 MCU (CY8C6247BZI-D54) and the 
+* Murata LBEE59B1LV Module (CYW43012 WiFi + Bluetooth Combo Chip).
+*
+* <div class="category">Kit Features:</div>
+* <ul>
+* <li>BLE v5.0</li>
+* <li>Serial memory interface</li>
+* <li>PDM-PCM digital microphone interface</li>
+* <li>Industry-leading CapSense</li>
+* </ul>
+*
+* <div class="category">Kit Contents:</div>
+* <ul>
+* <li>CYW943012P6EVB-01 evaluation board</li>
+* <li>USB cable</li>
+* </ul>
+*
+* \defgroup group_bsp_cyw943012p6evb_01_macros Macros
+* \defgroup group_bsp_cyw943012p6evb_01_functions Functions
+* \defgroup group_bsp_cyw943012p6evb_01_enums Enumerated Types
+*/
+
+#pragma once
+
+#ifdef MBED
+#include "cybsp_api_wifi.h"
+#else
+#include "cybsp_api_core.h"
+#endif /* MBED */
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-cy_rslt_t cybsp_init(void)
-{
-    cy_rslt_t result = CY_RSLT_SUCCESS;
-
-    init_cycfg_system();
-
-#ifndef __MBED__
-    /* Initialize User LEDs */
-    result |= cybsp_led_init(CYBSP_USER_LED1);
-    result |= cybsp_led_init(CYBSP_USER_LED2);
-    result |= cybsp_led_init(CYBSP_USER_LED3);
-    result |= cybsp_led_init(CYBSP_USER_LED4);
-    result |= cybsp_led_init(CYBSP_USER_LED5);
-    /* Initialize User Buttons */
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
-    result |= cybsp_btn_init(CYBSP_USER_BTN2);
-
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
-
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
-    if (CY_RSLT_SUCCESS == result)
-    {
-        result = cybsp_retarget_init();
-    }
-#endif
-
-    return result;
-}
+/** \cond INTERNAL */
+/** \endcond */
 
 #if defined(__cplusplus)
 }
 #endif
+
+/** \} group_bsp_cyw943012p6evb_01 */

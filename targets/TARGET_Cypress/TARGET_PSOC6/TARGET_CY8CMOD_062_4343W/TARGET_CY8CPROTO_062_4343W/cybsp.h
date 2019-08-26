@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_cy8cproto_062_4343w.h
+* \file CY8CPROTO-062-4343W/cybsp.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
