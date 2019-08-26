@@ -69,6 +69,12 @@ public:
 
     /** Create an AnalogIn, connected to the specified pin
      *
+     * @param pinmap reference to strucure which holds static pinmap.
+     */
+    AnalogIn(const PinMap &pinmap);
+
+    /** Create an AnalogIn, connected to the specified pin
+     *
      * @param pin AnalogIn pin to connect to
      */
     AnalogIn(PinName pin);
@@ -135,4 +141,3 @@ protected:
 #endif
 
 #endif
-
