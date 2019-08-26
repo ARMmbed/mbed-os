@@ -1,5 +1,5 @@
-/* WHD SoftAP implementation of SoftAPInterface
- * Copyright (c) 2017-2019 ARM Limited
+/*
+ * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,14 +70,15 @@ public:
      *  @param pass                 Security passphrase for connection to SoftAP
      *  @param security             Type of encryption for connection
      *  @param channel              Channel for SoftAP
-     *  @param start_dhcp_server    start dhcp server for connection
-     *  @param[in]          Optional Custom IE
+     *  @param start_dhcp_server    Start dhcp server for connection
+     *  @param whd_custom_ie        Optional Custom IE
+     *  @param ap_sta_concur        Enable STA+AP concurrency mode
      *
      *  @return          0 on success, or error code on failure
      *                  see @a nsapi_error
      */
     int start(const char *ssid, const char *pass, nsapi_security_t security, uint8_t channel,
-              bool start_dhcp_server = true, const whd_custom_ie_info_t *ie_info = NULL);
+              bool start_dhcp_server = true, const whd_custom_ie_info_t *ie_info = NULL, bool ap_sta_concur = false);
 
     /**
      * Remove Wi-Fi custom IE

@@ -27,34 +27,35 @@
 #include "mbed_shared_queues.h"
 #include "whd_wlioctl.h"
 #include "whd_buffer_api.h"
-#include "cybsp_api_wifi.h"
+#include "cybsp_wifi.h"
 #include "emac_eapol.h"
 #include "cy_result.h"
+
+#define NULL_MAC(a)  ( ( ( ( (unsigned char *)a )[0] ) == 0 ) && \
+                       ( ( ( (unsigned char *)a )[1] ) == 0 ) && \
+                       ( ( ( (unsigned char *)a )[2] ) == 0 ) && \
+                       ( ( ( (unsigned char *)a )[3] ) == 0 ) && \
+                       ( ( ( (unsigned char *)a )[4] ) == 0 ) && \
+                       ( ( ( (unsigned char *)a )[5] ) == 0 ) )
 
 extern "C"
 {
     eapol_packet_handler_t emac_eapol_packet_handler = NULL;
+    void whd_emac_wifi_link_state_changed(whd_interface_t ifp, whd_bool_t state_up);
 } // extern "C"
 
-WHD_EMAC::WHD_EMAC(whd_interface_role_t role)
+WHD_EMAC::WHD_EMAC(whd_interface_role_t role, const uint8_t *mac_addr)
     : interface_type(role)
 {
+    if (mac_addr) {
+        set_hwaddr(mac_addr);
+    }
 }
 
-WHD_EMAC::WHD_EMAC()
-    : interface_type(WHD_STA_ROLE)
+WHD_EMAC &WHD_EMAC::get_instance(whd_interface_role_t role, const uint8_t *mac_addr)
 {
-}
-
-WHD_EMAC &WHD_EMAC::get_instance()
-{
-    return get_instance(WHD_STA_ROLE);
-}
-
-WHD_EMAC &WHD_EMAC::get_instance(whd_interface_role_t role)
-{
-    static WHD_EMAC emac_sta(WHD_STA_ROLE);
-    static WHD_EMAC emac_ap(WHD_AP_ROLE);
+    static WHD_EMAC emac_sta(WHD_STA_ROLE, mac_addr);
+    static WHD_EMAC emac_ap(WHD_AP_ROLE, mac_addr);
     return role == WHD_AP_ROLE ? emac_ap : emac_sta;
 }
 
@@ -96,16 +97,30 @@ void WHD_EMAC::power_down()
 bool WHD_EMAC::power_up()
 {
     if (!powered_up) {
-        if (CY_RSLT_SUCCESS != cybsp_wifi_init()) {
-            return false;
+        cy_rslt_t res = CY_RSLT_SUCCESS;
+        if (ap_sta_concur && interface_type == WHD_AP_ROLE) {
+            WHD_EMAC &emac_prime = WHD_EMAC::get_instance(WHD_STA_ROLE);
+            if (NULL_MAC(unicast_addr.octet)) {
+                emac_prime.get_hwaddr(unicast_addr.octet);
+                // Generated mac will set locally administered bit 1 of first byte
+                unicast_addr.octet[0] |= (1 << 1);
+            }
+            // Note: This assumes that the primary interface initializes the
+            // wifi driver and turns on the wifi chip.
+            res = cybsp_wifi_init_secondary(&ifp /* Out */, &unicast_addr);
+        } else {
+            res = cybsp_wifi_init_primary(&ifp /* OUT */);
         }
-        drvp = *(cybsp_get_wifi_driver());
-        if (WHD_SUCCESS != whd_wifi_on(drvp, &ifp /* OUT */)) {
+
+        if (CY_RSLT_SUCCESS == res) {
+            drvp = cybsp_get_wifi_driver();
+            powered_up = true;
+            ifp->whd_link_update_callback = whd_emac_wifi_link_state_changed;
+            if (link_state && emac_link_state_cb) {
+                emac_link_state_cb(link_state);
+            }
+        } else {
             return false;
-        }
-        powered_up = true;
-        if (link_state && emac_link_state_cb) {
-            emac_link_state_cb(link_state);
         }
     }
     return true;
@@ -113,16 +128,20 @@ bool WHD_EMAC::power_up()
 
 bool WHD_EMAC::get_hwaddr(uint8_t *addr) const
 {
-    whd_mac_t mac;
-    whd_result_t res = whd_wifi_get_mac_address(ifp, &mac);
-    MBED_ASSERT(res == WHD_SUCCESS);
-    memcpy(addr, mac.octet, sizeof(mac.octet));
+    if (!NULL_MAC(unicast_addr.octet)) {
+        memcpy(addr, unicast_addr.octet, sizeof(unicast_addr.octet));
+    } else {
+        whd_mac_t mac;
+        whd_result_t res = whd_wifi_get_mac_address(ifp, &mac);
+        MBED_ASSERT(res == WHD_SUCCESS);
+        memcpy(addr, mac.octet, sizeof(mac.octet));
+    }
     return true;
 }
 
 void WHD_EMAC::set_hwaddr(const uint8_t *addr)
 {
-    /* No-op at this stage */
+    memcpy(unicast_addr.octet, addr, sizeof(unicast_addr.octet));
 }
 
 uint8_t WHD_EMAC::get_hwaddr_size() const
@@ -175,7 +194,16 @@ bool WHD_EMAC::link_out(emac_mem_buf_t *buf)
 
 void WHD_EMAC::get_ifname(char *name, uint8_t size) const
 {
-    memcpy(name, "whd", size);
+    switch (interface_type) {
+        case WHD_STA_ROLE:
+            memcpy(name, "st", size);
+            break;
+        case WHD_AP_ROLE:
+            memcpy(name, "ap", size);
+            break;
+        default:
+            memcpy(name, "wh", size);
+    }
 }
 
 void WHD_EMAC::set_activity_cb(mbed::Callback<void(bool)> cb)
@@ -252,7 +280,7 @@ extern "C"
         }
     }
 
-    void whd_emac_wifi_link_state_changed(bool state_up, whd_interface_t ifp)
+    void whd_emac_wifi_link_state_changed(whd_interface_t ifp, whd_bool_t state_up)
     {
         WHD_EMAC &emac = WHD_EMAC::get_instance(ifp->role);
 

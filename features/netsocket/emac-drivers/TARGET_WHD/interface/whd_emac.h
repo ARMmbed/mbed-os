@@ -28,12 +28,9 @@
 
 class WHD_EMAC : public EMAC {
 public:
-    WHD_EMAC();
-    WHD_EMAC(whd_interface_role_t itype);
+    WHD_EMAC(whd_interface_role_t itype = WHD_STA_ROLE, const uint8_t *mac_addr = NULL);
 
-    static WHD_EMAC &get_instance();
-
-    static WHD_EMAC &get_instance(whd_interface_role_t role);
+    static WHD_EMAC &get_instance(whd_interface_role_t role = WHD_STA_ROLE, const uint8_t *mac_addr = NULL);
 
     /**
      * Return maximum transmission unit
@@ -167,16 +164,13 @@ public:
     EMACMemoryManager *memory_manager;
     bool powered_up = false;
     bool link_state = false;
+    bool ap_sta_concur = false;
     whd_interface_role_t interface_type;
     whd_driver_t drvp = NULL;
     whd_interface_t ifp = NULL;
+    whd_mac_t unicast_addr;
     whd_mac_t multicast_addr;
-    struct whd_resource_source *resource_ops = NULL;
-    whd_buffer_funcs_t *buffer_ops = NULL;
-    whd_netif_funcs_t *netif_ops = NULL;
-    whd_init_config_t *whd_init_config = NULL;
     mbed::Callback<void(bool)> activity_cb;
-
 };
 
 #endif /* WHD_EMAC_H_ */

@@ -53,13 +53,15 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "cybsp_api_core.h"
-
-#ifdef MBED
-#include "cybsp_api_wifi.h"
-#endif /* MBED */
+#include "cybsp_types.h"
+#include "cybsp_core.h"
+#if defined(CYBSP_WIFI_CAPABLE)
+#include "cybsp_wifi_sdio.h"
+#endif
+#ifndef __MBED__
+#include "cybsp_retarget.h"
+#include "cybsp_serial_flash.h"
+#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 extern "C" {

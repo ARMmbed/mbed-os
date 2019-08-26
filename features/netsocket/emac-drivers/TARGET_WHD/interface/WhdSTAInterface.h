@@ -161,11 +161,17 @@ public:
     /* set ioctl value */
     int wifi_set_ioctl_value(uint32_t ioctl, uint32_t value) ;
 
+    /* get WHD ifp value */
+    int wifi_get_ifp(whd_interface_t *ifp);
+
     /* set wifi interface up */
     int wifi_set_up(void);
 
     /* set wifi interface down */
     int wifi_set_down(void);
+
+    /* set wifi coex configuration */
+    int wifi_set_coex_config(whd_coex_config_t *coex_config);
 
     /** Set Offload Manager Information
      *  NOTE: Only allowed while disconnected
@@ -211,5 +217,4 @@ private:
     OlmInterface *_olm;
 };
 
-extern int wiced_leave_ap(int interface);
 #endif
