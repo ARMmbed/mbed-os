@@ -124,6 +124,22 @@ typedef int8_t eth_mac_mac48_address_set(const eth_mac_api_t *api, const uint8_t
 typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t *api, uint8_t *mac48_buf);
 
 /**
+ * @brief Set 64 bit interface identifier from IID64
+ * @param api API to handle the request
+ * @param iid64 Pointer having iid64 to be set
+ * @return 0 if successful, -1 otherwise
+ */
+typedef int8_t eth_mac_iid64_address_set(const eth_mac_api_t *api, const uint8_t *iid64);
+
+/**
+ * @brief Read 64 bit interface identifier
+ * @param api API to handle the request
+ * @param iid64_buf Pointer where IID64 can be written
+ * @return 0 if successful, -1 otherwise
+ */
+typedef int8_t eth_mac_iid64_address_get(const eth_mac_api_t *api, uint8_t *iid64_buf);
+
+/**
  * @brief Upper layer will call this function, when MAC is taken into use
  * @param api API to initialize
  * @param conf_cb Callback for confirm type of messages
@@ -146,6 +162,9 @@ struct eth_mac_api_s {
 
     eth_mac_mac48_address_set   *mac48_set;                     /**< Setter for MAC address */
     eth_mac_mac48_address_get   *mac48_get;                     /**< Getter for MAC address */
+
+    eth_mac_iid64_address_set   *iid64_set;                     /**< Setter for IID64 */
+    eth_mac_iid64_address_get   *iid64_get;                     /**< Getter for IID64 */
 
     uint8_t                     parent_id;                      /**< Upper layer ID */
     bool                        address_resolution_needed;      /**< Normal ethernet should set this true for tunnel or false for slip */

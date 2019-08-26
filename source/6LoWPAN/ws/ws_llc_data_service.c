@@ -551,11 +551,12 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64)) {
                 ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
             }
-            if (bs_ie_inline) {
-                ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
-            }
-        }
 
+        }
+        //Update BS if it is part of message
+        if (bs_ie_inline) {
+            ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+        }
 
         //Update BT if it is part of message
         ws_bt_ie_t ws_bt;
@@ -569,12 +570,14 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
             }
         }
 
-        //Refresh Neighbor ETX if unicast
-        if (ws_utt.message_type == WS_FT_DATA && data->DstAddrMode == ADDR_802_15_4_LONG) {
-            neighbor_info.ws_neighbor->unicast_data_rx = true;
-            etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
-        }
         if (ws_utt.message_type == WS_FT_DATA) {
+
+            if (data->DstAddrMode == ADDR_802_15_4_LONG) {
+                neighbor_info.ws_neighbor->unicast_data_rx = true;
+            }
+
+            //Refresh ETX dbm
+            etx_lqi_dbm_update(interface->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
             // Calculate RSL for all UDATA packages heard
             ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
 

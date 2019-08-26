@@ -45,7 +45,7 @@
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_beacon.h"
 #include "6LoWPAN/Thread/thread_diagnostic.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
@@ -53,7 +53,6 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_lowpower_private_api.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Thread/thread_border_router_api_internal.h"
 #include "6LoWPAN/Thread/thread_nd.h"
@@ -64,9 +63,7 @@
 #include "6LoWPAN/Thread/thread_management_server.h"
 #include "6LoWPAN/Thread/thread_resolution_server.h"
 #include "6LoWPAN/Thread/thread_resolution_client.h"
-#include "6LoWPAN/Thread/thread_address_registration_client.h"
-#include "6LoWPAN/Thread/thread_resolution_client.h"
-#include <6LoWPAN/Thread/thread_extension_bootstrap.h>
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "MLE/mle.h"
 #include "Service_Libs/mle_service/mle_service_security.h"
@@ -491,7 +488,7 @@ int thread_info_allocate_and_init(protocol_interface_info_entry_t *cur)
         thread_network_local_server_data_base_init(&cur->thread_info->localServerDataBase);
         memset(&cur->thread_info->registered_commissioner, 0, sizeof(thread_commissioner_t));
         thread_dynamic_reed_initialize(&cur->thread_info->routerSelectParameters);
-        thread_extension_allocate(cur);
+        thread_common_ccm_allocate(cur);
         ns_list_init(&cur->thread_info->childIdReqPending);
         ns_list_init(&cur->thread_info->child_mcast_list);
         if (!thread_leader_data_get(cur->thread_info)) {
@@ -530,8 +527,8 @@ void thread_info_deallocate(protocol_interface_info_entry_t *cur)
         thread_leader_service_leader_data_free(cur->thread_info);
         thread_data_base_init(cur->thread_info, cur->id);
         thread_routing_free(&cur->thread_info->routing);
-        thread_extension_free(cur);
-        thread_extension_bootstrap_free(cur);
+        thread_common_ccm_free(cur);
+        thread_ccm_free(cur);
         if (cur->thread_info->thread_endnode_parent) {
             ns_dyn_mem_free(cur->thread_info->thread_endnode_parent);
             cur->thread_info->thread_endnode_parent = NULL;
@@ -988,7 +985,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
     thread_resolution_client_timer(cur->id, ticks);
     thread_key_switch_timer(cur, ticks);
     thread_child_update_req_timer(cur, ticks);
-    thread_address_registration_timer(cur, ticks);
+    thread_bootstrap_address_registration_timer(cur, ticks);
 
     if (thread_attach_ready(cur) != 0) {
         return;
@@ -2054,7 +2051,7 @@ static void thread_address_notification_cb(struct protocol_interface_info_entry 
         } else {
             if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
                 /* Send address notification (our parent doesn't do that for us) */
-                thread_extension_address_registration(interface, addr->address, NULL, false, false);
+                thread_bootstrap_address_registration(interface, addr->address, NULL, false, false);
             }
         }
     }
@@ -2102,7 +2099,7 @@ void thread_mcast_group_change(struct protocol_interface_info_entry *interface, 
         }
     } else {
         if (addr_added) {
-            thread_address_registration_timer_set(interface, 0, 1);
+            thread_bootstrap_address_registration_timer_set(interface, 0, 1);
         }
     }
 }
@@ -2162,5 +2159,118 @@ void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur)
     thread_info(cur)->thread_maintenance_timer = THREAD_MAINTENANCE_TIMER_INTERVAL + randLIB_get_random_in_range(0, THREAD_MAINTENANCE_TIMER_INTERVAL / 10);
 }
 
+#ifdef HAVE_THREAD_V2
+
+void thread_common_ccm_allocate(protocol_interface_info_entry_t *cur)
+{
+    cur->thread_info->ccm_info = ns_dyn_mem_alloc(sizeof(thread_ccm_info_t));
+    if (!cur->thread_info->ccm_info) {
+        return;
+    }
+    memset(cur->thread_info->ccm_info, 0, sizeof(thread_ccm_info_t));
+    cur->thread_info->ccm_info->update_needed = true;
+    cur->thread_info->ccm_info->listen_socket_ae = -1;
+    cur->thread_info->ccm_info->listen_socket_nmkp = -1;
+
+}
+
+void thread_common_ccm_free(protocol_interface_info_entry_t *cur)
+{
+    ns_dyn_mem_free(cur->thread_info->ccm_info);
+    cur->thread_info->ccm_info = NULL;
+}
+
+bool thread_common_ccm_enabled(protocol_interface_info_entry_t *cur)
+{
+    if (thread_info(cur)->version <= THREAD_PROTOCOL_VERSION) {
+        // Thread 1.1 version devices dont check the extension
+        return false;
+    }
+    uint16_t securityPolicy = thread_joiner_application_security_policy_get(cur->id);
+
+    if (!(securityPolicy & THREAD_SECURITY_POLICY_CCM_DISABLED)) {
+        return true;
+    }
+
+    return false;
+}
+
+static uint8_t *thread_common_server_tlv_list_get(uint8_t *service_tlv_ptr, uint16_t service_tlv_len, uint16_t *server_tlv_list_len)
+{
+    uint16_t tlv_length = 0;
+    uint8_t service_id_len = 0;
+
+    if (!(*service_tlv_ptr & 0x80)) {
+        tlv_length += 4;
+        service_tlv_ptr += 4;
+    } else {
+        tlv_length += 1;
+        service_tlv_ptr++;
+    }
+    service_id_len = *service_tlv_ptr++;
+    tlv_length++;
+
+    tlv_length += service_id_len;
+    service_tlv_ptr += service_id_len;
+
+    if (tlv_length > service_tlv_len) {
+        return NULL;
+    }
+    if (server_tlv_list_len) {
+        *server_tlv_list_len = service_tlv_len - tlv_length;
+    }
+
+    return service_tlv_ptr;
+
+}
+
+int thread_common_primary_bbr_get(struct protocol_interface_info_entry *cur, uint8_t *addr_ptr, uint8_t *seq_ptr, uint32_t *mlr_timer_ptr, uint32_t *delay_timer_ptr)
+{
+    uint8_t *service_tlv_ptr = NULL;
+    uint16_t service_tlv_len;
+    //tr_debug("Search for Primary BBR info");
+
+    do {
+        service_tlv_len = thread_meshcop_tlv_find_next(cur->thread_info->networkDataStorage.network_data, cur->thread_info->networkDataStorage.network_data_len, THREAD_NWK_DATA_TYPE_SERVICE_DATA | THREAD_NWK_STABLE_DATA, &service_tlv_ptr);
+        if (service_tlv_len > 3 &&
+                (service_tlv_ptr[0] & 0x80) && // THREAD_ENTERPRISE_NUMBER
+                service_tlv_ptr[1] == 1 && // length 1
+                service_tlv_ptr[2] == THREAD_SERVICE_DATA_BBR) {
+            //tr_info("BBR service TLV: %s\r\n", trace_array(service_tlv_ptr, service_tlv_len));
+            // try to parse SUB-TLVs
+            // network_data_server_tlv_parse(service_tlv_ptr, tlv_length);
+            uint16_t server_tlv_len = 0;
+            uint8_t *server_tlv_ptr = thread_common_server_tlv_list_get(service_tlv_ptr, service_tlv_len, &server_tlv_len);
+            uint16_t found_tlv_len;
+            uint8_t *found_tlv = NULL;
+            //tr_info("BBR server TLV: %s\r\n", trace_array(server_tlv_ptr, server_tlv_len));
+            do {
+                found_tlv_len = thread_meshcop_tlv_find_next(server_tlv_ptr, server_tlv_len, THREAD_NWK_DATA_TYPE_SERVER_DATA | THREAD_NWK_STABLE_DATA, &found_tlv);
+                if (found_tlv && found_tlv_len > 8) {
+                    //tr_info("BBR server TLV: %s\r\n", trace_array(found_tlv, found_tlv_len));
+                    if (addr_ptr) {
+                        thread_addr_write_mesh_local_16(addr_ptr, common_read_16_bit(found_tlv), cur->thread_info);
+                    }
+                    if (seq_ptr) {
+                        *seq_ptr = found_tlv[2];
+                    }
+                    if (delay_timer_ptr) {
+                        *delay_timer_ptr = common_read_16_bit(&found_tlv[3]);
+                    }
+                    if (mlr_timer_ptr) {
+                        *mlr_timer_ptr = common_read_32_bit(&found_tlv[5]);
+                        if (*mlr_timer_ptr < THREAD_DEFAULT_MIN_MLR_TIMEOUT) {
+                            *mlr_timer_ptr = THREAD_DEFAULT_MIN_MLR_TIMEOUT;
+                        }
+                    }
+                    return 0;
+                }
+            } while (found_tlv_len > 0);
+        }
+    } while (service_tlv_len > 0);
+    return -1;
+}
+
+#endif // HAVE_THREAD_V2
 #endif
 

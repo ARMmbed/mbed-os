@@ -33,6 +33,7 @@ struct mac_api_s;
 struct mac_description_storage_size_s;
 struct fhss_api;
 struct mac_statistics_s;
+struct phy_rf_statistics_s;
 
 /**
  * @brief Creates 802.15.4 MAC API instance which will use RF driver given
@@ -80,6 +81,14 @@ extern struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
  * @return 0 on success, -1 on fail.
  */
 extern int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics);
+
+/**
+ * @brief Start collecting statistics from PHY driver.
+ * @param mac_api MAC instance.
+ * @param phy_statistics Statistics storage.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, struct phy_rf_statistics_s *phy_statistics);
 
 /**
  * @brief Read current timestamp.

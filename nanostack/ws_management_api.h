@@ -116,6 +116,22 @@ int ws_management_node_init(
     fhss_timer_t *fhss_timer_ptr);
 
 /**
+ * Change the network name
+ *
+ * Change the network name dynamically at a runtime.
+ * If stack is running the network discovery is restarted.
+ *
+ * \param interface_id Network interface ID.
+ * \param network_name_ptr Nul terminated Network name limited to 32 characters.
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+int ws_management_network_name_set(
+    int8_t interface_id,
+    char *network_name_ptr);
+
+/**
  * Configure regulatory domain of Wi-SUN stack.
  *
  * Change the default configuration for Wi-SUN PHY operation.

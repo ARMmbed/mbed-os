@@ -269,8 +269,46 @@ typedef struct thread_router_select {
     timeout_t *reedAdvertisementTimeout;
 } thread_router_select_t;
 
-struct thread_extension_info;
-struct thread_extension_credentials;
+typedef struct thread_ccm_info {
+    int8_t coap_service_id;
+    uint8_t sequence_number;
+    uint32_t delay_timer;
+    uint32_t mlr_timer;
+    timeout_t *reset_timeout;
+    uint16_t rloc;
+    uint16_t relay_port_ae;
+    uint16_t relay_port_nmkp;
+    int8_t listen_socket_ae;
+    int8_t listen_socket_nmkp;
+    bool update_needed: 1;
+} thread_ccm_info_t;
+
+typedef void thread_commission_done_cb(int8_t interface_id);
+
+typedef struct thread_ccm_credentials {
+    uint8_t domain_name[16];                        // Thread CCM domain name
+    uint8_t ccm_addr[16];                           // CCM destination address
+    const unsigned char *device_certificate_ptr;    // Pointer to CCM device certificate for Autonomous Enrollment
+    unsigned char *domain_ca_certificate_ptr;       // Pointer to Thread CCM domain CA certificate
+    unsigned char *domain_certificate_ptr;          // Pointer to Thread CCM domain certificate
+    unsigned char *domain_pk_ptr;                   // Pointer to Thread domain certificate private key
+    const unsigned char *device_pk_ptr;             // Pointer to CCM device certificate private key
+    thread_commission_done_cb *ccm_done_cb;
+    timeout_t *attach_timeout;
+
+    uint16_t device_certificate_len;                // Device certificate length
+    uint16_t domain_certificate_len;                // Domain certificate length
+    uint16_t domain_ca_certificate_len;             // Domain CA certificate length
+    uint16_t device_pk_len;                         // Device certificate private key length
+    uint16_t domain_pk_len;                         // Domain certificate private key length
+    uint16_t ccm_port;                              // CCM destination port
+
+    int8_t coap_service_secure_session_id;
+    int8_t interface_id;
+    bool reattach_ongoing;
+
+    ns_list_link_t link;
+} thread_ccm_credentials_t;
 
 typedef struct thread_previous_partition_info_s {
     uint32_t partitionId; //partition ID of the previous partition
@@ -298,8 +336,8 @@ typedef struct thread_info_s {
     thread_commissioning_native_select_cb *native_commissioner_cb;
     thread_network_data_tlv_cb *network_data_tlv_cb;
     thread_announcement_t *announcement_info;
-    struct thread_extension_info *extension_info;
-    struct thread_extension_credentials *extension_credentials_ptr;
+    thread_ccm_info_t *ccm_info;
+    thread_ccm_credentials_t *ccm_credentials_ptr;
     thread_attach_device_mode_e thread_device_mode;
     thread_attach_state_e thread_attached_state; //Indicate Thread stack state
     thread_registered_mcast_addr_list_t child_mcast_list;
@@ -452,6 +490,19 @@ void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_l
 void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index);
 bool thread_stable_context_check(protocol_interface_info_entry_t *cur, buffer_t *buf);
 void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur);
+
+#ifdef HAVE_THREAD_V2
+void thread_common_ccm_allocate(protocol_interface_info_entry_t *cur);
+void thread_common_ccm_free(protocol_interface_info_entry_t *cur);
+bool thread_common_ccm_enabled(protocol_interface_info_entry_t *cur);
+int thread_common_primary_bbr_get(struct protocol_interface_info_entry *cur, uint8_t *addr_ptr, uint8_t *seq_ptr, uint32_t *mlr_timer_ptr, uint32_t *delay_timer_ptr);
+#else
+#define thread_common_ccm_allocate(cur)
+#define thread_common_ccm_free(cur)
+#define thread_common_ccm_enabled(cur) (false)
+#define thread_common_primary_bbr_get(cur, addr_ptr, seq_ptr, mlr_timer_ptr, delay_timer_ptr) (0)
+
+#endif
 #else // HAVE_THREAD
 
 NS_DUMMY_DEFINITIONS_OK

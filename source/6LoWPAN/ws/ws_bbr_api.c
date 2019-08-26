@@ -239,6 +239,10 @@ static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 1
     if (!cur) {
         return;
     }
+    // Send NA only if it is enabled for the backhaul
+    if (!cur->send_na) {
+        return;
+    }
 
     buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
     protocol_push(buffer);
@@ -306,7 +310,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 
     if (!protocol_6lowpan_rpl_root_dodag) {
         // Failed to start
-        tr_info("BBR failed to start");
+        tr_err("BBR failed to start");
         return;
     }
 
@@ -315,7 +319,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
      */
     if (protocol_interface_address_compare(current_dodag_id) != 0) {
         //DODAGID is lost need to restart
-        tr_err("DODAGID lost restart RPL");
+        tr_warn("DODAGID lost restart RPL");
         memset(current_dodag_id, 0, 16);
         ws_bbr_rpl_root_stop();
         return;
@@ -507,6 +511,10 @@ uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
     }
 
     rpl_control_get_instance_dao_target_count(cur->rpl_domain, RPL_INSTANCE_ID, NULL, prefix_ptr, &result);
+    if (result > 0) {
+        // remove the Border router from the PAN size
+        result--;
+    }
     return result;
 }
 

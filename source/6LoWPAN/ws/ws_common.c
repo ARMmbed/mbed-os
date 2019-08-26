@@ -161,6 +161,16 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur)
         } else {
             return -1;
         }
+    } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_IN) {
+        if (cur->ws_info->hopping_schdule.operating_class == 1) {
+            cur->ws_info->hopping_schdule.ch0_freq = 8651;
+            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_100;
+        } else if (cur->ws_info->hopping_schdule.operating_class == 2) {
+            cur->ws_info->hopping_schdule.ch0_freq = 8651;
+            cur->ws_info->hopping_schdule.channel_spacing = CHANNEL_SPACING_200;
+        } else {
+            return -1;
+        }
     } else if (cur->ws_info->hopping_schdule.regulatory_domain == REG_DOMAIN_NA) {
         if (cur->ws_info->hopping_schdule.operating_class == 1) {
             cur->ws_info->hopping_schdule.ch0_freq = 9022;
@@ -227,6 +237,12 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             return 55;
         } else if (operating_class == 4) {
             return 27;
+        }
+    } else if (regulatory_domain == REG_DOMAIN_IN) {
+        if (operating_class == 1) {
+            return 19;
+        } else if (operating_class == 2) {
+            return 10;
         }
     } else if (regulatory_domain == REG_DOMAIN_NA) {
         if (operating_class == 1) {

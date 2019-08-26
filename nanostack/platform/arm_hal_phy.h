@@ -76,8 +76,10 @@ typedef enum {
     PHY_EXTENSION_GET_TIMESTAMP, /**<  Read 32-bit constant monotonic time stamp in us */
     PHY_EXTENSION_SET_CSMA_PARAMETERS, /**< CSMA parameter's are given by phy_csma_params_t structure remember type cast uint8_t pointer to structure type*/
     PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, /**<  Read Symbols per seconds which will help to convert symbol time to real time  */
-    PHY_EXTENSION_SET_RF_CONFIGURATION,  /**<  Set RF configuration using phy_rf_channel_parameters_s structure */
-    PHY_EXTENSION_FILTERING_SUPPORT /**<  Return filtering modes that can be supported by the PHY driver. See phy_link_filters_e */
+    PHY_EXTENSION_SET_RF_CONFIGURATION,  /**<  Set RF configuration using phy_rf_channel_configuration_s structure */
+    PHY_EXTENSION_FILTERING_SUPPORT, /**<  Return filtering modes that can be supported by the PHY driver. See phy_link_filters_e */
+    PHY_EXTENSION_SET_TX_POWER, /**<  Set TX output power which is given as percentage of maximum. 0 is the lowest possible TX power and 100 is the highest possible TX power */
+    PHY_EXTENSION_SET_CCA_THRESHOLD /**<  Set CCA threshold which is given as percentage of maximum threshold. 0 is the lowest(strictest) possible threshold and 100 is the highest possible threshold */
 } phy_extension_type_e;
 
 /** Address types */
@@ -95,6 +97,7 @@ typedef enum phy_link_type_e {
     PHY_LINK_15_4_SUBGHZ_TYPE,      /**< Standard 802.15.4 subGHz radio 868 /915MHz. */
     PHY_LINK_TUN,                   /**< Tunnel interface for Linux TUN, RF network driver over serial bus or just basic application to application data flow. */
     PHY_LINK_SLIP,                  /**< Generic SLIP driver which just forward SLIP payload */
+    PHY_LINK_PPP,                   /**< PPP */
 } phy_link_type_e;
 
 /** Data layers */
@@ -183,6 +186,13 @@ typedef struct phy_device_channel_page_s {
     channel_page_e channel_page;            ///< Channel page
     const phy_rf_channel_configuration_s *rf_channel_configuration; ///< Pointer to channel configuration
 } phy_device_channel_page_s;
+
+/** PHY statistics */
+typedef struct phy_rf_statistics_s {
+    uint32_t crc_fails;        ///< CRC failures
+    uint32_t tx_timeouts;      ///< transmission timeouts
+    uint32_t rx_timeouts;      ///< reception timeouts
+} phy_rf_statistics_s;
 
 /** Virtual data request */
 typedef struct virtual_data_req_s {
@@ -283,6 +293,7 @@ typedef struct phy_device_driver_s {
     arm_net_virtual_config_tx_fn *virtual_config_tx_cb;             /**< Virtual config send callback. Initialized by \ref arm_net_phy_register(). */
     arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx_cb; /**< Virtual confirmation receive callback. Initialized by \ref arm_net_phy_register(). */
     uint16_t tunnel_type; /**< Tun driver type. */
+    phy_rf_statistics_s *phy_rf_statistics;                         /**< PHY statistics. */
 } phy_device_driver_s;
 
 

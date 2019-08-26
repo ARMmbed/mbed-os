@@ -56,6 +56,31 @@ int ws_management_node_init(
     return 0;
 }
 
+int ws_management_network_name_set(
+    int8_t interface_id,
+    char *network_name_ptr)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    if (!network_name_ptr || strlen(network_name_ptr) == 0 || strlen(network_name_ptr) > 32) {
+        return -2;
+    }
+    if (strcmp(cur->ws_info->network_name, network_name_ptr) == 0) {
+        // Network name is the same no further actions required.
+        return 0;
+    }
+    strncpy(cur->ws_info->network_name, network_name_ptr, 32);
+    // if settings change reset_restart for the settings needed
+    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
+        // bootstrap active need to restart
+        ws_bootstrap_restart(interface_id);
+    }
+
+    return 0;
+}
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,

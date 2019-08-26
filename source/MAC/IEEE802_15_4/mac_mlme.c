@@ -738,7 +738,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
     if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return -1;
     }
-
+    uint8_t *pu8 = NULL;
     switch (set_req->attr) {
         case macAckWaitDuration:
             return mac_mlme_set_ack_wait_duration(rf_mac_setup, set_req);
@@ -758,11 +758,29 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
             }
             return 0;
+        case macTXPower:
+            pu8 = (uint8_t *) set_req->value_pointer;
+            rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_TX_POWER, pu8);
+            tr_debug("Set TX output power to %u%%", *pu8);
+            return 0;
+        case macCCAThreshold:
+            pu8 = (uint8_t *) set_req->value_pointer;
+            rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CCA_THRESHOLD, pu8);
+            tr_debug("Set CCA threshold to %u%%", *pu8);
+            return 0;
         case macMultiCSMAParameters:
             return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
+            phy_rf_channel_configuration_s *config_params = (phy_rf_channel_configuration_s *)set_req->value_pointer;
+            tr_info("RF config update:");
+            tr_info("Frequency(ch0): %"PRIu32"Hz", config_params->channel_0_center_frequency);
+            tr_info("Channel spacing: %"PRIu32"Hz", config_params->channel_spacing);
+            tr_info("Datarate: %"PRIu32"bps", config_params->datarate);
+            tr_info("Number of channels: %u", config_params->number_of_channels);
+            tr_info("Modulation: %u", config_params->modulation);
+            tr_info("Modulation index: %u", config_params->modulation_index);
             return 0;
         default:
             return mac_mlme_handle_set_values(rf_mac_setup, set_req);

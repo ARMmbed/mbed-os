@@ -50,7 +50,6 @@
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_management_server.h"
 #include "6LoWPAN/Thread/thread_commissioning_if.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"

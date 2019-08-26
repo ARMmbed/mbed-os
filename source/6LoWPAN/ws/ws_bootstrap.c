@@ -664,7 +664,7 @@ uint16_t ws_etx_read(protocol_interface_info_entry_t *interface, addrtype_t addr
         if (!ws_neighbour || !etx_entry || etx_entry->etx_samples < 1 /*||
                 !ws_neighbour->candidate_parent*/) {
             // if RSL value is not good enough candidate parent flag is removed and device not accepted as parent
-            tr_debug("ws_etx_read not valid params");
+            //tr_debug("ws_etx_read not valid params");
             return 0xffff;
         }
 
@@ -900,7 +900,6 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
     // if in active scan state
     if (!ws_bootstrap_state_discovery(cur)) {
         if (data->SrcPANId != cur->ws_info->network_pan_id) {
-            tr_debug("Wrong PAN id r:%u own:%u", data->SrcPANId, cur->ws_info->network_pan_id);
             return;
         }
     }
@@ -962,7 +961,7 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
             // If pan cost is the same then we select the one we hear highest
             if (current_pan_cost == pan_cost &&
                     cur->ws_info->parent_info.signal_dbm > data->signal_dbm) {
-                tr_info("EAPOL target dropped Lower link quality %u < %u current", data->signal_dbm, cur->ws_info->parent_info.signal_dbm);
+                tr_info("EAPOL target dropped Lower link quality %d < %d current", data->signal_dbm, cur->ws_info->parent_info.signal_dbm);
                 return;
             }
         }
@@ -998,7 +997,7 @@ parent_selected:
         uint8_t ll_address[16];
         ws_bootsrap_create_ll_address(ll_address, neighbor_info.neighbor->mac64);
 
-        if (rpl_control_is_dodag_parent(cur, ll_address, true)) {
+        if (rpl_control_is_dodag_parent(cur, ll_address)) {
             cur->ws_info->pan_information.pan_size = pan_information.pan_size;
             cur->ws_info->pan_information.routing_cost = pan_information.routing_cost;
             cur->ws_info->pan_information.rpl_routing_method = pan_information.rpl_routing_method;
@@ -1036,7 +1035,6 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
     uint8_t *gtkhash_ptr;
 
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
-        tr_debug("Wrong PAN id r:%u own:%u", data->SrcPANId, cur->ws_info->network_pan_id);
         return;
     }
     ws_bt_ie_t ws_bt_ie;
@@ -1158,7 +1156,6 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
 static void ws_bootstrap_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
-        tr_debug("Wrong PAN id r:%u own:%u", data->SrcPANId, cur->ws_info->network_pan_id);
         return;
     }
 
@@ -1363,7 +1360,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
             memcpy(ll_target + 8, cur->mac64, 8);
             ll_target[8] ^= 2;
 
-            if (rpl_control_is_dodag_parent(interface, ll_target, true)) {
+            if (rpl_control_is_dodag_parent(interface, ll_target)) {
                 // Possible parent is limited to 3 by default?
                 continue;
             }
@@ -1498,7 +1495,18 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         return false;
     }
 
+    uint8_t ll_address[16];
+
     if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
+
+        ws_bootsrap_create_ll_address(ll_address, entry_ptr->mac64);
+
+        if (!rpl_control_is_dodag_parent_candidate(cur, ll_address, WS_NEIGHBOUR_MAX_CANDIDATE_PROBE)) {
+            if (!ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, entry_ptr->mac64)) {
+                //NUD Not needed for if neighbour is not child or parent candidate
+                return false;
+            }
+        }
 
         if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT * 1.5) {
             activate_nud = true;
@@ -1518,19 +1526,10 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
             //Accept quick Probe for init ETX
             activate_nud = true;
         } else {
-            if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                if (etx_entry->etx_samples || !ws_neighbor->unicast_data_rx) {
-                    //Border router just need 1 sample for ETX
-                    return false;
-                }
-            } else {
-                uint8_t ll_address[16];
-                ws_bootsrap_create_ll_address(ll_address, entry_ptr->mac64);
-                if (!rpl_control_is_dodag_parent(cur, ll_address, false)) {
-                    if (etx_entry->etx_samples || !ws_neighbor->unicast_data_rx) {
-                        return 0;
-                    }
-                }
+
+            ws_bootsrap_create_ll_address(ll_address, entry_ptr->mac64);
+            if (!rpl_control_is_dodag_parent_candidate(cur, ll_address, WS_NEIGHBOUR_MAX_CANDIDATE_PROBE)) {
+                return false;
             }
 
             uint32_t probe_period = WS_PROBE_INIT_BASE_SECONDS << etx_entry->etx_samples;
@@ -2662,7 +2661,7 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
     if (cur->ws_info->trickle_pcs_running &&
             trickle_timer(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
         // send PAN Configuration solicit
-        if (cur->ws_info->pas_requests > PCS_MAX) {
+        if (cur->ws_info->pas_requests >= PCS_MAX) {
             // if MAX PCS sent restart discovery
 
             // Remove network keys from MAC
