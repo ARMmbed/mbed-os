@@ -2,8 +2,7 @@
 * \file CY8CKIT-062-BLE/cybsp.c
 *
 * Description:
-* Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CKIT-062-BLE pioneer kit.
+* Provides basic hardware initialization for the CY8CKIT-062-BLE pioneer kit.
 *
 ********************************************************************************
 * \copyright

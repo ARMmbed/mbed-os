@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_utils.c
+* \file cybsp_wifi.c
 *
 * \brief
 * Provides utility functions that are used by board support packages.

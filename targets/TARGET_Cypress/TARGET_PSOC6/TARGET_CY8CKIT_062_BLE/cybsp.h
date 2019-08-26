@@ -23,33 +23,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_bsp_cy8ckit_062_ble CY8CKIT-062-BLE
-* \ingroup group_bsp
-* \{
-* The PSoC 6 BLE Pioneer Kit is a low-cost hardware platform
-* that enables design and debug of the PSoC 63 MCU (CY8C6347BZI-BLD53).
-*
-* <div class="category">Kit Features:</div>
-* <ul>
-* <li>BLE v5.0</li>
-* <li>Serial memory interface</li>
-* <li>PDM-PCM digital microphone interface</li>
-* <li>Industry-leading CapSense</li>
-* </ul>
-*
-* <div class="category">Kit Contents:</div>
-* <ul>
-* <li>CY8CKIT-062-BLE evaluation board</li>
-* <li>E-Ink display shield with an ultra-low-power 2.7" E-ink display, thermistor, 6-axis motion sensor, and digital microphone</li>
-* <li>USB cable</li>
-* </ul>
-*
-* \defgroup group_bsp_cy8ckit_062_ble_macros Macros
-* \defgroup group_bsp_cy8ckit_062_ble_functions Functions
-* \defgroup group_bsp_cy8ckit_062_ble_enums Enumerated Types
-*/
-
 #pragma once
 
 #include "cybsp_types.h"
@@ -67,5 +40,3 @@ extern "C" {
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cy8ckit_062_ble */

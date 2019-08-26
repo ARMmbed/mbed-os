@@ -40,8 +40,6 @@
 extern "C" {
 #endif
 
-/** \cond INTERNAL */
-
 // HAL HW configuration data
 extern cyhal_qspi_t cybsp_qspi;
 extern cyhal_uart_t cybsp_bt_uart;
@@ -49,10 +47,6 @@ extern cyhal_uart_t cybsp_debug_uart;
 extern cyhal_i2c_t cybsp_i2c;
 extern cyhal_rtc_t cybsp_rtc;
 
-/** \endcond */
-
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cy8ckit_062_wifi_bt */
