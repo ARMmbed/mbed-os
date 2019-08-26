@@ -48,6 +48,7 @@
 #include "libDHCPv6/libDHCPv6.h"
 #include "libDHCPv6/libDHCPv6_server.h"
 #include "ns_trace.h"
+#include "coap_service_api.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_routing.h"
@@ -63,16 +64,14 @@
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
-#include "6LoWPAN/Thread/thread_extension.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
-#include "6LoWPAN/Thread/thread_address_registration_client.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Thread/thread_border_router_api_internal.h"
 #include "6LoWPAN/Thread/thread_beacon.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
-#include "6LoWPAN/Thread/thread_extension_bootstrap.h"
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/Thread/thread_mle_message_handler.h"
 #include "mac_api.h"
@@ -120,7 +119,20 @@ static void thread_bootsrap_network_discovery_failure(int8_t interface_id);
 static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
 static void thread_bootsrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info);
 
+#ifdef HAVE_THREAD_V2
 
+static bool enabled = false;
+static uint32_t addr_notificastion_timer;
+static uint32_t mlr_timer;
+
+static void thread_bootstrap_pbbr_network_data_process(struct protocol_interface_info_entry *cur);
+static void thread_bootstrap_pbbr_update_done(struct protocol_interface_info_entry *cur);
+
+#else
+#define thread_bootstrap_pbbr_network_data_process(cur)
+#define thread_bootstrap_pbbr_update_done(cur)
+
+#endif
 
 static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
 {
@@ -354,7 +366,7 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur, uin
 
     /*Rule 0: If we are going to form Higher partition than heard we dont try to attach to lower ones
      */
-    if (thread_extension_enabled(cur) &&
+    if (thread_common_ccm_enabled(cur) &&
             thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
         if (heard_partition_leader_data->weighting < thread_info(cur)->partition_weighting) {
             tr_debug("Heard a lower weight partition");
@@ -692,7 +704,7 @@ int thread_configuration_thread_activate(protocol_interface_info_entry_t *cur, l
     //Define Default Contexts
     lowpan_context_update(&cur->lowpan_contexts, LOWPAN_CONTEXT_C, 0xFFFF, linkConfiguration->mesh_local_ula_prefix, 64, true);
 
-    thread_extension_bbr_route_update(cur);
+    thread_bbr_commercial_route_update(cur);
 
     blacklist_clear();
 
@@ -890,7 +902,7 @@ void thread_interface_init(protocol_interface_info_entry_t *cur)
     dhcp_client_init(cur->id);
     dhcp_client_configure(cur->id, false, false, false);
     thread_management_client_init(cur->id);
-    thread_address_registration_init();
+    thread_bootstrap_address_registration_init();
     cur->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_MAC_SHORT;
     cur->mpl_seed_set_entry_lifetime = 90;
     cur->mpl_proactive_forwarding = true;
@@ -1914,7 +1926,7 @@ static void thread_network_select(struct protocol_interface_info_entry *interfac
 {
     (void) interface_ptr;
 
-    discovery_response_list_t *discovered_network_ptr = thread_extension_bootstrap_network_select(interface_ptr, discover_response);
+    discovery_response_list_t *discovered_network_ptr = thread_ccm_network_select(interface_ptr, discover_response);
 
     /* If network found */
     if (discovered_network_ptr) {
@@ -2118,7 +2130,7 @@ static void thread_bootsrap_network_join_start(struct protocol_interface_info_en
     tr_debug("Start commission with %s", trace_ipv6(parentLLAddress));
     cur_interface->bootsrap_state_machine_cnt = 0;
 
-    if (0 > thread_extension_bootstrap_commission_start(cur_interface, parentLLAddress, nwk_info, thread_bootstrap_joiner_application_commission_done_cb)) {
+    if (0 > thread_ccm_commission_start(cur_interface, parentLLAddress, nwk_info, thread_bootstrap_joiner_application_commission_done_cb)) {
         thread_joiner_application_pskd_commission_start(cur_interface->id, parentLLAddress, nwk_info->joiner_port, nwk_info->pan_id, nwk_info->extented_pan_id, nwk_info->channel, thread_bootstrap_joiner_application_commission_done_cb);
     }
     ns_dyn_mem_free(nwk_info);
@@ -2319,7 +2331,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
 }
 void thread_bootstrap_stop(protocol_interface_info_entry_t *cur)
 {
-    thread_address_registration_deinit();
+    thread_bootstrap_address_registration_deinit();
     thread_anycast_address_policy_update(cur->thread_info, false);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD, NULL);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_BORDER_ROUTER, NULL);
@@ -2742,7 +2754,7 @@ int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur)
     thread_router_bootstrap_anycast_address_register(cur);
     // Update joiner router status
     thread_management_server_joiner_router_init(cur->id);
-    thread_extension_service_init(cur);
+    thread_management_server_ccm_service_init(cur->id);
 
     // Update border router relay
     thread_bbr_commissioner_proxy_service_update(cur->id);
@@ -2750,7 +2762,7 @@ int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur)
     thread_beacon_create_payload(cur);
 
     // Indicate network data change to other modules
-    thread_extension_network_data_process(cur);
+    thread_bootstrap_pbbr_network_data_process(cur);
     thread_border_router_network_data_update_notify(cur);
     thread_bbr_network_data_update_notify(cur);
 
@@ -2897,7 +2909,7 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
             // generate address based on res1 bit
             if (curBorderRouter->P_res1) {
                 if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
-                    thread_extension_dua_address_generate(cur, curPrefix->servicesPrefix, 64);
+                    thread_bootstrap_dua_address_generate(cur, curPrefix->servicesPrefix, 64);
                 }
             }
 
@@ -3039,4 +3051,426 @@ bool thread_bootstrap_should_register_address(protocol_interface_info_entry_t *c
     return (mode & MLE_DEV_MASK) == MLE_RFD_DEV;
 }
 
+/**
+ * Thread 1.2 support
+ */
+
+#ifdef HAVE_THREAD_V2
+
+static void thread_bootstrap_mcast_subscrition_change(protocol_interface_info_entry_t *interface)
+{
+    uint8_t *addr;
+    uint8_t *ptr;
+    uint8_t addr_len;
+    uint8_t br_ml_addr[16];
+
+    if (0 != thread_common_primary_bbr_get(interface, br_ml_addr, NULL, NULL, NULL)) {
+        return;
+    }
+    addr = ns_dyn_mem_temporary_alloc(16 * thread_max_mcast_addr + 2);
+    if (!addr) {
+        return;
+    }
+    // MLR is sent only for primary BBR for now, but this might change
+    ptr = addr;
+    addr_len = 0;
+    *ptr++ = TMFCOP_TLV_IPV6_ADDRESS;
+    *ptr++ = 0; // Length will be updated later
+    ns_list_foreach(if_group_entry_t, cur, &interface->ip_groups) {
+        if (addr_ipv6_multicast_scope(cur->group) < IPV6_SCOPE_ADMIN_LOCAL) {
+            continue;
+        }
+        if (addr_ipv6_equal(cur->group, ADDR_SITE_LOCAL_ALL_ROUTERS)) {
+            continue;
+        }
+        memcpy(ptr, cur->group, 16);
+        ptr += 16;
+        addr_len = ptr - addr;
+        addr[1] = addr_len - 2;// Fill in the length
+        if (addr_len > 16 * thread_max_mcast_addr) {
+            // Send first patch
+            thread_management_client_mlr_req_send(interface->id, br_ml_addr, addr, addr_len);
+            // Reset the packet to start
+            ptr = addr;
+            ptr += 2;
+            addr_len = 0;
+        }
+    }
+    if (addr_len != 0) {
+        // Send rest
+        thread_management_client_mlr_req_send(interface->id, br_ml_addr, addr, addr_len);
+    }
+    ns_dyn_mem_free(addr);
+}
+static int thread_bootstrap_dua_registration_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr)
+{
+    (void) source_address;
+    (void) source_port;
+
+    uint16_t addr_len;
+    uint8_t bbr_status;
+    uint8_t *addr_data_ptr = NULL;
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(thread_management_client_get_interface_id_by_service_id(service_id));
+
+    if (!cur) {
+        return -1;
+    }
+
+    if (!response_ptr) {
+        tr_warn("DUA.resp failed");
+        return -2;
+    }
+
+    if (1 > thread_meshcop_tlv_data_get_uint8(response_ptr->payload_ptr, response_ptr->payload_len, TMFCOP_TLV_STATUS, &bbr_status)) {
+        return 0;
+    }
+
+    addr_len = thread_meshcop_tlv_find(response_ptr->payload_ptr, response_ptr->payload_len, TMFCOP_TLV_TARGET_EID, &addr_data_ptr);
+
+    if (addr_len < 16) {
+        tr_warn("Invalid target eid in DUA.rsp cb message");
+        return 0;
+    }
+
+    if_address_entry_t *addr_entry = addr_get_entry(cur, addr_data_ptr);
+    if (addr_entry) {
+        // Own processing
+        if (bbr_status == THREAD_ST_DUA_SUCCESS) {
+            addr_entry->preferred_lifetime = 0xffffffff;
+        } else if (bbr_status == THREAD_ST_DUA_DUPLICATE) {
+            cur->dad_failures++;
+            thread_bootstrap_dua_address_generate(cur, addr_data_ptr, 64);
+        } else if (bbr_status == THREAD_ST_DUA_INVALID) {
+            addr_delete(cur, addr_data_ptr);
+        } else {
+            addr_entry->preferred_lifetime = 0;
+        }
+        return 0;
+    }
+
+    // processing for MTD children
+    ipv6_neighbour_t *neighbour_entry;
+    uint16_t nce_short_addr;
+    uint8_t destination_address[16] = {0};
+
+    if (bbr_status == THREAD_ST_DUA_SUCCESS) {
+        // registration successful
+        return 0;
+    }
+
+    neighbour_entry = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, addr_data_ptr);
+    if (!neighbour_entry) {
+        return 0;
+    }
+
+    nce_short_addr = common_read_16_bit(neighbour_entry->ll_address + 2);
+    if (!thread_addr_is_child(cur->thread_info->routerShortAddress, nce_short_addr)) {
+        ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, neighbour_entry);
+        return 0;
+    }
+
+    if (bbr_status == THREAD_ST_DUA_DUPLICATE || bbr_status == THREAD_ST_DUA_INVALID) {
+        // remove invalid or duplicate child entry
+        ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, neighbour_entry);
+    }
+
+    thread_addr_write_mesh_local_16(destination_address, nce_short_addr, cur->thread_info);
+
+    thread_management_client_addr_ntf_send(cur->id, destination_address, addr_data_ptr, bbr_status);
+
+    return 0;
+}
+
+static void thread_bootstrap_dua_registration_send(protocol_interface_info_entry_t *cur, const uint8_t address[16], const uint8_t ml_eid[8], const uint8_t dst_addr[16])
+{
+
+    tr_debug("domain address registration (DUA.req send)");
+    thread_bootstrap_pbbr_update_done(cur);
+
+    uint8_t payload[2 + 16 + 2 + 8];
+    uint8_t *ptr;
+
+    ptr = payload;
+    ptr = thread_tmfcop_tlv_data_write(ptr, TMFCOP_TLV_TARGET_EID, 16, address);
+    ptr = thread_tmfcop_tlv_data_write(ptr, TMFCOP_TLV_ML_EID, 8, ml_eid);
+
+    coap_service_request_send(thread_management_server_service_id_get(cur->id), COAP_REQUEST_OPTIONS_NONE,
+                              dst_addr, THREAD_MANAGEMENT_PORT,
+                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST,
+                              THREAD_URI_BBR_DOMAIN_ADDRESS_REGISTRATION, COAP_CT_OCTET_STREAM,
+                              payload, ptr - payload, thread_bootstrap_dua_registration_cb);
+}
+
+static int thread_bootstrap_pbbr_update_needed(struct protocol_interface_info_entry *cur, uint16_t rloc, uint8_t seq)
+{
+    if (!cur->thread_info->ccm_info) {
+        return 0;
+    }
+    if (cur->thread_info->ccm_info->update_needed  ||
+            seq != cur->thread_info->ccm_info->sequence_number ||
+            rloc != cur->thread_info->ccm_info->rloc) {
+        return 1;
+    }
+    return 0;
+}
+
+static void thread_bootstrap_pbbr_update_done(struct protocol_interface_info_entry *cur)
+{
+    // Check if network data changed or bbr info and send proactive an if needed
+    uint8_t addr[16];
+    uint8_t sequence_number;
+    uint32_t delay_timer;
+    uint32_t br_mlr_timer;
+    if (!cur->thread_info->ccm_info) {
+        return;
+    }
+    if (0 == thread_common_primary_bbr_get(cur, addr, &sequence_number, &br_mlr_timer, &delay_timer)) {
+        // BBR updated
+        cur->thread_info->ccm_info->rloc = common_read_16_bit(&addr[14]);
+        cur->thread_info->ccm_info->sequence_number = sequence_number;
+        cur->thread_info->ccm_info->delay_timer = delay_timer;
+        cur->thread_info->ccm_info->mlr_timer = br_mlr_timer;
+        cur->thread_info->ccm_info->update_needed = false;
+    }
+}
+
+static void thread_bootstrap_pbbr_network_data_process(struct protocol_interface_info_entry *cur)
+{
+    // Check if network data changed or bbr info and send proactive an if needed
+    uint8_t addr[16];
+    uint8_t sequence_number;
+    uint32_t delay_timer;
+    uint32_t mlr_timeout;
+
+    if (0 != thread_common_primary_bbr_get(cur, addr, &sequence_number, &mlr_timeout, &delay_timer)) {
+        // BBR not present
+        return;
+    }
+    if (1 == thread_bootstrap_pbbr_update_needed(cur, common_read_16_bit(&addr[14]), sequence_number)) {
+        thread_bootstrap_address_registration_timer_set(cur, 1 + randLIB_get_random_in_range(0, delay_timer / 1000), randLIB_get_random_in_range(1, 5));
+    }
+}
+
+static void thread_bootstrap_address_registration_trigger(protocol_interface_info_entry_t *interface)
+{
+    // Address notification is sent only for DUA address
+    thread_bootstrap_pbbr_update_done(interface);
+    // Send notification on behalf of children
+    ns_list_foreach(ipv6_neighbour_t, n, &interface->ipv6_neighbour_cache.list) {
+        if (n->type == IP_NEIGHBOUR_REGISTERED && addr_ipv6_scope(n->ip_address, interface) > IPV6_SCOPE_REALM_LOCAL) {
+            mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(interface), &n->ll_address[2], ADDR_802_15_4_SHORT);
+            if (entry) {
+                thread_bootstrap_address_registration(interface, n->ip_address, entry->mac64, true, false);
+            }
+        }
+    }
+
+    // Send own Address
+    ns_list_foreach(if_address_entry_t, e, &interface->ip_addresses) {
+        if (addr_ipv6_scope(e->address, interface) > IPV6_SCOPE_REALM_LOCAL) {
+            thread_bootstrap_address_registration(interface, e->address, NULL, false, false);
+        }
+    }
+}
+
+void thread_bootstrap_address_registration_init()
+{
+    enabled = true;
+    addr_notificastion_timer = THREAD_PROACTIVE_AN_INTERVAL;
+    mlr_timer = 0;
+}
+
+bool thread_bootstrap_address_registration_running()
+{
+    return enabled;
+}
+
+void thread_bootstrap_address_registration_deinit()
+{
+    enabled = false;
+}
+
+bool thread_bootstrap_is_domain_prefix(protocol_interface_info_entry_t *interface, const uint8_t *addr)
+{
+    uint8_t address[16];
+    memcpy(address, addr, 16);
+    thread_prefix_tlv_t prefixTlv;
+    prefixTlv.domainId = 0;
+    prefixTlv.Prefix = address;
+    prefixTlv.PrefixLen = 64;
+    thread_network_data_prefix_cache_entry_t *prefix_entry = NULL;
+    thread_network_data_cache_entry_t *networkDataCache = &interface->thread_info->networkDataStorage;
+    prefix_entry = thread_prefix_entry_find(&networkDataCache->localPrefixList, &prefixTlv);
+    if (!prefix_entry) {
+        return false;
+    }
+    ns_list_foreach(thread_network_server_data_entry_t, brEntry, &prefix_entry->borderRouterList) {
+        if (brEntry->P_res1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void thread_bootstrap_dua_address_generate(protocol_interface_info_entry_t *cur, const uint8_t *domain_prefix, uint8_t domain_prefix_len)
+{
+    if_address_entry_t *def_address = NULL;
+    uint8_t domain_address[16];
+    if (thread_info(cur)->version < THREAD_VERSION_1_2) {
+        return;
+    }
+    addr_delete_matching(cur, NULL, 0, ADDR_SOURCE_THREAD_DOMAIN);
+    memcpy(domain_address, domain_prefix, 8);
+    def_address = icmpv6_slaac_address_add(cur, domain_address, domain_prefix_len, 0xffffffff, 0xffffffff, true, SLAAC_IID_DEFAULT);
+    if (def_address) {
+        tr_info("Generated domain address 64: %s", trace_ipv6(def_address->address));
+        def_address->source = ADDR_SOURCE_THREAD_DOMAIN;
+    } else {
+        tr_error("Domain address creation failed");
+    }
+}
+
+void thread_bootstrap_address_registration(struct protocol_interface_info_entry *interface, const uint8_t *addr, const uint8_t *child_mac64, bool refresh_child_entry, bool duplicate_child_detected)
+{
+    uint8_t *ml_eid;
+    uint8_t br_ml_addr[16];
+    uint8_t seq;
+    uint32_t delay_timer;
+
+    if (thread_info(interface)->version < THREAD_VERSION_1_2) {
+        return;
+    }
+
+    if (!thread_bootstrap_is_domain_prefix(interface, addr)) {
+        return;
+    }
+    tr_debug("domain prefix address");
+    if (0 != thread_common_primary_bbr_get(interface, br_ml_addr, &seq, &delay_timer, NULL)) {
+        // No pBBR present
+        return;
+    }
+    tr_info("domain prefix Primary bbr present");
+
+    if (child_mac64) {
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(interface), child_mac64, ADDR_802_15_4_LONG);
+
+        if (!entry) {
+            tr_error("No MLE entry.");
+            return;
+        }
+
+        ml_eid = thread_neighbor_class_get_mleid(&interface->thread_info->neighbor_class, entry->index);
+        if (!ml_eid) {
+            tr_error("No Thread neighbor.");
+            return;
+        }
+
+        if (duplicate_child_detected) {
+            uint8_t dest_address[16] = {0};
+            thread_addr_write_mesh_local_16(dest_address, entry->mac16, interface->thread_info);
+            thread_management_client_addr_ntf_send(interface->id, dest_address, addr, 3);
+            return;
+        }
+        if (!refresh_child_entry) {
+            // don't send n/dr for existing entry
+            return;
+        }
+    } else {
+        link_configuration_s *link_config = thread_joiner_application_get_config(interface->id);
+
+        if (!link_config) {
+            tr_error("No link configuration.");
+            return;
+        }
+        ml_eid = thread_joiner_application_ml_eid_get(interface->id);
+    }
+
+    // Register the DUA address
+    thread_bootstrap_dua_registration_send(interface, addr, ml_eid, br_ml_addr);
+
+    return;
+}
+
+
+void thread_bootstrap_address_registration_timer_set(protocol_interface_info_entry_t *interface, uint16_t dua_delay_seconds, uint16_t mlr_refresh_seconds)
+{
+    (void)interface;
+    if (dua_delay_seconds != 0) {
+        addr_notificastion_timer = dua_delay_seconds;
+    }
+    if (mlr_refresh_seconds != 0) {
+        mlr_timer = mlr_refresh_seconds;
+    }
+
+}
+void thread_bootstrap_address_registration_timer(protocol_interface_info_entry_t *interface, uint16_t seconds)
+{
+    uint32_t mlr_timeout;
+    uint32_t delay_timer;
+    if (!enabled || interface->thread_info->version < THREAD_VERSION_1_2) {
+        return;
+    }
+    if (thread_bootstrap_should_register_address(interface)) {
+        if (!interface->thread_info->thread_endnode_parent) {
+            // We dont have parent so skip
+            return;
+        }
+        if (interface->thread_info->thread_endnode_parent->version >= THREAD_VERSION_1_2) {
+            // Parent supports all features
+            return;
+        }
+    }
+
+    if (0 != thread_common_primary_bbr_get(interface, NULL, NULL, &mlr_timeout, &delay_timer)) {
+        // BBR not present
+        return;
+    }
+    /* Update multicast addresses */
+    if (mlr_timer > seconds) {
+        mlr_timer -= seconds;
+    } else {
+        mlr_timer = mlr_timeout - randLIB_get_random_in_range(30, 50);
+        thread_bootstrap_mcast_subscrition_change(interface);
+    }
+    /* Update global scope addresses (children's as well) */
+    if (addr_notificastion_timer > seconds) {
+        addr_notificastion_timer -= seconds;
+    } else {
+        addr_notificastion_timer = THREAD_PROACTIVE_AN_INTERVAL + randLIB_get_random_in_range(0, delay_timer / 1000);
+        thread_bootstrap_address_registration_trigger(interface);
+    }
+
+}
+void thread_bootstrap_child_address_registration_response_process(struct protocol_interface_info_entry *interface)
+{
+    //  if we are version 3 and parent is lower we need to send registrations for them
+
+    if (interface->thread_info->version < THREAD_VERSION_1_2) {
+        thread_bootstrap_address_registration_deinit();
+        return;
+    }
+    if (!interface->thread_info->thread_endnode_parent) {
+        // We dont have parent return
+        thread_bootstrap_address_registration_deinit();
+        return;
+    }
+    if (interface->thread_info->thread_endnode_parent->version >= THREAD_VERSION_1_2) {
+        //parent supports 1.2
+        thread_bootstrap_address_registration_deinit();
+        return;
+    }
+    // We will start address registration timers
+    if (!thread_bootstrap_address_registration_running()) {
+        uint32_t dua_delay;
+        if (0 != thread_common_primary_bbr_get(interface, NULL, NULL, NULL, &dua_delay)) {
+            dua_delay = randLIB_get_random_in_range(1, 5);
+        }
+        thread_bootstrap_address_registration_init();
+        thread_bootstrap_address_registration_timer_set(interface, 1 + randLIB_get_random_in_range(0, dua_delay / 1000), randLIB_get_random_in_range(1, 5));
+    }
+}
+
+
+#endif
 #endif

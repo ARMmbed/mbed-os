@@ -53,11 +53,11 @@
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_resolution_client.h"
 #include "6LoWPAN/Thread/thread_resolution_server.h"
+#include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "Common_Protocols/icmpv6.h"
@@ -149,7 +149,7 @@ static void thread_nd_coap_notification_callback(int8_t interface_id, const uint
         if (old_entry_rloc != loc_addr) {
             uint8_t old_entry_ip[16];
             thread_addr_write_mesh_local_16(old_entry_ip, common_read_16_bit(entry->ll_address + 2), cur->thread_info);
-            tr_warn("Proactive address change %s %04x->%04x", trace_ipv6(ip_addr), old_entry_rloc, loc_addr);
+            tr_info("Proactive address change %s %04x->%04x", trace_ipv6(ip_addr), old_entry_rloc, loc_addr);
             thread_resolution_client_address_error(interface_id, old_entry_ip, ip_addr, ml_eid);
         }
     }
@@ -264,7 +264,7 @@ static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t tar
         can_route_of_mesh = true;
     }
 
-    if (thread_extension_bbr_nd_query_process(cur, target_addr, *rloc)) {
+    if (thread_bbr_commercial_nd_query_process(cur, target_addr, *rloc)) {
         return -1;
     }
 
@@ -295,7 +295,7 @@ static void thread_nd_address_error(int8_t interface_id, const uint8_t ip_addr[1
     if_address_entry_t *addr_entry = addr_get_entry(cur, ip_addr);
     if (addr_entry && memcmp(ml_eid, cur->iid_slaac, 8)) {
         addr_duplicate_detected(cur, ip_addr);
-        thread_extension_dua_address_generate(cur, ip_addr, 64);
+        thread_bootstrap_dua_address_generate(cur, ip_addr, 64);
     }
 
     /* Scan IPv6 neighbour cache for registered entries of children */
@@ -577,6 +577,18 @@ void thread_nd_address_remove(protocol_interface_info_entry_t *cur_interface, ad
     }
 }
 
+bool thread_pbbr_aloc_map(protocol_interface_info_entry_t *cur, uint16_t *addr16)
+{
+    if (*addr16 == 0xfc38) {
+        uint8_t addr[16];
+        if (0 == thread_common_primary_bbr_get(cur, addr, NULL, NULL, NULL)) {
+            *addr16 = common_read_16_bit(addr + 14);
+            return true;
+        }
+    }
+    return false;
+}
+
 int thread_nd_map_anycast_address(protocol_interface_info_entry_t *cur, uint16_t *addr16)
 {
     // Nothing implemented for now
@@ -613,7 +625,7 @@ int thread_nd_map_anycast_address(protocol_interface_info_entry_t *cur, uint16_t
         *addr16 = common_read_16_bit(cur->thread_info->registered_commissioner.border_router_address + 14);
         return 0;
     }
-    if (thread_extension_aloc_map(cur, addr16)) {
+    if (thread_pbbr_aloc_map(cur, addr16)) {
         return 0;
     }
 

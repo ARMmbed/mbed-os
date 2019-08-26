@@ -485,6 +485,7 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;
     entry->mle_link_reject_tokens = 2;
+    entry->send_na = true; /* Default to on for now... */
     entry->ip_forwarding = true; /* Default to on for now... */
     entry->ip_multicast_forwarding = true; /* Default to on for now... */
 #ifdef HAVE_IPV6_ND
@@ -868,7 +869,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
     if (!api) {
         return NULL;
     }
-    protocol_interface_info_entry_t *new_entry = NULL;
 
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
         if (cur->eth_mac_api == api) {
@@ -876,32 +876,74 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
         }
     }
 
-    if (api) {
-        new_entry = protocol_core_interface_ethernet_entry_get(api);
+    protocol_interface_info_entry_t *new_entry = protocol_core_interface_ethernet_entry_get(api);
 
-        if (new_entry) {
-            neighbor_cache_init(&(new_entry->neigh_cache));
-            pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
-            pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
-            ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
-            addr_max_slaac_entries_set(new_entry, 16);
-            uint8_t mac[6];
-            int8_t error = api->mac48_get(api, mac);
-            if (error) {
-                tr_error("mac_ext_mac64_address_get failed: %d", error);
-                ns_dyn_mem_free(new_entry);
-                return NULL;
-            }
+    if (!new_entry) {
+        return NULL;
+    }
 
-            protocol_stack_interface_iid_eui64_generate(new_entry, mac);
-            ns_list_add_to_start(&protocol_interface_info_list, new_entry);
+    neighbor_cache_init(&(new_entry->neigh_cache));
+    pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
+    pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
+    ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
+    addr_max_slaac_entries_set(new_entry, 16);
+    uint8_t mac[6];
+    int8_t error = api->mac48_get(api, mac);
+    if (error) {
+        tr_error("mac_ext_mac64_address_get failed: %d", error);
+        ns_dyn_mem_free(new_entry);
+        return NULL;
+    }
 
-            (void) ipv6_route_table_set_max_entries(new_entry->id, ROUTE_RADV, 16);
+    protocol_stack_interface_iid_eui64_generate(new_entry, mac);
+    ns_list_add_to_start(&protocol_interface_info_list, new_entry);
 
-            return new_entry;
+    (void) ipv6_route_table_set_max_entries(new_entry->id, ROUTE_RADV, 16);
+
+    return new_entry;
+}
+
+protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_api_t *api)
+{
+    if (!api) {
+        return NULL;
+    }
+
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        if (cur->eth_mac_api == api) {
+            return cur;
         }
     }
-    return NULL;
+
+    protocol_interface_info_entry_t *new_entry = protocol_core_interface_ethernet_entry_get(api);
+
+    if (!new_entry) {
+        return NULL;
+    }
+
+    neighbor_cache_init(&(new_entry->neigh_cache));
+    pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
+    pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
+    ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
+    addr_max_slaac_entries_set(new_entry, 16);
+    uint8_t iid64[8];
+    int8_t error = api->iid64_get(api, iid64);
+    if (error) {
+        tr_error("iid64_get failed: %d", error);
+        ns_dyn_mem_free(new_entry);
+        return NULL;
+    }
+    memcpy(new_entry->iid_slaac, iid64, 8);
+    memcpy(new_entry->iid_eui64, iid64, 8);
+    new_entry->send_mld = false;                 // No mld for PPP
+    new_entry->dup_addr_detect_transmits = 0;    // No duplicate detection for PPP
+    new_entry->send_na = false;                  // No neighbor advertisements for PPP
+
+    ns_list_add_to_start(&protocol_interface_info_list, new_entry);
+
+    (void) ipv6_route_table_set_max_entries(new_entry->id, ROUTE_RADV, 16);
+
+    return new_entry;
 }
 
 protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_api_t *api)

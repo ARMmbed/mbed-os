@@ -605,7 +605,6 @@ void thread_management_client_proactive_an(int8_t interface_id, const uint8_t ad
                               THREAD_URI_ADDRESS_NOTIFICATION, COAP_CT_OCTET_STREAM,
                               payload, ptr - payload, thread_management_client_proactive_an_cb);
 }
-
 void thread_management_client_coap_message_delete(int8_t interface_id, uint16_t coap_message_id)
 {
     thread_management_t *this = thread_management_find(interface_id);
@@ -631,4 +630,63 @@ void thread_management_client_old_partition_data_clean(int8_t interface_id)
     coap_service_request_delete_by_service_id(this->coap_service_id);
 }
 
+#ifdef HAVE_THREAD_V2
+void thread_management_client_addr_ntf_send(int8_t interface_id, uint8_t *destination_address, const uint8_t *addr_data_ptr, uint8_t bbr_status)
+{
+    uint8_t payload[16 + 1]; // Target eid + Status
+    uint8_t *ptr;
+    uint8_t br_ml_addr[16];
+    uint8_t seq;
+    uint32_t delay_timer;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur) {
+        return;
+    }
+
+    if (!thread_bootstrap_is_domain_prefix(cur, addr_data_ptr)) {
+        return;
+    }
+
+    if (0 != thread_common_primary_bbr_get(cur, br_ml_addr, &seq, &delay_timer, NULL)) {
+        // No pBBR present
+        return;
+    }
+
+    ptr = payload;
+    ptr = thread_tmfcop_tlv_data_write(ptr, TMFCOP_TLV_TARGET_EID, 16, addr_data_ptr);
+    ptr = thread_tmfcop_tlv_data_write_uint8(ptr, TMFCOP_TLV_STATUS, bbr_status);
+
+    coap_service_request_send(thread_management_server_service_id_get(cur->id), COAP_REQUEST_OPTIONS_ADDRESS_SHORT,
+                              destination_address, THREAD_MANAGEMENT_PORT,
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST,
+                              THREAD_URI_BBR_DOMAIN_ADDRESS_NOTIFICATION, COAP_CT_OCTET_STREAM,
+                              payload, ptr - payload, NULL);
+    return;
+}
+static int thread_bootstrap_mlr_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr)
+{
+    (void) service_id;
+    (void) source_address;
+    (void) source_port;
+    (void) response_ptr;
+
+    tr_debug("Thread MLR callback");
+    return 0;
+}
+
+int thread_management_client_mlr_req_send(int8_t interface_id, const uint8_t br_addr[16], const uint8_t *address, uint8_t address_len)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !br_addr || !address) {
+        return -1;
+    }
+    tr_debug("thread MLR.req send");
+
+    coap_service_request_send(thread_management_server_service_id_get(cur->id), COAP_REQUEST_OPTIONS_NONE, br_addr, THREAD_MANAGEMENT_PORT,
+                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_BBR_MCAST_LISTENER_REPORT, COAP_CT_OCTET_STREAM, address, address_len, thread_bootstrap_mlr_cb);
+    return 0;
+}
+#endif
 #endif

@@ -17,5 +17,6 @@
 
 /* Thread feature is active with minimal functionality */
 #define HAVE_THREAD
+#define HAVE_THREAD_V2
 
 #define HAVE_MPL

@@ -44,7 +44,6 @@
 #include "ip6string.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_config.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
@@ -1962,7 +1961,7 @@ uint8_t thread_nd_context_id_allocate(thread_network_data_cache_entry_t *network
     }
 
     //Allocate Free context id
-    if (thread_extension_version_check(thread_version)) {
+    if (thread_version >= THREAD_VERSION_1_2) {
         tempId = 2;
     } else {
         tempId = 1;

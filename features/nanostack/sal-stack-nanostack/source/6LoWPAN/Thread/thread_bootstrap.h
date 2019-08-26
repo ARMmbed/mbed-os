@@ -205,4 +205,28 @@ void thread_bootstrap_temporary_attach(protocol_interface_info_entry_t *cur, uin
 
 #endif // HAVE_THREAD
 
+#ifdef HAVE_THREAD_V2
+
+void thread_bootstrap_address_registration_init(void);
+bool thread_bootstrap_address_registration_running(void);
+void thread_bootstrap_address_registration_deinit(void);
+bool thread_bootstrap_is_domain_prefix(protocol_interface_info_entry_t *interface, const uint8_t *addr);
+void thread_bootstrap_dua_address_generate(protocol_interface_info_entry_t *cur, const uint8_t *domain_prefix, uint8_t domain_prefix_len);
+void thread_bootstrap_address_registration(struct protocol_interface_info_entry *interface, const uint8_t *addr, const uint8_t *child_mac64, bool refresh_child_entry, bool duplicate_child_detected);
+void thread_bootstrap_child_address_registration_response_process(struct protocol_interface_info_entry *interface);
+void thread_bootstrap_address_registration_timer_set(protocol_interface_info_entry_t *interface, uint16_t dua_delay_seconds, uint16_t mlr_refresh_seconds);
+void thread_bootstrap_address_registration_timer(protocol_interface_info_entry_t *interface, uint16_t seconds);
+#else
+
+#define thread_bootstrap_address_registration_init()
+#define thread_bootstrap_address_registration_running() ((void)0)
+#define thread_bootstrap_address_registration_deinit()
+#define thread_bootstrap_is_domain_prefix(interface, addr) ((void)0)
+#define thread_bootstrap_dua_address_generate(cur, domain_prefix, domain_prefix_len)
+#define thread_bootstrap_address_registration(interface, addr, child_mac64, refresh_child_entry, duplicate_child_detected)
+#define thread_bootstrap_child_address_registration_response_process(interface)
+#define thread_bootstrap_address_registration_timer_set(interface, dua_delay_seconds, mlr_refresh_seconds)
+#define thread_bootstrap_address_registration_timer(interface, seconds)
+
+#endif
 #endif /* THREAD_BOOTSTRAP_H_ */

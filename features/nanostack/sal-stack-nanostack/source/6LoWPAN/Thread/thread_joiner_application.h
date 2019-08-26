@@ -162,15 +162,6 @@ thread_provisioning_status_e thread_joiner_application_provisioning_get(int8_t i
  */
 int thread_joiner_application_form_network(int8_t interface_id, uint8_t *commissioning_credentials_ptr, char *name_ptr);
 
-/** Commissioning done callback.
- *
- * This callback is called when commissioning is made and new attach can be made with new static configuration.
- *
- * /param interface interface id of this thread instance.
- *
- */
-typedef void thread_joiner_application_commission_done_cb(int8_t interface_id);
-
 /** Commissioning start.
  *
  * Start commissioning process to this network
@@ -178,7 +169,7 @@ typedef void thread_joiner_application_commission_done_cb(int8_t interface_id);
  * /param interface interface id of this thread instance.
  *
  */
-int thread_joiner_application_pskd_commission_start(int8_t interface_id, uint8_t parent_address[16], uint16_t joiner_port, uint16_t panid, uint8_t xpanid[8], uint8_t channel, thread_joiner_application_commission_done_cb *done_cb);
+int thread_joiner_application_pskd_commission_start(int8_t interface_id, uint8_t parent_address[16], uint16_t joiner_port, uint16_t panid, uint8_t xpanid[8], uint8_t channel, thread_commission_done_cb *done_cb);
 
 /** One second ticker for delayed configurations.
  *

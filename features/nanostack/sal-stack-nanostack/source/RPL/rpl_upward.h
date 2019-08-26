@@ -83,7 +83,8 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, struct protocol_interfac
 void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair);
 bool rpl_instance_local_repair(const rpl_instance_t *instance);
 uint16_t rpl_instance_current_rank(const rpl_instance_t *instance);
-bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr, bool selected);
+bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr);
+bool rpl_instance_address_is_candidate(rpl_instance_t *instance, const uint8_t *ipv6_addr, uint16_t candidate_amount);
 uint16_t rpl_instance_address_candidate_count(rpl_instance_t *instance, bool selected_parents);
 void rpl_instance_neighbor_delete(rpl_instance_t *instance, const uint8_t *ipv6_addr);
 void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds);

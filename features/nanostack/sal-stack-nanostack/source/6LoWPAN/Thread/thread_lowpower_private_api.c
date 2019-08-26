@@ -36,6 +36,7 @@
  * Dummy implementation for thread_lowpower_api.
  */
 
+#ifndef HAVE_THREAD_V2
 int thread_lowpower_test_probe_send(int8_t interface_id, uint8_t *address, uint8_t *metrics_ptr, uint8_t metrics_len, thread_lowpower_resp_cb response_cb)
 {
     (void)interface_id;
@@ -58,3 +59,4 @@ int thread_lowpower_metrics_management_request_send(int8_t interface_id, uint8_t
     (void)response_cb;
     return -1;
 }
+#endif

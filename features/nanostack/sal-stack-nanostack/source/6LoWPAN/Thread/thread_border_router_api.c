@@ -42,13 +42,13 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_common.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_border_router_api_internal.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "6LoWPAN/Thread/thread_mdns.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/MAC/mac_helper.h"
@@ -599,7 +599,7 @@ void thread_border_router_old_partition_data_clean(int8_t interface_id)
     if (this) {
         coap_service_request_delete_by_service_id(this->coap_service_id);
     }
-    thread_extension_bbr_old_partition_data_clean(interface_id);
+    thread_bbr_commercial_old_partition_data_clean(interface_id);
 }
 #endif // HAVE_THREAD_ROUTER
 

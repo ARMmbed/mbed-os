@@ -44,23 +44,23 @@ void (*fhss_uc_switch)(void) = NULL;
 void (*fhss_bc_switch)(void) = NULL;
 #endif /*FHSS_CHANNEL_DEBUG_CBS*/
 // Seconds to milliseconds
-#define S_TO_MS(x) (((int32_t)x)*1000)
+#define S_TO_MS(x) (((int64_t)x)*1000)
 // Milliseconds to seconds
 #define MS_TO_S(x) divide_integer(x, 1000)
 // Seconds to microseconds
-#define S_TO_US(x) (((int32_t)x)*1000000)
+#define S_TO_US(x) (((int64_t)x)*1000000)
 // Microseconds to seconds
 #define US_TO_S(x) divide_integer(x, 1000000)
 // Milliseconds to microseconds
-#define MS_TO_US(x) (((int32_t)x)*1000)
+#define MS_TO_US(x) (((int64_t)x)*1000)
 // Microseconds to milliseconds
 #define US_TO_MS(x) divide_integer(x, 1000)
 // Milliseconds to nanoseconds
-#define MS_TO_NS(x) (((int32_t)x)*1000000)
+#define MS_TO_NS(x) (((int64_t)x)*1000000)
 // Nanoseconds to milliseconds
 #define NS_TO_MS(x) divide_integer(x, 1000000)
 // Microseconds to nanoseconds
-#define US_TO_NS(x) (((int32_t)x)*1000)
+#define US_TO_NS(x) (((int64_t)x)*1000)
 // Nanoseconds to microseconds
 #define NS_TO_US(x) divide_integer(x, 1000)
 #define DEF_2E24 0x1000000
@@ -86,8 +86,11 @@ static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
 static uint32_t fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure);
 
 // This function supports rounding up
-static int32_t divide_integer(int32_t dividend, int32_t divisor)
+static int64_t divide_integer(int64_t dividend, int32_t divisor)
 {
+    if (!divisor) {
+        return dividend;
+    }
     if (dividend < 0) {
         return (dividend - divisor / 2) / divisor;
     }
@@ -854,16 +857,16 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         //TODO: Compensation for fixed channel configuration
         if (SYNCH_COMPENSATION_MIN_INTERVAL <= US_TO_S(time_since_last_synch_us)) {
             // Update clock drift
-            int32_t drift_per_ms_tmp = divide_integer(MS_TO_NS((true_bc_interval_offset - own_bc_interval_offset) + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval)), US_TO_MS(time_since_last_synch_us));
+            int32_t drift_per_ms_tmp = divide_integer((int32_t)MS_TO_NS((true_bc_interval_offset - own_bc_interval_offset) + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval)), US_TO_MS(time_since_last_synch_us));
             if (drift_per_ms_tmp > MAX_DRIFT_COMPENSATION_STEP) {
                 drift_per_ms_tmp = MAX_DRIFT_COMPENSATION_STEP;
             } else if (drift_per_ms_tmp < -MAX_DRIFT_COMPENSATION_STEP) {
                 drift_per_ms_tmp = -MAX_DRIFT_COMPENSATION_STEP;
             }
             fhss_structure->ws->drift_per_millisecond_ns += drift_per_ms_tmp;
-            fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval));
+            fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval)));
         }
-        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu32" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
+        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
     fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));
     return 0;

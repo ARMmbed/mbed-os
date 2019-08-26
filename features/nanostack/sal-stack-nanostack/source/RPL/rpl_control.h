@@ -147,7 +147,8 @@ void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callba
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16]);
-bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], bool selected);
+bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
+bool rpl_control_is_dodag_parent_candidate(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter);
 uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_entry  *interface, bool parent_list);
 void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
 /* Parent link confirmation API extension */

@@ -244,6 +244,9 @@ static int8_t supp_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_c
             const uint8_t identity_size = sizeof(identity) - 1;
             if (data->tls_send.total_len != identity_size) {
                 eap_tls_sec_prot_lib_message_allocate(&data->tls_send, TLS_HEAD_LEN, identity_size);
+                if (!data->tls_send.data) {
+                    return -1;
+                }
                 memcpy(data->tls_send.data + TLS_HEAD_LEN, identity, identity_size);
             }
             flags = 0xff;

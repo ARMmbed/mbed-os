@@ -58,8 +58,7 @@
 #include "thread_network_synch.h"
 #include "thread_network_data_lib.h"
 #include "thread_joiner_application.h"
-#include "thread_extension.h"
-#include "6LoWPAN/Thread/thread_extension_bootstrap.h"
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "thread_nvm_store.h"
@@ -214,7 +213,7 @@ typedef struct {
     device_configuration_s *device_configuration_ptr;
     uint8_t parent_address[16];
     uint16_t parent_port;
-    thread_joiner_application_commission_done_cb *done_cb;
+    thread_commission_done_cb *done_cb;
     timeout_t *attach_timeout;
     timeout_t *entrust_timeout;
     uint32_t provisioning_timeout;
@@ -741,7 +740,7 @@ static void configuration_set_generate(int8_t interface_id, configuration_set_t 
     response_ptr = thread_tmfcop_tlv_data_write(response_ptr, MESHCOP_TLV_NETWORK_NAME, stringlen((char *)&configuration_ptr->name, 16), configuration_ptr->name);
     *response_ptr++ = MESHCOP_TLV_SECURITY_POLICY; // type
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (thread_extension_version_check(thread_info(cur)->version)) {
+    if (thread_info(cur)->version >= THREAD_VERSION_1_2) {
         *response_ptr++ = 4; // length
         response_ptr = common_write_16_bit(configuration_ptr->key_rotation, response_ptr);
         *response_ptr++ = configuration_ptr->securityPolicy;
@@ -1857,7 +1856,7 @@ static int thread_joiner_application_entrust_recv_cb(int8_t service_id, uint8_t 
     return 0;
 }
 
-int thread_joiner_application_pskd_commission_start(int8_t interface_id, uint8_t parent_address[16], uint16_t joiner_port, uint16_t panid, uint8_t xpanid[8], uint8_t channel, thread_joiner_application_commission_done_cb *done_cb)
+int thread_joiner_application_pskd_commission_start(int8_t interface_id, uint8_t parent_address[16], uint16_t joiner_port, uint16_t panid, uint8_t xpanid[8], uint8_t channel, thread_commission_done_cb *done_cb)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     thread_joiner_t *this = thread_joiner_find(interface_id);

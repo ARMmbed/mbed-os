@@ -74,7 +74,7 @@ static void mac_pd_data_confirm_failure_handle(protocol_interface_rf_mac_setup_s
 
 static int8_t mac_tasklet_event_handler = -1;
 
-static uint32_t ns_dyn_mem_rate_limiting_threshold = 0xFFFFFFFF;
+static ns_mem_heap_size_t ns_dyn_mem_rate_limiting_threshold = 0xFFFFFFFF;
 
 /**
  * Get PHY time stamp.
@@ -83,7 +83,7 @@ static uint32_t ns_dyn_mem_rate_limiting_threshold = 0xFFFFFFFF;
  * \return Timestamp from PHY
  *
  */
-static uint32_t mac_mcps_sap_get_phy_timestamp(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+uint32_t mac_mcps_sap_get_phy_timestamp(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     uint32_t timestamp;
     rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&timestamp);
@@ -1589,15 +1589,12 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     return 0;
 }
 
-int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload)
+int8_t mcps_generic_ack_data_request_init(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload)
 {
-    phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
-    dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
+    mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
+    //save timestamp
+    rf_ptr->enhanced_ack_handler_timestamp = mac_mcps_sap_get_phy_timestamp(rf_ptr);
 
-    ccm_globals_t ccm_ptr;
-
-    mac_pre_build_frame_t pd_act_buf;
-    mac_pre_build_frame_t *buffer = &pd_act_buf;
     memset(buffer, 0, sizeof(mac_pre_build_frame_t));
     buffer->fcf_dsn.frametype = FC_ACK_FRAME;
     buffer->fcf_dsn.frameVersion = fcf->frameVersion;
@@ -1609,6 +1606,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const m
     buffer->fcf_dsn.SrcAddrMode = fcf->DstAddrMode;
     buffer->fcf_dsn.SrcPanPresents = fcf->SrcPanPresents;
     buffer->fcf_dsn.DstAddrMode = fcf->SrcAddrMode;
+
     if (buffer->fcf_dsn.sequenceNumberSuppress) {
         buffer->mac_header_length_with_security = 2;
     } else {
@@ -1642,8 +1640,6 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const m
 
     }
 
-
-    //TODO Request Application data to ACK
     uint16_t ie_header_length = 0;
     uint16_t ie_payload_length = 0;
 
@@ -1666,15 +1662,31 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const m
 
     //This will prepare MHR length with Header IE
     mac_header_information_elements_preparation(buffer);
+    return 0;
+}
+
+
+int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool init_build)
+{
+    phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
+    dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
+
+    ccm_globals_t ccm_ptr;
+    mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
+
 
     if (buffer->fcf_dsn.securityEnabled) {
         //Remember to update security counter here!
-        buffer->aux_header.frameCounter = mac_mlme_framecounter_get(rf_ptr);
+        if (init_build) {
+            buffer->aux_header.frameCounter = mac_mlme_framecounter_get(rf_ptr);
+        }
         if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer)) {
             return -2;
         }
-        //Increment security counter
-        mac_mlme_framecounter_increment(rf_ptr);
+        if (init_build) {
+            //Increment security counter
+            mac_mlme_framecounter_increment(rf_ptr);
+        }
     }
 
     //Calculate Payload length here with IE extension

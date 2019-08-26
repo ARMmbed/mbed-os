@@ -451,7 +451,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         // Default retry values are modified from specification update to message
         dhcp_service_set_retry_timers(srv_data_ptr->transActionId, dhcp_client.sol_timeout, dhcp_client.sol_max_rt, dhcp_client.sol_max_rc);
     }
-    tr_error("DHCP renew send OK");
+    tr_info("DHCP renew send OK");
 }
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr)
