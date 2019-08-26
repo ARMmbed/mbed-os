@@ -51,6 +51,8 @@ extern "C" {
 * \{
 */
 
+/** Failed to configure sysclk power management callback */
+#define CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK  (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 0))
 
 /** \} group_abstraction_board_macros */
 
@@ -130,6 +132,13 @@ bool cybsp_btn_get_state(cybsp_btn_t which);
  */
 void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_gpio_event_callback_t callback, void *callback_arg);
 
+/**
+ * \brief Registers a power management callback that prepares the clock system
+ *  for entering deep sleep mode and restore the clocks upon wakeup from deep sleep.
+ * \returns CY_RSLT_SUCCESS if the callback is sucessfully registered, if there is
+ *          a problem registering the callback it returns CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK.
+ */
+cy_rslt_t cybsp_register_sysclk_pm_callback(void);
 
 /** \} group_abstraction_board_functions */
 

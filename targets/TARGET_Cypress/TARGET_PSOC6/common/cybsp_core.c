@@ -60,6 +60,33 @@ void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_g
     cyhal_gpio_enable_event((cyhal_gpio_t)which, type, 7, 1);
 }
 
+/* The sysclk deep sleep callback is recommended to be the last callback that
+* is executed before entry into deep sleep mode and the first one upon 
+* exit the deep sleep mode.
+* Doing so minimizes the time spent on low power mode entry and exit.
+*/
+#ifndef CYBSP_SYSCLK_PM_CALLBACK_ORDER
+    #define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
+#endif
+
+cy_rslt_t cybsp_register_sysclk_pm_callback(void)
+{
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    static cy_stc_syspm_callback_params_t cybsp_sysclk_pm_callback_param = {NULL, NULL};
+    static cy_stc_syspm_callback_t cybsp_sysclk_pm_callback = {
+        .callback = &Cy_SysClk_DeepSleepCallback,
+        .type = CY_SYSPM_DEEPSLEEP,
+        .callbackParams = &cybsp_sysclk_pm_callback_param,
+        .order = CYBSP_SYSCLK_PM_CALLBACK_ORDER
+    };
+
+    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback))
+    {
+        result = CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK;
+    }
+    return result;
+}
+
 #if defined(__cplusplus)
 }
 #endif
