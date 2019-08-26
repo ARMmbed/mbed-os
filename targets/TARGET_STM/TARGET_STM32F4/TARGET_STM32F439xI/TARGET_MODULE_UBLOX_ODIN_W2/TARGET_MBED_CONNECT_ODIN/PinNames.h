@@ -150,6 +150,11 @@ typedef enum {
     SPI0_CS    = PE_11,
     SPI1_CS    = PE_9,
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     SPI_MOSI   = SPI0_MOSI,
     SPI_MISO   = SPI0_MISO,
     SPI_SCK    = SPI0_SCK,
