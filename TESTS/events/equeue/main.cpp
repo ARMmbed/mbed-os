@@ -977,6 +977,65 @@ static void test_equeue_sibling()
     equeue_destroy(&q);
 }
 
+struct user_allocated_event {
+    struct equeue_event e;
+    uint8_t touched;
+};
+
+/** Test that equeue executes user allocated events passed by equeue_post.
+ *
+ *  Given queue is initialized and its size is set to store one event at max in its internal memory.
+ *  When post events allocated in queues internal memory (what is done by calling equeue_call).
+ *  Then only one event can be posted due to queue memory size.
+ *  When post user allocated events.
+ *  Then number of posted events is not limited by queue memory size.
+ *  When both queue allocaded and user allocated events are posted and equeue_dispatch is called.
+ *  Then both types of events are executed properly.
+ */
+static void test_equeue_user_allocated_event_post()
+{
+    equeue_t q;
+    int err = equeue_create(&q, EQUEUE_EVENT_SIZE);
+    TEST_ASSERT_EQUAL_INT(0, err);
+
+    uint8_t touched = 0;
+    user_allocated_event e1 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+    user_allocated_event e2 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e3 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e4 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e5 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+
+    TEST_ASSERT_NOT_EQUAL(0, equeue_call(&q, simple_func, &touched));
+    TEST_ASSERT_EQUAL_INT(0, equeue_call(&q, simple_func, &touched));
+    TEST_ASSERT_EQUAL_INT(0, equeue_call(&q, simple_func, &touched));
+
+    equeue_post_user_allocated(&q, simple_func, &e1.e);
+    equeue_post_user_allocated(&q, simple_func, &e2.e);
+    equeue_post_user_allocated(&q, simple_func, &e3.e);
+    equeue_post_user_allocated(&q, simple_func, &e4.e);
+    equeue_post_user_allocated(&q, simple_func, &e5.e);
+    equeue_cancel_user_allocated(&q, &e3.e);
+
+    equeue_dispatch(&q, 1);
+
+    TEST_ASSERT_EQUAL_UINT8(1, touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e1.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e2.touched);
+    TEST_ASSERT_EQUAL_UINT8(0, e3.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e4.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e5.touched);
+
+    equeue_dispatch(&q, 10);
+
+    TEST_ASSERT_EQUAL_UINT8(1, touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e1.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e2.touched);
+    TEST_ASSERT_EQUAL_UINT8(0, e3.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e4.touched);
+    TEST_ASSERT_EQUAL_UINT8(1, e5.touched);
+
+    equeue_destroy(&q);
+}
 
 Case cases[] = {
     Case("simple call test", test_equeue_simple_call),
@@ -1006,7 +1065,8 @@ Case cases[] = {
     Case("fragmenting barrage test", test_equeue_fragmenting_barrage<10>),
     Case("multithreaded barrage test", test_equeue_multithreaded_barrage<10>),
     Case("break request cleared on timeout test", test_equeue_break_request_cleared_on_timeout),
-    Case("sibling test", test_equeue_sibling)
+    Case("sibling test", test_equeue_sibling),
+    Case("user allocated event test", test_equeue_user_allocated_event_post)
 
 };
 

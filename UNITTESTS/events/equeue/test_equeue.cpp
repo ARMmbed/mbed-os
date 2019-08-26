@@ -995,3 +995,62 @@ TEST_F(TestEqueue, test_equeue_sibling)
     equeue_cancel(&q, id2);
     equeue_destroy(&q);
 }
+
+/** Test that equeue executes user allocated events passed by equeue_post.
+ *
+ *  Given queue is initialized and its size is set to store one event at max in its internal memory.
+ *  When post events allocated in queues internal memory (what is done by calling equeue_call).
+ *  Then only one event can be posted due to queue memory size.
+ *  When post user allocated events.
+ *  Then number of posted events is not limited by queue memory size.
+ *  When both queue allocaded and user allocated events are posted and equeue_dispatch is called.
+ *  Then both types of events are executed properly.
+ */
+TEST_F(TestEqueue, test_equeue_user_allocated_event_post)
+{
+    struct user_allocated_event {
+        struct equeue_event e;
+        uint8_t touched;
+    };
+    equeue_t q;
+    int err = equeue_create(&q, EQUEUE_EVENT_SIZE);
+    ASSERT_EQ(0, err);
+
+    uint8_t touched = 0;
+    user_allocated_event e1 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+    user_allocated_event e2 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e3 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e4 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    user_allocated_event e5 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+
+    EXPECT_NE(0, equeue_call(&q, simple_func, &touched));
+    EXPECT_EQ(0, equeue_call(&q, simple_func, &touched));
+    EXPECT_EQ(0, equeue_call(&q, simple_func, &touched));
+
+    equeue_post_user_allocated(&q, simple_func, &e1.e);
+    equeue_post_user_allocated(&q, simple_func, &e2.e);
+    equeue_post_user_allocated(&q, simple_func, &e3.e);
+    equeue_post_user_allocated(&q, simple_func, &e4.e);
+    equeue_post_user_allocated(&q, simple_func, &e5.e);
+    equeue_cancel_user_allocated(&q, &e3.e);
+
+    equeue_dispatch(&q, 1);
+
+    EXPECT_EQ(1, touched);
+    EXPECT_EQ(1, e1.touched);
+    EXPECT_EQ(1, e2.touched);
+    EXPECT_EQ(0, e3.touched);
+    EXPECT_EQ(1, e4.touched);
+    EXPECT_EQ(1, e5.touched);
+
+    equeue_dispatch(&q, 10);
+
+    EXPECT_EQ(1, touched);
+    EXPECT_EQ(1, e1.touched);
+    EXPECT_EQ(1, e2.touched);
+    EXPECT_EQ(0, e3.touched);
+    EXPECT_EQ(1, e4.touched);
+    EXPECT_EQ(1, e5.touched);
+
+    equeue_destroy(&q);
+}
