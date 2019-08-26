@@ -42,6 +42,14 @@ typedef struct analogin_s analogin_t;
  *
  * Configures the pin used by analogin.
  * @param obj The analogin object to initialize
+ * @param pinmap pointer to strucure which holds static pinmap
+ */
+void analogin_init_direct(analogin_t* obj, const PinMap *pinmap);
+
+/** Initialize the analogin peripheral
+ *
+ * Configures the pin used by analogin.
+ * @param obj The analogin object to initialize
  * @param pin The analogin pin name
  */
 void analogin_init(analogin_t *obj, PinName pin);
