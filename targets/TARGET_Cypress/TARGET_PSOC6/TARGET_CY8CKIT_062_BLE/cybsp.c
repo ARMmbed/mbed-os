@@ -42,23 +42,34 @@ cy_rslt_t cybsp_init(void)
     if (CY_RSLT_SUCCESS == result)
     {
         /* Initialize User LEDs */
+        /* Reserves: CYBSP_USER_LED1 */
         result |= cybsp_led_init(CYBSP_USER_LED1);
+        /* Reserves: CYBSP_USER_LED2 */
         result |= cybsp_led_init(CYBSP_USER_LED2);
+        /* Reserves: CYBSP_USER_LED3 */
         result |= cybsp_led_init(CYBSP_USER_LED3);
+        /* Reserves: CYBSP_USER_LED4 */
         result |= cybsp_led_init(CYBSP_USER_LED4);
+        /* Reserves: CYBSP_USER_LED5 */
         result |= cybsp_led_init(CYBSP_USER_LED5);
         /* Initialize User Buttons */
+        /* Reserves: CYBSP_USER_BTN1 */
         result |= cybsp_btn_init(CYBSP_USER_BTN1);
         CY_ASSERT(CY_RSLT_SUCCESS == result);
 
         /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
         if (CY_RSLT_SUCCESS == result)
         {
+           /* Reserves: CYBSP_DEBUG_UART_RX, CYBSP_DEBUG_UART_TX, corresponding SCB instance and one of available
+            *   clock dividers */
             result = cybsp_retarget_init();
         }
     }
 #endif
 
+    /* CYHAL_HWMGR_RSLT_ERR_INUSE error code could be returned if any needed for BSP resource was reserved by
+    *   user previously. Please review the Device Configurator (design.modus) and the BSP reservation list 
+    *   (cyreservedresources.list) to make sure no resources are reserved by both. */
     return result;
 }
 
