@@ -29,9 +29,15 @@ static ADC_Type *const adc_addrs[] = ADC_BASE_PTRS;
 
 #define MAX_FADC 6000000
 
-void analogin_init(analogin_t *obj, PinName pin)
+#if EXPLICIT_PINMAP_READY
+#define ANALOGIN_INIT_DIRECT analogin_init_direct
+void analogin_init_direct(analogin_t* obj, const PinMap *pinmap)
+#else
+#define ANALOGIN_INIT_DIRECT _analogin_init_direct
+static void _analogin_init_direct(analogin_t* obj, const PinMap *pinmap)
+#endif
 {
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    obj->adc = (ADCName)pinmap->peripheral;
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
@@ -55,7 +61,18 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADC16_Init(adc_addrs[instance], &adc16_config);
     ADC16_EnableHardwareTrigger(adc_addrs[instance], false);
     ADC16_SetHardwareAverage(adc_addrs[instance], kADC16_HardwareAverageCount4);
-    pinmap_pinout(pin, PinMap_ADC);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
+}
+
+void analogin_init(analogin_t* obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
+    int function = (int)pinmap_find_function(pin, PinMap_ADC);
+
+    const PinMap explicit_pinmap = {pin, peripheral, function};
+
+    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
