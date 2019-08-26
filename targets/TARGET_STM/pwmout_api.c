@@ -76,14 +76,20 @@ uint32_t TIM_ChannelConvert_HAL2LL(uint32_t channel, pwmout_t *obj)
     }
 }
 
-void pwmout_init(pwmout_t *obj, PinName pin)
+#if EXPLICIT_PINMAP_READY
+#define PWM_INIT_DIRECT pwmout_init_direct
+void pwmout_init_direct(pwmout_t* obj, const PinMap *pinmap)
+#else
+#define PWM_INIT_DIRECT _pwmout_init_direct
+static void _pwmout_init_direct(pwmout_t* obj, const PinMap *pinmap)
+#endif
 {
     // Get the peripheral name from the pin and assign it to the object
-    obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    obj->pwm = (PWMName)pinmap->peripheral;
     MBED_ASSERT(obj->pwm != (PWMName)NC);
 
     // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
-    uint32_t function = pinmap_function(pin, PinMap_PWM);
+    uint32_t function = (uint32_t)pinmap->function;
     MBED_ASSERT(function != (uint32_t)NC);
     obj->channel = STM_PIN_CHANNEL(function);
     obj->inverted = STM_PIN_INVERTED(function);
@@ -190,14 +196,25 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     }
 #endif
     // Configure GPIO
-    pinmap_pinout(pin, PinMap_PWM);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
 
-    obj->pin = pin;
+    obj->pin = pinmap->pin;
     obj->period = 0;
     obj->pulse = 0;
     obj->prescaler = 1;
 
     pwmout_period_us(obj, 20000); // 20 ms per default
+}
+
+void pwmout_init(pwmout_t* obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_PWM);
+    int function = (int)pinmap_find_function(pin, PinMap_PWM);
+
+    const PinMap explicit_pinmap = {pin, peripheral, function};
+
+    PWM_INIT_DIRECT(obj, &explicit_pinmap);
 }
 
 void pwmout_free(pwmout_t *obj)
