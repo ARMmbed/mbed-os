@@ -40,27 +40,41 @@ cy_rslt_t cybsp_init(void)
     init_cycfg_system();
 
 #ifndef __MBED__
-    /* Initialize User LEDs */
-    result |= cybsp_led_init(CYBSP_USER_LED1);
-    result |= cybsp_led_init(CYBSP_USER_LED2);
-    result |= cybsp_led_init(CYBSP_USER_LED3);
-    result |= cybsp_led_init(CYBSP_USER_LED4);
-    result |= cybsp_led_init(CYBSP_USER_LED5);
-    /* Initialize User Buttons */
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
-    result |= cybsp_btn_init(CYBSP_USER_BTN2);
-
-    CY_ASSERT(CY_RSLT_SUCCESS == result);
-
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
     if (CY_RSLT_SUCCESS == result)
     {
-        result = cybsp_retarget_init();
+        /* Initialize User LEDs */
+        result |= cybsp_led_init(CYBSP_USER_LED1);
+        result |= cybsp_led_init(CYBSP_USER_LED2);
+        result |= cybsp_led_init(CYBSP_USER_LED3);
+        result |= cybsp_led_init(CYBSP_USER_LED4);
+        result |= cybsp_led_init(CYBSP_USER_LED5);
+        /* Initialize User Buttons */
+        result |= cybsp_btn_init(CYBSP_USER_BTN1);
+        result |= cybsp_btn_init(CYBSP_USER_BTN2);
+
+        CY_ASSERT(CY_RSLT_SUCCESS == result);
+
+        /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
+        if (CY_RSLT_SUCCESS == result)
+        {
+            result = cybsp_retarget_init();
+        }
+    }
+#endif
+
+#if defined(CYBSP_WIFI_CAPABLE)
+    /* Initialize SDIO interface.
+       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically done
+       when starting up WiFi. */
+    if (CY_RSLT_SUCCESS == result)
+    {
+        result = cybsp_wifi_sdio_init();
     }
 #endif
 
     return result;
 }
+
 
 #if defined(__cplusplus)
 }
