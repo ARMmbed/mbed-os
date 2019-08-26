@@ -52,22 +52,17 @@
 
 #pragma once
 
-#include "cybsp_api_core.h"
+#include "cybsp_types.h"
+#include "cybsp_core.h"
+#ifndef __MBED__
+#include "cybsp_retarget.h"
+#include "cybsp_serial_flash.h"
+#include "cybsp_rgb_led.h"
+#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/** \cond INTERNAL */
-
-// HAL HW configuration data
-extern cyhal_qspi_t cybsp_qspi;
-extern cyhal_uart_t cybsp_bt_uart;
-extern cyhal_uart_t cybsp_uart;
-extern cyhal_i2c_t cybsp_i2c;
-extern cyhal_rtc_t cybsp_rtc;
-
-/** \endcond */
 
 #if defined(__cplusplus)
 }

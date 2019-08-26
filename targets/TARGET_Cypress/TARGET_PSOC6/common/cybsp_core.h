@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_api_core.h
+* \file cybsp_core.h
 *
 * \brief
 * Basic abstraction layer for dealing with boards containing a Cypress MCU. This
@@ -25,21 +25,21 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_abstraction_board Board abstraction
-* \ingroup group_abstraction
+* \addtogroup group_bsp_core Core
 * \{
 * Basic abstraction layer for dealing with boards containing a Cypress MCU. This
 * API provides convenience methods for initializing and manipulating different
 * hardware found on the board.
 *
-* \defgroup group_abstraction_board_macros Macros
-* \defgroup group_abstraction_board_functions Functions
+* \defgroup group_bsp_core_macros Macros
+* \defgroup group_bsp_core_functions Functions
 */
 
 #pragma once
 
 #include <stdbool.h>
 #include "cy_result.h"
+#include "cyhal_gpio.h"
 #include "cybsp_types.h"
 
 #if defined(__cplusplus)
@@ -125,9 +125,10 @@ bool cybsp_btn_get_state(cybsp_btn_t which);
  * \brief Sets the interrupt to trigger when the button state is changed.
  * \param which The specific button number to get state from, see BSP header file for available buttones
  * \param type The type sets level vs edge and active high vs active low
- * \param callback The function pointer to call when the button state changes
+ * \param callback The function pointer to call when the button state changes. NULL to unregister.
+ * \param callback_arg The optional argument to provide when the callback is executed. This can be NULL.
  */
-void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_irq_event_t type, void (*callback)(void));
+void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_gpio_event_callback_t callback, void *callback_arg);
 
 
 /** \} group_abstraction_board_functions */

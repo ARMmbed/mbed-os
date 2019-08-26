@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_utils.c
+* \file cybsp_core.c
 *
 * \brief
 * Provides utility functions that are used by board support packages.
@@ -22,15 +22,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "cybsp_api_core.h"
+#include "cybsp_core.h"
 #include "cyhal.h"
-#include "cyhal_implementation.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-static void (*btn_interrupt_call_back) (void);
 
 cy_rslt_t cybsp_led_init(cybsp_led_t which)
 {
@@ -57,21 +54,11 @@ bool cybsp_btn_get_state(cybsp_btn_t which)
     return cyhal_gpio_read((cyhal_gpio_t)which);
 }
 
-static void gpio_call_back_wrapper(void *handler_arg, cyhal_gpio_irq_event_t event)
+void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_event_t type, cyhal_gpio_event_callback_t callback, void *callback_arg)
 {
-    if (btn_interrupt_call_back != NULL)
-    {
-        btn_interrupt_call_back();
-    }
+    cyhal_gpio_register_callback((cyhal_gpio_t)which, callback, callback_arg);
+    cyhal_gpio_enable_event((cyhal_gpio_t)which, type, 7, 1);
 }
-
-void cybsp_btn_set_interrupt(cybsp_btn_t which, cyhal_gpio_irq_event_t type, void (*callback)(void))
-{
-    btn_interrupt_call_back = callback;
-    cyhal_gpio_register_irq((cyhal_gpio_t)which, 7, &gpio_call_back_wrapper, NULL);
-    cyhal_gpio_irq_enable((cyhal_gpio_t)which, type, 1);
-}
-
 
 #if defined(__cplusplus)
 }
