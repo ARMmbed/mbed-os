@@ -27,9 +27,9 @@ static float pwm_clock_mhz;
 /* Array of FTM peripheral base address. */
 static FTM_Type *const ftm_addrs[] = FTM_BASE_PTRS;
 
-void pwmout_init(pwmout_t* obj, PinName pin)
+void pwmout_init_direct(pwmout_t* obj, const PinMap *pinmap)
 {
-    PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    PWMName pwm = (PWMName)pinmap->peripheral;
     MBED_ASSERT(pwm != (PWMName)NC);
 
     obj->pwm_name = pwm;
@@ -70,7 +70,18 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     FTM_StartTimer(ftm_addrs[instance], kFTM_SystemClock);
 
     // Wire pinout
-    pinmap_pinout(pin, PinMap_PWM);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
+}
+
+void pwmout_init(pwmout_t* obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_PWM);
+    int function = (int)pinmap_find_function(pin, PinMap_PWM);
+
+    const PinMap explicit_pinmap = {pin, peripheral, function};
+
+    pwmout_init_direct(obj, &explicit_pinmap);
 }
 
 void pwmout_free(pwmout_t* obj)
