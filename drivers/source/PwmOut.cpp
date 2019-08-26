@@ -32,6 +32,13 @@ PwmOut::PwmOut(PinName pin) : _deep_sleep_locked(false)
     core_util_critical_section_exit();
 }
 
+PwmOut::PwmOut(const PinMap &pinmap) : _deep_sleep_locked(false)
+{
+    core_util_critical_section_enter();
+    pwmout_init_direct(&_pwm, &pinmap);
+    core_util_critical_section_exit();
+}
+
 PwmOut::~PwmOut()
 {
     core_util_critical_section_enter();
