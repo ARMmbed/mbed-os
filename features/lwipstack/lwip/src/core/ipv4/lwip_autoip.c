@@ -95,7 +95,7 @@ static err_t autoip_arp_announce(struct netif *netif);
 static void autoip_start_probing(struct netif *netif);
 
 /* static variables */
-static u8_t is_autoip_alloced = 0;      /* Set when 'struct autoip' is allocated dynamically and assigned to 'netif' */
+static u8_t is_autoip_allocated = 0;      /* Set when 'struct autoip' is allocated dynamically and assigned to 'netif' */
 
 /**
  * @ingroup autoip
@@ -281,7 +281,7 @@ autoip_start(struct netif *netif)
                   ("autoip_start(): could not allocate autoip\n"));
       return ERR_MEM;
     }
-    is_autoip_alloced = 1;
+    is_autoip_allocated = 1;
     /* store this AutoIP client in the netif */
     netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, autoip);
     LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE, ("autoip_start(): allocated autoip"));
@@ -358,12 +358,12 @@ autoip_stop(struct netif *netif)
   if (autoip != NULL) {
     autoip->state = AUTOIP_STATE_OFF;
     /* If autoip is dynamically allocated in start, free autoip structure and reset autoip index in netif */
-    if (is_autoip_alloced) {
+    if (is_autoip_allocated) {
       /* Reset the auto IP index and then free autoip structure */
       netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_AUTOIP, NULL);
       mem_free(autoip);
       autoip = NULL;
-      is_autoip_alloced = 0;
+      is_autoip_allocated = 0;
     } else {
       autoip->tried_llipaddr = 0;
     }
