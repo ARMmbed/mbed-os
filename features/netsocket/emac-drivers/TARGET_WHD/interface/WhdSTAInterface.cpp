@@ -47,7 +47,6 @@ struct whd_scan_userdata {
 
 static whd_scan_userdata interal_scan_data;
 static whd_scan_result_t internal_scan_result;
-static whd_scan_result_t *result_ptr = &internal_scan_result;
 
 extern "C" void whd_emac_wifi_link_state_changed(bool state_up, whd_interface_t ifp);
 
@@ -397,7 +396,7 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
 
 
     whd_res = (whd_result_t)whd_wifi_scan(_whd_emac.ifp, WHD_SCAN_TYPE_ACTIVE, WHD_BSS_TYPE_ANY,
-                                          NULL, NULL, NULL, NULL, whd_scan_handler, (whd_scan_result_t **) &result_ptr, &interal_scan_data);
+                                          NULL, NULL, NULL, NULL, whd_scan_handler, &internal_scan_result, &interal_scan_data);
     if (whd_res != WHD_SUCCESS) {
         res = whd_toerror(whd_res);
     } else {
