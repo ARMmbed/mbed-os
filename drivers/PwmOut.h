@@ -61,6 +61,12 @@ public:
      */
     PwmOut(PinName pin);
 
+    /** Create a PwmOut connected to the specified pin
+     *
+     *  @param pinmap reference to strucure which holds static pinmap.
+     */
+    PwmOut(const PinMap &pinmap);
+
     ~PwmOut();
 
     /** Set the output duty-cycle, specified as a percentage (float)
