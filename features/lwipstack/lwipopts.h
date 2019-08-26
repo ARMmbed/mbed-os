@@ -57,7 +57,13 @@
 #define BOTH_ADDR_TIMEOUT           0
 #endif
 
+// Configurable DHCP timeout. DHCP timeout can be configured for specific usecase requirement.
+#ifdef MBED_CONF_LWIP_DHCP_TIMEOUT
+#define DHCP_TIMEOUT                (MBED_CONF_LWIP_DHCP_TIMEOUT)
+#else
 #define DHCP_TIMEOUT                60
+#endif
+
 #define LINK_TIMEOUT                60
 
 #define PREF_IPV4                   1
