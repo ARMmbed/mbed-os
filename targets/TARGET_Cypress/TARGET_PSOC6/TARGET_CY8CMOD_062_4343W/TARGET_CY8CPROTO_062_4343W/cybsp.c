@@ -25,7 +25,6 @@
 
 #include <stdlib.h>
 #include "cybsp.h"
-#include "cyhal_implementation.h"
 #include "cycfg.h"
 
 #if defined(__cplusplus)

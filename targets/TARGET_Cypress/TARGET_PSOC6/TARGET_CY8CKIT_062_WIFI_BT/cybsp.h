@@ -25,10 +25,16 @@
 
 #pragma once
 
-#include "cybsp_api_core.h"
+#include "cybsp_types.h"
+#include "cybsp_core.h"
 #if defined(CYBSP_WIFI_CAPABLE)
 #include "cybsp_wifi_sdio.h"
 #endif
+#ifndef __MBED__
+#include "cybsp_retarget.h"
+#include "cybsp_serial_flash.h"
+#include "cybsp_rgb_led.h"
+#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 extern "C" {

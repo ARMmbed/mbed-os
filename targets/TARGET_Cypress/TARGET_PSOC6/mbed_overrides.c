@@ -19,7 +19,7 @@
 #include "device.h"
 #include "cycfg.h"
 #include "cyhal_hwmgr.h"
-#include "cybsp_api_core.h"
+#include "cybsp_core.h"
 #include "mbed_power_mgmt.h"
 #include "rtos_idle.h"
 
