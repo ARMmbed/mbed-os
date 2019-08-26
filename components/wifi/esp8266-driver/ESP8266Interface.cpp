@@ -143,7 +143,7 @@ ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOu
 void ESP8266Interface::ResetPin::rst_assert()
 {
     if (_rst_pin.is_connected()) {
-        _rst_pin = 0;
+        _rst_pin = MBED_CONF_ESP8266_RST_PIN_POLARITY;
         tr_debug("HW reset asserted");
     }
 }
@@ -152,7 +152,7 @@ void ESP8266Interface::ResetPin::rst_deassert()
 {
     if (_rst_pin.is_connected()) {
         // Notice that Pin7 CH_EN cannot be left floating if used as reset
-        _rst_pin = 1;
+        _rst_pin = !MBED_CONF_ESP8266_RST_PIN_POLARITY;
         tr_debug("HW reset deasserted");
     }
 }
