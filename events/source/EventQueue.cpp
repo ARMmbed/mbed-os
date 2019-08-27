@@ -1,5 +1,5 @@
 /* events
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2016-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,16 @@ namespace events {
 
 EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
 {
-    if (!event_pointer) {
-        equeue_create(&_equeue, event_size);
+    if (event_size == 0) {
+        // As static queue (EventQueue(0)) won't perform any access to its dummy buffer
+        // set 1B dummy buffer as pointer to itself
+        equeue_create_inplace(&_equeue, 1, this);
     } else {
-        equeue_create_inplace(&_equeue, event_size, event_pointer);
+        if (!event_pointer) {
+            equeue_create(&_equeue, event_size);
+        } else {
+            equeue_create_inplace(&_equeue, event_size, event_pointer);
+        }
     }
 }
 

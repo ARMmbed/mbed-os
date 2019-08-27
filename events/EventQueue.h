@@ -45,6 +45,8 @@ namespace events {
 // Predeclared classes
 template <typename F>
 class Event;
+template <typename F, typename A>
+class UserAllocatedEvent;
 
 /**
  * \defgroup events_EventQueue EventQueue class
@@ -60,10 +62,17 @@ public:
     /** Create an EventQueue
      *
      *  Create an event queue. The event queue either allocates a buffer of
-     *  the specified size with malloc or uses the user provided buffer.
+     *  the specified size with malloc or uses the user provided buffer or
+     *  uses 1B dummy buffer if 0 size passed.
+     *
+     *  0 size queue is a special purpose queue to dispatch static events
+     *  only (see UserAllocatedEvent). Such a queue gives the guarantee 
+     *  that no dynamic memory allocation will take place while queue
+     *  creation and events posting & dispatching.
      *
      *  @param size     Size of buffer to use for events in bytes
      *                  (default to EVENTS_QUEUE_SIZE)
+     *                  If 0 provided then 1B dummy buffer is used
      *  @param buffer   Pointer to buffer to use for events
      *                  (default to NULL)
      */
@@ -139,6 +148,34 @@ public:
      */
     bool cancel(int id);
 
+    /** Cancel an in-flight user allocated event
+     *
+     *  Attempts to cancel an UserAllocatedEvent referenced by its address
+     *  It is safe to call cancel after an event has already been dispatched.
+     *
+     *  Event must be valid i.e. event must have not finished executing
+     *  and must have been bound to this queue.
+     *
+     *  The cancel function is IRQ safe.
+     *
+     *  If called while the event queue's dispatch loop is active in another thread,
+     *  the cancel function does not guarantee that the event will not execute after it
+     *  returns, as the event may have already begun executing. A call made from
+     *  the same thread as the dispatch loop will always succeed with a valid id.
+     *
+     *  @param event    Address of the event
+     *  @return         true  if event was successfully cancelled
+     *                  false if event was not cancelled (invalid queue or executing already begun)
+     */
+    template<typename... Args>
+    bool cancel(UserAllocatedEvent<Args...> *event)
+    {
+        if (event->_equeue != &_equeue) {
+            return false;
+        }
+        return equeue_cancel_user_allocated(&_equeue, event);
+    }
+
     /** Query how much time is left for delayed event
      *
      *  If the event is delayed, this function can be used to query how much time
@@ -157,6 +194,33 @@ public:
      *
      */
     int time_left(int id);
+
+    /** Query how much time is left for delayed UserAllocatedEvent
+     *
+     *  If the event is delayed, this function can be used to query how much time
+     *  is left until the event is due to be dispatched.
+     *
+     *  Event must be valid i.e. event must have not finished executing
+     *  and must have been bound to this queue.
+     *
+     *  This function is IRQ safe.
+     *
+     *  @param event    Address of the event
+     *
+     *  @return         Remaining time in milliseconds or
+     *                  0 if event is already due to be dispatched or
+     *                  is currently executing.
+     *                  Undefined if id is invalid.
+     *
+     */
+    template<typename... Args>
+    int time_left(UserAllocatedEvent<Args...> *event)
+    {
+        if (event && event->_equeue != &_equeue) {
+            return -1;
+        }
+        return equeue_timeleft_user_allocated(&_equeue, &event->_e);
+    }
 
     /** Background an event queue onto a single-shot timer-interrupt
      *
@@ -596,6 +660,53 @@ public:
      */
     template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
     Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, ContextArgs ...context_args);
+
+    /** Creates an user allocated event bound to the event queue
+     *
+     *  Constructs an user allocated event bound to the specified event queue.
+     *  The specified callback acts as the target for the event and is executed
+     *  in the context of the event queue's dispatch loop once posted.
+     *
+     * @code
+     *  #include "mbed.h"
+     *
+     *  void handler(int data) { ... }
+     *
+     *  class Device {
+     *     public:
+     *     void handler(int data) { ... }
+     *  };
+     *
+     *  Device dev;
+     *
+     *  // queue with not internal storage for dynamic events
+     *  // accepts only user allocated events
+     *  static EventQueue queue(0);
+     *  // Create events
+     *  static auto e1 = make_user_allocated_event(&dev, Device::handler, 2);
+     *  static auto e2 = queue.make_user_allocated_event(handler, 3);
+     *
+     *  int main()
+     *  {
+     *    e1.call_on(&queue);
+     *    e2.call();
+     *
+     *    queue.dispatch(1);
+     *  }
+     * @endcode
+     *
+     *  @param f        Function to execute when the event is dispatched
+     *  @return         Event that will dispatch on the specific queue
+     */
+    template <typename F, typename... ArgTs>
+    UserAllocatedEvent<F, void(ArgTs...)> make_user_allocated_event(F f, ArgTs... args);
+
+    /** Creates an user allocated event bound to the event queue
+     *  @see EventQueue::make_user_allocated_event
+     */
+    template <typename T, typename R, typename... ArgTs>
+    UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> make_user_allocated_event(T *obj, R(T::*method)(ArgTs... args), ArgTs... args);
+
 
 #else
 
@@ -1068,12 +1179,50 @@ public:
      */
     template <typename R, typename B0, typename B1, typename B2, typename B3, typename B4, typename C0, typename C1, typename C2, typename C3, typename C4, typename... ArgTs>
     Event<void(ArgTs...)> event(mbed::Callback<R(B0, B1, B2, B3, B4, ArgTs...)> cb, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4);
+
+    /** Creates an user allocated event bound to the event queue
+     *
+     *  Constructs an user allocated event bound to the specified event queue.
+     *  The specified callback acts as the target for the event and is executed
+     *  in the context of the event queue's dispatch loop once posted.
+     *
+     *  @param f           Function to execute when the event is dispatched
+     *  @return            Event that will dispatch on the specific queue
+     */
+    template <typename F, typename... ArgTs>
+    UserAllocatedEvent<F, void(ArgTs...)> make_user_allocated_event(F f, ArgTs... args);
+
+    /** Creates an user allocated event bound to the event queue
+     *  @see EventQueue::make_user_allocated_event
+     */
+    template <typename T, typename R, typename... ArgTs>
+    UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> make_user_allocated_event(T *obj, R(T::*method)(ArgTs... args), ArgTs... args);
+
+    /** Creates an user allocated event bound to the event queue
+     *  @see EventQueue::make_user_allocated_event
+     */
+    template <typename T, typename R, typename... ArgTs>
+    UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> make_user_allocated_event(const T *obj, R(T::*method)(ArgTs... args) const, ArgTs... args);
+
+    /** Creates an user allocated event bound to the event queue
+     *  @see EventQueue::make_user_allocated_event
+     */
+    template <typename T, typename R, typename... ArgTs>
+    UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> make_user_allocated_event(volatile T *obj, R(T::*method)(ArgTs... args) volatile, ArgTs... args);
+
+    /** Creates an user allocated event bound to the event queue
+     *  @see EventQueue::make_user_allocated_event
+     */
+    template <typename T, typename R, typename... ArgTs>
+    UserAllocatedEvent<mbed::Callback<void(ArgTs...)>, void(ArgTs...)> make_user_allocated_event(const volatile T *obj, R(T::*method)(ArgTs... args) const volatile, ArgTs... args);
 #endif
 
 protected:
 #if !defined(DOXYGEN_ONLY)
     template <typename F>
     friend class Event;
+    template <typename F, typename A>
+    friend class UserAllocatedEvent;
     struct equeue _equeue;
     mbed::Callback<void(int)> _update;
 
@@ -1098,7 +1247,7 @@ protected:
     struct context<F> {
         F f;
 
-        context(F f)
+        constexpr context(F f)
             : f(f) {}
 
         template <typename... ArgTs>
@@ -1113,7 +1262,7 @@ protected:
         F f;
         C0 c0;
 
-        context(F f, C0 c0)
+        constexpr context(F f, C0 c0)
             : f(f), c0(c0) {}
 
         template <typename... ArgTs>
@@ -1129,7 +1278,7 @@ protected:
         C0 c0;
         C1 c1;
 
-        context(F f, C0 c0, C1 c1)
+        constexpr context(F f, C0 c0, C1 c1)
             : f(f), c0(c0), c1(c1) {}
 
         template <typename... ArgTs>
@@ -1146,7 +1295,7 @@ protected:
         C1 c1;
         C2 c2;
 
-        context(F f, C0 c0, C1 c1, C2 c2)
+        constexpr context(F f, C0 c0, C1 c1, C2 c2)
             : f(f), c0(c0), c1(c1), c2(c2) {}
 
         template <typename... ArgTs>
@@ -1164,7 +1313,7 @@ protected:
         C2 c2;
         C3 c3;
 
-        context(F f, C0 c0, C1 c1, C2 c2, C3 c3)
+        constexpr context(F f, C0 c0, C1 c1, C2 c2, C3 c3)
             : f(f), c0(c0), c1(c1), c2(c2), c3(c3) {}
 
         template <typename... ArgTs>
@@ -1183,7 +1332,7 @@ protected:
         C3 c3;
         C4 c4;
 
-        context(F f, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4)
+        constexpr context(F f, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4)
             : f(f), c0(c0), c1(c1), c2(c2), c3(c3), c4(c4) {}
 
         template <typename... ArgTs>
