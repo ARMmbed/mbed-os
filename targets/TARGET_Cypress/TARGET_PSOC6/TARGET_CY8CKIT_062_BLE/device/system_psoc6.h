@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file system_psoc6.h
-* \version 2.50
+* \version 2.60
 *
 * \brief Device system header file.
 *
@@ -318,6 +318,11 @@
 *       <th>Version</th>
 *       <th>Changes</th>
 *       <th>Reason for Change</th>
+*   </tr>
+*   <tr>
+*       <td>2.60</td>
+*       <td>Updated linker scripts.</td>
+*       <td>Provided support for new devices, updated usage of CM0p prebuilt image.</td>
 *   </tr>
 *   <tr>
 *       <td>2.50</td>
