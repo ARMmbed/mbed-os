@@ -76,23 +76,23 @@ typedef enum
 
 /** SDHC interrupt triggers */
 typedef enum {
-    CYHAL_SDHC_CMD_COMPLETE, //!> Command Complete
-    CYHAL_SDHC_XFER_COMPLETE, //!> Host read/write transfer is complete
-    CYHAL_SDHC_BGAP_EVENT, //!> This bit is set when both read/write transaction is stopped
-    CYHAL_SDHC_DMA_INTERRUPT, //!> Host controller detects an SDMA Buffer Boundary during transfer
-    CYHAL_SDHC_BUF_WR_READY, //!> This bit is set if the Buffer Write Enable changes from 0 to 1
-    CYHAL_SDHC_BUF_RD_READY, //!> This bit is set if the Buffer Read Enable changes from 0 to 1
-    CYHAL_SDHC_CARD_INSERTION, //!> This bit is set if the Card Inserted in the Present State
-    CYHAL_SDHC_CARD_REMOVAL, //!> This bit is set if the Card Inserted in the Present State
-    CYHAL_SDHC_CARD_INTERRUPT, //!> The synchronized value of the DAT[1] interrupt input for SD mode
-    CYHAL_SDHC_INT_A,
-    CYHAL_SDHC_INT_B,
-    CYHAL_SDHC_INT_C,
-    CYHAL_SDHC_RE_TUNE_EVENT, //!> This bit is set if the Re-Tuning Request changes from 0 to 1
-    CYHAL_SDHC_FX_EVENT, //!> This status is set when R[14] of response register is set to 1
-    CYHAL_SDHC_CQE_EVENT, //!> This status is set if Command Queuing/Crypto event has occurred
-    CYHAL_SDHC_ERR_INTERRUPT, //!> If any of the bits in the Error Interrupt Status register are set
-    CYHAL_SDHC_ALL_INTERRUPTS, //!> Is used to enable/disable all interrupts
+    CYHAL_SDHC_CMD_COMPLETE   = 0x0001, //!> Command Complete
+    CYHAL_SDHC_XFER_COMPLETE  = 0x0002, //!> Host read/write transfer is complete
+    CYHAL_SDHC_BGAP_EVENT     = 0x0004, //!> This bit is set when both read/write transaction is stopped at the block gap
+    CYHAL_SDHC_DMA_INTERRUPT  = 0x0008, //!> Host controller detects an SDMA Buffer Boundary during transfer
+    CYHAL_SDHC_BUF_WR_READY   = 0x0010, //!> This bit is set if the Buffer Write Enable changes from 0 to 1
+    CYHAL_SDHC_BUF_RD_READY   = 0x0020, //!> This bit is set if the Buffer Read Enable changes from 0 to 1
+    CYHAL_SDHC_CARD_INSERTION = 0x0040, //!> This bit is set if the Card Inserted in the Present State register changes from 0 to 1.
+    CYHAL_SDHC_CARD_REMOVAL   = 0x0080, //!> This bit is set if the Card Inserted in the Present State register changes from 1 to 0.
+    CYHAL_SDHC_CARD_INTERRUPT = 0x0100, //!> The synchronized value of the DAT[1] interrupt input for SD mode
+    CYHAL_SDHC_INT_A          = 0x0200,
+    CYHAL_SDHC_INT_B          = 0x0400,
+    CYHAL_SDHC_INT_C          = 0x0800,
+    CYHAL_SDHC_RE_TUNE_EVENT  = 0x1000, //!> This bit is set if the Re-Tuning Request changes from 0 to 1
+    CYHAL_SDHC_FX_EVENT       = 0x2000, //!> This status is set when R[14] of response register is set to 1
+    CYHAL_SDHC_CQE_EVENT      = 0x4000, //!> This status is set if Command Queuing/Crypto event has occurred
+    CYHAL_SDHC_ERR_INTERRUPT  = 0x8000, //!> If any of the bits in the Error Interrupt Status register are set
+    CYHAL_SDHC_ALL_INTERRUPTS = 0xFFFF, //!> Is used to enable/disable all interrupts
 } cyhal_sdhc_event_t;
 
 /** \} group_hal_sdhc_enums */
@@ -121,7 +121,7 @@ typedef struct
 {
     bool                 enableLedControl; //!< Drive one IO to indicate when the card is being accessed
     bool                 lowVoltageSignaling; //!< Whether 1.8V signaling is supported
-    bool                 isEmmc;   //!< true if eMMC card, other way false
+    bool                 isEmmc;   //!< true if eMMC card, otherwise false
     uint8_t              busWidth; //!< The desired bus width
 } cyhal_sdhc_config_t;
 
@@ -186,7 +186,7 @@ void cyhal_sdhc_free(cyhal_sdhc_t *obj);
  * @param[in]     obj     The SDHC object
  * @param[in]     address The address to read data from
  * @param[out]    data    Pointer to the byte-array of data to read from the device
- * @param[in,out] length  Number of bytes to read, updated with the number actually read
+ * @param[in,out] length  Number of 512 byte blocks to read, updated with the number actually read
  * @return The status of the read request
  */
 cy_rslt_t cyhal_sdhc_read(const cyhal_sdhc_t *obj, uint32_t address, uint8_t *data, size_t *length);
@@ -196,7 +196,7 @@ cy_rslt_t cyhal_sdhc_read(const cyhal_sdhc_t *obj, uint32_t address, uint8_t *da
  * @param[in]     obj     The SDHC object
  * @param[in]     address The address to write data to
  * @param[in]     data    Pointer to the byte-array of data to write to the device
- * @param[in,out] length  Number of bytes to read, updated with the number actually read
+ * @param[in,out] length  Number of 512 byte blocks to write, updated with the number actually written
  * @return The status of the write request
  */
 cy_rslt_t cyhal_sdhc_write(const cyhal_sdhc_t *obj, uint32_t address, const uint8_t *data, size_t *length);
@@ -205,7 +205,7 @@ cy_rslt_t cyhal_sdhc_write(const cyhal_sdhc_t *obj, uint32_t address, const uint
  *
  * @param[in] obj       The SDHC object
  * @param[in] startAddr Is the address of the first byte to erase
- * @param[in] length    The number of bytes (starting at startAddr) to erase
+ * @param[in] length    Number of 512 byte blocks (starting at startAddr) to erase
  * @return The status of the erase request
  */
 cy_rslt_t cyhal_sdhc_erase(const cyhal_sdhc_t *obj, uint32_t startAddr, size_t length);
@@ -215,7 +215,7 @@ cy_rslt_t cyhal_sdhc_erase(const cyhal_sdhc_t *obj, uint32_t startAddr, size_t l
  * @param[in]     obj     The SDHC object that holds the transfer information
  * @param[in]     address The address to read data from
  * @param[out]    data    The receive buffer
- * @param[in,out] length  Number of bytes to read, updated with the number actually read
+ * @param[in,out] length  Number of 512 byte blocks to read, updated with the number actually read
  * @return The status of the read_async request
  */
 cy_rslt_t cyhal_sdhc_read_async(const cyhal_sdhc_t *obj, uint32_t address, uint8_t *data, size_t *length);
@@ -225,7 +225,7 @@ cy_rslt_t cyhal_sdhc_read_async(const cyhal_sdhc_t *obj, uint32_t address, uint8
  * @param[in]     obj     The SDHC object that holds the transfer information
  * @param[in]     address The address to write data to
  * @param[in]     data    The transmit buffer
- * @param[in,out] length  Number of bytes to read, updated with the number actually read
+ * @param[in,out] length  The number of 512 byte blocks to write, updated with the number actually written
  * @return The status of the write_async request
  */
 cy_rslt_t cyhal_sdhc_write_async(const cyhal_sdhc_t *obj, uint32_t address, const uint8_t *data, size_t *length);
