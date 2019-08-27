@@ -7219,7 +7219,7 @@
     "MCU_NRF52832": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "static_memory_defines": false,
+        "static_memory_defines": true,
         "macros": [
             "BOARD_PCA10040",
             "NRF52",
