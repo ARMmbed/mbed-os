@@ -72,6 +72,30 @@ const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config =
 		.channel_num = CYBSP_WCO_OUT_PIN,
 	};
 #endif //defined (CY_USING_HAL)
+const cy_stc_gpio_pin_config_t CYBSP_WIFI_HOST_WAKE_config = 
+{
+	.outVal = 0,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_WIFI_HOST_WAKE_HSIOM,
+	.intEdge = CY_GPIO_INTR_DISABLE,
+	.intMask = 0UL,
+	.vtrip = CY_GPIO_VTRIP_CMOS,
+	.slewRate = CY_GPIO_SLEW_FAST,
+	.driveSel = CY_GPIO_DRIVE_1_2,
+	.vregEn = 0UL,
+	.ibufMode = 0UL,
+	.vtripSel = 0UL,
+	.vrefSel = 0UL,
+	.vohSel = 0UL,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_WIFI_HOST_WAKE_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_WIFI_HOST_WAKE_PORT_NUM,
+		.channel_num = CYBSP_WIFI_HOST_WAKE_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_SS_config = 
 {
 	.outVal = 1,
@@ -360,30 +384,6 @@ const cy_stc_gpio_pin_config_t CYBSP_BT_POWER_config =
 		.channel_num = CYBSP_BT_POWER_PIN,
 	};
 #endif //defined (CY_USING_HAL)
-const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config = 
-{
-	.outVal = 0,
-	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CYBSP_BT_HOST_WAKE_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-#if defined (CY_USING_HAL)
-	const cyhal_resource_inst_t CYBSP_BT_HOST_WAKE_obj = 
-	{
-		.type = CYHAL_RSC_GPIO,
-		.block_num = CYBSP_BT_HOST_WAKE_PORT_NUM,
-		.channel_num = CYBSP_BT_HOST_WAKE_PIN,
-	};
-#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config = 
 {
 	.outVal = 0,
@@ -406,6 +406,30 @@ const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config =
 		.type = CYHAL_RSC_GPIO,
 		.block_num = CYBSP_BT_DEVICE_WAKE_PORT_NUM,
 		.channel_num = CYBSP_BT_DEVICE_WAKE_PIN,
+	};
+#endif //defined (CY_USING_HAL)
+const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config = 
+{
+	.outVal = 0,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_BT_HOST_WAKE_HSIOM,
+	.intEdge = CY_GPIO_INTR_DISABLE,
+	.intMask = 0UL,
+	.vtrip = CY_GPIO_VTRIP_CMOS,
+	.slewRate = CY_GPIO_SLEW_FAST,
+	.driveSel = CY_GPIO_DRIVE_1_2,
+	.vregEn = 0UL,
+	.ibufMode = 0UL,
+	.vtripSel = 0UL,
+	.vrefSel = 0UL,
+	.vohSel = 0UL,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_BT_HOST_WAKE_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_BT_HOST_WAKE_PORT_NUM,
+		.channel_num = CYBSP_BT_HOST_WAKE_PIN,
 	};
 #endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SCL_config = 
@@ -782,6 +806,11 @@ void init_cycfg_pins(void)
 		cyhal_hwmgr_reserve(&CYBSP_WCO_OUT_obj);
 #endif //defined (CY_USING_HAL)
 
+	Cy_GPIO_Pin_Init(CYBSP_WIFI_HOST_WAKE_PORT, CYBSP_WIFI_HOST_WAKE_PIN, &CYBSP_WIFI_HOST_WAKE_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_WIFI_HOST_WAKE_obj);
+#endif //defined (CY_USING_HAL)
+
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_SS_PORT, CYBSP_QSPI_SS_PIN, &CYBSP_QSPI_SS_config);
 #if defined (CY_USING_HAL)
 		cyhal_hwmgr_reserve(&CYBSP_QSPI_SS_obj);
@@ -841,14 +870,14 @@ void init_cycfg_pins(void)
 		cyhal_hwmgr_reserve(&CYBSP_BT_POWER_obj);
 #endif //defined (CY_USING_HAL)
 
-	Cy_GPIO_Pin_Init(CYBSP_BT_HOST_WAKE_PORT, CYBSP_BT_HOST_WAKE_PIN, &CYBSP_BT_HOST_WAKE_config);
-#if defined (CY_USING_HAL)
-		cyhal_hwmgr_reserve(&CYBSP_BT_HOST_WAKE_obj);
-#endif //defined (CY_USING_HAL)
-
 	Cy_GPIO_Pin_Init(CYBSP_BT_DEVICE_WAKE_PORT, CYBSP_BT_DEVICE_WAKE_PIN, &CYBSP_BT_DEVICE_WAKE_config);
 #if defined (CY_USING_HAL)
 		cyhal_hwmgr_reserve(&CYBSP_BT_DEVICE_WAKE_obj);
+#endif //defined (CY_USING_HAL)
+
+	Cy_GPIO_Pin_Init(CYBSP_BT_HOST_WAKE_PORT, CYBSP_BT_HOST_WAKE_PIN, &CYBSP_BT_HOST_WAKE_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_BT_HOST_WAKE_obj);
 #endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);

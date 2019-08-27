@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Design version="11" xmlns="http://cypress.com/xsd/cydesignfile_v2">
+<Design version="11" device_library_hint_path="../../psoc6pdl/devicesupport.xml" xmlns="http://cypress.com/xsd/cydesignfile_v2">
     <ToolInfo version="1.0.0"/>
     <Devices>
         <Device mpn="CY8C624ABZI-D44">
@@ -184,8 +184,8 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[3].pin[5]" alias="CYBSP_BT_HOST_WAKE" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
+                <Block location="ioss[0].port[3].pin[5]" alias="CYBSP_BT_DEVICE_WAKE" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
                     <Param id="initialState" value="0"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
@@ -194,8 +194,8 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[4].pin[0]" alias="CYBSP_BT_DEVICE_WAKE" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
+                <Block location="ioss[0].port[4].pin[0]" alias="CYBSP_BT_HOST_WAKE" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_ANALOG"/>
                     <Param id="initialState" value="0"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
