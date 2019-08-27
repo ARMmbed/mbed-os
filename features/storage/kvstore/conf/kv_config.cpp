@@ -486,12 +486,12 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
     bd_addr_t aligned_start_address;
 
     static QSPIFBlockDevice bd(
-        QSPI_FLASH1_IO0,
-        QSPI_FLASH1_IO1,
-        QSPI_FLASH1_IO2,
-        QSPI_FLASH1_IO3,
-        QSPI_FLASH1_SCK,
-        QSPI_FLASH1_CSN,
+        MBED_CONF_QSPIF_QSPI_IO0,
+        MBED_CONF_QSPIF_QSPI_IO1,
+        MBED_CONF_QSPIF_QSPI_IO2,
+        MBED_CONF_QSPIF_QSPI_IO3,
+        MBED_CONF_QSPIF_QSPI_SCK,
+        MBED_CONF_QSPIF_QSPI_CSN,
         QSPIF_POLARITY_MODE_0,
         MBED_CONF_QSPIF_QSPI_FREQ
     );
