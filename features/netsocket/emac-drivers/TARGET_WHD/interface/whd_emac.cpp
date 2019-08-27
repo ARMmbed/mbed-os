@@ -115,7 +115,6 @@ bool WHD_EMAC::power_up()
         if (CY_RSLT_SUCCESS == res) {
             drvp = cybsp_get_wifi_driver();
             powered_up = true;
-            ifp->whd_link_update_callback = whd_emac_wifi_link_state_changed;
             if (link_state && emac_link_state_cb) {
                 emac_link_state_cb(link_state);
             }
@@ -291,5 +290,3 @@ extern "C"
     }
 
 } // extern "C"
-
-

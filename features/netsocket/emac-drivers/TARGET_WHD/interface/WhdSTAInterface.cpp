@@ -46,6 +46,12 @@ struct whd_scan_userdata {
 
 static whd_scan_userdata interal_scan_data;
 static whd_scan_result_t internal_scan_result;
+static uint16_t sta_link_update_entry = 0xFF;
+static const whd_event_num_t sta_link_change_events[] = {
+    WLC_E_SET_SSID, WLC_E_LINK, WLC_E_AUTH,  WLC_E_ASSOC, WLC_E_DEAUTH_IND, WLC_E_DISASSOC_IND, WLC_E_DISASSOC,
+    WLC_E_REASSOC, WLC_E_PSK_SUP, WLC_E_ACTION_FRAME_COMPLETE, WLC_E_NONE
+};
+
 
 extern "C" void whd_emac_wifi_link_state_changed(whd_interface_t ifp, whd_bool_t state_up);
 
@@ -143,6 +149,30 @@ whd_security_t whd_fromsecurity(nsapi_security_t sec)
     }
 }
 
+static void *whd_wifi_link_state_change_handler(whd_interface_t ifp,
+                                                const whd_event_header_t *event_header,
+                                                const uint8_t *event_data,
+                                                void *handler_user_data)
+{
+    UNUSED_PARAMETER(event_data);
+
+    if (event_header->bsscfgidx >= WHD_INTERFACE_MAX) {
+        WPRINT_WHD_DEBUG(("%s: event_header: Bad interface\n", __FUNCTION__));
+        return NULL;
+    }
+
+    if (event_header->event_type == WLC_E_DEAUTH_IND ||
+            event_header->event_type == WLC_E_DISASSOC_IND) {
+        whd_emac_wifi_link_state_changed(ifp, WHD_FALSE);
+    }
+
+    if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS) {
+        whd_emac_wifi_link_state_changed(ifp, WHD_TRUE);
+    }
+
+    return handler_user_data;
+}
+
 MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_default_instance()
 {
     static OlmInterface olm;
@@ -204,10 +234,17 @@ nsapi_error_t WhdSTAInterface::connect()
 
 #define MAX_RETRY_COUNT    ( 5 )
     int i;
+    whd_result_t res;
 
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
         _whd_emac.power_up();
+    }
+
+    res = whd_management_set_event_handler(_whd_emac.ifp, sta_link_change_events,
+                                           whd_wifi_link_state_change_handler, NULL, &sta_link_update_entry);
+    if (res != WHD_SUCCESS) {
+        return whd_toerror(res);
     }
 
     if (!_interface) {
@@ -239,7 +276,6 @@ nsapi_error_t WhdSTAInterface::connect()
     whd_security_t security = whd_fromsecurity(_security);
 
     // join the network
-    whd_result_t res;
     for (i = 0; i < MAX_RETRY_COUNT; i++) {
         res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,
                                           &ssid,
@@ -287,6 +323,12 @@ nsapi_error_t WhdSTAInterface::disconnect()
 
     // leave network
     whd_result_t res = whd_wifi_leave(_whd_emac.ifp);
+    if (res != WHD_SUCCESS) {
+        return whd_toerror(res);
+    }
+    whd_emac_wifi_link_state_changed(_whd_emac.ifp, WHD_FALSE);
+
+    res = whd_wifi_deregister_event_handler(_whd_emac.ifp, sta_link_update_entry);
     if (res != WHD_SUCCESS) {
         return whd_toerror(res);
     }
