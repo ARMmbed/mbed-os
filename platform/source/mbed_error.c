@@ -578,9 +578,11 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
 
 #if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
 #define STACK_DUMP_WIDTH    8
+#define INT_ALIGN_MASK      (~(sizeof(int) - 1))
     mbed_error_printf("\n\nStack Dump:");
-    uint32_t st_end = ctx->thread_stack_mem + ctx->thread_stack_size;
-    for (uint32_t st = ctx->thread_current_sp; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
+    uint32_t st_end = (ctx->thread_stack_mem + ctx->thread_stack_size) & INT_ALIGN_MASK;
+    uint32_t st     = (ctx->thread_current_sp) & INT_ALIGN_MASK;
+    for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
         mbed_error_printf("\n0x%08" PRIX32 ":", st);
         for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
             uint32_t st_cur = st + i * sizeof(int);
