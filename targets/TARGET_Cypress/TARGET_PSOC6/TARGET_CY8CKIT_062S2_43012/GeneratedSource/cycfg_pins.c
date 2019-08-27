@@ -440,22 +440,14 @@ const cy_stc_gpio_pin_config_t CYBSP_BT_POWER_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config = 
-{
-	.outVal = 0,
-	.driveMode = CY_GPIO_DM_ANALOG,
-	.hsiom = CYBSP_BT_HOST_WAKE_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_BT_POWER_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_BT_POWER_PORT_NUM,
+		.channel_num = CYBSP_BT_POWER_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config = 
 {
 	.outVal = 0,
@@ -472,11 +464,19 @@ const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_RX_config = 
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_BT_DEVICE_WAKE_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_BT_DEVICE_WAKE_PORT_NUM,
+		.channel_num = CYBSP_BT_DEVICE_WAKE_PIN,
+	};
+#endif //defined (CY_USING_HAL)
+const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config = 
 {
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = CYBSP_DEBUG_UART_RX_HSIOM,
+	.outVal = 0,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_BT_HOST_WAKE_HSIOM,
 	.intEdge = CY_GPIO_INTR_DISABLE,
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
@@ -488,54 +488,14 @@ const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_RX_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_TX_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = CYBSP_DEBUG_UART_TX_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_RTS_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = CYBSP_DEBUG_UART_RTS_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-const cy_stc_gpio_pin_config_t CYBSP_DEBUG_UART_CTS_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = CYBSP_DEBUG_UART_CTS_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_BT_HOST_WAKE_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_BT_HOST_WAKE_PORT_NUM,
+		.channel_num = CYBSP_BT_HOST_WAKE_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_EZI2C_SCL_config = 
 {
 	.outVal = 1,
@@ -847,17 +807,15 @@ void init_cycfg_pins(void)
 
 	Cy_GPIO_Pin_Init(CYBSP_BT_POWER_PORT, CYBSP_BT_POWER_PIN, &CYBSP_BT_POWER_config);
 
-	Cy_GPIO_Pin_Init(CYBSP_BT_HOST_WAKE_PORT, CYBSP_BT_HOST_WAKE_PIN, &CYBSP_BT_HOST_WAKE_config);
-
 	Cy_GPIO_Pin_Init(CYBSP_BT_DEVICE_WAKE_PORT, CYBSP_BT_DEVICE_WAKE_PIN, &CYBSP_BT_DEVICE_WAKE_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_BT_DEVICE_WAKE_obj);
+#endif //defined (CY_USING_HAL)
 
-	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_RX_PORT, CYBSP_DEBUG_UART_RX_PIN, &CYBSP_DEBUG_UART_RX_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_TX_PORT, CYBSP_DEBUG_UART_TX_PIN, &CYBSP_DEBUG_UART_TX_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_RTS_PORT, CYBSP_DEBUG_UART_RTS_PIN, &CYBSP_DEBUG_UART_RTS_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_DEBUG_UART_CTS_PORT, CYBSP_DEBUG_UART_CTS_PIN, &CYBSP_DEBUG_UART_CTS_config);
+	Cy_GPIO_Pin_Init(CYBSP_BT_HOST_WAKE_PORT, CYBSP_BT_HOST_WAKE_PIN, &CYBSP_BT_HOST_WAKE_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_BT_HOST_WAKE_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_EZI2C_SCL_PORT, CYBSP_EZI2C_SCL_PIN, &CYBSP_EZI2C_SCL_config);
 
