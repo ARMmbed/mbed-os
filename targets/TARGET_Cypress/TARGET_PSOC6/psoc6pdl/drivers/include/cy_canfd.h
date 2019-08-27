@@ -900,7 +900,10 @@ typedef struct
 {
     cy_en_canfd_fifo_mode_t mode;                   /**< CAN FD Rx FIFO operating mode */
     uint8_t                 watermark;              /**< Watermark */
-    uint8_t                 numberOfFIFOElements;   /**< Number Of FIFO elements */
+    uint8_t                 numberOfFIFOElements;   /**< Number Of FIFO elements. Note: 
+                                                     * The Rx FIFO size must be greater than 1 when 
+                                                     * FIFO Top Pointer Logic is enabled. 
+                                                     */
     bool                    topPointerLogicEnabled; /**< Top pointer logic enabled */
 }cy_en_canfd_fifo_config_t;
 

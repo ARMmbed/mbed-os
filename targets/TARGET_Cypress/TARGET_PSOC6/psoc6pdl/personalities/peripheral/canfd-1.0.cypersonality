@@ -100,7 +100,7 @@
     <!-- Message RAM -->
     <ParamRange id="messageRAMaddress" name="Message RAM Address Offset" group="Message RAM" default="0" min="0" max="4294967295" resolution="4" visible="true" editable="true" desc="The start address offset of Message RAM for the channel (in bytes)." />
     <ParamRange id="noOfTxEvenFifo" name="Number of Tx Even FIFO Elements" group="Message RAM" default="10" min="0" max="32" resolution="1" visible="false" editable="false" desc="The Number Of Tx Even FIFO elements for the channel." />
-    <ParamRange id="messageRAMsize" name="Message RAM Size" group="Message RAM" default="8192" min="`${8 * noOfTxEvenFifo}`" max="65536" resolution="4" visible="true" editable="true" desc="The size in bytes of Message RAM for the channel." />
+    <ParamRange id="messageRAMsize" name="Message RAM Size" group="Message RAM" default="`${MRAM_SIZE * 1024}`" min="`${8 * noOfTxEvenFifo}`" max="`${MRAM_SIZE * 1024}`" resolution="4" visible="true" editable="true" desc="The size in bytes of Message RAM for the channel." />
     
     <!-- Bitrate Setting -->
     <ParamRange id="nominalPrescaler" name="Nominal Prescaler" group="Bitrate Setting" default="4" min="1" max="512" resolution="1" visible="true" editable="true" desc="Nominal Bit Rate Prescaler." />
@@ -354,9 +354,10 @@ treated.">
     <!--FIFO DRCs-->
     <DRC type="ERROR" text="Rx FIFO 0 Size must be greater than Rx FIFO 0 Watermark." condition="`${((watermarkFifo0 ge numberOfFifo0Elements) &amp;&amp; (numberOfFifo0Elements ne 0)) ? true : false}`"/>
     <DRC type="ERROR" text="Rx FIFO 1 Size must be greater than Rx FIFO 1 Watermark." condition="`${((watermarkFifo1 ge numberOfFifo1Elements) &amp;&amp; (numberOfFifo1Elements ne 0)) ? true : false}`"/>
-    
+    <DRC type="ERROR" text="Rx FIFO 0 Size must be greater than 1 when FIFO 0 Top Pointer Logic Enabled." condition="`${(topPointerLogicEnabledFifo0 &amp;&amp; (numberOfFifo0Elements &lt; 2)) ? true : false}`"/>
+    <DRC type="ERROR" text="Rx FIFO 1 Size must be greater than 1 when FIFO 1 Top Pointer Logic Enabled." condition="`${(topPointerLogicEnabledFifo1 &amp;&amp; (numberOfFifo1Elements &lt; 2)) ? true : false}`"/>
   </DRCs>
-  
+
   <ConfigFirmware>
     <ConfigInclude value="cy_canfd.h" include="true" />
     <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />

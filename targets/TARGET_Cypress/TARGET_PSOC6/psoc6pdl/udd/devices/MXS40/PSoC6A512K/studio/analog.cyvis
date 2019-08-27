@@ -3325,24 +3325,24 @@
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3194" zorder="259" effectiveName="AmuxB3_bridge" type="Analog">
+    <Wire shapeName="Shape_3194" zorder="259" effectiveName="AmuxB1_bridge" type="Analog">
       <Point1 x="372" y="108" />
       <Point2 x="372" y="504" />
       <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
       <Annotation zorder="260">
         <Location x="732" y="738" />
-        <Text>AmuxB3_bridge</Text>
+        <Text>AmuxB1_bridge</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>
     </Wire>
-    <Wire shapeName="Shape_3196" zorder="261" effectiveName="AmuxA3_bridge" type="Analog">
+    <Wire shapeName="Shape_3196" zorder="261" effectiveName="AmuxA1_bridge" type="Analog">
       <Point1 x="390" y="90" />
       <Point2 x="390" y="522" />
       <ShapeTags>w:LPCOMP0_COMP0, w:LPCOMP0_COMP1</ShapeTags>
       <Annotation zorder="262">
         <Location x="744" y="864" />
-        <Text>AmuxA3_bridge</Text>
+        <Text>AmuxA1_bridge</Text>
         <Vertical value="false" />
         <TextAlignment value="TopLeft" />
       </Annotation>

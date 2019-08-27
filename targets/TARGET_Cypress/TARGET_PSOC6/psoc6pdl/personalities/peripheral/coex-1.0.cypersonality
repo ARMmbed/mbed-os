@@ -36,7 +36,7 @@
   </ExposedMembers>
   <Parameters>
     <!-- PDL documentation -->
-    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__coex.html" linkText="Open coex Documentation" visible="true" desc="Opens the BT coex  Documentation" />
+    <ParamDoc id="pdlDoc" name="Configuration Help" group="Peripheral Documentation" default="https://cypresssemiconductorco.github.io/coex/coex_api_reference_manual/html/index.html" linkText="Open Coexistence Documentation" visible="true" desc="Opens the Wifi/BT Coexistence  Documentation" />
 
     <ParamChoice id="lepriority" name="BLE Scan/Discovery Priority" group="General" default="1" visible="true" editable="true" desc="Choose the BLE scan and discovery priority">
       <Entry name="Low" value="0"   visible="true"/>

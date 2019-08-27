@@ -2727,8 +2727,8 @@
     </Instance>
   </Instances>
   <Signals count="49">
-    <Signal name="AmuxA3_bridge" type="" terminalCount="0" />
-    <Signal name="AmuxB3_bridge" type="" terminalCount="0" />
+    <Signal name="AmuxA1_bridge" type="" terminalCount="0" />
+    <Signal name="AmuxB1_bridge" type="" terminalCount="0" />
     <Signal name="amuxbus_a_csd0" type="Analog" terminalCount="4">
       <Terminal name="cy_shapetag_disconnect_21.a" type="Instance Analog InOut" />
       <Terminal name="cy_shapetag_disconnect_19.a" type="Instance Analog InOut" />
