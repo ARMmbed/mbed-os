@@ -160,10 +160,9 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 #if defined(__CORTEX_M)
         mbed_fault_context_t *mfc = (mbed_fault_context_t *)error_value;
         current_error_ctx.error_address = (uint32_t)mfc->PC_reg;
+        // Note that this SP_reg is the correct SP value of the fault. PSP and MSP are slightly different due to HardFault_Handler.
         current_error_ctx.thread_current_sp = (uint32_t)mfc->SP_reg;
-        // Note that the RTX thread itself is same even under fault exception handlers.
-#else
-#warning Please implement non Cortex-M handler for those error cases.
+        // Note that the RTX thread itself is the same even under this fault exception handler.
 #endif
     } else {
         current_error_ctx.error_address = (uint32_t)caller;
