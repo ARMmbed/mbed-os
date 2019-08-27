@@ -81,9 +81,7 @@
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
-#ifndef LWIP_RAW
-#define LWIP_RAW                    0
-#endif
+#define LWIP_RAW                    MBED_CONF_LWIP_RAWIPSOCKET_ENABLED
 
 #define MEMP_NUM_TCPIP_MSG_INPKT    MBED_CONF_LWIP_MEMP_NUM_TCPIP_MSG_INPKT
 #define TCPIP_MBOX_SIZE             MBED_CONF_LWIP_TCPIP_MBOX_SIZE

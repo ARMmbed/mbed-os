@@ -230,14 +230,34 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    enum netconn_type lwip_proto = proto == NSAPI_TCP ? NETCONN_TCP : NETCONN_UDP;
+    enum netconn_type netconntype;
+    if ( proto == NSAPI_TCP)
+    {
+      	netconntype = NETCONN_TCP;
+    }
+    else if ( proto == NSAPI_UDP )
+    {
+      	netconntype = NETCONN_UDP;
+    }
+    else
+    {
+      	netconntype = NETCONN_RAW;
+    }
 
 #if LWIP_IPV6
     // Enable IPv6 (or dual-stack)
-    lwip_proto = (enum netconn_type)(lwip_proto | NETCONN_TYPE_IPV6);
+    netconntype = (enum netconn_type)(netconntype | NETCONN_TYPE_IPV6);
 #endif
 
-    s->conn = netconn_new_with_callback(lwip_proto, &LWIP::socket_callback);
+    if (proto == NSAPI_ICMP )
+    {
+        s->conn = netconn_new_with_proto_and_callback(NETCONN_RAW,
+        		   (u8_t)IP_PROTO_ICMP, &LWIP::socket_callback);
+    }
+    else
+    {
+        s->conn = netconn_new_with_callback(netconntype, &LWIP::socket_callback);
+    }
 
     if (!s->conn) {
         arena_dealloc(s);

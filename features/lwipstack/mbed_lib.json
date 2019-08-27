@@ -149,6 +149,10 @@
             "help": "Thread stack size for PPP (obsolete: use netsocket/ppp configuration instead)",
             "value": 768
         },
+        "rawipsocket-enabled": {
+            "help": "Enable ICMP RAW",
+            "value": false
+        },
         "num-pbuf": {
             "help": "Number of non-pool pbufs, each needs 92 bytes of RAM, see LWIP's opt.h for more information. Current default is 8.",
             "value": 8
