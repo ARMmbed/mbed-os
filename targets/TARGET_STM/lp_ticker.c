@@ -54,7 +54,6 @@
  * between is unreliable */
 #define LP_TIMER_SAFE_GUARD 5
 
-
 LPTIM_HandleTypeDef LptimHandle;
 
 const ticker_info_t *lp_ticker_get_info()
@@ -73,6 +72,10 @@ const ticker_info_t *lp_ticker_get_info()
 volatile uint8_t  lp_Fired = 0;
 /*  Flag and stored counter to handle delayed programing at low level */
 volatile bool lp_delayed_prog = false;
+
+volatile bool future_event_flag = false;
+volatile bool roll_over_flag = false;
+
 volatile bool lp_cmpok = false;
 volatile timestamp_t lp_delayed_counter = 0;
 volatile bool sleep_manager_locked = false;
@@ -231,7 +234,28 @@ static void LPTIM1_IRQHandler(void)
                 sleep_manager_locked = false;
             }
             if(lp_delayed_prog) {
-                lp_ticker_set_interrupt(lp_delayed_counter);
+                if(roll_over_flag) {
+                    /* If we were close to the roll over of the ticker counter 
+                     * change current tick so it can be compared with buffer. 
+                     * If this event got outdated fire interrupt right now,
+                     * else schedule it normally. */
+                    if(lp_delayed_counter <= ((lp_ticker_read() + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF)){
+                        lp_ticker_fire_interrupt();
+                    } else {
+                        lp_ticker_set_interrupt((lp_delayed_counter - LP_TIMER_SAFE_GUARD - 1) & 0xFFFF);
+                    }
+                    roll_over_flag = false;
+                } else {
+                    if(future_event_flag && (lp_delayed_counter <= lp_ticker_read())) {
+                        /* If this event got outdated fire interrupt right now,
+                         * else schedule it normally. */
+                        lp_ticker_fire_interrupt();
+                        future_event_flag = false;
+                    } else {
+                        lp_ticker_set_interrupt(lp_delayed_counter);
+                    }
+                }
+                
                 lp_delayed_prog = false;
             }
         }
@@ -260,6 +284,8 @@ uint32_t lp_ticker_read(void)
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     core_util_critical_section_enter();
+    
+    timestamp_t last_read_counter = lp_ticker_read();
 
     /* Always store the last requested timestamp */
     lp_delayed_counter = timestamp;
@@ -272,9 +298,33 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     if (lp_cmpok == false) {
         /* if this is not safe to write, then delay the programing to the
          * time when CMPOK interrupt will trigger */
+        
+        /* If this target timestamp is close to the roll over of the ticker counter
+         * and current tick is also close to the roll over, then we are in danger zone.*/
+        if(((0xFFFF - LP_TIMER_SAFE_GUARD < timestamp) || (timestamp < LP_TIMER_SAFE_GUARD)) && (0xFFFA < last_read_counter))
+        {
+            roll_over_flag = true;
+            /* Change the lp_delayed_counter buffer in that way so the value of (0xFFFF - LP_TIMER_SAFE_GUARD) is equal to 0.
+             * By doing this it is easy to check if the value of timestamp get outdated by delaying its programming
+             * For example if LP_TIMER_SAFE_GUARD is set to 5
+             * (0xFFFA + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF = 0
+             * (0xFFFF + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF = 5
+             * (0x0000 + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF = 6
+             * (0x0005 + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF = 11*/
+            lp_delayed_counter = (timestamp + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF;
+        } else {
+            roll_over_flag = false;
+            /* Check if event was meant to be in the past. */
+            if(lp_delayed_counter >= last_read_counter) {
+                future_event_flag = true;
+            } else {
+                future_event_flag = false;
+            }
+        }
+
         lp_delayed_prog = true;
     } else {
-        timestamp_t last_read_counter = lp_ticker_read();
+        
         lp_ticker_clear_interrupt();
 
         /*  HW is not able to trig a very short term interrupt, that is
@@ -285,6 +335,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
                 timestamp = LP_TIMER_WRAP((timestamp + LP_TIMER_SAFE_GUARD));
             }
         }
+        
         /* Then check if this target timestamp is not in the past, or close to wrap-around
          * Let's assume last_read_counter = 0xFFFC, and we want to program timestamp = 0x100
          * The interrupt will not fire before the CMPOK flag is OK, so there are 2 cases:
