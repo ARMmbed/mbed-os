@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#ifdef MBED_CONF_NANOSTACK_CONFIG
+#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
 
 #include "ns_types.h"
 #include "fhss_api.h"
