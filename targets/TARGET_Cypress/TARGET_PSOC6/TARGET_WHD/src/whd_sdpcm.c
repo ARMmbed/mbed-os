@@ -260,20 +260,10 @@ void whd_sdpcm_bus_vars_init(whd_driver_t whd_driver)
 void whd_sdpcm_quit(whd_driver_t whd_driver)
 {
     whd_sdpcm_info_t *sdpcm_info = &whd_driver->sdpcm_info;
-    whd_cdc_bdc_info_t *cdc_bdc_info = &whd_driver->cdc_bdc_info;
     whd_result_t result;
-
-    /* Delete the sleep mutex */
-    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_sleep);    /* Ignore return - not much can be done about failure */
-
-    /* Delete the queue mutex.  */
-    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_mutex);    /* Ignore return - not much can be done about failure */
 
     /* Delete the SDPCM queue mutex */
     (void)cy_rtos_deinit_semaphore(&sdpcm_info->send_queue_mutex);    /* Ignore return - not much can be done about failure */
-
-    /* Delete the event list management mutex */
-    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->event_list_mutex);    /* Ignore return - not much can be done about failure */
 
     /* Free any left over packets in the queue */
     while (sdpcm_info->send_queue_head != NULL)

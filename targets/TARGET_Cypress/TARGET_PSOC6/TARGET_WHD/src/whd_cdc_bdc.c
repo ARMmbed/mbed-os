@@ -98,8 +98,14 @@ void whd_cdc_bdc_info_deinit(whd_driver_t whd_driver)
 {
     whd_cdc_bdc_info_t *cdc_bdc_info = &whd_driver->cdc_bdc_info;
 
-    cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_sleep);
-    cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_mutex);
+    /* Delete the sleep mutex */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_sleep);
+
+    /* Delete the queue mutex.  */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_mutex);
+
+    /* Delete the event list management mutex */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->event_list_mutex);
 }
 
 whd_result_t whd_cdc_bdc_info_init(whd_driver_t whd_driver)
