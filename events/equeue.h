@@ -184,10 +184,12 @@ int equeue_post(equeue_t *queue, void (*cb)(void *), void *event);
 //
 // The equeue_cancel function is irq safe.
 //
-// If called while the event queue's dispatch loop is active, equeue_cancel
-// does not guarantee that the event will not not execute after it returns as
+// If called while the event queue's dispatch loop is active in another thread,
+// equeue_cancel does not guarantee that the event will not execute after it returns as
 // the event may have already begun executing.
-void equeue_cancel(equeue_t *queue, int id);
+// Returning true guarantees that cancel succeeded and event will not execute.
+// Returning false if invalid id or already started executing.
+bool equeue_cancel(equeue_t *queue, int id);
 
 // Query how much time is left for delayed event
 //

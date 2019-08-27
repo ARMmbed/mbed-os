@@ -50,7 +50,7 @@ unsigned EventQueue::tick()
     return equeue_tick();
 }
 
-void EventQueue::cancel(int id)
+bool EventQueue::cancel(int id)
 {
     return equeue_cancel(&_equeue, id);
 }

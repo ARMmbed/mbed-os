@@ -47,8 +47,9 @@ unsigned EventQueue::tick()
     return EventQueue_stub::unsigned_value;
 }
 
-void EventQueue::cancel(int id)
+bool EventQueue::cancel(int id)
 {
+    return true;
 }
 
 int EventQueue::time_left(int id)
@@ -62,6 +63,7 @@ void EventQueue::background(Callback<void(int)> update)
 
 int EventQueue::chain(EventQueue *target)
 {
+    return 0;
 }
 
 } // namespace events
