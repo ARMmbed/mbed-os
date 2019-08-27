@@ -284,12 +284,12 @@ typedef enum {
     D7          = PG_10,
     D8          = PG_11,
     D9          = PB_15,
-    D10         = PA_15,
-    D11         = PA_7,
-    D12         = PB_4,
-    D13         = PB_3,
-    D14         = PB_7,
-    D15         = PB_8,
+    D10         = PA_15,  // SPI CS
+    D11         = PA_7,   // SPI MOSI
+    D12         = PB_4,   // SPI MISO
+    D13         = PB_3,   // SPI SCK
+    D14         = PB_7,   // I2C SDA
+    D15         = PB_8,   // I2C SCL
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
@@ -310,43 +310,35 @@ typedef enum {
     LED2        = PK_6, // Orange LED
     LED3        = PK_5, // Green LED
     LED4        = PK_4,
-    LED_RED     = LED1,
-    LED_ORANGE  = LED2,
-    LED_GREEN   = LED3,
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
-    
 
     // Adding these signals for the SDP connector
-    SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
-    SDP_SPI_MISO = PF_8, 
+    SDP_SPI_MOSI = PF_9,  // SDP Connector for SPI lines
+    SDP_SPI_MISO = PF_8,
     SDP_SPI_SCK  = PH_6,
     SDP_SPI_CS_A = PB_9,
     SDP_SPI_CS_B = PC_6,
     SDP_SPI_CS_C = PC_7,
-    SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
+    SDP_I2C_SDA  = PC_9,  // SDP Connector I2C lines
     SDP_I2C_SCL  = PH_7,
-    SDP_GPIO_0   = PJ_0,		// SDP connector GPIO 0-7  
+    SDP_GPIO_0   = PJ_0,  // SDP connector GPIO 0-7  
     SDP_GPIO_1   = PJ_1, 
     SDP_GPIO_2   = PJ_3,
     SDP_GPIO_3   = PJ_4,
     SDP_GPIO_4   = PJ_5,
     SDP_GPIO_5   = PJ_12,
     SDP_GPIO_6   = PJ_13,
-    SDP_GPIO_7   = PJ_14,	
-    SDP_UART_TX  = PD_5,		// SDP connector UART
+    SDP_GPIO_7   = PJ_14,
+    SDP_UART_TX  = PD_5,  // SDP connector UART
     SDP_UART_RX  = PD_6,
-    SDP_TMR_A    = PB_14,		// SDP connector TMR A, B & D
+    SDP_TMR_A    = PB_14,  // SDP connector TMR A, B & D
     SDP_TMR_B    = PE_6,
     SDP_TMR_D    = PC_8,
 
-    /**** USB pins ****/
-    USB_OTG_HS_DM = PB_14,
-    USB_OTG_HS_DP = PB_15,
-    USB_OTG_HS_ID = PB_12,
-    USB_OTG_HS_SOF = PA_4,
+    /**** USB pins ****/  
     USB_OTG_HS_ULPI_CK = PA_5,
     USB_OTG_HS_ULPI_D0 = PA_3,
     USB_OTG_HS_ULPI_D1 = PB_0,
@@ -356,12 +348,9 @@ typedef enum {
     USB_OTG_HS_ULPI_D5 = PB_12,
     USB_OTG_HS_ULPI_D6 = PB_13,
     USB_OTG_HS_ULPI_D7 = PB_5,
-    USB_OTG_HS_ULPI_DIR = PI_11,
-    USB_OTG_HS_ULPI_DIR_ALT0 = PC_2,
-    USB_OTG_HS_ULPI_NXT = PH_4,
-    USB_OTG_HS_ULPI_NXT_ALT0 = PC_3,
+    USB_OTG_HS_ULPI_DIR = PC_2,
+    USB_OTG_HS_ULPI_NXT = PC_3,
     USB_OTG_HS_ULPI_STP = PC_0,
-    USB_OTG_HS_VBUS = PB_13,
 
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
