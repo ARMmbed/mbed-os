@@ -133,6 +133,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls"
   "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
+  "${PROJECT_SOURCE_DIR}/../features/mbedtls/mbed-crypto/inc"
 )
 
 # Create a list for test suites.
