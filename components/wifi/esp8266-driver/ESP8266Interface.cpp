@@ -46,6 +46,10 @@
 #define MBED_CONF_ESP8266_RST NC
 #endif
 
+#ifndef MBED_CONF_ESP8266_PWR
+#define MBED_CONF_ESP8266_PWR NC
+#endif
+
 #define TRACE_GROUP  "ESPI" // ESP8266 Interface
 
 using namespace mbed;
@@ -55,6 +59,7 @@ using namespace rtos;
 ESP8266Interface::ESP8266Interface()
     : _esp(MBED_CONF_ESP8266_TX, MBED_CONF_ESP8266_RX, MBED_CONF_ESP8266_DEBUG, MBED_CONF_ESP8266_RTS, MBED_CONF_ESP8266_CTS),
       _rst_pin(MBED_CONF_ESP8266_RST), // Notice that Pin7 CH_EN cannot be left floating if used as reset
+      _pwr_pin(MBED_CONF_ESP8266_PWR),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _if_blocking(true),
       _if_connected(_cmutex),
@@ -87,9 +92,10 @@ ESP8266Interface::ESP8266Interface()
 #endif
 
 // ESP8266Interface implementation
-ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName rts, PinName cts, PinName rst)
+ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName rts, PinName cts, PinName rst, PinName pwr)
     : _esp(tx, rx, debug, rts, cts),
       _rst_pin(rst),
+      _pwr_pin(pwr),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _if_blocking(true),
       _if_connected(_cmutex),
@@ -134,6 +140,8 @@ ESP8266Interface::~ESP8266Interface()
 
     // Power down the modem
     _rst_pin.rst_assert();
+    // Power off the modem
+    _pwr_pin.power_off();
 }
 
 ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOut(rst_pin, 1))
@@ -160,6 +168,33 @@ void ESP8266Interface::ResetPin::rst_deassert()
 bool ESP8266Interface::ResetPin::is_connected()
 {
     return _rst_pin.is_connected();
+}
+
+ESP8266Interface::PowerPin::PowerPin(PinName pwr_pin) : _pwr_pin(mbed::DigitalOut(pwr_pin, !MBED_CONF_ESP8266_POWER_ON_POLARITY))
+{
+}
+
+void ESP8266Interface::PowerPin::power_on()
+{
+    if (_pwr_pin.is_connected()) {
+        _pwr_pin = MBED_CONF_ESP8266_POWER_ON_POLARITY;
+        tr_debug("HW power-on");
+        ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_ON_TIME_MS);
+    }
+}
+
+void ESP8266Interface::PowerPin::power_off()
+{
+    if (_pwr_pin.is_connected()) {
+        _pwr_pin = !MBED_CONF_ESP8266_POWER_ON_POLARITY;
+        tr_debug("HW power-off");
+        ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_OFF_TIME_MS);
+    }
+}
+
+bool ESP8266Interface::PowerPin::is_connected()
+{
+    return _pwr_pin.is_connected();
 }
 
 int ESP8266Interface::connect(const char *ssid, const char *pass, nsapi_security_t security,
@@ -347,6 +382,8 @@ int ESP8266Interface::disconnect()
 
     // Power down the modem
     _rst_pin.rst_assert();
+    // Power off the modem
+    _pwr_pin.power_off();
 
     return ret;
 }
@@ -425,6 +462,8 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
+        _pwr_pin.power_off();
+        _pwr_pin.power_on();
         if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }

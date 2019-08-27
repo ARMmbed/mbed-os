@@ -78,7 +78,7 @@ public:
      * @param rx        RX pin
      * @param debug     Enable debugging
      */
-    ESP8266Interface(PinName tx, PinName rx, bool debug = false, PinName rts = NC, PinName cts = NC, PinName rst = NC);
+    ESP8266Interface(PinName tx, PinName rx, bool debug = false, PinName rts = NC, PinName cts = NC, PinName rst = NC, PinName pwr = NC);
 
     /**
      * @brief ESP8266Interface default destructor
@@ -392,6 +392,16 @@ private:
         mbed::DigitalOut  _rst_pin;
     } _rst_pin;
 
+    // HW power pin
+    class PowerPin {
+    public:
+        PowerPin(PinName pwr_pin);
+        void power_on();
+        void power_off();
+        bool is_connected();
+    private:
+        mbed::DigitalOut  _pwr_pin;
+    } _pwr_pin;
 
     // Credentials
     static const int ESP8266_SSID_MAX_LENGTH = 32; /* 32 is what 802.11 defines as longest possible name */
