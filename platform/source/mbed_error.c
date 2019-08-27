@@ -577,28 +577,9 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
 #endif
 
 #if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
-    /** The internal threshold to detect the end of the stack.
-     * The stack is filled with osRtxStackFillPattern at the end.
-     * However, it is possible that the call stack parameters can theoretically have consecutive osRtxStackFillPattern instances.
-     * For the best effort stack end detection, we will consider STACK_END_MARK_CNT consecutive osRtxStackFillPattern instances as the stack end. */
-#define STACK_END_MARK_CNT  3
 #define STACK_DUMP_WIDTH    8
     mbed_error_printf("\n\nStack Dump:");
-    // Find the stack end.
-    int stack_end_cnt = 0;
-    uint32_t st_end = ctx->thread_current_sp;
-    for (; st_end <= ctx->thread_stack_mem + ctx->thread_stack_size; st_end += sizeof(int)) {
-        uint32_t st_val = *((uint32_t *)st_end);
-        if (st_val == osRtxStackFillPattern) {
-            stack_end_cnt++;
-        } else {
-            stack_end_cnt = 0;
-        }
-        if (stack_end_cnt >= STACK_END_MARK_CNT) {
-            st_end -= (STACK_END_MARK_CNT - 1) * sizeof(int);
-            break;
-        }
-    }
+    uint32_t st_end = ctx->thread_stack_mem + ctx->thread_stack_size;
     for (uint32_t st = ctx->thread_current_sp; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
         mbed_error_printf("\n0x%08" PRIX32 ":", st);
         for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
