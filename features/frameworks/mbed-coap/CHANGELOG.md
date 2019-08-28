@@ -1,6 +1,14 @@
 # Change Log
 
-## [v4.8.1(https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.1)
+## [v5.0.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.0.0)
+
+- Reduce heap footprint by storing only single block when receiving a blockwise message.
+    * User is now responsible of freeing the data by calling sn_coap_protocol_block_remove() and must not free the payload separately.
+- Bug fix: Request blockwise transfer if incoming payload length is too large and when it comes without block indication. 
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.8.1...v5.0.0)
+
+## [v4.8.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.1)
 - Store ACK's also into duplicate info list.
 - ROM size optimization. Flash size has gone down ~1100 bytes.
 
