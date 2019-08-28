@@ -1,9 +1,24 @@
 # Change Log
 
 ## [v5.0.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.0.0)
+ **NOTE! Blockwise functionality has changed and it is not backward compatible. User is now responsible of freeing the data by calling sn_coap_protocol_block_remove() and must NOT free the payload anymore separately.**
+
+Here is the change needed on application side:
+
+```
+if (received_coap_message->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
+    free(received_coap_header->payload_ptr);
+}
+
+-->
+
+if (received_coap_message->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
+    // Free the block message from the CoAP list
+    sn_nsdl_remove_coap_block(_nsdl_handle, address, received_coap_header->payload_len, received_coap_header->payload_ptr);
+}
+```
 
 - Reduce heap footprint by storing only single block when receiving a blockwise message.
-    * User is now responsible of freeing the data by calling sn_coap_protocol_block_remove() and must not free the payload separately.
 - Bug fix: Request blockwise transfer if incoming payload length is too large and when it comes without block indication. 
 
 -[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.8.1...v5.0.0)
@@ -235,3 +250,4 @@ Extend blockwise message transfer status to have states for sending as well.
 **New feature**
 
  - Initial release of mbed-coap separated from mbed-client-c
+
