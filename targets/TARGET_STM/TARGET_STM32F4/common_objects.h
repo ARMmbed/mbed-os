@@ -96,6 +96,8 @@ struct i2c_s {
     int hz;
     PinName sda;
     PinName scl;
+    int sda_func;
+    int scl_func;
     IRQn_Type event_i2cIRQ;
     IRQn_Type error_i2cIRQ;
     uint8_t XferOperation;
@@ -165,4 +167,3 @@ struct qspi_s {
 #endif
 
 #endif
-
