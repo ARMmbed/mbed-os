@@ -1,6 +1,6 @@
 /** \addtogroup netsocket */
 /** @{*/
-/* RAWIPSocket
+/* ICMPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef RAWIPSOCKET_H
-#define RAWIPSOCKET_H
+#ifndef ICMPSOCKET_H
+#define ICMPSOCKET_H
 
 #include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
@@ -27,36 +27,19 @@
 
 /** RAW socket implementation.
  */
-class RAWIPSocket : public InternetSocket {
+class ICMPSocket : public InternetSocket {
 public:
     /** Create an uninitialized socket.
      *
      *  @note Must call open to initialize the socket on a network stack.
      */
-    RAWIPSocket();
-
-    /** Create and open a socket on the network stack of the given
-     *  network interface.
-     *
-     *  @tparam S    Type of the Network stack.
-     *  @param stack Network stack as target for socket.
-     *  @deprecated since mbed-os-5.11
-     */
-    template <typename S>
-    MBED_DEPRECATED_SINCE("mbed-os-5.11",
-                          "The RAWSocket(S *stack) constructor is deprecated"
-                          "It discards the open() call return value."
-                          "Use another constructor and call open() explicitly, instead.")
-    RAWIPSocket(S *stack)
-    {
-        open(stack);
-    }
+    ICMPSocket();
 
     /** Destroy a socket.
      *
      *  @note Closes socket if the socket is still open.
      */
-    virtual ~RAWIPSocket();
+    virtual ~ICMPSocket();
 
     /** Send data to the specified host and port.
      *
@@ -152,14 +135,14 @@ public:
      */
     virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
 
-    /** Not implemented for RAWIPSocket.
+    /** Not implemented for ICMPSocket.
      *
      *  @param error      Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED
      */
     virtual Socket *accept(nsapi_error_t *error = NULL);
 
-    /** Not implemented for RAWIPSocket.
+    /** Not implemented for ICMPSocket.
      *
      *  @param backlog    Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED

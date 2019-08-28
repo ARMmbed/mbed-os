@@ -56,6 +56,7 @@ enum nsapi_error {
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
     NSAPI_ERROR_TIMEOUT             = -3019,     /*!< operation timed out */
     NSAPI_ERROR_BUSY                = -3020,     /*!< device is busy and cannot accept new operation */
+    NSAPI_ERROR_PROTO_UNKNOWN       = -3021,     /*!< unknown protocol */
 };
 
 

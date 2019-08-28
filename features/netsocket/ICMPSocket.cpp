@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#include "RAWIPSocket.h"
+#include "ICMPSocket.h"
 #include "Timer.h"
 #include "mbed_assert.h"
 
-RAWIPSocket::RAWIPSocket()
+ICMPSocket::ICMPSocket()
 {
     _socket_stats.stats_update_proto(this, NSAPI_ICMP);
 }
 
-RAWIPSocket::~RAWIPSocket()
+ICMPSocket::~ICMPSocket()
 {
 }
 
-nsapi_protocol_t RAWIPSocket::get_proto()
+nsapi_protocol_t ICMPSocket::get_proto()
 {
     return NSAPI_ICMP;
 }
 
-nsapi_error_t RAWIPSocket::connect(const SocketAddress &address)
+nsapi_error_t ICMPSocket::connect(const SocketAddress &address)
 {
     _remote_peer = address;
     _socket_stats.stats_update_peer(this, _remote_peer);
@@ -40,7 +40,7 @@ nsapi_error_t RAWIPSocket::connect(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_size_or_error_t RAWIPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t ICMPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
     SocketAddress address;
     nsapi_size_or_error_t err;
@@ -61,7 +61,7 @@ nsapi_size_or_error_t RAWIPSocket::sendto(const char *host, uint16_t port, const
     return sendto(address, data, size);
 }
 
-nsapi_size_or_error_t RAWIPSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t ICMPSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -108,7 +108,7 @@ nsapi_size_or_error_t RAWIPSocket::sendto(const SocketAddress &address, const vo
     return ret;
 }
 
-nsapi_size_or_error_t RAWIPSocket::send(const void *data, nsapi_size_t size)
+nsapi_size_or_error_t ICMPSocket::send(const void *data, nsapi_size_t size)
 {
     if (!_remote_peer) {
         return NSAPI_ERROR_NO_ADDRESS;
@@ -116,7 +116,7 @@ nsapi_size_or_error_t RAWIPSocket::send(const void *data, nsapi_size_t size)
     return sendto(_remote_peer, data, size);
 }
 
-nsapi_size_or_error_t RAWIPSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t ICMPSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -177,12 +177,12 @@ nsapi_size_or_error_t RAWIPSocket::recvfrom(SocketAddress *address, void *buffer
     return ret;
 }
 
-nsapi_size_or_error_t RAWIPSocket::recv(void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t ICMPSocket::recv(void *buffer, nsapi_size_t size)
 {
     return recvfrom(NULL, buffer, size);
 }
 
-Socket *RAWIPSocket::accept(nsapi_error_t *error)
+Socket *ICMPSocket::accept(nsapi_error_t *error)
 {
     if (error) {
         *error = NSAPI_ERROR_UNSUPPORTED;
@@ -190,7 +190,7 @@ Socket *RAWIPSocket::accept(nsapi_error_t *error)
     return NULL;
 }
 
-nsapi_error_t RAWIPSocket::listen(int)
+nsapi_error_t ICMPSocket::listen(int)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

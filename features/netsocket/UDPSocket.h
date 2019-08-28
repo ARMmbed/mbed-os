@@ -24,12 +24,12 @@
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
 #include "rtos/EventFlags.h"
-#include "RAWIPSocket.h"
+#include "ICMPSocket.h"
 
 
 /** UDP socket implementation.
  */
-class UDPSocket : public RAWIPSocket {
+class UDPSocket : public ICMPSocket {
 public:
     /** Create an uninitialized socket.
      *
