@@ -64,6 +64,14 @@ enum {
     I2C_ERROR_BUS_BUSY = -2
 };
 
+typedef struct {
+    int peripheral;
+    PinName sda_pin;
+    int sda_function;
+    PinName scl_pin;
+    int scl_function;
+} i2c_pinmap_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -72,6 +80,14 @@ extern "C" {
  * \defgroup hal_GeneralI2C I2C Configuration Functions
  * @{
  */
+
+/** Initialize the I2C peripheral. It sets the default parameters for I2C
+ *  peripheral, and configures its specifieds pins.
+ *
+ *  @param obj  The I2C object
+ *  @param pinmap  Pinmap pointer to strucure which holds static pinmap
+ */
+void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap);
 
 /** Initialize the I2C peripheral. It sets the default parameters for I2C
  *  peripheral, and configures its specifieds pins.
