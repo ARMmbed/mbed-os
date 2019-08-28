@@ -86,6 +86,12 @@ public:
      */
     I2CSlave(PinName sda, PinName scl);
 
+    /** Create an I2C Slave interface, connected to the specified pins.
+     *
+     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     */
+    I2CSlave(const i2c_pinmap_t &explicit_pinmap);
+
     /** Set the frequency of the I2C interface.
      *
      *  @param hz The bus frequency in Hertz.
