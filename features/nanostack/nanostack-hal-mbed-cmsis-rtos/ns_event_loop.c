@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CONF_RTOS_PRESENT
+
 #include "mbed_assert.h"
 #include "cmsis.h"
 #include "cmsis_os2.h"
@@ -130,3 +132,5 @@ void ns_event_loop_thread_start(void)
 #endif
 
 #endif // !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_USE_MBED_EVENTS
+
+#endif //MBED_CONF_RTOS_PRESENT

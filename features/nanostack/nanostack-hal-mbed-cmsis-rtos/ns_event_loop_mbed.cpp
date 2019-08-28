@@ -17,9 +17,11 @@
 
 #include "mbed_assert.h"
 #include "platform/arm_hal_interrupt.h"
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis.h"
 #include "cmsis_os2.h"
 #include "mbed_rtos_storage.h"
+#endif
 #include "ns_trace.h"
 
 #include "eventOS_scheduler.h"

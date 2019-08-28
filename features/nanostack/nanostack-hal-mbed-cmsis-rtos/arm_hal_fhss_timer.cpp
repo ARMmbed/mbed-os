@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
+
 #include "ns_types.h"
 #include "fhss_api.h"
 #include "fhss_config.h"
@@ -179,3 +181,4 @@ fhss_timer_t fhss_functions = {
     .fhss_resolution_divider = 1
 };
 
+#endif
