@@ -233,11 +233,9 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     enum netconn_type netconntype;
     if ( proto == NSAPI_TCP) {
       	netconntype = NETCONN_TCP;
-    }
-    else if ( proto == NSAPI_UDP ) {
+    } else if ( proto == NSAPI_UDP ) {
       	netconntype = NETCONN_UDP;
-    }
-    else {
+    } else {
       	netconntype = NETCONN_RAW;
     }
 
@@ -249,8 +247,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     if (proto == NSAPI_ICMP ) {
         s->conn = netconn_new_with_proto_and_callback(NETCONN_RAW,
         		   (u8_t)IP_PROTO_ICMP, &LWIP::socket_callback);
-    }
-    else {
+    } else {
         s->conn = netconn_new_with_callback(netconntype, &LWIP::socket_callback);
     }
 
