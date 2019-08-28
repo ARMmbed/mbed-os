@@ -8052,6 +8052,9 @@
                 "value": 1
             }
         },
+        "components_add": [
+            "FLASHIAP"
+        ],
         "macros_add": [
             "STM32L4R9xx",
             "MBED_TICKLESS",
@@ -8066,6 +8069,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "QSPI",
             "MPU"
         ],
         "release_versions": ["2", "5"],

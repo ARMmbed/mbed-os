@@ -32,6 +32,9 @@
 #elif defined(TARGET_DISCO_F769NI)
 #include "MX25L51245G_config.h" // MX25L51245G
 
+#elif defined(TARGET_DISCO_L4R9I)
+#include "MX25LM51245G_config.h" // MX25LM51245G
+
 #elif defined(TARGET_DISCO_L476VG)
 #include "N25Q128A_config.h" // N25Q128A13EF840E
 /* See STM32L476 Errata Sheet, it is not possible to use Dual-/Quad-mode for the command phase */
