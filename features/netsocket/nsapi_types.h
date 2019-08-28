@@ -217,6 +217,7 @@ typedef enum nsapi_protocol {
     NSAPI_TCP, /*!< Socket is of TCP type */
     NSAPI_UDP, /*!< Socket is of UDP type */
     NSAPI_ICMP, /*!< Socket is of ICMP type */
+    NSAPI_PROTO_UNKNOWN, /*!< Socket Protocol type UKNOWN */
 } nsapi_protocol_t;
 
 /** Enum of standardized stack option levels

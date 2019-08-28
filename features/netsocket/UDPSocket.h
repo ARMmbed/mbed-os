@@ -23,13 +23,14 @@
 #include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
+#include "netsocket/InternetDatagram.h"
 #include "rtos/EventFlags.h"
 #include "ICMPSocket.h"
 
 
 /** UDP socket implementation.
  */
-class UDPSocket : public ICMPSocket {
+class UDPSocket : public InternetDatagram {
 public:
     /** Create an uninitialized socket.
      *
