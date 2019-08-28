@@ -161,9 +161,9 @@ public:
      * peripheral is freed. If either serial input or serial
      * output is re-enabled, the peripheral is reinitialized.
      *
-     * On reinitialization rx interrupts will be enabled if a
+     * On re-initialization rx interrupts will be enabled if a
      * rx handler is attached. The rx handler is called once
-     * during reinitialization.
+     * during re-initialization.
      */
     void enable_input(bool enable = true);
 
@@ -173,9 +173,9 @@ public:
      * peripheral is freed. If either serial input or serial
      * output is re-enabled, the peripheral is reinitialized.
      *
-     * On reinitialization tx interrupts will be enabled if a
+     * On re-initialization tx interrupts will be enabled if a
      * tx handler is attached. The tx handler is called once
-     * during reinitialization.
+     * during re-initialization.
      */
     void enable_output(bool enable = true);
 
