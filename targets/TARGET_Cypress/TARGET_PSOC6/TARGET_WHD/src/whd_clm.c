@@ -105,19 +105,18 @@ whd_result_t whd_process_clm_data(whd_interface_t ifp)
         transfer_progress = 0;
         for (i = 0; i < blocks_count; i++)
         {
-            whd_get_resource_block(whd_driver, WHD_RESOURCE_WLAN_CLM, (const uint8_t **)&image, &size_read);
+            whd_get_resource_block(whd_driver, WHD_RESOURCE_WLAN_CLM, i, (const uint8_t **)&image, &size_read);
 
             num_buff = (size_read + BLOCK_SIZE - 1) / BLOCK_SIZE;
             if (blocks_count != 1)
                 transfer_progress = 0;
 
-            if (size_read >= BLOCK_SIZE)
-                chunk_len = BLOCK_SIZE;
-            else
-                chunk_len = (int)size_read;
-
             for (j = 0; j < num_buff; j++)
             {
+                if (size_read >= BLOCK_SIZE)
+                    chunk_len = BLOCK_SIZE;
+                else
+                    chunk_len = (int)size_read;
                 memcpy(chunk_buf + data_offset, &image[transfer_progress], chunk_len);
 
                 if (datalen + chunk_len == clm_blob_size)

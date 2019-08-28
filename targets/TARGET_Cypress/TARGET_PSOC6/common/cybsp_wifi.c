@@ -26,7 +26,7 @@
 #include "cybsp_api_wifi.h"
 #include "cy_network_buffer.h"
 #include "cmsis_os2.h"
-#include "whd_bus_types.h"
+#include "whd_types.h"
 #include "cyhal.h"
 #include "cyhal_implementation.h"
 
@@ -44,6 +44,10 @@ extern "C" {
 #define SDIO_ENUMERATION_TRIES      500
 #define SDIO_RETRY_DELAY_MS         1
 #define SDIO_BUS_LEVEL_MAX_RETRIES  5
+
+#if !defined(CY_WIFI_OOB_INTR_PRIORITY)
+#define CY_WIFI_OOB_INTR_PRIORITY   2
+#endif/* !defined(CY_WIFI_OOB_INTR_PRIORITY) */
 
 /* Determine whether to use the SDIO oob interrupt.
  * When CY_SDIO_BUS_NEEDS_OOB_INTR is defined,
@@ -103,9 +107,6 @@ whd_driver_t whd_drv;
 bool sdio_initialized = false;
 cyhal_sdio_t sdio_obj;
 
-static void cy_enable_oob_intr(whd_driver_t whd_driver, const whd_variant_t intr, whd_bool_t whd_enable);
-static void cy_get_intr_config(whd_driver_t whd_driver, const whd_variant_t intr, whd_intr_config_t *config);
-
 static whd_buffer_funcs_t buffer_ops =
 {
     .whd_host_buffer_get = cy_host_buffer_get,
@@ -121,20 +122,8 @@ static whd_netif_funcs_t netif_ops =
     .whd_network_process_ethernet_data = cy_network_process_ethernet_data,
 };
 
-static whd_sdio_funcs_t sdio_ops =
-{
-    .whd_enable_intr = cy_enable_oob_intr,
-    .whd_get_intr_config = cy_get_intr_config,
-};
-
 //TODO: Need to use resource implemenatation from abstraction layer.
 extern whd_resource_source_t resource_ops;
-
-static void whd_wake_host_irq_handler(void *arg, cyhal_gpio_irq_event_t event)
-{
-    //TODO: Swtich out from deep sleep or LP mode.
-    whd_bus_sdio_oob_intr_asserted(arg);
-}
 
 static cy_rslt_t sdio_try_send_cmd(const cyhal_sdio_t *sdio_object, cyhal_transfer_t direction, \
                           cyhal_sdio_command_t command, uint32_t argument, uint32_t* response)
@@ -223,22 +212,24 @@ static void deinit_sdio_whd(void)
 
 static cy_rslt_t init_sdio_bus(void)
 {
-    whd_sdio_config_t whd_sdio_config;
-    cyhal_sdio_cfg_t config;
-
     cy_rslt_t result = cybsp_sdio_enumerate(&sdio_obj);
-
     if(result == CY_RSLT_SUCCESS)
     {
-        whd_sdio_config.flags = 0;
+        whd_sdio_config_t whd_sdio_config;
+        whd_oob_config_t oob_config;
+        cyhal_sdio_cfg_t config;
+
+        oob_config.host_oob_pin = CY_WIFI_HOST_WAKE_GPIO;
+        oob_config.dev_gpio_sel = DEFAULT_OOB_PIN;
+        oob_config.is_falling_edge = (CY_WIFI_HOST_WAKE_IRQ_EVENT == CYHAL_GPIO_IRQ_FALL)
+            ? WHD_TRUE
+            : WHD_FALSE;
+        oob_config.intr_priority = CY_WIFI_OOB_INTR_PRIORITY;
+
         whd_sdio_config.sdio_1bit_mode = WHD_FALSE;
         whd_sdio_config.high_speed_sdio_clock = WHD_FALSE;
-        if(CY_SDIO_BUS_USE_OOB_INTR != 0)
-        {
-            whd_sdio_config.flags |= WHD_BUS_SDIO_OOB_INTR;
-            whd_sdio_config.oob_intr.u32val = 0; /* reserved for multi whd instances */
-        }
-        whd_bus_sdio_attach(whd_drv, &whd_sdio_config, &sdio_obj, &sdio_ops);
+        whd_sdio_config.oob_config = oob_config;
+        whd_bus_sdio_attach(whd_drv, &whd_sdio_config, &sdio_obj);
 
         /* Increase frequency to 25 MHz for better performance */
         config.frequencyhal_hz = 25000000;
@@ -246,40 +237,6 @@ static cy_rslt_t init_sdio_bus(void)
         cyhal_sdio_configure(&sdio_obj, &config);
     }
     return result;
-}
-
-static cy_rslt_t init_wlan_wakeup(void)
-{
-    /* assert(CY_SDIO_BUS_USE_OOB_INTR != 0) */
-    cy_rslt_t result = cyhal_gpio_init(CY_WIFI_HOST_WAKE_GPIO, CYHAL_GPIO_DIR_INPUT, CY_WIFI_HOST_WAKE_GPIO_DM, 0);
-    if(result == CY_RSLT_SUCCESS)
-    {
-        cyhal_gpio_register_irq(CY_WIFI_HOST_WAKE_GPIO, WLAN_INTR_PRIORITY, whd_wake_host_irq_handler, whd_drv);
-    }
-    return result;
-}
-
-static void cy_enable_oob_intr(whd_driver_t whd_driver, const whd_variant_t intr, whd_bool_t whd_enable)
-{
-    /* assert(CY_SDIO_BUS_USE_OOB_INTR != 0) */
-    (void)whd_driver;
-    (void)intr;
-    //TODO: This needs to be enabled in the WHD after the rtos is initialized. The current location where this is called
-    //causes a crash in the interrupt handler since it tries to set data on the thread before it is initialized. 
-    //Need to review where this should be called in the WHD.
-    // cyhal_gpio_irq_enable(CY_WIFI_HOST_WAKE_GPIO, CY_WIFI_HOST_WAKE_IRQ_EVENT,
-    //                       (whd_enable == WHD_TRUE) ? true : false);
-}
-
-static void cy_get_intr_config(whd_driver_t whd_driver, const whd_variant_t intr, whd_intr_config_t *config)
-{
-    /* assert(CY_SDIO_BUS_USE_OOB_INTR != 0) */
-    (void)whd_driver;
-    (void)intr;
-    config->dev_gpio_sel = DEFAULT_OOB_PIN;
-    config->is_falling_edge = (CY_WIFI_HOST_WAKE_IRQ_EVENT == CYHAL_GPIO_IRQ_FALL) 
-        ? WHD_TRUE 
-        : WHD_FALSE;
 }
 
 cy_rslt_t cybsp_sdio_init(void)
@@ -307,10 +264,6 @@ cy_rslt_t cybsp_wifi_init(void)
     if(ret == WHD_SUCCESS)
     {
         result = init_sdio_bus();
-        if (result == CY_RSLT_SUCCESS && CY_SDIO_BUS_USE_OOB_INTR != 0)
-        {
-            result = init_wlan_wakeup();
-        }
     }
     else
     {

@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "cy_result.h"
+#include "cyhal_hw_types.h"
 
 #ifndef INCLUDED_WHD_TYPES_H_
 #define INCLUDED_WHD_TYPES_H_
@@ -943,30 +944,25 @@ typedef struct
 } whd_wep_key_t;
 
 /**
- * Variant data type.
+ * Structure for Out-of-band interrupt config parameters which can be set by application during whd power up
  */
-typedef union whd_variant
+typedef struct whd_oob_config
 {
-    void *pvval;     /**< Void pointer */
-    uint32_t u32val; /**< uint32_t type variable */
-} whd_variant_t;
-
-/**
- * SDIO bus will use the host-wake out-of-band (OOB) signal.
- * @ref whd_get_intr_config_func_t must be specified when this flag is set.
- */
-#define WHD_BUS_SDIO_OOB_INTR (1UL << 0)
+    cyhal_gpio_t host_oob_pin;   /**< Host-side GPIO pin selection */
+    uint8_t dev_gpio_sel;        /**< WiFi device-side GPIO pin selection (must be zero) */
+    whd_bool_t is_falling_edge;  /**< Interrupt trigger (polarity) */
+    uint8_t intr_priority;       /**< OOB interrupt priority */
+} whd_oob_config_t;
 
 /**
  * Structure for SDIO config parameters which can be set by application during whd power up
  */
 typedef struct whd_sdio_config
 {
-    uint32_t flags;                   /**< Configuration flags (see WHD_BUS_SDIO_XXX constants). */
     /* Bus config */
     whd_bool_t sdio_1bit_mode;        /**< Default is false, means SDIO operates under 4 bit mode */
     whd_bool_t high_speed_sdio_clock; /**< Default is false, means SDIO operates in normal clock rate */
-    whd_variant_t oob_intr;           /**< Caller provided opaque data (@ref WHD_BUS_SDIO_OOB_INTR) */
+    whd_oob_config_t oob_config;      /**< Out-of-band interrupt configuration (required when bus can sleep) */
 } whd_sdio_config_t;
 
 /**
@@ -976,7 +972,7 @@ typedef struct whd_spi_config
 {
     /* Bus config */
     whd_bool_t is_spi_normal_mode; /**< Default is false */
-    whd_variant_t oob_intr;        /**< Caller provided opaque data */
+    whd_oob_config_t oob_config;   /**< Out-of-band interrupt configuration */
 } whd_spi_config_t;
 
 /**

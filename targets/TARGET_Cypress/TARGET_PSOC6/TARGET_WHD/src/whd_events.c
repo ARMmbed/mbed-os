@@ -81,19 +81,18 @@ static uint8_t whd_find_number_of_events(const whd_event_num_t *event_nums)
  * This function registers a callback handler to be notified when
  * a particular event is received.
  *
- * Alternately the function clears callbacks for given event type.
+ * @note : Currently there is a limit to the number of simultaneously
+ *         registered events
  *
- * @note : Currently each event may only be registered to one handler
- *         and there is a limit to the number of simultaneously registered
- *         events
- *
- * @param  event_nums     An array of event types that is to trigger the handler. The array must be terminated with a WLC_E_NONE event
- *                        See @ref whd_event_num_t for available events
- * @param handler_func   A function pointer to the new handler callback,
- *                        or NULL if callbacks are to be disabled for the given event type
- * @param handler_user_data  A pointer value which will be passed to the event handler function
+ * @param ifp                 Pointer to handle instance of whd interface
+ * @param event_nums          An array of event types that is to trigger the handler.
+ *                            The array must be terminated with a WLC_E_NONE event
+ *                            See @ref whd_event_num_t for available events
+ * @param handler_func        A function pointer to the new handler callback,
+ *                            or NULL if callbacks are to be disabled for the given event type
+ * @param handler_user_data   A pointer value which will be passed to the event handler function
  *                            at the time an event is triggered (NULL is allowed)
- * @param interface      The interface to set the handler for.
+ * @param[out] *event_index   entry where the event handler is registered in the list
  *
  * @return WHD result code
  */
@@ -246,20 +245,18 @@ static uint8_t *whd_management_alloc_event_msgs_buffer(whd_interface_t ifp, whd_
  * This function registers a callback handler to be notified when
  * a particular event is received.
  *
- * Alternately the function clears callbacks for given event type.
+ * @note : Currently there is a limit to the number of simultaneously
+ *         registered events
  *
- * @note : Currently each event may only be registered to one handler
- *         and there is a limit to the number of simultaneously registered
- *         events
- *
- * @param  event_nums     An array of event types that is to trigger the handler.
- *                        The array must be terminated with a WLC_E_NONE event
- *                        See @ref whd_event_num_t for available events
- * @param handler_func   A function pointer to the new handler callback,
- *                        or NULL if callbacks are to be disabled for the given event type
- * @param handler_user_data  A pointer value which will be passed to the event handler function
+ * @param ifp                 Pointer to handle instance of whd interface
+ * @param event_nums          An array of event types that is to trigger the handler.
+ *                            The array must be terminated with a WLC_E_NONE event
+ *                            See @ref whd_event_num_t for available events
+ * @param handler_func        A function pointer to the new handler callback,
+ *                            or NULL if callbacks are to be disabled for the given event type
+ * @param handler_user_data   A pointer value which will be passed to the event handler function
  *                            at the time an event is triggered (NULL is allowed)
- * @param interface      The interface to set the handler for.
+ * @param[out] *event_index   entry where the event handler is registered in the list
  *
  * @return WHD result code
  */

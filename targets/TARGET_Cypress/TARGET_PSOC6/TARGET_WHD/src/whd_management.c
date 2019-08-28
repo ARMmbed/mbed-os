@@ -168,26 +168,28 @@ uint32_t whd_deinit(whd_interface_t ifp)
     uint8_t i;
     whd_driver_t whd_driver = ifp->whd_driver;
 
-    if (whd_driver->internal_info.whd_wlan_status.state != WLAN_UP)
+    if (whd_driver->internal_info.whd_wlan_status.state == WLAN_UP)
     {
-        WPRINT_WHD_INFO( ("wlan_status: already down.\n") );
-        return WHD_INTERFACE_NOT_UP;
+        CHECK_RETURN(whd_wifi_set_ioctl_buffer(ifp, WLC_DOWN, NULL, 0) );
+        whd_driver->internal_info.whd_wlan_status.state = WLAN_DOWN;
     }
-
-    /* Send DOWN command */
-    CHECK_RETURN(whd_wifi_set_ioctl_buffer(ifp, WLC_DOWN, NULL, 0) );
-
-    /* Update wlan status */
-    whd_driver->internal_info.whd_wlan_status.state = WLAN_DOWN;
-
     for (i = 0; i < WHD_INTERFACE_MAX; i++)
     {
         if (whd_driver->iflist[i] != NULL)
         {
             free(whd_driver->iflist[i]);
+            whd_driver->iflist[i] = NULL;
         }
     }
 
+    whd_cdc_bdc_info_deinit(whd_driver);
+    whd_bus_common_info_deinit(whd_driver);
+#ifdef WLAN_BUS_TYPE_SDIO
+    whd_bus_sdio_detach(whd_driver);
+#endif
+#ifdef WLAN_BUS_TYPE_SPI
+    whd_bus_spi_detach(whd_driver);
+#endif
     free(whd_driver);
 
     return WHD_SUCCESS;

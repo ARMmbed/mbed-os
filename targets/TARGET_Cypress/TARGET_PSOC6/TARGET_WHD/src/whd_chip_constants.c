@@ -39,7 +39,7 @@ uint16_t whd_chip_get_chip_id(whd_driver_t whd_driver)
 
 uint32_t get_whd_var(whd_driver_t whd_driver, chip_var_t var)
 {
-    uint32_t val;
+    uint32_t val = 0;
 
     uint16_t wlan_chip_id = whd_chip_get_chip_id(whd_driver);
     switch (var)

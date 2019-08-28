@@ -328,7 +328,7 @@ typedef struct whd_internal_info
     wlan_shared_t sh;
     uint32_t console_addr;
     whd_scan_result_callback_t scan_result_callback;
-    whd_scan_result_t **whd_scan_result_ptr;
+    whd_scan_result_t *whd_scan_result_ptr;
     /* The semaphore used to wait for completion of a join;
      * whd_wifi_join_halt uses this to release waiting threads (if any) */
     cy_semaphore_t *active_join_semaphore;

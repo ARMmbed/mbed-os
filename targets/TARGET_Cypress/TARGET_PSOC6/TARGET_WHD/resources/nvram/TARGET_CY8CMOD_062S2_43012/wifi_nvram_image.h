@@ -1,5 +1,21 @@
 /*
- * $ Copyright Cypress Semiconductor $
+ * Copyright (c) 2019, Cypress Semiconductor Corporation, All Rights Reserved
+ * SPDX-License-Identifier: LicenseRef-PBL
+ *
+ * This file and the related binary are licensed under the
+ * Permissive Binary License, Version 1.0 (the "License");
+ * you may not use these files except in compliance with the License.
+ *
+ * You may obtain a copy of the License here:
+ * LICENSE-permissive-binary-license-1.0.txt and at
+ * https://www.mbed.com/licenses/PBL-1.0
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/** @file
+ *  NVRAM file for CY8CMOD-062S2-43012
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -19,7 +35,7 @@ extern "C" {
  * cyw943012csp_ty1LV.TXT
  */
 static const char wifi_nvram_image[] =
-    "NVRAMRev=$Rev: 721914 $"                                            "\x00"
+    "NVRAMRev=$Rev:722123$"                                              "\x00"
     "sromrev=11"                                                         "\x00"
     "cckdigfilttype=4"                                                   "\x00"
     "cckpwroffset0=2"                                                    "\x00"
@@ -42,7 +58,7 @@ static const char wifi_nvram_image[] =
     "extpagain5g=2"                                                      "\x00"
     "ccode=0"                                                            "\x00"
     "regrev=0"                                                           "\x00"
-    "antswitch = 0"                                                      "\x00"
+    "antswitch=0"                                                        "\x00"
     "rxgains2gelnagaina0=0"                                              "\x00"
     "rxgains2gtrisoa0=15"                                                "\x00"
     "rxgains2gtrelnabypa0=0"                                             "\x00"
@@ -72,7 +88,7 @@ static const char wifi_nvram_image[] =
     "swctrlmap_2g=0x10101010,0x20202020,0x10101010,0x442020,0x3ff"       "\x00"
     "swctrlmapext_2g=0x01000100,0x01000100,0x01000100,0x000000,0x301"    "\x00"
     "swctrlmap_5g=0x80808080,0x00000000,0x80808080,0x442020,0x381"       "\x00"
-    "swctrlmapext_5g=0x01000100,0x01000100,0x00000000,0x000100,0x303"    "\x00"
+    "swctrlmapext_5g=0x01000100,0x01000100,0x00000000,0x000000,0x303"    "\x00"
     "ulpnap=0"                                                           "\x00"
     "ulpadc=1"                                                           "\x00"
     "ssagc_en=0"                                                         "\x00"
@@ -90,11 +106,12 @@ static const char wifi_nvram_image[] =
     "mcsbw202gpo=0xCC864420"                                             "\x00"
     "maxp5ga0=70,70,70,70"                                               "\x00"
     "mcsbw205glpo=0xCC864220"                                            "\x00"
-    "mmcsbw205gmpo=0xCC864220"                                           "\x00"
+    "mcsbw205gmpo=0xCC864220"                                            "\x00"
     "mcsbw205ghpo=0xCC864220"                                            "\x00"
     "femctrlwar=0"                                                       "\x00"
     "use5gpllfor2g=1"                                                    "\x00"
     "pt5db_gaintbl=0"                                                    "\x00"
+    "muxenab=0x01"                                                       "\x00"
     "txwbpapden=1"                                                       "\x00"
     "wb_rxattn=0x0303"                                                   "\x00"
     "wb_txattn=0x0203"                                                   "\x00"
@@ -121,17 +138,18 @@ static const char wifi_nvram_image[] =
     "lpo_select=4"                                                       "\x00"
     "paprrmcsgamma2g=450,500,550,600,675,950,950,950,950,950,950,950"    "\x00"
     "paprrmcsgamma5g20=450,500,550,600,800,950,1100,1100,1100,1100,1100,1100" "\x00"
-    "swdiv_en=0"                                                        "\x00"
-    "swdiv_gpio=0"                                                      "\x00"
-    "swdiv_swctrl_en=2"                                                 "\x00"
-    "swdiv_swctrl_ant0=0"                                               "\x00"
-    "swdiv_swctrl_ant1=1"                                               "\x00"
-    "swdiv_antmap2g_main=1"                                             "\x00"
-    "swdiv_antmap5g_main=1"                                             "\x00"
-    "swdiv_snrlim=10000"                                                "\x00"
-    "swdiv_thresh=3000"                                                 "\x00"
-    "swdiv_snrthresh=24"                                                "\x00"
+    "swdiv_en=0"                                                         "\x00"
+    "swdiv_gpio=0"                                                       "\x00"
+    "swdiv_swctrl_en=2"                                                  "\x00"
+    "swdiv_swctrl_ant0=0"                                                "\x00"
+    "swdiv_swctrl_ant1=1"                                                "\x00"
+    "swdiv_antmap2g_main=1"                                              "\x00"
+    "swdiv_antmap5g_main=1"                                              "\x00"
+    "swdiv_snrlim=10000"                                                 "\x00"
+    "swdiv_thresh=3000"                                                  "\x00"
+    "swdiv_snrthresh=24"                                                 "\x00"
     "\x00\x00";
+
 #ifdef __cplusplus
 } /*extern "C" */
 #endif

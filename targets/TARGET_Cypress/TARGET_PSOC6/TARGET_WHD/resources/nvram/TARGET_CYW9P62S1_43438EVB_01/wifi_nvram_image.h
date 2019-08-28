@@ -15,9 +15,7 @@
  */
 
 /** @file
- *  NVRAM file for CY8CKIT-062-WiFi-BT (PSoC6 WiFi-BT Pioneer Kit) using
- *  Murata's Type 1DX module - Copied from bcm94343wwcd1.txt on 08/04/2019
- *  # 2.4 GHz, 20 MHz BW mode; No Antenna Diversity
+ *  NVRAM file for CYW9P62S1-43438EVB-01
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -34,85 +32,69 @@ extern "C" {
 
 /**
  * Character array of NVRAM image
+ * Generated from cyw943438_26MHz_aw-cu427.txt
  */
-
 static const char wifi_nvram_image[] =
-    // # The following parameter values are just placeholders, need to be updated.
+    ""                                                                   "\x00"
+    "NVRAMRev=$Rev$"                                                     "\x00"
     "manfid=0x2d0"                                                       "\x00"
-    "prodid=0x086c"                                                      "\x00"
+    "prodid=0x0727"                                                      "\x00"
     "vendid=0x14e4"                                                      "\x00"
     "devid=0x43e2"                                                       "\x00"
-    "boardtype=0x086c"                                                   "\x00"
-    "boardrev=0x1110"                                                    "\x00"
+    "boardtype=0x0865"                                                   "\x00"
+    "boardrev=0x1100"                                                    "\x00"
     "boardnum=22"                                                        "\x00"
-    "xtalfreq=37400"                                                     "\x00"
     NVRAM_GENERATED_MAC_ADDRESS                                          "\x00"
     "sromrev=11"                                                         "\x00"
     "boardflags=0x00404201"                                              "\x00"
     "boardflags3=0x08000000"                                             "\x00"
+    "xtalfreq=26000"                                                     "\x00"
     "nocrc=1"                                                            "\x00"
     "ag0=255"                                                            "\x00"
     "aa2g=1"                                                             "\x00"
     "ccode=ALL"                                                          "\x00"
-
-    //#Antenna diversity
-    //#"swdiv_en=1"                                                         "\x00"
-    //#"swdiv_gpio=2"                                                       "\x00"
-    
+    ""                                                                   "\x00"
+    "swdiv_en=1"                                                         "\x00"
+    "swdiv_gpio=1"                                                       "\x00"
+    "swdiv_gpio_1=2"                                                     "\x00"
+    ""                                                                   "\x00"
     "pa0itssit=0x20"                                                     "\x00"
     "extpagain2g=0"                                                      "\x00"
-
-    //#PA parameters for 2.4GHz, measured at CHIP OUTPUT
-    "pa2ga0=-168,6905,-799"                                              "\x00"
+    ""                                                                   "\x00"
+    "pa2ga0=-148,6421,-710"                                              "\x00"
     "AvVmid_c0=0x0,0xc8"                                                 "\x00"
     "cckpwroffset0=5"                                                    "\x00"
-
-    //# PPR params
+    ""                                                                   "\x00"
     "maxp2ga0=84"                                                        "\x00"
     "txpwrbckof=6"                                                       "\x00"
     "cckbw202gpo=0"                                                      "\x00"
     "legofdmbw202gpo=0x66111111"                                         "\x00"
     "mcsbw202gpo=0x77711111"                                             "\x00"
     "propbw202gpo=0xdd"                                                  "\x00"
-
-    //# OFDM IIR :
+    ""                                                                   "\x00"
     "ofdmdigfilttype=18"                                                 "\x00"
     "ofdmdigfilttypebe=18"                                               "\x00"
-
-    //# PAPD mode:
     "papdmode=1"                                                         "\x00"
     "papdvalidtest=1"                                                    "\x00"
     "pacalidx2g=32"                                                      "\x00"
     "papdepsoffset=-36"                                                  "\x00"
     "papdendidx=61"                                                      "\x00"
-
-    //# LTECX flags
-    //#"ltecxmux=1"                                                         "\x00"
-    //#"ltecxpadnum=0x02030401"                                             "\x00"
-    //#"ltecxfnsel=0x3003"                                                  "\x00"
-    //#"ltecxgcigpio=0x3012"                                                "\x00"
-
-    //#il0macaddr=00:90:4c:c5:12:38
+    ""                                                                   "\x00"
     "wl0id=0x431b"                                                       "\x00"
-
+    ""                                                                   "\x00"
     "deadman_to=0xffffffff"                                              "\x00"
-    //# muxenab: 0x1 for UART enable, 0x2 for GPIOs, 0x8 for JTAG, 0x10 for HW OOB
-    "muxenab=0x11"                                                        "\x00"
-    //# CLDO PWM voltage settings - 0x4 - 1.1 volt
-    //#cldo_pwm=0x4                                                      "\x00"
-    
-    //#VCO freq 326.4MHz
+    "muxenab=0x11"                                                       "\x00"
+    ""                                                                   "\x00"
     "spurconfig=0x3"                                                     "\x00"
+    ""                                                                   "\x00"
+    "rssicorrnorm=3"                                                     "\x00"
     "\x00\x00";
 
-
 #ifdef __cplusplus
-} /* extern "C" */
+} /*extern "C" */
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-
 #error Wi-Fi NVRAM image included twice
-
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 

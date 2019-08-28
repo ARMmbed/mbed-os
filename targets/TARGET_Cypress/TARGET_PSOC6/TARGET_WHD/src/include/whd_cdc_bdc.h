@@ -124,6 +124,7 @@ typedef struct whd_cdc_info
 ******************************************************/
 
 whd_result_t whd_cdc_bdc_info_init(whd_driver_t whd_driver);
+void         whd_cdc_bdc_info_deinit(whd_driver_t whd_driver);
 
 whd_result_t whd_cdc_send_iovar(whd_interface_t ifp, cdc_command_type_t type,
                                 whd_buffer_t send_buffer_hnd,

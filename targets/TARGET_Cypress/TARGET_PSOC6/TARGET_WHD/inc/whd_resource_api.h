@@ -86,14 +86,15 @@ struct whd_resource_source
      *
      *  @param whd_drv     Pointer to handle instance of the driver
      *  @param type        Type of resource - WHD_RESOURCE_WLAN_FIRMWARE, WHD_RESOURCE_WLAN_NVRAM, WHD_RESOURCE_WLAN_CLM
+     *  @param blockno     The number of block
      *  @param data        Pointer to a block of data
      *  @param size_out    Size of the resource
      *
      *  @return            WHD_SUCCESS or error code
      *
      */
-    uint32_t (*whd_get_resource_block)(whd_driver_t whd_drv, whd_resource_type_t type, const uint8_t **data,
-                                       uint32_t *size_out);
+    uint32_t (*whd_get_resource_block)(whd_driver_t whd_drv, whd_resource_type_t type,
+                                       uint32_t blockno, const uint8_t **data, uint32_t *size_out);
 
     /** Gets block count for the specified resource_type
      *
