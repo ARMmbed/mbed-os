@@ -627,6 +627,47 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
   * @{
   */
 
+ // MBED PATCH
+ /**
+   * @brief  Abort a transaction.
+   * @param  hpcd: PCD handle
+   * @param  ep_addr: endpoint address
+   * @retval HAL status
+   */
+ HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
+ {
+   HAL_StatusTypeDef ret = HAL_OK;
+   PCD_EPTypeDef *ep;
+
+   if ((0x80 & ep_addr) == 0x80)
+   {
+     ep = &hpcd->IN_ep[ep_addr & 0x7F];
+   }
+   else
+   {
+     ep = &hpcd->OUT_ep[ep_addr];
+   }
+
+   __HAL_LOCK(hpcd);
+
+   ep->num   = ep_addr & 0x7F;
+   ep->is_in = ((ep_addr & 0x80) == 0x80);
+
+   if (ep->is_in)
+   {
+     PCD_SET_EP_TX_STATUS(hpcd->Instance, ep->num, USB_EP_TX_NAK);
+   }
+   else
+   {
+     PCD_SET_EP_RX_STATUS(hpcd->Instance, ep->num, USB_EP_RX_DIS);
+   }
+
+   __HAL_UNLOCK(hpcd);
+
+   return ret;
+ }
+ // MBED PATCH
+
 /**
   * @brief  Connect the USB device
   * @param  hpcd: PCD handle

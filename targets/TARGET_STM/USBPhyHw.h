@@ -32,6 +32,8 @@
     defined(TARGET_DISCO_F769NI) || \
     defined(TARGET_DISCO_F746NG_OTG_HS)
 #define USBHAL_IRQn  OTG_HS_IRQn
+#elif defined(TARGET_NUCLEO_L073RZ)
+#define USBHAL_IRQn  USB_IRQn
 #else
 #define USBHAL_IRQn  OTG_FS_IRQn
 #endif

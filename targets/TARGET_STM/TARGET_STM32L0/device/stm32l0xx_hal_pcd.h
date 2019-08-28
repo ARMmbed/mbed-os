@@ -743,6 +743,7 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd);
  *  @{
  */
 /* Peripheral Control functions  ************************************************/
+HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);//MBED PATCH
 HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
