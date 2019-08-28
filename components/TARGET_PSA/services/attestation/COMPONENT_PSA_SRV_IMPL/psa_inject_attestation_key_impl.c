@@ -42,6 +42,12 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
 
 #if defined(MBEDTLS_ECP_C)
 
+    status = psa_open_key(key_id, &handle);
+    if (status == PSA_SUCCESS) {
+        /* The key already has been injected */
+        goto exit;
+    }
+
     psa_set_key_usage_flags(&attributes, usage);
     psa_set_key_algorithm(&attributes, PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256));
     psa_set_key_type(&attributes, type);
