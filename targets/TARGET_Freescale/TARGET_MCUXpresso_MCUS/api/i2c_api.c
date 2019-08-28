@@ -32,14 +32,18 @@ static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
 /* Array of I2C bus clock frequencies */
 static clock_name_t const i2c_clocks[] = I2C_CLOCK_FREQS;
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+#if EXPLICIT_PINMAP_READY
+#define I2C_INIT_DIRECT i2c_init_direct
+void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
+#else
+#define I2C_INIT_DIRECT _i2c_init_direct
+static void _i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap)
+#endif
 {
-    uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
-    uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     PORT_Type *port_addrs[] = PORT_BASE_PTRS;
-    PORT_Type *base = port_addrs[sda >> GPIO_PORT_SHIFT];
+    PORT_Type *base = port_addrs[pinmap->sda_pin >> GPIO_PORT_SHIFT];
 
-    obj->instance = pinmap_merge(i2c_sda, i2c_scl);
+    obj->instance = (uint32_t) pinmap->peripheral;
     obj->next_repeated_start = 0;
     MBED_ASSERT((int)obj->instance != NC);
 
@@ -49,17 +53,34 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2C_MasterInit(i2c_addrs[obj->instance], &master_config, CLOCK_GetFreq(i2c_clocks[obj->instance]));
     I2C_EnableInterrupts(i2c_addrs[obj->instance], kI2C_GlobalInterruptEnable);
 
-    pinmap_pinout(sda, PinMap_I2C_SDA);
-    pinmap_pinout(scl, PinMap_I2C_SCL);
+    pin_function(pinmap->sda_pin, pinmap->sda_function);
+    pin_mode(pinmap->sda_pin, PullNone);
+    pin_function(pinmap->scl_pin, pinmap->scl_function);
+    pin_mode(pinmap->scl_pin, PullNone);
 
     /* Enable internal pullup resistor */
-    base->PCR[sda & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
-    base->PCR[scl & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
+    base->PCR[pinmap->sda_pin & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
+    base->PCR[pinmap->scl_pin & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
 
 #if defined(FSL_FEATURE_PORT_HAS_OPEN_DRAIN) && FSL_FEATURE_PORT_HAS_OPEN_DRAIN
-    base->PCR[sda & 0xFF] |= PORT_PCR_ODE_MASK;
-    base->PCR[scl & 0xFF] |= PORT_PCR_ODE_MASK;
+    base->PCR[pinmap->sda_pin & 0xFF] |= PORT_PCR_ODE_MASK;
+    base->PCR[pinmap->scl_pin & 0xFF] |= PORT_PCR_ODE_MASK;
 #endif
+}
+
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
+    uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
+    uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
+
+    int peripheral = (int)pinmap_merge(i2c_sda, i2c_scl);
+
+    int sda_function = (int)pinmap_find_function(sda, PinMap_I2C_SDA);
+    int scl_function = (int)pinmap_find_function(scl, PinMap_I2C_SCL);
+
+    const i2c_pinmap_t explicit_i2c_pinmap = {peripheral, sda, sda_function, scl, scl_function};
+
+    I2C_INIT_DIRECT(obj, &explicit_i2c_pinmap);
 }
 
 int i2c_start(i2c_t *obj)
