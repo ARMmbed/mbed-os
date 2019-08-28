@@ -33,7 +33,7 @@ public:
      *
      *  @note Must call open to initialize the socket on a network stack.
      */
-	RAWIPSocket();
+    RAWIPSocket();
 
     /** Create and open a socket on the network stack of the given
      *  network interface.
@@ -150,8 +150,8 @@ public:
      *  @return         Number of received bytes on success, negative error
      *                  code on failure.
      */
-    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);    
-    
+    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+
     /** Not implemented for RAWIPSocket.
      *
      *  @param error      Not used.
