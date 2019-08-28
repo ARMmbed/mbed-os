@@ -1,0 +1,248 @@
+{
+    "target_overrides": {
+        "NUCLEO_F412ZG": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "D11",
+            "sd.SPI_MISO"                               : "D12",
+            "sd.SPI_CLK"                                : "D13",
+            "sd.SPI_CS"                                 : "D10",
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "target.network-default-interface-type"     : "WIFI",
+            "wizfi310.tx"                               : "PD_5",
+            "wizfi310.rx"                               : "PD_6",
+            "wizfi310.rts"                              : "PD_4",
+            "wizfi310.cts"                              : "PD_3",
+            "wizfi310.rx-buffer-size"                   : 512,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 1024,
+            "wizfi310.provide-default"                  : true
+        },
+        "NUCLEO_F429ZI": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "PC_12",
+            "sd.SPI_MISO"                               : "PC_11",
+            "sd.SPI_CLK"                                : "PC_10",
+            "sd.SPI_CS"                                 : "PC_9"
+        },
+        "NUCLEO_F767ZI": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "PC_12",
+            "sd.SPI_MISO"                               : "PC_11",
+            "sd.SPI_CLK"                                : "PC_10",
+            "sd.SPI_CS"                                 : "PC_9"
+        },
+        "NUCLEO_F746ZG": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "PC_12",
+            "sd.SPI_MISO"                               : "PC_11",
+            "sd.SPI_CLK"                                : "PC_10",
+            "sd.SPI_CS"                                 : "PC_9"
+        },
+        "NUCLEO_F207ZG": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "PC_12",
+            "sd.SPI_MISO"                               : "PC_11",
+            "sd.SPI_CLK"                                : "PC_10",
+            "sd.SPI_CS"                                 : "PC_9"
+        },
+        "NUCLEO_L476RG": {
+            "target.macros_remove"                      : ["MBED_TICKLESS"],
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "D11",
+            "sd.SPI_MISO"                               : "D12",
+            "sd.SPI_CLK"                                : "D13",
+            "sd.SPI_CS"                                 : "D10",
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "target.network-default-interface-type"     : "WIFI",
+            "wizfi310.tx"                               : "D8",
+            "wizfi310.rx"                               : "D2",
+            "wizfi310.rts"                              : "D3",
+            "wizfi310.cts"                              : "D5",
+            "wizfi310.rx-buffer-size"                   : 64,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 256,
+            "wizfi310.provide-default"                  : true,
+            "no_led"                                    : "1"
+        },
+        "NUCLEO_L4R5ZI": {
+            "target.macros_remove"                      : ["MBED_TICKLESS"],
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "D11",
+            "sd.SPI_MISO"                               : "D12",
+            "sd.SPI_CLK"                                : "D13",
+            "sd.SPI_CS"                                 : "D10",
+            "target.network-default-interface-type"     : "WIFI",
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "wizfi310.tx"                               : "D1",
+            "wizfi310.rx"                               : "D0",
+            "wizfi310.rts"                              : "PB_1",
+            "wizfi310.cts"                              : "PB_13",
+            "wizfi310.rx-buffer-size"                   : 512,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 1024,
+            "wizfi310.provide-default"                  : true
+        },
+        "NUCLEO_L496ZG": {
+            "target.macros_remove"                      : ["MBED_TICKLESS"],
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "D11",
+            "sd.SPI_MISO"                               : "D12",
+            "sd.SPI_CLK"                                : "D13",
+            "sd.SPI_CS"                                 : "D10",
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "target.network-default-interface-type"     : "WIFI",
+            "wizfi310.tx"                               : "D1",
+            "wizfi310.rx"                               : "D0",
+            "wizfi310.rts"                              : "PB_1",
+            "wizfi310.cts"                              : "PB_13",
+            "wizfi310.rx-buffer-size"                   : 512,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 1024,
+            "wizfi310.provide-default"                  : true
+        },
+        "DISCO_L475VG_IOT01A": {
+            "target.macros_remove"                      : ["MBED_TICKLESS"],
+            "target.components_add"                     : ["WIFI_ISM43362"],
+            "target.network-default-interface-type"     : "WIFI"
+        },
+        "DISCO_L496AG": {
+            "target.macros_remove"                      : ["MBED_TICKLESS"],
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "target.network-default-interface-type"     : "WIFI",
+            "wizfi310.tx"                               : "PB_6",
+            "wizfi310.rx"                               : "PG_10",
+            "wizfi310.rts"                              : "PG_12",
+            "wizfi310.cts"                              : "PG_11",
+            "wizfi310.rx-buffer-size"                   : 512,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 1024,
+            "wizfi310.provide-default"                  : true
+        },
+        "DISCO_F413ZH": {
+            "target.components_add"                     : ["WIFI_ISM43362"],
+            "target.network-default-interface-type"     : "WIFI"
+        },
+        "DISCO_F469NI": {
+            "target.components_add"                     : ["WIFI_WIZFI310"],
+            "target.network-default-interface-type"     : "WIFI",
+            "wizfi310.tx"                               : "D1",
+            "wizfi310.rx"                               : "D0",
+            "wizfi310.rts"                              : "D4",
+            "wizfi310.cts"                              : "D2",
+            "wizfi310.rx-buffer-size"                   : 512,
+            "wizfi310.stacksize"                        : 1536,
+            "wizfi310.event-queue-size"                 : 1024,
+            "wizfi310.provide-default"                  : true
+        },
+        "NUMAKER_PFM_NUC472": {
+            "target.components_add"                     : ["NUSD"],
+            "drivers.uart-serial-rxbuf-size"            : 1024,
+            "drivers.uart-serial-txbuf-size"            : 1024
+        },
+        "NUMAKER_PFM_M487": {
+            "target.components_add"                     : ["NUSD"],
+            "drivers.uart-serial-rxbuf-size"            : 1024,
+            "drivers.uart-serial-txbuf-size"            : 1024
+        },
+        "NUMAKER_IOT_M487": {
+            "target.components_add"                     : ["NUSD"],
+            "target.network-default-interface-type"     : "WIFI",
+            "esp8266.tx"                                : "PH_8",
+            "esp8266.rx"                                : "PH_9",
+            "esp8266.provide-default"                   : true,
+            "drivers.uart-serial-rxbuf-size"            : 1024,
+            "drivers.uart-serial-txbuf-size"            : 1024
+        },
+        "SDT64B": {
+            "target.components_add"                     : ["SD"],
+            "sd.SPI_MOSI"                               : "PTB16",
+            "sd.SPI_MISO"                               : "PTB17",
+            "sd.SPI_CLK"                                : "PTB11",
+            "sd.SPI_CS"                                 : "PTB10"
+        },
+        "GR_LYCHEE": {
+            "target.components_add"                     : ["WIFI_ESP32"],
+            "target.network-default-interface-type"     : "WIFI"
+        },
+        "RZ_A1H": {
+            "target.macros_add"                         : ["MBEDTLS_TEST_NULL_ENTROPY", "MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES"]
+        },
+        "UBLOX_C030_U201": {
+            "target.features_add"                       : ["STORAGE", "LWIP"],
+            "target.network-default-interface-type"     : "CELLULAR",
+            "lwip.ipv4-enabled"                         : true,
+            "lwip.ethernet-enabled"                     : false,
+            "lwip.ppp-enabled"                          : true,
+            "lwip.tcp-enabled"                          : true,
+            "mbed-trace.enable"                         : false
+        },
+        "MTB_MXCHIP_EMW3166": {
+            "target.components_add"                     : ["SPIF"],
+            "spif-driver.SPI_MOSI"                      : "PB_15",
+            "spif-driver.SPI_MISO"                      : "PB_14",
+            "spif-driver.SPI_CLK"                       : "PB_13",
+            "spif-driver.SPI_CS"                        : "PA_10"
+        },
+        "EFM32GG11_STK3701": {
+            "target.components_add"                     : ["QSPIF"],
+            "qspif.QSPI_FREQ"                           : 10000000
+        },
+        "TB_SENSE_12": {
+            "target.components_add"                     : ["SPIF"],
+            "spif-driver.SPI_MOSI"                      : "PK0",
+            "spif-driver.SPI_MISO"                      : "PK2",
+            "spif-driver.SPI_CLK"                       : "PF7",
+            "spif-driver.SPI_CS"                        : "PK1",
+            "spif-driver.SPI_FREQ"                      : 10000000,
+            "target.network-default-interface-type"     : "MESH",
+            "mbed-mesh-api.thread-config-channel"       : 22,
+            "mbed-mesh-api.thread-config-panid"         : "0x0700",
+            "nsapi.default-mesh-type"                   : "THREAD",
+            "nanostack.configuration"                   : "thread_router",
+            "nanostack-hal.event_loop_thread_stack_size": 8192
+        },
+        "MTB_USI_WM_BN_BM_22": {
+            "target.components_add"                     : ["SPIF"],
+            "spif-driver.SPI_MOSI"                      : "PC_3",
+            "spif-driver.SPI_MISO"                      : "PC_2",
+            "spif-driver.SPI_CLK"                       : "PB_13",
+            "spif-driver.SPI_CS"                        : "PA_6"
+        },
+        "MTB_ADV_WISE_1570": {
+            "target.components_add"                     : ["SPIF"],
+            "spif-driver.SPI_FREQ"                      : 20000000,
+            "target.network-default-interface-type"     : "CELLULAR",
+            "cellular.debug-at"                         : false,
+            "cellular.use-apn-lookup"                   : false,
+            "platform.stdio-baud-rate"                  : 115200,
+            "platform.default-serial-baud-rate"         : 115200,
+            "nsapi.dns-response-wait-time"              : 30000
+        },
+        "MTB_ADV_WISE_1530": {
+            "target.components_add"                     : ["SPIF"],
+            "spif-driver.SPI_MOSI"                      : "PC_3",
+            "spif-driver.SPI_MISO"                      : "PC_2",
+            "spif-driver.SPI_CLK"                       : "PB_13",
+            "spif-driver.SPI_CS"                        : "PC_12",
+            "no_led"                                    : "1",
+            "tests-fs-size"                             : "2*1024*1024"
+        }
+    },
+    "config": {
+        "format-storage-layer-on-error": {
+            "help": "Whether to format the storage layer when it cannot be read - always disable for production devices!",
+            "value": 1
+        },
+        "main-stack-size": {
+            "value": 6000
+        },
+        "no_led": {
+            "help": "This flag disables the heartbeat thread in tests. This is useful for platforms that don't have an LED or the LED is used for other functionality like LED on the SPI clockline etc",
+            "value": null
+        },
+        "tests-fs-size": {
+            "help": "Maximum size of the file system used for tests",
+            "value": null
+        }
+    }
+}
