@@ -1617,23 +1617,32 @@ uint16_t rpl_instance_current_rank(const rpl_instance_t *instance)
     return instance->current_rank;
 }
 
-bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr, bool selected)
+bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr)
 {
     ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
-        if (selected && !neighbour->dodag_parent) {
+        if (!neighbour->dodag_parent) {
             // list is ordered so first encounter of false means no more parents in list
             return false;
         }
 
         if (addr_ipv6_equal(neighbour->ll_address, ipv6_addr)) {
-            if (!selected) {
-                return true;
-            }
-            if (!neighbour->dodag_parent) {
-                return false;
-            }
-
             return true;
+        }
+    }
+    return false;
+}
+
+bool rpl_instance_address_is_candidate(rpl_instance_t *instance, const uint8_t *ipv6_addr, uint16_t candidate_amount)
+{
+    uint16_t list_compared = 0;
+
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (addr_ipv6_equal(neighbour->ll_address, ipv6_addr)) {
+            return true;
+        }
+        list_compared++;
+        if (candidate_amount && list_compared >= candidate_amount) {
+            return false;
         }
 
     }
@@ -1706,6 +1715,14 @@ void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
 
     /* Leaves don't send normal periodic DIOs */
     if (rpl_dodag_am_leaf(dodag) && !instance->poison_count) {
+        return;
+    }
+    // We dont have any valid address in interface
+    if (ns_list_count(&instance->dao_targets) == 0) {
+        return;
+    }
+    /* Address registrations for parent ongoing*/
+    if (rpl_policy_parent_confirmation_requested() && instance->pending_neighbour_confirmation) {
         return;
     }
     /* If we are waiting for DAO or DAO registration is needed we dont send periodic DIOs */

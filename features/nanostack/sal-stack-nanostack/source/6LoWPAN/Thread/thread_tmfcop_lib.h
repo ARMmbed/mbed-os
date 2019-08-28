@@ -55,6 +55,14 @@
 #define TMFCOP_TLV_ND_DATA                                 9
 #define TMFCOP_TLV_NETWORK_DATA                            10
 
+/* Thread 1.2 defines*/
+#define TMFCOP_TLV_TIMEOUT                                 11
+#define TMFCOP_TLV_NETWORK_NAME                            12
+#define TMFCOP_TLV_SEQUENCE_NUMBER                         13
+#define TMFCOP_TLV_IPV6_ADDRESS                            14
+#define TMFCOP_TLV_COMMISSIONER_SESSION_ID                 15
+
+
 
 /**
  * Write array TLV.

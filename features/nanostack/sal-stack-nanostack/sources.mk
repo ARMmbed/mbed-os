@@ -176,6 +176,7 @@ SRCS += \
 	source/6LoWPAN/Thread/thread_router_bootstrap.c \
 	source/6LoWPAN/Thread/thread_discovery.c \
 	source/6LoWPAN/Thread/thread_commissioning_if.c \
+	source/6LoWPAN/Thread/thread_bbr_commercial.c \
 	source/6LoWPAN/Thread/thread_net_config_api.c \
 	source/6LoWPAN/Thread/thread_network_data_lib.c \
 	source/6LoWPAN/Thread/thread_network_data_storage.c \
@@ -187,8 +188,10 @@ SRCS += \
 	source/6LoWPAN/Thread/thread_mdns.c \
 	source/6LoWPAN/Thread/thread_beacon.c \
 	source/6LoWPAN/Thread/thread_mle_message_handler.c \
+	source/6LoWPAN/Thread/thread_lowpower_api.c \
 	source/6LoWPAN/Thread/thread_lowpower_private_api.c \
 	source/6LoWPAN/Thread/thread_nvm_store.c \
+	source/6LoWPAN/Thread/thread_ccm.c \
 	source/DHCPv6_Server/DHCPv6_Server_service.c \
 	source/DHCPv6_client/dhcpv6_client_service.c \
 	source/libDHCPv6/dhcp_service_api.c \

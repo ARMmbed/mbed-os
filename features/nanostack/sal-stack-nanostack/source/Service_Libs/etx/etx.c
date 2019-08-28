@@ -92,19 +92,24 @@ static void etx_calculation(etx_storage_t *entry, uint16_t attempts, uint8_t ack
         entry->stored_diff_etx = entry->etx;
     }
 
-
     uint32_t etx = attempts << (12 - ETX_MOVING_AVERAGE_FRACTION);
 
-    if (acks_rx > 1) {
+    if (acks_rx) {
         etx /= acks_rx;
+    } else  {
+        etx = 0xffff;
     }
-
     if ((etx_info.max_etx_update) && etx > etx_info.max_etx_update) {
         etx = etx_info.max_etx_update;
     }
 
-    //Add old etx 7/8 to new one
-    etx += entry->etx - (entry->etx >> ETX_MOVING_AVERAGE_FRACTION);
+    if (etx_info.cache_sample_requested && entry->etx_samples == 1) {
+        // skip the initial value as RSSI generated ETX is not valid
+        etx = etx << 3;
+    } else {
+        //Add old etx 7/8 to new one
+        etx += entry->etx - (entry->etx >> ETX_MOVING_AVERAGE_FRACTION);
+    }
 
     if (etx > 0xffff) {
         etx = 0xffff;
@@ -201,11 +206,12 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
         entry->etx_samples++;
     }
 
-    if (etx_info.cache_sample_requested && !entry->tmp_etx) {
+    if (etx_info.cache_sample_requested) {
 
         etx_sample_storage_t *storage = etx_cache_sample_update(attribute_index, attempts, success);
         entry->accumulated_failures = 0;
-        if (!etx_update_possible(storage, entry, 0)) {
+
+        if (!entry->etx || (entry->etx_samples > 1 &&  !etx_update_possible(storage, entry, 0))) {
             return;
         }
 

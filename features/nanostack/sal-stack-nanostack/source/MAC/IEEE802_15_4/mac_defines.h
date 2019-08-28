@@ -20,6 +20,7 @@
 
 #include "eventOS_event.h"
 #include "mlme.h"
+#include "mac_data_buffer.h"
 #include "ns_list.h"
 
 struct cca_structure_s;
@@ -186,6 +187,7 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macBroadcastDisabled: 1;
     bool scan_active: 1;
     bool rf_csma_extension_supported: 1;
+    bool ack_tx_possible: 1;
     /* CSMA Params */
     unsigned macMinBE: 4;
     unsigned macMaxBE: 4;
@@ -224,6 +226,8 @@ typedef struct protocol_interface_rf_mac_setup {
     uint16_t multi_cca_interval;        /**< Length of the additional CSMA-CA period(s) in microseconds */
     /* Indirect queue parameters */
     struct mac_pre_build_frame *indirect_pd_data_request_queue;
+    struct mac_pre_build_frame enhanced_ack_buffer;
+    uint32_t enhanced_ack_handler_timestamp;
     arm_event_t mac_mcps_timer_event;
     uint16_t indirect_pending_bytes;
     arm_nwk_mlme_event_type_e mac_mlme_event;

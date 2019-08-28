@@ -204,19 +204,34 @@ void rpl_control_address_register_done(protocol_interface_info_entry_t *interfac
     }
 }
 
-bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], bool selected)
+bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
 {
     if (!interface->rpl_domain) {
         return false;
     }
     // go through instances and parents and check if they match the address.
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        if (rpl_instance_address_is_parent(instance, ll_addr, selected)) {
+        if (rpl_instance_address_is_parent(instance, ll_addr)) {
             return true;
         }
     }
     return false;
 }
+
+bool rpl_control_is_dodag_parent_candidate(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter)
+{
+    if (!interface->rpl_domain) {
+        return false;
+    }
+    // go through instances and parents and check if they match the address.
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        if (rpl_instance_address_is_candidate(instance, ll_addr, candidate_cmp_limiter)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 uint16_t rpl_control_parent_candidate_list_size(protocol_interface_info_entry_t *interface, bool parent_list)
 {

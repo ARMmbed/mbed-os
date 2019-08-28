@@ -40,7 +40,6 @@
 #include "6LoWPAN/Thread/thread_management_server.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Thread/thread_border_router_api_internal.h"
@@ -64,6 +63,9 @@
 #include "thread_beacon.h"
 #include "thread_bootstrap.h"
 #include "thread_management_server.h"
+#include "thread_management_client.h"
+#include "thread_ccm.h"
+#include "thread_nvm_store.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
 #include "Common_Protocols/ipv6_constants.h"
@@ -465,6 +467,394 @@ send_response:
     coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
     return 0;
 }
+
+#ifdef HAVE_THREAD_V2
+
+static int thread_management_server_mtd_dua_ntf_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr)
+{
+    (void) service_id;
+    (void) source_address;
+    (void) source_port;
+    (void) response_ptr;
+    uint16_t addr_len;
+    uint8_t *addr_data_ptr;
+    uint8_t dua_status = THREAD_ST_DUA_SUCCESS;
+    tr_debug("Thread MTD n/dn callback");
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(thread_management_client_get_interface_id_by_service_id(service_id));
+    if (!cur) {
+        return -1;
+    }
+    addr_len = thread_meshcop_tlv_find(response_ptr->payload_ptr, response_ptr->payload_len, TMFCOP_TLV_TARGET_EID, &addr_data_ptr);
+
+    if (addr_len < 16) {
+        tr_warn("Invalid target eid in DUA.ntf cb message");
+        return -2;
+    }
+
+    thread_tmfcop_tlv_data_get_uint8(response_ptr->payload_ptr, response_ptr->payload_len, TMFCOP_TLV_STATUS, &dua_status);
+
+    if (dua_status == THREAD_ST_DUA_DUPLICATE) {
+        // generate new dua address
+        cur->dad_failures++;
+        thread_bootstrap_dua_address_generate(cur, addr_data_ptr, 64);
+    }
+
+    return 0;
+}
+
+static void thread_management_server_reset_timeout_cb(void *arg)
+{
+    protocol_interface_info_entry_t *cur = (protocol_interface_info_entry_t *)arg;
+
+    if (!cur) {
+        return;
+    }
+
+    // Delete all domain stuff and start discovery.
+    thread_ccm_network_certificate_set(cur, NULL, 0);
+    thread_ccm_network_private_key_set(cur, NULL, 0);
+    thread_nvm_store_mleid_rloc_map_remove();
+    thread_nvm_store_link_info_clear();
+    thread_joiner_application_link_configuration_delete(cur->id);
+    thread_bootstrap_connection_error(cur->id, CON_ERROR_NETWORK_KICK, NULL);
+}
+
+/*
+ * Commissioner requests to leave this domain
+*/
+static int thread_management_server_reset_req_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
+{
+    (void) source_address;
+    (void) source_port;
+
+    uint8_t payload[3] = {0};
+    uint8_t *ptr = payload;
+    uint8_t *signature_ptr = NULL;
+    uint16_t session_id = 0;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(thread_management_server_interface_id_get(service_id));
+
+    if (!cur || !request_ptr) {
+        return -1;
+    }
+
+    tr_debug("Received MGMT_RESET.req");
+
+    // Verify request TLV's: Commissioner Session ID TLV -  Commissioner Token TLV (optional) - Commissioner Signature TLV
+    thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID, &session_id);
+    thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMM_SIGNATURE, &signature_ptr);
+
+    if ((session_id != thread_info(cur)->registered_commissioner.session_id) /*|| (signature_ptr == NULL)*/) {  // todo: signature may not come in this early phase of implementors
+        tr_debug("Request parse failed");
+        ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
+    }
+
+    // Downgrade if router
+    if (thread_am_router(cur)) {
+        thread_bootstrap_attached_downgrade_router(cur);
+    }
+
+    // Delete all data and start reattach
+    // Get some time to send response and keep the Commissioner happy
+    cur->thread_info->ccm_info->reset_timeout = eventOS_timeout_ms(thread_management_server_reset_timeout_cb, 5000, cur);
+
+    // Send response
+    coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_NONE, payload, ptr - payload);
+
+    return 0;
+}
+
+
+/*
+ * Commissioner requests to get new certificate from Registrar, but to stay in the same domain
+ */
+static int thread_management_server_reenroll_req_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
+{
+    (void) source_address;
+    (void) source_port;
+
+    uint8_t pbbr_addr[16] = {0};
+    uint8_t status_tlv[3] = {0};
+    uint8_t *ptr = status_tlv;
+    uint8_t *signature_ptr = NULL;
+    uint16_t session_id = 0;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(thread_management_server_interface_id_get(service_id));
+
+    if (!cur || !request_ptr) {
+        return -1;
+    }
+
+    tr_debug("Received MGMT_REENROLL.req");
+
+    // Verify request TLV's: Commissioner Session ID TLV -  Commissioner Token TLV (optional) - Commissioner Signature TLV
+    thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID, &session_id);
+    thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMM_SIGNATURE, &signature_ptr);
+
+    if ((session_id != thread_info(cur)->registered_commissioner.session_id) ||/* (signature_ptr == NULL) || */
+            thread_common_primary_bbr_get(cur, pbbr_addr, NULL, NULL, NULL)) {
+        tr_debug("Request parse failed");
+        ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
+        goto send_response;
+    }
+
+    thread_ccm_reenrollment_start(cur, service_id, pbbr_addr);
+
+send_response:
+
+    // send response
+    coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_NONE, status_tlv, ptr - status_tlv);
+    return 0;
+}
+static void thread_management_server_ccm_register(int8_t interface_id, int8_t coap_service_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !cur->thread_info->ccm_info) {
+        return;
+    }
+    cur->thread_info->ccm_info->coap_service_id = coap_service_id;
+    coap_service_register_uri(thread_info(cur)->ccm_info->coap_service_id, THREAD_URI_RESET_REQ, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_server_reset_req_cb);
+    coap_service_register_uri(thread_info(cur)->ccm_info->coap_service_id, THREAD_URI_REENROLL_REQ, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_server_reenroll_req_cb);
+}
+static void thread_management_server_mtd_service_register(protocol_interface_info_entry_t *cur)
+{
+    coap_service_register_uri(thread_management_server_service_id_get(cur->id), THREAD_URI_BBR_DOMAIN_ADDRESS_NOTIFICATION, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_server_mtd_dua_ntf_cb);
+}
+
+#ifdef HAVE_THREAD_ROUTER
+
+static int thread_management_server_ccm_relay_tx_cb(int8_t service_id, uint8_t source_address[16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
+{
+    ns_address_t destination_address = { .address = { 0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+    uint8_t *udp_data_ptr;
+    uint16_t udp_data_len;
+    uint8_t *iid_ptr;
+    uint8_t iid_len;
+    uint16_t port;
+    uint8_t port_len;
+    int8_t socket_id;
+    (void)source_address;
+    (void)source_port;
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(thread_management_server_interface_id_get(service_id));
+    if (!cur) {
+        return -1;
+    }
+    iid_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_IID, &iid_ptr);
+    port_len = thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_UDP_PORT, &port);
+    udp_data_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_ENCAPSULATION, &udp_data_ptr);
+    // unwrap message and send to joiner socket.
+    if (8 > iid_len || 2 > port_len || 0 == udp_data_len) {
+        tr_err("Relay TX invalid message iid:%d, port:%d data_len:%d", iid_len, port_len, udp_data_len);
+        return -1;
+    }
+    if (strncmp(THREAD_URI_BBR_NMK_TX_NTF, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
+        socket_id = cur->thread_info->ccm_info->listen_socket_nmkp;
+    } else if (strncmp(THREAD_URI_BBR_TRI_TX_NTF, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
+        socket_id = cur->thread_info->ccm_info->listen_socket_ae;
+    } else {
+        return -1;
+    }
+
+    memcpy(&destination_address.address[8], iid_ptr, 8);
+    destination_address.identifier = port;
+    destination_address.type = ADDRESS_IPV6;
+    int8_t err = socket_sendto(socket_id, &destination_address, udp_data_ptr, udp_data_len);
+    if (err < 0) {
+        tr_err("Relay TX sendto failed %d", err);
+    }
+
+    tr_debug("Relay TX sendto addr:%s port:%d, length:%d", trace_ipv6(destination_address.address), port, udp_data_len);
+
+    return -1; // OK no response sent
+}
+
+static void thread_management_server_relay_socket_cb(void *cb_res)
+{
+    socket_callback_t *sckt_data = 0;
+    ns_address_t source_address;
+    uint8_t relay_destination_address[16];
+    uint8_t *data_ptr = NULL;
+    uint16_t data_len = 0;
+    uint8_t *ptr;
+    uint8_t *payload_ptr;
+    uint16_t payload_len;
+    char *destination_uri_ptr = THREAD_URI_RELAY_RECEIVE;
+    sckt_data = cb_res;
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(sckt_data->interface_id);
+
+    if (!cur) {
+        return;
+    }
+    if (sckt_data->socket_id == cur->thread_info->ccm_info->listen_socket_nmkp) {
+        destination_uri_ptr = THREAD_URI_BBR_NMK_RX_NTF;
+    } else if (sckt_data->socket_id == cur->thread_info->ccm_info->listen_socket_ae) {
+        destination_uri_ptr = THREAD_URI_BBR_TRI_RX_NTF;
+    } else {
+        return;
+    }
+
+
+    if (sckt_data->event_type == SOCKET_DATA && sckt_data->d_len > 0) {
+        data_ptr = ns_dyn_mem_alloc(sckt_data->d_len);
+        if (!data_ptr) {
+            tr_err("Out of memory");
+            return;
+        }
+        data_len = socket_read(sckt_data->socket_id, &source_address, data_ptr, sckt_data->d_len);
+    }
+    if (!data_ptr || data_len < 1) {
+        tr_err("No data received");
+        return;
+    }
+
+    thread_addr_write_mesh_local_16(relay_destination_address, 0xfc38, cur->thread_info);
+
+    payload_len = 4 + data_len + 4 + 8 + 4 + 2 + 4 + 2; //Joiner DTLS Encapsulation TLV  Joiner UDP Port TLV Joiner IID TLV Joiner Router Locator TLV
+    payload_ptr = ns_dyn_mem_alloc(payload_len);
+
+    if (!payload_ptr) {
+        tr_err("Out of memory");
+        ns_dyn_mem_free(data_ptr);
+        return;
+    }
+    tr_debug("Relay TX recvfrom addr: %s, port:%d len:%d", trace_ipv6(source_address.address), source_address.identifier, data_len);
+    thci_trace("joinerrouterJoinerDataRelayedInbound");
+    ptr = payload_ptr;
+    ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_JOINER_ENCAPSULATION, data_len, data_ptr);
+    ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_JOINER_IID, 8, &source_address.address[8]);
+    ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_JOINER_UDP_PORT, source_address.identifier);
+    ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_JOINER_ROUTER_LOCATOR, mac_helper_mac16_address_get(cur));
+
+    coap_service_request_send(cur->thread_info->ccm_info->coap_service_id, COAP_REQUEST_OPTIONS_NONE, relay_destination_address, THREAD_MANAGEMENT_PORT,
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, destination_uri_ptr, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr, NULL);
+    ns_dyn_mem_free(payload_ptr);
+    ns_dyn_mem_free(data_ptr);
+}
+
+static void thread_management_server_joiner_router_ae_deinit(protocol_interface_info_entry_t *cur)
+{
+    if (cur->thread_info->ccm_info->relay_port_ae > 0) {
+        tr_debug("deinit AE");
+        coap_service_unregister_uri(cur->thread_info->ccm_info->coap_service_id, THREAD_URI_BBR_TRI_TX_NTF);
+        socket_close(cur->thread_info->ccm_info->listen_socket_ae);
+        cur->thread_info->ccm_info->listen_socket_ae = -1;
+        cur->thread_info->ccm_info->relay_port_ae = 0;
+    }
+}
+
+static void thread_management_server_joiner_router_nmkp_deinit(protocol_interface_info_entry_t *cur)
+{
+    if (cur->thread_info->ccm_info->relay_port_nmkp > 0) {
+        tr_debug("deinit NMKP");
+        coap_service_unregister_uri(cur->thread_info->ccm_info->coap_service_id, THREAD_URI_BBR_NMK_TX_NTF);
+        socket_close(cur->thread_info->ccm_info->listen_socket_nmkp);
+        cur->thread_info->ccm_info->listen_socket_nmkp = -1;
+        cur->thread_info->ccm_info->relay_port_nmkp = 0;
+    }
+}
+
+static int thread_management_server_ccm_joiner_router_init(protocol_interface_info_entry_t *cur)
+{
+
+    int8_t securityLinkLayer = 0;
+
+    if (!cur->thread_info->ccm_info || thread_info(cur)->version < THREAD_VERSION_1_2) {
+        return -1;
+    }
+
+    if (0 != thread_common_primary_bbr_get(cur, NULL, NULL, NULL, NULL)) {
+        // Need to disable Joiner router either because port changed or moving to disabled
+        thread_management_server_joiner_router_ae_deinit(cur);
+        thread_management_server_joiner_router_nmkp_deinit(cur);
+        // Joiner router should be disabled
+        return 0;
+    }
+
+    // Is this a CCM network?
+    uint16_t securityPolicy = thread_joiner_application_security_policy_get(cur->id);
+    if (securityPolicy & THREAD_SECURITY_POLICY_CCM_DISABLED) {
+        // Not a CCM network, de-initialize
+        thread_management_server_joiner_router_ae_deinit(cur);
+        thread_management_server_joiner_router_nmkp_deinit(cur);
+        return 0;
+    }
+
+    if (thread_ccm_network_certificate_available(cur) == false) {
+        // No domain certificate available
+        return 0;
+    }
+
+    if (!(securityPolicy & THREAD_SECURITY_POLICY_AE_DISABLED)) {
+        if (cur->thread_info->ccm_info->listen_socket_ae < 0) {
+            // Start AE relay
+            cur->thread_info->ccm_info->listen_socket_ae = socket_open(SOCKET_UDP, THREAD_DEFAULT_AE_PORT, thread_management_server_relay_socket_cb);
+            if (cur->thread_info->ccm_info->listen_socket_ae >= 0) {
+                cur->thread_info->ccm_info->relay_port_ae = THREAD_DEFAULT_AE_PORT;
+                socket_setsockopt(cur->thread_info->ccm_info->listen_socket_ae, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &securityLinkLayer, sizeof(int8_t));
+                // The regular TX is usable from joiner router, because it is stateless, but it neds to be forced on
+                coap_service_register_uri(cur->thread_info->ccm_info->coap_service_id, THREAD_URI_BBR_TRI_TX_NTF, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_server_ccm_relay_tx_cb);
+            } else {
+                tr_warn("Joiner AE failed");
+                cur->thread_info->ccm_info->relay_port_ae = 0;
+            }
+        }
+    } else {
+        thread_management_server_joiner_router_ae_deinit(cur);
+    }
+
+    if (!(securityPolicy & THREAD_SECURITY_POLICY_NMP_DISABLED)) {
+        if (cur->thread_info->ccm_info->listen_socket_nmkp < 0) {
+            // Start nmkp relay
+            cur->thread_info->ccm_info->listen_socket_nmkp = socket_open(SOCKET_UDP, THREAD_DEFAULT_NMKP_PORT, thread_management_server_relay_socket_cb);
+            if (cur->thread_info->ccm_info->listen_socket_nmkp >= 0) {
+                cur->thread_info->ccm_info->relay_port_nmkp = THREAD_DEFAULT_NMKP_PORT;
+                socket_setsockopt(cur->thread_info->ccm_info->listen_socket_nmkp, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &securityLinkLayer, sizeof(int8_t));
+                // The regular TX is usable from joiner router, because it is stateless, but it neds to be forced on
+                coap_service_register_uri(cur->thread_info->ccm_info->coap_service_id, THREAD_URI_BBR_NMK_TX_NTF, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_server_ccm_relay_tx_cb);
+            } else {
+                tr_warn("Joiner NMKP failed");
+                cur->thread_info->ccm_info->relay_port_nmkp = 0;
+            }
+        }
+    } else {
+        thread_management_server_joiner_router_nmkp_deinit(cur);
+    }
+
+    tr_info("init commercial joiner router ae:%d nmkp:%d", cur->thread_info->ccm_info->relay_port_ae, cur->thread_info->ccm_info->relay_port_nmkp);
+
+    return 0;
+}
+#endif // HAVE_THREAD_ROUTER
+
+#else
+#define thread_management_server_ccm_register(interface_id, coap_service_id) ((void)0)
+#endif // HAVE_THREAD_V2
+
+#ifdef HAVE_THREAD_V2
+/* Public APIs */
+
+int thread_management_server_ccm_service_init(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !cur->thread_info->ccm_info || !cur->thread_info->ccm_info->coap_service_id) {
+        return -1;
+    }
+
+    if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE ||
+            cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
+        thread_management_server_mtd_service_register(cur);
+#ifdef HAVE_THREAD_ROUTER
+    } else if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
+        thread_management_server_ccm_joiner_router_init(cur);
+#endif
+    }
+
+    return 0;
+}
+#endif // HAVE_THREAD_V2
 
 static int thread_start_mac_with_link_configuration(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration)
 {
@@ -1220,7 +1610,7 @@ int thread_management_server_init(int8_t interface_id)
         return -3;
     }
 #endif
-    thread_extension_init(interface_id, this->coap_service_id);
+    thread_management_server_ccm_register(interface_id, this->coap_service_id);
     // All thread devices
     coap_service_register_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_GET, COAP_SERVICE_ACCESS_GET_ALLOWED, thread_management_server_get_command_cb);
 

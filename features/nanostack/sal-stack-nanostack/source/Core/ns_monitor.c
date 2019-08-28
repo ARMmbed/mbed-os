@@ -42,8 +42,10 @@ typedef enum {
     NS_MONITOR_STATE_GC_CRITICAL
 } ns_monitor_state_e;
 
-#define HEAP_HIGH_WATERWARK     (0.95)   /* Heap usage HIGH threshold */
-#define HEAP_CRITICAL_WATERMARK (0.99)   /* Heap usage CRITICAL threshold */
+#define DEFAULT_HEAP_PERCENTAGE_THRESHOLD_HIGH      95
+#define DEFAULT_HEAP_PERCENTAGE_THRESHOLD_CRITICAL  99
+
+#define SET_WATERMARK(SECTOR_SIZE, THRESHOLD)   (SECTOR_SIZE * THRESHOLD / 100)
 
 #define NS_MAINTENANCE_TIMER_INTERVAL   10  // Maintenance interval
 
@@ -139,8 +141,14 @@ int ns_monitor_init(void)
 
     if (ns_monitor_ptr) {
         ns_monitor_ptr->mem_stats = ns_dyn_mem_get_mem_stat();
-        ns_monitor_ptr->heap_high_watermark = ns_monitor_ptr->mem_stats->heap_sector_size * HEAP_HIGH_WATERWARK;
-        ns_monitor_ptr->heap_critical_watermark = ns_monitor_ptr->mem_stats->heap_sector_size * HEAP_CRITICAL_WATERMARK;
+        ns_monitor_ptr->heap_high_watermark = SET_WATERMARK(
+                                                  ns_monitor_ptr->mem_stats->heap_sector_size,
+                                                  DEFAULT_HEAP_PERCENTAGE_THRESHOLD_HIGH
+                                              );
+        ns_monitor_ptr->heap_critical_watermark = SET_WATERMARK(
+                                                      ns_monitor_ptr->mem_stats->heap_sector_size,
+                                                      DEFAULT_HEAP_PERCENTAGE_THRESHOLD_CRITICAL
+                                                  );
         ns_monitor_ptr->ns_monitor_heap_gc_state = NS_MONITOR_STATE_HEAP_GC_IDLE;
         ns_monitor_ptr->ns_maintenance_timer = 0;
         ns_monitor_ptr->prev_heap_alloc_fail_cnt = 0;
@@ -164,8 +172,14 @@ int ns_monitor_clear(void)
 int ns_monitor_heap_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical)
 {
     if (ns_monitor_ptr && (percentage_critical <= 100) && (percentage_high < percentage_critical)) {
-        ns_monitor_ptr->heap_high_watermark = ns_monitor_ptr->mem_stats->heap_sector_size * percentage_high / 100;
-        ns_monitor_ptr->heap_critical_watermark = ns_monitor_ptr->mem_stats->heap_sector_size * percentage_critical / 100;
+        ns_monitor_ptr->heap_high_watermark = SET_WATERMARK(
+                                                  ns_monitor_ptr->mem_stats->heap_sector_size,
+                                                  percentage_high
+                                              );
+        ns_monitor_ptr->heap_critical_watermark = SET_WATERMARK(
+                                                      ns_monitor_ptr->mem_stats->heap_sector_size,
+                                                      percentage_critical
+                                                  );
         tr_debug("Monitor set high:%lu, critical:%lu total:%lu", (unsigned long)ns_monitor_ptr->heap_high_watermark, (unsigned long)ns_monitor_ptr->heap_critical_watermark, (unsigned long)ns_monitor_ptr->mem_stats->heap_sector_size);
         return 0;
     }

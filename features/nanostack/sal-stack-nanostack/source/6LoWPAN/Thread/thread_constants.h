@@ -188,4 +188,90 @@
 
 #define THREAD_MCAST_ADDR_PER_MSG 4 // One multicast registration message fits 4 addresses by default
 
+/**
+ * Minimum specified MLR timeout in seconds
+ */
+#define THREAD_DEFAULT_MIN_MLR_TIMEOUT 300
+
+/**
+ * Default Autonomous enrollment port.
+  */
+#define THREAD_DEFAULT_AE_PORT 49192
+
+/**
+ * Default NMK port.
+ */
+#define THREAD_DEFAULT_NMKP_PORT 49193
+
+/**
+ * Default registrar port
+ */
+#define THREAD_DEFAULT_REGISTRAR_PORT 5684
+
+#define THREAD_URI_BBR_MCAST_LISTENER_REPORT    "n/mr"  //<* 1.2 feature
+#define THREAD_URI_BBR_DOMAIN_ADDRESS_REGISTRATION "n/dr"  //<* 1.2 feature
+#define THREAD_URI_BBR_DOMAIN_ADDRESS_NOTIFICATION "n/dn"  //<* 1.2 feature
+#define THREAD_URI_BBR_BB_QRY_NTF               "b/bq"  //<* Backbone border router
+#define THREAD_URI_BBR_BB_ANS_NTF               "b/ba"  //<* Backbone border router
+#define THREAD_URI_BBR_BMLR_NTF                 "b/bmr" //<* 1.2 feature
+#define THREAD_URI_BBR_TRI_RX_NTF               "c/rxr"  //<* Backbone border router
+#define THREAD_URI_BBR_NMK_RX_NTF               "c/rxb"  //<* Backbone border router
+#define THREAD_URI_BBR_TRI_TX_NTF               "c/txr"  //<* Backbone border router
+#define THREAD_URI_BBR_NMK_TX_NTF               "c/txb"  //<* Backbone border router
+#define THREAD_URI_BBR_NMKP_REQ                 "c/cjf"  //<* Backbone border router
+#define THREAD_URI_MGMT_SEC_PENDING_SET         "c/sp"   //<* Secure Dissemination of Pending Operational Dataset
+
+#define THREAD_URI_REENROLL_REQ                 "c/re"  //<* Device re-enrollment request
+#define THREAD_URI_RESET_REQ                    "c/rt"  //<* Device reset request - instruct to remove itself from Thread domain
+#define THREAD_URI_BBR_DATA_REQ                 "c/bg"  //<* BBR data request
+#define THREAD_URI_BBR_DATA_SET                 "c/bs"  //<* BBR data set
+
+#define THREAD_URI_TRI_TX_NTF                   ".well-known/thread/c/txr"  //<* Registrar
+#define THREAD_URI_TRI_RX_NTF                   ".well-known/thread/c/rxr"  //<* Registrar
+
+#define THREAD_URI_SIMPLEENROLL                 ".well-known/est/sen"       //<* Registrar
+#define THREAD_URI_CSRATTRS                     ".well-known/est/att"       //<* Registrar
+#define THREAD_URI_RAT                          ".well-known/est/rv"        //<* Registrar
+#define THREAD_URI_SIMPLEREENROLL               ".well-known/est/sren"      //<* Registrar
+
+/** Thread BBR service id */
+#define THREAD_SERVICE_DATA_BBR 0x01
+
+/** Thread 1.2 CoAP content types */
+#define THREAD_CONTENT_FORMAT_AUDITNONCE                   (sn_coap_content_format_e)65000
+#define THREAD_CONTENT_FORMAT_CSRATTRS                     (sn_coap_content_format_e)65002
+#define THREAD_CONTENT_FORMAT_PKCS10                       (sn_coap_content_format_e)65003
+
+/**
+ * Thread 1.2 Security policy options. Default for all is '1';
+ */
+
+#define THREAD_SECURITY_POLICY_CCM_DISABLED       0x04
+#define THREAD_SECURITY_POLICY_AE_DISABLED        0x02
+#define THREAD_SECURITY_POLICY_NMP_DISABLED       0x01
+#define THREAD_SECURITY_POLICY_NCR_DISABLED       0x40
+#define THREAD_SECURITY_POLICY_VR_VALUE           0x07
+
+/**
+ * Thread 1.2 Status TLV in DUA.rsp message.
+ * /
+0 – Successful registration
+2 – Registration rejected: Target EID is not a valid DUA; e.g. incorrect Domain Prefix
+3 – Registration rejected: DUA is already in use by another Device
+4 – Registration rejected: BBR resource shortage
+5 – Registration rejected: BBR is not Primary at this moment
+6 – Registration failure: Reason(s) not further specified
+*/
+
+#define THREAD_ST_DUA_SUCCESS                 0
+#define THREAD_ST_DUA_INVALID                 2 //Fatal
+#define THREAD_ST_DUA_DUPLICATE               3 //Fatal
+#define THREAD_ST_DUA_NO_RESOURCES            4
+#define THREAD_ST_DUA_BBR_NOT_PRIMARY         5
+#define THREAD_ST_DUA_GENERAL_FAILURE         6
+
+
+#define THREAD_VERSION_1_2 3
+
+
 #endif /* THREAD_CONSTANTS_H_ */

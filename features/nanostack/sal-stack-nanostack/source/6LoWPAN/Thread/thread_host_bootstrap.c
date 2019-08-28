@@ -57,7 +57,6 @@
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_lowpower_private_api.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
@@ -469,10 +468,8 @@ static void thread_child_synch_receive_cb(int8_t interface_id, mle_message_t *ml
 static bool thread_host_prefer_parent_response(protocol_interface_info_entry_t *cur, thread_scanned_parent_t *scanned_parent, uint16_t version, thread_connectivity_t *connectivity)
 {
     (void) connectivity;
-    (void) cur;
-    bool cur_version = thread_extension_version_check(thread_info(cur)->version);
 
-    if (!cur_version) {
+    if (thread_info(cur)->version < THREAD_VERSION_1_2) {
         return false;
     }
 
@@ -623,7 +620,7 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
                 }
             }
 
-            if (thread_extension_enabled(cur) &&
+            if (thread_common_ccm_enabled(cur) &&
                     thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER &&
                     leaderData.weighting < thread_info(cur)->partition_weighting) {
                 // Only applies to extensions and only routers that can form new partitions can ignore lower weight

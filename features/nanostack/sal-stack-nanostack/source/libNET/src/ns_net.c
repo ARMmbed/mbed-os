@@ -701,6 +701,28 @@ int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface
 #endif
 }
 
+extern int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr)
+{
+#ifdef HAVE_ETHERNET
+    if (!api) {
+        return -1;
+    }
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_generate_ppp(api);
+    if (!cur) {
+        return -3;
+    }
+
+    cur->if_up = ipv6_interface_up;
+    cur->if_down = ipv6_interface_down;
+    cur->interface_name = interface_name_ptr;
+    return cur->id;
+#else
+    (void)api;
+    (void)interface_name_ptr;
+    return -2;
+#endif
+}
 
 int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
 {
@@ -962,6 +984,22 @@ int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cer
     (void) cert;
     return -1;
 #endif
+}
+
+int8_t arm_network_trusted_certificates_remove(void)
+{
+    return -1;
+}
+
+int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert)
+{
+    (void) cert;
+    return -1;
+}
+
+extern int8_t arm_network_own_certificates_remove(void)
+{
+    return -1;
 }
 
 int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
@@ -1481,3 +1519,34 @@ int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t b
     return -1;
 }
 
+int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->mac_api || (cca_threshold > 100)) {
+        return -1;
+    }
+    mlme_set_t set_req;
+    set_req.attr = macCCAThreshold;
+    set_req.attr_index = 0;
+    set_req.value_pointer = &cca_threshold;
+    set_req.value_size = sizeof(cca_threshold);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
+
+int8_t arm_nwk_set_tx_output_power(int8_t interface_id, uint8_t tx_power)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->mac_api || (tx_power > 100)) {
+        return -1;
+    }
+    mlme_set_t set_req;
+    set_req.attr = macTXPower;
+    set_req.attr_index = 0;
+    set_req.value_pointer = &tx_power;
+    set_req.value_size = sizeof(tx_power);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}

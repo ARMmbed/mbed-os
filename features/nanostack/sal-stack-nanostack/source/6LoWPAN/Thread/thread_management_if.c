@@ -58,13 +58,12 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
-#include "Service_Libs/mle_service/mle_service_security.h"
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_constants.h"
-#include "6LoWPAN/Thread/thread_extension_bootstrap.h"
-#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
+#include "Service_Libs/mle_service/mle_service_security.h"
 #include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
@@ -1360,7 +1359,7 @@ int thread_management_device_certificate_set(int8_t interface_id, const unsigned
         return -1;
     }
 
-    return thread_extension_bootstrap_device_certificate_set(cur, device_certificate_ptr, device_certificate_len, priv_key_ptr, priv_key_len);
+    return thread_ccm_device_certificate_set(cur, device_certificate_ptr, device_certificate_len, priv_key_ptr, priv_key_len);
 
 #else
     (void) interface_id;
@@ -1384,12 +1383,12 @@ int thread_management_network_certificate_set(int8_t interface_id, const unsigne
         return -1;
     }
 
-    ret_val = thread_extension_bootstrap_network_certificate_set(cur, network_certificate_ptr, network_certificate_len);
+    ret_val = thread_ccm_network_certificate_set(cur, network_certificate_ptr, network_certificate_len);
     if (0 > ret_val) {
         return -1;
     }
 
-    return thread_extension_bootstrap_network_private_key_set(cur, priv_key_ptr, priv_key_len);
+    return thread_ccm_network_private_key_set(cur, priv_key_ptr, priv_key_len);
 #else
     (void) interface_id;
     return -1;
@@ -1421,7 +1420,7 @@ int thread_management_partition_weighting_set(int8_t interface_id, uint8_t parti
     cur->thread_info->partition_weighting = partition_weighting;
 
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        if (trig_network_scan && thread_extension_enabled(cur)) {
+        if (trig_network_scan && thread_common_ccm_enabled(cur)) {
             thread_nvm_store_link_info_clear();
             // bootstrap active and weighting has changed
             thread_bootstrap_reset_restart(interface_id);

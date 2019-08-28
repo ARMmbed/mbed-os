@@ -27,6 +27,7 @@
 struct protocol_interface_rf_mac_setup;
 struct arm_phy_sap_msg_s;
 
+#define ENHANCED_ACK_NEIGHBOUR_POLL_MAX_TIME_US 3500
 
 /**
  * Send a buffer to the MAC.

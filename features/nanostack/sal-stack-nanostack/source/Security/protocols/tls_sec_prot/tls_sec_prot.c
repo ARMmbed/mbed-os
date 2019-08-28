@@ -496,6 +496,9 @@ static int16_t tls_sec_prot_tls_send(void *handle, const void *buf, size_t len)
     if (!data->tls_send.data) {
         eap_tls_sec_prot_lib_message_allocate(&data->tls_send, prot->header_size, TLS_SEC_PROT_BUFFER_SIZE);
     }
+    if (!data->tls_send.data) {
+        return -1;
+    }
 
     memcpy(data->tls_send.data + prot->header_size + data->tls_send.handled_len, buf, len);
     data->tls_send.handled_len += len;

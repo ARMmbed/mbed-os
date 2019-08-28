@@ -25,7 +25,7 @@
 #include "mac_filter_api.h"
 #include "mac_filter.h"
 #include "mac_common_defines.h"
-
+#include "mac_defines.h"
 #include "mac_mcps.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/IEEE802_15_4/mac_header_helper_functions.h"

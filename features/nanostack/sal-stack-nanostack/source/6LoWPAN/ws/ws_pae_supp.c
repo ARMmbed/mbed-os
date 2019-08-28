@@ -67,7 +67,7 @@
 #define WAIT_FOR_REAUTHENTICATION_TICKS        120 * 10     // 120 seconds
 
 // How many times in maximum stored keys are used for authentication
-#define STORED_KEYS_MAXIMUM_USE_COUNT          2
+#define STORED_KEYS_MAXIMUM_USE_COUNT          1
 
 // Delay for sending the initial EAPOL-Key
 #define INITIAL_KEY_TIMER_MIN                  3
@@ -155,6 +155,17 @@ static const char *KEYS_FILE = KEYS_FILE_NAME;
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_supp_list, pae_supp_t, link);
 
+static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
+{
+    if (address) {
+        // Sets target address in use
+        pae_supp->entry.addr = *address;
+        pae_supp->entry_address_active = true;
+    } else {
+        pae_supp->entry_address_active = false;
+    }
+}
+
 int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
@@ -186,8 +197,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     // Stores target/parent address
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, dest_eui_64);
     // Sets target address in use
-    pae_supp->entry.addr = pae_supp->target_addr;
-    pae_supp->entry_address_active = true;
+    ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
 
     pae_supp->auth_requested = true;
 
@@ -447,7 +457,7 @@ static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
         // Stores target/parent address
         kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, parent_eui_64);
         // Sets parent address in use
-        pae_supp->entry.addr = pae_supp->target_addr;
+        ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
 
         ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_REAUTHENTICATION_TICKS);
         tr_info("PAE wait for auth seconds: %i", WAIT_FOR_REAUTHENTICATION_TICKS / 10);
@@ -744,7 +754,7 @@ void ws_pae_supp_fast_timer(uint16_t ticks)
 
             tr_debug("PAE idle");
             // Sets target/parent address to null
-            pae_supp->entry_address_active = false;
+            ws_pae_supp_address_set(pae_supp, NULL);
             // If not already completed, restart bootstrap
             ws_pae_supp_authenticate_response(pae_supp, false);
 
