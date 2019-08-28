@@ -1418,7 +1418,7 @@ int TDBStore::do_reserved_data_get(void *reserved_data, size_t reserved_data_buf
 
     while (actual_size) {
         uint32_t chunk = std::min(work_buf_size, (uint32_t) actual_size);
-        ret = read_area(_active_area, offset, chunk, buf);
+        ret = read_area(_active_area, offset, chunk, buf + offset);
         if (ret) {
             return ret;
         }
