@@ -139,8 +139,8 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 
     //Error status should always be < 0
     if (error_status >= 0) {
-        //This is a weird situation, someone called mbed_error with invalid error code.
-        //We will still handle the situation but change the error code to ERROR_INVALID_ARGUMENT, atleast the context will have info on who called it
+        //This is a weird situation, someone called mbed_error with an invalid error code.
+        //We will still handle the situation but change the error code to ERROR_INVALID_ARGUMENT, at least the context will have info on who called it
         error_status = MBED_ERROR_INVALID_ARGUMENT;
     }
 

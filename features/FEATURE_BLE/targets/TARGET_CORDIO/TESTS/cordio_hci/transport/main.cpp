@@ -225,23 +225,6 @@ static uint8_t reset_cmd[] = {
     0 // parameter length
 };
 
-void test_reset_command()
-{
-    CordioHCIDriver &driver = CordioHCIHook::get_driver();
-    CordioHCITransportDriver &transport_driver = CordioHCIHook::get_transport_driver();
-
-    driver.initialize();
-
-    CordioHCIHook::set_data_received_handler(hci_driver_rx_reset_handler);
-
-    transport_driver.write(HCI_CMD_TYPE, sizeof(reset_cmd), reset_cmd);
-    uint32_t events = wait_for_event();
-
-    TEST_ASSERT_EQUAL(RESET_RECEIVED_FLAG, events);
-
-    driver.terminate();
-}
-
 #define EXPECTED_CONSECUTIVE_RESET   10
 
 void test_multiple_reset_command()
@@ -266,7 +249,6 @@ void test_multiple_reset_command()
 }
 
 Case cases[] = {
-    Case("Test reset command", test_reset_command),
     Case("Test multiple reset commands", test_multiple_reset_command)
 };
 
