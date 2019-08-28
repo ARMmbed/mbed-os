@@ -172,7 +172,6 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
 static uint8_t rf_read_register(uint8_t addr);
 static s2lp_states_e rf_read_state(void);
 static void rf_write_register(uint8_t addr, uint8_t data);
-static void rf_print_registers(void);
 static void rf_interrupt_handler(void);
 static void rf_receive(uint8_t rx_channel);
 static void rf_cca_timer_stop(void);
@@ -210,6 +209,8 @@ static rf_mode_e rf_mode = RF_MODE_NORMAL;
 static bool rf_update_config = false;
 static uint16_t cur_packet_len = 0xffff;
 static uint32_t receiver_ready_timestamp;
+
+static int16_t rssi_threshold = RSSI_THRESHOLD;
 
 /* Channel configurations for sub-GHz */
 static phy_rf_channel_configuration_s phy_subghz = {
@@ -501,6 +502,10 @@ static uint32_t read_irq_status(void)
 
 static void rf_set_channel_configuration_registers(void)
 {
+    // Set RSSI threshold
+    uint8_t rssi_th;
+    rf_conf_calculate_rssi_threshold_registers(rssi_threshold, &rssi_th);
+    rf_write_register(RSSI_TH, rssi_th);
     // Set deviation
     uint32_t deviation = rf_conf_calculate_deviation(phy_subghz.modulation_index, phy_subghz.datarate);
     if (!deviation) {
@@ -557,10 +562,6 @@ static void rf_init_registers(void)
     rf_write_register_field(QI, SQI_EN_FIELD, SQI_EN);
     rf_write_register(SYNC0, SFD0);
     rf_write_register(SYNC1, SFD1);
-    // Set RSSI threshold
-    uint8_t rssi_th;
-    rf_conf_calculate_rssi_threshold_registers(RSSI_THRESHOLD, &rssi_th);
-    rf_write_register(RSSI_TH, rssi_th);
     rf_set_channel_configuration_registers();
 }
 
@@ -666,6 +667,16 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
                 rf_receive(rf_rx_channel);
             }
             break;
+        case PHY_EXTENSION_SET_TX_POWER:
+            // TODO: Set TX output power
+            break;
+        case PHY_EXTENSION_SET_CCA_THRESHOLD:
+            rssi_threshold = rf_conf_cca_threshold_percent_to_rssi(*data_ptr);
+            rf_update_config = true;
+            if (rf_state == RF_IDLE) {
+                rf_receive(rf_rx_channel);
+            }
+            break;
         default:
             break;
     }
@@ -683,6 +694,14 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
             break;
         /*Disable PHY Interface driver*/
         case PHY_INTERFACE_DOWN:
+            rf_lock();
+            rf_send_command(S2LP_CMD_SABORT);
+            rf_disable_all_interrupts();
+            rf_poll_state_change(S2LP_STATE_READY);
+            rf_flush_rx_fifo();
+            rf_flush_tx_fifo();
+            rf_state = RF_IDLE;
+            rf_unlock();
             break;
         /*Enable PHY Interface driver*/
         case PHY_INTERFACE_UP:
@@ -810,6 +829,15 @@ static void rf_cca_timer_start(uint32_t slots)
 static void rf_backup_timer_interrupt(void)
 {
     tx_finnish_time = rf_get_timestamp();
+    if (rf_state == RF_RX_STARTED) {
+        if (device_driver.phy_rf_statistics) {
+            device_driver.phy_rf_statistics->rx_timeouts++;
+        }
+    } else {
+        if (device_driver.phy_rf_statistics) {
+            device_driver.phy_rf_statistics->tx_timeouts++;
+        }
+    }
     if (rf_state == RF_TX_STARTED) {
         if (device_driver.phy_tx_done_cb) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
@@ -1054,6 +1082,9 @@ static void rf_irq_task_process_irq(void)
                 rf_state = RF_IDLE;
                 // In case the channel change was called during reception, driver is responsible to change the channel if CRC failed.
                 rf_receive(rf_new_channel);
+                if (device_driver.phy_rf_statistics) {
+                    device_driver.phy_rf_statistics->crc_fails++;
+                }
             }
         }
         if ((irq_status & (1 << RX_FIFO_ALMOST_FULL)) && (enabled_interrupts & (1 << RX_FIFO_ALMOST_FULL))) {
@@ -1103,7 +1134,6 @@ static void rf_init(void)
     rf_enable_gpio_interrupt();
     rf_calculate_symbol_rate(phy_subghz.datarate, phy_subghz.modulation);
     rf->tx_timer.start();
-    rf_print_registers();
 }
 
 static int8_t rf_device_register(const uint8_t *mac_addr)
@@ -1199,7 +1229,6 @@ int8_t NanostackRfPhys2lp::rf_register()
         s2lp_MAC[0] &= ~1; //Clear multicast bit
 #endif
         set_mac_address(s2lp_MAC);
-        tr_info("MAC address: %s", trace_array(_mac_addr, 8));
     }
 
     rf = _rf;
@@ -1347,137 +1376,6 @@ static bool rf_rx_filter(uint8_t *mac_header, uint8_t *mac_64bit_addr, uint8_t *
         }
     }
     return true;
-}
-
-static void rf_print_registers(void)
-{
-    tr_debug("GPIO0_CONF: %x", rf_read_register(GPIO0_CONF));
-    tr_debug("GPIO1_CONF: %x", rf_read_register(GPIO1_CONF));
-    tr_debug("GPIO2_CONF: %x", rf_read_register(GPIO2_CONF));
-    tr_debug("GPIO3_CONF: %x", rf_read_register(GPIO3_CONF));
-    tr_debug("SYNT3: %x", rf_read_register(SYNT3));
-    tr_debug("SYNT2: %x", rf_read_register(SYNT2));
-    tr_debug("SYNT1: %x", rf_read_register(SYNT1));
-    tr_debug("SYNT0: %x", rf_read_register(SYNT0));
-    tr_debug("IF_OFFSET_ANA: %x", rf_read_register(IF_OFFSET_ANA));
-    tr_debug("IF_OFFSET_DIG: %x", rf_read_register(IF_OFFSET_DIG));
-    tr_debug("CHSPACE: %x", rf_read_register(CHSPACE));
-    tr_debug("CHNUM: %x", rf_read_register(CHNUM));
-    tr_debug("MOD4: %x", rf_read_register(MOD4));
-    tr_debug("MOD3: %x", rf_read_register(MOD3));
-    tr_debug("MOD2: %x", rf_read_register(MOD2));
-    tr_debug("MOD1: %x", rf_read_register(MOD1));
-    tr_debug("MOD0: %x", rf_read_register(MOD0));
-    tr_debug("CHFLT: %x", rf_read_register(CHFLT));
-    tr_debug("AFC2: %x", rf_read_register(AFC2));
-    tr_debug("AFC1: %x", rf_read_register(AFC1));
-    tr_debug("AFC0: %x", rf_read_register(AFC0));
-    tr_debug("RSSI_FLT: %x", rf_read_register(RSSI_FLT));
-    tr_debug("RSSI_TH: %x", rf_read_register(RSSI_TH));
-    tr_debug("AGCCTRL4: %x", rf_read_register(AGCCTRL4));
-    tr_debug("AGCCTRL3: %x", rf_read_register(AGCCTRL3));
-    tr_debug("AGCCTRL2: %x", rf_read_register(AGCCTRL2));
-    tr_debug("AGCCTRL1: %x", rf_read_register(AGCCTRL1));
-    tr_debug("AGCCTRL0: %x", rf_read_register(AGCCTRL0));
-    tr_debug("ANT_SELECT_CONF: %x", rf_read_register(ANT_SELECT_CONF));
-    tr_debug("CLOCKREC2: %x", rf_read_register(CLOCKREC2));
-    tr_debug("CLOCKREC1: %x", rf_read_register(CLOCKREC1));
-    tr_debug("PCKTCTRL6: %x", rf_read_register(PCKTCTRL6));
-    tr_debug("PCKTCTRL5: %x", rf_read_register(PCKTCTRL5));
-    tr_debug("PCKTCTRL4: %x", rf_read_register(PCKTCTRL4));
-    tr_debug("PCKTCTRL3: %x", rf_read_register(PCKTCTRL3));
-    tr_debug("PCKTCTRL2: %x", rf_read_register(PCKTCTRL2));
-    tr_debug("PCKTCTRL1: %x", rf_read_register(PCKTCTRL1));
-    tr_debug("PCKTLEN1: %x", rf_read_register(PCKTLEN1));
-    tr_debug("PCKTLEN0: %x", rf_read_register(PCKTLEN0));
-    tr_debug("SYNC3: %x", rf_read_register(SYNC3));
-    tr_debug("SYNC2: %x", rf_read_register(SYNC2));
-    tr_debug("SYNC1: %x", rf_read_register(SYNC1));
-    tr_debug("SYNC0: %x", rf_read_register(SYNC0));
-    tr_debug("QI: %x", rf_read_register(QI));
-    tr_debug("PCKT_PSTMBL: %x", rf_read_register(PCKT_PSTMBL));
-    tr_debug("PROTOCOL2: %x", rf_read_register(PROTOCOL2));
-    tr_debug("PROTOCOL1: %x", rf_read_register(PROTOCOL1));
-    tr_debug("PROTOCOL0: %x", rf_read_register(PROTOCOL0));
-    tr_debug("FIFO_CONFIG3: %x", rf_read_register(FIFO_CONFIG3));
-    tr_debug("FIFO_CONFIG2: %x", rf_read_register(FIFO_CONFIG2));
-    tr_debug("FIFO_CONFIG1: %x", rf_read_register(FIFO_CONFIG1));
-    tr_debug("FIFO_CONFIG0: %x", rf_read_register(FIFO_CONFIG0));
-    tr_debug("PCKT_FLT_OPTIONS: %x", rf_read_register(PCKT_FLT_OPTIONS));
-    tr_debug("PCKT_FLT_GOALS4: %x", rf_read_register(PCKT_FLT_GOALS4));
-    tr_debug("PCKT_FLT_GOALS3: %x", rf_read_register(PCKT_FLT_GOALS3));
-    tr_debug("PCKT_FLT_GOALS2: %x", rf_read_register(PCKT_FLT_GOALS2));
-    tr_debug("PCKT_FLT_GOALS1: %x", rf_read_register(PCKT_FLT_GOALS1));
-    tr_debug("PCKT_FLT_GOALS0: %x", rf_read_register(PCKT_FLT_GOALS0));
-    tr_debug("TIMERS5: %x", rf_read_register(TIMERS5));
-    tr_debug("TIMERS4: %x", rf_read_register(TIMERS4));
-    tr_debug("TIMERS3: %x", rf_read_register(TIMERS3));
-    tr_debug("TIMERS2: %x", rf_read_register(TIMERS2));
-    tr_debug("TIMERS1: %x", rf_read_register(TIMERS1));
-    tr_debug("TIMERS0: %x", rf_read_register(TIMERS0));
-    tr_debug("CSMA_CONF3: %x", rf_read_register(CSMA_CONF3));
-    tr_debug("CSMA_CONF2: %x", rf_read_register(CSMA_CONF2));
-    tr_debug("CSMA_CONF1: %x", rf_read_register(CSMA_CONF1));
-    tr_debug("CSMA_CONF0: %x", rf_read_register(CSMA_CONF0));
-    tr_debug("IRQ_MASK3: %x", rf_read_register(IRQ_MASK3));
-    tr_debug("IRQ_MASK2: %x", rf_read_register(IRQ_MASK2));
-    tr_debug("IRQ_MASK1: %x", rf_read_register(IRQ_MASK1));
-    tr_debug("IRQ_MASK0: %x", rf_read_register(IRQ_MASK0));
-    tr_debug("FAST_RX_TIMER: %x", rf_read_register(FAST_RX_TIMER));
-    tr_debug("PA_POWER8: %x", rf_read_register(PA_POWER8));
-    tr_debug("PA_POWER7: %x", rf_read_register(PA_POWER7));
-    tr_debug("PA_POWER6: %x", rf_read_register(PA_POWER6));
-    tr_debug("PA_POWER5: %x", rf_read_register(PA_POWER5));
-    tr_debug("PA_POWER4: %x", rf_read_register(PA_POWER4));
-    tr_debug("PA_POWER3: %x", rf_read_register(PA_POWER3));
-    tr_debug("PA_POWER2: %x", rf_read_register(PA_POWER2));
-    tr_debug("PA_POWER1: %x", rf_read_register(PA_POWER1));
-    tr_debug("PA_POWER0: %x", rf_read_register(PA_POWER0));
-    tr_debug("PA_CONFIG1: %x", rf_read_register(PA_CONFIG1));
-    tr_debug("PA_CONFIG0: %x", rf_read_register(PA_CONFIG0));
-    tr_debug("SYNTH_CONFIG2: %x", rf_read_register(SYNTH_CONFIG2));
-    tr_debug("VCO_CONFIG: %x", rf_read_register(VCO_CONFIG));
-    tr_debug("VCO_CALIBR_IN2: %x", rf_read_register(VCO_CALIBR_IN2));
-    tr_debug("VCO_CALIBR_IN1: %x", rf_read_register(VCO_CALIBR_IN1));
-    tr_debug("VCO_CALIBR_IN0: %x", rf_read_register(VCO_CALIBR_IN0));
-    tr_debug("XO_RCO_CONF1: %x", rf_read_register(XO_RCO_CONF1));
-    tr_debug("XO_RCO_CONF0: %x", rf_read_register(XO_RCO_CONF0));
-    tr_debug("RCO_CALIBR_CONF3: %x", rf_read_register(RCO_CALIBR_CONF3));
-    tr_debug("RCO_CALIBR_CONF2: %x", rf_read_register(RCO_CALIBR_CONF2));
-    tr_debug("PM_CONF4: %x", rf_read_register(PM_CONF4));
-    tr_debug("PM_CONF3: %x", rf_read_register(PM_CONF3));
-    tr_debug("PM_CONF2: %x", rf_read_register(PM_CONF2));
-    tr_debug("PM_CONF1: %x", rf_read_register(PM_CONF1));
-    tr_debug("PM_CONF0: %x", rf_read_register(PM_CONF0));
-    tr_debug("MC_STATE1: %x", rf_read_register(MC_STATE1));
-    tr_debug("MC_STATE0: %x", rf_read_register(MC_STATE0));
-    tr_debug("TX_FIFO_STATUS: %x", rf_read_register(TX_FIFO_STATUS));
-    tr_debug("RX_FIFO_STATUS: %x", rf_read_register(RX_FIFO_STATUS));
-    tr_debug("RCO_CALIBR_OUT4: %x", rf_read_register(RCO_CALIBR_OUT4));
-    tr_debug("RCO_CALIBR_OUT3: %x", rf_read_register(RCO_CALIBR_OUT3));
-    tr_debug("VCO_CALIBR_OUT1: %x", rf_read_register(VCO_CALIBR_OUT1));
-    tr_debug("VCO_CALIBR_OUT0: %x", rf_read_register(VCO_CALIBR_OUT0));
-    tr_debug("TX_PCKT_INFO: %x", rf_read_register(TX_PCKT_INFO));
-    tr_debug("RX_PCKT_INFO: %x", rf_read_register(RX_PCKT_INFO));
-    tr_debug("AFC_CORR: %x", rf_read_register(AFC_CORR));
-    tr_debug("LINK_QUALIF2: %x", rf_read_register(LINK_QUALIF2));
-    tr_debug("LINK_QUALIF1: %x", rf_read_register(LINK_QUALIF1));
-    tr_debug("RSSI_LEVEL: %x", rf_read_register(RSSI_LEVEL));
-    tr_debug("RX_PCKT_LEN1: %x", rf_read_register(RX_PCKT_LEN1));
-    tr_debug("RX_PCKT_LEN0: %x", rf_read_register(RX_PCKT_LEN0));
-    tr_debug("CRC_FIELD3: %x", rf_read_register(CRC_FIELD3));
-    tr_debug("CRC_FIELD2: %x", rf_read_register(CRC_FIELD2));
-    tr_debug("CRC_FIELD1: %x", rf_read_register(CRC_FIELD1));
-    tr_debug("CRC_FIELD0: %x", rf_read_register(CRC_FIELD0));
-    tr_debug("RX_ADDRE_FIELD1: %x", rf_read_register(RX_ADDRE_FIELD1));
-    tr_debug("RX_ADDRE_FIELD0: %x", rf_read_register(RX_ADDRE_FIELD0));
-    tr_debug("RSSI_LEVEL_RUN: %x", rf_read_register(RSSI_LEVEL_RUN));
-    tr_debug("DEVICE_INFO1: %x", rf_read_register(DEVICE_INFO1));
-    tr_debug("DEVICE_INFO0: %x", rf_read_register(DEVICE_INFO0));
-    tr_debug("IRQ_STATUS3: %x", rf_read_register(IRQ_STATUS3));
-    tr_debug("IRQ_STATUS2: %x", rf_read_register(IRQ_STATUS2));
-    tr_debug("IRQ_STATUS1: %x", rf_read_register(IRQ_STATUS1));
-    tr_debug("IRQ_STATUS0: %x", rf_read_register(IRQ_STATUS0));
 }
 
 #if MBED_CONF_S2LP_PROVIDE_DEFAULT

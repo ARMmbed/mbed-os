@@ -229,7 +229,7 @@ extern "C" {
 
 #define DEFAULT_DEVIATION       125000
 #define RX_FILTER_BANDWIDTH     540000
-#define RSSI_THRESHOLD          -60
+#define RSSI_THRESHOLD          -85
 
 // PCKTCTRL6
 #define PCKT_SYNCLEN_FIELD      0xFC

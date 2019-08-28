@@ -35,6 +35,10 @@
 // Use multiplier for better resolution
 #define RESOLUTION_MULTIPLIER   1000000
 
+// RSSI_TH is a 8-bit register which can be converted to dBm using formula RSSI_TH-146
+#define MIN_RSSI_THRESHOLD  -146
+#define MAX_RSSI_THRESHOLD  109
+
 void rf_conf_calculate_datarate_registers(uint32_t datarate, uint16_t *datarate_mantissa, uint8_t *datarate_exponent)
 {
     uint64_t datarate_m = (uint64_t)datarate * DEF_2EXP33;
@@ -149,6 +153,12 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
     }
     *chflt_m = chflt_m_tmp;
     *chflt_e = chflt_e_tmp;
+}
+
+int16_t rf_conf_cca_threshold_percent_to_rssi(uint8_t percent)
+{
+    uint8_t step = (MAX_RSSI_THRESHOLD-MIN_RSSI_THRESHOLD);
+    return MIN_RSSI_THRESHOLD + (step * percent) / 100;
 }
 
 void rf_conf_calculate_rssi_threshold_registers(int16_t rssi_threshold, uint8_t *rssi_th)

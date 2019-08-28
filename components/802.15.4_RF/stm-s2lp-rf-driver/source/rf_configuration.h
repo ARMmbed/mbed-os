@@ -32,6 +32,7 @@ int rf_conf_calculate_channel_spacing_registers(uint32_t channel_spacing, uint8_
 void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint8_t *chflt_m, uint8_t *chflt_e);
 void rf_conf_calculate_rssi_threshold_registers(int16_t rssi_threshold, uint8_t *rssi_th);
 uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, uint32_t datarate);
+int16_t rf_conf_cca_threshold_percent_to_rssi(uint8_t percent);
 
 #ifdef __cplusplus
 }
