@@ -2,8 +2,8 @@
 * \file cyhal_crypto_common.h
 *
 * Description:
-* This file provides common defines and addresses required by drivers using the
-* Crypto block.
+* This file provides common defines, addresses, and functions required by drivers 
+* using the Crypto block.
 *
 ********************************************************************************
 * \copyright
@@ -39,23 +39,34 @@ extern "C" {
 /** Block count for CRYPTO blocks */
 #define CYHAL_CRYPTO_INST_COUNT      CY_IP_MXCRYPTO_INSTANCES
 
-/** The start address of the CRYPTO blocks */
-extern CRYPTO_Type* cyhal_CRYPTO_BASE_ADDRESSES[CYHAL_CRYPTO_INST_COUNT];
+typedef enum
+{
+    /** CRC hardware acceleration */
+    CYHAL_CRYPTO_CRC,
+    /** TRNG hardware acceleration */
+    CYHAL_CRYPTO_TRNG,
+    /** VU hardware acceleration */
+    CYHAL_CRYPTO_VU,
+    /** Common features of the Crypto block  */
+    CYHAL_CRYPTO_COMMON,
+} cyhal_crypto_feature_t;
 
 /** Reserve the Crypto block and enable it.
  *
  * @param[out]  base Base address to the Crypto block.
- * @param[out]  obj resource inst for the function (eg. CRC, TRNG) in the Crypto block.
+ * @param[out]  obj Resource inst for the function (eg. CRC, TRNG) in the Crypto block.
+ * @param[in]   feature feature to reserve on the Crypto block (eg. TRNG, CRC, etc.).
  * @return The status of the reserve request.
  */
-cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resource);
+cy_rslt_t cyhal_crypto_reserve(CRYPTO_Type** base, cyhal_resource_inst_t *resource, cyhal_crypto_feature_t feature);
 
 /** Free the Crypto block and disable it.
  *
  * @param[in]  base Base address to the Crypto block.
- * @param[in]  obj resource inst for the funtion in Crypto block.
+ * @param[in]  obj Resource inst for the funtion in Crypto block.
+ * @param[in]  feature Feature to free on the Crypto block (eg. TRNG, CRC, etc.).
  */
-void cyhal_crypto_free(CRYPTO_Type* base, const cyhal_resource_inst_t *resource);
+void cyhal_crypto_free(CRYPTO_Type* base, cyhal_resource_inst_t *resource, cyhal_crypto_feature_t feature);
 
 #if defined(__cplusplus)
 }

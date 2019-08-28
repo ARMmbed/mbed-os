@@ -5,7 +5,7 @@
 * PSoC6_03 device GPIO HAL header for 49-WLCSP package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -32,7 +32,7 @@
 #include "pin_packages/cyhal_psoc6_03_49_wlcsp.h"
 
 /* Hardware Blocks */
-static const cyhal_resource_inst_t CYHAL_CANFD_0 = { CYHAL_RSC_CANFD, 0, 0 };
+static const cyhal_resource_inst_t CYHAL_CAN_0 = { CYHAL_RSC_CAN, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_LPCOMP_0_0 = { CYHAL_RSC_LPCOMP, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_ADC_0 = { CYHAL_RSC_ADC, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_SCB_0 = { CYHAL_RSC_SCB, 0, 0 };
@@ -56,19 +56,39 @@ static const cyhal_resource_inst_t CYHAL_TCPWM_1_6 = { CYHAL_RSC_TCPWM, 1, 6 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_7 = { CYHAL_RSC_TCPWM, 1, 7 };
 
 /* Pin connections */
-/* Connections for: canfd_ttcan_rx */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_rx[1] = {
-    {P5_0, &CYHAL_CANFD_0, CYHAL_PIN_IN_FUNCTION(P5_0_CANFD0_TTCAN_RX0)},
+/* Connections for: can_ttcan_rx */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_rx[1] = {
+    {P5_0, &CYHAL_CAN_0, CYHAL_PIN_IN_FUNCTION(P5_0_CANFD0_TTCAN_RX0)},
 };
 
-/* Connections for: canfd_ttcan_tx */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_tx[1] = {
-    {P5_1, &CYHAL_CANFD_0, CYHAL_PIN_OUT_FUNCTION(P5_1_CANFD0_TTCAN_TX0)},
+/* Connections for: can_ttcan_tx */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_tx[1] = {
+    {P5_1, &CYHAL_CAN_0, CYHAL_PIN_OUT_FUNCTION(P5_1_CANFD0_TTCAN_TX0)},
+};
+
+/* Connections for: lpcomp_dsi_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: lpcomp_dsi_comp1 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: lpcomp_inn_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp0[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: lpcomp_inn_comp1 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp1[1] = {
     {P6_3, &CYHAL_LPCOMP_0_0, CYHAL_PIN_ANALOG_FUNCTION(P6_3_LPCOMP_INN_COMP1)},
+};
+
+/* Connections for: lpcomp_inp_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp0[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: lpcomp_inp_comp1 */
@@ -285,9 +305,29 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_dat_3to0[4] = {
     {P2_3, &CYHAL_SDHC_0, CYHAL_PIN_OUT_BUF_FUNCTION(P2_3_SDHC0_CARD_DAT_3TO03)},
 };
 
+/* Connections for: sdhc_card_detect_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_detect_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: sdhc_card_if_pwr_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_if_pwr_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: sdhc_card_mech_write_prot */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_card_mech_write_prot[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: sdhc_clk_card */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_clk_card[1] = {
     {P2_5, &CYHAL_SDHC_0, CYHAL_PIN_OUT_BUF_FUNCTION(P2_5_SDHC0_CLK_CARD)},
+};
+
+/* Connections for: sdhc_io_volt_sel */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_sdhc_io_volt_sel[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: smif_spi_clk */
@@ -318,6 +358,16 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data3[1] = {
 /* Connections for: smif_spi_select0 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select0[1] = {
     {P11_2, &CYHAL_SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_2_SMIF_SPI_SELECT0)},
+};
+
+/* Connections for: smif_spi_select1 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select1[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_select2 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: tcpwm_line */
@@ -400,6 +450,16 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line_compl[36] = {
     {P11_5, &CYHAL_TCPWM_1_4, CYHAL_PIN_OUT_FUNCTION(P11_5_TCPWM1_LINE_COMPL4)},
     {P11_7, &CYHAL_TCPWM_0_1, CYHAL_PIN_OUT_FUNCTION(P11_7_TCPWM0_LINE_COMPL1)},
     {P11_7, &CYHAL_TCPWM_1_5, CYHAL_PIN_OUT_FUNCTION(P11_7_TCPWM1_LINE_COMPL5)},
+};
+
+/* Connections for: usb_usb_dm_pad */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dm_pad[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: usb_usb_dp_pad */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dp_pad[1] = {
+    {NC, NULL, 0u},
 };
 
 #endif

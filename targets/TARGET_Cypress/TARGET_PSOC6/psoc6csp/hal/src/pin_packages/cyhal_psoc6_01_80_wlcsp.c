@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 80-WLCSP package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -127,6 +127,106 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_ws[1] = {
     {P5_2, &CYHAL_I2S_0, CYHAL_PIN_OUT_FUNCTION(P5_2_AUDIOSS_TX_WS)},
 };
 
+/* Connections for: bless_ext_lna_rx_ctl_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_lna_rx_ctl_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_ext_pa_lna_chip_en_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_lna_chip_en_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_ext_pa_tx_ctl_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_tx_ctl_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_bpktctl */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_bpktctl[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_rx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_rx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_tx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_tx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_txd_rxd */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_txd_rxd[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_act_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_act_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_buck_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_buck_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_clk_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_clk_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_dig_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_isolate_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_mxd_clk_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_clk */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_clk[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_data */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_data[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_le */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_le[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_reset_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_reset_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_ldo_ol_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_ldo_ol_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_switch_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_switch_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_xtal_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_xtal_en[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: lpcomp_dsi_comp0 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1] = {
     {P8_2, &CYHAL_LPCOMP_0_0, CYHAL_PIN_OUT_FUNCTION(P8_2_LPCOMP_DSI_COMP0)},
@@ -175,6 +275,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctb_pads[6] = {
     {P9_3, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_3_PASS_CTB_PADS3)},
     {P9_4, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_4_PASS_CTB_PADS4)},
     {P9_7, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_7_PASS_CTB_PADS7)},
+};
+
+/* Connections for: pass_ctdac_voutsw */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctdac_voutsw[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: pass_dsi_ctb_cmp0 */

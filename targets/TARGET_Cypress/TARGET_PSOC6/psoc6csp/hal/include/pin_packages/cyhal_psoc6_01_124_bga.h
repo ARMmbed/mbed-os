@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 124-BGA package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -164,7 +164,7 @@ typedef struct
 {
     cyhal_gpio_t                  pin;  //!< The GPIO pin
     const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_cfg_t              cfg;  //!< The DriveMode and HSIOM configuration value
+    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */
@@ -189,6 +189,7 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_buck_en[
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_clk_en[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_clk[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_data[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_le[1];

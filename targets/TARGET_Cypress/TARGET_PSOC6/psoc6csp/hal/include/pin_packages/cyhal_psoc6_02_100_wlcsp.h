@@ -5,7 +5,7 @@
 * PSoC6_02 device GPIO HAL header for 100-WLCSP package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -144,7 +144,7 @@ typedef struct
 {
     cyhal_gpio_t                  pin;  //!< The GPIO pin
     const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_cfg_t              cfg;  //!< The DriveMode and HSIOM configuration value
+    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */

@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 124-BGA-SIP package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -144,6 +144,91 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_lna_chip_en_out[1]
 /* Connections for: bless_ext_pa_tx_ctl_out */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_tx_ctl_out[1] = {
     {P7_5, &CYHAL_BLESS_0, CYHAL_PIN_OUT_FUNCTION(P7_5_BLESS_EXT_PA_TX_CTL_OUT)},
+};
+
+/* Connections for: bless_mxd_act_bpktctl */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_bpktctl[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_rx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_rx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_tx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_tx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_txd_rxd */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_txd_rxd[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_act_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_act_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_buck_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_buck_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_clk_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_clk_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_dig_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_isolate_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_mxd_clk_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_clk */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_clk[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_data */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_data[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_le */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_le[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_reset_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_reset_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_ldo_ol_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_ldo_ol_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_switch_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_switch_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_xtal_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_xtal_en[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: lpcomp_dsi_comp0 */

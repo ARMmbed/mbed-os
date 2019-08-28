@@ -26,19 +26,25 @@
 *******************************************************************************/
 
 #include "cyhal_system.h"
+#include "cyhal_hwmgr.h"
 
 #ifdef CY_IP_MXS40SRSS
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 #define HZ_PER_MHZ 1000000
 
-cy_rslt_t cyhal_system_register_callback(cyhal_system_call_back_t *handler)
+cy_rslt_t cyhal_system_register_callback(cyhal_system_callback_t *handler)
 {
     return Cy_SysPm_RegisterCallback(handler)
         ? CY_RSLT_SUCCESS
         : CYHAL_SYSTEM_RSLT_ERROR;
 }
 
-cy_rslt_t cyhal_system_unregister_callback(cyhal_system_call_back_t const *handler)
+cy_rslt_t cyhal_system_unregister_callback(cyhal_system_callback_t const *handler)
 {
     return Cy_SysPm_UnregisterCallback(handler)
         ? CY_RSLT_SUCCESS
@@ -115,7 +121,7 @@ cy_rslt_t try_set_hf_divider(uint8_t clock, uint32_t input_freq, uint32_t target
         divider_found = true;
         divider = CY_SYSCLK_CLKHF_DIVIDE_BY_8;
     }
-    
+
     if (divider_found)
     {
         Cy_SysClk_ClkHfSetDivider(clock, divider);
@@ -184,7 +190,13 @@ static inline bool Cy_SysClk_ClkHfIsEnabled(uint32_t clkHf)
     return (retVal);
 }
 
-cy_rslt_t cyhal_system_clock_frequency(uint8_t clock, uint32_t frequencyhal_hz)
+cy_rslt_t cyhal_system_clock_get_frequency(uint8_t clock, uint32_t *frequency_hz)
+{
+    *frequency_hz = Cy_SysClk_ClkHfGetFrequency(clock);
+    return CY_RSLT_SUCCESS;
+}
+
+cy_rslt_t cyhal_system_clock_set_frequency(uint8_t clock, uint32_t frequency_hz)
 {
     cy_en_clkhf_in_sources_t path = Cy_SysClk_ClkHfGetSource((uint32_t)clock);
     cy_en_clkpath_in_sources_t source = Cy_SysClk_ClkPathGetSource((uint32_t)path);
@@ -196,8 +208,8 @@ cy_rslt_t cyhal_system_clock_frequency(uint8_t clock, uint32_t frequencyhal_hz)
     }
     uint8_t fll_pll_used;
     uint32_t clkpath_freq = get_clkpath_freq(path, src_freq, &fll_pll_used);
-    
-    cy_rslt_t rslt = try_set_hf_divider(clock, clkpath_freq, frequencyhal_hz);
+
+    cy_rslt_t rslt = try_set_hf_divider(clock, clkpath_freq, frequency_hz);
     if (rslt == CY_RSLT_SUCCESS)
     {
         SystemCoreClockUpdate();
@@ -207,11 +219,11 @@ cy_rslt_t cyhal_system_clock_frequency(uint8_t clock, uint32_t frequencyhal_hz)
     bool enabled = Cy_SysClk_ClkHfIsEnabled(clock);
     if (enabled && fll_pll_used == 0)
     {
-        return try_set_fll(clock, frequencyhal_hz);
+        return try_set_fll(clock, frequency_hz);
     }
     else if (enabled && fll_pll_used <= SRSS_NUM_PLL)
     {
-        return try_set_pll(clock, fll_pll_used, frequencyhal_hz);
+        return try_set_pll(clock, fll_pll_used, frequency_hz);
     }
     else
     {
@@ -222,11 +234,11 @@ cy_rslt_t cyhal_system_clock_frequency(uint8_t clock, uint32_t frequencyhal_hz)
         {
             if (inst.block_num == 0)
             {
-                rslt = try_set_fll(clock, frequencyhal_hz);
+                rslt = try_set_fll(clock, frequency_hz);
             }
             else if (inst.block_num <= SRSS_NUM_PLL)
             {
-                rslt = try_set_pll(clock, inst.block_num, frequencyhal_hz);
+                rslt = try_set_pll(clock, inst.block_num, frequency_hz);
             }
             else
             {
@@ -248,7 +260,7 @@ cy_rslt_t cyhal_system_clock_frequency(uint8_t clock, uint32_t frequencyhal_hz)
     return rslt;
 }
 
-cy_rslt_t cyhal_system_clock_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider)
+cy_rslt_t cyhal_system_clock_set_divider(cyhal_system_clock_t clock, cyhal_system_divider_t divider)
 {
     if (divider < 1 || divider > 0x100)
     {
@@ -279,5 +291,9 @@ cy_rslt_t cyhal_system_clock_divider(cyhal_system_clock_t clock, cyhal_system_di
     SystemCoreClockUpdate();
     return CY_RSLT_SUCCESS;
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXS40SRSS */

@@ -16,7 +16,7 @@
  */
 
 #include "trng_api.h"
-#include "cyhal_implementation.h"
+#include "cyhal_trng.h"
 #include "mbed_error.h"
 #include <string.h>
 

@@ -5,7 +5,7 @@
 * PSoC6_03 device GPIO HAL header for 100-TQFP package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -32,7 +32,7 @@
 #include "pin_packages/cyhal_psoc6_03_100_tqfp.h"
 
 /* Hardware Blocks */
-static const cyhal_resource_inst_t CYHAL_CANFD_0 = { CYHAL_RSC_CANFD, 0, 0 };
+static const cyhal_resource_inst_t CYHAL_CAN_0 = { CYHAL_RSC_CAN, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_LPCOMP_0_0 = { CYHAL_RSC_LPCOMP, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_ADC_0 = { CYHAL_RSC_ADC, 0, 0 };
 static const cyhal_resource_inst_t CYHAL_SCB_0 = { CYHAL_RSC_SCB, 0, 0 };
@@ -59,14 +59,14 @@ static const cyhal_resource_inst_t CYHAL_TCPWM_1_7 = { CYHAL_RSC_TCPWM, 1, 7 };
 static const cyhal_resource_inst_t CYHAL_USB_0 = { CYHAL_RSC_USB, 0, 0 };
 
 /* Pin connections */
-/* Connections for: canfd_ttcan_rx */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_rx[1] = {
-    {P5_0, &CYHAL_CANFD_0, CYHAL_PIN_IN_FUNCTION(P5_0_CANFD0_TTCAN_RX0)},
+/* Connections for: can_ttcan_rx */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_rx[1] = {
+    {P5_0, &CYHAL_CAN_0, CYHAL_PIN_IN_FUNCTION(P5_0_CANFD0_TTCAN_RX0)},
 };
 
-/* Connections for: canfd_ttcan_tx */
-const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_tx[1] = {
-    {P5_1, &CYHAL_CANFD_0, CYHAL_PIN_OUT_FUNCTION(P5_1_CANFD0_TTCAN_TX0)},
+/* Connections for: can_ttcan_tx */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_tx[1] = {
+    {P5_1, &CYHAL_CAN_0, CYHAL_PIN_OUT_FUNCTION(P5_1_CANFD0_TTCAN_TX0)},
 };
 
 /* Connections for: lpcomp_dsi_comp0 */

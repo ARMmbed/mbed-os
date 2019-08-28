@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 68-QFN-BLE package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -73,6 +73,51 @@ static const cyhal_resource_inst_t CYHAL_TCPWM_1_8 = { CYHAL_RSC_TCPWM, 1, 8 };
 static const cyhal_resource_inst_t CYHAL_TCPWM_1_9 = { CYHAL_RSC_TCPWM, 1, 9 };
 
 /* Pin connections */
+/* Connections for: audioss_clk_i2s_if */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_clk_i2s_if[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_pdm_clk */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_pdm_clk[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_pdm_data */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_pdm_data[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_rx_sck */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_sck[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_rx_sdi */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_sdi[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_rx_ws */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_ws[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_tx_sck */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sck[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_tx_sdo */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sdo[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: audioss_tx_ws */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_ws[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: bless_ext_lna_rx_ctl_out */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_lna_rx_ctl_out[1] = {
     {P7_4, &CYHAL_BLESS_0, CYHAL_PIN_OUT_FUNCTION(P7_4_BLESS_EXT_LNA_RX_CTL_OUT)},
@@ -88,14 +133,114 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_tx_ctl_out[1] = {
     {P7_5, &CYHAL_BLESS_0, CYHAL_PIN_OUT_FUNCTION(P7_5_BLESS_EXT_PA_TX_CTL_OUT)},
 };
 
+/* Connections for: bless_mxd_act_bpktctl */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_bpktctl[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_rx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_rx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_dbus_tx_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_tx_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_act_txd_rxd */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_txd_rxd[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_act_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_act_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_buck_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_buck_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_clk_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_clk_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_dig_ldo_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_isolate_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_mxd_clk_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_clk */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_clk[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_data */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_data[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_rcb_le */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_le[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_reset_n */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_reset_n[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_ldo_ol_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_ldo_ol_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_ret_switch_hv */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_switch_hv[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: bless_mxd_dpslp_xtal_en */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_xtal_en[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: lpcomp_dsi_comp0 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1] = {
     {P8_2, &CYHAL_LPCOMP_0_0, CYHAL_PIN_OUT_FUNCTION(P8_2_LPCOMP_DSI_COMP0)},
 };
 
+/* Connections for: lpcomp_dsi_comp1 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: lpcomp_inn_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp0[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: lpcomp_inn_comp1 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp1[1] = {
     {P6_3, &CYHAL_LPCOMP_0_0, CYHAL_PIN_ANALOG_FUNCTION(P6_3_LPCOMP_INN_COMP1)},
+};
+
+/* Connections for: lpcomp_inp_comp0 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp0[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: lpcomp_inp_comp1 */
@@ -119,6 +264,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctb_pads[4] = {
     {P9_1, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_1_PASS_CTB_PADS1)},
     {P9_2, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_2_PASS_CTB_PADS2)},
     {P9_3, &CYHAL_OPAMP_0, CYHAL_PIN_ANALOG_FUNCTION(P9_3_PASS_CTB_PADS3)},
+};
+
+/* Connections for: pass_ctdac_voutsw */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctdac_voutsw[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: pass_dsi_ctb_cmp0 */
@@ -385,6 +535,26 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data3[1] = {
     {P11_3, &CYHAL_SMIF_0, CYHAL_PIN_OUT_BUF_FUNCTION(P11_3_SMIF_SPI_DATA3)},
 };
 
+/* Connections for: smif_spi_data4 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data4[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data5 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data5[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data6 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data6[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: smif_spi_data7 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data7[1] = {
+    {NC, NULL, 0u},
+};
+
 /* Connections for: smif_spi_select0 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select0[1] = {
     {P11_2, &CYHAL_SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_2_SMIF_SPI_SELECT0)},
@@ -398,6 +568,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select1[1] = {
 /* Connections for: smif_spi_select2 */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1] = {
     {P11_0, &CYHAL_SMIF_0, CYHAL_PIN_OUT_FUNCTION(P11_0_SMIF_SPI_SELECT2)},
+};
+
+/* Connections for: smif_spi_select3 */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select3[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: tcpwm_line */
@@ -484,6 +659,16 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line_compl[38] = {
     {P11_5, &CYHAL_TCPWM_1_3, CYHAL_PIN_OUT_FUNCTION(P11_5_TCPWM1_LINE_COMPL3)},
     {P12_7, &CYHAL_TCPWM_0_7, CYHAL_PIN_OUT_FUNCTION(P12_7_TCPWM0_LINE_COMPL7)},
     {P12_7, &CYHAL_TCPWM_1_7, CYHAL_PIN_OUT_FUNCTION(P12_7_TCPWM1_LINE_COMPL7)},
+};
+
+/* Connections for: usb_usb_dm_pad */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dm_pad[1] = {
+    {NC, NULL, 0u},
+};
+
+/* Connections for: usb_usb_dp_pad */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dp_pad[1] = {
+    {NC, NULL, 0u},
 };
 
 #endif

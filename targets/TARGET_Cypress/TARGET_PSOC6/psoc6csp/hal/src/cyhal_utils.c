@@ -27,6 +27,11 @@
 #include "cyhal_hwmgr.h"
 #include "cyhal_interconnect.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 const cyhal_resource_pin_mapping_t *cyhal_utils_get_resource(cyhal_gpio_t pin, const cyhal_resource_pin_mapping_t* mappings, size_t count)
 {
     for (uint32_t i = 0; i < count; i++)
@@ -46,3 +51,7 @@ void cyhal_utils_disconnect_and_free(cyhal_gpio_t pin)
     cyhal_resource_inst_t rsc = cyhal_utils_get_gpio_resource(pin);
     cyhal_hwmgr_free(&rsc);
 }
+
+#if defined(__cplusplus)
+}
+#endif

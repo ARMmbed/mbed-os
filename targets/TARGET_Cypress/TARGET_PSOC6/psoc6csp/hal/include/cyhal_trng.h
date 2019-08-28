@@ -43,12 +43,13 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-/** Arguments passed the function are not valid. */
+/** An invalid argument was passed to a function. */
 #define CYHAL_TRNG_RSLT_ERR_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TRNG, 0))
 /** Hardware error in the crypto block. This will only occur if the Ring oscillators in the TRNG generator are explicitly
  *  disabled during TRNG generation.
@@ -85,5 +86,9 @@ uint32_t cyhal_trng_generate(const cyhal_trng_t *obj);
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_TRNG_IMPL_HEADER
+#include CYHAL_TRNG_IMPL_HEADER
+#endif /* CYHAL_TRNG_IMPL_HEADER */
 
 /** \} group_hal_trng */

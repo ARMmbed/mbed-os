@@ -24,6 +24,7 @@
 *******************************************************************************/
 
 #include "cyhal_gpio_impl.h"
+#include "cyhal_system_impl.h"
 #include "cyhal_hwmgr.h"
 
 #ifdef CY_IP_MXS40IOSS
@@ -36,20 +37,20 @@ extern "C" {
 /*******************************************************************************
 *       Internal
 *******************************************************************************/
-#define CYHAL_DIRECTION_INPUT_MASK      (0x08UL)    /**< Mask to enable the input buffer */
-#define CYHAL_DIRECTION_OUTPUT_MASK     (0x07UL)    /**< Mask to disable the input buffer */
+#define CYHAL_GPIO_DIRECTION_OUTPUT_MASK      (0x07UL)    /**< Mask to disable the input buffer */
 
 /* Callback array for GPIO interrupts */
-static cyhal_gpio_irq_handler_t hal_gpio_callbacks[IOSS_GPIO_GPIO_PORT_NR][CY_GPIO_PINS_MAX];
+static cyhal_gpio_event_callback_t hal_gpio_callbacks[IOSS_GPIO_GPIO_PORT_NR][CY_GPIO_PINS_MAX];
 static void *hal_gpio_callback_args[IOSS_GPIO_GPIO_PORT_NR][CY_GPIO_PINS_MAX];
 
-
 /*******************************************************************************
-*       Dispatcher Interrrupt Service Routine
+*       Internal Interrrupt Service Routine
 *******************************************************************************/
 
-static void ioss_interrupts_dispatcher_IRQHandler(uint32_t port)
+static void ioss_irq_handler()
 {
+    IRQn_Type irqn = CYHAL_GET_CURRENT_IRQN();
+    uint32_t port = irqn - ioss_interrupts_gpio_0_IRQn;
     GPIO_PRT_Type *portAddr = Cy_GPIO_PortToAddr(port);
 
     for (uint8_t cnt = 0u; cnt < CY_GPIO_PINS_MAX; cnt++)
@@ -59,10 +60,9 @@ static void ioss_interrupts_dispatcher_IRQHandler(uint32_t port)
             if (hal_gpio_callbacks[port][cnt] != NULL)
             {
                 /* Call registered callbacks here */
-                cyhal_gpio_irq_event_t event, edge = (cyhal_gpio_irq_event_t)Cy_GPIO_GetInterruptEdge(portAddr, cnt);
+                cyhal_gpio_event_t event, edge = (cyhal_gpio_event_t)Cy_GPIO_GetInterruptEdge(portAddr, cnt);
                 switch (edge)
                 {
-                    case CYHAL_GPIO_IRQ_NONE:
                     case CYHAL_GPIO_IRQ_RISE:
                     case CYHAL_GPIO_IRQ_FALL:
                         event = edge;
@@ -78,163 +78,54 @@ static void ioss_interrupts_dispatcher_IRQHandler(uint32_t port)
     }
 }
 
+static uint32_t cyhal_gpio_convert_drive_mode(cyhal_gpio_drive_mode_t drive_mode, cyhal_gpio_direction_t direction)
+{
+    uint32_t drvMode;
+    switch (drive_mode)
+    {
+        case CYHAL_GPIO_DRIVE_NONE:
+        case CYHAL_GPIO_DRIVE_ANALOG:
+            drvMode = CY_GPIO_DM_HIGHZ;
+            break;
+        case CYHAL_GPIO_DRIVE_PULLUP:
+            drvMode = CY_GPIO_DM_PULLUP;
+            break;
+        case CYHAL_GPIO_DRIVE_PULLDOWN:
+            drvMode = CY_GPIO_DM_PULLDOWN;
+            break;
+        case CYHAL_GPIO_DRIVE_OPENDRAINDRIVESLOW:
+            drvMode = CY_GPIO_DM_OD_DRIVESLOW;
+            break;
+        case CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH:
+            drvMode = CY_GPIO_DM_OD_DRIVESHIGH;
+            break;
+        case CYHAL_GPIO_DRIVE_STRONG:
+            drvMode = CY_GPIO_DM_STRONG;
+            break;
+        case CYHAL_GPIO_DRIVE_PULLUPDOWN:
+            drvMode = CY_GPIO_DM_PULLUP_DOWN;
+            break;
+        default:
+            CY_ASSERT(false);
+            drvMode = CY_GPIO_DM_HIGHZ;
+    }
+
+    if (direction == CYHAL_GPIO_DIR_OUTPUT)
+    {
+        drvMode &= CYHAL_GPIO_DIRECTION_OUTPUT_MASK;
+    }
+    return drvMode;
+}
 
 /*******************************************************************************
-*       (Internal) Interrrupt Service Routines
-*******************************************************************************/
-static void ioss_interrupts_gpio_0_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_1_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_2_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_3_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_4_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_5_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_6_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_7_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_8_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_9_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_10_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_11_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_12_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_13_IRQHandler (void) __attribute__((unused));
-static void ioss_interrupts_gpio_14_IRQHandler (void) __attribute__((unused));
-
-static void ioss_interrupts_gpio_0_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_0);
-}
-
-static void ioss_interrupts_gpio_1_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_1);
-}
-
-static void ioss_interrupts_gpio_2_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_2);
-}
-
-static void ioss_interrupts_gpio_3_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_3);
-}
-
-static void ioss_interrupts_gpio_4_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_4);
-}
-
-static void ioss_interrupts_gpio_5_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_5);
-}
-
-static void ioss_interrupts_gpio_6_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_6);
-}
-
-static void ioss_interrupts_gpio_7_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_7);
-}
-
-static void ioss_interrupts_gpio_8_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_8);
-}
-
-static void ioss_interrupts_gpio_9_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_9);
-}
-
-static void ioss_interrupts_gpio_10_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_10);
-}
-
-static void ioss_interrupts_gpio_11_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_11);
-}
-
-static void ioss_interrupts_gpio_12_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_12);
-}
-
-static void ioss_interrupts_gpio_13_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_13);
-}
-
-static void ioss_interrupts_gpio_14_IRQHandler (void)
-{
-    ioss_interrupts_dispatcher_IRQHandler(CYHAL_PORT_14);
-}
-
-static void (*ioss_interrupts_dispatcher_table[IOSS_GPIO_GPIO_PORT_NR])(void) =
-{
-#if (IOSS_GPIO_GPIO_PORT_NR > 0)
-    ioss_interrupts_gpio_0_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 1)
-    ioss_interrupts_gpio_1_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 2)
-    ioss_interrupts_gpio_2_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 3)
-    ioss_interrupts_gpio_3_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 4)
-    ioss_interrupts_gpio_4_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 5)
-    ioss_interrupts_gpio_5_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 6)
-    ioss_interrupts_gpio_6_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 7)
-    ioss_interrupts_gpio_7_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 8)
-    ioss_interrupts_gpio_8_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 9)
-    ioss_interrupts_gpio_9_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 10)
-    ioss_interrupts_gpio_10_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 11)
-    ioss_interrupts_gpio_11_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 12)
-    ioss_interrupts_gpio_12_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 13)
-    ioss_interrupts_gpio_13_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 14)
-    ioss_interrupts_gpio_14_IRQHandler,
-#endif
-#if (IOSS_GPIO_GPIO_PORT_NR > 15)
-    #error "Unhandled port count"
-#endif
-};
-
-
-/*******************************************************************************
-*       Functions
+*       HAL Implementation
 *******************************************************************************/
 
 cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode, bool initVal)
 {
-    cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
     /* Mbed creates GPIOs for pins that are dedicated to other peripherals in some cases. */
 #ifndef __MBED__
+    cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
     cy_rslt_t status = cyhal_hwmgr_reserve(&pinRsc);
 #else
     cy_rslt_t status = CY_RSLT_SUCCESS;
@@ -242,16 +133,8 @@ cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cy
 
     if (status == CY_RSLT_SUCCESS)
     {
-        /* Do not check for configured for resources we do not reserve. */
-#ifndef __MBED__
-        bool configured = cyhal_hwmgr_is_configured(pinRsc.type, pinRsc.block_num, pinRsc.channel_num);
-        if (!configured)
-#endif
-        {
-            Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), drvMode, initVal, HSIOM_SEL_GPIO);
-            cyhal_gpio_direction(pin, direction); //always returns success
-            status = cyhal_hwmgr_set_configured(pinRsc.type, pinRsc.block_num, pinRsc.channel_num);
-        }
+        uint32_t pdlDrvMode = cyhal_gpio_convert_drive_mode(drvMode, direction);
+        Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdlDrvMode, initVal, HSIOM_SEL_GPIO);
     }
 
     return status;
@@ -261,64 +144,51 @@ void cyhal_gpio_free(cyhal_gpio_t pin)
 {
     if (pin != CYHAL_NC_PIN_VALUE)
     {
-        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
-        Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), CYHAL_GPIO_DRIVE_ANALOG, 0UL, HSIOM_SEL_GPIO);
-        cyhal_hwmgr_set_unconfigured(pinRsc.type, pinRsc.block_num, pinRsc.channel_num);
+        Cy_GPIO_SetInterruptMask(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), 0);
+
+        Cy_GPIO_Pin_FastInit(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), CY_GPIO_DM_ANALOG, 0UL, HSIOM_SEL_GPIO);
         /* Do not attempt to free the resource we don't reserve in mbed. */
 #ifndef __MBED__
+        cyhal_resource_inst_t pinRsc = cyhal_utils_get_gpio_resource(pin);
         cyhal_hwmgr_free(&pinRsc);
 #endif
     }
 }
 
-cy_rslt_t cyhal_gpio_direction(cyhal_gpio_t pin, cyhal_gpio_direction_t direction)
+cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode)
 {
-    uint32_t drvMode = Cy_GPIO_GetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin));
-    if ((direction == CYHAL_GPIO_DIR_INPUT) | (direction == CYHAL_GPIO_DIR_BIDIRECTIONAL))
-    {
-        Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (drvMode | CYHAL_DIRECTION_INPUT_MASK));
-    }
-    else
-    {
-        Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (drvMode & CYHAL_DIRECTION_OUTPUT_MASK));
-    }
+    uint32_t pdlDrvMode = cyhal_gpio_convert_drive_mode(drvMode, direction);
+    Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), pdlDrvMode);
 
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_gpio_drivemode(cyhal_gpio_t pin, cyhal_gpio_drive_mode_t drvMode)
+void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t callback, void *callback_arg)
 {
-    uint32_t inputBuf = Cy_GPIO_GetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin)) & CYHAL_DIRECTION_INPUT_MASK;
-    Cy_GPIO_SetDrivemode(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), drvMode | inputBuf);
-
-    return CY_RSLT_SUCCESS;
+    uint32_t savedIntrStatus = cyhal_system_critical_section_enter();
+    hal_gpio_callbacks[CYHAL_GET_PORT(pin)][CYHAL_GET_PIN(pin)] = callback;
+    hal_gpio_callback_args[CYHAL_GET_PORT(pin)][CYHAL_GET_PIN(pin)] = callback_arg;
+    cyhal_system_critical_section_exit(savedIntrStatus);
 }
 
-void cyhal_gpio_register_irq(cyhal_gpio_t pin, uint8_t intrPriority, cyhal_gpio_irq_handler_t handler, void *handler_arg)
+void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intrPriority, bool enable)
 {
-    IRQn_Type irqn = (IRQn_Type)(ioss_interrupts_gpio_0_IRQn + CYHAL_GET_PORT(pin));
-
-    hal_gpio_callbacks[CYHAL_GET_PORT(pin)][CYHAL_GET_PIN(pin)] = handler;
-    hal_gpio_callback_args[CYHAL_GET_PORT(pin)][CYHAL_GET_PIN(pin)] = handler_arg;
-
+    Cy_GPIO_SetInterruptEdge(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (uint32_t)event);
+    Cy_GPIO_SetInterruptMask(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (uint32_t)enable);
+    
     /* Only enable if it's not already enabled */
+    IRQn_Type irqn = (IRQn_Type)(ioss_interrupts_gpio_0_IRQn + CYHAL_GET_PORT(pin));
     if (NVIC_GetEnableIRQ(irqn) == 0)
     {
         cy_stc_sysint_t irqCfg = {irqn, intrPriority};
 
-        Cy_SysInt_Init(&irqCfg, ioss_interrupts_dispatcher_table[CYHAL_GET_PORT(pin)]);
+        Cy_SysInt_Init(&irqCfg, ioss_irq_handler);
         NVIC_EnableIRQ(irqn);
     }
     else
     {
         NVIC_SetPriority(irqn, intrPriority);
     }
-}
-
-void cyhal_gpio_irq_enable(cyhal_gpio_t pin, cyhal_gpio_irq_event_t event, bool enable)
-{
-    Cy_GPIO_SetInterruptEdge(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (uint32_t)event);
-    Cy_GPIO_SetInterruptMask(CYHAL_GET_PORTADDR(pin), CYHAL_GET_PIN(pin), (uint32_t)enable);
 }
 
 #if defined(__cplusplus)

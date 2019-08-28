@@ -54,7 +54,7 @@ typedef enum
     CYHAL_RSC_CAN,       /*!< CAN communication block */
     CYHAL_RSC_CLKPATH,   /*!< System clock clock path, used to drive hfclks */
     CYHAL_RSC_CLOCK,     /*!< Clock divider */
-    CYHAL_RSC_CRC,       /*!< CRC hardware accelerator */
+    CYHAL_RSC_CRYPTO,    /*!< Crypto hardware accelerator */
     CYHAL_RSC_DAC,       /*!< Digital to analog converter */
     CYHAL_RSC_DMA,       /*!< DMA controller */
     CYHAL_RSC_GPIO,      /*!< General purpose I/O pin */
@@ -65,7 +65,6 @@ typedef enum
     CYHAL_RSC_OPAMP,     /*!< Opamp */
     CYHAL_RSC_PDM,       /*!< PCM/PDM communications block */
     CYHAL_RSC_SMIF,      /*!< Quad-SPI communications block */
-    CYHAL_RSC_TRNG,      /*!< Hardware random number generator */
     CYHAL_RSC_RTC,       /*!< Real time clock */
     CYHAL_RSC_SCB,       /*!< Serial Communications Block */
     CYHAL_RSC_SDHC,      /*!< SD Host Controller */

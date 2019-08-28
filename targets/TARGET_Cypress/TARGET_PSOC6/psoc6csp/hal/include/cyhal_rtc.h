@@ -2,10 +2,10 @@
 * \file cyhal_rtc.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress Real-Time Clock.
-* This interface abstracts out the chip specific details. If any chip specific
-* functionality is necessary, or performance is critical the low level functions
-* can be used directly.
+* Provides a high level interface for interacting with the Real Time Clock on 
+* Cypress devices.  This interface abstracts out the chip specific details. 
+* If any chip specific functionality is necessary, or performance is critical 
+* the low level functions can be used directly.
 *
 ********************************************************************************
 * \copyright
@@ -44,6 +44,7 @@
 #include <time.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 /** RTC not initialized */
 #define CY_RSLT_RTC_NOT_INITIALIZED CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_RTC, 0)
@@ -60,7 +61,7 @@ extern "C" {
 /** RTC interrupt triggers */
 typedef enum {
     CYHAL_RTC_ALARM,
-} cyhal_rtc_irq_event_t;
+} cyhal_rtc_event_t;
 
 /** \} group_hal_rtc_enums */
 
@@ -81,8 +82,8 @@ typedef struct
     uint8_t en_month : 1; /** !< Enable match of month */
 } cyhal_alarm_active_t;
 
-/** Handler for RTC interrupts */
-typedef void (*cyhal_rtc_irq_handler_t)(void *handler_arg, cyhal_rtc_irq_event_t event);
+/** Handler for RTC events */
+typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t event);
 
 /** \} group_hal_rtc_data_structures */
 
@@ -94,10 +95,10 @@ typedef void (*cyhal_rtc_irq_handler_t)(void *handler_arg, cyhal_rtc_irq_event_t
 
 /** Initialize the RTC peripheral
  *
- * Powerup the RTC in perpetration for access. This function must be called
- * before any other RTC functions ares called. This does not change the state
- * of the RTC. It just enables access to it. 
- * NOTE: Before calling this, make sure all necessary System Clocks are setup 
+ * Powerup the RTC in preparation for access. This function must be called
+ * before any other RTC functions are called. This does not change the state
+ * of the RTC. It just enables access to it.
+ * NOTE: Before calling this, make sure all necessary System Clocks are setup
  * correctly. Generally this means making sure the RTC has access to a Crystal
  * for optimal accuracy and operation in low power.
  *
@@ -108,8 +109,8 @@ cy_rslt_t cyhal_rtc_init(cyhal_rtc_t *obj);
 
 /** Deinitialize RTC
  *
- * Powerdown the RTC in preparation for sleep, powerdown or reset. That should only
- * affect the CPU domain and not the time keeping logic.
+ * Frees resources associated with the RTC and disables CPU access. This 
+ * only affects the CPU domain and not the time keeping logic.
  * After this function is called no other RTC functions should be called
  * except for rtc_init.
  *
@@ -145,30 +146,35 @@ cy_rslt_t cyhal_rtc_write(cyhal_rtc_t *obj, const struct tm *time);
  * @param[in] obj    RTC object
  * @param[in] time   The alarm time to be set (see: https://en.cppreference.com/w/cpp/chrono/c/tm)
  * @param[in] active The set of fields that are checked to trigger the alarm
- * @return The status of the alarm request
+ * @return The status of the set_alarm request
  */
-cy_rslt_t cyhal_rtc_alarm(cyhal_rtc_t *obj, const struct tm *time, cyhal_alarm_active_t active);
+cy_rslt_t cyhal_rtc_set_alarm(cyhal_rtc_t *obj, const struct tm *time, cyhal_alarm_active_t active);
 
-/** The RTC alarm interrupt handler registration
+/** The RTC event callback handler registration
  *
- * @param[in] obj         The RTC object
- * @param[in] handler     The callback handler which will be invoked when the alarm fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] obj          The RTC object
+ * @param[in] callback     The callback handler which will be invoked when the alarm fires
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
-void cyhal_rtc_register_irq(cyhal_rtc_t *obj, cyhal_rtc_irq_handler_t handler, void *handler_arg);
+void cyhal_rtc_register_callback(cyhal_rtc_t *obj, cyhal_rtc_event_callback_t callback, void *callback_arg);
 
-/** Configure RTC alarm interrupt enablement.
+/** Configure RTC event enablement.
  *
- * @param[in] obj      The RTC object
- * @param[in] event    The RTC IRQ type
- * @param[in] enable   True to turn on interrupts, False to turn off
+ * @param[in] obj           The RTC object
+ * @param[in] event         The RTC event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_rtc_irq_enable(cyhal_rtc_t *obj, cyhal_rtc_irq_event_t event, bool enable);
+void cyhal_rtc_enable_event(cyhal_rtc_t *obj, cyhal_rtc_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_rtc_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_RTC_IMPL_HEADER
+#include CYHAL_RTC_IMPL_HEADER
+#endif /* CYHAL_RTC_IMPL_HEADER */
 
 /** \} group_hal_rtc */

@@ -5,7 +5,7 @@
 * PSoC6_03 device GPIO HAL header for 68-QFN package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -114,12 +114,14 @@ typedef struct
 {
     cyhal_gpio_t                  pin;  //!< The GPIO pin
     const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_cfg_t              cfg;  //!< The DriveMode and HSIOM configuration value
+    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_rx[1];
-extern const cyhal_resource_pin_mapping_t cyhal_pin_map_canfd_ttcan_tx[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_rx[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_can_ttcan_tx[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp0[1];

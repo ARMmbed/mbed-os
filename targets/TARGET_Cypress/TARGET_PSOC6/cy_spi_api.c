@@ -19,6 +19,7 @@
 #include "cyhal_hwmgr.h"
 #include "cyhal_spi.h"
 #include "cyhal_scb_common.h"
+#include "cyhal_utils.h"
 #include "cy_scb_spi.h"
 #include "mbed_error.h"
 
@@ -41,13 +42,13 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk)
 {
     const cyhal_resource_pin_mapping_t *map = cyhal_utils_get_resource(mclk, cyhal_pin_map_scb_spi_s_clk, sizeof(cyhal_pin_map_scb_spi_s_clk) / sizeof(*cyhal_pin_map_scb_spi_s_clk));
     if (NULL != map) {
-        return (SPIName)CY_SCB_BASE_ADDRESSES[map->inst->block_num];
+        return (SPIName)CYHAL_SCB_BASE_ADDRESSES[map->inst->block_num];
     }
     MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "SPI not found");
     return (SPIName)0;
 }
 
-static void cy_spi_irq_handler_internal(void *handler_arg, cyhal_spi_irq_event_t event)
+static void cy_spi_irq_handler_internal(void *handler_arg, cyhal_spi_event_t event)
 {
     struct spi_s *spi = cy_get_spi((spi_t *)handler_arg);
     spi->async_events = 0;
@@ -78,7 +79,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (CY_RSLT_SUCCESS != cyhal_spi_init(&(spi->hal_spi), mosi, miso, sclk, ssel, NULL, spi->cfg.data_bits, spi->cfg.mode, spi->cfg.is_slave)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_init");
     }
-    cyhal_spi_register_irq(&(spi->hal_spi), &cy_spi_irq_handler_internal, obj);
+    cyhal_spi_register_callback(&(spi->hal_spi), &cy_spi_irq_handler_internal, obj);
 }
 
 void spi_free(spi_t *obj)
@@ -120,8 +121,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     struct spi_s *spi = cy_get_spi(obj);
-    if (CY_RSLT_SUCCESS != cyhal_spi_frequency(&(spi->hal_spi), hz)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_frequency");
+    if (CY_RSLT_SUCCESS != cyhal_spi_set_frequency(&(spi->hal_spi), hz)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_set_frequency");
     }
     spi->hz = hz;
 }
@@ -130,11 +131,11 @@ int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spi = cy_get_spi(obj);
     uint32_t received;
-    if (CY_RSLT_SUCCESS != cyhal_spi_write(&(spi->hal_spi), (uint32_t)value)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_write");
+    if (CY_RSLT_SUCCESS != cyhal_spi_send(&(spi->hal_spi), (uint32_t)value)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_send");
     }
-    if (CY_RSLT_SUCCESS != cyhal_spi_read(&(spi->hal_spi), &received)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_read");
+    if (CY_RSLT_SUCCESS != cyhal_spi_recv(&(spi->hal_spi), &received)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_recv");
     }
     return (int)received;
 }
@@ -158,8 +159,8 @@ int spi_slave_read(spi_t *obj)
 {
     uint32_t value;
     struct spi_s *spi = cy_get_spi(obj);
-    if (CY_RSLT_SUCCESS != cyhal_spi_read(&(spi->hal_spi), &value)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_read");
+    if (CY_RSLT_SUCCESS != cyhal_spi_recv(&(spi->hal_spi), &value)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_recv");
     }
     return value;
 }
@@ -167,8 +168,8 @@ int spi_slave_read(spi_t *obj)
 void spi_slave_write(spi_t *obj, int value)
 {
     struct spi_s *spi = cy_get_spi(obj);
-    if (CY_RSLT_SUCCESS != cyhal_spi_write(&(spi->hal_spi), value)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_write");
+    if (CY_RSLT_SUCCESS != cyhal_spi_send(&(spi->hal_spi), value)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_send");
     }
 }
 

@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy_resource_access.c
+* \file cyabs_resource.c
 *
 * \brief
 * Provides API for reading data from resource files however they are stored.
