@@ -1,6 +1,6 @@
 /*******************************************************************************
 * \file cy_sd_host.c
-* \version 1.20
+* \version 1.30
 *
 * \brief
 *  This file provides the driver code to the API for the SD Host Controller
@@ -199,7 +199,7 @@ extern "C" {
 #define CY_SD_HOST_CSD_V1_1024_SECT_FACTOR  (2UL)
 #define CY_SD_HOST_CSD_V1_2048_SECT_FACTOR  (4UL)
 #define CY_SD_HOST_CSD_V2_C_SIZE_POS        (8U)
-#define CY_SD_HOST_CSD_V2_SECTOR_MULT       (9U)
+#define CY_SD_HOST_CSD_V2_SECTOR_MULT       (10U)
 #define CY_SD_HOST_CSD_TEMP_WRITE_PROTECT   (20U)
 #define CY_SD_HOST_CSD_PERM_WRITE_PROTECT   (21U)
 #define CY_SD_HOST_CSD_LSB_MASK             (0x000000FFUL)
@@ -368,10 +368,9 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdSendOpCond(SDHC_Type *base,
                                                         uint32_t *ocrReg,
                                                         uint32_t cmdArgument,
                                                         cy_stc_sd_host_context_t const *context);
-__STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_MmcOpsSendOpCond(SDHC_Type *base,
+static cy_en_sd_host_status_t Cy_SD_Host_MmcOpsSendOpCond(SDHC_Type *base,
                                                         uint32_t *ocrReg,
-                                                        uint32_t cmdArgument,
-                                                        cy_stc_sd_host_context_t *context);
+                                                        uint32_t cmdArgument);
 static cy_en_sd_host_status_t Cy_SD_Host_SdCardChangeClock(SDHC_Type *base, uint32_t frequency);
 __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_PollBufferReadReady(SDHC_Type *base);
 __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_PollBufferWriteReady(SDHC_Type *base);
@@ -446,10 +445,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
     while (retry > 0UL)
     {
         /* Get OCR (CMD1). */
-        ret = Cy_SD_Host_MmcOpsSendOpCond(base,
-                                          &ocrReg,
-                                          CY_SD_HOST_EMMC_VOLTAGE_WINDOW,
-                                          context);
+        ret = Cy_SD_Host_MmcOpsSendOpCond(base, &ocrReg, CY_SD_HOST_EMMC_VOLTAGE_WINDOW);
 
         context->cardCapacity = CY_SD_HOST_EMMC_LESS_2G;
 
@@ -494,10 +490,7 @@ __STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_eMMC_InitCard(SDHC_Type *base,
         while (retry > 0UL)
         {
             /* Get OCR (CMD1). */
-            ret = Cy_SD_Host_MmcOpsSendOpCond(base,
-                                              &ocrReg,
-                                              CY_SD_HOST_EMMC_VOLTAGE_WINDOW,
-                                              context);
+            ret = Cy_SD_Host_MmcOpsSendOpCond(base, &ocrReg, CY_SD_HOST_EMMC_VOLTAGE_WINDOW);
 
             Cy_SD_Host_ErrorReset(base);
 
@@ -2617,10 +2610,9 @@ static cy_en_sd_host_status_t Cy_SD_Host_OpsSdSendOpCond(SDHC_Type *base,
 * \return \ref cy_en_sd_host_status_t
 *
 *******************************************************************************/
-__STATIC_INLINE cy_en_sd_host_status_t Cy_SD_Host_MmcOpsSendOpCond(SDHC_Type *base,
+static cy_en_sd_host_status_t Cy_SD_Host_MmcOpsSendOpCond(SDHC_Type *base,
                                                    uint32_t *ocrReg,
-                                                   uint32_t cmdArgument,
-                                                   cy_stc_sd_host_context_t *context)
+                                                   uint32_t cmdArgument)
 {
     cy_stc_sd_host_cmd_config_t cmd;
     cy_en_sd_host_status_t      ret;
@@ -3187,7 +3179,7 @@ cy_en_sd_host_status_t Cy_SD_Host_GetSdStatus(SDHC_Type *base,
 * \note For combo cards, the function returns the OCR register for the IO portion only.
 *
 *******************************************************************************/
-uint32_t Cy_SD_Host_GetOcr(SDHC_Type *base, cy_stc_sd_host_context_t *context)
+uint32_t Cy_SD_Host_GetOcr(SDHC_Type *base, cy_stc_sd_host_context_t const *context)
 {
     uint32_t ocrReg = 0UL;
 
@@ -3197,7 +3189,7 @@ uint32_t Cy_SD_Host_GetOcr(SDHC_Type *base, cy_stc_sd_host_context_t *context)
     }
     else if (CY_SD_HOST_EMMC == context->cardType)
     {
-        (void)Cy_SD_Host_MmcOpsSendOpCond(base, &ocrReg, 0UL, context);
+        (void)Cy_SD_Host_MmcOpsSendOpCond(base, &ocrReg, 0UL);
     }
     else if ((CY_SD_HOST_SDIO == context->cardType) ||
              (CY_SD_HOST_COMBO == context->cardType))

@@ -5,7 +5,7 @@
 * SFLASH IP definitions
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1287
 *
 ********************************************************************************
 * \copyright
@@ -151,7 +151,8 @@ typedef struct {
                                                                 SECURE_HASH(SHASH) */
   __IOM uint32_t TOC2_SIGNATURE_VERIF_KEY;      /*!< 0x00007C24 Address of signature verification key (0 if none).The object is
                                                                 signature specific key. It is the public key in case of RSA */
-   __IM uint32_t RESERVED18[116];
+   __IM uint32_t RESERVED18[115];
+  __IOM uint32_t TOC2_REVISION;                 /*!< 0x00007DF4 Indicates TOC2 Revision. It is not used now. */
   __IOM uint32_t TOC2_FLAGS;                    /*!< 0x00007DF8 TOC2_FLAGS */
   __IOM uint32_t TOC2_CRC_ADDR;                 /*!< 0x00007DFC CRC,Upper 2 bytes contain CRC16-CCITT and lower 2 bytes are 0 */
   __IOM uint32_t RTOC2_OBJECT_SIZE;             /*!< 0x00007E00 Redundant Object size in bytes for CRC calculation starting
@@ -172,7 +173,8 @@ typedef struct {
   __IOM uint32_t RTOC2_SIGNATURE_VERIF_KEY;     /*!< 0x00007E24 Redundant Address of signature verification key (0 if none).The
                                                                 object is signature specific key. It is the public key in case
                                                                 of RSA */
-   __IM uint32_t RESERVED19[116];
+   __IM uint32_t RESERVED19[115];
+  __IOM uint32_t RTOC2_REVISION;                /*!< 0x00007FF4 Indicates RTOC2 Revision. It is not used now. */
   __IOM uint32_t RTOC2_FLAGS;                   /*!< 0x00007FF8 RTOC2_FLAGS */
   __IOM uint32_t RTOC2_CRC_ADDR;                /*!< 0x00007FFC Redundant CRC,Upper 2 bytes contain CRC16-CCITT and lower 2
                                                                 bytes are 0 */
@@ -443,6 +445,9 @@ typedef struct {
 /* SFLASH.TOC2_SIGNATURE_VERIF_KEY */
 #define SFLASH_TOC2_SIGNATURE_VERIF_KEY_DATA32_Pos 0UL
 #define SFLASH_TOC2_SIGNATURE_VERIF_KEY_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.TOC2_REVISION */
+#define SFLASH_TOC2_REVISION_DATA32_Pos         0UL
+#define SFLASH_TOC2_REVISION_DATA32_Msk         0xFFFFFFFFUL
 /* SFLASH.TOC2_FLAGS */
 #define SFLASH_TOC2_FLAGS_CLOCK_CONFIG_Pos      0UL
 #define SFLASH_TOC2_FLAGS_CLOCK_CONFIG_Msk      0x3UL
@@ -450,10 +455,10 @@ typedef struct {
 #define SFLASH_TOC2_FLAGS_LISTEN_WINDOW_Msk     0x1CUL
 #define SFLASH_TOC2_FLAGS_SWJ_PINS_CTL_Pos      5UL
 #define SFLASH_TOC2_FLAGS_SWJ_PINS_CTL_Msk      0x60UL
-#define SFLASH_TOC2_FLAGS_APP_AUTH_DISABLE_Pos  7UL
-#define SFLASH_TOC2_FLAGS_APP_AUTH_DISABLE_Msk  0x180UL
-#define SFLASH_TOC2_FLAGS_FB_BOOTLOADER_DISABLE_Pos 9UL
-#define SFLASH_TOC2_FLAGS_FB_BOOTLOADER_DISABLE_Msk 0x600UL
+#define SFLASH_TOC2_FLAGS_APP_AUTH_CTL_Pos      7UL
+#define SFLASH_TOC2_FLAGS_APP_AUTH_CTL_Msk      0x180UL
+#define SFLASH_TOC2_FLAGS_FB_BOOTLOADER_CTL_Pos 9UL
+#define SFLASH_TOC2_FLAGS_FB_BOOTLOADER_CTL_Msk 0x600UL
 /* SFLASH.TOC2_CRC_ADDR */
 #define SFLASH_TOC2_CRC_ADDR_DATA32_Pos         0UL
 #define SFLASH_TOC2_CRC_ADDR_DATA32_Msk         0xFFFFFFFFUL
@@ -487,6 +492,9 @@ typedef struct {
 /* SFLASH.RTOC2_SIGNATURE_VERIF_KEY */
 #define SFLASH_RTOC2_SIGNATURE_VERIF_KEY_DATA32_Pos 0UL
 #define SFLASH_RTOC2_SIGNATURE_VERIF_KEY_DATA32_Msk 0xFFFFFFFFUL
+/* SFLASH.RTOC2_REVISION */
+#define SFLASH_RTOC2_REVISION_DATA32_Pos        0UL
+#define SFLASH_RTOC2_REVISION_DATA32_Msk        0xFFFFFFFFUL
 /* SFLASH.RTOC2_FLAGS */
 #define SFLASH_RTOC2_FLAGS_DATA32_Pos           0UL
 #define SFLASH_RTOC2_FLAGS_DATA32_Msk           0xFFFFFFFFUL

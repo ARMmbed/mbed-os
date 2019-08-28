@@ -64,7 +64,7 @@ extern "C" {
 * not thread safe as the resource is shared among multiple pins on a port.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Pin_Init
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Pin_Init
 *
 *******************************************************************************/
 cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const cy_stc_gpio_pin_config_t *config)
@@ -148,7 +148,7 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
 * Cy_SystemInit() before main() entry.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Port_Init
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Port_Init
 *
 *******************************************************************************/
 cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt_config_t *config)
@@ -218,7 +218,7 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
 * Cy_GPIO_Pin_FastInit() function execution is not interrupted.
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Pin_FastInit
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Pin_FastInit
 *
 *******************************************************************************/
 void Cy_GPIO_Pin_FastInit(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t driveMode,
@@ -251,7 +251,7 @@ void Cy_GPIO_Pin_FastInit(GPIO_PRT_Type* base, uint32_t pinNum, uint32_t driveMo
 * Pointer to the pin's port register base address
 *
 * \funcusage
-* \snippet gpio/gpio_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_GPIO_Port_Deinit
+* \snippet gpio/snippet/main.c snippet_Cy_GPIO_Port_Deinit
 *
 *******************************************************************************/
 void Cy_GPIO_Port_Deinit(GPIO_PRT_Type* base)

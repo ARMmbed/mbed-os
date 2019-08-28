@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_common.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides common constants and parameters
@@ -29,12 +29,17 @@
 
 #include "cy_device.h"
 #include "cy_device_headers.h"
-#include <stddef.h>
-#include <stdbool.h>
-#include "cy_sysint.h"
 #include "cy_syslib.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#include <stddef.h>
+#include <stdbool.h>
+#include "cy_sysint.h"
 
 /* Enable SHA functionality */
 #if !defined(CPUSS_CRYPTO_SHA) && (defined(CPUSS_CRYPTO_SHA1) || defined(CPUSS_CRYPTO_SHA2))
@@ -324,8 +329,8 @@ typedef struct
     uint32_t errorStatus0;
 
     /**
-     [31]     - Specifies if ERROR_STATUS0 and ERROR_STATUS1 capture valid
-                error-information.
+     [31]     - "1" - Indicates that hardware error has occured and
+                ERROR_STATUS0 and ERROR_STATUS1 captured valid error-information.
      [26..24] - The error source:
                 - "0": <b>INSTR_OPC_ERROR</b> - an instruction decoder error.
                 - "1": <b>INSTR_CC_ERROR</b> - an instruction condition code-error.
@@ -987,6 +992,10 @@ typedef struct
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 
 /** \} group_crypto_cli_data_structures */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

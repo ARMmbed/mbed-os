@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_crc_v1.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the headers for CRC API
@@ -28,12 +28,14 @@
 #define CY_CRYPTO_CORE_CRC_V1_H
 
 #include "cy_crypto_common.h"
-#include "cy_syslib.h"
 
 #if defined(CY_IP_MXCRYPTO)
 
-#if (CPUSS_CRYPTO_CRC == 1)
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
+#if (CPUSS_CRYPTO_CRC == 1)
 
 cy_en_crypto_status_t Cy_Crypto_Core_V1_Crc_Init(CRYPTO_Type *base,
                                         uint32_t polynomial,
@@ -71,6 +73,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Crc_Calc(CRYPTO_Type *base,
                                         uint32_t  dataSize);
 
 #endif /* #if (CPUSS_CRYPTO_CRC == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

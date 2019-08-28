@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the public interface for the Crypto driver.
@@ -291,6 +291,15 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.30.1</td>
+*     <td>
+*         Added a C++ namespace guards.
+*     </td>
+*     <td>
+*         Make a driver code to be compatible with C++.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>2.30</td>
 *     <td>
 *         <ul>
@@ -476,10 +485,13 @@
 * \note
 * Only one Crypto server and only one Crypto client can be run at the same time
 * on any core. So, valid configurations are:
+* - one server instance runs on CM0+ and one client instance on CM4 (and vice versa).
 * - one server instance and one client instance run on CM0+
+*   (__** This is not recommended, use Direct Crypto API's to perform Crypto
+*   operations on a single core__).
 * - one server instance and one client instance run on CM4
-* - one server instance runs on CM0+ and one client instance on CM4
-*   (and vice versa)
+*   (__** This is not recommended, use Direct Crypto API's to perform Crypto
+*   operations on a single core__).
 *
 * \image html crypto_architecture.png
 *
@@ -767,11 +779,19 @@
 *
 * To use the default handler, set the \link
 * cy_stc_crypto_config_t::userGetDataHandler userGetDataHandler \endlink field
-* of the cy_stc_crypto_config_t structure to NULL. To override, populate this
+* of the cy_stc_crypto_config_t structure to NULL.
+*
+* To override, populate this
 * field with your ISR. Then call Crypto Server Start function.
 * Your ISR can perform additional tasks required by your application logic,
 * but must also call \ref Cy_Crypto_Server_GetDataHandler to dispatch the data
 * to the correct cryptographic operation.
+*
+* \note \ref Cy_Crypto_Server_Process should be performed from this ISR or from
+* any other task in the multi-task environment.
+*
+* \snippet crypto/snippet/main.c snippet_myCryptoServerMyGetDataISR
+* \snippet crypto/snippet/main.c snippet_myCryptoServerStartMyGetDataISR
 *
 * <b>Release Interrupt:</b> The Crypto driver includes a handler for this
 * interrupt. The interrupt handler clears the interrupt and calls a user-provided
@@ -807,18 +827,16 @@
 #if !defined(CY_CRYPTO_H)
 #define CY_CRYPTO_H
 
-
-#include <stddef.h>
-#include <stdbool.h>
 #include "cy_crypto_common.h"
 
 #if defined(CY_IP_MXCRYPTO)
-
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+#include <stddef.h>
+#include <stdbool.h>
 
 /** \cond INTERNAL */
 
@@ -1984,6 +2002,12 @@ cy_en_crypto_status_t Cy_Crypto_ECDSA_VerifyHash(const uint8_t *sig,
 * \return
 * \ref cy_en_crypto_status_t
 *
+* \note This function sets the default device specific values
+*       when vuMemoryAddr parameter is NULL and vuMemorySize parameter is zero.
+*
+* \note New memory buffer should be allocated in a memory region that is not
+*       protected by a protection scheme for use by Crypto hardware.
+*
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_SetMemBufAddress(uint32_t const *newMembufAddress,
                                            uint32_t newMembufSize,
@@ -2057,7 +2081,6 @@ void Cy_Crypto_InvertEndianness(void *inArrPtr, uint32_t byteSize);
 /** \endcond */
 
 /** \} group_crypto_cli_functions */
-
 
 #if defined(__cplusplus)
 }

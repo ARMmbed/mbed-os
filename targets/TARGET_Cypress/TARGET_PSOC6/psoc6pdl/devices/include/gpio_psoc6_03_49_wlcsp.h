@@ -5,7 +5,7 @@
 * PSoC6_03 device GPIO header for 49-WLCSP package
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1286
 *
 ********************************************************************************
 * \copyright
@@ -64,7 +64,7 @@ typedef enum
 } cy_en_amux_split_t;
 
 /* Port List */
-/* PORT 0 (GPIO) */
+/* PORT 0 (AUTOLVL) */
 #define P0_0_PORT                       GPIO_PRT0
 #define P0_0_PIN                        0u
 #define P0_0_NUM                        0u
@@ -72,7 +72,7 @@ typedef enum
 #define P0_1_PIN                        1u
 #define P0_1_NUM                        1u
 
-/* PORT 2 (GPIO) */
+/* PORT 2 (AUTOLVL) */
 #define P2_0_PORT                       GPIO_PRT2
 #define P2_0_PIN                        0u
 #define P2_0_NUM                        0u
@@ -92,7 +92,7 @@ typedef enum
 #define P2_5_PIN                        5u
 #define P2_5_NUM                        5u
 
-/* PORT 5 (GPIO) */
+/* PORT 5 (AUTOLVL) */
 #define P5_0_PORT                       GPIO_PRT5
 #define P5_0_PIN                        0u
 #define P5_0_NUM                        0u
@@ -100,7 +100,7 @@ typedef enum
 #define P5_1_PIN                        1u
 #define P5_1_NUM                        1u
 
-/* PORT 6 (GPIO) */
+/* PORT 6 (AUTOLVL) */
 #define P6_2_PORT                       GPIO_PRT6
 #define P6_2_PIN                        2u
 #define P6_2_NUM                        2u
@@ -120,7 +120,7 @@ typedef enum
 #define P6_7_PIN                        7u
 #define P6_7_NUM                        7u
 
-/* PORT 7 (GPIO) */
+/* PORT 7 (AUTOLVL) */
 #define P7_0_PORT                       GPIO_PRT7
 #define P7_0_PIN                        0u
 #define P7_0_NUM                        0u
@@ -142,7 +142,7 @@ typedef enum
 #define P7_4_NUM                        4u
 #define P7_4_AMUXSEGMENT                AMUXBUS_CSD0
 
-/* PORT 9 (GPIO) */
+/* PORT 9 (AUTOLVL) */
 #define P9_0_PORT                       GPIO_PRT9
 #define P9_0_PIN                        0u
 #define P9_0_NUM                        0u
@@ -160,7 +160,7 @@ typedef enum
 #define P9_3_NUM                        3u
 #define P9_3_AMUXSEGMENT                AMUXBUS_SAR
 
-/* PORT 10 (GPIO) */
+/* PORT 10 (AUTOLVL) */
 #define P10_0_PORT                      GPIO_PRT10
 #define P10_0_PIN                       0u
 #define P10_0_NUM                       0u
@@ -180,7 +180,7 @@ typedef enum
 #define P10_5_PIN                       5u
 #define P10_5_NUM                       5u
 
-/* PORT 11 (GPIO) */
+/* PORT 11 (AUTOLVL) */
 #define P11_2_PORT                      GPIO_PRT11
 #define P11_2_PIN                       2u
 #define P11_2_NUM                       2u

@@ -75,7 +75,7 @@ const cy_stc_ctdac_fast_config_t Cy_CTDAC_Fast_OA1Ref_BufferedOut =
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_INIT_CUSTOM
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_INIT_CUSTOM
 *
 *******************************************************************************/
 cy_en_ctdac_status_t Cy_CTDAC_Init(CTDAC_Type *base, const cy_stc_ctdac_config_t *config)
@@ -200,7 +200,7 @@ cy_en_ctdac_status_t Cy_CTDAC_Init(CTDAC_Type *base, const cy_stc_ctdac_config_t
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_DEINIT
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_DEINIT
 *
 *******************************************************************************/
 cy_en_ctdac_status_t Cy_CTDAC_DeInit(CTDAC_Type *base, bool deInitRouting)
@@ -276,7 +276,7 @@ cy_en_ctdac_status_t Cy_CTDAC_DeInit(CTDAC_Type *base, bool deInitRouting)
 * The following code snippets configures VDDA as the reference source and
 * routes the output directly to Pin 6 (unbuffered).
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_FAST_INIT
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_FAST_INIT
 *
 * \funcusage
 *
@@ -289,7 +289,7 @@ cy_en_ctdac_status_t Cy_CTDAC_DeInit(CTDAC_Type *base, bool deInitRouting)
 * \image html ctdac_fast_init_funcusage.png
 * \image latex ctdac_fast_init_funcusage.png
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_FAST_INIT_CTB
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_FAST_INIT_CTB
 *
 *******************************************************************************/
 cy_en_ctdac_status_t Cy_CTDAC_FastInit(CTDAC_Type *base, const cy_stc_ctdac_fast_config_t *config)
@@ -440,7 +440,7 @@ static void Cy_CTDAC_ConfigureClock(cy_en_ctdac_update_t updateMode, cy_en_divid
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_SIGN_MODE
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_SIGN_MODE
 *
 *******************************************************************************/
 void Cy_CTDAC_SetSignMode(CTDAC_Type *base, cy_en_ctdac_format_t formatMode)
@@ -471,7 +471,7 @@ void Cy_CTDAC_SetSignMode(CTDAC_Type *base, cy_en_ctdac_format_t formatMode)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_DEEPSLEEP_MODE
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_DEEPSLEEP_MODE
 *
 *******************************************************************************/
 void Cy_CTDAC_SetDeepSleepMode(CTDAC_Type *base, cy_en_ctdac_deep_sleep_t deepSleep)
@@ -508,7 +508,7 @@ void Cy_CTDAC_SetDeepSleepMode(CTDAC_Type *base, cy_en_ctdac_deep_sleep_t deepSl
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_OUTPUT_MODE
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_OUTPUT_MODE
 *
 *******************************************************************************/
 void Cy_CTDAC_SetOutputMode(CTDAC_Type *base, cy_en_ctdac_output_mode_t outputMode)
@@ -540,7 +540,7 @@ void Cy_CTDAC_SetOutputMode(CTDAC_Type *base, cy_en_ctdac_output_mode_t outputMo
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_DEGLITCH_MODE
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_DEGLITCH_MODE
 *
 *******************************************************************************/
 void Cy_CTDAC_SetDeglitchMode(CTDAC_Type *base, cy_en_ctdac_deglitch_t deglitchMode)
@@ -576,7 +576,7 @@ void Cy_CTDAC_SetDeglitchMode(CTDAC_Type *base, cy_en_ctdac_deglitch_t deglitchM
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_DEGLITCH_CYCLES
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_DEGLITCH_CYCLES
 *
 *******************************************************************************/
 void Cy_CTDAC_SetDeglitchCycles(CTDAC_Type *base, uint32_t deglitchCycles)
@@ -607,7 +607,7 @@ void Cy_CTDAC_SetDeglitchCycles(CTDAC_Type *base, uint32_t deglitchCycles)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_REF
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_REF
 *
 *******************************************************************************/
 void Cy_CTDAC_SetRef(CTDAC_Type *base, cy_en_ctdac_ref_source_t refSource)
@@ -653,7 +653,7 @@ void Cy_CTDAC_SetRef(CTDAC_Type *base, cy_en_ctdac_ref_source_t refSource)
 *
 * \funcusage
 *
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_SET_ANALOG_SWITCH
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_SET_ANALOG_SWITCH
 *
 *******************************************************************************/
 void Cy_CTDAC_SetAnalogSwitch(CTDAC_Type *base, uint32_t switchMask, cy_en_ctdac_switch_state_t state)
@@ -696,7 +696,7 @@ void Cy_CTDAC_SetAnalogSwitch(CTDAC_Type *base, uint32_t switchMask, cy_en_ctdac
 * See \ref cy_en_syspm_status_t
 *
 * \funcusage
-* \snippet ctdac_sut_01.cydsn/main_cm4.c CTDAC_SNIPPET_DEEP_SLEEP_CALLBACK
+* \snippet ctdac/snippet/main.c CTDAC_SNIPPET_DEEP_SLEEP_CALLBACK
 *
 *******************************************************************************/
 cy_en_syspm_status_t Cy_CTDAC_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)

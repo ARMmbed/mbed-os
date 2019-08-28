@@ -29,6 +29,7 @@
 #include "cy_device_headers.h"
 
 #include "cy_ble_clk.h"
+#include "cy_canfd.h"
 #include "cy_crypto.h"
 #include "cy_crypto_core.h"
 #include "cy_crypto_server.h"

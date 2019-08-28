@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides constant and parameters for the API for the DES method
@@ -30,6 +30,10 @@
 #include "cy_crypto_common.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #if (CPUSS_CRYPTO_DES == 1)
 
@@ -147,10 +151,13 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Tdes(CRYPTO_Type *base,
 
 #endif /* #if (CPUSS_CRYPTO_DES == 1) */
 
+#if defined(__cplusplus)
+}
+#endif
+
 #endif /* CY_IP_MXCRYPTO */
 
 #endif /* #if !defined(CY_CRYPTO_CORE_DES_H) */
 
 
 /* [] END OF FILE */
-

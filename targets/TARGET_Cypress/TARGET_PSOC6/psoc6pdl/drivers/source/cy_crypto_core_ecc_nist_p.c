@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only,
@@ -25,10 +25,14 @@
 
 
 #include "cy_crypto_core_ecc_nist_p.h"
-#include "cy_crypto_core_ecc.h"
-#include "cy_crypto_core_vu.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#include "cy_crypto_core_vu.h"
 
 /*******************************************************************************
 * Elliptic Curve (EC) Scalar Multiplication using (X,Y)-only, Co-Z arithmetic
@@ -62,8 +66,8 @@ static cy_en_crypto_ecc_red_mul_algs_t mul_red_alg_select = CY_CRYPTO_NIST_P_BAR
 * Collection of multiplication reduction algorithms
 * Method 1: (Crypto_EC_CS_MUL_Red_Pxxx): curve specific
 *           reduction as proposed by NIST
-* Method 2: (Crypto_EC_SM_MUL_Red_Pxxx): curve specific r
-*           eduction based on Mersenne prime reduction approach
+* Method 2: (Crypto_EC_SM_MUL_Red_Pxxx): curve specific
+*           reduction based on Mersenne prime reduction approach
 * Method 3: generic Barrett reduction
 ***************************************************************/
 static void Cy_Crypto_Core_EC_CS_MUL_Red_P192(CRYPTO_Type *base, uint32_t z, uint32_t x);
@@ -638,6 +642,8 @@ static void Cy_Crypto_Core_EC_CS_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 *******************************************************************************/
 static void Cy_Crypto_Core_EC_CS_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
+    (void)size; /* Suppress warning */
+    
     switch (eccMode)
     {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
@@ -1071,6 +1077,8 @@ static void Cy_Crypto_Core_EC_SM_MUL_Red_P521(CRYPTO_Type *base, uint32_t z, uin
 *******************************************************************************/
 static void Cy_Crypto_Core_EC_SM_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size)
 {
+    (void)size; /* Suppress warning */
+    
     switch (eccMode) {
         case CY_CRYPTO_ECC_ECP_SECP192R1:
             Cy_Crypto_Core_EC_SM_MUL_Red_P192(base, z, x);
@@ -1524,6 +1532,8 @@ void Cy_Crypto_Core_EC_DivMod( CRYPTO_Type *base,
 *******************************************************************************/
 void Cy_Crypto_Core_JacobianTransform(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t s_z)
 {
+    (void)s_x; /* Suppress warning */
+    (void)s_y; /* Suppress warning */
     CY_CRYPTO_VU_SET_TO_ONE (base, s_z);
 }
 
@@ -1948,6 +1958,7 @@ void Cy_Crypto_Core_EC_NistP_SetRedAlg(cy_en_crypto_ecc_red_mul_algs_t alg)
 *******************************************************************************/
 void Cy_Crypto_Core_EC_NistP_PointMul(CRYPTO_Type *base, uint32_t p_x, uint32_t p_y, uint32_t p_d, uint32_t p_order, uint32_t bitsize)
 {
+    (void)p_order; /* Suppress warning */
     Cy_Crypto_Core_JacobianEcScalarMul (base, p_x, p_y, p_d, bitsize);
     Cy_Crypto_Core_Vu_WaitForComplete(base);
 }
@@ -2064,6 +2075,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_EC_NistP_PointMultiplication(CRYPTO_Type *b
 
     return myStatus;
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

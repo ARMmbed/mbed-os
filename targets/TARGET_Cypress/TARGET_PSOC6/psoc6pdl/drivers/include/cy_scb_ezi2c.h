@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_ezi2c.h
-* \version 2.30
+* \version 2.30.1
 *
 * Provides EZI2C API declarations of the SCB driver.
 *
@@ -78,13 +78,13 @@
 * function providing a pointer to the populated \ref cy_stc_scb_ezi2c_config_t 
 * structure and the allocated \ref cy_stc_scb_ezi2c_context_t structure.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_CFG
+* \snippet scb/ezi2c_snippet/main.c EZI2C_CFG
 *
 * Set up the EZI2C slave buffer before enabling its 
 * operation by using \ref Cy_SCB_EZI2C_SetBuffer1 for the primary slave address  
 * and \ref Cy_SCB_EZI2C_SetBuffer2 for the secondary (if the secondary is enabled).
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_CFG_BUFFER
+* \snippet scb/ezi2c_snippet/main.c EZI2C_CFG_BUFFER
 *
 ********************************************************************************
 * \subsection group_scb_ezi2c_pins Assign and Configure Pins
@@ -94,7 +94,7 @@
 * SCB block. Also the I2C pins must be configured in Open-Drain, Drives Low mode 
 * (this pin configuration implies usage of external pull-up resistors):
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_CFG_PINS
+* \snippet scb/ezi2c_snippet/main.c EZI2C_CFG_PINS
 *
 * \note
 * The alternative pins configuration is Resistive Pull-ups which implies usage 
@@ -110,7 +110,7 @@
 * You must use one of the 8-bit or 16-bit dividers. Use the \ref group_sysclk 
 * driver API to do this.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_CFG_ASSIGN_CLOCK
+* \snippet scb/ezi2c_snippet/main.c EZI2C_CFG_ASSIGN_CLOCK
 *
 ********************************************************************************
 * \subsection group_scb_ezi2c_data_rate Configure Data Rate
@@ -123,7 +123,7 @@
 * Oversampling and Bit Rate to get information about how to configure the 
 * I2C to run at the desired data rate</b>.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_CFG_DATA_RATE
+* \snippet scb/ezi2c_snippet/main.c EZI2C_CFG_DATA_RATE
 *
 ********************************************************************************
 * \subsection group_scb_ezi2c_intr Configure Interrupt
@@ -133,15 +133,15 @@
 * handler for the selected SCB instance. Also, this interrupt must be enabled 
 * in the NVIC or it will not work.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_INTR_A
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_INTR_B
+* \snippet scb/ezi2c_snippet/main.c EZI2C_INTR_A
+* \snippet scb/ezi2c_snippet/main.c EZI2C_INTR_B
 *
 ********************************************************************************
 * \subsection group_scb_ezi2c_enable Enable EZI2C slave
 ********************************************************************************
 * Finally, enable the EZI2C slave operation by calling \ref Cy_SCB_EZI2C_Enable. 
 * Now the I2C device responds to the assigned address.
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\ezi2c_snippets.c EZI2C_ENABLE
+* \snippet scb/ezi2c_snippet/main.c EZI2C_ENABLE
 *
 ********************************************************************************
 * \section group_scb_ezi2c_use_cases Common Use Cases 
@@ -241,6 +241,8 @@
 #define CY_SCB_EZI2C_H
 
 #include "cy_scb_common.h"
+
+#ifdef CY_IP_MXSCB
 
 #if defined(__cplusplus)
 extern "C" {
@@ -547,7 +549,7 @@ __STATIC_INLINE void Cy_SCB_EZI2C_Enable(CySCB_Type *base)
 
 /** \} group_scb_ezi2c */
 
+#endif /* (CY_IP_MXSCB) */
+
 #endif /* (CY_SCB_EZI2C_H) */
-
-
 /* [] END OF FILE */

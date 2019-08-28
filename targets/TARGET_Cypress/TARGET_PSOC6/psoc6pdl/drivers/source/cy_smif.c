@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_smif.c
-* \version 1.30
+* \version 1.40
 *
 * \brief
 *  This file provides the source code for the SMIF driver APIs.
@@ -252,7 +252,7 @@ void Cy_SMIF_SetDataSelect(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelec
 * transmission. This function sets up the slave lines for the rest of the
 * command structure. The \ref Cy_SMIF_TransmitCommand is called before \ref
 * Cy_SMIF_TransmitData or \ref Cy_SMIF_ReceiveData is called. When enabled, the
-* cmpltTxfr parameter in the function will de-assert the slave select line at 
+* completeTxfr parameter in the function will de-assert the slave select line at 
 * the end of the function execution.
 *
 * \note This function blocks until all the command and associated parameters
@@ -283,7 +283,7 @@ void Cy_SMIF_SetDataSelect(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelec
 * (0, 1, 2 or 4 - the bit defines which slave to enable) Two-bit enable is
 * possible only for the Double Quad SPI mode.
 *
-* \param cmpltTxfr
+* \param completeTxfr
 * Specifies if the slave select line must be de-asserted after transferring
 * the last byte in the parameter array. Typically, this field is set to 0 when
 * this function succeed through \ref Cy_SMIF_TransmitData or \ref
@@ -307,7 +307,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
                                 uint32_t paramSize,
                                 cy_en_smif_txfr_width_t paramTxfrWidth,
                                 cy_en_smif_slave_select_t  slaveSelect,
-                                uint32_t cmpltTxfr,
+                                uint32_t completeTxfr,
                                 cy_stc_smif_context_t const *context)
 {
     /* The return variable */
@@ -332,7 +332,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
         _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, (uint32_t) cmdTxfrWidth) |
         _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TXDATA, (uint32_t) cmd) |
         _VAL2FLD(CY_SMIF_CMD_FIFO_WR_LAST_BYTE,
-            ((0UL == paramSize) ? cmpltTxfr : 0UL)) ;
+            ((0UL == paramSize) ? completeTxfr : 0UL)) ;
 
     /* Send the command parameters (usually address) in the blocking mode */
     while ((bufIndex < paramSize) && (CY_SMIF_EXCEED_TIMEOUT != result))
@@ -347,7 +347,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
                         (uint32_t) paramTxfrWidth) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_LAST_BYTE,
                             ((((uint32_t)bufIndex + 1UL) < paramSize) ? 
-                            0UL : cmpltTxfr));
+                            0UL : completeTxfr));
 
             bufIndex++;
         }
@@ -366,7 +366,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 * function uses the TX Data FIFO to implement the transmit functionality. The
 * function sets up an interrupt to trigger the TX Data FIFO and uses that
 * interrupt to fill the TX Data FIFO until all the data is transmitted. At the
-* end of the transmission, the TxCmpltCb is executed.
+* end of the transmission, the TxCompleteCb is executed.
 *
 * \note  This function is to be preceded by \ref Cy_SMIF_TransmitCommand where
 * the slave select is selected. The slave is de-asserted at the end of a
@@ -389,7 +389,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 * 
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer 
+* The transfer statuses returned by \ref Cy_SMIF_GetTransferStatus are no longer 
 * valid.
 *
 * \param size
@@ -398,7 +398,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 * \param transferWidth
 * The width of transfer \ref cy_en_smif_txfr_width_t.
 *
-* \param TxCmpltCb
+* \param TxCompleteCb
 * The callback executed at the end of a transmission. NULL interpreted as no
 * callback.
 *
@@ -412,10 +412,10 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
-                            uint8_t* txBuffer,
+                            uint8_t const *txBuffer,
                             uint32_t size,
                             cy_en_smif_txfr_width_t transferWidth,
-                            cy_smif_event_cb_t TxCmpltCb,
+                            cy_smif_event_cb_t TxCompleteCb,
                             cy_stc_smif_context_t *context)
 {
     /* The return variable */
@@ -437,10 +437,10 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
         if (NULL != txBuffer)
         {
             /* Move the parameters to the global variables */
-            context->txBufferAddress = (uint8_t*)txBuffer;
+            context->txBufferAddress = txBuffer;
             context->txBufferSize = size;
             context->txBufferCounter = size;
-            context->txCmpltCb = TxCmpltCb;
+            context->txCompleteCb = TxCompleteCb;
             context->transferStatus = (uint32_t) CY_SMIF_SEND_BUSY;
 
             /* Enable the TR_TX_REQ interrupt */
@@ -478,7 +478,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
 *
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer
+* The transfer statuses returned by \ref Cy_SMIF_GetTransferStatus are no longer
 * valid.
 *
 * \param size
@@ -499,7 +499,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
-                            uint8_t *txBuffer,
+                            uint8_t const *txBuffer,
                             uint32_t size,
                             cy_en_smif_txfr_width_t transferWidth,
                             cy_stc_smif_context_t const *context)
@@ -530,9 +530,9 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
                 cy_stc_smif_context_t contextLoc;
 
                 /* initialize parameters for Cy_SMIF_PushTxFifo */
-                contextLoc.txBufferAddress = (uint8_t*)txBuffer;
+                contextLoc.txBufferAddress = txBuffer;
                 contextLoc.txBufferCounter = size;
-                contextLoc.txCmpltCb = NULL;
+                contextLoc.txCompleteCb = NULL;
                 contextLoc.transferStatus = (uint32_t) CY_SMIF_SEND_BUSY;
 
                 while (((uint32_t) CY_SMIF_SEND_BUSY == contextLoc.transferStatus) &&
@@ -582,7 +582,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 *
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer 
+* The transfer statuses returned by \ref Cy_SMIF_GetTransferStatus are no longer 
 * valid.
 *
 * \param size
@@ -591,7 +591,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 * \param transferWidth
 * The width of transfer \ref cy_en_smif_txfr_width_t.
 *
-* \param RxCmpltCb
+* \param RxCompleteCb
 * The callback executed at the end of a reception. NULL interpreted as no
 * callback.
 *
@@ -611,7 +611,7 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
                             uint8_t *rxBuffer,
                             uint32_t size,
                             cy_en_smif_txfr_width_t transferWidth,
-                            cy_smif_event_cb_t RxCmpltCb,
+                            cy_smif_event_cb_t RxCompleteCb,
                             cy_stc_smif_context_t *context)
 {
     /* The return variable */
@@ -638,8 +638,8 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
                 context->rxBufferAddress = (uint8_t*)rxBuffer;
                 context->rxBufferSize = size;
                 context->rxBufferCounter = size;
-                context->rxCmpltCb = RxCmpltCb;
-                context->transferStatus =  (uint32_t) CY_SMIF_REC_BUSY;
+                context->rxCompleteCb = RxCompleteCb;
+                context->transferStatus =  (uint32_t) CY_SMIF_RX_BUSY;
 
                 /* Enable the TR_RX_REQ interrupt */
                 Cy_SMIF_SetInterruptMask(base,
@@ -679,7 +679,7 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
 *
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer
+* The transfer statuses returned by \ref Cy_SMIF_GetTransferStatus are no longer
 * valid.
 *
 * \param size
@@ -734,10 +734,10 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveDataBlocking(SMIF_Type *base,
                 /* initialize parameters for Cy_SMIF_PushTxFifo */
                 contextLoc.rxBufferAddress = (uint8_t*)rxBuffer;
                 contextLoc.rxBufferCounter = size;
-                contextLoc.rxCmpltCb = NULL;
-                contextLoc.transferStatus = (uint32_t) CY_SMIF_REC_BUSY;
+                contextLoc.rxCompleteCb = NULL;
+                contextLoc.transferStatus = (uint32_t) CY_SMIF_RX_BUSY;
 
-                while (((uint32_t) CY_SMIF_REC_BUSY == contextLoc.transferStatus) &&
+                while (((uint32_t) CY_SMIF_RX_BUSY == contextLoc.transferStatus) &&
                         (CY_SMIF_EXCEED_TIMEOUT != result))
                 {
                     Cy_SMIF_PopRxFifo(base, &contextLoc);
@@ -797,7 +797,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
 
 
 /*******************************************************************************
-* Function Name: Cy_SMIF_GetTxfrStatus
+* Function Name: Cy_SMIF_GetTransferStatus
 ****************************************************************************//**
 *
 * This function provides the status of the transfer. This function is used to
@@ -820,8 +820,9 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
 * \return Returns the transfer status. \ref cy_en_smif_txfr_status_t
 *
 *******************************************************************************/
-uint32_t Cy_SMIF_GetTxfrStatus(SMIF_Type *base, cy_stc_smif_context_t const *context)
+uint32_t Cy_SMIF_GetTransferStatus(SMIF_Type const *base, cy_stc_smif_context_t const *context)
 {
+    (void)base; /* Suppress warning */
     return (context->transferStatus);
 }
 
@@ -996,7 +997,7 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
 * Holds the base address of the SMIF block registers.
 *
 * \param cacheType
-* Holds the type of the cache to be modified. \ref cy_en_smif_cache_en_t
+* Holds the type of the cache to be modified. \ref cy_en_smif_cache_t
 *
 * \return A status of function completion.
 *       - \ref CY_SMIF_SUCCESS
@@ -1004,7 +1005,7 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base, 
-                                        cy_en_smif_cache_en_t cacheType)
+                                        cy_en_smif_cache_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
     switch (cacheType)
@@ -1038,7 +1039,7 @@ cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base,
 * Holds the base address of the SMIF block registers.
 *
 * \param cacheType
-* Holds the type of the cache to be modified. \ref cy_en_smif_cache_en_t
+* Holds the type of the cache to be modified. \ref cy_en_smif_cache_t
 *
 * \return A status of function completion.
 *       - \ref CY_SMIF_SUCCESS
@@ -1046,7 +1047,7 @@ cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t Cy_SMIF_CacheDisable(SMIF_Type *base, 
-                                            cy_en_smif_cache_en_t cacheType)
+                                            cy_en_smif_cache_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
     switch (cacheType)
@@ -1081,7 +1082,7 @@ cy_en_smif_status_t Cy_SMIF_CacheDisable(SMIF_Type *base,
 * Holds the base address of the SMIF block registers.
 *
 * \param cacheType
-* Holds the type of the cache to be modified. \ref cy_en_smif_cache_en_t
+* Holds the type of the cache to be modified. \ref cy_en_smif_cache_t
 *
 * \return A status of function completion.
 *       - \ref CY_SMIF_SUCCESS
@@ -1089,7 +1090,7 @@ cy_en_smif_status_t Cy_SMIF_CacheDisable(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t Cy_SMIF_CachePrefetchingEnable(SMIF_Type *base,
-                                                    cy_en_smif_cache_en_t cacheType)
+                                                    cy_en_smif_cache_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
     switch (cacheType)
@@ -1124,7 +1125,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingEnable(SMIF_Type *base,
 * Holds the base address of the SMIF block registers.
 *
 * \param cacheType
-* Holds the type of the cache to be modified. \ref cy_en_smif_cache_en_t
+* Holds the type of the cache to be modified. \ref cy_en_smif_cache_t
 *
 * \return A status of function completion.
 *       - \ref CY_SMIF_SUCCESS
@@ -1132,7 +1133,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingEnable(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,  
-                                                    cy_en_smif_cache_en_t cacheType)
+                                                    cy_en_smif_cache_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
     switch (cacheType)
@@ -1167,7 +1168,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,
 * Holds the base address of the SMIF block registers.
 *
 * \param cacheType
-* Holds the type of the cache to be modified. \ref cy_en_smif_cache_en_t
+* Holds the type of the cache to be modified. \ref cy_en_smif_cache_t
 *
 * \return A status of function completion.
 *       - \ref CY_SMIF_SUCCESS
@@ -1175,7 +1176,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,
 *
 *******************************************************************************/
 cy_en_smif_status_t Cy_SMIF_CacheInvalidate(SMIF_Type *base, 
-                                            cy_en_smif_cache_en_t cacheType)
+                                            cy_en_smif_cache_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
     switch (cacheType)
@@ -1228,7 +1229,7 @@ cy_en_smif_status_t Cy_SMIF_CacheInvalidate(SMIF_Type *base,
 * \ref cy_en_syspm_status_t
 *
 * Example setup of SysPM deep sleep and hibernate mode
-* \snippet smif/smif_sut_01.cydsn/main_cm4.c SMIF SysPM Callback
+* \snippet smif/snippet/main.c SMIF SysPM Callback
 *
 *******************************************************************************/
 cy_en_syspm_status_t Cy_SMIF_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
@@ -1249,8 +1250,8 @@ cy_en_syspm_status_t Cy_SMIF_DeepSleepCallback(cy_stc_syspm_callback_params_t *c
                 * the bus from the TX FIFO and shifter and the RX FIFIOs is
                 * empty - the SPI is ready enter Deep Sleep.
             */
-            bool checkFail = (CY_SMIF_REC_BUSY == (cy_en_smif_txfr_status_t)
-                                    Cy_SMIF_GetTxfrStatus(locBase, locContext));
+            bool checkFail = (CY_SMIF_RX_BUSY == (cy_en_smif_txfr_status_t)
+                                    Cy_SMIF_GetTransferStatus(locBase, locContext));
             checkFail = (Cy_SMIF_BusyCheck(locBase)) || checkFail;
             checkFail = (Cy_SMIF_GetMode(locBase) == CY_SMIF_MEMORY) || checkFail;
 
@@ -1335,7 +1336,7 @@ cy_en_syspm_status_t Cy_SMIF_DeepSleepCallback(cy_stc_syspm_callback_params_t *c
 * \ref cy_en_syspm_status_t
 *
 * Example setup of SysPM deep sleep and hibernate mode
-* \snippet smif/smif_sut_01.cydsn/main_cm4.c SMIF SysPM Callback
+* \snippet smif/snippet/main.c SMIF SysPM Callback
 *
 *******************************************************************************/
 cy_en_syspm_status_t Cy_SMIF_HibernateCallback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)
@@ -1356,8 +1357,8 @@ cy_en_syspm_status_t Cy_SMIF_HibernateCallback(cy_stc_syspm_callback_params_t *c
             * the bus from the TX FIFO and shifter and the RX FIFIOs is
             * empty - the SPI is ready enter Deep Sleep.
             */
-            bool checkFail = (CY_SMIF_REC_BUSY == (cy_en_smif_txfr_status_t)
-                                Cy_SMIF_GetTxfrStatus(locBase, locContext));
+            bool checkFail = (CY_SMIF_RX_BUSY == (cy_en_smif_txfr_status_t)
+                                Cy_SMIF_GetTransferStatus(locBase, locContext));
             checkFail = (Cy_SMIF_BusyCheck(locBase)) || checkFail;
             checkFail = (Cy_SMIF_GetMode(locBase) == CY_SMIF_MEMORY) || checkFail;
 

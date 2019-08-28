@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_cmac_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the CMAC method
@@ -28,16 +28,20 @@
 
 
 #include "cy_crypto_core_cmac_v2.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#if (CPUSS_CRYPTO_AES == 1)
+
 #include "cy_crypto_core_aes_v2.h"
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_crypto_core_mem_v2.h"
 #include "cy_syslib.h"
 #include <string.h>
-
-
-#if defined(CY_IP_MXCRYPTO)
-
-#if (CPUSS_CRYPTO_AES == 1)
 
 /* The bit string used to generate sub-keys */
 #define CY_CRYPTO_CMAC_RB  (0x87u)
@@ -260,8 +264,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
                                           cy_stc_crypto_aes_state_t *aesState)
 {
     /* Allocate space for the structure which stores the CMAC context */
-    cy_stc_crypto_aes_buffers_t      aesBuffersData  = {{ 0 }};
-    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData = {{ 0 }};
+    cy_stc_crypto_aes_buffers_t      aesBuffersData  = {{ 0 }, { 0 }, { 0 }, { 0 }, { 0 }};
+    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData = {{0UL, NULL}, { 0 }};
     cy_stc_crypto_v2_cmac_buffers_t *cmacBuffers  = &cmacBuffersData;
     cy_stc_crypto_v2_cmac_state_t   *cmacStateLoc = &cmacBuffers->cmacState;
 
@@ -276,8 +280,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
     return (CY_CRYPTO_SUCCESS);
 }
 
-
 #endif /* #if (CPUSS_CRYPTO_AES == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

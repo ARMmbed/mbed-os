@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syslib.h
-* \version 2.40
+* \version 2.40.1
 *
 * Provides an API declaration of the SysLib driver.
 *
@@ -158,6 +158,11 @@
 * \section group_syslib_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>2.40.1</td>
+*     <td>Correct the CY_RAMFUNC_BEGIN macro for the IAR compiler.</td>
+*     <td>Removed the IAR compiler warning.</td>
+*   </tr>
 *   <tr>
 *     <td>2.40</td>
 *     <td>Added new macros CY_SYSLIB_DIV_ROUND and CY_SYSLIB_DIV_ROUNDUP to easy perform integer division with rounding.</td>
@@ -529,7 +534,7 @@ typedef enum
     #define CY_SECTION(name)    CY_PRAGMA(location = name)
     #define CY_UNUSED
     #define CY_NOINLINE         CY_PRAGMA(optimize = no_inline)
-    #define CY_RAMFUNC_BEGIN    CY_PRAGMA(diag_suppress = Ta023) __ramfunc CY_PRAGMA(location = ".cy_ramfunc")
+    #define CY_RAMFUNC_BEGIN    CY_PRAGMA(diag_suppress = Ta023) __ramfunc
     #define CY_RAMFUNC_END      CY_PRAGMA(diag_default = Ta023)
     #if (__VER__ < 8010001)
         #define CY_ALIGN(align) CY_PRAGMA(data_alignment = align)

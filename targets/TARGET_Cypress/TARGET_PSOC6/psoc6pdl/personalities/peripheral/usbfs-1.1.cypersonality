@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--****************************************************************************
+* \file usbfs.cypersonality
+* \version 1.0
+*
+* \brief
+* USBFS Device personality description file.
+*
+********************************************************************************
+* \copyright
+* Copyright 2018-2019 Cypress Semiconductor Corporation
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*****************************************************************************-->
+
+<Personality id="mxs40usbfsdevice" name="USBFS Device" version="1.1" path="Communications" xmlns="http://cypress.com/xsd/cyhwpersonality_v1">
+  <Dependencies>
+    <IpBlock name="mxusbfs" />
+    <Resource name="usb" used="true" />
+  </Dependencies>
+  <ExposedMembers />
+  <Parameters>
+    <!-- Documentation -->
+    <ParamDoc id="pdlDocDrv" name="USBFS Driver" group="Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__usbfs__dev__drv.html" linkText="Open USBFS Driver Documentation" visible="true" desc="Opens the USBFS Driver Documentation." />
+
+    <ParamRange id="epMask" name="Endpoints Mask" group="General" default="255" min="0" max="255" resolution="1" visible="true" editable="true" desc="Mask of active data endpoints (bit 0 - corresponds Data Endpoint 1, bit 1 - Data Enadpoint 2 and so on up to Data Endpoint 8. It must be configured based on USB Device descriptors, that allows to select endpoint interrupt priority and save hardware resources when DMAs are used." />
+
+    <!-- Define enable endpoints-->
+    <Repeat count="8">
+    <ParamRange id="ep$idxMask"    name="ep$idxMask"    group="Internal" default="`${pow(2, $idx)}`" min="1" max="255" resolution="1" visible="false" editable="false" desc="" />
+    <ParamBool  id="ep$idxEnabled" name="ep$idxEnabled" group="Internal" default="`${(epMask &amp; ep$idxMask) > 0}`" visible="false" editable="false" desc="" />
+    </Repeat>
+
+    <!-- Data endpoint management type -->
+    <ParamChoice id="mngMode" name="Endpoint Buffer Management" group="General" default="CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU" visible="true" editable="true" desc="Data Endpoints buffer management defines how hardware buffer is managed: by CPU or DMA. The CPU and DMA manual modes total endpoints buffer size is restricted by the hardware buffer of 512 bytes, whereas in Automatic DMA mode this restriction is relaxed.">
+      <Entry name="Manual CPU"    value="CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU"      visible="true" />
+      <Entry name="Manual DMA"    value="CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA"      visible="true" />
+      <Entry name="Automatic DMA" value="CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO" visible="true" />
+    </ParamChoice>
+    <ParamBool id="isDmaEnabled"  name="isDmaEnabled"  group="Internal" default="`${mngMode ne CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU}`" visible="false" editable="false" desc="" />
+    <ParamBool id="isDmaAuto"     name="isDmaAuto"     group="Internal" default="`${mngMode eq CY_USBFS_DEV_DRV_EP_MANAGEMENT_DMA_AUTO}`" visible="false" editable="false" desc="" />
+
+    <ParamRange  id="bufSize" name="Endpoints Buffer Size" group="General" default="512" min="1" max="8192" resolution="1" visible="`${isDmaAuto}`" editable="true" desc="The size of endpoint software buffer which is allocated by personality configurator in Automatic DMA mode. For Manual CPU and Manual DMA mode only hardware buffer is used. For Automatic DMA mode hardware buffer is used for operation and software buffer - for endpoints." />
+    <ParamRange  id="bufSize512" name="Endpoints Buffer Size" group="General" default="512" min="512" max="512" resolution="1" visible="`${!isDmaAuto}`" editable="false" desc="The size of endpoint software buffer which is allocated by personality configurator in Automatic DMA mode. For Manual CPU and Manual DMA mode only hardware buffer is used. For Automatic DMA mode hardware buffer is used for operation and software buffer - for endpoints." />  
+
+    <ParamChoice id="epAccess" name="Endpoint Access Type" group="General" default="CY_USBFS_DEV_DRV_USE_8_BITS_DR" visible="true" editable="true" desc="Defines how the hardware buffer is accessed – 8-bit or 16-bit. The 16-bit access is 2 times faster but endpoints that have maxPacket odd consumes 1 extra byte in the hardware buffer.">
+      <Entry name="8 bit"  value="CY_USBFS_DEV_DRV_USE_8_BITS_DR"  visible="true" />
+      <Entry name="16 bit" value="CY_USBFS_DEV_DRV_USE_16_BITS_DR" visible="true" />
+    </ParamChoice>
+
+    <ParamBool id="enableLpm" name="Enable LPM" group="General" default="false" visible="true" editable="true" desc="Enables response to LPM packets and the LPM interrupt." />
+
+    <!-- Connections -->  
+    <ParamSignal port="clk_usb_dev[0]" name="Clock" group="Connections" visible="true" desc="Clock that operates this block." canBeEmpty="false" />
+
+    <ParamString id="usbHfSource" name="usbHfSource" group="Internal" default="`${getBlockFromSignal(&quot;clk_usb_dev[0]&quot;)}`" visible="false" editable="false" desc="Source Clock Resource" />
+    <ParamRange  id="usbHfClkHz" name="usbHfClkHz" group="Internal" default="`${getExposedMember(usbHfSource, &quot;frequency&quot;)}`" min="1" max="200000000" resolution="1" visible="false" editable="false" desc="USB Device HF clock frequency in Hz." />
+    <ParamRange  id="usbHfClkAccuracy" name="usbHfClkAccuracy" group="Internal" default="`${getExposedMember(usbHfSource, &quot;accuracy&quot;)}`" min="0" max="100" resolution="0.0001" visible="false" editable="false" desc="USB Device HF clock accuracy." />
+
+    <ParamString id="usbRstClkHz" name="usbRstClkHz" group="Internal" default="100000" visible="false" editable="false" desc="USB needs clock 100kHz to detect USB Bus Reset condition." />
+    <ParamRange  id="clkPeriHz" name="clkPeriHz" group="Internal" default="`${getExposedMember(&quot;srss[0].clock[0].periclk[0]&quot;, &quot;frequency&quot;)}`" min="0" max="400000000" resolution="1" visible="false" editable="false" desc="Clk_Peri frequency." />
+    <ParamRange  id="usbRstDiv" name="usbRstDiv" group="Internal" default="`${clkPeriHz / usbRstClkHz}`" min="0" max="400000000" resolution="1" visible="false" editable="false" desc="USB bus reset pclk divider value." />
+    <ParamBool id="usbRstDiv8" name="usbRstDiv8" group="Internal" default="`${(usbRstDiv &lt;= pow(2, 8))}`" visible="false" editable="false" desc="Checks whether 8-bit divider can be used for USBFS bus reset detection." />
+
+    <ParamSignal port="clock_dev_brs[0]" name="Clock (Bus Reset)" group="Connections" visible="true" desc="Clock that is used to detect USB Reset condition." canBeEmpty="false" >
+      <Constraint type="ACCEPT" targetLocation="peri\[\d+\]\.div_8.*" valid="`${usbRstDiv8}`" >
+        <Parameter id="intDivider" severity="ERROR" reason="Clock frequency does not match desired 100 kHz.">
+          <Fixed 
+            value= "`${((getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) - floor(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) >= 0.5) ? ceil(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) : floor(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz)}`" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="peri\[\d+\]\.div_(16|16.5|24.5).*" valid="true" >
+        <Parameter id="intDivider" severity="ERROR" reason="Clock frequency does not match desired 100 kHz.">
+        <Fixed 
+            value= "`${((getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) - floor(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) >= 0.5) ? ceil(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz) : floor(getExposedMember(&quot;REF_LOCATION&quot;, &quot;frequency&quot;) * getExposedMember(&quot;REF_LOCATION&quot;, &quot;divider&quot;) / usbRstClkHz)}`" />
+        </Parameter>
+      </Constraint>
+      <Constraint type="ACCEPT" targetLocation="peri\[\d+\]\.div_(16.5|24.5).*" valid="true" >
+        <Parameter id="fracDivider" severity="ERROR" reason="Fractional divider must be 0.">
+          <Fixed value= "0" />
+        </Parameter>
+      </Constraint>
+    </ParamSignal>
+
+    <ParamSignal port="usb_dp_pad[0]" name="D+" group="Connections" visible="true" desc="USB Data plus signal (USBDP)."  canBeEmpty="false" />
+    <ParamSignal port="usb_dm_pad[0]" name="D-" group="Connections" visible="true" desc="USB Data minus signal (USBDM)." canBeEmpty="false" />
+    <ParamSignal port="dsi_usb_sof[0]" name="SOF Output" group="Connections" visible="`${hasVisibleOption(&quot;dsi_usb_sof[0]&quot;)}`" desc="SOF output connection to UDB." canBeEmpty="true" />
+
+    <!-- DMA connections -->
+    <Repeat count="8">
+    <ParamBool id="ep$idxDmaEnabled" name="ep$idxDmaEnabled" group="Internal" default="`${ep$idxEnabled &amp;&amp; isDmaEnabled}`" visible="false" editable="false" desc="" />
+    </Repeat>
+
+    <ParamSignal port="dma_req[0]" name="DMA Request EP1" group="DMA Connections" visible="`${ep0DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 1 to DMA channel trigger input ." canBeEmpty="`${!ep0DmaEnabled}`" />
+    <ParamSignal port="dma_req[1]" name="DMA Request EP2" group="DMA Connections" visible="`${ep1DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 2 to DMA channel trigger input." canBeEmpty="`${!ep1DmaEnabled}`" />
+    <ParamSignal port="dma_req[2]" name="DMA Request EP3" group="DMA Connections" visible="`${ep2DmaEnabled}`" desc="Connects USB DMA Request output  of endpoint 3 to DMA channel trigger input." canBeEmpty="`${!ep2DmaEnabled}`" />
+    <ParamSignal port="dma_req[3]" name="DMA Request EP4" group="DMA Connections" visible="`${ep3DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 4 to DMA channel trigger input." canBeEmpty="`${!ep3DmaEnabled}`" />
+    <ParamSignal port="dma_req[4]" name="DMA Request EP5" group="DMA Connections" visible="`${ep4DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 5 to DMA channel trigger input." canBeEmpty="`${!ep4DmaEnabled}`" />
+    <ParamSignal port="dma_req[5]" name="DMA Request EP6" group="DMA Connections" visible="`${ep5DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 6 to DMA channel trigger input." canBeEmpty="`${!ep5DmaEnabled}`" />    
+    <ParamSignal port="dma_req[6]" name="DMA Request EP7" group="DMA Connections" visible="`${ep6DmaEnabled}`" desc="Connects USB DMA Request output of endpoint 7 to DMA channel trigger input." canBeEmpty="`${!ep6DmaEnabled}`" />
+    <ParamSignal port="dma_req[7]" name="DMA Request EP8" group="DMA Connections" visible="`${ep7DmaEnabled}`" desc="Connects USB DMA Request outputof endpoint 8 to DMA channel trigger input." canBeEmpty="`${!ep7DmaEnabled}`" />
+
+    <ParamSignal port="dma_burstend[0]"  name="DMA Burst End EP1" group="DMA Connections" visible="`${ep0DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 1." canBeEmpty="`${!ep0DmaEnabled}`" />    
+    <ParamSignal port="dma_burstend[1]"  name="DMA Burst End EP2"  group="DMA Connections" visible="`${ep1DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 2." canBeEmpty="`${!ep1DmaEnabled}`" />
+    <ParamSignal port="dma_burstend[2]"  name="DMA Burst End EP3"  group="DMA Connections" visible="`${ep2DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 3." canBeEmpty="`${!ep2DmaEnabled}`" />   
+    <ParamSignal port="dma_burstend[3]"  name="DMA Burst End EP4"  group="DMA Connections" visible="`${ep3DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 4." canBeEmpty="`${!ep3DmaEnabled}`" />
+    <ParamSignal port="dma_burstend[4]" name="DMA Burst End EP5" group="DMA Connections" visible="`${ep4DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 5." canBeEmpty="`${!ep4DmaEnabled}`" />
+    <ParamSignal port="dma_burstend[5]" name="DMA Burst End EP6" group="DMA Connections" visible="`${ep5DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 6." canBeEmpty="`${!ep5DmaEnabled}`" />  
+    <ParamSignal port="dma_burstend[6]" name="DMA Burst End EP7" group="DMA Connections" visible="`${ep6DmaEnabled}`" desc="Connects DMA channel completion output to USB Burst End input of endpoint 7." canBeEmpty="`${!ep6DmaEnabled}`" />   
+    <ParamSignal port="dma_burstend[7]" name="DMA Burst End EP8" group="DMA Connections" visible="`${ep7DmaEnabled}`" desc="Connets DMA channel completion output to USB Burst End input of endpoint 8." canBeEmpty="`${!ep7DmaEnabled}`" />    
+
+    <!-- Interrupt source assignment -->
+    <ParamChoice id="lpmIntr" name="LMP interrupt" group="Interrupt Assigment" default="0x0U" visible="`${enableLpm}`" editable="true" desc="Priority of the LPM interrupt. This interrupt source triggers when an LPM entry USB extension packet is received.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="ArbIntr" name="Arbiter Priority" group="Interrupt Assigment" default="0x0U" visible="`${isDmaEnabled}`" editable="true" desc="Priority of the Arbiter interrupt. This interrupt source triggers when one of the following conditions for any endpoint are met: IN endpoint buffer full, endpoint DMA grant, endpoint buffer overflow, endpoint buffer underflow, endpoint error in transaction, endpoint DMA terminated. It is available only when Endpoint buffer Management uses DMA.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="ep0CntrIntr" name="Control Endpoint 0 Priority" group="Interrupt Assigment" default="0x2U" visible="true" editable="true" desc="Priority of the Control Endpoint 0 interrupt. This interrupt source triggers whenever the host tries to communicate over the control endpoint.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>
+    <ParamChoice id="busResetIntr" name="Bus Reset Priority" group="Interrupt Assigment" default="0x2U" visible="true" editable="true" desc="Priority of the Bus Reset interrupt. This interrupt source triggers when an USB bus reset event occurs.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>    
+    <ParamChoice id="sofIntr" name="SOF Priority" group="Interrupt Assigment" default="0x1U" visible="true" editable="true" desc="Priority of the SOF interrupt. This interrupt source triggers when a start of frame is received.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>
+    <Repeat count="8">    
+    <ParamChoice id="ep$idxIntr" name="Data Endpoint `${$idx + 1}` Priority" group="Interrupt Assigment" default="0x1U" visible="`${ep$idxEnabled}`" editable="true" desc="Priority of the Data Endpoint `${$idx + 1}` interrupt. This interrupt source triggers whenever the host completes communication over the corresponding data endpoint.">
+      <Entry name="Interrupt High"   value="0x0U" visible="true" />
+      <Entry name="Interrupt Medium" value="0x1U" visible="true" />
+      <Entry name="Interrupt Low"    value="0x2U" visible="true" />
+    </ParamChoice>
+    </Repeat>
+
+    <!-- Advanced configuration -->
+    <ParamBool   id="inFlash" name="Store Config in Flash" group="Advanced" default="true" visible="true" editable="true" desc="Controls whether the configuration structure is stored in flash (const, true) or SRAM (not const, false)." />
+
+    <!-- Peripheral clock divider connection -->
+    <ParamString id="pclk" name="PCLK" group="Internal" default="`${getBlockFromSignal(&quot;clock_dev_brs[0]&quot;)}`" visible="false" editable="false" desc="Connected peripheral clock divider (PCLK)." />
+    <ParamBool id="pclkOk" name="PCLK Valid" group="Internal" default="`${hasConnection(&quot;clock_dev_brs&quot;, 0) &amp;&amp; isBlockUsed(pclk)}`" visible="false" editable="false" desc="Checks whether there is a PCLK connected and enabled." />
+    <ParamString id="pclkDst" name="PCLK Destination" group="Internal" default="PCLK_USB_CLOCK_DEV_BRS" visible="false" editable="false" desc="Generates PCLK connection define." />
+
+    <!-- DMA channel configuration -->
+    <Repeat count="8">
+        <ParamString id="ep$idxDmaSource"  name="ep$idxDmaSource"  group="Internal" default="`${ep$idxDmaEnabled ? getBlockFromSignal(&quot;dma_req[$idx]&quot;) : &quot;N/A&quot;}`" visible="false" editable="false" desc="DMA associated with the endpoint." />
+        <ParamString id="ep$idxDmaBase"    name="ep$idxDmaBase"    group="Internal" default="`${ep$idxDmaEnabled ? getExposedMember(ep$idxDmaSource, &quot;block&quot;) : &quot;N/A&quot;}`"   visible="false" editable="false" desc="DMA base address." />
+        <ParamString id="ep$idxDmaChannel" name="ep$idxDmaChannel" group="Internal" default="`${ep$idxDmaEnabled ? getExposedMember(ep$idxDmaSource, &quot;channel&quot;) : &quot;N/A&quot;}`" visible="false" editable="false" desc="DMA channel." />
+        <ParamString id="ep$idxDmaPriority" name="ep$idxDmaChannel" group="Internal" default="`${ep$idxDmaEnabled ? getExposedMember(ep$idxDmaSource, &quot;priority&quot;) : &quot;N/A&quot;}`" visible="false" editable="false" desc="DMA channel priority." />
+        <ParamString id="ep$idxDmaPreemptable" name="ep$idxDmaChannel" group="Internal" default="`${ep$idxDmaEnabled ? getExposedMember(ep$idxDmaSource, &quot;preemptable&quot;) : &quot;N/A&quot;}`" visible="false" editable="false" desc="DMA channel preemptable." />
+    </Repeat>
+
+    <!-- Part of DMA configuration structure instance  -->
+    <ParamString id="dmaCfg" name="dmaCfg" group="Internal" default="&amp;`${INST_NAME . &quot;_ep&quot;}`" visible="false" editable="false" desc="Sting that helps generte instance of DMA configuration structure." />
+
+    <!-- INTR_LVL initialization define -->
+    <ParamString id="INTR_LVL_SEL" name="INTR_LVL_SEL"  group="Internal" default="(CY_USBFS_DEV_DRV_SET_SOF_LVL(`${sofIntr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_BUS_RESET_LVL(`${busResetIntr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP0_LVL(`${ep0CntrIntr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_LPM_LVL(`${lpmIntr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_ARB_EP_LVL(`${ArbIntr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP1_LVL(`${ep0Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP2_LVL(`${ep1Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP3_LVL(`${ep2Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP4_LVL(`${ep3Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP5_LVL(`${ep4Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP6_LVL(`${ep5Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP7_LVL(`${ep6Intr}`) | \&#xA;
+                CY_USBFS_DEV_DRV_SET_EP8_LVL(`${ep7Intr}`))" visible="false" editable="false" desc="INTR_LVL initialization define." />
+  
+  </Parameters>  
+
+  <DRCs>
+    <DRC type="ERROR" text="The CLK_HF3 does not meet USB Device clock requirements 48MHz -/+ 0.25%." condition="`${(usbHfClkHz != 48000000) || (usbHfClkAccuracy > 0.25)}`" location="`${usbHfSource}`" paramId="frequencyInfo">
+    </DRC>
+  </DRCs>
+
+  <ConfigFirmware>
+  
+    <ConfigInclude value="cy_usbfs_dev_drv.h" include="true" />
+    <ConfigInclude value="cycfg_routing.h" include="`${isDmaAuto}`" />
+    <ConfigInclude value="cy_sysclk.h" include="`${pclkOk}`" />
+    <ConfigInclude value="cyhal_hwmgr.h" include="true" guard="defined (CY_USING_HAL)" />
+    
+    <ConfigDefine name="`${INST_NAME}`_ACTIVE_ENDPOINTS_MASK" value="`${epMask}`U" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_ENDPOINTS_BUFFER_SIZE" value="`${isDmaAuto ? bufSize : &quot;512&quot;}`U" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_ENDPOINTS_ACCESS_TYPE" value="`${(epAccess eq CY_USBFS_DEV_DRV_USE_8_BITS_DR) ? 0 : 1}`U" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_HW" value="USBFS`${getInstNumber(&quot;usb&quot;)}`" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_HI_IRQ" value="usb_interrupt_hi_IRQn" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_MED_IRQ" value="usb_interrupt_med_IRQn" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_LO_IRQ" value="usb_interrupt_lo_IRQn" public="true" include="true" />
+    <ConfigDefine name="`${INST_NAME}`_INTR_LVL_SEL" value="`${INTR_LVL_SEL}`" public="false" include="true" />
+
+    <!-- Buffer for endpoints -->
+    <ConfigVariable const="false" type="uint8_t" name="`${INST_NAME . &quot;_EndpointsBuffer[&quot; . bufSize . &quot;] CY_ALIGN(2)&quot;}`" public="false" include="`${isDmaAuto}`" />
+    <!-- DMA descriptors 0 -->
+    <ConfigVariable const="false" type="cy_stc_dma_descriptor_t" name="`${INST_NAME . &quot;_ep&quot; . ($idx+1) . &quot;DmaDescr0&quot;}`" public="false" include="`${ep$idxDmaEnabled}`" repeatCount="8" />
+    <!-- DMA descriptors 1 -->
+    <ConfigVariable const="false" type="cy_stc_dma_descriptor_t" name="`${INST_NAME . &quot;_ep&quot; . ($idx+1) . &quot;DmaDescr1&quot;}`" public="false" include="`${ep$idxDmaEnabled &amp;&amp; isDmaAuto}`" repeatCount="8" />
+    <!-- DMA configuration structures for data endpoints -->
+    <ConfigStruct name="`${INST_NAME . &quot;_ep&quot; . ($idx + 1) . &quot;DmaConfig&quot;}`" type="cy_stc_usbfs_dev_drv_dma_config_t" const="true" public="false" include="`${ep$idxDmaEnabled}`" repeatCount="8">
+    <Member name="base"        value="`${&quot;DW&quot; . ep$idxDmaBase}`" />
+    <Member name="chNum"       value="`${ep$idxDmaChannel}`" />
+    <Member name="priority"    value="`${ep$idxDmaPriority}`" />
+    <Member name="preemptable" value="`${ep$idxDmaPreemptable}`" />
+    <Member name="descr0"      value="`${dmaCfg . ($idx + 1) . &quot;DmaDescr0&quot;}`" />
+    <Member name="descr1"      value="`${isDmaAuto ? dmaCfg . ($idx + 1) . &quot;DmaDescr1&quot; : &quot;NULL&quot;}`" />
+    <Member name="outTrigMux"  value="`${isDmaAuto ? INST_NAME . &quot;_dma_burstend_$idx_TRIGGER_OUT&quot; : &quot;0U&quot;}`" />
+    </ConfigStruct>
+    <!-- USBFS_DEV driver configuration structure -->
+    <ConfigStruct name="`${INST_NAME}`_config" type="cy_stc_usbfs_dev_drv_config_t" const="`${inFlash}`" public="true" include="true">
+    <Member name="mode"         value="`${mngMode}`" />
+    <Member name="epAccess"     value="`${epAccess}`" />
+    <Member name="epBuffer"     value="`${isDmaAuto ? INST_NAME . &quot;_EndpointsBuffer&quot; : &quot;NULL&quot;}`" />
+    <Member name="epBufferSize" value="`${isDmaAuto ? bufSize : &quot;0&quot;}`U" />
+    <Member name="dmaConfig`${&quot;[0]&quot;}`" value="`${ep0DmaEnabled ? dmaCfg . &quot;1DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[1]&quot;}`" value="`${ep1DmaEnabled ? dmaCfg . &quot;2DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[2]&quot;}`" value="`${ep2DmaEnabled ? dmaCfg . &quot;3DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[3]&quot;}`" value="`${ep3DmaEnabled ? dmaCfg . &quot;4DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[4]&quot;}`" value="`${ep4DmaEnabled ? dmaCfg . &quot;5DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[5]&quot;}`" value="`${ep5DmaEnabled ? dmaCfg . &quot;6DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[6]&quot;}`" value="`${ep6DmaEnabled ? dmaCfg . &quot;7DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="dmaConfig`${&quot;[7]&quot;}`" value="`${ep7DmaEnabled ? dmaCfg . &quot;8DmaConfig&quot; : &quot;NULL&quot;}`" />
+    <Member name="enableLpm"    value="`${enableLpm ? &quot;true&quot; : &quot;false&quot;}`" />
+    <Member name="intrLevelSel" value="`${INST_NAME}`_INTR_LVL_SEL" />
+    </ConfigStruct>
+    
+    <ConfigStruct name="`${INST_NAME}`_obj" type="cyhal_resource_inst_t" const="true" public="true" include="true" guard="defined (CY_USING_HAL)">
+      <Member name="type" value="CYHAL_RSC_USB" />
+      <Member name="block_num" value="`${getInstNumber(&quot;usb&quot;)}`U" />
+      <Member name="channel_num" value="0U" />
+    </ConfigStruct>
+    
+    <ConfigInstruction value="Cy_SysClk_PeriphAssignDivider(`${pclkDst}`, `${getExposedMember(pclk, &quot;clockSel&quot;)}`);" include="`${pclkOk}`" />
+    <ConfigInstruction value="cyhal_hwmgr_reserve(&amp;`${INST_NAME}`_obj);" include="true" guard="defined (CY_USING_HAL)" />
+  </ConfigFirmware>
+</Personality>
+

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_efuse.h
-* \version 1.10
+* \version 1.10.1
 *
 * Provides the API declarations of the eFuse driver.
 *
@@ -85,6 +85,11 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>1.10.1</td>
+*     <td>Added header guard CY_IP_MXEFUSE.</td>
+*     <td>To enable the PDL compilation with wounded out IP blocks.</td>
+*   </tr>
+*   <tr>
 *     <td>1.10</td>
 *     <td>Flattened the organization of the driver source code into the single
 *         source directory and the single include directory.
@@ -106,6 +111,8 @@
 
 #include "cy_device_headers.h"
 #include "cy_syslib.h"
+
+#ifdef CY_IP_MXEFUSE
 
 /***************************************
 * Macro Definitions
@@ -165,6 +172,7 @@ uint32_t Cy_EFUSE_GetExternalStatus(void);
 }
 #endif
 
+#endif /* #ifdef CY_IP_MXEFUSE */
 
 #endif /* #if !defined(CY_EFUSE_H) */
 

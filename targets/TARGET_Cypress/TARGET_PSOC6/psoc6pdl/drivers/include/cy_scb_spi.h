@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.h
-* \version 2.30
+* \version 2.30.1
 *
 * Provides SPI API declarations of the SCB driver.
 *
@@ -80,7 +80,7 @@
 * \ref cy_stc_scb_spi_config_t structure and the allocated 
 * \ref cy_stc_scb_spi_context_t structure.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_CFG
+* \snippet scb/spi_snippet/main.c SPI_CFG
 *
 ********************************************************************************
 * \subsection group_scb_spi_pins Assign and Configure Pins
@@ -90,7 +90,7 @@
 * SCB block. Also, the SPI output pins must be configured in Strong Drive Input 
 * Off mode and SPI input pins in Digital High-Z.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_CFG_PINS
+* \snippet scb/spi_snippet/main.c SPI_CFG_PINS
 *
 ********************************************************************************
 * \subsection group_scb_spi_clock Assign Clock Divider
@@ -100,7 +100,7 @@
 * You must use one of the 8-bit or 16-bit dividers. Use the \ref group_sysclk 
 * driver API to do this.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_CFG_ASSIGN_CLOCK
+* \snippet scb/spi_snippet/main.c SPI_CFG_ASSIGN_CLOCK
 *
 ********************************************************************************
 * \subsection group_scb_spi_data_rate Configure Data Rate
@@ -109,7 +109,7 @@
 * fast enough to provide sufficient oversampling. Use the \ref group_sysclk driver 
 * API to do that.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_CFG_DATA_RATE_SLAVE
+* \snippet scb/spi_snippet/main.c SPI_CFG_DATA_RATE_SLAVE
 *
 * To get the SPI master to operate with the desired data rate, multiply the 
 * oversample factor by the desired data rate to determine the required 
@@ -121,7 +121,7 @@
 * second phase. The level of the first phase of the clock period depends on CPOL
 * settings: 0 - low level and 1 - high level.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_CFG_DATA_RATE_MASTER
+* \snippet scb/spi_snippet/main.c SPI_CFG_DATA_RATE_MASTER
 *
 * <b>Refer to the technical reference manual (TRM) section SPI sub-section
 * Oversampling and Bit Rate to get information about how to configure SPI to run 
@@ -136,8 +136,8 @@
 * in the NVIC.
 * The interrupt must be configured when \ref group_scb_spi_hl will be used.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_INTR_A
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_INTR_B
+* \snippet scb/spi_snippet/main.c SPI_INTR_A
+* \snippet scb/spi_snippet/main.c SPI_INTR_B
 *
 ********************************************************************************
 * \subsection group_scb_spi_enable Enable SPI
@@ -146,7 +146,7 @@
 * For the slave, this means that SPI device starts responding to the transfers.
 * For the master, it is ready to execute transfers.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_ENABLE
+* \snippet scb/spi_snippet/main.c SPI_ENABLE
 *
 ********************************************************************************
 * \section group_scb_spi_use_cases Common Use Cases
@@ -188,7 +188,7 @@
 *   \ref Cy_SCB_SPI_IsBusBusy, \ref Cy_SCB_SPI_IsTxComplete,
 *   \ref Cy_SCB_SPI_GetNumInRxFifo and \ref Cy_SCB_SPI_GetNumInTxFifo.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_TRANFER_DATA_LL
+* \snippet scb/spi_snippet/main.c SPI_TRANFER_DATA_LL
 *
 ********************************************************************************
 * \subsection group_scb_spi_hl High-Level API
@@ -204,7 +204,7 @@
 * Alternatively, use \ref Cy_SCB_SPI_RegisterCallback to register a callback
 * function to be notified about \ref group_scb_spi_macros_callback_events.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\spi_snippets.c SPI_TRANFER_DATA
+* \snippet scb/spi_snippet/main.c SPI_TRANFER_DATA
 *
 ********************************************************************************
 * \section group_scb_spi_dma_trig DMA Trigger
@@ -290,6 +290,8 @@
 #define CY_SCB_SPI_H
 
 #include "cy_scb_common.h"
+
+#ifdef CY_IP_MXSCB
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1495,8 +1497,9 @@ __STATIC_INLINE uint32_t CY_SCB_SPI_GetSclkMode(cy_en_scb_spi_sub_mode_t subMode
 
 /** \} group_scb_spi */
 
-#endif /* (CY_SCB_SPI_H) */
+#endif /* (CY_IP_MXSCB) */
 
+#endif /* (CY_SCB_SPI_H) */
 
 /* [] END OF FILE */
 

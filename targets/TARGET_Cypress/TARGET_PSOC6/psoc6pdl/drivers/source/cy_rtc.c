@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_rtc.c
-* \version 2.20
+* \version 2.20.1
 *
 * This file provides constants and parameter values for the APIs for the 
 * Real-Time Clock (RTC).

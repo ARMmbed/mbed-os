@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_counter.c
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 *  The source file of the tcpwm driver.

@@ -253,11 +253,23 @@
 *
 * * <a href="http://www.cypress.com/trm218176"><b>Technical Reference Manual (TRM)</b></a>
 *
-* * <a href="..\..\capsense_api_reference_manual.html"><b>Cypress CapSense Middleware Library</b></a>
+* * <a href="https://github.com/cypresssemiconductorco/capsense">
+*   <b>Cypress CapSense Middleware Library</b></a>
 *
-* * <a href="..\..\csdadc_api_reference_manual.html"><b>Cypress CSDADC Middleware Library</b></a>
+* * <a href="https://cypresssemiconductorco.github.io/capsense/capsense_api_reference_manual/html/index.html">
+*   <b>Cypress CapSense Middleware API Reference Guide</b></a>
 *
-* * <a href="..\..\csdidac_api_reference_manual.html"><b>Cypress CSDIDAC Middleware Library</b></a>
+* * <a href="https://github.com/cypresssemiconductorco/csdadc">
+*   <b>Cypress CSDADC Middleware Library</b></a>
+*
+* * <a href="https://cypresssemiconductorco.github.io/csdadc/csdadc_api_reference_manual/html/index.html">
+*   <b>Cypress CSDADC Middleware API Reference Guide</b></a>
+*
+* * <a href="https://github.com/cypresssemiconductorco/csdidac">
+*   <b>Cypress CSDIDAC Middleware Library</b></a>
+*
+* * <a href="https://cypresssemiconductorco.github.io/csdidac/csdidac_api_reference_manual/html/index.html">
+*   <b>Cypress CSDIDAC Middleware API Reference Guide</b></a>
 *
 * * \ref page_getting_started "Getting Started with the PDL"
 *

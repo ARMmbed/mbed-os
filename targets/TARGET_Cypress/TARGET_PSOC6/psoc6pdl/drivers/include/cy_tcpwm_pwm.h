@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_pwm.h
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * The header file of the TCPWM PWM driver.
@@ -27,6 +27,8 @@
 #define CY_TCPWM_PWM_H
 
 #include "cy_tcpwm.h"
+
+#ifdef CY_IP_MXTCPWM
 
 #if defined(__cplusplus)
 extern "C" {
@@ -624,7 +626,8 @@ __STATIC_INLINE void Cy_TCPWM_PWM_EnablePeriodSwap(TCPWM_Type *base, uint32_t cn
 }
 #endif
 
-#endif /* CY_TCPWM_PWM_H */
+#endif /* CY_IP_MXTCPWM */
 
+#endif /* CY_TCPWM_PWM_H */
 
 /* [] END OF FILE */

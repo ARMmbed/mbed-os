@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<baseview>
+  <shortsiliconid>0x00000000</shortsiliconid>
+  <familyid>0x000</familyid>
+  <major>0</major>
+  <minor>0</minor>
+  <mcu>
+  </mcu>
+  <vendor>Cypress</vendor>
+  <flash>0</flash>
+  <ram>1310720</ram>
+  <package>251-WLCSP</package>
+  <pins>251</pins>
+  <minvoltage>3200</minvoltage>
+  <maxvoltage>4400</maxvoltage>
+  <description>The CYW43012WKWBG device.</description>
+</baseview>

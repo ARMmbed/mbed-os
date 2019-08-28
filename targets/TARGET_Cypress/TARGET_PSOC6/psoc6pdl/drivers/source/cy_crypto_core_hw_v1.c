@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw_v1.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code for the HAL API for the
@@ -27,6 +27,10 @@
 #include "cy_crypto_core_hw_v1.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "cy_syslib.h"
 
@@ -351,7 +355,11 @@ void Cy_Crypto_Run4ParamInstr(CRYPTO_Type *base,
                                    ((uint32_t)CY_CRYPTO_REGFILE_R0 << rdst0Shift));
 }
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
+
 
 /* [] END OF FILE */
