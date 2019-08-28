@@ -77,9 +77,6 @@ void UARTSerial::set_format(int bits, Parity parity, int stop_bits)
 void UARTSerial::set_flow_control(Flow type, PinName flow1, PinName flow2)
 {
     api_lock();
-    _flow_type = type;
-    _flow1 = flow1;
-    _flow2 = flow2;
     SerialBase::set_flow_control(type, flow1, flow2);
     api_unlock();
 }
