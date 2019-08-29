@@ -2293,8 +2293,18 @@ static bool sn_coap_handle_last_blockwise(struct coap_s *handle, const sn_nsdl_a
     if (!whole_payload_len) {
         return false;
     }
+
+#if SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT
     received_coap_msg_ptr->payload_ptr = payload_ptr;
     received_coap_msg_ptr->payload_len = whole_payload_len;
+#else
+    received_coap_msg_ptr->payload_ptr = sn_coap_protocol_malloc_copy(handle, payload_ptr, whole_payload_len);
+    if (received_coap_msg_ptr->payload_ptr == NULL) {
+        tr_error("sn_coap_handle_last_blockwise - failed to allocate whole package!");
+        return false;
+    }
+    received_coap_msg_ptr->payload_len = whole_payload_len;
+#endif
     received_coap_msg_ptr->coap_status = COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED;
 
     return true;

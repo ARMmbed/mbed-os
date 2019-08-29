@@ -260,4 +260,14 @@
 #define SN_COAP_BLOCKWISE_INTERNAL_BLOCK_2_HANDLING_ENABLED  1
 #endif
 
+/**
+ * \def SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT
+ * \brief A heap optimization switch, which removes unnecessary copy of the blockwise data.
+ * If enabled, application must NOT free the payload when it gets the COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED status.
+ * Application must call sn_coap_protocol_block_remove() instead.
+ */
+#ifndef SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT
+#define SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT              0   /**< Disabled by default */
+#endif
+
 #endif // SN_CONFIG_H
