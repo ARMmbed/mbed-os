@@ -34,12 +34,10 @@
 #define SUB_VSPRINTF     __wrap_vsprintf
 #define SUPER_VSNPRINTF  __real_vsnprintf
 #define SUB_VSNPRINTF    __wrap_vsnprintf
-#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 #define SUPER_FPRINTF  __real_fprintf
 #define SUB_FPRINTF    __wrap_fprintf
 #define SUPER_VFPRINTF __real_vfprintf
 #define SUB_VFPRINTF   __wrap_vfprintf
-#endif
 #elif defined(TOOLCHAIN_ARM) /* ARMC5/ARMC6 */\
  || defined(__ICCARM__)      /* IAR        */
 #define SUPER_PRINTF     $Super$$printf
@@ -54,33 +52,19 @@
 #define SUB_VSPRINTF     $Sub$$vsprintf
 #define SUPER_VSNPRINTF  $Super$$vsnprintf
 #define SUB_VSNPRINTF    $Sub$$vsnprintf
-#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 #define SUPER_FPRINTF    $Super$$fprintf
 #define SUB_FPRINTF      $Sub$$fprintf
 #define SUPER_VFPRINTF   $Super$$vfprintf
 #define SUB_VFPRINTF     $Sub$$vfprintf
-#endif
 #else
 #warning "This compiler is not yet supported."
 #endif
 
-// Prevent optimization of printf() by the ARMCC or IAR compiler.
-// This is done to prevent optimization which can cause printf() to be
-// substituted with a different function (e.g. puts()) and cause
-// the output to be missing some strings.
-// Note: Optimization prevention for other supported compilers is done
-//       via compiler optional command line arguments.
-#if defined(__CC_ARM) /* ARMC5 */
-#pragma push
-#pragma O0
-#elif defined(__ICCARM__) /* IAR */
-#pragma optimize=none
-#endif
 int SUB_PRINTF(const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
@@ -108,7 +92,7 @@ int SUB_SNPRINTF(char *buffer, size_t length, const char *format, ...)
 
 int SUB_VPRINTF(const char *format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
+    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
 }
 
 int SUB_VSPRINTF(char *buffer, const char *format, va_list arguments)
@@ -121,7 +105,6 @@ int SUB_VSNPRINTF(char *buffer, size_t length, const char *format, va_list argum
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
-#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 int SUB_FPRINTF(FILE *stream, const char *format, ...)
 {
     va_list arguments;
@@ -136,6 +119,5 @@ int SUB_VFPRINTF(FILE *stream, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
 }
-#endif
 
 #endif // MBED_MINIMAL_PRINTF
