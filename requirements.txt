@@ -28,4 +28,3 @@ wmi==1.4.9;platform_system=='Windows'
 psutil==5.6.2
 cryptography>=2.4.x,<2.5
 Click>=7.0,<7.1
-pathlib>=1.0.1

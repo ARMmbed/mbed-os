@@ -17,20 +17,14 @@
 
 import os
 import sys
-
-import platform
 import subprocess
-import errno
 from array import array
 from struct import (pack, unpack)
 from shutil import copy2
+import json
 from intelhex import IntelHex, hex2bin, bin2hex
-from intelhex.compat import asbytes
 
 from ..config import ConfigException
-
-from pathlib import Path, PurePath
-import json
 
 # The size of the program data in Cypress HEX files is limited to 0x80000000
 # Higher addresses contain additional metadata (chip protection, eFuse data, etc..)
@@ -286,6 +280,8 @@ def process_target(toolchain, target):
     :param target: Name of target being built
     :return: List with all data needed for adding signature
     """
+    from pathlib import Path
+
     targets_json = Path("targets/targets.json")
     cy_targets = Path("targets/TARGET_Cypress/TARGET_PSOC6/")
     sb_params_file_name = Path("secure_image_parameters.json")
@@ -395,6 +391,8 @@ def sign_image(toolchain, binf):
     :param toolchain: Toolchain object of current build session
     :param binf: Binary file created for target
     """
+    from pathlib import PurePath
+
     target_sig_data = None
     # reserve name for separate NSPE image
     out_cm4_hex = binf[:-4] + "_cm4.hex"
@@ -446,10 +444,10 @@ def sign_image(toolchain, binf):
         else:
             if slot["slot_data"]["type"] == "UPGRADE":
                 out_hex_name = binf[:-4] + "_upgrade.hex"
-                out_bin_name = out_hex_name[:-4] + "_signed.bin"
             else:
                 out_hex_name = binf
-                out_bin_name = out_hex_name[:-4] + "_signed.bin"
+            
+            out_bin_name = out_hex_name[:-4] + "_signed.bin"
 
             # call imgtool for signature
             args = [sys.executable, str(slot["sdk_path"] / "imgtool/imgtool.py"),
