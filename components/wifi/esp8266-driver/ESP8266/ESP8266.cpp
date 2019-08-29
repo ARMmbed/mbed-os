@@ -426,7 +426,7 @@ const char *ESP8266::netmask()
 
 int8_t ESP8266::rssi()
 {
-    int8_t rssi;
+    int8_t rssi = 0;
     char bssid[18];
 
     _smutex.lock();
@@ -437,17 +437,27 @@ int8_t ESP8266::rssi()
         _smutex.unlock();
         return 0;
     }
+
     set_timeout();
     _smutex.unlock();
+
+    WiFiAccessPoint ap[1];
+    _scan_r.res = ap;
+    _scan_r.limit = 1;
+    _scan_r.cnt = 0;
 
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
     if (!(_parser.send("AT+CWLAP=\"\",\"%s\",", bssid)
-            && _parser.recv("+CWLAP:(%*d,\"%*[^\"]\",%hhd,", &rssi)
             && _parser.recv("OK\n"))) {
-        _smutex.unlock();
-        return 0;
+        rssi = 0;
+    } else if (_scan_r.cnt == 1) {
+        //All OK so read and return rssi
+        rssi = ap[0].get_rssi();
     }
+
+    _scan_r.cnt = 0;
+    _scan_r.res = NULL;
     set_timeout();
     _smutex.unlock();
 
@@ -480,6 +490,7 @@ int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned
             _scan_r.cnt = NSAPI_ERROR_DEVICE_ERROR;
         }
     }
+
 
     int cnt = _scan_r.cnt;
     _scan_r.res = NULL;
