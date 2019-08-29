@@ -48,11 +48,9 @@ static clock_name_t const uart_clocks[] = UART_CLOCK_FREQS;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-void serial_init(serial_t *obj, PinName tx, PinName rx)
+void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
 {
-    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
-    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
-    obj->serial.index = pinmap_merge(uart_tx, uart_rx);
+    obj->serial.index = (uint32_t)pinmap->peripheral;
     MBED_ASSERT((int)obj->serial.index != NC);
 
     uart_config_t config;
@@ -64,16 +62,16 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     UART_Init(uart_addrs[obj->serial.index], &config, CLOCK_GetFreq(uart_clocks[obj->serial.index]));
 
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
+    pin_function(pinmap->tx_pin, pinmap->tx_function);
+    pin_function(pinmap->rx_pin, pinmap->rx_function);
 
-    if (tx != NC) {
+    if (pinmap->tx_pin != NC) {
         UART_EnableTx(uart_addrs[obj->serial.index], true);
-        pin_mode(tx, PullUp);
+        pin_mode(pinmap->tx_pin, PullUp);
     }
-    if (rx != NC) {
+    if (pinmap->rx_pin != NC) {
         UART_EnableRx(uart_addrs[obj->serial.index], true);
-        pin_mode(rx, PullUp);
+        pin_mode(pinmap->rx_pin, PullUp);
     }
 
     if (obj->serial.index == STDIO_UART) {
@@ -87,6 +85,21 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Zero the handle. */
     memset(&(obj->serial.uart_transfer_handle), 0, sizeof(obj->serial.uart_transfer_handle));
+}
+
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
+    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
+
+    int peripheral = (int)pinmap_merge(uart_tx, uart_rx);
+
+    int tx_function = (int)pinmap_find_function(tx, PinMap_UART_TX);
+    int rx_function = (int)pinmap_find_function(rx, PinMap_UART_RX);
+
+    const serial_pinmap_t explicit_uart_pinmap = {peripheral, tx, tx_function, rx, rx_function, 0};
+
+    serial_init_direct(obj, &explicit_uart_pinmap);
 }
 
 void serial_free(serial_t *obj)
@@ -336,24 +349,28 @@ const PinMap *serial_rts_pinmap()
 /*
  * Only hardware flow control is implemented in this API.
  */
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
 {
     switch(type) {
         case FlowControlRTS:
-            pinmap_pinout(rxflow, PinMap_UART_RTS);
+            pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+            pin_mode(pinmap->rx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM &= ~UART_MODEM_TXCTSE_MASK;
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_RXRTSE_MASK;
             break;
 
         case FlowControlCTS:
-            pinmap_pinout(txflow, PinMap_UART_CTS);
+            pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+            pin_mode(pinmap->tx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM &= ~UART_MODEM_RXRTSE_MASK;
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_TXCTSE_MASK;
             break;
 
         case FlowControlRTSCTS:
-            pinmap_pinout(rxflow, PinMap_UART_RTS);
-            pinmap_pinout(txflow, PinMap_UART_CTS);
+            pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+            pin_mode(pinmap->rx_flow_pin, PullNone);
+            pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+            pin_mode(pinmap->tx_flow_pin, PullNone);
             uart_addrs[obj->serial.index]->MODEM |= UART_MODEM_TXCTSE_MASK | UART_MODEM_RXRTSE_MASK;
             break;
 
@@ -364,6 +381,16 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         default:
             break;
     }
+}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    int tx_flow_function = (int)pinmap_find_function(txflow, PinMap_UART_CTS);
+    int rx_flow_function = (int)pinmap_find_function(rxflow, PinMap_UART_RTS);
+
+    const serial_fc_pinmap_t explicit_uart_fc_pinmap = {0, txflow, tx_flow_function, rxflow, rx_flow_function};
+
+    serial_set_flow_control_direct(obj, type, &explicit_uart_fc_pinmap);
 }
 
 #endif
