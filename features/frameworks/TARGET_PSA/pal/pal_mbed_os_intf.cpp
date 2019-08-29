@@ -118,6 +118,7 @@ void pal_mbed_os_compliance_test_initialize(void)
     }
     else if (COMPLIANCE_TEST_ATTESTATION == type_g)
     {
+        reset_storage_for_compliance_test();
         inject_entropy();
         psa_crypto_init();
         psa_attestation_inject_key_for_test(); // inject key in case needed
