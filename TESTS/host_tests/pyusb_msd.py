@@ -197,7 +197,7 @@ class MSDUtils(object):
 
     @staticmethod
     def _disk_path_linux(serial):
-        output = subprocess.check_output(['lsblk', '-dnoserial,mountpoint']).split('\n')
+        output = subprocess.check_output(['lsblk', '-dnoserial,mountpoint']).split(b'\n')
         for line in output:
             serial_and_mount_point = line.split()
             if len(serial_and_mount_point) == 2:
