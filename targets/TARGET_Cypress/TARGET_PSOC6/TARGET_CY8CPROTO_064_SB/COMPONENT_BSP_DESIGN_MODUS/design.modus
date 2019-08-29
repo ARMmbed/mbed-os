@@ -198,33 +198,33 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[6].pin[4]" alias="CYBSP_SWO" template="mxs40pin" version="1.0">
+                <Block location="ioss[0].port[6].pin[4]" alias="CYBSP_SWO" template="mxs40pin" version="1.1">
                     <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
                     <Param id="initialState" value="1"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
                     <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_FULL"/>
+                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[6].pin[6]" alias="CYBSP_SWDIO" template="mxs40pin" version="1.0">
+                <Block location="ioss[0].port[6].pin[6]" alias="CYBSP_SWDIO" template="mxs40pin" version="1.1">
                     <Param id="DriveModes" value="CY_GPIO_DM_PULLUP"/>
                     <Param id="initialState" value="1"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
                     <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_FULL"/>
+                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[6].pin[7]" alias="CYBSP_SWCLK" template="mxs40pin" version="1.0">
+                <Block location="ioss[0].port[6].pin[7]" alias="CYBSP_SWCLK" template="mxs40pin" version="1.1">
                     <Param id="DriveModes" value="CY_GPIO_DM_PULLDOWN"/>
                     <Param id="initialState" value="1"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
                     <Param id="slewRate" value="CY_GPIO_SLEW_FAST"/>
-                    <Param id="driveStrength" value="CY_GPIO_DRIVE_FULL"/>
+                    <Param id="driveStrength" value="CY_GPIO_DRIVE_1_2"/>
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
@@ -326,6 +326,10 @@
                     <Param id="sourceClockNumber" value="0"/>
                     <Param id="divider" value="2"/>
                 </Block>
+                <Block location="srss[0].clock[0].hfclk[3]" alias="" template="mxs40hfclk" version="1.1">
+                    <Param id="sourceClockNumber" value="1"/>
+                    <Param id="divider" value="1"/>
+                </Block>
                 <Block location="srss[0].clock[0].ilo[0]" alias="" template="mxs40ilo" version="1.0">
                     <Param id="hibernate" value="true"/>
                 </Block>
@@ -352,6 +356,12 @@
                 </Block>
                 <Block location="srss[0].clock[0].periclk[0]" alias="" template="mxs40periclk" version="1.0">
                     <Param id="divider" value="2"/>
+                </Block>
+                <Block location="srss[0].clock[0].pll[0]" alias="" template="mxs40pll" version="1.0">
+                    <Param id="lowFrequencyMode" value="false"/>
+                    <Param id="configuration" value="auto"/>
+                    <Param id="desiredFrequency" value="48.000"/>
+                    <Param id="optimization" value="MinPower"/>
                 </Block>
                 <Block location="srss[0].clock[0].slowclk[0]" alias="" template="mxs40slowclk" version="1.0">
                     <Param id="divider" value="1"/>

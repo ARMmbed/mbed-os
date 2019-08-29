@@ -43,6 +43,8 @@ extern "C" {
 #define CY_CFG_SYSCLK_CLKHF0 0UL
 #define srss_0_clock_0_hfclk_2_ENABLED 1U
 #define CY_CFG_SYSCLK_CLKHF2 2UL
+#define srss_0_clock_0_hfclk_3_ENABLED 1U
+#define CY_CFG_SYSCLK_CLKHF3 3UL
 #define srss_0_clock_0_ilo_0_ENABLED 1U
 #define srss_0_clock_0_imo_0_ENABLED 1U
 #define srss_0_clock_0_lfclk_0_ENABLED 1U
@@ -53,6 +55,7 @@ extern "C" {
 #define srss_0_clock_0_pathmux_3_ENABLED 1U
 #define srss_0_clock_0_pathmux_4_ENABLED 1U
 #define srss_0_clock_0_periclk_0_ENABLED 1U
+#define srss_0_clock_0_pll_0_ENABLED 1U
 #define srss_0_clock_0_slowclk_0_ENABLED 1U
 #define srss_0_clock_0_wco_0_ENABLED 1U
 #define srss_0_power_0_ENABLED 1U

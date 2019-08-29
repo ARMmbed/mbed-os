@@ -38,6 +38,9 @@
 #define CY_CFG_SYSCLK_CLKHF2_ENABLED 1
 #define CY_CFG_SYSCLK_CLKHF2_FREQ_MHZ 50UL
 #define CY_CFG_SYSCLK_CLKHF2_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH0
+#define CY_CFG_SYSCLK_CLKHF3_ENABLED 1
+#define CY_CFG_SYSCLK_CLKHF3_FREQ_MHZ 48UL
+#define CY_CFG_SYSCLK_CLKHF3_CLKPATH CY_SYSCLK_CLKHF_IN_CLKPATH1
 #define CY_CFG_SYSCLK_ILO_ENABLED 1
 #define CY_CFG_SYSCLK_IMO_ENABLED 1
 #define CY_CFG_SYSCLK_CLKLF_ENABLED 1
@@ -52,6 +55,7 @@
 #define CY_CFG_SYSCLK_CLKPATH4_ENABLED 1
 #define CY_CFG_SYSCLK_CLKPATH4_SOURCE CY_SYSCLK_CLKPATH_IN_IMO
 #define CY_CFG_SYSCLK_CLKPERI_ENABLED 1
+#define CY_CFG_SYSCLK_PLL0_ENABLED 1
 #define CY_CFG_SYSCLK_CLKSLOW_ENABLED 1
 #define CY_CFG_SYSCLK_WCO_ENABLED 1
 #define CY_CFG_PWR_ENABLED 1
@@ -73,6 +77,14 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.settlingCount = 8U,
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
 	.cco_Freq = 355U,
+};
+static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_0_pllConfig = 
+{
+	.feedbackDiv = 30,
+	.referenceDiv = 1,
+	.outputDiv = 5,
+	.lfMode = false,
+	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_AUTO,
 };
 
 __WEAK void cycfg_ClockStartupError(uint32_t error)
@@ -110,6 +122,12 @@ __STATIC_INLINE void Cy_SysClk_ClkHf2Init()
     Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF2, CY_SYSCLK_CLKHF_DIVIDE_BY_2);
     Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF2);
 }
+__STATIC_INLINE void Cy_SysClk_ClkHf3Init()
+{
+    Cy_SysClk_ClkHfSetSource(CY_CFG_SYSCLK_CLKHF3, CY_CFG_SYSCLK_CLKHF3_CLKPATH);
+    Cy_SysClk_ClkHfSetDivider(CY_CFG_SYSCLK_CLKHF3, CY_SYSCLK_CLKHF_NO_DIVIDE);
+    Cy_SysClk_ClkHfEnable(CY_CFG_SYSCLK_CLKHF3);
+}
 __STATIC_INLINE void Cy_SysClk_IloInit()
 {
     /* The WDT is unlocked in the default startup code */
@@ -144,6 +162,17 @@ __STATIC_INLINE void Cy_SysClk_ClkPath4Init()
 __STATIC_INLINE void Cy_SysClk_ClkPeriInit()
 {
     Cy_SysClk_ClkPeriSetDivider(1U);
+}
+__STATIC_INLINE void Cy_SysClk_Pll0Init()
+{
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllManualConfigure(1U, &srss_0_clock_0_pll_0_pllConfig))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
+    if (CY_SYSCLK_SUCCESS != Cy_SysClk_PllEnable(1U, 10000u))
+    {
+        cycfg_ClockStartupError(CY_CFG_SYSCLK_PLL_ERROR);
+    }
 }
 __STATIC_INLINE void Cy_SysClk_ClkSlowInit()
 {

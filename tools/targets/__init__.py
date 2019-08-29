@@ -688,7 +688,7 @@ class PSOC6Code:
                                "is not compatible with Cypress Secure Boot target. "
                                "You are using Python " + str(sys.version[:5]) + 
                                " which is not supported by CySecureTools. "
-                               "Consider installing Python 3.7+ and rebuild target. "
+                               "Consider installing Python 3.4+ and rebuild target. "
                                "For more information refver to User Guide https://www.cypress.com/secureboot-sdk-user-guide")
         else:
             from tools.targets.PSOC6 import sign_image as psoc6_sign_image

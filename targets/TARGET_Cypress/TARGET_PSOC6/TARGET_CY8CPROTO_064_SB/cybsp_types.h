@@ -23,14 +23,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_bsp_cy8cproto_064_sb CY8CPROTO-064-SB
-* \ingroup group_bsp
-* \{
-* \defgroup group_bsp_cy8cproto_064_sb_macros Macros
-* \defgroup group_bsp_cy8cproto_064_sb_enums Enumerated Types
-*/
-
 #pragma once
 
 #include "cyhal.h"
@@ -40,7 +32,7 @@ extern "C" {
 #endif
 
 /**
-* \addtogroup group_bsp_cy8cproto_064_sb_macros
+* \addtogroup group_bsp_pins Pin Mappings
 * \{
 */
 
@@ -109,10 +101,10 @@ extern "C" {
 /** Pin: USB Device D- */
 #define CYBSP_USB_DM           P14_1
 
-/** \} group_bsp_cy8cproto_064_sb_macros */
+/** \} group_bsp_pins */
 
 /**
-* \addtogroup group_bsp_cy8cproto_064_sb_enums
+* \addtogroup group_bsp_enums Enumerated Types
 * \{
 */
 
@@ -148,10 +140,8 @@ typedef enum
     CYBSP_USER_BTN1 = CYBSP_SW2,
 } cybsp_btn_t;
 
-/** \} group_bsp_cy8cproto_064_sb_enums */
+/** \} group_bsp_enums */
 
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cy8cproto_064_sb */

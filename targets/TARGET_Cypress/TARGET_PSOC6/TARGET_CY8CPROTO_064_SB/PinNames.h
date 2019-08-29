@@ -20,11 +20,8 @@
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
-#include "cmsis.h"
 #include "PinNamesTypes.h"
-#include "PortNames.h"
 #include "cyhal_pin_package.h"
-#include "cyhal_utils.h"
 
 typedef cyhal_gpio_t PinName;
 
@@ -68,16 +65,14 @@ typedef cyhal_gpio_t PinName;
 #define UART_RTS P5_2
 #define UART_CTS P5_3
 
-    // Reset pin unavailable
+// Reset pin unavailable
 
-
-#define SWITCH2 P0_4
 #define LED1 P13_7
 #define LED2 P1_5
-
 #define LED_RED LED1
 #define LED_GREEN LED2
 
+#define SWITCH2 P0_4
 #define USER_BUTTON SWITCH2
 #define BUTTON1 USER_BUTTON
 
@@ -88,48 +83,20 @@ typedef cyhal_gpio_t PinName;
 #define QSPI_IO_3 P11_3
 #define QSPI_SEL P11_2
 
-    // Standardized interfaces names
+#define QSPI_FLASH1_IO0 QSPI_IO_0
+#define QSPI_FLASH1_IO1 QSPI_IO_1
+#define QSPI_FLASH1_IO2 QSPI_IO_2
+#define QSPI_FLASH1_IO3 QSPI_IO_3
+#define QSPI_FLASH1_SCK QSPI_CLK
+#define QSPI_FLASH1_CSN QSPI_SEL
+
+// Standardized interfaces names
 #define STDIO_UART_TX UART_TX
 #define STDIO_UART_RX UART_RX
 #define STDIO_UART_CTS UART_CTS
 #define STDIO_UART_RTS UART_RTS
 
-#define CY_STDIO_UART_RX STDIO_UART_RX
-#define CY_STDIO_UART_TX STDIO_UART_TX
-#define CY_STDIO_UART_CTS STDIO_UART_CTS
-#define CY_STDIO_UART_RTS STDIO_UART_RTS
-
-#define CY_BT_UART_RX BT_UART_RX
-#define CY_BT_UART_TX BT_UART_TX
-#define CY_BT_UART_CTS BT_UART_CTS
-#define CY_BT_UART_RTS BT_UART_RTS
-
-#define CY_BT_PIN_POWER BT_PIN_POWER
-#define CY_BT_PIN_HOST_WAKE BT_PIN_HOST_WAKE
-#define CY_BT_PIN_DEVICE_WAKE BT_PIN_DEVICE_WAKE
-
-
 #define USBTX UART_TX
 #define USBRX UART_RX
-
-#define AOUT P9_6
-
-// PinName[15-0] = Port[15-8] + Pin[4-0]
-static inline unsigned CY_PIN(PinName pin)
-{
-    return pin & 0x07;
-}
-
-static inline unsigned CY_PORT(PinName pin)
-{
-    return (pin >> 8) & 0xFF;
-}
-
-// Because MBED pin mapping API does not allow to map multiple instances of the PWM
-// to be mapped to the same pin, we create special pin names to force 32-bit PWM unit
-// usage instead of standard 16-bit PWM.
-
-#define PWM32(pin)      CY_PIN_FORCE_PWM_32(pin)
-
 
 #endif

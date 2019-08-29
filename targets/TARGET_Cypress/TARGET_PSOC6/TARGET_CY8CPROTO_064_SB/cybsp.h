@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file cybsp_cy8cproto_064_sb.c
+* \file CY8CPROTO-064-SB/cybsp.h
 *
 * Description:
 * Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CPROTO-064-SB pioneer kit.
+* CY8CPROTO-064-SB prototyping kit.
 *
 ********************************************************************************
 * \copyright
@@ -23,31 +23,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-//#include "cybsp_retarget.h"
-#include "cybsp_cy8cproto_064_sb.h"
-#include "cycfg.h"
+#pragma once
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-cy_rslt_t cybsp_init(void)
-{
-    init_cycfg_system();
-    cy_rslt_t result = cybsp_led_init(CYBSP_USER_LED1);
-    result |= cybsp_led_init(CYBSP_USER_LED2);
-    result |= cybsp_btn_init(CYBSP_USER_BTN1);
-    
-#if defined(CYBSP_RETARGET_ENABLED)
-    /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
-    if (CY_RSLT_SUCCESS == result)
-    {
-        result = cybsp_retarget_init();
-    }
-#endif
-    
-    return result;
-}
+#include "cybsp_types.h"
+#include "cybsp_core.h"
+#ifndef __MBED__
+#include "cybsp_retarget.h"
+#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 }
