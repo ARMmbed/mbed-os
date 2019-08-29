@@ -28,6 +28,8 @@
 
 #define ONE_MHZ     1000000
 
+#define QSPI_NO_INST 0x00
+
 namespace mbed {
 /** \defgroup drivers-public-api-spi SPI
  * \ingroup drivers-public-api
@@ -38,6 +40,10 @@ namespace mbed {
  * \ingroup drivers-public-api-spi
  * @{
  */
+
+/** Type representing a QSPI instruction
+ */
+typedef char qspi_inst_t;
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
  *
@@ -160,7 +166,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(int instruction, int alt, int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(qspi_inst_t instruction, int alt, int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
@@ -173,7 +179,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(int instruction, int alt, int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(qspi_inst_t instruction, int alt, int address, const char *tx_buffer, size_t *tx_length);
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
@@ -187,7 +193,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t command_transfer(int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t command_transfer(qspi_inst_t instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
 #if !defined(DOXYGEN_ONLY)
 protected:
@@ -227,7 +233,7 @@ private:
     /*
      * This function builds the qspi command struct to be send to Hal
      */
-    inline void _build_qspi_command(int instruction, int address, int alt);
+    inline void _build_qspi_command(qspi_inst_t instruction, int address, int alt);
 #endif
 };
 

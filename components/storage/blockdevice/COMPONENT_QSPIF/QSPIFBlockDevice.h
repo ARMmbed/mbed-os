@@ -234,19 +234,19 @@ private:
     /********************************/
     /*   Calls to QSPI Driver APIs  */
     /********************************/
-    // Send Program => Write command to Driver
-    qspi_status_t _qspi_send_program_command(unsigned int prog_instruction, const void *buffer, mbed::bd_addr_t addr,
-                                             mbed::bd_size_t *size);
+    // Send Program/Write command to Driver
+    qspi_status_t _qspi_send_program_command(mbed::qspi_inst_t prog_instruction, const void *buffer,
+                                             mbed::bd_addr_t addr, mbed::bd_size_t *size);
 
     // Send Read command to Driver
-    qspi_status_t _qspi_send_read_command(unsigned int read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_read_command(mbed::qspi_inst_t read_instruction, void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Erase Instruction using command_transfer command to Driver
-    qspi_status_t _qspi_send_erase_command(unsigned int erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
+    qspi_status_t _qspi_send_erase_command(mbed::qspi_inst_t erase_instruction, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Generic command_transfer command to Driver
-    qspi_status_t _qspi_send_general_command(unsigned int instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
-                                             size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t _qspi_send_general_command(mbed::qspi_inst_t instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
+                                             mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
     // Send Bus configure_format command to Driver
     qspi_status_t _qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
@@ -331,15 +331,15 @@ private:
     PlatformMutex _mutex;
 
     // Command Instructions
-    unsigned int _read_instruction;
-    unsigned int _prog_instruction;
-    unsigned int _erase_instruction;
-    unsigned int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
-    unsigned int _write_register_inst; // Write status/config register instruction may vary between chips
-    unsigned int _read_register_inst; // Read status/config register instruction may vary between chips
+    mbed::qspi_inst_t _read_instruction;
+    mbed::qspi_inst_t _prog_instruction;
+    mbed::qspi_inst_t _erase_instruction;
+    mbed::qspi_inst_t _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+    mbed::qspi_inst_t _write_register_inst; // Write status/config register instruction may vary between chips
+    mned::qspi_inst_t _read_register_inst; // Read status/config register instruction may vary between chips
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    unsigned int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
+    mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
     unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
 
     // Sector Regions Map

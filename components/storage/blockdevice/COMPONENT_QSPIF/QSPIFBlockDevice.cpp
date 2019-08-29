@@ -381,7 +381,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     int type = 0;
     uint32_t offset = 0;
     uint32_t chunk = 4096;
-    unsigned int cur_erase_inst = _erase_instruction;
+    qspi_inst_t cur_erase_inst = _erase_instruction;
     int size = (int)in_size;
     bool erase_failed = false;
     int status = QSPIF_BD_ERROR_OK;
@@ -955,8 +955,8 @@ int QSPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int
 }
 
 int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                                             unsigned int &erase4k_inst,
-                                                             unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr)
+                                                             qspi_inst_t &erase4k_inst,
+                                                             qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr)
 {
     erase4k_inst = 0xff;
     bool found_4Kerase_type = false;
@@ -1009,7 +1009,7 @@ int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_para
 
 int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size,
                                                       bool &set_quad_enable,
-                                                      bool &is_qpi_mode, unsigned int &read_inst)
+                                                      bool &is_qpi_mode, qspi_inst_t &read_inst)
 {
     set_quad_enable = false;
     is_qpi_mode = false;
@@ -1205,7 +1205,7 @@ int QSPIFBlockDevice::_set_write_enable()
 int QSPIFBlockDevice::_enable_fast_mdoe()
 {
     char status_reg[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
-    unsigned int read_conf_register_inst = 0x15;
+    qspi_inst_t read_conf_register_inst = 0x15;
     char status_reg_qer_setup[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
 
     status_reg_qer_setup[2] = 0x2; // Bit 1 of config Reg 2
@@ -1322,7 +1322,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_set_frequency(int freq)
     return _qspi.set_frequency(freq);
 }
 
-qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(unsigned int read_inst, void *buffer, bd_addr_t addr,
+qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst, void *buffer, bd_addr_t addr,
                                                         bd_size_t size)
 {
     // Send Read command to device driver
@@ -1337,7 +1337,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(unsigned int read_inst, 
 
 }
 
-qspi_status_t QSPIFBlockDevice::_qspi_send_program_command(unsigned int progInst, const void *buffer, bd_addr_t addr,
+qspi_status_t QSPIFBlockDevice::_qspi_send_program_command(qspi_inst_t progInst, const void *buffer, bd_addr_t addr,
                                                            bd_size_t *size)
 {
     // Send Program (write) command to device driver
@@ -1351,7 +1351,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_program_command(unsigned int progInst
     return result;
 }
 
-qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(unsigned int erase_inst, bd_addr_t addr, bd_size_t size)
+qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_inst, bd_addr_t addr, bd_size_t size)
 {
     // Send Erase Instruction command to driver
     qspi_status_t result = QSPI_STATUS_OK;
@@ -1373,7 +1373,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(unsigned int erase_inst
 
 }
 
-qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(unsigned int instruction, bd_addr_t addr,
+qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instruction, bd_addr_t addr,
                                                            const char *tx_buffer,
                                                            size_t tx_length, const char *rx_buffer, size_t rx_length)
 {
