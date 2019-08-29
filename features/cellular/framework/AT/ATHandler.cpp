@@ -926,7 +926,7 @@ void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
         for (size_t i = 0; i < sizeof(map_3gpp_errors) / sizeof(map_3gpp_errors[0]); i++) {
             if (map_3gpp_errors[i][0] == err) {
                 _last_3gpp_error = map_3gpp_errors[i][1];
-                tr_debug("AT3GPP error code %d", get_3gpp_error());
+                tr_error("AT3GPP error code %d", get_3gpp_error());
                 break;
             }
         }
@@ -943,7 +943,7 @@ void ATHandler::at_error(bool error_code_expected, DeviceErrorType error_type)
             set_3gpp_error(err, error_type);
             _last_at_err.errCode = err;
             _last_at_err.errType = error_type;
-            tr_error("AT error code %ld", err);
+            tr_warn("AT error code %ld", err);
         } else {
             tr_warn("ATHandler ERROR reading failed");
         }

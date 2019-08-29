@@ -41,17 +41,16 @@ protected: // AT_CellularDevice
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
     virtual void set_ready_cb(Callback<void()> callback);
-    virtual nsapi_error_t hard_power_on();
-    virtual nsapi_error_t hard_power_off();
     virtual nsapi_error_t soft_power_on();
-    virtual nsapi_error_t init();
+    virtual nsapi_error_t soft_power_off();
     virtual void set_at_urcs_impl();
 
 public:
     void handle_urc(FileHandle *fh);
 
 private:
-    nsapi_error_t press_power_button(uint32_t timeout);
+    void press_button(DigitalOut &button, uint32_t timeout);
+    bool wake_up(bool reset = false);
     bool _active_high;
     DigitalOut _pwr;
     DigitalOut _rst;
