@@ -167,11 +167,7 @@ int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
     uint32_t bd_offset = _area_params[area].address + offset;
     uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
 
-    int os_ret = _buff_bd->erase(bd_offset, eu_size);
-    if (os_ret) {
-        return MBED_ERROR_WRITE_FAILED;
-    }
-    return MBED_SUCCESS;
+    return _buff_bd->erase(bd_offset, eu_size);
 }
 
 void TDBStore::calc_area_params()
@@ -1498,8 +1494,7 @@ int TDBStore::is_erase_unit_erased(uint8_t area, uint32_t offset, bool &erased)
 int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t size, bool force_check)
 {
     // In order to save init time, we don't check that the entire area is erased.
-    // Instead, whenever reaching an erase unit start, check that it's erased, and if not -
-    // erase it.
+    // Instead, whenever reaching an erase unit start erase it.
 
     while (size) {
         uint32_t dist, offset_from_start;
@@ -1507,19 +1502,10 @@ int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t s
         offset_in_erase_unit(area, offset, offset_from_start, dist);
         uint32_t chunk = std::min(size, dist);
 
-        if (!offset_from_start || force_check) {
-            // We're at the start of an erase unit. Here (and only here, if not forced),
-            // check if it's erased.
-            bool erased;
-            ret = is_erase_unit_erased(area, offset, erased);
-            if (ret) {
+        if (offset_from_start == 0 || force_check) {
+            ret = erase_erase_unit(area, offset - offset_from_start);
+            if (ret != MBED_SUCCESS) {
                 return MBED_ERROR_WRITE_FAILED;
-            }
-            if (!erased) {
-                ret = erase_erase_unit(area, offset - offset_from_start);
-                if (ret) {
-                    return MBED_ERROR_WRITE_FAILED;
-                }
             }
         }
         offset += chunk;
