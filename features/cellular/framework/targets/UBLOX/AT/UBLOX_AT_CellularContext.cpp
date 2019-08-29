@@ -113,11 +113,13 @@ nsapi_error_t UBLOX_AT_CellularContext::define_context()
         return err;
     }
 
+    _at.lock();
     _at.cmd_start_stop("+UPSND", "=", "%d%d", PROFILE, 8);
     _at.resp_start("+UPSND:");
     _at.skip_param(2);
     active = _at.read_int();
     _at.resp_stop();
+    _at.unlock();
 
     if (active == 0) {
         // If the caller hasn't entered an APN, try to find it
@@ -193,11 +195,13 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                 Timer t1;
                 t1.start();
                 while (!(t1.read() >= 180)) {
+                    _at.lock();
                     _at.cmd_start_stop("+UPSND", "=", "%d%d", PROFILE, 8);
                     _at.resp_start("+UPSND:");
                     _at.skip_param(2);
                     _at.read_int() ? activated = true : activated = false;
                     _at.resp_stop();
+                    _at.unlock();
 
                     if (activated) {  //If context is activated, exit while loop and return status
                         break;

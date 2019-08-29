@@ -94,26 +94,28 @@ nsapi_error_t UBLOX_AT::init()
     _at->flush();
     _at->at_cmd_discard("", "");
 
-#ifdef TARGET_UBLOX_C027
-    _at->at_cmd_discard("+CFUN", "=0");
+    nsapi_error_t err = NSAPI_ERROR_OK;
 
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
+#ifdef TARGET_UBLOX_C027
+    err = _at->at_cmd_discard("+CFUN", "=0");
+
+    if (err == NSAPI_ERROR_OK) {
         _at->at_cmd_discard("E0", ""); // echo off
         _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
         config_authentication_parameters();
-        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
 #else
-    _at->at_cmd_discard("+CFUN", "=4");
-    if (_at->get_last_error() == NSAPI_ERROR_OK) {
+    err = _at->at_cmd_discard("+CFUN", "=4");
+    if (err == NSAPI_ERROR_OK) {
         _at->at_cmd_discard("E0", ""); // echo off
         _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
         config_authentication_parameters();
-        _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
+        err = _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
     }
 #endif
 
-    return _at->unlock_return_error();
+    return err;
 }
 
 nsapi_error_t UBLOX_AT::config_authentication_parameters()
