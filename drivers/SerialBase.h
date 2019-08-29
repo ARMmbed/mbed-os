@@ -200,6 +200,13 @@ public:
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
     void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
+
+    /** Set the flow control type on the serial port
+     *
+     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)
+     *  @param pinmap reference to strucure which holds static pinmap
+     */
+    void set_flow_control(Flow type, const serial_fc_pinmap_t &explicit_pinmap);
 #endif
 
     static void _irq_handler(uint32_t id, SerialIrq irq_type);
@@ -313,6 +320,7 @@ protected:
 #if !defined(DOXYGEN_ONLY)
 protected:
     SerialBase(PinName tx, PinName rx, int baud);
+    SerialBase(const serial_pinmap_t &explicit_pinmap, int baud);
     virtual ~SerialBase();
 
     int _base_getc();
