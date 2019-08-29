@@ -724,20 +724,17 @@ void serial_rx_abort_asynch(serial_t *obj)
  * Set HW Control Flow
  * @param obj    The serial object
  * @param type   The Control Flow type (FlowControlNone, FlowControlRTS, FlowControlCTS, FlowControlRTSCTS)
- * @param rxflow Pin for the rxflow
- * @param txflow Pin for the txflow
+ * @param pinmap Pointer to strucure which holds static pinmap
  */
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+#if EXPLICIT_PINMAP_READY
+#define SERIAL_SET_FC_DIRECT serial_set_flow_control_direct
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
+#else
+#define SERIAL_SET_FC_DIRECT _serial_set_flow_control_direct
+static void _serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
+#endif
 {
     struct serial_s *obj_s = SERIAL_S(obj);
-
-    // Checked used UART name (UART_1, UART_2, ...)
-    UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
-    UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
-    if (((UARTName)pinmap_merge(uart_rts, obj_s->uart) == (UARTName)NC) || ((UARTName)pinmap_merge(uart_cts, obj_s->uart) == (UARTName)NC)) {
-        MBED_ASSERT(0);
-        return;
-    }
 
     if (type == FlowControlNone) {
         // Disable hardware flow control
@@ -745,34 +742,67 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     }
     if (type == FlowControlRTS) {
         // Enable RTS
-        MBED_ASSERT(uart_rts != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS;
-        obj_s->pin_rts = rxflow;
+        obj_s->pin_rts = pinmap->rx_flow_pin;
         // Enable the pin for RTS function
-        pinmap_pinout(rxflow, PinMap_UART_RTS);
+        pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+        pin_mode(pinmap->rx_flow_pin, PullNone);
     }
     if (type == FlowControlCTS) {
         // Enable CTS
-        MBED_ASSERT(uart_cts != (UARTName)NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_CTS;
-        obj_s->pin_cts = txflow;
+        obj_s->pin_cts = pinmap->tx_flow_pin;
         // Enable the pin for CTS function
-        pinmap_pinout(txflow, PinMap_UART_CTS);
+        pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+        pin_mode(pinmap->tx_flow_pin, PullNone);
     }
     if (type == FlowControlRTSCTS) {
         // Enable CTS & RTS
-        MBED_ASSERT(uart_rts != (UARTName)NC);
-        MBED_ASSERT(uart_cts != (UARTName)NC);
+        MBED_ASSERT(pinmap->rx_flow_pin != (UARTName)NC);
+        MBED_ASSERT(pinmap->tx_flow_pin != (UARTName)NC);
         obj_s->hw_flow_ctl = UART_HWCONTROL_RTS_CTS;
-        obj_s->pin_rts = rxflow;
-        obj_s->pin_cts = txflow;
+        obj_s->pin_rts = pinmap->rx_flow_pin;;
+        obj_s->pin_cts = pinmap->tx_flow_pin;;
         // Enable the pin for CTS function
-        pinmap_pinout(txflow, PinMap_UART_CTS);
+        pin_function(pinmap->tx_flow_pin, pinmap->tx_flow_function);
+        pin_mode(pinmap->tx_flow_pin, PullNone);
         // Enable the pin for RTS function
-        pinmap_pinout(rxflow, PinMap_UART_RTS);
+        pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
+        pin_mode(pinmap->rx_flow_pin, PullNone);
     }
 
     init_uart(obj);
+}
+
+/**
+ * Set HW Control Flow
+ * @param obj    The serial object
+ * @param type   The Control Flow type (FlowControlNone, FlowControlRTS, FlowControlCTS, FlowControlRTSCTS)
+ * @param rxflow Pin for the rxflow
+ * @param txflow Pin for the txflow
+ */
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+
+    UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
+    UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
+
+    if (((UARTName)pinmap_merge(uart_rts, obj_s->uart) == (UARTName)NC) || ((UARTName)pinmap_merge(uart_cts, obj_s->uart) == (UARTName)NC)) {
+        MBED_ASSERT(0);
+        return;
+    }
+
+    int peripheral = (int)pinmap_merge(uart_rts, uart_cts);
+
+    int tx_flow_function = (int)pinmap_find_function(txflow, PinMap_UART_CTS);
+    int rx_flow_function = (int)pinmap_find_function(rxflow, PinMap_UART_RTS);
+
+    const serial_fc_pinmap_t explicit_uart_fc_pinmap = {peripheral, txflow, tx_flow_function, rxflow, rx_flow_function};
+
+    SERIAL_SET_FC_DIRECT(obj, type, &explicit_uart_fc_pinmap);
 }
 
 #endif /* DEVICE_SERIAL_FC */
