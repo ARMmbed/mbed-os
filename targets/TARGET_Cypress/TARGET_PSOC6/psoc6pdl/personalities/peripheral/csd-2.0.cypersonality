@@ -110,7 +110,7 @@
     <ParamBool id="CsdAdcEnable" name="Enable CSDADC" group="CSDADC" default="false" visible="true" editable="true" 
             desc="Enables the CSDADC function of the CSD hardware block. The CSD ADC middleware must be enabled in the Middleware Selector" />
     <ParamRange id="numChannels" name="Number of Input Channels" group="CSDADC" default="1" min="1" max="32" resolution="1" 
-            visible="`${CsdAdcEnable}`" editable="true" desc="The number of channels to scan" />
+            visible="`${CsdAdcEnable}`" editable="true" desc="The number of channels to scan. After changing the number, check the pins assignments of all enabled CSD features (CapSense, CSDADC, CSDIDAC)." />
     <ParamChoice id="resolution" name="Resolution" group="CSDADC" default="CY_CSDADC_RESOLUTION_10BIT" visible="`${CsdAdcEnable}`" editable="true" 
             desc="Configures the CSDADC resolution" >
       <Entry name="8 bit" value="CY_CSDADC_RESOLUTION_8BIT" visible="true" />
