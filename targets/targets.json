@@ -9178,7 +9178,10 @@
         "release_versions": ["5"],
         "device_name": "M263KIAAE",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true,
+        "overrides": {
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true
+        },
         "forced_reset_timeout": 3
     },    
     "__build_tools_metadata__": {
