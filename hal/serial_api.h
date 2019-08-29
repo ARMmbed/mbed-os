@@ -104,6 +104,23 @@ typedef struct serial_s serial_t;
 
 #endif
 
+typedef struct {
+    int peripheral;
+    PinName tx_pin;
+    int tx_function;
+    PinName rx_pin;
+    int rx_function;
+    bool stdio_config;
+} serial_pinmap_t;
+
+typedef struct {
+    int peripheral;
+    PinName tx_flow_pin;
+    int tx_flow_function;
+    PinName rx_flow_pin;
+    int rx_flow_function;
+} serial_fc_pinmap_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -202,6 +219,15 @@ extern "C" {
  * @param rx  The RX pin name
  */
 void serial_init(serial_t *obj, PinName tx, PinName rx);
+
+/** Initialize the serial peripheral. It sets the default parameters for serial
+ *  peripheral, and configures its specifieds pins.
+ *
+ * @param obj The serial object
+ * @param pinmap pointer to strucure which holds static pinmap
+ */
+void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap);
+
 
 /** Release the serial peripheral, not currently invoked. It requires further
  *  resource management.
@@ -304,6 +330,15 @@ void serial_pinout_tx(PinName tx);
  * @param txflow The RX pin name
  */
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow);
+
+/** Configure the serial for the flow control. It sets flow control in the hardware
+ *  if a serial peripheral supports it, otherwise software emulation is used.
+ *
+ * @param obj    The serial object
+ * @param type   The type of the flow control. Look at the available FlowControl types.
+ * @param pinmap Pointer to strucure which holds static pinmap
+ */
+void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap);
 #endif
 
 /** Get the pins that support Serial TX
