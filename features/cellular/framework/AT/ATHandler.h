@@ -416,9 +416,9 @@ public:
      */
     ssize_t read_hex_string(char *str, size_t size);
 
-    /** Reads as string and converts result to integer. Supports only positive integers.
+    /** Reads as string and converts result to integer. Supports only non-negative integers.
      *
-     *  @return the positive integer or -1 in case of error.
+     *  @return the non-negative integer or -1 in case of error.
      */
     int32_t read_int();
 
