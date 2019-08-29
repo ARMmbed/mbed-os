@@ -23,10 +23,6 @@ ICMPSocket::ICMPSocket()
     _socket_stats.stats_update_proto(this, NSAPI_ICMP);
 }
 
-ICMPSocket::~ICMPSocket()
-{
-}
-
 nsapi_protocol_t ICMPSocket::get_proto()
 {
     return NSAPI_ICMP;

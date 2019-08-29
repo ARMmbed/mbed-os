@@ -56,7 +56,6 @@ enum nsapi_error {
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
     NSAPI_ERROR_TIMEOUT             = -3019,     /*!< operation timed out */
     NSAPI_ERROR_BUSY                = -3020,     /*!< device is busy and cannot accept new operation */
-    NSAPI_ERROR_PROTO_UNKNOWN       = -3021,     /*!< unknown protocol */
 };
 
 
@@ -217,7 +216,6 @@ typedef enum nsapi_protocol {
     NSAPI_TCP, /*!< Socket is of TCP type */
     NSAPI_UDP, /*!< Socket is of UDP type */
     NSAPI_ICMP, /*!< Socket is of ICMP type */
-    NSAPI_PROTO_UNKNOWN, /*!< Socket Protocol type UKNOWN */
 } nsapi_protocol_t;
 
 /** Enum of standardized stack option levels

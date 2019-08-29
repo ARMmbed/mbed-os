@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-#include "InternetDatagram.h"
+#include "InternetDatagramSocket.h"
 #include "Timer.h"
 #include "mbed_assert.h"
 
-InternetDatagram::InternetDatagram()
-{
-    _socket_stats.stats_update_proto(this, NSAPI_ICMP);
-}
-
-InternetDatagram::~InternetDatagram()
-{
-}
-
-nsapi_protocol_t InternetDatagram::get_proto()
-{
-    return NSAPI_PROTO_UNKNOWN;
-}
-
-nsapi_error_t InternetDatagram::connect(const SocketAddress &address)
+nsapi_error_t InternetDatagramSocket::connect(const SocketAddress &address)
 {
     _remote_peer = address;
     _socket_stats.stats_update_peer(this, _remote_peer);
@@ -40,7 +26,7 @@ nsapi_error_t InternetDatagram::connect(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_size_or_error_t InternetDatagram::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
     SocketAddress address;
     nsapi_size_or_error_t err;
@@ -61,7 +47,7 @@ nsapi_size_or_error_t InternetDatagram::sendto(const char *host, uint16_t port, 
     return sendto(address, data, size);
 }
 
-nsapi_size_or_error_t InternetDatagram::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -108,7 +94,7 @@ nsapi_size_or_error_t InternetDatagram::sendto(const SocketAddress &address, con
     return ret;
 }
 
-nsapi_size_or_error_t InternetDatagram::send(const void *data, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::send(const void *data, nsapi_size_t size)
 {
     if (!_remote_peer) {
         return NSAPI_ERROR_NO_ADDRESS;
@@ -116,7 +102,7 @@ nsapi_size_or_error_t InternetDatagram::send(const void *data, nsapi_size_t size
     return sendto(_remote_peer, data, size);
 }
 
-nsapi_size_or_error_t InternetDatagram::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
@@ -177,12 +163,12 @@ nsapi_size_or_error_t InternetDatagram::recvfrom(SocketAddress *address, void *b
     return ret;
 }
 
-nsapi_size_or_error_t InternetDatagram::recv(void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t InternetDatagramSocket::recv(void *buffer, nsapi_size_t size)
 {
     return recvfrom(NULL, buffer, size);
 }
 
-Socket *InternetDatagram::accept(nsapi_error_t *error)
+Socket *InternetDatagramSocket::accept(nsapi_error_t *error)
 {
     if (error) {
         *error = NSAPI_ERROR_UNSUPPORTED;
@@ -190,7 +176,7 @@ Socket *InternetDatagram::accept(nsapi_error_t *error)
     return NULL;
 }
 
-nsapi_error_t InternetDatagram::listen(int)
+nsapi_error_t InternetDatagramSocket::listen(int)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

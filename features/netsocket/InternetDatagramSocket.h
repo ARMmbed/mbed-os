@@ -1,6 +1,6 @@
 /** \addtogroup netsocket */
 /** @{*/
-/* InternetDatagram
+/* InternetDatagramSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef InternetDatagram_H
-#define InternetDatagram_H
+#ifndef INTERNETDATAGRAMSOCKET_H
+#define INTERNETDATAGRAMSOCKET_H
 
 #include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
@@ -25,21 +25,10 @@
 #include "rtos/EventFlags.h"
 
 
-/** InternetDatagram socket implementation.
+/** InternetDatagramSocket socket implementation.
  */
-class InternetDatagram : public InternetSocket {
+class InternetDatagramSocket : public InternetSocket {
 public:
-    /** Create an uninitialized socket.
-     *
-     *  @note Must call open to initialize the socket on a network stack.
-     */
-    InternetDatagram();
-
-    /** Destroy a socket.
-     *
-     *  @note Closes socket if the socket is still open.
-     */
-    virtual ~InternetDatagram();
 
     /** Send data to the specified host and port.
      *
@@ -135,14 +124,14 @@ public:
      */
     virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
 
-    /** Not implemented for InternetDatagram.
+    /** Not implemented for InternetDatagramSocket.
      *
      *  @param error      Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED
      */
     virtual Socket *accept(nsapi_error_t *error = NULL);
 
-    /** Not implemented for InternetDatagram.
+    /** Not implemented for InternetDatagramSocket.
      *
      *  @param backlog    Not used.
      *  @return           NSAPI_ERROR_UNSUPPORTED
@@ -151,7 +140,12 @@ public:
 #if !defined(DOXYGEN_ONLY)
 
 protected:
-    virtual nsapi_protocol_t get_proto();
+
+    /** Create an uninitialized socket.
+     *
+     *  @note Must call open to initialize the socket on a network stack.
+     */
+    InternetDatagramSocket() = default;
 
 #endif //!defined(DOXYGEN_ONLY)
 };

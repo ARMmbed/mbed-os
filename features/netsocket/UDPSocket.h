@@ -23,14 +23,14 @@
 #include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
-#include "netsocket/InternetDatagram.h"
+#include "netsocket/InternetDatagramSocket.h"
 #include "rtos/EventFlags.h"
 #include "ICMPSocket.h"
 
 
 /** UDP socket implementation.
  */
-class UDPSocket : public InternetDatagram {
+class UDPSocket : public InternetDatagramSocket {
 public:
     /** Create an uninitialized socket.
      *
@@ -54,12 +54,6 @@ public:
     {
         open(stack);
     }
-
-    /** Destroy a socket.
-     *
-     *  @note Closes socket if the socket is still open.
-     */
-    virtual ~UDPSocket();
 
 #if !defined(DOXYGEN_ONLY)
 

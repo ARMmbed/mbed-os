@@ -183,9 +183,7 @@ public:
 
 protected:
     friend class InternetSocket;
-    friend class InternetDatagram;
-    friend class ICMPSocket;
-    friend class UDPSocket;
+    friend class InternetDatagramSocket;
     friend class TCPSocket;
     friend class TCPServer;
 

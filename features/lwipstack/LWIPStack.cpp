@@ -238,7 +238,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     } else if (proto == NSAPI_ICMP) {
         netconntype = NETCONN_RAW;
     } else {
-        return NSAPI_ERROR_PROTO_UNKNOWN;
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
 #if LWIP_IPV6

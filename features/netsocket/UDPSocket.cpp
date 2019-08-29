@@ -23,10 +23,6 @@ UDPSocket::UDPSocket()
     _socket_stats.stats_update_proto(this, NSAPI_UDP);
 }
 
-UDPSocket::~UDPSocket()
-{
-}
-
 nsapi_protocol_t UDPSocket::get_proto()
 {
     return NSAPI_UDP;

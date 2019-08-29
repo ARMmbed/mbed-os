@@ -20,7 +20,7 @@
 #define ICMPSOCKET_H
 
 #include "netsocket/InternetSocket.h"
-#include "netsocket/InternetDatagram.h"
+#include "netsocket/InternetDatagramSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
 #include "rtos/EventFlags.h"
@@ -28,19 +28,13 @@
 
 /** ICMP socket implementation.
  */
-class ICMPSocket : public InternetDatagram {
+class ICMPSocket : public InternetDatagramSocket {
 public:
     /** Create an uninitialized socket.
      *
      *  @note Must call open to initialize the socket on a network stack.
      */
     ICMPSocket();
-
-    /** Destroy a socket.
-     *
-     *  @note Closes socket if the socket is still open.
-     */
-    virtual ~ICMPSocket();
 
 #if !defined(DOXYGEN_ONLY)
 
