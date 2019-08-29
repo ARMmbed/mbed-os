@@ -21,12 +21,12 @@
   *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)
   *                       | 3- USE_PLL_HSI (internal 64 MHz clock)
   *--------------------------------------------------------------------
-  * SYSCLK(MHz)           |            400
-  * AHBCLK (MHz)          |            200
-  * APB1CLK (MHz)         |            100
-  * APB2CLK (MHz)         |            100
-  * APB3CLK (MHz)         |            100
-  * APB4CLK (MHz)         |            100
+  * SYSCLK(MHz)           |            480
+  * AHBCLK (MHz)          |            240
+  * APB1CLK (MHz)         |            120
+  * APB2CLK (MHz)         |            120
+  * APB3CLK (MHz)         |            120
+  * APB4CLK (MHz)         |            120
   * USB capable (48 MHz)  |            YES
   *--------------------------------------------------------------------
 **/
@@ -114,9 +114,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 4;   // 2 MHz
-    RCC_OscInitStruct.PLL.PLLN = 400; // 800 MHz
-    RCC_OscInitStruct.PLL.PLLP = 2;   // PLLCLK = SYSCLK = 400 MHz
-    RCC_OscInitStruct.PLL.PLLQ = 80;  // PLL1Q used for FDCAN = 10 MHz
+    RCC_OscInitStruct.PLL.PLLN = 480; // 960 MHz
+    RCC_OscInitStruct.PLL.PLLP = 2;   // PLLCLK = SYSCLK = 480 MHz
+    RCC_OscInitStruct.PLL.PLLQ = 96;  // PLL1Q used for FDCAN = 10 MHz
     RCC_OscInitStruct.PLL.PLLR = 2;
     RCC_OscInitStruct.PLL.PLLFRACN = 0;
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
