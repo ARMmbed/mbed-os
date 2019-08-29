@@ -157,7 +157,7 @@ typedef enum sn_coap_status_ {
     COAP_STATUS_PARSER_BLOCKWISE_ACK           = 4, /**< Acknowledgement for sent Blockwise message received */
     COAP_STATUS_PARSER_BLOCKWISE_MSG_REJECTED  = 5, /**< Blockwise message received but not supported by compiling switch */
     COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED  = 6, /**< Blockwise message fully received and returned to app.
-                                                         User must take care of releasing whole payload of the blockwise messages */
+                                                         User is responsible of freeing the data by calling sn_coap_protocol_block_remove() */
     COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED = 7, /**< When re-transmissions have been done and ACK not received, CoAP library calls
                                                          RX callback with this status */
 

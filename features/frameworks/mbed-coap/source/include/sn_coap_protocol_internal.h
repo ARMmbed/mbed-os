@@ -97,6 +97,7 @@ typedef struct coap_blockwise_payload_ {
 
     uint16_t            payload_len;
     uint8_t             *payload_ptr;
+    unsigned int        use_size1:1;
 
     ns_list_link_t     link;
 } coap_blockwise_payload_s;
