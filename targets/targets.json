@@ -4646,6 +4646,7 @@
             "WLAN_ENABLED",
             "CB_FEATURE_802DOT11W",
             "CB_FEATURE_802DOT11R",
+            "CB_FEATURE_PMKCACHING",
             "MBEDTLS_ARC4_C",
             "MBEDTLS_DES_C",
             "MBEDTLS_MD4_C",
