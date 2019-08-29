@@ -1,6 +1,7 @@
 """
 * mbed Microcontroller Library
 * Copyright (c) 2006-2018 ARM Limited
+* Copyright (c) 2019 STMicroelectronics
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.5"
+GENPINMAP_VERSION = "1.7"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
@@ -79,6 +80,7 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_F446RE":"TIM5",
 "NUCLEO_F410RB":"TIM5",
 "NUCLEO_F429ZI":"TIM5",
+"STM32F427V(G-I)Tx":"TIM5",
 "NUCLEO_F446ZE":"TIM5",
 "NUCLEO_F412ZG":"TIM5",
 "NUCLEO_F413ZH":"TIM5",
@@ -99,6 +101,7 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_L4R5ZI":"TIM5",
 "NUCLEO_L4R5ZI_P":"TIM5",
 
+"NUCLEO_WB55R":"TIM16",
 "DISCO_F051R8":"TIM1",
 "DISCO_F100RB":"TIM4",
 "DISCO_F303VC":"TIM2",
@@ -114,7 +117,8 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "DISCO_L072CZ_LRWAN1":"TIM21",
 "DISCO_L475VG_IOT01A":"TIM5",
 "DISCO_L476VG":"TIM5",
-"DISCO_L496AG":"TIM5"
+"DISCO_L496AG":"TIM5",
+"DISCO_L4R9A":"TIM5"
 }
 
 
@@ -852,7 +856,10 @@ def print_qspi(l):
                 CommentedLine = "//"
         s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
         # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
-        s1 += "%-8s" % ('QSPI_1,')
+        if "OCTOSPIM_P2" in p[2]:
+            s1 += "%-8s" % ('QSPI_2,')
+        else:
+            s1 += "%-8s" % ('QSPI_1,')
         result = result.replace("GPIO_AF10_OTG_FS", "GPIO_AF10_QSPI")
         s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, ' + result +')},'
         s1 += '  // ' + p[2]
@@ -1001,13 +1008,13 @@ def parse_pins():
                     store_can(pin, name, sig)
                 if "ETH" in sig:
                     store_eth(pin, name, sig)
-                if "QUADSPI" in sig:
+                if "QUADSPI" in sig or "OCTOSPI" in sig:
                     store_qspi(pin, name, sig)
                 if "USB" in sig:
                     store_usb(pin, name, sig)
                 if "RCC_OSC" in sig:
                     store_osc(pin, name, sig)
-                if "SYS_" in sig:
+                if "SYS_" in sig or "PWR_" in sig or "DEBUG_" in sig:
                     store_sys(pin, name, sig)
 
 
@@ -1072,6 +1079,8 @@ def parse_BoardFile(fileName):
                     PinLabel[EachPin] = "STDIO_UART_RX"
                 else:
                     PinLabel[EachPin] = "STDIO_UART_TX"
+            elif "_RESERVED" in PinLabel[EachPin]:
+                PinLabel[EachPin] = "RESERVED_RADIO"
         except:
             pass
 
@@ -1225,16 +1234,22 @@ if args.target:
         TargetName += "DISCO_"
     elif "Evaluation" in board_file_name:
         TargetName += "EVAL_"
-    m = re.search(r'STM32([\w][\dR]{3}[\w]{0,2})[\w]*_Board', board_file_name)
+    m = re.search(r'STM32([\w]{1,2}[\dR]{3}[\w]{0,2})[\w]*_Board', board_file_name)
     if m:
         TargetName += "%s" % m.group(1)
         # specific case
         if "-P" in args.target:
             TargetName += "_P"
+
+        if "H743ZI2" in board_file_name:
+            TargetName += "2"
+
         if TargetName == "DISCO_L072C":
             TargetName += "Z_LRWAN1"
-        if TargetName == "DISCO_L475V":
+        elif TargetName == "DISCO_L475V":
             TargetName += "G_IOT01A"
+        elif TargetName == "DISCO_G071RBT":
+            TargetName = "DISCO_G071RB"
     else:
         quit()
 
