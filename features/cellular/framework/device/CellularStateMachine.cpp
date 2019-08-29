@@ -367,6 +367,7 @@ void CellularStateMachine::state_device_ready()
             }
         } else {
             _status = 0;
+            _is_retry = true;
             enter_to_state(STATE_INIT);
         }
     }
