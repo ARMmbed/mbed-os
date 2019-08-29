@@ -47,26 +47,19 @@ extern uint32_t serial_irq_ids[];
 HAL_StatusTypeDef init_uart(serial_t *obj);
 int8_t get_uart_index(UARTName uart_name);
 
-void serial_init(serial_t *obj, PinName tx, PinName rx)
+#if EXPLICIT_PINMAP_READY
+#define SERIAL_INIT_DIRECT serial_init_direct
+void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
+#else
+#define SERIAL_INIT_DIRECT _serial_init_direct
+static void _serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap)
+#endif
 {
     struct serial_s *obj_s = SERIAL_S(obj);
-    uint8_t stdio_config = 0;
-
-    // Determine the UART to use (UART_1, UART_2, ...)
-    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
 
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
-    obj_s->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
+    obj_s->uart = (UARTName)pinmap->peripheral;
     MBED_ASSERT(obj_s->uart != (UARTName)NC);
-
-    if ((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX)) {
-        stdio_config = 1;
-    } else {
-        if (uart_tx == pinmap_peripheral(STDIO_UART_TX, PinMap_UART_TX)) {
-            error("Error: new serial object is using same UART as STDIO");
-        }
-    }
 
     // Reset and enable clock
 #if defined(USART1_BASE)
@@ -164,19 +157,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
+    pin_function(pinmap->tx_pin, pinmap->tx_function);
+    pin_function(pinmap->rx_pin, pinmap->rx_function);
 
-    if (tx != NC) {
-        pin_mode(tx, PullUp);
+    if (pinmap->tx_pin != NC) {
+        pin_mode(pinmap->tx_pin, PullUp);
     }
-    if (rx != NC) {
-        pin_mode(rx, PullUp);
+    if (pinmap->rx_pin != NC) {
+        pin_mode(pinmap->rx_pin, PullUp);
     }
 
     // Configure UART
     obj_s->baudrate = 9600; // baudrate default value
-    if (stdio_config) {
+    if (pinmap->stdio_config) {
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_STDIO_BAUD_RATE */
@@ -193,16 +186,41 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj_s->hw_flow_ctl = UART_HWCONTROL_NONE;
 #endif
 
-    obj_s->pin_tx = tx;
-    obj_s->pin_rx = rx;
+    obj_s->pin_tx = pinmap->tx_pin;
+    obj_s->pin_rx = pinmap->rx_pin;
 
     init_uart(obj); /* init_uart will be called again in serial_baud function, so don't worry if init_uart returns HAL_ERROR */
 
     // For stdio management in platform/mbed_board.c and platform/mbed_retarget.cpp
-    if (stdio_config) {
+    if (pinmap->stdio_config) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
+}
+
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    uint32_t uart_tx = pinmap_peripheral(tx, PinMap_UART_TX);
+    uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
+
+    int peripheral = (int)pinmap_merge(uart_tx, uart_rx);
+
+    int tx_function = (int)pinmap_find_function(tx, PinMap_UART_TX);
+    int rx_function = (int)pinmap_find_function(rx, PinMap_UART_RX);
+
+    uint8_t stdio_config = false;
+
+    if ((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX)) {
+        stdio_config = true;
+    } else {
+        if (uart_tx == pinmap_peripheral(STDIO_UART_TX, PinMap_UART_TX)) {
+            error("Error: new serial object is using same UART as STDIO");
+        }
+    }
+
+    const serial_pinmap_t explicit_uart_pinmap = {peripheral, tx, tx_function, rx, rx_function, stdio_config};
+
+    SERIAL_INIT_DIRECT(obj, &explicit_uart_pinmap);
 }
 
 void serial_free(serial_t *obj)
