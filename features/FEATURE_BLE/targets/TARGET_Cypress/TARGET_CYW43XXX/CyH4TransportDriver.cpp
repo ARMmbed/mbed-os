@@ -18,31 +18,59 @@
 #if DEVICE_SERIAL && DEVICE_SERIAL_FC
 
 #include "CyH4TransportDriver.h"
-#include "cycfg_pins.h"
 
 namespace ble {
 namespace vendor {
 namespace cypress_ble {
 
-CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name) :
+
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud, PinName bt_host_wake_name, PinName bt_device_wake_name, uint8_t host_wake_irq, uint8_t dev_wake_irq) :
     uart(tx, rx, baud), cts(cts), rts(rts),
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
-    bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullDefault, 1)
+    bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullDefault, 1),
+    host_wake_irq_event(host_wake_irq),
+    dev_wake_irq_event(dev_wake_irq)
 {
+    enabled_powersave = true;
+}
+
+CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud) :
+    uart(tx, rx, baud),
+    cts(cts),
+    rts(rts),
+    bt_host_wake_name(NC),
+    bt_device_wake_name(NC),
+    bt_host_wake(bt_host_wake_name),
+    bt_device_wake(bt_device_wake_name)
+{
+    enabled_powersave = false;
+    sleep_manager_lock_deep_sleep();
+    holding_deep_sleep_lock = true;
+}
+
+CyH4TransportDriver::~CyH4TransportDriver()
+{
+    if (holding_deep_sleep_lock)
+    {
+       sleep_manager_unlock_deep_sleep();
+       holding_deep_sleep_lock = false;
+    }
 }
 
 void CyH4TransportDriver::bt_host_wake_irq_handler(void)
 {
-	sleep_manager_lock_deep_sleep();
-	CyH4TransportDriver::on_controller_irq();
-	sleep_manager_unlock_deep_sleep();
+    sleep_manager_lock_deep_sleep();
+    CyH4TransportDriver::on_controller_irq();
+    sleep_manager_unlock_deep_sleep();
 }
 
 void CyH4TransportDriver::initialize()
 {
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
 	InterruptIn *host_wake_pin;
+#endif
 
     uart.format(
         /* bits */ 8,
@@ -64,11 +92,21 @@ void CyH4TransportDriver::initialize()
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     //Register IRQ for Host WAKE
     host_wake_pin = new InterruptIn(bt_host_wake_name);
-    host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+    if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+       host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+    } else {
+       host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+    }
 
 #endif
-    bt_device_wake = 0;
-    wait_ms(500);
+    if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+       if (bt_device_wake_name != NC)
+           bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+    } else {
+       if (bt_device_wake_name != NC)
+           bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+    }
+    rtos::ThisThread::sleep_for(500);
 }
 
 void CyH4TransportDriver::terminate() {  }
@@ -105,7 +143,11 @@ void CyH4TransportDriver::on_controller_irq()
 void CyH4TransportDriver::assert_bt_dev_wake()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-    bt_device_wake = 0;
+    if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+       bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+    } else {
+       bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+    }
 #endif
 }
 
@@ -113,12 +155,55 @@ void CyH4TransportDriver::deassert_bt_dev_wake()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
 	//De-assert bt_device_wake
-	bt_device_wake = 1;
+    if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+       bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+    } else {
+       bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+    }
 #endif
 }
+
+bool CyH4TransportDriver::get_enabled_powersave()
+{
+    return (enabled_powersave);
+}
+
+uint8_t CyH4TransportDriver::get_host_wake_irq_event()
+{
+    return (host_wake_irq_event);
+}
+
+uint8_t CyH4TransportDriver::get_dev_wake_irq_event()
+{
+    return (dev_wake_irq_event);
+}
+
 
 } // namespace cypress_ble
 } // namespace vendor
 } // namespace ble
+
+ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transport_driver()
+{
+#if (defined(CYBSP_BT_HOST_WAKE) && defined(CYBSP_BT_DEVICE_WAKE))
+    static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
+       /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
+       /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE,
+       CYBSP_BT_HOST_WAKE, CYBSP_BT_DEVICE_WAKE
+    );
+
+#else
+    static ble::vendor::cypress_ble::CyH4TransportDriver s_transport_driver(
+        /* TX */ CYBSP_BT_UART_TX, /* RX */ CYBSP_BT_UART_RX,
+        /* cts */ CYBSP_BT_UART_CTS, /* rts */ CYBSP_BT_UART_RTS, DEF_BT_BAUD_RATE);
+#endif
+    return s_transport_driver;
+}
+
+MBED_WEAK
+ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_driver()
+{
+    return (ble_cordio_get_default_h4_transport_driver());
+}
 
 #endif

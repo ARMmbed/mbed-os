@@ -20,13 +20,8 @@
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
-#include "cmsis.h"
 #include "PinNamesTypes.h"
-#include "PortNames.h"
 #include "cyhal_pin_package.h"
-#include "cyhal_utils.h"
-
-typedef cyhal_gpio_t PinName;
 
 // Generic signal names
 
@@ -43,25 +38,14 @@ typedef cyhal_gpio_t PinName;
 #define UART_RTS P13_2
 #define UART_CTS P13_3
 
-#define BT_UART_RX P3_0
-#define BT_UART_TX P3_1
-#define BT_UART_CTS P3_3
-#define BT_UART_RTS P3_2
-
-#define BT_PIN_POWER P3_4
-#define BT_PIN_HOST_WAKE P4_0
-#define BT_PIN_DEVICE_WAKE P3_5
-#define BT_PIN_DEVICE_RESET P4_1
-
-#define SWITCH2 P0_4
 #define LED1 P0_3
 #define LED2 P1_1
 #define LED3 P10_6
-
 #define LED_RED LED1
-#define LED_BLUE LED3
 #define LED_GREEN LED2
+#define LED_BLUE LED3
 
+#define SWITCH2 P0_4
 #define USER_BUTTON SWITCH2
 #define BUTTON1 USER_BUTTON
 
@@ -85,23 +69,8 @@ typedef cyhal_gpio_t PinName;
 #define STDIO_UART_CTS UART_CTS
 #define STDIO_UART_RTS UART_RTS
 
-#define CY_STDIO_UART_RX STDIO_UART_RX
-#define CY_STDIO_UART_TX STDIO_UART_TX
-#define CY_STDIO_UART_CTS STDIO_UART_CTS
-#define CY_STDIO_UART_RTS STDIO_UART_RTS
-
-#define CY_BT_UART_RX BT_UART_RX
-#define CY_BT_UART_TX BT_UART_TX
-#define CY_BT_UART_CTS BT_UART_CTS
-#define CY_BT_UART_RTS BT_UART_RTS
-
-#define CY_BT_PIN_POWER BT_PIN_POWER
-#define CY_BT_PIN_HOST_WAKE BT_PIN_HOST_WAKE
-#define CY_BT_PIN_DEVICE_WAKE BT_PIN_DEVICE_WAKE
-
 #define USBTX UART_TX
 #define USBRX UART_RX
 
-#define CY_WIFI_HOST_WAKE P2_7
 
 #endif

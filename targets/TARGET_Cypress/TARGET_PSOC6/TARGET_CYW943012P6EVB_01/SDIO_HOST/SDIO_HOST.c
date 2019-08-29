@@ -28,13 +28,23 @@
 extern "C" {
 #endif
 
-#ifdef SEMAPHORE
-#include "cyabs_rtos.h"
+#ifdef CY_RTOS_AWARE
 
-#define NEVER_TIMEOUT ( (uint32_t)0xffffffffUL )
-static cy_semaphore_t sdio_transfer_finished_semaphore;
+    #include "cyabs_rtos.h"
+
+    #define NEVER_TIMEOUT ( (uint32_t)0xffffffffUL )
+    static cy_semaphore_t sdio_transfer_finished_semaphore;
+    static bool sema_initialized = false;
 #endif
 
+/* Backup struct used to store and restore non retention UDB registers */
+typedef struct
+{
+    uint32_t CY_SDIO_UDB_WRKMULT_CTL_0;
+    uint32_t CY_SDIO_UDB_WRKMULT_CTL_1;
+    uint32_t CY_SDIO_UDB_WRKMULT_CTL_2;
+    uint32_t CY_SDIO_UDB_WRKMULT_CTL_3;
+} stc_sdio_backup_regs_t;
 
 /*Globals Needed for DMA */
 /*DMA channel structures*/
@@ -61,14 +71,63 @@ static uint8_t crcTable[256];
 static uint32_t yCountRemainder;
 static uint32_t yCounts;
 
+/* Global value for card interrupt */
+static uint8_t pfnCardInt_count = 0;
+
+/*Global structure to store UDB registers */
+static stc_sdio_backup_regs_t regs;
+
 static uint32_t udb_initialized = 0;
 
+cy_stc_syspm_callback_params_t      sdio_pm_callback_params;
+cy_stc_syspm_callback_t             sdio_pm_callback_handler;
+
+/* Deep Sleep Mode API Support */
+static void SDIO_SaveConfig(void);
+static void SDIO_RestoreConfig(void);
+
+/*******************************************************************************
+* Function Name: SDIO_DeepSleepCallback
+****************************************************************************//**
+*
+* Callback executed during Deep Sleep entry/exit
+*
+* \note
+* Saves/Restores SDIO UDB registers
+*******************************************************************************/
+cy_en_syspm_status_t SDIO_DeepSleepCallback(cy_stc_syspm_callback_params_t *params, cy_en_syspm_callback_mode_t mode)
+{
+    cy_en_syspm_status_t status = CY_SYSPM_FAIL;
+
+    switch (mode) 
+    {
+        case CY_SYSPM_CHECK_READY:
+        case CY_SYSPM_CHECK_FAIL:
+            status = CY_SYSPM_SUCCESS;
+            break;
+
+        case CY_SYSPM_BEFORE_TRANSITION:
+            SDIO_SaveConfig();
+            status = CY_SYSPM_SUCCESS;
+            break;
+
+        case CY_SYSPM_AFTER_TRANSITION:
+            SDIO_RestoreConfig();
+            status = CY_SYSPM_SUCCESS;
+            break;
+
+        default:
+            break;
+    }
+
+    return status;
+}
 
 /*******************************************************************************
 * Function Name: SDIO_Init
 ****************************************************************************//**
 *
-* Initializes the SDIO hardware, and register the callback
+* Initializes the SDIO hardware
 *
 * \param pfuCb
 * Pointer to structure that holds pointers to callback function
@@ -132,11 +191,6 @@ void SDIO_Init(stc_sdio_irq_cb_t* pfuCb)
     SDIO_SetSdClkFrequency(400000);
     SDIO_EnableIntClock();
     SDIO_EnableSdClk();
-
-     /*Initalize the semaphore*/
-#ifdef SEMAPHORE
-    cy_rtos_init_semaphore( &sdio_transfer_finished_semaphore, 1, 1 );
-#endif
 }
 
 
@@ -560,40 +614,48 @@ void SDIO_InitDataTransfer(stc_sdio_data_config_t *pstcDataConfig)
 *******************************************************************************/
 en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
 {
-    /*Store the command and data configurations*/
+    /* Store the command and data configurations*/
     stc_sdio_cmd_config_t   stcCmdConfig;
     stc_sdio_data_config_t  stcDataConfig;
 
-#ifdef SEMAPHORE
-    en_sdio_result_t result;
-#endif
-
-    /*variable used for holding timeout value*/
-#ifndef SEMAPHORE
-    uint32_t    u32Timeout = 0;
-#endif
-
-#ifndef SEMAPHORE_CMD
     uint32_t u32CmdTimeout = 0;
-#endif
 
     /*Returns from various function calls*/
     en_sdio_result_t enRet = Error;
     en_sdio_result_t enRetTmp = Ok;
 
-    /*Hold value of if these checks are needed*/
+    /* Hold value of if these checks are needed */
     uint8_t             bCmdIndexCheck;
     uint8_t             bCmdCrcCheck;
     static uint8_t      u8responseBuf[6];
 
-    /*Clear statuses*/
+    /* Clear statuses */
     gstcInternalData.stcEvents.u8CmdComplete = 0;
     gstcInternalData.stcEvents.u8TransComplete = 0;
     gstcInternalData.stcEvents.u8CRCError = 0;
 
-    /*Setup the command configuration*/
+    /* Setup the command configuration */
     stcCmdConfig.u8CmdIndex = (uint8_t)pstcCmd->u32CmdIdx;
     stcCmdConfig.u32Argument =  pstcCmd->u32Arg;
+
+#ifdef CY_RTOS_AWARE
+
+    cy_rslt_t result;
+
+    /* Initialize the semaphore. This is not done in init because init is called
+    * in interrupt thread. cy_rtos_init_semaphore call is prohibited in 
+    * interrupt thread.
+    */
+    if(!sema_initialized)
+    {
+        cy_rtos_init_semaphore( &sdio_transfer_finished_semaphore, 1, 0 );
+        sema_initialized = true;
+    }
+#else
+
+    /* Variable used for holding timeout value */
+    uint32_t    u32Timeout = 0;
+#endif
 
     /*Determine the type of response and if we need to do any checks*/
     /*Command 0 and 8 have no response, so don't wait for one*/
@@ -694,41 +756,46 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
                             SDIO_CONTROL_REG |= SDIO_CTRL_ENABLE_WRITE;
                         }
 
-#ifndef SEMAPHORE
-                        /*Wait for the transfer to finish*/
+                    #ifdef CY_RTOS_AWARE
+                        /* Wait for the transfer to finish.
+                        *  Acquire semaphore and wait until it will be released 
+                        *  in SDIO_IRQ:
+                        *  1. sdio_transfer_finished_semaphore count is equal to 
+                        *     zero. cy_rtos_get_semaphore waits until semaphore 
+                        *     count is increased by cy_rtos_set_semaphore() in 
+                        *     SDIO_IRQ.
+                        *  2. The cy_rtos_set_semaphore() increases 
+                        *     sdio_transfer_finished_semaphore count.
+                        *  3. The cy_rtos_get_semaphore() function decreases 
+                        *     sdio_transfer_finished_semaphore back to zero 
+                        *     and exit. Or timeout occurs
+                        */
+                        result = cy_rtos_get_semaphore( &sdio_transfer_finished_semaphore, 10, false );
+
+                        enRetTmp = SDIO_CheckForEvent(SdCmdEventTransferDone);
+
+                        if (result != CY_RSLT_SUCCESS)
+                    #else
+                         /* Wait for the transfer to finish */
                         do
                         {
-
                             u32Timeout++;
                             enRetTmp = SDIO_CheckForEvent(SdCmdEventTransferDone);
 
                         } while (!((enRetTmp == Ok) || (enRetTmp == DataCrcError) || (u32Timeout >= SDIO_DAT_TIMEOUT)));
 
-                        /*if it was a read it is possible there is still extra data hanging out, trigger the
-                          DMA again. This can result in extra data being transfered so the read buffer should be
-                          3 bytes bigger than needed*/
-                        if (pstcCmd->bRead == true)
+                        if (u32Timeout == SDIO_DAT_TIMEOUT)
+                    #endif
                         {
-                            Cy_TrigMux_SwTrigger((uint32_t)SDIO_HOST_Read_DMA_DW__TR_IN, 2);
+                            enRet |= DataTimeout;
                         }
 
-                        if (u32Timeout == SDIO_DAT_TIMEOUT)
-#else
-                         result = cy_rtos_get_semaphore( &sdio_transfer_finished_semaphore, 10, false );
-                         enRetTmp = SDIO_CheckForEvent(SdCmdEventTransferDone);
-
-                         /* if it was a read it is possible there is still extra data hanging out, trigger the
+                        /* if it was a read it is possible there is still extra data hanging out, trigger the
                            DMA again. This can result in extra data being transfered so the read buffer should be
                            3 bytes bigger than needed*/
                         if (pstcCmd->bRead == true)
                         {
                             Cy_TrigMux_SwTrigger((uint32_t)SDIO_HOST_Read_DMA_DW__TR_IN, 2);
-                        }
-
-                        if (result != Ok)
-#endif
-                        {
-                            enRet |= DataTimeout;
                         }
 
                         if (enRetTmp == DataCrcError)
@@ -741,9 +808,8 @@ en_sdio_result_t SDIO_SendCommandAndWait(stc_sdio_cmd_t *pstcCmd)
         } /*No Response Required, thus no CMD53*/
     } /*CMD Passed*/
 
-
-#ifndef SEMAPHORE
-     u32Timeout = 0;
+#ifndef CY_RTOS_AWARE
+    u32Timeout = 0;
 #endif
 
     /*If there were no errors then indicate transfer was okay*/
@@ -1161,63 +1227,72 @@ void SDIO_IRQ(void)
 {
     uint8_t u8Status;
 
-    /*first read the status register*/
+    /* First read the status register */
     u8Status = SDIO_STATUS_REG;
 
-    /*Check card interrupt*/
+    /* Check card interrupt */
     if (u8Status & SDIO_STS_CARD_INT )
     {
+        pfnCardInt_count++;
+    }
+    
+    /* Execute card interrupt callback if neccesary */
+    if (0 != pfnCardInt_count)
+    {        
         if (NULL != gstcInternalData.pstcCallBacks.pfnCardIntCb)
         {
-              gstcInternalData.pstcCallBacks.pfnCardIntCb();
+            gstcInternalData.pstcCallBacks.pfnCardIntCb();
         }
+        pfnCardInt_count--;
     }
 
-    /*If the command is complete set the flag*/
+    /* If the command is complete set the flag */
     if (u8Status & SDIO_STS_CMD_DONE)
     {
         gstcInternalData.stcEvents.u8CmdComplete++;
     }
 
-    /*Check if a write is complete*/
+    /* Check if a write is complete */
     if (u8Status & SDIO_STS_WRITE_DONE )
     {
 
-        /*Clear the Write flag and CMD53 flag*/
+        /* Clear the Write flag and CMD53 flag */
         SDIO_CONTROL_REG &= ~(SDIO_CTRL_ENABLE_WRITE | SDIO_CTRL_ENABLE_INT);
 
-        /*Check if the CRC status return was bad*/
-        if (u8Status & SDIO_STS_CRC_ERR )
-        {
-            /*CRC was bad, set the flag*/
-            gstcInternalData.stcEvents.u8CRCError++;
-        }
-        /*set the done flag*/
-#ifdef SEMAPHORE
-        cy_rtos_set_semaphore( &sdio_transfer_finished_semaphore, true );
-#else
-        gstcInternalData.stcEvents.u8TransComplete++;
-#endif
-    }
-
-    /*Check if a read is complete*/
-    if (u8Status & SDIO_STS_READ_DONE)
-    {
-        /*Clear the read flag*/
-        SDIO_CONTROL_REG &= ~(SDIO_CTRL_ENABLE_READ| SDIO_CTRL_ENABLE_INT);
-
-        /*check the CRC*/
+        /* Check if the CRC status return was bad */
         if (u8Status & SDIO_STS_CRC_ERR)
         {
-            /*CRC was bad, set the flag*/
+            /* CRC was bad, set the flag */
             gstcInternalData.stcEvents.u8CRCError++;
         }
-        /*Okay we're done so set the done flag*/
-#ifdef SEMAPHORE
+        
+        /* Set the done flag */
+
+    #ifdef CY_RTOS_AWARE
         cy_rtos_set_semaphore( &sdio_transfer_finished_semaphore, true );
-#else
+    #else
         gstcInternalData.stcEvents.u8TransComplete++;
-#endif
+    #endif
+    }
+
+    /* Check if a read is complete */
+    if (u8Status & SDIO_STS_READ_DONE)
+    {
+        /* Clear the read flag */
+        SDIO_CONTROL_REG &= ~(SDIO_CTRL_ENABLE_READ| SDIO_CTRL_ENABLE_INT);
+
+        /* Check the CRC */
+        if (u8Status & SDIO_STS_CRC_ERR)
+        {
+            /* CRC was bad, set the flag */
+            gstcInternalData.stcEvents.u8CRCError++;
+        }
+        /* Okay we're done so set the done flag */
+    #ifdef CY_RTOS_AWARE
+        cy_rtos_set_semaphore( &sdio_transfer_finished_semaphore, true );
+    #else
+        gstcInternalData.stcEvents.u8TransComplete++;
+    #endif
     }
 
     NVIC_ClearPendingIRQ((IRQn_Type) SDIO_HOST_sdio_int__INTC_NUMBER);
@@ -1286,7 +1361,6 @@ void SDIO_READ_DMA_IRQ(void)
     yCounts--;
 }
 
-
 void SDIO_WRITE_DMA_IRQ(void)
 {
     /*We shouldn't have to change anything unless it is the last descriptor*/
@@ -1346,6 +1420,46 @@ void SDIO_WRITE_DMA_IRQ(void)
     /*Clear the interrupt*/
     Cy_DMA_Channel_ClearInterrupt(SDIO_HOST_Write_DMA_HW, SDIO_HOST_Write_DMA_DW_CHANNEL);
     yCounts--;
+}
+
+void SDIO_Free(void)
+{
+#ifdef CY_RTOS_AWARE
+    cy_rtos_deinit_semaphore(&sdio_transfer_finished_semaphore);
+#endif
+}
+
+/*******************************************************************************
+* Function Name: SDIO_SaveConfig
+********************************************************************************
+*
+* Saves the user configuration of the SDIO UDB non-retention registers. Call the
+* SDIO_SaveConfig() function before the Cy_SysPm_CpuEnterDeepSleep() function.
+*
+*******************************************************************************/
+static void SDIO_SaveConfig(void)
+{
+    regs.CY_SDIO_UDB_WRKMULT_CTL_0 = UDB->WRKMULT.CTL[0];
+    regs.CY_SDIO_UDB_WRKMULT_CTL_1 = UDB->WRKMULT.CTL[1];
+    regs.CY_SDIO_UDB_WRKMULT_CTL_2 = UDB->WRKMULT.CTL[2];
+    regs.CY_SDIO_UDB_WRKMULT_CTL_3 = UDB->WRKMULT.CTL[3];
+}
+
+
+/*******************************************************************************
+* Function Name: SDIO_RestoreConfig
+********************************************************************************
+*
+* Restores the user configuration of the SDIO UDB non-retention registers. Call
+* the SDIO_Wakeup() function after the Cy_SysPm_CpuEnterDeepSleep() function.
+*
+*******************************************************************************/
+static void SDIO_RestoreConfig(void)
+{
+    UDB->WRKMULT.CTL[0] = regs.CY_SDIO_UDB_WRKMULT_CTL_0;
+    UDB->WRKMULT.CTL[1] = regs.CY_SDIO_UDB_WRKMULT_CTL_1;
+    UDB->WRKMULT.CTL[2] = regs.CY_SDIO_UDB_WRKMULT_CTL_2;
+    UDB->WRKMULT.CTL[3] = regs.CY_SDIO_UDB_WRKMULT_CTL_3;
 }
 
 #if defined(__cplusplus)

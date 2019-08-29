@@ -23,26 +23,64 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_bsp_cy8ckit_062_ble CY8CKIT-062-BLE
-* \ingroup group_bsp
-* \{
-* \defgroup group_bsp_cy8ckit_062_ble_macros Macros
-* \defgroup group_bsp_cy8ckit_062_ble_enums Enumerated Types
-*/
-
 #pragma once
 
-#include "cyhal.h"
+#include "cyhal_pin_package.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
-* \addtogroup group_bsp_cy8ckit_062_ble_macros
+* \addtogroup group_bsp_pins Pin Mappings
 * \{
 */
+
+// Arduino connector namings
+/** Arduino A0 */
+#define CYBSP_A0 P10_0
+/** Arduino A1 */
+#define CYBSP_A1 P10_1
+/** Arduino A2 */
+#define CYBSP_A2 P10_2
+/** Arduino A3 */
+#define CYBSP_A3 P10_3
+/** Arduino A4 */
+#define CYBSP_A4 P10_4
+/** Arduino A5 */
+#define CYBSP_A5 P10_5
+/** Arduino D0 */
+#define CYBSP_D0 P5_0
+/** Arduino D1 */
+#define CYBSP_D1 P5_1
+/** Arduino D2 */
+#define CYBSP_D2 P5_2
+/** Arduino D3 */
+#define CYBSP_D3 P5_3
+/** Arduino D4 */
+#define CYBSP_D4 P5_4
+/** Arduino D5 */
+#define CYBSP_D5 P5_5
+/** Arduino D6 */
+#define CYBSP_D6 P5_6
+/** Arduino D7 */
+#define CYBSP_D7 P0_2
+/** Arduino D8 */
+#define CYBSP_D8 P13_0
+/** Arduino D9 */
+#define CYBSP_D9 P13_1
+/** Arduino D10 */
+#define CYBSP_D10 P12_3
+/** Arduino D11 */
+#define CYBSP_D11 P12_0
+/** Arduino D12 */
+#define CYBSP_D12 P12_1
+/** Arduino D13 */
+#define CYBSP_D13 P12_2
+/** Arduino D14 */
+#define CYBSP_D14 P6_1
+/** Arduino D15 */
+#define CYBSP_D15 P6_0
 
 // Generic signal names
 /** Pin: WCO input */
@@ -51,8 +89,10 @@ extern "C" {
 #define CYBSP_WCO_OUT          P0_1
 
 /** Pin: UART RX */
+/* Corresponds to: ioss[0].port[5].pin[0], scb[5] */
 #define CYBSP_DEBUG_UART_RX    P5_0
 /** Pin: UART TX */
+/* Corresponds to: ioss[0].port[5].pin[1], scb[5] */
 #define CYBSP_DEBUG_UART_TX    P5_1
 
 /** Pin: I2C SCL */
@@ -103,25 +143,25 @@ extern "C" {
 /** Pin: QUAD SPI SCK */
 #define CYBSP_QSPI_SCK         P11_7
 
-/** \} group_bsp_cy8ckit_062_ble_macros */
+/** \} group_bsp_pins */
 
 /**
-* \addtogroup group_bsp_cy8ckit_062_ble_enums
+* \addtogroup group_bsp_enums Enumerated Types
 * \{
 */
 
 /** Enum defining the different states for the LED. */
 typedef enum
 {
-	CYBSP_LED_STATE_ON        	= 0,
-	CYBSP_LED_STATE_OFF        	= 1,
+    CYBSP_LED_STATE_ON          = 0,
+    CYBSP_LED_STATE_OFF         = 1,
 } cybsp_led_state_t;
 
 /** Enum defining the different states for a button. */
 typedef enum
 {
-	CYBSP_BTN_PRESSED  	      	= 0,
-	CYBSP_BTN_OFF	          	= 1,
+    CYBSP_BTN_PRESSED           = 0,
+    CYBSP_BTN_OFF               = 1,
 } cybsp_btn_state_t;
 
 /** Enum defining the different LED pins on the board. */
@@ -133,10 +173,15 @@ typedef enum
     CYBSP_LED_RGB_GREEN = P1_1,
     CYBSP_LED_RGB_BLUE = P11_1,
 
+    /* Corresponds to: ioss[0].port[1].pin[5] */
     CYBSP_USER_LED1 = CYBSP_LED8,
+    /* Corresponds to: ioss[0].port[13].pin[7] */
     CYBSP_USER_LED2 = CYBSP_LED9,
+    /* Corresponds to: ioss[0].port[0].pin[3] */
     CYBSP_USER_LED3 = CYBSP_LED_RGB_RED,
+    /* Corresponds to: ioss[0].port[1].pin[1] */
     CYBSP_USER_LED4 = CYBSP_LED_RGB_GREEN,
+    /* Corresponds to: ioss[0].port[11].pin[1] */
     CYBSP_USER_LED5 = CYBSP_LED_RGB_BLUE,
     CYBSP_USER_LED = CYBSP_USER_LED1,
 } cybsp_led_t;
@@ -146,14 +191,13 @@ typedef enum
 {
     CYBSP_SW2 = P0_4,
 
+    /* Corresponds to: ioss[0].port[0].pin[4] */
     CYBSP_USER_BTN1 = CYBSP_SW2,
     CYBSP_USER_BTN = CYBSP_USER_BTN1,
 } cybsp_btn_t;
 
-/** \} group_bsp_cy8ckit_062_ble_enums */
+/** \} group_bsp_enums */
 
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cy8ckit_062_ble */

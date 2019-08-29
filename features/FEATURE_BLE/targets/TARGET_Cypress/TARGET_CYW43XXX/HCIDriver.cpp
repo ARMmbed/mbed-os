@@ -25,7 +25,6 @@
 #include <stdbool.h>
 #include "hci_mbed_os_adaptation.h"
 #include "CyH4TransportDriver.h"
-#include "cycfg_pins.h"
 
 extern const int brcm_patch_ram_length;
 extern const uint8_t brcm_patchram_buf[];
@@ -57,10 +56,16 @@ class HCIDriver : public cordio::CordioHCIDriver {
 public:
     HCIDriver(
         cordio::CordioHCITransportDriver& transport_driver,
-        PinName bt_power_name
+        PinName bt_power_name,
+	bool ps_enabled,
+	uint8_t host_wake_irq,
+	uint8_t dev_wake_irq
     ) : cordio::CordioHCIDriver(transport_driver),
         bt_power_name(bt_power_name),
         bt_power(bt_power_name, PIN_OUTPUT, PullUp, 0),
+	is_powersave_enabled(ps_enabled),
+	host_wake_irq(host_wake_irq),
+	dev_wake_irq(dev_wake_irq),
         service_pack_index(0),
         service_pack_ptr(0),
         service_pack_length(0),
@@ -77,7 +82,7 @@ public:
     virtual void do_initialize()
     {
         bt_power = 1;
-        wait_ms(500);
+        rtos::ThisThread::sleep_for(500);
     }
 
     virtual void do_terminate() { }
@@ -290,7 +295,7 @@ private:
         service_pack_next = &HCIDriver::terminate_service_pack_transfert;;
         service_pack_index = 0;
         service_pack_transfered = false;
-        wait_ms(1000);
+        rtos::ThisThread::sleep_for(1000);
         send_service_pack_command();
     }
 
@@ -343,11 +348,23 @@ private:
             uint8_t *pBuf;
             if ((pBuf = hciCmdAlloc(HCI_VS_CMD_SET_SLEEP_MODE, 12)) != NULL)
             {
-                  pBuf[HCI_CMD_HDR_LEN] = 0x00; // no sleep
+                  if (is_powersave_on()) {
+                     pBuf[HCI_CMD_HDR_LEN] = 0x01; // sleep
+		  } else {
+                     pBuf[HCI_CMD_HDR_LEN] = 0x00; // no sleep
+		  }
                   pBuf[HCI_CMD_HDR_LEN + 1] = 0x00; // no idle threshold host (N/A)
                   pBuf[HCI_CMD_HDR_LEN + 2] = 0x00; // no idle threshold HC (N/A)
-                  pBuf[HCI_CMD_HDR_LEN + 3] = 0x00; // BT WAKE
-                  pBuf[HCI_CMD_HDR_LEN + 4] = 0x00; // HOST WAKE
+                  if (is_powersave_on()) {
+                     pBuf[HCI_CMD_HDR_LEN + 3] = dev_wake_irq; // BT WAKE
+		  } else {
+                     pBuf[HCI_CMD_HDR_LEN + 3] = 0x00; // BT WAKE
+		  }
+                  if (is_powersave_on()) {
+                      pBuf[HCI_CMD_HDR_LEN + 4] = host_wake_irq; // HOST WAKE
+		  } else {
+                     pBuf[HCI_CMD_HDR_LEN + 3] = 0x00; // BT WAKE
+		  }
                   pBuf[HCI_CMD_HDR_LEN + 5] = 0x00; // Sleep during SCO
                   pBuf[HCI_CMD_HDR_LEN + 6] = 0x00; // Combining sleep mode and SCM
                   pBuf[HCI_CMD_HDR_LEN + 7] = 0x00; // Tristate TX
@@ -406,8 +423,18 @@ private:
         }
     }
 
+    bool is_powersave_on(void)
+    {
+       return (is_powersave_enabled);
+    }
+
     PinName bt_power_name;
     DigitalInOut bt_power;
+
+    bool is_powersave_enabled;
+    uint8_t host_wake_irq;
+    uint8_t dev_wake_irq;
+
     size_t service_pack_index;
     const uint8_t* service_pack_ptr;
     int service_pack_length;
@@ -420,15 +447,16 @@ private:
 } // namespace vendor
 } // namespace ble
 
-ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
-    static ble::vendor::cypress_ble::CyH4TransportDriver transport_driver(
-        /* TX */ CY_BT_UART_TX, /* RX */ CY_BT_UART_RX,
-        /* cts */ CY_BT_UART_CTS, /* rts */ CY_BT_UART_RTS, 115200,
-		CY_BT_PIN_HOST_WAKE, CY_BT_PIN_DEVICE_WAKE
-    );
+ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver()
+{
+    static ble::vendor::cypress_ble::CyH4TransportDriver& transport_driver =
+          ble_cordio_get_h4_transport_driver();
     static ble::vendor::cypress::HCIDriver hci_driver(
         transport_driver,
-        /* bt_power */ CY_BT_PIN_POWER
+        /* bt_power */ CYBSP_BT_POWER,
+	transport_driver.get_enabled_powersave(),
+	transport_driver.get_host_wake_irq_event(),
+	transport_driver.get_dev_wake_irq_event()
     );
     return hci_driver;
 }

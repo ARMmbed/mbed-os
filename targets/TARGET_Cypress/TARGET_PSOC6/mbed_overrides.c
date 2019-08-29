@@ -19,9 +19,10 @@
 #include "device.h"
 #include "cycfg.h"
 #include "cyhal_hwmgr.h"
-#include "cybsp_api_core.h"
+#include "cybsp_core.h"
 #include "mbed_power_mgmt.h"
 #include "rtos_idle.h"
+#include "us_ticker_api.h"
 
 #if defined(COMPONENT_SPM_MAILBOX)
 void mailbox_init(void);
@@ -62,9 +63,6 @@ void mbed_sdk_init(void)
     /* Placed here as it must be done after proper LIBC initialization. */
     SystemInit();
 
-    /* Initialize hardware resource manager */
-    cyhal_hwmgr_init();
-
 #if defined(COMPONENT_SPM_MAILBOX)
     mailbox_init();
 #endif
@@ -83,6 +81,11 @@ void mbed_sdk_init(void)
 #if !defined(TARGET_PSA)
     /* Set up the device based on configurator selections */
     cybsp_init();
+    /*
+     * Init the us Ticker here to avoid imposing on the limited stack space of the idle thread.
+     * This also allows the first call to sleep to occur faster.
+     */
+    us_ticker_init();
 #endif
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
