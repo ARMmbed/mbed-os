@@ -36,6 +36,19 @@ UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
     enable_rx_irq();
 }
 
+UARTSerial::UARTSerial(const serial_pinmap_t &explicit_pinmap, int baud) :
+    SerialBase(explicit_pinmap, baud),
+    _blocking(true),
+    _tx_irq_enabled(false),
+    _rx_irq_enabled(false),
+    _tx_enabled(true),
+    _rx_enabled(true),
+    _dcd_irq(NULL)
+{
+    /* Attatch IRQ routines to the serial device. */
+    enable_rx_irq();
+}
+
 UARTSerial::~UARTSerial()
 {
     delete _dcd_irq;
