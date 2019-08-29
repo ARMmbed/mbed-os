@@ -184,6 +184,13 @@
 * Refer to \ref group_sysclk driver API for more detail about clock 
 * configuration.
 *
+* The FLL (Clock Path 0) with ECO also can be used as an alternative USB source
+* with the next configuration settings, for 48 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig48MHz
+* And for 96 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig96MHz
+* Use these structures with \ref Cy_SysClk_FllManualConfigure
+*
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_dma Assign and Route DMA Channels
 ********************************************************************************

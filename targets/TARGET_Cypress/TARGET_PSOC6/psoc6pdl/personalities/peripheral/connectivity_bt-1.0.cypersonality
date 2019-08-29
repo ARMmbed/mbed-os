@@ -41,7 +41,7 @@
     <ParamBool id="btHostWake" name="Enable" group="BT Wake-Up Configurations" default="false" visible="true" editable="true" desc="Enable/disable the host wake configuration. If disabled, host wake configuration defined by BSP will be used." />
 
     <!-- Host wake settings -->
-    <ParamBlock id="hostWakePin" blockType="ioss\.port\.pin" name="Host-Wake-Up Signal" group="Host-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host IRQ signal connected to BT_HOST_WAKE signal." />
+    <ParamBlock id="hostWakePin" blockType="ioss\.port\.pin" name="Host-Wake-Up Signal" group="Host-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host IRQ signal connected to BT_HOST_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
     <ParamBool id="hostWakeConnected" name="hostWakeConnected" group="Internal" default="`${hostWakePin ne &quot;&quot; &amp;&amp; btHostWake}`" visible="false" editable="false" desc="True, if HOST_WAKE is connected" />
     <ParamChoice id="hostWakeIrqEvent" name="Host-Wake-Up IRQ Event" group="Host-Wake-Up Configuration" default="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="`${hostWakeConnected}`" editable="true" desc="Select the trigger condition for the BT_HOST_WAKE signal.">
       <Entry name="Falling Edge" value="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="true" />
@@ -49,7 +49,7 @@
     </ParamChoice>
 
     <!-- Device wake settings -->
-    <ParamBlock id="devWakePin" blockType="ioss\.port\.pin" name="Device-Wake-Up Signal" group="Device-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host pin connected to the BT_DEV_WAKE signal." />
+    <ParamBlock id="devWakePin" blockType="ioss\.port\.pin" name="Device-Wake-Up Signal" group="Device-Wake-Up Configuration" canBeEmpty="true" visible="`${btHostWake}`" desc="Select the host pin connected to the BT_DEV_WAKE signal. The pin must be enabled on the Pins tab to be added as an option to the pull-down menu. If left empty, the pin will be unconfigured." />
     <ParamBool id="devWakeConnected" name="devWakeConnected" group="Internal" default="`${devWakePin ne &quot;&quot; &amp;&amp; btHostWake}`" visible="false" editable="false" desc="True, if DEV_WAKE is connected." />
     <ParamChoice id="devWakePolarity" name="Device-Wake-Up Polarity" group="Device-Wake-Up Configuration" default="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="`${devWakeConnected}`" editable="true" desc="Select the polarity for the BT_DEV_WAKE signal.">
       <Entry name="Active Low" value="CYCFG_BT_WAKE_EVENT_ACTIVE_LOW" visible="true" />
