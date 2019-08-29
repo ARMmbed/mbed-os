@@ -309,10 +309,10 @@ class Uvision(Exporter):
             std = None
         cpp_std = {
             'c++98': 1, 'gnu++98': 2,
-            'c++03': 5, 'gnu++03': 2, # UVision 5.27.1.0 does not support gnu++03 - fall back to gnu++98
+            'c++03': 5, 'gnu++03': 2, # UVision 5.28 does not support gnu++03 - fall back to gnu++98
             'c++11': 3, 'gnu++11': 4,
-            'c++14': 6, 'gnu++14': 4, # UVision 5.27.1.0 does not support gnu++14 - should be able to get it as compiler default, but that doesn't work as documented and requests gnu++98. So fall back to gnu++11
-            'c++17': 6, 'gnu++17': 4, # UVision 5.27.1.0 does not support c++17/gnu++17 - fall back to c++14/gnu++11
+            'c++14': 6, 'gnu++14': 7, # UVision 5.28 or later is required for gnu++14, c++14 or gnu++17
+            'c++17': 8, 'gnu++17': 9,
         }
         ctx['v6_lang_p'] = cpp_std.get(std, 0)
 
