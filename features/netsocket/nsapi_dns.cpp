@@ -504,8 +504,13 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
             break;
         }
 
+        if (version != NSAPI_UNSPEC && (dns_addr.get_ip_version() != version)) {
+            retries = MBED_CONF_NSAPI_DNS_RETRIES;
+            index++;
+            continue;
+        }
         // send the question
-        int len = dns_append_question(packet, 1, host, version);
+        int len = dns_append_question(packet, 1, host, dns_addr.get_ip_version());
 
         err = socket.sendto(dns_addr, packet, len);
         // send may fail for various reasons, including wrong address type - move on
@@ -1036,9 +1041,6 @@ static void nsapi_dns_query_async_send(void *ptr)
         return;
     }
 
-    // send the question
-    int len = dns_append_question(packet, query->dns_message_id, query->host, query->version);
-
     while (true) {
         SocketAddress dns_addr;
         nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &(query->send_success), &dns_addr, query->interface_name);
@@ -1047,6 +1049,13 @@ static void nsapi_dns_query_async_send(void *ptr)
             free(packet);
             return;
         }
+
+        if (query->version != NSAPI_UNSPEC && dns_addr.get_ip_version() != query->version) {
+            query->dns_server++;
+            continue;
+        }
+        // send the question
+        int len = dns_append_question(packet, query->dns_message_id, query->host, dns_addr.get_ip_version());
 
         err = query->socket->sendto(dns_addr, packet, len);
 
