@@ -62,7 +62,7 @@ extern "C" {
  *  @param enterpriseParams     Enterprise parameters.
  *  @return                     0 on success, or error code on failure
  */
-cbRTSL_Status cb_eap_conn_handler(cb_char const* cert, cb_char const* pvt_key, cbWLAN_CommonConnectParameters *commonParams, cbWLAN_EnterpriseConnectParameters *enterpriseParams);
+cbWLAN_Handle cb_eap_conn_handler(cb_char const* cert, cb_char const* pvt_key, cbWLAN_CommonConnectParameters *commonParams, cbWLAN_EnterpriseConnectParameters *enterpriseParams);
 
 #ifdef __cplusplus
 }

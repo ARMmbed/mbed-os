@@ -204,7 +204,7 @@ OdinWiFiEMAC::OdinWiFiEMAC()
 
 void send_wlan_packet(void *buf)
 {
-    cbWLAN_sendPacket(buf);
+    cbWLAN_sendPacket(cbWLAN_DEFAULT_HANDLE, buf);
 }
 
 bool OdinWiFiEMAC::link_out(emac_mem_buf_t *buf)
@@ -264,7 +264,7 @@ void OdinWiFiEMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
     emac_link_input_cb = input_cb;
 
     cbMAIN_driverLock();
-    cbWLAN_registerPacketIndicationCallback(handleWlanPacketIndication, NULL);
+    cbWLAN_registerPacketIndicationCallback(cbWLAN_DEFAULT_HANDLE, handleWlanPacketIndication, NULL);
     cbMAIN_driverUnlock();
 }
 
