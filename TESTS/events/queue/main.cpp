@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -322,6 +322,145 @@ void time_left_test()
     TEST_ASSERT_EQUAL(-1, queue.time_left(0));
 }
 
+void f5(int a1, int a2, int a3, int a4, int a5)
+{
+    touched = true;
+}
+
+class EventTest {
+public:
+    EventTest() : counter() {}
+    void f0()
+    {
+        counter++;
+    }
+    void f1(int a)
+    {
+        counter += a;
+    }
+    void f5(int a, int b, int c, int d, int e)
+    {
+        counter += a + b + c + d + e;
+    }
+    uint32_t counter;
+};
+
+/** Test that queue executes both dynamic and user allocated events.
+ *
+ *  Given queue is initialized and its size is set to store three Event at max in its internal memory.
+ *      When post queue allocated event.
+ *      Then only three event can be posted due to queue memory size.
+ *      When post user allocated evens.
+ *      Then number of posted events is not limited by queue memory size.
+ *      When both Event and UserAllocatedEvent are posted and queue dispatch is called.
+ *      Then both types of events are executed properly.
+ *
+ */
+void mixed_dynamic_static_events_queue_test()
+{
+    {
+        EventQueue queue(9 * EVENTS_EVENT_SIZE);
+
+        EventTest e1_test;
+        Event<void()> e1 = queue.event(&e1_test, &EventTest::f0);
+        int id1 =  e1.post();
+        TEST_ASSERT_NOT_EQUAL(0, id1);
+        EventTest e2_test;
+        Event<void()> e2 = queue.event(&e2_test, &EventTest::f1, 3);
+        int id2 = e2.post();
+        TEST_ASSERT_NOT_EQUAL(0, id2);
+        EventTest e3_test;
+        Event<void()> e3 = queue.event(&e3_test, &EventTest::f5, 1, 2, 3, 4, 5);
+        int id3 = e3.post();
+        TEST_ASSERT_NOT_EQUAL(0, id3);
+
+
+        auto ue0 = make_user_allocated_event(func0);
+        EventTest ue1_test;
+        auto ue1 = make_user_allocated_event(&ue1_test, &EventTest::f0);
+        EventTest ue2_test;
+        auto ue2 = make_user_allocated_event(&ue2_test, &EventTest::f1, 3);
+        EventTest ue3_test;
+        auto ue3 = make_user_allocated_event(&ue3_test, &EventTest::f5, 1, 2, 3, 4, 5);
+        EventTest ue4_test;
+        auto ue4 = make_user_allocated_event(&ue4_test, &EventTest::f5, 1, 2, 3, 4, 5);
+
+        touched = false;
+
+        ue0.call_on(&queue);
+        TEST_ASSERT_EQUAL(false, ue0.try_call());
+        ue1.call_on(&queue);
+        TEST_ASSERT_EQUAL(false, ue1.try_call());
+        ue2.call_on(&queue);
+        TEST_ASSERT_EQUAL(false, ue2.try_call());
+        ue3.call_on(&queue);
+        TEST_ASSERT_EQUAL(false, ue3.try_call());
+        ue4.call_on(&queue);
+        ue4.cancel();
+        TEST_ASSERT_EQUAL(true, ue4.try_call());
+        ue4.cancel();
+        e2.cancel();
+
+        queue.dispatch(1);
+
+        TEST_ASSERT_EQUAL(true, touched);
+        TEST_ASSERT_EQUAL(1, ue1_test.counter);
+        TEST_ASSERT_EQUAL(3, ue2_test.counter);
+        TEST_ASSERT_EQUAL(15, ue3_test.counter);
+        TEST_ASSERT_EQUAL(0, ue4_test.counter);
+        TEST_ASSERT_EQUAL(1, e1_test.counter);
+        TEST_ASSERT_EQUAL(0, e2_test.counter);
+        TEST_ASSERT_EQUAL(15, e3_test.counter);
+    }
+}
+
+
+static EventQueue g_queue(0);
+
+/** Test that static queue executes user allocated events.
+ *
+ *  Given static queue is initialized
+ *      When post user allocated evens.
+ *      Then UserAllocatedEvent are posted and dispatched without any error.
+ */
+void static_events_queue_test()
+{
+    // check that no dynamic event can be posted
+    Event<void()> e0 = g_queue.event(func0);
+    TEST_ASSERT_EQUAL(0, e0.post());
+
+    auto ue0 = g_queue.make_user_allocated_event(func0);
+    EventTest test1;
+    auto ue1 = make_user_allocated_event(&test1, &EventTest::f0);
+    EventTest test2;
+    auto ue2 = g_queue.make_user_allocated_event(&test2, &EventTest::f1, 3);
+    EventTest test3;
+    auto ue3 = make_user_allocated_event(&test3, &EventTest::f5, 1, 2, 3, 4, 5);
+    EventTest test4;
+    auto ue4 = g_queue.make_user_allocated_event(&test4, &EventTest::f5, 1, 2, 3, 4, 5);
+
+    ue0.call();
+    TEST_ASSERT_EQUAL(false, ue0.try_call());
+    ue1.call_on(&g_queue);
+    TEST_ASSERT_EQUAL(false, ue1.try_call());
+    ue2();
+    TEST_ASSERT_EQUAL(false, ue2.try_call());
+    ue3.call_on(&g_queue);
+    TEST_ASSERT_EQUAL(false, ue3.try_call());
+    ue4.call();
+    ue4.cancel();
+    TEST_ASSERT_EQUAL(true, ue4.try_call());
+    g_queue.cancel(&ue4);
+
+    g_queue.dispatch(1);
+
+    TEST_ASSERT_EQUAL(1, test1.counter);
+    TEST_ASSERT_EQUAL(3, test2.counter);
+    TEST_ASSERT_EQUAL(15, test3.counter);
+    TEST_ASSERT_EQUAL(0, test4.counter);
+
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -348,6 +487,9 @@ const Case cases[] = {
     Case("Testing the event inference", event_inference_test),
 
     Case("Testing time_left", time_left_test),
+    Case("Testing mixed dynamic & static events queue", mixed_dynamic_static_events_queue_test),
+    Case("Testing static events queue", static_events_queue_test)
+
 };
 
 Specification specification(test_setup, cases);
