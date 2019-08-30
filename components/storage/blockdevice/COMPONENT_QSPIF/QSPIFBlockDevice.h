@@ -262,6 +262,9 @@ private:
     // Send set_frequency command to Driver
     qspi_status_t _qspi_set_frequency(int freq);
 
+    // Update the 4-byte addressing extension register with the MSB of the address if it is in use
+    qspi_status_t _qspi_update_4byte_ext_addr_reg(bd_addr_t addr);
+
     /*********************************/
     /* Flash Configuration Functions */
     /*********************************/
@@ -306,6 +309,9 @@ private:
                                                mbed::qspi_inst_t &erase4k_inst,
                                                mbed::qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
+    // Detect 4-byte addressing mode and enable it if supported
+    int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
+
     /***********************/
     /* Utilities Functions */
     /***********************/
@@ -343,6 +349,9 @@ private:
     // Status register write/read instructions
     mbed::qspi_inst_t _write_status_reg_2_inst;
     mbed::qspi_inst_t _read_status_reg_2_inst;
+
+    // 4-byte addressing extension register write instruction
+    mbed::qspi_inst_t _4byte_msb_reg_write_inst;
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
     mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];

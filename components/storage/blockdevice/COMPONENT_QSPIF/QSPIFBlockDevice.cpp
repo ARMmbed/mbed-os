@@ -74,6 +74,7 @@ using namespace mbed;
 #define QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
 
 #define QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE 61
+#define QSPIF_BASIC_PARAM_TABLE_4BYTE_ADDR_BYTE 63
 
 #define SOFT_RESET_RESET_INST_BITMASK            0b001000
 #define SOFT_RESET_ENABLE_AND_RESET_INST_BITMASK 0b010000
@@ -83,6 +84,15 @@ using namespace mbed;
 #define ERASE_BITMASK_TYPE1 0x01
 #define ERASE_BITMASK_NONE  0x00
 #define ERASE_BITMASK_ALL   0x0F
+
+// 4-Byte Addressing Support Bitmasks
+#define FOURBYTE_ADDR_B7_BITMASK           0b00000001
+#define FOURBYTE_ADDR_B7_WREN_BITMASK      0b00000010
+#define FOURBYTE_ADDR_EXT_ADDR_REG_BITMASK 0b00000100
+#define FOURBYTE_ADDR_BANK_REG_BITMASK     0b00001000
+#define FOURBYTE_ADDR_CONF_REG_BITMASK     0b00010000
+#define FOURBYTE_ADDR_INSTS_BITMASK        0b00100000
+#define FOURBYTE_ADDR_ALWAYS_BITMASK       0b01000000
 
 #define IS_MEM_READY_MAX_RETRIES 10000
 
@@ -113,6 +123,9 @@ static int local_math_power(int base, int exp);
 #define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
 #define QSPIF_INST_RSR2_DEFAULT    0x35
 
+// Default 4-byte extended addressing register write instruction
+#define QSPIF_INST_4BYTE_REG_WRITE_DEFAULT QSPI_NO_INST
+
 /* Init function to initialize Different Devices CS static list */
 static PinName *generate_initialized_active_qspif_csel_arr();
 // Static Members for different devices csel
@@ -142,6 +155,9 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     // Set default status register 2 write/read instructions
     _write_status_reg_2_inst = QSPIF_INST_WSR2_DEFAULT;
     _read_status_reg_2_inst = QSPIF_INST_RSR2_DEFAULT;
+
+    // Set default 4-byte addressing extension register write instruction
+    _4byte_msb_reg_write_inst = QSPIF_INST_4BYTE_REG_WRITE_DEFAULT;
 }
 
 int QSPIFBlockDevice::init()
@@ -694,9 +710,9 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
         return -1;
     }
 
-    // Check address size, currently only supports 3byte addresses
-    if ((param_table[2] & 0x4) != 0 || (param_table[7] & 0x80) != 0) {
-        tr_error("Init - verify 3byte addressing Failed");
+    // Check that density is not greater than 4 gigabits (i.e. that addressing beyond 4 bytes is not required)
+    if ((param_table[7] & 0x80) != 0) {
+        tr_error("Init - verify flash density failed");
         return -1;
     }
 
@@ -745,6 +761,17 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
             _sfdp_set_qpi_enabled(param_table);
         }
     }
+
+    if (_sfdp_detect_and_enable_4byte_addressing(param_table, basic_table_size) != QSPIF_BD_ERROR_OK) {
+        tr_error("Init - Detecting/enabling 4-byte addressing failed");
+        return -1;
+    }
+
+    if (false == _is_mem_ready()) {
+        tr_error("Init - _is_mem_ready Failed");
+        return -1;
+    }
+
     return 0;
 }
 
@@ -1033,6 +1060,84 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
     return 0;
 }
 
+int QSPIFBlockDevice::_sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size)
+{
+    int status = QSPIF_BD_ERROR_OK;
+    qspi_status_t qspi_status = QSPI_STATUS_OK;
+
+    // Always enable 4-byte addressing if possible
+    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_4BYTE_ADDR_BYTE) {
+        uint8_t examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_4BYTE_ADDR_BYTE];
+
+        if (examined_byte & FOURBYTE_ADDR_ALWAYS_BITMASK) {
+            // No need to do anything if 4-byte addressing is always enabled
+            _address_size = QSPI_CFG_ADDR_SIZE_32;
+        } else if (examined_byte & FOURBYTE_ADDR_B7_BITMASK) {
+            // Issue instruction B7h to enable 4-byte addressing
+            qspi_status = _qspi_send_general_command(0xB7, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+            if (status == QSPIF_BD_ERROR_OK) {
+                _address_size = QSPI_CFG_ADDR_SIZE_32;
+            }
+        } else if (examined_byte & FOURBYTE_ADDR_B7_WREN_BITMASK) {
+            // Issue WREN and then instruction B7h to enable 4-byte addressing
+            if (_set_write_enable() == 0) {
+                qspi_status = _qspi_send_general_command(0xB7, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+                status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+
+                if (status == QSPIF_BD_ERROR_OK) {
+                    _address_size = QSPI_CFG_ADDR_SIZE_32;
+                }
+            } else {
+                tr_error("Write enable failed");
+                status = QSPIF_BD_ERROR_WREN_FAILED;
+            }
+        } else if (examined_byte & FOURBYTE_ADDR_CONF_REG_BITMASK) {
+            // Write 1 to bit 0 of a configuration register to enable 4-byte addressing
+            // Write to register with instruction B1h, read from register with instruction B5h
+            uint8_t conf_register = 0;
+            qspi_status = _qspi_send_general_command(0xB5, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *) &conf_register, 1);
+            status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+
+            if (status == QSPIF_BD_ERROR_OK) {
+                conf_register |= 0b00000001;
+                if (_set_write_enable() == 0) {
+                    qspi_status_t qspi_status = _qspi_send_general_command(0xB1, QSPI_NO_ADDRESS_COMMAND, (char *) &conf_register, 1, NULL, 0);
+                    status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+
+                    if (status == QSPIF_BD_ERROR_OK) {
+                        _address_size = QSPI_CFG_ADDR_SIZE_32;
+                    }
+                } else {
+                    tr_error("Write enable failed");
+                    status = QSPIF_BD_ERROR_WREN_FAILED;
+                }
+            }
+        } else if (examined_byte & FOURBYTE_ADDR_BANK_REG_BITMASK) {
+            // Write 1 to bit 7 of a bank register to enable 4-byte addressing
+            // Write to register with instruction 17h, read from register with instruction 16h
+            uint8_t to_write = 0b10000000;
+            qspi_status = _qspi_send_general_command(0x17, QSPI_NO_ADDRESS_COMMAND, (char *) &to_write, 1, NULL, 0);
+            status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+            if (status == QSPIF_BD_ERROR_OK) {
+                _address_size = QSPI_CFG_ADDR_SIZE_32;
+            }
+        } else if (examined_byte & FOURBYTE_ADDR_EXT_ADDR_REG_BITMASK) {
+            // Extended address register stores most significant byte of a 4-byte address
+            // Instructions are sent with the lower 3 bytes of the address
+            // Write to register with instruction C5h, read from register with instruction C8h
+            _4byte_msb_reg_write_inst = 0xC5;
+            _address_size = QSPI_CFG_ADDR_SIZE_24;
+        } else {
+            // Either part specific instructions are required to use 4-byte addressing or it isn't supported, so use 3-byte addressing instead
+            tr_debug("_sfdp_detect_and_enable_4byte_addressing - 4-byte addressing not supported, falling back to 3-byte addressing");
+            _address_size = QSPI_CFG_ADDR_SIZE_24;
+        }
+    }
+
+    return status;
+}
+
 int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr)
 {
     int status = QSPIF_BD_ERROR_OK;
@@ -1245,69 +1350,110 @@ qspi_status_t QSPIFBlockDevice::_qspi_set_frequency(int freq)
     return _qspi.set_frequency(freq);
 }
 
+qspi_status_t QSPIFBlockDevice::_qspi_update_4byte_ext_addr_reg(bd_addr_t addr)
+{
+    qspi_status_t status = QSPI_STATUS_OK;
+    // Only update register if in the extended address register mode
+    if (_4byte_msb_reg_write_inst != QSPI_NO_INST) {
+        // Set register to the most significant byte of the address
+        uint8_t most_significant_byte = addr >> 24;
+        if (_set_write_enable() == 0) {
+            status = _qspi.command_transfer(_4byte_msb_reg_write_inst, (int) QSPI_NO_ADDRESS_COMMAND,
+                                            (char *) &most_significant_byte, 1,
+                                            NULL, 0);
+        } else {
+            tr_error("Write enable failed");
+            status = QSPI_STATUS_ERROR;
+        }
+    } else if ((_address_size != QSPI_CFG_ADDR_SIZE_32) && (addr != QSPI_NO_ADDRESS_COMMAND) && (addr >= (1 << 24))) {
+        tr_error("Attempted to use 4-byte address but 4-byte addressing is not supported");
+        status = QSPI_STATUS_ERROR;
+    }
+    return status;
+}
+
 qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst, void *buffer, bd_addr_t addr,
                                                         bd_size_t size)
 {
-    // Send Read command to device driver
     size_t buf_len = size;
 
-    if (_qspi.read(read_inst, (_alt_size == 0) ? -1 : QSPI_ALT_DEFAULT_VALUE, (unsigned int)addr, (char *)buffer, &buf_len) != QSPI_STATUS_OK) {
-        tr_error("Read failed");
-        return QSPI_STATUS_ERROR;
+    qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Read - Updating 4-byte addressing extended address register failed");
+        return status;
+    }
+
+    // Send read command to device driver
+    status = _qspi.read(read_inst, -1, (unsigned int)addr, (char *)buffer, &buf_len);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Read failed");
+        return status;
     }
 
     return QSPI_STATUS_OK;
-
 }
 
 qspi_status_t QSPIFBlockDevice::_qspi_send_program_command(qspi_inst_t progInst, const void *buffer, bd_addr_t addr,
                                                            bd_size_t *size)
 {
-    // Send Program (write) command to device driver
-    qspi_status_t result = QSPI_STATUS_OK;
 
-    result = _qspi.write(progInst, -1, addr, (char *)buffer, (size_t *)size);
-    if (result != QSPI_STATUS_OK) {
-        tr_error("QSPI Write failed");
+    qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Write - Updating 4-byte addressing extended address register failed");
+        return status;
     }
 
-    return result;
+    // Send program (write) command to device driver
+    status = _qspi.write(prog_inst, -1, addr, (char *)buffer, (size_t *)size);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Write failed");
+        return status;
+    }
+
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_inst, bd_addr_t addr, bd_size_t size)
 {
-    // Send Erase Instruction command to driver
-    qspi_status_t result = QSPI_STATUS_OK;
-
     tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", erase_inst, addr, size);
 
-    result = _qspi.command_transfer(erase_inst, // command to send
-                                    (((int)addr) & 0x00FFF000), // Align addr to 4096
-                                    NULL,                 // do not transmit
-                                    0,              // do not transmit
-                                    NULL,                 // just receive two bytes of data
-                                    0); // store received values in status_value
-
-    if (QSPI_STATUS_OK != result) {
-        tr_error("QSPI Erase failed");
+    qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Erase - Updating 4-byte addressing extended address register failed");
+        return status;
     }
 
-    return result;
+    // Send erase command to driver
+    status = _qspi.command_transfer(erase_inst,
+                                    (((int) addr) & 0x00FFF000), // Align addr to 4096
+                                    NULL, 0, NULL, 0); // Do not transmit or receive
 
+    if (QSPI_STATUS_OK != status) {
+        tr_error("QSPI Erase failed");
+        return status;
+    }
+
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instruction, bd_addr_t addr,
                                                            const char *tx_buffer,
                                                            mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length)
 {
-    // Send a general command Instruction to driver
-    qspi_status_t status = _qspi.command_transfer(instruction, (int)addr, tx_buffer, tx_length, rx_buffer, rx_length);
-
+    qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
     if (QSPI_STATUS_OK != status) {
-        tr_error("Sending Generic command: %x", instruction);
+        tr_error("QSPI Generic command - Updating 4-byte addressing extended address register failed");
+        return status;
     }
 
-    return status;
+    // Send a general command instruction to driver
+    status = _qspi.command_transfer(instruction, (int)addr, tx_buffer, tx_length, rx_buffer, rx_length);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("Sending Generic command: %x", instruction);
+        return status;
+    }
+
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t QSPIFBlockDevice::_qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
