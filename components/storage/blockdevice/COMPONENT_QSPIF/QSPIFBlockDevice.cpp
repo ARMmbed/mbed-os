@@ -1383,6 +1383,8 @@ qspi_status_t QSPIFBlockDevice::_qspi_update_4byte_ext_addr_reg(bd_addr_t addr)
 qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst, void *buffer, bd_addr_t addr,
                                                         bd_size_t size)
 {
+    tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", read_inst, addr, size);
+
     size_t buf_len = size;
 
     qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
@@ -1422,6 +1424,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_read_command(qspi_inst_t read_inst, v
 qspi_status_t QSPIFBlockDevice::_qspi_send_program_command(qspi_inst_t progInst, const void *buffer, bd_addr_t addr,
                                                            bd_size_t *size)
 {
+    tr_debug("Inst: 0x%xh, addr: %llu, size: %llu", prog_inst, addr, *size);
 
     qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
     if (QSPI_STATUS_OK != status) {
@@ -1466,6 +1469,8 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instructi
                                                            const char *tx_buffer,
                                                            mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length)
 {
+    tr_debug("Inst: 0x%xh, addr: %llu, tx length: %llu, rx length: %llu", instruction, addr, tx_length, rx_length);
+
     qspi_status_t status = _qspi_update_4byte_ext_addr_reg(addr);
     if (QSPI_STATUS_OK != status) {
         tr_error("QSPI Generic command - Updating 4-byte addressing extended address register failed");
