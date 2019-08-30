@@ -113,9 +113,6 @@ enum qspif_default_instructions {
     QSPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register
 };
 
-// Local Function
-static int local_math_power(int base, int exp);
-
 // General QSPI instructions
 #define QSPIF_INST_WSR1  0x01 // Write status register 1
 #define QSPIF_INST_RSR1  0x05 // Read status register 1
@@ -882,7 +879,7 @@ int QSPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int
     if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
         // Page Size is specified by 4 Bits (N), calculated by 2^N
         int page_to_power_size = ((int)basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
-        page_size = local_math_power(2, page_to_power_size);
+        page_size = 1 << page_to_power_size;
         tr_debug("Detected Page Size: %d", page_size);
     } else {
         tr_debug("Using Default Page Size: %d", page_size);
@@ -1609,18 +1606,4 @@ qspi_status_t QSPIFBlockDevice::_qspi_write_status_registers(uint8_t *reg_buffer
     }
 
     return QSPI_STATUS_OK;
-}
- 
-/*********************************************/
-/************** Local Functions **************/
-/*********************************************/
-static int local_math_power(int base, int exp)
-{
-    // Integer X^Y function, used to calculate size fields given in 2^N format
-    int result = 1;
-    while (exp) {
-        result *= base;
-        exp--;
-    }
-    return result;
 }
