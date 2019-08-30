@@ -292,8 +292,8 @@ private:
     int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);
 
     // Detect fastest read Bus mode supported by device
-    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
-                                        bool &is_qpi_mode, mbed::qspi_inst_t &read_inst);
+    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size,
+                                        bool &set_quad_enable, bool &is_qpi_mode);
 
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
@@ -340,7 +340,6 @@ private:
 
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;
-    mbed::qspi_inst_t _prog_instruction;
     mbed::qspi_inst_t _legacy_erase_instruction;
 
     // Status register write/read instructions
