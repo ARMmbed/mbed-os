@@ -1,0 +1,18 @@
+[Device="CYBLE-416045-02"]
+ 
+[Blocks]
+# User IO
+# CYBSP_USER_LED1
+ioss[0].port[6].pin[3]
+# CYBSP_USER_LED2
+ioss[0].port[7].pin[1]
+# CYBSP_USER_BTN1
+ioss[0].port[0].pin[4]
+
+# Debug
+# CYBSP_DEBUG_UART
+scb[5]
+# CYBSP_DEBUG_UART_RX
+ioss[0].port[5].pin[0]
+# CYBSP_DEBUG_UART_TX
+ioss[0].port[5].pin[1]

@@ -1,0 +1,40 @@
+[Device="CY8C6247FDI-D32"]
+ 
+[Blocks]
+# User IO
+# CYBSP_USER_LED1
+ioss[0].port[1].pin[5]
+# CYBSP_USER_LED2
+ioss[0].port[11].pin[1]
+# CYBSP_USER_BTN1
+ioss[0].port[1].pin[4]
+
+# Debug
+# CYBSP_DEBUG_UART
+scb[5]
+# CYBSP_DEBUG_UART_RX
+ioss[0].port[5].pin[0]
+# CYBSP_DEBUG_UART_TX
+ioss[0].port[5].pin[1]
+# CYBSP_DEBUG_UART_RTS
+ioss[0].port[5].pin[2]
+# CYBSP_DEBUG_UART_CTS
+ioss[0].port[5].pin[3]
+
+# WIFI
+# CYBSP_WIFI_SDIO
+udb[0]
+# CYBSP_WIFI_SDIO_D0
+ioss[0].port[12].pin[1]
+# CYBSP_WIFI_SDIO_D1
+ioss[0].port[12].pin[2]
+# CYBSP_WIFI_SDIO_D2
+ioss[0].port[12].pin[3]
+# CYBSP_WIFI_SDIO_D3
+ioss[0].port[12].pin[4]
+# CYBSP_WIFI_SDIO_CMD
+ioss[0].port[12].pin[5]
+# CYBSP_WIFI_SDIO_CLK
+ioss[0].port[12].pin[0]
+# CYBSP_WIFI_WL_REG_ON
+ioss[0].port[6].pin[2]
