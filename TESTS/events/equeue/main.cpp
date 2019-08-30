@@ -39,7 +39,10 @@ static void pass_func(void *eh)
 
 static void simple_func(void *p)
 {
-    (*(reinterpret_cast<uint8_t *>(p)))++;
+    uint8_t *d = reinterpret_cast<uint8_t *>(p);
+    if (*d < 255) {
+        (*d)++;
+    }
 }
 
 static void sloth_func(void *p)
