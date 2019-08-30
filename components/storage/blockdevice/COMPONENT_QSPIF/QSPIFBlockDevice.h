@@ -265,8 +265,6 @@ private:
     /*********************************/
     /* Flash Configuration Functions */
     /*********************************/
-    // Soft Reset Flash Memory
-    int _reset_flash_mem();
 
     // Configure Write Enable in Status Register
     int _set_write_enable();
@@ -286,6 +284,9 @@ private:
 
     // Parse and read information required by Regions Secotr Map
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
+
+    // Detect the soft reset protocol and reset - returns error if soft reset is not supported
+    int _sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr);
 
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
