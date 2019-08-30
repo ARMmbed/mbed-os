@@ -1,0 +1,26 @@
+dist: xenial
+language: python
+python: 2.7
+
+install:
+      # Get arm-none-eabi-gcc
+    - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq gcc-arm-embedded
+      # Get dependencies
+    - git clone https://github.com/armmbed/mbed-os.git
+      # Install python dependencies
+#    - python -m pip install --upgrade pip==18.1
+#    - python -m pip install --upgrade setuptools==40.4.3
+    - pip install -r mbed-os/requirements.txt
+
+script:
+      # Check that examples compile
+    - sed -n '/``` cpp/,${/```$/q;/```/d;p}' README.md > main.cpp &&
+      PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/K82F/GCC_ARM -j0 &&
+      rm main.cpp
+    - sed -n '/@code/,${/@endcode/q;/@/d;s/^ \*//;p}' I2CEEBlockDevice.h > main.cpp &&
+      PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/K82F/GCC_ARM -j0 &&
+      rm main.cpp
