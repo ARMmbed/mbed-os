@@ -66,7 +66,7 @@ public:
      *  uses 1B dummy buffer if 0 size passed.
      *
      *  0 size queue is a special purpose queue to dispatch static events
-     *  only (see UserAllocatedEvent). Such a queue gives the guarantee 
+     *  only (see UserAllocatedEvent). Such a queue gives the guarantee
      *  that no dynamic memory allocation will take place while queue
      *  creation and events posting & dispatching.
      *
