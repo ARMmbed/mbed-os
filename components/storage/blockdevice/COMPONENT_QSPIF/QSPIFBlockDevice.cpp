@@ -31,7 +31,7 @@ using namespace mbed;
 /****************************/
 #define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
-#define QSPI_MAX_STATUS_REGISTER_SIZE 3
+#define QSPI_STATUS_REGISTER_COUNT 2
 #ifndef UINT64_MAX
 #define UINT64_MAX -1
 #endif
@@ -100,6 +100,14 @@ enum qspif_default_instructions {
 // Local Function
 static int local_math_power(int base, int exp);
 
+// General QSPI instructions
+#define QSPIF_INST_WSR1  0x01 // Write status register 1
+#define QSPIF_INST_RSR1  0x05 // Read status register 1
+
+// Default status register 2 read/write instructions
+#define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
+#define QSPIF_INST_RSR2_DEFAULT    0x35
+
 /* Init function to initialize Different Devices CS static list */
 static PinName *generate_initialized_active_qspif_csel_arr();
 // Static Members for different devices csel
@@ -125,6 +133,10 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     } else {
         tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
     }
+
+    // Set default status register 2 write/read instructions
+    _write_status_reg_2_inst = QSPIF_INST_WSR2_DEFAULT;
+    _read_status_reg_2_inst = QSPIF_INST_RSR2_DEFAULT;
 }
 
 int QSPIFBlockDevice::init()
@@ -172,9 +184,6 @@ int QSPIFBlockDevice::init()
     _alt_size = 0;
     _dummy_cycles = 0;
     _data_width = QSPI_CFG_BUS_SINGLE;
-    _write_register_inst = QSPIF_WRSR;
-    _read_register_inst = QSPIF_RDSR;
-
     if (QSPI_STATUS_OK != _qspi_set_frequency(_freq)) {
         tr_error("QSPI Set Frequency Failed");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
@@ -708,7 +717,6 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     // Detect and Set fastest Bus mode (default 1-1-1)
     _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, shouldSetQuadEnable, is_qpi_mode, _read_instruction);
     if (true == shouldSetQuadEnable) {
-        _enable_fast_mdoe();
         // Set Quad Enable and QPI Bus modes if Supported
         tr_debug("Init - Setting Quad Enable");
         if (0 != _sfdp_set_quad_enabled(param_table)) {
@@ -854,47 +862,34 @@ int QSPIFBlockDevice::_sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr)
 
 int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
 {
-    int sr_read_size = QSPI_MAX_STATUS_REGISTER_SIZE;
-    int sr_write_size = QSPI_MAX_STATUS_REGISTER_SIZE;
-
-    char status_reg_setup[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
-    char status_reg[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
+    uint8_t status_reg_setup[QSPI_STATUS_REGISTER_COUNT] = {0};
+    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
 
     // QUAD Enable procedure is specified by 3 bits
     uint8_t qer_value = (basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_QER_BYTE] & 0x70) >> 4;
-
 
     switch (qer_value) {
         case 0:
             tr_debug("Device Does not Have a QE Bit, continue based on Read Inst");
             return 0;
-
         case 1:
         case 4:
-            status_reg_setup[1] = 0x02;  //Bit 1 of Status Reg 2
-            sr_write_size = 2;
+            status_reg_setup[1] = 1 << 1;  // Bit 1 of Status Reg 2
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
-
         case 2:
-            status_reg_setup[0] = 0x40; // Bit 6 of Status Reg 1
-            sr_write_size = 1;
+            status_reg_setup[0] = 1 << 6; // Bit 6 of Status Reg 1
             tr_debug("Setting QE Bit, Bit 6 of Status Reg 1");
             break;
-
         case 3:
-            status_reg_setup[0] = 0x80; // Bit 7 of Status Reg 1
-            sr_write_size = 1;
-            _write_register_inst = 0x3E;
-            _read_register_inst = 0x3F;
+            status_reg_setup[0] = 1 << 7; // Bit 7 of Status Reg 1
+            _write_status_reg_2_inst = 0x3E;
+            _read_status_reg_2_inst = 0x3F;
             tr_debug("Setting QE Bit, Bit 7 of Status Reg 1");
             break;
         case 5:
-            status_reg_setup[1] = 0x2; // Bit 1 of status Reg 2
-            _read_register_inst = 0x35;
-            sr_read_size = 1;
-            sr_write_size = 2;
-            tr_debug("Setting QE Bit, Bit 1 of Status Reg 2 -special read command");
+            status_reg_setup[1] = 1 << 1; // Bit 1 of status Reg 2
+            tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
         default:
             tr_warning("Unsuported QER configuration");
@@ -908,51 +903,27 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
         return -1;
     }
 
-    // Read Status Register
-    if (QSPI_STATUS_OK == _qspi_send_general_command(_read_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
-                                                     status_reg,
-                                                     sr_read_size)) {   // store received values in status_value
-        tr_debug("Reading Status Register Success: value = 0x%x", (int)status_reg[0]);
-    } else {
-        tr_error("Reading Status Register failed");
-        return -1;
-    }
+    // Read existing status register values
+    _qspi_read_status_registers(status_regs);
 
     // Set Bits for Quad Enable
-    for (int i = 0; i < QSPI_MAX_STATUS_REGISTER_SIZE; i++) {
-        status_reg[i] |= status_reg_setup[i];
+    for (int i = 0; i < QSPI_STATUS_REGISTER_COUNT; i++) {
+        status_regs[i] |= status_reg_setup[i];
     }
 
     // Write new Status Register Setup
-    if (_set_write_enable() != 0) {
-        tr_error("Write Enabe failed");
-        return -1;
-    }
-
-    if (QSPI_STATUS_OK == _qspi_send_general_command(_write_register_inst, QSPI_NO_ADDRESS_COMMAND, (char *)status_reg,
-                                                     sr_write_size, NULL,
-                                                     0)) {   // Write QE to status_register
-        tr_debug("_setQuadEnable - Writing Status Register Success: value = 0x%x",
-                 (int)status_reg[0]);
-    } else {
-        tr_error("_setQuadEnable - Writing Status Register failed");
-        return -1;
-    }
+    _qspi_write_status_registers(status_regs);
 
     if (false == _is_mem_ready()) {
         tr_error("Device not ready after write, failed");
         return -1;
     }
 
-
     // For Debug
-    memset(status_reg, 0, QSPI_MAX_STATUS_REGISTER_SIZE);
-    if (QSPI_STATUS_OK == _qspi_send_general_command(_read_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
-                                                     (char *)status_reg,
-                                                     sr_read_size)) {   // store received values in status_value
-        tr_debug("Reading Status Register Success: value = 0x%x", (int)status_reg[0]);
-    } else {
-        tr_error("Reading Status Register failed");
+    memset(status_regs, 0, QSPI_STATUS_REGISTER_COUNT);
+    _qspi_read_status_registers(status_regs);
+    if (((status_regs[0] & status_reg_setup[0]) | (status_regs[1] & status_reg_setup[1])) == 0) {
+        tr_error("Status register not set correctly");
         return -1;
     }
 
@@ -1125,14 +1096,14 @@ int QSPIFBlockDevice::_reset_flash_mem()
 {
     // Perform Soft Reset of the Device prior to initialization
     int status = 0;
-    char status_value[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
+    uint8_t status_value = 0;
     tr_debug("_reset_flash_mem:");
     //Read the Status Register from device
-    if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_RDSR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,
-                                                     QSPI_MAX_STATUS_REGISTER_SIZE)) {   // store received values in status_value
-        tr_debug("Reading Status Register Success: value = 0x%x", (int)status_value[0]);
+    if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *) &status_value,
+                                                     1)) {   // store received values in status_value
+        tr_debug("Reading Status Register Success: value = 0x%x", status_value);
     } else {
-        tr_error("Reading Status Register failed: value = 0x%x", (int)status_value[0]);
+        tr_error("Reading Status Register failed: value = 0x%x", status_value);
         status = -1;
     }
 
@@ -1167,7 +1138,7 @@ int QSPIFBlockDevice::_reset_flash_mem()
 bool QSPIFBlockDevice::_is_mem_ready()
 {
     // Check Status Register Busy Bit to Verify the Device isn't Busy
-    char status_value[QSPI_MAX_STATUS_REGISTER_SIZE];
+    uint8_t status_value = 0;
     int retries = 0;
     bool mem_ready = true;
 
@@ -1176,14 +1147,14 @@ bool QSPIFBlockDevice::_is_mem_ready()
         retries++;
         //Read the Status Register from device
         memset(status_value, 0xFF, QSPI_MAX_STATUS_REGISTER_SIZE);
-        if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_RDSR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,
-                                                         QSPI_MAX_STATUS_REGISTER_SIZE)) {   // store received values in status_value
+        if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *) &status_value,
+                                                         1)) {   // store received values in status_value
             tr_error("Reading Status Register failed");
         }
-    } while ((status_value[0] & QSPIF_STATUS_BIT_WIP) != 0 && retries < IS_MEM_READY_MAX_RETRIES);
+    } while ((status_value & QSPIF_STATUS_BIT_WIP) != 0 && retries < IS_MEM_READY_MAX_RETRIES);
 
-    if ((status_value[0] & QSPIF_STATUS_BIT_WIP) != 0) {
-        tr_error("_is_mem_ready FALSE: status value = 0x%x ", (int)status_value[0]);
+    if ((status_value & QSPIF_STATUS_BIT_WIP) != 0) {
+        tr_error("_is_mem_ready FALSE: status value = 0x%x ", status_value);
         mem_ready = false;
     }
     return mem_ready;
@@ -1192,7 +1163,7 @@ bool QSPIFBlockDevice::_is_mem_ready()
 int QSPIFBlockDevice::_set_write_enable()
 {
     // Check Status Register Busy Bit to Verify the Device isn't Busy
-    char status_value[QSPI_MAX_STATUS_REGISTER_SIZE];
+    uint8_t status_value = 0;
     int status = -1;
 
     do {
@@ -1206,85 +1177,22 @@ int QSPIFBlockDevice::_set_write_enable()
             break;
         }
 
-        memset(status_value, 0, QSPI_MAX_STATUS_REGISTER_SIZE);
-        if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_RDSR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,
-                                                         QSPI_MAX_STATUS_REGISTER_SIZE)) {   // store received values in status_value
-            tr_error("Reading Status Register failed");
+        if (QSPI_STATUS_OK != _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND,
+                                                         NULL, 0,
+                                                         (char *) &status_value, 1)) {
+            tr_error("Reading Status Register 1 failed");
             break;
         }
 
-        if ((status_value[0] & QSPIF_STATUS_BIT_WEL) == 0) {
-            tr_error("_set_write_enable failed");
+        if ((status_value & QSPIF_STATUS_BIT_WEL) == 0) {
+            tr_error("_set_write_enable failed - status register 1 value: %u", status_value);
             break;
         }
+
         status = 0;
     } while (false);
+
     return status;
-}
-
-int QSPIFBlockDevice::_enable_fast_mdoe()
-{
-    char status_reg[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
-    qspi_inst_t read_conf_register_inst = 0x15;
-    char status_reg_qer_setup[QSPI_MAX_STATUS_REGISTER_SIZE] = {0};
-
-    status_reg_qer_setup[2] = 0x2; // Bit 1 of config Reg 2
-
-    // Configure  BUS Mode to 1_1_1 for all commands other than Read
-    if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                                                 0, QSPI_CFG_BUS_SINGLE, 0)) {
-        tr_error("_qspi_configure_format failed");
-        return QSPIF_BD_ERROR_DEVICE_ERROR;
-    }
-
-    // Read Status Register
-    if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
-                                                     &status_reg[1],
-                                                     QSPI_MAX_STATUS_REGISTER_SIZE - 1)) {  // store received values in status_value
-        tr_debug("Reading Config Register Success: value = 0x%x", (int)status_reg[2]);
-    } else {
-        tr_error("Reading Config Register failed");
-        return -1;
-    }
-
-    // Set Bits for Quad Enable
-    for (int i = 0; i < QSPI_MAX_STATUS_REGISTER_SIZE; i++) {
-        status_reg[i] |= status_reg_qer_setup[i];
-    }
-
-    // Write new Status Register Setup
-    if (_set_write_enable() != 0) {
-        tr_error("Write Enabe failed");
-        return -1;
-    }
-
-    if (QSPI_STATUS_OK == _qspi_send_general_command(_write_register_inst, QSPI_NO_ADDRESS_COMMAND, status_reg,
-                                                     QSPI_MAX_STATUS_REGISTER_SIZE, NULL,
-                                                     0)) {   // Write Fast mode bit to status_register
-        tr_debug("fast mode enable - Writing Config Register Success: value = 0x%x",
-                 (int)status_reg[2]);
-    } else {
-        tr_error("fast mode enable - Writing Config Register failed");
-        return -1;
-    }
-
-    if (false == _is_mem_ready()) {
-        tr_error("Device not ready after write, failed");
-        return -1;
-    }
-
-    // For Debug
-    memset(status_reg, 0, QSPI_MAX_STATUS_REGISTER_SIZE);
-    if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
-                                                     &status_reg[1],
-                                                     QSPI_MAX_STATUS_REGISTER_SIZE - 1)) {  // store received values in status_value
-        tr_debug("Verifying Config Register Success: value = 0x%x", (int)status_reg[2]);
-    } else {
-        tr_error("Verifying Config Register failed");
-        return -1;
-    }
-
-    return 0;
 }
 
 /*********************************************/
@@ -1421,6 +1329,92 @@ qspi_status_t QSPIFBlockDevice::_qspi_configure_format(qspi_bus_width_t inst_wid
     return status;
 }
 
+qspi_status_t QSPIFBlockDevice::_qspi_read_status_registers(uint8_t *reg_buffer)
+{
+    // Read Status Register 1
+    qspi_status_t status = _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND,
+                                        NULL, 0,
+                                        (char *) &reg_buffer[0], 1);
+    if (QSPI_STATUS_OK == status) {
+        tr_debug("Reading Status Register 1 Success: value = 0x%x", (int) reg_buffer[0]);
+    } else {
+        tr_error("Reading Status Register 1 failed");
+        return status;
+    }
+
+    // Read Status Register 2
+    status = _qspi_send_general_command(_read_status_reg_2_inst, QSPI_NO_ADDRESS_COMMAND,
+                                        NULL, 0,
+                                        (char *) &reg_buffer[1], 1);
+    if (QSPI_STATUS_OK == status) {
+        tr_debug("Reading Status Register 2 Success: value = 0x%x", (int) reg_buffer[1]);
+    } else {
+        tr_error("Reading Status Register 2 failed");
+        return status;
+    }
+
+    return QSPI_STATUS_OK;
+}
+
+qspi_status_t QSPIFBlockDevice::_qspi_write_status_registers(uint8_t *reg_buffer)
+{
+    qspi_status_t status;
+
+    if (_write_status_reg_2_inst == QSPI_NO_INST) {
+        // Status registers are written on different data bytes of the same command
+        if (_set_write_enable() != 0) {
+            tr_error("Write Enable failed");
+            return QSPI_STATUS_ERROR;
+        }
+        status = _qspi_send_general_command(QSPIF_INST_WSR1, QSPI_NO_ADDRESS_COMMAND,
+                                            (char *) reg_buffer, 2,
+                                            NULL, 0);
+        if (QSPI_STATUS_OK == status) {
+            tr_debug("Writing Status Registers Success: reg 1 value = 0x%x, reg 2 value = 0x%x",
+                     (int) reg_buffer[0], (int) reg_buffer[1]);
+        } else {
+            tr_error("Writing Status Registers failed");
+            return status;
+        }
+    } else {
+        // Status registers are written using different commands
+
+        // Write status register 1
+        if (_set_write_enable() != 0) {
+            tr_error("Write Enable failed");
+            return QSPI_STATUS_ERROR;
+        }
+        status = _qspi_send_general_command(QSPIF_INST_WSR1, QSPI_NO_ADDRESS_COMMAND,
+                                            (char *) &reg_buffer[0], 1,
+                                            NULL, 0);
+        if (QSPI_STATUS_OK == status) {
+            tr_debug("Writing Status Register 1 Success: value = 0x%x",
+                     (int) reg_buffer[0]);
+        } else {
+            tr_error("Writing Status Register 1 failed");
+            return status;
+        }
+
+        // Write status register 2
+        if (_set_write_enable() != 0) {
+            tr_error("Write Enable failed");
+            return QSPI_STATUS_ERROR;
+        }
+        status = _qspi_send_general_command(_write_status_reg_2_inst, QSPI_NO_ADDRESS_COMMAND,
+                                            (char *) &reg_buffer[0], 1,
+                                            NULL, 0);
+        if (QSPI_STATUS_OK == status) {
+            tr_debug("Writing Status Register 2 Success: value = 0x%x",
+                     (int) reg_buffer[1]);
+        } else {
+            tr_error("Writing Status Register 2 failed");
+            return status;
+        }
+    }
+
+    return QSPI_STATUS_OK;
+}
+ 
 /*********************************************/
 /************** Local Functions **************/
 /*********************************************/

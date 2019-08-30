@@ -253,6 +253,12 @@ private:
                                          qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width,
                                          int dummy_cycles);
 
+    // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
+    qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);
+
+    // Set the contents of status registers 1 and 2 from a buffer (buffer must have a length of 2)
+    qspi_status_t _qspi_write_status_registers(uint8_t *reg_buffer);
+
     // Send set_frequency command to Driver
     qspi_status_t _qspi_set_frequency(int freq);
 
@@ -267,9 +273,6 @@ private:
 
     // Wait on status register until write not-in-progress
     bool _is_mem_ready();
-
-    // Enable Fast Mode - for flash chips with low power default
-    int _enable_fast_mdoe();
 
     /****************************************/
     /* SFDP Detection and Parsing Functions */
@@ -335,8 +338,10 @@ private:
     mbed::qspi_inst_t _prog_instruction;
     mbed::qspi_inst_t _erase_instruction;
     mbed::qspi_inst_t _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
-    mbed::qspi_inst_t _write_register_inst; // Write status/config register instruction may vary between chips
-    mbed::qspi_inst_t _read_register_inst; // Read status/config register instruction may vary between chips
+
+    // Status register write/read instructions
+    mbed::qspi_inst_t _write_status_reg_2_inst;
+    mbed::qspi_inst_t _read_status_reg_2_inst;
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
     mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
