@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cy8c6xx7_cm4_dual.sct
-;* \version 2.50
+;* \version 2.60
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -42,16 +42,21 @@
 ;* limitations under the License.
 ;******************************************************************************/
 
+; Size of the Cortex-M0+ application flash image
+#define FLASH_CM0P_SIZE     0x2000
+
 #if !defined(MBED_ROM_START)
   #define MBED_ROM_START    0x10000000
 #endif
 
 ;* MBED_APP_START is being  used by the bootloader build script and
-;* will be calculate by the system. Without bootloader the MBED_APP_START
-;* is equal to MBED_ROM_START
+;* will be calculate by the system. In case if MBED_APP_START address is
+;* customized by the bootloader config, the application image should not
+;* include CM0p prebuilt image.
 ;*
+
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START    MBED_ROM_START
+  #define MBED_APP_START    (MBED_ROM_START + FLASH_CM0P_SIZE)
 #endif
 
 #if !defined(MBED_ROM_SIZE)
@@ -59,11 +64,10 @@
 #endif
 
 ;* MBED_APP_SIZE is being  used by the bootloader build script and
-;* will be calculate by the system. Without bootloader the MBED_APP_SIZE
-;* is equal to MBED_ROM_SIZE
+;* will be calculate by the system.
 ;*
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE     MBED_ROM_SIZE
+  #define MBED_APP_SIZE     (MBED_ROM_SIZE - FLASH_CM0P_SIZE)
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -96,9 +100,6 @@
 ; Flash
 #define FLASH_START             MBED_APP_START
 #define FLASH_SIZE              MBED_APP_SIZE
-
-; Size of the Cortex-M0+ application flash image
-#define FLASH_CM0P_SIZE         0x2000
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
@@ -139,7 +140,7 @@
 
 
 ; Cortex-M0+ application flash image area
-LR_IROM FLASH_START FLASH_CM0P_SIZE
+LR_IROM MBED_ROM_START FLASH_CM0P_SIZE
 {
     .cy_m0p_image +0 FLASH_CM0P_SIZE
     {
@@ -148,7 +149,7 @@ LR_IROM FLASH_START FLASH_CM0P_SIZE
 }
 
 ; Cortex-M4 application flash area
-LR_IROM1 (FLASH_START + FLASH_CM0P_SIZE) (FLASH_SIZE - FLASH_CM0P_SIZE)
+LR_IROM1 FLASH_START FLASH_SIZE
 {
     ER_FLASH_VECTORS +0
     {
@@ -194,7 +195,7 @@ LR_IROM1 (FLASH_START + FLASH_CM0P_SIZE) (FLASH_SIZE - FLASH_CM0P_SIZE)
     ; Used for the digital signature of the secure application and the
     ; Bootloader SDK application. The size of the section depends on the required
     ; data size.
-    .cy_app_signature (FLASH_START + FLASH_SIZE - 256) 256
+    .cy_app_signature (MBED_ROM_START + MBED_ROM_SIZE - 256) 256
     {
         * (.cy_app_signature)
     }

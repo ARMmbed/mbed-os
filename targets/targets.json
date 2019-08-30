@@ -8662,8 +8662,6 @@
             "function": "PSOC6Code.complete"
         },
         "bootloader_supported": true,
-        "mbed_rom_start": "0x10000000",
-        "mbed_rom_size": "0x100000",
         "sectors": [[268435456, 512]],
         "overrides": {
             "network-default-interface-type": "WIFI"
@@ -8677,8 +8675,6 @@
             "function": "PSOC6Code.complete"
         },
         "bootloader_supported": true,
-        "mbed_rom_start": "0x10000000",
-        "mbed_rom_size": "0x200000",
         "sectors": [[268435456, 512]]
     },
     "CY8CKIT_062S2_43012": {

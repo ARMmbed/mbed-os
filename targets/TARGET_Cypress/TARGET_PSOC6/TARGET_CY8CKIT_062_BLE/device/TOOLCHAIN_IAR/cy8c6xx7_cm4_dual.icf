@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy8c6xx7_cm4_dual.icf
-* \version 2.50
+* \version 2.60
 *
 * Linker file for the IAR compiler.
 *
@@ -41,16 +41,20 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
+/* Size of the Cortex-M0+ application image */
+define symbol FLASH_CM0P_SIZE  = 0x2000;
+
 if (!isdefinedsymbol(MBED_ROM_START)) {
   define symbol MBED_ROM_START = 0x10000000;
 }
 
-/* MBED_APP_START is being  used by the bootloader build script and
- * will be calculate by the system. Without bootloader the MBED_APP_START
- * is equal to MBED_ROM_START
+/* MBED_APP_START is being used by the bootloader build script and
+ * will be calculate by the system. In case if MBED_APP_START address is
+ * customized by the bootloader config, the application image should not
+ * include CM0p prebuilt image.
  */
 if (!isdefinedsymbol(MBED_APP_START)) {
-  define symbol MBED_APP_START = MBED_ROM_START;
+  define symbol MBED_APP_START = (MBED_ROM_START + FLASH_CM0P_SIZE);
 }
 
 if (!isdefinedsymbol(MBED_ROM_SIZE)) {
@@ -58,11 +62,10 @@ if (!isdefinedsymbol(MBED_ROM_SIZE)) {
 }
 
 /* MBED_APP_SIZE is being  used by the bootloader build script and
- * will be calculate by the system. Without bootloader the MBED_APP_SIZE
- * is equal to MBED_ROM_SIZE
+ * will be calculate by the system.
  */
 if (!isdefinedsymbol(MBED_APP_SIZE)) {
-  define symbol MBED_APP_SIZE = MBED_ROM_SIZE;
+  define symbol MBED_APP_SIZE = (MBED_ROM_SIZE - FLASH_CM0P_SIZE);
 }
 
 if (!isdefinedsymbol(MBED_RAM_START)) {
@@ -74,8 +77,15 @@ if (!isdefinedsymbol(MBED_RAM_SIZE)) {
 }
 
 if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+
+    if (!isdefinedsymbol(__STACK_SIZE)) {
+      define symbol MBED_BOOT_STACK_SIZE = 0x0400;
+    } else {
+      define symbol MBED_BOOT_STACK_SIZE = __STACK_SIZE;
+    }
 }
+
+define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
 
 /* The symbols below define the location and size of blocks of memory in the target.
  * Use these symbols to specify the memory regions available for allocation.
@@ -92,6 +102,9 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;
 define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE);
 /* Flash */
+define symbol __ICFEDIT_region_IROM0_start__ = MBED_ROM_START;
+define symbol __ICFEDIT_region_IROM0_end__   = (MBED_ROM_START + FLASH_CM0P_SIZE);
+
 define symbol __ICFEDIT_region_IROM1_start__ = MBED_APP_START;
 define symbol __ICFEDIT_region_IROM1_end__   = (MBED_APP_START + MBED_APP_SIZE);
 
@@ -148,24 +161,16 @@ define symbol __ICFEDIT_region_ERAM2_end__   = 0x0;
 define symbol __ICFEDIT_region_ERAM3_start__ = 0x0;
 define symbol __ICFEDIT_region_ERAM3_end__   = 0x0;
 /*-Sizes-*/
-if (!isdefinedsymbol(__STACK_SIZE)) {
-  define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
-} else {
-  define symbol __ICFEDIT_size_cstack__ = __STACK_SIZE;
-}
-
 /* Defines the minimum heap size. The actual heap size will be expanded to the end of the stack region */
 if (!isdefinedsymbol(__HEAP_SIZE)) {
-    define symbol __ICFEDIT_size_heap__ = 0x400;
+    define symbol __ICFEDIT_size_heap__ = 0x0400;
 } else {
   define symbol __ICFEDIT_size_heap__ = __HEAP_SIZE;
 }
 /**** End of ICF editor section. ###ICF###*/
 
-/* Size of the Cortex-M0+ application image */
-define symbol FLASH_CM0P_SIZE  = 0x2000;
-
 define memory mem with size = 4G;
+define region IROM0_region = mem:[from __ICFEDIT_region_IROM0_start__ to __ICFEDIT_region_IROM0_end__];
 define region IROM1_region = mem:[from __ICFEDIT_region_IROM1_start__ to __ICFEDIT_region_IROM1_end__];
 define region IROM2_region = mem:[from __ICFEDIT_region_IROM2_start__ to __ICFEDIT_region_IROM2_end__];
 define region IROM3_region = mem:[from __ICFEDIT_region_IROM3_start__ to __ICFEDIT_region_IROM3_end__];
@@ -196,10 +201,12 @@ do not initialize  { section .noinit, section .intvec_ram };
 /*-Placement-*/
 
 /* Flash - Cortex-M0+ application image */
-place at start of IROM1_region  { block CM0P_RO };
+place at start of IROM0_region  { block CM0P_RO };
 
-/* Flash - Cortex-M4 application image */
-place in          IROM1_region  { block RO };
+/* Flash - Cortex-M4 application */
+place at start of IROM1_region  { block RO };
+
+/* Used for the digital signature of the secure application and the Bootloader SDK application. */
 ".cy_app_signature" : place at address (__ICFEDIT_region_IROM1_end__ - 0x200) { section .cy_app_signature };
 
 /* Emulated EEPROM Flash area */
