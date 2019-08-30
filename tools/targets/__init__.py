@@ -675,6 +675,24 @@ class PSOC6Code:
         else:
             psoc6_complete(t_self, elf, binf)
 
+    @staticmethod
+    def sign_image(t_self, resources, elf, binf):
+        """
+        Calls sign_image function to add signature to Secure Boot binary file.
+        """
+        version = sys.version_info
+
+        # check python version before calling post build as is supports only python3+
+        if((version[0] < 3) is True):
+            t_self.notify.info("[PSOC6.sing_image] Be careful - produced HEX file was not signed and thus "
+                               "is not compatible with Cypress Secure Boot target. "
+                               "You are using Python " + str(sys.version[:5]) + 
+                               " which is not supported by CySecureTools. "
+                               "Consider installing Python 3.4+ and rebuild target. "
+                               "For more information refver to User Guide https://www.cypress.com/secureboot-sdk-user-guide")
+        else:
+            from tools.targets.PSOC6 import sign_image as psoc6_sign_image
+            psoc6_sign_image(t_self, binf)
 
 class ArmMuscaA1Code:
     """Musca-A1 Hooks"""
