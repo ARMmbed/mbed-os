@@ -248,10 +248,8 @@ private:
     qspi_status_t _qspi_send_general_command(mbed::qspi_inst_t instruction_int, mbed::bd_addr_t addr, const char *tx_buffer,
                                              mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length);
 
-    // Send Bus configure_format command to Driver
-    qspi_status_t _qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
-                                         qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width,
-                                         int dummy_cycles);
+    // Send command to read from the SFDP table
+    qspi_status_t _qspi_send_read_sfdp_command(mbed::bd_addr_t addr, void *rx_buffer, mbed::bd_size_t rx_length);
 
     // Read the contents of status registers 1 and 2 into a buffer (buffer must have a length of 2)
     qspi_status_t _qspi_read_status_registers(uint8_t *reg_buffer);
