@@ -73,6 +73,11 @@ using namespace mbed;
 #define QSPIF_BASIC_PARAM_ERASE_TYPE_4_SIZE_BYTE 34
 #define QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE 1
 
+#define QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE 61
+
+#define SOFT_RESET_RESET_INST_BITMASK            0b001000
+#define SOFT_RESET_ENABLE_AND_RESET_INST_BITMASK 0b010000
+
 // Erase Types Per Region BitMask
 #define ERASE_BITMASK_TYPE4 0x08
 #define ERASE_BITMASK_TYPE1 0x01
@@ -188,15 +193,6 @@ int QSPIFBlockDevice::init()
         tr_error("QSPI Set Frequency Failed");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
-    }
-
-    // Soft Reset
-    if (-1 == _reset_flash_mem()) {
-        tr_error("Init - Unable to initialize flash memory, tests failed");
-        status = QSPIF_BD_ERROR_DEVICE_ERROR;
-        goto exit_point;
-    } else {
-        tr_debug("Initialize flash memory OK");
     }
 
     /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
@@ -722,6 +718,11 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     // Set Page Size (QSPI write must be done on Page limits)
     _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
 
+    if (_sfdp_detect_reset_protocol_and_reset(param_table) != QSPIF_BD_ERROR_OK) {
+        tr_error("Init - Detecting reset protocol/resetting failed");
+        return -1;
+    }
+
     // Detect and Set Erase Types
     bool shouldSetQuadEnable = false;
     bool is_qpi_mode = false;
@@ -1032,6 +1033,41 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
     return 0;
 }
 
+int QSPIFBlockDevice::_sfdp_detect_reset_protocol_and_reset(uint8_t *basic_param_table_ptr)
+{
+    int status = QSPIF_BD_ERROR_OK;
+    uint8_t examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_SOFT_RESET_BYTE];
+
+    // Ignore bit indicating need to exit 0-4-4 mode - should not enter 0-4-4 mode from QSPIFBlockDevice
+    if (examined_byte & SOFT_RESET_RESET_INST_BITMASK) {
+        // Issue instruction 0xF0 to reset the device
+        qspi_status_t qspi_status = _qspi_send_general_command(0xF0, QSPI_NO_ADDRESS_COMMAND, // Send reset instruction
+                                                               NULL, 0, NULL, 0);
+        status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+    } else if (examined_byte & SOFT_RESET_ENABLE_AND_RESET_INST_BITMASK) {
+        // Issue instruction 66h to enable resets on the device
+        // Then issue instruction 99h to reset the device
+        qspi_status_t qspi_status = _qspi_send_general_command(0x66, QSPI_NO_ADDRESS_COMMAND, // Send reset enable instruction
+                                                                NULL, 0, NULL, 0);
+        if (qspi_status == QSPI_STATUS_OK) {
+            qspi_status = _qspi_send_general_command(0x99, QSPI_NO_ADDRESS_COMMAND, // Send reset instruction
+                                                     NULL, 0, NULL, 0);
+        }
+        status = (qspi_status == QSPI_STATUS_OK) ? QSPIF_BD_ERROR_OK : QSPIF_BD_ERROR_PARSING_FAILED;
+    } else {
+        // Soft reset either is not supported or requires direct control over data lines
+        status = QSPIF_BD_ERROR_PARSING_FAILED;
+    }
+
+    if (status == QSPIF_BD_ERROR_OK){
+        if (false == _is_mem_ready()) {
+            tr_error("Device not ready, reset failed");
+            status = QSPIF_BD_ERROR_READY_FAILED;
+        }
+    }
+
+    return status;
+}
 
 int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size)
 {
@@ -1090,49 +1126,6 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_add
     }
 
     return 0;
-}
-
-int QSPIFBlockDevice::_reset_flash_mem()
-{
-    // Perform Soft Reset of the Device prior to initialization
-    int status = 0;
-    uint8_t status_value = 0;
-    tr_debug("_reset_flash_mem:");
-    //Read the Status Register from device
-    if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_INST_RSR1, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *) &status_value,
-                                                     1)) {   // store received values in status_value
-        tr_debug("Reading Status Register Success: value = 0x%x", status_value);
-    } else {
-        tr_error("Reading Status Register failed: value = 0x%x", status_value);
-        status = -1;
-    }
-
-    if (0 == status) {
-        //Send Reset Enable
-        if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_RSTEN, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL,
-                                                         0)) {    // store received values in status_value
-            tr_debug("Sending RSTEN Success");
-        } else {
-            tr_error("Sending RSTEN failed");
-            status = -1;
-        }
-
-
-        if (0 == status) {
-            //Send Reset
-            if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_RST, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL,
-                                                             0)) {   // store received values in status_value
-                tr_debug("Sending RST Success");
-            } else {
-                tr_error("Sending RST failed");
-                status = -1;
-            }
-
-            _is_mem_ready();
-        }
-    }
-
-    return status;
 }
 
 int QSPIFBlockDevice::_set_write_enable()
