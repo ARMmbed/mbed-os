@@ -41,7 +41,7 @@
 extern "C" {
 #endif
 
-#if defined(CYBSP_QSPI_SCK)
+#if defined(CYBSP_QSPI_SCK) && (DEVICE_QSPI)
 #include "cycfg_qspi_memslot.h"
 
 typedef struct
@@ -85,7 +85,7 @@ const uint32_t cyToc[128] =
 };
 
 /** \} group_bsp_serial_flash_variables */
-#endif /* defined(CYBSP_QSPI_SCK) */
+#endif /* defined(CYBSP_QSPI_SCK) && (DEVICE_QSPI) */
 
 #if defined(__cplusplus)
 }
