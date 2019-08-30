@@ -268,6 +268,8 @@ private:
     /*********************************/
     /* Flash Configuration Functions */
     /*********************************/
+    // Clear the device's block protection
+    int _clear_block_protection();
 
     // Configure Write Enable in Status Register
     int _set_write_enable();
