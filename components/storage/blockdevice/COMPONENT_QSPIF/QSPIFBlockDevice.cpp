@@ -118,6 +118,11 @@ static int local_math_power(int base, int exp);
 // General QSPI instructions
 #define QSPIF_INST_WSR1  0x01 // Write status register 1
 #define QSPIF_INST_RSR1  0x05 // Read status register 1
+#define QSPIF_INST_RSFDP 0x5A // Read SFDP
+#define QSPIF_INST_RDID  0x9F // Read Manufacturer and JDEC Device ID
+
+// Device-specific instructions
+#define QSPIF_INST_ULBPR 0x98 // Clear all write-protection bits in the Block-Protection register
 
 // Default status register 2 read/write instructions
 #define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
@@ -125,6 +130,11 @@ static int local_math_power(int base, int exp);
 
 // Default 4-byte extended addressing register write instruction
 #define QSPIF_INST_4BYTE_REG_WRITE_DEFAULT QSPI_NO_INST
+
+
+// Length of data returned from RDID instruction
+#define QSPI_RDID_DATA_LENGTH 3
+
 
 /* Init function to initialize Different Devices CS static list */
 static PinName *generate_initialized_active_qspif_csel_arr();
@@ -172,14 +182,11 @@ int QSPIFBlockDevice::init()
         return QSPIF_BD_ERROR_DEVICE_MAX_EXCEED;
     }
 
-    uint8_t vendor_device_ids[4];
-    size_t data_length = 3;
     int status = QSPIF_BD_ERROR_OK;
     uint32_t basic_table_addr = 0;
     size_t basic_table_size = 0;
     uint32_t sector_map_table_addr = 0;
     size_t sector_map_table_size = 0;
-    int qspi_status = QSPI_STATUS_OK;
 
     _mutex.lock();
 
@@ -209,26 +216,6 @@ int QSPIFBlockDevice::init()
         tr_error("QSPI Set Frequency Failed");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
-    }
-
-    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
-    qspi_status = _qspi_send_general_command(QSPIF_RDID, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)vendor_device_ids,
-                                             data_length);
-    if (qspi_status != QSPI_STATUS_OK) {
-        tr_error("Init - Read Vendor ID Failed");
-        status = QSPIF_BD_ERROR_DEVICE_ERROR;
-        goto exit_point;
-    }
-
-    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x 0x%x", vendor_device_ids[0],
-             vendor_device_ids[1], vendor_device_ids[2], vendor_device_ids[3]);
-    switch (vendor_device_ids[0]) {
-        case 0xbf:
-            // SST devices come preset with block protection
-            // enabled for some regions, issue global protection unlock to clear
-            _set_write_enable();
-            _qspi_send_general_command(QSPIF_ULBPR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
-            break;
     }
 
     //Synchronize Device
@@ -272,6 +259,12 @@ int QSPIFBlockDevice::init()
                                                  0, QSPI_CFG_BUS_SINGLE, 0)) {
         tr_error("_qspi_configure_format failed");
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
+    }
+
+    if (0 != _clear_block_protection()) {
+        tr_error("Init - clearing block protection failed");
+        status = QSPIF_BD_ERROR_PARSING_FAILED;
         goto exit_point;
     }
 
@@ -1228,6 +1221,64 @@ int QSPIFBlockDevice::_sfdp_parse_sector_map_table(uint32_t sector_map_table_add
     if (i_ind == 4) {
         // No common erase type was found between regions
         _min_common_erase_size = 0;
+    }
+
+    return 0;
+}
+
+int QSPIFBlockDevice::_clear_block_protection()
+{
+    uint8_t vendor_device_ids[QSPI_RDID_DATA_LENGTH] = {0};
+    uint8_t status_regs[QSPI_STATUS_REGISTER_COUNT] = {0};
+
+    if (false == _is_mem_ready()) {
+        tr_error("Device not ready, clearing block protection failed");
+        return -1;
+    }
+
+    /* Read Manufacturer ID (1byte), and Device ID (2bytes) */
+    qspi_status_t status = _qspi_send_general_command(QSPIF_INST_RDID, QSPI_NO_ADDRESS_COMMAND,
+                                             NULL, 0,
+                                             (char *) vendor_device_ids, QSPI_RDID_DATA_LENGTH);
+    if (QSPI_STATUS_OK != status) {
+        tr_error("Read Vendor ID Failed");
+        return -1;
+    }
+
+    tr_debug("Vendor device ID = 0x%x 0x%x 0x%x", vendor_device_ids[0], vendor_device_ids[1], vendor_device_ids[2]);
+    switch (vendor_device_ids[0]) {
+        case 0xbf:
+            // SST devices come preset with block protection
+            // enabled for some regions, issue global protection unlock to clear
+            if (0 != _set_write_enable()) {
+                tr_error("Write enable failed");
+                return -1;
+            }
+            status = _qspi_send_general_command(QSPIF_INST_ULBPR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            if (QSPI_STATUS_OK != status) {
+                tr_error("Global block protection unlock failed");
+                return -1;
+            }
+            break;
+        default:
+            // For all other devices, clear all bits in status register 1 that aren't the WIP or WEL bits to clear the block protection bits
+            status = _qspi_read_status_registers(status_regs);
+            if (QSPI_STATUS_OK != status) {
+                tr_error("_clear_block_protection - Status register read failed");
+                return -1;
+            }
+            status_regs[0] &= (QSPIF_STATUS_BIT_WIP | QSPIF_STATUS_BIT_WEL);
+            status = _qspi_write_status_registers(status_regs);
+            if (QSPI_STATUS_OK != status) {
+                tr_error("__clear_block_protection - Status register write failed");
+                return -1;
+            }
+            break;
+    }
+
+    if (false == _is_mem_ready()) {
+        tr_error("Device not ready, clearing block protection failed");
+        return -1;
     }
 
     return 0;
