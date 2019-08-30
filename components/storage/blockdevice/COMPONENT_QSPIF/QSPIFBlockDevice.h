@@ -27,11 +27,11 @@ enum qspif_bd_error {
     QSPIF_BD_ERROR_OK                    = 0,     /*!< no error */
     QSPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     QSPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
-    QSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for  Mem Ready failed */
+    QSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for Mem Ready failed */
     QSPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
     QSPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4005, /* Erase command not on sector aligned addresses or exceeds device size */
-    QSPIF_BD_ERROR_DEVICE_NOT_UNIQE      = -4006, /* Only one instance per csel is allowed */
-    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4007 /* Max active QSPIF devices exceeded */
+    QSPIF_BD_ERROR_DEVICE_NOT_UNIQUE     = -4006, /* Only one instance per csel is allowed */
+    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4007  /* Max active QSPIF devices exceeded */
 };
 
 /** Enum qspif polarity mode
@@ -285,7 +285,7 @@ private:
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
-    // Parse and read information required by Regions Secotr Map
+    // Parse and read information required by Regions Sector Map
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
     // Detect the soft reset protocol and reset - returns error if soft reset is not supported
@@ -298,7 +298,7 @@ private:
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
 
-    // Enable QPI mode (4-4-4) is supported
+    // Enable QPI mode (4-4-4)
     int _sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr);
 
     // Set Page size for program
