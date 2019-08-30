@@ -40,7 +40,7 @@ void SYNCHRONOUS_DNS_CACHE()
     for (unsigned int i = 0; i < 5; i++) {
         SocketAddress address;
         int started_us = ticker_us;
-        nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts_second[0], &address);
+        nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts[0], &address);
 
         int delay_ms = (ticker_us - started_us) / 1000;
 
@@ -49,6 +49,6 @@ void SYNCHRONOUS_DNS_CACHE()
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
         printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts_second[0], address.get_ip_address(), delay_ms);
+               dns_test_hosts[0], address.get_ip_address(), delay_ms);
     }
 }
