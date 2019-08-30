@@ -305,9 +305,7 @@ private:
     int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                               mbed::qspi_inst_t &erase4k_inst,
-                                               mbed::qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect 4-byte addressing mode and enable it if supported
     int _sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_param_table_ptr, int basic_param_table_size);
@@ -343,8 +341,7 @@ private:
     // Command Instructions
     mbed::qspi_inst_t _read_instruction;
     mbed::qspi_inst_t _prog_instruction;
-    mbed::qspi_inst_t _erase_instruction;
-    mbed::qspi_inst_t _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+    mbed::qspi_inst_t _legacy_erase_instruction;
 
     // Status register write/read instructions
     mbed::qspi_inst_t _write_status_reg_2_inst;

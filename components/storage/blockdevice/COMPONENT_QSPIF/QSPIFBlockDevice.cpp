@@ -125,6 +125,9 @@ static int local_math_power(int base, int exp);
 // Device-specific instructions
 #define QSPIF_INST_ULBPR 0x98 // Clear all write-protection bits in the Block-Protection register
 
+// Default legacy erase instruction
+#define QSPIF_INST_LEGACY_ERASE_DEFAULT  QSPI_NO_INST
+
 // Default status register 2 read/write instructions
 #define QSPIF_INST_WSR2_DEFAULT    QSPI_NO_INST
 #define QSPIF_INST_RSR2_DEFAULT    0x35
@@ -162,6 +165,9 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     } else {
         tr_error("Too many different QSPIFBlockDevice devices - max allowed: %d", QSPIF_MAX_ACTIVE_FLASH_DEVICES);
     }
+
+    // Set default erase instructions
+    _legacy_erase_instruction = QSPIF_INST_LEGACY_ERASE_DEFAULT;
 
     // Set default status register 2 write/read instructions
     _write_status_reg_2_inst = QSPIF_INST_WSR2_DEFAULT;
@@ -393,7 +399,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     int type = 0;
     uint32_t offset = 0;
     uint32_t chunk = 4096;
-    qspi_inst_t cur_erase_inst = _erase_instruction;
+    qspi_inst_t cur_erase_inst = QSPI_NO_INST;
     int size = (int)in_size;
     bool erase_failed = false;
     int status = QSPIF_BD_ERROR_OK;
@@ -416,12 +422,20 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 
     // For each iteration erase the largest section supported by current region
     while (size > 0) {
-        // iterate to find next Largest erase type ( a. supported by region, b. smaller than size)
-        // find the matching instruction and erase size chunk for that type.
-        type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr, _region_high_boundary[region]);
-        cur_erase_inst = _erase_type_inst_arr[type];
-        offset = addr % _erase_type_size_arr[type];
-        chunk = ((offset + size) < _erase_type_size_arr[type]) ? size : (_erase_type_size_arr[type] - offset);
+        unsigned int eu_size;
+        if (_legacy_erase_instruction == QSPI_NO_INST) {
+            // Iterate to find next largest erase type that is a) supported by region, and b) smaller than size.
+            // Find the matching instruction and erase size chunk for that type.
+            type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr, _region_high_boundary[region]);
+            cur_erase_inst = _erase_type_inst_arr[type];
+            eu_size = _erase_type_size_arr[type];
+        } else {
+            // Must use legacy 4k erase instruction
+            cur_erase_inst = _legacy_erase_instruction;
+            eu_size = QSPIF_DEFAULT_SE_SIZE;
+        }
+        offset = addr % eu_size;
+        chunk = ((offset + size) < eu_size) ? size : (eu_size - offset);
 
         tr_debug("Erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu ",
                  addr, size, cur_erase_inst, chunk);
@@ -497,6 +511,11 @@ const char *QSPIFBlockDevice::get_type() const
 // Find minimal erase size supported by the region to which the address belongs to
 bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
 {
+    // If the legacy erase instruction is in use, the erase size is uniformly 4k
+    if (_legacy_erase_instruction != QSPI_NO_INST) {
+        return QSPIF_DEFAULT_SE_SIZE;
+    }
+
     // Find region of current address
     int region = _utils_find_addr_region(addr);
 
@@ -692,13 +711,9 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
                                 param_table[4]);
     _device_size_bytes = (density_bits + 1) / 8;
 
-    // Set Default read/program/erase Instructions
+    // Set Default read/program Instructions
     _read_instruction = QSPIF_READ;
     _prog_instruction = QSPIF_PP;
-    _erase_instruction = QSPIF_SE;
-
-    _erase_instruction = _erase4k_inst;
-
     // Set Page Size (QSPI write must be done on Page limits)
     _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
 
@@ -711,9 +726,10 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     bool shouldSetQuadEnable = false;
     bool is_qpi_mode = false;
 
-    _sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size, _erase4k_inst, _erase_type_inst_arr,
-                                           _erase_type_size_arr);
-    _erase_instruction = _erase4k_inst;
+    if (_sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size) != 0) {
+        tr_error("Init - Detecting erase types instructions/sizes failed");
+        return -1;
+    }
 
     // Detect and Set fastest Bus mode (default 1-1-1)
     _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, shouldSetQuadEnable, is_qpi_mode, _read_instruction);
@@ -874,56 +890,44 @@ int QSPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int
     return page_size;
 }
 
-int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                                             qspi_inst_t &erase4k_inst,
-                                                             qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr)
+int QSPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
 {
-    erase4k_inst = 0xff;
-    bool found_4Kerase_type = false;
     uint8_t bitfield = 0x01;
 
     // Erase 4K Inst is taken either from param table legacy 4K erase or superseded by erase Instruction for type of size 4K
-    erase4k_inst = basic_param_table_ptr[QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
-
-    if (basic_param_table_size > QSPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE) {
+    if (basic_param_table_size > QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE) {
         // Loop Erase Types 1-4
         for (int i_ind = 0; i_ind < 4; i_ind++) {
-            erase_type_inst_arr[i_ind] = 0xff; //0xFF default for unsupported type
-            erase_type_size_arr[i_ind] = local_math_power(2,
-                                                          basic_param_table_ptr[QSPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
-            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
-                     erase_type_size_arr[i_ind]);
-            if (erase_type_size_arr[i_ind] > 1) {
+            _erase_type_inst_arr[i_ind] = QSPI_NO_INST; // Default for unsupported type
+            _erase_type_size_arr[i_ind] = 1 << basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]; // Size is 2^N where N is the table value
+            tr_debug("Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), _erase_type_inst_arr[i_ind],
+                     _erase_type_size_arr[i_ind]);
+            if (_erase_type_size_arr[i_ind] > 1) {
                 // if size==1 type is not supported
-                erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE + 2 * i_ind];
+                _erase_type_inst_arr[i_ind] = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_ERASE_TYPE_1_BYTE + 2 * i_ind];
 
-                if ((erase_type_size_arr[i_ind] < _min_common_erase_size) || (_min_common_erase_size == 0)) {
-                    //Set default minimal common erase for singal region
-                    _min_common_erase_size = erase_type_size_arr[i_ind];
+                if ((_erase_type_size_arr[i_ind] < _min_common_erase_size) || (_min_common_erase_size == 0)) {
+                    //Set default minimal common erase for signal region
+                    _min_common_erase_size = _erase_type_size_arr[i_ind];
                 }
-
-                // SFDP standard requires 4K Erase type to exist and its instruction to be identical to legacy field erase instruction
-                if (erase_type_size_arr[i_ind] == 4096) {
-                    found_4Kerase_type = true;
-                    if (erase4k_inst != erase_type_inst_arr[i_ind]) {
-                        //Verify 4KErase Type is identical to Legacy 4K erase type specified in Byte 1 of Param Table
-                        erase4k_inst = erase_type_inst_arr[i_ind];
-                        tr_warning("_detectEraseTypesInstAndSize - Default 4K erase Inst is different than erase type Inst for 4K");
-
-                    }
-                }
-                _region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as defualt;
+                _region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as default
             }
 
-            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
-                     erase_type_size_arr[i_ind]);
+            tr_debug("Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), _erase_type_inst_arr[i_ind],
+                     _erase_type_size_arr[i_ind]);
             bitfield = bitfield << 1;
+        }
+    } else {
+        tr_debug("SFDP erase types are not available - falling back to legacy 4k erase instruction");
+
+        // 0xFF indicates that the legacy 4k erase instruction is not supported
+        _legacy_erase_instruction = basic_param_table_ptr[QSPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
+        if (_legacy_erase_instruction == 0xFF) {
+            tr_error("_detectEraseTypesInstAndSize - Legacy 4k erase instruction not supported");
+            return -1;
         }
     }
 
-    if (false == found_4Kerase_type) {
-        tr_warning("Couldn't find Erase Type for 4KB size");
-    }
     return 0;
 }
 
