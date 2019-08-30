@@ -1079,6 +1079,15 @@ int QSPIFBlockDevice::_sfdp_detect_and_enable_4byte_addressing(uint8_t *basic_pa
             tr_debug("_sfdp_detect_and_enable_4byte_addressing - 4-byte addressing not supported, falling back to 3-byte addressing");
             _address_size = QSPI_CFG_ADDR_SIZE_24;
         }
+
+        if (_address_size == QSPI_CFG_ADDR_SIZE_32) {
+            // Update 1-1-1 format to match new address size
+            if (QSPI_STATUS_OK != _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, _address_size, QSPI_CFG_BUS_SINGLE,
+                                                         0, QSPI_CFG_BUS_SINGLE, 0)) {
+                tr_error("_qspi_configure_format failed");
+                status = QSPIF_BD_ERROR_DEVICE_ERROR;
+            }
+        }
     }
 
     return status;
