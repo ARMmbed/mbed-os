@@ -22,7 +22,7 @@
 #include <string.h>
 
 // check if the event is allocaded by user - event address is outside queues internal buffer address range
-#define EQUEUE_IS_USER_ALLOCATED_EVENT(e) (((uintptr_t)(e) < (uintptr_t)q->buffer) || ((uintptr_t)(e) > ((uintptr_t)q->slab.data)))
+#define EQUEUE_IS_USER_ALLOCATED_EVENT(e) ((q->buffer == NULL) || ((uintptr_t)(e) < (uintptr_t)q->buffer) || ((uintptr_t)(e) > ((uintptr_t)q->slab.data)))
 
 // calculate the relative-difference between absolute times while
 // correctly handling overflow conditions

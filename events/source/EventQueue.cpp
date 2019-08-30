@@ -24,9 +24,9 @@ namespace events {
 EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
 {
     if (event_size == 0) {
-        // As static queue (EventQueue(0)) won't perform any access to its dummy buffer
-        // set 1B dummy buffer as pointer to itself
-        equeue_create_inplace(&_equeue, 1, this);
+        // As static queue (EventQueue(0)) won't perform any access to its data buffer
+        // we can pass (0, NULL)
+        equeue_create_inplace(&_equeue, 0, NULL);
     } else {
         if (!event_pointer) {
             equeue_create(&_equeue, event_size);
