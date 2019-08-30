@@ -802,6 +802,56 @@ void sibling_test(void)
     equeue_destroy(&q);
 }
 
+struct user_allocated_event {
+    struct equeue_event e;
+    bool touched;
+};
+
+void user_allocated_event_test()
+{
+    equeue_t q;
+    int err = equeue_create(&q, EQUEUE_EVENT_SIZE);
+    test_assert(!err);
+
+    bool touched = false;
+    struct user_allocated_event e1 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+    struct user_allocated_event e2 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    struct user_allocated_event e3 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    struct user_allocated_event e4 = { { 0, 0, 0, NULL, NULL, NULL, 1, -1, NULL, NULL }, 0 };
+    struct user_allocated_event e5 = { { 0, 0, 0, NULL, NULL, NULL, 0, -1, NULL, NULL }, 0 };
+
+    test_assert(0 != equeue_call(&q, simple_func, &touched));
+    test_assert(0 == equeue_call(&q, simple_func, &touched));
+    test_assert(0 == equeue_call(&q, simple_func, &touched));
+
+    equeue_post_user_allocated(&q, simple_func, &e1.e);
+    equeue_post_user_allocated(&q, simple_func, &e2.e);
+    equeue_post_user_allocated(&q, simple_func, &e3.e);
+    equeue_post_user_allocated(&q, simple_func, &e4.e);
+    equeue_post_user_allocated(&q, simple_func, &e5.e);
+    equeue_cancel_user_allocated(&q, &e3.e);
+
+    equeue_dispatch(&q, 1);
+
+    test_assert(true == touched);
+    test_assert(true == e1.touched);
+    test_assert(true == e2.touched);
+    test_assert(false == e3.touched);
+    test_assert(true == e4.touched);
+    test_assert(true == e5.touched);
+
+    equeue_dispatch(&q, 10);
+
+    test_assert(true == touched);
+    test_assert(true == e1.touched);
+    test_assert(true == e2.touched);
+    test_assert(false == e3.touched);
+    test_assert(true == e4.touched);
+    test_assert(true == e5.touched);
+
+    equeue_destroy(&q);
+}
+
 int main()
 {
     printf("beginning tests...\n");
@@ -830,6 +880,7 @@ int main()
     test_run(multithreaded_barrage_test, 20);
     test_run(break_request_cleared_on_timeout);
     test_run(sibling_test);
+    test_run(user_allocated_event_test);
     printf("done!\n");
     return test_failure;
 }

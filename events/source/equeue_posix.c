@@ -40,7 +40,10 @@ unsigned equeue_tick(void)
 // Mutex operations
 int equeue_mutex_create(equeue_mutex_t *m)
 {
-    return pthread_mutex_init(m, 0);
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    return pthread_mutex_init(m, &attr);
 }
 
 void equeue_mutex_destroy(equeue_mutex_t *m)
