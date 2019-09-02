@@ -107,7 +107,7 @@ extern "C" {
                        (((CHAN)   & STM_PIN_CHAN_MASK) << STM_PIN_CHAN_SHIFT) |\
                        (((INV)    & STM_PIN_INV_MASK) << STM_PIN_INV_SHIFT))
 
-#define STM_PIN_DEFINE_EXT2(FUNC_OD, PUPD, AFNUM, CHAN, INV, SPEEDV) \
+#define STM_PIN_DEFINE_SPEED_EXT(FUNC_OD, PUPD, AFNUM, CHAN, INV, SPEEDV) \
                                             ((int)(FUNC_OD) |\
                        (((SPEEDV)   & STM_PIN_SPEED_MASK) << STM_PIN_SPEED_SHIFT) |\
                        (((PUPD)   & STM_PIN_PUPD_MASK) << STM_PIN_PUPD_SHIFT) |\
