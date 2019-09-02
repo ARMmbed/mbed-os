@@ -84,11 +84,11 @@ void pin_function(PinName pin, int data)
 		{
 		/* Default value for backward compatibility */
 		case STM_PIN_SPEED_MASK:
-#if defined (LL_GPIO_SPEED_FREQ_VERY_HIGH)
-        LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-#else
-        LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
-#endif
+    #if defined (LL_GPIO_SPEED_FREQ_VERY_HIGH)
+            LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+    #else
+            LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
+    #endif
 			break;
 
 		default:
