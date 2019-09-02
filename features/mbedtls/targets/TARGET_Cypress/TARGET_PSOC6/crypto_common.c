@@ -152,7 +152,7 @@ int cy_hw_sha_process(cy_hw_crypto_t *obj, cy_stc_crypto_sha_state_t *hashState,
 {
     cy_en_crypto_status_t status;
 
-	status = Cy_Crypto_Core_Sha_Update(obj->base, hashState, in, hashState->blockSize);
+    status = Cy_Crypto_Core_Sha_Update(obj->base, hashState, in, hashState->blockSize);
     if (CY_CRYPTO_SUCCESS != status)
         return (-1);
 

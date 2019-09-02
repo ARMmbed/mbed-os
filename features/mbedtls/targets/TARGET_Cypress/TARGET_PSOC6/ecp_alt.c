@@ -1835,10 +1835,10 @@ static int ecp_mul_comb( mbedtls_ecp_group *grp, mbedtls_ecp_point *R,
     MBEDTLS_MPI_CHK( mbedtls_mpi_grow(&R->Y, data_size) );
 
     Cy_Crypto_Core_EC_NistP_PointMultiplication (crypto_obj.base,
-    		curveId,
-			(uint8_t *)Pi.X.p, (uint8_t *)Pi.Y.p,
-			(uint8_t *)di.p,
-			(uint8_t *)R->X.p, (uint8_t *)R->Y.p);
+            curveId,
+            (uint8_t *)Pi.X.p, (uint8_t *)Pi.Y.p,
+            (uint8_t *)di.p,
+            (uint8_t *)R->X.p, (uint8_t *)R->Y.p);
 
     /* R.Z coordinate should be 1 */
     MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &R->Z, 1 ) );

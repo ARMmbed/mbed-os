@@ -84,7 +84,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
                 int (*f_rng)(void *, unsigned char *, size_t), void *p_rng )
 {
     int ret;
-	size_t bytesize;
+    size_t bytesize;
     uint8_t *sig = NULL;
     uint8_t *tmp_k = NULL;
     cy_hw_crypto_t crypto_obj;
@@ -113,11 +113,11 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     /* Reserve the crypto hardware for the operation */
     cy_hw_crypto_reserve(&crypto_obj, CYHAL_CRYPTO_VU);
 
-	dp = Cy_Crypto_Core_ECC_GetCurveParams(key.curveID);
+    dp = Cy_Crypto_Core_ECC_GetCurveParams(key.curveID);
 
-	bytesize = CY_CRYPTO_BYTE_SIZE_OF_BITS(dp->size);
+    bytesize = CY_CRYPTO_BYTE_SIZE_OF_BITS(dp->size);
 
-	key.k = malloc(bytesize);
+    key.k = malloc(bytesize);
     MBEDTLS_MPI_CHK((key.k == NULL) ? MBEDTLS_ERR_ECP_ALLOC_FAILED : 0);
 
     MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( d, key.k, bytesize ) );
@@ -149,12 +149,12 @@ cleanup:
     if (key.k != NULL)
     {
         mbedtls_platform_zeroize(key.k, bytesize);
-    	free(key.k);
+        free(key.k);
     }
     if (sig != NULL)
     {
         mbedtls_platform_zeroize(sig, 2 * bytesize);
-    	free(sig);
+        free(sig);
     }
     if (tmp_k != NULL)
     {
@@ -176,9 +176,9 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
                   const mbedtls_ecp_point *Q, const mbedtls_mpi *r, const mbedtls_mpi *s)
 {
     int ret;
-	uint8_t stat;
+    uint8_t stat;
     size_t bytesize;
-	size_t olen;
+    size_t olen;
     uint8_t *sig = NULL;
     uint8_t *point_arr = NULL;
     cy_hw_crypto_t crypto_obj;
@@ -202,9 +202,9 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
     /* Reserve the crypto hardware for the operation */
     cy_hw_crypto_reserve(&crypto_obj, CYHAL_CRYPTO_VU);
 
-	dp = Cy_Crypto_Core_ECC_GetCurveParams(key.curveID);
+    dp = Cy_Crypto_Core_ECC_GetCurveParams(key.curveID);
 
-	bytesize   = CY_CRYPTO_BYTE_SIZE_OF_BITS(dp->size);
+    bytesize   = CY_CRYPTO_BYTE_SIZE_OF_BITS(dp->size);
 
     point_arr = malloc(2 * bytesize + 1u);
     MBEDTLS_MPI_CHK((point_arr == NULL) ? MBEDTLS_ERR_ECP_ALLOC_FAILED : 0);
@@ -237,12 +237,12 @@ cleanup:
     if (point_arr != NULL)
     {
         mbedtls_platform_zeroize(point_arr, 2 * bytesize + 1u);
-    	free(point_arr);
+        free(point_arr);
     }
     if (sig != NULL)
     {
         mbedtls_platform_zeroize(sig, 2 * bytesize);
-    	free(sig);
+        free(sig);
     }
 
     return( ret );

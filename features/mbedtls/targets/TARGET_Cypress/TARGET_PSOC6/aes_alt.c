@@ -104,8 +104,8 @@ static int aes_set_keys( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits )
 {
     int ret = 0;
-	cy_en_crypto_aes_key_length_t key_length;
-	cy_en_crypto_status_t status;
+    cy_en_crypto_aes_key_length_t key_length;
+    cy_en_crypto_status_t status;
 
     AES_VALIDATE( ctx != NULL );
 
@@ -121,8 +121,8 @@ static int aes_set_keys( mbedtls_aes_context *ctx, const unsigned char *key,
 
     if (CY_CRYPTO_SUCCESS != status)
     {
-    	ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
-    	goto exit;
+        ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
+        goto exit;
     }
 
 exit:
@@ -247,7 +247,7 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
 
     if (CY_CRYPTO_SUCCESS != status)
     {
-    	ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
+        ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
     }
 
     return( ret );
@@ -279,7 +279,7 @@ int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
 
     if (CY_CRYPTO_SUCCESS != status)
     {
-    	ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
+        ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
     }
 
     return( ret );
