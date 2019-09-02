@@ -1203,6 +1203,8 @@ void sn_coap_protocol_linked_list_duplication_info_remove(struct coap_s *handle,
     (void)msg_id;
 #endif //SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 }
+
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 static void sn_coap_protocol_duplication_info_free(struct coap_s *handle, coap_duplication_info_s *duplication_info_ptr)
 {
     if (duplication_info_ptr) {
@@ -1214,6 +1216,7 @@ static void sn_coap_protocol_duplication_info_free(struct coap_s *handle, coap_d
         handle->sn_coap_protocol_free(duplication_info_ptr);
     }
 }
+#endif // SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 
 #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 /**************************************************************************//**

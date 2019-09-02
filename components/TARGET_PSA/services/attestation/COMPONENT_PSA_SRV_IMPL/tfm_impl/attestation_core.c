@@ -869,7 +869,7 @@ attest_create_token(struct useful_buf_c *challenge,
     token_err = attest_token_start(&attest_token_ctx,
                                    option_flags,         /* option_flags */
                                    key_select,           /* key_select   */
-                                   COSE_ALGORITHM_ES256, /* alg_select   */
+                                   alg_select,           /* alg_select   */
                                    token);
 
     if (token_err != ATTEST_TOKEN_ERR_SUCCESS) {

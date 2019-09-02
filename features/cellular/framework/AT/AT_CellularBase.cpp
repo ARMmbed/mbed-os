@@ -51,6 +51,6 @@ intptr_t AT_CellularBase::get_property(CellularProperty key)
     if (_property_array) {
         return _property_array[key];
     } else {
-        return NULL;
+        return 0;
     }
 }
