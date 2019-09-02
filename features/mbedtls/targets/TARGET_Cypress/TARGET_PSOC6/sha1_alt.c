@@ -26,10 +26,10 @@
  */
 
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
+#if defined(MBEDTLS_CONFIG_FILE)
 #include MBEDTLS_CONFIG_FILE
+#else
+#include "config.h"
 #endif
 
 #if defined(MBEDTLS_SHA1_C)
