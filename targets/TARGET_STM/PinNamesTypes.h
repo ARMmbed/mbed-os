@@ -94,8 +94,8 @@ extern "C" {
                           (((PUPD)  & STM_PIN_PUPD_MASK) << STM_PIN_PUPD_SHIFT) |\
                           (((AFNUM) & STM_PIN_AFNUM_MASK) << STM_PIN_AFNUM_SHIFT))
 
-#define STM_PIN_DEFINE_SPEED(FUNC_OD, PUPD, AFNUM, SPEED)  ((int)(FUNC_OD) |\
-						  (((SPEED)   & STM_PIN_SPEED_MASK) << STM_PIN_SPEED_SHIFT) |\
+#define STM_PIN_DEFINE_SPEED(FUNC_OD, PUPD, AFNUM, SPEEDV)  ((int)(FUNC_OD) |\
+						  (((SPEEDV)   & STM_PIN_SPEED_MASK) << STM_PIN_SPEED_SHIFT) |\
                           (((PUPD)  & STM_PIN_PUPD_MASK) << STM_PIN_PUPD_SHIFT) |\
                           (((AFNUM) & STM_PIN_AFNUM_MASK) << STM_PIN_AFNUM_SHIFT))
 
@@ -107,9 +107,9 @@ extern "C" {
                        (((CHAN)   & STM_PIN_CHAN_MASK) << STM_PIN_CHAN_SHIFT) |\
                        (((INV)    & STM_PIN_INV_MASK) << STM_PIN_INV_SHIFT))
 
-#define STM_PIN_DEFINE_EXT2(FUNC_OD, PUPD, AFNUM, CHAN, INV, SPEED) \
+#define STM_PIN_DEFINE_EXT2(FUNC_OD, PUPD, AFNUM, CHAN, INV, SPEEDV) \
                                             ((int)(FUNC_OD) |\
-                       (((SPEED)   & STM_PIN_SPEED_MASK) << STM_PIN_SPEED_SHIFT) |\
+                       (((SPEEDV)   & STM_PIN_SPEED_MASK) << STM_PIN_SPEED_SHIFT) |\
                        (((PUPD)   & STM_PIN_PUPD_MASK) << STM_PIN_PUPD_SHIFT) |\
                        (((AFNUM)  & STM_PIN_AFNUM_MASK) << STM_PIN_AFNUM_SHIFT) |\
                        (((CHAN)   & STM_PIN_CHAN_MASK) << STM_PIN_CHAN_SHIFT) |\
