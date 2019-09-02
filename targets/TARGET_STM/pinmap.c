@@ -95,7 +95,7 @@ void pin_function(PinName pin, int data)
         }
 #if defined (TARGET_STM32F1)
     }
-#endiff
+#endif
 
     switch (mode) {
         case STM_PIN_INPUT:
