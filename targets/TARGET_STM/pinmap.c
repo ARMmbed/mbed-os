@@ -80,15 +80,14 @@ void pin_function(PinName pin, int data)
 #if defined (TARGET_STM32F1)
     if (mode == STM_PIN_OUTPUT) {
 #endif
-		switch (speed)
-		{
+		switch (speed) {
 		/* Default value for backward compatibility */
 		case STM_PIN_SPEED_MASK:
-        #if defined (LL_GPIO_SPEED_FREQ_VERY_HIGH)
+#if defined (LL_GPIO_SPEED_FREQ_VERY_HIGH)
             LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-        #else
+#else
             LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
-        #endif
+#endif
 			break;
 
 		default:
