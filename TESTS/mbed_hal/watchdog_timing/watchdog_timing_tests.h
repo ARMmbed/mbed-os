@@ -40,6 +40,16 @@
 template<uint32_t timeout_ms, uint32_t delta_ms>
 void test_timing();
 
+/** Test Watchdog timeout
+ *
+ * Given a device with a Watchdog started,
+ * when the Watchdog timout doesn't expire,
+ * then the device restart is not performed.
+ * When the Watchdog timout does expire,
+ * then the device is restarted after the timeout and before twice the timeout value.
+ */
+void test_timeout_lower_limit();
+
 #endif
 
 #endif
