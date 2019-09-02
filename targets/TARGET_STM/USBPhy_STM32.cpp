@@ -74,8 +74,8 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 #else
     uint32_t sofnum = (hpcd->Instance->FNR) & USB_FNR_FN;
     if (priv->sof_enabled) {
-            priv->events->sof(sofnum);
-        }
+        priv->events->sof(sofnum);
+    }
 #endif
 }
 
@@ -335,20 +335,6 @@ void USBPhyHw::init(USBPhyEvents *events)
     // EP3
     HAL_PCDEx_PMAConfig(&hpcd, 0x03, PCD_DBL_BUF, 0x01F001B0);
     HAL_PCDEx_PMAConfig(&hpcd, 0x83, PCD_SNG_BUF, 0x230);
-
-
-//    // EP0
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x00, PCD_SNG_BUF, 0x30);
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x80, PCD_SNG_BUF, 0x70);
-//    // EP1
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x01, PCD_SNG_BUF, 0x90);
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x81, PCD_SNG_BUF, 0xb0);
-//    // EP2
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x02, PCD_SNG_BUF, 0x100);
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x82, PCD_SNG_BUF, 0x120);
-//    // EP3
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x03, PCD_DBL_BUF, 0x018000b0);
-//    HAL_PCDEx_PMAConfig(&hpcd, 0x83, PCD_SNG_BUF, 0xb0);
 #else
     uint32_t total_bytes = 0;
 
@@ -399,8 +385,8 @@ void USBPhyHw::connect()
 {
 #if defined(TARGET_NUCLEO_L073RZ)
     /*set wInterrupt_Mask global variable*/
-    uint32_t wInterrupt_Mask = wInterrupt_Mask = USB_CNTR_CTRM  | USB_CNTR_WKUPM | USB_CNTR_SUSPM | USB_CNTR_ERRM \
-	                                             | USB_CNTR_SOFM | USB_CNTR_ESOFM | USB_CNTR_RESETM;
+    uint32_t wInterrupt_Mask = USB_CNTR_CTRM | USB_CNTR_WKUPM | USB_CNTR_SUSPM | USB_CNTR_ERRM |
+	                           USB_CNTR_SOFM | USB_CNTR_ESOFM | USB_CNTR_RESETM;
     /*Set interrupt mask*/
     hpcd.Instance->CNTR = wInterrupt_Mask;
     HAL_PCD_DevConnect(&hpcd);
