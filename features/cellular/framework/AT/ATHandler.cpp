@@ -1237,7 +1237,7 @@ void ATHandler::handle_args(const char *format, std::va_list list)
 {
     while (*format != '\0') {
         if (*format == 'd') {
-            int i = va_arg(list, int);
+            int32_t i = va_arg(list, int32_t);
             write_int(i);
         } else if (*format == 's') {
             char *str = (char *)va_arg(list, char *);
@@ -1305,10 +1305,14 @@ nsapi_error_t ATHandler::at_cmd_str(const char *cmd, const char *cmd_chr, char *
 
     cmd_stop();
 
-    memcpy(_cmd_buffer, cmd, strlen(cmd));
-    _cmd_buffer[strlen(cmd)] = ':';
-    _cmd_buffer[strlen(cmd) + 1] = '\0';
-    resp_start(_cmd_buffer);
+    if (cmd && strlen(cmd) > 0) {
+        memcpy(_cmd_buffer, cmd, strlen(cmd));
+        _cmd_buffer[strlen(cmd)] = ':';
+        _cmd_buffer[strlen(cmd) + 1] = '\0';
+        resp_start(_cmd_buffer);
+    } else {
+        resp_start();
+    }
 
     resp_buf[0] = '\0';
     read_string(resp_buf, buf_size);
