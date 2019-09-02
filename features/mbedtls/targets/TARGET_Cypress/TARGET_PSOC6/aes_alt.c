@@ -420,8 +420,6 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
 }
 #endif
 
-typedef unsigned char mbedtls_be128[16];
-
 /*
  * GF(2^128) multiplication function
  *
