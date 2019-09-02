@@ -50,24 +50,29 @@ void qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCmdTypeDef 
 
     st_command->FlashId = HAL_OSPI_FLASH_ID_1;
 
-    switch (command->instruction.bus_width) {
-        case QSPI_CFG_BUS_SINGLE:
-            st_command->InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
-            break;
-        case QSPI_CFG_BUS_DUAL:
-            st_command->InstructionMode = HAL_OSPI_INSTRUCTION_2_LINES;
-            break;
-        case QSPI_CFG_BUS_QUAD:
-            st_command->InstructionMode = HAL_OSPI_INSTRUCTION_4_LINES;
-            break;
-        default:
-            st_command->InstructionMode = HAL_OSPI_INSTRUCTION_NONE;
-            break;
+    if (command->instruction.disabled == true) {
+        st_command->InstructionMode = HAL_OSPI_INSTRUCTION_NONE;
+        st_command->Instruction = 0;
+    } else {
+        st_command->Instruction = command->instruction.value;
+        switch (command->instruction.bus_width) {
+            case QSPI_CFG_BUS_SINGLE:
+                st_command->InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
+                break;
+            case QSPI_CFG_BUS_DUAL:
+                st_command->InstructionMode = HAL_OSPI_INSTRUCTION_2_LINES;
+                break;
+            case QSPI_CFG_BUS_QUAD:
+                st_command->InstructionMode = HAL_OSPI_INSTRUCTION_4_LINES;
+                break;
+            default:
+                error("Command param error: wrong istruction format\n");
+                break;
+        }
     }
 
     st_command->InstructionSize    = HAL_OSPI_INSTRUCTION_8_BITS;
     st_command->InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
-    st_command->Instruction = command->instruction.value;
     st_command->DummyCycles = command->dummy_count;
     // these are target specific settings, use default values
     st_command->SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
@@ -93,7 +98,7 @@ void qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCmdTypeDef 
                 st_command->AddressMode = HAL_OSPI_ADDRESS_4_LINES;
                 break;
             default:
-                st_command->AddressMode = HAL_OSPI_ADDRESS_NONE;
+                error("Command param error: wrong address size\n");
                 break;
         }
         switch(command->address.size) {
@@ -110,7 +115,7 @@ void qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCmdTypeDef 
                 st_command->AddressSize = HAL_OSPI_ADDRESS_32_BITS;
                 break;
             default:
-                printf("Command param error: wrong address size\n");
+                error("Command param error: wrong address size\n");
                 break;
         }
     }
@@ -284,7 +289,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     // Set default OCTOSPI handle values
     obj->handle.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
     obj->handle.Init.MemoryType = HAL_OSPI_MEMTYPE_MICRON;
-    obj->handle.Init.ClockPrescaler = 4;
+    obj->handle.Init.ClockPrescaler = 4; // default value, will be overwritten in qspi_frequency
     obj->handle.Init.FifoThreshold = 4;
     obj->handle.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
     obj->handle.Init.DeviceSize = POSITION_VAL(QSPI_FLASH_SIZE_DEFAULT) - 1;
@@ -358,11 +363,23 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     obj->ssel = ssel;
     pinmap_pinout(ssel, PinMap_QSPI_SSEL);
 
-    OSPIM_Cfg_Struct.ClkPort = 2;
-    OSPIM_Cfg_Struct.DQSPort    = 2;
-    OSPIM_Cfg_Struct.NCSPort = 2;
-    OSPIM_Cfg_Struct.IOLowPort = HAL_OSPIM_IOPORT_2_LOW;
-    OSPIM_Cfg_Struct.IOHighPort = HAL_OSPIM_IOPORT_2_HIGH;
+    /* The OctoSPI IO Manager OCTOSPIM configuration is supported in a simplified mode in mbed-os
+     * QSPI1 signals are mapped to port 1 and QSPI2 signals are mapped to port 2.
+     * This  is coded in this way in PeripheralPins.c */
+    if(obj->qspi == QSPI_1) {
+        OSPIM_Cfg_Struct.ClkPort = 1;
+        OSPIM_Cfg_Struct.DQSPort    = 1;
+        OSPIM_Cfg_Struct.NCSPort = 1;
+        OSPIM_Cfg_Struct.IOLowPort = HAL_OSPIM_IOPORT_1_LOW;
+        OSPIM_Cfg_Struct.IOHighPort = HAL_OSPIM_IOPORT_1_HIGH;
+    } else {
+        OSPIM_Cfg_Struct.ClkPort = 2;
+        OSPIM_Cfg_Struct.DQSPort    = 2;
+        OSPIM_Cfg_Struct.NCSPort = 2;
+        OSPIM_Cfg_Struct.IOLowPort = HAL_OSPIM_IOPORT_2_LOW;
+        OSPIM_Cfg_Struct.IOHighPort = HAL_OSPIM_IOPORT_2_HIGH;
+    }
+
     if (HAL_OSPIM_Config(&obj->handle, &OSPIM_Cfg_Struct, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
     {
         debug_if(qspi_api_c_debug, "HAL_OSPIM_Config error\n");
