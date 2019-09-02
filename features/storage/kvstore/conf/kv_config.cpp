@@ -691,7 +691,9 @@ MBED_WEAK BlockDevice *get_other_blockdevice()
 
 int _storage_config_TDB_INTERNAL()
 {
-#if COMPONENT_FLASHIAP
+#if COMPONENT_FLASHIAP && \
+        MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE && \
+        MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS
     bd_size_t internal_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
     int ret;
