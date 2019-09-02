@@ -27,10 +27,10 @@
 #if !defined(CRYPTO_COMMON_H)
 #define CRYPTO_COMMON_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
+#if defined(MBEDTLS_CONFIG_FILE)
 #include MBEDTLS_CONFIG_FILE
+#else
+#include "config.h"
 #endif
 
 #include "mbedtls/ecp.h"

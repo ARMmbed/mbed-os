@@ -28,10 +28,10 @@
 #if !defined(SHA1_ALT_H)
 #define SHA1_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
+#if defined(MBEDTLS_CONFIG_FILE)
 #include MBEDTLS_CONFIG_FILE
+#else
+#include "config.h"
 #endif
 
 #include "crypto_common.h"
