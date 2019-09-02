@@ -122,7 +122,6 @@ static int aes_set_keys( mbedtls_aes_context *ctx, const unsigned char *key,
     if (CY_CRYPTO_SUCCESS != status)
     {
         ret = MBEDTLS_ERR_AES_HW_ACCEL_FAILED;
-        goto exit;
     }
 
 exit:
