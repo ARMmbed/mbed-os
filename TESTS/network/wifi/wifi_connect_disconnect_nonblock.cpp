@@ -29,6 +29,7 @@ using namespace utest::v1;
 nsapi_connection_status_t status_connection;
 Semaphore sem_conn(0, 1);
 Semaphore sem_disconn(0, 1);
+Semaphore sem_connecting(0, 1);
 void status_callback(nsapi_event_t e, intptr_t d)
 {
     if (d == NSAPI_STATUS_LOCAL_UP || d == NSAPI_STATUS_GLOBAL_UP) {
@@ -40,9 +41,14 @@ void status_callback(nsapi_event_t e, intptr_t d)
         status_connection = (nsapi_connection_status_t)d;
         sem_disconn.release();
     }
+
+    if (d == NSAPI_STATUS_CONNECTING) {
+        status_connection = (nsapi_connection_status_t)d;
+        sem_connecting.release();
+    }
 }
 
-void wifi_connect_nonblock(void)
+void wifi_connect_disconnect_nonblock(void)
 {
     WiFiInterface *wifi = get_interface();
     char ssid[SSID_MAX_LEN + 1] = MBED_CONF_APP_WIFI_UNSECURE_SSID;
@@ -50,16 +56,25 @@ void wifi_connect_nonblock(void)
     wifi->attach(status_callback);
     TEST_SKIP_UNLESS(wifi->set_blocking(false) != NSAPI_ERROR_UNSUPPORTED);
     nsapi_error_t ret = wifi->connect();
+    nsapi_error_t ret2 = wifi->set_credentials("1234", "1234", NSAPI_SECURITY_WPA_WPA2);
+    nsapi_error_t ret3 = wifi->connect();
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, ret);
-    bool res = sem_conn.try_acquire_for(30000);
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_BUSY, ret2);
+    TEST_ASSERT_TRUE(ret3 == NSAPI_ERROR_BUSY || ret3 == NSAPI_ERROR_IS_CONNECTED);
+    bool res = sem_connecting.try_acquire_for(30000);
+    TEST_ASSERT_EQUAL_INT(NSAPI_STATUS_CONNECTING, status_connection);
+    res = sem_conn.try_acquire_for(30000);
     TEST_ASSERT_TRUE(res == true);
     TEST_ASSERT_TRUE(status_connection == NSAPI_STATUS_GLOBAL_UP || status_connection == NSAPI_STATUS_LOCAL_UP);
     ret = wifi->disconnect();
+    ret3 = wifi->disconnect();
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, ret);
+    TEST_ASSERT_TRUE(ret3 == NSAPI_ERROR_BUSY || ret3 == NSAPI_ERROR_NO_CONNECTION);
     res = sem_disconn.try_acquire_for(30000);
     TEST_ASSERT_TRUE(res == true);
     TEST_ASSERT_EQUAL_INT(NSAPI_STATUS_DISCONNECTED, status_connection);
     wifi->set_blocking(true);
+    wifi->attach(0);
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
