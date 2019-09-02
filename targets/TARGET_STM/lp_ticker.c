@@ -229,24 +229,24 @@ static void LPTIM1_IRQHandler(void)
         if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMPOK) != RESET) {
             __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
             lp_cmpok = true;
-            if(sleep_manager_locked) {
+            if (sleep_manager_locked) {
                 sleep_manager_unlock_deep_sleep();
                 sleep_manager_locked = false;
             }
-            if(lp_delayed_prog) {
-                if(roll_over_flag) {
-                    /* If we were close to the roll over of the ticker counter 
-                     * change current tick so it can be compared with buffer. 
+            if (lp_delayed_prog) {
+                if (roll_over_flag) {
+                    /* If we were close to the roll over of the ticker counter
+                     * change current tick so it can be compared with buffer.
                      * If this event got outdated fire interrupt right now,
                      * else schedule it normally. */
-                    if(lp_delayed_counter <= ((lp_ticker_read() + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF)){
+                    if (lp_delayed_counter <= ((lp_ticker_read() + LP_TIMER_SAFE_GUARD + 1) & 0xFFFF)) {
                         lp_ticker_fire_interrupt();
                     } else {
                         lp_ticker_set_interrupt((lp_delayed_counter - LP_TIMER_SAFE_GUARD - 1) & 0xFFFF);
                     }
                     roll_over_flag = false;
                 } else {
-                    if(future_event_flag && (lp_delayed_counter <= lp_ticker_read())) {
+                    if (future_event_flag && (lp_delayed_counter <= lp_ticker_read())) {
                         /* If this event got outdated fire interrupt right now,
                          * else schedule it normally. */
                         lp_ticker_fire_interrupt();
@@ -255,7 +255,7 @@ static void LPTIM1_IRQHandler(void)
                         lp_ticker_set_interrupt(lp_delayed_counter);
                     }
                 }
-                
+
                 lp_delayed_prog = false;
             }
         }
@@ -284,7 +284,7 @@ uint32_t lp_ticker_read(void)
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     core_util_critical_section_enter();
-    
+
     timestamp_t last_read_counter = lp_ticker_read();
 
     /* Always store the last requested timestamp */
@@ -298,11 +298,10 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     if (lp_cmpok == false) {
         /* if this is not safe to write, then delay the programing to the
          * time when CMPOK interrupt will trigger */
-        
+
         /* If this target timestamp is close to the roll over of the ticker counter
          * and current tick is also close to the roll over, then we are in danger zone.*/
-        if(((0xFFFF - LP_TIMER_SAFE_GUARD < timestamp) || (timestamp < LP_TIMER_SAFE_GUARD)) && (0xFFFA < last_read_counter))
-        {
+        if (((0xFFFF - LP_TIMER_SAFE_GUARD < timestamp) || (timestamp < LP_TIMER_SAFE_GUARD)) && (0xFFFA < last_read_counter)) {
             roll_over_flag = true;
             /* Change the lp_delayed_counter buffer in that way so the value of (0xFFFF - LP_TIMER_SAFE_GUARD) is equal to 0.
              * By doing this it is easy to check if the value of timestamp get outdated by delaying its programming
@@ -315,7 +314,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
         } else {
             roll_over_flag = false;
             /* Check if event was meant to be in the past. */
-            if(lp_delayed_counter >= last_read_counter) {
+            if (lp_delayed_counter >= last_read_counter) {
                 future_event_flag = true;
             } else {
                 future_event_flag = false;
@@ -324,18 +323,18 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
         lp_delayed_prog = true;
     } else {
-        
+
         lp_ticker_clear_interrupt();
 
         /*  HW is not able to trig a very short term interrupt, that is
          *  not less than few ticks away (LP_TIMER_SAFE_GUARD). So let's make sure it'
          *  s at least current tick + LP_TIMER_SAFE_GUARD */
-        for(uint8_t i = 0; i < LP_TIMER_SAFE_GUARD; i++) {
+        for (uint8_t i = 0; i < LP_TIMER_SAFE_GUARD; i++) {
             if (LP_TIMER_WRAP((last_read_counter + i)) == timestamp) {
                 timestamp = LP_TIMER_WRAP((timestamp + LP_TIMER_SAFE_GUARD));
             }
         }
-        
+
         /* Then check if this target timestamp is not in the past, or close to wrap-around
          * Let's assume last_read_counter = 0xFFFC, and we want to program timestamp = 0x100
          * The interrupt will not fire before the CMPOK flag is OK, so there are 2 cases:
@@ -347,7 +346,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
          * There might be crossing cases where it would also fire @ 0xFFFE, but by the time we read the counter,
          * it may already have moved to the next one, so for now we've taken this as margin of error.
          */
-         if((timestamp < last_read_counter) && (last_read_counter <= (0xFFFF - LP_TIMER_SAFE_GUARD))) {
+        if ((timestamp < last_read_counter) && (last_read_counter <= (0xFFFF - LP_TIMER_SAFE_GUARD))) {
             /*  Workaround, because limitation */
             __HAL_LPTIM_COMPARE_SET(&LptimHandle, ~0);
         } else {
@@ -360,7 +359,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
         lp_cmpok = false;
         /*  Prevent from sleeping after compare register was set as we need CMPOK
          *  interrupt to fire (in ~3x30us cycles) before we can safely enter deep sleep mode */
-        if(!sleep_manager_locked) {
+        if (!sleep_manager_locked) {
             sleep_manager_lock_deep_sleep();
             sleep_manager_locked = true;
         }
@@ -383,14 +382,14 @@ void lp_ticker_disable_interrupt(void)
 {
     core_util_critical_section_enter();
 
-    if(!lp_cmpok) {
+    if (!lp_cmpok) {
         while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
         }
         __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
         lp_cmpok = true;
     }
     /*  now that CMPOK is set, allow deep sleep again */
-    if(sleep_manager_locked) {
+    if (sleep_manager_locked) {
         sleep_manager_unlock_deep_sleep();
         sleep_manager_locked = false;
     }
