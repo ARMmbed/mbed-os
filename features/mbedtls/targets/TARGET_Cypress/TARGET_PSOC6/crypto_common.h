@@ -59,7 +59,7 @@ int cy_hw_sha_start (cy_hw_crypto_t *obj, cy_stc_crypto_sha_state_t *hashState,
                      cy_en_crypto_sha_mode_t shaMode, void *shaBuffers);
 
 int cy_hw_sha_update(cy_hw_crypto_t *obj, cy_stc_crypto_sha_state_t *hashState,
-				     const uint8_t *in, uint32_t inlen);
+                     const uint8_t *in, uint32_t inlen);
 
 int cy_hw_sha_finish(cy_hw_crypto_t *obj, cy_stc_crypto_sha_state_t *hashState, 
                      uint8_t *output);
