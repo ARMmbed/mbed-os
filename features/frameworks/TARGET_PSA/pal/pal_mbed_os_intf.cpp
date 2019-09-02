@@ -58,9 +58,6 @@ static void psa_attestation_destroy_key_for_test()
 
 static void psa_attestation_inject_key_for_test(void)
 {
-
-
-    psa_status_t status = PSA_SUCCESS;
     size_t exported_length;
     uint8_t exported[sizeof(public_key_data)];
 
