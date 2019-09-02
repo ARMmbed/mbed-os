@@ -1140,7 +1140,7 @@ bool AT_CellularSMS::create_time(const char *time_string, time_t *time)
                &time_struct.tm_hour, &time_struct.tm_min, &time_struct.tm_sec, &sign, &gmt) == kNumberOfElements) {
         *time = mktime(&time_struct);
         // add timezone as seconds. gmt is in quarter of hours.
-        int x = (60 * 60 * gmt) / 4;
+        int x = (60 / 4) * 60 * gmt;
         if (sign == '+') {
             *time += x;
         } else {
