@@ -3363,7 +3363,6 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32H747ZI",
         "bootloader_supported": true
     },
     "DISCO_H747I_CM7": {
