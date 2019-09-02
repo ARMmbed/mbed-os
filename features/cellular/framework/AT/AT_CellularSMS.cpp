@@ -1114,7 +1114,7 @@ int AT_CellularSMS::compare_time_strings(const char *time_string_1, const char *
     int retVal = -2;
 
     if (success) {
-        double diff = difftime(t1, t2);
+        time_t diff = t1 - t2;
 
         if (diff > 0) {
             retVal = 1;
@@ -1140,7 +1140,7 @@ bool AT_CellularSMS::create_time(const char *time_string, time_t *time)
                &time_struct.tm_hour, &time_struct.tm_min, &time_struct.tm_sec, &sign, &gmt) == kNumberOfElements) {
         *time = mktime(&time_struct);
         // add timezone as seconds. gmt is in quarter of hours.
-        int x = 60 * 60 * gmt * 0.25;
+        int x = (60 * 60 * gmt) / 4;
         if (sign == '+') {
             *time += x;
         } else {
