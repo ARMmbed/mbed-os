@@ -107,7 +107,10 @@ nfc_err_t pn512_framing_set(pn512_t *pPN512, nfc_framing_t framing)
             return NFC_ERR_UNSUPPORTED;
     }
 #if 1
-    if ((pPN512->framing == nfc_framing_initiator_a_106) /*|| (pPN512->framing == pn512_framing_target_iso14443a_106k)*/) {
+    if (
+        pPN512->framing == nfc_framing_initiator_a_106
+        //|| (pPN512->framing == pn512_framing_target_iso14443a_106k)
+    ) {
         //Enable 100% ASK Modulation
         pn512_register_write(pPN512, PN512_REG_TXAUTO, pn512_register_read(pPN512, PN512_REG_TXAUTO) | 0x40);
     } else {
