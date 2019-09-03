@@ -202,7 +202,7 @@ typedef enum {
 
     // MTB Aliases
     // Left  side (top view)
-    TGT_SWDIO      = SWDIO,
+    /*TGT_SWDIO      = SWDIO,
     TGT_SWCLK      = SWCLK,
     TGT_RESET      = NTRST,
     TGT_TX          = USBTX,
@@ -241,7 +241,7 @@ typedef enum {
     PWM2           = LED_GREEN,
     PWM1           = LED_BLUE,
     PWM0           = LED_RED,
-
+*/
 } PinName;
 
 #ifdef __cplusplus
