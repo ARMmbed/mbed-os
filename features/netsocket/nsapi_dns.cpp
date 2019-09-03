@@ -726,6 +726,7 @@ nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const
         if (nsapi_dns_call_in(query->call_in_cb, DNS_TIMER_TIMEOUT, mbed::callback(nsapi_dns_query_async_timeout)) != NSAPI_ERROR_OK) {
             delete[] query->host;
             delete query;
+            dns_query_queue[index] = NULL;
             dns_mutex->unlock();
             return NSAPI_ERROR_NO_MEMORY;
         }
