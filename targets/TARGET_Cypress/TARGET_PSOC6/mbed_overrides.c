@@ -31,9 +31,6 @@
 void mailbox_init(void);
 #endif
 
-#if MBED_CONF_TARGET_XIP_ENABLE
-extern void qspi_xip_start();
-#endif
 
 #if (defined(CY_CFG_PWR_SYS_IDLE_MODE) && (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_ACTIVE))
 /*******************************************************************************

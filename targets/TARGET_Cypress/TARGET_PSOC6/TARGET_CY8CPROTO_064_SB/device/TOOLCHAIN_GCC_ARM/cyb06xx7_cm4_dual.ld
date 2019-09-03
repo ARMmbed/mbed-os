@@ -162,21 +162,6 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 SECTIONS
 {
     /* Cortex-M4 application image */
-    /* Places the code in the Execute in Place (XIP) section. See the smif driver
-     *  documentation for details.
-     */
-    .cy_xip :
-    {
-        . = ALIGN(4);
-        __cy_xip_start__ = .;
-        KEEP(*(.cy_xip))
-        #if XIP_ENABLE == 1
-        *lwipstack*.o (.text .text* .rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
-        *mbed-cloud-client*.o (.text .text* .rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
-        #endif
-        __cy_xip_end__ = .;
-    } > xip
-
     .text FLASH_CM4_START :
     {
         . = ALIGN(4);
@@ -188,11 +173,7 @@ SECTIONS
         __end__ = .;
 
         . = ALIGN(4);
-        #if XIP_ENABLE == 1
-        *(EXCLUDE_FILE(*lwipstack*.o *mbed-cloud-client*.o) .text .text*)
-        #else
         *(.text*)
-        #endif
 
         KEEP(*(.init))
         KEEP(*(.fini))
@@ -212,11 +193,7 @@ SECTIONS
         *(.dtors)
 
         /* Read-only code (constants). */
-        #if XIP_ENABLE == 1
-        *(EXCLUDE_FILE(*lwipstack*.o *mbed-cloud-client*.o) .rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
-        #else
         *(.rodata .rodata.* .constdata .constdata.* .conststring .conststring.*)
-        #endif
 
         KEEP(*(.eh_frame*))
     } > flash
@@ -357,7 +334,7 @@ SECTIONS
         __HeapBase = .;
         __end__ = .;
         end = __end__;
-        *(.heap*)
+        KEEP(*(.heap*))
         . = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
         __HeapLimit = .;
     } > ram
@@ -421,6 +398,15 @@ SECTIONS
     {
         KEEP(*(.cy_rtoc_part2))
     } > sflash_rtoc_2
+
+
+    /* Places the code in the Execute in Place (XIP) section. See the smif driver
+    *  documentation for details.
+    */
+    .cy_xip :
+    {
+        KEEP(*(.cy_xip))
+    } > xip
 
 
     /* eFuse */
