@@ -250,6 +250,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 #elif defined(TARGET_NUCLEO_L496ZG) || \
       defined(TARGET_NUCLEO_L496ZG_P) || \
       defined(TARGET_DISCO_L496AG) || \
+      defined(TARGET_DISCO_L4R9I) || \
       defined(TARGET_NUCLEO_L4R5ZI)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
