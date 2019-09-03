@@ -293,27 +293,51 @@
  * For example, when a function accepts as input a pointer to a buffer that may
  * contain untrusted data, and its documentation mentions that this pointer
  * must not be NULL:
- * - the pointer is checked to be non-NULL only if this option is enabled
- * - the content of the buffer is always validated
+ * - The pointer is checked to be non-NULL only if this option is enabled.
+ * - The content of the buffer is always validated.
  *
  * When this flag is defined, if a library function receives a parameter that
- * is invalid, it will:
- * - invoke the macro MBEDTLS_PARAM_FAILED() which by default expands to a
- *   call to the function mbedtls_param_failed()
- * - immediately return (with a specific error code unless the function
- *   returns void and can't communicate an error).
+ * is invalid:
+ * 1. The function will invoke the macro MBEDTLS_PARAM_FAILED().
+ * 2. If MBEDTLS_PARAM_FAILED() did not terminate the program, the function
+ *   will immediately return. If the function returns an Mbed TLS error code,
+ *   the error code in this case is MBEDTLS_ERR_xxx_BAD_INPUT_DATA.
  *
- * When defining this flag, you also need to:
- * - either provide a definition of the function mbedtls_param_failed() in
- *   your application (see platform_util.h for its prototype) as the library
- *   calls that function, but does not provide a default definition for it,
- * - or provide a different definition of the macro MBEDTLS_PARAM_FAILED()
- *   below if the above mechanism is not flexible enough to suit your needs.
- *   See the documentation of this macro later in this file.
+ * When defining this flag, you also need to arrange a definition for
+ * MBEDTLS_PARAM_FAILED(). You can do this by any of the following methods:
+ * - By default, the library defines MBEDTLS_PARAM_FAILED() to call a
+ *   function mbedtls_param_failed(), but the library does not define this
+ *   function. If you do not make any other arrangements, you must provide
+ *   the function mbedtls_param_failed() in your application.
+ *   See `platform_util.h` for its prototype.
+ * - If you enable the macro #MBEDTLS_CHECK_PARAMS_ASSERT, then the
+ *   library defines MBEDTLS_PARAM_FAILED(\c cond) to be `assert(cond)`.
+ *   You can still supply an alternative definition of
+ *   MBEDTLS_PARAM_FAILED(), which may call `assert`.
+ * - If you define a macro MBEDTLS_PARAM_FAILED() before including `config.h`
+ *   or you uncomment the definition of MBEDTLS_PARAM_FAILED() in `config.h`,
+ *   the library will call the macro that you defined and will not supply
+ *   its own version. Note that if MBEDTLS_PARAM_FAILED() calls `assert`,
+ *   you need to enable #MBEDTLS_CHECK_PARAMS_ASSERT so that library source
+ *   files include `<assert.h>`.
  *
  * Uncomment to enable validation of application-controlled parameters.
  */
 //#define MBEDTLS_CHECK_PARAMS
+
+/**
+ * \def MBEDTLS_CHECK_PARAMS_ASSERT
+ *
+ * Allow MBEDTLS_PARAM_FAILED() to call `assert`, and make it default to
+ * `assert`. This macro is only used if #MBEDTLS_CHECK_PARAMS is defined.
+ *
+ * If this macro is not defined, then MBEDTLS_PARAM_FAILED() defaults to
+ * calling a function mbedtls_param_failed(). See the documentation of
+ * #MBEDTLS_CHECK_PARAMS for details.
+ *
+ * Uncomment to allow MBEDTLS_PARAM_FAILED() to call `assert`.
+ */
+//#define MBEDTLS_CHECK_PARAMS_ASSERT
 
 /* \} name SECTION: System support */
 
@@ -1343,6 +1367,20 @@
 #define MBEDTLS_SSL_ALL_ALERT_MESSAGES
 
 /**
+ * \def MBEDTLS_SSL_RECORD_CHECKING
+ *
+ * Enable the function mbedtls_ssl_check_record() which can be used to check
+ * the validity and authenticity of an incoming record, to verify that it has
+ * not been seen before. These checks are performed without modifying the
+ * externally visible state of the SSL context.
+ *
+ * See mbedtls_ssl_check_record() for more information.
+ *
+ * Uncomment to enable support for record checking.
+ */
+#define MBEDTLS_SSL_RECORD_CHECKING
+
+/**
  * \def MBEDTLS_SSL_DTLS_CONNECTION_ID
  *
  * Enable support for the DTLS Connection ID extension
@@ -1380,6 +1418,33 @@
  *
  */
 //#define MBEDTLS_SSL_ASYNC_PRIVATE
+
+/**
+ * \def MBEDTLS_SSL_CONTEXT_SERIALIZATION
+ *
+ * Enable serialization of the TLS context structures, through use of the
+ * functions mbedtls_ssl_context_save() and mbedtls_ssl_context_load().
+ *
+ * This pair of functions allows one side of a connection to serialize the
+ * context associated with the connection, then free or re-use that context
+ * while the serialized state is persisted elsewhere, and finally deserialize
+ * that state to a live context for resuming read/write operations on the
+ * connection. From a protocol perspective, the state of the connection is
+ * unaffected, in particular this is entirely transparent to the peer.
+ *
+ * Note: this is distinct from TLS session resumption, which is part of the
+ * protocol and fully visible by the peer. TLS session resumption enables
+ * establishing new connections associated to a saved session with shorter,
+ * lighter handshakes, while context serialization is a local optimization in
+ * handling a single, potentially long-lived connection.
+ *
+ * Enabling these APIs makes some SSL structures larger, as 64 extra bytes are
+ * saved after the handshake to allow for more efficient serialization, so if
+ * you don't need this feature you'll save RAM by disabling it.
+ *
+ * Comment to disable the context serialization APIs.
+ */
+#define MBEDTLS_SSL_CONTEXT_SERIALIZATION
 
 /**
  * \def MBEDTLS_SSL_DEBUG_ALL
@@ -3272,13 +3337,16 @@
 
 /**
  * \brief       This macro is invoked by the library when an invalid parameter
- *              is detected that is only checked with MBEDTLS_CHECK_PARAMS
+ *              is detected that is only checked with #MBEDTLS_CHECK_PARAMS
  *              (see the documentation of that option for context).
  *
- *              When you leave this undefined here, a default definition is
- *              provided that invokes the function mbedtls_param_failed(),
- *              which is declared in platform_util.h for the benefit of the
- *              library, but that you need to define in your application.
+ *              When you leave this undefined here, the library provides
+ *              a default definition. If the macro #MBEDTLS_CHECK_PARAMS_ASSERT
+ *              is defined, the default definition is `assert(cond)`,
+ *              otherwise the default definition calls a function
+ *              mbedtls_param_failed(). This function is declared in
+ *              `platform_util.h` for the benefit of the library, but
+ *              you need to define in your application.
  *
  *              When you define this here, this replaces the default
  *              definition in platform_util.h (which no longer declares the
@@ -3287,6 +3355,9 @@
  *              particular, that all the necessary declarations are visible
  *              from within the library - you can ensure that by providing
  *              them in this file next to the macro definition).
+ *              If you define this macro to call `assert`, also define
+ *              #MBEDTLS_CHECK_PARAMS_ASSERT so that library source files
+ *              include `<assert.h>`.
  *
  *              Note that you may define this macro to expand to nothing, in
  *              which case you don't have to worry about declarations or
@@ -3532,7 +3603,7 @@
 #include MBEDTLS_USER_CONFIG_FILE
 #endif
 
-#include "check_config.h"
+#include "mbedtls/check_config.h"
 
 #endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY && !MBEDTLS_ENTROPY_NV_SEED */
 

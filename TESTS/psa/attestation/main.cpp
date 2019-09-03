@@ -94,7 +94,7 @@ static void check_initial_attestation_get_token()
     TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
-                                        PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_SECP256R1),
+                                        PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_CURVE_SECP256R1),
                                         exported,
                                         sizeof(exported),
                                         &exported_length);
@@ -119,9 +119,8 @@ static void check_initial_attestation_get_token()
 
 utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
-    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
-    psa_key_handle_t handle = 0;
-    psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    psa_key_handle_t handle;
+    psa_open_key(PSA_ATTESTATION_PRIVATE_KEY_ID, &handle);
     psa_destroy_key(handle);
     mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);

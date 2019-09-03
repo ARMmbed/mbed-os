@@ -29,7 +29,6 @@
 #define ITS_TEST 1
 #endif
 
-#include "pal_crypto_config.h"
 #include "internal_trusted_storage.h"
 
 /* typedef's */
@@ -96,10 +95,6 @@ typedef enum {
 #define PSA_VERSION_NONE            (0)
 #endif
 
-#ifndef PSA_SUCCESS
-#define PSA_SUCCESS                 (0)
-typedef int32_t psa_status_t;
-#endif
 typedef int32_t psa_handle_t;
 
 #ifndef PSA_NULL_HANDLE
