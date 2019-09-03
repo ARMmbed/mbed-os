@@ -598,6 +598,8 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
 #endif
 
+    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp);
+
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
     mbed_error_printf("\nNext:");
     print_thread(osRtxInfo.thread.run.next);
@@ -618,8 +620,6 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_stats_sys_get(&sys_stats);
     mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%" PRId32 "&core=0x%08" PRIX32 "&comp=%d&ver=%" PRIu32 "&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
 #endif
-
-    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp);
 
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
