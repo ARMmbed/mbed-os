@@ -21,6 +21,7 @@
 #include "netsocket/WiFiInterface.h"
 #include "netsocket/EMACInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
+#include "WhdAccessPoint.h"
 #include "whd_emac.h"
 #include "whd_types_int.h"
 
@@ -31,7 +32,6 @@ struct ol_desc;
  */
 class WhdSTAInterface : public WiFiInterface, public EMACInterface {
 public:
-
     class OlmInterface {
     public:
         /** Get the default OLM interface. */
@@ -117,23 +117,51 @@ public:
         return 0;
     }
 
+    /** Set blocking status of interface. 
+     *  Nonblocking mode unsupported.
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    nsapi_error_t set_blocking(bool blocking)
+    {
+        if (blocking) {
+            _blocking = blocking;
+            return NSAPI_ERROR_OK;
+        } else {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    }
+
     /** Gets the current radio signal strength for active connection
      *
      * @return          Connection strength in dBm (negative value)
      */
     int8_t get_rssi();
 
-    /** Scan for available networks
+    /** Scan for available networks in WiFiAccessPoint format
      *
      * This function will block.
      *
-     * @param  ap       Pointer to allocated array to store discovered AP
+     * @param  ap       Pointer to allocated array of WiFiAccessPoint format for discovered AP
      * @param  count    Size of allocated @a res array, or 0 to only count available AP
      * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
      * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *                  see @a nsapi_error
      */
     int scan(WiFiAccessPoint *res, unsigned count);
+
+    /** Scan for available networks in WhdAccessPoint format
+     *
+     * This function will block.
+     *
+     * @param  ap       Pointer to allocated array of WhdAccessPoint format for discovered AP
+     * @param  count    Size of allocated @a res array, or 0 to only count available AP
+     * @param  timeout  Timeout in milliseconds; 0 for no timeout (Default: 0)
+     * @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
+     *                  see @a nsapi_error
+     */
+    int scan_whd(WhdAccessPoint *res, unsigned count);
 
     /* is interface connected, if yes return WICED_SUCCESS else WICED_NOT_CONNECTED */
     int is_interface_connected();
@@ -208,8 +236,11 @@ public:
         int ret = _olm->wake();
         return ret;
     }
-private:
 
+protected:
+    int internal_scan(WiFiAccessPoint *aps, unsigned count, scan_result_type sres_type);
+
+private:
     char _ssid[33]; /* The longest possible name (defined in 802.11) +1 for the \0 */
     char _pass[64]; /* The longest allowed passphrase + 1 */
     nsapi_security_t _security;
