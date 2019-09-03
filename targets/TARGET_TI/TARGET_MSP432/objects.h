@@ -80,7 +80,7 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-    // Addresses of needed HW-registers
+    // Addresses of HW-registers
     __IO uint16_t *EUSCI_CTLW0;
     __IO uint16_t *EUSCI_BRW;
     __IO uint16_t *EUSCI_STATW;

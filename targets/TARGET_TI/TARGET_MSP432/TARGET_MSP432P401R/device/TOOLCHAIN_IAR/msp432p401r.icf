@@ -1,3 +1,7 @@
+/******************************************************
+ * IAR linker script for Texas Instruments MSP432P401R
+ ******************************************************/
+
 /* Device specific values */
 
 define symbol ROM_START   = 0x00000000;

@@ -1,5 +1,9 @@
 #! armcc -E
 
+/**********************************************************
+ * ARM CC  linker script for Texas Instruments MSP432P401R
+ **********************************************************/
+
 /* Device specific values */
 
 #define ROM_START   0x00000000

@@ -21,7 +21,6 @@
 #undef DIR_H
 
 #include "msp.h"
-#include "cmsis_nvic.h"
 
 #undef CS
 

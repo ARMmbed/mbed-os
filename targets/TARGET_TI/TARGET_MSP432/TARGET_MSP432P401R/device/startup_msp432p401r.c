@@ -228,7 +228,8 @@ void (* const interruptVectors[])(void) __attribute__((section(".isr_vector"))) 
 void Reset_Handler(void)
 {
     // Halt the WDT already here, because the following copy process
-    // from flash to SRAM might take so long that the WDT kicks in
+    // from flash to SRAM (in case of GCC) might take so long that the
+    // WDT kicks in
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     // Call system initialization routine

@@ -29,7 +29,7 @@
  * to integers...
  */
 
-#define DEVICE_SPI_COUNT 4
+#define DEVICE_SPI_COUNT 8
 
 typedef uint32_t ADCName;
 typedef uint32_t UARTName;

@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-/* Low-level implementation of I2C functionality for MSP432 */
+/* Low-level implementation of I2C functionality for MSP432.
+ * This implementation does also support DEVICE_I2CSLAVE and DEVICE_I2C_ASYNCH.
+ */
+
 
 #if DEVICE_I2C
 

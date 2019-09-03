@@ -15,21 +15,14 @@
  * limitations under the License.
  */
 
+/* Low-level implementation of SPI functionality for MSP432.
+ * This implementation does also support DEVICE_SPISLAVE and DEVICE_SPI_ASYNCH.
+ */
+
 #include "spi_api.h"
 #include "mbed_assert.h"
 
 #if DEVICE_SPI
-
-//#define SPI_EVENT_ERROR       (1 << 1)
-//#define SPI_EVENT_COMPLETE    (1 << 2)
-//#define SPI_EVENT_RX_OVERFLOW (1 << 3)
-//#define SPI_EVENT_ALL         (SPI_EVENT_ERROR | SPI_EVENT_COMPLETE | SPI_EVENT_RX_OVERFLOW)
-//
-//#define SPI_EVENT_INTERNAL_TRANSFER_COMPLETE (1 << 30) // Internal flag to report that an event occurred
-//
-//#define SPI_FILL_WORD         (0xFFFF)
-//#define SPI_FILL_CHAR         (0xFF)
-
 
 /* With SPI_ASYNCH, our type spi_s is embedded
  * into a bigger structure (see spi_api.h). So we

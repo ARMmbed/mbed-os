@@ -29,14 +29,7 @@
 #define __REFOCLK_H 128000
 #define __SYSCLK    5000000
 
-// We currently do not support a DCO frequency of 1.5MHz, because the SMCLK
-// should be at least at 3MHz because of the uTicker, which needs 1MHz.
-// SMCLK is typically the half of MCLK. The longest PWM periods depend on
-// SMCLK: Timer A is only 16 bit and has a maximum pre-scaler of 64, so the
-// longest PWM period is:
-// With SMCLK =  3MHz, the maximum period is 1.39s.
-// With SMCLK = 24MHz, the maximum period is (only) 174.8ms
-
+// Configuration items in targets.json
 #define DCO_1500kHz 0
 #define DCO_3MHz    1
 #define DCO_6MHz    2
@@ -101,7 +94,7 @@
 #elif (MBED_CONF_TARGET_MCLK_SELECT == REFO)
 #define __MASTER_CLOCK (__REFOCLK_L / MCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == DCO)
-#define __MASTER_CLOCK ( (3000000 << (MBED_CONF_TARGET_DCO_RSEL-1)) / MCLK_DIVIDER)
+#define __MASTER_CLOCK ( (1500000 << MBED_CONF_TARGET_DCO_RSEL) / MCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == MOD)
 #define __MASTER_CLOCK (__MODCLK / MCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == HFXT)
@@ -118,7 +111,7 @@
 #elif (MBED_CONF_TARGET_MCLK_SELECT == REFO)
 #define __SUBSYS_CLOCK (__REFOCLK_L / SMCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == DCO)
-#define __SUBSYS_CLOCK ( (3000000 << (MBED_CONF_TARGET_DCO_RSEL-1)) / SMCLK_DIVIDER)
+#define __SUBSYS_CLOCK ((1500000 << MBED_CONF_TARGET_DCO_RSEL) / SMCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == MOD)
 #define __SUBSYS_CLOCK (__MODCLK / SMCLK_DIVIDER)
 #elif (MBED_CONF_TARGET_MCLK_SELECT == HFXT)
@@ -127,9 +120,15 @@
 #error No SMCLK source defined (MBED_CONF_TARGET_SMCLK_SELECT)
 #endif
 
-// global clock variables
+// Global clock variables
 uint32_t SystemCoreClock      = __MASTER_CLOCK;  // the value of MCLK in Hz
 uint32_t SubsystemMasterClock = __SUBSYS_CLOCK;  // the value of SMCLK in Hz
+
+// Global xtal frequencies. If the xtal oscillators are enabled
+// during run-time, the frequencies have to be set here so that
+// SystemCoreClockUpdate can use them.
+uint32_t HfxtFrequency = 0;
+uint32_t LfxtFrequency = 0;
 
 //
 // Initialize the system
@@ -144,7 +143,8 @@ uint32_t SubsystemMasterClock = __SUBSYS_CLOCK;  // the value of SMCLK in Hz
 //     2. Enables all SRAM banks
 //     3. Sets up power regulator and VCORE
 //     4. Enable Flash wait states if needed and read buffering
-//     5. Change MCLK/SMCLK to desired frequency
+//     5. Enable HFXT and/or LFXT if needed
+//     6. Configure the Clock System (CS)
 //
 void SystemInit(void)
 {
@@ -152,9 +152,6 @@ void SystemInit(void)
     SCB->CPACR |= (SCB_CPACR_CP10_MASK | SCB_CPACR_CP11_MASK);
     // Enable all SRAM banks
     SYSCTL->SRAM_BANKEN = SYSCTL_SRAM_BANKEN_BNK7_EN;
-
-    // Unlock CS module
-    CS->KEY = CS_KEY_VAL;
 
 #if (__MASTER_CLOCK >= 48000000)
     // Switches to DCDC VCORE1
@@ -164,9 +161,9 @@ void SystemInit(void)
     // 1 flash wait states (BANK0 VCORE1 max is 16 MHz,
     // BANK1 VCORE1 max is 32 MHz)
     FLCTL->BANK0_RDCTL = FLCTL_BANK0_RDCTL_WAIT_1 | FLCTL_BANK0_RDCTL_BUFD
-                         | FLCTL_BANK0_RDCTL_BUFI;
+                                                  | FLCTL_BANK0_RDCTL_BUFI;
     FLCTL->BANK1_RDCTL = FLCTL_BANK1_RDCTL_WAIT_1 | FLCTL_BANK1_RDCTL_BUFD
-                         | FLCTL_BANK1_RDCTL_BUFI;
+                                                  | FLCTL_BANK1_RDCTL_BUFI;
 #elif (__MASTER_CLOCK >= 24000000)
     // Switches to DCDC VCORE0
     while ((PCM->CTL1 & PCM_CTL1_PMR_BUSY));
@@ -174,17 +171,38 @@ void SystemInit(void)
     while ((PCM->CTL1 & PCM_CTL1_PMR_BUSY));
     // Enable read buffering and 1 flash wait state (BANK0 VCORE0 max is 12 MHz)
     FLCTL->BANK0_RDCTL = FLCTL_BANK0_RDCTL_WAIT_1 | FLCTL_BANK0_RDCTL_BUFD
-                         | FLCTL_BANK0_RDCTL_BUFI;
+                                                  | FLCTL_BANK0_RDCTL_BUFI;
 #endif
 
-#if ((MBED_CONF_TARGET_MCLK_SELECT == HFXT) || (MBED_CONF_TARGET_SMCLK_SELECT == HFXT))
-    // initialize PJ.2 and PJ.3 for HFXT
+    // Unlock CS module
+    CS->KEY = CS_KEY_VAL;
+
+#ifdef MBED_CONF_TARGET_HFXT_HZ
+    HfxtFrequency = MBED_CONF_TARGET_HFXT_HZ;
+    // Enable the HFXT crystal oscillator.
+    // Initialize PJ for HFXT
     PJ->SEL0 |=  BIT3;
     PJ->SEL1 &= ~BIT3;
     CS->CTL2 |= CS_CTL2_HFXT_EN | HFXT_FREQ;
     // Wait for the HFXT to stabilize
     while (CS->IFG & CS_IFG_HFXTIFG) {
         CS->CLRIFG |= CS_CLRIFG_CLR_HFXTIFG;
+    }
+#endif
+
+#ifdef MBED_CONF_TARGET_LFXT_HZ
+    LfxtFrequency = MBED_CONF_TARGET_LFXT_HZ;
+    // Enable the LFXT crystal oscillator. If the LFXT is not
+    // available, the system will switch automatically to
+    // REFOCLK with 32768Hz mode (less precision...).
+    // Initialize PJ for LFXT
+    PJ->SEL0 |=  BIT0;
+    PJ->SEL1 &= ~BIT0;
+    // Enable LFXT
+    CS->CTL2 |= CS_CTL2_LFXT_EN;  // Enable LFXT
+    // Wait for the XTAL to stabilize
+    while (CS->IFG & CS_IFG_LFXTIFG) {
+        CS->CLRIFG |= CS_CLRIFG_CLR_LFXTIFG;
     }
 #endif
 
@@ -196,25 +214,10 @@ void SystemInit(void)
                MBED_CONF_TARGET_SMCLK_SELECT << CS_CTL1_SELS_OFS |
                MBED_CONF_TARGET_SMCLK_DIV    << CS_CTL1_DIVS_OFS;
 
-#ifdef MBED_CONF_TARGET_LFXT_HZ
-    // Configure the 32768Hz source. If the LFXT is not
-    // available, the system will switch automatically to
-    // REFOCLK with 32768Hz mode (less precision...)
-
-    // initialize PJ.0 and PJ.1 for LFXT
-    PJ->SEL0 |=  BIT0;
-    PJ->SEL1 &= ~BIT0;
-    // Enable LFXT
-    CS->CTL2 |= CS_CTL2_LFXT_EN;  // Enable LFXT
-    // Wait for the XTAL to stabilize
-    while (CS->IFG & CS_IFG_LFXTIFG) {
-        CS->CLRIFG |= CS_CLRIFG_CLR_LFXTIFG;
-    }
-#endif
-
     // Lock CS module
     CS->KEY = 0;
-    // Update the global clock values
+
+    // Update the global clock values.
     SystemCoreClockUpdate();
 }
 
@@ -247,9 +250,7 @@ void SystemCoreClockUpdate(void)
                 // always switch to REFOCLK with 32768Hz
                 SystemCoreClock = __REFOCLK_L;
             } else {
-#ifdef MBED_CONF_TARGET_LFXT_HZ
-                SystemCoreClock = MBED_CONF_TARGET_LFXT_HZ;
-#endif
+                SystemCoreClock = LfxtFrequency;
             }
             break;
         }
@@ -335,9 +336,7 @@ void SystemCoreClockUpdate(void)
                 // switch over to SYSOSC...
                 SystemCoreClock = __SYSCLK;
             } else {
-#ifdef MBED_CONF_TARGET_HFXT_HZ            
-                SystemCoreClock = MBED_CONF_TARGET_HFXT_HZ;
-#endif
+                SystemCoreClock = HfxtFrequency;
             }
             break;
         }
@@ -357,9 +356,7 @@ void SystemCoreClockUpdate(void)
                 // always switch to REFOCLK with 32768Hz
                 SubsystemMasterClock = __REFOCLK_L;
             } else {
-#ifdef MBED_CONF_TARGET_LFXT_HZ            
-                SubsystemMasterClock = MBED_CONF_TARGET_LFXT_HZ;
-#endif
+                SubsystemMasterClock = LfxtFrequency;
             }
             break;
         }
@@ -445,9 +442,7 @@ void SystemCoreClockUpdate(void)
                 // switch over to SYSOSC...
                 SubsystemMasterClock = __SYSCLK;
             } else {
-#ifdef MBED_CONF_TARGET_HFXT_HZ            
-                SubsystemMasterClock = MBED_CONF_TARGET_HFXT_HZ;
-#endif                
+                SubsystemMasterClock = HfxtFrequency;
             }
             break;
         }
