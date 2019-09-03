@@ -173,7 +173,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         // handler mode
         current_error_ctx.thread_id = 0;
         current_error_ctx.thread_entry_address = 0;
-        current_error_ctx.thread_stack_size = MAX(0, INITIAL_SP - current_error_ctx.thread_current_sp - sizeof(int));
+        current_error_ctx.thread_stack_size = MAX(0, (int)INITIAL_SP - (int)current_error_ctx.thread_current_sp - (int)sizeof(int));
         current_error_ctx.thread_stack_mem = current_error_ctx.thread_current_sp;
     } else {
         // Capture thread info in thread mode
@@ -475,11 +475,42 @@ static inline const char *name_or_unnamed(const osRtxThread_t *thread)
     return name ? name : "<unnamed>";
 }
 
+/** Prints stack dump from given stack information.
+ * The arguments should be given in address raw value to check alignment.
+ * @param stack_start The address of stack start.
+ * @param stack_size The size of stack
+ * @param stack_sp The stack pointer currently at. */
+static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp)
+{
+#if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
+#define STACK_DUMP_WIDTH    8
+#define INT_ALIGN_MASK      (~(sizeof(int) - 1))
+    mbed_error_printf("\n\nStack Dump:");
+    uint32_t st_end = (stack_start + stack_size) & INT_ALIGN_MASK;
+    uint32_t st     = (stack_sp) & INT_ALIGN_MASK;
+    for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
+        mbed_error_printf("\n0x%08" PRIX32 ":", st);
+        for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
+            uint32_t st_cur = st + i * sizeof(int);
+            if (st_cur > st_end) {
+                break;
+            }
+            uint32_t st_val = *((uint32_t *)st_cur);
+            mbed_error_printf("0x%08" PRIX32 " ", st_val);
+        }
+    }
+    mbed_error_printf("\n");
+#endif  // MBED_STACK_DUMP_ENABLED
+}
+
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
 /* Prints info of a thread(using osRtxThread_t struct)*/
 static void print_thread(const osRtxThread_t *thread)
 {
-    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
+    uint32_t stack_mem = (uint32_t)thread->stack_mem;
+    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread), thread->state, thread->thread_addr, thread->stack_size, stack_mem, thread->sp);
+
+    print_stack_dump(stack_mem, thread->stack_size, thread->sp);
 }
 
 /* Prints thread info from a list */
@@ -588,25 +619,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%" PRId32 "&core=0x%08" PRIX32 "&comp=%d&ver=%" PRIu32 "&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
 #endif
 
-#if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
-#define STACK_DUMP_WIDTH    8
-#define INT_ALIGN_MASK      (~(sizeof(int) - 1))
-    mbed_error_printf("\n\nStack Dump:");
-    uint32_t st_end = (ctx->thread_stack_mem + ctx->thread_stack_size) & INT_ALIGN_MASK;
-    uint32_t st     = (ctx->thread_current_sp) & INT_ALIGN_MASK;
-    for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
-        mbed_error_printf("\n0x%08" PRIX32 ":", st);
-        for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
-            uint32_t st_cur = st + i * sizeof(int);
-            if (st_cur > st_end) {
-                break;
-            }
-            uint32_t st_val = *((uint32_t *)st_cur);
-            mbed_error_printf("0x%08" PRIX32 " ", st_val);
-        }
-    }
-    mbed_error_printf("\n");
-#endif  // MBED_STACK_DUMP_ENABLED
+    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp);
 
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
