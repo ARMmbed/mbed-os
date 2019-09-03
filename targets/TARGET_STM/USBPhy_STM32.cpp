@@ -63,6 +63,7 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
+    uint32_t USBx_BASE = (uint32_t)USBx;
     if (priv->sof_enabled) {
         priv->events->sof((USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8);
     }
@@ -530,8 +531,10 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
+#ifndef TARGET_STM32L4
     HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
     MBED_ASSERT(ret == HAL_OK);
+#endif
 }
 
 void USBPhyHw::process()
