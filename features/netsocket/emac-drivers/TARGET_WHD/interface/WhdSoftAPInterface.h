@@ -131,6 +131,21 @@ public:
      */
     int unregister_event_handler(void);
 
+    /** Set blocking status of interface. 
+     *  Nonblocking mode unsupported.
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    nsapi_error_t set_blocking(bool blocking)
+    {
+        if (blocking) {
+            _blocking = blocking;
+            return NSAPI_ERROR_OK;
+        } else {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
+    }
 
 protected:
     WHD_EMAC &_whd_emac;
