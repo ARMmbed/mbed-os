@@ -26,9 +26,8 @@
 #include "platform/mbed_interface.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
-#if defined(__CORTEX_M)
 #include "platform/source/TARGET_CORTEX_M/mbed_fault_handler.h"
-#endif
+#include "mbed_rtx.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtx_os.h"
 #endif
@@ -153,29 +152,40 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     //Capture error information
     current_error_ctx.error_status = error_status;
     current_error_ctx.error_value = error_value;
-    if (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
+    bool bHWException = (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
             error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
             error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
-            error_status == MBED_ERROR_HARDFAULT_EXCEPTION) {
-#if defined(__CORTEX_M)
-        mbed_fault_context_t *mfc = (mbed_fault_context_t *)error_value;
+            error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
+    mbed_fault_context_t *mfc = NULL;
+    if (bHWException) {
+        mfc = (mbed_fault_context_t *)error_value;
         current_error_ctx.error_address = (uint32_t)mfc->PC_reg;
         // Note that this SP_reg is the correct SP value of the fault. PSP and MSP are slightly different due to HardFault_Handler.
         current_error_ctx.thread_current_sp = (uint32_t)mfc->SP_reg;
         // Note that the RTX thread itself is the same even under this fault exception handler.
-#endif
     } else {
         current_error_ctx.error_address = (uint32_t)caller;
         current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
     }
 
 #ifdef MBED_CONF_RTOS_PRESENT
-    //Capture thread info
-    osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
-    current_error_ctx.thread_id = (uint32_t)current_thread;
-    current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
-    current_error_ctx.thread_stack_size = current_thread->stack_size;
-    current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
+    if (mfc && !(mfc->EXC_RETURN & 0x4))
+    {
+        // handler mode
+        current_error_ctx.thread_id = 0;
+        current_error_ctx.thread_entry_address = 0;
+        current_error_ctx.thread_stack_size = MAX(0, INITIAL_SP - current_error_ctx.thread_current_sp - sizeof(int));
+        current_error_ctx.thread_stack_mem = current_error_ctx.thread_current_sp;
+    }
+    else
+    {
+        // Capture thread info in thread mode
+        osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
+        current_error_ctx.thread_id = (uint32_t)current_thread;
+        current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
+        current_error_ctx.thread_stack_size = current_thread->stack_size;
+        current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
+    }
 #endif //MBED_CONF_RTOS_PRESENT
 
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
@@ -458,8 +468,12 @@ mbed_error_status_t mbed_clear_all_errors(void)
     return status;
 }
 
-static inline const char *name_or_unnamed(const char *name)
+static inline const char *name_or_unnamed(const osRtxThread_t *thread)
 {
+    if (!thread)
+        return "<handler>";
+
+    const char *name = thread->name;
     return name ? name : "<unnamed>";
 }
 
@@ -467,7 +481,7 @@ static inline const char *name_or_unnamed(const char *name)
 /* Prints info of a thread(using osRtxThread_t struct)*/
 static void print_thread(const osRtxThread_t *thread)
 {
-    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread->name), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
+    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
 }
 
 /* Prints thread info from a list */
@@ -551,7 +565,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_error_printf("\nError Value: 0x%" PRIX32, ctx->error_value);
 #ifdef MBED_CONF_RTOS_PRESENT
     mbed_error_printf("\nCurrent Thread: %s  Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
-                      name_or_unnamed(((osRtxThread_t *)ctx->thread_id)->name),
+                      name_or_unnamed((osRtxThread_t *)ctx->thread_id),
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
 #endif
 
