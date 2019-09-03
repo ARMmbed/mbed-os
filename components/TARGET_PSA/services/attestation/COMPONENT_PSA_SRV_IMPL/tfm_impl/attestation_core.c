@@ -841,7 +841,6 @@ attest_create_token(struct useful_buf_c *challenge,
     enum attest_token_err_t token_err;
     struct attest_token_ctx attest_token_ctx;
     int32_t key_select;
-    int32_t alg_select;
     uint32_t option_flags = 0;
 
     if (challenge->len == 36) {
@@ -855,21 +854,13 @@ attest_create_token(struct useful_buf_c *challenge,
     /* Lower three bits are the key select */
     key_select = option_flags & 0x7;
 
-    /* Map the key select to an algorithm. Maybe someday we'll support something
-     * other than ES256
-     */
-    switch (key_select) {
-    default:
-        alg_select = COSE_ALGORITHM_ES256;
-    }
-
     /* Get started creating the token. This sets up the CBOR and COSE contexts
      * which causes the COSE headers to be constructed.
      */
     token_err = attest_token_start(&attest_token_ctx,
                                    option_flags,         /* option_flags */
                                    key_select,           /* key_select   */
-                                   alg_select,           /* alg_select   */
+                                   COSE_ALGORITHM_ES256, /* alg_select   */
                                    token);
 
     if (token_err != ATTEST_TOKEN_ERR_SUCCESS) {
