@@ -616,7 +616,7 @@ bool USBDevice::_request_setup()
     bool success = false;
 
     /* Process standard requests */
-    if ((_transfer.setup.bmRequestType.Type == STANDARD_TYPE)) {
+    if (_transfer.setup.bmRequestType.Type == STANDARD_TYPE) {
         switch (_transfer.setup.bRequest) {
             case GET_STATUS:
                 success = _request_get_status();
