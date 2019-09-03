@@ -67,7 +67,7 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
     while (tests_list[i] != NULL)
     {
         memset(testcase_name, 0, 100);
-        sprintf(testcase_name, "Check%d", i);
+        sprintf(testcase_name, "Check%" PRIu32, i);
         GREENTEA_TESTCASE_START(testcase_name);
         if (server_hs == TRUE)
         {

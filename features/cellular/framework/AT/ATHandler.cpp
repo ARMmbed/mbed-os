@@ -1365,7 +1365,7 @@ void ATHandler::write_int(int32_t param)
     // write the integer subparameter
     const int32_t str_len = 12;
     char number_string[str_len];
-    int32_t result = sprintf(number_string, "%ld", param);
+    int32_t result = sprintf(number_string, "%" PRIi32, param);
     if (result > 0 && result < str_len) {
         (void)write(number_string, strlen(number_string));
     }
