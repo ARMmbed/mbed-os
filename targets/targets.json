@@ -1502,7 +1502,7 @@
         ],
         "is_disk_virtual": true,
 
-        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
         "device_has": [
@@ -9153,7 +9153,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -9173,7 +9173,7 @@
         "bootloader_supported": true,
         "tickless-from-us-ticker": true,
         "forced_reset_timeout": 3
-    },    
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
