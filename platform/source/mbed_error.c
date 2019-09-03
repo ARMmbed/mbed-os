@@ -153,9 +153,9 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     current_error_ctx.error_status = error_status;
     current_error_ctx.error_value = error_value;
     bool bHWException = (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
-            error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
-            error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
-            error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
+                         error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
+                         error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
+                         error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
     mbed_fault_context_t *mfc = NULL;
     if (bHWException) {
         mfc = (mbed_fault_context_t *)error_value;
@@ -169,16 +169,13 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     }
 
 #ifdef MBED_CONF_RTOS_PRESENT
-    if (mfc && !(mfc->EXC_RETURN & 0x4))
-    {
+    if (mfc && !(mfc->EXC_RETURN & 0x4)) {
         // handler mode
         current_error_ctx.thread_id = 0;
         current_error_ctx.thread_entry_address = 0;
         current_error_ctx.thread_stack_size = MAX(0, INITIAL_SP - current_error_ctx.thread_current_sp - sizeof(int));
         current_error_ctx.thread_stack_mem = current_error_ctx.thread_current_sp;
-    }
-    else
-    {
+    } else {
         // Capture thread info in thread mode
         osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
         current_error_ctx.thread_id = (uint32_t)current_thread;
@@ -470,8 +467,9 @@ mbed_error_status_t mbed_clear_all_errors(void)
 
 static inline const char *name_or_unnamed(const osRtxThread_t *thread)
 {
-    if (!thread)
+    if (!thread) {
         return "<handler>";
+    }
 
     const char *name = thread->name;
     return name ? name : "<unnamed>";
