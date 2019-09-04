@@ -147,7 +147,7 @@ static bool mbed_error_is_handler(const mbed_error_ctx *ctx)
     bool is_handler = false;
     if (ctx && mbed_error_is_hw_fault(ctx->error_status)) {
         mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
-        if (mfc && mfc->EXC_RETURN & 0x8) {
+        if (mfc && !(mfc->EXC_RETURN & 0x8)) {
             is_handler = true;
         }
     }
@@ -495,7 +495,7 @@ static void print_stack_dump_core(uint32_t stack_start, uint32_t stack_size, uin
 #if MBED_STACK_DUMP_ENABLED
 #define STACK_DUMP_WIDTH    8
 #define INT_ALIGN_MASK      (~(sizeof(int) - 1))
-    mbed_error_printf("\n\nStack Dump: %s", postfix);
+    mbed_error_printf("\nStack Dump: %s", postfix);
     uint32_t st_end = (stack_start + stack_size) & INT_ALIGN_MASK;
     uint32_t st     = (stack_sp) & INT_ALIGN_MASK;
     for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
@@ -520,16 +520,21 @@ static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t
         // Stack dump extra for handler stack which may have accessed MSP.
         mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
         uint32_t msp_sp = mfc->MSP;
+        uint32_t psp_sp = mfc->PSP;
         if (mfc && !(mfc->EXC_RETURN & 0x4)) {
             // MSP mode. Then SP_reg is more correct.
             msp_sp = mfc->SP_reg;
+        } else {
+            // PSP mode. Then SP_reg is more correct.
+            psp_sp = mfc->SP_reg;
         }
         // Do not access beyond INITIAL_SP.
         uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp - (int)sizeof(int));
         print_stack_dump_core(msp_sp, msp_size, msp_sp, "MSP");
+
+        stack_sp = psp_sp;
     }
 
-    // Handler thread may have accessed PSP.
     print_stack_dump_core(stack_start, stack_size, stack_sp, "PSP");
 #endif  // MBED_STACK_DUMP_ENABLED
 }
