@@ -8745,6 +8745,7 @@
         "extra_labels_remove": ["PSOC6"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "detect_code": ["6000"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8778,6 +8779,7 @@
         "extra_labels_remove": ["PSOC6"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",
         "post_binary_hook": {
