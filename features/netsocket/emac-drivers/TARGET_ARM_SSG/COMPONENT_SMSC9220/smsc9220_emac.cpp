@@ -168,6 +168,7 @@ bool SMSC9220_EMAC::link_out(emac_mem_buf_t *buf)
                                       true,
                                       (const char*)_memory_manager->get_ptr(buf),
                                       _memory_manager->get_len(buf));
+        _memory_manager->free(buf);
         if (error != SMSC9220_ERROR_NONE) {
             _TXLockMutex.unlock();
             return false;
