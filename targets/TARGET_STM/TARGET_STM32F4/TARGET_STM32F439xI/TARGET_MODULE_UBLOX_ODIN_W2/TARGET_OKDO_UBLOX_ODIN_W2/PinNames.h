@@ -200,48 +200,7 @@ typedef enum {
     SWCLK      = PA_14,
     NTRST      = PB_4,
 
-    // MTB Aliases
-    // Left  side (top view)
-    /*TGT_SWDIO      = SWDIO,
-    TGT_SWCLK      = SWCLK,
-    TGT_RESET      = NTRST,
-    TGT_TX          = USBTX,
-    TGT_RX          = USBRX,
-    TX1            = P_A15,
-    RX1            = P_A14,
-    SDA1           = P_C18,
-    SCL1           = P_C17,
-    MOSI1          = P_C10,
-    MISO1          = P_C6,
-    SCK1           = SPI_SCK,
-    GP0            = BUTTON1,
-    GP1            = P_C11,
-    AIN0           = P_C13,
-    AIN1           = P_A18,
-    AIN2           = P_A5,
 
-    //Right side (top view)
-    GND            = NC,
-    GP10           = NC,
-    RTS            = NC,
-    CTS            = NC,
-    GP7            = P_C12, //LCD CS on MTB
-    GP6            = P_A12, //LCD Reset on MTB
-    GP5            = P_A10, //LCD A0 on MTB
-    GP4            = P_A17,
-    TX2            = NC,
-    RX2            = NC,
-    SDA2           = NC,
-    SCL2           = NC,
-    MOSI2          = NC,
-    MISO2          = NC,
-    SCK2           = NC,
-    GP3            = P_A16,
-    GP2            = P_C5, //CS for SD Card on MTB
-    PWM2           = LED_GREEN,
-    PWM1           = LED_BLUE,
-    PWM0           = LED_RED,
-*/
 } PinName;
 
 #ifdef __cplusplus
