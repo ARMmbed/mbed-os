@@ -134,6 +134,26 @@ WEAK MBED_NORETURN void error(const char *format, ...)
     mbed_halt_system();
 }
 
+static inline bool mbed_error_is_hw_fault(mbed_error_status_t error_status)
+{
+    return (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
+            error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
+}
+
+static bool mbed_error_is_handler(const mbed_error_ctx *ctx)
+{
+    bool is_handler = false;
+    if (ctx && mbed_error_is_hw_fault(ctx->error_status)) {
+        mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
+        if (mfc && mfc->EXC_RETURN & 0x8) {
+            is_handler = true;
+        }
+    }
+    return is_handler;
+}
+
 //Set an error status with the error handling system
 static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller)
 {
@@ -152,12 +172,8 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     //Capture error information
     current_error_ctx.error_status = error_status;
     current_error_ctx.error_value = error_value;
-    bool bHWException = (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
-                         error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
-                         error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
-                         error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
     mbed_fault_context_t *mfc = NULL;
-    if (bHWException) {
+    if (mbed_error_is_hw_fault(error_status)) {
         mfc = (mbed_fault_context_t *)error_value;
         current_error_ctx.error_address = (uint32_t)mfc->PC_reg;
         // Note that this SP_reg is the correct SP value of the fault. PSP and MSP are slightly different due to HardFault_Handler.
@@ -168,22 +184,14 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
     }
 
-    if (mfc && !(mfc->EXC_RETURN & 0x4)) {
-        // handler mode
-        current_error_ctx.thread_id = 0;
-        current_error_ctx.thread_entry_address = 0;
-        current_error_ctx.thread_stack_size = MAX(0, (int)INITIAL_SP - (int)current_error_ctx.thread_current_sp - (int)sizeof(int));
-        current_error_ctx.thread_stack_mem = current_error_ctx.thread_current_sp;
-    } else {
 #ifdef MBED_CONF_RTOS_PRESENT
-        // Capture thread info in thread mode
-        osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
-        current_error_ctx.thread_id = (uint32_t)current_thread;
-        current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
-        current_error_ctx.thread_stack_size = current_thread->stack_size;
-        current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
+    // Capture thread info in thread mode
+    osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
+    current_error_ctx.thread_id = (uint32_t)current_thread;
+    current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
+    current_error_ctx.thread_stack_size = current_thread->stack_size;
+    current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
 #endif //MBED_CONF_RTOS_PRESENT
-    }
 
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     //Capture filename/linenumber if provided
@@ -467,12 +475,14 @@ mbed_error_status_t mbed_clear_all_errors(void)
 
 static inline const char *name_or_unnamed(const osRtxThread_t *thread)
 {
+    const char *unnamed = "<unnamed>";
+
     if (!thread) {
-        return "<handler>";
+        return unnamed;
     }
 
     const char *name = thread->name;
-    return name ? name : "<unnamed>";
+    return name ? name : unnamed;
 }
 
 /** Prints stack dump from given stack information.
@@ -480,12 +490,12 @@ static inline const char *name_or_unnamed(const osRtxThread_t *thread)
  * @param stack_start The address of stack start.
  * @param stack_size The size of stack
  * @param stack_sp The stack pointer currently at. */
-static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp)
+static void print_stack_dump_core(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp, const char *postfix)
 {
 #if MBED_STACK_DUMP_ENABLED
 #define STACK_DUMP_WIDTH    8
 #define INT_ALIGN_MASK      (~(sizeof(int) - 1))
-    mbed_error_printf("\n\nStack Dump:");
+    mbed_error_printf("\n\nStack Dump: %s", postfix);
     uint32_t st_end = (stack_start + stack_size) & INT_ALIGN_MASK;
     uint32_t st     = (stack_sp) & INT_ALIGN_MASK;
     for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
@@ -503,6 +513,27 @@ static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t
 #endif  // MBED_STACK_DUMP_ENABLED
 }
 
+static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp, const mbed_error_ctx *ctx)
+{
+#if MBED_STACK_DUMP_ENABLED
+    if (ctx && mbed_error_is_handler(ctx)) {
+        // Stack dump extra for handler stack which may have accessed MSP.
+        mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
+        uint32_t msp_sp = mfc->MSP;
+        if (mfc && !(mfc->EXC_RETURN & 0x4)) {
+            // MSP mode. Then SP_reg is more correct.
+            msp_sp = mfc->SP_reg;
+        }
+        // Do not access beyond INITIAL_SP.
+        uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp - (int)sizeof(int));
+        print_stack_dump_core(msp_sp, msp_size, msp_sp, "MSP");
+    }
+
+    // Handler thread may have accessed PSP.
+    print_stack_dump_core(stack_start, stack_size, stack_sp, "PSP");
+#endif  // MBED_STACK_DUMP_ENABLED
+}
+
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
 /* Prints info of a thread(using osRtxThread_t struct)*/
 static void print_thread(const osRtxThread_t *thread)
@@ -510,7 +541,7 @@ static void print_thread(const osRtxThread_t *thread)
     uint32_t stack_mem = (uint32_t)thread->stack_mem;
     mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread), thread->state, thread->thread_addr, thread->stack_size, stack_mem, thread->sp);
 
-    print_stack_dump(stack_mem, thread->stack_size, thread->sp);
+    print_stack_dump(stack_mem, thread->stack_size, thread->sp, NULL);
 }
 
 /* Prints thread info from a list */
@@ -592,13 +623,14 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     }
 
     mbed_error_printf("\nError Value: 0x%" PRIX32, ctx->error_value);
+    bool is_handler = mbed_error_is_handler(ctx);
 #ifdef MBED_CONF_RTOS_PRESENT
-    mbed_error_printf("\nCurrent Thread: %s  Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
-                      name_or_unnamed((osRtxThread_t *)ctx->thread_id),
+    mbed_error_printf("\nCurrent Thread: %s%s Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
+                      name_or_unnamed((osRtxThread_t *)ctx->thread_id), is_handler ? " <handler>" : "",
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
 #endif
 
-    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp);
+    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp, ctx);
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
     mbed_error_printf("\nNext:");
