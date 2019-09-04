@@ -119,11 +119,11 @@
             "value": "3"
         },
         "wisun-operating-class": {
-            "help": "Operating class.",
+            "help": "Operating class. Use 255 to use Nanostack default",
             "value": "255"
         },
         "wisun-operating-mode": {
-            "help": "Operating mode.",
+            "help": "Operating mode. Use 255 to use Nanostack default",
             "value": "255"
         },
         "wisun-uc-channel-function": {
