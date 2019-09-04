@@ -7879,13 +7879,14 @@
             "SERIAL",
             "SPI",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "USTICKER"
         ],
         "public": false,
         "supported_toolchains": ["GCC_ARM", "ARM"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+            "toolchains": ["ARM_STD", "GCC_ARM"]
         },
         "release_versions": [],
         "overrides": {
