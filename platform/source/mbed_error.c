@@ -168,7 +168,6 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
     }
 
-#ifdef MBED_CONF_RTOS_PRESENT
     if (mfc && !(mfc->EXC_RETURN & 0x4)) {
         // handler mode
         current_error_ctx.thread_id = 0;
@@ -176,14 +175,15 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         current_error_ctx.thread_stack_size = MAX(0, (int)INITIAL_SP - (int)current_error_ctx.thread_current_sp - (int)sizeof(int));
         current_error_ctx.thread_stack_mem = current_error_ctx.thread_current_sp;
     } else {
+#ifdef MBED_CONF_RTOS_PRESENT
         // Capture thread info in thread mode
         osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
         current_error_ctx.thread_id = (uint32_t)current_thread;
         current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
         current_error_ctx.thread_stack_size = current_thread->stack_size;
         current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
-    }
 #endif //MBED_CONF_RTOS_PRESENT
+    }
 
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     //Capture filename/linenumber if provided
@@ -482,7 +482,7 @@ static inline const char *name_or_unnamed(const osRtxThread_t *thread)
  * @param stack_sp The stack pointer currently at. */
 static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp)
 {
-#if MBED_STACK_DUMP_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
+#if MBED_STACK_DUMP_ENABLED
 #define STACK_DUMP_WIDTH    8
 #define INT_ALIGN_MASK      (~(sizeof(int) - 1))
     mbed_error_printf("\n\nStack Dump:");
