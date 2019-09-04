@@ -92,8 +92,8 @@
 
         "stack-dump-enabled": {
             "macro_name": "MBED_STACK_DUMP_ENABLED",
-            "help": "Set to 1 or true to enable stack dump.",
-            "value": null
+            "help": "Set to true to enable stack dump.",
+            "value": false
         },
 
         "cpu-stats-enabled": {
