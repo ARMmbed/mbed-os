@@ -37,7 +37,7 @@ override CFLAGS += -I$(EVENTLOOP_DIR)/nanostack-event-loop
 override CFLAGS += -I$(NSDL_DIR)/nsdl-c
 override CFLAGS += -I$(COAP_DIR)
 override CFLAGS += -I$(COAP_SERVICE_LIB)/coap-service
-override CFLAGS += -I$(MBEDTLS_DIR)/include
+override CFLAGS += -I$(MBEDTLS_DIR)/include -I$(MBEDTLS_DIR)/crypto/include
 override CFLAGS += $(addprefix -I,$(INCLUDE_DIRS))
 override CFLAGS += $(addprefix -D,$(FLAGS))
 
@@ -153,7 +153,7 @@ mbed-release-build-$(1): $(1)-$(2)-$(3)-build
 .PHONY: $(1)-$(2)-build
 $(1)-$(2)-$(3)-build: export-headers
 	@echo Build $(2) on $(1) for $(3)
-	make CC=$(CC_$(1)) CONFIG=$(2) CPU=$(3) APPEND_LIB_NAME=1 CFLAGS="-DNS_USE_EXTERNAL_MBED_TLS -I../mbedtls/include/"
+	make CC=$(CC_$(1)) CONFIG=$(2) CPU=$(3) APPEND_LIB_NAME=1 CFLAGS="-DNS_USE_EXTERNAL_MBED_TLS -I../mbedtls/include/ -I../crypto/include/"
 
 # Generate target directory name
 # Like: FEATURE_NANOSTACK/FEATURE_LOWPAN_ROUTER/TOOLCHAIN_ARM/TARGET_CORTEX_M0P
