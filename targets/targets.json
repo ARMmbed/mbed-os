@@ -2474,6 +2474,7 @@
             "FLASH",
             "MPU"
         ],
+        "device_has_remove": ["WATCHDOG"],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
         "device_name": "STM32F303RE"
