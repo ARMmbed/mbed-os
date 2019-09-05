@@ -319,7 +319,7 @@ int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_
     if (ssid_length > 0
             && ssid_length <= ESP8266_SSID_MAX_LENGTH) {
         memset(ap_ssid, 0, sizeof(ap_ssid));
-        strncpy(ap_ssid, ssid, sizeof(ap_ssid));
+        strncpy(ap_ssid, ssid, ESP8266_SSID_MAX_LENGTH);
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -438,7 +438,7 @@ int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode,
     }
 
     return _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
-                     t_min, t_max);
+                     t_max, t_min);
 }
 
 bool ESP8266Interface::_get_firmware_ok()
