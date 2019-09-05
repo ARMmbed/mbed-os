@@ -41,6 +41,7 @@ set(unittest-test-sources
   stubs/LoRaWANTimer_stub.cpp
   stubs/LoRaMacCommand_stub.cpp
   stubs/LoRaPHYEU868_stub.cpp
+  stubs/Mutex_stub.cpp
 )
 
 # defines

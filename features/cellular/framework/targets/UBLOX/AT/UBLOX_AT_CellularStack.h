@@ -45,7 +45,7 @@ protected: // AT_CellularStack
 
     /** The profile to use (on board the modem).
      */
-#define PROFILE "0"
+#define PROFILE 0
 
     /** Socket "unused" value.
      */

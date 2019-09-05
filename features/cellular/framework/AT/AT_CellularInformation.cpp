@@ -83,8 +83,7 @@ nsapi_error_t AT_CellularInformation::get_imsi(char *imsi, size_t buf_size)
         return NSAPI_ERROR_PARAMETER;
     }
     _at.lock();
-    _at.cmd_start("AT+CIMI");
-    _at.cmd_stop();
+    _at.cmd_start_stop("+CIMI", "");
     _at.resp_start();
     _at.read_string(imsi, MAX_IMSI_LENGTH + 1);
     _at.resp_stop();

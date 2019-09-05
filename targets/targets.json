@@ -4329,6 +4329,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -4400,6 +4401,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -7877,13 +7879,14 @@
             "SERIAL",
             "SPI",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "USTICKER"
         ],
         "public": false,
         "supported_toolchains": ["GCC_ARM", "ARM"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+            "toolchains": ["ARM_STD", "GCC_ARM"]
         },
         "release_versions": [],
         "overrides": {
@@ -7984,6 +7987,7 @@
             "TRNG",
             "FLASH",
             "MPU",
+            "USBDEVICE",
             "QSPI"
         ],
         "release_versions": ["2", "5"],
@@ -8024,6 +8028,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -8068,6 +8073,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -8119,6 +8125,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -8554,7 +8561,7 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
-        "macros": ["MBED_MPU_CUSTOM", "LPTICKER_DELAY_TICKS=3"],
+        "macros": ["MBED_MPU_CUSTOM", "MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
@@ -8745,6 +8752,7 @@
         "extra_labels_remove": ["PSOC6"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "detect_code": ["6000"],
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
@@ -8778,6 +8786,7 @@
         "extra_labels_remove": ["PSOC6"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",
         "post_binary_hook": {
@@ -9117,7 +9126,7 @@
         ],
         "macros": [
             "MBED_FAULT_HANDLER_DISABLED",
-            "LPTICKER_DELAY_TICKS=3"
+            "LPTICKER_DELAY_TICKS=4"
         ],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
@@ -9171,7 +9180,10 @@
         "release_versions": ["5"],
         "device_name": "M263KIAAE",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true,
+        "overrides": {
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true
+        },
         "forced_reset_timeout": 3
     },    
     "__build_tools_metadata__": {

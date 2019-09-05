@@ -608,6 +608,7 @@ nsapi_error_t AT_CellularContext::open_data_channel()
                   connected, or timeout after 30 seconds*/
     nsapi_error_t err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, (nsapi_ip_stack_t)_pdp_type);
     if (err) {
+        tr_error("nsapi_ppp_connect failed");
         ppp_disconnected();
     }
 
@@ -993,6 +994,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 tr_info("cellular_callback: PPP mode and NSAPI_STATUS_DISCONNECTED");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
                 _is_connected = false;
+                ppp_disconnected();
             }
         }
 #else

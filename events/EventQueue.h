@@ -167,8 +167,8 @@ public:
      *  @return         true  if event was successfully cancelled
      *                  false if event was not cancelled (invalid queue or executing already begun)
      */
-    template<typename... Args>
-    bool cancel(UserAllocatedEvent<Args...> *event)
+    template<typename F, typename A>
+    bool cancel(UserAllocatedEvent<F, A> *event)
     {
         if (event->_equeue != &_equeue) {
             return false;
@@ -213,8 +213,8 @@ public:
      *                  Undefined if id is invalid.
      *
      */
-    template<typename... Args>
-    int time_left(UserAllocatedEvent<Args...> *event)
+    template<typename F, typename A>
+    int time_left(UserAllocatedEvent<F, A> *event)
     {
         if (event && event->_equeue != &_equeue) {
             return -1;

@@ -86,6 +86,7 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     uint8_t *public_key = NULL;
     psa_key_type_t type;
     psa_key_type_t public_type;
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     size_t bits;
     size_t public_key_size = 0;
     size_t public_key_length = 0;
@@ -93,27 +94,28 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     uint32_t initial_attestation_public_x_key_size = 0;
     uint32_t initial_attestation_public_y_key_size = 0;
 
-    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
-    psa_key_handle_t handle = 0;
+    psa_key_handle_t handle;
 
-    crypto_ret = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    crypto_ret = psa_open_key(PSA_ATTESTATION_PRIVATE_KEY_ID, &handle);
     if (crypto_ret != PSA_SUCCESS)
     {
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
-    crypto_ret = psa_get_key_information(handle, &type, &bits);
+    crypto_ret = psa_get_key_attributes(handle, &attributes);
     if (crypto_ret != PSA_SUCCESS)
     {
         psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
+    type = psa_get_key_type(&attributes);
     if (!PSA_KEY_TYPE_IS_ECC(type))
     {
         psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
-    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type);
+    public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(type);
+    bits = psa_get_key_bits(&attributes);
     public_key_size = PSA_KEY_EXPORT_MAX_SIZE(public_type, bits);
     public_key = (uint8_t *) malloc(public_key_size);
     if (public_key == NULL)

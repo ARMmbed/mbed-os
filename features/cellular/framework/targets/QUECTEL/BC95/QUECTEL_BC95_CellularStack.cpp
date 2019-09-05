@@ -62,9 +62,8 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_connect(nsapi_socket_t handle, 
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
+
     _at.unlock();
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
@@ -130,13 +129,11 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_close_impl(int sock_id)
     if (sock && sock->closed) {
         return NSAPI_ERROR_OK;
     }
-    _at.cmd_start("AT+NSOCL=");
-    _at.write_int(sock_id);
-    _at.cmd_stop_read_resp();
+    nsapi_error_t err = _at.at_cmd_discard("+NSOCL", "=", "%d", sock_id);
 
-    tr_info("Close socket: %d error: %d", sock_id, _at.get_last_error());
+    tr_info("Close socket: %d error: %d", sock_id, err);
 
-    return _at.get_last_error();
+    return err;
 }
 
 nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *socket)
@@ -145,52 +142,21 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     bool socketOpenWorking = false;
 
     if (socket->proto == NSAPI_UDP) {
-        _at.cmd_start("AT+NSOCR=DGRAM,17,");
+        _at.cmd_start_stop("+NSOCR", "=DGRAM,", "%d%d%d", 17, socket->localAddress.get_port(), 1);
     } else if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start("AT+NSOCR=STREAM,6,");
+        _at.cmd_start_stop("+NSOCR", "=STREAM,", "%d%d%d", 6, socket->localAddress.get_port(), 1);
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
-    _at.write_int(socket->localAddress.get_port());
-    _at.write_int(1);
-    _at.cmd_stop();
     _at.resp_start();
     sock_id = _at.read_int();
     _at.resp_stop();
 
     socketOpenWorking = (_at.get_last_error() == NSAPI_ERROR_OK);
 
-    if (!socketOpenWorking) {
-        _at.cmd_start("AT+NSOCL=0");
-        _at.cmd_stop_read_resp();
-
-        if (socket->proto == NSAPI_UDP) {
-            _at.cmd_start("AT+NSOCR=DGRAM,17,");
-        } else if (socket->proto == NSAPI_TCP) {
-            _at.cmd_start("AT+NSOCR=STREAM,6,");
-        }
-        _at.write_int(socket->localAddress.get_port());
-        _at.write_int(1);
-        _at.cmd_stop();
-        _at.resp_start();
-        sock_id = _at.read_int();
-        _at.resp_stop();
-
-        socketOpenWorking = (_at.get_last_error() == NSAPI_ERROR_OK);
-    }
-
     if (!socketOpenWorking || (sock_id == -1)) {
         tr_error("Socket create failed!");
         return NSAPI_ERROR_NO_SOCKET;
-    }
-
-    // Check for duplicate socket id delivered by modem
-    for (int i = 0; i < BC95_SOCKET_MAX; i++) {
-        CellularSocket *sock = _socket[i];
-        if (sock && sock->id != -1 && sock->id == sock_id) {
-            tr_error("Duplicate socket index: %d, sock_id: %d", i, sock_id);
-            return NSAPI_ERROR_NO_SOCKET;
-        }
     }
 
     tr_info("Socket create id: %d", sock_id);
@@ -261,10 +227,8 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     int port;
     char ip_address[NSAPI_IP_SIZE];
 
-    _at.cmd_start("AT+NSORF=");
-    _at.write_int(socket->id);
-    _at.write_int(size <= PACKET_SIZE_MAX ? size : PACKET_SIZE_MAX);
-    _at.cmd_stop();
+    _at.cmd_start_stop("+NSORF", "=", "%d%d", socket->id, size < PACKET_SIZE_MAX ? size : PACKET_SIZE_MAX);
+
     _at.resp_start();
     // receiving socket id
     _at.skip_param();

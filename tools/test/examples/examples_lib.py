@@ -398,7 +398,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples):
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
                     
-                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target] + (['-v'] if verbose else [])
+                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target] + (['-vv'] if verbose else [])
                     if profile:
                         build_command.append("--profile")
                         build_command.append(profile)

@@ -145,13 +145,13 @@ LittleFileSystem::LittleFileSystem(const char *name, BlockDevice *bd,
                                    lfs_size_t read_size, lfs_size_t prog_size,
                                    lfs_size_t block_size, lfs_size_t lookahead)
     : FileSystem(name)
+    , _lfs()
+    , _config()
+    , _bd(NULL)
     , _read_size(read_size)
     , _prog_size(prog_size)
     , _block_size(block_size)
     , _lookahead(lookahead)
-    , _lfs()
-    , _config()
-    , _bd(NULL)
 {
     if (bd) {
         mount(bd);

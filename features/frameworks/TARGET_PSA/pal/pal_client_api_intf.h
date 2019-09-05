@@ -32,7 +32,6 @@
 #include "pal_common.h"
 
 #define PSA_VERSION_NONE            (0)
-#define PSA_SUCCESS                 (0)
 #define PSA_CONNECTION_REFUSED      (INT32_MIN + 1)
 #define PSA_CONNECTION_BUSY         (INT32_MIN + 2)
 #define PSA_DROP_CONNECTION         (INT32_MIN)

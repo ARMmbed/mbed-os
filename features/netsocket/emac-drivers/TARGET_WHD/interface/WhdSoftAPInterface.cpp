@@ -173,7 +173,19 @@ int WhdSoftAPInterface::stop(void)
         return NSAPI_ERROR_DHCP_FAILURE;
     }
     _dhcp_server.reset();
-    return whd_wifi_stop_ap(_whd_emac.ifp);
+
+    // bring down
+    int err = _interface->bringdown();
+    if (err) {
+        return err;
+    }
+
+    // stop softap
+    whd_result_t res = whd_wifi_stop_ap(_whd_emac.ifp);
+    if (res != WHD_SUCCESS) {
+        return whd_toerror(res);
+    }
+    return NSAPI_ERROR_OK;
 }
 
 int WhdSoftAPInterface::remove_custom_ie(const whd_custom_ie_info_t *ie_info)

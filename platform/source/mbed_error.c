@@ -305,7 +305,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
     mbed_error_printf("\n= System will be rebooted due to a fatal error =\n");
     if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
         //We have rebooted more than enough, hold the system here.
-        mbed_error_printf("= Reboot count(=%ld) reached maximum, system will halt after rebooting =\n", report_error_ctx->error_reboot_count);
+        mbed_error_printf("= Reboot count(=%" PRIi32") reached maximum, system will halt after rebooting =\n", report_error_ctx->error_reboot_count);
     }
 #endif
     system_reset();//do a system reset to get the system rebooted

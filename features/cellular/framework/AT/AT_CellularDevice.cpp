@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include "rtos/ThisThread.h"
 #include "CellularUtil.h"
 #include "AT_CellularDevice.h"
 #include "AT_CellularInformation.h"
@@ -202,6 +203,7 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     _at->flush();
     nsapi_error_t error = _at->at_cmd_str("+CPIN", "?", simstr, sizeof(simstr));
     ssize_t len = strlen(simstr);
+    device_err_t err = _at->get_last_device_error();
     _at->unlock();
 
     if (len != -1) {
@@ -213,7 +215,6 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
             state = SimStatePukNeeded;
         } else {
             simstr[len] = '\0';
-            tr_error("Unknown SIM state %s", simstr);
             state = SimStateUnknown;
         }
     } else {
@@ -229,7 +230,11 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
             tr_error("SIM PUK required");
             break;
         case SimStateUnknown:
-            tr_warn("SIM state unknown");
+            if (err.errType == DeviceErrorTypeErrorCME && err.errCode == 14) {
+                tr_info("SIM busy");
+            } else {
+                tr_warn("SIM state unknown");
+            }
             break;
         default:
             tr_info("SIM is ready");
@@ -443,12 +448,18 @@ nsapi_error_t AT_CellularDevice::init()
     setup_at_handler();
 
     _at->lock();
-    _at->flush();
-    _at->at_cmd_discard("E0", "");
-
-    _at->at_cmd_discard("+CMEE", "=1");
-
-    _at->at_cmd_discard("+CFUN", "=1");
+    for (int retry = 1; retry <= 3; retry++) {
+        _at->clear_error();
+        _at->flush();
+        _at->at_cmd_discard("E0", "");
+        _at->at_cmd_discard("+CMEE", "=1");
+        _at->at_cmd_discard("+CFUN", "=1");
+        if (_at->get_last_error() == NSAPI_ERROR_OK) {
+            break;
+        }
+        tr_debug("Wait 100ms to init modem");
+        rtos::ThisThread::sleep_for(100); // let modem have time to get ready
+    }
 
     return _at->unlock_return_error();
 }

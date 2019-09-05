@@ -36,8 +36,8 @@ bool TELIT_ME910_CellularContext::get_context()
 {
     bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
     bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
-    _at.cmd_start("AT+CGDCONT?");
-    _at.cmd_stop();
+
+    _at.cmd_start_stop("+CGDCONT", "?");
     _at.resp_start("+CGDCONT:");
     _cid = -1;
     int cid_max = 0; // needed when creating new context

@@ -71,18 +71,14 @@ nsapi_error_t RM1000_AT::init()
 
     _at->lock();
     _at->flush();
-    _at->cmd_start("ATE0"); // echo off
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("E0", ""); // echo off
 
-    _at->cmd_start("AT+SIM=physical");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+SIM", "=physical");
 
     _at->set_at_timeout(5000);
-    _at->cmd_start("AT+CFUN=1"); // set full functionality
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CFUN", "=1"); // set full functionality
 
-    _at->cmd_start("AT+VERBOSE=0"); // verbose responses
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+VERBOSE", "=0"); // verbose responses
 
     return _at->unlock_return_error();
 }

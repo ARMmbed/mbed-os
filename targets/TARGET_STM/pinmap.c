@@ -64,12 +64,13 @@ void pin_function(PinName pin, int data)
     // Get the pin informations
     uint32_t mode  = STM_PIN_FUNCTION(data);
     uint32_t afnum = STM_PIN_AFNUM(data);
+    uint32_t speed = STM_PIN_SPEED(data);
     uint32_t port = STM_PORT(pin);
     uint32_t ll_pin  = ll_pin_defines[STM_PIN(pin)];
     uint32_t ll_mode = 0;
 
     // Enable GPIO clock
-    GPIO_TypeDef *gpio = Set_GPIO_Clock(port);
+    GPIO_TypeDef * const gpio = Set_GPIO_Clock(port);
 
     /*  Set default speed to high.
      *  For most families there are dedicated registers so it is
@@ -79,13 +80,19 @@ void pin_function(PinName pin, int data)
 #if defined (TARGET_STM32F1)
     if (mode == STM_PIN_OUTPUT) {
 #endif
-
+        switch (speed) {
+            /* Default value for backward compatibility */
+            case STM_PIN_SPEED_MASK:
 #if defined (LL_GPIO_SPEED_FREQ_VERY_HIGH)
-        LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+                LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
 #else
-        LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
+                LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
 #endif
-
+                break;
+            default:
+                LL_GPIO_SetPinSpeed(gpio, ll_pin, speed);
+                break;
+        }
 #if defined (TARGET_STM32F1)
     }
 #endif

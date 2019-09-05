@@ -211,8 +211,9 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     if (!plmn) {
         tr_debug("Automatic network registration");
         NWRegisteringMode mode;
-        get_network_registering_mode(mode);
-
+        if (get_network_registering_mode(mode) != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
         if (mode != NWModeAutomatic) {
             return _at.at_cmd_discard("+COPS", "=0");
         }
