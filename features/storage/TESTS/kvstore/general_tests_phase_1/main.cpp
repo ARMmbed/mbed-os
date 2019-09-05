@@ -29,8 +29,8 @@
 using namespace utest::v1;
 using namespace mbed;
 
-#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM)
-#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices and Fastmodels
+#if !defined(TARGET_K64F) && !defined(TARGET_ARM_FM) && !defined(TARGET_MCU_PSOC6)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices, Fastmodels, and PSoC 6
 #else
 
 static const char   data[] = "data";
