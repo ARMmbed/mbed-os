@@ -19,6 +19,8 @@
 #include "APN_db.h"
 #include "CellularLog.h"
 
+#include "rtos/ThisThread.h"
+
 namespace mbed {
 
 UBLOX_AT_CellularContext::UBLOX_AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
@@ -206,7 +208,7 @@ bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
                     if (activated) {  //If context is activated, exit while loop and return status
                         break;
                     }
-                    wait_ms(5000);    //Wait for 5 seconds and then try again
+                    rtos::ThisThread::sleep_for(5000);    //Wait for 5 seconds and then try again
                 }
                 t1.stop();
             }

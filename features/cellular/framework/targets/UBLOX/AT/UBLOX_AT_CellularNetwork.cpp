@@ -17,6 +17,8 @@
 
 #include "UBLOX_AT_CellularNetwork.h"
 
+#include "rtos/ThisThread.h"
+
 using namespace mbed;
 
 UBLOX_AT_CellularNetwork::UBLOX_AT_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
@@ -93,7 +95,7 @@ nsapi_error_t UBLOX_AT_CellularNetwork::ubx_reboot()
         } else {
             //Don't clear err here so that we get some error in case of failure
             _at.clear_error();
-            wait_ms(1000);
+            rtos::ThisThread::sleep_for(1000);
         }
     }
     t1.stop();
