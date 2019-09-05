@@ -23,7 +23,7 @@
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL), _socket_count(0), _cid(cid), _stack_type(stack_type)
+AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL), _socket_count(0), _cid(cid), _stack_type(stack_type), _ip_ver_sendto(NSAPI_UNSPEC)
 {
     memset(_ip, 0, PDP_IPV6_SIZE);
 }
@@ -272,6 +272,13 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
     if (socket->id == -1) {
+
+        /* Check that stack type supports sendto address type*/
+        if (!is_addr_stack_compatible(addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        _ip_ver_sendto = addr.get_ip_version();
         _at.lock();
 
         ret_val = create_socket_impl(socket);
@@ -283,9 +290,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
         }
     }
 
-    /* Check parameters */
-    if (addr.get_ip_version() == NSAPI_UNSPEC) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    /* Check parameters - sendto address is valid and stack type supports sending to that address type*/
+    if (!is_addr_stack_compatible(addr)) {
+        return NSAPI_ERROR_PARAMETER;
     }
 
     _at.lock();
@@ -393,3 +400,14 @@ AT_CellularStack::CellularSocket *AT_CellularStack::find_socket(int sock_id)
     }
     return sock;
 }
+
+bool AT_CellularStack::is_addr_stack_compatible(const SocketAddress &addr)
+{
+    if ((addr.get_ip_version() == NSAPI_UNSPEC) ||
+            (addr.get_ip_version() == NSAPI_IPv4 && _stack_type == IPV6_STACK) ||
+            (addr.get_ip_version() == NSAPI_IPv6 && _stack_type == IPV4_STACK)) {
+        return false;
+    }
+    return true;
+}
+
