@@ -609,7 +609,6 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
 {
     (void) interface_id;
     (void) eui64;
-
 #ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_node_keys_remove(interface_id, eui64);
 #else
@@ -620,7 +619,6 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
 int ws_bbr_node_access_revoke_start(int8_t interface_id)
 {
     (void) interface_id;
-
 #ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_node_access_revoke_start(interface_id);
 #else
@@ -628,3 +626,13 @@ int ws_bbr_node_access_revoke_start(int8_t interface_id)
 #endif
 }
 
+int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    return ws_pae_controller_node_limit_set(interface_id, limit);
+#else
+    (void) limit;
+    return -1;
+#endif
+}

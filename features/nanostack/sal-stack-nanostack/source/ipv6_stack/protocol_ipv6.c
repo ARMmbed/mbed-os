@@ -969,7 +969,7 @@ void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, const ui
             cur->ipv6_configure->IPv6_ND_state = IPV6_GP_CONFIG;
         }
         // If DAD not enabled address is valid right away
-        if (cur->dup_addr_detect_transmits == 0) {
+        if (cur->ipv6_configure && cur->dup_addr_detect_transmits == 0) {
             address_entry->cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
         }
     }
