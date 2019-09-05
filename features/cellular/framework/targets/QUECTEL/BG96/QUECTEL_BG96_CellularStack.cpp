@@ -413,7 +413,6 @@ void QUECTEL_BG96_CellularStack::ip2dot(const SocketAddress &ip, char *dot)
 {
     if (ip.get_ip_version() == NSAPI_IPv6) {
         const uint8_t *bytes = (uint8_t *)ip.get_ip_bytes();
-        char *p = dot;
         for (int i = 0; i < NSAPI_IPv6_BYTES; i += 2) {
             if (i != 0) {
                 *dot++ = ':';
