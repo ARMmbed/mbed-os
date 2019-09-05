@@ -234,6 +234,9 @@ nsapi_error_t CellularDevice::shutdown()
     }
     CellularContext *curr = get_context_list();
     while (curr) {
+        if (curr->is_connected()) {
+            curr->disconnect();
+        }
         curr->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
         curr = (CellularContext *)curr->_next;
     }
