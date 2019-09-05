@@ -40,11 +40,6 @@
     <!-- Documentation -->
     <ParamDoc id="pdlDoc" name="SysPm API Reference" group="Documentation" default="file:///`${cy_libs_path()}`/docs/pdl_api_reference_manual/html/group__group__syspm.html" linkText="Open SysPm Documentation" visible="true" desc="Opens the Peripheral Driver Library Documentation" />
 
-    <!-- Run power estimation external tool -->
-    <ParamCustom id="pwrEstimator" name="Power Estimator" group="External Tools" default="0" path="`${cy_tools_path(&quot;cype-tool&quot;) . &quot;/cype-tool&quot;}`" modal="false" visible="true" editable="true"
-      desc="Launch Power Estimator.">
-    </ParamCustom>
-
     <!-- Power settings -->
     <ParamChoice id="pwrMode" name="Power Mode" group="Internal" default="LDO_1_1" visible="false" editable="true"
       desc="This parameter was replaced by actPwrMode and coreRegulator.">
