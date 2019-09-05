@@ -60,13 +60,6 @@ typedef struct {
     uint16_t                      recv_size;        /**< Received pdu size */
 } gkh_sec_prot_int_t;
 
-static const trickle_params_t gkh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
-};
-
 static uint16_t supp_gkh_sec_prot_size(void);
 static int8_t supp_gkh_sec_prot_init(sec_prot_t *prot);
 
@@ -227,7 +220,7 @@ static int8_t supp_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
 static void supp_gkh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     gkh_sec_prot_int_t *data = gkh_sec_prot_get(prot);
-    sec_prot_timer_timeout_handle(prot, &data->common, &gkh_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
 }
 
 static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)

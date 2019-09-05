@@ -97,6 +97,11 @@ typedef struct {
     bool key_index_set : 1;                                          /**< NW key index is set */
 } pae_controller_t;
 
+typedef struct {
+    uint16_t node_limit;                                             /**< Max number of stored supplicants */
+    bool node_limit_set : 1;                                         /**< Node limit set */
+} pae_controller_config_t;
+
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry);
@@ -118,6 +123,11 @@ static void ws_pae_controller_frame_counter_write(pae_controller_t *controller, 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
 
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
+
+pae_controller_config_t pae_controller_config = {
+    .node_limit = 0,
+    .node_limit_set = false
+};
 
 #if !defined(HAVE_PAE_SUPP) && !defined(HAVE_PAE_AUTH)
 
@@ -172,6 +182,25 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     return 0;
 }
 
+int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interface_ptr)
+{
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return -1;
+    }
+
+#ifdef HAVE_PAE_SUPP
+    // RPL parent is known, remove EAPOL target that what was set using the authenticate call */
+    ws_pae_supp_eapol_target_remove(interface_ptr);
+
+    /* Trigger GTK hash update to supplicant, so it can check whether keys have been updated
+       during bootstrap. Does nothing if GTKs are up to date. */
+    ws_pae_supp_gtk_hash_update(interface_ptr, controller->gtkhash);
+#endif
+
+    return 0;
+}
+
 int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     (void) local_port;
@@ -202,6 +231,10 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
 
     if (ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) < 0) {
         return -1;
+    }
+
+    if (pae_controller_config.node_limit_set) {
+        ws_pae_auth_node_limit_set(controller->interface_ptr, pae_controller_config.node_limit);
     }
 
     ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set);
@@ -696,6 +729,13 @@ int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
+int8_t ws_pae_controller_timing_adjust(uint8_t timing)
+{
+    ws_pae_supp_timing_adjust(timing);
+    ws_pae_auth_timing_adjust(timing);
+    return 0;
+}
+
 int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *new_chain)
 {
     if (!new_chain) {
@@ -990,6 +1030,41 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id)
     return -1;
 }
 
+int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
+{
+#ifdef HAVE_PAE_AUTH
+    pae_controller_config.node_limit = limit;
+    pae_controller_config.node_limit_set = true;
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
+        return -1;
+    }
+
+    ws_pae_auth_node_limit_set(controller->interface_ptr, limit);
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) limit;
+    return -1;
+#endif
+}
+
+void ws_pae_controller_forced_gc(bool full_gc)
+{
+    /* Purge only when on critical limit since node limit should handle limiting
+       of entries in normal case */
+    if (!full_gc) {
+        return;
+    }
+
+    // Purge authenticators for each interface
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        ws_pae_auth_forced_gc(entry->interface_ptr);
+    }
+}
+
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1085,7 +1160,6 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry)
         ws_pae_controller_frame_counter_write(entry, active_index, hash, curr_frame_counter);
     }
 }
-
 
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint8_t *index, uint8_t *hash, uint32_t *frame_counter)
 {
