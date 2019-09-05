@@ -33,7 +33,7 @@ typedef NS_LIST_HEAD(kmp_entry_t, link) kmp_list_t;
 
 typedef struct {
     kmp_list_t kmp_list;               /**< Ongoing KMP negotiations */
-    kmp_addr_t addr;                  /**< EUI-64 (Relay IP address, Relay port) */
+    kmp_addr_t addr;                   /**< EUI-64 (Relay IP address, Relay port) */
     sec_prot_keys_t sec_keys;          /**< Security keys */
     uint32_t ticks;                    /**< Ticks */
     uint16_t retry_ticks;              /**< Retry ticks */
@@ -279,6 +279,18 @@ void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *
  *
  */
 void ws_pae_lib_supp_list_to_inactive(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, supp_entry_t *entry);
+
+/**
+ *  ws_pae_lib_supp_list_purge purge inactive supplicants list
+ *
+ * \param active_supp_list list of active supplicants
+ * \param inactive_supp_list list of inactive supplicants
+ * \param max_number maximum number of supplicant entries, can be set to 0 in combination with max_purge
+ *                   to free list entries even when maximum number supplicant entries has not been reached
+ * \param max_purge maximum number of supplicants to purge in one call, 0 means not limited
+ *
+ */
+void ws_pae_lib_supp_list_purge(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, uint16_t max_number, uint8_t max_purge);
 
 /**
  *  ws_pae_lib_supp_list_kmp_count counts the number of KMPs of a certain type in a list of supplicants

@@ -81,7 +81,7 @@ static void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp
 static bool ws_bootstrap_state_discovery(struct protocol_interface_info_entry *cur);
 static int8_t ws_bootsrap_event_trig(ws_bootsrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 
-static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast);
+static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new);
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
@@ -97,12 +97,14 @@ static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *
 static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry_t *cur, void *neighbor);
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
+static bool ws_rpl_dio_new_parent_accept(struct protocol_interface_info_entry *interface);
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
     WS_PARENT_HARD_SYNCH,      /**< Synch FHSS with latest synch information*/
     WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/
 } ws_parent_synch_e;
+
 
 static void ws_bootsrap_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
 {
@@ -925,7 +927,7 @@ static void ws_bootstrap_pan_advertisement_analyse(struct protocol_interface_inf
     // Save route cost for all neighbours
     llc_neighbour_req_t neighbor_info;
     neighbor_info.neighbor = NULL;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, false)) {
+    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         neighbor_info.ws_neighbor->routing_cost = pan_information.routing_cost;
     }
 
@@ -1080,10 +1082,10 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
 
     if (cur->ws_info->configuration_learned || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //If we are border router or learned configuration we only update already learned neighbours.
-        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, true);
+        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false);
 
     } else {
-        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, true, true);
+        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, true);
         if (!neighbour_pointer_valid) {
             return;
         }
@@ -1169,7 +1171,7 @@ static void ws_bootstrap_pan_config_solicit_analyse(struct protocol_interface_in
      */
 
     llc_neighbour_req_t neighbor_info;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false, false)) {
+    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         etx_lqi_dbm_update(cur->id, data->mpduLinkQuality, data->signal_dbm, neighbor_info.neighbor->index);
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp);
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us);
@@ -1366,19 +1368,10 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
             }
         }
 
-        uint32_t link_min_timeout;
         //Read current timestamp
         uint32_t time_from_last_unicast_shedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
 
-
-        if (cur->trusted_device) {
-            link_min_timeout = WS_NEIGHBOR_TRUSTED_LINK_MIN_TIMEOUT;
-        } else {
-
-            link_min_timeout = WS_NEIGHBOR_NOT_TRUSTED_LINK_MIN_TIMEOUT;
-        }
-
-        if (time_from_last_unicast_shedule > link_min_timeout || !ws_neighbor->unicast_data_rx) {
+        if (time_from_last_unicast_shedule > WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT || !ws_neighbor->unicast_data_rx) {
             //Accept only Enough Old Device
             if (!neighbor_entry_ptr) {
                 //Accept first compare
@@ -1399,8 +1392,9 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
 
 }
 
-static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new, bool multicast)
+static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new)
 {
+    neighbor_buffer->ws_neighbor = NULL;
     neighbor_buffer->neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), mac_64, ADDR_802_15_4_LONG);
     if (neighbor_buffer->neighbor) {
         neighbor_buffer->ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_buffer->neighbor->index);
@@ -1421,27 +1415,6 @@ static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_en
         return false;
     }
 
-    if (multicast) {
-        //for multicast neighbour we must limit if we have already enough information
-        if (interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-            //Border router never allocate neighbors by multicast
-            return false;
-        }
-
-        uint16_t parent_candidate_size = rpl_control_parent_candidate_list_size(interface, false);
-
-        //if we have enough candidates at list do not accept new multicast neighbours
-        if (parent_candidate_size >= 4) {
-            return false;
-        }
-
-        parent_candidate_size = rpl_control_parent_candidate_list_size(interface, true);
-        //If we have already enough parent selected Candidates count is bigger tahn 4
-        if (parent_candidate_size >= 2) {
-            return false;
-        }
-    }
-
     ws_bootstrap_neighbor_table_clean(interface);
 
     neighbor_buffer->neighbor = ws_bootstrap_mac_neighbor_add(interface, mac_64);
@@ -1455,6 +1428,24 @@ static bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_en
         mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_buffer->neighbor);
         return false;
     }
+    return true;
+}
+
+static bool ws_rpl_dio_new_parent_accept(struct protocol_interface_info_entry *interface)
+{
+    uint16_t parent_candidate_size = rpl_control_parent_candidate_list_size(interface, false);
+    //TODO check bootstarap state for review
+    //if we have enough candidates at list do not accept new multicast neighbours
+    if (parent_candidate_size > WS_NEIGHBOUR_MAX_CANDIDATE_PROBE) {
+        return false;
+    }
+
+    parent_candidate_size = rpl_control_parent_candidate_list_size(interface, true);
+    //If we have already enough parent selected Candidates count is bigger tahn 4
+    if (parent_candidate_size >= 2) {
+        return false;
+    }
+
     return true;
 }
 
@@ -2010,6 +2001,48 @@ static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t
     }
 }
 
+static bool ws_rpl_new_parent_callback_t(uint8_t *ll_parent_address, void *handle)
+{
+
+    protocol_interface_info_entry_t *cur = handle;
+    if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
+        return false;
+    }
+
+    uint8_t mac64[8];
+    memcpy(mac64, ll_parent_address + 8, 8);
+    mac64[0] ^= 2;
+    llc_neighbour_req_t neigh_buffer;
+    if (ws_bootstrap_neighbor_info_request(cur, mac64, &neigh_buffer, false)) {
+        return true;
+    }
+
+    if (!ws_rpl_dio_new_parent_accept(cur)) {
+        return false;
+    }
+
+    //Discover Multicast temporary entry
+
+    ws_neighbor_temp_class_t *entry = ws_llc_get_multicast_temp_entry(cur, mac64);
+    if (!entry) {
+        return false;
+    }
+    //Create entry
+    bool create_ok = ws_bootstrap_neighbor_info_request(cur, mac64, &neigh_buffer, true);
+    if (create_ok) {
+        ws_neighbor_class_entry_t *ws_neigh = neigh_buffer.ws_neighbor;
+        //Copy fhss temporary data
+        *ws_neigh = entry->neigh_info_list;
+        //ETX Create here
+        etx_lqi_dbm_update(cur->id, entry->mpduLinkQuality, entry->signal_dbm, neigh_buffer.neighbor->index);
+        mac_neighbor_table_trusted_neighbor(mac_neighbor_info(cur), neigh_buffer.neighbor, true);
+    }
+    ws_llc_free_multicast_temp_entry(cur, entry);
+
+
+    return create_ok;
+}
+
 static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
 {
     tr_debug("RPL Activate");
@@ -2018,7 +2051,7 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
 
     addr_add_router_groups(cur);
     rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, downstream);
-    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, cur);
+    rpl_control_set_callback(protocol_6lowpan_rpl_domain, ws_bootstrap_rpl_callback, ws_rpl_prefix_callback, ws_rpl_new_parent_callback_t, cur);
     // If i am router I Do this
     rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
     rpl_control_request_parent_link_confirmation(true);
@@ -2493,6 +2526,9 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
             cur->ws_info->trickle_pas_running = false;
             cur->ws_info->trickle_pcs_running = false;
 
+            // Indicate PAE controller that bootstrap is ready
+            ws_pae_controller_bootstrap_done(cur);
+
             ws_bootstrap_advertise_start(cur);
             ws_bootstrap_state_change(cur, ER_BOOTSRAP_DONE);
             break;
@@ -2520,7 +2556,7 @@ void ws_bootstrap_network_scan_process(protocol_interface_info_entry_t *cur)
 
     // Add EAPOL neighbour
     llc_neighbour_req_t neighbor_info;
-    if (!ws_bootstrap_neighbor_info_request(cur, cur->ws_info->parent_info.addr, &neighbor_info, true, false)) {
+    if (!ws_bootstrap_neighbor_info_request(cur, cur->ws_info->parent_info.addr, &neighbor_info, true)) {
         return;
     }
 

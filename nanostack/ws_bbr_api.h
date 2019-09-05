@@ -120,4 +120,24 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64);
  */
 int ws_bbr_node_access_revoke_start(int8_t interface_id);
 
+/**
+ * Set EAPOL node limit
+ *
+ * Border router stores EAPOL key information for each authenticated node.
+ * Sets the maximum number of EAPOL nodes stored by border router. If count
+ * of node's exceed the limit, border router deletes the node information
+ * starting from oldest node (node that has authenticated longest time
+ * ago), to make room for new nodes. When network keys are updated, nodes
+ * which have been removed from storage, must make full authentication again.
+ * Value for this parameter should be set to be more than maximum amount of
+ * nodes that are expected to be connected to border router.
+ *
+ * \param interface_id Network interface ID.
+ * \param limit Limit for nodes
+ *
+ * \return 0, Node limit set
+ * \return <0 Node limit set failed.
+ */
+int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit);
+
 #endif /* WS_BBR_API_H_ */

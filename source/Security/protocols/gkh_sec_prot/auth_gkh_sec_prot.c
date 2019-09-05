@@ -60,11 +60,19 @@ typedef struct {
     uint16_t                      recv_size;        /**< Received pdu size */
 } gkh_sec_prot_int_t;
 
-static const trickle_params_t gkh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
+/*Small network setup*/
+#define GKH_SMALL_IMIN 300 // retries done in 30 seconds
+#define GKH_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define GKH_LARGE_IMIN 600 // retries done in 60 seconds
+#define GKH_LARGE_IMAX 2400 // Largest value 240 seconds
+
+static trickle_params_t gkh_trickle_params = {
+    .Imin = GKH_SMALL_IMIN,            /* ticks are 100ms */
+    .Imax = GKH_SMALL_IMAX,            /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
+    .TimerExpirations = 2
 };
 
 static uint16_t auth_gkh_sec_prot_size(void);
@@ -92,6 +100,18 @@ int8_t auth_gkh_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_gkh_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        gkh_trickle_params.Imin = GKH_SMALL_IMIN;
+        gkh_trickle_params.Imax = GKH_SMALL_IMAX;
+    } else {
+        gkh_trickle_params.Imin = GKH_LARGE_IMIN;
+        gkh_trickle_params.Imax = GKH_LARGE_IMAX;
+    }
     return 0;
 }
 
