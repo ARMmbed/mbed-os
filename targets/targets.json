@@ -7449,10 +7449,7 @@
                 "NRF52_PAN_62",
                 "NRF52_PAN_63",
                 "NRF52_PAN_64"
-        ],
-        "overrides": {
-            "console-uart-flow-control": "RTSCTS"
-        }
+        ]
     },
     "UBLOX_EVK_NINA_B1": {
         "supported_form_factors": ["ARDUINO"],
