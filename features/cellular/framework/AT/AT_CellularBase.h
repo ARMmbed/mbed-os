@@ -60,7 +60,7 @@ public:
         PROPERTY_AT_CSDH,           // 0 = not supported, 1 = supported. Show text mode AT command
         PROPERTY_IPV4_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV4?
         PROPERTY_IPV6_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV6?
-        PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?
+        PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support IPV4 and IPV6 simultaneously?
         PROPERTY_NON_IP_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support Non-IP?
         PROPERTY_AT_CGEREP,         // 0 = not supported, 1 = supported. Does modem support AT command AT+CGEREP.
 
