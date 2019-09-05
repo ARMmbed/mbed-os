@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Copyright (c) 2019 Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -10,6 +10,15 @@ import logging
 import re
 import subprocess
 import sys
+from enum import Enum
+
+class ReturnCode(Enum):
+    """Return codes."""
+
+    SUCCESS = 0
+    ERROR = 1
+    INVALID_OPTIONS = 2
+
 
 log = logging.getLogger(__name__)
 
@@ -41,25 +50,26 @@ class SymbolParser:
             "Get the symbol table for ELF format file '{}'".format(elf_file)
         )
 
-        cmd = [*OBJECT_FILE_ANALYSIS_CMD, elf_file]
+        cmd = [OBJECT_FILE_ANALYSIS_CMD[0], OBJECT_FILE_ANALYSIS_CMD[1], elf_file]
         log.debug("command: '{}'".format(cmd))
         try:
-            process = subprocess.run(
-                cmd,
-                check=True,
-                stdin=None,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-        except subprocess.CalledProcessError as error:
-            err_output = error.stdout.decode()
-            msg = (
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except OSError as error:
+            raise SymbolTableError(
                 "Getting symbol table for ELF format file '{}' failed,"
-                " error: {}".format(elf_file, err_output)
+                " error: {}".format(elf_file, error)
             )
-            raise SymbolTableError(msg)
 
-        symbol_table = process.stdout.decode()
+        stdout, _ = process.communicate()
+
+        if process.returncode:
+            raise SymbolTableError(
+                "Getting symbol table for ELF format file '{}' failed,"
+                " error: {}".format(elf_file, stdout.decode())
+            )
+
+        symbol_table = stdout.decode()
+
         log.debug("Symbol table:\n{}\n".format(symbol_table))
 
         return symbol_table
@@ -69,6 +79,9 @@ class SymbolTableError(Exception):
     """An exception for a failure to obtain a symbol table."""
 
 
+class FloatSymbolsFound(Exception):
+    """An exception generated when floating point symbols are found."""
+
 class ArgumentParserWithDefaultHelp(argparse.ArgumentParser):
     """Subclass that always shows the help message on invalid arguments."""
 
@@ -76,6 +89,7 @@ class ArgumentParserWithDefaultHelp(argparse.ArgumentParser):
         """Error handler."""
         sys.stderr.write("error: {}\n".format(message))
         self.print_help()
+        raise SystemExit(ReturnCode.INVALID_OPTIONS.value)
 
 
 def set_log_verbosity(increase_verbosity):
@@ -91,6 +105,7 @@ def check_float_symbols(elf_file):
 
     Return the floating point symbols found.
     """
+    print("Checking {} for floating point symbols".format(elf_file))
     parser = SymbolParser()
     symbol_table = parser.get_symbol_table(elf_file)
 
@@ -105,11 +120,12 @@ def check_action(args):
     """Entry point for checking the ELF file."""
     float_symbols = check_float_symbols(args.elf_file)
     if float_symbols:
-        print("Found float symbols:")
+        print("Failed - Found float symbols:")
         for float_symbol in float_symbols:
             print(float_symbol)
+        raise FloatSymbolsFound("Found float symbols in {}".format(args.elf_file))
     else:
-        print("No float symbols found.")
+        print("Passed - No float symbols found.")
 
 
 def parse_args():
@@ -160,9 +176,15 @@ def run_elf_floats_checker():
     args.func(args)
 
 
-if __name__ == "__main__":
+def _main():
     """Run elf-floats-checker."""
     try:
         run_elf_floats_checker()
     except Exception as error:
         print(error)
+        return ReturnCode.ERROR.value
+    else:
+        return ReturnCode.SUCCESS.value
+
+if __name__ == "__main__":
+    sys.exit(_main())
