@@ -33,6 +33,8 @@
 #include "PeripheralPins.h"
 #include "pinmap_function.h"
 
+#define SUPPORTED_ALT_SIZE 8u
+
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode)
 {
 
@@ -268,7 +270,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         cfg.modeBitEnable = true;
         obj->instance->MODEBITCONFIG = command->alt.value & _QSPI_MODEBITCONFIG_MODE_MASK;
 
-        if(command->alt.size != QSPI_CFG_ALT_SIZE_8) {
+        if(command->alt.size != SUPPORTED_ALT_SIZE) {
             //do not support 'alt' bigger than 8 bit
             return QSPI_STATUS_INVALID_PARAMETER;
         }
@@ -338,7 +340,7 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
         obj->instance->DEVINSTRRDCONFIG |= QSPI_DEVINSTRRDCONFIG_MODEBITENABLE;
         obj->instance->MODEBITCONFIG = command->alt.value & _QSPI_MODEBITCONFIG_MODE_MASK;
 
-        if(command->alt.size != QSPI_CFG_ALT_SIZE_8) {
+        if(command->alt.size != SUPPORTED_ALT_SIZE) {
             // Do not support 'alt' bigger than 8 bit
             return QSPI_STATUS_INVALID_PARAMETER;
         }
