@@ -509,7 +509,7 @@ static void print_stack_dump_core(uint32_t stack_start, uint32_t stack_size, uin
         mbed_error_printf("\n0x%08" PRIX32 ":", st);
         for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
             uint32_t st_cur = st + i * sizeof(int);
-            if (st_cur > st_end) {
+            if (st_cur >= st_end) {
                 break;
             }
             uint32_t st_val = *((uint32_t *)st_cur);
