@@ -1,11 +1,3 @@
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_mpu_mgmt MPU management functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  *
@@ -29,6 +21,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_mpu_mgmt MPU management functions
+ * @{
+ */
 
 #if (DEVICE_MPU && MBED_CONF_PLATFORM_USE_MPU) || defined(DOXYGEN_ONLY)
 

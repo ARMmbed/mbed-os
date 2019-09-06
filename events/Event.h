@@ -21,8 +21,7 @@
 #include "platform/mbed_assert.h"
 
 namespace events {
-/**
- * \addtogroup events-public-api Events
+/** \defgroup events-public-api Events
  * \ingroup mbed-os-public
  * @{
  */

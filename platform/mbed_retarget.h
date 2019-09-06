@@ -79,9 +79,9 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #include <time.h>
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
+
 /**
  * \defgroup platform_retarget Retarget functions
  * @{

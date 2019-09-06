@@ -26,7 +26,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_Ticker Ticker class
+ * \defgroup drivers_Ticker Ticker class
  * \ingroup drivers-public-api-ticker
  * @{
  */

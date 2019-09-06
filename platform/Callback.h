@@ -24,7 +24,6 @@
 #include "platform/mbed_toolchain.h"
 
 namespace mbed {
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 /**
