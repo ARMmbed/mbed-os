@@ -70,12 +70,6 @@ struct tls_security_s {
     mbedtls_x509_crl               *crl;                 /**< Certificate Revocation List */
     mbedtls_x509_crt               owncert;              /**< Own certificate(s) */
     mbedtls_pk_context             pkey;                 /**< Private key for own certificate */
-
-    uint8_t                        client_random[32];    /**< Client random (from Client Hello) */
-    uint8_t                        server_random[32];    /**< Server random (from Server Hello) */
-
-    uint8_t                        step;                 /**< Random extract step */
-
     void                           *handle;              /**< Handle provided in callbacks (defined by library user) */
     tls_sec_prot_lib_send          *send;                /**< Send callback */
     tls_sec_prot_lib_receive       *receive;             /**< Receive callback */
@@ -89,9 +83,11 @@ static int tls_sec_prot_lib_ssl_get_timer(void *ctx);
 static int tls_sec_lib_entropy_poll(void *data, unsigned char *output, size_t len, size_t *olen);
 static int tls_sec_prot_lib_ssl_send(void *ctx, const unsigned char *buf, size_t len);
 static int tls_sec_prot_lib_ssl_recv(void *ctx, unsigned char *buf, size_t len);
-static int tls_sec_prot_lib_ssl_export_keys(void *ctx, const unsigned char *ms,
-                                            const unsigned char *kb, size_t maclen, size_t keylen, size_t ivlen);
-static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *buf, uint16_t len);
+static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char *ms,
+                                            const unsigned char *kb, size_t maclen, size_t keylen,
+                                            size_t ivlen, unsigned char client_random[32],
+                                            unsigned char server_random[32],
+                                            mbedtls_tls_prf_types tls_prf_type);
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
 #endif
@@ -126,7 +122,6 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
     mbedtls_pk_init(&sec->pkey);
 
     sec->crl = NULL;
-    sec->step = 0;
 
     if (mbedtls_entropy_add_source(&sec->entropy, tls_sec_lib_entropy_poll, NULL,
                                    128, MBEDTLS_ENTROPY_SOURCE_WEAK) < 0) {
@@ -331,7 +326,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
 #endif
 
     // Export keys callback
-    mbedtls_ssl_conf_export_keys_cb(&sec->conf, tls_sec_prot_lib_ssl_export_keys, sec);
+    mbedtls_ssl_conf_export_keys_ext_cb(&sec->conf, tls_sec_prot_lib_ssl_export_keys, sec);
 
     mbedtls_ssl_conf_min_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
     mbedtls_ssl_conf_max_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
@@ -394,9 +389,6 @@ static int tls_sec_prot_lib_ssl_get_timer(void *ctx)
 static int tls_sec_prot_lib_ssl_send(void *ctx, const unsigned char *buf, size_t len)
 {
     tls_security_t *sec = (tls_security_t *)ctx;
-
-    tls_sec_prot_lib_random_extract(sec, buf, len);
-
     return sec->send(sec->handle, buf, len);
 }
 
@@ -408,74 +400,34 @@ static int tls_sec_prot_lib_ssl_recv(void *ctx, unsigned char *buf, size_t len)
     if (ret == TLS_SEC_PROT_LIB_NO_DATA) {
         return MBEDTLS_ERR_SSL_WANT_READ;
     }
-
-    tls_sec_prot_lib_random_extract(sec, buf, len);
-
     return ret;
 }
 
-static void tls_sec_prot_lib_random_extract(tls_security_t *sec, const uint8_t *buf, uint16_t len)
-{
-    if (sec->step == 0) {
-        if (*buf++ != 22 && len < 5) {
-            return;
-        }
-
-        buf++; // version
-        buf++;
-
-        buf++; // length
-        buf++;
-
-        sec->step++;
-
-        if (len < 6) {
-            return;
-        }
-    }
-
-    if (sec->step == 1) {
-        uint8_t *random_ptr;
-        if (*buf == 0x01) { // Client hello
-            random_ptr = sec->client_random;
-        } else if (*buf == 0x02) { // Server hello
-            random_ptr = sec->server_random;
-        } else {
-            return;
-        }
-        buf++;
-
-        buf++; // length
-        buf++;
-        buf++;
-
-        buf++; // version
-        buf++;
-
-        memcpy(random_ptr, buf, 32);
-
-        sec->step = 0;
-    }
-}
-
-static int tls_sec_prot_lib_ssl_export_keys(void *ctx, const unsigned char *ms,
-                                            const unsigned char *kb, size_t maclen,
-                                            size_t keylen, size_t ivlen)
+static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char *ms,
+                                            const unsigned char *kb, size_t maclen, size_t keylen,
+                                            size_t ivlen, unsigned char client_random[32],
+                                            unsigned char server_random[32],
+                                            mbedtls_tls_prf_types tls_prf_type)
 {
     (void) kb;
     (void) maclen;
     (void) keylen;
     (void) ivlen;
 
-    tls_security_t *sec = (tls_security_t *)ctx;
+    tls_security_t *sec = (tls_security_t *)p_expkey;
 
     uint8_t eap_tls_key_material[128];
     uint8_t random[64];
-    memcpy(random, sec->client_random, 32);
-    memcpy(&random[32], sec->server_random, 32);
+    memcpy(random, client_random, 32);
+    memcpy(&random[32], server_random, 32);
 
-    sec->ssl.handshake->tls_prf(ms, 48, "client EAP encryption",
-                                random, 64, eap_tls_key_material, 128);
+    int ret = mbedtls_ssl_tls_prf(tls_prf_type, ms, 48, "client EAP encryption",
+                                  random, 64, eap_tls_key_material, 128);
+
+    if (ret != 0) {
+        tr_error("key material PRF error");
+        return 0;
+    }
 
     sec->export_keys(sec->handle, ms, eap_tls_key_material);
     return 0;

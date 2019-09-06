@@ -33,5 +33,27 @@
  */
 int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service);
 
+/**
+ * supp_eap_sec_prot_timing_adjust Adjust retries and timings of the 4WH protocol
+ *
+ * Timing value is a generic number between 0 to 32 that goes from fast and
+ * reactive network to low bandwidth and long latency.
+ *
+ * example value definitions:
+ * 0-8 very fast network
+ * 9-16 medium network
+ * 16-24 slow network
+ * 25-32 extremely slow network
+ *
+ * There is no need to have lots variations in every layer if protocol is not very active in any case.
+ *
+ * \param timing Timing value.
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t supp_eap_sec_prot_timing_adjust(uint8_t timing);
+
 #endif /* SUPP_EAP_TLS_SEC_PROT_H_ */
 

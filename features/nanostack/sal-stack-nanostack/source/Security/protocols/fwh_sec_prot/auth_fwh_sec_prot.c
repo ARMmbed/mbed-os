@@ -68,11 +68,19 @@ typedef struct {
     uint16_t                      recv_size;                   /**< received pdu size */
 } fwh_sec_prot_int_t;
 
-static const trickle_params_t fwh_trickle_params = {
-    .Imin = 50,            /* 5000ms; ticks are 100ms */
-    .Imax = 150,           /* 15000ms */
+/*Small network setup*/
+#define FWH_SMALL_IMIN 300 // retries done in 30 seconds
+#define FWH_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define FWH_LARGE_IMIN 600 // retries done in 60 seconds
+#define FWH_LARGE_IMAX 2400 // Largest value 240 seconds
+
+static trickle_params_t fwh_trickle_params = {
+    .Imin = FWH_SMALL_IMIN,            /* ticks are 100ms */
+    .Imax = FWH_SMALL_IMAX,            /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 4
+    .TimerExpirations = 2
 };
 
 static uint16_t auth_fwh_sec_prot_size(void);
@@ -102,6 +110,18 @@ int8_t auth_fwh_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_fwh_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        fwh_trickle_params.Imin = FWH_SMALL_IMIN;
+        fwh_trickle_params.Imax = FWH_SMALL_IMAX;
+    } else {
+        fwh_trickle_params.Imin = FWH_LARGE_IMIN;
+        fwh_trickle_params.Imax = FWH_LARGE_IMAX;
+    }
     return 0;
 }
 

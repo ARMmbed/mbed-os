@@ -1049,8 +1049,10 @@ buffer_t *icmpv6_up(buffer_t *buf)
     buf->options.code = *dptr++;
 
     if (buf->options.ll_security_bypass_rx) {
-        if (!ws_info(buf->interface) || !(buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL && buf->options.code == ICMPV6_CODE_RPL_DIS)) {
-            //tr_debug("ICMP: Drop by EP");
+        if (!ws_info(buf->interface)
+                || (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL
+                    && (buf->options.code != ICMPV6_CODE_RPL_DIO
+                        && buf->options.code != ICMPV6_CODE_RPL_DIS))) {
             goto drop;
         }
     }
