@@ -26,6 +26,8 @@
 #include "platform/mbed_interface.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_stats.h"
+#include "platform/source/TARGET_CORTEX_M/mbed_fault_handler.h"
+#include "mbed_rtx.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtx_os.h"
 #endif
@@ -37,6 +39,10 @@
 #define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
+
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
 
 #ifndef NDEBUG
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) print_error_report(ctx, error_msg, error_filename, error_line)
@@ -132,6 +138,26 @@ WEAK MBED_NORETURN void error(const char *format, ...)
     mbed_halt_system();
 }
 
+static inline bool mbed_error_is_hw_fault(mbed_error_status_t error_status)
+{
+    return (error_status == MBED_ERROR_MEMMANAGE_EXCEPTION ||
+            error_status == MBED_ERROR_BUSFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_USAGEFAULT_EXCEPTION ||
+            error_status == MBED_ERROR_HARDFAULT_EXCEPTION);
+}
+
+static bool mbed_error_is_handler(const mbed_error_ctx *ctx)
+{
+    bool is_handler = false;
+    if (ctx && mbed_error_is_hw_fault(ctx->error_status)) {
+        mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
+        if (mfc && !(mfc->EXC_RETURN & 0x8)) {
+            is_handler = true;
+        }
+    }
+    return is_handler;
+}
+
 //Set an error status with the error handling system
 static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller)
 {
@@ -146,18 +172,29 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 
     //Clear the context capturing buffer
     memset(&current_error_ctx, 0, sizeof(mbed_error_ctx));
+
     //Capture error information
     current_error_ctx.error_status = error_status;
-    current_error_ctx.error_address = (uint32_t)caller;
     current_error_ctx.error_value = error_value;
+    mbed_fault_context_t *mfc = NULL;
+    if (mbed_error_is_hw_fault(error_status)) {
+        mfc = (mbed_fault_context_t *)error_value;
+        current_error_ctx.error_address = (uint32_t)mfc->PC_reg;
+        // Note that this SP_reg is the correct SP value of the fault. PSP and MSP are slightly different due to HardFault_Handler.
+        current_error_ctx.thread_current_sp = (uint32_t)mfc->SP_reg;
+        // Note that the RTX thread itself is the same even under this fault exception handler.
+    } else {
+        current_error_ctx.error_address = (uint32_t)caller;
+        current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
+    }
+
 #ifdef MBED_CONF_RTOS_PRESENT
-    //Capture thread info
+    // Capture thread info in thread mode
     osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
     current_error_ctx.thread_id = (uint32_t)current_thread;
     current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
     current_error_ctx.thread_stack_size = current_thread->stack_size;
     current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
-    current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
 #endif //MBED_CONF_RTOS_PRESENT
 
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
@@ -440,16 +477,83 @@ mbed_error_status_t mbed_clear_all_errors(void)
     return status;
 }
 
-static inline const char *name_or_unnamed(const char *name)
+#ifdef MBED_CONF_RTOS_PRESENT
+static inline const char *name_or_unnamed(const osRtxThread_t *thread)
 {
-    return name ? name : "<unnamed>";
+    const char *unnamed = "<unnamed>";
+
+    if (!thread) {
+        return unnamed;
+    }
+
+    const char *name = thread->name;
+    return name ? name : unnamed;
 }
+#endif // MBED_CONF_RTOS_PRESENT
+
+#if MBED_STACK_DUMP_ENABLED
+/** Prints stack dump from given stack information.
+ * The arguments should be given in address raw value to check alignment.
+ * @param stack_start The address of stack start.
+ * @param stack_size The size of stack
+ * @param stack_sp The stack pointer currently at. */
+static void print_stack_dump_core(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp, const char *postfix)
+{
+#if MBED_STACK_DUMP_ENABLED
+#define STACK_DUMP_WIDTH    8
+#define INT_ALIGN_MASK      (~(sizeof(int) - 1))
+    mbed_error_printf("\nStack Dump: %s", postfix);
+    uint32_t st_end = (stack_start + stack_size) & INT_ALIGN_MASK;
+    uint32_t st     = (stack_sp) & INT_ALIGN_MASK;
+    for (; st < st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
+        mbed_error_printf("\n0x%08" PRIX32 ":", st);
+        for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
+            uint32_t st_cur = st + i * sizeof(int);
+            if (st_cur >= st_end) {
+                break;
+            }
+            uint32_t st_val = *((uint32_t *)st_cur);
+            mbed_error_printf("0x%08" PRIX32 " ", st_val);
+        }
+    }
+    mbed_error_printf("\n");
+#endif  // MBED_STACK_DUMP_ENABLED
+}
+
+static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t stack_sp, const mbed_error_ctx *ctx)
+{
+    if (ctx && mbed_error_is_handler(ctx)) {
+        // Stack dump extra for handler stack which may have accessed MSP.
+        mbed_fault_context_t *mfc = (mbed_fault_context_t *)ctx->error_value;
+        uint32_t msp_sp = mfc->MSP;
+        uint32_t psp_sp = mfc->PSP;
+        if (mfc && !(mfc->EXC_RETURN & 0x4)) {
+            // MSP mode. Then SP_reg is more correct.
+            msp_sp = mfc->SP_reg;
+        } else {
+            // PSP mode. Then SP_reg is more correct.
+            psp_sp = mfc->SP_reg;
+        }
+        uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp);
+        print_stack_dump_core(msp_sp, msp_size, msp_sp, "MSP");
+
+        stack_sp = psp_sp;
+    }
+
+    print_stack_dump_core(stack_start, stack_size, stack_sp, "PSP");
+}
+#endif  // MBED_STACK_DUMP_ENABLED
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
 /* Prints info of a thread(using osRtxThread_t struct)*/
 static void print_thread(const osRtxThread_t *thread)
 {
-    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread->name), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
+    uint32_t stack_mem = (uint32_t)thread->stack_mem;
+    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread), thread->state, thread->thread_addr, thread->stack_size, stack_mem, thread->sp);
+
+#if MBED_STACK_DUMP_ENABLED
+    print_stack_dump(stack_mem, thread->stack_size, thread->sp, NULL);
+#endif
 }
 
 /* Prints thread info from a list */
@@ -532,9 +636,14 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
 
     mbed_error_printf("\nError Value: 0x%" PRIX32, ctx->error_value);
 #ifdef MBED_CONF_RTOS_PRESENT
-    mbed_error_printf("\nCurrent Thread: %s  Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
-                      name_or_unnamed(((osRtxThread_t *)ctx->thread_id)->name),
+    bool is_handler = mbed_error_is_handler(ctx);
+    mbed_error_printf("\nCurrent Thread: %s%s Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
+                      name_or_unnamed((osRtxThread_t *)ctx->thread_id), is_handler ? " <handler>" : "",
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
+#endif
+
+#if MBED_STACK_DUMP_ENABLED
+    print_stack_dump(ctx->thread_stack_mem, ctx->thread_stack_size, ctx->thread_current_sp, ctx);
 #endif
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
@@ -557,6 +666,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_stats_sys_get(&sys_stats);
     mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%" PRId32 "&core=0x%08" PRIX32 "&comp=%d&ver=%" PRIu32 "&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
 #endif
+
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
 #endif //ifndef NDEBUG
