@@ -52,6 +52,8 @@
 
 #define TRACE_GROUP  "ESPI" // ESP8266 Interface
 
+#define ESP8266_WIFI_IF_NAME "es0"
+
 using namespace mbed;
 using namespace rtos;
 
@@ -411,6 +413,12 @@ const char *ESP8266Interface::get_gateway()
 const char *ESP8266Interface::get_netmask()
 {
     return _conn_stat != NSAPI_STATUS_DISCONNECTED ? _esp.netmask() : NULL;
+}
+
+char *ESP8266Interface::get_interface_name(char *interface_name)
+{
+    memcpy(interface_name, ESP8266_WIFI_IF_NAME, sizeof(ESP8266_WIFI_IF_NAME));
+    return interface_name;
 }
 
 int8_t ESP8266Interface::get_rssi()

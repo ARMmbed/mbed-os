@@ -158,6 +158,13 @@ public:
      */
     virtual const char *get_netmask();
 
+    /** Get the network interface name
+     *
+     *  @return         Null-terminated representation of the network interface name
+     *                  or null if interface not exists
+     */
+    virtual char *get_interface_name(char *interface_name);
+
     /** Gets the current radio signal strength for active connection
      *
      * @return          Connection strength in dBm (negative value)
