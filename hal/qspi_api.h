@@ -60,12 +60,7 @@ typedef enum qspi_address_size {
 
 /** Alternative size in bits
  */
-typedef enum qspi_alt_size {
-    QSPI_CFG_ALT_SIZE_8,
-    QSPI_CFG_ALT_SIZE_16,
-    QSPI_CFG_ALT_SIZE_24,
-    QSPI_CFG_ALT_SIZE_32,
-} qspi_alt_size_t;
+typedef uint8_t qspi_alt_size_t;
 
 /** QSPI command
  *

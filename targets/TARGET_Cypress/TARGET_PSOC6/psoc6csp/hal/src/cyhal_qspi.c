@@ -292,16 +292,45 @@ static inline uint32_t get_size(cyhal_qspi_size_t hal_size)
     return ((uint32_t)hal_size >> 3); /* convert bits to bytes */
 }
 
+/* cyhal_qspi_bus_width_t to number of bus lines used */
+static uint8_t get_lines(cyhal_qspi_bus_width_t hal_width)
+{
+    uint8_t lines;
+
+    switch (hal_width)
+    {
+        case CYHAL_QSPI_CFG_BUS_SINGLE:
+            lines = 1;
+            break;
+        case CYHAL_QSPI_CFG_BUS_DUAL:
+            lines = 2;
+            break;
+        case CYHAL_QSPI_CFG_BUS_QUAD:
+            lines = 4;
+            break;
+        case CYHAL_QSPI_CFG_BUS_OCTAL:
+            lines = 8;
+            break;
+        default:
+            lines = 0;
+    }
+
+    return lines;
+}
+
 /* Sends QSPI command with certain set of data */
 /* Address passed through 'command' is not used, instead the value in 'addr' is used. */
 static cy_rslt_t qspi_command_transfer(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command,
-    uint32_t addr, bool endOfTransfer)
+    uint32_t addr, bool endOfTransfer, uint8_t *dummy_cycles)
 {
     /* max address size is 4 bytes and max mode bits size is 4 bytes */
     uint8_t cmd_param[8] = {0};
     uint32_t start_pos = 0;
     uint32_t addr_size = 0;
-    uint32_t mode_bits_size = 0;
+    uint32_t mode_size = 0;
+    uint8_t leftover_bits = 0;
+    uint8_t lines = 0;
+    uint8_t integrated_dummy_cycles = 0;
     cy_en_smif_txfr_width_t bus_width = CY_SMIF_WIDTH_SINGLE;
     cy_stc_smif_mem_cmd_t cyhal_cmd_config;
     cy_rslt_t result = CY_RSLT_SUCCESS;
@@ -332,22 +361,67 @@ static cy_rslt_t qspi_command_transfer(cyhal_qspi_t *obj, const cyhal_qspi_comma
         if (!command->address.disabled)
         {
             addr_size = get_size(command->address.size);
-            uint32_to_byte_array(addr, cmd_param, start_pos, addr_size);
-            start_pos += addr_size;
-            bus_width = cyhal_cmd_config.addrWidth;
+            if (addr_size == 0)
+            {
+                result = CYHAL_QSPI_RSLT_ERR_SIZE;
+            }
+            else
+            {
+                uint32_to_byte_array(addr, cmd_param, start_pos, addr_size);
+                start_pos += addr_size;
+                bus_width = cyhal_cmd_config.addrWidth;
+            }
         }
 
         if (!command->mode_bits.disabled)
         {
-            mode_bits_size = get_size(command->mode_bits.size);
-            uint32_to_byte_array(cyhal_cmd_config.mode, cmd_param, start_pos, mode_bits_size);
-            bus_width = cyhal_cmd_config.modeWidth;
+            // Mode size must be a multiple of the number of bus lines used (i.e. a whole number of cycles)
+            lines = get_lines(command->mode_bits.bus_width);
+            if (lines == 0)
+            {
+                result = CYHAL_QSPI_RSLT_ERR_BUS_WIDTH;
+            }
+            else if (command->mode_bits.size % lines != 0)
+            {
+                result = CYHAL_QSPI_RSLT_ERR_ALT_SIZE_WIDTH_MISMATCH;
+            }
+            else
+            {
+                // Round mode size up to nearest byte - unused parts of byte act as dummy cycles
+                mode_size = get_size(command->mode_bits.size - 1) + 1;
+                
+                // Unused bits in most significant byte of mode
+                leftover_bits = (mode_size << 3) - command->mode_bits.size;
+                if (leftover_bits != 0)
+                {
+                    // Account for dummy cycles that will be spent in the mode portion of the command
+                    integrated_dummy_cycles = (8 - (command->mode_bits.size % 8)) / lines;
+                    if (*dummy_cycles < integrated_dummy_cycles)
+                    {
+                        // Not enough dummy cycles to account for a short mode
+                        result = CYHAL_QSPI_RSLT_ERR_ALT_SIZE_DUMMY_CYCLES_MISMATCH;
+                    }
+                    else
+                    {
+                        *dummy_cycles -= integrated_dummy_cycles;
+                    }
+
+                    // Align mode value to the end of the most significant byte
+                    cyhal_cmd_config.mode <<= leftover_bits;
+                }
+
+                uint32_to_byte_array(cyhal_cmd_config.mode, cmd_param, start_pos, mode_size);
+                bus_width = cyhal_cmd_config.modeWidth;
+            }
         }
 
-        uint32_t cmpltTxfr = ((endOfTransfer) ? 1UL : 0UL);
-        result = (cy_rslt_t)Cy_SMIF_TransmitCommand(obj->base, cyhal_cmd_config.command,
-                                                         cyhal_cmd_config.cmdWidth, cmd_param, (addr_size + mode_bits_size),
-                                                         bus_width, obj->slave_select, cmpltTxfr, &obj->context);
+        if (CY_RSLT_SUCCESS == result)
+        {
+            uint32_t cmpltTxfr = ((endOfTransfer) ? 1UL : 0UL);
+            result = (cy_rslt_t)Cy_SMIF_TransmitCommand(obj->base, cyhal_cmd_config.command,
+                                                             cyhal_cmd_config.cmdWidth, cmd_param, (addr_size + mode_size),
+                                                             bus_width, obj->slave_select, cmpltTxfr, &obj->context);
+        }
     }
     return result;
 }
@@ -810,6 +884,7 @@ cy_rslt_t cyhal_qspi_read(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command
     uint32_t chunk = 0;
     size_t read_bytes = *length;
     uint32_t addr = command->address.value;
+    uint8_t dummy_cycles = command->dummy_count;
 
     /* SMIF can read only up to 65536 bytes in one go. Split the larger read into multiple chunks */
     while (read_bytes > 0)
@@ -823,11 +898,11 @@ cy_rslt_t cyhal_qspi_read(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command
          * to create a copy of the command object. Instead of copying the object, the address is
          * passed separately.
          */
-        status = qspi_command_transfer(obj, command, addr, false);
+        status = qspi_command_transfer(obj, command, addr, false, &dummy_cycles);
 
         if (CY_RSLT_SUCCESS == status)
         {
-            if (command->dummy_count > 0u)
+            if (dummy_cycles > 0u)
             {
                 status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, command->dummy_count);
             }
@@ -852,13 +927,15 @@ cy_rslt_t cyhal_qspi_read(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command
 
 cy_rslt_t cyhal_qspi_read_async(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, void *data, size_t *length)
 {
-    cy_rslt_t status = qspi_command_transfer(obj, command, command->address.value, false);
-
+    cy_rslt_t status = CY_RSLT_SUCCESS;
+    uint32_t addr = command->address.value;
+    uint8_t dummy_cycles = command->dummy_count;
+    status = qspi_command_transfer(obj, command, addr, false, &dummy_cycles);
     if (CY_RSLT_SUCCESS == status)
     {
         if (command->dummy_count > 0u)
         {
-            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, command->dummy_count);
+            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, dummy_cycles);
         }
 
         if (CY_RSLT_SUCCESS == status)
@@ -873,13 +950,14 @@ cy_rslt_t cyhal_qspi_read_async(cyhal_qspi_t *obj, const cyhal_qspi_command_t *c
 /* length can be up to 65536. */
 cy_rslt_t cyhal_qspi_write(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, const void *data, size_t *length)
 {
-    cy_rslt_t status = qspi_command_transfer(obj, command, command->address.value, false);
+    uint8_t dummy_cycles = command->dummy_count;
+    cy_rslt_t status = qspi_command_transfer(obj, command, command->address.value, false, &dummy_cycles);
 
     if (CY_RSLT_SUCCESS == status)
     {
         if (command->dummy_count > 0u)
         {
-            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, command->dummy_count);
+            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, dummy_cycles);
         }
 
         if ((CY_SMIF_SUCCESS == status) && (*length > 0))
@@ -895,13 +973,14 @@ cy_rslt_t cyhal_qspi_write(cyhal_qspi_t *obj, const cyhal_qspi_command_t *comman
 /* length can be up to 65536. */
 cy_rslt_t cyhal_qspi_write_async(cyhal_qspi_t *obj, const cyhal_qspi_command_t *command, const void *data, size_t *length)
 {
-    cy_rslt_t status = qspi_command_transfer(obj, command, command->address.value, false);
+    uint8_t dummy_cycles = command->dummy_count;
+    cy_rslt_t status = qspi_command_transfer(obj, command, command->address.value, false, &dummy_cycles);
 
     if (CY_RSLT_SUCCESS == status)
     {
         if (command->dummy_count > 0u)
         {
-            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, command->dummy_count);
+            status = (cy_rslt_t)Cy_SMIF_SendDummyCycles(obj->base, dummy_cycles);
         }
 
         if ((CY_SMIF_SUCCESS == status) && (*length > 0))
@@ -922,7 +1001,7 @@ cy_rslt_t cyhal_qspi_transfer(
     if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0))
     {
         /* only command, no rx or tx */
-        status = qspi_command_transfer(obj, command, command->address.value, true);
+        status = qspi_command_transfer(obj, command, command->address.value, true, NULL);
     }
     else
     {

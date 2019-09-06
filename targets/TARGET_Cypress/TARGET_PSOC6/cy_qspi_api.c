@@ -69,21 +69,6 @@ static inline cyhal_qspi_size_t cyhal_qspi_convert_addr_size(qspi_address_size_t
     }
 }
 
-static inline cyhal_qspi_size_t cyhal_qspi_convert_alt_size(qspi_alt_size_t size)
-{
-    switch (size) {
-        case QSPI_CFG_ALT_SIZE_8:
-            return CYHAL_QSPI_CFG_SIZE_8;
-        case QSPI_CFG_ALT_SIZE_16:
-            return CYHAL_QSPI_CFG_SIZE_16;
-        case QSPI_CFG_ALT_SIZE_24:
-            return CYHAL_QSPI_CFG_SIZE_24;
-        default: // fallthrough
-        case QSPI_CFG_ALT_SIZE_32:
-            return CYHAL_QSPI_CFG_SIZE_32;
-    }
-}
-
 static void cyhal_qspi_convert_command(const qspi_command_t *from, cyhal_qspi_command_t *to)
 {
     to->instruction.bus_width = cyhal_qspi_convert_width(from->instruction.bus_width);
@@ -94,7 +79,7 @@ static void cyhal_qspi_convert_command(const qspi_command_t *from, cyhal_qspi_co
     to->address.value = from->address.value;
     to->address.disabled = from->address.disabled;
     to->mode_bits.bus_width = cyhal_qspi_convert_width(from->alt.bus_width);
-    to->mode_bits.size = cyhal_qspi_convert_alt_size(from->alt.size);
+    to->mode_bits.size = from->alt.size;
     to->mode_bits.value = from->alt.value;
     to->mode_bits.disabled = from->alt.disabled;
     to->dummy_count = from->dummy_count;

@@ -247,7 +247,7 @@ int QSPIFBlockDevice::init()
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+                           0, QSPI_CFG_BUS_SINGLE, 0);
 
     _is_initialized = true;
 
@@ -303,7 +303,7 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     // Configure Bus for Reading
     _qspi_configure_format(_inst_width, _address_width, _address_size, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, _data_width, _dummy_and_mode_cycles);
+                           0, _data_width, _dummy_and_mode_cycles);
 
     if (QSPI_STATUS_OK != _qspi_send_read_command(_read_instruction, buffer, addr, size)) {
         status = QSPIF_BD_ERROR_DEVICE_ERROR;
@@ -312,7 +312,7 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     // All commands other than Read use default 1-1-1 Bus mode (Program/Erase are constrained by flash memory performance less than that of the bus)
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+                           0, QSPI_CFG_BUS_SINGLE, 0);
 
     _mutex.unlock();
     return status;
@@ -718,7 +718,7 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_
 
     // Set 1-1-1 bus mode for SFDP header parsing
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8);
+                           0, QSPI_CFG_BUS_SINGLE, 8);
 
     qspi_status_t status = _qspi_send_read_command(QSPIF_SFDP, (char *)sfdp_header, addr /*address*/, data_length);
     if (status != QSPI_STATUS_OK) {
@@ -885,7 +885,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+                           0, QSPI_CFG_BUS_SINGLE, 0);
 
     // Read Status Register
     if (QSPI_STATUS_OK == _qspi_send_general_command(_read_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
@@ -1206,7 +1206,7 @@ int QSPIFBlockDevice::_enable_fast_mdoe()
 
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
-                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+                           0, QSPI_CFG_BUS_SINGLE, 0);
 
     // Read Status Register
     if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
@@ -1306,7 +1306,6 @@ int QSPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t &bitfield, 
         tr_error("No erase type was found for current region addr");
     }
     return largest_erase_type;
-
 }
 
 /***************************************************/
