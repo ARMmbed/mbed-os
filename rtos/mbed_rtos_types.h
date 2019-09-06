@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+/** \addtogroup rtos-public-api */
+/** @{*/
+
 /* Minimal definitions for bare metal form of RTOS */
 
 // Timeout value.
@@ -65,12 +68,13 @@ typedef void *osThreadId_t;
 // \return thread flags after setting or error code if highest bit set.
 uint32_t osThreadFlagsSet(osThreadId_t thread_id, uint32_t flags);
 
+/** @}*/
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
 
 
 #endif /* RTOS_TYPES_H_ */

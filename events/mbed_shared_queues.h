@@ -19,7 +19,6 @@
 #include "events/EventQueue.h"
 
 namespace mbed {
-/** \ingroup mbed-os-public */
 /** \addtogroup events-public-api */
 /** @{*/
 

@@ -19,7 +19,6 @@
 
 #include "platform/NonCopyable.h"
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 

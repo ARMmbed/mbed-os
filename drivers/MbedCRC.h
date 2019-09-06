@@ -40,7 +40,6 @@ but we check for ( width < 8) before performing shift, so it should not be an is
 #endif
 
 namespace mbed {
-/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
 /**

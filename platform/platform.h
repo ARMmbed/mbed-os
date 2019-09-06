@@ -29,4 +29,8 @@
 #include "PinNames.h"
 #include "PeripheralNames.h"
 
+/** \defgroup platform-public-api Platform
+ * \ingroup mbed-os-public
+ */
+
 #endif

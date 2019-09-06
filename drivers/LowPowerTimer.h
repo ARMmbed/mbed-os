@@ -27,7 +27,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_LowPowerTimer LowPowerTimer class
+ * \defgroup drivers_LowPowerTimer LowPowerTimer class
  * \ingroup drivers-public-api-ticker
  * @{
  */
