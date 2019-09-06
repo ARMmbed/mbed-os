@@ -505,7 +505,7 @@ static void print_stack_dump_core(uint32_t stack_start, uint32_t stack_size, uin
     mbed_error_printf("\nStack Dump: %s", postfix);
     uint32_t st_end = (stack_start + stack_size) & INT_ALIGN_MASK;
     uint32_t st     = (stack_sp) & INT_ALIGN_MASK;
-    for (; st <= st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
+    for (; st < st_end; st += sizeof(int) * STACK_DUMP_WIDTH) {
         mbed_error_printf("\n0x%08" PRIX32 ":", st);
         for (int i = 0; i < STACK_DUMP_WIDTH; i++) {
             uint32_t st_cur = st + i * sizeof(int);
@@ -534,8 +534,7 @@ static void print_stack_dump(uint32_t stack_start, uint32_t stack_size, uint32_t
             // PSP mode. Then SP_reg is more correct.
             psp_sp = mfc->SP_reg;
         }
-        // Do not access beyond INITIAL_SP.
-        uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp - (int)sizeof(int));
+        uint32_t msp_size = MAX(0, (int)INITIAL_SP - (int)msp_sp);
         print_stack_dump_core(msp_sp, msp_size, msp_sp, "MSP");
 
         stack_sp = psp_sp;
