@@ -346,6 +346,9 @@ void CyDhcpServer::runServer(void)
 
     /* Create receive DHCP socket */
     _socket.open(_nstack);
+    char iface_name[8] = {0};
+    _niface->get_interface_name(iface_name);
+    _socket.setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, iface_name, strlen(iface_name));
     _socket.bind((uint16_t)IP_PORT_DHCP_SERVER);
 
     /* Save the current netmask to be sent in DHCP packets as the 'subnet mask option' */

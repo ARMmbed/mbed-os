@@ -17,6 +17,9 @@
 
 #include "WhdSTAInterface.h"
 #include "WhdSoftAPInterface.h"
+#include "whd_interface.h"
+
+whd_interface_shared_info_t whd_iface_shared;
 
 WiFiInterface *WiFiInterface::get_target_default_instance()
 {

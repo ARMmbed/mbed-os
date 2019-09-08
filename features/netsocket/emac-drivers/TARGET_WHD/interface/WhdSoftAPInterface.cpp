@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 #include "nsapi.h"
 #include "lwipopts.h"
 #include "WhdSoftAPInterface.h"
@@ -26,6 +25,7 @@
 #include "rtos.h"
 #include "whd_emac.h"
 #include "whd_wifi_api.h"
+
 
 extern int whd_toerror(whd_result_t res);
 extern nsapi_security_t whd_tosecurity(whd_security_t sec);
@@ -58,9 +58,10 @@ static void *whd_default_handle_softap_events(whd_interface_t ifp, const whd_eve
 }
 
 
-WhdSoftAPInterface::WhdSoftAPInterface(WHD_EMAC &emac, OnboardNetworkStack &stack)
+WhdSoftAPInterface::WhdSoftAPInterface(WHD_EMAC &emac, OnboardNetworkStack &stack, whd_interface_shared_info_t &shared)
     : EMACInterface(emac, stack),
-      _whd_emac(emac)
+      _whd_emac(emac),
+      _iface_shared(shared)
 {
 
 }
@@ -69,8 +70,9 @@ WhdSoftAPInterface::WhdSoftAPInterface(WHD_EMAC &emac, OnboardNetworkStack &stac
 int WhdSoftAPInterface::start(const char *ssid, const char *pass, nsapi_security_t security, uint8_t channel,
                               bool start_dhcp_server, const whd_custom_ie_info_t *ie_info, bool ap_sta_concur)
 {
-    nsapi_error_t        err;
+    ScopedMutexLock lock(_iface_shared.mutex);
 
+    nsapi_error_t        err;
     // power up primary emac interface first
     if (ap_sta_concur) {
         WHD_EMAC &emac_prime = WHD_EMAC::get_instance(WHD_STA_ROLE);
@@ -116,13 +118,20 @@ int WhdSoftAPInterface::start(const char *ssid, const char *pass, nsapi_security
         return err;
     }
 
+    _iface_shared.if_status_flags |= IF_STATUS_SOFT_AP_UP;
+    if (!ap_sta_concur || (_iface_shared.default_if_cfg == DEFAULT_IF_NOT_SET)) {
+        _iface_shared.default_if_cfg = DEFAULT_IF_SOFT_AP;
+    }
     if (!_interface) {
-        nsapi_error_t err = _stack.add_ethernet_interface(_whd_emac, true, &_interface);
+        nsapi_error_t err = _stack.add_ethernet_interface(_whd_emac, _iface_shared.default_if_cfg == DEFAULT_IF_SOFT_AP, &_interface);
         if (err != NSAPI_ERROR_OK) {
             _interface = NULL;
             return err;
         }
         _interface->attach(_connection_status_cb);
+        _iface_shared.iface_softap = _interface;
+    } else if (_iface_shared.default_if_cfg == DEFAULT_IF_SOFT_AP) {
+        _stack.set_default_interface(_interface);
     }
 
     if (ie_info) {
@@ -169,6 +178,8 @@ int WhdSoftAPInterface::start(const char *ssid, const char *pass, nsapi_security
 
 int WhdSoftAPInterface::stop(void)
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
+
     if (_dhcp_server && CY_RSLT_SUCCESS != _dhcp_server->stop()) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
@@ -178,6 +189,11 @@ int WhdSoftAPInterface::stop(void)
     int err = _interface->bringdown();
     if (err) {
         return err;
+    }
+
+    _iface_shared.if_status_flags &= ~IF_STATUS_SOFT_AP_UP;
+    if ((_iface_shared.if_status_flags & IF_STATUS_STA_UP) == 0) {
+        _iface_shared.default_if_cfg = DEFAULT_IF_NOT_SET;
     }
 
     // stop softap

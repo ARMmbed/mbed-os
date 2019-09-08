@@ -179,13 +179,14 @@ MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_defa
     return olm;
 }
 
-WhdSTAInterface::WhdSTAInterface(WHD_EMAC &emac, OnboardNetworkStack &stack, OlmInterface &olm)
+WhdSTAInterface::WhdSTAInterface(WHD_EMAC &emac, OnboardNetworkStack &stack, OlmInterface &olm, whd_interface_shared_info_t &shared)
     : EMACInterface(emac, stack),
       _ssid("\0"),
       _pass("\0"),
       _security(NSAPI_SECURITY_NONE),
       _whd_emac(emac),
-      _olm(&olm)
+      _olm(&olm),
+      _iface_shared(shared)
 {
 }
 
@@ -231,6 +232,7 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
 
 nsapi_error_t WhdSTAInterface::connect()
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
 
 #define MAX_RETRY_COUNT    ( 5 )
     int i;
@@ -247,6 +249,8 @@ nsapi_error_t WhdSTAInterface::connect()
         return whd_toerror(res);
     }
 
+    _iface_shared.if_status_flags |= IF_STATUS_STA_UP;
+    _iface_shared.default_if_cfg = DEFAULT_IF_STA;
     if (!_interface) {
         nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
         if (err != NSAPI_ERROR_OK) {
@@ -254,6 +258,9 @@ nsapi_error_t WhdSTAInterface::connect()
             return err;
         }
         _interface->attach(_connection_status_cb);
+        _iface_shared.iface_sta = _interface;
+    } else {
+        _stack.set_default_interface(_interface);
     }
 
     // Initialize the Offload Manager
@@ -311,6 +318,8 @@ void WhdSTAInterface::wifi_on()
 
 nsapi_error_t WhdSTAInterface::disconnect()
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
+
     if (!_interface) {
         return NSAPI_STATUS_DISCONNECTED;
     }
@@ -319,6 +328,14 @@ nsapi_error_t WhdSTAInterface::disconnect()
     int err = _interface->bringdown();
     if (err) {
         return err;
+    }
+
+    _iface_shared.if_status_flags &= ~IF_STATUS_STA_UP;
+    if (_iface_shared.if_status_flags & IF_STATUS_SOFT_AP_UP) {
+        _iface_shared.default_if_cfg = DEFAULT_IF_SOFT_AP;
+        _stack.set_default_interface(_iface_shared.iface_softap);
+    } else {
+        _iface_shared.default_if_cfg = DEFAULT_IF_NOT_SET;
     }
 
     // leave network
@@ -420,6 +437,8 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
 
 int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
 {
+    ScopedMutexLock lock(_iface_shared.mutex);
+
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
         _whd_emac.power_up();

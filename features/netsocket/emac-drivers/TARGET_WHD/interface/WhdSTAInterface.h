@@ -22,6 +22,7 @@
 #include "netsocket/EMACInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "whd_emac.h"
+#include "whd_interface.h"
 #include "whd_types_int.h"
 
 struct ol_desc;
@@ -58,7 +59,8 @@ public:
     WhdSTAInterface(
         WHD_EMAC &emac = WHD_EMAC::get_instance(),
         OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance(),
-        OlmInterface &olm = OlmInterface::get_default_instance());
+        OlmInterface &olm = OlmInterface::get_default_instance(),
+        whd_interface_shared_info_t &shared = whd_iface_shared);
 
     static WhdSTAInterface *get_default_instance();
 
@@ -215,6 +217,7 @@ private:
     nsapi_security_t _security;
     WHD_EMAC &_whd_emac;
     OlmInterface *_olm;
+    whd_interface_shared_info_t &_iface_shared;
 };
 
 #endif
