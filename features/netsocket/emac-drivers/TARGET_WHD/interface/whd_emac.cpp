@@ -109,7 +109,13 @@ bool WHD_EMAC::power_up()
             // wifi driver and turns on the wifi chip.
             res = cybsp_wifi_init_secondary(&ifp /* Out */, &unicast_addr);
         } else {
-            res = cybsp_wifi_init_primary(&ifp /* OUT */);
+            WHD_EMAC &emac_other = WHD_EMAC::get_instance(interface_type == WHD_STA_ROLE ? WHD_AP_ROLE :
+                                                          WHD_STA_ROLE);
+            if (!emac_other.powered_up) {
+                res = cybsp_wifi_init_primary(&ifp /* OUT */);
+            } else {
+                ifp = emac_other.ifp;
+            }
         }
 
         if (CY_RSLT_SUCCESS == res) {
