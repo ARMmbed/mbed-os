@@ -1813,6 +1813,7 @@
             "PWMOUT",
             "SERIAL",
             "SERIAL_FC",
+            "SERIAL_ASYNCH",
             "SLEEP",
             "SPI",
             "SPISLAVE",
