@@ -16,12 +16,7 @@
  */
 
 #include "mbed_error.h"
-#include "spi_api.h"
-#include "pwmout_api.h"
-#include "analogin_api.h"
-#include "analogout_api.h"
-#include "i2c_api.h"
-#include "serial_api.h"
+#include "explicit_pinmap.h"
 
 
 /*
