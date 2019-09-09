@@ -52,7 +52,6 @@ uint32_t pinmap_merge(uint32_t a, uint32_t b)
 
     // mis-match error case
     MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "pinmap mis-match", a);
-    return (uint32_t)NC;
 }
 
 uint32_t pinmap_find_peripheral(PinName pin, const PinMap *map)
