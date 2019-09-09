@@ -51,7 +51,7 @@ echo.mbedcloudtesting.com has IPv6 address 2a05:d018:21f:3800:8584:60f8:bc9f:e61
 
 -   Echo protocol, [RFC 862](https://tools.ietf.org/html/rfc862) is enabled on both TCP and UDP on port 7. Port 2007 for TLS
 -   Discard protocol, [RFC 863](https://tools.ietf.org/html/rfc863) is enabled in both TCP and UDP on port 9. Port 2009 for TLS.
--   Character generator protocol, [RFC 864](https://tools.ietf.org/html/rfc864) is enabled in both TCP and UDP on port 19. Output pattern should follow the proposed example pattern in RFC.
+-   Character generator protocol, [RFC 864](https://tools.ietf.org/html/rfc864) is enabled in both TCP and UDP on port 19. Port 2019 for TLS. Output pattern should follow the proposed example pattern in RFC.
 -   Daytime protocol, [RFC 867](https://tools.ietf.org/html/rfc867) in both TCP and UDP on port 13. Port 2013 for TLS.
 -   Time protocol, [RFC 868](https://tools.ietf.org/html/rfc868) in both TCP and UDP on port 37.
 
@@ -79,6 +79,82 @@ chargen     dgram   udp6    wait    root    internal
 daytime     stream  tcp6    nowait  root    internal
 time        stream  tcp6    nowait  root    internal
 ```
+
+Below is an example of how to install these services in TLS version into a Debian/Ubuntu based Linux distribution using Stunnel4 Daemon:
+
+```.sh
+$ sudo apt install stunnel4
+$ nano /etc/stunnel/stunnel.conf
+```
+
+Enable following services from /etc/inetd.conf:
+
+```
+; **************************************************************************
+; * Service definitions (remove all services for inetd mode)               *
+; **************************************************************************
+
+[echo]
+accept  = :::2007
+connect = 7
+cert = /etc/letsencrypt/live/<test_server_url>/fullchain.pem
+key = /etc/letsencrypt/live/<test_server_url>/privkey.pem
+
+[discard]
+accept  = :::2009
+connect = 9
+cert = /etc/letsencrypt/live/<test_server_url>/fullchain.pem
+key = /etc/letsencrypt/live/<test_server_url>/privkey.pem
+
+[daytime]
+accept  = :::2013
+connect = 13
+cert =/etc/letsencrypt/live/<test_server_url>/fullchain.pem
+key = /etc/letsencrypt/live/<test_server_url>/privkey.pem
+
+[chargen]
+accept  = :::2019
+connect = 19
+cert = /etc/letsencrypt/live/<test_server_url>/fullchain.pem
+key = /etc/letsencrypt/live/<test_server_url>/privkey.pem
+
+```
+
+Get, update and install certificate files by certbot (Provided by Let's Encrypt <https://letsencrypt.org/>).
+
+-   Install lighthttpd server.
+
+```.sh
+$ sudo apt-get install lighttpd
+$ sudo rm -rf /var/www/html/*
+$ sudo echo "<html><body><h1>Empty</h1>" > /var/www/html/index.html
+$ sudo echo "</body></html>" >> /var/www/html/index.html
+$ sudo chown www-data:www-data /var/www/html/index.html
+$ sudo systemctl restart lighttpd.service
+```
+
+-   Install and setup certbot.
+
+```.sh
+$ sudo apt-get update
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:certbot/certbot
+$ sudo apt-get update
+$ sudo apt-get install certbot
+$ sudo certbot certonly
+$ sudo certbot certonly --webroot -w /var/www/html -d <test_server_url>
+```
+
+-   Set test server to renew certificate before expiry.
+
+```.sh
+$ sudo echo "SHELL=/bin/sh" > /etc/cron.d/certbot
+$ sudo echo "PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin" > /etc/cron.d/certbot
+$ sudo echo "0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e 'sleep int(rand(43200))' && certbot -q renew" > /etc/cron.d/certbot
+```
+
+Where:
+ <test_server_url> is test server url.
 
 **Testing the connectivity**
 
