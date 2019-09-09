@@ -22,6 +22,7 @@
 #include "USBDescriptor.h"
 #include "usb_phy_api.h"
 #include "mbed_assert.h"
+#include "platform/mbed_error.h"
 
 //#define DEBUG
 
@@ -852,8 +853,17 @@ void USBDevice::ep0_setup()
     assert_locked();
 
     if (_device.state < Default) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_NOT_READY
+            ),
+            "Device state is \"Powered\" or \"Detached\""
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     _setup_ready = true;
@@ -874,15 +884,33 @@ void USBDevice::ep0_out()
     assert_locked();
 
     if (_device.state < Default) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_NOT_READY
+            ),
+            "Device state is \"Powered\" or \"Detached\""
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (_transfer.user_callback != None) {
         /* EP0 OUT should not receive data if the stack is waiting
            on a user callback for the buffer to fill or status */
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_NOT_READY
+            ),
+            "The stack is waiting on a user callback for the buffer to fill or status."
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (_transfer.stage == Status) {
@@ -903,8 +931,17 @@ void USBDevice::ep0_in()
     assert_locked();
 
     if (_device.state < Default) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_NOT_READY
+            ),
+            "Device state is \"Powered\" or \"Detached\""
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
 #ifdef DEBUG
@@ -928,8 +965,17 @@ void USBDevice::out(usb_ep_t endpoint)
     assert_locked();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -946,8 +992,17 @@ void USBDevice::in(usb_ep_t endpoint)
     assert_locked();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1056,9 +1111,18 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return false;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (!_endpoint_add_remove_allowed) {
@@ -1087,9 +1151,18 @@ void USBDevice::endpoint_remove(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (!_endpoint_add_remove_allowed) {
@@ -1133,9 +1206,18 @@ void USBDevice::endpoint_stall(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1161,9 +1243,18 @@ void USBDevice::endpoint_unstall(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1306,9 +1397,18 @@ void USBDevice::endpoint_abort(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1332,9 +1432,18 @@ bool USBDevice::read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return false;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1346,9 +1455,18 @@ bool USBDevice::read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size
     }
 
     if (max_size < info->max_packet_size) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_SIZE
+            ),
+            "The size of the data to read is less than the max packet size for this endpoint."
+        );
+#else
         unlock();
         return false;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (info->pending) {
@@ -1372,9 +1490,18 @@ uint32_t USBDevice::read_finish(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return 0;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1396,9 +1523,18 @@ bool USBDevice::write_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable"
+        );
+#else
         unlock();
         return false;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
@@ -1410,10 +1546,18 @@ bool USBDevice::write_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
     }
 
     if (size > info->max_packet_size) {
-        // Size being written is too large
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_SIZE
+            ),
+            "Size being written is too large."
+        );
+#else
         unlock();
         return false;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     if (info->pending) {
@@ -1442,9 +1586,18 @@ uint32_t USBDevice::write_finish(usb_ep_t endpoint)
     lock();
 
     if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
+#if MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(
+            MBED_MAKE_ERROR(
+                MBED_MODULE_DRIVER_USB,
+                MBED_ERROR_CODE_INVALID_INDEX
+            ),
+            "The endpoint is not indexable."
+        );
+#else
         unlock();
         return 0;
+#endif // MBED_TRAP_ERRORS_ENABLED
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
