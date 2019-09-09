@@ -32,12 +32,8 @@ namespace mbed {
 namespace internal {
 
 /**
- * @cond MBED_INTERNAL
- *
- * @addtogroup mbed
- * @{
- *
- * @defgroup mbed_SysTimer SysTimer class
+ * \defgroup mbed_SysTimer SysTimer class
+ * \ingroup platform-internal-api
  * @{
  */
 
@@ -239,11 +235,7 @@ protected:
     bool _deep_sleep_locked;
 };
 
-/**
- * @}
- * @}
- * @endcond
- */
+/** @} */
 
 }
 }
