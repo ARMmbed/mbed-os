@@ -153,7 +153,7 @@ void ESP8266Interface::ResetPin::rst_assert()
 {
     if (_rst_pin.is_connected()) {
         _rst_pin = 0;
-        tr_debug("HW reset asserted");
+        tr_debug("rst_assert(): HW reset asserted.");
     }
 }
 
@@ -162,7 +162,7 @@ void ESP8266Interface::ResetPin::rst_deassert()
     if (_rst_pin.is_connected()) {
         // Notice that Pin7 CH_EN cannot be left floating if used as reset
         _rst_pin = 1;
-        tr_debug("HW reset deasserted");
+        tr_debug("rst_deassert(): HW reset deasserted.");
     }
 }
 
@@ -179,7 +179,7 @@ void ESP8266Interface::PowerPin::power_on()
 {
     if (_pwr_pin.is_connected()) {
         _pwr_pin = MBED_CONF_ESP8266_POWER_ON_POLARITY;
-        tr_debug("HW power-on");
+        tr_debug("power_on(): HW power-on.");
         ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_ON_TIME_MS);
     }
 }
@@ -188,7 +188,7 @@ void ESP8266Interface::PowerPin::power_off()
 {
     if (_pwr_pin.is_connected()) {
         _pwr_pin = !MBED_CONF_ESP8266_POWER_ON_POLARITY;
-        tr_debug("HW power-off");
+        tr_debug("power_off(): HW power-off.");
         ThisThread::sleep_for(MBED_CONF_ESP8266_POWER_OFF_TIME_MS);
     }
 }
@@ -237,7 +237,7 @@ void ESP8266Interface::_connect_async()
     }
     _cmutex.lock();
     if (!_connect_event_id) {
-        tr_debug("_connect_async(): cancelled");
+        tr_debug("_connect_async(): Cancelled.");
         _cmutex.unlock();
         return;
     }
@@ -750,7 +750,7 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
     if (status == NSAPI_ERROR_WOULD_BLOCK
             && socket->proto == NSAPI_TCP
             && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
-        tr_debug("Postponing SIGIO from the device");
+        tr_debug("socket_send(...): Postponing SIGIO from the device.");
         if (!_global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred))) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                        "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
@@ -983,7 +983,7 @@ void ESP8266Interface::refresh_conn_state_cb()
         return;
     }
 
-    tr_debug("refresh_conn_state_cb(): changed to %d", _conn_stat);
+    tr_debug("refresh_conn_state_cb(): Changed to %d.", _conn_stat);
 
     if (_conn_stat_cb) {
         // _conn_stat_cb will be called in _connect_async or disconnect_assync to avoid race condition
@@ -1036,7 +1036,7 @@ nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *coun
     for (int i = 0; i < len; i++) {
         // Validation done by firmware
         if (!country_code[i]) {
-            tr_warning("invalid country code");
+            tr_warning("set_country_code(): Invalid country code.");
             return NSAPI_ERROR_PARAMETER;
         }
     }

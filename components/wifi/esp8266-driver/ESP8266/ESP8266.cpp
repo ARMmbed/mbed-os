@@ -116,7 +116,7 @@ bool ESP8266::at_available()
         if (ready) {
             break;
         }
-        tr_debug("waiting AT response");
+        tr_debug("at_available(): Waiting AT response.");
     }
     _smutex.unlock();
 
@@ -227,7 +227,7 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
     _smutex.unlock();
 
     if (!done) {
-        tr_debug("Enable UART HW flow control: FAIL");
+        tr_debug("start_uart_hw_flow_ctrl(): Enable UART HW flow control: FAIL.");
     }
 #else
     if (_serial_rts != NC || _serial_cts != NC) {
@@ -268,7 +268,7 @@ bool ESP8266::reset(void)
     set_timeout(ESP8266_RECV_TIMEOUT);
     for (int i = 0; i < 2; i++) {
         if (!_parser.send("AT+RST") || !_parser.recv("OK\n")) {
-            tr_debug("reset(): AT+RST failed or no response");
+            tr_debug("reset(): AT+RST failed or no response.");
             continue;
         }
 
@@ -285,7 +285,7 @@ bool ESP8266::reset(void)
         }
     }
 
-    tr_debug("reset(): done: %s", done ? "OK" : "FAIL");
+    tr_debug("reset(): Done: %s.", done ? "OK" : "FAIL");
 
     _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
     set_timeout();
@@ -484,7 +484,7 @@ int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned
     }
 
     if (!(ret_parse_send && _parser.recv("OK\n"))) {
-        tr_warning("scan(): AP info parsing aborted");
+        tr_warning("scan(): AP info parsing aborted.");
         // Lets be happy about partial success and not return NSAPI_ERROR_DEVICE_ERROR
         if (!_scan_r.cnt) {
             _scan_r.cnt = NSAPI_ERROR_DEVICE_ERROR;
@@ -547,7 +547,7 @@ nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_po
 
     _smutex.unlock();
 
-    tr_debug("UDP socket %d opened: %s", id, (_sock_i[id].open ? "true" : "false"));
+    tr_debug("open_udp(): UDP socket %d opened: %s.", id, (_sock_i[id].open ? "true" : "false"));
 
     return done ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -598,7 +598,7 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
 
     _smutex.unlock();
 
-    tr_debug("TCP socket %d opened: %s", id, (_sock_i[id].open ? "true" : "false"));
+    tr_debug("open_tcp: TCP socket %d opened: %s . ", id, (_sock_i[id].open ? "true" : "false"));
 
     return done ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -621,7 +621,7 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         amount = 2048;
         // Datagram must stay intact
     } else if (amount > 2048 && _sock_i[id].proto == NSAPI_UDP) {
-        tr_debug("UDP datagram maximum size is 2048");
+        tr_debug("send(): UDP datagram maximum size is 2048 .");
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -630,12 +630,12 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
     _busy = false;
     _error = false;
     if (!_parser.send("AT+CIPSEND=%d,%" PRIu32, id, amount)) {
-        tr_debug("ESP8266::send(): AT+CIPSEND failed");
+        tr_debug("send(): AT+CIPSEND failed.");
         goto END;
     }
 
     if (!_parser.recv(">")) {
-        tr_debug("ESP8266::send(): didn't get \">\"");
+        tr_debug("send(): Didn't get \">\"");
         ret = NSAPI_ERROR_WOULD_BLOCK;
         goto END;
     }
@@ -650,22 +650,22 @@ END:
     // error hierarchy, from low to high
     if (_busy) {
         ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("ESP8266::send(): modem busy");
+        tr_debug("send(): Modem busy. ");
     }
 
     if (ret == NSAPI_ERROR_DEVICE_ERROR) {
         ret = NSAPI_ERROR_WOULD_BLOCK;
-        tr_debug("ESP8266::send(): send failed");
+        tr_debug("send(): Send failed.");
     }
 
     if (_error) {
         ret = NSAPI_ERROR_CONNECTION_LOST;
-        tr_debug("ESP8266::send(): connection disrupted");
+        tr_debug("send(): Connection disrupted.");
     }
 
     if (!_sock_i[id].open && ret != NSAPI_ERROR_OK) {
         ret = NSAPI_ERROR_CONNECTION_LOST;
-        tr_debug("ESP8266::send(): socket closed abruptly");
+        tr_debug("send(): Socket closed abruptly.");
     }
 
     set_timeout();
@@ -708,7 +708,7 @@ void ESP8266::_oob_packet_hdlr()
 
     struct packet *packet = (struct packet *)malloc(pdu_len);
     if (!packet) {
-        tr_debug("out of memory, unable to allocate memory for packet");
+        tr_debug("_oob_packet_hdlr(): Out of memory, unable to allocate memory for packet.");
         return;
     }
     _heap_usage += pdu_len;
@@ -798,10 +798,10 @@ int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t
 BUSY:
     _process_oob(ESP8266_RECV_TIMEOUT, true);
     if (_busy) {
-        tr_debug("_recv_tcp_passive(): modem busy");
+        tr_debug("_recv_tcp_passive(): Modem busy.");
         ret = NSAPI_ERROR_WOULD_BLOCK;
     } else {
-        tr_error("_recv_tcp_passive(): unknown state");
+        tr_error("_recv_tcp_passive(): Unknown state.");
         ret = NSAPI_ERROR_DEVICE_ERROR;
     }
     _smutex.unlock();
@@ -1024,7 +1024,7 @@ bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
 
     if (ret < 0) {
         _parser.abort();
-        tr_warning("_recv_ap(): AP info missing");
+        tr_warning("_recv_ap(): AP info missing.");
     }
 
     ap->security = sec < 5 ? (nsapi_security_t)sec : NSAPI_SECURITY_UNKNOWN;
@@ -1054,7 +1054,7 @@ void ESP8266::_oob_ready()
     _conn_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
     _conn_stat_cb();
 
-    tr_debug("_oob_reset(): reset detected");
+    tr_debug("_oob_reset(): Reset detected.");
 }
 
 void ESP8266::_oob_busy()
@@ -1062,11 +1062,11 @@ void ESP8266::_oob_busy()
     char status;
     if (_parser.scanf("%c...\n", &status)) {
         if (status == 's') {
-            tr_debug("busy s...");
+            tr_debug("_oob_busy(): Busy s...");
         } else if (status == 'p') {
-            tr_debug("busy p...");
+            tr_debug("_oob_busy(): Busy p...");
         } else {
-            tr_error("unrecognized busy state '%c...'", status);
+            tr_error("_oob_busy(): unrecognized busy state '%c...'", status);
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_EBADMSG), \
                        "ESP8266::_oob_busy() unrecognized busy state\n");
         }
@@ -1144,35 +1144,35 @@ void ESP8266::_oob_socket0_closed()
 {
     static const int id = 0;
     _sock_i[id].open = false;
-    tr_debug("socket %d closed", id);
+    tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
 void ESP8266::_oob_socket1_closed()
 {
     static const int id = 1;
     _sock_i[id].open = false;
-    tr_debug("socket %d closed", id);
+    tr_debug("_oob_socket1_closed(): Socket %d closed.", id);
 }
 
 void ESP8266::_oob_socket2_closed()
 {
     static const int id = 2;
     _sock_i[id].open = false;
-    tr_debug("socket %d closed", id);
+    tr_debug("_oob_socket2_closed(): Socket %d closed.", id);
 }
 
 void ESP8266::_oob_socket3_closed()
 {
     static const int id = 3;
     _sock_i[id].open = false;
-    tr_debug("socket %d closed", id);
+    tr_debug("_oob_socket3_closed(): %d closed.", id);
 }
 
 void ESP8266::_oob_socket4_closed()
 {
     static const int id = 4;
     _sock_i[id].open = false;
-    tr_debug("socket %d closed", id);
+    tr_debug("_oob_socket0_closed(): Socket %d closed.", id);
 }
 
 void ESP8266::_oob_connection_status()
@@ -1191,16 +1191,16 @@ void ESP8266::_oob_connection_status()
         } else if (strcmp(status, "CONNECTED\n") == 0) {
             _conn_status = NSAPI_STATUS_CONNECTING;
         } else {
-            tr_error("invalid AT cmd \'%s\'", status);
+            tr_error("_oob_connection_status(): Invalid AT cmd \'%s\' .", status);
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_EBADMSG), \
                        "ESP8266::_oob_connection_status: invalid AT cmd\n");
         }
     } else {
-        tr_error("_oob_connection_status(): network status timeout, disconnecting");
+        tr_error("_oob_connection_status(): Network status timeout, disconnecting.");
         if (!disconnect()) {
-            tr_warning("_oob_connection_status(): driver initiated disconnect failed");
+            tr_warning("_oob_connection_status(): Driver initiated disconnect failed.");
         } else {
-            tr_debug("_oob_connection_status(): disconnected");
+            tr_debug("_oob_connection_status(): Disconnected.");
         }
         _conn_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
     }
