@@ -681,12 +681,12 @@ void ESP8266::_oob_packet_hdlr()
     int pdu_len;
 
     // Get socket id
-    if (!_parser.recv(",%d,", &id)) {
+    if (!_parser.scanf(",%d,", &id)) {
         return;
     }
 
     if (_tcp_passive && _sock_i[id].open == true && _sock_i[id].proto == NSAPI_TCP) {
-        if (_parser.recv("%d\n", &amount)) {
+        if (_parser.scanf("%d\n", &amount)) {
             _sock_i[id].tcp_data_avbl = amount;
 
             // notify data is available
@@ -695,7 +695,7 @@ void ESP8266::_oob_packet_hdlr()
             }
         }
         return;
-    } else if (!_parser.recv("%d:", &amount)) {
+    } else if (!_parser.scanf("%d:", &amount)) {
         return;
     }
 
@@ -1059,14 +1059,14 @@ void ESP8266::_oob_ready()
 
 void ESP8266::_oob_busy()
 {
-    char status[5];
-    if (_parser.recv("%4[^\"]\n", status)) {
-        if (strcmp(status, "s...") == 0) {
+    char status;
+    if (_parser.scanf("%c...\n", &status)) {
+        if (status == 's') {
             tr_debug("busy s...");
-        } else if (strcmp(status, "p...") == 0) {
+        } else if (status == 'p') {
             tr_debug("busy p...");
         } else {
-            tr_error("unrecognized busy state \'%s\'", status);
+            tr_error("unrecognized busy state '%c...'", status);
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_EBADMSG), \
                        "ESP8266::_oob_busy() unrecognized busy state\n");
         }
@@ -1084,7 +1084,7 @@ void ESP8266::_oob_tcp_data_hdlr()
 
     MBED_ASSERT(_sock_active_id >= 0 && _sock_active_id < 5);
 
-    if (!_parser.recv("%" SCNd32 ":", &len)) {
+    if (!_parser.scanf("%" SCNd32 ":", &len)) {
         return;
     }
 
@@ -1113,7 +1113,7 @@ void ESP8266::_oob_connect_err()
     _fail = false;
     _connect_error = 0;
 
-    if (_parser.recv("%d", &_connect_error) && _parser.recv("FAIL")) {
+    if (_parser.scanf("%d", &_connect_error) && _parser.scanf("FAIL")) {
         _fail = true;
         _parser.abort();
     }
