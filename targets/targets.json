@@ -51,6 +51,10 @@
             "init-us-ticker-at-boot": {
                 "help": "Initialize the microsecond ticker at boot rather than on first use, and leave it initialized. This speeds up wait_us in particular.",
                 "value": false
+            },
+            "xip-enable": {
+                "help": "Enable Execute In Place (XIP) on this target. Value is only significant if the board has executable external storage such as QSPIF. If this is enabled, customize the linker file to choose what text segments are placed on external storage",
+                "value": false
             }
         }
     },

@@ -91,11 +91,11 @@ void mbed_sdk_init(void)
     us_ticker_init();
 #endif
 
-#if defined(CYBSP_ENABLE_FLASH_STORAGE)
+#if MBED_CONF_TARGET_XIP_ENABLE
     /* The linker script allows storing data in external memory, if needed, enable access to that memory. */
     cybsp_serial_flash_init();
     cybsp_serial_flash_enable_xip(true);
-#endif /* defined(CYBSP_ENABLE_FLASH_STORAGE) */
+#endif
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */
     __enable_irq();
