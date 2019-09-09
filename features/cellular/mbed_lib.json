@@ -24,6 +24,10 @@
         "offload-dns-queries" : {
             "help": "Use modem IP stack for DNS queries, null or numeric simultaneous queries",
             "value": null
+        },
+        "clear-on-connect" : {
+            "help": "Clear modem to a known default state on connect()",
+            "value": true
         }
     }
 }

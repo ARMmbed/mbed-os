@@ -34,7 +34,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
 }
 
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
-    _info_ref_count(0), _fh(fh), _queue(8 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
+    _info_ref_count(0), _fh(fh), _queue(10 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
     MBED_ASSERT(fh);
     set_sim_pin(NULL);
@@ -248,6 +248,11 @@ void CellularDevice::set_retry_timeout_array(const uint16_t timeout[], int array
     if (create_state_machine() == NSAPI_ERROR_OK) {
         _state_machine->set_retry_timeout_array(timeout, array_len);
     }
+}
+
+nsapi_error_t CellularDevice::clear()
+{
+    return NSAPI_ERROR_OK;
 }
 
 } // namespace mbed

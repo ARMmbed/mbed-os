@@ -624,3 +624,12 @@ void AT_CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, Cellul
     }
     CellularDevice::cellular_callback(ev, ptr, ctx);
 }
+
+nsapi_error_t AT_CellularDevice::clear()
+{
+    AT_CellularNetwork *net = static_cast<AT_CellularNetwork *>(open_network());
+    nsapi_error_t err = net->clear();
+    close_network();
+
+    return err;
+}

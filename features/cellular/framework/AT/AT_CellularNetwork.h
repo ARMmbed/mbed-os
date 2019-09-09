@@ -110,6 +110,13 @@ protected:
      *  Can be overridden by the target class.
      */
     virtual void get_context_state_command();
+
+    /** Clear the network and contexts to a known default state
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    nsapi_error_t clear();
+
 private:
     void urc_creg();
     void urc_cereg();
