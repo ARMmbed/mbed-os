@@ -510,6 +510,9 @@ typedef struct  {
     uint8_t  rfu2_size;
 } loraphy_beacon_t;
 
+/*!
+ * Global configuration parameters of a given PHY
+ */
 typedef struct {
     bool duty_cycle_enabled;
     bool accept_tx_param_setup_req;
