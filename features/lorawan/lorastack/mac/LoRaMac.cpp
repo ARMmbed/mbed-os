@@ -893,13 +893,11 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     switch (mac_hdr.bits.mtype) {
 
         case FRAME_TYPE_JOIN_ACCEPT:
-            // SKN: Local fix for unintentional processing of join accepts not for us
-            if (_params.is_last_tx_join_request) {
-                ret = handle_join_accept_frame(payload, size);
-                mlme.type = MLME_JOIN_ACCEPT;
-                mlme.status = ret;
-                confirm_handler(mlme);
-            }
+
+            ret = handle_join_accept_frame(payload, size);
+            mlme.type = MLME_JOIN_ACCEPT;
+            mlme.status = ret;
+            confirm_handler(mlme);
 
             break;
 
@@ -1752,7 +1750,6 @@ lorawan_status_t LoRaMac::set_device_class(const device_class_t &device_class,
     }
 
     if (CLASS_C == _device_class) {
-        tr_debug("Changing device class to -> CLASS_C");
         open_rx2_window();
     }
 

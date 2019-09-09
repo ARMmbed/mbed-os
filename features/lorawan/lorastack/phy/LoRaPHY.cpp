@@ -422,7 +422,7 @@ float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 
 void LoRaPHY::get_rx_window_params(float t_symb, float max_preamble_len,
                                    uint8_t min_rx_symb, float error_fudge,
-                                   float wakeup_time, uint32_t *window_length,
+                                   float wakeup_time, uint32_t *window_length, uint32_t *window_length_ms,
                                    int32_t *window_offset, uint8_t phy_dr)
 {
     float target_rx_window_offset;
@@ -919,6 +919,16 @@ bool LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
     return true;
 }
 
+uint32_t LoRaPHY::get_rx_time_on_air(uint8_t modem, uint16_t pkt_len)
+{
+    uint32_t toa = 0;
+
+    _radio->lock();
+    toa = _radio->time_on_air((radio_modems_t) modem, pkt_len);
+    _radio->unlock();
+
+    return toa;
+}
 
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
 {
