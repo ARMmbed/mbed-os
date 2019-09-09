@@ -22,6 +22,12 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup mbed_thread Mbed Thread
+ * \ingroup platform-public-api
+ * @{
+ */
+
 /** Generic thread functions.
  *
  * These are C versions of functions provided in C++ via rtos::Thread and rtos::ThisThread
@@ -58,6 +64,8 @@ void thread_sleep_for(uint32_t millisec);
   @note The equivalent functionality is accessible in C++ via ThisThread::sleep_until.
 */
 void thread_sleep_until(uint64_t millisec);
+
+/** @}*/
 
 #ifdef __cplusplus
 }

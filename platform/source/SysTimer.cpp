@@ -22,7 +22,7 @@
 #include "mbed_assert.h"
 #include "platform/mbed_power_mgmt.h"
 #include "platform/CriticalSectionLock.h"
-#include "platform/SysTimer.h"
+#include "platform/source/SysTimer.h"
 extern "C" {
 #if MBED_CONF_RTOS_PRESENT
 #include "rtx_lib.h"
