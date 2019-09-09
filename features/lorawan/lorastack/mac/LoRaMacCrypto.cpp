@@ -69,6 +69,7 @@ lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *nwk_key, uint8_t *app_key, uin
 
         memcpy(_keys.app_skey, app_skey,
                sizeof(_keys.app_skey));
+
         memcpy(_keys.nwk_skey, snwk_sintkey,
                sizeof(_keys.nwk_skey));
 
@@ -452,6 +453,7 @@ exit:
     mbedtls_aes_free(&aes_ctx);
     return ret;
 }
+
 
 int LoRaMacCrypto::compute_ping_slot_random_offset(uint32_t beacon_time, uint32_t dev_addr, uint16_t *rand)
 {

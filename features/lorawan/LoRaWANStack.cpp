@@ -365,6 +365,7 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
         _loramac.add_ping_slot_info_req();
     }
 
+
     _qos_cnt = 1;
 
     lorawan_status_t status;
@@ -705,8 +706,7 @@ void LoRaWANStack::process_transmission(void)
 
     if (_loramac.get_server_type() == LW1_1 && _device_mode_ind_ongoing == true) {
         _device_mode_ind_ongoing = false;
-        _loramac.set_device_class(device_class_t(_new_class_type),
-                                  mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
+        _loramac.set_device_class(device_class_t(_new_class_type), mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
         send_event_to_application(CLASS_CHANGED);
     }
 }
