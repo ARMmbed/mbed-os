@@ -73,6 +73,35 @@ public:
      */
     lorawan_status_t initialize(events::EventQueue *queue);
 
+    /** Sets up UTC system time
+     *
+     * This API provides a convenience utility to setup UTC system time.
+     * Please note that device level synchronization does not require any conversion
+     * from GPS time. That's why any application level or stack level APIs involved
+     * in time synchronization should always use 'get_current_gps_time()' and
+     * 'set_current_gps_time(time)' APIs. 'set_system_time_utc(...)' API can be used
+     * for other application purposes where acquisition of UTC time is important.
+     * In addition to that it should be taken into account that the internal network
+     * assisted GPS time acquisition may not be 100% accurate. It involves local monotonic
+     * network provided time-stamp for GPS time may also involve inaccuracies owing to the
+     * ticks (in ms) which is a direct function of CPU ticks and can be inaccurate. The
+     * fact that the device will never know at what instant the time-stamp was taken and hence
+     * cannot compensate for it.
+     *
+     * 'set_system_time_utc(...)' API utilizes stored network assisted GPS time
+     * always ahead of GPS time by 19 seconds, whereas in 2019 TAI is ahead of
+     * to convert for UTC time. The Temps Atomique International (TAI) time is
+     * UTC by 37 seconds. This difference between TAI and UTC must be provided
+     * by the user because this number is subject to change (to compensate for leap
+     * seconds).
+     *
+     * @param tai_utc_diff    Number of seconds TAI is ahead of UTC time.
+     *
+     * @return LORAWAN_STATUS_OK if system time is set, negative error code
+     *         otherwise.
+     */
+    lorawan_status_t set_system_time_utc(unsigned int tai_utc_diff);
+
     /** Connect OTAA or ABP using the Mbed OS config system
      *
      * Connect by Over The Air Activation or Activation By Personalization.

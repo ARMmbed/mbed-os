@@ -394,7 +394,7 @@ typedef enum {
     /*!
      * ResetInd
      */
-    MOTE_MAC_RESET_IND                 = 0x01,
+    MOTE_MAC_RESET_IND               = 0x01,
     /*!
      * LinkCheckReq
      */
@@ -921,13 +921,9 @@ typedef enum {
      */
     MLME_BEACON_ACQUISITION,
 
-    MLME_BEACON_LOCK,
-
-    MLME_BEACON_MISS,
-
     /*!
-     * PingSlotInfoReq - Indicates ping unicast slot periodicity
-     *                   synchronized with the server
+     * Indicates ping unicast slot periodicity
+     * synchronized with the server
      *
      * LoRaWAN Specification V1.1, chapter 14.1
      */
@@ -1579,6 +1575,7 @@ typedef struct {
      * \brief forced_datarate See ForceRejoinReq LW 1.1 spec ch 5.13
      */
     uint8_t forced_datarate;
+
 } loramac_protocol_params;
 
 
