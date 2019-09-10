@@ -1,12 +1,12 @@
 {
 "name": "qspif",
     "config": {
-        "QSPI_IO0": "QSPI_FLASH1_IO0",
-        "QSPI_IO1": "QSPI_FLASH1_IO1",
-        "QSPI_IO2": "QSPI_FLASH1_IO2",
-        "QSPI_IO3": "QSPI_FLASH1_IO3",
-        "QSPI_SCK": "QSPI_FLASH1_SCK",
-        "QSPI_CSN": "QSPI_FLASH1_CSN",
+        "QSPI_IO0": "MBED_CONF_DRIVERS_QSPI_IO0",
+        "QSPI_IO1": "MBED_CONF_DRIVERS_QSPI_IO1",
+        "QSPI_IO2": "MBED_CONF_DRIVERS_QSPI_IO2",
+        "QSPI_IO3": "MBED_CONF_DRIVERS_QSPI_IO3",
+        "QSPI_SCK": "MBED_CONF_DRIVERS_QSPI_SCK",
+        "QSPI_CSN": "MBED_CONF_DRIVERS_QSPI_CSN",
         "QSPI_POLARITY_MODE": 0,
         "QSPI_FREQ": "40000000",
         "QSPI_MIN_READ_SIZE": "1",
