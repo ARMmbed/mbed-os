@@ -92,7 +92,7 @@ public:
      */
     ATCmdParser(FileHandle *fh, const char *output_delimiter = "\r",
                 int buffer_size = 256, int timeout = 8000, bool debug = false)
-        : _fh(fh), _buffer_size(buffer_size), _oob_cb_count(0), _in_prev(0), _oobs(NULL)
+        : _fh(fh), _buffer_size(buffer_size), _oob_cb_count(0), _in_prev(0), _aborted(false), _oobs(NULL)
     {
         _buffer = new char[buffer_size];
         set_timeout(timeout);

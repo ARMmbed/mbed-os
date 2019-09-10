@@ -397,7 +397,7 @@ void ATCmdParser::abort()
 bool ATCmdParser::process_oob()
 {
     int pre_count = _oob_cb_count;
-    recv(NULL);
+    static_cast<void>(recv(NULL));
     return _oob_cb_count != pre_count;
 }
 
