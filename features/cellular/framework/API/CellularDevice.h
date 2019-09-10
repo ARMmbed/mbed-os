@@ -90,6 +90,18 @@ public:
      */
     virtual ~CellularDevice();
 
+    /** Clear modem to a default initial state
+     *
+     *  Clear persistent user data from the modem, such as PDP contexts.
+     *
+     *  @pre All open network services on modem, such as contexts and sockets, must be closed.
+     *  @post Modem power off/on may be needed to clear modem's runtime state.
+     *  @remark CellularStateMachine calls this on connect when `cellular.clear-on-connect: true`.
+     *
+     *  @return         NSAPI_ERROR_OK on success, otherwise modem may be need power cycling
+     */
+    virtual nsapi_error_t clear();
+
     /** Sets the modem up for powering on
      *  This is equivalent to plugging in the device, i.e., attaching power and serial port.
      *  In general, hard_power_on and soft_power_on provides a simple hardware abstraction layer

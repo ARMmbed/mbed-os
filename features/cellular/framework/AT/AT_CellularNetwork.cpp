@@ -631,3 +631,69 @@ nsapi_error_t AT_CellularNetwork::set_packet_domain_event_reporting(bool on)
 
     return _at.at_cmd_discard("+CGEREP", "=", "%d", on ? 1 : 0);
 }
+
+nsapi_error_t AT_CellularNetwork::clear()
+{
+    tr_info("AT_CellularNetwork::clear");
+
+    _at.lock();
+    _at.cmd_start_stop("+CGDCONT", "?");
+    _at.resp_start("+CGDCONT:");
+
+    struct context_s {
+        int id;
+        context_s *next;
+    };
+    CellularList<context_s> contexts;
+    while (_at.info_resp()) {
+        int cid = _at.read_int();
+        // clear all but the default context
+        if (cid <= 0) {
+            continue;
+        } else if (cid == 1) {
+#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+            continue;
+#else
+            char pdp_type_from_context[10];
+            int pdp_type_len = _at.read_string(pdp_type_from_context, sizeof(pdp_type_from_context));
+            if (pdp_type_len > 0) {
+                char apn[MAX_ACCESSPOINT_NAME_LENGTH];
+                int apn_len = _at.read_string(apn, sizeof(apn));
+                if (apn_len >= 0) {
+                    if (strcmp(apn, MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) == 0) {
+                        continue;
+                    }
+                }
+            }
+#endif
+        }
+        contexts.add_new()->id = cid;
+    }
+    _at.resp_stop();
+
+    if (contexts.get_head()) {
+        // try to detach from network before deleting contexts
+        (void)detach();
+        context_s *context = contexts.get_head();
+        while (context) {
+            if (_at.at_cmd_discard("+CGDCONT", "=", "%d", context->id) != NSAPI_ERROR_OK) {
+                tr_warn("Clear context %d failed", context->id);
+            }
+            context = context->next;
+        }
+#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+        char pdp_type_str[sizeof("IPV4V6")];
+        if (get_property(PROPERTY_IPV4V6_PDP_TYPE) ||
+                (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) {
+            strcpy(pdp_type_str, "IPV4V6");
+        } else if (get_property(PROPERTY_IPV6_PDP_TYPE)) {
+            strcpy(pdp_type_str, "IPV6");
+        } else {
+            strcpy(pdp_type_str, "IP");
+        }
+        _at.at_cmd_discard("+CGDCONT", "=", "%d%s%s", 1, pdp_type_str, MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
+#endif
+    }
+
+    return _at.unlock_return_error();
+}
