@@ -38,6 +38,14 @@ from usb.util import (DESC_TYPE_DEVICE, DESC_TYPE_CONFIG, DESC_TYPE_STRING,
 
 import struct
 
+if sys.platform.startswith('win'):
+    # Use libusb0 on Windows. libusb1 implementation for Windows
+    # does not support all features necessary for testing.
+    import usb.backend.libusb0
+    USB_BACKEND = usb.backend.libusb0.get_backend()
+else:
+    # Use a default backend on other platforms.
+    USB_BACKEND = None
 
 def get_interface(dev, interface, alternate=0):
     intf = None
@@ -314,11 +322,10 @@ class PyusbBasicTest(BaseHostTest):
     def find_device(self, serial_number):
         # to make it more reliable, 20 retries in 2[s]
         for _ in range(20):
-            dev = usb.core.find(custom_match=TestMatch(serial_number))
+            dev = usb.core.find(custom_match=TestMatch(serial_number), backend=USB_BACKEND)
             if dev is not None:
                 break
             time.sleep(0.1)
-
         if dev is None:
             self.log("Device not found")
             self.send_kv("failed", "0")
