@@ -57,6 +57,7 @@ SysTimer<US_IN_TICK, IRQ>::SysTimer() :
     _unacknowledged_ticks(0),
     _wake_time_set(false),
     _wake_time_passed(false),
+    _wake_early(false),
     _ticking(false),
     _deep_sleep_locked(false)
 {
@@ -70,6 +71,7 @@ SysTimer<US_IN_TICK, IRQ>::SysTimer(const ticker_data_t *data) :
     _unacknowledged_ticks(0),
     _wake_time_set(false),
     _wake_time_passed(false),
+    _wake_early(false),
     _ticking(false),
     _deep_sleep_locked(false)
 {
