@@ -849,6 +849,7 @@ typedef struct _mbed_error_ctx {
     int32_t is_error_processed;//once this error is processed set this value to 1
     uint32_t crc_error_ctx;//crc_error_ctx should always be the last member in this struct
 #endif
+    uint64_t dummy; // dummy to force data to be written in RAM
 } mbed_error_ctx;
 
 /** To generate a fatal compile-time error, you can use the pre-processor #error directive.
