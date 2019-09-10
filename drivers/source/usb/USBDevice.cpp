@@ -1272,6 +1272,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _current_alternate = 0;
     _locked = 0;
     _post_process = NULL;
+    _max_packet_size_ep0 = 0;
 
     /* Set initial device state */
     _device.state = Powered;
