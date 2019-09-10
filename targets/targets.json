@@ -4818,7 +4818,7 @@
         "overrides": {"lse_available": 0},
         "release_versions": ["5"]
     },
-    "OKDO_UBLOX_ODIN_W2": {
+    "OKDO_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "device_has_add": [],
         "overrides": {"lse_available": 0},
