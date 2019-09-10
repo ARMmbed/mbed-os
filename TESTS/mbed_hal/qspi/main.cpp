@@ -70,12 +70,12 @@ uint8_t rx_buf[DATA_SIZE_1024];
 
 
 // some target defines QSPI pins as integers thus conversion needed
-#define QPIN_0 static_cast<PinName>(QSPI_FLASH1_IO0)
-#define QPIN_1 static_cast<PinName>(QSPI_FLASH1_IO1)
-#define QPIN_2 static_cast<PinName>(QSPI_FLASH1_IO2)
-#define QPIN_3 static_cast<PinName>(QSPI_FLASH1_IO3)
-#define QSCK   static_cast<PinName>(QSPI_FLASH1_SCK)
-#define QCSN   static_cast<PinName>(QSPI_FLASH1_CSN)
+#define QPIN_0 static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_IO0)
+#define QPIN_1 static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_IO1)
+#define QPIN_2 static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_IO2)
+#define QPIN_3 static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_IO3)
+#define QSCK   static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_SCK)
+#define QCSN   static_cast<PinName>(MBED_CONF_DRIVERS_QSPI_CSN)
 
 
 static uint32_t gen_flash_address()
