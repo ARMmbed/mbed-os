@@ -22,9 +22,9 @@
 #include "reset_reason_api.h"
 
 namespace mbed {
-/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
+
 /**
  * \defgroup drivers_ResetReason ResetReason class
  * @{

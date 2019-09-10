@@ -27,9 +27,9 @@ namespace mbed {
 
 class FileHandle;
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
+
 /**
  * \defgroup platform_poll poll functions
  * @{

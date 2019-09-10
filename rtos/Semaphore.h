@@ -30,9 +30,9 @@
 #include "platform/NonCopyable.h"
 
 namespace rtos {
-/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
+
 /**
  * \defgroup rtos_Semaphore Semaphore class
  * @{

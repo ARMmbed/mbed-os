@@ -23,8 +23,7 @@
 
 namespace events {
 /**
- * \addtogroup events-public-api Events
- * \ingroup mbed-os-public
+ * \addtogroup events-public-api
  * @{
  */
 template <typename F, typename A>

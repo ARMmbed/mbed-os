@@ -1,11 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_version Version macros
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -25,6 +17,14 @@
 
 #ifndef MBED_VERSION_H
 #define MBED_VERSION_H
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_version Version macros
+ * @{
+ */
 
 /** MBED_MAJOR_VERSION
   * Mbed OS major version

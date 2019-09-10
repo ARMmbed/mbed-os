@@ -28,7 +28,7 @@
 namespace mbed {
 /** \defgroup mbed-os-public Public API */
 
-/** \addtogroup drivers-public-api Drivers
+/** \defgroup drivers-public-api Drivers
  * \ingroup mbed-os-public
  */
 

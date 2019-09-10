@@ -46,7 +46,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_SPI SPI class
+ * \defgroup drivers_SPI SPI class
  * \ingroup drivers-public-api-spi
  * @{
  */

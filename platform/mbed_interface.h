@@ -1,12 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_interface Network interface and other utility functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -30,6 +21,14 @@
 
 #include "platform/mbed_toolchain.h"
 #include "device.h"
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_interface Network interface and other utility functions
+ * @{
+ */
 
 /* Mbed interface mac address
  * if MBED_MAC_ADD_x are zero, interface uid sets mac address,

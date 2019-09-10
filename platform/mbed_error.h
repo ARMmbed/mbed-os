@@ -1,10 +1,3 @@
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_error Error functions
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -31,6 +24,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_error Error functions
+ * @{
+ */
 
 /** Define this macro to include filenames in error context. For release builds, do not include filename to save memory.
  *  MBED_PLATFORM_CONF_ERROR_FILENAME_CAPTURE_ENABLED
