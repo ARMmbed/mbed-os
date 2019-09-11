@@ -92,8 +92,8 @@ static const char *const res_val2  = "This should surely not be saved as the res
 static void white_box_test()
 {
 
-#if !defined(TARGET_K64F)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
+#if !defined(TARGET_K64F) && !defined(TARGET_MCU_PSOC6)
+    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices and PSoC 6");
 #endif
 
     bd_params_t bd_params[] = {
@@ -334,8 +334,8 @@ static void white_box_test()
 static void multi_set_test()
 {
 
-#if !defined(TARGET_K64F)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
+#if !defined(TARGET_K64F) && !defined(TARGET_MCU_PSOC6)
+    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices and PSoC 6");
 #endif
 
     char *key;
@@ -458,8 +458,8 @@ static void multi_set_test()
 static void error_inject_test()
 {
 
-#if !defined(TARGET_K64F)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
+#if !defined(TARGET_K64F) && !defined(TARGET_MCU_PSOC6)
+    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices and PSoC 6");
 #endif
 
     char *key;
