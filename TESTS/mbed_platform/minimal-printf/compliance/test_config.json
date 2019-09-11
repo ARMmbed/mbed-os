@@ -1,0 +1,7 @@
+{
+    "target_overrides": {
+        "*": {
+            "platform.minimal-printf-enable-floating-point": true
+        }
+    }
+}
