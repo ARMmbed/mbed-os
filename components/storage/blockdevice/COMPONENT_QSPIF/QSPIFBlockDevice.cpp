@@ -1457,9 +1457,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_inst,
     }
 
     // Send erase command to driver
-    status = _qspi.command_transfer(erase_inst,
-                                    (((int) addr) & 0x00FFF000), // Align addr to 4096
-                                    NULL, 0, NULL, 0); // Do not transmit or receive
+    status = _qspi.command_transfer(erase_inst, (int) addr, NULL, 0, NULL, 0);
 
     if (QSPI_STATUS_OK != status) {
         tr_error("QSPI Erase failed");
