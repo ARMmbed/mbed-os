@@ -740,10 +740,10 @@ class mbedToolchain:
         # Absolute path of the final linked file
         if self.config.has_regions:
             elf = join(new_path, tail + '_application.elf')
-            mapfile = join(tmp_path, tail + '_application.map')
+            mapfile = join(new_path, tail + '_application.map')
         else:
-            elf = join(tmp_path, tail + '.elf')
-            mapfile = join(tmp_path, tail + '.map')
+            elf = join(new_path, tail + '.elf')
+            mapfile = join(new_path, tail + '.map')
 
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
@@ -779,7 +779,7 @@ class mbedToolchain:
             filename = "{}_application.{}".format(tail, ext)
         else:
             filename = "{}.{}".format(tail, ext)
-        full_path = join(tmp_path, filename)
+        full_path = join(new_path, filename)
         if ext != 'elf':
             if full_path and self.need_update(full_path, [elf]):
                 self.progress("elf2bin", tail)
