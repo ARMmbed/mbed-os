@@ -123,6 +123,11 @@ void pits_ps_test()
 
     mbed::KVMap &kv_map = mbed::KVMap::get_instance();
     mbed::KVStore *kvstore = kv_map.get_main_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+    if (!kvstore) {
+        TEST_SKIP_MESSAGE("KVStore not configured");
+        return;
+    }
+
     uint32_t kv_get_flags;
 
     flags = PSA_STORAGE_FLAG_NO_REPLAY_PROTECTION;
