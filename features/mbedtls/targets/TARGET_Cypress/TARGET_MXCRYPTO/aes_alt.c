@@ -44,13 +44,13 @@
 #include "mbedtls/platform.h"
 #include "mbedtls/platform_util.h"
 
+#if defined(MBEDTLS_AES_ALT)
+
 /* Parameter validation macros based on platform_util.h */
 #define AES_VALIDATE_RET( cond )    \
     MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_AES_BAD_INPUT_DATA )
 #define AES_VALIDATE( cond )        \
     MBEDTLS_INTERNAL_VALIDATE( cond )
-
-#if defined(MBEDTLS_AES_ALT)
 
 #include "crypto_common.h"
 #include "cy_crypto_core.h"
@@ -107,7 +107,9 @@ static int aes_set_keys( mbedtls_aes_context *ctx, const unsigned char *key,
     cy_en_crypto_aes_key_length_t key_length;
     cy_en_crypto_status_t status;
 
-    AES_VALIDATE( ctx != NULL );
+    AES_VALIDATE_RET( ctx != NULL );
+    AES_VALIDATE_RET( key != NULL );
+
 
     switch( keybits )
     {
