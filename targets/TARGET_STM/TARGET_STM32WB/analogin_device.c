@@ -194,6 +194,11 @@ uint16_t adc_read(analogin_t *obj)
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
         adcValue = (uint16_t)HAL_ADC_GetValue(&obj->handle);
     }
+
+    if (HAL_ADC_Stop(&obj->handle) != HAL_OK) {
+        debug("HAL_ADC_Stop failed\r\n");
+    }
+
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE((&obj->handle)->Instance), LL_ADC_PATH_INTERNAL_NONE);
     return adcValue;
 }
