@@ -123,6 +123,24 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     features.max_timeout = MAX_TIMEOUT_MS;
     features.update_config = true;
     features.disable_watchdog = false;
+    
+    /*  STM32 IWDG (Independent Watchdog) is clocked by its own dedicated low-speed clock (LSI) */
+    features.clock_typical_frequency = LSI_VALUE;
+
+    /*  See LSI oscillator characteristics in Data Sheet */
+#if defined(STM32F1)
+    features.clock_max_frequency = 60000;
+#elif defined(STM32L0) || defined(STM32L1)
+    features.clock_max_frequency = 56000;
+#elif defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
+    features.clock_max_frequency = 47000;
+#elif defined(STM32F0) || defined(STM32F3)
+    features.clock_max_frequency = 50000;
+#elif defined(STM32H7) || defined(STM32L4) || defined(STM32WB)
+    features.clock_max_frequency = 33600;
+#else
+#error "unsupported target"    
+#endif
 
     return features;
 }
