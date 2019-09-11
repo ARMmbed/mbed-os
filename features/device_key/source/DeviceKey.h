@@ -20,12 +20,12 @@
 #include "stdint.h"
 #include "platform/NonCopyable.h"
 
-#define DEVICEKEY_ENABLED 1
-
 // Whole class is not supported if entropy is not enabled
 // Flash device is required as Device Key is currently depending on it
-#if !DEVICE_FLASH || !defined(COMPONENT_FLASHIAP)
-#undef DEVICEKEY_ENABLED
+// and KVStore needs to be configured properly, as Device key lives inside it
+#if DEVICE_FLASH && defined(COMPONENT_FLASHIAP) && MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE
+#define DEVICEKEY_ENABLED 1
+#else
 #define DEVICEKEY_ENABLED 0
 #endif
 

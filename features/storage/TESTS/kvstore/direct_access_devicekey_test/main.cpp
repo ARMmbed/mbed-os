@@ -15,14 +15,15 @@
 * limitations under the License.
 */
 
-#ifndef COMPONENT_FLASHIAP
-#error [NOT_SUPPORTED] Target must have internal FlashIAP for this test
+#include "mbed.h"
+#include "DeviceKey.h"
+
+#if !defined(COMPONENT_FLASHIAP) || !DEVICEKEY_ENABLED
+#error [NOT_SUPPORTED] Target must have internal FlashIAP and Device Key configured for this test
 #else
 
-#include "mbed.h"
 #include <stdio.h>
 #include <string.h>
-#include "DeviceKey.h"
 #include "KVStore.h"
 #include "KVMap.h"
 #include "kv_config.h"
