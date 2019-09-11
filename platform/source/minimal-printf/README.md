@@ -118,30 +118,27 @@ https://github.com/ARMmbed/mbed-os-example-blinky-baremetal application compiled
 
 Blinky application size on K64F/GCC_ARM
 
-|             | File stream | Floating point | 64 bit integers | Flash  | RAM   |
-| -           | -           | -              | -               | -      | -     |
-| mbed-printf |             |                |                 | 17,168 | 5,880 |
-| mbed-printf |             |                | X               | 17,308 | 5,880 |
-| mbed-printf |             | X              | X               | 20,044 | 5,880 |
-| mbed-printf | X           | X              | X               | 22,560 | 5,880 |
-| std printf  | X           | X              | X               | 35,244 | 5,864 |
+|             | Floating point | 64 bit integers | Flash  | RAM   |
+| -           | -              | -               | -      | -     |
+| mbed-printf |                |                 | 19,660 | 5,368 |
+| mbed-printf |                | X               | 19,804 | 5,368 |
+| mbed-printf | X              | X               | 22,548 | 5,368 |
+| std printf  | X              | X               | 35,292 | 5,864 |
 
 Blinky application size on K64F/ARMC6
 
-|             | File stream | Floating point | 64 bit integers | Flash  | RAM   |
-| -           | -           | -              | -               | -      | -     |
-| mbed-printf |             |                |                 | 19,496 | xxxxx |
-| mbed-printf |             |                | X               | 19,644 | xxxxx |
-| mbed-printf |             | X              | X               | 22,468 | xxxxx |
-| mbed-printf | X           | X              | X               | 23,060 | xxxxx |
-| std printf  | X           | X              | X               | 25,393 | xxxxx |
+|             | Floating point | 64 bit integers | Flash  | RAM   |
+| -           | -              | -               | -      | -     |
+| mbed-printf |                |                 | 18,764 | xxxxx |
+| mbed-printf |                | X               | 18,764 | xxxxx |
+| mbed-printf | X              | X               | 18,764 | xxxxx |
+| std printf  | X              | X               | 25,403 | xxxxx |
 
 Blinky application size on K64F/IAR
 
-|             | File stream | Floating point | 64 bit integers | Flash  | RAM    |
-| -           | -           | -              | -               | -      | -      |
-| mbed-printf |             |                |                 | 13,007 | 1,413  |
-| mbed-printf |             |                | X               | 13,147 | 1,413  |
-| mbed-printf |             | X              | X               | 14,955 | 1,413  |
-| mbed-printf | X           | X              | X               | 21,757 | 1,929  |
-| std printf  | X           | X              | X               | 17,991 | 1,281  |
+|             | Floating point | 64 bit integers | Flash  | RAM    |
+| -           | -              | -               | -      | -      |
+| mbed-printf |                |                 | 19,623 | 1,737  |
+| mbed-printf |                | X               | 19,763 | 1,737  |
+| mbed-printf | X              | X               | 21,571 | 1,737  |
+| std printf  | X              | X               | 18,059 | 1,281  |
