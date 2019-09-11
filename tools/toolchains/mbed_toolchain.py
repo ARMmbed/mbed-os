@@ -739,7 +739,7 @@ class mbedToolchain:
 
         # Absolute path of the final linked file
         if self.config.has_regions:
-            elf = join(tmp_path, tail + '_application.elf')
+            elf = join(new_path, tail + '_application.elf')
             mapfile = join(tmp_path, tail + '_application.map')
         else:
             elf = join(tmp_path, tail + '.elf')
