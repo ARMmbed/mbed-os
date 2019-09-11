@@ -360,7 +360,7 @@
         "export": true,
         "test" : true,
         "baud_rate": 9600,
-        "compare_log": ["mbed-os-example-mbed-crypto/tests/mbed-crypto.log"],
+        "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
         "auto-update" : true
     },
     {
