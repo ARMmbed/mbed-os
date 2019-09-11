@@ -8870,7 +8870,7 @@
             "WATCHDOG"
         ],
         "release_versions": ["5"],
-        "extra_labels": ["Cypress", "PSOC6"],
+        "extra_labels": ["Cypress", "PSOC6", "MXCRYPTO"],
         "components_add": ["SOFTFP", "RTX"],
         "public": false,
         "overrides" : {
@@ -8895,6 +8895,7 @@
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
+            "MXCRYPTO_02",
             "CM0P_SLEEP",
             "WHD",
             "4343W",
@@ -8913,6 +8914,7 @@
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": [
             "PSOC6_02",
+            "MXCRYPTO_02",
             "CM0P_SLEEP",
             "WHD",
             "43012",
@@ -8931,6 +8933,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
+            "MXCRYPTO_01",
             "CM0P_SLEEP",
             "WHD",
             "4343W",
@@ -8972,6 +8975,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "PSOC6_01",
+            "MXCRYPTO_01",
             "CM0P_SLEEP"
         ],
         "macros_add": ["CY8C6347BZI_BLD53"],
@@ -8987,7 +8991,7 @@
         "components_remove": ["QSPIF"],
         "device_has_remove": ["QSPI"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["PSOC6_01"],
+        "extra_labels_add": ["PSOC6_01", "MXCRYPTO_01"],
         "macros_add": ["CYB06447BZI_D54",
                        "PSOC6_DYNSRM_DISABLE=1",
                        "CY_CFG_SYSCLK_WCO_ENABLED=1",
@@ -9004,6 +9008,7 @@
         "features": ["BLE"],
         "extra_labels_add": [
             "PSOC6_01",
+            "MXCRYPTO_01",
             "CM0P_SLEEP",
             "WHD",
             "43012",
@@ -9023,7 +9028,7 @@
         "inherits": ["MCU_PSOC6_M0"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "FUTURE_SEQUANA"],
-        "extra_labels_remove": ["PSOC6"],
+        "extra_labels_remove": ["PSOC6", "MXCRYPTO"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -9057,7 +9062,7 @@
         "supported_form_factors": ["ARDUINO"],
         "components_remove": ["QSPIF"],
         "extra_labels_add": ["PSOC6_FUTURE", "CY8C63XX", "CORDIO"],
-        "extra_labels_remove": ["PSOC6"],
+        "extra_labels_remove": ["PSOC6", "MXCRYPTO"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],

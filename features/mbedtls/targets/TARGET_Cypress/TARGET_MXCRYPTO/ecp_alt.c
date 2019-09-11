@@ -2669,21 +2669,31 @@ cy_en_crypto_ecc_curve_id_t cy_get_dp_idx(mbedtls_ecp_group_id gid)
 
     switch( gid )
     {
+    #if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP192R1:
             dp_idx = CY_CRYPTO_ECC_ECP_SECP192R1;
             break;
+    #endif /* defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED) */
+    #if defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP224R1:
             dp_idx = CY_CRYPTO_ECC_ECP_SECP224R1;
             break;
+    #endif /* defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED) */
+    #if defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP256R1:
             dp_idx = CY_CRYPTO_ECC_ECP_SECP256R1;
             break;
+    #endif /* defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) */
+    #if defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP384R1:
             dp_idx = CY_CRYPTO_ECC_ECP_SECP384R1;
             break;
+    #endif /* defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) */
+    #if defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
         case MBEDTLS_ECP_DP_SECP521R1:
             dp_idx = CY_CRYPTO_ECC_ECP_SECP521R1;
             break;
+    #endif /* defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED) */
 
         default:
             dp_idx = CY_CRYPTO_ECC_ECP_NONE;
