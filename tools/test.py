@@ -110,13 +110,21 @@ def main():
                           default=False,
                           help="Verbose diagnostic output")
 
+        parser.add_argument("--silent",
+                            action="store_true",
+                            dest="silent",
+                            default=False,
+                            help="Silent diagnostic output (no copy, compile notification)")
+
         parser.add_argument("--stats-depth",
                             type=int,
                             dest="stats_depth",
                             default=2,
                             help="Depth level for static memory report")
+
         parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
                           default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
         parser.add_argument("--icetea",
                             action="store_true",
                             dest="icetea",
@@ -243,7 +251,7 @@ def main():
                     )
 
                 # Build sources
-                notify = TerminalNotifier(options.verbose)
+                notify = TerminalNotifier(options.verbose, options.silent)
                 build_library(base_source_paths, options.build_dir, mcu,
                               toolchain_name, jobs=options.jobs,
                               clean=options.clean, report=build_report,
@@ -279,7 +287,7 @@ def main():
                     resource_filter = None
 
                 # Build all the tests
-                notify = TerminalNotifier(options.verbose)
+                notify = TerminalNotifier(options.verbose, options.silent)
                 test_build_success, test_build = build_tests(
                     tests,
                     [os.path.relpath(options.build_dir)],
