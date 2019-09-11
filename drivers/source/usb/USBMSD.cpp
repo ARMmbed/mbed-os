@@ -66,7 +66,8 @@ enum Status {
 
 USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(get_usb_phy(), vendor_id, product_id, product_release),
-      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
+      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd),
+      _addr(0), _length(0), _mem_ok(false), _block_size(0), _memory_size(0), _block_count(0), _out_ready(false), _in_ready(false), _bulk_out_size(0)
 {
     _init();
     if (connect_blocking) {
@@ -78,7 +79,8 @@ USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint1
 
 USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(phy, vendor_id, product_id, product_release),
-      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
+      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd),
+      _addr(0), _length(0), _mem_ok(false), _block_size(0), _memory_size(0), _block_count(0), _out_ready(false), _in_ready(false), _bulk_out_size(0)
 {
     _init();
 }
