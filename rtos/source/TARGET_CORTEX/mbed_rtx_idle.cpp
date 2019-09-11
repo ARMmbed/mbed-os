@@ -22,7 +22,7 @@
 
 #include "rtos/source/rtos_idle.h"
 #include "platform/mbed_power_mgmt.h"
-#include "platform/mbed_os_timer.h"
+#include "platform/source/mbed_os_timer.h"
 #include "TimerEvent.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"

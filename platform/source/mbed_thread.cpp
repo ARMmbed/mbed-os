@@ -17,7 +17,7 @@
 
 #include "platform/mbed_thread.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_os_timer.h"
+#include "platform/source/mbed_os_timer.h"
 
 /* If the RTOS is present, we call the RTOS API to do the work */
 /* If the RTOS is not present, the RTOS API calls us to do the work */
