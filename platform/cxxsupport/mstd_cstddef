@@ -27,7 +27,11 @@
  * - - MSTD_CONSTEXPR_XX_14 macros that can be used to mark
  *     things that are valid as constexpr only for C++14 or later,
  *     permitting constexpr use where ARM C 5 would reject it.
+  * - - MSTD_CONSTEXPR_XX_11 macros that can be used to permit
+  *     constexpr alternatives for C.
  */
+
+#if __cplusplus
 
 #include <cstddef>
 
@@ -41,6 +45,9 @@
 #define MSTD_CONSTEXPR_FN_14 inline
 #define MSTD_CONSTEXPR_OBJ_14 const
 #endif
+
+#define MSTD_CONSTEXPR_FN_11 constexpr
+#define MSTD_CONSTEXPR_OBJ_11 constexpr
 
 #ifdef __CC_ARM
 
@@ -71,5 +78,14 @@ using std::nullptr_t;
 using std::max_align_t;
 
 }
+
+#else // __cplusplus
+
+#define MSTD_CONSTEXPR_FN_14 inline
+#define MSTD_CONSTEXPR_OBJ_14 const
+#define MSTD_CONSTEXPR_FN_11 inline
+#define MSTD_CONSTEXPR_OBJ_11 const
+
+#endif // __cplusplus
 
 #endif // MSTD_CSTDDEF_
