@@ -487,17 +487,17 @@ Call `Socket::open()` twice.
 1. Create an object by calling `new Socket()`.
 1. Call `Socket::open(stack)`.
 1. Call `Socket::open(stack)`.
-1. Delete the socket.
+1. Destroy the socket.
 
 **Expected result:**
 
-`Socket::open()` first returns `NSAPI_ERROR_OK` and then calls `NSAPI_ERROR_PARAMETER`.
+`Socket::open()` first call (socket was not opened) returns `NSAPI_ERROR_OK` and nexts calls (socet was opened by previous call Socket::open()) return `NSAPI_ERROR_PARAMETER`.
 
 ### SOCKET_OPEN_CLOSE_REPEAT
 
 **Description:**
 
-Call `Socket::open()` followed by `Socket::close()` and then again `Socket::open()`. This allows you to reuse the same object.
+Call `Socket::open()` followed by `Socket::close()` and then again `Socket::open()`. Should allows you to reuse the same object.
 
 **Preconditions:**
 
@@ -511,7 +511,7 @@ Call `Socket::open()` followed by `Socket::close()` and then again `Socket::open
 1. Call `Socket::close(stack)`.
 1. Call `Socket::open(stack)`.
 1. Call `Socket::close(stack)`.
-1. Delete the socket.
+1. Destroy the socket.
 
 **Expected result:**
 
@@ -1155,13 +1155,13 @@ Test whether you tolerate an endpoint closing the connection.
 1. Call `TCPSocket::recv(<buffer>, 30);`.
 1. Repeat until `recv()` returns 0.
 1. Call `TCPSocket::close();`.
-1. Delete the socket.
+1. Destroy the socket.
 
 **Expected result:**
 
 Connect returns `NSAPI_ERROR_OK`.
 
-The first `recv()` returns more that zero. Something between 10 and 30 bytes (datetime string).
+The first `recv()` returns datetime string length (It is between 10 and 30 bytes).
 
 The second `recv()` returns zero because the endpoint closed the connection. `close()` returns `NSAPI_ERROR_OK`.
 
@@ -1185,7 +1185,7 @@ Test you can request setting valid TCP keepalive values.
 **Postconditions:**
 
 1. Call `TCPSocket::close();`.
-1. Delete the socket.
+1. Destroy the socket.
 
 **Expected result:**
 
@@ -1257,11 +1257,11 @@ Make an HTTP request to a closed socket.
 
 ### TLSSOCKET_SEND_REPEAT
 
-**Description:** Run `SOCKET_SEND_REPEATÂ` for TLSSOCKET by using port number 2009.
+**Description:** Run `SOCKET_SEND_REPEAT` for TLSSOCKET by using port number 2009.
 
 ### TLSSOCKET_SEND_TIMEOUT
 
-**Description:** Run `SOCKET_SEND_TIMEOUTÂ` for TLSSOCKET by using port number 2009.
+**Description:** Run `SOCKET_SEND_TIMEOUT` for TLSSOCKET by using port number 2009.
 
 ### TLSSOCKET_SEND_UNCONNECTED
 
@@ -1287,11 +1287,11 @@ Make an HTTP request to an unconnected socket.
 
 ### TLSSOCKET_ECHOTEST
 
-**Description:** Run `SOCKET_ECHOTESTÂ` for TLSSOCKET by using port number 2007.
+**Description:** Run `SOCKET_ECHOTEST` for TLSSOCKET by using port number 2007.
 
 ### TLSSOCKET_ECHOTEST_NONBLOCK
 
-**Description:** Run `SOCKET_ECHOTEST_NONBLOCKÂ` for TLSSOCKET by using port number 2007.
+**Description:** Run `SOCKET_ECHOTEST_NONBLOCK` for TLSSOCKET by using port number 2007.
 
 ### TLSSOCKET_ENDPOINT_CLOSE
 
@@ -1322,7 +1322,7 @@ Verify TLS Socket fails to connect without a certificate.
 
 **Description:**
 
-Run `TCPSOCKET_RECV_TIMEOUTÂ` for TLSSOCKET by using port number 2007.
+Run `TCPSOCKET_RECV_TIMEOUT` for TLSSOCKET by using port number 2007.
 
 ### TLSSOCKET_SIMULTANEOUS_TEST
 
