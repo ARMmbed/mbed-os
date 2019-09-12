@@ -203,7 +203,7 @@ protected:
     // PDP context id
     int _cid;
 
-    // stack type from PDP context
+    // stack type - initialised as PDP type and set accordingly after CGPADDR checked
     nsapi_ip_stack_t _stack_type;
 
 private:
