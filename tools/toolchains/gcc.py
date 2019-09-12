@@ -88,6 +88,7 @@ class GCC(mbedToolchain):
         if cpu == "cortex-m33+nodsp":
             self.cpu.append("-march=armv8-m.main")
         elif cpu == "cortex-m33":
+            self.cpu.append("-mcpu=cortex-m33")
             self.cpu.append("-march=armv8-m.main+dsp")
         else:
             self.cpu.append("-mcpu={}".format(cpu.lower()))

@@ -46,7 +46,8 @@ POST_BINARY_WHITELIST = set([
     "TEENSY3_1Code.binary_hook",
     "MCU_NRF51Code.binary_hook",
     "LPCTargetCode.lpc_patch",
-    "LPC4088Code.binary_hook"
+    "LPC4088Code.binary_hook",
+    "LPC55S69Code.binary_hook"
 ])
 
 class MCUXpresso(GNUARMEclipse):
@@ -367,7 +368,8 @@ class MCUXpresso(GNUARMEclipse):
             'cortex-m0' : 'cm0',
             'cortex-m0.small-multiply' : 'cm0.smallmul',
             'cortex-m0plus' : 'cm0plus',
-            'cortex-m0plus.small-multiply' : 'cm0plus.smallmul'
+            'cortex-m0plus.small-multiply' : 'cm0plus.smallmul',
+            'cortex-m33' : 'cm33'
         }
 
         # Remove options that are supplied by CDT
