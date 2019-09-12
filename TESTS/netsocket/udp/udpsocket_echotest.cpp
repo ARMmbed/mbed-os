@@ -68,7 +68,7 @@ void UDPSOCKET_ECHOTEST()
     int sent;
     int packets_sent = 0;
     int packets_recv = 0;
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+    for (unsigned int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
 
         fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
@@ -127,7 +127,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     int sent;
     int packets_sent = 0;
     int packets_recv = 0;
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
+    for (unsigned int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); ++s_idx) {
         int pkt_s = pkt_sizes[s_idx];
         int packets_sent_prev = packets_sent;
         for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {

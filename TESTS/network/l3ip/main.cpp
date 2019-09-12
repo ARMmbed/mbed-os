@@ -25,10 +25,6 @@
 
 using namespace utest::v1;
 
-namespace {
-NetworkInterface *l3interface;
-}
-
 void L3IP_START()
 {
     printf("MBED: L3IP_START\n");
