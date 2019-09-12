@@ -212,8 +212,9 @@ osStatus Semaphore::release(void)
             return osErrorResource;
         }
     } while (!core_util_atomic_cas_s32(&_count, &old_count, old_count + 1));
-#endif
+
     return osOK;
+#endif // MBED_CONF_RTOS_PRESENT
 }
 
 Semaphore::~Semaphore()
