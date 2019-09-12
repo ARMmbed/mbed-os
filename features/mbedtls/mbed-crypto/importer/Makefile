@@ -90,6 +90,7 @@ rsync:
 	# Copying Mbed Crypto into Mbed OS...
 	rm -rf $(TARGET_SRV_IMPL)
 	rm -rf $(TARGET_SPE)
+	rm -rf $(TARGET_SRC)
 
 	mkdir -p $(TARGET_SRV_IMPL)
 	mkdir -p $(TARGET_SPE)
