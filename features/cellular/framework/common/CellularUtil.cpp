@@ -28,10 +28,10 @@
 using namespace mbed;
 namespace mbed_cellular_util {
 
-void convert_ipv6(char *ip)
+nsapi_version_t convert_ipv6(char *ip)
 {
     if (!ip) {
-        return;
+        return NSAPI_UNSPEC;
     }
 
     int len = strlen(ip);
@@ -49,7 +49,11 @@ void convert_ipv6(char *ip)
 
     // more that 3 periods mean that it was ipv6 but in format of a1.a2.a3.a4.a5.a6.a7.a8.a9.a10.a11.a12.a13.a14.a15.a16
     // we need to convert it to hexadecimal format separated with colons
-    if (pos > 3) {
+    if (pos == 3) {
+
+        return NSAPI_IPv4;
+
+    } else if (pos > 3) {
         pos = 0;
         int ip_pos = 0;
         char b;
@@ -74,7 +78,11 @@ void convert_ipv6(char *ip)
                 ip[pos] = '\0';
             }
         }
+
+        return NSAPI_IPv6;
     }
+
+    return NSAPI_UNSPEC;
 }
 
 // For example "32.1.13.184.0.0.205.48.0.0.0.0.0.0.0.0"
