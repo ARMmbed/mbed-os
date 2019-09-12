@@ -32,6 +32,7 @@
 #include "drivers/UARTSerial.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
+#include "hal/explicit_pinmap.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -141,6 +142,7 @@ extern serial_t stdio_uart;
 class DirectSerial : public FileHandle {
 public:
     DirectSerial(PinName tx, PinName rx, int baud);
+    DirectSerial(const serial_pinmap_t &explicit_pinmap, int baud);
     virtual ssize_t write(const void *buffer, size_t size);
     virtual ssize_t read(void *buffer, size_t size);
     virtual off_t seek(off_t offset, int whence = SEEK_SET)
@@ -167,14 +169,39 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
     if (stdio_uart_inited) {
         return;
     }
-    serial_init(&stdio_uart, tx, rx);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    serial_init_direct(&stdio_uart, &console_pinmap);
     serial_baud(&stdio_uart, baud);
+
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
-    serial_set_flow_control(&stdio_uart, FlowControlRTS, STDIO_UART_RTS, NC);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
-    serial_set_flow_control(&stdio_uart, FlowControlCTS, NC, STDIO_UART_CTS);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(NC, STDIO_UART_CTS);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
-    serial_set_flow_control(&stdio_uart, FlowControlRTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, STDIO_UART_CTS);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, fc_pinmap);
+#endif
+}
+
+DirectSerial::DirectSerial(const serial_pinmap_t &explicit_pinmap, int baud)
+{
+    if (stdio_uart_inited) {
+        return;
+    }
+    serial_init_direct(&stdio_uart, &explicit_pinmap);
+    serial_baud(&stdio_uart, baud);
+
+#if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, fc_pinmap);
+#elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(NC, STDIO_UART_CTS);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, fc_pinmap);
+#elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, STDIO_UART_CTS);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, fc_pinmap);
 #endif
 }
 
@@ -261,17 +288,23 @@ MBED_WEAK FileHandle *mbed::mbed_override_console(int fd)
 static FileHandle *default_console()
 {
 #if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
+
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
-    static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+   static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+   static UARTSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
-    console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
+    console.serial_set_flow_control(SerialBase::RTS, fc_pinmap);
 #   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
-    console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(NC, STDIO_UART_CTS);
+    console.serial_set_flow_control(SerialBase::CTS, fc_pinmap);
 #   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
-    console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+    static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, STDIO_UART_CTS);
+    console.serial_set_flow_control(SerialBase::RTSCTS, fc_pinmap);
 #   endif
 #  else
-    static DirectSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static DirectSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
 #else // MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
     static Sink console;
