@@ -460,6 +460,22 @@
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
         "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-atecc608a",
+        "github": "https://github.com/ARMmbed/mbed-os-example-atecc608a",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": ["mbed-os-example-atecc608a/tests/atecc608a.log"],
+        "auto-update" : true
     }
   ]
 }
