@@ -8763,7 +8763,7 @@
         "extra_labels_add": [
             "M23_S"
         ],
-        "device_has_remove": ["TRNG", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "device_has_remove": ["TRNG"],
         "components_add": ["FLASHIAP"],
         "deliver_to_target": "NU_PFM_M2351_NPSA_NS",
         "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NPSA_NS/TARGET_NU_PREBUILD_SECURE",
