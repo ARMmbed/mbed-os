@@ -826,6 +826,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     off_t off = lseek(fh, offset, whence);
     // Assuming INT_MAX = LONG_MAX, so we don't care about prototype difference
     if (off > INT_MAX) {
+        // Be cautious in case off_t is 64-bit
         errno = EOVERFLOW;
         return -1;
     }
