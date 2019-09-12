@@ -70,7 +70,7 @@ void TLSSOCKET_ECHOTEST()
 
     int recvd;
     int sent;
-    for (int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
+    for (unsigned int s_idx = 0; s_idx < sizeof(pkt_sizes) / sizeof(*pkt_sizes); s_idx++) {
         int pkt_s = pkt_sizes[s_idx];
         fill_tx_buffer_ascii(tls_global::tx_buffer, BUFF_SIZE);
 

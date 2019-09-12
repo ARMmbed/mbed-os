@@ -41,6 +41,7 @@ void SYNCHRONOUS_DNS_CACHE()
         SocketAddress address;
         int started_us = ticker_us;
         nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts[0], &address);
+        TEST_ASSERT_TRUE(err == NSAPI_ERROR_OK);
 
         int delay_ms = (ticker_us - started_us) / 1000;
 
