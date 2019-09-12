@@ -99,6 +99,14 @@ typedef struct {
      * You can stop the watchdog after it starts without a reset.
      */
     bool disable_watchdog;
+    /**
+     * Typical frequency of not calibrated watchdog clock in Hz.
+     */
+    uint32_t clock_typical_frequency;
+    /**
+     * Maximum frequency of not calibrated watchdog clock in Hz.
+     */
+    uint32_t clock_max_frequency;
 } watchdog_features_t;
 
 
