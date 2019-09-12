@@ -63,6 +63,8 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     features.max_timeout = ((float)INT32_MAX/clk)*1000;
     features.update_config = true;
     features.disable_watchdog = false;
+    features.clock_typical_frequency = 4000000;
+    features.clock_max_frequency = 4040000;
 
     return features;
 }
