@@ -278,11 +278,13 @@ int hex_str_to_int(const char *hex_string, int hex_string_length)
 int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 {
     int strcount = 0;
-    for (int i = 0; i + 1 < len; i += 2) {
-        char tmp;
-        hex_to_char(str + i, tmp);
-        buf[strcount] = tmp;
-        strcount++;
+    if (str && buf) {
+        for (int i = 0; i + 1 < len; i += 2) {
+            char tmp;
+            hex_to_char(str + i, tmp);
+            buf[strcount] = tmp;
+            strcount++;
+        }
     }
 
     return strcount;
@@ -290,9 +292,11 @@ int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 
 void hex_to_char(const char *hex, char &buf)
 {
-    int upper = hex_str_to_int(hex, 1);
-    int lower = hex_str_to_int(hex + 1, 1);
-    buf = ((upper << 4) & 0xF0) | (lower & 0x0F);
+    if (hex) {
+        int upper = hex_str_to_int(hex, 1);
+        int lower = hex_str_to_int(hex + 1, 1);
+        buf = ((upper << 4) & 0xF0) | (lower & 0x0F);
+    }
 }
 
 void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt)
