@@ -61,11 +61,9 @@ extern "C" {
         IRQn_Type irq = OsTimer::get_irq_number();
 
         NVIC_SetPriority(irq, 0xFF);
-#ifdef NVIC_RAM_VECTOR_ADDRESS
         NVIC_SetVector(irq, (uint32_t)handler);
-#else
         MBED_ASSERT(handler == (IRQHandler_t)NVIC_GetVector(irq));
-#endif
+
         if (irq >= 0) {
             NVIC_EnableIRQ(irq);
         }
