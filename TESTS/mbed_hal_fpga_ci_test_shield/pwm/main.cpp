@@ -32,8 +32,8 @@ using namespace utest::v1;
 
 #include "MbedTester.h"
 #include "pinmap.h"
+#include "hal/explicit_pinmap.h"
 #include "test_utils.h"
-
 
 #define pwm_debug_printf(...)
 
@@ -74,7 +74,7 @@ void pwm_init_free(PinName pin)
 }
 
 
-void pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_prc, pwm_api_test_t api_test)
+void pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_prc, pwm_api_test_t api_test, bool init_direct)
 {
     pwm_debug_printf("PWM test on pin = %s (%i)\r\n", pinmap_ff_default_pin_to_string(pin), pin);
     pwm_debug_printf("Testing period = %lu ms, duty-cycle = %lu %%\r\n", period_ms, fill_prc);
@@ -86,7 +86,12 @@ void pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_prc, pw
 
     pwmout_t pwm_out;
 
-    pwmout_init(&pwm_out, pin);
+    if (init_direct) {
+        const PinMap pinmap = get_pwm_pinmap(pin);
+        pwmout_init_direct(&pwm_out, &pinmap);
+    } else {
+        pwmout_init(&pwm_out, pin);
+    }
 
     core_util_critical_section_enter();
 
@@ -156,10 +161,10 @@ void pwm_period_fill_test(PinName pin, uint32_t period_ms, uint32_t fill_prc, pw
     pwmout_free(&pwm_out);
 }
 
-template<uint32_t period_ms, uint32_t fill_prc, pwm_api_test_t api_test>
+template<uint32_t period_ms, uint32_t fill_prc, pwm_api_test_t api_test, bool init_direct>
 void pwm_period_fill_test(PinName pin)
 {
-    pwm_period_fill_test(pin, period_ms, fill_prc, api_test);
+    pwm_period_fill_test(pin, period_ms, fill_prc, api_test, init_direct);
 }
 
 
@@ -168,48 +173,49 @@ Case cases[] = {
     Case("PWM - init/free test", all_ports<PWMPort, DefaultFormFactor, pwm_init_free>),
 
     // This will be run for single pin
-    Case("PWM - period: 10 ms, fill: 10%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_WRITE> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_WRITE, false> >),
+    Case("PWM (direct init) - period: 10 ms, fill: 10%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_WRITE, true> >),
 
-    Case("PWM - period: 10 ms, fill: 10%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 10%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_US_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH_US> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 10 ms, fill: 10%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 10, PERIOD_PULSEWIDTH_US, false> >),
 
-    Case("PWM - period: 10 ms, fill: 50%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 50%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 50%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_US_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH_US> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 10 ms, fill: 50%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 50, PERIOD_PULSEWIDTH_US, false> >),
 
-    Case("PWM - period: 10 ms, fill: 90%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 90%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 90%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_US_WRITE> >),
-    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH_US> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 10 ms, fill: 90%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<10, 90, PERIOD_PULSEWIDTH_US, false> >),
 
-    Case("PWM - period: 50 ms, fill: 10%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 10%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 10%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_US_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH_US> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 50 ms, fill: 10%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 10, PERIOD_PULSEWIDTH_US, false> >),
 
-    Case("PWM - period: 50 ms, fill: 50%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 50%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 50%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_US_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH_US> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 50 ms, fill: 50%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 50, PERIOD_PULSEWIDTH_US, false> >),
 
-    Case("PWM - period: 50 ms, fill: 90%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 90%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_MS_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 90%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_US_WRITE> >),
-    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH> >),
-    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH_MS> >),
-    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH_US> >)
+    Case("PWM - period: 50 ms, fill: 90%, api: period/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 90%, api: period_ms/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_MS_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 90%, api: period_us/write", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_US_WRITE, false> >),
+    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH, false> >),
+    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width_ms", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH_MS, false> >),
+    Case("PWM - period: 50 ms, fill: 90%, api: period/pulse_width_us", one_peripheral<PWMPort, DefaultFormFactor, pwm_period_fill_test<50, 90, PERIOD_PULSEWIDTH_US, false> >)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
