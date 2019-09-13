@@ -1,0 +1,92 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef MSTD_MUTEX_
+#define MSTD_MUTEX_
+
+#include <mutex>
+
+namespace mstd {
+using std::defer_lock;
+using std::defer_lock_t;
+using std::try_to_lock;
+using std::try_to_lock_t;
+using std::adopt_lock;
+using std::adopt_lock_t;
+
+using std::lock_guard;
+using std::unique_lock;
+
+using std::try_lock;
+using std::lock;
+
+#if __cpp_lib_scoped_lock >= 201703
+using std::scoped_lock;
+#else
+// [thread.lock.scoped]
+// 2+ locks - use std::lock
+template <class... MutexTypes>
+class scoped_lock
+#if 0 // no definition yet - needs tuple
+    tuple<MutexTypes &...> pm;
+    static void ignore(...) { }
+public:
+    explicit scoped_lock(MutexTypes &... m) : pm(tie(m...)) { mstd::lock(m...); }
+    explicit scoped_lock(adopt_lock_t, MutexTypes &... m) noexcept : pm(mstd::tie(m...)) { }
+    ~scoped_lock() { mstd::apply([](MutexTypes &... m) { ignore( (void(m.unlock()),0) ...); }, pm); }
+
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock &operator=(const scoped_lock &) = delete;
+}
+#else
+;
+#endif
+
+// 0 locks - no-op
+template <>
+class scoped_lock<> {
+public:
+    explicit scoped_lock() = default;
+    explicit scoped_lock(adopt_lock_t) noexcept { }
+    ~scoped_lock() = default;
+
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock &operator=(const scoped_lock &) = delete;
+};
+
+// 1 lock - simple lock, equivalent to lock_guard<Mutex>
+template <class Mutex>
+class scoped_lock<Mutex> {
+    Mutex &pm;
+public:
+    using mutex_type = Mutex;
+    explicit scoped_lock(Mutex &m) : pm(m) { m.lock(); }
+    explicit scoped_lock(adopt_lock_t, Mutex &m) noexcept : pm(m) { }
+    ~scoped_lock() { pm.unlock(); }
+
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock &operator=(const scoped_lock &) = delete;
+};
+#endif
+
+using std::once_flag;
+using std::call_once;
+
+using std::mutex;
+using std::recursive_mutex;
+}
+
+#endif // MSTD_MUTEX_

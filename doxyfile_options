@@ -858,6 +858,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */components/802.15.4_RF/* \
                          */components/wifi/* \
                          */UNITTESTS/* \
+                         */MODULETESTS/* \
                          */features/cellular/framework/AT/* \
                          */features/cellular/framework/device/* \
                          */features/cellular/framework/common/*

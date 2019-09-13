@@ -1,0 +1,30 @@
+{
+  "configurations": [
+    {
+      "name": "GNU-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "mingw64" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "environments": [
+        {
+          "environment": "mingw64"
+        }
+      ]
+    },
+    {
+      "name": "GNU-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "mingw64" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "environments": [
+        {
+          "environment": "mingw64"
+        }
+      ]
+    }
+  ]
+}

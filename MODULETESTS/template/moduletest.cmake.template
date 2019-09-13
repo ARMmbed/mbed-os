@@ -1,0 +1,16 @@
+
+####################
+# MODULE TESTS
+####################
+
+set(moduletest-includes ${moduletest-includes}
+  headerfile
+)
+
+set(moduletest-sources
+  cppfile
+)
+
+set(moduletest-test-sources
+  dirname/template/test_template.cpp
+)

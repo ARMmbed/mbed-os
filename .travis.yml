@@ -66,7 +66,7 @@ matrix:
       script:
         - |
           ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
-              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' ':!MODULETESTS/' \
               ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
 
 
