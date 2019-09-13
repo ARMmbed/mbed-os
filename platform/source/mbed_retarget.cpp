@@ -443,7 +443,7 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
 {
     // First reserve the integer file descriptor
     int fd = bind_to_fd(fh);
-    if (!fd) {
+    if (fd < 0) {
         return NULL;
     }
     // Then bind that to the C stream. If successful, C library
@@ -825,6 +825,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
 
     off_t off = lseek(fh, offset, whence);
     // Assuming INT_MAX = LONG_MAX, so we don't care about prototype difference
+    // coverity[result_independent_of_operands]
     if (off > INT_MAX) {
         // Be cautious in case off_t is 64-bit
         errno = EOVERFLOW;
