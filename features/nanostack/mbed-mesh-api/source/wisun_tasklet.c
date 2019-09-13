@@ -95,7 +95,7 @@ typedef struct {
 /* Tasklet data */
 static wisun_tasklet_data_str_t *wisun_tasklet_data_ptr = NULL;
 static wisun_certificates_t *wisun_certificates_ptr = NULL;
-static wisun_network_settings_t wisun_settings_str = {NULL, WS_NA, WS_NA, WS_NA};
+static wisun_network_settings_t wisun_settings_str = {NULL, MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_CLASS, MBED_CONF_MBED_MESH_API_WISUN_OPERATING_MODE};
 static mac_api_t *mac_api = NULL;
 
 extern fhss_timer_t fhss_functions;

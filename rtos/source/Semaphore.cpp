@@ -24,7 +24,7 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
-#include "platform/mbed_os_timer.h"
+#include "platform/source/mbed_os_timer.h"
 
 #include <string.h>
 

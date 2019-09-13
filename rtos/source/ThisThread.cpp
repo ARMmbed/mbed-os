@@ -28,7 +28,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_os_timer.h"
+#include "platform/source/mbed_os_timer.h"
 
 #if !MBED_CONF_RTOS_PRESENT
 /* If the RTOS is not present, we call mbed_thread.cpp to do the work */
