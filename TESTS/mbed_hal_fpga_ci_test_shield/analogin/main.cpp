@@ -28,6 +28,7 @@
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "pinmap.h"
+#include "hal/explicit_pinmap.h"
 #include "test_utils.h"
 #include "MbedTester.h"
 #include "analogin_fpga_test.h"
@@ -36,8 +37,8 @@ using namespace utest::v1;
 
 #define analogin_debug_printf(...)
 
-#define DELTA_FLOAT                     0.05f    // 5%
-#define DELTA_U16                       3277     // 5%
+#define DELTA_FLOAT                     (0.1f)       // 10%
+#define DELTA_U16                       (2*3277)     // 10%
 
 const PinList *form_factor = pinmap_ff_default_pins();
 const PinList *restricted = pinmap_restricted_pins();
@@ -52,6 +53,7 @@ void fpga_analogin_init_test(PinName pin)
     analogin_free(&analogin);
 }
 
+template<bool init_direct>
 void fpga_analogin_test(PinName pin)
 {
     tester.reset();
@@ -61,7 +63,13 @@ void fpga_analogin_test(PinName pin)
     /* Test analog input */
 
     analogin_t analogin;
-    analogin_init(&analogin, pin);
+
+    if (init_direct) {
+        const PinMap pinmap = get_analogin_pinmap(pin);
+        analogin_init_direct(&analogin, &pinmap);
+    } else {
+        analogin_init(&analogin, pin);
+    }
 
     tester.gpio_write(MbedTester::LogicalPinGPIO0, 1, true);
     TEST_ASSERT_FLOAT_WITHIN(DELTA_FLOAT, 1.0f, analogin_read(&analogin));
@@ -81,7 +89,8 @@ Case cases[] = {
     // This will be run for all pins
     Case("AnalogIn - init test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_init_test>),
     // This will be run for single pin
-    Case("AnalogIn - read test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_test>),
+    Case("AnalogIn - read test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_test<false>>),
+    Case("AnalogIn (direct init) - read test", all_ports<AnaloginPort, DefaultFormFactor, fpga_analogin_test<true>>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

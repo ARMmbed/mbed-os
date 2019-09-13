@@ -29,6 +29,7 @@
 #include "mbed.h"
 #include "SPIMasterTester.h"
 #include "pinmap.h"
+#include "hal/explicit_pinmap.h"
 #include "test_utils.h"
 #include "spi_fpga_test.h"
 
@@ -104,7 +105,7 @@ void fpga_spi_test_init_free(PinName mosi, PinName miso, PinName sclk, PinName s
     spi_free(&spi);
 }
 
-void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency)
+void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel, SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency, bool init_direct)
 {
     spi_capabilities_t capabilities;
 
@@ -126,7 +127,13 @@ void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     // Initialize mbed SPI pins
 
-    spi_init(&spi, mosi, miso, sclk, ssel);
+    if (init_direct) {
+        const spi_pinmap_t pinmap = get_spi_pinmap(mosi, miso, sclk, ssel);
+        spi_init_direct(&spi, &pinmap);
+    } else {
+        spi_init(&spi, mosi, miso, sclk, ssel);
+    }
+
     spi_format(&spi, sym_size, spi_mode, 0);
     spi_frequency(&spi, frequency);
 
@@ -204,10 +211,10 @@ void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel
     tester.reset();
 }
 
-template<SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency>
+template<SPITester::SpiMode spi_mode, uint32_t sym_size, transfer_type_t transfer_type, uint32_t frequency, bool init_direct>
 void fpga_spi_test_common(PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    fpga_spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size, transfer_type, frequency);
+    fpga_spi_test_common(mosi, miso, sclk, ssel, spi_mode, sym_size, transfer_type, frequency, init_direct);
 }
 
 Case cases[] = {
@@ -215,18 +222,23 @@ Case cases[] = {
     Case("SPI - init/free test all pins", all_ports<SPIPort, DefaultFormFactor, fpga_spi_test_init_free>),
 
     // This will be run for all peripherals
-    Case("SPI - basic test", all_peripherals<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - basic test", all_peripherals<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, false> >),
+    Case("SPI - basic test (direct init)", all_peripherals<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, true> >),
 
     // This will be run for single pin configuration
-    Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode1, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-    Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-    Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-    Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-    Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ> >),
-    Case("SPI - frequency testing (2 MHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_2_MHZ> >),
-    Case("SPI - block write", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ> >),
+    Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode1, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, false> >),
+    Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, false> >),
+    Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, false> >),
+
+    Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ, false> >),
+
+    Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ, false> >),
+    Case("SPI - frequency testing (2 MHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_2_MHZ, false> >),
+
+    Case("SPI - block write", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_BLOCK_WRITE_SYNC, FREQ_1_MHZ, false> >),
+
 #if DEVICE_SPI_ASYNCH
-    Case("SPI - async mode", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ> >)
+    Case("SPI - async mode", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_TRANSFER_ASYNC, FREQ_1_MHZ, false> >)
 #endif
 };
 
