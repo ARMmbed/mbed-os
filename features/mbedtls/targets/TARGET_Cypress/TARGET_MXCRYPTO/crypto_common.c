@@ -168,5 +168,5 @@ void cy_hw_sha_clone( void *ctxDst, const void *ctxSrc, uint32_t ctxSize,
     CY_CRYPTO_CHECK_PARAM( shaBuffersDst != NULL );
 
     Cy_Crypto_Core_MemCpy(((cy_hw_crypto_t *)ctxSrc)->base, ctxDst, ctxSrc, (uint16_t)ctxSize);
-    Cy_Crypto_Core_Sha_Init(((cy_hw_crypto_t *)ctxSrc)->base, hashStateDst, hashStateDst->mode, shaBuffersDst);
+    Cy_Crypto_Core_Sha_Init(((cy_hw_crypto_t *)ctxSrc)->base, hashStateDst, (cy_en_crypto_sha_mode_t)hashStateDst->mode, shaBuffersDst);
 }

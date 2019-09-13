@@ -39,12 +39,12 @@
 
 #include <string.h>
 
+#if defined(MBEDTLS_SHA1_ALT)
+
 /* Parameter validation macros based on platform_util.h */
 #define SHA1_VALIDATE_RET(cond)                             \
     MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_SHA1_BAD_INPUT_DATA )
 #define SHA1_VALIDATE(cond)  MBEDTLS_INTERNAL_VALIDATE( cond )
-
-#if defined(MBEDTLS_SHA1_ALT)
 
 void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
 {

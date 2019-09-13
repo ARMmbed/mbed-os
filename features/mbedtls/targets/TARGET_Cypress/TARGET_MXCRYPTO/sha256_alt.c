@@ -38,12 +38,12 @@
 
 #include <string.h>
 
+#if defined(MBEDTLS_SHA256_ALT)
+
 /* Parameter validation macros based on platform_util.h */
 #define SHA256_VALIDATE_RET(cond)                           \
     MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_SHA256_BAD_INPUT_DATA )
 #define SHA256_VALIDATE(cond)  MBEDTLS_INTERNAL_VALIDATE( cond )
-
-#if defined(MBEDTLS_SHA256_ALT)
 
 void mbedtls_sha256_init( mbedtls_sha256_context *ctx )
 {
