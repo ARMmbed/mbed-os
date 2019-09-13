@@ -41,6 +41,7 @@ set(unittest-test-sources
   stubs/LoRaWANTimer_stub.cpp
   stubs/LoRaMacCommand_stub.cpp
   stubs/LoRaPHYEU868_stub.cpp
+  stubs/mbed_rtc_time_stub.cpp
 )
 
 # defines

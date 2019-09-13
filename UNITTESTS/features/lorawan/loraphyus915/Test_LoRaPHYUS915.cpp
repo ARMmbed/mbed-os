@@ -146,22 +146,6 @@ TEST_F(Test_LoRaPHYUS915, restore_default_channels)
     object->restore_default_channels();
 }
 
-TEST_F(Test_LoRaPHYUS915, rx_config)
-{
-    rx_config_params_t p;
-    memset(&p, 0, sizeof(p));
-
-    radio.uint8_value = 1;
-    EXPECT_TRUE(!object->rx_config(&p));
-
-    radio.uint8_value = 0;
-    p.is_repeater_supported = true;
-    EXPECT_TRUE(object->rx_config(&p));
-
-    p.is_repeater_supported = false;
-    EXPECT_TRUE(object->rx_config(&p));
-}
-
 TEST_F(Test_LoRaPHYUS915, tx_config)
 {
     tx_config_params_t p;

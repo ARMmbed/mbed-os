@@ -171,7 +171,7 @@ uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
     return LoRaPHY_stub::uint8_value;
 }
 
-void LoRaPHY::get_rx_window_params(float t_symbol, uint8_t min_rx_symbols,
+void LoRaPHY::get_rx_window_params(float t_symbol, float max_preamble_len, uint8_t min_rx_symbols,
                                    float rx_error, float wakeup_time,
                                    uint32_t *window_length, uint32_t *window_length_ms,
                                    int32_t *window_offset,
@@ -328,10 +328,11 @@ bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t &dr_out,
     return LoRaPHY_stub::bool_table[LoRaPHY_stub::bool_counter++];
 }
 
-void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
+bool LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     uint32_t rx_error,
                                     rx_config_params_t *rx_conf_params)
 {
+    return true;
 }
 
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
@@ -446,6 +447,56 @@ uint32_t LoRaPHY::get_rejoin_max_time() const
 }
 
 uint32_t LoRaPHY::get_rejoin_max_count() const
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+uint32_t LoRaPHY::get_rx1_frequency(uint8_t channel)
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+uint32_t LoRaPHY::get_ping_slot_frequency(uint32_t dev_addr, uint32_t beacon_time)
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+uint8_t LoRaPHY::accept_ping_slot_channel_req(uint32_t frequency, uint8_t datarate)
+{
+    return LoRaPHY_stub::uint8_value;
+
+}
+
+uint8_t LoRaPHY::accept_beacon_frequency_request(uint32_t frequency)
+{
+    return LoRaPHY_stub::uint8_value;
+}
+
+bool LoRaPHY::compute_beacon_win_params(uint32_t beacon_time, uint8_t min_rx_symbols,
+                                        uint32_t rx_error, rx_config_params_t *config)
+{
+    return true;
+}
+
+void LoRaPHY::get_beacon_rfu_size(uint8_t &rfu1, uint8_t &rfu2)
+{
+
+}
+
+uint32_t LoRaPHY::get_beacon_frequency(uint32_t beacon_time)
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+bool LoRaPHY::compute_ping_win_params(uint32_t beacon_time, uint32_t devaddr,
+                                      uint8_t min_rx_symbols, uint32_t rx_error,
+                                      rx_config_params_t *config)
+{
+    return true;
+
+}
+
+uint32_t LoRaPHY::compute_beacon_time_on_air()
 {
     return LoRaPHY_stub::uint32_value;
 }

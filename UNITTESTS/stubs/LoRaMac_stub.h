@@ -38,4 +38,5 @@ extern loramac_mlme_indication_t *mlme_ind_ptr;
 extern device_class_t dev_class_value;
 extern mbed::Callback<void(void)> _scheduling_failure_handler;
 extern LoRaWANTimeHandler *time_handler_ptr;
+extern lorawan_gps_time_t gps_time_value;
 }

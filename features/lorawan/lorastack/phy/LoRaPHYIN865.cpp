@@ -179,6 +179,30 @@
 #define IN865_RX_WND_2_DR                           DR_2
 
 /*!
+ * Beacon frequency
+ */
+#define IN865_BEACON_CHANNEL_FREQ                   866550000
+
+/*!
+ * Ping slot default frequency
+ */
+#define IN865_PING_CHANNEL_FREQ                     866550000
+
+/*!
+ * Size of RFU1 field
+ */
+#define IN865_BEACON_RFU1_SIZE                      1
+/*!
+ * Size of RFU2 field
+ */
+#define IN865_BEACON_RFU2_SIZE                      3
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define IN865_BEACON_CHANNEL_DR                     DR_4
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
@@ -315,6 +339,12 @@ LoRaPHYIN865::LoRaPHYIN865()
     phy_params.ack_timeout_rnd = IN865_ACK_TIMEOUT_RND;
     phy_params.rx_window2_datarate = IN865_RX_WND_2_DR;
     phy_params.rx_window2_frequency = IN865_RX_WND_2_FREQ;
+    phy_params.beacon.default_frequency = IN865_BEACON_CHANNEL_FREQ;
+    phy_params.beacon.datarate = IN865_BEACON_CHANNEL_DR;
+    phy_params.beacon.rfu1_size = IN865_BEACON_RFU1_SIZE;
+    phy_params.beacon.rfu2_size = IN865_BEACON_RFU2_SIZE;
+    phy_params.ping_slot_default_frequency = IN865_PING_CHANNEL_FREQ;
+
 }
 
 LoRaPHYIN865::~LoRaPHYIN865()

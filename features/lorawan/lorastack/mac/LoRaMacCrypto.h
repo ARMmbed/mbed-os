@@ -175,6 +175,19 @@ public:
      */
     int compute_join_server_keys(const uint8_t *eui);
 
+
+
+    /**
+     * Computes random value used to compute Ping slot offset (1.1 ch 13.2)
+     *
+     * @param [in]  beacon_time    - Time carried in beacon payload
+     * @param [in]  dev_addr       - Device Address
+     * @param [out] rand
+     *
+     * @return                        0 if successful, or a cipher specific error code
+     */
+    int compute_ping_slot_random_offset(uint32_t beacon_time, uint32_t dev_addr, uint16_t *rand);
+
 private:
     /**
      * AES computation context variable

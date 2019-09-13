@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+/**
+ * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "LoRaMacClassBInterface.h"
 
-#include "LoRaWANTimer.h"
-
-namespace LoRaWANTimer_stub {
-extern lorawan_time_t time_value;
-extern bool call_cb_immediately;
-extern lorawan_gps_time_t gps_time;
-}
+#ifdef LORA_CLASS_B_ENABLED
+LoRaMacClassB LoRaMacClassBInterface::_class_b;
+#endif

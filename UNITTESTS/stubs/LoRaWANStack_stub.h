@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-#include "LoRaWANTimer.h"
-
-namespace LoRaWANTimer_stub {
-extern lorawan_time_t time_value;
-extern bool call_cb_immediately;
-extern lorawan_gps_time_t gps_time;
+namespace LoRaWANStack_stub {
+extern lorawan_gps_time_t gps_time_value;
 }

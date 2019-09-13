@@ -24,9 +24,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "LoRaMacCommand.h"
 #include "LoRaMac.h"
-#include "platform/mbed_rtc_time.h"
 #include "mbed-trace/mbed_trace.h"
-
 #define TRACE_GROUP "LMACC"
 
 using namespace mbed;
@@ -86,13 +84,15 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
                 break;
             }
             case MOTE_MAC_LINK_ADR_ANS:
-            case MOTE_MAC_NEW_CHANNEL_ANS: { // 1 byte payload
+            case MOTE_MAC_NEW_CHANNEL_ANS:
+            case MOTE_MAC_PING_SLOT_INFO_REQ: { // 1 byte payload
                 i++;
                 break;
             }
             case MOTE_MAC_TX_PARAM_SETUP_ANS:
             case MOTE_MAC_DUTY_CYCLE_ANS:
-            case MOTE_MAC_LINK_CHECK_REQ: { // 0 byte payload
+            case MOTE_MAC_LINK_CHECK_REQ:
+            case MOTE_MAC_DEVICE_TIME_REQ: { // 0 byte payload
                 break;
             }
             default: {
@@ -134,7 +134,8 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                       uint8_t commands_size, uint8_t snr,
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy,
-                                                      Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
+                                                      Callback<void(loramac_mlme_confirm_t &)> confirm_handler,
+                                                      rx_slot_t rx_slot)
 {
     uint8_t status = 0;
     lorawan_status_t ret_value = LORAWAN_STATUS_OK;
@@ -326,26 +327,14 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
             }
             break;
             case SRV_MAC_DEVICE_TIME_ANS: {
-                uint32_t secs = (uint32_t) payload[mac_index++];
-                secs |= (uint32_t) payload[mac_index++] << 8;
-                secs |= (uint32_t) payload[mac_index++] << 16;
-                secs |= (uint32_t) payload[mac_index++] << 24;
-                uint32_t millis = ((uint32_t) payload[mac_index++] * 1000) >> 8;
-
-                // round milliseconds to closest second
-                if (millis > 499) {
-                    secs++;
-                }
-
-                // adjust for Unix to GPS epoch diff
-                secs += UNIX_GPS_EPOCH_DIFF;
-                // adjust for leap seconds since GPS epoch origin
-                secs += (MBED_CONF_LORA_CURRENT_TAI_MINUS_UTC - MBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC);
-                set_time(secs);
-
-                //  notify the stack controller
+                lorawan_gps_time_t gps_time;
+                gps_time = (uint32_t) payload[mac_index++];
+                gps_time |= (uint32_t) payload[mac_index++] << 8;
+                gps_time |= (uint32_t) payload[mac_index++] << 16;
+                gps_time |= (uint32_t) payload[mac_index++] << 24;
+                gps_time = (gps_time * 1000) + (payload[mac_index++] * 1000 >> 8);
                 if (_time_sync_cb) {
-                    _time_sync_cb();
+                    _time_sync_cb(gps_time);
                 }
             }
             break;
@@ -389,6 +378,41 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 confirm_handler(mlme_conf);
             }
             break;
+            case SRV_MAC_PING_SLOT_INFO_ANS: {
+                loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mlme_conf.type = MLME_PING_SLOT_INFO;
+                confirm_handler(mlme_conf);
+            }
+            break;
+            case SRV_MAC_PING_SLOT_CHANNEL_REQ: {
+                uint32_t frequency;
+                uint8_t  datarate;
+                /* This command can only be sent in a class A receive window.
+                    * If received inside a class B ping-slot, the command SHALL NOT
+                    * be processed (14.3)*/
+                if ((rx_slot != RX_SLOT_WIN_UNICAST_PING_SLOT) && (rx_slot != RX_SLOT_WIN_MULTICAST_PING_SLOT)) {
+                    frequency = (uint32_t) payload[mac_index++];
+                    frequency |= (uint32_t) payload[mac_index++] << 8;
+                    frequency |= (uint32_t) payload[mac_index++] << 16;
+                    frequency *= 100;
+                    datarate = payload[mac_index++];
+                    status = lora_phy.accept_ping_slot_channel_req(frequency, datarate);
+                    ret_value = add_ping_slot_channel_ans(status);
+                }
+            }
+            break;
+            case SRV_MAC_BEACON_FREQ_REQ: {
+                uint32_t frequency;
+
+                frequency = (uint32_t) payload[mac_index++];
+                frequency |= (uint32_t) payload[mac_index++] << 8;
+                frequency |= (uint32_t) payload[mac_index++] << 16;
+                frequency *= 100;
+                status = lora_phy.accept_beacon_frequency_request(frequency);
+                ret_value = add_beacon_freq_ans(status);
+            }
+            break;
             default:
                 // Unknown command. ABORT MAC commands processing
                 tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);
@@ -397,6 +421,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
     }
     return ret_value;
 }
+
 
 int32_t LoRaMacCommand::cmd_buffer_remaining() const
 {
@@ -455,7 +480,7 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
     return ret;
 }
 
-lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(void)> notify)
+lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(lorawan_gps_time_t gps_time)> notify)
 {
     //App developer must know if the server version is 1.0.3 (or greater)
     //1.0.2 does not support this MAC command and our stack does not support pre 1.0.2 versions
@@ -588,6 +613,42 @@ lorawan_status_t LoRaMacCommand::add_rejoin_param_setup_ans(uint8_t status)
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REJOIN_PARAM_SETUP_ANS;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x01;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_ping_slot_info_req(uint8_t periodicity)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+
+    if ((periodicity & 0x07) == periodicity) {
+        if (cmd_buffer_remaining() > 0) {
+            mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_INFO_REQ;
+            mac_cmd_buffer[mac_cmd_buf_idx++] = periodicity;
+        }
+    } else {
+        ret = LORAWAN_STATUS_PARAMETER_INVALID;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_ping_slot_channel_ans(uint8_t status)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_CHANNEL_ANS;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x03;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_beacon_freq_ans(uint8_t status)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_PING_SLOT_CHANNEL_ANS;
         mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x01;
     }
     return ret;

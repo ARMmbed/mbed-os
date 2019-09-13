@@ -319,9 +319,10 @@ public:
      * @param device_class Device class to use.
      * @param rx2_would_be_closure_handler callback function to inform about
      *        would be closure of RX2 window
+     * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    void set_device_class(const device_class_t &device_class,
-                          mbed::Callback<void(void)>rx2_would_be_closure_handler);
+    lorawan_status_t set_device_class(const device_class_t &device_class,
+                                      mbed::Callback<void(void)>rx2_would_be_closure_handler);
 
     /**
      * @brief setup_link_check_request Adds link check request command
@@ -333,7 +334,7 @@ public:
      * @brief setup_device_time_request Adds device time request command
      * to be put on next outgoing message (when it fits)
      */
-    lorawan_status_t setup_device_time_request(mbed::Callback<void(void)> notify);
+    lorawan_status_t setup_device_time_request(mbed::Callback<void(lorawan_gps_time_t gps_time)> notify);
 
     /**
      * @brief setup_reset_indication Adds reset indication command
@@ -393,7 +394,7 @@ public:
      * MAC operations upon reception
      */
     void on_radio_rx_done(const uint8_t *const payload, uint16_t size,
-                          int16_t rssi, int8_t snr,
+                          int16_t rssi, int8_t snr, uint32_t rx_timestamp,
                           mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
 
     /**
@@ -407,7 +408,6 @@ public:
      * @param is_timeout false when radio encountered an error
      *                   true when the an RX slot went empty
      *
-     * @return current RX slot
      */
     void on_radio_rx_timeout(bool is_timeout);
 
@@ -456,9 +456,23 @@ public:
     lorawan_status_t clear_tx_pipe(void);
 
     /**
-     * Gets the current time
+     * Gets the current monotonic tick time
      */
     lorawan_time_t get_current_time(void);
+
+    /**
+     * Gets the current GPS time
+     * For precise information please refer to LoRaWANTimer::get_gps_time() API
+     * documentation.
+     */
+    lorawan_gps_time_t get_gps_time(void);
+
+    /**
+     * Set the GPS time
+     * For precise information please refer to LoRaWANTimer::set_gps_time(...) API
+     * documentation.
+     */
+    void set_gps_time(lorawan_gps_time_t gps_time);
 
     /**
      * Gets the current receive slot
@@ -477,6 +491,29 @@ public:
      *Indicates level of QOS used for the previous outgoing message
      */
     uint8_t get_prev_QOS_level(void);
+
+    /**
+     * Enable network beacon acquisition and tracking
+     * @param beacon_event_cb - stack callback
+     */
+    lorawan_status_t enable_beacon_acquisition(mbed::Callback<void(loramac_beacon_status_t,
+                                                                   const loramac_beacon_t *)>beacon_event_cb);
+
+    /**
+     * Set Class B ping slot periodicity
+     * @param beacon_event_cb - stack callback
+     */
+    lorawan_status_t set_ping_slot_info(uint8_t periodicity);
+
+    /**
+     * Add ping slot info request MAC command to next transmit if room available
+     */
+    lorawan_status_t add_ping_slot_info_req(void);
+
+    /**
+     * Get last received beacon
+     */
+    lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
 
     /**
      * These locks trample through to the upper layers and make
@@ -600,6 +637,23 @@ private:
      * At the end of an RX2 window timer, an RX2 window is opened using this method.
      */
     void open_rx2_window(void);
+
+    /**
+     * Sets receive slot type with precedence check
+     * @return True if slot type set, false if higher priority slot is active
+     */
+    bool set_rx_slot(rx_slot_t rx_slot);
+
+    /**
+     * Open receive slot
+     * @return True if slot opened, false if higher priority slot is active
+     */
+    bool open_rx_window(rx_config_params_t *rx_config);
+
+    /**
+     * Close receive slot
+     */
+    void close_rx_window(rx_slot_t slot);
 
     /**
      * A method to retry a CONFIRMED message after a particular time period
@@ -764,6 +818,8 @@ private:
     uint8_t _prev_qos_level;
 
     bool _demod_ongoing;
+
+    bool _mod_ongoing;
 };
 
 #endif // MBED_LORAWAN_MAC_H__

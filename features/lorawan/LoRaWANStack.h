@@ -396,10 +396,95 @@ public:
      */
     lorawan_status_t stop_sending(void);
 
+    /** Gives access to  GPS time
+     *
+     * Returns stored gps time + difference in stored and current tick time
+     *
+     * @return Current GPS time in milliseconds
+     *         Or 0 if the GPS time is not yet set by the network
+     */
+    lorawan_gps_time_t get_current_gps_time(void);
+
+    /** Store GPS time received from the network
+     *
+     * Once the GPS time is received from the network, we store it along-with the
+     * current CPU monotonic tick. Having taken snapshot of the current tick would
+     * enable us to have a reference to calculate the time difference given the stored
+     * GPS time and the forthcoming CPU tick. Please refer to `get_current_gps_time()` API
+     * documentation for more information.
+     *
+     * It is important that the caller relays the network provided GPS time (in milliseconds)
+     * as it is without adjustment (for leap seconds or conversions to TAI/UTC etc).
+     * The rationale here is that we are not setting system time here. This time base
+     * is used only for device level synchronization with network.
+     *
+     * @param gps_time              Current GPS time provided by the network (seconds)
+     */
+    void set_current_gps_time(lorawan_gps_time_t gps_time);
+
+    /** Send Ping Slot Info Request MAC command.
+     *
+     * Schedule a Ping Slot Info Request command (PingSlotInfoReq) for
+     * the network server and once the response, i.e., PingSlotInfoAns MAC command
+     * is received from the Network Server, an event is generated.
+     *
+     * @param  periodicity  Peridocity range is 0 to 7 encoding the current ping slot
+     *                      period. pingNb     = 2^(7-periodicity) and
+     *                              pingPeriod = 2^(5+periodicity)
+     *
+     *
+     * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
+     *                  a negative error code on failure.
+     *
+     */
+    lorawan_status_t add_ping_slot_info_request(uint8_t periodicity);
+
+    /** Removes ping slot info request sticky MAC command.
+     *
+     * Any already queued request may still get entertained. However, no new
+     * requests will be made.
+     */
+    void remove_ping_slot_info_request();
+
+    /** Removes device time request sticky MAC command.
+     *
+     * Any already queued request may still get entertained. However, no new
+     * requests will be made.
+     */
+    void remove_device_time_request();
+
+    /** Enable Network beacon acquisition
+     *
+     * Enable Network beacon acquistion and tracking.
+     *
+     * @return          LORAWAN_STATUS_OK if beacon acquisition enabled, or
+     *                  a negative error code on failure
+     *
+     */
+    lorawan_status_t enable_beacon_acquisition();
+
+    /**
+     * @brief Get the last received beacon contents
+     *
+     * @param beacon
+     * @return LORAWAN_STATUS_OK if beacon received
+     *         LORAWAN_STATUS_NO_BEACON_FOUND if no beacon received
+     */
+    lorawan_status_t get_last_rx_beacon(loramac_beacon_t &beacon);
+
+    /** Lock resource
+     *
+     * Provides mutual exclusion.
+     */
     void lock(void)
     {
         _loramac.lock();
     }
+
+    /** Unlock resource
+     *
+     * Release resource.
+     */
     void unlock(void)
     {
         _loramac.unlock();
@@ -532,12 +617,12 @@ private:
     void forced_timer_expiry();
     void process_rejoin_type0();
 
-    void send_device_time_sync_event();
+    void handle_device_time_sync_event(lorawan_gps_time_t gps_time);
+
+    void process_beacon_event(loramac_beacon_status_t status, const loramac_beacon_t *beacon);
 
 private:
     LoRaMac _loramac;
-
-    LoRaWANTimeHandler _lora_time;
 
     radio_events_t radio_events;
     device_states_t _device_current_state;
@@ -563,6 +648,7 @@ private:
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
     lorawan_time_t _tx_timestamp;
+    lorawan_time_t _rx_timestamp;
     uint32_t _rejoin_type1_send_period;
     uint32_t _rejoin_type1_stamp;
     timer_event_t _rejoin_type0_timer;
@@ -574,6 +660,10 @@ private:
     join_req_type_t _forced_rejoin_type;
     uint8_t _forced_counter;
     timer_event_t _forced_timer;
+
+    bool _ping_slot_info_requested;
+    bool _device_time_requested;
+    lorawan_time_t _last_beacon_rx_time;
 };
 
 #endif /* LORAWANSTACK_H_ */

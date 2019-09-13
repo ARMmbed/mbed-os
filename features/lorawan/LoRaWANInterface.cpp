@@ -21,6 +21,7 @@
 
 #include "LoRaWANInterface.h"
 #include "lorastack/phy/loraphy_target.h"
+#include "platform/mbed_rtc_time.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "LSTK"
 
@@ -87,6 +88,12 @@ lorawan_status_t LoRaWANInterface::add_device_time_request()
 {
     Lock lock(*this);
     return _lw_stack.set_device_time_request();
+}
+
+void LoRaWANInterface::remove_device_time_request()
+{
+    Lock lock(*this);
+    _lw_stack.remove_device_time_request();
 }
 
 lorawan_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
@@ -190,3 +197,72 @@ lorawan_status_t LoRaWANInterface::set_device_class(const device_class_t device_
     Lock lock(*this);
     return _lw_stack.set_device_class(device_class);
 }
+
+lorawan_gps_time_t LoRaWANInterface::get_current_gps_time()
+{
+    Lock lock(*this);
+    return _lw_stack.get_current_gps_time();
+}
+
+void LoRaWANInterface::set_current_gps_time(lorawan_gps_time_t gps_time)
+{
+    Lock lock(*this);
+    _lw_stack.set_current_gps_time(gps_time);
+}
+
+lorawan_status_t LoRaWANInterface::set_system_time_utc(unsigned int tai_utc_diff)
+{
+    // do not lock here
+
+    // Adjust epoch for 1970 to 1980 (time for Unix epoch to GPS epoch)
+    lorawan_time_t u_time = time(NULL) + UNIX_GPS_EPOCH_DIFF;
+    // Adjust for leap seconds since 1980. TAI is always ahead of GPS by 19 seconds
+    u_time += (tai_utc_diff - 19);
+    lorawan_gps_time_t cur_gps_time = get_current_gps_time();
+
+    if (cur_gps_time == 0) {
+        // GPS time is not set. Application needs to request a clock sync.
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
+
+    // Convert  gps time from millis to seconds
+    uint32_t gps_seconds = cur_gps_time / 1000;
+    uint32_t gps_millis  = cur_gps_time % 1000;
+    if (gps_millis >= 500) {
+        gps_seconds += 1;
+    }
+
+    u_time += gps_seconds;
+    set_time(u_time);
+
+    time_t now = time(NULL);
+    tr_info("System Clock set - (UTC) = %s", ctime(&now));
+
+    return LORAWAN_STATUS_OK;
+}
+
+lorawan_status_t LoRaWANInterface::add_ping_slot_info_request(uint8_t periodicity)
+{
+    Lock lock(*this);
+    return _lw_stack.add_ping_slot_info_request(periodicity);
+}
+
+void LoRaWANInterface::remove_ping_slot_info_request()
+{
+    Lock lock(*this);
+    return _lw_stack.remove_ping_slot_info_request();
+}
+
+lorawan_status_t LoRaWANInterface::enable_beacon_acquisition()
+{
+    Lock lock(*this);
+    return  _lw_stack.enable_beacon_acquisition();
+}
+
+lorawan_status_t LoRaWANInterface::get_last_rx_beacon(loramac_beacon_t &beacon)
+{
+    Lock lock(*this);
+    return  _lw_stack.get_last_rx_beacon(beacon);
+
+}
+
