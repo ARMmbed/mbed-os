@@ -58,7 +58,7 @@ void QspiCommand::set_dummy_cycles(int dummy_cycles)
 
 void QspiCommand::build(int instruction, int address, int alt)
 {
-    _cmd.instruction.disabled = (instruction == QSPI_NONE);
+    _cmd.instruction.disabled = (instruction == QSPI_NO_INST);
     if (!_cmd.instruction.disabled) {
         _cmd.instruction.value = instruction;
     }
@@ -127,17 +127,33 @@ void flash_init(Qspi &qspi)
     ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, status, QSPI_STATUS_REG_SIZE);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
-    qspi.cmd.build(QSPI_CMD_RSTEN);
-    ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
-    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+    // Only do reset enable if device needs it
+    if (QSPI_CMD_RSTEN != 0) {
+        qspi.cmd.build(QSPI_CMD_RSTEN);
+        ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+    }
 
     qspi.cmd.build(QSPI_CMD_RST);
     ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
     WAIT_FOR(WAIT_MAX_TIME, qspi);
+
+    // Zero out status register to attempt to clear block protection bits
+    uint8_t blanks[QSPI_STATUS_REG_SIZE] = {0};
+
+    qspi.cmd.build(0x06);
+    ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
+    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+
+    qspi.cmd.build(0x01);
+    ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), blanks, 1, NULL, 0);
+    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+
+    WAIT_FOR(WRSR_MAX_TIME, qspi);
 }
 
 

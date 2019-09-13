@@ -84,6 +84,7 @@ static uint32_t gen_flash_address()
 {
     srand(ticker_read(get_us_ticker_data()));
     uint32_t address = (((uint32_t)rand()) % QSPI_SECTOR_COUNT) * QSPI_SECTOR_SIZE;
+    address &= 0xFFFFFF; // Ensure address is within 24 bits so as to not have to deal with 4-byte addressing
     return address;
 }
 
