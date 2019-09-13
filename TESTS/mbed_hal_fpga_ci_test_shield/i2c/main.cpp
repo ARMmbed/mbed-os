@@ -29,6 +29,7 @@
 #include "mbed.h"
 #include "i2c_api.h"
 #include "pinmap.h"
+#include "hal/explicit_pinmap.h"
 #include "test_utils.h"
 #include "I2CTester.h"
 #include "i2c_fpga_test.h"
@@ -53,6 +54,7 @@ void fpga_test_i2c_init_free(PinName sda, PinName scl)
     i2c_free(&obj);
 }
 
+template<bool init_direct>
 void fpga_i2c_test_write(PinName sda, PinName scl)
 {
     // Remap pins for test
@@ -66,7 +68,17 @@ void fpga_i2c_test_write(PinName sda, PinName scl)
     // Initialize mbed I2C pins
     i2c_t i2c;
     memset(&i2c, 0, sizeof(i2c));
-    i2c_init(&i2c, sda, scl);
+    if (init_direct) {
+#if EXPLICIT_PINMAP_READY
+        const i2c_pinmap_t pinmap = get_i2c_pinmap(sda, scl);
+        i2c_init_direct(&i2c, &pinmap);
+#else
+        //skip this test case if explicit pinmap is not supported
+        return;
+#endif
+    } else {
+        i2c_init(&i2c, sda, scl);
+    }
     i2c_frequency(&i2c, 100000);
 
     // Reset tester stats and select I2C
@@ -141,6 +153,7 @@ void fpga_i2c_test_write(PinName sda, PinName scl)
     i2c_free(&i2c);
 }
 
+template<bool init_direct>
 void fpga_i2c_test_read(PinName sda, PinName scl)
 {
     // Remap pins for test
@@ -154,7 +167,12 @@ void fpga_i2c_test_read(PinName sda, PinName scl)
     // Initialize mbed I2C pins
     i2c_t i2c;
     memset(&i2c, 0, sizeof(i2c));
-    i2c_init(&i2c, sda, scl);
+    if (init_direct) {
+        const i2c_pinmap_t pinmap = get_i2c_pinmap(sda, scl);
+        i2c_init_direct(&i2c, &pinmap);
+    } else {
+        i2c_init(&i2c, sda, scl);
+    }
     i2c_frequency(&i2c, 100000);
 
     // Reset tester stats and select I2C
@@ -428,11 +446,13 @@ void fpga_i2c_test_byte_read(PinName sda, PinName scl)
 }
 
 Case cases[] = {
-    Case("i2c - init/free test all pins", one_peripheral<I2CPort, DefaultFormFactor, fpga_test_i2c_init_free>),
-    Case("i2c - test write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_write>),
-    Case("i2c - test read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_read>),
-    Case("i2c - test single byte write i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_write>),
-    Case("i2c - test single byte read i2c API", one_peripheral<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_read>)
+    Case("i2c - init/free test all pins", all_ports<I2CPort, DefaultFormFactor, fpga_test_i2c_init_free>),
+    Case("i2c - test write i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_write<false>>),
+    Case("i2c (direct init) - test write i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_write<true>>),
+    Case("i2c - test read i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_read<false>>),
+    Case("i2c (direct init) - test read i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_read<true>>),
+    Case("i2c - test single byte write i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_write>),
+    Case("i2c - test single byte read i2c API", all_peripherals<I2CPort, DefaultFormFactor, fpga_i2c_test_byte_read>)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
