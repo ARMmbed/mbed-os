@@ -179,13 +179,7 @@ struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), vo
 
 #endif /* ENABLE_RESENDINGS */
 
-    /* Randomize global message ID */
-    randLIB_seed_random();
-    message_id = randLIB_get_16bit();
-    if (message_id == 0) {
-        message_id = 1;
-    }
-
+    message_id = 0;
     return handle;
 }
 
@@ -2526,6 +2520,11 @@ static bool compare_address_and_port(const sn_nsdl_addr_s* left, const sn_nsdl_a
 
 static uint16_t get_new_message_id(void)
 {
+    if (message_id == 0) {
+        /* Randomize global message ID */
+        randLIB_seed_random();
+        message_id = randLIB_get_16bit();
+    }
     message_id++;
     if (message_id == 0) {
         message_id = 1;
