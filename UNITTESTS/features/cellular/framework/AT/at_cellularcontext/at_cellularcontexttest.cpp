@@ -178,6 +178,18 @@ public:
     int _op;
 };
 
+class AT_CTX_cid: public AT_CellularContext {
+public:
+    AT_CTX_cid(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
+        AT_CellularContext(at, device, apn) {}
+    virtual ~AT_CTX_cid() {}
+
+    void set_cid(int cid)
+    {
+        _cid = cid;
+    }
+};
+
 static int network_cb_count;
 static void network_cb(nsapi_event_t ev, intptr_t intptr)
 {
@@ -248,6 +260,22 @@ TEST_F(TestAT_CellularContext, get_ip_address)
     my_AT_CTX ctx1(at, NULL);
     ip = ctx1.get_ip_address();
     EXPECT_TRUE(ip != NULL);
+}
+
+TEST_F(TestAT_CellularContext, get_interface_name)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+    AT_CellularDevice dev(&fh1);
+    AT_CTX_cid ctx(at, &dev);
+
+    char ifn[5];
+    EXPECT_TRUE(NULL == ctx.get_interface_name(ifn));
+
+    ctx.set_cid(1);
+    EXPECT_STREQ("ce1", ctx.get_interface_name(ifn));
+    EXPECT_STREQ("ce1", ifn);
 }
 
 TEST_F(TestAT_CellularContext, attach)
@@ -746,5 +774,4 @@ TEST_F(TestAT_CellularContext, get_timeout_for_operation)
 
     ctx1._op = -1;
     EXPECT_EQ(1800 * 1000, ctx1.do_op());
-
 }
