@@ -53,6 +53,47 @@ TEST_F(Testutil, test_util_binary_str_to_uint)
     EXPECT_TRUE(0 == binary_str_to_uint(binary_str, 0));
 }
 
+TEST_F(Testutil, hex_to_char)
+{
+    char output;
+
+    // 0
+    hex_to_char("00", output);
+    EXPECT_EQ((char)0x00, output);
+
+    // <128
+    hex_to_char("10", output);
+    EXPECT_EQ((char)0x10, output);
+
+    // =128
+    hex_to_char("80", output);
+    EXPECT_EQ((char)0x80, output);
+
+    // >128
+    hex_to_char("FF", output);
+    EXPECT_EQ((char)0xFF, output);
+
+    // Null -> output is not modified
+    hex_to_char(NULL, output);
+    EXPECT_EQ((char)0xFF, output);
+}
+
+TEST_F(Testutil, hex_str_to_char_str)
+{
+    char input[] = "0165AABBCC";
+    char output[32];
+    EXPECT_EQ(5, hex_str_to_char_str(input, strlen(input), output));
+    EXPECT_EQ((char)0x01, output[0]);
+    EXPECT_EQ((char)0x65, output[1]);
+    EXPECT_EQ((char)0xAA, output[2]);
+    EXPECT_EQ((char)0xBB, output[3]);
+    EXPECT_EQ((char)0xCC, output[4]);
+
+    // NULL params
+    EXPECT_EQ(0, hex_str_to_char_str(NULL, 2, output));
+    EXPECT_EQ(0, hex_str_to_char_str(input, strlen(input), NULL));
+}
+
 TEST_F(Testutil, test_util_uint_to_binary_string)
 {
     char str[33];
