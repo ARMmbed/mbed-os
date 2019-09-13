@@ -37,6 +37,7 @@ using namespace utest::v1;
 #include "test_utils.h"
 #include "serial_api.h"
 #include "us_ticker_api.h"
+#include "hal/explicit_pinmap.h"
 
 #define PUTC_REPS 16
 #define GETC_REPS 16
@@ -82,7 +83,7 @@ static void test_irq_handler(uint32_t id, SerialIrq event)
     }
 }
 
-static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
+static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, bool init_direct, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
 {
     // The FPGA CI shield only supports None, Odd & Even.
     // Forced parity is not supported on Atmel, Freescale, Nordic & STM targets.
@@ -117,12 +118,27 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
 
     // Initialize mbed UART pins
     serial_t serial;
-    serial_init(&serial, tx, rx);
+    if (init_direct) {
+        const serial_pinmap_t pinmap = get_uart_pinmap(tx, rx);
+        serial_init_direct(&serial, &pinmap);
+    } else {
+        serial_init(&serial, tx, rx);
+    }
     serial_baud(&serial, baudrate);
     serial_format(&serial, data_bits, parity, stop_bits);
 #if DEVICE_SERIAL_FC
     if (use_flow_control) {
-        serial_set_flow_control(&serial, FlowControlRTSCTS, rts, cts);
+        if (init_direct) {
+#if EXPLICIT_PINMAP_READY
+            const serial_fc_pinmap_t pinmap = get_uart_fc_pinmap(rts, cts);
+            serial_set_flow_control_direct(&serial, FlowControlRTSCTS, &pinmap);
+#else
+        //skip this test case if explicit pinmap is not supported
+        return;
+#endif
+        } else {
+            serial_set_flow_control(&serial, FlowControlRTSCTS, rts, cts);
+        }
     } else {
         serial_set_flow_control(&serial, FlowControlNone, NC, NC);
     }
@@ -294,16 +310,16 @@ void test_init_free_no_fc(PinName tx, PinName rx)
     test_init_free(tx, rx);
 }
 
-template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS>
+template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS, bool INIT_DIRECT>
 void test_common(PinName tx, PinName rx, PinName cts, PinName rts)
 {
-    uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, tx, rx, cts, rts);
+    uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, INIT_DIRECT, tx, rx, cts, rts);
 }
 
-template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS>
+template<int BAUDRATE, int DATA_BITS, SerialParity PARITY, int STOP_BITS, bool INIT_DIRECT>
 void test_common_no_fc(PinName tx, PinName rx)
 {
-    uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, tx, rx);
+    uart_test_common(BAUDRATE, DATA_BITS, PARITY, STOP_BITS, INIT_DIRECT, tx, rx);
 }
 
 Case cases[] = {
@@ -311,34 +327,36 @@ Case cases[] = {
     Case("init/free, FC off", all_ports<UARTNoFCPort, DefaultFormFactor, test_init_free_no_fc>),
 
     // One set of pins from every peripheral.
-    Case("basic, 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 1> >),
+    Case("basic, 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 1, false> >),
+    Case("basic (direct init), 9600, 8N1, FC off", all_peripherals<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 1, true> >),
 
     // One set of pins from one peripheral.
     // baudrate
-    Case("19200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<19200, 8, ParityNone, 1> >),
-    Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<38400, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1> >),
+    Case("19200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<19200, 8, ParityNone, 1, false> >),
+    Case("38400, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<38400, 8, ParityNone, 1, false> >),
+    Case("115200, 8N1, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<115200, 8, ParityNone, 1, false> >),
     // stop bits
-    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2> >),
+    Case("9600, 8N2, FC off", one_peripheral<UARTNoFCPort, DefaultFormFactor, test_common_no_fc<9600, 8, ParityNone, 2, false> >),
 
 #if DEVICE_SERIAL_FC
     // Every set of pins from every peripheral.
     Case("init/free, FC on", all_ports<UARTPort, DefaultFormFactor, test_init_free>),
 
     // One set of pins from every peripheral.
-    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1> >),
+    Case("basic, 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1, false> >),
+    Case("basic (direct init), 9600, 8N1, FC on", all_peripherals<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 1, true> >),
 
     // One set of pins from one peripheral.
     // baudrate
-    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<19200, 8, ParityNone, 1> >),
-    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1> >),
-    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1> >),
+    Case("19200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<19200, 8, ParityNone, 1, false> >),
+    Case("38400, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<38400, 8, ParityNone, 1, false> >),
+    Case("115200, 8N1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<115200, 8, ParityNone, 1, false> >),
     // data bits: not tested (some platforms support 8 bits only)
     // parity
-    Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityOdd, 1> >),
-    Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityEven, 1> >),
+    Case("9600, 8O1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityOdd, 1, false> >),
+    Case("9600, 8E1, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityEven, 1, false> >),
     // stop bits
-    Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 2> >),
+    Case("9600, 8N2, FC on", one_peripheral<UARTPort, DefaultFormFactor, test_common<9600, 8, ParityNone, 2, false> >),
 #endif
 };
 
