@@ -48,8 +48,9 @@ static const char hex_values[] = "0123456789ABCDEF";
  *  where ax are in decimal format. In this case, function converts decimals to hex with separated with colons.
  *
  *  @param ip       IP address that can be IPv4 or IPv6 in different formats from AT command +CGPADDR. Converted result uses same buffer.
+ *  @return         IP version of the address or NSAPI_UNSPEC if param ip empty or if IPv4 or IPv6 version could not be concluded.
  */
-void convert_ipv6(char *ip);
+nsapi_version_t convert_ipv6(char *ip);
 
 /** Separates IP addresses from the given 'orig' string. 'orig' may contain zero, one or two IP addresses in various formats.
  *  See AT command +CGPIAF from 3GPP TS 27.007 for details. Does also needed conversions for IPv6 addresses.

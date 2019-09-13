@@ -51,9 +51,9 @@ uint16_t char_str_to_hex(const char *str, uint16_t len, char *buf, bool omit_lea
     return CellularUtil_stub::uint16_value;
 }
 
-void convert_ipv6(char *ip)
+nsapi_version_t convert_ipv6(char *ip)
 {
-
+    return NSAPI_UNSPEC;
 }
 
 char *find_dot_number(char *str, int dot_number)

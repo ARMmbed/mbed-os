@@ -369,8 +369,9 @@ bool AT_CellularContext::get_context()
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
-                // Accept exact matching PDP context type
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type))) {
+                // Accept exact matching PDP context type or dual PDP context for modems that support both IPv4 and IPv6 stacks
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
+                        ((pdp_type == IPV4V6_PDP_TYPE && (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) && !_nonip_req)) {
                     _pdp_type = pdp_type;
                     _cid = cid;
                 }
@@ -403,7 +404,7 @@ bool AT_CellularContext::set_new_context(int cid)
     if (_nonip_req && _cp_in_use && get_property(PROPERTY_NON_IP_PDP_TYPE)) {
         strncpy(pdp_type_str, "Non-IP", sizeof(pdp_type_str));
         pdp_type = NON_IP_PDP_TYPE;
-    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE)) {
+    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE) || (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) {
         strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
         pdp_type = IPV4V6_PDP_TYPE;
     } else if (get_property(PROPERTY_IPV6_PDP_TYPE)) {

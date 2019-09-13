@@ -212,7 +212,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
     if (socket->proto == NSAPI_UDP && !socket->connected) {
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                           (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                           (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                            remote_port, socket->localAddress.get_port(), 0);
 
         handle_open_socket_response(modem_connect_id, err);
@@ -225,7 +225,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             socket_close_impl(modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                               (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                               (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                                remote_port, socket->localAddress.get_port(), 0);
 
             handle_open_socket_response(modem_connect_id, err);
@@ -271,6 +271,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
 {
     if (size > BG96_MAX_SEND_SIZE) {
         return NSAPI_ERROR_PARAMETER;
+    }
+
+    if (_ip_ver_sendto != address.get_ip_version()) {
+        _ip_ver_sendto =  address.get_ip_version();
+        socket_close_impl(socket->id);
+        create_socket_impl(socket);
     }
 
     int sent_len = 0;
