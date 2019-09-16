@@ -51,9 +51,9 @@ extern "C" {
  */
 
 /** The start address of the SCB blocks */
-extern CySCB_Type* CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
+extern CySCB_Type* const CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
 /** The interrupt number of the SCB blocks. */
-extern IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
+extern const IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
 
 /** The configuration structs for the resource in use on each SCB block (e.g. cyhal_i2c_t) */
 extern void *cyhal_scb_config_structs[CY_IP_MXSCB_INSTANCES];

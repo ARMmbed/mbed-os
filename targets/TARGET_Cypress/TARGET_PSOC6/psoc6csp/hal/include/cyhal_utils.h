@@ -79,7 +79,7 @@ extern "C" {
  */
 static inline uint32_t cyhal_divider_value(uint32_t frequency, uint32_t frac_bits)
 {
-    return ((cy_PeriClkFreqHz * (1 << frac_bits)) + (frequency / 2)) / frequency - 1;
+    return ((Cy_SysClk_ClkPeriGetFrequency() * (1 << frac_bits)) + (frequency / 2)) / frequency - 1;
 }
 
 /** Converts the provided gpio pin to a resource instance object

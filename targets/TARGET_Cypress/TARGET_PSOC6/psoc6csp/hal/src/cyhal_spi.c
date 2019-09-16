@@ -500,17 +500,17 @@ static cy_rslt_t cyhal_int_spi_frequency(cyhal_spi_t *obj, uint32_t hz, uint8_t 
         for (oversample_value = SPI_OVERSAMPLE_MIN; oversample_value <= SPI_OVERSAMPLE_MAX; oversample_value++)
         {
             oversampled_freq = hz * oversample_value;
-            if ((hz * oversample_value > cy_PeriClkFreqHz) && (SPI_OVERSAMPLE_MIN == oversample_value))
+            if ((hz * oversample_value > Cy_SysClk_ClkPeriGetFrequency()) && (SPI_OVERSAMPLE_MIN == oversample_value))
             {
                 return CYHAL_SPI_RSLT_CLOCK_ERROR;
             }
-            else if (hz * oversample_value > cy_PeriClkFreqHz)
+            else if (hz * oversample_value > Cy_SysClk_ClkPeriGetFrequency())
             {
                 continue;
             }
 
             divider_value = cyhal_divider_value(hz * oversample_value, 0);
-            divided_freq = cy_PeriClkFreqHz /(divider_value + 1);
+            divided_freq = Cy_SysClk_ClkPeriGetFrequency() /(divider_value + 1);
             diff = max(oversampled_freq, divided_freq) - min(oversampled_freq, divided_freq);
 
             if (diff < last_diff)
@@ -534,7 +534,7 @@ static cy_rslt_t cyhal_int_spi_frequency(cyhal_spi_t *obj, uint32_t hz, uint8_t 
         float desired_period_us = 1 / (float)hz * 1e6;
         uint32_t required_frequency = (uint32_t)(3e6 / (0.5f * desired_period_us - 36.66f / 1e3));
 
-        if (required_frequency > cy_PeriClkFreqHz)
+        if (required_frequency > Cy_SysClk_ClkPeriGetFrequency())
         {
             return CYHAL_SPI_RSLT_CLOCK_ERROR;
         }
