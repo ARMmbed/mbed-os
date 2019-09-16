@@ -77,6 +77,13 @@ def main():
                              help=("build profile file"),
                              metavar="profile")
 
+    compile_cmd.add_argument("-j", "--jobs",
+                             dest='jobs',
+                             metavar="NUMBER",
+                             type=int,
+                             default=0,
+                             help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
+
     compile_cmd.add_argument("-v", "--verbose",
                              action="store_true",
                              dest="verbose",
@@ -136,8 +143,7 @@ def do_deploy(_, config, examples):
 
 def do_compile(args, config, examples):
     """Do the compile step"""
-    results = {}
-    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples)
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples, args.jobs)
     lib.print_summary(results)
     failures = lib.get_num_failures(results)
     print("Number of failures = %d" % failures)
