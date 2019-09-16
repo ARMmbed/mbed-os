@@ -123,6 +123,12 @@ ENDPOINT_TYPE_NAMES = {
     usb.ENDPOINT_TYPE_INTERRUPT: 'INTERRUPT',
     usb.ENDPOINT_TYPE_ISOCHRONOUS: 'ISOCHRONOUS'}
 
+# Greentea message keys used to notify DUT of test status
+MSG_KEY_TEST_CASE_FAILED = 'fail'
+MSG_KEY_TEST_CASE_PASSED = 'pass'
+MSG_VALUE_DUMMY = '0'
+
+
 def format_local_error_msg(fmt):
     """Return an error message formatted with the last traceback entry from this file.
 
@@ -161,230 +167,244 @@ class PyusbBasicTest(BaseHostTest):
         self.log("Received product_id %s" % (product_id))
 
         dev = self.find_device(serial_number)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(serial_number))
             return
 
         try:
             control_basic_test(dev, int(vendor_id), int(product_id), log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_stall_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             control_stall_test(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_sizes_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             control_sizes_test(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_stress_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             control_stress_test(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_device_reset_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             self.device_reset_test.send(dev)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_device_soft_reconnection_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             self.device_soft_reconnection_test.send(dev)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
 
     def _callback_device_suspend_resume_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             self.device_suspend_resume_test.send(dev)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
 
     def _callback_repeated_construction_destruction_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             self.repeated_construction_destruction_test.send(dev)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_data_correctness(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_data_correctness(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_halt(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_halt(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_parallel_transfers(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_parallel_transfers(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_parallel_transfers_ctrl(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_parallel_transfers_ctrl(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_abort(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_abort(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_data_toggle(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
         dev = self.find_device(value)
-        if(dev == None):
+        if dev is None:
+            self.notify_error('USB device (SN={}) not found.'.format(value))
             return
 
         try:
             ep_test_data_toggle(dev, log=print)
-            self.report_success()
+            self.notify_success()
         except RuntimeError as exc:
-            self.report_error(exc)
+            self.notify_failure(exc)
         except usb.core.USBError as exc:
             error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
-            self.report_error(error_msg if error_msg is not None else exc)
+            self.notify_failure(error_msg if error_msg is not None else exc)
 
     def _callback_reset_support(self, key, value, timestamp):
         status = "false" if sys.platform == "darwin" else "true"
@@ -398,18 +418,25 @@ class PyusbBasicTest(BaseHostTest):
             if dev is not None:
                 break
             time.sleep(0.1)
-        if dev is None:
-            self.log("Device not found")
-            self.send_kv("failed", "0")
         return dev
 
+    def notify_success(self, value=None, msg=''):
+        """Report a host side test success to the DUT."""
+        if msg:
+            self.log('TEST PASSED: {}'.format(msg))
+        if value is None:
+            value = MSG_VALUE_DUMMY
+        self.send_kv(MSG_KEY_TEST_CASE_PASSED, value)
 
-    def report_success(self):
-        self.send_kv("pass", "0")
-
-    def report_error(self, msg):
+    def notify_failure(self, msg):
+        """Report a host side test failure to the DUT."""
         self.log('TEST FAILED: {}'.format(msg))
-        self.send_kv("failed", "0")
+        self.send_kv(MSG_KEY_TEST_CASE_FAILED, MSG_VALUE_DUMMY)
+
+    def notify_error(self, msg):
+        """Terminate the test with an error msg."""
+        self.log('TEST ERROR: {}'.format(msg))
+        self.notify_complete(None)
 
     def setup(self):
         self.__result = False
