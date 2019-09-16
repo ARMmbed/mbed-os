@@ -89,6 +89,7 @@ ESP8266Interface::ESP8266Interface()
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
+    _esp.uart_enable_input(false);
 }
 #endif
 
@@ -125,6 +126,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
+    _esp.uart_enable_input(false);
 }
 
 ESP8266Interface::~ESP8266Interface()
@@ -224,6 +226,7 @@ void ESP8266Interface::_connect_async()
     nsapi_error_t status = _init();
     if (status != NSAPI_ERROR_OK) {
         _connect_retval = status;
+        _esp.uart_enable_input(false);
         _software_conn_stat = IFACE_STATUS_DISCONNECTED;
         //_conn_stat_cb will be called from refresh_conn_state_cb
         return;
@@ -231,6 +234,7 @@ void ESP8266Interface::_connect_async()
 
     if (!_esp.dhcp(true, 1)) {
         _connect_retval = NSAPI_ERROR_DHCP_FAILURE;
+        _esp.uart_enable_input(false);
         _software_conn_stat = IFACE_STATUS_DISCONNECTED;
         //_conn_stat_cb will be called from refresh_conn_state_cb
         return;
@@ -253,6 +257,7 @@ void ESP8266Interface::_connect_async()
             _connect_retval = NSAPI_ERROR_CONNECTION_TIMEOUT;
         }
         if (_connect_retval != NSAPI_ERROR_OK) {
+            _esp.uart_enable_input(false);
             _software_conn_stat = IFACE_STATUS_DISCONNECTED;
         }
         _if_connected.notify_all();
@@ -304,6 +309,7 @@ int ESP8266Interface::connect()
         _cmutex.lock();
     }
     _software_conn_stat = IFACE_STATUS_CONNECTING;
+    _esp.uart_enable_input(true);
     _connect_retval = NSAPI_ERROR_NO_CONNECTION;
     MBED_ASSERT(!_connect_event_id);
     _conn_timer.stop();
@@ -404,6 +410,7 @@ void ESP8266Interface::_disconnect_async()
         }
 
         _power_off();
+        _software_conn_stat = IFACE_STATUS_DISCONNECTED;
         _if_connected.notify_all();
 
     } else {
@@ -418,8 +425,8 @@ void ESP8266Interface::_disconnect_async()
         }
     }
     _cmutex.unlock();
-    _software_conn_stat = IFACE_STATUS_DISCONNECTED;
 
+    _esp.uart_enable_input(false);
     if (_disconnect_event_id == 0) {
         if (_conn_stat_cb) {
             _conn_stat_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _conn_stat);
@@ -481,17 +488,31 @@ int ESP8266Interface::disconnect()
 
 const char *ESP8266Interface::get_ip_address()
 {
-    const char *ip_buff = _esp.ip_addr();
-    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
-        return NULL;
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(true);
     }
 
+    const char *ip_buff = _esp.ip_addr();
+    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
+        ip_buff = NULL;
+    }
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(false);
+    }
     return ip_buff;
 }
 
 const char *ESP8266Interface::get_mac_address()
 {
-    return _esp.mac_addr();
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(true);
+    }
+    const char *ret = _esp.mac_addr();
+
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(false);
+    }
+    return ret;
 }
 
 const char *ESP8266Interface::get_gateway()
@@ -506,7 +527,17 @@ const char *ESP8266Interface::get_netmask()
 
 int8_t ESP8266Interface::get_rssi()
 {
-    return _esp.rssi();
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(true);
+    }
+
+    int8_t ret = _esp.rssi();
+
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(false);
+    }
+
+    return ret;
 }
 
 int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count)
@@ -523,13 +554,25 @@ int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count, scan_mode mode,
         return NSAPI_ERROR_PARAMETER;
     }
 
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(true);
+    }
+
     nsapi_error_t status = _init();
     if (status != NSAPI_ERROR_OK) {
         return status;
+        if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+            _esp.uart_enable_input(false);
+        }
     }
 
-    return _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
-                     t_max, t_min);
+    int ret = _esp.scan(res, count, (mode == SCANMODE_ACTIVE ? ESP8266::SCANMODE_ACTIVE : ESP8266::SCANMODE_PASSIVE),
+                        t_max, t_min);
+
+    if (_software_conn_stat == IFACE_STATUS_DISCONNECTED) {
+        _esp.uart_enable_input(false);
+    }
+    return ret;
 }
 
 bool ESP8266Interface::_get_firmware_ok()
@@ -555,6 +598,7 @@ nsapi_error_t ESP8266Interface::_init(void)
     if (!_initialized) {
         _pwr_pin.power_off();
         _pwr_pin.power_on();
+
         if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
