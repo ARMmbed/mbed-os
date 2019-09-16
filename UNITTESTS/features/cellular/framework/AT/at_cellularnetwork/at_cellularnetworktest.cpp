@@ -767,3 +767,43 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_packet_domain_event_r
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(true));
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(false));
 }
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_is_active_context)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+
+    // No contexts
+    int active_contexts = -1;
+    EXPECT_FALSE(cn.is_active_context(&active_contexts));
+    EXPECT_EQ(0, active_contexts);
+
+    // Active contexts
+    ATHandler_stub::resp_info_true_counter = 2;
+    ATHandler_stub::int_count = 4;
+    ATHandler_stub::int_valid_count_table[3] = 0; // ctx 0
+    ATHandler_stub::int_valid_count_table[2] = 0; // ctx 0 inactive
+    ATHandler_stub::int_valid_count_table[1] = 1; // ctx 1
+    ATHandler_stub::int_valid_count_table[0] = 1; // ctx 1 active
+
+    EXPECT_TRUE(cn.is_active_context(&active_contexts));
+    EXPECT_EQ(1, active_contexts);
+
+    ATHandler_stub::resp_info_true_counter = 2;
+    ATHandler_stub::int_count = 4;
+    EXPECT_FALSE(cn.is_active_context(&active_contexts, 0));
+    EXPECT_EQ(1, active_contexts);
+
+    ATHandler_stub::resp_info_true_counter = 2;
+    ATHandler_stub::int_count = 4;
+    EXPECT_TRUE(cn.is_active_context(&active_contexts, 1));
+    EXPECT_EQ(1, active_contexts);
+
+    ATHandler_stub::resp_info_true_counter = 2;
+    ATHandler_stub::int_count = 4;
+    EXPECT_TRUE(cn.is_active_context(NULL, 1));
+    EXPECT_EQ(1, active_contexts);
+}

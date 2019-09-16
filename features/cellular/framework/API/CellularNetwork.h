@@ -338,8 +338,8 @@ public:
 
     /** Check if there is any PDP context active. If cid is given, then check is done only for that cid.
      *
-     *  @param number_of_active_contexts    If given then in return contains the number of active contexts
-     *  @param cid                          If given then active contexts are checked only against this cid
+     *  @param number_of_active_contexts    If given then in return contains the number of all active contexts
+     *  @param cid                          If given then check if the context with this cid is active
      *
      *  @return true if any (or the given cid) context is active, false otherwise or in case of error
      */
