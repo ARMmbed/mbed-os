@@ -29,7 +29,7 @@ namespace events {
  */
 
 
-template<typename F, typename A1 = void, typename A2 = void, typename A3 = void, typename A4 = void, typename A5 = void>
+template<typename F, typename ARG1 = void, typename ARG2 = void, typename ARG3 = void, typename ARG4 = void, typename ARG5 = void>
 struct AllArgs;
 
 template<typename B0>
@@ -543,22 +543,22 @@ private:
     All _args;
 };
 
-template <typename R, typename A0>
-class Task<R(A0)>: public TaskBase {
+template <typename R, typename ARG0>
+class Task<R(ARG0)>: public TaskBase {
 public:
 
-    Task(TaskQueue *q = NULL, mbed::Callback<R(A0)> cb = mbed::Callback<R(A0)>())
+    Task(TaskQueue *q = NULL, mbed::Callback<R(ARG0)> cb = mbed::Callback<R(ARG0)>())
         : TaskBase(q), _args(cb)
     {
     }
 
-    Task &operator=(mbed::Callback<R(A0)> cb)
+    Task &operator=(mbed::Callback<R(ARG0)> cb)
     {
         _args.b0 = cb;
         return *this;
     }
 
-    void call(A0 a0)
+    void call(ARG0 a0)
     {
         _args.b1 = a0;
         post();
@@ -578,7 +578,7 @@ protected:
     }
 
 private:
-    typedef AllArgs<mbed::Callback<R(A0)>, A0> All;
+    typedef AllArgs<mbed::Callback<R(ARG0)>, ARG0> All;
     All _args;
 };
 
@@ -586,8 +586,8 @@ private:
  *
  *  Representation of a postable task
  */
-template <typename R, typename A0, typename A1>
-class Task<R(A0, A1)>: public TaskBase {
+template <typename R, typename ARG0, typename ARG1>
+class Task<R(ARG0, ARG1)>: public TaskBase {
 public:
 
     /**
@@ -596,7 +596,7 @@ public:
      * @param q TaskQueue to post to
      * @param cb Callback to run
      */
-    Task(TaskQueue *q = NULL, mbed::Callback<R(A0, A1)> cb = mbed::Callback<R(A0, A1)>())
+    Task(TaskQueue *q = NULL, mbed::Callback<R(ARG0, ARG1)> cb = mbed::Callback<R(ARG0, ARG1)>())
         : TaskBase(q), _args(cb)
     {
     }
@@ -606,7 +606,7 @@ public:
      *
      * @param cb Callback to run
      */
-    Task &operator=(mbed::Callback<R(A0, A1)> cb)
+    Task &operator=(mbed::Callback<R(ARG0, ARG1)> cb)
     {
         _args.b0 = cb;
         return *this;
@@ -623,7 +623,7 @@ public:
      * @param a0 First callback parameter
      * @param a1 Second callback parameter
      */
-    void call(A0 a0, A1 a1)
+    void call(ARG0 a0, ARG1 a1)
     {
         _args.b1 = a0;
         _args.b2 = a1;
@@ -644,7 +644,7 @@ protected:
     }
 
 private:
-    typedef AllArgs<mbed::Callback<R(A0, A1)>, A0, A1> All;
+    typedef AllArgs<mbed::Callback<R(ARG0, ARG1)>, ARG0, ARG1> All;
     All _args;
 };
 
