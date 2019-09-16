@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-const cy_stc_tcpwm_counter_config_t default_config =
+static const cy_stc_tcpwm_counter_config_t default_config =
 {
     .period = 32768,
     .clockPrescaler = CY_TCPWM_COUNTER_PRESCALER_DIVBY_1,
@@ -102,7 +102,7 @@ cy_rslt_t cyhal_timer_init(cyhal_timer_t *obj, cyhal_gpio_t pin, const cyhal_clo
         {
             obj->clock = *clk;
             obj->dedicated_clock = false;
-            obj->clock_hz = cy_PeriClkFreqHz / (1 + Cy_SysClk_PeriphGetDivider(obj->clock.div_type, obj->clock.div_num));
+            obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / (1 + Cy_SysClk_PeriphGetDivider(obj->clock.div_type, obj->clock.div_num));
             if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, clk->div_type, clk->div_num))
             {
                 result = CYHAL_TIMER_RSLT_ERR_CLOCK_INIT;
@@ -215,7 +215,7 @@ cy_rslt_t cyhal_timer_set_frequency(cyhal_timer_t *obj, uint32_t hz)
 
     if(CY_RSLT_SUCCESS == result)
     {
-        uint32_t div = cy_PeriClkFreqHz / hz;
+        uint32_t div = Cy_SysClk_ClkPeriGetFrequency() / hz;
         if (0 == div ||
             CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
             CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num))
@@ -224,7 +224,7 @@ cy_rslt_t cyhal_timer_set_frequency(cyhal_timer_t *obj, uint32_t hz)
         }
         else
         {
-            obj->clock_hz = cy_PeriClkFreqHz / div;
+            obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / div;
         }
     }
 
