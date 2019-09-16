@@ -48,7 +48,6 @@ void analogout_init(dac_t *obj, PinName pin);
 
 /** Release the analogout object
  *
- * Note: This is not currently used in the mbed-drivers
  * @param obj The analogout object
  */
 void analogout_free(dac_t *obj);
