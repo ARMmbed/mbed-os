@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2018-2018 ARM Limited
+Copyright (c) 2018-2019 ARM Limited
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ from threading import Thread, Event, Timer
 import array
 import random
 import os
+import traceback
 
 import usb.core
 from usb.util import build_request_type
@@ -122,6 +123,35 @@ ENDPOINT_TYPE_NAMES = {
     usb.ENDPOINT_TYPE_INTERRUPT: 'INTERRUPT',
     usb.ENDPOINT_TYPE_ISOCHRONOUS: 'ISOCHRONOUS'}
 
+def format_local_error_msg(fmt):
+    """Return an error message formatted with the last traceback entry from this file.
+
+    The message is formatted according to fmt with data from the last traceback
+    enrty internal to this file. There are 4 arguments supplied to the format
+    function: filename, line_number, exc_type and exc_value.
+
+    Returns None if formatting fails.
+    """
+    try:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        # A list of 4-tuples (filename, line_number, function_name, text).
+        tb_entries = traceback.extract_tb(exc_traceback)
+        # Reuse the filename from the first tuple instead of relying on __file__:
+        # 1. No need for path handling.
+        # 2. No need for file extension handling (i.e. .py vs .pyc).
+        name_of_this_file = tb_entries[0][0]
+        last_internal_tb_entry = [tb for tb in tb_entries if tb[0] == name_of_this_file][-1]
+        msg = fmt.format(
+            filename=last_internal_tb_entry[0],
+            line_number=last_internal_tb_entry[1],
+            exc_type=str(exc_type).strip(),
+            exc_value=str(exc_value).strip(),
+            )
+    except (IndexError, KeyError):
+        msg = None
+    return msg
+
+
 class PyusbBasicTest(BaseHostTest):
 
     def _callback_control_basic_test(self, key, value, timestamp):
@@ -137,8 +167,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             control_basic_test(dev, int(vendor_id), int(product_id), log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_stall_test(self, key, value, timestamp):
@@ -151,8 +184,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             control_stall_test(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_sizes_test(self, key, value, timestamp):
@@ -165,8 +201,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             control_sizes_test(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
 
     def _callback_control_stress_test(self, key, value, timestamp):
@@ -179,8 +218,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             control_stress_test(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_device_reset_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -192,8 +234,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             self.device_reset_test.send(dev)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_device_soft_reconnection_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -205,8 +250,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             self.device_soft_reconnection_test.send(dev)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
 
     def _callback_device_suspend_resume_test(self, key, value, timestamp):
@@ -219,8 +267,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             self.device_suspend_resume_test.send(dev)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
 
     def _callback_repeated_construction_destruction_test(self, key, value, timestamp):
@@ -233,8 +284,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             self.repeated_construction_destruction_test.send(dev)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_data_correctness(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -246,8 +300,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_data_correctness(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_halt(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -259,8 +316,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_halt(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_parallel_transfers(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -272,8 +332,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_parallel_transfers(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_parallel_transfers_ctrl(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -285,8 +348,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_parallel_transfers_ctrl(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_abort(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -298,8 +364,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_abort(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_ep_test_data_toggle(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
@@ -311,8 +380,11 @@ class PyusbBasicTest(BaseHostTest):
         try:
             ep_test_data_toggle(dev, log=print)
             self.report_success()
-        except (RuntimeError) as exc:
+        except RuntimeError as exc:
             self.report_error(exc)
+        except usb.core.USBError as exc:
+            error_msg = format_local_error_msg('[{filename}]:{line_number}, Dev-host transfer error ({exc_value}).')
+            self.report_error(error_msg if error_msg is not None else exc)
 
     def _callback_reset_support(self, key, value, timestamp):
         status = "false" if sys.platform == "darwin" else "true"
