@@ -22,6 +22,7 @@
 #include "ATHandler.h"
 #include "FileHandle_stub.h"
 #include "Callback.h"
+#include "vector"
 
 #ifndef __AT_HANDLER_STUB_H__
 #define __AT_HANDLER_STUB_H__
@@ -60,6 +61,12 @@ extern int int_valid_count_table[kRead_int_table_size];
 extern int int_count;
 extern int resp_stop_success_count;
 extern bool process_oob_urc;
+
+struct urc_handler {
+    const char *urc;
+    mbed::Callback<void()> cb;
+};
+extern std::vector<urc_handler> urc_handlers;
 
 extern bool get_debug_flag;
 bool is_get_debug_run();
