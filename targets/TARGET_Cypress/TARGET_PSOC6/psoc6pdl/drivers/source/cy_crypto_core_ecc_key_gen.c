@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_ecc_key_gen.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides constant and parameters for the API for the ECC key
@@ -25,11 +25,16 @@
 
 
 #include "cy_crypto_core_ecc.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include "cy_crypto_core_ecc_nist_p.h"
 #include "cy_crypto_core_vu.h"
 #include "cy_crypto_core_trng.h"
-
-#if defined(CY_IP_MXCRYPTO)
 
 #define CY_ECC_CONFIG_TR_GARO_CTL      0x6C740B8DuL
 #define CY_ECC_CONFIG_TR_FIRO_CTL      0x52D246E1uL
@@ -297,6 +302,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_MakePublicKey(CRYPTO_Type *base,
 
     return (tmpResult);
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

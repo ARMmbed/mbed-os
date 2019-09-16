@@ -18,7 +18,6 @@
 
 #include "val_greentea.h"
 #include "val_interfaces.h"
-#include "val_crypto.h"
 #include "val_internal_trusted_storage.h"
 #include "val_protected_storage.h"
 #include "val_attestation.h"
@@ -47,7 +46,6 @@ const val_api_t val_api = {
     .wd_reprogram_timer        = mbed_val_wd_reprogram_timer,
     .set_boot_flag             = NULL,
     .get_boot_flag             = NULL,
-    .crypto_function           = val_crypto_function,
     .its_function              = val_its_function,
     .ps_function               = val_ps_function,
     .attestation_function      = val_attestation_function,

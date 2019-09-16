@@ -36,20 +36,24 @@
                           ((((unsigned char*)a)[5])==(((unsigned char*)b)[5])))
 
 struct whd_scan_userdata {
-    Semaphore *sema;
+    rtos::Semaphore *sema;
     WiFiAccessPoint *aps;
     std::vector<whd_scan_result_t> *result_buff;
     unsigned count;
     unsigned offset;
-    whd_interface_t ifp;
     bool scan_in_progress;
 };
 
 static whd_scan_userdata interal_scan_data;
 static whd_scan_result_t internal_scan_result;
-static whd_scan_result_t *result_ptr = &internal_scan_result;
+static uint16_t sta_link_update_entry = 0xFF;
+static const whd_event_num_t sta_link_change_events[] = {
+    WLC_E_SET_SSID, WLC_E_LINK, WLC_E_AUTH,  WLC_E_ASSOC, WLC_E_DEAUTH_IND, WLC_E_DISASSOC_IND, WLC_E_DISASSOC,
+    WLC_E_REASSOC, WLC_E_PSK_SUP, WLC_E_ACTION_FRAME_COMPLETE, WLC_E_NONE
+};
 
-extern "C" void whd_emac_wifi_link_state_changed(bool state_up, whd_interface_t ifp);
+
+extern "C" void whd_emac_wifi_link_state_changed(whd_interface_t ifp, whd_bool_t state_up);
 
 
 int whd_toerror(whd_result_t res)
@@ -113,6 +117,8 @@ static nsapi_security_t whd_tosecurity(whd_security_t sec)
             return NSAPI_SECURITY_WPA;
         case WHD_SECURITY_WPA2_MIXED_PSK:
             return NSAPI_SECURITY_WPA_WPA2;
+        case WHD_SECURITY_WPA2_MIXED_ENT:
+            return NSAPI_SECURITY_WPA2_ENT;
         case WHD_SECURITY_WPA2_AES_PSK:
         case WHD_SECURITY_WPA2_AES_ENT:
         case WHD_SECURITY_WPA2_FBT_PSK:
@@ -136,9 +142,35 @@ whd_security_t whd_fromsecurity(nsapi_security_t sec)
             return WHD_SECURITY_WPA2_AES_PSK;
         case NSAPI_SECURITY_WPA_WPA2:
             return WHD_SECURITY_WPA2_MIXED_PSK;
+        case NSAPI_SECURITY_WPA2_ENT:
+            return WHD_SECURITY_WPA2_MIXED_ENT;
         default:
             return WHD_SECURITY_UNKNOWN;
     }
+}
+
+static void *whd_wifi_link_state_change_handler(whd_interface_t ifp,
+                                                const whd_event_header_t *event_header,
+                                                const uint8_t *event_data,
+                                                void *handler_user_data)
+{
+    UNUSED_PARAMETER(event_data);
+
+    if (event_header->bsscfgidx >= WHD_INTERFACE_MAX) {
+        WPRINT_WHD_DEBUG(("%s: event_header: Bad interface\n", __FUNCTION__));
+        return NULL;
+    }
+
+    if (event_header->event_type == WLC_E_DEAUTH_IND ||
+            event_header->event_type == WLC_E_DISASSOC_IND) {
+        whd_emac_wifi_link_state_changed(ifp, WHD_FALSE);
+    }
+
+    if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS) {
+        whd_emac_wifi_link_state_changed(ifp, WHD_TRUE);
+    }
+
+    return handler_user_data;
 }
 
 MBED_WEAK WhdSTAInterface::OlmInterface &WhdSTAInterface::OlmInterface::get_default_instance()
@@ -179,8 +211,8 @@ nsapi_error_t WhdSTAInterface::set_credentials(const char *ssid, const char *pas
 {
     if ((ssid == NULL) ||
             (strlen(ssid) == 0) ||
-            (pass == NULL && (security != NSAPI_SECURITY_NONE)) ||
-            (strlen(pass) == 0 && (security != NSAPI_SECURITY_NONE)) ||
+            (pass == NULL && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
+            (strlen(pass) == 0 && (security != NSAPI_SECURITY_NONE && security != NSAPI_SECURITY_WPA2_ENT)) ||
             (strlen(pass) > 63 && (security == NSAPI_SECURITY_WPA2 || security == NSAPI_SECURITY_WPA || security == NSAPI_SECURITY_WPA_WPA2))
        ) {
         return NSAPI_ERROR_PARAMETER;
@@ -202,10 +234,17 @@ nsapi_error_t WhdSTAInterface::connect()
 
 #define MAX_RETRY_COUNT    ( 5 )
     int i;
+    whd_result_t res;
 
     // initialize wiced, this is noop if already init
     if (!_whd_emac.powered_up) {
         _whd_emac.power_up();
+    }
+
+    res = whd_management_set_event_handler(_whd_emac.ifp, sta_link_change_events,
+                                           whd_wifi_link_state_change_handler, NULL, &sta_link_update_entry);
+    if (res != WHD_SUCCESS) {
+        return whd_toerror(res);
     }
 
     if (!_interface) {
@@ -237,7 +276,6 @@ nsapi_error_t WhdSTAInterface::connect()
     whd_security_t security = whd_fromsecurity(_security);
 
     // join the network
-    whd_result_t res;
     for (i = 0; i < MAX_RETRY_COUNT; i++) {
         res = (whd_result_t)whd_wifi_join(_whd_emac.ifp,
                                           &ssid,
@@ -253,7 +291,7 @@ nsapi_error_t WhdSTAInterface::connect()
     }
 
     if (whd_wifi_is_ready_to_transceive(_whd_emac.ifp) == WHD_SUCCESS) {
-        whd_emac_wifi_link_state_changed(true, _whd_emac.ifp);
+        whd_emac_wifi_link_state_changed(_whd_emac.ifp, WHD_TRUE);
     }
 
     // bring up
@@ -285,6 +323,12 @@ nsapi_error_t WhdSTAInterface::disconnect()
 
     // leave network
     whd_result_t res = whd_wifi_leave(_whd_emac.ifp);
+    if (res != WHD_SUCCESS) {
+        return whd_toerror(res);
+    }
+    whd_emac_wifi_link_state_changed(_whd_emac.ifp, WHD_FALSE);
+
+    res = whd_wifi_deregister_event_handler(_whd_emac.ifp, sta_link_update_entry);
     if (res != WHD_SUCCESS) {
         return whd_toerror(res);
     }
@@ -348,7 +392,7 @@ static void whd_scan_handler(whd_scan_result_t **result_ptr,
         }
     }
 
-    if (data->count > 0) {
+    if (data->count > 0 && data->aps != NULL) {
         // get ap stats
         nsapi_wifi_ap ap;
 
@@ -385,7 +429,6 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
     interal_scan_data.aps = aps;
     interal_scan_data.count = count;
     interal_scan_data.offset = 0;
-    interal_scan_data.ifp = _whd_emac.ifp;
     interal_scan_data.scan_in_progress = true;
     interal_scan_data.result_buff = new std::vector<whd_scan_result_t>();
     whd_result_t whd_res;
@@ -393,16 +436,12 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
 
 
     whd_res = (whd_result_t)whd_wifi_scan(_whd_emac.ifp, WHD_SCAN_TYPE_ACTIVE, WHD_BSS_TYPE_ANY,
-                                          NULL, NULL, NULL, NULL, whd_scan_handler, (whd_scan_result_t **) &result_ptr, &interal_scan_data);
+                                          NULL, NULL, NULL, NULL, whd_scan_handler, &internal_scan_result, &interal_scan_data);
     if (whd_res != WHD_SUCCESS) {
         res = whd_toerror(whd_res);
     } else {
-        int tok = interal_scan_data.sema->wait();
-        if (tok < 1) {
-            res = NSAPI_ERROR_WOULD_BLOCK;
-        } else {
-            res = interal_scan_data.offset;
-        }
+        interal_scan_data.sema->acquire();
+        res = interal_scan_data.offset;
     }
 
     delete interal_scan_data.sema;
@@ -412,6 +451,9 @@ int WhdSTAInterface::scan(WiFiAccessPoint *aps, unsigned count)
 
 int WhdSTAInterface::is_interface_connected(void)
 {
+    if (!_whd_emac.ifp) {
+        return WHD_INTERFACE_NOT_UP;
+    }
     _whd_emac.ifp->role = WHD_STA_ROLE;
     if ((whd_wifi_is_ready_to_transceive(_whd_emac.ifp) == WHD_SUCCESS)) {
         return WHD_SUCCESS;
@@ -486,6 +528,13 @@ int WhdSTAInterface::wifi_set_ioctl_value(uint32_t ioctl, uint32_t value)
     return res;
 }
 
+int WhdSTAInterface::wifi_get_ifp(whd_interface_t *ifp)
+{
+    int res = WHD_SUCCESS;
+    *ifp = _whd_emac.ifp;
+    return res;
+}
+
 int WhdSTAInterface::wifi_set_up(void)
 {
     int res = WHD_SUCCESS;
@@ -497,5 +546,12 @@ int WhdSTAInterface::wifi_set_down(void)
 {
     int res = WHD_SUCCESS;
     res = whd_wifi_set_down(_whd_emac.ifp);
+    return res;
+}
+
+int WhdSTAInterface::wifi_set_coex_config(whd_coex_config_t *coex_config)
+{
+    int res = WHD_SUCCESS;
+    res = whd_wifi_set_coex_config(_whd_emac.ifp, coex_config);
     return res;
 }

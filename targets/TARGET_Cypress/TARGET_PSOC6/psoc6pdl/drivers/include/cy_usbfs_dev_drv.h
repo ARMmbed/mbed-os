@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv.h
-* \version 2.0
+* \version 2.10
 *
 * Provides API declarations of the USBFS driver.
 *
@@ -62,8 +62,9 @@
 ********************************************************************************
 *
 * <b>The primary usage model for the USBFS driver is to provide a defined API 
-* interface to <a href="../../usbfs_dev_api_reference_manual.html" target="_blank">USB Device Middleware</a> 
-* component that works on top of it.</b> \n
+* interface to 
+* <a href="https://cypresssemiconductorco.github.io/usbdev/usbfs_dev_api_reference_manual/html/index.html" target="_blank">
+* USB Device Middleware</a> component that works on top of it.</b> \n
 * The driver also provides an API interface for the application to implement the required 
 * functionality: 
 *  * \ref group_usbfs_dev_drv_callbacks
@@ -182,6 +183,13 @@
 *
 * Refer to \ref group_sysclk driver API for more detail about clock 
 * configuration.
+*
+* The FLL (Clock Path 0) with ECO also can be used as an alternative USB source
+* with the next configuration settings, for 48 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig48MHz
+* And for 96 MHz:
+* \snippet usbfs/snippet/main.c snipped_Cy_USBFS_Dev_Drv_fllConfig96MHz
+* Use these structures with \ref Cy_SysClk_FllManualConfigure
 *
 ********************************************************************************
 * \subsection group_usbfs_dev_drv_dma Assign and Route DMA Channels
@@ -632,6 +640,15 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>2.10</td>
+*     <td>Returns the data toggle bit into the previous state after detecting 
+*         that the host is retrying an OUT transaction.</td>
+*     <td>The device was not able to recover the data toggle bit and 
+*         continues communication through the endpoint after the host retried 
+*         the OUT transaction (the retried transaction has the same toggle bit 
+*         as the previous had).
+*    </td>
+*   </tr>
 *     <td>2.0</td>
 *     <td>The list of changes to support the MBED-OS USB Device stack is provided below:
 *         - Changed the processing of the control transfers.
@@ -727,7 +744,7 @@ extern "C" {
 #define CY_USBFS_VERSION_MAJOR      (2)
 
 /** USBFS Driver minor version */
-#define CY_USBFS_VERSION_MINOR      (0)
+#define CY_USBFS_VERSION_MINOR      (10)
 
 /** USBFS Driver identifier */
 #define CY_USBFS_ID                 CY_PDL_DRV_ID(0x3BU)
@@ -1410,8 +1427,8 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 /** 
 * An error occurred during a USB transfer. 
 * For an IN transaction, this indicates a "no response" from the HOST scenario. 
-* For an OUT transaction, this represents a "PID or CRC error" or the bit-stuff error 
-* scenario.
+* For an OUT transaction, this represents a "PID or CRC error" or the bit-stuff 
+* error scenario.
 */
 #define CY_USBFS_DEV_ENDPOINT_TRANSFER_ERROR    (0x1U)
 
@@ -1490,6 +1507,7 @@ __STATIC_INLINE cy_en_usbfs_dev_drv_lpm_req_t Cy_USBFS_Dev_Drv_Lpm_GetResponse(U
 __STATIC_INLINE void Cy_USBFS_Dev_Drv_SetAddress(USBFS_Type *base, uint8_t address, 
                                                  cy_stc_usbfs_dev_drv_context_t *context)
 {
+    (void)base; /* Suppress warning */
     /* Stores the address to set later after the status stage of setup request completed */
     context->address    = address;
     context->setAddress = true;
@@ -2160,6 +2178,8 @@ __STATIC_INLINE cy_en_usb_dev_ep_state_t Cy_USBFS_Dev_Drv_GetEndpointState(
 
 {
     cy_en_usb_dev_ep_state_t retState = CY_USB_DEV_EP_INVALID;
+    
+    (void)base; /* Suppress warning */
 
     if (CY_USBFS_DEV_DRV_IS_EP_VALID(endpoint))
     {

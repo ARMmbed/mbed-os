@@ -250,4 +250,24 @@
 #define SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE     UINT16_MAX
 #endif
 
+/**
+ * \def SN_COAP_BLOCKWISE_INTERNAL_BLOCK_2_HANDLING_ENABLED
+ * \brief A size optimization switch, which removes the blockwise Block2 response if set to 0.
+ * handling code which is typically overridden by a call of "sn_coap_protocol_handle_block2_response_internally(coap, false);".
+ * By default the code is there, so the override can be reversed by "sn_coap_protocol_handle_block2_response_internally(coap, true)".
+ */
+#ifndef SN_COAP_BLOCKWISE_INTERNAL_BLOCK_2_HANDLING_ENABLED
+#define SN_COAP_BLOCKWISE_INTERNAL_BLOCK_2_HANDLING_ENABLED  1
+#endif
+
+/**
+ * \def SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT
+ * \brief A heap optimization switch, which removes unnecessary copy of the blockwise data.
+ * If enabled, application must NOT free the payload when it gets the COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED status.
+ * Application must call sn_coap_protocol_block_remove() instead.
+ */
+#ifndef SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT
+#define SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT              0   /**< Disabled by default */
+#endif
+
 #endif // SN_CONFIG_H

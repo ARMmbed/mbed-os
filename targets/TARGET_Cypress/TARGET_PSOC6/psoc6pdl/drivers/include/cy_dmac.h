@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_dmac.h
-* \version 1.0
+* \version 1.10
 *
 * \brief
 * The header file of the DMAC driver.
@@ -118,6 +118,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.10</td>
+*     <td>The \ref Cy_DMAC_Channel_ClearInterrupt is changed.</td>
+*     <td>Minor defect fixing.</td>
+*   </tr>
 *   <tr>
 *     <td>1.0</td>
 *     <td>The initial version.</td>
@@ -1676,8 +1681,8 @@ __STATIC_INLINE void Cy_DMAC_Channel_ClearInterrupt(DMAC_Type * base, uint32_t c
 {
     CY_ASSERT_L1(CY_DMAC_IS_CH_NR_VALID(channel));
     CY_ASSERT_L2(CY_DMAC_IS_INTR_MASK_VALID(interrupt));
-    
-    DMAC_CH_INTR(base, channel) = CY_DMAC_INTR_MASK;
+
+    DMAC_CH_INTR(base, channel) = interrupt;
     (void) DMAC_CH_INTR(base, channel);
 }
 

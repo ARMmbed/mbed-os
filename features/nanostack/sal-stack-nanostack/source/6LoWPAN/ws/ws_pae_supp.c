@@ -67,7 +67,7 @@
 #define WAIT_FOR_REAUTHENTICATION_TICKS        120 * 10     // 120 seconds
 
 // How many times in maximum stored keys are used for authentication
-#define STORED_KEYS_MAXIMUM_USE_COUNT          2
+#define STORED_KEYS_MAXIMUM_USE_COUNT          1
 
 // Delay for sending the initial EAPOL-Key
 #define INITIAL_KEY_TIMER_MIN                  3
@@ -155,6 +155,22 @@ static const char *KEYS_FILE = KEYS_FILE_NAME;
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_supp_list, pae_supp_t, link);
 
+static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
+{
+    if (address) {
+        // Sets target address in use
+        pae_supp->entry.addr = *address;
+        pae_supp->entry_address_active = true;
+    } else {
+        pae_supp->entry_address_active = false;
+    }
+}
+
+static bool ws_pae_supp_address_is_set(pae_supp_t *pae_supp)
+{
+    return pae_supp->entry_address_active;
+}
+
 int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
@@ -186,8 +202,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     // Stores target/parent address
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, dest_eui_64);
     // Sets target address in use
-    pae_supp->entry.addr = pae_supp->target_addr;
-    pae_supp->entry_address_active = true;
+    ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
 
     pae_supp->auth_requested = true;
 
@@ -311,6 +326,9 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
             ws_pae_supp_timer_start(pae_supp);
 
             tr_info("GTK update start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->timer_settings->gtk_request_imin, pae_supp->timer_settings->gtk_request_imax, pae_supp->timer_settings->gtk_max_mismatch, pae_supp->auth_trickle_timer.t);
+        } else {
+            // If trickle is already running, set inconsistent heard to speed up the trickle
+            trickle_inconsistent_heard(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
         }
     }
 
@@ -332,6 +350,19 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
     } else {
         tr_info("NW send key index: %i, no changes", index + 1);
     }
+
+    return 0;
+}
+
+int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interface_ptr)
+{
+    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
+    if (!pae_supp) {
+        return -1;
+    }
+
+    // Sets target/parent address to null
+    ws_pae_supp_address_set(pae_supp, NULL);
 
     return 0;
 }
@@ -440,14 +471,20 @@ static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
     if (!pae_supp->auth_requested) {
         // If not making initial authentication updates target (RPL parent) for each EAPOL-key message
         uint8_t parent_eui_64[8];
-        if (ws_pae_supp_parent_eui_64_get(pae_supp->interface_ptr, parent_eui_64) < 0) {
+        if (ws_pae_supp_parent_eui_64_get(pae_supp->interface_ptr, parent_eui_64) >= 0) {
+            // Stores target/parent address
+            kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, parent_eui_64);
+            // Sets parent address in use
+            ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
+        } else if (ws_pae_supp_address_is_set(pae_supp)) {
+            /* If there is no RPL parent but there is target address from initial authentication
+               bootstrap, tries to use it. This can happen if BR updates keys after EAPOL authentication
+               but before bootstrap is completed and RPL parent is known */
+            tr_info("EAPOL initial auth target used");
+        } else {
+            // No target, failure
             return -1;
         }
-
-        // Stores target/parent address
-        kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, parent_eui_64);
-        // Sets parent address in use
-        pae_supp->entry.addr = pae_supp->target_addr;
 
         ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_REAUTHENTICATION_TICKS);
         tr_info("PAE wait for auth seconds: %i", WAIT_FOR_REAUTHENTICATION_TICKS / 10);
@@ -646,6 +683,13 @@ int8_t ws_pae_supp_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
+int8_t ws_pae_supp_timing_adjust(uint8_t timing)
+{
+    supp_fwh_sec_prot_timing_adjust(timing);
+    supp_eap_sec_prot_timing_adjust(timing);
+    return 0;
+}
+
 static void ws_pae_supp_free(pae_supp_t *pae_supp)
 {
     if (!pae_supp) {
@@ -741,10 +785,7 @@ void ws_pae_supp_fast_timer(uint16_t ticks)
 
         // Checks whether timer needs to be active
         if (!pae_supp->initial_key_timer && !pae_supp->auth_trickle_running && !running) {
-
             tr_debug("PAE idle");
-            // Sets target/parent address to null
-            pae_supp->entry_address_active = false;
             // If not already completed, restart bootstrap
             ws_pae_supp_authenticate_response(pae_supp, false);
 
@@ -760,7 +801,9 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
         // Checks whether initial EAPOL-Key message needs to be re-send or new GTK request to be sent
         if (pae_supp->auth_trickle_running) {
             if (trickle_timer(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params, seconds)) {
-                ws_pae_supp_initial_key_send(pae_supp);
+                if (ws_pae_supp_initial_key_send(pae_supp) < 0) {
+                    tr_info("EAPOL-Key send failed");
+                }
             }
             // Maximum number of trickle expires, authentication fails
             if (!trickle_running(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params)) {
@@ -783,14 +826,15 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 pae_supp->initial_key_timer = 0;
 
                 // Sends initial EAPOL-Key message
-                ws_pae_supp_initial_key_send(pae_supp);
+                if (ws_pae_supp_initial_key_send(pae_supp) < 0) {
+                    tr_info("EAPOL-Key send failed");
+                }
 
                 // Starts trickle
                 pae_supp->auth_trickle_params = initial_eapol_key_trickle_params;
                 trickle_start(&pae_supp->auth_trickle_timer, &pae_supp->auth_trickle_params);
                 pae_supp->auth_trickle_running = true;
             }
-
         }
     }
 }

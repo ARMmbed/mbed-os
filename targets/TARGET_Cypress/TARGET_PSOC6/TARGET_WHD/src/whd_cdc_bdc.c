@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <limits.h>
 #include "whd_int.h"
 #include "whd_cdc_bdc.h"
 #include "whd_events_int.h"
@@ -93,6 +94,20 @@ static uint8_t whd_map_dscp_to_priority(whd_driver_t whd_driver, uint8_t val)
     return dscp_to_wmm_qos[dscp_val];
 }
 
+void whd_cdc_bdc_info_deinit(whd_driver_t whd_driver)
+{
+    whd_cdc_bdc_info_t *cdc_bdc_info = &whd_driver->cdc_bdc_info;
+
+    /* Delete the sleep mutex */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_sleep);
+
+    /* Delete the queue mutex.  */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->ioctl_mutex);
+
+    /* Delete the event list management mutex */
+    (void)cy_rtos_deinit_semaphore(&cdc_bdc_info->event_list_mutex);
+}
+
 whd_result_t whd_cdc_bdc_info_init(whd_driver_t whd_driver)
 {
     whd_cdc_bdc_info_t *cdc_bdc_info = &whd_driver->cdc_bdc_info;
@@ -168,6 +183,13 @@ whd_result_t whd_cdc_send_ioctl(whd_interface_t ifp, cdc_command_type_t type, ui
     uint32_t bss_index = ifp->bsscfgidx;
     whd_driver_t whd_driver = ifp->whd_driver;
     whd_cdc_bdc_info_t *cdc_bdc_info = &whd_driver->cdc_bdc_info;
+
+    /* Validate the command value */
+    if (command > INT_MAX)
+    {
+        WPRINT_WHD_ERROR( ("The ioctl command value is invalid\n") );
+        return WHD_BADARG;
+    }
 
     /* Acquire mutex which prevents multiple simultaneous IOCTLs */
     retval = cy_rtos_get_semaphore(&cdc_bdc_info->ioctl_mutex, CY_RTOS_NEVER_TIMEOUT, WHD_FALSE);

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -246,6 +246,9 @@ status_t UART_SendEDMA(UART_Type *base, uart_edma_handle_t *handle, uart_transfe
         EDMA_PrepareTransfer(&xferConfig, xfer->data, sizeof(uint8_t), (void *)UART_GetDataRegisterAddress(base),
                              sizeof(uint8_t), sizeof(uint8_t), xfer->dataSize, kEDMA_MemoryToPeripheral);
 
+        /* Store the initially configured eDMA minor byte transfer count into the UART handle */
+        handle->nbytes = sizeof(uint8_t);
+
         /* Submit transfer. */
         EDMA_SubmitTransfer(handle->txEdmaHandle, &xferConfig);
         EDMA_StartTransfer(handle->txEdmaHandle);
@@ -283,6 +286,9 @@ status_t UART_ReceiveEDMA(UART_Type *base, uart_edma_handle_t *handle, uart_tran
         /* Prepare transfer. */
         EDMA_PrepareTransfer(&xferConfig, (void *)UART_GetDataRegisterAddress(base), sizeof(uint8_t), xfer->data,
                              sizeof(uint8_t), sizeof(uint8_t), xfer->dataSize, kEDMA_PeripheralToMemory);
+
+        /* Store the initially configured eDMA minor byte transfer count into the UART handle */
+        handle->nbytes = sizeof(uint8_t);
 
         /* Submit transfer. */
         EDMA_SubmitTransfer(handle->rxEdmaHandle, &xferConfig);
@@ -336,7 +342,9 @@ status_t UART_TransferGetReceiveCountEDMA(UART_Type *base, uart_edma_handle_t *h
         return kStatus_NoTransferInProgress;
     }
 
-    *count = handle->rxDataSizeAll - EDMA_GetRemainingBytes(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel);
+    *count = handle->rxDataSizeAll -
+             (uint32_t)handle->nbytes *
+                 EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel);
 
     return kStatus_Success;
 }
@@ -352,7 +360,9 @@ status_t UART_TransferGetSendCountEDMA(UART_Type *base, uart_edma_handle_t *hand
         return kStatus_NoTransferInProgress;
     }
 
-    *count = handle->txDataSizeAll - EDMA_GetRemainingBytes(handle->txEdmaHandle->base, handle->txEdmaHandle->channel);
+    *count = handle->txDataSizeAll -
+             (uint32_t)handle->nbytes *
+                 EDMA_GetRemainingMajorLoopCount(handle->txEdmaHandle->base, handle->txEdmaHandle->channel);
 
     return kStatus_Success;
 }

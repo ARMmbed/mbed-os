@@ -32,7 +32,7 @@ extern "C" {
 
 #define WHD_BUS_HEADER_SIZE                     (0)
 
-#define WHD_BUS_SDIO_MAX_BACKPLANE_TRANSFER_SIZE     (WHD_PAYLOAD_MTU)
+#define WHD_BUS_SDIO_MAX_BACKPLANE_TRANSFER_SIZE     (1536)
 #define WHD_BUS_SDIO_BACKPLANE_READ_PADD_SIZE        (0)
 
 /******************************************************

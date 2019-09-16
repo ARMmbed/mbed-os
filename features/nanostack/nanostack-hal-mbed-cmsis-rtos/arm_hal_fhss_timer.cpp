@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
+
 #include "ns_types.h"
 #include "fhss_api.h"
 #include "fhss_config.h"
@@ -32,6 +34,7 @@
 #define NUMBER_OF_SIMULTANEOUS_TIMEOUTS  2
 #endif //NUMBER_OF_SIMULTANEOUS_TIMEOUTS
 
+namespace {
 using namespace mbed;
 using namespace events;
 
@@ -77,7 +80,6 @@ static fhss_timeout_s *allocate_timeout(void)
 {
     for (int i = 0; i < NUMBER_OF_SIMULTANEOUS_TIMEOUTS; i++) {
         if (fhss_timeout[i].fhss_timer_callback == NULL) {
-            memset(&fhss_timeout[i], 0, sizeof(fhss_timeout_s));
             return &fhss_timeout[i];
         }
     }
@@ -169,6 +171,7 @@ static uint32_t platform_fhss_timestamp_read(const fhss_api_t *api)
     (void)api;
     return read_current_time();
 }
+} // anonymous namespace
 
 fhss_timer_t fhss_functions = {
     .fhss_timer_start = platform_fhss_timer_start,
@@ -178,3 +181,4 @@ fhss_timer_t fhss_functions = {
     .fhss_resolution_divider = 1
 };
 
+#endif

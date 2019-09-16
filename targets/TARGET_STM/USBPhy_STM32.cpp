@@ -63,6 +63,7 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
+    uint32_t USBx_BASE = (uint32_t)USBx;
     if (priv->sof_enabled) {
         priv->events->sof((USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8);
     }
@@ -249,6 +250,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 #elif defined(TARGET_NUCLEO_L496ZG) || \
       defined(TARGET_NUCLEO_L496ZG_P) || \
       defined(TARGET_DISCO_L496AG) || \
+      defined(TARGET_DISCO_L4R9I) || \
       defined(TARGET_NUCLEO_L4R5ZI)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
@@ -530,8 +532,10 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
+#ifndef TARGET_STM32L4
     HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
     MBED_ASSERT(ret == HAL_OK);
+#endif
 }
 
 void USBPhyHw::process()

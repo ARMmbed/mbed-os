@@ -1,11 +1,3 @@
-
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_SingletonPtr SingletonPtr class
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -37,6 +29,14 @@
 #ifdef MBED_CONF_RTOS_PRESENT
 extern osMutexId_t singleton_mutex_id;
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_SingletonPtr SingletonPtr class
+ * @{
+ */
 
 /** Lock the singleton mutex
  *

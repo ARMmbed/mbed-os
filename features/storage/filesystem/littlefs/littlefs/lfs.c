@@ -2481,7 +2481,7 @@ int lfs_deorphan(lfs_t *lfs) {
     }
 
     lfs_dir_t pdir = {.d.size = 0x80000000};
-    lfs_dir_t cwd = {.d.tail[0] = 0, .d.tail[1] = 1};
+    lfs_dir_t cwd = {.d.tail = {0,1}};
 
     // iterate over all directory directory entries
     while (!lfs_pairisnull(cwd.d.tail)) {

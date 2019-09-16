@@ -1,0 +1,5 @@
+LPCOMP 0 lpcomp[0].comp[0]
+LPCOMP 1 lpcomp[0].comp[1]
+CSD 0 csd[0].csd[0]
+TEMP 0 pass[0].sarmux[0].tempsensor[0]
+SARADC 0 pass[0].sar[0]

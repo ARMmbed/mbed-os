@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ctb.c
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * Provides the public functions for the CTB driver.
@@ -22,8 +22,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 #include "cy_ctb.h"
+
+#ifdef CY_IP_MXS40PASS
 
 #ifdef CY_IP_MXS40PASS_CTB
 
@@ -171,7 +172,7 @@ const cy_stc_ctb_fast_config_oa1_t Cy_CTB_Fast_Opamp1_Vdac_Ref_Pin5 =
 * \image html ctb_init_funcusage.png
 * \image latex ctb_init_funcusage.png
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_CTBINIT
+* \snippet ctb/snippet/main.c SNIPPET_CTBINIT
 *
 *******************************************************************************/
 cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *config)
@@ -276,7 +277,7 @@ cy_en_ctb_status_t Cy_CTB_Init(CTBM_Type *base, const cy_stc_ctb_config_t *confi
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_OPAMPINIT
+* \snippet ctb/snippet/main.c SNIPPET_OPAMPINIT
 *
 *******************************************************************************/
 cy_en_ctb_status_t Cy_CTB_OpampInit(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, const cy_stc_ctb_opamp_config_t *config)
@@ -442,7 +443,7 @@ cy_en_ctb_status_t Cy_CTB_DeInit(CTBM_Type *base, bool deInitRouting)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm0p.c SNIPPET_FASTINIT
+* \snippet ctb/snippet/main.c SNIPPET_FASTINIT
 *
 *******************************************************************************/
 cy_en_ctb_status_t Cy_CTB_FastInit(CTBM_Type *base, const cy_stc_ctb_fast_config_oa0_t *config0, const cy_stc_ctb_fast_config_oa1_t *config1)
@@ -572,7 +573,7 @@ cy_en_ctb_status_t Cy_CTB_FastInit(CTBM_Type *base, const cy_stc_ctb_fast_config
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_CURRENT_MODE
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_CURRENT_MODE
 *
 *******************************************************************************/
 void Cy_CTB_SetCurrentMode(CTBM_Type *base, cy_en_ctb_current_mode_t currentMode)
@@ -674,7 +675,7 @@ void Cy_CTB_SetCurrentMode(CTBM_Type *base, cy_en_ctb_current_mode_t currentMode
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_DEEPSLEEP_MODE
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_DEEPSLEEP_MODE
 *
 *******************************************************************************/
 void Cy_CTB_SetDeepSleepMode(CTBM_Type *base, cy_en_ctb_deep_sleep_t deepSleep)
@@ -707,7 +708,7 @@ void Cy_CTB_SetDeepSleepMode(CTBM_Type *base, cy_en_ctb_deep_sleep_t deepSleep)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_OUTPUT_MODE
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_OUTPUT_MODE
 *
 *******************************************************************************/
 void Cy_CTB_SetOutputMode(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en_ctb_mode_t mode)
@@ -763,7 +764,7 @@ void Cy_CTB_SetOutputMode(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_POWER
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_POWER
 *
 *******************************************************************************/
 void Cy_CTB_SetPower(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en_ctb_power_t power, cy_en_ctb_pump_t pump)
@@ -815,11 +816,11 @@ void Cy_CTB_SetPower(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, cy_en_ctb_
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SAMPLE_CODE_SNIPPET
+* \snippet ctb/snippet/main.c CTB_SAMPLE_CODE_SNIPPET
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_HOLD_CODE_SNIPPET
+* \snippet ctb/snippet/main.c CTB_HOLD_CODE_SNIPPET
 *
 *******************************************************************************/
 void Cy_CTB_DACSampleAndHold(CTBM_Type *base, cy_en_ctb_sample_hold_mode_t mode)
@@ -904,7 +905,7 @@ void Cy_CTB_DACSampleAndHold(CTBM_Type *base, cy_en_ctb_sample_hold_mode_t mode)
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_OFFSET_TRIM
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_OFFSET_TRIM
 *
 *******************************************************************************/
 void Cy_CTB_OpampSetOffset(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, uint32_t trim)
@@ -939,7 +940,7 @@ void Cy_CTB_OpampSetOffset(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, uint
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_GET_OFFSET_TRIM
+* \snippet ctb/snippet/main.c CTB_SNIPPET_GET_OFFSET_TRIM
 *
 *******************************************************************************/
 uint32_t Cy_CTB_OpampGetOffset(const CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum)
@@ -1013,7 +1014,7 @@ uint32_t Cy_CTB_OpampGetOffset(const CTBM_Type *base, cy_en_ctb_opamp_sel_t opam
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_SLOPE_TRIM
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_SLOPE_TRIM
 *
 *******************************************************************************/
 void Cy_CTB_OpampSetSlope(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, uint32_t trim)
@@ -1048,7 +1049,7 @@ void Cy_CTB_OpampSetSlope(CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum, uint3
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_GET_SLOPE_TRIM
+* \snippet ctb/snippet/main.c CTB_SNIPPET_GET_SLOPE_TRIM
 *
 *******************************************************************************/
 uint32_t Cy_CTB_OpampGetSlope(const CTBM_Type *base, cy_en_ctb_opamp_sel_t opampNum)
@@ -1096,7 +1097,7 @@ uint32_t Cy_CTB_OpampGetSlope(const CTBM_Type *base, cy_en_ctb_opamp_sel_t opamp
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_SET_ANALOG_SWITCH
+* \snippet ctb/snippet/main.c CTB_SNIPPET_SET_ANALOG_SWITCH
 *
 *******************************************************************************/
 void Cy_CTB_SetAnalogSwitch(CTBM_Type *base, cy_en_ctb_switch_register_sel_t switchSelect, uint32_t switchMask, cy_en_ctb_switch_state_t state)
@@ -1157,7 +1158,7 @@ void Cy_CTB_SetAnalogSwitch(CTBM_Type *base, cy_en_ctb_switch_register_sel_t swi
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_GET_ANALOG_SWITCH
+* \snippet ctb/snippet/main.c CTB_SNIPPET_GET_ANALOG_SWITCH
 *
 *******************************************************************************/
 uint32_t Cy_CTB_GetAnalogSwitch(const CTBM_Type *base, cy_en_ctb_switch_register_sel_t switchSelect)
@@ -1209,7 +1210,7 @@ uint32_t Cy_CTB_GetAnalogSwitch(const CTBM_Type *base, cy_en_ctb_switch_register
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_COMP_SET_CONFIG
+* \snippet ctb/snippet/main.c CTB_SNIPPET_COMP_SET_CONFIG
 *
 *******************************************************************************/
 void Cy_CTB_CompSetConfig(CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum, cy_en_ctb_comp_level_t level, cy_en_ctb_comp_bypass_t bypass, cy_en_ctb_comp_hyst_t hyst)
@@ -1253,7 +1254,7 @@ void Cy_CTB_CompSetConfig(CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum, cy_en_
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_COMP_GET_CONFIG
+* \snippet ctb/snippet/main.c CTB_SNIPPET_COMP_GET_CONFIG
 *
 *******************************************************************************/
 uint32_t Cy_CTB_CompGetConfig(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum)
@@ -1293,7 +1294,7 @@ uint32_t Cy_CTB_CompGetConfig(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compN
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_COMP_SET_INTERRUPT_EDGE_TYPE
+* \snippet ctb/snippet/main.c CTB_SNIPPET_COMP_SET_INTERRUPT_EDGE_TYPE
 *
 *******************************************************************************/
 void Cy_CTB_CompSetInterruptEdgeType(CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum, cy_en_ctb_comp_edge_t edge)
@@ -1339,7 +1340,7 @@ void Cy_CTB_CompSetInterruptEdgeType(CTBM_Type *base, cy_en_ctb_opamp_sel_t comp
 *
 * \funcusage
 *
-* \snippet ctb_sut_01.cydsn/main_cm4.c CTB_SNIPPET_COMP_GET_STATUS
+* \snippet ctb/snippet/main.c CTB_SNIPPET_COMP_GET_STATUS
 *
 *******************************************************************************/
 uint32_t Cy_CTB_CompGetStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compNum)
@@ -1369,6 +1370,8 @@ uint32_t Cy_CTB_CompGetStatus(const CTBM_Type *base, cy_en_ctb_opamp_sel_t compN
 #endif
 
 #endif /* CY_IP_MXS40PASS_CTB */
+
+#endif /* CY_IP_MXS40PASS */
 
 /* [] END OF FILE */
 

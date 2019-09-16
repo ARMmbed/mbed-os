@@ -176,6 +176,17 @@ void equeue_event_dtor(void *event, void (*dtor)(void *));
 // be passed to equeue_cancel.
 int equeue_post(equeue_t *queue, void (*cb)(void *), void *event);
 
+// Post an user allocated event onto the event queue
+//
+// The equeue_post_user_allocated function takes a callback and a pointer
+// to an event allocated by user. The specified callback will be executed
+// in the context of the event queue's dispatch loop with the allocated
+// event as its argument.
+//
+// The equeue_post_user_allocated function is irq safe and can act as
+// a mechanism for moving events out of irq contexts.
+void equeue_post_user_allocated(equeue_t *queue, void (*cb)(void *), void *event);
+
 // Cancel an in-flight event
 //
 // Attempts to cancel an event referenced by the unique id returned from
@@ -184,10 +195,26 @@ int equeue_post(equeue_t *queue, void (*cb)(void *), void *event);
 //
 // The equeue_cancel function is irq safe.
 //
-// If called while the event queue's dispatch loop is active, equeue_cancel
-// does not guarantee that the event will not not execute after it returns as
+// If called while the event queue's dispatch loop is active in another thread,
+// equeue_cancel does not guarantee that the event will not execute after it returns as
 // the event may have already begun executing.
-void equeue_cancel(equeue_t *queue, int id);
+// Returning true guarantees that cancel succeeded and event will not execute.
+// Returning false if invalid id or already started executing.
+bool equeue_cancel(equeue_t *queue, int id);
+
+// Cancel an in-flight user allocated event
+//
+// Attempts to cancel an event referenced by its address.
+// It is safe to call equeue_cancel_user_allocated after an event
+// has already been dispatched.
+//
+// The equeue_cancel_user_allocated function is irq safe.
+//
+// If called while the event queue's dispatch loop is active,
+// equeue_cancel_user_allocated does not guarantee that the event
+// will not not execute after it returns as the event may have
+// already begun executing.
+bool equeue_cancel_user_allocated(equeue_t *queue, void *event);
 
 // Query how much time is left for delayed event
 //
@@ -197,6 +224,15 @@ void equeue_cancel(equeue_t *queue, int id);
 //  This function is irq safe.
 //
 int equeue_timeleft(equeue_t *q, int id);
+
+// Query how much time is left for delayed user allocated event
+//
+//  If event is delayed, this function can be used to query how much time
+//  is left until the event is due to be dispatched.
+//
+//  This function is irq safe.
+//
+int equeue_timeleft_user_allocated(equeue_t *q, void *event);
 
 // Background an event queue onto a single-shot timer
 //

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_i2c.h
-* \version 2.30
+* \version 2.30.1
 *
 * Provides I2C API declarations of the SCB driver.
 *
@@ -82,14 +82,14 @@
 * function providing a pointer to the populated \ref cy_stc_scb_i2c_config_t
 * structure and the allocated \ref cy_stc_scb_i2c_context_t structure.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG
+* \snippet scb/i2c_snippet/main.c I2C_CFG
 *
 * Set up I2C slave read and write buffer before enabling its
 * operation using \ref Cy_SCB_I2C_SlaveConfigReadBuf and \ref
 * Cy_SCB_I2C_SlaveConfigWriteBuf appropriately. Note that the master reads
 * data from the slave read buffer and writes data into the slave write buffer.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG_BUFFER
+* \snippet scb/i2c_snippet/main.c I2C_CFG_BUFFER
 *
 ********************************************************************************
 * \subsection group_scb_i2c_pins Assign and Configure Pins
@@ -99,7 +99,7 @@
 * SCB block. Also the I2C pins must be configured in Open-Drain, Drives Low mode 
 * (this pins  configuration implies usage of external pull-up resistors):
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG_PINS
+* \snippet scb/i2c_snippet/main.c I2C_CFG_PINS
 *
 * \note
 * The alternative pins configuration is Resistive Pull-ups which implies usage
@@ -115,7 +115,7 @@
 * You must use one of the 8-bit or 16-bit dividers. Use the \ref group_sysclk 
 * driver API to do this.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG_ASSIGN_CLOCK
+* \snippet scb/i2c_snippet/main.c I2C_CFG_ASSIGN_CLOCK
 *
 ********************************************************************************
 * \subsection group_scb_i2c_data_rate Configure Data Rate
@@ -124,7 +124,7 @@
 * fast enough to provide sufficient oversampling. Use the
 * \ref group_sysclk driver API to do this.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG_DATA_RATE_SLAVE
+* \snippet scb/i2c_snippet/main.c I2C_CFG_DATA_RATE_SLAVE
 *
 * To get I2C master operation with the desired data rate, the source clock
 * frequency and SCL low and high phase duration must be configured. Use the
@@ -133,7 +133,7 @@
 * digital filter. This function sets SCL low and high phase settings based on 
 * source clock frequency.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_CFG_DATA_RATE_MASTER
+* \snippet scb/i2c_snippet/main.c I2C_CFG_DATA_RATE_MASTER
 *
 * Alternatively, the low, high phase and digital filter can be set directly 
 * using configuration structure \ref cy_stc_scb_i2c_config_t fields 
@@ -168,8 +168,8 @@
 *  call the slave- or master-specific interrupt functions \ref Cy_SCB_I2C_SlaveInterrupt
 * or \ref Cy_SCB_I2C_MasterInterrupt, when appropriate.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_INTR_A
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_INTR_B
+* \snippet scb/i2c_snippet/main.c I2C_INTR_A
+* \snippet scb/i2c_snippet/main.c I2C_INTR_B
 *
 ********************************************************************************
 * \subsection group_scb_i2c_enable Enable I2C
@@ -178,7 +178,7 @@
 * slave starts respond to the assigned address and I2C master ready to execute
 * transfers.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_ENABLE
+* \snippet scb/i2c_snippet/main.c I2C_ENABLE
 *
 * \section group_scb_i2c_use_cases Common Use Cases
 *
@@ -204,7 +204,7 @@
 * \ref Cy_SCB_I2C_RegisterEventCallback to be notified about
 * \ref group_scb_i2c_macros_callback_events.
 *
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_MASTER_WRITE_READ_INT
+* \snippet scb/i2c_snippet/main.c I2C_MASTER_WRITE_READ_INT
 *
 ********************************************************************************
 * \subsubsection group_scb_i2c_master_ll Use Low-Level Functions
@@ -226,10 +226,10 @@
 * transactions correctly.
 *
 * <b>Master Write Operation</b>
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_MASTER_WRITE_MANUAL
+* \snippet scb/i2c_snippet/main.c I2C_MASTER_WRITE_MANUAL
 *
 * <b>Master Read Operation</b>
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_MASTER_READ_MANUAL
+* \snippet scb/i2c_snippet/main.c I2C_MASTER_READ_MANUAL
 *
 ********************************************************************************
 * \subsection group_scb_i2c_slave Slave Operation
@@ -249,11 +249,11 @@
 * to be notified about \ref group_scb_i2c_macros_callback_events.
 *
 * <b>Get Slave Events Notification</b>
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_SLAVE_REG_CALLBACK
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_SLAVE_NOTIFICATION
+* \snippet scb/i2c_snippet/main.c I2C_SLAVE_REG_CALLBACK
+* \snippet scb/i2c_snippet/main.c I2C_SLAVE_NOTIFICATION
 *
 * <b>Polling Slave Completion Events</b>
-* \snippet SCB_CompDatasheet_sut_01_revA.cydsn\i2c_snippets.c I2C_SLAVE_POLLING
+* \snippet scb/i2c_snippet/main.c I2C_SLAVE_POLLING
 *
 * \note
 * All slave API (except \ref Cy_SCB_I2C_SlaveAbortRead and
@@ -303,6 +303,8 @@
 #define CY_SCB_I2C_H
 
 #include "cy_scb_common.h"
+
+#ifdef CY_IP_MXSCB
 
 #if defined(__cplusplus)
 extern "C" {
@@ -1367,8 +1369,9 @@ __STATIC_INLINE void Cy_SCB_I2C_RegisterAddrCallback(CySCB_Type const *base,
 
 /** \} group_scb_i2c */
 
-#endif /* (CY_SCB_I2C_H) */
+#endif /* (CY_IP_MXSCB) */
 
+#endif /* (CY_SCB_I2C_H) */
 
 /* [] END OF FILE */
 

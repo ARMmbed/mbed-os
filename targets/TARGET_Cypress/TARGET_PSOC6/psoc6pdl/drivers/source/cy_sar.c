@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sar.c
-* \version 1.20
+* \version 1.20.1
 *
 * Provides the public functions for the API for the SAR driver.
 *
@@ -60,7 +60,7 @@ volatile int32_t Cy_SAR_countsPer10Volt[CY_SAR_MAX_NUM_CHANNELS];
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_INIT_CUSTOM
+* \snippet sar/snippet/main.c SNIPPET_SAR_INIT_CUSTOM
 *
 *******************************************************************************/
 cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config)
@@ -183,7 +183,7 @@ cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_DEINIT
+* \snippet sar/snippet/main.c SNIPPET_SAR_DEINIT
 *
 *******************************************************************************/
 cy_en_sar_status_t Cy_SAR_DeInit(SAR_Type *base, bool deInitRouting)
@@ -371,7 +371,7 @@ void Cy_SAR_Wakeup(SAR_Type *base)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_START_CONVERT
+* \snippet sar/snippet/main.c SNIPPET_SAR_START_CONVERT
 *
 *******************************************************************************/
 void Cy_SAR_StartConvert(SAR_Type *base, cy_en_sar_start_convert_sel_t startSelect)
@@ -407,7 +407,7 @@ void Cy_SAR_StartConvert(SAR_Type *base, cy_en_sar_start_convert_sel_t startSele
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_STOP_CONVERT
+* \snippet sar/snippet/main.c SNIPPET_SAR_STOP_CONVERT
 *
 *******************************************************************************/
 void Cy_SAR_StopConvert(SAR_Type *base)
@@ -443,7 +443,7 @@ void Cy_SAR_StopConvert(SAR_Type *base)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm4.c SAR_SNIPPET_SET_CONVERT_MODE
+* \snippet sar/snippet/main.c SAR_SNIPPET_SET_CONVERT_MODE
 *
 *******************************************************************************/
 void Cy_SAR_SetConvertMode(SAR_Type *base, cy_en_sar_sample_ctrl_trigger_mode_t mode)
@@ -482,7 +482,7 @@ void Cy_SAR_SetConvertMode(SAR_Type *base, cy_en_sar_sample_ctrl_trigger_mode_t 
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_IS_END_CONVERSION
+* \snippet sar/snippet/main.c SNIPPET_SAR_IS_END_CONVERSION
 *
 *******************************************************************************/
 cy_en_sar_status_t Cy_SAR_IsEndConversion(SAR_Type *base, cy_en_sar_return_mode_t retMode)
@@ -548,7 +548,7 @@ cy_en_sar_status_t Cy_SAR_IsEndConversion(SAR_Type *base, cy_en_sar_return_mode_
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_IS_CHANNEL_SIGNED
+* \snippet sar/snippet/main.c SNIPPET_SAR_IS_CHANNEL_SIGNED
 *
 *******************************************************************************/
 bool Cy_SAR_IsChannelSigned(const SAR_Type *base, uint32_t chan)
@@ -598,7 +598,7 @@ bool Cy_SAR_IsChannelSigned(const SAR_Type *base, uint32_t chan)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_IS_CHANNEL_SE
+* \snippet sar/snippet/main.c SNIPPET_SAR_IS_CHANNEL_SE
 *
 *******************************************************************************/
 bool Cy_SAR_IsChannelSingleEnded(const SAR_Type *base, uint32_t chan)
@@ -637,7 +637,7 @@ bool Cy_SAR_IsChannelSingleEnded(const SAR_Type *base, uint32_t chan)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_GET_RESULT16
+* \snippet sar/snippet/main.c SNIPPET_SAR_GET_RESULT16
 *
 *******************************************************************************/
 int16_t Cy_SAR_GetResult16(const SAR_Type *base, uint32_t chan)
@@ -674,7 +674,7 @@ int16_t Cy_SAR_GetResult16(const SAR_Type *base, uint32_t chan)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_GET_RESULT32
+* \snippet sar/snippet/main.c SNIPPET_SAR_GET_RESULT32
 *
 *******************************************************************************/
 int32_t Cy_SAR_GetResult32(const SAR_Type *base, uint32_t chan)
@@ -723,7 +723,7 @@ int32_t Cy_SAR_GetResult32(const SAR_Type *base, uint32_t chan)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_SET_LOWHIGH_LIMIT
+* \snippet sar/snippet/main.c SNIPPET_SAR_SET_LOWHIGH_LIMIT
 *
 *******************************************************************************/
 void Cy_SAR_SetLowLimit(SAR_Type *base, uint32_t lowLimit)
@@ -758,7 +758,7 @@ void Cy_SAR_SetLowLimit(SAR_Type *base, uint32_t lowLimit)
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_SET_LOWHIGH_LIMIT
+* \snippet sar/snippet/main.c SNIPPET_SAR_SET_LOWHIGH_LIMIT
 *
 *******************************************************************************/
 void Cy_SAR_SetHighLimit(SAR_Type *base, uint32_t highLimit)
@@ -990,7 +990,7 @@ int16_t Cy_SAR_RawCounts2Counts(const SAR_Type *base, uint32_t chan, int16_t adc
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_COUNTSTO_VOLTS
+* \snippet sar/snippet/main.c SNIPPET_SAR_COUNTSTO_VOLTS
 *
 *******************************************************************************/
 float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
@@ -1057,7 +1057,7 @@ float32_t Cy_SAR_CountsTo_Volts(const SAR_Type *base, uint32_t chan, int16_t adc
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_COUNTSTO_MVOLTS
+* \snippet sar/snippet/main.c SNIPPET_SAR_COUNTSTO_MVOLTS
 *
 *******************************************************************************/
 int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
@@ -1132,7 +1132,7 @@ int16_t Cy_SAR_CountsTo_mVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_COUNTSTO_UVOLTS
+* \snippet sar/snippet/main.c SNIPPET_SAR_COUNTSTO_UVOLTS
 *
 *******************************************************************************/
 int32_t Cy_SAR_CountsTo_uVolts(const SAR_Type *base, uint32_t chan, int16_t adcCounts)
@@ -1184,7 +1184,7 @@ int32_t Cy_SAR_CountsTo_uVolts(const SAR_Type *base, uint32_t chan, int16_t adcC
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm4.c SAR_SNIPPET_SET_ANALOG_SWITCH
+* \snippet sar/snippet/main.c SAR_SNIPPET_SET_ANALOG_SWITCH
 *
 *******************************************************************************/
 void Cy_SAR_SetAnalogSwitch(SAR_Type *base, cy_en_sar_switch_register_sel_t switchSelect, uint32_t switchMask, cy_en_sar_switch_state_t state)
@@ -1192,7 +1192,8 @@ void Cy_SAR_SetAnalogSwitch(SAR_Type *base, cy_en_sar_switch_register_sel_t swit
     CY_ASSERT_L3(CY_SAR_SWITCHSELECT(switchSelect));
     CY_ASSERT_L2(CY_SAR_SWITCHMASK(switchMask));
     CY_ASSERT_L3(CY_SAR_SWITCHSTATE(state));
-
+    (void)switchSelect; /* Suppress warning */
+    
     __IOM uint32_t *switchReg;
     __IOM uint32_t *switchClearReg;
 
@@ -1236,7 +1237,7 @@ void Cy_SAR_SetAnalogSwitch(SAR_Type *base, cy_en_sar_switch_register_sel_t swit
 uint32_t Cy_SAR_GetAnalogSwitch(const SAR_Type *base, cy_en_sar_switch_register_sel_t switchSelect)
 {
     CY_ASSERT_L3(CY_SAR_SWITCHSELECT(switchSelect));
-
+    (void)switchSelect; /* Suppress warning */
     return SAR_MUX_SWITCH0(base);
 }
 
@@ -1263,7 +1264,7 @@ uint32_t Cy_SAR_GetAnalogSwitch(const SAR_Type *base, cy_en_sar_switch_register_
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm4.c SAR_SNIPPET_SET_SWITCH_SAR_SEQ_CTRL
+* \snippet sar/snippet/main.c SAR_SNIPPET_SET_SWITCH_SAR_SEQ_CTRL
 *
 *******************************************************************************/
 void Cy_SAR_SetSwitchSarSeqCtrl(SAR_Type *base, uint32_t switchMask, cy_en_sar_switch_sar_seq_ctrl_t ctrl)
@@ -1302,7 +1303,7 @@ void Cy_SAR_SetSwitchSarSeqCtrl(SAR_Type *base, uint32_t switchMask, cy_en_sar_s
 *
 * \funcusage
 *
-* \snippet sar_sut_01.cydsn/main_cm0p.c SNIPPET_SAR_DEEPSLEEP_CALLBACK
+* \snippet sar/snippet/main.c SNIPPET_SAR_DEEPSLEEP_CALLBACK
 *
 *******************************************************************************/
 cy_en_syspm_status_t Cy_SAR_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode)

@@ -23,14 +23,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_bsp_cy8ckit_062_wifi_bt CY8CKIT-062-WIFI-BT
-* \ingroup group_bsp
-* \{
-* \defgroup group_bsp_cy8ckit_062_wifi_bt_macros Macros
-* \defgroup group_bsp_cy8ckit_062_wifi_bt_enums Enumerated Types
-*/
-
 #pragma once
 
 #include "cyhal.h"
@@ -40,9 +32,55 @@ extern "C" {
 #endif
 
 /**
-* \addtogroup group_bsp_cy8ckit_062_wifi_bt_macros
+* \addtogroup group_bsp_pins Pin Mappings
 * \{
 */
+
+// Arduino connector namings
+/** Arduino A0 */
+#define CYBSP_A0 P10_0
+/** Arduino A1 */
+#define CYBSP_A1 P10_1
+/** Arduino A2 */
+#define CYBSP_A2 P10_2
+/** Arduino A3 */
+#define CYBSP_A3 P10_3
+/** Arduino A4 */
+#define CYBSP_A4 P10_4
+/** Arduino A5 */
+#define CYBSP_A5 P10_5
+/** Arduino D0 */
+#define CYBSP_D0 P5_0
+/** Arduino D1 */
+#define CYBSP_D1 P5_1
+/** Arduino D2 */
+#define CYBSP_D2 P5_2
+/** Arduino D3 */
+#define CYBSP_D3 P5_3
+/** Arduino D4 */
+#define CYBSP_D4 P5_4
+/** Arduino D5 */
+#define CYBSP_D5 P5_5
+/** Arduino D6 */
+#define CYBSP_D6 P5_6
+/** Arduino D7 */
+#define CYBSP_D7 P0_2
+/** Arduino D8 */
+#define CYBSP_D8 P13_0
+/** Arduino D9 */
+#define CYBSP_D9 P13_1
+/** Arduino D10 */
+#define CYBSP_D10 P12_3
+/** Arduino D11 */
+#define CYBSP_D11 P12_0
+/** Arduino D12 */
+#define CYBSP_D12 P12_1
+/** Arduino D13 */
+#define CYBSP_D13 P12_2
+/** Arduino D14 */
+#define CYBSP_D14 P6_1
+/** Arduino D15 */
+#define CYBSP_D15 P6_0
 
 // Generic signal names
 /** Pin: WCO input */
@@ -51,18 +89,25 @@ extern "C" {
 #define CYBSP_WCO_OUT          P0_1
 
 /** Pin: WIFI SDIO D0 */
+/* Corresponds to: ioss[0].port[2].pin[0], udb[0] */
 #define CYBSP_WIFI_SDIO_D0     P2_0
 /** Pin: WIFI SDIO D1 */
+/* Corresponds to: ioss[0].port[2].pin[1], udb[0] */
 #define CYBSP_WIFI_SDIO_D1     P2_1
 /** Pin: WIFI SDIO D2 */
+/* Corresponds to: ioss[0].port[2].pin[2], udb[0] */
 #define CYBSP_WIFI_SDIO_D2     P2_2
 /** Pin: WIFI SDIO D3 */
+/* Corresponds to: ioss[0].port[2].pin[3], udb[0] */
 #define CYBSP_WIFI_SDIO_D3     P2_3
 /** Pin: WIFI SDIO CMD */
+/* Corresponds to: ioss[0].port[2].pin[4], udb[0] */
 #define CYBSP_WIFI_SDIO_CMD    P2_4
 /** Pin: WIFI SDIO CLK */
+/* Corresponds to: ioss[0].port[2].pin[5], udb[0] */
 #define CYBSP_WIFI_SDIO_CLK    P2_5
 /** Pin: WIFI ON */
+/* Corresponds to: ioss[0].port[2].pin[6], udb[0] */
 #define CYBSP_WIFI_WL_REG_ON   P2_6
 /** Pin: WIFI Host Wakeup */
 #define CYBSP_WIFI_HOST_WAKE   P2_7
@@ -84,8 +129,10 @@ extern "C" {
 #define CYBSP_BT_DEVICE_WAKE   P4_0
 
 /** Pin: UART RX */
+/* Corresponds to: ioss[0].port[5].pin[0], scb[5] */
 #define CYBSP_DEBUG_UART_RX    P5_0
 /** Pin: UART TX */
+/* Corresponds to: ioss[0].port[5].pin[1], scb[5] */
 #define CYBSP_DEBUG_UART_TX    P5_1
 
 /** Pin: I2C SCL */
@@ -141,10 +188,10 @@ extern "C" {
 /** Host-wake IRQ event */
 #define CYBSP_WIFI_HOST_WAKE_IRQ_EVENT CYHAL_GPIO_IRQ_RISE
 
-/** \} group_bsp_cy8ckit_062_wifi_bt_macros */
+/** \} group_bsp_pins */
 
 /**
-* \addtogroup group_bsp_cy8ckit_062_wifi_bt_enums
+* \addtogroup group_bsp_enums Enumerated Types
 * \{
 */
 
@@ -171,10 +218,15 @@ typedef enum
     CYBSP_LED_RGB_GREEN = P1_1,
     CYBSP_LED_RGB_BLUE = P11_1,
 
+    /* Corresponds to: ioss[0].port[1].pin[5] */
     CYBSP_USER_LED1 = CYBSP_LED8,
+    /* Corresponds to: ioss[0].port[13].pin[7] */
     CYBSP_USER_LED2 = CYBSP_LED9,
+    /* Corresponds to: ioss[0].port[0].pin[3] */
     CYBSP_USER_LED3 = CYBSP_LED_RGB_RED,
+    /* Corresponds to: ioss[0].port[1].pin[1] */
     CYBSP_USER_LED4 = CYBSP_LED_RGB_GREEN,
+    /* Corresponds to: ioss[0].port[11].pin[1] */
     CYBSP_USER_LED5 = CYBSP_LED_RGB_BLUE,
     CYBSP_USER_LED = CYBSP_USER_LED1,
 } cybsp_led_t;
@@ -184,14 +236,13 @@ typedef enum
 {
     CYBSP_SW2 = P0_4,
 
+    /* Corresponds to: ioss[0].port[0].pin[4] */
     CYBSP_USER_BTN1 = CYBSP_SW2,
     CYBSP_USER_BTN = CYBSP_USER_BTN1,
 } cybsp_btn_t;
 
-/** \} group_bsp_cy8ckit_062_wifi_bt_enums */
+/** \} group_bsp_enums */
 
 #if defined(__cplusplus)
 }
 #endif
-
-/** \} group_bsp_cy8ckit_062_wifi_bt */

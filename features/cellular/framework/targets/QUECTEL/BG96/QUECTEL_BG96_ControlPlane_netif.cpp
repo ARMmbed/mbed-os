@@ -20,8 +20,7 @@ nsapi_size_or_error_t QUECTEL_BG96_ControlPlane_netif::recv(void *buffer, nsapi_
 {
     _at.lock();
 
-    _at.cmd_start("AT+QCFGEXT=\"nipdr\",0");
-    _at.cmd_stop();
+    _at.cmd_start_stop("QCFGEXT", "=", "%s%d", "nipdr", 0);
     _at.resp_start("+QCFGEXT: ");
     // skip 3 params: "nipdr",<total_receive_length>,<have_read_length>
     _at.skip_param(3);
@@ -34,9 +33,7 @@ nsapi_size_or_error_t QUECTEL_BG96_ControlPlane_netif::recv(void *buffer, nsapi_
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
-    _at.cmd_start("AT+QCFGEXT=\"nipdr\",");
-    _at.write_int(unread_length);
-    _at.cmd_stop();
+    _at.cmd_start_stop("QCFGEXT", "=", "%s%d", "nipdr", unread_length);
 
     _at.resp_start("+QCFGEXT:");
     // skip "nipdr"

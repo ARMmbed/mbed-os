@@ -23,7 +23,8 @@
 #include "mbed_assert.h"
 #include "PinNamesTypes.h"
 #include "PinNames.h"
-#include "cyhal_gpio_impl.h"
+#include "PortNames.h"
+#include "cyhal_gpio.h"
 #include "cyhal_pin_package.h"
 
 #ifdef __cplusplus
@@ -32,6 +33,8 @@ extern "C" {
 
 typedef struct {
     cyhal_gpio_t pin;
+    cyhal_gpio_direction_t direction;
+    cyhal_gpio_drive_mode_t drive_mode;
 } gpio_t;
 
 struct gpio_irq_s {

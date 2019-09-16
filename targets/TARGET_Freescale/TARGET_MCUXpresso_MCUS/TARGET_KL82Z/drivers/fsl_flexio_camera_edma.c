@@ -170,6 +170,9 @@ status_t FLEXIO_CAMERA_TransferReceiveEDMA(FLEXIO_CAMERA_Type *base,
         EDMA_PrepareTransfer(&xferConfig, (void *)FLEXIO_CAMERA_GetRxBufferAddress(base), 32, (void *)xfer->dataAddress,
                              32, 32, xfer->dataNum, kEDMA_PeripheralToMemory);
 
+        /* Store the initially configured eDMA minor byte transfer count into the FLEXIO CAMERA handle */
+        handle->nbytes = 32;
+
         /* Submit transfer. */
         EDMA_SubmitTransfer(handle->rxEdmaHandle, &xferConfig);
         EDMA_StartTransfer(handle->rxEdmaHandle);
@@ -207,7 +210,9 @@ status_t FLEXIO_CAMERA_TransferGetReceiveCountEDMA(FLEXIO_CAMERA_Type *base,
 
     if (kFLEXIO_CAMERA_RxBusy == handle->rxState)
     {
-        *count = (handle->rxSize - EDMA_GetRemainingBytes(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel));
+        *count = (handle->rxSize -
+                  (uint32_t)handle->nbytes *
+                      EDMA_GetRemainingMajorLoopCount(handle->rxEdmaHandle->base, handle->rxEdmaHandle->channel));
     }
     else
     {

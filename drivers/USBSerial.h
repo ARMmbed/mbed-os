@@ -19,7 +19,7 @@
 #define USBSERIAL_H
 
 #include "USBCDC.h"
-#include "Stream.h"
+#include "platform/Stream.h"
 #include "Callback.h"
 
 /**
@@ -156,7 +156,7 @@ public:
         USBCDC::lock();
 
         if ((mptr != NULL) && (tptr != NULL)) {
-            rx = mbed::Callback<void()>(mptr, tptr);
+            rx = mbed::Callback<void()>(tptr, mptr);
         }
 
         USBCDC::unlock();

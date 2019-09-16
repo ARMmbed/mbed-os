@@ -49,9 +49,9 @@ extern uint32_t Load$$LR$$LR_IROM1$$Limit[];
 
 namespace mbed {
 
-/** \ingroup mbed-os-public */
 /** \addtogroup drivers-public-api */
 /** @{*/
+
 /**
  * \defgroup drivers_FlashIAP FlashIAP class
  * @{

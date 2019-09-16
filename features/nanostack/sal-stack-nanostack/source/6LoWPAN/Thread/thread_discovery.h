@@ -32,8 +32,16 @@
 
 struct protocol_interface_info_entry;
 
+/* Structure that discovery_response_list_t */
+typedef struct discovery_additional_info {
+    uint8_t domain_name[16];
+    uint16_t ae_port;
+    uint16_t nmk_port;
+    bool ccm_supported: 1;
+} discovery_additional_info_t;
+
 typedef struct discovery_response_list {
-    uint8_t reserved_opaque[21];
+    discovery_additional_info_t ccm_info;
     uint8_t network_name[16];
     uint8_t steering_data[16];
     uint8_t extented_pan_id[8];

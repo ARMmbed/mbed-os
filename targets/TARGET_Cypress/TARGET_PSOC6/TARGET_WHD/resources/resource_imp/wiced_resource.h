@@ -56,6 +56,21 @@ extern "C" {
 #define RESULT_ENUM(prefix, name, value)  prefix ## name = (value)
 #endif /* ifndef RESULT_ENUM */
 
+#if !defined(CY_SECTION)
+#if defined(__ARMCC_VERSION)
+#define CY_SECTION(name)    __attribute__ ( (section(name) ) )
+#elif defined (__GNUC__)
+#if defined (__clang__)
+#define CY_SECTION(name)    __attribute__ ( (section("__DATA, "name) ) )
+#else
+#define CY_SECTION(name)    __attribute__ ( (section(name) ) )
+#endif
+#elif defined (__ICCARM__)
+#define CY_SECTION(name)    CY_PRAGMA(location = name)
+#else
+#error "An unsupported toolchain"
+#endif  /* (__ARMCC_VERSION) */
+#endif /* !defined(CY_SECTION) */
 
 /* These Enum result values are for Resource errors
  * Values: 4000 - 4999

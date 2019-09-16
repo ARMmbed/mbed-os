@@ -67,7 +67,7 @@ void tcm_heap_dump(void)
 		chunk;
 		prev = chunk, chunk = chunk->next)
 	{
-		printf(" prev %x, chunk %x, size %d \n\r", prev, chunk, chunk->size);
+		printf(" prev %p, chunk %p, size %d \n\r", prev, chunk, chunk->size);
 	}
 	printf("--------------\n\r");
 }

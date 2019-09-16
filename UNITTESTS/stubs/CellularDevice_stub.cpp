@@ -124,3 +124,8 @@ nsapi_error_t CellularDevice::shutdown()
 void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
 {
 }
+
+nsapi_error_t CellularDevice::clear()
+{
+    return NSAPI_ERROR_OK;
+}

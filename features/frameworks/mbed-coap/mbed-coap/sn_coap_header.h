@@ -157,7 +157,7 @@ typedef enum sn_coap_status_ {
     COAP_STATUS_PARSER_BLOCKWISE_ACK           = 4, /**< Acknowledgement for sent Blockwise message received */
     COAP_STATUS_PARSER_BLOCKWISE_MSG_REJECTED  = 5, /**< Blockwise message received but not supported by compiling switch */
     COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED  = 6, /**< Blockwise message fully received and returned to app.
-                                                         User must take care of releasing whole payload of the blockwise messages */
+                                                         User is responsible of freeing the data by calling sn_coap_protocol_block_remove() */
     COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED = 7, /**< When re-transmissions have been done and ACK not received, CoAP library calls
                                                          RX callback with this status */
 
@@ -338,7 +338,7 @@ extern void sn_coap_parser_release_allocated_coap_msg_mem(struct coap_s *handle,
  *          -1 = Failure in given CoAP header structure\n
  *          -2 = Failure in given pointer (= NULL)
  */
-extern int16_t sn_coap_builder(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_coap_msg_ptr);
+extern int16_t sn_coap_builder(uint8_t *dst_packet_data_ptr, const sn_coap_hdr_s *src_coap_msg_ptr);
 
 /**
  * \fn uint16_t sn_coap_builder_calc_needed_packet_data_size(sn_coap_hdr_s *src_coap_msg_ptr)
@@ -351,7 +351,7 @@ extern int16_t sn_coap_builder(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_
  * \return Return value is count of needed memory as bytes for build Packet data
  *          Null if failed
  */
-extern uint16_t sn_coap_builder_calc_needed_packet_data_size(sn_coap_hdr_s *src_coap_msg_ptr);
+extern uint16_t sn_coap_builder_calc_needed_packet_data_size(const sn_coap_hdr_s *src_coap_msg_ptr);
 
 /**
  * \fn int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_coap_msg_ptr,  uint16_t blockwise_size)
@@ -368,7 +368,7 @@ extern uint16_t sn_coap_builder_calc_needed_packet_data_size(sn_coap_hdr_s *src_
  *          -1 = Failure in given CoAP header structure\n
  *          -2 = Failure in given pointer (= NULL)
  */
-extern int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
+extern int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
 
 /**
  * \fn uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size)
@@ -382,7 +382,7 @@ extern int16_t sn_coap_builder_2(uint8_t *dst_packet_data_ptr, sn_coap_hdr_s *sr
  * \return Return value is count of needed memory as bytes for build Packet data
  *          Null if failed
  */
-extern uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
+extern uint16_t sn_coap_builder_calc_needed_packet_data_size_2(const sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size);
 
 /**
  * \fn sn_coap_hdr_s *sn_coap_build_response(struct coap_s *handle, sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code)
@@ -397,7 +397,7 @@ extern uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *sr
  *          NULL    Error in parsing the request
  *
  */
-extern sn_coap_hdr_s *sn_coap_build_response(struct coap_s *handle, sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code);
+extern sn_coap_hdr_s *sn_coap_build_response(struct coap_s *handle, const sn_coap_hdr_s *coap_packet_ptr, uint8_t msg_code);
 
 /**
  * \brief Initialise a message structure to empty
@@ -435,6 +435,8 @@ extern sn_coap_hdr_s *sn_coap_parser_alloc_message(struct coap_s *handle);
  *          -Failure in memory allocation (malloc() returns NULL)
  */
 extern sn_coap_options_list_s *sn_coap_parser_alloc_options(struct coap_s *handle, sn_coap_hdr_s *coap_msg_ptr);
+
+extern sn_coap_hdr_s *sn_coap_parser_alloc_message_with_options(struct coap_s *handle);
 
 #ifdef __cplusplus
 }

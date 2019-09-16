@@ -2,7 +2,7 @@
 * \file cyhal_crc.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress CRC.
+* Provides a high level interface for interacting with the Cypress CRC accelerator. 
 * This interface abstracts out the chip specific details. If any chip specific
 * functionality is necessary, or performance is critical the low level functions
 * can be used directly.
@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -77,8 +78,8 @@ typedef struct
      * If 0, data is processed MSB first.
      * If 1, data is processed LSB first.
      */
-    uint8_t dataReverse;
-    uint8_t remReverse; //!< If 1, the remainder is reversed. If 0, it is not.
+    bool dataReverse;
+    bool remReverse; //!< If 1, the remainder is reversed. If 0, it is not.
 } crc_algorithm_t;
 
 /** \} group_hal_crc_data_structures */
@@ -135,5 +136,9 @@ cy_rslt_t cyhal_crc_finish(const cyhal_crc_t *obj, uint32_t *crc);
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_CRC_IMPL_HEADER
+#include CYHAL_CRC_IMPL_HEADER
+#endif /* CYHAL_CRC_IMPL_HEADER */
 
 /** \} group_hal_crc */

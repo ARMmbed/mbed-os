@@ -953,6 +953,7 @@ class mbedToolchain:
 
     STACK_PARAM = "target.boot-stack-size"
     TFM_LVL_PARAM = "tfm.level"
+    XIP_ENABLE_PARAM = "target.xip-enable"
 
     def add_linker_defines(self):
         params, _ = self.config_data
@@ -970,6 +971,14 @@ class mbedToolchain:
             define_string = self.make_ld_define(
                 "TFM_LVL",
                 params[self.TFM_LVL_PARAM].value
+            )
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
+        if self.XIP_ENABLE_PARAM in params:
+            define_string = self.make_ld_define(
+                "XIP_ENABLE",
+                params[self.XIP_ENABLE_PARAM].value
             )
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)

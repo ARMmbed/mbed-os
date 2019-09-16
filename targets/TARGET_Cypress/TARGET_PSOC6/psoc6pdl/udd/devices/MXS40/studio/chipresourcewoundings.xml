@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Woundings xml_version="1" xmlns="http://cypress.com/xsd/cychipresourcewoundings_v1">
+  <BooleanWounding name="UDB_COUNT">
+    <Block name="udb"/>
+  </BooleanWounding>
+  <BooleanWounding name="CAN_FD">
+    <Block name="canfd.chan"/>
+  </BooleanWounding>
+  <BooleanWounding name="CAPSENSE">
+    <Block name="csd.csd"/>
+  </BooleanWounding>
+  <BooleanWounding name="DIRDRIVELCD">
+    <Block name="lcd"/>
+  </BooleanWounding>
+  <BooleanWounding name="I2S">
+    <Block name="audioss.i2s"/>
+  </BooleanWounding>
+  <BooleanWounding name="CRYPTO">
+    <Block name="cpuss.crypto"/>
+  </BooleanWounding>
+  <BooleanWounding name="SMIF">
+    <Block name="smif"/>
+  </BooleanWounding>
+  <NaWounding name="BLUETOOTH">
+    <Block name="bless"/>
+  </NaWounding>
+  <NaWounding name="USB_TYPE">
+    <Block name="usb"/>
+  </NaWounding>
+  <RemoveListWounding name="CAN_REMOVED">
+    <Block name="can"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="DAC12_REMOVED">
+    <Block name="pass.ctdac"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="LPCOMP_REMOVED">
+    <Block name="lpcomp.comp"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="OPAMP_REMOVED">
+    <Block name="pass.ctb.oa"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="SAMPLEHOLD_REMOVED">
+    <Block name="pass.ctb.sample"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="SAR12_REMOVED">
+    <Block name="pass.sar"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="SCB_REMOVED">
+    <Block name="scb"/>
+  </RemoveListWounding>
+  <RemoveListWounding name="TIMERCOUNTERPWM_REMOVED">
+    <Block name="tcpwm.cnt"/>
+  </RemoveListWounding>
+  <IndexResourceWounding name="DAC8_REMOVED">
+    <ResourceIndex index="0">
+      <Block name="csd.idac0" />
+    </ResourceIndex>
+    <ResourceIndex index="1">
+      <Block name="csd.idac1" />
+    </ResourceIndex>
+  </IndexResourceWounding>
+</Woundings>

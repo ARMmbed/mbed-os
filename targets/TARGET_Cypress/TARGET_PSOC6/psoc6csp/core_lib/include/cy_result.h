@@ -108,7 +108,7 @@ extern "C" {
 /** Base identifier for environment abstraction modules */
 #define CY_RSLT_MODULE_ABSTRACTION_ENV            (0x0184U)
 
-/**** Middleware Module codes: 0x0200 - 0x02FF ****/
+/** Middleware Module codes: 0x0200 - 0x02FF */
 #define CY_RSLT_MODULE_MIDDLEWARE_BASE            (0x0200U)
 
 

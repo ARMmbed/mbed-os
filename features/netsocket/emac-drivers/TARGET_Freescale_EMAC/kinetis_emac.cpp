@@ -46,6 +46,7 @@
 
 #include "kinetis_emac_config.h"
 #include "kinetis_emac.h"
+#include "mbed_power_mgmt.h"
 
 enet_handle_t g_handle;
 // TX Buffer descriptors
@@ -496,6 +497,9 @@ bool Kinetis_EMAC::power_up()
         return false;
     }
 
+    // Can't enter deep sleep as long as Ethernet is active
+    sleep_manager_lock_deep_sleep();
+
     /* Worker thread */
     thread = create_new_thread("Kinetis_EMAC_thread", &Kinetis_EMAC::thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &thread_cb);
 
@@ -580,7 +584,8 @@ void Kinetis_EMAC::set_all_multicast(bool all)
 
 void Kinetis_EMAC::power_down()
 {
-    /* No-op at this stage */
+    // Ethernet went down, can enter deep sleep
+    sleep_manager_unlock_deep_sleep();
 }
 
 void Kinetis_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)

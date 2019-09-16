@@ -18,6 +18,7 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
+#include "PeripheralNames.h"
 #include "mbed_error.h"
 #include "partition_M2351.h"
 #include "hal_secure.h"
@@ -75,6 +76,21 @@ void pin_mode(PinName pin, PinMode mode)
      * 1. InputOnly/PIN_OUTPUT
      * 2. PushPullOutput/PIN_INPUT
      */
+}
+
+/* List of peripherals excluded from testing */
+const PeripheralList *pinmap_restricted_peripherals()
+{
+    static const int perifs[] = {
+        STDIO_UART          // Dedicated to USB VCOM
+    };
+
+    static const PeripheralList peripheral_list = {
+        sizeof(perifs) / sizeof(perifs[0]),
+        perifs
+    };
+
+    return &peripheral_list;
 }
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)

@@ -69,9 +69,18 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-static const trickle_params_t eap_tls_trickle_params = {
-    .Imin = 200,           /* 20s; ticks are 100ms */
-    .Imax = 450,           /* 45s */
+/*Small network setup*/
+#define EAP_TLS_SMALL_IMIN 300 // retries done in 30 seconds
+#define EAP_TLS_SMALL_IMAX 900 // Largest value 90 seconds
+
+/* Large network setup*/
+#define EAP_TLS_LARGE_IMIN 600 // retries done in 60 seconds
+#define EAP_TLS_LARGE_IMAX 2400 // Largest value 240 seconds
+
+
+static trickle_params_t eap_tls_trickle_params = {
+    .Imin = EAP_TLS_SMALL_IMIN,           /* ticks are 100ms */
+    .Imax = EAP_TLS_SMALL_IMAX,           /* ticks are 100ms */
     .k = 0,                /* infinity - no consistency checking */
     .TimerExpirations = 2
 };
@@ -106,6 +115,19 @@ int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service)
         return -1;
     }
 
+    return 0;
+}
+
+int8_t auth_eap_tls_sec_prot_timing_adjust(uint8_t timing)
+{
+
+    if (timing < 16) {
+        eap_tls_trickle_params.Imin = EAP_TLS_SMALL_IMIN;
+        eap_tls_trickle_params.Imax = EAP_TLS_SMALL_IMAX;
+    } else {
+        eap_tls_trickle_params.Imin = EAP_TLS_LARGE_IMIN;
+        eap_tls_trickle_params.Imax = EAP_TLS_LARGE_IMAX;
+    }
     return 0;
 }
 
@@ -430,8 +452,6 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE);
-
             // EAP response
             if (data->eap_code == EAP_RESPONSE) {
                 // Handle EAP response, TLS EAP
@@ -444,6 +464,8 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                     auth_eap_tls_sec_prot_message_send(prot, EAP_REQ, EAP_TLS, EAP_TLS_EXCHANGE_START);
                     return;
                 }
+
+                sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_RESPONSE);
 
                 // All fragments received for a message
                 if (result == EAP_TLS_MSG_RECEIVE_DONE) {

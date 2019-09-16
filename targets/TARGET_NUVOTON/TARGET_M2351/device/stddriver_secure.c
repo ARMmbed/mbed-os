@@ -79,7 +79,7 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
 #if defined(SCU_INIT_PNSSET3_VAL) && SCU_INIT_PNSSET3_VAL
     {SPI0_RST,              SPI0_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 0)},
     {SPI1_RST,              SPI1_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 1)},
-    {SPI2_RST,              SPI1_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 2)},
+    {SPI2_RST,              SPI2_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 2)},
     {SPI3_RST,              SPI3_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 3)},
     {NU_SYS_MODIDX_UNDEF,   NU_CLK_MODIDX_UNDEF,    SCU_INIT_PNSSET3_VAL & (1 << 4)},
     {SPI5_RST,              SPI5_MODULE,            SCU_INIT_PNSSET3_VAL & (1 << 5)},

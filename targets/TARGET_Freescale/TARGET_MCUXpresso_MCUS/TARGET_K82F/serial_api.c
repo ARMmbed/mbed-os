@@ -332,4 +332,55 @@ const PinMap *serial_rts_pinmap()
     return PinMap_UART_RTS;
 }
 
+static int serial_is_enabled(uint32_t uart_index)
+{
+    int clock_enabled = 0;
+    switch (uart_index) {
+        case 0:
+            clock_enabled = (SIM->SCGC2 & SIM_SCGC2_LPUART0_MASK) >> SIM_SCGC2_LPUART0_SHIFT;
+            break;
+        case 1:
+            clock_enabled = (SIM->SCGC2 & SIM_SCGC2_LPUART1_MASK) >> SIM_SCGC2_LPUART1_SHIFT;
+            break;
+        case 2:
+            clock_enabled = (SIM->SCGC2 & SIM_SCGC2_LPUART2_MASK) >> SIM_SCGC2_LPUART2_SHIFT;
+            break;
+        case 3:
+            clock_enabled = (SIM->SCGC2 & SIM_SCGC2_LPUART3_MASK) >> SIM_SCGC2_LPUART3_SHIFT;
+            break;
+        case 4:
+            clock_enabled = (SIM->SCGC2 & SIM_SCGC2_LPUART4_MASK) >> SIM_SCGC2_LPUART4_SHIFT;
+            break;
+        default:
+            break;
+    }
+
+    return clock_enabled;
+}
+
+bool serial_check_tx_ongoing()
+{
+    LPUART_Type *base;
+    int i;
+    bool uart_tx_ongoing = false;
+
+    for (i = 0; i < FSL_FEATURE_SOC_LPUART_COUNT; i++) {
+        /* First check if UART is enabled */
+        if (!serial_is_enabled(i)) {
+            /* UART is not enabled, check the next instance */
+            continue;
+        }
+
+        base = uart_addrs[i];
+
+        /* Check if data is waiting to be written out of transmit buffer */
+        if (!(kLPUART_TransmissionCompleteFlag & LPUART_GetStatusFlags((LPUART_Type *)base))) {
+            uart_tx_ongoing = true;
+            break;
+        }
+    }
+
+    return uart_tx_ongoing;
+}
+
 #endif

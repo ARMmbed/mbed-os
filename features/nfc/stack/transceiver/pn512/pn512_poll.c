@@ -537,7 +537,10 @@ void pn512_initiator_isob_anticollision_reqb(pn512_t *pPN512)
         ac_buffer_builder_write_nu8(pDataOutBldr, REQB);
         ac_buffer_builder_write_nu8(pDataOutBldr, 0x00); // AFI: All card types should respond
         uint8_t wup = 0;
-        if ((pPN512->anticollision.iso_b.slots_num_exponent == 0)) { //&& (pPN512->anticollision.iso_b.slot_number == 0))
+        if (
+            pPN512->anticollision.iso_b.slots_num_exponent == 0
+            //&& (pPN512->anticollision.iso_b.slot_number == 0)
+        ) {
             wup |= 0x8; // Send Wake-Up command on first iteration
         }
         ac_buffer_builder_write_nu8(pDataOutBldr, wup | (pPN512->anticollision.iso_b.slots_num_exponent & 0x7)); // Param: number of slots

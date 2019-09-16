@@ -282,4 +282,29 @@ const PinMap *serial_rts_pinmap()
     return PinMap_UART_RTS;
 }
 
+bool serial_check_tx_ongoing()
+{
+    LPUART_Type *base;
+    int i;
+    bool uart_tx_ongoing = false;
+    int clock_enabled = 0;
+
+    /* First check if UART is enabled */
+    clock_enabled = (SIM->SCGC5 & SIM_SCGC5_LPUART0_MASK) >> SIM_SCGC5_LPUART0_SHIFT;
+
+    if (!clock_enabled) {
+        /* UART is not enabled return */
+        return uart_tx_ongoing;
+    }
+
+    base = uart_addrs[i];
+
+    /* Check if data is waiting to be written out of transmit buffer */
+    if (!(kLPUART_TransmissionCompleteFlag & LPUART_GetStatusFlags((LPUART_Type *)base))) {
+        uart_tx_ongoing = true;
+    }
+
+    return uart_tx_ongoing;
+}
+
 #endif

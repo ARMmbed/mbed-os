@@ -17,9 +17,30 @@
             "help": "CTS pin for serial connection, defaults to Not Connected",
             "value": null
         },
+        "serial-baudrate": {
+            "help": "Serial baudrate for ESP8266, defaults to 115200",
+            "value": 115200
+        },
         "rst": {
             "help": "RESET pin for the modem, defaults to Not Connected",
             "value": null
+        },
+        "pwr": {
+            "help": "POWER pin for the modem, defaults to Not Connected",
+            "value": null
+        },
+        "power-on-polarity": {
+            "help": "Polarity of power-on for the modem. 0 means 0/1 for power on/off; 1 means 1/0 for power on/off.",
+            "options": [0, 1],
+            "value": 0
+        },
+        "power-on-time-ms": {
+            "help": "Delay after powering on the modem in ms",
+            "value": 3
+        },
+        "power-off-time-ms": {
+            "help": "Delay after powering off the modem in ms",
+            "value": 3
         },
         "debug": {
             "help": "Enable debug logs. [true/false]",

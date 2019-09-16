@@ -317,6 +317,10 @@ using std::make_pair;
 using std::get;
 using std::pair;
 using std::integer_sequence;
+using std::index_sequence;
+using std::make_integer_sequence;
+using std::make_index_sequence;
+using std::index_sequence_for;
 
 // C++17 [utility.as_const] */
 #if __cpp_lib_as_const >= 201510

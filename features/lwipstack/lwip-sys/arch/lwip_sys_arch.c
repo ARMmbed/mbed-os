@@ -47,6 +47,12 @@
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
 #  endif
+#elif defined(TARGET_STM32H7)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  else
+#     define ETHMEM_SECTION __attribute__((section(".ethusbram")))
+#  endif
 #else
 #define ETHMEM_SECTION
 #endif
@@ -436,16 +442,6 @@ void sys_init(void) {
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INITIALIZATION_FAILED), "sys_init error, mutex initialization failed\n");
-}
-
-/*---------------------------------------------------------------------------*
- * Routine:  sys_jiffies
- *---------------------------------------------------------------------------*
- * Description:
- *      Used by PPP as a timestamp-ish value
- *---------------------------------------------------------------------------*/
-u32_t sys_jiffies(void) {
-    return osKernelGetTickCount();
 }
 
 /*---------------------------------------------------------------------------*

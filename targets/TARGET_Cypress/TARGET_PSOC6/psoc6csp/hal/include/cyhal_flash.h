@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -64,14 +65,21 @@ extern "C" {
 * \{
 */
 
-/** Information about a flash memory */
+/** Information about a single block of flash memory */
 typedef struct
 {
     uint32_t start_address; //!< Start address of the memory
-    uint32_t size; //!< Size of the flash memory
-    uint32_t sector_size; //!< Sector size of the memory
-    uint32_t page_size; //!< Sector size of the memory
-    uint8_t erase_value; //!< The flash erase value
+    uint32_t size;          //!< Size of the flash memory
+    uint32_t sector_size;   //!< Sector size of the memory
+    uint32_t page_size;     //!< Sector size of the memory
+    uint8_t  erase_value;   //!< The flash erase value
+} cyhal_flash_block_info_t;
+
+/** Information about all of the blocks of flash memory */
+typedef struct
+{
+    uint8_t block_count; //!< The number of distinct flash blocks
+    const cyhal_flash_block_info_t *blocks; //!< Array of the distinct flash blocks
 } cyhal_flash_info_t;
 
 /** \} group_hal_flash_data_structures */
@@ -86,20 +94,20 @@ typedef struct
 * \{
 */
 
-/** Initialize the flash peripheral and the flash_t object
+/** Initialize the flash_t object for access to flash through the HAL
  *
  * @param[out] obj The flash object
  * @return The status of the init request
  */
 cy_rslt_t cyhal_flash_init(cyhal_flash_t *obj);
 
-/** Uninitialize the flash peripheral and the flash_t object
+/** Free resources associated with access to flash through the HAL
  *
  * @param[out] obj The flash object.
  */
 void cyhal_flash_free(cyhal_flash_t *obj);
 
-/** Gets key flash charactoristics including the start address size,
+/** Gets key flash characteristics including the start address size,
  * and erase values
  *
  * @param[in]  obj  The flash object.
@@ -131,6 +139,7 @@ cy_rslt_t cyhal_flash_erase(cyhal_flash_t *obj, uint32_t address);
 
 /** Write one page starting at defined address. The address must be at page boundary. This
  *  will block until the write operation is complete.
+ *  This function erases the page prior to writing the new data.
  *
  *  @see cyhal_flash_get_info() to get the flash charactoristics for legal address values and
  *  the total write size. The provided data buffer must be at least as large as the flash
@@ -145,6 +154,8 @@ cy_rslt_t cyhal_flash_write(cyhal_flash_t *obj, uint32_t address, const uint32_t
 
 /** Program one page starting at defined address. The address must be at page boundary. This
  *  will block until the write operation is complete.
+ *  Note: This function does not erase the page prior to writing. The page must be erased
+ *  first via a separate call to erase.
  *
  *  @see cyhal_flash_get_info() to get the flash charactoristics for legal address values and
  *  the total program size. The provided data buffer must be at least as large as the flash
@@ -211,5 +222,9 @@ bool cyhal_flash_is_operation_complete(cyhal_flash_t *obj);
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_FLASH_IMPL_HEADER
+#include CYHAL_FLASH_IMPL_HEADER
+#endif /* CYHAL_FLASH_IMPL_HEADER */
 
 /** \} group_hal_flash */

@@ -71,7 +71,7 @@ const cy_stc_sysanalog_config_t Cy_SysAnalog_Fast_External =
 *
 * \funcusage
 *
-* \snippet sysanalog_sut_01.cydsn/main_cm0p.c SYSANA_SNIPPET_INIT
+* \snippet sysanalog/snippet/main.c SYSANA_SNIPPET_INIT
 *
 *******************************************************************************/
 cy_en_sysanalog_status_t Cy_SysAnalog_Init(const cy_stc_sysanalog_config_t *config)

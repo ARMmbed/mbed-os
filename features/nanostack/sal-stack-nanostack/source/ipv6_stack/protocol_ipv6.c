@@ -245,6 +245,11 @@ static uint8_t ethernet_llao_write(protocol_interface_info_entry_t *cur, uint8_t
 {
     (void) must;
     (void) ip_addr;
+
+    if (memcmp(cur->mac, ADDR_EUI64_ZERO, 8) == 0) {
+        return 0;
+    }
+
     if (opt_out) {
         opt_out[0] = opt_type;
         opt_out[1] = 1;
@@ -962,6 +967,10 @@ void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, const ui
         address_entry->cb = ipv6_interface_address_cb;
         if (cur->ipv6_configure && cur->ipv6_configure->IPv6_ND_state == IPV6_ROUTER_SOLICATION) {
             cur->ipv6_configure->IPv6_ND_state = IPV6_GP_CONFIG;
+        }
+        // If DAD not enabled address is valid right away
+        if (cur->ipv6_configure && cur->dup_addr_detect_transmits == 0) {
+            address_entry->cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
         }
     }
 }

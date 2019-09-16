@@ -74,8 +74,9 @@ static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable);
 static int serial_is_rx_complete(serial_t *obj);
 
 static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch);
-static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 #endif
+
+static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 
 bool serial_can_deep_sleep(void);
 
@@ -133,18 +134,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
     
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
-    
-    if (! var->ref_cnt) {
-        // Reset this module
-        SYS_ResetModule(modinit->rsetidx);
 
+    obj->serial.pin_tx = tx;
+    obj->serial.pin_rx = rx;
+    obj->serial.pin_rts = NC;
+    obj->serial.pin_cts = NC;
+
+    pinmap_pinout(tx, PinMap_UART_TX);
+    pinmap_pinout(rx, PinMap_UART_RX);
+        
+    if (! var->ref_cnt) {
         // Select IP clock source
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+
         // Enable IP clock
         CLK_EnableModuleClock(modinit->clkidx);
 
-        pinmap_pinout(tx, PinMap_UART_TX);
-        pinmap_pinout(rx, PinMap_UART_RX);
+        // Reset this module
+        SYS_ResetModule(modinit->rsetidx);
 
         // Configure baudrate
         int baudrate = 9600;
@@ -235,6 +242,16 @@ void serial_free(serial_t *obj)
         int i = modinit - uart_modinit_tab;
         uart_modinit_mask &= ~(1 << i);
     }
+    
+    // Free up pins
+    gpio_set(obj->serial.pin_tx);
+    gpio_set(obj->serial.pin_rx);
+    gpio_set(obj->serial.pin_rts);
+    gpio_set(obj->serial.pin_cts);
+    obj->serial.pin_tx = NC;
+    obj->serial.pin_rx = NC;
+    obj->serial.pin_rts = NC;
+    obj->serial.pin_cts = NC;
 }
 
 void serial_baud(serial_t *obj, int baudrate) {
@@ -274,6 +291,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
+
+    // Free up old rts/cts pins when they are different from new ones
+    if (obj->serial.pin_rts != rxflow) {
+        gpio_set(obj->serial.pin_rts);
+        obj->serial.pin_rts = rxflow;
+    }
+    if (obj->serial.pin_cts != txflow) {
+        gpio_set(obj->serial.pin_cts);
+        obj->serial.pin_cts = txflow;
+    }
 
     if (rxflow != NC) {
         // Check if RTS pin matches.
@@ -425,7 +452,8 @@ static void uart_irq(serial_t *obj)
     if (uart_base->ISR & (UART_ISR_RDA_IS_Msk | UART_ISR_RTO_IS_Msk)) {
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next read.
         UART_DISABLE_INT(uart_base, (UART_IER_RDA_IE_Msk | UART_IER_RTO_IE_Msk));
-        if (obj->serial.irq_handler) {
+        if (obj->serial.irq_handler && serial_is_irq_en(obj, RxIrq)) {
+            // Call irq_handler() only when RxIrq is enabled
             ((uart_irq_handler) obj->serial.irq_handler)(obj->serial.irq_id, RxIrq);
         }
     }
@@ -433,7 +461,8 @@ static void uart_irq(serial_t *obj)
     if (uart_base->ISR & UART_ISR_THRE_IS_Msk) {
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next write.
         UART_DISABLE_INT(uart_base, UART_IER_THRE_IE_Msk);
-        if (obj->serial.irq_handler) {
+        if (obj->serial.irq_handler && serial_is_irq_en(obj, TxIrq)) {
+            // Call irq_handler() only when TxIrq is enabled
             ((uart_irq_handler) obj->serial.irq_handler)(obj->serial.irq_id, TxIrq);
         }
     }
@@ -1002,6 +1031,8 @@ static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch)
     }
 }
 
+#endif  // #if DEVICE_SERIAL_ASYNCH
+
 static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
 {
     int ier_msk = 0;
@@ -1017,8 +1048,6 @@ static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
     
     return !! ier_msk;
 }
-
-#endif  // #if DEVICE_SERIAL_ASYNCH
 
 bool serial_can_deep_sleep(void)
 {

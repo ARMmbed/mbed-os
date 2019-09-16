@@ -44,8 +44,8 @@
 };
 
 
- void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
- {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
     uint32_t can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     uint32_t can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     obj->can = (CANName)pinmap_merge(can_td, can_rd);
@@ -54,21 +54,26 @@
     const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->can);
-    
-    // Reset this module
-    SYS_ResetModule(modinit->rsetidx);
-    
+
+    obj->pin_rd = rd;
+    obj->pin_td = td;
+
+    pinmap_pinout(td, PinMap_CAN_TD);
+    pinmap_pinout(rd, PinMap_CAN_RD);
+
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
-     
+
+    // Reset this module
+    SYS_ResetModule(modinit->rsetidx);
+
     if(obj->can == CAN_1) {
         obj->index = 1;
     }
     else
         obj->index = 0;
     
-    pinmap_pinout(td, PinMap_CAN_TD);
-    pinmap_pinout(rd, PinMap_CAN_RD);
+    
     
     /* For NCU 472 mbed Board Transmitter Setting (RS Pin) */
     GPIO_SetMode(PA, BIT2| BIT3, GPIO_MODE_OUTPUT);    
@@ -78,7 +83,7 @@
     CAN_Open((CAN_T *)NU_MODBASE(obj->can), hz, CAN_NORMAL_MODE);
     
     can_filter(obj, 0, 0, CANStandard, 0);
- }
+}
 
 
 void can_init(can_t *obj, PinName rd, PinName td)
@@ -99,6 +104,12 @@ void can_free(can_t *obj)
     SYS_ResetModule(modinit->rsetidx);
     
     CLK_DisableModuleClock(modinit->clkidx);
+
+    /* Free up pins */
+    gpio_set(obj->pin_rd);
+    gpio_set(obj->pin_td);
+    obj->pin_rd = NC;
+    obj->pin_td = NC;
 }
 
 int can_frequency(can_t *obj, int hz)

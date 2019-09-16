@@ -85,13 +85,13 @@ uint32_t whd_get_resource_no_of_blocks(whd_driver_t whd_driver, whd_resource_typ
     return WHD_WLAN_NOFUNCTION;
 }
 
-uint32_t whd_get_resource_block(whd_driver_t whd_driver, whd_resource_type_t type, const uint8_t **data,
-                                uint32_t *size_out)
+uint32_t whd_get_resource_block(whd_driver_t whd_driver, whd_resource_type_t type,
+                                uint32_t blockno, const uint8_t **data, uint32_t *size_out)
 {
 
     if (whd_driver->resource_if->whd_get_resource_block)
     {
-        return whd_driver->resource_if->whd_get_resource_block(whd_driver, type, data, size_out);
+        return whd_driver->resource_if->whd_get_resource_block(whd_driver, type, blockno, data, size_out);
     }
     else
     {

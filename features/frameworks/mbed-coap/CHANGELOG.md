@@ -1,5 +1,31 @@
 # Change Log
 
+## [v5.1.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.1.0)
+
+- Introduce SN_COAP_REDUCE_BLOCKWISE_HEAP_FOOTPRINT configuration flag. 
+  Flag is disabled by default to keep the backward compatibility in place.
+  If flag is enabled, application must NOT free the payload when it gets the COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED status.
+  And application must call sn_coap_protocol_block_remove() instead.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v5.0.0...v5.1.0)
+
+## [v5.0.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v5.0.0)
+
+- Reduce heap footprint by storing only single block when receiving a blockwise message.
+    * User is now responsible of freeing the data by calling sn_coap_protocol_block_remove() and must not free the payload separately.
+- Bug fix: Request blockwise transfer if incoming payload length is too large and when it comes without block indication. 
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.8.1...v5.0.0)
+
+## [v4.8.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.1)
+- Store ACK's also into duplicate info list.
+- ROM size optimization. Flash size has gone down ~1100 bytes.
+
+**Closed issues:**
+-  IOTCLT-3592 - Client does not handle Duplicate ACK messages during blockwise registration correctly
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.8.0...v4.8.1)
+
 ## [v4.8.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.8.0) 
 - Make `sn_coap_protocol_linked_list_duplication_info_remove` API to public. User might want to delete some messages from the duplicate list.
 - Enable support for unified client configuration.

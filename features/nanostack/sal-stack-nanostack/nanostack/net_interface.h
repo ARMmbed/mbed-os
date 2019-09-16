@@ -238,7 +238,9 @@ typedef struct {
 /** Certificate structure. */
 typedef struct {
     const uint8_t *cert;           /**< Certificate pointer. */
+    const uint8_t *key;            /**< Key pointer. */
     uint16_t cert_len;             /**< Certificate length. */
+    uint16_t key_len;              /**< Key length. */
 } arm_certificate_entry_s;
 
 /** Certificate Revocation List structure. */
@@ -317,6 +319,20 @@ extern int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const c
  * \return -3 No memory for the interface.
  */
 extern int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interface_name_ptr);
+
+/**
+ * \brief Create network interface base to IDLE state.
+ * \param api Generates interface with PPP.
+ * \param interface_name_ptr String pointer to interface name. Need to end to '\0' character.
+ *        Max length 32 characters including NULL at end. Note: the given name is not copied,
+ *        so it must remain valid as long as the interface is.
+ *
+ * \return >=0 Interface ID (0-127). Application needs to save this information.
+ * \return -1 api was NULL.
+ * \return -2 PPP is not supported at this build.
+ * \return -3 No memory for the interface.
+ */
+extern int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
 
 /**
  * \brief Set IPv6 interface setup.
@@ -922,6 +938,37 @@ extern int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s 
 extern int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert);
 
 /**
+ * Remove trusted certificates
+ *
+ * This is used to remove all trusted root or intermediate certificates.
+ *
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_trusted_certificates_remove(void);
+
+/**
+ * Add own certificate
+ *
+ * This is used to add own certificate and private key.
+ * In case intermediate certificates are used, function can be called several times. Each call
+ * to the function adds a certificate to own certificate chain.
+ * Certificates are in bottom up order i.e. the top certificate is given last.
+ *
+ * \param cert Certificate.
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * Remove own certificates
+ *
+ * This is used to remove own certificates (chain).
+ *
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_own_certificates_remove(void);
+
+/**
  * Add Certificate Revocation List
  *
  * This is used to add Certificate Revocation List (CRL). Function can be called several
@@ -1059,6 +1106,34 @@ extern void net_get_version_information(uint8_t *ptr);
  */
 
 extern int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
+
+/**
+ * \brief Set CCA threshold.
+ *
+ * This function can be used to set CCA threshold to PHY layer. Threshold is given as percentage of maximum threshold.
+ * 0 is the lowest(strictest) possible threshold and 100 is the highest possible threshold.
+ *
+ * Note! Software MAC must be created and registered before using this function.
+ *
+ * \param interface_id Network interface ID.
+ * \param cca_threshold CCA threshold (%).
+ * \return 0 on success, <0 on errors.
+ */
+extern int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold);
+
+/**
+ * \brief Set TX output power.
+ *
+ * This function can be used to set TX output power to PHY layer. TX power is given as percentage of maximum output power.
+ * 0 is the lowest possible TX power and 100 is the highest possible TX power.
+ *
+ * Note! Software MAC must be created and registered before using this function.
+ *
+ * \param interface_id Network interface ID.
+ * \param tx_power TX output power (%).
+ * \return 0 on success, <0 on errors.
+ */
+extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, uint8_t tx_power);
 
 
 #ifdef __cplusplus

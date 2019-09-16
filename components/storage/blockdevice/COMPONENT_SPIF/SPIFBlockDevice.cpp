@@ -19,6 +19,7 @@
 #include "mbed_critical.h"
 
 #include <string.h>
+#include <inttypes.h>
 
 #include "mbed_trace.h"
 #include "mbed_debug.h"
@@ -936,7 +937,10 @@ int SPIFBlockDevice::_reset_flash_mem()
                 tr_error("Sending RST failed");
                 status = -1;
             }
-            _is_mem_ready();
+            if (false == _is_mem_ready()) {
+                tr_error("Device not ready, write failed");
+                status = -1;
+            }
         }
     }
 

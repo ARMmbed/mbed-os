@@ -21,7 +21,7 @@ using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
     AT_CellularBase(at), _is_connected(false),
-    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
+    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req)
 {
     _stack = NULL;
     _pdp_type = DEFAULT_PDP_TYPE;
@@ -43,6 +43,8 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _is_blocking = true;
     _device = device;
     _nw = NULL;
+    _nonip_req = nonip_req;
+    _cp_in_use = false;
 }
 
 AT_CellularContext::~AT_CellularContext()

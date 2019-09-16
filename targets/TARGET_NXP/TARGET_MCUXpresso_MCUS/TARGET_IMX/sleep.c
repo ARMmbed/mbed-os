@@ -19,7 +19,7 @@
 
 extern void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode);
 extern void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode);
-
+extern bool serial_check_tx_ongoing();
 
 void hal_sleep(void)
 {
@@ -34,6 +34,11 @@ void hal_sleep(void)
 
 void hal_deepsleep(void)
 {
+    /* Check if any of the UART's is transmitting data */
+    if (serial_check_tx_ongoing()) {
+        return;
+    }
+
     vPortPRE_SLEEP_PROCESSING(kCLOCK_ModeStop);
 
     __DSB();

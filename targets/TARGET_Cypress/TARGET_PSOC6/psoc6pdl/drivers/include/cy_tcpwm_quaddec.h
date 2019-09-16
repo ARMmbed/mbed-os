@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_tcpwm_quaddec.h
-* \version 1.10
+* \version 1.10.1
 *
 * \brief
 * The header file of the TCPWM Quadrature Decoder driver.
@@ -22,11 +22,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 #if !defined(CY_TCPWM_QUADDEC_H)
 #define CY_TCPWM_QUADDEC_H
 
 #include "cy_tcpwm.h"
+
+#ifdef CY_IP_MXTCPWM
 
 #if defined(__cplusplus)
 extern "C" {
@@ -310,7 +311,8 @@ __STATIC_INLINE uint32_t Cy_TCPWM_QuadDec_GetCounter(TCPWM_Type const *base, uin
 }
 #endif
 
-#endif /* CY_TCPWM_QUADDEC_H */
+#endif /* CY_IP_MXTCPWM */
 
+#endif /* CY_TCPWM_QUADDEC_H */
 
 /* [] END OF FILE */

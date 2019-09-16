@@ -82,6 +82,11 @@ typedef struct {
     bool                          recv_replay_cnt_set : 1;     /**< received replay counter set */
 } fwh_sec_prot_int_t;
 
+#define FWH_RETRY_TIMEOUT_SMALL 300*10 // retry timeout for small network
+#define FWH_RETRY_TIMEOUT_LARGE 720*10 // retry timeout for large network
+
+static uint16_t retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+
 static uint16_t supp_fwh_sec_prot_size(void);
 static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot);
 
@@ -119,6 +124,15 @@ int8_t supp_fwh_sec_prot_register(kmp_service_t *service)
 
     return 0;
 }
+int8_t supp_fwh_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+    } else {
+        retry_timeout = FWH_RETRY_TIMEOUT_LARGE;
+    }
+    return 0;
+}
 
 static uint16_t supp_fwh_sec_prot_size(void)
 {
@@ -138,7 +152,7 @@ static int8_t supp_fwh_sec_prot_init(sec_prot_t *prot)
     sec_prot_init(&data->common);
     sec_prot_state_set(prot, &data->common, FWH_STATE_INIT);
 
-    data->common.ticks = 30 * 10; // 30 seconds
+    data->common.ticks = retry_timeout;
     data->msg3_received = false;
     data->msg3_retry_wait = false;
     data->recv_replay_cnt = 0;
@@ -332,7 +346,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             if (sec_prot_result_ok_check(&data->common)) {
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = 30 * 10; // 30 seconds
+                data->common.ticks = retry_timeout;
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3);
             } else {
                 // Ready to be deleted
@@ -360,7 +374,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
                 // Send 4WH message 2
                 supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_2);
-                data->common.ticks = 30 * 10; // 30 seconds
+                data->common.ticks = retry_timeout;
                 return;
             } else if (data->recv_msg != FWH_MESSAGE_3) {
                 return;
@@ -387,7 +401,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
             // Sends 4WH Message 4
             supp_fwh_sec_prot_message_send(prot, FWH_MESSAGE_4);
-            data->common.ticks = 30 * 10; // 30 seconds
+            data->common.ticks = retry_timeout;
             sec_prot_state_set(prot, &data->common, FWH_STATE_FINISH);
             break;
 

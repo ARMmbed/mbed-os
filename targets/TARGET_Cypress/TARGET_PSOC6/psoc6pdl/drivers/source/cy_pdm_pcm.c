@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_pdm_pcm.c
-* \version 2.20
+* \version 2.20.1
 *
 * The source code file for the PDM_PCM driver.
 *
@@ -46,7 +46,7 @@
 * \return error / status code. See \ref cy_en_pdm_pcm_status_t.
 *
 * An example of a configuration structure:
-* \snippet PDM_PCM_PDL_sut_00.cydsn/main_cm4.c PDM_PCM Configuration
+* \snippet pdm_pcm/snippet/main.c PDM_PCM Configuration
 *
 *******************************************************************************/
 cy_en_pdm_pcm_status_t Cy_PDM_PCM_Init(PDM_Type * base, cy_stc_pdm_pcm_config_t const * config)

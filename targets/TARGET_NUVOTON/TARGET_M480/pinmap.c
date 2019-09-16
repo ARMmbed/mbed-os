@@ -17,6 +17,7 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
+#include "PeripheralNames.h"
 #include "mbed_error.h"
 
 /**
@@ -79,4 +80,35 @@ void pin_mode(PinName pin, PinMode mode)
      * 1. InputOnly/PIN_OUTPUT
      * 2. PushPullOutput/PIN_INPUT
      */
+}
+
+/* List of pins excluded from testing */
+const PinList *pinmap_restricted_pins()
+{
+    static const PinName pins[] = {
+        USBTX, USBRX,   // Dedicated to USB VCOM
+#if defined(TARGET_NUMAKER_IOT_M487)
+        A2, A3,         // Dedicated to on-board ESP8266 WiFi module RTS/CTS
+#endif
+    };
+    static const PinList pin_list = {
+        sizeof(pins) / sizeof(pins[0]),
+        pins
+    };
+    return &pin_list;
+}
+
+/* List of peripherals excluded from testing */
+const PeripheralList *pinmap_restricted_peripherals()
+{
+    static const int perifs[] = {
+        STDIO_UART          // Dedicated to USB VCOM
+    };
+
+    static const PeripheralList peripheral_list = {
+        sizeof(perifs) / sizeof(perifs[0]),
+        perifs
+    };
+
+    return &peripheral_list;
 }

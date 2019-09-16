@@ -18,13 +18,15 @@
 #ifndef __CMSIS_OS2_H__
 #define __CMSIS_OS2_H__
 
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+
 #include <inttypes.h>
 
 //If conflicts, then remove these, copied from cmsis_os.h
 typedef int32_t                  osStatus;
-
-#define osOK 0
-#define osErrorNoMemory -5
 
 
 //These are from cmsis_os2.h
@@ -37,12 +39,26 @@ typedef struct {
     uint32_t                   cb_size;   ///< size of provided memory for control block
 } osSemaphoreAttr_t;
 
+/// Status code values returned by CMSIS-RTOS functions.
+typedef enum {
+    osOK                      =  0,         ///< Operation completed successfully.
+    osError                   = -1,         ///< Unspecified RTOS error: run-time error but no other error message fits.
+    osErrorTimeout            = -2,         ///< Operation not completed within the timeout period.
+    osErrorResource           = -3,         ///< Resource not available.
+    osErrorParameter          = -4,         ///< Parameter error.
+    osErrorNoMemory           = -5,         ///< System is out of memory: it was impossible to allocate or reserve memory for the operation.
+    osErrorISR                = -6,         ///< Not allowed in ISR context: the function cannot be called from interrupt service routines.
+    osStatusReserved          = 0x7FFFFFFF  ///< Prevents enum down-size compiler optimization.
+} osStatus_t;
+
 //Thread
 typedef enum {
     osPriorityNormal        = 24       ///< Priority: normal
 } osPriority_t;
 
 typedef void *osThreadId_t;
+
+typedef void *osMutexId_t;
 
 typedef void *osEventFlagsId_t;
 
@@ -74,5 +90,19 @@ typedef struct {
 #define osMutexPrioInherit    0x00000002U ///< Priority inherit protocol.
 #define osMutexRobust         0x00000008U ///< Robust mutex.
 
+/// Acquire a Mutex or timeout if it is locked.
+/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexNew.
+/// \param[in]     timeout       \ref CMSIS_RTOS_TimeOutValue or 0 in case of no time-out.
+/// \return status code that indicates the execution status of the function.
+osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout);
+
+/// Release a Mutex that was acquired by \ref osMutexAcquire.
+/// \param[in]     mutex_id      mutex ID obtained by \ref osMutexNew.
+/// \return status code that indicates the execution status of the function.
+osStatus_t osMutexRelease(osMutexId_t mutex_id);
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

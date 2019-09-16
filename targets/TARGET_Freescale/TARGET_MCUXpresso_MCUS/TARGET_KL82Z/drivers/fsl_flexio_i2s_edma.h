@@ -38,7 +38,6 @@
  * @{
  */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -56,6 +55,7 @@ struct _flexio_i2s_edma_handle
 {
     edma_handle_t *dmaHandle;                        /*!< DMA handler for FlexIO I2S send */
     uint8_t bytesPerFrame;                           /*!< Bytes in a frame */
+    uint8_t nbytes;                                  /*!< eDMA minor byte transfer count initially configured. */
     uint32_t state;                                  /*!< Internal state for FlexIO I2S eDMA transfer */
     flexio_i2s_edma_callback_t callback;             /*!< Callback for users while transfer finish or error occurred */
     void *userData;                                  /*!< User callback parameter */
@@ -83,13 +83,13 @@ extern "C" {
  *
  * This function initializes the FlexIO I2S master DMA handle which can be used for other FlexIO I2S master
  * transactional APIs.
- * Usually, for a specified FlexIO I2S instance, user need only call this API once to get the initialized handle.
+ * Usually, for a specified FlexIO I2S instance, call this API once to get the initialized handle.
  *
  * @param base FlexIO I2S peripheral base address.
  * @param handle FlexIO I2S eDMA handle pointer.
  * @param callback FlexIO I2S eDMA callback function called while finished a block.
  * @param userData User parameter for callback.
- * @param dmaHandle eDMA handle for FlexIO I2S. This handle shall be a static value allocated by users.
+ * @param dmaHandle eDMA handle for FlexIO I2S. This handle is a static value allocated by users.
  */
 void FLEXIO_I2S_TransferTxCreateHandleEDMA(FLEXIO_I2S_Type *base,
                                            flexio_i2s_edma_handle_t *handle,
@@ -102,13 +102,13 @@ void FLEXIO_I2S_TransferTxCreateHandleEDMA(FLEXIO_I2S_Type *base,
  *
  * This function initializes the FlexIO I2S slave DMA handle which can be used for other FlexIO I2S master transactional
  * APIs.
- * Usually, for a specified FlexIO I2S instance, user need only call this API once to get the initialized handle.
+ * Usually, for a specified FlexIO I2S instance, call this API once to get the initialized handle.
  *
  * @param base FlexIO I2S peripheral base address.
  * @param handle FlexIO I2S eDMA handle pointer.
  * @param callback FlexIO I2S eDMA callback function called while finished a block.
  * @param userData User parameter for callback.
- * @param dmaHandle eDMA handle for FlexIO I2S. This handle shall be a static value allocated by users.
+ * @param dmaHandle eDMA handle for FlexIO I2S. This handle is a static value allocated by users.
  */
 void FLEXIO_I2S_TransferRxCreateHandleEDMA(FLEXIO_I2S_Type *base,
                                            flexio_i2s_edma_handle_t *handle,
@@ -120,7 +120,7 @@ void FLEXIO_I2S_TransferRxCreateHandleEDMA(FLEXIO_I2S_Type *base,
  * @brief Configures the FlexIO I2S Tx audio format.
  *
  * Audio format can be changed in run-time of FlexIO I2S. This function configures the sample rate and audio data
- * format to be transferred. This function also sets eDMA parameter according to format.
+ * format to be transferred. This function also sets the eDMA parameter according to format.
  *
  * @param base FlexIO I2S peripheral base address.
  * @param handle FlexIO I2S eDMA handle pointer
@@ -137,8 +137,8 @@ void FLEXIO_I2S_TransferSetFormatEDMA(FLEXIO_I2S_Type *base,
 /*!
  * @brief Performs a non-blocking FlexIO I2S transfer using DMA.
  *
- * @note This interface returned immediately after transfer initiates, users should call
- * FLEXIO_I2S_GetTransferStatus to poll the transfer status to check whether FlexIO I2S transfer finished.
+ * @note This interface returned immediately after transfer initiates. Users should call
+ * FLEXIO_I2S_GetTransferStatus to poll the transfer status and check whether the FlexIO I2S transfer is finished.
  *
  * @param base FlexIO I2S peripheral base address.
  * @param handle FlexIO I2S DMA handle pointer.
@@ -154,8 +154,8 @@ status_t FLEXIO_I2S_TransferSendEDMA(FLEXIO_I2S_Type *base,
 /*!
  * @brief Performs a non-blocking FlexIO I2S receive using eDMA.
  *
- * @note This interface returned immediately after transfer initiates, users should call
- * FLEXIO_I2S_GetReceiveRemainingBytes to poll the transfer status to check whether FlexIO I2S transfer finished.
+ * @note This interface returned immediately after transfer initiates. Users should call
+ * FLEXIO_I2S_GetReceiveRemainingBytes to poll the transfer status and check whether the FlexIO I2S transfer is finished.
  *
  * @param base FlexIO I2S peripheral base address.
  * @param handle FlexIO I2S DMA handle pointer.

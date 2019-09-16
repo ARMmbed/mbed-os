@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.h
-* \version 1.40
+* \version 1.40.1
 *
 * Provides an API declaration of the sysclk driver.
 *
@@ -103,6 +103,11 @@
 * \section group_sysclk_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.40.1</td>
+*     <td>Fix compiler warning.</td>
+*     <td></td>
+*   </tr>
 *   <tr>
 *     <td rowspan="4">1.40</td>
 *     <td>Updated the following functions implementation: \ref Cy_SysClk_PllConfigure and \ref Cy_SysClk_PllEnable.</td>

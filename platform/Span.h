@@ -26,9 +26,9 @@
 
 namespace mbed {
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
+
 /**
  * \defgroup platform_Span Span class
  * @{

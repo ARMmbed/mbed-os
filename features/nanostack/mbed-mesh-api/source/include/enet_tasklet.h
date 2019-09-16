@@ -37,6 +37,14 @@ void enet_tasklet_init(void);
 int8_t enet_tasklet_network_init(int8_t device_id);
 
 /*
+ * \brief Create PPP network interface.
+ *
+ * \param device_id Registered physical device.
+ * \return interface ID used to communication with this interface.
+ */
+int8_t enet_tasklet_ppp_network_init(int8_t device_id);
+
+/*
  * \brief Connect to Ethernet network.
  *
  * \param callback Call when network state changes.

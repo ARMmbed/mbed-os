@@ -18,6 +18,9 @@
 #ifndef NANOSTACK_PHY_H_
 #define NANOSTACK_PHY_H_
 
+class NanostackMACPhy;
+class NanostackPPPPhy;
+
 /** PHY driver class for Nanostack */
 class NanostackPhy {
 public:
@@ -29,17 +32,25 @@ public:
      */
     virtual int8_t phy_register() = 0;
 
-    /** Read the mac address of this physical interface
+    /** Return pointer to a NanostackMACPhy.
      *
-     * Note - some devices do not have a mac address
-     *        in hardware.
+     *  @return         Pointer to requested phy type or NULL if this
+     *                  class doesn't implement the phy.
      */
-    virtual void get_mac_address(uint8_t *mac) = 0;
+    virtual NanostackMACPhy *nanostack_mac_phy()
+    {
+        return 0;
+    }
 
-    /** Set the mac address of this physical interface
+    /** Return pointer to a NanostackPPPPhy.
      *
+     *  @return         Pointer to requested phy type or NULL if this
+     *                  class doesn't implement the phy.
      */
-    virtual void set_mac_address(uint8_t *mac) = 0;
+    virtual NanostackPPPPhy *nanostack_ppp_phy()
+    {
+        return 0;
+    }
 
 protected:
     NanostackPhy() {}

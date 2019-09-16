@@ -39,6 +39,7 @@
 #include "lwip-sys/arch/sys_arch.h"
 
 #include "LWIPStack.h"
+#include "lwip_tools.h"
 
 #ifndef LWIP_SOCKET_MAX_MEMBERSHIPS
 #define LWIP_SOCKET_MAX_MEMBERSHIPS 4
@@ -67,89 +68,6 @@ void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
     }
 
     lwip.adaptation.unlock();
-}
-
-#if !LWIP_IPV4 || !LWIP_IPV6
-static bool all_zeros(const uint8_t *p, int len)
-{
-    for (int i = 0; i < len; i++) {
-        if (p[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-#endif
-
-static bool convert_lwip_addr_to_mbed(nsapi_addr_t *out, const ip_addr_t *in)
-{
-#if LWIP_IPV6
-    if (IP_IS_V6(in)) {
-        out->version = NSAPI_IPv6;
-        SMEMCPY(out->bytes, ip_2_ip6(in), sizeof(ip6_addr_t));
-        return true;
-    }
-#endif
-#if LWIP_IPV4
-    if (IP_IS_V4(in)) {
-        out->version = NSAPI_IPv4;
-        SMEMCPY(out->bytes, ip_2_ip4(in), sizeof(ip4_addr_t));
-        return true;
-    }
-#endif
-#if LWIP_IPV6 && LWIP_IPV4
-    return false;
-#endif
-}
-
-static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
-{
-#if LWIP_IPV6
-    if (in->version == NSAPI_IPv6) {
-        IP_SET_TYPE(out, IPADDR_TYPE_V6);
-        SMEMCPY(ip_2_ip6(out), in->bytes, sizeof(ip6_addr_t));
-        return true;
-    }
-#if !LWIP_IPV4
-    /* For bind() and other purposes, need to accept "null" of other type */
-    /* (People use IPv4 0.0.0.0 as a general null) */
-    if (in->version == NSAPI_UNSPEC ||
-            (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4))) {
-        ip_addr_set_zero_ip6(out);
-        return true;
-    }
-#endif
-#endif
-
-#if LWIP_IPV4
-    if (in->version == NSAPI_IPv4) {
-        IP_SET_TYPE(out, IPADDR_TYPE_V4);
-        SMEMCPY(ip_2_ip4(out), in->bytes, sizeof(ip4_addr_t));
-        return true;
-    }
-#if !LWIP_IPV6
-    /* For symmetry with above, accept IPv6 :: as a general null */
-    if (in->version == NSAPI_UNSPEC ||
-            (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16))) {
-        ip_addr_set_zero_ip4(out);
-        return true;
-    }
-#endif
-#endif
-
-#if LWIP_IPV4 && LWIP_IPV6
-    if (in->version == NSAPI_UNSPEC) {
-#if IP_VERSION_PREF == PREF_IPV4
-        ip_addr_set_zero_ip4(out);
-#else
-        ip_addr_set_zero_ip6(out);
-#endif
-        return true;
-    }
-#endif
-
-    return false;
 }
 
 void LWIP::tcpip_init_irq(void *eh)

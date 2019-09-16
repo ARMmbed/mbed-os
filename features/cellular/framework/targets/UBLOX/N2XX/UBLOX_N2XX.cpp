@@ -74,11 +74,9 @@ nsapi_error_t UBLOX_N2XX::init()
 
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("", "");
 
-    _at->cmd_start("AT+CMEE=1"); // verbose responses
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
 
 #ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
     set_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
@@ -92,12 +90,8 @@ nsapi_error_t UBLOX_N2XX::get_sim_state(SimState &state)
 
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT+CFUN=1");
-    _at->cmd_stop();
-
-    _at->resp_start();
-    _at->read_string(simstr, sizeof(simstr));
-    _at->resp_stop();
+    //Special case: Command put in cmd_chr to make a 1 liner
+    _at->at_cmd_str("", "+CFUN=1", simstr, sizeof(simstr));
     error = _at->unlock_return_error();
 
     int len = strlen(simstr);
@@ -149,11 +143,7 @@ nsapi_error_t UBLOX_N2XX::set_pin(const char *sim_pin)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    _at->lock();
-    _at->cmd_start("AT+NPIN=0,");
-    _at->write_string(sim_pin);
-    _at->cmd_stop_read_resp();
-    return _at->unlock_return_error();
+    return _at->at_cmd_discard("+NPIN", "=", "%d%s", 0, sim_pin);
 }
 
 #if MBED_CONF_UBLOX_N2XX_PROVIDE_DEFAULT

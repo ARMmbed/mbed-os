@@ -74,6 +74,8 @@ Case cases[] = {
     Case("WIFI-GET-RSSI", wifi_get_rssi),
     Case("WIFI-CONNECT-PARAMS-VALID-UNSECURE", wifi_connect_params_valid_unsecure),
     Case("WIFI-CONNECT", wifi_connect),
+    //Most boards are not passing this test, but they should if they support non-blocking API.
+    //Case("WIFI-CONNECT-NONBLOCKING", wifi_connect_nonblock),
     Case("WIFI-CONNECT-DISCONNECT-REPEAT", wifi_connect_disconnect_repeat),
 #endif
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID)

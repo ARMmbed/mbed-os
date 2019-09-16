@@ -29,23 +29,16 @@ QUECTEL_UG96_CellularContext::~QUECTEL_UG96_CellularContext()
 
 nsapi_error_t QUECTEL_UG96_CellularContext::do_user_authentication()
 {
+    nsapi_error_t err = NSAPI_ERROR_OK;
     if (_pwd && _uname) {
-        _at.cmd_start("AT+QICSGP=");
-        _at.write_int(_cid);
-        _at.write_int(1); // context type 1=IPv4
-        _at.write_string(_apn);
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
-        _at.write_int(_authentication_type);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-        if (_at.get_last_error() != NSAPI_ERROR_OK) {
+        err = _at.at_cmd_discard("+QICSGP", "=", "%d%d%s%s%s%d", _cid, 1, _apn,
+                                 _uname, _pwd, _authentication_type);
+        if (err != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
     }
 
-    return NSAPI_ERROR_OK;
+    return err;
 }
 
 } /* namespace mbed */

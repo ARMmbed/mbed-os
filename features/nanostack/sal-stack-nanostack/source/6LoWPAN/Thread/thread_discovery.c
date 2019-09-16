@@ -46,7 +46,7 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
-#include "6LoWPAN/Thread/thread_extension.h"
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
@@ -419,6 +419,111 @@ static uint16_t thread_discover_tlv_get(uint8_t version, bool dynamic_bit)
 }
 
 
+#ifdef HAVE_THREAD_V2
+static uint8_t thread_discovery_ccm_response_len(protocol_interface_info_entry_t *cur)
+{
+    uint8_t length = 0;
+    uint8_t domain_name_len;
+    // AE port
+    if (!cur || !cur->thread_info->ccm_info) {
+        return 0;
+    }
+    if (cur->thread_info->ccm_info->relay_port_ae) {
+        length += 4;
+    }
+    // NMK port
+    if (cur->thread_info->ccm_info->relay_port_nmkp) {
+        length += 4;
+    }
+    /* Thread 1.2 CCM add-ons */
+    if (cur->thread_info->version >= THREAD_VERSION_1_2 && thread_info(cur)->ccm_credentials_ptr) {
+        // Calculate also following optional TLV's:
+        // Thread domain name TLV
+        domain_name_len = thread_ccm_thread_name_length_get(cur);
+        if (domain_name_len) {
+            length += domain_name_len + 2;
+        }
+        // AE steering data
+        // NMKP Steering Data
+    }
+    return length;
+}
+
+static uint8_t *thread_discovery_ccm_response_write(protocol_interface_info_entry_t *cur, uint8_t *ptr)
+{
+    if (!cur || !cur->thread_info->ccm_info) {
+        return ptr;
+    }
+    // AE port
+    if (cur->thread_info->ccm_info->relay_port_ae) {
+        ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_AE_PORT, cur->thread_info->ccm_info->relay_port_ae);
+    }
+    // NMK port
+    if (cur->thread_info->ccm_info->relay_port_nmkp) {
+        ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_NMKP_PORT, cur->thread_info->ccm_info->relay_port_nmkp);
+    }
+    /* Thread 1.2 CCM add-ons */
+    if (cur->thread_info->version >= THREAD_VERSION_1_2 && thread_info(cur)->ccm_credentials_ptr) {
+        // Thread domain name TLV
+        if (thread_ccm_thread_name_length_get(cur)) {
+            ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_DOMAIN_NAME, thread_ccm_thread_name_length_get(cur), thread_ccm_thread_name_ptr_get(cur));
+        }
+        // Build also following optional TLV's, when supported:
+        // AE steering data
+        // NMKP Steering Data
+    }
+    return ptr;
+}
+void thread_discovery_ccm_response_read(discovery_response_list_t *nwk_info, uint16_t discover_response_tlv, uint8_t *data_ptr, uint16_t data_len)
+{
+    uint8_t domain_data_len;
+    uint8_t *domain_data_ptr;
+
+    domain_data_len = thread_meshcop_tlv_find(data_ptr, data_len, MESHCOP_TLV_DOMAIN_NAME, &domain_data_ptr);
+    if (domain_data_len > 16) {
+        domain_data_len = 0;
+    }
+
+    if (domain_data_len) {
+        memcpy(nwk_info->ccm_info.domain_name, domain_data_ptr, domain_data_len);
+    }
+
+    thread_meshcop_tlv_data_get_uint16(data_ptr, data_len, MESHCOP_TLV_AE_PORT, &nwk_info->ccm_info.ae_port);
+    thread_meshcop_tlv_data_get_uint16(data_ptr, data_len, MESHCOP_TLV_NMKP_PORT, &nwk_info->ccm_info.nmk_port);
+    nwk_info->ccm_info.ccm_supported = (discover_response_tlv >> 10) & 1;
+}
+
+void thread_discovery_ccm_info_write(uint16_t *data, uint8_t version, uint16_t securityPolicy)
+{
+    if (version == 3 && !(securityPolicy & THREAD_SECURITY_POLICY_CCM_DISABLED)) {
+        *data |= (uint16_t)(1 << 10);
+    }
+}
+
+bool thread_discovery_ccm_joining_enabled(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur || !cur->thread_info->ccm_info) {
+        return false;
+    }
+    if (cur->thread_info->ccm_info->relay_port_ae ||
+            cur->thread_info->ccm_info->relay_port_nmkp) {
+        tr_warn("Commercial joiner router enabled");
+        return true;
+    }
+    return false;
+}
+
+#else
+#define thread_discovery_ccm_response_len(cur) (0)
+#define thread_discovery_ccm_response_write(cur, ptr) (ptr)
+#define thread_discovery_ccm_response_read(nwk_info, discover_response_tlv, data_ptr, data_len)
+#define thread_discovery_ccm_info_write(data, version, securityPolicy)
+#define thread_discovery_ccm_joining_enabled(interface_id) (false)
+
+#endif
+
 static int thread_discovery_request_send(thread_discovery_class_t *class, thread_discovery_request_info_t *discovery)
 {
     protocol_interface_info_entry_t *cur = class->interface;
@@ -504,9 +609,6 @@ static int thread_discovery_announce_request_send(thread_discovery_class_t *clas
     return 0;
 }
 
-
-
-
 static int thread_discovery_response_send(thread_discovery_class_t *class, thread_discovery_response_msg_t *msg_buffers)
 {
     link_configuration_s *linkConfiguration = thread_joiner_application_get_config(class->interface_id);
@@ -538,7 +640,7 @@ static int thread_discovery_response_send(thread_discovery_class_t *class, threa
         message_length += 4;
     }
 
-    message_length +=  thread_extension_discover_response_len(cur);
+    message_length +=  thread_discovery_ccm_response_len(cur);
 
     uint16_t buf_id = mle_service_msg_allocate(class->interface_id, message_length + 2, false, MLE_COMMAND_DISCOVERY_RESPONSE);
     if (buf_id == 0) {
@@ -557,7 +659,7 @@ static int thread_discovery_response_send(thread_discovery_class_t *class, threa
     *ptr++ = message_length;
     uint16_t discover_response_tlv = thread_discover_tlv_get(class->version, (linkConfiguration->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED));
 
-    thread_extension_discover_response_tlv_write(&discover_response_tlv, class->version, linkConfiguration->securityPolicy);
+    thread_discovery_ccm_info_write(&discover_response_tlv, class->version, linkConfiguration->securityPolicy);
 
     ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_DISCOVERY_RESPONSE, discover_response_tlv);
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_XPANID, 8, linkConfiguration->extented_pan_id);
@@ -575,7 +677,7 @@ static int thread_discovery_response_send(thread_discovery_class_t *class, threa
         }
     }
 
-    ptr =  thread_extension_discover_response_write(cur, ptr);
+    ptr =  thread_discovery_ccm_response_write(cur, ptr);
 
     if (mle_service_update_length_by_ptr(buf_id, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
@@ -849,7 +951,7 @@ static void thread_discovery_request_msg_handler(thread_discovery_class_t *disco
         thread_management_server_data_t joiner_router_info;
         if (0 != thread_management_server_commisoner_data_get(discovery_class->interface_id, &joiner_router_info) ||
                 !joiner_router_info.joiner_router_enabled) {
-            if (!thread_extension_joining_enabled(discovery_class->interface_id)) {
+            if (!thread_discovery_ccm_joining_enabled(discovery_class->interface_id)) {
                 tr_debug("Drop by Joining disabled");
                 return;
             }
@@ -982,8 +1084,8 @@ static void thread_discovery_response_msg_handler(thread_discovery_class_t *disc
     }
 
     if (discovery_class->discovery_request->joiner_flag && (!joiner_port_valid || steerin_data_length == 0)) {
-        if (thread_extension_version_check(discovery_class->interface->thread_info->version)) {
-            if (!discovery_class->interface->thread_info->extension_credentials_ptr) {
+        if (discovery_class->interface->thread_info->version >= THREAD_VERSION_1_2) {
+            if (!discovery_class->interface->thread_info->ccm_credentials_ptr) {
                 tr_debug("Dropped, no joiner info");
             }
         } else {
@@ -1019,7 +1121,7 @@ static void thread_discovery_response_msg_handler(thread_discovery_class_t *disc
 
     thread_meshcop_tlv_data_get_uint16(discovery_tlv.dataPtr, discovery_tlv.tlvLen, MESHCOP_TLV_COMMISSIONER_UDP_PORT, &nwk_info->commissioner_port);
 
-    thread_extension_discover_response_read(nwk_info, discover_response_tlv, discovery_tlv.dataPtr, discovery_tlv.tlvLen);
+    thread_discovery_ccm_response_read(nwk_info, discover_response_tlv, discovery_tlv.dataPtr, discovery_tlv.tlvLen);
 
     //Add to last
     if (discovery_class->discovery_request->native_commisioner_scan) {

@@ -58,14 +58,14 @@ void us_ticker_init(void)
     }
     ticker_inited = 1;
 
-    // Reset IP
-    SYS_ResetModule(TIMER_MODINIT.rsetidx);
-
     // Select IP clock source
     CLK_SetModuleClock(TIMER_MODINIT.clkidx, TIMER_MODINIT.clksrc, TIMER_MODINIT.clkdiv);
 
     // Enable IP clock
     CLK_EnableModuleClock(TIMER_MODINIT.clkidx);
+
+    // Reset IP
+    SYS_ResetModule(TIMER_MODINIT.rsetidx);
 
     TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
 

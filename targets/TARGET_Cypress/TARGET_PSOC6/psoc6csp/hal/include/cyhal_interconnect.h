@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -57,8 +58,11 @@ extern "C" {
 #define CYHAL_CONNECT_RSLT_NO_CONNECTION (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 0))
 /** The connections source and destination are already connected */
 #define CYHAL_CONNECT_RSLT_ALREADY_CONNECTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 1))
-/** Invalid 1-to-1 trigger connection */
-#define CYHAL_CONNECT_RSLT_INVALID_1TO1_CONNECTION (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 2))
+/** Invalid trigger connection */
+#define CYHAL_CONNECT_RSLT_INVALID_TRIGGER_CONNECTION (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_INTERCONNECT, 2))
+
+/** Indicates that a mux output does not continue to another mux */
+#define CYHAL_INTERCONNECT_MUX_NOT_CONTINUATION 0xFF
 
 /** \} group_hal_interconnect_macros */
 
@@ -67,16 +71,6 @@ extern "C" {
 * \addtogroup group_hal_interconnect_functions
 * \{
 */
-
-/** Connects two digital terminals. The source will be routed to the destination via the trigger routing
- * framework in the device. This supports both the trigger mux routing and the 1:1 triggers. As expected,
- * a single source can drive multiple destinations, but a destination can only be driven by a single source.
- * If the output is already connected, or the connection can not be established an error will be returned.
- * @param[in] source The source of the signal to connect
- * @param[in] dest   The destination of the signal to connect
- * @return The status of the connect request
- */
-cy_rslt_t cyhal_connect_trigger(cyhal_source_t source, cyhal_dest_t dest);
 
 /** Connect a pin to a peripheral terminal. This will route a direct connect from the pin to the peripheral.
  * Any previous direct connection from the pin will be overriden.
@@ -91,10 +85,24 @@ cy_rslt_t cyhal_connect_pin(const cyhal_resource_pin_mapping_t *pin_connection);
  */
 cy_rslt_t cyhal_disconnect_pin(cyhal_gpio_t pin);
 
+/** WORK IN PROGRESS. This function is not yet fully implemented.
+ * Connects two digital terminals on the device using any internal interconnect. As expected, a single
+ * source can drive multiple destinations, but a destination can only be driven by a single source.
+ * If the output is already connected, or the connection can not be established an error will be returned.
+ * @param[in] source The source of the signal to connect
+ * @param[in] dest   The destination of the signal to connect
+ * @return The status of the connect request
+ */
+cy_rslt_t cyhal_connect_trigger(cyhal_source_t source, cyhal_dest_t dest);
+
+/** \} group_hal_interconnect_functions */
+
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_hal_interconnect_functions */
+#ifdef CYHAL_INTERCONNECT_IMPL_HEADER
+#include CYHAL_INTERCONNECT_IMPL_HEADER
+#endif /* CYHAL_INTERCONNECT_IMPL_HEADER */
 
 /** \} group_hal_interconnect */

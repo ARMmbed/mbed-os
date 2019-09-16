@@ -52,17 +52,20 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     const struct nu_modinit_s *modinit = get_modinit(obj->can, can_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->can);
-    
-    // Reset this module
-    SYS_ResetModule(modinit->rsetidx);
-    
-    // Enable IP clock
-    CLK_EnableModuleClock(modinit->clkidx);
-     
-    obj->index = 0;
-    
+
+    obj->pin_rd = rd;
+    obj->pin_td = td;
+
     pinmap_pinout(td, PinMap_CAN_TD);
     pinmap_pinout(rd, PinMap_CAN_RD);
+
+    // Enable IP clock
+    CLK_EnableModuleClock(modinit->clkidx);
+
+    // Reset this module
+    SYS_ResetModule(modinit->rsetidx);
+     
+    obj->index = 0;
     
     /* For M453 mbed Board Transmitter Setting (RS Pin) */
     GPIO_SetMode(PA, BIT0| BIT1, GPIO_MODE_OUTPUT);    
@@ -72,7 +75,7 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     CAN_Open((CAN_T *)NU_MODBASE(obj->can), hz, CAN_NORMAL_MODE);
     
     can_filter(obj, 0, 0, CANStandard, 0);
- }
+}
 
 
 void can_init(can_t *obj, PinName rd, PinName td)
@@ -93,6 +96,12 @@ void can_free(can_t *obj)
     SYS_ResetModule(modinit->rsetidx);
     
     CLK_DisableModuleClock(modinit->clkidx);
+
+    /* Free up pins */
+    gpio_set(obj->pin_rd);
+    gpio_set(obj->pin_td);
+    obj->pin_rd = NC;
+    obj->pin_td = NC;
 }
 
 int can_frequency(can_t *obj, int hz)

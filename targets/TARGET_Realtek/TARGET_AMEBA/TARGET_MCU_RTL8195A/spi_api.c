@@ -43,55 +43,6 @@ extern const DW_SSI_DEFAULT_SETTING SpiDefaultSetting;
 
 #ifdef CONFIG_MBED_ENABLED
 #include "PeripheralPins.h"
-#else
-static const PinMap PinMap_SSI_MOSI[] = {
-    {PE_2,  RTL_PIN_PERI(SPI0, 0, S0), RTL_PIN_FUNC(SPI0, S0)},
-    {PC_2,  RTL_PIN_PERI(SPI0, 0, S1), RTL_PIN_FUNC(SPI0, S1)},
-    {PA_1,  RTL_PIN_PERI(SPI1, 1, S0), RTL_PIN_FUNC(SPI1, S0)},
-    {PB_6,  RTL_PIN_PERI(SPI1, 1, S1), RTL_PIN_FUNC(SPI1, S1)},
-    {PD_6,  RTL_PIN_PERI(SPI1, 1, S2), RTL_PIN_FUNC(SPI1, S2)},
-    {PG_2,  RTL_PIN_PERI(SPI2, 2, S0), RTL_PIN_FUNC(SPI2, S0)},
-    {PE_6,  RTL_PIN_PERI(SPI2, 2, S1), RTL_PIN_FUNC(SPI2, S1)},
-    {PD_2,  RTL_PIN_PERI(SPI2, 2, S2), RTL_PIN_FUNC(SPI2, S2)},
-    {NC,    NC,     0}
-};
-
-static const PinMap PinMap_SSI_MISO[] = {
-    {PE_3,  RTL_PIN_PERI(SPI0, 0, S0), RTL_PIN_FUNC(SPI0, S0)},
-    {PC_3,  RTL_PIN_PERI(SPI0, 0, S1), RTL_PIN_FUNC(SPI0, S1)},
-    {PA_0,  RTL_PIN_PERI(SPI1, 1, S0), RTL_PIN_FUNC(SPI1, S0)},
-    {PB_7,  RTL_PIN_PERI(SPI1, 1, S1), RTL_PIN_FUNC(SPI1, S1)},
-    {PD_7,  RTL_PIN_PERI(SPI1, 1, S2), RTL_PIN_FUNC(SPI1, S2)},
-    {PG_3,  RTL_PIN_PERI(SPI2, 2, S0), RTL_PIN_FUNC(SPI2, S0)},
-    {PE_7,  RTL_PIN_PERI(SPI2, 2, S1), RTL_PIN_FUNC(SPI2, S1)},
-    {PD_3,  RTL_PIN_PERI(SPI2, 2, S2), RTL_PIN_FUNC(SPI2, S2)},
-    {NC,    NC,     0}
-};
-
-// For testing only
-static const PinMap PinMap_SSI_SCLK[] = {
-    {PC_1,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
-    {PA_2,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
-    {PA_2,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
-    {PA_2,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
-    {PD_5,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
-    {PD_5,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
-    {PD_5,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
-
-    {NC,    NC,     0}
-};
-
-// For testing only
-static const PinMap PinMap_SSI_SSEL[] = {
-    {PE_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
-    {PC_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
-    {PC_4,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
-    {PC_0,  RTL_PIN_PERI(SPI0, 0, S0), /* Unused */ 0},
-    {PA_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
-    {PD_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
-
-    {NC,    NC,     0}
-};
 #endif
 
 void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)

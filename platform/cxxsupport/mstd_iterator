@@ -25,10 +25,10 @@
  *   - std::make_reverse_iterator
  *   - std::move_iterator, std::make_move_iterator
  * - For all toolchains, C++17/20 backports:
- *   - mbed::size
- *   - mbed::ssize
- *   - mbed::empty
- *   - mbed::data
+ *   - mstd::size
+ *   - mstd::ssize
+ *   - mstd::empty
+ *   - mstd::data
  */
 
 #include <iterator>

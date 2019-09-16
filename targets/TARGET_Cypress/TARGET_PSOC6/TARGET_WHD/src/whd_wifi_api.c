@@ -749,6 +749,8 @@ static void *whd_wifi_join_events_handler(whd_interface_t ifp, const whd_event_h
         case WLC_E_DISASSOC_IND:
             whd_driver->internal_info.whd_join_status[event_header->bsscfgidx] &=
                 ~(JOIN_AUTHENTICATED | JOIN_LINK_READY);
+            if (ifp->whd_link_update_callback != NULL)
+                ifp->whd_link_update_callback(ifp, WHD_FALSE);
             break;
 
         case WLC_E_AUTH:
@@ -922,6 +924,8 @@ static void *whd_wifi_join_events_handler(whd_interface_t ifp, const whd_event_h
     if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS)
     {
         join_attempt_complete = WHD_TRUE;
+        if (ifp->whd_link_update_callback != NULL)
+            ifp->whd_link_update_callback(ifp, WHD_TRUE);
     }
 
     if (join_attempt_complete == WHD_TRUE)
@@ -1419,6 +1423,12 @@ uint32_t whd_wifi_join_specific(whd_interface_t ifp, const whd_scan_result_t *ap
         return WHD_BADARG;
     }
 
+    if ( (ap->SSID.length == 0) || (ap->SSID.length > (size_t)SSID_NAME_SIZE) )
+    {
+        WPRINT_WHD_ERROR( ("%s: failure: SSID length error\n", __func__) );
+        return WHD_WLAN_BADSSIDLEN;
+    }
+
     CHECK_RETURN(cy_rtos_init_semaphore(&join_semaphore, 1, 0) );
     result = whd_wifi_active_join_init(ifp, security, security_key, key_length, &join_semaphore);
 
@@ -1548,11 +1558,18 @@ uint32_t whd_wifi_join(whd_interface_t ifp, const whd_ssid_t *ssid, whd_security
 
     CHECK_DRIVER_NULL(whd_driver);
 
-    if (ssid->length > (size_t)SSID_NAME_SIZE)
+    if (ssid == NULL)
     {
-        WPRINT_WHD_ERROR( ("%s: failure: SSID too long\n", __func__) );
+        WPRINT_WHD_ERROR( ("%s: failure: ssid is null\n", __func__) );
+        return WHD_BADARG;
+    }
+
+    if ( (ssid->length == 0) || (ssid->length > (size_t)SSID_NAME_SIZE) )
+    {
+        WPRINT_WHD_ERROR( ("%s: failure: SSID length error\n", __func__) );
         return WHD_WLAN_BADSSIDLEN;
     }
+
     /* Keep WLAN awake while joining */
     WHD_WLAN_KEEP_AWAKE(whd_driver);
     ifp->role = WHD_STA_ROLE;
@@ -1611,6 +1628,8 @@ uint32_t whd_wifi_leave(whd_interface_t ifp)
     }
 
     whd_driver->internal_info.whd_join_status[ifp->bsscfgidx] = 0;
+    if (ifp->whd_link_update_callback != NULL)
+        ifp->whd_link_update_callback(ifp, WHD_FALSE);
     ifp->role = WHD_INVALID_ROLE;
     return WHD_SUCCESS;
 }
@@ -1685,13 +1704,6 @@ static void *whd_wifi_scan_events_handler(whd_interface_t ifp, const whd_event_h
     version = dtoh32(WHD_READ_32(&bss_info->version) );
     whd_minor_assert("wl_bss_info_t has wrong version", version == WL_BSS_INFO_VERSION);
 
-    if (whd_driver->internal_info.whd_scan_result_ptr == NULL)
-    {
-        whd_driver->internal_info.scan_result_callback( (whd_scan_result_t **)event_data, handler_user_data,
-                                                        WHD_SCAN_INCOMPLETE );
-        return handler_user_data;
-    }
-
     /* PNO bss info doesn't contain the correct bss info version */
     if (version != WL_BSS_INFO_VERSION)
     {
@@ -1721,7 +1733,7 @@ static void *whd_wifi_scan_events_handler(whd_interface_t ifp, const whd_event_h
     }
 
     /* Safe to access *whd_scan_result_ptr, as whd_scan_result_ptr == NULL case is handled above */
-    record = (whd_scan_result_t *)(*whd_driver->internal_info.whd_scan_result_ptr);
+    record = (whd_scan_result_t *)(whd_driver->internal_info.whd_scan_result_ptr);
 
     /*
      * Totally ignore off channel results.  This can only happen with DSSS (1 and 2 Mb).  It is better to
@@ -1995,13 +2007,16 @@ static void *whd_wifi_scan_events_handler(whd_interface_t ifp, const whd_event_h
                      CHANSPEC_BAND_MASK) ) ==
           GET_C_VAR(whd_driver, CHANSPEC_BAND_2G) ? WHD_802_11_BAND_2_4GHZ : WHD_802_11_BAND_5GHZ );
 
-    whd_driver->internal_info.scan_result_callback(whd_driver->internal_info.whd_scan_result_ptr, handler_user_data,
+    whd_driver->internal_info.scan_result_callback(&whd_driver->internal_info.whd_scan_result_ptr, handler_user_data,
                                                    WHD_SCAN_INCOMPLETE);
-    if (*whd_driver->internal_info.whd_scan_result_ptr == NULL)
+
+    /* whd_driver->internal_info.scan_result_callback() can make whd_scan_result_ptr to NULL */
+    if (whd_driver->internal_info.whd_scan_result_ptr == NULL)
     {
-#if 0
-        whd_management_set_event_handler(scan_events, NULL, NULL);
-#endif /* if 0 */
+        whd_driver->internal_info.scan_result_callback(NULL, handler_user_data, WHD_SCAN_ABORTED);
+        whd_driver->internal_info.scan_result_callback = NULL;
+        whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_SCAN_EVENT_ENTRY]);
+        ifp->event_reg_list[WHD_SCAN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
     }
 
     return handler_user_data;
@@ -2106,7 +2121,7 @@ uint32_t whd_wifi_scan_synch(whd_interface_t ifp,
     memset(scan_result_ptr, 0, sizeof(whd_scan_result_t) );
 
     if (whd_wifi_scan(ifp, WHD_SCAN_TYPE_ACTIVE, WHD_BSS_TYPE_ANY, NULL, NULL, NULL, NULL,
-                      handler, (whd_scan_result_t **)&scan_result_ptr, &scan_userdata) != WHD_SUCCESS)
+                      handler, (whd_scan_result_t *)scan_result_ptr, &scan_userdata) != WHD_SUCCESS)
     {
         WPRINT_WHD_INFO( ("Failed scan \n") );
         goto error;
@@ -2153,7 +2168,7 @@ uint32_t whd_wifi_scan(whd_interface_t ifp,
                        const uint16_t *optional_channel_list,
                        const whd_scan_extended_params_t *optional_extended_params,
                        whd_scan_result_callback_t callback,
-                       whd_scan_result_t **result_ptr,
+                       whd_scan_result_t *result_ptr,
                        void *user_data
                        )
 {
@@ -2165,6 +2180,11 @@ uint32_t whd_wifi_scan(whd_interface_t ifp,
     uint16_t event_entry = 0xFF;
 
     whd_assert("Bad args", callback != NULL);
+
+    if ( (result_ptr == NULL) || (callback == NULL) )
+    {
+        return WHD_BADARG;
+    }
 
     if (!( (scan_type == WHD_SCAN_TYPE_ACTIVE) || (scan_type == WHD_SCAN_TYPE_PASSIVE) ||
            (scan_type == WHD_SCAN_TYPE_PROHIBITED_CHANNELS) || (scan_type == WHD_SCAN_TYPE_NO_BSSID_FILTER) ) )

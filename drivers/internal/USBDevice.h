@@ -22,6 +22,7 @@
 #include "USBDevice_Types.h"
 #include "USBPhy.h"
 #include "mbed_critical.h"
+#include "Callback.h"
 
 /**
  * \defgroup drivers_USBDevice USBDevice class
@@ -139,7 +140,7 @@ public:
     * @param callback Method pointer to be called when a packet is transferred
     * @returns true if successful, false otherwise
     */
-    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, ep_cb_t callback = NULL);
+    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, mbed::Callback<void()> callback = NULL);
 
     /**
     * Add an endpoint
@@ -153,7 +154,7 @@ public:
     template<typename T>
     bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, void (T::*callback)())
     {
-        return endpoint_add(endpoint, max_packet, type, static_cast<ep_cb_t>(callback));
+        return endpoint_add(endpoint, max_packet, type, mbed::callback(this, static_cast<ep_cb_t>(callback)));
     }
 
     /**
@@ -540,7 +541,7 @@ private:
     void _complete_set_interface();
 
     struct endpoint_info_t {
-        ep_cb_t callback;
+        mbed::Callback<void()> callback;
         uint16_t max_packet_size;
         uint16_t transfer_size;
         uint8_t flags;

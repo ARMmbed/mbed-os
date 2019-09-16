@@ -97,6 +97,7 @@ bool Mutex::trylock_for(uint32_t millisec)
 {
     osStatus status = osMutexAcquire(_id, millisec);
     if (status == osOK) {
+        _count++;
         return true;
     }
 

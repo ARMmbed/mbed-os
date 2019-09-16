@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v1.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the SHA method
@@ -24,13 +24,16 @@
 *******************************************************************************/
 
 
-#include "cy_crypto_common.h"
+#include "cy_crypto_core_sha_v1.h"
 
 #if defined(CY_IP_MXCRYPTO)
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if (CPUSS_CRYPTO_SHA == 1)
 
-#include "cy_crypto_core_sha_v1.h"
 #include "cy_crypto_core_hw_v1.h"
 #include "cy_crypto_core_mem_v1.h"
 #include "cy_syslib.h"
@@ -124,6 +127,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Sha_Init(CRYPTO_Type *base,
                              void *shaBuffers)
 {
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
+    
+    (void)base; /* Suppress warning */
 
     /* Initialization vectors for different modes of the SHA algorithm */
     #if (CPUSS_CRYPTO_SHA1 == 1)
@@ -592,8 +597,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Sha(CRYPTO_Type *base,
     return (tmpResult);
 }
 
-
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

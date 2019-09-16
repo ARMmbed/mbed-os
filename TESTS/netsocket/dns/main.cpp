@@ -160,7 +160,7 @@ static void net_bringup()
     net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: IP address is '%s'\n", net->get_ip_address());
+    printf("MBED: IP address is '%s'\n", net->get_ip_address() ? net->get_ip_address() : "null");
 }
 
 static void net_bringdown()
@@ -187,6 +187,7 @@ Case cases[] = {
     Case("ASYNCHRONOUS_DNS", ASYNCHRONOUS_DNS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS", ASYNCHRONOUS_DNS_SIMULTANEOUS),
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE", ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE),
+    Case("SYNCHRONOUS_DNS_CACHE", SYNCHRONOUS_DNS_CACHE),
 #ifndef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     Case("ASYNCHRONOUS_DNS_CACHE", ASYNCHRONOUS_DNS_CACHE),
 #endif

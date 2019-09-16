@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_hw.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the utils
@@ -27,6 +27,10 @@
 #include "cy_crypto_common.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "cy_crypto_core_hw.h"
 #include "cy_crypto_core_hw_vu.h"
@@ -208,6 +212,9 @@ void Cy_Crypto_Core_HwInit(void)
 *
 * \note This function sets the default device specific values
 *       when vuMemoryAddr parameter is NULL and vuMemorySize parameter is zero.
+*
+* \note New memory buffer should be allocated in a memory region that is not
+*       protected by a protection scheme for use by Crypto hardware.
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_SetVuMemoryAddress(CRYPTO_Type *base,
@@ -548,6 +555,10 @@ void Cy_Crypto_Core_InvertEndianness(void *inArrPtr, uint32_t byteSize)
 }
 
 /** \} group_crypto_lld_hw_functions */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

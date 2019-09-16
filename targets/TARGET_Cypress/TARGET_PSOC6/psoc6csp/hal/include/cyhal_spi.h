@@ -42,8 +42,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cy_result.h"
-#include "cyhal_implementation.h"
-#include "cyhal_hwmgr.h"
+#include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -72,20 +72,21 @@ extern "C" {
 
 /** \} group_hal_spi_macros */
 
+/** Compatibility define for cyhal_spi_set_frequency. */
+#define cyhal_spi_frequency cyhal_spi_set_frequency
 
 /** SPI interrupt triggers */
 typedef enum {
-    CYHAL_SPI_IRQ_NONE                = 0,      //!< Disable all interrupt call backs
     /** All transfer data has been moved into data FIFO */
     CYHAL_SPI_IRQ_DATA_IN_FIFO        = 1 << 1,
     /** Transfer complete. */
     CYHAL_SPI_IRQ_DONE                = 1 << 2,
     /** An error occurred while transferring data */
     CYHAL_SPI_IRQ_ERROR               = 1 << 3,
-} cyhal_spi_irq_event_t;
+} cyhal_spi_event_t;
 
 /** Handler for SPI interrupts */
-typedef void (*cyhal_spi_irq_handler_t)(void *handler_arg, cyhal_spi_irq_event_t event);
+typedef void (*cyhal_spi_event_callback_t)(void *callback_arg, cyhal_spi_event_t event);
 
 /** SPI operating modes */
 typedef enum
@@ -152,24 +153,27 @@ void cyhal_spi_free(cyhal_spi_t *obj);
  * Configures the SPI peripheral's baud rate
  * @param[in,out] obj The SPI object to configure
  * @param[in]     hz  The baud rate in Hz
- * @return The status of the frequency request
+ * @return The status of the set_frequency request
  */
-cy_rslt_t cyhal_spi_frequency(cyhal_spi_t *obj, uint32_t hz);
+cy_rslt_t cyhal_spi_set_frequency(cyhal_spi_t *obj, uint32_t hz);
 
 /** Get a received value out of the SPI receive buffer
  *
- * Blocks until a value is available
+ * In Master mode - transmits fill-in value and read the data from RxFifo
+ * In Slave mode - Blocks until a value is available
  * @param[in] obj   The SPI peripheral to read
  * @param[in] value The value received
  * @return The status of the read request
- * @note 
+ * @note
  * - In Master mode, MISO pin required to be non-NC for this API to operate
  * - In Slave mode, MOSI pin required to be non-NC for this API to operate
  */
-cy_rslt_t cyhal_spi_read(cyhal_spi_t *obj, uint32_t* value);
+cy_rslt_t cyhal_spi_recv(cyhal_spi_t *obj, uint32_t* value);
 
-/** Write a byte out
+/** Send a byte out
  *
+ * In Master mode transmits value to slave and read/drop a value from the RxFifo.
+ * In Slave mode writes a value to TxFifo
  * @param[in] obj   The SPI peripheral to use for sending
  * @param[in] value The value to send
  * @return The status of the write request
@@ -177,7 +181,7 @@ cy_rslt_t cyhal_spi_read(cyhal_spi_t *obj, uint32_t* value);
  * - In Master mode, MOSI pin required to be non-NC for this API to operate
  * - In Slave mode, MISO pin required to be non-NC for this API to operate
  */
-cy_rslt_t cyhal_spi_write(cyhal_spi_t *obj, uint32_t value);
+cy_rslt_t cyhal_spi_send(cyhal_spi_t *obj, uint32_t value);
 
 /** Write a block out and receive a value
  *
@@ -222,24 +226,39 @@ bool cyhal_spi_is_busy(cyhal_spi_t *obj);
  */
 cy_rslt_t cyhal_spi_abort_async(cyhal_spi_t *obj);
 
-/** The SPI interrupt handler registration
+/** The SPI callback handler registration
  *
  * @param[in] obj         The SPI object
- * @param[in] handler     The callback handler which will be invoked when the interrupt fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] callback     The callback handler which will be invoked when the interrupt fires
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
-void cyhal_spi_register_irq(cyhal_spi_t *obj, cyhal_spi_irq_handler_t handler, void *handler_arg);
+void cyhal_spi_register_callback(cyhal_spi_t *obj, cyhal_spi_event_callback_t callback, void *callback_arg);
 
 /** Configure SPI interrupt. This function is used for word-approach
  *
  * @param[in] obj      The SPI object
- * @param[in] event    The SPI IRQ type
+ * @param[in] event    The SPI event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
  * @param[in] enable   True to turn on interrupts, False to turn off
  */
-void cyhal_spi_irq_enable(cyhal_spi_t *obj, cyhal_spi_irq_event_t event, bool enable);
+void cyhal_spi_enable_event(cyhal_spi_t *obj, cyhal_spi_event_t event, uint8_t intrPriority, bool enable);
+
+/*******************************************************************************
+* Backward compatibility macro. The following code is DEPRECATED and must 
+* not be used in new projects
+*******************************************************************************/
+/** \cond INTERNAL */
+typedef cyhal_spi_event_t             cyhal_spi_irq_event_t;
+/** \endcond */
 
 /** \} group_hal_spi_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_SPI_IMPL_HEADER
+#include CYHAL_SPI_IMPL_HEADER
+#endif /* CYHAL_SPI_IMPL_HEADER */
+
+/** \} group_hal_spi */

@@ -34,7 +34,7 @@ extern "C" {
 void cy_gpio_irq_handler_impl(void *handler_arg, cyhal_gpio_irq_event_t event)
 {
     gpio_irq_t *obj = (gpio_irq_t *)handler_arg;
-    cyhal_gpio_irq_event_t masked = event & obj->mask;
+    cyhal_gpio_irq_event_t masked = (cyhal_gpio_irq_event_t)(event & obj->mask);
     void (*handler)(uint32_t, int) = (void (*)(uint32_t, int))obj->handler;
     if (NULL != handler && CYHAL_GPIO_IRQ_NONE != masked) {
         if (CYHAL_GPIO_IRQ_NONE != (masked & CYHAL_GPIO_IRQ_RISE)) {
@@ -80,7 +80,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     } else {
         bits = CYHAL_GPIO_IRQ_NONE;
     }
-    obj->mask = enable ? (obj->mask | bits) : (obj->mask & ~bits);
+    obj->mask = (cyhal_gpio_irq_event_t)(enable ? (obj->mask | bits) : (obj->mask & ~bits));
     cyhal_gpio_irq_enable(obj->pin, obj->mask, true);
 }
 

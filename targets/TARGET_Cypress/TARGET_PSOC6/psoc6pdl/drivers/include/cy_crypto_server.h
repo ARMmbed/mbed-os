@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_server.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the prototypes for common API
@@ -28,7 +28,6 @@
 #define CY_CRYPTO_SERVER_H
 
 #include "cy_crypto_common.h"
-#include "cy_syslib.h"
 
 #if defined(CY_IP_MXCRYPTO)
 

@@ -23,7 +23,7 @@ int mbed_printf(const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
@@ -41,7 +41,7 @@ int mbed_snprintf(char *buffer, size_t length, const char *format, ...)
 
 int mbed_vprintf(const char *format, va_list arguments)
 {
-    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
+    return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
 }
 
 int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list arguments)
@@ -49,7 +49,6 @@ int mbed_vsnprintf(char *buffer, size_t length, const char *format, va_list argu
     return mbed_minimal_formatted_string(buffer, length, format, arguments, NULL);
 }
 
-#if MBED_CONF_PLATFORM_MINIMAL_PRINTF_ENABLE_FILE_STREAM
 int mbed_fprintf(FILE *stream, const char *format, ...)
 {
     va_list arguments;
@@ -64,4 +63,3 @@ int mbed_vfprintf(FILE *stream, const char *format, va_list arguments)
 {
     return mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stream);
 }
-#endif

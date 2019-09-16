@@ -36,12 +36,13 @@
 #include "rtos/EventFlags.h"
 #include "rtos/ConditionVariable.h"
 
-/** \ingroup mbed-os-public */
-/** \addtogroup rtos-public-api */
-/** @{*/
+
+/** \defgroup rtos-public-api RTOS
+ * \ingroup mbed-os-public
+ */
+
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace rtos;
 #endif
-/** @}*/
 
 #endif

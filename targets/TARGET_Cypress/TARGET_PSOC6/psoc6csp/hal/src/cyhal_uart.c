@@ -24,9 +24,19 @@
 *******************************************************************************/
 
 #include <stdlib.h>
-#include "cyhal_implementation.h"
+#include "cyhal_uart.h"
+#include "cyhal_scb_common.h"
+#include "cyhal_gpio.h"
+#include "cyhal_interconnect.h"
+#include "cyhal_system_impl.h"
+#include "cyhal_hwmgr.h"
 
 #ifdef CY_IP_MXSCB
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 #define UART_OVERSAMPLE                 12UL
 #define UART_OVERSAMPLE_MIN             8UL
@@ -67,363 +77,24 @@ static const cy_stc_scb_uart_config_t default_uart_config = {
     .txFifoIntEnableMask        = 0x0UL
 };
 
-static cyhal_uart_irq_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause);
+static cyhal_uart_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause);
 
-static cyhal_uart_t *cyhal_uart_config_structs[CY_IP_MXSCB_INSTANCES];
-static cyhal_uart_irq_handler_t cyhal_uart_user_callbacks[CY_IP_MXSCB_INSTANCES];
-static void *cyhal_uart_callback_args[CY_IP_MXSCB_INSTANCES];
-
-static void cyhal_uart_0_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_1_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_2_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_3_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_4_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_5_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_6_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_7_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_8_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_9_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_10_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_11_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_12_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_13_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_14_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_15_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_16_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_17_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_18_cb_wrapper(uint32_t event) __attribute__((unused));
-static void cyhal_uart_19_cb_wrapper(uint32_t event) __attribute__((unused));
-
-static void cyhal_uart_0_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_1_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_2_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_3_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_4_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_5_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_6_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_7_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_8_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_9_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_10_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_11_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_12_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_13_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_14_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_15_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_16_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_17_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_18_irq_handler(void) __attribute__((unused));
-static void cyhal_uart_19_irq_handler(void) __attribute__((unused));
-
-static __INLINE  void cyhal_uart_cb_wrapper_indexed(uint32_t event, uint8_t idx)
+static void cyhal_uart_irq_handler(void)
 {
-    if (NULL != cyhal_uart_user_callbacks[idx])
+    cyhal_uart_t *obj = (cyhal_uart_t*) cyhal_scb_get_irq_obj();
+    Cy_SCB_UART_Interrupt(obj->base, &(obj->context));
+}
+
+static void cyhal_uart_cb_wrapper(uint32_t event)
+{
+    cyhal_uart_t *obj = (cyhal_uart_t*) cyhal_scb_get_irq_obj();
+    cyhal_uart_event_t anded_events = (cyhal_uart_event_t)(obj->irq_cause & (uint32_t)cyhal_convert_interrupt_cause(event));
+    if (anded_events)
     {
-        cyhal_uart_irq_event_t anded_events = (cyhal_uart_irq_event_t)(cyhal_uart_config_structs[idx]->irq_cause & (uint32_t)cyhal_convert_interrupt_cause(event));
-        if (anded_events)
-        {
-            cyhal_uart_user_callbacks[idx](cyhal_uart_callback_args[idx], anded_events);
-        }
+        cyhal_uart_event_callback_t callback = (cyhal_uart_event_callback_t) obj->callback_data.callback;
+        callback(obj->callback_data.callback_arg, anded_events);
     }
 }
-static void cyhal_uart_0_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 0);
-}
-static void cyhal_uart_1_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 1);
-}
-static void cyhal_uart_2_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 2);
-}
-static void cyhal_uart_3_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 3);
-}
-static void cyhal_uart_4_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 4);
-}
-static void cyhal_uart_5_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 5);
-}
-static void cyhal_uart_6_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 6);
-}
-static void cyhal_uart_7_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 7);
-}
-static void cyhal_uart_8_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 8);
-}
-static void cyhal_uart_9_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 9);
-}
-static void cyhal_uart_10_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 10);
-}
-static void cyhal_uart_11_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 11);
-}
-static void cyhal_uart_12_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 12);
-}
-static void cyhal_uart_13_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 13);
-}
-static void cyhal_uart_14_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 14);
-}
-static void cyhal_uart_15_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 15);
-}
-static void cyhal_uart_16_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 16);
-}
-static void cyhal_uart_17_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 17);
-}
-static void cyhal_uart_18_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 18);
-}
-static void cyhal_uart_19_cb_wrapper(uint32_t event)
-{
-    cyhal_uart_cb_wrapper_indexed(event, 19);
-}
-
-static void (*cyhal_uart_cb_wrapper_table[CY_IP_MXSCB_INSTANCES])(uint32_t event) =
-{
-#if (CY_IP_MXSCB_INSTANCES > 0)
-    cyhal_uart_0_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 1)
-    cyhal_uart_1_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 2)
-    cyhal_uart_2_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 3)
-    cyhal_uart_3_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 4)
-    cyhal_uart_4_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 5)
-    cyhal_uart_5_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 6)
-    cyhal_uart_6_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 7)
-    cyhal_uart_7_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 8)
-    cyhal_uart_8_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 9)
-    cyhal_uart_9_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 10)
-    cyhal_uart_10_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 11)
-    cyhal_uart_11_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 12)
-    cyhal_uart_12_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 13)
-    cyhal_uart_13_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 14)
-    cyhal_uart_14_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 15)
-    cyhal_uart_15_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 16)
-    cyhal_uart_16_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 17)
-    cyhal_uart_17_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 18)
-    cyhal_uart_18_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 19)
-    cyhal_uart_19_cb_wrapper,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 20)
-    #error "Unhandled scb count"
-#endif
-};
-
-static void cyhal_uart_interrupts_dispatcher_IRQHandler(uint32_t uart_num)
-{
-    Cy_SCB_UART_Interrupt(cyhal_uart_config_structs[uart_num]->base, &(cyhal_uart_config_structs[uart_num]->context));
-}
-static void cyhal_uart_0_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(0);
-}
-static void cyhal_uart_1_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(1);
-}
-static void cyhal_uart_2_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(2);
-}
-static void cyhal_uart_3_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(3);
-}
-static void cyhal_uart_4_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(4);
-}
-static void cyhal_uart_5_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(5);
-}
-static void cyhal_uart_6_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(6);
-}
-static void cyhal_uart_7_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(7);
-}
-static void cyhal_uart_8_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(8);
-}
-static void cyhal_uart_9_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(9);
-}
-static void cyhal_uart_10_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(10);
-}
-static void cyhal_uart_11_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(11);
-}
-static void cyhal_uart_12_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(12);
-}
-static void cyhal_uart_13_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(13);
-}
-static void cyhal_uart_14_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(14);
-}
-static void cyhal_uart_15_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(15);
-}
-static void cyhal_uart_16_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(16);
-}
-static void cyhal_uart_17_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(17);
-}
-static void cyhal_uart_18_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(18);
-}
-static void cyhal_uart_19_irq_handler(void)
-{
-    cyhal_uart_interrupts_dispatcher_IRQHandler(19);
-}
-static void (*cyhal_uart_interrupts_dispatcher_table[CY_IP_MXSCB_INSTANCES])(void) =
-{
-#if (CY_IP_MXSCB_INSTANCES > 0)
-    cyhal_uart_0_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 1)
-    cyhal_uart_1_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 2)
-    cyhal_uart_2_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 3)
-    cyhal_uart_3_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 4)
-    cyhal_uart_4_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 5)
-    cyhal_uart_5_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 6)
-    cyhal_uart_6_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 7)
-    cyhal_uart_7_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 8)
-    cyhal_uart_8_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 9)
-    cyhal_uart_9_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 10)
-    cyhal_uart_10_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 11)
-    cyhal_uart_11_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 12)
-    cyhal_uart_12_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 13)
-    cyhal_uart_13_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 14)
-    cyhal_uart_14_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 15)
-    cyhal_uart_15_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 16)
-    cyhal_uart_16_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 17)
-    cyhal_uart_17_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 18)
-    cyhal_uart_18_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 19)
-    cyhal_uart_19_irq_handler,
-#endif
-#if (CY_IP_MXSCB_INSTANCES > 20)
-    #error "Unhandled scb count"
-#endif
-};
 
 static cy_en_syspm_status_t cyhal_uart_pm_callback(cy_stc_syspm_callback_params_t *params, cy_en_syspm_callback_mode_t mode)
 {
@@ -551,8 +222,8 @@ cy_rslt_t cyhal_uart_init(cyhal_uart_t *obj, cyhal_gpio_t tx, cyhal_gpio_t rx, c
             obj->pin_rx = rx;
         }
     }
-    
-    obj->base = CY_SCB_BASE_ADDRESSES[obj->resource.block_num];
+
+    obj->base = CYHAL_SCB_BASE_ADDRESSES[obj->resource.block_num];
 
     if (result == CY_RSLT_SUCCESS)
     {
@@ -582,8 +253,7 @@ cy_rslt_t cyhal_uart_init(cyhal_uart_t *obj, cyhal_gpio_t tx, cyhal_gpio_t rx, c
         result = cyhal_connect_pin(tx_map);
     }
 
-    bool configured = cyhal_hwmgr_is_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
-    if (result == CY_RSLT_SUCCESS && !configured)
+    if (result == CY_RSLT_SUCCESS)
     {
         obj->config = default_uart_config;
 
@@ -601,7 +271,7 @@ cy_rslt_t cyhal_uart_init(cyhal_uart_t *obj, cyhal_gpio_t tx, cyhal_gpio_t rx, c
             {
                 Cy_SCB_UART_StartRingBuffer(obj->base, cfg->rx_buffer, cfg->rx_buffer_size, &(obj->context));
             }
-        }        
+        }
 
         obj->pm_params.base = obj->base;
         obj->pm_params.context = obj;
@@ -614,18 +284,22 @@ cy_rslt_t cyhal_uart_init(cyhal_uart_t *obj, cyhal_gpio_t tx, cyhal_gpio_t rx, c
         if (!Cy_SysPm_RegisterCallback(&(obj->pm_callback)))
             result = CYHAL_UART_RSLT_ERR_PM_CALLBACK;
 
-        cyhal_hwmgr_set_configured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
-    }
+        obj->callback_data.callback = NULL;
+        obj->callback_data.callback_arg = NULL;
+        obj->irq_cause = CYHAL_UART_IRQ_NONE;
+        cyhal_scb_config_structs[obj->resource.block_num] = obj;
 
-    if (result == CY_RSLT_SUCCESS)
-    {
+        cy_stc_sysint_t irqCfg = { CYHAL_SCB_IRQ_N[obj->resource.block_num], CYHAL_ISR_PRIORITY_DEFAULT };
+        Cy_SysInt_Init(&irqCfg, cyhal_uart_irq_handler);
+        NVIC_EnableIRQ(CYHAL_SCB_IRQ_N[obj->resource.block_num]);
+
         if (obj->is_user_clock)
         {
             Cy_SCB_UART_Enable(obj->base);
         }
         else
         {
-            result = cyhal_uart_baud(obj, CYHAL_UART_DEFAULT_BAUD, NULL);
+            result = cyhal_uart_set_baud(obj, CYHAL_UART_DEFAULT_BAUD, NULL);
         }
     }
 
@@ -640,10 +314,11 @@ void cyhal_uart_free(cyhal_uart_t *obj)
 {
     CY_ASSERT(NULL != obj);
 
-
     if (obj->resource.type != CYHAL_RSC_INVALID)
     {
-        cyhal_hwmgr_set_unconfigured(obj->resource.type, obj->resource.block_num, obj->resource.channel_num);
+        IRQn_Type irqn = CYHAL_SCB_IRQ_N[obj->resource.block_num];
+        NVIC_DisableIRQ(irqn);
+
         cyhal_hwmgr_free(&(obj->resource));
         Cy_SysPm_UnregisterCallback(&(obj->pm_callback));
     }
@@ -685,7 +360,7 @@ static uint32_t cyhal_uart_baud_perdif(uint32_t desired_baud, uint32_t actual_ba
     {
         perdif = ((desired_baud * 100) - (actual_baud * 100)) / desired_baud;
     }
-    
+
     return perdif;
 }
 
@@ -716,7 +391,7 @@ static uint8_t cyhal_uart_best_oversample(uint32_t baudrate)
     return best_oversample;
 }
 
-cy_rslt_t cyhal_uart_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actualbaud)
+cy_rslt_t cyhal_uart_set_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actualbaud)
 {
     cy_rslt_t status;
     uint8_t oversample_value;
@@ -732,14 +407,14 @@ cy_rslt_t cyhal_uart_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actual
     divider = cyhal_divider_value(baudrate * oversample_value, 0);
 
     /* Set baud rate */
-    if ((obj->clock.div_type == CY_SYSCLK_DIV_16_5_BIT) || (obj->clock.div_type == CY_SYSCLK_DIV_24_5_BIT)) 
+    if ((obj->clock.div_type == CY_SYSCLK_DIV_16_5_BIT) || (obj->clock.div_type == CY_SYSCLK_DIV_24_5_BIT))
     {
         status = (cy_rslt_t) Cy_SysClk_PeriphSetFracDivider(obj->clock.div_type,
                                                 obj->clock.div_num,
                                                 divider, 0U);
 
-    } 
-    else 
+    }
+    else
     {
         status = (cy_rslt_t) Cy_SysClk_PeriphSetDivider(obj->clock.div_type,
                                             obj->clock.div_num,
@@ -764,7 +439,7 @@ cy_rslt_t cyhal_uart_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actual
     return status;
 }
 
-cy_rslt_t cyhal_uart_format(cyhal_uart_t *obj, const cyhal_uart_cfg_t *cfg)
+cy_rslt_t cyhal_uart_configure(cyhal_uart_t *obj, const cyhal_uart_cfg_t *cfg)
 {
     CY_ASSERT(NULL != obj);
     CY_ASSERT(NULL != cfg);
@@ -794,7 +469,7 @@ cy_rslt_t cyhal_uart_getc(cyhal_uart_t *obj, uint8_t *value, uint32_t timeout)
             else
             {
                 return CY_RSLT_ERR_CSP_UART_GETC_TIMEOUT;
-            }            
+            }
         }
         read_value = Cy_SCB_UART_Get(obj->base);
     }
@@ -842,21 +517,24 @@ cy_rslt_t cyhal_uart_clear(cyhal_uart_t *obj)
 
 cy_rslt_t cyhal_uart_set_flow_control(cyhal_uart_t *obj, cyhal_gpio_t cts, cyhal_gpio_t rts)
 {
-    cy_rslt_t result;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
     cyhal_resource_inst_t pin_rsc;
 
     if (cts != obj->pin_cts)
     {
         if (NC == cts)
         {
-            result = cyhal_disconnect_pin(cts);
-
-            if (CY_RSLT_SUCCESS == result)
+            if(obj->pin_cts != NC)
             {
-                Cy_SCB_UART_DisableCts(obj->base);
+                result = cyhal_disconnect_pin(obj->pin_cts);
 
-                pin_rsc = cyhal_utils_get_gpio_resource(cts);
-                cyhal_hwmgr_free(&pin_rsc);
+                if (CY_RSLT_SUCCESS == result)
+                {
+                    Cy_SCB_UART_DisableCts(obj->base);
+
+                    pin_rsc = cyhal_utils_get_gpio_resource(obj->pin_cts);
+                    cyhal_hwmgr_free(&pin_rsc);
+                }
             }
         }
         else
@@ -888,12 +566,15 @@ cy_rslt_t cyhal_uart_set_flow_control(cyhal_uart_t *obj, cyhal_gpio_t cts, cyhal
     {
         if (NC == rts)
         {
-            result = cyhal_disconnect_pin(rts);
-
-            if (CY_RSLT_SUCCESS == result)
+            if(obj->pin_rts != NC)
             {
-                pin_rsc = cyhal_utils_get_gpio_resource(rts);
-                cyhal_hwmgr_free(&pin_rsc);
+                result = cyhal_disconnect_pin(obj->pin_rts);
+
+                if (CY_RSLT_SUCCESS == result)
+                {
+                    pin_rsc = cyhal_utils_get_gpio_resource(obj->pin_rts);
+                    cyhal_hwmgr_free(&pin_rsc);
+                }
             }
         }
         else
@@ -923,19 +604,19 @@ cy_rslt_t cyhal_uart_set_flow_control(cyhal_uart_t *obj, cyhal_gpio_t cts, cyhal
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_uart_tx(cyhal_uart_t *obj, void *tx, size_t *tx_length)
+cy_rslt_t cyhal_uart_write(cyhal_uart_t *obj, void *tx, size_t *tx_length)
 {
     *tx_length = Cy_SCB_UART_PutArray(obj->base, tx, *tx_length);
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_uart_rx(cyhal_uart_t *obj, void *rx, size_t *rx_length)
+cy_rslt_t cyhal_uart_read(cyhal_uart_t *obj, void *rx, size_t *rx_length)
 {
     *rx_length = Cy_SCB_UART_GetArray(obj->base, rx, *rx_length);
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_uart_tx_async(cyhal_uart_t *obj, void *tx, size_t length)
+cy_rslt_t cyhal_uart_write_async(cyhal_uart_t *obj, void *tx, size_t length)
 {
     cy_en_scb_uart_status_t uart_status = Cy_SCB_UART_Transmit(obj->base, tx, length, &(obj->context));
     return uart_status == CY_SCB_UART_SUCCESS
@@ -943,7 +624,7 @@ cy_rslt_t cyhal_uart_tx_async(cyhal_uart_t *obj, void *tx, size_t length)
         : CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_UART, 0);
 }
 
-cy_rslt_t cyhal_uart_rx_async(cyhal_uart_t *obj, void *rx, size_t length)
+cy_rslt_t cyhal_uart_read_async(cyhal_uart_t *obj, void *rx, size_t length)
 {
     cy_en_scb_uart_status_t uart_status = Cy_SCB_UART_Receive(obj->base, rx, length, &(obj->context));
     return uart_status == CY_SCB_UART_SUCCESS
@@ -961,21 +642,21 @@ bool cyhal_uart_is_rx_active(cyhal_uart_t *obj)
     return (0UL != (obj->context.rxStatus & CY_SCB_UART_RECEIVE_ACTIVE));
 }
 
-cy_rslt_t cyhal_uart_tx_abort(cyhal_uart_t *obj)
+cy_rslt_t cyhal_uart_write_abort(cyhal_uart_t *obj)
 {
     Cy_SCB_UART_AbortTransmit(obj->base, &(obj->context));
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cyhal_uart_rx_abort(cyhal_uart_t *obj)
+cy_rslt_t cyhal_uart_read_abort(cyhal_uart_t *obj)
 {
     Cy_SCB_UART_AbortReceive(obj->base, &(obj->context));
     return CY_RSLT_SUCCESS;
 }
 
-static cyhal_uart_irq_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause)
+static cyhal_uart_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause)
 {
-    cyhal_uart_irq_event_t cause;
+    cyhal_uart_event_t cause;
     switch (pdl_cause)
     {
         case CY_SCB_UART_TRANSMIT_IN_FIFO_EVENT:
@@ -1009,24 +690,18 @@ static cyhal_uart_irq_event_t cyhal_convert_interrupt_cause(uint32_t pdl_cause)
     return cause;
 }
 
-void cyhal_uart_register_irq(cyhal_uart_t *obj, cyhal_uart_irq_handler_t handler, void *handler_arg)
+void cyhal_uart_register_callback(cyhal_uart_t *obj, cyhal_uart_event_callback_t callback, void *callback_arg)
 {
-    uint8_t idx = obj->resource.block_num;
-    cyhal_uart_config_structs[idx] = obj;
-    cyhal_uart_user_callbacks[idx] = handler;
-    cyhal_uart_callback_args[idx] = handler_arg;
-    Cy_SCB_UART_RegisterCallback(obj->base, cyhal_uart_cb_wrapper_table[idx], &(obj->context));
-    if (NVIC_GetEnableIRQ(CY_SCB_IRQ_N[idx]) == 0)
-    {
-        // default interrupt priority of 7 (lowest possible priority).
-        cy_stc_sysint_t irqCfg = {CY_SCB_IRQ_N[idx], 7u};
+    uint32_t savedIntrStatus = cyhal_system_critical_section_enter();
+    obj->callback_data.callback = (cy_israddress) callback;
+    obj->callback_data.callback_arg = callback_arg;
+    cyhal_system_critical_section_exit(savedIntrStatus);
+    Cy_SCB_UART_RegisterCallback(obj->base, cyhal_uart_cb_wrapper, &(obj->context));
 
-        Cy_SysInt_Init(&irqCfg, cyhal_uart_interrupts_dispatcher_table[idx]);
-        NVIC_EnableIRQ(CY_SCB_IRQ_N[idx]);
-    }
+    obj->irq_cause = CYHAL_UART_IRQ_NONE;
 }
 
-void cyhal_uart_irq_enable(cyhal_uart_t *obj, cyhal_uart_irq_event_t event, bool enable)
+void cyhal_uart_enable_event(cyhal_uart_t *obj, cyhal_uart_event_t event, uint8_t intrPriority, bool enable)
 {
     if (enable)
     {
@@ -1052,6 +727,12 @@ void cyhal_uart_irq_enable(cyhal_uart_t *obj, cyhal_uart_irq_event_t event, bool
             Cy_SCB_SetTxInterruptMask(obj->base, Cy_SCB_GetTxInterruptMask(obj->base) & ~CY_SCB_UART_TX_EMPTY);
         }
     }
+
+    NVIC_SetPriority(CYHAL_SCB_IRQ_N[obj->resource.block_num], intrPriority);
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXSCB */

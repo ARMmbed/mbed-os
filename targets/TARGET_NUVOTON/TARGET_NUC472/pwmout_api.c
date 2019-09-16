@@ -68,20 +68,19 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->pwm);
-    
-    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
-    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-    }
-    
-    PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
+
+    obj->pin = pin;
+
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_PWM);
+
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
-        
+
     // NOTE: Channels 0/1, 2/3, and 4/5 share a clock source.
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & (0x3 << (chn / 2 * 2))) == 0) {
         // Select clock source of paired channels
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
         
@@ -90,10 +89,15 @@ void pwmout_init(pwmout_t* obj, PinName pin)
             CLK_EnableModuleClock(PWM1CH01_MODULE);
         }
     }
-    
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_PWM);
-    
+
+    // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
+    if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
+    }
+
+    PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
+
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
@@ -146,6 +150,10 @@ void pwmout_free(pwmout_t* obj)
     // Mark this module to be deinited.
     int i = modinit - pwm_modinit_tab;
     pwm_modinit_mask &= ~(1 << i);
+    
+    // Free up pins
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 void pwmout_write(pwmout_t* obj, float value)

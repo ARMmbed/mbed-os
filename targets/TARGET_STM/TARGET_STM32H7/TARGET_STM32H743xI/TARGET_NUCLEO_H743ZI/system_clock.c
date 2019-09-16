@@ -96,28 +96,14 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-    __HAL_RCC_SYSCFG_CLK_ENABLE(); // Mandatory for I/O Compensation Cell
-    MODIFY_REG(PWR->CR3, PWR_CR3_SCUEN, 0);
-
-
-    /*!< Supply configuration update enable */
-    // HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
-    /* The voltage scaling allows optimizing the power consumption when the device is
-    clocked below the maximum system frequency, to update the voltage scaling value
-    regarding system frequency refer to product datasheet.  */
+    /* Supply configuration update enable */
+    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+    /* Configure the main internal regulator output voltage */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
-    // NEEDED ???
-    /* Select CSI as system clock source to allow modification of the PLL configuration */
-    //RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-    //RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_CSI;
-    //if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-    //    return 0; // FAIL
-    //}
+    while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
     /* Enable HSE Oscillator and activate PLL with HSE as source */
-    //RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
     if (bypass) {
         RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
@@ -160,19 +146,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
-
-    /* Disable CSI Oscillator */
-    //RCC_OscInitStruct.OscillatorType  = RCC_OSCILLATORTYPE_CSI;
-    //RCC_OscInitStruct.CSIState        = RCC_CSI_OFF;
-    //RCC_OscInitStruct.PLL.PLLState    = RCC_PLL_NONE;
-    //if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-    //    return 0;
-    //}
-
-    // NEEDED ???
-    /* Enables the I/O Compensation Cell */
-    // __HAL_RCC_CSI_ENABLE(); // Mandatory for I/O Compensation Cell
-    // HAL_EnableCompensationCell();
 
     return 1; // OK
 }

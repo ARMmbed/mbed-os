@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io.c
-* \version 2.0
+* \version 2.10
 *
 * Provides data transfer API implementation of the USBFS driver.
 *

@@ -31,7 +31,7 @@ extern "C" {
 static cyhal_lptimer_t cy_lptimer0;
 static bool cy_lptimer_initialized = false;
 
-static void cy_lp_ticker_handler(MBED_UNUSED void *unused1, MBED_UNUSED cyhal_lptimer_irq_event_t unused2)
+static void cy_lp_ticker_handler(MBED_UNUSED void *unused1, MBED_UNUSED cyhal_lptimer_event_t unused2)
 {
     lp_ticker_irq_handler();
 }
@@ -46,7 +46,7 @@ void lp_ticker_init(void)
         cy_lptimer_initialized = true;
     }
     lp_ticker_disable_interrupt();
-    cyhal_lptimer_register_irq(&cy_lptimer0, &cy_lp_ticker_handler, NULL);
+    cyhal_lptimer_register_callback(&cy_lptimer0, &cy_lp_ticker_handler, NULL);
 }
 
 void lp_ticker_free(void)
@@ -62,15 +62,17 @@ uint32_t lp_ticker_read(void)
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    if (CY_RSLT_SUCCESS != cyhal_lptimer_set_match(&cy_lptimer0, timestamp)) {
+    uint32_t delay;
+    delay = (uint32_t)timestamp - cyhal_lptimer_read(&cy_lptimer0);
+
+    if (CY_RSLT_SUCCESS != cyhal_lptimer_set_match(&cy_lptimer0, delay)) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_lptimer_set_time");
     }
-    cyhal_lptimer_irq_enable(&cy_lptimer0, CYHAL_LPTIMER_COMPARE_MATCH, true);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
-    cyhal_lptimer_irq_enable(&cy_lptimer0, CYHAL_LPTIMER_COMPARE_MATCH, false);
+    cyhal_lptimer_enable_event(&cy_lptimer0, CYHAL_LPTIMER_COMPARE_MATCH, CYHAL_ISR_PRIORITY_DEFAULT, false);
 }
 
 void lp_ticker_clear_interrupt(void)
@@ -87,7 +89,7 @@ const ticker_info_t *lp_ticker_get_info(void)
 {
     static const ticker_info_t info = {
         /* .frequency = */ CY_CFG_SYSCLK_CLKLF_FREQ_HZ,
-        /* .bits =      */ 16
+        /* .bits =      */ 32
     };
     return &info;
 }

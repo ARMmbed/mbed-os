@@ -29,7 +29,7 @@
 * \addtogroup group_hal_timer TIMER (Timer/Counter)
 * \ingroup group_hal
 * \{
-* High level interface for interacting with the Cypress GPIO.
+* High level interface for interacting with the Cypress Timer.
 *
 * \defgroup group_hal_timer_macros Macros
 * \defgroup group_hal_timer_functions Functions
@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -61,13 +62,13 @@ typedef enum
     CYHAL_TIMER_DIR_UP_DOWN, //!< Counts up and down, terminal count occurs on both overflow and underflow.
 } cyhal_timer_direction_t;
 
-/** Timer interrupt triggers */
+/** Timer/counter interrupt triggers */
 typedef enum {
-    CYHAL_TIMER_IRQ_NONE,
-    CYHAL_TIMER_IRQ_TERMINAL_COUNT,
-    CYHAL_TIMER_IRQ_CAPTURE_COMPARE,
-    CYHAL_TIMER_IRQ_ALL,
-} cyhal_timer_irq_event_t;
+    CYHAL_TIMER_IRQ_NONE            =  0,
+    CYHAL_TIMER_IRQ_TERMINAL_COUNT  =  1 << 0,
+    CYHAL_TIMER_IRQ_CAPTURE_COMPARE =  1 << 1,
+    CYHAL_TIMER_IRQ_ALL             = (1 << 2) - 1,
+} cyhal_timer_event_t;
 
 /** \} group_hal_timer_enums */
 
@@ -93,25 +94,30 @@ typedef struct
     uint32_t value; //!< Current value of the timer/counter
 } cyhal_timer_cfg_t;
 
-/** Handler for test interrupts */
-typedef void (*cyhal_timer_irq_handler_t)(void *handler_arg, cyhal_timer_irq_event_t event);
+/** Handler for timer events */
+typedef void(*cyhal_timer_event_callback_t)(void *callback_arg, cyhal_timer_event_t event);
 
 /** \} group_hal_timer_data_structures */
 
 
 /**
-* \addtogroup group_hal_hwmgr_macros
+* \addtogroup group_hal_timer_macros
 * \{
 */
 
 /** Bad argument. eg: null pointer */
 #define CYHAL_TIMER_RSLT_ERR_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 0))
 /** Failed to initialize Timer clock */
-#define CYHAL_TIMER_RSLT_ERR_CLOCK (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 1))
+#define CYHAL_TIMER_RSLT_ERR_CLOCK_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 1))
 /** Failed to initialize Timer */
 #define CYHAL_TIMER_RSLT_ERR_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 2))
+/** Cannot change the timer frequency when a shared clock divider is in use */
+#define CYHAL_TIMER_RSLT_ERR_SHARED_CLOCK (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 3))
 
-/** \} group_hal_hwmgr_macros */
+/** Default timer frequency, used when an existing clock divider is not provided to init */
+#define CYHAL_TIMER_DEFAULT_FREQ (1000000u)
+
+/** \} group_hal_timer_macros */
 
 
 /**
@@ -119,11 +125,12 @@ typedef void (*cyhal_timer_irq_handler_t)(void *handler_arg, cyhal_timer_irq_eve
 * \{
 */
 
-/** Initialize the timer/counter peripheral and configure the pin
+/** Initialize the timer/counter peripheral and configure the pin.
  *
  * @param[out] obj The timer/counter object to initialize
  * @param[in]  pin optional - The timer/counter compare/capture pin to initialize
  * @param[in]  clk optional - The shared clock to use, if not provided a new clock will be allocated
+ *                  and the timer frequency will be set to CYHAL_TIMER_DEFAULT_FREQ
  * @return The status of the init request
  */
 cy_rslt_t cyhal_timer_init(cyhal_timer_t *obj, cyhal_gpio_t pin, const cyhal_clock_divider_t *clk);
@@ -138,9 +145,18 @@ void cyhal_timer_free(cyhal_timer_t *obj);
  *
  * @param[in] obj  The timer/counter object
  * @param[in] cfg  The configuration of the timer/counter
- * @return The status of the info request
+ * @return The status of the configure request
  */
-cy_rslt_t cyhal_timer_set_config(cyhal_timer_t *obj, const cyhal_timer_cfg_t *cfg);
+cy_rslt_t cyhal_timer_configure(cyhal_timer_t *obj, const cyhal_timer_cfg_t *cfg);
+
+/** Configures the timer frequency. This is not valid to call if a non-null clock divider 
+ *  was provided to cyhal_timer_init
+ *
+ * @param[in] obj  The timer/counter object
+ * @param[in] hz   The frequency rate in Hz
+ * @return The status of the set_frequency request
+ */
+cy_rslt_t cyhal_timer_set_frequency(cyhal_timer_t *obj, uint32_t hz);
 
 /** Starts the timer/counter with the pre-set configuration.
  *
@@ -156,27 +172,31 @@ cy_rslt_t cyhal_timer_start(cyhal_timer_t *obj);
  */
 cy_rslt_t cyhal_timer_stop(cyhal_timer_t *obj);
 
-/** The timer/counter interrupt handler registration
+/** The timer/counter callback handler registration
  *
- * @param[in] obj         The timer/counter object
- * @param[in] priority    The NVIC interrupt channel priority
- * @param[in] handler     The callback handler which will be invoked when the interrupt fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] obj          The timer/counter object
+ * @param[in] callback     The callback handler which will be invoked when the event occurs
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
-void cyhal_timer_register_irq(cyhal_timer_t *obj, uint8_t priority, cyhal_timer_irq_handler_t handler, void *handler_arg);
+void cyhal_timer_register_callback(cyhal_timer_t *obj, cyhal_timer_event_callback_t callback, void *callback_arg);
 
-/** Configure timer/counter interrupt enablement.
+/** Configure timer/counter event enablement.
  *
- * @param[in] obj      The timer/counter object
- * @param[in] event    The timer/counter IRQ type
- * @param[in] enable   True to turn on interrupts, False to turn off
+ * @param[in] obj           The timer/counter object
+ * @param[in] event         The timer/counter event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_timer_irq_enable(cyhal_timer_t *obj, cyhal_timer_irq_event_t event, bool enable);
+void cyhal_timer_enable_event(cyhal_timer_t *obj, cyhal_timer_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_timer_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_TIMER_IMPL_HEADER
+#include CYHAL_TIMER_IMPL_HEADER
+#endif /* CYHAL_TIMER_IMPL_HEADER */
 
 /** \} group_hal_timer */

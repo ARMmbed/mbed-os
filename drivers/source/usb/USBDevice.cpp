@@ -616,7 +616,7 @@ bool USBDevice::_request_setup()
     bool success = false;
 
     /* Process standard requests */
-    if ((_transfer.setup.bmRequestType.Type == STANDARD_TYPE)) {
+    if (_transfer.setup.bmRequestType.Type == STANDARD_TYPE) {
         switch (_transfer.setup.bRequest) {
             case GET_STATUS:
                 success = _request_get_status();
@@ -937,7 +937,7 @@ void USBDevice::out(usb_ep_t endpoint)
     MBED_ASSERT(info->pending >= 1);
     info->pending -= 1;
     if (info->callback) {
-        (this->*(info->callback))();
+        info->callback();
     }
 }
 
@@ -955,7 +955,7 @@ void USBDevice::in(usb_ep_t endpoint)
     MBED_ASSERT(info->pending >= 1);
     info->pending -= 1;
     if (info->callback) {
-        (this->*(info->callback))();
+        info->callback();
     }
 }
 
@@ -1051,7 +1051,7 @@ void USBDevice::sof_disable()
     unlock();
 }
 
-bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep_type_t type, ep_cb_t callback)
+bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep_type_t type, mbed::Callback<void()> callback)
 {
     lock();
 
@@ -1272,6 +1272,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _current_alternate = 0;
     _locked = 0;
     _post_process = NULL;
+    _max_packet_size_ep0 = 0;
 
     /* Set initial device state */
     _device.state = Powered;

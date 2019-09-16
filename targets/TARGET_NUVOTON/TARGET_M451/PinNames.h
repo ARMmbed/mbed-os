@@ -76,10 +76,31 @@ typedef enum {
     
     // Generic naming
     PA_0    = NU_PORT_N_PIN_TO_PINNAME(0, 0), PA_1, PA_2, PA_3, PA_4, PA_5, PA_6, PA_7, PA_8, PA_9, PA_10, PA_11, PA_12, PA_13, PA_14, PA_15,
+
+#if defined(TARGET_M45xD_M45xC)
+    PB_0    = NU_PORT_N_PIN_TO_PINNAME(1, 0), PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7, PB_8, PB_11 = PB_8 + 3, PB_12, PB_13, PB_14, PB_15,
+#elif defined(TARGET_M45xG_M45xE)
     PB_0    = NU_PORT_N_PIN_TO_PINNAME(1, 0), PB_1, PB_2, PB_3, PB_4, PB_5, PB_6, PB_7, PB_8, PB_9, PB_10, PB_11, PB_12, PB_13, PB_14, PB_15,
+#endif
+
+#if defined(TARGET_M45xD_M45xC)
+    PC_0    = NU_PORT_N_PIN_TO_PINNAME(2, 0), PC_1, PC_2, PC_3, PC_4, PC_5, PC_6, PC_7, PC_8, PC_10 = PC_8 + 2, PC_11, PC_12, PC_13,
+#elif defined(TARGET_M45xG_M45xE)
     PC_0    = NU_PORT_N_PIN_TO_PINNAME(2, 0), PC_1, PC_2, PC_3, PC_4, PC_5, PC_6, PC_7, PC_8, PC_9, PC_10, PC_11, PC_12, PC_13, PC_14, PC_15,
+#endif
+
+#if defined(TARGET_M45xD_M45xC)
+    PD_0    = NU_PORT_N_PIN_TO_PINNAME(3, 0), PD_1, PD_2, PD_3, PD_4, PD_5, PD_6, PD_7, PD_8, PD_9, PD_12 = PD_9 + 3, PD_13, PD_14, PD_15,
+#elif defined(TARGET_M45xG_M45xE)
     PD_0    = NU_PORT_N_PIN_TO_PINNAME(3, 0), PD_1, PD_2, PD_3, PD_4, PD_5, PD_6, PD_7, PD_8, PD_9, PD_10, PD_11, PD_12, PD_13, PD_14, PD_15,
+#endif
+
+#if defined(TARGET_M45xD_M45xC)
+    PE_0    = NU_PORT_N_PIN_TO_PINNAME(4, 0), PE_1, PE_3 = PE_1 + 2, PE_4, PE_5, PE_8 = PE_5 + 3, PE_9, PE_10, PE_11, PE_12, PE_13,
+#elif defined(TARGET_M45xG_M45xE)
     PE_0    = NU_PORT_N_PIN_TO_PINNAME(4, 0), PE_1, PE_2, PE_3, PE_4, PE_5, PE_6, PE_7, PE_8, PE_9, PE_10, PE_11, PE_12, PE_13, PE_14,
+#endif
+    
     PF_0    = NU_PORT_N_PIN_TO_PINNAME(5, 0), PF_1, PF_2, PF_3, PF_4, PF_5, PF_6, PF_7,
     
     // Arduino UNO naming
@@ -133,6 +154,9 @@ typedef enum {
     SW3 = PA_14,
     BUTTON1 = SW2,
     BUTTON2 = SW3,
+
+    // Force PinName to 32-bit required by NU_PINNAME_BIND(...)
+    FORCE_ENUM_PINNAME_32BIT = 0x7FFFFFFF,
 
 } PinName;
 

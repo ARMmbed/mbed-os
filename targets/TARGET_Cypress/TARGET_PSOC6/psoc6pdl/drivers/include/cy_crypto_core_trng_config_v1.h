@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_trng_config_v1.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides internal (not public) constants and parameters
@@ -28,6 +28,10 @@
 #define CY_CRYPTO_CORE_TRNG_CONFIG_V1_H
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #if (CPUSS_CRYPTO_TR == 1)
 
@@ -214,6 +218,8 @@
                                   _VAL2FLD(CRYPTO_TR_CTL1_FIRO15_EN, CY_CRYPTO_V1_TR_FIRO15_EN) | \
                                   _VAL2FLD(CRYPTO_TR_CTL1_FIRO31_EN, CY_CRYPTO_V1_TR_FIRO31_EN))
 
+#define CY_CRYPTO_V1_TR_CTL1_DISABLE_VAL      (0UL)
+
 /** The composed value for the TR_MON_CTL register */
 #define CY_CRYPTO_V1_TR_BTSTR_SEL    (_VAL2FLD(CRYPTO_TR_MON_CTL_BITSTREAM_SEL, CY_CRYPTO_V1_TR_BITSTREAM_SEL))
 
@@ -230,6 +236,10 @@
 
 
 #endif /* #if (CPUSS_CRYPTO_TR == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

@@ -48,8 +48,9 @@
 * * TN - A twisted nematic LCD glass.
 * * STN - A super-twisted nematic LCD glass.
 * * Display - A block of homogeneous symbols on an LCD glass
-*   intended to indicate a multi-digital number or string.
+*   intended to indicate a multi-digital number or character string.
 *   A few displays are possible whithin a single LCD glass.
+* * Symbol - A block of pixels on an LCD glass intended to indicate only digit or character.
 * * Pixel - A unity LCD displaying item with a binary state (on/off).
 *   It can be a segment of e.g. the 7-segment symbol (therefore may be called "segment"),
 *   a pixel of the matrix display, or a standalone arbitrarily-shaped display element.

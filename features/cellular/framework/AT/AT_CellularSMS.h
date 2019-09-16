@@ -39,7 +39,8 @@ public:
 public:
     // from CellularSMS
 
-    virtual nsapi_error_t initialize(CellularSMSMmode mode);
+    virtual nsapi_error_t initialize(CellularSMSMmode mode,
+                                     CellularSMSEncoding encoding = CellularSMSEncoding7Bit);
 
     virtual nsapi_size_or_error_t send_sms(const char *phone_number, const char *message, int msg_len);
 

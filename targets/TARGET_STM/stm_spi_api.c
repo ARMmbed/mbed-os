@@ -494,9 +494,8 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     int total = (tx_length > rx_length) ? tx_length : rx_length;
-    int i = 0;
     if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
-        for (i = 0; i < total; i++) {
+        for (int i = 0; i < total; i++) {
             char out = (i < tx_length) ? tx_buffer[i] : write_fill;
             char in = spi_master_write(obj, out);
             if (i < rx_length) {
@@ -661,7 +660,7 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
         case SPI_TRANSFER_TYPE_RX:
             // the receive function also "transmits" the receive buffer so in order
             // to guarantee that 0xff is on the line, we explicitly memset it here
-            memset(rx, SPI_FILL_WORD, length);
+            memset(rx, SPI_FILL_CHAR, length);
             rc = HAL_SPI_Receive_IT(handle, (uint8_t *)rx, words);
             break;
         default:

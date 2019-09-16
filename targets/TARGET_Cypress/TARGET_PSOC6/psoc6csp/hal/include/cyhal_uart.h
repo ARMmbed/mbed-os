@@ -43,6 +43,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -55,13 +56,13 @@ extern "C" {
 
 /** The requested resource type is invalid */
 #define CYHAL_UART_RSLT_ERR_INVALID_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_UART, 0))
-/** Failed to confiugre power management callback */
+/** Failed to configure power management callback */
 #define CYHAL_UART_RSLT_ERR_PM_CALLBACK (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_UART, 1))
 /** The getc call timed out with no received data */
 #define CY_RSLT_ERR_CSP_UART_GETC_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_UART, 2))
 /** The actual baud rate is greater than 10% off the requested baud rate */
 #define CY_RSLT_WRN_CSP_UART_BAUD_TOLERANCE (CY_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_UART, 3))
-/** The baud rate to set to if no clock is specfied in the init function */
+/** The baud rate to set to if no clock is specified in the init function */
 #define CYHAL_UART_DEFAULT_BAUD 115200
 /** The maximum allowable difference between baud requested and actual baud **/
 #define CYHAL_UART_MAX_BAUD_PERCENT_DIFFERENCE 10
@@ -84,7 +85,7 @@ typedef enum
 /** Enum to enable/disable/report interrupt cause flags. */
 typedef enum
 {
-    CYHAL_UART_IRQ_NONE                = 0,      //!< Disable all interrupt call backs
+    CYHAL_UART_IRQ_NONE                = 0, //!< No interrupt
     CYHAL_UART_IRQ_TX_TRANSMIT_IN_FIFO = 1 << 1, //!< All tx data from transmit has been moved to uart FIFO
     CYHAL_UART_IRQ_TX_DONE             = 1 << 2, //!< All tx data has been transmitted
     CYHAL_UART_IRQ_TX_ERROR            = 1 << 3, //!< An error occurred in tx
@@ -92,8 +93,8 @@ typedef enum
     CYHAL_UART_IRQ_RX_DONE             = 1 << 5, //!< All rx data has been received
     CYHAL_UART_IRQ_RX_ERROR            = 1 << 6, //!< An error occurred in rx
     CYHAL_UART_IRQ_RX_NOT_EMPTY        = 1 << 7, //!< The rx hardware buffer is not empty
-    CYHAL_UART_IRQ_TX_EMPTY            = 1 << 8, //!< The tx hardware buffer is empty 
-} cyhal_uart_irq_event_t;
+    CYHAL_UART_IRQ_TX_EMPTY            = 1 << 8, //!< The tx hardware buffer is empty
+} cyhal_uart_event_t;
 
 /** \} group_hal_uart_enums */
 
@@ -114,7 +115,7 @@ typedef struct
 } cyhal_uart_cfg_t;
 
 /** UART callback function type */
-typedef void (*cyhal_uart_irq_handler_t)(void *handler_arg, cyhal_uart_irq_event_t event);
+typedef void (*cyhal_uart_event_callback_t)(void *callback_arg, cyhal_uart_event_t event);
 
 /** \} group_hal_uart_data_structures */
 
@@ -151,18 +152,18 @@ void cyhal_uart_free(cyhal_uart_t *obj);
  * @param[in]     baudrate The baud rate to be configured
  * @param[out]    actualbaud The actual baud rate achieved by the HAL
  *                Specify NULL if you do not want this information.
- * @return The status of the baud request
+ * @return The status of the set_baud request
  */
-cy_rslt_t cyhal_uart_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actualbaud);
+cy_rslt_t cyhal_uart_set_baud(cyhal_uart_t *obj, uint32_t baudrate, uint32_t *actualbaud);
 
 /** Configure the data bits, stop bits, and parity
  *
  * @param[in,out] obj      The uart object
  * @param[in]     cfg      The uart configuration data for data bits, stop bits and parity.
  *                         rx_buffer and rx_buffer_size are ignored.
- * @return The status of the format request
+ * @return The status of the configure request
  */
-cy_rslt_t cyhal_uart_format(cyhal_uart_t *obj, const cyhal_uart_cfg_t *cfg);
+cy_rslt_t cyhal_uart_configure(cyhal_uart_t *obj, const cyhal_uart_cfg_t *cfg);
 
 /** Get character. This is a blocking call, waiting for a character
  *
@@ -174,7 +175,7 @@ cy_rslt_t cyhal_uart_format(cyhal_uart_t *obj, const cyhal_uart_cfg_t *cfg);
  */
 cy_rslt_t cyhal_uart_getc(cyhal_uart_t *obj, uint8_t *value, uint32_t timeout);
 
-/** Send a character. This is a blocking call, waiting for a peripheral to be available
+/** Send a character. This is a blocking call, waiting for the peripheral to be available
  *  for writing
  *
  * @param[in] obj The uart object
@@ -193,7 +194,7 @@ uint32_t cyhal_uart_readable(cyhal_uart_t *obj);
 /** Check the number of bytes than can be written to the transmit buffer
  *
  * @param[in]  obj      The uart object
- * @return The number of bytes that can be written 
+ * @return The number of bytes that can be written
  */
 uint32_t cyhal_uart_writable(cyhal_uart_t *obj);
 
@@ -222,7 +223,7 @@ cy_rslt_t cyhal_uart_set_flow_control(cyhal_uart_t *obj, cyhal_gpio_t cts, cyhal
  * @param[in,out] tx_length  [in] The number of bytes to transmit, [out] number actually transmitted
  * @return The status of the tx request
  */
-cy_rslt_t cyhal_uart_tx(cyhal_uart_t *obj, void *tx, size_t *tx_length);
+cy_rslt_t cyhal_uart_write(cyhal_uart_t *obj, void *tx, size_t *tx_length);
 
 /** Begin synchronous RX transfer (enable interrupt for data collecting)
  *  The used buffer is specified in the uart object - rx_buff
@@ -232,11 +233,11 @@ cy_rslt_t cyhal_uart_tx(cyhal_uart_t *obj, void *tx, size_t *tx_length);
  * @param[in,out] rx_length [in] The number of bytes to receive, [out] number actually received
  * @return The status of the rx request
  */
-cy_rslt_t cyhal_uart_rx(cyhal_uart_t *obj, void *rx, size_t *rx_length);
+cy_rslt_t cyhal_uart_read(cyhal_uart_t *obj, void *rx, size_t *rx_length);
 
-/** Begin asynchronous TX transfer. The transmit buffer is a user defined buffer that will be 
- *  sent on the uart. The user must register a callback with cyhal_uart_irq_register_irq. If
- *  desired, TX callback events can be enabled using cyhal_uart_irq_enable with the appropriate
+/** Begin asynchronous TX transfer. The transmit buffer is a user defined buffer that will be
+ *  sent on the uart. The user must register a callback with cyhal_uart_irq_register_callback. If
+ *  desired, TX callback events can be enabled using cyhal_uart_enable_event with the appropriate
  *  events.
  *
  * @param[in] obj     The uart object
@@ -244,18 +245,18 @@ cy_rslt_t cyhal_uart_rx(cyhal_uart_t *obj, void *rx, size_t *rx_length);
  * @param[in] length  The number of bytes to transmit
  * @return The status of the tx_async request
  */
-cy_rslt_t cyhal_uart_tx_async(cyhal_uart_t *obj, void *tx, size_t length);
+cy_rslt_t cyhal_uart_write_async(cyhal_uart_t *obj, void *tx, size_t length);
 
 /** Begin asynchronous RX transfer. Recevied data is placed in the user specified buffer.
- *  The user must register a callback with cyhal_uart_irq_register_irq. RX callback events
- *  can be enabled using cyhal_uart_irq_enable with the appropriate events.
+ *  The user must register a callback with cyhal_uart_irq_register_callback. RX callback events
+ *  can be enabled using cyhal_uart_enable_event with the appropriate events.
  *
  * @param[in]  obj     The uart object
  * @param[out] rx      The user specified receive buffer
  * @param[in]  length  The number of bytes to receive
  * @return The status of the rx_async request
  */
-cy_rslt_t cyhal_uart_rx_async(cyhal_uart_t *obj, void *rx, size_t length);
+cy_rslt_t cyhal_uart_read_async(cyhal_uart_t *obj, void *rx, size_t length);
 
 /** Attempts to determine if the uart peripheral is already in use for TX
  *
@@ -277,36 +278,42 @@ bool cyhal_uart_is_rx_active(cyhal_uart_t *obj);
  * @param[in] obj The uart object
  * @return The status of the tx_abort request
  */
-cy_rslt_t cyhal_uart_tx_abort(cyhal_uart_t *obj);
+cy_rslt_t cyhal_uart_write_abort(cyhal_uart_t *obj);
 
-/** Abort the ongoing RX transaction. It disables the enabled interrupt for RX and
+/** Abort the ongoing read transaction. It disables the enabled interrupt for RX and
  *  flushes the RX hardware buffer if RX FIFO is used
  *
  * @param[in] obj The uart object
- * @return The status of the rx_abort request
+ * @return The status of the read_abort request
  */
-cy_rslt_t cyhal_uart_rx_abort(cyhal_uart_t *obj);
+cy_rslt_t cyhal_uart_read_abort(cyhal_uart_t *obj);
 
-/** The uart interrupt handler registration
+/** The uart callback handler registration
  *
- * @param[in] obj         The uart object
- * @param[in] handler     The callback handler which will be invoked when the interrupt fires
- * @param[in] handler_arg Generic argument that will be provided to the handler when called
+ * @param[in] obj          The uart object
+ * @param[in] callback     The callback handler which will be invoked when the interrupt fires
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
  */
-void cyhal_uart_register_irq(cyhal_uart_t *obj, cyhal_uart_irq_handler_t handler, void *handler_arg);
+void cyhal_uart_register_callback(cyhal_uart_t *obj, cyhal_uart_event_callback_t callback, void *callback_arg);
 
 /** Configure uart interrupt. This function is used for word-approach
  *
- * @param[in] obj      The uart object
- * @param[in] event    The uart IRQ type, this argument supports the bitwise-or of multiple enum flag values
- * @param[in] enable   True to turn on interrupts, False to turn off
+ * @param[in] obj           The uart object
+ * @param[in] event         The uart event type, this argument supports the bitwise-or of multiple enum flag values
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_uart_irq_enable(cyhal_uart_t *obj, cyhal_uart_irq_event_t event, bool enable);
+void cyhal_uart_enable_event(cyhal_uart_t *obj, cyhal_uart_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_uart_functions */
+
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_UART_IMPL_HEADER
+#include CYHAL_UART_IMPL_HEADER
+#endif /* CYHAL_UART_IMPL_HEADER */
 
 /** \} group_hal_uart */

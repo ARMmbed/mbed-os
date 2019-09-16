@@ -51,7 +51,8 @@ void Thread::constructor(uint32_t tz_module, osPriority priority,
     const uint32_t offset = aligned_mem - unaligned_mem;
     const uint32_t aligned_size = ALIGN_DOWN(stack_size - offset, 8);
 
-    _tid = 0;
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _tid = nullptr;
     _dynamic_stack = (stack_mem == nullptr);
     _finished = false;
     memset(&_attr, 0, sizeof(_attr));
@@ -106,14 +107,14 @@ osStatus Thread::start(mbed::Callback<void()> task)
         ((uint32_t *)_attr.stack_mem)[i] = osRtxStackMagicWord;
     }
 
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
     _attr.cb_size = sizeof(_obj_mem);
     _attr.cb_mem = &_obj_mem;
     _task = task;
     _tid = osThreadNew(Thread::_thunk, this, &_attr);
     if (_tid == nullptr) {
         if (_dynamic_stack) {
-            delete[] _attr.stack_mem;
+            // Cast before deallocation as delete[] does not accept void*
+            delete[] static_cast<uint32_t *>(_attr.stack_mem);
             _attr.stack_mem = nullptr;
         }
         _mutex.unlock();
@@ -417,7 +418,8 @@ Thread::~Thread()
     // terminate is thread safe
     terminate();
     if (_dynamic_stack) {
-        delete[] _attr.stack_mem;
+        // Cast before deallocation as delete[] does not accept void*
+        delete[] static_cast<uint32_t *>(_attr.stack_mem);
         _attr.stack_mem = nullptr;
     }
 }

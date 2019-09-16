@@ -20,6 +20,7 @@
 
 #include "events/EventQueue.h"
 #include "events/Event.h"
+#include "events/UserAllocatedEvent.h"
 
 #include "events/mbed_shared_queues.h"
 

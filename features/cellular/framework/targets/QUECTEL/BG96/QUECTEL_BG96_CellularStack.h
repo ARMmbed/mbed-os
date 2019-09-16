@@ -89,6 +89,14 @@ private:
     hostbyname_cb_t _dns_callback;
     nsapi_version_t _dns_version;
 #endif
+    /** Convert IP address to dotted string representation
+     *
+     *  BG96 requires consecutive zeros so can't use get_ip_address or ip6tos directly.
+     *
+     *  @param ip address
+     *  @param dot buffer with size NSAPI_IPv6, where address is written zero terminated
+     */
+    void ip2dot(const SocketAddress &ip, char *dot);
 };
 } // namespace mbed
 #endif /* QUECTEL_BG96_CELLULARSTACK_H_ */

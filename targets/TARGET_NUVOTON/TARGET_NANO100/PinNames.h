@@ -131,6 +131,9 @@ typedef enum {
     BUTTON1 = SW1,
     BUTTON2 = SW2,
 
+    // Force PinName to 32-bit required by NU_PINNAME_BIND(...)
+    FORCE_ENUM_PINNAME_32BIT = 0x7FFFFFFF,
+
 } PinName;
 
 #ifdef __cplusplus

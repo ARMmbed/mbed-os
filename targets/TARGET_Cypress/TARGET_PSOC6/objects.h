@@ -53,10 +53,10 @@ struct serial_s {
     uint32_t baud;
     void *handler;
     uint32_t handler_arg;
-    cyhal_uart_irq_event_t rx_event_mask;
-    cyhal_uart_irq_event_t tx_event_mask;
+    cyhal_uart_event_t rx_event_mask;
+    cyhal_uart_event_t tx_event_mask;
 #if DEVICE_SERIAL_ASYNCH
-    cyhal_uart_irq_event_t event_flags;
+    cyhal_uart_event_t event_flags;
     void *async_rx_handler;
     void *async_tx_handler;
 #endif

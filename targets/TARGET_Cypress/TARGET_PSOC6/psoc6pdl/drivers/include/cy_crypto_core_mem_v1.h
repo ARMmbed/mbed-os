@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_mem_v1.h
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the headers for the string management API
@@ -31,6 +31,10 @@
 
 #if defined(CY_IP_MXCRYPTO)
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if (CPUSS_CRYPTO_STR == 1)
 
 void Cy_Crypto_Core_V1_MemCpy(CRYPTO_Type *base,
@@ -43,6 +47,10 @@ void Cy_Crypto_Core_V1_MemXor(CRYPTO_Type *base, void* dst,
                                void const *src0, void const *src1, uint16_t size);
 
 #endif /* #if (CPUSS_CRYPTO_STR == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

@@ -48,11 +48,11 @@
         },
         "dns-total-attempts": {
             "help": "Number of total DNS query attempts that the DNS translator makes",
-            "value": 3
+            "value": 10
         },
         "dns-retries": {
             "help": "Number of DNS query retries that the DNS translator makes per server, before moving on to the next server. Total retries/attempts is always limited by dns-total-attempts.",
-            "value": 2
+            "value": 1
         },
         "dns-cache-size": {
             "help": "Number of cached host name resolutions",

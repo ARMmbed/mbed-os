@@ -44,7 +44,7 @@
 #include <stdbool.h>
 #include "cy_result.h"
 #include "cyhal_hw_types.h"
-#include "cyhal_hwmgr.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -56,7 +56,7 @@ extern "C" {
 */
 
 /** Maximum value that the ADC can return */
-#define CYHAL_ADC_MAX_VALUE 0x0FFF
+#define CYHAL_ADC_MAX_VALUE 0xFFFF
 
 /** Bad argument */
 #define CYHAL_ADC_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_ADC, 0))
@@ -75,22 +75,22 @@ extern "C" {
 * \{
 */
 
-/** Initialize adc peripheral
+/** Initialize ADC peripheral
  *
  * @param[out] obj The adc object to initialize
  * @param[in]  pin A pin corresponding to the ADC block to initialize
  *  Note: This pin is not reserved, it is just used to identify which ADC block to allocate.
  *  If multiple channels will be allocated for a single ADC instance, only one pin should be
- *  passed here; it does not matter which one. After calling this function once, call 
+ *  passed here; it does not matter which one. After calling this function once, call
  *  cyhal_adc_channel_init once for each pin whose value should be measured.
  * @param[in]  clk The clock to use can be shared, if not provided a new clock will be allocated
  * @return The status of the init request
  */
 cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_divider_t *clk);
 
-/** Uninitialize the adc peripheral and cyhal_adc_t object
+/** Uninitialize the ADC peripheral and cyhal_adc_t object
  *
- * @param[in,out] obj The adc object
+ * @param[in,out] obj The ADC object
  */
 void cyhal_adc_free(cyhal_adc_t *obj);
 
@@ -101,9 +101,9 @@ void cyhal_adc_free(cyhal_adc_t *obj);
 * \{
 */
 
-/** Initialize a single-ended adc channel. 
+/** Initialize a single-ended ADC channel.
  *
- * Configures the pin used by adc.
+ * Configures the pin used by ADC.
  * @param[out] obj The adc channel object to initialize
  * @param[in]  adc The adc for which the channel should be initialized
  * @param[in]  pin The adc pin name
@@ -111,17 +111,17 @@ void cyhal_adc_free(cyhal_adc_t *obj);
  */
 cy_rslt_t cyhal_adc_channel_init(cyhal_adc_channel_t *obj, cyhal_adc_t* adc, cyhal_gpio_t pin);
 
-/** Uninitialize the adc channel and cyhal_adc_channel_t object
+/** Uninitialize the ADC channel and cyhal_adc_channel_t object
  *
- * @param[in,out] obj The adc channel object
+ * @param[in,out] obj The ADC channel object
  */
 void cyhal_adc_channel_free(cyhal_adc_channel_t *obj);
 
-/** Read the value from adc pin, represented as an unsigned 16bit value 
+/** Read the value from ADC pin, represented as an unsigned 16bit value
  *  where 0x0000 represents the minimum value in the ADC's range, and 0xFFFF
  *  represents the maximum value in the ADC's range.
  *
- * @param[in] obj The adc object
+ * @param[in] obj The ADC object
  * @return An unsigned 16bit value representing the current input voltage
  */
 uint16_t cyhal_adc_read_u16(const cyhal_adc_channel_t *obj);
@@ -131,5 +131,9 @@ uint16_t cyhal_adc_read_u16(const cyhal_adc_channel_t *obj);
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_ADC_IMPL_HEADER
+#include CYHAL_ADC_IMPL_HEADER
+#endif /* CYHAL_ADC_IMPL_HEADER */
 
 /** \} group_hal_adc */

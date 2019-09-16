@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.h
-* \version 4.20
+* \version 4.30
 *
 * Provides the function definitions for the power management API.
 *
@@ -724,6 +724,23 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>4.30</td>
+*     <td>
+*           Corrected the \ref Cy_SysPm_CpuEnterDeepSleep() function. 
+*           Removed early access to flash values after system Deep Sleep, when 
+*           flash is not ready to be used. Now the \ref Cy_SysPm_CpuEnterDeepSleep()
+*           function does not access flash until the flash is ready.
+*           This behavior is applicable only on multi-CPU devices CY8C6xx6 and 
+*           CY8C6xx7.
+*     </td>
+*     <td>
+*           For CY8C6xx6 and CY8C6xx7 early access to flash values after 
+*           system Deep Sleep could potentially cause hard fault. 
+*           Now after system Deep Sleep only ram values are used before 
+*           flash is ready.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td rowspan="3">4.20</td>
 *     <td>Updated the \ref Cy_SysPm_RegisterCallback() function.
 *         Added a new element to callback structure - 
@@ -1192,7 +1209,7 @@ extern "C" {
 #define CY_SYSPM_DRV_VERSION_MAJOR       4
 
 /** Driver minor version */
-#define CY_SYSPM_DRV_VERSION_MINOR       20
+#define CY_SYSPM_DRV_VERSION_MINOR       30
 
 /** SysPm driver identifier */
 #define CY_SYSPM_ID                      (CY_PDL_DRV_ID(0x10U))

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_trng_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the TRNG
@@ -25,16 +25,21 @@
 
 
 #include "cy_crypto_core_trng_v2.h"
+
+#if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+#if (CPUSS_CRYPTO_TR == 1)
+
 #include "cy_crypto_core_trng_config_v2.h"
 #include "cy_crypto_core_hw_v2.h"
 #include "cy_syslib.h"
 
-
-#if defined(CY_IP_MXCRYPTO)
-
-#if (CPUSS_CRYPTO_TR == 1)
-
 static void Cy_Crypto_Core_V2_Trng_Init(CRYPTO_Type *base);
+static void Cy_Crypto_Core_V2_Trng_Disable(CRYPTO_Type *base);
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V2_Trng_Init
@@ -56,6 +61,20 @@ static void Cy_Crypto_Core_V2_Trng_Init(CRYPTO_Type *base)
     REG_CRYPTO_TR_MON_AP_CTL(base) = CY_CRYPTO_V2_TR_AC_CUTOFF;
 }
 
+/*******************************************************************************
+* Function Name: Cy_Crypto_Core_V2_Trng_Disable
+****************************************************************************//**
+*
+* Disable TRNG by disabling TRNG ring oscillators
+*
+* \param base
+* The pointer to the CRYPTO instance.
+*
+*******************************************************************************/
+static void Cy_Crypto_Core_V2_Trng_Disable(CRYPTO_Type *base)
+{
+    REG_CRYPTO_TR_CTL1(base) = CY_CRYPTO_V2_TR_CTL1_DISABLE_VAL;
+}
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V2_Trng
@@ -126,11 +145,17 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Trng(CRYPTO_Type *base,
         status = CY_CRYPTO_HW_ERROR;
     }
 
+    /* Disable TRNG to reduce power consumption */
+    Cy_Crypto_Core_V2_Trng_Disable(base);
+
     return (status);
 }
 
-
 #endif /* #if (CPUSS_CRYPTO_TR == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

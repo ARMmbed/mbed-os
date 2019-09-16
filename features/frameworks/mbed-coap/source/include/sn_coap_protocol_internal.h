@@ -48,9 +48,8 @@ typedef struct coap_send_msg_ {
     uint8_t             resending_counter;  /* Tells how many times message is still tried to resend */
     uint32_t            resending_time;     /* Tells next resending time */
 
-    sn_nsdl_transmit_s *send_msg_ptr;
+    sn_nsdl_transmit_s  send_msg_ptr;
 
-    struct coap_s       *coap;              /* CoAP library handle */
     void                *param;             /* Extra parameter that will be passed to TX/RX callback functions */
 
     ns_list_link_t      link;
@@ -64,7 +63,6 @@ typedef struct coap_duplication_info_ {
     uint16_t            msg_id;
     uint16_t            packet_len;
     uint8_t             *packet_ptr;
-    struct coap_s       *coap;  /* CoAP library handle */
     sn_nsdl_addr_s      *address;
     void                *param;
     ns_list_link_t      link;
@@ -77,7 +75,6 @@ typedef struct coap_blockwise_msg_ {
     uint32_t            timestamp;  /* Tells when Blockwise message is stored to Linked list */
 
     sn_coap_hdr_s       *coap_msg_ptr;
-    struct coap_s       *coap;      /* CoAP library handle */
 
     void                *param;
     uint16_t            msg_id;
@@ -100,7 +97,7 @@ typedef struct coap_blockwise_payload_ {
 
     uint16_t            payload_len;
     uint8_t             *payload_ptr;
-    struct coap_s       *coap;  /* CoAP library handle */
+    unsigned int        use_size1:1;
 
     ns_list_link_t     link;
 } coap_blockwise_payload_s;
@@ -138,6 +135,12 @@ struct coap_s {
     uint8_t sn_coap_duplication_buffer_size;
     uint8_t sn_coap_internal_block2_resp_handling; /* If this is set then coap itself sends a next GET request automatically */
 };
+
+/* Utility function which performs a call to sn_coap_protocol_malloc() and memset's the result to zero. */
+void *sn_coap_protocol_calloc(struct coap_s *handle, uint16_t length);
+
+/* Utility function which performs a call to sn_coap_protocol_malloc() and memcopy's the source to result buffer. */
+void *sn_coap_protocol_malloc_copy(struct coap_s *handle, const void *source, uint16_t length);
 
 #ifdef __cplusplus
 }

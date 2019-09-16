@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 68-QFN-BLE package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -96,19 +96,49 @@ typedef struct
 {
     cyhal_gpio_t                  pin;  //!< The GPIO pin
     const cyhal_resource_inst_t  *inst; //!< The associated resource instance
-    cyhal_gpio_cfg_t              cfg;  //!< The DriveMode and HSIOM configuration value
+    cyhal_gpio_mapping_cfg_t      cfg;  //!< The DriveMode and HSIOM configuration value
 } cyhal_resource_pin_mapping_t;
 
 /* Pin connections */
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_clk_i2s_if[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_pdm_clk[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_pdm_data[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_sck[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_sdi[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_rx_ws[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sck[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_sdo[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_audioss_tx_ws[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_lna_rx_ctl_out[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_lna_chip_en_out[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_ext_pa_tx_ctl_out[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_bpktctl[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_rx_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_dbus_tx_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_act_txd_rxd[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_act_ldo_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_buck_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_clk_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_clk[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_data[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_rcb_le[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_reset_n[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_ldo_ol_hv[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_ret_switch_hv[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_xtal_en[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp0[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_dsi_comp1[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inn_comp1[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_lpcomp_inp_comp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctb_oa0_out_10x[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctb_oa1_out_10x[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctb_pads[4];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_ctdac_voutsw[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_dsi_ctb_cmp0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_dsi_ctb_cmp1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_pass_sarmux_pads[2];
@@ -137,11 +167,18 @@ extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data2[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data3[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data4[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data5[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data6[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_data7[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select0[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select1[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select2[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_smif_spi_select3[1];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line[40];
 extern const cyhal_resource_pin_mapping_t cyhal_pin_map_tcpwm_line_compl[38];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dm_pad[1];
+extern const cyhal_resource_pin_mapping_t cyhal_pin_map_usb_usb_dp_pad[1];
 
 #if defined(__cplusplus)
 }

@@ -22,7 +22,6 @@
 
 namespace mbed {
 /** \addtogroup drivers-internal-api
- * \ingroup mbed-os-internal
  * @{
  */
 

@@ -212,23 +212,25 @@ int8_t whd_thread_poll_all(whd_driver_t whd_driver)
  */
 void whd_thread_quit(whd_driver_t whd_driver)
 {
+    whd_thread_info_t *thread_info = &whd_driver->thread_info;
     whd_result_t result;
 
     /* signal main thread and wake it */
-    whd_driver->thread_info.thread_quit_flag = WHD_TRUE;
-    result = cy_rtos_set_semaphore(&whd_driver->thread_info.transceive_semaphore, WHD_FALSE);
+    thread_info->thread_quit_flag = WHD_TRUE;
+    result = cy_rtos_set_semaphore(&thread_info->transceive_semaphore, WHD_FALSE);
     if (result == WHD_SUCCESS)
     {
         /* Wait for the WHD thread to end */
-        cy_rtos_join_thread(&whd_driver->thread_info.whd_thread);
-
-        /* Ignore return - not much can be done about failure */
-        (void)cy_rtos_terminate_thread(&whd_driver->thread_info.whd_thread);
+        cy_rtos_join_thread(&thread_info->whd_thread);
     }
     else
     {
         WPRINT_WHD_ERROR( ("Error setting semaphore in %s at %d \n", __func__, __LINE__) );
     }
+
+    /* Delete the semaphore */
+    /* Ignore return - not much can be done about failure */
+    (void)cy_rtos_deinit_semaphore(&thread_info->transceive_semaphore);
 }
 
 /**
@@ -334,22 +336,11 @@ static void whd_thread_func(whd_thread_arg_t thread_input)
     /* Reset the quit flag */
     thread_info->thread_quit_flag = WHD_FALSE;
 
-    /* Delete the semaphore */
-    /* Ignore return - not much can be done about failure */
-    (void)cy_rtos_deinit_semaphore(&thread_info->transceive_semaphore);
-
     whd_sdpcm_quit(whd_driver);
 
     WPRINT_WHD_DATA_LOG( ("Stopped whd Thread\n") );
 
-    if (WHD_SUCCESS != cy_rtos_join_thread(&thread_info->whd_thread) )
-    {
-        WPRINT_WHD_ERROR( ("Could not join WHD thread\n") );
-    }
-
-    if (WHD_SUCCESS != cy_rtos_terminate_thread(&thread_info->whd_thread) )
-    {
-        WPRINT_WHD_ERROR( ("Could not close WHD thread\n") );
-    }
+    /* Ignore return - not much can be done about failure */
+    (void)cy_rtos_exit_thread();
 }
 

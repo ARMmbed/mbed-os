@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_sha_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code to the API for the SHA method
@@ -27,6 +27,10 @@
 #include "cy_crypto_core_sha_v2.h"
 
 #if defined(CY_IP_MXCRYPTO)
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #if (CPUSS_CRYPTO_SHA == 1)
 
@@ -64,6 +68,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
                              void *shaBuffers)
 {
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
+    
+    (void)base; /* Suppress warning */
 
     /* Initialization vectors for different modes of the SHA algorithm */
     #if (CPUSS_CRYPTO_SHA1 == 1)
@@ -558,7 +564,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha(CRYPTO_Type *base,
     cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     /* Allocate maximal space for the structure which stores the SHA buffers */
-    cy_stc_crypto_v2_sha512_buffers_t shaBuffers = {{ 0 }};
+    cy_stc_crypto_v2_sha512_buffers_t shaBuffers = {{ 0 }, { 0 }};
 
     /* Allocate space for the structure which stores the SHA context */
     cy_stc_crypto_sha_state_t hashState = { 0 };
@@ -588,6 +594,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha(CRYPTO_Type *base,
 
 
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

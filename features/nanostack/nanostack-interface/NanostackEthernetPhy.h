@@ -18,10 +18,10 @@
 #ifndef NANOSTACK_ETHERNET_PHY_H_
 #define NANOSTACK_ETHERNET_PHY_H_
 
-#include "NanostackPhy.h"
+#include "NanostackMACPhy.h"
 
 /** Ethernet PHY driver class for Nanostack */
-class NanostackEthernetPhy : public NanostackPhy {
+class NanostackEthernetPhy : public NanostackMACPhy {
 };
 
 #endif /* NANOSTACK_INTERFACE_H_ */

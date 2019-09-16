@@ -296,6 +296,53 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define BACKUP_INTR_MASKED                  (((BACKUP_V1_Type *) BACKUP)->INTR_MASKED)
 #define BACKUP_RESET                        (((BACKUP_V1_Type *) BACKUP)->RESET)
 
+/*******************************************************************************
+*                CANFD
+*******************************************************************************/
+
+#define CANFD_CTL(base)                     (((CANFD_V1_Type *)(base))->CTL)
+#define CANFD_STATUS(base)                  (((CANFD_V1_Type *)(base))->STATUS)
+#define CANFD_NBTP(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.NBTP)
+#define CANFD_IR(base, chan)                      (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.IR)
+#define CANFD_IE(base, chan)                      (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.IE)
+#define CANFD_ILS(base, chan)                     (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.ILS)
+#define CANFD_ILE(base, chan)                     (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.ILE)
+#define CANFD_CCCR(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.CCCR)
+#define CANFD_SIDFC(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.SIDFC)
+#define CANFD_XIDFC(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.XIDFC)
+#define CANFD_XIDAM(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.XIDAM)
+#define CANFD_RXESC(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXESC)
+#define CANFD_RXF0C(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF0C)
+#define CANFD_RXF1C(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF1C)
+#define CANFD_RXFTOP_CTL(base, chan)              (((CANFD_V1_Type *)(base))->CH[chan].RXFTOP_CTL)
+#define CANFD_RXBC(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXBC)
+#define CANFD_TXESC(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXESC)
+#define CANFD_TXEFC(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXEFC)
+#define CANFD_TXBC(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBC)
+#define CANFD_DBTP(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.DBTP)
+#define CANFD_TDCR(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TDCR)
+#define CANFD_GFC(base, chan)                     (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.GFC)
+#define CANFD_TXBRP(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBRP)
+#define CANFD_TXBAR(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBAR)
+#define CANFD_TXBCR(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBCR)
+#define CANFD_TXBTO(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBTO)
+#define CANFD_TXBCF(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBCF)
+#define CANFD_TXBTIE(base, chan)                  (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBTIE)
+#define CANFD_TXBCIE(base, chan)                  (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TXBCIE)
+#define CANFD_NDAT1(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.NDAT1)
+#define CANFD_NDAT2(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.NDAT2)
+#define CANFD_RXF0S(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF0S)
+#define CANFD_RXFTOP0_DATA(base, chan)            (((CANFD_V1_Type *)(base))->CH[chan].RXFTOP0_DATA)
+#define CANFD_RXFTOP1_DATA(base, chan)            (((CANFD_V1_Type *)(base))->CH[chan].RXFTOP1_DATA)
+#define CANFD_RXF0A(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF0A)
+#define CANFD_RXF1S(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF1S)
+#define CANFD_RXF1A(base, chan)                   (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.RXF1A)
+#define CANFD_PSR(base, chan)                     (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.PSR)
+#define CANFD_TEST(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.TEST)
+#define CANFD_CREL(base, chan)                    (((CANFD_V1_Type *)(base))->CH[chan].M_TTCAN.CREL)
+
+#define CY_CANFD_CHANNELS_NUM               (0x1UL)
+
 
 /*******************************************************************************
 *                FLASHC

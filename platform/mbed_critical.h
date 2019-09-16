@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015-2019, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -25,7 +24,6 @@
 extern "C" {
 #endif
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 /**

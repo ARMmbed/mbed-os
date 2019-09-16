@@ -71,10 +71,12 @@ LoRaMac::LoRaMac()
       _mac_commands(),
       _channel_plan(),
       _lora_crypto(),
+      _params(),
       _ev_queue(NULL),
       _mcps_indication(),
       _mcps_confirmation(),
       _mlme_indication(),
+      _ongoing_tx_msg(),
       _mlme_confirmation(),
       _is_nwk_joined(false),
       _can_cancel_tx(true),
@@ -83,39 +85,9 @@ LoRaMac::LoRaMac()
       _prev_qos_level(LORAWAN_DEFAULT_QOS),
       _demod_ongoing(false)
 {
-    memset(&_params, 0, sizeof(_params));
-    _params.keys.dev_eui = NULL;
-    _params.keys.app_eui = NULL;
-    _params.keys.app_key = NULL;
-
-    memset(_params.keys.nwk_skey, 0, sizeof(_params.keys.nwk_skey));
-    memset(_params.keys.app_skey, 0, sizeof(_params.keys.app_skey));
-    memset(&_ongoing_tx_msg, 0, sizeof(_ongoing_tx_msg));
-    memset(&_params.sys_params, 0, sizeof(_params.sys_params));
-
-    _params.dev_nonce = 0;
-    _params.net_id = 0;
-    _params.dev_addr = 0;
-    _params.tx_buffer_len = 0;
-    _params.rx_buffer_len = 0;
-    _params.ul_frame_counter = 0;
-    _params.dl_frame_counter = 0;
     _params.is_rx_window_enabled = true;
-    _params.adr_ack_counter = 0;
-    _params.is_node_ack_requested = false;
-    _params.is_srv_ack_requested = false;
-    _params.ul_nb_rep_counter = 0;
-    _params.timers.mac_init_time = 0;
     _params.max_ack_timeout_retries = 1;
     _params.ack_timeout_retry_counter = 1;
-    _params.is_ack_retry_timeout_expired = false;
-    _params.timers.tx_toa = 0;
-
-    _params.multicast_channels = NULL;
-
-
-    _params.sys_params.adr_on = false;
-    _params.sys_params.max_duty_cycle = 0;
 
     reset_mcps_confirmation();
     reset_mlme_confirmation();

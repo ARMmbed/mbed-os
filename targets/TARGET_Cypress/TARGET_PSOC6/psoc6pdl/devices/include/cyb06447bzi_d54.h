@@ -5,7 +5,7 @@
 * CYB06447BZI-D54 device header
 *
 * \note
-* Generator version: 1.5.0.1274
+* Generator version: 1.5.0.1286
 *
 ********************************************************************************
 * \copyright
@@ -442,6 +442,9 @@ typedef enum {
 #define __MPU_PRESENT                   1       /*!< MPU present or not */
 #define __FPU_PRESENT                   1       /*!< FPU present or not */
 #define __CM0P_PRESENT                  1       /*!< CM0P present or not */
+#define __DTCM_PRESENT                  0       /*!< DTCM present or not */
+#define __ICACHE_PRESENT                0       /*!< ICACHE present or not */
+#define __DCACHE_PRESENT                0       /*!< DCACHE present or not */
 
 /** \} Configuration_of_CMSIS */
 
@@ -455,7 +458,7 @@ typedef enum {
 #define CY_SRAM_BASE                    0x08000000UL
 #define CY_SRAM_SIZE                    0x00048000UL
 #define CY_FLASH_BASE                   0x10000000UL
-#define CY_FLASH_SIZE                   0x00100000UL
+#define CY_FLASH_SIZE                   0x000D0000UL
 #define CY_EM_EEPROM_BASE               0x14000000UL
 #define CY_EM_EEPROM_SIZE               0x00008000UL
 #define CY_XIP_BASE                     0x18000000UL

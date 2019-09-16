@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_scb_spi.c
-* \version 2.30
+* \version 2.30.1
 *
 * Provides SPI API implementation of the SCB driver.
 *

@@ -130,10 +130,6 @@ protected:
     char _found_apn[MAX_APN_LENGTH];
     // flag indicating if CP was requested to be setup
     bool _cp_req;
-    // flag indicating if Non-IP context was requested to be setup
-    bool _nonip_req;
-    // tells if CCIOTOPTI received green from network for CP optimization use
-    bool _cp_in_use;
 };
 
 } // namespace mbed

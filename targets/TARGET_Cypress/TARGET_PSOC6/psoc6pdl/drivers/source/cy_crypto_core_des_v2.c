@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_crypto_core_des_v2.c
-* \version 2.30
+* \version 2.30.1
 *
 * \brief
 *  This file provides the source code fro the API for the DES method
@@ -24,17 +24,20 @@
 *******************************************************************************/
 
 
-#include "cy_crypto_common.h"
 #include "cy_crypto_core_des_v2.h"
-#include "cy_crypto_core_hw_v2.h"
-#include "cy_crypto_core_mem_v2.h"
-#include "cy_syslib.h"
-
 
 #if defined(CY_IP_MXCRYPTO)
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if (CPUSS_CRYPTO_DES == 1)
 
+#include "cy_crypto_common.h"
+#include "cy_crypto_core_hw_v2.h"
+#include "cy_crypto_core_mem_v2.h"
+#include "cy_syslib.h"
 
 #define CY_CRYPTO_DES_WEAK_KEY_COUNT   (16U)
 #define CY_CRYPTO_DES_KEY_BYTE_LENGTH  (8U)
@@ -194,8 +197,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Tdes(CRYPTO_Type *base,
     return (status);
 }
 
-
 #endif /* #if (CPUSS_CRYPTO_DES == 1) */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* CY_IP_MXCRYPTO */
 

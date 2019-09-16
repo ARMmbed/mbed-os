@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -39,7 +39,6 @@
  * @{
  */
 
-
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -56,13 +55,14 @@ typedef void (*i2c_master_edma_transfer_callback_t)(I2C_Type *base,
 /*! @brief I2C master eDMA transfer structure. */
 struct _i2c_master_edma_handle
 {
-    i2c_master_transfer_t transfer; /*!< I2C master transfer struct. */
+    i2c_master_transfer_t transfer; /*!< I2C master transfer structure. */
     size_t transferSize;            /*!< Total bytes to be transferred. */
+    uint8_t nbytes;                 /*!< eDMA minor byte transfer count initially configured. */
     uint8_t state;                  /*!< I2C master transfer status. */
     edma_handle_t *dmaHandle;       /*!< The eDMA handler used. */
     i2c_master_edma_transfer_callback_t
-        completionCallback; /*!< Callback function called after eDMA transfer finished. */
-    void *userData;         /*!< Callback parameter passed to callback function. */
+        completionCallback; /*!< A callback function called after the eDMA transfer is finished. */
+    void *userData;         /*!< A callback parameter passed to the callback function. */
 };
 
 /*******************************************************************************
@@ -79,12 +79,12 @@ extern "C" {
  */
 
 /*!
- * @brief Init the I2C handle which is used in transcational functions.
+ * @brief Initializes the I2C handle which is used in transcational functions.
  *
  * @param base I2C peripheral base address.
- * @param handle pointer to i2c_master_edma_handle_t structure.
- * @param callback pointer to user callback function.
- * @param userData user param passed to the callback function.
+ * @param handle A pointer to the i2c_master_edma_handle_t structure.
+ * @param callback A pointer to the user callback function.
+ * @param userData A user parameter passed to the callback function.
  * @param edmaHandle eDMA handle pointer.
  */
 void I2C_MasterCreateEDMAHandle(I2C_Type *base,
@@ -97,30 +97,30 @@ void I2C_MasterCreateEDMAHandle(I2C_Type *base,
  * @brief Performs a master eDMA non-blocking transfer on the I2C bus.
  *
  * @param base I2C peripheral base address.
- * @param handle pointer to i2c_master_edma_handle_t structure.
- * @param xfer pointer to transfer structure of i2c_master_transfer_t.
- * @retval kStatus_Success Sucessully complete the data transmission.
- * @retval kStatus_I2C_Busy Previous transmission still not finished.
- * @retval kStatus_I2C_Timeout Transfer error, wait signal timeout.
+ * @param handle A pointer to the i2c_master_edma_handle_t structure.
+ * @param xfer A pointer to the transfer structure of i2c_master_transfer_t.
+ * @retval kStatus_Success Sucessfully completed the data transmission.
+ * @retval kStatus_I2C_Busy A previous transmission is still not finished.
+ * @retval kStatus_I2C_Timeout Transfer error, waits for a signal timeout.
  * @retval kStatus_I2C_ArbitrationLost Transfer error, arbitration lost.
- * @retval kStataus_I2C_Nak Transfer error, receive Nak during transfer.
+ * @retval kStataus_I2C_Nak Transfer error, receive NAK during transfer.
  */
 status_t I2C_MasterTransferEDMA(I2C_Type *base, i2c_master_edma_handle_t *handle, i2c_master_transfer_t *xfer);
 
 /*!
- * @brief Get master transfer status during a eDMA non-blocking transfer.
+ * @brief Gets a master transfer status during the eDMA non-blocking transfer.
  *
  * @param base I2C peripheral base address.
- * @param handle pointer to i2c_master_edma_handle_t structure.
- * @param count Number of bytes transferred so far by the non-blocking transaction.
+ * @param handle A pointer to the i2c_master_edma_handle_t structure.
+ * @param count A number of bytes transferred by the non-blocking transaction.
  */
 status_t I2C_MasterTransferGetCountEDMA(I2C_Type *base, i2c_master_edma_handle_t *handle, size_t *count);
 
 /*!
- * @brief Abort a master eDMA non-blocking transfer in a early time.
+ * @brief Aborts a master eDMA non-blocking transfer early.
  *
  * @param base I2C peripheral base address.
- * @param handle pointer to i2c_master_edma_handle_t structure.
+ * @param handle A pointer to the i2c_master_edma_handle_t structure.
  */
 void I2C_MasterTransferAbortEDMA(I2C_Type *base, i2c_master_edma_handle_t *handle);
 

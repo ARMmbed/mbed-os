@@ -58,9 +58,6 @@
 #include "lwip/mld6.h"
 #include "lwip/api.h"
 
-#include "netif/ppp/ppp_opts.h"
-#include "netif/ppp/ppp_impl.h"
-
 #ifndef LWIP_SKIP_PACKING_CHECK
 
 #ifdef PACK_STRUCT_USE_INCLUDES
@@ -175,12 +172,6 @@ PACK_STRUCT_END
 #if ((LWIP_SOCKET || LWIP_NETCONN) && (NO_SYS==1))
 #error "If you want to use Sequential API, you have to define NO_SYS=0 in your lwipopts.h"
 #endif
-#if (LWIP_PPP_API && (NO_SYS==1))
-#error "If you want to use PPP API, you have to define NO_SYS=0 in your lwipopts.h"
-#endif
-#if (LWIP_PPP_API && (PPP_SUPPORT==0))
-#error "If you want to use PPP API, you have to enable PPP_SUPPORT in your lwipopts.h"
-#endif
 #if (((!LWIP_DHCP) || (!LWIP_AUTOIP)) && LWIP_DHCP_AUTOIP_COOP)
 #error "If you want to use DHCP/AUTOIP cooperation mode, you have to define LWIP_DHCP=1 and LWIP_AUTOIP=1 in your lwipopts.h"
 #endif
@@ -208,20 +199,8 @@ PACK_STRUCT_END
 #if (DNS_LOCAL_HOSTLIST && !DNS_LOCAL_HOSTLIST_IS_DYNAMIC && !(defined(DNS_LOCAL_HOSTLIST_INIT)))
 #error "you have to define define DNS_LOCAL_HOSTLIST_INIT {{'host1', 0x123}, {'host2', 0x234}} to initialize DNS_LOCAL_HOSTLIST"
 #endif
-#if PPP_SUPPORT && !PPPOS_SUPPORT && !PPPOE_SUPPORT && !PPPOL2TP_SUPPORT
-#error "PPP_SUPPORT needs at least one of PPPOS_SUPPORT, PPPOE_SUPPORT or PPPOL2TP_SUPPORT turned on"
-#endif
-#if PPP_SUPPORT && !PPP_IPV4_SUPPORT && !PPP_IPV6_SUPPORT
-#error "PPP_SUPPORT needs PPP_IPV4_SUPPORT and/or PPP_IPV6_SUPPORT turned on"
-#endif
-#if PPP_SUPPORT && PPP_IPV4_SUPPORT && !LWIP_IPV4
-#error "PPP_IPV4_SUPPORT needs LWIP_IPV4 turned on"
-#endif
-#if PPP_SUPPORT && PPP_IPV6_SUPPORT && !LWIP_IPV6
-#error "PPP_IPV6_SUPPORT needs LWIP_IPV6 turned on"
-#endif
-#if !LWIP_ETHERNET && (LWIP_ARP || PPPOE_SUPPORT)
-#error "LWIP_ETHERNET needs to be turned on for LWIP_ARP or PPPOE_SUPPORT"
+#if !LWIP_ETHERNET && LWIP_ARP
+#error "LWIP_ETHERNET needs to be turned on for LWIP_ARP"
 #endif
 #if LWIP_TCPIP_CORE_LOCKING_INPUT && !LWIP_TCPIP_CORE_LOCKING
 #error "When using LWIP_TCPIP_CORE_LOCKING_INPUT, LWIP_TCPIP_CORE_LOCKING must be enabled, too"
@@ -370,9 +349,6 @@ lwip_init(void)
 #if LWIP_DNS
   dns_init();
 #endif /* LWIP_DNS */
-#if PPP_SUPPORT
-  ppp_init();
-#endif
 
 #if LWIP_TIMERS
   sys_timeouts_init();

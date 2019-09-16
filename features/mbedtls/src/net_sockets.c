@@ -284,7 +284,7 @@ static int net_would_block( const mbedtls_net_context *ctx )
     int err = errno;
 
     /*
-     * Never return 'WOULD BLOCK' on a non-blocking socket
+     * Never return 'WOULD BLOCK' on a blocking socket
      */
     if( ( fcntl( ctx->fd, F_GETFL ) & O_NONBLOCK ) != O_NONBLOCK )
     {
@@ -649,6 +649,19 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
     }
 
     return( ret );
+}
+
+/*
+ * Close the connection
+ */
+void mbedtls_net_close( mbedtls_net_context *ctx )
+{
+    if( ctx->fd == -1 )
+        return;
+
+    close( ctx->fd );
+
+    ctx->fd = -1;
 }
 
 /*

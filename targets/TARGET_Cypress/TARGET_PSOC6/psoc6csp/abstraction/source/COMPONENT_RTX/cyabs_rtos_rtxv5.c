@@ -76,7 +76,7 @@ static cy_rslt_t error_converter(cy_rtos_error_t internalError)
 *                 Threads
 ******************************************************/
 
-cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_function, 
+cy_rslt_t cy_rtos_create_thread(cy_thread_t *thread, cy_thread_entry_fn_t entry_function,
             const char *name, void *stack, uint32_t stack_size, cy_thread_priority_t priority, cy_thread_arg_t arg)
 {
     cy_rslt_t status = CY_RSLT_SUCCESS;
@@ -145,7 +145,21 @@ cy_rslt_t cy_rtos_terminate_thread(cy_thread_t *thread)
     return status;
 }
 
-cy_rslt_t cy_rtos_is_thread_running(cy_thread_t *thread, bool *state)
+cy_rslt_t cy_rtos_is_thread_running(cy_thread_t *thread, bool *running)
+{
+    cy_rslt_t status = CY_RSLT_SUCCESS;
+
+    if ((thread == NULL) || (running == NULL))
+        status = CY_RTOS_BAD_PARAM;
+    else
+    {
+        *running = (osThreadGetState(*thread) == osThreadRunning) ? true : false;
+    }
+
+    return status;
+}
+
+cy_rslt_t cy_rtos_get_thread_state(cy_thread_t *thread, cy_thread_state_t *state)
 {
     cy_rslt_t status = CY_RSLT_SUCCESS;
 
@@ -153,11 +167,32 @@ cy_rslt_t cy_rtos_is_thread_running(cy_thread_t *thread, bool *state)
         status = CY_RTOS_BAD_PARAM;
     else
     {
-        *state = (osThreadGetState(*thread) == osThreadRunning) ? true : false;
+        switch (osThreadGetState(*thread))
+        {
+            case osThreadInactive:
+                *state = CY_THREAD_STATE_INACTIVE;
+                break;
+            case osThreadReady:
+                *state = CY_THREAD_STATE_READY;
+                break;
+            case osThreadRunning:
+                *state = CY_THREAD_STATE_RUNNING;
+                break;
+            case osThreadBlocked:
+                *state = CY_THREAD_STATE_BLOCKED;
+                break;
+            case osThreadTerminated:
+                *state = CY_THREAD_STATE_TERMINATED;
+                break;
+            case osThreadError:
+            case osThreadReserved:
+            default:
+                *state = CY_THREAD_STATE_UNKNOWN;
+                break;
+        }
     }
 
     return status;
-
 }
 
 cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread)
@@ -198,9 +233,9 @@ cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
     {
         attr.name = NULL;
         attr.attr_bits = osMutexRecursive | osMutexPrioInherit;
-        attr.cb_mem = malloc(osRtxMutexCbSize); 
+        attr.cb_mem = malloc(osRtxMutexCbSize);
         attr.cb_size = osRtxMutexCbSize;
-        
+
         if (attr.cb_mem == NULL)
             status = CY_RTOS_NO_MEMORY;
         else
@@ -216,14 +251,14 @@ cy_rslt_t cy_rtos_init_mutex(cy_mutex_t *mutex)
 }
 
 cy_rslt_t cy_rtos_get_mutex(cy_mutex_t *mutex, cy_time_t timeout_ms)
-{  
+{
     cy_rslt_t status;
     cy_rtos_error_t statusInternal;
 
     if (mutex == NULL)
         status = CY_RTOS_BAD_PARAM;
     else
-    {      
+    {
         statusInternal = osMutexAcquire(*mutex, timeout_ms);
         status = error_converter(statusInternal);
     }
@@ -285,9 +320,9 @@ cy_rslt_t cy_rtos_init_semaphore(cy_semaphore_t *semaphore, uint32_t maxcount, u
     {
         attr.name = NULL;
         attr.attr_bits = 0U;
-        attr.cb_mem = malloc(osRtxSemaphoreCbSize); 
+        attr.cb_mem = malloc(osRtxSemaphoreCbSize);
         attr.cb_size = osRtxSemaphoreCbSize;
-        
+
         if (attr.cb_mem == NULL)
             status = CY_RTOS_NO_MEMORY;
         else
@@ -316,7 +351,7 @@ cy_rslt_t cy_rtos_get_semaphore(cy_semaphore_t *semaphore, cy_time_t timeout_ms,
             statusInternal = osSemaphoreAcquire(*semaphore, timeout_ms);
         else
             statusInternal = osErrorISR;
-    
+
         status = error_converter(statusInternal);
     }
 
@@ -380,9 +415,9 @@ cy_rslt_t cy_rtos_init_event(cy_event_t *event)
     {
         attr.name = NULL;
         attr.attr_bits = 0U;
-        attr.cb_mem = malloc(osRtxEventFlagsCbSize); 
+        attr.cb_mem = malloc(osRtxEventFlagsCbSize);
         attr.cb_size = osRtxEventFlagsCbSize;
-        
+
         if (attr.cb_mem == NULL)
             status = CY_RTOS_NO_MEMORY;
         else
@@ -509,7 +544,7 @@ cy_rslt_t cy_rtos_init_queue(cy_queue_t *queue, size_t length, size_t itemsize)
         attr.cb_size = osRtxMessageQueueCbSize;
         uint32_t blockSize = ((itemsize + 3U) & ~3UL) + sizeof(osRtxMessage_t);
         attr.mq_size = blockSize * length;
-        
+
         /* Note: 1 malloc for both so that they can be freed with 1 call */
         uint32_t cb_mem_pad = (8 - (osRtxMessageQueueCbSize & 0x07)) & 0x07;
         attr.cb_mem = malloc(osRtxMessageQueueCbSize + cb_mem_pad + attr.mq_size);
@@ -545,7 +580,7 @@ cy_rslt_t cy_rtos_put_queue(cy_queue_t *queue, const void *item_ptr, cy_time_t t
             statusInternal = osMessageQueuePut(*queue, (uint8_t *)item_ptr, 0u, timeout_ms);
         else
             statusInternal = osErrorISR;
-        
+
         status = error_converter(statusInternal);
     }
 
@@ -566,7 +601,7 @@ cy_rslt_t cy_rtos_get_queue(cy_queue_t *queue, void *item_ptr, cy_time_t timeout
             statusInternal = osMessageQueueGet(*queue, (uint8_t *)item_ptr, 0u, timeout_ms);
         else
             statusInternal = osErrorISR;
-        
+
         status = error_converter(statusInternal);
     }
 
@@ -594,7 +629,7 @@ cy_rslt_t cy_rtos_space_queue(cy_queue_t *queue, size_t *num_spaces)
     else
         *num_spaces = osMessageQueueGetSpace(*queue);
 
-    return status; 
+    return status;
 }
 
 cy_rslt_t cy_rtos_reset_queue(cy_queue_t *queue)
@@ -610,7 +645,7 @@ cy_rslt_t cy_rtos_reset_queue(cy_queue_t *queue)
         status = error_converter(statusInternal);
     }
 
-    return status; 
+    return status;
 }
 
 cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue)
@@ -624,7 +659,7 @@ cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue)
     {
         statusInternal = osMessageQueueDelete(*queue);
         status = error_converter(statusInternal);
-        
+
         if (status == CY_RSLT_SUCCESS)
         {
             free(*queue);
@@ -632,7 +667,7 @@ cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue)
         }
     }
 
-    return status; 
+    return status;
 }
 
 
@@ -640,7 +675,7 @@ cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue)
 *                 Timers
 ******************************************************/
 
-cy_rslt_t cy_rtos_init_timer(cy_timer_t *timer, cy_timer_trigger_type_t type, 
+cy_rslt_t cy_rtos_init_timer(cy_timer_t *timer, cy_timer_trigger_type_t type,
         cy_timer_callback_t fun, cy_timer_callback_arg_t arg)
 {
     cy_rslt_t status;
@@ -659,7 +694,7 @@ cy_rslt_t cy_rtos_init_timer(cy_timer_t *timer, cy_timer_trigger_type_t type,
             status = CY_RTOS_NO_MEMORY;
         else
         {
-            osTimerType_t osTriggerType = (cy_timer_type_periodic == type)
+            osTimerType_t osTriggerType = (CY_TIMER_TYPE_PERIODIC == type)
                 ? osTimerPeriodic
                 : osTimerOnce;
 
@@ -696,7 +731,7 @@ cy_rslt_t cy_rtos_start_timer(cy_timer_t *timer, cy_time_t num_ms)
             status = CY_RTOS_GENERAL_ERROR;
     }
 
-    return status; 
+    return status;
 }
 
 cy_rslt_t cy_rtos_stop_timer(cy_timer_t *timer)
@@ -712,7 +747,7 @@ cy_rslt_t cy_rtos_stop_timer(cy_timer_t *timer)
         status = error_converter(statusInternal);
     }
 
-    return status;    
+    return status;
 }
 
 cy_rslt_t cy_rtos_is_running_timer(cy_timer_t *timer, bool *state)
@@ -724,7 +759,7 @@ cy_rslt_t cy_rtos_is_running_timer(cy_timer_t *timer, bool *state)
     else
         *state = osTimerIsRunning(*timer);
 
-    return status;    
+    return status;
 }
 
 cy_rslt_t cy_rtos_deinit_timer(cy_timer_t *timer)
@@ -746,7 +781,7 @@ cy_rslt_t cy_rtos_deinit_timer(cy_timer_t *timer)
         }
     }
 
-    return status;    
+    return status;
 }
 
 
@@ -773,7 +808,7 @@ cy_rslt_t cy_rtos_get_time(cy_time_t *tval)
             status = CY_RTOS_GENERAL_ERROR;
     }
 
-    return status;    
+    return status;
 }
 
 cy_rslt_t cy_rtos_delay_milliseconds(cy_time_t num_ms)
@@ -784,7 +819,7 @@ cy_rslt_t cy_rtos_delay_milliseconds(cy_time_t num_ms)
     statusInternal = osDelay(num_ms);
     status = error_converter(statusInternal);
 
-    return status; 
+    return status;
 }
 
 

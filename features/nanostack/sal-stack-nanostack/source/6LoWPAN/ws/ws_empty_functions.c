@@ -40,6 +40,15 @@ int ws_management_node_init(
     return -1;
 }
 
+int ws_management_network_name_set(
+    int8_t interface_id,
+    char *network_name_ptr)
+{
+    (void)interface_id;
+    (void)network_name_ptr;
+    return -1;
+}
+
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,

@@ -204,19 +204,34 @@ void rpl_control_address_register_done(protocol_interface_info_entry_t *interfac
     }
 }
 
-bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], bool selected)
+bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
 {
     if (!interface->rpl_domain) {
         return false;
     }
     // go through instances and parents and check if they match the address.
     ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        if (rpl_instance_address_is_parent(instance, ll_addr, selected)) {
+        if (rpl_instance_address_is_parent(instance, ll_addr)) {
             return true;
         }
     }
     return false;
 }
+
+bool rpl_control_is_dodag_parent_candidate(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter)
+{
+    if (!interface->rpl_domain) {
+        return false;
+    }
+    // go through instances and parents and check if they match the address.
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        if (rpl_instance_address_is_candidate(instance, ll_addr, candidate_cmp_limiter)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 uint16_t rpl_control_parent_candidate_list_size(protocol_interface_info_entry_t *interface, bool parent_list)
 {
@@ -365,11 +380,12 @@ void rpl_control_remove_domain_from_interface(protocol_interface_info_entry_t *c
     }
 }
 
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, void *cb_handle)
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, void *cb_handle)
 {
     domain->callback = callback;
     domain->prefix_cb = prefix_learn_cb;
     domain->cb_handle = cb_handle;
+    domain->new_parent_add = new_parent_add;
 }
 
 /* To do - this should live somewhere nicer. Basically a bootstrap
@@ -961,6 +977,9 @@ malformed:
     const rpl_dodag_conf_t *conf = rpl_dodag_get_config(dodag);
     if (!conf) {
         /* TODO - rate limit DIS? */
+        if (domain->new_parent_add && !domain->new_parent_add(buf->src_sa.address, domain->cb_handle)) {
+            goto invalid_parent;
+        }
         rpl_control_transmit_dis(domain, cur, RPL_SOLINFO_PRED_DODAGID | RPL_SOLINFO_PRED_INSTANCEID, instance_id, dodagid, 0, buf->src_sa.address);
         goto invalid_parent;
     }
@@ -993,9 +1012,15 @@ malformed:
     /* Now we create the neighbour, if we don't already have a record */
     if (!neighbour) {
         neighbour = rpl_create_neighbour(version, buf->src_sa.address, cur->id, g_mop_prf, dtsn);
+        //Call Here new parent create
         if (!neighbour) {
             goto invalid_parent;
         }
+
+        if (domain->new_parent_add && !domain->new_parent_add(buf->src_sa.address, domain->cb_handle)) {
+            goto invalid_parent;
+        }
+
     }
 
     /* Update neighbour info */

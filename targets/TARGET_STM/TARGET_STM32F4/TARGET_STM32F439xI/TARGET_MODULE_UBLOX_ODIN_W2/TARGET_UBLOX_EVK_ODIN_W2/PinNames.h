@@ -160,6 +160,11 @@ typedef enum {
     SW0        = PF_2,   // Switch-0
     SW1        = PB_6,   // Green / Switch-1
 
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     I2C_SCL     = D15,
     I2C_SDA     = D14,
     SPI0_MOSI    = D11,

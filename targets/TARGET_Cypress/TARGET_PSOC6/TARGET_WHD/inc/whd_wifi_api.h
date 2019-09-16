@@ -76,43 +76,33 @@ extern uint32_t whd_init(whd_driver_t *whd_driver_ptr, whd_init_config_t *whd_in
  *  @param  whd_driver         Pointer to handle instance of the driver
  *  @param  whd_config         Configuration for SDIO bus
  *  @param  sdio_obj           The SDHC hardware interface, from the Level 3 CY HW APIs
- *  @param  sdio_ops           Pointer to a whd_sdio_funcs_t to provide SDIO services to the driver instance
  *
  *  @return WHD_SUCCESS or Error code
  */
-extern uint32_t whd_bus_sdio_attach(whd_driver_t whd_driver, whd_sdio_config_t *whd_config, void *sdio_obj,
-                                    whd_sdio_funcs_t *sdio_ops);
+extern uint32_t whd_bus_sdio_attach(whd_driver_t whd_driver, whd_sdio_config_t *whd_config, cyhal_sdio_t *sdio_obj);
 
-/** Notify the WLAN device that the SDIO host-wake signal asserted.
+/** Detach the WLAN Device to a specific SDIO bus
  *
- * This function may be called after the WHD calls @ref whd_enable_intr_func_t with enable
- * set to WHD_TRUE.
- *
- *  @param  whd_driver        Pointer to handle instance of the driver
+ *  @param  whd_driver         Pointer to handle instance of the driver
  */
-extern void whd_bus_sdio_oob_intr_asserted(whd_driver_t whd_driver);
+extern void whd_bus_sdio_detach(whd_driver_t whd_driver);
 
 /** Attach the WLAN Device to a specific SPI bus
  *
  *  @param  whd_driver        Pointer to handle instance of the driver
  *  @param  whd_config        Configuration for SPI bus
  *  @param  spi_obj           The SPI hardware interface, from the Level 3 CY HW APIs
- *  @param  spi_ops           Pointer to a whd_spi_funcs_t to provide SPI services to the driver instance
  *
  *  @return WHD_SUCCESS or Error code
  */
-extern uint32_t whd_bus_spi_attach(whd_driver_t whd_driver, whd_spi_config_t *whd_config, void *spi_obj,
-                                   whd_spi_funcs_t *spi_ops);
+extern uint32_t whd_bus_spi_attach(whd_driver_t whd_driver, whd_spi_config_t *whd_config, cyhal_spi_t *spi_obj);
 
-/**
- * Notify the WLAN device that the SPI interrupt signal asserted.
+/** Detach the WLAN Device to a specific SPI bus
  *
- * This function may be called after the WHD calls @ref whd_enable_intr_func_t with enable
- * set to WHD_TRUE.
- *
- *  @param  whd_driver        Pointer to the handle instance of the driver associated to the event
+ *  @param  whd_driver         Pointer to handle instance of the driver
  */
-extern void whd_bus_spi_oob_intr_asserted(whd_driver_t whd_driver);
+extern void whd_bus_spi_detach(whd_driver_t whd_driver);
+
 /*  @} */
 
 /** @addtogroup wifi WHD Wi-Fi API
@@ -263,7 +253,7 @@ extern uint32_t whd_wifi_scan(whd_interface_t ifp,
                               const uint16_t *optional_channel_list,
                               const whd_scan_extended_params_t *optional_extended_params,
                               whd_scan_result_callback_t callback,
-                              whd_scan_result_t **result_ptr,
+                              whd_scan_result_t *result_ptr,
                               void *user_data);
 
 /** Abort a previously issued scan

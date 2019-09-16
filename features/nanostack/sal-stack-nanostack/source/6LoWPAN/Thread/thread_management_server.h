@@ -134,6 +134,12 @@ bool thread_management_server_source_address_check(int8_t interface_id, uint8_t 
  */
 int thread_management_server_tmf_get_request_handler(int8_t interface_id, int8_t coap_service_id, struct sn_coap_hdr_ *request_ptr);
 
+#ifdef HAVE_THREAD_V2
+int thread_management_server_ccm_service_init(int8_t interface_id);
+#else
+#define thread_management_server_ccm_service_init(interface_id)
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -28,7 +28,7 @@ typedef struct eth_mac_internal_s {
     arm_device_driver_list_s *dev_driver;
     uint8_t *mtu_ptr;
     uint16_t mtu_size;
-    uint8_t mac48[6];
+    uint8_t mac48_iid64[8];
     bool active_data_request;
     int8_t tasklet_id;
     //linked list link
@@ -52,6 +52,8 @@ static int8_t eth_mac_api_init(eth_mac_api_t *api, eth_mac_data_confirm *conf_cb
 static void data_req(const eth_mac_api_t *api, const eth_data_req_t *data);
 static int8_t mac48_address_set(const eth_mac_api_t *api, const uint8_t *mac48);
 static int8_t mac48_address_get(const eth_mac_api_t *api, uint8_t *mac48_buf);
+static int8_t iid64_address_set(const eth_mac_api_t *api, const uint8_t *iid64);
+static int8_t iid64_address_get(const eth_mac_api_t *api, uint8_t *iid64_buf);
 
 static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id);
 static int8_t eth_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
@@ -98,6 +100,7 @@ eth_mac_api_t *ethernet_mac_create(int8_t driver_id)
     switch (driver->phy_driver->link_type) {
 
         case PHY_LINK_SLIP:
+        case PHY_LINK_PPP:
             //Do not Allocate
             address_resolution_needed = false;
             buffer_length = 0;
@@ -133,19 +136,29 @@ eth_mac_api_t *ethernet_mac_create(int8_t driver_id)
     memset(this, 0, sizeof(eth_mac_api_t));
     this->mac_initialize = &eth_mac_api_init;
     this->data_req = &data_req;
-    this->mac48_get = &mac48_address_get;
-    this->mac48_set = &mac48_address_set;
+
+    if (driver->phy_driver->link_type == PHY_LINK_PPP) {
+        this->iid64_get = &iid64_address_get;
+        this->iid64_set = &iid64_address_set;
+    } else {
+        this->mac48_get = &mac48_address_get;
+        this->mac48_set = &mac48_address_set;
+    }
 
     this->address_resolution_needed = address_resolution_needed;
 
-    memset(&mac_store.mac48, 0, 6);
+    memset(&mac_store.mac48_iid64, 0, 8);
     mac_store.active_data_request = false;
     mac_store.mac_api = this;
     mac_store.dev_driver = driver;
     mac_store.mtu_ptr = buffer_ptr;
     mac_store.mtu_size = buffer_length;
 
-    memcpy(&mac_store.mac48, mac_store.dev_driver->phy_driver->PHY_MAC, 6);
+    if (driver->phy_driver->link_type == PHY_LINK_PPP) {
+        memcpy(&mac_store.mac48_iid64, mac_store.dev_driver->phy_driver->PHY_MAC, 8);
+    } else {
+        memcpy(&mac_store.mac48_iid64, mac_store.dev_driver->phy_driver->PHY_MAC, 6);
+    }
     if (mac_store.tasklet_id == -1) {
         mac_store.tasklet_id = eventOS_event_handler_create(&ethernet_mac_tasklet, ETH_INIT_EVENT);
     }
@@ -289,7 +302,7 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
 
         data_len -= 4;
         data_ptr += 4;
-    } else if (driver->phy_driver->link_type == PHY_LINK_SLIP) {
+    } else if (driver->phy_driver->link_type == PHY_LINK_SLIP || driver->phy_driver->link_type == PHY_LINK_PPP) {
         data_ind->etehernet_type = ETHERTYPE_IPV6;
     }
 
@@ -357,10 +370,10 @@ static int8_t mac48_address_set(const eth_mac_api_t *api, const uint8_t *mac48)
     if (!mac48 || !api || mac_store.mac_api != api) {
         return -1;
     }
-    memcpy(mac_store.mac48, mac48, 6);
+    memcpy(mac_store.mac48_iid64, mac48, 6);
     phy_device_driver_s *driver = mac_store.dev_driver->phy_driver;
     if (driver->address_write) {
-        driver->address_write(PHY_MAC_48BIT, mac_store.mac48);
+        driver->address_write(PHY_MAC_48BIT, mac_store.mac48_iid64);
     }
     return 0;
 }
@@ -370,7 +383,30 @@ static int8_t mac48_address_get(const eth_mac_api_t *api, uint8_t *mac48_buf)
     if (!mac48_buf || !api || mac_store.mac_api != api) {
         return -1;
     }
-    memcpy(&mac_store.mac48, mac_store.dev_driver->phy_driver->PHY_MAC, 6);
-    memcpy(mac48_buf, mac_store.mac48, 6);
+    memcpy(&mac_store.mac48_iid64, mac_store.dev_driver->phy_driver->PHY_MAC, 6);
+    memcpy(mac48_buf, mac_store.mac48_iid64, 6);
+    return 0;
+}
+
+static int8_t iid64_address_set(const eth_mac_api_t *api, const uint8_t *iid64)
+{
+    if (!iid64 || !api || mac_store.mac_api != api) {
+        return -1;
+    }
+    memcpy(mac_store.mac48_iid64, iid64, 8);
+    phy_device_driver_s *driver = mac_store.dev_driver->phy_driver;
+    if (driver->address_write) {
+        driver->address_write(PHY_MAC_48BIT, mac_store.mac48_iid64);
+    }
+    return 0;
+}
+
+static int8_t iid64_address_get(const eth_mac_api_t *api, uint8_t *iid64_buf)
+{
+    if (!iid64_buf || !api || mac_store.mac_api != api) {
+        return -1;
+    }
+    memcpy(&mac_store.mac48_iid64, mac_store.dev_driver->phy_driver->PHY_MAC, 8);
+    memcpy(iid64_buf, mac_store.mac48_iid64, 8);
     return 0;
 }

@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysclk.c
-* \version 1.40
+* \version 1.40.1
 *
 * Provides an API implementation of the sysclk driver.
 *
@@ -867,7 +867,7 @@ cy_en_sysclk_status_t Cy_SysClk_PllConfigure(uint32_t clkPath, const cy_stc_pll_
     }
     else
     { 
-        cy_stc_pll_manual_config_t manualConfig;
+        cy_stc_pll_manual_config_t manualConfig = {0U, 0U, 0U, false, CY_SYSCLK_FLLPLL_OUTPUT_AUTO};
 
         /* If output mode is not bypass (input routed directly to output), then 
            calculate new parameters. */

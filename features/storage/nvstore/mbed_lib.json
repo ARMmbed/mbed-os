@@ -49,6 +49,12 @@
             "area_1_size": 16384,
             "area_2_address": "0x100FC000",
             "area_2_size": 16384
+        },
+        "CY8CPROTO_064_SB": {
+            "area_1_address": "0x10048000",
+            "area_1_size": 16384,
+            "area_2_address": "0x1004C000",
+            "area_2_size": 16384
         }
     }
 }

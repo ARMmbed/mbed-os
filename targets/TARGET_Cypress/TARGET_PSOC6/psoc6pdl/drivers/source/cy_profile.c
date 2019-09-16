@@ -130,7 +130,7 @@ void Cy_Profile_ISR(void)
 * for the firmware to be notified when a counter overflow occurs.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_StartProfiling
+* \snippet profile/snippet/main.c snippet_Cy_Profile_StartProfiling
 *
 *******************************************************************************/
 void Cy_Profile_StartProfiling(void)
@@ -155,7 +155,7 @@ void Cy_Profile_StartProfiling(void)
 * to 0. Calls Cy_Profile_ClearCounters() to clear counter registers.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_ClearConfiguration
+* \snippet profile/snippet/main.c snippet_Cy_Profile_ClearConfiguration
 *
 *******************************************************************************/
 void Cy_Profile_ClearConfiguration(void)
@@ -189,7 +189,7 @@ void Cy_Profile_ClearConfiguration(void)
 * available.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_ConfigureCounter
+* \snippet profile/snippet/main.c snippet_Cy_Profile_ConfigureCounter
 *
 *******************************************************************************/
 cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy_en_profile_duration_t duration,
@@ -246,7 +246,7 @@ cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy
 * \note The counter is not disabled by this function.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_FreeCounter
+* \snippet profile/snippet/main.c snippet_Cy_Profile_FreeCounter
 *
 *******************************************************************************/
 cy_en_profile_status_t Cy_Profile_FreeCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
@@ -278,7 +278,7 @@ cy_en_profile_status_t Cy_Profile_FreeCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
 * Status of the operation.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_EnableCounter
+* \snippet profile/snippet/main.c snippet_Cy_Profile_EnableCounter
 *
 *******************************************************************************/
 cy_en_profile_status_t Cy_Profile_EnableCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
@@ -313,7 +313,7 @@ cy_en_profile_status_t Cy_Profile_EnableCounter(cy_stc_profile_ctr_ptr_t ctrAddr
 * Status of the operation.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_DisableCounter
+* \snippet profile/snippet/main.c snippet_Cy_Profile_DisableCounter
 *
 *******************************************************************************/
 cy_en_profile_status_t Cy_Profile_DisableCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
@@ -350,7 +350,7 @@ cy_en_profile_status_t Cy_Profile_DisableCounter(cy_stc_profile_ctr_ptr_t ctrAdd
 * Status of the operation.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_GetRawCount
+* \snippet profile/snippet/main.c snippet_Cy_Profile_GetRawCount
 *
 *******************************************************************************/
 cy_en_profile_status_t Cy_Profile_GetRawCount(cy_stc_profile_ctr_ptr_t ctrAddr, uint64_t *result)
@@ -386,7 +386,7 @@ cy_en_profile_status_t Cy_Profile_GetRawCount(cy_stc_profile_ctr_ptr_t ctrAddr, 
 * Status of the operation.
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_GetWeightedCount
+* \snippet profile/snippet/main.c snippet_Cy_Profile_GetWeightedCount
 *
 *******************************************************************************/
 cy_en_profile_status_t Cy_Profile_GetWeightedCount(cy_stc_profile_ctr_ptr_t ctrAddr, uint64_t *result)
@@ -421,7 +421,7 @@ cy_en_profile_status_t Cy_Profile_GetWeightedCount(cy_stc_profile_ctr_ptr_t ctrA
 * The weighted sum of the specified counters
 *
 * \funcusage
-* \snippet profile/profile_v1_0_sut_01.cydsn/main_cm4.c snippet_Cy_Profile_GetSumWeightedCounts
+* \snippet profile/snippet/main.c snippet_Cy_Profile_GetSumWeightedCounts
 *
 *******************************************************************************/
 uint64_t Cy_Profile_GetSumWeightedCounts(cy_stc_profile_ctr_ptr_t ptrsArray[],

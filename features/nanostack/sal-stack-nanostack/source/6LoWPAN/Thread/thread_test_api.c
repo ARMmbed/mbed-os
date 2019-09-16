@@ -48,9 +48,9 @@
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
-#include "6LoWPAN/Thread/thread_extension_bootstrap.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
+#include "6LoWPAN/Thread/thread_ccm.h"
 #include "MLE/mle.h"
 #include "thread_meshcop_lib.h"
 #include "thread_diagcop_lib.h"
@@ -645,7 +645,7 @@ int thread_test_pbbr_response_override_set(int8_t interface_id, uint8_t dua_stat
 {
 #ifdef HAVE_THREAD
     (void)interface_id;
-    thread_extension_bbr_status_override_set(dua_status, dua_count, ba_failure_count);
+    thread_bbr_commercial_status_override_set(dua_status, dua_count, ba_failure_count);
     return 0;
 
 #else
@@ -1400,7 +1400,7 @@ int thread_test_extension_name_set(int8_t interface_id, char extension_name[16])
         return -1;
     }
 
-    return thread_extension_bootstrap_thread_name_set(cur, extension_name);
+    return thread_ccm_thread_name_set(cur, extension_name);
 #else
     return -1;
 #endif

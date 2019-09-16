@@ -63,6 +63,9 @@ void wifi_connect_params_channel_fail(void);
 /** Test WiFiInterface::connect() without parameters. Use set_credentials() for setting parameters. */
 void wifi_connect(void);
 
+/** Test WiFiInterface::connect() in nonblocking mode. Use set_credentials() for setting parameters. */
+void wifi_connect_nonblock(void);
+
 /** Test WiFiInterface::connect() without parameters. Don't set parameters with set_credentials() */
 void wifi_connect_nocredentials(void);
 

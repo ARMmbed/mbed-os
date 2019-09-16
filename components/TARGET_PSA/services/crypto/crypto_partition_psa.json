@@ -80,9 +80,9 @@
       "minor_policy": "STRICT"
     },
     {
-      "name": "PSA_GENERATOR_ID",
+      "name": "PSA_KEY_DERIVATION_ID",
       "identifier": "0x00000F09",
-      "signal": "PSA_GENERATOR",
+      "signal": "PSA_KEY_DERIVATION",
       "non_secure_clients": true,
       "minor_version": 1,
       "minor_policy": "STRICT"

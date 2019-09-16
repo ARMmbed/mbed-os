@@ -51,6 +51,9 @@ extern "C" {
 #define CYHAL_GET_PIN(pin)         ((uint8_t)(pin & 0xFFFFUL))  /**< Macro to extract the pin number */
 #define CYHAL_GET_PORT(pin)        ((uint8_t)((uint32_t)(pin >> 16) & 0xFFUL)) /**< Macro to extract the port number */
 
+#define CYHAL_IRQN_OFFSET          16 /**< Offset for implementation-defined ISR type numbers (IRQ0 = 16) */
+#define CYHAL_GET_CURRENT_IRQN()   ((IRQn_Type) (__get_IPSR() - CYHAL_IRQN_OFFSET)) /**< Macro to get the IRQn of the current ISR */
+
 /** Looks up the resource block that connects to the specified pins from the provided resource pin mapping table.
  * This is a convinience utility for cyhal_utils_get_resource() if the mappings is an array of known size.
  *

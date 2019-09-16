@@ -71,10 +71,15 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT((PWMName) modinit->modname == obj->pwm);
-    
+
+    obj->pin = pin;
+
+    // Wire pinout
+    pinmap_pinout(pin, PinMap_PWM);
+
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
-        
+
     // NOTE: Channels 0/1, 2/3 share a clock source.
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0xF) == 0) {
         // Select clock source of paired channels
@@ -82,23 +87,20 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
     }
-    
-    // Wire pinout
-    pinmap_pinout(pin, PinMap_PWM);
-    
+
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
     pwmout_config(obj);
     // enable inverter to ensure the first PWM cycle is correct
     pwm_base->CTL |= (PWM_CTL_CH0INV_Msk << (chn * 8));
-    
+
     // Enable output of the specified PWM channel
     PWM_EnableOutput(pwm_base, 1 << chn);
     PWM_Start(pwm_base, 1 << chn);
-    
+
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
-    
+
     if (((struct nu_pwm_var *) modinit->var)->en_msk) {
         // Mark this module to be inited.
         int i = modinit - pwm_modinit_tab;
@@ -127,6 +129,10 @@ void pwmout_free(pwmout_t* obj)
         int i = modinit - pwm_modinit_tab;
         pwm_modinit_mask &= ~(1 << i);
     }
+
+    // Free up pins
+    gpio_set(obj->pin);
+    obj->pin = NC;
 }
 
 void pwmout_write(pwmout_t* obj, float value)

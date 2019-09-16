@@ -2,7 +2,7 @@
 * \file cyhal_gpio.h
 *
 * \brief
-* Provides a high level interface for interacting with the Cypress GPIO.
+* Provides a high level interface for interacting with the GPIO on Cypress devices.
 * This interface abstracts out the chip specific details. If any chip specific
 * functionality is necessary, or performance is critical the low level functions
 * can be used directly.
@@ -72,30 +72,31 @@ extern "C" {
 *       Enumerations
 *******************************************************************************/
 
-/** Pin IRQ events */
+/** Pin events */
 typedef enum {
-    CYHAL_GPIO_IRQ_NONE = 0,   /**< No interrupt */
-    CYHAL_GPIO_IRQ_RISE = 1,   /**< Interrupt on rising edge */
-    CYHAL_GPIO_IRQ_FALL = 2,   /**< Interrupt on falling edge */
-    CYHAL_GPIO_IRQ_BOTH = 3,   /**< Interrupt on both rising and falling edges */
-} cyhal_gpio_irq_event_t;
+    CYHAL_GPIO_IRQ_NONE,   /**< No interrupt */
+    CYHAL_GPIO_IRQ_RISE,   /**< Interrupt on rising edge */
+    CYHAL_GPIO_IRQ_FALL,   /**< Interrupt on falling edge */
+    CYHAL_GPIO_IRQ_BOTH,   /**< Interrupt on both rising and falling edges */
+} cyhal_gpio_event_t;
 
 /** Pin direction */
 typedef enum {
-    CYHAL_GPIO_DIR_INPUT         = 0,  /**< Input pin */
-    CYHAL_GPIO_DIR_OUTPUT        = 1,  /**< Output pin */
-    CYHAL_GPIO_DIR_BIDIRECTIONAL = 2,   /**< Input and output pin */
+    CYHAL_GPIO_DIR_INPUT,         /**< Input pin */
+    CYHAL_GPIO_DIR_OUTPUT,        /**< Output pin */
+    CYHAL_GPIO_DIR_BIDIRECTIONAL, /**< Input and output pin */
 } cyhal_gpio_direction_t;
 
 /** Pin drive mode */
 typedef enum {
-    CYHAL_GPIO_DRIVE_ANALOG              = 0, /**< Analog Hi-Z */
-    CYHAL_GPIO_DRIVE_PULLUP              = 2, /**< Pull-up resistor */
-    CYHAL_GPIO_DRIVE_PULLDOWN            = 3, /**< Pull-down resistor */
-    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESLOW  = 4, /**< Open-drain, Drives Low */
-    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH = 5, /**< Open-drain, Drives High */
-    CYHAL_GPIO_DRIVE_STRONG              = 6, /**< Strong output */
-    CYHAL_GPIO_DRIVE_PULLUPDOWN          = 7, /**< Pull-up and pull-down resistors */
+    CYHAL_GPIO_DRIVE_NONE,                /**< No drive; Hi-Z */
+    CYHAL_GPIO_DRIVE_ANALOG,              /**< Analog Hi-Z */
+    CYHAL_GPIO_DRIVE_PULLUP,              /**< Pull-up resistor */
+    CYHAL_GPIO_DRIVE_PULLDOWN,            /**< Pull-down resistor */
+    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESLOW,  /**< Open-drain, Drives Low */
+    CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH, /**< Open-drain, Drives High */
+    CYHAL_GPIO_DRIVE_STRONG,              /**< Strong output */
+    CYHAL_GPIO_DRIVE_PULLUPDOWN,          /**< Pull-up and pull-down resistors */
 } cyhal_gpio_drive_mode_t;
 
 /** \} group_hal_gpio_enums */
@@ -107,7 +108,7 @@ typedef enum {
 */
 
 /** GPIO callback function type */
-typedef void (*cyhal_gpio_irq_handler_t)(void *handler_arg, cyhal_gpio_irq_event_t event);
+typedef void (*cyhal_gpio_event_callback_t)(void *callback_arg, cyhal_gpio_event_t event);
 
 /** \} group_hal_gpio_data_structures */
 
@@ -123,10 +124,10 @@ typedef void (*cyhal_gpio_irq_handler_t)(void *handler_arg, cyhal_gpio_irq_event
 
 /** Initialize the GPIO pin
  *
- * @param[in]  pin The GPIO pin to initialize
- * @param[in]  direction The pin direction (input/output)
- * @param[in]  drvMode The pin drive mode
- * @param[in]  initVal Initial value on the pin
+ * @param[in] pin       The GPIO pin to initialize
+ * @param[in] direction The pin direction
+ * @param[in] drvMode   The pin drive mode
+ * @param[in] initVal   Initial value on the pin
  *
  * @return The status of the init request
  */
@@ -138,22 +139,15 @@ cy_rslt_t cyhal_gpio_init(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cy
  */
 void cyhal_gpio_free(cyhal_gpio_t pin);
 
-/** Set the pin direction
+/** Configure the GPIO pin
  *
- * @param[in] pin       The pin number
- * @param[in] direction The pin direction to be set
- * @return The status of the dir request
+ * @param[in] pin       The GPIO pin
+ * @param[in] direction The pin direction
+ * @param[in] drvMode   The pin drive mode
+ *
+ * @return The status of the configure request
  */
-cy_rslt_t cyhal_gpio_direction(cyhal_gpio_t pin, cyhal_gpio_direction_t direction);
-
-/** Set the input pin mode
- *
- * @param[in] pin  The GPIO object
- * @param[in] drvMode The pin mode to be set
- *
- * @return The status of the mode request
- */
-cy_rslt_t cyhal_gpio_drivemode(cyhal_gpio_t pin, cyhal_gpio_drive_mode_t drvMode);
+cy_rslt_t cyhal_gpio_configure(cyhal_gpio_t pin, cyhal_gpio_direction_t direction, cyhal_gpio_drive_mode_t drvMode);
 
 /** Set the output value for the pin. This only works for output & in_out pins.
  *
@@ -175,27 +169,41 @@ bool cyhal_gpio_read(cyhal_gpio_t pin);
  */
 void cyhal_gpio_toggle(cyhal_gpio_t pin);
 
-/** Register/clear an interrupt handler for the pin toggle pin IRQ event
+/** Register/clear a callback handler for pin events
  *
- * @param[in] pin           The pin number
- * @param[in] intrPriority  The NVIC interrupt channel priority
- * @param[in] handler       The function to call when the specified event happens
- * @param[in] handler_arg   Generic argument that will be provided to the handler when called
+ * @param[in] pin            The pin number
+ * @param[in] callback       The function to call when the specified event happens. Pass NULL to unregister the handler.
+ * @param[in] callback_arg   Generic argument that will be provided to the callback when called, can be NULL
  */
-void cyhal_gpio_register_irq(cyhal_gpio_t pin, uint8_t intrPriority, cyhal_gpio_irq_handler_t handler, void *handler_arg);
+void cyhal_gpio_register_callback(cyhal_gpio_t pin, cyhal_gpio_event_callback_t callback, void *callback_arg);
 
-/** Enable or Disable the GPIO IRQ
+/** Enable or Disable the specified GPIO event
  *
- * @param[in] pin    The GPIO object
- * @param[in] event  The GPIO IRQ event
- * @param[in] enable True to turn on interrupts, False to turn off
+ * @param[in] pin           The GPIO object
+ * @param[in] event         The GPIO event
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on interrupts, False to turn off
  */
-void cyhal_gpio_irq_enable(cyhal_gpio_t pin, cyhal_gpio_irq_event_t event, bool enable);
+void cyhal_gpio_enable_event(cyhal_gpio_t pin, cyhal_gpio_event_t event, uint8_t intrPriority, bool enable);
 
 /** \} group_hal_gpio_functions */
+
+/*******************************************************************************
+* Backward compatibility macro. The following code is DEPRECATED and must 
+* not be used in new projects
+*******************************************************************************/
+/** \cond INTERNAL */
+#define cyhal_gpio_register_irq(pin, priority, handler, handler_arg)        cyhal_gpio_register_callback(pin, handler, handler_arg)
+#define cyhal_gpio_irq_enable(pin, event, enable)          cyhal_gpio_enable_event(pin, event, CYHAL_ISR_PRIORITY_DEFAULT, enable)
+typedef cyhal_gpio_event_t             cyhal_gpio_irq_event_t;
+/** \endcond */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#ifdef CYHAL_GPIO_IMPL_HEADER
+#include CYHAL_GPIO_IMPL_HEADER
+#endif /* CYHAL_GPIO_IMPL_HEADER */
 
 /** \} group_hal_gpio */

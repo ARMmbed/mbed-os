@@ -5,7 +5,7 @@
 * PSoC6_01 device GPIO HAL header for 124-BGA package
 *
 * \note
-* Generator version: 1.4.7107.26790
+* Generator version: 1.4.7153.30079
 *
 ********************************************************************************
 * \copyright
@@ -189,6 +189,11 @@ const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_dig_ldo_en[1] =
 /* Connections for: bless_mxd_dpslp_isolate_n */
 const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_isolate_n[1] = {
     {P2_5, &CYHAL_BLESS_0, CYHAL_PIN_OUT_FUNCTION(P2_5_BLESS_MXD_DPSLP_ISOLATE_N)},
+};
+
+/* Connections for: bless_mxd_dpslp_mxd_clk_out */
+const cyhal_resource_pin_mapping_t cyhal_pin_map_bless_mxd_dpslp_mxd_clk_out[1] = {
+    {NC, NULL, 0u},
 };
 
 /* Connections for: bless_mxd_dpslp_rcb_clk */

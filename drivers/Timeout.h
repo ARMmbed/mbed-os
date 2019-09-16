@@ -22,7 +22,7 @@
 
 namespace mbed {
 /**
- * \addtogroup drivers_Timeout Timeout class
+ * \defgroup drivers_Timeout Timeout class
  * \ingroup drivers-public-api-ticker
  * @{
  */

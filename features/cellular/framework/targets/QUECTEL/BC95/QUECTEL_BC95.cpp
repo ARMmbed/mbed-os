@@ -55,17 +55,16 @@ nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
 {
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT+NCCID?");
-    _at->cmd_stop();
-    _at->resp_start("+NCCID:");
-    if (_at->info_resp()) {
-        state = SimStateReady;
-    } else {
+    nsapi_error_t err = _at->at_cmd_discard("+NCCID", "?");
+    _at->unlock();
+
+    state = SimStateReady;
+    if (err != NSAPI_ERROR_OK) {
         tr_warn("SIM not readable.");
-        state = SimStateUnknown; // SIM may not be ready yet
+        state = SimStateUnknown;
     }
-    _at->resp_stop();
-    return _at->unlock_return_error();
+
+    return err;
 }
 
 AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
@@ -89,12 +88,9 @@ nsapi_error_t QUECTEL_BC95::init()
 
     _at->lock();
     _at->flush();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("", "");  //Send AT
 
-    _at->cmd_start("AT+CMEE="); // verbose responses
-    _at->write_int(1);
-    _at->cmd_stop_read_resp();
+    _at->at_cmd_discard("+CMEE", "=1"); // verbose responses
 
     return _at->unlock_return_error();
 }

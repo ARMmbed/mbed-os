@@ -51,8 +51,7 @@
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
-#include "6LoWPAN/Thread/thread_extension.h"
-#include "6LoWPAN/Thread/thread_extension_bbr.h"
+#include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
@@ -696,7 +695,7 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
         //If there is a default router present in any prefix other than us we do not forward multicast
         //This prevents multicasts to different interfaces where Thread Mesh is forwarder
         bool forward_multicast = !thread_bbr_default_route_exists(cur, NULL);
-        thread_extension_bbr_mcast_fwd_check(cur->id, &forward_multicast);
+        thread_bbr_commercial_mcast_fwd_check(cur->id, &forward_multicast);
 
         thread_bbr_routing_enable(this, forward_multicast);
     } else {
@@ -794,7 +793,7 @@ void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur)
 {
     (void)cur;
     thread_mdns_network_data_update_notify();
-    thread_extension_bbr_route_update(cur);
+    thread_bbr_commercial_route_update(cur);
 }
 #endif /* HAVE_THREAD_BORDER_ROUTER*/
 
@@ -980,10 +979,7 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t seconds)
         thread_bbr_status_check(this, seconds);
     }
 
-    if (!thread_extension_version_check(thread_version)) {
-        return;
-    }
-    thread_extension_bbr_seconds_timer(interface_id, seconds);
+    thread_bbr_commercial_seconds_timer(interface_id, seconds);
 
 #endif
 }
@@ -994,6 +990,10 @@ int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
+        return -1;
+    }
+    // Send NA only if it is enabled for the backhaul
+    if (!cur->send_na) {
         return -1;
     }
 
@@ -1150,7 +1150,7 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
                                            THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LONG_TERM,
                                            THREAD_BBR_IPV6_NEIGHBOUR_CACHE_LIFETIME);
 
-    thread_extension_bbr_init(interface_id, backbone_interface_id);
+    thread_bbr_commercial_init(interface_id, backbone_interface_id);
 
     return 0;
 #else
@@ -1165,7 +1165,7 @@ int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t tim
     (void) timeout_b;
     (void) delay;
 #ifdef HAVE_THREAD_BORDER_ROUTER
-    thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay);
+    thread_bbr_commercial_timeout_set(interface_id, timeout_a, timeout_b, delay);
     return 0;
 #else
     return -1;
@@ -1178,7 +1178,7 @@ int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix)
     (void) interface_id;
     (void) prefix;
 #ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_extension_bbr_prefix_set(interface_id, prefix);
+    return thread_bbr_commercial_prefix_set(interface_id, prefix);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
@@ -1189,7 +1189,7 @@ int thread_bbr_sequence_number_set(int8_t interface_id, uint8_t sequence_number)
     (void) interface_id;
     (void) sequence_number;
 #ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_extension_bbr_sequence_number_set(interface_id, sequence_number);
+    return thread_bbr_commercial_sequence_number_set(interface_id, sequence_number);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
@@ -1201,7 +1201,7 @@ int thread_bbr_validation_interface_address_set(int8_t interface_id, const uint8
     (void) addr_ptr;
     (void) port;
 #ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_extension_bbr_address_set(interface_id, addr_ptr, port);
+    return thread_bbr_commercial_address_set(interface_id, addr_ptr, port);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
@@ -1217,7 +1217,7 @@ void thread_bbr_stop(int8_t interface_id)
     if (!this) {
         return;
     }
-    thread_extension_bbr_delete(interface_id);
+    thread_bbr_commercial_delete(interface_id);
     thread_bbr_network_data_remove(this);
     thread_bbr_routing_disable(this);
     thread_border_router_publish(interface_id);

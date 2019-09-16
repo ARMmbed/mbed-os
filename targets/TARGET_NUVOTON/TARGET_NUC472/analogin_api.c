@@ -53,32 +53,35 @@ void analogin_init(analogin_t *obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->adc);
-    
-    EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
-    
-    // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
-    if (! eadc_modinit_mask) {
-        // Reset this module if no channel enabled
-        SYS_ResetModule(modinit->rsetidx);
-        
-        // Select clock source of paired channels
-        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
-        // Enable clock of paired channels
-        CLK_EnableModuleClock(modinit->clkidx);
-        
-        // Make EADC_module ready to convert
-        EADC_Open(eadc_base, 0);
-    }
-    
-    uint32_t smp_chn =  NU_MODSUBINDEX(obj->adc);
-    uint32_t smp_mod =  NU_MODINDEX(obj->adc) * 8 + smp_chn;
-    
+
+    obj->pin = pin;
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_ADC);
     
+    EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
+
+    // NOTE: All channels (identified by ADCName) share a ADC module. This reset will also affect other channels of the same ADC module.
+    if (! eadc_modinit_mask) {
+        // Select clock source of paired channels
+        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+
+        // Enable clock of paired channels
+        CLK_EnableModuleClock(modinit->clkidx);
+
+        // Reset this module if no channel enabled
+        SYS_ResetModule(modinit->rsetidx);
+
+        // Make EADC_module ready to convert
+        EADC_Open(eadc_base, 0);
+    }
+
+    uint32_t smp_chn =  NU_MODSUBINDEX(obj->adc);
+    uint32_t smp_mod =  NU_MODINDEX(obj->adc) * 8 + smp_chn;
+
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
     EADC_ConfigSampleModule(eadc_base, smp_mod, EADC_SOFTWARE_TRIGGER, smp_chn);
-    
+
     eadc_modinit_mask |= 1 << smp_mod;
 }
 

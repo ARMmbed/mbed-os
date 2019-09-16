@@ -41,8 +41,8 @@
 
 #include <stdint.h>
 #include "cy_result.h"
-#include "cyhal_hwmgr.h"
 #include "cyhal_hw_types.h"
+#include "cyhal_modules.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -56,11 +56,38 @@ extern "C" {
 /** Bad argument */
 #define CYHAL_PWM_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 0))
 /** Failed to initialize PWM clock */
-#define CYHAL_PWM_RSLT_FAILED_CLOCK (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 1))
+#define CYHAL_PWM_RSLT_FAILED_CLOCK_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 1))
 /** Failed to initialize PWM */
 #define CYHAL_PWM_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 2))
 
 /** \} group_hal_pwm_macros */
+
+
+/**
+* \addtogroup group_hal_pwm_enums
+* \{
+*/
+
+/** PWM interrupt triggers */
+typedef enum {
+    CYHAL_PWM_IRQ_NONE            =  0,
+    CYHAL_PWM_IRQ_TERMINAL_COUNT  =  1 << 0,
+    CYHAL_PWM_IRQ_CAPTURE_COMPARE =  1 << 1,
+    CYHAL_PWM_IRQ_ALL             = (1 << 2) - 1,
+} cyhal_pwm_event_t;
+
+/** \} group_hal_pwm_enums */
+
+
+/**
+* \addtogroup group_hal_pwm_data_structures
+* \{
+*/
+
+/** Handler for PWM interrupts */
+typedef void(*cyhal_pwm_event_callback_t)(void *callback_arg, cyhal_pwm_event_t event);
+
+/** \} group_hal_pwm_data_structures */
 
 
 /**
@@ -90,7 +117,7 @@ void cyhal_pwm_free(cyhal_pwm_t *obj);
  * @param[in] pulse_width_us The pulse width in microseconds
  * @return The status of the period request
  */
-cy_rslt_t cyhal_pwm_period(cyhal_pwm_t *obj, uint32_t period_us, uint32_t pulse_width_us);
+cy_rslt_t cyhal_pwm_set_period(cyhal_pwm_t *obj, uint32_t period_us, uint32_t pulse_width_us);
 
 /** Set the PWM pulsewidth specified in microseconds, keeping the period the same.
  *
@@ -99,7 +126,7 @@ cy_rslt_t cyhal_pwm_period(cyhal_pwm_t *obj, uint32_t period_us, uint32_t pulse_
  * @param[in] frequencyhal_hz The frequency of the PWM
  * @return The status of the pulsewidth request
  */
-cy_rslt_t cyhal_pwm_duty_cycle(cyhal_pwm_t *obj, float duty_cycle, uint32_t frequencyhal_hz);
+cy_rslt_t cyhal_pwm_set_duty_cycle(cyhal_pwm_t *obj, float duty_cycle, uint32_t frequencyhal_hz);
 
 /** Starts the PWM with the provided period and pulsewidth
  *
@@ -115,10 +142,31 @@ cy_rslt_t cyhal_pwm_start(cyhal_pwm_t *obj);
  */
 cy_rslt_t cyhal_pwm_stop(cyhal_pwm_t *obj);
 
+/** The PWM interrupt handler registration
+ *
+ * @param[in] obj          The PWM object
+ * @param[in] callback     The callback handler which will be invoked when the event occurs
+ * @param[in] callback_arg Generic argument that will be provided to the callback when called
+ */
+void cyhal_pwm_register_callback(cyhal_pwm_t *obj, cyhal_pwm_event_callback_t callback, void *callback_arg);
+
+/** Configure PWM event enablement.
+ *
+ * @param[in] obj           The PWM object
+ * @param[in] event         The PWM event type
+ * @param[in] intrPriority  The priority for NVIC interrupt events
+ * @param[in] enable        True to turn on events, False to turn off
+ */
+void cyhal_pwm_enable_event(cyhal_pwm_t *obj, cyhal_pwm_event_t event, uint8_t intrPriority, bool enable);
+
 /** \} group_hal_pwm_functions */
 
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef CYHAL_PWM_IMPL_HEADER
+#include CYHAL_PWM_IMPL_HEADER
+#endif /* CYHAL_PWM_IMPL_HEADER */
 
 /** \} group_hal_pwm */

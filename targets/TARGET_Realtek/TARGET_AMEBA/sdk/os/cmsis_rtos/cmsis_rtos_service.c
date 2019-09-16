@@ -1212,7 +1212,7 @@ _WEAK void xPortSysTickHandler(void)
     printf("%s: Should not come over here!\r\n", __func__);
 }
 
-_WEAK u8 __ram_start_table_start__[];
+_WEAK u8 *__ram_start_table_start__;
 
 _WEAK void rtw_odm_acquirespinlock(void * adapter, int type)
 {

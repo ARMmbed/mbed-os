@@ -150,7 +150,8 @@ Fault_Handler_Continue2
                 MRS      R2,CONTROL               ; Get CONTROL Reg
                 STR      R2,[R1]
                 MOV      R0,R12
-                LDR      R1,=mbed_fault_context
+                LDR      R3,=mbed_fault_context
+                LDR      R1,[R3]
                 BL       mbed_fault_handler
 #endif                    
                 B        .                        ; Just in case we come back here                
