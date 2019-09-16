@@ -85,6 +85,89 @@ TEST_F(TestAT_CellularNetwork, Create)
     delete cn;
 }
 
+int expected_rat = 0;
+int expected_status = 0;
+int expected_cellid = 0;
+
+void status_cb_urc(nsapi_event_t ev, intptr_t ptr)
+{
+    const cell_callback_data_t *data = (const cell_callback_data_t *)ptr;
+    switch (ev) {
+    case CellularRadioAccessTechnologyChanged:
+        EXPECT_EQ(NSAPI_ERROR_OK, data->error);
+        EXPECT_EQ(expected_rat, data->status_data);
+        break;
+    case CellularRegistrationStatusChanged:
+        EXPECT_EQ(NSAPI_ERROR_OK, data->error);
+        EXPECT_EQ(expected_status, data->status_data);
+        break;
+    case CellularCellIDChanged:
+        EXPECT_EQ(NSAPI_ERROR_OK, data->error);
+        EXPECT_EQ(expected_cellid, data->status_data);
+        break;
+    default:
+        if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+            EXPECT_EQ(NSAPI_STATUS_DISCONNECTED, (int)ptr);
+        } else {
+            FAIL();
+        }
+    }
+}
+
+TEST_F(TestAT_CellularNetwork, test_urc_creg)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    cn.attach(status_cb_urc);
+
+    EXPECT_STREQ("+CEREG:", ATHandler_stub::urc_handlers[0].urc);
+    EXPECT_STREQ("+CREG:", ATHandler_stub::urc_handlers[1].urc);
+
+    // Connected to home network
+    expected_rat = CellularNetwork::RAT_NB1;
+    expected_status = CellularNetwork::RegisteredHomeNetwork;
+    expected_cellid = 305463233;
+
+    ATHandler_stub::int_count = 4;
+    ATHandler_stub::int_valid_count_table[3] = 1; // [1] STAT, Registered to home network
+    ATHandler_stub::int_valid_count_table[2] = 9; // [4] ACT, NB-IoT
+    ATHandler_stub::int_valid_count_table[1] = 1; // [5] cause_type, skipped
+    ATHandler_stub::int_valid_count_table[0] = 1; // [6] reject_cause, skipped
+
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[3] = "00C3"; // [2] LAC, 195
+    ATHandler_stub::read_string_table[2] = "1234FFC1"; // [3] ci, 305463233
+    ATHandler_stub::read_string_table[1] = "00100100"; // [7] active time
+    ATHandler_stub::read_string_table[0] = "01000111"; // [8] periodic-tau
+
+    ATHandler_stub::urc_handlers[0].cb();
+
+    // Disconnected
+    expected_rat = CellularNetwork::RAT_NB1;
+    expected_status = CellularNetwork::NotRegistered;
+    expected_cellid = 0;
+
+    ATHandler_stub::int_count = 4;
+    ATHandler_stub::int_valid_count_table[3] = 0; // [1] STAT, Not reqistered
+    ATHandler_stub::int_valid_count_table[2] = 9; // [4] ACT, NB-IoT
+    ATHandler_stub::int_valid_count_table[1] = 1; // [5] cause_type, skipped
+    ATHandler_stub::int_valid_count_table[0] = 1; // [6] reject_cause, skipped
+
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[3] = "0000"; // [2] LAC, 0000
+    ATHandler_stub::read_string_table[2] = "00000000"; // [3] ci, 000000000
+    ATHandler_stub::read_string_table[1] = "00100100"; // [7] active time
+    ATHandler_stub::read_string_table[0] = "01000111"; // [8] periodic-tau
+
+    ATHandler_stub::urc_handlers[0].cb();
+    ATHandler_stub::read_string_index = kRead_string_table_size;
+    ATHandler_stub::read_string_value = NULL;
+    ATHandler_stub::ssize_value = 0;
+}
+
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration)
 {
     EventQueue que;
