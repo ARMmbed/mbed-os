@@ -141,7 +141,7 @@ public:
         /** Deinitialize the pin configuration totally. 
          *\ This should allow changing the definition of the pin
          */
-          analogout_free(&this->_dac);
+        analogout_free(&this->_dac);
     }
 
 protected:
