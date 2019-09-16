@@ -742,8 +742,8 @@ static void test_equeue_chain()
     TEST_ASSERT_EQUAL_UINT8(3, touched1);
     TEST_ASSERT_EQUAL_UINT8(3, touched2);
 
-    equeue_destroy(&q1);
     equeue_destroy(&q2);
+    equeue_destroy(&q1);
 }
 
 /** Test that unchaining equeues makes them work on their own.
