@@ -51,7 +51,7 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
 
 float analogout_read(dac_t *obj)
 {
-    return analogout_read_u16(obj) / UINT16_MAX;
+    return analogout_read_u16(obj) * (1.0f / UINT16_MAX);
 }
 
 uint16_t analogout_read_u16(dac_t *obj)
