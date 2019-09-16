@@ -1368,7 +1368,7 @@ TEST_F(TestATHandler, test_ATHandler_sync)
     EXPECT_EQ(false, at.sync(100));
 
     fh1.size_value = 8;
-    char table[] = "OK\r\n\0";
+    char table[] = "+CMEE: 1\r\nOK\r\n\0";
     filehandle_stub_table = table;
 
     at.flush();
