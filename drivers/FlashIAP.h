@@ -63,8 +63,10 @@ namespace mbed {
  */
 class FlashIAP : private NonCopyable<FlashIAP> {
 public:
-    FlashIAP();
-    ~FlashIAP();
+    constexpr FlashIAP() : _flash(), _page_buf(nullptr)
+    {
+
+    }
 
     /** Initialize a flash IAP device
      *
