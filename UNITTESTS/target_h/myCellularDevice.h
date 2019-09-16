@@ -35,7 +35,7 @@ class FileHandle;
 class myCellularDevice : public CellularDevice {
 public:
     myCellularDevice(FileHandle *fh) : CellularDevice(fh), _context_list(0), _network(0) {}
-    ~myCellularDevice()
+    virtual ~myCellularDevice()
     {
         delete _context_list;
         delete _network;
@@ -121,11 +121,6 @@ public:
     virtual void modem_debug_on(bool on) {}
 
     virtual nsapi_error_t init()
-    {
-        return NSAPI_ERROR_OK;
-    }
-
-    virtual nsapi_error_t shutdown()
     {
         return NSAPI_ERROR_OK;
     }
