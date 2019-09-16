@@ -200,6 +200,32 @@ typedef enum {
     SWCLK      = PA_14,
     NTRST      = PB_4,
 
+    // ADC internal channels
+    ADC_TEMP   = 0xF0,
+    ADC_VREF   = 0xF1,
+    ADC_VBAT   = 0xF2,
+
+    //Right side (top view)
+    GND            = NC,
+    GP10           = NC,
+    RTS            = NC,
+    CTS            = NC,
+    GP7            = P_C12, //LCD CS on MTB
+    GP6            = P_A12, //LCD Reset on MTB
+    GP5            = P_A10, //LCD A0 on MTB
+    GP4            = P_A17,
+    TX2            = NC,
+    RX2            = NC,
+    SDA2           = NC,
+    SCL2           = NC,
+    MOSI2          = NC,
+    MISO2          = NC,
+    SCK2           = NC,
+    GP3            = P_A16,
+    GP2            = P_C5, //CS for SD Card on MTB
+    PWM2           = LED_GREEN,
+    PWM1           = LED_BLUE,
+    PWM0           = LED_RED,
 
 } PinName;
 
