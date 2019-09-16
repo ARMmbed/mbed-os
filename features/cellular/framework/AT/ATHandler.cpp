@@ -1574,7 +1574,13 @@ bool ATHandler::sync(int timeout_ms)
         // especially a common response like OK could be response to previous request.
         clear_error();
         _start_time = rtos::Kernel::get_ms_count();
-        at_cmd_discard("+CMEE", "?");
+        cmd_start("AT+CMEE?");
+        cmd_stop();
+        resp_start();
+        set_stop_tag("+CMEE:");
+        consume_to_stop_tag();
+        set_stop_tag(OK);
+        consume_to_stop_tag();
         if (!_last_err) {
             _at_timeout = timeout;
             unlock();
