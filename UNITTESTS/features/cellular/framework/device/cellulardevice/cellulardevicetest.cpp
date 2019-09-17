@@ -240,3 +240,35 @@ TEST_F(TestCellularDevice, test_shutdown)
 
     delete dev;
 }
+
+TEST_F(TestCellularDevice, test_timeout_array)
+{
+    FileHandle_stub fh1;
+    myCellularDevice *dev = new myCellularDevice(&fh1);
+    EXPECT_TRUE(dev);
+
+    CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
+
+    // Max size
+    uint16_t set_timeouts[CELLULAR_RETRY_ARRAY_SIZE + 1];
+    for (int i = 0; i < CELLULAR_RETRY_ARRAY_SIZE; i++) {
+        set_timeouts[i] = i + 100;
+    }
+    dev->set_retry_timeout_array(set_timeouts, CELLULAR_RETRY_ARRAY_SIZE);
+
+    uint16_t verify_timeouts[CELLULAR_RETRY_ARRAY_SIZE + 1];
+    for (int i = 0; i < CELLULAR_RETRY_ARRAY_SIZE; i++) {
+        verify_timeouts[i] = i + 100;
+    }
+    dev->verify_timeout_array(verify_timeouts, CELLULAR_RETRY_ARRAY_SIZE);
+
+    // Empty
+    dev->set_retry_timeout_array(NULL, 0);
+    dev->verify_timeout_array(NULL, 0);
+
+    // Oversize (returns only CELLULAR_RETRY_ARRAY_SIZE)
+    dev->set_retry_timeout_array(set_timeouts, CELLULAR_RETRY_ARRAY_SIZE + 1);
+    dev->verify_timeout_array(verify_timeouts, CELLULAR_RETRY_ARRAY_SIZE);
+
+    delete dev;
+}
