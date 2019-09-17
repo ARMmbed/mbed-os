@@ -85,8 +85,8 @@ static int tls_sec_prot_lib_ssl_send(void *ctx, const unsigned char *buf, size_t
 static int tls_sec_prot_lib_ssl_recv(void *ctx, unsigned char *buf, size_t len);
 static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char *ms,
                                             const unsigned char *kb, size_t maclen, size_t keylen,
-                                            size_t ivlen, unsigned char client_random[32],
-                                            unsigned char server_random[32],
+                                            size_t ivlen, const unsigned char client_random[32],
+                                            const unsigned char server_random[32],
                                             mbedtls_tls_prf_types tls_prf_type);
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
@@ -405,8 +405,8 @@ static int tls_sec_prot_lib_ssl_recv(void *ctx, unsigned char *buf, size_t len)
 
 static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char *ms,
                                             const unsigned char *kb, size_t maclen, size_t keylen,
-                                            size_t ivlen, unsigned char client_random[32],
-                                            unsigned char server_random[32],
+                                            size_t ivlen, const unsigned char client_random[32],
+                                            const unsigned char server_random[32],
                                             mbedtls_tls_prf_types tls_prf_type)
 {
     (void) kb;
