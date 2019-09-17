@@ -367,7 +367,11 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples, jobs=
     Args:
     config - the json object imported from the file.
     toolchains - List of toolchains to compile for.
-    results - results of the compilation stage.
+    targets - list of target names
+    profile - build profile path or name if in default place
+    verbose - enabling verbose
+    examples - List of examples to be build
+    jobs - Number of compile jobs
 
     """
     results = {}
