@@ -8669,8 +8669,7 @@
         "macros_add": ["CMSDK_CM7"],
         "device_has_add": ["MPU"]
     },
-    "NUMAKER_PFM_M2351": {
-        "core": "Cortex-M23-NS",
+    "NU_PFM_M2351_CM": {
         "default_toolchain": "ARMC6",
         "extra_labels": [
             "NUVOTON",
@@ -8684,7 +8683,6 @@
             "MBED_TZ_DEFAULT_ACCESS=1",
             "LPTICKER_DELAY_TICKS=4"
         ],
-        "trustzone": true,
         "is_disk_virtual": true,
         "supported_toolchains": ["ARMC6"],
         "config": {
@@ -8707,6 +8705,7 @@
         },
         "overrides": {
             "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true,
             "mpu-rom-end": "0x1fffffff"
         },
         "inherits": ["Target"],
@@ -8736,17 +8735,48 @@
             "FLASH",
             "MPU"
         ],
-        "components_add": ["FLASHIAP"],
         "detect_code": ["1305"],
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
         "tickless-from-us-ticker": true,
         "forced_reset_timeout": 3,
-        "mbed_rom_start"    : "0x10040000",
-        "mbed_rom_size"     : "0x40000",
-        "mbed_ram_start"    : "0x30008000",
-        "mbed_ram_size"     : "0x10000"
+        "public": false
+    },
+    "NU_PFM_M2351_NPSA_NS": {
+        "inherits": ["NU_PFM_M2351_CM"],
+        "core": "Cortex-M23-NS",
+        "trustzone": true,
+        "extra_labels_add": [
+            "M23_NS",
+            "NU_PREBUILD_SECURE"
+        ],
+        "macros_add": [
+            "MBED_TZ_DEFAULT_ACCESS=1"
+        ],
+        "components_add": ["FLASHIAP"],
+        "post_binary_hook": {"function": "M2351Code.merge_secure"},
+        "secure_image_filename": "NuMaker-mbed-TZ-secure-example.hex",
+        "mbed_rom_start"        : "0x10040000",
+        "mbed_rom_size"         : "0x40000",
+        "mbed_ram_start"        : "0x30008000",
+        "mbed_ram_size"         : "0x10000"
+    },
+    "NU_PFM_M2351_NPSA_S": {
+        "inherits": ["NU_PFM_M2351_CM"],
+        "core": "Cortex-M23",
+        "trustzone": true,
+        "extra_labels_add": [
+            "M23_S"
+        ],
+        "device_has_remove": ["TRNG"],
+        "components_add": ["FLASHIAP"],
+        "deliver_to_target": "NU_PFM_M2351_NPSA_NS",
+        "delivery_dir": "TARGET_NUVOTON/TARGET_M2351/TARGET_M23_NS/TARGET_NU_PFM_M2351_NPSA_NS/TARGET_NU_PREBUILD_SECURE",
+        "mbed_rom_start"        : "0x0",
+        "mbed_rom_size"         : "0x40000",
+        "mbed_ram_start"        : "0x20000000",
+        "mbed_ram_size"         : "0x8000"
     },
     "TMPM3H6": {
         "inherits": ["Target"],
