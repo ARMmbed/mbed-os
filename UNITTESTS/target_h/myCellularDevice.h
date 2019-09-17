@@ -22,6 +22,7 @@
 #include "FileHandle_stub.h"
 #include "ATHandler_stub.h"
 #include "AT_CellularContext.h"
+#include "gtest/gtest.h"
 
 using namespace events;
 
@@ -175,6 +176,24 @@ public:
     {
         return NSAPI_ERROR_OK;
     }
+
+    void verify_timeout_array(const uint16_t timeout[], int array_len)
+    {
+        if (array_len > CELLULAR_RETRY_ARRAY_SIZE) {
+            FAIL();
+        }
+        uint16_t get_timeouts[CELLULAR_RETRY_ARRAY_SIZE];
+        int get_timeouts_len = 0;
+
+        get_retry_timeout_array(get_timeouts, get_timeouts_len);
+
+        EXPECT_EQ(array_len, get_timeouts_len);
+
+        for (int i = 0; i < array_len; i++) {
+            EXPECT_EQ(timeout[i], get_timeouts[i]);
+        }
+    }
+
     AT_CellularNetwork *_network;
     AT_CellularContext *_context_list;
 };
