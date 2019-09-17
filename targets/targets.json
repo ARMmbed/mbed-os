@@ -5969,7 +5969,8 @@
             "TARGET=MAX32630",
             "TARGET_REV=0x4132",
             "BLE_HCI_UART",
-            "OPEN_DRAIN_LEDS"
+            "OPEN_DRAIN_LEDS",
+            "MBED_TICKLESS"
         ],
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
