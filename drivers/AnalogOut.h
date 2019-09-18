@@ -68,7 +68,7 @@ public:
 
     /** Create an AnalogOut connected to the specified pin
      *
-     * @param pinmap reference to strucure which holds static pinmap.
+     * @param pinmap reference to structure which holds static pinmap.
      */
     AnalogOut(const PinMap &pinmap)
     {
