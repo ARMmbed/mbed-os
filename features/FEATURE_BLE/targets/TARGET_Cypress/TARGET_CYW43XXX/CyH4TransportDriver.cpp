@@ -29,7 +29,7 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_host_wake_name(bt_host_wake_name),
     bt_device_wake_name(bt_device_wake_name),
     bt_host_wake(bt_host_wake_name, PIN_INPUT, PullNone, 0),
-    bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullDefault, 1),
+    bt_device_wake(bt_device_wake_name, PIN_OUTPUT, PullNone, 1),
     host_wake_irq_event(host_wake_irq),
     dev_wake_irq_event(dev_wake_irq)
 {
@@ -61,9 +61,10 @@ CyH4TransportDriver::~CyH4TransportDriver()
 
 void CyH4TransportDriver::bt_host_wake_irq_handler(void)
 {
-    sleep_manager_lock_deep_sleep();
-    CyH4TransportDriver::on_controller_irq();
-    sleep_manager_unlock_deep_sleep();
+    uart.attach(
+        callback(this, &CyH4TransportDriver::on_controller_irq),
+        SerialBase::RxIrq
+    );
 }
 
 void CyH4TransportDriver::initialize()
@@ -71,6 +72,8 @@ void CyH4TransportDriver::initialize()
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
 	InterruptIn *host_wake_pin;
 #endif
+
+    sleep_manager_lock_deep_sleep();
 
     uart.format(
         /* bits */ 8,
@@ -106,6 +109,7 @@ void CyH4TransportDriver::initialize()
        if (bt_device_wake_name != NC)
            bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     }
+    sleep_manager_unlock_deep_sleep();
     rtos::ThisThread::sleep_for(500);
 }
 
@@ -115,6 +119,7 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 {
     uint16_t i = 0;
 
+    sleep_manager_lock_deep_sleep();
     assert_bt_dev_wake();
 
     while (i < len + 1) {
@@ -125,19 +130,29 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
     }
 
     deassert_bt_dev_wake();
+    sleep_manager_unlock_deep_sleep();
     return len;
 }
 
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+void CyH4TransportDriver::on_host_stack_inactivity()
+{
+    uart.attach(NULL, SerialBase::RxIrq);
+}
+#endif
+
 void CyH4TransportDriver::on_controller_irq()
 {
-	assert_bt_dev_wake();
+    sleep_manager_lock_deep_sleep();
+    assert_bt_dev_wake();
 
-	while (uart.readable()) {
+    while (uart.readable()) {
         uint8_t char_received = uart.getc();
         on_data_received(&char_received, 1);
     }
 
-	deassert_bt_dev_wake();
+    deassert_bt_dev_wake();
+    sleep_manager_unlock_deep_sleep();
 }
 
 void CyH4TransportDriver::assert_bt_dev_wake()
@@ -154,13 +169,19 @@ void CyH4TransportDriver::assert_bt_dev_wake()
 void CyH4TransportDriver::deassert_bt_dev_wake()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-	//De-assert bt_device_wake
+    wait_us(5000); /* remove and replace when uart tx transmit complete api is available */
+    //De-assert bt_device_wake
     if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
        bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
     } else {
        bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
     }
 #endif
+}
+
+void CyH4TransportDriver::update_uart_baud_rate(int baud)
+{
+    uart.baud(baud);
 }
 
 bool CyH4TransportDriver::get_enabled_powersave()
