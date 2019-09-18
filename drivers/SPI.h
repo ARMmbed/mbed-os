@@ -140,7 +140,7 @@ public:
      *
      *  @note You can specify mosi or miso as NC if not used.
      *
-     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param explicit_pinmap reference to structure which holds static pinmap.
      */
     SPI(const spi_pinmap_t &explicit_pinmap);
 
@@ -153,7 +153,7 @@ public:
      *
      *  @note You can specify mosi or miso as NC if not used.
      *
-     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param explicit_pinmap reference to structure which holds static pinmap.
      *  @param ssel SPI Chip Select pin.
      */
     SPI(const spi_pinmap_t &explicit_pinmap, PinName ssel);

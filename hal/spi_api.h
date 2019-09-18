@@ -89,7 +89,7 @@ SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk);
  *
  * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
  * @param[out] obj  The SPI object to initialize
- * @param[in]  pinmap pointer to strucure which holds static pinmap
+ * @param[in]  pinmap pointer to structure which holds static pinmap
  */
 void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap);
 

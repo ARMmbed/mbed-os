@@ -63,7 +63,7 @@ public:
 
     /** Create a PwmOut connected to the specified pin
      *
-     *  @param pinmap reference to strucure which holds static pinmap.
+     *  @param pinmap reference to structure which holds static pinmap.
      */
     PwmOut(const PinMap &pinmap);
 

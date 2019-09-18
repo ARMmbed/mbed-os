@@ -85,7 +85,7 @@ extern "C" {
  *  peripheral, and configures its specifieds pins.
  *
  *  @param obj  The I2C object
- *  @param pinmap  Pinmap pointer to strucure which holds static pinmap
+ *  @param pinmap  Pinmap pointer to structure which holds static pinmap
  */
 void i2c_init_direct(i2c_t *obj, const i2c_pinmap_t *pinmap);
 
