@@ -75,7 +75,7 @@ public:
 
     /** Create a Serial port, connected to the specified transmit and receive pins
      *
-     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param explicit_pinmap reference to structure which holds static pinmap.
      *  @param name The name of the stream associated with this serial port (optional)
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE or 9600)
      *
@@ -97,7 +97,7 @@ public:
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud
      *
-     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param explicit_pinmap reference to structure which holds static pinmap.
      *  @param baud The baud rate of the serial port
      *
      *  @note

@@ -141,7 +141,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx);
  *  peripheral, and configures its specifieds pins.
  *
  * @param obj The serial object
- * @param pinmap pointer to strucure which holds static pinmap
+ * @param pinmap pointer to structure which holds static pinmap
  */
 void serial_init_direct(serial_t *obj, const serial_pinmap_t *pinmap);
 
@@ -253,7 +253,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
  *
  * @param obj    The serial object
  * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param pinmap Pointer to strucure which holds static pinmap
+ * @param pinmap Pointer to structure which holds static pinmap
  */
 void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap);
 #endif
