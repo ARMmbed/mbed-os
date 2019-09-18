@@ -30,11 +30,9 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress I2C.
-*
-* \defgroup group_hal_i2c_macros Macros
-* \defgroup group_hal_i2c_functions Functions
-* \defgroup group_hal_i2c_data_structures Data Structures
-* \defgroup group_hal_i2c_enums Enumerated Types
+* 
+* \defgroup group_hal_i2c_master Master
+* \defgroup group_hal_i2c_slave Slave
 */
 
 #pragma once
@@ -49,25 +47,12 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_i2c_macros
-* \{
-*/
-
 /** The requested resource type is invalid */
 #define CYHAL_I2C_RSLT_ERR_INVALID_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 0))
 /** Can not reach desired data rate */
 #define CYHAL_I2C_RSLT_ERR_CAN_NOT_REACH_DR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 1))
 /** Address size is not correct, should be 1 or two */
 #define CYHAL_I2C_RSLT_ERR_INVALID_ADDRESS_SIZE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_I2C, 2))
-
-/** \} group_hal_i2c_macros */
-
-
-/**
-* \addtogroup group_hal_i2c_enums
-* \{
-*/
 
 /** Enum to enable/disable/report interrupt cause flags. */
 typedef enum
@@ -86,32 +71,16 @@ typedef enum
     CYHAL_I2C_MASTER_ERR_EVENT         = 1 << 20, /* Indicates the I2C hardware has detected an error. */
 } cyhal_i2c_event_t;
 
-/** \} group_hal_i2c_enums */
-
-
-/**
-* \addtogroup group_hal_i2c_data_structures
-* \{
-*/
-
 /** Handler for I2C events */
 typedef void (*cyhal_i2c_event_callback_t)(void *callback_arg, cyhal_i2c_event_t event);
 
-/** Initial I2C configuration */
+/** @brief Initial I2C configuration */
 typedef struct
 {
     bool is_slave;            /* I2C mode, is the device a master or slave */
     uint16_t address;         /* Address of this slave device (7-bit), should be set to 0 for master */
     uint32_t frequencyhal_hz; /* Frequency that the I2C bus runs at */
 } cyhal_i2c_cfg_t;
-
-/** \} group_hal_i2c_data_structures */
-
-
-/**
-* \addtogroup group_hal_i2c_functions
-* \{
-*/
 
 /** Initialize the I2C peripheral, and configures its specifieds pins. By default
  * it is setup as a Master running at 400kHz. This can be changed by calling
@@ -142,6 +111,11 @@ void cyhal_i2c_free(cyhal_i2c_t *obj);
 cy_rslt_t cyhal_i2c_configure(cyhal_i2c_t *obj, const cyhal_i2c_cfg_t *cfg);
 
 /**
+* \addtogroup group_hal_i2c_master
+* \{
+*/
+
+/**
  * I2C master write
  *
  * @param[in]  obj        The I2C object
@@ -169,6 +143,13 @@ cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, const uint
  */
 cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop);
 
+/** \} group_hal_i2c_master */
+
+/**
+* \addtogroup group_hal_i2c_slave
+* \{
+*/
+
 /**
  * I2C slave config write buffer
  * The user needs to setup a new buffer every time (i.e. call slave_send and slave_recv every time the buffer has been used up)
@@ -192,6 +173,13 @@ cy_rslt_t cyhal_i2c_slave_config_write_buff(cyhal_i2c_t *obj, const uint8_t *dat
  * @return The status of the slave_config_read_buff request
  */
 cy_rslt_t cyhal_i2c_slave_config_read_buff(cyhal_i2c_t *obj, uint8_t *data, uint16_t size);
+
+/** \} group_hal_i2c_slave */
+
+/**
+* \addtogroup group_hal_i2c_master
+* \{
+*/
 
 /** Perform an i2c write using a block of data stored at the specified memory location
  *
@@ -231,6 +219,8 @@ cy_rslt_t cyhal_i2c_master_mem_read(cyhal_i2c_t *obj, uint16_t address, uint16_t
  */
 cy_rslt_t cyhal_i2c_master_transfer_async(cyhal_i2c_t *obj, uint16_t address, const void *tx, size_t tx_size, void *rx, size_t rx_size);
 
+/** \} group_hal_i2c_master */
+
 /** Abort asynchronous transfer
  *
  * This function does not perform any check - that should happen in upper layers.
@@ -255,8 +245,6 @@ void cyhal_i2c_register_callback(cyhal_i2c_t *obj, cyhal_i2c_event_callback_t ca
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_i2c_enable_event(cyhal_i2c_t *obj, cyhal_i2c_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_i2c_functions */
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must 

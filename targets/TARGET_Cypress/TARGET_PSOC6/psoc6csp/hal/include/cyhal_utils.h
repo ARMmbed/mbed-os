@@ -23,15 +23,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_utils PSoC 6 Utility Functions
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_psoc6 PSoC 6 Implementation 
 * \{
-* Utility functions for working with the PSoC 6 HAL implementation.
-*
-* \defgroup group_hal_utils_macros Macros
-* \defgroup group_hal_utils_functions Functions
-* \defgroup group_hal_utils_data_structures Data Structures
-* \defgroup group_hal_utils_enums Enumerated Types
 */
 
 #pragma once
@@ -43,16 +36,24 @@
 extern "C" {
 #endif
 
+
+/** 
+  * \addtogroup group_hal_psoc6_interrupts Interrupts
+  * \{
+  */
+#define CYHAL_IRQN_OFFSET          16 /**< Offset for implementation-defined ISR type numbers (IRQ0 = 16) */
+#define CYHAL_GET_CURRENT_IRQN()   ((IRQn_Type) (__get_IPSR() - CYHAL_IRQN_OFFSET)) /**< Macro to get the IRQn of the current ISR */
+
+/** \} group_hal_psoc6_interrupts  */
+
+
 /**
-* \addtogroup group_hal_utils_macros
+* \addtogroup group_hal_psoc6_pin_package
 * \{
 */
 
 #define CYHAL_GET_PIN(pin)         ((uint8_t)(pin & 0xFFFFUL))  /**< Macro to extract the pin number */
 #define CYHAL_GET_PORT(pin)        ((uint8_t)((uint32_t)(pin >> 16) & 0xFFUL)) /**< Macro to extract the port number */
-
-#define CYHAL_IRQN_OFFSET          16 /**< Offset for implementation-defined ISR type numbers (IRQ0 = 16) */
-#define CYHAL_GET_CURRENT_IRQN()   ((IRQn_Type) (__get_IPSR() - CYHAL_IRQN_OFFSET)) /**< Macro to get the IRQn of the current ISR */
 
 /** Looks up the resource block that connects to the specified pins from the provided resource pin mapping table.
  * This is a convinience utility for cyhal_utils_get_resource() if the mappings is an array of known size.
@@ -62,25 +63,6 @@ extern "C" {
  * @return The entry for the specified pin if it exists, or null if it doesn't.
  */
 #define CY_UTILS_GET_RESOURCE(pin, mappings) cyhal_utils_get_resource(pin, mappings, sizeof(mappings)/sizeof(cyhal_resource_pin_mapping_t))
-
-/** \} group_hal_utils_macros */
-
-
-/**
-* \addtogroup group_hal_utils_functions
-* \{
-*/
-
-/** Calculate the peri clock divider value that need to be set to reach frequency closest to the input frequency
- * 
- * @param[in] frequency The desired frequency
- * @param[in] frac_bits The number of fractional bits that the divider has
- * @return The calculate divider value to set, NOTE a divider value of x divide the frequency by (x+1)
- */
-static inline uint32_t cyhal_divider_value(uint32_t frequency, uint32_t frac_bits)
-{
-    return ((Cy_SysClk_ClkPeriGetFrequency() * (1 << frac_bits)) + (frequency / 2)) / frequency - 1;
-}
 
 /** Converts the provided gpio pin to a resource instance object
  *
@@ -108,10 +90,29 @@ const cyhal_resource_pin_mapping_t *cyhal_utils_get_resource(cyhal_gpio_t pin, c
  */
 void cyhal_utils_disconnect_and_free(cyhal_gpio_t pin);
 
-/** \} group_hal_utils_functions */
+/** \} group_hal_psoc6_pin_package */
+
+/**
+* \addtogroup group_hal_psoc6_clocks Clocks
+* \{
+*/
+
+/** Calculate the peri clock divider value that need to be set to reach frequency closest to the input frequency
+ * 
+ * @param[in] frequency The desired frequency
+ * @param[in] frac_bits The number of fractional bits that the divider has
+ * @return The calculate divider value to set, NOTE a divider value of x divide the frequency by (x+1)
+ */
+static inline uint32_t cyhal_divider_value(uint32_t frequency, uint32_t frac_bits)
+{
+    return ((Cy_SysClk_ClkPeriGetFrequency() * (1 << frac_bits)) + (frequency / 2)) / frequency - 1;
+}
+
+/** \} group_hal_psoc6_clocks */
 
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_hal_utils */
+/** \} group_hal_psoc6_utils */
+/** \} group_hal_psoc6 */

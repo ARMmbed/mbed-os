@@ -31,10 +31,6 @@
 * \{
 * High level interface for interacting with the Cypress DAC.
 *
-* \defgroup group_hal_dac_macros Macros
-* \defgroup group_hal_dac_functions Functions
-* \defgroup group_hal_dac_data_structures Data Structures
-* \defgroup group_hal_dac_enums Enumerated Types
 */
 
 #pragma once
@@ -49,23 +45,10 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_dac_macros
-* \{
-*/
-
 /** Bad argument */
 #define CYHAL_DAC_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 0))
 /** Failed to initialize DAC */
 #define CYHAL_DAC_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_DAC, 1))
-
-/** \} group_hal_adc_macros */
-
-
-/**
-* \addtogroup group_hal_dac_functions
-* \{
-*/
 
 /** Initialize the DAC peripheral
  *
@@ -101,8 +84,6 @@ void cyhal_dac_write(const cyhal_dac_t *obj, uint16_t value);
  * @return The 16-bit output value
  */
 uint16_t cyhal_dac_read(cyhal_dac_t *obj);
-
-/** \} group_hal_dac_functions */
 
 #if defined(__cplusplus)
 }

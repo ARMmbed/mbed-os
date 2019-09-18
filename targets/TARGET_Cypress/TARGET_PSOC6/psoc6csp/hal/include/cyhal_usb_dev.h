@@ -30,11 +30,7 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress USB Device.
-*
-* \defgroup group_hal_usb_dev_macros Macros
-* \defgroup group_hal_usb_dev_functions Functions
-* \defgroup group_hal_usb_dev_data_structures Data Structures
-* \defgroup group_hal_usb_dev_enums Enumerated Types
+* 
 */
 
 #pragma once
@@ -49,11 +45,6 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_usb_dev_macros
-* \{
-*/
-
 /** The usb error */
 #define CYHAL_USB_DEV_RSLT_ERR (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_USB, 0))
 
@@ -63,6 +54,11 @@ extern "C" {
 /** The configuration of USB clock failed */
 #define CYHAL_USB_DEV_RSLT_ERR_CLK_CFG   (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_USB, 2))
 
+/** 
+  * \addtogroup group_hal_usb_dev_endpoint Endpoint
+  * \{
+  * APIs relating to endpoint management
+  */
 /** Returns true if endpoint direction is IN */
 #define CYHAL_USB_DEV_IS_IN_EP(endpoint)        (0U != (0x80U & (uint32_t) (endpoint)))
 
@@ -71,14 +67,6 @@ extern "C" {
 
 /** Returns endpoint index (type uint32_t) */
 #define CYHAL_USB_DEV_GET_EP_IDX(endpoint)      (CYHAL_USB_DEV_GET_EP_NUM(endpoint) - 1U)
-
-/** \} group_hal_usb_dev_macros */
-
-
-/**
-* \addtogroup group_hal_usb_dev_enums
-* \{
-*/
 
 /** USB Device Endpoints types */
 typedef enum
@@ -89,6 +77,8 @@ typedef enum
     CYHAL_USB_DEV_EP_TYPE_INT  = 3
 } cyhal_usb_dev_ep_type_t;
 
+/** \} group_hal_usb_dev_endpoint */
+
 /** Service Callback Events */
 typedef enum
 {
@@ -98,21 +88,21 @@ typedef enum
     CYHAL_USB_DEV_EVENT_EP0_OUT,    /**< Callback hooked to endpoint 0 OUT packet interrupt */
 } cyhal_usb_dev_event_t;
 
-/** \} group_hal_usb_dev_enums */
-
-
-/**
-* \addtogroup group_hal_usb_dev_data_structures
-* \{
-*/
-
-/** USB endpoint address (it consists from endpoint number and direction) */
+/** 
+  * USB endpoint address (consists from endpoint number and direction) 
+  * 
+  * \ingroup group_hal_usb_dev_endpoint 
+  */
 typedef uint8_t cyhal_usb_dev_ep_t;
 
 /** Callback handler for USB Device interrupt  */
 typedef void (*cyhal_usb_dev_irq_callback_t)(void);
 
-/** Callback handler for the transfer completion event for data endpoints (not applicable for endpoint 0)*/
+/** 
+  * Callback handler for the transfer completion event for data endpoints (not applicable for endpoint 0)
+  * 
+  * \ingroup group_hal_usb_dev_endpoint 
+  */
 typedef void (* cyhal_usb_dev_endpoint_callback_t)(cyhal_usb_dev_ep_t endpoint);
 
 /** Callback handler for the events for USB Device */
@@ -120,14 +110,6 @@ typedef void (*cyhal_usb_dev_event_callback_t)(void);
 
 /** Callback handler for the events for USB Device */
 typedef void (*cyhal_usb_dev_sof_callback_t)(uint32_t frame_number);
-
-/** \} group_hal_usb_dev_data_structures */
-
-
-/**
-* \addtogroup group_hal_usb_dev_functions
-* \{
-*/
 
 /**
  * Initialize this USBPhy instance.
@@ -208,6 +190,12 @@ typedef void (*cyhal_usb_dev_sof_callback_t)(uint32_t frame_number);
  */
  void cyhal_usb_dev_set_address(cyhal_usb_dev_t *obj, uint8_t address);
 
+/** 
+  * \addtogroup group_hal_usb_dev_ep0 EP0
+  * \{
+  * APIs relating specifically to management of endpoint zero
+  */
+
 /**
  * Get wMaxPacketSize of endpoint 0.
  * The endpoint 0 has dedicated buffer.
@@ -265,6 +253,13 @@ uint32_t cyhal_usb_dev_ep0_get_max_packet(cyhal_usb_dev_t *obj);
  * @note The stall is cleared automatically when a setup packet is received
  */
  void cyhal_usb_dev_ep0_stall(cyhal_usb_dev_t *obj);
+
+/** \} group_hal_usb_dev_ep0 */
+
+/**
+  * \addtogroup group_hal_usb_dev_endpoint 
+  * \{
+  */
 
 /**
  * Configure an endpoint.
@@ -385,6 +380,8 @@ cy_rslt_t cyhal_usb_dev_endpoint_add(cyhal_usb_dev_t *obj, bool alloc, bool enab
  */
  cy_rslt_t cyhal_usb_dev_endpoint_abort(cyhal_usb_dev_t *obj, cyhal_usb_dev_ep_t endpoint);
 
+/** \} group_hal_usb_dev_endpoint */
+
  /** The USB Device callback handler registration
  *
  * @param[in,out] obj The usb device object
@@ -415,6 +412,8 @@ void cyhal_usb_dev_process_irq(cyhal_usb_dev_t *obj);
  * @param[in,out] obj  The usb device object
  * @param[in] endpoint Endpoint to registers handler
  * @param[in] callback  The callback handler which will be invoked when the endpoint comp
+ * 
+ * \ingroup group_hal_usb_dev_endpoint 
  */
 void cyhal_usb_dev_register_endpoint_callback(cyhal_usb_dev_t *obj, cyhal_usb_dev_ep_t endpoint, cyhal_usb_dev_endpoint_callback_t callback);
 
@@ -434,8 +433,6 @@ void cyhal_usb_dev_register_event_callback(cyhal_usb_dev_t *obj, cyhal_usb_dev_e
  * @param[in] callback The callback handler which will be invoked when the interrupt fires
  */
 void cyhal_usb_dev_register_sof_callback( cyhal_usb_dev_t *obj, cyhal_usb_dev_sof_callback_t callback);
-
-/** \} group_hal_usb_dev_functions */
 
 #if defined(__cplusplus)
 }

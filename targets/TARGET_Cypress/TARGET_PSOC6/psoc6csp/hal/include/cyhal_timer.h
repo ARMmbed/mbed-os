@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress Timer.
-*
-* \defgroup group_hal_timer_macros Macros
-* \defgroup group_hal_timer_functions Functions
-* \defgroup group_hal_timer_data_structures Data Structures
-* \defgroup group_hal_timer_enums Enumerated Types
 */
 
 #pragma once
@@ -48,11 +43,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/**
-* \addtogroup group_hal_timer_enums
-* \{
-*/
 
 /** Timer directions */
 typedef enum
@@ -70,15 +60,7 @@ typedef enum {
     CYHAL_TIMER_IRQ_ALL             = (1 << 2) - 1,
 } cyhal_timer_event_t;
 
-/** \} group_hal_timer_enums */
-
-
-/**
-* \addtogroup group_hal_timer_data_structures
-* \{
-*/
-
-/** Describes the current configuration of a timer/counter */
+/** @brief Describes the current configuration of a timer/counter */
 typedef struct
 {
     /**
@@ -97,14 +79,6 @@ typedef struct
 /** Handler for timer events */
 typedef void(*cyhal_timer_event_callback_t)(void *callback_arg, cyhal_timer_event_t event);
 
-/** \} group_hal_timer_data_structures */
-
-
-/**
-* \addtogroup group_hal_timer_macros
-* \{
-*/
-
 /** Bad argument. eg: null pointer */
 #define CYHAL_TIMER_RSLT_ERR_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_TIMER, 0))
 /** Failed to initialize Timer clock */
@@ -116,14 +90,6 @@ typedef void(*cyhal_timer_event_callback_t)(void *callback_arg, cyhal_timer_even
 
 /** Default timer frequency, used when an existing clock divider is not provided to init */
 #define CYHAL_TIMER_DEFAULT_FREQ (1000000u)
-
-/** \} group_hal_timer_macros */
-
-
-/**
-* \addtogroup group_hal_timer_functions
-* \{
-*/
 
 /** Initialize the timer/counter peripheral and configure the pin.
  *
@@ -188,8 +154,6 @@ void cyhal_timer_register_callback(cyhal_timer_t *obj, cyhal_timer_event_callbac
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_timer_enable_event(cyhal_timer_t *obj, cyhal_timer_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_timer_functions */
 
 #if defined(__cplusplus)
 }

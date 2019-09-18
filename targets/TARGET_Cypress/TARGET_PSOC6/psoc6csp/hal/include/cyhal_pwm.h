@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress PWM.
-*
-* \defgroup group_hal_pwm_macros Macros
-* \defgroup group_hal_pwm_functions Functions
-* \defgroup group_hal_pwm_data_structures Data Structures
-* \defgroup group_hal_pwm_enums Enumerated Types
 */
 
 #pragma once
@@ -48,25 +43,12 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_pwm_macros
-* \{
-*/
-
 /** Bad argument */
 #define CYHAL_PWM_RSLT_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 0))
 /** Failed to initialize PWM clock */
 #define CYHAL_PWM_RSLT_FAILED_CLOCK_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 1))
 /** Failed to initialize PWM */
 #define CYHAL_PWM_RSLT_FAILED_INIT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_PWM, 2))
-
-/** \} group_hal_pwm_macros */
-
-
-/**
-* \addtogroup group_hal_pwm_enums
-* \{
-*/
 
 /** PWM interrupt triggers */
 typedef enum {
@@ -76,24 +58,8 @@ typedef enum {
     CYHAL_PWM_IRQ_ALL             = (1 << 2) - 1,
 } cyhal_pwm_event_t;
 
-/** \} group_hal_pwm_enums */
-
-
-/**
-* \addtogroup group_hal_pwm_data_structures
-* \{
-*/
-
 /** Handler for PWM interrupts */
 typedef void(*cyhal_pwm_event_callback_t)(void *callback_arg, cyhal_pwm_event_t event);
-
-/** \} group_hal_pwm_data_structures */
-
-
-/**
-* \addtogroup group_hal_pwm_functions
-* \{
-*/
 
 /** Initialize the PWM out peripheral and configure the pin
  *
@@ -158,8 +124,6 @@ void cyhal_pwm_register_callback(cyhal_pwm_t *obj, cyhal_pwm_event_callback_t ca
  * @param[in] enable        True to turn on events, False to turn off
  */
 void cyhal_pwm_enable_event(cyhal_pwm_t *obj, cyhal_pwm_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_pwm_functions */
 
 #if defined(__cplusplus)
 }

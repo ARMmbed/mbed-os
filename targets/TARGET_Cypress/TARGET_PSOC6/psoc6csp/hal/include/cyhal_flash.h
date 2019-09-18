@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * Flash HAL high-level description
-*
-* \defgroup group_hal_flash_macros Macros
-* \defgroup group_hal_flash_functions Functions
-* \defgroup group_hal_flash_data_structures Data Structures
-* \defgroup group_hal_flash_enums Enumerated Types
 */
 
 
@@ -50,22 +45,10 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_flash_macros
-* \{
-*/
-
 /** Invalid argument */
 #define CYHAL_FLASH_RSLT_ERR_ADDRESS (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_FLASH, 0))
 
-/** \} group_hal_flash_macros */
-
-/**
-* \addtogroup group_hal_flash_data_structures
-* \{
-*/
-
-/** Information about a single block of flash memory */
+/** @brief Information about a single block of flash memory */
 typedef struct
 {
     uint32_t start_address; //!< Start address of the memory
@@ -75,24 +58,16 @@ typedef struct
     uint8_t  erase_value;   //!< The flash erase value
 } cyhal_flash_block_info_t;
 
-/** Information about all of the blocks of flash memory */
+/** @brief Information about all of the blocks of flash memory */
 typedef struct
 {
     uint8_t block_count; //!< The number of distinct flash blocks
     const cyhal_flash_block_info_t *blocks; //!< Array of the distinct flash blocks
 } cyhal_flash_info_t;
 
-/** \} group_hal_flash_data_structures */
-
-
 /*******************************************************************************
 *       Functions
 *******************************************************************************/
-
-/**
-* \addtogroup group_hal_flash_functions
-* \{
-*/
 
 /** Initialize the flash_t object for access to flash through the HAL
  *
@@ -214,10 +189,6 @@ cy_rslt_t cyhal_flash_start_program(cyhal_flash_t *obj, uint32_t address, const 
  * @return Whether the flash operation is complete
  */
 bool cyhal_flash_is_operation_complete(cyhal_flash_t *obj);
-
-/** \} group_hal_flash_functions */
-
-/** \} group_hal_flash_functions */
 
 #if defined(__cplusplus)
 }
