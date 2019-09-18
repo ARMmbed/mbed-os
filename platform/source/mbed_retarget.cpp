@@ -290,8 +290,8 @@ static FileHandle *default_console()
 #if MBED_CONF_TARGET_CONSOLE_UART && DEVICE_SERIAL
 
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
-   static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
-   static UARTSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+    static const serial_pinmap_t console_pinmap = get_uart_pinmap(STDIO_UART_TX, STDIO_UART_RX);
+    static UARTSerial console(console_pinmap, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
     console.serial_set_flow_control(SerialBase::RTS, fc_pinmap);

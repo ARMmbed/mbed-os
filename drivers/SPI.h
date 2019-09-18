@@ -440,7 +440,7 @@ protected:
     /* SPI peripheral name */
     SPIName _peripheral_name;
     /* Pointer to spi init function */
-    void (*_init_func)(SPI*);
+    void (*_init_func)(SPI *);
 
 private:
     void _do_construct();

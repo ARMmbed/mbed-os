@@ -38,10 +38,10 @@
 
 #if EXPLICIT_PINMAP_READY
 #define ANALOGIN_INIT_DIRECT analogin_init_direct
-void analogin_init_direct(analogin_t* obj, const PinMap *pinmap)
+void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 #else
 #define ANALOGIN_INIT_DIRECT _analogin_init_direct
-static void _analogin_init_direct(analogin_t* obj, const PinMap *pinmap)
+static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 #endif
 {
     uint32_t function = (uint32_t)pinmap->function;
@@ -105,7 +105,7 @@ static void _analogin_init_direct(analogin_t* obj, const PinMap *pinmap)
     }
 }
 
-void analogin_init(analogin_t* obj, PinName pin)
+void analogin_init(analogin_t *obj, PinName pin)
 {
     int peripheral;
     int function;

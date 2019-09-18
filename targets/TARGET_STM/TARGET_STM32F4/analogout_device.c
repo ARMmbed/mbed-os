@@ -37,10 +37,10 @@
 
 #if EXPLICIT_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
-void analogout_init_direct(dac_t* obj, const PinMap *pinmap)
+void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #else
 #define ANALOGOUT_INIT_DIRECT _analogout_init_direct
-static void _analogout_init_direct(dac_t* obj, const PinMap *pinmap)
+static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #endif
 {
     DAC_ChannelConfTypeDef sConfig = {0};

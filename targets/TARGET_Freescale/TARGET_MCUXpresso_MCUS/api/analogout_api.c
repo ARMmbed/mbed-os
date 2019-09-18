@@ -30,10 +30,10 @@ static DAC_Type *const dac_bases[] = DAC_BASE_PTRS;
 
 #if EXPLICIT_PINMAP_READY
 #define ANALOGOUT_INIT_DIRECT analogout_init_direct
-void analogout_init_direct(dac_t* obj, const PinMap *pinmap)
+void analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #else
 #define ANALOGOUT_INIT_DIRECT _analogout_init_direct
-static void _analogout_init_direct(dac_t* obj, const PinMap *pinmap)
+static void _analogout_init_direct(dac_t *obj, const PinMap *pinmap)
 #endif
 {
     dac_config_t dac_config;
@@ -50,7 +50,7 @@ static void _analogout_init_direct(dac_t* obj, const PinMap *pinmap)
     DAC_Enable(dac_bases[obj->dac], true);
 }
 
-void analogout_init(dac_t* obj, PinName pin)
+void analogout_init(dac_t *obj, PinName pin)
 {
     int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
 
