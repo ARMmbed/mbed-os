@@ -27,8 +27,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_psoc6_wdt PSoC 6 WDT (Watchdog Timer)
-* \ingroup group_hal_psoc6
+* \addtogroup group_hal_psoc6_wdt (WDT) Watchdog Timer
+* \ingroup group_hal_psoc6 
 * \{
 * The PSoC 6 WDT is only capable of supporting certain timeout ranges below its maximum timeout of 6000ms.
 * As a result, any unsupported timeouts given to the HAL WDT are rounded up to the nearest supported value.
@@ -80,7 +80,7 @@
 *     <td>4</td>
 *   </tr>
 * </table>
-* \} group_hal_psoc6
+* \} group_hal_psoc6_wdt
 */
 
 #include <stdbool.h>

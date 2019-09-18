@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress SDHC.
-*
-* \defgroup group_hal_sdhc_macros Macros
-* \defgroup group_hal_sdhc_functions Functions
-* \defgroup group_hal_sdhc_data_structures Data Structures
-* \defgroup group_hal_sdhc_enums Enumerated Types
 */
 
 #pragma once
@@ -48,20 +43,7 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_sdhc_macros
-* \{
-*/
-
 #define CYHAL_SDHC_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 0)) /**< Pin related Error. >*/
-
-/** \} group_hal_sdhc_macros */
-
-
-/**
-* \addtogroup group_hal_sdhc_enums
-* \{
-*/
 
 /** Card types */
 typedef enum
@@ -95,28 +77,12 @@ typedef enum {
     CYHAL_SDHC_ALL_INTERRUPTS = 0xFFFF, //!> Is used to enable/disable all interrupts
 } cyhal_sdhc_event_t;
 
-/** \} group_hal_sdhc_enums */
-
-
-/**
-* \addtogroup group_hal_sdhc_macros
-* \{
-*/
-
 #define CYHAL_SDHC_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_SDHC, 0)) /**< Pin related Error. >*/
-
-/** \} group_hal_sdhc_macros */
-
-
-/**
-* \addtogroup group_hal_sdhc_data_structures
-* \{
-*/
 
 /** Handler for SDHC interrupts */
 typedef void (*cyhal_sdhc_event_callback_t)(void *callback_arg, cyhal_sdhc_event_t event);
 
-/** Defines configuration options for the SDHC block */
+/** @brief Defines configuration options for the SDHC block */
 typedef struct
 {
     bool                 enableLedControl; //!< Drive one IO to indicate when the card is being accessed
@@ -124,14 +90,6 @@ typedef struct
     bool                 isEmmc;   //!< true if eMMC card, otherwise false
     uint8_t              busWidth; //!< The desired bus width
 } cyhal_sdhc_config_t;
-
-/** \} group_hal_sdhc_data_structures */
-
-
-/**
-* \addtogroup group_hal_sdhc_functions
-* \{
-*/
 
 /** Initialize the SDHC peripheral
  *
@@ -260,8 +218,6 @@ void cyhal_sdhc_register_callback(cyhal_sdhc_t *obj, cyhal_sdhc_event_callback_t
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_sdhc_enable_event(cyhal_sdhc_t *obj, cyhal_sdhc_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_sdhc_functions */
 
 #if defined(__cplusplus)
 }

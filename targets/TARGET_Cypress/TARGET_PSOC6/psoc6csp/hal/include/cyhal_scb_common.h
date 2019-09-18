@@ -23,16 +23,10 @@
 *******************************************************************************/
 
 /**
- * \addtogroup group_hal_scb_common PSoC 6 SCB Common Functionality
+ * \addtogroup group_hal_psoc6_scb_common SCB Common Functionality
  * \ingroup group_hal_psoc6
  * \{
  * Code shared between the SCB resources (UART, I2C, and SPI).
- *
- * \defgroup group_hal_scb_common_macros Macros
- * \defgroup group_hal_scb_common_constants Constants
- * \defgroup group_hal_scb_common_functions Functions
- * \defgroup group_hal_scb_common_data_structures Data Structures
- * \defgroup group_hal_scb_common_enums Enumerated Types
  */
 
 #pragma once
@@ -45,11 +39,6 @@
 extern "C" {
 #endif
 
-/**
- * \addtogroup group_hal_scb_common_constants
- * \{
- */
-
 /** The start address of the SCB blocks */
 extern CySCB_Type* const CYHAL_SCB_BASE_ADDRESSES[CY_IP_MXSCB_INSTANCES];
 /** The interrupt number of the SCB blocks. */
@@ -58,13 +47,6 @@ extern const IRQn_Type CYHAL_SCB_IRQ_N[CY_IP_MXSCB_INSTANCES];
 /** The configuration structs for the resource in use on each SCB block (e.g. cyhal_i2c_t) */
 extern void *cyhal_scb_config_structs[CY_IP_MXSCB_INSTANCES];
 
-/** \} group_hal_scb_common_constants */
-
-
-/**
- * \addtogroup group_hal_scb_common_functions
- * \{
- */
 
 /** Get the SCB block corresponding to an IRQn.
  *
@@ -84,10 +66,8 @@ __STATIC_INLINE void *cyhal_scb_get_irq_obj(void)
     return cyhal_scb_config_structs[block];
 }
 
-/** \} group_hal_scb_common_functions */
-
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_hal_scb_common */
+/** \} group_hal_psoc6_scb_common */

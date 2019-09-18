@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress Quad-SPI.
-*
-* \defgroup group_hal_qspi_macros Macros
-* \defgroup group_hal_qspi_functions Functions
-* \defgroup group_hal_qspi_data_structures Data Structures
-* \defgroup group_hal_qspi_enums Enumerated Types
 */
 
 #pragma once
@@ -48,11 +43,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-/**
-* \addtogroup group_hal_qspi_enums
-* \{
-*/
 
 /** QSPI Bus width
  *
@@ -80,27 +70,12 @@ typedef enum {
     CYHAL_QSPI_IRQ_RECEIVE_DONE                     = 1 << 1,       /**< Async receive done. >*/
 } cyhal_qspi_event_t;
 
-/** \} group_hal_qspi_enums */
-
-/**
-* \addtogroup group_hal_qspi_macros
-* \{
-*/
-
 #define CYHAL_QSPI_RSLT_ERR_BUS_WIDTH (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 0)) /**< Bus width Error. >*/
 #define CYHAL_QSPI_RSLT_ERR_PIN (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 1)) /**< Pin related Error. >*/
 #define CYHAL_QSPI_RSLT_ERR_DATA_SEL (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 2)) /**< Data select Error. >*/
 #define CYHAL_QSPI_RSLT_ERR_INSTANCE (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_QSPI, 3)) /**< QSPI instance related Error. >*/
 
-/** \} group_hal_qspi_macros */
-
-
-/**
-* \addtogroup group_hal_qspi_data_structures
-* \{
-*/
-
-/** QSPI command settings */
+/** @brief QSPI command settings */
 typedef struct cyhal_qspi_command {
     struct {
         cyhal_qspi_bus_width_t bus_width;               /**< Bus width for the instruction >*/
@@ -127,14 +102,6 @@ typedef struct cyhal_qspi_command {
 
 /** Handler for QSPI callbacks */
 typedef void (*cyhal_qspi_event_callback_t)(void *callback_arg, cyhal_qspi_event_t event);
-
-/** \} group_hal_qspi_data_structures */
-
-
-/**
-* \addtogroup group_hal_qspi_functions
-* \{
-*/
 
 /** Initialize QSPI peripheral.
  *
@@ -255,8 +222,6 @@ void cyhal_qspi_register_callback(cyhal_qspi_t *obj, cyhal_qspi_event_callback_t
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_qspi_enable_event(cyhal_qspi_t *obj, cyhal_qspi_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_qspi_functions */
 
 #if defined(__cplusplus)
 }

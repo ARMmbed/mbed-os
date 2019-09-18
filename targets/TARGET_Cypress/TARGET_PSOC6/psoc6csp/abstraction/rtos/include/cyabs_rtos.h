@@ -33,50 +33,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/*
- * Note, cyabs_rtos_impl.h above is included and is the implementation of some basic
- * types for the abstraction layer.  The types expected to be defined are.
- *
- * cy_thread_t              : typedef from underlying RTOS thread type
- * cy_thread_arg_t          : typedef from the RTOS type that is passed to the
- *                            entry function of a thread.
- * cy_mutex_t               : typedef from the underlying RTOS mutex type
- * cy_event_t               : typedef from the underlying RTOS event type
- * cy_queue_t               : typedef from the underlying RTOS queue type
- * cy_timer_callback_arg_t  : typedef from the RTOS type that is passed
- *                          : to the timer callback function
- * cy_timer_t               : typedef from the underlying RTOS timer type
- * cy_time_t                : count of time in milliseconds
- * cy_rtos_error_t          : typedef from the underlying RTOS error type
- *
- * The enum cy_thread_priority_t needs to have the following priority values defined
- * and mapped to RTOS specific values:
- * CY_RTOS_PRIORITY_MIN
- * CY_RTOS_PRIORITY_LOW
- * CY_RTOS_PRIORITY_BELOWNORMAL
- * CY_RTOS_PRIORITY_NORMAL
- * CY_RTOS_PRIORITY_ABOVENORMAL
- * CY_RTOS_PRIORITY_HIGH
- * CY_RTOS_PRIORITY_REALTIME
- * CY_RTOS_PRIORITY_MAX
- *
- * Finally, the following macros need to be defined for memory allocations:
- * CY_RTOS_MIN_STACK_SIZE
- * CY_RTOS_ALIGNMENT
- * CY_RTOS_ALIGNMENT_MASK
- */
-
-
 /**
-* \addtogroup group_abstraction_rtos RTOS abstraction
-* \ingroup group_abstraction
-* \{
-* Basic abstraction layer for dealing with RTOSes.
-*
-* \defgroup group_abstraction_rtos_macros Macros
-* \defgroup group_abstraction_rtos_enums Enums
-* \defgroup group_abstraction_rtos_data_structures Data Structures
-* \defgroup group_abstraction_rtos_functions Functions
+* \defgroup group_abstraction_rtos_common Common 
+* \defgroup group_abstraction_rtos_mutex Mutex
+* \defgroup group_abstraction_rtos_queue Queue
+* \defgroup group_abstraction_rtos_semaphore Semaphore
+* \defgroup group_abstraction_rtos_threads Threading
+* \defgroup group_abstraction_rtos_time Time
+* \defgroup group_abstraction_rtos_timer Timer
 */
 
 #ifdef __cplusplus
@@ -86,10 +50,10 @@ extern "C"
 
 /*********************************************** CONSTANTS **********************************************/
 
-/**
-* \addtogroup group_abstraction_rtos_macros
-* \{
-*/
+/** 
+  * \ingroup group_abstraction_rtos_common  
+  * \{
+  */
 
 /** Used with RTOS calls that require a timeout.  This implies the call will never timeout. */
 #define CY_RTOS_NEVER_TIMEOUT ( (uint32_t)0xffffffffUL )
@@ -100,31 +64,35 @@ extern "C"
 // underlying errors to these.  If the errors are special cases, the the error CY_RTOS_GENERAL_ERROR can be
 // returns and cy_rtos_last_error() used to retrieve the RTOS specific error message.
 //
-/** Requested operationd did not complete in the specified time */
+/** Requested operation did not complete in the specified time */
 #define CY_RTOS_TIMEOUT                     CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 0)
 /** The RTOS could not allocate memory for the specified operation */
 #define CY_RTOS_NO_MEMORY                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 1)
 /** An error occured in the RTOS */
 #define CY_RTOS_GENERAL_ERROR               CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 2)
+/** A bad argument was passed into the APIs */
+#define CY_RTOS_BAD_PARAM                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 5)
+
+/** \} group_abstraction_rtos_common */
+
+/**
+  * \ingroup group_abstraction_rtos_queue
+  * \{
+  */
+
 /** The Queue is already full and can't accept any more items at this time */
 #define CY_RTOS_QUEUE_FULL                  CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 3)
 /** The Queue is empty and has nothing to remove */
 #define CY_RTOS_QUEUE_EMPTY                 CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 4)
-/** A bad argument was passed into the APIs */
-#define CY_RTOS_BAD_PARAM                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_OS, 5)
 
-/** \} group_abstraction_rtos_macros */
-
+/** \} group_abstraction_rtos_queue */
 
 /*********************************************** TYPES **********************************************/
 
 /**
-* \addtogroup group_abstraction_rtos_enums
-* \{
-*/
-
-/**
  * The state a thread can be in
+ * 
+ * \ingroup group_abstraction_rtos_threads
  */
 typedef enum cy_thread_state
 {
@@ -138,6 +106,8 @@ typedef enum cy_thread_state
 
 /**
  * The type of timer
+ * 
+ * \ingroup group_abstraction_rtos_timer
  */
 typedef enum cy_timer_trigger_type
 {
@@ -147,33 +117,21 @@ typedef enum cy_timer_trigger_type
     cy_timer_type_once = CY_TIMER_TYPE_ONCE,            /**< \deprecated replaced by CY_TIMER_TYPE_ONCE */
 } cy_timer_trigger_type_t ;
 
-/** \} group_abstraction_rtos_enums */
-
-
-/**
-* \addtogroup group_abstraction_rtos_data_structures
-* \{
-*/
-
 /**
  * The type of a function that is the entry point for a thread
  *
  * @param[in] arg the argument passed from the thread create call to the entry function
+ * 
+ * \ingroup group_abstraction_rtos_threads
  */
 typedef void (*cy_thread_entry_fn_t)(cy_thread_arg_t arg) ;
 
 /**
- * The callback function to be called by a timeer
+ * The callback function to be called by a timer
+ * 
+ * \ingroup group_abstraction_rtos_timer
  */
 typedef void (*cy_timer_callback_t)(cy_timer_callback_arg_t arg);
-
-/** \} group_abstraction_rtos_data_structures */
-
-
-/**
-* \addtogroup group_abstraction_rtos_functions
-* \{
-*/
 
 /**
  * Return the last error from the RTOS.
@@ -185,11 +143,18 @@ typedef void (*cy_timer_callback_t)(cy_timer_callback_arg_t arg);
  * from the last RTOS abstraction layer that returned CY_RTOS_GENERAL_ERROR.
  *
  * @return RTOS specific error code.
+ * 
+ * \ingroup group_abstraction_rtos_common
  */
 extern cy_rtos_error_t cy_rtos_last_error();
 
 /*********************************************** Threads **********************************************/
 
+/*
+ * 
+ * \ingroup group_abstraction_rtos_threads
+ * \{
+ */
 
 /** Create a thread with specific thread argument.
  *
@@ -281,7 +246,14 @@ extern cy_rslt_t cy_rtos_get_thread_state(cy_thread_t *thread, cy_thread_state_t
  */
 extern cy_rslt_t cy_rtos_join_thread(cy_thread_t *thread);
 
+/** \} group_abstraction_rtos_threads */
+
 /*********************************************** Mutexes **********************************************/
+
+/**
+  * \ingroup group_abstraction_rtos_mutex
+  * \{
+  */
 
 /** Create a mutex.
  *
@@ -334,7 +306,14 @@ extern cy_rslt_t cy_rtos_set_mutex(cy_mutex_t *mutex);
  */
 extern cy_rslt_t cy_rtos_deinit_mutex(cy_mutex_t *mutex);
 
+/** \} group_abstraction_rtos_mutex */
+
 /*********************************************** Semaphores **********************************************/
+
+/**
+  * \ingroup group_abstraction_rtos_semaphore
+  * \{
+  */
 
 /**
  * Create a semaphore
@@ -388,7 +367,14 @@ extern cy_rslt_t cy_rtos_set_semaphore(cy_semaphore_t *semaphore, bool in_isr);
  */
 extern cy_rslt_t cy_rtos_deinit_semaphore(cy_semaphore_t *semaphore);
 
+/** \} group_abstraction_rtos_semaphore */
+
 /*********************************************** Events **********************************************/
+
+/** 
+  * \ingroup group_abstraction_rtos_event
+  * \{
+  */
 
 /** Create an event.
  *
@@ -467,7 +453,14 @@ extern cy_rslt_t cy_rtos_waitbits_event(cy_event_t *event, uint32_t *bits, bool 
  */
 extern cy_rslt_t cy_rtos_deinit_event(cy_event_t *event);
 
+/** \} group_abstraction_rtos_event */
+
 /*********************************************** Queues **********************************************/
+
+/** 
+  * \ingroup group_abstraction_rtos_queue 
+  * \{
+  */
 
 /** Create a queue.
  *
@@ -561,7 +554,14 @@ extern cy_rslt_t cy_rtos_reset_queue(cy_queue_t *queue);
  */
 extern cy_rslt_t cy_rtos_deinit_queue(cy_queue_t *queue);
 
+/** \} group_abstraction_rtos_queue */
+
 /*********************************************** Timers **********************************************/
+
+/**
+  * \ingroup group_abstraction_rtos_timer
+  * \{
+  */
 
 /** Create a new timer.
  *
@@ -617,7 +617,14 @@ extern cy_rslt_t cy_rtos_is_running_timer(cy_timer_t *timer, bool *state);
  */
 extern cy_rslt_t cy_rtos_deinit_timer(cy_timer_t *timer);
 
+/** \} group_abstraction_rtos_timer */
+
 /*********************************************** Time **********************************************/
+
+/**
+  * \ingroup group_abstraction_rtos_time
+  * \{
+  */
 
 /** Gets time in milliseconds since RTOS start.
  *
@@ -642,9 +649,7 @@ extern cy_rslt_t cy_rtos_get_time(cy_time_t *tval);
  */
 extern cy_rslt_t cy_rtos_delay_milliseconds(cy_time_t num_ms);
 
-/** \} group_abstraction_rtos_functions */
-
-/** @} */
+/** \} group_abstraction_rtos_timer */
 
 #ifdef __cplusplus
 } /* extern "C" */
