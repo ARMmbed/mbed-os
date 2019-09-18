@@ -920,8 +920,6 @@ class mbedToolchain:
 
         try:
             # Add all available ROM regions to build profile
-            if not getattr(self.target, "static_memory_defines", False):
-                raise ConfigException()
             rom_available_regions = self.config.get_all_active_memories(
                 ROM_ALL_MEMORIES
             )
@@ -936,8 +934,6 @@ class mbedToolchain:
             pass
         try:
             # Add all available RAM regions to build profile
-            if not getattr(self.target, "static_memory_defines", False):
-                raise ConfigException()
             ram_available_regions = self.config.get_all_active_memories(
                 RAM_ALL_MEMORIES
             )
