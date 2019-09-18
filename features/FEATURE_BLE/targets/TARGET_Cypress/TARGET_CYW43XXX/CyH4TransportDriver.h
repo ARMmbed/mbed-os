@@ -66,6 +66,12 @@ public:
 
     void bt_host_wake_irq_handler();
 
+#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
+    void on_host_stack_inactivity();
+#endif
+
+    void update_uart_baud_rate(int baud);
+
     bool get_enabled_powersave();
     uint8_t get_host_wake_irq_event();
     uint8_t get_dev_wake_irq_event();
@@ -101,6 +107,7 @@ private:
 } // namespace ble
 
 #define DEF_BT_BAUD_RATE    (115200)
+#define DEF_BT_3M_BAUD_RATE (3000000)     /* Both Host and BT device have to be adapt to this */
 
 #define WAKE_EVENT_ACTIVE_HIGH ( 1 )      /* Interrupt Rising Edge  */
 #define WAKE_EVENT_ACTIVE_LOW  ( 0 )      /* Interrupt Falling Edge */
