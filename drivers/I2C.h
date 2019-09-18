@@ -103,7 +103,7 @@ public:
 
     /** Create an I2C Master interface, connected to the specified pins
      *
-     *  @param explicit_pinmap reference to strucure which holds static pinmap.
+     *  @param explicit_pinmap reference to structure which holds static pinmap.
      */
     I2C(const i2c_pinmap_t &explicit_pinmap);
 
