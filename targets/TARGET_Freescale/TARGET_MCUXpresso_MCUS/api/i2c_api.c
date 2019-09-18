@@ -98,8 +98,7 @@ int i2c_start(i2c_t *obj)
     }
 
 #if defined(FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING) && FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING
-    while (!(base->S2 & I2C_S2_EMPTY_MASK))
-    {
+    while (!(base->S2 & I2C_S2_EMPTY_MASK)) {
     }
 #endif /* FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING */
 
@@ -217,8 +216,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     data = base->D;
 
     /* Wait until data transfer complete. */
-    while (!(base->S & kI2C_IntPendingFlag))
-    {
+    while (!(base->S & kI2C_IntPendingFlag)) {
     }
 
     /* Clear the IICIF flag. */
