@@ -46,7 +46,7 @@ typedef struct {
 } sys_mutex_t;
 
 // === MAIL BOX ===
-#define MB_SIZE      8
+#define MB_SIZE      MBED_CONF_LWIP_MBOX_SIZE
 
 typedef struct {
     osEventFlagsId_t                id;
