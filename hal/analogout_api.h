@@ -69,7 +69,7 @@ typedef struct dac_s dac_t;
  * @param obj The analogout object to initialize
  * @param pinmap pointer to structure which holds static pinmap
  */
-void analogout_init_direct(dac_t* obj, const PinMap *pinmap);
+void analogout_init_direct(dac_t *obj, const PinMap *pinmap);
 
 /** Initialize the analogout peripheral
  *
