@@ -186,8 +186,8 @@ MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinNa
     }
 
     if ((!mosi_map || !miso_map || !sclk_map || !ssel_map) ||
-        (mosi_map->peripheral != miso_map->peripheral || mosi_map->peripheral != sclk_map->peripheral) ||
-        (ssel_map->pin != NC && mosi_map->peripheral != ssel_map->peripheral)) {
+            (mosi_map->peripheral != miso_map->peripheral || mosi_map->peripheral != sclk_map->peripheral) ||
+            (ssel_map->pin != NC && mosi_map->peripheral != ssel_map->peripheral)) {
         return {NC, NC, NC, NC, NC, NC, NC, NC, NC};
     }
 

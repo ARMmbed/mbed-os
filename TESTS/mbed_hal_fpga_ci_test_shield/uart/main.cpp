@@ -132,8 +132,8 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
             const serial_fc_pinmap_t pinmap = get_uart_fc_pinmap(rts, cts);
             serial_set_flow_control_direct(&serial, FlowControlRTSCTS, &pinmap);
 #else
-        //skip this test case if explicit pinmap is not supported
-        return;
+            //skip this test case if explicit pinmap is not supported
+            return;
 #endif
         } else {
             serial_set_flow_control(&serial, FlowControlRTSCTS, rts, cts);

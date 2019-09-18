@@ -67,7 +67,7 @@ typedef struct analogin_s analogin_t;
  * @param obj The analogin object to initialize
  * @param pinmap pointer to structure which holds static pinmap
  */
-void analogin_init_direct(analogin_t* obj, const PinMap *pinmap);
+void analogin_init_direct(analogin_t *obj, const PinMap *pinmap);
 
 /** Initialize the analogin peripheral
  *

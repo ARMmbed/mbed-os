@@ -119,8 +119,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint8_t temp;
     /* Set bit count and parity mode. */
     temp = base->C1 & ~(UART_C1_PE_MASK | UART_C1_PT_MASK | UART_C1_M_MASK);
-    if (parity != ParityNone)
-    {
+    if (parity != ParityNone) {
         /* Enable Parity */
         temp |= (UART_C1_PE_MASK | UART_C1_M_MASK);
         if (parity == ParityOdd) {
@@ -147,18 +146,19 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
     UART_Type *base = uart_addrs[index];
 
     /* If RX overrun. */
-    if (UART_S1_OR_MASK & base->S1)
-    {
+    if (UART_S1_OR_MASK & base->S1) {
         /* Read base->D, otherwise the RX does not work. */
         (void)base->D;
     }
 
     if (serial_irq_ids[index] != 0) {
-        if (transmit_empty && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_TxDataRegEmptyInterruptEnable))
+        if (transmit_empty && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_TxDataRegEmptyInterruptEnable)) {
             irq_handler(serial_irq_ids[index], TxIrq);
+        }
 
-        if (receive_full && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_RxDataRegFullInterruptEnable))
+        if (receive_full && (UART_GetEnabledInterrupts(uart_addrs[index]) & kUART_RxDataRegFullInterruptEnable)) {
             irq_handler(serial_irq_ids[index], RxIrq);
+        }
     }
 }
 
@@ -269,8 +269,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             default:
                 break;
         }
-        if (all_disabled)
+        if (all_disabled) {
             NVIC_DisableIRQ(uart_irqs[obj->serial.index]);
+        }
     }
 }
 
@@ -292,16 +293,18 @@ void serial_putc(serial_t *obj, int c)
 int serial_readable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->serial.index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->serial.index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_RxDataRegFullFlag);
 }
 
 int serial_writable(serial_t *obj)
 {
     uint32_t status_flags = UART_GetStatusFlags(uart_addrs[obj->serial.index]);
-    if (status_flags & kUART_RxOverrunFlag)
+    if (status_flags & kUART_RxOverrunFlag) {
         UART_ClearStatusFlags(uart_addrs[obj->serial.index], kUART_RxOverrunFlag);
+    }
     return (status_flags & kUART_TxDataRegEmptyFlag);
 }
 
@@ -351,7 +354,7 @@ const PinMap *serial_rts_pinmap()
  */
 void serial_set_flow_control_direct(serial_t *obj, FlowControl type, const serial_fc_pinmap_t *pinmap)
 {
-    switch(type) {
+    switch (type) {
         case FlowControlRTS:
             pin_function(pinmap->rx_flow_pin, pinmap->rx_flow_function);
             pin_mode(pinmap->rx_flow_pin, PullNone);
@@ -404,7 +407,7 @@ static void serial_send_asynch(serial_t *obj)
     sendXfer.dataSize = obj->tx_buff.length;
 
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_SendEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, &sendXfer);
     } else {
         UART_TransferSendNonBlocking(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle, &sendXfer);
@@ -420,7 +423,7 @@ static void serial_receive_asynch(serial_t *obj)
     receiveXfer.dataSize = obj->rx_buff.length;
 
     if (obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_ALLOCATED ||
-        obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            obj->serial.uartDmaRx.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         UART_ReceiveEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, &receiveXfer);
     } else {
         UART_TransferReceiveNonBlocking(uart_addrs[obj->serial.index], &obj->serial.uart_transfer_handle, &receiveXfer, NULL);
@@ -464,7 +467,7 @@ static bool serial_allocate_dma(serial_t *obj, uint32_t handler)
     EDMA_CreateHandle(&(obj->serial.uartDmaTx.handle), DMA0, obj->serial.uartDmaTx.dmaChannel);
 
     UART_TransferCreateHandleEDMA(uart_addrs[obj->serial.index], &obj->serial.uart_dma_handle, (uart_edma_transfer_callback_t)handler,
-                                        NULL, &obj->serial.uartDmaTx.handle, &obj->serial.uartDmaRx.handle);
+                                  NULL, &obj->serial.uartDmaTx.handle, &obj->serial.uartDmaRx.handle);
 
     return true;
 }
@@ -512,7 +515,8 @@ void serial_enable_event(serial_t *obj, int event, uint8_t enable)
     }
 }
 
-static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width) {
+static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
+{
     (void)width;
 
     // Exit if a transmit is already on-going
@@ -528,9 +532,11 @@ static void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     // Check that a buffer has indeed been set up
-    MBED_ASSERT(tx != (void*)0);
+    MBED_ASSERT(tx != (void *)0);
 
-    if (tx_length == 0) return 0;
+    if (tx_length == 0) {
+        return 0;
+    }
 
     if (serial_tx_active(obj)) {
         return 0;
@@ -582,7 +588,9 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
 
-    if (serial_rx_active(obj)) return;
+    if (serial_rx_active(obj)) {
+        return;
+    }
 
     obj->rx_buff.buffer = rx;
     obj->rx_buff.length = rx_length;
@@ -595,15 +603,17 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
     // Check that a buffer has indeed been set up
-    MBED_ASSERT(rx != (void*)0);
-    if (rx_length == 0) return;
+    MBED_ASSERT(rx != (void *)0);
+    if (rx_length == 0) {
+        return;
+    }
 
     if (serial_rx_active(obj)) {
         return;
     }
 
     // Set up buffer
-    serial_rx_buffer_set(obj,(void*) rx, rx_length, rx_width);
+    serial_rx_buffer_set(obj, (void *) rx, rx_length, rx_width);
 
     // Set up events
     serial_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
@@ -711,7 +721,7 @@ int serial_irq_handler_asynch(serial_t *obj)
         }
     }
 #if 0
-    if (obj->char_match != SERIAL_RESERVED_CHAR_MATCH){
+    if (obj->char_match != SERIAL_RESERVED_CHAR_MATCH) {
         /* Check for character match event */
         if (buf[obj->rx_buff.length - 1] == obj->char_match) {
             status |= SERIAL_EVENT_RX_CHARACTER_MATCH;
