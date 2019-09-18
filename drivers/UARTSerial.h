@@ -60,7 +60,7 @@ public:
     UARTSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
     /** Create a UARTSerial port, connected to the specified transmit and receive pins, with a particular baud rate.
-     *  @param explicit_pinmap reference to strucure which holds static pinmap
+     *  @param explicit_pinmap reference to structure which holds static pinmap
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      */
     UARTSerial(const serial_pinmap_t &explicit_pinmap, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
