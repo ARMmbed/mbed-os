@@ -61,8 +61,7 @@
 #define alignas(N) __attribute__((aligned(N)))
 #endif
 
-namespace std
-{
+namespace std {
 // [cstddef.syn]
 using nullptr_t = decltype(nullptr);
 
@@ -70,8 +69,7 @@ using nullptr_t = decltype(nullptr);
 
 #endif // __CC_ARM
 
-namespace mstd
-{
+namespace mstd {
 using std::size_t;
 using std::ptrdiff_t;
 using std::nullptr_t;
