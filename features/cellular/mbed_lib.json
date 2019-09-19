@@ -26,8 +26,8 @@
             "value": null
         },
         "clear-on-connect" : {
-            "help": "Clear modem to a known default state on connect()",
-            "value": true
+            "help": "Clear modem to a known default state on connect() before SIM pin is entered, null to disable",
+            "value": null
         }
     }
 }
