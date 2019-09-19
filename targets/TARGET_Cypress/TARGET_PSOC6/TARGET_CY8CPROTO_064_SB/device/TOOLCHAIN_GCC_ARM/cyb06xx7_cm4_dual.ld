@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cyb06xx7_cm4_dual.ld
-* \version 2.50
+* \version 2.60
 *
 * Linker file for the GNU C compiler.
 *
@@ -76,6 +76,7 @@ ENTRY(Reset_Handler)
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
+/* Size of the stack section at the end of CM4 SRAM */
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
@@ -118,10 +119,6 @@ MEMORY
     efuse             (r)     : ORIGIN = 0x90700000, LENGTH = 0x100000     /*   1 MB */
 }
 
-/* Size and start address of the Cortex-M4 application image */
-FLASH_CM4_SIZE   = LENGTH(flash);
-FLASH_CM4_START  = ORIGIN(flash);
-
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
 
@@ -161,8 +158,8 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 SECTIONS
 {
-    /* Cortex-M4 application image */
-    .text FLASH_CM4_START :
+    /* Cortex-M4 application flash area */
+    .text ORIGIN(flash) :
     {
         . = ALIGN(4);
         __Vectors = . ;
@@ -278,7 +275,6 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-
         . = ALIGN(4);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -339,7 +335,7 @@ SECTIONS
         __HeapLimit = .;
     } > ram
 
-    
+
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(ram) + LENGTH(ram);
@@ -392,7 +388,7 @@ SECTIONS
         KEEP(*(.cy_toc_part2))
     } > sflash_toc_2
 
-    
+
     /* Supervisory Flash: Table of Content # 2 Copy */
     .cy_rtoc_part2 :
     {
@@ -426,7 +422,7 @@ SECTIONS
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 __cy_memory_0_start    = 0x10000000;
-__cy_memory_0_length   = 0x00100000;
+__cy_memory_0_length   = 0x000D0000;
 __cy_memory_0_row_size = 0x200;
 
 /* Emulated EEPROM Flash area */

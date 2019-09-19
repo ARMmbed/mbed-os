@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cyb06xx7_cm4_dual.icf
-* \version 2.50
+* \version 2.60
 *
 * Linker file for the IAR compiler.
 *
@@ -156,7 +156,7 @@ if (!isdefinedsymbol(__STACK_SIZE)) {
 
 /* Defines the minimum heap size. The actual heap size will be expanded to the end of the stack region */
 if (!isdefinedsymbol(__HEAP_SIZE)) {
-    define symbol __ICFEDIT_size_heap__ = 0x400;
+    define symbol __ICFEDIT_size_heap__ = 0x0400;
 } else {
   define symbol __ICFEDIT_size_heap__ = __HEAP_SIZE;
 }
@@ -191,8 +191,10 @@ do not initialize  { section .noinit, section .intvec_ram };
 
 /*-Placement-*/
 
-/* Flash - Cortex-M4 application image */
-place in          IROM1_region  { block RO };
+/* Flash - Cortex-M4 application */
+place at start of IROM1_region  { block RO };
+
+/* Used for the digital signature of the secure application and the Bootloader SDK application. */
 ".cy_app_signature" : place at address (__ICFEDIT_region_IROM1_end__ - 0x200) { section .cy_app_signature };
 
 /* Emulated EEPROM Flash area */
@@ -245,7 +247,7 @@ keep {  section .cy_app_signature,
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 define exported symbol __cy_memory_0_start    = 0x10000000;
-define exported symbol __cy_memory_0_length   = 0x00100000;
+define exported symbol __cy_memory_0_length   = 0x000D0000;
 define exported symbol __cy_memory_0_row_size = 0x200;
 
 /* Emulated EEPROM Flash area */
