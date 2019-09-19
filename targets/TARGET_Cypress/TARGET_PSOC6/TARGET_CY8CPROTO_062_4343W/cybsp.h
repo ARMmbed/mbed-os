@@ -1,9 +1,8 @@
 /***************************************************************************//**
-* \file CY8CPROTO-062-4343W/cybsp.h
+* \file cybsp.h
 *
-* Description:
-* Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CPROTO-062-4343W prototyping kit.
+* \brief
+* Basic API for setting up boards containing a Cypress MCU.
 *
 ********************************************************************************
 * \copyright
@@ -25,24 +24,38 @@
 
 #pragma once
 
+#include "cy_result.h"
 #include "cybsp_types.h"
-#include "cybsp_core.h"
 #if defined(CYBSP_WIFI_CAPABLE)
 #include "cyhal_sdio.h"
 #endif
-#ifndef __MBED__
-#include "cybsp_retarget.h"
-#include "cybsp_serial_flash.h"
-#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
+* \addtogroup group_bsp_macros Macros
+* \{
+*/
+
+/** Failed to configure sysclk power management callback */
+#define CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK  (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 0))
+
+/** \} group_bsp_macros */
+
+/**
 * \addtogroup group_bsp_functions Functions
 * \{
 */
+
+/**
+ * \brief Initialize all hardware on the board
+ * \returns CY_RSLT_SUCCESS if the board is sucessfully initialized, if there is
+ *          a problem initializing any hardware it returns an error code specific
+ *          to the hardware module that had a problem.
+ */
+cy_rslt_t cybsp_init(void);
 
 #if defined(CYBSP_WIFI_CAPABLE)
 /**
