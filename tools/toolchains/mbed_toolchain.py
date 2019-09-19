@@ -733,13 +733,17 @@ class mbedToolchain:
         new_path = join(tmp_path, head)
         mkdir(new_path)
 
+        # The output file names are derived from the project name, but this can have spaces in it which
+        # messes-up later processing. Replace any spaces in the derived names with '_'
+        tail = tail.replace(" ", "_")
+
         # Absolute path of the final linked file
         if self.config.has_regions:
-            elf = join(tmp_path, name + '_application.elf')
-            mapfile = join(tmp_path, name + '_application.map')
+            elf = join(new_path, tail + '_application.elf')
+            mapfile = join(new_path, tail + '_application.map')
         else:
-            elf = join(tmp_path, name + '.elf')
-            mapfile = join(tmp_path, name + '.map')
+            elf = join(new_path, tail + '.elf')
+            mapfile = join(new_path, tail + '.map')
 
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
@@ -768,21 +772,21 @@ class mbedToolchain:
                 if exists(old_mapfile):
                     remove(old_mapfile)
                 rename(mapfile, old_mapfile)
-            self.progress("link", name)
+            self.progress("link", tail)
             self.link(elf, objects, libraries, lib_dirs, linker_script)
 
         if self.config.has_regions:
-            filename = "{}_application.{}".format(name, ext)
+            filename = "{}_application.{}".format(tail, ext)
         else:
-            filename = "{}.{}".format(name, ext)
-        full_path = join(tmp_path, filename)
+            filename = "{}.{}".format(tail, ext)
+        full_path = join(new_path, filename)
         if ext != 'elf':
             if full_path and self.need_update(full_path, [elf]):
-                self.progress("elf2bin", name)
+                self.progress("elf2bin", tail)
                 self.binary(r, elf, full_path)
             if self.config.has_regions:
                 full_path, updatable = self._do_region_merge(
-                    name, full_path, ext
+                    tail, full_path, ext
                 )
             else:
                 updatable = None
@@ -794,7 +798,7 @@ class mbedToolchain:
             self._get_toolchain_labels()
         )
         if post_build_hook:
-            self.progress("post-build", name)
+            self.progress("post-build", tail)
             post_build_hook(self, r, elf, full_path)
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(mapfile)
