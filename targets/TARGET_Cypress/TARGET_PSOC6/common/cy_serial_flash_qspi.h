@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cybsp_serial_flash.h
+* \file cy_serial_flash_qspi.h
 *
 * \brief
 * Provides APIs for interacting with an external flash connected to the SPI or
@@ -25,55 +25,83 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_bsp_serial_flash Serial Flash
+* \addtogroup group_serial_flash Serial Flash
 * \{
-* Driver for interfacing with the serial flash (QSPI NOR flash) on Cypress boards. 
+* Driver for interfacing with the serial flash (QSPI NOR flash). 
 *
-* \defgroup group_bsp_serial_flash_macros Macros
-* \defgroup group_bsp_serial_flash_functions Functions
+* \defgroup group_serial_flash_macros Macros
+* \defgroup group_serial_flash_functions Functions
 */
 
 #pragma once
 
 #include <stddef.h>
 #include "cy_result.h"
+#include "cy_pdl.h"
+#include "cyhal.h"
+
+#ifdef CY_IP_MXSMIF
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 /**
-* \addtogroup group_bsp_serial_flash_macros
+* \addtogroup group_serial_flash_macros
 * \{
 */
 
 /** The function or operation is not supported on the target or the memory */
-#define CYBSP_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 6))
+#define CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_LIB_SERIAL_FLASH, 1))
 
-/** \} group_bsp_serial_flash_macros */
+/** \} group_serial_flash_macros */
 
 /**
-* \addtogroup group_bsp_serial_flash_functions
+* \addtogroup group_serial_flash_functions
 * \{
 */
 
 /**
- * \brief Initializes the serial flash on the board.
+ * \brief Initializes the serial flash memory.
+ * \param mem_config Memory configuration to be used for initializing
+ * \param io0 Data/IO pin 0 connected to the memory
+ * \param io1 Data/IO pin 1 connected to the memory
+ * \param io2 Data/IO pin 2 connected to the memory
+ * \param io3 Data/IO pin 3 connected to the memory
+ * \param io4 Data/IO pin 4 connected to the memory
+ * \param io5 Data/IO pin 5 connected to the memory
+ * \param io6 Data/IO pin 6 connected to the memory
+ * \param io7 Data/IO pin 7 connected to the memory
+ * \param sclk Clock pin connected to the memory
+ * \param ssel Slave select pin connected to the memory
+ * \param hz Clock frequency to be used with the memory
  * \returns CY_RSLT_SUCCESS if the initialization was successful, an error code
  *          otherwise.
  */
-cy_rslt_t cybsp_serial_flash_init(void);
+cy_rslt_t cy_serial_flash_qspi_init(    
+    const cy_stc_smif_mem_config_t* mem_config,
+    cyhal_gpio_t io0, 
+    cyhal_gpio_t io1, 
+    cyhal_gpio_t io2, 
+    cyhal_gpio_t io3,
+    cyhal_gpio_t io4, 
+    cyhal_gpio_t io5, 
+    cyhal_gpio_t io6, 
+    cyhal_gpio_t io7, 
+    cyhal_gpio_t sclk,
+    cyhal_gpio_t ssel, 
+    uint32_t hz);
 
 /**
- * \brief De-initializes the serial flash on the board.
+ * \brief De-initializes the serial flash memory.
  */
-void cybsp_serial_flash_deinit(void);
+void cy_serial_flash_qspi_deinit(void);
 
 /**
- * \brief Returns the size of the serial flash on the board in bytes.
+ * \brief Returns the size of the serial flash memory in bytes.
  * \returns Memory size in bytes.
  */
-size_t cybsp_serial_flash_get_size(void);
+size_t cy_serial_flash_qspi_get_size(void);
 
 /**
  * \brief Returns the size of the erase sector to which the given address
@@ -81,38 +109,38 @@ size_t cybsp_serial_flash_get_size(void);
  * \param addr Address that belongs to the sector for which size is returned.
  * \returns Erase sector size in bytes.
  */
-size_t cybsp_serial_flash_get_erase_size(uint32_t addr);
+size_t cy_serial_flash_qspi_get_erase_size(uint32_t addr);
 
 /**
- * \brief Reads data from the serial flash on the board. This is a blocking
+ * \brief Reads data from the serial flash memory. This is a blocking
  * function. Returns error if (addr + length) exceeds the flash size.
  * \param addr Starting address to read from
  * \param length Number of data bytes to read
  * \param buf Pointer to the buffer to store the data read from the memory
  * \returns CY_RSLT_SUCCESS if the read was successful, an error code otherwise.
  */
-cy_rslt_t cybsp_serial_flash_read(uint32_t addr, size_t length, uint8_t *buf);
+cy_rslt_t cy_serial_flash_qspi_read(uint32_t addr, size_t length, uint8_t *buf);
 
 /**
- * \brief Writes the data to the serial flash on the board. The program area
+ * \brief Writes the data to the serial flash memory. The program area
  * must have been erased prior to calling this API using
- * \ref cybsp_serial_flash_erase() This is a blocking function. Returns error if
+ * \ref cy_serial_flash_qspi_erase() This is a blocking function. Returns error if
  * (addr + length) exceeds the flash size.
  * \param addr Starting address to write to
  * \param length Number of bytes to write
  * \param buf Pointer to the buffer storing the data to be written
  * \returns CY_RSLT_SUCCESS if the write was successful, an error code
- * 			otherwise.
+ *          otherwise.
  */
-cy_rslt_t cybsp_serial_flash_write(uint32_t addr, size_t length, const uint8_t *buf);
+cy_rslt_t cy_serial_flash_qspi_write(uint32_t addr, size_t length, const uint8_t *buf);
 
 /**
- * \brief Erases the serial flash on the board, uses chip erase command when
+ * \brief Erases the serial flash memory, uses chip erase command when
  * addr = 0 and length = flash_size otherwise uses sector erase command. This is
  * a blocking function. Returns error if addr or (addr + length) is not aligned
  * to the sector size or if (addr + length) exceeds the flash size.
- * Call \ref cybsp_serial_flash_get_size() to get the flash size and
- * call \ref cybsp_serial_flash_get_erase_size() to get the size of an erase
+ * Call \ref cy_serial_flash_qspi_get_size() to get the flash size and
+ * call \ref cy_serial_flash_qspi_get_erase_size() to get the size of an erase
  * sector.
  *
  * \param addr Starting address to begin erasing
@@ -120,24 +148,26 @@ cy_rslt_t cybsp_serial_flash_write(uint32_t addr, size_t length, const uint8_t *
  * \returns CY_RSLT_SUCCESS if the erase was successful, an error code
  *          otherwise.
  */
-cy_rslt_t cybsp_serial_flash_erase(uint32_t addr, size_t length);
+cy_rslt_t cy_serial_flash_qspi_erase(uint32_t addr, size_t length);
 
 /**
  * \brief Enables Execute-in-Place (memory mapped) mode on the MCU. This
  * function does not send any command to the serial flash. This may not be
  * supported on all the targets in which case
- * CYBSP_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED is returned.
+ * CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED is returned.
  * \param enable true: XIP mode is set, false: normal mode is set
  * \returns CY_RSLT_SUCCESS if the operation was successful.
- *          CYBSP_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED if the target does not
+ *          CY_RSLT_SERIAL_FLASH_ERR_UNSUPPORTED if the target does not
  *          support XIP.
  */
-cy_rslt_t cybsp_serial_flash_enable_xip(bool enable);
+cy_rslt_t cy_serial_flash_qspi_enable_xip(bool enable);
 
-/** \} group_bsp_serial_flash_functions */
+/** \} group_serial_flash_functions */
 
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_bsp_serial_flash */
+#endif /* CY_IP_MXSMIF */
+
+/** \} group_serial_flash */
