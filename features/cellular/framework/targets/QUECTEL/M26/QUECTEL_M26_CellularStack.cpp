@@ -439,6 +439,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
     _at.resp_start(">");
     _at.write_bytes((uint8_t *)data, sent_len);
     _at.resp_start();
+    _at.set_stop_tag("\r\n");
     _at.resp_stop();
 
     if (_at.get_last_error() != NSAPI_ERROR_OK) {
