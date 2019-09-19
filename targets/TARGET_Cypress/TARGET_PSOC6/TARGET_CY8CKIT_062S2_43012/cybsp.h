@@ -1,9 +1,8 @@
 /***************************************************************************//**
-* \file CY8CKIT-062S2-43012/cybsp.h
+* \file cybsp.h
 *
-* Description:
-* Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CKIT-062S2-43012 pioneer kit.
+* \brief
+* Basic API for setting up boards containing a Cypress MCU.
 *
 ********************************************************************************
 * \copyright
@@ -25,21 +24,25 @@
 
 #pragma once
 
+#include "cy_result.h"
 #include "cybsp_types.h"
-#include "cybsp_core.h"
 #if defined(CYBSP_WIFI_CAPABLE)
 #include "cyhal_sdio.h"
 #endif
-#ifndef __MBED__
-#include "cybsp_retarget.h"
-#include "cybsp_serial_flash.h"
-#include "cybsp_rgb_led.h"
-#endif /* __MBED__ */
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+/**
+* \addtogroup group_bsp_macros Macros
+* \{
+*/
+
+/** Failed to configure sysclk power management callback */
+#define CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK  (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_BSP, 0))
+
+/** \} group_bsp_macros */
 
 /**
 * \addtogroup group_bsp_functions Functions

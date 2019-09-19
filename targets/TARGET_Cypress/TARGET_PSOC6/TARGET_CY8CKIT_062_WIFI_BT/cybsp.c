@@ -1,9 +1,9 @@
 /***************************************************************************//**
-* \file CY8CKIT-062-WIFI-BT/cybsp.c
+* \file cybsp.c
 *
 * Description:
-* Provides APIs for interacting with the hardware contained on the Cypress
-* CY8CKIT-062-WIFI-BT pioneer kit.
+* Provides initialization code for starting up the hardware contained on the 
+* Cypress board.
 *
 ********************************************************************************
 * \copyright
@@ -32,6 +32,15 @@
 extern "C" {
 #endif
 
+/* The sysclk deep sleep callback is recommended to be the last callback that
+* is executed before entry into deep sleep mode and the first one upon 
+* exit the deep sleep mode.
+* Doing so minimizes the time spent on low power mode entry and exit.
+*/
+#ifndef CYBSP_SYSCLK_PM_CALLBACK_ORDER
+    #define CYBSP_SYSCLK_PM_CALLBACK_ORDER  (255u)
+#endif
+
 #if defined(CYBSP_WIFI_CAPABLE)
 static cyhal_sdio_t sdio_obj;
 
@@ -40,6 +49,29 @@ cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void)
     return &sdio_obj;
 }
 #endif
+
+/**
+ * Registers a power management callback that prepares the clock system
+ * for entering deep sleep mode and restore the clocks upon wakeup from deep sleep.
+ * NOTE: This is called automatically as part of \ref cybsp_init
+ */
+static cy_rslt_t cybsp_register_sysclk_pm_callback(void)
+{
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    static cy_stc_syspm_callback_params_t cybsp_sysclk_pm_callback_param = {NULL, NULL};
+    static cy_stc_syspm_callback_t cybsp_sysclk_pm_callback = {
+        .callback = &Cy_SysClk_DeepSleepCallback,
+        .type = CY_SYSPM_DEEPSLEEP,
+        .callbackParams = &cybsp_sysclk_pm_callback_param,
+        .order = CYBSP_SYSCLK_PM_CALLBACK_ORDER
+    };
+
+    if (!Cy_SysPm_RegisterCallback(&cybsp_sysclk_pm_callback))
+    {
+        result = CYBSP_RSLT_ERR_SYSCLK_PM_CALLBACK;
+    }
+    return result;
+}
 
 cy_rslt_t cybsp_init(void)
 {
@@ -51,35 +83,6 @@ cy_rslt_t cybsp_init(void)
     {
         result = cybsp_register_sysclk_pm_callback();
     }
-
-#ifndef __MBED__
-    if (CY_RSLT_SUCCESS == result)
-    {
-        /* Initialize User LEDs */
-        /* Reserves: CYBSP_USER_LED1 */
-        result |= cybsp_led_init(CYBSP_USER_LED1);
-        /* Reserves: CYBSP_USER_LED2 */
-        result |= cybsp_led_init(CYBSP_USER_LED2);
-        /* Reserves: CYBSP_USER_LED3 */
-        result |= cybsp_led_init(CYBSP_USER_LED3);
-        /* Reserves: CYBSP_USER_LED4 */
-        result |= cybsp_led_init(CYBSP_USER_LED4);
-        /* Reserves: CYBSP_USER_LED5 */
-        result |= cybsp_led_init(CYBSP_USER_LED5);
-        /* Initialize User Buttons */
-        /* Reserves: CYBSP_USER_BTN1 */
-        result |= cybsp_btn_init(CYBSP_USER_BTN1);
-        CY_ASSERT(CY_RSLT_SUCCESS == result);
-
-        /* Initialize retargetting stdio to 'DEBUG_UART' peripheral */
-        if (CY_RSLT_SUCCESS == result)
-        {
-           /* Reserves: CYBSP_DEBUG_UART_RX, CYBSP_DEBUG_UART_TX, corresponding SCB instance
-            *    and one of available clock dividers */
-            result = cybsp_retarget_init();
-        }
-    }
-#endif /* __MBED__ */
 
 #if defined(CYBSP_WIFI_CAPABLE)
     /* Initialize SDIO interface. This must be done before other HAL API calls as some SDIO implementations require
@@ -104,8 +107,9 @@ cy_rslt_t cybsp_init(void)
 #endif /* defined(CYBSP_WIFI_CAPABLE) */
 
     /* CYHAL_HWMGR_RSLT_ERR_INUSE error code could be returned if any needed for BSP resource was reserved by
-    *   user previously. Please review the Device Configurator (design.modus) and the BSP reservation list
-    *   (cyreservedresources.list) to make sure no resources are reserved by both. */
+     * user previously. Please review the Device Configurator (design.modus) and the BSP reservation list
+     * (cyreservedresources.list) to make sure no resources are reserved by both.
+     */
     return result;
 }
 
