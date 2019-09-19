@@ -51,7 +51,7 @@ void MULTIHOMING_SYNCHRONOUS_DNS()
                 continue;
             }
 
-            for (unsigned int j = 0; j < interface_num; j++) {
+            for (int j = 0; j < interface_num; j++) {
 
                 nsapi_error_t err = interface->gethostbyname(dns_test_hosts[i], &address, NSAPI_UNSPEC, interface_name[j]);
                 printf("DNS: query  interface_name %s %d \n", interface_name[j], j);
