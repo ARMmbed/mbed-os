@@ -19,13 +19,13 @@
 #include "device.h"
 #include "cycfg.h"
 #include "cyhal_hwmgr.h"
-#include "cybsp_core.h"
+#include "cybsp.h"
 #include "mbed_power_mgmt.h"
 #include "rtos_idle.h"
 #include "us_ticker_api.h"
-#if defined(CYBSP_ENABLE_FLASH_STORAGE)
-#include "cybsp_serial_flash.h"
-#endif /* defined(CYBSP_ENABLE_FLASH_STORAGE) */
+#if defined(MBED_CONF_TARGET_XIP_ENABLE)
+#include "cy_serial_flash_qspi.h"
+#endif /* defined(MBED_CONF_TARGET_XIP_ENABLE) */
 
 #if defined(COMPONENT_SPM_MAILBOX)
 void mailbox_init(void);
@@ -93,8 +93,8 @@ void mbed_sdk_init(void)
 
 #if MBED_CONF_TARGET_XIP_ENABLE
     /* The linker script allows storing data in external memory, if needed, enable access to that memory. */
-    cybsp_serial_flash_init();
-    cybsp_serial_flash_enable_xip(true);
+    cy_serial_flash_init();
+    cy_serial_flash_enable_xip(true);
 #endif
 
     /* Enable global interrupts (disabled in CM4 startup assembly) */

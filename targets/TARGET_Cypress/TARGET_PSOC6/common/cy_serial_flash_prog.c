@@ -1,11 +1,12 @@
 /***************************************************************************//**
-* \file cybsp_serial_flash_prog.c
+* \file cy_serial_flash_prog.c
 *
 * \brief
 * Provides variables necessary to inform programming tools how to program the
 * attached serial flash memory. The variables used here must be placed at
 * specific locations in order to be detected and used by programming tools
-* to know that there is an attached memory and its characteristics.
+* to know that there is an attached memory and its characteristics. Uses the
+* configuration provided as part of BSP.
 *
 ********************************************************************************
 * \copyright
@@ -26,22 +27,22 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_bsp_serial_flash Serial Flash
+* \addtogroup group_serial_flash Serial Flash
 * \{
 * Variables for informing programming tools that there is an attached memory device and what
 * its characteristics are so it can be programmed just like the on-chip memory.
 *
-* \defgroup group_bsp_serial_flash_variables Variables
+* \defgroup group_serial_flash_variables Variables
 */
 
 #include <stdint.h>
-#include "cybsp_types.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#if defined(CYBSP_QSPI_SCK) && (DEVICE_QSPI)
+#if defined(CY_ENABLE_XIP_PROGRAM)
+
 #include "cycfg_qspi_memslot.h"
 
 typedef struct
@@ -51,7 +52,7 @@ typedef struct
 } stc_smif_ipblocks_arr_t;
 
 /**
-* \addtogroup group_bsp_serial_flash_variables
+* \addtogroup group_serial_flash_variables
 * \{
 */
 
@@ -61,7 +62,7 @@ typedef struct
  * are multiple ways this can be accomplished including:
  * 1) Placing it in a dedicated memory block with a known address. (as done here)
  * 2) Placing it at an absolute location via a the linker script
- * 3) Using cymcuelftool to recompute the checksum and patch the elf file after linking
+ * 3) Using 'cymcuelftool -S' to recompute the checksum and patch the elf file after linking
  */
 CY_SECTION(".cy_sflash_user_data") __attribute__( (used) )
 const stc_smif_ipblocks_arr_t smifIpBlocksArr = {&smifBlockConfig, 0x00000000};
@@ -81,14 +82,21 @@ const uint32_t cyToc[128] =
     0,                      /* Offset=0x0008: Key Storage Address */
     (int)&smifIpBlocksArr,  /* Offset=0x000C: This points to a null terminated array of SMIF structures. */
     0x10000000u,            /* Offset=0x0010: App image start address */
-    [127] =  0x0B1F0000     /* Offset=0x01FC: CRC16-CCITT (the upper 2 bytes contain the CRC and the lower 2 bytes are 0) */
+                            /* Offset=0x0014-0x01F7: Reserved */
+    [126] =  0x000002C2,    /* Offset=0x01F8: Bits[ 1: 0] CLOCK_CONFIG (0=8MHz, 1=25MHz, 2=50MHz, 3=100MHz)
+                                              Bits[ 4: 2] LISTEN_WINDOW (0=20ms, 1=10ms, 2=1ms, 3=0ms, 4=100ms)
+                                              Bits[ 6: 5] SWJ_PINS_CTL (0/1/3=Disable SWJ, 2=Enable SWJ)
+                                              Bits[ 8: 7] APP_AUTHENTICATION (0/2/3=Enable, 1=Disable)
+                                              Bits[10: 9] FB_BOOTLOADER_CTL: UNUSED */
+    [127] =  0x3BB30000     /* Offset=0x01FC: CRC16-CCITT (the upper 2 bytes contain the CRC and the lower 2 bytes are 0) */
 };
 
-/** \} group_bsp_serial_flash_variables */
-#endif /* defined(CYBSP_QSPI_SCK) && (DEVICE_QSPI) */
+/** \} group_serial_flash_variables */
+
+#endif /* defined(CY_ENABLE_XIP_PROGRAM) */
 
 #if defined(__cplusplus)
 }
 #endif
 
-/** \} group_bsp_serial_flash */
+/** \} group_serial_flash */
