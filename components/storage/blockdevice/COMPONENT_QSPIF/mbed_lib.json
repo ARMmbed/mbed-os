@@ -39,23 +39,7 @@
             "QSPI_MIN_READ_SIZE": "4",
             "QSPI_MIN_PROG_SIZE": "4"
         }, 
-        "CY8CKIT_062S2_43012": {
-            "QSPI_FREQ": "50000000",
-            "QSPI_MIN_PROG_SIZE": "512"
-        },
-        "CY8CPROTO_062_4343W": {
-            "QSPI_FREQ": "50000000",
-            "QSPI_MIN_PROG_SIZE": "512"
-        },
-        "CY8CKIT_062_WIFI_BT": {
-            "QSPI_FREQ": "50000000",
-            "QSPI_MIN_PROG_SIZE": "512"
-        },
-        "CY8CKIT_062_BLE": {
-            "QSPI_FREQ": "50000000",
-            "QSPI_MIN_PROG_SIZE": "512"
-        },
-        "CYW943012P6EVB_01": {
+        "MCU_PSOC6": {
             "QSPI_FREQ": "50000000",
             "QSPI_MIN_PROG_SIZE": "512"
         }
