@@ -194,7 +194,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
             return
         mbed_serial.reset_output_buffer()
         mbed_serial.dtr = True
-        for byteval in itertools.chain(reversed(range(0x100)), range(0x100)):
+        for byteval in itertools.chain(reversed(list(range(0x100))), list(range(0x100))):
             try:
                 payload = bytearray(chunk_size * (byteval,))
                 mbed_serial.write(payload)

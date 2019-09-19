@@ -647,7 +647,7 @@ def get_descriptor_test(dev, vendor_id, product_id, log):
     # device descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_DEVICE << 8) | (0 << 0), 0, DEVICE_DESC_SIZE)
-        dev_desc = dict(zip(device_descriptor_keys, device_descriptor_parser.unpack(ret)))
+        dev_desc = dict(list(zip(device_descriptor_keys, device_descriptor_parser.unpack(ret))))
         raise_if_different(DEVICE_DESC_SIZE, dev_desc['bLength'], lineno(), text='Wrong device descriptor size !!!')
         raise_if_different(vendor_id, dev_desc['idVendor'], lineno(), text='Wrong vendor id !!!')
         raise_if_different(product_id, dev_desc['idProduct'], lineno(), text='Wrong product id !!!')
@@ -657,7 +657,7 @@ def get_descriptor_test(dev, vendor_id, product_id, log):
     # configuration descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_CONFIG << 8) | (0 << 0), 0, CONFIGURATION_DESC_SIZE)
-        conf_desc = dict(zip(configuration_descriptor_keys, configuration_descriptor_parser.unpack(ret)))
+        conf_desc = dict(list(zip(configuration_descriptor_keys, configuration_descriptor_parser.unpack(ret))))
         raise_if_different(CONFIGURATION_DESC_SIZE, conf_desc['bLength'], lineno(), text='Wrong configuration descriptor size !!!')
     except usb.core.USBError:
         raise_unconditionally(lineno(), "Requesting configuration descriptor failed")
