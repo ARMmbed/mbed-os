@@ -102,15 +102,21 @@ nsapi_error_t QUECTEL_BG96::soft_power_on()
     if (_pwr.is_connected()) {
         tr_info("QUECTEL_BG96::soft_power_on");
         // check if modem was powered on already
-        if (wake_up()) {
-            return NSAPI_ERROR_OK;
-        }
-        if (!wake_up(true)) {
-            tr_error("Modem not responding");
-            soft_power_off();
-            return NSAPI_ERROR_DEVICE_ERROR;
+        if (!wake_up()) {
+            if (!wake_up(true)) {
+                tr_error("Modem not responding");
+                soft_power_off();
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
         }
     }
+
+#if defined (MBED_CONF_QUECTEL_BG96_RTS) && defined(MBED_CONF_QUECTEL_BG96_CTS)
+    if (_at->at_cmd_discard("+IFC", "=", "%d%d", 2, 2) != NSAPI_ERROR_OK) {
+        tr_warn("Set flow control failed");
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+#endif
 
     return NSAPI_ERROR_OK;
 }
