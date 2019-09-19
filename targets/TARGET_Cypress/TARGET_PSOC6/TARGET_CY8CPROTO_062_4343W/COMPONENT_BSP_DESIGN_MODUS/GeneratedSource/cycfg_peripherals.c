@@ -24,6 +24,20 @@
 
 #include "cycfg_peripherals.h"
 
+#define CYBSP_USBUART_INTR_LVL_SEL (CY_USBFS_DEV_DRV_SET_SOF_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_BUS_RESET_LVL(0x2U) | \
+                 CY_USBFS_DEV_DRV_SET_EP0_LVL(0x2U) | \
+                 CY_USBFS_DEV_DRV_SET_LPM_LVL(0x0U) | \
+                 CY_USBFS_DEV_DRV_SET_ARB_EP_LVL(0x0U) | \
+                 CY_USBFS_DEV_DRV_SET_EP1_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP2_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP3_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP4_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP5_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP6_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP7_LVL(0x1U) | \
+                 CY_USBFS_DEV_DRV_SET_EP8_LVL(0x1U))
+
 cy_stc_csd_context_t cy_csd_0_context = 
 {
 	.lockKey = CY_CSD_NONE_KEY,
@@ -136,6 +150,31 @@ const cy_stc_rtc_config_t CYBSP_RTC_config =
 		.channel_num = 0U,
 	};
 #endif //defined (CY_USING_HAL)
+const cy_stc_usbfs_dev_drv_config_t CYBSP_USBUART_config = 
+{
+	.mode = CY_USBFS_DEV_DRV_EP_MANAGEMENT_CPU,
+	.epAccess = CY_USBFS_DEV_DRV_USE_8_BITS_DR,
+	.epBuffer = NULL,
+	.epBufferSize = 0U,
+	.dmaConfig[0] = NULL,
+	.dmaConfig[1] = NULL,
+	.dmaConfig[2] = NULL,
+	.dmaConfig[3] = NULL,
+	.dmaConfig[4] = NULL,
+	.dmaConfig[5] = NULL,
+	.dmaConfig[6] = NULL,
+	.dmaConfig[7] = NULL,
+	.enableLpm = false,
+	.intrLevelSel = CYBSP_USBUART_INTR_LVL_SEL,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USBUART_obj = 
+	{
+		.type = CYHAL_RSC_USB,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 
 
 void init_cycfg_peripherals(void)
@@ -162,5 +201,10 @@ void init_cycfg_peripherals(void)
 
 #if defined (CY_USING_HAL)
 		cyhal_hwmgr_reserve(&CYBSP_RTC_obj);
+#endif //defined (CY_USING_HAL)
+
+	Cy_SysClk_PeriphAssignDivider(PCLK_USB_CLOCK_DEV_BRS, CY_SYSCLK_DIV_16_BIT, 0U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USBUART_obj);
 #endif //defined (CY_USING_HAL)
 }

@@ -28,9 +28,12 @@
 #include "cycfg_notices.h"
 #include "cy_scb_ezi2c.h"
 #include "cy_sysclk.h"
-#include "cy_scb_uart.h"
+#if defined (CY_USING_HAL)
+	#include "cyhal_hwmgr.h"
+#endif //defined (CY_USING_HAL)
 #include "cy_smif.h"
 #include "cycfg_qspi_memslot.h"
+#include "cy_usbfs_dev_drv.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -39,9 +42,6 @@ extern "C" {
 #define CYBSP_I2C_ENABLED 1U
 #define CYBSP_I2C_HW SCB3
 #define CYBSP_I2C_IRQ scb_3_interrupt_IRQn
-#define CYBSP_DEBUG_UART_ENABLED 1U
-#define CYBSP_DEBUG_UART_HW SCB5
-#define CYBSP_DEBUG_UART_IRQ scb_5_interrupt_IRQn
 #define CYBSP_QSPI_ENABLED 1U
 #define CYBSP_QSPI_HW SMIF0
 #define CYBSP_QSPI_IRQ smif_interrupt_IRQn
@@ -60,10 +60,27 @@ extern "C" {
 #define CYBSP_QSPI_SS2 (0UL)
 #define CYBSP_QSPI_SS3 (0UL)
 #define CYBSP_QSPI_DESELECT_DELAY 7
+#define CYBSP_USBUART_ENABLED 1U
+#define CYBSP_USBUART_ACTIVE_ENDPOINTS_MASK 0U
+#define CYBSP_USBUART_ENDPOINTS_BUFFER_SIZE 512U
+#define CYBSP_USBUART_ENDPOINTS_ACCESS_TYPE 0U
+#define CYBSP_USBUART_HW USBFS0
+#define CYBSP_USBUART_HI_IRQ usb_interrupt_hi_IRQn
+#define CYBSP_USBUART_MED_IRQ usb_interrupt_med_IRQn
+#define CYBSP_USBUART_LO_IRQ usb_interrupt_lo_IRQn
 
 extern const cy_stc_scb_ezi2c_config_t CYBSP_I2C_config;
-extern const cy_stc_scb_uart_config_t CYBSP_DEBUG_UART_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_I2C_obj;
+#endif //defined (CY_USING_HAL)
 extern const cy_stc_smif_config_t CYBSP_QSPI_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_QSPI_obj;
+#endif //defined (CY_USING_HAL)
+extern const cy_stc_usbfs_dev_drv_config_t CYBSP_USBUART_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_USBUART_obj;
+#endif //defined (CY_USING_HAL)
 
 void init_cycfg_peripherals(void);
 

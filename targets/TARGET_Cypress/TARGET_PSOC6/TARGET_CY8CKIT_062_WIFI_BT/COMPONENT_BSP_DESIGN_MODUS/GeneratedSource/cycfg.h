@@ -32,7 +32,6 @@ extern "C" {
 #include "cycfg_notices.h"
 #include "cycfg_system.h"
 #include "cycfg_clocks.h"
-#include "cycfg_dmas.h"
 #include "cycfg_routing.h"
 #include "cycfg_peripherals.h"
 #include "cycfg_pins.h"
