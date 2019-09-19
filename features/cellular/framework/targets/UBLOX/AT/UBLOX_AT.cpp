@@ -117,7 +117,7 @@ nsapi_error_t UBLOX_AT::init()
     }
 #endif
 
-    return err;
+    return _at->unlock_return_error();
 }
 
 nsapi_error_t UBLOX_AT::config_authentication_parameters()
