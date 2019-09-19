@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_sysint.h
-* \version 1.20
+* \version 1.30
 *
 * \brief
 * Provides an API declaration of the SysInt driver
@@ -169,6 +169,11 @@
 * \section group_sysint_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30</td>
+*     <td>The Cy_SysInt_SetNmiSource is updated with Protection Context check for CM0+.</td>
+*     <td>User experience enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td>1.20.1</td>
 *     <td>The Vector Table section is extended with a code snippet.</td>
@@ -360,6 +365,7 @@ typedef struct {
                                                            ((nmiNum) == CY_SYSINT_NMI2) || \
                                                            ((nmiNum) == CY_SYSINT_NMI3) || \
                                                            ((nmiNum) == CY_SYSINT_NMI4))
+    #define CY_SYSINT_IS_PC_0                             (0UL == _FLD2VAL(PROT_MPU_MS_CTL_PC, PROT_MPU_MS_CTL(0U)))
 /** \endcond */
 
 
@@ -420,8 +426,8 @@ cy_israddress Cy_SysInt_GetVector(IRQn_Type IRQn);
 * Interrupt source. This parameter can either be of type cy_en_intr_t or IRQn_Type
 * based on the selected core.
 *
+* \note CM0+ may call this function only at PC=0, CM4 may set its NMI handler at any PC.
 * \note The CM0+ NMI is used for performing system calls that execute out of ROM.
-* Hence modification of the NMI source is strongly discouraged for this core.
 *
 * \funcusage
 * \snippet sysint/snippet/main.c snippet_Cy_SysInt_SetNmiSource
@@ -434,6 +440,10 @@ __STATIC_INLINE void Cy_SysInt_SetNmiSource(cy_en_sysint_nmi_t nmiNum, cy_en_int
 #endif
 {
     CY_ASSERT_L3(CY_SYSINT_IS_NMI_NUM_VALID(nmiNum));
+
+#if (CY_CPU_CORTEX_M0P)
+    CY_ASSERT_L1(CY_SYSINT_IS_PC_0);
+#endif
     
     if (CY_CPUSS_V1)
     {

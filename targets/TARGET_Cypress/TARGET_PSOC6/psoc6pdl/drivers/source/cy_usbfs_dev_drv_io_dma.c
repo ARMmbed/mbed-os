@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io_dma.c
-* \version 2.10
+* \version 2.20
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
