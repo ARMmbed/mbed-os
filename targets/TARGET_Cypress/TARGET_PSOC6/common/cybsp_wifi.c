@@ -186,7 +186,7 @@ cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
 {
     whd_init_config_t whd_init_config;
     whd_init_config.thread_stack_size = (uint32_t)THREAD_STACK_SIZE;
-    whd_init_config.thread_stack_start = (uint8_t *)malloc(THREAD_STACK_SIZE);
+    whd_init_config.thread_stack_start = NULL;
     whd_init_config.thread_priority =  (uint32_t)THREAD_PRIORITY;
     whd_init_config.country = COUNTRY;
 
