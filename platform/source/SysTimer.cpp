@@ -114,18 +114,21 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
         _deep_sleep_locked = true;
         sleep_manager_lock_deep_sleep();
     }
-
-    /* If deep sleep is unlocked, and we have enough time, let's go for it */
+    /* Consider whether we will need early or precise wake-up */
     if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 &&
             ticks_to_sleep > MBED_CONF_TARGET_DEEP_SLEEP_LATENCY &&
-            sleep_manager_can_deep_sleep()) {
-        /* Schedule the wake up interrupt early, allowing for the deep sleep latency */
+            !_deep_sleep_locked) {
+        /* If there is deep sleep latency, but we still have enough time,
+         * and we haven't blocked deep sleep ourselves,
+         * allow for that latency by requesting early wake-up.
+         * Actual sleep may or may not be deep, depending on other actors.
+         */
         _wake_early = true;
         insert_absolute(wake_time - MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * US_IN_TICK);
     } else {
-        /* Otherwise, we'll set up for shallow sleep at the precise time.
-         * To make absolutely sure it's shallow so we don't incur the latency,
-         * take our own lock, to avoid a race on a thread unlocking it.
+        /* Otherwise, set up to wake at the precise time.
+         * If there is a deep sleep latency, ensure that we're holding the lock so the sleep
+         * is shallow. (If there is no deep sleep latency, we're fine with it being deep).
          */
         _wake_early = false;
         if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 && !_deep_sleep_locked) {
