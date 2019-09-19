@@ -25,6 +25,14 @@
 #include "cycfg_clocks.h"
 
 #if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_UART_CLK_DIV_obj = 
+	{
+		.type = CYHAL_RSC_CLOCK,
+		.block_num = CYBSP_UART_CLK_DIV_HW,
+		.channel_num = CYBSP_UART_CLK_DIV_NUM,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
 	const cyhal_resource_inst_t CYBSP_BT_UART_CLK_DIV_obj = 
 	{
 		.type = CYHAL_RSC_CLOCK,
@@ -52,6 +60,13 @@
 
 void init_cycfg_clocks(void)
 {
+	Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_16_BIT, 0U);
+	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_16_BIT, 0U, 719U);
+	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_16_BIT, 0U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_UART_CLK_DIV_obj);
+#endif //defined (CY_USING_HAL)
+
 	Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_16_BIT, 1U);
 	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_16_BIT, 1U, 77U);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_16_BIT, 1U);

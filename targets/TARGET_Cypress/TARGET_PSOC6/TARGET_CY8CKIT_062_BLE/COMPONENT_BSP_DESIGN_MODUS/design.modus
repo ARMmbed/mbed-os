@@ -560,8 +560,6 @@
             </Netlist>
         </Device>
     </Devices>
-    <Libraries>
-        <Library name="psoc6sw" version="1.2"/>
-    </Libraries>
+    <Libraries/>
     <ConfiguratorData/>
 </Design>
