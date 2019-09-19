@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_prot.h
-* \version 1.30
+* \version 1.30.1
 *
 * \brief
 * Provides an API declaration of the Protection Unit driver
@@ -389,6 +389,11 @@
 * \section group_prot_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.30.1</td>
+*     <td>Snippet updated.</td>
+*     <td>Old snippet outdated.</td>
+*   </tr>
 *   <tr>
 *     <td>1.30</td>
 *     <td>Defect in \ref Cy_Prot_GetPpuProgStruct() function due to faulty defines is fixed.</td>

@@ -1,11 +1,11 @@
 /***************************************************************************//**
-* \file cyb0644abzi_d44.h
+* \file cy8c6245w_s3d72.h
 *
 * \brief
-* CYB0644ABZI-D44 device header
+* CY8C6245W-S3D72 device header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.5.0.1292
 *
 ********************************************************************************
 * \copyright
@@ -25,11 +25,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef _CYB0644ABZI_D44_H_
-#define _CYB0644ABZI_D44_H_
+#ifndef _CY8C6245W_S3D72_H_
+#define _CY8C6245W_S3D72_H_
 
 /**
-* \addtogroup group_device CYB0644ABZI-D44
+* \addtogroup group_device CY8C6245W-S3D72
 * \{
 */
 
@@ -54,7 +54,7 @@ typedef enum {
   SVCall_IRQn                       =  -5,      /*!<  -5 System Service Call via SVC instruction */
   PendSV_IRQn                       =  -2,      /*!<  -2 Pendable request for system service */
   SysTick_IRQn                      =  -1,      /*!<  -1 System Tick Timer */
-  /* CYB0644ABZI-D44 User Interrupt Numbers */
+  /* CY8C6245W-S3D72 User Interrupt Numbers */
   NvicMux0_IRQn                     =   0,      /*!<   0 [DeepSleep] CPU User Interrupt #0 */
   NvicMux1_IRQn                     =   1,      /*!<   1 [DeepSleep] CPU User Interrupt #1 */
   NvicMux2_IRQn                     =   2,      /*!<   2 [DeepSleep] CPU User Interrupt #2 */
@@ -63,7 +63,7 @@ typedef enum {
   NvicMux5_IRQn                     =   5,      /*!<   5 [DeepSleep] CPU User Interrupt #5 */
   NvicMux6_IRQn                     =   6,      /*!<   6 [DeepSleep] CPU User Interrupt #6 */
   NvicMux7_IRQn                     =   7,      /*!<   7 [DeepSleep] CPU User Interrupt #7 */
-  /* CYB0644ABZI-D44 Internal SW Interrupt Numbers */
+  /* CY8C6245W-S3D72 Internal SW Interrupt Numbers */
   Internal0_IRQn                    =   8,      /*!<   8 [Active] Internal SW Interrupt #0 */
   Internal1_IRQn                    =   9,      /*!<   9 [Active] Internal SW Interrupt #1 */
   Internal2_IRQn                    =  10,      /*!<  10 [Active] Internal SW Interrupt #2 */
@@ -85,12 +85,10 @@ typedef enum {
   DebugMonitor_IRQn                 =  -4,      /*!<  -4 Debug Monitor */
   PendSV_IRQn                       =  -2,      /*!<  -2 Pendable request for system service */
   SysTick_IRQn                      =  -1,      /*!<  -1 System Tick Timer */
-  /* CYB0644ABZI-D44 Peripheral Interrupt Numbers */
+  /* CY8C6245W-S3D72 Peripheral Interrupt Numbers */
   ioss_interrupts_gpio_0_IRQn       =   0,      /*!<   0 [DeepSleep] GPIO Port Interrupt #0 */
-  ioss_interrupts_gpio_1_IRQn       =   1,      /*!<   1 [DeepSleep] GPIO Port Interrupt #1 */
   ioss_interrupts_gpio_2_IRQn       =   2,      /*!<   2 [DeepSleep] GPIO Port Interrupt #2 */
   ioss_interrupts_gpio_3_IRQn       =   3,      /*!<   3 [DeepSleep] GPIO Port Interrupt #3 */
-  ioss_interrupts_gpio_4_IRQn       =   4,      /*!<   4 [DeepSleep] GPIO Port Interrupt #4 */
   ioss_interrupts_gpio_5_IRQn       =   5,      /*!<   5 [DeepSleep] GPIO Port Interrupt #5 */
   ioss_interrupts_gpio_6_IRQn       =   6,      /*!<   6 [DeepSleep] GPIO Port Interrupt #6 */
   ioss_interrupts_gpio_7_IRQn       =   7,      /*!<   7 [DeepSleep] GPIO Port Interrupt #7 */
@@ -99,12 +97,11 @@ typedef enum {
   ioss_interrupts_gpio_10_IRQn      =  10,      /*!<  10 [DeepSleep] GPIO Port Interrupt #10 */
   ioss_interrupts_gpio_11_IRQn      =  11,      /*!<  11 [DeepSleep] GPIO Port Interrupt #11 */
   ioss_interrupts_gpio_12_IRQn      =  12,      /*!<  12 [DeepSleep] GPIO Port Interrupt #12 */
-  ioss_interrupts_gpio_13_IRQn      =  13,      /*!<  13 [DeepSleep] GPIO Port Interrupt #13 */
   ioss_interrupts_gpio_14_IRQn      =  14,      /*!<  14 [DeepSleep] GPIO Port Interrupt #14 */
   ioss_interrupt_gpio_IRQn          =  15,      /*!<  15 [DeepSleep] GPIO All Ports */
   ioss_interrupt_vdd_IRQn           =  16,      /*!<  16 [DeepSleep] GPIO Supply Detect Interrupt */
   lpcomp_interrupt_IRQn             =  17,      /*!<  17 [DeepSleep] Low Power Comparator Interrupt */
-  scb_8_interrupt_IRQn              =  18,      /*!<  18 [DeepSleep] Serial Communication Block #8 (DeepSleep capable) */
+  scb_6_interrupt_IRQn              =  18,      /*!<  18 [DeepSleep] Serial Communication Block #6 (DeepSleep capable) */
   srss_interrupt_mcwdt_0_IRQn       =  19,      /*!<  19 [DeepSleep] Multi Counter Watchdog Timer interrupt */
   srss_interrupt_mcwdt_1_IRQn       =  20,      /*!<  20 [DeepSleep] Multi Counter Watchdog Timer interrupt */
   srss_interrupt_backup_IRQn        =  21,      /*!<  21 [DeepSleep] Backup domain interrupt */
@@ -131,17 +128,9 @@ typedef enum {
   scb_3_interrupt_IRQn              =  42,      /*!<  42 [Active] Serial Communication Block #3 */
   scb_4_interrupt_IRQn              =  43,      /*!<  43 [Active] Serial Communication Block #4 */
   scb_5_interrupt_IRQn              =  44,      /*!<  44 [Active] Serial Communication Block #5 */
-  scb_6_interrupt_IRQn              =  45,      /*!<  45 [Active] Serial Communication Block #6 */
-  scb_7_interrupt_IRQn              =  46,      /*!<  46 [Active] Serial Communication Block #7 */
-  scb_9_interrupt_IRQn              =  47,      /*!<  47 [Active] Serial Communication Block #9 */
-  scb_10_interrupt_IRQn             =  48,      /*!<  48 [Active] Serial Communication Block #10 */
-  scb_11_interrupt_IRQn             =  49,      /*!<  49 [Active] Serial Communication Block #11 */
-  scb_12_interrupt_IRQn             =  50,      /*!<  50 [Active] Serial Communication Block #12 */
   csd_interrupt_IRQn                =  51,      /*!<  51 [Active] CSD (Capsense) interrupt */
   cpuss_interrupts_dmac_0_IRQn      =  52,      /*!<  52 [Active] CPUSS DMAC, Channel #0 */
   cpuss_interrupts_dmac_1_IRQn      =  53,      /*!<  53 [Active] CPUSS DMAC, Channel #1 */
-  cpuss_interrupts_dmac_2_IRQn      =  54,      /*!<  54 [Active] CPUSS DMAC, Channel #2 */
-  cpuss_interrupts_dmac_3_IRQn      =  55,      /*!<  55 [Active] CPUSS DMAC, Channel #3 */
   cpuss_interrupts_dw0_0_IRQn       =  56,      /*!<  56 [Active] CPUSS DataWire #0, Channel #0 */
   cpuss_interrupts_dw0_1_IRQn       =  57,      /*!<  57 [Active] CPUSS DataWire #0, Channel #1 */
   cpuss_interrupts_dw0_2_IRQn       =  58,      /*!<  58 [Active] CPUSS DataWire #0, Channel #2 */
@@ -213,10 +202,6 @@ typedef enum {
   tcpwm_0_interrupts_1_IRQn         = 124,      /*!< 124 [Active] TCPWM #0, Counter #1 */
   tcpwm_0_interrupts_2_IRQn         = 125,      /*!< 125 [Active] TCPWM #0, Counter #2 */
   tcpwm_0_interrupts_3_IRQn         = 126,      /*!< 126 [Active] TCPWM #0, Counter #3 */
-  tcpwm_0_interrupts_4_IRQn         = 127,      /*!< 127 [Active] TCPWM #0, Counter #4 */
-  tcpwm_0_interrupts_5_IRQn         = 128,      /*!< 128 [Active] TCPWM #0, Counter #5 */
-  tcpwm_0_interrupts_6_IRQn         = 129,      /*!< 129 [Active] TCPWM #0, Counter #6 */
-  tcpwm_0_interrupts_7_IRQn         = 130,      /*!< 130 [Active] TCPWM #0, Counter #7 */
   tcpwm_1_interrupts_0_IRQn         = 131,      /*!< 131 [Active] TCPWM #1, Counter #0 */
   tcpwm_1_interrupts_1_IRQn         = 132,      /*!< 132 [Active] TCPWM #1, Counter #1 */
   tcpwm_1_interrupts_2_IRQn         = 133,      /*!< 133 [Active] TCPWM #1, Counter #2 */
@@ -225,35 +210,19 @@ typedef enum {
   tcpwm_1_interrupts_5_IRQn         = 136,      /*!< 136 [Active] TCPWM #1, Counter #5 */
   tcpwm_1_interrupts_6_IRQn         = 137,      /*!< 137 [Active] TCPWM #1, Counter #6 */
   tcpwm_1_interrupts_7_IRQn         = 138,      /*!< 138 [Active] TCPWM #1, Counter #7 */
-  tcpwm_1_interrupts_8_IRQn         = 139,      /*!< 139 [Active] TCPWM #1, Counter #8 */
-  tcpwm_1_interrupts_9_IRQn         = 140,      /*!< 140 [Active] TCPWM #1, Counter #9 */
-  tcpwm_1_interrupts_10_IRQn        = 141,      /*!< 141 [Active] TCPWM #1, Counter #10 */
-  tcpwm_1_interrupts_11_IRQn        = 142,      /*!< 142 [Active] TCPWM #1, Counter #11 */
-  tcpwm_1_interrupts_12_IRQn        = 143,      /*!< 143 [Active] TCPWM #1, Counter #12 */
-  tcpwm_1_interrupts_13_IRQn        = 144,      /*!< 144 [Active] TCPWM #1, Counter #13 */
-  tcpwm_1_interrupts_14_IRQn        = 145,      /*!< 145 [Active] TCPWM #1, Counter #14 */
-  tcpwm_1_interrupts_15_IRQn        = 146,      /*!< 146 [Active] TCPWM #1, Counter #15 */
-  tcpwm_1_interrupts_16_IRQn        = 147,      /*!< 147 [Active] TCPWM #1, Counter #16 */
-  tcpwm_1_interrupts_17_IRQn        = 148,      /*!< 148 [Active] TCPWM #1, Counter #17 */
-  tcpwm_1_interrupts_18_IRQn        = 149,      /*!< 149 [Active] TCPWM #1, Counter #18 */
-  tcpwm_1_interrupts_19_IRQn        = 150,      /*!< 150 [Active] TCPWM #1, Counter #19 */
-  tcpwm_1_interrupts_20_IRQn        = 151,      /*!< 151 [Active] TCPWM #1, Counter #20 */
-  tcpwm_1_interrupts_21_IRQn        = 152,      /*!< 152 [Active] TCPWM #1, Counter #21 */
-  tcpwm_1_interrupts_22_IRQn        = 153,      /*!< 153 [Active] TCPWM #1, Counter #22 */
-  tcpwm_1_interrupts_23_IRQn        = 154,      /*!< 154 [Active] TCPWM #1, Counter #23 */
   pass_interrupt_sar_IRQn           = 155,      /*!< 155 [Active] SAR ADC interrupt */
-  audioss_0_interrupt_i2s_IRQn      = 156,      /*!< 156 [Active] I2S0 Audio interrupt */
-  audioss_0_interrupt_pdm_IRQn      = 157,      /*!< 157 [Active] PDM0/PCM0 Audio interrupt */
-  audioss_1_interrupt_i2s_IRQn      = 158,      /*!< 158 [Active] I2S1 Audio interrupt */
-  profile_interrupt_IRQn            = 159,      /*!< 159 [Active] Energy Profiler interrupt */
   smif_interrupt_IRQn               = 160,      /*!< 160 [Active] Serial Memory Interface interrupt */
   usb_interrupt_hi_IRQn             = 161,      /*!< 161 [Active] USB Interrupt */
   usb_interrupt_med_IRQn            = 162,      /*!< 162 [Active] USB Interrupt */
   usb_interrupt_lo_IRQn             = 163,      /*!< 163 [Active] USB Interrupt */
   sdhc_0_interrupt_wakeup_IRQn      = 164,      /*!< 164 [Active] SDIO wakeup interrupt for mxsdhc */
   sdhc_0_interrupt_general_IRQn     = 165,      /*!< 165 [Active] Consolidated interrupt for mxsdhc for everything else */
-  sdhc_1_interrupt_wakeup_IRQn      = 166,      /*!< 166 [Active] EEMC wakeup interrupt for mxsdhc, not used */
-  sdhc_1_interrupt_general_IRQn     = 167,      /*!< 167 [Active] Consolidated interrupt for mxsdhc for everything else */
+  canfd_0_interrupt0_IRQn           = 168,      /*!< 168 [Active] Can #0, Consolidated interrupt #0 */
+  canfd_0_interrupts0_0_IRQn        = 169,      /*!< 169 [Active] CAN #0, Interrupt #0, Channel #0 */
+  canfd_0_interrupts1_0_IRQn        = 170,      /*!< 170 [Active] CAN #0, Interrupt #1, Channel #0 */
+  cpuss_interrupts_dw1_29_IRQn      = 171,      /*!< 171 [Active] CPUSS DataWire #1, Channel #29 */
+  cpuss_interrupts_dw1_30_IRQn      = 172,      /*!< 172 [Active] CPUSS DataWire #1, Channel #30 */
+  cpuss_interrupts_dw1_31_IRQn      = 173,      /*!< 173 [Active] CPUSS DataWire #1, Channel #31 */
   unconnected_IRQn                  =1023       /*!< 1023 Unconnected */
 #endif
 } IRQn_Type;
@@ -264,13 +233,11 @@ typedef enum {
      (defined(__ARMCC_VERSION) && (__TARGET_ARCH_THUMB == 3)) || \
      (defined(__ghs__)         && defined(__CORE_CORTEXM0PLUS__)))
 
-/* CYB0644ABZI-D44 interrupts that can be routed to the CM0+ NVIC */
+/* CY8C6245W-S3D72 interrupts that can be routed to the CM0+ NVIC */
 typedef enum {
   ioss_interrupts_gpio_0_IRQn       =   0,      /*!<   0 [DeepSleep] GPIO Port Interrupt #0 */
-  ioss_interrupts_gpio_1_IRQn       =   1,      /*!<   1 [DeepSleep] GPIO Port Interrupt #1 */
   ioss_interrupts_gpio_2_IRQn       =   2,      /*!<   2 [DeepSleep] GPIO Port Interrupt #2 */
   ioss_interrupts_gpio_3_IRQn       =   3,      /*!<   3 [DeepSleep] GPIO Port Interrupt #3 */
-  ioss_interrupts_gpio_4_IRQn       =   4,      /*!<   4 [DeepSleep] GPIO Port Interrupt #4 */
   ioss_interrupts_gpio_5_IRQn       =   5,      /*!<   5 [DeepSleep] GPIO Port Interrupt #5 */
   ioss_interrupts_gpio_6_IRQn       =   6,      /*!<   6 [DeepSleep] GPIO Port Interrupt #6 */
   ioss_interrupts_gpio_7_IRQn       =   7,      /*!<   7 [DeepSleep] GPIO Port Interrupt #7 */
@@ -279,12 +246,11 @@ typedef enum {
   ioss_interrupts_gpio_10_IRQn      =  10,      /*!<  10 [DeepSleep] GPIO Port Interrupt #10 */
   ioss_interrupts_gpio_11_IRQn      =  11,      /*!<  11 [DeepSleep] GPIO Port Interrupt #11 */
   ioss_interrupts_gpio_12_IRQn      =  12,      /*!<  12 [DeepSleep] GPIO Port Interrupt #12 */
-  ioss_interrupts_gpio_13_IRQn      =  13,      /*!<  13 [DeepSleep] GPIO Port Interrupt #13 */
   ioss_interrupts_gpio_14_IRQn      =  14,      /*!<  14 [DeepSleep] GPIO Port Interrupt #14 */
   ioss_interrupt_gpio_IRQn          =  15,      /*!<  15 [DeepSleep] GPIO All Ports */
   ioss_interrupt_vdd_IRQn           =  16,      /*!<  16 [DeepSleep] GPIO Supply Detect Interrupt */
   lpcomp_interrupt_IRQn             =  17,      /*!<  17 [DeepSleep] Low Power Comparator Interrupt */
-  scb_8_interrupt_IRQn              =  18,      /*!<  18 [DeepSleep] Serial Communication Block #8 (DeepSleep capable) */
+  scb_6_interrupt_IRQn              =  18,      /*!<  18 [DeepSleep] Serial Communication Block #6 (DeepSleep capable) */
   srss_interrupt_mcwdt_0_IRQn       =  19,      /*!<  19 [DeepSleep] Multi Counter Watchdog Timer interrupt */
   srss_interrupt_mcwdt_1_IRQn       =  20,      /*!<  20 [DeepSleep] Multi Counter Watchdog Timer interrupt */
   srss_interrupt_backup_IRQn        =  21,      /*!<  21 [DeepSleep] Backup domain interrupt */
@@ -311,17 +277,9 @@ typedef enum {
   scb_3_interrupt_IRQn              =  42,      /*!<  42 [Active] Serial Communication Block #3 */
   scb_4_interrupt_IRQn              =  43,      /*!<  43 [Active] Serial Communication Block #4 */
   scb_5_interrupt_IRQn              =  44,      /*!<  44 [Active] Serial Communication Block #5 */
-  scb_6_interrupt_IRQn              =  45,      /*!<  45 [Active] Serial Communication Block #6 */
-  scb_7_interrupt_IRQn              =  46,      /*!<  46 [Active] Serial Communication Block #7 */
-  scb_9_interrupt_IRQn              =  47,      /*!<  47 [Active] Serial Communication Block #9 */
-  scb_10_interrupt_IRQn             =  48,      /*!<  48 [Active] Serial Communication Block #10 */
-  scb_11_interrupt_IRQn             =  49,      /*!<  49 [Active] Serial Communication Block #11 */
-  scb_12_interrupt_IRQn             =  50,      /*!<  50 [Active] Serial Communication Block #12 */
   csd_interrupt_IRQn                =  51,      /*!<  51 [Active] CSD (Capsense) interrupt */
   cpuss_interrupts_dmac_0_IRQn      =  52,      /*!<  52 [Active] CPUSS DMAC, Channel #0 */
   cpuss_interrupts_dmac_1_IRQn      =  53,      /*!<  53 [Active] CPUSS DMAC, Channel #1 */
-  cpuss_interrupts_dmac_2_IRQn      =  54,      /*!<  54 [Active] CPUSS DMAC, Channel #2 */
-  cpuss_interrupts_dmac_3_IRQn      =  55,      /*!<  55 [Active] CPUSS DMAC, Channel #3 */
   cpuss_interrupts_dw0_0_IRQn       =  56,      /*!<  56 [Active] CPUSS DataWire #0, Channel #0 */
   cpuss_interrupts_dw0_1_IRQn       =  57,      /*!<  57 [Active] CPUSS DataWire #0, Channel #1 */
   cpuss_interrupts_dw0_2_IRQn       =  58,      /*!<  58 [Active] CPUSS DataWire #0, Channel #2 */
@@ -393,10 +351,6 @@ typedef enum {
   tcpwm_0_interrupts_1_IRQn         = 124,      /*!< 124 [Active] TCPWM #0, Counter #1 */
   tcpwm_0_interrupts_2_IRQn         = 125,      /*!< 125 [Active] TCPWM #0, Counter #2 */
   tcpwm_0_interrupts_3_IRQn         = 126,      /*!< 126 [Active] TCPWM #0, Counter #3 */
-  tcpwm_0_interrupts_4_IRQn         = 127,      /*!< 127 [Active] TCPWM #0, Counter #4 */
-  tcpwm_0_interrupts_5_IRQn         = 128,      /*!< 128 [Active] TCPWM #0, Counter #5 */
-  tcpwm_0_interrupts_6_IRQn         = 129,      /*!< 129 [Active] TCPWM #0, Counter #6 */
-  tcpwm_0_interrupts_7_IRQn         = 130,      /*!< 130 [Active] TCPWM #0, Counter #7 */
   tcpwm_1_interrupts_0_IRQn         = 131,      /*!< 131 [Active] TCPWM #1, Counter #0 */
   tcpwm_1_interrupts_1_IRQn         = 132,      /*!< 132 [Active] TCPWM #1, Counter #1 */
   tcpwm_1_interrupts_2_IRQn         = 133,      /*!< 133 [Active] TCPWM #1, Counter #2 */
@@ -405,35 +359,19 @@ typedef enum {
   tcpwm_1_interrupts_5_IRQn         = 136,      /*!< 136 [Active] TCPWM #1, Counter #5 */
   tcpwm_1_interrupts_6_IRQn         = 137,      /*!< 137 [Active] TCPWM #1, Counter #6 */
   tcpwm_1_interrupts_7_IRQn         = 138,      /*!< 138 [Active] TCPWM #1, Counter #7 */
-  tcpwm_1_interrupts_8_IRQn         = 139,      /*!< 139 [Active] TCPWM #1, Counter #8 */
-  tcpwm_1_interrupts_9_IRQn         = 140,      /*!< 140 [Active] TCPWM #1, Counter #9 */
-  tcpwm_1_interrupts_10_IRQn        = 141,      /*!< 141 [Active] TCPWM #1, Counter #10 */
-  tcpwm_1_interrupts_11_IRQn        = 142,      /*!< 142 [Active] TCPWM #1, Counter #11 */
-  tcpwm_1_interrupts_12_IRQn        = 143,      /*!< 143 [Active] TCPWM #1, Counter #12 */
-  tcpwm_1_interrupts_13_IRQn        = 144,      /*!< 144 [Active] TCPWM #1, Counter #13 */
-  tcpwm_1_interrupts_14_IRQn        = 145,      /*!< 145 [Active] TCPWM #1, Counter #14 */
-  tcpwm_1_interrupts_15_IRQn        = 146,      /*!< 146 [Active] TCPWM #1, Counter #15 */
-  tcpwm_1_interrupts_16_IRQn        = 147,      /*!< 147 [Active] TCPWM #1, Counter #16 */
-  tcpwm_1_interrupts_17_IRQn        = 148,      /*!< 148 [Active] TCPWM #1, Counter #17 */
-  tcpwm_1_interrupts_18_IRQn        = 149,      /*!< 149 [Active] TCPWM #1, Counter #18 */
-  tcpwm_1_interrupts_19_IRQn        = 150,      /*!< 150 [Active] TCPWM #1, Counter #19 */
-  tcpwm_1_interrupts_20_IRQn        = 151,      /*!< 151 [Active] TCPWM #1, Counter #20 */
-  tcpwm_1_interrupts_21_IRQn        = 152,      /*!< 152 [Active] TCPWM #1, Counter #21 */
-  tcpwm_1_interrupts_22_IRQn        = 153,      /*!< 153 [Active] TCPWM #1, Counter #22 */
-  tcpwm_1_interrupts_23_IRQn        = 154,      /*!< 154 [Active] TCPWM #1, Counter #23 */
   pass_interrupt_sar_IRQn           = 155,      /*!< 155 [Active] SAR ADC interrupt */
-  audioss_0_interrupt_i2s_IRQn      = 156,      /*!< 156 [Active] I2S0 Audio interrupt */
-  audioss_0_interrupt_pdm_IRQn      = 157,      /*!< 157 [Active] PDM0/PCM0 Audio interrupt */
-  audioss_1_interrupt_i2s_IRQn      = 158,      /*!< 158 [Active] I2S1 Audio interrupt */
-  profile_interrupt_IRQn            = 159,      /*!< 159 [Active] Energy Profiler interrupt */
   smif_interrupt_IRQn               = 160,      /*!< 160 [Active] Serial Memory Interface interrupt */
   usb_interrupt_hi_IRQn             = 161,      /*!< 161 [Active] USB Interrupt */
   usb_interrupt_med_IRQn            = 162,      /*!< 162 [Active] USB Interrupt */
   usb_interrupt_lo_IRQn             = 163,      /*!< 163 [Active] USB Interrupt */
   sdhc_0_interrupt_wakeup_IRQn      = 164,      /*!< 164 [Active] SDIO wakeup interrupt for mxsdhc */
   sdhc_0_interrupt_general_IRQn     = 165,      /*!< 165 [Active] Consolidated interrupt for mxsdhc for everything else */
-  sdhc_1_interrupt_wakeup_IRQn      = 166,      /*!< 166 [Active] EEMC wakeup interrupt for mxsdhc, not used */
-  sdhc_1_interrupt_general_IRQn     = 167,      /*!< 167 [Active] Consolidated interrupt for mxsdhc for everything else */
+  canfd_0_interrupt0_IRQn           = 168,      /*!< 168 [Active] Can #0, Consolidated interrupt #0 */
+  canfd_0_interrupts0_0_IRQn        = 169,      /*!< 169 [Active] CAN #0, Interrupt #0, Channel #0 */
+  canfd_0_interrupts1_0_IRQn        = 170,      /*!< 170 [Active] CAN #0, Interrupt #1, Channel #0 */
+  cpuss_interrupts_dw1_29_IRQn      = 171,      /*!< 171 [Active] CPUSS DataWire #1, Channel #29 */
+  cpuss_interrupts_dw1_30_IRQn      = 172,      /*!< 172 [Active] CPUSS DataWire #1, Channel #30 */
+  cpuss_interrupts_dw1_31_IRQn      = 173,      /*!< 173 [Active] CPUSS DataWire #1, Channel #31 */
   disconnected_IRQn                 =1023       /*!< 1023 Disconnected */
 } cy_en_intr_t;
 
@@ -483,13 +421,15 @@ typedef enum {
 #define CY_ROM_BASE                     0x00000000UL
 #define CY_ROM_SIZE                     0x00010000UL
 #define CY_SRAM_BASE                    0x08000000UL
-#define CY_SRAM_SIZE                    0x00100000UL
+#define CY_SRAM_SIZE                    0x00040000UL
 #define CY_FLASH_BASE                   0x10000000UL
-#define CY_FLASH_SIZE                   0x00200000UL
+#define CY_FLASH_SIZE                   0x00080000UL
 #define CY_EM_EEPROM_BASE               0x14000000UL
 #define CY_EM_EEPROM_SIZE               0x00008000UL
 #define CY_XIP_BASE                     0x18000000UL
 #define CY_XIP_SIZE                     0x08000000UL
+#define CY_CAN0MRAM_BASE                0x40530000UL
+#define CY_CAN0MRAM_SIZE                0x00010000UL
 #define CY_SFLASH_BASE                  0x16000000UL
 #define CY_SFLASH_SIZE                  0x00008000UL
 #define CY_EFUSE_BASE                   0x402C0800UL
@@ -506,7 +446,7 @@ typedef enum {
 #define CY_IP_MXCSDV2_VERSION           1u
 #define CY_IP_MXLCD                     1u
 #define CY_IP_MXLCD_INSTANCES           1u
-#define CY_IP_MXLCD_VERSION             1u
+#define CY_IP_MXLCD_VERSION             2u
 #define CY_IP_MXS40SRSS                 1u
 #define CY_IP_MXS40SRSS_INSTANCES       1u
 #define CY_IP_MXS40SRSS_VERSION         1u
@@ -517,7 +457,7 @@ typedef enum {
 #define CY_IP_MXS40SRSS_MCWDT_INSTANCES 2u
 #define CY_IP_MXS40SRSS_MCWDT_VERSION   1u
 #define CY_IP_MXSCB                     1u
-#define CY_IP_MXSCB_INSTANCES           13u
+#define CY_IP_MXSCB_INSTANCES           7u
 #define CY_IP_MXSCB_VERSION             1u
 #define CY_IP_MXPERI                    1u
 #define CY_IP_MXPERI_INSTANCES          1u
@@ -538,17 +478,20 @@ typedef enum {
 #define CY_IP_MXCRYPTO_INSTANCES        1u
 #define CY_IP_MXCRYPTO_VERSION          2u
 #define CY_IP_MXSDHC                    1u
-#define CY_IP_MXSDHC_INSTANCES          2u
+#define CY_IP_MXSDHC_INSTANCES          1u
 #define CY_IP_MXSDHC_VERSION            1u
-#define CY_IP_MXAUDIOSS                 1u
-#define CY_IP_MXAUDIOSS_INSTANCES       2u
-#define CY_IP_MXAUDIOSS_VERSION         1u
+#define CY_IP_MXTTCANFD                 1u
+#define CY_IP_MXTTCANFD_INSTANCES       1u
+#define CY_IP_MXTTCANFD_VERSION         1u
 #define CY_IP_MXLPCOMP                  1u
 #define CY_IP_MXLPCOMP_INSTANCES        1u
 #define CY_IP_MXLPCOMP_VERSION          1u
 #define CY_IP_MXSMIF                    1u
 #define CY_IP_MXSMIF_INSTANCES          1u
 #define CY_IP_MXSMIF_VERSION            1u
+#define CY_IP_MXS40IOSS                 1u
+#define CY_IP_MXS40IOSS_INSTANCES       1u
+#define CY_IP_MXS40IOSS_VERSION         2u
 #define CY_IP_MXUSBFS                   1u
 #define CY_IP_MXUSBFS_INSTANCES         1u
 #define CY_IP_MXUSBFS_VERSION           1u
@@ -558,21 +501,15 @@ typedef enum {
 #define CY_IP_MXS40PASS_SAR             1u
 #define CY_IP_MXS40PASS_SAR_INSTANCES   1u
 #define CY_IP_MXS40PASS_SAR_VERSION     1u
-#define CY_IP_MXS40IOSS                 1u
-#define CY_IP_MXS40IOSS_INSTANCES       1u
-#define CY_IP_MXS40IOSS_VERSION         2u
 #define CY_IP_MXEFUSE                   1u
 #define CY_IP_MXEFUSE_INSTANCES         1u
 #define CY_IP_MXEFUSE_VERSION           1u
-#define CY_IP_MXPROFILE                 1u
-#define CY_IP_MXPROFILE_INSTANCES       1u
-#define CY_IP_MXPROFILE_VERSION         1u
 
-#include "psoc6_02_config.h"
-#include "gpio_psoc6_02_124_bga.h"
+#include "psoc6_03_config.h"
+#include "gpio_psoc6_03_100_tqfp.h"
 
-#define CY_DEVICE_PSOC6A2M
-#define CY_SILICON_ID                   0xE4301102UL
+#define CY_DEVICE_PSOC6A512K
+#define CY_SILICON_ID                   0xE70E1105UL
 #define CY_HF_CLK_MAX_FREQ              150000000UL
 
 #define CPUSS_FLASHC_PA_SIZE_LOG2       0x7UL
@@ -595,9 +532,9 @@ typedef enum {
 #define PERI_GR2                                ((PERI_GR_Type*) &PERI->GR[2])                                    /* 0x40004040 */
 #define PERI_GR3                                ((PERI_GR_Type*) &PERI->GR[3])                                    /* 0x40004060 */
 #define PERI_GR4                                ((PERI_GR_Type*) &PERI->GR[4])                                    /* 0x40004080 */
+#define PERI_GR5                                ((PERI_GR_Type*) &PERI->GR[5])                                    /* 0x400040A0 */
 #define PERI_GR6                                ((PERI_GR_Type*) &PERI->GR[6])                                    /* 0x400040C0 */
 #define PERI_GR9                                ((PERI_GR_Type*) &PERI->GR[9])                                    /* 0x40004120 */
-#define PERI_GR10                               ((PERI_GR_Type*) &PERI->GR[10])                                   /* 0x40004140 */
 #define PERI_TR_GR0                             ((PERI_TR_GR_Type*) &PERI->TR_GR[0])                              /* 0x40008000 */
 #define PERI_TR_GR1                             ((PERI_TR_GR_Type*) &PERI->TR_GR[1])                              /* 0x40008400 */
 #define PERI_TR_GR2                             ((PERI_TR_GR_Type*) &PERI->TR_GR[2])                              /* 0x40008800 */
@@ -608,6 +545,7 @@ typedef enum {
 #define PERI_TR_GR7                             ((PERI_TR_GR_Type*) &PERI->TR_GR[7])                              /* 0x40009C00 */
 #define PERI_TR_GR8                             ((PERI_TR_GR_Type*) &PERI->TR_GR[8])                              /* 0x4000A000 */
 #define PERI_TR_GR9                             ((PERI_TR_GR_Type*) &PERI->TR_GR[9])                              /* 0x4000A400 */
+#define PERI_TR_GR10                            ((PERI_TR_GR_Type*) &PERI->TR_GR[10])                             /* 0x4000A800 */
 #define PERI_TR_1TO1_GR0                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[0])                    /* 0x4000C000 */
 #define PERI_TR_1TO1_GR1                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[1])                    /* 0x4000C400 */
 #define PERI_TR_1TO1_GR2                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[2])                    /* 0x4000C800 */
@@ -615,6 +553,7 @@ typedef enum {
 #define PERI_TR_1TO1_GR4                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[4])                    /* 0x4000D000 */
 #define PERI_TR_1TO1_GR5                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[5])                    /* 0x4000D400 */
 #define PERI_TR_1TO1_GR6                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[6])                    /* 0x4000D800 */
+#define PERI_TR_1TO1_GR7                        ((PERI_TR_1TO1_GR_Type*) &PERI->TR_1TO1_GR[7])                    /* 0x4000DC00 */
 
 /*******************************************************************************
 *                                   PERI_MS
@@ -636,9 +575,9 @@ typedef enum {
 #define PERI_MS_PPU_FX_PERI_GR2_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[3])                      /* 0x400108C0 */
 #define PERI_MS_PPU_FX_PERI_GR3_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[4])                      /* 0x40010900 */
 #define PERI_MS_PPU_FX_PERI_GR4_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[5])                      /* 0x40010940 */
-#define PERI_MS_PPU_FX_PERI_GR6_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[6])                      /* 0x40010980 */
-#define PERI_MS_PPU_FX_PERI_GR9_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[7])                      /* 0x400109C0 */
-#define PERI_MS_PPU_FX_PERI_GR10_GROUP          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[8])                      /* 0x40010A00 */
+#define PERI_MS_PPU_FX_PERI_GR5_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[6])                      /* 0x40010980 */
+#define PERI_MS_PPU_FX_PERI_GR6_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[7])                      /* 0x400109C0 */
+#define PERI_MS_PPU_FX_PERI_GR9_GROUP           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[8])                      /* 0x40010A00 */
 #define PERI_MS_PPU_FX_PERI_TR                  ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[9])                      /* 0x40010A40 */
 #define PERI_MS_PPU_FX_CRYPTO_MAIN              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[10])                     /* 0x40010A80 */
 #define PERI_MS_PPU_FX_CRYPTO_CRYPTO            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[11])                     /* 0x40010AC0 */
@@ -688,161 +627,161 @@ typedef enum {
 #define PERI_MS_PPU_FX_PROT_SMPU_MAIN           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[55])                     /* 0x400115C0 */
 #define PERI_MS_PPU_FX_PROT_MPU0_MAIN           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[56])                     /* 0x40011600 */
 #define PERI_MS_PPU_FX_PROT_MPU5_MAIN           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[57])                     /* 0x40011640 */
-#define PERI_MS_PPU_FX_PROT_MPU6_MAIN           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[58])                     /* 0x40011680 */
-#define PERI_MS_PPU_FX_PROT_MPU14_MAIN          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[59])                     /* 0x400116C0 */
-#define PERI_MS_PPU_FX_PROT_MPU15_MAIN          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[60])                     /* 0x40011700 */
-#define PERI_MS_PPU_FX_FLASHC_MAIN              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[61])                     /* 0x40011740 */
-#define PERI_MS_PPU_FX_FLASHC_CMD               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[62])                     /* 0x40011780 */
-#define PERI_MS_PPU_FX_FLASHC_DFT               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[63])                     /* 0x400117C0 */
-#define PERI_MS_PPU_FX_FLASHC_CM0               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[64])                     /* 0x40011800 */
-#define PERI_MS_PPU_FX_FLASHC_CM4               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[65])                     /* 0x40011840 */
-#define PERI_MS_PPU_FX_FLASHC_CRYPTO            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[66])                     /* 0x40011880 */
-#define PERI_MS_PPU_FX_FLASHC_DW0               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[67])                     /* 0x400118C0 */
-#define PERI_MS_PPU_FX_FLASHC_DW1               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[68])                     /* 0x40011900 */
-#define PERI_MS_PPU_FX_FLASHC_DMAC              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[69])                     /* 0x40011940 */
-#define PERI_MS_PPU_FX_FLASHC_EXT_MS0           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[70])                     /* 0x40011980 */
-#define PERI_MS_PPU_FX_FLASHC_EXT_MS1           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[71])                     /* 0x400119C0 */
-#define PERI_MS_PPU_FX_FLASHC_FM                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[72])                     /* 0x40011A00 */
-#define PERI_MS_PPU_FX_SRSS_MAIN1               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[73])                     /* 0x40011A40 */
-#define PERI_MS_PPU_FX_SRSS_MAIN2               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[74])                     /* 0x40011A80 */
-#define PERI_MS_PPU_FX_WDT                      ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[75])                     /* 0x40011AC0 */
-#define PERI_MS_PPU_FX_MAIN                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[76])                     /* 0x40011B00 */
-#define PERI_MS_PPU_FX_SRSS_MAIN3               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[77])                     /* 0x40011B40 */
-#define PERI_MS_PPU_FX_SRSS_MAIN4               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[78])                     /* 0x40011B80 */
-#define PERI_MS_PPU_FX_SRSS_MAIN5               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[79])                     /* 0x40011BC0 */
-#define PERI_MS_PPU_FX_SRSS_MAIN6               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[80])                     /* 0x40011C00 */
-#define PERI_MS_PPU_FX_SRSS_MAIN7               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[81])                     /* 0x40011C40 */
-#define PERI_MS_PPU_FX_BACKUP_BACKUP            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[82])                     /* 0x40011C80 */
-#define PERI_MS_PPU_FX_DW0_DW                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[83])                     /* 0x40011CC0 */
-#define PERI_MS_PPU_FX_DW1_DW                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[84])                     /* 0x40011D00 */
-#define PERI_MS_PPU_FX_DW0_DW_CRC               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[85])                     /* 0x40011D40 */
-#define PERI_MS_PPU_FX_DW1_DW_CRC               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[86])                     /* 0x40011D80 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT0_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[87])                     /* 0x40011DC0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT1_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[88])                     /* 0x40011E00 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT2_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[89])                     /* 0x40011E40 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT3_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[90])                     /* 0x40011E80 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT4_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[91])                     /* 0x40011EC0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT5_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[92])                     /* 0x40011F00 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT6_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[93])                     /* 0x40011F40 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT7_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[94])                     /* 0x40011F80 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT8_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[95])                     /* 0x40011FC0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT9_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[96])                     /* 0x40012000 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT10_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[97])                     /* 0x40012040 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT11_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[98])                     /* 0x40012080 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT12_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[99])                     /* 0x400120C0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT13_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[100])                    /* 0x40012100 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT14_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[101])                    /* 0x40012140 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT15_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[102])                    /* 0x40012180 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT16_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[103])                    /* 0x400121C0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT17_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[104])                    /* 0x40012200 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT18_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[105])                    /* 0x40012240 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT19_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[106])                    /* 0x40012280 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT20_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[107])                    /* 0x400122C0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT21_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[108])                    /* 0x40012300 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT22_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[109])                    /* 0x40012340 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT23_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[110])                    /* 0x40012380 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT24_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[111])                    /* 0x400123C0 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT25_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[112])                    /* 0x40012400 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT26_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[113])                    /* 0x40012440 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT27_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[114])                    /* 0x40012480 */
-#define PERI_MS_PPU_FX_DW0_CH_STRUCT28_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[115])                    /* 0x400124C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT0_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[116])                    /* 0x40012500 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT1_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[117])                    /* 0x40012540 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT2_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[118])                    /* 0x40012580 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT3_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[119])                    /* 0x400125C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT4_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[120])                    /* 0x40012600 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT5_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[121])                    /* 0x40012640 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT6_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[122])                    /* 0x40012680 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT7_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[123])                    /* 0x400126C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT8_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[124])                    /* 0x40012700 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT9_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[125])                    /* 0x40012740 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT10_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[126])                    /* 0x40012780 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT11_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[127])                    /* 0x400127C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT12_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[128])                    /* 0x40012800 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT13_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[129])                    /* 0x40012840 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT14_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[130])                    /* 0x40012880 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT15_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[131])                    /* 0x400128C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT16_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[132])                    /* 0x40012900 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT17_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[133])                    /* 0x40012940 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT18_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[134])                    /* 0x40012980 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT19_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[135])                    /* 0x400129C0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT20_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[136])                    /* 0x40012A00 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT21_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[137])                    /* 0x40012A40 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT22_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[138])                    /* 0x40012A80 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT23_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[139])                    /* 0x40012AC0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT24_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[140])                    /* 0x40012B00 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT25_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[141])                    /* 0x40012B40 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT26_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[142])                    /* 0x40012B80 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT27_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[143])                    /* 0x40012BC0 */
-#define PERI_MS_PPU_FX_DW1_CH_STRUCT28_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[144])                    /* 0x40012C00 */
-#define PERI_MS_PPU_FX_DMAC_TOP                 ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[145])                    /* 0x40012C40 */
-#define PERI_MS_PPU_FX_DMAC_CH0_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[146])                    /* 0x40012C80 */
-#define PERI_MS_PPU_FX_DMAC_CH1_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[147])                    /* 0x40012CC0 */
-#define PERI_MS_PPU_FX_DMAC_CH2_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[148])                    /* 0x40012D00 */
-#define PERI_MS_PPU_FX_DMAC_CH3_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[149])                    /* 0x40012D40 */
-#define PERI_MS_PPU_FX_EFUSE_CTL                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[150])                    /* 0x40012D80 */
-#define PERI_MS_PPU_FX_EFUSE_DATA               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[151])                    /* 0x40012DC0 */
-#define PERI_MS_PPU_FX_PROFILE                  ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[152])                    /* 0x40012E00 */
-#define PERI_MS_PPU_FX_HSIOM_PRT0_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[153])                    /* 0x40012E40 */
-#define PERI_MS_PPU_FX_HSIOM_PRT1_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[154])                    /* 0x40012E80 */
-#define PERI_MS_PPU_FX_HSIOM_PRT2_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[155])                    /* 0x40012EC0 */
-#define PERI_MS_PPU_FX_HSIOM_PRT3_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[156])                    /* 0x40012F00 */
-#define PERI_MS_PPU_FX_HSIOM_PRT4_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[157])                    /* 0x40012F40 */
-#define PERI_MS_PPU_FX_HSIOM_PRT5_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[158])                    /* 0x40012F80 */
-#define PERI_MS_PPU_FX_HSIOM_PRT6_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[159])                    /* 0x40012FC0 */
-#define PERI_MS_PPU_FX_HSIOM_PRT7_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[160])                    /* 0x40013000 */
-#define PERI_MS_PPU_FX_HSIOM_PRT8_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[161])                    /* 0x40013040 */
-#define PERI_MS_PPU_FX_HSIOM_PRT9_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[162])                    /* 0x40013080 */
-#define PERI_MS_PPU_FX_HSIOM_PRT10_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[163])                    /* 0x400130C0 */
-#define PERI_MS_PPU_FX_HSIOM_PRT11_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[164])                    /* 0x40013100 */
-#define PERI_MS_PPU_FX_HSIOM_PRT12_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[165])                    /* 0x40013140 */
-#define PERI_MS_PPU_FX_HSIOM_PRT13_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[166])                    /* 0x40013180 */
-#define PERI_MS_PPU_FX_HSIOM_PRT14_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[167])                    /* 0x400131C0 */
-#define PERI_MS_PPU_FX_HSIOM_AMUX               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[168])                    /* 0x40013200 */
-#define PERI_MS_PPU_FX_HSIOM_MON                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[169])                    /* 0x40013240 */
-#define PERI_MS_PPU_FX_GPIO_PRT0_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[170])                    /* 0x40013280 */
-#define PERI_MS_PPU_FX_GPIO_PRT1_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[171])                    /* 0x400132C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT2_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[172])                    /* 0x40013300 */
-#define PERI_MS_PPU_FX_GPIO_PRT3_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[173])                    /* 0x40013340 */
-#define PERI_MS_PPU_FX_GPIO_PRT4_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[174])                    /* 0x40013380 */
-#define PERI_MS_PPU_FX_GPIO_PRT5_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[175])                    /* 0x400133C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT6_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[176])                    /* 0x40013400 */
-#define PERI_MS_PPU_FX_GPIO_PRT7_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[177])                    /* 0x40013440 */
-#define PERI_MS_PPU_FX_GPIO_PRT8_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[178])                    /* 0x40013480 */
-#define PERI_MS_PPU_FX_GPIO_PRT9_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[179])                    /* 0x400134C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT10_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[180])                    /* 0x40013500 */
-#define PERI_MS_PPU_FX_GPIO_PRT11_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[181])                    /* 0x40013540 */
-#define PERI_MS_PPU_FX_GPIO_PRT12_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[182])                    /* 0x40013580 */
-#define PERI_MS_PPU_FX_GPIO_PRT13_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[183])                    /* 0x400135C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT14_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[184])                    /* 0x40013600 */
-#define PERI_MS_PPU_FX_GPIO_PRT0_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[185])                    /* 0x40013640 */
-#define PERI_MS_PPU_FX_GPIO_PRT1_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[186])                    /* 0x40013680 */
-#define PERI_MS_PPU_FX_GPIO_PRT2_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[187])                    /* 0x400136C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT3_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[188])                    /* 0x40013700 */
-#define PERI_MS_PPU_FX_GPIO_PRT4_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[189])                    /* 0x40013740 */
-#define PERI_MS_PPU_FX_GPIO_PRT5_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[190])                    /* 0x40013780 */
-#define PERI_MS_PPU_FX_GPIO_PRT6_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[191])                    /* 0x400137C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT7_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[192])                    /* 0x40013800 */
-#define PERI_MS_PPU_FX_GPIO_PRT8_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[193])                    /* 0x40013840 */
-#define PERI_MS_PPU_FX_GPIO_PRT9_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[194])                    /* 0x40013880 */
-#define PERI_MS_PPU_FX_GPIO_PRT10_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[195])                    /* 0x400138C0 */
-#define PERI_MS_PPU_FX_GPIO_PRT11_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[196])                    /* 0x40013900 */
-#define PERI_MS_PPU_FX_GPIO_PRT12_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[197])                    /* 0x40013940 */
-#define PERI_MS_PPU_FX_GPIO_PRT13_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[198])                    /* 0x40013980 */
-#define PERI_MS_PPU_FX_GPIO_PRT14_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[199])                    /* 0x400139C0 */
-#define PERI_MS_PPU_FX_GPIO_GPIO                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[200])                    /* 0x40013A00 */
-#define PERI_MS_PPU_FX_GPIO_TEST                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[201])                    /* 0x40013A40 */
-#define PERI_MS_PPU_FX_SMARTIO_PRT8_PRT         ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[202])                    /* 0x40013A80 */
-#define PERI_MS_PPU_FX_SMARTIO_PRT9_PRT         ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[203])                    /* 0x40013AC0 */
-#define PERI_MS_PPU_FX_LPCOMP                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[204])                    /* 0x40013B00 */
-#define PERI_MS_PPU_FX_CSD0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[205])                    /* 0x40013B40 */
-#define PERI_MS_PPU_FX_TCPWM0                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[206])                    /* 0x40013B80 */
-#define PERI_MS_PPU_FX_TCPWM1                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[207])                    /* 0x40013BC0 */
-#define PERI_MS_PPU_FX_LCD0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[208])                    /* 0x40013C00 */
-#define PERI_MS_PPU_FX_USBFS0                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[209])                    /* 0x40013C40 */
-#define PERI_MS_PPU_FX_SMIF0                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[210])                    /* 0x40013C80 */
-#define PERI_MS_PPU_FX_SDHC0                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[211])                    /* 0x40013CC0 */
-#define PERI_MS_PPU_FX_SDHC1                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[212])                    /* 0x40013D00 */
+#define PERI_MS_PPU_FX_PROT_MPU14_MAIN          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[58])                     /* 0x40011680 */
+#define PERI_MS_PPU_FX_PROT_MPU15_MAIN          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[59])                     /* 0x400116C0 */
+#define PERI_MS_PPU_FX_FLASHC_MAIN              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[60])                     /* 0x40011700 */
+#define PERI_MS_PPU_FX_FLASHC_CMD               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[61])                     /* 0x40011740 */
+#define PERI_MS_PPU_FX_FLASHC_DFT               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[62])                     /* 0x40011780 */
+#define PERI_MS_PPU_FX_FLASHC_CM0               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[63])                     /* 0x400117C0 */
+#define PERI_MS_PPU_FX_FLASHC_CM4               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[64])                     /* 0x40011800 */
+#define PERI_MS_PPU_FX_FLASHC_CRYPTO            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[65])                     /* 0x40011840 */
+#define PERI_MS_PPU_FX_FLASHC_DW0               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[66])                     /* 0x40011880 */
+#define PERI_MS_PPU_FX_FLASHC_DW1               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[67])                     /* 0x400118C0 */
+#define PERI_MS_PPU_FX_FLASHC_DMAC              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[68])                     /* 0x40011900 */
+#define PERI_MS_PPU_FX_FLASHC_EXT_MS0           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[69])                     /* 0x40011940 */
+#define PERI_MS_PPU_FX_FLASHC_FM                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[70])                     /* 0x40011980 */
+#define PERI_MS_PPU_FX_SRSS_MAIN1               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[71])                     /* 0x400119C0 */
+#define PERI_MS_PPU_FX_SRSS_MAIN2               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[72])                     /* 0x40011A00 */
+#define PERI_MS_PPU_FX_WDT                      ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[73])                     /* 0x40011A40 */
+#define PERI_MS_PPU_FX_MAIN                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[74])                     /* 0x40011A80 */
+#define PERI_MS_PPU_FX_SRSS_MAIN3               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[75])                     /* 0x40011AC0 */
+#define PERI_MS_PPU_FX_SRSS_MAIN4               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[76])                     /* 0x40011B00 */
+#define PERI_MS_PPU_FX_SRSS_MAIN5               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[77])                     /* 0x40011B40 */
+#define PERI_MS_PPU_FX_SRSS_MAIN6               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[78])                     /* 0x40011B80 */
+#define PERI_MS_PPU_FX_SRSS_MAIN7               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[79])                     /* 0x40011BC0 */
+#define PERI_MS_PPU_FX_BACKUP_BACKUP            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[80])                     /* 0x40011C00 */
+#define PERI_MS_PPU_FX_DW0_DW                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[81])                     /* 0x40011C40 */
+#define PERI_MS_PPU_FX_DW1_DW                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[82])                     /* 0x40011C80 */
+#define PERI_MS_PPU_FX_DW0_DW_CRC               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[83])                     /* 0x40011CC0 */
+#define PERI_MS_PPU_FX_DW1_DW_CRC               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[84])                     /* 0x40011D00 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT0_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[85])                     /* 0x40011D40 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT1_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[86])                     /* 0x40011D80 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT2_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[87])                     /* 0x40011DC0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT3_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[88])                     /* 0x40011E00 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT4_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[89])                     /* 0x40011E40 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT5_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[90])                     /* 0x40011E80 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT6_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[91])                     /* 0x40011EC0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT7_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[92])                     /* 0x40011F00 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT8_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[93])                     /* 0x40011F40 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT9_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[94])                     /* 0x40011F80 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT10_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[95])                     /* 0x40011FC0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT11_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[96])                     /* 0x40012000 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT12_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[97])                     /* 0x40012040 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT13_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[98])                     /* 0x40012080 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT14_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[99])                     /* 0x400120C0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT15_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[100])                    /* 0x40012100 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT16_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[101])                    /* 0x40012140 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT17_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[102])                    /* 0x40012180 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT18_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[103])                    /* 0x400121C0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT19_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[104])                    /* 0x40012200 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT20_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[105])                    /* 0x40012240 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT21_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[106])                    /* 0x40012280 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT22_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[107])                    /* 0x400122C0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT23_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[108])                    /* 0x40012300 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT24_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[109])                    /* 0x40012340 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT25_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[110])                    /* 0x40012380 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT26_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[111])                    /* 0x400123C0 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT27_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[112])                    /* 0x40012400 */
+#define PERI_MS_PPU_FX_DW0_CH_STRUCT28_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[113])                    /* 0x40012440 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT0_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[114])                    /* 0x40012480 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT1_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[115])                    /* 0x400124C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT2_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[116])                    /* 0x40012500 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT3_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[117])                    /* 0x40012540 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT4_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[118])                    /* 0x40012580 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT5_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[119])                    /* 0x400125C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT6_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[120])                    /* 0x40012600 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT7_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[121])                    /* 0x40012640 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT8_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[122])                    /* 0x40012680 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT9_CH        ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[123])                    /* 0x400126C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT10_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[124])                    /* 0x40012700 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT11_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[125])                    /* 0x40012740 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT12_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[126])                    /* 0x40012780 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT13_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[127])                    /* 0x400127C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT14_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[128])                    /* 0x40012800 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT15_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[129])                    /* 0x40012840 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT16_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[130])                    /* 0x40012880 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT17_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[131])                    /* 0x400128C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT18_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[132])                    /* 0x40012900 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT19_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[133])                    /* 0x40012940 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT20_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[134])                    /* 0x40012980 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT21_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[135])                    /* 0x400129C0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT22_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[136])                    /* 0x40012A00 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT23_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[137])                    /* 0x40012A40 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT24_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[138])                    /* 0x40012A80 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT25_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[139])                    /* 0x40012AC0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT26_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[140])                    /* 0x40012B00 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT27_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[141])                    /* 0x40012B40 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT28_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[142])                    /* 0x40012B80 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT29_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[143])                    /* 0x40012BC0 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT30_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[144])                    /* 0x40012C00 */
+#define PERI_MS_PPU_FX_DW1_CH_STRUCT31_CH       ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[145])                    /* 0x40012C40 */
+#define PERI_MS_PPU_FX_DMAC_TOP                 ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[146])                    /* 0x40012C80 */
+#define PERI_MS_PPU_FX_DMAC_CH0_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[147])                    /* 0x40012CC0 */
+#define PERI_MS_PPU_FX_DMAC_CH1_CH              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[148])                    /* 0x40012D00 */
+#define PERI_MS_PPU_FX_EFUSE_CTL                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[149])                    /* 0x40012D40 */
+#define PERI_MS_PPU_FX_EFUSE_DATA               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[150])                    /* 0x40012D80 */
+#define PERI_MS_PPU_FX_HSIOM_PRT0_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[151])                    /* 0x40012DC0 */
+#define PERI_MS_PPU_FX_HSIOM_PRT1_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[152])                    /* 0x40012E00 */
+#define PERI_MS_PPU_FX_HSIOM_PRT2_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[153])                    /* 0x40012E40 */
+#define PERI_MS_PPU_FX_HSIOM_PRT3_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[154])                    /* 0x40012E80 */
+#define PERI_MS_PPU_FX_HSIOM_PRT4_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[155])                    /* 0x40012EC0 */
+#define PERI_MS_PPU_FX_HSIOM_PRT5_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[156])                    /* 0x40012F00 */
+#define PERI_MS_PPU_FX_HSIOM_PRT6_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[157])                    /* 0x40012F40 */
+#define PERI_MS_PPU_FX_HSIOM_PRT7_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[158])                    /* 0x40012F80 */
+#define PERI_MS_PPU_FX_HSIOM_PRT8_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[159])                    /* 0x40012FC0 */
+#define PERI_MS_PPU_FX_HSIOM_PRT9_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[160])                    /* 0x40013000 */
+#define PERI_MS_PPU_FX_HSIOM_PRT10_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[161])                    /* 0x40013040 */
+#define PERI_MS_PPU_FX_HSIOM_PRT11_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[162])                    /* 0x40013080 */
+#define PERI_MS_PPU_FX_HSIOM_PRT12_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[163])                    /* 0x400130C0 */
+#define PERI_MS_PPU_FX_HSIOM_PRT13_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[164])                    /* 0x40013100 */
+#define PERI_MS_PPU_FX_HSIOM_PRT14_PRT          ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[165])                    /* 0x40013140 */
+#define PERI_MS_PPU_FX_HSIOM_AMUX               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[166])                    /* 0x40013180 */
+#define PERI_MS_PPU_FX_HSIOM_MON                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[167])                    /* 0x400131C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT0_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[168])                    /* 0x40013200 */
+#define PERI_MS_PPU_FX_GPIO_PRT1_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[169])                    /* 0x40013240 */
+#define PERI_MS_PPU_FX_GPIO_PRT2_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[170])                    /* 0x40013280 */
+#define PERI_MS_PPU_FX_GPIO_PRT3_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[171])                    /* 0x400132C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT4_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[172])                    /* 0x40013300 */
+#define PERI_MS_PPU_FX_GPIO_PRT5_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[173])                    /* 0x40013340 */
+#define PERI_MS_PPU_FX_GPIO_PRT6_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[174])                    /* 0x40013380 */
+#define PERI_MS_PPU_FX_GPIO_PRT7_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[175])                    /* 0x400133C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT8_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[176])                    /* 0x40013400 */
+#define PERI_MS_PPU_FX_GPIO_PRT9_PRT            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[177])                    /* 0x40013440 */
+#define PERI_MS_PPU_FX_GPIO_PRT10_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[178])                    /* 0x40013480 */
+#define PERI_MS_PPU_FX_GPIO_PRT11_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[179])                    /* 0x400134C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT12_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[180])                    /* 0x40013500 */
+#define PERI_MS_PPU_FX_GPIO_PRT13_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[181])                    /* 0x40013540 */
+#define PERI_MS_PPU_FX_GPIO_PRT14_PRT           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[182])                    /* 0x40013580 */
+#define PERI_MS_PPU_FX_GPIO_PRT0_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[183])                    /* 0x400135C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT1_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[184])                    /* 0x40013600 */
+#define PERI_MS_PPU_FX_GPIO_PRT2_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[185])                    /* 0x40013640 */
+#define PERI_MS_PPU_FX_GPIO_PRT3_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[186])                    /* 0x40013680 */
+#define PERI_MS_PPU_FX_GPIO_PRT4_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[187])                    /* 0x400136C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT5_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[188])                    /* 0x40013700 */
+#define PERI_MS_PPU_FX_GPIO_PRT6_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[189])                    /* 0x40013740 */
+#define PERI_MS_PPU_FX_GPIO_PRT7_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[190])                    /* 0x40013780 */
+#define PERI_MS_PPU_FX_GPIO_PRT8_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[191])                    /* 0x400137C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT9_CFG            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[192])                    /* 0x40013800 */
+#define PERI_MS_PPU_FX_GPIO_PRT10_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[193])                    /* 0x40013840 */
+#define PERI_MS_PPU_FX_GPIO_PRT11_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[194])                    /* 0x40013880 */
+#define PERI_MS_PPU_FX_GPIO_PRT12_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[195])                    /* 0x400138C0 */
+#define PERI_MS_PPU_FX_GPIO_PRT13_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[196])                    /* 0x40013900 */
+#define PERI_MS_PPU_FX_GPIO_PRT14_CFG           ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[197])                    /* 0x40013940 */
+#define PERI_MS_PPU_FX_GPIO_GPIO                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[198])                    /* 0x40013980 */
+#define PERI_MS_PPU_FX_GPIO_TEST                ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[199])                    /* 0x400139C0 */
+#define PERI_MS_PPU_FX_SMARTIO_PRT8_PRT         ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[200])                    /* 0x40013A00 */
+#define PERI_MS_PPU_FX_SMARTIO_PRT9_PRT         ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[201])                    /* 0x40013A40 */
+#define PERI_MS_PPU_FX_LPCOMP                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[202])                    /* 0x40013A80 */
+#define PERI_MS_PPU_FX_CSD0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[203])                    /* 0x40013AC0 */
+#define PERI_MS_PPU_FX_TCPWM0                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[204])                    /* 0x40013B00 */
+#define PERI_MS_PPU_FX_TCPWM1                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[205])                    /* 0x40013B40 */
+#define PERI_MS_PPU_FX_LCD0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[206])                    /* 0x40013B80 */
+#define PERI_MS_PPU_FX_USBFS0                   ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[207])                    /* 0x40013BC0 */
+#define PERI_MS_PPU_FX_SMIF0                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[208])                    /* 0x40013C00 */
+#define PERI_MS_PPU_FX_SDHC0                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[209])                    /* 0x40013C40 */
+#define PERI_MS_PPU_FX_CANFD0_CH0_CH            ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[210])                    /* 0x40013C80 */
+#define PERI_MS_PPU_FX_CANFD0_MAIN              ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[211])                    /* 0x40013CC0 */
+#define PERI_MS_PPU_FX_CANFD0_BUF               ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[212])                    /* 0x40013D00 */
 #define PERI_MS_PPU_FX_SCB0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[213])                    /* 0x40013D40 */
 #define PERI_MS_PPU_FX_SCB1                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[214])                    /* 0x40013D80 */
 #define PERI_MS_PPU_FX_SCB2                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[215])                    /* 0x40013DC0 */
@@ -850,15 +789,6 @@ typedef enum {
 #define PERI_MS_PPU_FX_SCB4                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[217])                    /* 0x40013E40 */
 #define PERI_MS_PPU_FX_SCB5                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[218])                    /* 0x40013E80 */
 #define PERI_MS_PPU_FX_SCB6                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[219])                    /* 0x40013EC0 */
-#define PERI_MS_PPU_FX_SCB7                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[220])                    /* 0x40013F00 */
-#define PERI_MS_PPU_FX_SCB8                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[221])                    /* 0x40013F40 */
-#define PERI_MS_PPU_FX_SCB9                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[222])                    /* 0x40013F80 */
-#define PERI_MS_PPU_FX_SCB10                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[223])                    /* 0x40013FC0 */
-#define PERI_MS_PPU_FX_SCB11                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[224])                    /* 0x40014000 */
-#define PERI_MS_PPU_FX_SCB12                    ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[225])                    /* 0x40014040 */
-#define PERI_MS_PPU_FX_PDM0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[226])                    /* 0x40014080 */
-#define PERI_MS_PPU_FX_I2S0                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[227])                    /* 0x400140C0 */
-#define PERI_MS_PPU_FX_I2S1                     ((PERI_MS_PPU_FX_Type*) &PERI_MS->PPU_FX[228])                    /* 0x40014100 */
 
 /*******************************************************************************
 *                                    CRYPTO
@@ -953,14 +883,6 @@ typedef enum {
 #define PROT_MPU5_MPU_STRUCT5                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[5].MPU_STRUCT[5])       /* 0x402356A0 */
 #define PROT_MPU5_MPU_STRUCT6                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[5].MPU_STRUCT[6])       /* 0x402356C0 */
 #define PROT_MPU5_MPU_STRUCT7                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[5].MPU_STRUCT[7])       /* 0x402356E0 */
-#define PROT_MPU6_MPU_STRUCT0                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[0])       /* 0x40235A00 */
-#define PROT_MPU6_MPU_STRUCT1                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[1])       /* 0x40235A20 */
-#define PROT_MPU6_MPU_STRUCT2                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[2])       /* 0x40235A40 */
-#define PROT_MPU6_MPU_STRUCT3                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[3])       /* 0x40235A60 */
-#define PROT_MPU6_MPU_STRUCT4                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[4])       /* 0x40235A80 */
-#define PROT_MPU6_MPU_STRUCT5                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[5])       /* 0x40235AA0 */
-#define PROT_MPU6_MPU_STRUCT6                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[6])       /* 0x40235AC0 */
-#define PROT_MPU6_MPU_STRUCT7                   ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[6].MPU_STRUCT[7])       /* 0x40235AE0 */
 #define PROT_MPU15_MPU_STRUCT0                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[0])      /* 0x40237E00 */
 #define PROT_MPU15_MPU_STRUCT1                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[1])      /* 0x40237E20 */
 #define PROT_MPU15_MPU_STRUCT2                  ((PROT_MPU_MPU_STRUCT_Type*) &PROT->CYMPU[15].MPU_STRUCT[2])      /* 0x40237E40 */
@@ -1076,6 +998,9 @@ typedef enum {
 #define DW1_CH_STRUCT26                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[26])                        /* 0x40298680 */
 #define DW1_CH_STRUCT27                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[27])                        /* 0x402986C0 */
 #define DW1_CH_STRUCT28                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[28])                        /* 0x40298700 */
+#define DW1_CH_STRUCT29                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[29])                        /* 0x40298740 */
+#define DW1_CH_STRUCT30                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[30])                        /* 0x40298780 */
+#define DW1_CH_STRUCT31                         ((DW_CH_STRUCT_Type*) &DW1->CH_STRUCT[31])                        /* 0x402987C0 */
 
 /*******************************************************************************
 *                                     DMAC
@@ -1085,8 +1010,6 @@ typedef enum {
 #define DMAC                                    ((DMAC_Type*) DMAC_BASE)                                          /* 0x402A0000 */
 #define DMAC_CH0                                ((DMAC_CH_Type*) &DMAC->CH[0])                                    /* 0x402A1000 */
 #define DMAC_CH1                                ((DMAC_CH_Type*) &DMAC->CH[1])                                    /* 0x402A1100 */
-#define DMAC_CH2                                ((DMAC_CH_Type*) &DMAC->CH[2])                                    /* 0x402A1200 */
-#define DMAC_CH3                                ((DMAC_CH_Type*) &DMAC->CH[3])                                    /* 0x402A1300 */
 
 /*******************************************************************************
 *                                    EFUSE
@@ -1094,21 +1017,6 @@ typedef enum {
 
 #define EFUSE_BASE                              0x402C0000UL
 #define EFUSE                                   ((EFUSE_Type*) EFUSE_BASE)                                        /* 0x402C0000 */
-
-/*******************************************************************************
-*                                   PROFILE
-*******************************************************************************/
-
-#define PROFILE_BASE                            0x402D0000UL
-#define PROFILE                                 ((PROFILE_Type*) PROFILE_BASE)                                    /* 0x402D0000 */
-#define PROFILE_CNT_STRUCT0                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[0])              /* 0x402D0800 */
-#define PROFILE_CNT_STRUCT1                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[1])              /* 0x402D0810 */
-#define PROFILE_CNT_STRUCT2                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[2])              /* 0x402D0820 */
-#define PROFILE_CNT_STRUCT3                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[3])              /* 0x402D0830 */
-#define PROFILE_CNT_STRUCT4                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[4])              /* 0x402D0840 */
-#define PROFILE_CNT_STRUCT5                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[5])              /* 0x402D0850 */
-#define PROFILE_CNT_STRUCT6                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[6])              /* 0x402D0860 */
-#define PROFILE_CNT_STRUCT7                     ((PROFILE_CNT_STRUCT_Type*) &PROFILE->CNT_STRUCT[7])              /* 0x402D0870 */
 
 /*******************************************************************************
 *                                    HSIOM
@@ -1189,10 +1097,6 @@ typedef enum {
 #define TCPWM0_CNT1                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[1])                               /* 0x40380140 */
 #define TCPWM0_CNT2                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[2])                               /* 0x40380180 */
 #define TCPWM0_CNT3                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[3])                               /* 0x403801C0 */
-#define TCPWM0_CNT4                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[4])                               /* 0x40380200 */
-#define TCPWM0_CNT5                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[5])                               /* 0x40380240 */
-#define TCPWM0_CNT6                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[6])                               /* 0x40380280 */
-#define TCPWM0_CNT7                             ((TCPWM_CNT_Type*) &TCPWM0->CNT[7])                               /* 0x403802C0 */
 #define TCPWM1_CNT0                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[0])                               /* 0x40390100 */
 #define TCPWM1_CNT1                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[1])                               /* 0x40390140 */
 #define TCPWM1_CNT2                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[2])                               /* 0x40390180 */
@@ -1201,22 +1105,6 @@ typedef enum {
 #define TCPWM1_CNT5                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[5])                               /* 0x40390240 */
 #define TCPWM1_CNT6                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[6])                               /* 0x40390280 */
 #define TCPWM1_CNT7                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[7])                               /* 0x403902C0 */
-#define TCPWM1_CNT8                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[8])                               /* 0x40390300 */
-#define TCPWM1_CNT9                             ((TCPWM_CNT_Type*) &TCPWM1->CNT[9])                               /* 0x40390340 */
-#define TCPWM1_CNT10                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[10])                              /* 0x40390380 */
-#define TCPWM1_CNT11                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[11])                              /* 0x403903C0 */
-#define TCPWM1_CNT12                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[12])                              /* 0x40390400 */
-#define TCPWM1_CNT13                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[13])                              /* 0x40390440 */
-#define TCPWM1_CNT14                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[14])                              /* 0x40390480 */
-#define TCPWM1_CNT15                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[15])                              /* 0x403904C0 */
-#define TCPWM1_CNT16                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[16])                              /* 0x40390500 */
-#define TCPWM1_CNT17                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[17])                              /* 0x40390540 */
-#define TCPWM1_CNT18                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[18])                              /* 0x40390580 */
-#define TCPWM1_CNT19                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[19])                              /* 0x403905C0 */
-#define TCPWM1_CNT20                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[20])                              /* 0x40390600 */
-#define TCPWM1_CNT21                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[21])                              /* 0x40390640 */
-#define TCPWM1_CNT22                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[22])                              /* 0x40390680 */
-#define TCPWM1_CNT23                            ((TCPWM_CNT_Type*) &TCPWM1->CNT[23])                              /* 0x403906C0 */
 
 /*******************************************************************************
 *                                     LCD
@@ -1244,20 +1132,24 @@ typedef enum {
 #define SMIF0_DEVICE0                           ((SMIF_DEVICE_Type*) &SMIF0->DEVICE[0])                           /* 0x40420800 */
 #define SMIF0_DEVICE1                           ((SMIF_DEVICE_Type*) &SMIF0->DEVICE[1])                           /* 0x40420880 */
 #define SMIF0_DEVICE2                           ((SMIF_DEVICE_Type*) &SMIF0->DEVICE[2])                           /* 0x40420900 */
-#define SMIF0_DEVICE3                           ((SMIF_DEVICE_Type*) &SMIF0->DEVICE[3])                           /* 0x40420980 */
 
 /*******************************************************************************
 *                                     SDHC
 *******************************************************************************/
 
 #define SDHC0_BASE                              0x40460000UL
-#define SDHC1_BASE                              0x40470000UL
 #define SDHC0                                   ((SDHC_Type*) SDHC0_BASE)                                         /* 0x40460000 */
-#define SDHC1                                   ((SDHC_Type*) SDHC1_BASE)                                         /* 0x40470000 */
 #define SDHC0_WRAP                              ((SDHC_WRAP_Type*) &SDHC0->WRAP)                                  /* 0x40460000 */
-#define SDHC1_WRAP                              ((SDHC_WRAP_Type*) &SDHC1->WRAP)                                  /* 0x40470000 */
 #define SDHC0_CORE                              ((SDHC_CORE_Type*) &SDHC0->CORE)                                  /* 0x40461000 */
-#define SDHC1_CORE                              ((SDHC_CORE_Type*) &SDHC1->CORE)                                  /* 0x40471000 */
+
+/*******************************************************************************
+*                                    CANFD
+*******************************************************************************/
+
+#define CANFD0_BASE                             0x40520000UL
+#define CANFD0                                  ((CANFD_Type*) CANFD0_BASE)                                       /* 0x40520000 */
+#define CANFD0_CH0_M_TTCAN                      ((CANFD_CH_M_TTCAN_Type*) &CANFD0->CH[0].M_TTCAN)                 /* 0x40520000 */
+#define CANFD0_CH0                              ((CANFD_CH_Type*) &CANFD0->CH[0])                                 /* 0x40520000 */
 
 /*******************************************************************************
 *                                     SCB
@@ -1270,12 +1162,6 @@ typedef enum {
 #define SCB4_BASE                               0x40640000UL
 #define SCB5_BASE                               0x40650000UL
 #define SCB6_BASE                               0x40660000UL
-#define SCB7_BASE                               0x40670000UL
-#define SCB8_BASE                               0x40680000UL
-#define SCB9_BASE                               0x40690000UL
-#define SCB10_BASE                              0x406A0000UL
-#define SCB11_BASE                              0x406B0000UL
-#define SCB12_BASE                              0x406C0000UL
 #define SCB0                                    ((CySCB_Type*) SCB0_BASE)                                         /* 0x40600000 */
 #define SCB1                                    ((CySCB_Type*) SCB1_BASE)                                         /* 0x40610000 */
 #define SCB2                                    ((CySCB_Type*) SCB2_BASE)                                         /* 0x40620000 */
@@ -1283,12 +1169,6 @@ typedef enum {
 #define SCB4                                    ((CySCB_Type*) SCB4_BASE)                                         /* 0x40640000 */
 #define SCB5                                    ((CySCB_Type*) SCB5_BASE)                                         /* 0x40650000 */
 #define SCB6                                    ((CySCB_Type*) SCB6_BASE)                                         /* 0x40660000 */
-#define SCB7                                    ((CySCB_Type*) SCB7_BASE)                                         /* 0x40670000 */
-#define SCB8                                    ((CySCB_Type*) SCB8_BASE)                                         /* 0x40680000 */
-#define SCB9                                    ((CySCB_Type*) SCB9_BASE)                                         /* 0x40690000 */
-#define SCB10                                   ((CySCB_Type*) SCB10_BASE)                                        /* 0x406A0000 */
-#define SCB11                                   ((CySCB_Type*) SCB11_BASE)                                        /* 0x406B0000 */
-#define SCB12                                   ((CySCB_Type*) SCB12_BASE)                                        /* 0x406C0000 */
 
 /*******************************************************************************
 *                                     SAR
@@ -1305,25 +1185,9 @@ typedef enum {
 #define PASS                                    ((PASS_Type*) PASS_BASE)                                          /* 0x409F0000 */
 #define PASS_AREF                               ((PASS_AREF_Type*) &PASS->AREF)                                   /* 0x409F0E00 */
 
-/*******************************************************************************
-*                                     PDM
-*******************************************************************************/
+/** \} CY8C6245W-S3D72 */
 
-#define PDM0_BASE                               0x40A00000UL
-#define PDM0                                    ((PDM_Type*) PDM0_BASE)                                           /* 0x40A00000 */
-
-/*******************************************************************************
-*                                     I2S
-*******************************************************************************/
-
-#define I2S0_BASE                               0x40A10000UL
-#define I2S1_BASE                               0x40A11000UL
-#define I2S0                                    ((I2S_Type*) I2S0_BASE)                                           /* 0x40A10000 */
-#define I2S1                                    ((I2S_Type*) I2S1_BASE)                                           /* 0x40A11000 */
-
-/** \} CYB0644ABZI-D44 */
-
-#endif /* _CYB0644ABZI_D44_H_ */
+#endif /* _CY8C6245W_S3D72_H_ */
 
 
 /* [] END OF FILE */

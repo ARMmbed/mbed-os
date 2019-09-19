@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_usbfs_dev_drv_io.c
-* \version 2.10
+* \version 2.20
 *
 * Provides data transfer API implementation of the USBFS driver.
 *
@@ -139,6 +139,8 @@ void Cy_USBFS_Dev_Drv_ConfigDevice(USBFS_Type *base, cy_stc_usbfs_dev_drv_contex
         /* The configuration completes: Generates a rising edge for the USBDEV_ARB_CFG.CFG_CMP bit */
         USBFS_DEV_ARB_CFG(base)  = _VAL2FLD(USBFS_USBDEV_ARB_CFG_DMA_CFG, context->mode) |
                                    autoMemMask;
+        /* Read the register to ensure that the write is flushed out to the hardware */
+        (void) USBFS_DEV_ARB_CFG(base);
         USBFS_DEV_ARB_CFG(base) |= USBFS_USBDEV_ARB_CFG_CFG_CMP_Msk;
         (void) USBFS_DEV_ARB_CFG(base);
     }
