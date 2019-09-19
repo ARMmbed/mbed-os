@@ -115,10 +115,9 @@ void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
         sleep_manager_lock_deep_sleep();
     }
 
-    /* If deep sleep is unlocked, and we have enough time, let's go for it */
+    /* If we have enough time for deep sleep, let's consider we may enter it */
     if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 &&
-            ticks_to_sleep > MBED_CONF_TARGET_DEEP_SLEEP_LATENCY &&
-            sleep_manager_can_deep_sleep()) {
+            ticks_to_sleep > MBED_CONF_TARGET_DEEP_SLEEP_LATENCY) {
         /* Schedule the wake up interrupt early, allowing for the deep sleep latency */
         _wake_early = true;
         insert_absolute(wake_time - MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * US_IN_TICK);
