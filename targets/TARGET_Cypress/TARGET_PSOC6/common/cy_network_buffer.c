@@ -23,7 +23,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if defined(TARGET_WHD)
+#if defined(CYBSP_WIFI_CAPABLE)
 
 #include <stdlib.h>
 #include "cy_network_buffer.h"
@@ -108,4 +108,4 @@ whd_result_t cy_buffer_add_remove_at_front(whd_buffer_t *buffer, int32_t add_rem
     return WHD_SUCCESS;
 }
 
-#endif /* defined(TARGET_WHD) */
+#endif /* defined(CYBSP_WIFI_CAPABLE) */

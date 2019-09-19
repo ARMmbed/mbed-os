@@ -32,11 +32,19 @@
 extern "C" {
 #endif
 
+#if defined(CYBSP_WIFI_CAPABLE)
+static cyhal_sdio_t sdio_obj;
+
+cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void)
+{
+    return &sdio_obj;
+}
+#endif
+
 cy_rslt_t cybsp_init(void)
 {
-    cy_rslt_t result;
-
-    result = cyhal_hwmgr_init();
+    /* Setup hardware manager to track resource usage then initialize all system (clock/power) board configuration */
+    cy_rslt_t result = cyhal_hwmgr_init();
     init_cycfg_system();
 
     if (CY_RSLT_SUCCESS == result)
@@ -74,15 +82,24 @@ cy_rslt_t cybsp_init(void)
 #endif /* __MBED__ */
 
 #if defined(CYBSP_WIFI_CAPABLE)
-    /* Initialize UDB SDIO interface. This must be done before any other HAL API attempts to allocate clocks or DMA
-       instances. The UDB SDIO interface uses specific instances which are reserved as part of this call.
-       NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically done
-       when starting up WiFi. */
+    /* Initialize SDIO interface. This must be done before other HAL API calls as some SDIO implementations require
+     * specific peripheral instances.
+     * NOTE: The full WiFi interface still needs to be initialized via cybsp_wifi_init_primary(). This is typically 
+     * done when starting up WiFi. 
+     */
     if (CY_RSLT_SUCCESS == result)
     {
-       /* Reserves: CYBSP_WIFI_SDIO, CYBSP_WIFI_SDIO_D0, CYBSP_WIFI_SDIO_D1, CYBSP_WIFI_SDIO_D2, CYBSP_WIFI_SDIO_D3
-       *    CYBSP_WIFI_SDIO_CMD, CYBSP_WIFI_SDIO_CLK and CYBSP_WIFI_WL_REG_ON */
-        result = cybsp_wifi_sdio_init();
+        /* Reserves: CYBSP_WIFI_SDIO, CYBSP_WIFI_SDIO_D0, CYBSP_WIFI_SDIO_D1, CYBSP_WIFI_SDIO_D2, CYBSP_WIFI_SDIO_D3
+         * CYBSP_WIFI_SDIO_CMD and CYBSP_WIFI_SDIO_CLK.
+         */
+        result = cyhal_sdio_init(
+                &sdio_obj,
+                CYBSP_WIFI_SDIO_CMD,
+                CYBSP_WIFI_SDIO_CLK,
+                CYBSP_WIFI_SDIO_D0,
+                CYBSP_WIFI_SDIO_D1,
+                CYBSP_WIFI_SDIO_D2,
+                CYBSP_WIFI_SDIO_D3);
     }
 #endif /* defined(CYBSP_WIFI_CAPABLE) */
 

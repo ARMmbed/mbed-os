@@ -23,13 +23,12 @@
 *******************************************************************************/
 #if defined(CYBSP_WIFI_CAPABLE)
 
-#include "cybsp_types.h"
+#include "cybsp.h"
 #include "cybsp_wifi.h"
 #include "cy_network_buffer.h"
 #include "cyabs_rtos.h"
 #include "whd_types.h"
 #include "cyhal.h"
-#include "cybsp_wifi_sdio.h"
 #include "cycfg.h"
 
 #if defined(__cplusplus)
@@ -40,6 +39,7 @@ extern "C" {
 #define THREAD_PRIORITY   	        CY_RTOS_PRIORITY_HIGH
 #define COUNTRY                     WHD_COUNTRY_AUSTRALIA
 #define DEFAULT_OOB_PIN		        0
+#define WLAN_POWER_UP_DELAY_MS      250
 
 #define SDIO_ENUMERATION_TRIES      500
 #define SDIO_RETRY_DELAY_MS         1
@@ -83,6 +83,7 @@ extern "C" {
 #endif /* (CY_SDIO_BUS_USE_OOB_INTR != 0) */
 
 static whd_driver_t whd_drv;
+
 static whd_buffer_funcs_t buffer_ops =
 {
     .whd_host_buffer_get = cy_host_buffer_get,
@@ -152,32 +153,49 @@ static cy_rslt_t cybsp_sdio_enumerate(const cyhal_sdio_t *sdio_object)
     return result;
 }
 
-static cy_rslt_t init_sdio_bus(void)
+static cy_rslt_t reset_wifi_chip(void)
 {
-    cyhal_sdio_t* sdio_p = cybsp_get_wifi_sdio_obj();
-    cy_rslt_t result = cybsp_sdio_enumerate(sdio_p);
+    /* WiFi into reset */
+    cy_rslt_t result = cyhal_gpio_init(CYBSP_WIFI_WL_REG_ON, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_PULLUP, 0);
     if(result == CY_RSLT_SUCCESS)
     {
-        whd_sdio_config_t whd_sdio_config;
-        whd_oob_config_t oob_config;
-        cyhal_sdio_cfg_t config;
+        /* WiFi out of reset */
+        cyhal_gpio_write(CYBSP_WIFI_WL_REG_ON, true);
+        Cy_SysLib_Delay(WLAN_POWER_UP_DELAY_MS);
+    }
+    return result;
+}
 
-        oob_config.host_oob_pin = CY_WIFI_HOST_WAKE_GPIO;
-        oob_config.dev_gpio_sel = DEFAULT_OOB_PIN;
-        oob_config.is_falling_edge = (CY_WIFI_HOST_WAKE_IRQ_EVENT == CYHAL_GPIO_IRQ_FALL)
-            ? WHD_TRUE
-            : WHD_FALSE;
-        oob_config.intr_priority = CY_WIFI_OOB_INTR_PRIORITY;
+static cy_rslt_t init_sdio_bus(void)
+{
+    cy_rslt_t result = reset_wifi_chip();
+    if(result == CY_RSLT_SUCCESS)
+    {
+        cyhal_sdio_t* sdio_p = cybsp_get_wifi_sdio_obj();
+        cy_rslt_t result = cybsp_sdio_enumerate(sdio_p);
+        if(result == CY_RSLT_SUCCESS)
+        {
+            whd_sdio_config_t whd_sdio_config;
+            whd_oob_config_t oob_config;
+            cyhal_sdio_cfg_t config;
 
-        whd_sdio_config.sdio_1bit_mode = WHD_FALSE;
-        whd_sdio_config.high_speed_sdio_clock = WHD_FALSE;
-        whd_sdio_config.oob_config = oob_config;
-        whd_bus_sdio_attach(whd_drv, &whd_sdio_config, sdio_p);
+            oob_config.host_oob_pin = CY_WIFI_HOST_WAKE_GPIO;
+            oob_config.dev_gpio_sel = DEFAULT_OOB_PIN;
+            oob_config.is_falling_edge = (CY_WIFI_HOST_WAKE_IRQ_EVENT == CYHAL_GPIO_IRQ_FALL)
+                ? WHD_TRUE
+                : WHD_FALSE;
+            oob_config.intr_priority = CY_WIFI_OOB_INTR_PRIORITY;
 
-        /* Increase frequency to 25 MHz for better performance */
-        config.frequencyhal_hz = 25000000;
-        config.block_size = 0;
-        cyhal_sdio_configure(sdio_p, &config);
+            whd_sdio_config.sdio_1bit_mode = WHD_FALSE;
+            whd_sdio_config.high_speed_sdio_clock = WHD_FALSE;
+            whd_sdio_config.oob_config = oob_config;
+            whd_bus_sdio_attach(whd_drv, &whd_sdio_config, sdio_p);
+
+            /* Increase frequency to 25 MHz for better performance */
+            config.frequencyhal_hz = 25000000;
+            config.block_size = 0;
+            cyhal_sdio_configure(sdio_p, &config);
+        }
     }
     return result;
 }
@@ -205,6 +223,20 @@ cy_rslt_t cybsp_wifi_init_primary(whd_interface_t* interface)
 cy_rslt_t cybsp_wifi_init_secondary(whd_interface_t* interface, whd_mac_t* mac_address)
 {
     return whd_add_secondary_interface(whd_drv, mac_address, interface);
+}
+
+cy_rslt_t cybsp_wifi_deinit(whd_interface_t interface)
+{
+    cy_rslt_t result = whd_wifi_off(interface);
+    if(result == CY_RSLT_SUCCESS)
+    {
+        result = whd_deinit(interface);
+        if(result == CY_RSLT_SUCCESS)
+        {
+            cyhal_gpio_free(CYBSP_WIFI_WL_REG_ON);
+        }
+    }
+    return result;
 }
 
 whd_driver_t cybsp_get_wifi_driver(void)
