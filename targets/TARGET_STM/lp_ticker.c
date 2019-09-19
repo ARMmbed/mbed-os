@@ -113,7 +113,11 @@ void lp_ticker_init(void)
 #else /* MBED_CONF_TARGET_LSE_AVAILABLE */
 
     /* Enable LSI clock */
+#if TARGET_STM32WB
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
+#else
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+#endif
     RCC_OscInitStruct.LSIState = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
