@@ -42,7 +42,7 @@
 
 #define Stack_Size MBED_BOOT_STACK_SIZE
 
-; STM32F303RE: 512KB FLASH (0x80000) + 64KB SRAM (0x10000)
+; STM32F303RE: 512KB FLASH (0x80000) + 64KB SRAM (0x10000) + 16KB CCMRAM (0x4000)
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -57,6 +57,10 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
 
   ARM_LIB_STACK (0x20000000+0x10000) EMPTY -Stack_Size { ; stack
+  }
+
+  CCMRAM (0x10000000) (0x4000)  {
+   .ANY (CCMRAM)
   }
 }
 
