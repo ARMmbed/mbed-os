@@ -244,7 +244,7 @@ char *AT_CellularContext::get_interface_name(char *interface_name)
         return NULL;
     }
     MBED_ASSERT(interface_name);
-    sprintf(interface_name, "ce%02d", _cid);
+    sprintf(interface_name, "ce%d", _cid);
     return interface_name;
 }
 
