@@ -68,11 +68,6 @@ using namespace utest::v1;
 #define MAKE_7BIT_READ_ADDRESS(addr)    (((I2C_ADDRESS_MASK_7BIT & addr) << 1) | 1)
 #define MAKE_7BIT_WRITE_ADDRESS(addr)   ((I2C_ADDRESS_MASK_7BIT & addr) << 1)
 
-enum TransferType {
-    WRITE = 0,
-    READ = 1,
-    WRITE_READ = 2
-};
 
 I2CTester tester(DefaultFormFactor::pins(), DefaultFormFactor::restricted_pins());
 

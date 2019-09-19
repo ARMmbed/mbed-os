@@ -22,6 +22,11 @@
 #ifndef I2C_API_TESTS_H
 #define I2C_API_TESTS_H
 
+enum TransferType {
+    WRITE = 0,
+    READ = 1,
+    WRITE_READ = 2
+};
 
 #ifdef __cplusplus
 extern "C" {
