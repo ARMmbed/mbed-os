@@ -28,7 +28,7 @@
 #include "cybsp_types.h"
 #include "cybsp_core.h"
 #if defined(CYBSP_WIFI_CAPABLE)
-#include "cybsp_wifi_sdio.h"
+#include "cyhal_sdio.h"
 #endif
 #ifndef __MBED__
 #include "cybsp_retarget.h"
@@ -39,6 +39,22 @@
 extern "C" {
 #endif
 
-#if defined(__cplusplus)
+/**
+* \addtogroup group_bsp_functions Functions
+* \{
+*/
+
+#if defined(CYBSP_WIFI_CAPABLE)
+/**
+ * \brief Get the initialized sdio object used for communicating with the WiFi Chip. 
+ * \note This function should only be called after cybsp_init();
+ * \returns The initialized sdio object.
+ */
+cyhal_sdio_t* cybsp_get_wifi_sdio_obj(void);
+#endif /* defined(CYBSP_WIFI_CAPABLE) */
+
+/** \} group_bsp_functions */
+
+#ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
