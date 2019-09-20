@@ -686,7 +686,7 @@ void ESP8266::_oob_packet_hdlr()
     }
 
     if (_tcp_passive && _sock_i[id].open == true && _sock_i[id].proto == NSAPI_TCP) {
-        if (_parser.scanf("%d\n", &amount)) {
+        if (_parser.recv("%d\n", &amount)) {
             _sock_i[id].tcp_data_avbl = amount;
 
             // notify data is available
