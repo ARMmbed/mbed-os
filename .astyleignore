@@ -1,6 +1,7 @@
 ^BUILD
 ^cmsis
 ^components/802.15.4_RF
+^components/wifi/COMPONENT_QCA400X_WIFI/wifi_qca
 ^components/TARGET_PSA/services/attestation/attestation.h
 ^components/TARGET_PSA/services/attestation/COMPONENT_PSA_SRV_IMPL/tfm_impl
 ^components/TARGET_PSA/services/attestation/qcbor
