@@ -300,12 +300,17 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     _at.write_bytes((uint8_t *)data, size);
     _at.resp_start();
     _at.set_stop_tag("\r\n");
+    // Possible responses are SEND OK, SEND FAIL or ERROR.
+    char response[16];
+    response[0] = '\0';
+    _at.read_string(response, sizeof(response));
     _at.resp_stop();
+    if (strcmp(response, "SEND OK") != 0) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
 
     // Get the sent count after sending
-
     nsapi_size_or_error_t err = _at.at_cmd_int("+QISEND", "=", sent_len_after, "%d%d", socket->id, 0);
-
     if (err == NSAPI_ERROR_OK) {
         sent_len = sent_len_after - sent_len_before;
         return sent_len;
