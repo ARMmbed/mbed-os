@@ -125,7 +125,9 @@ public:
 
     virtual ~AnalogOut()
     {
-        // Do nothing
+        /** Deinitialize pin configuration.
+         */
+        analogout_free(&_dac);
     }
 
 protected:
