@@ -142,9 +142,9 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     bool socketOpenWorking = false;
 
     if (socket->proto == NSAPI_UDP) {
-        _at.cmd_start_stop("+NSOCR", "=DGRAM,", "%d%d%d", 17, socket->localAddress.get_port(), 1);
+        _at.cmd_start_stop("+NSOCR", "=DGRAM,", "%d%d%d%s", 17, socket->localAddress.get_port(), 1, ((_ip_ver_sendto == NSAPI_IPv4) ? "AF_INET" : "AF_INET6"));
     } else if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start_stop("+NSOCR", "=STREAM,", "%d%d%d", 6, socket->localAddress.get_port(), 1);
+        _at.cmd_start_stop("+NSOCR", "=STREAM,", "%d%d%d%s", 6, socket->localAddress.get_port(), 1, ((_ip_ver_sendto == NSAPI_IPv4) ? "AF_INET" : "AF_INET6"));
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -172,6 +172,12 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     //AT_CellularStack::socket_sendto(...) will create a socket on modem if it wasn't
     // open already.
     MBED_ASSERT(socket->id != -1);
+
+    if (_ip_ver_sendto != address.get_ip_version()) {
+        _ip_ver_sendto =  address.get_ip_version();
+        socket_close_impl(socket->id);
+        create_socket_impl(socket);
+    }
 
     int sent_len = 0;
 
