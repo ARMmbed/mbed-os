@@ -5975,7 +5975,8 @@
             "TARGET=MAX32630",
             "TARGET_REV=0x4132",
             "BLE_HCI_UART",
-            "OPEN_DRAIN_LEDS"
+            "OPEN_DRAIN_LEDS",
+            "MBED_TICKLESS"
         ],
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
@@ -9449,7 +9450,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -9472,7 +9473,7 @@
             "tickless-from-us-ticker": true
         },
         "forced_reset_timeout": 3
-    },    
+    },
     "__build_tools_metadata__": {
         "version": "1",
         "public": false
