@@ -159,6 +159,26 @@ int8_t ws_pae_controller_timing_adjust(uint8_t timing);
 int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *chain);
 
 /**
+ * ws_pae_controller_own_certificate_add add own certificate to certificate chain
+ *
+ * \param cert own certificate
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_own_certificates_remove removes own certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificates_remove(void);
+
+/**
  * ws_pae_controller_trusted_certificate_add add trusted certificate
  *
  * \param cert trusted certificate
@@ -179,6 +199,15 @@ int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *
  *
  */
 int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_trusted_certificates_remove removes trusted certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_trusted_certificates_remove(void);
 
 /**
  * ws_pae_controller_certificate_revocation_list_add add certification revocation list
