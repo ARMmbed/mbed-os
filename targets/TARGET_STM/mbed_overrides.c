@@ -61,7 +61,11 @@ void mbed_sdk_init()
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 
     if (__HAL_RCC_GET_RTC_SOURCE() != RCC_RTCCLKSOURCE_NO_CLK) {
+#if TARGET_STM32WB
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
+#else
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+#endif
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
         RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
