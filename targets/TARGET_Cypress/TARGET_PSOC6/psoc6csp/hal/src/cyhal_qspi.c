@@ -83,7 +83,7 @@ static const cy_stc_smif_config_t default_qspi_config =
 };
 
 /* List of available QSPI instances */
-SMIF_Type *smif_base_addresses[CY_IP_MXSMIF_INSTANCES] =
+static SMIF_Type *const smif_base_addresses[CY_IP_MXSMIF_INSTANCES] =
 {
 #ifdef SMIF0
     SMIF0,
@@ -91,7 +91,7 @@ SMIF_Type *smif_base_addresses[CY_IP_MXSMIF_INSTANCES] =
 };
 
 /* List of available QSPI interrupt sources */
-IRQn_Type CYHAL_QSPI_IRQ_N[CY_IP_MXSMIF_INSTANCES] =
+static const IRQn_Type CYHAL_QSPI_IRQ_N[CY_IP_MXSMIF_INSTANCES] =
 {
 #ifdef SMIF0
     smif_interrupt_IRQn,

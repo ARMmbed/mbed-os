@@ -74,7 +74,7 @@ static bool op_pending = false;
 /*******************************************************************************
 *       (Internal) Configuration structures for SDIO pins
 *******************************************************************************/
-const cy_stc_gpio_pin_config_t pin_cmd_config =
+static const cy_stc_gpio_pin_config_t pin_cmd_config =
 {
     .outVal = 1,
     .driveMode = CY_GPIO_DM_STRONG,
@@ -91,7 +91,7 @@ const cy_stc_gpio_pin_config_t pin_cmd_config =
     .vohSel = 0UL,
 };
 
-const cy_stc_gpio_pin_config_t pin_data_config =
+static const cy_stc_gpio_pin_config_t pin_data_config =
 {
     .outVal = 1,
     .driveMode = CY_GPIO_DM_STRONG,
@@ -108,7 +108,7 @@ const cy_stc_gpio_pin_config_t pin_data_config =
     .vohSel = 0UL,
 };
 
-const cy_stc_gpio_pin_config_t pin_clk_config =
+static const cy_stc_gpio_pin_config_t pin_clk_config =
 {
     .outVal = 1,
     .driveMode = CY_GPIO_DM_STRONG_IN_OFF,

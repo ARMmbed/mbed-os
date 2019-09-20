@@ -346,7 +346,7 @@ void cyhal_uart_free(cyhal_uart_t *obj)
 
 static uint32_t cyhal_uart_actual_baud(uint32_t divider, uint32_t oversample)
 {
-    return cy_PeriClkFreqHz / ((divider +  1) * oversample);
+    return Cy_SysClk_ClkPeriGetFrequency() / ((divider +  1) * oversample);
 }
 
 static uint32_t cyhal_uart_baud_perdif(uint32_t desired_baud, uint32_t actual_baud)

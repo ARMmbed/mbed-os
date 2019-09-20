@@ -22,18 +22,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/**
-* \addtogroup group_abstraction_resource Resource abstraction
-* \ingroup group_abstraction
-* \{
-* Basic abstraction layer for dealing with resources.
-*
-* \defgroup group_abstraction_resource_macros Macros
-* \defgroup group_abstraction_resource_enums Enums
-* \defgroup group_abstraction_resource_data_structures Data Structures
-* \defgroup group_abstraction_resource_functions Functions
-*/
-
 #pragma once
 
 #include <stdint.h>
@@ -44,10 +32,12 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_abstraction_resource_macros
-* \{
-*/
+/** 
+  * \addtogroup group_abstraction_resource Resource Abstraction 
+  * \{
+  * 
+  * Basic abstraction layer for dealing with resources.
+  */
 
 /** Error code for when the specified resource operation is not valid. */
 #define CY_RSLT_RSC_ERROR_UNSUPPORTED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_RESOURCE, 0))
@@ -62,13 +52,6 @@ extern "C" {
 /** Error code for when the specified resource can not be read. */
 #define CY_RSLT_RSC_ERROR_READ (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_ABSTRACTION_RESOURCE, 5))
 
-/** \} group_abstraction_resource_macros */
-
-
-/**
-* \addtogroup group_abstraction_resource_enums
-* \{
-*/
 /** Different types of memory that the resources can be stored in. */
 typedef enum
 {
@@ -77,15 +60,7 @@ typedef enum
     CY_RESOURCE_IN_EXTERNAL_STORAGE  /**< resource location in external storage */
 } cy_resource_location_t;
 
-/** \} group_abstraction_resource_enums */
-
-
-/**
-* \addtogroup group_abstraction_resource_data_structures
-* \{
-*/
-
-/** Filesystem handle */
+/** Filesystem handle */ 
 typedef struct
 {
     unsigned long offset;      /**< Offset to the start of the resource */
@@ -99,18 +74,11 @@ typedef struct
     unsigned long size;                  /**< resource size     */
     union
     {
-        cy_filesystem_resource_handle_t fs;                       /** < filesystem resource handle */
-        const uint8_t*                  mem_data;                 /** < memory resource handle     */
-        void*                           external_storage_context; /** < external storage context   */
-    } val;
+        cy_filesystem_resource_handle_t fs;                       /**< handle for resource in filesystem */
+        const uint8_t*                  mem_data;                 /**< handle for resource in internal memory */
+        void*                           external_storage_context; /**< handle for resource in external storage */
+    } val; /**< low-level handle (type varies depending on resource storage location) */
 } cy_resource_handle_t;
-
-/** \} group_abstraction_resource_data_structures */
-
-/**
-* \addtogroup group_abstraction_resource_functions
-* \{
-*/
 
 /**
  * \brief return the block size for the resource
@@ -147,15 +115,14 @@ cy_rslt_t cy_resource_get_block_count(const cy_resource_handle_t *handle, uint32
 cy_rslt_t cy_resource_read(const cy_resource_handle_t *handle, uint32_t blockno, uint8_t **buffer, uint32_t *size);
 
 /**
- * \brief optimized version of read for resources stored in memory (\see CY_RESOURCE_IN_MEMORY)
+ * \brief optimized version of read for resources stored in memory 
+ * \see CY_RESOURCE_IN_MEMORY
  * \param handle the handle to the resource
  * \param buffer pointer to receive buffer address from resource. This does NOT need to be freed.
  * \param size location to receive the size of the block read
  * \returns CY_RSLT_SUCCESS if data read, otherwise an error
  */
 cy_rslt_t cy_resource_readonly_memory(const cy_resource_handle_t *handle, const uint8_t **buffer, uint32_t *size);
-
-/** \} group_abstraction_resource_functions */
 
 #if defined(__cplusplus)
 }

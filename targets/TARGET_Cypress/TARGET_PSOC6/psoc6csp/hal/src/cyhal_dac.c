@@ -56,25 +56,25 @@ static CTDAC_Type *const cyhal_ctdac_base[] = {
 #endif
 };
 
-const cy_stc_ctdac_config_t CYHAL_CTDAC_DEFAULT_CONFIG =
-    {
-        .refSource = CY_CTDAC_REFSOURCE_VDDA,
-        .formatMode = CY_CTDAC_FORMAT_UNSIGNED,
-        .updateMode = CY_CTDAC_UPDATE_DIRECT_WRITE,
-        .deglitchMode = CY_CTDAC_DEGLITCHMODE_UNBUFFERED,
-        .outputMode = CY_CTDAC_OUTPUT_VALUE,
-        .outputBuffer = CY_CTDAC_OUTPUT_UNBUFFERED,
-        .deepSleep = CY_CTDAC_DEEPSLEEP_DISABLE,
-        .deglitchCycles = 0,
-        .value = 0,
-        .nextValue = 0,
-        .enableInterrupt = true,
-        .configClock = false,
-        // The following values are simply placeholders because configClock is false
-        .dividerType = CY_SYSCLK_DIV_8_BIT,
-        .dividerNum = 0,
-        .dividerIntValue = 0,
-        .dividerFracValue = 0,
+static const cy_stc_ctdac_config_t CYHAL_CTDAC_DEFAULT_CONFIG =
+{
+    .refSource = CY_CTDAC_REFSOURCE_VDDA,
+    .formatMode = CY_CTDAC_FORMAT_UNSIGNED,
+    .updateMode = CY_CTDAC_UPDATE_DIRECT_WRITE,
+    .deglitchMode = CY_CTDAC_DEGLITCHMODE_UNBUFFERED,
+    .outputMode = CY_CTDAC_OUTPUT_VALUE,
+    .outputBuffer = CY_CTDAC_OUTPUT_UNBUFFERED,
+    .deepSleep = CY_CTDAC_DEEPSLEEP_DISABLE,
+    .deglitchCycles = 0,
+    .value = 0,
+    .nextValue = 0,
+    .enableInterrupt = true,
+    .configClock = false,
+    // The following values are simply placeholders because configClock is false
+    .dividerType = CY_SYSCLK_DIV_8_BIT,
+    .dividerNum = 0,
+    .dividerIntValue = 0,
+    .dividerFracValue = 0,
 };
 
 /*******************************************************************************

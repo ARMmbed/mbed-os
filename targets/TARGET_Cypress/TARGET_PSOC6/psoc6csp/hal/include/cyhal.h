@@ -35,11 +35,7 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal
-* \{
-* TODO: high-level HAL description
-* update hal/include/cyhal.h to change this text
-* \} group_hal
+* \defgroup group_hal HAL Drivers
 */
 
 #pragma once
@@ -68,6 +64,3 @@
 #include "cyhal_uart.h"
 #include "cyhal_usb_dev.h"
 #include "cyhal_wdt.h"
-
-/** \} group_hal */
-

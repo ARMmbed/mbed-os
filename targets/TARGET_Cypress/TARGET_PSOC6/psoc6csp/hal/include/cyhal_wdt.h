@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress WDT.
-*
-* \defgroup group_hal_wdt_macros Macros
-* \defgroup group_hal_wdt_functions Functions
-* \defgroup group_hal_wdt_data_structures Data Structures
-* \defgroup group_hal_wdt_enums Enumerated Types
 */
 
 #pragma once
@@ -46,23 +41,10 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_wdt_macros
-* \{
-*/
-
 /** WDT timeout out of range */
 #define CY_RSLT_WDT_INVALID_TIMEOUT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 0))
 /** WDT already initialized */
 #define CY_RSLT_WDT_ALREADY_INITIALIZED (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_WDT, 1))
-
-/** \} group_hal_wdt_macros */
-
-
-/**
-* \addtogroup group_hal_wdt_functions
-* \{
-*/
 
 /** Initialize and start the WDT
 *
@@ -129,8 +111,6 @@ uint32_t cyhal_wdt_get_timeout_ms(cyhal_wdt_t *obj);
 * @return The maximum timeout for the WDT
 */
 uint32_t cyhal_wdt_get_max_timeout_ms(void);
-
-/** \} group_hal_wdt_functions */
 
 #if defined(__cplusplus)
 }

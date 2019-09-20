@@ -23,15 +23,10 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_pin_package PSoC 6 Pin Packages
+* \addtogroup group_hal_psoc6_pin_package Pins
 * \ingroup group_hal_psoc6
 * \{
 * Definitions for the pinout for each supported device
-*
-* \defgroup group_hal_pin_package_macros Macros
-* \defgroup group_hal_pin_package_functions Functions
-* \defgroup group_hal_pin_package_data_structures Data Structures
-* \defgroup group_hal_pin_package_enums Enumerated Types
 */
 
 #pragma once
@@ -41,11 +36,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
-
-/**
-* \addtogroup group_hal_pin_package_enums
-* \{
-*/
 
 /** Port names */
 typedef enum {
@@ -67,25 +57,19 @@ typedef enum {
     CYHAL_PORT_15 = 0xF,
 } cyhal_port_t;
 
-/** \} group_hal_pin_package_enums */
-
-
-/**
-* \addtogroup group_hal_pin_package_data_structures
-* \{
-*/
-
-/** GPIO pin configuration object */
+/** Bitfield representing the configuration of a GPIO (hsiom selection and mode).
+  * Use the CY_GPIO_CFG_GET_MODE and CY_GPIO_CFG_GET_HSIOM to extract the
+  * individual field values.
+  */
 typedef uint16_t cyhal_gpio_mapping_cfg_t; // 8bit hsiom, 8bit mode
 
-/** \} group_hal_pin_package_data_structures */
-
+/** Extract the GPIO mode setting from a cyhal_gpio_mapping_cfg_t */
+#define CY_GPIO_CFG_GET_MODE(x)  ((uint8_t)((x) & 0xFF))
+/** Extract the HSIOM selection from a cyhal_gpio_mapping_cfg_t */
+#define CY_GPIO_CFG_GET_HSIOM(x) ((en_hsiom_sel_t)(((x) >> 8) & 0xFF))
 
 /** \cond INTERNAL */
-
 #define CY_GPIO_CFG_CREATE(hsiom, mode)  ((cyhal_gpio_mapping_cfg_t)(((hsiom) << 8) + (mode)))
-#define CY_GPIO_CFG_GET_MODE(x)  ((uint8_t)((x) & 0xFF))
-#define CY_GPIO_CFG_GET_HSIOM(x) ((en_hsiom_sel_t)(((x) >> 8) & 0xFF))
 
 #define CYHAL_PIN_OUT_FUNCTION(hsiom)           CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_STRONG_IN_OFF)
 #define CYHAL_PIN_OUT_BUF_FUNCTION(hsiom)       CY_GPIO_CFG_CREATE(hsiom, CY_GPIO_DM_STRONG)

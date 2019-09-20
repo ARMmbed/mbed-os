@@ -237,7 +237,7 @@ cy_rslt_t cyhal_adc_init(cyhal_adc_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
     {
         if(obj->dedicated_clock)
         {
-            uint32_t div = cy_PeriClkFreqHz / DESIRED_DIVIDER;
+            uint32_t div = Cy_SysClk_ClkPeriGetFrequency() / DESIRED_DIVIDER;
             if (0 == div ||
                 CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div - 1) ||
                 CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphEnableDivider(obj->clock.div_type, obj->clock.div_num))

@@ -92,7 +92,7 @@ static USBFS_Type* const CYHAL_USB_DEV_BASE_ADDRESSES[CY_IP_MXUSBFS_INSTANCES] =
 #endif
 };
 
-static IRQn_Type CYHAL_USBDEV_IRQ_N[CY_IP_MXUSBFS_INSTANCES] =
+static const IRQn_Type CYHAL_USBDEV_IRQ_N[CY_IP_MXUSBFS_INSTANCES] =
 {
 #ifdef USBFS0
     usb_interrupt_lo_IRQn,
@@ -115,7 +115,7 @@ static void cyhal_usb_0_dev_ep0_setup_callback(USBFS_Type *base, struct cy_stc_u
 static void cyhal_usb_0_dev_ep0_in_callback(USBFS_Type *base, struct cy_stc_usbfs_dev_drv_context *drvContext);
 static void cyhal_usb_0_dev_ep0_out_callback(USBFS_Type *base, struct cy_stc_usbfs_dev_drv_context *drvContext);
 static cyhal_usb_dev_event_callback_t cyhal_usb_dev_event_callback_table[CY_IP_MXUSBFS_INSTANCES][CYHAL_USB_DEV_EVENT_NUM];
-static cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_event_cb_table[CY_IP_MXUSBFS_INSTANCES][CYHAL_USB_DEV_EVENT_NUM] =
+static const cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_event_cb_table[CY_IP_MXUSBFS_INSTANCES][CYHAL_USB_DEV_EVENT_NUM] =
 {
     /* USBFS0 */
     {
@@ -128,7 +128,7 @@ static cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_event_cb_table[CY_IP_MXU
 
 static void cyhal_usb_0_dev_sof_callback(USBFS_Type *base, struct cy_stc_usbfs_dev_drv_context *drvContext);
 static cyhal_usb_dev_sof_callback_t cyhal_usb_dev_sof_user_callback[CY_IP_MXUSBFS_INSTANCES];
-static cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_sof_cb_table[CY_IP_MXUSBFS_INSTANCES]=
+static const cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_sof_cb_table[CY_IP_MXUSBFS_INSTANCES]=
 {
     /* USBFS0 */
     &cyhal_usb_0_dev_sof_callback,
@@ -136,7 +136,7 @@ static cy_cb_usbfs_dev_drv_callback_t cyhal_usb_dev_drv_sof_cb_table[CY_IP_MXUSB
 
 static void cyhal_usb_0_dev_ep_callback(USBFS_Type *base, uint32_t ep_addr, uint32_t errorType, cy_stc_usbfs_dev_drv_context_t *drvContext);
 static cyhal_usb_dev_endpoint_callback_t cyhal_usb_dev_ep_handler_table[CY_IP_MXUSBFS_INSTANCES][CYHAL_USB_DEV_EP_EVENT_NUM];
-static cy_cb_usbfs_dev_drv_ep_callback_t cyhal_usb_dev_drv_ep_cb_table[CY_IP_MXUSBFS_INSTANCES] =
+static const cy_cb_usbfs_dev_drv_ep_callback_t cyhal_usb_dev_drv_ep_cb_table[CY_IP_MXUSBFS_INSTANCES] =
 {
     /* USBFS0 */
     &cyhal_usb_0_dev_ep_callback,
@@ -388,7 +388,7 @@ static cy_rslt_t cyhal_usb_dev_peri_clock_setup(cyhal_usb_dev_t *obj, const cyha
         if (CY_RSLT_SUCCESS == result)
         {
             /* Get divider to provide 100kHz clock or less */
-            uint32_t div_value = (cy_PeriClkFreqHz / CYHAL_USB_DEV_BUS_RESET_CLOCK_HZ) - 1U;
+            uint32_t div_value = (Cy_SysClk_ClkPeriGetFrequency() / CYHAL_USB_DEV_BUS_RESET_CLOCK_HZ) - 1U;
 
             (void) Cy_SysClk_PeriphDisableDivider(obj->clock.div_type, obj->clock.div_num);
             status = Cy_SysClk_PeriphSetDivider(obj->clock.div_type, obj->clock.div_num, div_value);

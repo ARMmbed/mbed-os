@@ -31,10 +31,6 @@
 * \{
 * High level interface for interacting with the Cypress CRC.
 *
-* \defgroup group_hal_crc_macros Macros
-* \defgroup group_hal_crc_functions Functions
-* \defgroup group_hal_crc_data_structures Data Structures
-* \defgroup group_hal_crc_enums Enumerated Types
 */
 
 #pragma once
@@ -49,23 +45,10 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_crc_macros
-* \{
-*/
-
 /** Invalid argument */
 #define CYHAL_CRC_RSLT_ERR_BAD_ARGUMENT (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CRC, 0))
 
-/** \} group_hal_crc_macros */
-
-
-/**
-* \addtogroup group_hal_crc_data_structures
-* \{
-*/
-
-/** CRC algorithm parameters */
+/** @brief CRC algorithm parameters */
 typedef struct
 {
     uint32_t width; //!< Bit width of the CRC
@@ -81,14 +64,6 @@ typedef struct
     bool dataReverse;
     bool remReverse; //!< If 1, the remainder is reversed. If 0, it is not.
 } crc_algorithm_t;
-
-/** \} group_hal_crc_data_structures */
-
-
-/**
-* \addtogroup group_hal_crc_functions
-* \{
-*/
 
 /** Initialize the CRC generator. This function reserves the CRYPTO block for CRC calculations.
  *
@@ -130,8 +105,6 @@ cy_rslt_t cyhal_crc_compute(const cyhal_crc_t *obj, const uint8_t *data, size_t 
  * @return The status of the compute request
  */
 cy_rslt_t cyhal_crc_finish(const cyhal_crc_t *obj, uint32_t *crc);
-
-/** \} group_hal_crc_functions */
 
 #if defined(__cplusplus)
 }
