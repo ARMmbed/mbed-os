@@ -63,6 +63,13 @@
    long to wait for previous negotiation to complete */
 #define EAP_TLS_NEGOTIATION_TRIGGER_TIMEOUT    60 * 10 // 60 seconds
 
+// Default for maximum number of supplicants
+#define SUPPLICANT_MAX_NUMBER                  1000
+
+/* Default for number of supplicants to purge per garbage collect call from
+   nanostack monitor */
+#define SUPPLICANT_NUMBER_TO_PURGE             5
+
 typedef struct {
     ns_list_link_t link;                                     /**< Link */
     kmp_service_t *kmp_service;                              /**< KMP service */
@@ -77,6 +84,7 @@ typedef struct {
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
     timer_settings_t *timer_settings;                        /**< Timer settings */
+    uint16_t supp_max_number;                                /**< Max number of stored supplicants */
     uint16_t slow_timer_seconds;                             /**< Slow timer seconds */
     bool timer_running : 1;                                  /**< Timer is running */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
@@ -140,6 +148,8 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->timer_settings = timer_settings;
+    pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
+
     pae_auth->slow_timer_seconds = 0;
     pae_auth->gtk_new_inst_req_exp = false;
     pae_auth->gtk_new_act_time_exp = false;
@@ -200,6 +210,14 @@ error:
     ws_pae_auth_free(pae_auth);
 
     return -1;
+}
+
+int8_t ws_pae_auth_timing_adjust(uint8_t timing)
+{
+    auth_gkh_sec_prot_timing_adjust(timing);
+    auth_fwh_sec_prot_timing_adjust(timing);
+    auth_eap_tls_sec_prot_timing_adjust(timing);
+    return 0;
 }
 
 int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
@@ -405,6 +423,38 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
     ws_pae_auth_network_keys_from_gtks_set(pae_auth);
 
     return 0;
+}
+
+int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr, uint16_t limit)
+{
+    if (!interface_ptr) {
+        return -1;
+    }
+
+    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
+    if (!pae_auth) {
+        return -1;
+    }
+
+    pae_auth->supp_max_number = limit;
+
+    return 0;
+}
+
+void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr)
+{
+    if (!interface_ptr) {
+        return;
+    }
+
+    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
+    if (!pae_auth) {
+        return;
+    }
+
+    /* Purge in maximum five entries from supplicant list (starting from oldest one)
+       per call to the function (called by nanostack monitor) */
+    ws_pae_lib_supp_list_purge(&pae_auth->active_supp_list, &pae_auth->inactive_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE);
 }
 
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth)
@@ -758,6 +808,9 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 
     // If does not exists add it to list
     if (!supp_entry) {
+        // Checks if maximum number of supplicants is reached and purge supplicant list (starting from oldest one)
+        ws_pae_lib_supp_list_purge(&pae_auth->active_supp_list, &pae_auth->inactive_supp_list, pae_auth->supp_max_number, 0);
+
         supp_entry = ws_pae_lib_supp_list_add(&pae_auth->active_supp_list, addr);
         if (!supp_entry) {
             return 0;

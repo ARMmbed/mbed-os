@@ -143,6 +143,5 @@ uint32_t ws_common_version_timeout_get(uint8_t config);
 #define ws_common_etx_validate(interface, neigh) ((void) 0)
 #define ws_common_negative_aro_mark(interface, eui64)(false)
 
-
 #endif //HAVE_WS
 #endif //WS_COMMON_H_

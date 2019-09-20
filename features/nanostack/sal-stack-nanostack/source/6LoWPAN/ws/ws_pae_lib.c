@@ -316,6 +316,30 @@ void ws_pae_lib_supp_list_to_inactive(supp_list_t *active_supp_list, supp_list_t
     memset(entry->addr.relay_address, 0, 16);
 }
 
+void ws_pae_lib_supp_list_purge(supp_list_t *active_supp_list, supp_list_t *inactive_supp_list, uint16_t max_number, uint8_t max_purge)
+{
+    uint16_t active_supp = ns_list_count(active_supp_list);
+    uint16_t inactive_supp = ns_list_count(inactive_supp_list);
+
+    if (active_supp + inactive_supp > max_number) {
+        uint16_t remove_count = active_supp + inactive_supp - max_number;
+        if (max_purge > 0 && remove_count > max_purge) {
+            remove_count = max_purge;
+        }
+
+        // Remove entries from inactive list
+        ns_list_foreach_safe(supp_entry_t, entry, inactive_supp_list) {
+            if (remove_count > 0) {
+                tr_info("Inactive supplicant removed, eui-64: %s", trace_array(kmp_address_eui_64_get(&entry->addr), 8));
+                ws_pae_lib_supp_list_remove(inactive_supp_list, entry);
+                remove_count--;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
 uint16_t ws_pae_lib_supp_list_kmp_count(supp_list_t *supp_list, kmp_type_e type)
 {
     uint16_t kmp_count = 0;

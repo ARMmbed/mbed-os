@@ -72,12 +72,10 @@ typedef struct {
     bool                          send_pending: 1;  /**< TLS data is not yet send to network */
 } eap_tls_sec_prot_int_t;
 
-static const trickle_params_t eap_tls_trickle_params = {
-    .Imin = 200,           /* 20s; ticks are 100ms */
-    .Imax = 450,           /* 45s */
-    .k = 0,                /* infinity - no consistency checking */
-    .TimerExpirations = 2
-};
+#define FWH_RETRY_TIMEOUT_SMALL 330*10 // retry timeout for small network additional 30 seconds for authenticator delay
+#define FWH_RETRY_TIMEOUT_LARGE 750*10 // retry timeout for large network additional 30 seconds for authenticator delay
+
+static uint16_t retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
 
 static uint16_t supp_eap_tls_sec_prot_size(void);
 static int8_t supp_eap_tls_sec_prot_init(sec_prot_t *prot);
@@ -111,6 +109,17 @@ int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service)
 
     return 0;
 }
+
+int8_t supp_eap_sec_prot_timing_adjust(uint8_t timing)
+{
+    if (timing < 16) {
+        retry_timeout = FWH_RETRY_TIMEOUT_SMALL;
+    } else {
+        retry_timeout = FWH_RETRY_TIMEOUT_LARGE;
+    }
+    return 0;
+}
+
 
 static uint16_t supp_eap_tls_sec_prot_size(void)
 {
@@ -281,7 +290,7 @@ static void supp_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks
         data->burst_filt_timer = 0;
     }
 
-    sec_prot_timer_timeout_handle(prot, &data->common, &eap_tls_trickle_params, ticks);
+    sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
 }
 
 static void supp_eap_tls_sec_prot_tls_create_confirm(sec_prot_t *tls_prot, sec_prot_result_e result)
@@ -420,9 +429,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 // Send EAP response, Identity
                 supp_eap_tls_sec_prot_message_send(prot, EAP_RESPONSE, EAP_IDENTITY, EAP_TLS_EXCHANGE_NONE);
 
-                // Start trickle timer to re-send if no response
-                sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
-
                 sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST_TLS_EAP);
             } else {
                 // Ready to be deleted
@@ -431,12 +437,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_REQUEST_TLS_EAP:
-            // On timeout
-            if (sec_prot_result_timeout_check(&data->common)) {
-                /* Waits for next trickle expire. If trickle expirations reach the limit,
-                   terminates EAP-TLS */
-                return;
-            }
 
             // Handle EAP request (expected TLS EAP start)
             result = supp_eap_tls_sec_prot_message_handle(prot);
@@ -456,6 +456,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST);
+            data->common.ticks = retry_timeout;
 
             // Initialize TLS protocol
             supp_eap_tls_sec_prot_init_tls(prot);
@@ -464,12 +465,6 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_REQUEST:
-            // On timeout
-            if (sec_prot_result_timeout_check(&data->common)) {
-                /* Waits for next trickle expire. If trickle expirations reach the limit,
-                   terminates EAP-TLS */
-                return;
-            }
 
             // EAP success
             if (data->eap_code == EAP_SUCCESS) {
@@ -514,8 +509,9 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             supp_eap_tls_sec_prot_message_send(prot, EAP_RESPONSE, EAP_TLS, EAP_TLS_EXCHANGE_ONGOING);
             data->send_pending = false;
 
-            // Start trickle timer to re-send if no response
-            sec_prot_timer_trickle_start(&data->common, &eap_tls_trickle_params);
+            // Add more time for re-send if no response
+            data->common.ticks = retry_timeout;
+
             break;
 
         case EAP_TLS_STATE_FINISH:
