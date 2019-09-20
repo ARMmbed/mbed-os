@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +15,25 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef SYSTEM_MSP432P401R_H
+#define SYSTEM_MSP432P401R_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 
-#ifndef INITIAL_SP
+// global clock variables
+extern uint32_t SystemCoreClock;      // MCLK in Hz
+extern uint32_t SubsystemMasterClock; // SMCLK in Hz
 
-#if defined(TARGET_CC3220SF)
-#define INITIAL_SP  (0x20040000UL)
+// CMSIS standard methods for system init and master clock update
+extern void SystemInit(void);
+extern void SystemCoreClockUpdate(void);
 
-#elif defined(TARGET_MSP432P401R)
-#define INITIAL_SP  (0x20010000UL)
-
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
+#ifdef __cplusplus
+}
 #endif
 
-#endif // INITIAL_SP
-
-#endif // MBED_MBED_RTX_H
+#endif // SYSTEM_MSP432P401R_H

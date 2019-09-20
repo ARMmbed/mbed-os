@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +15,11 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+// Defines for compile-time optimization of us_ticker code.
+#define US_TICKER_PERIOD_NUM 1
+#define US_TICKER_PERIOD_DEN 1
+#define US_TICKER_MASK 0xffff
 
-#include <stdint.h>
+#include "objects.h"
+#include "PeripheralPins.h"
 
-#ifndef INITIAL_SP
-
-#if defined(TARGET_CC3220SF)
-#define INITIAL_SP  (0x20040000UL)
-
-#elif defined(TARGET_MSP432P401R)
-#define INITIAL_SP  (0x20010000UL)
-
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
-#endif
-
-#endif // INITIAL_SP
-
-#endif // MBED_MBED_RTX_H
