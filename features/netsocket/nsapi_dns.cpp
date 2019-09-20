@@ -89,6 +89,7 @@ struct DNS_QUERY {
 
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl);
 static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address);
+static void nsapi_dns_cache_reset();
 
 static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name);
 
@@ -403,6 +404,22 @@ static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t vers
     return ret_val;
 }
 
+static void nsapi_dns_cache_reset()
+{
+#if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
+    dns_cache_mutex->lock();
+    for (int i = 0; i < MBED_CONF_NSAPI_DNS_CACHE_SIZE; i++) {
+        if (dns_cache[i]) {
+            delete dns_cache[i]->host;
+            dns_cache[i]->host = NULL;
+            delete dns_cache[i];
+            dns_cache[i] = NULL;
+        }
+    }
+    dns_cache_mutex->unlock();
+#endif
+}
+
 static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name)
 {
     bool dns_addr_set = false;
@@ -616,6 +633,11 @@ nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *ho
 void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
 {
     *dns_call_in.get() = callback;
+}
+
+void nsapi_dns_reset()
+{
+    nsapi_dns_cache_reset();
 }
 
 nsapi_error_t nsapi_dns_call_in(call_in_callback_cb_t cb, int delay, mbed::Callback<void()> func)

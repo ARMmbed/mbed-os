@@ -33,6 +33,7 @@ int result_exp_timeout;
 void ASYNCHRONOUS_DNS_INVALID_HOST()
 {
     // Ensures that cache does not contain entries
+    nsapi_dns_reset();
     do_asynchronous_gethostbyname(dns_test_hosts_second, MBED_CONF_NSAPI_DNS_CACHE_SIZE, &result_ok, &result_no_mem,
                                   &result_dns_failure, &result_exp_timeout);
 

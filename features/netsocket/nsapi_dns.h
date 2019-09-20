@@ -228,6 +228,14 @@ nsapi_error_t nsapi_dns_query_async_cancel(nsapi_error_t id);
  */
 void nsapi_dns_call_in_set(call_in_callback_cb_t callback);
 
+/**
+ * @brief nsapi_dns_reset Resets all internal states and frees reserved memory, see NOTE!
+ * Can be used to clean up system resources when there is no need for network connections.
+ * NOTE: Does NOT clear asynchronous ongoing operations!
+ * Currently only cleans up DNS cache (if used)
+ */
+void nsapi_dns_reset();
+
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address

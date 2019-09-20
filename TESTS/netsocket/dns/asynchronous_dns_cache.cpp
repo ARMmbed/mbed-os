@@ -41,6 +41,8 @@ void ASYNCHRONOUS_DNS_CACHE()
     Ticker ticker;
     ticker.attach_us(&test_dns_query_ticker, 100);
 
+    nsapi_dns_reset();
+
     for (unsigned int i = 0; i < 5; i++) {
         int started_us = ticker_us;
 

@@ -54,6 +54,7 @@ static void _sigio_handler(osThreadId id)
 
 void MULTIHOMING_UDPSOCKET_ECHOTEST()
 {
+    nsapi_dns_reset();
 
     for (unsigned int interface_index = 0; interface_index < MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM; interface_index++) {
         NetworkInterface  *interface = get_interface(interface_index);

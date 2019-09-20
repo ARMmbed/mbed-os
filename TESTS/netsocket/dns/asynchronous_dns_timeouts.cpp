@@ -50,6 +50,7 @@ static nsapi_error_t event_queue_call(int delay, mbed::Callback<void()> func)
 void ASYNCHRONOUS_DNS_TIMEOUTS()
 {
     // Ensures that cache does not contain entries
+    nsapi_dns_reset();
     do_asynchronous_gethostbyname(dns_test_hosts, MBED_CONF_NSAPI_DNS_CACHE_SIZE, &result_ok, &result_no_mem,
                                   &result_dns_failure, &result_exp_timeout);
 
