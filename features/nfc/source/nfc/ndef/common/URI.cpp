@@ -40,15 +40,19 @@ URI::URI(uri_identifier_code_t id, const Span<const uint8_t> &uri_field) :
     _uri(uri_field.size() ? new uint8_t[uri_id_code_size + uri_field.size()] : NULL),
     _uri_size(uri_id_code_size + uri_field.size())
 {
-    _uri[uri_id_index] = id;
-    memcpy(_uri + uri_field_index, uri_field.data(), uri_field.size());
+    if (_uri) {
+        _uri[uri_id_index] = id;
+        memcpy(_uri + uri_field_index, uri_field.data(), uri_field.size());
+    }
 }
 
 URI::URI(const URI &other) :
     _uri(other._uri ? new uint8_t[other._uri_size] : NULL),
     _uri_size(other._uri_size)
 {
-    memcpy(_uri, other._uri, other._uri_size);
+    if (_uri) {
+        memcpy(_uri, other._uri, other._uri_size);
+    }
 }
 
 URI::~URI()
