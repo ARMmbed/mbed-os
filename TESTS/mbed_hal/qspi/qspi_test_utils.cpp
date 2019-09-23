@@ -145,11 +145,11 @@ void flash_init(Qspi &qspi)
     // Zero out status register to attempt to clear block protection bits
     uint8_t blanks[QSPI_STATUS_REG_SIZE] = {0};
 
-    qspi.cmd.build(0x06);
+    qspi.cmd.build(QSPI_CMD_WREN);
     ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
-    qspi.cmd.build(0x01);
+    qspi.cmd.build(QSPI_CMD_WRSR);
     ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), blanks, 1, NULL, 0);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
