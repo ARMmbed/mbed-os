@@ -170,6 +170,22 @@ public:
       */
     CAN(PinName rd, PinName td, int hz);
 
+    /** Initialize CAN interface
+      *
+      * @param pinmap reference to structure which holds static pinmap
+      * @param td the transmit pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(const can_pinmap_t &pinmap);
+
+    /** Initialize CAN interface and set the frequency
+      *
+      * @param pinmap reference to structure which holds static pinmap
+      * @param td the transmit pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(const can_pinmap_t &pinmap, int hz);
+
     virtual ~CAN();
 
     /** Set the frequency of the CAN interface
