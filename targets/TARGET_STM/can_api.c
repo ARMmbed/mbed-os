@@ -57,27 +57,23 @@ int can_internal_init(can_t *obj)
     return 1;
 }
 
-void can_init(can_t *obj, PinName rd, PinName td)
+#if EXPLICIT_PINMAP_READY
+#define CAN_INIT_FREQ_DIRECT can_init_freq_direct
+void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
+#else
+#define CAN_INIT_FREQ_DIRECT _can_init_freq_direct
+static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
+#endif
 {
-    /* default frequency is 100 kHz */
-    can_init_freq(obj, rd, td, 100000);
-}
-
-
-void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
-{
-    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
-    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
-    CANName can = (CANName)pinmap_merge(can_rd, can_td);
-    MBED_ASSERT((int)can != NC);
+    MBED_ASSERT((int)pinmap->peripheral != NC);
 
     __HAL_RCC_FDCAN_CLK_ENABLE();
 
-    if (can == CAN_1) {
+    if (pinmap->peripheral == CAN_1) {
         obj->index = 0;
     }
 #if defined(FDCAN2_BASE)
-    else if (can == CAN_2) {
+    else if (pinmap->peripheral == CAN_2) {
         obj->index = 1;
     }
 #endif
@@ -102,18 +98,18 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
 #endif /* DUAL_CORE */
     // Configure CAN pins
-    pinmap_pinout(rd, PinMap_CAN_RD);
-    pinmap_pinout(td, PinMap_CAN_TD);
+    pin_function(pinmap->rd_pin, pinmap->rd_function);
+    pin_function(pinmap->td_pin, pinmap->td_function);
     // Add pull-ups
-    if (rd != NC) {
-        pin_mode(rd, PullUp);
+    if (pinmap->rd_pin != NC) {
+        pin_mode(pinmap->rd_pin, PullUp);
     }
-    if (td != NC) {
-        pin_mode(td, PullUp);
+    if (pinmap->td_pin != NC) {
+        pin_mode(pinmap->td_pin, PullUp);
     }
 
     // Default values
-    obj->CanHandle.Instance = (FDCAN_GlobalTypeDef *)can;
+    obj->CanHandle.Instance = (FDCAN_GlobalTypeDef *)pinmap->peripheral;
 
     /* Bit time parameter
                                 ex with 100 kHz   requested frequency hz
@@ -158,6 +154,49 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     obj->CanHandle.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
 
     can_internal_init(obj);
+}
+
+#if EXPLICIT_PINMAP_READY
+#define CAN_INIT_DIRECT can_init_direct
+void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
+#else
+#define CAN_INIT_DIRECT _can_init_direct
+static void _can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
+#endif
+{
+    /* default frequency is 100 kHz */
+    CAN_INIT_FREQ_DIRECT(obj, pinmap, 100000);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td)
+{
+    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
+    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
+    int peripheral = (int) pinmap_merge(can_rd, can_td);
+
+    int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
+    int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
+
+    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+
+    /* default frequency is 100 kHz */
+    CAN_INIT_DIRECT(obj, &explicit_pinmap);
+}
+
+
+
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
+    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
+    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
+    int peripheral = (int) pinmap_merge(can_rd, can_td);
+
+    int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
+    int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
+
+    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+
+    CAN_INIT_FREQ_DIRECT(obj, &explicit_pinmap, 100000);
 }
 
 
@@ -545,32 +584,30 @@ static void can_registers_init(can_t *obj)
     }
 }
 
-void can_init(can_t *obj, PinName rd, PinName td)
+#if EXPLICIT_PINMAP_READY
+#define CAN_INIT_FREQ_DIRECT can_init_freq_direct
+void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
+#else
+#define CAN_INIT_FREQ_DIRECT _can_init_freq_direct
+static void _can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
+#endif
 {
-    can_init_freq(obj, rd, td, 100000);
-}
 
-void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
-{
-    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
-    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
-    CANName can = (CANName)pinmap_merge(can_rd, can_td);
+    MBED_ASSERT((int)pinmap->peripheral != NC);
 
-    MBED_ASSERT((int)can != NC);
-
-    if (can == CAN_1) {
+    if (pinmap->peripheral == CAN_1) {
         __HAL_RCC_CAN1_CLK_ENABLE();
         obj->index = 0;
     }
 #if defined(CAN2_BASE) && (CAN_NUM > 1)
-    else if (can == CAN_2) {
+    else if (pinmap->peripheral == CAN_2) {
         __HAL_RCC_CAN1_CLK_ENABLE(); // needed to set filters
         __HAL_RCC_CAN2_CLK_ENABLE();
         obj->index = 1;
     }
 #endif
 #if defined(CAN3_BASE) && (CAN_NUM > 2)
-    else if (can == CAN_3) {
+    else if (pinmap->peripheral == CAN_3) {
         __HAL_RCC_CAN3_CLK_ENABLE();
         obj->index = 2;
     }
@@ -579,18 +616,19 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
         return;
     }
 
-    // Configure the CAN pins
-    pinmap_pinout(rd, PinMap_CAN_RD);
-    pinmap_pinout(td, PinMap_CAN_TD);
-    if (rd != NC) {
-        pin_mode(rd, PullUp);
+    // Configure CAN pins
+    pin_function(pinmap->rd_pin, pinmap->rd_function);
+    pin_function(pinmap->td_pin, pinmap->td_function);
+    // Add pull-ups
+    if (pinmap->rd_pin != NC) {
+        pin_mode(pinmap->rd_pin, PullUp);
     }
-    if (td != NC) {
-        pin_mode(td, PullUp);
+    if (pinmap->td_pin != NC) {
+        pin_mode(pinmap->td_pin, PullUp);
     }
 
     /*  Use default values for rist init */
-    obj->CanHandle.Instance = (CAN_TypeDef *)can;
+    obj->CanHandle.Instance = (CAN_TypeDef *)pinmap->peripheral;
     obj->CanHandle.Init.TTCM = DISABLE;
     obj->CanHandle.Init.ABOM = DISABLE;
     obj->CanHandle.Init.AWUM = DISABLE;
@@ -611,13 +649,53 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
     /* Bits 27:14 are available for dual CAN configuration and are reserved for
        single CAN configuration: */
 #if defined(CAN3_BASE) && (CAN_NUM > 2)
-    uint32_t filter_number = (can == CAN_1 || can == CAN_3) ? 0 : 14;
+    uint32_t filter_number = (pinmap->peripheral == CAN_1 || pinmap->peripheral == CAN_3) ? 0 : 14;
 #else
-    uint32_t filter_number = (can == CAN_1) ? 0 : 14;
+    uint32_t filter_number = (pinmap->peripheral == CAN_1) ? 0 : 14;
 #endif
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
+#if EXPLICIT_PINMAP_READY
+#define CAN_INIT_DIRECT can_init_direct
+void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
+#else
+#define CAN_INIT_DIRECT _can_init_direct
+static void _can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
+#endif
+{
+    /* default frequency is 100 kHz */
+    CAN_INIT_FREQ_DIRECT(obj, pinmap, 100000);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td)
+{
+    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
+    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
+    int peripheral = (int) pinmap_merge(can_rd, can_td);
+
+    int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
+    int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
+
+    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+
+    /* default frequency is 100 kHz */
+    CAN_INIT_DIRECT(obj, &explicit_pinmap);
+}
+
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
+    CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
+    CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
+    int peripheral = (int) pinmap_merge(can_rd, can_td);
+
+    int function_rd = (int)pinmap_find_function(rd, PinMap_CAN_RD);
+    int function_td = (int)pinmap_find_function(td, PinMap_CAN_TD);
+
+    const can_pinmap_t explicit_pinmap = {peripheral, rd, function_rd, td, function_td};
+
+    CAN_INIT_FREQ_DIRECT(obj, &explicit_pinmap, 100000);
+}
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 {
