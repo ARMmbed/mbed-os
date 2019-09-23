@@ -8537,7 +8537,8 @@
             "EMAC",
             "MPU",
             "WATCHDOG",
-            "RESET_REASON"
+            "RESET_REASON",
+            "USBDEVICE"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
