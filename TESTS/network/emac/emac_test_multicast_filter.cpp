@@ -29,7 +29,7 @@ using namespace utest::v1;
 void test_emac_multicast_filter_cb(int opt)
 {
     static bool multicasts_are_filtered = true;
-    unsigned char forward_addr[ETH_MAC_ADDR_LEN];
+    static unsigned char forward_addr[ETH_MAC_ADDR_LEN];
     static bool send_request = true;
     static bool receive = true;
     static int no_response_cnt = 0;
@@ -70,7 +70,6 @@ void test_emac_multicast_filter_cb(int opt)
                 }
                 receive = true;
                 break;
-
 
             case 3:
                 printf("STEP 3: set ipv4 multicast filter, test if input message is filtered\r\n\r\n");
@@ -145,7 +144,15 @@ void test_emac_multicast_filter_cb(int opt)
 
     if (next_step) {
         RESET_OUTGOING_MSG_DATA;
+#if (MBED_CONF_NETWORK_EMAC_NO_SUPPORT_FOR_IPV4_MULTICAST_FILTER == 1)
+        if (test_step == 2) {
+            test_step = 5;
+        } else {
+            test_step++;
+        }
+#else
         test_step++;
+#endif
         retries = 0;
         send_request = true;
     }
