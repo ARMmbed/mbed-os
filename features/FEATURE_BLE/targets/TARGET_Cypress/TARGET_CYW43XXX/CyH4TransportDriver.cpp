@@ -93,12 +93,14 @@ void CyH4TransportDriver::initialize()
     );
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-    //Register IRQ for Host WAKE
-    host_wake_pin = new InterruptIn(bt_host_wake_name);
-    if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-       host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
-    } else {
-       host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+    if (bt_host_wake_name != NC) {
+        //Register IRQ for Host WAKE
+        host_wake_pin = new InterruptIn(bt_host_wake_name);
+        if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+           host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+        } else {
+           host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
+        }
     }
 
 #endif
@@ -137,7 +139,9 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
 void CyH4TransportDriver::on_host_stack_inactivity()
 {
-    uart.attach(NULL, SerialBase::RxIrq);
+    if (enabled_powersave) {
+        uart.attach(NULL, SerialBase::RxIrq);
+    }
 }
 #endif
 
@@ -158,10 +162,12 @@ void CyH4TransportDriver::on_controller_irq()
 void CyH4TransportDriver::assert_bt_dev_wake()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-    if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-       bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
-    } else {
-       bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+    if (enabled_powersave) {
+        if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+           bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+        } else {
+           bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+        }
     }
 #endif
 }
@@ -169,15 +175,18 @@ void CyH4TransportDriver::assert_bt_dev_wake()
 void CyH4TransportDriver::deassert_bt_dev_wake()
 {
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-    wait_us(5000); /* remove and replace when uart tx transmit complete api is available */
-    //De-assert bt_device_wake
-    if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-       bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
-    } else {
-       bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+    if (enabled_powersave) {
+        wait_us(5000); /* remove and replace when uart tx transmit complete api is available */
+        //De-assert bt_device_wake
+        if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+           bt_device_wake = WAKE_EVENT_ACTIVE_HIGH;
+        } else {
+           bt_device_wake = WAKE_EVENT_ACTIVE_LOW;
+        }
     }
 #endif
 }
+
 
 void CyH4TransportDriver::update_uart_baud_rate(int baud)
 {
