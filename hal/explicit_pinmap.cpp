@@ -42,9 +42,6 @@ MBED_WEAK void pwmout_init_direct(pwmout_t *obj, const PinMap *pinmap)
 #if DEVICE_ANALOGIN
 MBED_WEAK void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
 {
-    printf("Pin: %d \r\n", pinmap->pin);
-    //wait_ns(5000);
-
     analogin_init(obj, pinmap->pin);
 }
 #endif
@@ -75,4 +72,25 @@ MBED_WEAK void serial_set_flow_control_direct(serial_t *obj, FlowControl type, c
     serial_set_flow_control(obj, type, pinmap->rx_flow_pin, pinmap->tx_flow_pin);
 }
 #endif
+
+#if DEVICE_CAN
+MBED_WEAK void can_init_freq_direct(can_t *obj, const can_pinmap_t *pinmap, int hz)
+{
+    can_init_freq(obj, pinmap->rd_pin, pinmap->td_pin, hz);
+}
+
+MBED_WEAK void can_init_direct(can_t *obj, const can_pinmap_t *pinmap)
+{
+    can_init(obj, pinmap->rd_pin, pinmap->td_pin);
+}
+
+#endif
+
+#if DEVICE_QSPI
+MBED_WEAK qspi_status_t qspi_init_direct(qspi_t *obj, const qspi_pinmap_t *pinmap, uint32_t hz, uint8_t mode)
+{
+    return qspi_init(obj, pinmap->data0_pin, pinmap->data1_pin, pinmap->data2_pin, pinmap->data3_pin, pinmap->sclk_pin, pinmap->ssel_pin, hz, mode);
+}
+#endif
+
 #endif
