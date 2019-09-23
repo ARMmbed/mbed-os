@@ -102,6 +102,18 @@ public:
      *
      */
     QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel = NC, int mode = 0);
+
+    /** Create a QSPI master connected to the specified pins
+     *
+     *  io0-io3 is used to specify the Pins used for Quad SPI mode
+     *
+     *  @param pinmap reference to structure which holds static pinmap
+     *  @param mode Clock polarity and phase mode (0 - 3) of SPI
+     *         (Default: Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
+     *
+     */
+    QSPI(const qspi_pinmap_t &pinmap, int mode = 0);
+
     virtual ~QSPI()
     {
     }
@@ -222,6 +234,7 @@ protected:
     int _mode; //SPI mode
     bool _initialized;
     PinName _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs; //IO lines, clock and chip select
+    const qspi_pinmap_t *_explicit_pinmap;
 
 private:
     /* Private acquire function without locking/unlocking
@@ -229,6 +242,7 @@ private:
      */
     bool _acquire(void);
     bool _initialize();
+    bool _initialize_direct();
 
     /*
      * This function builds the qspi command struct to be send to Hal
