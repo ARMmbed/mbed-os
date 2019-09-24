@@ -302,10 +302,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
             } else {
                 if (count == 0) {
                     // Timeout with nothing received
-                    nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                     success = false;
                 }
-                size = 0; // This simply to cause an exit
+                break;
             }
         }
     } else if (socket->proto == NSAPI_TCP) {
@@ -346,10 +345,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
             } else {
                 if (count == 0) {
                     // Timeout with nothing received
-                    nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                     success = false;
                 }
-                size = 0; // This simply to cause an exit
+                break;
             }
         }
     }

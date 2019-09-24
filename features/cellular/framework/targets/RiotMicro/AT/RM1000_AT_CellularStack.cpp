@@ -281,10 +281,9 @@ nsapi_size_or_error_t RM1000_AT_CellularStack::socket_recvfrom_impl(CellularSock
         } else {
             if (count == 0) {
                 // Timeout with nothing received
-                nsapi_error_size = NSAPI_ERROR_WOULD_BLOCK;
                 success = false;
             }
-            size = 0; // This simply to cause an exit
+            break;
         }
     }
     timer.stop();
