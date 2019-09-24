@@ -514,7 +514,7 @@ static void thread_parse_annoucement(protocol_interface_info_entry_t *cur, mle_m
     channel_page = ptr[0];
     channel = common_read_16_bit(&ptr[1]);
 
-    if (linkConfiguration->timestamp == timestamp) {
+    if (linkConfiguration && linkConfiguration->timestamp == timestamp) {
         // We received same timestamp
         tr_debug("Same timestamp");
         return;
@@ -527,7 +527,7 @@ static void thread_parse_annoucement(protocol_interface_info_entry_t *cur, mle_m
     }
 
 
-    if (linkConfiguration->timestamp > timestamp) {
+    if (linkConfiguration && linkConfiguration->timestamp > timestamp) {
         // We received older time stamp we just announce back to originator channel
         thread_bootstrap_announce_send(cur, linkConfiguration->channel_page, linkConfiguration->rfChannel, linkConfiguration->panId, linkConfiguration->timestamp, channel);
         return;
