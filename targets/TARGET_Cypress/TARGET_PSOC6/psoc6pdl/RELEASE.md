@@ -4,10 +4,13 @@ Please refer to the [README.md](./README.md) and the [PDL API Reference Manual](
 
 ### New Features
 Updated Drivers
-* [SysInt 1.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysInt.html)
+* [SysInt 1.30](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysint.html)
+* [SysPm 4.40](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__syspm.html)
 * [USBFS 2.20](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__usbfs__dev__drv.html)
 
 Drivers with patch version updates
+* [CAN FD 1.0.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__canfd.html)
+* [Flash 3.30.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__flash.html)
 * [Prot 1.30.1](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__prot.html)
 * [SysClk 1.40.2](https://cypresssemiconductorco.github.io/psoc6pdl/pdl_api_reference_manual/html/group__group__sysclk.html)
 

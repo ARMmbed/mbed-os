@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.h
-* \version 3.30.1
+* \version 3.30.2
 *
 * Provides the API declarations of the Flash driver.
 *
@@ -52,12 +52,13 @@
 * interrupt instead of a reset.
 *
 * A Read while Write violation occurs when a flash Read operation is initiated
-* in the same or neighboring flash sector where the flash Write, Erase, or
+* in the same or neighboring (neighboring restriction is applicable just for the 
+* CY8C6xx6, CY8C6xx7 devices) flash sector where the flash Write, Erase, or 
 * Program operation is working. This violation may cause a HardFault exception.
 * To avoid the Read while Write violation, the user must carefully split the
 * Read and Write operation on flash sectors which are not neighboring,
-* considering both cores in the multi-processor device. The flash is divided
-* into four equal sectors. You may edit the linker script to place the code
+* considering both cores in the multi-processor device. If the flash is divided
+* into four equal sectors, you may edit the linker script to place the code
 * into neighboring sectors. For example, use sectors number 0 and 1 for code
 * and sectors 2 and 3 for data storage.
 *
@@ -254,6 +255,11 @@
 *
 * <table class="doxtable">
 *   <tr><th>Version</th><th style="width: 52%;">Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td rowspan="1">3.30.2</td>
+*     <td>Updated documentation to limit devices with the neighboring restriction.</td>
+*     <td>User experience enhancement.</td>
+*   </tr>
 *   <tr>
 *     <td rowspan="1">3.30.1</td>
 *     <td>Used the CY_RAMFUNC_BEGIN and CY_RAMFUNC_END macros that allocate the function in RAM instead of using the CY_SECTION(".cy_ramfunc") macros.</td>
