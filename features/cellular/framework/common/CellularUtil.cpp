@@ -236,7 +236,7 @@ void prefer_ipv6(char *ip, size_t ip_size, char *ip2, size_t ip2_size)
         if (temp) {
             // ipv6 was found in ip2 but not in ip ---> we must swap them. Sadly ip and ip2 might not be pointers
             // so we can't just swap them, must use copy.
-            if (strlen(ip) < ip2_size && strlen(ip2) < ip_size && strlen(ip) < 64) {
+            if (strlen(ip) < ip2_size && strlen(ip2) < ip_size && strlen(ip) < 64 && strlen(ip2) < 64) {
                 char tmp[64];
                 strncpy(tmp, ip, strlen(ip));
                 tmp[strlen(ip)] = '\0';
