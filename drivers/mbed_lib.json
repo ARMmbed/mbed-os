@@ -9,6 +9,11 @@
             "help": "Default RX buffer size for a UARTSerial instance (unit Bytes))",
             "value": 256
         },
+        "crc-table-size": {
+            "macro_name": "MBED_CRC_TABLE_SIZE",
+            "help": "Number of entries in each of MbedCRC's pre-computed software tables. Higher values increase speed, but also increase image size. The value has no effect if the target performs the CRC in hardware. Permitted values are 0, 16 or 256.",
+            "value": 16
+        },
         "spi_count_max": {
             "help": "The maximum number of SPI peripherals used at the same time. Determines RAM allocated for SPI peripheral management. If null, limit determined by hardware.",
             "value": null
