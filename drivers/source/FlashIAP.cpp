@@ -46,16 +46,6 @@ static inline bool is_aligned(uint32_t number, uint32_t alignment)
     }
 }
 
-FlashIAP::FlashIAP() : _page_buf(nullptr)
-{
-
-}
-
-FlashIAP::~FlashIAP()
-{
-
-}
-
 int FlashIAP::init()
 {
     int ret = 0;
