@@ -29,11 +29,18 @@
 extern const int brcm_patch_ram_length;
 extern const uint8_t brcm_patchram_buf[];
 
+#ifndef BT_UART_NO_3M_SUPPORT
 static const uint8_t pre_brcm_patchram_buf[] = {
     // RESET followed by update uart baudrate
     0x03, 0x0C, 0x00,
         0x18, 0xFC, 0x06, 0x00, 0x00, 0xC0, 0xC6, 0x2D, 0x00,   //update uart baudrate 3 mbp
 };
+#else /* BT_UART_NO_3M_SUPPORT */
+static const uint8_t pre_brcm_patchram_buf[] = {
+    // RESET cmd
+    0x03, 0x0C, 0x00,
+};
+#endif /* BT_UART_NO_3M_SUPPORT */
 
 static const uint8_t pre_brcm_patchram_buf2[] = {
         //download mini driver
@@ -126,7 +133,9 @@ public:
             /* decode opcode */
             switch (opcode) {
                 case HCI_VS_CMD_UPDATE_UART_BAUD_RATE:
+#ifndef BT_UART_NO_3M_SUPPORT
                     cy_transport_driver.update_uart_baud_rate(DEF_BT_3M_BAUD_RATE);
+#endif /* BT_UART_NO_3M_SUPPORT */
 #ifdef CY_DEBUG
                     HciReadLocalVerInfoCmd();
 #else
@@ -333,9 +342,11 @@ private:
     // on PSoC6 to send hci download minidriver
     void prepare_service_pack_transfert2(void)
     {
+#ifndef BT_UART_NO_3M_SUPPORT
         cy_transport_driver.update_uart_baud_rate(DEF_BT_3M_BAUD_RATE);
+#endif /* BT_UART_NO_3M_SUPPORT */
         service_pack_ptr = pre_brcm_patchram_buf2;
-	service_pack_length = pre_brcm_patch_ram_length2;
+        service_pack_length = pre_brcm_patch_ram_length2;
         service_pack_next = &HCIDriver::start_service_pack_transfert;
         service_pack_index = 0;
         service_pack_transfered = false;
@@ -374,7 +385,11 @@ private:
         service_pack_next = NULL;
         service_pack_index = 0;
         service_pack_transfered = true;
+#ifndef BT_UART_NO_3M_SUPPORT
         HciUpdateUartBaudRate();
+#else /* BT_UART_NO_3M_SUPPORT */
+        set_sleep_mode();
+#endif /* BT_UART_NO_3M_SUPPORT */
         sleep_manager_unlock_deep_sleep();
     }
 

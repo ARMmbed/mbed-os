@@ -112,6 +112,10 @@ private:
 #define WAKE_EVENT_ACTIVE_HIGH ( 1 )      /* Interrupt Rising Edge  */
 #define WAKE_EVENT_ACTIVE_LOW  ( 0 )      /* Interrupt Falling Edge */
 
+#if (defined(TARGET_CY8CPROTO_062_4343W))
+#define BT_UART_NO_3M_SUPPORT  ( 1 )
+#endif
+
 ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_default_h4_transport_driver();
 ble::vendor::cypress_ble::CyH4TransportDriver& ble_cordio_get_h4_transport_driver();
 #endif
