@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_canfd.h
-* \version 1.0
+* \version 1.0.1
 *
 *  This file provides constants and parameter values for 
 *  the CAN FD driver.
@@ -216,6 +216,11 @@
 * \section group_canfd_changelog Changelog
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
+*   <tr>
+*     <td>1.0.1</td>
+*     <td>Updated description of the \ref Cy_CANFD_Init() and \ref Cy_CANFD_DeInit() functions</td>
+*     <td>Documentation update and clarification </td>
+*   </tr>
 *   <tr>
 *     <td>1.0</td>
 *     <td>Initial version</td>

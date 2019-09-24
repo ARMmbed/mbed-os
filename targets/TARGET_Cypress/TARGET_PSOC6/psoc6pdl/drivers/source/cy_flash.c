@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_flash.c
-* \version 3.30.1
+* \version 3.30.2
 *
 * \brief
 * Provides the public functions for the API for the PSoC 6 Flash Driver.

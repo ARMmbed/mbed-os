@@ -270,7 +270,7 @@ extern cy_israddress __ramVectors[]; /**< Relocated vector table in SRAM */
 #define CY_SYSINT_DRV_VERSION_MAJOR    1
     
 /** Driver minor version */
-#define CY_SYSINT_DRV_VERSION_MINOR    20
+#define CY_SYSINT_DRV_VERSION_MINOR    30
 
 /** SysInt driver ID */
 #define CY_SYSINT_ID CY_PDL_DRV_ID     (0x15U)
