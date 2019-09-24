@@ -18,6 +18,7 @@
 #define CELLULARSTATEMACHINE_STUB_H_
 
 #include "CellularStateMachine.h"
+#include <vector>
 
 enum CellularStubState {
     STATE_INIT = 0,
@@ -35,6 +36,7 @@ extern nsapi_error_t nsapi_error_value;
 extern CellularStubState get_current_target_state;
 extern CellularStubState get_current_current_state;
 extern bool bool_value;
+extern std::vector<uint16_t> timeouts;
 }
 
 

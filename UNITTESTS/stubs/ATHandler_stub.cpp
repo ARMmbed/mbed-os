@@ -54,6 +54,8 @@ int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
 bool ATHandler_stub::process_oob_urc = false;
 
+std::vector<ATHandler_stub::urc_handler> ATHandler_stub::urc_handlers;
+
 int ATHandler_stub::read_string_index = kRead_string_table_size;
 const char *ATHandler_stub::read_string_table[kRead_string_table_size];
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
@@ -111,6 +113,7 @@ bool ATHandler::get_debug() const
 
 ATHandler::~ATHandler()
 {
+    ATHandler_stub::urc_handlers.clear();
 }
 
 void ATHandler::inc_ref_count()
@@ -148,6 +151,9 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
     if (!cb) {
         return;
     }
+
+    ATHandler_stub::urc_handler handler = { .urc = urc, .cb = cb };
+    ATHandler_stub::urc_handlers.push_back(handler);
 
     if (ATHandler_stub::call_immediately) {
         cb();
