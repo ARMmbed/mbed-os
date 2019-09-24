@@ -484,15 +484,6 @@ static uint8_t sn_coap_builder_options_calculate_jump_need(const sn_coap_hdr_s *
         }
     }
 
-    else {
-        if (src_coap_msg_ptr->uri_path_ptr != 0) {
-            previous_option_number = (COAP_OPTION_URI_PATH);
-        }
-
-        if (src_coap_msg_ptr->content_format != COAP_CT_NONE) {
-            previous_option_number = (COAP_OPTION_CONTENT_FORMAT);
-        }
-    }
     return needed_space;
 }
 
