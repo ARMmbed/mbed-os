@@ -146,3 +146,11 @@ const uint32_t MbedCRC<POLY_32BIT_ANSI, 32, CrcMode::TABLE>::_crc_table[MBED_CRC
 #endif // MBED_CRC_TABLE_SIZE > 0
 
 } // namespace mbed
+
+extern "C" uint32_t mbed_tiny_compute_crc32(const void *data, int datalen)
+{
+    mbed::MbedCRC<POLY_32BIT_ANSI, 32, mbed::CrcMode::BITWISE> crc32(0, 0, false, false);
+    uint32_t result;
+    crc32.compute(data, datalen, &result);
+    return result;
+}
