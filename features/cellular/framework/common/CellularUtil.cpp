@@ -205,16 +205,7 @@ void separate_ip_addresses(char *orig, char *ip, size_t ip_size, char *ip2, size
             }
         }
     } else {
-        temp = strstr(orig, " ");
-        // found space as separator and it wasn't in beginning --> contains 2 ip addresses
-        if (temp && temp != orig) {
-            separate_ip4like_addresses(temp++, ip2, ip2_size, NULL, 0);
-            orig[temp - orig - 1] = '\0';
-            separate_ip4like_addresses(orig, ip, ip_size, NULL, 0);
-            orig[temp - orig - 1] = ' '; // put space back to keep orig as original
-        } else {
-            separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
-        }
+        separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
     }
 }
 

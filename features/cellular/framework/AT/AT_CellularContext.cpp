@@ -816,9 +816,7 @@ nsapi_error_t AT_CellularContext::get_rate_control(
 nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     const int ipv6_subnet_size = 128;
-    const int max_ipv6_size = 64;
     char *ipv6_and_subnetmask = new char[ipv6_subnet_size];
-    char *temp = new char[max_ipv6_size];
 
     _at.lock();
 
@@ -834,38 +832,28 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
 
         // rest are optional params
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
         separate_ip_addresses(ipv6_and_subnetmask, params->local_addr, sizeof(params->local_addr), params->local_subnet_mask, sizeof(params->local_subnet_mask));
         ipv6_and_subnetmask[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->gateway_addr, sizeof(params->gateway_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->gateway_addr, sizeof(params->gateway_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->gateway_addr, sizeof(params->gateway_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->dns_primary_addr, sizeof(params->dns_primary_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->dns_primary_addr, sizeof(params->dns_primary_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->dns_primary_addr, sizeof(params->dns_primary_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->dns_secondary_addr, sizeof(params->dns_secondary_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->dns_secondary_addr, sizeof(params->dns_secondary_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->dns_secondary_addr, sizeof(params->dns_secondary_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), NULL, 0);
 
         params->im_signalling_flag = _at.read_int();
         params->lipa_indication = _at.read_int();
@@ -877,7 +865,6 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
     }
     _at.resp_stop();
 
-    delete [] temp;
     delete [] ipv6_and_subnetmask;
 
     return _at.unlock_return_error();
