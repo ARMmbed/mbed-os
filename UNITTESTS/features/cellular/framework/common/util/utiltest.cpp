@@ -184,60 +184,54 @@ TEST_F(Testutil, separate_ip_addresses)
     char ip[64] = {0};
     char subnet[64] = {0};
 
-    strncpy(s, "32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15\0", 95);
+    // IP address representations formats are for IPv6 or IPv4 address, with and without mask, in dotted or colon (IPv6 only) notation
+
+    // IPv6 with a mask in dotted notation
+    strncpy(s, "32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15\0",
+            sizeof("32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15\0"));
     separate_ip_addresses(NULL, ip, sizeof(ip), subnet, sizeof(subnet));
 
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
     EXPECT_STREQ("2001:14BB:170:8BF5:FB88:E86E:7B33:E68A", ip);
     EXPECT_STREQ("001:203:405:607:809:A0B:C0D:E0F", subnet);
 
-    strncpy(s, "32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138 0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15\0", 95);
+    // IPv6 with mask in colon notation
+    strncpy(s, "32:1:20:187:1:112:139:1245 0:1:2:3:4:5:6:7\0", sizeof("32:1:20:187:1:112:139:1245 0:1:2:3:4:5:6:7\0"));
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138", ip);
-    EXPECT_STREQ("0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15", subnet);
+    EXPECT_STREQ("32:1:20:187:1:112:139:1245", ip);
+    EXPECT_STREQ("0:1:2:3:4:5:6:7", subnet);
 
     ip[0] = '\0';
     subnet[0] = '\0';
-    strncpy(s, "1.2.3.4\0", 8);
+    // IPv6 without mask in dotted notation
+    strncpy(s, "0.2.3.4.5.6.7.8.90.100.11.12.13.14.15.16\0", sizeof("0.2.3.4.5.6.7.8.90.100.11.12.13.14.15.16\0"));
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("1.2.3.4", ip);
+    EXPECT_STREQ("002:304:506:708:5A64:B0C:D0E:F10", ip);
     EXPECT_STREQ("", subnet);
 
     ip[0] = '\0';
     subnet[0] = '\0';
-    strncpy(s, "1.2.3.4.5.6.7.8\0", 16);
+    // IPv6 without mask in colon notation
+    strncpy(s, "0032:1:20:187:0:112:139:245f\0", sizeof("0032:1:20:187:0:112:139:245f\0"));
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("1.2.3.4", ip);
-    EXPECT_STREQ("5.6.7.8", subnet);
-
-    ip[0] = '\0';
-    subnet[0] = '\0';
-    strncpy(s, "1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16\0", 39);
-    separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("102:304:506:708:90A:B0C:D0E:F10", ip);
+    EXPECT_STREQ("0032:1:20:187:0:112:139:245f", ip);
     EXPECT_STREQ("", subnet);
 
     ip[0] = '\0';
     subnet[0] = '\0';
-    strncpy(s, "32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138\0", 57);
+    // IPv4 with mask
+    strncpy(s, "100.0.3.40.255.6.7.80\0", sizeof("100.0.3.40.255.6.7.80\0"));
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138", ip);
+    EXPECT_STREQ("100.0.3.40", ip);
+    EXPECT_STREQ("255.6.7.80", subnet);
+
+    ip[0] = '\0';
+    subnet[0] = '\0';
+    // IPv4 without mask
+    strncpy(s, "1.255.3.0\0", sizeof("1.255.3.0\0"));
+    separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
+    EXPECT_STREQ("1.255.3.0", ip);
     EXPECT_STREQ("", subnet);
-
-    ip[0] = '\0';
-    subnet[0] = '\0';
-    strncpy(s, "1.2.3.4 32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138\0", 65);
-    separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("1.2.3.4", ip);
-    EXPECT_STREQ("32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138", subnet);
-
-    ip[0] = '\0';
-    subnet[0] = '\0';
-    strncpy(s, "1.2.3.4 5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20\0", 51);
-    separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
-    EXPECT_STREQ("1.2.3.4", ip);
-    EXPECT_STREQ("506:708:90A:B0C:D0E:F10:1112:1314", subnet);
-    EXPECT_STREQ("1.2.3.4 5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20", s);
 }
 
 TEST_F(Testutil, get_dynamic_ip_port)
