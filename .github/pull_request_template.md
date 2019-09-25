@@ -16,13 +16,16 @@
     of them would change the meaning incorrectly. The only changes to be made are to add a description text under the
     description heading and to add a 'x' to the correct box.
 -->
-    [ ] Fix
-    [ ] Refactor
-    [ ] Target update
-    [ ] Functionality change
-    [ ] Docs update
-    [ ] Test update
-    [ ] Breaking change
+    [ ] Patch update (Bug fix / Target update / Docs update / Test update / Refactor)
+    [ ] Feature update (New feature / Functionality change / New API)
+    [ ] Major update (Breaking change E.g. Return code change / API behaviour change)
+
+### Test results 
+
+<!--
+    Optional
+    For example, add test results for new target
+-->
 
 ### Reviewers
 
@@ -34,7 +37,15 @@
 ### Release Notes
 
 <!--
-    Optional
-    In case of breaking changes, functionality changes or refactors, please add release notes here. 
-    For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types).
+    This section is compulsory for all Feature and Major PR types.
+    This section is automatically added to release notes. Please fill in each sub-section with sufficient detail for a user.
+    For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types). 
 -->
+
+##### Summary of changes
+
+##### Impact of changes
+
+##### Migration actions required
+
+
