@@ -1,3 +1,4 @@
+----------------------------------------------------------------------------------------------------------------
 ### Description
 
 <!--
@@ -7,6 +8,7 @@
 -->
 
 
+----------------------------------------------------------------------------------------------------------------
 ### Pull request type
 
 <!--
@@ -16,17 +18,23 @@
     of them would change the meaning incorrectly. The only changes to be made are to add a description text under the
     description heading and to add a 'x' to the correct box.
 -->
-    [ ] Patch update (Bug fix / Target update / Docs update / Test update / Refactor)
-    [ ] Feature update (New feature / Functionality change / New API)
-    [ ] Major update (Breaking change E.g. Return code change / API behaviour change)
+    [] Patch update (Bug fix / Target update / Docs update / Test update / Refactor)
+    [] Feature update (New feature / Functionality change / New API)
+    [] Major update (Breaking change E.g. Return code change / API behaviour change)
 
+----------------------------------------------------------------------------------------------------------------
 ### Test results 
 
 <!--
     Optional
     For example, add test results for new target
 -->
-
+    [] No Tests required for this change
+    [] These PR changes will be covered by existing tests and CI
+    [] Tests supplied below
+    
+    
+----------------------------------------------------------------------------------------------------------------
 ### Reviewers
 
 <!--
@@ -34,6 +42,7 @@
     Request additional reviewers with @username
 -->
 
+----------------------------------------------------------------------------------------------------------------
 ### Release Notes
 
 <!--
@@ -48,4 +57,5 @@
 
 ##### Migration actions required
 
+----------------------------------------------------------------------------------------------------------------
 
