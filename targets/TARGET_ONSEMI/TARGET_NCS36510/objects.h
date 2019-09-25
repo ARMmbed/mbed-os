@@ -40,7 +40,6 @@ extern "C" {
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "target_config.h"
-#include "spi.h"
 
 typedef enum {
     FlowControlNone_1,
