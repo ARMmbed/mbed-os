@@ -29,6 +29,7 @@
 #if EXPLICIT_PINMAP_READY
 #include "PeripheralPinMaps.h"
 
+
 #if DEVICE_PWMOUT
 MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
 {
@@ -37,7 +38,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
             return {pin, pinmap.peripheral, pinmap.function};
         }
     }
-    return {NC, NC, NC};
+    return {NC, (int) NC, (int) NC};
 }
 #endif // DEVICE_PWMOUT
 
@@ -49,7 +50,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_analogin_pinmap(const PinName pin)
             return {pin, pinmap.peripheral, pinmap.function};
         }
     }
-    return {NC, NC, NC};
+    return {NC, (int) NC, (int) NC};
 }
 #endif // DEVICE_ANALOGIN
 
@@ -61,7 +62,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_analogout_pinmap(const PinName pin)
             return {pin, pinmap.peripheral, pinmap.function};
         }
     }
-    return {NC, NC, NC};
+    return {NC, (int) NC, (int) NC};
 }
 #endif // DEVICE_ANALOGOUT
 
@@ -85,7 +86,7 @@ MSTD_CONSTEXPR_FN_14 i2c_pinmap_t get_i2c_pinmap(const PinName sda, const PinNam
     }
 
     if (!sda_map || !scl_map || sda_map->peripheral != scl_map->peripheral) {
-        return {NC, NC, NC, NC, NC};
+        return {(int) NC, NC, (int) NC, NC, (int) NC};
     }
 
     return {sda_map->peripheral, sda_map->pin, sda_map->function, scl_map->pin, scl_map->function};
@@ -112,7 +113,7 @@ MSTD_CONSTEXPR_FN_14 serial_pinmap_t get_uart_pinmap(const PinName tx, const Pin
     }
 
     if (!tx_map || !rx_map || rx_map->peripheral != tx_map->peripheral) {
-        return {NC, NC, NC, NC, NC, false};
+        return {(int) NC, NC, (int) NC, NC, (int) NC, false};
     }
 
     if (tx_map->pin == STDIO_UART_TX && rx_map->pin == STDIO_UART_RX) {
@@ -142,7 +143,7 @@ MSTD_CONSTEXPR_FN_14 serial_fc_pinmap_t get_uart_fc_pinmap(const PinName rxflow,
     }
 
     if ((!rts_map || !cts_map) || (rts_map->peripheral != cts_map->peripheral)) {
-        return {NC, NC, NC, NC, NC};
+        return {(int) NC, NC, (int) NC, NC, (int) NC};
     }
 
     return {cts_map->peripheral, cts_map->pin, cts_map->function, rts_map->pin, rts_map->function};
@@ -188,7 +189,7 @@ MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinNa
     if ((!mosi_map || !miso_map || !sclk_map || !ssel_map) ||
             (mosi_map->peripheral != miso_map->peripheral || mosi_map->peripheral != sclk_map->peripheral) ||
             (ssel_map->pin != NC && mosi_map->peripheral != ssel_map->peripheral)) {
-        return {NC, NC, NC, NC, NC, NC, NC, NC, NC};
+        return {(int) NC, NC, (int) NC, NC, (int) NC, NC, (int) NC, NC, (int) NC};
     }
 
     return {mosi_map->peripheral, mosi_map->pin, mosi_map->function, miso_map->pin, miso_map->function, sclk_map->pin, sclk_map->function, ssel_map->pin, ssel_map->function};
@@ -200,41 +201,41 @@ MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinNa
 #if DEVICE_PWMOUT
 MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
 {
-    return {pin, NC, NC};
+    return {pin, (int) NC, (int) NC};
 }
 #endif // DEVICE_PWMOUT
 
 #if DEVICE_ANALOGIN
 MSTD_CONSTEXPR_FN_14 PinMap get_analogin_pinmap(const PinName pin)
 {
-    return {pin, NC, NC};
+    return {pin, (int) NC, (int) NC};
 }
 #endif // DEVICE_ANALOGIN
 
 #if DEVICE_ANALOGOUT
 MSTD_CONSTEXPR_FN_14 PinMap get_analogout_pinmap(const PinName pin)
 {
-    return {pin, NC, NC};
+    return {pin, (int) NC, (int) NC};
 }
 #endif // DEVICE_ANALOGOUT
 
 #if DEVICE_I2C
 MSTD_CONSTEXPR_FN_14 i2c_pinmap_t get_i2c_pinmap(const PinName sda, const PinName scl)
 {
-    return {NC, sda, NC, scl, NC};
+    return {(int) NC, sda, (int) NC, scl, (int) NC};
 }
 #endif //DEVICE_I2C
 
 #if DEVICE_SERIAL
 MSTD_CONSTEXPR_FN_14 serial_pinmap_t get_uart_pinmap(const PinName tx, const PinName rx)
 {
-    return {NC, tx, NC, rx, NC, false};
+    return {(int) NC, tx, (int) NC, rx, (int) NC, false};
 }
 
 #if DEVICE_SERIAL_FC
 MSTD_CONSTEXPR_FN_14 serial_fc_pinmap_t get_uart_fc_pinmap(const PinName rxflow, const PinName txflow)
 {
-    return {NC, txflow, NC, rxflow, NC};
+    return {(int) NC, txflow, (int) NC, rxflow, (int) NC};
 }
 #endif // DEVICE_SERIAL_FC
 #endif // DEVICE_SERIAL
@@ -242,7 +243,7 @@ MSTD_CONSTEXPR_FN_14 serial_fc_pinmap_t get_uart_fc_pinmap(const PinName rxflow,
 #if DEVICE_SPI
 MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinName miso, const PinName sclk, const PinName ssel)
 {
-    return {NC, mosi, NC, miso, NC, sclk, NC, ssel, NC};
+    return {(int) NC, mosi, (int) NC, miso, (int) NC, sclk, (int) NC, ssel, (int) NC};
 }
 #endif // DEVICE_SERIAL
 

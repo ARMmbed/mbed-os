@@ -175,13 +175,13 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
 
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, &fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(NC, STDIO_UART_CTS);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, &fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, STDIO_UART_CTS);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, &fc_pinmap);
 #endif
 }
 
@@ -195,13 +195,13 @@ DirectSerial::DirectSerial(const serial_pinmap_t &explicit_pinmap, int baud)
 
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, NC);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTS, &fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(NC, STDIO_UART_CTS);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlCTS, &fc_pinmap);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
     static const serial_fc_pinmap_t fc_pinmap = get_uart_fc_pinmap(STDIO_UART_RTS, STDIO_UART_CTS);
-    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, fc_pinmap);
+    serial_set_flow_control_direct(&stdio_uart, FlowControlRTSCTS, &fc_pinmap);
 #endif
 }
 
