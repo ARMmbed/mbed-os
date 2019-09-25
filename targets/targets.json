@@ -9338,18 +9338,22 @@
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
-                "value": 0,
+                "value": 1,
                 "macro_name": "MODEM_ON_BOARD"
             },
             "modem_data_connection_type": {
                 "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
-                "value": 0,
+                "value": 1,
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
         "components_add": ["SPIF"],
         "components_remove": ["QSPIF"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "macros_add": [
+            "CONFIG_GPIO_AS_PINRESET",
+            "NRF52_ERRATA_20"
+        ]
     },
     "IM880B": {
         "inherits": ["FAMILY_STM32"],
