@@ -1,5 +1,9 @@
+<!--
+For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types).
+-->
+
 ----------------------------------------------------------------------------------------------------------------
-### Description
+### Description (Required)
 
 <!--
     Required
@@ -9,7 +13,7 @@
 
 
 ----------------------------------------------------------------------------------------------------------------
-### Pull request type
+### Pull request type (Required)
 
 <!--
     Required
@@ -23,11 +27,11 @@
     [] Major update (Breaking change E.g. Return code change / API behaviour change)
 
 ----------------------------------------------------------------------------------------------------------------
-### Test results 
+### Test results (Required)
 
 <!--
-    Optional
-    For example, add test results for new target
+    Required
+    Please add a 'x' to just one of the following sections
 -->
     [] No Tests required for this change
     [] These PR changes will be covered by existing tests and CI
@@ -35,7 +39,7 @@
     
     
 ----------------------------------------------------------------------------------------------------------------
-### Reviewers
+### Reviewers (Optional)
 
 <!--
     Optional
@@ -43,7 +47,7 @@
 -->
 
 ----------------------------------------------------------------------------------------------------------------
-### Release Notes
+### Release Notes (Reguired for Feature/Major PRs)
 
 <!--
     This section is compulsory for all Feature and Major PR types.
