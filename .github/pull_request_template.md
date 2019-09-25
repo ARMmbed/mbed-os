@@ -1,9 +1,7 @@
 <!--
 For more information on the requirements for pull requests, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types).
 -->
-
-----------------------------------------------------------------------------------------------------------------
-### Description (Required)
+### Description (*required*)
 
 <!--
     Required
@@ -13,7 +11,7 @@ For more information on the requirements for pull requests, please see [the cont
 
 
 ----------------------------------------------------------------------------------------------------------------
-### Pull request type (Required)
+### Pull request type (*required*)
 
 <!--
     Required
@@ -27,11 +25,11 @@ For more information on the requirements for pull requests, please see [the cont
     [] Major update (Breaking change E.g. Return code change / API behaviour change)
 
 ----------------------------------------------------------------------------------------------------------------
-### Test results (Required)
+### Test results (*required*)
 
 <!--
-    Required
-    Please add a 'x' to just one of the following sections
+    Optional
+    For example, add test results for new target
 -->
     [] No Tests required for this change
     [] These PR changes will be covered by existing tests and CI
@@ -39,7 +37,7 @@ For more information on the requirements for pull requests, please see [the cont
     
     
 ----------------------------------------------------------------------------------------------------------------
-### Reviewers (Optional)
+### Reviewers (*optional*)
 
 <!--
     Optional
@@ -47,7 +45,7 @@ For more information on the requirements for pull requests, please see [the cont
 -->
 
 ----------------------------------------------------------------------------------------------------------------
-### Release Notes (Reguired for Feature/Major PRs)
+### Release Notes (*required for feature/major PRs*)
 
 <!--
     This section is compulsory for all Feature and Major PR types.
@@ -61,5 +59,4 @@ For more information on the requirements for pull requests, please see [the cont
 
 ##### Migration actions required
 
-----------------------------------------------------------------------------------------------------------------
 
