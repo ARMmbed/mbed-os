@@ -166,8 +166,11 @@ def merge_region_list(
         _, begin = merged.segments()[0]
         for start, stop in merged.segments()[1:]:
             pad_size = start - begin
-            merged.puts(begin, padding * pad_size)
-            begin = stop + 1
+            try:
+                merged.puts(begin, padding * pad_size)
+                begin = stop + 1
+            except: 				
+                notify.info("Error while attempting to fill gaps in data for output binary")
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
