@@ -66,11 +66,11 @@ LittleFileSystem fs("sd");
 
 static control_t test_format(const size_t call_count)
 {
+    int format_err = fs.format(&sd);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, format_err, "could not format block device");
+
     int mount_err = fs.mount(&sd);
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, mount_err, "could not mount block device");
-
-    int format_err = fs.reformat(&sd);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, format_err, "could not format block device");
 
     return CaseNext;
 }
