@@ -157,9 +157,9 @@
         <Entry name="Source Port" value="PF_PN_PORT_SOURCE" visible="true" />
       </ParamChoice>
       <ParamRange id="filter$idx_ether_type" name="EtherType" group="Packet Filter Configuration $idx" min="2048" max="65535" resolution="1" 
-        default="`${$idx == 0 ? (minKeepFilt ? 0x0806 : 0x800) :
-                    $idx == 1 ? (minKeepFilt ? 0x888e : 0x800) :
-                                0x800}`" visible="`${config$idx &amp;&amp; (filter$idx_type eq CY_PF_PORT_ETHER_TYPE_FILTER)}`" editable="`${config$idx_editable}`" desc="Enter a 16-bit ether type value. Example: 0x800 for IP, 0x806 for ARP." />
+        default="`${toHex($idx == 0 ? (minKeepFilt ? 0x0806 : 0x800) :
+                          $idx == 1 ? (minKeepFilt ? 0x888e : 0x800) :
+                                       0x800)}`" visible="`${config$idx &amp;&amp; (filter$idx_type eq CY_PF_PORT_ETHER_TYPE_FILTER)}`" editable="`${config$idx_editable}`" desc="Enter a 16-bit ether type value. Example: 0x800 for IP, 0x806 for ARP." />
       <ParamRange id="filter$idx_ip_type" name="IP Protocol" group="Packet Filter Configuration $idx" default="0" min="0" max="255" resolution="1" visible="`${config$idx &amp;&amp; (filter$idx_type eq CY_PF_PORT_IP_TYPE_FILTER)}`" editable="`${config$idx_editable}`" desc="Enter the desired IP protocol number." />
       <ParamRange id="filter$idx_port" name="Port Number" group="Packet Filter Configuration $idx" min="0" max="65535" resolution="1" 
         default="`${$idx == 2 ? (minKeepFilt ? 68 : 1024) :

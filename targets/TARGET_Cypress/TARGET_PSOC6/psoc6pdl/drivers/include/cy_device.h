@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_device.h
-* \version 2.0
+* \version 2.10
 *
 * This file specifies the structure for core and peripheral block HW base
 * addresses, versions, and parameters.
@@ -381,9 +381,9 @@ void Cy_PDL_Init(const cy_stc_device_t * device);
 #define SFLASH_CPUSS_TRIM_ROM_CTL_ULP       (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_ROM_CTL_ULP)
 #define SFLASH_CPUSS_TRIM_RAM_CTL_ULP       (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_RAM_CTL_ULP)
 #define SFLASH_CPUSS_TRIM_ROM_CTL_HALF_LP   (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_ROM_CTL_HALF_LP)
-#define SFLASH_CPUSS_TRIM_ROM_CTL_HALF_LP   (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_ROM_CTL_HALF_LP)
-#define SFLASH_CPUSS_TRIM_RAM_CTL_HALF_ULP  (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_RAM_CTL_HALF_ULP)
+#define SFLASH_CPUSS_TRIM_RAM_CTL_HALF_LP   (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_RAM_CTL_HALF_LP)
 #define SFLASH_CPUSS_TRIM_ROM_CTL_HALF_ULP  (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_ROM_CTL_HALF_ULP)
+#define SFLASH_CPUSS_TRIM_RAM_CTL_HALF_ULP  (((SFLASH_V1_Type *) SFLASH)->CPUSS_TRIM_RAM_CTL_HALF_ULP)
 
 
 #define SFLASH_CSD0_ADC_VREF0_TRIM          (((SFLASH_V1_Type *) SFLASH)->CSDV2_CSD0_ADC_VREF0)

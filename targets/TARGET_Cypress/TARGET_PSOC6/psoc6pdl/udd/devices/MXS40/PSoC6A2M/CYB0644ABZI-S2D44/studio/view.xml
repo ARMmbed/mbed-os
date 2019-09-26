@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Parameters xml_version="1" xmlns="http://cypress.com/xsd/cydatawounding_v1">
-  <Param name="PartNumber" value="CYB0644ABZI-D44" />
+  <Param name="PartNumber" value="CYB0644ABZI-S2D44" />
   <Param name="PartAvailability" value="Active" />
   <Param name="DeviceDie" value="PSoC6A2M" />
   <Param name="Silicon_Revision" value="PRODUCTION" />
   <Param name="Package" value="124-BGA" />
-  <Param name="DeviceSeries" value="PSoC 62" />
+  <Param name="DeviceSeries" value="PSoC 64" />
   <Param name="Cores_REMOVED" value="NA" />
   <Param name="Speed_MHz" value="150" />
-  <Param name="Flash_KB" value="2048" />
+  <Param name="Flash_KB" value="1856" />
   <Param name="SRAM_KB" value="1024" />
   <Param name="Bluetooth" value="NA" />
   <Param name="UDB_Count" value="0" />

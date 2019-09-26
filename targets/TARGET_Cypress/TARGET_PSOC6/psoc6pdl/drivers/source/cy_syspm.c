@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.c
-* \version 4.30
+* \version 4.40
 *
 * This driver provides the source code for API power management.
 *
@@ -3110,7 +3110,7 @@ static void SetReadMarginTrimUlp(void)
     else
     {
         CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_RAM_CTL_HALF_ULP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) | 
-                             (CPUSS_TRIM_RAM_CTL | CPUSS_TRIM_RAM_CTL_RA_MASK);
+                             (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_RA_MASK);
 
         CPUSS_TRIM_ROM_CTL = SFLASH_CPUSS_TRIM_ROM_CTL_HALF_ULP;
     }
@@ -3139,8 +3139,8 @@ static void SetReadMarginTrimLp(void)
     }
     else
     {
-        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_ROM_CTL_LP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) | 
-                             (CPUSS_TRIM_RAM_CTL | CPUSS_TRIM_RAM_CTL_RA_MASK);
+        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_RAM_CTL_LP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) | 
+                             (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_RA_MASK);
 
         CPUSS_TRIM_ROM_CTL =  SFLASH_CPUSS_TRIM_ROM_CTL_LP;
     }
@@ -3166,8 +3166,8 @@ static void SetWriteAssistTrimUlp(void)
     }
     else
     {
-        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_ROM_CTL_ULP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) |
-                             (CPUSS_TRIM_RAM_CTL | CPUSS_TRIM_RAM_CTL_RA_MASK);
+        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_RAM_CTL_ULP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) |
+                             (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_RA_MASK);
     }
 }
 
@@ -3191,8 +3191,8 @@ static void SetWriteAssistTrimLp(void)
     }
     else
     {
-        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_ROM_CTL_HALF_LP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) |
-                             (CPUSS_TRIM_RAM_CTL | CPUSS_TRIM_RAM_CTL_RA_MASK);
+        CPUSS_TRIM_RAM_CTL = (SFLASH_CPUSS_TRIM_RAM_CTL_HALF_LP & ((uint32_t) ~CPUSS_TRIM_RAM_CTL_RA_MASK)) |
+                             (CPUSS_TRIM_RAM_CTL & CPUSS_TRIM_RAM_CTL_RA_MASK);
 
         CPUSS_TRIM_ROM_CTL = SFLASH_CPUSS_TRIM_ROM_CTL_HALF_LP;
     }
