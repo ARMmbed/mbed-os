@@ -51,7 +51,7 @@ For more information on the requirements for pull requests, please see [the cont
 ### Release Notes (*required for feature/major PRs*)
 
 <!--
-    This section is compulsory for all Feature and Major PR types.
+    All 3 sections are compulsory for Major PR types. For Feature PRs only the summary section is required.
     This section is automatically added to release notes. Please fill in each sub-section with sufficient detail for a user.
     For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types). 
 -->
