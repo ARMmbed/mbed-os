@@ -462,17 +462,6 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
             Cy_SysInt_Init(&irqDma1_3, &SDIO_READ_DMA_IRQ);
             NVIC_EnableIRQ(cpuss_interrupts_dw1_3_IRQn);
 
-            /* Connect UDB to DMA */
-            Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT1, TRIG0_OUT_CPUSS_DW0_TR_IN1, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT4, TRIG0_OUT_CPUSS_DW0_TR_IN0, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT0, TRIG1_OUT_CPUSS_DW1_TR_IN1, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT5, TRIG1_OUT_CPUSS_DW1_TR_IN3, false, TRIGGER_TYPE_LEVEL);
-
-            Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB0, TRIG14_OUT_TR_GROUP1_INPUT43, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB1, TRIG14_OUT_TR_GROUP0_INPUT44, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB3, TRIG14_OUT_TR_GROUP0_INPUT47, false, TRIGGER_TYPE_LEVEL);
-            Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB7, TRIG14_OUT_TR_GROUP1_INPUT48, false, TRIGGER_TYPE_LEVEL);
-
             stc_sdio_irq_cb_t   irq_cbs;
             irq_cbs.pfnCardIntCb = cyhal_sdio_interrupts_dispatcher_IRQHandler;
 
