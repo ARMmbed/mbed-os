@@ -47,7 +47,9 @@
  * already initialized the hardware watchdog timer.
  * * Maximum supported timeout is `UINT32_MAX` milliseconds; minimum timeout
  * is 1 millisecond.
- * * The watchdog should trigger at or after the timeout value.
+ * * The uncalibrated watchdog should trigger at or after the timeout value
+ * multiplied by the frequency accuracy ratio of its oscillator (typical_frequency / max_frequency).
+ * * The calibrated watchdog should trigger at or after the timeout value.
  * * The watchdog should trigger before twice the timeout value.
  *
  * # Undefined behavior
