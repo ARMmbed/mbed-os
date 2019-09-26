@@ -892,6 +892,8 @@ extern cy_stc_dma_descriptor_t SDIO_HOST_Write_DMA_Write_DMA_Desc;
 /* The peripheral clock divider type */
 #define SDIO_HOST_Internal_Clock_DIV_TYPE ((cy_en_divider_types_t)CY_SYSCLK_DIV_8_BIT)
 
+/*Function for configuring TriggerMuxes*/
+void SDIO_Host_Config_TriggerMuxes(void);
 
 /*Function for configuring UDBs*/
 void SDIO_Host_Config_UDBs(void);
