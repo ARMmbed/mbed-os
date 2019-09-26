@@ -82,7 +82,9 @@
 // Provide Mbed-specific instead.
 #define RTX_NO_MULTITHREAD_CLIB
 // LIBSPACE default value set for ARMCC
+#ifndef OS_THREAD_LIBSPACE_NUM
 #define OS_THREAD_LIBSPACE_NUM      4
+#endif
 
 #define OS_IDLE_THREAD_NAME         "rtx_idle"
 #define OS_TIMER_THREAD_NAME        "rtx_timer"
