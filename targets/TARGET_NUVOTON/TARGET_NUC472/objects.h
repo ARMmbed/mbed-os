@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015-2016 Nuvoton
+ * Copyright (c) 2015-2019 Nuvoton
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,10 +112,6 @@ struct pwmout_s {
     PinName pin;
     uint32_t period_us;
     uint32_t pulsewidth_us;
-};
-
-struct trng_s {
-    uint8_t dummy;
 };
 
 struct can_s {
