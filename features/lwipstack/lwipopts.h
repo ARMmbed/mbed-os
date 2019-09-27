@@ -25,22 +25,20 @@
 #include <sys/time.h>
 #endif
 #include "nsapi_types.h"
+#include "mbed_retarget.h"
+
 // Operating System
 #define NO_SYS                      0
 
-#if MBED_CONF_LWIP_IPV4_ENABLED
-#define LWIP_IPV4                   1
-#else
-#define LWIP_IPV4                   0
-#endif
-#if MBED_CONF_LWIP_IPV6_ENABLED
-#define LWIP_IPV6                   1
-#else
-#define LWIP_IPV6                   0
-#endif
 #if !MBED_CONF_LWIP_IPV4_ENABLED && !MBED_CONF_LWIP_IPV6_ENABLED
 #error "Either IPv4 or IPv6 must be enabled."
 #endif
+
+#define LWIP_IPV4                   MBED_CONF_LWIP_IPV4_ENABLED
+
+#define LWIP_IPV6                   MBED_CONF_LWIP_IPV6_ENABLED
+
+#define LWIP_PROVIDE_ERRNO 0
 
 // On dual stack configuration how long to wait for both or preferred stack
 // addresses before completing bring up.
@@ -57,32 +55,23 @@
 #define BOTH_ADDR_TIMEOUT           0
 #endif
 
-// Configurable DHCP timeout. DHCP timeout can be configured for specific usecase requirement.
-#ifdef MBED_CONF_LWIP_DHCP_TIMEOUT
-#define DHCP_TIMEOUT                (MBED_CONF_LWIP_DHCP_TIMEOUT)
-#else
-#define DHCP_TIMEOUT                60
-#endif
+
+#define DHCP_TIMEOUT                MBED_CONF_LWIP_DHCP_TIMEOUT
 
 #define LINK_TIMEOUT                60
 
 #define PREF_IPV4                   1
 #define PREF_IPV6                   2
 
-#if MBED_CONF_LWIP_IP_VER_PREF == 4
-#define IP_VERSION_PREF             PREF_IPV4
-#endif
 #if MBED_CONF_LWIP_IP_VER_PREF == 6
 #define IP_VERSION_PREF             PREF_IPV6
-#endif
-#ifndef IP_VERSION_PREF
+#elif MBED_CONF_LWIP_IP_VER_PREF == 4
+#define IP_VERSION_PREF             PREF_IPV4
+#else
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-#undef  LWIP_DEBUG
-#if MBED_CONF_LWIP_DEBUG_ENABLED
-#define LWIP_DEBUG                  1
-#endif
+#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
 
 #if NO_SYS == 0
 #include "cmsis_os2.h"
@@ -103,11 +92,6 @@
 // Thread stacks use 8-byte alignment
 #define LWIP_ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
 
-// Thread stack size for lwip tcpip thread
-#ifndef MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE      1200
-#endif
-
 #ifdef LWIP_DEBUG
 // For LWIP debug, double the stack
 #define TCPIP_THREAD_STACKSIZE      LWIP_ALIGN_UP(MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2, 8)
@@ -120,11 +104,6 @@
 
 // Thread priority (osPriorityNormal by default)
 #define TCPIP_THREAD_PRIO           (MBED_CONF_LWIP_TCPIP_THREAD_PRIORITY)
-
-// Thread stack size for lwip system threads
-#ifndef MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE    512
-#endif
 
 #ifdef LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    LWIP_ALIGN_UP(MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2, 8)
@@ -144,43 +123,24 @@
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
 // Number of simultaneously queued TCP segments.
-#ifdef MBED_CONF_LWIP_MEMP_NUM_TCP_SEG
 #define MEMP_NUM_TCP_SEG            MBED_CONF_LWIP_MEMP_NUM_TCP_SEG
-#endif
 
 // TCP Maximum segment size.
-#ifdef MBED_CONF_LWIP_TCP_MSS
 #define TCP_MSS                     MBED_CONF_LWIP_TCP_MSS
-#endif
 
 // TCP sender buffer space (bytes).
-#ifdef MBED_CONF_LWIP_TCP_SND_BUF
 #define TCP_SND_BUF                 MBED_CONF_LWIP_TCP_SND_BUF
-#endif
 
 // TCP sender buffer space (bytes).
-#ifdef MBED_CONF_LWIP_TCP_WND
 #define TCP_WND                     MBED_CONF_LWIP_TCP_WND
-#endif
 
-#ifdef MBED_CONF_LWIP_TCP_MAXRTX
 #define TCP_MAXRTX                  MBED_CONF_LWIP_TCP_MAXRTX
-#endif
 
-#ifdef MBED_CONF_LWIP_TCP_SYNMAXRTX
 #define TCP_SYNMAXRTX               MBED_CONF_LWIP_TCP_SYNMAXRTX
-#endif
 
 // Number of pool pbufs.
 // Each requires 684 bytes of RAM (if MSS=536 and PBUF_POOL_BUFSIZE defaulting to be based on MSS)
-#ifdef MBED_CONF_LWIP_PBUF_POOL_SIZE
-#undef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE              MBED_CONF_LWIP_PBUF_POOL_SIZE
-#else
-#ifndef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE              5
-#endif
-#endif
 
 #ifdef MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
 #undef PBUF_POOL_BUFSIZE
@@ -195,63 +155,38 @@
 #endif
 #endif
 
-#ifdef MBED_CONF_LWIP_MEM_SIZE
-#undef MEM_SIZE
 #define MEM_SIZE                    MBED_CONF_LWIP_MEM_SIZE
-#endif
 
 // One tcp_pcb_listen is needed for each TCPServer.
 // Each requires 72 bytes of RAM.
-#ifdef MBED_CONF_LWIP_TCP_SERVER_MAX
 #define MEMP_NUM_TCP_PCB_LISTEN     MBED_CONF_LWIP_TCP_SERVER_MAX
-#else
-#define MEMP_NUM_TCP_PCB_LISTEN     4
-#endif
 
 // One is tcp_pcb needed for each TCPSocket.
 // Each requires 196 bytes of RAM.
-#ifdef MBED_CONF_LWIP_TCP_SOCKET_MAX
 #define MEMP_NUM_TCP_PCB            MBED_CONF_LWIP_TCP_SOCKET_MAX
-#else
-#define MEMP_NUM_TCP_PCB            4
-#endif
 
 // One udp_pcb is needed for each UDPSocket.
 // Each requires 84 bytes of RAM (total rounded to multiple of 512).
-#ifdef MBED_CONF_LWIP_UDP_SOCKET_MAX
 #define MEMP_NUM_UDP_PCB            MBED_CONF_LWIP_UDP_SOCKET_MAX
-#else
-#define MEMP_NUM_UDP_PCB            4
-#endif
 
 // Number of non-pool pbufs.
 // Each requires 92 bytes of RAM.
-#ifndef MEMP_NUM_PBUF
-#define MEMP_NUM_PBUF               8
-#endif
+#define MEMP_NUM_PBUF               MBED_CONF_LWIP_NUM_PBUF
 
 // Each netbuf requires 64 bytes of RAM.
-#ifndef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF             8
-#endif
+#define MEMP_NUM_NETBUF             MBED_CONF_LWIP_NUM_NETBUF
 
 // One netconn is needed for each UDPSocket, TCPSocket or TCPServer.
 // Each requires 236 bytes of RAM (total rounded to multiple of 512).
-#ifdef MBED_CONF_LWIP_SOCKET_MAX
 #define MEMP_NUM_NETCONN            MBED_CONF_LWIP_SOCKET_MAX
-#else
-#define MEMP_NUM_NETCONN            4
-#endif
 
 #if MBED_CONF_LWIP_TCP_ENABLED
 #define LWIP_TCP                    1
 #define TCP_OVERSIZE                0
 #define LWIP_TCP_KEEPALIVE          1
-#ifdef MBED_CONF_TCP_CLOSE_TIMEOUT
-#define TCP_CLOSE_TIMEOUT            MBED_CONF_TCP_CLOSE_TIMEOUT
-#else
-#define TCP_CLOSE_TIMEOUT            1000
-#endif
+
+#define TCP_CLOSE_TIMEOUT            MBED_CONF_LWIP_TCP_CLOSE_TIMEOUT
+
 #else
 #define LWIP_TCP                    0
 #endif
