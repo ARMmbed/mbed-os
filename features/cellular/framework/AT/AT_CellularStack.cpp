@@ -98,6 +98,11 @@ const char *AT_CellularStack::get_ip_address()
     return (ipv4 || ipv6) ? _ip : NULL;
 }
 
+void AT_CellularStack::set_cid(int cid)
+{
+    _cid = cid;
+}
+
 nsapi_error_t AT_CellularStack::socket_stack_init()
 {
     return NSAPI_ERROR_OK;

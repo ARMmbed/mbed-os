@@ -216,6 +216,10 @@ public:
     {
     };
 
+    void set_cid(int cid)
+    {
+    };
+
     void do_connect_with_retry()
     {
     };
