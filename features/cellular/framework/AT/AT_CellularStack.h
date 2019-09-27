@@ -44,6 +44,14 @@ public:
 public: // NetworkStack
 
     virtual const char *get_ip_address();
+
+    /**
+     * Set PDP context ID for this stack
+     *
+     *  @param cid value from AT+CGDCONT, where -1 is undefined
+     */
+    void set_cid(int cid);
+
 protected: // NetworkStack
 
     /**
