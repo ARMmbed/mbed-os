@@ -8895,7 +8895,6 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "TRNG",
             "FLASH",
             "MPU"
         ],
