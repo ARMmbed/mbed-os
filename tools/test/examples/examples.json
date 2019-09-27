@@ -463,6 +463,22 @@
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-attestation/tests/attestation.log"],
         "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-pelion",
+        "github": "https://github.com/ARMmbed/mbed-os-example-pelion",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": false,
+        "test" : false,
+        "baud_rate": 9600,
+        "compare_log": [],
+        "auto-update" : true
     }
   ]
 }
