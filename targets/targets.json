@@ -1794,8 +1794,7 @@
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC",
-            "PSA"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBED_SPLIT_HEAP", "MBED_TICKLESS"],
@@ -2859,8 +2858,7 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "STM_EMAC",
-            "PSA"
+            "STM_EMAC"
         ],
         "components_add": ["FLASHIAP"],
         "macros_add": [
@@ -4782,7 +4780,6 @@
         "release_versions": ["5"],
         "macros_add": ["MBED_TICKLESS"],
         "device_has_remove": [],
-        "extra_labels_add": ["PSA"],
         "components_add": ["SD", "FLASHIAP"],
         "config": {
             "stdio_uart_tx_help": {
