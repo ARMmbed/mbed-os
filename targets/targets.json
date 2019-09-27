@@ -8609,7 +8609,7 @@
     "ARM_FM": {
         "inherits": ["Target"],
         "public": false,
-        "extra_labels": ["ARM_FM"]
+        "extra_labels": ["ARM_FM","PSA"]
     },
     "FVP_MPS2": {
         "inherits": ["ARM_FM"],
@@ -8633,6 +8633,7 @@
             "SPI",
             "SPISLAVE",
             "TSC",
+            "TRNG",
             "USTICKER"
         ],
         "release_versions": ["5"],
