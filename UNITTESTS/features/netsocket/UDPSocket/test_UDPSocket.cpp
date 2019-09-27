@@ -74,6 +74,9 @@ TEST_F(TestUDPSocket, sendto_addr_port)
 
     stack.return_value = NSAPI_ERROR_OK;
     EXPECT_EQ(socket->sendto("127.0.0.1", 0, 0, 0), 0);
+
+    EXPECT_EQ(socket->setsockopt(NSAPI_SOCKET,NSAPI_BIND_TO_DEVICE,"12324",5), NSAPI_ERROR_UNSUPPORTED);
+    EXPECT_EQ(socket->sendto("127.0.0.1", 0, 0, 0), 0);
 }
 
 TEST_F(TestUDPSocket, connect)
