@@ -271,6 +271,9 @@ public:
 
     /**
      * Direct scanf on underlying stream
+     * This function does not itself match whitespace in its format string, so \n is not significant to it.
+     * It should be used only when certain string is needed or format ends with certain character, otherwise
+     * it will fill the output with one character.
      * @see scanf
      *
      * @param format Format string to pass to scanf
