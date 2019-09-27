@@ -162,5 +162,9 @@ TEST_F(TestSocketAddress, bool_operator_ip6_true)
     EXPECT_TRUE(addr ? true : false);
 }
 
-
+TEST_F(TestSocketAddress, bool_operator_ip6_false)
+{
+    SocketAddress addr("0:0:0:0:0:0:0:0",80);
+    EXPECT_FALSE(addr ? true : false);
+}
 
