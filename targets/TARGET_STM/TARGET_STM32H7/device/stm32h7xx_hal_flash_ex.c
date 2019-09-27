@@ -462,7 +462,8 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
       FLASH_OB_BootAddConfig(pOBInit->BootConfig, pOBInit->BootAddr0, pOBInit->BootAddr1);
     }
 #endif /*DUAL_CORE*/
-    /*Bank1 secure area  configuration*/
+
+    /*Bank1 secure area configuration*/
     if((pOBInit->OptionType & OPTIONBYTE_SECURE_AREA) == OPTIONBYTE_SECURE_AREA)
     {
       FLASH_OB_SecureAreaConfig(pOBInit->SecureAreaConfig, pOBInit->SecureAreaStartAddr, pOBInit->SecureAreaEndAddr,pOBInit->Banks);
