@@ -21,6 +21,7 @@ UNIT TEST BUILD & RUN
 import os
 import logging
 import sys
+import psutil
 from shutil import copy
 
 from .utils import execute_program
@@ -105,6 +106,11 @@ class UnitTestTool(object):
         """
 
         args = [self.make_program]
+
+        # Speed up compilation by running on more than one core
+        count = psutil.cpu_count()
+        args.append("-j{}".format(count+1))
+        args.append("-l{}".format(count))
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             args.append("VERBOSE=1")
