@@ -1039,7 +1039,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   uint32_t USBx_BASE = (uint32_t)USBx;
-  uint32_t i, ep_intr, epint, epnum = 0U;
+  uint32_t i, ep_intr, epint, epnum;
   uint32_t fifoemptymsk, temp;
   USB_OTG_EPTypeDef *ep;
 
@@ -1360,6 +1360,10 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
     /* Handle Incomplete ISO IN Interrupt */
     if (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_IISOIXFR))
     {
+      /* Keep application checking the corresponding Iso IN endpoint
+      causing the incomplete Interrupt */
+      epnum = 0U;
+
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
       hpcd->ISOINIncompleteCallback(hpcd, (uint8_t)epnum);
 #else
@@ -1372,6 +1376,10 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
     /* Handle Incomplete ISO OUT Interrupt */
     if (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_PXFR_INCOMPISOOUT))
     {
+      /* Keep application checking the corresponding Iso OUT endpoint
+      causing the incomplete Interrupt */
+      epnum = 0U;
+
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
       hpcd->ISOOUTIncompleteCallback(hpcd, (uint8_t)epnum);
 #else

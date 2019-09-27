@@ -130,7 +130,7 @@ typedef struct
   uint32_t SecureAreaStartAddr; /*!< Bank Secure area Start address.
                                      This parameter must be a value between begin address and end address of bank1 */
 
-  uint32_t SecureAreaEndAddr;   /*!< Bank Secure area End address .
+  uint32_t SecureAreaEndAddr;   /*!< Bank Secure area End address.
                                      This parameter must be a value between Secure Area Start address and end address of a bank1 */
 
 } FLASH_OBProgramInitTypeDef;
@@ -514,7 +514,7 @@ typedef struct
 #define OB_USER_SECURITY          0x0040U /*!< security selection */
 #define OB_USER_IOHSLV            0x0080U /*!< IO HSLV selection */
 #define OB_USER_SWAP_BANK         0x0100U /*!< Bank swap selection */
-#if defined(DUAL_CORE)
+#if defined (DUAL_CORE)
 #define OB_USER_IWDG2_SW          0x0200U /*!< Window watchdog selection */
 #define OB_USER_BCM4              0x0400U /*!< CM4 boot selection */
 #define OB_USER_BCM7              0x0800U /*!< CM7 boot selection */
@@ -715,16 +715,7 @@ HAL_StatusTypeDef HAL_FLASHEx_ComputeCRC(FLASH_CRCInitTypeDef *pCRCInit, uint32_
                                    ((LATENCY) == FLASH_LATENCY_14) || \
                                    ((LATENCY) == FLASH_LATENCY_15))
 
-#define IS_FLASH_ADDRESS(ADDRESS) ((((ADDRESS) >= FLASH_BASE) && ((ADDRESS) <= FLASH_END)) || \
-                                   (((ADDRESS) >= FLASH_OTP_BANK1_BASE) && ((ADDRESS) <= FLASH_OTP_BANK1_END)) || \
-                                   (((ADDRESS) >= FLASH_OTP_BANK2_BASE) && ((ADDRESS) <= FLASH_OTP_BANK2_END)))
-
-#define IS_FLASH_NBSECTORS(NBSECTORS) (((NBSECTORS) != 0U) && ((NBSECTORS) <= FLASH_SECTOR_TOTAL))
-
-#define IS_FLASH_SECTOR(SECTOR) (((SECTOR) == FLASH_SECTOR_0)   || ((SECTOR) == FLASH_SECTOR_1)   ||\
-                                 ((SECTOR) == FLASH_SECTOR_2)   || ((SECTOR) == FLASH_SECTOR_3)   ||\
-                                 ((SECTOR) == FLASH_SECTOR_4)   || ((SECTOR) == FLASH_SECTOR_5)   ||\
-                                 ((SECTOR) == FLASH_SECTOR_6)   || ((SECTOR) == FLASH_SECTOR_7))
+#define IS_FLASH_SECTOR(SECTOR) ((SECTOR) < FLASH_SECTOR_TOTAL)
 
 #define IS_OB_WRP_SECTOR(SECTOR)  ((((SECTOR) & 0xFFFFFF00U) == 0x00000000U) && ((SECTOR) != 0x00000000U))
 

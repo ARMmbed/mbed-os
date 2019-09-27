@@ -69,23 +69,23 @@ extern const uint8_t LL_RCC_PrescTable[16];
 #define D2CCIP2   0x8UL
 #define D3CCIP    0xCUL
 
-#define REG_SHIFT     0U
-#define POS_SHIFT     8U
-#define CONFIG_SHIFT  16U
-#define MASK_SHIFT    24U
+#define LL_RCC_REG_SHIFT     0U
+#define LL_RCC_POS_SHIFT     8U
+#define LL_RCC_CONFIG_SHIFT  16U
+#define LL_RCC_MASK_SHIFT    24U
 
-#define LL_CLKSOURCE_SHIFT(__CLKSOURCE__)   (((__CLKSOURCE__) >> POS_SHIFT   ) & 0x1FUL)
+#define LL_CLKSOURCE_SHIFT(__CLKSOURCE__)   (((__CLKSOURCE__) >> LL_RCC_POS_SHIFT   ) & 0x1FUL)
 
-#define LL_CLKSOURCE_MASK(__CLKSOURCE__)   ((((__CLKSOURCE__) >> MASK_SHIFT  ) & 0xFFUL) << LL_CLKSOURCE_SHIFT(__CLKSOURCE__))
+#define LL_CLKSOURCE_MASK(__CLKSOURCE__)   ((((__CLKSOURCE__) >> LL_RCC_MASK_SHIFT  ) & 0xFFUL) << LL_CLKSOURCE_SHIFT(__CLKSOURCE__))
 
-#define LL_CLKSOURCE_CONFIG(__CLKSOURCE__) ((((__CLKSOURCE__) >> CONFIG_SHIFT) & 0xFFUL) << LL_CLKSOURCE_SHIFT(__CLKSOURCE__))
+#define LL_CLKSOURCE_CONFIG(__CLKSOURCE__) ((((__CLKSOURCE__) >> LL_RCC_CONFIG_SHIFT) & 0xFFUL) << LL_CLKSOURCE_SHIFT(__CLKSOURCE__))
 
-#define LL_CLKSOURCE_REG(__CLKSOURCE__)     (((__CLKSOURCE__) >> REG_SHIFT   ) & 0xFFUL)
+#define LL_CLKSOURCE_REG(__CLKSOURCE__)     (((__CLKSOURCE__) >> LL_RCC_REG_SHIFT   ) & 0xFFUL)
 
-#define LL_CLKSOURCE(__REG__, __MSK__, __POS__, __CLK__) ((uint32_t)((((__MSK__) >> (__POS__)) << MASK_SHIFT) | \
-                                                                     (( __POS__              ) << POS_SHIFT)  | \
-                                                                     (( __REG__              ) << REG_SHIFT)  | \
-                                                                     (((__CLK__) >> (__POS__)) << CONFIG_SHIFT)))
+#define LL_CLKSOURCE(__REG__, __MSK__, __POS__, __CLK__) ((uint32_t)((((__MSK__) >> (__POS__)) << LL_RCC_MASK_SHIFT) | \
+                                                                     (( __POS__              ) << LL_RCC_POS_SHIFT)  | \
+                                                                     (( __REG__              ) << LL_RCC_REG_SHIFT)  | \
+                                                                     (((__CLK__) >> (__POS__)) << LL_RCC_CONFIG_SHIFT)))
 
 #if defined(USE_FULL_LL_DRIVER)
 /** @defgroup RCC_LL_Private_Macros RCC Private Macros
@@ -2642,7 +2642,7 @@ __STATIC_INLINE uint32_t LL_RCC_GetClockSource(uint32_t Periph)
 {
   register const uint32_t *pReg = (uint32_t *)((uint32_t)((uint32_t)(&RCC->D1CCIPR) + LL_CLKSOURCE_REG(Periph)));
 
-  return (uint32_t) (Periph | (((READ_BIT(*pReg, LL_CLKSOURCE_MASK(Periph))) >> LL_CLKSOURCE_SHIFT(Periph)) << CONFIG_SHIFT) );
+  return (uint32_t) (Periph | (((READ_BIT(*pReg, LL_CLKSOURCE_MASK(Periph))) >> LL_CLKSOURCE_SHIFT(Periph)) << LL_RCC_CONFIG_SHIFT) );
 }
 
 /**

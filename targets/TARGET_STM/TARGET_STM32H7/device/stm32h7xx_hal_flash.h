@@ -91,7 +91,7 @@ typedef struct
   * @brief    FLASH Error Code
   * @{
   */
-#define HAL_FLASH_ERROR_NONE         0x00000000U  /*!< No error                              */
+#define HAL_FLASH_ERROR_NONE         0x00000000U         /*!< No error                       */
 
 #define HAL_FLASH_ERROR_WRP          FLASH_FLAG_WRPERR   /*!< Write Protection Error         */
 #define HAL_FLASH_ERROR_PGS          FLASH_FLAG_PGSERR   /*!< Program Sequence Error         */
@@ -134,7 +134,7 @@ typedef struct
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */
-#define FLASH_TYPEPROGRAM_FLASHWORD  0x03U        /*!< Program a flash word (256-bit) at a specified address */
+#define FLASH_TYPEPROGRAM_FLASHWORD  0x01U        /*!< Program a flash word (256-bit) at a specified address */
 /**
   * @}
   */

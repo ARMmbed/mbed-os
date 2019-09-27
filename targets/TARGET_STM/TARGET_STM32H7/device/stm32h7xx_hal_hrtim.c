@@ -274,6 +274,7 @@
      Use Functions HAL_HRTIM_RegisterCallback() or HAL_HRTIM_TIMxRegisterCallback()
      to register an interrupt callback.
 
+     [..]
      Function HAL_HRTIM_RegisterCallback() allows to register following callbacks:
        (+) Fault1Callback               : Fault 1 interrupt callback function
        (+) Fault2Callback               : Fault 2 interrupt callback function
@@ -287,6 +288,7 @@
        (+) MspInitCallback              : HRTIM MspInit callback function
        (+) MspDeInitCallback            : HRTIM MspInit callback function
 
+     [..]
      Function HAL_HRTIM_TIMxRegisterCallback() allows to register following callbacks:
        (+) RegistersUpdateCallback   : Timer x Update interrupt callback function
        (+) RepetitionEventCallback   : Timer x Repetition interrupt callback function
@@ -304,13 +306,16 @@
        (+) Output2ResetCallback      : Timer x output 2 reset interrupt callback function
        (+) BurstDMATransferCallback  : Timer x Burst DMA completed interrupt callback function
 
+     [..]
      Both functions take as parameters the HAL peripheral handle, the Callback ID
      and a pointer to the user callback function.
 
+     [..]
      Use function HAL_HRTIM_UnRegisterCallback or HAL_HRTIM_TIMxUnRegisterCallback
      to reset a callback to the default weak function. Both functions take  as parameters
      the HAL peripheral handle and the Callback ID.
 
+     [..]
      By default, after the HAL_HRTIM_Init() and when the state is HAL_HRTIM_STATE_RESET
      all callbacks are set to the corresponding weak functions (e.g HAL_HRTIM_Fault1Callback)
      Exception done for MspInit and MspDeInit functions that are reset to the legacy
@@ -319,14 +324,16 @@
      not null, the HAL_HRTIM_Init()/ HAL_HRTIM_DeInit() keep and use the user
      MspInit/MspDeInit callbacks (registered beforehand) whatever the state.
 
+     [..]
      Callbacks can be registered/unregistered in HAL_HRTIM_STATE_READY state only.
      Exception done MspInit/MspDeInit functions that can be registered/unregistered
      in HAL_HRTIM_STATE_READY or HAL_HRTIM_STATE_RESET states, thus registered
      (user) MspInit/DeInit callbacks can be used during the Init/DeInit.
      Then, the user first registers the MspInit/MspDeInit user callbacks
      using HAL_HRTIM_RegisterCallback() before calling HAL_HRTIM_DeInit()
-     or @ref HAL_HRTIM_Init() function.
+     or HAL_HRTIM_Init() function.
 
+     [..]
      When the compilation flag USE_HAL_HRTIM_REGISTER_CALLBACKS is set to 0 or
      not defined, the callback registration feature is not available and all
      callbacks are set to the corresponding weak functions.
@@ -1198,7 +1205,7 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCChannelConfig(HRTIM_HandleTypeDef * hhrtim,
                                                  HRTIM_SimpleOCChannelCfgTypeDef* pSimpleOCChannelCfg)
 {
   uint32_t CompareUnit = (uint32_t)RESET;
-  HRTIM_OutputCfgTypeDef OutputCfg = {0};
+  HRTIM_OutputCfgTypeDef OutputCfg;
 
   /* Check parameters */
   assert_param(IS_HRTIM_TIMER_OUTPUT(TimerIdx, OCChannel));
@@ -4655,8 +4662,13 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCompareConfig(HRTIM_HandleTypeDef * hhrtim,
           }
           else
           {
-    /* nothing to do */
+            /* nothing to do */
           }
+        }
+        else
+        {
+          /* Clear HRTIM_TIMxCR.DELCMP2 bitfield */
+          MODIFY_REG(hhrtim->Instance->sTimerxRegs[TimerIdx].TIMxCR, HRTIM_TIMCR_DELCMP2, 0U);
         }
          break;
       }
@@ -4695,8 +4707,13 @@ HAL_StatusTypeDef HAL_HRTIM_WaveformCompareConfig(HRTIM_HandleTypeDef * hhrtim,
           }
           else
           {
-    /* nothing to do */
+            /* nothing to do */
           }
+        }
+        else
+        {
+          /* Clear HRTIM_TIMxCR.DELCMP4 bitfield */
+          MODIFY_REG(hhrtim->Instance->sTimerxRegs[TimerIdx].TIMxCR, HRTIM_TIMCR_DELCMP4, 0U);
         }
          break;
       }
@@ -6415,7 +6432,7 @@ uint32_t HAL_HRTIM_GetIdlePushPullStatus(HRTIM_HandleTypeDef * hhrtim,
   * @brief  This function handles HRTIM interrupt request.
   * @param  hhrtim pointer to HAL HRTIM handle
   * @param  TimerIdx Timer index
-  *                   This parameter can be any value of @ref HRTIM_Timer_Index
+  *                   This parameter can be any value of HRTIM_Timer_Index
   * @retval None
   */
 void HAL_HRTIM_IRQHandler(HRTIM_HandleTypeDef * hhrtim,
@@ -7452,7 +7469,7 @@ HAL_StatusTypeDef HAL_HRTIM_TIMxUnRegisterCallback(HRTIM_HandleTypeDef * hhrtim,
   * @}
   */
 
-/** @addtogroup HRTIM_Private_Functions HRTIM Private Functions
+/** @addtogroup HRTIM_Private_Functions
   * @{
   */
 
