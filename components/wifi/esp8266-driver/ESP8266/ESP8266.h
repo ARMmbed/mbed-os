@@ -405,6 +405,14 @@ public:
     static const int8_t WIFIMODE_STATION_SOFTAP = 3;
     static const int8_t SOCKET_COUNT = 5;
 
+    /**
+     * Enables or disables uart input and deep sleep
+     *
+     * @param lock if TRUE, uart input is enabled and  deep sleep is locked
+     * if FALSE, uart input is disabled and  deep sleep is unlocked
+     */
+    int uart_enable_input(bool lock);
+
 private:
     // FW version
     struct fw_sdk_version _sdk_v;

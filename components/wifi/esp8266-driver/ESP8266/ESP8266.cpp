@@ -1275,4 +1275,9 @@ bool ESP8266::set_country_code_policy(bool track_ap, const char *country_code, i
     return done;
 }
 
+int ESP8266::uart_enable_input(bool enabled)
+{
+    return _serial.enable_input(enabled);
+}
+
 #endif
