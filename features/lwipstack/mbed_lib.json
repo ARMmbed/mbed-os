@@ -77,9 +77,25 @@
             "help": "Number of simultaneously queued TCP segments. Current default (used if null here) is set to 16 in opt.h, unless overridden by target Ethernet drivers.",
             "value": null
         },
+        "memp-num-tcpip-msg-inpkt": {
+            "help": "Number of simultaneously queued TCP messages that are received",
+            "value": 8
+        },
         "tcp-mss": {
             "help": "TCP Maximum segment size. Current default (used if null here) is set to 536 in opt.h, unless overridden by target Ethernet drivers.",
             "value": null
+        },
+        "tcpip-mbox-size": {
+            "help": "TCPIP mailbox size",
+            "value": 8
+        },
+        "default-tcp-recvmbox-size": {
+            "help": "Default TCPIP receive mailbox size",
+            "value": 8
+        },
+        "mbox-size": {
+            "help": "mailbox size",
+            "value": 8
         },
         "tcp-snd-buf": {
             "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (2 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
