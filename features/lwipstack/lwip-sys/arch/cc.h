@@ -48,8 +48,10 @@ extern "C" {
 #define BYTE_ORDER LITTLE_ENDIAN
 #endif
 
+#ifndef LWIP_PROVIDE_ERRNO
 /* Use LWIP error codes */
 #define LWIP_PROVIDE_ERRNO
+#endif
 
 #if defined(__arm__) && defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050)
     /* Keil uVision4 tools */
