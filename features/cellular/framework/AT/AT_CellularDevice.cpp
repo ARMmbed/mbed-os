@@ -203,7 +203,9 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     _at->flush();
     nsapi_error_t error = _at->at_cmd_str("+CPIN", "?", simstr, sizeof(simstr));
     ssize_t len = strlen(simstr);
+#if MBED_CONF_MBED_TRACE_ENABLE
     device_err_t err = _at->get_last_device_error();
+#endif
     _at->unlock();
 
     if (len != -1) {
