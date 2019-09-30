@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 #include "ATHandler.h"
 #include "mbed_poll.h"
 #include "FileHandle.h"
@@ -748,8 +749,7 @@ int32_t ATHandler::read_int()
     }
 
     errno = 0;
-    char *endptr;
-    long result = std::strtol(buff, &endptr, 10);
+    long result = std::strtol(buff, NULL, 10);
     if ((result == LONG_MIN || result == LONG_MAX) && errno == ERANGE) {
         return -1; // overflow/underflow
     }
