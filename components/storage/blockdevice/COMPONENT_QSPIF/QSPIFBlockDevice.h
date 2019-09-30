@@ -29,9 +29,10 @@ enum qspif_bd_error {
     QSPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
     QSPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for  Mem Ready failed */
     QSPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
-    QSPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4005, /* Erase command not on sector aligned addresses or exceeds device size */
-    QSPIF_BD_ERROR_DEVICE_NOT_UNIQE      = -4006, /* Only one instance per csel is allowed */
-    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4007 /* Max active QSPIF devices exceeded */
+    QSPIF_BD_ERROR_CONF_FORMAT_FAILED    = -4005, /* Configure format failed */
+    QSPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4006, /* Erase command not on sector aligned addresses or exceeds device size */
+    QSPIF_BD_ERROR_DEVICE_NOT_UNIQE      = -4007, /* Only one instance per csel is allowed */
+    QSPIF_BD_ERROR_DEVICE_MAX_EXCEED     = -4008 /* Max active QSPIF devices exceeded */
 };
 
 /** Enum qspif polarity mode
