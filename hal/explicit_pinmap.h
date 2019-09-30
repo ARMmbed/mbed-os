@@ -52,6 +52,15 @@ MSTD_CONSTEXPR_FN_14 PinMap get_analogin_pinmap(const PinName pin)
             return {pin, pinmap.peripheral, pinmap.function};
         }
     }
+
+#if PINMAP_ANALOGIN_INTERNAL
+    for (const PinMap &pinmap : PINMAP_ANALOGIN_INTERNAL) {
+        if (pinmap.pin == pin) {
+            return {pin, pinmap.peripheral, pinmap.function};
+        }
+    }
+#endif
+
     return {NC, (int) NC, (int) NC};
 }
 #endif // DEVICE_ANALOGIN
