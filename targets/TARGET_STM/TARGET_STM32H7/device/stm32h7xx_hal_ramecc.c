@@ -134,7 +134,7 @@ HAL_StatusTypeDef HAL_RAMECC_Init(RAMECC_HandleTypeDef *hramecc)
   hramecc->Instance->CR &= ~RAMECC_CR_ECCELEN;
 
   /* Disable all global interrupts */
-  ((RAMECC_TypeDef *)((uint32_t)&hramecc->Instance & 0xFFFFFF00U))->IER &= \
+  ((RAMECC_TypeDef *)((uint32_t)hramecc->Instance & 0xFFFFFF00U))->IER &= \
     ~(RAMECC_IER_GIE | RAMECC_IER_GECCSEIE | RAMECC_IER_GECCDEIE | RAMECC_IER_GECCDEBWIE);
 
   /* Disable all interrupts monitor  */
@@ -175,7 +175,7 @@ HAL_StatusTypeDef HAL_RAMECC_DeInit(RAMECC_HandleTypeDef *hramecc)
   hramecc->Instance->CR &= ~RAMECC_CR_ECCELEN;
 
   /* Disable all global interrupts */
-  ((RAMECC_TypeDef *)((uint32_t)&hramecc->Instance & 0xFFFFFF00U))->IER &= \
+  ((RAMECC_TypeDef *)((uint32_t)hramecc->Instance & 0xFFFFFF00U))->IER &= \
     ~(RAMECC_IER_GIE | RAMECC_IER_GECCSEIE | RAMECC_IER_GECCDEIE | RAMECC_IER_GECCDEBWIE);
 
   /* Disable all interrupts monitor  */
