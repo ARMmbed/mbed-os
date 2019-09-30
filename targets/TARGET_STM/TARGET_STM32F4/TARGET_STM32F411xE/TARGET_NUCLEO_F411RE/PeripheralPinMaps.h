@@ -237,6 +237,7 @@ MSTD_CONSTEXPR_OBJ_11 const PinMap PinMap_SPI_SSEL[] = {
 
 
 #define PINMAP_ANALOGIN PinMap_ADC
+#define PINMAP_ANALOGIN_INTERNAL PinMap_ADC_Internal
 #define PINMAP_I2C_SDA PinMap_I2C_SDA
 #define PINMAP_I2C_SCL PinMap_I2C_SCL
 #define PINMAP_UART_TX PinMap_UART_TX
