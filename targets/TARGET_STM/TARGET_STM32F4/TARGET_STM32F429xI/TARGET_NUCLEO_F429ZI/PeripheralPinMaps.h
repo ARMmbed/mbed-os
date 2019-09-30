@@ -400,6 +400,7 @@ MSTD_CONSTEXPR_OBJ_11 const PinMap PinMap_USB_HS[] = {
 };
 
 #define PINMAP_ANALOGIN PinMap_ADC
+#define PINMAP_ANALOGIN_INTERNAL PinMap_ADC_Internal
 #define PINMAP_ANALOGOUT PinMap_DAC
 #define PINMAP_I2C_SDA PinMap_I2C_SDA
 #define PINMAP_I2C_SCL PinMap_I2C_SCL
