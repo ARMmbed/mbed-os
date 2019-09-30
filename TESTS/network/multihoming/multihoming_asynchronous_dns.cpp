@@ -51,7 +51,7 @@ void MULTIHOMING_ASYNCHRONOUS_DNS()
     dns_application_data data;
     data.semaphore = &semaphore;
 
-
+    nsapi_dns_reset();
 
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
 

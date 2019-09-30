@@ -155,6 +155,7 @@ NetworkInterface *get_interface()
 
 static void net_bringup()
 {
+    nsapi_dns_reset();
     MBED_ASSERT(MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_NSAPI_DNS_CACHE_SIZE && MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_APP_DNS_SIMULT_QUERIES + 1);
 
     net = NetworkInterface::get_default_instance();

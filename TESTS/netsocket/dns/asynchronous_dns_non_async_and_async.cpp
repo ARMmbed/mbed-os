@@ -29,6 +29,8 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     dns_application_data data;
     data.semaphore = &semaphore;
 
+    nsapi_dns_reset();
+
     // Initiate
     nsapi_error_t err = get_interface()->gethostbyname_async(dns_test_hosts_second[0],
                                                              mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data));

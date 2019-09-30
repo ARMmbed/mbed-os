@@ -34,6 +34,7 @@ static void test_dns_query_ticker(void)
 
 void SYNCHRONOUS_DNS_CACHE()
 {
+    nsapi_dns_reset();
     Ticker ticker;
     ticker.attach_us(&test_dns_query_ticker, 100);
 
