@@ -21,8 +21,6 @@
 #include "utest.h"
 #include "dns_tests.h"
 
-#include "nsapi_dns.h"
-
 using namespace utest::v1;
 
 namespace {

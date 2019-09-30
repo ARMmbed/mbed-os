@@ -16,6 +16,7 @@
  */
 
 #include "mbed.h"
+#include "nsapi_dns.h"
 
 #ifndef MULTIHOMING_TESTS_H
 #define MULTIHOMING_TESTS_H
