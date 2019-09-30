@@ -32,19 +32,25 @@ extern void ADC_ClockPower_Configuration(void);
 #define MAX_FADC 6000000
 #define MAX_ADC_CLOCK 80000000
 
-void analogin_init(analogin_t *obj, PinName pin)
+#if EXPLICIT_PINMAP_READY
+#define ANALOGIN_INIT_DIRECT analogin_init_direct
+void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#else
+#define ANALOGIN_INIT_DIRECT _analogin_init_direct
+static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#endif
 {
     uint32_t clkval;
     uint32_t clkdiv = 1;
 
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    obj->adc = (ADCName)pinmap->peripheral;
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     adc_config_t adc_config;
     uint32_t reg;
-    uint32_t pin_number = pin & 0x1F;
-    uint8_t port_number = pin / 32;
+    uint32_t pin_number = pinmap->pin & 0x1F;
+    uint8_t port_number = pinmap->pin / 32;
 
     ADC_ClockPower_Configuration();
 
@@ -64,11 +70,22 @@ void analogin_init(analogin_t *obj, PinName pin)
     adc_config.clockDividerNumber = (clkdiv - 1);
 
     ADC_Init(adc_addrs[instance], &adc_config);
-    pinmap_pinout(pin, PinMap_ADC);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
 
     /* Clear the DIGIMODE & MODE bits */
     reg = IOCON->PIO[port_number][pin_number] & ~(IOCON_PIO_DIGIMODE_MASK | IOCON_PIO_MODE_MASK);
     IOCON->PIO[port_number][pin_number] = reg;
+}
+
+void analogin_init(analogin_t *obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
+    int function = (int)pinmap_find_function(pin, PinMap_ADC);
+
+    const PinMap explicit_pinmap = {pin, peripheral, function};
+
+    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
