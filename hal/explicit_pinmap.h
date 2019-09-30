@@ -32,7 +32,7 @@
 #include "PeripheralPinMaps.h"
 
 
-#if DEVICE_PWMOUT
+#if defined(DEVICE_PWMOUT) && defined(PINMAP_PWM)
 MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
 {
     for (const PinMap &pinmap : PINMAP_PWM) {
@@ -44,7 +44,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_pwm_pinmap(const PinName pin)
 }
 #endif // DEVICE_PWMOUT
 
-#if DEVICE_ANALOGIN
+#if defined(DEVICE_ANALOGIN) && defined(PINMAP_ANALOGIN)
 MSTD_CONSTEXPR_FN_14 PinMap get_analogin_pinmap(const PinName pin)
 {
     for (const PinMap &pinmap : PINMAP_ANALOGIN) {
@@ -56,7 +56,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_analogin_pinmap(const PinName pin)
 }
 #endif // DEVICE_ANALOGIN
 
-#if DEVICE_ANALOGOUT
+#if defined(DEVICE_ANALOGOUT) && defined(PINMAP_ANALOGOUT)
 MSTD_CONSTEXPR_FN_14 PinMap get_analogout_pinmap(const PinName pin)
 {
     for (const PinMap &pinmap : PINMAP_ANALOGOUT) {
@@ -68,7 +68,7 @@ MSTD_CONSTEXPR_FN_14 PinMap get_analogout_pinmap(const PinName pin)
 }
 #endif // DEVICE_ANALOGOUT
 
-#if DEVICE_I2C
+#if defined(DEVICE_I2C) && defined(PINMAP_I2C_SDA) && defined(PINMAP_I2C_SCL)
 MSTD_CONSTEXPR_FN_14 i2c_pinmap_t get_i2c_pinmap(const PinName sda, const PinName scl)
 {
     const PinMap *sda_map = nullptr;
@@ -95,7 +95,7 @@ MSTD_CONSTEXPR_FN_14 i2c_pinmap_t get_i2c_pinmap(const PinName sda, const PinNam
 }
 #endif //DEVICE_I2C
 
-#if DEVICE_SERIAL
+#if defined(DEVICE_SERIAL) && defined(PINMAP_UART_TX) && defined(PINMAP_UART_RX)
 MSTD_CONSTEXPR_FN_14 serial_pinmap_t get_uart_pinmap(const PinName tx, const PinName rx)
 {
     const PinMap *tx_map = nullptr;
@@ -125,7 +125,7 @@ MSTD_CONSTEXPR_FN_14 serial_pinmap_t get_uart_pinmap(const PinName tx, const Pin
     }
 }
 
-#if DEVICE_SERIAL_FC
+#if defined(DEVICE_SERIAL_FC) && defined(PINMAP_UART_RTS) && defined(PINMAP_UART_CTS)
 MSTD_CONSTEXPR_FN_14 serial_fc_pinmap_t get_uart_fc_pinmap(const PinName rxflow, const PinName txflow)
 {
     const PinMap *rts_map = nullptr;
@@ -153,7 +153,7 @@ MSTD_CONSTEXPR_FN_14 serial_fc_pinmap_t get_uart_fc_pinmap(const PinName rxflow,
 #endif // DEVICE_SERIAL_FC
 #endif // DEVICE_SERIAL
 
-#if DEVICE_SPI
+#if defined(DEVICE_SPI) && defined(PINMAP_SPI_MOSI) && defined(PINMAP_SPI_MISO) && defined(PINMAP_SPI_SCLK) && defined(PINMAP_SPI_SSEL)
 MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinName miso, const PinName sclk, const PinName ssel)
 {
     const PinMap *mosi_map = nullptr;
@@ -198,7 +198,7 @@ MSTD_CONSTEXPR_FN_14 spi_pinmap_t get_spi_pinmap(const PinName mosi, const PinNa
 }
 #endif // DEVICE_SPI
 
-#if DEVICE_CAN
+#if defined(DEVICE_CAN) && defined(PINMAP_CAN_RD) && defined(PINMAP_CAN_TD)
 MSTD_CONSTEXPR_FN_14 can_pinmap_t get_can_pinmap(const PinName rd, const PinName td)
 {
     const PinMap *rd_map = nullptr;
@@ -225,7 +225,7 @@ MSTD_CONSTEXPR_FN_14 can_pinmap_t get_can_pinmap(const PinName rd, const PinName
 }
 #endif //DEVICE_CAN
 
-#if DEVICE_QSPI
+#if defined(DEVICE_QSPI) && defined(PINMAP_QSPI_DATA0) && defined(PINMAP_QSPI_DATA1) && defined(PINMAP_QSPI_DATA2) && defined(PINMAP_QSPI_DATA3) && defined(PINMAP_QSPI_SCLK) && defined(PINMAP_QSPI_SSEL)
 MSTD_CONSTEXPR_FN_14 qspi_pinmap_t get_qspi_pinmap(const PinName data0, const PinName data1, const PinName data2, const PinName data3, const PinName sclk, const PinName ssel)
 {
     const PinMap *data0_map = nullptr;
