@@ -1376,7 +1376,7 @@ def ep_test_abort(dev, log, verbose=False):
             payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_out.wMaxPacketSize
             num_bytes_written = 0
             while num_bytes_written < payload_size:
-                payload_out = array.array('B', (num_bytes_written/ep_out.wMaxPacketSize
+                payload_out = array.array('B', (num_bytes_written//ep_out.wMaxPacketSize
                                                 for _ in range(ep_out.wMaxPacketSize)))
                 try:
                     num_bytes_written += ep_out.write(payload_out)
