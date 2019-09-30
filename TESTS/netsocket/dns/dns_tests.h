@@ -71,7 +71,7 @@ namespace dns_global {
 #ifdef MBED_GREENTEA_TEST_DNSSOCKET_TIMEOUT_S
 static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_DNSSOCKET_TIMEOUT_S;
 #else
-static const int TESTS_TIMEOUT = 10 * 60;
+static const int TESTS_TIMEOUT = 14 * 60;
 #endif
 }
 
