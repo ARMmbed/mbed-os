@@ -287,18 +287,6 @@ void LL_mDelay(uint32_t Delay)
   @endinternal
   * @{
   */
-#if defined (DUAL_CORE)
-/**
-  * @brief  This function sets directly SystemCoreClock CMSIS variable.
-  * @note   Variable can be calculated also through SystemCoreClockUpdate function.
-  * @param  CPU_Frequency Core frequency in Hz
-  * @note   CPU_Frequency can be calculated thanks to RCC helper macro or function
-  *         @ref LL_RCC_GetSystemClocksFreq
-  *         LL_RCC_GetSystemClocksFreq() is used to calculate the CM7 clock frequency
-  *         and __LL_RCC_CALC_HCLK_FREQ is used to caluclate the CM4 clock frequency.
-  * @retval None
-  */
-#else
 /**
   * @brief  This function sets directly SystemCoreClock CMSIS variable.
   * @note   Variable can be calculated also through SystemCoreClockUpdate function.
@@ -307,7 +295,6 @@ void LL_mDelay(uint32_t Delay)
   *         @ref LL_RCC_GetSystemClocksFreq
   * @retval None
   */
-#endif /* DUAL_CORE */
 void LL_SetSystemCoreClock(uint32_t CPU_Frequency)
 {
   /* HCLK clock frequency */
