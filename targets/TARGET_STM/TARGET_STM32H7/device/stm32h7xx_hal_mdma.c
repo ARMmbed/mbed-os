@@ -1512,7 +1512,7 @@ HAL_StatusTypeDef HAL_MDMA_GenerateSWRequest(MDMA_HandleTypeDef *hmdma)
 void HAL_MDMA_IRQHandler(MDMA_HandleTypeDef *hmdma)
 {
   __IO uint32_t count = 0;
-  uint32_t timeout = SystemCoreClock / 9600U;
+  uint32_t timeout = SystemD1Clock / 9600U;
   
   uint32_t generalIntFlag, errorFlag;
   
