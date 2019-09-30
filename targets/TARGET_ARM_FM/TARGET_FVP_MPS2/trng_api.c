@@ -44,7 +44,6 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
-    (void)output;
 
     for (int i = 0; i < length; ++i) {
         output[i] = rand() % 256;
@@ -52,5 +51,4 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     *output_length = length;
 
     return 0;
-
 }
