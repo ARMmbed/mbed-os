@@ -144,7 +144,7 @@ void test_reset_reason()
 
 int main()
 {
-    GREENTEA_SETUP(60, "reset_reason");
+    GREENTEA_SETUP(90, "reset_reason");
     test_reset_reason(); // The result of this test suite is reported by the host side.
     GREENTEA_TESTSUITE_RESULT(0); // Fail on any error.
 }
