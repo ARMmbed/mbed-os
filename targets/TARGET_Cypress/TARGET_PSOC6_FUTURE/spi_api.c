@@ -160,7 +160,7 @@ static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
     // Delay (in us) required for serialized read operation == 1.5 clocks, min 1us.
     obj->clk_delay = (1500000UL - 1 + obj->clk_frequency) / obj->clk_frequency;
     Cy_SysClk_PeriphDisableDivider(obj->div_type, obj->div_num);
-    if (Cy_SysClk_PeriphSetDivider(obj->div_type, obj->div_num, div_value) != CY_SYSCLK_SUCCESS) {
+    if (Cy_SysClk_PeriphSetDivider(obj->div_type, obj->div_num, div_value - 1) != CY_SYSCLK_SUCCESS) {
         obj->div_num = CY_INVALID_DIVIDER;
     }
     Cy_SysClk_PeriphEnableDivider(obj->div_type, obj->div_num);
@@ -189,13 +189,23 @@ static void spi_set_pins(spi_obj_t *obj)
     if (obj->pin_ssel != NC) {
         pin_function(obj->pin_ssel, pinmap_function(obj->pin_ssel, PinMap_SPI_SSEL));
     }
-    pin_function(obj->pin_sclk, pinmap_function(obj->pin_sclk, PinMap_SPI_SCLK));
+    if (obj->pin_sclk != NC) {
+        pin_function(obj->pin_sclk, pinmap_function(obj->pin_sclk, PinMap_SPI_SCLK));
+    }
     // Pin configuration in PinMap defaults to Master mode; revert for Slave.
     if (obj->ms_mode == CY_SCB_SPI_SLAVE) {
-        pin_mode(obj->pin_sclk, PullNone);
-        pin_mode(obj->pin_mosi, PullNone);
-        pin_mode(obj->pin_miso, PushPull);
-        pin_mode(obj->pin_ssel, PullNone);
+        if (obj->pin_sclk != NC) {
+            pin_mode(obj->pin_sclk, PullNone);
+        }
+        if (obj->pin_mosi != NC) {
+            pin_mode(obj->pin_mosi, PullNone);
+        }
+        if (obj->pin_miso != NC) {
+            pin_mode(obj->pin_miso, PushPull);
+        }
+        if (obj->pin_ssel != NC) {
+            pin_mode(obj->pin_ssel, PullNone);
+        }
     }
 }
 
@@ -206,7 +216,9 @@ static void spi_default_pins(spi_obj_t *obj)
 {
 
     if (obj->ms_mode == CY_SCB_SPI_MASTER) {
-        pin_function(obj->pin_sclk, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_OUTPUT));
+        if (obj->pin_sclk != NC) {
+            pin_function(obj->pin_sclk, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_OUTPUT));
+        }
         if (obj->pin_mosi != NC) {
             pin_function(obj->pin_mosi, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullUp, PIN_OUTPUT));
         }
@@ -226,7 +238,11 @@ static void spi_default_pins(spi_obj_t *obj)
 static void spi_init_pins(spi_obj_t *obj)
 {
     bool conflict = false;
-    conflict = cy_reserve_io_pin(obj->pin_sclk);
+    if (obj->pin_sclk != NC) {
+        if (cy_reserve_io_pin(obj->pin_sclk)) {
+            conflict = true;
+        }
+    }
     if (obj->pin_mosi != NC) {
         if (cy_reserve_io_pin(obj->pin_mosi)) {
             conflict = true;
@@ -436,35 +452,58 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
     int trans_length = 0;
     int rx_count = 0;
     int tx_count = 0;
-    uint8_t tx_byte = (uint8_t)write_fill;
+    uint16_t tx_data = (uint8_t)write_fill;
+    uint16_t write_fill16 = (tx_data << 8) | tx_data;
+    const uint16_t *tx_buffer16 = (const uint16_t*)tx_buffer;
+    uint16_t *rx_buffer16 = (uint16_t*)rx_buffer;
 
     if (obj->ms_mode != CY_SCB_SPI_MASTER) {
         return 0;
     }
 
+    // If single transfer (data bits) is larger than byte, then writing must be performed
+    // in words.
+    bool word_transfer = !Cy_SCB_IsTxDataWidthByte(obj->base);
+    if (word_transfer) {
+        tx_length /= 2;
+        rx_length /= 2;
+        tx_data = write_fill16;
+    }
     // Make sure no leftovers from previous transactions.
     Cy_SCB_SPI_ClearRxFifo(obj->base);
-    // Calculate transaction length,
+    // Calculate transaction length.
     trans_length = (tx_length > rx_length)? tx_length : rx_length;
     // get first byte to transmit.
     if (tx_count < tx_length) {
-        tx_byte = *tx_buffer++;
+        if (word_transfer) {
+            tx_data = *tx_buffer16++;
+        } else {
+            tx_data = *tx_buffer++;
+        }
     }
     // Send required number of bytes.
     while (tx_count < trans_length) {
-        if (Cy_SCB_SPI_Write(obj->base, tx_byte)) {
+        if (Cy_SCB_SPI_Write(obj->base, tx_data)) {
             ++tx_count;
             // Get next byte to transfer.
             if (tx_count < tx_length) {
-                tx_byte = *tx_buffer++;
+                if (word_transfer) {
+                    tx_data = *tx_buffer16++;
+                } else {
+                    tx_data = *tx_buffer++;
+                }
             } else {
-                tx_byte = (uint8_t)write_fill;
+                tx_data = write_fill16;
             }
         }
         // If we have bytes to receive check the rx fifo.
         if (rx_count < rx_length) {
             if (Cy_SCB_SPI_GetNumInRxFifo(obj->base) > 0) {
-                *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+                if (word_transfer) {
+                    *rx_buffer16++ = (uint16_t)Cy_SCB_SPI_Read(obj->base);
+                } else {
+                    *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+                }
                 ++rx_count;
             }
         }
@@ -472,7 +511,11 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
     // Wait for tx fifo to empty while reading received bytes.
     while (!Cy_SCB_SPI_IsTxComplete(obj->base)) {
         if ((rx_count < rx_length) && (Cy_SCB_SPI_GetNumInRxFifo(obj->base) > 0)) {
-            *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+            if (word_transfer) {
+                *rx_buffer16++ = (uint16_t)Cy_SCB_SPI_Read(obj->base);
+            } else {
+                *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+            }
             ++rx_count;
         }
     }
@@ -481,12 +524,16 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
     Cy_SysLib_DelayUs(obj->clk_delay);
     // Read any remaining bytes from the fifo.
     while (rx_count < rx_length) {
-        *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+        if (word_transfer) {
+            *rx_buffer16++ = (uint16_t)Cy_SCB_SPI_Read(obj->base);
+        } else {
+            *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);
+        }
         ++rx_count;
     }
     // Clean up if we have read less bytes than available.
     Cy_SCB_SPI_ClearRxFifo(obj->base);
-    return trans_length;
+    return word_transfer ? trans_length * 2 : trans_length;
 }
 
 int  spi_slave_receive(spi_t *obj_in)
