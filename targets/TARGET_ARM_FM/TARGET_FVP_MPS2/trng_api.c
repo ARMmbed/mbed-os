@@ -19,7 +19,9 @@
 #include "device.h"
 #include <stdlib.h>
 
-
+/** NOTE: FastModel are software models not contain any TRNG peripheral
+ *  So C library srand() and rand() are used to simulate TRNG device
+ */
 
 void trng_init(trng_t *obj)
 {
