@@ -61,8 +61,7 @@ public:
      *        the available data and clean corrupted and erroneous records.
      *
      * @returns MBED_SUCCESS                        Success.
-     *          MBED_ERROR_READ_FAILED              Unable to read from media.
-     *          MBED_ERROR_WRITE_FAILED             Unable to write to media.
+     * @returns Negative error code on failure.
      */
     virtual int init();
 
