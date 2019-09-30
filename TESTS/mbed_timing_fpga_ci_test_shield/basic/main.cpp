@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2013-2019, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -58,7 +58,6 @@ void update_tick_thread(Mutex *mutex)
         mutex->unlock();
     }
 }
-
 
 /** Tests is to measure the accuracy of ThisThread::sleep_for() over a period of time
 

@@ -140,8 +140,9 @@ public:
     };
 
     /*
-     * These are the peripherals internal to the FPGA. A peripheral can be
-     * selected by calling MbedTester::select_peripheral.
+     * These are the FPGA Timer modes.
+     * TimerModeTimer - count elapsed time
+     * TimerModeCountDownTimer - perform delay
      */
     enum TimerMode {
         TimerModeTimer = 0,
@@ -896,6 +897,8 @@ public:
 
     /**
      * Execute programed FPGA Count Down Timer delay
+     *
+     * @note This is a blocking call. Function will return after delay is finished.
      *
      */
     void timer_delay();
