@@ -22,6 +22,9 @@
 extern "C" {
 #endif
 
+/* If this macro is defined, then constexpr utility functions for pin-map seach can be used. */
+#define EXPLICIT_PINMAP_READY 1
+
 typedef enum {
     PIN_INPUT,
     PIN_OUTPUT

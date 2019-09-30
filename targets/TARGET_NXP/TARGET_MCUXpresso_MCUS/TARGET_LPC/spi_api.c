@@ -30,17 +30,15 @@
 static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 static int baud_rate = 0;
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+#if EXPLICIT_PINMAP_READY
+#define SPI_INIT_DIRECT spi_init_direct
+void spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
+#else
+#define SPI_INIT_DIRECT _spi_init_direct
+static void _spi_init_direct(spi_t *obj, const spi_pinmap_t *pinmap)
+#endif
 {
-    // determine the SPI to use
-    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
-    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
-    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
-
-    obj->instance = pinmap_merge(spi_data, spi_cntl);
+    obj->instance = pinmap->peripheral;
     MBED_ASSERT((int)obj->instance != NC);
     obj->ssel_num = 0;
 
@@ -92,13 +90,40 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 
     // pin out the spi pins
-    pinmap_pinout(mosi, PinMap_SPI_MOSI);
-    pinmap_pinout(miso, PinMap_SPI_MISO);
-    pinmap_pinout(sclk, PinMap_SPI_SCLK);
-    if (ssel != NC) {
-        pinmap_pinout(ssel, PinMap_SPI_SSEL);
-        obj->ssel_num = pinmap_function(ssel, PinMap_SPI_SSEL) >> SSELNUM_SHIFT;
+    pin_function(pinmap->mosi_pin, pinmap->mosi_function);
+    pin_mode(pinmap->mosi_pin, PullNone);
+    pin_function(pinmap->miso_pin, pinmap->miso_function);
+    pin_mode(pinmap->miso_pin, PullNone);
+    pin_function(pinmap->sclk_pin, pinmap->sclk_function);
+    pin_mode(pinmap->sclk_pin, PullNone);
+    if (pinmap->ssel_pin != NC) {
+        pin_function(pinmap->ssel_pin, pinmap->ssel_function);
+        pin_mode(pinmap->ssel_pin, PullNone);
+        obj->ssel_num = pinmap->ssel_function >> SSELNUM_SHIFT;
     }
+}
+
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+
+    int peripheral = (int)pinmap_merge(spi_data, spi_cntl);
+
+    // pin out the spi pins
+    int mosi_function = (int)pinmap_find_function(mosi, PinMap_SPI_MOSI);
+    int miso_function = (int)pinmap_find_function(miso, PinMap_SPI_MISO);
+    int sclk_function = (int)pinmap_find_function(sclk, PinMap_SPI_SCLK);
+    int ssel_function = (int)pinmap_find_function(ssel, PinMap_SPI_SSEL);
+
+    const spi_pinmap_t explicit_spi_pinmap = {peripheral, mosi, mosi_function, miso, miso_function, sclk, sclk_function, ssel, ssel_function};
+
+    SPI_INIT_DIRECT(obj, &explicit_spi_pinmap);
 }
 
 void spi_free(spi_t *obj)
