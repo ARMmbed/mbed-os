@@ -32,18 +32,24 @@ extern void ADC_ClockPower_Configuration(void);
 
 #define LPADC_USER_CMDID 1U /* CMD1 */
 
-void analogin_init(analogin_t *obj, PinName pin)
+#if EXPLICIT_PINMAP_READY
+#define ANALOGIN_INIT_DIRECT analogin_init_direct
+void analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#else
+#define ANALOGIN_INIT_DIRECT _analogin_init_direct
+static void _analogin_init_direct(analogin_t *obj, const PinMap *pinmap)
+#endif
 {
     gpio_t gpio;
 
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+    obj->adc = (ADCName)pinmap->peripheral;
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     lpadc_config_t adc_config;
     uint32_t reg;
-    uint32_t pin_number = pin & 0x1F;
-    uint8_t port_number = pin / 32;
+    uint32_t pin_number = pinmap->pin & 0x1F;
+    uint8_t port_number = pinmap->pin / 32;
 
     ADC_ClockPower_Configuration();
 
@@ -75,10 +81,11 @@ void analogin_init(analogin_t *obj, PinName pin)
     LPADC_DoAutoCalibration(adc_addrs[instance]);
 #endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
 
-    pinmap_pinout(pin, PinMap_ADC);
+    pin_function(pinmap->pin, pinmap->function);
+    pin_mode(pinmap->pin, PullNone);
 
     /* Need to ensure the pin is in input mode */
-    gpio_init(&gpio, pin);
+    gpio_init(&gpio, pinmap->pin);
     gpio_dir(&gpio, PIN_INPUT);
 
     reg = IOCON->PIO[port_number][pin_number];
@@ -99,6 +106,16 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     IOCON->PIO[port_number][pin_number] = reg;
+}
+
+void analogin_init(analogin_t *obj, PinName pin)
+{
+    int peripheral = (int)pinmap_peripheral(pin, PinMap_ADC);
+    int function = (int)pinmap_find_function(pin, PinMap_ADC);
+
+    const PinMap explicit_pinmap = {pin, peripheral, function};
+
+    ANALOGIN_INIT_DIRECT(obj, &explicit_pinmap);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
