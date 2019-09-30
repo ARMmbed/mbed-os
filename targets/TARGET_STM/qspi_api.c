@@ -305,7 +305,6 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
             // Align alt value to the end of the most significant byte
             st_command->AlternateBytes = command->alt.value << leftover_bits;
         } else {
-            rounded_size -= 1;
             st_command->AlternateBytes = command->alt.value;
         }
             
