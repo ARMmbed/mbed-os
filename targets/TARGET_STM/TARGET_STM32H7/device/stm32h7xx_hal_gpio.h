@@ -173,7 +173,11 @@ typedef enum
   *         This parameter can be GPIO_PIN_x where x can be(0..15)
   * @retval The new state of __EXTI_LINE__ (SET or RESET).
   */
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+#define __HAL_GPIO_EXTI_GET_FLAG(__EXTI_LINE__) (EXTI_D2->PR1 & (__EXTI_LINE__))
+#else
 #define __HAL_GPIO_EXTI_GET_FLAG(__EXTI_LINE__) (EXTI_D1->PR1 & (__EXTI_LINE__))
+#endif
 
 /**
   * @brief  Clears the EXTI's line pending flags.
@@ -181,7 +185,11 @@ typedef enum
   *         This parameter can be any combination of GPIO_PIN_x where x can be (0..15)
   * @retval None
   */
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+#define __HAL_GPIO_EXTI_CLEAR_FLAG(__EXTI_LINE__) (EXTI_D2->PR1 = (__EXTI_LINE__))
+#else
 #define __HAL_GPIO_EXTI_CLEAR_FLAG(__EXTI_LINE__) (EXTI_D1->PR1 = (__EXTI_LINE__))
+#endif
 
 /**
   * @brief  Checks whether the specified EXTI line is asserted or not.
