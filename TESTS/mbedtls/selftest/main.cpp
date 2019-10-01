@@ -86,7 +86,7 @@ Case cases[] = {
 #endif /* MBEDTLS_SELF_TEST */
 };
 
-#if (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#if (defined(MBEDTLS_ENTROPY_C) && defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
 #include "crypto.h"
 #if !defined(MAX)
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -109,7 +109,7 @@ void inject_entropy_for_psa()
         mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
     }
 }
-#endif // (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#endif // (defined(MBEDTLS_ENTROPY_C) && defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
 
 
 utest::v1::status_t test_setup(const size_t num_cases)
@@ -130,7 +130,7 @@ int main()
     }
 #endif
 
-#if (defined(MBEDTLS_ENTROPY_C) && defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#if (defined(MBEDTLS_ENTROPY_C) && defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
     inject_entropy_for_psa();
 #endif
 

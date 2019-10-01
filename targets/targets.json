@@ -5,11 +5,7 @@
         "default_toolchain": "ARM",
         "supported_toolchains": null,
         "extra_labels": [],
-        "components": [
-            "PSA_SRV_IMPL",
-            "PSA_SRV_EMUL",
-            "NSPE"
-        ],
+        "components": [],
         "is_disk_virtual": false,
         "macros": [],
         "device_has": [],
@@ -84,115 +80,63 @@
         }
     },
     "PSA_Target": {
+        "features": [
+            "PSA"
+        ],
         "public": false,
-        "config": {
-            "secure-rom-start": {
-                "help": "Starting address of Secure ROM",
-                "value": null,
-                "macro_name": "PSA_SECURE_ROM_START",
-                "conflicts": [
-                    "target.mbed_rom_start"
-                ]
-            },
-            "secure-rom-size": {
-                "help": "Size in bytes of Secure ROM",
-                "value": null,
-                "macro_name": "PSA_SECURE_ROM_SIZE",
-                "conflicts": [
-                    "target.mbed_rom_size"
-                ]
-            },
-            "non-secure-rom-start": {
-                "help": "Starting address of Non-secure ROM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_ROM_START",
-                "conflicts": [
-                    "target.mbed_rom_start"
-                ]
-            },
-            "non-secure-rom-size": {
-                "help": "Size in bytes of Non-secure ROM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_ROM_SIZE",
-                "conflicts": [
-                    "target.mbed_rom_size"
-                ]
-            },
-            "secure-ram-start": {
-                "help": "Starting address of Secure RAM",
-                "value": null,
-                "macro_name": "PSA_SECURE_RAM_START",
-                "conflicts": [
-                    "target.mbed_ram_start"
-                ]
-            },
-            "secure-ram-size": {
-                "help": "Size in bytes of Secure RAM",
-                "value": null,
-                "macro_name": "PSA_SECURE_RAM_SIZE",
-                "conflicts": [
-                    "target.mbed_ram_size"
-                ]
-            },
-            "non-secure-ram-start": {
-                "help": "Starting address of Non-secure RAM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_RAM_START",
-                "conflicts": [
-                    "target.mbed_ram_start"
-                ]
-            },
-            "non-secure-ram-size": {
-                "help": "Size in bytes of Non-secure RAM",
-                "value": null,
-                "macro_name": "PSA_NON_SECURE_RAM_SIZE",
-                "conflicts": [
-                    "target.mbed_ram_size"
-                ]
-            },
-            "shared-ram-start": {
-                "help": "Starting address of Shared RAM between Secure and Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_SHARED_RAM_START"
-            },
-            "shared-ram-size": {
-                "help": "Size in bytes of Shared RAM between Secure and Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_SHARED_RAM_SIZE"
-            },
-            "public-ram-start": {
-                "help": "Starting address of Public RAM for variables accessible from Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_PUBLIC_RAM_START"
-            },
-            "public-ram-size": {
-                "help": "Size in bytes of Public RAM variables accessible from Non-secure worlds",
-                "value": null,
-                "macro_name": "PSA_PUBLIC_RAM_SIZE"
-            }
-        }
+        "config": {}
     },
-    "NSPE_Target": {
+    "PSA_V7_M_NSPE": {
         "inherits": [
             "PSA_Target"
         ],
-        "components": [
-            "PSA_SRV_IPC",
-            "NSPE"
+        "extra_labels": [
+            "MBED_PSA_SRV"
         ],
-        "device_has_add": [
+        "device_has": [
             "TRNG"
         ],
         "public": false
     },
-    "SPE_Target": {
+    "PSA_V7_M_SPE": {
+        "inherits": ["PSA_Target"],
+        "public": false
+    },
+    "PSA_DUAL_V7_M_NSPE": {
         "inherits": [
             "PSA_Target"
         ],
-        "components": [
-            "PSA_SRV_IMPL",
-            "PSA_SRV_IPC",
-            "SPE"
+        "extra_labels": [
+            "TFM",
+            "TARGET_TFM_TWINCPU"
+        ],
+        "device_has": [
+            "TRNG"
+        ],
+        "public": false
+    },
+    "PSA_DUAL_V7_M_SPE": {
+        "inherits": [
+            "PSA_Target"
+        ],
+        "public": false
+    },
+    "PSA_V8_M_NSPE": {
+        "inherits": [
+            "PSA_Target"
+        ],
+        "extra_labels": [
+            "TFM",
+            "TARGET_TFM_V8M"
+        ],
+        "device_has": [
+            "TRNG"
+        ],
+        "public": false
+    },
+    "PSA_V8_M_SPE": {
+        "inherits": [
+            "PSA_Target"
         ],
         "public": false
     },
@@ -2160,7 +2104,7 @@
             "GCC_ARM",
             "IAR"
         ],
-        "extra_labels": [
+        "extra_labels_add": [
             "Freescale",
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
@@ -2168,8 +2112,7 @@
             "KPSDK_MCUS",
             "KPSDK_CODE",
             "MCU_K64F",
-            "Freescale_EMAC",
-            "PSA"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -2179,12 +2122,13 @@
             "MBED_TICKLESS"
         ],
         "inherits": [
+            "PSA_V7_M_NSPE",
             "Target"
         ],
         "detect_code": [
             "0240"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
@@ -2577,13 +2521,12 @@
             "GCC_ARM",
             "IAR"
         ],
-        "extra_labels": [
+        "extra_labels_add": [
             "Freescale",
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC",
-            "PSA"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
         "macros": [
@@ -2593,12 +2536,13 @@
             "MBED_TICKLESS"
         ],
         "inherits": [
+            "PSA_V7_M_NSPE",
             "Target"
         ],
         "detect_code": [
             "0311"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
@@ -2726,7 +2670,7 @@
             "Target"
         ],
         "public": false,
-        "extra_labels": [
+        "extra_labels_add": [
             "STM"
         ],
         "supported_toolchains": [
@@ -2769,7 +2713,7 @@
             "deep-sleep-latency": 4,
             "init-us-ticker-at-boot": true
         },
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "LPTICKER",
             "RTC",
@@ -3051,7 +2995,7 @@
     },
     "LPC55S69_NS": {
         "inherits": [
-            "NSPE_Target",
+            "PSA_V8_M_NSPE",
             "LPC55S69"
         ],
         "core": "Cortex-M33FE-NS",
@@ -3073,7 +3017,6 @@
         ],
         "extra_labels_add": [
             "M33_NS",
-            "PSA",
             "TFM"
         ],
         "device_has_add": [
@@ -3115,7 +3058,7 @@
     },
     "LPC55S69_S": {
         "inherits": [
-            "SPE_Target",
+            "PSA_V8_M_SPE",
             "LPC55S69"
         ],
         "core": "Cortex-M33FE",
@@ -3134,7 +3077,6 @@
         ],
         "extra_labels_add": [
             "M33_S",
-            "PSA",
             "TFM"
         ],
         "device_has_add": [
@@ -4140,6 +4082,7 @@
     },
     "NUCLEO_F429ZI": {
         "inherits": [
+            "PSA_V7_M_NSPE",
             "FAMILY_STM32"
         ],
         "supported_form_factors": [
@@ -4168,7 +4111,7 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "PSA"
+            "STM_EMAC"
         ],
         "components_add": [
             "FLASHIAP"
@@ -6926,7 +6869,7 @@
             "WIFI",
             "SERIAL"
         ],
-        "features": [
+        "features_add": [
             "BLE"
         ],
         "device_has_remove": [],
@@ -6946,6 +6889,7 @@
     },
     "UBLOX_EVK_ODIN_W2": {
         "inherits": [
+            "PSA_V7_M_NSPE",
             "MODULE_UBLOX_ODIN_W2"
         ],
         "supported_form_factors": [
@@ -6955,9 +6899,6 @@
             "5"
         ],
         "device_has_remove": [],
-        "extra_labels_add": [
-            "PSA"
-        ],
         "components_add": [
             "SD",
             "FLASHIAP"
@@ -8473,7 +8414,7 @@
     },
     "ARM_MUSCA_A1_NS": {
         "inherits": [
-            "NSPE_Target",
+            "PSA_V8_M_NSPE",
             "ARM_MUSCA_A1"
         ],
         "core": "Cortex-M33-NS",
@@ -8498,7 +8439,6 @@
         ],
         "extra_labels_add": [
             "MUSCA_A1_NS",
-            "PSA",
             "TFM"
         ],
         "post_binary_hook": {
@@ -8514,7 +8454,7 @@
     },
     "ARM_MUSCA_A1_S": {
         "inherits": [
-            "SPE_Target",
+            "PSA_V8_M_SPE",
             "ARM_MUSCA_A1"
         ],
         "core": "Cortex-M33",
@@ -8538,7 +8478,6 @@
         ],
         "extra_labels_add": [
             "MUSCA_A1_S",
-            "PSA",
             "TFM"
         ],
         "deliver_to_target": "ARM_MUSCA_A1_NS",
@@ -12354,6 +12293,7 @@
     },
     "FVP_MPS2": {
         "inherits": [
+            "PSA_V7_M_NSPE",
             "ARM_FM"
         ],
         "public": false,
@@ -13592,7 +13532,7 @@
             "Target"
         ],
         "public": false,
-        "extra_labels": [
+        "extra_labels_add": [
             "GigaDevice"
         ],
         "supported_toolchains": [
@@ -13600,7 +13540,7 @@
             "IAR",
             "GCC_ARM"
         ],
-        "device_has": [
+        "device_has_add": [
             "USTICKER",
             "ANALOGIN",
             "INTERRUPTIN",
@@ -13696,6 +13636,7 @@
     },
     "GD32_F450ZI": {
         "inherits": [
+            "PSA_V7_M_NSPE",
             "GD32_Target"
         ],
         "supported_form_factors": [
@@ -13708,8 +13649,7 @@
         "extra_labels_add": [
             "GD32F4XX",
             "GD32F450ZI",
-            "GD_EMAC",
-            "PSA"
+            "GD_EMAC"
         ],
         "device_has_add": [
             "RTC",
