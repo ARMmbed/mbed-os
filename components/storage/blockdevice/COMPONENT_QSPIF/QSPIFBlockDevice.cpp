@@ -249,7 +249,8 @@ int QSPIFBlockDevice::init()
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
                                                  0, QSPI_CFG_BUS_SINGLE, 0)) {
-        status = QSPIF_BD_ERROR_CONF_FORMAT_FAILED;
+        tr_error("_qspi_configure_format failed");
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
         goto exit_point;
     }
 
@@ -308,7 +309,8 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     // Configure Bus for Reading
     if (QSPI_STATUS_OK != _qspi_configure_format(_inst_width, _address_width, _address_size, _address_width, // Alt width == address width
                                                  _alt_size, _data_width, _dummy_cycles)) {
-        return QSPIF_BD_ERROR_CONF_FORMAT_FAILED;
+        tr_error("_qspi_configure_format failed");
+        return QSPIF_BD_ERROR_DEVICE_ERROR;
     }
 
     if (QSPI_STATUS_OK != _qspi_send_read_command(_read_instruction, buffer, addr, size)) {
@@ -318,7 +320,8 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     // All commands other than Read use default 1-1-1 Bus mode (Program/Erase are constrained by flash memory performance more than bus performance)
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, 0, QSPI_CFG_BUS_SINGLE, 0)) {
-        return QSPIF_BD_ERROR_CONF_FORMAT_FAILED;
+        tr_error("_qspi_configure_format failed");
+        return QSPIF_BD_ERROR_DEVICE_ERROR;
     }
 
     _mutex.unlock();
@@ -726,6 +729,7 @@ int QSPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_
     // Set 1-1-1 bus mode for SFDP header parsing
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
                                                  0, QSPI_CFG_BUS_SINGLE, 8)) {
+        tr_error("_qspi_configure_format failed");
         return -1;
     }
 
@@ -895,6 +899,7 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
     // Configure  BUS Mode to 1_1_1 for all commands other than Read
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
                                                  0, QSPI_CFG_BUS_SINGLE, 0)) {
+        tr_error("_qspi_configure_format failed");
         return -1;
     }
 
@@ -1224,7 +1229,7 @@ int QSPIFBlockDevice::_enable_fast_mdoe()
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
                                                  0, QSPI_CFG_BUS_SINGLE, 0)) {
         tr_error("_qspi_configure_format failed");
-        return QSPIF_BD_ERROR_CONF_FORMAT_FAILED;
+        return QSPIF_BD_ERROR_DEVICE_ERROR;
     }
 
     // Read Status Register
