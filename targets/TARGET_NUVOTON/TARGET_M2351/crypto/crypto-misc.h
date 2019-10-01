@@ -24,24 +24,23 @@
  *
  * There's only one CRYPTO/CRPT module and we have the following policy for configuring its secure attribute:
  *
- * 1. TRNG or mbedtls H/W support can be enabled on either secure target or non-secure target, but not both.
- * 2. TRNG and mbedtls H/W supports cannot be enabled on different targets.
- * 3. On secure target, if TRNG or mbedtls H/W support is enabled, CRYPTO/CRPT must configure to secure.
- * 4. On non-secure target, if TRNG or mbedtls H/W support is enabled, CRYPTO/CRPT must configure to non-secure.
+ * 1. mbedtls H/W support can be enabled on either secure target or non-secure target, but not both.
+ * 2. On secure target, if mbedtls H/W support is enabled, CRYPTO/CRPT must configure to secure.
+ * 3. On non-secure target, if mbedtls H/W support is enabled, CRYPTO/CRPT must configure to non-secure.
  */
-#if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT)
+#if defined(MBEDTLS_CONFIG_HW_SUPPORT)
     #if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
         #if defined(SCU_INIT_PNSSET1_VAL) && (SCU_INIT_PNSSET1_VAL & (1 << 18))
-            #error("CRYPTO/CRPT must configure to secure for secure target which supports TRNG or mbedtls H/W")
+            #error("CRYPTO/CRPT must configure to secure for secure target which supports mbedtls H/W")
         #endif
     #else
         #if (! defined(SCU_INIT_PNSSET1_VAL)) || (! (SCU_INIT_PNSSET1_VAL & (1 << 18)))
-            #error("CRYPTO/CRPT must configure to non-secure for non-secure target which supports TRNG or mbedtls H/W")
+            #error("CRYPTO/CRPT must configure to non-secure for non-secure target which supports mbedtls H/W")
         #endif
     #endif
 #endif
 
-#if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT)
+#if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,6 +131,6 @@ bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const vo
 }
 #endif
 
-#endif  /* #if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT) */
+#endif  /* defined(MBEDTLS_CONFIG_HW_SUPPORT) */
 
 #endif
