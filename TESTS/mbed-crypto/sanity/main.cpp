@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-#include "psa/crypto.h"
-
-#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#if ((!defined(FEATURE_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
 #error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
 #else
 
+#include "psa/crypto.h"
 #include <stdio.h>
 #include "mbed.h"
 #include "greentea-client/test_env.h"

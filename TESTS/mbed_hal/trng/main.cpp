@@ -68,7 +68,7 @@
 
 using namespace utest::v1;
 
-#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#if (defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
 #include "entropy.h"
 #include "entropy_poll.h"
 #include "crypto.h"
@@ -93,7 +93,7 @@ void inject_entropy_for_psa()
         mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
     }
 }
-#endif // (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#endif // (defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
 
 static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 {
@@ -274,7 +274,7 @@ int main()
 #if defined(MBEDTLS_PLATFORM_C)
     ret = mbedtls_platform_setup(NULL);
 #endif /* MBEDTLS_PLATFORM_C */
-#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#if (defined(FEATURE_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
     inject_entropy_for_psa();
 #endif
     ret = !Harness::run(specification);
