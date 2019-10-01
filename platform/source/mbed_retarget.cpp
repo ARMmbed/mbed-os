@@ -913,7 +913,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
 }
 
 // Do not compile this code for TFM secure target
-#if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
+#if !defined(TARGET_TFM)
 
 #if !defined(__MICROLIB)
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
@@ -978,7 +978,7 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
 
-#endif // !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
+#endif // !defined(FEATURE_PSA)
 
 #endif
 

@@ -26,6 +26,7 @@ from collections import namedtuple
 from copy import copy
 from future.utils import raise_from
 from tools.resources import FileType
+from tools.settings import ROOT
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
@@ -661,7 +662,6 @@ class RTL8195ACode:
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
 
-
 class PSOC6Code:
     @staticmethod
     def complete(t_self, resources, elf, binf):
@@ -693,37 +693,6 @@ class PSOC6Code:
         else:
             from tools.targets.PSOC6 import sign_image as psoc6_sign_image
             psoc6_sign_image(t_self, binf)
-
-class ArmMuscaA1Code:
-    """Musca-A1 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        musca_tfm_bin(t_self, binf, secure_bin)
-
-
-class LPC55S69Code:
-    """LPC55S69 Hooks"""
-    @staticmethod
-    def binary_hook(t_self, resources, elf, binf):
-        from tools.targets.LPC55S69 import lpc55s69_complete
-        configured_secure_image_filename = t_self.target.secure_image_filename
-        secure_bin = find_secure_image(
-            t_self.notify,
-            resources,
-            binf,
-            configured_secure_image_filename,
-            FileType.BIN
-        )
-        lpc55s69_complete(t_self, binf, secure_bin)
 
 class M2351Code:
     """M2351 Hooks"""
@@ -773,6 +742,39 @@ class M2351Code:
         ns_ih.start_addr = None
         s_ih.merge(ns_ih)
         s_ih.tofile(ns_hex, 'hex')
+
+def find_secure_image(notify, resources, ns_image_path,
+                      configured_s_image_filename, image_type):
+    """ Find secure image. """
+    if configured_s_image_filename is None:
+        return None
+
+    assert ns_image_path and configured_s_image_filename, \
+        'ns_image_path and configured_s_image_path are mandatory'
+    assert image_type in [FileType.BIN, FileType.HEX], \
+        'image_type must be of type BIN or HEX'
+
+    image_files = resources.get_file_paths(image_type)
+    assert image_files, 'No image files found for this target'
+
+    secure_image = next(
+        (f for f in image_files if
+         os.path.basename(f) == configured_s_image_filename), None)
+    secure_image = next(
+        (f for f in image_files if
+         os.path.splitext(os.path.basename(f))[0] ==
+         os.path.splitext(os.path.basename(ns_image_path))[0]),
+        secure_image
+    )
+
+    if secure_image:
+        notify.debug("Secure image file found: %s." % secure_image)
+    else:
+        notify.debug("Secure image file %s not found. Aborting."
+                     % configured_s_image_filename)
+        raise Exception("Required secure image not found.")
+
+    return secure_image
 
 # End Target specific section
 ###############################################################################
