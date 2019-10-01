@@ -5,6 +5,7 @@
         "utest",
         "unity",
         "psa",
+        "psa-services",
         "mbedtls",
         "psa-compliance-framework",
         "filesystem",

@@ -1138,7 +1138,7 @@ MBED_USED extern "C" __value_in_regs struct __initial_stackheap __user_setup_sta
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
 
-#endif // !defined(TARGET_TFM)
+#endif // !defined(FEATURE_PSA)
 
 #endif
 

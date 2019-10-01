@@ -97,3 +97,6 @@ test_suite.json
 
 # default delivery dir
 DELIVERY/
+
+# Directory used to clone and build TF-M
+features/FEATURE_PSA/TARGET_TFM/TARGET_IGNORE/

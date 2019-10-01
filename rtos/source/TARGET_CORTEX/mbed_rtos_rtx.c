@@ -24,8 +24,8 @@
 #include "mbed_critical.h"
 #include "mbed_boot.h"
 
-#if defined(TARGET_TFM) && defined(COMPONENT_NSPE)
-#include "TARGET_TFM/interface/include/tfm_ns_lock.h"
+#if defined(FEATURE_TFM) && defined(FEATURE_NSPE)
+#include "FEATURE_TFM/interface/include/tfm_ns_lock.h"
 #endif
 
 osThreadAttr_t _main_thread_attr;
@@ -64,9 +64,9 @@ MBED_NORETURN void mbed_rtos_start()
     _main_thread_attr.tz_module = 1U;
 #endif
 
-#if defined(TARGET_TFM) && defined(COMPONENT_NSPE)
+#if defined(FEATURE_TFM) && defined(FEATURE_NSPE)
     tfm_ns_lock_init();
-#endif // defined(TARGET_TFM) && defined(COMPONENT_NSPE)
+#endif // defined(FEATURE_TFM) && defined(FEATURE_NSPE)
 
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
     osThreadId_t result = osThreadNew((osThreadFunc_t)mbed_start, NULL, &_main_thread_attr);
