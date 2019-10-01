@@ -39,7 +39,7 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
     if not isdir(tempdir):
         os.makedirs(tempdir)
     flash_layout = path_join(MUSCA_B1_BASE, 'partition', 'flash_layout.h')
-    mcuboot_bin = path_join(MUSCA_B1_BASE, 'prebuilt', 'mcuboot.bin')
+    mcuboot_bin = path_join(MUSCA_B1_BASE, 'mcuboot.bin')
     image_macros_s = path_join(MUSCA_B1_BASE, 'partition', 'image_macros_preprocessed_s.c')
     image_macros_ns = path_join(MUSCA_B1_BASE, 'partition', 'image_macros_preprocessed_ns.c')
     s_bin_name, s_bin_ext = splitext(basename(secure_bin))

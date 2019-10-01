@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017-2018 ARM Limited
+# Copyright (c) 2017-2020 ARM Limited
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -39,7 +39,7 @@ def musca_tfm_bin(t_self, non_secure_bin, secure_bin):
     if not isdir(tempdir):
         os.makedirs(tempdir)
     flash_layout = path_join(MUSCA_A1_BASE, 'partition', 'flash_layout.h')
-    mcuboot_bin = path_join(MUSCA_A1_BASE, 'prebuilt', 'mcuboot.bin')
+    mcuboot_bin = path_join(MUSCA_A1_BASE, 'mcuboot.bin')
     image_macros = path_join(MUSCA_A1_BASE, 'partition', 'image_macros_preprocessed.c')
     ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
     concatenated_bin = path_join(tempdir, 'tfm_' + ns_bin_name + ns_bin_ext)

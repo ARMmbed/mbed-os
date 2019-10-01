@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2020 ARM Limited
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,13 +25,16 @@ DEFAULT_SUPPORT = {}
 CORTEX_ARM_SUPPORT = {}
 
 for target in TARGETS:
-    DEFAULT_SUPPORT[target.name] = target.supported_toolchains
+    # Do not check for Mbed OS target default attributes in case of targets
+    # which support TF-M.
+    if not target.is_TFM_target:
+        DEFAULT_SUPPORT[target.name] = target.supported_toolchains
 
-    if target.core.startswith('Cortex'):
-        CORTEX_ARM_SUPPORT[target.name] = [
-            t for t in target.supported_toolchains
-            if (t == 'ARM' or t == 'uARM')
-        ]
+        if target.core.startswith('Cortex'):
+            CORTEX_ARM_SUPPORT[target.name] = [
+                t for t in target.supported_toolchains
+                if (t == 'ARM' or t == 'uARM')
+            ]
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")

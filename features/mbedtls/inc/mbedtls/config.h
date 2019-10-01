@@ -3719,4 +3719,9 @@
     "functionality is not available"
 #endif
 
+#if defined(FEATURE_EXPERIMENTAL_API) && defined(FEATURE_PSA)
+    #define MBEDTLS_PSA_HAS_ITS_IO
+    #define MBEDTLS_USE_PSA_CRYPTO
+#endif
+
 #endif /* MBEDTLS_CONFIG_H */

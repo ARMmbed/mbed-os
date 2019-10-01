@@ -35,19 +35,9 @@ TARGET_PREFIX:=../
 TARGET_EXPERIMENTAL:=../../FEATURE_EXPERIMENTAL_API/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
-TARGET_PSA:=$(TARGET_EXPERIMENTAL)TARGET_MBED_PSA_SRV
+TARGET_PSA:=$(TARGET_EXPERIMENTAL)FEATURE_PSA/TARGET_MBED_PSA_SRV/mbedtls
 TARGET_PSA_INC:=$(TARGET_PSA)/inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
-
-# A folder structure is introduced here for targets that have both a Secure
-# Processing Environment (SPE) targets and Non-secure Processing Environment
-# (NSPE). Documentation for each folder as follows:
-# COMPONENT_PSA_SRV_IMPL - Include secure service implementation code. For
-# example PSA Crypto or PSA Secure Time implementations
-TARGET_SRV_IMPL:=$(TARGET_PSA)/COMPONENT_PSA_SRV_IMPL
-# COMPONENT_NSPE - Include code that compiles ONLY to the NSPE image and never
-# compiles to the SPE image
-TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
@@ -70,6 +60,7 @@ rsync:
 	# Copying mbed TLS headers to mbed includes...
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
+	mkdir -p $(TARGET_PSA_INC)
 	rsync -a --delete $(MBED_TLS_API) $(TARGET_INC)
 	rsync -a --delete --exclude='crypto_struct.h' $(CRYPTO_API) $(TARGET_PSA_INC)/
 	#
@@ -77,16 +68,15 @@ rsync:
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	#
 	# Copying Mbed Crypto into Mbed OS...
-	rm -rf $(TARGET_SRV_IMPL)
+	rm -rf $(TARGET_PSA)
 
-	mkdir -p $(TARGET_SRV_IMPL)
-	mkdir -p $(TARGET_NSPE)
+	mkdir -p $(TARGET_PSA)
 
-	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_NSPE)/
-	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)/
-	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.h $(TARGET_SRV_IMPL)/
+	rsync -a --delete $(CRYPTO_API)/crypto_struct.h $(TARGET_PSA)/
+	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.c $(TARGET_PSA)/
+	rsync -a --delete $(MBED_TLS_DIR)/library/psa_*.h $(TARGET_PSA)/
 	#
-	# Remove PSA-specific C & H files (they go into $(TARGET_SRV_IMPL))
+	# Remove PSA-specific C & H files (they go into $(TARGET_PSA))
 	rm -rf $(TARGET_SRC)/psa_*.c
 	rm -rf $(TARGET_SRC)/psa_*.h
 
@@ -138,4 +128,4 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
-	rm -rf $(TARGET_SRV_IMPL)
+	rm -rf $(TARGET_PSA)

@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2016 ARM Limited
+Copyright (c) 2016-2020 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES | DELIVERY_OVERRIDES
 
 
 ALLOWED_FEATURES = [
-    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310",
+    "BOOTLOADER", "BLE", "LWIP", "STORAGE", "NANOSTACK", "CRYPTOCELL310", "PSA",
     "EXPERIMENTAL_API",
 ]
 
