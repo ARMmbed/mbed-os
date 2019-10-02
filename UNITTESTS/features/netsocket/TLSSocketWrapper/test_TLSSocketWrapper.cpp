@@ -105,6 +105,20 @@ TEST_F(TestTLSSocketWrapper, constructor_hostname)
     delete wrapper2;
 }
 
+TEST_F(TestTLSSocketWrapper, no_socket)
+{
+    TLSSocketWrapper *wrapperTmp = new TLSSocketWrapper(NULL);
+    const SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(wrapperTmp->connect(a), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->bind(a), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->setsockopt(0, 0, 0, 0), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->getsockopt(0, 0, 0, 0), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->send(dataBuf, dataSize), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->recv(dataBuf, dataSize), NSAPI_ERROR_NO_SOCKET);
+    EXPECT_EQ(wrapperTmp->close(), NSAPI_ERROR_NO_SOCKET);
+    delete wrapperTmp;
+}
+
 /* connect */
 
 TEST_F(TestTLSSocketWrapper, connect)
@@ -194,6 +208,11 @@ TEST_F(TestTLSSocketWrapper, connect_handshake_fail_ssl_handshake_in_progress)
     mbedtls_stub.retArray[2] = MBEDTLS_ERR_SSL_WANT_READ; // mbedtls_ssl_handshake error
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_IN_PROGRESS);
+
+    // Check that send will fail in this situation.
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_WANT_READ; // mbedtls_ssl_handshake error
+    eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
+    EXPECT_EQ(wrapper->send(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
 }
 
 TEST_F(TestTLSSocketWrapper, connect_handshake_fail_ssl_get_verify_result)
@@ -241,6 +260,17 @@ TEST_F(TestTLSSocketWrapper, send_error_would_block)
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->send(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
+}
+
+TEST_F(TestTLSSocketWrapper, send_device_error)
+{
+    transport->open((NetworkStack *)&stack);
+    mbedtls_stub.useCounter = true;
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE; // mbedtls_ssl_write
+    eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
+    const SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
+    EXPECT_EQ(wrapper->send(dataBuf, dataSize), NSAPI_ERROR_DEVICE_ERROR);
 }
 
 TEST_F(TestTLSSocketWrapper, send_to)
@@ -292,6 +322,17 @@ TEST_F(TestTLSSocketWrapper, recv_would_block)
     EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
     EXPECT_EQ(wrapper->recv(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
+}
+
+TEST_F(TestTLSSocketWrapper, recv_device_error)
+{
+    transport->open((NetworkStack *)&stack);
+    mbedtls_stub.useCounter = true;
+    mbedtls_stub.retArray[3] = MBEDTLS_ERR_SSL_FATAL_ALERT_MESSAGE; // mbedtls_ssl_write
+    const SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_OK);
+    eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
+    EXPECT_EQ(wrapper->recv(dataBuf, dataSize), NSAPI_ERROR_DEVICE_ERROR);
 }
 
 TEST_F(TestTLSSocketWrapper, recv_from_no_socket)
