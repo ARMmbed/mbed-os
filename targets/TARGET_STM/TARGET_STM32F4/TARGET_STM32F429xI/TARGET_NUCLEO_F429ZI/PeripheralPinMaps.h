@@ -413,5 +413,7 @@ MSTD_CONSTEXPR_OBJ_11 const PinMap PinMap_USB_HS[] = {
 #define PINMAP_SPI_MISO PinMap_SPI_MISO
 #define PINMAP_SPI_SSEL PinMap_SPI_SSEL
 #define PINMAP_PWM PinMap_PWM
+#define PINMAP_CAN_TD PinMap_CAN_TD
+#define PINMAP_CAN_RD PinMap_CAN_RD
 
 #endif
