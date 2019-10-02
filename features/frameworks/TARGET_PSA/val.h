@@ -169,9 +169,9 @@
 
 /* enums */
 typedef enum {
-    NONSECURE = 0x0,
-    SECURE    = 0x1,
-} security_t;
+    CALLER_NONSECURE = 0x0,
+    CALLER_SECURE    = 0x1,
+} caller_security_t;
 
 typedef enum {
     TEST_ISOLATION_L1      = 0x1,
@@ -272,6 +272,6 @@ typedef struct {
     uint8_t  status;
 } test_status_buffer_t;
 
-typedef int32_t (*client_test_t)(security_t caller);
+typedef int32_t (*client_test_t)(caller_security_t caller);
 typedef int32_t (*server_test_t)(void);
 #endif /* VAL_COMMON_H */

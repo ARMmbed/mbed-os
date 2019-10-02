@@ -37,7 +37,7 @@ static uint8_t write_buff[TEST_BUFF_SIZE] = {
   0x70, 0xA1, 0xFF, 0xFF, 0x14, 0x73, 0x46, 0x97, 0xE8, 0xDD, 0xCA, 0x0B, 0x3C, 0x0D, 0x2E};
 static uint8_t read_buff[TEST_BUFF_SIZE];
 
-int32_t psa_sst_get_incorrect_size(security_t caller)
+int32_t psa_sst_get_incorrect_size(caller_security_t caller)
 {
     psa_sst_uid_t uid = UID_BASE_VALUE + 5;
     uint32_t status = VAL_STATUS_SUCCESS;

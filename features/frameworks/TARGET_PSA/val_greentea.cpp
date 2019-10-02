@@ -88,7 +88,7 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
         }
 
         /* Execute client tests */
-        test_status = tests_list[i](NONSECURE);
+        test_status = tests_list[i](CALLER_NONSECURE);
 
         if (server_hs == TRUE)
         {
