@@ -18,6 +18,9 @@
 #include "gtest/gtest.h"
 #include "features/netsocket/InternetSocket.h"
 #include "NetworkStack_stub.h"
+#include <future>
+#include <thread>
+#include <chrono>
 
 extern std::list<uint32_t> eventFlagsStubNextRetval;
 
@@ -155,10 +158,19 @@ TEST_F(TestInternetSocket, close_during_read)
 {
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-    // when c++11 is available use something like the code below to test the blocking behavior
-    // socket->add_reader();
-    // std::async(c[](){std::this_thread::sleep_for(1ms); socket->rem_reader()});
+    // Simulate the blocking behavior by adding a reader.
+    socket->add_reader();
+    // The reader will be removed after we attempt to close the socket.
+    auto delay = std::chrono::milliseconds(2);
+    auto fut = std::async(std::launch::async, [&](){std::this_thread::sleep_for(delay); socket->rem_reader();});
+
+    // close() will block until the other thread calls rem_reader()
+    auto start = std::chrono::system_clock::now();
     EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
+    auto end = std::chrono::system_clock::now();
+
+    auto diff = end - start;
+    EXPECT_LE(delay, end - start);
 }
 
 TEST_F(TestInternetSocket, modify_multicast_group)
@@ -166,9 +178,6 @@ TEST_F(TestInternetSocket, modify_multicast_group)
     SocketAddress a("127.0.0.1", 1024);
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-    // when c++11 is available use something like the code below to test the blocking behavior
-    // socket->add_reader();
-    // std::async(c[](){std::this_thread::sleep_for(1ms); socket->rem_reader()});
     EXPECT_EQ(socket->join_multicast_group(a), NSAPI_ERROR_UNSUPPORTED);
     EXPECT_EQ(socket->leave_multicast_group(a), NSAPI_ERROR_UNSUPPORTED);
 }
