@@ -77,7 +77,7 @@ TEST_F(TestTCPSocket, connect)
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
-    EXPECT_EQ(socket->setsockopt(NSAPI_SOCKET,NSAPI_BIND_TO_DEVICE, "12345", 5), NSAPI_ERROR_UNSUPPORTED);
+    EXPECT_EQ(socket->setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, "12345", 5), NSAPI_ERROR_UNSUPPORTED);
     EXPECT_EQ(socket->connect("127.0.0.1", 1024), NSAPI_ERROR_OK);
 }
 

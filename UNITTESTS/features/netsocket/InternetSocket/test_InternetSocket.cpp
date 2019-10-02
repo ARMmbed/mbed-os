@@ -162,7 +162,10 @@ TEST_F(TestInternetSocket, close_during_read)
     socket->add_reader();
     // The reader will be removed after we attempt to close the socket.
     auto delay = std::chrono::milliseconds(2);
-    auto fut = std::async(std::launch::async, [&](){std::this_thread::sleep_for(delay); socket->rem_reader();});
+    auto fut = std::async(std::launch::async, [&]() {
+        std::this_thread::sleep_for(delay);
+        socket->rem_reader();
+    });
 
     // close() will block until the other thread calls rem_reader()
     auto start = std::chrono::system_clock::now();
