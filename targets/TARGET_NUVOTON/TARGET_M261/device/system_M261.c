@@ -116,3 +116,19 @@ void AssertError(uint8_t * file, uint32_t line)
 }
 #endif
 
+/* Return LR (return address)
+ *
+ * Replace BSP assembly implementation with toolchain built-in (borrow MBED_CALLER_ADDR())
+ */
+uint32_t __PC(void)
+{
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+    return (uint32_t) __builtin_extract_return_addr(__builtin_return_address(0));
+#elif defined(__CC_ARM)
+    return (uint32_t) __builtin_return_address(0);
+#elif defined(__ICCARM__)
+    return (uint32_t) __get_LR();
+#else
+    #error("__PC() not implemented")
+#endif
+}
