@@ -41,11 +41,25 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  
+
   RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
   ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
   }
+
+  RW_DMARxDscrTab 0x30040000 0x60 {
+    *(.RxDecripSection)
+  }
+  RW_DMATxDscrTab 0x30040100 0x140 {
+    *(.TxDecripSection)
+  }
+  RW_Rx_Buffb 0x30040400 0x1800 {
+    *(.RxArraySection)
+  }
+  RW_Eth_Ram 0x30044000 0x4000 {
+    *(.ethusbram)
+  }
+
 }
