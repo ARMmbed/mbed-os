@@ -386,10 +386,18 @@ Wi-Fi tests require some more configuration, so for Wi-Fi purposes, the `mbed_ap
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
-        }
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
         "echo-server-port-tls" : {
-            "help" : "Port of echo server TLS",
+            "help" : "Port of echo server for TLS",
             "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
         }
     },
     "target_overrides": {
@@ -403,7 +411,54 @@ Wi-Fi tests require some more configuration, so for Wi-Fi purposes, the `mbed_ap
 }
 ```
 
-Please, see `mbed-os/tools/test_configs` folder for examples.
+Cellular tests require some more configuration, so for cellular purposes, the `mbed_app.json` might look like this:
+NOTE! These are just typical settings needed for cellular. Actual configuration values depend on used target HW, SIM, modem and network capabilities.
+
+```
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "CELLULAR",
+            "nsapi.default-cellular-sim-pin": "\"SIM PIN if needed\"",
+            "nsapi.default-cellular-plmn": "\"PLMN if needed\"",
+            "nsapi.default-cellular-apn": "\"APN if needed\"",
+            "nsapi.default-cellular-username": "\"SIM USERNAME if needed\"",
+            "nsapi.default-cellular-password": "\"SIM PASSWORD if needed\"",
+            "lwip.ipv4-enabled": true,
+            "lwip.ipv6-enabled": true,
+            "lwip.tcp-enabled": true,
+            "lwip.ppp-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "<YOUR MODEM TARGET>.provide-default": true,
+            "cellular.radio-access-technology": <see supported values from cellular mbed_lib.json>
+        }
+    }
+}
+```
+
+Please, see `mbed-os/tools/test_configs` folder for examples for different technologies.
 
 Now build the test binaries:
 
