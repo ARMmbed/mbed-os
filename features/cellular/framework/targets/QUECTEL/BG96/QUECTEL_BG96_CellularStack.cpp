@@ -18,6 +18,15 @@
 #include <string.h>
 #include "QUECTEL/BG96/QUECTEL_BG96_CellularStack.h"
 #include "CellularLog.h"
+#include "netsocket/TLSSocket.h"
+
+// Ref: Quectel_BG96_SSL_AT_Commands_Manual, ch 2.1.1 AT+QSSLCFG
+static const int BG96_SUPPORTED_SSL_VERSION     = 4; // All
+static const char BG96_SUPPORTED_CIPHER_SUITE[] = "0xFFFF"; // Support all
+
+// TODO: At the moment we support only one active SSL context
+//       Later can be expanded to support multiple contexts. Modem supports IDs 0-5.
+static const int sslctxID = 0;
 
 using namespace mbed;
 
@@ -25,12 +34,27 @@ QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     , _dns_callback(NULL), _dns_version(NSAPI_UNSPEC)
 #endif
+    , _tls_sec_level(0)
 {
     _at.set_urc_handler("+QIURC: \"recv", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_recv));
     _at.set_urc_handler("+QIURC: \"close", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_closed));
 #ifdef MBED_CONF_CELLULAR_OFFLOAD_DNS_QUERIES
     _at.set_urc_handler("+QIURC: \"dnsgip\",", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_dnsgip));
 #endif
+
+    _at.set_urc_handler("+QSSLURC: \"recv", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_recv));
+    _at.set_urc_handler("+QSSLURC: \"close", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc_closed));
+
+    // TODO: this needs to be handled properly, but now making just a quick hack
+    // Close all SSL sockets if open. This can happen for example if application processor
+    // was reset but modem not. Old sockets are still up and running and it prevents
+    // new SSL configurations and creating new sockets.
+    for (int i = 0; i < 12; i++) {
+        _at.clear_error();
+        tr_debug("Closing SSL socket %d...", i);
+        _at.at_cmd_discard("+QSSLCLOSE", "=", "%d", i);
+    }
+    _at.clear_error();
 }
 
 QUECTEL_BG96_CellularStack::~QUECTEL_BG96_CellularStack()
@@ -52,7 +76,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     CellularSocket *socket = (CellularSocket *)handle;
 
     int modem_connect_id = -1;
-    int err = -1;
+    int err = NSAPI_ERROR_NO_CONNECTION;
 
     int request_connect_id = find_socket_index(socket);
     // assert here as its a programming error if the socket container doesn't contain
@@ -61,25 +85,49 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
-        char ipdot[NSAPI_IP_SIZE];
-        ip2dot(address, ipdot);
-        _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
-                           ipdot, address.get_port(), socket->localAddress.get_port(), 0);
-
-        handle_open_socket_response(modem_connect_id, err);
-
-        if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
-            if (err == BG96_SOCKET_BIND_FAIL) {
-                socket->id = -1;
+        if (socket->tls_socket) {
+            if (_tls_sec_level == 0) {
                 _at.unlock();
-                return NSAPI_ERROR_PARAMETER;
+                return NSAPI_ERROR_AUTH_FAILURE;
             }
-            _at.at_cmd_discard("+QICLOSE", "=", "%d", modem_connect_id);
 
+            _at.at_cmd_discard("+QSSLOPEN", "=", "%d%d%d%s%d%d", _cid, sslctxID, request_connect_id,
+                               address.get_ip_address(), address.get_port(), 0);
+            handle_open_socket_response(modem_connect_id, err, true);
+
+            if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+                if (err == BG96_SOCKET_BIND_FAIL) {
+                    socket->id = -1;
+                    _at.unlock();
+                    return NSAPI_ERROR_PARAMETER;
+                }
+                socket_close_impl(modem_connect_id);
+
+                _at.at_cmd_discard("+QSSLOPEN", "=", "%d%d%d%s%d%d", _cid, sslctxID, request_connect_id,
+                                   address.get_ip_address(), address.get_port(), 0);
+                handle_open_socket_response(modem_connect_id, err, true);
+            }
+        } else {
+            char ipdot[NSAPI_IP_SIZE];
+            ip2dot(address, ipdot);
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
                                ipdot, address.get_port(), socket->localAddress.get_port(), 0);
 
-            handle_open_socket_response(modem_connect_id, err);
+            handle_open_socket_response(modem_connect_id, err, false);
+
+            if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+                if (err == BG96_SOCKET_BIND_FAIL) {
+                    socket->id = -1;
+                    _at.unlock();
+                    return NSAPI_ERROR_PARAMETER;
+                }
+                socket_close_impl(modem_connect_id);
+
+                _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "TCP",
+                                   ipdot, address.get_port(), socket->localAddress.get_port(), 0);
+
+                handle_open_socket_response(modem_connect_id, err, false);
+            }
         }
     }
 
@@ -91,14 +139,14 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
     nsapi_error_t ret_val = _at.get_last_error();
     _at.unlock();
 
-    if ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
+    if ((!err) && (ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
         socket->id = request_connect_id;
         socket->remoteAddress = address;
         socket->connected = true;
         return NSAPI_ERROR_OK;
     }
 
-    return NSAPI_ERROR_NO_CONNECTION;
+    return err;
 }
 
 void QUECTEL_BG96_CellularStack::urc_qiurc_recv()
@@ -182,21 +230,41 @@ bool QUECTEL_BG96_CellularStack::is_protocol_supported(nsapi_protocol_t protocol
 nsapi_error_t QUECTEL_BG96_CellularStack::socket_close_impl(int sock_id)
 {
     _at.set_at_timeout(BG96_CLOSE_SOCKET_TIMEOUT);
-    nsapi_error_t err = _at.at_cmd_discard("+QICLOSE", "=", "%d", sock_id);
+    nsapi_error_t err;
+    CellularSocket *socket = find_socket(sock_id);
+    if (socket && socket->tls_socket) {
+        err = _at.at_cmd_discard("+QSSLCLOSE", "=", "%d", sock_id);
+        if (err == NSAPI_ERROR_OK) {
+            // Disable TLSSocket settings to prevent reuse on next socket without setting the values
+            _tls_sec_level = 0;
+            err = _at.at_cmd_discard("+QSSLCFG", "=\"seclevel\",", "%d%d", sslctxID, _tls_sec_level);
+        }
+    } else {
+        err = _at.at_cmd_discard("+QICLOSE", "=", "%d", sock_id);
+    }
     _at.restore_at_timeout();
 
     return err;
 }
 
-void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_id, int &err)
+void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_id, int &err, bool tlssocket)
 {
     // OK
     // QIOPEN -> should be handled as URC?
     _at.set_at_timeout(BG96_CREATE_SOCKET_TIMEOUT);
-    _at.resp_start("+QIOPEN:");
+
+    if (tlssocket) {
+        _at.resp_start("+QSSLOPEN:");
+    } else {
+        _at.resp_start("+QIOPEN:");
+    }
+
     _at.restore_at_timeout();
     modem_connect_id = _at.read_int();
     err = _at.read_int();
+    if (tlssocket && err != 0) {
+        err = NSAPI_ERROR_AUTH_FAILURE;
+    }
 }
 
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
@@ -215,7 +283,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
                            (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                            remote_port, socket->localAddress.get_port(), 0);
 
-        handle_open_socket_response(modem_connect_id, err);
+        handle_open_socket_response(modem_connect_id, err, false);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
@@ -228,7 +296,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
                                (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                                remote_port, socket->localAddress.get_port(), 0);
 
-            handle_open_socket_response(modem_connect_id, err);
+            handle_open_socket_response(modem_connect_id, err, false);
         }
     } else if (socket->proto == NSAPI_UDP && socket->connected) {
         char ipdot[NSAPI_IP_SIZE];
@@ -236,7 +304,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
                            ipdot, socket->remoteAddress.get_port());
 
-        handle_open_socket_response(modem_connect_id, err);
+        handle_open_socket_response(modem_connect_id, err, false);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             if (err == BG96_SOCKET_BIND_FAIL) {
@@ -248,7 +316,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d", _cid, request_connect_id, "UDP",
                                ipdot, socket->remoteAddress.get_port());
 
-            handle_open_socket_response(modem_connect_id, err);
+            handle_open_socket_response(modem_connect_id, err, false);
         }
     }
 
@@ -283,8 +351,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     int sent_len_before = 0;
     int sent_len_after = 0;
 
-    // Get the sent count before sending
-    _at.at_cmd_int("+QISEND", "=", sent_len_before, "%d%d", socket->id, 0);
+    if (socket->tls_socket) {
+        sent_len_after = size;
+    } else {
+        // Get the sent count before sending
+        _at.at_cmd_int("+QISEND", "=", sent_len_before, "%d%d", socket->id, 0);
+    }
 
     // Send
     if (socket->proto == NSAPI_UDP) {
@@ -293,7 +365,11 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
         _at.cmd_start_stop("+QISEND", "=", "%d%d%s%d", socket->id, size,
                            ipdot, address.get_port());
     } else {
-        _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, size);
+        if (socket->tls_socket) {
+            _at.cmd_start_stop("+QSSLSEND", "=", "%d%d", socket->id, size);
+        } else {
+            _at.cmd_start_stop("+QISEND", "=", "%d%d", socket->id, size);
+        }
     }
 
     _at.resp_start(">");
@@ -310,7 +386,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     }
 
     // Get the sent count after sending
-    nsapi_size_or_error_t err = _at.at_cmd_int("+QISEND", "=", sent_len_after, "%d%d", socket->id, 0);
+    nsapi_size_or_error_t err = NSAPI_ERROR_OK;
+
+    if (!socket->tls_socket) {
+        err = _at.at_cmd_int("+QISEND", "=", sent_len_after, "%d%d", socket->id, 0);
+    }
+
     if (err == NSAPI_ERROR_OK) {
         sent_len = sent_len_after - sent_len_before;
         return sent_len;
@@ -323,22 +404,34 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
                                                                        void *buffer, nsapi_size_t size)
 {
     nsapi_size_or_error_t recv_len = 0;
-    int port;
+    int port = -1;
     char ip_address[NSAPI_IP_SIZE + 1];
 
     if (socket->proto == NSAPI_TCP) {
         // do not read more than max size
         size = size > BG96_MAX_RECV_SIZE ? BG96_MAX_RECV_SIZE : size;
-        _at.cmd_start_stop("+QIRD", "=", "%d%d", socket->id, size);
+        if (socket->tls_socket) {
+            _at.cmd_start_stop("+QSSLRECV", "=", "%d%d", socket->id, size);
+        } else {
+            _at.cmd_start_stop("+QIRD", "=", "%d%d", socket->id, size);
+        }
     } else {
         _at.cmd_start_stop("+QIRD", "=", "%d", socket->id);
     }
 
-    _at.resp_start("+QIRD:");
+    if (socket->tls_socket) {
+        _at.resp_start("+QSSLRECV:");
+    } else {
+        _at.resp_start("+QIRD:");
+    }
+
     recv_len = _at.read_int();
-    _at.read_string(ip_address, sizeof(ip_address));
-    port = _at.read_int();
     if (recv_len > 0) {
+        // UDP has remote_IP and remote_port parameters
+        if (socket->proto == NSAPI_UDP) {
+            _at.read_string(ip_address, sizeof(ip_address));
+            port = _at.read_int();
+        }
         // do not read more than buffer size
         recv_len = recv_len > (nsapi_size_or_error_t)size ? size : recv_len;
         _at.read_bytes((uint8_t *)buffer, recv_len);
@@ -435,4 +528,121 @@ void QUECTEL_BG96_CellularStack::ip2dot(const SocketAddress &ip, char *dot)
     } else {
         *dot = '\0';
     }
+}
+
+nsapi_error_t QUECTEL_BG96_CellularStack::set_to_modem_impl(const char *filename, const char *config, const char *data, size_t size)
+{
+    // Delete old file from the modem.
+    _at.at_cmd_discard("+QFDEL", "=", "%s", filename);
+    _at.clear_error(); // Ignore error if file didn't exist
+
+    // Upload new file to modem
+    _at.cmd_start_stop("+QFUPL", "=", "%s%d", filename, size);
+    _at.resp_start("CONNECT");
+    _at.write_bytes((uint8_t *)data, size);
+    _at.resp_start("+QFUPL:");
+    size_t upload_size = _at.read_int();
+    _at.resp_stop();
+    if (upload_size != size) {
+        tr_error("Upload error! orig = %d, uploaded = %d", size, upload_size);
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    // Configure into use
+    _at.at_cmd_discard("+QSSLCFG", "=", "%s%d%s", config, sslctxID, filename);
+
+    return _at.get_last_error();
+}
+
+
+nsapi_error_t QUECTEL_BG96_CellularStack::setsockopt(nsapi_socket_t handle, int level,
+                                                     int optname, const void *optval, unsigned optlen)
+{
+    CellularSocket *socket = (CellularSocket *)handle;
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
+    if (level == NSAPI_TLSSOCKET_LEVEL) {
+        if (optval) {
+            _at.lock();
+            switch (optname) {
+                case NSAPI_TLSSOCKET_ENABLE: {
+                    MBED_ASSERT(optlen == sizeof(bool));
+                    bool *enabled = (bool *)optval;
+                    if (socket->proto == NSAPI_TCP) {
+                        socket->tls_socket = enabled;
+
+                        if (enabled) {
+                            _at.at_cmd_discard("+QSSLCFG", "=\"seclevel\",", "%d%d", sslctxID, _tls_sec_level);
+
+                            _at.at_cmd_discard("+QSSLCFG", "=\"sslversion\",", "%d%d", sslctxID, BG96_SUPPORTED_SSL_VERSION);
+
+                            _at.cmd_start("AT+QSSLCFG=\"ciphersuite\",");
+                            _at.write_int(sslctxID);
+                            _at.write_string(BG96_SUPPORTED_CIPHER_SUITE, false);
+                            _at.cmd_stop_read_resp();
+
+                            ret = _at.get_last_error();
+                        }
+                    } else {
+                        tr_error("Trying to set non-TCPSocket as TLSSocket");
+                        ret = NSAPI_ERROR_PARAMETER;
+                    }
+                }
+                break;
+
+                case NSAPI_TLSSOCKET_SET_HOSTNAME: {
+                    const char *hostname = (const char *)optval;
+                    _at.at_cmd_discard("+QSSLCFG", "=\"checkhost\",", "%d%s", sslctxID, hostname);
+                    ret = _at.get_last_error();
+                }
+                break;
+
+                case NSAPI_TLSSOCKET_SET_CACERT: {
+                    const char *cacert = (const char *)optval;
+                    ret = set_to_modem_impl("cacert.pem", "cacert", cacert, optlen);
+
+                    // Set sec level to "Manage server authentication" if only cacert is in use
+                    if (ret == NSAPI_ERROR_OK && _tls_sec_level == 0) {
+                        _tls_sec_level = 1;
+                    }
+                }
+                break;
+
+                case NSAPI_TLSSOCKET_SET_CLCERT: {
+                    const char *clcert = (const char *)optval;
+                    ret = set_to_modem_impl("clcert.pem", "clientcert", clcert, optlen);
+
+                    // Set sec level to "Manage server and client authentication if requested by the remote server"
+                    if (ret == NSAPI_ERROR_OK) {
+                        _tls_sec_level = 2;
+                    }
+                }
+                break;
+
+                case NSAPI_TLSSOCKET_SET_CLKEY: {
+                    const char *clkey = (const char *)optval;
+                    ret = set_to_modem_impl("client.key", "clientkey", clkey, optlen);
+
+                    // Set sec level to "Manage server and client authentication if requested by the remote server"
+                    if (ret == NSAPI_ERROR_OK) {
+                        _tls_sec_level = 2;
+                    }
+                }
+                break;
+
+                default:
+                    tr_error("Unsupported sockopt (%d)", optname);
+                    ret = NSAPI_ERROR_UNSUPPORTED;
+            }
+            _at.unlock();
+        } else {
+            tr_error("No optval!");
+            ret = NSAPI_ERROR_PARAMETER;
+        }
+    } else {
+        tr_warning("Unsupported level (%d)", level);
+        ret = NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    return ret;
 }

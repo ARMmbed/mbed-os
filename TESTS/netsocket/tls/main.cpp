@@ -84,15 +84,15 @@ nsapi_error_t tlssocket_connect_to_srv(TLSSocket &sock, uint16_t port)
 
     printf("MBED: Server '%s', port %d\n", tls_addr.get_ip_address(), tls_addr.get_port());
 
-    nsapi_error_t err = sock.set_root_ca_cert(tls_global::cert);
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.set_root_ca_cert: %d\n", err);
+        printf("Error from sock.open: %d\n", err);
         return err;
     }
 
-    err = sock.open(NetworkInterface::get_default_instance());
+    err = sock.set_root_ca_cert(tls_global::cert);
     if (err != NSAPI_ERROR_OK) {
-        printf("Error from sock.open: %d\n", err);
+        printf("Error from sock.set_root_ca_cert: %d\n", err);
         return err;
     }
 
