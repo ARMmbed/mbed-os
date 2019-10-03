@@ -43,6 +43,40 @@
 #define QSPI_FLASH_SIZE_DEFAULT 0x80000000
 
 #if defined(OCTOSPI1)
+static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
+{
+    switch (num_bytes) {
+        case 1:
+            return HAL_OSPI_ALTERNATE_BYTES_8_BITS;
+        case 2:
+            return HAL_OSPI_ALTERNATE_BYTES_16_BITS;
+        case 3:
+            return HAL_OSPI_ALTERNATE_BYTES_24_BITS;
+        case 4:
+            return HAL_OSPI_ALTERNATE_BYTES_32_BITS;
+    }
+    error("Invalid alt bytes size");
+    return 0xFFFFFFFF;
+}
+#else /* OCTOSPI1 */
+static uint32_t get_alt_bytes_size(const uint32_t num_bytes)
+{
+    switch (num_bytes) {
+        case 1:
+            return QSPI_ALTERNATE_BYTES_8_BITS;
+        case 2:
+            return QSPI_ALTERNATE_BYTES_16_BITS;
+        case 3:
+            return QSPI_ALTERNATE_BYTES_24_BITS;
+        case 4:
+            return QSPI_ALTERNATE_BYTES_32_BITS;
+    }
+    error("Invalid alt bytes size");
+    return 0xFFFFFFFF;
+}
+#endif /* OCTOSPI1 */
+
+#if defined(OCTOSPI1)
 qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCmdTypeDef *st_command)
 {
     debug_if(qspi_api_c_debug, "qspi_prepare_command In: instruction.value %x dummy_count %x address.bus_width %x address.disabled %x address.value %x address.size %x\n",
@@ -151,15 +185,15 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
         }
 
         // Round up to nearest byte - unused parts of byte act as dummy cycles
-        uint32_t rounded_size = ((command->alt.size - 1) >> 3) + 1;
+        uint32_t alt_bytes = ((command->alt.size - 1) >> 3) + 1;
         // Maximum of 4 alt bytes
-        if (rounded_size > 4) {
+        if (alt_bytes > 4) {
             error("Command param error: alt size exceeds maximum of 32 bits\n");
             return QSPI_STATUS_ERROR;
         }
 
         // Unused bits in most significant byte of alt
-        uint8_t leftover_bits = (rounded_size << 3) - command->alt.size;
+        uint8_t leftover_bits = (alt_bytes << 3) - command->alt.size;
         if (leftover_bits != 0) {
             // Account for dummy cycles that will be spent in the alt portion of the command
             uint8_t integrated_dummy_cycles = leftover_bits / alt_lines;
@@ -176,9 +210,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, OSPI_RegularCm
             st_command->AlternateBytes = command->alt.value;
         }
 
-        /* command->AlternateBytesSize needs to be shifted by OCTOSPI_CCR_ABSIZE_Pos */
-        // 0b00 = 1 byte, 0b01 = 2 bytes, 0b10 = 3 bytes, 0b11 = 4 bytes
-        st_command->AlternateBytesSize = ((rounded_size - 1) << OCTOSPI_CCR_ABSIZE_Pos) & OCTOSPI_CCR_ABSIZE_Msk;
+        st_command->AlternateBytesSize = get_alt_bytes_size(alt_bytes);
     }
 
     switch (command->data.bus_width) {
@@ -283,14 +315,14 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
         }
 
         // Round up to nearest byte - unused parts of byte act as dummy cycles
-        uint32_t rounded_size = ((command->alt.size - 1) >> 3) + 1;
+        uint32_t alt_bytes = ((command->alt.size - 1) >> 3) + 1;
         // Maximum of 4 alt bytes
-        if (rounded_size > 4) {
+        if (alt_bytes > 4) {
             return QSPI_STATUS_ERROR;
         }
 
         // Unused bits in most significant byte of alt
-        uint8_t leftover_bits = (rounded_size << 3) - command->alt.size;
+        uint8_t leftover_bits = (alt_bytes << 3) - command->alt.size;
         if (leftover_bits != 0) {
             // Account for dummy cycles that will be spent in the alt portion of the command
             uint8_t integrated_dummy_cycles = leftover_bits / alt_lines;
@@ -306,9 +338,7 @@ qspi_status_t qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTy
             st_command->AlternateBytes = command->alt.value;
         }
 
-        /* command->AlternateBytesSize needs to be shifted by QUADSPI_CCR_ABSIZE_Pos */
-        // 0b00 = 1 byte, 0b01 = 2 bytes, 0b10 = 3 bytes, 0b11 = 4 bytes
-        st_command->AlternateBytesSize = ((rounded_size - 1) << QUADSPI_CCR_ABSIZE_Pos) & QUADSPI_CCR_ABSIZE_Msk;
+        st_command->AlternateBytesSize = get_alt_bytes_size(alt_bytes);
     }
 
     switch (command->data.bus_width) {
