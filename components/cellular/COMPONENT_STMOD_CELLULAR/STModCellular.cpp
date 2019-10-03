@@ -113,6 +113,8 @@ nsapi_error_t STModCellular::soft_power_on()
     if ((MBED_CONF_STMOD_CELLULAR_CTS != NC) && (MBED_CONF_STMOD_CELLULAR_RTS != NC)) {
         tr_debug("Enable flow control\r\n");
 
+        pin_mode(MBED_CONF_STMOD_CELLULAR_CTS, PullDown);
+
         _at->lock();
         // enable CTS/RTS flowcontrol
         _at->set_stop_tag(mbed::OK);
