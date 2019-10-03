@@ -37,6 +37,10 @@ define memory mem with size = 4G;
 define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
 define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
 
+// Memory region used for ethernet
+define region eth_mem_region = mem:[from 0x30044000 to 0x30048000 ];
+place in eth_mem_region	{ section .ethusbram };
+
 // Stack and Heap
 define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x10000; // 64KB

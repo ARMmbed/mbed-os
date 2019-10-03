@@ -183,4 +183,19 @@ SECTIONS
 
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+    .lwip_sec (NOLOAD) : {
+        . = ABSOLUTE(0x30040000);
+        *(.RxDecripSection)
+
+        . = ABSOLUTE(0x30040100);
+        *(.TxDecripSection)
+
+        . = ABSOLUTE(0x30040400);
+        *(.RxArraySection)
+
+        . = ABSOLUTE(0x30044000);
+        *(.ethusbram)
+
+    } >RAM_D2 AT> FLASH
 }
