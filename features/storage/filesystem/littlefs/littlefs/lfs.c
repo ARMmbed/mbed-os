@@ -116,10 +116,10 @@ static inline void lfs_cache_drop(lfs_t *lfs, lfs_cache_t *rcache) {
     rcache->block = 0xffffffff;
 }
 
-static inline void lfs_cache_zero(lfs_t *lfs, lfs_cache_t *pcache) {
+static inline void lfs_cache_zero(lfs_cache_t *cache, lfs_size_t cache_size) {
     // zero to avoid information leak
-    memset(pcache->buffer, 0xff, lfs->cfg->prog_size);
-    pcache->block = 0xffffffff;
+    memset(cache->buffer, 0xff, cache_size);
+    cache->block = 0xffffffff;
 }
 
 static int lfs_cache_flush(lfs_t *lfs,
@@ -143,7 +143,7 @@ static int lfs_cache_flush(lfs_t *lfs,
             }
         }
 
-        lfs_cache_zero(lfs, pcache);
+        lfs_cache_zero(pcache, lfs->cfg->prog_size);
     }
 
     return 0;
@@ -1352,6 +1352,9 @@ int lfs_file_opencfg(lfs_t *lfs, lfs_file_t *file,
 
     // allocate buffer if needed
     file->cache.block = 0xffffffff;
+    lfs_size_t cache_buffer_size = (file->flags & 3) == LFS_O_RDONLY
+            ? lfs->cfg->read_size
+            : lfs->cfg->prog_size;
     if (file->cfg && file->cfg->buffer) {
         file->cache.buffer = file->cfg->buffer;
     } else if (lfs->cfg->file_buffer) {
@@ -1360,20 +1363,15 @@ int lfs_file_opencfg(lfs_t *lfs, lfs_file_t *file,
             return LFS_ERR_NOMEM;
         }
         file->cache.buffer = lfs->cfg->file_buffer;
-    } else if ((file->flags & 3) == LFS_O_RDONLY) {
-        file->cache.buffer = lfs_malloc(lfs->cfg->read_size);
-        if (!file->cache.buffer) {
-            return LFS_ERR_NOMEM;
-        }
     } else {
-        file->cache.buffer = lfs_malloc(lfs->cfg->prog_size);
+        file->cache.buffer = lfs_malloc(cache_buffer_size);
         if (!file->cache.buffer) {
             return LFS_ERR_NOMEM;
         }
     }
 
     // zero to avoid information leak
-    lfs_cache_zero(lfs, &file->cache);
+    lfs_cache_zero(&file->cache, cache_buffer_size);
 
     // add to list of files
     file->next = lfs->files;
@@ -1448,7 +1446,7 @@ relocate:
     memcpy(file->cache.buffer, lfs->pcache.buffer, lfs->cfg->prog_size);
     file->cache.block = lfs->pcache.block;
     file->cache.off = lfs->pcache.off;
-    lfs_cache_zero(lfs, &lfs->pcache);
+    lfs_cache_zero(&lfs->pcache, lfs->cfg->prog_size);
 
     file->block = nblock;
     return 0;
@@ -1669,7 +1667,7 @@ lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file,
                 }
 
                 // mark cache as dirty since we may have read data into it
-                lfs_cache_zero(lfs, &file->cache);
+                lfs_cache_zero(&file->cache, lfs->cfg->prog_size);
             }
 
             // extend file with new blocks
@@ -2055,8 +2053,8 @@ static int lfs_init(lfs_t *lfs, const struct lfs_config *cfg) {
     }
 
     // zero to avoid information leaks
-    lfs_cache_zero(lfs, &lfs->rcache);
-    lfs_cache_zero(lfs, &lfs->pcache);
+    lfs_cache_zero(&lfs->rcache, lfs->cfg->read_size);
+    lfs_cache_zero(&lfs->pcache, lfs->cfg->prog_size);
 
     // setup lookahead, round down to nearest 32-bits
     LFS_ASSERT(lfs->cfg->lookahead % 32 == 0);
