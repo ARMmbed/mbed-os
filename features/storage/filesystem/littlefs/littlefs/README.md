@@ -111,9 +111,9 @@ filesystem until sync or close is called on the file.
 
 ## Other notes
 
-All littlefs have the potential to return a negative error code. The errors
-can be either one of those found in the `enum lfs_error` in [lfs.h](lfs.h),
-or an error returned by the user's block device operations.
+All littlefs calls have the potential to return a negative error code. The 
+errors can be either one of those found in the `enum lfs_error` in 
+[lfs.h](lfs.h), or an error returned by the user's block device operations.
 
 In the configuration struct, the `prog` and `erase` function provided by the
 user may return a `LFS_ERR_CORRUPT` error if the implementation already can
@@ -175,3 +175,18 @@ handy.
 [littlefs-js](https://github.com/geky/littlefs-js) - A JavaScript wrapper for
 littlefs. I'm not sure why you would want this, but it is handy for demos.
 You can see it in action [here](http://littlefs.geky.net/demo.html).
+
+[mklfs](https://github.com/whitecatboard/Lua-RTOS-ESP32/tree/master/components/mklfs/src) -
+A command line tool built by the [Lua RTOS](https://github.com/whitecatboard/Lua-RTOS-ESP32)
+guys for making littlefs images from a host PC. Supports Windows, Mac OS,
+and Linux.
+
+[SPIFFS](https://github.com/pellepl/spiffs) - Another excellent embedded
+filesystem for NOR flash. As a more traditional logging filesystem with full
+static wear-leveling, SPIFFS will likely outperform littlefs on small
+memories such as the internal flash on microcontrollers.
+
+[Dhara](https://github.com/dlbeer/dhara) - An interesting NAND flash
+translation layer designed for small MCUs. It offers static wear-leveling and
+power-resilience with only a fixed O(|address|) pointer structure stored on
+each block and in RAM.
