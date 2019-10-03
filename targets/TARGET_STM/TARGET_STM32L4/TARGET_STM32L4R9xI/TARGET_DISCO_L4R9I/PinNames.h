@@ -362,8 +362,8 @@ typedef enum {
 
     /**** STMOD+ pins ****/
     STMOD_1  = PA_6,
-    STMOD_2  = PB_15,
-    STMOD_3  = PB_14,
+    STMOD_2  = PB_10,
+    STMOD_3  = PB_11,
     STMOD_4  = PB_13,
 //  STMOD_5 is connected to GND
 //  STMOD_6 is connected to +5V
