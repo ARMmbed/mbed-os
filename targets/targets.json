@@ -3315,6 +3315,7 @@
     "DISCO_H747I": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
+        "components_add": ["FLASHIAP"],
         "extra_labels_add": [
             "STM32H7",
             "STM32H747xI",
