@@ -15,7 +15,7 @@
     1. [HAL API changes](#hal-api-changes).
     1. [Drivers API changes](#drivers-api-changes).
     1. [`constexpr` utility functions](#constexpr-utility-functions).
-    1. [`Example usage](#constexpr-utility-functions).
+    1. [Example usage](#constexpr-utility-functions).
 
 # Introduction
 
@@ -38,7 +38,7 @@ This extension should give the following savings:
 4. Provide default weak implementations of `xxx_init_direct(explicit_pinmap_t *)` functions. These functions will call standard `xxx_init(xxx_t *obj, PinName, ...)` function (backward compatibility for targets which do not support explicit pinmap mechanism).
 5. Provide `constexpr` utility functions to lookup for pin mapping in compile time (requires C++14).
 6. Initialize console using explicit pinmap mechanism, so `hal\mbed_pinmap_common library` is not needed and can be removed.
-7. Modify FPGA tests to verify also `xxx_init_direct(xxx_t *obj, explicit_pinmap_t*)` APIs.
+7. Modify FPGA tests to verify `xxx_init_direct(xxx_t *obj, explicit_pinmap_t*)` APIs.
 
 # System architecture and high-level design
 
@@ -46,17 +46,171 @@ This extension should give the following savings:
 
 The explicit pinmap mechanism with backward compatibility is shown below on PWM peripheral example.
 
-![alt text](img/explicit_pinmap.png "Explicit pinmap model")
+![Explicit pinmap model](img/explicit_pinmap.png)
 
 For targets which do not provide explicit pinmap support standard initialization will be performed (which uses pinmap tables) even if direct API is selected.
 
 ### How much we can save
 
-Tables below show how much ROM we can save using explicit pinmap for each peripheral:
+Example code used to test memory usage for peripheral with and without explicit pinmap extension can be found below:
 
-![alt text](img/explicit_pinmap_gcc.png "GCC ROM savings")
-![alt text](img/explicit_pinmap_arm.png "ARM ROM savings")
-![alt text](img/explicit_pinmap_iar.png "IAR ROM savings")
+```
+#ifndef USE_EXPLICIT_PINMAP
+#define USE_EXPLICIT_PINMAP 1
+#endif
+
+// SPI app for build test
+static void test_spi()
+{
+#if !USE_EXPLICIT_PINMAP
+    /* Regular use (master) */
+    SPI spi(D1, D2, D3, D4);
+#else
+    /* Explicit pinmap */
+    constexpr spi_pinmap_t explicit_spi_pinmap = get_spi_pinmap(D1, D2, D3, D4);
+    SPI spi(explicit_spi_pinmap);
+#endif
+    spi.format(8,0);
+}
+
+// PWM app for build test
+static void test_pwm()
+{
+#if !USE_EXPLICIT_PINMAP
+    PwmOut led(LED1);
+#else
+    constexpr PinMap explicit_pinmap = get_pwm_pinmap(LED1);
+    PwmOut led(explicit_pinmap);
+#endif
+    led.period(4.0f);
+}
+
+// ANALOGIN app for build test
+static void test_analogin()
+{
+#if !USE_EXPLICIT_PINMAP
+    AnalogIn ain(A0);
+#else
+    constexpr PinMap explicit_pinmap = get_analogin_pinmap(A0);
+    AnalogIn ain(explicit_pinmap);
+#endif
+    if(ain > 0.3f) {
+        while(1);
+    }
+}
+
+// ANALOGOUT app for build test
+static void test_analogout()
+{
+#if !USE_EXPLICIT_PINMAP
+    AnalogOut  aout(D1);
+#else
+    constexpr PinMap explicit_pinmap = get_analogout_pinmap(D1);
+    AnalogOut aout(explicit_pinmap);
+#endif
+    aout = 0.1;
+}
+
+// I2C app for build test
+static void test_i2c()
+{
+#if !USE_EXPLICIT_PINMAP
+    I2C i2c(D1, D2);
+#else
+    constexpr i2c_pinmap_t explicit_pinmap = get_i2c_pinmap(D1, D2);
+    I2C i2c(explicit_pinmap);
+#endif
+    i2c.frequency(1000000);
+}
+
+// SERIAL app for build test
+static void test_serial()
+{
+#if !USE_EXPLICIT_PINMAP
+    Serial serial(D0, D1);
+    serial.set_flow_control(Serial::RTSCTS, D2, D3);
+#else
+    constexpr serial_pinmap_t explicit_pinmap = get_uart_pinmap(D0, D1);
+    constexpr serial_fc_pinmap_t explicit_pinmap_fc = get_uart_fc_pinmap(D2, D3);
+    Serial serial(explicit_pinmap);
+    serial.set_flow_control(Serial::RTSCTS, explicit_pinmap_fc);
+#endif
+    if (serial.readable()) {
+        while(1);
+    }
+}
+
+// QSPI app for build test
+static void test_qspi()
+{
+#if !USE_EXPLICIT_PINMAP
+    QSPI qspi_device(D1, D2, D3, D4, D5, D6);
+#else
+    constexpr qspi_pinmap_t explicit_pinmap = get_qspi_pinmap(D1, D2, D3, D4, D5, D6);
+    QSPI qspi_device(explicit_pinmap);
+#endif
+
+    qspi_device.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE,
+                                QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
+                                QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+}
+
+// CAN app for build test
+static void test_can()
+{
+    char counter;
+
+#if !USE_EXPLICIT_PINMAP
+    CAN can(D0, D1);
+#else
+    constexpr can_pinmap_t explicit_pinmap = get_can_pinmap(D0, D1);
+    CAN can(explicit_pinmap, 10000);
+#endif
+    can.write(CANMessage(1337, &counter, 1));
+}
+
+```
+
+
+Detailed information about the memory savings for K64F and all compilers can be found below:
+
+<table>
+<tr><th colspan='7'>GCC_ARM/K64F [bytes]</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>PWM</th><td>468</td><td>54743</td><td>53810</td><td>53810</td><td>0</td><td>933</td></tr>
+<tr><th>Analogin</th><td>288</td><td>59967</td><td>59202</td><td>59202</td><td>0</td><td>765</td></tr>
+<tr><th>Analogout</th><td>24</td><td>53619</td><td>53094</td><td>53094</td><td>0</td><td>525</td></tr>
+<tr><th>SPI</th><td>408</td><td>57216</td><td>56227</td><td>56227</td><td>0</td><td>989</td></tr>
+<tr><th>I2C</th><td>204</td><td>54600</td><td>53915</td><td>53915</td><td>0</td><td>685</td></tr>
+<tr><th>Serial</th><td>288</td><td>59824</td><td>59371</td><td>59355</td><td>-16</td><td>453</td></tr>
+</table>
+
+<table>
+<tr><th colspan='7'>ARM/K64F [bytes]</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>PWM</th><td>468</td><td>45564</td><td>44554</td><td>44554</td><td>0</td><td>1010</td></tr>
+<tr><th>Analogin</th><td>288</td><td>44469</td><td>43643</td><td>43643</td><td>0</td><td>826</td></tr>
+<tr><th>Analogout</th><td>24</td><td>43840</td><td>43274</td><td>43274</td><td>0</td><td>566</td></tr>
+<tr><th>SPI</th><td>408</td><td>47535</td><td>46471</td><td>46471</td><td>0</td><td>1064</td></tr>
+<tr><th>I2C</th><td>204</td><td>44876</td><td>44110</td><td>44110</td><td>0</td><td>766</td></tr>
+<tr><th>Serial</th><td>288</td><td>46554</td><td>46034</td><td>46034</td><td>0</td><td>520</td></tr>
+</table>
+
+<table>
+<tr><th colspan='7'>IAR/K64F [bytes]</th></tr>
+<tr><th>Peripheral</th><th>Pinmap size</th><th>Master</th><th>Explicit pinmap</th><th>Explicit pinmap constexpr</th><th>constexpr diff</th><th>Saved ROM</th></tr>
+<tr><th>PWM</th><td>468</td><td>41125</td><td>40114</td><td>40103</td><td>-11</td><td>1011</td></tr>
+<tr><th>Analogin</th><td>288</td><td>39913</td><td>39073</td><td>39061</td><td>-12</td><td>840</td></tr>
+<tr><th>Analogout</th><td>24</td><td>39913</td><td>38645</td><td>38633</td><td>-12</td><td>1268</td></tr>
+<tr><th>SPI</th><td>408</td><td>41759</td><td>40685</td><td>40685</td><td>0</td><td>1074</td></tr>
+<tr><th>I2C</th><td>204</td><td>40480</td><td>39713</td><td>39713</td><td>0</td><td>767</td></tr>
+<tr><th>Serial</th><td>288</td><td>41427</td><td>40883</td><td>40883</td><td>0</td><td>544</td></tr>
+</table>
+
+The tables contain two columns for explicit pinmap case: `Explicit pinmap` (pinmap specified manually), `Explicit pinmap constexpr` (`constexpr` utility function used to create pinmap table). We expect that in both cases memory usage should be the same. Above results proves this assumption. In some cases we can get few bytes of extra savings when `constexpr` utility function is used.
+For more details about `constexpr` utility functions please check [constexpr utility functions](#constexpr-utility-functions), [example usage](#constexpr-utility-functions).
+
+Note that on the master pinmap tables are used by the: serial console and tested peripheral. So in case of explicit pinmap we have savings from removing pinmap tables used by serial console and tested peripheral.
 
 Example memory usage change for ARM/PWM example: master vs constexpr explicit pinmap:
 
@@ -75,13 +229,29 @@ Example memory usage change for ARM/PWM example: master vs constexpr explicit pi
 | hal\mbed_ticker_api.o           |      978(+0) |   0(+0) |      0(+0) |
 | hal\mbed_us_ticker_api.o        |      114(+0) |   4(+0) |     65(+0) |
 | main.o                          |      70(+32) |   0(+0) |      0(+0) |  // extra space for explicit pinmap structure in application
-| platform\source                 |    5683(+46) |  64(+0) |    249(+0) |
+| platform\source                 |    5683(+46) |  64(+0) |    249(+0) |  // extra space for UART explicit pinmap structure to initialize the console
 | rtos\source                     |     8990(+0) | 168(+0) |   6626(+0) |
 | targets\TARGET_Freescale        |  16581(-816) |  12(+0) |    340(+0) |  // removed pinmaps + driver code reduction
 | Subtotals                       | 44290(-1010) | 264(+0) | 205518(+0) |
 Total Static RAM memory (data + bss): 205782(+0) bytes
 Total Flash memory (text + data): 44554(-1010) bytes
 ```
+
+Below table contains memory savings when explicit pinmap is used for supported targets (ARM compiler):
+
+<table>
+<tr><th colspan='9'>ARM/supported Targets [bytes]</th></tr>
+<tr><th>BOARD/PERIPHERAL</th><th>PWM</th><th>AnalogIn</th><th>AnalogOut</th><th>SPI</th><th>I2C</th><th>Serial</th><th>CAN</th><th>QSPI</th></tr>
+<tr><th>NUCLEO_F429ZI</th><th>-1720</th><th>-1544</th><th>-928</th><th>-1464</th><th>-948</th><th>-976</th><th>-924</th><th>-</th></tr>
+<tr><th>NUCLEO_F411RE</th><th>-1060</th><th>-908</th><th>-</th><th>-1140</th><th>-732</th><th>-628</th><th>-</th><th>-</th></tr>
+<tr><th>DISCO_L475VG_IOT01A</th><th>-1644</th><th>-1324</th><th>-852</th><th>-1256</th><th>-848</th><th>-988</th><th>-788</th><th>-904</th></tr>
+<tr><th>NRF52840_DK</th><th>-</th><th>-160</th><th>-</th><th>-</th><th>-</th><th>-</th><th>-</th><th>-</th></tr>
+<tr><th>NUCLEO_F303RE</th><th>-1620</th><th>-1256</th><th>-820</th><th>-1120</th><th>-860</th><th>-792</th><th>-740</th><th>-</th></tr>
+<tr><th>LPC55S69_NS</th><th>-</th><th>-460</th><th>-</th><th>-718</th><th>-452</th><th>-400</th><th>-</th><th>-</th></tr>
+<tr><th>NUCLEO_L073RZ</th><th>-1116</th><th>-1088</th><th>-864</th><th>-1092</th><th>-952</th><th>-958</th><th>-</th><th>-</th></tr>
+</table>
+
+The memory savings are very target specific, but always proportional to size of the pinmap table.
 
 # Detailed design
 
@@ -91,9 +261,9 @@ For peripherals which require only one pin (`AnalogIn`, `AnalogOut`, `PWM`) stan
 
 ```
 typedef struct {
-    PinName pin;
-    int peripheral;
-    int function;
+    PinName pin;     // selected pin name
+    int peripheral;  // peripheral that we want to use
+    int function;    // pin alternative function associated with the peripheral
 } PinMap;
 ```
 
@@ -101,15 +271,15 @@ Example pinmap type for SPI:
 
 ```
 typedef struct {
-    int peripheral;
-    PinName mosi_pin;
-    int mosi_function;
-    PinName miso_pin;
-    int miso_function;
-    PinName sclk_pin;
-    int sclk_function;
-    PinName ssel_pin;
-    int ssel_function;
+    int peripheral;      // peripheral that we want to use
+    PinName mosi_pin;    // mosi pin name
+    int mosi_function;   // mosi pin alternative function
+    PinName miso_pin;    // miso pin name
+    int miso_function;   // miso pin alternative function
+    PinName sclk_pin;    // sclk pin name
+    int sclk_function;   // slck pin alternative function
+    PinName ssel_pin;    // ssel pin name
+    int ssel_function;   // ssel pin alternative function
 } spi_pinmap_t;
 ```
 
