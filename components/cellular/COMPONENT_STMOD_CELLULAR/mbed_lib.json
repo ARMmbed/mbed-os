@@ -65,5 +65,10 @@
             "help": "Provide as default CellularDevice [true/false]",
             "value": false
         }
+    },
+    "target_overrides": {
+        "DISCO_L4R9I": {
+            "rts": "NC"
+        }
     }
 }
