@@ -270,140 +270,10 @@ FileSystem *_get_filesystem_default(const char *mount)
 #endif
 }
 
-int get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *size)
-{
-    int ret = MBED_SUCCESS;
-
-#if COMPONENT_FLASHIAP
-    FlashIAP flash;
-    if (flash.init() != 0) {
-        return MBED_ERROR_INITIALIZATION_FAILED;
-    }
-
-    // Use the last 2 sectors or 10 pages of flash for the TDBStore by default (whichever is larger)
-    // For each area: must be a minimum of 1 page of reserved and 2 pages for master record
-    static const int STORE_SECTORS = 2;
-    static const int STORE_PAGES = 10;
-
-    // Let's work from end of the flash backwards
-    bd_addr_t curr_addr = flash.get_flash_start() + flash.get_flash_size();
-    bd_size_t sector_space = 0;
-
-    for (int i = STORE_SECTORS; i; i--) {
-        bd_size_t sector_size = flash.get_sector_size(curr_addr - 1);
-        sector_space += sector_size;
-    }
-
-    bd_size_t page_space = flash.get_page_size() * STORE_PAGES;
-    if (sector_space > page_space) {
-        curr_addr -= sector_space;
-        *size = sector_space;
-    } else {
-        curr_addr -= page_space;
-        *size = page_space;
-    }
-
-    // Store- and application-sectors mustn't overlap
-    uint32_t first_wrtbl_sector_addr =
-        (uint32_t)(align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)));
-
-    MBED_ASSERT(curr_addr >= first_wrtbl_sector_addr);
-    if (curr_addr < first_wrtbl_sector_addr) {
-        ret = MBED_ERROR_MEDIA_FULL;
-    } else {
-        *start_address = curr_addr;
-    }
-
-    flash.deinit();
-#endif
-
-    return ret;
-}
-
-int get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *size)
-{
-#if COMPONENT_FLASHIAP
-
-    bd_addr_t flash_end_address;
-    bd_addr_t flash_start_address;
-    bd_addr_t flash_first_writable_sector_address;
-    bd_addr_t aligned_start_address;
-    bd_addr_t aligned_end_address;
-    bd_addr_t end_address;
-    FlashIAP flash;
-
-    if (!start_address || !size) {
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
-    int ret = flash.init();
-    if (ret != 0) {
-        return MBED_ERROR_INITIALIZATION_FAILED;
-    }
-
-    // Get flash parameters
-    flash_first_writable_sector_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
-    flash_start_address = flash.get_flash_start();
-    flash_end_address = flash_start_address + flash.get_flash_size();
-
-    if (*start_address == 0) {
-        if (*size == 0) {
-            flash.deinit();
-            return MBED_ERROR_INVALID_ARGUMENT;
-        }
-
-        *start_address = flash_end_address - *size;
-        aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
-        if (*start_address != aligned_start_address) {
-            // Start address not aligned - size should likely be changed so that it is
-            flash.deinit();
-            return MBED_ERROR_INVALID_SIZE;
-        }
-    } else {
-        aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
-        if (*start_address != aligned_start_address) {
-            // Start address not aligned - size should likely be changed so that it is
-            flash.deinit();
-            return MBED_ERROR_INVALID_SIZE;
-        }
-
-        if (*size == 0) {
-            //The block device will have all space from start address to the end of the flash
-            *size = (flash_end_address - *start_address);
-        } else {
-            // Do checks on end address to make sure configured start address/size are good
-
-            end_address = *start_address + *size;
-            if (end_address > flash_end_address) {
-                // End address is out of flash bounds
-                flash.deinit();
-                return MBED_ERROR_INVALID_SIZE;
-            }
-
-            aligned_end_address = align_up(end_address, flash.get_sector_size(end_address - 1));
-            if (end_address != aligned_end_address) {
-                // End address not aligned - size should likely be changed so that it is
-                flash.deinit();
-                return MBED_ERROR_INVALID_SIZE;
-            }
-        }
-    }
-
-    flash.deinit();
-
-    if (*start_address < flash_first_writable_sector_address) {
-        // Calculated start address overlaps with ROM
-        return MBED_ERROR_MEDIA_FULL;
-    }
-#endif
-
-    return MBED_SUCCESS;
-}
-
 BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_FLASHIAP
-    int ret = get_flash_bounds_from_config(&start_address, &size);
+    int ret = TDBStore::get_flash_bounds_from_config(&start_address, &size);
     if (ret != 0) {
         tr_error("KV Config: Determination of internal block device bounds failed. The configured start address/size is likely invalid.");
         return NULL;
@@ -689,13 +559,14 @@ MBED_WEAK BlockDevice *get_other_blockdevice()
     return NULL;
 }
 
-int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_size_t *size, bd_addr_t *start_address) {
+int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_size_t *size, bd_addr_t *start_address)
+{
     int ret;
 
     //Get the default address and size for the TDBStore
     if (*size == 0 && *start_address == 0) {
         //Calculate the block device size and start address in case default values are used.
-        ret = get_default_flash_addresses(start_address, size);
+        ret = TDBStore::get_default_flash_addresses(start_address, size);
         if (ret != MBED_SUCCESS) {
             return MBED_ERROR_FAILED_OPERATION;
         }

@@ -280,6 +280,33 @@ public:
     virtual int reserved_data_get(void *reserved_data, size_t reserved_data_buf_size,
                                   size_t *actual_data_size = 0);
 
+    /**
+     * @brief Get the default TDBStore flash start address and size.
+     *
+     * @param[out] start_address    Default TDBStore start address in flash.
+     * @param[out] size             Default TDBStore size.
+     *
+     * @returns MBED_SUCCESS                        Success.
+     *          MBED_ERROR_INITIALIZATION_FAILED    Failed to initialize flash driver.
+     *          MBED_ERROR_MEDIA_FULL               Default TDBStore space overlaps with program memory.
+     */
+    static int get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *size);
+
+    /**
+     * @brief Get the TDBStore flash bounds from the configured start address and size.
+     * Configured start address/size must not both be 0.
+     *
+     * @param[inout] start_address    Configured TDBStore start address in flash.
+     * @param[inout] size             Configured TDBStore size.
+     *
+     * @returns MBED_SUCCESS                        Success.
+     *          MBED_ERROR_INVALID_ARGUMENT         One of the arguments is NULL or both the configured start address and size are 0.
+     *          MBED_ERROR_INITIALIZATION_FAILED    Failed to initialize flash driver.
+     *          MBED_ERROR_INVALID_SIZE             Configured size results in misaligned start/end address or end address past the end of flash.
+     *          MBED_ERROR_MEDIA_FULL               Configured start address/size results in bounds overlapping with program memory.
+     */
+    static int get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *size);
+
 #if !defined(DOXYGEN_ONLY)
 private:
 
