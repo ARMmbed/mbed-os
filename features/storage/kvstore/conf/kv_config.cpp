@@ -270,31 +270,37 @@ FileSystem *_get_filesystem_default(const char *mount)
 #endif
 }
 
-//Calculates the start address of FLASHIAP block device for TDB_INTERNAL profile.
-//Last two sectors to have a predictable location for the TDBStore
-int _get_flashiap_bd_default_addresses_tdb_internal(bd_addr_t *start_address, bd_size_t *size)
+int get_default_flash_addresses(bd_addr_t *start_address, bd_size_t *size)
 {
     int ret = MBED_SUCCESS;
 
 #if COMPONENT_FLASHIAP
-
     FlashIAP flash;
-    static const int STORE_SECTORS = 2;
-
-    if (*start_address || *size) {
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
     if (flash.init() != 0) {
-        return MBED_ERROR_FAILED_OPERATION;
+        return MBED_ERROR_INITIALIZATION_FAILED;
     }
 
-    // Lets work from end of the flash backwards
+    // Use the last 2 sectors or 10 pages of flash for the TDBStore by default (whichever is larger)
+    // For each area: must be a minimum of 1 page of reserved and 2 pages for master record
+    static const int STORE_SECTORS = 2;
+    static const int STORE_PAGES = 10;
+
+    // Let's work from end of the flash backwards
     bd_addr_t curr_addr = flash.get_flash_start() + flash.get_flash_size();
+    bd_size_t sector_space = 0;
 
     for (int i = STORE_SECTORS; i; i--) {
         bd_size_t sector_size = flash.get_sector_size(curr_addr - 1);
-        curr_addr -= sector_size;
+        sector_space += sector_size;
+    }
+
+    bd_size_t page_space = flash.get_page_size() * STORE_PAGES;
+    if (sector_space > page_space) {
+        curr_addr -= sector_space;
+        *size = sector_space;
+    } else {
+        curr_addr -= page_space;
+        *size = page_space;
     }
 
     // Store- and application-sectors mustn't overlap
@@ -309,57 +315,12 @@ int _get_flashiap_bd_default_addresses_tdb_internal(bd_addr_t *start_address, bd
     }
 
     flash.deinit();
-
 #endif
 
     return ret;
 }
 
-//Calculates address and size for FLASHIAP block device in TDB_EXTERNAL and FILESYSTEM profiles.
-//The size of the block device will be 2 sectors at the ends of the internal flash for
-//the use of the rbp internal TDBStore.
-int _get_flashiap_bd_default_addresses_rbp(bd_addr_t *start_address, bd_size_t *size)
-{
-#if COMPONENT_FLASHIAP
-
-    bd_addr_t flash_end_address;
-    bd_addr_t flash_start_address;
-    bd_addr_t aligned_start_address;
-    bd_addr_t flash_first_writable_sector_address;
-    FlashIAP flash;
-
-    if (*start_address != 0 || *size != 0) {
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
-    int ret = flash.init();
-    if (ret != 0) {
-        return MBED_ERROR_INITIALIZATION_FAILED;
-    }
-
-    flash_first_writable_sector_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
-    flash_start_address = flash.get_flash_start();
-    flash_end_address = flash_start_address + flash.get_flash_size();;
-    *start_address = flash_end_address - 1;
-    aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
-    *size = (flash_end_address - aligned_start_address) * 2;
-    *start_address = (flash_end_address - *size);
-    aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
-
-    flash.deinit();
-
-    if (aligned_start_address < flash_first_writable_sector_address) {
-        tr_error("KV Config: Internal block device start address overlapped ROM address ");
-        return MBED_ERROR_INITIALIZATION_FAILED;
-    }
-
-#endif
-
-    return MBED_SUCCESS;
-
-}
-
-BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
+int get_flash_bounds_from_config(bd_addr_t *start_address, bd_size_t *size)
 {
 #if COMPONENT_FLASHIAP
 
@@ -371,80 +332,91 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
     bd_addr_t end_address;
     FlashIAP flash;
 
-    int ret = flash.init();
-    if (ret != 0) {
-        return NULL;
+    if (!start_address || !size) {
+        return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    //Get flash parameters before starting
+    int ret = flash.init();
+    if (ret != 0) {
+        return MBED_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Get flash parameters
     flash_first_writable_sector_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
     flash_start_address = flash.get_flash_start();
-    flash_end_address = flash_start_address + flash.get_flash_size();;
+    flash_end_address = flash_start_address + flash.get_flash_size();
 
-    //Non default configuration
-    if (start_address != 0) {
-
-        aligned_start_address = align_down(start_address, flash.get_sector_size(start_address));
-        if (start_address != aligned_start_address) {
-            tr_error("KV Config: Internal block device start address is not aligned. Better use %02llx", aligned_start_address);
+    if (*start_address == 0) {
+        if (*size == 0) {
             flash.deinit();
-            return NULL;
+            return MBED_ERROR_INVALID_ARGUMENT;
         }
 
-        if (size == 0) {
+        *start_address = flash_end_address - *size;
+        aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
+        if (*start_address != aligned_start_address) {
+            // Start address not aligned - size should likely be changed so that it is
+            flash.deinit();
+            return MBED_ERROR_INVALID_SIZE;
+        }
+    } else {
+        aligned_start_address = align_down(*start_address, flash.get_sector_size(*start_address));
+        if (*start_address != aligned_start_address) {
+            // Start address not aligned - size should likely be changed so that it is
+            flash.deinit();
+            return MBED_ERROR_INVALID_SIZE;
+        }
+
+        if (*size == 0) {
             //The block device will have all space from start address to the end of the flash
-            size = (flash_end_address - start_address);
+            *size = (flash_end_address - *start_address);
+        } else {
+            // Do checks on end address to make sure configured start address/size are good
 
-            static FlashIAPBlockDevice bd(start_address, size);
-            flash.deinit();
-            return &bd;
-        }
-
-        if (size != 0) {
-            end_address = start_address + size;
+            end_address = *start_address + *size;
             if (end_address > flash_end_address) {
-                tr_error("KV Config: Internal block device end address is out of boundaries");
+                // End address is out of flash bounds
                 flash.deinit();
-                return NULL;
+                return MBED_ERROR_INVALID_SIZE;
             }
 
             aligned_end_address = align_up(end_address, flash.get_sector_size(end_address - 1));
             if (end_address != aligned_end_address) {
-                tr_error("KV Config: Internal block device start address is not aligned. Consider changing the size parameter");
+                // End address not aligned - size should likely be changed so that it is
                 flash.deinit();
-                return NULL;
+                return MBED_ERROR_INVALID_SIZE;
             }
-
-            static FlashIAPBlockDevice bd(start_address, size);
-            flash.deinit();
-            return &bd;
         }
-    }
-
-    //Non default configuration start_address = 0
-    start_address = flash_end_address - size;
-    aligned_start_address = align_down(start_address, flash.get_sector_size(start_address));
-    if (start_address != aligned_start_address) {
-        tr_error("KV Config: Internal block device start address is not aligned. Consider changing the size parameter");
-        flash.deinit();
-        return NULL;
     }
 
     flash.deinit();
 
-    if (aligned_start_address < flash_first_writable_sector_address) {
-        tr_error("KV Config: Internal block device start address overlapped ROM address ");
+    if (*start_address < flash_first_writable_sector_address) {
+        // Calculated start address overlaps with ROM
+        return MBED_ERROR_MEDIA_FULL;
+    }
+#endif
+
+    return MBED_SUCCESS;
+}
+
+BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t &start_address, bd_size_t &size)
+{
+#if COMPONENT_FLASHIAP
+    int ret = get_flash_bounds_from_config(&start_address, &size);
+    if (ret != 0) {
+        tr_error("KV Config: Determination of internal block device bounds failed. The configured start address/size is likely invalid.");
         return NULL;
     }
-    static FlashIAPBlockDevice bd(aligned_start_address, size);
-    return &bd;
 
+    static FlashIAPBlockDevice bd(start_address, size);
+    return &bd;
 #else
     return NULL;
 #endif
 }
 
-BlockDevice *_get_blockdevice_SPIF(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_SPIF(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_SPIF
 
@@ -474,6 +446,9 @@ BlockDevice *_get_blockdevice_SPIF(bd_addr_t start_address, bd_size_t size)
         return NULL;
     }
 
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
     static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
     return &sbd;
 
@@ -482,7 +457,7 @@ BlockDevice *_get_blockdevice_SPIF(bd_addr_t start_address, bd_size_t size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_QSPIF(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_QSPIF
 
@@ -515,6 +490,9 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
         return NULL;
     }
 
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
     static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
     return &sbd;
 
@@ -523,7 +501,7 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_DATAFLASH
 
@@ -552,6 +530,9 @@ BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t start_address, bd_size_t size)
         return NULL;
     }
 
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
     static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
     return &sbd;
 
@@ -561,7 +542,7 @@ BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t start_address, bd_size_t size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_SD(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_SD
 
@@ -618,6 +599,10 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
     }
 
     aligned_end_address = align_down(aligned_end_address, bd.get_erase_size(aligned_end_address));
+
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
     static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
     return &sbd;
 
@@ -626,7 +611,7 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
 #endif
 }
 
-BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_default(bd_addr_t &start_address, bd_size_t &size)
 {
 #if COMPONENT_QSPIF
     return _get_blockdevice_QSPIF(start_address, size);
@@ -644,7 +629,7 @@ BlockDevice *_get_blockdevice_default(bd_addr_t start_address, bd_size_t size)
 
 /* Same logic as _get_blockdevice_SD() except block device replaced with from
  * get_other_blockdevice() */
-BlockDevice *_get_blockdevice_other(bd_addr_t start_address, bd_size_t size)
+BlockDevice *_get_blockdevice_other(bd_addr_t &start_address, bd_size_t &size)
 {
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
@@ -691,6 +676,10 @@ BlockDevice *_get_blockdevice_other(bd_addr_t start_address, bd_size_t size)
     }
 
     aligned_end_address = align_down(aligned_end_address, bd->get_erase_size(aligned_end_address));
+
+    start_address = aligned_start_address;
+    size = aligned_end_address - aligned_start_address;
+
     static SlicingBlockDevice sbd(bd, aligned_start_address, aligned_end_address);
     return &sbd;
 }
@@ -700,57 +689,70 @@ MBED_WEAK BlockDevice *get_other_blockdevice()
     return NULL;
 }
 
-int _storage_config_TDB_INTERNAL()
-{
-#if COMPONENT_FLASHIAP
-    bd_size_t internal_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
-    bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
+int _create_internal_tdb(BlockDevice **internal_bd, KVStore **internal_tdb, bd_size_t *size, bd_addr_t *start_address) {
     int ret;
 
-    if (internal_size == 0 && internal_start_address == 0) {
+    //Get the default address and size for the TDBStore
+    if (*size == 0 && *start_address == 0) {
         //Calculate the block device size and start address in case default values are used.
-        ret = _get_flashiap_bd_default_addresses_tdb_internal(&internal_start_address, &internal_size);
+        ret = get_default_flash_addresses(start_address, size);
         if (ret != MBED_SUCCESS) {
-            return ret;
+            return MBED_ERROR_FAILED_OPERATION;
         }
     }
 
-    //Get internal memory FLASHIAP block device.
-    kvstore_config.internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, internal_start_address, internal_size);
-    if (kvstore_config.internal_bd == NULL) {
+    //Create internal FLASHIAP block device
+    *internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, *start_address, *size);
+    if (*internal_bd == NULL) {
         tr_error("KV Config: Fail to get internal BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION;
+        return MBED_ERROR_FAILED_OPERATION ;
     }
 
-
-    ret = kvstore_config.internal_bd->init();
+    // Initialize internal block device
+    ret = (*internal_bd)->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init internal BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION;
+        return MBED_ERROR_FAILED_OPERATION ;
     }
 
-    //Check that internal flash has 2 or more sectors
-    if (_calculate_blocksize_match_tdbstore(kvstore_config.internal_bd) != MBED_SUCCESS) {
+    //Check if TDBStore has at least 2 sector.
+    if (_calculate_blocksize_match_tdbstore(*internal_bd) != MBED_SUCCESS) {
         tr_error("KV Config: Can not create TDBStore with less then 2 sector.");
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    //Deinitialize internal block device and TDB will reinitialize and take control on it.
-    ret = kvstore_config.internal_bd->deinit();
+    //Deinitialize internal block device and TDB will reinitialize and take control of it.
+    ret = (*internal_bd)->deinit();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to deinit internal BlockDevice.");
         return MBED_ERROR_FAILED_OPERATION;
     }
 
-    //Create a TDBStore in the internal FLASHIAP block device.
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
+    //Create internal TDBStore
+    static TDBStore tdb_internal(*internal_bd);
+    *internal_tdb = &tdb_internal;
 
-    ret = kvstore_config.internal_store->init();
+    ret = (*internal_tdb)->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init internal TDBStore.");
         return ret;
     }
+
+    return MBED_SUCCESS;
+}
+
+int _storage_config_TDB_INTERNAL()
+{
+#if COMPONENT_FLASHIAP
+    bd_size_t internal_size = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
+    bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
+
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_size, &internal_start_address);
+    if (MBED_SUCCESS != ret) {
+        tr_error("KV Config: Fail to create internal TDBStore");
+        return ret;
+    }
+
     kvstore_config.kvstore_main_instance =
         kvstore_config.internal_store;
 
@@ -790,40 +792,9 @@ int _storage_config_TDB_EXTERNAL()
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
 
-    //Get the default address and size for internal rbp TDBStore
-    if (internal_rbp_size == 0 && internal_start_address == 0) {
-        //Calculate the block device size and start address in case default values are used.
-        if (_get_flashiap_bd_default_addresses_rbp(&internal_start_address, &internal_rbp_size) != MBED_SUCCESS) {
-            return MBED_ERROR_FAILED_OPERATION;
-        }
-    }
-
-    //Create internal FLASHIAP block device
-    kvstore_config.internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, internal_start_address, internal_rbp_size);
-    if (kvstore_config.internal_bd == NULL) {
-        tr_error("KV Config: Fail to get internal BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    int ret = kvstore_config.internal_bd->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init internal BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    //Check if TDBStore has at least 2 sector.
-    if (_calculate_blocksize_match_tdbstore(kvstore_config.internal_bd) != MBED_SUCCESS) {
-        tr_error("KV Config: Can not create TDBStore with less then 2 sector.");
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
-    //Create internal TDBStore
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
-
-    ret = kvstore_config.internal_store->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init internal TDBStore.");
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_rbp_size, &internal_start_address);
+    if (MBED_SUCCESS != ret) {
+        tr_error("KV Config: Fail to create internal TDBStore");
         return ret;
     }
 
@@ -965,47 +936,9 @@ int _storage_config_FILESYSTEM()
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
 
-    //Get the default address and size for internal rbp TDBStore
-    if (internal_rbp_size == 0 && internal_start_address == 0) {
-        //Calculate the block device size and start address in case default values are used.
-        if (_get_flashiap_bd_default_addresses_rbp(&internal_start_address, &internal_rbp_size) != MBED_SUCCESS) {
-            return MBED_ERROR_FAILED_OPERATION;
-        }
-    }
-
-    //Get internal FLASHIAP block device
-    kvstore_config.internal_bd = GET_BLOCKDEVICE(INTERNAL_BLOCKDEVICE_NAME, internal_start_address, internal_rbp_size);
-    if (kvstore_config.internal_bd == NULL) {
-        tr_error("KV Config: Fail to get internal BlockDevice ");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    int ret = kvstore_config.internal_bd->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init internal BlockDevice ");
-        return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    //Check that internal flash has 2 or more sectors
-    if (_calculate_blocksize_match_tdbstore(kvstore_config.internal_bd) != MBED_SUCCESS) {
-        tr_error("KV Config: Can not create TDBStore with less then 2 sector.");
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
-    //Deinitialize internal block device and TDB will reinitialize and take control on it.
-    ret = kvstore_config.internal_bd->deinit();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to deinit internal BlockDevice.");
-        return MBED_ERROR_FAILED_OPERATION;
-    }
-
-    //Create internal TDBStore for rbp
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
-
-    ret = kvstore_config.internal_store->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init internal TDBStore");
+    int ret = _create_internal_tdb(&kvstore_config.internal_bd, &kvstore_config.internal_store, &internal_rbp_size, &internal_start_address);
+    if (MBED_SUCCESS != ret) {
+        tr_error("KV Config: Fail to create internal TDBStore");
         return ret;
     }
 
