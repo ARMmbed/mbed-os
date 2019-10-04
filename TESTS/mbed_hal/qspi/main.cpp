@@ -42,7 +42,9 @@ using namespace utest::v1;
 
 
 
+#ifndef QSPI_MIN_FREQUENCY
 #define QSPI_MIN_FREQUENCY  1000000
+#endif
 
 // max write size is usually page size
 #define DATA_SIZE_256  (QSPI_PAGE_SIZE)
