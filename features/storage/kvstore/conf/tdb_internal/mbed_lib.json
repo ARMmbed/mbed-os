@@ -15,6 +15,10 @@
             "internal_size": "0x8000",
             "internal_base_address": "0x00028000"
         },
+        "DISCO_H747I": {
+            "internal_size": "256*1024",
+            "internal_base_address": "0x080C0000"
+        },
        "ARM_MUSCA_A1_S": {
             "internal_size": "0x8000",
             "internal_base_address": "0x00420000"
