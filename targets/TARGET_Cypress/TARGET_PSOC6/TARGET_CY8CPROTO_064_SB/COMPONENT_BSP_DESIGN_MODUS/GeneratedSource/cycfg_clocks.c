@@ -24,18 +24,37 @@
 
 #include "cycfg_clocks.h"
 
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USB_CLK_DIV_obj = 
+	{
+		.type = CYHAL_RSC_CLOCK,
+		.block_num = CYBSP_USB_CLK_DIV_HW,
+		.channel_num = CYBSP_USB_CLK_DIV_NUM,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_I2C_CLK_DIV_obj = 
+	{
+		.type = CYHAL_RSC_CLOCK,
+		.block_num = CYBSP_I2C_CLK_DIV_HW,
+		.channel_num = CYBSP_I2C_CLK_DIV_NUM,
+	};
+#endif //defined (CY_USING_HAL)
+
 
 void init_cycfg_clocks(void)
 {
 	Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_16_BIT, 0U);
 	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_16_BIT, 0U, 499U);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_16_BIT, 0U);
-
-	Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_8_BIT, 0U);
-	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0U, 35U);
-	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 0U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USB_CLK_DIV_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_SysClk_PeriphDisableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
 	Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 1U, 3U);
 	Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 1U);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_I2C_CLK_DIV_obj);
+#endif //defined (CY_USING_HAL)
 }

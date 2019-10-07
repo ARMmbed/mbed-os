@@ -40,6 +40,14 @@ const cy_stc_gpio_pin_config_t CYBSP_WCO_IN_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_WCO_IN_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_WCO_IN_PORT_NUM,
+		.channel_num = CYBSP_WCO_IN_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config = 
 {
 	.outVal = 1,
@@ -56,22 +64,14 @@ const cy_stc_gpio_pin_config_t CYBSP_WCO_OUT_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_SW2_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_PULLUP,
-	.hsiom = CYBSP_SW2_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_WCO_OUT_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_WCO_OUT_PORT_NUM,
+		.channel_num = CYBSP_WCO_OUT_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_SS_config = 
 {
 	.outVal = 1,
@@ -88,6 +88,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_SS_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_SS_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_SS_PORT_NUM,
+		.channel_num = CYBSP_QSPI_SS_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_D3_config = 
 {
 	.outVal = 1,
@@ -104,6 +112,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_D3_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_D3_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_D3_PORT_NUM,
+		.channel_num = CYBSP_QSPI_D3_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_D2_config = 
 {
 	.outVal = 1,
@@ -120,6 +136,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_D2_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_D2_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_D2_PORT_NUM,
+		.channel_num = CYBSP_QSPI_D2_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_D1_config = 
 {
 	.outVal = 1,
@@ -136,6 +160,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_D1_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_D1_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_D1_PORT_NUM,
+		.channel_num = CYBSP_QSPI_D1_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_D0_config = 
 {
 	.outVal = 1,
@@ -152,6 +184,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_D0_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_D0_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_D0_PORT_NUM,
+		.channel_num = CYBSP_QSPI_D0_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_QSPI_SCK_config = 
 {
 	.outVal = 1,
@@ -168,6 +208,14 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_SCK_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_QSPI_SCK_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_QSPI_SCK_PORT_NUM,
+		.channel_num = CYBSP_QSPI_SCK_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_ECO_IN_config = 
 {
 	.outVal = 1,
@@ -184,6 +232,14 @@ const cy_stc_gpio_pin_config_t CYBSP_ECO_IN_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_ECO_IN_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_ECO_IN_PORT_NUM,
+		.channel_num = CYBSP_ECO_IN_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_ECO_OUT_config = 
 {
 	.outVal = 1,
@@ -200,22 +256,14 @@ const cy_stc_gpio_pin_config_t CYBSP_ECO_OUT_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_LED3_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = CYBSP_LED3_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_ECO_OUT_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_ECO_OUT_PORT_NUM,
+		.channel_num = CYBSP_ECO_OUT_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_USB_DP_config = 
 {
 	.outVal = 1,
@@ -232,6 +280,14 @@ const cy_stc_gpio_pin_config_t CYBSP_USB_DP_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USB_DP_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_USB_DP_PORT_NUM,
+		.channel_num = CYBSP_USB_DP_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_USB_DM_config = 
 {
 	.outVal = 1,
@@ -248,54 +304,14 @@ const cy_stc_gpio_pin_config_t CYBSP_USB_DM_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
-const cy_stc_gpio_pin_config_t CYBSP_LED4_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = CYBSP_LED4_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-const cy_stc_gpio_pin_config_t ioss_0_port_5_pin_0_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_HIGHZ,
-	.hsiom = ioss_0_port_5_pin_0_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
-const cy_stc_gpio_pin_config_t ioss_0_port_5_pin_1_config = 
-{
-	.outVal = 1,
-	.driveMode = CY_GPIO_DM_STRONG_IN_OFF,
-	.hsiom = ioss_0_port_5_pin_1_HSIOM,
-	.intEdge = CY_GPIO_INTR_DISABLE,
-	.intMask = 0UL,
-	.vtrip = CY_GPIO_VTRIP_CMOS,
-	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_1_2,
-	.vregEn = 0UL,
-	.ibufMode = 0UL,
-	.vtripSel = 0UL,
-	.vrefSel = 0UL,
-	.vohSel = 0UL,
-};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USB_DM_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_USB_DM_PORT_NUM,
+		.channel_num = CYBSP_USB_DM_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_I2C_SCL_config = 
 {
 	.outVal = 1,
@@ -312,6 +328,14 @@ const cy_stc_gpio_pin_config_t CYBSP_I2C_SCL_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_I2C_SCL_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_I2C_SCL_PORT_NUM,
+		.channel_num = CYBSP_I2C_SCL_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_I2C_SDA_config = 
 {
 	.outVal = 1,
@@ -328,6 +352,14 @@ const cy_stc_gpio_pin_config_t CYBSP_I2C_SDA_config =
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_I2C_SDA_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_I2C_SDA_PORT_NUM,
+		.channel_num = CYBSP_I2C_SDA_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_SWO_config = 
 {
 	.outVal = 1,
@@ -337,13 +369,21 @@ const cy_stc_gpio_pin_config_t CYBSP_SWO_config =
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_SWO_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_SWO_PORT_NUM,
+		.channel_num = CYBSP_SWO_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_SWDIO_config = 
 {
 	.outVal = 1,
@@ -353,13 +393,21 @@ const cy_stc_gpio_pin_config_t CYBSP_SWDIO_config =
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_SWDIO_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_SWDIO_PORT_NUM,
+		.channel_num = CYBSP_SWDIO_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_SWCLK_config = 
 {
 	.outVal = 1,
@@ -369,58 +417,107 @@ const cy_stc_gpio_pin_config_t CYBSP_SWCLK_config =
 	.intMask = 0UL,
 	.vtrip = CY_GPIO_VTRIP_CMOS,
 	.slewRate = CY_GPIO_SLEW_FAST,
-	.driveSel = CY_GPIO_DRIVE_FULL,
+	.driveSel = CY_GPIO_DRIVE_1_2,
 	.vregEn = 0UL,
 	.ibufMode = 0UL,
 	.vtripSel = 0UL,
 	.vrefSel = 0UL,
 	.vohSel = 0UL,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_SWCLK_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_SWCLK_PORT_NUM,
+		.channel_num = CYBSP_SWCLK_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 
 
 void init_cycfg_pins(void)
 {
 	Cy_GPIO_Pin_Init(CYBSP_WCO_IN_PORT, CYBSP_WCO_IN_PIN, &CYBSP_WCO_IN_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_WCO_IN_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_WCO_OUT_PORT, CYBSP_WCO_OUT_PIN, &CYBSP_WCO_OUT_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_SW2_PORT, CYBSP_SW2_PIN, &CYBSP_SW2_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_WCO_OUT_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_SS_PORT, CYBSP_QSPI_SS_PIN, &CYBSP_QSPI_SS_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_SS_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_D3_PORT, CYBSP_QSPI_D3_PIN, &CYBSP_QSPI_D3_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_D3_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_D2_PORT, CYBSP_QSPI_D2_PIN, &CYBSP_QSPI_D2_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_D2_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_D1_PORT, CYBSP_QSPI_D1_PIN, &CYBSP_QSPI_D1_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_D1_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_D0_PORT, CYBSP_QSPI_D0_PIN, &CYBSP_QSPI_D0_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_D0_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_SCK_PORT, CYBSP_QSPI_SCK_PIN, &CYBSP_QSPI_SCK_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_QSPI_SCK_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_ECO_IN_PORT, CYBSP_ECO_IN_PIN, &CYBSP_ECO_IN_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_ECO_IN_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_ECO_OUT_PORT, CYBSP_ECO_OUT_PIN, &CYBSP_ECO_OUT_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_LED3_PORT, CYBSP_LED3_PIN, &CYBSP_LED3_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_ECO_OUT_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_USB_DP_PORT, CYBSP_USB_DP_PIN, &CYBSP_USB_DP_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USB_DP_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_USB_DM_PORT, CYBSP_USB_DM_PIN, &CYBSP_USB_DM_config);
-
-	Cy_GPIO_Pin_Init(CYBSP_LED4_PORT, CYBSP_LED4_PIN, &CYBSP_LED4_config);
-
-	Cy_GPIO_Pin_Init(ioss_0_port_5_pin_0_PORT, ioss_0_port_5_pin_0_PIN, &ioss_0_port_5_pin_0_config);
-
-	Cy_GPIO_Pin_Init(ioss_0_port_5_pin_1_PORT, ioss_0_port_5_pin_1_PIN, &ioss_0_port_5_pin_1_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USB_DM_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_I2C_SCL_PORT, CYBSP_I2C_SCL_PIN, &CYBSP_I2C_SCL_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_I2C_SCL_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_I2C_SDA_PORT, CYBSP_I2C_SDA_PIN, &CYBSP_I2C_SDA_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_I2C_SDA_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_SWO_PORT, CYBSP_SWO_PIN, &CYBSP_SWO_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_SWO_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_SWDIO_PORT, CYBSP_SWDIO_PIN, &CYBSP_SWDIO_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_SWDIO_obj);
+#endif //defined (CY_USING_HAL)
 
 	Cy_GPIO_Pin_Init(CYBSP_SWCLK_PORT, CYBSP_SWCLK_PIN, &CYBSP_SWCLK_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_SWCLK_obj);
+#endif //defined (CY_USING_HAL)
 }

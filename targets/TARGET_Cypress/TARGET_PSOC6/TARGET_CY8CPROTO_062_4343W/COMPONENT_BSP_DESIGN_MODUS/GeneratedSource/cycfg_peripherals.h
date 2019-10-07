@@ -37,6 +37,7 @@
 #include "cycfg_qspi_memslot.h"
 #include "cy_mcwdt.h"
 #include "cy_rtc.h"
+#include "cy_usbfs_dev_drv.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -113,6 +114,14 @@ extern "C" {
 #define CYBSP_RTC_100_YEAR_OFFSET (8U)
 #define CYBSP_RTC_10_YEAR_OFFSET (4U)
 #define CYBSP_RTC_YEAR_OFFSET (0U)
+#define CYBSP_USBUART_ENABLED 1U
+#define CYBSP_USBUART_ACTIVE_ENDPOINTS_MASK 0U
+#define CYBSP_USBUART_ENDPOINTS_BUFFER_SIZE 512U
+#define CYBSP_USBUART_ENDPOINTS_ACCESS_TYPE 0U
+#define CYBSP_USBUART_HW USBFS0
+#define CYBSP_USBUART_HI_IRQ usb_interrupt_hi_IRQn
+#define CYBSP_USBUART_MED_IRQ usb_interrupt_med_IRQn
+#define CYBSP_USBUART_LO_IRQ usb_interrupt_lo_IRQn
 
 extern cy_stc_csd_context_t cy_csd_0_context;
 extern const cy_stc_scb_uart_config_t CYBSP_BT_UART_config;
@@ -134,6 +143,10 @@ extern const cy_stc_mcwdt_config_t CYBSP_MCWDT0_config;
 extern const cy_stc_rtc_config_t CYBSP_RTC_config;
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_RTC_obj;
+#endif //defined (CY_USING_HAL)
+extern const cy_stc_usbfs_dev_drv_config_t CYBSP_USBUART_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_USBUART_obj;
 #endif //defined (CY_USING_HAL)
 
 void init_cycfg_peripherals(void);

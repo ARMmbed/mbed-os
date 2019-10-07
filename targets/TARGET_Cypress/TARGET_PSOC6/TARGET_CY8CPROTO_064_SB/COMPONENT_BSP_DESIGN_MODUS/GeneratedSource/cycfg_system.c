@@ -71,13 +71,53 @@ static const cy_stc_fll_manual_config_t srss_0_clock_0_fll_0_fllConfig =
 	.refDiv = 20U,
 	.ccoRange = CY_SYSCLK_FLL_CCO_RANGE4,
 	.enableOutputDiv = true,
-	.lockTolerance = 10U,
+	.lockTolerance = 4U,
 	.igain = 9U,
 	.pgain = 5U,
 	.settlingCount = 8U,
 	.outputMode = CY_SYSCLK_FLLPLL_OUTPUT_OUTPUT,
 	.cco_Freq = 355U,
 };
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_0_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 0U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_1_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 1U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_2_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 2U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_3_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 3U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t srss_0_clock_0_pathmux_4_obj = 
+	{
+		.type = CYHAL_RSC_CLKPATH,
+		.block_num = 4U,
+		.channel_num = 0U,
+	};
+#endif //defined (CY_USING_HAL)
 static const cy_stc_pll_manual_config_t srss_0_clock_0_pll_0_pllConfig = 
 {
 	.feedbackDiv = 30,
@@ -501,4 +541,24 @@ void init_cycfg_system(void)
 	
 	/* Update System Core Clock values for correct Cy_SysLib_Delay functioning */
 	SystemCoreClockUpdate();
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_0_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_1_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_2_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_3_obj);
+#endif //defined (CY_USING_HAL)
+
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&srss_0_clock_0_pathmux_4_obj);
+#endif //defined (CY_USING_HAL)
 }
