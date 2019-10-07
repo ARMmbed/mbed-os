@@ -98,7 +98,7 @@ static int8_t auth_eap_tls_sec_prot_message_handle(sec_prot_t *prot);
 static int8_t auth_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state);
 
 static void auth_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
-static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
+static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
 static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
 
 static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
@@ -348,16 +348,16 @@ static int8_t auth_eap_tls_sec_prot_tls_send(sec_prot_t *tls_prot, void *pdu, ui
     return 0;
 }
 
-static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
+static int8_t auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     if (data->tls_prot) {
-        return;
+        return 0;
     }
 
     data->tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
     if (!data->tls_prot) {
-        return;
+        return -1;
     }
 
     data->tls_prot->header_size = TLS_HEAD_LEN;
@@ -369,6 +369,8 @@ static void auth_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
     data->tls_prot->send = auth_eap_tls_sec_prot_tls_send;
 
     data->tls_ongoing = true;
+
+    return 0;
 }
 
 static void auth_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
@@ -388,14 +390,17 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     // EAP-TLS authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case EAP_TLS_STATE_INIT:
+            tr_info("EAP-TLS init");
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_CREATE_REQ);
+            prot->timer_start(prot);
             break;
 
         // Wait KMP-CREATE.request
         case EAP_TLS_STATE_CREATE_REQ:
             tr_info("EAP-TLS start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
-            prot->timer_start(prot);
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
 
             // KMP-CREATE.confirm
             prot->create_conf(prot, SEC_RESULT_OK);
@@ -469,8 +474,11 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
                 // All fragments received for a message
                 if (result == EAP_TLS_MSG_RECEIVE_DONE) {
-                    auth_eap_tls_sec_prot_init_tls(prot);
-
+                    // Initialize TLS protocol
+                    if (auth_eap_tls_sec_prot_init_tls(prot) < 0) {
+                        tr_error("TLS init failed");
+                        return;
+                    }
                     if (data->tls_ongoing) {
                         // Call TLS
                         data->tls_prot->receive(data->tls_prot, data->tls_recv.data, data->tls_recv.total_len);
@@ -538,12 +546,14 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_FINISHED);
             break;
 
-        case EAP_TLS_STATE_FINISHED:
+        case EAP_TLS_STATE_FINISHED: {
+            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
+            tr_info("EAP-TLS finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
             auth_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
-
+        }
         default:
             break;
     }

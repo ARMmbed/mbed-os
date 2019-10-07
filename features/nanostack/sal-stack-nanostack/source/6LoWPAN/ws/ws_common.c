@@ -31,6 +31,8 @@
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/blacklist/blacklist.h"
+#include "RPL/rpl_protocol.h"
+#include "RPL/rpl_control.h"
 #include "ws_management_api.h"
 #include "mac_api.h"
 
@@ -403,6 +405,13 @@ bool ws_common_allow_child_registration(protocol_interface_info_entry_t *interfa
         tr_info("Child registration from old child");
         return true;
     }
+
+    //Verify that we have Selected Parent
+    if (interface->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && !rpl_control_parent_candidate_list_size(interface, true)) {
+        tr_info("Do not accept new ARO child: no selected parent");
+        return false;
+    }
+
 
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
 

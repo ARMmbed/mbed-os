@@ -76,13 +76,21 @@ int8_t ws_pae_lib_kmp_list_delete(kmp_list_t *kmp_list, kmp_api_t *kmp)
 
 kmp_api_t *ws_pae_lib_kmp_list_type_get(kmp_list_t *kmp_list, kmp_type_e type)
 {
+    kmp_api_t *kmp = NULL;
+
     ns_list_foreach(kmp_entry_t, cur, kmp_list) {
+        // If kmp type matches
         if (kmp_api_type_get(cur->kmp) == type) {
-            return cur->kmp;
+            /* If receiving of messages has not been disabled for the kmp (kmp is not
+               in terminating phase) prioritizes that kmp */
+            if (!kmp_api_receive_disable(cur->kmp)) {
+                return cur->kmp;
+            }
+            // Otherwise returns any kmp that matches
+            kmp = cur->kmp;
         }
     }
-
-    return 0;
+    return kmp;
 }
 
 void ws_pae_lib_kmp_list_free(kmp_list_t *kmp_list)

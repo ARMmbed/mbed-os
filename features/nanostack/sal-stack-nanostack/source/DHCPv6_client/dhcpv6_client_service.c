@@ -111,7 +111,7 @@ void dhcp_client_delete(int8_t interface)
         if (srv_data_ptr != NULL) {
             tr_debug("Free DHCPv6 Client\n");
             memcpy(temporary_address, srv_data_ptr->iaNontemporalAddress.addressPrefix, 16);
-            dhcp_service_req_remove(srv_data_ptr->transActionId);// remove all pending retransmissions
+            dhcp_service_req_remove_all(srv_data_ptr);// remove all pending retransmissions
             libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
             addr_delete(cur, temporary_address);
 
@@ -144,12 +144,17 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     dhcpv6_client_server_data_t *srv_data_ptr = NULL;
     (void)instance_id;
 
-    srv_data_ptr = ptr;
+    //Validate that started TR ID class is still at list
+    srv_data_ptr = libdhcpv6_nonTemporal_validate_class_pointer(ptr);
+
 
     if (srv_data_ptr == NULL) {
         tr_error("server data not found");
         goto error_exit;
     }
+
+    //Clear Active Transaction state
+    srv_data_ptr->transActionId = 0;
 
     // Validate message
     if (msg_name != DHCPV6_REPLY_TYPE) {
@@ -158,7 +163,7 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     }
 
     if (libdhcpv6_reply_message_option_validate(&clientId, &serverId, &dhcp_ia_non_temporal_params, msg_ptr, msg_len) != 0) {
-        tr_error("Sol Not include all Options");
+        tr_error("Reply Not include all Options");
         goto error_exit;
     }
 
@@ -330,7 +335,7 @@ int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t
     }
 
     memcpy(srv_data_ptr->server_address, server_address, 16);
-    if (!srv_data_ptr->iaNonTemporalStructValid) {
+    if (srv_data_ptr->transActionId) {
         dhcp_service_update_server_address(srv_data_ptr->transActionId, server_address);
     }
     return 0;
@@ -357,7 +362,7 @@ void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uin
         return;
     }
 
-    dhcp_service_req_remove(srv_data_ptr->transActionId);// remove all pending retransmissions
+    dhcp_service_req_remove_all(srv_data_ptr);// remove all pending retransmissions
     if (dhcp_client.one_instance_interface) {
         addr_deprecate(cur, srv_data_ptr->iaNontemporalAddress.addressPrefix);
     } else {
@@ -384,13 +389,19 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         return;
     }
     if (reason == ADDR_CALLBACK_INVALIDATED) {
-        dhcp_service_req_remove(srv_data_ptr->transActionId);//stop retransmissions of renew
+        dhcp_service_req_remove_all(srv_data_ptr);// remove all pending retransmissions
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
         tr_warn("Dhcp address lost");
         return;
     }
 
     if (reason != ADDR_CALLBACK_TIMER) {
+        return;
+    }
+
+    if (srv_data_ptr->transActionId) {
+        //Do not trig new Renew process
+        tr_warn("Do not trig new pending renew request");
         return;
     }
 

@@ -217,6 +217,17 @@ dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_entry_get_by_prefix(int8_t in
     return NULL;
 }
 
+dhcpv6_client_server_data_t *libdhcpv6_nonTemporal_validate_class_pointer(void *class_ptr)
+{
+    ns_list_foreach(dhcpv6_client_server_data_t, cur, &dhcpv6_client_nonTemporal_list) {
+        if (cur == class_ptr) {
+            return cur;
+        }
+    }
+    return NULL;
+}
+
+
 uint16_t libdhcpv6_duid_option_size(uint16_t linkType)
 {
     uint16_t length = 8; // Type & Length header part *2

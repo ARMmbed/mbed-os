@@ -146,12 +146,7 @@ buffer_t *udp_up(buffer_t *buf)
 
     if (buf->dst_sa.port == UDP_PORT_ECHO && buf->src_sa.port != UDP_PORT_ECHO) {
         protocol_interface_info_entry_t *cur;
-        tr_debug("UDP echo msg [%"PRIi16"]: %s%s",
-                 buffer_data_length(buf),
-                 trace_array(
-                     buffer_data_pointer(buf),
-                     (buffer_data_length(buf) > 64 ? 64 : buffer_data_length(buf))),
-                 (buffer_data_length(buf) > 64 ? "..." : ""));
+        tr_debug("UDP echo msg from %s", trace_ipv6(buf->src_sa.address));
 
         cur = buf->interface;
 

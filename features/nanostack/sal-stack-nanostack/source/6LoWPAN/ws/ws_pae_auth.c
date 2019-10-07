@@ -919,12 +919,12 @@ static void ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
 
         kmp_api_t *api = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, next_type);
         if (api != NULL) {
+            /* For other types than GTK, only one ongoing negotiation at the same time,
+               for GTK there can be previous terminating and the new one for next key index */
             if (next_type != IEEE_802_11_GKH) {
                 tr_info("KMP already ongoing; ignored, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
                 return;
             }
-            // Delete KMP
-            ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, api);
         }
     }
 
