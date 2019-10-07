@@ -65,7 +65,7 @@ void ASYNCHRONOUS_DNS_TIMEOUTS()
     TEST_ASSERT(result_exp_timeout > 0);
 
     // Give event queue time to finalise before destructors
-    ThisThread::sleep_for(2000);
+    ThisThread::sleep_for(12000);
 
     nsapi_dns_call_in_set(0);
 }
