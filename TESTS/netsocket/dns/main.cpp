@@ -32,6 +32,7 @@
 #include "nsapi_dns.h"
 #include "events/EventQueue.h"
 #include "dns_tests.h"
+#include "ip6string.h"
 
 using namespace utest::v1;
 
@@ -165,7 +166,16 @@ static void net_bringup()
     net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    tr_info("MBED: IP address is '%s'", net->get_ip_address() ? net->get_ip_address() : "null");
+    const char *address = net->get_ip_address();
+
+#define MESH 3
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == MESH
+    printf("Waiting for GLOBAL_UP\n");
+    while (net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
+        ThisThread::sleep_for(500);
+    }
+#endif
+    printf("MBED: IP address is '%s'\n", address ? address : "null");
 }
 
 static void net_bringdown()
