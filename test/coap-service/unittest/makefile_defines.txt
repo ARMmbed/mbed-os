@@ -33,6 +33,7 @@ INCLUDE_DIRS =\
   ../../../../../event-loop/source/ \
   ../../../../../mbedtls/include/ \
   ../../../../../mbedtls/include/mbedtls/ \
+  ../../../../../mbedtls/crypto/include/ \
   /usr/include\
   $(CPPUTEST_HOME)/include\
 
