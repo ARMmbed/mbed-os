@@ -948,44 +948,20 @@ extern "C" {
 #if defined (CY_USING_HAL)
 	#define CYBSP_BT_REG_ON_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_OPENDRAINDRIVESHIGH
 #endif //defined (CY_USING_HAL)
-#define CYBSP_BT_HOST_WAKE_ENABLED 1U
-#define CYBSP_BT_HOST_WAKE_PORT GPIO_PRT3
-#define CYBSP_BT_HOST_WAKE_PORT_NUM 3U
-#define CYBSP_BT_HOST_WAKE_PIN 5U
-#define CYBSP_BT_HOST_WAKE_NUM 5U
-#define CYBSP_BT_HOST_WAKE_DRIVEMODE CY_GPIO_DM_HIGHZ
-#define CYBSP_BT_HOST_WAKE_INIT_DRIVESTATE 0
+#define CYBSP_BT_DEVICE_WAKE_ENABLED 1U
+#define CYBSP_BT_DEVICE_WAKE_PORT GPIO_PRT3
+#define CYBSP_BT_DEVICE_WAKE_PORT_NUM 3U
+#define CYBSP_BT_DEVICE_WAKE_PIN 5U
+#define CYBSP_BT_DEVICE_WAKE_NUM 5U
+#define CYBSP_BT_DEVICE_WAKE_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
+#define CYBSP_BT_DEVICE_WAKE_INIT_DRIVESTATE 0
 #ifndef ioss_0_port_3_pin_5_HSIOM
 	#define ioss_0_port_3_pin_5_HSIOM HSIOM_SEL_GPIO
 #endif
-#define CYBSP_BT_HOST_WAKE_HSIOM ioss_0_port_3_pin_5_HSIOM
-#define CYBSP_BT_HOST_WAKE_IRQ ioss_interrupts_gpio_3_IRQn
+#define CYBSP_BT_DEVICE_WAKE_HSIOM ioss_0_port_3_pin_5_HSIOM
+#define CYBSP_BT_DEVICE_WAKE_IRQ ioss_interrupts_gpio_3_IRQn
 #if defined (CY_USING_HAL)
-	#define CYBSP_BT_HOST_WAKE_HAL_PORT_PIN P3_5
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-	#define CYBSP_BT_HOST_WAKE_HAL_IRQ CYHAL_GPIO_IRQ_NONE
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-	#define CYBSP_BT_HOST_WAKE_HAL_DIR CYHAL_GPIO_DIR_INPUT 
-#endif //defined (CY_USING_HAL)
-#if defined (CY_USING_HAL)
-	#define CYBSP_BT_HOST_WAKE_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_NONE
-#endif //defined (CY_USING_HAL)
-#define CYBSP_BT_DEVICE_WAKE_ENABLED 1U
-#define CYBSP_BT_DEVICE_WAKE_PORT GPIO_PRT4
-#define CYBSP_BT_DEVICE_WAKE_PORT_NUM 4U
-#define CYBSP_BT_DEVICE_WAKE_PIN 0U
-#define CYBSP_BT_DEVICE_WAKE_NUM 0U
-#define CYBSP_BT_DEVICE_WAKE_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
-#define CYBSP_BT_DEVICE_WAKE_INIT_DRIVESTATE 0
-#ifndef ioss_0_port_4_pin_0_HSIOM
-	#define ioss_0_port_4_pin_0_HSIOM HSIOM_SEL_GPIO
-#endif
-#define CYBSP_BT_DEVICE_WAKE_HSIOM ioss_0_port_4_pin_0_HSIOM
-#define CYBSP_BT_DEVICE_WAKE_IRQ ioss_interrupts_gpio_4_IRQn
-#if defined (CY_USING_HAL)
-	#define CYBSP_BT_DEVICE_WAKE_HAL_PORT_PIN P4_0
+	#define CYBSP_BT_DEVICE_WAKE_HAL_PORT_PIN P3_5
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_BT_DEVICE_WAKE_HAL_IRQ CYHAL_GPIO_IRQ_NONE
@@ -995,6 +971,30 @@ extern "C" {
 #endif //defined (CY_USING_HAL)
 #if defined (CY_USING_HAL)
 	#define CYBSP_BT_DEVICE_WAKE_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_STRONG
+#endif //defined (CY_USING_HAL)
+#define CYBSP_BT_HOST_WAKE_ENABLED 1U
+#define CYBSP_BT_HOST_WAKE_PORT GPIO_PRT4
+#define CYBSP_BT_HOST_WAKE_PORT_NUM 4U
+#define CYBSP_BT_HOST_WAKE_PIN 0U
+#define CYBSP_BT_HOST_WAKE_NUM 0U
+#define CYBSP_BT_HOST_WAKE_DRIVEMODE CY_GPIO_DM_HIGHZ
+#define CYBSP_BT_HOST_WAKE_INIT_DRIVESTATE 0
+#ifndef ioss_0_port_4_pin_0_HSIOM
+	#define ioss_0_port_4_pin_0_HSIOM HSIOM_SEL_GPIO
+#endif
+#define CYBSP_BT_HOST_WAKE_HSIOM ioss_0_port_4_pin_0_HSIOM
+#define CYBSP_BT_HOST_WAKE_IRQ ioss_interrupts_gpio_4_IRQn
+#if defined (CY_USING_HAL)
+	#define CYBSP_BT_HOST_WAKE_HAL_PORT_PIN P4_0
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_BT_HOST_WAKE_HAL_IRQ CYHAL_GPIO_IRQ_NONE
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_BT_HOST_WAKE_HAL_DIR CYHAL_GPIO_DIR_INPUT 
+#endif //defined (CY_USING_HAL)
+#if defined (CY_USING_HAL)
+	#define CYBSP_BT_HOST_WAKE_HAL_DRIVEMODE CYHAL_GPIO_DRIVE_NONE
 #endif //defined (CY_USING_HAL)
 #define CYBSP_BT_RST_ENABLED 1U
 #define CYBSP_BT_RST_PORT GPIO_PRT4
@@ -1653,13 +1653,13 @@ extern const cy_stc_gpio_pin_config_t CYBSP_BT_REG_ON_config;
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_BT_REG_ON_obj;
 #endif //defined (CY_USING_HAL)
-extern const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config;
-#if defined (CY_USING_HAL)
-	extern const cyhal_resource_inst_t CYBSP_BT_HOST_WAKE_obj;
-#endif //defined (CY_USING_HAL)
 extern const cy_stc_gpio_pin_config_t CYBSP_BT_DEVICE_WAKE_config;
 #if defined (CY_USING_HAL)
 	extern const cyhal_resource_inst_t CYBSP_BT_DEVICE_WAKE_obj;
+#endif //defined (CY_USING_HAL)
+extern const cy_stc_gpio_pin_config_t CYBSP_BT_HOST_WAKE_config;
+#if defined (CY_USING_HAL)
+	extern const cyhal_resource_inst_t CYBSP_BT_HOST_WAKE_obj;
 #endif //defined (CY_USING_HAL)
 extern const cy_stc_gpio_pin_config_t CYBSP_BT_RST_config;
 #if defined (CY_USING_HAL)
