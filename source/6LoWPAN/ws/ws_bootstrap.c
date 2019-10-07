@@ -1371,7 +1371,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
         //Read current timestamp
         uint32_t time_from_last_unicast_shedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
 
-        if (time_from_last_unicast_shedule > WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT || !ws_neighbor->unicast_data_rx) {
+        if (time_from_last_unicast_shedule > WS_NEIGHBOR_TEMPORARY_LINK_MIN_TIMEOUT) {
             //Accept only Enough Old Device
             if (!neighbor_entry_ptr) {
                 //Accept first compare
@@ -1579,6 +1579,10 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     if (buffer.key_description_table_size < 4) {
         tr_err("MAC key_description_table_size too short %d<4", buffer.key_description_table_size);
         return -2;
+    }
+
+    if (ns_sw_mac_enable_frame_counter_per_key(cur->mac_api, true)) {
+        return -1;
     }
 
     if (!etx_storage_list_allocate(cur->id, buffer.device_decription_table_size)) {
@@ -1940,6 +1944,9 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
         if (cur) {
             rpl_control_register_address(cur, prefix);
         }
+    } else {
+        //Delete dhcpv6 client
+        dhcp_client_global_address_delete(interface, dhcp_addr, prefix);
     }
 }
 
@@ -2055,6 +2062,9 @@ static void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
     // If i am router I Do this
     rpl_control_force_leaf(protocol_6lowpan_rpl_domain, leaf);
     rpl_control_request_parent_link_confirmation(true);
+    rpl_control_set_dio_multicast_min_config_advertisment_count(WS_MIN_DIO_MULTICAST_CONFIG_ADVERTISMENT_COUNT);
+    rpl_control_set_dao_retry_count(WS_MAX_DAO_RETRIES);
+    rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
 
     cur->ws_info->rpl_state = 0xff; // Set invalid state and learn from event
 }
@@ -2107,7 +2117,9 @@ static void ws_bootstrap_start_discovery(protocol_interface_info_entry_t *cur)
     ws_bootstrap_neighbor_list_clean(cur);
 
     // Clear RPL information
-    rpl_control_remove_domain_from_interface(cur);
+    rpl_control_free_domain_instances_from_interface(cur);
+    // Clear EAPOL relay address
+    ws_eapol_relay_delete(cur);
 
     // Clear ip stack from old information
     ws_bootstrap_ip_stack_reset(cur);
@@ -2169,7 +2181,7 @@ static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index)
 {
     // Set send key
-    mac_helper_security_auto_request_key_index_set(cur, index + 1);
+    mac_helper_security_auto_request_key_index_set(cur, index, index + 1);
 }
 
 static void ws_bootstrap_nw_frame_counter_set(protocol_interface_info_entry_t *cur, uint32_t counter)

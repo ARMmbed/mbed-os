@@ -58,6 +58,8 @@ typedef struct {
     cert_chain_entry_t own_cert_chain;                  /**< Own certificate chain */
     cert_chain_list_t trusted_cert_chain_list;          /**< Trusted certificate chain lists */
     cert_revocat_lists_t cert_revocat_lists;            /**< Certificate Revocation Lists */
+    uint16_t own_cert_chain_len;                        /**< Own certificate chain certificates length */
+    bool ext_cert_valid_enabled : 1;                    /**< Extended certificate validation enabled */
 } sec_prot_certs_t;
 
 /**
@@ -77,6 +79,37 @@ int8_t sec_prot_certs_init(sec_prot_certs_t *certs);
  *
  */
 void sec_prot_certs_delete(sec_prot_certs_t *certs);
+
+/**
+ * sec_prot_certs_ext_certificate_validation_set enable or disable extended certificate validation
+ *
+ * \param certs    certificate information
+ * \param enabled  true to enable extended validation, false to disable
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t sec_prot_certs_ext_certificate_validation_set(sec_prot_certs_t *certs, bool enabled);
+
+/**
+ * sec_prot_certs_ext_certificate_validation_get get extended certificate validation setting
+ *
+ * \param certs    certificate information
+ *
+ * \return true/false enabled or not
+ *
+ */
+bool sec_prot_certs_ext_certificate_validation_get(const sec_prot_certs_t *certs);
+
+/**
+ * sec_prot_certs_own_cert_chain_len_get get length of own certificate chain
+ *
+ * \param certs    certificate information
+ *
+ * \return length of all the certificates in the own certificate chain
+ */
+uint16_t sec_prot_certs_own_cert_chain_len_get(const sec_prot_certs_t *certs);
 
 /**
  * sec_prot_certs_chain_entry_create allocate memory for certificate chain entry
@@ -122,6 +155,15 @@ int8_t sec_prot_certs_cert_set(cert_chain_entry_t *entry, uint8_t index, uint8_t
  * \return pointer to certificate or NULL
  */
 uint8_t *sec_prot_certs_cert_get(const cert_chain_entry_t *entry, uint8_t index, uint16_t *cert_len);
+
+/**
+ * sec_prot_certs_cert_chain_entry_len_get get length of certificate chain on cert chain entry
+ *
+ * \param entry certificate chain entry
+ *
+ * \return total length of all the certificates in the entry
+ */
+uint16_t sec_prot_certs_cert_chain_entry_len_get(const cert_chain_entry_t *entry);
 
 /**
  * sec_prot_certs_priv_key_set set certificate (chain) private key

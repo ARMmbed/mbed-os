@@ -59,6 +59,23 @@ int8_t eap_tls_sec_prot_lib_message_allocate(tls_data_t *data, uint8_t head_len,
     return 0;
 }
 
+int8_t eap_tls_sec_prot_lib_message_realloc(tls_data_t *data, uint8_t head_len, uint16_t new_len)
+{
+    tls_data_t new_tls_send;
+
+    eap_tls_sec_prot_lib_message_init(&new_tls_send);
+    if (eap_tls_sec_prot_lib_message_allocate(&new_tls_send, head_len, new_len) < 0) {
+        return -1;
+    }
+    memcpy(new_tls_send.data + head_len, data->data + head_len, data->handled_len);
+    new_tls_send.handled_len = data->handled_len;
+    eap_tls_sec_prot_lib_message_free(data);
+
+    *data = new_tls_send;
+
+    return 0;
+}
+
 void eap_tls_sec_prot_lib_message_free(tls_data_t *data)
 {
     ns_dyn_mem_free(data->data);
