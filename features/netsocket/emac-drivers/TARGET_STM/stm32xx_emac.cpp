@@ -1,4 +1,5 @@
-/* Copyright (c) 2017 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
+ * Copyright (c) 2017-2019 STMicroelectronics
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_EMAC
 
 #include <stdlib.h>
 
@@ -1035,3 +1038,5 @@ void HAL_ETH_MACErrorCallback(ETH_HandleTypeDef *heth)
                "Error from ethernet HAL (HAL_ETH_MACErrorCallback)\n");
 }
 #endif // ETH_IP_VERSION_V2
+
+#endif /* DEVICE_EMAC */
