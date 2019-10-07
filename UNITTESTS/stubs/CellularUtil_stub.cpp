@@ -69,9 +69,11 @@ void separate_ip4like_addresses(char *orig, char *ip, size_t ip_size, char *ip2,
                strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
         ip[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
         CellularUtil_stub::table_idx--;
-        memcpy(ip2, CellularUtil_stub::char_table[CellularUtil_stub::table_idx],
-               strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
-        ip2[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
+        if (ip2) {
+            memcpy(ip2, CellularUtil_stub::char_table[CellularUtil_stub::table_idx],
+                   strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
+            ip2[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
+        }
     }
 }
 
@@ -83,9 +85,11 @@ void separate_ip_addresses(char *orig, char *ip, size_t ip_size, char *ip2, size
                strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
         ip[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
         CellularUtil_stub::table_idx--;
-        memcpy(ip2, CellularUtil_stub::char_table[CellularUtil_stub::table_idx],
-               strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
-        ip2[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
+        if (ip2) {
+            memcpy(ip2, CellularUtil_stub::char_table[CellularUtil_stub::table_idx],
+                   strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx]));
+            ip2[strlen(CellularUtil_stub::char_table[CellularUtil_stub::table_idx])] = '\0';
+        }
     }
 }
 
