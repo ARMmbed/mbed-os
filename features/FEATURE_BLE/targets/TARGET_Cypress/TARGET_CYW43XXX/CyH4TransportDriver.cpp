@@ -59,12 +59,36 @@ CyH4TransportDriver::~CyH4TransportDriver()
     }
 }
 
-void CyH4TransportDriver::bt_host_wake_irq_handler(void)
+void CyH4TransportDriver::bt_host_wake_rise_irq_handler(void)
 {
-    uart.attach(
-        callback(this, &CyH4TransportDriver::on_controller_irq),
-        SerialBase::RxIrq
-    );
+    if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+        if(bt_host_wake_active == true)
+        {
+            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            sleep_manager_unlock_deep_sleep();
+            bt_host_wake_active = false;
+        }
+    } else {
+        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        sleep_manager_lock_deep_sleep();
+        bt_host_wake_active = true;
+    }
+}
+
+void CyH4TransportDriver::bt_host_wake_fall_irq_handler(void)
+{
+    if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
+        /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+        sleep_manager_lock_deep_sleep();
+        bt_host_wake_active = true;
+    } else {
+        if(bt_host_wake_active == true)
+        {
+            /* lock PSoC 6 DeepSleep entry as long as host_wake is asserted */
+            sleep_manager_unlock_deep_sleep();
+            bt_host_wake_active = false;
+        }
+    }
 }
 
 void CyH4TransportDriver::initialize()
@@ -92,17 +116,15 @@ void CyH4TransportDriver::initialize()
         SerialBase::RxIrq
     );
 
+    sleep_manager_unlock_deep_sleep();
+
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     if (bt_host_wake_name != NC) {
         //Register IRQ for Host WAKE
         host_wake_pin = new InterruptIn(bt_host_wake_name);
-        if (host_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
-           host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
-        } else {
-           host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_irq_handler));
-        }
+        host_wake_pin->fall(callback(this, &CyH4TransportDriver::bt_host_wake_fall_irq_handler));
+        host_wake_pin->rise(callback(this, &CyH4TransportDriver::bt_host_wake_rise_irq_handler));
     }
-
 #endif
     if (dev_wake_irq_event == WAKE_EVENT_ACTIVE_LOW) {
        if (bt_device_wake_name != NC)
@@ -136,26 +158,15 @@ uint16_t CyH4TransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
     return len;
 }
 
-#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-void CyH4TransportDriver::on_host_stack_inactivity()
-{
-    if (enabled_powersave) {
-        uart.attach(NULL, SerialBase::RxIrq);
-    }
-}
-#endif
-
 void CyH4TransportDriver::on_controller_irq()
 {
     sleep_manager_lock_deep_sleep();
-    assert_bt_dev_wake();
 
     while (uart.readable()) {
         uint8_t char_received = uart.getc();
         on_data_received(&char_received, 1);
     }
 
-    deassert_bt_dev_wake();
     sleep_manager_unlock_deep_sleep();
 }
 
