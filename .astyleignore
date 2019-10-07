@@ -1,12 +1,11 @@
 ^BUILD
 ^cmsis
 ^components/802.15.4_RF
-^components/TARGET_PSA/services/attestation/attestation.h
-^components/TARGET_PSA/services/attestation/COMPONENT_PSA_SRV_IMPL/tfm_impl
-^components/TARGET_PSA/services/attestation/qcbor
-^components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h
-^components/TARGET_PSA/TARGET_TFM
-^components/TARGET_PSA/TESTS
+^features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/attestation.h
+^features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/implementation/tfm_impl
+^features/FEATURE_PSA/TARGET_MBED_PSA_SRV/services/attestation/qcbor
+^features/FEATURE_PSA/TARGET_TFM
+^features/FEATURE_PSA/TARGET_MBED_PSA_SRV/TESTS
 ^features/cryptocell
 ^features/FEATURE_BLE
 ^features/frameworks
