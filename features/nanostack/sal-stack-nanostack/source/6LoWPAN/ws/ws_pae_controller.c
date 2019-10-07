@@ -100,6 +100,7 @@ typedef struct {
 typedef struct {
     uint16_t node_limit;                                             /**< Max number of stored supplicants */
     bool node_limit_set : 1;                                         /**< Node limit set */
+    bool ext_cert_valid_enabled : 1;                                 /**< Extended certificate validation enabled */
 } pae_controller_config_t;
 
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
@@ -126,7 +127,8 @@ static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
 pae_controller_config_t pae_controller_config = {
     .node_limit = 0,
-    .node_limit_set = false
+    .node_limit_set = false,
+    .ext_cert_valid_enabled = false
 };
 
 #if !defined(HAVE_PAE_SUPP) && !defined(HAVE_PAE_AUTH)
@@ -482,9 +484,12 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
         controller->gtk_index = index;
 
         uint32_t frame_counter = ws_pae_controller_frame_counter_get(&controller->stored_frame_counter, index, controller->nw_key[index].hash);
-        controller->nw_frame_counter_set(interface_ptr, frame_counter);
+        if (frame_counter) {
+            controller->nw_frame_counter_set(interface_ptr, frame_counter);
+        }
         tr_info("NW frame counter set: %"PRIu32"", frame_counter);
         ws_pae_controller_frame_counter_write(controller, index, controller->nw_key[index].hash, frame_counter);
+
     }
 
     // Do not update PAN version for initial key index set
@@ -511,9 +516,12 @@ static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t 
         // If index has changed and the key for the index is fresh get frame counter
         if (controller->gtk_index != index && controller->nw_key[index].fresh) {
             uint32_t frame_counter = ws_pae_controller_frame_counter_get(&controller->stored_frame_counter, index, controller->nw_key[index].hash);
-            controller->nw_frame_counter_set(cur, frame_counter);
+            if (frame_counter) {
+                controller->nw_frame_counter_set(cur, frame_counter);
+            }
             tr_info("NW frame counter set: %"PRIu32"", frame_counter);
             ws_pae_controller_frame_counter_write(controller, index, controller->nw_key[index].hash, frame_counter);
+
         }
 
         controller->gtk_index = index;
@@ -586,6 +594,7 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     sec_prot_keys_gtks_init(&controller->gtks);
     sec_prot_keys_gtks_init(&controller->next_gtks);
     sec_prot_certs_init(&controller->certs);
+    sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
     ws_pae_timers_settings_init(&controller->timer_settings);
 }
 
@@ -695,6 +704,9 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
     // Stores frame counter
     ws_pae_controller_frame_counter_store(controller);
 
+    // Removes network keys from PAE controller and MAC
+    ws_pae_controller_nw_keys_remove(interface_ptr);
+
     // If PAE has been initialized, deletes it
     if (controller->pae_delete) {
         controller->pae_delete(interface_ptr);
@@ -764,6 +776,46 @@ int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry
                 }
             }
         }
+
+        // Updates the length of own certificates
+        entry->certs.own_cert_chain_len = sec_prot_certs_cert_chain_entry_len_get(&entry->certs.own_cert_chain);
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
+{
+    if (!cert) {
+        return -1;
+    }
+
+    int8_t ret = -1;
+
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        for (uint8_t i = 0; i < SEC_PROT_CERT_CHAIN_DEPTH; i++) {
+            if (entry->certs.own_cert_chain.cert[i] == NULL) {
+                sec_prot_certs_cert_set(&entry->certs.own_cert_chain, i, (uint8_t *) cert->cert, cert->cert_len);
+                // Set private key if set for the certificate that is added
+                if (cert->key && cert->key_len > 0) {
+                    sec_prot_certs_priv_key_set(&entry->certs.own_cert_chain, (uint8_t *) cert->key, cert->key_len);
+                }
+                ret = 0;
+                break;
+            }
+        }
+        // Updates the length of own certificates
+        entry->certs.own_cert_chain_len = sec_prot_certs_cert_chain_entry_len_get(&entry->certs.own_cert_chain);
+    }
+
+    return ret;
+}
+
+int8_t ws_pae_controller_own_certificates_remove(void)
+{
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        sec_prot_certs_chain_entry_init(&entry->certs.own_cert_chain);
+        entry->certs.own_cert_chain_len = 0;
     }
 
     return 0;
@@ -814,6 +866,15 @@ int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_
     sec_prot_certs_chain_entry_delete(trusted_cert);
 
     return ret;
+}
+
+int8_t ws_pae_controller_trusted_certificates_remove(void)
+{
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        sec_prot_certs_chain_list_delete(&entry->certs.trusted_cert_chain_list);
+    }
+
+    return 0;
 }
 
 int8_t ws_pae_controller_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
@@ -1047,6 +1108,26 @@ int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
 #else
     (void) interface_id;
     (void) limit;
+    return -1;
+#endif
+}
+
+int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled)
+{
+#ifdef HAVE_PAE_AUTH
+    pae_controller_config.ext_cert_valid_enabled = enabled;
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
+        return -1;
+    }
+
+    sec_prot_certs_ext_certificate_validation_set(&controller->certs, enabled);
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) enabled;
     return -1;
 #endif
 }

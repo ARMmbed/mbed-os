@@ -90,7 +90,7 @@ static int8_t supp_eap_tls_sec_prot_message_handle(sec_prot_t *prot);
 static int8_t supp_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_code, uint8_t eap_type, uint8_t tls_state);
 
 static void supp_eap_tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
-static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
+static int8_t supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot);
 static void supp_eap_tls_sec_prot_delete_tls(sec_prot_t *prot);
 
 static void supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot);
@@ -360,16 +360,16 @@ static int8_t supp_eap_tls_sec_prot_tls_send(sec_prot_t *tls_prot, void *pdu, ui
     return 0;
 }
 
-static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
+static int8_t supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
 {
     eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
     if (data->tls_prot) {
-        return;
+        return 0;
     }
 
     data->tls_prot = prot->type_get(prot, SEC_PROT_TYPE_TLS);
     if (!data->tls_prot) {
-        return;
+        return -1;
     }
 
     data->tls_prot->header_size = TLS_HEAD_LEN;
@@ -381,6 +381,8 @@ static void supp_eap_tls_sec_prot_init_tls(sec_prot_t *prot)
     data->tls_prot->send = supp_eap_tls_sec_prot_tls_send;
 
     data->tls_ongoing = true;
+
+    return 0;
 }
 
 static void supp_eap_tls_sec_prot_delete_tls(sec_prot_t *prot)
@@ -400,7 +402,9 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     // EAP-TLS supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case EAP_TLS_STATE_INIT:
+            tr_info("EAP-TLS init");
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST_ID);
+            prot->timer_start(prot);
             break;
 
         // Wait EAP request, Identity (starts handshake on supplicant)
@@ -411,12 +415,13 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
+
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
             tr_info("EAP-TLS start");
-
-            prot->timer_start(prot);
 
             // Send KMP-CREATE.indication
             prot->create_ind(prot);
@@ -459,7 +464,10 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             data->common.ticks = retry_timeout;
 
             // Initialize TLS protocol
-            supp_eap_tls_sec_prot_init_tls(prot);
+            if (supp_eap_tls_sec_prot_init_tls(prot) < 0) {
+                tr_error("TLS init failed");
+                return;
+            }
             // Request TLS to start (send client hello)
             data->tls_prot->create_req(data->tls_prot, prot->sec_keys);
             break;
@@ -523,6 +531,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISHED:
+            tr_info("EAP-TLS finished");
             supp_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);

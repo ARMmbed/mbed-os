@@ -153,6 +153,16 @@ void kmp_api_delete(kmp_api_t *kmp);
 kmp_type_e kmp_api_type_get(kmp_api_t *kmp);
 
 /**
+ * kmp_api_type_get get receive disabled status
+ *
+ * \param kmp instance
+ *
+ * \return true/false true when receiving has been disabled
+ *
+ */
+bool kmp_api_receive_disable(kmp_api_t *kmp);
+
+/**
  * kmp_api_type_from_id_get get KMP type from KMP id
  *
  * \param kmp_id KMP identifier

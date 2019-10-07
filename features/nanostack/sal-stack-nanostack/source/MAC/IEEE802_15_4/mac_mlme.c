@@ -606,15 +606,21 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
     return 0;
 }
 
-static int8_t mac_mlme_32bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint32_t value)
+static int8_t mac_mlme_32bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint8_t index, uint32_t value)
 {
-    (void)rf_mac_setup;
-    (void) value;
+
     switch (attribute) {
         case macFrameCounter:
-            platform_enter_critical();
-            rf_mac_setup->security_frame_counter = value;
-            platform_exit_critical();
+            if (rf_mac_setup->secFrameCounterPerKey) {
+                mlme_key_descriptor_t *key_desc = mac_sec_key_description_get_by_attribute(rf_mac_setup, index);
+                if (!key_desc) {
+                    return -1;
+                }
+                mac_sec_mib_key_outgoing_frame_counter_set(rf_mac_setup, key_desc, value);
+            } else {
+                mac_sec_mib_key_outgoing_frame_counter_set(rf_mac_setup, NULL, value);
+            }
+
             break;
 
         default:
@@ -718,7 +724,7 @@ static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_m
         return mac_mlme_16bit_set(rf_mac_setup, set_req->attr, *pu16);
     } else if (set_req->value_size == 4) {
         const uint32_t *pu32 = set_req->value_pointer;
-        return mac_mlme_32bit_set(rf_mac_setup, set_req->attr, *pu32);
+        return mac_mlme_32bit_set(rf_mac_setup, set_req->attr, set_req->attr_index, *pu32);
     }
     return -1;
 }
@@ -787,30 +793,6 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
     }
 }
 
-uint32_t mac_mlme_framecounter_get(struct protocol_interface_rf_mac_setup *rf_mac_setup)
-{
-    uint32_t value;
-    platform_enter_critical();
-    value = rf_mac_setup->security_frame_counter;
-    platform_exit_critical();
-    return value;
-}
-
-void mac_mlme_framecounter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup)
-{
-    platform_enter_critical();
-    rf_mac_setup->security_frame_counter++;
-    platform_exit_critical();
-}
-
-void mac_mlme_framecounter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup)
-{
-    platform_enter_critical();
-    rf_mac_setup->security_frame_counter--;
-    platform_exit_critical();
-}
-
-
 int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_get_conf_t *get_req)
 {
     if (!get_req || !rf_mac_setup) {
@@ -833,9 +815,16 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
             break;
 
         case macFrameCounter:
-            platform_enter_critical();
-            get_req->value_pointer = &rf_mac_setup->security_frame_counter;
-            platform_exit_critical();
+            if (rf_mac_setup->secFrameCounterPerKey) {
+                mlme_key_descriptor_t *key_desc = mac_sec_key_description_get_by_attribute(rf_mac_setup, get_req->attr_index);
+                if (!key_desc) {
+                    return -1;
+                }
+                get_req->value_pointer = &key_desc->KeyFrameCounter;
+            } else {
+                get_req->value_pointer = &rf_mac_setup->security_frame_counter;
+            }
+
             get_req->value_size = 4;
             break;
 
@@ -1343,8 +1332,6 @@ int mac_mlme_beacon_notify(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme
     if (mac && mac->mlme_ind_cb) {
         mac->mlme_ind_cb(mac, MLME_BEACON_NOTIFY, data);
     }
-
-    tr_debug("Beacon Notify: %s", trace_array(data->beacon_data, data->beacon_data_length));
 
     if (rf_mac_setup->mac_mlme_scan_resp) {
         mlme_scan_conf_t *conf = rf_mac_setup->mac_mlme_scan_resp;

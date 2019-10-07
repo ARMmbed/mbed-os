@@ -588,6 +588,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     pae_supp->timer_running = false;
     pae_supp->new_br_eui_64_set = false;
     pae_supp->new_br_eui_64_fresh = false;
+    pae_supp->entry_address_active = false;
 
     ws_pae_lib_supp_init(&pae_supp->entry);
 
@@ -1010,7 +1011,13 @@ static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, kmp_type_
 
     // Check if ongoing
     kmp_api_t *kmp = ws_pae_lib_kmp_list_type_get(&pae_supp->entry.kmp_list, type);
-    if (kmp) {
+    /* If kmp receiving is enabled or it is not GKH, routes message to existing KMP.
+
+       For GKH creates an instance to handle message. If message is not valid (e.g. repeated
+       message counter), GKH ignores message and waits for timeout. All further messages
+       are routed to that instance. If valid message arrives, GKH instance handles the
+       message, replies to authenticator and terminates. */
+    if (kmp && (!kmp_api_receive_disable(kmp) || type != IEEE_802_11_GKH)) {
         return kmp;
     }
 

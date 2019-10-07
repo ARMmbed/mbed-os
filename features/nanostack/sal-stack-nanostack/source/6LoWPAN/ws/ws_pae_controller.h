@@ -159,6 +159,26 @@ int8_t ws_pae_controller_timing_adjust(uint8_t timing);
 int8_t ws_pae_controller_certificate_chain_set(const arm_certificate_chain_entry_s *chain);
 
 /**
+ * ws_pae_controller_own_certificate_add add own certificate to certificate chain
+ *
+ * \param cert own certificate
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_own_certificates_remove removes own certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_own_certificates_remove(void);
+
+/**
  * ws_pae_controller_trusted_certificate_add add trusted certificate
  *
  * \param cert trusted certificate
@@ -179,6 +199,15 @@ int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *
  *
  */
 int8_t ws_pae_controller_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+
+/**
+ * ws_pae_controller_trusted_certificates_remove removes trusted certificates
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_trusted_certificates_remove(void);
 
 /**
  * ws_pae_controller_certificate_revocation_list_add add certification revocation list
@@ -337,6 +366,18 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id);
  *
  */
 int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit);
+
+/**
+ * ws_pae_controller_ext_certificate_validation_set enable or disable extended certificate validation
+ *
+ * \param interface_ptr interface
+ * \param enabled       true to enable extended validation, false to disable
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled);
 
 /**
  * ws_pae_controller_active_key_update update active key (test interface)

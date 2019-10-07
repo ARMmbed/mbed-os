@@ -310,6 +310,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
     // 4WH supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case FWH_STATE_INIT:
+            tr_info("4WH: init");
             prot->timer_start(prot);
             sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_1);
             break;
@@ -324,6 +325,9 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             if (supp_fwh_kde_handle(prot) < 0) {
                 return;
             }
+
+            // Set default timeout for the total maximum length of the negotiation
+            sec_prot_default_timeout_set(&data->common);
 
             tr_info("4WH: start");
 
@@ -467,6 +471,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISHED:
+            tr_info("4WH: finished");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

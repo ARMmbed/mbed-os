@@ -23,7 +23,13 @@
  *
  */
 
-#define TLS_SEC_PROT_BUFFER_SIZE       1200   // Send buffer size (maximum size for a TLS data for a flight)
+/* TLS send buffer size not including certificates. This should include e.g. on
+ * server: server hello, server key exchange, certificate request and server
+ * hello done. */
+#define TLS_SEC_PROT_SEND_BUFFER_SIZE             500
+
+/* TLS send buffer size increment if it is detected that buffer is too small */
+#define TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT   1000
 
 /**
  * client_tls_sec_prot_register register client TLS protocol to KMP service
