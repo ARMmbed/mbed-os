@@ -130,12 +130,11 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     struct spi_s *spi = cy_get_spi(obj);
-    uint32_t received;
-    if (CY_RSLT_SUCCESS != cyhal_spi_send(&(spi->hal_spi), (uint32_t)value)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_send");
-    }
-    if (CY_RSLT_SUCCESS != cyhal_spi_recv(&(spi->hal_spi), &received)) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_recv");
+    uint8_t received;
+    uint8_t value_byte = (uint8_t)value;
+
+    if (CY_RSLT_SUCCESS != cyhal_spi_transfer(&(spi->hal_spi), &value_byte, 1, &received, 1, 0xff)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SPI, MBED_ERROR_CODE_FAILED_OPERATION), "cyhal_spi_transfer");
     }
     return (int)received;
 }
