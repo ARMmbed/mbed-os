@@ -36,6 +36,7 @@
     ],
     "target_overrides": {
         "*": {
+            "target.default_lib": "small",
             "mbed-trace.fea-ipv6": false
         }
      }

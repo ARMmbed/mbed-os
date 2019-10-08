@@ -16,6 +16,11 @@
         "bootloader_supported": false,
         "static_memory_defines": true,
         "printf_lib": "std",
+        "supported_c_libs": {
+                "arm": ["std"],
+                "gcc_arm": ["std", "small"],
+                "iar": ["std"]
+        },
         "config": {
             "console-uart": {
                 "help": "Target has UART console on pins STDIO_UART_TX, STDIO_UART_RX. Value is only significant if target has SERIAL device.",
@@ -1503,6 +1508,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+	    "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "SDT64B": {
@@ -1790,6 +1800,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+	"supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "K82F": {
@@ -2121,7 +2136,12 @@
             "init-us-ticker-at-boot": true
         },
         "OUTPUT_EXT": "hex",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "LPC55S69_S": {
         "inherits": ["SPE_Target", "LPC55S69"],
@@ -2441,7 +2461,12 @@
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
-        "device_name": "STM32F303RE"
+        "device_name": "STM32F303RE",
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "NUCLEO_F303ZE": {
         "inherits": ["FAMILY_STM32"],
@@ -2579,7 +2604,12 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "NUCLEO_F412ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -2831,6 +2861,11 @@
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
+        },
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
         }
     },
     "MTB_STM_S2LP": {
@@ -3534,7 +3569,12 @@
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
-        "device_name": "STM32L073RZ"
+        "device_name": "STM32L073RZ",
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "NUCLEO_L152RE": {
         "inherits": ["FAMILY_STM32"],
@@ -4425,7 +4465,12 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "supported_c_libs": {
+            "arm": ["std", "small"],
+            "gcc_arm": ["std", "small"],
+            "iar": ["std"]
+        }
     },
     "MTB_STM_L475": {
         "inherits": ["FAMILY_STM32"],

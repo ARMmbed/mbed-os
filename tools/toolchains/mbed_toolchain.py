@@ -109,6 +109,7 @@ CORTEX_SYMBOLS = {
                         "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
 }
 
+UNSUPPORTED_C_LIB_EXECPTION_STRING = "{} C library option not supported for this target."
 
 class mbedToolchain(with_metaclass(ABCMeta, object)):
     OFFICIALLY_SUPPORTED = False
@@ -1097,6 +1098,24 @@ class mbedToolchain(with_metaclass(ABCMeta, object)):
             and "-DMBED_MINIMAL_PRINTF" not in self.flags["common"]
         ):
             self.flags["common"].append("-DMBED_MINIMAL_PRINTF")
+
+    def check_c_lib_supported(self, target, toolchain):
+        """
+        Check and raise an exception if the requested C library is not supported,
+
+        target.default_lib is modified to have the lowercased string of its original string.
+        This is done to be case insensitvie when validating.
+        """
+        if  hasattr(target, "default_lib"):
+            target.default_lib = target.default_lib.lower()
+            if (
+                hasattr(target, "supported_c_libs") == False
+                or toolchain not in target.supported_c_libs
+                or target.default_lib not in target.supported_c_libs[toolchain]
+            ):
+                raise NotSupportedException(
+                   UNSUPPORTED_C_LIB_EXECPTION_STRING.format(target.default_lib)
+                )
 
     @staticmethod
     def _overwrite_when_not_equal(filename, content):

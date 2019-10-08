@@ -51,6 +51,7 @@ static control_t test_printf_d(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("hhd: %hhd\r\n", SCHAR_MIN);
     result_file = mbed_fprintf(stderr, "hhd: %hhd\r\n", SCHAR_MIN);
     result_baseline = printf("hhd: %hhd\r\n", SCHAR_MIN);
@@ -62,6 +63,7 @@ static control_t test_printf_d(const size_t call_count)
     result_baseline = printf("hhd: %hhd\r\n", SCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
     result_minimal = mbed_printf("hd: %hd\r\n", SHRT_MIN);
     result_file = mbed_fprintf(stderr, "hd: %hd\r\n", SHRT_MIN);
@@ -99,6 +101,7 @@ static control_t test_printf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
 
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("lld: %lld\r\n", LLONG_MIN);
     result_file = mbed_fprintf(stderr, "lld: %lld\r\n", LLONG_MIN);
     result_baseline = printf("lld: %lld\r\n", LLONG_MIN);
@@ -110,6 +113,7 @@ static control_t test_printf_d(const size_t call_count)
     result_baseline = printf("lld: %lld\r\n", LLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
@@ -170,6 +174,7 @@ static control_t test_printf_u(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("hhu: %hhu\r\n", 0);
     result_file = mbed_fprintf(stderr, "hhu: %hhu\r\n", 0);
     result_baseline = printf("hhu: %hhu\r\n", 0);
@@ -181,6 +186,7 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("hhu: %hhu\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
     result_minimal = mbed_printf("hu: %hu\r\n", 0);
     result_file = mbed_fprintf(stderr, "hu: %hu\r\n", 0);
@@ -217,7 +223,7 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("lu: %lu\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
-
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("llu: %llu\r\n", 0ULL);
     result_file = mbed_fprintf(stderr, "llu: %llu\r\n", 0ULL);
     result_baseline = printf("llu: %llu\r\n", 0ULL);
@@ -229,6 +235,7 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("llu: %llu\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%ju not supported by mbed\r\n");
@@ -289,6 +296,7 @@ static control_t test_printf_x(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("hhX: %hhX\r\n", 0);
     result_file = mbed_fprintf(stderr, "hhX: %hhX\r\n", 0);
     result_baseline = printf("hhX: %hhX\r\n", 0);
@@ -300,6 +308,7 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("hhX: %hhX\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
     result_minimal = mbed_printf("hX: %hX\r\n", 0);
     result_file = mbed_fprintf(stderr, "hX: %hX\r\n", 0);
@@ -336,7 +345,7 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("lX: %lX\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
-
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_printf("llX: %llX\r\n", 0ULL);
     result_file = mbed_fprintf(stderr, "llX: %llX\r\n", 0ULL);
     result_baseline = printf("llX: %llX\r\n", 0ULL);
@@ -348,6 +357,7 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("llX: %llX\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_file);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jX not supported by mbed\r\n");
@@ -434,6 +444,7 @@ static control_t test_snprintf_d(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhd: %hhd\r\n", SCHAR_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhd: %hhd\r\n", SCHAR_MIN);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -443,6 +454,7 @@ static control_t test_snprintf_d(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhd: %hhd\r\n", SCHAR_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hd: %hd\r\n", SHRT_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hd: %hd\r\n", SHRT_MIN);
@@ -474,6 +486,7 @@ static control_t test_snprintf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lld: %lld\r\n", LLONG_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lld: %lld\r\n", LLONG_MIN);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -483,6 +496,7 @@ static control_t test_snprintf_d(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lld: %lld\r\n", LLONG_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
@@ -538,6 +552,7 @@ static control_t test_snprintf_u(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhu: %hhu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhu: %hhu\r\n", 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -547,6 +562,7 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhu: %hhu\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hu: %hu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hu: %hu\r\n", 0);
@@ -577,7 +593,7 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lu: %lu\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
-
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llu: %llu\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llu: %llu\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -587,6 +603,7 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llu: %llu\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%ju not supported by mbed\r\n");
@@ -642,6 +659,7 @@ static control_t test_snprintf_x(const size_t call_count)
 
     /*************************************************************************/
     /*************************************************************************/
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhX: %hhX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhX: %hhX\r\n", 0);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -651,6 +669,7 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhX: %hhX\r\n", UCHAR_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hX: %hX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hX: %hX\r\n", 0);
@@ -680,7 +699,7 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lX: %lX\r\n", ULONG_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
-
+#if !defined(__NEWLIB_NANO)
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", 0ULL);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llX: %llX\r\n", 0ULL);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
@@ -690,6 +709,7 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llX: %llX\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+#endif
 
 #ifdef TARGET_LIKE_MBED
     printf("%%jX not supported by mbed\r\n");
@@ -902,10 +922,12 @@ static control_t test_snprintf_buffer_overflow_ld(const size_t call_count)
     return test_snprintf_buffer_overflow_generic<long, sizeof("ld: -1048576")>("ld: %ld", -1048576L);
 }
 
+#if !defined(__NEWLIB_NANO)
 static control_t test_snprintf_buffer_overflow_lld(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<long long, sizeof("lld: -1099511627776")>("lld: %lld", -1099511627776LL);
 }
+#endif
 
 static control_t test_snprintf_buffer_overflow_u(const size_t call_count)
 {
@@ -917,10 +939,12 @@ static control_t test_snprintf_buffer_overflow_lu(const size_t call_count)
     return test_snprintf_buffer_overflow_generic<unsigned long, sizeof("lu: 1048576")>("lu: %lu", 1048576UL);
 }
 
+#if !defined(__NEWLIB_NANO)
 static control_t test_snprintf_buffer_overflow_llu(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<unsigned long long, sizeof("llu: 1099511627776")>("llu: %llu", 1099511627776ULL);
 }
+#endif
 
 static control_t test_snprintf_buffer_overflow_x(const size_t call_count)
 {
@@ -932,10 +956,12 @@ static control_t test_snprintf_buffer_overflow_lx(const size_t call_count)
     return test_snprintf_buffer_overflow_generic<unsigned long, sizeof("lx: 0x100000")>("lx: 0x%lx", 0x100000UL);
 }
 
+#if !defined(__NEWLIB_NANO)
 static control_t test_snprintf_buffer_overflow_llx(const size_t call_count)
 {
     return test_snprintf_buffer_overflow_generic<unsigned long long, sizeof("llx: 0x10000000000")>("llx: 0x%llx", 0x10000000000ULL);
 }
+#endif
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
@@ -959,13 +985,15 @@ Case cases[] = {
 #endif
     Case("snprintf buffer overflow %d", test_snprintf_buffer_overflow_d),
     Case("snprintf buffer overflow %ld", test_snprintf_buffer_overflow_ld),
-    Case("snprintf buffer overflow %lld", test_snprintf_buffer_overflow_lld),
     Case("snprintf buffer overflow %u", test_snprintf_buffer_overflow_u),
     Case("snprintf buffer overflow %lu", test_snprintf_buffer_overflow_lu),
-    Case("snprintf buffer overflow %llu", test_snprintf_buffer_overflow_llu),
     Case("snprintf buffer overflow %x", test_snprintf_buffer_overflow_x),
     Case("snprintf buffer overflow %lx", test_snprintf_buffer_overflow_lx),
+#if !defined(__NEWLIB_NANO)
+    Case("snprintf buffer overflow %lld", test_snprintf_buffer_overflow_lld),
+    Case("snprintf buffer overflow %llu", test_snprintf_buffer_overflow_llu),
     Case("snprintf buffer overflow %llx", test_snprintf_buffer_overflow_llx),
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_test_teardown_handler);
