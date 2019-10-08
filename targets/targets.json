@@ -4841,7 +4841,6 @@
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
-        "macros_add": ["MBED_TICKLESS"],
         "device_has_remove": [],
         "extra_labels_add": ["PSA"],
         "components_add": ["SD", "FLASHIAP"],
