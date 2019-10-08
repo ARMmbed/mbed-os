@@ -81,7 +81,7 @@ static void test_irq_handler(uint32_t id, SerialIrq event)
     }
 }
 
-static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
+static void uart_test_common(int baudrate, int data_bits, SerialParity parity, int stop_bits, PinName tx, PinName rx, PinName cts, PinName rts)
 {
     // The FPGA CI shield only supports None, Odd & Even.
     // Forced parity is not supported on Atmel, Freescale, Nordic & STM targets.
@@ -273,7 +273,7 @@ static void uart_test_common(int baudrate, int data_bits, SerialParity parity, i
     tester.reset();
 }
 
-void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts = NC, PinName rts = NC)
+void fpga_uart_init_free_test(PinName tx, PinName rx, PinName cts, PinName rts)
 {
     bool use_flow_control = (cts != NC && rts != NC) ? true : false;
     serial_t serial;

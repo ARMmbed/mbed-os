@@ -225,14 +225,14 @@ void fpga_test_explicit_output(PinName pin)
 }
 
 Case cases[] = {
-    Case("generic init, input & output", all_ports<GPIOPort, DefaultFormFactor, test_basic_input_output>),
+    Case("generic init, input & output", all_ports<GPIOPort, DefaultFormFactor, fpga_test_basic_input_output>),
     // Some targets don't support input pull mode.
 #if !defined(TARGET_NANO100) &&         \
     !defined(TARGET_NUC472) &&          \
     !defined(TARGET_M451)
-    Case("explicit init, input", all_ports<GPIOPort, DefaultFormFactor, test_explicit_input>),
+    Case("explicit init, input", all_ports<GPIOPort, DefaultFormFactor, fpga_test_explicit_input>),
 #endif
-    Case("explicit init, output", all_ports<GPIOPort, DefaultFormFactor, test_explicit_output>),
+    Case("explicit init, output", all_ports<GPIOPort, DefaultFormFactor, fpga_test_explicit_output>),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
