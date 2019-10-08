@@ -35,6 +35,10 @@
 #define MBED_CONF_NSAPI_DNS_CACHE_SIZE     3
 #endif
 
+#ifndef MBED_CONF_APP_DNS_TEST_HOSTS_NUM
+#define MBED_CONF_APP_DNS_TEST_HOSTS_NUM     6
+#endif
+
 // Hostnames for testing against
 // Both lists must have A and AAAA records
 #ifndef MBED_CONF_APP_DNS_TEST_HOSTS
@@ -45,8 +49,8 @@
 #define MBED_CONF_APP_DNS_TEST_HOSTS_SECOND {"ipv6ready.org", "wireshark.org", "bbc.co.uk", "cnn.com", "www.flickr.com", "www.mozilla.org"}
 #endif
 
-#ifndef MBED_CONF_APP_DNS_TEST_HOSTS_NUM
-#define MBED_CONF_APP_DNS_TEST_HOSTS_NUM 6
+#ifndef MBED_CONF_APP_DNS_TEST_MULTI_IP_HOSTS
+#define MBED_CONF_APP_DNS_TEST_MULTI_IP_HOSTS {"google.com", "www.mozilla.org", "yahoo.com", "instagram.com","www.flickr.com"}
 #endif
 
 #define DNS_TEST_HOST_LEN 40
@@ -59,8 +63,17 @@ struct dns_application_data {
     bool value_set;
 };
 
+struct dns_application_data_multi_ip {
+    rtos::Semaphore *semaphore;
+    nsapi_error_t result;
+    SocketAddress addr[MBED_CONF_NSAPI_DNS_ADDRESSES_LIMIT];
+    nsapi_error_t req_result;
+    bool value_set;
+};
+
 extern const char dns_test_hosts[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN];
 extern const char dns_test_hosts_second[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN];
+extern const char dns_test_hosts_multi_ip[MBED_CONF_APP_DNS_SIMULT_QUERIES][DNS_TEST_HOST_LEN];
 
 /*
  * Utility functions
@@ -95,4 +108,6 @@ void SYNCHRONOUS_DNS();
 void SYNCHRONOUS_DNS_MULTIPLE();
 void SYNCHRONOUS_DNS_CACHE();
 void SYNCHRONOUS_DNS_INVALID();
+void SYNCHRONOUS_DNS_MULTI_IP();
+void ASYNCHRONOUS_DNS_MULTI_IP();
 #endif
