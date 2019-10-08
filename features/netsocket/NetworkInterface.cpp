@@ -144,6 +144,7 @@ NetworkInterface::~NetworkInterface()
     ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
         if (entry->iface == this) {
             ns_list_remove(event_list, entry);
+            delete entry;
         }
     }
 }
