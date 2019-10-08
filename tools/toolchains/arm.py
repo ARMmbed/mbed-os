@@ -71,7 +71,7 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "default_toolchain", "ARM") == "uARM":
+        if getattr(target, "default_toolchain", "ARM") == "uARM"  or getattr(target, "default_lib", "std") == "small":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -285,6 +285,10 @@ class ARM(mbedToolchain):
         """
         with open(sc_fileref.path, "r") as input:
             lines = input.readlines()
+            if getattr(self.target, "default_lib", "std") == "small" and self.name != "ARMC6":                                           
+                for index, line in enumerate(lines):                
+                    if "__MICROLIB" in line:                
+                        lines[index]=lines[index].replace(lines[index],"#define __MICROLIB"+"\n"+lines[index])                                        
             if (lines[0].startswith(self.SHEBANG) or
                 not lines[0].startswith("#!")):
                 return sc_fileref

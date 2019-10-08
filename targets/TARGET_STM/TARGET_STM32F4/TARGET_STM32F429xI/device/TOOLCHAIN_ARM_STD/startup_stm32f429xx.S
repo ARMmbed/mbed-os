@@ -36,8 +36,11 @@
 ;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ; 
 ;*******************************************************************************
-
+#if !defined(__MICROLIB)
 __initial_sp    EQU     0x20030000 ; Top of RAM
+#else
+__initial_sp    EQU     0x20020000 ; Top of RAM
+#endif
 
                 PRESERVE8
                 THUMB
