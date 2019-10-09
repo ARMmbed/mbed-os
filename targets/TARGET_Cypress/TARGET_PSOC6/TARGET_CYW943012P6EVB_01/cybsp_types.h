@@ -127,10 +127,10 @@ extern "C" {
 
 /** Pin: BT Power */
 #define CYBSP_BT_POWER              (P3_4)
-/** Pin: BT Host Wakeup */
-#define CYBSP_BT_HOST_WAKE          (P3_5)
 /** Pin: BT Device Wakeup */
-#define CYBSP_BT_DEVICE_WAKE        (P4_0)
+#define CYBSP_BT_DEVICE_WAKE        (P3_5)
+/** Pin: BT Host Wakeup */
+#define CYBSP_BT_HOST_WAKE          (P4_0)
 
 /** Pin: UART RX */
 #define CYBSP_DEBUG_UART_RX         (P13_0)
