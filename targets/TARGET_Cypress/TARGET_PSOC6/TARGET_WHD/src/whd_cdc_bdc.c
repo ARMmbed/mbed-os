@@ -458,6 +458,11 @@ void *whd_cdc_get_ioctl_buffer(whd_driver_t whd_driver,
                                whd_buffer_t *buffer,
                                uint16_t data_length)
 {
+    if ((uint32_t)IOCTL_OFFSET + data_length > USHRT_MAX)
+    {
+        WPRINT_WHD_ERROR( ("The reserved ioctl buffer length is over %u\n", USHRT_MAX) );
+        return NULL;
+    }
     if (whd_host_buffer_get(whd_driver, buffer, WHD_NETWORK_TX, (unsigned short)(IOCTL_OFFSET + data_length),
                             (unsigned long)WHD_IOCTL_PACKET_TIMEOUT) == WHD_SUCCESS)
     {

@@ -41,6 +41,8 @@ void whd_init_stats(whd_driver_t whd_driver)
 
 uint32_t whd_print_stats(whd_driver_t whd_driver, whd_bool_t reset_after_print)
 {
+    CHECK_DRIVER_NULL(whd_driver);
+
     WPRINT_MACRO( ("WHD Stats.. \n"
                    "tx_total:%" PRIu32 ", rx_total:%" PRIu32 ", tx_no_mem:%" PRIu32 ", rx_no_mem:%" PRIu32 "\n"
                    "tx_fail:%" PRIu32 ", no_credit:%" PRIu32 ", flow_control:%" PRIu32 "\n",

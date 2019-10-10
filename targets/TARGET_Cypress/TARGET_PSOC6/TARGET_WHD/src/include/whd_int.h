@@ -66,7 +66,6 @@ struct whd_interface
     whd_interface_role_t role;
     whd_mac_t mac_addr;
     uint8_t event_reg_list[WHD_EVENT_ENTRY_MAX];
-    void (*whd_link_update_callback)(whd_interface_t ifp, whd_bool_t state_up);
     whd_bool_t state;
 };
 

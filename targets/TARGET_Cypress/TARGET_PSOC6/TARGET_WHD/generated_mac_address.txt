@@ -6,4 +6,4 @@
  * MAC address is printed during WHD power up
  */
 
-#define NVRAM_GENERATED_MAC_ADDRESS        "macaddr=00:A0:50:d4:32:81"
+#define NVRAM_GENERATED_MAC_ADDRESS        "macaddr=00:A0:50:bb:5c:af"
