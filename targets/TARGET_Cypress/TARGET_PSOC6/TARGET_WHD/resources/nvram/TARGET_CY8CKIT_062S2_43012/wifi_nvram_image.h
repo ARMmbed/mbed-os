@@ -9,13 +9,13 @@
  * You may obtain a copy of the License here:
  * LICENSE-permissive-binary-license-1.0.txt and at
  * https://www.mbed.com/licenses/PBL-1.0
- *
+ * 
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /** @file
- *  NVRAM file for CY8CMOD-062S2-43012
+ *  NVRAM file for CY8CKIT_062S2_43012
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -30,12 +30,19 @@
 extern "C" {
 #endif
 
+
 /**
- * Character array of NVRAM image generated from
- * cyw9cy8cmod_062S2_43012_P100_722590.txt
+ *
+ * Character array of NVRAM image
+ *
+ * Generated from cyw9cy8ckit_062S2_43012_P100_722591.txt
+ *
  */
+
+
+
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev:722590$"                                              "\x00"
+        "NVRAMRev=$Rev:722591$"                                              "\x00"
         "sromrev=11"                                                         "\x00"
         "cckdigfilttype=4"                                                   "\x00"
         "cckpwroffset0=2"                                                    "\x00"
@@ -158,4 +165,3 @@ static const char wifi_nvram_image[] =
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 #error Wi-Fi NVRAM image included twice
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-

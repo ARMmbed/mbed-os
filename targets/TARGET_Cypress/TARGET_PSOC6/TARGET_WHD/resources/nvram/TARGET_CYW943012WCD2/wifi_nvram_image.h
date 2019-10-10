@@ -15,7 +15,7 @@
  */
 
 /** @file
- *  NVRAM file for CY8CMOD-062S2-43012
+ *  NVRAM file for CYW943012WCD2
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -31,11 +31,11 @@ extern "C" {
 #endif
 
 /**
- * Character array of NVRAM image generated from
- * cyw9cy8cmod_062S2_43012_P100_722590.txt
+ * Character array of NVRAM image
+ * Generated from cyw943012wcd2_P105_722588.txt
  */
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev:722590$"                                              "\x00"
+        "NVRAMRev=$Rev:722588$"                                              "\x00"
         "sromrev=11"                                                         "\x00"
         "cckdigfilttype=4"                                                   "\x00"
         "cckpwroffset0=2"                                                    "\x00"
@@ -48,8 +48,8 @@ static const char wifi_nvram_image[] =
         NVRAM_GENERATED_MAC_ADDRESS                                          "\x00"
         "mac_clkgating=1"                                                    "\x00"
         "nocrc=1"                                                            "\x00"
-        "boardtype=0x0869"                                                   "\x00"
-        "boardrev=0x1102"                                                    "\x00"
+        "boardtype=0x0874"                                                   "\x00"
+        "boardrev=0x1105"                                                    "\x00"
         "xtalfreq=37400"                                                     "\x00"
         "boardflags2=0xc0000000"                                             "\x00"
         "boardflags=0x00000001"                                              "\x00"
@@ -111,7 +111,6 @@ static const char wifi_nvram_image[] =
         "femctrlwar=0"                                                       "\x00"
         "use5gpllfor2g=1"                                                    "\x00"
         "pt5db_gaintbl=0"                                                    "\x00"
-        "muxenab=0x01"                                                       "\x00"
         "txwbpapden=1"                                                       "\x00"
         "wb_rxattn=0x0303"                                                   "\x00"
         "wb_txattn=0x0203"                                                   "\x00"
@@ -158,4 +157,3 @@ static const char wifi_nvram_image[] =
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 #error Wi-Fi NVRAM image included twice
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-

@@ -15,9 +15,9 @@
  */
 
 /** @file
- * # NVRAM file for CY8CMOD-062-4343W (PSoC6 with CYW4343W WiFi-BT - Murata's
+ * # NVRAM file for CY8CMOD-062S3-4343W (PSoC6 (512K) with CYW4343W WiFi-BT - Murata's
  *   Type 1DX Module) - Copied from bcm94343wwcd1.txt on 08/04/2019
- * # 2.4 GHz, 20 MHz BW mode; No Antenna Diversity
+ * # 2.4 GHz, 20 MHz BW mode; With Antenna Diversity
  */
 
 #ifndef INCLUDED_NVRAM_IMAGE_H_
@@ -35,16 +35,16 @@ extern "C" {
 /**
  * Character array of NVRAM image
  *
- * Generated from cyw94343cy8cmod-062-4343w.txt
+ * Generated from cyw94343cy8cmod-062s3-4343w.txt
  */
 
 static const char wifi_nvram_image[] =
-        "NVRAMRev=$Rev: 722522 $"                                            "\x00"
+        "NVRAMRev=$Rev: 722524 $"                                            "\x00"
         "manfid=0x2d0"                                                       "\x00"
-        "prodid=0x086d"                                                      "\x00"
+        "prodid=0x086e"                                                      "\x00"
         "vendid=0x14e4"                                                      "\x00"
         "devid=0x43e2"                                                       "\x00"
-        "boardtype=0x086d"                                                   "\x00"
+        "boardtype=0x086e"                                                   "\x00"
         "boardrev=0x1101"                                                    "\x00"
         "boardnum=22"                                                        "\x00"
         NVRAM_GENERATED_MAC_ADDRESS                                          "\x00"
@@ -56,6 +56,8 @@ static const char wifi_nvram_image[] =
         "ag0=255"                                                            "\x00"
         "aa2g=1"                                                             "\x00"
         "ccode=ALL"                                                          "\x00"
+        "swdiv_en=1"                                                         "\x00"
+        "swdiv_gpio=2"                                                       "\x00"
         "pa0itssit=0x20"                                                     "\x00"
         "extpagain2g=0"                                                      "\x00"
         "pa2ga0=-168,6905,-799"                                              "\x00"
@@ -85,8 +87,6 @@ static const char wifi_nvram_image[] =
 #endif
 
 #else /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
-
 #error Wi-Fi NVRAM image included twice
-
 #endif /* ifndef INCLUDED_NVRAM_IMAGE_H_ */
 
