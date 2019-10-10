@@ -167,7 +167,8 @@ extern cy_rtos_error_t cy_rtos_last_error();
  * @param[in]  entry_function Function pointer which points to the main function for the new thread
  * @param[in]  name           String thread name used for a debugger
  * @param[in]  stack          The buffer to use for the thread stack. This must be aligned to
-                              CY_RTOS_ALIGNMENT with a size of at least CY_RTOS_MIN_STACK_SIZE
+ *                            CY_RTOS_ALIGNMENT with a size of at least CY_RTOS_MIN_STACK_SIZE.
+ *                            If stack is null, cy_rtos_create_thread will allocate a stack from the heap.
  * @param[in]  stack_size     The size of the thread stack in bytes
  * @param[in]  priority       The priority of the thread. Values are operating system specific, but some
  *                            common priority levels are defined:
