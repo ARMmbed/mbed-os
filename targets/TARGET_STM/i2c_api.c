@@ -381,22 +381,22 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // Enable the Fast Mode Plus capability
     if (hz == 1000000) {
-#if defined(I2C1_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C1)
+#if defined(I2C1_BASE) && defined (I2C_FASTMODEPLUS_I2C1)
         if (obj_s->i2c == I2C_1) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C1);
         }
 #endif
-#if defined(I2C2_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C2)
+#if defined(I2C2_BASE) && defined (I2C_FASTMODEPLUS_I2C2)
         if (obj_s->i2c == I2C_2) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C2);
         }
 #endif
-#if defined(I2C3_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C3)
+#if defined(I2C3_BASE) && defined (I2C_FASTMODEPLUS_I2C3)
         if (obj_s->i2c == I2C_3) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C3);
         }
 #endif
-#if defined(I2C4_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C4)
+#if defined(I2C4_BASE) && defined (I2C_FASTMODEPLUS_I2C4)
         if (obj_s->i2c == I2C_4) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C4);
         }
