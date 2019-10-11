@@ -71,7 +71,10 @@
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
+#undef  LWIP_DEBUG
+#if MBED_CONF_LWIP_DEBUG_ENABLED
+#define LWIP_DEBUG                  1
+#endif
 
 #if NO_SYS == 0
 #include "cmsis_os2.h"
