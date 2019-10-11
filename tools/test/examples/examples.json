@@ -476,7 +476,7 @@
         "compile" : true,
         "export": false,
         "test" : false,
-        "baud_rate": 9600,
+        "baud_rate": 115200,
         "compare_log": [],
         "auto-update" : true
     }
