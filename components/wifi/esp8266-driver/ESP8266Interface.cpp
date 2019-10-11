@@ -67,11 +67,13 @@ ESP8266Interface::ESP8266Interface()
       _if_connected(_cmutex),
       _initialized(false),
       _connect_retval(NSAPI_ERROR_OK),
+      _disconnect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
       _connect_event_id(0),
+      _disconnect_event_id(0),
       _software_conn_stat(IFACE_STATUS_DISCONNECTED)
 {
     memset(_cbs, 0, sizeof(_cbs));
@@ -105,11 +107,14 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _if_connected(_cmutex),
       _initialized(false),
       _connect_retval(NSAPI_ERROR_OK),
+      _disconnect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
-      _connect_event_id(0)
+      _connect_event_id(0),
+      _disconnect_event_id(0),
+      _software_conn_stat(IFACE_STATUS_DISCONNECTED)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
