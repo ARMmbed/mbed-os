@@ -255,7 +255,7 @@ void test_direct_access_to_device_inject_root()
     ret = devkey.device_inject_root_of_trust(key, DEVICE_KEY_16BYTE);
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    // Now use Direct Access To DeviceKey to retrieve it */
+    // Now use Direct Access To DeviceKey to retrieve it
     uint32_t internal_start_address;
     uint32_t internal_rbp_size;
     bool is_conf_tdb_internal = false;

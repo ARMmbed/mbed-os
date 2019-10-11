@@ -106,7 +106,7 @@ public:
      *  @param address_width Bus width used by address phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param address_size Size in bits used by address phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
      *  @param alt_width Bus width used by alt phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
-     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ALT_SIZE_8, QSPI_CFG_ALT_SIZE_16, QSPI_CFG_ALT_SIZE_24, QSPI_CFG_ALT_SIZE_32)
+     *  @param alt_size Size in bits used by alt phase (must be a multiple of the number of bus lines indicated in alt_width)
      *  @param data_width Bus width used by data phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *

@@ -357,9 +357,11 @@ private:
     // Bus speed configuration
     qspi_bus_width_t _inst_width; //Bus width for Instruction phase
     qspi_bus_width_t _address_width; //Bus width for Address phase
-    qspi_address_size_t _address_size; // number of bytes for address
+    qspi_address_size_t _address_size; //Number of bits for address
+    qspi_alt_size_t _alt_size; //Number of bits for alt
+    bool _alt_enabled; //Whether alt is enabled
+    uint8_t _dummy_cycles; //Number of Dummy cycles required by Current Bus Mode
     qspi_bus_width_t _data_width; //Bus width for Data phase
-    int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
 
     uint32_t _init_ref_count;
     bool _is_initialized;
