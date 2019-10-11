@@ -1,40 +1,41 @@
-/* 
- * Copyright (c) 2001-2003 Swedish Institute of Computer Science. 
- * All rights reserved.  
- *  
- * Redistribution and use in source and binary forms, with or without modification,  
- * are permitted provided that the following conditions are met: 
- * 
- * 1. Redistributions of source code must retain the above copyright notice, 
- *    this list of conditions and the following disclaimer. 
- * 2. Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
- *    and/or other materials provided with the distribution. 
- * 3. The name of the author may not be used to endorse or promote products 
- *    derived from this software without specific prior written permission.  
- * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED  
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF  
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT  
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,  
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS  
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN  
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING  
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY  
- * OF SUCH DAMAGE. 
- * 
- * This file is part of the lwIP TCP/IP stack. 
- *  
- * Author: Adam Dunkels <adam@sics.se> 
- * 
- */ 
-#ifndef __CC_H__ 
-#define __CC_H__ 
+/*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ *
+ * Author: Adam Dunkels <adam@sics.se>
+ *
+ */
+#ifndef __CC_H__
+#define __CC_H__
 
 #include <stdint.h>
 #include <stddef.h> /* for size_t */
 #include "mbed_toolchain.h"
+#include "lwipopts.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +61,7 @@ extern "C" {
     #define PACK_STRUCT_END
     #define PACK_STRUCT_FIELD(fld) fld
     #define ALIGNED(n)  __align(n)
-#elif defined (__IAR_SYSTEMS_ICC__) 
+#elif defined (__IAR_SYSTEMS_ICC__)
     /* IAR Embedded Workbench tools */
     #define PACK_STRUCT_BEGIN __packed
     #define PACK_STRUCT_STRUCT
@@ -68,14 +69,14 @@ extern "C" {
     #define PACK_STRUCT_FIELD(fld) fld
     #define IAR_STR(a) #a
     #define ALIGNED(n) _Pragma(IAR_STR(data_alignment= ## n ##))
-#else 
+#else
     /* GCC tools (CodeSourcery) */
     #define PACK_STRUCT_BEGIN
     #define PACK_STRUCT_STRUCT __attribute__ ((__packed__))
     #define PACK_STRUCT_END
     #define PACK_STRUCT_FIELD(fld) fld
     #define ALIGNED(n)  __attribute__((aligned (n)))
-#endif 
+#endif
 
 /* Provide Thumb-2 routines for GCC to improve performance */
 #if defined(TOOLCHAIN_GCC) && defined(__thumb2__)
@@ -117,7 +118,7 @@ MBED_NORETURN void assert_printf(const char *msg, int line, const char *file);
 #define LWIP_PLATFORM_DIAG(vars) printf vars
 #define LWIP_PLATFORM_ASSERT(flag) { assert_printf((flag), __LINE__, __FILE__); }
 #endif // MBED_CONF_LWIP_USE_MBED_TRACE
-#endif 
+#endif
 
 #if TRACE_TO_ASCII_HEX_DUMP
 #define TRACE_TO_ASCII_HEX_DUMPF(prefix, len, data) trace_to_ascii_hex_dump(prefix, len, data)
@@ -182,4 +183,4 @@ SET_MEMP_SECTION(memp_memory_TCPIP_MSG_API_base);
 }
 #endif
 
-#endif /* __CC_H__ */ 
+#endif /* __CC_H__ */
