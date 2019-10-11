@@ -8839,6 +8839,83 @@
         "mbed_ram_start"        : "0x20000000",
         "mbed_ram_size"         : "0x8000"
     },
+    "NUMAKER_M252KG": {
+        "core": "Cortex-M23",
+        "trustzone": false,
+        "is_disk_virtual": true,
+        "default_toolchain": "ARMC6",
+        "extra_labels": [
+            "NUVOTON",
+            "M251",
+            "M252KG6AE",
+            "FLASH_CMSIS_ALGO"
+        ],
+        "macros_add": [
+            "MBED_FAULT_HANDLER_DISABLED",
+            "LPTICKER_DELAY_TICKS=4"
+        ],
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "hxt-enable": {
+                "help": "Enable external high-speed crystal (HXT)",
+                "value": 0,
+                "macro_name": "NU_HXT_ENABLE"
+            }
+        },
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff",
+            "deep-sleep-latency": 1,
+            "tickless-from-us-ticker": true
+        },
+        "inherits": ["Target"],
+        "device_has": [
+            "USTICKER",
+            "LPTICKER",
+            "RTC",
+            "ANALOGIN",
+            "ANALOGOUT",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH",
+            "FLASH",
+            "MPU"
+        ],
+        "components_add": ["FLASHIAP"],
+        "detect_code": ["1309"],
+        "release_versions": ["2", "5"],
+        "device_name": "M252KG6AE",
+        "sectors": [[0,512]],
+        "bootloader_supported": true
+    },
     "TMPM3H6": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
