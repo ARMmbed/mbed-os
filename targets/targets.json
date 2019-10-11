@@ -9134,6 +9134,23 @@
         "sectors": [[268443648, 512]],
         "bootloader_supported": true
     },
+    "CY8CPROTO_063_BLE": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "components_remove": ["QSPIF"],
+        "device_has_remove": ["USBDEVICE", "QSPI"],
+        "extra_labels_add": [
+            "PSOC6_01",
+            "MXCRYPTO_01",
+            "CM0P_SLEEP"
+        ],
+        "macros_add": ["CYBLE_416045_02"],
+        "detect_code": ["1904"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "sectors": [[268443648, 512]],
+        "bootloader_supported": true
+    },
     "CY8CPROTO_064_SB": {
         "inherits": ["MCU_PSOC6_M4"],
         "components_remove": ["QSPIF"],
