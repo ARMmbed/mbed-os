@@ -712,6 +712,21 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
         return;
     }
 
+    if (rpl_policy_dao_retry_count() > 0 && instance->dao_attempt >= rpl_policy_dao_retry_count()) {
+        // Check if recovery logic is started
+        // after half the retries are done we remove the primary parent
+        tr_info("DAO remove primary parent");
+        rpl_neighbour_t *neighbour = ns_list_get_first(&instance->candidate_neighbours);
+        if (neighbour) {
+            rpl_delete_neighbour(instance, neighbour);
+        }
+        // Set parameters to restart
+        instance->dao_in_transit = false;
+        instance->dao_attempt = 0;
+        instance->dao_retry_timer = 0;
+        instance->delay_dao_timer = 0;
+        return;
+    }
 
     /* Which parent this DAO will be for if storing */
     rpl_neighbour_t *parent = NULL;
@@ -845,6 +860,15 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     } else {
         dst = dodag->id;
         cur = NULL;
+    }
+
+    if (instance->dao_attempt > 0) {
+        // Start informing problem in routing. This will cause us to select secondary routes when sending the DAO
+        tr_info("DAO reachability problem");
+        protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
+        if (interface) {
+            ipv6_neighbour_reachability_problem(dst, interface->id);
+        }
     }
 
     bool need_ack = rpl_control_transmit_dao(instance->domain, cur, instance, instance->id, instance->dao_sequence, dodag->id, opts, ptr - opts, dst);
@@ -1859,7 +1883,7 @@ void rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     if (status == SOCKET_TX_DONE) {
         /* State_timer is 1/10 s. Set renewal to 75-85% of lifetime */
         if_address_entry_t *address = rpl_interface_addr_get(interface, dao_target->prefix);
-        if (address) {
+        if (address && address->source != ADDR_SOURCE_DHCP) {
             address->state_timer = (address->preferred_lifetime * randLIB_get_random_in_range(75, 85) / 10);
         }
         neighbour->confirmed = true;

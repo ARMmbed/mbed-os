@@ -145,6 +145,7 @@ rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
 void rpl_control_set_domain_on_interface(struct protocol_interface_info_entry *cur, rpl_domain_t *domain, bool downstream);
 void rpl_control_remove_domain_from_interface(struct protocol_interface_info_entry *cur);
+void rpl_control_free_domain_instances_from_interface(struct protocol_interface_info_entry *cur);
 void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add,  void *cb_handle);
 
 /* Target publishing */
@@ -156,6 +157,9 @@ uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_e
 void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
 /* Parent link confirmation API extension */
 void rpl_control_request_parent_link_confirmation(bool requested);
+void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_count);
+void rpl_control_set_dao_retry_count(uint8_t count);
+void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms);
 void rpl_control_register_address(struct protocol_interface_info_entry *interface, const uint8_t addr[16]);
 void rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
 
@@ -178,6 +182,7 @@ uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 #define rpl_control_fast_timer(ticks) ((void) 0)
 #define rpl_control_slow_timer(seconds) ((void) 0)
 #define rpl_control_remove_domain_from_interface(cur) ((void) 0)
+#define rpl_control_free_domain_instances_from_interface(cur) ((void) 0)
 #define rpl_control_register_address(interface, addr) ((void) 0)
 #define rpl_control_address_register_done(interface, ll_addr, status) ((void) 0)
 

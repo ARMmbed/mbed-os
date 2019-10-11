@@ -49,6 +49,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/ssl_ciphersuites.h"
 #include "mbedtls/debug.h"
+#include "mbedtls/oid.h"
 
 #include "mbedtls/ssl_internal.h"
 
@@ -57,7 +58,9 @@
 #define TLS_HANDSHAKE_TIMEOUT_MIN 25000
 #define TLS_HANDSHAKE_TIMEOUT_MAX 201000
 
-//#define TLS_SEC_PROT_LIB_TLS_DEBUG   // Enable mbed TLS debug traces
+//#define TLS_SEC_PROT_LIB_TLS_DEBUG       // Enable mbed TLS debug traces
+
+typedef int tls_sec_prot_lib_crt_verify_cb(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 
 struct tls_security_s {
     mbedtls_ssl_config             conf;                 /**< mbed TLS SSL configuration */
@@ -71,6 +74,8 @@ struct tls_security_s {
     mbedtls_x509_crt               owncert;              /**< Own certificate(s) */
     mbedtls_pk_context             pkey;                 /**< Private key for own certificate */
     void                           *handle;              /**< Handle provided in callbacks (defined by library user) */
+    bool                           ext_cert_valid : 1;   /**< Extended certificate validation enabled */
+    tls_sec_prot_lib_crt_verify_cb *crt_verify;          /**< Verify function for client/server certificate */
     tls_sec_prot_lib_send          *send;                /**< Send callback */
     tls_sec_prot_lib_receive       *receive;             /**< Receive callback */
     tls_sec_prot_lib_export_keys   *export_keys;         /**< Export keys callback */
@@ -88,18 +93,37 @@ static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char 
                                             size_t ivlen, const unsigned char client_random[32],
                                             const unsigned char server_random[32],
                                             mbedtls_tls_prf_types tls_prf_type);
+
+static int tls_sec_prot_lib_x509_crt_verify(void *ctx, mbedtls_x509_crt *crt, int certificate_depth, uint32_t *flags);
+static int8_t tls_sec_prot_lib_subject_alternative_name_validate(mbedtls_x509_crt *crt);
+static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt);
+#ifdef HAVE_PAE_AUTH
+static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
+#endif
+#ifdef HAVE_PAE_SUPP
+static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
+#endif
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
 #endif
-
 #ifdef MBEDTLS_PLATFORM_MEMORY
 // Disable for now
 //#define TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
 #endif
-
 #ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
 static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
 static void tls_sec_prot_lib_mem_free(void *ptr);
+#endif
+
+#if defined(HAVE_PAE_AUTH) && defined(HAVE_PAE_SUPP)
+#define is_server_is_set (is_server == true)
+#define is_server_is_not_set (is_server == false)
+#elif defined(HAVE_PAE_AUTH)
+#define is_server_is_set true
+#define is_server_is_not_set false
+#elif defined(HAVE_PAE_SUPP)
+#define is_server_is_set false
+#define is_server_is_not_set true
 #endif
 
 int8_t tls_sec_prot_lib_init(tls_security_t *sec)
@@ -109,7 +133,6 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 #ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
     mbedtls_platform_set_calloc_free(tls_sec_prot_lib_mem_calloc, tls_sec_prot_lib_mem_free);
 #endif
-
 
     mbedtls_ssl_init(&sec->ssl);
     mbedtls_ssl_config_init(&sec->conf);
@@ -269,21 +292,37 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
     // Certificate verify required on both client and server
     mbedtls_ssl_conf_authmode(&sec->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
 
+    // Get extended certificate validation setting
+    sec->ext_cert_valid = sec_prot_certs_ext_certificate_validation_get(certs);
+
     return 0;
 }
 
 int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_prot_certs_t *certs)
 {
+#if !defined(HAVE_PAE_SUPP) || !defined(HAVE_PAE_AUTH)
+    (void) is_server;
+#endif
+
     if (!sec) {
         return -1;
     }
 
-    int endpoint = MBEDTLS_SSL_IS_CLIENT;
-    if (is_server) {
-        endpoint = MBEDTLS_SSL_IS_SERVER;
+#ifdef HAVE_PAE_SUPP
+    if (is_server_is_not_set) {
+        sec->crt_verify = tls_sec_prot_lib_x509_crt_server_verify;
     }
+#endif
+#ifdef HAVE_PAE_AUTH
+    if (is_server_is_set) {
+        sec->crt_verify = tls_sec_prot_lib_x509_crt_idevid_ldevid_verify;
+    }
+#endif
 
-    if ((mbedtls_ssl_config_defaults(&sec->conf, endpoint, MBEDTLS_SSL_TRANSPORT_STREAM, 0)) != 0) {
+
+    if ((mbedtls_ssl_config_defaults(&sec->conf,
+                                     is_server_is_set ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT,
+                                     MBEDTLS_SSL_TRANSPORT_STREAM, 0)) != 0) {
         tr_error("config defaults fail");
         return -1;
     }
@@ -331,8 +370,11 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     mbedtls_ssl_conf_min_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
     mbedtls_ssl_conf_max_version(&sec->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
 
+    // Set certificate verify callback
+    mbedtls_ssl_set_verify(&sec->ssl, tls_sec_prot_lib_x509_crt_verify, sec);
+
 #ifdef MBEDTLS_ECP_RESTARTABLE
-    if (endpoint == MBEDTLS_SSL_IS_SERVER) {
+    if (is_server_is_set) {
         // Temporary to enable non blocking ECC */
         sec->ssl.handshake->ecrs_enabled = 1;
     }
@@ -433,6 +475,109 @@ static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char 
     return 0;
 }
 
+static int tls_sec_prot_lib_x509_crt_verify(void *ctx, mbedtls_x509_crt *crt, int certificate_depth, uint32_t *flags)
+{
+    tls_security_t *sec = (tls_security_t *) ctx;
+
+    /* MD/PK forced by configuration flags and dynamic settings but traced also here
+       to prevent invalid configurations/certificates */
+    if (crt->sig_md != MBEDTLS_MD_SHA256) {
+        tr_error("Invalid signature md algorithm");
+    }
+    if (crt->sig_pk != MBEDTLS_PK_ECDSA) {
+        tr_error("Invalid signature pk algorithm");
+    }
+
+    // Verify client/server certificate of the chain
+    if (certificate_depth == 0) {
+        return sec->crt_verify(sec, crt, flags);
+    }
+
+    // No further checks for intermediate and root certificates at the moment
+    return 0;
+}
+
+static int8_t tls_sec_prot_lib_subject_alternative_name_validate(mbedtls_x509_crt *crt)
+{
+    mbedtls_asn1_sequence *seq = &crt->subject_alt_names;
+    int8_t result = -1;
+    while (seq) {
+        mbedtls_x509_subject_alternative_name san;
+        int ret_value = mbedtls_x509_parse_subject_alt_name((mbedtls_x509_buf *)&seq->buf, &san);
+        if (ret_value == 0 && san.type == MBEDTLS_X509_SAN_OTHER_NAME) {
+            // id-on-hardwareModuleName must be present (1.3.6.1.5.5.7.8.4)
+            if (MBEDTLS_OID_CMP(MBEDTLS_OID_ON_HW_MODULE_NAME, &san.san.other_name.value.hardware_module_name.oid)) {
+                // Traces hardwareModuleName (1.3.6.1.4.1.<enteprise number>.<model,version,etc.>)
+                char buffer[30];
+                ret_value = mbedtls_oid_get_numeric_string(buffer, sizeof(buffer), &san.san.other_name.value.hardware_module_name.oid);
+                if (ret_value != MBEDTLS_ERR_OID_BUF_TOO_SMALL) {
+                    tr_info("id-on-hardwareModuleName %s", buffer);
+                }
+                // Traces serial number as hex string
+                mbedtls_x509_buf *val = &san.san.other_name.value.hardware_module_name.val;
+                if (val->p) {
+                    tr_info("id-on-hardwareModuleName hwSerialNum %s", trace_array(val->p, val->len));
+                }
+                result = 0;
+            }
+        } else {
+            tr_debug("Ignored subject alt name: %i", san.type);
+        }
+        seq = seq->next;
+    }
+    return result;
+}
+
+static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt)
+{
+#if defined(MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE)
+    // Extended key usage must be present
+    if (mbedtls_x509_crt_check_extended_key_usage(crt, MBEDTLS_OID_WISUN_FAN, sizeof(MBEDTLS_OID_WISUN_FAN) - 1) != 0) {
+        tr_error("invalid extended key usage");
+        return -1; // FAIL
+    }
+#endif
+    return 0;
+}
+
+#ifdef HAVE_PAE_AUTH
+static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags)
+{
+    // For both IDevID and LDevId both subject alternative name or extended key usage must be valid
+    if (tls_sec_prot_lib_subject_alternative_name_validate(crt) < 0 ||
+            tls_sec_prot_lib_extended_key_usage_validate(crt) < 0) {
+        tr_error("invalid cert");
+        if (sec->ext_cert_valid) {
+            *flags |= MBEDTLS_X509_BADCERT_OTHER;
+            return MBEDTLS_ERR_X509_CERT_VERIFY_FAILED;
+        }
+    }
+    return 0;
+}
+#endif
+
+#ifdef HAVE_PAE_SUPP
+static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags)
+{
+    int8_t sane_res = tls_sec_prot_lib_subject_alternative_name_validate(crt);
+    int8_t ext_key_res = tls_sec_prot_lib_extended_key_usage_validate(crt);
+
+    // If either subject alternative name or extended key usage is present
+    if (sane_res >= 0 || ext_key_res >= 0) {
+        // Then both subject alternative name and extended key usage must be valid
+        if (sane_res < 0 || ext_key_res < 0) {
+            tr_error("invalid cert");
+            if (sec->ext_cert_valid) {
+                *flags |= MBEDTLS_X509_BADCERT_OTHER;
+                return MBEDTLS_ERR_X509_CERT_VERIFY_FAILED;
+            }
+        }
+    }
+
+    return 0;
+}
+#endif
+
 static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len, size_t *olen)
 {
     (void)ctx;
@@ -518,4 +663,3 @@ uint16_t tls_sec_prot_lib_size(void)
 }
 #endif /* WS_MBEDTLS_SECURITY_ENABLED */
 #endif /* HAVE_WS */
-

@@ -988,18 +988,30 @@ int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cer
 
 int8_t arm_network_trusted_certificates_remove(void)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_trusted_certificates_remove();
+#else
     return -1;
+#endif
 }
 
 int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_own_certificate_add(cert);
+#else
     (void) cert;
     return -1;
+#endif
 }
 
 extern int8_t arm_network_own_certificates_remove(void)
 {
+#ifdef HAVE_WS
+    return ws_pae_controller_own_certificates_remove();
+#else
     return -1;
+#endif
 }
 
 int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)

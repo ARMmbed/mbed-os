@@ -65,11 +65,6 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, st
 
 void mac_extended_mac_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, const uint8_t *mac64);
 
-uint32_t mac_mlme_framecounter_get(struct protocol_interface_rf_mac_setup *rf_mac_setup);
-
-void mac_mlme_framecounter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup);
-void mac_mlme_framecounter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup);
-
 /**
  * MLME Poll Request
  *

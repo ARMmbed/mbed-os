@@ -25,6 +25,7 @@
 #include "MAC/IEEE802_15_4/mac_defines.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/IEEE802_15_4/mac_pd_sap.h"
+#include "MAC/IEEE802_15_4/mac_security_mib.h"
 #include "MAC/rf_driver_storage.h"
 #include "MAC/virtual_rf/virtual_rf_defines.h"
 #include "mac_fhss_callbacks.h"
@@ -121,6 +122,14 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
 
     mac_store.virtual_driver = NULL;
     return this;
+}
+
+int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api_s, bool enable_feature)
+{
+    if (!mac_api_s || mac_api_s != mac_store.mac_api) {
+        return -1;
+    }
+    return mac_sec_mib_frame_counter_per_key_set(mac_store.setup, enable_feature);
 }
 
 int8_t ns_sw_mac_virtual_client_register(mac_api_t *api, int8_t virtual_driver_id)

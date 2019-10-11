@@ -314,6 +314,11 @@ kmp_type_e kmp_api_type_get(kmp_api_t *kmp)
     return kmp->type;
 }
 
+bool kmp_api_receive_disable(kmp_api_t *kmp)
+{
+    return kmp->receive_disable;
+}
+
 kmp_type_e kmp_api_type_from_id_get(uint8_t kmp_id)
 {
     switch (kmp_id) {

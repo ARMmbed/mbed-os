@@ -35,6 +35,11 @@
 #define TRACE_GROUP "RPLy"
 
 static bool rpl_policy_parent_confirmation_req = false;
+static int8_t rpl_policy_dao_retry_count_conf = 0;
+static int16_t rpl_policy_dao_initial_timeout_conf = 20; // Default is 2 seconds 100ms ticks
+static uint16_t rpl_policy_dio_validity_period_hysteresis = 0x0180; //Fixed Point 1.5
+static uint8_t rpl_policy_multicast_config_min_advertisment_count = 0;
+
 
 /* TODO - application API to control when to join new instances / DODAGs
  *
@@ -105,6 +110,11 @@ bool rpl_policy_request_dao_acks(const rpl_domain_t *domain, uint8_t mop)
     return true;
 }
 
+void rpl_policy_set_initial_dao_ack_wait(uint16_t timeout_in_ms)
+{
+    rpl_policy_dao_initial_timeout_conf = timeout_in_ms;
+}
+
 uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop)
 {
     (void)mop;
@@ -120,7 +130,18 @@ uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop
         }
     }
 
-    return 20; /* *100ms ticks = 2s */
+    return rpl_policy_dao_initial_timeout_conf;
+}
+
+
+void rpl_policy_set_dao_retry_count(uint8_t count)
+{
+    rpl_policy_dao_retry_count_conf = count;
+}
+
+int8_t rpl_policy_dao_retry_count()
+{
+    return rpl_policy_dao_retry_count_conf;
 }
 
 /* Given the next-hop address from a source routing header, which interface,
@@ -190,6 +211,20 @@ uint16_t rpl_policy_etx_hysteresis(rpl_domain_t *domain)
     (void)domain;
 
     return 0x0080; /* 8.8 fixed-point, so 0.5 */
+}
+
+uint16_t rpl_policy_dio_validity_period(rpl_domain_t *domain)
+{
+    (void)domain;
+
+    return rpl_policy_dio_validity_period_hysteresis; /* Fixed Point */
+}
+
+void rpl_policy_set_dio_validity_period(rpl_domain_t *domain, uint16_t fixed_point)
+{
+    (void)domain;
+
+    rpl_policy_dio_validity_period_hysteresis = fixed_point; /* Fixed Point */
 }
 
 uint16_t rpl_policy_etx_change_parent_selection_delay(rpl_domain_t *domain)
@@ -329,6 +364,16 @@ void rpl_policy_set_parent_confirmation_request(bool confirmation_requested)
 bool rpl_policy_parent_confirmation_requested(void)
 {
     return rpl_policy_parent_confirmation_req;
+}
+
+uint8_t rpl_policy_dio_multicast_config_advertisment_min_count(void)
+{
+    return rpl_policy_multicast_config_min_advertisment_count;
+}
+
+void rpl_policy_set_dio_multicast_config_advertisment_min_count(uint8_t min_count)
+{
+    rpl_policy_multicast_config_min_advertisment_count = min_count;
 }
 
 
