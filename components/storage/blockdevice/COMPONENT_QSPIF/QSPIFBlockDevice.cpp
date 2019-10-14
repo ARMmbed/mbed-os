@@ -310,21 +310,26 @@ int QSPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     if (QSPI_STATUS_OK != _qspi_configure_format(_inst_width, _address_width, _address_size, _address_width, // Alt width == address width
                                                  _alt_size, _data_width, _dummy_cycles)) {
         tr_error("_qspi_configure_format failed");
-        return QSPIF_BD_ERROR_DEVICE_ERROR;
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
     }
 
     if (QSPI_STATUS_OK != _qspi_send_read_command(_read_instruction, buffer, addr, size)) {
         tr_error("Read Command failed");
-        return QSPIF_BD_ERROR_DEVICE_ERROR;
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
     }
 
     // All commands other than Read use default 1-1-1 Bus mode (Program/Erase are constrained by flash memory performance more than bus performance)
     if (QSPI_STATUS_OK != _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, 0, QSPI_CFG_BUS_SINGLE, 0)) {
         tr_error("_qspi_configure_format failed");
-        return QSPIF_BD_ERROR_DEVICE_ERROR;
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
     }
 
+exit_point:
     _mutex.unlock();
+
     return status;
 
 }
