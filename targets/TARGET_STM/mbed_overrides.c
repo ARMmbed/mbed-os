@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cmsis.h"
+#include "objects.h"
 
 int mbed_sdk_inited = 0;
 extern void SetSysClock(void);
@@ -46,6 +47,56 @@ void mbed_sdk_init()
     }
 #endif /* __ICACHE_PRESENT */
 
+#if defined(DUAL_CORE)
+    /* HW semaphore Clock enable*/
+    __HAL_RCC_HSEM_CLK_ENABLE();
+
+#if defined(CORE_CM4)
+    __HAL_RCC_FLASH_C2_ALLOCATE();
+
+    /* Check wether CM4 boot in parallel with CM7. If CM4 was gated but CM7 trigger the CM4 boot. No need to wait for synchronization.
+       otherwise wait for CM7, which is in charge of sytem clock configuration */
+    if (!LL_RCC_IsCM4BootForced()) {
+        /* CM4 boots at the same time than CM7. It is necessary to synchronize with CM7, by mean of HSEM, that CM7 finishes its initialization.  */
+
+        /* Activate HSEM notification for Cortex-M4*/
+        LL_HSEM_EnableIT_C2IER(HSEM, CFG_HW_ENTRY_STOP_MODE_MASK_SEMID);
+
+        /*
+        * Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for
+        * Cortex-M7 to perform system initialization (system clock config,
+        * external memory configuration.. )
+        */
+
+        /* Select the domain Power Down DeepSleep */
+        LL_PWR_SetRegulModeDS(LL_PWR_REGU_DSMODE_MAIN);
+        /* Keep DSTOP mode when D2 domain enters Deepsleep */
+        LL_PWR_CPU_SetD2PowerMode(LL_PWR_CPU_MODE_D2STOP);
+        LL_PWR_CPU2_SetD2PowerMode(LL_PWR_CPU2_MODE_D2STOP);
+        /* Set SLEEPDEEP bit of Cortex System Control Register */
+        LL_LPM_EnableDeepSleep();
+
+        /* Ensure that all instructions done before entering STOP mode */
+        __DSB();
+        __ISB();
+        /* Request Wait For Event */
+        __WFE();
+
+        /* Reset SLEEPDEEP bit of Cortex System Control Register,
+        * the following LL API Clear SLEEPDEEP bit of Cortex
+        * System Control Register
+        */
+        LL_LPM_EnableSleep();
+
+        /* Clear HSEM flag */
+        LL_HSEM_ClearFlag_C2ICR(HSEM, CFG_HW_ENTRY_STOP_MODE_MASK_SEMID);
+    }
+
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    HAL_Init();
+#else
+    /* CORE_M7 */
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
     HAL_Init();
@@ -54,6 +105,29 @@ void mbed_sdk_init()
        AHB/APBx prescalers and Flash settings */
     SetSysClock();
     SystemCoreClockUpdate();
+
+    /* Check wether CM4 boot in parallel with CM7. If CM4 was gated but CM7 trigger the CM4 boot. No need to wait for synchronization.
+       otherwise CM7 should wakeup CM4 when system clocks initialization is done.  */
+    if (READ_BIT(SYSCFG->UR1, SYSCFG_UR1_BCM4)) {
+        LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID);
+        /*Release HSEM in order to notify the CPU2(CM4)*/
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+    } else {
+        LL_RCC_ForceCM4Boot();
+    }
+    /* wait until CPU2 wakes up from stop mode */
+    while (LL_RCC_D2CK_IsReady() == 0);
+#endif /* CORE_M4 */
+#else /* Single core */
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    HAL_Init();
+
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+       AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+    SystemCoreClockUpdate();
+#endif /* DUAL_CORE */
 
     /* Start LSI clock for RTC */
 #if DEVICE_RTC

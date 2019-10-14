@@ -214,6 +214,11 @@ void i2c_hw_reset(i2c_t *obj)
     // wait before reset
     timeout = BYTE_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
+#if defined(DUAL_CORE)
+    timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if defined I2C1_BASE
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_FORCE_RESET();
@@ -244,6 +249,9 @@ void i2c_hw_reset(i2c_t *obj)
         __HAL_RCC_FMPI2C1_RELEASE_RESET();
     }
 #endif
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 
 void i2c_sw_reset(i2c_t *obj)
@@ -405,6 +413,11 @@ void i2c_frequency(i2c_t *obj, int hz)
 #endif //I2C_IP_VERSION_V2
 
     /*##-1- Configure the I2C clock source. The clock is derived from the SYSCLK #*/
+#if defined(DUAL_CORE)
+    timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if defined(I2C1_BASE) && defined (__HAL_RCC_I2C1_CONFIG)
     if (obj_s->i2c == I2C_1) {
         __HAL_RCC_I2C1_CONFIG(I2CAPI_I2C1_CLKSRC);
@@ -425,6 +438,9 @@ void i2c_frequency(i2c_t *obj, int hz)
         __HAL_RCC_I2C4_CONFIG(I2CAPI_I2C4_CLKSRC);
     }
 #endif
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */

@@ -3349,8 +3349,7 @@
         "macros_add": [
             "STM32H747xx",
             "CORE_CM7",
-            "EXTRA_IDLE_STACK_REQUIRED",
-            "MBED_TICKLESS"
+            "EXTRA_IDLE_STACK_REQUIRED"
         ],
         "overrides": { "lpticker_delay_ticks": 0 },
         "supported_form_factors": ["ARDUINO"],
@@ -3365,6 +3364,36 @@
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true
+    },
+    "DISCO_H747I_CM4": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": [
+            "STM32H7",
+            "STM32H747xI",
+            "DISCO_H747I"
+        ],
+        "config": {
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "macros_add": [
+            "STM32H747xx",
+            "CORE_CM4",
+            "EXTRA_IDLE_STACK_REQUIRED"
+        ],
+        "overrides": { "lpticker_delay_ticks": 0 },
+        "supported_form_factors": ["ARDUINO"],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "CRC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ]
     },
     "DISCO_H747I_CM7": {
         "inherits": ["DISCO_H747I"]

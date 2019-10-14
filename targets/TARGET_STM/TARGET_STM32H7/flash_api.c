@@ -26,8 +26,16 @@ static uint32_t GetSectorSize(uint32_t Sector);
 
 int32_t flash_init(flash_t *obj)
 {
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     /* Clear pending flags (if any) */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR);
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     return 0;
 }
 
@@ -49,7 +57,15 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {
+#if defined(DUAL_CORE)
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
         return -1;
     }
 
@@ -76,7 +92,9 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     }
 
     HAL_FLASH_Lock();
-
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     return status;
 }
 
@@ -95,7 +113,15 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     if (HAL_FLASH_Unlock() != HAL_OK) {
+#if defined(DUAL_CORE)
+        LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
         return -1;
     }
 
@@ -110,6 +136,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
     }
 
     HAL_FLASH_Lock();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_FLASH_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     return status;
 }
