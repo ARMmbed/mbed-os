@@ -220,7 +220,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp);
+    pin_mode(spiobj->pin_sclk, (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp);
 
     init_spi(obj);
 }
@@ -235,6 +235,11 @@ void spi_free(spi_t *obj)
     __HAL_SPI_DISABLE(handle);
     HAL_SPI_DeInit(handle);
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
 #if defined SPI1_BASE
     // Reset SPI and disable clock
     if (spiobj->spi == SPI_1) {
@@ -282,7 +287,9 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI6_CLK_DISABLE();
     }
 #endif
-
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
     // Configure GPIOs
     pin_function(spiobj->pin_miso, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
     pin_function(spiobj->pin_mosi, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
@@ -342,7 +349,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
     * or PULLUP the SCK pin according the polarity used.
     */
-    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown: PullUp;
+    pull = (handle->Init.CLKPolarity == SPI_POLARITY_LOW) ? PullDown : PullUp;
     pin_mode(spiobj->pin_sclk, pull);
 
     init_spi(obj);

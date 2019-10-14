@@ -57,6 +57,11 @@ static void ForcePeriphOutofDeepSleep(void)
     uint32_t pFLatency = 0;
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     /* Get the Clocks configuration according to the internal RCC registers */
     HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
 
@@ -81,6 +86,9 @@ static void ForcePeriphOutofDeepSleep(void)
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency) != HAL_OK) {
         error("ForcePeriphOutofDeepSleep clock issue\r\n");
     }
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 
 
@@ -91,6 +99,11 @@ static void ForceOscOutofDeepSleep(void)
     /* Enable Power Control clock */
     __HAL_RCC_PWR_CLK_ENABLE();
 
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     /* Get the Oscillators configuration according to the internal RCC registers */
     HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
 
@@ -110,6 +123,9 @@ static void ForceOscOutofDeepSleep(void)
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("ForceOscOutofDeepSleep clock issue\r\n");
     }
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 }
 
 

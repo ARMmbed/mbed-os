@@ -103,11 +103,19 @@ void mbedtls_aes_free(mbedtls_aes_context *ctx)
     if (ctx == NULL) {
         return;
     }
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     /* Force the CRYP Periheral Clock Reset */
     __HAL_RCC_CRYP_FORCE_RESET();
 
     /* Release the CRYP Periheral Clock Reset */
     __HAL_RCC_CRYP_RELEASE_RESET();
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 
     mbedtls_zeroize(ctx, sizeof(mbedtls_aes_context));
 }

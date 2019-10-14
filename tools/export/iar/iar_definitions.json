@@ -371,6 +371,12 @@
     "STM32H743ZI": {
         "OGChipSelectEditMenu": "STM32H743ZI\tST STM32H743ZI"
     },
+    "DISCO_H747I": {
+        "OGChipSelectEditMenu": "STM32H747XI_CM7\tST STM32H747XI_CM7"
+    },
+    "DISCO_H747I_CM4": {
+        "OGChipSelectEditMenu": "STM32H747XI_CM4\tST STM32H747XI_CM4"
+    },
     "CC3220SF": {
         "OGChipSelectEditMenu": "CC3220SF\tTexasInstruments CC3220SF",
         "CoreVariant": 39,
