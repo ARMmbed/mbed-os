@@ -55,8 +55,6 @@ from tools.utils import print_end_warnings
 from tools.utils import print_large_string
 from tools.settings import ROOT
 from tools.targets import Target
-from tools.psa import generate_psa_sources, clean_psa_autogen
-from tools.resources import OsAndSpeResourceFilter
 
 def default_args_dict(options):
     return dict(
@@ -305,10 +303,6 @@ def main():
     elif options.list_tests is True:
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
     else:
-
-        if options.clean:
-            clean_psa_autogen()
-
         # Target
         if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")
@@ -339,16 +333,7 @@ def main():
             args_error(parser, str(e))
 
         if options.source_dir is not None:
-            if target.is_PSA_target:
-                generate_psa_sources(
-                    source_dirs=options.source_dir,
-                    ignore_paths=[options.build_dir]
-                )
-
             resource_filter = None
-            if target.is_PSA_secure_target:
-                resource_filter = OsAndSpeResourceFilter()
-
             wrapped_build_project(
                 options.source_dir,
                 options.build_dir,
