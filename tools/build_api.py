@@ -41,7 +41,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources, FileType, FileRef, PsaManifestResourceFilter
+from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
@@ -750,7 +750,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         res = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
         res.filter(resource_filter)
-        res.filter(PsaManifestResourceFilter())
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib

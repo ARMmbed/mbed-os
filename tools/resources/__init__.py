@@ -604,38 +604,3 @@ class Resources(object):
         for t in res_filter.file_types:
             self._file_refs[t] = set(filter(
                 res_filter.predicate, self._file_refs[t]))
-
-
-class ResourceFilter(object):
-    def __init__(self, file_types):
-        self.file_types = file_types
-
-    def predicate(self, ref):
-        raise NotImplemented
-
-
-class SpeOnlyResourceFilter(ResourceFilter):
-    def __init__(self):
-        ResourceFilter.__init__(
-            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
-
-    def predicate(self, ref):
-        return 'COMPONENT_SPE' in ref.name
-
-
-class OsAndSpeResourceFilter(ResourceFilter):
-    def __init__(self):
-        ResourceFilter.__init__(
-            self, [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC])
-
-    def predicate(self, ref):
-        return ROOT in abspath(ref.name) or 'COMPONENT_SPE' in ref.name
-
-
-class PsaManifestResourceFilter(ResourceFilter):
-    def __init__(self):
-        ResourceFilter.__init__(
-            self, [FileType.JSON])
-
-    def predicate(self, ref):
-        return not ref.name.endswith('_psa.json')
