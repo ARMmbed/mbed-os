@@ -144,6 +144,14 @@
         "ppp-thread-stacksize": {
             "help": "Thread stack size for PPP (obsolete: use netsocket/ppp configuration instead)",
             "value": 768
+        },
+        "pbuf-num": {
+            "help": "Number of pbufs in MEMP_PBUF pool",
+            "value": null
+        },
+        "netbuf-num": {
+            "help": "Number of netbufs in MEMP_NETBUF pool",
+            "value": null
         }
     },
     "target_overrides": {

@@ -226,13 +226,23 @@
 
 // Number of non-pool pbufs.
 // Each requires 92 bytes of RAM.
+#ifdef MBED_CONF_LWIP_PBUF_NUM
+#undef MEMP_NUM_PBUF
+#define MEMP_NUM_PBUF               MBED_CONF_LWIP_PBUF_NUM
+#else
 #ifndef MEMP_NUM_PBUF
 #define MEMP_NUM_PBUF               8
 #endif
+#endif
 
 // Each netbuf requires 64 bytes of RAM.
+#ifdef MBED_CONF_LWIP_NETBUF_NUM
+#undef MEMP_NUM_NETBUF
+#define MEMP_NUM_NETBUF             MBED_CONF_LWIP_NETBUF_NUM
+#else
 #ifndef MEMP_NUM_NETBUF
 #define MEMP_NUM_NETBUF             8
+#endif
 #endif
 
 // One netconn is needed for each UDPSocket, TCPSocket or TCPServer.
