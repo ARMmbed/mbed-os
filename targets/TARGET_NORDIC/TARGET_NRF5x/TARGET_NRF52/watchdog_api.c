@@ -27,9 +27,11 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
     nrfx_err_t err_code;
 
-    // nRF would allow a 4294967295 ms refresh value but
-    // Mbed OS allows max UINT32_MAX ms rehfreses.
-    if ( config->timeout_ms < 15U && config->timeout_ms > 65535U ) {
+    // The nRF watchdogs accept a range from 0xF to maximum 0xFFFF_FFFF
+    // 32768 Hz ticks. (Plase, see
+    // https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Fstructnrfx__wdt__config__t.html)
+    // Min timeout values in ms range from 0x1 to (0xFFFFFFFF / 0x8000) * 1000
+    if ( config->timeout_ms < 0x1 && config->timeout_ms > 0x07CFFFFF ) {
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
 
@@ -72,7 +74,8 @@ uint32_t hal_watchdog_get_reload_value(void)
 watchdog_features_t hal_watchdog_get_platform_features(void)
 {
     watchdog_features_t features;
-    features.max_timeout = 0xFFFF;
+
+    features.max_timeout = 0x07CFFFFF;
     features.update_config = false;
     features.disable_watchdog = false;
     return features;
