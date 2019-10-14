@@ -35,10 +35,11 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
 
-    nrfx_wdt_config_t nrf_cfg = NRFX_WDT_DEAFULT_CONFIG;
+    nrfx_wdt_config_t nrf_cfg;
 
     nrf_cfg.reload_value = config->timeout_ms;
     nrf_cfg.behaviour = NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT;
+    nrf_cfg.interrupt_priority = NRFX_WDT_CONFIG_NO_IRQ;
 
     err_code = nrfx_wdt_init(&nrf_cfg, dummy);
     if (err_code != NRFX_SUCCESS) {
