@@ -286,7 +286,7 @@ private:
 
     // Detect fastest read Bus mode supported by device
     int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
-                                        bool &is_qpi_mode, unsigned int &read_inst);
+                                        bool &is_qpi_mode, mbed::qspi_inst_t &read_inst);
 
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
@@ -299,8 +299,8 @@ private:
 
     // Detect all supported erase types
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-                                               unsigned int &erase4k_inst,
-                                               unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+                                               mbed::qspi_inst_t &erase4k_inst,
+                                               mbed::qspi_inst_t *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
     /***********************/
     /* Utilities Functions */

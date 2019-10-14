@@ -1375,7 +1375,7 @@ qspi_status_t QSPIFBlockDevice::_qspi_send_erase_command(qspi_inst_t erase_inst,
 
 qspi_status_t QSPIFBlockDevice::_qspi_send_general_command(qspi_inst_t instruction, bd_addr_t addr,
                                                            const char *tx_buffer,
-                                                           size_t tx_length, const char *rx_buffer, size_t rx_length)
+                                                           mbed::bd_size_t tx_length, const char *rx_buffer, mbed::bd_size_t rx_length)
 {
     // Send a general command Instruction to driver
     qspi_status_t status = _qspi.command_transfer(instruction, (int)addr, tx_buffer, tx_length, rx_buffer, rx_length);
