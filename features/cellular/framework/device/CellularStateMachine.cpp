@@ -50,9 +50,12 @@ const int DEVICE_READY = 0x04;
 namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularNetwork &nw) :
+#ifdef MBED_CONF_RTOS_PRESENT
+    _queue_thread(0),
+#endif
     _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
-    _event_status_cb(0), _network(nw), _queue(queue), _queue_thread(0), _sim_pin(0),
-    _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
+    _event_status_cb(0), _network(nw), _queue(queue), _sim_pin(0), _retry_count(0),
+    _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
     _is_retry(false), _cb_data(), _current_event(CellularDeviceReady), _status(0)
 {
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -102,11 +105,13 @@ void CellularStateMachine::reset()
 void CellularStateMachine::stop()
 {
     tr_debug("CellularStateMachine stop");
+#ifdef MBED_CONF_RTOS_PRESENT
     if (_queue_thread) {
         _queue_thread->terminate();
         delete _queue_thread;
         _queue_thread = NULL;
     }
+#endif
 
     reset();
     _event_id = STM_STOPPED;
@@ -635,6 +640,7 @@ void CellularStateMachine::event()
 
 nsapi_error_t CellularStateMachine::start_dispatch()
 {
+#ifdef MBED_CONF_RTOS_PRESENT
     if (!_queue_thread) {
         _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
         _event_id = STM_STOPPED;
@@ -649,7 +655,7 @@ nsapi_error_t CellularStateMachine::start_dispatch()
     }
 
     _event_id = -1;
-
+#endif
     return NSAPI_ERROR_OK;
 }
 
