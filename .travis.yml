@@ -195,8 +195,8 @@ matrix:
     ### Extended Tests ###
     - &extended-vm
       stage: "Extended"
-      name: "psa autogen"
-      env: NAME=psa-autogen
+      name: "events"
+      env: NAME=events EVENTS=events
       language: python
       python: 3.7
       install:
@@ -208,13 +208,6 @@ matrix:
         - python -m pip install --upgrade setuptools==40.4.3
         - pip install -r requirements.txt
         - pip list --verbose
-      script:
-        - python tools/psa/generate_partition_code.py
-        - git diff --exit-code
-    
-    - <<: *extended-vm
-      name: "events"
-      env: NAME=events EVENTS=events
       script:
         # Check that example compiles
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' ${EVENTS}/README.md > main.cpp
