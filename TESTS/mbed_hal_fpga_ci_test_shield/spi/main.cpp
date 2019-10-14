@@ -178,9 +178,9 @@ Case cases[] = {
     Case("SPI - mode testing (MODE_1)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode1, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - mode testing (MODE_2)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode2, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
     Case("SPI - mode testing (MODE_3)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode3, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-
+#if !defined(TARGET_NRF52840_DK)
     Case("SPI - symbol size testing (16)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 16, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_1_MHZ> >),
-
+#endif
     Case("SPI - frequency testing (500 kHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_500_KHZ> >),
     Case("SPI - frequency testing (2 MHz)", one_peripheral<SPIPort, DefaultFormFactor, fpga_spi_test_common<SPITester::Mode0, 8, TRANSFER_SPI_MASTER_WRITE_SYNC, FREQ_2_MHZ> >),
 
