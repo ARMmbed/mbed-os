@@ -336,7 +336,7 @@ private:
     mbed::qspi_inst_t _erase_instruction;
     mbed::qspi_inst_t _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
     mbed::qspi_inst_t _write_register_inst; // Write status/config register instruction may vary between chips
-    mned::qspi_inst_t _read_register_inst; // Read status/config register instruction may vary between chips
+    mbed::qspi_inst_t _read_register_inst; // Read status/config register instruction may vary between chips
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
     mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
