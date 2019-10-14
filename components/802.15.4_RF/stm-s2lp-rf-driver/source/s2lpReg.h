@@ -249,10 +249,14 @@ extern "C" {
 // PCKTCTRL2
 #define PCKT_FIXVARLEN_FIELD    0x01
 #define PCKT_VARIABLE_LEN       (1 << 0)
+#define PCKT_FCS_TYPE_FIELD     0x20
+#define PCKT_FCS_TYPE_4_OCTET   (0 << 5)
+#define PCKT_FCS_TYPE_2_OCTET   (1 << 5)
 
 // PCKTCTRL1
 #define PCKT_CRCMODE_FIELD      0xE0
 #define PCKT_CRCMODE_0X1021     (3 << 5)
+#define PCKT_CRCMODE_0x04C11DB7 (5 << 5)
 #define PCKT_TXSOURCE_FIELD     0x0C
 #define PCKT_TXSOURCE_NORMAL    (0 << 2)
 #define PCKT_WHITENING_FIELD    0x10
