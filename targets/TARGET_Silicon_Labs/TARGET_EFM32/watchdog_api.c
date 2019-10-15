@@ -92,16 +92,16 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
     watchdog_features_t feat = {
         .max_timeout = 262145,
         .update_config = true,
-        .disable_watchdog = true
+        .disable_watchdog = true,
     #if defined(TARGET_EFM32GG) || defined(TARGET_EFM32HG) || defined(TARGET_EFM32LG) || defined(TARGET_EFM32WG) || defined(TARGET_EFM32ZG)
-        .clock_typical_frequency = 1000;
-        .clock_max_frequency = 1750;
+        .clock_typical_frequency = 1000,
+        .clock_max_frequency = 1750
     #elif defined(TARGET_EFM32GG11)
-        .clock_typical_frequency = 1000;
-        .clock_max_frequency = 1120;
+        .clock_typical_frequency = 1000,
+        .clock_max_frequency = 1120
     #elif defined(TARGET_EFM32PG) || defined(TARGET_EFM32PG12) || defined(TARGET_EFR32MG1) || defined(TARGET_EFR32MG12)
-        .clock_typical_frequency = 1000;
-        .clock_max_frequency = 1070;
+        .clock_typical_frequency = 1000,
+        .clock_max_frequency = 1070
     #else
     #error "unsupported target" 
     #endif
