@@ -18,6 +18,7 @@ The pre-built secure code has the following hardware partition:
     - **TMR2/3** configured to nonsecure. TMR2 implements nonsecure `us_ticker`, and TMR3 implements nonsecure `lp_ticker`.
     - **PDMA0** hardwired to secure. Implements secure asynchronous transfer.
     - **PDMA1** configured to nonsecure. Implements nonsecure asynchronous transfer.
+    - **TRNG** configured to secure. Accessible to nonsecure through a secure gateway.
 
 ## Pre-built secure code files
 
