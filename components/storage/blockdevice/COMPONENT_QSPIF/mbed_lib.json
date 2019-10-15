@@ -13,26 +13,14 @@
         "QSPI_MIN_PROG_SIZE": "1"
     },
     "target_overrides": {
-        "DISCO_F413ZH": {
-            "QSPI_FREQ": "80000000"
-        },
-        "DISCO_L475VG_IOT01A": {
+        "MX25R6435F": {
             "QSPI_FREQ": "8000000"
         },
-        "DISCO_L476VG": {
-            "QSPI_FREQ": "80000000"
-        },
-        "DISCO_L496AG": {
+        "MX25L51245G": {
             "QSPI_FREQ": "8000000"
         },
-        "DISCO_F469NI": {
+        "N25Q128A": {
             "QSPI_FREQ": "80000000"
-        },
-        "DISCO_F746NG": {
-            "QSPI_FREQ": "80000000"
-        },
-        "DISCO_F769NI": {
-            "QSPI_FREQ": "8000000"
         },
         "MCU_NRF52840": {
             "QSPI_FREQ": "32000000",
