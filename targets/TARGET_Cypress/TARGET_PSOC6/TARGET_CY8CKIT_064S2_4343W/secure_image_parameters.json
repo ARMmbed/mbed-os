@@ -13,5 +13,5 @@
     "priv_key_file": "keys/USERAPP_CM4_KEY_PRIV.pem",
     "aes_key_file": "keys/image-aes-128.key",
     "dev_pub_key_file": "keys/dev_pub_key.pem",
-    "policy_file": "policy/policy_single_stage_CM4.json"
+    "policy_file": "policy/policy_single_stage_CM4_2m.json"
 }
