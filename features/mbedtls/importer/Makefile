@@ -27,7 +27,7 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= mbedtls-2.19.1
+MBED_TLS_RELEASE ?= mbedtls-2.20.0d0
 MBED_TLS_REPO_URL ?= git@github.com:ARMmbed/mbedtls-restricted.git
 
 # Translate between mbed TLS namespace and mbed namespace
