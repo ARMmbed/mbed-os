@@ -50,7 +50,7 @@ static inline uint32_t align_down(uint64_t val, uint64_t size)
     return (((val) / size)) * size;
 }
 
-int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_size, bool is_conf_tdb_internal,
+int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_size,
                                    uint32_t *tdb_start_address, uint32_t *tdb_end_address)
 {
     uint32_t bd_final_size = conf_size;
@@ -117,14 +117,14 @@ int  get_virtual_TDBStore_position(uint32_t conf_start_address, uint32_t conf_si
 }
 
 
-void test_direct_access_to_devicekey_tdb_flashiap_remainder()
+void test_direct_access_to_devicekey_tdb_flashiap_default()
 {
-    utest_printf("Test Direct Access To DeviceKey Test Entire FlashIAP Remainder\n");
+    utest_printf("Test Direct Access To DeviceKey Test Entire FlashIAP Default Address\n");
 
     uint32_t flash_bd_start_address;
     uint32_t flash_bd_end_address;
 
-    int err = get_virtual_TDBStore_position(0, 0, true, &flash_bd_start_address, &flash_bd_end_address);
+    int err = get_virtual_TDBStore_position(MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS, MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE, &flash_bd_start_address, &flash_bd_end_address);
     TEST_SKIP_UNLESS_MESSAGE(err != -2, "Test skipped. Not enough available space on Internal FlashIAP");
     TEST_ASSERT_EQUAL(0, err);
     uint32_t flash_bd_size = flash_bd_end_address - flash_bd_start_address;
@@ -177,7 +177,7 @@ void test_direct_access_to_devicekey_tdb_last_two_sectors()
     uint32_t flash_bd_start_address;
     uint32_t flash_bd_end_address;
 
-    int err = get_virtual_TDBStore_position(0, 0, false, &flash_bd_start_address, &flash_bd_end_address);
+    int err = get_virtual_TDBStore_position(0, 0, &flash_bd_start_address, &flash_bd_end_address);
     TEST_SKIP_UNLESS_MESSAGE(err != -2, "Test skipped. Not enough available space on Internal FlashIAP");
     TEST_ASSERT_EQUAL(0, err);
 
@@ -258,7 +258,6 @@ void test_direct_access_to_device_inject_root()
     // Now use Direct Access To DeviceKey to retrieve it
     uint32_t internal_start_address;
     uint32_t internal_rbp_size;
-    bool is_conf_tdb_internal = false;
     if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "FILESYSTEM") == 0) {
         internal_start_address =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
@@ -268,7 +267,6 @@ void test_direct_access_to_device_inject_root()
     } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_INTERNAL") == 0) {
         internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
-        is_conf_tdb_internal = true;
     } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "default") == 0) {
 #if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
         internal_start_address =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
@@ -279,7 +277,6 @@ void test_direct_access_to_device_inject_root()
 #elif COMPONENT_FLASHIAP
         internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
-        is_conf_tdb_internal = true;
 #else
         TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. No KVStore Internal");
 #endif
@@ -289,7 +286,7 @@ void test_direct_access_to_device_inject_root()
 
     uint32_t tdb_st_add = 0;
     uint32_t tdb_end_add = 0;
-    ret = get_virtual_TDBStore_position(internal_start_address, internal_rbp_size, is_conf_tdb_internal, &tdb_st_add, &tdb_end_add);
+    ret = get_virtual_TDBStore_position(internal_start_address, internal_rbp_size, &tdb_st_add, &tdb_end_add);
     TEST_SKIP_UNLESS_MESSAGE(ret != -2, "Test skipped. Not enough available space on Internal FlashIAP");
     TEST_ASSERT_EQUAL(0, ret);
 
@@ -329,7 +326,7 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 }
 
 Case cases[] = {
-    Case("Testing direct access to devicekey with tdb over flashiap remainder", test_direct_access_to_devicekey_tdb_flashiap_remainder, greentea_failure_handler),
+    Case("Testing direct access to devicekey with tdb over flashiap default placement", test_direct_access_to_devicekey_tdb_flashiap_default, greentea_failure_handler),
     Case("Testing direct access to devicekey with tdb over last two sectors", test_direct_access_to_devicekey_tdb_last_two_sectors, greentea_failure_handler),
     Case("Testing direct access to injected devicekey ", test_direct_access_to_device_inject_root, greentea_failure_handler),
 };
