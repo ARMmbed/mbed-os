@@ -17,23 +17,8 @@
 #ifndef MBED_FLASH_CONFIGS_H
 #define MBED_FLASH_CONFIGS_H
 
-#if defined(TARGET_DISCO_L475VG_IOT01A)
-#include "MX25RXX35F_config.h" // MX25R6435F
-
-#elif defined(TARGET_DISCO_F413ZH)
-#include "N25Q128A_config.h" // N25Q128A13EF840F
-
-#elif defined(TARGET_DISCO_F746NG)
-#include "N25Q128A_config.h" // N25Q128A13EF840E
-
-#elif defined(TARGET_DISCO_F469NI)
-#include "N25Q128A_config.h" // N25Q128A13EF840E
-
-#elif defined(TARGET_DISCO_F769NI)
-#include "MX25L51245G_config.h" // MX25L51245G
-
-#elif defined(TARGET_DISCO_L4R9I)
-#include "MX25LM51245G_config.h" // MX25LM51245G
+#if defined(TARGET_MX25R6435F)
+#include "MX25RXX35F_config.h"
 
 #elif defined(TARGET_DISCO_L476VG)
 #include "N25Q128A_config.h" // N25Q128A13EF840E
@@ -43,6 +28,15 @@
 #undef QSPI_CMD_WRITE_DPI
 #undef QSPI_CMD_WRITE_QPI
 
+#elif defined(TARGET_N25Q128A)
+#include "N25Q128A_config.h"
+
+#elif defined(TARGET_MX25L51245G)
+#include "MX25L51245G_config.h"
+
+#elif defined(TARGET_MX25LM51245G)
+#include "MX25LM51245G_config.h"
+
 #elif defined(TARGET_RHOMBIO_L476DMW1K)
 #include "MT25Q_config.h" // MT25QL128ABA1EW7
 /* See STM32L476 Errata Sheet, it is not possible to use Dual-/Quad-mode for the command phase */
@@ -50,9 +44,6 @@
 #undef QSPI_CMD_READ_QPI
 #undef QSPI_CMD_WRITE_DPI
 #undef QSPI_CMD_WRITE_QPI
-
-#elif defined(TARGET_DISCO_L496AG)
-#include "MX25RXX35F_config.h" // MX25R6435F
 
 #elif defined(TARGET_NRF52840)
 #include "NORDIC/NRF52840_DK/flash_config.h"
@@ -88,5 +79,6 @@
 #include "S25FL128S_config.h"
 
 #endif
+
 #endif // MBED_FLASH_CONFIGS_H
 
