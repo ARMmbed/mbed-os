@@ -20,9 +20,6 @@
 ; *****************************************************************************/
 
 
-
-__initial_sp        EQU     0x10010000  ; Top of RAM from LPC4088
-
                 PRESERVE8
                 THUMB
 
@@ -30,8 +27,9 @@ __initial_sp        EQU     0x10010000  ; Top of RAM from LPC4088
 
                 AREA    RESET, DATA, READONLY
                 EXPORT  __Vectors
+                IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
 
-__Vectors       DCD     __initial_sp              ; Top of Stack
+__Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
                 DCD     NMI_Handler               ; NMI Handler
                 DCD     HardFault_Handler         ; Hard Fault Handler

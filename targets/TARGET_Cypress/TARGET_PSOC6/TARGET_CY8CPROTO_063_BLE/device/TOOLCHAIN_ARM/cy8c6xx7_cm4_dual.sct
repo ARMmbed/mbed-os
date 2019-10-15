@@ -179,7 +179,7 @@ LR_IROM1 FLASH_START FLASH_SIZE
     {
         * (.noinit)
     }
-
+    
     ; Application heap area (HEAP)
     ARM_LIB_HEAP  +0
     { 

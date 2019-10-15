@@ -29,9 +29,6 @@
 ; * this code.
 ; */
 
-;__initial_sp    EQU     0x1008A000  ; Top of 2nd RAM segment for LPC4337
-__initial_sp    EQU     0x10008000  ; Top of 1st RAM segment for LPC4337
-
                 PRESERVE8
                 THUMB
 
@@ -42,7 +39,7 @@ __initial_sp    EQU     0x10008000  ; Top of 1st RAM segment for LPC4337
 
 Sign_Value      EQU     0x5A5A5A5A
 
-__Vectors   DCD __initial_sp                ; 0 Top of Stack
+__Vectors   DCD |Image$$ARM_LIB_STACK$$ZI$$Limit| ; 0 Top of Stack
             DCD Reset_Handler               ; 1 Reset Handler
             DCD NMI_Handler                 ; 2 NMI Handler
             DCD HardFault_Handler           ; 3 Hard Fault Handler
