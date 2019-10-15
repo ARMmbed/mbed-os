@@ -157,7 +157,7 @@ public:
 
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
-     *  @param instruction Instruction value to be used in instruction phase
+     *  @param instruction Instruction value to be used in instruction phase. Use QSPI_NO_INST to skip the instruction phase
      *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param rx_buffer Buffer for data to be read from the peripheral
@@ -170,7 +170,7 @@ public:
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
-     *  @param instruction Instruction value to be used in instruction phase
+     *  @param instruction Instruction value to be used in instruction phase. Use QSPI_NO_INST to skip the instruction phase
      *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral
@@ -183,7 +183,7 @@ public:
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
-     *  @param instruction Instruction value to be used in instruction phase
+     *  @param instruction Instruction value to be used in instruction phase. Use QSPI_NO_INST to skip the instruction phase
      *  @param address Some instruction might require address. Use -1 if no address
      *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
