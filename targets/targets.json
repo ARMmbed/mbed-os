@@ -9035,7 +9035,7 @@
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
         "components_add": ["FLASHIAP", "QSPIF", "BSP_DESIGN_MODUS"],
-        "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL"],
+        "macros_add": ["MCU_PSOC6_M4", "CY_RTOS_AWARE", "CY_USING_HAL", "MBED_TICKLESS"],
         "public": false
     },
     "CY8CMOD_062_4343W": {
@@ -9231,7 +9231,7 @@
         "extra_labels_remove": ["PSOC6", "MXCRYPTO"],
         "device_has_remove": ["TRNG", "CRC", "I2CSLAVE", "USBDEVICE", "QSPI", "WATCHDOG"],
         "macros_add": ["CY8C6347BZI_BLD53"],
-        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS"],
         "detect_code": ["6000"],
         "hex_filename": "psoc63_m0_default_1.03.hex",
         "post_binary_hook": {
