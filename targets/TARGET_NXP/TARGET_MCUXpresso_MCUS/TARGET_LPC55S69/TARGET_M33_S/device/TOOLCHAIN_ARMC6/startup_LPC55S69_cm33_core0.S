@@ -19,29 +19,6 @@
                 ;PRESERVE8
                 ;THUMB
 
-; NOTE: The stack size needs to be re-evaluated as soon as the new mechanism
-;       to run the secure tests, based on a test service, is introduced.
-;Stack_Size      EQU     0x00002000
-;MSP_STACK_SIZE  EQU     0x00000800
-
-;                AREA    STACK, NOINIT, READWRITE, ALIGN=7
-;                EXPORT  Stack_Mem
-;Stack_Mem       SPACE   Stack_Size
-;__initial_msp
-;__initial_sp    EQU     __initial_msp - MSP_STACK_SIZE
-;                EXPORT  Stack_top
-;Stack_top       EQU     __initial_sp
-
-; <h> Heap Configuration
-;   <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-;Heap_Size       EQU     0x00001000
-
-;                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-;__heap_base
-;Heap_Mem        SPACE   Heap_Size
-;__heap_limit
-
 ; Vector Table Mapped to Address 0 at Reset
                 AREA    RESET, DATA, READONLY
                 EXPORT  __Vectors
@@ -158,7 +135,7 @@ Reset_Handler   PROC
                 LDR     R0, =SystemInit
                 BLX     R0
                 MRS     R0, control    ; Get control value
-                ORR     R0, R0, #2     ; Select switch to PSP, which will be set by __user_initial_stackheap
+                ORR     R0, R0, #2     ; Select switch to PSP
                 MSR     control, R0
                 ;CPSIE   I               ; Unmask interrupts
                 LDR     R0, =__main
