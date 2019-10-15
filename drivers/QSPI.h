@@ -28,7 +28,7 @@
 
 #define ONE_MHZ     1000000
 
-#define QSPI_NO_INST 0x00
+#define QSPI_NO_INST (-1)
 
 namespace mbed {
 /** \defgroup drivers-public-api-spi SPI
@@ -43,7 +43,7 @@ namespace mbed {
 
 /** Type representing a QSPI instruction
  */
-typedef char qspi_inst_t;
+typedef int qspi_inst_t;
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
  *
