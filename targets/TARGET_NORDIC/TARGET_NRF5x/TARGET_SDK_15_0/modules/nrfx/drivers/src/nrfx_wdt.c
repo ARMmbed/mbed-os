@@ -90,7 +90,7 @@ nrfx_err_t nrfx_wdt_init(nrfx_wdt_config_t const * p_config,
 
     nrf_wdt_behaviour_set(p_config->behaviour);
 
-    nrf_wdt_reload_value_set((p_config->reload_value * 32768) / 1000);
+    nrf_wdt_reload_value_set(((uint64_t)p_config->reload_value * 32768) / 1000);
 
     NRFX_IRQ_PRIORITY_SET(WDT_IRQn, p_config->interrupt_priority);
     NRFX_IRQ_ENABLE(WDT_IRQn);
