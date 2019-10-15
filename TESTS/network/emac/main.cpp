@@ -72,7 +72,10 @@ Case cases[] = {
     Case("EMAC unicast frame length", test_emac_unicast_frame_len),
     Case("EMAC unicast burst", test_emac_unicast_burst),
     Case("EMAC unicast long", test_emac_unicast_long),
+#if !((MBED_CONF_NETWORK_EMAC_NO_SUPPORT_FOR_MULTICAST_FILTER == 1) && \
+    (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI))
     Case("EMAC multicast filter", test_emac_multicast_filter),
+#endif // !(MBED_CONF_NETWORK_EMAC_NO_SUPPORT_FOR_MULTICAST_FILTER == 1)
     Case("EMAC memory", test_emac_memory)
 };
 
