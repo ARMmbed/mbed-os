@@ -821,6 +821,40 @@ int8_t ws_pae_controller_own_certificates_remove(void)
     return 0;
 }
 
+int8_t ws_pae_controller_own_certificate_add(const arm_certificate_entry_s *cert)
+{
+    if (!cert) {
+        return -1;
+    }
+
+    int8_t ret = -1;
+
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        for (uint8_t i = 0; i < SEC_PROT_CERT_CHAIN_DEPTH; i++) {
+            if (entry->certs.own_cert_chain.cert[i] == NULL) {
+                sec_prot_certs_cert_set(&entry->certs.own_cert_chain, i, (uint8_t *) cert->cert, cert->cert_len);
+                // Set private key if set for the certificate that is added
+                if (cert->key && cert->key_len > 0) {
+                    sec_prot_certs_priv_key_set(&entry->certs.own_cert_chain, (uint8_t *) cert->key, cert->key_len);
+                }
+                ret = 0;
+                break;
+            }
+        }
+    }
+
+    return ret;
+}
+
+int8_t ws_pae_controller_own_certificates_remove(void)
+{
+    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
+        sec_prot_certs_chain_entry_init(&entry->certs.own_cert_chain);
+    }
+
+    return 0;
+}
+
 int8_t ws_pae_controller_trusted_certificate_add(const arm_certificate_entry_s *cert)
 {
     if (!cert) {
