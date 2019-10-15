@@ -336,8 +336,11 @@ uint32_t whd_wifi_set_up(whd_interface_t ifp)
 {
     whd_mac_t mac;
     char version[200];
-    whd_driver_t whd_driver = ifp->whd_driver;
+    whd_driver_t whd_driver;
 
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
     if (whd_driver->internal_info.whd_wlan_status.state == WLAN_UP)
     {
         WPRINT_WHD_INFO( ("whd_wifi_set_up: already up.\n") );
@@ -537,10 +540,22 @@ uint32_t whd_wifi_set_supplicant_key_timeout(whd_interface_t ifp, int32_t eapol_
 uint32_t whd_wifi_set_passphrase(whd_interface_t ifp, const uint8_t *security_key, uint8_t key_length)
 {
     whd_buffer_t buffer;
-    whd_driver_t whd_driver = ifp->whd_driver;
-    wsec_pmk_t *psk = (wsec_pmk_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, sizeof(wsec_pmk_t) );
+    whd_driver_t whd_driver;
+    wsec_pmk_t *psk;
 
+    if (!ifp || !security_key)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
+    whd_driver = ifp->whd_driver;
+    CHECK_DRIVER_NULL(whd_driver);
+
+    psk = (wsec_pmk_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, sizeof(wsec_pmk_t) );
     CHECK_IOCTL_BUFFER(psk);
+
     memset(psk, 0, sizeof(wsec_pmk_t) );
     memcpy(psk->key, security_key, key_length);
     psk->key_len = htod16(key_length);
@@ -557,11 +572,22 @@ uint32_t whd_wifi_set_passphrase(whd_interface_t ifp, const uint8_t *security_ke
 uint32_t whd_wifi_sae_password(whd_interface_t ifp, const uint8_t *security_key, uint8_t key_length)
 {
     whd_buffer_t buffer;
-    whd_driver_t whd_driver = ifp->whd_driver;
-    wsec_sae_password_t *sae_password =
-        (wsec_sae_password_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, sizeof(wsec_sae_password_t),
-                                                        IOVAR_STR_SAE_PASSWORD);
+    whd_driver_t whd_driver;
+    wsec_sae_password_t *sae_password;
 
+    if (!ifp || !security_key)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
+    whd_driver = ifp->whd_driver;
+    CHECK_DRIVER_NULL(whd_driver);
+
+    sae_password = (wsec_sae_password_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer,
+                                                                   sizeof(wsec_sae_password_t),
+                                                                   IOVAR_STR_SAE_PASSWORD);
     CHECK_IOCTL_BUFFER(sae_password);
     memset(sae_password, 0, sizeof(wsec_sae_password_t) );
     memcpy(sae_password->password, security_key, key_length);
@@ -749,8 +775,11 @@ static void *whd_wifi_join_events_handler(whd_interface_t ifp, const whd_event_h
         case WLC_E_DISASSOC_IND:
             whd_driver->internal_info.whd_join_status[event_header->bsscfgidx] &=
                 ~(JOIN_AUTHENTICATED | JOIN_LINK_READY);
-            if (ifp->whd_link_update_callback != NULL)
-                ifp->whd_link_update_callback(ifp, WHD_FALSE);
+            if (ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] != WHD_EVENT_NOT_REGISTERED)
+            {
+                whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY]);
+                ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
+            }
             break;
 
         case WLC_E_AUTH:
@@ -924,8 +953,6 @@ static void *whd_wifi_join_events_handler(whd_interface_t ifp, const whd_event_h
     if (whd_wifi_is_ready_to_transceive(ifp) == WHD_SUCCESS)
     {
         join_attempt_complete = WHD_TRUE;
-        if (ifp->whd_link_update_callback != NULL)
-            ifp->whd_link_update_callback(ifp, WHD_TRUE);
     }
 
     if (join_attempt_complete == WHD_TRUE)
@@ -1616,8 +1643,11 @@ uint32_t whd_wifi_leave(whd_interface_t ifp)
         WPRINT_WHD_ERROR( ("%s: Bad interface 2\n", __FUNCTION__) );
         return WHD_BADARG;
     }
-    CHECK_RETURN(whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY]) );
-    ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
+    if (ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] != WHD_EVENT_NOT_REGISTERED)
+    {
+        CHECK_RETURN(whd_wifi_deregister_event_handler(ifp, ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY]) );
+        ifp->event_reg_list[WHD_JOIN_EVENT_ENTRY] = WHD_EVENT_NOT_REGISTERED;
+    }
 
     /* Disassociate from AP */
     result = whd_wifi_set_ioctl_buffer(ifp, WLC_DISASSOC, NULL, 0);
@@ -1628,8 +1658,6 @@ uint32_t whd_wifi_leave(whd_interface_t ifp)
     }
 
     whd_driver->internal_info.whd_join_status[ifp->bsscfgidx] = 0;
-    if (ifp->whd_link_update_callback != NULL)
-        ifp->whd_link_update_callback(ifp, WHD_FALSE);
     ifp->role = WHD_INVALID_ROLE;
     return WHD_SUCCESS;
 }
@@ -2106,6 +2134,13 @@ uint32_t whd_wifi_scan_synch(whd_interface_t ifp,
     scan_userdata.aps = scan_result;
     scan_userdata.offset = 0;
 
+    if (!ifp || !scan_result)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
     DISABLE_COMPILER_WARNING(diag_suppress = Pa039)
     CHECK_RETURN(cy_rtos_init_semaphore(&scan_userdata.scan_semaphore, 1, 0) );
     ENABLE_COMPILER_WARNING(diag_suppress = Pa039)
@@ -2286,7 +2321,11 @@ uint32_t whd_wifi_stop_scan(whd_interface_t ifp)
 {
     whd_buffer_t buffer;
     wl_escan_params_t *scan_params;
-    whd_driver_t whd_driver = ifp->whd_driver;
+    whd_driver_t whd_driver;
+
+    CHECK_IFP_NULL(ifp);
+    whd_driver = ifp->whd_driver;
+    CHECK_DRIVER_NULL(whd_driver)
 
     /* Allocate a buffer for the IOCTL message */
     scan_params = (wl_escan_params_t *)whd_cdc_get_iovar_buffer(whd_driver, &buffer, sizeof(wl_escan_params_t),
@@ -2310,8 +2349,11 @@ uint32_t  whd_wifi_deauth_sta(whd_interface_t ifp, whd_mac_t *mac, whd_dot11_rea
     whd_result_t result;
     scb_val_t *scb_val;
     whd_buffer_t buffer1;
-    whd_driver_t whd_driver = ifp->whd_driver;
+    whd_driver_t whd_driver;
 
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
 
     if (mac == NULL)
     {
@@ -2473,7 +2515,12 @@ uint32_t whd_wifi_get_bssid(whd_interface_t ifp, whd_mac_t *bssid)
 
 uint32_t whd_wifi_ap_get_max_assoc(whd_interface_t ifp, uint32_t *max_assoc)
 {
-    CHECK_IFP_NULL(ifp);
+    if (!ifp || !max_assoc)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
 
     return whd_wifi_get_iovar_value(ifp, IOVAR_STR_MAX_ASSOC, max_assoc);
 }
@@ -2693,7 +2740,13 @@ uint32_t whd_wifi_register_multicast_address(whd_interface_t ifp, const whd_mac_
     mcast_list_t *orig_mcast_list;
     mcast_list_t *new_mcast_list;
     whd_driver_t whd_driver;
-    CHECK_IFP_NULL(ifp);
+
+    if (!ifp || !mac)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
 
     whd_driver = ifp->whd_driver;
 
@@ -2742,7 +2795,12 @@ uint32_t whd_wifi_unregister_multicast_address(whd_interface_t ifp, const whd_ma
     mcast_list_t *orig_mcast_list;
     whd_driver_t whd_driver;
 
-    CHECK_IFP_NULL(ifp);
+    if (!ifp || !mac)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
 
     whd_driver = ifp->whd_driver;
 
@@ -2911,8 +2969,13 @@ uint32_t whd_wifi_get_acparams(whd_interface_t ifp, edcf_acparam_t *acp)
     whd_buffer_t buffer;
     whd_buffer_t response;
     whd_driver_t whd_driver;
-    CHECK_IFP_NULL(ifp);
 
+    if (!ifp || !acp)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
     whd_driver = ifp->whd_driver;
 
     CHECK_DRIVER_NULL(whd_driver);
@@ -2937,7 +3000,13 @@ uint32_t whd_wifi_manage_custom_ie(whd_interface_t ifp, whd_custom_ie_action_t a
     vndr_ie_setbuf_t *ie_setbuf;
     uint32_t *iovar_data;
     whd_driver_t whd_driver;
-    CHECK_IFP_NULL(ifp);
+
+    if (!ifp || !oui || !data)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
 
     whd_driver = ifp->whd_driver;
 
@@ -3062,8 +3131,11 @@ uint32_t whd_wifi_get_ioctl_buffer(whd_interface_t ifp, uint32_t ioctl, uint8_t 
     uint32_t *data;
     whd_buffer_t response;
     whd_result_t result;
-    whd_driver_t whd_driver = ifp->whd_driver;
+    whd_driver_t whd_driver;
 
+    CHECK_IFP_NULL(ifp);
+
+    whd_driver = ifp->whd_driver;
     data = (uint32_t *)whd_cdc_get_ioctl_buffer(whd_driver, &buffer, out_length);
     CHECK_IOCTL_BUFFER(data);
 
@@ -3184,8 +3256,16 @@ whd_result_t whd_wifi_get_iovar_buffer_with_param(whd_interface_t ifp, const cha
     whd_buffer_t buffer;
     whd_buffer_t response;
     whd_result_t result;
+    whd_driver_t whd_driver;
 
-    whd_driver_t whd_driver = (whd_driver_t)ifp->whd_driver;
+    if (!ifp || !iovar_name || !param || !out_buffer)
+    {
+        WPRINT_WHD_ERROR( ("Invalid param in func %s at line %d \n",
+                           __func__, __LINE__) );
+        return WHD_WLAN_BADARG;
+    }
+
+    whd_driver = (whd_driver_t)ifp->whd_driver;
 
     /* Format the input string */
     result = whd_iovar_mkbuf(iovar_name, param, paramlen, (char *)out_buffer, (uint16_t)out_length);

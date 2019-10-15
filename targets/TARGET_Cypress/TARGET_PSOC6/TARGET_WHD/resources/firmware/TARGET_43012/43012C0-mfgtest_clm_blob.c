@@ -1,27 +1,7 @@
-/*
- * Copyright (c) 2019, Cypress Semiconductor Corporation, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * This file and the related binary are licensed under the
- * Permissive Binary License, Version 1.0 (the "License");
- * you may not use these files except in compliance with the License.
- *
- * You may obtain a copy of the License here:
- * LICENSE-permissive-binary-license-1.0.txt and at
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include "wiced_resource.h"
-
-#if defined(CY_STORAGE_WIFI_DATA)
-CY_SECTION_WHD(CY_STORAGE_WIFI_DATA) __attribute__( (used) )
-#endif
-const unsigned char wifi_firmware_clm_blob_image_data[7697] =
+const unsigned char wifi_mfg_firmware_clm_blob_image_data[7697] =
 {
-    66, 76, 79, 66, 60, 0, 0, 0, 212, 152, 37, 70, 1, 0, 0, 0, 2, 0, 0,
-    0, 0, 0, 0, 0, 60, 0, 0, 0, 209, 29, 0, 0, 217, 180, 83, 115, 0, 0,
+    66, 76, 79, 66, 60, 0, 0, 0, 180, 206, 29, 14, 1, 0, 0, 0, 2, 0, 0,
+    0, 0, 0, 0, 0, 60, 0, 0, 0, 209, 29, 0, 0, 13, 143, 234, 248, 0, 0,
     0, 0, 0, 0, 0, 0, 13, 30, 0, 0, 4, 0, 0, 0, 147, 68, 77, 121, 0, 0,
     0, 0, 67, 76, 77, 32, 68, 65, 84, 65, 0, 0, 18, 0, 2, 0, 57, 46, 49,
     48, 46, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 46, 51, 54,
@@ -259,7 +239,7 @@ const unsigned char wifi_firmware_clm_blob_image_data[7697] =
     11, 4, 0, 1, 2, 3, 8, 12, 13, 14, 15, 16, 17, 18, 19, 8, 4, 5, 6, 7,
     8, 9, 10, 11, 21, 2, 2, 18, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
     16, 17, 18, 19, 20, 21, 50, 48, 49, 57, 45, 48, 57, 45, 48, 53, 32,
-    48, 50, 58, 53, 54, 58, 50, 56, 0, 0, 3, 0, 0, 0, 196, 11, 0, 0, 1,
+    48, 50, 58, 53, 54, 58, 51, 48, 0, 0, 3, 0, 0, 0, 196, 11, 0, 0, 1,
     14, 1, 0, 3, 0, 0, 0, 120, 14, 0, 0, 42, 58, 16, 106, 138, 16, 155,
     171, 16, 0, 0, 0, 3, 0, 0, 0, 28, 23, 0, 0, 21, 2, 2, 0, 9, 0, 19, 0,
     22, 0, 24, 0, 32, 0, 35, 0, 42, 0, 53, 0, 59, 0, 73, 0, 75, 0, 77, 0,
@@ -425,6 +405,4 @@ const unsigned char wifi_firmware_clm_blob_image_data[7697] =
     0, 0, 0, 148, 14, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 50, 50, 50, 114,
     50, 163, 114, 163, 4, 168, 0, 0
 };
-const resource_hnd_t wifi_firmware_clm_blob =
-{ RESOURCE_IN_MEMORY, 7697, {.mem = { (const char *)wifi_firmware_clm_blob_image_data }}};
 

@@ -18,11 +18,11 @@
 /** @file
  * Defines WHD resource functions for BCM943340WCD1 platform
  */
+#include "resources.h"
 #include "wifi_nvram_image.h"
 #include "whd_resource_api.h"
 #include "whd_debug.h"
 #include "whd.h"
-#include "resources.h"
 
 /******************************************************
 *                      Macros
