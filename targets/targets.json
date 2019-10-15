@@ -5378,7 +5378,8 @@
         "inherits": ["MCU_NRF51_16K_S110"],
         "macros_add": ["TARGET_NRF_LFCLK_RC"],
         "release_versions": ["2"],
-        "device_name": "nRF51822_xxAA"
+        "device_name": "nRF51822_xxAA",
+        "supported_toolchains": ["ARMC5", "GCC_ARM"]
     },
     "NRF51_MICROBIT_BOOT": {
         "inherits": ["MCU_NRF51_16K_BOOT_S110"],
