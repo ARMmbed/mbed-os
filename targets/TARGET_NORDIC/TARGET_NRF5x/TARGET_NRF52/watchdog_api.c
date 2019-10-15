@@ -69,7 +69,7 @@ watchdog_status_t hal_watchdog_stop(void)
 uint32_t hal_watchdog_get_reload_value(void)
 {
     // Convert to milliseconds from 32768 Hz clock ticks.
-    return nrf_wdt_reload_value_get() / 32768U * 1000;
+    return (uint64_t)nrf_wdt_reload_value_get() / 32768U * 1000;
 }
 
 watchdog_features_t hal_watchdog_get_platform_features(void)
