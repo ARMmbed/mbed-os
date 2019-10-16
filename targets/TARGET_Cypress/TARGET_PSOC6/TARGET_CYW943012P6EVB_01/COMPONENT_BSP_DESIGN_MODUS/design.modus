@@ -424,8 +424,8 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[3].pin[5]" alias="CYBSP_BT_HOST_WAKE" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_HIGHZ"/>
+                <Block location="ioss[0].port[3].pin[5]" alias="CYBSP_BT_DEVICE_WAKE" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
                     <Param id="initialState" value="0"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
@@ -434,8 +434,8 @@
                     <Param id="sioOutputBuffer" value="true"/>
                     <Param id="inFlash" value="true"/>
                 </Block>
-                <Block location="ioss[0].port[4].pin[0]" alias="CYBSP_BT_DEVICE_WAKE" template="mxs40pin" version="1.1">
-                    <Param id="DriveModes" value="CY_GPIO_DM_STRONG_IN_OFF"/>
+                <Block location="ioss[0].port[4].pin[0]" alias="CYBSP_BT_HOST_WAKE" template="mxs40pin" version="1.1">
+                    <Param id="DriveModes" value="CY_GPIO_DM_HIGHZ"/>
                     <Param id="initialState" value="0"/>
                     <Param id="vtrip" value="CY_GPIO_VTRIP_CMOS"/>
                     <Param id="isrTrigger" value="CY_GPIO_INTR_DISABLE"/>
