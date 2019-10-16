@@ -116,19 +116,21 @@ def main():
 
     all_examples = []
     for example in config['examples']:
-        all_examples = all_examples + [basename(x['repo']) for x in lib.get_repo_list(example)]
-    examples = [x for x in all_examples if x in args.example] if args.example else all_examples
-    return args.fn(args, config, examples)
+        name = basename(example['github'])
+        if name != example['name']:
+            exit("ERROR : repo basename '%s' and example name '%s' not match " % (name, example['name']))
+        all_examples.append(name)
+
+    exp_filter = [x for x in all_examples if x in args.example] if args.example else all_examples
+
+    return args.fn(args, config, exp_filter)
 
 
 def do_export(args, config, examples):
     """Do export and build step"""
     results = {}
     results = lib.export_repos(config, args.ide, args.mcu, examples)
-
-    lib.print_summary(results, export=True)
-    failures = lib.get_num_failures(results, export=True)
-    print("Number of failures = %d" % failures)
+    failures = lib.get_export_summary(results)
     return failures
 
 

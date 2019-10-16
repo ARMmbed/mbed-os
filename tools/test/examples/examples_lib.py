@@ -147,32 +147,16 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
                 yield target, ide
 
 
-def get_repo_list(example):
-    """ Returns a list of all the repos and their types associated with the
-        specific example in the json config file.
-        If the key 'test-repo-source' is set to 'mbed', then it will return the
-        mbed section as a list. Otherwise, it will return the single github repo.
-        NOTE: This does not currently deal with multiple examples underneath a github
-        sourced exampe repo.
-
-    Args:
-    example - Example for which the repo list is requested
-
+def get_sub_examples_list(example):
+    """ 
     """
-    repos = []
-    if example['test-repo-source'] == 'mbed':
-        for repo in example['mbed']:
-            repos.append({
-                'repo': repo,
-                'type': 'hg'
-            })
+    sub_examples = []
+    if example['sub-repo-example']:
+        for sub in example['subs']:
+            sub_examples.append("%s/%s" % (example["name"], sub))
     else:
-        repos.append({
-            'repo': example['github'],
-            'type': 'git'
-        })
-    return repos
-
+        sub_examples.append(example["name"])
+    return sub_examples
 
 def source_repos(config, exp_filter):
     """ Imports each of the repos and its dependencies (.lib files) associated
@@ -250,24 +234,7 @@ def deploy_repos(config, exp_filter):
                 return 1
     return  0
 
-def get_num_failures(results, export=False):
-    """ Returns the number of failed compilations from the results summary
-    Args:
-    results - results summary of the compilation stage. See compile_repos() for
-              details of the format.
-    num_failures
-
-    """
-    num_failures = 0
-
-    for key, val in list(results.items()):
-        num_failures = num_failures + len(val[3])
-        if export:
-            num_failures += len(val[4])
-
-    return num_failures
-
-def export_repos(config, ides, targets, examples):
+def export_repos(config, ides, targets, exp_filter):
     """Exports and builds combinations of example programs, targets and IDEs.
 
         The results are returned in a [key: value] dictionary format:
@@ -292,12 +259,10 @@ def export_repos(config, ides, targets, examples):
             ides - List of IDES to export to
     """
     results = {}
-    valid_examples = set(examples)
+
     print("\nExporting example repos....\n")
     for example in config['examples']:
-        example_names = [basename(x['repo']) for x in get_repo_list(example)]
-        common_examples = valid_examples.intersection(set(example_names))
-        if not common_examples:
+        if example['name'] not in exp_filter:
             continue
         export_failures = []
         build_failures = []
@@ -306,41 +271,39 @@ def export_repos(config, ides, targets, examples):
         exported = True
         pass_status = True
         if example['export']:
-            for repo_info in get_repo_list(example):
-                example_project_name = basename(repo_info['repo'])
-                os.chdir(example_project_name)
+            for name in get_sub_examples_list(example):              
+                os.chdir(name)
+                logging.info("In folder '%s'" % name)
                 # Check that the target, IDE, and features combinations are valid and return a
                 # list of valid combinations to work through
                 for target, ide in target_cross_ide(valid_choices(example['targets'], targets),
                                                     valid_choices(example['exporters'], ides),
                                                     example['features'], example['toolchains']):
-                    example_name = "{} {} {}".format(example_project_name, target,
-                                                     ide)
-                    def status(message):
-                        print(message + " %s" % example_name)
-                        sys.stdout.flush()
-
-                    status("Exporting")
-                    proc = subprocess.Popen(["mbed-cli", "export", "-i", ide,
-                                             "-m", target])
+                    example_summary = {"name" : name, "target" : target, "ide" : ide }
+                    summary_string = "%s %s %s" % (name, target, ide)
+                    logging.info("Exporting %s"  % summary_string)
+                    
+                    cmd = ["mbed-cli", "export", "-i", ide, "-m", target]
+                    logging.info("Executing command '%s'..." % " ".join(cmd))
+                    proc = subprocess.Popen(cmd)
                     proc.wait()
                     if proc.returncode:
-                        export_failures.append(example_name)
-                        status("FAILURE exporting")
+                        export_failures.append(example_summary)
+                        logging.error("FAILURE exporting %s"  % summary_string)
                     else:
-                        status("SUCCESS exporting")
-                        status("Building")
+                        logging.info("SUCCESS exporting %s"  % summary_string)
+                        logging.info("Building %s"  % summary_string)
                         try:
-                            if EXPORTERS[ide].build(example_project_name, cleanup=False):
-                                status("FAILURE building")
-                                build_failures.append(example_name)
+                            if EXPORTERS[ide].build(name, cleanup=False):
+                                logging.error("FAILURE building %s"  % summary_string)
+                                build_failures.append(example_summary)
                             else:
-                                status("SUCCESS building")
-                                successes.append(example_name)
+                                logging.info("SUCCESS building %s"  % summary_string)
+                                successes.append(example_summary)
                         except TypeError:
-                            successes.append(example_name)
-                            build_skips.append(example_name)
-                os.chdir("..")
+                            successes.append(example_summary)
+                            build_skips.append(example_summary)
+                os.chdir(CWD)
 
                 if len(build_failures+export_failures) > 0:
                     pass_status= False
