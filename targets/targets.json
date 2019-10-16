@@ -13398,6 +13398,7 @@
             "PORTINOUT",
             "PWMOUT",
             "QSPI",
+            "RESET_REASON",
             "RTC",
             "SERIAL",
             "SERIAL_FC",
