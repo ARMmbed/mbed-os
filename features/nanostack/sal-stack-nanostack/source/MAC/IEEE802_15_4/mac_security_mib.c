@@ -19,6 +19,7 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
+#include "platform/arm_hal_interrupt.h"
 #include "mac_api.h"
 #include "sw_mac.h"
 #include "mac_common_defines.h"
@@ -78,6 +79,42 @@ static mlme_key_id_lookup_descriptor_t *mac_sec_mib_key_lookup_table_allocate(ui
     return table_ptr;
 }
 
+static int mac_sec_mib_frame_counter_key_buffer_allocate(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t list_size, uint16_t device_count)
+{
+    rf_mac_setup->key_device_frame_counter_list_buffer = ns_dyn_mem_alloc(sizeof(uint32_t) * list_size * device_count);
+    if (!rf_mac_setup->key_device_frame_counter_list_buffer) {
+        return -1;
+    }
+    memset(rf_mac_setup->key_device_frame_counter_list_buffer, 0, (sizeof(uint32_t) * list_size * device_count));
+    rf_mac_setup->secFrameCounterPerKey = true;
+    mlme_key_descriptor_t *key_descriptor_list = rf_mac_setup->key_description_table;
+    uint32_t *frame_counter_pointer = rf_mac_setup->key_device_frame_counter_list_buffer;
+    for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
+        key_descriptor_list->KeyDeviceFrameCouterList = frame_counter_pointer;
+        key_descriptor_list->KeyFrameCounterPerKey = true;
+        key_descriptor_list->KeyFrameCounter = 0;
+        //Update Pointers
+        key_descriptor_list++;
+        frame_counter_pointer += device_count;
+    }
+
+    return 0;
+}
+
+static void mac_sec_mib_frame_counter_key_buffer_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    mlme_key_descriptor_t *key_descriptor_list = rf_mac_setup->key_description_table;
+    for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
+        key_descriptor_list->KeyDeviceFrameCouterList = NULL;
+        key_descriptor_list->KeyFrameCounterPerKey = false;
+        //Update Pointers
+        key_descriptor_list++;
+    }
+    ns_dyn_mem_free(rf_mac_setup->key_device_frame_counter_list_buffer);
+    rf_mac_setup->key_device_frame_counter_list_buffer = NULL;
+    rf_mac_setup->secFrameCounterPerKey = false;
+}
+
 static mlme_device_descriptor_t *mac_sec_mib_device_description_get_by_mac16(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t mac16)
 {
 
@@ -134,6 +171,11 @@ static void mac_sec_mib_key_device_description_remove_from_list(mlme_key_descrip
 
     if (removed_entry) {
         key_descpription_table->KeyDeviceListEntries--;
+        //Clear Also frame counter per key if it its enabled
+        if (key_descpription_table->KeyFrameCounterPerKey) {
+            //SET frame counter to 0
+            mac_sec_mib_key_device_frame_counter_set(key_descpription_table, NULL, 0, device_descriptor_handle);
+        }
     }
 }
 
@@ -234,7 +276,6 @@ int8_t mac_sec_mib_device_description_set(uint8_t atribute_index, mlme_device_de
 
     //validate index to list size
     if (!rf_mac_setup || !device_descriptor || atribute_index >= rf_mac_setup->device_description_table_size) {
-        tr_debug("Too many Devices");
         return -1;
     }
 
@@ -300,6 +341,17 @@ int8_t mac_sec_mib_key_description_set(uint8_t atribute_index, mlme_key_descript
 
     if (key_ptr->KeyUsageListEntries) {
         memcpy(key_ptr->KeyUsageList, key_descriptor->KeyUsageList, sizeof(mlme_key_usage_descriptor_t) * key_ptr->KeyUsageListEntries);
+    }
+
+    if (key_ptr->KeyFrameCounterPerKey) {
+        key_ptr->KeyFrameCounter = 0;
+        if (key_ptr->KeyDeviceListEntries == 0) {
+            //Clear all frame counters from old possible user's
+            uint32_t *counter_ptr = key_ptr->KeyDeviceFrameCouterList;
+            for (int i = 0; i < rf_mac_setup->device_description_table_size; i++) {
+                *counter_ptr++ = 0;
+            }
+        }
     }
 
     return 0;
@@ -414,6 +466,17 @@ mlme_key_descriptor_t *mac_sec_key_description_get(protocol_interface_rf_mac_set
     return NULL;
 }
 
+mlme_key_descriptor_t *mac_sec_key_description_get_by_attribute(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t atribute_index)
+{
+    //validate index to list size
+    if (atribute_index >= rf_mac_setup->key_description_table_size) {
+        return NULL;
+    }
+
+
+    return rf_mac_setup->key_description_table + atribute_index;
+}
+
 int8_t mac_sec_mib_init(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_description_storage_size_t *storage_sizes)
 {
 
@@ -434,15 +497,101 @@ int8_t mac_sec_mib_init(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_des
     return 0;
 }
 
+
+int8_t mac_sec_mib_frame_counter_per_key_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, bool enabled)
+{
+    if (enabled) {
+        if (rf_mac_setup->key_device_frame_counter_list_buffer) {
+            return 0;
+        }
+        return mac_sec_mib_frame_counter_key_buffer_allocate(rf_mac_setup, rf_mac_setup->key_description_table_size, rf_mac_setup->device_description_table_size);
+    }
+
+    //Clear Key Descriptors
+
+    //Free current list
+    mac_sec_mib_frame_counter_key_buffer_free(rf_mac_setup);
+    return 0;
+}
+
+
 void mac_sec_mib_deinit(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     if (!rf_mac_setup) {
         return;
     }
+    mac_sec_mib_frame_counter_key_buffer_free(rf_mac_setup);
     mac_sec_mib_device_description_table_deinit(rf_mac_setup);
     mac_sec_mib_key_description_table_deinit(rf_mac_setup);
 
 }
+
+uint32_t mac_sec_mib_key_outgoing_frame_counter_get(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+{
+    uint32_t value;
+    platform_enter_critical();
+    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
+        value = key_descpription->KeyFrameCounter;
+    } else {
+        value = rf_mac_setup->security_frame_counter;
+    }
+    platform_exit_critical();
+    return value;
+}
+
+void mac_sec_mib_key_outgoing_frame_counter_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_descpription, uint32_t value)
+{
+    platform_enter_critical();
+    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
+        key_descpription->KeyFrameCounter = value;
+    } else {
+        rf_mac_setup->security_frame_counter = value;
+    }
+    platform_exit_critical();
+}
+
+void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+{
+    platform_enter_critical();
+    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
+        key_descpription->KeyFrameCounter++;
+    } else {
+        rf_mac_setup->security_frame_counter++;
+    }
+    platform_exit_critical();
+}
+
+void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+{
+    platform_enter_critical();
+    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
+        key_descpription->KeyFrameCounter--;
+    } else {
+        rf_mac_setup->security_frame_counter--;
+    }
+    platform_exit_critical();
+}
+
+
+void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint32_t frame_counter, uint8_t attribute_index)
+{
+    if (key_descpription_table->KeyFrameCounterPerKey) {
+        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCouterList + attribute_index;
+        *counter_ptr = frame_counter;
+    } else {
+        device_info->FrameCounter = frame_counter;
+    }
+}
+
+uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint8_t attribute_index)
+{
+    if (key_descpription_table->KeyFrameCounterPerKey) {
+        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCouterList + attribute_index;
+        return *counter_ptr;
+    }
+    return device_info->FrameCounter;
+}
+
 
 //allocate new entry and update entries size
 mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_list_update(mlme_key_descriptor_t *key_descpription_table)
@@ -477,7 +626,6 @@ mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_discover_from_l
 
 void mac_sec_mib_device_description_blacklist(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t device_handle)
 {
-
     if (!rf_mac_setup) {
         return;
     }
@@ -485,7 +633,6 @@ void mac_sec_mib_device_description_blacklist(protocol_interface_rf_mac_setup_s 
     for (uint8_t i = 0; i < rf_mac_setup->key_description_table_size; i++) {
         descriptor = mac_sec_mib_key_device_description_discover_from_list(&rf_mac_setup->key_description_table[i], device_handle);
         if (descriptor) {
-            tr_debug("Black listed device %u", device_handle);
             descriptor->Blacklisted = true;
         }
 

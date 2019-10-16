@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_syspm.h
-* \version 4.30
+* \version 4.40
 *
 * Provides the function definitions for the power management API.
 *
@@ -724,6 +724,20 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason for Change</th></tr>
 *   <tr>
+*     <td>4.40</td>
+*     <td>
+*           Fixed \ref Cy_SysPm_LdoSetVoltage(), \ref Cy_SysPm_BuckEnable(), and
+*           \ref Cy_SysPm_BuckSetVoltage1() functions. Corrected the sequence for
+*           setting the RAM trim value. This behavior is applicable for all
+*           devices, except CY8C6xx6 and CY8C6xx7.
+*     </td>
+*     <td>
+*           For all devices, except CY8C6xx6 and CY8C6xx7, the trim
+*           sequence was setting incorrect trim values for RAM.
+*           This could cause a CPU hard fault.
+*     </td>
+*   </tr>
+*   <tr>
 *     <td>4.30</td>
 *     <td>
 *           Corrected the \ref Cy_SysPm_CpuEnterDeepSleep() function. 
@@ -1209,7 +1223,7 @@ extern "C" {
 #define CY_SYSPM_DRV_VERSION_MAJOR       4
 
 /** Driver minor version */
-#define CY_SYSPM_DRV_VERSION_MINOR       30
+#define CY_SYSPM_DRV_VERSION_MINOR       40
 
 /** SysPm driver identifier */
 #define CY_SYSPM_ID                      (CY_PDL_DRV_ID(0x10U))

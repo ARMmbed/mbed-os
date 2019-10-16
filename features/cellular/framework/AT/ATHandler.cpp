@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 #include "ATHandler.h"
 #include "mbed_poll.h"
 #include "FileHandle.h"
@@ -26,6 +27,7 @@
 #include "Kernel.h"
 #include "CellularUtil.h"
 #include "SingletonPtr.h"
+#include "ScopedLock.h"
 
 using namespace mbed;
 using namespace events;
@@ -161,6 +163,9 @@ bool ATHandler::ok_to_proceed()
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+    _oobCv(_fileHandleMutex),
+#endif
     _fileHandle(NULL), // filehandle is set by set_file_handle()
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
@@ -171,7 +176,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _previous_at_timeout(timeout),
     _at_send_delay(send_delay),
     _last_response_stop(0),
-    _oob_queued(false),
     _ref_count(1),
     _is_fh_usable(false),
     _stop_tag(NULL),
@@ -183,7 +187,8 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _debug_on(MBED_CONF_CELLULAR_DEBUG_AT),
     _cmd_start(false),
     _use_delimiter(true),
-    _start_time(0)
+    _start_time(0),
+    _event_id(0)
 {
     clear_error();
 
@@ -218,7 +223,21 @@ bool ATHandler::get_debug() const
 
 ATHandler::~ATHandler()
 {
+    ScopedLock <ATHandler> lock(*this);
     set_file_handle(NULL);
+
+    if (_event_id != 0 && _queue.cancel(_event_id)) {
+        _event_id = 0;
+    }
+
+    while (_event_id != 0) {
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+        _oobCv.wait();
+#else
+        // Cancel will always work in a single threaded environment
+        MBED_ASSERT(false);
+#endif // AT_HANDLER_MUTEX
+    }
 
     while (_oobs) {
         struct oob_t *oob = _oobs;
@@ -252,6 +271,7 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
+    ScopedLock<ATHandler> lock(*this);
     if (_fileHandle) {
         set_is_filehandle_usable(false);
     }
@@ -263,6 +283,7 @@ void ATHandler::set_file_handle(FileHandle *fh)
 
 void ATHandler::set_is_filehandle_usable(bool usable)
 {
+    ScopedLock<ATHandler> lock(*this);
     if (_fileHandle) {
         if (usable) {
             _fileHandle->set_blocking(false);
@@ -337,15 +358,14 @@ bool ATHandler::find_urc_handler(const char *prefix)
 
 void ATHandler::event()
 {
-    if (!_oob_queued) {
-        _oob_queued = true;
-        (void) _queue.call(Callback<void(void)>(this, &ATHandler::process_oob));
+    if (_event_id == 0) {
+        _event_id = _queue.call(callback(this, &ATHandler::process_oob));
     }
 }
 
 void ATHandler::lock()
 {
-#ifdef AT_HANDLER_MUTEX
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _fileHandleMutex.lock();
 #endif
     clear_error();
@@ -354,12 +374,12 @@ void ATHandler::lock()
 
 void ATHandler::unlock()
 {
-#ifdef AT_HANDLER_MUTEX
+    if (_is_fh_usable && (_fileHandle->readable() || (_recv_pos < _recv_len))) {
+        _event_id = _queue.call(callback(this, &ATHandler::process_oob));
+    }
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
     _fileHandleMutex.unlock();
 #endif
-    if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
-        (void) _queue.call(Callback<void(void)>(this, &ATHandler::process_oob));
-    }
 }
 
 nsapi_error_t ATHandler::unlock_return_error()
@@ -393,12 +413,15 @@ void ATHandler::restore_at_timeout()
 
 void ATHandler::process_oob()
 {
+    ScopedLock<ATHandler> lock(*this);
     if (!_is_fh_usable) {
         tr_debug("process_oob, filehandle is not usable, return...");
+        _event_id = 0;
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+        _oobCv.notify_all();
+#endif
         return;
     }
-    lock();
-    _oob_queued = false;
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
         tr_debug("AT OoB readable %d, len %u", _fileHandle->readable(), _recv_len - _recv_pos);
         _current_scope = NotSet;
@@ -424,7 +447,10 @@ void ATHandler::process_oob()
         _at_timeout = timeout;
         tr_debug("AT OoB done");
     }
-    unlock();
+    _event_id = 0;
+#if defined AT_HANDLER_MUTEX && defined MBED_CONF_RTOS_PRESENT
+    _oobCv.notify_all();
+#endif
 }
 
 void ATHandler::reset_buffer()
@@ -723,8 +749,7 @@ int32_t ATHandler::read_int()
     }
 
     errno = 0;
-    char *endptr;
-    long result = std::strtol(buff, &endptr, 10);
+    long result = std::strtol(buff, NULL, 10);
     if ((result == LONG_MIN || result == LONG_MAX) && errno == ERANGE) {
         return -1; // overflow/underflow
     }
@@ -901,7 +926,7 @@ void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
         for (size_t i = 0; i < sizeof(map_3gpp_errors) / sizeof(map_3gpp_errors[0]); i++) {
             if (map_3gpp_errors[i][0] == err) {
                 _last_3gpp_error = map_3gpp_errors[i][1];
-                tr_debug("AT3GPP error code %d", get_3gpp_error());
+                tr_error("AT3GPP error code %d", get_3gpp_error());
                 break;
             }
         }
@@ -918,7 +943,7 @@ void ATHandler::at_error(bool error_code_expected, DeviceErrorType error_type)
             set_3gpp_error(err, error_type);
             _last_at_err.errCode = err;
             _last_at_err.errType = error_type;
-            tr_error("AT error code %ld", err);
+            tr_warn("AT error code %ld", err);
         } else {
             tr_warn("ATHandler ERROR reading failed");
         }
@@ -1369,7 +1394,7 @@ void ATHandler::write_int(int32_t param)
     // write the integer subparameter
     const int32_t str_len = 12;
     char number_string[str_len];
-    int32_t result = sprintf(number_string, "%ld", param);
+    int32_t result = sprintf(number_string, "%" PRIi32, param);
     if (result > 0 && result < str_len) {
         (void)write(number_string, strlen(number_string));
     }
@@ -1549,7 +1574,13 @@ bool ATHandler::sync(int timeout_ms)
         // especially a common response like OK could be response to previous request.
         clear_error();
         _start_time = rtos::Kernel::get_ms_count();
-        at_cmd_discard("+CMEE", "?");
+        cmd_start("AT+CMEE?");
+        cmd_stop();
+        resp_start();
+        set_stop_tag("+CMEE:");
+        consume_to_stop_tag();
+        set_stop_tag(OK);
+        consume_to_stop_tag();
         if (!_last_err) {
             _at_timeout = timeout;
             unlock();

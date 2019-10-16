@@ -90,6 +90,14 @@ uint32_t mac_mcps_sap_get_phy_timestamp(protocol_interface_rf_mac_setup_s *rf_ma
     return timestamp;
 }
 
+static bool mac_data_counter_too_small(uint32_t current_counter, uint32_t packet_counter)
+{
+    if ((current_counter - packet_counter) >= 2) {
+        return true;
+    }
+    return false;
+}
+
 static bool mac_data_request_confirmation_finnish(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
     if (!buffer->asynch_request) {
@@ -583,10 +591,14 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
             return MLME_UNAVAILABLE_KEY;
         }
 
-        if (b->neigh_info && neighbour_validation.frameCounter < b->neigh_info->FrameCounter) {
-            tr_debug("MLME_COUNTER_ERROR");
-            return MLME_COUNTER_ERROR;
+        if (b->neigh_info) {
+            uint32_t min_accepted_frame_counter = mac_mib_key_device_frame_counter_get(key_description, b->neigh_info, device_descriptor_handle);
+            if (neighbour_validation.frameCounter < min_accepted_frame_counter) {
+                tr_debug("MLME_COUNTER_ERROR");
+                return MLME_COUNTER_ERROR;
+            }
         }
+
     }
 
     key = key_description->Key;
@@ -620,10 +632,15 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
 
     //Update key device and key description tables
     if (!security_by_pass) {
-        b->neigh_info->FrameCounter = neighbour_validation.frameCounter + 1;
+
+        mac_sec_mib_key_device_frame_counter_set(key_description, b->neigh_info, neighbour_validation.frameCounter + 1, device_descriptor_handle);
+
         if (!key_device_description) {
-            // Black list old used keys by this device
-            mac_sec_mib_device_description_blacklist(rf_mac_setup, device_descriptor_handle);
+            if (!rf_mac_setup->secFrameCounterPerKey) {
+                // Black list old used keys by this device
+                mac_sec_mib_device_description_blacklist(rf_mac_setup, device_descriptor_handle);
+            }
+
             key_device_description =  mac_sec_mib_key_device_description_list_update(key_description);
             if (key_device_description) {
                 tr_debug("Set new device user %u for key", device_descriptor_handle);
@@ -1199,6 +1216,7 @@ mac_pre_build_frame_t *mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size)
         return NULL;
     }
     memset(buffer, 0, sizeof(mac_pre_build_frame_t));
+    buffer->aux_header.frameCounter = 0xffffffff;
     if (payload_size) {
         //Mac interlnal payload allocate
         buffer->mac_payload = ns_dyn_mem_temporary_alloc(payload_size);
@@ -1229,7 +1247,7 @@ void mcps_sap_prebuild_frame_buffer_free(mac_pre_build_frame_t *buffer)
 
 }
 
-static bool mac_frame_security_parameters_init(ccm_globals_t *ccm_ptr, protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
+static mlme_key_descriptor_t *mac_frame_security_key_get(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
 {
     /* Encrypt the packet payload if AES encyption bit is set */
     mlme_security_t key_source;
@@ -1237,13 +1255,13 @@ static bool mac_frame_security_parameters_init(ccm_globals_t *ccm_ptr, protocol_
     key_source.KeyIndex = buffer->aux_header.KeyIndex;
     key_source.SecurityLevel = buffer->aux_header.securityLevel;
     memcpy(key_source.Keysource, buffer->aux_header.Keysource, 8);
-    mlme_key_descriptor_t *key_description =  mac_sec_key_description_get(rf_ptr, &key_source, buffer->fcf_dsn.DstAddrMode, buffer->DstAddr, buffer->DstPANId);
+    return mac_sec_key_description_get(rf_ptr, &key_source, buffer->fcf_dsn.DstAddrMode, buffer->DstAddr, buffer->DstPANId);
+}
 
-    if (!key_description) {
-        buffer->status = MLME_UNAVAILABLE_KEY;
-        return false;
 
-    }
+static bool mac_frame_security_parameters_init(ccm_globals_t *ccm_ptr, protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer, mlme_key_descriptor_t *key_description)
+{
+    /* Encrypt the packet payload if AES encyption bit is set */
     mlme_device_descriptor_t *device_description;
     uint8_t *nonce_ext_64_ptr;
 
@@ -1298,6 +1316,7 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
     timer_mac_stop(rf_mac_setup);
     if (m_event == MAC_CCA_FAIL) {
         sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_CCA_FAIL, 0);
+        tr_debug("MAC CCA fail");
         /* CCA fail */
         //rf_mac_setup->cca_failure++;
         buf->status = MLME_BUSY_CHAN;
@@ -1305,7 +1324,7 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
         sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_COUNT, buf->mac_payload_length);
         if (m_event == MAC_TX_FAIL) {
             sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_FAIL, 0);
-            tr_error("MAC tx fail");
+            tr_debug("MAC tx fail");
             buf->status = MLME_TX_NO_ACK;
         } else if (m_event == MAC_TX_DONE) {
             if (mac_is_ack_request_set(buf) == false) {
@@ -1517,16 +1536,31 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     mac_header_information_elements_preparation(buffer);
 
     mcps_generic_sequence_number_allocate(rf_ptr, buffer);
-
+    mlme_key_descriptor_t *key_desc;
     if (buffer->fcf_dsn.securityEnabled) {
+        bool increment_framecounter = false;
         //Remember to update security counter here!
-        buffer->aux_header.frameCounter = mac_mlme_framecounter_get(rf_ptr);
-        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer)) {
+        key_desc = mac_frame_security_key_get(rf_ptr, buffer);
+        if (!key_desc) {
+            buffer->status = MLME_UNAVAILABLE_KEY;
+            return -2;
+        }
+
+        //GET Counter
+        uint32_t new_frameCounter = mac_sec_mib_key_outgoing_frame_counter_get(rf_ptr, key_desc);
+        // If buffer frame counter is set, this is FHSS channel retry, update frame counter only if something was sent after failure
+        if ((buffer->aux_header.frameCounter == 0xffffffff) || buffer->asynch_request || mac_data_counter_too_small(new_frameCounter, buffer->aux_header.frameCounter)) {
+            buffer->aux_header.frameCounter = new_frameCounter;
+            increment_framecounter = true;
+        }
+
+        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer, key_desc)) {
             return -2;
         }
         //Increment security counter
-        mac_mlme_framecounter_increment(rf_ptr);
-
+        if (increment_framecounter) {
+            mac_sec_mib_key_outgoing_frame_counter_increment(rf_ptr, key_desc);
+        }
     }
 
     //Calculate Payload length here with IE extension
@@ -1559,7 +1593,9 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         tr_debug("Too Long %u, %u pa %u header %u mic %u", frame_length, mac_payload_length, buffer->mac_header_length_with_security,  buffer->security_mic_len, dev_driver->phy_MTU);
         buffer->status = MLME_FRAME_TOO_LONG;
         //decrement security counter
-        mac_mlme_framecounter_decrement(rf_ptr);
+        if (buffer->fcf_dsn.securityEnabled) {
+            mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
+        }
         return -1;
     }
 
@@ -1673,19 +1709,24 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
     ccm_globals_t ccm_ptr;
     mac_pre_build_frame_t *buffer = &rf_ptr->enhanced_ack_buffer;
-
+    mlme_key_descriptor_t *key_desc;
 
     if (buffer->fcf_dsn.securityEnabled) {
         //Remember to update security counter here!
-        if (init_build) {
-            buffer->aux_header.frameCounter = mac_mlme_framecounter_get(rf_ptr);
+        key_desc = mac_frame_security_key_get(rf_ptr, buffer);
+        if (!key_desc) {
+            buffer->status = MLME_UNAVAILABLE_KEY;
+            return -2;
         }
-        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer)) {
+        if (init_build) {
+            buffer->aux_header.frameCounter = mac_sec_mib_key_outgoing_frame_counter_get(rf_ptr, key_desc);
+        }
+        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer, key_desc)) {
             return -2;
         }
         if (init_build) {
             //Increment security counter
-            mac_mlme_framecounter_increment(rf_ptr);
+            mac_sec_mib_key_outgoing_frame_counter_increment(rf_ptr, key_desc);
         }
     }
 
@@ -1709,7 +1750,7 @@ int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, bool in
 
         if (buffer->fcf_dsn.securityEnabled) {
             //decrement security counter
-            mac_mlme_framecounter_decrement(rf_ptr);
+            mac_sec_mib_key_outgoing_frame_counter_decrement(rf_ptr, key_desc);
             ccm_free(&ccm_ptr);
         }
         return -1;
@@ -1770,7 +1811,14 @@ static int8_t mcps_generic_packet_rebuild(protocol_interface_rf_mac_setup_s *rf_
     }
 
     if (buffer->fcf_dsn.securityEnabled) {
-        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer)) {
+
+        mlme_key_descriptor_t *key_desc = mac_frame_security_key_get(rf_ptr, buffer);
+        if (!key_desc) {
+            buffer->status = MLME_UNAVAILABLE_KEY;
+            return -2;
+        }
+
+        if (!mac_frame_security_parameters_init(&ccm_ptr, rf_ptr, buffer, key_desc)) {
             return -2;
         }
     }
@@ -2317,4 +2365,18 @@ int mcps_packet_ingress_rate_limit_by_memory(uint8_t free_heap_percentage)
     }
 
     return -1;
+}
+
+void mcps_pending_packet_counter_update_check(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
+{
+    if (buffer->fcf_dsn.securityEnabled) {
+        mlme_key_descriptor_t *key_desc = mac_frame_security_key_get(rf_mac_setup, buffer);
+        if (key_desc) {
+            uint32_t current_counter = mac_sec_mib_key_outgoing_frame_counter_get(rf_mac_setup, key_desc);
+            if (mac_data_counter_too_small(current_counter, buffer->aux_header.frameCounter)) {
+                buffer->aux_header.frameCounter = current_counter;
+                mac_sec_mib_key_outgoing_frame_counter_increment(rf_mac_setup, key_desc);
+            }
+        }
+    }
 }

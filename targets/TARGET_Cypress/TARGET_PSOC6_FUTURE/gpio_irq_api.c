@@ -202,12 +202,17 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             MBED_ASSERT("Invalid pin ID!");
             return (-1);
         }
-        obj->handler = (uint32_t) handler;
+        obj->handler = (uint32_t)handler;
         obj->id_arg = id;
-        return gpio_irq_setup_channel(obj);
+        irq_objects[obj->port_id][obj->pin] = obj;
+        if (gpio_irq_setup_channel(obj) != 0) {
+            irq_objects[obj->port_id][obj->pin] = NULL;
+            return (-1);
+        }
     } else {
         return (-1);
     }
+    return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
@@ -218,6 +223,7 @@ void gpio_irq_free(gpio_irq_t *obj)
     irq_port_usage[obj->port_id].pin_mask &= ~(1 << obj->pin);
     if (irq_port_usage[obj->port_id].pin_mask == 0) {
         gpio_irq_release_channel(irq_port_usage[obj->port_id].irqn, obj->port_id);
+        irq_objects[obj->port_id][obj->pin] = NULL;
         return;
     }
     NVIC_EnableIRQ(irq_port_usage[obj->port_id].irqn);
@@ -230,26 +236,30 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             if (obj->mode == IRQ_FALL) {
                 obj->mode += IRQ_RISE;
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_BOTH);
-            } else {
+            } else if (obj->mode == IRQ_NONE) {
                 obj->mode = IRQ_RISE;
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_RISING);
+                gpio_irq_enable(obj);
             }
         } else if (event == IRQ_FALL) {
             if (obj->mode == IRQ_RISE) {
                 obj->mode += IRQ_FALL;
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_BOTH);
-            } else {
+            } else if (obj->mode == IRQ_NONE) {
                 obj->mode = IRQ_FALL;
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_FALLING);
+                gpio_irq_enable(obj);
             }
         } else {
             obj->mode = IRQ_NONE;
+            gpio_irq_disable(obj);
             Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_DISABLE);
         }
     } else if (obj->mode != IRQ_NONE) {
         if (event == IRQ_RISE) {
             if (obj->mode == IRQ_RISE) {
                 obj->mode = IRQ_NONE;
+                gpio_irq_disable(obj);
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_DISABLE);
             } else {
                 obj->mode = IRQ_FALL;
@@ -258,6 +268,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         } else if (event == IRQ_FALL) {
             if (obj->mode == IRQ_FALL) {
                 obj->mode = IRQ_NONE;
+                gpio_irq_disable(obj);
                 Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_DISABLE);
             } else {
                 obj->mode = IRQ_RISE;
@@ -266,6 +277,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         } else {
             obj->mode = IRQ_NONE;
             Cy_GPIO_SetInterruptEdge(obj->port, obj->pin, CY_GPIO_INTR_DISABLE);
+            gpio_irq_disable(obj);
         }
     }
 }

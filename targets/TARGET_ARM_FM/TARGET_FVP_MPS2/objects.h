@@ -78,6 +78,10 @@ struct flash_s {
     uint8_t not_used;
 };
 
+struct trng_s {
+    uint8_t not_used;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

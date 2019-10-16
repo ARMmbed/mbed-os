@@ -64,6 +64,7 @@ protected:
 TEST_F(TestNetworkInterface, constructor)
 {
     EXPECT_TRUE(iface);
+    iface->set_as_default(); //Empty function. Just trigger it, so it doesn't obscure coverage reports.
 }
 
 // get_default_instance is tested along with the implementations of NetworkInterface.
@@ -90,6 +91,12 @@ TEST_F(TestNetworkInterface, get_gateway)
 {
     char *n = 0;
     EXPECT_EQ(iface->get_gateway(), n);
+}
+
+TEST_F(TestNetworkInterface, get_interface_name)
+{
+    char *n = 0;
+    EXPECT_EQ(iface->get_interface_name(n), n);
 }
 
 TEST_F(TestNetworkInterface, set_network)
@@ -168,7 +175,7 @@ TEST_F(TestNetworkInterface, add_event_listener)
 
 TEST_F(TestNetworkInterface, remove_event_listener)
 {
-    // Add two callback and check that both are called
+    // Add two callbacks and check that both are called
     callback_is_called = false;
     second_callback_called = false;
     iface->add_event_listener(my_iface_callback);
@@ -215,7 +222,6 @@ TEST_F(TestNetworkInterface, correct_event_listener_per_interface)
     EXPECT_EQ(second_callback_called, true);
 
     iface->remove_event_listener(my_iface_callback);
-    iface2->remove_event_listener(my_iface_callback2);
-
+    // Do not call iface2->remove_event_listener, so the destructor can take care of this.
     delete iface2;
 }

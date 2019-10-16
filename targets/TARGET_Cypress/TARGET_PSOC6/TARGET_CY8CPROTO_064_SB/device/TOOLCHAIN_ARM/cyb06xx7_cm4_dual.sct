@@ -4,7 +4,7 @@
 
 ;*******************************************************************************
 ;* \file cyb06xx7_cm4_dual.sct
-;* \version 2.50
+;* \version 2.60
 ;*
 ;* Linker file for the ARMCC.
 ;*
@@ -78,6 +78,7 @@
   #define MBED_BOOT_STACK_SIZE 0x400
 #endif
 
+; Size of the stack section at the end of CM4 SRAM
 #define STACK_SIZE MBED_BOOT_STACK_SIZE
 
 ; The defines below describe the location and size of blocks of memory in the target.
@@ -133,12 +134,9 @@
 #define EFUSE_START             0x90700000
 #define EFUSE_SIZE              0x100000
 
-; Size and start address of the Cortex-M4 application image
-#define FLASH_CM4_SIZE          FLASH_SIZE
-#define FLASH_CM4_START         FLASH_START
 
-; Cortex-M4 application image
-LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
+; Cortex-M4 application flash area
+LR_IROM1 FLASH_START FLASH_SIZE
 {
     ER_FLASH_VECTORS +0
     {
@@ -159,7 +157,7 @@ LR_IROM1 FLASH_CM4_START FLASH_CM4_SIZE
     RW_RAM_DATA +0
     {
         * (.cy_ramfunc)
-        .ANY (+RW, +ZI)
+        * (+RW, +ZI)
     }
 
     ; Place variables in the section that should not be initialized during the
@@ -275,7 +273,7 @@ CYMETA 0x90500000
 /* The following symbols used by the cymcuelftool. */
 /* Flash */
 #define __cy_memory_0_start 0x10000000
-#define __cy_memory_0_length  0x00100000
+#define __cy_memory_0_length  0x000D0000
 #define __cy_memory_0_row_size 0x200
 
 /* Emulated EEPROM Flash area */

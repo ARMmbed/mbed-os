@@ -30,11 +30,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress RTC.
-*
-* \defgroup group_hal_rtc_macros Macros
-* \defgroup group_hal_rtc_functions Functions
-* \defgroup group_hal_rtc_data_structures Data Structures
-* \defgroup group_hal_rtc_enums Enumerated Types
 */
 
 #pragma once
@@ -53,25 +48,12 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_rtc_enums
-* \{
-*/
-
 /** RTC interrupt triggers */
 typedef enum {
     CYHAL_RTC_ALARM,
 } cyhal_rtc_event_t;
 
-/** \} group_hal_rtc_enums */
-
-
-/**
-* \addtogroup group_hal_rtc_data_structures
-* \{
-*/
-
-/** Defines which fields should be active for the alarm. */
+/** @brief Defines which fields should be active for the alarm. */
 typedef struct
 {
     uint8_t en_sec : 1; /** !< Enable match of seconds */
@@ -84,14 +66,6 @@ typedef struct
 
 /** Handler for RTC events */
 typedef void (*cyhal_rtc_event_callback_t)(void *callback_arg, cyhal_rtc_event_t event);
-
-/** \} group_hal_rtc_data_structures */
-
-
-/**
-* \addtogroup group_hal_rtc_functions
-* \{
-*/
 
 /** Initialize the RTC peripheral
  *
@@ -166,8 +140,6 @@ void cyhal_rtc_register_callback(cyhal_rtc_t *obj, cyhal_rtc_event_callback_t ca
  * @param[in] enable        True to turn on interrupts, False to turn off
  */
 void cyhal_rtc_enable_event(cyhal_rtc_t *obj, cyhal_rtc_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_rtc_functions */
 
 #if defined(__cplusplus)
 }

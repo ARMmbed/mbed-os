@@ -606,8 +606,8 @@ void chain_test(void)
 
     test_assert(touched == 6);
 
-    equeue_destroy(&q1);
     equeue_destroy(&q2);
+    equeue_destroy(&q1);
 }
 
 void unchain_test(void)

@@ -26,18 +26,14 @@
 #else
 
 #define THREAD_STACK_SIZE 512
-#if defined(__CORTEX_A9)
+#if defined(__CORTEX_A9) || defined(__CORTEX_M23) || defined(__CORTEX_M33) || defined(TARGET_ARM_FM) ||  defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
-#define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(TARGET_ARM_FM)
-#define PARALLEL_THREAD_STACK_SIZE 512
-#elif defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
-#define PARALLEL_THREAD_STACK_SIZE   512
+#define CHILD_THREAD_STACK_SIZE 512
 #else
 #define PARALLEL_THREAD_STACK_SIZE 384
-#endif
 #define CHILD_THREAD_STACK_SIZE 384
+#endif
+
 
 using namespace utest::v1;
 

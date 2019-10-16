@@ -244,7 +244,7 @@ char *AT_CellularContext::get_interface_name(char *interface_name)
         return NULL;
     }
     MBED_ASSERT(interface_name);
-    sprintf(interface_name, "ce%02d", _cid);
+    sprintf(interface_name, "ce%d", _cid);
     return interface_name;
 }
 
@@ -299,7 +299,7 @@ void AT_CellularContext::delete_current_context()
     _at.at_cmd_discard("+CGDCONT", "=", "%d", _cid);
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
-        _cid = -1;
+        set_cid(-1);
         _new_context_set = false;
     }
 
@@ -347,7 +347,7 @@ bool AT_CellularContext::get_context()
 {
     _at.cmd_start_stop("+CGDCONT", "?");
     _at.resp_start("+CGDCONT:");
-    _cid = -1;
+    set_cid(-1);
     int cid_max = 0; // needed when creating new context
     char apn[MAX_ACCESSPOINT_NAME_LENGTH];
     int apn_len = 0;
@@ -369,10 +369,11 @@ bool AT_CellularContext::get_context()
                 // APN matched -> Check PDP type
                 pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
 
-                // Accept exact matching PDP context type
-                if (get_property(pdp_type_t_to_cellular_property(pdp_type))) {
+                // Accept exact matching PDP context type or dual PDP context for modems that support both IPv4 and IPv6 stacks
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
+                        ((pdp_type == IPV4V6_PDP_TYPE && (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) && !_nonip_req)) {
                     _pdp_type = pdp_type;
-                    _cid = cid;
+                    set_cid(cid);
                 }
             }
         }
@@ -403,7 +404,7 @@ bool AT_CellularContext::set_new_context(int cid)
     if (_nonip_req && _cp_in_use && get_property(PROPERTY_NON_IP_PDP_TYPE)) {
         strncpy(pdp_type_str, "Non-IP", sizeof(pdp_type_str));
         pdp_type = NON_IP_PDP_TYPE;
-    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE)) {
+    } else if (get_property(PROPERTY_IPV4V6_PDP_TYPE) || (get_property(PROPERTY_IPV4_PDP_TYPE) && get_property(PROPERTY_IPV6_PDP_TYPE))) {
         strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
         pdp_type = IPV4V6_PDP_TYPE;
     } else if (get_property(PROPERTY_IPV6_PDP_TYPE)) {
@@ -422,7 +423,7 @@ bool AT_CellularContext::set_new_context(int cid)
 
     if (success) {
         _pdp_type = pdp_type;
-        _cid = cid;
+        set_cid(cid);
         _new_context_set = true;
         tr_info("New PDP context %d, type %d", _cid, pdp_type);
     }
@@ -608,6 +609,7 @@ nsapi_error_t AT_CellularContext::open_data_channel()
                   connected, or timeout after 30 seconds*/
     nsapi_error_t err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, (nsapi_ip_stack_t)_pdp_type);
     if (err) {
+        tr_error("nsapi_ppp_connect failed");
         ppp_disconnected();
     }
 
@@ -659,7 +661,7 @@ void AT_CellularContext::do_disconnect()
         if (_new_context_set) {
             delete_current_context();
         }
-        _cid = -1;
+        set_cid(-1);
         _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -695,7 +697,7 @@ void AT_CellularContext::do_disconnect()
     if (_new_context_set) {
         delete_current_context();
     }
-    _cid = -1;
+    set_cid(-1);
     _cb_data.error = _at.unlock_return_error();
 }
 
@@ -814,9 +816,7 @@ nsapi_error_t AT_CellularContext::get_rate_control(
 nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     const int ipv6_subnet_size = 128;
-    const int max_ipv6_size = 64;
     char *ipv6_and_subnetmask = new char[ipv6_subnet_size];
-    char *temp = new char[max_ipv6_size];
 
     _at.lock();
 
@@ -832,38 +832,28 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
 
         // rest are optional params
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
         separate_ip_addresses(ipv6_and_subnetmask, params->local_addr, sizeof(params->local_addr), params->local_subnet_mask, sizeof(params->local_subnet_mask));
         ipv6_and_subnetmask[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->gateway_addr, sizeof(params->gateway_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->gateway_addr, sizeof(params->gateway_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->gateway_addr, sizeof(params->gateway_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->dns_primary_addr, sizeof(params->dns_primary_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->dns_primary_addr, sizeof(params->dns_primary_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->dns_primary_addr, sizeof(params->dns_primary_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->dns_secondary_addr, sizeof(params->dns_secondary_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->dns_secondary_addr, sizeof(params->dns_secondary_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->dns_secondary_addr, sizeof(params->dns_secondary_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_prim_addr, sizeof(params->p_cscf_prim_addr), NULL, 0);
         ipv6_and_subnetmask[0] = '\0';
-        temp[0] = '\0';
 
         _at.read_string(ipv6_and_subnetmask, ipv6_subnet_size);
-        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), temp, max_ipv6_size);
-        prefer_ipv6(params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), temp, max_ipv6_size);
+        separate_ip_addresses(ipv6_and_subnetmask, params->p_cscf_sec_addr, sizeof(params->p_cscf_sec_addr), NULL, 0);
 
         params->im_signalling_flag = _at.read_int();
         params->lipa_indication = _at.read_int();
@@ -875,7 +865,6 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
     }
     _at.resp_stop();
 
-    delete [] temp;
     delete [] ipv6_and_subnetmask;
 
     return _at.unlock_return_error();
@@ -992,12 +981,15 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
                 tr_info("cellular_callback: PPP mode and NSAPI_STATUS_DISCONNECTED");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
+                set_cid(-1);
                 _is_connected = false;
+                ppp_disconnected();
             }
         }
 #else
         if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
             tr_info("cb: CellularContext disconnected");
+            set_cid(-1);
             _is_connected = false;
         }
 #endif // NSAPI_PPP_AVAILABLE
@@ -1061,4 +1053,12 @@ void AT_CellularContext::set_disconnect()
     tr_debug("AT_CellularContext::set_disconnect()");
     _is_connected = false;
     _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
+}
+
+void AT_CellularContext::set_cid(int cid)
+{
+    _cid = cid;
+    if (_stack) {
+        static_cast<AT_CellularStack *>(_stack)->set_cid(_cid);
+    }
 }

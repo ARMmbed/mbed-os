@@ -28,12 +28,13 @@
 extern "C" {
 #endif
 
-/** \ingroup mbed-os-internal */
-/** \addtogroup rtos-internal-api RTOS */
-/** @{*/
+/** \defgroup rtos-internal-api RTOS
+ * \ingroup mbed-os-internal
+ */
 
 /**
  * \defgroup rtos_handlers RTOS hook functions
+ * \ingroup rtos-internal-api
  * @{
  */
 /**
@@ -42,7 +43,6 @@ extern "C" {
  @param fptr Hook function pointer.
  */
 void rtos_attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
-/** @}*/
 /** @}*/
 
 #ifdef __cplusplus

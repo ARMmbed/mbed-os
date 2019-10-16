@@ -340,11 +340,21 @@ extern "C" {
 
 /* ADC internal channels related definitions */
 /* Internal voltage reference VrefInt */
+#if defined(STM32L151xBA)
+#define VREFINT_CAL_ADDR                   ((uint16_t*) (0x1FF80079U)) /* Internal voltage reference, address of parameter VREFINT_CAL: VrefInt ADC raw data acquired at temperature 30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#else
 #define VREFINT_CAL_ADDR                   ((uint16_t*) (0x1FF800F8U)) /* Internal voltage reference, address of parameter VREFINT_CAL: VrefInt ADC raw data acquired at temperature 30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#endif
+
 #define VREFINT_CAL_VREF                   ( 3000U)                    /* Analog voltage reference (Vref+) value with which temperature sensor has been calibrated in production (tolerance: +-10 mV) (unit: mV). */
 /* Temperature sensor */
+#if defined(STM32L151xBA)
+#define TEMPSENSOR_CAL1_ADDR               ((uint16_t*) (0x1FF8007AU)) /* Internal temperature sensor, address of parameter TS_CAL1: On STM32L1, temperature sensor ADC raw data acquired at temperature  30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#define TEMPSENSOR_CAL2_ADDR               ((uint16_t*) (0x1FF8007EU)) /* Internal temperature sensor, address of parameter TS_CAL2: On STM32L1, temperature sensor ADC raw data acquired at temperature 110 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#else
 #define TEMPSENSOR_CAL1_ADDR               ((uint16_t*) (0x1FF800FAU)) /* Internal temperature sensor, address of parameter TS_CAL1: On STM32L1, temperature sensor ADC raw data acquired at temperature  30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
 #define TEMPSENSOR_CAL2_ADDR               ((uint16_t*) (0x1FF800FEU)) /* Internal temperature sensor, address of parameter TS_CAL2: On STM32L1, temperature sensor ADC raw data acquired at temperature 110 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#endif
 #define TEMPSENSOR_CAL1_TEMP               (( int32_t)   30)           /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL1_ADDR (tolerance: +-5 DegC) (unit: DegC). */
 #define TEMPSENSOR_CAL2_TEMP               (( int32_t)  110)           /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL2_ADDR (tolerance: +-5 DegC) (unit: DegC). */
 #define TEMPSENSOR_CAL_VREFANALOG          ( 3000U)                    /* Analog voltage reference (Vref+) voltage with which temperature sensor has been calibrated in production (+-10 mV) (unit: mV). */

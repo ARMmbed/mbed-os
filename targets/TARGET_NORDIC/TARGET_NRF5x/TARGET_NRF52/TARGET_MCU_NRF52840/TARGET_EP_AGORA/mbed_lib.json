@@ -1,0 +1,15 @@
+{
+    "name": "ep-agora",
+    "config": {
+        "enable-cell" : {
+            "help"                 : "Enable the cell module on the EP_AGORA board",
+            "macro_name"           : "EP_AGORA_ENABLE_CELL",
+            "value"                : true
+        }
+    },
+    "target_overrides": {
+        "EP_AGORA": {
+            "target.network-default-interface-type": "CELLULAR"
+        }
+    }
+}

@@ -371,9 +371,6 @@ void CellularStateMachine::state_device_ready()
                 _status = 0;
                 enter_to_state(STATE_SIM_PIN);
             }
-        } else {
-            _status = 0;
-            enter_to_state(STATE_INIT);
         }
     }
     if (_cb_data.error != NSAPI_ERROR_OK) {

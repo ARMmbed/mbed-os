@@ -26,9 +26,9 @@
 #include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
-/** \ingroup mbed-os-public */
 /** \addtogroup rtos-public-api */
 /** @{*/
+
 /**
  * \defgroup rtos_ThisThread ThisThread namespace
  * @{
@@ -185,7 +185,11 @@ const char *get_name();
 /** @}*/
 /** @}*/
 
+
 namespace internal {
+/** \addtogroup rtos-internal-api */
+/** @{*/
+
 struct flags_check_capture {
     uint32_t *flags;
     uint32_t options;
@@ -197,5 +201,6 @@ struct flags_check_capture {
 bool non_rtos_check_flags(void *handle);
 
 }
+/** @}*/
 }
 #endif

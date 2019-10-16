@@ -27,8 +27,6 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
-
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api Platform */
 /** @{*/
 /**
@@ -94,7 +92,7 @@ public:
      */
     ATCmdParser(FileHandle *fh, const char *output_delimiter = "\r",
                 int buffer_size = 256, int timeout = 8000, bool debug = false)
-        : _fh(fh), _buffer_size(buffer_size), _oob_cb_count(0), _in_prev(0), _oobs(NULL)
+        : _fh(fh), _buffer_size(buffer_size), _oob_cb_count(0), _in_prev(0), _aborted(false), _oobs(NULL)
     {
         _buffer = new char[buffer_size];
         set_timeout(timeout);
@@ -273,6 +271,9 @@ public:
 
     /**
      * Direct scanf on underlying stream
+     * This function does not itself match whitespace in its format string, so \n is not significant to it.
+     * It should be used only when certain string is needed or format ends with certain character, otherwise
+     * it will fill the output with one character.
      * @see scanf
      *
      * @param format Format string to pass to scanf

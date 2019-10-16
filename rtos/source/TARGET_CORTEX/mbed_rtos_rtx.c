@@ -115,5 +115,4 @@ MBED_NORETURN void mbed_rtos_start()
 
     osKernelStart();
     MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Failed to start RTOS");
-    while (1); // Code should never get here
 }

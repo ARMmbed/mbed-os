@@ -212,7 +212,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 
     if (socket->proto == NSAPI_UDP && !socket->connected) {
         _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                           (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                           (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                            remote_port, socket->localAddress.get_port(), 0);
 
         handle_open_socket_response(modem_connect_id, err);
@@ -225,7 +225,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
             socket_close_impl(modem_connect_id);
 
             _at.at_cmd_discard("+QIOPEN", "=", "%d%d%s%s%d%d%d", _cid, request_connect_id, "UDP SERVICE",
-                               (_stack_type == IPV4_STACK) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
+                               (_ip_ver_sendto == NSAPI_IPv4) ? "127.0.0.1" : "0:0:0:0:0:0:0:1",
                                remote_port, socket->localAddress.get_port(), 0);
 
             handle_open_socket_response(modem_connect_id, err);
@@ -273,6 +273,12 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
         return NSAPI_ERROR_PARAMETER;
     }
 
+    if (_ip_ver_sendto != address.get_ip_version()) {
+        _ip_ver_sendto =  address.get_ip_version();
+        socket_close_impl(socket->id);
+        create_socket_impl(socket);
+    }
+
     int sent_len = 0;
     int sent_len_before = 0;
     int sent_len_after = 0;
@@ -294,12 +300,17 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     _at.write_bytes((uint8_t *)data, size);
     _at.resp_start();
     _at.set_stop_tag("\r\n");
+    // Possible responses are SEND OK, SEND FAIL or ERROR.
+    char response[16];
+    response[0] = '\0';
+    _at.read_string(response, sizeof(response));
     _at.resp_stop();
+    if (strcmp(response, "SEND OK") != 0) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
 
     // Get the sent count after sending
-
     nsapi_size_or_error_t err = _at.at_cmd_int("+QISEND", "=", sent_len_after, "%d%d", socket->id, 0);
-
     if (err == NSAPI_ERROR_OK) {
         sent_len = sent_len_after - sent_len_before;
         return sent_len;
@@ -413,7 +424,6 @@ void QUECTEL_BG96_CellularStack::ip2dot(const SocketAddress &ip, char *dot)
 {
     if (ip.get_ip_version() == NSAPI_IPv6) {
         const uint8_t *bytes = (uint8_t *)ip.get_ip_bytes();
-        char *p = dot;
         for (int i = 0; i < NSAPI_IPv6_BYTES; i += 2) {
             if (i != 0) {
                 *dot++ = ':';

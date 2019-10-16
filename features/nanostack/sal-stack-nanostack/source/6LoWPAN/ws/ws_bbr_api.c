@@ -636,3 +636,18 @@ int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit)
     return -1;
 #endif
 }
+
+int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+    bool enabled = false;
+    if (validation & BBR_CRT_EXT_VALID_WISUN) {
+        enabled = true;
+    }
+    return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
+#else
+    (void) validation;
+    return -1;
+#endif
+}

@@ -23,16 +23,10 @@
 *******************************************************************************/
 
 /**
- * \addtogroup group_hal_tcpwm_common PSoC 6 TCPWM Common Functionality
+ * \addtogroup group_hal_psoc6_tcpwm_common TCPWM Common Functionality
  * \ingroup group_hal_psoc6
  * \{
  * Code shared between the Cypress Timer / Counter and PWM.
- *
- * \defgroup group_hal_tcpwm_common_macros Macros
- * \defgroup group_hal_tcpwm_common_constants Constants
- * \defgroup group_hal_tcpwm_common_functions Functions
- * \defgroup group_hal_tcpwm_common_data_structures Data Structures
- * \defgroup group_hal_tcpwm_common_enums Enumerated Types
  */
 
 #pragma once
@@ -40,11 +34,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cyhal_hw_types.h"
-
-/**
- * \addtogroup group_hal_tcpwm_common_data_structures
- * \{
- */
 
 /** Handler for TCPWM interrupts */
 typedef void(*cyhal_tcpwm_event_callback_t)(void *callback_arg, int event);
@@ -59,24 +48,8 @@ typedef struct {
     uint8_t      isr_offset; //!< TCPWM base IRQn (channel 0 IRQn)
 } cyhal_tcpwm_data_t;
 
-/** \} group_hal_tcpwm_common_data_structures */
-
-
-/**
- * \addtogroup group_hal_tcpwm_common_constants
- * \{
- */
-
 /** Contains data about all of the TCPWMs */
 extern const cyhal_tcpwm_data_t CYHAL_TCPWM_DATA[CY_IP_MXTCPWM_INSTANCES];
-
-/** \} group_hal_tcpwm_common_constants */
-
-
-/**
- * \addtogroup group_hal_tcpwm_common_functions
- * \{
- */
 
 /** Initialize a timer/counter or PWM object's callback data.
  *
@@ -103,6 +76,4 @@ void cyhal_tcpwm_register_callback(cyhal_resource_inst_t *resource, cy_israddres
  */
 void cyhal_tcpwm_enable_event(TCPWM_Type *type, cyhal_resource_inst_t *resource, uint32_t event, uint8_t intrPriority, bool enable);
 
-/** \} group_hal_tcpwm_common_functions */
-
-/** \} group_hal_tcpwm_common */
+/** \} group_hal_psoc6_tcpwm_common */

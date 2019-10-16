@@ -90,7 +90,7 @@ cy_rslt_t cyhal_pwm_init(cyhal_pwm_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
         en_clk_dst_t pclk = (en_clk_dst_t)(CYHAL_TCPWM_DATA[obj->resource.block_num].clock_dst + obj->resource.channel_num);
         if (NULL != clk)
         {
-            obj->clock_hz = cy_PeriClkFreqHz / (1 + Cy_SysClk_PeriphGetDivider(clk->div_type, clk->div_num));
+            obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / (1 + Cy_SysClk_PeriphGetDivider(clk->div_type, clk->div_num));
             if (CY_SYSCLK_SUCCESS != Cy_SysClk_PeriphAssignDivider(pclk, clk->div_type, clk->div_num))
                 result = CYHAL_PWM_RSLT_FAILED_CLOCK_INIT;
         }
@@ -105,7 +105,7 @@ cy_rslt_t cyhal_pwm_init(cyhal_pwm_t *obj, cyhal_gpio_t pin, const cyhal_clock_d
                 result = CYHAL_PWM_RSLT_FAILED_CLOCK_INIT;
             else
             {
-                obj->clock_hz = cy_PeriClkFreqHz / div;
+                obj->clock_hz = Cy_SysClk_ClkPeriGetFrequency() / div;
             }
         }
     }

@@ -53,6 +53,11 @@ public:
     {
         return get_property(PROPERTY_AT_CGDATA);
     }
+
+    void reset_property_array()
+    {
+        _property_array = NULL;
+    }
 };
 
 // AStyle ignored as the definition is not clear due to preprocessor usage
@@ -136,4 +141,19 @@ TEST_F(TestAT_CellularBase, test_AT_CellularBase_is_supported)
 
     EXPECT_EQ(true,  my_at.check_supported());
     EXPECT_EQ(false, my_at.check_not_supported());
+}
+
+TEST_F(TestAT_CellularBase, test_invalid_params)
+{
+    EventQueue eq;
+    FileHandle_stub fh;
+    ATHandler ah(&fh, eq, 0, ",");
+    my_base my_at(ah);
+
+    my_at.reset_property_array(); // as array is a static variable, it might have been set in previous tests
+
+    my_at.set_cellular_properties(NULL);
+
+    // Property array not set
+    EXPECT_EQ(0, my_at.get_property(AT_CellularBase::PROPERTY_IPV4_PDP_TYPE));
 }

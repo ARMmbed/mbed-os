@@ -240,6 +240,54 @@ const cy_stc_gpio_pin_config_t CYBSP_QSPI_SCK_config =
 		.channel_num = CYBSP_QSPI_SCK_PIN,
 	};
 #endif //defined (CY_USING_HAL)
+const cy_stc_gpio_pin_config_t CYBSP_USB_DP_config = 
+{
+	.outVal = 1,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_USB_DP_HSIOM,
+	.intEdge = CY_GPIO_INTR_DISABLE,
+	.intMask = 0UL,
+	.vtrip = CY_GPIO_VTRIP_CMOS,
+	.slewRate = CY_GPIO_SLEW_FAST,
+	.driveSel = CY_GPIO_DRIVE_1_2,
+	.vregEn = 0UL,
+	.ibufMode = 0UL,
+	.vtripSel = 0UL,
+	.vrefSel = 0UL,
+	.vohSel = 0UL,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USB_DP_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_USB_DP_PORT_NUM,
+		.channel_num = CYBSP_USB_DP_PIN,
+	};
+#endif //defined (CY_USING_HAL)
+const cy_stc_gpio_pin_config_t CYBSP_USB_DM_config = 
+{
+	.outVal = 1,
+	.driveMode = CY_GPIO_DM_ANALOG,
+	.hsiom = CYBSP_USB_DM_HSIOM,
+	.intEdge = CY_GPIO_INTR_DISABLE,
+	.intMask = 0UL,
+	.vtrip = CY_GPIO_VTRIP_CMOS,
+	.slewRate = CY_GPIO_SLEW_FAST,
+	.driveSel = CY_GPIO_DRIVE_1_2,
+	.vregEn = 0UL,
+	.ibufMode = 0UL,
+	.vtripSel = 0UL,
+	.vrefSel = 0UL,
+	.vohSel = 0UL,
+};
+#if defined (CY_USING_HAL)
+	const cyhal_resource_inst_t CYBSP_USB_DM_obj = 
+	{
+		.type = CYHAL_RSC_GPIO,
+		.block_num = CYBSP_USB_DM_PORT_NUM,
+		.channel_num = CYBSP_USB_DM_PIN,
+	};
+#endif //defined (CY_USING_HAL)
 const cy_stc_gpio_pin_config_t CYBSP_CSD_TX_config = 
 {
 	.outVal = 1,
@@ -839,6 +887,16 @@ void init_cycfg_pins(void)
 	Cy_GPIO_Pin_Init(CYBSP_QSPI_SCK_PORT, CYBSP_QSPI_SCK_PIN, &CYBSP_QSPI_SCK_config);
 #if defined (CY_USING_HAL)
 		cyhal_hwmgr_reserve(&CYBSP_QSPI_SCK_obj);
+#endif //defined (CY_USING_HAL)
+
+	Cy_GPIO_Pin_Init(CYBSP_USB_DP_PORT, CYBSP_USB_DP_PIN, &CYBSP_USB_DP_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USB_DP_obj);
+#endif //defined (CY_USING_HAL)
+
+	Cy_GPIO_Pin_Init(CYBSP_USB_DM_PORT, CYBSP_USB_DM_PIN, &CYBSP_USB_DM_config);
+#if defined (CY_USING_HAL)
+		cyhal_hwmgr_reserve(&CYBSP_USB_DM_obj);
 #endif //defined (CY_USING_HAL)
 
 #if defined (CY_USING_HAL)

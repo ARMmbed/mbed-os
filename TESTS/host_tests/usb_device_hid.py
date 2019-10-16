@@ -19,6 +19,7 @@ import functools
 import time
 import threading
 import uuid
+import sys
 import mbed_host_tests
 import usb.core
 from usb.util import (
@@ -30,6 +31,15 @@ from usb.util import (
     CTRL_RECIPIENT_INTERFACE,
     DESC_TYPE_CONFIG,
     build_request_type)
+
+if sys.platform.startswith('win'):
+    # Use libusb0 on Windows. libusb1 implementation for Windows
+    # does not support all features necessary for testing.
+    import usb.backend.libusb0
+    USB_BACKEND = usb.backend.libusb0.get_backend()
+else:
+    # Use a default backend on other platforms.
+    USB_BACKEND = None
 
 try:
     import hid
@@ -232,7 +242,7 @@ class USBHIDTest(mbed_host_tests.BaseHostTest):
         during test suite setup.
         Raises RuntimeError if the device is not found.
         """
-        usb_dev = usb.core.find(custom_match=lambda d: d.serial_number == usb_id_str)
+        usb_dev = usb.core.find(custom_match=lambda d: d.serial_number == usb_id_str, backend=USB_BACKEND)
         if usb_dev is None:
             err_msg = 'USB device (SN={}) not found.'
             raise RuntimeError(err_msg.format(usb_id_str))

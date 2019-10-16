@@ -122,15 +122,6 @@
 #endif /* HSI_VALUE */
 
 /**
-  * @brief Internal Low Speed oscillator (LSI) value.
-  */
-#if !defined  (LSI_VALUE)
- #define LSI_VALUE  32000U                  /*!< LSI Typical Value in Hz*/
-#endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
-                                             The real value may vary depending on the variations
-                                             in voltage and temperature.  */
-
-/**
   * @brief External Low Speed oscillator (LSE) value.
   *        This value is used by the UART, RTC HAL module to compute the system frequency
   */
@@ -144,7 +135,7 @@
 #endif /* LSE_STARTUP_TIMEOUT */
 
 #if !defined  (LSI_VALUE)
-  #define LSI_VALUE  ((uint32_t)32000)      /*!< LSI Typical Value in Hz*/
+  #define LSI_VALUE  32000U      /*!< LSI Typical Value in Hz*/
 #endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
                                               The real value may vary depending on the variations
                                               in voltage and temperature.*/
@@ -169,6 +160,7 @@
 #define  TICK_INT_PRIORITY            ((uint32_t)0x0F) /*!< tick interrupt priority */
 #define  USE_RTOS                     0
 #define  USE_SD_TRANSCEIVER           1U               /*!< use uSD Transceiver */
+#define  USE_SPI_CRC                  1U               /*!< use CRC in SPI */
 
 #define  USE_HAL_ADC_REGISTER_CALLBACKS     0U /* ADC register callback disabled     */
 #define  USE_HAL_CEC_REGISTER_CALLBACKS     0U /* CEC register callback disabled     */

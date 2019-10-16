@@ -176,6 +176,21 @@ void rpl_control_request_parent_link_confirmation(bool requested)
     rpl_policy_set_parent_confirmation_request(requested);
 }
 
+void rpl_control_set_dio_multicast_min_config_advertisment_count(uint8_t min_count)
+{
+    rpl_policy_set_dio_multicast_config_advertisment_min_count(min_count);
+}
+
+void rpl_control_set_dao_retry_count(uint8_t count)
+{
+    rpl_policy_set_dao_retry_count(count);
+}
+
+void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms)
+{
+    rpl_policy_set_initial_dao_ack_wait(timeout_in_ms);
+}
+
 /* Send address registration to either specified address, or to non-registered address */
 void rpl_control_register_address(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
 {
@@ -340,16 +355,24 @@ void rpl_control_delete_domain(rpl_domain_t *domain)
     rpl_free(domain, sizeof * domain);
 }
 
-static void rpl_control_remove_interface_from_domain(protocol_interface_info_entry_t *cur, rpl_domain_t *domain)
+static void rpl_control_remove_interface_from_domain(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, bool free_instances)
 {
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
         rpl_instance_remove_interface(instance, cur->id);
     }
+
     ns_list_foreach(if_address_entry_t, addr, &cur->ip_addresses) {
         if (!addr_is_ipv6_link_local(addr->address)) {
             rpl_control_unpublish_address(domain, addr->address);
         }
     }
+
+    if (free_instances) {
+        ns_list_foreach_safe(rpl_instance_t, instance, &domain->instances) {
+            rpl_delete_instance(instance);
+        }
+    }
+
     if (domain->non_storing_downstream_interface == cur->id) {
         domain->non_storing_downstream_interface = -1;
     }
@@ -374,7 +397,16 @@ void rpl_control_set_domain_on_interface(protocol_interface_info_entry_t *cur, r
 void rpl_control_remove_domain_from_interface(protocol_interface_info_entry_t *cur)
 {
     if (cur->rpl_domain) {
-        rpl_control_remove_interface_from_domain(cur, cur->rpl_domain);
+        rpl_control_remove_interface_from_domain(cur, cur->rpl_domain, false);
+        addr_delete_group(cur, ADDR_LINK_LOCAL_ALL_RPL_NODES);
+        cur->rpl_domain = NULL;
+    }
+}
+
+void rpl_control_free_domain_instances_from_interface(protocol_interface_info_entry_t *cur)
+{
+    if (cur->rpl_domain) {
+        rpl_control_remove_interface_from_domain(cur, cur->rpl_domain, true);
         addr_delete_group(cur, ADDR_LINK_LOCAL_ALL_RPL_NODES);
         cur->rpl_domain = NULL;
     }
@@ -1368,6 +1400,7 @@ void rpl_control_transmit_dis(rpl_domain_t *domain, protocol_interface_info_entr
 
     buffer_data_end_set(buf, ptr);
     rpl_control_transmit(domain, cur, ICMPV6_CODE_RPL_DIS, buf, dst);
+    tr_info("Transmit DIS");
 }
 
 #ifdef HAVE_RPL_DAO_HANDLING

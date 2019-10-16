@@ -31,10 +31,6 @@
 * \{
 * High level interface for interacting with the Cypress SDIO interface.
 *
-* \defgroup group_hal_sdio_macros Macros
-* \defgroup group_hal_sdio_functions Functions
-* \defgroup group_hal_sdio_data_structures Data Structures
-* \defgroup group_hal_sdio_enums Enumerated Types
 */
 
 #pragma once
@@ -48,11 +44,10 @@
 extern "C" {
 #endif
 
-
 /**
-* \addtogroup group_hal_sdio_macros
-* \{
-*/
+  * \addtogroup group_hal_sdio_errors Error Codes
+  * \{
+  */
 
 #define CYHAL_SDIO_RET_NO_ERRORS           (0x00)    /**< No error*/
 #define CYHAL_SDIO_RET_NO_SP_ERRORS        (0x01)    /**< Non-specific error code*/
@@ -96,12 +91,7 @@ extern "C" {
                                                             CYHAL_RSLT_MODULE_SDIO, \
                                                             CYHAL_SDIO_CANCELED)
 
-/** \} group_hal_sdio_macros */
-
-/**
-* \addtogroup group_hal_sdio_enums
-* \{
-*/
+/** \} group_hal_sdio_errors */
 
 /** Commands that can be issued */
 typedef enum
@@ -149,15 +139,7 @@ typedef enum {
     CYHAL_SDIO_ALL_INTERRUPTS = 0x0E1FF,  //!> Is used to enable/disable all interrupts events
 } cyhal_sdio_event_t;
 
-/** \} group_hal_sdio_enums */
-
-
-/**
-* \addtogroup group_hal_sdio_data_structures
-* \{
-*/
-
-/** SDIO controller initial configuration */
+/** @brief SDIO controller initial configuration */
 typedef struct
 {
     uint32_t frequencyhal_hz; //!< Clock frequency, in hertz
@@ -166,14 +148,6 @@ typedef struct
 
 /** Callback for SDIO events */
 typedef void (*cyhal_sdio_event_callback_t)(void *callback_arg, cyhal_sdio_event_t event);
-
-/** \} group_hal_sdio_data_structures */
-
-
-/**
-* \addtogroup group_hal_sdio_functions
-* \{
-*/
 
 /** Initialize the SDIO peripheral
  *
@@ -269,8 +243,6 @@ void cyhal_sdio_register_callback(cyhal_sdio_t *obj, cyhal_sdio_event_callback_t
  * @param[in] enable        Set to true to enable events, or false to disable them
  */
 void cyhal_sdio_enable_event(cyhal_sdio_t *obj, cyhal_sdio_event_t event, uint8_t intrPriority, bool enable);
-
-/** \} group_hal_sdio_functions */
 
 /*******************************************************************************
 * Backward compatibility macro. The following code is DEPRECATED and must 

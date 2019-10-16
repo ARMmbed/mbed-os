@@ -18,7 +18,7 @@
 #ifndef __CTHUNK_BASE_H__
 #define __CTHUNK_BASE_H__
 
-/** \addtogroup platform-internal-api Platform
+/** \defgroup platform-internal-api Platform
  * \ingroup mbed-os-internal
  */
 

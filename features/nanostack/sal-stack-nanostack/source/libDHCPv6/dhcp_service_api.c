@@ -679,6 +679,7 @@ void dhcp_service_delete(uint16_t instance)
 
 int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len)
 {
+    tr_debug("Send DHCPv6 response");
     msg_tr_t *msg_tr_ptr;
     server_instance_t *srv_instance;
     msg_tr_ptr = dhcp_tr_find(msg_tr_id);
@@ -706,6 +707,7 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
 }
 uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb)
 {
+    tr_debug("Send DHCPv6 request");
     msg_tr_t *msg_tr_ptr;
     server_instance_t *srv_ptr;
     srv_ptr = dhcp_service_client_find(instance_id);
@@ -765,6 +767,17 @@ void dhcp_service_req_remove(uint32_t msg_tr_id)
         dhcp_tr_delete(dhcp_tr_find(msg_tr_id));
     }
     return;
+}
+
+void dhcp_service_req_remove_all(void *msg_class_ptr)
+{
+    if (dhcp_service) {
+        ns_list_foreach_safe(msg_tr_t, cur_ptr, &dhcp_service->tr_list) {
+            if (cur_ptr->client_obj_ptr == msg_class_ptr) {
+                dhcp_tr_delete(cur_ptr);
+            }
+        }
+    }
 }
 
 void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
@@ -928,6 +941,11 @@ bool dhcp_service_timer_tick(uint16_t ticks)
 {
     (void)ticks;
     return false;
+}
+
+void dhcp_service_req_remove_all(void *msg_class_ptr)
+{
+    (void)msg_class_ptr;
 }
 
 #endif

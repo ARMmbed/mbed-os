@@ -309,7 +309,6 @@ restart:
             if (whole_line_wanted && c != '\n') {
                 // Don't attempt scanning until we get delimiter if they included it in format
                 // This allows recv("Foo: %s\n") to work, and not match with just the first character of a string
-                // (scanf does not itself match whitespace in its format string, so \n is not significant to it)
             } else if (response) {
                 sscanf(_buffer + offset, _buffer, &count);
             }
@@ -397,7 +396,7 @@ void ATCmdParser::abort()
 bool ATCmdParser::process_oob()
 {
     int pre_count = _oob_cb_count;
-    recv(NULL);
+    static_cast<void>(recv(NULL));
     return _oob_cb_count != pre_count;
 }
 

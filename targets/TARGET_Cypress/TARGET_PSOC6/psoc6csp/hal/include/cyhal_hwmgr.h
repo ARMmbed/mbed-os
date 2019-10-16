@@ -29,10 +29,6 @@
 * \ingroup group_hal
 * \{
 * High level interface for interacting with the Cypress Hardware Manager.
-*
-* \defgroup group_hal_hwmgr_macros Macros
-* \defgroup group_hal_hwmgr_functions Functions
-* \defgroup group_hal_hwmgr_data_structures Data Structures
 */
 
 #pragma once
@@ -47,11 +43,6 @@
 extern "C" {
 #endif
 
-/**
-* \addtogroup group_hal_hwmgr_macros
-* \{
-*/
-
 /** The requested resource type is invalid */
 #define CYHAL_HWMGR_RSLT_ERR_INVALID (CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CYHAL_RSLT_MODULE_CHIP_HWMGR, 0))
 /** The requested resource is already in use */
@@ -61,14 +52,6 @@ extern "C" {
 
 /** Attempt to free a resource that was not used */
 #define CYHAL_HWMGR_RSLT_WARN_UNUSED (CY_RSLT_CREATE(CY_RSLT_TYPE_WARNING, CYHAL_RSLT_MODULE_CHIP_HWMGR, 50))
-
-/** \} group_hal_hwmgr_macros */
-
-
-/**
-* \addtogroup group_hal_hwmgr_functions
-* \{
-*/
 
 /** Initializes the hardware manager to keep track of what resources are being used.
  *
@@ -118,8 +101,6 @@ cy_rslt_t cyhal_hwmgr_allocate_clock(cyhal_clock_divider_t* obj, cyhal_clock_div
  * @param[in] obj           The resource object that was allocated
  */
 void cyhal_hwmgr_free_clock(cyhal_clock_divider_t* obj);
-
-/** \} group_hal_hwmgr_functions */
 
 #if defined(__cplusplus)
 }

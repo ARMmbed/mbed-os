@@ -1388,6 +1388,9 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
         ll_address[8] ^= 2;
     }
     rpl_control_address_register_done(buf->interface, ll_address, status);
+    if (status != SOCKET_TX_DONE) {
+        ws_common_aro_failure(buf->interface, ll_address);
+    }
 }
 
 buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
@@ -1603,8 +1606,6 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     uint8_t *ptr;
     uint8_t flags;
 
-    tr_debug("Build NA");
-
     /* Check if ARO response and status == success, then sending can be omitted with flag */
     if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success && aro->status == ARO_SUCCESS) {
         tr_debug("Omit NA ARO success");
@@ -1711,6 +1712,8 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     buffer_data_end_set(buf, ptr);
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_ICMP | B_TO_ICMP);
     buf->interface = cur;
+
+    tr_debug("Build NA");
 
     return (buf);
 }

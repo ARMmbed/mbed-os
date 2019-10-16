@@ -1,11 +1,3 @@
-/** \ingroup mbed-os-public */
-/** \addtogroup platform-public-api */
-/** @{*/
-/**
- * \defgroup platform_power_mgmt Power management functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -33,6 +25,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform-public-api */
+/** @{*/
+
+/**
+ * \defgroup platform_power_mgmt Power management functions
+ * @{
+ */
 
 /**
  * @defgroup hal_sleep_manager Sleep manager API

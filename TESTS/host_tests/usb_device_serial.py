@@ -24,6 +24,7 @@ import uuid
 import sys
 import serial
 import serial.tools.list_ports as stlp
+import six
 import mbed_host_tests
 
 
@@ -268,7 +269,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         mbed_serial.reset_output_buffer()
         mbed_serial.dtr = True
         try:
-            payload = mbed_serial.read(LINE_CODING_STRLEN)
+            payload = six.ensure_str(mbed_serial.read(LINE_CODING_STRLEN))
             while len(payload) == LINE_CODING_STRLEN:
                 baud, bits, parity, stop = (int(i) for i in payload.split(','))
                 new_line_coding = {
@@ -277,7 +278,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                     'parity': self._PARITIES[parity],
                     'stopbits': self._STOPBITS[stop]}
                 mbed_serial.apply_settings(new_line_coding)
-                payload = mbed_serial.read(LINE_CODING_STRLEN)
+                payload = six.ensure_str(mbed_serial.read(LINE_CODING_STRLEN))
         except serial.SerialException as exc:
             self.log('TEST ERROR: {}'.format(exc))
             self.notify_complete(False)

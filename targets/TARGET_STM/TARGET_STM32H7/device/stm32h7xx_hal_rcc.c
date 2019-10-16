@@ -214,7 +214,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   SystemCoreClock = HSI_VALUE;
 
   /* Adapt Systick interrupt period */
-  if(HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK)
+  if(HAL_InitTick(uwTickPrio) != HAL_OK)
   {
     return HAL_ERROR;
   }
@@ -1048,7 +1048,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
 
   /* Configure the source of time base considering new system clocks settings*/
-  halstatus = HAL_InitTick (TICK_INT_PRIORITY);
+  halstatus = HAL_InitTick (uwTickPrio);
 
   return halstatus;
 }

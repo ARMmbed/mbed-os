@@ -20,6 +20,7 @@
 
 #include "AT_CellularBase.h"
 #include "NetworkStack.h"
+#include "PlatformMutex.h"
 
 namespace mbed {
 
@@ -43,6 +44,14 @@ public:
 public: // NetworkStack
 
     virtual const char *get_ip_address();
+
+    /**
+     * Set PDP context ID for this stack
+     *
+     *  @param cid value from AT+CGDCONT, where -1 is undefined
+     */
+    void set_cid(int cid);
+
 protected: // NetworkStack
 
     /**
@@ -191,6 +200,11 @@ protected:
      */
     int find_socket_index(nsapi_socket_t handle);
 
+    /**
+     *  Checks if send to address is valid and if current stack type supports sending to that address type
+     */
+    bool is_addr_stack_compatible(const SocketAddress &addr);
+
     // socket container
     CellularSocket **_socket;
 
@@ -203,8 +217,11 @@ protected:
     // PDP context id
     int _cid;
 
-    // stack type from PDP context
+    // stack type - initialised as PDP type and set accordingly after CGPADDR checked
     nsapi_ip_stack_t _stack_type;
+
+    // IP version of send to address
+    nsapi_version_t _ip_ver_sendto;
 
 private:
 

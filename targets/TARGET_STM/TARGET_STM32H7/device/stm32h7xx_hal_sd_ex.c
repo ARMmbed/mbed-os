@@ -14,7 +14,6 @@
   [..]
    The SD Extension HAL driver can be used as follows:
    (+) Configure Buffer0 and Buffer1 start address and Buffer size using HAL_SDEx_ConfigDMAMultiBuffer() function.
-
    (+) Start Read and Write for multibuffer mode using HAL_SDEx_ReadBlocksDMAMultiBuffer() and HAL_SDEx_WriteBlocksDMAMultiBuffer() functions.
 
   @endverbatim
@@ -130,7 +129,7 @@ HAL_StatusTypeDef HAL_SDEx_ReadBlocksDMAMultiBuffer(SD_HandleTypeDef *hsd, uint3
     /* Initialize data control register */
     hsd->Instance->DCTRL = 0;
     /* Clear old Flags*/
-    __HAL_SD_CLEAR_FLAG(hsd, SDMMC_STATIC_FLAGS);
+    __HAL_SD_CLEAR_FLAG(hsd, SDMMC_STATIC_DATA_FLAGS);
 
     hsd->ErrorCode = HAL_SD_ERROR_NONE;
     hsd->State = HAL_SD_STATE_BUSY;

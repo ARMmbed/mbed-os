@@ -635,6 +635,7 @@ rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, 
     dodag->have_config = false;
     dodag->used = false;
     dodag->g_mop_prf = g_mop_prf;
+    dodag->new_config_advertisment_count = 0;
     // Default timer parameters and trickle start should never normally
     // be used - we would set the parameters from the DODAG Config and start
     // as we join a version. But initialising here catches odd cases where
@@ -728,6 +729,7 @@ bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, c
         /* They've changed the timing parameters for our currently-in-use trickle timer! */
         tr_warn("Trickle parameters changed");
         trickle_start(&dodag->instance->dio_timer, &dodag->dio_timer_params);
+        dodag->new_config_advertisment_count = 0;
     }
     dodag->instance->of = rpl_objective_lookup(conf->objective_code_point);
     /* We could be a leaf of an unknown OCP. Still need an OF to choose parents */
@@ -1355,6 +1357,11 @@ static void trace_info_print(const char *fmt, ...)
     va_end(ap);
 }
 
+static uint32_t rpl_dio_imax_time_calculate(uint16_t Imax, uint16_t fixed_point)
+{
+    return (((uint32_t)Imax * fixed_point) / 0x0100);
+}
+
 
 void rpl_instance_run_parent_selection(rpl_instance_t *instance)
 {
@@ -1438,6 +1445,15 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     if (preferred_parent) {
         // Always stop repair if we find a parent
         rpl_instance_set_local_repair(instance, false);
+        //Validate time from last DIO
+
+        uint32_t time_between_parent = protocol_core_monotonic_time - preferred_parent->dio_timestamp;
+        uint32_t accepted_time = rpl_dio_imax_time_calculate(instance->current_dodag_version->dodag->dio_timer_params.Imax, rpl_policy_dio_validity_period(instance->domain));
+
+        if (accepted_time < time_between_parent) {
+            rpl_control_transmit_dis(instance->domain, NULL, RPL_SOLINFO_PRED_INSTANCEID, instance->id, NULL, 0, preferred_parent->ll_address);
+        }
+
     } else if (original_preferred) {
         // Only start repair if we just lost a parent
         rpl_instance_set_local_repair(instance, true);
@@ -1533,7 +1549,15 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
     }
 
     // Always send config in unicasts (as required), never in multicasts (optional)
-    rpl_dodag_conf_t *conf = addr ? &dodag->config : NULL;
+    rpl_dodag_conf_t *conf;
+    if (addr) {
+        conf = &dodag->config;
+    } else if (dodag->new_config_advertisment_count < rpl_policy_dio_multicast_config_advertisment_min_count()) {
+        conf = &dodag->config;
+        dodag->new_config_advertisment_count++;
+    } else {
+        conf = NULL;
+    }
 
     rpl_control_transmit_dio(instance->domain, cur, instance->id, dodag_version->number, rank, dodag->g_mop_prf, instance->dtsn, dodag, dodag->id, conf, addr);
 
@@ -1921,7 +1945,7 @@ bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_ne
         //Calculate Time between from last dio from parent and this neighbour
         //neighbour dio_timestamp >= pref_parent's, because it's a newly-received message
         uint32_t time_between_parent = neighbour->dio_timestamp - pref_parent->dio_timestamp;
-        uint32_t accepted_time = (uint32_t)dodag_info->dio_timer_params.Imax * 2;
+        uint32_t accepted_time = rpl_dio_imax_time_calculate(dodag_info->dio_timer_params.Imax, 0x0200);
         //Accept prefix Update If Time from last DIO is more than 2 x Max
         if (accepted_time < time_between_parent) {
             return true;

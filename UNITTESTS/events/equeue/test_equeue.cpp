@@ -765,8 +765,8 @@ TEST_F(TestEqueue, test_equeue_chain)
     EXPECT_EQ(3, touched1);
     EXPECT_EQ(3, touched2);
 
-    equeue_destroy(&q1);
     equeue_destroy(&q2);
+    equeue_destroy(&q1);
 }
 
 /** Test that unchaining equeues makes them work on their own.

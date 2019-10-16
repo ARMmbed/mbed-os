@@ -5,7 +5,7 @@
 * CYB06447BZI-D54 device header
 *
 * \note
-* Generator version: 1.5.0.1286
+* Generator version: 1.5.0.1292
 *
 ********************************************************************************
 * \copyright

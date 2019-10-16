@@ -113,7 +113,8 @@ osStatus Thread::start(mbed::Callback<void()> task)
     _tid = osThreadNew(Thread::_thunk, this, &_attr);
     if (_tid == nullptr) {
         if (_dynamic_stack) {
-            delete[] _attr.stack_mem;
+            // Cast before deallocation as delete[] does not accept void*
+            delete[] static_cast<uint32_t *>(_attr.stack_mem);
             _attr.stack_mem = nullptr;
         }
         _mutex.unlock();
@@ -417,7 +418,8 @@ Thread::~Thread()
     // terminate is thread safe
     terminate();
     if (_dynamic_stack) {
-        delete[] _attr.stack_mem;
+        // Cast before deallocation as delete[] does not accept void*
+        delete[] static_cast<uint32_t *>(_attr.stack_mem);
         _attr.stack_mem = nullptr;
     }
 }

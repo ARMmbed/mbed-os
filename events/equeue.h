@@ -93,6 +93,9 @@ typedef struct equeue {
 //
 // If the event queue creation fails, equeue_create returns a negative,
 // platform-specific error code.
+//
+// If queues are chained, it is needed to unchain them first, before calling destroy,
+// or call the destroy function on queues in order that chained queues are destroyed first.
 int equeue_create(equeue_t *queue, size_t size);
 int equeue_create_inplace(equeue_t *queue, size_t size, void *buffer);
 void equeue_destroy(equeue_t *queue);

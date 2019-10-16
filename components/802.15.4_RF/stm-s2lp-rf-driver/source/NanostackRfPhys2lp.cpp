@@ -550,10 +550,11 @@ static void rf_init_registers(void)
     rf_write_register_field(PCKTCTRL3, PCKT_FORMAT_FIELD, PCKT_FORMAT_802_15_4);
     rf_write_register_field(MOD2, MOD_TYPE_FIELD, MOD_2FSK);
     rf_write_register(PCKT_FLT_OPTIONS, 0);
-    rf_write_register_field(PCKTCTRL1, PCKT_CRCMODE_FIELD, PCKT_CRCMODE_0X1021);
+    rf_write_register_field(PCKTCTRL1, PCKT_CRCMODE_FIELD, PCKT_CRCMODE_0x04C11DB7);
     rf_write_register_field(PCKTCTRL1, PCKT_TXSOURCE_FIELD, PCKT_TXSOURCE_NORMAL);
     rf_write_register_field(PCKTCTRL1, PCKT_WHITENING_FIELD, PCKT_WHITENING_ENABLED);
     rf_write_register_field(PCKTCTRL2, PCKT_FIXVARLEN_FIELD, PCKT_VARIABLE_LEN);
+    rf_write_register_field(PCKTCTRL2, PCKT_FCS_TYPE_FIELD, PCKT_FCS_TYPE_4_OCTET);
     rf_write_register_field(PCKTCTRL3, PCKT_RXMODE_FIELD, PCKT_RXMODE_NORMAL);
     rf_write_register_field(PCKTCTRL3, PCKT_BYTE_SWAP_FIELD, PCKT_BYTE_SWAP_LSB);
     rf_write_register(PCKTCTRL5, PCKT_PREAMBLE_LEN);
@@ -999,6 +1000,7 @@ static void rf_receive(uint8_t rx_channel)
     rf_poll_state_change(S2LP_STATE_READY);
     rf_flush_rx_fifo();
     if (rf_update_config == true) {
+        rf_channel_multiplier = 1;
         rf_update_config = false;
         rf_set_channel_configuration_registers();
     }

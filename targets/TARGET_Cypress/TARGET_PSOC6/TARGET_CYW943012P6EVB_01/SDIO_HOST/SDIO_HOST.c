@@ -141,6 +141,7 @@ void SDIO_Init(stc_sdio_irq_cb_t* pfuCb)
     if ( !udb_initialized )
     {
         udb_initialized = 1;
+        SDIO_Host_Config_TriggerMuxes();
         SDIO_Host_Config_UDBs();
     }
 

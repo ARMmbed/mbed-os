@@ -51,7 +51,6 @@ struct is_unsigned<unsigned long long> {
 };
 };
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
 /**

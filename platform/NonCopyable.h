@@ -24,9 +24,9 @@
 
 namespace mbed {
 
-/** \ingroup mbed-os-public */
 /** \addtogroup platform-public-api */
 /** @{*/
+
 /**
  * \defgroup platform_NonCopyable NonCopyable class
  * @{
@@ -172,11 +172,11 @@ protected:
     /**
      * Disallow construction of NonCopyable objects from outside of its hierarchy.
      */
-    NonCopyable() { }
+    NonCopyable() = default;
     /**
      * Disallow destruction of NonCopyable objects from outside of its hierarchy.
      */
-    ~NonCopyable() { }
+    ~NonCopyable() = default;
 
 #if (!defined(MBED_DEBUG) && (MBED_CONF_PLATFORM_FORCE_NON_COPYABLE_ERROR == 0))
     /**

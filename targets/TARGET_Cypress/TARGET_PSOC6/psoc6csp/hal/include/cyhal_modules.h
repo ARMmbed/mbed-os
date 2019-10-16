@@ -24,12 +24,8 @@
 *******************************************************************************/
 
 /**
-* \addtogroup group_hal_modules Driver Modules
 * \ingroup group_hal
 * \{
-* Enum definition for all HAL resource modules.
-*
-* \defgroup group_hal_modules_enums Enumerated Types
 */
 
 #pragma once
@@ -39,12 +35,6 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-
-/**
-* \addtogroup group_hal_modules_enums
-* \{
-*/
 
 /** Enum to in indicate which module an errors occurred in. */
 enum cyhal_rslt_module_chip
@@ -76,10 +66,8 @@ enum cyhal_rslt_module_chip
     CYHAL_RSLT_MODULE_WDT,                                              //!< An error occurred in WDT module
 };
 
-/** \} group_hal_modules_enums */
-
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
-/** \} group_hal_modules */
+/** \} group_hal */

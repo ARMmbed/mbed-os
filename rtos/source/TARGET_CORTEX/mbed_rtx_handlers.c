@@ -80,9 +80,6 @@ __NO_RETURN uint32_t osRtxErrorNotify(uint32_t code, void *object_id)
             MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_UNKNOWN), "CMSIS-RTOS error: Unknown", code);
             break;
     }
-
-    /* That shouldn't be reached */
-    for (;;) {}
 }
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED

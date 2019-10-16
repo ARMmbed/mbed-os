@@ -94,3 +94,6 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
 {
 }
 
+void AT_CellularStack::set_cid(int cid)
+{
+}

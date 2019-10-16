@@ -74,7 +74,11 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /*  MBED_CONF_TARGET_LSE_AVAILABLE */
+#if TARGET_STM32WB
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI1;
+#else
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+#endif
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
