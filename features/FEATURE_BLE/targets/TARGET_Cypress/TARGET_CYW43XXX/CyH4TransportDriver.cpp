@@ -34,6 +34,7 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     dev_wake_irq_event(dev_wake_irq)
 {
     enabled_powersave = true;
+    bt_host_wake_active = false;
 }
 
 CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, PinName rts, int baud) :
@@ -46,6 +47,7 @@ CyH4TransportDriver::CyH4TransportDriver(PinName tx, PinName rx, PinName cts, Pi
     bt_device_wake(bt_device_wake_name)
 {
     enabled_powersave = false;
+    bt_host_wake_active = false;
     sleep_manager_lock_deep_sleep();
     holding_deep_sleep_lock = true;
 }
