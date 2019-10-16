@@ -22,6 +22,9 @@ import sys
 import subprocess
 from shutil import rmtree
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format='[EXAMPLES]> %(levelname)-8s %(message)s')
 
 """ Import and bulid a bunch of example programs
 
@@ -171,7 +174,7 @@ def get_repo_list(example):
     return repos
 
 
-def source_repos(config, examples):
+def source_repos(config, exp_filter):
     """ Imports each of the repos and its dependencies (.lib files) associated
         with the specific examples name from the json config file. Note if
         there is already a clone of the repo then it will first be removed to
@@ -182,22 +185,20 @@ def source_repos(config, examples):
     """
     print("\nImporting example repos....\n")
     for example in config['examples']:
-        for repo_info in get_repo_list(example):
-            name = basename(repo_info['repo'])
-            if name in examples:
-                if os.path.exists(name):
-                    print("'%s' example directory already exists. Deleting..." % name)
-                    rmtree(name)
-                
-                cmd = "mbed-cli import %s" %repo_info['repo']
-                result = subprocess.call(cmd, shell=True)
-
-                if result:
-                    return result
-    
+        name = example['name']
+        if name in exp_filter:
+            if os.path.exists(name):
+                logging.warning("'%s' example directory already exists. Deleting..." % name)
+                rmtree(name)
+            
+            cmd = "mbed-cli import %s" % example['github']
+            logging.info("Executing command '%s'..." % cmd)
+            result = subprocess.call(cmd, shell=True)
+            if result:
+                return result
     return 0                
 
-def clone_repos(config, examples , retry = 3):
+def clone_repos(config, exp_filter , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
         json config file. Note if there is already a clone of the repo then it will first
         be removed to ensure a clean, up to date cloning.
@@ -207,22 +208,23 @@ def clone_repos(config, examples , retry = 3):
     """
     print("\nCloning example repos....\n")
     for example in config['examples']:
-        for repo_info in get_repo_list(example):
-            name = basename(repo_info['repo'])
-            if name in examples:
-                if os.path.exists(name):
-                    print("'%s' example directory already exists. Deleting..." % name)
-                    rmtree(name)
-                cmd = "%s clone %s" %(repo_info['type'], repo_info['repo'])
-                for i in range(0, retry):
-                    if not subprocess.call(cmd, shell=True):                        
-                        break
-                else:
-                    print("ERROR : unable to clone the repo {}".format(name))
-                    return 1
+        name = example['name']
+        if name in exp_filter:
+            if os.path.exists(name):
+                logging.warning("'%s' example directory already exists. Deleting..." % name)
+                rmtree(name, onerror=remove_readonly)
+
+            cmd = "git clone %s" % example['github']
+            for i in range(0, retry):
+                logging.info("Executing command '%s'..." % cmd)
+                if not subprocess.call(cmd, shell=True):                        
+                    break
+            else:
+                logging.error("unable to clone the repo '%s'" % name)
+                return 1
     return 0
 
-def deploy_repos(config, examples):
+def deploy_repos(config, exp_filter):
     """ If the example directory exists as provided by the json config file,
         pull in the examples dependencies by using `mbed-cli deploy`.
     Args:
@@ -231,19 +233,21 @@ def deploy_repos(config, examples):
     """
     print("\nDeploying example repos....\n")
     for example in config['examples']:
-        for repo_info in get_repo_list(example):
-            name = basename(repo_info['repo'].strip('/'))
-            if name in examples:
-                if os.path.exists(name):
-                    os.chdir(name)
-                    result = subprocess.call("mbed-cli deploy", shell=True)
-                    os.chdir("..")
-                    if result:
-                        print("mbed-cli deploy command failed for '%s'" % name)
-                        return result                
-                else:
-                    print("'%s' example directory doesn't exist. Skipping..." % name)
-                    return 1
+        name = example['name']
+        if name in exp_filter:
+            if os.path.exists(name):
+                os.chdir(name)
+                logging.info("In folder '%s'" % name)
+                cmd = "mbed-cli deploy"
+                logging.info("Executing command '%s'..." % cmd)
+                result = subprocess.call(cmd, shell=True)
+                os.chdir(CWD)
+                if result:
+                    logging.error("mbed-cli deploy command failed for '%s'" % name)
+                    return result                
+            else:
+                logging.info("'%s' example directory doesn't exist. Skipping..." % name)
+                return 1
     return  0
 
 def get_num_failures(results, export=False):
@@ -463,7 +467,7 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples, jobs=
     return results
 
 
-def update_mbedos_version(config, tag, examples):
+def update_mbedos_version(config, tag, exp_filter):
     """ For each example repo identified in the config json object, update the version of
         mbed-os to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
@@ -473,20 +477,39 @@ def update_mbedos_version(config, tag, examples):
     tag - GitHub tag corresponding to a version of mbed-os to upgrade to.
 
     """
-    print("Updating mbed-os in examples to version %s\n" % tag)
+    print("\nUpdating mbed-os in examples to version '%s'\n" % tag)
     for example in config['examples']:
-        if example['name'] not in examples:
+        if example['name'] not in exp_filter:
             continue
-        for repo_info in get_repo_list(example):
-            update_dir =  basename(repo_info['repo']) + "/mbed-os"
-            print("\nChanging dir to %s\n" % update_dir)
+        for name in get_sub_examples_list(example):
+            update_dir =  name + "/mbed-os"
             os.chdir(update_dir)
+            logging.info("In folder '%s'" % name)
             cmd = "mbed-cli update %s --clean" %tag
+            logging.info("Executing command '%s'..." % cmd)
             result = subprocess.call(cmd, shell=True)
-            os.chdir("../..")
+            os.chdir(CWD)
             if result:
                 return result
-    
+    return 0
+
+def symlink_mbedos(config, path, exp_filter):
+    """
+    """
+    print("\nCreating mbed-os Symbolic link to '%s'\n" % path)
+    for example in config['examples']:
+        if example['name'] not in exp_filter:
+            continue
+        for name in get_sub_examples_list(example):
+            os.chdir(name)
+            logging.info("In folder '%s'" % name)
+            if os.path.exists("mbed-os.lib"):
+                os.remove("mbed-os.lib")
+            else:
+                logging.warning("No 'mbed-os.lib' found in '%s'" % name)
+            logging.info("Creating Symbolic link '%s'->'mbed-os'" % path)
+            os.symlink(path, "mbed-os")
+            os.chdir(CWD)
     return 0
 
 def fetch_output_image(output):
