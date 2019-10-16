@@ -157,7 +157,7 @@ def do_compile(args, config, examples):
     
 def do_update(args, config, examples):
     """ Test update the mbed-os to the version specified by the tag """
-    return lib.update_mbedos_version(config, args.tag, examples)
+    return lib.update_mbedos_version(config, args.TAG, examples)
 
 def do_list(_, config, examples):
     """List the examples in the config file"""
@@ -170,7 +170,7 @@ def do_list(_, config, examples):
     return 0
 
 def do_symlink(args, config, examples):
-    return lib.symlink_mbedos(config, args.path, examples)
+    return lib.symlink_mbedos(config, args.PATH, examples)
 
 if __name__ == "__main__":
     sys.exit(main())
