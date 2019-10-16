@@ -19,6 +19,8 @@ import os
 from os.path import dirname, abspath, basename, join, normpath
 import os.path
 import sys
+import copy
+import stat
 import subprocess
 from shutil import rmtree
 import json
@@ -33,8 +35,9 @@ logging.basicConfig(level=logging.DEBUG, format='[EXAMPLES]> %(levelname)-8s %(m
 
  """
 
-ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
-sys.path.insert(0, ROOT)
+MBED_OS_ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
+CWD = os.getcwd()
+sys.path.insert(0, MBED_OS_ROOT)
 
 from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
@@ -42,39 +45,14 @@ from tools.export import EXPORTERS
 from tools.project import EXPORTER_ALIASES
 from tools.toolchains import TOOLCHAINS
 from tools.utils import write_json_to_file
+from prettytable import PrettyTable
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
 SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
                   if exp != "cmsis" and exp != "zip"]
 
 
-def print_list(lst):
-    """Prints to screen the contents of a list
-
-    Args:
-    lst - a list of any type, to be displayed
-
-    """
-    if lst:
-        for thing in lst:
-            print("# %s" % thing)
-
-
-def print_category(results, index, message):
-    summary = [example for key, summ in list(results.items())
-               for example in summ[index]]
-    if all(len(s) == 0 for s in summary):
-        return
-    print("#")
-    print("#" * 80)
-    print("# %s" % message)
-    print("#" * 80)
-    split_summ = [s.rsplit(" ", 1) for s in summary]
-
-    print_list(summary)
-
-
-def print_summary(results, export=False):
+def get_build_summary(results):
     """Prints to screen the results of compiling/exporting combinations of example programs,
        targets and compile toolchains/IDEs.
 
@@ -83,24 +61,60 @@ def print_summary(results, export=False):
               for details of the format.
 
     """
+    pass_table = PrettyTable()
+    pass_table.field_names = ["EXAMPLE NAME", "TARGET", "TOOLCHAIN", "TEST GEN", "BUILD RESULT"]
+    pass_table.align["EXAMPLE NAME"] = "l"
+    fail_table = copy.deepcopy(pass_table)
+    failure_counter = 0
 
-    print("#"*80)
-    print("# Examples compilation summary")
-    print("#"*80)
+    for exp, status in list(results.items()):
+        for summary in status[2]:
+            pass_table.add_row([summary["name"], summary["target"], summary["toolchain"], summary["test"], "PASSED"])
+        for summary in status[3]:
+            fail_table.add_row([summary["name"], summary["target"], summary["toolchain"], summary["test"], "FAILED"])
+            failure_counter+=1
+    print("\n\nPassed Example Compilation:")
+    print(pass_table)
+    if (failure_counter > 0):
+        print("\n\nFailed Example Compilation:")
+        print(fail_table)
+    print("Number of failures = %d" % failure_counter)
+    return failure_counter
 
-    print_category(results, 2, "Passed example combinations")
+def get_export_summary(results):
+    """Prints to screen the results of compiling/exporting combinations of example programs,
+       targets and compile toolchains/IDEs.
 
-    second_result = "Failed example combinations" if not export else \
-        "Failed export example combinations"
+    Args:
+    results - results of the compilation stage. See compile_repos() and export_repos()
+              for details of the format.
 
-    print_category(results, 3, second_result)
-
-    if export:
-        print_category(results, 4, "Failed build combinations")
-        print_category(results, 5, "Skipped build combinations")
-
-    print("#")
-    print("#"*80)
+    """
+    pass_table = PrettyTable()
+    pass_table.field_names = ["EXAMPLE NAME", "TARGET", "IDE", "EXPORT RESULT", "BUILD RESULT"]
+    pass_table.align["EXAMPLE NAME"] = "l"
+    fail_table = copy.deepcopy(pass_table)
+    
+    failure_counter = 0
+    for exp, status in list(results.items()):
+        for summary in status[2]:
+            pass_table.add_row([summary["name"], summary["target"], summary["ide"], "PASSED", "PASSED"])
+        for summary in status[3]:
+            fail_table.add_row([summary["name"], summary["target"], summary["ide"], "FAILED", ""])
+            failure_counter+=1
+        for summary in status[4]:
+            fail_table.add_row([summary["name"], summary["target"], summary["ide"], "PASSED", "FAILED"])
+            failure_counter+=1
+        for summary in status[5]:
+            pass_table.add_row([summary["name"], summary["target"], summary["ide"], "PASSED", "SKIPPED"])
+    
+    print("\n\nPassed Example Exporting:")
+    print(pass_table)
+    if (failure_counter > 0):
+        print("\n\nFailed Example Exporting:")
+        print(fail_table)
+    print("Number of failures = %d" % failure_counter)
+    return failure_counter
 
 def valid_choices(allowed_choices, all_choices):
     if len(allowed_choices) > 0:
