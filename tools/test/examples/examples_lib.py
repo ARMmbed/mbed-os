@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Copyright (c) 2017-2019 ARM Limited. All rights reserved.
 
@@ -53,13 +55,12 @@ SUPPORTED_IDES = [exp for exp in list(EXPORTERS) + list(EXPORTER_ALIASES)
 
 
 def get_build_summary(results):
-    """Prints to screen the results of compiling/exporting combinations of example programs,
-       targets and compile toolchains/IDEs.
+    """Prints to screen the complication results of example programs.
 
     Args:
-    results - results of the compilation stage. See compile_repos() and export_repos()
-              for details of the format.
-
+    results - results of the compilation stage. which is the output of compile_repos()
+    
+    Returns: Numbers of failed results
     """
     pass_table = PrettyTable()
     pass_table.field_names = ["EXAMPLE NAME", "TARGET", "TOOLCHAIN", "TEST GEN", "BUILD RESULT"]
@@ -82,13 +83,12 @@ def get_build_summary(results):
     return failure_counter
 
 def get_export_summary(results):
-    """Prints to screen the results of compiling/exporting combinations of example programs,
-       targets and compile toolchains/IDEs.
+    """Prints to screen the exporting results of example programs.
 
     Args:
-    results - results of the compilation stage. See compile_repos() and export_repos()
-              for details of the format.
-
+    results -  results of the compilation stage. which is the output of and export_repos()
+    
+    Returns: Numbers of failed results
     """
     pass_table = PrettyTable()
     pass_table.field_names = ["EXAMPLE NAME", "TARGET", "IDE", "EXPORT RESULT", "BUILD RESULT"]
@@ -162,8 +162,7 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
 
 
 def get_sub_examples_list(example):
-    """ 
-    """
+    """ Get the names of sub examples. if no sub examples, return the name of main example"""
     sub_examples = []
     if example['sub-repo-example']:
         for sub in example['subs']:
@@ -330,7 +329,7 @@ def export_repos(config, ides, targets, exp_filter):
     return results
 
 
-def compile_repos(config, toolchains, targets, profile, verbose, exp_filter, jobs=0):
+def compile_repos(config, toolchains, targets, profiles, verbose, exp_filter, jobs=0):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -382,19 +381,20 @@ def compile_repos(config, toolchains, targets, profile, verbose, exp_filter, job
                     example_summary = {"name" : name, "target" : target, "toolchain" : toolchain, "test": "UNSET"}
                     summary_string = "%s %s %s" % (name, target, toolchain)
                     logging.info("Compiling %s" % summary_string)
-                    
+
                     build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-j", str(jobs)] + (['-vv'] if verbose else [])
-                    if profile:
-                        build_command.append("--profile")
-                        build_command.append(profile)
-                    
+                    if profiles:
+                        for profile in profiles:
+                            build_command.extend(["--profile", profile])
+
                     logging.info("Executing command '%s'..." % " ".join(build_command))
                     proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                     std_out, std_err = proc.communicate()
-                    std_out = std_out.decode('utf-8')
+                    std_out = std_out.decode()
+                    std_err = std_err.decode()
                     print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
-                    
+
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
@@ -465,7 +465,8 @@ def update_mbedos_version(config, tag, exp_filter):
     return 0
 
 def symlink_mbedos(config, path, exp_filter):
-    """
+    """ Create a symbolic link in each example folder to given path 
+        If a mbed-os.lib can be found in the folder, it will be removed
     """
     print("\nCreating mbed-os Symbolic link to '%s'\n" % path)
     for example in config['examples']:
@@ -475,11 +476,15 @@ def symlink_mbedos(config, path, exp_filter):
             os.chdir(name)
             logging.info("In folder '%s'" % name)
             if os.path.exists("mbed-os.lib"):
+                logging.info("Removing 'mbed-os.lib' in '%s'" % name)
                 os.remove("mbed-os.lib")
             else:
                 logging.warning("No 'mbed-os.lib' found in '%s'" % name)
-            logging.info("Creating Symbolic link '%s'->'mbed-os'" % path)
-            os.symlink(path, "mbed-os")
+            if os.path.exists("mbed-os"):
+                logging.warning("'mbed-os' already existed in '%s'" % name)
+            else:
+                logging.info("Creating Symbolic link '%s'->'mbed-os'" % path)
+                os.symlink(path, "mbed-os")
             os.chdir(CWD)
     return 0
 
@@ -493,3 +498,4 @@ def fetch_output_image(output):
             if os.path.isfile(image):
                 return image
     return False
+

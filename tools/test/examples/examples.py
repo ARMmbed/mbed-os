@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Copyright (c) 2017-2019 ARM Limited. All rights reserved.
 
@@ -28,6 +30,10 @@ import json
 """ import and bulid a bunch of example programs """
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
+DEFAULT_BUILD_PROFILES = [
+    "develop",
+    "mbed-os/tools/profiles/extensions/minimal-printf.json",
+]
 sys.path.insert(0, ROOT)
 
 from tools.utils import argparse_force_uppercase_type
@@ -36,9 +42,8 @@ from tools.build_api import get_mbed_official_release
 import examples_lib as lib
 from examples_lib import SUPPORTED_TOOLCHAINS, SUPPORTED_IDES
 
-def main():
-    """Entry point"""
-
+def parse_args():    
+    """Parse the arguments passed to the script."""
     official_targets = get_mbed_official_release("5")
     official_target_names = [x[0] for x in official_targets]
 
@@ -79,10 +84,14 @@ def main():
                                     official_target_names, "MCU")),
                             default=official_target_names)
 
-    compile_cmd.add_argument("--profile",
-                             help=("build profile file"),
-                             metavar="profile")
-
+    compile_cmd.add_argument(
+        "--profiles",
+        nargs='+',
+        default=DEFAULT_BUILD_PROFILES,
+        metavar="profile",
+        help="build profile file(s). default = {}".format(DEFAULT_BUILD_PROFILES)
+    )
+    
     compile_cmd.add_argument("-j", "--jobs",
                              dest='jobs',
                              metavar="NUMBER",
@@ -97,7 +106,7 @@ def main():
                              help="Verbose diagnostic output")
 
     export_cmd = subparsers.add_parser("export", help="export of examples")
-    export_cmd.set_defaults(fn=do_export),
+    export_cmd.set_defaults(fn=do_export)
     export_cmd.add_argument(
         "ide", nargs="*", default=SUPPORTED_IDES,
         type=argparse_force_uppercase_type(SUPPORTED_IDES,
@@ -110,7 +119,12 @@ def main():
                                 argparse_force_uppercase_type(
                                     official_target_names, "MCU")),
                             default=official_target_names)
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    """Entry point"""
+    args = parse_args()
     config = json.load(open(os.path.join(os.path.dirname(__file__),
                                args.config)))
 
@@ -151,7 +165,7 @@ def do_deploy(_, config, examples):
 
 def do_compile(args, config, examples):
     """Do the compile step"""
-    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples, args.jobs)
+    results = lib.compile_repos(config, args.toolchains, args.mcu, args.profiles, args.verbose, examples, args.jobs)
     failures = lib.get_build_summary(results)
     return failures 
     
@@ -170,6 +184,7 @@ def do_list(_, config, examples):
     return 0
 
 def do_symlink(args, config, examples):
+    """Create Symbolic link for given mbed-os PATH"""
     return lib.symlink_mbedos(config, args.PATH, examples)
 
 if __name__ == "__main__":
