@@ -50,21 +50,21 @@ def main():
                         type=argparse_many(lambda x: x),
                         default=[])
     subparsers = parser.add_subparsers()
-    import_cmd = subparsers.add_parser("import")
+    import_cmd = subparsers.add_parser("import", help="import of examples in config file" )
     import_cmd.set_defaults(fn=do_import)
-    clone_cmd = subparsers.add_parser("clone")
+    clone_cmd  = subparsers.add_parser("clone",  help="clone examples in config file" )
     clone_cmd.set_defaults(fn=do_clone)
     list_cmd   = subparsers.add_parser("list",   help="list examples in config file in a table")
     list_cmd.set_defaults(fn=do_list)
     symlink_cmd = subparsers.add_parser("symlink", help="create symbolic link to given mbed-os PATH")
     symlink_cmd.add_argument("PATH", help=" path of mbed-os to be symlinked")
     symlink_cmd.set_defaults(fn=do_symlink)
-    deploy_cmd = subparsers.add_parser("deploy", help="mbed deploy" )
+    deploy_cmd = subparsers.add_parser("deploy", help="mbed deploy for examples in config file" )
     deploy_cmd.set_defaults(fn=do_deploy)
-    version_cmd = subparsers.add_parser("tag")
-    version_cmd.add_argument("tag")
-    version_cmd.set_defaults(fn=do_versionning)
-    compile_cmd = subparsers.add_parser("compile")
+    version_cmd = subparsers.add_parser("update", help="update mbed-os to sepcific tags")
+    version_cmd.add_argument("TAG", help=" tag of mbed-os")
+    version_cmd.set_defaults(fn=do_update)
+    compile_cmd = subparsers.add_parser("compile", help="compile of examples" )
     compile_cmd.set_defaults(fn=do_compile),
     compile_cmd.add_argument(
         "toolchains", nargs="*", default=SUPPORTED_TOOLCHAINS,
@@ -96,7 +96,7 @@ def main():
                              default=False,
                              help="Verbose diagnostic output")
 
-    export_cmd = subparsers.add_parser("export")
+    export_cmd = subparsers.add_parser("export", help="export of examples")
     export_cmd.set_defaults(fn=do_export),
     export_cmd.add_argument(
         "ide", nargs="*", default=SUPPORTED_IDES,
@@ -155,7 +155,7 @@ def do_compile(args, config, examples):
     print("Number of failures = %d" % failures)
     return failures 
     
-def do_versionning(args, config, examples):
+def do_update(args, config, examples):
     """ Test update the mbed-os to the version specified by the tag """
     return lib.update_mbedos_version(config, args.tag, examples)
 
