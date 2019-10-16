@@ -152,9 +152,7 @@ def do_deploy(_, config, examples):
 def do_compile(args, config, examples):
     """Do the compile step"""
     results = lib.compile_repos(config, args.toolchains, args.mcu, args.profile, args.verbose, examples, args.jobs)
-    lib.print_summary(results)
-    failures = lib.get_num_failures(results)
-    print("Number of failures = %d" % failures)
+    failures = lib.get_build_summary(results)
     return failures 
     
 def do_update(args, config, examples):
