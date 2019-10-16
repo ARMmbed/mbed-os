@@ -54,9 +54,17 @@ void trng_init(trng_t *obj)
 #else
     PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
 #endif
+#if defined(DUAL_CORE)
+    uint32_t timeout = HSEM_TIMEOUT;
+    while (LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID) && (--timeout != 0)) {
+    }
+#endif /* DUAL_CORE */
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("RNG clock configuration error\n");
     }
+#if defined(DUAL_CORE)
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, HSEM_CR_COREID_CURRENT);
+#endif /* DUAL_CORE */
 #endif
 #endif //!defined(TARGET_STM32WB)
 

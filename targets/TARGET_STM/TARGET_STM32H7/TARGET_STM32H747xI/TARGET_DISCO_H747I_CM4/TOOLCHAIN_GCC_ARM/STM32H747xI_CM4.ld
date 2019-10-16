@@ -14,7 +14,7 @@
  */
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x08000000
+  #define MBED_APP_START 0x08100000
 #endif
 
 #if !defined(MBED_APP_SIZE)
@@ -30,7 +30,7 @@ STACK_SIZE = MBED_BOOT_STACK_SIZE;
 MEMORY
 { 
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx)  : ORIGIN = 0x20000298, LENGTH = 128K - 0x298
+  RAM (rwx)  : ORIGIN = 0x10000298, LENGTH = 288K - 0x298
 }
 
 /* Linker script to place sections and symbol values. Should be used together

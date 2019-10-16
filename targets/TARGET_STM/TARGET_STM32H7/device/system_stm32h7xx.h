@@ -55,7 +55,12 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-extern uint32_t SystemCoreClock;             /*!< System Domain1 Clock Frequency  */
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+#define SystemCoreClock    SystemD2Clock               /*!< System Domain1 Clock Frequency  */
+#else
+#define SystemCoreClock    SystemD1Clock
+#endif
+extern uint32_t SystemD1Clock;               /*!< System Domain1 Clock Frequency  */
 extern uint32_t SystemD2Clock;               /*!< System Domain2 Clock Frequency  */
 extern const  uint8_t D1CorePrescTable[16] ; /*!< D1CorePrescTable prescalers table values */
 

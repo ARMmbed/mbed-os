@@ -330,7 +330,11 @@ typedef struct
   */
 __STATIC_INLINE void LL_EXTI_EnableIT_0_31(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  SET_BIT(EXTI->C2IMR1, ExtiLine);
+#else
   SET_BIT(EXTI->IMR1, ExtiLine);
+#endif
 }
 
 /**
@@ -373,7 +377,11 @@ __STATIC_INLINE void LL_EXTI_EnableIT_0_31(uint32_t ExtiLine)
   */
 __STATIC_INLINE void LL_EXTI_EnableIT_32_63(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  SET_BIT(EXTI->C2IMR2, ExtiLine);
+#else
   SET_BIT(EXTI->IMR2, ExtiLine);
+#endif
 }
 
 
@@ -408,7 +416,11 @@ __STATIC_INLINE void LL_EXTI_EnableIT_32_63(uint32_t ExtiLine)
   */
 __STATIC_INLINE void LL_EXTI_EnableIT_64_95(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  SET_BIT(EXTI->C2IMR3, ExtiLine);
+#else
   SET_BIT(EXTI->IMR3, ExtiLine);
+#endif
 }
 
 
@@ -453,7 +465,11 @@ __STATIC_INLINE void LL_EXTI_EnableIT_64_95(uint32_t ExtiLine)
   */
 __STATIC_INLINE void LL_EXTI_DisableIT_0_31(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  CLEAR_BIT(EXTI->C2IMR1, ExtiLine);
+#else
   CLEAR_BIT(EXTI->IMR1, ExtiLine);
+#endif
 }
 
 
@@ -497,7 +513,11 @@ __STATIC_INLINE void LL_EXTI_DisableIT_0_31(uint32_t ExtiLine)
   */
 __STATIC_INLINE void LL_EXTI_DisableIT_32_63(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  CLEAR_BIT(EXTI->C2IMR2, ExtiLine);
+#else
   CLEAR_BIT(EXTI->IMR2, ExtiLine);
+#endif
 }
 
 /**
@@ -531,7 +551,11 @@ __STATIC_INLINE void LL_EXTI_DisableIT_32_63(uint32_t ExtiLine)
   */
 __STATIC_INLINE void LL_EXTI_DisableIT_64_95(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  CLEAR_BIT(EXTI->C2IMR3, ExtiLine);
+#else
   CLEAR_BIT(EXTI->IMR3, ExtiLine);
+#endif
 }
 
 
@@ -576,7 +600,11 @@ __STATIC_INLINE void LL_EXTI_DisableIT_64_95(uint32_t ExtiLine)
   */
 __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_0_31(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  return ((READ_BIT(EXTI->C2IMR1, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#else
   return ((READ_BIT(EXTI->IMR1, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#endif
 }
 
 
@@ -620,7 +648,11 @@ __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_0_31(uint32_t ExtiLine)
   */
 __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_32_63(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  return ((READ_BIT(EXTI->C2IMR2, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#else
   return ((READ_BIT(EXTI->IMR2, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#endif
 }
 
 
@@ -655,7 +687,11 @@ __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_32_63(uint32_t ExtiLine)
   */
 __STATIC_INLINE uint32_t LL_EXTI_IsEnabledIT_64_95(uint32_t ExtiLine)
 {
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  return ((READ_BIT(EXTI->C2IMR3, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#else
   return ((READ_BIT(EXTI->IMR3, ExtiLine) == (ExtiLine)) ? 1U : 0U);
+#endif
 }
 
 #if defined(DUAL_CORE)
