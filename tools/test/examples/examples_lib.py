@@ -316,7 +316,7 @@ def export_repos(config, ides, targets, exp_filter):
     return results
 
 
-def compile_repos(config, toolchains, targets, profile, verbose, examples, jobs=0):
+def compile_repos(config, toolchains, targets, profile, verbose, exp_filter, jobs=0):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -337,68 +337,61 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples, jobs=
     targets - list of target names
     profile - build profile path or name if in default place
     verbose - enabling verbose
-    examples - List of examples to be build
+    exp_filter - List of exp_filter to be build
     jobs - Number of compile jobs
 
     """
     results = {}
     test_json = {"builds":{}}
-    valid_examples = set(examples)
     base_path = os.getcwd()
     print("\nCompiling example repos....\n")
     for example in config['examples']:
-        example_names = [basename(x['repo']) for x in get_repo_list(example)]
-        common_examples = valid_examples.intersection(set(example_names))
-        if not common_examples:
+        if example['name'] not in exp_filter:
             continue
         failures = []
         successes = []
         compiled = True
         pass_status = True
-        if 'test' in example and example['test'] and 'baud_rate' in example and 'compare_log'in example:
-            test_example = True
-        else:
-            test_example = False
+        if example['test']:
+            if not ('baud_rate' in example and 'compare_log'in example):
+                logging.warning("'baud_rate' or 'compare_log' keys are missing from config json file")
+                example['test'] = False
         if example['compile']:
-            for repo_info in get_repo_list(example):
-                name = basename(repo_info['repo'])
+            for name in get_sub_examples_list(example):
                 os.chdir(name)
+                logging.info("In folder '%s'" % name)
                 # Check that the target, toolchain and features combinations are valid and return a
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(valid_choices(example['targets'], targets),
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
+                    example_summary = {"name" : name, "target" : target, "toolchain" : toolchain, "test": "UNSET"}
+                    summary_string = "%s %s %s" % (name, target, toolchain)
+                    logging.info("Compiling %s" % summary_string)
                     
                     build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-j", str(jobs)] + (['-vv'] if verbose else [])
                     if profile:
                         build_command.append("--profile")
                         build_command.append(profile)
                     
-                    print("Compiling [%s] for [%s] with toolchain [%s]\n\n>  %s" % (name, target, toolchain, " ".join(build_command)))
-                    
+                    logging.info("Executing command '%s'..." % " ".join(build_command))
                     proc = subprocess.Popen(build_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                     std_out, std_err = proc.communicate()
                     std_out = std_out.decode('utf-8')
                     print ("\n#### STDOUT ####\n%s\n#### STDERR ####\n%s\n#### End of STDOUT/STDERR ####\n" % (std_out,std_err))
                     
-                    if test_example:
-                        log = example['compare_log'].pop(0)
-                        # example['compare_log'] is a list of log file/files, which matches each examples/sub-examples from same repo. 
-                        # pop the log file out of list regardless the compilation for each example pass of fail
-                        image = fetch_output_image(std_out)
-                        if image:
-                            image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
-                        else:
-                            print ("Warning: could not find built image for example %s" % name)
-                        
-                    example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
                         failures.append(example_summary)
                     else:
-                        if test_example:
-                            test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
+                        if example['test']:
+                            log = example['compare_log'].pop(0)
+                            # example['compare_log'] is a list of log file/files, which matches each examples/sub-examples from same repo. 
+                            # pop the log file out of list regardless the compilation for each example pass of fail
+                            image = fetch_output_image(std_out)
                             if image:
+                                image_info = [{"binary_type": "bootable","path": normpath(join(name,image)),"compare_log":log}]
+                                test_group = "{}-{}-{}".format(target, toolchain, example['baud_rate'])
                                 if not test_group in test_json['builds']:
                                     test_json['builds'][test_group] = {
                                         "platform":target ,
@@ -407,16 +400,17 @@ def compile_repos(config, toolchains, targets, profile, verbose, examples, jobs=
                                         "baud_rate": int(example['baud_rate']), 
                                         "tests":{} }
                                 test_json['builds'][test_group]['tests'][name]={"binaries":image_info}
-                                test_status = "TEST_ON"
+                                example_summary["test"] = "TEST_ON"
+                                
                             else:
-                                test_status = "NO_IMAGE"
+                                logging.warning("could not find built image for example %s" % name)
+                                example_summary["test"]  = "NO_IMAGE"
                         else:
-                            print("Warning: Test for %s will not be generated." % name)
-                            print("One or more of 'test', 'baud_rate', and 'compare_log' keys are missing from the example config json file\n")
-                            test_status = "TEST_OFF"
-                        successes.append(example_summary + " " + test_status)
+                            logging.warning("Test for %s will not be generated." % name)
+                            example_summary["test"]  = "TEST_OFF"
+                        successes.append(example_summary)
 
-                os.chdir("..")
+                os.chdir(CWD)
 
             # If there are any compilation failures for the example 'set' then the overall status is fail.
             if len(failures) > 0:
@@ -476,9 +470,9 @@ def symlink_mbedos(config, path, exp_filter):
     return 0
 
 def fetch_output_image(output):
-    """Find the build image from the last 5 lines of a given log"""
+    """Find the build image from the last 30 lines of a given log"""
     lines = output.splitlines()
-    last_index = -6 if len(lines)>4 else (-1 - len(lines))
+    last_index = -31 if len(lines)>29 else (-1 - len(lines))
     for index in range(-1,last_index,-1):
         if lines[index].startswith("Image:"):
             image = lines[index][7:]
