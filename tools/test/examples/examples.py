@@ -19,6 +19,7 @@ limitations
 from argparse import ArgumentParser
 import os
 from os.path import dirname, abspath, basename
+from prettytable import PrettyTable
 import os.path
 import sys
 import subprocess
@@ -53,7 +54,12 @@ def main():
     import_cmd.set_defaults(fn=do_import)
     clone_cmd = subparsers.add_parser("clone")
     clone_cmd.set_defaults(fn=do_clone)
-    deploy_cmd = subparsers.add_parser("deploy")
+    list_cmd   = subparsers.add_parser("list",   help="list examples in config file in a table")
+    list_cmd.set_defaults(fn=do_list)
+    symlink_cmd = subparsers.add_parser("symlink", help="create symbolic link to given mbed-os PATH")
+    symlink_cmd.add_argument("PATH", help=" path of mbed-os to be symlinked")
+    symlink_cmd.set_defaults(fn=do_symlink)
+    deploy_cmd = subparsers.add_parser("deploy", help="mbed deploy" )
     deploy_cmd.set_defaults(fn=do_deploy)
     version_cmd = subparsers.add_parser("tag")
     version_cmd.add_argument("tag")
@@ -153,6 +159,18 @@ def do_versionning(args, config, examples):
     """ Test update the mbed-os to the version specified by the tag """
     return lib.update_mbedos_version(config, args.tag, examples)
 
+def do_list(_, config, examples):
+    """List the examples in the config file"""
+    exp_table = PrettyTable()
+    exp_table.hrules =  1
+    exp_table.field_names = ["Name", "Subs", "Feature", "Targets", "Compile", "Test"]
+    for example in config["examples"]:
+        exp_table.add_row([example['name'], '\n'.join(example['subs']),'\n'.join(example['features']),'\n'.join(example['targets']),example['compile'],example['test']])
+    print(exp_table)
+    return 0
+
+def do_symlink(args, config, examples):
+    return lib.symlink_mbedos(config, args.path, examples)
 
 if __name__ == "__main__":
     sys.exit(main())
