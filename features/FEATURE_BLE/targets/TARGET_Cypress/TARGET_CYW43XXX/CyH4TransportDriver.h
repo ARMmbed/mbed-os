@@ -64,7 +64,8 @@ public:
      */
     virtual uint16_t write(uint8_t type, uint16_t len, uint8_t *pData);
 
-    void bt_host_wake_irq_handler();
+    void bt_host_wake_rise_irq_handler();
+    void bt_host_wake_fall_irq_handler();
 
 #if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
     void on_host_stack_inactivity();
@@ -93,6 +94,7 @@ private:
 
     DigitalInOut bt_host_wake;
     DigitalInOut bt_device_wake;
+    bool bt_host_wake_active;
 
     bool     enabled_powersave;
     uint8_t  host_wake_irq_event;

@@ -171,6 +171,7 @@ public:
                 // Note: Reset is handled by ack_service_pack.
                 case HCI_VS_CMD_SET_SLEEP_MODE:
                     HciWriteLeHostSupport();
+                    sleep_manager_unlock_deep_sleep();
                     break;
 
                 case HCI_OPCODE_WRITE_LE_HOST_SUPPORT:
@@ -318,13 +319,6 @@ public:
         }
     }
 
-#if (defined(MBED_TICKLESS) && DEVICE_SLEEP && DEVICE_LPTICKER)
-    virtual void on_host_stack_inactivity(void)
-    {
-        cy_transport_driver.on_host_stack_inactivity();
-    }
-#endif
-
 private:
 
     // send pre_brcm_patchram_buf issue hci reset and update baud rate on 43012
@@ -390,7 +384,6 @@ private:
 #else /* BT_UART_NO_3M_SUPPORT */
         set_sleep_mode();
 #endif /* BT_UART_NO_3M_SUPPORT */
-        sleep_manager_unlock_deep_sleep();
     }
 
     void send_service_pack_command(void)
@@ -463,7 +456,7 @@ private:
             }
     }
 
-    //	0x18, 0xFC, 0x06, 0x00, 0x00, 0xC0, 0xC6, 0x2D, 0x00,   //update uart baudrate 3 mbp
+    // 0x18, 0xFC, 0x06, 0x00, 0x00, 0xC0, 0xC6, 0x2D, 0x00,   //update uart baudrate 3 mbp
     void HciUpdateUartBaudRate()
     {
             uint8_t *pBuf;
