@@ -6,39 +6,32 @@
    template may cause the bot to automatically correct this header or may result in a 
    warning message, requesting updates.
 
-   Please ensure that nothing follows the Issue request type section, all 
-   issue details are within the Description section and no changes are made to the 
-   template format (as detailed below).
+   Please ensure all sections of the template below are filled in and no changes 
+   are made to the template format. Only bugs should be raised here as issues. 
+   Questions or enhancements should instead be raised on our forums:
+   https://forums.mbed.com/ .
 
    *************************************************************************************
 
 -->
 
-### Description
+### Description of defect
 
 <!--
-    Required
     Add detailed description of what you are reporting.
     Good example: https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html
-    Things to consider sharing:
-    - What target does this relate to?
-    - What toolchain (name + version) are you using?
-    - What tools (name + version - is it mbed-cli, online compiler or IDE) are you using?
-    - What is the SHA of Mbed OS (git log -n1 --oneline)?
-    - Steps to reproduce. (Did you publish code or a test case that exhibits the problem?)
 -->
 
 
-### Issue request type
+#### Target(s) affected by this defect ?
 
-<!--
-    Required
-    Please add only one X to one of the following types. Do not fill multiple types (split the issue otherwise.)
-    Please note this is not a GitHub task list, indenting the boxes or changing the format to add a '.' or '*' in front
-    of them would change the meaning incorrectly. The only changes to be made are to add a description text under the
-    description heading and to add a 'x' to the correct box.
--->
-    [ ] Question
-    [ ] Enhancement
-    [ ] Bug
+
+#### Toolchain(s) (name and version) displaying this defect ?
+
+
+#### What version of Mbed-os are you using (tag or sha) ?
+
+
+#### How is this defect reproduced ? 
+
 
