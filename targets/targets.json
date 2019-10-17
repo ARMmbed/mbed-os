@@ -7715,7 +7715,8 @@
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "WSF_MAX_HANDLERS=10",
             "MBED_MPU_CUSTOM",
-            "SWI_DISABLE0"
+            "SWI_DISABLE0",
+            "NRF52_PAN_20"
         ],
         "features": ["CRYPTOCELL310", "BLE"],
         "device_has": [
@@ -7792,8 +7793,7 @@
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA",
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "ARDUINO_NANO33BLE": {
@@ -7806,8 +7806,7 @@
         "device_has_remove": ["QSPI"],
         "device_has_add": ["FLASH"],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "MTB_LAIRD_BL654": {
@@ -7817,7 +7816,7 @@
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
         "macros_remove": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "macros_add": ["NRFX_RNG_ENABLED=1", "RNG_ENABLED=1", "NRF_QUEUE_ENABLED=1", "CONFIG_GPIO_AS_PINRESET", "NRF52_ERRATA_20"],
+        "macros_add": ["NRFX_RNG_ENABLED=1", "RNG_ENABLED=1", "NRF_QUEUE_ENABLED=1", "CONFIG_GPIO_AS_PINRESET"],
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC",
             "console-uart-flow-control": null
@@ -9412,8 +9411,7 @@
         "components_remove": ["QSPIF"],
         "release_versions": ["5"],
         "macros_add": [
-            "CONFIG_GPIO_AS_PINRESET",
-            "NRF52_ERRATA_20"
+            "CONFIG_GPIO_AS_PINRESET"
         ]
     },
     "IM880B": {
