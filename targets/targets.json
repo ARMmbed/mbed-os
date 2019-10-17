@@ -7732,7 +7732,7 @@
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
-        "components_add": ["QSPIF"],
+        "components_add": ["QSPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "macros": [
             "BOARD_PCA10056",
