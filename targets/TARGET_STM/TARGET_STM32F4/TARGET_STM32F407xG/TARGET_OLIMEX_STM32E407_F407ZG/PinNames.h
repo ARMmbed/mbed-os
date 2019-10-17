@@ -48,6 +48,9 @@ typedef enum {
 } ALTx;
 
 typedef enum {
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
     PA_0  = 0x00,
     PA_0_ALT0 = PA_0 | ALT0,
     PA_0_ALT1 = PA_0 | ALT1,
@@ -284,6 +287,11 @@ typedef enum {
 
 
     LED1 = PC_13,
+    LED2 = NC,
+    LED3 = NC,
+    LED4 = NC,
+    LED5 = NC,
+    LED6 = NC,
     WAKEUP_BUTTON = PA_0,
 
     USB_OTG_FS_VBUSON = PB_0,
@@ -359,10 +367,7 @@ typedef enum {
     SYS_TRACED1 = PE_4,
     SYS_TRACED2 = PE_5,
     SYS_TRACED3 = PE_6,
-    SYS_WKUP = PA_0,
-
-    // Not connected
-    NC = (int)0xFFFFFFFF
+    SYS_WKUP = PA_0
 } PinName;
 
 #ifdef __cplusplus
