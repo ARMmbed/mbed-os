@@ -419,6 +419,14 @@ public:
      */
     ssize_t read_hex_string(char *str, size_t size);
 
+    /** Converts contained chars to their hex ascii value and writes the resulting string to the file handle
+     *  For example: "AV" to "4156".
+     *
+     *  @param str input buffer to be converted to hex ascii
+     *  @param size of the input param str
+     */
+    void write_hex_string(char *str, size_t size);
+
     /** Reads as string and converts result to integer. Supports only non-negative integers.
      *
      *  @return the non-negative integer or -1 in case of error.

@@ -1597,3 +1597,18 @@ void ATHandler::set_send_delay(uint16_t send_delay)
 {
     _at_send_delay = send_delay;
 }
+
+void ATHandler::write_hex_string(char *str, size_t size)
+{
+    // do common checks before sending subparameter
+    if (check_cmd_send() == false) {
+        return;
+    }
+
+    char hexbuf[2];
+    for (int i = 0; i < size; i++) {
+        hexbuf[0] = hex_values[((str[i]) >> 4) & 0x0F];
+        hexbuf[1] = hex_values[(str[i]) & 0x0F];
+        write(hexbuf, 2);
+    }
+}
