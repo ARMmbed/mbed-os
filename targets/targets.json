@@ -3837,6 +3837,7 @@
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "program_cycle_s": 2,
+        "components_add": ["SD", "FLASHIAP"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F407",
@@ -3859,9 +3860,10 @@
             }
         },
         "release_versions": ["2", "5"],
-        "overrides": {"lse_available": 0},
         "device_name": "STM32F407VETx",
+        "bootloader_supported": true,
         "overrides": {
+            "lse_available": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
