@@ -31,7 +31,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "common_defines_test.h"
+#include "common_defines_fs_test.h"
 #include "file_test.h"
 
 #ifdef MBED_CONF_APP_BASICS_TEST_FILENAME
