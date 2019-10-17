@@ -44,8 +44,8 @@
       "targets" : ["K66F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
       "exporters": [],
-      "compile" : true,
-      "export": true,
+      "compile" : false,
+      "export": false,
       "test" : false,
       "baud_rate": 9600,
       "compare_log": [
@@ -74,7 +74,7 @@
       "targets" : ["NRF51_DK", "NRF52_DK", "K66F", "NUCLEO_F401RE"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : true,
+      "compile" : false,
       "export": false,
       "test" : false,
       "auto-update" : true
@@ -351,9 +351,9 @@
         "targets" : ["K64F"],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
-        "test" : true,
+        "compile" : false,
+        "export": false,
+        "test" : false,
         "baud_rate": 9600,
         "compare_log": ["mbed-os-example-mbed-crypto/tests/getting-started.log"],
         "auto-update" : true
