@@ -303,7 +303,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
-    PinMode pull = 0;
+    PinMode pull = PullNone;
 
     DEBUG_PRINTF("spi_format, bits:%d, mode:%d, slave?:%d\r\n", bits, mode, slave);
 
@@ -759,7 +759,7 @@ inline uint32_t spi_irq_handler_asynch(spi_t *obj)
             // else we're done
             event = SPI_EVENT_COMPLETE | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
         }
-        // enable the interrupt
+        // disable the interrupt
         NVIC_DisableIRQ(obj->spi.spiIRQ);
         NVIC_ClearPendingIRQ(obj->spi.spiIRQ);
     }
