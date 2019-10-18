@@ -30,10 +30,6 @@ import json
 """ import and bulid a bunch of example programs """
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
-DEFAULT_BUILD_PROFILES = [
-    "develop",
-    "mbed-os/tools/profiles/extensions/minimal-printf.json",
-]
 sys.path.insert(0, ROOT)
 
 from tools.utils import argparse_force_uppercase_type
@@ -87,10 +83,8 @@ def parse_args():
     compile_cmd.add_argument(
         "--profiles",
         nargs='+',
-        default=DEFAULT_BUILD_PROFILES,
         metavar="profile",
-        help="build profile file(s). default = {}".format(DEFAULT_BUILD_PROFILES)
-    )
+        help="build profile(s)")
     
     compile_cmd.add_argument("-j", "--jobs",
                              dest='jobs',
