@@ -275,6 +275,9 @@ private:
     // Wait on status register until write not-in-progress
     bool _is_mem_ready();
 
+    // Enable Fast Mode - for flash chips with low power default
+    int _enable_fast_mode();
+
     /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
