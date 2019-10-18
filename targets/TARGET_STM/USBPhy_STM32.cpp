@@ -213,6 +213,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     defined(TARGET_NUCLEO_F746ZG) || \
     defined(TARGET_NUCLEO_F756ZG) || \
     defined(TARGET_DISCO_F407VG) || \
+    defined(TARGET_OLIMEX_STM32E407_F407ZG) || \
     defined(TARGET_DISCO_F413ZH) || \
     defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_F746NG_OTG_FS)
@@ -226,7 +227,9 @@ void USBPhyHw::init(USBPhyEvents *events)
     pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // VBUS
 #endif
     pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
+#if !defined(TARGET_OLIMEX_STME407_F407ZG)
     pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // SOF
+#endif
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
 #elif defined(TARGET_DISCO_F429ZI)
