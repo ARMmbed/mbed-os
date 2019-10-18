@@ -227,7 +227,13 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
 
         if (interface->has_addr_state & HAS_ANY_ADDR) {
             interface->connected = NSAPI_STATUS_GLOBAL_UP;
+#if LWIP_IPV6
+            if (ip_addr_islinklocal(get_ipv6_addr(netif))) {
+                interface->connected = NSAPI_STATUS_LOCAL_UP;
+            }
+#endif
         }
+
     } else if (!netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         interface->connected = NSAPI_STATUS_DISCONNECTED;
     }
