@@ -24749,9 +24749,33 @@ typedef struct {
 #define OTP_API                                  (ROM_API->otpApiBase)
 
 /*!
+ * @brief Get the chip value.
+ *
+ * @return chip version, 0x0: A0 version chip, 0x1: A1 version chip, 0xFF: invalid version.
+ */
+static inline uint32_t Chip_GetVersion()
+{
+    uint32_t deviceRevision;
+
+    deviceRevision = SYSCON->DIEID & SYSCON_DIEID_REV_ID_MASK;
+
+    if (0 == deviceRevision) /* A0 device revision is 0 */
+    {
+        return 0x0;
+    }
+    else if (1 == deviceRevision) /* A1 device revision is 1 */
+    {
+        return 0x1;
+    }
+    else
+    {
+        return 0xFF;
+    }
+}
+
+/*!
  * @}
  */ /* end of group SDK_Compatibility_Symbols */
-
 
 #endif  /* _LPC55S69_CM33_CORE1_H_ */
 
