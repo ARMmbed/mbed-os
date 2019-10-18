@@ -716,6 +716,7 @@ int QSPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, s
     // Detect and Set fastest Bus mode (default 1-1-1)
     _sfdp_detect_best_bus_read_mode(param_table, basic_table_size, shouldSetQuadEnable, is_qpi_mode);
     if (true == shouldSetQuadEnable) {
+        _enable_fast_mode();
         // Set Quad Enable and QPI Bus modes if Supported
         tr_debug("Init - Setting Quad Enable");
         if (0 != _sfdp_set_quad_enabled(param_table)) {
@@ -1277,6 +1278,73 @@ int QSPIFBlockDevice::_set_write_enable()
     } while (false);
 
     return status;
+}
+
+int QSPIFBlockDevice::_enable_fast_mode()
+{
+    const int NUM_REGISTERS = QSPI_STATUS_REGISTER_COUNT + 1; // Status registers + one config register
+    char status_reg[NUM_REGISTERS] = {0};
+    unsigned int read_conf_register_inst = 0x15;
+    char status_reg_qer_setup[NUM_REGISTERS] = {0};
+
+    status_reg_qer_setup[2] = 0x2; // Bit 1 of config Reg 2
+
+    // Configure  BUS Mode to 1_1_1 for all commands other than Read
+    if (QSPI_STATUS_OK != _qspi.configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
+                                                 0, QSPI_CFG_BUS_SINGLE, 0)) {
+        tr_error("_qspi_configure_format failed");
+        return -1;
+
+    }
+
+    // Read Status Register
+    if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
+                                                     &status_reg[1],
+                                                     NUM_REGISTERS - 1)) {  // store received values in status_value
+        tr_debug("Reading Config Register Success: value = 0x%x", (int)status_reg[2]);
+    } else {
+        tr_error("Reading Config Register failed");
+        return -1;
+    }
+
+    // Set Bits for Quad Enable
+    for (int i = 0; i < NUM_REGISTERS; i++) {
+        status_reg[i] |= status_reg_qer_setup[i];
+    }
+
+    // Write new Status Register Setup
+    if (_set_write_enable() != 0) {
+        tr_error("Write Enabe failed");
+        return -1;
+    }
+
+    if (QSPI_STATUS_OK == _qspi_send_general_command(QSPIF_INST_WSR1, QSPI_NO_ADDRESS_COMMAND, status_reg,
+                                                     NUM_REGISTERS, NULL,
+                                                     0)) {   // Write Fast mode bit to status_register
+        tr_debug("fast mode enable - Writing Config Register Success: value = 0x%x",
+                 (int)status_reg[2]);
+    } else {
+        tr_error("fast mode enable - Writing Config Register failed");
+        return -1;
+    }
+
+    if (false == _is_mem_ready()) {
+        tr_error("Device not ready after write, failed");
+        return -1;
+    }
+
+    // For Debug
+    memset(status_reg, 0, NUM_REGISTERS);
+    if (QSPI_STATUS_OK == _qspi_send_general_command(read_conf_register_inst, QSPI_NO_ADDRESS_COMMAND, NULL, 0,
+                                                     &status_reg[1],
+                                                     NUM_REGISTERS - 1)) {  // store received values in status_value
+        tr_debug("Verifying Config Register Success: value = 0x%x", (int)status_reg[2]);
+    } else {
+        tr_error("Verifying Config Register failed");
+        return -1;
+    }
+
+    return 0;
 }
 
 bool QSPIFBlockDevice::_is_mem_ready()
