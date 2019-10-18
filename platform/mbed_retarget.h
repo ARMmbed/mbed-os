@@ -82,6 +82,7 @@ typedef unsigned int  gid_t;    ///< Group ID
 /** \addtogroup platform-public-api */
 /** @{*/
 
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 /**
  * \defgroup platform_retarget Retarget functions
  * @{
@@ -90,7 +91,6 @@ typedef unsigned int  gid_t;    ///< Group ID
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
-
 class FileHandle;
 class DirHandle;
 
@@ -185,6 +185,7 @@ typedef mbed::DirHandle DIR;
 #else
 typedef struct Dir DIR;
 #endif
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 /* The intent of this section is to unify the errno error values to match
  * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
@@ -559,6 +560,7 @@ struct pollfd {
 #if __cplusplus
 extern "C" {
 #endif
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     int open(const char *path, int oflag, ...);
 #ifndef __IAR_SYSTEMS_ICC__ /* IAR provides fdopen itself */
 #if __cplusplus
@@ -567,12 +569,14 @@ extern "C" {
     FILE *fdopen(int fildes, const char *mode);
 #endif
 #endif
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     ssize_t write(int fildes, const void *buf, size_t nbyte);
     ssize_t read(int fildes, void *buf, size_t nbyte);
+    int fsync(int fildes);
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
     off_t lseek(int fildes, off_t offset, int whence);
     int ftruncate(int fildes, off_t length);
     int isatty(int fildes);
-    int fsync(int fildes);
     int fstat(int fildes, struct stat *st);
     int fcntl(int fildes, int cmd, ...);
     int poll(struct pollfd fds[], nfds_t nfds, int timeout);
@@ -586,11 +590,12 @@ extern "C" {
     long telldir(DIR *);
     void seekdir(DIR *, long);
     int mkdir(const char *name, mode_t n);
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 #if __cplusplus
 }; // extern "C"
 
 namespace mbed {
-
+#if !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 /** This call is an analogue to POSIX fdopen().
  *
  *  It associates a C stream to an already-opened FileHandle, to allow you to
@@ -618,6 +623,33 @@ std::FILE *fdopen(mbed::FileHandle *fh, const char *mode);
  *  @return         an integer file descriptor, or negative if no descriptors available
  */
 int bind_to_fd(mbed::FileHandle *fh);
+
+#else
+/** Targets may implement this to override how to write to the console.
+ *
+ * If the target has provided minimal_console_putc, this is called
+ * to give the target a chance to specify an alternative minimal console.
+ *
+ * If this is not provided, serial_putc will be used if
+ * `target.console-uart` is `true`, else there will not be an output.
+ *
+ *  @param c   The char to write
+ *  @return    The written char
+ */
+int minimal_console_putc(int c);
+
+/** Targets may implement this to override how to read from the console.
+ *
+ * If the target has provided minimal_console_getc, this is called
+ * to give the target a chance to specify an alternative minimal console.
+ *
+ * If this is not provided, serial_getc will be used if
+ * `target.console-uart` is `true`, else no input would be captured.
+ *
+ *  @return  The char read from the serial port
+ */
+int minimal_console_getc();
+#endif // !MBED_CONF_PLATFORM_STDIO_MINIMAL_CONSOLE_ONLY
 
 } // namespace mbed
 

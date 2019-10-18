@@ -373,7 +373,7 @@ private:
 template <class Callable, class... Args>
 void call_once(once_flag &flag, Callable&& f, Args&&... args)
 {
-    if (!(core_util_atomic_load_explicit(&flag.__guard, mbed_memory_order_acquire) & 1)) {
+    if (!(core_util_atomic_load_explicit((uint8_t *)&flag.__guard, mbed_memory_order_acquire) & 1)) {
         if (__cxa_guard_acquire(&flag.__guard)) {
              mstd::invoke(mstd::forward<Callable>(f), mstd::forward<Args>(args)...);
              __cxa_guard_release(&flag.__guard);

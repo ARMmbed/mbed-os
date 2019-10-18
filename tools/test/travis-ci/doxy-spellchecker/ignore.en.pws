@@ -110,4 +110,5 @@ pppd
 pppdebug
 ppp
 api
+uart
 _doxy_
