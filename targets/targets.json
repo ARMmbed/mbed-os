@@ -2494,7 +2494,6 @@
             }
         },
         "detect_code": ["0720"],
-        "macros_add": ["MBED_TICKLESS"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2545,10 +2544,7 @@
                 "value": 1
             }
         },
-        "macros_add": [
-            "MBED_TICKLESS"
-        ],
-        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0744"],
         "device_has_add": [
             "ANALOGOUT",
@@ -2574,7 +2570,6 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "macros_add": ["MBED_TICKLESS"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2719,10 +2714,9 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0743"],
         "macros_add": [
-            "MBED_TICKLESS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -2759,10 +2753,9 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 4, "tickless-from-us-ticker": true},
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0743"],
         "macros_add": [
-            "MBED_TICKLESS"
         ],
         "device_has_add": [
             "ANALOGOUT",
