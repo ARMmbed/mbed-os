@@ -893,24 +893,21 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 
     switch (mac_hdr.bits.mtype) {
 
-        case FRAME_TYPE_JOIN_ACCEPT:
-        {
+        case FRAME_TYPE_JOIN_ACCEPT: {
             loramac_mhdr_t tx_mac_hdr;
             tx_mac_hdr.value = _params.tx_buffer[0];
 
-            // Do not allow join accept if not received in class A downlink after join request 
-            bool allow_join_accept = ((rx_slot == RX_SLOT_WIN_1) || (rx_slot == RX_SLOT_WIN_2)) && 
-                                     ((tx_mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ) || 
-                                      (tx_mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST));
-
-            if(allow_join_accept){
+            // Do not allow join accept if not received in class A downlink after join request
+            bool process_join = ((rx_slot == RX_SLOT_WIN_1) || (rx_slot == RX_SLOT_WIN_2)) &&
+                                ((tx_mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ) || (tx_mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST));
+            if (process_join) {
                 ret = handle_join_accept_frame(payload, size);
                 mlme.type = MLME_JOIN_ACCEPT;
                 mlme.status = ret;
                 confirm_handler(mlme);
+            } else {
+                unexpected_mtype = true;
             }
-
-            unexpected_mtype = !allow_join_accept;
 
             break;
         }
@@ -927,7 +924,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
             break;
     }
 
-    if(unexpected_mtype){
+    if (unexpected_mtype) {
         //  This can happen e.g. if we happen to receive uplink of another device
         //  during the receive window. Block RX2 window since it can overlap with
         //  QOS TX and cause a mess.
