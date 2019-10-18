@@ -927,7 +927,6 @@ __asm(".global __use_no_semihosting\n\t");
 // Through weak-reference, we can check if ARM_LIB_HEAP is defined at run-time.
 // If ARM_LIB_HEAP is defined, we can fix heap allocation.
 extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Base[];
-extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Length[];
 extern MBED_WEAK uint32_t   Image$$ARM_LIB_HEAP$$ZI$$Limit[];
 
 // Heap here is considered starting after ZI ends to Stack start
@@ -942,7 +941,7 @@ extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup
     struct __initial_stackheap r;
 
     // Fix heap if ARM_LIB_HEAP is defined
-    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+    if (Image$$ARM_LIB_HEAP$$ZI$$Base != Image$$ARM_LIB_HEAP$$ZI$$Limit) {
         heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
         heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
     }
@@ -965,7 +964,7 @@ extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapb
     uint32_t heap_limit = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
 
     // Fix heap if ARM_LIB_HEAP is defined
-    if (Image$$ARM_LIB_HEAP$$ZI$$Length) {
+    if (Image$$ARM_LIB_HEAP$$ZI$$Base != Image$$ARM_LIB_HEAP$$ZI$$Limit) {
         heap_base = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Base;
         heap_limit = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Limit;
     }
