@@ -1,38 +1,36 @@
 # Examples testing script
 
-The scripts in this folder are used for testing mbed-os official examples. it contains following files:
+The scripts in this folder are used for testing `mbed-os` official examples. It contains the following files:
 
-- `examples.py` the main script which serves as command line interface
-- `examples.json` the default configuration file for the script, which contains the information to the examples. if required, a customised configuration file can be pass as argument to the script
-- `examples_lib.py` the library file, which contains the main function of the testing scripts
+- `examples.py` - the main script that serves as the command-line interface.
+- `examples.json` - the default configuration file for the script, which contains the information to the examples. If required, you can pass a customized configuration file as an argument to the script.
+- `examples_lib.py` - the library file, which contains the main function of the testing scripts.
 
+## The scripts
 
-## The Scripts
+`examples.py` provides command-line interface and subcommands that makes easier to test examples. Included subcommands are:
 
-`examples.py` provide command line interface and sub commands that makes easier to test examples. included  sub commands  are:
+* **import** - imports each of the repos and its dependencies (.lib files) associated with the specific examples name from the .json configuration file. If there is already a clone of the repo, it will first be removed to ensure a clean, up-to-date cloning.
 
-* **import** - Imports each of the repos and its dependencies (.lib files) associated  with the specific examples name from the json configuration file. Note if there is already a clone of the repo then it will first be removed to  ensure a clean, up to date cloning.
+* **clone** - clones each of the repos associated with the specific examples name from the .json configuration file. If there is already a clone of the repo, it will first be removed to ensure a clean, up-to-date cloning.
 
-* **clone** - clones each of the repos associated with the specific examples name from the json configuration file. Note if there is already a clone of the repo then it will first be removed to ensure a clean, up to date cloning.
+* **deploy** - if the example directory exists as provided by the .json configuration file, pulls in the examples dependencies by using `mbed-cli deploy`.
 
-* **deploy** - If the example directory exists as provided by the json configuration file, pull in the examples dependencies by using `mbed-cli deploy`.
+* **update** - for each example repo identified in the config .json object, updates the version of `mbed-os` to that specified by the supplied GitHub tag. This function assumes that each example repo has already been cloned.
 
-* **update** - For each example repo identified in the config json object, update the version of mbed-os to that specified by the supplied GitHub tag. This function assumes that each example repo has already been cloned.
+* **compile** - compiles combinations of example programs, targets and compile chains.
 
-* **compile** - Compiles combinations of example programs, targets and compile chains.
+* **export** - exports and builds combinations of example programs, targets and IDEs.
 
-* **export** - Exports and builds combinations of example programs, targets and IDEs.
+* **list** - displays examples in a configuration file in a table.
 
-* **list** - display examples in configuration file in a table
+* **symlink** - creates a symbolic link to a given `mbed-os` PATH.
 
-* **symlink** - create symbolic link to given mbed-os PATH
+For more detailed options, please use `-h` or `--help`.
 
-for more detailed options, please use `-h` or `--help` 
+## The configuration file
 
-
-## The Configuration file
-
-here is the section of default configuration file:
+Here is the section of default configuration file:
 
  ```json
  {
@@ -89,61 +87,63 @@ here is the section of default configuration file:
 
 ### Fields
 
-* **name** - name of the example, should be the base name of the example repository address, will throw if not match
-* **github** - example github repository address
-* **sub-repo-example** specify if the example repository have sub folder for each examples
-* **subs** - array of sub examples names
-* **features** The features that must be in the features array of a target in targets.json
-* **baud_rate** example default baud rate
-* **compare_log**  array of log which is compared to command line output when testing, if example has many sub examples, the order of log should match with the order of sub examples. 
-* **targets** - list of mbed-os dev boards that runs this example. 
-* **targets** list of targeted development boards
-* **toolchains** toolchain to use for compile
-* **exporters** allowed exporters
-* **compile** enable compiling
-* **export** enable exporting
-* **test** enable testing
+* **name** - name of the example. It should be the base name of the example repository address and will throw if it doesn't match.
+* **github** - example GitHub repository address.
+* **sub-repo-example** - specifies if the example repository has a subfolder for each example.
+* **subs** - array of subexample names.
+* **features** - the features that must be in the features array of a target in `targets.json`.
+* **baud_rate** - example default baud rate.
+* **compare_log** - array of log compared to command-line output during testing. If the example has many subexamples, the order of log should match the order of subexamples. 
+* **targets** - list of `mbed-os` development boards that run this example. 
+* **targets** - list of targeted development boards.
+* **toolchains** - toolchain to use for compiling.
+* **exporters** - allowed exporters.
+* **compile** - enables compiling.
+* **export** - enables exporting.
+* **test** - enables testing.
 
 ### Values
 
-`[ ]` means all possible alternatives
+`[ ]` means all possible alternatives.
 
+## Typical use
 
+In the Mbed OS CI, we follow the below steps to compile and test Mbed OS examples.
 
-## Typical usage
+1. Clone `mbed-os` repository to the current folder:
 
-In mbed-OS CI, we usually following the bellow steps to compile and test  mbed-os-examples.
+   ```
+   git clone https://github.com/ARMmbed/mbed-os.git
+   ```
 
-1. Clone mbed-os repository to current folder 
+1. Clone the examples repo to the current folder. Users can pass an `-e` option to the script to filter out the rest of the examples, so the scripts only run on one particular example:
+
+   ```
+   python mbed-os/tools/test/examples/examples.py clone
+   ```
+
+1. Create a symbolic link to `mbed-os` for every example. This step lets all the examples share a single `mbed-os` folder, rather than checking out the `mbed-os` folder many times. We highly recommend you pass an absolute path as the argument: 
+
+   ```
+   python mbed-os/tools/test/examples/examples.py symlink $PWD/mbedos
+   ```
+
+1. Deploy other dependency libraries:
+
+   ```
+   python mbed-os/tools/test/examples/examples.py deploy
+   ```
+
+1. Compile the test for the examples on a specific target:
+
+   ```
+   python mbed-os/tools/test/examples/examples.py compile -m <target>
+   ```
+
+After the compile test finished, the scripts print the result table:
 
 ```
-git clone https://github.com/ARMmbed/mbed-os.git
-```
-
-2. Clone the examples repo to current folder , users can pass a `-e` option to the script to filter out rest of the exmpale and let the scripts only run on particular one 
-
-```
-python mbed-os/tools/test/examples/examples.py clone
-```
-
-3. Create symbolic link to mbed-os for every examples. this is step is to let the all the examples share a single mbed-os folder, rather that checkout the mbed-os folder many times . In bellow command pass an absolute path as the argument is highly recommended  
-
-```
-python mbed-os/tools/test/examples/examples.py symlink $PWD/mbedos
-```
-4. deploy mbed-os other dependency libraries
-
-```
-python mbed-os/tools/test/examples/examples.py deploy
-```
-5. compile test for the examples on a specific target
-```
-python mbed-os/tools/test/examples/examples.py compile -m <target>
-```
-once the compile test finished, the scripts will prints the result table as follows:
-
-```
-Passed Example Compilation:
+Passed example compilation:
 +---------------------------------+--------+-----------+----------+--------------+
 | EXAMPLE NAME                    | TARGET | TOOLCHAIN | TEST GEN | BUILD RESULT |
 +---------------------------------+--------+-----------+----------+--------------+
@@ -164,6 +164,4 @@ Passed Example Compilation:
 Number of failures = 0
 ```
 
-after the compilation stage, a `test_spec.json` file will be generated, later this file will be consumed by GreenTea tests, which is going to test the compiled example on hardware platform. 
-
-
+After the compilation stage, a `test_spec.json` file is generated. Later, Greentea tests will consume this file. They test the compiled example on hardware platform. 
