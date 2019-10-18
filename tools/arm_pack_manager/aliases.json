@@ -60,6 +60,12 @@
       "AC33MA384A"
     ]
   },
+  "AC781x Development Kit": {
+    "name": "AC781x Development Kit",
+    "mounted_devices": [
+      "AC7811QBGE"
+    ]
+  },
   "ADSP-CM419F EZ-BOARD": {
     "name": "ADSP-CM419F EZ-BOARD",
     "mounted_devices": [
@@ -88,6 +94,12 @@
     "name": "ADuCM4050 EZ-KIT",
     "mounted_devices": [
       "ADuCM4050"
+    ]
+  },
+  "APM32F103MINI": {
+    "name": "APM32F103MINI",
+    "mounted_devices": [
+      "APM32F103VB"
     ]
   },
   "Apollo1 EVB": {
@@ -234,6 +246,72 @@
       "TM4C1294NCPDT"
     ]
   },
+  "ESK32-30105 (HT32F12366)": {
+    "name": "ESK32-30105 (HT32F12366)",
+    "mounted_devices": [
+      "HT32F12366"
+    ]
+  },
+  "ESK32-30106 (HT32F12345)": {
+    "name": "ESK32-30106 (HT32F12345)",
+    "mounted_devices": [
+      "HT32F12345"
+    ]
+  },
+  "ESK32-30501 (HT32F52352)": {
+    "name": "ESK32-30501 (HT32F52352)",
+    "mounted_devices": [
+      "HT32F52352"
+    ]
+  },
+  "ESK32-30502 (HT32F52341)": {
+    "name": "ESK32-30502 (HT32F52341)",
+    "mounted_devices": [
+      "HT32F52341"
+    ]
+  },
+  "ESK32-30503 (HT32F52241)": {
+    "name": "ESK32-30503 (HT32F52241)",
+    "mounted_devices": [
+      "HT32F52241"
+    ]
+  },
+  "ESK32-30504 (HT32F52230)": {
+    "name": "ESK32-30504 (HT32F52230)",
+    "mounted_devices": [
+      "HT32F52230"
+    ]
+  },
+  "ESK32-30505 (HT32F52253)": {
+    "name": "ESK32-30505 (HT32F52253)",
+    "mounted_devices": [
+      "HT32F52253"
+    ]
+  },
+  "ESK32-30506 (HT32F50230)": {
+    "name": "ESK32-30506 (HT32F50230)",
+    "mounted_devices": [
+      "HT32F50230"
+    ]
+  },
+  "ESK32-30507 (HT32F50241)": {
+    "name": "ESK32-30507 (HT32F50241)",
+    "mounted_devices": [
+      "HT32F50241"
+    ]
+  },
+  "ESK32-30508 (HT32F0008)": {
+    "name": "ESK32-30508 (HT32F0008)",
+    "mounted_devices": [
+      "HT32F0008"
+    ]
+  },
+  "ESK32-30509 (HT32F52354)": {
+    "name": "ESK32-30509 (HT32F52354)",
+    "mounted_devices": [
+      "HT32F52354"
+    ]
+  },
   "EV-COG-AD3029LZ": {
     "name": "EV-COG-AD3029LZ",
     "mounted_devices": [
@@ -288,6 +366,18 @@
       "MIMX8MQ6xxxJZ"
     ]
   },
+  "EVK-MIMXRT1010": {
+    "name": "EVK-MIMXRT1010",
+    "mounted_devices": [
+      "MIMXRT1011xxxxx"
+    ]
+  },
+  "EVK-MIMXRT1015": {
+    "name": "EVK-MIMXRT1015",
+    "mounted_devices": [
+      "MIMXRT1015xxxxx"
+    ]
+  },
   "EVK-MIMXRT1020": {
     "name": "EVK-MIMXRT1020",
     "mounted_devices": [
@@ -310,6 +400,12 @@
     "name": "EVKB-IMXRT1050",
     "mounted_devices": [
       "MIMXRT1052xxxxB"
+    ]
+  },
+  "EWARM Simulator": {
+    "name": "EWARM Simulator",
+    "mounted_devices": [
+      "ARMCM0"
     ]
   },
   "FF_LPC546XX": {
@@ -340,6 +436,18 @@
     "name": "FRDM-K28FA",
     "mounted_devices": [
       "MK28FN2M0Axxx15"
+    ]
+  },
+  "FRDM-K32L2B": {
+    "name": "FRDM-K32L2B",
+    "mounted_devices": [
+      "K32L2B31xxxxA"
+    ]
+  },
+  "FRDM-K32L3A6": {
+    "name": "FRDM-K32L3A6",
+    "mounted_devices": [
+      "K32L3A60xxx"
     ]
   },
   "FRDM-K32W042": {
@@ -388,6 +496,12 @@
     "name": "FRDM-KE15Z",
     "mounted_devices": [
       "MKE15Z256xxx7"
+    ]
+  },
+  "FRDM-KE16Z": {
+    "name": "FRDM-KE16Z",
+    "mounted_devices": [
+      "MKE16Z64xxx4"
     ]
   },
   "FRDM-KL02Z": {
@@ -558,6 +672,18 @@
       "LPC812M101JDH20"
     ]
   },
+  "LPC845BREAKOUT": {
+    "name": "LPC845BREAKOUT",
+    "mounted_devices": [
+      "LPC845"
+    ]
+  },
+  "LPC8N04DevBoard": {
+    "name": "LPC8N04DevBoard",
+    "mounted_devices": [
+      "LPC8N04"
+    ]
+  },
   "LPCXpresso1125": {
     "name": "LPCXpresso1125",
     "mounted_devices": [
@@ -610,6 +736,24 @@
     "name": "LPCXpresso54628",
     "mounted_devices": [
       "LPC54628J512"
+    ]
+  },
+  "LPCXpresso54S018": {
+    "name": "LPCXpresso54S018",
+    "mounted_devices": [
+      "LPC54S018"
+    ]
+  },
+  "LPCXpresso54S018M": {
+    "name": "LPCXpresso54S018M",
+    "mounted_devices": [
+      "LPC54S018M"
+    ]
+  },
+  "LPCXpresso55S69": {
+    "name": "LPCXpresso55S69",
+    "mounted_devices": [
+      "LPC55S69"
     ]
   },
   "LPCXpresso802": {
@@ -706,6 +850,13 @@
     "name": "MAX32660_EVKIT",
     "mounted_devices": [
       "MAX32660"
+    ]
+  },
+  "MAX32665-66 EvKit": {
+    "name": "MAX32665-66 EvKit",
+    "mounted_devices": [
+      "MAX32666",
+      "MAX32665"
     ]
   },
   "MCB11C14": {
@@ -944,6 +1095,12 @@
       "Musca"
     ]
   },
+  "Musca_B1": {
+    "name": "Musca_B1",
+    "mounted_devices": [
+      "Musca_B1"
+    ]
+  },
   "N5 Starter Kit": {
     "name": "N5 Starter Kit",
     "mounted_devices": [
@@ -980,6 +1137,12 @@
       "STM32F401RE"
     ]
   },
+  "NUCLEO-F412ZG": {
+    "name": "NUCLEO-F412ZG",
+    "mounted_devices": [
+      "STM32F412ZG"
+    ]
+  },
   "NUCLEO-F446RE": {
     "name": "NUCLEO-F446RE",
     "mounted_devices": [
@@ -1002,6 +1165,12 @@
     "name": "NUCLEO-L476RG",
     "mounted_devices": [
       "STM32L476RG"
+    ]
+  },
+  "NUCLEO-WB55": {
+    "name": "NUCLEO-WB55",
+    "mounted_devices": [
+      "STM32WB55RGVx"
     ]
   },
   "NuTiny-SDK-M051": {
@@ -1032,6 +1201,12 @@
     "name": "RC10001_DB",
     "mounted_devices": [
       "RC10001"
+    ]
+  },
+  "RGB LED Lighting Shield": {
+    "name": "RGB LED Lighting Shield",
+    "mounted_devices": [
+      "XMC1202-T028x0016"
     ]
   },
   "RS13100": {
@@ -1372,10 +1547,22 @@
       "STM32F769NIHx"
     ]
   },
+  "STM32G474E-EVAL": {
+    "name": "STM32G474E-EVAL",
+    "mounted_devices": [
+      "STM32G474QETx"
+    ]
+  },
   "STM32H743I-EVAL": {
     "name": "STM32H743I-EVAL",
     "mounted_devices": [
       "STM32H743XI"
+    ]
+  },
+  "STM32H747I-EVAL": {
+    "name": "STM32H747I-EVAL",
+    "mounted_devices": [
+      "STM32H747XI"
     ]
   },
   "STM32L-Discovery": {
@@ -1414,10 +1601,40 @@
       "STM32L4R9AIIx"
     ]
   },
+  "STM32MP157C-DK2": {
+    "name": "STM32MP157C-DK2",
+    "mounted_devices": [
+      "STM32MP157CAA"
+    ]
+  },
+  "STM32MP157C-EV1": {
+    "name": "STM32MP157C-EV1",
+    "mounted_devices": [
+      "STM32MP157CAA"
+    ]
+  },
   "TLE984x Eval.Board Rev1.4": {
     "name": "TLE984x Eval.Board Rev1.4",
     "mounted_devices": [
       "TLE9844QX"
+    ]
+  },
+  "TLE9855 EvalKit": {
+    "name": "TLE9855 EvalKit",
+    "mounted_devices": [
+      "TLE9855QX"
+    ]
+  },
+  "TLE985X EvalBoard": {
+    "name": "TLE985X EvalBoard",
+    "mounted_devices": [
+      "TLE9855QX"
+    ]
+  },
+  "TLE985X EvalBoard with additional H-Bridge device": {
+    "name": "TLE985X EvalBoard with additional H-Bridge device",
+    "mounted_devices": [
+      "TLE9855QX"
     ]
   },
   "TLE9869 EvalKit": {
@@ -1426,10 +1643,22 @@
       "TLE9869QXA20"
     ]
   },
+  "TLE986x EvalBoard": {
+    "name": "TLE986x EvalBoard",
+    "mounted_devices": [
+      "TLE9869QXA20"
+    ]
+  },
   "TLE9879 EvalKit": {
     "name": "TLE9879 EvalKit",
     "mounted_devices": [
       "TLE9879QXA40"
+    ]
+  },
+  "TLE987x EvalBoard": {
+    "name": "TLE987x EvalBoard",
+    "mounted_devices": [
+      "TLE9879-2QXA40"
     ]
   },
   "TRK-KEA128": {
@@ -1679,7 +1908,7 @@
   "XMC1400 Boot Kit": {
     "name": "XMC1400 Boot Kit",
     "mounted_devices": [
-      "XMC1402-Q040x0128"
+      "XMC1404-Q064x0200"
     ]
   },
   "XMC4200 CPU Board - Actuator  (CPU_42A)": {
@@ -1734,6 +1963,12 @@
     "name": "XMC4800 Automation Board",
     "mounted_devices": [
       "XMC4800-E196x2048"
+    ]
+  },
+  "XMC4800 IoT Connectivity Kit": {
+    "name": "XMC4800 IoT Connectivity Kit",
+    "mounted_devices": [
+      "XMC4800-F100x2048"
     ]
   },
   "XMC4800 Relax EtherCAT Kit": {
