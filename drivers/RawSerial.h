@@ -37,7 +37,8 @@ namespace mbed {
  * @{
  */
 
-/** A serial port (UART) for communication with other serial devices
+/** @deprecated
+ * A serial port (UART) for communication with other serial devices
  * This is a variation of the Serial class that doesn't use streams,
  * thus making it safe to use in interrupt handlers with the RTOS.
  *
@@ -59,10 +60,15 @@ namespace mbed {
  * }
  * @endcode
  */
-class RawSerial: public SerialBase, private NonCopyable<RawSerial> {
+class
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-6.0.0",
+        "Use UnbufferedSerial instead."
+    ) RawSerial: public SerialBase, private NonCopyable<RawSerial> {
 
 public:
-    /** Create a RawSerial port, connected to the specified transmit and receive pins, with the specified baud.
+    /** @deprecated
+     * Create a RawSerial port, connected to the specified transmit and receive pins, with the specified baud.
      *
      *  @param tx Transmit pin
      *  @param rx Receive pin
@@ -71,31 +77,41 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     RawSerial(PinName tx, PinName rx, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
-    /** Write a char to the serial port
+    /** @deprecated
+     * Write a char to the serial port
      *
      * @param c The char to write
      *
      * @returns The written char or -1 if an error occurred
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int putc(int c);
 
-    /** Read a char from the serial port
+    /** @deprecated
+     * Read a char from the serial port
      *
      * @returns The char read from the serial port
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int getc();
 
-    /** Write a string to the serial port
+    /** @deprecated
+     * Write a string to the serial port
      *
      * @param str The string to write
      *
      * @returns 0 if the write succeeds, EOF for error
      */
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int puts(const char *str);
 
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
+
+    MBED_DEPRECATED("The class has been deprecated and will be removed in the future.")
     int vprintf(const char *format, std::va_list arg);
 
 #if !(DOXYGEN_ONLY)
