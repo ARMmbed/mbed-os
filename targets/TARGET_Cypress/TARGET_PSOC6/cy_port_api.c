@@ -64,13 +64,10 @@ void port_dir(port_t *obj, PinDirection dir)
 void port_write(port_t *obj, int value)
 {
     GPIO_PRT_Type *port_type = Cy_GPIO_PortToAddr(obj->port);
-    if (obj->mask == 0xff)
-    {
+    if (obj->mask == 0xff) {
         // Optimization for when all pins on the port is used.
         port_type->OUT = value;
-    }
-    else
-    {
+    } else {
         port_type->OUT_SET = value & obj->mask;
         port_type->OUT_CLR = (~value) & obj->mask;
     }
