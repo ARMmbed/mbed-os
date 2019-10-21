@@ -707,7 +707,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros": ["TARGET_LPC1768"],
+        "macros": ["TARGET_LPC1768", "UBX_MDM_SARA_G3XX", "UBX_MDM_SARA_G350"],
         "inherits": ["LPCTarget"],
         "device_has": [
             "USTICKER",
@@ -4997,23 +4997,28 @@
     "UBLOX_C030_U201": {
         "inherits": ["UBLOX_C030"],
         "components_add": ["SD", "FLASHIAP"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "macros_add": ["UBX_MDM_SARA_U2XX", "UBX_MDM_SARA_U201"]
     },
     "UBLOX_C030_N211": {
         "inherits": ["UBLOX_C030"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "macros_add": ["UBX_MDM_SARA_N2XX", "UBX_MDM_SARA_N211"]
     },
     "UBLOX_C030_R41XM": {
         "inherits": ["UBLOX_C030"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "public": false
     },
     "UBLOX_C030_R410M": {
         "inherits": ["UBLOX_C030_R41XM"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "macros_add": ["UBX_MDM_SARA_R41XM", "UBX_MDM_SARA_R410M"]
     },
     "UBLOX_C030_R412M": {
         "inherits": ["UBLOX_C030_R41XM"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "macros_add": ["UBX_MDM_SARA_R41XM", "UBX_MDM_SARA_R412M"]
     },
     "NZ32_SC151": {
         "inherits": ["FAMILY_STM32"],
