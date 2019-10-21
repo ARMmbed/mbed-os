@@ -125,7 +125,7 @@ In the Mbed OS CI, we follow the below steps to compile and test Mbed OS example
 1. Create a symbolic link to `mbed-os` for every example. This step lets all the examples share a single `mbed-os` folder, rather than checking out the `mbed-os` folder many times. We highly recommend you pass an absolute path as the argument: 
 
    ```
-   python mbed-os/tools/test/examples/examples.py symlink $PWD/mbedos
+   python mbed-os/tools/test/examples/examples.py symlink $PWD/mbed-os
    ```
 
 1. Deploy other dependency libraries:
