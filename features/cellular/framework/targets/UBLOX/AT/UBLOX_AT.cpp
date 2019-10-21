@@ -126,14 +126,14 @@ nsapi_error_t UBLOX_AT::config_authentication_parameters()
     nsapi_error_t err;
     char imsi[MAX_IMSI_LENGTH + 1];
 
-    if (apn == NULL) {
+    if (ubx_context->get_apn() == NULL) {
         err = get_imsi(imsi);
         if (err == NSAPI_ERROR_OK) {
             config = (char *)apnconfig(imsi);
         }
+        ubx_context->get_next_credentials(&config);
     }
 
-    ubx_context->get_next_credentials(&config);
     apn = ubx_context->get_apn();
     pwd = ubx_context->get_pwd();
     uname = ubx_context->get_uname();
