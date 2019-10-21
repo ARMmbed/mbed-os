@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018-2018 ARM Limited
+ * Copyright (c) 2018-2019 ARM Limited
+ * Copyright (c) 2018-2019 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +15,28 @@
  * limitations under the License.
  */
 
-/* This target doesn't support USB */
-#if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
-#define USBSTM_HAL_UNSUPPORTED
-#endif
+#if DEVICE_USBDEVICE
 
-/* TARGET NOT STM does not support this HAL */
-#ifndef TARGET_STM
-#define USBSTM_HAL_UNSUPPORTED
-#endif
-
-#ifndef USBSTM_HAL_UNSUPPORTED
 #include "USBPhyHw.h"
 #include "pinmap.h"
 
 /* endpoint conversion macros */
-#define EP_TO_LOG(ep)       ((ep) & 0x7F)
-#define EP_TO_IDX(ep)       (((ep) << 1) | ((ep) & 0x80 ? 1 : 0))
-#define LOG_IN_TO_EP(ep)    ((ep) | 0x80)
-#define LOG_OUT_TO_EP(ep)   ((ep) | 0x00)
-#define IDX_TO_EP(ep)       (((ep) >> 1)|((ep) & 1) << 7)
+#define EP_TO_LOG(ep)       ((ep) & 0xF)
+#define LOG_IN_TO_EP(log)   ((log) | 0x80)
+#define LOG_OUT_TO_EP(log)  ((log) | 0x00)
+#define EP_TO_IDX(ep)       ((EP_TO_LOG(ep) << 1) | ((ep) & 0x80 ? 1 : 0))
+#define IDX_TO_EP(idx)      (((idx) >> 1)|((idx) & 1) << 7)
 
 /* endpoint defines */
 #define NUM_ENDPOINTS           4
-#define MAX_PACKET_NON_ISO      64
-#define MAX_PACKET_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
-#define ENDPOINT_NON_ISO        (USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT)
+#define MAX_PACKET_SIZE_NON_ISO      64
+#define MAX_PACKET_SIZE_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
 
 static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
-    MAX_PACKET_NON_ISO,
-    MAX_PACKET_NON_ISO,
-    MAX_PACKET_NON_ISO,
-    MAX_PACKET_ISO
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_NON_ISO,
+    MAX_PACKET_SIZE_ISO
 };
 
 uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
@@ -70,12 +61,13 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 }
 
 /*  this call at device reception completion on a Out Enpoint  */
+/*  weak function redefinition  */
 void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     uint8_t endpoint = LOG_OUT_TO_EP(epnum);
     priv->epComplete[EP_TO_IDX(endpoint)] = 1;
-    /* -2 endpoint 0 In out are not in call back list */
+
     if (epnum) {
         priv->events->out(endpoint);
     } else {
@@ -84,52 +76,60 @@ void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 }
 
 /*  this is call at device transmission completion on In endpoint */
+/*  weak function redefinition  */
 void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     uint8_t endpoint = LOG_IN_TO_EP(epnum);
     priv->epComplete[EP_TO_IDX(endpoint)] = 1;
-    /*  -2 endpoint 0 In out are not in call back list */
+
     if (epnum) {
         priv->events->in(endpoint);
     } else {
         priv->events->ep0_in();
     }
 }
+
 /*  This is call at device set up reception  */
+/*  weak function redefinition  */
 void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->ep0_setup();
 }
 
+/*  weak function redefinition  */
 void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->suspend(1);
 }
 
+/*  weak function redefinition  */
 void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *priv = ((USBPhyHw *)(hpcd->pData));
     priv->events->suspend(0);
 }
 
+/*  weak function redefinition  */
 void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
 {
     // Nothing to do
 }
 
+/*  weak function redefinition  */
 void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 {
     // Nothing to do
 }
 
+/*  weak function redefinition  */
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 {
     USBPhyHw *obj = ((USBPhyHw *)(hpcd->pData));
     unsigned int i;
-    for (i = 0; i < hpcd->Init.dev_endpoints; i++) {
+    for (i = 0; i < NB_ENDPOINT; i++) {
         obj->epComplete[2 * i] = 0;
         HAL_PCD_EP_Close(hpcd, IDX_TO_EP(2 * i));
         HAL_PCD_EP_Flush(hpcd, IDX_TO_EP(2 * i));
@@ -138,8 +138,8 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
         HAL_PCD_EP_Flush(hpcd, IDX_TO_EP(2 * i + 1));
 
     }
-    obj->endpoint_add(EP0IN, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
-    obj->endpoint_add(EP0OUT, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
+    obj->endpoint_add(0x80, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
+    obj->endpoint_add(0x00, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
     obj->events->reset();
 }
 
@@ -166,6 +166,8 @@ USBPhyHw::~USBPhyHw()
 
 void USBPhyHw::init(USBPhyEvents *events)
 {
+    const PinMap *map = NULL;
+
     NVIC_DisableIRQ(USBHAL_IRQn);
 
     if (this->events == NULL) {
@@ -176,136 +178,68 @@ void USBPhyHw::init(USBPhyEvents *events)
     memset(epComplete, 0, sizeof(epComplete));
     memset(&hpcd.Init, 0, sizeof(hpcd.Init));
 
-#if defined(TARGET_DISCO_F769NI) || \
-    defined(TARGET_DISCO_F746NG_OTG_HS)
+    hpcd.Init.dev_endpoints = NB_ENDPOINT;
+    hpcd.Init.ep0_mps = MAX_PACKET_SIZE_EP0;
+    hpcd.Init.low_power_enable = DISABLE;
+#if !defined(TARGET_STM32F2)
+    hpcd.Init.lpm_enable = DISABLE;
+    hpcd.Init.battery_charging_enable = DISABLE;
+#endif
+#if (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
     hpcd.Instance = USB_OTG_HS;
     hpcd.Init.phy_itface = PCD_PHY_ULPI;
     hpcd.Init.Sof_enable = 1;
+    hpcd.Init.dma_enable = DISABLE;
+    hpcd.Init.vbus_sensing_enable = ENABLE;
+    hpcd.Init.use_external_vbus = DISABLE;
     hpcd.Init.speed = PCD_SPEED_HIGH;
-#elif defined(TARGET_DISCO_F429ZI)
+    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+    __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
+    map = PinMap_USB_HS;
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_HS)
     hpcd.Instance = USB_OTG_HS;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.Sof_enable = 1;
     hpcd.Init.speed = PCD_SPEED_HIGH;
-#else
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_OTG_FS)
+
     hpcd.Instance = USB_OTG_FS;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.Sof_enable = 1;
     hpcd.Init.speed = PCD_SPEED_FULL;
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+    map = PinMap_USB_FS;
+#elif (MBED_CONF_TARGET_USB_SPEED == USE_USB_NO_OTG)
+    hpcd.Instance = USB;
+    hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
+    hpcd.Init.speed = PCD_SPEED_FULL;
+
+    __HAL_RCC_USB_CLK_ENABLE();
+    map = PinMap_USB_FS;
 #endif
-    hpcd.Init.dev_endpoints = NB_ENDPOINT;
-    hpcd.Init.ep0_mps = MAX_PACKET_SIZE_EP0;
 
     // Pass instance for usage inside call back
     instance = this;
 
     // Configure USB pins and other clocks
 
-#if defined(TARGET_NUCLEO_F207ZG) || \
-    defined(TARGET_NUCLEO_F401RE) || \
-    defined(TARGET_NUCLEO_F411RE) || \
-    defined(TARGET_NUCLEO_F412ZG) || \
-    defined(TARGET_NUCLEO_F413ZH) || \
-    defined(TARGET_NUCLEO_F429ZI) || \
-    defined(TARGET_NUCLEO_F446RE) || \
-    defined(TARGET_NUCLEO_F446ZE) || \
-    defined(TARGET_NUCLEO_F767ZI) || \
-    defined(TARGET_NUCLEO_F746ZG) || \
-    defined(TARGET_NUCLEO_F756ZG) || \
-    defined(TARGET_DISCO_F407VG) || \
-    defined(TARGET_OLIMEX_STM32E407_F407ZG) || \
-    defined(TARGET_DISCO_F413ZH) || \
-    defined(TARGET_DISCO_F469NI) || \
-    defined(TARGET_DISCO_F746NG_OTG_FS)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
-#if defined(TARGET_DISCO_F746NG_OTG_FS)
-    __HAL_RCC_GPIOJ_CLK_ENABLE();
-    pin_function(PJ_12, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // VBUS
-#else
-    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // VBUS
-#endif
-    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
-#if !defined(TARGET_OLIMEX_STME407_F407ZG)
-    pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // SOF
-#endif
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+    while (map->pin != NC) {
+        pin_function(map->pin, map->function);
+        map++;
+    }
 
-#elif defined(TARGET_DISCO_F429ZI)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    pin_function(PB_14, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // DM
-    pin_function(PB_15, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // DP
-    pin_function(PB_13, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0)); // VBUS
-    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
-
-#elif defined(TARGET_DISCO_L475VG_IOT01A) || \
-      defined(TARGET_DISCO_L476VG)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    pin_function(PC_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
-    __HAL_RCC_PWR_CLK_ENABLE();
-    HAL_PWREx_EnableVddUSB();
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
-#elif defined(TARGET_NUCLEO_L496ZG) || \
-      defined(TARGET_NUCLEO_L496ZG_P) || \
-      defined(TARGET_DISCO_L496AG) || \
-      defined(TARGET_DISCO_L4R9I) || \
-      defined(TARGET_NUCLEO_L4R5ZI)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
-    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
-    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
-    __HAL_RCC_PWR_CLK_ENABLE();
-    HAL_PWREx_EnableVddUSB();
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
-#elif defined(TARGET_DISCO_F769NI) || \
-      defined(TARGET_DISCO_F746NG_OTG_HS)
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOI_CLK_ENABLE();
-    pin_function(PA_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // CLK
-    pin_function(PA_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D0
-    pin_function(PB_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D1
-    pin_function(PB_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D2
-    pin_function(PB_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D3
-    pin_function(PB_10, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D4
-    pin_function(PB_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D5
-    pin_function(PB_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D6
-    pin_function(PB_13, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D7
-    pin_function(PC_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // STP
-    pin_function(PH_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // NXT
-#if defined(TARGET_DISCO_F769NI)
-    pin_function(PI_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
-#else
-    pin_function(PC_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
-#endif
-    __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
-    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
-
-#elif defined(TARGET_STEVAL_3DP001V1)
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
-#else
-#error "USB pins are not configured !"
-#endif
-
+#if !defined(TARGET_STM32WB)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
+#endif
+
+#if defined(PWR_CR2_USV)
+    HAL_PWREx_EnableVddUSB();
+#endif
 
     // Configure PCD and FIFOs
     hpcd.pData = (void *)this;
     hpcd.State = HAL_PCD_STATE_RESET;
-    HAL_PCD_Init(&hpcd);
+    MBED_ASSERT(HAL_PCD_Init(&hpcd) == HAL_OK);
 
 
     uint32_t total_bytes = 0;
@@ -316,7 +250,7 @@ void USBPhyHw::init(USBPhyEvents *events)
      * - setup buffer - 10 words as specified by Reference Manual
      * - global nak out - 1 words as specified by Reference Manual
      */
-    uint32_t fifo_size = (MAX_PACKET_ISO + 4) + (MAX_PACKET_NON_ISO + 4) * 2 + (10 * 4) + (1 * 4);
+    uint32_t fifo_size = (MAX_PACKET_SIZE_ISO + 4) + (MAX_PACKET_SIZE_NON_ISO + 4) * 2 + (10 * 4) + (1 * 4);
     HAL_PCDEx_SetRxFiFo(&hpcd, (fifo_size / 4));
     total_bytes += fifo_size;
 
@@ -338,7 +272,7 @@ void USBPhyHw::init(USBPhyEvents *events)
 
 void USBPhyHw::deinit()
 {
-    HAL_PCD_DeInit(&hpcd);
+    MBED_ASSERT(HAL_PCD_DeInit(&hpcd) == HAL_OK);
     NVIC_DisableIRQ(USBHAL_IRQn);
 
     if (events != NULL) {
@@ -354,12 +288,12 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect()
 {
-    HAL_PCD_Start(&hpcd);
+    MBED_ASSERT(HAL_PCD_Start(&hpcd) == HAL_OK);
 }
 
 void USBPhyHw::disconnect()
 {
-    HAL_PCD_Stop(&hpcd);
+    MBED_ASSERT(HAL_PCD_Stop(&hpcd) == HAL_OK);
 }
 
 void USBPhyHw::configure()
@@ -384,7 +318,7 @@ void USBPhyHw::sof_disable()
 
 void USBPhyHw::set_address(uint8_t address)
 {
-    HAL_PCD_SetAddress(&hpcd, address);
+    MBED_ASSERT(HAL_PCD_SetAddress(&hpcd, address) == HAL_OK);
 }
 
 void USBPhyHw::remote_wakeup()
@@ -397,10 +331,10 @@ const usb_ep_table_t *USBPhyHw::endpoint_table()
     static const usb_ep_table_t table = {
         1280, // 1.25K for endpoint buffers but space is allocated up front
         {
-            {USB_EP_ATTR_ALLOW_CTRL | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
-            {ENDPOINT_NON_ISO      | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
-            {ENDPOINT_NON_ISO      | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
-            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {USB_EP_ATTR_ALLOW_CTRL                         | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
+            {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
+            {USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0}, // NON ISO
+            {USB_EP_ATTR_ALLOW_ALL                          | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
             {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
@@ -437,14 +371,14 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
 void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
 {
     HAL_StatusTypeDef ret;
-    epComplete[EP_TO_IDX(EP0OUT)] = 2;
-    ret = HAL_PCD_EP_Receive(&hpcd, EP0OUT, data, size > MAX_PACKET_SIZE_EP0 ? MAX_PACKET_SIZE_EP0 : size);
+    epComplete[EP_TO_IDX(0x00)] = 2;
+    ret = HAL_PCD_EP_Receive(&hpcd, 0x00, data, size > MAX_PACKET_SIZE_EP0 ? MAX_PACKET_SIZE_EP0 : size);
     MBED_ASSERT(ret != HAL_BUSY);
 }
 
 uint32_t USBPhyHw::ep0_read_result()
 {
-    epComplete[EP_TO_IDX(EP0OUT)] = 0;
+    epComplete[EP_TO_IDX(0x00)] = 0;
     return HAL_PCD_EP_GetRxCount(&hpcd, 0);
 }
 
@@ -452,13 +386,13 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
 {
     /*  check that endpoint maximum size is not exceeding TX fifo */
     MBED_ASSERT(hpcd.IN_ep[0].maxpacket >= size);
-    endpoint_write(EP0IN, buffer, size);
+    endpoint_write(0x80, buffer, size);
 }
 
 void USBPhyHw::ep0_stall()
 {
-    endpoint_stall(EP0IN);
-    endpoint_stall(EP0OUT);
+    endpoint_stall(0x80);
+    endpoint_stall(0x00);
 }
 
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type)
@@ -535,10 +469,12 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
-#ifndef TARGET_STM32L4
-    HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
-    MBED_ASSERT(ret == HAL_OK);
+#if (TARGET_STM32F4) || (TARGET_STM32F2)
+    HAL_StatusTypeDef ret = HAL_PCD_EP_Abort(&hpcd, endpoint); // fix me: ST driver should not be modified
+#else
+    HAL_StatusTypeDef ret = HAL_PCD_EP_Close(&hpcd, endpoint); // fix me: implementation not correct
 #endif
+    MBED_ASSERT(ret == HAL_OK);
 }
 
 void USBPhyHw::process()
@@ -555,4 +491,4 @@ void USBPhyHw::_usbisr(void)
     instance->events->start_process();
 }
 
-#endif
+#endif /* DEVICE_USBDEVICE */
