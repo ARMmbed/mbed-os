@@ -356,6 +356,10 @@ private:
     mbed::qspi_inst_t _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
     unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
 
+    // Quad mode enable status register and bit
+    int _quad_enable_register_idx;
+    int _quad_enable_bit;
+
     // Sector Regions Map
     int _regions_count; //number of regions
     int _region_size_bytes[QSPIF_MAX_REGIONS]; //regions size in bytes

@@ -40,6 +40,7 @@ using namespace mbed;
 // Status Register Bits
 #define QSPIF_STATUS_BIT_WIP        0x1 // Write In Progress
 #define QSPIF_STATUS_BIT_WEL        0x2 // Write Enable Latch
+#define QSPIF_NO_QUAD_ENABLE        (-1)
 
 /* SFDP Header Parsing */
 /***********************/
@@ -156,6 +157,10 @@ QSPIFBlockDevice::QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinNam
     _min_common_erase_size = 0;
     _regions_count = 1;
     _region_erase_types_bitfield[0] = ERASE_BITMASK_NONE;
+
+    // Until proven otherwise, assume no quad enable
+    _quad_enable_register_idx = QSPIF_NO_QUAD_ENABLE;
+    _quad_enable_bit = QSPIF_NO_QUAD_ENABLE;
 
     // Default Bus Setup 1_1_1 with 0 dummy and mode cycles
     _inst_width = QSPI_CFG_BUS_SINGLE;
@@ -756,26 +761,38 @@ int QSPIFBlockDevice::_sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr)
             return 0;
         case 1:
         case 4:
-            status_reg_setup[1] = 1 << 1;  // Bit 1 of Status Reg 2
+            // Bit 1 of Status Reg 2
+            _quad_enable_register_idx = 1;
+            _quad_enable_bit = 1;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
         case 2:
-            status_reg_setup[0] = 1 << 6; // Bit 6 of Status Reg 1
+            // Bit 6 of Status Reg 1
+            _quad_enable_register_idx = 0;
+            _quad_enable_bit = 6;
             tr_debug("Setting QE Bit, Bit 6 of Status Reg 1");
             break;
         case 3:
-            status_reg_setup[0] = 1 << 7; // Bit 7 of Status Reg 1
+            // Bit 7 of Status Reg 1
+            _quad_enable_register_idx = 0;
+            _quad_enable_bit = 7;
             _write_status_reg_2_inst = 0x3E;
             _read_status_reg_2_inst = 0x3F;
             tr_debug("Setting QE Bit, Bit 7 of Status Reg 1");
             break;
         case 5:
-            status_reg_setup[1] = 1 << 1; // Bit 1 of status Reg 2
+            // Bit 1 of status Reg 2
+            _quad_enable_register_idx = 1;
+            _quad_enable_bit = 1;
             tr_debug("Setting QE Bit, Bit 1 of Status Reg 2");
             break;
         default:
             tr_warning("Unsupported QER configuration");
             return 0;
+    }
+
+    if (_quad_enable_register_idx != QSPIF_NO_QUAD_ENABLE && _quad_enable_bit != QSPIF_NO_QUAD_ENABLE) {
+        status_reg_setup[_quad_enable_register_idx] = 1 << _quad_enable_bit;
     }
 
     // Read existing status register values
@@ -1222,13 +1239,18 @@ int QSPIFBlockDevice::_clear_block_protection()
             }
             break;
         default:
-            // For all other devices, clear all bits in status register 1 that aren't the WIP or WEL bits to clear the block protection bits
+            // For all other devices, to clear the block protection bits clear all bits
+            // in status register 1 that aren't the WIP or WEL bits, or the QE bit (if it is in SR 1)
             status = _qspi_read_status_registers(status_regs);
             if (QSPI_STATUS_OK != status) {
                 tr_error("_clear_block_protection - Status register read failed");
                 return -1;
             }
-            status_regs[0] &= (QSPIF_STATUS_BIT_WIP | QSPIF_STATUS_BIT_WEL);
+            uint8_t status_mask = (QSPIF_STATUS_BIT_WIP | QSPIF_STATUS_BIT_WEL);
+            if (_quad_enable_register_idx == 0) {
+                status_mask |= 1 << _quad_enable_bit;
+            }
+            status_regs[0] &= status_mask;
             status = _qspi_write_status_registers(status_regs);
             if (QSPI_STATUS_OK != status) {
                 tr_error("__clear_block_protection - Status register write failed");
