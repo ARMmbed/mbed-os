@@ -1,0 +1,8 @@
+{ 
+    "requires": [ 
+        "bare-metal", 
+        "greentea-client", 
+        "utest", 
+        "unity" 
+    ] 
+}

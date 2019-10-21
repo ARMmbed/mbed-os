@@ -20,6 +20,8 @@
 #include "platform/mbed_stats.h"
 #include <stdint.h>
 
+#if defined(MBED_CONF_RTOS_PRESENT) 
+
 #define THREAD_BUF_COUNT    16
 
 typedef struct {
@@ -234,3 +236,4 @@ static uint32_t print_dec(char *buf, uint32_t value)
 }
 
 #endif
+#endif // #if defined(MBED_CONF_RTOS_PRESENT)
