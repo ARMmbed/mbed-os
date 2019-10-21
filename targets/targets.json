@@ -2745,6 +2745,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "N25Q128A",
             "STM32F4",
             "STM32F413xx",
             "STM32F413ZH",
@@ -4139,6 +4140,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "N25Q128A",
             "STM32F4",
             "STM32F469",
             "STM32F469NI",
@@ -4300,6 +4302,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
         "extra_labels_add": [
+            "N25Q128A",
             "STM32F7",
             "STM32F746",
             "STM32F746xG",
@@ -4354,6 +4357,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
+            "MX25L51245G",
             "STM32F7",
             "STM32F769",
             "STM32F769xI",
@@ -4412,6 +4416,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "MX25R6435F",
             "STM32L4",
             "STM32L475xG",
             "STM32L475VG"
@@ -4485,6 +4490,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "N25Q128A",
             "STM32L4",
             "STM32L476xG",
             "STM32L476VG"
@@ -8314,6 +8320,7 @@
         "supported_form_factors": ["ARDUINO", "STMOD", "PMOD"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
+            "MX25R6435F",
             "STM32L4",
             "STM32L496AG",
             "STM32L496xG"
