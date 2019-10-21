@@ -639,6 +639,8 @@ void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
 void nsapi_dns_reset()
 {
     nsapi_dns_cache_reset();
+    dns_message_id = 1;
+    dns_unique_id = 1;
 }
 
 nsapi_error_t nsapi_dns_call_in(call_in_callback_cb_t cb, int delay, mbed::Callback<void()> func)
@@ -843,7 +845,7 @@ static void nsapi_dns_query_async_timeout(void)
     dns_mutex->unlock();
 }
 
-nsapi_error_t nsapi_dns_query_async_cancel(intptr_t id)
+nsapi_error_t nsapi_dns_query_async_cancel(nsapi_size_or_error_t id)
 {
     dns_mutex->lock();
 
