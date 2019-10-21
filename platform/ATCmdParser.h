@@ -79,6 +79,24 @@ private:
     };
     oob *_oobs;
 
+    /**
+     * Receive an AT response
+     *
+     * Receives a formatted response using scanf style formatting
+     * @see scanf
+     *
+     * Responses are parsed line at a time.
+     * If multiline is set to false parse only one line otherwise parse multiline response
+     * Any received data that does not match the response is ignored until
+     * a timeout occurs.
+     *
+     * @param response scanf-like format string of response to expect
+     * @param ... all scanf-like arguments to extract from response
+     * @param multiline determinate if parse one or multiple lines.
+     * @return number of bytes read or -1 on failure
+     */
+    int vrecvscanf(const char *response, std::va_list args, bool multiline);
+
 public:
 
     /**
