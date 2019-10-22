@@ -31,6 +31,6 @@ extern val_api_t *val;
 extern psa_api_t *psa;
 extern client_test_t test_s006_sst_list[];
 
-int32_t psa_sst_flags_not_supported(security_t caller);
+int32_t psa_sst_flags_not_supported(caller_security_t caller);
 
 #endif /* _TEST_S006_CLIENT_TESTS_H_ */

@@ -39,7 +39,7 @@ static char test_desc[2][80] = {
                                 "Overload storage space\n",
                                 "Overload storage again to verify all previous UID removed\n"};
 
-int32_t psa_sst_insufficient_space(security_t caller)
+int32_t psa_sst_insufficient_space(caller_security_t caller)
 {
     uint32_t status = PSA_SST_SUCCESS;
     psa_sst_uid_t uid;
