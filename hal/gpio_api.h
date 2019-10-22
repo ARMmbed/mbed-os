@@ -34,6 +34,16 @@ extern "C" {
  * # Defined behavior
  * * ::gpio_init and other init functions can be called with NC or a valid PinName for the target - Verified by ::gpio_nc_test
  * * ::gpio_is_connected can be used to test whether a gpio_t object was initialized with NC - Verified by ::gpio_nc_test
+ * * ::gpio_init initializes the GPIO pin
+ * * ::gpio_mode sets the mode of the given pin
+ * * ::gpio_dir sets the direction of the given pin
+ * * ::gpio_write sets the gpio output value
+ * * ::gpio_read reads the input value
+ * * ::gpio_init_in inits the input pin and sets mode to PullDefault
+ * * ::gpio_init_in_ex inits the input pin and sets the mode
+ * * ::gpio_init_out inits the pin as an output, with predefined output value 0
+ * * ::gpio_init_out_ex inits the pin as an output and sets the output value
+ * * ::gpio_init_inout inits the pin to be input/output and set pin mode and value
  *
  * # Undefined behavior
  * * Calling any ::gpio_mode, ::gpio_dir, ::gpio_write or ::gpio_read on a gpio_t object that was initialized
@@ -41,6 +51,16 @@ extern "C" {
  * * Calling ::gpio_set with NC.
  *
  * @{
+ */
+
+/**
+ * \defgroup hal_gpio_tests GPIO HAL tests
+ * The GPIO HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the GPIO hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-gpio,tests-mbed_hal-gpio
+ *
  */
 
 /** Set the given pin as GPIO
