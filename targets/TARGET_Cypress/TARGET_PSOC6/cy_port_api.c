@@ -16,7 +16,7 @@
  */
 
 #include "port_api.h"
-#include "cy_gpio.h"
+#include "gpio_api.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT
 
@@ -26,47 +26,56 @@ extern "C" {
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    obj->port = Cy_GPIO_PortToAddr(port);
-    obj->mask = (uint8_t)mask;
-    uint32_t driveMode = dir == PIN_INPUT ? CY_GPIO_DM_HIGHZ : CY_GPIO_DM_STRONG;
-    for (int i = 0; i < 8; i++) {
-        if (0 != (mask & (1 << i))) {
-            Cy_GPIO_Pin_FastInit(obj->port, i, driveMode, 0, HSIOM_SEL_GPIO);
+    gpio_t gpio;
+    for (uint8_t pin = 0; pin < 8; pin++) {
+        if ((1 << pin) & mask) {
+            gpio_init(&gpio, port_pin(port, pin));
+            gpio_dir(&gpio, dir);
         }
     }
+    obj->port = port;
+    obj->mask = mask;
+    obj->drive_mode = gpio.drive_mode;
+    obj->direction = gpio.direction;
 }
 
 void port_mode(port_t *obj, PinMode mode)
 {
-    for (int i = 0; i < 8; i++) {
-        if (0 != (obj->mask & (1 << i))) {
-            uint32_t origMode = Cy_GPIO_GetDrivemode(obj->port, i);
-            Cy_GPIO_SetDrivemode(obj->port, i, (origMode & CY_GPIO_DM_HIGHZ) | mode);
+    gpio_t gpio = {.pin = 0, .direction = obj->direction, .drive_mode = obj->drive_mode};
+    for (uint8_t pin = 0; pin < 8; pin++) {
+        if ((1 << pin) & obj->mask) {
+            gpio.pin = port_pin(obj->port, pin);
+            gpio_mode(&gpio, mode);
         }
     }
 }
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    for (int i = 0; i < 8; i++) {
-        if (0 != (obj->mask & (1 << i))) {
-            uint32_t origMode = Cy_GPIO_GetDrivemode(obj->port, i);
-            Cy_GPIO_SetDrivemode(obj->port, i, origMode == PIN_OUTPUT
-                                 ? (origMode & ~CY_GPIO_DM_HIGHZ)
-                                 : (origMode | CY_GPIO_DM_HIGHZ));
+    gpio_t gpio = {.pin = 0, .direction = obj->direction, .drive_mode = obj->drive_mode};
+    for (uint8_t pin = 0; pin < 8; pin++) {
+        if ((1 << pin) & obj->mask) {
+            gpio.pin = port_pin(obj->port, pin);
+            gpio_dir(&gpio, dir);
         }
     }
 }
 
 void port_write(port_t *obj, int value)
 {
-    obj->port->OUT_SET = value & obj->mask;
-    obj->port->OUT_CLR = (~value) & obj->mask;
+    GPIO_PRT_Type *port_type = Cy_GPIO_PortToAddr(obj->port);
+    if (obj->mask == 0xff) {
+        // Optimization for when all pins on the port is used.
+        port_type->OUT = value;
+    } else {
+        port_type->OUT_SET = value & obj->mask;
+        port_type->OUT_CLR = (~value) & obj->mask;
+    }
 }
 
 int port_read(port_t *obj)
 {
-    return obj->port->IN & obj->mask;
+    return Cy_GPIO_PortToAddr(obj->port)->IN & obj->mask;
 }
 
 #ifdef __cplusplus

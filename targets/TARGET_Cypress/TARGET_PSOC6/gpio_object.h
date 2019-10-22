@@ -45,8 +45,10 @@ struct gpio_irq_s {
 };
 
 struct port_s {
-    GPIO_PRT_Type *port;
+    PortName port;
     uint8_t mask;
+    cyhal_gpio_direction_t direction;
+    cyhal_gpio_drive_mode_t drive_mode;
 };
 
 /** Set the output value
