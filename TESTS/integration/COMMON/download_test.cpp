@@ -21,6 +21,10 @@
  * Based on mbed-stress-test by Marcus Chang @ Arm Mbed - http://github.com/ARMmbed/mbed-stress-test
 */
 
+#if !INTEGRATION_TESTS
+#error [NOT_SUPPORTED] integration tests not enabled for this target
+#endif
+
 #include "mbed.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"

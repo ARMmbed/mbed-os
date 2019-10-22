@@ -18,8 +18,6 @@
 #include "unity.h"
 #include "greentea-client/test_env.h"
 
-#include "Semaphore.h"
-
 #include "mbed_trace.h"
 #define TRACE_GROUP "RTST"
 
@@ -35,6 +33,8 @@
 #else
 #error [NOT_SUPPORTED] Requires parameters from application config file.
 #endif
+
+#include "Semaphore.h"
 
 #if (MBED_CONF_APP_LORA_RADIO == SX1272) || (MBED_CONF_APP_LORA_RADIO == SX1276)
 

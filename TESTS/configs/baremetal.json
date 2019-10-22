@@ -1,0 +1,17 @@
+{ 
+    "requires": [ 
+        "bare-metal", 
+        "greentea-client", 
+        "utest", 
+        "unity",
+        "psa",
+        "mbed-crypto",        
+        "mbedtls",
+        "psa-compliance-framework",
+        "filesystem",
+        "littlefs",
+        "mbed-trace",
+        "device-key",
+        "lora"
+    ] 
+}
