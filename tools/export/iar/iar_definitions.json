@@ -382,5 +382,15 @@
         "CoreVariant": 39,
         "GFPUCoreSlave": 39,
         "GBECoreSlave": 39
+    },
+    "TMPM3HQFDFG":{
+        "OGChipSelectEditMenu": "TMPM3HQFDFG\tToshiba TMPM3HQFDFG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
+    },
+    "TMPM4G9F15FG":{
+        "OGChipSelectEditMenu": "TMPM4G9F15FG\tToshiba TMPM4G9F15FG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
     }
 }
