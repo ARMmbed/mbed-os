@@ -31,6 +31,8 @@
 
 #### What version of Mbed-os are you using (tag or sha) ?
 
+#### What version(s) of tools are you using. List all that apply (E.g. mbed-cli)
+
 
 #### How is this defect reproduced ? 
 
