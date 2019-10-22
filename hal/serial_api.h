@@ -108,7 +108,67 @@ extern "C" {
 
 /**
  * \defgroup hal_GeneralSerial Serial Configuration Functions
+ *
+ * # Defined behaviour
+ * * ::serial_init initializes the serial peripheral
+ * * ::serial_init sets the default parameters for serial peripheral
+ * * ::serial_init configures its specified pins
+ * * ::serial_free releases the serial peripheral
+ * * ::serial_baud configures the baud rate
+ * * ::serial_format configures the transmission format (number of bits, parity and the number of stop bits)
+ * * ::serial_irq_handler registers the interrupt handler which will be invoked when the interrupt fires
+ * * ::serial_irq_set enables or disables serial irq (RX or TX)
+ * * ::serial_getc returns the character from serial buffer
+ * * ::serial_getc is a blocking call (waits for the character)
+ * * ::serial_putc sends a character
+ * * ::serial_putc is a blocking call (waits for a peripheral to be available)
+ * * ::serial_readable returns non-zero value if a character can be read, 0 if nothing to read
+ * * ::serial_writable returns non-zero value if a character can be written, 0 otherwise
+ * * ::serial_clear clears the serial peripheral
+ * * ::serial_break_set sets the break signal
+ * * ::serial_pinout_tx configures the TX pin for UART function
+ * * ::serial_set_flow_control configures serial flow control
+ * * ::serial_set_flow_control sets flow control in the hardware if a serial peripheral supports it, otherwise software emulation is used
+ * * ::serial_tx_asynch starts the serial asynchronous transfer
+ * * ::serial_tx_asynch writes `tx_length` bytes from the `tx` to the bus
+ * * The callback given to ::serial_tx_asynch is invoked when the transfer completes
+ * * ::serial_tx_asynch specifies the logical OR of events to be registered
+ * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm
+ * * ::serial_rx_asynch starts the serial asynchronous transfer
+ * * ::serial_rx_asynch reads `rx_length` bytes to the `rx`buffer
+ * * The callback given to ::serial_rx_asynch is invoked when the transfer completes
+ * * ::serial_tx_asynch specifies the logical OR of events to be registered
+ * * The ::serial_tx_asynch function may use the `DMAUsage` hint to select the appropriate async algorithm
+ * * ::serial_tx_asynch specifies the character in range 0-254 to be matched
+ * * ::serial_tx_active returns non-zero if the TX transaction is ongoing, 0 otherwise
+ * * ::serial_rx_active returns non-zero if the RX transaction is ongoing, 0 otherwise
+ * * ::serial_irq_handler_asynch returns event flags if an RX transfer termination condition was met, otherwise returns 0
+ * * ::serial_tx_abort_asynch aborts the ongoing TX transaction
+ * * ::serial_tx_abort_asynch disables the enabled interupt for TX
+ * * ::serial_tx_abort_asynch flushes the TX hardware buffer if TX FIFO is used
+ * * ::serial_rx_abort_asynch aborts the ongoing RX transaction
+ * * ::serial_rx_abort_asynch disables the enabled interupt for RX
+ * * ::serial_rx_abort_asynch flushes the TX hardware buffer if RX FIFO is used
+ *
+ * # Undefined behaviour
+ *
+ * * Calling ::serial_init multiple times on the same `serial_t` without ::serial_free
+ * * Passing invalid pin to ::serial_init, ::serial_pinout_tx
+ * * Calling any function other than ::serial_init on a non-initialized or freed `serial_t`
+ * * Passing an invalid pointer as `obj` to any function
+ * * Passing an invalid pointer as `handler` to ::serial_irq_handler, ::serial_tx_asynch, ::serial_rx_asynch
+ * * Calling ::spi_abort while no async transfer is being processed (no transfer or a synchronous transfer)
  * @{
+ */
+
+/**
+ * \defgroup hal_GeneralSerial_tests Serial hal tests
+ * The Serial HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the Serial hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal_fpga_ci_test_shield-uart
+ *
  */
 
 /** Initialize the serial peripheral. It sets the default parameters for serial
