@@ -376,7 +376,7 @@ int UARTSerial::enable_input(bool enabled)
 int UARTSerial::enable_output(bool enabled)
 {
     api_lock();
-    SerialBase::enable_input(enabled);
+    SerialBase::enable_output(enabled);
     api_unlock();
 
     return 0;
