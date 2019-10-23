@@ -200,7 +200,7 @@
 #define TESTER_TIMER_COUNTER_SIZE                     8
 #define TESTER_TIMER_CDC_VALUE                        0x00107008
 #define TESTER_TIMER_CDC_VALUE_SIZE                   8
-#define TESTER_TIMER_MODE                             0x00107010
-#define TESTER_TIMER_MODE_SIZE                        1
+#define TESTER_TIMER_CTRL                             0x00107010
+#define TESTER_TIMER_CTRL_SIZE                        1
 #define TESTER_TIMER_RESET_REQUEST                    0x00107011
 #define TESTER_TIMER_RESET_REQUEST_SIZE               1

@@ -2296,9 +2296,11 @@ void MbedTester::timer_reset()
     write(TESTER_TIMER_RESET_REQUEST, (uint8_t *)&request, TESTER_TIMER_RESET_REQUEST_SIZE);
 }
 
-void MbedTester::timer_set_mode(TimerMode mode)
+void MbedTester::timer_set_mode(TimerMode mode, bool one_pulse)
 {
-    write(TESTER_TIMER_MODE, (uint8_t *)&mode, TESTER_TIMER_MODE_SIZE);
+    const uint8_t ctrl = (uint8_t) ((uint8_t) mode | (one_pulse ? (1 << 1) : 0));
+    
+    write(TESTER_TIMER_CTRL, &ctrl, TESTER_TIMER_CTRL_SIZE);
 
     if (mode == TimerModeTimer) {
         const uint32_t delay_ticks = 0;

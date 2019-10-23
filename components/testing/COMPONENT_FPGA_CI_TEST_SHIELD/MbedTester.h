@@ -871,8 +871,11 @@ public:
      * @mode Timer Mode
      *       TimerModeTimer: Timer - use to measure elapsed time
      *       TimerModeCountDownTimer: Count Down Timer - use to perform FPGA delay
+     * @one_pulse Measure only first start/stop period (aplies to Timer mode only)
+     *       In some cases such behavior might be usefull. E.g. for watchdog tests when
+     *       board is being reset during the test and pin states are undefined.
      */
-    void timer_set_mode(TimerMode mode);
+    void timer_set_mode(TimerMode mode, bool one_pulse = false);
 
     /**
      * Set FPGA Count Down Timer delay (ns)
