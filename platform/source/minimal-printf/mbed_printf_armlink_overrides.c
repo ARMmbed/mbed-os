@@ -40,7 +40,7 @@ int $Sub$$__2printf(const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, NULL);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
@@ -70,7 +70,7 @@ int $Sub$$__2vprintf(char *buffer, const char *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, NULL);
+    int result = mbed_minimal_formatted_string(buffer, LONG_MAX, format, arguments, stdout);
     va_end(arguments);
 
     return result;
