@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
  *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _FSL_GPT_H_
@@ -57,12 +31,12 @@
  */
 typedef enum _gpt_clock_source
 {
-    kGPT_ClockSource_Off = 0U,      /*!< GPT Clock Source Off.*/
-    kGPT_ClockSource_Periph = 1U,   /*!< GPT Clock Source from Peripheral Clock.*/
+    kGPT_ClockSource_Off      = 0U, /*!< GPT Clock Source Off.*/
+    kGPT_ClockSource_Periph   = 1U, /*!< GPT Clock Source from Peripheral Clock.*/
     kGPT_ClockSource_HighFreq = 2U, /*!< GPT Clock Source from High Frequency Reference Clock.*/
-    kGPT_ClockSource_Ext = 3U,      /*!< GPT Clock Source from external pin.*/
-    kGPT_ClockSource_LowFreq = 4U,  /*!< GPT Clock Source from Low Frequency Reference Clock.*/
-    kGPT_ClockSource_Osc = 5U,      /*!< GPT Clock Source from Crystal oscillator.*/
+    kGPT_ClockSource_Ext      = 3U, /*!< GPT Clock Source from external pin.*/
+    kGPT_ClockSource_LowFreq  = 4U, /*!< GPT Clock Source from Low Frequency Reference Clock.*/
+    kGPT_ClockSource_Osc      = 5U, /*!< GPT Clock Source from Crystal oscillator.*/
 } gpt_clock_source_t;
 
 /*! @brief List of input capture channel number. */
@@ -93,10 +67,10 @@ typedef enum _gpt_output_compare_channel
 typedef enum _gpt_output_operation_mode
 {
     kGPT_OutputOperation_Disconnected = 0U, /*!< Don't change output pin.*/
-    kGPT_OutputOperation_Toggle = 1U,       /*!< Toggle output pin.*/
-    kGPT_OutputOperation_Clear = 2U,        /*!< Set output pin low.*/
-    kGPT_OutputOperation_Set = 3U,          /*!< Set output pin high.*/
-    kGPT_OutputOperation_Activelow = 4U,    /*!< Generate a active low pulse on output pin.*/
+    kGPT_OutputOperation_Toggle       = 1U, /*!< Toggle output pin.*/
+    kGPT_OutputOperation_Clear        = 2U, /*!< Set output pin low.*/
+    kGPT_OutputOperation_Set          = 3U, /*!< Set output pin high.*/
+    kGPT_OutputOperation_Activelow    = 4U, /*!< Generate a active low pulse on output pin.*/
 } gpt_output_operation_mode_t;
 
 /*! @brief List of GPT interrupts */
@@ -105,9 +79,9 @@ typedef enum _gpt_interrupt_enable
     kGPT_OutputCompare1InterruptEnable = GPT_IR_OF1IE_MASK, /*!< Output Compare Channel1 interrupt enable*/
     kGPT_OutputCompare2InterruptEnable = GPT_IR_OF2IE_MASK, /*!< Output Compare Channel2 interrupt enable*/
     kGPT_OutputCompare3InterruptEnable = GPT_IR_OF3IE_MASK, /*!< Output Compare Channel3 interrupt enable*/
-    kGPT_InputCapture1InterruptEnable = GPT_IR_IF1IE_MASK,  /*!< Input Capture Channel1 interrupt enable*/
-    kGPT_InputCapture2InterruptEnable = GPT_IR_IF2IE_MASK,  /*!< Input Capture Channel1 interrupt enable*/
-    kGPT_RollOverFlagInterruptEnable = GPT_IR_ROVIE_MASK,   /*!< Counter rolled over interrupt enable*/
+    kGPT_InputCapture1InterruptEnable  = GPT_IR_IF1IE_MASK, /*!< Input Capture Channel1 interrupt enable*/
+    kGPT_InputCapture2InterruptEnable  = GPT_IR_IF2IE_MASK, /*!< Input Capture Channel1 interrupt enable*/
+    kGPT_RollOverFlagInterruptEnable   = GPT_IR_ROVIE_MASK, /*!< Counter rolled over interrupt enable*/
 } gpt_interrupt_enable_t;
 
 /*! @brief Status flag. */
@@ -116,9 +90,9 @@ typedef enum _gpt_status_flag
     kGPT_OutputCompare1Flag = GPT_SR_OF1_MASK, /*!< Output compare channel 1 event.*/
     kGPT_OutputCompare2Flag = GPT_SR_OF2_MASK, /*!< Output compare channel 2 event.*/
     kGPT_OutputCompare3Flag = GPT_SR_OF3_MASK, /*!< Output compare channel 3 event.*/
-    kGPT_InputCapture1Flag = GPT_SR_IF1_MASK,  /*!< Input Capture channel 1 event.*/
-    kGPT_InputCapture2Flag = GPT_SR_IF2_MASK,  /*!< Input Capture channel 2 event.*/
-    kGPT_RollOverFlag = GPT_SR_ROV_MASK,       /*!< Counter reaches maximum value and rolled over to 0 event.*/
+    kGPT_InputCapture1Flag  = GPT_SR_IF1_MASK, /*!< Input Capture channel 1 event.*/
+    kGPT_InputCapture2Flag  = GPT_SR_IF2_MASK, /*!< Input Capture channel 2 event.*/
+    kGPT_RollOverFlag       = GPT_SR_ROV_MASK, /*!< Counter reaches maximum value and rolled over to 0 event.*/
 } gpt_status_flag_t;
 
 /*! @brief Structure to configure the running mode. */
