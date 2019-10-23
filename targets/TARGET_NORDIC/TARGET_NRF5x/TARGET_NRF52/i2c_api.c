@@ -69,6 +69,8 @@
 #define MAXIMUM_TIMEOUT_US (10000)  // timeout for waiting for RX
 #define I2C_READ_BIT 0x01           // read bit
 
+static uint32_t tick2us = 1;
+
 /* Keep track of what mode the peripheral is in. On NRF52, Driver mode can use TWIM. */
 typedef enum {
     NORDIC_I2C_MODE_NONE,
@@ -105,6 +107,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 #else
     struct i2c_s *config = obj;
 #endif
+
+    const ticker_info_t *ti = lp_ticker_get_info();
+    tick2us = 1000000 / ti->frequency;
 
     /* Get instance from pin configuration. */
     int instance = pin_instance_i2c(sda, scl);
@@ -379,13 +384,13 @@ int i2c_byte_write(i2c_t *obj, int data)
         }
 
         /* Setup stop watch for timeout. */
-        uint32_t start_us = lp_ticker_read();
+        uint32_t start_us = tick2us * lp_ticker_read();
         uint32_t now_us = start_us;
 
         /* Block until timeout or an address error has been detected. */
         while (((now_us - start_us) < DEFAULT_TIMEOUT_US) &&
                !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_ERROR))) {
-            now_us = lp_ticker_read();
+            now_us = tick2us * lp_ticker_read();
         }
 
         /* Check error register and update return value if an address NACK was detected. */
@@ -399,13 +404,13 @@ int i2c_byte_write(i2c_t *obj, int data)
             nrf_twi_txd_set(nordic_nrf5_twi_register[instance], data);
 
             /* Setup stop watch for timeout. */
-            uint32_t start_us = lp_ticker_read();
+            uint32_t start_us = tick2us * lp_ticker_read();
             uint32_t now_us = start_us;
 
             /* Block until timeout or the byte has been sent. */
             while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
                 !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_TXDSENT))) {
-                now_us = lp_ticker_read();
+                now_us = tick2us * lp_ticker_read();
             }
 
             /* Check the error code to see if the byte was acknowledged. */
@@ -466,13 +471,13 @@ int i2c_byte_read(i2c_t *obj, int last)
         nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_RESUME);
 
         /* Setup timeout */
-        start_us = lp_ticker_read();
+        start_us = tick2us * lp_ticker_read();
         now_us = start_us;
 
         /* Block until timeout or data ready event has been signaled. */
         while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
                !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_RXDREADY))) {
-            now_us = lp_ticker_read();
+            now_us = tick2us * lp_ticker_read();
         }
 
         /* Retrieve data from buffer. */
@@ -506,12 +511,12 @@ int i2c_stop(i2c_t *obj)
     nrf_twi_task_trigger(nordic_nrf5_twi_register[instance], NRF_TWI_TASK_STOP);
 
     /* Block until stop signal has been generated. */
-    uint32_t start_us = lp_ticker_read();
+    uint32_t start_us = tick2us * lp_ticker_read();
     uint32_t now_us = start_us;
 
     while (((now_us - start_us) < MAXIMUM_TIMEOUT_US) &&
            !(nrf_twi_event_check(nordic_nrf5_twi_register[instance], NRF_TWI_EVENT_STOPPED))) {
-        now_us = lp_ticker_read();
+        now_us = tick2us * lp_ticker_read();
     }
 
     /* Reset state. */
