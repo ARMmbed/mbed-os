@@ -1,34 +1,8 @@
 /*
- * The Clear BSD License
  * Copyright 2017 NXP
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- *  that the following conditions are met:
  *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "fsl_qtmr.h"
@@ -37,7 +11,6 @@
 #ifndef FSL_COMPONENT_ID
 #define FSL_COMPONENT_ID "platform.drivers.qtmr"
 #endif
-
 
 /*******************************************************************************
  * Prototypes
@@ -83,6 +56,15 @@ static uint32_t QTMR_GetInstance(TMR_Type *base)
     return instance;
 }
 
+/*!
+ * brief Ungates the Quad Timer clock and configures the peripheral for basic operation.
+ *
+ * note This API should be called at the beginning of the application using the Quad Timer driver.
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ * param config   Pointer to user's Quad Timer config structure
+ */
 void QTMR_Init(TMR_Type *base, qtmr_channel_selection_t channel, const qtmr_config_t *config)
 {
     assert(config);
@@ -91,21 +73,29 @@ void QTMR_Init(TMR_Type *base, qtmr_channel_selection_t channel, const qtmr_conf
     /* Enable the module clock */
     CLOCK_EnableClock(s_qtmrClocks[QTMR_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
-    
+
     /* Setup the counter sources */
     base->CHANNEL[channel].CTRL = (TMR_CTRL_PCS(config->primarySource) | TMR_CTRL_SCS(config->secondarySource));
 
     /* Setup the master mode operation */
-    base->CHANNEL[channel].SCTRL = (TMR_SCTRL_EEOF(config->enableExternalForce) | TMR_SCTRL_MSTR(config->enableMasterMode));
+    base->CHANNEL[channel].SCTRL =
+        (TMR_SCTRL_EEOF(config->enableExternalForce) | TMR_SCTRL_MSTR(config->enableMasterMode));
 
     /* Setup debug mode */
     base->CHANNEL[channel].CSCTRL = TMR_CSCTRL_DBG_EN(config->debugMode);
-    
-    base->CHANNEL[channel].FILT &= ~( TMR_FILT_FILT_CNT_MASK | TMR_FILT_FILT_PER_MASK);
+
+    base->CHANNEL[channel].FILT &= ~(TMR_FILT_FILT_CNT_MASK | TMR_FILT_FILT_PER_MASK);
     /* Setup input filter */
-    base->CHANNEL[channel].FILT = (TMR_FILT_FILT_CNT(config->faultFilterCount) | TMR_FILT_FILT_PER(config->faultFilterPeriod));
+    base->CHANNEL[channel].FILT =
+        (TMR_FILT_FILT_CNT(config->faultFilterCount) | TMR_FILT_FILT_PER(config->faultFilterPeriod));
 }
 
+/*!
+ * brief Stops the counter and gates the Quad Timer clock
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ */
 void QTMR_Deinit(TMR_Type *base, qtmr_channel_selection_t channel)
 {
     /* Stop the counter */
@@ -117,9 +107,27 @@ void QTMR_Deinit(TMR_Type *base, qtmr_channel_selection_t channel)
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
+/*!
+ * brief  Fill in the Quad Timer config struct with the default settings
+ *
+ * The default values are:
+ * code
+ *    config->debugMode = kQTMR_RunNormalInDebug;
+ *    config->enableExternalForce = false;
+ *    config->enableMasterMode = false;
+ *    config->faultFilterCount = 0;
+ *    config->faultFilterPeriod = 0;
+ *    config->primarySource = kQTMR_ClockDivide_2;
+ *    config->secondarySource = kQTMR_Counter0InputPin;
+ * endcode
+ * param config Pointer to user's Quad Timer config structure.
+ */
 void QTMR_GetDefaultConfig(qtmr_config_t *config)
 {
     assert(config);
+
+    /* Initializes the configure structure to zero. */
+    memset(config, 0, sizeof(*config));
 
     /* Halt counter during debug mode */
     config->debugMode = kQTMR_RunNormalInDebug;
@@ -137,8 +145,29 @@ void QTMR_GetDefaultConfig(qtmr_config_t *config)
     config->secondarySource = kQTMR_Counter0InputPin;
 }
 
-status_t QTMR_SetupPwm(
-    TMR_Type *base, qtmr_channel_selection_t channel, uint32_t pwmFreqHz, uint8_t dutyCyclePercent, bool outputPolarity, uint32_t srcClock_Hz)
+/*!
+ * brief Sets up Quad timer module for PWM signal output.
+ *
+ * The function initializes the timer module according to the parameters passed in by the user. The
+ * function also sets up the value compare registers to match the PWM signal requirements.
+ *
+ * param base             Quad Timer peripheral base address
+ * param channel          Quad Timer channel number
+ * param pwmFreqHz        PWM signal frequency in Hz
+ * param dutyCyclePercent PWM pulse width, value should be between 0 to 100
+ *                         0=inactive signal(0% duty cycle)...
+ *                         100=active signal (100% duty cycle)
+ * param outputPolarity   true: invert polarity of the output signal, false: no inversion
+ * param srcClock_Hz      Main counter clock in Hz.
+ *
+ * return Returns an error if there was error setting up the signal.
+ */
+status_t QTMR_SetupPwm(TMR_Type *base,
+                       qtmr_channel_selection_t channel,
+                       uint32_t pwmFreqHz,
+                       uint8_t dutyCyclePercent,
+                       bool outputPolarity,
+                       uint32_t srcClock_Hz)
 {
     uint32_t periodCount, highCount, lowCount, reg;
 
@@ -153,8 +182,8 @@ status_t QTMR_SetupPwm(
 
     /* Counter values to generate a PWM signal */
     periodCount = (srcClock_Hz / pwmFreqHz);
-    highCount = (periodCount * dutyCyclePercent) / 100;
-    lowCount = periodCount - highCount;
+    highCount   = (periodCount * dutyCyclePercent) / 100;
+    lowCount    = periodCount - highCount;
 
     /* Setup the compare registers for PWM output */
     base->CHANNEL[channel].COMP1 = lowCount;
@@ -190,10 +219,22 @@ status_t QTMR_SetupPwm(
      */
     reg |= (TMR_CTRL_LENGTH_MASK | TMR_CTRL_OUTMODE(kQTMR_ToggleOnAltCompareReg));
     base->CHANNEL[channel].CTRL = reg;
-   
+
     return kStatus_Success;
 }
 
+/*!
+ * brief Allows the user to count the source clock cycles until a capture event arrives.
+ *
+ * The count is stored in the capture register.
+ *
+ * param base            Quad Timer peripheral base address
+ * param channel         Quad Timer channel number
+ * param capturePin      Pin through which we receive the input signal to trigger the capture
+ * param inputPolarity   true: invert polarity of the input signal, false: no inversion
+ * param reloadOnCapture true: reload the counter when an input capture occurs, false: no reload
+ * param captureMode     Specifies which edge of the input signal  triggers a capture
+ */
 void QTMR_SetupInputCapture(TMR_Type *base,
                             qtmr_channel_selection_t channel,
                             qtmr_input_source_t capturePin,
@@ -227,6 +268,14 @@ void QTMR_SetupInputCapture(TMR_Type *base,
     }
 }
 
+/*!
+ * brief Enables the selected Quad Timer interrupts
+ *
+ * param base      Quad Timer peripheral base address
+ * param channel   Quad Timer channel number
+ * param mask      The interrupts to enable. This is a logical OR of members of the
+ *                  enumeration ::qtmr_interrupt_enable_t
+ */
 void QTMR_EnableInterrupts(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t mask)
 {
     uint16_t reg;
@@ -265,6 +314,14 @@ void QTMR_EnableInterrupts(TMR_Type *base, qtmr_channel_selection_t channel, uin
     base->CHANNEL[channel].CSCTRL = reg;
 }
 
+/*!
+ * brief Disables the selected Quad Timer interrupts
+ *
+ * param base     Quad Timer peripheral base addres
+ * param channel  Quad Timer channel number
+ * param mask The interrupts to enable. This is a logical OR of members of the
+ *             enumeration ::qtmr_interrupt_enable_t
+ */
 void QTMR_DisableInterrupts(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t mask)
 {
     uint16_t reg;
@@ -301,6 +358,15 @@ void QTMR_DisableInterrupts(TMR_Type *base, qtmr_channel_selection_t channel, ui
     base->CHANNEL[channel].CSCTRL = reg;
 }
 
+/*!
+ * brief Gets the enabled Quad Timer interrupts
+ *
+ * param base    Quad Timer peripheral base address
+ * param channel Quad Timer channel number
+ *
+ * return The enabled interrupts. This is the logical OR of members of the
+ *         enumeration ::qtmr_interrupt_enable_t
+ */
 uint32_t QTMR_GetEnabledInterrupts(TMR_Type *base, qtmr_channel_selection_t channel)
 {
     uint32_t enabledInterrupts = 0;
@@ -338,6 +404,15 @@ uint32_t QTMR_GetEnabledInterrupts(TMR_Type *base, qtmr_channel_selection_t chan
     return enabledInterrupts;
 }
 
+/*!
+ * brief Gets the Quad Timer status flags
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ *
+ * return The status flags. This is the logical OR of members of the
+ *         enumeration ::qtmr_status_flags_t
+ */
 uint32_t QTMR_GetStatus(TMR_Type *base, qtmr_channel_selection_t channel)
 {
     uint32_t statusFlags = 0;
@@ -375,6 +450,14 @@ uint32_t QTMR_GetStatus(TMR_Type *base, qtmr_channel_selection_t channel)
     return statusFlags;
 }
 
+/*!
+ * brief Clears the Quad Timer status flags.
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ * param mask The status flags to clear. This is a logical OR of members of the
+ *             enumeration ::qtmr_status_flags_t
+ */
 void QTMR_ClearStatusFlags(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t mask)
 {
     uint16_t reg;
@@ -411,6 +494,22 @@ void QTMR_ClearStatusFlags(TMR_Type *base, qtmr_channel_selection_t channel, uin
     base->CHANNEL[channel].CSCTRL = reg;
 }
 
+/*!
+ * brief Sets the timer period in ticks.
+ *
+ * Timers counts from initial value till it equals the count value set here. The counter
+ * will then reinitialize to the value specified in the Load register.
+ *
+ * note
+ * 1. This function will write the time period in ticks to COMP1 or COMP2 register
+ *    depending on the count direction
+ * 2. User can call the utility macros provided in fsl_common.h to convert to ticks
+ * 3. This function supports cases, providing only primary source clock without secondary source clock.
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ * param ticks Timer period in units of ticks
+ */
 void QTMR_SetTimerPeriod(TMR_Type *base, qtmr_channel_selection_t channel, uint16_t ticks)
 {
     /* Set the length bit to reinitialize the counters on a match */
@@ -428,6 +527,14 @@ void QTMR_SetTimerPeriod(TMR_Type *base, qtmr_channel_selection_t channel, uint1
     }
 }
 
+/*!
+ * brief Enable the Quad Timer DMA.
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ * param mask     The DMA to enable. This is a logical OR of members of the
+ *                  enumeration ::qtmr_dma_enable_t
+ */
 void QTMR_EnableDma(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t mask)
 {
     uint16_t reg;
@@ -436,7 +543,7 @@ void QTMR_EnableDma(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t m
     /* Input Edge Flag DMA Enable */
     if (mask & kQTMR_InputEdgeFlagDmaEnable)
     {
-       /* Restriction: Do not set both DMA[IEFDE] and SCTRL[IEFIE] */
+        /* Restriction: Do not set both DMA[IEFDE] and SCTRL[IEFIE] */
         base->CHANNEL[channel].SCTRL &= ~TMR_SCTRL_IEFIE_MASK;
         reg |= TMR_DMA_IEFDE_MASK;
     }
@@ -453,6 +560,14 @@ void QTMR_EnableDma(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t m
     base->CHANNEL[channel].DMA = reg;
 }
 
+/*!
+ * brief Disable the Quad Timer DMA.
+ *
+ * param base     Quad Timer peripheral base address
+ * param channel  Quad Timer channel number
+ * param mask     The DMA to enable. This is a logical OR of members of the
+ *                  enumeration ::qtmr_dma_enable_t
+ */
 void QTMR_DisableDma(TMR_Type *base, qtmr_channel_selection_t channel, uint32_t mask)
 {
     uint16_t reg;
