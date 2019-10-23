@@ -2379,7 +2379,7 @@
         "components_add": ["FLASHIAP"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M3",
-        "extra_labels_add": ["STM32F2", "STM32F207ZG", "STM_EMAC"],
+        "extra_labels_add": ["STM32F2", "STM32F207ZG"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -2860,7 +2860,6 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "STM_EMAC",
             "PSA"
         ],
         "components_add": ["FLASHIAP"],
@@ -2934,8 +2933,7 @@
             "STM32F439",
             "STM32F439ZI",
             "STM32F439xx",
-            "STM32F439xI",
-            "STM_EMAC"
+            "STM32F439xI"
         ],
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
@@ -3068,8 +3066,7 @@
             "STM32F7",
             "STM32F746",
             "STM32F746xG",
-            "STM32F746ZG",
-            "STM_EMAC"
+            "STM32F746ZG"
         ],
         "config": {
             "d11_configuration": {
@@ -3120,8 +3117,7 @@
             "STM32F7",
             "STM32F756",
             "STM32F756xG",
-            "STM32F756ZG",
-            "STM_EMAC"
+            "STM32F756ZG"
         ],
         "config": {
             "d11_configuration": {
@@ -3173,8 +3169,7 @@
             "STM32F7",
             "STM32F767",
             "STM32F767xI",
-            "STM32F767ZI",
-            "STM_EMAC"
+            "STM32F767ZI"
         ],
         "config": {
             "flash_dual_bank": {
@@ -3227,8 +3222,7 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32H7",
-            "STM32H743xI",
-            "STM_EMAC"
+            "STM32H743xI"
         ],
         "config": {
             "d11_configuration": {
@@ -3280,8 +3274,7 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32H7",
-            "STM32H743xI",
-            "STM_EMAC"
+            "STM32H743xI"
         ],
         "config": {
             "d11_configuration": {
@@ -3844,8 +3837,7 @@
             "STM32F407",
             "STM32F407xx",
             "STM32F407xE",
-            "STM32F407VE",
-            "STM_EMAC"
+            "STM32F407VE"
         ],
         "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "EMAC", "MPU"],
         "device_has_remove": [
@@ -4306,8 +4298,7 @@
             "STM32F7",
             "STM32F746",
             "STM32F746xG",
-            "STM32F746NG",
-            "STM_EMAC"
+            "STM32F746NG"
         ],
         "components_add": ["QSPIF", "FLASHIAP"],
         "supported_form_factors": ["ARDUINO"],
@@ -4361,8 +4352,7 @@
             "STM32F7",
             "STM32F769",
             "STM32F769xI",
-            "STM32F769NI",
-            "STM_EMAC"
+            "STM32F769NI"
         ],
         "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
@@ -4864,7 +4854,6 @@
             "STM32F439ZI",
             "STM32F439xx",
             "STM32F439xI",
-            "STM_EMAC",
             "CORDIO",
             "CORDIO_ODIN_W2"
         ],
@@ -4968,8 +4957,7 @@
             "STM32F437",
             "STM32F437VG",
             "STM32F437xx",
-            "STM32F437xG",
-            "STM_EMAC"
+            "STM32F437xG"
         ],
         "config": {
             "modem_is_on_board": {
