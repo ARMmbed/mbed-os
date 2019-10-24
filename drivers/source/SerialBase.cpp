@@ -86,24 +86,30 @@ int SerialBase::writeable()
 void SerialBase::attach(Callback<void()> func, IrqType type)
 {
     lock();
-    // Disable interrupts when attaching interrupt handler
-    core_util_critical_section_enter();
-    if (func) {
-        // lock deep sleep only the first time
-        if (!_irq[type]) {
-            sleep_manager_lock_deep_sleep();
-        }
+    const bool enabled { (_rx_enabled &&(type == RxIrq)) || (_tx_enabled &&(type == TxIrq)) };
+    // If corresponding direction is not enabled only update the handler
+    if (!enabled) {
         _irq[type] = func;
-        serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
-        // unlock deep sleep only the first time
-        if (_irq[type]) {
-            sleep_manager_unlock_deep_sleep();
+        // Disable interrupts when attaching interrupt handler
+        core_util_critical_section_enter();
+        if (func) {
+            // lock deep sleep only the first time
+            if (!_irq[type]) {
+                sleep_manager_lock_deep_sleep();
+            }
+            _irq[type] = func;
+            serial_irq_set(&_serial, (SerialIrq)type, 1);
+        } else {
+            // unlock deep sleep only the first time
+            if (_irq[type]) {
+                sleep_manager_unlock_deep_sleep();
+            }
+            _irq[type] = NULL;
+            serial_irq_set(&_serial, (SerialIrq)type, 0);
         }
-        _irq[type] = NULL;
-        serial_irq_set(&_serial, (SerialIrq)type, 0);
+        core_util_critical_section_exit();
     }
-    core_util_critical_section_exit();
     unlock();
 }
 
@@ -153,14 +159,21 @@ void SerialBase::enable_input(bool enable)
 
         core_util_critical_section_enter();
         if (enable) {
-            // Enable rx IRQ if attached (indicated by rx IRQ callback not NULL)
+            // Enable rx IRQ and lock deep sleep if a rx handler is attached
+            // (indicated by rx IRQ callback not NULL)
             if (_irq[RxIrq]) {
                 _irq[RxIrq].call();
+                sleep_manager_lock_deep_sleep();
                 serial_irq_set(&_serial, (SerialIrq)RxIrq, 1);
             }
         } else {
             // Disable rx IRQ
             serial_irq_set(&_serial, (SerialIrq)RxIrq, 0);
+            // Unlock deep sleep if a rx handler is attached
+            // (indicated by rx IRQ callback not NULL)
+            if (_irq[RxIrq]) {
+                sleep_manager_unlock_deep_sleep();
+            }
         }
         core_util_critical_section_exit();
 
@@ -183,14 +196,21 @@ void SerialBase::enable_output(bool enable)
 
         core_util_critical_section_enter();
         if (enable) {
-            // Enable tx IRQ if attached (indicated by tx IRQ callback not NULL)
+            // Enable tx IRQ and lock deep sleep if a tx handler is attached
+            // (indicated by tx IRQ callback not NULL)
             if (_irq[TxIrq]) {
                 _irq[TxIrq].call();
+                sleep_manager_lock_deep_sleep();
                 serial_irq_set(&_serial, (SerialIrq)TxIrq, 1);
             }
         } else {
             // Disable tx IRQ
             serial_irq_set(&_serial, (SerialIrq)TxIrq, 0);
+            // Unlock deep sleep if a tx handler is attached
+            // (indicated by tx IRQ callback not NULL)
+            if (_irq[TxIrq]) {
+                sleep_manager_unlock_deep_sleep();
+            }
         }
         core_util_critical_section_exit();
 
