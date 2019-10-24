@@ -369,6 +369,8 @@ private:
     int _quad_enable_register_idx;
     int _quad_enable_bit;
 
+    bool _needs_fast_mode;
+
     // Clear block protection
     qspif_clear_protection_method_t _clear_protection_method;
 
